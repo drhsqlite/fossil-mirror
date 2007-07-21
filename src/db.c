@@ -574,10 +574,22 @@ void db_open_repository(const char *zDbName){
 ** Error out if the repository cannot be opened.
 */
 void db_find_and_open_repository(void){
-  db_open_repository(find_option("repository", "R", 1));
-  if( g.repositoryOpen==0 ){
-    fossil_fatal("use --repository or -R to specific the repository database");
+  char *zRep = find_option("repository", "R", 1);
+  if( zRep==0 ){
+    if( db_open_local()==0 ){
+      goto rep_not_found;
+    }
+    zRep = db_lget("repository", 0);
+    if( zRep==0 ){
+      goto rep_not_found;
+    }
   }
+  db_open_repository(zRep);
+  if( g.repositoryOpen ){
+    return;
+  }
+rep_not_found:
+  fossil_fatal("use --repository or -R to specific the repository database");
 }
 
 /*
@@ -585,8 +597,7 @@ void db_find_and_open_repository(void){
 */
 void db_must_be_within_tree(void){
   if( db_open_local()==0 ){
-    fprintf(stderr,"%s: not within an open checkout\n", g.argv[0]);
-    exit(1);
+    fossil_fatal("not within an open checkout");
   }
   db_open_repository(0);
 }

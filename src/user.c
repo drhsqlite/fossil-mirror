@@ -108,11 +108,13 @@ static void prompt_user(const char *zPrompt, Blob *pIn){
 ** Dispatcher for various user subcommands.
 */
 void user_cmd(void){
+  int n;
   db_find_and_open_repository();
   if( g.argc<3 ){
-    usage("create|default|list|password ...");
+    usage("capabilities|default|list|new|password ...");
   }
-  if( strcmp(g.argv[2],"create")==0 ){
+  n = strlen(g.argv[2]);
+  if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     Blob passwd, login, contact;
 
     prompt_user("login: ", &login);
@@ -123,7 +125,7 @@ void user_cmd(void){
       "VALUES(%B,%B,'jnor',%B)",
       &login, &passwd, &contact
     );
-  }else if( strcmp(g.argv[2],"default")==0 ){
+  }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
     user_select();
     if( g.argc==3 ){
       printf("%s\n", g.zLogin);
@@ -132,14 +134,14 @@ void user_cmd(void){
     }else{
       db_set("default-user", g.zLogin);
     }
-  }else if( strcmp(g.argv[2],"list")==0 ){
+  }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){
       printf("%-12s %s\n", db_column_text(&q, 0), db_column_text(&q, 1));
     }
     db_finalize(&q);
-  }else if( strcmp(g.argv[2],"password")==0 ){
+  }else if( n>=2 && strncmp(g.argv[2],"password",2)==0 ){
     char *zPrompt;
     int uid;
     Blob pw;
@@ -155,9 +157,25 @@ void user_cmd(void){
     }else{
       db_multi_exec("UPDATE user SET pw=%B WHERE uid=%d", &pw, uid);
     }
+  }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
+    int uid;
+    if( g.argc!=4 && g.argc!=5 ){
+      usage("user capabilities USERNAME ?PERMISSIONS?");
+    }
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
+    if( uid==0 ){
+      fossil_fatal("no such user: %s", g.argv[3]);
+    }
+    if( g.argc==5 ){
+      db_multi_exec(
+        "UPDATE user SET cap=%Q WHERE uid=%d", g.argv[4],
+        uid
+      );
+    }
+    printf("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
     fossil_panic("user subcommand should be one of: "
-                 "create default list password");
+                 "capabilities default list new password");
   }
 }
 

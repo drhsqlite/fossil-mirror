@@ -224,7 +224,7 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     rc = blob_compare(&hash, pSig);
     blob_reset(&hash);
     blob_reset(&combined);
-    if( rc ){
+    if( rc==0 ){
       const char *zCap;
       zCap = db_column_text(&q, 1);
       login_set_capabilities(zCap);
@@ -396,7 +396,7 @@ void page_xfer(void){
         "INSERT OR IGNORE INTO pending(rid) "
         "SELECT rid FROM blob WHERE size>=0"
       );
-    }
+    }else
 
     /*    login  USER  NONCE  SIGNATURE
     **

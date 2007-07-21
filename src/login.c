@@ -83,7 +83,7 @@ void login_page(void){
   if( zUsername!=0 && zPasswd!=0 && strcmp(zUsername,"anonymous")!=0 ){
     int uid = db_int(0,
         "SELECT uid FROM user"
-        " WHERE login=%Q AND pw=%B", zUsername, zPasswd);
+        " WHERE login=%Q AND pw=%Q", zUsername, zPasswd);
     if( uid<=0 ){
       sleep(1);
       zErrMsg = 
@@ -94,7 +94,7 @@ void login_page(void){
     }else{
       char *zCookie;
       const char *zCookieName = login_cookie_name();
-      const char *zIpAddr = PD("REMOTE_ADDR","x");
+      const char *zIpAddr = PD("REMOTE_ADDR","nil");
       const char *zExpire = db_get("cookie-expire","8766");
       int expires;
 
@@ -196,10 +196,11 @@ void login_check_credentials(void){
   zRemoteAddr = PD("REMOTE_ADDR","nil");
   if( strcmp(zRemoteAddr, "127.0.0.1")==0
         && db_get_int("authenticate-localhost",1)==0 ){
-    uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%s%'");
+    uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "s";
     g.noPswd = 1;
+    g.isAnon = 0;
   }
 
   /* Check the login cookie to see if it matches a known valid user.
@@ -216,6 +217,7 @@ void login_check_credentials(void){
   }
 
   if( uid==0 ){
+    g.isAnon = 1;
     g.zLogin = "";
     zCap = db_get("nologin-cap","onrj");
   }else if( zCap==0 ){
@@ -224,6 +226,7 @@ void login_check_credentials(void){
     db_step(&s);
     g.zLogin = db_column_malloc(&s, 0);
     zCap = db_column_malloc(&s, 1);
+    g.isAnon = 0;
     db_finalize(&s);
   }
   g.userUid = uid;

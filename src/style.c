@@ -71,7 +71,7 @@ static int submenuCompare(const void *a, const void *b){
 */
 void style_header(void){
   const char *zLogInOut = "Logout";
-  /* login_check_credentials(); */
+  login_check_credentials();
   @ <html>
   @ <body bgcolor="white">
   @ <hr size="1">
@@ -106,7 +106,7 @@ void style_header(void){
       if( p->zLink==0 ){
         @ <font color="#888888">%h(p->zLabel)</font> %s(zTail)
       }else{
-        @ <a href="p->zLink">%h(p->zLabel)</a> %s(zTail)
+        @ <a href="%T(p->zLink)">%h(p->zLabel)</a> %s(zTail)
       }
     }
   }
