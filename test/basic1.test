@@ -1,0 +1,231 @@
+#
+# Copyright (c) 2006 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public
+# License version 2 as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public
+# License along with this library; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA  02111-1307, USA.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Tests of the basic check-in/check-out facility
+#
+
+# Construct a repository named "r1".  Connect to this
+# repository from subdirectory "testdir".  Initialize the
+# repository with the source code files to fossil.
+#
+# The initial (empty) version is $root.  The version with
+# the source code files in it is $v1.
+#
+set srcdir [file dir $testdir]/src
+file delete -force r1
+file delete -force FOSSIL
+file delete -force testdir
+file mkdir testdir
+cd testdir
+fossil init ../r1
+fossil connect ../r1
+set root [lindex $RESULT 0]
+set srcfilelist {}
+foreach f [lsort [glob $srcdir/*]] {
+  set tail [file tail $f]
+  file copy $f $tail
+  lappend srcfilelist $tail
+}
+eval fossil add $srcfilelist
+fossil commit -m {first checkin}
+set v1 [lindex $RESULT 0]
+fossil leaves root
+test basic1-1.1 {[expr {$v1==[lindex $RESULT 2]}]}
+fossil changes
+test basic1-1.2 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-1.3.$f {[same_file $srcdir/$f $f]}
+}
+fossil co $root
+fossil changes
+test basic1-1.4 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-1.5.$f {![file exists $f]}
+}
+fossil co $v1
+fossil changes
+test basic1-1.6 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-1.7.$f {[same_file $srcdir/$f $f]}
+}
+
+# Make random changes to 4 source code files and commit those
+# changes.  Store the new version number in $v2
+#
+set changesinv2 [lrange $srcfilelist 3 6]
+set i 0
+foreach f $changesinv2 {
+  set x [read_file $f]
+  incr i
+  expr {srand(1000+$i)}
+  set y [random_changes $x 4 4 0 0.1]
+  write_file $f $y
+}
+file mkdir copyofv2
+foreach f $srcfilelist {
+  file copy $f copyofv2/$f
+}
+fossil changes
+set clist {}
+foreach {op file} $RESULT {
+  test basic1-2.1-$file {$op=="edited:"}
+  lappend clist $file
+}
+test basic1-2.2 {[lsort $clist]==[lsort $changesinv2]}
+fossil commit -m 'second commit'
+set v2 [lindex $RESULT 0]
+fossil changes
+test basic1-2.3 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-2.4-$f {[same_file $f copyofv2/$f]}
+}
+fossil checkout $v1
+fossil changes
+test basic1-2.5 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-2.6-$f {[same_file $f $srcdir/$f]}
+}
+fossil checkout $root
+foreach f $srcfilelist {
+  test basic1-2.7-$f {![file exists $f]}
+}
+fossil checkout $v2
+foreach f $srcfilelist {
+  test basic1-2.8-$f {[same_file $f copyofv2/$f]}
+}
+
+# Starting with version $v1, make changes to 4 other files.
+# 2 of the files that are changed overlap with the changes
+# in $v2.  Call these new changes $v3.  $v3 is a fork.
+#
+fossil checkout $v1
+set changesinv3 [lrange $srcfilelist 5 8]
+set i 0
+foreach f $changesinv3 {
+  set x [read_file $f]
+  incr i
+  expr {srand(2000+$i)}
+  set y [random_changes $x 4 4 2 0.1]
+  write_file $f $y
+}
+file mkdir copyofv3
+foreach f $srcfilelist {
+  file copy $f copyofv3/$f
+}
+fossil manifest
+set clist {}
+set alllist {}
+foreach {op file} $RESULT {
+  test basic1-3.1-$file {$op=="edited:" || $op=="unchanged:"}
+  lappend alllist $file
+  if {$op=="edited:"} {lappend clist $file}
+}
+test basic1-3.2 {[lsort $clist]==[lsort $changesinv3]}
+test basic1-3.3 {[lsort $alllist]==[lsort $srcfilelist]}
+fossil commit -m {fork the main branch}
+set v3 [lindex $RESULT 0]
+fossil changes
+test basic1-3.4 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-3.5-$f {[same_file $f copyofv3/$f]}
+}
+fossil co $v1
+fossil changes
+test basic1-3.5 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-3.6-$f {[same_file $f $srcdir/$f]}
+}
+fossil co $v2
+fossil changes
+test basic1-3.7 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-3.8-$f {[same_file $f copyofv2/$f]}
+}
+fossil co $v3
+fossil changes
+test basic1-3.8 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-3.9-$f {[same_file $f copyofv3/$f]}
+}
+fossil leaves root
+test basic1-3.10 {[lindex $RESULT 2]==$v3}
+test basic1-3.11 {[lindex $RESULT 5]==$v2}
+
+# Now we will merge $v2 and $v3 to produce $v4.  $v3 is currently
+# in the working tree.
+#
+file mkdir copyofv4
+foreach f $srcfilelist {
+  file copy copyofv3/$f copyofv4/$f
+}
+set i 0
+foreach f $changesinv2 {
+  set x [read_file $f]
+  incr i
+  expr {srand(1000+$i)}
+  set y [random_changes $x 4 4 0 0.1]
+  write_file copyofv4/$f $y
+}
+fossil merge $v2
+foreach f $srcfilelist {
+  test basic1-4.1-$f {[same_file $f copyofv4/$f]}
+}
+fossil changes
+set clist {}
+foreach {op file} $RESULT {
+  test basic1-4.2-$file {$op=="edited:"}
+  lappend clist $file
+}
+test basic1-4.3 {[lsort $clist]==[lsort $changesinv2]}
+fossil commit -m {first merge}
+set v4 [lindex $RESULT 0]
+foreach f $srcfilelist {
+  test basic1-4.4-$f {[same_file $f copyofv4/$f]}
+}
+fossil leaves root
+test basic1-4.5 {[llength $RESULT]==3}
+test basic1-4.6 {[lindex $RESULT 2]==$v4}
+fossil co $v1
+fossil changes
+test basic1-4.7 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-4.8-$f {[same_file $f $srcdir/$f]}
+}
+fossil co $v2
+fossil changes
+test basic1-4.9 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-4.10-$f {[same_file $f copyofv2/$f]}
+}
+fossil co $v3
+fossil changes
+test basic1-4.11 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-4.12-$f {[same_file $f copyofv3/$f]}
+}
+fossil co $v4
+fossil changes
+test basic1-4.13 {$RESULT==""}
+foreach f $srcfilelist {
+  test basic1-4.14-$f {[same_file $f copyofv4/$f]}
+}

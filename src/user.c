@@ -1,0 +1,233 @@
+/*
+** Copyright (c) 2006 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU General Public
+** License version 2 as published by the Free Software Foundation.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** General Public License for more details.
+** 
+** You should have received a copy of the GNU General Public
+** License along with this library; if not, write to the
+** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+** Boston, MA  02111-1307, USA.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** Commands and procedures used for creating, processing, editing, and
+** querying information about users.
+*/
+#include "config.h"
+#include "user.h"
+
+
+/*
+** Strip leading and trailing space from a string and add the string
+** onto the end of a blob.
+*/
+static void strip_string(Blob *pBlob, char *z){
+  int i;
+  blob_reset(pBlob);
+  while( isspace(*z) ){ z++; }
+  for(i=0; z[i]; i++){
+    if( z[i]=='\r' || z[i]=='\n' ){
+       while( i>0 && isspace(z[i-1]) ){ i--; }
+       z[i] = 0;
+       break;
+    }
+    if( z[i]<' ' ) z[i] = ' ';
+  }
+  blob_append(pBlob, z, -1);
+}
+
+/*
+** Do a single prompt for a passphrase.  Store the results in the blob.
+*/
+static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
+  char *z = getpass(zPrompt);
+  strip_string(pPassphrase, z);
+}
+
+/*
+** Prompt the user for a passphrase used to encrypt the private key
+** portion of an RSA key pair.
+**
+** Behavior is controlled by the verify parameter:
+**
+**     0     Just ask once.
+**
+**     1     If the first answer is a non-empty string, ask for
+**           verification.  Repeat if the two strings do not match.
+**
+**     2     Ask twice, repeat if the strings do not match.
+*/
+static void get_passphrase(const char *zPrompt, Blob *pPassphrase, int verify){
+  Blob secondTry;
+  blob_zero(pPassphrase);
+  blob_zero(&secondTry);
+  while(1){
+    prompt_for_passphrase(zPrompt, pPassphrase);
+    if( verify==0 ) break;
+    if( verify==1 && blob_size(pPassphrase)==0 ) break;
+    prompt_for_passphrase("Again: ", &secondTry);
+    if( blob_compare(pPassphrase, &secondTry) ){
+      printf("Passphrases do not match.  Try again...\n");
+    }else{
+      break;
+    }
+  }
+  blob_reset(&secondTry);
+}
+
+/*
+** Prompt the user to enter a single line of text.
+*/
+static void prompt_user(const char *zPrompt, Blob *pIn){
+  char *z;
+  char zLine[1000];
+  blob_zero(pIn);
+  printf("%s", zPrompt);
+  fflush(stdout);
+  z = fgets(zLine, sizeof(zLine), stdin);
+  if( z ){
+    strip_string(pIn, z);
+  }
+}
+
+
+/*
+** COMMAND:  user
+**
+** Dispatcher for various user subcommands.
+*/
+void user_cmd(void){
+  db_find_and_open_repository();
+  if( g.argc<3 ){
+    usage("create|default|list|password ...");
+  }
+  if( strcmp(g.argv[2],"create")==0 ){
+    Blob passwd, login, contact;
+
+    prompt_user("login: ", &login);
+    prompt_user("contact-info: ", &contact);
+    get_passphrase("password: ", &passwd, 1);
+    db_multi_exec(
+      "INSERT INTO user(login,pw,cap,info)"
+      "VALUES(%B,%B,'jnor',%B)",
+      &login, &passwd, &contact
+    );
+  }else if( strcmp(g.argv[2],"default")==0 ){
+    user_select();
+    if( g.argc==3 ){
+      printf("%s\n", g.zLogin);
+    }else if( g.localOpen ){
+      db_lset("default-user", g.zLogin);
+    }else{
+      db_set("default-user", g.zLogin);
+    }
+  }else if( strcmp(g.argv[2],"list")==0 ){
+    Stmt q;
+    db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
+    while( db_step(&q)==SQLITE_ROW ){
+      printf("%-12s %s\n", db_column_text(&q, 0), db_column_text(&q, 1));
+    }
+    db_finalize(&q);
+  }else if( strcmp(g.argv[2],"password")==0 ){
+    char *zPrompt;
+    int uid;
+    Blob pw;
+    if( g.argc!=4 ) usage("user password USERNAME");
+    uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
+    if( uid==0 ){
+      fossil_fatal("no such user: %s", g.argv[3]);
+    }
+    zPrompt = mprintf("new passwd for %s: ", g.argv[3]);
+    get_passphrase(zPrompt, &pw, 1);
+    if( blob_size(&pw)==0 ){
+      printf("password unchanged\n");
+    }else{
+      db_multi_exec("UPDATE user SET pw=%B WHERE uid=%d", &pw, uid);
+    }
+  }else{
+    fossil_panic("user subcommand should be one of: "
+                 "create default list password");
+  }
+}
+
+/*
+** Attempt to set the user to zLogin
+*/
+static int attempt_user(const char *zLogin){
+  int uid;
+
+  if( zLogin==0 ){
+    return 0;
+  }
+  uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zLogin);
+  if( uid ){
+    g.userUid = uid;
+    g.zLogin = mprintf("%s", zLogin);
+    return 1;
+  }
+  return 0;
+}
+
+/*
+** Figure out what user is at the controls.
+**
+**   (1)  Use the --user and -U command-line options.
+**
+**   (2)  If the local database is open, check in VVAR.
+**
+**   (3)  Check the default user in the repository
+**
+**   (4)  Try the USER environment variable.
+**
+**   (5)  Use the first user in the USER table.
+**
+** The user name is stored in g.zLogin.  The uid is in g.userUid.
+*/
+void user_select(void){
+  Stmt s;
+
+  if( g.userUid ) return;
+  if( attempt_user(g.zLogin) ) return;
+
+  if( g.localOpen && attempt_user(db_lget("default-user",0)) ) return;
+
+  if( attempt_user(db_get("default-user", 0)) ) return;
+
+  if( attempt_user(getenv("USER")) ) return;
+
+  db_prepare(&s, "SELECT uid, login FROM user WHERE login<>'anonymous'");
+  if( db_step(&s)==SQLITE_ROW ){
+    g.userUid = db_column_int(&s, 0);
+    g.zLogin = mprintf("%s", db_column_text(&s, 1));
+  }
+  db_finalize(&s);
+
+  if( g.userUid==0 ){
+    db_prepare(&s, "SELECT uid, login FROM user");
+    if( db_step(&s)==SQLITE_ROW ){
+      g.userUid = db_column_int(&s, 0);
+      g.zLogin = mprintf("%s", db_column_text(&s, 1));
+    }
+    db_finalize(&s);
+  }
+
+  if( g.userUid==0 ){
+    db_multi_exec(
+      "INSERT INTO user(login, pw, cap, info)"
+      "VALUES('anonymous', '', '', '')"
+    );
+    g.userUid = db_last_insert_rowid();
+    g.zLogin = "anonymous";
+  }
+}

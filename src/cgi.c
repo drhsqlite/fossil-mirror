@@ -1,0 +1,1221 @@
+/*
+** Copyright (c) 2006 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU General Public
+** License version 2 as published by the Free Software Foundation.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** General Public License for more details.
+** 
+** You should have received a copy of the GNU General Public
+** License along with this library; if not, write to the
+** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+** Boston, MA  02111-1307, USA.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file contains C functions and procedures that provide useful
+** services to CGI programs.  There are procedures for parsing and
+** dispensing QUERY_STRING parameters and cookies, the "mprintf()"
+** formatting function and its cousins, and routines to encode and
+** decode strings in HTML or HTTP.
+*/
+#include "config.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <time.h>
+#include <sys/times.h>
+#include <sys/time.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/select.h>
+#include <unistd.h>
+#include "cgi.h"
+
+#if INTERFACE
+/*
+** Shortcuts for cgi_parameter.  P("x") returns the value of query parameter
+** or cookie "x", or NULL if there is no such parameter or cookie.  PD("x","y")
+** does the same except "y" is returned in place of NULL if there is not match.
+*/
+#define P(x)        cgi_parameter((x),0)
+#define PD(x,y)     cgi_parameter((x),(y))
+#define QP(x)       quotable_string(cgi_parameter((x),0))
+#define QPD(x,y)    quotable_string(cgi_parameter((x),(y)))
+
+#endif /* INTERFACE */
+
+/*
+** Provide a reliable implementation of a caseless string comparison
+** function.
+*/
+#define stricmp sqlite3StrICmp
+extern int sqlite3StrICmp(const char*, const char*);
+
+/*
+** The body of the HTTP reply text is stored here.
+*/
+static Blob cgiContent = BLOB_INITIALIZER;
+
+/*
+** Append reply content to what already exists.
+*/
+void cgi_append_content(const char *zData, int nAmt){
+  blob_append(&cgiContent, zData, nAmt);
+}
+
+/*
+** Reset the HTTP reply text to be an empty string.
+*/
+void cgi_reset_content(void){
+  blob_reset(&cgiContent);
+}
+
+/*
+** Return a pointer to the HTTP reply text.
+*/
+char *cgi_extract_content(int *pnAmt){
+  return blob_buffer(&cgiContent);
+}
+
+/*
+** Additional information used to form the HTTP reply
+*/
+static char *zContentType = "text/html";     /* Content type of the reply */
+static char *zReplyStatus = "OK";            /* Reply status description */
+static int iReplyStatus = 200;               /* Reply status code */
+static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
+static int fullHttpReply = 0;      /* True for a full-blown HTTP header */
+
+/*
+** Set the reply content type
+*/
+void cgi_set_content_type(const char *zType){
+  zContentType = mprintf("%s", zType);
+}
+
+/*
+** Set the reply status code
+*/
+void cgi_set_status(int iStat, const char *zStat){
+  zReplyStatus = mprintf("%s", zStat);
+  iReplyStatus = iStat;
+}
+
+/*
+** Append text to the header of an HTTP reply
+*/
+void cgi_append_header(const char *zLine){
+  blob_append(&extraHeader, zLine, -1);
+}
+
+/*
+** Set a cookie.
+**
+** Zero lifetime implies a session cookie.
+*/
+void cgi_set_cookie(
+  const char *zName,    /* Name of the cookie */
+  const char *zValue,   /* Value of the cookie.  Automatically escaped */
+  const char *zPath,    /* Path cookie applies to.  NULL means "/" */
+  int lifetime          /* Expiration of the cookie in seconds from now */
+){
+  if( zPath==0 ) zPath = "/";
+  if( lifetime>0 ){
+    lifetime += (int)time(0);
+    blob_appendf(&extraHeader,
+       "Set-Cookie: %s=%t; Path=%s; expires=%s; Version=1\r\n",
+        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime));
+  }else{
+    blob_appendf(&extraHeader,
+       "Set-Cookie: %s=%t; Path=%s; Version=1\r\n",
+       zName, zValue, zPath);
+  }
+}
+
+#if 0
+/*
+** Add an ETag header line
+*/
+static char *cgi_add_etag(char *zTxt, int nLen){
+  MD5Context ctx;
+  unsigned char digest[16];
+  int i, j;
+  char zETag[64];
+
+  MD5Init(&ctx);
+  MD5Update(&ctx,zTxt,nLen);
+  MD5Final(digest,&ctx);
+  for(j=i=0; i<16; i++,j+=2){
+    bprintf(&zETag[j],sizeof(zETag)-j,"%02x",(int)digest[i]);
+  }
+  blob_appendf(&extraHeader, "ETag: %s\r\n", zETag);
+  return strdup(zETag);
+}
+
+/*
+** Do some cache control stuff. First, we generate an ETag and include it in
+** the response headers. Second, we do whatever is necessary to determine if
+** the request was asking about caching and whether we need to send back the
+** response body. If we shouldn't send a body, return non-zero.
+**
+** Currently, we just check the ETag against any If-None-Match header.
+**
+** FIXME: In some cases (attachments, file contents) we could check
+** If-Modified-Since headers and always include Last-Modified in responses.
+*/
+static int check_cache_control(void){
+  /* FIXME: there's some gotchas wth cookies and some headers. */
+  char *zETag = cgi_add_etag(blob_buffer(&cgiContent),blob_size(&cgiContent));
+  char *zMatch = P("HTTP_IF_NONE_MATCH");
+
+  if( zETag!=0 && zMatch!=0 ) {
+    char *zBuf = strdup(zMatch);
+    if( zBuf!=0 ){
+      char *zTok = 0;
+      char *zPos;
+      for( zTok = strtok_r(zBuf, ",\"",&zPos);
+           zTok && strcasecmp(zTok,zETag);
+           zTok =  strtok_r(0, ",\"",&zPos)){}
+      free(zBuf);
+      if(zTok) return 1;
+    }
+  }
+  
+  return 0;
+}
+#endif
+
+/*
+** Do a normal HTTP reply
+*/
+void cgi_reply(void){
+  if( iReplyStatus<=0 ){
+    iReplyStatus = 200;
+    zReplyStatus = "OK";
+  }
+
+#if 0
+  if( iReplyStatus==200 && check_cache_control() ) {
+    /* change the status to "unchanged" and we can skip sending the
+    ** actual response body. Obviously we only do this when we _have_ a
+    ** body (code 200).
+    */
+    iReplyStatus = 304;
+    zReplyStatus = "Not Modified";
+  }
+#endif
+
+  if( fullHttpReply ){
+    printf("HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
+    printf("Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
+    printf("Connection: close\r\n");
+  }else{
+    printf("Status: %d %s\r\n", iReplyStatus, zReplyStatus);
+  }
+
+  if( blob_size(&extraHeader)>0 ){
+    printf("%s", blob_buffer(&extraHeader));
+  }
+
+  if( g.isConst ){
+    /* constant means that the input URL will _never_ generate anything
+    ** else. In the case of attachments, the contents won't change because
+    ** an attempt to change them generates a new attachment number. In the
+    ** case of most /getfile calls for specific versions, the only way the
+    ** content changes is if someone breaks the SCM. And if that happens, a
+    ** stale cache is the least of the problem. So we provide an Expires
+    ** header set to a reasonable period (default: one week).
+    */
+    /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
+    time_t expires = time(0) + 604800;
+    printf( "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
+  }
+
+  /* Content intended for logged in users should only be cached in
+  ** the browser, not some shared location.
+  */
+  printf("Cache-control: private\r\n");
+
+#if FOSSIL_I18N
+  printf( "Content-Type: %s; charset=%s\r\n", zContentType, nl_langinfo(CODESET));
+#else
+  printf( "Content-Type: %s; charset=ISO-8859-1\r\n", zContentType);
+#endif
+  if( strcmp(zContentType,"application/x-fossil")==0 ){
+    blob_compress(&cgiContent, &cgiContent);
+  }
+
+  if( iReplyStatus != 304 ) {
+    printf( "Content-Length: %d\r\n", blob_size(&cgiContent) );
+  }
+  printf("\r\n");
+  if( blob_size(&cgiContent)>0 && iReplyStatus != 304 ){
+    fwrite(blob_buffer(&cgiContent), 1, blob_size(&cgiContent), stdout);
+  }
+  CGIDEBUG(("DONE\n"));
+}
+
+/*
+** Do a redirect request to the URL given in the argument.
+**
+** The URL must be relative to the base of the fossil server.
+*/
+void cgi_redirect(const char *zURL){
+  char *zLocation;
+  CGIDEBUG(("redirect to %s\n", zURL));
+  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 || *zURL=='/' ){
+    cgi_panic("invalid redirect URL: %s", zURL);
+  }
+  zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
+  cgi_append_header(zLocation);
+  cgi_reset_content();
+  cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zURL);
+  cgi_set_status(302, "Moved Temporarily");
+  free(zLocation);
+  cgi_reply();
+  exit(0);
+}
+
+/*
+** Information about all query parameters and cookies are stored
+** in these variables.
+*/
+static int nAllocQP = 0; /* Space allocated for aParamQP[] */
+static int nUsedQP = 0;  /* Space actually used in aParamQP[] */
+static int sortQP = 0;   /* True if aParamQP[] needs sorting */
+static int seqQP = 0;    /* Sequence numbers */
+static struct QParam {   /* One entry for each query parameter or cookie */
+  const char *zName;        /* Parameter or cookie name */
+  const char *zValue;       /* Value of the query parameter or cookie */
+  int seq;                  /* Order of insertion */
+} *aParamQP;             /* An array of all parameters and cookies */
+
+/*
+** Add another query parameter or cookie to the parameter set.
+** zName is the name of the query parameter or cookie and zValue
+** is its fully decoded value.
+**
+** zName and zValue are not copied and must not change or be
+** deallocated after this routine returns.
+*/
+static void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
+  if( nAllocQP<=nUsedQP ){
+    nAllocQP = nAllocQP*2 + 10;
+    aParamQP = realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );
+    if( aParamQP==0 ) exit(1);
+  }
+  aParamQP[nUsedQP].zName = zName;
+  aParamQP[nUsedQP].zValue = zValue;
+  aParamQP[nUsedQP].seq = seqQP++;
+  nUsedQP++;
+  sortQP = 1;
+}
+
+/*
+** Add another query parameter or cookie to the parameter set.
+** zName is the name of the query parameter or cookie and zValue
+** is its fully decoded value.
+**
+** Copies are made of both the zName and zValue parameters.
+*/
+void cgi_set_parameter(const char *zName, const char *zValue){
+  cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue));
+}
+
+/*
+** Add a query parameter.  The zName portion is fixed but a copy
+** must be made of zValue.
+*/
+void cgi_setenv(const char *zName, const char *zValue){
+  cgi_set_parameter_nocopy(zName, mprintf("%s",zValue));
+}
+ 
+
+/*
+** Add a list of query parameters or cookies to the parameter set.
+**
+** Each parameter is of the form NAME=VALUE.  Both the NAME and the
+** VALUE may be url-encoded ("+" for space, "%HH" for other special
+** characters).  But this routine assumes that NAME contains no
+** special character and therefore does not decode it.
+**
+** If NAME begins with another other than a lower-case letter then
+** the entire NAME=VALUE term is ignored.  Hence:
+**
+**      *  cookies and query parameters that have uppercase names
+**         are ignored.
+**
+**      *  it is impossible for a cookie or query parameter to
+**         override the value of an environment variable since
+**         environment variables always have uppercase names.
+**
+** Parameters are separated by the "terminator" character.  Whitespace
+** before the NAME is ignored.
+**
+** The input string "z" is modified but no copies is made.  "z"
+** should not be deallocated or changed again after this routine
+** returns or it will corrupt the parameter table.
+*/
+static void add_param_list(char *z, int terminator){
+  while( *z ){
+    char *zName;
+    char *zValue;
+    while( isspace(*z) ){ z++; }
+    zName = z;
+    while( *z && *z!='=' && *z!=terminator ){ z++; }
+    if( *z=='=' ){
+      *z = 0;
+      z++;
+      zValue = z;
+      while( *z && *z!=terminator ){ z++; }
+      if( *z ){
+        *z = 0;
+        z++;
+      }
+      dehttpize(zValue);
+    }else{
+      if( *z ){ *z++ = 0; }
+      zValue = "";
+    }
+    if( islower(zName[0]) ){
+      cgi_set_parameter_nocopy(zName, zValue);
+    }
+  }
+}
+
+/*
+** *pz is a string that consists of multiple lines of text.  This
+** routine finds the end of the current line of text and converts
+** the "\n" or "\r\n" that ends that line into a "\000".  It then
+** advances *pz to the beginning of the next line and returns the
+** previous value of *pz (which is the start of the current line.)
+*/
+static char *get_line_from_string(char **pz, int *pLen){
+  char *z = *pz;
+  int i;
+  if( z[0]==0 ) return 0;
+  for(i=0; z[i]; i++){
+    if( z[i]=='\n' ){
+      if( i>0 && z[i-1]=='\r' ){
+        z[i-1] = 0;
+      }else{
+        z[i] = 0;
+      }
+      i++;
+      break;
+    }
+  }
+  *pz = &z[i];
+  *pLen -= i;
+  return z;
+}
+
+/*
+** The input *pz points to content that is terminated by a "\r\n"
+** followed by the boundry marker zBoundry.  An extra "--" may or
+** may not be appended to the boundry marker.  There are *pLen characters
+** in *pz.
+**
+** This routine adds a "\000" to the end of the content (overwriting
+** the "\r\n") and returns a pointer to the content.  The *pz input
+** is adjusted to point to the first line following the boundry.
+** The length of the content is stored in *pnContent.
+*/
+static char *get_bounded_content(
+  char **pz,         /* Content taken from here */
+  int *pLen,         /* Number of bytes of data in (*pz)[] */
+  char *zBoundry,    /* Boundry text marking the end of content */
+  int *pnContent     /* Write the size of the content here */
+){
+  char *z = *pz;
+  int len = *pLen;
+  int i;
+  int nBoundry = strlen(zBoundry);
+  *pnContent = len;
+  for(i=0; i<len; i++){
+    if( z[i]=='\n' && strncmp(zBoundry, &z[i+1], nBoundry)==0 ){
+      if( i>0 && z[i-1]=='\r' ) i--;
+      z[i] = 0;
+      *pnContent = i;
+      i += nBoundry;
+      break;
+    }
+  }
+  *pz = &z[i];
+  get_line_from_string(pz, pLen);
+  return z;      
+}
+
+/*
+** Tokenize a line of text into as many as nArg tokens.  Make
+** azArg[] point to the start of each token.
+**
+** Tokens consist of space or semi-colon delimited words or
+** strings inside double-quotes.  Example:
+**
+**    content-disposition: form-data; name="fn"; filename="index.html"
+**
+** The line above is tokenized as follows:
+**
+**    azArg[0] = "content-disposition:"
+**    azArg[1] = "form-data"
+**    azArg[2] = "name="
+**    azArg[3] = "fn"
+**    azArg[4] = "filename="
+**    azArg[5] = "index.html"
+**    azArg[6] = 0;
+**
+** '\000' characters are inserted in z[] at the end of each token.
+** This routine returns the total number of tokens on the line, 6
+** in the example above.
+*/
+static int tokenize_line(char *z, int mxArg, char **azArg){
+  int i = 0;
+  while( *z ){
+    while( isspace(*z) || *z==';' ){ z++; }
+    if( *z=='"' && z[1] ){
+      *z = 0;
+      z++;
+      if( i<mxArg-1 ){ azArg[i++] = z; }
+      while( *z && *z!='"' ){ z++; }
+      if( *z==0 ) break;
+      *z = 0;
+      z++;
+    }else{
+      if( i<mxArg-1 ){ azArg[i++] = z; }
+      while( *z && !isspace(*z) && *z!=';' && *z!='"' ){ z++; }
+      if( *z && *z!='"' ){
+        *z = 0;
+        z++;
+      }
+    }
+  }
+  azArg[i] = 0;
+  return i;
+}
+
+/*
+** Scan the multipart-form content and make appropriate entries
+** into the parameter table.
+**
+** The content string "z" is modified by this routine but it is
+** not copied.  The calling function must not deallocate or modify
+** "z" after this routine finishes or it could corrupt the parameter
+** table.
+*/
+static void process_multipart_form_data(char *z, int len){
+  char *zLine;
+  int nArg, i;
+  char *zBoundry;
+  char *zValue;
+  char *zName = 0;
+  int showBytes = 0;
+  char *azArg[50];
+
+  zBoundry = get_line_from_string(&z, &len);
+  if( zBoundry==0 ) return;
+  while( (zLine = get_line_from_string(&z, &len))!=0 ){
+    if( zLine[0]==0 ){
+      int nContent = 0;
+      zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
+      if( zName && zValue && islower(zName[0]) ){
+        cgi_set_parameter_nocopy(zName, zValue);
+        if( showBytes ){
+          cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
+               mprintf("%d",nContent));
+        }
+      }
+      zName = 0;
+      showBytes = 0;
+    }else{
+      nArg = tokenize_line(zLine, sizeof(azArg)/sizeof(azArg[0]), azArg);
+      for(i=0; i<nArg; i++){
+        int c = tolower(azArg[i][0]);
+        if( c=='c' && stricmp(azArg[i],"content-disposition:")==0 ){
+          i++;
+        }else if( c=='n' && stricmp(azArg[i],"name=")==0 ){
+          zName = azArg[++i];
+        }else if( c=='f' && stricmp(azArg[i],"filename=")==0 ){
+          char *z = azArg[++i];
+          if( zName && z && islower(zName[0]) ){
+            cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z);
+          }
+          showBytes = 1;
+        }else if( c=='c' && stricmp(azArg[i],"content-type:")==0 ){
+          char *z = azArg[++i];
+          if( zName && z && islower(zName[0]) ){
+            cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z);
+          }
+        }
+      }
+    }
+  }        
+}
+
+/*
+** Initialize the query parameter database.  Information is pulled from
+** the QUERY_STRING environment variable (if it exists), from standard
+** input if there is POST data, and from HTTP_COOKIE.
+*/
+void cgi_init(void){
+  char *z;
+  const char *zType;
+  int len;
+  z = (char*)P("QUERY_STRING");
+  if( z ){
+    z = mprintf("%s",z);
+    add_param_list(z, '&');
+  }
+
+  len = atoi(PD("CONTENT_LENGTH", "0"));
+  g.zContentType = zType = P("CONTENT_TYPE");
+  if( len>0 && zType ){
+    blob_zero(&g.cgiIn);
+    if( strcmp(zType,"application/x-www-form-urlencoded")==0 
+         || strncmp(zType,"multipart/form-data",19)==0 ){
+      z = malloc( len+1 );
+      if( z==0 ) exit(1);
+      len = fread(z, 1, len, stdin);
+      z[len] = 0;
+      if( zType[0]=='a' ){
+        add_param_list(z, '&');
+      }else{
+        process_multipart_form_data(z, len);
+      }
+    }else if( strcmp(zType, "application/x-fossil")==0 ){
+      blob_read_from_channel(&g.cgiIn, stdin, len);
+      blob_uncompress(&g.cgiIn, &g.cgiIn);
+    }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
+      blob_read_from_channel(&g.cgiIn, stdin, len);
+    }
+  }
+
+  z = (char*)P("HTTP_COOKIE");
+  if( z ){
+    z = mprintf("%s",z);
+    add_param_list(z, ';');
+  }
+}
+
+/*
+** This is the comparison function used to sort the aParamQP[] array of
+** query parameters and cookies.
+*/
+static int qparam_compare(const void *a, const void *b){
+  struct QParam *pA = (struct QParam*)a;
+  struct QParam *pB = (struct QParam*)b;
+  int c;
+  c = strcmp(pA->zName, pB->zName);
+  if( c==0 ){
+    c = pA->seq - pB->seq;
+  }
+  return c;
+}
+
+/*
+** Return the value of a query parameter or cookie whose name is zName.
+** If there is no query parameter or cookie named zName and the first
+** character of zName is uppercase, then check to see if there is an
+** environment variable by that name and return it if there is.  As
+** a last resort when nothing else matches, return zDefault.
+*/
+const char *cgi_parameter(const char *zName, const char *zDefault){
+  int lo, hi, mid, c;
+
+  /* The sortQP flag is set whenever a new query parameter is inserted.
+  ** It indicates that we need to resort the query parameters.
+  */
+  if( sortQP ){
+    int i, j;
+    qsort(aParamQP, nUsedQP, sizeof(aParamQP[0]), qparam_compare);
+    sortQP = 0;
+    /* After sorting, remove duplicate parameters.  The secondary sort
+    ** key is aParamQP[].seq and we keep the first entry.  That means
+    ** with duplicate calls to cgi_set_parameter() the second and
+    ** subsequent calls are effectively no-ops. */
+    for(i=j=1; i<nUsedQP; i++){
+      if( strcmp(aParamQP[i].zName,aParamQP[i-1].zName)==0 ){
+        continue;
+      }
+      if( j<i ){
+        memcpy(&aParamQP[j], &aParamQP[i], sizeof(aParamQP[j]));
+      }
+      j++;
+    }
+    nUsedQP = j;
+  }
+
+  /* Do a binary search for a matching query parameter */
+  lo = 0;
+  hi = nUsedQP-1;
+  while( lo<=hi ){
+    mid = (lo+hi)/2;
+    c = strcmp(aParamQP[mid].zName, zName);
+    if( c==0 ){
+      CGIDEBUG(("mem-match [%s] = [%s]\n", zName, aParamQP[mid].zValue));
+      return aParamQP[mid].zValue;
+    }else if( c>0 ){
+      hi = mid-1;
+    }else{
+      lo = mid+1;
+    }
+  }
+
+  /* If no match is found and the name begins with an upper-case
+  ** letter, then check to see if there is an environment variable
+  ** with the given name.
+  */
+  if( isupper(zName[0]) ){
+    const char *zValue = getenv(zName);
+    if( zValue ){
+      cgi_set_parameter_nocopy(zName, zValue);
+      CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
+      return zValue;
+    }
+  }
+  CGIDEBUG(("no-match [%s]\n", zName));
+  return zDefault;
+}
+
+/*
+** Print CGI debugging messages.
+*/
+void cgi_debug(const char *zFormat, ...){
+  va_list ap;
+  if( g.fDebug ){
+    va_start(ap, zFormat);
+    vfprintf(g.fDebug, zFormat, ap);
+    va_end(ap);
+    fflush(g.fDebug);
+  }
+}
+
+/*
+** Return true if any of the query parameters in the argument
+** list are defined.
+*/
+int cgi_any(const char *z, ...){
+  va_list ap;
+  char *z2;
+  if( cgi_parameter(z,0)!=0 ) return 1;
+  va_start(ap, z);
+  while( (z2 = va_arg(ap, char*))!=0 ){
+    if( cgi_parameter(z2,0)!=0 ) return 1;
+  }
+  va_end(ap);
+  return 0;
+}
+
+/*
+** Return true if all of the query parameters in the argument list
+** are defined.
+*/
+int cgi_all(const char *z, ...){
+  va_list ap;
+  char *z2;
+  if( cgi_parameter(z,0)==0 ) return 0;
+  va_start(ap, z);
+  while( (z2 = va_arg(ap, char*))==0 ){
+    if( cgi_parameter(z2,0)==0 ) return 0;
+  }
+  va_end(ap);
+  return 1;
+}
+
+/*
+** Print all query parameters on standard output.  Format the
+** parameters as HTML.  This is used for testing and debugging.
+*/
+void cgi_print_all(void){
+  int i;
+  cgi_parameter("","");  /* Force the parameters into sorted order */
+  for(i=0; i<nUsedQP; i++){
+    cgi_printf("%s = %s  <br />\n",
+       htmlize(aParamQP[i].zName, -1), htmlize(aParamQP[i].zValue, -1));
+  }
+}
+
+/*
+** Write HTML text for an option menu to standard output.  zParam
+** is the query parameter that the option menu sets.  zDflt is the
+** initial value of the option menu.  Addition arguments are name/value
+** pairs that define values on the menu.  The list is terminated with
+** a single NULL argument.
+*/
+void cgi_optionmenu(int in, const char *zP, const char *zD, ...){
+  va_list ap;
+  char *zName, *zVal;
+  int dfltSeen = 0;
+  cgi_printf("%*s<select size=1 name=\"%s\">\n", in, "", zP);
+  va_start(ap, zD);
+  while( (zName = va_arg(ap, char*))!=0 && (zVal = va_arg(ap, char*))!=0 ){
+    if( strcmp(zVal,zD)==0 ){ dfltSeen = 1; break; }
+  }
+  va_end(ap);
+  if( !dfltSeen ){
+    if( zD[0] ){
+      cgi_printf("%*s<option value=\"%h\" selected>%h</option>\n",
+        in+2, "", zD, zD);
+    }else{
+      cgi_printf("%*s<option value=\"\" selected>&nbsp;</option>\n", in+2, "");
+    }
+  }
+  va_start(ap, zD);
+  while( (zName = va_arg(ap, char*))!=0 && (zVal = va_arg(ap, char*))!=0 ){
+    if( zName[0] ){
+      cgi_printf("%*s<option value=\"%h\"%s>%h</option>\n",
+        in+2, "",
+        zVal,
+        strcmp(zVal, zD) ? "" : " selected",
+        zName
+      );
+    }else{
+      cgi_printf("%*s<option value=\"\"%s>&nbsp;</option>\n",
+        in+2, "",
+        strcmp(zVal, zD) ? "" : " selected"
+      );
+    }
+  }
+  va_end(ap);
+  cgi_printf("%*s</select>\n", in, "");
+}
+
+/*
+** This routine works a lot like cgi_optionmenu() except that the list of
+** values is contained in an array.  Also, the values are just values, not
+** name/value pairs as in cgi_optionmenu.
+*/
+void cgi_v_optionmenu(
+  int in,              /* Indent by this amount */
+  const char *zP,      /* The query parameter name */
+  const char *zD,      /* Default value */
+  const char **az      /* NULL-terminated list of allowed values */
+){
+  const char *zVal;
+  int i;
+  cgi_printf("%*s<select size=1 name=\"%s\">\n", in, "", zP);
+  for(i=0; az[i]; i++){
+    if( strcmp(az[i],zD)==0 ) break;
+  }
+  if( az[i]==0 ){
+    if( zD[0]==0 ){
+      cgi_printf("%*s<option value=\"\" selected>&nbsp;</option>\n",
+       in+2, "");
+    }else{
+      cgi_printf("%*s<option value=\"%h\" selected>%h</option>\n",
+       in+2, "", zD, zD);
+    }
+  }
+  while( (zVal = *(az++))!=0  ){
+    if( zVal[0] ){
+      cgi_printf("%*s<option value=\"%h\"%s>%h</option>\n",
+        in+2, "",
+        zVal,
+        strcmp(zVal, zD) ? "" : " selected",
+        zVal
+      );
+    }else{
+      cgi_printf("%*s<option value=\"\"%s>&nbsp;</option>\n",
+        in+2, "",
+        strcmp(zVal, zD) ? "" : " selected"
+      );
+    }
+  }
+  cgi_printf("%*s</select>\n", in, "");
+}
+
+/*
+** This routine works a lot like cgi_v_optionmenu() except that the list
+** is a list of pairs.  The first element of each pair is the value used
+** internally and the second element is the value displayed to the user.
+*/
+void cgi_v_optionmenu2(
+  int in,              /* Indent by this amount */
+  const char *zP,      /* The query parameter name */
+  const char *zD,      /* Default value */
+  const char **az      /* NULL-terminated list of allowed values */
+){
+  const char *zVal;
+  int i;
+  cgi_printf("%*s<select size=1 name=\"%s\">\n", in, "", zP);
+  for(i=0; az[i]; i+=2){
+    if( strcmp(az[i],zD)==0 ) break;
+  }
+  if( az[i]==0 ){
+    if( zD[0]==0 ){
+      cgi_printf("%*s<option value=\"\" selected>&nbsp;</option>\n",
+       in+2, "");
+    }else{
+      cgi_printf("%*s<option value=\"%h\" selected>%h</option>\n",
+       in+2, "", zD, zD);
+    }
+  }
+  while( (zVal = *(az++))!=0  ){
+    const char *zName = *(az++);
+    if( zName[0] ){
+      cgi_printf("%*s<option value=\"%h\"%s>%h</option>\n",
+        in+2, "",
+        zVal,
+        strcmp(zVal, zD) ? "" : " selected",
+        zName
+      );
+    }else{
+      cgi_printf("%*s<option value=\"%h\"%s>&nbsp;</option>\n",
+        in+2, "",
+        zVal,
+        strcmp(zVal, zD) ? "" : " selected"
+      );
+    }
+  }
+  cgi_printf("%*s</select>\n", in, "");
+}
+
+/* 
+** This function implements the callback from vxprintf. 
+**
+** This routine sends nNewChar characters of text in zNewText to
+** CGI reply content buffer.
+*/
+static void sout(void *NotUsed, const char *zNewText, int nNewChar){
+  cgi_append_content(zNewText, nNewChar);
+}
+
+/*
+** This routine works like "printf" except that it has the
+** extra formatting capabilities such as %h and %t.
+*/
+void cgi_printf(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap,zFormat);
+  vxprintf(sout,0,zFormat,ap);
+  va_end(ap);
+}
+
+/*
+** This routine works like "vprintf" except that it has the
+** extra formatting capabilities such as %h and %t.
+*/
+void cgi_vprintf(const char *zFormat, va_list ap){
+  vxprintf(sout,0,zFormat,ap);
+}
+
+
+/*
+** Send a reply indicating that the HTTP request was malformed
+*/
+static void malformed_request(void){
+  cgi_set_status(501, "Not Implemented");
+  cgi_printf(
+    "<html><body>Unrecognized HTTP Request</body></html>\n"
+  );
+  cgi_reply();
+  exit(0);
+}
+
+/*
+** Panic and die while processing a webpage.
+*/
+void cgi_panic(const char *zFormat, ...){
+  va_list ap;
+  cgi_reset_content();
+  cgi_set_status(500, "Internal Server Error");
+  cgi_printf(
+    "<html><body><h1>Internal Server Error</h1>\n"
+    "<plaintext>"
+  );
+  va_start(ap, zFormat);
+  vxprintf(sout,0,zFormat,ap);
+  va_end(ap);
+  cgi_reply();
+  exit(1);
+}
+
+/*
+** Remove the first space-delimited token from a string and return
+** a pointer to it.  Add a NULL to the string to terminate the token.
+** Make *zLeftOver point to the start of the next token.
+*/
+static char *extract_token(char *zInput, char **zLeftOver){
+  char *zResult = 0;
+  if( zInput==0 ){
+    if( zLeftOver ) *zLeftOver = 0;
+    return 0;
+  }
+  while( isspace(*zInput) ){ zInput++; }
+  zResult = zInput;
+  while( *zInput && !isspace(*zInput) ){ zInput++; }
+  if( *zInput ){
+    *zInput = 0;
+    zInput++;
+    while( isspace(*zInput) ){ zInput++; }
+  }
+  if( zLeftOver ){ *zLeftOver = zInput; }
+  return zResult;
+}
+
+/*
+** This routine handles a single HTTP request which is coming in on
+** standard input and which replies on standard output.
+**
+** The HTTP request is read from standard input and is used to initialize
+** environment variables as per CGI.  The cgi_init() routine to complete
+** the setup.  Once all the setup is finished, this procedure returns
+** and subsequent code handles the actual generation of the webpage.
+*/
+void cgi_handle_http_request(void){
+  char *z, *zToken;
+  int i;
+  struct sockaddr_in remoteName;
+  size_t size = sizeof(struct sockaddr_in);
+  char zLine[2000];     /* A single line of input. */
+
+  fullHttpReply = 1;
+  if( fgets(zLine, sizeof(zLine), stdin)==0 ){
+    malformed_request();
+  }
+  zToken = extract_token(zLine, &z);
+  if( zToken==0 ){
+    malformed_request();
+  }
+  if( strcmp(zToken,"GET")!=0 && strcmp(zToken,"POST")!=0
+      && strcmp(zToken,"HEAD")!=0 ){
+    malformed_request();
+  }
+  cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
+  cgi_setenv("REQUEST_METHOD",zToken);
+  zToken = extract_token(z, &z);
+  if( zToken==0 ){
+    malformed_request();
+  }
+  cgi_setenv("REQUEST_URI", zToken);
+  for(i=0; zToken[i] && zToken[i]!='?'; i++){}
+  if( zToken[i] ) zToken[i++] = 0;
+  cgi_setenv("PATH_INFO", zToken);
+  cgi_setenv("QUERY_STRING", &zToken[i]);
+  if( getpeername(fileno(stdin), (struct sockaddr*)&remoteName, &size)>=0 ){
+    cgi_setenv("REMOTE_ADDR", inet_ntoa(remoteName.sin_addr));
+  }
+ 
+  /* Get all the optional fields that follow the first line.
+  */
+  while( fgets(zLine,sizeof(zLine),stdin) ){
+    char *zFieldName;
+    char *zVal;
+
+    zFieldName = extract_token(zLine,&zVal);
+    if( zFieldName==0 || *zFieldName==0 ) break;
+    while( isspace(*zVal) ){ zVal++; }
+    i = strlen(zVal);
+    while( i>0 && isspace(zVal[i-1]) ){ i--; }
+    zVal[i] = 0;
+    for(i=0; zFieldName[i]; i++){ zFieldName[i] = tolower(zFieldName[i]); }
+    if( strcmp(zFieldName,"user-agent:")==0 ){
+      cgi_setenv("HTTP_USER_AGENT", zVal);
+    }else if( strcmp(zFieldName,"content-length:")==0 ){
+      cgi_setenv("CONTENT_LENGTH", zVal);
+    }else if( strcmp(zFieldName,"referer:")==0 ){
+      cgi_setenv("HTTP_REFERER", zVal);
+    }else if( strcmp(zFieldName,"host:")==0 ){
+      cgi_setenv("HTTP_HOST", zVal);
+    }else if( strcmp(zFieldName,"content-type:")==0 ){
+      cgi_setenv("CONTENT_TYPE", zVal);
+    }else if( strcmp(zFieldName,"cookie:")==0 ){
+      cgi_setenv("HTTP_COOKIE", zVal);
+    }else if( strcmp(zFieldName,"if-none-match:")==0 ){
+      cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
+    }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
+      cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
+    }
+  }
+
+  cgi_init();
+}
+
+/*
+** Maximum number of child processes that we can have running
+** at one time before we start slowing things down.
+*/
+#define MAX_PARALLEL 2
+
+/*
+** Implement an HTTP server daemon listening on port iPort.
+**
+** As new connections arrive, fork a child and let child return
+** out of this procedure call.  The child will handle the request.
+** The parent never returns from this procedure.
+*/
+void cgi_http_server(int iPort){
+  int listener;                /* The server socket */
+  int connection;              /* A socket for each individual connection */
+  fd_set readfds;              /* Set of file descriptors for select() */
+  size_t lenaddr;              /* Length of the inaddr structure */
+  int child;                   /* PID of the child process */
+  int nchildren = 0;           /* Number of child processes */
+  struct timeval delay;        /* How long to wait inside select() */
+  struct sockaddr_in inaddr;   /* The socket address */
+  int opt = 1;                 /* setsockopt flag */
+
+  memset(&inaddr, 0, sizeof(inaddr));
+  inaddr.sin_family = AF_INET;
+  inaddr.sin_addr.s_addr = INADDR_ANY;
+  inaddr.sin_port = htons(iPort);
+  listener = socket(AF_INET, SOCK_STREAM, 0);
+  if( listener<0 ){
+    fprintf(stderr,"Can't create a socket\n");
+    exit(1);
+  }
+
+  /* if we can't terminate nicely, at least allow the socket to be reused */
+  setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+
+  if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
+    fprintf(stderr,"Can't bind to port %d\n", iPort);
+    exit(1);
+  }
+  listen(listener,10);
+  while( 1 ){
+    if( nchildren>MAX_PARALLEL ){
+      /* Slow down if connections are arriving too fast */
+      sleep( nchildren-MAX_PARALLEL );
+    }
+    delay.tv_sec = 60;
+    delay.tv_usec = 0;
+    FD_ZERO(&readfds);
+    FD_SET( listener, &readfds);
+    if( select( listener+1, &readfds, 0, 0, &delay) ){
+      lenaddr = sizeof(inaddr);
+      connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
+      if( connection>=0 ){
+        child = fork();
+        if( child!=0 ){
+          if( child>0 ) nchildren++;
+          close(connection);
+        }else{
+          close(0);
+          dup(connection);
+          close(1);
+          dup(connection);
+          if( !g.fHttpTrace ){
+            close(2);
+            dup(connection);
+          }
+          close(connection);
+          return;
+        }
+      }
+    }
+    /* Bury dead children */
+    while( waitpid(0, 0, WNOHANG)>0 ){
+      nchildren--;
+    }
+  }
+  /* NOT REACHED */  
+  exit(1);
+}
+
+/*
+** Name of days and months.
+*/
+static const char *azDays[] =
+    {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", 0};
+static const char *azMonths[] =
+    {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", 0};
+
+
+/*
+** Returns an RFC822-formatted time string suitable for HTTP headers, among
+** other things.
+** Returned timezone is always GMT as required by HTTP/1.1 specification.
+**
+** See http://www.faqs.org/rfcs/rfc822.html, section 5
+** and http://www.faqs.org/rfcs/rfc2616.html, section 3.3.
+*/
+char *cgi_rfc822_datestamp(time_t now){
+  struct tm *pTm;
+  pTm = gmtime(&now);
+  if( pTm==0 ) return "";
+  return mprintf("%s, %d %s %02d %02d:%02d:%02d GMT",
+                 azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
+                 pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
+}
+
+/*
+** Parse an RFC822-formatted timestamp as we'd expect from HTTP and return
+** a Unix epoch time. <= zero is returned on failure.
+**
+** Note that this won't handle all the _allowed_ HTTP formats, just the
+** most popular one (the one generated by cgi_rfc822_datestamp(), actually).
+*/
+time_t cgi_rfc822_parsedate(const char *zDate){
+  struct tm t;
+  char zIgnore[16];
+  char zMonth[16];
+
+  memset(&t, 0, sizeof(t));
+  if( 7==sscanf(zDate, "%12[A-Za-z,] %d %12[A-Za-z] %d %d:%d:%d", zIgnore,
+                       &t.tm_mday, zMonth, &t.tm_year, &t.tm_hour, &t.tm_min,
+                       &t.tm_sec)){
+
+    if( t.tm_year > 1900 ) t.tm_year -= 1900;
+    for(t.tm_mon=0; azMonths[t.tm_mon]; t.tm_mon++){
+      if( !strncasecmp( azMonths[t.tm_mon], zMonth, 3 )){
+        return mkgmtime(&t);
+      }
+    }
+  }
+
+  return 0;
+}
+
+/*
+** Convert a struct tm* that represents a moment in UTC into the number
+** of seconds in 1970, UTC.
+*/
+time_t mkgmtime(struct tm *p){
+  time_t t;
+  int nDay;
+  int isLeapYr;
+  /* Days in each month:       31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 */
+  static int priorDays[]   = {  0, 31, 59, 90,120,151,181,212,243,273,304,334 };
+  if( p->tm_mon<0 ){
+    int nYear = (11 - p->tm_mon)/12;
+    p->tm_year -= nYear;
+    p->tm_mon += nYear*12;
+  }else if( p->tm_mon>11 ){
+    p->tm_year += p->tm_mon/12;
+    p->tm_mon %= 12;
+  }
+  isLeapYr = p->tm_year%4==0 && (p->tm_year%100!=0 || (p->tm_year+300)%400==0);
+  p->tm_yday = priorDays[p->tm_mon] + p->tm_mday - 1;
+  if( isLeapYr && p->tm_mon>1 ) p->tm_yday++;
+  nDay = (p->tm_year-70)*365 + (p->tm_year-69)/4 -p->tm_year/100 + 
+         (p->tm_year+300)/400 + p->tm_yday;
+  t = ((nDay*24 + p->tm_hour)*60 + p->tm_min)*60 + p->tm_sec;
+  return t;
+}
+
+/*
+** Check the objectTime against the If-Modified-Since request header. If the
+** object time isn't any newer than the header, we immediately send back
+** a 304 reply and exit.
+*/
+void cgi_modified_since(time_t objectTime){
+  const char *zIf = P("HTTP_IF_MODIFIED_SINCE");
+  if( zIf==0 ) return;
+  if( objectTime > cgi_rfc822_parsedate(zIf) ) return;
+  cgi_set_status(304,"Not Modified");
+  cgi_reset_content();
+  cgi_reply();
+  exit(0);
+}

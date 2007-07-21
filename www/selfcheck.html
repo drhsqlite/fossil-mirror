@@ -1,0 +1,111 @@
+<html>
+<head>
+<title>Fossil Repository Integrity Self-Checks</title>
+</head>
+<body bgcolor="white">
+<h1 align="center">
+Fossil Repository Integrity Self-Checks
+</h1>
+
+<p>
+Even though fossil is a relatively new project and still contains
+many bugs, it is designed with features to give it a high level
+of integrity so that you can have confidence that you will not
+lose your files.  This note describes the defensive measures that
+fossil uses to help prevent file loss due to bugs.
+</p>
+
+<h2>Atomic Check-ins With Rollback</h2>
+
+<p>
+The fossil repository is an
+<a href="http://www.sqlite.org/">SQLite</a> database file.  SQLite
+is very mature and stable and has been in wide-spread use for many
+years, so we have little worries that it might cause repository
+corruption.  SQLite
+databases do not corrupt even if a program or system crash or power
+failure occurs in the middle of the update.  If some kind of crash
+does occur in the middle of a change, then all the changes are rolled
+back the next time that the database is accessed.
+</p>
+
+<p>
+A check-in operation in fossil makes many changes to the repository
+database.  But all these changes happen within a single transaction.
+If something goes wrong in the middle of the commit, then the transaction
+is rolled back and the database is unchanged.
+</p>
+
+<h2>Verification Of Delta Encodings Prior To Transaction Commit</h2>
+
+<p>
+The content files that comprise the global state of a fossil respository
+are stored in the repository as a tree.  The leaves of the tree are
+stored as zlib-compressed BLOBs.  Interior nodes are deltas from their
+decendents.  There is a lot of encoding going on here.  There is
+zlib-compression which is relatively well-tested but still might
+cause corruption if used improperly.  And there is the relatively
+new delta-encoding mechanism designed expressly for fossil.  We want
+to make sure that bugs in these encoding mechanisms do not lead to
+loss of data.
+</p>
+
+<p>
+To increase our confidence that everything in the repository is
+recoverable, fossil makes sure it can extract an exact replicate
+of every content file that it changes just prior to transaction
+commit.  So during the course of check-in, many different files
+in the repository might be modified.  Some files are simply
+compressed.  Other files are delta encoded and then compressed.
+While all this is going on, fossil makes a record of every file
+that is encoded and the MD5 hash of the original content of that
+file.  Then just before transaction commit, fossil re-extracts
+the original content of all files that were written, computes
+the MD5 checksum again, and verifies that the checksums match.
+If anything does not match up, an error
+message is printed and the transaction rolls back.
+</p>
+
+<p>
+So, in other words, fossil always checks to make sure it can
+re-extract a file before it commits a check-in of that file.
+Hence bugs in fossil are unlikely to corrupt the repository in
+a way that prevents us from extracting historical versions of 
+files.
+</p>
+
+<h2>Checksums on all files and versions</h2>
+
+<p>
+Repository records of type "file" (records that hold the content
+of project files) contain a "cksum" property which records the
+MD5 checksum of the content of that file.  So if something goes
+wrong in the file extraction process we will at least know about
+it.  This checksum is in addition to the digital signature that
+is over the entire header and content of the record.
+</p>
+
+<p>
+Repository records of type "version" contain a "cksum"
+property that holds the MD5 checksum of the concatenation of
+every file in the entire project.  During a check-in, after
+fossil has inserted all changes into the repository, it goes
+back and rereads every file out of the repository and recomputes
+this global checksum based on the respository content.  It then
+computes an MD5 checksum over the files on disk.  If these two
+checksums do not match, the check-in files and rolls back.
+Thus if a check-in transaction is successful, we have high
+confidence that the content in the repository exactly matches
+the content on disk.
+</p>
+
+<p>
+Every project files is verified by three separate checksums.
+There is an SHA256 checksum used as part of the digital signature
+on the file.  There is an MD5 checksum on the content of each
+individual file.  And there is a global MD5 checksum over the
+entire project source tree.  If any of these cross-checks do not
+match then the operation fails and an error is displayed.  Taken
+together, these cross-checks give us high confidence that the
+files you checked out are identical to the files you checked in.
+</p>

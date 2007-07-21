@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>Fossil SCM Homepage</title>
+</head>
+<body bgcolor="white">
+<h1>Fossil - A Software Configuration Management System</h1>
+
+<p>
+This is a preliminary homepage for a new software configuration
+management system called "Fossil".
+The code is currently under development, and has been for about
+a year.  Nothing is available for download or inspection 
+as of this writing (2007-06-09).
+But the system is self-hosting now.
+Hopefully something will be available soon.
+</p>
+
+<p>Distinctive features of Fossil:</p>
+
+<ul>
+<li>Supports disconnected, distributed development (like
+<a href="http://kerneltrap.org/node/4982">git</a>,
+<a href="http://www.venge.net/monotone/">monotone</a>,
+<a href="http://www.selenic.com/mercurial/wiki/index.cgi">mercurial</a>, or
+<a href="http://www.bitkeeper.com/">bitkeeper</a>)
+or tightly coupled client/server operation (like 
+<a href="http://www.nongnu.org/cvs/">CVS</a> or
+<a href="http://subversion.tigris.org/">subversion</a>)
+or both at the same time</li>
+<li>Integrated bug tracking and wiki, along the lines of
+<a href="http://www.cvstrac.org/">CVSTrac</a> and
+<a href="http://www.edgewall.com/trac/">Trac</a>.</li>
+<li>Built-in web interface that supports deep archaeological digs through
+historical source code.</li>
+<li>All network communication via HTTP (so that everything works
+from behind restrictive firewalls).</li>
+<li>Everything included in a single self-contained executable -
+    trivial to install</li>
+<li>Server runs as <a href="http://www.w3.org/CGI/">CGI</a>, using
+<a href="http://en.wikipedia.org/wiki/inetd">inetd</a> or
+<a href="http://www.xinetd.org/">xinetd</a> or using its own built-in,
+standalone web server.</li>
+<li>The entire project contained in single disk file (which also
+happens to be an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
+<li>Self sign-up (at the administrators discretion) including the
+ability to support secure anonymous check-ins (also optional).</li>
+<li>Digital signatures on all files, versions, 
+<a href="http://wiki.org/wiki.cgi?WhatIsWiki">wiki</a> pages,
+trouble tickets, etc.  Everything is digitally signed.</li>
+<li>Trivial to setup and administer</li>
+<li>Files and versions identified by their
+<a href="http://en.wikipedia.org/wiki/SHA-1">SHA-256</a> signature expressed
+in <a href="base32.html">base-32 notation</a>.
+Any unique prefix is sufficient to identify a file
+or version - usually the first 4 or 5 characters suffice.</li>
+<li>Automatic <a href="selfcheck.html">self-check</a>
+on repository changes makes it exceedingly
+unlikely that data will ever be lost because of a software bug.</li>
+</ul>
+
+<p>Goals of fossil:</p>
+
+<ul>
+<li>Fossil should be ridiculously easy to install and operate.</li>
+<li>With fossil, it should be possible (and easy) to set up a project
+on an inexpensive shared-hosting ISP
+(example: <a href="http://www.he.net/hosting.html">Hurricane Electric</a>)
+that provides nothing more than web space and CGI capability.</li>
+<li>Fossil should provide in-depth historical and status information about the
+project through a web interface</li>
+<li>The integration of <a href="http://wiki.org/wiki.cgi?WhatIsWiki">Wiki</a>
+and the ability to safely support anonymous check-in are features sometimes
+described as
+<a href="http://www.oreillynet.com/pub/a/oreilly/tim/news/2005/09/30/what-is-web-20.html">Web 2.0</a>.
+Fossil attempts to better capture "collective intelligence" and 
+"the wisdom of crowds" by opening up write access to the masses.</li>
+</ul>
+
+<p>Links:</p>
+
+<ul>
+<li><a href="pop.html">Principals Of Operation</a></li>
+<li>The <a href="base32.html">base-32 encoding</a> mechanism used
+by Fossil.</li>
+<li>The <a href="fileformat.html">file format</a> used by every content
+file stored in the repository.</li>
+</ul>
+
+</body>
+</html>

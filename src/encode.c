@@ -1,0 +1,469 @@
+/*
+** Copyright (c) 2006 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU General Public
+** License version 2 as published by the Free Software Foundation.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** General Public License for more details.
+** 
+** You should have received a copy of the GNU General Public
+** License along with this library; if not, write to the
+** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+** Boston, MA  02111-1307, USA.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** Routines for encoding and decoding text.
+*/
+#include "config.h"
+#include "encode.h"
+
+/*
+** Make the given string safe for HTML by converting every "<" into "&lt;",
+** every ">" into "&gt;" and every "&" into "&amp;".  Return a pointer
+** to a new string obtained from malloc().
+**
+** We also encode " as &quot; so that it can appear as an argument
+** to markup.
+*/
+char *htmlize(const char *zIn, int n){
+  int c;
+  int i = 0;
+  int count = 0;
+  char *zOut;
+
+  if( n<0 ) n = strlen(zIn);
+  while( i<n && (c = zIn[i])!=0 ){
+    switch( c ){
+      case '<':   count += 4;       break;
+      case '>':   count += 4;       break;
+      case '&':   count += 5;       break;
+      case '"':   count += 6;       break;
+      default:    count++;          break;
+    }
+    i++;
+  }
+  i = 0;
+  zOut = malloc( count+1 );
+  if( zOut==0 ) return 0;
+  while( n-->0 && (c = *zIn)!=0 ){
+    switch( c ){
+      case '<':   
+        zOut[i++] = '&';
+        zOut[i++] = 'l';
+        zOut[i++] = 't';
+        zOut[i++] = ';';
+        break;
+      case '>':   
+        zOut[i++] = '&';
+        zOut[i++] = 'g';
+        zOut[i++] = 't';
+        zOut[i++] = ';';
+        break;
+      case '&':   
+        zOut[i++] = '&';
+        zOut[i++] = 'a';
+        zOut[i++] = 'm';
+        zOut[i++] = 'p';
+        zOut[i++] = ';';
+        break;
+      case '"':   
+        zOut[i++] = '&';
+        zOut[i++] = 'q';
+        zOut[i++] = 'u';
+        zOut[i++] = 'o';
+        zOut[i++] = 't';
+        zOut[i++] = ';';
+        break;
+      default:
+        zOut[i++] = c;
+        break;
+    }
+    zIn++;
+  }
+  zOut[i] = 0;
+  return zOut;
+}
+
+
+/*
+** Encode a string for HTTP.  This means converting lots of
+** characters into the "%HH" where H is a hex digit.  It also
+** means converting spaces to "+".
+**
+** This is the opposite of DeHttpizeString below.
+*/
+static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
+  int c;
+  int i = 0;
+  int count = 0;
+  char *zOut;
+  int other;
+# define IsSafeChar(X)  \
+     (isalnum(X) || (X)=='.' || (X)=='$' || (X)=='-' || (X)=='_' || (X)==other)
+
+  if( zIn==0 ) return 0;
+  if( n<0 ) n = strlen(zIn);
+  other = encodeSlash ? 'a' : '/';
+  while( i<n && (c = zIn[i])!=0 ){
+    if( IsSafeChar(c) || c==' ' ){
+      count++;
+    }else{
+      count += 3;
+    }
+    i++;
+  }
+  i = 0;
+  zOut = malloc( count+1 );
+  if( zOut==0 ) return 0;
+  while( n-->0 && (c = *zIn)!=0 ){
+    if( IsSafeChar(c) ){
+      zOut[i++] = c;
+    }else if( c==' ' ){
+      zOut[i++] = '+';
+    }else{
+      zOut[i++] = '%';
+      zOut[i++] = "0123456789ABCDEF"[(c>>4)&0xf];
+      zOut[i++] = "0123456789ABCDEF"[c&0xf];
+    }
+    zIn++;
+  }
+  zOut[i] = 0;
+  return zOut;
+}
+
+/*
+** Convert the input string into a form that is suitable for use as
+** a token in the HTTP protocol.  Spaces are encoded as '+' and special
+** characters are encoded as "%HH" where HH is a two-digit hexidecimal
+** representation of the character.  The "/" character is encoded
+** as "%2F".
+*/
+char *httpize(const char *z, int n){
+  return EncodeHttp(z, n, 1);
+}
+
+/*
+** Convert the input string into a form that is suitable for use as
+** a token in the HTTP protocol.  Spaces are encoded as '+' and special
+** characters are encoded as "%HH" where HH is a two-digit hexidecimal
+** representation of the character.  The "/" character is not encoded
+** by this routine. 
+*/
+char *urlize(const char *z, int n){
+  return EncodeHttp(z, n, 0);
+}
+
+/*
+** Convert a single HEX digit to an integer
+*/
+static int AsciiToHex(int c){
+  if( c>='a' && c<='f' ){
+    c += 10 - 'a';
+  }else if( c>='A' && c<='F' ){
+    c += 10 - 'A';
+  }else if( c>='0' && c<='9' ){
+    c -= '0';
+  }else{
+    c = 0;
+  }
+  return c;
+}
+
+/*
+** Remove the HTTP encodings from a string.  The conversion is done
+** in-place.  Return the length of the string after conversion.
+*/
+int dehttpize(char *z){
+  int i, j;
+  i = j = 0;
+  while( z[i] ){
+    switch( z[i] ){
+      case '%':
+        if( z[i+1] && z[i+2] ){
+          z[j] = AsciiToHex(z[i+1]) << 4;
+          z[j] |= AsciiToHex(z[i+2]);
+          i += 2;
+        }
+        break;
+      case '+':
+        z[j] = ' ';
+        break;
+      default:
+        z[j] = z[i];
+        break;
+    }
+    i++;
+    j++;
+  }
+  z[j] = 0;
+  return j;
+}
+
+/*
+** The "fossilize" encoding is used in the headers of records
+** (aka "content files") to escape special characters.  The
+** fossilize encoding passes most characters through unchanged.
+** The changes are these:
+**
+**        space    ->   \s
+**        tab      ->   \t
+**        newline  ->   \n
+**        cr       ->   \r
+**        formfeed ->   \f
+**        vtab     ->   \v
+**        nul      ->   \0
+**        \        ->   \\
+**
+** The fossilize() routine does an encoding of its input and
+** returns a pointer to the encoding in space obtained from
+** malloc.
+*/
+char *fossilize(const char *zIn, int nIn){
+  int n, i, j, c;
+  char *zOut;
+  if( nIn<0 ) nIn = strlen(zIn);
+  for(i=n=0; i<nIn; i++){
+    c = zIn[i];
+    if( c==0 || isspace(c) || c=='\\' ) n++;
+  }
+  n += nIn;
+  zOut = malloc( n+1 );
+  if( zOut ){
+    for(i=j=0; i<nIn; i++){
+      int c = zIn[i];
+      if( c==0 ){
+        zOut[j++] = '\\';
+        zOut[j++] = '0';
+      }else if( c=='\\' ){
+        zOut[j++] = '\\';
+        zOut[j++] = '\\';
+      }else if( isspace(c) ){
+        zOut[j++] = '\\';
+        switch( c ){
+          case '\n':  c = 'n'; break;
+          case ' ':   c = 's'; break;
+          case '\t':  c = 't'; break;
+          case '\r':  c = 'r'; break;
+          case '\v':  c = 'v'; break;
+          case '\f':  c = 'f'; break;
+        }
+        zOut[j++] = c;
+      }else{
+        zOut[j++] = c;
+      }
+    }
+    zOut[j] = 0;
+  }
+  return zOut;
+}
+
+/*
+** Decode a fossilized string in-place.
+*/
+void defossilize(char *z){
+  int i, j, c;
+  for(i=j=0; z[i]; i++){
+    c = z[i];
+    if( c=='\\' && z[i+1] ){
+      i++;
+      switch( z[i] ){
+        case 'n':  c = '\n';  break;
+        case 's':  c = ' ';   break;
+        case 't':  c = '\t';  break;
+        case 'r':  c = '\r';  break;
+        case 'v':  c = '\v';  break;
+        case 'f':  c = '\f';  break;
+        case '0':  c = 0;     break;
+        case '\\': c = '\\';  break;
+        default:   c = z[i];  break;
+      }
+    }
+    z[j++] = c;
+  }
+  z[j] = 0;
+}
+
+
+/*
+** The characters used for HTTP base64 encoding.
+*/
+static unsigned char zBase[] = 
+  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~";
+
+/*
+** Encode a string using a base-64 encoding.
+** The encoding can be reversed using the <b>decode64</b> function.
+**
+** Space to hold the result comes from malloc().
+*/
+char *encode64(const char *zData, int nData){
+  char *z64;
+  int i, n;
+
+  if( nData<=0 ){
+    nData = strlen(zData);
+  }
+  z64 = malloc( (nData*4)/3 + 6 );
+  for(i=n=0; i+2<nData; i+=3){
+    z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
+    z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
+    z64[n++] = zBase[ ((zData[i+1]<<2) & 0x3c) | ((zData[i+2]>>6) & 0x03) ];
+    z64[n++] = zBase[ zData[i+2] & 0x3f ];
+  }
+  if( i+1<nData ){
+    z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
+    z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
+    z64[n++] = zBase[ ((zData[i+1]<<2) & 0x3c) ];
+  }else if( i<nData ){
+    z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
+    z64[n++] = zBase[ ((zData[i]<<4) & 0x30) ];
+  }
+  z64[n] = 0;
+  return z64;
+}
+
+/*
+** This function treats its input as a base-64 string and returns the
+** decoded value of that string.  Characters of input that are not
+** valid base-64 characters (such as spaces and newlines) are ignored.
+**
+** Space to hold the decoded string is obtained from malloc().
+**
+** The number of bytes decoded is returned in *pnByte
+*/
+char *decode64(const char *z64, int *pnByte){
+  char *zData;
+  int n64;
+  int i, j;
+  int a, b, c, d;
+  static int isInit = 0;
+  static int trans[128];
+
+  if( !isInit ){
+    for(i=0; i<128; i++){ trans[i] = 0; }
+    for(i=0; zBase[i]; i++){ trans[zBase[i] & 0x7f] = i; }
+    isInit = 1;
+  }
+  n64 = strlen(z64);
+  while( n64>0 && z64[n64-1]=='=' ) n64--;
+  zData = malloc( (n64*3)/4 + 4 );
+  for(i=j=0; i+3<n64; i+=4){
+    a = trans[z64[i] & 0x7f];
+    b = trans[z64[i+1] & 0x7f];
+    c = trans[z64[i+2] & 0x7f];
+    d = trans[z64[i+3] & 0x7f];
+    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
+    zData[j++] = ((b<<4) & 0xf0) | ((c>>2) & 0x0f);
+    zData[j++] = ((c<<6) & 0xc0) | (d & 0x3f);
+  }
+  if( i+2<n64 ){
+    a = trans[z64[i] & 0x7f];
+    b = trans[z64[i+1] & 0x7f];
+    c = trans[z64[i+2] & 0x7f];
+    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
+    zData[j++] = ((b<<4) & 0xf0) | ((c>>2) & 0x0f);
+  }else if( i+1<n64 ){
+    a = trans[z64[i] & 0x7f];
+    b = trans[z64[i+1] & 0x7f];
+    zData[j++] = ((a<<2) & 0xfc) | ((b>>4) & 0x03);
+  }
+  zData[j] = 0;
+  *pnByte = j;
+  return zData;
+}
+
+/*
+** The base-16 encoding using the following characters:
+**
+**         0123456789abcdef
+**
+*/
+
+/*
+** The array used for encoding
+*/                           /* 123456789 12345  */
+static const char zEncode[] = "0123456789abcdef"; 
+
+/*
+** Encode a N-digit base-256 in base-16.  Return zero on success
+** and non-zero if there is an error.
+*/
+int encode16(const unsigned char *pIn, unsigned char *zOut, int N){
+  int i;
+  for(i=0; i<N; i++){
+    *(zOut++) = zEncode[pIn[0]>>4];
+    *(zOut++) = zEncode[pIn[0]&0xf];
+  }
+  *zOut = 0;
+  return 0;
+}
+
+/*
+** An array for translating single base-16 characters into a value.
+** Disallowed input characters have a value of 64.  Upper and lower
+** case is the same. 
+*/
+static const char zDecode[] = {
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
+   0,  1,  2,  3,  4,  5,  6,  7,   8,  9, 64, 64, 64, 64, 64, 64, 
+  64, 10, 11, 12, 13, 14, 15, 64,  64,  1, 64, 64,  1, 64, 64,  0,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+  64, 10, 11, 12, 13, 14, 15, 64,  64,  1, 64, 64,  1, 64, 64,  0,
+  64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64,
+};
+
+/*
+** Decode a N-character base-16 number into base-256.  N must be a 
+** multiple of 2.  The output buffer must be at least N/2 characters
+** in length
+*/
+int decode16(const unsigned char *zIn, unsigned char *pOut, int N){
+  int i, j;
+  if( (N&1)!=0 ) return 1;
+  for(i=j=0; i<N; i += 2, j++){
+    int v1, v2, a;
+    a = zIn[i];
+    if( (a & 0x80)!=0 || (v1 = zDecode[a])==64 ) return 1;
+    a = zIn[i+1];
+    if( (a & 0x80)!=0 || (v2 = zDecode[a])==64 ) return 1;
+    pOut[j] = (v1<<4) + v2;
+  }
+  return 0;
+}
+
+
+/*
+** Return true if the input string contains only valid base-16 digits.
+** If any invalid characters appear in the string, return false.
+*/
+int validate16(const char *zIn, int nIn){
+  int c, i;
+  for(i=0; i<nIn && (c = zIn[i])!=0; i++){
+    if( c & ~0x7f ) return 0;
+    if( zDecode[c]>63 ) return 0;
+  }
+  return 1;
+}
+
+/*
+** The input string is a base16 value.  Convert it into its canonical
+** form.  This means that digits are all lower case and that conversions
+** like "l"->"1" and "O"->"0" occur.
+*/
+void canonical16(char *z, int n){
+  while( *z && n-- ){
+    *z = zEncode[zDecode[(*z)&0x7f]&0x1f];
+    z++;
+  }
+}
