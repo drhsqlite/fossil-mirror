@@ -1,5 +1,5 @@
-C Improvements\sto\sweb-based\suser\smanagement.
-D 2007-07-21T19:32:06
+C Setup\swebpag\supdates.
+D 2007-07-22T12:00:06
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 98f347f72aeacc308173cdf50cee77571389b374
@@ -37,7 +37,7 @@ F src/pivot.c 9d690dcb001c1c4363b1665193717817fcce433d
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 04451053b1d87084e08cd8f83a39611d36dca636
 F src/schema.c 39376154b892fdcfe6a8f7a0aa902d07cf439755
-F src/setup.c 570fc89ab703596f3d681728d919e3139edb6305
+F src/setup.c 73c8a12cccdb27f60878becd858c9b83899923a2
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c dc3d59a59f838dae729a027abc2d7ab39fc602c3
 F src/sqlite3.h ac7d1c1d6da3b4f284fdce80dac06a220abf0408
@@ -63,7 +63,7 @@ F www/fileformat.html 85a1fd60fbebfd33ae1406e9d22130ad36fc4909
 F www/index.html 68895a10cd35e9fca0d98049c5e7e49766e68512
 F www/pop.html bf75283289b41b2624c0496fa6de304fdf470da2
 F www/selfcheck.html 0532e60f88dcf2a4dd776730f729a87e7068db89
-P dbda8d6ce9ddf01a16f6c81db2883f546298efb7
-R 48cbdafbfd9d29906aaa4c400a35a819
+P 916b6e4b3b701915f2670ce40e776abbd05f71d0
+R 9aa70801b21f861814237131fb6491c1
 U drh
-Z 78e29a7716f903912ea14f71f0dab8ef
+Z 497f34f07649de512e231e07acf3bfdf

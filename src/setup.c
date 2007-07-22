@@ -61,11 +61,14 @@ void setup_page(void){
 
   style_header();
 
+  @ <h2>Setup</h2>
   @ <dl id="setup">
   menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
   menu_entry("Access", "setup_access",
     "Control access settings.");
+  menu_entry("Configuration", "setup_config",
+    "Configure the WWW components of the repository");
   @ </dl>
 
   style_footer();
@@ -90,11 +93,13 @@ void setup_ulist(void){
   style_submenu_element("Add", "Add User", "setup_uedit");
   style_header();
   @ <h2>List Of Users</h2>
+  @ <hr>
+  @ <table align="left" hspace="10" border="1" cellpadding="10"><tr><td>
   @ <table cellspacing=0 cellpadding=0 border=0>
   @ <tr>
-  @   <th align="right"><nobr>User ID</nobr></th>
+  @   <th align="right">User&nbsp;ID</th>
   @   <th>&nbsp;&nbsp;&nbsp;Capabilities&nbsp;&nbsp;&nbsp;</th>
-  @   <th><nobr>Contact Info</nobr></th>
+  @   <th>Contact&nbsp;Info</th>
   @ </tr>
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
   while( db_step(&s)==SQLITE_ROW ){
@@ -109,11 +114,11 @@ void setup_ulist(void){
     }
     @ </td>
     @ <td align="center">%s(db_column_text(&s,2))</td>
-    @ <td align="center">%s(db_column_text(&s,3))</td>
+    @ <td align="left">%s(db_column_text(&s,3))</td>
     @ </tr>
   }
-  @ </table>
-  @ <p><hr>
+  @ </table></td></tr></table>
+  @ <p>
   @ <b>Notes:</b>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
@@ -449,7 +454,8 @@ void setup_access(void){
 
   style_header();
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_access" method="GET">
+  @ <h2>Access Control Settings</h2>
+  @ <form action="%s(g.zBaseURL)/setup_access" method="POST">
 
   @ <hr>
   onoff_attribute("Require password for local access",
@@ -470,6 +476,46 @@ void setup_access(void){
   @ <hr>
   onoff_attribute("Allow anonymous signup", "anon-signup", "asu", 0);
   @ <p>Allow users to create their own accounts</p>
+   
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </form>
+  db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_config
+*/
+void setup_config(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+
+  style_header();
+  db_begin_transaction();
+  @ <h2>WWW Configuration</h2>
+  @ <form action="%s(g.zBaseURL)/setup_config" method="POST">
+
+  @ <hr>
+  entry_attribute("Home page", 60, "homepage", "hp", "");
+  @ <p>The name of a wiki file that is the homepage for the website.
+  @ The home page is the page that is displayed by the "Home" link
+  @ at the top of this screen.</p>
+
+  entry_attribute("Ticket subdirectory", 60, "ticket-subdir", "tsd", "");
+  @ <p>A subdirectory in the file hierarchy that contains all trouble
+  @ tickets.  Leave this blank to disable ticketing.  Tickets text
+  @ files within this subdirectory containing a particular format
+  @ (documented separately) and with the ".tkt" suffix.</p>
+
+  entry_attribute("Wiki subdirectory", 60, "wiki-subdir", "wsd", "");
+  @ <p>A subdirectory in the file hierarchy that contains wiki pages.
+  @ Leave this blank to disable wiki.  Wiki pages are
+  @ files within this subdirectory whose name is he wiki page title
+  @ and with the suffix ".wiki".</p>
+
    
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
