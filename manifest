@@ -1,5 +1,5 @@
-C Work\son\snetwork\ssynchronization
-D 2007-07-23T20:33:04
+C More\simprovements\sto\snetwork\ssync.
+D 2007-07-23T20:40:16
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -52,7 +52,7 @@ F src/verify.c 7995bb74af682e983d2c2183a58dacb38cf93e20
 F src/vfile.c e0efe29333d86817bdd653a7c415517d43165402
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 72dbb4250397dea3b1de4c261eebf8d5a3965c08
+F src/xfer.c 9cb0ca67df2b4d09e45d4340bf8344de6a2effed
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -63,7 +63,7 @@ F www/fileformat.html 85a1fd60fbebfd33ae1406e9d22130ad36fc4909
 F www/index.html 68895a10cd35e9fca0d98049c5e7e49766e68512
 F www/pop.html bf75283289b41b2624c0496fa6de304fdf470da2
 F www/selfcheck.html 0532e60f88dcf2a4dd776730f729a87e7068db89
-P 66f4caa379d2bf03ea15eee5ec96bac9044e4db2
-R cac940dd9028e37597ee7b14a7f477ba
+P 75c476ccd178dca0d970b2c5e6718c6eacaf149e
+R f953712315da4d05b91286030a0147fb
 U drh
-Z 3a7bd2d8a09622b9cb5b990a138782a1
+Z 4c51fdbab409b19c130251c51d157ca5

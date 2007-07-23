@@ -485,9 +485,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   int nToken;
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
-  int nSent = 0;
-  int nRcvd = 0;
-  int nCycle = 0;
+  int nFile = 0;
+  int nMsg = 0;
+  int nReq = 0;
   Blob send;        /* Text we are sending to the server */
   Blob recv;        /* Reply we got back from the server */
   Blob line;        /* A single line of the reply */
@@ -512,19 +512,24 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
 
   while( go ){
     go = 0;
+    nFile = nReq = nMsg = 0;
 
     /* Generate a request to be sent to the server.
     ** Always begin with a clone, pull, or push message
     */
+    
     if( cloneFlag ){
       blob_appendf(&send, "clone\n");
       pushFlag = 0;
       pullFlag = 0;
+      nMsg++;
     }else if( pullFlag ){
       blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+      nMsg++;
     }
     if( pushFlag ){
       blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
+      nMsg++;
     }
 
     if( pullFlag ){
@@ -535,13 +540,14 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       while( db_step(&q)==SQLITE_ROW ){
         const char *zUuid = db_column_text(&q, 0);
         blob_appendf(&send,"gimme %s\n", zUuid);
+        nReq++;
       }
       db_finalize(&q);
     }
 
     if( pushFlag ){
       /* Send the server any files that the server has requested */
-      nSent += send_all_pending(&send);
+      nFile += send_all_pending(&send);
     }
 
     if( pullFlag || pushFlag ){
@@ -554,12 +560,15 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       while( db_step(&q)==SQLITE_ROW ){
         const char *zUuid = db_column_text(&q, 0);
         blob_appendf(&send, "leaf %s\n", zUuid);
+        nMsg++;
       }
       db_finalize(&q);
     }
 
     /* Exchange messages with the server */
-    printf("Sending %d files to server\n", nSent);
+    printf("Send:      %d files, %d requests, %d other messages\n",
+            nFile, nReq, nMsg);
+    nFile = nReq = nMsg = 0;
     http_exchange(&send, &recv);
     blob_reset(&send);
 
@@ -574,7 +583,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       */
       if( blob_eq(&aToken[0],"file") ){
         xfer_accept_file(&recv, aToken, nToken, &errmsg);
-        nRcvd++;
+        nFile++;
       }else
 
       /*   gimme UUID
@@ -583,6 +592,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       */
       if( blob_eq(&aToken[0], "gimme") && nToken==2
                && blob_is_uuid(&aToken[1]) ){
+        nReq++;
         if( pushFlag ){
           db_multi_exec(
             "INSERT OR IGNORE INTO pending(rid) "
@@ -602,6 +612,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
               && (blob_eq(&aToken[0], "igot") || blob_eq(&aToken[0], "leaf"))
               && blob_is_uuid(&aToken[1]) ){
         int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &aToken[1]);
+        nMsg++;
         if( rid>0 ){
           db_multi_exec(
             "INSERT OR IGNORE INTO onremote(rid) VALUES(%d)", rid
@@ -634,6 +645,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         if( blob_eq_str(&aToken[1], zSCode, -1) ){
           fossil_fatal("server loop");
         }
+        nMsg++;
         if( zPCode==0 ){
           zPCode = mprintf("%b", &aToken[2]);
           db_set("project-code", zPCode);
@@ -663,8 +675,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blobarray_reset(aToken, nToken);
     }
     blob_reset(&recv);
-    printf("Received %d files from server\n", nRcvd);
-    nSent = nRcvd = 0;
+    printf("Received:  %d files, %d requests, %d other messages\n",
+            nFile, nReq, nMsg);
+    nFile = nReq = nMsg = 0;
   };
   http_close();
   db_end_transaction(0);
