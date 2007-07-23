@@ -211,6 +211,10 @@ void blob_copy(Blob *pTo, Blob *pFrom){
 */
 char *blob_str(Blob *p){
   blob_is_init(p);
+  if( p->nUsed==0 ){
+    blob_append(p, "", 1);
+    p->nUsed = 0;
+  }
   if( p->aData[p->nUsed]!=0 ){
     blob_materialize(p);
   }

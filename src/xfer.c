@@ -69,7 +69,7 @@ static void xfer_accept_file(Blob *pIn, Blob *aToken, int nToken, Blob *pErr){
     blob_reset(&src);
   }
   sha1sum_blob(&content, &hash);
-  if( !blob_eq_str(&aToken[1], blob_str(&content), -1) ){
+  if( !blob_eq_str(&aToken[1], blob_str(&hash), -1) ){
     blob_appendf(pErr, "content does not match sha1 hash");
   }
   blob_reset(&hash);
@@ -130,8 +130,9 @@ LIMIT 1
 /*
 ** Send all pending files.
 */
-static void send_all_pending(Blob *pOut){
+static int send_all_pending(Blob *pOut){
   int sent = 0;
+  int nSent = 0;
   int maxSize = db_get_int("http-msg-size", 1000000);
   Stmt q;
 #if 0
@@ -162,6 +163,7 @@ static void send_all_pending(Blob *pOut){
     int rid = db_column_int(&q, 0);
     if( sent<maxSize ){
       sent += send_file(rid, pOut);
+      nSent++;
     }else{
       char *zUuid = db_text(0,
                       "SELECT uuid FROM blob WHERE rid=%d AND size>=0", rid);
@@ -180,6 +182,7 @@ static void send_all_pending(Blob *pOut){
 #if 0
   db_multi_exec("DROP TABLE priority");
 #endif
+  return nSent;
 }
 
 
@@ -482,6 +485,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   int nToken;
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
+  int nSent = 0;
+  int nRcvd = 0;
+  int nCycle = 0;
   Blob send;        /* Text we are sending to the server */
   Blob recv;        /* Reply we got back from the server */
   Blob line;        /* A single line of the reply */
@@ -535,7 +541,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
 
     if( pushFlag ){
       /* Send the server any files that the server has requested */
-      send_all_pending(&send);
+      nSent += send_all_pending(&send);
     }
 
     if( pullFlag || pushFlag ){
@@ -553,6 +559,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     }
 
     /* Exchange messages with the server */
+    printf("Sending %d files to server\n", nSent);
     http_exchange(&send, &recv);
     blob_reset(&send);
 
@@ -567,6 +574,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       */
       if( blob_eq(&aToken[0],"file") ){
         xfer_accept_file(&recv, aToken, nToken, &errmsg);
+        nRcvd++;
       }else
 
       /*   gimme UUID
@@ -620,7 +628,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       **
       ** Should only happen in response to a clone.
       */
-      if( blob_eq(&aToken[0],"push") && nToken==2 && cloneFlag
+      if( blob_eq(&aToken[0],"push") && nToken==3 && cloneFlag
               && blob_is_uuid(&aToken[1]) && blob_is_uuid(&aToken[2]) ){
 
         if( blob_eq_str(&aToken[1], zSCode, -1) ){
@@ -628,7 +636,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         }
         if( zPCode==0 ){
           zPCode = mprintf("%b", &aToken[2]);
-          db_set("product-code", zPCode);
+          db_set("project-code", zPCode);
         }
         cloneFlag = 0;
         pullFlag = 1;
@@ -655,6 +663,8 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blobarray_reset(aToken, nToken);
     }
     blob_reset(&recv);
+    printf("Received %d files from server\n", nRcvd);
+    nSent = nRcvd = 0;
   };
   http_close();
   db_end_transaction(0);

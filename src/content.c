@@ -193,7 +193,7 @@ int content_put(Blob *pBlob, const char *zUuid){
     assert( pBlob!=0 );
     db_prepare(&s1,
       "UPDATE blob SET rcvid=%d, size=%d, content=:data WHERE rid=%d",
-       g.rcvid, size, blob_str(&hash)
+       g.rcvid, size, rid
     );
     blob_compress(pBlob, &cmpr);
     db_bind_blob(&s1, ":data", &cmpr);
