@@ -584,6 +584,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       if( blob_eq(&aToken[0],"file") ){
         xfer_accept_file(&recv, aToken, nToken, &errmsg);
         nFile++;
+        go = 1;
       }else
 
       /*   gimme UUID
