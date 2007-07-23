@@ -109,7 +109,7 @@ void login_page(void){
       cgi_redirect(zGoto);
     }
   }
-  style_header();
+  style_header("Login/Logout");
   @ %s(zErrMsg)
   @ <form action="login" method="POST">
   if( P("g") ){
@@ -246,15 +246,22 @@ void login_set_capabilities(const char *zCap){
                               g.okRdWiki = g.okWrWiki =
                               g.okNewTkt = g.okPassword = 1;
       case 'i':   g.okRead = g.okWrite = 1;                     break;
-      case 'd':   g.okDelete = 1;                               break;
-      case 'j':   g.okRdWiki = 1;                               break;
-      case 'k':   g.okWrWiki = g.okRdWiki = 1;                  break;
-      case 'n':   g.okNewTkt = 1;                               break;
       case 'o':   g.okRead = 1;                                 break;
+
+      case 'd':   g.okDelete = 1;                               break;
       case 'p':   g.okPassword = 1;                             break;
       case 'q':   g.okQuery = 1;                                break;
+
+      case 'j':   g.okRdWiki = 1;                               break;
+      case 'k':   g.okWrWiki = g.okRdWiki = g.okApndWiki =1;    break;
+      case 'm':   g.okApndWiki = 1;                             break;
+      case 'f':   g.okNewWiki = 1;                              break;
+
       case 'r':   g.okRdTkt = 1;                                break;
-      case 'w':   g.okWrTkt = g.okRdTkt = g.okNewTkt = 1;       break;
+      case 'n':   g.okNewTkt = 1;                               break;
+      case 'w':   g.okWrTkt = g.okRdTkt = g.okNewTkt =
+                  g.okApndTkt = 1;                              break;
+      case 'c':   g.okApndTkt = 1;                              break;
     }
   }
 }

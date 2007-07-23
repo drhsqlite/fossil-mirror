@@ -59,9 +59,7 @@ void setup_page(void){
     login_needed();
   }
 
-  style_header();
-
-  @ <h2>Setup</h2>
+  style_header("Setup");
   @ <dl id="setup">
   menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
@@ -91,9 +89,7 @@ void setup_ulist(void){
   }
 
   style_submenu_element("Add", "Add User", "setup_uedit");
-  style_header();
-  @ <h2>List Of Users</h2>
-  @ <hr>
+  style_header("User List");
   @ <table align="left" hspace="10" border="1" cellpadding="10"><tr><td>
   @ <table cellspacing=0 cellpadding=0 border=0>
   @ <tr>
@@ -159,7 +155,7 @@ void setup_ulist(void){
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap ;
-  char *oak, *oad, *oaq;
+  char *oak, *oad, *oaq, *oac, *oaf, *oam;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -208,16 +204,24 @@ void user_edit(void){
     int ar = P("ar")!=0;
     int as = g.okSetup && P("as")!=0;
     int aw = P("aw")!=0;
+    int ac = P("ac")!=0;
+    int af = P("af")!=0;
+    int am = P("am")!=0;
+#if 0
     if( as ) aa = 1;
     if( aa ) ai = aw = ap = 1;
     if( aw ) an = ar = 1;
     if( ai ) ao = 1;
     if( ak ) aj = 1;
+#endif
     if( aa ){ zCap[i++] = 'a'; }
+    if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
+    if( af ){ zCap[i++] = 'f'; }
     if( ai ){ zCap[i++] = 'i'; }
     if( aj ){ zCap[i++] = 'j'; }
     if( ak ){ zCap[i++] = 'k'; }
+    if( am ){ zCap[i++] = 'm'; }
     if( an ){ zCap[i++] = 'n'; }
     if( ao ){ zCap[i++] = 'o'; }
     if( ap ){ zCap[i++] = 'p'; }
@@ -235,7 +239,7 @@ void user_edit(void){
     if( uid>0 && 
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
-      style_header();
+      style_header("User Creation Error");
       @ <font color="red">Login "%h(zLogin)" is already used by a different
       @ user.</font>
       @
@@ -257,16 +261,20 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
-  oaa = oad = oai = oaj = oak = oan = oao = oap = oaq = oar = oas = oaw = "";
+  oaa = oac = oad = oaf = oai = oaj = oak = oam =
+        oan = oao = oap = oaq = oar = oas = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
     zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
     if( strchr(zCap, 'a') ) oaa = " checked";
+    if( strchr(zCap, 'c') ) oac = " checked";
     if( strchr(zCap, 'd') ) oad = " checked";
+    if( strchr(zCap, 'f') ) oaf = " checked";
     if( strchr(zCap, 'i') ) oai = " checked";
     if( strchr(zCap, 'j') ) oaj = " checked";
     if( strchr(zCap, 'k') ) oak = " checked";
+    if( strchr(zCap, 'm') ) oam = " checked";
     if( strchr(zCap, 'n') ) oan = " checked";
     if( strchr(zCap, 'o') ) oao = " checked";
     if( strchr(zCap, 'p') ) oap = " checked";
@@ -279,11 +287,10 @@ void user_edit(void){
   /* Begin generating the page
   */
   style_submenu_element("Cancel", "Cancel", "setup_ulist");
-  style_header();
   if( uid ){
-    @ <h2>Edit User %h(zLogin)</h2>
+    style_header(mprintf("Edit User %h", zLogin));
   }else{
-    @ <h2>Add A New User</h2>
+    style_header("Add A New User");
   }
   @ <table align="left" hspace="20" vspace="10"><tr><td>
   @ <form action="%s(g.zPath)" method="POST">
@@ -307,20 +314,23 @@ void user_edit(void){
   @ <tr>
   @   <td align="right" valign="top">Capabilities:</td>
   @   <td>
-  @     <input type="checkbox" name="aa"%s(oaa)>Admin</input><br>
-  @     <input type="checkbox" name="ad"%s(oad)>Delete</input><br>
-  @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
-  @     <input type="checkbox" name="aj"%s(oaj)>Read Wiki</input><br>
-  @     <input type="checkbox" name="ak"%s(oak)>Write Wiki</input><br>
-  @     <input type="checkbox" name="an"%s(oan)>New Tkt</input><br>
-  @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
-  @     <input type="checkbox" name="ap"%s(oap)>Password</input><br>
-  @     <input type="checkbox" name="aq"%s(oaq)>Query</input><br>
-  @     <input type="checkbox" name="ar"%s(oar)>Read</input><br>
   if( g.okSetup ){
     @     <input type="checkbox" name="as"%s(oas)>Setup</input><br>
   }
-  @     <input type="checkbox" name="aw"%s(oaw)>Write</input>
+  @     <input type="checkbox" name="aa"%s(oaa)>Admin</input><br>
+  @     <input type="checkbox" name="ad"%s(oad)>Delete</input><br>
+  @     <input type="checkbox" name="ap"%s(oap)>Password</input><br>
+  @     <input type="checkbox" name="aq"%s(oaq)>Query</input><br>
+  @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
+  @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
+  @     <input type="checkbox" name="aj"%s(oaj)>Read Wiki</input><br>
+  @     <input type="checkbox" name="af"%s(oaf)>New Wiki</input><br>
+  @     <input type="checkbox" name="am"%s(oam)>Append Wiki</input><br>
+  @     <input type="checkbox" name="ak"%s(oak)>Write Wiki</input><br>
+  @     <input type="checkbox" name="ar"%s(oar)>Read Tkt</input><br>
+  @     <input type="checkbox" name="an"%s(oan)>New Tkt</input><br>
+  @     <input type="checkbox" name="ac"%s(oac)>Append Tkt</input><br>
+  @     <input type="checkbox" name="aw"%s(oaw)>Write Tkt</input>
   @   </td>
   @ </tr>
   @ <tr>
@@ -343,11 +353,6 @@ void user_edit(void){
     @ </p></li>
     @
   }
-  @ <li><p>
-  @ The <b>Read</b> and <b>Write</b> privileges give the user the ability
-  @ to read and write tickets.  The <b>New Tkt</b> capability means that
-  @ the user is able to create new tickets.
-  @ </p></li>
   @
   @ <li><p>
   @ The <b>Delete</b> privilege give the user the ability to erase
@@ -452,9 +457,8 @@ void setup_access(void){
     login_needed();
   }
 
-  style_header();
+  style_header("Access Control Settings");
   db_begin_transaction();
-  @ <h2>Access Control Settings</h2>
   @ <form action="%s(g.zBaseURL)/setup_access" method="POST">
 
   @ <hr>
@@ -493,9 +497,8 @@ void setup_config(void){
     login_needed();
   }
 
-  style_header();
+  style_header("WWW Configuration");
   db_begin_transaction();
-  @ <h2>WWW Configuration</h2>
   @ <form action="%s(g.zBaseURL)/setup_config" method="POST">
 
   @ <hr>

@@ -118,7 +118,7 @@ void vinfo_page(void){
   char cType;
   char *zType;
 
-  style_header();
+  style_header("Version Information");
   rid = name_to_rid(g.zExtra);
   if( rid==0 ){
     @ No such object: %h(g.argv[2])
@@ -278,7 +278,7 @@ void diff_page(void){
   }
   vid2 = uuid_to_rid(zV2, 0);
   p2 = record_from_rid(vid2);
-  style_header();
+  style_header("File Diff");
   if( zV1==0 ){
     zV1 = db_text(0, 
        "SELECT uuid FROM record WHERE rid="

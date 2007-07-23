@@ -54,19 +54,17 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 void page_timeline(void){
   Stmt q;
   char zPrevDate[20];
-  style_header();
+  style_header("Timeline");
   zPrevDate[0] = 0;
   db_prepare(&q,
-    "SELECT rid, type, uuid, datetime(ctime,'unixepoch','localtime'), comment"
-    "  FROM record"
-    " WHERE NOT phantom AND NOT cancel"
-    "   AND type IN ('v')"
-    " ORDER BY ctime DESC"
-    " LIMIT 100"
+    "SELECT uuid, datetime(event.mtime,'localtime'), comment"
+    "  FROM event, blob"
+    " WHERE event.type='ci' AND blob.rid=event.objid"
+    " ORDER BY event.mtime DESC"
   );
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 3);
+    const char *zDate = db_column_text(&q, 1);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -81,8 +79,8 @@ void page_timeline(void){
     @ <tr><td valign="top">%s(&zDate[11])</td>
     @ <td width="20"></td>
     @ <td valign="top" align="left">
-    hyperlink_to_uuid(db_column_text(&q,2));
-    @ %s(db_column_text(&q,4))</td>
+    hyperlink_to_uuid(db_column_text(&q,0));
+    @ %s(db_column_text(&q,2))</td>
   }
   db_finalize(&q);
   @ </table>

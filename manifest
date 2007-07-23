@@ -1,5 +1,5 @@
-C Setup\swebpag\supdates.
-D 2007-07-22T12:00:06
+C Improvements\sto\sthe\sWWW\sinterface.
+D 2007-07-23T19:52:51
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 98f347f72aeacc308173cdf50cee77571389b374
@@ -19,10 +19,10 @@ F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c af8a8318d12ce677134b63621f10516defa850fc
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 3b83a20834ff5b27f5cdd2498aa59213e09f6b9f
-F src/info.c 0c1aa485af1dc1ee48a2b4759014789990952016
+F src/info.c cb6cea5bd76cf733bc4d3aa18d3e762dfc8190de
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
-F src/login.c eed2c5dedd8d97e6951c37d97e194c3ec8ccb4bf
-F src/main.c 3326d06274d1eab47c7043eb64145923f9d5d069
+F src/login.c c801bf1f9b736b24c77116d350b769d75c93f9e1
+F src/main.c e0071db8be482852fbee19994cbe36c43a955910
 F src/main.mk 1617e07ee74c628b7bd63dddffd3355ad8c7dbf4
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -37,20 +37,20 @@ F src/pivot.c 9d690dcb001c1c4363b1665193717817fcce433d
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 04451053b1d87084e08cd8f83a39611d36dca636
 F src/schema.c 39376154b892fdcfe6a8f7a0aa902d07cf439755
-F src/setup.c 73c8a12cccdb27f60878becd858c9b83899923a2
+F src/setup.c 91d49b89a00f89c0e86db465ea44bf77909fc1fd
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c dc3d59a59f838dae729a027abc2d7ab39fc602c3
 F src/sqlite3.h ac7d1c1d6da3b4f284fdce80dac06a220abf0408
-F src/style.c b4958eee41524b6e1b98f522ea311a68c9749251
+F src/style.c 7b2fdcfed55fadf4e9b1a8f0b190accf6952a40f
 F src/sync.c 36ca951c1c14f90816eb0aea20d366d8a9556d5b
-F src/timeline.c 5b214b819fed20727cc1ef1a37b26468efa5ad56
+F src/timeline.c cd16841a59d7db2d0cca1723f729b262d1c1636d
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
 F src/url.c f3bcafe7057731b3bb9e0f7c7f9e32b56b0735b3
 F src/user.c f41abe06105e4d538227d55457b4bfb275ba80a4
 F src/verify.c f52a353f944e8b874275ae44bf7f4ae8da318038
 F src/vfile.c e0efe29333d86817bdd653a7c415517d43165402
-F src/wiki.c 5d70c36fe5d4c9fe0decd8f3d24b0b2a9a0e3765
+F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
 F src/xfer.c 00d4a363f4f87ed2fff4a3ff7bd6de563cea10f2
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
@@ -63,7 +63,7 @@ F www/fileformat.html 85a1fd60fbebfd33ae1406e9d22130ad36fc4909
 F www/index.html 68895a10cd35e9fca0d98049c5e7e49766e68512
 F www/pop.html bf75283289b41b2624c0496fa6de304fdf470da2
 F www/selfcheck.html 0532e60f88dcf2a4dd776730f729a87e7068db89
-P 916b6e4b3b701915f2670ce40e776abbd05f71d0
-R 9aa70801b21f861814237131fb6491c1
+P c4ec179bbc214f45b8cebc6555c5817bd757db4f
+R 397a8097be56bd5c2c3bec319b3f5b9d
 U drh
-Z 497f34f07649de512e231e07acf3bfdf
+Z 4dc396ae1f21e408828c321204e35807

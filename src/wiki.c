@@ -34,7 +34,7 @@
 ** the url.
 */
 void wiki_page(void){
-  style_header();
+  style_header("Wiki");
   @ extra=%h(g.zExtra)
   style_footer();
 }

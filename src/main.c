@@ -89,9 +89,12 @@ struct Global {
   int okSetup;            /* use Setup screens on web interface */
   int okRdTkt;            /* view tickets via web */
   int okWrTkt;            /* make changes to tickets via web */
+  int okNewTkt;           /* create new tickets */
+  int okApndTkt;          /* append to tickets via the web */
   int okRdWiki;           /* view wiki via web */
   int okWrWiki;           /* edit wiki via web */
-  int okNewTkt;           /* create new tickets */
+  int okNewWiki;          /* create new wiki via web */
+  int okApndWiki;         /* append to wiki via web */
   int okPassword;         /* change password */
   int okAdmin;            /* administrative permission */
   int okDelete;           /* delete wiki or tickets */

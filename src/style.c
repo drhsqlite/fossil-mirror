@@ -69,7 +69,7 @@ static int submenuCompare(const void *a, const void *b){
 /*
 ** Draw the header.
 */
-void style_header(void){
+void style_header(const char *zTitle){
   const char *zLogInOut = "Logout";
   login_check_credentials();
   @ <html>
@@ -77,7 +77,7 @@ void style_header(void){
   @ <hr size="1">
   @ <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   @ <tr><td valign="top" align="left">
-  @ <big><big><b>Fossil SCM</b></big></big><br>
+  @ <big><big><b>%s(zTitle)</b></big></big><br>
   if( g.zLogin==0 || g.zLogin[0]==0 ){
     @ <small>not logged in</small>
     zLogInOut = "Login";
@@ -87,9 +87,14 @@ void style_header(void){
   @ </td><td valign="top" align="right">
   @ <a href="%s(g.zBaseURL)/index">Home</a>
   @ | <a href="%s(g.zBaseURL)/timeline">Timeline</a>
+  if( g.okRdWiki ){
+    @ | <a href="%s(g.zBaseURL)/wiki">Wiki</a>
+  }
+#if 0
   @ | <font color="#888888">Search</font>
   @ | <font color="#888888">Ticket</font>
   @ | <font color="#888888">Reports</font>
+#endif
   if( g.okSetup ){
     @ | <a href="%s(g.zBaseURL)/setup">Setup</a>
   }
@@ -127,7 +132,7 @@ void style_footer(void){
 ** WEBPAGE: not_found
 */
 void page_index(void){
-  style_header();
+  style_header("Main Title Page");
   @ This will become the title page
   style_footer();
 }
@@ -136,7 +141,7 @@ void page_index(void){
 ** WEBPAGE: test_env
 */
 void page_test_env(void){
-  style_header();
+  style_header("Environment Test");
   cgi_print_all();
   style_footer();
 }
