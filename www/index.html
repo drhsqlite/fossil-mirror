@@ -9,13 +9,14 @@
 This is a preliminary homepage for a new software configuration
 management system called "Fossil".
 The code is currently under development, and has been for about
-a year.  Nothing is available for download or inspection 
-as of this writing (2007-06-09).
+two years.  (We have iterated the design multiple times.)
+Nothing is available for download or inspection 
+as of this writing (2007-07-24).
 But the system is self-hosting now.
 Hopefully something will be available soon.
 </p>
 
-<p>Distinctive features of Fossil:</p>
+<p>Design Goals For Fossil:</p>
 
 <ul>
 <li>Supports disconnected, distributed development (like
@@ -23,7 +24,7 @@ Hopefully something will be available soon.
 <a href="http://www.venge.net/monotone/">monotone</a>,
 <a href="http://www.selenic.com/mercurial/wiki/index.cgi">mercurial</a>, or
 <a href="http://www.bitkeeper.com/">bitkeeper</a>)
-or tightly coupled client/server operation (like 
+or client/server operation (like 
 <a href="http://www.nongnu.org/cvs/">CVS</a> or
 <a href="http://subversion.tigris.org/">subversion</a>)
 or both at the same time</li>
@@ -40,25 +41,21 @@ from behind restrictive firewalls).</li>
 <a href="http://en.wikipedia.org/wiki/inetd">inetd</a> or
 <a href="http://www.xinetd.org/">xinetd</a> or using its own built-in,
 standalone web server.</li>
-<li>The entire project contained in single disk file (which also
+<li>An entire project contained in single disk file (which also
 happens to be an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
-<li>Self sign-up (at the administrators discretion) including the
-ability to support secure anonymous check-ins (also optional).</li>
-<li>Digital signatures on all files, versions, 
-<a href="http://wiki.org/wiki.cgi?WhatIsWiki">wiki</a> pages,
-trouble tickets, etc.  Everything is digitally signed.</li>
 <li>Trivial to setup and administer</li>
 <li>Files and versions identified by their
-<a href="http://en.wikipedia.org/wiki/SHA-1">SHA-256</a> signature expressed
-in <a href="base32.html">base-32 notation</a>.
+<a href="http://en.wikipedia.org/wiki/SHA-1">SHA1</a> signature.</a>
 Any unique prefix is sufficient to identify a file
 or version - usually the first 4 or 5 characters suffice.</li>
+<li>The file format is trival and requires nothing more complex
+than a text editor and the "sha1sum" command-line utility to decode.</li>
 <li>Automatic <a href="selfcheck.html">self-check</a>
 on repository changes makes it exceedingly
 unlikely that data will ever be lost because of a software bug.</li>
 </ul>
 
-<p>Goals of fossil:</p>
+<p>Objectives Of Fossil:</p>
 
 <ul>
 <li>Fossil should be ridiculously easy to install and operate.</li>
@@ -80,8 +77,8 @@ Fossil attempts to better capture "collective intelligence" and
 
 <ul>
 <li><a href="pop.html">Principals Of Operation</a></li>
-<li>The <a href="base32.html">base-32 encoding</a> mechanism used
-by Fossil.</li>
+<li>The <a href="selfcheck.html">automatic self-check</a> mechanism
+helps insure project integrity.</li>
 <li>The <a href="fileformat.html">file format</a> used by every content
 file stored in the repository.</li>
 </ul>

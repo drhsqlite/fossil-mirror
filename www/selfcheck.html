@@ -19,8 +19,8 @@ fossil uses to help prevent file loss due to bugs.
 
 <p>
 The fossil repository is an
-<a href="http://www.sqlite.org/">SQLite</a> database file.  SQLite
-is very mature and stable and has been in wide-spread use for many
+<a href="http://www.sqlite.org/">SQLite version 3</a> database file.  
+SQLite is very mature and stable and has been in wide-spread use for many
 years, so we have little worries that it might cause repository
 corruption.  SQLite
 databases do not corrupt even if a program or system crash or power
@@ -58,10 +58,10 @@ commit.  So during the course of check-in, many different files
 in the repository might be modified.  Some files are simply
 compressed.  Other files are delta encoded and then compressed.
 While all this is going on, fossil makes a record of every file
-that is encoded and the MD5 hash of the original content of that
+that is encoded and the SHA1 hash of the original content of that
 file.  Then just before transaction commit, fossil re-extracts
 the original content of all files that were written, computes
-the MD5 checksum again, and verifies that the checksums match.
+the SHA1 checksum again, and verifies that the checksums match.
 If anything does not match up, an error
 message is printed and the transaction rolls back.
 </p>
@@ -74,38 +74,17 @@ a way that prevents us from extracting historical versions of
 files.
 </p>
 
-<h2>Checksums on all files and versions</h2>
+<h2>Checksum Over All Files In A Baseline</h2>
 
 <p>
-Repository records of type "file" (records that hold the content
-of project files) contain a "cksum" property which records the
-MD5 checksum of the content of that file.  So if something goes
-wrong in the file extraction process we will at least know about
-it.  This checksum is in addition to the digital signature that
-is over the entire header and content of the record.
-</p>
-
-<p>
-Repository records of type "version" contain a "cksum"
-property that holds the MD5 checksum of the concatenation of
-every file in the entire project.  During a check-in, after
-fossil has inserted all changes into the repository, it goes
-back and rereads every file out of the repository and recomputes
-this global checksum based on the respository content.  It then
-computes an MD5 checksum over the files on disk.  If these two
-checksums do not match, the check-in files and rolls back.
-Thus if a check-in transaction is successful, we have high
-confidence that the content in the repository exactly matches
-the content on disk.
-</p>
-
-<p>
-Every project files is verified by three separate checksums.
-There is an SHA256 checksum used as part of the digital signature
-on the file.  There is an MD5 checksum on the content of each
-individual file.  And there is a global MD5 checksum over the
-entire project source tree.  If any of these cross-checks do not
-match then the operation fails and an error is displayed.  Taken
-together, these cross-checks give us high confidence that the
-files you checked out are identical to the files you checked in.
+Manifest files that define a baseline have two fields (the
+R-line and Z-line) that record MD5 hashs of the manifest itself
+and of all other files in the manifest.  Prior to any check-in
+commit, these checksums are verified to ensure that the baseline
+checked in agrees exactly with what is on disk.  Similarly,
+the repository checksum is verified after a checkout to make
+sure that the entire repository was checked out correctly.
+Note that these added checks use a different hash (MD5 instead
+of SHA1) in order to avoid common-mode failures in the hash
+algorithm implementation.
 </p>

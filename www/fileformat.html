@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Fossil File Formats</title>
+<title>Fossil File Format</title>
 </head>
 <body bgcolor="white">
 <h1 align="center">
@@ -9,87 +9,171 @@ Fossil File Formats
 
 <p>
 The global state of a fossil repository is determined by an unordered
-set of content files.  Each of these files has a format which is defined
-by this document.
-</p>
-
-<h2>1.0 General Formatting Rules</h2>
-
-<p>
-Fossil content files consist of a header, a blank line, and optional
-content.
+set of files.  Some files used to represent wiki pages, trouble tickets,
+and the special "manifest" file has a specific and well-defined format.
+Other files are just the content of the files.  Files can be text or
+binary.
 </p>
 
 <p>
-The header is divided into "properties" by newline ('\n', 0x0a)
-characters.  Each header property is divided into tokens by space (' ', 0x20)
-characters.  The first token of each property is the property name.
-Subsequent tokens (if any) are arguments to the property.
+Each file in the repository is named by its SHA1 hash.
+Some files have a particular format which qualifies them
+as "manifests".  A manifest assigns filenames to a subset
+of the files in the repository, in order to provide a
+snapshot of the state of the project at a point in time.
+Each manifest file corresponds to a version or baseline
+of the project.
+</p>
+
+<h2>1.0 The Manifest File</h2>
+
+<p>
+Any file in the repository that follows the syntactic rules
+of a manifest is a manifest.  Note that a manifest can
+be both a real manifest and also a content file, though this
+is rare.
 </p>
 
 <p>
-The blank line that separates the header from the content can be
-thought of as a property line that contains no tokens.  Everything
-that follows the newline character that terminates the blank line
-is content.  The blank line is always present but the content is
-optional.
+A manifest is a line-oriented text file.  Newline characters
+(ASCII 0x0a) separate lines.  Each line begins with a single
+character "line type".  Zero or more arguments may follow
+the line type.  All arguments are separated from each other
+and from the line-type character by a single space
+character.  There is no surplus white space between arguments
+and no leading or trailing whitespace except for the newline 
+character that acts as the line separator.
 </p>
 
 <p>
-All tokens in a property line are encoded to escape special characters.
-The encoding is as follows:
+All lines of the manifest occur in strict sorted lexigraphical order.
+No line may be duplicated.
+The entire manifest file may be PGP clear-signed, but otherwise it
+may contain no additional text or data beyond what is described here.
+</p>
+
+<p>
+Allowed lines in the manifest are as follows:
 </p>
 
 <blockquote>
-<table border="1">
-<tr><th>Input Character</th><th>Encoded As</th></tr>
-<tr><td align="center"> space (0x20) </td><td align="center"> \s </td></tr>
-<tr><td align="center"> newline (0x0A) </td><td align="center"> \n </td></tr>
-<tr><td align="center"> carriage return (0x0D) </td><td align="center"> \r </td></tr>
-<tr><td align="center"> tab (0x09) </td><td align="center"> \t </td></tr>
-<tr><td align="center"> vertical tab (0x0B) </td><td align="center"> \v </td></tr>
-<tr><td align="center"> formfeed (0x0C) </td><td align="center"> \f </td></tr>
-<tr><td align="center"> nul (0x00) </td><td align="center"> \0 </td></tr>
-<tr><td align="center"> backslash (0x5C) </td><td align="center"> \\ </td></tr>
-</table>
+<b>C</b> <i>checkin-comment</i><br>
+<b>D</b> <i>time-and-date-stamp</i><br>
+<b>F</b> <i>filename</i> <i>SHA1-hash</i><br>
+<b>P</b> <i>SHA1-hash</i>+<br>
+<b>R</b> <i>repository-checksum</i><br>
+<b>U</b> <i>user-login</i><br>
+<b>Z</b> <i>manifest-checksum</i>
 </blockquote>
 
 <p>
-Characters other than the ones shown in the table above are passed through
-the encoder without change.
+A manifest must have exactly one C-line.  The sole argument to
+the C-line is a check-in comment that describes the baseline that
+the manifest defines.  The check-in comment is text.  The following
+escape sequences are applied to the text:
+A space (ASCII 0x20) is represented as "\s" (ASCII 0x5C, 0x73).  A
+newline (ASCII 0x0a) is "\n" (ASCII 0x6C, x6E).  A backslash 
+(ASCII 0x5C) is represented as two backslashes "\\".  Apart from
+space and newline, no other whitespace characters are allowed in
+the check-in comment.  Nor are any unprintable characters allowed
+in the comment.
 </p>
 
 <p>
-All properties names are unpunctuated lower-case ASCII strings.
-The properties appear in the header in sorted order (using
-memcpy() as the comparision function) except for the "signature"
-property which always occurs first.
-</p>
-
-<h2>2.0 Common Properties</h2>
-
-<p>
-Every content file has a "time" property.  The argument to the
-time property is an integer which is the number of seconds since
-1970 UTC when the content file was created.  For example:
+A manifest must have exactly one D-line.  The sole argument to
+the D-line is a date-time stamp in the ISO8601 format.  The
+date and time should be in coordinated universal time (UTC).
+The format is:
 </p>
 
 <blockquote>
-time 1181404746
+<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i>
 </blockquote>
 
 <p>
-Every content file has a "type" property.  The argument to the
-type property defines the purpose of the content file.  The
-argument can be strings like "version", "folder", "file", or "user".
+A manifest has zero or more F-lines.  Each F-line defines a file
+(other than the manifest itself) which is part of the baseline that
+the manifest defines.  There are two arguments.  The first argment
+is the pathname of the file in the baseline relative to the root
+of the project file hierarchy.  No ".." or "." directories are allowed
+within the filename.  Space characters are escaped as in C-line
+comment text.  Backslash characters and newlines are not allowed
+within filenames.  The directory separator character is a forward
+slash (ASCII 0x2F).  The second argument to the F-line is the
+full 40-character hexadecimal SHA1 hash of the file content.  
+Upper-case letters ABCDEF are used for the higher digits of the
+hexadecimal.
 </p>
 
 <p>
-The first property of a content file is the digital signature.  The
-name of the signature property is "signature".  There are two arguments.
-The first argument is the SHA256 hash of the content file that defines
-the user who signed this file.  User records themselves are self-signed
-and so the first argument is simply "*" for user records.  The second
-argument is the digital signature of an SHA256 hash of the entire
-file (header and content) except for the signature line itself.
+A manifest has zero or one P-lines.  Most manifests have one P-line.
+The P-line has a varying number of arguments that
+defines other manifests from which the current manifest
+is derived.  Each argument is an 40-character uppercase 
+hexadecimal SHA1 of the predecessor manifest.  All arguments
+to the P-line must be unique to that line.
+The first predecessor is the manifests direct ancestor.
+Other arguments define manifests with which the first was
+merged to yield the current manifest.  Most manifests have
+a P-line with a single argument.  The first manifest in the
+project has no ancestors and thus has no P-line.
 </p>
+
+<p>
+A manifest may optionally have a single R-line.  The R-line has
+a single argument which is the MD5 checksum of all files in 
+the baseline except the manifest itself.  The checksum is expressed
+as 32-characters of uppercase hexadecimal.   The checksum is
+computed as follows:  For each file in the baseline (except for
+the manifest itself) in strict sorted lexigraphical order, 
+take the pathname of the file relative to the root of the
+repository, append a single space (ASCII 0x20), the
+size of the file in ASCII decimal, a single newline
+character (ASCII 0x0A), and the complete text of the file.
+Compute the MD5 checksum of the the result.
+</p>
+
+<p>
+Each manifest has a single U-line.  The argument to the U-line is
+the login of the user who created the manifest.  The login name
+is encoded using the same character escapes as is used for the
+check-in comment argument to the C-line.
+</p>
+
+<p>
+A manifest has an option Z-line as its last line.  The argument
+to the Z-line is a 32-character uppercase hexadecimal MD5 hash
+of all prior lines of the manifest up to and including the newline 
+character that immediately preceeds the "Z".  The Z-line is just
+a sanity check to prove that the manifest is well-formed and
+consistent.
+</p>
+
+<h2>2.0 Trouble Tickets</h2>
+
+<p>
+Each trouble ticket is a file in the repository and appears in
+a manifest for every baseline in which the ticket exists.
+Trouble tickets occur in a specific subdirectory of the file
+heirarchy.  The name of the subdirectory that contains tickets
+is part of the local state of each repository.  The filename
+of each trouble ticket has a ".tkt" suffix.  The trouble ticket
+has a particular file format defined below.
+</p>
+
+<i>To be continued...</i>
+
+<h2>3.0 Wiki Pages</h2>
+
+<p>
+Each wiki is a file in the repository and appears in
+a manifest for every baseline in which that wiki page exists.
+Wiki pages occur in a specific subdirectory of the file
+heirarchy.  The name of the subdirectory that contains wiki pages
+is part of the local state of each repository.  The filename
+of each wiki page has a ".wiki" suffix.  The base name of
+the file is the name of the wiki page.  The wiki pages
+have a particular file format defined below.
+</p>
+
+<i>To be continued...</i>
