@@ -1,5 +1,5 @@
-C Documentation\supdates
-D 2007-07-24T12:52:32
+C Merge\sin\sthe\slatest\sSQLite\supdates.
+D 2007-07-24T12:54:24
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -39,8 +39,8 @@ F src/rebuild.c 04451053b1d87084e08cd8f83a39611d36dca636
 F src/schema.c 39376154b892fdcfe6a8f7a0aa902d07cf439755
 F src/setup.c 91d49b89a00f89c0e86db465ea44bf77909fc1fd
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
-F src/sqlite3.c dc3d59a59f838dae729a027abc2d7ab39fc602c3
-F src/sqlite3.h ac7d1c1d6da3b4f284fdce80dac06a220abf0408
+F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
+F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7b2fdcfed55fadf4e9b1a8f0b190accf6952a40f
 F src/sync.c 36ca951c1c14f90816eb0aea20d366d8a9556d5b
 F src/timeline.c cd16841a59d7db2d0cca1723f729b262d1c1636d
@@ -63,7 +63,7 @@ F www/fileformat.html 8a7ce84d6007a69b20f45443f1ee95519ea958eb
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 0feed85090d52ba67cbc16e76ef4b4e48e310227
-R 35996fc7f37ce7db3659c2661a201d32
+P b807acf62eecfbf884fa10244ea59d78f39ac0a9
+R 34e3ff6f553efcb5947ec94576ca1a7d
 U drh
-Z 34c36fdc2cc835eb434dfb2e016df2d9
+Z 8eeb909d741eec223f6fcfa44901943b

@@ -1,6 +1,6 @@
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from SQLite
-** version 3.4.0.  By combining all the individual C code files into this 
+** version 3.4.1.  By combining all the individual C code files into this 
 ** single large file, the entire code can be compiled as a one translation
 ** unit.  This allows many compilers to do optimizations that would not be
 ** possible if the files were compiled separately.  Performance improvements
@@ -11,13 +11,13 @@
 ** programs, you need this file and the "sqlite3.h" header file that defines
 ** the programming interface to the SQLite library.  (If you do not have 
 ** the "sqlite3.h" header file at hand, you will find a copy in the first
-** 2698 lines past this header comment.)  Additional code files may be
+** 2702 lines past this header comment.)  Additional code files may be
 ** needed if you want a wrapper to interface SQLite with your choice of
 ** programming language.  The code for the "sqlite3" command-line shell
 ** is also in a separate file.  This file contains only code for the core
 ** SQLite library.
 **
-** This amalgamation was generated on 2007-07-17 16:48:46 UTC.
+** This amalgamation was generated on 2007-07-24 12:53:26 UTC.
 */
 #define SQLITE_AMALGAMATION 1
 #ifndef SQLITE_PRIVATE
@@ -59,7 +59,7 @@
 ** the version number) and changes its name to "sqlite3.h" as
 ** part of the build process.
 **
-** @(#) $Id: sqlite.h.in,v 1.217 2007/06/27 15:53:35 danielk1977 Exp $
+** @(#) $Id: sqlite.h.in,v 1.218 2007/07/19 12:41:40 drh Exp $
 */
 #ifndef _SQLITE3_H_
 #define _SQLITE3_H_
@@ -110,8 +110,8 @@ extern "C" {
 **
 ** See also: [sqlite3_libversion()] and [sqlite3_libversion_number()].
 */
-#define SQLITE_VERSION         "3.4.0"
-#define SQLITE_VERSION_NUMBER 3004000
+#define SQLITE_VERSION         "3.4.1"
+#define SQLITE_VERSION_NUMBER 3004001
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -992,10 +992,14 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 ** The second argument "zSql" is the statement to be compiled, encoded
 ** as either UTF-8 or UTF-16.  The sqlite3_prepare() and sqlite3_prepare_v2()
 ** interfaces uses UTF-8 and sqlite3_prepare16() and sqlite3_prepare16_v2()
-** use UTF-16. If the next argument, "nBytes", is less
+** use UTF-16.
+**
+** If the nByte argument is less
 ** than zero, then zSql is read up to the first zero terminator.  If
-** "nBytes" is not less than zero, then it is the length of the string zSql
-** in bytes (not characters).
+** nByte is non-negative, then it is the maximum number of 
+** bytes read from zSql.  When nByte is non-negative, the
+** zSql string ends at either the first '\000' character or 
+** until the nByte-th byte, whichever comes first.
 **
 ** *pzTail is made to point to the first byte past the end of the first
 ** SQL statement in zSql.  This routine only compiles the first statement
@@ -1048,28 +1052,28 @@ typedef struct sqlite3_stmt sqlite3_stmt;
 SQLITE_API int sqlite3_prepare(
   sqlite3 *db,            /* Database handle */
   const char *zSql,       /* SQL statement, UTF-8 encoded */
-  int nBytes,             /* Length of zSql in bytes. */
+  int nByte,              /* Maximum length of zSql in bytes. */
   sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const char **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
 int sqlite3_prepare_v2(
   sqlite3 *db,            /* Database handle */
   const char *zSql,       /* SQL statement, UTF-8 encoded */
-  int nBytes,             /* Length of zSql in bytes. */
+  int nByte,              /* Maximum length of zSql in bytes. */
   sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const char **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
 SQLITE_API int sqlite3_prepare16(
   sqlite3 *db,            /* Database handle */
   const void *zSql,       /* SQL statement, UTF-16 encoded */
-  int nBytes,             /* Length of zSql in bytes. */
+  int nByte,              /* Maximum length of zSql in bytes. */
   sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const void **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
 int sqlite3_prepare16_v2(
   sqlite3 *db,            /* Database handle */
   const void *zSql,       /* SQL statement, UTF-16 encoded */
-  int nBytes,             /* Length of zSql in bytes. */
+  int nByte,              /* Maximum length of zSql in bytes. */
   sqlite3_stmt **ppStmt,  /* OUT: Statement handle */
   const void **pzTail     /* OUT: Pointer to unused portion of zSql */
 );
@@ -2790,7 +2794,7 @@ int sqlite3_blob_write(sqlite3_blob *, const void *z, int n, int iOffset);
 *************************************************************************
 ** Internal interface definitions for SQLite.
 **
-** @(#) $Id: sqliteInt.h,v 1.578 2007/06/26 10:38:55 danielk1977 Exp $
+** @(#) $Id: sqliteInt.h,v 1.580 2007/07/23 19:31:17 drh Exp $
 */
 #ifndef _SQLITEINT_H_
 #define _SQLITEINT_H_
@@ -5921,61 +5925,14 @@ typedef struct {
 extern int sqlite3_always_code_trigger_setup;
 
 /*
-** A lookup table used by the SQLITE_READ_UTF8 macro.  The definition
-** is in utf.c.
+** Assuming zIn points to the first byte of a UTF-8 character,
+** advance zIn to point to the first byte of the next UTF-8 character.
 */
-extern const unsigned char sqlite3UtfTrans1[];
-
-/*
-** Macros for reading UTF8 characters.
-**
-** SQLITE_READ_UTF8(x,c) reads a single UTF8 value out of x and writes
-** that value into c.  The type of x must be unsigned char*.  The type
-** of c must be unsigned int.
-**
-** SQLITE_SKIP_UTF8(x) advances x forward by one character.  The type of
-** x must be unsigned char*.
-**
-** Notes On Invalid UTF-8:
-**
-**  *  These macros never allow a 7-bit character (0x00 through 0x7f) to
-**     be encoded as a multi-byte character.  Any multi-byte character that
-**     attempts to encode a value between 0x00 and 0x7f is rendered as 0xfffd.
-**
-**  *  These macros never allow a UTF16 surrogate value to be encoded.
-**     If a multi-byte character attempts to encode a value between
-**     0xd800 and 0xe000 then it is rendered as 0xfffd.
-**
-**  *  Bytes in the range of 0x80 through 0xbf which occur as the first
-**     byte of a character are interpreted as single-byte characters
-**     and rendered as themselves even though they are technically
-**     invalid characters.
-**
-**  *  These routines accept an infinite number of different UTF8 encodings
-**     for unicode values 0x80 and greater.  They do not change over-length
-**     encodings to 0xfffd as some systems recommend.
-** 
-*/
-#define SQLITE_READ_UTF8(zIn, c) {                     \
-  c = *(zIn++);                                        \
-  if( c>=0xc0 ){                                       \
-    c = sqlite3UtfTrans1[c-0xc0];                      \
-    while( (*zIn & 0xc0)==0x80 ){                      \
-      c = (c<<6) + (0x3f & *(zIn++));                  \
-    }                                                  \
-    if( c<0x80                                         \
-        || (c&0xFFFFF800)==0xD800                      \
-        || (c&0xFFFFFFFE)==0xFFFE ){  c = 0xFFFD; }    \
-  }                                                    \
-}
 #define SQLITE_SKIP_UTF8(zIn) {                        \
   if( (*(zIn++))>=0xc0 ){                              \
     while( (*zIn & 0xc0)==0x80 ){ zIn++; }             \
   }                                                    \
 }
-
-
-
 
 /*
 ** The SQLITE_CORRUPT_BKPT macro can be either a constant (for production
@@ -6195,7 +6152,7 @@ SQLITE_PRIVATE int sqlite3GetInt32(const char *, int*);
 SQLITE_PRIVATE int sqlite3FitsIn64Bits(const char *);
 SQLITE_PRIVATE int sqlite3Utf16ByteLen(const void *pData, int nChar);
 SQLITE_PRIVATE int sqlite3Utf8CharLen(const char *pData, int nByte);
-SQLITE_PRIVATE u32 sqlite3ReadUtf8(const unsigned char *);
+SQLITE_PRIVATE int sqlite3Utf8Read(const u8*, const u8*, const u8**);
 SQLITE_PRIVATE int sqlite3PutVarint(unsigned char *, u64);
 SQLITE_PRIVATE int sqlite3GetVarint(const unsigned char *, u64 *);
 SQLITE_PRIVATE int sqlite3GetVarint32(const unsigned char *, u32 *);
@@ -6266,6 +6223,13 @@ SQLITE_PRIVATE int sqlite3ApiExit(sqlite3 *db, int);
 SQLITE_PRIVATE void sqlite3FailedMalloc(void);
 SQLITE_PRIVATE void sqlite3AbortOtherActiveVdbes(sqlite3 *, Vdbe *);
 SQLITE_PRIVATE int sqlite3OpenTempDatabase(Parse *);
+
+/*
+** The interface to the LEMON-generated parser
+*/
+SQLITE_PRIVATE void *sqlite3ParserAlloc(void*(*)(size_t));
+SQLITE_PRIVATE void sqlite3ParserFree(void*, void(*)(void*));
+SQLITE_PRIVATE void sqlite3Parser(void*, int, Token, Parse*);
 
 #ifndef SQLITE_OMIT_LOAD_EXTENSION
 SQLITE_PRIVATE   void sqlite3CloseExtensions(sqlite3*);
@@ -9288,7 +9252,7 @@ SQLITE_PRIVATE void sqlite3Randomness(int N, void *pBuf){
 ** This file contains routines used to translate between UTF-8, 
 ** UTF-16, UTF-16BE, and UTF-16LE.
 **
-** $Id: utf.c,v 1.51 2007/05/23 16:23:09 danielk1977 Exp $
+** $Id: utf.c,v 1.52 2007/07/23 19:12:42 drh Exp $
 **
 ** Notes on UTF-8:
 **
@@ -9767,6 +9731,7 @@ const unsigned char sqlite3UtfTrans1[] = {
   0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x00, 0x00,
 };
 
+
 #define WRITE_UTF8(zOut, c) {                          \
   if( c<0x00080 ){                                     \
     *zOut++ = (c&0xFF);                                \
@@ -9832,6 +9797,54 @@ const unsigned char sqlite3UtfTrans1[] = {
     if( (c & 0xFFFF0000)==0 ) c = 0xFFFD;                             \
   }                                                                   \
 }
+
+/*
+** Translate a single UTF-8 character.  Return the unicode value.
+**
+** During translation, assume that the byte that zTerm points
+** is a 0x00.
+**
+** Write a pointer to the next unread byte back into *pzNext.
+**
+** Notes On Invalid UTF-8:
+**
+**  *  This routine never allows a 7-bit character (0x00 through 0x7f) to
+**     be encoded as a multi-byte character.  Any multi-byte character that
+**     attempts to encode a value between 0x00 and 0x7f is rendered as 0xfffd.
+**
+**  *  This routine never allows a UTF16 surrogate value to be encoded.
+**     If a multi-byte character attempts to encode a value between
+**     0xd800 and 0xe000 then it is rendered as 0xfffd.
+**
+**  *  Bytes in the range of 0x80 through 0xbf which occur as the first
+**     byte of a character are interpreted as single-byte characters
+**     and rendered as themselves even though they are technically
+**     invalid characters.
+**
+**  *  This routine accepts an infinite number of different UTF8 encodings
+**     for unicode values 0x80 and greater.  It do not change over-length
+**     encodings to 0xfffd as some systems recommend.
+*/
+SQLITE_PRIVATE int sqlite3Utf8Read(
+  const unsigned char *z,         /* First byte of UTF-8 character */
+  const unsigned char *zTerm,     /* Pretend this byte is 0x00 */
+  const unsigned char **pzNext    /* Write first byte past UTF-8 char here */
+){
+  int c = *(z++);
+  if( c>=0xc0 ){
+    c = sqlite3UtfTrans1[c-0xc0];
+    while( z!=zTerm && (*z & 0xc0)==0x80 ){
+      c = (c<<6) + (0x3f & *(z++));
+    }
+    if( c<0x80
+        || (c&0xFFFFF800)==0xD800
+        || (c&0xFFFFFFFE)==0xFFFE ){  c = 0xFFFD; }
+  }
+  *pzNext = z;
+  return c;
+}
+
+
 
 /*
 ** If the TRANSLATE_TRACE macro is defined, the value of each Mem is
@@ -9926,80 +9939,18 @@ SQLITE_PRIVATE int sqlite3VdbeMemTranslate(Mem *pMem, u8 desiredEnc){
   z = zOut;
 
   if( pMem->enc==SQLITE_UTF8 ){
-    unsigned int iExtra = 0xD800;
-
-    if( 0==(pMem->flags&MEM_Term) && zTerm>zIn && (zTerm[-1]&0x80) ){
-      /* This UTF8 string is not nul-terminated, and the last byte is
-      ** not a character in the ascii range (codpoints 0..127). This
-      ** means the SQLITE_READ_UTF8() macro might read past the end
-      ** of the allocated buffer.
-      **
-      ** There are four possibilities:
-      **
-      **   1. The last byte is the first byte of a non-ASCII character,
-      **
-      **   2. The final N bytes of the input string are continuation bytes
-      **      and immediately preceding them is the first byte of a 
-      **      non-ASCII character.
-      **
-      **   3. The final N bytes of the input string are continuation bytes
-      **      and immediately preceding them is a byte that encodes a 
-      **      character in the ASCII range.
-      **
-      **   4. The entire string consists of continuation characters.
-      **
-      ** Cases (3) and (4) require no special handling. The SQLITE_READ_UTF8()
-      ** macro will not overread the buffer in these cases.
-      */
-      unsigned char *zExtra = &zTerm[-1];
-      while( zExtra>zIn && (zExtra[0]&0xC0)==0x80 ){
-        zExtra--;
-      }
-
-      if( (zExtra[0]&0xC0)==0xC0 ){
-        /* Make a copy of the last character encoding in the input string.
-        ** Then make sure it is nul-terminated and use SQLITE_READ_UTF8()
-        ** to decode the codepoint. Store the codepoint in variable iExtra,
-        ** it will be appended to the output string later.
-        */
-        unsigned char *zFree = 0;
-        unsigned char zBuf[16];
-        int nExtra = (pMem->n+zIn-zExtra);
-        zTerm = zExtra;
-        if( nExtra>15 ){
-          zExtra = sqliteMallocRaw(nExtra+1);
-          if( !zExtra ){
-            return SQLITE_NOMEM;
-          }
-          zFree = zExtra;
-        }else{
-          zExtra = zBuf;
-        }
-        memcpy(zExtra, zTerm, nExtra);
-        zExtra[nExtra] = '\0';
-        SQLITE_READ_UTF8(zExtra, iExtra);
-        sqliteFree(zFree);
-      }
-    }
-
     if( desiredEnc==SQLITE_UTF16LE ){
       /* UTF-8 -> UTF-16 Little-endian */
       while( zIn<zTerm ){
-        SQLITE_READ_UTF8(zIn, c); 
+        c = sqlite3Utf8Read(zIn, zTerm, (const u8**)&zIn);
         WRITE_UTF16LE(z, c);
-      }
-      if( iExtra!=0xD800 ){
-        WRITE_UTF16LE(z, iExtra);
       }
     }else{
       assert( desiredEnc==SQLITE_UTF16BE );
       /* UTF-8 -> UTF-16 Big-endian */
       while( zIn<zTerm ){
-        SQLITE_READ_UTF8(zIn, c); 
+        c = sqlite3Utf8Read(zIn, zTerm, (const u8**)&zIn);
         WRITE_UTF16BE(z, c);
-      }
-      if( iExtra!=0xD800 ){
-        WRITE_UTF16BE(z, iExtra);
       }
     }
     pMem->n = z - zOut;
@@ -10184,11 +10135,11 @@ SQLITE_PRIVATE int sqlite3Utf16ByteLen(const void *zIn, int nChar){
 SQLITE_PRIVATE int sqlite3Utf8To8(unsigned char *zIn){
   unsigned char *zOut = zIn;
   unsigned char *zStart = zIn;
-  int c;
+  unsigned char *zTerm;
+  u32 c;
 
-  while(1){
-    SQLITE_READ_UTF8(zIn, c);
-    if( c==0 ) break;
+  while( zIn[0] ){
+    c = sqlite3Utf8Read(zIn, zTerm, (const u8**)&zIn);
     if( c!=0xfffd ){
       WRITE_UTF8(zOut, c);
     }
@@ -10208,6 +10159,7 @@ SQLITE_PRIVATE void sqlite3UtfSelfTest(){
   unsigned int i, t;
   unsigned char zBuf[20];
   unsigned char *z;
+  unsigned char *zTerm;
   int n;
   unsigned int c;
 
@@ -10216,8 +10168,9 @@ SQLITE_PRIVATE void sqlite3UtfSelfTest(){
     WRITE_UTF8(z, i);
     n = z-zBuf;
     z[0] = 0;
+    zTerm = z;
     z = zBuf;
-    SQLITE_READ_UTF8(z, c);
+    c = sqlite3Utf8Read(z, zTerm, (const u8**)&z);
     t = i;
     if( i>=0xD800 && i<=0xDFFF ) t = 0xFFFD;
     if( (i&0xFFFFFFFE)==0xFFFE ) t = 0xFFFD;
@@ -17878,7 +17831,7 @@ SQLITE_PRIVATE ThreadData *sqlite3WinThreadSpecificData(int allocateFlag){
 ** file simultaneously, or one process from reading the database while
 ** another is writing.
 **
-** @(#) $Id: pager.c,v 1.349 2007/06/26 22:10:12 drh Exp $
+** @(#) $Id: pager.c,v 1.351 2007/07/20 00:33:36 drh Exp $
 */
 #ifndef SQLITE_OMIT_DISKIO
 
@@ -18404,17 +18357,6 @@ static int write32bits(OsFile *fd, u32 val){
   put32bits(ac, val);
   return sqlite3OsWrite(fd, ac, 4);
 }
-
-/*
-** Read a 32-bit integer at offset 'offset' from the page identified by
-** page header 'p'.
-*/
-static u32 retrieve32bits(PgHdr *p, int offset){
-  unsigned char *ac;
-  ac = &((unsigned char*)PGHDR_TO_DATA(p))[offset];
-  return sqlite3Get4byte(ac);
-}
-
 
 /*
 ** This function should be called when an error occurs within the pager
@@ -21727,10 +21669,8 @@ static int pager_incr_changecounter(Pager *pPager){
     rc = sqlite3PagerWrite(pPgHdr);
     if( rc!=SQLITE_OK ) return rc;
   
-    /* Read the current value at byte 24. */
-    change_counter = retrieve32bits(pPgHdr, 24);
-  
     /* Increment the value just read and write it back to byte 24. */
+    change_counter = sqlite3Get4byte((u8*)pPager->dbFileVers);
     change_counter++;
     put32bits(((char*)PGHDR_TO_DATA(pPgHdr))+24, change_counter);
     /* Release the page reference. */
@@ -22349,7 +22289,7 @@ SQLITE_PRIVATE void sqlite3PagerRefdump(Pager *pPager){
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** $Id: btree.c,v 1.392 2007/06/26 01:04:49 drh Exp $
+** $Id: btree.c,v 1.393 2007/07/23 19:26:17 drh Exp $
 **
 ** This file implements a external (disk-based) database using BTrees.
 ** See the header comment on "btreeInt.h" for additional information.
@@ -24936,7 +24876,7 @@ static int autoVacuumCommit(BtShared *pBt, Pgno *pnTrunc){
       assert(nFin==0 || pBt->nTrunc==0 || nFin<=pBt->nTrunc);
       rc = SQLITE_OK;
       if( pBt->nTrunc ){
-        sqlite3PagerWrite(pBt->pPage1->pDbPage);
+        rc = sqlite3PagerWrite(pBt->pPage1->pDbPage);
         put4byte(&pBt->pPage1->aData[32], 0);
         put4byte(&pBt->pPage1->aData[36], 0);
         pBt->nTrunc = nFin;
@@ -33575,7 +33515,7 @@ sqlite3 *sqlite3_db_handle(sqlite3_stmt *pStmt){
 ** in this file for details.  If in doubt, do not deviate from existing
 ** commenting and indentation practices when changing or adding code.
 **
-** $Id: vdbe.c,v 1.636 2007/07/01 21:18:40 drh Exp $
+** $Id: vdbe.c,v 1.638 2007/07/22 19:10:21 drh Exp $
 */
 
 /*
@@ -37826,14 +37766,14 @@ case OP_IntegrityCk: {
     if( (pTos[-nRoot].flags & MEM_Int)==0 ) break;
   }
   assert( nRoot>0 );
-  aRoot = sqliteMallocRaw( sizeof(int*)*(nRoot+1) );
+  aRoot = sqliteMallocRaw( sizeof(int)*(nRoot+1) );
   if( aRoot==0 ) goto no_mem;
   j = pOp->p1;
   assert( j>=0 && j<p->nMem );
   pnErr = &p->aMem[j];
   assert( (pnErr->flags & MEM_Int)!=0 );
   for(j=0; j<nRoot; j++){
-    aRoot[j] = pTos[-j].u.i;
+    aRoot[j] = (pTos-j)->u.i;
   }
   aRoot[j] = 0;
   popStack(&pTos, nRoot);
@@ -39078,7 +39018,7 @@ int sqlite3_blob_bytes(sqlite3_blob *pBlob){
 ** This file contains routines used for analyzing expressions and
 ** for generating VDBE code that evaluates expressions in SQLite.
 **
-** $Id: expr.c,v 1.300 2007/06/25 16:29:34 danielk1977 Exp $
+** $Id: expr.c,v 1.301 2007/07/23 22:51:15 drh Exp $
 */
 
 /*
@@ -40204,11 +40144,17 @@ static int lookupName(
       for(j=0; j<pEList->nExpr; j++){
         char *zAs = pEList->a[j].zName;
         if( zAs!=0 && sqlite3StrICmp(zAs, zCol)==0 ){
-          Expr *pDup;
+          Expr *pDup, *pOrig;
           assert( pExpr->pLeft==0 && pExpr->pRight==0 );
           assert( pExpr->pList==0 );
           assert( pExpr->pSelect==0 );
-          pDup = sqlite3ExprDup(pEList->a[j].pExpr);
+          pOrig = pEList->a[j].pExpr;
+          if( !pNC->allowAgg && ExprHasProperty(pOrig, EP_Agg) ){
+            sqlite3ErrorMsg(pParse, "misuse of aliased aggregate %s", zAs);
+            sqliteFree(zCol);
+            return 2;
+          }
+          pDup = sqlite3ExprDup(pOrig);
           if( pExpr->flags & EP_ExpCollate ){
             pDup->pColl = pExpr->pColl;
             pDup->flags |= EP_ExpCollate;
@@ -47911,9 +47857,10 @@ SQLITE_PRIVATE void sqlite3GenerateIndexKey(
 ** sqliteRegisterBuildinFunctions() found at the bottom of the file.
 ** All other code has file scope.
 **
-** $Id: func.c,v 1.161 2007/06/22 15:21:16 danielk1977 Exp $
+** $Id: func.c,v 1.162 2007/07/23 19:12:42 drh Exp $
 */
 /* #include <math.h> */
+
 
 /*
 ** Return the collating function associated with a function.
@@ -48287,15 +48234,6 @@ static const struct compareInfo likeInfoNorm = { '%', '_',   0, 1 };
 static const struct compareInfo likeInfoAlt = { '%', '_',   0, 0 };
 
 /*
-** Read a single UTF-8 character and return its value.
-*/
-SQLITE_PRIVATE u32 sqlite3ReadUtf8(const unsigned char *z){
-  u32 c;
-  SQLITE_READ_UTF8(z, c);
-  return c;
-}
-
-/*
 ** Compare two UTF-8 strings for equality where the first string can
 ** potentially be a "glob" expression.  Return true (1) if they
 ** are the same and false (0) if they are different.
@@ -48329,97 +48267,102 @@ static int patternCompare(
   const struct compareInfo *pInfo, /* Information about how to do the compare */
   const int esc                    /* The escape character */
 ){
-  register int c;
+  int c, c2;
   int invert;
   int seen;
-  int c2;
   u8 matchOne = pInfo->matchOne;
   u8 matchAll = pInfo->matchAll;
   u8 matchSet = pInfo->matchSet;
   u8 noCase = pInfo->noCase; 
   int prevEscape = 0;     /* True if the previous character was 'escape' */
 
-  while( (c = *zPattern)!=0 ){
+  while( (c = sqlite3Utf8Read(zPattern,0,&zPattern))!=0 ){
     if( !prevEscape && c==matchAll ){
-      while( (c=zPattern[1]) == matchAll || c == matchOne ){
-        if( c==matchOne ){
-          if( *zString==0 ) return 0;
-          SQLITE_SKIP_UTF8(zString);
+      while( (c=sqlite3Utf8Read(zPattern,0,&zPattern)) == matchAll
+               || c == matchOne ){
+        if( c==matchOne && sqlite3Utf8Read(zString, 0, &zString)==0 ){
+          return 0;
         }
-        zPattern++;
       }
-      if( c && esc && sqlite3ReadUtf8(&zPattern[1])==esc ){
-        u8 const *zTemp = &zPattern[1];
-        SQLITE_SKIP_UTF8(zTemp);
-        c = *zTemp;
-      }
-      if( c==0 ) return 1;
-      if( c==matchSet ){
-        assert( esc==0 );   /* This is GLOB, not LIKE */
-        while( *zString && patternCompare(&zPattern[1],zString,pInfo,esc)==0 ){
+      if( c==0 ){
+        return 1;
+      }else if( c==esc ){
+        c = sqlite3Utf8Read(zPattern, 0, &zPattern);
+        if( c==0 ){
+          return 0;
+        }
+      }else if( c==matchSet ){
+        assert( esc==0 );         /* This is GLOB, not LIKE */
+        assert( matchSet<0x80 );  /* '[' is a single-byte character */
+        while( *zString && patternCompare(&zPattern[-1],zString,pInfo,esc)==0 ){
           SQLITE_SKIP_UTF8(zString);
         }
         return *zString!=0;
-      }else{
-        while( (c2 = *zString)!=0 ){
-          if( noCase ){
-            c2 = sqlite3UpperToLower[c2];
-            c = sqlite3UpperToLower[c];
-            while( c2 != 0 && c2 != c ){ c2 = sqlite3UpperToLower[*++zString]; }
-          }else{
-            while( c2 != 0 && c2 != c ){ c2 = *++zString; }
+      }
+      while( (c2 = sqlite3Utf8Read(zString,0,&zString))!=0 ){
+        if( noCase ){
+          c2 = c2<0x80 ? sqlite3UpperToLower[c2] : c2;
+          c = c<0x80 ? sqlite3UpperToLower[c] : c;
+          while( c2 != 0 && c2 != c ){
+            c2 = sqlite3Utf8Read(zString, 0, &zString);
+            if( c2<0x80 ) c2 = sqlite3UpperToLower[c2];
           }
-          if( c2==0 ) return 0;
-          if( patternCompare(&zPattern[1],zString,pInfo,esc) ) return 1;
-          SQLITE_SKIP_UTF8(zString);
+        }else{
+          while( c2 != 0 && c2 != c ){
+            c2 = sqlite3Utf8Read(zString, 0, &zString);
+          }
         }
+        if( c2==0 ) return 0;
+        if( patternCompare(zPattern,zString,pInfo,esc) ) return 1;
+      }
+      return 0;
+    }else if( !prevEscape && c==matchOne ){
+      if( sqlite3Utf8Read(zString, 0, &zString)==0 ){
         return 0;
       }
-    }else if( !prevEscape && c==matchOne ){
-      if( *zString==0 ) return 0;
-      SQLITE_SKIP_UTF8(zString);
-      zPattern++;
     }else if( c==matchSet ){
       int prior_c = 0;
       assert( esc==0 );    /* This only occurs for GLOB, not LIKE */
       seen = 0;
       invert = 0;
-      c = sqlite3ReadUtf8(zString);
+      c = sqlite3Utf8Read(zString, 0, &zString);
       if( c==0 ) return 0;
-      c2 = *++zPattern;
-      if( c2=='^' ){ invert = 1; c2 = *++zPattern; }
+      c2 = sqlite3Utf8Read(zPattern, 0, &zPattern);
+      if( c2=='^' ){
+        invert = 1;
+        c2 = sqlite3Utf8Read(zPattern, 0, &zPattern);
+      }
       if( c2==']' ){
         if( c==']' ) seen = 1;
-        c2 = *++zPattern;
+        c2 = sqlite3Utf8Read(zPattern, 0, &zPattern);
       }
-      while( (c2 = sqlite3ReadUtf8(zPattern))!=0 && c2!=']' ){
-        if( c2=='-' && zPattern[1]!=']' && zPattern[1]!=0 && prior_c>0 ){
-          zPattern++;
-          c2 = sqlite3ReadUtf8(zPattern);
+      while( c2 && c2!=']' ){
+        if( c2=='-' && zPattern[0]!=']' && zPattern[0]!=0 && prior_c>0 ){
+          c2 = sqlite3Utf8Read(zPattern, 0, &zPattern);
           if( c>=prior_c && c<=c2 ) seen = 1;
           prior_c = 0;
-        }else if( c==c2 ){
-          seen = 1;
-          prior_c = c2;
         }else{
+          if( c==c2 ){
+            seen = 1;
+          }
           prior_c = c2;
         }
-        SQLITE_SKIP_UTF8(zPattern);
+        c2 = sqlite3Utf8Read(zPattern, 0, &zPattern);
       }
-      if( c2==0 || (seen ^ invert)==0 ) return 0;
-      SQLITE_SKIP_UTF8(zString);
-      zPattern++;
-    }else if( esc && !prevEscape && sqlite3ReadUtf8(zPattern)==esc){
+      if( c2==0 || (seen ^ invert)==0 ){
+        return 0;
+      }
+    }else if( esc==c && !prevEscape ){
       prevEscape = 1;
-      SQLITE_SKIP_UTF8(zPattern);
     }else{
+      c2 = sqlite3Utf8Read(zString, 0, &zString);
       if( noCase ){
-        if( sqlite3UpperToLower[c] != sqlite3UpperToLower[*zString] ) return 0;
-      }else{
-        if( c != *zString ) return 0;
+        c = c<0x80 ? sqlite3UpperToLower[c] : c;
+        c2 = c2<0x80 ? sqlite3UpperToLower[c2] : c2;
       }
-      zPattern++;
-      zString++;
+      if( c!=c2 ){
+        return 0;
+      }
       prevEscape = 0;
     }
   }
@@ -48479,7 +48422,7 @@ static void likeFunc(
           "ESCAPE expression must be a single character", -1);
       return;
     }
-    escape = sqlite3ReadUtf8(zEsc);
+    escape = sqlite3Utf8Read(zEsc, 0, &zEsc);
   }
   if( zA && zB ){
     struct compareInfo *pInfo = sqlite3_user_data(context);
@@ -49397,7 +49340,7 @@ SQLITE_PRIVATE int sqlite3IsLikeFunction(sqlite3 *db, Expr *pExpr, int *pIsNocas
 ** This file contains C code routines that are called by the parser
 ** to handle INSERT statements in SQLite.
 **
-** $Id: insert.c,v 1.187 2007/06/26 10:38:55 danielk1977 Exp $
+** $Id: insert.c,v 1.188 2007/07/23 19:39:47 drh Exp $
 */
 
 /*
@@ -50411,7 +50354,7 @@ SQLITE_PRIVATE void sqlite3GenerateConstraintChecks(
     assert( pParse->ckOffset==nCol );
     pParse->ckOffset = 0;
     onError = overrideError!=OE_Default ? overrideError : OE_Abort;
-    if( onError==OE_Ignore || onError==OE_Replace ){
+    if( onError==OE_Ignore ){
       sqlite3VdbeAddOp(v, OP_Pop, nCol+1+hasTwoRowids, 0);
       sqlite3VdbeAddOp(v, OP_Goto, 0, ignoreDest);
     }else{
@@ -51157,7 +51100,7 @@ exec_out:
 ** as extensions by SQLite should #include this file instead of 
 ** sqlite3.h.
 **
-** @(#) $Id: sqlite3ext.h,v 1.11 2007/06/22 15:21:16 danielk1977 Exp $
+** @(#) $Id: sqlite3ext.h,v 1.12 2007/07/20 10:48:36 drh Exp $
 */
 #ifndef _SQLITE3EXT_H_
 #define _SQLITE3EXT_H_
@@ -51167,6 +51110,12 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 /*
 ** The following structure hold pointers to all of the SQLite API
 ** routines.
+**
+** WARNING:  In order to maintain backwards compatibility, add new
+** interfaces to the end of this structure only.  If you insert new
+** interfaces in the middle of this structure, then older different
+** versions of SQLite will not be able to load each others shared
+** libraries!
 */
 struct sqlite3_api_routines {
   void * (*aggregate_context)(sqlite3_context*,int nBytes);
@@ -51217,7 +51166,6 @@ struct sqlite3_api_routines {
   int  (*create_function)(sqlite3*,const char*,int,int,void*,void (*xFunc)(sqlite3_context*,int,sqlite3_value**),void (*xStep)(sqlite3_context*,int,sqlite3_value**),void (*xFinal)(sqlite3_context*));
   int  (*create_function16)(sqlite3*,const void*,int,int,void*,void (*xFunc)(sqlite3_context*,int,sqlite3_value**),void (*xStep)(sqlite3_context*,int,sqlite3_value**),void (*xFinal)(sqlite3_context*));
   int (*create_module)(sqlite3*,const char*,const sqlite3_module*,void*);
-  int (*create_module_v2)(sqlite3*,const char*,const sqlite3_module*,void*,void (*xDestroy)(void *));
   int  (*data_count)(sqlite3_stmt*pStmt);
   sqlite3 * (*db_handle)(sqlite3_stmt*);
   int (*declare_vtab)(sqlite3*,const char*);
@@ -51289,6 +51237,7 @@ struct sqlite3_api_routines {
   int (*prepare_v2)(sqlite3*,const char*,int,sqlite3_stmt**,const char**);
   int (*prepare16_v2)(sqlite3*,const void*,int,sqlite3_stmt**,const void**);
   int (*clear_bindings)(sqlite3_stmt*);
+  int (*create_module_v2)(sqlite3*,const char*,const sqlite3_module*,void*,void (*xDestroy)(void *));
 };
 
 /*
@@ -51572,7 +51521,6 @@ const sqlite3_api_routines sqlite3_apis = {
   sqlite3_create_function,
   sqlite3_create_function16,
   sqlite3_create_module,
-  sqlite3_create_module_v2,
   sqlite3_data_count,
   sqlite3_db_handle,
   sqlite3_declare_vtab,
@@ -51656,6 +51604,12 @@ const sqlite3_api_routines sqlite3_apis = {
   sqlite3_prepare_v2,
   sqlite3_prepare16_v2,
   sqlite3_clear_bindings,
+
+  /*
+  ** Added for 3.4.1
+  */
+  sqlite3_create_module_v2,
+
 };
 
 /*
@@ -53739,7 +53693,7 @@ int sqlite3_prepare16_v2(
 ** This file contains C code routines that are called by the parser
 ** to handle SELECT statements in SQLite.
 **
-** $Id: select.c,v 1.353 2007/06/26 10:38:55 danielk1977 Exp $
+** $Id: select.c,v 1.354 2007/07/18 18:17:12 drh Exp $
 */
 
 
@@ -56239,6 +56193,16 @@ static int simpleMinMaxQuery(Parse *pParse, Select *p, int eDest, int iParm){
       sqlite3VdbeAddOp(v, OP_Null, 0, 0);
       sqlite3VdbeAddOp(v, OP_MakeRecord, 1, 0);
       seekOp = OP_MoveGt;
+    }
+    if( pIdx->aSortOrder[0]==SQLITE_SO_DESC ){
+      /* Ticket #2514: invert the seek operator if we are using
+      ** a descending index. */
+      if( seekOp==OP_Last ){
+        seekOp = OP_Rewind;
+      }else{
+        assert( seekOp==OP_MoveGt );
+        seekOp = OP_MoveLt;
+      }
     }
     sqlite3VdbeAddOp(v, seekOp, iIdx, 0);
     sqlite3VdbeAddOp(v, OP_IdxRowid, iIdx, 0);
@@ -65807,7 +65771,7 @@ SQLITE_PRIVATE void sqlite3Parser(
 ** individual tokens and sends those tokens one-by-one over to the
 ** parser for analysis.
 **
-** $Id: tokenize.c,v 1.130 2007/07/13 10:26:08 drh Exp $
+** $Id: tokenize.c,v 1.131 2007/07/23 19:31:17 drh Exp $
 */
 
 /*
@@ -66283,13 +66247,6 @@ static int getToken(const unsigned char *z, int *tokenType){
 SQLITE_PRIVATE int sqlite3GetToken(const unsigned char *z, int *tokenType){
   return getToken(z, tokenType);
 }
-
-/*
-** The interface to the LEMON-generated parser
-*/
-SQLITE_PRIVATE void *sqlite3ParserAlloc(void*(*)(size_t));
-SQLITE_PRIVATE void sqlite3ParserFree(void*, void(*)(void*));
-SQLITE_PRIVATE void sqlite3Parser(void*, int, Token, Parse*);
 
 /*
 ** Run the parser on the given SQL string.  The parser structure is
