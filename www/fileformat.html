@@ -109,7 +109,7 @@ hexadecimal.
 A manifest has zero or one P-lines.  Most manifests have one P-line.
 The P-line has a varying number of arguments that
 defines other manifests from which the current manifest
-is derived.  Each argument is an 40-character uppercase 
+is derived.  Each argument is an 40-character lowercase 
 hexadecimal SHA1 of the predecessor manifest.  All arguments
 to the P-line must be unique to that line.
 The first predecessor is the manifests direct ancestor.
@@ -123,7 +123,7 @@ project has no ancestors and thus has no P-line.
 A manifest may optionally have a single R-line.  The R-line has
 a single argument which is the MD5 checksum of all files in 
 the baseline except the manifest itself.  The checksum is expressed
-as 32-characters of uppercase hexadecimal.   The checksum is
+as 32-characters of lowercase hexadecimal.   The checksum is
 computed as follows:  For each file in the baseline (except for
 the manifest itself) in strict sorted lexigraphical order, 
 take the pathname of the file relative to the root of the
@@ -142,7 +142,7 @@ check-in comment argument to the C-line.
 
 <p>
 A manifest has an option Z-line as its last line.  The argument
-to the Z-line is a 32-character uppercase hexadecimal MD5 hash
+to the Z-line is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline 
 character that immediately preceeds the "Z".  The Z-line is just
 a sanity check to prove that the manifest is well-formed and
