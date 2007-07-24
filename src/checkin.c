@@ -273,7 +273,7 @@ void commit_cmd(void){
   blob_appendf(&manifest, "D %s\n", zDate);
   db_prepare(&q,
     "SELECT pathname, uuid FROM vfile JOIN blob USING (rid)"
-    " WHERE vfile.vid=%d"
+    " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
@@ -314,7 +314,7 @@ void commit_cmd(void){
   printf("New_Version: %s\n", zUuid);
   
   /* Update VFILE */
-  db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
+  db_multi_exec("DELETE FROM vfile WHERE vid!=%d OR deleted", vid);
   db_multi_exec("DELETE FROM vmerge");
   db_multi_exec("UPDATE vfile SET vid=%d, rid=mrid, chnged=0, deleted=0", nvid);
   db_lset_int("checkout", nvid);
