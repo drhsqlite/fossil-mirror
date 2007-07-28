@@ -1,5 +1,5 @@
-C File\sformat\sdocument\schange:\s\sUUIDs\suse\slowercase\snot\suppercase\shex.
-D 2007-07-24T18:15:40
+C When\saccessing\sa\sremote\srepository,\sif\sthere\sis\sa\susername/password\sspecified\sas\spart\sof\sthe\sURI,\suse\sthese\sto\slogin.
+D 2007-07-28T07:09:25
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -10,19 +10,19 @@ F src/clone.c 163dfdc48cba75ffdaa63a2908b780ca02eeb3db
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c fa624bb97533260208342e079be76679b643a710
-F src/db.c e56e4576466cbd5d98af8bc4681a0e735c90efb2
+F src/db.c fcfc75c8b2a3fce70526b54c7fc84c1949b4f55d
 F src/delta.c ee93661e27b7758f0592629317a985bfba08c42a
 F src/deltacmd.c a84ef9f6ad20f8e37ce2ba54a2ade461a6380a52
 F src/descendents.c ba7454a9cf6d6bcbea550ba49b11b7032529c437
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
-F src/encode.c af8a8318d12ce677134b63621f10516defa850fc
+F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
-F src/http.c 3b83a20834ff5b27f5cdd2498aa59213e09f6b9f
-F src/info.c cb6cea5bd76cf733bc4d3aa18d3e762dfc8190de
+F src/http.c d56d77ab2410ab22cfcea32a0f5b5bb365dbbf0c
+F src/info.c 199807a9fde71de760817bb1da28c610374a7ef3
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c c801bf1f9b736b24c77116d350b769d75c93f9e1
-F src/main.c e0071db8be482852fbee19994cbe36c43a955910
+F src/main.c 93362928df84e19dd90858692ec635d626969966
 F src/main.mk 1617e07ee74c628b7bd63dddffd3355ad8c7dbf4
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -46,7 +46,7 @@ F src/sync.c 36ca951c1c14f90816eb0aea20d366d8a9556d5b
 F src/timeline.c cd16841a59d7db2d0cca1723f729b262d1c1636d
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
-F src/url.c f3bcafe7057731b3bb9e0f7c7f9e32b56b0735b3
+F src/url.c 1a6d7505c678b61216e02daab9bb25d2299881b0
 F src/user.c f41abe06105e4d538227d55457b4bfb275ba80a4
 F src/verify.c 7995bb74af682e983d2c2183a58dacb38cf93e20
 F src/vfile.c e0efe29333d86817bdd653a7c415517d43165402
@@ -62,7 +62,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P ac1dea8eac8d3e94d44da33bb0bf4f9f1fd6e649
-R ecc71dc73ead991692f1ceee0b35520f
-U drh
-Z 8cf1e594050ea16dd01244e9424e01a9
+P 01e7596a984e2cd2bc12abc0a741415b902cbeea
+R 667cdfa9149c4e2870fe4df10640268b
+U dan
+Z 5508038ec12ab565a8178108da4b3b28

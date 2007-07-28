@@ -154,20 +154,37 @@ write_err:
 ** in order to fill this structure appropriately.
 */
 void http_exchange(Blob *pSend, Blob *pRecv){
+  const char *zLogin;              /* Username to send to server */ 
   Blob login, nonce, sig, pw, payload, hdr;
   const char *zSep;
   int i;
   int cnt = 0;
 
-  user_select();
   blob_zero(&nonce);
   blob_zero(&pw);
   db_blob(&nonce, "SELECT hex(randomblob(20))");
   blob_copy(&pw, &nonce);
-  db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
+
+  if( g.urlUsername ){
+    /* In this case, a username and optionally a password were specified 
+    ** as part of the URI to contact. This overrides the default user 
+    ** and -user option (if any). If no password was specified as part 
+    ** of the URI, use an empty string ("") as the password.
+    */
+    blob_append(&pw, g.urlPassword ? g.urlPassword : "", -1);
+    zLogin = g.urlUsername;
+  }else{
+    /* Otherwise, use either the default user or the user specified with
+    ** the -user option. Pull the password from the local repository.
+    */
+    user_select();
+    db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
+    zLogin = g.zLogin;
+  }
+
   sha1sum_blob(&pw, &sig);
   blob_zero(&login);
-  blob_appendf(&login, "login %s %b %b\n", g.zLogin, &nonce, &sig);
+  blob_appendf(&login, "login %s %b %b\n", zLogin, &nonce, &sig);
   blob_reset(&nonce);
   blob_reset(&pw);
   blob_reset(&sig);

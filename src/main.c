@@ -72,6 +72,8 @@ struct Global {
   int urlPort;            /* TCP port number for http: */
   char *urlPath;          /* Pathname for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
+  char *urlUsername;      /* Username specified as part of the URI */
+  char *urlPassword;      /* Password specified as part of the URI */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
   int isAnon;             /* True if logged in anoymously */

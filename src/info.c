@@ -105,9 +105,9 @@ void info_cmd(void){
   }
 }
 
-#if 0
+#if 1
 /*
-** WEB PAGE: vinfo
+** WEBPAGE: vinfo
 **
 ** Return information about a version.  The version number is contained
 ** in g.zExtra.
@@ -125,10 +125,24 @@ void vinfo_page(void){
     style_footer();
     return;
   }
+  db_row_to_table("SELECT "
+    "  blob.uuid               AS \"UUID\""
+    ", datetime(rcvfrom.mtime) AS \"Created\""
+    ", rcvfrom.uid             AS \"User Id\""
+    ", blob.size               AS \"Size\""
+    "FROM blob, rcvfrom "
+    "WHERE rid=%d", rid
+  );
+  style_footer();
+  return;
+
   db_prepare(&q,
-    "SELECT uuid, datetime(mtime,'unixepoch'), datetime(ctime,'unixepoch'),"
-    "         uid, size, cksum, branch, comment, type"
-    "  FROM record WHERE rid=%d", rid
+    "SELECT "
+      "uuid, "                                         /* 0 */
+      "datetime(mtime,'unixepoch'),"                   /* 1 */
+      "datetime(ctime,'unixepoch'),"                   /* 2 */
+      "uid, size, cksum, branch, comment, type"        /* 3..8 */
+    "FROM record WHERE rid=%d", rid
   );
   if( db_step(&q)==SQLITE_ROW ){
     const char *z;
@@ -258,7 +272,9 @@ void vinfo_page(void){
   }
   style_footer();
 }
+#endif
 
+#if 0
 /*
 ** WEB PAGE: diff
 **

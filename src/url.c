@@ -26,6 +26,78 @@
 #include "config.h"
 #include "url.h"
 
+/* Parse a URI authority. The parsed syntax is:
+**
+**     [<username> : <password> @] <hostname> [: <port>]
+**
+** TODO: If the input string does not match this pattern, results are
+** undefined (but should not crash or anything nasty like that).
+*/
+void url_parse_authority(char const *zUri, int *pIdx){
+  char *zUser = 0;
+  char *zPass = 0;
+  char *zHost = 0;
+  int iPort = 80;
+
+  int iFirst = *pIdx;
+  int iColon = -1;
+  int ii;
+
+  /* Scan for the magic "@". If the authority contains this character,
+  ** then we need to parse a username and password.
+  */
+  for(ii=iFirst; zUri[ii] && zUri[ii]!='@' && zUri[ii]!= '/'; ii++){
+    if( zUri[ii]==':' ) iColon = ii;
+  }
+
+  /* Parse the username and (optional) password. */
+  if( zUri[ii]=='@' ){
+    if( iColon>=0 ){
+      zUser = mprintf("%.*s", iColon-iFirst, &zUri[iFirst]);
+      zPass = mprintf("%.*s", ii-(iColon+1), &zUri[iColon+1]);
+    }else{
+      zUser = mprintf("%.*s", ii-iFirst, &zUri[iFirst]);
+    }
+    iFirst = ii+1;
+  }
+
+  /* Parse the hostname. */
+  for(ii=iFirst; zUri[ii] && zUri[ii]!=':' && zUri[ii]!= '/'; ii++);
+  zHost = mprintf("%.*s", ii-iFirst, &zUri[iFirst]);
+
+  /* Parse the port number, if one is specified. */
+  if( zUri[ii]==':' ){
+    iPort = atoi(&zUri[ii+1]);
+    for(ii=iFirst; zUri[ii] && zUri[ii]!= '/'; ii++);
+  }
+
+  /* Set the g.urlXXX variables to the parsed values. */
+  dehttpize(zUser);
+  dehttpize(zPass);
+  dehttpize(zHost);
+  g.urlUsername = zUser;
+  g.urlPassword = zPass;
+  g.urlName = zHost;
+  g.urlPort = iPort;
+
+  *pIdx = ii;
+}
+
+/*
+** Based on the values already stored in the other g.urlXXX variables,
+** set the g.urlCanonical variable.
+*/
+void url_set_canon(){
+  g.urlCanonical = mprintf("http://%T%s%T%s%T:%d%T", 
+    (g.urlUsername ? g.urlUsername : ""),
+    (g.urlPassword ? ":" : ""),
+    (g.urlPassword ? g.urlPassword : ""),
+    (g.urlUsername ? "@" : ""),
+    g.urlName, g.urlPort, g.urlPath
+  );
+  /* printf("%s\n", g.urlCanonical); */
+}
+
 /*
 ** Parse the given URL.  Populate variables in the global "g" structure.
 **
@@ -35,29 +107,29 @@
 **      g.urlPath        Path name for HTTP.
 **      g.urlCanonical   The URL in canonical form
 **
+** If g.uriIsFile is false, indicating an http URI, then the following
+** variables are also populated:
+**
+**      g.urlUsername
+**      g.urlPassword
+**
+** TODO: At present, the only way to specify a username is to pass it
+** as part of the URI. In the future, if no password is specified, 
+** fossil should use the get_passphrase() routine (user.c) to obtain
+** a password from the user.
 */
 void url_parse(const char *zUrl){
   int i, j, c;
   char *zFile;
   if( strncmp(zUrl, "http:", 5)==0 ){
     g.urlIsFile = 0;
-    for(i=7; (c=zUrl[i])!=0 && c!=':' && c!='/'; i++){}
-    g.urlName = mprintf("%.*s", i-7, &zUrl[7]);
-    for(j=0; g.urlName[j]; j++){ g.urlName[j] = tolower(g.urlName[j]); }
-    if( c==':' ){
-      g.urlPort = 0;
-      i++;
-      while( (c = zUrl[i])!=0 && isdigit(c) ){
-        g.urlPort = g.urlPort*10 + c - '0';
-        i++;
-      }
-    }else{
-      g.urlPort = 80;
-    }
+
+    i = 7;
+    url_parse_authority(zUrl, &i);
     g.urlPath = mprintf(&zUrl[i]);
-    dehttpize(g.urlName);
     dehttpize(g.urlPath);
-    g.urlCanonical = mprintf("http://%T:%d%T", g.urlName, g.urlPort, g.urlPath);
+    url_set_canon();
+
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
     if( zUrl[5]=='/' && zUrl[6]=='/' ){
