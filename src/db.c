@@ -529,19 +529,22 @@ int db_open_local(void){
   }
   n = strlen(zPwd);
   while( n>0 ){
-    if( access(zPwd, W_OK) ) return 0;
+    if( access(zPwd, W_OK) ) break;
     strcpy(&zPwd[n], "/_FOSSIL_");
     if( isValidLocalDb(zPwd) ){
+      /* Found a valid _FOSSIL_ file */
       zPwd[n] = 0;
       g.zLocalRoot = mprintf("%s/", zPwd);
-      break;
+      return 1;
     }
     n--;
     while( n>0 && zPwd[n]!='/' ){ n--; }
     while( n>0 && zPwd[n-1]=='/' ){ n--; }
     zPwd[n] = 0;
   }
-  return 1;
+
+  /* A _FOSSIL_ file could not be found */
+  return 0;
 }
 
 /*

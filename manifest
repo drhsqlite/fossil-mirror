@@ -1,5 +1,5 @@
-C Remove\sa\sc++ism\sfrom\sdeltacmd.c.
-D 2007-07-28T08:04:24
+C Fix\sto\sthe\sdb_open_local()\sfunction\sin\sthe\scase\swhere\sthe\sroot\sdirectory\sis\swritable\sby\sthe\scurrent\suser.
+D 2007-07-28T08:15:54
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -10,7 +10,7 @@ F src/clone.c 163dfdc48cba75ffdaa63a2908b780ca02eeb3db
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c fa624bb97533260208342e079be76679b643a710
-F src/db.c fcfc75c8b2a3fce70526b54c7fc84c1949b4f55d
+F src/db.c 3ac17e30e1045be00f043297e87708e9df62747e
 F src/delta.c ee93661e27b7758f0592629317a985bfba08c42a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c ba7454a9cf6d6bcbea550ba49b11b7032529c437
@@ -62,7 +62,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 3dcaed8d86cde74f050f862f0fc23cb7ea9cc0f1
-R 126eba6cab7f44b02b044437281c1c53
+P 0c227fa40679a8798536077cd85c483295138511
+R 13b148f48766a122062f7fe13ea7ed23
 U dan
-Z 99cae3d9b217a48adba95478a1ac8b1a
+Z a32736917b222d1ac4b5f8104445ea53
