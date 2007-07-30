@@ -32,11 +32,11 @@
 ** uninitialized.
 */
 int blob_delta_create(Blob *pOriginal, Blob *pTarget, Blob *pDelta){
-  blob_zero(pDelta);
   const char *zOrig, *zTarg;
   int lenOrig, lenTarg;
   int len;
   char *zRes;
+  blob_zero(pDelta);
   zOrig = blob_buffer(pOriginal);
   lenOrig = blob_size(pOriginal);
   zTarg = blob_buffer(pTarget);

@@ -172,12 +172,12 @@ void http_exchange(Blob *pSend, Blob *pRecv){
   }else{
     if( g.urlPasswd==0 ){
       if( strcmp(g.urlUser,"anonymous")!=0 ){
-        char *zPrompt = mprintf("password for %s", g.urlUser);
+        char *zPrompt = mprintf("password for %s: ", g.urlUser);
         Blob x;
         prompt_for_password(zPrompt, &x, 0);
         free(zPrompt);
-        blob_append(&pw, blob_buffer(&x), blob_size(&x));
-        blob_reset(&x);
+        g.urlPasswd = blob_str(&x);
+        blob_append(&pw, g.urlPasswd, -1);
       }
     }
     sha1sum_blob(&pw, &sig);

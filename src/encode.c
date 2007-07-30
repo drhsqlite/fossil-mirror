@@ -184,6 +184,10 @@ static int AsciiToHex(int c){
 */
 int dehttpize(char *z){
   int i, j;
+
+  /* Treat a null pointer as a zero-length string. */
+  if( !z ) return 0;
+
   i = j = 0;
   while( z[i] ){
     switch( z[i] ){
