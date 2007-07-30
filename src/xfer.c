@@ -232,6 +232,7 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     blob_zero(&combined);
     blob_copy(&combined, pNonce);
     blob_append(&combined, blob_buffer(&pw), blob_size(&pw));
+    /* CGIDEBUG(("presig=[%s]\n", blob_str(&combined))); */
     sha1sum_blob(&combined, &hash);
     rc = blob_compare(&hash, pSig);
     blob_reset(&hash);

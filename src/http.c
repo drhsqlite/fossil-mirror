@@ -177,9 +177,12 @@ void http_exchange(Blob *pSend, Blob *pRecv){
         prompt_for_password(zPrompt, &x, 0);
         free(zPrompt);
         g.urlPasswd = blob_str(&x);
-        blob_append(&pw, g.urlPasswd, -1);
+      }else{
+        g.urlPasswd = "";
       }
     }
+    blob_append(&pw, g.urlPasswd, -1);
+    /* printf("presig=[%s]\n", blob_str(&pw)); */
     sha1sum_blob(&pw, &sig);
     blob_appendf(&login, "login %s %b %b\n", g.urlUser, &nonce, &sig);
   }        
