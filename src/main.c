@@ -71,6 +71,8 @@ struct Global {
   char *urlName;          /* Hostname for http: or filename for file: */
   int urlPort;            /* TCP port number for http: */
   char *urlPath;          /* Pathname for http: */
+  char *urlUser;          /* User id for http: */
+  char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */

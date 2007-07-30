@@ -362,6 +362,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
+      login_check_credentials();
       if( blob_eq(&aToken[0], "pull") ){
         if( !g.okRead ){
           cgi_reset_content();
@@ -387,6 +388,7 @@ void page_xfer(void){
     ** The client knows nothing.  Tell all.
     */
     if( blob_eq(&aToken[0], "clone") ){
+      login_check_credentials();
       if( !g.okRead ){
         cgi_reset_content();
         @ error not\sauthorized\sto\sread

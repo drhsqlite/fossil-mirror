@@ -56,8 +56,8 @@ static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
 }
 
 /*
-** Prompt the user for a passphrase used to encrypt the private key
-** portion of an RSA key pair.
+** Prompt the user for a password.  Store the result in the pPassphrase
+** blob.
 **
 ** Behavior is controlled by the verify parameter:
 **
@@ -68,7 +68,11 @@ static void prompt_for_passphrase(const char *zPrompt, Blob *pPassphrase){
 **
 **     2     Ask twice, repeat if the strings do not match.
 */
-static void get_passphrase(const char *zPrompt, Blob *pPassphrase, int verify){
+void prompt_for_password(
+  const char *zPrompt,
+  Blob *pPassphrase,
+  int verify
+){
   Blob secondTry;
   blob_zero(pPassphrase);
   blob_zero(&secondTry);
@@ -119,7 +123,7 @@ void user_cmd(void){
 
     prompt_user("login: ", &login);
     prompt_user("contact-info: ", &contact);
-    get_passphrase("password: ", &passwd, 1);
+    prompt_for_password("password: ", &passwd, 1);
     db_multi_exec(
       "INSERT INTO user(login,pw,cap,info)"
       "VALUES(%B,%B,'jnor',%B)",
@@ -151,7 +155,7 @@ void user_cmd(void){
       fossil_fatal("no such user: %s", g.argv[3]);
     }
     zPrompt = mprintf("new passwd for %s: ", g.argv[3]);
-    get_passphrase(zPrompt, &pw, 1);
+    prompt_for_password(zPrompt, &pw, 1);
     if( blob_size(&pw)==0 ){
       printf("password unchanged\n");
     }else{

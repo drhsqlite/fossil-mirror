@@ -205,15 +205,19 @@ void login_check_credentials(void){
 
   /* Check the login cookie to see if it matches a known valid user.
   */
-  if( uid==0 && (zCookie = P(login_cookie_name()))!=0 ){
-    uid = db_int(0, 
-            "SELECT 1 FROM user"
-            " WHERE uid=%d"
-            "   AND cookie=%Q"
-            "   AND ipaddr=%Q"
-            "   AND cexpire>julianday('now')",
-            atoi(zCookie), zCookie, zRemoteAddr
-         );
+  if( uid==0 ){
+    if( (zCookie = P(login_cookie_name()))!=0 ){
+      uid = db_int(0, 
+              "SELECT uid FROM user"
+              " WHERE uid=%d"
+              "   AND cookie=%Q"
+              "   AND ipaddr=%Q"
+              "   AND cexpire>julianday('now')",
+              atoi(zCookie), zCookie, zRemoteAddr
+           );
+    }else{
+      uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
+    }
   }
 
   if( uid==0 ){

@@ -159,15 +159,30 @@ void http_exchange(Blob *pSend, Blob *pRecv){
   int i;
   int cnt = 0;
 
-  user_select();
   blob_zero(&nonce);
   blob_zero(&pw);
   db_blob(&nonce, "SELECT hex(randomblob(20))");
   blob_copy(&pw, &nonce);
-  db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
-  sha1sum_blob(&pw, &sig);
   blob_zero(&login);
-  blob_appendf(&login, "login %s %b %b\n", g.zLogin, &nonce, &sig);
+  if( g.urlUser==0 ){
+    user_select();
+    db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
+    sha1sum_blob(&pw, &sig);
+    blob_appendf(&login, "login %s %b %b\n", g.zLogin, &nonce, &sig);
+  }else{
+    if( g.urlPasswd==0 ){
+      if( strcmp(g.urlUser,"anonymous")!=0 ){
+        char *zPrompt = mprintf("password for %s", g.urlUser);
+        Blob x;
+        prompt_for_password(zPrompt, &x, 0);
+        free(zPrompt);
+        blob_append(&pw, blob_buffer(&x), blob_size(&x));
+        blob_reset(&x);
+      }
+    }
+    sha1sum_blob(&pw, &sig);
+    blob_appendf(&login, "login %s %b %b\n", g.urlUser, &nonce, &sig);
+  }        
   blob_reset(&nonce);
   blob_reset(&pw);
   blob_reset(&sig);
@@ -185,7 +200,7 @@ void http_exchange(Blob *pSend, Blob *pRecv){
   }else{
     zSep = "/";
   }
-  blob_appendf(&hdr, "GET %s%sxfer HTTP/1.1\r\n", g.urlPath, zSep);
+  blob_appendf(&hdr, "POST %s%sxfer HTTP/1.1\r\n", g.urlPath, zSep);
   if( g.fHttpTrace ){
     blob_appendf(&hdr, "Content-Type: application/x-fossil-debug\r\n");
   }else{

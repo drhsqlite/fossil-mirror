@@ -1,5 +1,5 @@
-C When\serrors\soccur\sduring\sCGI,\smake\ssure\sthe\serror\sis\sreturned\sin\sa\ncorrect\sCGI\sreply.
-D 2007-07-30T13:34:35
+C Use\sPOST\sinstead\sof\sGET\sfor\sthe\s/xfer\smethod.\s\sOther\sbug\sfixes\sin\sthe\nURL\sparser.
+D 2007-07-30T14:28:17
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -18,11 +18,11 @@ F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c af8a8318d12ce677134b63621f10516defa850fc
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
-F src/http.c 3b83a20834ff5b27f5cdd2498aa59213e09f6b9f
+F src/http.c a8e6ad7f136ac367f250f373973871dad769caba
 F src/info.c cb6cea5bd76cf733bc4d3aa18d3e762dfc8190de
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
-F src/login.c c801bf1f9b736b24c77116d350b769d75c93f9e1
-F src/main.c 66d646290657e81abeba8f36b1d5733e6d3e3fad
+F src/login.c 769bfdbb7fc299568bccf0cde1bdfc77b3a36634
+F src/main.c fa34f0baa1c6b92d08ab5ba6f06821bceed07f63
 F src/main.mk 1617e07ee74c628b7bd63dddffd3355ad8c7dbf4
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -46,13 +46,13 @@ F src/sync.c 36ca951c1c14f90816eb0aea20d366d8a9556d5b
 F src/timeline.c cd16841a59d7db2d0cca1723f729b262d1c1636d
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
-F src/url.c f3bcafe7057731b3bb9e0f7c7f9e32b56b0735b3
-F src/user.c f41abe06105e4d538227d55457b4bfb275ba80a4
+F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
+F src/user.c 47ac33e64aa0213e1e87091f5d293879c7dfc719
 F src/verify.c 7995bb74af682e983d2c2183a58dacb38cf93e20
 F src/vfile.c e0efe29333d86817bdd653a7c415517d43165402
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 1d5b7d85e69e4e4857a16b9abfd083a8eef5f186
+F src/xfer.c a734598a7e14d3bc0e685d8bfef4a70ff29c08cb
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -62,7 +62,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 5eac33a6bdc277989fd5c572b4d34f2184c8e063
-R d1da3812dfe7ef113a5d6dfe6b0feacb
+P 396cc2a4eb1e99bf889ecaf45e3c25822837b4b4
+R 36da9bac903fb6f6415ac95924fcb4a5
 U drh
-Z 3be2e92fec693e32e05bba1cf3ca08ad
+Z 15686d86d994f990e12105d30c2836da

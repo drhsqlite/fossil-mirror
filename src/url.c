@@ -33,16 +33,34 @@
 **      g.urlName        Hostname for HTTP:.  Filename for FILE:
 **      g.urlPort        Port name for HTTP.
 **      g.urlPath        Path name for HTTP.
+**      g.urlUser        Userid.
+**      g.urlPasswd      Password.
 **      g.urlCanonical   The URL in canonical form
+**
+** HTTP url format is:
+**
+**     http://userid:password@host:port/path?query#fragment
 **
 */
 void url_parse(const char *zUrl){
   int i, j, c;
-  char *zFile;
+  char *zFile = 0;
   if( strncmp(zUrl, "http:", 5)==0 ){
     g.urlIsFile = 0;
-    for(i=7; (c=zUrl[i])!=0 && c!=':' && c!='/'; i++){}
-    g.urlName = mprintf("%.*s", i-7, &zUrl[7]);
+    for(i=7; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
+    if( c=='@' ){
+      for(j=7; j<i && zUrl[j]!=':'; j++){}
+      g.urlUser = mprintf("%.*s", j-7, &zUrl[7]);
+      if( j<i ){
+        g.urlPasswd = mprintf("%.*s", i-j-1, &zUrl[j+1]);
+      }
+      for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
+      g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
+      i = j;
+    }else{
+      for(i=7; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
+      g.urlName = mprintf("%.*s", i-7, &zUrl[7]);
+    }
     for(j=0; g.urlName[j]; j++){ g.urlName[j] = tolower(g.urlName[j]); }
     if( c==':' ){
       g.urlPort = 0;
@@ -89,4 +107,21 @@ void url_parse(const char *zUrl){
     g.urlCanonical = mprintf("file://%T", g.urlName);
     blob_reset(&cfile);
   }
+}
+
+/*
+** COMMAND: test-urlparser
+*/
+void cmd_test_urlparser(void){
+  if( g.argc!=3 ){
+    usage("URL");
+  }
+  url_parse(g.argv[2]);
+  printf("g.urlIsFile    = %d\n", g.urlIsFile);
+  printf("g.urlName      = %s\n", g.urlName);
+  printf("g.urlPort      = %d\n", g.urlPort);
+  printf("g.urlPath      = %s\n", g.urlPath);
+  printf("g.urlUser      = %s\n", g.urlUser);
+  printf("g.urlPasswd    = %s\n", g.urlPasswd);
+  printf("g.urlCanonical = %s\n", g.urlCanonical);
 }
