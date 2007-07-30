@@ -58,9 +58,20 @@ struct Stmt {
 */
 static void db_err(const char *zFormat, ...){
   va_list ap;
+  char *z;
   va_start(ap, zFormat);
-  fprintf(stderr, "%s\n", vmprintf(zFormat, ap));
+  z = vmprintf(zFormat, ap);
   va_end(ap);
+  if( g.cgiPanic ){
+    g.cgiPanic = 0;
+    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    style_footer();
+    cgi_reply();
+  }else{
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+  }
+  db_force_rollback();
+  exit(1);
   exit(1);
 }
 

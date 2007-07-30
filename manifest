@@ -1,5 +1,5 @@
-C Bug\sfix\sin\sthe\slocal\sdatabase\sfinder.
-D 2007-07-30T13:01:08
+C When\serrors\soccur\sduring\sCGI,\smake\ssure\sthe\serror\sis\sreturned\sin\sa\ncorrect\sCGI\sreply.
+D 2007-07-30T13:34:35
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -10,7 +10,7 @@ F src/clone.c 163dfdc48cba75ffdaa63a2908b780ca02eeb3db
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c fa624bb97533260208342e079be76679b643a710
-F src/db.c 84850dc1abe4d3afb29ab7b8962d0d0818541635
+F src/db.c 73fc8fe15d8a49d5a2df792425eb3ba87866ec9c
 F src/delta.c ee93661e27b7758f0592629317a985bfba08c42a
 F src/deltacmd.c a84ef9f6ad20f8e37ce2ba54a2ade461a6380a52
 F src/descendents.c ba7454a9cf6d6bcbea550ba49b11b7032529c437
@@ -22,7 +22,7 @@ F src/http.c 3b83a20834ff5b27f5cdd2498aa59213e09f6b9f
 F src/info.c cb6cea5bd76cf733bc4d3aa18d3e762dfc8190de
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c c801bf1f9b736b24c77116d350b769d75c93f9e1
-F src/main.c e0071db8be482852fbee19994cbe36c43a955910
+F src/main.c 66d646290657e81abeba8f36b1d5733e6d3e3fad
 F src/main.mk 1617e07ee74c628b7bd63dddffd3355ad8c7dbf4
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -62,7 +62,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 01e7596a984e2cd2bc12abc0a741415b902cbeea
-R 74a0432d81b956bfc3ff5a1a2bb46eb5
+P 5eac33a6bdc277989fd5c572b4d34f2184c8e063
+R d1da3812dfe7ef113a5d6dfe6b0feacb
 U drh
-Z c9dcc06ecead312b1c310711cb360bc3
+Z 3be2e92fec693e32e05bba1cf3ca08ad

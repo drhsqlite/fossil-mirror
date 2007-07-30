@@ -217,7 +217,7 @@ void fossil_panic(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiPanic ){
     g.cgiPanic = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>");
+    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
     style_footer();
     cgi_reply();
   }else{
@@ -234,7 +234,7 @@ void fossil_fatal(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiPanic ){
     g.cgiPanic = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>");
+    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
     style_footer();
     cgi_reply();
   }else{
@@ -487,6 +487,7 @@ void cmd_cgi(void){
   }else{
     zFile = g.argv[1];
   }
+  g.cgiPanic = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
