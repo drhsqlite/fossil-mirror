@@ -1,0 +1,85 @@
+Things to work on:
+
+ *  On every push, pull, or clone command, remember the URL of the
+    server using db_put().  On subsequent pushes and pulls, allow
+    the URL to be omitted and substitute the URL that was used the
+    previous time.  Display the saved URL as part of the "info"
+    command in the cli.
+
+ *  If the server does not have write permission on the database
+    file, or on the directory containing the database file (and 
+    it is thus unable to update database because it cannot create
+    a rollback journal) then it currently fails silently on a push.
+    It needs to return a helpful error.
+
+ *  The "leaves ?UUID?" command displays all leaf versions for the
+    version UUID or for the current version if UUID is omitted.  If
+    UUID is itself a leaf, it would be more helpful to display a
+    message to that effect:  "<uuid> is itself a leaf"
+
+ *  We need a command to show other branches - leaves of the root
+    which are not leaves of the indicated node.
+
+ *  Additional information displayed for the "vinfo" page:
+
+     +  The comment and user for this version (available in
+        the event table).
+     +  All decendents of this version (together with date,
+        user, comment, and hyperlink to the vinfo page) for
+        N generations.  N to be determined.  Perhaps configurable
+        using db_get_int()/db_set_int().  Note: decendents can
+        be found using the plink table.
+     +  All leaves of this version that are not included in the
+        decendent list.  With date, user, comment, and hyperlink.
+        Leaves in the decendent table should be marked as such.
+        See the compute_leaves() function to see how to find all
+        leaves.
+     +  All ancestors of the current version with date, user,
+        comment, hyperlink.  M generations back, where M is
+        to be determined.
+     +  List of files added or modified by this version.
+        Information available in the mlink table.  Hyperlinks to
+        the finfo page for each file.
+     +  Hyperlinks to diff all files in this version against any
+        of the named decendents or ancestors.  The unified_diff()
+        function will compute a unified diff given to file blobs.
+
+ *  A new webpage: "finfo"  Information about a particular file
+    given its name.
+
+     +  All historical changes to this file with version number,
+        user, and comment, and hyperlink to the vinfo page for
+        the version.  Information available from the minfo table.
+     +  Hyperlinks for diffing consecutive versions of the file.
+
+ *  Given any version uuid, construct a ZIP archive that contains
+    the complete content for that version.  Feature should be
+    callable from the command-line or from the www interface.
+    Perhaps a hyperlink on the vinfo page to download the ZIP archive
+    for any version.
+
+ *  Timeline enhanced so that you can specify a range of dates.
+
+ *  The /xfer handler (for push, pull, and clone) does not do
+    delta compression.  This results in excess bandwidth usage.
+    There are some code in xfer.c that are sketches of ideas on
+    how to do delta compression, but nothing has been implemented.
+
+ *  Ticketing interface (expand this bullet)
+
+ *  Wiki interface (expand this bullet)
+
+ *  Full-text search against check-in comments and diffs of each
+    check-in.
+
+ *  New cli commands: "deconstruct" and "reconstruct".  The deconstruct
+    command populates an indicated directory with copies of all files
+    contained within the repository.  Files are named aaa/bbbbbbb where
+    aaa is the first 3 characters of the uuid and bbbbbb is the
+    remaining 37 characters.  reconstruct builds a new repository
+    containing all files in an indicated directory.  When reconstructing,
+    some information is lost: project-code, server-code, users.  
+    Just make up a new project-code.  
+
+ *  Get a build working for win32.  Perhaps use cygwin.  Or omit
+    the server component from win32 (to eliminate the need for fork()).
