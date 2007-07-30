@@ -541,7 +541,7 @@ int db_open_local(void){
     while( n>0 && zPwd[n-1]=='/' ){ n--; }
     zPwd[n] = 0;
   }
-  return 1;
+  return n>0;
 }
 
 /*
