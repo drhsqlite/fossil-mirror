@@ -71,7 +71,7 @@ void pivot_set_primary(int rid){
 void pivot_set_secondary(int rid){
   /* Insert the primary record */
   db_multi_exec( 
-    "INSERT INTO aqueue(rid, mtime, pending, src)"
+    "INSERT OR IGNORE INTO aqueue(rid, mtime, pending, src)"
     "  SELECT %d, mtime, 1, 0 FROM plink WHERE cid=%d",
     rid, rid
   );
