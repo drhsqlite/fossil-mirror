@@ -1,5 +1,5 @@
-C Send\sthe\sHOST\sheader\sparameter\swith\s/xfer\srequests.
-D 2007-07-30T18:57:36
+C Fix\sanother\sbug\sin\sthe\spivot\sfinder.\s\sNull-merge\swith\sthe\sdan-branch\nso\sthat\swe\snow\sonly\shave\sa\ssingle\sleaf\son\sthe\stree.
+D 2007-07-30T21:23:44
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -33,7 +33,7 @@ F src/merge.c c88ea8508fbc8d75fe3ed3d0bb9f6339e9157f85
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
 F src/mkindex.c a7cfef3b71e4923fb19ddc4d9fa9007fcfe915ad
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
-F src/pivot.c b19f3743af69cd76e5c35a397fcace602b505df7
+F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 04451053b1d87084e08cd8f83a39611d36dca636
 F src/schema.c 39376154b892fdcfe6a8f7a0aa902d07cf439755
@@ -62,7 +62,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P bfe6e64f94a6407a3f4270c5f97ec0f4a7ba58d2
-R 6d33f5d8847bd93c5a27bd2adf677d7d
+P 211c476d2368d6244d3b4376d944f0b081f69e12 e3c529c2f066a72002964c1ae5d3fe5fabd7ecf0
+R a97f7c94be3633b63c0dd9432b7fffda
 U drh
-Z d81e8848365afe15864dd1b0699ec5ad
+Z 9be09b52150e9c74ebb2530a2fcdf49e

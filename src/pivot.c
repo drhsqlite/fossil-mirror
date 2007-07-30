@@ -58,7 +58,7 @@ void pivot_set_primary(int rid){
   /* Insert the primary record */
   db_multi_exec( 
     "INSERT INTO aqueue(rid, mtime, pending, src)"
-    "  SELECT %d, mtime, 1, 1 FROM plink WHERE cid=%d",
+    "  SELECT %d, mtime, 1, 1 FROM plink WHERE cid=%d LIMIT 1",
     rid, rid
   );
 }
