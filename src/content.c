@@ -286,7 +286,7 @@ void test_content_undelta_cmd(void){
 void content_deltify(int rid, int srcid, int force){
   int s;
   Blob data, src, delta;
-  static Stmt s1, s2;
+  Stmt s1, s2;
   if( srcid==rid ) return;
   if( !force && findSrcid(rid, 0)>0 ) return;
   s = srcid;
@@ -302,16 +302,16 @@ void content_deltify(int rid, int srcid, int force){
   if( blob_size(&src)>=50 && blob_size(&data)>=50 &&
            blob_size(&delta) < blob_size(&data)*0.75 ){
     blob_compress(&delta, &delta);
-    db_static_prepare(&s1, "UPDATE blob SET content=:data WHERE rid=:rid");
-    db_static_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(:rid,:sid)");
-    db_bind_int(&s1, ":rid", rid);
+    db_prepare(&s1, "UPDATE blob SET content=:data WHERE rid=%d", rid);
+    db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,:sid)", rid);
     db_bind_blob(&s1, ":data", &delta);
-    db_bind_int(&s2, ":rid", rid);
     db_bind_int(&s2, ":sid", srcid);
     db_begin_transaction();
     db_exec(&s1);
     db_exec(&s2);
     db_end_transaction(0);
+    db_finalize(&s1);
+    db_finalize(&s2);
   }
   blob_reset(&src);
   blob_reset(&data);

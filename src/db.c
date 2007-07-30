@@ -540,19 +540,22 @@ int db_open_local(void){
   }
   n = strlen(zPwd);
   while( n>0 ){
-    if( access(zPwd, W_OK) ) return 0;
+    if( access(zPwd, W_OK) ) break;
     strcpy(&zPwd[n], "/_FOSSIL_");
     if( isValidLocalDb(zPwd) ){
+      /* Found a valid _FOSSIL_ file */
       zPwd[n] = 0;
       g.zLocalRoot = mprintf("%s/", zPwd);
-      break;
+      return 1;
     }
     n--;
     while( n>0 && zPwd[n]!='/' ){ n--; }
     while( n>0 && zPwd[n-1]=='/' ){ n--; }
     zPwd[n] = 0;
   }
-  return n>0;
+
+  /* A _FOSSIL_ file could not be found */
+  return 0;
 }
 
 /*
@@ -775,6 +778,37 @@ int db_lget_int(const char *zName, int dflt){
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
+
+int db_row_to_table(const char *zFormat, ...){
+  Stmt q;
+  va_list ap;
+  int rc;
+
+  va_start(ap, zFormat);
+  rc = db_vprepare(&q, zFormat, ap);
+  va_end(ap);
+  if( rc!=SQLITE_OK ){
+    return rc;
+  }
+
+  @ <table border="0" cellpadding="0" cellspacing="0">
+  if( db_step(&q)==SQLITE_ROW ){
+    int ii;
+    for(ii=0; ii<sqlite3_column_count(q.pStmt); ii++){
+      char *zCol = htmlize(sqlite3_column_name(q.pStmt, ii), -1);
+      char *zVal = htmlize(sqlite3_column_text(q.pStmt, ii), -1);
+
+      @ <tr><td align=right>%s(zCol):<td width=10><td>%s(zVal)
+
+      free(zVal);
+      free(zCol);
+    }
+  }
+  @ </table>
+
+  return db_finalize(&q);
+}
+
 
 /*
 ** COMMAND: open
