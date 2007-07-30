@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sthe\s/xfer\slogin\slogic.
-D 2007-07-30T18:38:43
+C Send\sthe\sHOST\sheader\sparameter\swith\s/xfer\srequests.
+D 2007-07-30T18:57:36
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -18,7 +18,7 @@ F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
-F src/http.c 237525898663a204cedb80d32a37a715fb9a084e
+F src/http.c 23446a0581aa7fea05ec296ca05bf184ce5bcfb0
 F src/info.c 199807a9fde71de760817bb1da28c610374a7ef3
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c a6b6c1f3f98bb2abf70fc92f1cdc7bd7101d3be0
@@ -62,7 +62,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 947842fb0ba593e4781b689ebbe880ed9989350b
-R 2df440b9c25cda9cc364ab89563c931d
+P bfe6e64f94a6407a3f4270c5f97ec0f4a7ba58d2
+R 6d33f5d8847bd93c5a27bd2adf677d7d
 U drh
-Z ac08070bd693447206a7568c11f6427b
+Z d81e8848365afe15864dd1b0699ec5ad
