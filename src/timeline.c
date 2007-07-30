@@ -57,7 +57,7 @@ void page_timeline(void){
   style_header("Timeline");
   zPrevDate[0] = 0;
   db_prepare(&q,
-    "SELECT uuid, datetime(event.mtime,'localtime'), comment"
+    "SELECT uuid, datetime(event.mtime,'localtime'), comment, user"
     "  FROM event, blob"
     " WHERE event.type='ci' AND blob.rid=event.objid"
     " ORDER BY event.mtime DESC"
@@ -80,7 +80,7 @@ void page_timeline(void){
     @ <td width="20"></td>
     @ <td valign="top" align="left">
     hyperlink_to_uuid(db_column_text(&q,0));
-    @ %s(db_column_text(&q,2))</td>
+    @ %h(db_column_text(&q,2)) (by %h(db_column_text(&q,3)))</td>
   }
   db_finalize(&q);
   @ </table>
@@ -128,7 +128,8 @@ void timeline_cmd(void){
   Stmt q;
   db_must_be_within_tree();
   db_prepare(&q,
-    "SELECT uuid, datetime(event.mtime,'localtime'), comment"
+    "SELECT uuid, datetime(event.mtime,'localtime'),"
+    "       comment || ' (by ' || user || ')'"
     "  FROM event, blob"
     " WHERE event.type='ci' AND blob.rid=event.objid"
     " ORDER BY event.mtime DESC"
