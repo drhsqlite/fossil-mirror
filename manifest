@@ -1,5 +1,5 @@
-C Fix\sto\sthe\sdb_open_local()\sfunction\sin\sthe\scase\swhere\sthe\sroot\sdirectory\sis\swritable\sby\sthe\scurrent\suser.
-D 2007-07-28T08:15:54
+C Delete\srecords\sfrom\sthe\stemporary\stable\s"pending"\safter\ssending\sthem.
+D 2007-07-30T05:17:44
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -52,7 +52,7 @@ F src/verify.c 7995bb74af682e983d2c2183a58dacb38cf93e20
 F src/vfile.c e0efe29333d86817bdd653a7c415517d43165402
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 1d5b7d85e69e4e4857a16b9abfd083a8eef5f186
+F src/xfer.c ccedc94bf2907db17d4488f5fac411c3efe8dbdd
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -62,7 +62,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 0c227fa40679a8798536077cd85c483295138511
-R 13b148f48766a122062f7fe13ea7ed23
+P d0d4c5f5753e7c82049658c5fa1992f057fd895b
+R c20a71033b5bfb407cae96c901dc3f0f
 U dan
-Z a32736917b222d1ac4b5f8104445ea53
+Z 4db038d4929da9fc7b42a0f6017c0680

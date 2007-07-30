@@ -131,6 +131,7 @@ LIMIT 1
 ** Send all pending files.
 */
 static int send_all_pending(Blob *pOut){
+  int iRidSent = 0;
   int sent = 0;
   int nSent = 0;
   int maxSize = db_get_int("http-msg-size", 1000000);
@@ -158,12 +159,13 @@ static int send_all_pending(Blob *pOut){
     );
   }
 #endif
-  db_prepare(&q, "SELECT rid FROM pending");
+  db_prepare(&q, "SELECT rid FROM pending ORDER BY rid");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     if( sent<maxSize ){
       sent += send_file(rid, pOut);
       nSent++;
+      iRidSent = rid;
     }else{
       char *zUuid = db_text(0,
                       "SELECT uuid FROM blob WHERE rid=%d AND size>=0", rid);
@@ -179,6 +181,13 @@ static int send_all_pending(Blob *pOut){
   }
   db_finalize(&q);
   
+  /* Delete the 'pending' records for all files just sent. Otherwise,
+  ** we can wind up sending some files more than once.
+  */
+  if( nSent>0 ){
+    db_multi_exec("DELETE FROM pending WHERE rid <= %d", iRidSent);
+  }
+
 #if 0
   db_multi_exec("DROP TABLE priority");
 #endif
