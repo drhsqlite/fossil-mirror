@@ -48,6 +48,8 @@ static void put32(char *z, int v){
 static Blob body;    /* The body of the ZIP archive */
 static Blob toc;     /* The table of contents */
 static int nEntry;   /* Number of files */
+static int dosTime;  /* DOS-format time */
+static int dosDate;  /* DOS-format date */
 
 /*
 ** Initialize a new ZIP archive.
@@ -56,6 +58,34 @@ void zip_open(void){
   blob_zero(&body);
   blob_zero(&toc);
   nEntry = 0;
+  dosTime = 0;
+  dosDate = 0;
+}
+
+/*
+** Set the date and time values from an ISO8601 date string.
+*/
+void zip_set_timedate_from_str(const char *zDate){
+  int y, m, d;
+  int H, M, S;
+
+  y = atoi(zDate);
+  m = atoi(&zDate[5]);
+  d = atoi(&zDate[8]);
+  H = atoi(&zDate[11]);
+  M = atoi(&zDate[14]);
+  S = atoi(&zDate[17]);
+  dosTime = (H<<11) + (M<<5) + S;
+  dosDate = ((y-1980)<<9) + (m<<5) + d;
+}
+
+/*
+** Set the date and time from a julian day number.
+*/
+void zip_set_timedate(double rDate){
+  char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
+  zip_set_timedate_from_str(zDate);
+  free(zDate);
 }
 
 /*
@@ -64,7 +94,7 @@ void zip_open(void){
 ** pFile is the file to be appended.  zName is the name
 ** that the file should be saved as.
 */
-int zip_add_file(const char *zName, const Blob *pFile){
+void zip_add_file(const char *zName, const Blob *pFile){
   z_stream stream;
   int nameLen;
   int skip;
@@ -85,8 +115,8 @@ int zip_add_file(const char *zName, const Blob *pFile){
   put16(&zHdr[4], 0x0014);
   put16(&zHdr[6], 0);
   put16(&zHdr[8], 8);
-  put16(&zHdr[10], 0);
-  put16(&zHdr[12], 0);
+  put16(&zHdr[10], dosTime);
+  put16(&zHdr[12], dosDate);
   put16(&zHdr[26], nameLen);
   put16(&zHdr[28], 0);
 
@@ -156,8 +186,8 @@ int zip_add_file(const char *zName, const Blob *pFile){
   put16(&zBuf[6], 0x0014);
   put16(&zBuf[8], 0);
   put16(&zBuf[10], 0x0008);
-  put16(&zBuf[12], 0);  
-  put16(&zBuf[14], 0);
+  put16(&zBuf[12], dosTime);
+  put16(&zBuf[14], dosDate);
   put32(&zBuf[16], iCRC);
   put32(&zBuf[20], nByteCompr);
   put32(&zBuf[24], nByte);
@@ -177,7 +207,7 @@ int zip_add_file(const char *zName, const Blob *pFile){
 /*
 ** Write the ZIP archive into the given BLOB.
 */
-int zip_close(Blob *pZip){
+void zip_close(Blob *pZip){
   int iTocStart;
   int iTocEnd;
   char zBuf[30];
@@ -224,4 +254,65 @@ void filezip_cmd(void){
   }
   zip_close(&zip);
   blob_write_to_file(&zip, g.argv[2]);
+}
+
+/*
+** Given the RID for a manifest, construct a ZIP archive containing
+** all files in the corresponding baseline.
+**
+** If RID is for an object that is not a real manifest, then the
+** resulting ZIP archive contains a single file which is the RID
+** object.
+**
+** If the RID object does not exist in the repository, then
+** pZip is zeroed.
+*/
+void zip_of_baseline(int rid, Blob *pZip){
+  int i;
+  Blob mfile, file;
+  Manifest m;
+
+  content_get(rid, &mfile);
+  if( blob_size(&mfile)==0 ){
+    blob_zero(pZip);
+    return;
+  }
+  blob_zero(&file);
+  blob_copy(&file, &mfile);
+  zip_open();
+  if( manifest_parse(&m, &mfile) ){
+    zip_set_timedate(m.rDate);
+    zip_add_file("manifest", &file);
+    blob_reset(&file);
+    for(i=0; i<m.nFile; i++){
+      int fid = uuid_to_rid(m.aFile[i].zUuid, 0);
+      if( fid ){
+        content_get(fid, &file);
+        zip_add_file(m.aFile[i].zName, &file);
+        blob_reset(&file);
+      }
+    }
+    manifest_clear(&m);
+  }else{
+    blob_reset(&mfile);
+    blob_reset(&file);
+  }
+  zip_close(pZip);
+}
+
+/*
+** COMMAND: test-baseline-zip
+**
+** Generate a ZIP archive for a specified baseline.
+*/
+void baseline_zip_cmd(void){
+  int rid;
+  Blob zip;
+  if( g.argc!=4 ){
+    usage("UUID ZIPFILE");
+  }
+  db_must_be_within_tree();
+  rid = name_to_rid(g.argv[2]);
+  zip_of_baseline(rid, &zip);
+  blob_write_to_file(&zip, g.argv[3]);
 }

@@ -62,6 +62,9 @@ Things to work on:
      +  Hyperlinks to diff all files in this version against any
         of the named decendents or ancestors.  The unified_diff()
         function will compute a unified diff given to file blobs.
+     +  Add a link that will download a ZIP archive containing the
+        complete baseline.  Use zip_of_baseline() function in 
+        zip.c to construct the ZIP archive.
 
  *  A new webpage: "finfo"  Information about a particular file
     given its name.
@@ -70,12 +73,6 @@ Things to work on:
         user, and comment, and hyperlink to the vinfo page for
         the version.  Information available from the minfo table.
      +  Hyperlinks for diffing consecutive versions of the file.
-
- *  Given any version uuid, construct a ZIP archive that contains
-    the complete content for that version.  Feature should be
-    callable from the command-line or from the www interface.
-    Perhaps a hyperlink on the vinfo page to download the ZIP archive
-    for any version.
 
  *  Timeline enhanced so that you can specify a range of dates.
 
