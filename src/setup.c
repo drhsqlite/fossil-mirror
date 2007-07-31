@@ -114,7 +114,7 @@ void setup_ulist(void){
     @ </tr>
   }
   @ </table></td></tr></table>
-  @ <p>
+  @ <p style="clear:both">
   @ <b>Notes:</b>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
@@ -123,6 +123,8 @@ void setup_ulist(void){
   @     <td>Admin: Create or delete users and ticket report formats</td></tr>
   @ <tr><td>d</td><td></td>
   @     <td>Delete: Erase anonymous wiki, tickets, and attachments</td></tr>
+  @ <tr><td>h</td><td></td>
+  @     <td>History: Access older version of code, tickets, or wiki</td></tr>
   @ <tr><td>i</td><td></td>
   @     <td>Check-in: Add new code to the repository</td></tr>
   @ <tr><td>j</td><td></td><td>Read-Wiki: View wiki pages</td></tr>
@@ -155,7 +157,7 @@ void setup_ulist(void){
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap ;
-  char *oak, *oad, *oaq, *oac, *oaf, *oam;
+  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -190,7 +192,7 @@ void user_edit(void){
   if( doWrite ){
     const char *zPw;
     const char *zLogin;
-    char zCap[20];
+    char zCap[30];
     int i = 0;
     int aa = P("aa")!=0;
     int ad = P("ad")!=0;
@@ -207,17 +209,12 @@ void user_edit(void){
     int ac = P("ac")!=0;
     int af = P("af")!=0;
     int am = P("am")!=0;
-#if 0
-    if( as ) aa = 1;
-    if( aa ) ai = aw = ap = 1;
-    if( aw ) an = ar = 1;
-    if( ai ) ao = 1;
-    if( ak ) aj = 1;
-#endif
+    int ah = P("ah")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
     if( af ){ zCap[i++] = 'f'; }
+    if( ah ){ zCap[i++] = 'h'; }
     if( ai ){ zCap[i++] = 'i'; }
     if( aj ){ zCap[i++] = 'j'; }
     if( ak ){ zCap[i++] = 'k'; }
@@ -261,7 +258,7 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
-  oaa = oac = oad = oaf = oai = oaj = oak = oam =
+  oaa = oac = oad = oaf = oah = oai = oaj = oak = oam =
         oan = oao = oap = oaq = oar = oas = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
@@ -271,6 +268,7 @@ void user_edit(void){
     if( strchr(zCap, 'c') ) oac = " checked";
     if( strchr(zCap, 'd') ) oad = " checked";
     if( strchr(zCap, 'f') ) oaf = " checked";
+    if( strchr(zCap, 'h') ) oah = " checked";
     if( strchr(zCap, 'i') ) oai = " checked";
     if( strchr(zCap, 'j') ) oaj = " checked";
     if( strchr(zCap, 'k') ) oak = " checked";
@@ -323,6 +321,7 @@ void user_edit(void){
   @     <input type="checkbox" name="aq"%s(oaq)>Query</input><br>
   @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
   @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
+  @     <input type="checkbox" name="ah"%s(oah)>History</input><br>
   @     <input type="checkbox" name="aj"%s(oaj)>Read Wiki</input><br>
   @     <input type="checkbox" name="af"%s(oaf)>New Wiki</input><br>
   @     <input type="checkbox" name="am"%s(oam)>Append Wiki</input><br>
@@ -378,7 +377,9 @@ void user_edit(void){
   @ of this user are available to anyone without supplying a username or
   @ password.  To disable nobody access, make sure there is no user
   @ with an ID of <b>nobody</b> or that the nobody user has no
-  @ capabilities enabled.  The password for the noloing user is ignore.
+  @ capabilities enabled.  The password for nobody is ignore.  To
+  @ avoid problems with spiders overloading the server, it is suggested
+  @ that the 'h' (History) capability be turned off for user nobody.
   @ </p></li>
   @
   @ <li><p>

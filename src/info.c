@@ -118,6 +118,8 @@ void vinfo_page(void){
   char cType;
   char *zType;
 
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
   style_header("Version Information");
   rid = name_to_rid(g.zExtra);
   if( rid==0 ){

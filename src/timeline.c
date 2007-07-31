@@ -33,17 +33,23 @@
 void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
   sprintf(zShortUuid, "%.10s", zUuid);
-  @ <a href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
+  if( g.okHistory ){
+    @ <a href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
+  }else{
+    @ <b>[%s(zShortUuid)]</b>
+  }
 }
 
 /*
 ** Generate a hyperlink to a diff between two versions.
 */
 void hyperlink_to_diff(const char *zV1, const char *zV2){
-  if( zV2==0 ){
-    @ <a href="%s(g.zBaseURL)/diff?v2=%s(zV1)">[diff]</a>
-  }else{
-    @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&v2=%s(zV2)">[diff]</a>
+  if( g.okHistory ){
+    if( zV2==0 ){
+      @ <a href="%s(g.zBaseURL)/diff?v2=%s(zV1)">[diff]</a>
+    }else{
+      @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&v2=%s(zV2)">[diff]</a>
+    }
   }
 }
 
@@ -54,6 +60,12 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 void page_timeline(void){
   Stmt q;
   char zPrevDate[20];
+
+  /* To view the timeline, must have permission to read project data.
+  */
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
   style_header("Timeline");
   zPrevDate[0] = 0;
   db_prepare(&q,

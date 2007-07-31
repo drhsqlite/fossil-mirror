@@ -1,5 +1,5 @@
-C Separate\s"nobody"\sand\s"anonymous"\slogins.
-D 2007-07-31T22:59:31
+C Add\sthe\snew\s"history"\spermission.\s\sMerge\sin\schanges\sthat\srequire\s\npermissions\sto\sview\sthe\stimeline.
+D 2007-07-31T23:33:15
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -19,10 +19,10 @@ F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 23446a0581aa7fea05ec296ca05bf184ce5bcfb0
-F src/info.c 199807a9fde71de760817bb1da28c610374a7ef3
+F src/info.c a5306815662c8e9971754d8d3cc17b8bc1aee557
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
-F src/login.c 8a96b84fb6776b2a6fd6a66d7b297ac3ff223605
-F src/main.c 21f5fffa723fc77c468d3a17fe8f694e7b32d3b2
+F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
+F src/main.c e3d8b5d0b946863c49425cba2949bb575ec3acde
 F src/main.mk 7ee81e67bb96697f1c714f4611baf5f7e3649803
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -37,13 +37,13 @@ F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 04451053b1d87084e08cd8f83a39611d36dca636
 F src/schema.c 39376154b892fdcfe6a8f7a0aa902d07cf439755
-F src/setup.c 288da0d25b0a573fe1f6319d62c052f452cd629c
+F src/setup.c b21a277cb9c7708f4bb15b6348561e2634900d05
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c ed5f94f2150d73325a41a27c8685f16edb00fe02
+F src/style.c 9a943b5a17ed58556d7836e6c79e69ac840b8cc9
 F src/sync.c c79d53c017314825e098783a27928fbb31a717c2
-F src/timeline.c b52c0c0c7508554386fae7548dced0fed59450e4
+F src/timeline.c ccb6f43a3ad5184aa1536fee704ce5a7f55c0f5c
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 5b58559c0c35cd87d9f15f18a15a20b014319bdb
-R eaed66d219fd86fad9fcba711c6a8dfa
+P 9c952d247e5164a53ae2c24d5e0068d45e72e72e 5ebcedc33eea137f80f15bfc3e8375f9029ab6a0
+R 6cbbd37674905d8fc176e7c335794623
 U drh
-Z 1374d963af5b34ac190d5c9f89a3c68f
+Z 0cc240dd516d5b6a4eaf029f4073444b

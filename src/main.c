@@ -100,6 +100,7 @@ struct Global {
   int okAdmin;            /* administrative permission */
   int okDelete;           /* delete wiki or tickets */
   int okQuery;            /* create new reports */
+  int okHistory;          /* access historical information */
 
   FILE *fDebug;           /* Write debug information here, if the file exists */
 };

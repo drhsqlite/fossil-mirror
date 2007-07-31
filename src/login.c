@@ -262,9 +262,10 @@ void login_check_credentials(void){
     if( uid ){
       Stmt s;
       db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
-      db_step(&s);
-      g.zLogin = db_column_malloc(&s, 0);
-      zCap = db_column_malloc(&s, 1);
+      if( db_step(&s)==SQLITE_ROW ){
+        g.zLogin = db_column_malloc(&s, 0);
+        zCap = db_column_malloc(&s, 1);
+      }
       db_finalize(&s);
     }
     if( zCap==0 ){
@@ -272,6 +273,9 @@ void login_check_credentials(void){
     }
   }
   g.userUid = uid;
+  if( g.zLogin && strcmp(g.zLogin,"nobody")==0 ){
+    g.zLogin = 0;
+  }
   login_set_capabilities(zCap);
 }
 
@@ -284,12 +288,13 @@ void login_set_capabilities(const char *zCap){
     switch( zCap[i] ){
       case 's':   g.okSetup = g.okDelete = 1;
       case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okQuery =
-                              g.okRdWiki = g.okWrWiki =
+                              g.okRdWiki = g.okWrWiki = g.okHistory =
                               g.okNewTkt = g.okPassword = 1;
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
 
       case 'd':   g.okDelete = 1;                               break;
+      case 'h':   g.okHistory = 1;                              break;
       case 'p':   g.okPassword = 1;                             break;
       case 'q':   g.okQuery = 1;                                break;
 
@@ -300,7 +305,7 @@ void login_set_capabilities(const char *zCap){
 
       case 'r':   g.okRdTkt = 1;                                break;
       case 'n':   g.okNewTkt = 1;                               break;
-      case 'w':   g.okWrTkt = g.okRdTkt = g.okNewTkt =
+      case 'w':   g.okWrTkt = g.okRdTkt = g.okNewTkt = 
                   g.okApndTkt = 1;                              break;
       case 'c':   g.okApndTkt = 1;                              break;
     }
@@ -313,7 +318,7 @@ void login_set_capabilities(const char *zCap){
 */
 void login_needed(void){
   const char *zUrl = PD("REQUEST_URI", "index");
-  cgi_redirect(mprintf("login?nxp=%T", zUrl));
+  cgi_redirect(mprintf("login?g=%T", zUrl));
   /* NOTREACHED */
   assert(0);
 }
