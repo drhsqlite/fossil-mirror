@@ -49,6 +49,9 @@ void clone_cmd(void){
   user_select();
   db_set("content-schema", CONTENT_SCHEMA);
   db_set("aux-schema", AUX_SCHEMA);
+  if( !g.urlIsFile ){
+    db_set("last-sync-url", g.argv[2]);
+  }
   db_multi_exec(
     "INSERT INTO config(name,value) VALUES('server-code', hex(randomblob(20)));"
   );

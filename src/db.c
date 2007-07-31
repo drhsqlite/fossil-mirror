@@ -588,7 +588,7 @@ void db_open_repository(const char *zDbName){
 ** Error out if the repository cannot be opened.
 */
 void db_find_and_open_repository(void){
-  char *zRep = find_option("repository", "R", 1);
+  const char *zRep = find_option("repository", "R", 1);
   if( zRep==0 ){
     if( db_open_local()==0 ){
       goto rep_not_found;

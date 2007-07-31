@@ -1,16 +1,16 @@
-C More\sadditions\sto\sthe\stodo.txt\slist.
-D 2007-07-31T00:06:08
+C The\spush,\spull,\sand\ssync\scommands\sremember\sthe\slast\sserver\sand\sreuse\sit\nif\sthe\sURL\sargument\sis\somitted.\s\sSync\svia\snetwork\sonly\snow.
+D 2007-07-31T01:34:45
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c 1776db11b604e455b4b0d76c989897010aeafe40
 F src/checkin.c f97001dc6f75ad08370426c7d51ef595b50b9d6b
 F src/checkout.c 6397d9f5461f4f92a7e2bc326772c0ebbbd60546
-F src/clone.c 163dfdc48cba75ffdaa63a2908b780ca02eeb3db
+F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c f226d0adbdc73bdc7180c816562df93eda100831
-F src/db.c 44658ef357680d875adce9ccf10dc1052fa87eb5
+F src/db.c 904ab46ad3621a3df8e6c4226f46b8d85e232cd2
 F src/delta.c ee93661e27b7758f0592629317a985bfba08c42a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c ba7454a9cf6d6bcbea550ba49b11b7032529c437
@@ -42,7 +42,7 @@ F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7b2fdcfed55fadf4e9b1a8f0b190accf6952a40f
-F src/sync.c 36ca951c1c14f90816eb0aea20d366d8a9556d5b
+F src/sync.c 53257d834fdb1e282bfd5f56250b677e3d4771ac
 F src/timeline.c b52c0c0c7508554386fae7548dced0fed59450e4
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
@@ -63,7 +63,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P f767ae05680d937dedbf58d721f44909653bcc4f
-R 8e14a728ee97487ee29326de4beda191
+P 9c28ba49561106a065b3883a37b3cc46febb381a
+R f791365d07d57a9ade03f3de71f43cd9
 U drh
-Z abd89275dfe4c4f3005b020521a7230b
+Z 859730cc83a401ecdbcf62ce06d1daf3

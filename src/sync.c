@@ -28,45 +28,38 @@
 #include <assert.h>
 
 /*
+** This routine processes the command-line argument for push, pull,
+** and sync.  If a command-line argument is given, that is the URL
+** of a server to sync against.  If no argument is given, use the
+** most recently synced URL.  Remember the current URL for next time.
+*/
+static void process_sync_args(void){
+  const char *zUrl = 0;
+  db_find_and_open_repository();
+  if( g.argc==2 ){
+    zUrl = db_get("last-sync-url", 0);
+  }else if( g.argc==3 ){
+    zUrl = g.argv[2];
+  }
+  if( zUrl==0 ){
+    usage("URL");
+  }
+  url_parse(zUrl);
+  if( g.urlIsFile ){
+    fossil_fatal("network sync only");
+  }
+  db_set("last-sync-url", zUrl);
+  user_select();
+}
+
+/*
 ** COMMAND: pull
 **
 ** Pull changes in a remote repository into the local repository
 */
 void pull_cmd(void){
-  if( g.argc!=3 ){
-    usage("FILE-OR-URL");
-  }
-  url_parse(g.argv[2]);
-  db_must_be_within_tree();
-  user_select();
-  if( g.urlIsFile ){
-    Stmt q;
-    char *zRemote = g.urlName;
-    if( !file_isfile(zRemote) ){
-      zRemote = mprintf("%s/_FOSSIL_");
-    }
-    if( !file_isfile(zRemote) ){
-      fossil_panic("no such repository: %s", zRemote);
-    }
-    db_multi_exec("ATTACH DATABASE %Q AS other", zRemote);
-    db_begin_transaction();
-    db_prepare(&q, 
-      "SELECT rid FROM other.blob WHERE NOT EXISTS"
-      " (SELECT 1 FROM blob WHERE uuid=other.blob.uuid)"
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      int nrid;
-      int rid = db_column_int(&q, 0);
-      Blob rec;
-      content_get_from_db(rid, &rec, "other");
-      nrid = content_put(&rec, 0);
-      manifest_crosslink(nrid, &rec);
-    }
-    db_finalize(&q);
-    db_end_transaction(0);
-  }else{
-    client_sync(0,1,0);
-  }
+  process_sync_args();
+  client_sync(0,1,0);
 }
 
 /*
@@ -75,30 +68,8 @@ void pull_cmd(void){
 ** Push changes in the local repository over into a remote repository
 */
 void push_cmd(void){
-  if( g.argc!=3 ){
-    usage("FILE-OR-URL");
-  }
-  url_parse(g.argv[2]);
-  db_must_be_within_tree();
-  if( g.urlIsFile ){
-    Blob remote;
-    char *zRemote;
-    file_canonical_name(g.urlName, &remote);
-    zRemote = blob_str(&remote);
-    if( file_isdir(zRemote)!=1 ){
-      int i = strlen(zRemote);
-      while( i>0 && zRemote[i]!='/' ){ i--; }
-      zRemote[i] = 0;
-    }
-    if( chdir(zRemote) ){
-      fossil_panic("unable to change the working directory to %s", zRemote);
-    }
-    db_close();
-    g.argv[2] = g.zLocalRoot;
-    pull_cmd();
-  }else{
-    client_sync(1,0,0);
-  }
+  process_sync_args();
+  client_sync(1,0,0);
 }
 
 
@@ -108,16 +79,6 @@ void push_cmd(void){
 ** Synchronize the local repository with a remote repository
 */
 void sync_cmd(void){
-  if( g.argc!=3 ){
-    usage("FILE-OR-URL");
-  }
-  url_parse(g.argv[2]);
-  if( g.urlIsFile ){
-    pull_cmd();
-    db_close();
-    push_cmd();
-  }else{
-    db_must_be_within_tree();
-    client_sync(1,1,0);
-  }
+  process_sync_args();
+  client_sync(1,1,0);
 }
