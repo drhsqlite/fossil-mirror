@@ -260,7 +260,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   if( blob_size(&otherContent)==0 ) return;
   if( manifest_parse(&other, &otherContent)==0 ) return;
   content_deltify(pid, cid, 0);
-  for(i=j=0; pParent->nFile<i && pChild->nFile<j; ){
+  for(i=j=0; i<pParent->nFile && j<pChild->nFile; ){
     int c = strcmp(pParent->aFile[i].zName, pChild->aFile[j].zName);
     if( c<0 ){
       add_one_mlink(cid, pParent->aFile[i].zUuid, 0, pParent->aFile[i].zName);

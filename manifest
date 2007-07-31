@@ -1,5 +1,5 @@
-C When\ssyncing\swithout\sa\sURL,\sprint\sthe\sname\sof\sthe\sserver,\staking\scare\nto\somit\sany\suserid\sand\spassword.
-D 2007-07-31T20:36:20
+C Bug\sfix\sin\sthe\smlink\stable\sbuilder.\s\sUse\sthe\s"rebuild"\smethod\sto\scorrect\nthe\sproblem\sin\spreexisting\srepositories.
+D 2007-07-31T20:53:10
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -27,7 +27,7 @@ F src/main.mk 7ee81e67bb96697f1c714f4611baf5f7e3649803
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 8d4df828c70ac93c32eccf103c9509730bafdd65
-F src/manifest.c d81c52a268785591a2f16530a0360ffa6a27f4e3
+F src/manifest.c 3aad9c8de5a92dab411691b9a4b921e8c21c9f35
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c c88ea8508fbc8d75fe3ed3d0bb9f6339e9157f85
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P dead090c0bd601124619cbde91215e9a873972bc
-R 53ea9830b042e275d0a6f2dc6944e8ee
+P ce825ac9546eb542ee1fc33c04b601eda1941638
+R 3fdfd9da46bcbe9d1485894eb8176ac0
 U drh
-Z d748f340743e7af0ce0af014c4ebdb51
+Z 165bd13fd7e14f16914e9022fdca4d99
