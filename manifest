@@ -1,5 +1,5 @@
-C Remove\sone\sto-do\sitem.\s\sAdd\sanother.
-D 2007-07-31T10:10:37
+C Add\sa\sZIP\sarchive\sgenerator.
+D 2007-07-31T19:18:53
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -23,10 +23,10 @@ F src/info.c 199807a9fde71de760817bb1da28c610374a7ef3
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c a6b6c1f3f98bb2abf70fc92f1cdc7bd7101d3be0
 F src/main.c fa34f0baa1c6b92d08ab5ba6f06821bceed07f63
-F src/main.mk 1617e07ee74c628b7bd63dddffd3355ad8c7dbf4
+F src/main.mk 7ee81e67bb96697f1c714f4611baf5f7e3649803
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 231ebe57bd98ea9a3d63d67f45f47f1df9992d96
+F src/makemake.tcl 8d4df828c70ac93c32eccf103c9509730bafdd65
 F src/manifest.c d81c52a268785591a2f16530a0360ffa6a27f4e3
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c c88ea8508fbc8d75fe3ed3d0bb9f6339e9157f85
@@ -53,6 +53,7 @@ F src/vfile.c e0efe29333d86817bdd653a7c415517d43165402
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
 F src/xfer.c 6321404911b26adef71af14db32e124a168a2e50
+F src/zip.c 967d1ecc3665a08c065e293b9e3e94faf97ab542
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -63,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 8dbee6731d9b779a2e47b873467584f55370255b
-R 5fc1047c769e1f6268761d341eecc808
+P 7fe1e734e9d6158d8b9bfaaf624dd3c211f33d00
+R 4c0459ea9164b85c27a983fc1eb4a2b9
 U drh
-Z 8823196c61809e8e63aad719cc3e590d
+Z 59196772bf1258448722dc94541e8a1b

@@ -48,6 +48,7 @@ set src {
   wiki
   wikiformat
   xfer
+  zip
 }
 
 # Name of the final application
