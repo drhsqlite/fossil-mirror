@@ -1,5 +1,5 @@
-C Update\sthe\sZIP\sarchiver\sto\sinclude\sdate\sinformation.\s\sProvide\sa\sfunction\nthat\sconstructs\sa\sZIP\sarchive\sfrom\smanifest.
-D 2007-07-31T20:20:40
+C When\ssyncing\swithout\sa\sURL,\sprint\sthe\sname\sof\sthe\sserver,\staking\scare\nto\somit\sany\suserid\sand\spassword.
+D 2007-07-31T20:36:20
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -42,7 +42,7 @@ F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7b2fdcfed55fadf4e9b1a8f0b190accf6952a40f
-F src/sync.c 53257d834fdb1e282bfd5f56250b677e3d4771ac
+F src/sync.c c79d53c017314825e098783a27928fbb31a717c2
 F src/timeline.c b52c0c0c7508554386fae7548dced0fed59450e4
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 9b780d220be5f2aaa1d6b777df64dfe7fdd35412
-R 7acf3b70590ef2bd1bfe2a2e960a8402
+P dead090c0bd601124619cbde91215e9a873972bc
+R 53ea9830b042e275d0a6f2dc6944e8ee
 U drh
-Z e248f6dcfe7d89624c2740879e8a3756
+Z d748f340743e7af0ce0af014c4ebdb51

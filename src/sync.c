@@ -50,6 +50,13 @@ static void process_sync_args(void){
   }
   db_set("last-sync-url", zUrl);
   user_select();
+  if( g.argc==2 ){
+    if( g.urlPort!=80 ){
+      printf("Server:    http://%s:%d%s\n", g.urlName, g.urlPort, g.urlPath);
+    }else{
+      printf("Server:    http://%s%s\n", g.urlName, g.urlPath);
+    }
+  }
 }
 
 /*
