@@ -1,5 +1,5 @@
-C To\smore\sitems\sadded\sto\sthe\stodo.txt\slist.
-D 2007-07-30T23:18:04
+C More\sadditions\sto\sthe\stodo.txt\slist.
+D 2007-07-31T00:06:08
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -58,12 +58,12 @@ F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
-F todo.txt f1e6c3a63e7a13f2a03f7f80db500ebf81a219de
+F todo.txt 809029b84e70e40a32d85b4ad40b984ddda0b3ee
 F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 08c4cc6d1667c7dd27d9fe0c99911a125b0f5ca0
-R 7518032964ab62acd810f3562597335c
+P f767ae05680d937dedbf58d721f44909653bcc4f
+R 8e14a728ee97487ee29326de4beda191
 U drh
-Z f7e867f0847520f905d844eba289cb31
+Z abd89275dfe4c4f3005b020521a7230b

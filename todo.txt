@@ -6,6 +6,13 @@ Things to work on:
     previous time.  Display the saved URL as part of the "info"
     command in the cli.
 
+ *  Bug: The timeline is visible in sqlitert even though anonymous
+    access is turned off.  The timeline menu item should be omitted
+    and the timeline page should be disallowed if the user does not
+    have the right access permissions.  Feel free to add new access
+    permissions (view timeline permission?) if this seems like something
+    appropriate to do.
+
  *  If the server does not have write permission on the database
     file, or on the directory containing the database file (and 
     it is thus unable to update database because it cannot create
@@ -80,12 +87,80 @@ Things to work on:
     There are some code in xfer.c that are sketches of ideas on
     how to do delta compression, but nothing has been implemented.
 
+ *  Enhancements to the diff and tkdiff commands in the cli.
+    Allow the entire tree or a subtree to be diffed, not just a 
+    single file.  Allow diffs against any two arbitrary versions,
+    not just diffs against the current check-out.  Allow 
+    configuration options to replace tkdiff with some other
+    visual differ of the users choice.
+
  *  Ticketing interface (expand this bullet)
+
+     +  Create new tickets as files in the file hierarchy
+     +  Append remarks to a ticket
+     +  Add attachments to a ticket
+     +  Change attributes of a ticket
+     +  Delete tickets that are no longer current.  (The old
+        content is still accessible, the ticket is just not in
+        the current check-out.)
+     +  Server setup to define the allowed attributes and
+        attribute values for tickets
+     +  Permanently remove malicious edits and/or attachments
+        such as wiki-spam or warez.  (Content is no longer accessible.)
+     +  View a history of all changes to a ticket
+     +  Generate reports over all tickets
+     +  Generate reports over all tickets as they existed for
+        a chosen point in time and space.
+     +  Do full text search against the text in any single ticket or
+        across the current versions of all tickets, or across all current
+        and historical versions of all tickets.
 
  *  Wiki interface (expand this bullet)
 
+     +  Create new wiki pages
+     +  Designate a single wiki page as the home page for the www interface
+     +  Designate wiki pages as read-only, append-only, or read/write.
+     +  Append comments to a wiki page
+     +  Add attachments (such as GIF images) to a wiki page
+     +  Change the content of a wiki page
+     +  Delete obsolete wiki pages.  (Old content is still accessible,
+        the page is just not on the current list of pages.)
+     +  Permanently remove malicious edits and/or attachments
+        such as wiki-spam or warez.  (Old content is no longer accessible.)
+     +  Add nofollow on external links added by unprivileged
+        users when the link is less than N hours old.
+     +  Show the complete history of a single wiki page
+     +  Provide the ability to diff two versions of a wiki page
+     +  Show a listing of all wiki pages, both current and deleted
+     +  Do a full-text search against current versions of all wiki pages
+     +  Do a full-text search against all historical versions of a single
+        wiki page
+     +  Do a full-text search against all historical versions of all
+        wiki pages
+
  *  Full-text search against check-in comments and diffs of each
     check-in.
+
+ *  Ability to check-in some subset of changes to the tree instead
+    of having to check in all changes.
+
+ *  Add a "revert" command that will undo all changes to a file
+    or files in the current check-out - restoring the files back
+    to their original check-out state.
+
+ *  Add an "annotate" command in both the cli and the www interface
+    that will show line-by-line the most recent changes to every line
+    in the file.
+
+ *  Browse the file hierarchy, similar to the "Browse" feature in
+    CVSTrac.
+
+ *  Add the ability to override check-in comments.  It is not possible
+    to change the comment in the check-in itself due to the cryptographic
+    hash.  But you can add a new record to the repository that overloads
+    a check-in comment with a new comment.  Comment changes should be
+    GPG clearsigned at the very least.  Comment changes only apply if
+    the user who made the change has the right permissions.
 
  *  New cli commands: "deconstruct" and "reconstruct".  The deconstruct
     command populates an indicated directory with copies of all files
@@ -98,3 +173,7 @@ Things to work on:
 
  *  Get a build working for win32.  Perhaps use cygwin.  Or omit
     the server component from win32 (to eliminate the need for fork()).
+
+ *  Make the interface to fossil look pretty and be customizable so
+    that other people will be attracted to it, will take over maintenance
+    of it, and we can eventually move on to other things.
