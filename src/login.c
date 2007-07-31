@@ -206,7 +206,7 @@ void login_check_credentials(void){
   /* Check the login cookie to see if it matches a known valid user.
   */
   if( uid==0 ){
-    if( (zCookie = P(login_cookie_name()))!=0 ){
+    if( (zCookie = P(login_cookie_name()))!=0 && strlen(zCookie)>0 ){
       uid = db_int(0, 
             "SELECT uid FROM user"
             " WHERE uid=%d"
@@ -217,18 +217,20 @@ void login_check_credentials(void){
          );
     }else{
       uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
+      g.isAnon = 1;
+      g.zLogin = "";
     }
   }
 
   if( uid==0 ){
-    g.isAnon = 1;
-    g.zLogin = "";
-    zCap = db_get("nologin-cap","onrj");
+    zCap = db_get("nologin-cap","");
   }else if( zCap==0 ){
     Stmt s;
     db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
     db_step(&s);
-    g.zLogin = db_column_malloc(&s, 0);
+    if( !g.isAnon ){
+      g.zLogin = db_column_malloc(&s, 0);
+    }
     zCap = db_column_malloc(&s, 1);
     g.isAnon = 0;
     db_finalize(&s);

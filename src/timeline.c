@@ -54,6 +54,12 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 void page_timeline(void){
   Stmt q;
   char zPrevDate[20];
+
+  /* To view the timeline, must have permission to read project data.
+  */
+  login_check_credentials();
+  if( !g.okRdTkt ){ login_needed(); return; }
+
   style_header("Timeline");
   zPrevDate[0] = 0;
   db_prepare(&q,

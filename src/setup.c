@@ -114,7 +114,7 @@ void setup_ulist(void){
     @ </tr>
   }
   @ </table></td></tr></table>
-  @ <p>
+  @ <p style="clear:both">
   @ <b>Notes:</b>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
