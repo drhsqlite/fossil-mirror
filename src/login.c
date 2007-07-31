@@ -23,6 +23,26 @@
 *******************************************************************************
 **
 ** This file contains code for generating the login and logout screens.
+**
+** Notes:
+**
+** There are two special-case user-ids: "anonymous" and "nobody".
+** The capabilities of the nobody user are available to anyone,
+** regardless of whether or not they are logged in.  The capabilities
+** of anonymous are only available after logging in, but the login
+** screen displays the password for the anonymous login, so this
+** should not prevent a human user from doing so.
+**
+** The nobody user has capabilities that you want spiders to have.
+** The anonymous user has capabilities that you want people without
+** logins to have.
+**
+** Of course, a sophisticated spider could easily circumvent the
+** anonymous login requirement and walk the website.  But that is
+** not really the point.  The anonymous login keeps search-engine
+** crawlers and site download tools like wget from walking change
+** logs and downloading diffs of very version of the archive that
+** has ever existed, and things like that.
 */
 #include "config.h"
 #include "login.h"
@@ -44,6 +64,7 @@ static char *login_cookie_name(void){
 void login_page(void){
   const char *zUsername, *zPasswd, *zGoto;
   const char *zNew1, *zNew2;
+  const char *zAnonPw;
   char *zErrMsg = "";
 
   login_check_credentials();
@@ -55,7 +76,7 @@ void login_page(void){
     cgi_set_cookie(zCookieName, "", 0, -86400);
     cgi_redirect(zGoto);
   }
-  if( !g.isAnon && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+  if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
     if( db_int(1, "SELECT 0 FROM user"
                   " WHERE uid=%d AND pw=%Q", g.userUid, zPasswd) ){
       sleep(1);
@@ -80,11 +101,11 @@ void login_page(void){
       return;
     }
   }
-  if( zUsername!=0 && zPasswd!=0 && strcmp(zUsername,"anonymous")!=0 ){
+  if( zUsername!=0 && zPasswd!=0 ){
     int uid = db_int(0,
         "SELECT uid FROM user"
         " WHERE login=%Q AND pw=%Q", zUsername, zPasswd);
-    if( uid<=0 ){
+    if( uid<=0 || strcmp(zUsername,"nobody")==0 ){
       sleep(1);
       zErrMsg = 
          @ <p><font color="red">
@@ -94,18 +115,21 @@ void login_page(void){
     }else{
       char *zCookie;
       const char *zCookieName = login_cookie_name();
-      const char *zIpAddr = PD("REMOTE_ADDR","nil");
       const char *zExpire = db_get("cookie-expire","8766");
-      int expires;
-
-      zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
-      expires = atoi(zExpire)*3600;
-      cgi_set_cookie(zCookieName, zCookie, 0, expires);
-      db_multi_exec(
-        "UPDATE user SET cookie=%Q, ipaddr=%Q, "
-        "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-        zCookie, zIpAddr, expires, uid
-      );
+      int expires = atoi(zExpire)*3600;
+      const char *zIpAddr = PD("REMOTE_ADDR","nil");
+ 
+      if( strcmp(zUsername, "anonymous")==0 ){
+        cgi_set_cookie(zCookieName, "anonymous", 0, expires);
+      }else{
+        zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
+        cgi_set_cookie(zCookieName, zCookie, 0, expires);
+        db_multi_exec(
+          "UPDATE user SET cookie=%Q, ipaddr=%Q, "
+          "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
+          zCookie, zIpAddr, expires, uid
+        );
+      }
       cgi_redirect(zGoto);
     }
   }
@@ -129,7 +153,7 @@ void login_page(void){
   @   <td><input type="submit" name="in" value="Login"></td>
   @ </tr>
   @ </table>
-  if( g.isAnon || g.zLogin==0 || g.zLogin[0]==0 ){
+  if( g.zLogin==0 ){
     @ <p>To login
   }else{
     @ <p>You are current logged in as <b>%h(g.zLogin)</b></p>
@@ -139,18 +163,26 @@ void login_page(void){
   @ "Login" button.  Your user name will be stored in a browser cookie.
   @ You must configure your web browser to accept cookies in order for
   @ the login to take.</p>
-  if( db_exists("SELECT uid FROM user WHERE login='anonymous'") ){
-    @ <p>This server is configured to allow limited access to users
-    @ who are not logged in.</p>
+  if( g.zLogin==0 ){
+    zAnonPw = db_text(0, "SELECT pw FROM user"
+                         " WHERE login='anonymous'"
+                         "   AND cap!=''");
+    if( zAnonPw ){
+      @ <p>If you do not have a user-id, enter "<b>anonymous</b>" with a
+      @ password of "<b>%h(zAnonPw)</b>".</p>
+    }else{
+      @ <p>A valid user-id and password is required.  Anonymous access
+      @ is not allowed on this installation.</p>
+    }
   }
-  if( !g.isAnon ){
+  if( g.zLogin ){
     @ <br clear="both"><hr>
     @ <p>To log off the system (and delete your login cookie)
     @  press the following button:<br>
     @ <input type="submit" name="out" value="Logout"></p>
   }
   @ </form>
-  if( !g.isAnon ){
+  if( g.okPassword ){
     @ <br clear="both"><hr>
     @ <p>To change your password, enter your old password and your
     @ new password twice below then press the "Change Password"
@@ -186,7 +218,7 @@ void login_check_credentials(void){
   const char *zCap = 0;
 
   /* Only run this check once.  */
-  if( g.zLogin!=0 ) return;
+  if( g.userUid!=0 ) return;
 
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
@@ -200,13 +232,12 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "s";
     g.noPswd = 1;
-    g.isAnon = 0;
   }
 
   /* Check the login cookie to see if it matches a known valid user.
   */
-  if( uid==0 ){
-    if( (zCookie = P(login_cookie_name()))!=0 ){
+  if( uid==0 && (zCookie = P(login_cookie_name()))!=0 ){
+    if( isdigit(zCookie[0]) ){
       uid = db_int(0, 
             "SELECT uid FROM user"
             " WHERE uid=%d"
@@ -215,26 +246,32 @@ void login_check_credentials(void){
             "   AND cexpire>julianday('now')",
             atoi(zCookie), zCookie, zRemoteAddr
          );
-    }else{
+    }else if( zCookie[0]=='a' ){
       uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
     }
   }
 
   if( uid==0 ){
-    g.isAnon = 1;
-    g.zLogin = "";
-    zCap = db_get("nologin-cap","onrj");
-  }else if( zCap==0 ){
-    Stmt s;
-    db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
-    db_step(&s);
-    g.zLogin = db_column_malloc(&s, 0);
-    zCap = db_column_malloc(&s, 1);
-    g.isAnon = 0;
-    db_finalize(&s);
+    uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
+    if( uid==0 ){
+      uid = -1;
+      zCap = "";
+    }
+  }
+  if( zCap==0 ){
+    if( uid ){
+      Stmt s;
+      db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
+      db_step(&s);
+      g.zLogin = db_column_malloc(&s, 0);
+      zCap = db_column_malloc(&s, 1);
+      db_finalize(&s);
+    }
+    if( zCap==0 ){
+      zCap = "";
+    }
   }
   g.userUid = uid;
-
   login_set_capabilities(zCap);
 }
 

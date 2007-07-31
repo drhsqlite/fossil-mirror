@@ -78,7 +78,7 @@ void style_header(const char *zTitle){
   @ <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   @ <tr><td valign="top" align="left">
   @ <big><big><b>%s(zTitle)</b></big></big><br>
-  if( g.zLogin==0 || g.zLogin[0]==0 ){
+  if( g.zLogin==0 ){
     @ <small>not logged in</small>
     zLogInOut = "Login";
   }else{

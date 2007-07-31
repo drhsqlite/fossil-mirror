@@ -76,7 +76,6 @@ struct Global {
   char *urlCanonical;     /* Canonical representation of the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
-  int isAnon;             /* True if logged in anoymously */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
 

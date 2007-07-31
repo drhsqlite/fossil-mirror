@@ -83,7 +83,7 @@ void setup_ulist(void){
   
   style_footer();
   login_check_credentials();
-  if( !g.okWrite || g.isAnon ){
+  if( !g.okSetup ){
     login_needed();
     return;
   }
@@ -373,20 +373,23 @@ void user_edit(void){
   @ which this program is linked.
   @ </p></li>
   @
-  if( zId==0 || strcmp(zId,"anonymous")==0 ){
-    @ <li><p>
-    @ No login is required for user "<b>anonymous</b>".  The capabilities
-    @ of this user are available to anyone without supplying a username or
-    @ password.  To disable anonymous access, make sure there is no user
-    @ with an ID of <b>anonymous</b>.
-    @ </p></li>
-    @
-    @ <li><p>
-    @ The password for the "<b>anonymous</b>" user is used for anonymous
-    @ access.  The recommended value for the anonymous password
-    @ is "anonymous".
-    @ </p></li>
-  }
+  @ <li><p>
+  @ No login is required for user "<b>nobody</b>".  The capabilities
+  @ of this user are available to anyone without supplying a username or
+  @ password.  To disable nobody access, make sure there is no user
+  @ with an ID of <b>nobody</b> or that the nobody user has no
+  @ capabilities enabled.  The password for the noloing user is ignore.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ Login is required for user "<b>anonymous</b>" but the password
+  @ is displayed on the login screen beside the password entry box
+  @ so anybody who can read should be able to login as anonymous.
+  @ On the other hand, spiders and web-crawlers will typically not
+  @ be able to login.  Set the capabilities of the anonymous user
+  @ to things that you want any human to be able to do, but no any
+  @ spider.
+  @ </p></li>
   @ </form>
   style_footer();
 }
