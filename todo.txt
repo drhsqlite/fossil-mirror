@@ -1,17 +1,14 @@
 Things to work on:
 
- *  On every push, pull, or clone command, remember the URL of the
-    server using db_put().  On subsequent pushes and pulls, allow
-    the URL to be omitted and substitute the URL that was used the
-    previous time.  Display the saved URL as part of the "info"
-    command in the cli.
-
  *  Bug: The timeline is visible in sqlitert even though anonymous
     access is turned off.  The timeline menu item should be omitted
     and the timeline page should be disallowed if the user does not
     have the right access permissions.  Feel free to add new access
     permissions (view timeline permission?) if this seems like something
     appropriate to do.
+
+ *  Use the wiki_convert() routine to render comments and other text
+    on web pages.
 
  *  If the server does not have write permission on the database
     file, or on the directory containing the database file (and 
