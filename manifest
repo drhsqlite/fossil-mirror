@@ -1,5 +1,5 @@
-C Always\sdo\sat\sleast\stwo\scycles\swith\sno\sfile\stransfers\sbefore\squiting.
-D 2007-08-01T10:29:17
+C Merging\sin\sthe\sipaddr\supdate\schanges.
+D 2007-08-01T10:31:31
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 0c102d06c3ba37128c3965acb718e086e7d462ff
-R 60717883b9f400906ad7e7e75d611dc5
+P 35d7ba08aca1768ba4b61bd6d9e2dcc2e3e01c70 36edf3fd5c8ed8ea20da2c723b956e1fc489ac06
+R 7640c9643a8178b8230780386f2bedc5
 U drh
-Z 7b95d475b4e5a3aa2702972cf4055c01
+Z 71127e3ac96b457e049926854b4b1721
