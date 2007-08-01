@@ -1,9 +1,9 @@
-C Avoid\san\sunnecessary\sHTTP\sround-trip\son\ssyncs.
-D 2007-08-01T13:08:31
+C From\sthe\svinfo\swebpage,\sprovide\sa\shyperlink\sto\sdownload\sa\sZIP\sarchive\nthe\sversion.
+D 2007-08-01T13:32:11
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
-F src/cgi.c 0b7697e1bfcb14e4f4bdd9d8457a36fa3cee8c7e
+F src/cgi.c 90e1185c4a8fec15c31d0b5e972378c002f95cac
 F src/checkin.c 5e2184d9adecffce38d0c9464e00c6b9f2e0d265
 F src/checkout.c 6397d9f5461f4f92a7e2bc326772c0ebbbd60546
 F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
@@ -19,7 +19,7 @@ F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c e887c92c4d34a4eba4f464f7c59d965b81a564b2
-F src/info.c 1c93e966232c47e1f104f8c8bfd3f48ad0ff00d9
+F src/info.c 512979df91ee737d750a190b53d3a344c5c26bda
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
 F src/main.c e3d8b5d0b946863c49425cba2949bb575ec3acde
@@ -52,8 +52,8 @@ F src/verify.c 7995bb74af682e983d2c2183a58dacb38cf93e20
 F src/vfile.c d4b9c4a1e579dec58d0420e0bb69795cdb86229c
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 0ffca46ab7a7aeab00d85ec4361ead31bea48b88
-F src/zip.c 8d50d34cbbe5a6d7753ff852377efdd8770b7afd
+F src/xfer.c 3a9a49107ff1550b9e54ae4ca533fbdcb5780ff9
+F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P afcdc7ec979a27421ed8d03760eb7740fa11ba5c
-R 9f8fc20085933beced937ab709cb611c
+P ae40356c5771a4f3d6083d34036f0b1cfac924ed
+R 59124cc75faae2e8a2871627fe0c7749
 U drh
-Z b3925300cd6aaf209f8e3522bf9fb40b
+Z a2fe4c99d4619c21b43bb03ebf0d96d7

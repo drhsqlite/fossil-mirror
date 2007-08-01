@@ -316,3 +316,36 @@ void baseline_zip_cmd(void){
   zip_of_baseline(rid, &zip);
   blob_write_to_file(&zip, g.argv[3]);
 }
+
+/*
+** WEBPAGE: zip
+**
+** Generate a ZIP archive for the baseline specified by g.zExtra
+** and return that ZIP archive as the HTTP reply content.
+*/
+void baseline_zip_page(void){
+  int rid;
+  char *zName;
+  int i;
+  Blob zip;
+
+  login_check_credentials();
+  if( !g.okRead || !g.okHistory ){ login_needed(); return; }
+  zName = mprintf("%s", g.zExtra);
+  i = strlen(zName);
+  for(i=strlen(zName)-1; i>5; i--){
+    if( zName[i]=='.' ){
+      zName[i] = 0;
+      break;
+    }
+  }
+  rid = name_to_rid(zName);
+  if( rid==0 ){
+    @ Not found
+    return;
+  }
+  zip_of_baseline(rid, &zip);
+  cgi_set_content(&zip);
+  cgi_set_content_type("application/zip");
+  cgi_reply();
+}

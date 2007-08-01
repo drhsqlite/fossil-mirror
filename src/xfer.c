@@ -658,7 +658,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
             }
           }
           if( pullFlag && !go && 
-              db_exists("SELECT 1 FROM blob WHERE rid=%d AND size<=0", rid) ){
+              db_exists("SELECT 1 FROM blob WHERE rid=%d AND size<0", rid) ){
             go = 1;
           }
         }else if( pullFlag ){

@@ -104,6 +104,15 @@ void cgi_set_content_type(const char *zType){
 }
 
 /*
+** Set the reply content to the specified BLOB.
+*/
+void cgi_set_content(Blob *pNewContent){
+  blob_reset(&cgiContent);
+  cgiContent = *pNewContent;
+  blob_zero(pNewContent);
+}
+
+/*
 ** Set the reply status code
 */
 void cgi_set_status(int iStat, const char *zStat){

@@ -217,12 +217,14 @@ void vinfo_page(void){
      rid, rid
   );
   if( db_step(&q)==SQLITE_ROW ){
-    @ <h2>Version %s(db_column_text(&q,0))</h2>
+    const char *zUuid = db_column_text(&q, 0);
+    @ <h2>Version %s(zUuid)</h2>
     @ <ul>
     @ <li><b>Date:</b> %s(db_column_text(&q, 1))</li>
     @ <li><b>User:</b> %s(db_column_text(&q, 2))</li>
     @ <li><b>Comment:</b> %s(db_column_text(&q, 3))</li>
     @ <li><a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a></li>
+    @ <li><a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a></li>
     @ </ul>
   }
   db_finalize(&q);
