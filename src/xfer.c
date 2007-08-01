@@ -447,6 +447,20 @@ void page_xfer(void){
   if( isPull ){
     send_all_pending(0);
   }
+  if( isPush || isPull ){
+    /* Always send our leaves */
+    Stmt q;
+    db_prepare(&q, 
+       "SELECT uuid FROM blob WHERE rid IN"
+       "  (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zUuid = db_column_text(&q, 0);
+      @ leaf %s(zUuid)
+    }
+    db_finalize(&q);
+  }
+
   db_end_transaction(0);
 }
 
@@ -500,6 +514,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   int nFile = 0;
   int nMsg = 0;
   int nReq = 0;
+  int nFileSend;
   Blob send;        /* Text we are sending to the server */
   Blob recv;        /* Reply we got back from the server */
   Blob line;        /* A single line of the reply */
@@ -580,6 +595,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     /* Exchange messages with the server */
     printf("Send:      %d files, %d requests, %d other messages\n",
             nFile, nReq, nMsg);
+    nFileSend = nFile;
     nFile = nReq = nMsg = 0;
     http_exchange(&send, &recv);
     blob_reset(&send);
@@ -690,6 +706,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     blob_reset(&recv);
     printf("Received:  %d files, %d requests, %d other messages\n",
             nFile, nReq, nMsg);
+    if( nFileSend + nFile==0 ){ go = 0; }
     nFile = nReq = nMsg = 0;
   };
   http_close();
