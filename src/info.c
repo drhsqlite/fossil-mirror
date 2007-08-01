@@ -280,11 +280,12 @@ void finfo_page(void){
 
   zPrevDate[0] = 0;
   db_prepare(&q,
-    "SELECT blob.uuid, datetime(event.mtime,'localtime'),"
-    "       event.comment, event.user"
-    "  FROM mlink, blob, event"
+    "SELECT a.uuid, substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
+    "       event.comment, event.user, mlink.pid, mlink.fid"
+    "  FROM mlink, blob a, blob b, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND blob.rid=mlink.mid"
+    "   AND a.rid=mlink.mid"
+    "   AND b.rid=mlink.fid"
     "   AND event.objid=mlink.mid"
     " ORDER BY event.mtime DESC",
     g.zExtra
@@ -292,7 +293,13 @@ void finfo_page(void){
   @ <h2>History of %h(g.zExtra)</h2>
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 1);
+    const char *zVers = db_column_text(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zCom = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
+    int fpid = db_column_int(&q, 5);
+    int frid = db_column_int(&q, 6);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -307,8 +314,12 @@ void finfo_page(void){
     @ <tr><td valign="top">%s(&zDate[11])</td>
     @ <td width="20"></td>
     @ <td valign="top" align="left">
-    hyperlink_to_uuid(db_column_text(&q,0));
-    @ %h(db_column_text(&q,2)) (by %h(db_column_text(&q,3)))</td>
+    hyperlink_to_uuid(zVers);
+    @ %h(zCom) (By: %h(zUser))
+    @ Id: %s(zUuid)/%d(frid)
+    @ <a href="%s(g.zBaseURL)/fview/%d(frid)">[view]</a>
+    @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
+    @ </td>
   }
   db_finalize(&q);
   @ </table>
@@ -337,10 +348,8 @@ static void append_diff(int fromid, int toid){
 ** Show all differences for a particular check-in specified by g.zExtra
 */
 void vdiff_page(void){
-  int rid, i;
+  int rid;
   Stmt q;
-  Manifest m;
-  Blob mfile, file;
   char *zUuid;
 
   login_check_credentials();
@@ -377,57 +386,132 @@ void vdiff_page(void){
 }
 
 
-
-#if 0
 /*
-** WEB PAGE: diff
+** Write a description of an object to the www reply.
 **
-** Display the difference between two files determined by the v1 and v2
-** query parameters.  If only v2 is given compute v1 as the parent of v2.
-** If v2 has no parent, then show the complete text of v2.
+** If the object is a file then mention:
+**
+**     * It's uuid
+**     * All its filenames
+**     * The versions it was checked-in on, with times and users
+**
+** If the object is a manifest, then mention:
+**
+**     * It's uuid
+**     * date of check-in
+**     * Comment & user
+*/
+static void object_description(int rid, int linkToView){
+  Stmt q;
+  int cnt = 0;
+  db_prepare(&q,
+    "SELECT filename.name, datetime(event.mtime), substr(a.uuid,1,10),"
+    "       event.comment, event.user, b.uuid"
+    "  FROM mlink, filename, event, blob a, blob b"
+    " WHERE filename.fnid=mlink.fnid"
+    "   AND event.objid=mlink.mid"
+    "   AND a.rid=mlink.fid"
+    "   AND b.rid=mlink.mid"
+    "   AND mlink.fid=%d",
+    rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zFuuid = db_column_text(&q, 2);
+    const char *zCom = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
+    const char *zVers = db_column_text(&q, 5);
+    @ File <a href="%s(g.zBaseURL)/finfo/%T(zName)">%h(zName)</a>
+    @ uuid %s(zFuuid) part of check-in
+    hyperlink_to_uuid(zVers);
+    @ %s(zCom) by %s(zUser) on %s(zDate).
+    cnt++;
+  }
+  db_finalize(&q);
+  db_prepare(&q,
+    "SELECT datetime(mtime), user, comment, uuid"
+    "  FROM event, blob"
+    " WHERE event.objid=%d"
+    "   AND blob.rid=%d",
+    rid, rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zUuid = db_column_text(&q, 3);
+    const char *zCom = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 1);
+    @ Version
+    hyperlink_to_uuid(zUuid);
+    @ %s(zCom) by %s(zUser) on %s(zDate).
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt==0 ){
+    @ Empty file
+  }else if( linkToView ){
+    @ <a href="%s(g.zBaseURL)/fview/%d(rid)">[view]</a>
+  }
+}
+
+/*
+** WEBPAGE: fdiff
+**
+** Two arguments, v1 and v2, are integers.  Show the difference between
+** the two records.
 */
 void diff_page(void){
-  const char *zV1 = P("v1");
-  const char *zV2 = P("v2");
-  int vid1, vid2;
-  Blob out;
-  Record *p1, *p2;
+  int v1 = atoi(PD("v1","0"));
+  int v2 = atoi(PD("v2","0"));
+  Blob c1, c2, diff;
 
-  if( zV2==0 ){
-    cgi_redirect("index");
-  }
-  vid2 = uuid_to_rid(zV2, 0);
-  p2 = record_from_rid(vid2);
-  style_header("File Diff");
-  if( zV1==0 ){
-    zV1 = db_text(0, 
-       "SELECT uuid FROM record WHERE rid="
-       "  (SELECT a FROM link WHERE typecode='P' AND b=%d)", vid2);
-  }
-  if( zV1==0 ){
-    @ <p>Content of
-    hyperlink_to_uuid(zV2);
-    @ </p>
-    @ <pre>
-    @ %h(blob_str(record_get_content(p2)))
-    @ </pre>
-  }else{
-    vid1 = uuid_to_rid(zV1, 0);
-    p1 = record_from_rid(vid1);
-    blob_zero(&out);
-    unified_diff(record_get_content(p1), record_get_content(p2), 4, &out);
-    @ <p>Differences between
-    hyperlink_to_uuid(zV1);
-    @ and
-    hyperlink_to_uuid(zV2);
-    @ </p>
-    @ <pre>
-    @ %h(blob_str(&out))
-    @ </pre>
-    record_destroy(p1);
-    blob_reset(&out);
-  }
-  record_destroy(p2);
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  style_header("Diff");
+  @ <h2>Differences From:</h2>
+  @ <blockquote>
+  object_description(v1, 1);
+  @ </blockquote>
+  @ <h2>To:</h2>
+  @ <blockquote>
+  object_description(v2, 1);
+  @ </blockquote>
+  @ <hr>
+  @ <blockquote><pre>
+  content_get(v1, &c1);
+  content_get(v2, &c2);
+  blob_zero(&diff);
+  unified_diff(&c1, &c2, 4, &diff);
+  blob_reset(&c1);
+  blob_reset(&c2);
+  @ %h(blob_str(&diff))
+  @ </pre></blockquote>
+  blob_reset(&diff);
   style_footer();
 }
-#endif
+
+/*
+** WEBPAGE: fview
+**
+** Show the complete content of a file identified by g.zExtra
+*/
+void fview_page(void){
+  int rid;
+  Blob content;
+
+  rid = name_to_rid(g.zExtra);
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  style_header("File Content");
+  @ <h2>Content Of:</h2>
+  @ <blockquote>
+  object_description(rid, 0);
+  @ </blockquote>
+  @ <hr>
+  @ <blockquote><pre>
+  content_get(rid, &content);
+  @ %h(blob_str(&content))
+  @ </pre></blockquote>
+  blob_reset(&content);
+  style_footer();
+}
