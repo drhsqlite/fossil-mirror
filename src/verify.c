@@ -37,6 +37,9 @@
 */
 static void verify_rid(int rid){
   Blob uuid, hash, content;
+  if( db_int(0, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+    return;  /* No way to verify phantoms */
+  }
   blob_zero(&uuid);
   db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( blob_size(&uuid)!=UUID_SIZE ){
@@ -44,10 +47,9 @@ static void verify_rid(int rid){
   }
   content_get(rid, &content);
   sha1sum_blob(&content, &hash);
-/*  blob_reset(&content); */
+  blob_reset(&content);
   if( blob_compare(&uuid, &hash) ){
-printf("content=[%s]\n", blob_str(&content));
-    fossil_panic("hash of rid %d (%b) does not match its uuid (%b)",
+    fossil_fatal("hash of rid %d (%b) does not match its uuid (%b)",
                   rid, &hash, &uuid);
   }
   blob_reset(&uuid);

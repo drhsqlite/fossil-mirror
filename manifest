@@ -1,5 +1,5 @@
-C Client\smust\signore\sSIGPIPE\swhen\swritting\sto\sthe\sHTTP\ssocket.
-D 2007-08-01T13:50:58
+C Fix\sthe\stest-verify\scommand\sso\sthat\sit\signores\sphantoms.
+D 2007-08-01T15:13:52
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -48,7 +48,7 @@ F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 47ac33e64aa0213e1e87091f5d293879c7dfc719
-F src/verify.c 7995bb74af682e983d2c2183a58dacb38cf93e20
+F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
 F src/vfile.c d4b9c4a1e579dec58d0420e0bb69795cdb86229c
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 6dab6149b13f9fdb214a279d2b3c47619f3eb7b6
-R 3577886f676796bec4aa8e31f74413ad
+P 0238e54ff352117c8ecfdce24b3918fd28a605e5
+R 871fe162b7620a133fcfb1556af03988
 U drh
-Z 92bbe54fad58f38e9e68600fa39c57a6
+Z 4502fdac96f31acf2a8fa19d5d89589a
