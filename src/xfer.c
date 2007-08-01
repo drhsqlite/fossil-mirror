@@ -653,10 +653,12 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
               "INSERT OR IGNORE INTO pending(rid) "
               "SELECT cid FROM plink WHERE pid=%d", rid
             );
-            go = 1;
+            if( db_changes()>0 ){
+              go = 1;
+            }
           }
           if( pullFlag && !go && 
-              db_exists("SELECT 1 FROM blob WHERE rid=%d AND size>=0", rid) ){
+              db_exists("SELECT 1 FROM blob WHERE rid=%d AND size<=0", rid) ){
             go = 1;
           }
         }else if( pullFlag ){
