@@ -105,9 +105,168 @@ void info_cmd(void){
   }
 }
 
-#if 1
+/*
+** Show information about descendents of a version.  Do this recursively
+** to a depth of N.  Return true if descendents are shown and false if not.
+*/
+static int showDescendents(int pid, int depth){
+  Stmt q;
+  int cnt = 0;
+  db_prepare(&q,
+    "SELECT plink.cid, blob.uuid, datetime(plink.mtime),"
+    "       event.user, event.comment"
+    "  FROM plink, blob, event"
+    " WHERE plink.pid=%d"
+    "   AND blob.rid=plink.cid"
+    "   AND event.objid=plink.cid"
+    " ORDER BY plink.mtime ASC",
+    pid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int n;
+    int cid = db_column_int(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
+    const char *zCom = db_column_text(&q, 4);
+    cnt++;
+    if( cnt==1 ){
+      @ <ul>
+    }
+    @ <li>
+    hyperlink_to_uuid(zUuid);
+    @ %s(zCom) (by %s(zUser) on %s(zDate))
+    if( depth ){
+      n = showDescendents(cid, depth-1);
+    }else{
+      n = db_int(0, "SELECT 1 FROM plink WHERE pid=%d", cid);
+    }
+    if( n==0 ){
+      @ <b>leaf</b>
+    }
+  }
+  if( cnt ){
+    @ </ul>
+  }
+  return cnt;
+}
+
+/*
+** Show information about ancestors of a version.  Do this recursively
+** to a depth of N.  Return true if ancestors are shown and false if not.
+*/
+static int showAncestors(int pid, int depth){
+  Stmt q;
+  int cnt = 0;
+  db_prepare(&q,
+    "SELECT plink.pid, blob.uuid, datetime(event.mtime),"
+    "       event.user, event.comment"
+    "  FROM plink, blob, event"
+    " WHERE plink.cid=%d"
+    "   AND blob.rid=plink.pid"
+    "   AND event.objid=plink.pid"
+    " ORDER BY event.mtime DESC",
+    pid
+  );
+  @ <ul>
+  while( db_step(&q)==SQLITE_ROW ){
+    int n;
+    int cid = db_column_int(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
+    const char *zCom = db_column_text(&q, 4);
+    cnt++;
+    @ <li>
+    hyperlink_to_uuid(zUuid);
+    @ %s(zCom) (by %s(zUser) on %s(zDate))
+    if( depth ){
+      showAncestors(cid, depth-1);
+    }
+  }
+  @ </ul>
+  return cnt;
+}
+
 /*
 ** WEBPAGE: vinfo
+**
+** Return information about a version.  The version number is contained
+** in g.zExtra.
+*/
+void vinfo_page(void){
+  Stmt q;
+  int rid;
+  int isLeaf;
+  int cid, pid, n;
+
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  style_header("Version Information");
+  rid = name_to_rid(g.zExtra);
+  if( rid==0 ){
+    @ No such object: %h(g.argv[2])
+    style_footer();
+    return;
+  }
+  isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
+  db_prepare(&q, 
+     "SELECT uuid, datetime(mtime), user, comment"
+     "  FROM blob, event"
+     " WHERE blob.rid=%d"
+     "   AND event.objid=%d",
+     rid, rid
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    @ <h2>Version %s(db_column_text(&q,0))</h2>
+    @ <ul>
+    @ <li><b>Date:</b> %s(db_column_text(&q, 1))</li>
+    @ <li><b>User:</b> %s(db_column_text(&q, 2))</li>
+    @ <li><b>Comment:</b> %s(db_column_text(&q, 3))</li>
+    @ </ul>
+  }
+  db_finalize(&q);
+  @ <p><h2>Descendents:</h2>
+  n = showDescendents(rid, 2);
+  if( n==0 ){
+    @ <ul>None.  This is a leaf node.</ul>
+  }
+  @ <p><h2>Ancestors:</h2>
+  n = showAncestors(rid, 2);
+  if( n==0 ){
+    @ <ul>None.  This is the root of the tree.</ul>
+  }
+  @ <p><h2>Changes:</h2>
+  @ <ul>
+  db_prepare(&q, 
+     "SELECT name, pid, fid"
+     "  FROM mlink, filename"
+     " WHERE mid=%d"
+     "   AND filename.fnid=mlink.fnid",
+     rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    int pid = db_column_int(&q, 1);
+    int fid = db_column_int(&q, 2);
+    @ <li>
+    if( pid && fid ){
+      @ <b>Modified:</b>
+    }else if( fid ){
+      @ <b>Added:</b>
+    }else{
+      @ <b>Deleted:</b>
+    }
+    @ %h(zName)</li>
+  }
+  @ </ul>
+  style_footer();
+}
+
+
+#if 0
+/*
+** WEB PAGE: vinfo
 **
 ** Return information about a version.  The version number is contained
 ** in g.zExtra.

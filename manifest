@@ -1,5 +1,5 @@
-C Add\sthe\snew\s"history"\spermission.\s\sMerge\sin\schanges\sthat\srequire\s\npermissions\sto\sview\sthe\stimeline.
-D 2007-07-31T23:33:15
+C Improvements\sto\sthe\svinfo\swebpage.\s\sShow\sdescendents,\sancestors,\sand\nfiles\schanged.
+D 2007-08-01T00:40:40
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -19,7 +19,7 @@ F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 23446a0581aa7fea05ec296ca05bf184ce5bcfb0
-F src/info.c a5306815662c8e9971754d8d3cc17b8bc1aee557
+F src/info.c e357750acea8eed7ca077dd2f9481cead95ae239
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
 F src/main.c e3d8b5d0b946863c49425cba2949bb575ec3acde
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 9c952d247e5164a53ae2c24d5e0068d45e72e72e 5ebcedc33eea137f80f15bfc3e8375f9029ab6a0
-R 6cbbd37674905d8fc176e7c335794623
+P fd36718ad98c4a01632eeccb777fec847c1de7af
+R 5c7efb02c228fb82411af695d600274c
 U drh
-Z 0cc240dd516d5b6a4eaf029f4073444b
+Z 664e7faebb56ac9ca7d0149df9c58214
