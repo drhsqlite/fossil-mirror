@@ -332,7 +332,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 **
 ** Return the resulting checksum in blob pOut.
 */
-void vfile_aggregate_checksum_manifest(int vid, Blob *pOut){
+void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int i, fid;
   Blob file, mfile;
   Manifest m;
@@ -353,6 +353,10 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut){
     md5sum_step_blob(&file);
     blob_reset(&file);
   }
+  if( pManOut ){
+    blob_zero(pManOut);
+    blob_append(pManOut, m.zRepoCksum, -1);
+  }
   manifest_clear(&m);
   md5sum_finish(pOut);
 }
@@ -362,7 +366,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut){
 */
 void test_agg_cksum_cmd(void){
   int vid;
-  Blob hash;
+  Blob hash, hash2;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   vfile_aggregate_checksum_disk(vid, &hash);
@@ -371,6 +375,7 @@ void test_agg_cksum_cmd(void){
   vfile_aggregate_checksum_repository(vid, &hash);
   printf("archive:  %s\n", blob_str(&hash));
   blob_reset(&hash);
-  vfile_aggregate_checksum_manifest(vid, &hash);
+  vfile_aggregate_checksum_manifest(vid, &hash, &hash2);
   printf("manifest: %s\n", blob_str(&hash));
+  printf("recorded: %s\n", blob_str(&hash2));
 }

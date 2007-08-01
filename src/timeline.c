@@ -62,7 +62,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 **    2.  Comment string
 **    3.  User
 */
-void www_print_timeline(Stmt *pQuery){
+void www_print_timeline(Stmt *pQuery, char *zLastDate){
   char zPrevDate[20];
   zPrevDate[0] = 0;
   @ <table cellspacing=0 border=0 cellpadding=0>
@@ -84,6 +84,9 @@ void www_print_timeline(Stmt *pQuery){
     @ <td valign="top" align="left">
     hyperlink_to_uuid(db_column_text(pQuery,0));
     @ %h(db_column_text(pQuery,2)) (by %h(db_column_text(pQuery,3)))</td>
+    if( zLastDate ){
+      strcpy(zLastDate, zDate);
+    }
   }
   @ </table>
 }
@@ -95,6 +98,10 @@ void www_print_timeline(Stmt *pQuery){
 */
 void page_timeline(void){
   Stmt q;
+  char *zSQL;
+  char zDate[100];
+  const char *zStart = P("d");
+  int nEntry = atoi(PD("n","25"));
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -102,16 +109,49 @@ void page_timeline(void){
   if( !g.okRead ){ login_needed(); return; }
 
   style_header("Timeline");
-  db_prepare(&q,
+  if( !g.okHistory &&
+      db_exists("SELECT 1 FROM user"
+                " WHERE login='anonymous'"
+                "   AND cap LIKE '%%h%%'") ){
+    @ <p><b>Note:</b> You will be able to see much more timeline
+    @ information if <a href="%s(g.zBaseURL)/login">login</a>.</p>
+  }
+  zSQL = mprintf(
     "SELECT uuid, datetime(event.mtime,'localtime'), comment, user"
     "  FROM event, blob"
     " WHERE event.type='ci' AND blob.rid=event.objid"
-    " ORDER BY event.mtime DESC"
   );
-  www_print_timeline(&q);
+  if( zStart ){
+    while( isspace(zStart[0]) ){ zStart++; }
+    if( zStart[0] ){
+      zSQL = mprintf("%z AND event.mtime<=julianday(%Q, 'localtime')",
+                      zSQL, zStart);
+    }
+  }
+  zSQL = mprintf("%z ORDER BY event.mtime DESC LIMIT %d", zSQL, nEntry);
+  db_prepare(&q, zSQL);
+  free(zSQL);
+  www_print_timeline(&q, zDate);
   db_finalize(&q);
+  if( zStart==0 ){
+    zStart = zDate;
+  }
+  @ <hr>
+  @ <form method="GET" action="%s(g.zBaseURL)/timeline">
+  @ Start Date:
+  @ <input type="text" size="30" value="%h(zStart)" name="d">
+  @ Number Of Entries:  
+  @ <input type="text" size="4" value="%d(nEntry)" name="n">
+  @ <br><input type="submit" value="Submit">
+  @ </form>
+  @ <form method="GET" action="%s(g.zBaseURL)/timeline">
+  @ <input type="hidden" value="%h(zDate)" name="d">
+  @ <input type="hidden" value="%d(nEntry)" name="n">
+  @ <input type="submit" value="Next %d(nEntry) Rows">
+  @ </form>
   style_footer();
 }
+
 /*
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.

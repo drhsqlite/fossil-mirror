@@ -229,6 +229,7 @@ void commit_cmd(void){
   Blob manifest;
   Blob mcksum;           /* Self-checksum on the manifest */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
+  Blob cksum1b;          /* Checksum recorded in the manifest */
   
   db_must_be_within_tree();
   user_select();
@@ -324,9 +325,14 @@ void commit_cmd(void){
   if( blob_compare(&cksum1, &cksum2) ){
     fossil_panic("tree checksum does not match repository after commit");
   }
-  vfile_aggregate_checksum_manifest(nvid, &cksum2);
+  vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
+  if( blob_compare(&cksum1, &cksum1b) ){
+    fossil_panic("manifest checksum does not agree with manifest: "
+                 "%b versus %b", &cksum1, &cksum1b);
+  }
   if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksum does not match manifest after commit");
+    fossil_panic("tree checksum does not match manifest after commit: "
+                 "%b versus %b", &cksum1, &cksum2);
   }
   vfile_aggregate_checksum_disk(nvid, &cksum2);
   if( blob_compare(&cksum1, &cksum2) ){

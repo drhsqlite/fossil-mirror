@@ -1,5 +1,5 @@
-C Documentation\supdates.\s\sAdded\sMakefile.
-D 2007-08-01T20:05:49
+C Add\sprimitive\sstart-time\sand\sduration\scontrools\sto\sthe\stimeline.\s\s\nAdditional\schecksums\son\scheck-in\sand\scheck-out.
+D 2007-08-01T21:03:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -7,8 +7,8 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c 90e1185c4a8fec15c31d0b5e972378c002f95cac
-F src/checkin.c 5e2184d9adecffce38d0c9464e00c6b9f2e0d265
-F src/checkout.c 6397d9f5461f4f92a7e2bc326772c0ebbbd60546
+F src/checkin.c bb35848e0aa89ef1cb89aa5890a79126436fba52
+F src/checkout.c 6ea05f66406e6b77b8f194758f058446ee9f5034
 F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
@@ -16,7 +16,7 @@ F src/content.c f6a48a05e14150a1d9b87cb16b6b8b1627e06a2b
 F src/db.c 904ab46ad3621a3df8e6c4226f46b8d85e232cd2
 F src/delta.c ee93661e27b7758f0592629317a985bfba08c42a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendents.c ccfb04b45c351e7cae3dc5c935ab13b5515bd63f
+F src/descendents.c caa863826bbdd0af9f0d98da6937cd113f66f9f0
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
@@ -45,13 +45,13 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c c79d53c017314825e098783a27928fbb31a717c2
-F src/timeline.c 346b9fb48c45b1daa9a78cab1934425d81c22c2e
+F src/timeline.c c9c7c2c04a10df95f2e1dfe550052b674d88cda9
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 47ac33e64aa0213e1e87091f5d293879c7dfc719
 F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
-F src/vfile.c d4b9c4a1e579dec58d0420e0bb69795cdb86229c
+F src/vfile.c 8f052c328924a1cef66a5c4a26f04367b1b7d53b
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
 F src/xfer.c 3a9a49107ff1550b9e54ae4ca533fbdcb5780ff9
@@ -68,7 +68,7 @@ F www/index.html 188269ac14ab932a2d64e9fe8af35db4e7da6424
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/quickstart.html 8e6c0f9e23e650c1e68e1e173191e103be978cdc
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 36df57aa39f80c5bd0a802bfa52fe3fd83b1a0a3
-R 694c21ff7e687c204080bcc61fc8f24d
+P 0e265b01847057ad96aa67b59dab50cd04c13066
+R fc9df16a784baa2726d95bc45261fa10
 U drh
-Z bee875da68e1f2c4af3a9bc39722454f
+Z 273de37322d39316d99437d617cb462d

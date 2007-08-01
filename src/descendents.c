@@ -142,7 +142,7 @@ void branches_page(void){
     "   AND event.objid=blob.rid"
     " ORDER BY event.mtime DESC"
   );
-  www_print_timeline(&q);
+  www_print_timeline(&q, 0);
   db_finalize(&q);
   style_footer();
 }

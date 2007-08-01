@@ -101,6 +101,7 @@ void checkout_cmd(void){
   int forceFlag;
   int noWrite;
   int vid, prior;
+  Blob cksum1, cksum1b, cksum2;
   
   db_must_be_within_tree();
   db_begin_transaction();
@@ -136,5 +137,13 @@ void checkout_cmd(void){
     db_lset_int("checkout", vid);
   }
   db_multi_exec("DELETE FROM vmerge");
+  vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);
+  vfile_aggregate_checksum_disk(vid, &cksum2);
+  if( blob_compare(&cksum1, &cksum2) ){
+    printf("WARNING: manifest checksum does not agree with disk\n");
+  }
+  if( blob_compare(&cksum1, &cksum1b) ){
+    printf("WARNING: manifest checksum does not agree with manifest\n");
+  }
   db_end_transaction(0);
 }
