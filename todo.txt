@@ -13,6 +13,11 @@ Things to work on:
     message exceeds the maximum POST size of the server) the client
     does not report this error back to the user as it should.
 
+ *  Bug: If the server closes the socket unexpectedly, the
+    fwrite() in http.c:103 throws a signal and kills the child
+    process.  fwrite() is not suppose to do this.  Need to figure
+    out what is going wrong.
+
  *  When constructing a new manifest (see the commit_cmd function
     in checkin.c, near line 303) make an attempt to PGP clearsign
     the manifest before checking it in.  There will need to be
