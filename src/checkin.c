@@ -300,8 +300,16 @@ void commit_cmd(void){
   md5sum_blob(&manifest, &mcksum);
   blob_appendf(&manifest, "Z %b\n", &mcksum);
   zManifestFile = mprintf("%smanifest", g.zLocalRoot);
+  if( clearsign(&manifest, &manifest) ){
+    Blob ans;
+    blob_zero(&ans);
+    prompt_user("unable to sign manifest.  continue [y/N]? ", &ans);
+    if( blob_str(&ans)[0]!='y' ){
+      db_end_transaction(1);
+      exit(1);
+    }
+  }
   blob_write_to_file(&manifest, zManifestFile);
-  /* Try to sign the manifest */
   blob_reset(&manifest);
   blob_read_from_file(&manifest, zManifestFile);
   free(zManifestFile);

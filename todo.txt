@@ -18,20 +18,6 @@ Things to work on:
     process.  fwrite() is not suppose to do this.  Need to figure
     out what is going wrong.
 
- *  When constructing a new manifest (see the commit_cmd function
-    in checkin.c, near line 303) make an attempt to PGP clearsign
-    the manifest before checking it in.  There will need to be
-    configuration parameters for the PGP (or more likely GPG)
-    command to do the actual signing.  Write the manifest to
-    a temp file, clearsign, read it back in, verify that it is
-    still parsable by manifest_parse(), then continue with the
-    check-in.
-
- *  The "leaves ?UUID?" command displays all leaf versions for the
-    version UUID or for the current version if UUID is omitted.  If
-    UUID is itself a leaf, it would be more helpful to display a
-    message to that effect:  "<uuid> is itself a leaf"
-
  *  The ipaddr field of the rcvfrom table is not being set.  This
     field should be the IP address from which information is received
     for the local repository.  So when somebody does a push of new

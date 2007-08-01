@@ -11,6 +11,7 @@ set src {
   cgi
   checkin
   checkout
+  clearsign
   clone
   comformat
   content

@@ -98,6 +98,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
       while( blob_line(pContent, &line)>1 ){}
       if( blob_line(pContent, &line)==0 ) break;
+      z = blob_buffer(&line);
     }
     seenHeader = 1;
     if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;

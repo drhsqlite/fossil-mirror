@@ -93,7 +93,7 @@ void prompt_for_password(
 /*
 ** Prompt the user to enter a single line of text.
 */
-static void prompt_user(const char *zPrompt, Blob *pIn){
+void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
   blob_zero(pIn);
