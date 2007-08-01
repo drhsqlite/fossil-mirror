@@ -32,9 +32,6 @@ Things to work on:
     UUID is itself a leaf, it would be more helpful to display a
     message to that effect:  "<uuid> is itself a leaf"
 
- *  We need a command to show other branches - leaves of the root
-    which are not leaves of the indicated node.
-
  *  The ipaddr field of the rcvfrom table is not being set.  This
     field should be the IP address from which information is received
     for the local repository.  So when somebody does a push of new
@@ -49,14 +46,6 @@ Things to work on:
         See the compute_leaves() function to see how to find all
         leaves.
      +  Add file diff links to the file change list.
-     +  Add a link that will download a ZIP archive containing the
-        complete baseline.  Use zip_of_baseline() function in 
-        zip.c to construct the ZIP archive.
-
- *  A new webpage: "finfo"  Information about a particular file
-    given its name.
-
-     +  Hyperlinks for diffing consecutive versions of the file.
 
  *  Timeline enhanced so that you can specify a range of dates.
 
