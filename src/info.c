@@ -113,7 +113,7 @@ static int showDescendents(int pid, int depth){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
-    "SELECT plink.cid, blob.uuid, datetime(plink.mtime),"
+    "SELECT plink.cid, blob.uuid, datetime(plink.mtime, 'localtime'),"
     "       event.user, event.comment"
     "  FROM plink, blob, event"
     " WHERE plink.pid=%d"
@@ -159,7 +159,7 @@ static int showAncestors(int pid, int depth){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
-    "SELECT plink.pid, blob.uuid, datetime(event.mtime),"
+    "SELECT plink.pid, blob.uuid, datetime(event.mtime, 'localtime'),"
     "       event.user, event.comment"
     "  FROM plink, blob, event"
     " WHERE plink.cid=%d"
@@ -170,7 +170,6 @@ static int showAncestors(int pid, int depth){
   );
   @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
-    int n;
     int cid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
@@ -198,7 +197,7 @@ void vinfo_page(void){
   Stmt q;
   int rid;
   int isLeaf;
-  int cid, pid, n;
+  int n;
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
@@ -211,7 +210,7 @@ void vinfo_page(void){
   }
   isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
   db_prepare(&q, 
-     "SELECT uuid, datetime(mtime), user, comment"
+     "SELECT uuid, datetime(mtime, 'localtime'), user, comment"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
@@ -257,183 +256,63 @@ void vinfo_page(void){
     }else{
       @ <b>Deleted:</b>
     }
-    @ %h(zName)</li>
+    @ <a href="%s(g.zBaseURL)/finfo/%T(zName)">%h(zName)</a></li>
   }
   @ </ul>
   style_footer();
 }
 
-
-#if 0
 /*
-** WEB PAGE: vinfo
+** WEBPAGE: finfo
 **
-** Return information about a version.  The version number is contained
-** in g.zExtra.
+** Show the complete change history for a single file.  The name
+** of the file is in g.zExtra
 */
-void vinfo_page(void){
+void finfo_page(void){
   Stmt q;
-  int rid;
-  char cType;
-  char *zType;
-
+  char zPrevDate[20];
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  style_header("Version Information");
-  rid = name_to_rid(g.zExtra);
-  if( rid==0 ){
-    @ No such object: %h(g.argv[2])
-    style_footer();
-    return;
-  }
-  db_row_to_table("SELECT "
-    "  blob.uuid               AS \"UUID\""
-    ", datetime(rcvfrom.mtime) AS \"Created\""
-    ", rcvfrom.uid             AS \"User Id\""
-    ", blob.size               AS \"Size\""
-    "FROM blob, rcvfrom "
-    "WHERE rid=%d", rid
-  );
-  style_footer();
-  return;
+  style_header("File History");
 
+  zPrevDate[0] = 0;
   db_prepare(&q,
-    "SELECT "
-      "uuid, "                                         /* 0 */
-      "datetime(mtime,'unixepoch'),"                   /* 1 */
-      "datetime(ctime,'unixepoch'),"                   /* 2 */
-      "uid, size, cksum, branch, comment, type"        /* 3..8 */
-    "FROM record WHERE rid=%d", rid
+    "SELECT blob.uuid, datetime(event.mtime,'localtime'),"
+    "       event.comment, event.user"
+    "  FROM mlink, blob, event"
+    " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
+    "   AND blob.rid=mlink.mid"
+    "   AND event.objid=mlink.mid"
+    " ORDER BY event.mtime DESC",
+    g.zExtra
   );
-  if( db_step(&q)==SQLITE_ROW ){
-    const char *z;
-    const char *zSignedBy = db_text("unknown",
-                                     "SELECT login FROM repuser WHERE uid=%d",
-                                     db_column_int(&q, 3));
-    cType = db_column_text(&q,8)[0];
-    switch( cType ){
-      case 'f':  zType = "file";        break;
-      case 'v':  zType = "version";     break;
-      case 'c':  zType = "control";     break;
-      case 'w':  zType = "wiki";        break;
-      case 'a':  zType = "attachment";  break;
-      case 't':  zType = "ticket";      break;
-    }
-    @ <table border="0" cellpadding="0" cellspacing="0">
-    @ <tr><td align="right">%s(zType)&nbsp;UUID:</td><td width="10"></td>
-    @ <td>%s(db_column_text(&q,0))</td></tr>
-    z = db_column_text(&q, 7);
-    if( z ){
-      @ <tr><td align="right" valign="top">comment:</td><td></td>
-      @ <td valign="top">%h(z)</td></tr>
-    }
-    @ <tr><td align="right">created:</td><td></td>
-    @ <td>%s(db_column_text(&q,2))</td></tr>
-    @ <tr><td align="right">received:</td><td></td>
-    @ <td>%s(db_column_text(&q,1))</td></tr>
-    @ <tr><td align="right">signed&nbsp;by:</td><td></td>
-    @ <td>%h(zSignedBy)</td></tr>
-    z = db_column_text(&q, 4);
-    if( z && z[0] && (z[0]!='0' || z[1]!=0) ){
-      @ <tr><td align="right">size:</td><td></td>
-      @ <td>%s(z)</td></tr>
-    }
-    z = db_column_text(&q, 5);
-    if( z ){
-      @ <tr><td align="right">MD5&nbsp;checksum:</td><td></td>
-      @ <td>%s(z)</td></tr>
-    }
-    z = db_column_text(&q, 6);
-    if( z ){
-      @ <tr><td align="right">branch:</td><td></td>
-      @ <td>%h(z)</td></tr>
-    }
-  }
-  db_finalize(&q);
-  db_prepare(&q, "SELECT uuid, typecode FROM link JOIN record ON a=rid "
-                 " WHERE b=%d", rid);
+  @ <h2>History of %h(g.zExtra)</h2>
+  @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zType = db_column_text(&q, 1);
-    const char *zUuid = db_column_text(&q, 0);
-    if( zType[0]=='P' ){
-      @ <tr><td align="right">parent:</td><td></td><td>
-      hyperlink_to_uuid(zUuid);
-      if( cType=='f' || cType=='w' ){
-        hyperlink_to_diff(zUuid, g.zExtra);
-      }
-      @ </td></tr>
-    }else if( zType[0]=='M' ){
-      @ <tr><td align="right">merge&nbsp;parent:</td><td></td><td>
-      hyperlink_to_uuid(zUuid);
-      if( cType=='f' || cType=='w' ){
-        hyperlink_to_diff(zUuid, g.zExtra);
-      }
+    const char *zDate = db_column_text(&q, 1);
+    if( memcmp(zDate, zPrevDate, 10) ){
+      sprintf(zPrevDate, "%.10s", zDate);
+      @ <tr><td colspan=3>
+      @ <table cellpadding=2 border=0>
+      @ <tr><td bgcolor="#a0b5f4" class="border1">
+      @ <table cellpadding=2 cellspacing=0 border=0><tr>
+      @ <td bgcolor="#d0d9f4" class="bkgnd1">%s(zPrevDate)</td>
+      @ </tr></table>
+      @ </td></tr></table>
       @ </td></tr>
     }
+    @ <tr><td valign="top">%s(&zDate[11])</td>
+    @ <td width="20"></td>
+    @ <td valign="top" align="left">
+    hyperlink_to_uuid(db_column_text(&q,0));
+    @ %h(db_column_text(&q,2)) (by %h(db_column_text(&q,3)))</td>
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT uuid, typecode FROM link JOIN record ON b=rid "
-                 " WHERE a=%d ORDER BY typecode DESC", rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zType = db_column_text(&q, 1);
-    const char *zUuid = db_column_text(&q, 0);
-    if( zType[0]=='P' ){
-      @ <tr><td align="right">child:</td><td></td><td>
-      hyperlink_to_uuid(zUuid);
-      if( cType=='f' || cType=='w' ){
-        hyperlink_to_diff(g.zExtra, zUuid);
-      }
-      @ </td></tr>
-    }else if( zType[0]=='M' ){
-      @ <tr><td align="right">merge&nbsp;child:</td><td></td><td>
-      hyperlink_to_uuid(zUuid);
-      if( cType=='f' || cType=='w' ){
-        hyperlink_to_diff(g.zExtra, zUuid);
-      }
-      @ </td></tr>
-    }
-  }
-  db_finalize(&q);
-  if( cType=='v' ){
-    db_prepare(&q, "SELECT uuid, typecode, name "
-                   " FROM link, record, fname"
-                   " WHERE a=%d AND typecode IN ('D','E','I')"
-                   "   AND b=record.rid AND fname.fnid=record.fnid"
-                   " ORDER BY name", rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zUuid = db_column_text(&q, 0);
-      const char *zType = db_column_text(&q, 1);
-      const char *zName = db_column_text(&q, 2);
-      if( zType[0]=='D' ){
-        @ <tr><td align="right">deleted&nbsp;file:</td><td></td><td>
-        hyperlink_to_uuid(zUuid);
-      }else if( zType[0]=='E' ){
-        @ <tr><td align="right">changed&nbsp;file:</td><td></td><td>
-        hyperlink_to_uuid(zUuid);
-        hyperlink_to_diff(zUuid, 0);
-      }else if( zType[0]=='I' ){
-        @ <tr><td align="right">added&nbsp;file:</td><td></td><td>
-        hyperlink_to_uuid(zUuid);
-      }
-      @ &nbsp;&nbsp;%h(zName)</td></tr>
-    }
-    db_finalize(&q);
-  }else if( cType=='f' ){
-    db_prepare(&q, "SELECT uuid"
-                   " FROM link, record"
-                   " WHERE b=%d AND typecode IN ('E','I')"
-                   "   AND a=record.rid", rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zUuid = db_column_text(&q, 0);
-      @ <tr><td align="right">associated&nbsp;version:</td><td></td><td>
-      hyperlink_to_uuid(zUuid);
-      @ </td></tr>
-    }
-    db_finalize(&q);
-  }
+  @ </table>
   style_footer();
 }
-#endif
+
+
 
 #if 0
 /*
