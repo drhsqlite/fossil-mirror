@@ -1,5 +1,5 @@
-C From\sthe\svinfo\swebpage,\sprovide\sa\shyperlink\sto\sdownload\sa\sZIP\sarchive\nthe\sversion.
-D 2007-08-01T13:32:11
+C Client\smust\signore\sSIGPIPE\swhen\swritting\sto\sthe\sHTTP\ssocket.
+D 2007-08-01T13:50:58
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -18,7 +18,7 @@ F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
-F src/http.c e887c92c4d34a4eba4f464f7c59d965b81a564b2
+F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
 F src/info.c 512979df91ee737d750a190b53d3a344c5c26bda
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P ae40356c5771a4f3d6083d34036f0b1cfac924ed
-R 59124cc75faae2e8a2871627fe0c7749
+P 6dab6149b13f9fdb214a279d2b3c47619f3eb7b6
+R 3577886f676796bec4aa8e31f74413ad
 U drh
-Z a2fe4c99d4619c21b43bb03ebf0d96d7
+Z 92bbe54fad58f38e9e68600fa39c57a6

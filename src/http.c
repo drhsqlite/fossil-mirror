@@ -31,6 +31,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <signal.h>
 
 /*
 ** Persistent information about the HTTP connection.
@@ -78,6 +79,7 @@ static int http_open_socket(void){
     fossil_panic("cannot connect to host %s:%d", g.urlName, g.urlPort);
   }
   pSocket = fdopen(s,"r+");
+  signal(SIGPIPE, SIG_IGN);
   return 0;
 }
 
