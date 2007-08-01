@@ -1003,7 +1003,14 @@ void cgi_handle_http_request(void){
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( getpeername(fileno(stdin), (struct sockaddr*)&remoteName, &size)>=0 ){
-    cgi_setenv("REMOTE_ADDR", inet_ntoa(remoteName.sin_addr));
+    char *zIpAddr = inet_ntoa(remoteName.sin_addr);
+    cgi_setenv("REMOTE_ADDR", zIpAddr);
+
+    /* Set the Global.zIpAddr variable to the server we are talking to.
+    ** This is used to populate the ipaddr column of the rcvfrom table,
+    ** if any files are received from the connected client.
+    */
+    g.zIpAddr = mprintf("%s", zIpAddr);
   }
  
   /* Get all the optional fields that follow the first line.

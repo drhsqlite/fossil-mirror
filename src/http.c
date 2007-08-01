@@ -63,6 +63,12 @@ static int http_open_socket(void){
       }
     }
     addrIsInit = 1;
+
+    /* Set the Global.zIpAddr variable to the server we are talking to.
+    ** This is used to populate the ipaddr column of the rcvfrom table,
+    ** if any files are received from the server.
+    */
+    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
   }
   s = socket(AF_INET,SOCK_STREAM,0);
   if( s<0 ){
