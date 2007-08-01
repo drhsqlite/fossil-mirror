@@ -67,7 +67,8 @@ void compute_leaves(int iBase){
 /*
 ** COMMAND:  leaves
 **
-** Find all leaf versions
+** Find all leaf descendents of the current version or of the
+** specified version.
 */
 void leaves_cmd(void){
   Stmt q;
@@ -90,4 +91,58 @@ void leaves_cmd(void){
   );
   print_timeline(&q, 20);
   db_finalize(&q);
+}
+
+/*
+** COMMAND:  branches
+**
+** Find leaves of all branches.
+*/
+void branches_cmd(void){
+  Stmt q;
+  int base;
+
+  db_must_be_within_tree();
+  if( g.argc==2 ){
+    base = db_lget_int("checkout", 0);
+  }else{
+    base = name_to_rid(g.argv[2]);
+  }
+  if( base==0 ) return;
+  db_prepare(&q,
+    "SELECT blob.uuid, datetime(event.mtime,'localtime'), event.comment"
+    "  FROM blob, event"
+    " WHERE blob.rid IN"
+    "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
+    "   AND event.objid=blob.rid"
+    " ORDER BY event.mtime DESC"
+  );
+  print_timeline(&q, 20);
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE:  leaves
+**
+** Find leaves of all branches.
+*/
+void branches_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
+  style_header("Leaves");
+  db_prepare(&q,
+    "SELECT blob.uuid, datetime(event.mtime,'localtime'),"
+    "       event.comment, event.user"
+    "  FROM blob, event"
+    " WHERE blob.rid IN"
+    "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
+    "   AND event.objid=blob.rid"
+    " ORDER BY event.mtime DESC"
+  );
+  www_print_timeline(&q);
+  db_finalize(&q);
+  style_footer();
 }

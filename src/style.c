@@ -87,6 +87,7 @@ void style_header(const char *zTitle){
   @ </td><td valign="top" align="right">
   @ <a href="%s(g.zBaseURL)/index">Home</a>
   if( g.okRead ){
+    @ | <a href="%s(g.zBaseURL)/leaves">Leaves</a>
     @ | <a href="%s(g.zBaseURL)/timeline">Timeline</a>
   }
   if( g.okRdWiki ){

@@ -53,30 +53,21 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
   }
 }
 
-
 /*
-** WEBPAGE: timeline
+** Output a timeline in the web format given a query.  The query
+** should return 4 columns:
+**
+**    0.  UUID
+**    1.  Date/Time
+**    2.  Comment string
+**    3.  User
 */
-void page_timeline(void){
-  Stmt q;
+void www_print_timeline(Stmt *pQuery){
   char zPrevDate[20];
-
-  /* To view the timeline, must have permission to read project data.
-  */
-  login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
-
-  style_header("Timeline");
   zPrevDate[0] = 0;
-  db_prepare(&q,
-    "SELECT uuid, datetime(event.mtime,'localtime'), comment, user"
-    "  FROM event, blob"
-    " WHERE event.type='ci' AND blob.rid=event.objid"
-    " ORDER BY event.mtime DESC"
-  );
   @ <table cellspacing=0 border=0 cellpadding=0>
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 1);
+  while( db_step(pQuery)==SQLITE_ROW ){
+    const char *zDate = db_column_text(pQuery, 1);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -91,11 +82,34 @@ void page_timeline(void){
     @ <tr><td valign="top">%s(&zDate[11])</td>
     @ <td width="20"></td>
     @ <td valign="top" align="left">
-    hyperlink_to_uuid(db_column_text(&q,0));
-    @ %h(db_column_text(&q,2)) (by %h(db_column_text(&q,3)))</td>
+    hyperlink_to_uuid(db_column_text(pQuery,0));
+    @ %h(db_column_text(pQuery,2)) (by %h(db_column_text(pQuery,3)))</td>
   }
-  db_finalize(&q);
   @ </table>
+}
+
+
+
+/*
+** WEBPAGE: timeline
+*/
+void page_timeline(void){
+  Stmt q;
+
+  /* To view the timeline, must have permission to read project data.
+  */
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
+  style_header("Timeline");
+  db_prepare(&q,
+    "SELECT uuid, datetime(event.mtime,'localtime'), comment, user"
+    "  FROM event, blob"
+    " WHERE event.type='ci' AND blob.rid=event.objid"
+    " ORDER BY event.mtime DESC"
+  );
+  www_print_timeline(&q);
+  db_finalize(&q);
   style_footer();
 }
 /*
