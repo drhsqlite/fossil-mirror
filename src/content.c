@@ -313,11 +313,11 @@ void content_deltify(int rid, int srcid, int force){
     db_end_transaction(0);
     db_finalize(&s1);
     db_finalize(&s2);
+    verify_before_commit(rid);
   }
   blob_reset(&src);
   blob_reset(&data);
   blob_reset(&delta);
-  verify_before_commit(rid);
 }
 
 /*

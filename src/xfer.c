@@ -134,7 +134,7 @@ static int send_all_pending(Blob *pOut){
   int iRidSent = 0;
   int sent = 0;
   int nSent = 0;
-  int maxSize = db_get_int("http-msg-size", 1000000);
+  int maxSize = db_get_int("http-msg-size", 500000);
   Stmt q;
 #if 0
   db_multi_exec(

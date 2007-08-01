@@ -1,12 +1,5 @@
 Things to work on:
 
- *  Bug: The timeline is visible in sqlitert even though anonymous
-    access is turned off.  The timeline menu item should be omitted
-    and the timeline page should be disallowed if the user does not
-    have the right access permissions.  Feel free to add new access
-    permissions (view timeline permission?) if this seems like something
-    appropriate to do.
-
  *  Use the wiki_convert() routine to render comments and other text
     on web pages.
 
