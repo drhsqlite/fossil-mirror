@@ -1,5 +1,5 @@
-C Add\sthe\sfinfo\sweb\spage.
-D 2007-08-01T00:55:18
+C Added\sthe\svdiff\swebpage\swith\slinks\sfrom\svinfo.
+D 2007-08-01T01:24:37
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -19,7 +19,7 @@ F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 23446a0581aa7fea05ec296ca05bf184ce5bcfb0
-F src/info.c 77aac55e7cadc39b791f99861d543e4b4815ca68
+F src/info.c 1c93e966232c47e1f104f8c8bfd3f48ad0ff00d9
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
 F src/main.c e3d8b5d0b946863c49425cba2949bb575ec3acde
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 30d7afe3285c0e2922c402af140a72ed73fddfc3
-R d05b5971cbf5d93ca1ba8f3a79317d79
+P 86c8768475f6eb0ec28329c4899e49a6ae09f2f3
+R 6bd187486b622686d83c676adbfb8e2d
 U drh
-Z 2e1acf547601f7abdb3cc494f3976dba
+Z cce90f39f4bc8626bca3c4b86abcd1c5

@@ -222,6 +222,7 @@ void vinfo_page(void){
     @ <li><b>Date:</b> %s(db_column_text(&q, 1))</li>
     @ <li><b>User:</b> %s(db_column_text(&q, 2))</li>
     @ <li><b>Comment:</b> %s(db_column_text(&q, 3))</li>
+    @ <li><a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a></li>
     @ </ul>
   }
   db_finalize(&q);
@@ -309,6 +310,67 @@ void finfo_page(void){
   }
   db_finalize(&q);
   @ </table>
+  style_footer();
+}
+
+
+/*
+** Append the difference between two RIDs to the output
+*/
+static void append_diff(int fromid, int toid){
+  Blob from, to, out;
+  content_get(fromid, &from);
+  content_get(toid, &to);
+  blob_zero(&out);
+  unified_diff(&from, &to, 5, &out);
+  @ %h(blob_str(&out))
+  blob_reset(&from);
+  blob_reset(&to);
+  blob_reset(&out);  
+}
+
+/*
+** WEBPAGE: vdiff
+**
+** Show all differences for a particular check-in specified by g.zExtra
+*/
+void vdiff_page(void){
+  int rid, i;
+  Stmt q;
+  Manifest m;
+  Blob mfile, file;
+  char *zUuid;
+
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  style_header("Version Diff");
+
+  rid = name_to_rid(g.zExtra);
+  if( rid==0 ){
+    cgi_redirect("index");
+  }
+  db_prepare(&q,
+     "SELECT pid, fid, name"
+     "  FROM mlink, filename"
+     " WHERE mlink.mid=%d"
+     "   AND filename.fnid=mlink.fnid"
+     " ORDER BY name",
+     rid
+  );
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  @ <h2>All Changes In Version
+  hyperlink_to_uuid(zUuid);
+  @ </h2>
+  while( db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q,0);
+    int fid = db_column_int(&q,1);
+    const char *zName = db_column_text(&q,2);
+    @ <p><a href="%s(g.zBaseURL)/finfo/%T(zName)">%h(zName)</a></p>
+    @ <blockquote><pre>
+    append_diff(pid, fid);
+    @ </pre></blockquote>
+  }
+  db_finalize(&q);
   style_footer();
 }
 
