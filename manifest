@@ -1,9 +1,9 @@
-C Fix\sa\sproblem\sin\sthe\scommit\slogic\sthat\scaused\sit\sto\signore\smerge\nchanges.\s\sAdd\sanother\stest\sto\sthe\scommit\sto\sdetect\sfuture\sproblems\nof\sa\ssimilar\snature.
-D 2007-08-01T12:17:14
+C The\smerge\sat\s[dd9633a03d]\sdid\snot\swork\sbecause\sof\sthe\sbug\sjust\sfixed.\nThis\schange\smoves\sthe\schanges\sthat\sshould\shave\sbeen\sin\sthat\smerge\sinto\nthe\smain\sline\sof\sthe\stree.
+D 2007-08-01T12:20:24
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
-F src/cgi.c 1776db11b604e455b4b0d76c989897010aeafe40
+F src/cgi.c 0b7697e1bfcb14e4f4bdd9d8457a36fa3cee8c7e
 F src/checkin.c 5e2184d9adecffce38d0c9464e00c6b9f2e0d265
 F src/checkout.c 6397d9f5461f4f92a7e2bc326772c0ebbbd60546
 F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
@@ -18,7 +18,7 @@ F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 42f780093c40738795e34798087ca5685e843674
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
-F src/http.c 23446a0581aa7fea05ec296ca05bf184ce5bcfb0
+F src/http.c e887c92c4d34a4eba4f464f7c59d965b81a564b2
 F src/info.c 1c93e966232c47e1f104f8c8bfd3f48ad0ff00d9
 F src/linux-gcc.mk cb88682a83b0318a07f9dde011431170f220d1c8
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P dd9633a03db92b9b9355bf63e53e716032a1a839
-R de09b1db1408cdc9bf843d41b3dd5914
+P 5c3e87171a336b076e87377b786fa9a1de711016
+R 1964926ad2f2d4f8e21db0967c7014fd
 U drh
-Z 9672699ef7873d053d5b87d8def009b0
+Z 78b227ba5556d38445c81f8839b96d9d
