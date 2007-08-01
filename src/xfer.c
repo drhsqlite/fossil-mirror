@@ -515,6 +515,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   int nMsg = 0;
   int nReq = 0;
   int nFileSend;
+  int nNoFileCycle = 0;
   Blob send;        /* Text we are sending to the server */
   Blob recv;        /* Reply we got back from the server */
   Blob line;        /* A single line of the reply */
@@ -706,7 +707,14 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     blob_reset(&recv);
     printf("Received:  %d files, %d requests, %d other messages\n",
             nFile, nReq, nMsg);
-    if( nFileSend + nFile==0 ){ go = 0; }
+    if( nFileSend + nFile==0 ){
+      nNoFileCycle++;
+      if( nNoFileCycle>1 ){
+        go = 0;
+      }
+    }else{
+      nNoFileCycle = 0;
+    }
     nFile = nReq = nMsg = 0;
   };
   http_close();
