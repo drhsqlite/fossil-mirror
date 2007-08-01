@@ -1,10 +1,10 @@
-C Merging\sin\sthe\sipaddr\supdate\schanges.
-D 2007-08-01T10:31:31
+C Fix\sa\sproblem\sin\sthe\scommit\slogic\sthat\scaused\sit\sto\signore\smerge\nchanges.\s\sAdd\sanother\stest\sto\sthe\scommit\sto\sdetect\sfuture\sproblems\nof\sa\ssimilar\snature.
+D 2007-08-01T12:17:14
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c 1776db11b604e455b4b0d76c989897010aeafe40
-F src/checkin.c f97001dc6f75ad08370426c7d51ef595b50b9d6b
+F src/checkin.c 5e2184d9adecffce38d0c9464e00c6b9f2e0d265
 F src/checkout.c 6397d9f5461f4f92a7e2bc326772c0ebbbd60546
 F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -49,7 +49,7 @@ F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 47ac33e64aa0213e1e87091f5d293879c7dfc719
 F src/verify.c 7995bb74af682e983d2c2183a58dacb38cf93e20
-F src/vfile.c e0efe29333d86817bdd653a7c415517d43165402
+F src/vfile.c d4b9c4a1e579dec58d0420e0bb69795cdb86229c
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
 F src/xfer.c 47f26fcdc71fd133d596b68c6d79ce4e9625ec8e
@@ -64,7 +64,7 @@ F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 30f3834664c0cc86c0a66fe34f648769261fca56
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 35d7ba08aca1768ba4b61bd6d9e2dcc2e3e01c70 36edf3fd5c8ed8ea20da2c723b956e1fc489ac06
-R 7640c9643a8178b8230780386f2bedc5
+P dd9633a03db92b9b9355bf63e53e716032a1a839
+R de09b1db1408cdc9bf843d41b3dd5914
 U drh
-Z 71127e3ac96b457e049926854b4b1721
+Z 9672699ef7873d053d5b87d8def009b0

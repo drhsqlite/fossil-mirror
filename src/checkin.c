@@ -272,7 +272,7 @@ void commit_cmd(void){
   zDate[10] = 'T';
   blob_appendf(&manifest, "D %s\n", zDate);
   db_prepare(&q,
-    "SELECT pathname, uuid FROM vfile JOIN blob USING (rid)"
+    "SELECT pathname, uuid FROM vfile JOIN blob ON vfile.mrid=blob.rid"
     " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -323,6 +323,10 @@ void commit_cmd(void){
   vfile_aggregate_checksum_repository(nvid, &cksum2);
   if( blob_compare(&cksum1, &cksum2) ){
     fossil_panic("tree checksum does not match repository after commit");
+  }
+  vfile_aggregate_checksum_manifest(nvid, &cksum2);
+  if( blob_compare(&cksum1, &cksum2) ){
+    fossil_panic("tree checksum does not match manifest after commit");
   }
   vfile_aggregate_checksum_disk(nvid, &cksum2);
   if( blob_compare(&cksum1, &cksum2) ){

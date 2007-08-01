@@ -305,6 +305,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   char zBuf[100];
 
   db_must_be_within_tree();
+  
   db_prepare(&q, "SELECT pathname, rid FROM vfile"
                  " WHERE NOT deleted AND rid>0 AND vid=%d"
                  " ORDER BY pathname",
@@ -326,6 +327,37 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 }
 
 /*
+** Compute an aggregate MD5 checksum over the repository image of every
+** file in manifest vid.  The file names are part of the checksum.
+**
+** Return the resulting checksum in blob pOut.
+*/
+void vfile_aggregate_checksum_manifest(int vid, Blob *pOut){
+  int i, fid;
+  Blob file, mfile;
+  Manifest m;
+  char zBuf[100];
+
+  db_must_be_within_tree();
+  content_get(vid, &mfile);
+  if( manifest_parse(&m, &mfile)==0 ){
+    blob_zero(pOut);
+    return;
+  }
+  for(i=0; i<m.nFile; i++){
+    fid = uuid_to_rid(m.aFile[i].zUuid, 0);
+    md5sum_step_text(m.aFile[i].zName, -1);
+    content_get(fid, &file);
+    sprintf(zBuf, " %d\n", blob_size(&file));
+    md5sum_step_text(zBuf, -1);
+    md5sum_step_blob(&file);
+    blob_reset(&file);
+  }
+  manifest_clear(&m);
+  md5sum_finish(pOut);
+}
+
+/*
 ** COMMAND: test-agg-cksum
 */
 void test_agg_cksum_cmd(void){
@@ -334,8 +366,11 @@ void test_agg_cksum_cmd(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   vfile_aggregate_checksum_disk(vid, &hash);
-  printf("disk:    %s\n", blob_str(&hash));
+  printf("disk:     %s\n", blob_str(&hash));
   blob_reset(&hash);
   vfile_aggregate_checksum_repository(vid, &hash);
-  printf("archive: %s\n", blob_str(&hash));
+  printf("archive:  %s\n", blob_str(&hash));
+  blob_reset(&hash);
+  vfile_aggregate_checksum_manifest(vid, &hash);
+  printf("manifest: %s\n", blob_str(&hash));
 }
