@@ -67,6 +67,8 @@ struct Global {
   Blob cgiIn;             /* Input to an xfer www method */
   int cgiPanic;           /* Write error messages to CGI */
 
+  int *aCommitFile;
+
   int urlIsFile;          /* True if a "file:" url */
   char *urlName;          /* Hostname for http: or filename for file: */
   int urlPort;            /* TCP port number for http: */

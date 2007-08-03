@@ -37,8 +37,10 @@
 static void status_report(Blob *report, const char *zPrefix){
   Stmt q;
   int nPrefix = strlen(zPrefix);
-  db_prepare(&q, "SELECT pathname, deleted, chnged, rid FROM vfile"
-                 " WHERE chnged OR deleted OR rid=0 ORDER BY 1");
+  db_prepare(&q, 
+    "SELECT pathname, deleted, chnged, rid FROM vfile "
+    "WHERE file_is_selected(id) AND (chnged OR deleted OR rid=0) ORDER BY 1"
+  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
@@ -213,10 +215,51 @@ static void prepare_commit_comment(Blob *pComment){
 }
 
 /*
+** Populate the Global.aCommitFile[] based on the command line arguments
+** to a [commit] command. Global.aCommitFile is an array of integers
+** sized at (N+1), where N is the number of arguments passed to [commit].
+** The contents are the [id] values from the vfile table corresponding
+** to the filenames passed as arguments.
+**
+** The last element of aCommitFile[] is always 0 - indicating the end
+** of the array.
+**
+** If there were no arguments passed to [commit], aCommitFile is not
+** allocated and remains NULL. Other parts of the code interpret this
+** to mean "all files".
+*/
+void select_commit_files(void){
+  if( g.argc>2 ){
+    int ii;
+    Blob b;
+    memset(&b, 0, sizeof(Blob));
+    g.aCommitFile = malloc(sizeof(int)*(g.argc-1));
+
+    for(ii=2; ii<g.argc; ii++){
+      int iId;
+      if( !file_tree_name(g.argv[ii], &b) ){
+        fossil_fatal("file is not in tree: %s", g.argv[ii]);
+      }
+      iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
+      if( iId<0 ){
+        fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);
+      }
+      g.aCommitFile[ii-2] = iId;
+    }
+    g.aCommitFile[ii-2] = 0;
+  }
+}
+
+/*
 ** COMMAND: commit
 **
 ** Create a new version containing all of the changes in the current
-** checkout.
+** checkout. A commit is a three step process:
+**
+**   1) Add the new content to the blob table,
+**   2) Create and add the new manifest to the blob table,
+**   3) Update the vfile table,
+**   4) Run checks to make sure everything is still internally consistent.
 */
 void commit_cmd(void){
   int rc;
@@ -230,23 +273,56 @@ void commit_cmd(void){
   Blob mcksum;           /* Self-checksum on the manifest */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
-  
+ 
   db_must_be_within_tree();
+
+  /* There are two ways this command may be executed. If there are
+  ** no arguments following the word "commit", then all modified files
+  ** in the checked out directory are committed. If one or more arguments
+  ** follows "commit", then only those files are committed.
+  **
+  ** After the following function call has returned, the Global.aCommitFile[]
+  ** array is allocated to contain the "id" field from the vfile table
+  ** for each file to be committed. Or, if aCommitFile is NULL, all files
+  ** should be committed.
+  */
+  select_commit_files();
+
   user_select();
   db_begin_transaction();
   rc = unsaved_changes();
   if( rc==0 ){
     fossil_panic("nothing has changed");
   }
+
+  /* If one or more files that were named on the command line have not
+  ** been modified, bail out now.
+  */
+  if( g.aCommitFile ){
+    Blob unmodified;
+    memset(&unmodified, 0, sizeof(Blob));
+    blob_init(&unmodified, 0, 0);
+    db_blob(&unmodified, 
+      "SELECT pathname FROM vfile WHERE chnged = 0 AND file_is_selected(id)"
+    );
+    if( strlen(blob_str(&unmodified)) ){
+      fossil_panic("file %s has not changed", blob_str(&unmodified));
+    }
+  }
+
   vid = db_lget_int("checkout", 0);
   vfile_aggregate_checksum_disk(vid, &cksum1);
   prepare_commit_comment(&comment);
 
+  /* Step 1: Insert records for all modified files into the blob 
+  ** table. If there were arguments passed to this command, only
+  ** the identified fils are inserted (if they have been modified).
+  */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid FROM vfile"
-    " WHERE chnged==1 AND NOT deleted", g.zLocalRoot
+    "SELECT id, %Q || pathname, mrid FROM vfile "
+    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)"
+    , g.zLocalRoot
   );
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
@@ -256,7 +332,7 @@ void commit_cmd(void){
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
 
-    blob_zero(&content);    
+    blob_zero(&content);
     blob_read_from_file(&content, zFullname);
     nrid = content_put(&content, 0);
     if( rid>0 ){
@@ -267,7 +343,7 @@ void commit_cmd(void){
   db_finalize(&q);
 
   /* Create the manifest */
-  blob_zero(&manifest); 
+  blob_zero(&manifest);
   blob_appendf(&manifest, "C %F\n", blob_str(&comment));
   zDate = db_text(0, "SELECT datetime('now')");
   zDate[10] = 'T';
@@ -284,6 +360,8 @@ void commit_cmd(void){
   db_finalize(&q);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   blob_appendf(&manifest, "P %s", zUuid);
+
+  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
   db_bind_int(&q2, ":id", 0);
   while( db_step(&q2)==SQLITE_ROW ){
     int mid = db_column_int(&q2, 0);
@@ -294,6 +372,7 @@ void commit_cmd(void){
     }
   }
   db_reset(&q2);
+
   blob_appendf(&manifest, "\n");
   blob_appendf(&manifest, "R %b\n", &cksum1);
   blob_appendf(&manifest, "U %F\n", g.zLogin);
@@ -322,17 +401,26 @@ void commit_cmd(void){
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);
   
-  /* Update VFILE */
-  db_multi_exec("DELETE FROM vfile WHERE vid!=%d OR deleted", vid);
-  db_multi_exec("DELETE FROM vmerge");
-  db_multi_exec("UPDATE vfile SET vid=%d, rid=mrid, chnged=0, deleted=0", nvid);
+  /* Update the vfile and vmerge tables */
+  db_multi_exec(
+    "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND file_is_selected(id);"
+    "DELETE FROM vmerge WHERE file_is_selected(id) OR id=0;"
+    "UPDATE vfile SET vid=%d;"
+    "UPDATE vfile SET rid=mrid, chnged=0, deleted=0 WHERE file_is_selected(id);"
+    , vid, nvid
+  );
   db_lset_int("checkout", nvid);
 
-  /* Verify that the tree checksum is unchanged */
+  /* Verify that the repository checksum matches the expected checksum
+  ** calculated before the checkin started (and stored as the R record
+  ** of the manifest file).
+  */
   vfile_aggregate_checksum_repository(nvid, &cksum2);
   if( blob_compare(&cksum1, &cksum2) ){
     fossil_panic("tree checksum does not match repository after commit");
   }
+
+  /* Verify that the manifest checksum matches the expected checksum */
   vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
   if( blob_compare(&cksum1, &cksum1b) ){
     fossil_panic("manifest checksum does not agree with manifest: "
@@ -342,6 +430,8 @@ void commit_cmd(void){
     fossil_panic("tree checksum does not match manifest after commit: "
                  "%b versus %b", &cksum1, &cksum2);
   }
+
+  /* Verify that the commit did not modify any disk images. */
   vfile_aggregate_checksum_disk(nvid, &cksum2);
   if( blob_compare(&cksum1, &cksum2) ){
     fossil_panic("tree checksums before and after commit do not match");

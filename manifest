@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\ssign\smanifests\susing\sGPG\sduring\sa\scheck-in.\nDue\sto\sa\sbug\sin\sthe\smanifest\sparser,\solder\sversions\swill\snot\sbe\nable\sto\scheck-out\ssigned\smanifests.
-D 2007-08-01T21:59:38
+C Extend\sthe\scommit\scommand\sso\sthat\sspecific\sfiles\scan\sbe\scommitted.\sThere\sare\sstill\ssome\sproblems\swith\sdoing\sthis\safter\sa\smerge.
+D 2007-08-03T15:31:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -7,14 +7,14 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c 90e1185c4a8fec15c31d0b5e972378c002f95cac
-F src/checkin.c e13578a1740acaf7924efbf467038c61d5225414
+F src/checkin.c a1a87577e4db4b039493411bda2d2b3a21041e47
 F src/checkout.c 6ea05f66406e6b77b8f194758f058446ee9f5034
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c f6a48a05e14150a1d9b87cb16b6b8b1627e06a2b
-F src/db.c 904ab46ad3621a3df8e6c4226f46b8d85e232cd2
+F src/db.c acf733f759d13a50c31d6d5cbad3b07822f6d538
 F src/delta.c ee93661e27b7758f0592629317a985bfba08c42a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c caa863826bbdd0af9f0d98da6937cd113f66f9f0
@@ -25,7 +25,7 @@ F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
 F src/info.c ee42d04161ff45d477cb59de2ee301ce86f0438e
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
-F src/main.c e3d8b5d0b946863c49425cba2949bb575ec3acde
+F src/main.c efc0bca8ad6dc07c1d53fe6d5f9b5a4566a7de6e
 F src/main.mk aa75ff924a836c78ed283e7e7f7955bf6f3f3124
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -52,7 +52,7 @@ F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 4ebd0dc2823c11dacdcd26b81cebc58f78710473
 F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
-F src/vfile.c 8f052c328924a1cef66a5c4a26f04367b1b7d53b
+F src/vfile.c 520337f87bfd7433675b67a83dcdca1c79e2cb8c
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
 F src/xfer.c 3a9a49107ff1550b9e54ae4ca533fbdcb5780ff9
@@ -69,7 +69,7 @@ F www/index.html 188269ac14ab932a2d64e9fe8af35db4e7da6424
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/quickstart.html 8e6c0f9e23e650c1e68e1e173191e103be978cdc
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 394505791628e571d7020d6cdd85235ec847f49d
-R 74878b932d7feb4c39c59de6b02a35b0
-U drh
-Z 4039b3edccbe7653a89cb379bb1b689d
+P e37451d9c2b23493b2822fc0089554e5ed7ee736
+R 2c8053379d0d34f60558b8808718e005
+U dan
+Z 86085d7dba1779755d691f3136130990

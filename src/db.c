@@ -726,6 +726,37 @@ static void db_sql_trace(void *notUsed, const char *zSql){
 }
 
 /*
+** This is used by the [commit] command.
+**
+** Return true if either:
+**
+**     a) Global.aCommitFile is NULL, or
+**     b) Global.aCommitFile contains the integer passed as an argument.
+**
+** Otherwise return false.
+*/
+static void file_is_selected(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  assert(argc==1);
+  if( g.aCommitFile ){
+    int iId = sqlite3_value_int(argv[0]);
+    int ii;
+    for(ii=0; g.aCommitFile[ii]; ii++){
+      if( iId==g.aCommitFile[ii] ){
+        sqlite3_result_int(context, 1);
+        return;
+      }
+    }
+    sqlite3_result_int(context, 0);
+  }else{
+    sqlite3_result_int(context, 1);
+  }
+}
+
+/*
 ** This function registers auxiliary functions when the SQLite
 ** database connection is first established.
 */
@@ -733,6 +764,9 @@ LOCAL void db_connection_init(void){
   static int once = 1;
   if( once ){
     sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+    sqlite3_create_function(
+      g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+    );
     if( g.fSqlTrace ){
       sqlite3_trace(g.db, db_sql_trace, 0);
     }

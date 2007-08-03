@@ -255,6 +255,11 @@ void vfile_scan(int vid, Blob *pPath){
 ** Compute an aggregate MD5 checksum over the disk image of every
 ** file in vid.  The file names are part of the checksum.
 **
+** This function operates differently if the Global.aCommitFile
+** variable is not NULL. In that case, the disk image is used for
+** each file in aCommitFile[] and the repository image (see
+** vfile_aggregate_checksum_repository() is used for all others).
+**
 ** Return the resulting checksum in blob pOut.
 */
 void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
@@ -263,31 +268,49 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
   char zBuf[4096];
 
   db_must_be_within_tree();
-  db_prepare(&q, "SELECT %Q || pathname, pathname FROM vfile"
-                 " WHERE NOT deleted AND vid=%d"
-                 " ORDER BY pathname",
-                 g.zLocalRoot, vid);
+  db_prepare(&q, 
+      "SELECT %Q || pathname, pathname, file_is_selected(id), rid FROM vfile"
+      " WHERE NOT deleted AND vid=%d"
+      " ORDER BY pathname",
+      g.zLocalRoot, vid
+  );
   md5sum_init();
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFullpath = db_column_text(&q, 0);
     const char *zName = db_column_text(&q, 1);
+    int isSelected = db_column_int(&q, 2);
+
     md5sum_step_text(zName, -1);
-    in = fopen(zFullpath,"rb");
-    if( in==0 ){
-      md5sum_step_text(" 0\n", -1);
-      continue;
+
+    if( isSelected ){
+      in = fopen(zFullpath,"rb");
+      if( in==0 ){
+        md5sum_step_text(" 0\n", -1);
+        continue;
+      }
+      fseek(in, 0L, SEEK_END);
+      sprintf(zBuf, " %ld\n", ftell(in));
+      fseek(in, 0L, SEEK_SET);
+      md5sum_step_text(zBuf, -1);
+      for(;;){
+        int n;
+        n = fread(zBuf, 1, sizeof(zBuf), in);
+        if( n<=0 ) break;
+        md5sum_step_text(zBuf, n);
+      }
+      fclose(in);
+    }else{
+      int rid = db_column_int(&q, 3);
+      char zBuf[100];
+      Blob file;
+
+      blob_zero(&file);
+      content_get(rid, &file);
+      sprintf(zBuf, " %d\n", blob_size(&file));
+      md5sum_step_text(zBuf, -1);
+      md5sum_step_blob(&file);
+      blob_reset(&file);
     }
-    fseek(in, 0L, SEEK_END);
-    sprintf(zBuf, " %ld\n", ftell(in));
-    fseek(in, 0L, SEEK_SET);
-    md5sum_step_text(zBuf, -1);
-    for(;;){
-      int n;
-      n = fread(zBuf, 1, sizeof(zBuf), in);
-      if( n<=0 ) break;
-      md5sum_step_text(zBuf, n);
-    }
-    fclose(in);
   }
   db_finalize(&q);
   md5sum_finish(pOut);
