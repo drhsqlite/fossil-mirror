@@ -301,6 +301,20 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
 }
 
 /*
+** Verify that there are no processed command-line options.  If
+** Any remaining command-line argument begins with "-" print
+** an error message and quit.
+*/
+void verify_all_options(void){
+  int i;
+  for(i=1; i<g.argc; i++){
+    if( g.argv[i][0]=='-' ){
+      fossil_fatal("unrecognized command-line option: %s", g.argv[i]);
+    }
+  }
+}
+
+/*
 ** Print a list of words in multiple columns.
 */
 static void multi_column_list(const char **azWord, int nWord){

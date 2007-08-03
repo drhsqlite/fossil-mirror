@@ -268,6 +268,7 @@ void commit_cmd(void){
   Stmt q;
   Stmt q2;
   char *zUuid, *zDate;
+  int noSign = 0;        /* True to omit signing the manifest using GPG */
   char *zManifestFile;   /* Name of the manifest file */
   Blob manifest;
   Blob mcksum;           /* Self-checksum on the manifest */
@@ -275,6 +276,8 @@ void commit_cmd(void){
   Blob cksum1b;          /* Checksum recorded in the manifest */
  
   db_must_be_within_tree();
+  noSign = db_get_int("omit-ci-sig", 0);
+  verify_all_options();
 
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
@@ -379,7 +382,7 @@ void commit_cmd(void){
   md5sum_blob(&manifest, &mcksum);
   blob_appendf(&manifest, "Z %b\n", &mcksum);
   zManifestFile = mprintf("%smanifest", g.zLocalRoot);
-  if( clearsign(&manifest, &manifest) ){
+  if( !noSign && clearsign(&manifest, &manifest) ){
     Blob ans;
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue [y/N]? ", &ans);
