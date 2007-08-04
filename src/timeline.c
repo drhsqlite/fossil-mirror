@@ -131,6 +131,7 @@ void page_timeline(void){
   zSQL = mprintf("%z ORDER BY event.mtime DESC LIMIT %d", zSQL, nEntry);
   db_prepare(&q, zSQL);
   free(zSQL);
+  zDate[0] = 0;
   www_print_timeline(&q, zDate);
   db_finalize(&q);
   if( zStart==0 ){

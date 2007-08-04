@@ -547,6 +547,7 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 ){
     cgi_panic("no repository specified");
   }
+  g.cgiPanic = 1;
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{
@@ -576,10 +577,15 @@ void cmd_webserver(void){
     iPort = 8080;
   }
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
+  if( g.argc==2 ){
+    db_must_be_within_tree();
+    db_close();
+  }
   cgi_http_server(iPort);
   if( g.fHttpTrace ){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
+  g.cgiPanic = 1;
   if( g.argc==2 ){
     db_must_be_within_tree();
   }else{

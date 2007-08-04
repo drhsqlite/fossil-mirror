@@ -666,6 +666,7 @@ void create_repository_cmd(void){
   db_begin_transaction();
   db_set("content-schema", CONTENT_SCHEMA);
   db_set("aux-schema", AUX_SCHEMA);
+  db_set_int("authenticate-localhost", 0);
   db_multi_exec(
     "INSERT INTO config(name,value) VALUES('server-code', hex(randomblob(20)));"
     "INSERT INTO config(name,value) VALUES('project-code',hex(randomblob(20)));"
@@ -675,11 +676,17 @@ void create_repository_cmd(void){
     zUser = getenv("USER");
   }
   if( zUser==0 ){
-    zUser = "anonymous";
+    zUser = "root";
   }
   db_multi_exec(
      "INSERT INTO user(login, pw, cap, info)"
      "VALUES(%Q,'','s','')", zUser
+  );
+  db_multi_exec(
+     "INSERT INTO user(login,pw,cap,info)"
+     "   VALUES('anonymous','anonymous','hjkorw','Anon');"
+     "INSERT INTO user(login,pw,cap,info)"
+     "   VALUES('nobody','','jor','Nobody');"
   );
   user_select();
   blob_zero(&manifest);

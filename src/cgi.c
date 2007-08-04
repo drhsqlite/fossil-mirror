@@ -81,6 +81,13 @@ void cgi_reset_content(void){
 }
 
 /*
+** Return a pointer to the CGI output blob.
+*/
+Blob *cgi_output_blob(void){
+  return &cgiContent;
+}
+
+/*
 ** Return a pointer to the HTTP reply text.
 */
 char *cgi_extract_content(int *pnAmt){
