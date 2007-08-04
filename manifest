@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Prohibit\spartial\scheck-ins\sof\sa\smerge.\s\sTo\sallow\ssuch\sa\sthing\swould\sconfuse\nthe\sbranch\stracking\slogic.\s\sThere\sare\sstill\sproblems\sin\sthe\spartial\scheck-in\nlogic\sfor\scases\swere\snew\sfiles\shave\sbeen\sadded\sto\sthe\srepository.
-D 2007-08-04T00:26:40
+C Changes\sto\sthe\schecksum\sverification\ssteps\sto\sallow\sa\spartial\scommit\nof\schanges\safter\snew\sfiles\sare\sadded\sto\sthe\stree.
+D 2007-08-04T00:38:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -55,7 +55,7 @@ F src/update.c d64d008fb643098ebe4fb27515f3e57bff88c74b
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 4ebd0dc2823c11dacdcd26b81cebc58f78710473
 F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
-F src/vfile.c 520337f87bfd7433675b67a83dcdca1c79e2cb8c
+F src/vfile.c 47b5a77023eb0079cfce7c57ee19e9d519a5822d
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
 F src/xfer.c 3a9a49107ff1550b9e54ae4ca533fbdcb5780ff9
@@ -72,14 +72,14 @@ F www/index.html 188269ac14ab932a2d64e9fe8af35db4e7da6424
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/quickstart.html 8e6c0f9e23e650c1e68e1e173191e103be978cdc
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P f5e8b1d736ab0c00b43e04cb5e15cbb5752ca39c
-R ccb175d3b6634cc1062eb419f42a632f
+P aafd536a5cced0647c402e7c820e8aaa3c232ac2
+R 35886fdce1b5d0cb4da9639b4a3f526d
 U drh
-Z a625ef88bae71eadef0323f3e306b623
+Z 2b52b4af81b766e5772dca041a2514a9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGs8fFoxKgR168RlERAh3aAJ0aBQQ0nh+Exp7t6Vz+BpkidkiBYQCffiqC
-8/1pmfBuM1GonPpBLgx/sOA=
-=N4RV
+iD8DBQFGs8qSoxKgR168RlERAsVZAJ9nSoNvsXyy/7FzGbBrXcpQIFHv+wCePehp
+/4yrj4XX7Ix2MCYPTgGdlhM=
+=X0ZN
 -----END PGP SIGNATURE-----

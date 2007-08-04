@@ -259,6 +259,8 @@ void vfile_scan(int vid, Blob *pPath){
 ** variable is not NULL. In that case, the disk image is used for
 ** each file in aCommitFile[] and the repository image (see
 ** vfile_aggregate_checksum_repository() is used for all others).
+** Newly added files that are not contained in the repository are
+** omitted from the checksum if they are not in Global.aCommitFile.
 **
 ** Return the resulting checksum in blob pOut.
 */
@@ -280,9 +282,8 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
     const char *zName = db_column_text(&q, 1);
     int isSelected = db_column_int(&q, 2);
 
-    md5sum_step_text(zName, -1);
-
     if( isSelected ){
+      md5sum_step_text(zName, -1);
       in = fopen(zFullpath,"rb");
       if( in==0 ){
         md5sum_step_text(" 0\n", -1);
@@ -304,12 +305,15 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       char zBuf[100];
       Blob file;
 
-      blob_zero(&file);
-      content_get(rid, &file);
-      sprintf(zBuf, " %d\n", blob_size(&file));
-      md5sum_step_text(zBuf, -1);
-      md5sum_step_blob(&file);
-      blob_reset(&file);
+      if( rid>0 ){
+        md5sum_step_text(zName, -1);
+        blob_zero(&file);
+        content_get(rid, &file);
+        sprintf(zBuf, " %d\n", blob_size(&file));
+        md5sum_step_text(zBuf, -1);
+        md5sum_step_blob(&file);
+        blob_reset(&file);
+      }
     }
   }
   db_finalize(&q);
