@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\sand\scorrect\sthe\schanges\sto\sthe\snew\srepository\sinitialization.\nAlso\sfix\sother\smisc\sbugs\sseen\swhile\stesting.
-D 2007-08-04T00:08:17
+C Prohibit\spartial\scheck-ins\sof\sa\smerge.\s\sTo\sallow\ssuch\sa\sthing\swould\sconfuse\nthe\sbranch\stracking\slogic.\s\sThere\sare\sstill\sproblems\sin\sthe\spartial\scheck-in\nlogic\sfor\scases\swere\snew\sfiles\shave\sbeen\sadded\sto\sthe\srepository.
+D 2007-08-04T00:26:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -10,7 +10,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c 43e2abb7c22491a768d252390f1ecd22751b80dc
+F src/checkin.c f79a5fbc491ca21bed5f89e1ed56be2bfb01543c
 F src/checkout.c 6ea05f66406e6b77b8f194758f058446ee9f5034
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
@@ -72,14 +72,14 @@ F www/index.html 188269ac14ab932a2d64e9fe8af35db4e7da6424
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/quickstart.html 8e6c0f9e23e650c1e68e1e173191e103be978cdc
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 6aff11f03f25f00b6ec3c3233fb6426fc2ae8b4a a48936e834b6d383037b19d1f79f12067b09135a
-R 294ba99677b0fa296caac9a6cd293f43
+P f5e8b1d736ab0c00b43e04cb5e15cbb5752ca39c
+R ccb175d3b6634cc1062eb419f42a632f
 U drh
-Z 8892080ca1ec0f045a444f1bed686d08
+Z a625ef88bae71eadef0323f3e306b623
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGs8N1oxKgR168RlERApyTAJ9WeFwR8q4BQL5IDg3YnFSV4E6WSACbBPB/
-/x9PKWj2ObIKkWMM//40pf0=
-=QA9/
+iD8DBQFGs8fFoxKgR168RlERAh3aAJ0aBQQ0nh+Exp7t6Vz+BpkidkiBYQCffiqC
+8/1pmfBuM1GonPpBLgx/sOA=
+=N4RV
 -----END PGP SIGNATURE-----

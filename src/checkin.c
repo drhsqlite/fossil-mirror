@@ -232,7 +232,7 @@ void select_commit_files(void){
   if( g.argc>2 ){
     int ii;
     Blob b;
-    memset(&b, 0, sizeof(Blob));
+    blob_zero(&b);
     g.aCommitFile = malloc(sizeof(int)*(g.argc-1));
 
     for(ii=2; ii<g.argc; ii++){
@@ -245,6 +245,7 @@ void select_commit_files(void){
         fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);
       }
       g.aCommitFile[ii-2] = iId;
+      blob_reset(&b);
     }
     g.aCommitFile[ii-2] = 0;
   }
@@ -290,6 +291,9 @@ void commit_cmd(void){
   ** should be committed.
   */
   select_commit_files();
+  if( g.aCommitFile && db_exists("SELECT 1 FROM vmerge") ){
+    fossil_fatal("cannot do a partial commit of a merge");
+  }
 
   user_select();
   db_begin_transaction();
