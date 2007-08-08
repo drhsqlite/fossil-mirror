@@ -176,6 +176,7 @@ void update_cmd(void){
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
+  manifest_to_disk(tid);
   db_lset_int("checkout", tid);
   db_end_transaction(0);
 }

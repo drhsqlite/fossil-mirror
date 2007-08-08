@@ -93,6 +93,22 @@ void load_vfile_from_rid(int vid){
 }
 
 /*
+** Read the manifest file given by vid out of the repository
+** and store it in the root of the local check-out.
+*/
+void manifest_to_disk(int vid){
+  char *zManFile;
+  Blob manifest;
+
+  blob_zero(&manifest);
+  zManFile = mprintf("%smanifest", g.zLocalRoot);
+  content_get(vid, &manifest);
+  blob_write_to_file(&manifest, zManFile);
+  free(zManFile);
+  blob_reset(&manifest);
+}
+
+/*
 ** COMMAND: checkout
 **
 ** Check out a version specified on the command-line.
@@ -126,14 +142,8 @@ void checkout_cmd(void){
   }
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   if( !noWrite ){
-    Blob manifest;
-    char *zManFile;
     vfile_to_disk(vid, 0, 1);
-    blob_zero(&manifest);
-    zManFile = mprintf("%smanifest", g.zLocalRoot);
-    content_get(vid, &manifest);
-    blob_write_to_file(&manifest, zManFile);
-    free(zManFile);
+    manifest_to_disk(vid);
     db_lset_int("checkout", vid);
   }
   db_multi_exec("DELETE FROM vmerge");
