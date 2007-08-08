@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sa\suser\sdoes\snot\sattempt\sto\s"fossil\sadd"\sthe\smanifest\sor\sthe\n_FOSSIL_\sfiles.
-D 2007-08-08T15:22:43
+C Do\snot\sremove\sfiles\sthat\shave\sbeen\sedited\swhen\sdoing\san\s"update".\s\sInstead,\nmark\sthe\sfiles\sas\sCONFLICT.
+D 2007-08-08T15:30:04
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -51,7 +51,7 @@ F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c c79d53c017314825e098783a27928fbb31a717c2
 F src/timeline.c 01eff9951054d0510409ec502e9f5e6bbe0013c0
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
-F src/update.c 167b4a11d32aa67c32f3e5cde2ef7b38f0f7ced2
+F src/update.c e7db94fb720978028ed9c176fb4ce3213ba611c8
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 4ebd0dc2823c11dacdcd26b81cebc58f78710473
 F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
@@ -72,14 +72,14 @@ F www/index.html 188269ac14ab932a2d64e9fe8af35db4e7da6424
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/quickstart.html 8e6c0f9e23e650c1e68e1e173191e103be978cdc
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P a040ae6e17e68b6f4de4ff7f3ec6ebee940c0ff3
-R e2d11a3db3ea444a5a274403ab203835
+P 20bcbcf2f2b2518f1745f473337ce5c524e2a4cf
+R c86d144838042ece283aa253e0d7ac0d
 U drh
-Z 1bd6f4f8710118abf069b68e67ce5035
+Z 9275330929ac04fa4a3351bbf89e116b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGud/GoxKgR168RlERAg2mAJ9FNXMj6/vaVwQEiu22ce3ZCfpbiQCeJAwJ
-R8KYTiJWVAK/JQUFmn/hqLM=
-=kz5y
+iD8DBQFGueGAoxKgR168RlERAmxyAJ9l5WGJgg8AmRhC3JmG/YrIf00KwQCeIvNj
+UIJ0/x0ud6xndl1cr7oOKZ4=
+=lh6M
 -----END PGP SIGNATURE-----
