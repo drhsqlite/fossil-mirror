@@ -149,7 +149,10 @@ void extra_cmd(void){
   blob_zero(&path);
   vfile_scan(0, &path);
   db_multi_exec("DELETE FROM sfile WHERE x='FOSSIL'");
-  db_prepare(&q, "SELECT x FROM sfile ORDER BY 1");
+  db_prepare(&q, 
+      "SELECT x FROM sfile"
+      " WHERE x NOT IN ('manifest','_FOSSIL_')"
+      " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     printf("%s\n", db_column_text(&q, 0));
   }

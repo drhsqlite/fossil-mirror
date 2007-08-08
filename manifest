@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Changes\sto\sthe\schecksum\sverification\ssteps\sto\sallow\sa\spartial\scommit\nof\schanges\safter\snew\sfiles\sare\sadded\sto\sthe\stree.
-D 2007-08-04T00:38:38
+C Omit\sthe\sfiles\s"manifest"\sand\s"_FOSSIL_"\sfrom\sthe\s"extra"\slist.
+D 2007-08-08T14:45:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -10,7 +10,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 1a5dfcdbfd24c65fa04da865b2e21486d075e154
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c f79a5fbc491ca21bed5f89e1ed56be2bfb01543c
+F src/checkin.c c7f6520303ed61769c3da10f0a3f71c3d43a95b8
 F src/checkout.c 6ea05f66406e6b77b8f194758f058446ee9f5034
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
@@ -72,14 +72,14 @@ F www/index.html 188269ac14ab932a2d64e9fe8af35db4e7da6424
 F www/pop.html 13539df59a5a919dda4e5d626f50b5080184ec66
 F www/quickstart.html 8e6c0f9e23e650c1e68e1e173191e103be978cdc
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P aafd536a5cced0647c402e7c820e8aaa3c232ac2
-R 35886fdce1b5d0cb4da9639b4a3f526d
+P 5c74c300b11f2f89da7562adec32a7909f9efe22
+R cf426dfff8dd9edba146dbb6be9aa18c
 U drh
-Z 2b52b4af81b766e5772dca041a2514a9
+Z 596c7eee2bb051ff3dd68bffc7bd150b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGs8qSoxKgR168RlERAsVZAJ9nSoNvsXyy/7FzGbBrXcpQIFHv+wCePehp
-/4yrj4XX7Ix2MCYPTgGdlhM=
-=X0ZN
+iD8DBQFGudcEoxKgR168RlERAkMMAJ4nJkTk2Y32YNFL9hXg2Ivny+/lsQCfby6b
+P+dTb/oNBcCBAAiNsydqAZM=
+=uG1I
 -----END PGP SIGNATURE-----
