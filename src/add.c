@@ -55,13 +55,16 @@ void add_cmd(void){
     isDir = file_isdir(zName);
     if( isDir==1 ) continue;
     if( isDir==0 ){
-      fossil_panic("not found: %s\n", zName);
+      fossil_fatal("not found: %s", zName);
     }
     if( isDir==2 && access(zName, R_OK) ){
-      fossil_panic("cannot open %s\n", zName);
+      fossil_fatal("cannot open %s", zName);
     }
     file_tree_name(zName, &pathname);
     zPath = blob_str(&pathname);
+    if( strcmp(zPath, "manifest")==0 || strcmp(zPath, "_FOSSIL_")==0 ){
+      fossil_fatal("cannot add %s", zPath);
+    }
     if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
       db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
     }else{
@@ -101,7 +104,7 @@ void del_cmd(void){
     zPath = blob_str(&pathname);
     if( !db_exists(
              "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
-      fossil_panic("not in the repository: %s\n", zName);
+      fossil_fatal("not in the repository: %s", zName);
     }else{
       db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
     }
