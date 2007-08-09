@@ -269,6 +269,7 @@ void commit_cmd(void){
   int rc;
   int vid, nrid, nvid;
   Blob comment;
+  const char *zComment;
   Stmt q;
   Stmt q2;
   char *zUuid, *zDate;
@@ -279,8 +280,10 @@ void commit_cmd(void){
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
  
+  noSign = find_option("nosign","",0)!=0;
+  zComment = find_option("comment","m",1);
   db_must_be_within_tree();
-  noSign = db_get_int("omit-ci-sig", 0);
+  noSign = db_get_int("omit-ci-sig", 0)|noSign;
   verify_all_options();
 
   /* There are two ways this command may be executed. If there are
@@ -322,7 +325,12 @@ void commit_cmd(void){
 
   vid = db_lget_int("checkout", 0);
   vfile_aggregate_checksum_disk(vid, &cksum1);
-  prepare_commit_comment(&comment);
+  if( zComment ){
+    blob_zero(&comment);
+    blob_append(&comment, zComment, -1);
+  }else{
+    prepare_commit_comment(&comment);
+  }
 
   /* Step 1: Insert records for all modified files into the blob 
   ** table. If there were arguments passed to this command, only

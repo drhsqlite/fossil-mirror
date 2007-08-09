@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Require\shistory\spermission\sin\sorder\sto\sclone.
-D 2007-08-09T10:43:39
+C Add\sthe\s-m/--comment\sand\sthe\s--nosign\soptions\sto\sthe\scommit\scommand.
+D 2007-08-09T10:48:51
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -10,7 +10,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c f62f7b3cc4dfa0516391806d2c1276dd170be809
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c c7f6520303ed61769c3da10f0a3f71c3d43a95b8
+F src/checkin.c bad8f191d4dd9e7657096c2c43c1a9de0689a6d0
 F src/checkout.c 8d2964dd5e804e0a22f5ee2b199f96be25f31d3e
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 31346c860f7d3ebb7b2bd4670757f328cf58c49a
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 4c072728b4f19edacc251bd4587ae57f3450b6e5
-R 8075a6cd97c40d312cd7963ddeab94b7
+P 13b7ac16e4e5aee70bbcb3958c9047f846e15974
+R cc97990a5dc964e28141828a7709f309
 U drh
-Z 83ce00768c1a8f2cb16fbd17e235796b
+Z e3007650eae328efbd114dc24a3b8e46
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGuu/goxKgR168RlERApEGAJwK0ONcN3AaCm8W0RvDdXFLECcxlgCeNeX0
-8UOIMmM51kd8DJvKYGPDtTg=
-=QiX2
+iD8DBQFGuvEYoxKgR168RlERAprtAJ4/qJiifN6TDC86UBtQ+WvbpEB33ACfaNLv
+hObHhcFL1cRxk5jIMEJndJg=
+=6o1C
 -----END PGP SIGNATURE-----
