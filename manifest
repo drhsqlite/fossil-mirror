@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Progress\stoward\sdelta\scompression\son\sthe\sxfer\sprotocol.\s\sThe\scompression\nworks\swell.\s\sBut\sthe\sclient\sis\snot\stelling\sthe\sserver\swhat\sfiles\sit\shas\nso\sthe\sserver\sdoes\snot\shave\sanything\sto\sdelta\sagainst.
-D 2007-08-09T03:19:18
+C Fix\sa\sbug\sin\sthe\sxfer\sserver\sthat\sprevents\sit\sfrom\sreceiving\sdeltas.
+D 2007-08-09T03:44:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -58,7 +58,7 @@ F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
 F src/vfile.c 47b5a77023eb0079cfce7c57ee19e9d519a5822d
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 338dc3ed99050b343b0d72d608f44bcafd0a88c4
+F src/xfer.c dc10588abf20b292c9cb3f7c9176fdf89bbcb18c
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P b110d77c366af7599dc49d860c3954f783af0c20
-R 5a9672695a1be5f0490a1310106d767d
+P eea381f416beab14a5356f36f1c9108ba9843b92
+R 3544e9818988485e4cd52843dc0b681f
 U drh
-Z 7181525ee914eadb044a7bf81063a689
+Z 1f1ac31ed0282a8789f6903b1d377fab
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGuoe7oxKgR168RlERAjE9AJ4ukf/9ykzhpTCTyUXISbLUlbdwLACdEL2w
-N9fcZA8jvWpWE+1IJHLs5uI=
-=BbNZ
+iD8DBQFGuo2moxKgR168RlERAgJzAKCFjHB8l9qhPwZmaWTk5zYLnriISwCePZto
+JTMyaEdRipYqUKaIletWBAU=
+=m+Bn
 -----END PGP SIGNATURE-----

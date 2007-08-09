@@ -190,6 +190,9 @@ static int send_file(int rid, Blob *pOut){
       cgi_printf("file %b %b %d\n", &uuid, &srcuuid, size);
       cgi_append_content(blob_buffer(&delta), size);
     }
+    blob_reset(&delta);
+    blob_reset(&srcuuid);
+    blob_reset(&uuid);
   }else{
     size = blob_size(&content);
     if( pOut ){
@@ -341,7 +344,7 @@ void page_xfer(void){
     **
     ** Accept a file from the client.
     */
-    if( blob_eq(&aToken[0], "file") && nToken>=2 && nToken<=3 ){
+    if( blob_eq(&aToken[0], "file") && nToken>=3 && nToken<=4 ){
       if( !isPush ){
         cgi_reset_content();
         @ error not\sauthorized\sto\swrite
