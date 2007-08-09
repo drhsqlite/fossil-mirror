@@ -238,19 +238,43 @@ static int send_file(int rid, Blob *pOut){
 ** Send all pending files.
 */
 static int send_all_pending(Blob *pOut){
-  int iRidSent = 0;
+  int rid, xid, i;
+  int nIgot = 0;
   int sent = 0;
   int nSent = 0;
   int maxSize = db_get_int("http-msg-size", 500000);
-  Stmt q;
+  static const char *azQuery[] = {
+      "SELECT srcid FROM delta JOIN pending ON pending.rid=delta.srcid"
+      " WHERE delta.rid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=srcid)",
 
-  db_prepare(&q, "SELECT rid FROM pending ORDER BY rid");
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
+      "SELECT delta.rid FROM delta JOIN pending ON pending.rid=delta.rid"
+      " WHERE srcid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=delta.rid)",
+
+      "SELECT pid FROM plink JOIN pending ON rid=pid"
+      " WHERE cid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)",
+
+      "SELECT cid FROM plink JOIN pending ON rid=cid"
+      " WHERE pid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=cid)",
+
+      "SELECT pid FROM mlink JOIN pending ON rid=pid"
+      " WHERE fid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)",
+
+      "SELECT fid FROM mlink JOIN pending ON rid=fid"
+      " WHERE pid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=fid)",
+  };
+
+  rid = db_int(0, "SELECT rid FROM pending");
+  while( rid && nIgot<200 ){
+    db_multi_exec("DELETE FROM pending WHERE rid=%d", rid);
     if( sent<maxSize ){
       sent += send_file(rid, pOut);
       nSent++;
-      iRidSent = rid;
     }else{
       char *zUuid = db_text(0,
                       "SELECT uuid FROM blob WHERE rid=%d AND size>=0", rid);
@@ -261,18 +285,18 @@ static int send_all_pending(Blob *pOut){
           cgi_printf("igot %s\n", zUuid);
         }
         free(zUuid);
+        nIgot++;
       }
     }
+    xid = 0;
+    for(i=0; xid==0 && i<sizeof(azQuery)/sizeof(azQuery[0]); i++){
+      xid = db_int(0, azQuery[i], rid);
+    }
+    rid = xid;
+    if( rid==0 ){
+      rid = db_int(0, "SELECT rid FROM pending");
+    }
   }
-  db_finalize(&q);
-  
-  /* Delete the 'pending' records for all files just sent. Otherwise,
-  ** we can wind up sending some files more than once.
-  */
-  if( nSent>0 ){
-    db_multi_exec("DELETE FROM pending WHERE rid <= %d", iRidSent);
-  }
-
   return nSent;
 }
 

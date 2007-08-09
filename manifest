@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sdelta\scompress\son\sxfer\sis\sworking\sbetter\snow,\sbut\sstill\sneeds\swork.
-D 2007-08-09T17:42:59
+C Additional\swork\son\sthe\sxfer\smechanism,\strying\sto\sincrease\sthe\suse\sof\ndelta\scompression.
+D 2007-08-09T19:07:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -58,7 +58,7 @@ F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
 F src/vfile.c 2bf3326797b20e398b2b8ad406182498ff9955f4
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 78443669a55da452f994f35937cb0ae094ea0655
+F src/xfer.c 0239f4e4fee91165ea382f705d32ea32a1bfe0cf
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 6eca3132fe0bf285424b41c8cac0f3195a101825
-R c8412d92df696c5086f703f6aebd214d
+P 73bddaebb9ec5d6eea26b46f56d2b82b68420f01
+R ca726ff1b1b4e71e7d3809023b285e76
 U drh
-Z b6b46c755640f2ed0d96d770c242686a
+Z 79dd12156169028c17aa1deaf363f295
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGu1IqoxKgR168RlERAlOaAJ9J+DIOIIwKUqWByZQ+e4H1INUB5gCfS3tp
-XAZyXuZ7aCJauWEWF/HfhlI=
-=Xrdh
+iD8DBQFGu2X3oxKgR168RlERAogBAKCIvq1sQAY1ai49swEyk+xk+DT/QgCfUsDI
+ndBVKkDXYkDijklKBzX8I7w=
+=2aUv
 -----END PGP SIGNATURE-----
