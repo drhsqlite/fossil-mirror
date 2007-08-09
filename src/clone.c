@@ -55,7 +55,7 @@ void clone_cmd(void){
   db_multi_exec(
     "INSERT INTO config(name,value) VALUES('server-code', hex(randomblob(20)));"
   );
-   if( g.urlIsFile ){
+  if( g.urlIsFile ){
     Stmt q;
     db_multi_exec("ATTACH DATABASE %Q AS orig", g.urlName);
     db_begin_transaction();

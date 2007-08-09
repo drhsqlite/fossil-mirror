@@ -459,9 +459,9 @@ void page_xfer(void){
     */
     if( blob_eq(&aToken[0], "clone") ){
       login_check_credentials();
-      if( !g.okRead ){
+      if( !g.okRead || !g.okHistory ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\sread
+        @ error not\sauthorized\sto\sclone
         nErr++;
         break;
       }

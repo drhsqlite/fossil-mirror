@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\squick\shack\sthat\sdisables\sdelta\scompression\son\sxfer.\s\sThis\sgives\npeople\sa\schance\sto\ssynchronize\sthe\sprevious\sfix.\s\sWe\swill\seventually\nremove\sthe\shack.
-D 2007-08-09T03:47:28
+C Require\shistory\spermission\sin\sorder\sto\sclone.
+D 2007-08-09T10:43:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -13,7 +13,7 @@ F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
 F src/checkin.c c7f6520303ed61769c3da10f0a3f71c3d43a95b8
 F src/checkout.c 8d2964dd5e804e0a22f5ee2b199f96be25f31d3e
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
-F src/clone.c 3302dbc3385e34164e0e51e82e3516db72e2dec9
+F src/clone.c 31346c860f7d3ebb7b2bd4670757f328cf58c49a
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c f6a48a05e14150a1d9b87cb16b6b8b1627e06a2b
@@ -43,7 +43,7 @@ F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 6ab5a0bcde231e1433cac7413a824d9504e550c5
 F src/schema.c 468ea581be85396cbbbb07494b6457e35c26024f
-F src/setup.c b21a277cb9c7708f4bb15b6348561e2634900d05
+F src/setup.c f186580b82c2c19200a1114809865586f56659ad
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
@@ -58,7 +58,7 @@ F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
 F src/vfile.c 47b5a77023eb0079cfce7c57ee19e9d519a5822d
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 04b08e89d93300592abad44257337daf2901c9fc
+F src/xfer.c eec14d587483e89fdb329b372ea3ced2296d7853
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 869534e1823475cfa195479e72cdd3753f9a9b59
-R 730f2945c385e90c7d5aab83d59f3f43
+P 4c072728b4f19edacc251bd4587ae57f3450b6e5
+R 8075a6cd97c40d312cd7963ddeab94b7
 U drh
-Z c561834d8a391c696f8c44ea95867f03
+Z 83ce00768c1a8f2cb16fbd17e235796b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGuo5ToxKgR168RlERAqqaAJ9icKjUGAwvQPVUMRQBbPkDXqXBMwCeI0YB
-URBUiSCqR9t2J3oP5Tov6X0=
-=8fNe
+iD8DBQFGuu/goxKgR168RlERApEGAJwK0ONcN3AaCm8W0RvDdXFLECcxlgCeNeX0
+8UOIMmM51kd8DJvKYGPDtTg=
+=QiX2
 -----END PGP SIGNATURE-----

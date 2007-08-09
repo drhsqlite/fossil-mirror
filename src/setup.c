@@ -373,6 +373,12 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
+  @ The <b>History</b> privilege allows a user to see a timeline
+  @ with hyperlinks to version information, to download ZIP archives
+  @ of individual versions, and to clone the repository.
+  @ </p></li>
+  @
+  @ <li><p>
   @ No login is required for user "<b>nobody</b>".  The capabilities
   @ of this user are available to anyone without supplying a username or
   @ password.  To disable nobody access, make sure there is no user
