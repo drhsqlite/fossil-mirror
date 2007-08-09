@@ -41,7 +41,7 @@
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
-  char z[UUID_SIZE];
+  char z[UUID_SIZE+1];
   
   sz = strlen(zUuid);
   if( sz!=UUID_SIZE || !validate16(zUuid, sz) ){

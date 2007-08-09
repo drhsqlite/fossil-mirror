@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s-m/--comment\sand\sthe\s--nosign\soptions\sto\sthe\scommit\scommand.
-D 2007-08-09T10:48:51
+C Fix\san\soff-by-one\serror\sthat\scan\scause\sa\ssegfault\sduring\ssync.
+D 2007-08-09T11:55:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -55,7 +55,7 @@ F src/update.c e7db94fb720978028ed9c176fb4ce3213ba611c8
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 4ebd0dc2823c11dacdcd26b81cebc58f78710473
 F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
-F src/vfile.c 47b5a77023eb0079cfce7c57ee19e9d519a5822d
+F src/vfile.c 2bf3326797b20e398b2b8ad406182498ff9955f4
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
 F src/xfer.c eec14d587483e89fdb329b372ea3ced2296d7853
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 13b7ac16e4e5aee70bbcb3958c9047f846e15974
-R cc97990a5dc964e28141828a7709f309
+P 9a9cd81738888041afac26108b598155b8a52140
+R ecc8f4c6fe99fca85faca24c5d81be4c
 U drh
-Z e3007650eae328efbd114dc24a3b8e46
+Z 6d3400f9dc52637a4c276cecd22e7d1d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGuvEYoxKgR168RlERAprtAJ4/qJiifN6TDC86UBtQ+WvbpEB33ACfaNLv
-hObHhcFL1cRxk5jIMEJndJg=
-=6o1C
+iD8DBQFGuwDMoxKgR168RlERAsqMAJ4xF6fERJe3r3CyKspK9hk1+ylOeACdGBsg
+S+8qtgTttjvXgBJT8wgRjgM=
+=NPd8
 -----END PGP SIGNATURE-----
