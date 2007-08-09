@@ -62,13 +62,18 @@ void rebuild_database(void){
   }
   db_multi_exec(zRepositorySchema2);
 
-  db_prepare(&s, "SELECT rid FROM blob");
+  db_prepare(&s, "SELECT rid, size FROM blob");
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);
-    Blob content;
-    content_get(rid, &content);
-    manifest_crosslink(rid, &content);
-    blob_reset(&content);
+    int size = db_column_int(&s, 1);
+    if( size>=0 ){
+      Blob content;
+      content_get(rid, &content);
+      manifest_crosslink(rid, &content);
+      blob_reset(&content);
+    }else{
+      db_multi_exec("INSERT INTO phantom VALUES(%d)", rid);
+    }
   }
 
   if( errCnt && !forceFlag ){

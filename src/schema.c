@@ -137,6 +137,8 @@ const char zRepositorySchema2[] =
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
+@ CREATE INDEX mlink_i3 ON mlink(fid);
+@ CREATE INDEX mlink_i4 ON mlink(pid);
 @
 @ -- Parent/child linkages
 @ --
@@ -162,9 +164,11 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX event_i1 ON event(mtime);
 @ CREATE INDEX event_i2 ON event(objid);
 @
-@ -- Make sure reading DELTA by SRCID is efficient
+@ -- A record of phantoms
 @ --
-@ CREATE INDEX IF NOT EXISTS delta_srcid ON delta(srcid, rid);
+@ CREATE TABLE phantom(
+@   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
+@ );
 @
 @ -- Aggregated ticket information
 @ --

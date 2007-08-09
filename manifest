@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\san\soff-by-one\serror\sthat\scan\scause\sa\ssegfault\sduring\ssync.
-D 2007-08-09T11:55:52
+C The\sdelta\scompress\son\sxfer\sis\sworking\sbetter\snow,\sbut\sstill\sneeds\swork.
+D 2007-08-09T17:42:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -16,9 +16,9 @@ F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 31346c860f7d3ebb7b2bd4670757f328cf58c49a
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/content.c f6a48a05e14150a1d9b87cb16b6b8b1627e06a2b
+F src/content.c 9b11b55b6ff7512e8e709fa599fa929204154d9b
 F src/db.c 98de7574406264c306de91c63fae0810eec67495
-F src/delta.c ee93661e27b7758f0592629317a985bfba08c42a
+F src/delta.c 001257c491d210885b9a74793c9b1f4a16266d46
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c caa863826bbdd0af9f0d98da6937cd113f66f9f0
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
@@ -41,8 +41,8 @@ F src/mkindex.c a7cfef3b71e4923fb19ddc4d9fa9007fcfe915ad
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
-F src/rebuild.c 6ab5a0bcde231e1433cac7413a824d9504e550c5
-F src/schema.c 468ea581be85396cbbbb07494b6457e35c26024f
+F src/rebuild.c 6b83ecc26a69fa55ff0bfbd22e61311b80bf5642
+F src/schema.c 14ace4fdfb9716160c80b2d63e646b2ac1922f6a
 F src/setup.c f186580b82c2c19200a1114809865586f56659ad
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
@@ -58,7 +58,7 @@ F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
 F src/vfile.c 2bf3326797b20e398b2b8ad406182498ff9955f4
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c eec14d587483e89fdb329b372ea3ced2296d7853
+F src/xfer.c 78443669a55da452f994f35937cb0ae094ea0655
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 9a9cd81738888041afac26108b598155b8a52140
-R ecc8f4c6fe99fca85faca24c5d81be4c
+P 6eca3132fe0bf285424b41c8cac0f3195a101825
+R c8412d92df696c5086f703f6aebd214d
 U drh
-Z 6d3400f9dc52637a4c276cecd22e7d1d
+Z b6b46c755640f2ed0d96d770c242686a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGuwDMoxKgR168RlERAsqMAJ4xF6fERJe3r3CyKspK9hk1+ylOeACdGBsg
-S+8qtgTttjvXgBJT8wgRjgM=
-=NPd8
+iD8DBQFGu1IqoxKgR168RlERAlOaAJ9J+DIOIIwKUqWByZQ+e4H1INUB5gCfS3tp
+XAZyXuZ7aCJauWEWF/HfhlI=
+=Xrdh
 -----END PGP SIGNATURE-----

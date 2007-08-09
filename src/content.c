@@ -198,6 +198,7 @@ int content_put(Blob *pBlob, const char *zUuid){
     blob_compress(pBlob, &cmpr);
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
+    db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
   }else{
     /* We are creating a new entry */
     db_prepare(&s1,
@@ -211,6 +212,9 @@ int content_put(Blob *pBlob, const char *zUuid){
     }
     db_exec(&s1);
     rid = db_last_insert_rowid();
+    if( !pBlob ){
+      db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
+    }
   }
 
 

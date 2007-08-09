@@ -36,47 +36,75 @@
 */
 static int similar_record(int rid, int traceFlag){
   int inCnt, outCnt;
+  int i;
   Stmt q;
   int queue[100];
-
-return 0;
-
-  db_prepare(&q,
+  static const char *azQuery[] = {
+      /* Scan the delta table first */
       "SELECT srcid, EXISTS(SELECT 1 FROM onremote WHERE rid=srcid)"
       "  FROM delta"
       " WHERE rid=:x"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=srcid)"
       " UNION ALL "
       "SELECT rid, EXISTS(SELECT 1 FROM onremote WHERE rid=delta.rid)"
       "  FROM delta"
       " WHERE srcid=:x"
-  );
-  queue[0] = rid;
-  inCnt = 1;
-  outCnt = 0;
-  while( outCnt<inCnt ){
-    int xid = queue[outCnt%64];
-    outCnt++;
-    db_bind_int(&q, ":x", xid);
-    if( traceFlag ) printf("xid=%d\n", xid);
-    while( db_step(&q)==SQLITE_ROW ){
-      int nid = db_column_int(&q, 0);
-      int hit = db_column_int(&q, 1);
-      if( traceFlag ) printf("nid=%d hit=%d\n", nid, hit);
-      if( hit  ){
-        db_finalize(&q);
-        return nid;
-      }
-      if( inCnt<sizeof(queue)/sizeof(queue[0]) ){
-        int i;
-        for(i=0; i<inCnt && queue[i]!=nid; i++){}
-        if( i>=inCnt ){
-          queue[inCnt++] = nid;
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=delta.rid)",
+
+      /* Then the plink table */
+      "SELECT pid, EXISTS(SELECT 1 FROM onremote WHERE rid=pid)"
+      "  FROM plink"
+      " WHERE cid=:x"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
+      " UNION ALL "
+      "SELECT cid, EXISTS(SELECT 1 FROM onremote WHERE rid=cid)"
+      "  FROM plink"
+      " WHERE pid=:x"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=cid)",
+
+      /* Finally the mlink table */
+      "SELECT pid, EXISTS(SELECT 1 FROM onremote WHERE rid=pid)"
+      "  FROM mlink"
+      " WHERE fid=:x AND pid>0"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
+      " UNION ALL "
+      "SELECT fid, EXISTS(SELECT 1 FROM onremote WHERE rid=fid)"
+      "  FROM mlink"
+      " WHERE pid=:x AND fid>0"
+      "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=fid)",
+  };
+
+  for(i=0; i<sizeof(azQuery)/sizeof(azQuery[0]); i++){
+    db_prepare(&q, azQuery[i]);
+    queue[0] = rid;
+    inCnt = 1;
+    outCnt = 0;
+    if( traceFlag ) printf("PASS %d\n", i+1);
+    while( outCnt<inCnt ){
+      int xid = queue[outCnt%64];
+      outCnt++;
+      db_bind_int(&q, ":x", xid);
+      if( traceFlag ) printf("xid=%d\n", xid);
+      while( db_step(&q)==SQLITE_ROW ){
+        int nid = db_column_int(&q, 0);
+        int hit = db_column_int(&q, 1);
+        if( traceFlag ) printf("nid=%d hit=%d\n", nid, hit);
+        if( hit  ){
+          db_finalize(&q);
+          return nid;
+        }
+        if( inCnt<sizeof(queue)/sizeof(queue[0]) ){
+          int i;
+          for(i=0; i<inCnt && queue[i]!=nid; i++){}
+          if( i>=inCnt ){
+            queue[inCnt++] = nid;
+          }
         }
       }
+      db_reset(&q);
     }
-    db_reset(&q);
+    db_finalize(&q);
   }
-  db_finalize(&q);
   return 0;
 }
 
@@ -174,39 +202,33 @@ static int send_file(int rid, Blob *pOut){
   }
   content_get(rid, &content);
 
-  srcid = similar_record(rid, 0);
-  if( srcid ){
-    Blob src, delta;
-    Blob srcuuid;
-    content_get(srcid, &src);
-    blob_delta_create(&src, &content, &delta);
-    blob_reset(&src);
-    blob_reset(&content);
-    blob_zero(&srcuuid);
-    db_blob(&srcuuid, "SELECT uuid FROM blob WHERE rid=%d", srcid);
-    size = blob_size(&delta);
-    if( pOut ){
-      blob_appendf(pOut, "file %b %b %d\n", &uuid, &srcuuid, size);
-      blob_append(pOut, blob_buffer(&delta), size);
-    }else{
-      cgi_printf("file %b %b %d\n", &uuid, &srcuuid, size);
-      cgi_append_content(blob_buffer(&delta), size);
+  if( blob_size(&content)>100 ){
+    srcid = similar_record(rid, 0);
+    if( srcid ){
+      Blob src;
+      content_get(srcid, &src);
+      if( blob_size(&src)>100 ){
+        Blob delta;
+        blob_delta_create(&src, &content, &delta);
+        blob_reset(&content);
+        content = delta;
+        blob_append(&uuid, " ", 1);
+        blob_append(&content, "\n", 1);
+        db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d", srcid);
+      }
+      blob_reset(&src);
     }
-    blob_reset(&delta);
-    blob_reset(&srcuuid);
-    blob_reset(&uuid);
-  }else{
-    size = blob_size(&content);
-    if( pOut ){
-      blob_appendf(pOut, "file %b %d\n", &uuid, size);
-      blob_append(pOut, blob_buffer(&content), size);
-    }else{
-      cgi_printf("file %b %d\n", &uuid, size);
-      cgi_append_content(blob_buffer(&content), size);
-    }
-    blob_reset(&content);
-    blob_reset(&uuid);
   }
+  size = blob_size(&content);
+  if( pOut ){
+    blob_appendf(pOut, "file %b %d\n", &uuid, size);
+    blob_append(pOut, blob_buffer(&content), size);
+  }else{
+    cgi_printf("file %b %d\n", &uuid, size);
+    cgi_append_content(blob_buffer(&content), size);
+  }
+  blob_reset(&content);
+  blob_reset(&uuid);
   db_multi_exec("INSERT OR IGNORE INTO onremote VALUES(%d)", rid);
   return size;
 }
@@ -469,7 +491,7 @@ void page_xfer(void){
       @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
       db_multi_exec(
         "INSERT OR IGNORE INTO pending(rid) "
-        "SELECT rid FROM blob WHERE size>=0"
+        "SELECT mid FROM mlink JOIN blob ON mid=rid"
       );
     }else
 
@@ -497,10 +519,18 @@ void page_xfer(void){
   /* The input message has now been processed.  Generate a reply. */
   if( isPush ){
     Stmt q;
-    db_prepare(&q, "SELECT uuid FROM blob WHERE size<0");
-    while( db_step(&q)==SQLITE_ROW ){
+    int nReq = 0;
+    db_prepare(&q, "SELECT uuid, rid FROM phantom JOIN blob USING (rid)");
+    while( db_step(&q)==SQLITE_ROW && nReq++ < 200 ){
       const char *zUuid = db_column_text(&q, 0);
+      int rid = db_column_int(&q, 1);
+      int xid = similar_record(rid, 0);
       @ gimme %s(zUuid)
+      if( xid ){
+        char *zXUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", xid);
+        @ igot %s(zXUuid);
+        free(zXUuid);
+      }
     }
     db_finalize(&q);
   }
@@ -624,11 +654,17 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       /* Send gimme message for every phantom that we hold.
       */
       Stmt q;
-      db_prepare(&q, "SELECT uuid FROM blob WHERE size<0");
-      while( db_step(&q)==SQLITE_ROW ){
+      db_prepare(&q, "SELECT uuid, rid FROM phantom JOIN blob USING (rid)");
+      while( db_step(&q)==SQLITE_ROW && nReq<200 ){
         const char *zUuid = db_column_text(&q, 0);
+        int rid = db_column_int(&q, 1);
+        int xid = similar_record(rid, 0);
         blob_appendf(&send,"gimme %s\n", zUuid);
         nReq++;
+        if( xid ){
+          blob_appendf(&send, "igot %z\n",
+             db_text(0, "SELECT uuid FROM blob WHERE rid=%d", xid));
+        }
       }
       db_finalize(&q);
     }
@@ -718,7 +754,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
             }
           }
           if( pullFlag && !go && 
-              db_exists("SELECT 1 FROM blob WHERE rid=%d AND size<0", rid) ){
+              db_exists("SELECT 1 FROM phantom WHERE rid=%d", rid) ){
             go = 1;
           }
         }else if( pullFlag ){

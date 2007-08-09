@@ -335,7 +335,7 @@ int delta_create(
   ** literal sections of the delta.
   */
   base = 0;    /* We have already generated everything before zOut[base] */
-  while( base<lenOut-NHASH ){
+  while( base+NHASH<lenOut ){
     int iSrc, iBlock;
     unsigned int bestCnt, bestOfst, bestLitsz;
     hash_init(&h, &zOut[base]);
