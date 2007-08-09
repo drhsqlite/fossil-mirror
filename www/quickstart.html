@@ -10,7 +10,7 @@ and painlessly.</p>
 
     <p>Fossil is a single self-contained C program that you need to
     <a href="build.html">install</a> before using.  Build the binary
-    and put is someplace on your PATH environment variable.</p>
+    and put it someplace on your PATH environment variable.</p>
     
     </blockquote>
     <h2>Cloning A Existing Repository</h2>
@@ -23,7 +23,7 @@ and painlessly.</p>
     </blockquote>
     
     <p>The <i>URL</i> above is the http URL for the fossil repository
-    you want to clone.  The new repository can be called anything you
+    you want to clone.  You can call the new repository anything you
     want - there are no naming restrictions.  As an example, you can
     clone the fossil repository this way:</p>
     
@@ -43,7 +43,7 @@ and painlessly.</p>
 </blockquote><h2>Configuring Your Local Repository</h2><blockquote>
     
     <p>When you create a new repository, either by cloning an existing
-    project or create a new project of your, you usually want to do some
+    project or create a new project of your own, you usually want to do some
     local configuration.  This is accomplished using a webbrowser.  First
     start a fossil webserver like this:</p>
     
@@ -113,8 +113,10 @@ and painlessly.</p>
     </blockquote>
 
     <p>You will be prompted for check-in comments using whatever editor
-    is specified by your VISUAL or EDITOR environment variable.  After
-    you save your check-in comments, your changes will be checked in.</p>
+    is specified by your VISUAL or EDITOR environment variable.  If you
+    have GPG installed, you may be prompted for your GPG passphrase so
+    that the check-in can be signed with your GPG signature.  After
+    this your changes will be checked in.</p>
 
 </blockquote><h2>Sharing Changes</h2><blockquote>
 
@@ -205,7 +207,7 @@ and painlessly.</p>
     </b></blockquote>
 
     <p>Adjust the paths to suit your installation, of course.  Notice that
-    fossil runs as run.  This is not required - you can run it as an
+    fossil runs as root.  This is not required - you can run it as an
     unprivileged user.  But it is more secure to run fossil as root.
     When you do run fossil as root, it automatically puts itself in a
     chroot jail in the same directory as the repository, then drops
