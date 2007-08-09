@@ -39,6 +39,8 @@ static int similar_record(int rid, int traceFlag){
   Stmt q;
   int queue[100];
 
+return 0;
+
   db_prepare(&q,
       "SELECT srcid, EXISTS(SELECT 1 FROM onremote WHERE rid=srcid)"
       "  FROM delta"
