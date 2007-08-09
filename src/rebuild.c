@@ -48,6 +48,9 @@ void rebuild_database(void){
   errCnt = 0;
   db_open_repository(g.argv[2]);
   db_begin_transaction();
+  db_multi_exec(
+    "CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
+  );
   for(;;){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master"

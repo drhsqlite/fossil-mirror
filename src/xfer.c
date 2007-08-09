@@ -27,6 +27,79 @@
 #include "xfer.h"
 
 /*
+** Try to locate a record that is similar to rid and is a likely
+** candidate for delta against rid.  The similar record must be
+** referenced in the onremote table.
+**
+** Return the integer record ID of the similar record.  Or return
+** 0 if none is found.
+*/
+static int similar_record(int rid, int traceFlag){
+  int inCnt, outCnt;
+  Stmt q;
+  int queue[100];
+
+  db_prepare(&q,
+      "SELECT srcid, EXISTS(SELECT 1 FROM onremote WHERE rid=srcid)"
+      "  FROM delta"
+      " WHERE rid=:x"
+      " UNION ALL "
+      "SELECT rid, EXISTS(SELECT 1 FROM onremote WHERE rid=delta.rid)"
+      "  FROM delta"
+      " WHERE srcid=:x"
+  );
+  queue[0] = rid;
+  inCnt = 1;
+  outCnt = 0;
+  while( outCnt<inCnt ){
+    int xid = queue[outCnt%64];
+    outCnt++;
+    db_bind_int(&q, ":x", xid);
+    if( traceFlag ) printf("xid=%d\n", xid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int nid = db_column_int(&q, 0);
+      int hit = db_column_int(&q, 1);
+      if( traceFlag ) printf("nid=%d hit=%d\n", nid, hit);
+      if( hit  ){
+        db_finalize(&q);
+        return nid;
+      }
+      if( inCnt<sizeof(queue)/sizeof(queue[0]) ){
+        int i;
+        for(i=0; i<inCnt && queue[i]!=nid; i++){}
+        if( i>=inCnt ){
+          queue[inCnt++] = nid;
+        }
+      }
+    }
+    db_reset(&q);
+  }
+  db_finalize(&q);
+  return 0;
+}
+
+/*
+** COMMAND: test-similar-record
+*/
+void test_similar_record(void){
+  int i;
+  if( g.argc<4 ){
+    usage("SRC ONREMOTE...");
+  }
+  db_must_be_within_tree();
+  db_multi_exec(
+    "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
+  );
+  for(i=3; i<g.argc; i++){
+    int rid = name_to_rid(g.argv[i]);
+    printf("%s -> %d\n", g.argv[i], rid);
+    db_multi_exec("INSERT INTO onremote VALUES(%d)", rid);
+  }
+  printf("similar: %d\n", similar_record(name_to_rid(g.argv[2]), 1));
+}
+
+
+/*
 ** The aToken[0..nToken-1] blob array is a parse of a "file" line 
 ** message.  This routine finishes parsing that message and does
 ** a record insert of the file.
@@ -89,22 +162,8 @@ static void xfer_accept_file(Blob *pIn, Blob *aToken, int nToken, Blob *pErr){
 static int send_file(int rid, Blob *pOut){
   Blob content, uuid;
   int size;
+  int srcid;
 
-#if 0
-SELECT srcid FROM delta
- WHERE rid=%d
-   AND EXISTS(SELECT 1 FROM onremote WHERE rid=srcid)
-UNION ALL
-SELECT id FROM delta
- WHERE srcid=%d
-   AND EXISTS(SELECT 1 FROM onremote WHERE rid=delta.rid)
-LIMIT 1
-#endif
-
-  /* TODO:
-  ** Check for related files in the onremote TEMP table.  If related
-  ** files are found, then send a delta rather than the whole file.
-  */
 
   blob_zero(&uuid);
   db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d AND size>=0", rid);
@@ -112,16 +171,37 @@ LIMIT 1
     return 0;
   }
   content_get(rid, &content);
-  size = blob_size(&content);
-  if( pOut ){
-    blob_appendf(pOut, "file %b %d\n", &uuid, size);
-    blob_append(pOut, blob_buffer(&content), size);
+
+  srcid = similar_record(rid, 0);
+  if( srcid ){
+    Blob src, delta;
+    Blob srcuuid;
+    content_get(srcid, &src);
+    blob_delta_create(&src, &content, &delta);
+    blob_reset(&src);
+    blob_reset(&content);
+    blob_zero(&srcuuid);
+    db_blob(&srcuuid, "SELECT uuid FROM blob WHERE rid=%d", srcid);
+    size = blob_size(&delta);
+    if( pOut ){
+      blob_appendf(pOut, "file %b %b %d\n", &uuid, &srcuuid, size);
+      blob_append(pOut, blob_buffer(&delta), size);
+    }else{
+      cgi_printf("file %b %b %d\n", &uuid, &srcuuid, size);
+      cgi_append_content(blob_buffer(&delta), size);
+    }
   }else{
-    cgi_printf("file %b %d\n", &uuid, size);
-    cgi_append_content(blob_buffer(&content), size);
+    size = blob_size(&content);
+    if( pOut ){
+      blob_appendf(pOut, "file %b %d\n", &uuid, size);
+      blob_append(pOut, blob_buffer(&content), size);
+    }else{
+      cgi_printf("file %b %d\n", &uuid, size);
+      cgi_append_content(blob_buffer(&content), size);
+    }
+    blob_reset(&content);
+    blob_reset(&uuid);
   }
-  blob_reset(&content);
-  blob_reset(&uuid);
   db_multi_exec("INSERT OR IGNORE INTO onremote VALUES(%d)", rid);
   return size;
 }
@@ -136,29 +216,7 @@ static int send_all_pending(Blob *pOut){
   int nSent = 0;
   int maxSize = db_get_int("http-msg-size", 500000);
   Stmt q;
-#if 0
-  db_multi_exec(
-    "CREATE TEMP TABLE priority(rid INTEGER PRIMARY KEY);"
-    "INSERT INTO priority"
-    " SELECT srcid FROM delta"
-    "  WHERE EXISTS(SELECT 1 FROM onremote WHERE onremote.rid=delta.rid)"
-    "    AND EXISTS(SELECT 1 FROM pending WHERE delta.srcid=pending.rid);"
-    "INSERT OR IGNORE INTO priority"
-    " SELECT rid FROM delta"
-    "  WHERE EXISTS(SELECT 1 FROM onremote WHERE onremote.rid=delta.srcid)"
-    "    AND EXISTS(SELECT 1 FROM pending WHERE delta.rid=pending.rid);"
-  );
-  while( sent<maxSize && (rid = db_int(0, "SELECT rid FROM priority"))!=0 ){
-    sent += send_file(rid, pOut);
-    db_multi_exec(
-      "INSERT OR IGNORE INTO priority"
-      " SELECT srcid FROM delta WHERE rid=%d"
-      " UNION ALL"
-      " SELECT rid FROM delta WHERE srcid=%d",
-      rid, rid
-    );
-  }
-#endif
+
   db_prepare(&q, "SELECT rid FROM pending ORDER BY rid");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
@@ -188,9 +246,6 @@ static int send_all_pending(Blob *pOut){
     db_multi_exec("DELETE FROM pending WHERE rid <= %d", iRidSent);
   }
 
-#if 0
-  db_multi_exec("DROP TABLE priority");
-#endif
   return nSent;
 }
 
@@ -594,8 +649,8 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     }
 
     /* Exchange messages with the server */
-    printf("Send:      %d files, %d requests, %d other messages\n",
-            nFile, nReq, nMsg);
+    printf("Send:      %3d files, %3d requests, %3d other msgs, %8d bytes\n",
+            nFile, nReq, nMsg, blob_size(&send));
     nFileSend = nFile;
     nFile = nReq = nMsg = 0;
     http_exchange(&send, &recv);
@@ -706,9 +761,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       }
       blobarray_reset(aToken, nToken);
     }
+    printf("Received:  %3d files, %3d requests, %3d other msgs, %8d bytes\n",
+            nFile, nReq, nMsg, blob_size(&recv));
     blob_reset(&recv);
-    printf("Received:  %d files, %d requests, %d other messages\n",
-            nFile, nReq, nMsg);
     if( nFileSend + nFile==0 ){
       nNoFileCycle++;
       if( nNoFileCycle>1 ){

@@ -82,6 +82,7 @@ const char zRepositorySchema1[] =
 @   rid INTEGER PRIMARY KEY,                 -- Record ID
 @   srcid INTEGER NOT NULL REFERENCES blob   -- Record holding source document
 @ );
+@ CREATE INDEX delta_i1 ON delta(srcid);
 @
 @ -- Whenever new blobs are received into the repository, an entry
 @ -- in this table records the source of the blob.

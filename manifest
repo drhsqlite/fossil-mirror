@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Website\supdates.
-D 2007-08-09T01:08:19
+C Progress\stoward\sdelta\scompression\son\sthe\sxfer\sprotocol.\s\sThe\scompression\nworks\swell.\s\sBut\sthe\sclient\sis\snot\stelling\sthe\sserver\swhat\sfiles\sit\shas\nso\sthe\sserver\sdoes\snot\shave\sanything\sto\sdelta\sagainst.
+D 2007-08-09T03:19:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -41,8 +41,8 @@ F src/mkindex.c a7cfef3b71e4923fb19ddc4d9fa9007fcfe915ad
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
-F src/rebuild.c 04451053b1d87084e08cd8f83a39611d36dca636
-F src/schema.c 39376154b892fdcfe6a8f7a0aa902d07cf439755
+F src/rebuild.c 6ab5a0bcde231e1433cac7413a824d9504e550c5
+F src/schema.c 468ea581be85396cbbbb07494b6457e35c26024f
 F src/setup.c b21a277cb9c7708f4bb15b6348561e2634900d05
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
@@ -58,7 +58,7 @@ F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
 F src/vfile.c 47b5a77023eb0079cfce7c57ee19e9d519a5822d
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 3a9a49107ff1550b9e54ae4ca533fbdcb5780ff9
+F src/xfer.c 338dc3ed99050b343b0d72d608f44bcafd0a88c4
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P fe6ee8a431b69e5695801bd703fb6a38ce30dc40
-R 32fd6e26a12be23a95591f4b4e1c2e7e
+P b110d77c366af7599dc49d860c3954f783af0c20
+R 5a9672695a1be5f0490a1310106d767d
 U drh
-Z a2f3f4d34fd53b21c95675430cc7611f
+Z 7181525ee914eadb044a7bf81063a689
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGumkHoxKgR168RlERArpoAJ47r8SMrXSKo+Pkai+ZVWQ+u+8pfACgjiKZ
-t8Wj1QC/BGaVWUGJd8AjnIw=
-=Ie2C
+iD8DBQFGuoe7oxKgR168RlERAjE9AJ4ukf/9ykzhpTCTyUXISbLUlbdwLACdEL2w
+N9fcZA8jvWpWE+1IJHLs5uI=
+=BbNZ
 -----END PGP SIGNATURE-----
