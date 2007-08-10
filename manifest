@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C More\ssync\sfixes:\s\sThe\sprevious\sversion\swas\snot\spulling\snew\sbranches\soff\nof\sthe\sserver.\s\sThis\sshould\sfix\sthat.
-D 2007-08-10T03:50:25
+C Fix\sa\sC++-ism\sin\sthe\sprevious\scheck-in.
+D 2007-08-10T03:52:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -58,7 +58,7 @@ F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c fdfe66efd6db70448c251b9aa67feee1b1b273f6
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 0184a80d2c4429fbdb305bfe1c726af0ee2dbe9a
+F src/xfer.c 60457c742780684a27e9c8051305768245d27c73
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P edbb332d548cc19d0f884d4c9277cbc81d3feb32
-R 86404c4ad5fb344636602b3472303301
+P 50150adeecefe2019e9a8ef00b136245ac22c4b7
+R 7d2927b609d3d8e8e0cb64c8cefbd986
 U drh
-Z f3f8f59c07faf04f8ce92292ddd6e78f
+Z 9ad7d9d9c4fc893f5d94436319d55983
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGu+CFoxKgR168RlERAsuSAJ0d+wuUeqSbgpoF0YjInrAGpvLpWQCfR06E
-7/APIEyLaNi5esRmEVVlhbw=
-=em7Y
+iD8DBQFGu+DyoxKgR168RlERAvk8AJwIZxSk/OtNazlfnsNpyYlEuQnaXQCdHeQu
+HC8tzZxTOL9SISu3WdFXziA=
+=I4oG
 -----END PGP SIGNATURE-----

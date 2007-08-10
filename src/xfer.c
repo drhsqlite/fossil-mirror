@@ -747,8 +747,8 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
        && blob_eq(&xfer.aToken[0], "leaf")
        && blob_is_uuid(&xfer.aToken[1])
       ){
-        nMsg++;
         int rid = rid_from_uuid(&xfer.aToken[1], 0);
+        nMsg++;
         if( pushFlag && rid ){
           leaf_response(&xfer, rid);
         }
