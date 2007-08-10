@@ -291,7 +291,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 
 /*
 ** Scan record rid/pContent to see if it is a manifest.  If
-** it is a manifest, then populate tables the mlink, plink,
+** it is a manifest, then populate the mlink, plink,
 ** filename, and event tables with cross-reference information.
 */
 int manifest_crosslink(int rid, Blob *pContent){

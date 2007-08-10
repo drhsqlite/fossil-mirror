@@ -352,7 +352,7 @@ void commit_cmd(void){
 
     blob_zero(&content);
     blob_read_from_file(&content, zFullname);
-    nrid = content_put(&content, 0);
+    nrid = content_put(&content, 0, 0);
     if( rid>0 ){
       content_deltify(rid, nrid, 0);
     }
@@ -410,7 +410,7 @@ void commit_cmd(void){
   blob_reset(&manifest);
   blob_read_from_file(&manifest, zManifestFile);
   free(zManifestFile);
-  nvid = content_put(&manifest, 0);
+  nvid = content_put(&manifest, 0, 0);
   if( nvid==0 ){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }

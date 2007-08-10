@@ -51,7 +51,7 @@ int uuid_to_rid(const char *zUuid, int phantomize){
   canonical16(z, sz);
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", z);
   if( rid==0 && phantomize ){
-    rid = content_put(0, zUuid);
+    rid = content_put(0, zUuid, 0);
   }
   return rid;
 }

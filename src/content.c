@@ -31,69 +31,50 @@
 ** Return the srcid associated with rid.  Or return 0 if rid is 
 ** original content and not a delta.
 */
-static int findSrcid(int rid, const char *zDb){
-  Stmt qsrc;
-  int srcid;
-  if( zDb ){
-    db_prepare(&qsrc, "SELECT srcid FROM %s.delta WHERE rid=%d", zDb, rid);
-  }else{
-    db_prepare(&qsrc, "SELECT srcid FROM delta WHERE rid=%d", rid);
-  }
-  if( db_step(&qsrc)==SQLITE_ROW ){
-    srcid = db_column_int(&qsrc, 0);
-  }else{
-    srcid = 0;
-  }
-  db_finalize(&qsrc);
+static int findSrcid(int rid){
+  int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", rid);
   return srcid;
 }
 
 /*
 ** Extract the content for ID rid and put it into the
-** uninitialized blob.
+** uninitialized blob.  Return 1 on success.  If the record
+** is a phantom, zero pBlob and return 0.
 */
-void content_get_from_db(int rid, Blob *pBlob, const char *zDb){
+int content_get(int rid, Blob *pBlob){
   Stmt q;
+  Blob src;
   int srcid;
+  int rc = 0;
+
   assert( g.repositoryOpen );
-  srcid = findSrcid(rid, zDb);
-  if( zDb ){
-    db_prepare(&q, 
-       "SELECT content FROM %s.blob WHERE rid=%d AND size>=0",
-       zDb, rid
-    );
-  }else{
-    db_prepare(&q, 
-       "SELECT content FROM blob WHERE rid=%d AND size>=0",
-       rid
-    );
-  }
+  srcid = findSrcid(rid);
+  blob_zero(pBlob);
   if( srcid ){
-    Blob src;
-    content_get_from_db(srcid, &src, zDb);
-    if( db_step(&q)==SQLITE_ROW ){
-      Blob delta;
-      db_ephemeral_blob(&q, 0, &delta);
-      blob_uncompress(&delta, &delta);
-      blob_init(pBlob,0,0);
-      blob_delta_apply(&src, &delta, pBlob);
-      blob_reset(&delta);
-    }else{
-      blob_init(pBlob, 0, 0);
+    if( content_get(srcid, &src) ){
+      db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
+      if( db_step(&q)==SQLITE_ROW ){
+        Blob delta;
+        db_ephemeral_blob(&q, 0, &delta);
+        blob_uncompress(&delta, &delta);
+        blob_init(pBlob,0,0);
+        blob_delta_apply(&src, &delta, pBlob);
+        blob_reset(&delta);
+        rc = 1;
+      }
+      db_finalize(&q);
+      blob_reset(&src);
     }
-    blob_reset(&src);
   }else{
+    db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
     if( db_step(&q)==SQLITE_ROW ){
       db_ephemeral_blob(&q, 0, pBlob);
       blob_uncompress(pBlob, pBlob);
-    }else{
-      blob_init(pBlob,0, 0);
+      rc = 1;
     }
+    db_finalize(&q);
   }
-  db_finalize(&q);
-}
-void content_get(int rid, Blob *pBlob){
-  content_get_from_db(rid, pBlob, 0);
+  return rc;
 }
 
 /*
@@ -134,27 +115,56 @@ void test_content_rawget_cmd(void){
 }
 
 /*
+** When a record is converted from a phantom to a real record,
+** if that record has other records that are derived by delta,
+** then call manifest_crosslink() on those other records.
+*/
+void after_dephantomize(int rid, int linkFlag){
+  Stmt q;
+  db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int tid = db_column_int(&q, 0);
+    after_dephantomize(tid, 1);
+  }
+  db_finalize(&q);
+  if( linkFlag ){
+    Blob content;
+    content_get(rid, &content);
+    manifest_crosslink(rid, &content);
+    blob_reset(&content);
+  }
+}
+
+/*
 ** Write content into the database.  Return the record ID.  If the
 ** content is already in the database, just return the record ID.
 **
-** A phantom is written if pBlob==0.  If pBlob==0 then the UUID is set
-** to zUuid.  Otherwise zUuid is ignored.
+** If srcId is specified, then pBlob is delta content from
+** the srcId record.  srcId might be a phantom.
+**
+** A phantom is written if pBlob==0.  If pBlob==0 or if srcId is
+** specified then the UUID is set to zUuid.  Otherwise zUuid is
+** ignored.  In the future this might change such that the content
+** hash is checked against zUuid to make sure it is correct.
 **
 ** If the record already exists but is a phantom, the pBlob content
 ** is inserted and the phatom becomes a real record.
 */
-int content_put(Blob *pBlob, const char *zUuid){
+int content_put(Blob *pBlob, const char *zUuid, int srcId){
   int size;
   int rid;
   Stmt s1;
   Blob cmpr;
   Blob hash;
   assert( g.repositoryOpen );
-  if( pBlob==0 ){
+  if( pBlob && srcId==0 ){
+    sha1sum_blob(pBlob, &hash);
+  }else{
     blob_init(&hash, zUuid, -1);
+  }
+  if( pBlob==0 ){
     size = -1;
   }else{
-    sha1sum_blob(pBlob, &hash);
     size = blob_size(pBlob);
   }
   db_begin_transaction();
@@ -199,12 +209,15 @@ int content_put(Blob *pBlob, const char *zUuid){
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
     db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
+    if( srcId==0 || db_int(0, "SELECT size FROM blob WHERE rid=%d", srcId)>0 ){
+      after_dephantomize(rid, 0);
+    }
   }else{
     /* We are creating a new entry */
     db_prepare(&s1,
       "INSERT INTO blob(rcvid,size,uuid,content)"
-      "VALUES(%d,%d,'%s',:data)",
-       g.rcvid, size, blob_str(&hash)
+      "VALUES(%d,%d,'%b',:data)",
+       g.rcvid, size, &hash
     );
     if( pBlob ){
       blob_compress(pBlob, &cmpr);
@@ -217,6 +230,12 @@ int content_put(Blob *pBlob, const char *zUuid){
     }
   }
 
+  /* If the srcId is specified, then the data we just added is
+  ** really a delta.  Record this fact in the delta table.
+  */
+  if( srcId ){
+    db_multi_exec("REPLACE INTO delta(rid,srcid) VALUES(%d,%d)", rid, srcId);
+  }
 
   /* Finish the transaction and cleanup */
   db_finalize(&s1);
@@ -244,7 +263,7 @@ void test_content_put_cmd(void){
   db_must_be_within_tree();
   user_select();
   blob_read_from_file(&content, g.argv[2]);
-  rid = content_put(&content, 0);
+  rid = content_put(&content, 0, 0);
   printf("inserted as record %d\n", rid);
 }
 
@@ -253,17 +272,19 @@ void test_content_put_cmd(void){
 ** delta.
 */
 void content_undelta(int rid){
-  if( findSrcid(rid, 0)>0 ){
+  if( findSrcid(rid)>0 ){
     Blob x;
-    Stmt s;
-    content_get(rid, &x);
-    db_prepare(&s, "UPDATE blob SET content=:c WHERE rid=%d", rid);
-    blob_compress(&x, &x);
-    db_bind_blob(&s, ":c", &x);
-    db_exec(&s);
-    db_finalize(&s);
-    blob_reset(&x);
-    db_multi_exec("DELETE FROM delta WHERE rid=%d", rid);
+    if( content_get(rid, &x) ){
+      Stmt s;
+      db_prepare(&s, "UPDATE blob SET content=:c, size=%d WHERE rid=%d",
+                     blob_size(&x), rid);
+      blob_compress(&x, &x);
+      db_bind_blob(&s, ":c", &x);
+      db_exec(&s);
+      db_finalize(&s);
+      blob_reset(&x);
+      db_multi_exec("DELETE FROM delta WHERE rid=%d", rid);
+    }
   }
 }
 
@@ -294,9 +315,9 @@ void content_deltify(int rid, int srcid, int force){
   Blob data, src, delta;
   Stmt s1, s2;
   if( srcid==rid ) return;
-  if( !force && findSrcid(rid, 0)>0 ) return;
+  if( !force && findSrcid(rid)>0 ) return;
   s = srcid;
-  while( (s = findSrcid(s, 0))>0 ){
+  while( (s = findSrcid(s))>0 ){
     if( s==rid ){
       content_undelta(srcid);
       break;

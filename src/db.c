@@ -701,7 +701,7 @@ void create_repository_cmd(void){
   md5sum_blob(&manifest, &hash);
   blob_appendf(&manifest, "Z %b\n", &hash);
   blob_reset(&hash);
-  content_put(&manifest, 0);
+  content_put(&manifest, 0, 0);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
@@ -819,37 +819,6 @@ int db_lget_int(const char *zName, int dflt){
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
 }
-
-int db_row_to_table(const char *zFormat, ...){
-  Stmt q;
-  va_list ap;
-  int rc;
-
-  va_start(ap, zFormat);
-  rc = db_vprepare(&q, zFormat, ap);
-  va_end(ap);
-  if( rc!=SQLITE_OK ){
-    return rc;
-  }
-
-  @ <table border="0" cellpadding="0" cellspacing="0">
-  if( db_step(&q)==SQLITE_ROW ){
-    int ii;
-    for(ii=0; ii<sqlite3_column_count(q.pStmt); ii++){
-      char *zCol = htmlize(sqlite3_column_name(q.pStmt, ii), -1);
-      char *zVal = htmlize(sqlite3_column_text(q.pStmt, ii), -1);
-
-      @ <tr><td align=right>%s(zCol):<td width=10><td>%s(zVal)
-
-      free(zVal);
-      free(zCol);
-    }
-  }
-  @ </table>
-
-  return db_finalize(&q);
-}
-
 
 /*
 ** COMMAND: open
