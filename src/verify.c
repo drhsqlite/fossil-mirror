@@ -45,15 +45,16 @@ static void verify_rid(int rid){
   if( blob_size(&uuid)!=UUID_SIZE ){
     fossil_panic("not a valid rid: %d", rid);
   }
-  content_get(rid, &content);
-  sha1sum_blob(&content, &hash);
-  blob_reset(&content);
-  if( blob_compare(&uuid, &hash) ){
-    fossil_fatal("hash of rid %d (%b) does not match its uuid (%b)",
-                  rid, &hash, &uuid);
+  if( content_get(rid, &content) ){
+    sha1sum_blob(&content, &hash);
+    blob_reset(&content);
+    if( blob_compare(&uuid, &hash) ){
+      fossil_fatal("hash of rid %d (%b) does not match its uuid (%b)",
+                    rid, &hash, &uuid);
+    }
+    blob_reset(&hash);
   }
   blob_reset(&uuid);
-  blob_reset(&hash);
 }
 
 /*

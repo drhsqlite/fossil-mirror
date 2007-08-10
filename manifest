@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Complete\srework\sof\sthe\sxfer\smechanism.\s\sCompiles\sbut\snot\syet\sworking.
-D 2007-08-10T00:08:25
+C The\sxfer\smechanism\shas\sbeen\scompletely\sreworked\sto\sbetter\ssupport\ndelta\scompression\sand\sto\srequire\sfewer\sround-trips.\s\sThe\swire\sprotocol\nis\sroughly\sthe\ssame\sbut\sis\sdifferent\senough\sthat\syou\swill\sneed\sto\s\nrecompile\sbefore\ssync\swill\swork.
+D 2007-08-10T02:59:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
@@ -54,11 +54,11 @@ F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c e7db94fb720978028ed9c176fb4ce3213ba611c8
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 4ebd0dc2823c11dacdcd26b81cebc58f78710473
-F src/verify.c 2055907abbb5042924a14decd942b1869b6f5bf3
+F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c fdfe66efd6db70448c251b9aa67feee1b1b273f6
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
 F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 1398d9818fc72769775300078cbcbc8fc80933e5
+F src/xfer.c e782ae3d33c6f11a2e2b1946ad359a0ba3aced37
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P bd3c1d0023c2e573dbf92d19de29952603d24a92
-R 393b79a7bef15d801a24996a05d97c0a
+P 573a464cb7be4d45ee10e206ec6be775f47b2323
+R f8458d69b32d48cb3b1472cc9b1c88a0
 U drh
-Z 947be5ccb39844640a3bc9c122caff8a
+Z f93c4f6daa34f23a2edb5790cba68424
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD4DBQFGu6x9oxKgR168RlERAvcnAJoCxRGLIzLz6tySQe0f6ID8TIWhoQCY9Fut
-teyHUchCjmap1h54TKRKWg==
-=81Oz
+iD8DBQFGu9SsoxKgR168RlERAnJRAJ4nX1yu/o9Q3Lkk1ggdyasYrr3hFgCgiRxi
+s9IV/ekHIVYkqybyMN1ox1Y=
+=lQVZ
 -----END PGP SIGNATURE-----
