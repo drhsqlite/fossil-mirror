@@ -193,7 +193,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int srcId){
   Blob content, uuid;
   int size = 0;
 
-  if( db_exists("SELECT 1 FROM sent WHERE rid=%d", rid) ){
+  if( db_exists("SELECT 1 FROM onremote WHERE rid=%d", rid) ){
      return;
   }
   blob_zero(&uuid);
@@ -223,7 +223,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int srcId){
   }else{
     pXfer->nDeltaSent++;
   }
-  db_multi_exec("INSERT INTO sent VALUES(%d)", rid);
+  db_multi_exec("INSERT INTO onremote VALUES(%d)", rid);
   blob_reset(&uuid);
 }
 
@@ -381,7 +381,7 @@ void page_xfer(void){
 
   db_begin_transaction();
   db_multi_exec(
-     "CREATE TEMP TABLE sent(rid INTEGER PRIMARY KEY);"
+     "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   while( blob_line(xfer.pIn, &xfer.line) ){
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
@@ -392,7 +392,7 @@ void page_xfer(void){
     ** Accept a file from the client.
     */
     if( blob_eq(&xfer.aToken[0], "file") ){
-      if( !g.okWrite ){
+      if( !isPush ){
         cgi_reset_content();
         @ error not\sauthorized\sto\swrite
         nErr++;
@@ -415,7 +415,7 @@ void page_xfer(void){
      && xfer.nToken==2
      && blob_is_uuid(&xfer.aToken[1])
     ){
-      if( g.okRead ){
+      if( isPull ){
         int rid = rid_from_uuid(&xfer.aToken[1], 0);
         if( rid ){
           send_file(&xfer, rid, &xfer.aToken[1], 0);
@@ -431,7 +431,7 @@ void page_xfer(void){
      && blob_eq(&xfer.aToken[0], "igot")
      && blob_is_uuid(&xfer.aToken[1])
     ){
-      if( g.okWrite ){
+      if( isPush ){
         rid_from_uuid(&xfer.aToken[1], 1);
       }
     }else
@@ -439,15 +439,21 @@ void page_xfer(void){
     
     /*   leaf UUID
     **
-    ** Client announces that it has a particular manifest
+    ** Client announces that it has a particular manifest.  If
+    ** the server has children of this leaf, then send those
+    ** children back to the client.  If the server lacks this
+    ** leaf, request it.
     */
     if( xfer.nToken==2
      && blob_eq(&xfer.aToken[0], "leaf")
      && blob_is_uuid(&xfer.aToken[1])
     ){
-      if( g.okRead ){
-        int rid = rid_from_uuid(&xfer.aToken[1], 0);
+      int rid = rid_from_uuid(&xfer.aToken[1], 0);
+      if( isPull && rid ){
         leaf_response(&xfer, rid);
+      }
+      if( isPush && !rid ){
+        content_put(0, blob_str(&xfer.aToken[1]), 0);
       }
     }else
 
@@ -621,7 +627,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
 
   db_begin_transaction();
   db_multi_exec(
-    "CREATE TEMP TABLE sent(rid INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   blob_zero(&send);
@@ -629,27 +635,33 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   blob_zero(&xfer.err);
   blob_zero(&xfer.line);
 
+  /*
+  ** Always begin with a clone, pull, or push message
+  */
+  if( cloneFlag ){
+    blob_appendf(&send, "clone\n");
+    pushFlag = 0;
+    pullFlag = 0;
+    nMsg++;
+  }else if( pullFlag ){
+    blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+    nMsg++;
+  }
+  if( pushFlag ){
+    blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
+    nMsg++;
+  }
+
 
   while( go ){
+    int newPhantom = 0;
 
-    /* Generate a request to be sent to the server.
-    ** Always begin with a clone, pull, or push message
+    /* Generate gimme messages for phantoms and leaf messages
+    ** for all leaves.
     */
-    
-    if( cloneFlag ){
-      blob_appendf(&send, "clone\n");
-      pushFlag = 0;
-      pullFlag = 0;
-      nMsg++;
-    }else if( pullFlag ){
-      blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
-      nMsg++;
+    if( pullFlag ){
       request_phantoms(&xfer);
       send_leaves(&xfer);
-    }
-    if( pushFlag ){
-      blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
-      nMsg++;
     }
 
     /* Exchange messages with the server */
@@ -663,6 +675,19 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     xfer.nGimmeSent = 0;
     http_exchange(&send, &recv);
     blob_reset(&send);
+
+    /* Begin constructing the next message (which might never be
+    ** sent) by beginning with the pull or push messages
+    */
+    if( pullFlag ){
+      blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+      nMsg++;
+    }
+    if( pushFlag ){
+      blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
+      nMsg++;
+    }
+
 
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
@@ -708,6 +733,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
           if( !db_exists("SELECT 1 FROM blob WHERE uuid='%b' AND size>=0",
                 &xfer.aToken[1]) ){
             content_put(0, blob_str(&xfer.aToken[1]), 0);
+            newPhantom = 1;
           }
         }
       }else
@@ -722,9 +748,13 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
        && blob_is_uuid(&xfer.aToken[1])
       ){
         nMsg++;
-        if( pushFlag ){
-          int rid = rid_from_uuid(&xfer.aToken[1], 0);
+        int rid = rid_from_uuid(&xfer.aToken[1], 0);
+        if( pushFlag && rid ){
           leaf_response(&xfer, rid);
+        }
+        if( pullFlag && rid==0 ){
+          content_put(0, blob_str(&xfer.aToken[1]), 0);
+          newPhantom = 1;
         }
       }else
   
@@ -749,6 +779,8 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         }
         cloneFlag = 0;
         pullFlag = 1;
+        blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+        nMsg++;
       }else
 
       /*   error MESSAGE
@@ -785,10 +817,12 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     nCycle++;
     go = 0;
 
-    /* If we have received one or more files on this cycle and
-    ** we have one or more phantoms, then go for another round
+    /* If we have received one or more files on this cycle or if
+    ** we have received information that has caused us to create
+    ** new phantoms and we have one or more phantoms, then go for 
+    ** another round
     */
-    if(xfer.nFileRcvd+xfer.nDeltaRcvd+xfer.nDanglingFile>0
+    if( (xfer.nFileRcvd+xfer.nDeltaRcvd+xfer.nDanglingFile>0 || newPhantom)
      && db_exists("SELECT 1 FROM phantom")
     ){
       go = 1;
