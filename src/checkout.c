@@ -125,7 +125,7 @@ void checkout_cmd(void){
   noWrite = find_option("dontwrite",0,0)!=0;
   if( g.argc!=3 ) usage("?--force? VERSION");
   if( !forceFlag && unsaved_changes()==1 ){
-    fossil_panic("there are unsaved changes in the current checkout");
+    fossil_fatal("there are unsaved changes in the current checkout");
   }
   if( forceFlag ){
     db_multi_exec("DELETE FROM vfile");
@@ -156,4 +156,22 @@ void checkout_cmd(void){
     printf("WARNING: manifest checksum does not agree with manifest\n");
   }
   db_end_transaction(0);
+}
+
+/*
+** COMMAND: close
+**
+** The opposite of "open".  Close the current database connection.
+** Require a -f or --force flag if there are unsaved changed in the
+** current check-out.
+*/
+void close_cmd(void){
+  int forceFlag = find_option("force","f",0)!=0;
+  db_must_be_within_tree();
+  if( !forceFlag && unsaved_changes()==1 ){
+    fossil_fatal("there are unsaved changes in the current checkout");
+  }
+  db_close();
+  unlink(mprintf("%s_FOSSIL_", g.zLocalRoot));
+  unlink(mprintf("%s_FOSSIL_-journal", g.zLocalRoot));
 }
