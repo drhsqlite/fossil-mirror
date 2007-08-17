@@ -34,7 +34,7 @@ TCC = gcc -g -Os -Wall
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
-LIB = -lz -static
+LIB = -lz
 
 # You should not need to change anything below this line
 ###############################################################################

@@ -1,11 +1,11 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"close"\scommand.
-D 2007-08-11T01:16:31
+C Omit\sthe\s-static\soption\sfrom\sthe\sdefault\sMakefile.
+D 2007-08-17T19:53:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile 90562f72335594194ed5ccd9e04e0c1d150376be
+F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c f62f7b3cc4dfa0516391806d2c1276dd170be809
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P f5588c800b85c0f9f2e14ab1cb46931c75690456
-R 7fadab2a4c147ef84567334928c40b95
+P 4452576730808ff4669afba08536c3ef359c4b4e
+R 45f2fbec6c086beac835113261ed9621
 U drh
-Z ff54b93df8416e02f8ecfa4667056049
+Z 269d66e63835dabcd326c553b8b39f56
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFGvQ3zoxKgR168RlERAuvfAJ4jJ0EjZFhKjr3WwAg1o95AQ03mvgCfZO2M
-1xgIvhWYVT0IJDKR3dMG4H0=
-=AuS+
+iD8DBQFGxfzboxKgR168RlERAtvnAJ9vuF+7KvzCIa7Y+xuy+eHuMdOmygCbBGMD
+LiWkZR8aIVG7wrtIGmLcaOI=
+=qCQn
 -----END PGP SIGNATURE-----
