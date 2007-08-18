@@ -32,13 +32,14 @@
 /*
 ** COMMAND: merge
 **
+** Usage: %fossil merge VERSION
+**
 ** The argument is a version that should be merged into the current
 ** checkout. 
 **
 ** Only file content is merged.  The result continues to use the
 ** file and directory names from the current check-out even if those
 ** names might have been changed in the branch being merged in.
-**
 */
 void merge_cmd(void){
   int vid;              /* Current version */

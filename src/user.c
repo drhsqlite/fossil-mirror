@@ -109,7 +109,33 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 /*
 ** COMMAND:  user
 **
-** Dispatcher for various user subcommands.
+** Usage: %fossil user SUBCOMMAND ...  ?-R|--repository FILE?
+**
+** Run various subcommands on users of the open repository or of
+** the repository identified by the -R or --repository option.
+**
+**    %fossil user capabilities USERNAME ?STRING?
+**
+**        Query or set the capabilities for user USERNAME
+**
+**    %fossil user default ?USERNAME?
+**
+**        Query or set the default user.  The default user is the
+**        user for command-line interaction.
+**
+**    %fossil user list
+**
+**        List all users known to the repository
+**
+**    %fossil user new
+**
+**        Create a new user in the repository.  Users can never be
+**        deleted.  They can be denied all access but they must continue
+**        to exist in the database.
+**
+**    %fossil user password USERNAME
+**
+**        Change the web access password for a user.
 */
 void user_cmd(void){
   int n;

@@ -31,10 +31,15 @@
 /*
 ** COMMAND: update
 **
+** Usage: %fossil update ?VERSION?
+**
 ** The optional argument is a version that should become the current
 ** version.  If the argument is omitted, then use the leaf of the
-** version tree branch that begins with the current version, if there
-** is only a single leaf.
+** tree that begins with the current version, if there is only a 
+** single leaf.  
+**
+** This command is different from the "checkout" in that edits are
+** not overwritten.  Edits are merged into the new version.
 **
 */
 void update_cmd(void){

@@ -62,7 +62,24 @@ static void process_sync_args(void){
 /*
 ** COMMAND: pull
 **
-** Pull changes in a remote repository into the local repository
+** Usage: %fossil pull ?URL? ?-R|--respository REPOSITORY?
+**
+** Pull changes in a remote repository into the local repository.
+** The repository is identified by the -R or --repository option.
+** If there is no such option then the open repository is used.
+** The URL of the remote server is specified on the command line
+** If no URL is specified then the URL used by the most recent
+** "pull", "push", or "sync" command is used.
+**
+** The URL is of the following form:
+**
+**      http://USER@HOST:PORT/PATH
+**
+** The "USER@" and ":PORT" substrings are optional.
+** The "USER" substring specifies the login user.  You will be
+** prompted for the password on the command-line.  The PORT
+** specifies the TCP port of the server.  The default port is
+** 80.
 */
 void pull_cmd(void){
   process_sync_args();
@@ -72,7 +89,10 @@ void pull_cmd(void){
 /*
 ** COMMAND: push
 **
-** Push changes in the local repository over into a remote repository
+** Usage: %fossil push ?URL? ?-R|--repository REPOSITORY?
+**
+** Push changes in the local repository over into a remote repository.
+** See the "pull" command for additional information.
 */
 void push_cmd(void){
   process_sync_args();
@@ -83,7 +103,11 @@ void push_cmd(void){
 /*
 ** COMMAND: sync
 **
-** Synchronize the local repository with a remote repository
+** Usage: %fossil sync ?URL? ?-R|--repository REPOSITORY?
+**
+** Synchronize the local repository with a remote repository.  This is
+** the equivalent of running both "push" and "pull" at the same time.
+** See the "pull" command for additional information.
 */
 void sync_cmd(void){
   process_sync_args();

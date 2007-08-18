@@ -384,7 +384,7 @@ void help_cmd(void){
   int rc, idx;
   const char *z;
   if( g.argc!=3 ){
-    printf("Usage: %s help <command>.\nAvailable commands:\n", g.argv[0]);
+    printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n", g.argv[0]);
     cmd_cmd_list();
     return;
   }
@@ -521,20 +521,20 @@ static void process_one_web_page(void){
 /*
 ** COMMAND: cgi
 **
-** The single argument is the name of a file that is the CGI script
-** that is being run.  This file should look something like this:
+** Usage: %fossil ?cgi? SCRIPT
+**
+** The SCRIPT argument is the name of a file that is the CGI script
+** that is being run.  The command name, "cgi", may be omitted if
+** the GATEWAY_INTERFACE environment variable is set to "CGI" (which
+** should always be the case for CGI scripts run by a webserver.)  The
+** SCRIPT file should look something like this:
 **
 **      #!/usr/bin/fossil
 **      repository: /home/somebody/project.db
 **
-** We are interested in the line that defines the name of the repository.
-** Read the file, find the repository line.  Then open the respository
-** database.
-**
-** Also do the usual CGI initialization stuff in the cgi.c module.
-**
-** After all of the above setup, call process_one_web_page() to do the
-** web page processing and return the result.
+** The second line defines the name of the repository.  After locating
+** the repository, fossil will generate a webpage on stdout based on
+** the values of standard CGI environment variables.
 */
 void cmd_cgi(void){
   const char *zFile;
@@ -576,11 +576,12 @@ void cmd_cgi(void){
 /*
 ** COMMAND: http
 **
-** Handle a single HTTP request appearing on standard input.  This
-** method is used to launch an HTTP request handler from INETD, for
-** example.
+** Usage: %fossil http REPOSITORY
 **
-** The argument is the name of the repository.
+** Handle a single HTTP request appearing on stdin.  The resulting webpage
+** is delivered on stdout.  This method is used to launch an HTTP request
+** handler from inetd, for example.  The argument is the name of the 
+** repository.
 */
 void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 ){
@@ -599,11 +600,13 @@ void cmd_http(void){
 /*
 ** COMMAND: server
 **
-** Open a socket and begin listening for incoming HTTP requests.
-** As each connection is received, fork a new child process to handle
-** the request.
+** Usage: %fossil server ?-P|--port TCPPORT? ?REPOSITORY?
 **
-** The argument is the name of the repository.
+** Open a socket and begin listening and responding to HTTP requests on
+** TCP port 8080, or on any other TCP port defined by the -P or
+** --port option.  The optional argument is the name of the repository.
+** The repository argument may be omitted if the working directory is
+** within an open checkout.
 */
 void cmd_webserver(void){
   int iPort;

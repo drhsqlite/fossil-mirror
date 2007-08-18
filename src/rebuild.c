@@ -31,7 +31,9 @@
 /*
 ** COMMAND:  rebuild
 **
-** Reconstruct the entire repository database from the core
+** Usage: %fossil rebuild REPOSITORY
+**
+** Reconstruct the named repository database from the core
 ** records.  Run this command after updating the fossil
 ** executable in a way that changes the database schema.
 */

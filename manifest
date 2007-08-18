@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"help"\scommand\sand\sthe\s"clean"\scommand.\s\sMore\swork\sis\sneeded\non\sthe\stext\sfor\svarious\shelp\smessages.
-D 2007-08-18T02:45:47
+C Added\soptions\sto\sthe\s"timeline"\sCLI\scommand.\s\sAdditional\shelp\scomments.
+D 2007-08-18T11:42:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -17,7 +17,7 @@ F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c 896054a3e46e2e1b4c4edf2310a608a1ba88e170
-F src/db.c 13dcb9659aa5808f7bf841345171f4a8a33b427c
+F src/db.c f2c507419fdb63b176bef7dc7f808a26da94b026
 F src/delta.c 001257c491d210885b9a74793c9b1f4a16266d46
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 6273899c2330b6b6aef98f5f6441137f2c308b49
@@ -26,34 +26,34 @@ F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
-F src/info.c ee42d04161ff45d477cb59de2ee301ce86f0438e
+F src/info.c 9ae2ca06ed9ea1d152f96250296e5e74f4951eb6
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
-F src/main.c 69bfd961c843c7abecc114e2f305cc66f1669f6b
+F src/main.c b9c1d09428953cf5aa0ddd1e00135992d43a12c0
 F src/main.mk aa75ff924a836c78ed283e7e7f7955bf6f3f3124
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 2e4bcdd946763f1ff1c900c23765d290f000d00f
 F src/manifest.c 02dabff2470c1eba8de228a077443d2aba174f91
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
-F src/merge.c c88ea8508fbc8d75fe3ed3d0bb9f6339e9157f85
+F src/merge.c 6daf84ba0a8dca66e1289b9dbb5c50f5dc42e38e
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
-F src/rebuild.c 6b83ecc26a69fa55ff0bfbd22e61311b80bf5642
+F src/rebuild.c 3f04f9d6cbe8efba210ccb3c97c9b5e49d769882
 F src/schema.c 14ace4fdfb9716160c80b2d63e646b2ac1922f6a
 F src/setup.c f186580b82c2c19200a1114809865586f56659ad
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
-F src/sync.c c79d53c017314825e098783a27928fbb31a717c2
-F src/timeline.c 01eff9951054d0510409ec502e9f5e6bbe0013c0
+F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
+F src/timeline.c 4792000fa7047396255450537f6dd1331061ed81
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
-F src/update.c e7db94fb720978028ed9c176fb4ce3213ba611c8
+F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
-F src/user.c 4ebd0dc2823c11dacdcd26b81cebc58f78710473
+F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c fdfe66efd6db70448c251b9aa67feee1b1b273f6
 F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P e5b74951d90a0a4347ca2b1b6f37b308b4f8dd62
-R d9956d8aa0277cc7810fc73125dcb1f8
+P c9fdb846fb169e3789256688942b56e5c4fa390f
+R 30efb52b8dc14f89af8db9f07e30268a
 U drh
-Z 82affb8e3a13459dd8174701ea540c00
+Z 51ebc5b1c59b857c06ce8fb3904b7e23
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFGxl1hoxKgR168RlERAh2RAJ97r9ynxI58DdlAxGz7ij24paLZIQCgg+oy
-6I/mn+viTvJMz3//BJJD1E0=
-=R/cO
+iD8DBQFGxtsmoxKgR168RlERAr0lAKCERXwRtf0edO1APj5qni+saWBrbgCdFiwr
+5k9bjRM8x6ZUM/FFT4B3cH8=
+=MnsJ
 -----END PGP SIGNATURE-----

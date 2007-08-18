@@ -186,21 +186,44 @@ void print_timeline(Stmt *q, int mxLine){
 /*
 ** COMMAND: timeline
 **
-** The timeline command works very much like the timeline webpage, but
-** shows much less data and has fewer configuration options.  It is
-** intended as a convenient shortcut for the common case of seeing
-** recent changes.
+** Usage: %fossil timeline ?DATETIME? ?-n|--count N?
+**
+** Print a summary of activity going backwards in date and time
+** specified or from the current date and time if no arguments
+** are given.  Show as many as N (default 20) check-ins.
+**
+** The date and time should be in the ISO8601 format.  For
+** examples: "2007-08-18 07:21:21".  The time may be omitted.
+** Times are according to the local timezone.
 */
 void timeline_cmd(void){
   Stmt q;
-  db_must_be_within_tree();
+  int n;
+  char *zCount;
+  char *zDate;
+  db_find_and_open_repository();
+  zCount = find_option("n","count",1);
+  if( zCount ){
+    n = atoi(zCount);
+  }else{
+    n = 20;
+  }
+  if( g.argc!=2 && g.argc!=3 ){
+    usage("YYYY-MM-DDtHH:MM:SS");
+  }
+  if( g.argc==3 ){
+    zDate = g.argv[2];
+  }else{
+    zDate = "now";
+  }
   db_prepare(&q,
     "SELECT uuid, datetime(event.mtime,'localtime'),"
     "       comment || ' (by ' || user || ')'"
     "  FROM event, blob"
     " WHERE event.type='ci' AND blob.rid=event.objid"
-    " ORDER BY event.mtime DESC"
+    "   AND event.mtime<=(SELECT julianday(%Q,'utc'))"
+    " ORDER BY event.mtime DESC", zDate
   );
-  print_timeline(&q, 20);
+  print_timeline(&q, n);
   db_finalize(&q);
 }

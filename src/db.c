@@ -580,9 +580,9 @@ void db_open_repository(const char *zDbName){
 }
 
 /*
-** Try to find the repository and open it.  If we are in a local
-** tree, then use the repository of the local tree.  Otherwise,
-** fall back to the -R or --repository option.
+** Try to find the repository and open it.  Use the -R or --repository
+** option to locate the repository.  If no such option is available, then
+** use the repository of the open checkout if there is one.
 **
 ** Error out if the repository cannot be opened.
 */
@@ -826,6 +826,7 @@ void db_lset_int(const char *zName, int value){
 ** COMMAND: open
 **
 ** Usage: open FILENAME
+**
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
 ** See also the "close" command.
@@ -849,7 +850,19 @@ void cmd_open(void){
 /*
 ** COMMAND: config
 **
-** List or change the global configuration settings.
+** Usage: %fossil config NAME=VALUE ...
+**
+** List or change the global configuration settings.  With no arguments,
+** all settings are listed.  Arguments of simply NAME cause that setting
+** to be displayed.  Arguments of the form NAME=VALUE change the value of
+** a setting.  Arguments of the form NAME= delete a setting.
+**
+** Recognized settings include:
+**
+**   editor        Text editor command used for check-in comments.
+**
+**   clear-sign    Command used to clear-sign manifests at check-in.
+**                 The default is "gpg --clearsign -o ".
 */
 void cmd_config(void){
   db_open_config();

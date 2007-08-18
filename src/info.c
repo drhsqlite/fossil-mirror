@@ -74,6 +74,8 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
 /*
 ** COMMAND: info
 **
+** Usage: %fossil info ?UUID?
+**
 ** With no arguments, provide information about the current tree.
 ** If an argument is given, provide information about the record
 ** that the argument refers to.
