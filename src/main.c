@@ -137,7 +137,7 @@ static int name_search(
   const char *zName,       /* The name we are looking for */
   const NameMap *aMap,     /* Search in this array */
   int nMap,                /* Number of slots in aMap[] */
-  void (**pxFunc)(void)    /* Write pointer to handler function here */
+  int *pIndex              /* OUT: The index in aMap[] of the match */
 ){
   int upr, lwr, cnt, m, i;
   int n = strlen(zName);
@@ -148,7 +148,7 @@ static int name_search(
     mid = (upr+lwr)/2;
     c = strcmp(zName, aMap[mid].zName);
     if( c==0 ){
-      *pxFunc = aMap[mid].xFunc;
+      *pIndex = mid;
       return 0;
     }else if( c<0 ){
       upr = mid - 1;
@@ -164,7 +164,7 @@ static int name_search(
     }
   }
   if( cnt==1 ){
-    *pxFunc = aMap[m].xFunc;
+    *pIndex = m;
     return 0;
   }
   return 1+(cnt>1);
@@ -176,7 +176,7 @@ static int name_search(
 */
 int main(int argc, char **argv){
   const char *zCmdName;
-  void (*xFunc)(void);
+  int idx;
   int rc;
 
   g.now = time(0);
@@ -194,7 +194,7 @@ int main(int argc, char **argv){
     g.zLogin = find_option("user", "U", 1);
     zCmdName = argv[1];
   }
-  rc = name_search(zCmdName, aCommand, count(aCommand), &xFunc);
+  rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fprintf(stderr,"%s: unknown command: %s\n"
                    "%s: use \"commands\" or \"test-commands\" for help\n",
@@ -206,7 +206,7 @@ int main(int argc, char **argv){
                    argv[0], zCmdName, argv[0]);
     return 1;
   }
-  xFunc();
+  aCommand[idx].xFunc();
   return 0;
 }
 
@@ -342,14 +342,15 @@ static void multi_column_list(const char **azWord, int nWord){
 /*
 ** COMMAND: commands
 **
-** List all commands whose name does not start with "test-"
+** Usage: %fossil commands
+** List all supported commands.
 */
 void cmd_cmd_list(void){
   int i, nCmd;
   const char *aCmd[count(aCommand)];
   for(i=nCmd=0; i<count(aCommand); i++){
     if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
-    if( strcmp(aCommand[i].zName, g.argv[1])==0 ) continue;
+    /* if( strcmp(aCommand[i].zName, g.argv[1])==0 ) continue; */
     aCmd[nCmd++] = aCommand[i].zName;
   }
   multi_column_list(aCmd, nCmd);
@@ -358,19 +359,57 @@ void cmd_cmd_list(void){
 /*
 ** COMMAND: test-commands
 **
-** List all commands whose name begins with "test"
+** Usage: %fossil test-commands
+** List all commands used for testing and debugging.
 */
 void cmd_test_cmd_list(void){
   int i, nCmd;
   const char *aCmd[count(aCommand)];
   for(i=nCmd=0; i<count(aCommand); i++){
     if( strncmp(aCommand[i].zName,"test",4)!=0 ) continue;
-    if( strcmp(aCommand[i].zName, g.argv[1])==0 ) continue;
+    /* if( strcmp(aCommand[i].zName, g.argv[1])==0 ) continue; */
     aCmd[nCmd++] = aCommand[i].zName;
   }
   multi_column_list(aCmd, nCmd);
 }
 
+
+/*
+** COMMAND: help
+**
+** Usage: %fossil help COMMAND
+** Display information on how to use COMMAND
+*/
+void help_cmd(void){
+  int rc, idx;
+  const char *z;
+  if( g.argc!=3 ){
+    printf("Usage: %s help <command>.\nAvailable commands:\n", g.argv[0]);
+    cmd_cmd_list();
+    return;
+  }
+  rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
+  if( rc==1 ){
+    fossil_fatal("unknown command: %s", g.argv[2]);
+  }else if( rc==2 ){
+    fossil_fatal("ambiguous command prefix: %s", g.argv[2]);
+  }
+  z = aCmdHelp[idx];
+  if( z==0 ){
+    fossil_fatal("no help available for the %s command",
+       aCommand[idx].zName);
+  }
+  while( *z ){
+    if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
+      printf("%s", g.argv[0]);
+      z += 7;
+    }else{
+      putchar(*z);
+      z++;
+    }
+  }
+  putchar('\n');
+}
 
 /*
 ** RSS feeds need to reference absolute URLs so we need to calculate
@@ -414,7 +453,7 @@ static char *get_base_url(void){
 static void process_one_web_page(void){
   const char *zPathInfo;
   char *zPath;
-  void (*xFunc)(void);
+  int idx;
   int i, j;
 
   /* Find the page that the user has requested, construct and deliver that
@@ -465,13 +504,13 @@ static void process_one_web_page(void){
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
-  if( name_search(g.zPath, aWebpage, count(aWebpage), &xFunc) &&
-      name_search("not_found", aWebpage, count(aWebpage), &xFunc) ){
+  if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) &&
+      name_search("not_found", aWebpage, count(aWebpage), &idx) ){
     cgi_set_status(404,"Not Found");
     @ <h1>Not Found</h1>
     @ <p>Page not found: %h(g.zPath)</p>
   }else{
-    xFunc();
+    aWebpage[idx].xFunc();
   }
 
   /* Return the result.

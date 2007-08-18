@@ -111,7 +111,12 @@ void manifest_to_disk(int vid){
 /*
 ** COMMAND: checkout
 **
-** Check out a version specified on the command-line.
+** Usage: %fossil checkout VERSION ?-f|--force?
+** Check out a version specified on the command-line.  This command
+** will not overwrite edited files in the current checkout unless
+** the --force option appears on the command-line.
+**
+** See also the "update" command.
 */
 void checkout_cmd(void){
   int forceFlag;
@@ -161,6 +166,7 @@ void checkout_cmd(void){
 /*
 ** COMMAND: close
 **
+** Usage: %fossil close ?-f|--force?
 ** The opposite of "open".  Close the current database connection.
 ** Require a -f or --force flag if there are unsaved changed in the
 ** current check-out.

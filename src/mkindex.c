@@ -57,6 +57,7 @@ typedef struct Entry {
   int eType;
   char *zFunc;
   char *zPath;
+  char *zHelp;
 } Entry;
 
 /*
@@ -65,9 +66,20 @@ typedef struct Entry {
 #define N_ENTRY 500
 
 /*
+** Maximum size of a help message
+*/
+#define MX_HELP 10000
+
+/*
 ** Table of entries
 */
 Entry aEntry[N_ENTRY];
+
+/*
+** Current help message accumulator
+*/
+char zHelp[MX_HELP];
+int nHelp;
 
 /*
 ** How many entries are used
@@ -122,8 +134,20 @@ void scan_for_label(const char *zLabel, char *zLine, int eType){
 ** Scan a line for a function that implements a web page or command.
 */
 void scan_for_func(char *zLine){
-  int i,j,k; 
+  int i,j,k;
+  char *z;
   if( nUsed<=nFixed ) return;
+  if( strncmp(zLine, "**", 2)==0 && isspace(zLine[2])
+       && strlen(zLine)<sizeof(zHelp)-nHelp-1 && nUsed>nFixed ){
+    if( zLine[2]=='\n' ){
+      zHelp[nHelp++] = '\n';
+    }else{
+      if( strncmp(&zLine[3], "Usage: ", 6)==0 ) nHelp = 0;
+      strcpy(&zHelp[nHelp], &zLine[3]);
+      nHelp += strlen(&zHelp[nHelp]);
+    }
+    return;
+  }
   for(i=0; isspace(zLine[i]); i++){}
   if( zLine[i]==0 ) return;
   if( strncmp(&zLine[i],"void",4)!=0 ){
@@ -135,13 +159,24 @@ void scan_for_func(char *zLine){
   while( isspace(zLine[i]) ){ i++; }
   for(j=0; isalnum(zLine[i+j]) || zLine[i+j]=='_'; j++){}
   if( j==0 ) goto page_skip;
+  for(k=nHelp-1; k>=0 && isspace(zHelp[k]); k--){}
+  nHelp = k+1;
+  zHelp[nHelp] = 0;
+  for(k=0; k<nHelp && isspace(zHelp[k]); k++){}
+  if( k<nHelp ){
+    z = string_dup(&zHelp[k], nHelp-k);
+  }else{
+    z = 0;
+  }
   for(k=nFixed; k<nUsed; k++){
     aEntry[k].zFunc = string_dup(&zLine[i], j);
+    aEntry[k].zHelp = z;
   }
   i+=j;
   while( isspace(zLine[i]) ){ i++; }
   if( zLine[i]!='(' ) goto page_skip;
   nFixed = nUsed;
+  nHelp = 0;
   return;
 
 page_skip:   
@@ -170,6 +205,7 @@ int e_compare(const void *a, const void *b){
 */
 void build_table(void){
   int i;
+  int nType0;
 
   qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
   for(i=0; i<nFixed; i++){
@@ -190,14 +226,45 @@ void build_table(void){
     );
   }
   printf("};\n");
+  nType0 = i;
   printf(
     "static const NameMap aCommand[] = {\n"
   );
-  for(; i<nFixed && aEntry[i].eType==1; i++){
+  for(i=nType0; i<nFixed && aEntry[i].eType==1; i++){
     printf("  { \"%s\",%*s %s },\n",
       aEntry[i].zPath, (int)(25-strlen(aEntry[i].zPath)), "",
       aEntry[i].zFunc
     );
+  }
+  printf("};\n");
+  for(i=nType0; i<nFixed; i++){
+    char *z = aEntry[i].zHelp;
+    if( z && z[0] ){
+      printf("static const char zHelp_%s[] = \n", aEntry[i].zFunc);
+      printf("  \"");
+      while( *z ){
+        if( *z=='\n' ){
+          printf("\\n\"\n  \"");
+        }else if( *z=='"' ){
+          printf("\\\"");
+        }else{
+          putchar(*z);
+        }
+        z++;
+      }
+      printf("\";\n");
+      aEntry[i].zHelp[0] = 0;
+    }
+  }
+  printf(
+    "static const char * const aCmdHelp[] = {\n"
+  );
+  for(i=nType0; i<nFixed; i++){
+    if( aEntry[i].zHelp==0 ){
+      printf("  0,\n");
+    }else{
+      printf("  zHelp_%s,\n", aEntry[i].zFunc);
+    }
   }
   printf("};\n");
 }

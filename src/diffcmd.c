@@ -47,6 +47,11 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 /*
 ** COMMAND: diff
 ** COMMAND: tkdiff
+**
+** Usage: %fossil diff|tkdiff FILE...
+** Show the difference between the current version of a file (as it
+** exists on disk) and that same file as it was checked out.  Use
+** either "diff -u" or "tkdiff".
 */
 void diff_cmd(void){
   const char *zFile;

@@ -32,8 +32,9 @@
 /*
 ** COMMAND: add
 **
+** Usage: %fossil add FILE...
 ** Add one or more files to the current checkout such that these files
-** will be added to the repository at the next checkin.
+** will be inserted into the repository at the next commit.
 */
 void add_cmd(void){
   int i;
@@ -82,6 +83,8 @@ void add_cmd(void){
 ** COMMAND: rm
 ** COMMAND: del
 **
+** Usage: %fossil rm FILE...
+**    or: %fossil del FILE...
 ** Remove one or more files from the tree.
 */
 void del_cmd(void){

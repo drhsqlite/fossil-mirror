@@ -105,8 +105,7 @@ void db_force_rollback(void){
 */
 static void reprepare(Stmt *pStmt){
   sqlite3_stmt *pNew;
-  int rc;
-  if( (rc = sqlite3_prepare(g.db, blob_buffer(&pStmt->sql), -1, &pNew, 0))!=0 ){
+  if( sqlite3_prepare(g.db, blob_buffer(&pStmt->sql), -1, &pNew, 0)!=0 ){
     db_err("%s\n%s", blob_str(&pStmt->sql), sqlite3_errmsg(g.db));
   }
   if( pStmt->pStmt ){
@@ -193,7 +192,7 @@ int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 ** or SQLITE_OK if the statement finishes successfully.
 */
 int db_step(Stmt *pStmt){
-  int rc;
+  int rc = SQLITE_OK;
   int limit = 3;
   while( limit-- ){
     rc = sqlite3_step(pStmt->pStmt);
@@ -649,7 +648,10 @@ void db_create_repository(const char *zFilename){
 /*
 ** COMMAND: new
 **
-** Create a new repository
+** Usage: %fossil new FILENAME
+** Create a repository for a new project in the file named FILENAME.
+** This command is distinct from "clone".  The "clone" command makes
+** a copy of an existing project.  This command starts a new project.
 */
 void create_repository_cmd(void){
   char *zDate;
@@ -823,7 +825,10 @@ void db_lset_int(const char *zName, int value){
 /*
 ** COMMAND: open
 **
-** Create a new local repository.
+** Usage: open FILENAME
+** Open a connection to the local repository in FILENAME.  A checkout
+** for the repository is created with its root at the working directory.
+** See also the "close" command.
 */
 void cmd_open(void){
   Blob path;

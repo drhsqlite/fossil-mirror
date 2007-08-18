@@ -72,7 +72,9 @@ static void status_report(Blob *report, const char *zPrefix){
 /*
 ** COMMAND: changes
 **
-** Report on the current status of all files.
+** Usage: %fossil changes
+** Report on the edit status of all files in the current checkout.
+** See also the "status" and "extra" commands.
 */
 void changes_cmd(void){
   Blob report;
@@ -87,6 +89,8 @@ void changes_cmd(void){
 
 /*
 ** COMMAND: status
+** Usage: %fossil status
+** Report on the status of the current checkout.
 */
 void status_cmd(void){
   int vid;
@@ -104,8 +108,8 @@ void status_cmd(void){
 
 /*
 ** COMMAND: ls
-**
-** Show all files currently in the repository
+** Usage: %fossil ls
+** Show the names of all files in the current checkout
 */
 void ls_cmd(void){
   int vid;
@@ -136,9 +140,9 @@ void ls_cmd(void){
 
 /*
 ** COMMAND: extra
-**
+** Usage: %fossil extra
 ** Print a list of all files in the source tree that are not part of
-** the project
+** the current checkout.  See also the "clean" command.
 */
 void extra_cmd(void){
   Blob path;
@@ -148,13 +152,37 @@ void extra_cmd(void){
   chdir(g.zLocalRoot);
   blob_zero(&path);
   vfile_scan(0, &path);
-  db_multi_exec("DELETE FROM sfile WHERE x='FOSSIL'");
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN ('manifest','_FOSSIL_')"
       " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     printf("%s\n", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+}
+
+/*
+** COMMAND: clean
+** Usage: %fossil clean
+** Delete all "extra" files in the source tree.  "Extra" files are
+** files that are not officially part of the checkout.  See also
+** the "extra" command.
+*/
+void clean_cmd(void){
+  Blob path;
+  Stmt q;
+  db_must_be_within_tree();
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  chdir(g.zLocalRoot);
+  blob_zero(&path);
+  vfile_scan(0, &path);
+  db_prepare(&q, 
+      "SELECT %Q || x FROM sfile"
+      " WHERE x NOT IN ('manifest','_FOSSIL_')"
+      " ORDER BY 1", g.zLocalRoot);
+  while( db_step(&q)==SQLITE_ROW ){
+    unlink(db_column_text(&q, 0));
   }
   db_finalize(&q);
 }
@@ -193,6 +221,7 @@ static void prepare_commit_comment(Blob *pComment){
                    g.zLocalRoot);
   blob_write_to_file(&text, zFile);
   zCmd = mprintf("%s %s", zEditor, zFile);
+  printf("%s\n", zCmd);
   if( system(zCmd) ){
     fossil_panic("editor aborted");
   }
@@ -257,13 +286,15 @@ void select_commit_files(void){
 /*
 ** COMMAND: commit
 **
-** Create a new version containing all of the changes in the current
-** checkout. A commit is a three step process:
+** Usage: %fossil commit ?-m COMMENT? ?--nosign? ?FILE...?
 **
-**   1) Add the new content to the blob table,
-**   2) Create and add the new manifest to the blob table,
-**   3) Update the vfile table,
-**   4) Run checks to make sure everything is still internally consistent.
+** Create a new version containing all of the changes in the current
+** checkout.  You will be prompted to enter a check-in comment unless
+** the "-m" option is used to specify a command line.  You will be
+** prompted for your GPG passphrase in order to sign the new manifest
+** unless the "--nosign" options is used.  All files that have
+** changed will be committed unless some subset of files is specified
+** on the command line.
 */
 void commit_cmd(void){
   int rc;

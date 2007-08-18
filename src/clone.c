@@ -32,9 +32,10 @@
 /*
 ** COMMAND: clone
 **
-** Make a clone of a repository in the local directory
+** Usage: %fossil clone URL FILENAME
 **
-**    fossil clone FILE-OR-URL NEWDATABASE
+** Make a clone of a repository specified by URL in the local
+** file named FILENAME.  
 */
 void clone_cmd(void){
   if( g.argc!=4 ){
