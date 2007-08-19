@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\soptions\sto\sthe\s"timeline"\sCLI\scommand.\s\sAdditional\shelp\scomments.
-D 2007-08-18T11:42:24
+C Fix\sthe\s"Leaves"\scomputation\son\sthe\svinfo\sweb\spage.\s\sImprovements\sto\sthe\nvinfo\sweb\spage.
+D 2007-08-19T11:06:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -26,7 +26,7 @@ F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
-F src/info.c 9ae2ca06ed9ea1d152f96250296e5e74f4951eb6
+F src/info.c e4bf002e1d5f261a0a23e073a1ea47ba340b5bce
 F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
 F src/main.c b9c1d09428953cf5aa0ddd1e00135992d43a12c0
 F src/main.mk aa75ff924a836c78ed283e7e7f7955bf6f3f3124
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P c9fdb846fb169e3789256688942b56e5c4fa390f
-R 30efb52b8dc14f89af8db9f07e30268a
+P 6607844a0162db6d51c360aaaeead96c84477376
+R 32e77e97fd9103a257ad1b93d91e501a
 U drh
-Z 51ebc5b1c59b857c06ce8fb3904b7e23
+Z 711237e841935d760300cd462672ee63
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFGxtsmoxKgR168RlERAr0lAKCERXwRtf0edO1APj5qni+saWBrbgCdFiwr
-5k9bjRM8x6ZUM/FFT4B3cH8=
-=MnsJ
+iD8DBQFGyCRToxKgR168RlERAoShAJ9ZiWcbrU2f95rwH8SDpnJ+lif77wCeKPfD
+6jaizl8nJwnBZpdrd5MTE2o=
+=ffxy
 -----END PGP SIGNATURE-----

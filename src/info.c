@@ -111,7 +111,7 @@ void info_cmd(void){
 ** Show information about descendents of a version.  Do this recursively
 ** to a depth of N.  Return true if descendents are shown and false if not.
 */
-static int showDescendents(int pid, int depth){
+static int showDescendents(int pid, int depth, const char *zTitle){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
@@ -133,17 +133,21 @@ static int showDescendents(int pid, int depth){
     const char *zCom = db_column_text(&q, 4);
     cnt++;
     if( cnt==1 ){
+      if( zTitle ){
+        @ <h2>%s(zTitle)</h2>
+      }
       @ <ul>
     }
     @ <li>
     hyperlink_to_uuid(zUuid);
     @ %s(zCom) (by %s(zUser) on %s(zDate))
     if( depth ){
-      n = showDescendents(cid, depth-1);
+      n = showDescendents(cid, depth-1, 0);
     }else{
       n = db_int(0, "SELECT 1 FROM plink WHERE pid=%d", cid);
     }
     if( n==0 ){
+      db_multi_exec("DELETE FROM leaves WHERE rid=%d", cid);
       @ <b>leaf</b>
     }
   }
@@ -157,7 +161,7 @@ static int showDescendents(int pid, int depth){
 ** Show information about ancestors of a version.  Do this recursively
 ** to a depth of N.  Return true if ancestors are shown and false if not.
 */
-static int showAncestors(int pid, int depth){
+static void showAncestors(int pid, int depth, const char *zTitle){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
@@ -170,7 +174,6 @@ static int showAncestors(int pid, int depth){
     " ORDER BY event.mtime DESC",
     pid
   );
-  @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
     int cid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
@@ -178,16 +181,60 @@ static int showAncestors(int pid, int depth){
     const char *zUser = db_column_text(&q, 3);
     const char *zCom = db_column_text(&q, 4);
     cnt++;
+    if( cnt==1 ){
+      if( zTitle ){
+        @ <h2>%s(zTitle)</h2>
+      }
+      @ <ul>
+    }
     @ <li>
     hyperlink_to_uuid(zUuid);
     @ %s(zCom) (by %s(zUser) on %s(zDate))
     if( depth ){
-      showAncestors(cid, depth-1);
+      showAncestors(cid, depth-1, 0);
     }
   }
-  @ </ul>
-  return cnt;
+  if( cnt ){
+    @ </ul>
+  }
 }
+
+
+/*
+** Show information about versions mentioned in the "leaves" table.
+*/
+static void showLeaves(void){
+  Stmt q;
+  int cnt = 0;
+  db_prepare(&q,
+    "SELECT blob.uuid, datetime(event.mtime, 'localtime'),"
+    "       event.user, event.comment"
+    "  FROM leaves, plink, blob, event"
+    " WHERE plink.cid=leaves.rid"
+    "   AND blob.rid=leaves.rid"
+    "   AND event.objid=leaves.rid"
+    "   AND +generation>0"
+    " ORDER BY event.mtime DESC"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    const char *zCom = db_column_text(&q, 3);
+    cnt++;
+    if( cnt==1 ){
+      @ <h2>Leaves</h2>
+      @ <ul>
+    }
+    @ <li>
+    hyperlink_to_uuid(zUuid);
+    @ %s(zCom) (by %s(zUser) on %s(zDate))
+  }
+  if( cnt ){
+    @ </ul>
+  }
+}
+
 
 /*
 ** WEBPAGE: vinfo
@@ -199,7 +246,6 @@ void vinfo_page(void){
   Stmt q;
   int rid;
   int isLeaf;
-  int n;
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
@@ -227,19 +273,13 @@ void vinfo_page(void){
     @ <li><b>Comment:</b> %s(db_column_text(&q, 3))</li>
     @ <li><a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a></li>
     @ <li><a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a></li>
+    @ <li><a href="%s(g.zBaseURL)/fview/%d(rid)">manifest</a></li>
+    if( g.okSetup ){
+      @ <li><b>Record ID:</b> %d(rid)</li>
+    }
     @ </ul>
   }
   db_finalize(&q);
-  @ <p><h2>Descendents:</h2>
-  n = showDescendents(rid, 2);
-  if( n==0 ){
-    @ <ul>None.  This is a leaf node.</ul>
-  }
-  @ <p><h2>Ancestors:</h2>
-  n = showAncestors(rid, 2);
-  if( n==0 ){
-    @ <ul>None.  This is the root of the tree.</ul>
-  }
   @ <p><h2>Changes:</h2>
   @ <ul>
   db_prepare(&q, 
@@ -264,6 +304,10 @@ void vinfo_page(void){
     @ <a href="%s(g.zBaseURL)/finfo/%T(zName)">%h(zName)</a></li>
   }
   @ </ul>
+  compute_leaves(rid);
+  showDescendents(rid, 2, "Descendents");
+  showLeaves();
+  showAncestors(rid, 2, "Ancestors");
   style_footer();
 }
 
