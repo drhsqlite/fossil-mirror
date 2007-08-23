@@ -198,12 +198,12 @@ int main(int argc, char **argv){
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fprintf(stderr,"%s: unknown command: %s\n"
-                   "%s: use \"commands\" or \"test-commands\" for help\n",
+                   "%s: use \"help\" for more information\n",
                    argv[0], zCmdName, argv[0]);
     return 1;
   }else if( rc==2 ){
     fprintf(stderr,"%s: ambiguous command prefix: %s\n"
-                   "%s: use \"commands\" or \"test-commands\" for help\n",
+                   "%s: use \"help\" for more information\n",
                    argv[0], zCmdName, argv[0]);
     return 1;
   }
