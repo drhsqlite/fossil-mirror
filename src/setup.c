@@ -119,32 +119,37 @@ void setup_ulist(void){
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
+  @ <tr><td>s</td><td></td><td>Setup: Superuser can do anything</td></tr>
   @ <tr><td>a</td><td width="10"></td>
   @     <td>Admin: Create or delete users and ticket report formats</td></tr>
   @ <tr><td>d</td><td></td>
   @     <td>Delete: Erase anonymous wiki, tickets, and attachments</td></tr>
-  @ <tr><td>h</td><td></td>
-  @     <td>History: Access older version of code, tickets, or wiki</td></tr>
-  @ <tr><td>i</td><td></td>
-  @     <td>Check-in: Add new code to the repository</td></tr>
-  @ <tr><td>j</td><td></td><td>Read-Wiki: View wiki pages</td></tr>
-  @ <tr><td>k</td><td></td><td>Wiki: Create or modify wiki pages</td></tr>
-  @ <tr><td>n</td><td></td><td>New: Create new tickets</td></tr>
-  @ <tr><td>o</td><td></td>
-  @     <td>Check-out: Read code out of the repository</td></tr>
   @ <tr><td>p</td><td></td><td>Password: Change password</td></tr>
   @ <tr><td>q</td><td></td><td>Query: Create or edit report formats</td></tr>
-  @ <tr><td>r</td><td></td><td>Read: View tickets and change histories</td></tr>
-  @ <tr><td>s</td><td></td><td>Setup: Change CVSTrac options</td></tr>
-  @ <tr><td>w</td><td></td><td>Write: Edit tickets</td></tr>
+  @ <tr><td>i</td><td></td>
+  @     <td>Check-in: Add new code to the repository</td></tr>
+  @ <tr><td>o</td><td></td>
+  @     <td>Check-out: Read code out of the repository</td></tr>
+  @ <tr><td>h</td><td></td>
+  @     <td>History: Access older version of code, tickets, or wiki</td></tr>
+  @ <tr><td>g</td><td></td><td>Clone: Clone the repository</td></tr>
+  @ <tr><td>j</td><td></td><td>Read-Wiki: View wiki pages</td></tr>
+  @ <tr><td>f</td><td></td><td>New-Wiki: Create new wiki pages</td></tr>
+  @ <tr><td>m</td><td></td><td>Append-Wiki: Append to wiki pages</td></tr>
+  @ <tr><td>k</td><td></td><td>Write-Wiki: Modify wiki pages</td></tr>
+  @ <tr><td>r</td><td></td>
+  @      <td>Read-Tkt: View tickets and change histories</td></tr>
+  @ <tr><td>n</td><td></td><td>New-Tkt: Create new tickets</td></tr>
+  @ <tr><td>c</td><td></td><td>Append-Tkt: Append to tickets</td></tr>
+  @ <tr><td>w</td><td></td><td>Write-Tkt: Edit tickets</td></tr>
   @ </table>
   @ </p></li>
   @
   @ <li><p>
-  @ If a user named "<b>anonymous</b>" exists, then anyone can access
-  @ the server without having to log in.  The permissions on the
-  @ anonymous user determine the access rights for anyone who is not
-  @ logged in.
+  @ Every user, logged in or not, has the privileges of <b>nobody</b>.
+  @ Any human can login as <b>anonymous</b> since the password is
+  @ clearly displayed on the login page for them to type.  The purpose
+  @ of requiring anonymous to log in is to prevent access by spiders.
   @ </p></li>
   @
   @ </ol>
@@ -157,7 +162,7 @@ void setup_ulist(void){
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap ;
-  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah;
+  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -210,11 +215,13 @@ void user_edit(void){
     int af = P("af")!=0;
     int am = P("am")!=0;
     int ah = P("ah")!=0;
+    int ag = P("ag")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
     if( af ){ zCap[i++] = 'f'; }
     if( ah ){ zCap[i++] = 'h'; }
+    if( ag ){ zCap[i++] = 'g'; }
     if( ai ){ zCap[i++] = 'i'; }
     if( aj ){ zCap[i++] = 'j'; }
     if( ak ){ zCap[i++] = 'k'; }
@@ -258,7 +265,7 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
-  oaa = oac = oad = oaf = oah = oai = oaj = oak = oam =
+  oaa = oac = oad = oaf = oag = oah = oai = oaj = oak = oam =
         oan = oao = oap = oaq = oar = oas = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
@@ -268,6 +275,7 @@ void user_edit(void){
     if( strchr(zCap, 'c') ) oac = " checked";
     if( strchr(zCap, 'd') ) oad = " checked";
     if( strchr(zCap, 'f') ) oaf = " checked";
+    if( strchr(zCap, 'g') ) oag = " checked";
     if( strchr(zCap, 'h') ) oah = " checked";
     if( strchr(zCap, 'i') ) oai = " checked";
     if( strchr(zCap, 'j') ) oaj = " checked";
@@ -322,6 +330,7 @@ void user_edit(void){
   @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
   @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
   @     <input type="checkbox" name="ah"%s(oah)>History</input><br>
+  @     <input type="checkbox" name="ag"%s(oag)>Clone</input><br>
   @     <input type="checkbox" name="aj"%s(oaj)>Read Wiki</input><br>
   @     <input type="checkbox" name="af"%s(oaf)>New Wiki</input><br>
   @     <input type="checkbox" name="am"%s(oam)>Append Wiki</input><br>
@@ -375,7 +384,7 @@ void user_edit(void){
   @ <li><p>
   @ The <b>History</b> privilege allows a user to see a timeline
   @ with hyperlinks to version information, to download ZIP archives
-  @ of individual versions, and to clone the repository.
+  @ of individual versions.
   @ </p></li>
   @
   @ <li><p>

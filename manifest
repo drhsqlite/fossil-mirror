@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"Leaves"\scomputation\son\sthe\svinfo\sweb\spage.\s\sImprovements\sto\sthe\nvinfo\sweb\spage.
-D 2007-08-19T11:06:53
+C Add\sseparate\s"clone"\spermissions.\s\sPreviously,\sone\sneeded\s"History"\npremission\sin\sorder\sto\sclone.\s\sBut\ssometimes\swe\swant\sto\sgrant\sclone\nwithout\sgranting\shistory.
+D 2007-08-23T19:52:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -27,8 +27,8 @@ F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
 F src/info.c e4bf002e1d5f261a0a23e073a1ea47ba340b5bce
-F src/login.c 8638b80caafd500af730721bb83d4faf151cede9
-F src/main.c b9c1d09428953cf5aa0ddd1e00135992d43a12c0
+F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
+F src/main.c 057090c5e8152d0da5986eb4b848819978a6a073
 F src/main.mk aa75ff924a836c78ed283e7e7f7955bf6f3f3124
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -43,7 +43,7 @@ F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 3f04f9d6cbe8efba210ccb3c97c9b5e49d769882
 F src/schema.c 14ace4fdfb9716160c80b2d63e646b2ac1922f6a
-F src/setup.c f186580b82c2c19200a1114809865586f56659ad
+F src/setup.c d267e09065bdc40dfbc42a4cd8dde525f2966940
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
@@ -56,9 +56,9 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c fdfe66efd6db70448c251b9aa67feee1b1b273f6
-F src/wiki.c b7ab86df2b3fb64d82f17c1c0fb8b3b330d3a4d6
-F src/wikiformat.c a5de2f9f943fbca121ddfcc5c80c574054b0e348
-F src/xfer.c 60457c742780684a27e9c8051305768245d27c73
+F src/wiki.c daf8014fa804a286d33d80111694bdfc18d036f0
+F src/wikiformat.c 4db346d7739b9f456825a212afa76b75af93d7a2
+F src/xfer.c 711897e1f2a3bb1a6e1c40d3d19a7bc680a57335
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -72,14 +72,14 @@ F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 6607844a0162db6d51c360aaaeead96c84477376
-R 32e77e97fd9103a257ad1b93d91e501a
+P 4ac16995e8d85ec769b3b5ad3611822247156ff6
+R 984b04fc95dc7505f8692de756e1d296
 U drh
-Z 711237e841935d760300cd462672ee63
+Z 795b51110a6a3a8a9a13bf75944177bb
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGyCRToxKgR168RlERAoShAJ9ZiWcbrU2f95rwH8SDpnJ+lif77wCeKPfD
-6jaizl8nJwnBZpdrd5MTE2o=
-=ffxy
+iD8DBQFGzeV4oxKgR168RlERAq87AJwMP8kSWKlR7D79g7gHQzQNw2dqAgCgg10Q
+hx27Q3KKazXR8t5mr7UeAFc=
+=fCOM
 -----END PGP SIGNATURE-----

@@ -526,9 +526,11 @@ struct ParsedMarkup {
 };
 
 /*
-** Parse the markup in z[] into the p structure.  The content
-** of z[] is modified by converting characters to lowercase
-** and by inserting some "\000" characters.
+** z[] is an HTML markup element - something that begins with '<'.
+** Parse this element into the p structure.
+**
+** The content of z[] might be modified by converting characters 
+** to lowercase and by inserting some "\000" characters.
 */
 static void parseMarkup(ParsedMarkup *p, char *z){
   int i, c;
@@ -702,6 +704,9 @@ static int backupToType(Renderer *p, int iMask){
 
 /*
 ** Add missing markup in preparation for writing text.
+**
+** "Missing" markup are things like start tags for table rows
+** or table columns or paragraphs that are omitted from input.
 */
 static void addMissingMarkup(Renderer *p){
   /* TBD */

@@ -38,3 +38,29 @@ void wiki_page(void){
   @ extra=%h(g.zExtra)
   style_footer();
 }
+
+/*
+** WEBPAGE: ambiguous
+**
+** This is the destination for UUID hyperlinks that are ambiguous.
+** Show all possible choices for the destination with links to each.
+**
+** The ambiguous UUID prefix is in g.zExtra
+*/
+void ambiguous_page(void){
+  Stmt q;
+  style_header("Ambiguous UUID");
+  @ <p>The link <a href="%s(g.zBaseURL)/ambiguous/%T(g.zExtra)">
+  @ [%h(g.zExtra)]</a> is ambiguous.  It might mean any of the following:</p>
+  @ <ul>
+  db_prepare(&q, "SELECT uuid, rid FROM blob WHERE uuid>=%Q AND uuid<'%qz'"
+                 " ORDER BY uuid", g.zExtra, g.zExtra);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    @ <li> %s(zUuid) - %d(rid)
+  }
+  db_finalize(&q);
+  @ </ul>
+  style_footer();
+}

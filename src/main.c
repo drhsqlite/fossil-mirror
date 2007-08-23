@@ -87,22 +87,23 @@ struct Global {
   char *zNonce;           /* The nonce used for login */
   
   /* permissions used by the server */
-  int okRead;             /* xfer outbound */
-  int okWrite;            /* xfer inbound */
-  int okSetup;            /* use Setup screens on web interface */
-  int okRdTkt;            /* view tickets via web */
-  int okWrTkt;            /* make changes to tickets via web */
-  int okNewTkt;           /* create new tickets */
-  int okApndTkt;          /* append to tickets via the web */
-  int okRdWiki;           /* view wiki via web */
-  int okWrWiki;           /* edit wiki via web */
-  int okNewWiki;          /* create new wiki via web */
-  int okApndWiki;         /* append to wiki via web */
-  int okPassword;         /* change password */
-  int okAdmin;            /* administrative permission */
-  int okDelete;           /* delete wiki or tickets */
-  int okQuery;            /* create new reports */
-  int okHistory;          /* access historical information */
+  int okSetup;            /* s: use Setup screens on web interface */
+  int okAdmin;            /* a: administrative permission */
+  int okDelete;           /* d: delete wiki or tickets */
+  int okPassword;         /* p: change password */
+  int okQuery;            /* q: create new reports */
+  int okWrite;            /* i: xfer inbound. checkin */
+  int okRead;             /* o: xfer outbound. checkout */
+  int okHistory;          /* h: access historical information. */
+  int okClone;            /* g: clone */
+  int okRdWiki;           /* j: view wiki via web */
+  int okNewWiki;          /* f: create new wiki via web */
+  int okApndWiki;         /* m: append to wiki via web */
+  int okWrWiki;           /* k: edit wiki via web */
+  int okRdTkt;            /* r: view tickets via web */
+  int okNewTkt;           /* n: create new tickets */
+  int okApndTkt;          /* c: append to tickets via the web */
+  int okWrTkt;            /* w: make changes to tickets via web */
 
   FILE *fDebug;           /* Write debug information here, if the file exists */
 };
