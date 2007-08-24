@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Website\supdates.\s\sChange\sthe\smessage\sfor\sunrecognized\scommands\sto\srefer\nthe\suser\sto\s"help".
-D 2007-08-23T23:10:56
+C Improved\sformatting\sof\sthe\suser\slist\swebpage.
+D 2007-08-24T21:32:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -43,7 +43,7 @@ F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 3f04f9d6cbe8efba210ccb3c97c9b5e49d769882
 F src/schema.c 14ace4fdfb9716160c80b2d63e646b2ac1922f6a
-F src/setup.c d267e09065bdc40dfbc42a4cd8dde525f2966940
+F src/setup.c 1750dc4678b4fbc1551687157dd3c713f66e7557
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
@@ -72,14 +72,14 @@ F www/index.html d3b58fe572277f0a71725067b7470cc6530594ac
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 22c1ac41d4c02c44fe1763b9267a5f06e95c5a24
-R 6ca2f1c9b008d743a72494417f8af8f8
+P 0cd202a86e12b8e67af1c5c85d1a9ef182a91c80
+R a8b2b2a14003cf5bbef9aa1db9323456
 U drh
-Z a45da331d37e22302b7c4f5230c74905
+Z 2874e21c6dd16187d92d730722fdee1e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGzhQFoxKgR168RlERAkn2AJ42LsR1dNnKZ1c0Suj/G4+zvY2KbQCdFGox
-QO3083HHeGIK6/n7xT8UxY4=
-=aWR1
+iD8DBQFGz057oxKgR168RlERAlxxAJ9T8DM33GB7cQq9CO5hIoqNfN4EHwCeOkwG
+gns4TEKOXGdM5UbvnrE1M24=
+=WcVB
 -----END PGP SIGNATURE-----
