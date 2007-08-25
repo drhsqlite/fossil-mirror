@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merging\saku's\schanges\sinto\sthe\shead.
-D 2007-08-25T19:00:33
+C Generate\sthe\s"manifest.uuid"\sfile\scontaining\sthe\sSHA1\shash\sof\sthe\s"manifest"\nfile\swhenever\sthe\smanifest\sis\sgenerated.\s\sMakefiles\scan\sused\sthe\n"manifest.uuid"\sto\sinsert\sthe\sversion\snumber\sinto\sthe\sexecutable.
+D 2007-08-25T19:31:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -12,8 +12,8 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c dfe4f317d7be3491bac9af3b2bee0c061be2a2f0
-F src/checkout.c ded735af90ef06af84efae4808dde3b185372063
+F src/checkin.c 46f9764a211b5ed12dcae17652c88d438bdd8b85
+F src/checkout.c 59343953ba42e0f41b57d59fdc75fffe5b0ff94c
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -61,7 +61,7 @@ F src/vfile.c fdfe66efd6db70448c251b9aa67feee1b1b273f6
 F src/wiki.c daf8014fa804a286d33d80111694bdfc18d036f0
 F src/wikiformat.c 4db346d7739b9f456825a212afa76b75af93d7a2
 F src/xfer.c caacb8871c3fbf38eafe4377a184a9a2c305c19a
-F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
+F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -77,14 +77,14 @@ F www/index.html 62a56c45970b49346ec5943265402ea0850b5498
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 424d47e4532a2dfa414ba5ce3918bd645ea7a7a1 b846db063c4caeed23b15d84b13be7f2e2c2f17d
-R 08dc8d58c979c67701e7c13ae575e682
+P b0ad3f90bc4f389747c4740629e2488b92e72d84
+R 0b1ff894b2598308802f94d577403cb6
 U drh
-Z 587f0453d86937b982997d7bef54617b
+Z 63481931590ab9f624c0f32dae9fd550
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG0HxVoxKgR168RlERApeRAJ9L9mJnCyX9ItK5K6LNqUenJYoU/wCaA+Re
-CuCrJEbIyflsPMkUqzKaRcU=
-=hxdm
+iD8DBQFG0IOYoxKgR168RlERAr5PAJ9+22pOkaYOv7T1+UC20R1ZMbTLBgCfbLGl
+YNx8DqmbXpH+r7Snsqm4vqA=
+=kqEo
 -----END PGP SIGNATURE-----

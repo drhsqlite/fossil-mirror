@@ -154,7 +154,7 @@ void extra_cmd(void){
   vfile_scan(0, &path);
   db_prepare(&q, 
       "SELECT x FROM sfile"
-      " WHERE x NOT IN ('manifest','_FOSSIL_')"
+      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
       " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     printf("%s\n", db_column_text(&q, 0));
@@ -179,7 +179,7 @@ void clean_cmd(void){
   vfile_scan(0, &path);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN ('manifest','_FOSSIL_')"
+      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
       " ORDER BY 1", g.zLocalRoot);
   while( db_step(&q)==SQLITE_ROW ){
     unlink(db_column_text(&q, 0));

@@ -269,7 +269,7 @@ void filezip_cmd(void){
 */
 void zip_of_baseline(int rid, Blob *pZip){
   int i;
-  Blob mfile, file;
+  Blob mfile, file, hash;
   Manifest m;
 
   content_get(rid, &mfile);
@@ -278,12 +278,17 @@ void zip_of_baseline(int rid, Blob *pZip){
     return;
   }
   blob_zero(&file);
+  blob_zero(&hash);
   blob_copy(&file, &mfile);
   zip_open();
   if( manifest_parse(&m, &mfile) ){
     zip_set_timedate(m.rDate);
     zip_add_file("manifest", &file);
+    sha1sum_blob(&file, &hash);
     blob_reset(&file);
+    blob_append(&hash, "\n", 1);
+    zip_add_file("manifest.uuid", &hash);
+    blob_reset(&hash);
     for(i=0; i<m.nFile; i++){
       int fid = uuid_to_rid(m.aFile[i].zUuid, 0);
       if( fid ){
