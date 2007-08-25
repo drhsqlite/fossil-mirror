@@ -9,14 +9,19 @@ Fossil File Formats
 
 <p>
 The global state of a fossil repository is determined by an unordered
-set of files.  Some files used to represent wiki pages, trouble tickets,
+set of files.  Some files are used to represent wiki pages, trouble tickets,
 and the special "manifest" file has a specific and well-defined format.
-Other files are just the content of the files.  Files can be text or
-binary.
+Other files are just data.  Files can be text or binary.
 </p>
 
 <p>
 Each file in the repository is named by its SHA1 hash.
+No prefixes or meta information is added to a file before
+its hash is computed.  The name of a file in the repository
+is exactly the same SHA1 hash that is computed by sha1sum 
+on the file as it exists in your source tree.</p>
+
+<p>
 Some files have a particular format which qualifies them
 as "manifests".  A manifest assigns filenames to a subset
 of the files in the repository, in order to provide a

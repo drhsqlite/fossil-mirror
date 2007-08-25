@@ -90,11 +90,14 @@ void setup_ulist(void){
 
   style_submenu_element("Add", "Add User", "setup_uedit");
   style_header("User List");
-  @ <table align="left" hspace="10" border="1" cellpadding="10"><tr><td>
+  @ <table border="0" cellpadding="0" cellspacing="25">
+  @ <tr><td valign="top">
+  @ <b>Users:</b>
+  @ <table border="1" cellpadding="10"><tr><td>
   @ <table cellspacing=0 cellpadding=0 border=0>
   @ <tr>
-  @   <th align="right">User&nbsp;ID</th>
-  @   <th>&nbsp;&nbsp;&nbsp;Capabilities&nbsp;&nbsp;&nbsp;</th>
+  @   <th align="right">User&nbsp;ID</th><th width="15"></td>
+  @   <th>Capabilities</th><th width="15"></td>
   @   <th>Contact&nbsp;Info</th>
   @ </tr>
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
@@ -108,41 +111,35 @@ void setup_ulist(void){
     if( g.okAdmin ){
       @ </a>
     }
-    @ </td>
-    @ <td align="center">%s(db_column_text(&s,2))</td>
+    @ </td><td></td>
+    @ <td align="center">%s(db_column_text(&s,2))</td><td></td>
     @ <td align="left">%s(db_column_text(&s,3))</td>
     @ </tr>
   }
   @ </table></td></tr></table>
-  @ <p style="clear:both">
+  @ <td valign="top">
   @ <b>Notes:</b>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
-  @ <table>
-  @ <tr><td>s</td><td></td><td>Setup: Superuser can do anything</td></tr>
-  @ <tr><td>a</td><td width="10"></td>
-  @     <td>Admin: Create or delete users and ticket report formats</td></tr>
-  @ <tr><td>d</td><td></td>
-  @     <td>Delete: Erase anonymous wiki, tickets, and attachments</td></tr>
-  @ <tr><td>p</td><td></td><td>Password: Change password</td></tr>
-  @ <tr><td>q</td><td></td><td>Query: Create or edit report formats</td></tr>
-  @ <tr><td>i</td><td></td>
-  @     <td>Check-in: Add new code to the repository</td></tr>
-  @ <tr><td>o</td><td></td>
-  @     <td>Check-out: Read code out of the repository</td></tr>
-  @ <tr><td>h</td><td></td>
-  @     <td>History: Access older version of code, tickets, or wiki</td></tr>
-  @ <tr><td>g</td><td></td><td>Clone: Clone the repository</td></tr>
-  @ <tr><td>j</td><td></td><td>Read-Wiki: View wiki pages</td></tr>
-  @ <tr><td>f</td><td></td><td>New-Wiki: Create new wiki pages</td></tr>
-  @ <tr><td>m</td><td></td><td>Append-Wiki: Append to wiki pages</td></tr>
-  @ <tr><td>k</td><td></td><td>Write-Wiki: Modify wiki pages</td></tr>
-  @ <tr><td>r</td><td></td>
-  @      <td>Read-Tkt: View tickets and change histories</td></tr>
-  @ <tr><td>n</td><td></td><td>New-Tkt: Create new tickets</td></tr>
-  @ <tr><td>c</td><td></td><td>Append-Tkt: Append to tickets</td></tr>
-  @ <tr><td>w</td><td></td><td>Write-Tkt: Edit tickets</td></tr>
-  @ </table>
+  @ <ol type="a">
+  @ <li value="1"><b>Admin</b>: Create and delete users</li>
+  @ <li value="3"><b>Append-Tkt</b>: Append to tickets</li>
+  @ <li value="4"><b>Delete</b>: Delete wiki and tickets</li>
+  @ <li value="6"><b>New-Wiki</b>: Create new wiki pages</li>
+  @ <li value="7"><b>Clone</b>: Clone the repository</li>
+  @ <li value="8"><b>History</b>: View detail repository history</li>
+  @ <li value="9"><b>Check-In</b>: Commit new versions in the repository</li>
+  @ <li value="10"><b>Read-Wiki</b>: View wiki pages</li>
+  @ <li value="11"><b>Write-Wiki</b>: Edit wiki pages</li>
+  @ <li value="13"><b>Append-Wiki</b>: Append to wiki pages</li>
+  @ <li value="14"><b>New-Tkt</b>: Create new tickets</li>
+  @ <li value="15"><b>Check-Out</b>: Check out versions</li>
+  @ <li value="16"><b>Password</b>: Change your own password</li>
+  @ <li value="17"><b>Query</b>: Create new queries against tickets</li>
+  @ <li value="18"><b>Read-Tkt</b>: View tickets</li>
+  @ <li value="19"><b>Setup:</b> Setup and configure this website</li>
+  @ <li value="23"><b>Write-Tkt</b>: Edit tickets</li>
+  @ </ol>
   @ </p></li>
   @
   @ <li><p>
@@ -153,6 +150,7 @@ void setup_ulist(void){
   @ </p></li>
   @
   @ </ol>
+  @ </td></tr></table>
   style_footer();
 }
 

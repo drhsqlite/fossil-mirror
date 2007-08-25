@@ -113,8 +113,8 @@ void page_timeline(void){
       db_exists("SELECT 1 FROM user"
                 " WHERE login='anonymous'"
                 "   AND cap LIKE '%%h%%'") ){
-    @ <p><b>Note:</b> You will be able to see much more timeline
-    @ information if <a href="%s(g.zBaseURL)/login">login</a>.</p>
+    @ <p><b>Note:</b> You will be able to access <u>much</u> more
+    @ historical information if <a href="%s(g.zBaseURL)/login">login</a>.</p>
   }
   zSQL = mprintf(
     "SELECT uuid, datetime(event.mtime,'localtime'), comment, user"
