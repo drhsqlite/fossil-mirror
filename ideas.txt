@@ -1,0 +1,43 @@
+Random thoughts:
+
+  *  Changes to manifest to support:
+
+     +  Trees of wiki pages and tickets
+     +  The ability to cap or close a branch
+
+  *  Add the concept of "clusters" to speed the transfer of "tips"
+     on a sync.
+
+  *  Auxiliary tables:
+
+     +  tip
+     +  phantom
+     +  mlink
+     +  plink
+     +  branch
+     +  tree
+
+  * Plink.isprim changed to record:
+     +  child is the principal descendent of parent.
+     +  child is a branch from parent
+     +  child uses parent as a merge
+
+  * tree records
+     + type  (code, wiki, ticket)
+     + name  (for wiki and ticket only)
+     + treeid
+
+  * branch records
+     + treeid
+     + origin_rid
+     + origin_time
+     + tip_rid
+     + tip_time
+     + color
+
+  * website can toggle isprim between principal and branch.
+     + How to preserve across rebuild.  A new record type?
+     + How to share with other repositories
+  * isprim guessed using userid of parent and child.  Change
+    in id suggests a branch.  Same id suggests principal.
+    For a tie, go with the earliest check-in as the principal
