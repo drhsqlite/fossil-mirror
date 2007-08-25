@@ -1,11 +1,13 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improved\sformatting\sof\sthe\suser\slist\swebpage.
-D 2007-08-24T21:32:37
+C Improvements\sto\stimeline\sformatting.\s\sAdded\sthe\s"concepts.html"\sdocument.
+D 2007-08-25T03:30:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
+F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
+F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -49,7 +51,7 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c 4792000fa7047396255450537f6dd1331061ed81
+F src/timeline.c f946387177aa1ef3d9f64577639cb60da54a1cd7
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -67,19 +69,22 @@ F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo.txt 53b7de51ddd03a95304cfddcf146d681469a6a6c
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
+F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
+F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
+F www/concepts.html c70816f44acbccfa4e6acc8bcfb0c915e37fe9c8
 F www/fileformat.html b4104959a67175f02d6b415480be22a239f1f077
-F www/index.html d3b58fe572277f0a71725067b7470cc6530594ac
+F www/index.html 62a56c45970b49346ec5943265402ea0850b5498
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 0cd202a86e12b8e67af1c5c85d1a9ef182a91c80
-R a8b2b2a14003cf5bbef9aa1db9323456
+P 39fa010b7f9f39e772adb09a09bc9e4a60f55398
+R 56dc8701dfb172e47152e63649effa90
 U drh
-Z 2874e21c6dd16187d92d730722fdee1e
+Z 9ad902ea43431397846fbc8f66a17ee8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGz057oxKgR168RlERAlxxAJ9T8DM33GB7cQq9CO5hIoqNfN4EHwCeOkwG
-gns4TEKOXGdM5UbvnrE1M24=
-=WcVB
+iD8DBQFGz6JLoxKgR168RlERArtPAJ98hwIKyErreyhVdwWqIApv7xbwqwCeMZtR
+/pdxc4RGeTiIBFblNyC1440=
+=Ba41
 -----END PGP SIGNATURE-----
