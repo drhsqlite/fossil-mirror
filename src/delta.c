@@ -187,7 +187,7 @@ static unsigned int getInt(const char **pz, int *pLen){
 }
 
 /*
-** Return the number digits in the base-46 representation of a positive integer
+** Return the number digits in the base-64 representation of a positive integer
 */
 static int digit_count(int v){
   unsigned int i, x;
@@ -236,9 +236,8 @@ static unsigned int checksum(const char *zIn, int N){
 ** The delta begins with a base64 number followed by a newline.  This
 ** number is the number of bytes in the TARGET file.  Thus, given a
 ** delta file z, a program can compute the size of the output file
-** simply by calling reading the first line and decoding the base-64
-** number found there.  The delta_output_size() routine does exactly
-** this.
+** simply by reading the first line and decoding the base-64 number
+** found there.  The delta_output_size() routine does exactly this.
 **
 ** After the initial size number, the delta consists of a series of
 ** literal text segments and commands to copy from the SOURCE file.  

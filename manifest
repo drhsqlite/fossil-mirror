@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sseparate\s"clone"\spermissions.\s\sPreviously,\sone\sneeded\s"History"\npremission\sin\sorder\sto\sclone.\s\sBut\ssometimes\swe\swant\sto\sgrant\sclone\nwithout\sgranting\shistory.
-D 2007-08-23T19:52:19
+C Fixed\stypos\sin\scomments
+D 2007-08-25T03:23:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -18,7 +18,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c 896054a3e46e2e1b4c4edf2310a608a1ba88e170
 F src/db.c f2c507419fdb63b176bef7dc7f808a26da94b026
-F src/delta.c 001257c491d210885b9a74793c9b1f4a16266d46
+F src/delta.c 10d700df605e29cb25689fcd041f6e41fd1513f2
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 6273899c2330b6b6aef98f5f6441137f2c308b49
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
@@ -65,21 +65,21 @@ F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
-F todo.txt 53b7de51ddd03a95304cfddcf146d681469a6a6c
+F todo.txt 92db560c4596b93eda1d5c601dfccd9d209f904d
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/fileformat.html c1aa3452d9d0200d5e7a11a9140f8082d3cbea0d
 F www/index.html 55770629c6301a2deb51a287038ca37114b424eb
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html f9a5dc6ef0d8dfd151136ee4128619f1156bcea9
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 4ac16995e8d85ec769b3b5ad3611822247156ff6
-R 984b04fc95dc7505f8692de756e1d296
-U drh
-Z 795b51110a6a3a8a9a13bf75944177bb
+P 22c1ac41d4c02c44fe1763b9267a5f06e95c5a24
+R 23357f165e2980f996b63a11d41dba8e
+U aku
+Z 95c30a87a350f3d6a188b45dbe147075
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFGzeV4oxKgR168RlERAq87AJwMP8kSWKlR7D79g7gHQzQNw2dqAgCgg10Q
-hx27Q3KKazXR8t5mr7UeAFc=
-=fCOM
+iD8DBQFGz6CtvonzZ/CRa7gRAokcAKCc4idN6u4nL4p7Sep8JIe7Q44F3gCgpoYp
+rMB4IUwTvPoYFblFl2SYAXA=
+=pqeD
 -----END PGP SIGNATURE-----
