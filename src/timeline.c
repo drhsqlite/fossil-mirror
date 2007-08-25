@@ -165,9 +165,12 @@ void print_timeline(Stmt *q, int mxLine){
   zPrevDate[0] = 0;
 
   while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
-    const char *zId = db_column_text(q, 0);
-    const char *zDate = db_column_text(q, 1);
-    const char *zCom = db_column_text(q, 2);
+    const char *zId = db_column_text(q, 1);
+    const char *zDate = db_column_text(q, 2);
+    const char *zCom = db_column_text(q, 3);
+    int nChild = db_column_int(q, 4);
+    int nParent = db_column_int(q, 5);
+    char *zFree = 0;
     char zUuid[UUID_SIZE+1];
 
     sprintf(zUuid, "%.10s", zId);
@@ -178,7 +181,21 @@ void print_timeline(Stmt *q, int mxLine){
     }
     if( zCom==0 ) zCom = "";
     printf("%.5s [%.10s] ", &zDate[11], zUuid);
+    if( nChild>1 || nParent>1 ){
+      int n = 0;
+      char zPrefix[50];
+      if( nParent>1 ){
+        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
+        n = strlen(zPrefix);
+      }
+      if( nChild>1 ){
+        sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
+        n = strlen(zPrefix);
+      }
+      zCom = zFree = sqlite3_mprintf("%s%s", zPrefix, zCom);
+    }
     nLine += comment_print(zCom, 19, 79);
+    sqlite3_free(zFree);
   }
 }
 
@@ -199,7 +216,7 @@ void print_timeline(Stmt *q, int mxLine){
 void timeline_cmd(void){
   Stmt q;
   int n;
-  char *zCount;
+  const char *zCount;
   char *zDate;
   db_find_and_open_repository();
   zCount = find_option("n","count",1);
@@ -217,8 +234,10 @@ void timeline_cmd(void){
     zDate = "now";
   }
   db_prepare(&q,
-    "SELECT uuid, datetime(event.mtime,'localtime'),"
-    "       comment || ' (by ' || user || ')'"
+    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'),"
+    "       comment || ' (by ' || user || ')',"
+    "       (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),"
+    "       (SELECT count(*) FROM plink WHERE cid=blob.rid)"
     "  FROM event, blob"
     " WHERE event.type='ci' AND blob.rid=event.objid"
     "   AND event.mtime<=(SELECT julianday(%Q,'utc'))"
