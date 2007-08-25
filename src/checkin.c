@@ -307,6 +307,7 @@ void commit_cmd(void){
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   char *zManifestFile;   /* Name of the manifest file */
   Blob manifest;
+  Blob muuid;            /* Manifest uuid */
   Blob mcksum;           /* Self-checksum on the manifest */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
@@ -449,6 +450,13 @@ void commit_cmd(void){
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);
+  zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+  blob_zero(&muuid);
+  blob_appendf(&muuid, "%s\n", zUuid);
+  blob_write_to_file(&muuid, zManifestFile);
+  free(zManifestFile);
+  blob_reset(&muuid);
+
   
   /* Update the vfile and vmerge tables */
   db_multi_exec(

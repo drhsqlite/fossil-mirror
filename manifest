@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\smakefile\sdependency\sto\sforce\sa\srebuild\swhenever\sthe\smanifest.uuid\nchanges.
-D 2007-08-25T19:45:38
+C Regenerate\sthe\smanifest.uuid\sfile\son\sa\s"commit".
+D 2007-08-25T19:52:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -12,7 +12,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c 46f9764a211b5ed12dcae17652c88d438bdd8b85
+F src/checkin.c 24fdcaa11cf174afdadb5a4ee3db31801428cb0f
 F src/checkout.c 59343953ba42e0f41b57d59fdc75fffe5b0ff94c
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -77,14 +77,14 @@ F www/index.html 62a56c45970b49346ec5943265402ea0850b5498
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P def4449a876cdeda6b3d65d4d0725bcdfd872056
-R d3acaf3ec08e6853fef8ea85f2756457
+P b4571bb75ed721da6956ba9213a742375654bbb1
+R 042584551c3787f43825d16f6cfe26fe
 U drh
-Z a5d82974f953cd760cd6510fbaea6c8c
+Z 2c6e605797bb8fe8ec6ed5cc8191cbac
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG0IbmoxKgR168RlERAk04AJ9RtW2L/2NZ3n+UdHOXP3X1akWhVwCdHFhp
-eXOjXBVJQsCejEBNvjnl4mI=
-=kFJh
+iD8DBQFG0IiNoxKgR168RlERAnQmAJsEDX+DIPGEDbk+U144Fg9W/UYgkACfWH4/
+TELD/DIncQ3/BaDR5yrjvEg=
+=Uw//
 -----END PGP SIGNATURE-----
