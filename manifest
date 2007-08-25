@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\stimeline\sformatting.\s\sAdded\sthe\s"concepts.html"\sdocument.
-D 2007-08-25T03:30:15
+C Fix\san\soff-by-one\sbug\sin\sthe\snetwork\sprotocol\shandler\sso\sthat\sit\scan\saccept\sa\nzero-length\sfile.
+D 2007-08-25T12:31:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -60,7 +60,7 @@ F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c fdfe66efd6db70448c251b9aa67feee1b1b273f6
 F src/wiki.c daf8014fa804a286d33d80111694bdfc18d036f0
 F src/wikiformat.c 4db346d7739b9f456825a212afa76b75af93d7a2
-F src/xfer.c 711897e1f2a3bb1a6e1c40d3d19a7bc680a57335
+F src/xfer.c caacb8871c3fbf38eafe4377a184a9a2c305c19a
 F src/zip.c a664fdc0f638cb7d1baaa168bec2ff1950cb9298
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -77,14 +77,14 @@ F www/index.html 62a56c45970b49346ec5943265402ea0850b5498
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 39fa010b7f9f39e772adb09a09bc9e4a60f55398
-R 56dc8701dfb172e47152e63649effa90
+P e319e8e870b1bba78aec44bd732b5e8daf84a8ad
+R ab7b5796a4ef402e08684e52f76fe107
 U drh
-Z 9ad902ea43431397846fbc8f66a17ee8
+Z b1d38f6eb5e999d7d7eac1210797cb6d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGz6JLoxKgR168RlERArtPAJ98hwIKyErreyhVdwWqIApv7xbwqwCeMZtR
-/pdxc4RGeTiIBFblNyC1440=
-=Ba41
+iD8DBQFG0CFAoxKgR168RlERAudXAJ9w0xcNr+F3RfBEW3m9dYmCapMzywCfQwcU
+ousP7UuA+MqtjZ7z9fpZXJM=
+=LzF0
 -----END PGP SIGNATURE-----
