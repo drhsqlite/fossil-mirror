@@ -97,6 +97,10 @@ makeheaders:	$(SRCDIR)/makeheaders.c
 mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o mkindex $(SRCDIR)/mkindex.c
 
+VERSION.h:	$(SRCDIR)/../manifest.uuid
+	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}' \
+		$(SRCDIR)/../manifest.uuid >VERSION.h
+
 $(APPNAME):	headers $(OBJ) sqlite3.o
 	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o $(LIB)
 
@@ -113,7 +117,7 @@ foreach s [lsort $src] {
   append mhargs " ${s}_.c:$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
+append mhargs " \$(SRCDIR)/sqlite3.h ./VERSION.h"
 puts "headers:\tmakeheaders mkindex \$(TRANS_SRC)"
 puts "\t./makeheaders $mhargs"
 puts "\t./mkindex \$(TRANS_SRC) >page_index.h"

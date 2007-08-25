@@ -413,6 +413,16 @@ void help_cmd(void){
 }
 
 /*
+** COMMAND: baseline
+**
+** Show the baseline number of the source code from which this
+** fossil executable was generated.
+*/
+void baseline_cmd(void){
+  printf("%s\n", MANIFEST_UUID);
+}
+
+/*
 ** RSS feeds need to reference absolute URLs so we need to calculate
 ** the base URL onto which we add components. This is basically
 ** cgi_redirect() stripped down and always returning an absolute URL.
