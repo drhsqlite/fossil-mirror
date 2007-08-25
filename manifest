@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"baseline"\scommand\sthat\sshows\sthe\sUUID\sof\sthe\sfossil\sbaseline\nfrom\swhich\sthe\sfossil\sexecutable\swas\sbuilt.
-D 2007-08-25T19:39:58
+C Fix\sa\smakefile\sdependency\sto\sforce\sa\srebuild\swhenever\sthe\smanifest.uuid\nchanges.
+D 2007-08-25T19:45:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -31,10 +31,10 @@ F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
 F src/info.c e4bf002e1d5f261a0a23e073a1ea47ba340b5bce
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
 F src/main.c 500655758a6aa3a0cb4178b354ec9ed7a3046f97
-F src/main.mk 045138036bbf1c7e462a394080b6005e16a3c084
+F src/main.mk 7b8ae816c0619d22294cd74ceeb184a64a0eb59b
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 2ff5d77e362d0f2e1c4f62cea59ea310a98e0073
+F src/makemake.tcl af0c777839a797e999f774dc83f5e00c27d3cbf4
 F src/manifest.c 02dabff2470c1eba8de228a077443d2aba174f91
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 6daf84ba0a8dca66e1289b9dbb5c50f5dc42e38e
@@ -77,14 +77,14 @@ F www/index.html 62a56c45970b49346ec5943265402ea0850b5498
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 95e17f4e3f12b5a674e86dd827fc564bef6dc9da
-R 6b0e50e6a1822adaff290ec67f45f1f6
+P def4449a876cdeda6b3d65d4d0725bcdfd872056
+R d3acaf3ec08e6853fef8ea85f2756457
 U drh
-Z c9a6873e57486006580c8ea2c27e2d18
+Z a5d82974f953cd760cd6510fbaea6c8c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG0IWToxKgR168RlERAnReAKCLTTG8ij3ltFrMLEkmD7srN3D/ngCeOEhb
-lskqRG/flBopMYaI+dp2P68=
-=JkWd
+iD8DBQFG0IbmoxKgR168RlERAk04AJ9RtW2L/2NZ3n+UdHOXP3X1akWhVwCdHFhp
+eXOjXBVJQsCejEBNvjnl4mI=
+=kFJh
 -----END PGP SIGNATURE-----

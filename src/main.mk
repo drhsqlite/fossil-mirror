@@ -169,11 +169,11 @@ $(APPNAME):	headers $(OBJ) sqlite3.o
 	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o $(LIB)
 
 clean:	
-	rm -f *.o *_.c $(APPNAME)
+	rm -f *.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers
 	rm -f add.h blob.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h content.h db.h delta.h deltacmd.h descendents.h diff.h diffcmd.h encode.h file.h http.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h printf.h rebuild.h schema.h setup.h sha1.h style.h sync.h timeline.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h xfer.h zip.h
 
-headers:	makeheaders mkindex $(TRANS_SRC)
+headers:	makeheaders mkindex $(TRANS_SRC) ./VERSION.h
 	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
 	./mkindex $(TRANS_SRC) >page_index.h
 	touch headers
