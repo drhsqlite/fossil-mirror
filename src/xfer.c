@@ -92,7 +92,7 @@ static void xfer_accept_file(Xfer *pXfer){
    || pXfer->nToken>4
    || !blob_is_uuid(&pXfer->aToken[1])
    || !blob_is_int(&pXfer->aToken[pXfer->nToken-1], &n)
-   || n<=0
+   || n<0
    || (pXfer->nToken==4 && !blob_is_uuid(&pXfer->aToken[2]))
   ){
     blob_appendf(&pXfer->err, "malformed file line");

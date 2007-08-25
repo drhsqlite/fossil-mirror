@@ -84,7 +84,8 @@ void leaves_cmd(void){
   if( base==0 ) return;
   compute_leaves(base);
   db_prepare(&q,
-    "SELECT uuid, datetime(event.mtime,'localtime'), comment"
+    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'), comment, 0,"
+    "       (SELECT count(*) FROM plink WHERE cid=blob.rid)"
     "  FROM leaves, blob, event"
     " WHERE blob.rid=leaves.rid"
     "   AND event.objid=leaves.rid"
@@ -105,7 +106,9 @@ void branches_cmd(void){
 
   db_must_be_within_tree();
   db_prepare(&q,
-    "SELECT blob.uuid, datetime(event.mtime,'localtime'), event.comment"
+    "SELECT blob.rid, blob.uuid, datetime(event.mtime,'localtime'),"
+    "       event.comment, 0,"
+    "       (SELECT count(*) FROM plink WHERE cid=blob.rid)"
     "  FROM blob, event"
     " WHERE blob.rid IN"
     "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
