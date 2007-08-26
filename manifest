@@ -1,11 +1,11 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reference\sto\sobsolete\sfield\svfile.parent\sremoved.\sFixed\stable\sreference\sin\sdefinition\sof\stable\svfile.
-D 2007-08-26T06:12:08
+C Added\sa\smake\starget\sto\sinvoke\sthe\stestsuite,\sand\sa\smake\svariable\sfor\stclsh.\sDanger.\sTestsuite\smodifies\sthe\srepository\sthe\scheckout\sbelongs\sto,\sand\snot\sa\scopy.\sUse\swith\scaution,\sclone\syour\sdevelopment\srepository\sand\sworkspace\sbefore\suse.\sUpdated\smy\swork\slist.
+D 2007-08-26T06:45:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
+F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
@@ -38,7 +38,7 @@ F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
 F src/info.c e4bf002e1d5f261a0a23e073a1ea47ba340b5bce
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
 F src/main.c 500655758a6aa3a0cb4178b354ec9ed7a3046f97
-F src/main.mk 7b8ae816c0619d22294cd74ceeb184a64a0eb59b
+F src/main.mk 11239c7604977d28bba436187db04cc9a064122f
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl af0c777839a797e999f774dc83f5e00c27d3cbf4
@@ -74,7 +74,7 @@ F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
-F todo-ak.txt 660969788a083eb555c1764be2400ec215a6b5cd
+F todo-ak.txt 59d636749ee66388c329da7e490b3c59f433c948
 F todo.txt 3d872fddda203e00717e13b0e849240c64acf928
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 452a71f40bf7c16d620a2a3d6bc729ebd8bc0e0a
-R 3da9bfb2123ffe338c10415661ac9866
+P 32c639d08692e5f16b69e80c6ba454fff5b4a413
+R f36ebdf8aee6f59bfec649805d9062cc
 U aku
-Z 2f2a8abd33642c815df48e59012a086c
+Z 39c350a9491b8d2f457f2c25a9dab764
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0Rm/vonzZ/CRa7gRAj/eAKCsmy/HL8YjViqspVw4vW9oIN3E1wCeOies
-DP8oWwb+d+pKAahcvkSIZGs=
-=g9SR
+iD8DBQFG0SFzvonzZ/CRa7gRApgxAKCiH7L80daTXlfB9EYEjj0A9sErLACfSug1
+KNaL+XJ7vsCH0f+nipZ0FOI=
+=s2oQ
 -----END PGP SIGNATURE-----

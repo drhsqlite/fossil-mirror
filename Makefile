@@ -36,6 +36,10 @@ TCC = gcc -g -Os -Wall
 #
 LIB = -lz
 
+#### Tcl shell for use in running the fossil testsuite.
+#
+TCLSH = tclsh
+
 # You should not need to change anything below this line
 ###############################################################################
 include $(SRCDIR)/main.mk

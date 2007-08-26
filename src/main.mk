@@ -162,6 +162,12 @@ makeheaders:	$(SRCDIR)/makeheaders.c
 mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o mkindex $(SRCDIR)/mkindex.c
 
+# WARNING. DANGER. Running the testsuite modifies the repository the
+# build is done from, i.e. the checkout belongs to. Do not sync/push
+# the repository after running the tests.
+test:	$(APPNAME)
+	$(TCLSH) test/tester.tcl $(APPNAME)
+
 VERSION.h:	$(SRCDIR)/../manifest.uuid
 	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >VERSION.h
 
