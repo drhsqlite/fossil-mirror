@@ -1,13 +1,19 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Jot\sdown\ssome\snotes\sfor\show\sto\smove\sforward.
-D 2007-08-25T21:01:17
+C Merge\sin\saku's\sdocumentation\supdates.
+D 2007-08-26T03:03:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
+F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
+F art/delta2.dia 5e2acf9cd1e5c75b7f08eac61602b224626a8939
+F art/delta3.dia 822f600d80faca38daa35ba10ddee2ef89ee97bf
+F art/delta4.dia 7184224cface58098e74c518e1aeb155645fb915
+F art/delta5.dia 42c52e3c7c6b853b3eca596b183fa43d75fd841d
+F art/delta6.dia 638abaa6b4ca7c348d1a00d96f5d6676231e6e37
 F ideas.txt 429a4a9a12a726a14406ffc2b442f98666e1ac5b
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
@@ -68,24 +74,32 @@ F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
-F todo.txt f09c9b6d2852c57b12f10f8bfa9364695e148912
+F todo-ak.txt 660969788a083eb555c1764be2400ec215a6b5cd
+F todo.txt 3d872fddda203e00717e13b0e849240c64acf928
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html c70816f44acbccfa4e6acc8bcfb0c915e37fe9c8
+F www/concepts.html 8da6496b93c0e6cd255ed57d4974adf0e9c3ed0c
+F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
+F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
+F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
+F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
+F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
+F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
+F www/delta_format.html 403bbf0aacfe1fddc00ae69f305e1e06aae69e04
 F www/fileformat.html b4104959a67175f02d6b415480be22a239f1f077
-F www/index.html 62a56c45970b49346ec5943265402ea0850b5498
+F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 741aac4d4e9da49f6741e4c26eff720b8934a2d2
-R d7148bc590b6b7970712f0da618c41a4
+P 634fd117b154442a2a1f508bbc6ec603022dbab4 a938517964be69264642e76eb249f1a296b0388a
+R 2231805ea500b32dc8caf1ceb64f2589
 U drh
-Z 2d35b3963c02db03e75f0147a5e5983d
+Z 4b5334233f1b479c86bade46b086f83e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG0JiioxKgR168RlERAoRWAJ9u0swQTVpuPD39c10+IbU273+/oACdG3zT
-SUwHSJKA0AD9KHY3yp+BHvE=
-=MNc0
+iD8DBQFG0O2koxKgR168RlERAiQqAJ4nPIKkzzUh3tIVTBQ5NOY6b74QJACfaY3P
+5kXqrbz7ClUiidnuimemjkQ=
+=Z4Ag
 -----END PGP SIGNATURE-----

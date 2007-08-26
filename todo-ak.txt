@@ -1,0 +1,52 @@
+[Andreas Kupries]
+
+Things to work on:
+
+* Add a 'test' target to the makefile for easy invokation of the
+  fossil testsuite.
+
+* Think about exposure of functionality as libraries, i.e. Tcl
+  packages. Foundations like delta, etc. first, work up to
+  higher-levels.
+
+* Document delta format, delta encoder.
+
+* Document the merge algorithm.
+
+* Document the xfer protocol.
+
+General ideas:
+
+* Use TLS/SSL in the xfer module to enhance privacy of
+  communications. Integrity too, however that is also handled in the
+  fossil protocol itself. 
+
+  Possibility: OpenSSL.
+  Dis: Library is large, makes self-containment of fossil difficult.
+  Adv: Known library, proven? design/robustness/implementation? -> Marketing
+
+  Possibility: Tcl 8.5+extended libtom* functionality
+  Dis: New implementation, less proven
+  Adv: More selfcontained.
+
+  Possibility: lib-gnupg
+  Dis:
+  Adv:
+
+* Talk to Mark Roseman about his Projectforum system and its
+    suitability as the wiki component. And in reverse the possibility
+    of using Fossil as the version engine underneath ProjectForum.
+
+* Talk to Colin McCormack / Kevin Kenny about usability of Fossil as
+  version engine underneath Tcler's Wiki, and also for the wiki
+  itself. (Note: Chat message by kbk showed that he is aware of
+  fossil).
+
+Notes:
+
+*  Stephen Huntley - tdelta (tclvfs, versioned filesystem, see also
+   http://wiki.tcl.tk/12803), compare against delta here.
+
+* fts2 as is is difficult to use in fossil. Indexing currently
+  requires the blob data to be fully visible, counter to the extensive
+  use of compression (delta,zlib) in repositories.

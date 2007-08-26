@@ -22,7 +22,7 @@ Things to work on:
 
  *  Bug: Make sure merge and other commands (check-out) do not try
     to use a phantom.
-
+¿
  *  The ipaddr field of the rcvfrom table is not being set.  This
     field should be the IP address from which information is received
     for the local repository.  So when somebody does a push of new

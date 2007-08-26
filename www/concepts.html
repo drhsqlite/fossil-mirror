@@ -12,7 +12,7 @@ Fossil Concepts
 <a href="index.html">Fossil</a> is a
 <a href="http://en.wikipedia.org/wiki/Software_configuration_management">
 software configuration management</a> system.
-Fossil is software that is design to control and track the
+Fossil is software that is designed to control and track the
 development of a software project and to record the history
 of the project.
 There are many such systems in use today.  Fossil strives to
@@ -36,19 +36,19 @@ is called a "version" or a "baseline" of the product.</p>
 versions or baselines for a project.  Baselines are normally stored in the
 repository in a highly space-efficient compressed format (delta encoding).
 But that is an implementation detail that you the user need not worry over.
-Think of the repository as a safe place where all your old baselines
+Think of the repository as a safe place where all your old baselines are
 securely stored away and available for retrieval whenever you need
 them.</p>
 
 <p>A repository in fossil is a single file on your disk.  This file
-might be rather larger (dozens or hundreds of megabytes for a large
+might be rather large (dozens or hundreds of megabytes for a large
 or long running project) but it is nevertheless just a file.  You
 can move it around, rename it, write it out to a memory stick, or
 do anything else you normally do with files.</p>
 
 <p>Each source tree that is controlled by fossil is associated with
-a single repository on the local disk drive.  You can two or more
-source trees tied to a single repository if you want (though one
+a single repository on the local disk drive.  You can tie two or more
+source trees to a single repository if you want (though one
 tree per repository is the most common configuration.)  So a
 single repository can be associated with many source trees, but
 each source tree is associated with only one repository.</p>
@@ -71,8 +71,8 @@ source tree in which to work.  Developers share their work by
 or through a central server.  Changes can "push" from the local
 repository into a remote repository.  Or changes can "pull" from a
 remote repository into a local repository.  Or one can do a "sync"
-which is shortcut for doing both a push and a pull at the same time.
-Fossil also has the concept of "cloning".  A "clone" is like a "pull"
+which is a shortcut for doing both a push and a pull at the same time.
+Fossil also has the concept of "cloning".  A "clone" is like a "pull",
 except that instead of beginning with an existing local repository,
 a clone begins with nothing and creates a new local repository that
 is a replicate of a remote repository.</p>
@@ -88,9 +88,9 @@ information about the project.</p>
 Each artifact has a universally unique name which is the
 <a href="http://en.wikipedia.org/wiki/SHA">SHA1</a> hash of the content
 of that file expressed as 40 characters of lower-case hexadecimal.  Such
-such has is referred to as the Universally Unique Identifier or UUID
+a hash is referred to as the Universally Unique Identifier or UUID
 for the artifact.  The SHA1 algorithm is created with the purpose of
-provide a highly forgery-resistent identifier for a file.  Given any
+providing a highly forgery-resistent identifier for a file.  Given any
 file it is simple to find the UUID for that file.  But given a
 UUID it is computationally intractable to generate a file that will
 generate that UUID.</p>
@@ -139,7 +139,7 @@ manifest for that baseline.</p>
 
 <p>Fossil automatically generates a manifest whenever you "commit" 
 a new baseline.  So this is not something that you, the developer,
-need to worry with.  The format of a manifest is intentially
+need to worry with.  The format of a manifest is intentionally
 designed to be simple to parse, however, so that if
 you want to read and interpret a manifest, either by hand or
 with a script, that is easy to do.</p>
@@ -162,7 +162,7 @@ be PGP clearsigned.</p>
     <b>sync</b>, and <b>clone</b>.</li>
 <li>A particular version of a particular file is an <b>artifact</b>
     that is identified by a <b>UUID</b>.</li>
-<li>Artifacts tracked by fossil are inheriently immutable.</li>
+<li>Artifacts tracked by fossil are inherently immutable.</li>
 <li>Fossil automatically generates a <b>manifest</b> file that identifies
     every artifact in a baseline.</li>
 <li>The UUID of the manifest is the UUID of the baseline.</li>
@@ -171,7 +171,7 @@ be PGP clearsigned.</p>
 <h2>3.0 Fossil - The Program</h2>
 
 <p>Fossil is software.  The implementation of fossil is in the form
-of a single executable name "fossil".  To install fossil on your system,
+of a single executable named "fossil".  To install fossil on your system,
 all you have to do is obtain a copy of this one executable file (either
 by downloading a precompiled version or compiling it yourself) and then
 putting that file somewhere on your PATH.</p>
@@ -179,7 +179,7 @@ putting that file somewhere on your PATH.</p>
 <p>Fossil is completely self-contained.  It is not necessary to
 install any other software in order to use fossil.  You do <u>not</u> need
 CVS, gzip, diff, rsync, Python, Perl, Tcl, Java, apache, PostgreSQL, MySQL,
-SQLite, Tcl, patch, or any similar software on your system in order to use
+SQLite, patch, or any similar software on your system in order to use
 fossil effectively.  You will want to have some kind of text editor
 for entering check-in comments.  Fossil will use whatever text editor
 is identified by your VISUAL environment variable.  Fossil will also
