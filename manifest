@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\saku's\sdocumentation\supdates.
-D 2007-08-26T03:03:58
+C Reference\sto\sobsolete\sfield\svfile.parent\sremoved.\sFixed\stable\sreference\sin\sdefinition\sof\stable\svfile.
+D 2007-08-26T06:12:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -51,7 +51,7 @@ F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 3f04f9d6cbe8efba210ccb3c97c9b5e49d769882
-F src/schema.c 14ace4fdfb9716160c80b2d63e646b2ac1922f6a
+F src/schema.c 4ba2fd38a23f1037495da8826482ef25849412ef
 F src/setup.c 1750dc4678b4fbc1551687157dd3c713f66e7557
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 634fd117b154442a2a1f508bbc6ec603022dbab4 a938517964be69264642e76eb249f1a296b0388a
-R 2231805ea500b32dc8caf1ceb64f2589
-U drh
-Z 4b5334233f1b479c86bade46b086f83e
+P 452a71f40bf7c16d620a2a3d6bc729ebd8bc0e0a
+R 3da9bfb2123ffe338c10415661ac9866
+U aku
+Z 2f2a8abd33642c815df48e59012a086c
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0O2koxKgR168RlERAiQqAJ4nPIKkzzUh3tIVTBQ5NOY6b74QJACfaY3P
-5kXqrbz7ClUiidnuimemjkQ=
-=Z4Ag
+iD8DBQFG0Rm/vonzZ/CRa7gRAj/eAKCsmy/HL8YjViqspVw4vW9oIN3E1wCeOies
+DP8oWwb+d+pKAahcvkSIZGs=
+=g9SR
 -----END PGP SIGNATURE-----

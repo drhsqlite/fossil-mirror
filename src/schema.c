@@ -216,8 +216,6 @@ const char zLocalSchema[] =
 @ -- Each entry in the vfile table represents a single file or folder
 @ -- that is part of a version.
 @ --
-@ -- The vfile.parent field is 0 for the root folder.
-@ --
 @ -- The file.rid field is 0 for files or folders that have been
 @ -- added but not yet committed.
 @ --
@@ -232,7 +230,7 @@ const char zLocalSchema[] =
 @ --
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
-@   vid INTEGER REFERENCES record,    -- The version this file is part of.
+@   vid INTEGER REFERENCES blob,      -- The version this file is part of.
 @   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
 @   rid INTEGER,                      -- Originally from this repository record
