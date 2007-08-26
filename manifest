@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\saku's\sdocumentation\supdates.
-D 2007-08-26T03:03:58
+C New\stext\sin\s"ideas.txt"
+D 2007-08-26T19:51:35
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -14,7 +14,7 @@ F art/delta3.dia 822f600d80faca38daa35ba10ddee2ef89ee97bf
 F art/delta4.dia 7184224cface58098e74c518e1aeb155645fb915
 F art/delta5.dia 42c52e3c7c6b853b3eca596b183fa43d75fd841d
 F art/delta6.dia 638abaa6b4ca7c348d1a00d96f5d6676231e6e37
-F ideas.txt 429a4a9a12a726a14406ffc2b442f98666e1ac5b
+F ideas.txt e0433ea2b17bed5823391261fe6553e61f7f895e
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 634fd117b154442a2a1f508bbc6ec603022dbab4 a938517964be69264642e76eb249f1a296b0388a
-R 2231805ea500b32dc8caf1ceb64f2589
+P 452a71f40bf7c16d620a2a3d6bc729ebd8bc0e0a
+R f78f8db33a7157eebea32871f5285ab6
 U drh
-Z 4b5334233f1b479c86bade46b086f83e
+Z 7972ae705716509eaeb3809a67d7880f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG0O2koxKgR168RlERAiQqAJ4nPIKkzzUh3tIVTBQ5NOY6b74QJACfaY3P
-5kXqrbz7ClUiidnuimemjkQ=
-=Z4Ag
+iD8DBQFG0dnKoxKgR168RlERAltPAJ4ij1ynXXzdSn0gePZ7HT3Xc3q1oACfQ7fn
+Tsi9X6YlwphffNLv1LtrUlA=
+=Vo6H
 -----END PGP SIGNATURE-----
