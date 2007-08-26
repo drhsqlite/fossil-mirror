@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sa\smake\starget\sto\sinvoke\sthe\stestsuite,\sand\sa\smake\svariable\sfor\stclsh.\sDanger.\sTestsuite\smodifies\sthe\srepository\sthe\scheckout\sbelongs\sto,\sand\snot\sa\scopy.\sUse\swith\scaution,\sclone\syour\sdevelopment\srepository\sand\sworkspace\sbefore\suse.\sUpdated\smy\swork\slist.
-D 2007-08-26T06:45:02
+C Extended\smy\slist\sof\sthings\sto\sdo.
+D 2007-08-26T19:49:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -74,7 +74,7 @@ F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
-F todo-ak.txt 59d636749ee66388c329da7e490b3c59f433c948
+F todo-ak.txt 0f794bbab70d28f757c465e22e55cfa67f6c9926
 F todo.txt 3d872fddda203e00717e13b0e849240c64acf928
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 32c639d08692e5f16b69e80c6ba454fff5b4a413
-R f36ebdf8aee6f59bfec649805d9062cc
+P 464a46dad2f5bb31500acabd33384aaea3dc3250
+R 3f5e6bcf75a5e1f96c34724b8a6e6ffd
 U aku
-Z 39c350a9491b8d2f457f2c25a9dab764
+Z 3794fe6273c4c76a55851aa9b9cfc7a1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0SFzvonzZ/CRa7gRApgxAKCiH7L80daTXlfB9EYEjj0A9sErLACfSug1
-KNaL+XJ7vsCH0f+nipZ0FOI=
-=s2oQ
+iD8DBQFG0dlmvonzZ/CRa7gRAtO2AJ9XTYe7/jhDq855P6adPyuLfdbCGQCglmgA
+Hy59o3e2cq9M2GLzgL99CnQ=
+=1BV5
 -----END PGP SIGNATURE-----

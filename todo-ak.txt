@@ -6,6 +6,9 @@ Things to work on:
   and workspace before running tests, to avoid modifying the
   development repository by accident.
 
+* Update the testsuite to the current design and implementation of
+  fossil.
+
 * Think about exposure of functionality as libraries, i.e. Tcl
   packages. Foundations like delta, etc. first, work up to
   higher-levels.
