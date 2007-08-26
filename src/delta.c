@@ -267,7 +267,7 @@ static unsigned int checksum(const char *zIn, int N){
 ** Algorithm:
 **
 ** The encoder first builds a hash table to help it find matching
-** patterns in the source file.  16-byte chucks of the source file
+** patterns in the source file.  16-byte chunks of the source file
 ** sampled at evenly spaced intervals are used to populate the hash
 ** table.
 **

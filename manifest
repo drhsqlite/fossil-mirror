@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Extended\smy\slist\sof\sthings\sto\sdo.
-D 2007-08-26T19:49:53
+C Added\ssection\snumbers\sto\sdelta\sformat,\slabels\sfor\slinking,\snavigation\sbar.\sAdded\sdelta\sencoder\sdescription\s(incomplete,\sright\snow\sonly\sall\sthe\strivial\sparts).\sUsing\sTeX\sfor\sformulas,\sand\smimetex\sfor\sconversion.
+D 2007-08-26T22:22:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -14,6 +14,15 @@ F art/delta3.dia 822f600d80faca38daa35ba10ddee2ef89ee97bf
 F art/delta4.dia 7184224cface58098e74c518e1aeb155645fb915
 F art/delta5.dia 42c52e3c7c6b853b3eca596b183fa43d75fd841d
 F art/delta6.dia 638abaa6b4ca7c348d1a00d96f5d6676231e6e37
+F art/encode1.tex bb4fa24df875f09c104ac535727a885ecd1b0126
+F art/encode2.tex 0a86eb21bb6fd8ccec597e6651d5d038aaf07baf
+F art/encode3.tex e14430ac5a65400a5c2c4f0fef0274bfe94c69ea
+F art/encode4.tex ef19f3297df533c6baa0500dbcda54de333b8830
+F art/encode5.tex 8c67f6dc7e52de7d4f46b140627e14466a73a180
+F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
+F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
+F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
+F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ideas.txt 429a4a9a12a726a14406ffc2b442f98666e1ac5b
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
@@ -27,7 +36,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c 896054a3e46e2e1b4c4edf2310a608a1ba88e170
 F src/db.c f2c507419fdb63b176bef7dc7f808a26da94b026
-F src/delta.c 10d700df605e29cb25689fcd041f6e41fd1513f2
+F src/delta.c 4f6e9c70e904e3f8bb0c975dfe3896e133c6cc41
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 5d5c8b9dec4c55e253d3560fa48239a933a7c145
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
@@ -76,6 +85,7 @@ F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 0f794bbab70d28f757c465e22e55cfa67f6c9926
 F todo.txt 3d872fddda203e00717e13b0e849240c64acf928
+F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -86,20 +96,30 @@ F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_format.html 403bbf0aacfe1fddc00ae69f305e1e06aae69e04
+F www/delta_encoder_algorithm.html 8a9f809ab990084d0b144a17549d01c1f6f8f5f8
+F www/delta_format.html db8d44b23e31e469b4fc2ff718eecf858b838182
+F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
+F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
+F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
+F www/encode4.gif 7879afadc59db61606e70f88ad387587ccb6242d
+F www/encode5.gif 90a35e3626b0196878c728954fc832a3c7d58f2a
+F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
+F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
+F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
+F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.html b4104959a67175f02d6b415480be22a239f1f077
-F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
+F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 464a46dad2f5bb31500acabd33384aaea3dc3250
-R 3f5e6bcf75a5e1f96c34724b8a6e6ffd
+P 4bf5cf121ec2a56e28acf3c8639324cf4189e6e6
+R 1484a00ef727a3f710d0490ed1bf8ddd
 U aku
-Z 3794fe6273c4c76a55851aa9b9cfc7a1
+Z 7569148649ff391d7e9a39207ed2584c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0dlmvonzZ/CRa7gRAtO2AJ9XTYe7/jhDq855P6adPyuLfdbCGQCglmgA
-Hy59o3e2cq9M2GLzgL99CnQ=
-=1BV5
+iD8DBQFG0f0NvonzZ/CRa7gRAkjHAJ9Rr39BC1M1tWpMPfIJllD4kvkQXwCfZ7oK
+G1gATuDzXE2o2FbxUDBmqGE=
+=nKXK
 -----END PGP SIGNATURE-----

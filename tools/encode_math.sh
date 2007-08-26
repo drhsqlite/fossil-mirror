@@ -1,0 +1,12 @@
+#!/bin/sh
+bindir="`dirname "$0"`"
+topdir="`dirname "$bindir"`"
+mimetex -d "`cat "$topdir/art/encode1.tex"`" > "$topdir/www/encode1.gif"
+mimetex -d "`cat "$topdir/art/encode2.tex"`" > "$topdir/www/encode2.gif"
+mimetex -d "`cat "$topdir/art/encode3.tex"`" > "$topdir/www/encode3.gif"
+mimetex -d "`cat "$topdir/art/encode4.tex"`" > "$topdir/www/encode4.gif"
+mimetex -d "`cat "$topdir/art/encode5.tex"`" > "$topdir/www/encode5.gif"
+mimetex -d "`cat "$topdir/art/encode6.tex"`" > "$topdir/www/encode6.gif"
+mimetex -d "`cat "$topdir/art/encode7.tex"`" > "$topdir/www/encode7.gif"
+mimetex -d "`cat "$topdir/art/encode8.tex"`" > "$topdir/www/encode8.gif"
+mimetex -d "`cat "$topdir/art/encode9.tex"`" > "$topdir/www/encode9.gif"
