@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sdocumentation\sof\sthe\sdelta\sformat
-D 2007-08-26T01:32:11
+C Fixed\sa\snumber\sof\ssimple\stypos.
+D 2007-08-26T02:01:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -78,7 +78,7 @@ F todo.txt 92db560c4596b93eda1d5c601dfccd9d209f904d
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html c70816f44acbccfa4e6acc8bcfb0c915e37fe9c8
+F www/concepts.html 8da6496b93c0e6cd255ed57d4974adf0e9c3ed0c
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -91,14 +91,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 90f8319a3298387e1b115f9ab32e5f922c2ca096
-R 699944f3f737a2388683bfc3bd3b3045
+P 5fcb36c81bb61bc7b9c1e1b6036bc308dbee704c
+R a241dca8d1e0291505a17966226933a1
 U aku
-Z 5a51de65088dd85402e60ff94dff2152
+Z b4eebcf97b4087d09d04fad7c100ce5e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0NglvonzZ/CRa7gRApzRAJ0bSumaPud3l9aSjuluBVGz/jukOwCfT1O9
-V2aL+EbfAddaj26KOUSJZUs=
-=H0qN
+iD8DBQFG0N8rvonzZ/CRa7gRAkvFAKCq+LYEjK1bgceR2wFuRfccuw3iigCgwHSy
+YSnovI4/Knzf2J1hut8vSWA=
+=goAZ
 -----END PGP SIGNATURE-----
