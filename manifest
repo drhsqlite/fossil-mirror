@@ -1,13 +1,19 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\smy\sown\stodo\sfile
-D 2007-08-25T23:58:27
+C Added\sdocumentation\sof\sthe\sdelta\sformat
+D 2007-08-26T01:32:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
+F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
+F art/delta2.dia 5e2acf9cd1e5c75b7f08eac61602b224626a8939
+F art/delta3.dia 822f600d80faca38daa35ba10ddee2ef89ee97bf
+F art/delta4.dia 7184224cface58098e74c518e1aeb155645fb915
+F art/delta5.dia 42c52e3c7c6b853b3eca596b183fa43d75fd841d
+F art/delta6.dia 638abaa6b4ca7c348d1a00d96f5d6676231e6e37
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
@@ -73,19 +79,26 @@ F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.html c70816f44acbccfa4e6acc8bcfb0c915e37fe9c8
+F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
+F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
+F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
+F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
+F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
+F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
+F www/delta_format.html 403bbf0aacfe1fddc00ae69f305e1e06aae69e04
 F www/fileformat.html b4104959a67175f02d6b415480be22a239f1f077
-F www/index.html 62a56c45970b49346ec5943265402ea0850b5498
+F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 741aac4d4e9da49f6741e4c26eff720b8934a2d2
-R 25048b9834f1ba1d05836db67dfe2ef9
+P 90f8319a3298387e1b115f9ab32e5f922c2ca096
+R 699944f3f737a2388683bfc3bd3b3045
 U aku
-Z 23f50aa42e34a275f0f5a267a34d91d0
+Z 5a51de65088dd85402e60ff94dff2152
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0MIqvonzZ/CRa7gRAlH3AKCuHk/guzw45IzZ1PJvuQPL/Waw1QCbBdq9
-1KaXwTbs460oJbIUNPvl0aM=
-=UCdJ
+iD8DBQFG0NglvonzZ/CRa7gRApzRAJ0bSumaPud3l9aSjuluBVGz/jukOwCfT1O9
+V2aL+EbfAddaj26KOUSJZUs=
+=H0qN
 -----END PGP SIGNATURE-----
