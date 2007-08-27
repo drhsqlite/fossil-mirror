@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\ssome\sjavascript\sto\sthe\stimeline\sto\sgray\sout\sversions\sthat\sare\snot\npart\sof\sthe\sline\sthat\sis\smoused\sover.\s\sAlso\sinclude\sleaf,\sfork,\sand\smerge\nmarkers\son\sthe\stimeline.\s\sExperimental.
-D 2007-08-27T04:03:32
+C Fix\sa\sbug\sin\sthe\sjavascript\sgenerator\sof\sthe\sprevious\scheck-in.
+D 2007-08-27T04:09:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -58,7 +58,7 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c cbe381b2d7cb0ede7a372a58951cb3995f0a51ae
+F src/timeline.c e4c236d7a2e94e0373f197421eb4848d2e5e302e
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 8c828207a2fecfffeb043708ae069e2fa9777066
-R eb02d31a8336eb36ee5b24a427646ca1
+P bbdd4f991537de9431cf1852a741c3c3d37382ce
+R 903d8691c028c850beb5d3efea2b7b04
 U drh
-Z d9ace90b71e89b8d8ab87456a1931a1e
+Z ac8d0fb146200ec504c4b97939e27439
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG0k0ioxKgR168RlERAnyrAJ9GsqAo06AyJXX1v65rlYqeSuaguACeNLMT
-V9hrPuJz8Wi75I5bKyiapcY=
-=yglZ
+iD8DBQFG0k5ooxKgR168RlERAk4SAJ9SmAqt+xXW6QGjiUK+qoTPlZ8z+gCfcsBt
+e39OzDfWyrUpo+JXthkHPZM=
+=OUGL
 -----END PGP SIGNATURE-----

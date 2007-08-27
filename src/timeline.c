@@ -169,7 +169,7 @@ static int save_parentage_javascript(int rid, Blob *pOut){
 
   db_prepare(&q, "SELECT pid FROM plink WHERE cid=%d AND isprim!=0", rid);
   zSep = "";
-  blob_appendf(pOut, "parentof[\"m%d\"] = [");
+  blob_appendf(pOut, "parentof[\"m%d\"] = [", rid);
   while( db_step(&q)==SQLITE_ROW ){
     int pid = db_column_int(&q, 0);
     blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
@@ -179,7 +179,7 @@ static int save_parentage_javascript(int rid, Blob *pOut){
   blob_appendf(pOut, "];\n");
   db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim!=0", rid);
   zSep = "";
-  blob_appendf(pOut, "childof[\"m%d\"] = [");
+  blob_appendf(pOut, "childof[\"m%d\"] = [", rid);
   while( db_step(&q)==SQLITE_ROW ){
     int pid = db_column_int(&q, 0);
     blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
