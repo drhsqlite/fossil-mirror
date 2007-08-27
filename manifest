@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Give\san\serror\sif\san\sattempt\sis\smade\sto\smerge,\supdate,\sor\scheckout\sagainst\nan\sincomplete\sbaseline\s-\sone\sthat\scontains\sphantoms.\s\sUpdate\sthe\sxfer\nprotocol\sto\sconverge\son\sa\sstable\ssynchronization\sfaster\sand\s(hopeful)\snot\nquit\suntil\sthe\ssync\sis\scomplete.
-D 2007-08-27T00:04:32
+C Add\ssome\sjavascript\sto\sthe\stimeline\sto\sgray\sout\sversions\sthat\sare\snot\npart\sof\sthe\sline\sthat\sis\smoused\sover.\s\sAlso\sinclude\sleaf,\sfork,\sand\smerge\nmarkers\son\sthe\stimeline.\s\sExperimental.
+D 2007-08-27T04:03:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -29,7 +29,7 @@ F src/content.c 896054a3e46e2e1b4c4edf2310a608a1ba88e170
 F src/db.c f2c507419fdb63b176bef7dc7f808a26da94b026
 F src/delta.c 10d700df605e29cb25689fcd041f6e41fd1513f2
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendents.c 5d5c8b9dec4c55e253d3560fa48239a933a7c145
+F src/descendents.c cea178cd6b519c1716ea500ccb9d945361b5416e
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
@@ -58,7 +58,7 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c 7640f70a07b0b57015a73e4a4ba0581c2d37d833
+F src/timeline.c cbe381b2d7cb0ede7a372a58951cb3995f0a51ae
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P fd8b28ad87ba0384ecce599fe1f66cbc55c80764
-R 50e6cb9b3d1debdf0eee9d704486d839
+P 8c828207a2fecfffeb043708ae069e2fa9777066
+R eb02d31a8336eb36ee5b24a427646ca1
 U drh
-Z 0c8ea2539003f326233cf0bdef19dd29
+Z d9ace90b71e89b8d8ab87456a1931a1e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG0hUVoxKgR168RlERAlSlAJ4zVGpZ1RAJshaixtbR6jdDJiMH2QCaA+uo
-hKy3qKEJm+3vXERD8POZMfE=
-=jDmk
+iD8DBQFG0k0ioxKgR168RlERAnyrAJ9GsqAo06AyJXX1v65rlYqeSuaguACeNLMT
+V9hrPuJz8Wi75I5bKyiapcY=
+=yglZ
 -----END PGP SIGNATURE-----

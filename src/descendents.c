@@ -132,15 +132,21 @@ void branches_page(void){
 
   style_header("Leaves");
   db_prepare(&q,
-    "SELECT blob.uuid, datetime(event.mtime,'localtime'),"
-    "       event.comment, event.user"
+    "SELECT blob.rid, blob.uuid, datetime(event.mtime,'localtime'),"
+    "       event.comment, event.user, 1, 1, 0"
     "  FROM blob, event"
     " WHERE blob.rid IN"
     "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
     "   AND event.objid=blob.rid"
     " ORDER BY event.mtime DESC"
   );
-  www_print_timeline(&q, 0);
+  www_print_timeline(&q, 0, 0, 0);
   db_finalize(&q);
+  @ <script>
+  @ function xin(id){
+  @ }
+  @ function xout(id){
+  @ }
+  @ </script>
   style_footer();
 }
