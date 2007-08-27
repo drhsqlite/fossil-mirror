@@ -103,6 +103,9 @@ Extended manifests.
        -- Must have at least one B or V.
        -- Tag "hidden" means do not sync
        -- Tag "closed" means do not display as a leaf
+  * A cluster
+       M+ uuid
+       Z manifest-cksum
   * Complete set of cards in a manifest files:
        A filename uuid
        B (+|-)branch-tag uuid
