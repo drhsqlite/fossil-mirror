@@ -167,7 +167,7 @@ static int save_parentage_javascript(int rid, Blob *pOut){
   const char *zSep;
   Stmt q;
 
-  db_prepare(&q, "SELECT pid FROM plink WHERE cid=%d AND isprim!=0", rid);
+  db_prepare(&q, "SELECT pid FROM plink WHERE cid=%d", rid);
   zSep = "";
   blob_appendf(pOut, "parentof[\"m%d\"] = [", rid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -177,7 +177,7 @@ static int save_parentage_javascript(int rid, Blob *pOut){
   }
   db_finalize(&q);
   blob_appendf(pOut, "];\n");
-  db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim!=0", rid);
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d", rid);
   zSep = "";
   blob_appendf(pOut, "childof[\"m%d\"] = [", rid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -250,11 +250,14 @@ void page_timeline(void){
   @   }
   @ }
   @ function setone(id, onoff){
+  @   if( parentof[id]==null ) return 0;
   @   var w = document.getElementById(id);
-  @   if( onoff==1 ){
-  @     w.style.color = "#000000";
+  @   var clr = onoff==1 ? "#000000" : "#a0a0a0";
+  @   if( w.style.color==clr ){
+  @     return 0
   @   }else{
-  @     w.style.color = "#a0a0a0";
+  @     w.style.color = clr
+  @     return 1
   @   }
   @ }
   @ function xin(id) {
@@ -267,19 +270,23 @@ void page_timeline(void){
   @   setall(1);
   @ }
   @ function set_parents(id){
-  @   if( parentof[id]==null ) return;
-  @   for(var x in parentof[id]){
-  @     var pid = parentof[id][x];
-  @     setone(pid,1);
-  @     set_parents(pid);
+  @   var plist = parentof[id];
+  @   if( plist==null ) return;
+  @   for(var x in plist){
+  @     var pid = plist[x];
+  @     if( setone(pid,1)==1 ){
+  @       set_parents(pid);
+  @     }
   @   }
   @ }
   @ function set_children(id){
-  @   if( childof[id]==null ) return;
-  @   for(var x in childof[id]){
-  @     var cid = childof[id][x];
-  @     setone(cid,1);
-  @     set_children(cid);
+  @   var clist = childof[id];
+  @   if( clist==null ) return;
+  @   for(var x in clist){
+  @     var cid = clist[x];
+  @     if( setone(cid,1)==1 ){
+  @       set_children(cid);
+  @     }
   @   }
   @ }
   @ function hilite(id) {
