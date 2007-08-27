@@ -252,11 +252,11 @@ void page_timeline(void){
   @ function setone(id, onoff){
   @   if( parentof[id]==null ) return 0;
   @   var w = document.getElementById(id);
-  @   var clr = onoff==1 ? "#000000" : "#a0a0a0";
-  @   if( w.style.color==clr ){
+  @   var clr = onoff==1 ? "#e0e0ff" : "#ffffff";
+  @   if( w.backgroundColor==clr ){
   @     return 0
   @   }else{
-  @     w.style.color = clr
+  @     w.style.backgroundColor = clr
   @     return 1
   @   }
   @ }
@@ -267,7 +267,7 @@ void page_timeline(void){
   @   set_parents(id);
   @ }
   @ function xout(id) {
-  @   setall(1);
+  @   setall(0);
   @ }
   @ function set_parents(id){
   @   var plist = parentof[id];
@@ -291,11 +291,11 @@ void page_timeline(void){
   @ }
   @ function hilite(id) {
   @   var x = document.getElementById(id);
-  @   x.style.backgroundColor = "#e0e0ff";
+  @   x.style.color = "#ff0000";
   @ }
   @ function unhilite(id) {
   @   var x = document.getElementById(id);
-  @   x.style.backgroundColor = "#ffffff";
+  @   x.style.color = "#000000";
   @ }
   @ </script>
   @ <hr>

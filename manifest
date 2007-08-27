@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\sjavascript.\sOnly\sversions\sthat\sare\sindependent\sof\nthe\smouse-over\sversion\sare\sgrayed\sout\snow.
-D 2007-08-27T05:02:17
+C Tweaked\sthe\shighlighting
+D 2007-08-27T13:21:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -58,7 +58,7 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c 30b6c2143f45bcbfb93169e0a5ae7210a62b5e3a
+F src/timeline.c a0b837b0fbbb2088557521aa86c91abf08ec1f82
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P a028affcf20aa2ff4f909b493a40ab3d19ec14f1
-R 9cdd157573aeb641c51c93f83160bd73
-U drh
-Z 03628e844131453c2e8a8b554570ca66
+P 53416550852e1da68162ac5ed1f367b3a45983c7
+R 447f8fe72c2fffaf3aa51ef3c877858b
+U aku
+Z 4544c0f8b1c54a98fda1b06d13efab55
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0lrdoxKgR168RlERApzbAJwM20pc4QkzOVScrS4bNTdKqY9P7ACeJsw0
-GEQBSuaP00SOOdlecQmR6os=
-=RHKo
+iD8DBQFG0s/UvonzZ/CRa7gRArI0AJ9wszT4XgY549u/0EcDoAec17QANACguOzp
+rIX6cK/Tmhq5JYMgotutz1g=
+=JIZm
 -----END PGP SIGNATURE-----
