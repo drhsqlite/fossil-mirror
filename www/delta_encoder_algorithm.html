@@ -94,7 +94,81 @@ the list of chunk locations having this hash.
 
 <a name="processing"><h3>2.1 Processing the target</h3>
 
-<b>... to be completed ... </b>
+<p>This, the main phase of the encoder, processes the target in a loop
+from beginning to end. The state of the encoder is captured by two
+locations, the "base" and the "slide". "base" points to the first byte
+of the target for which no delta output has been generated yet, and
+"slide" is the location of the window used to look in the "origin" for
+commonalities. This window is NHASH bytes long.</p>
+
+<p>Initially both "base" and "slide" point to the beginning of the
+"target". In each iteration of the loop the encoder decides whether to
+<ul>
+<li>emit a single instruction
+to <a href="delta_format.html#copyrange">copy a range</a>, or
+</li>
+<li>emit two instructions, first
+to <a href="delta_format.html#insertlit">insert a literal</a>, then
+to <a href="delta_format.html#copyrange">copy a range</a>, or
+</li>
+<li>move the window forward one byte.
+</li>
+</ul>
+</p>
+
+<img src="encode10.gif" align="right" hspace="10">
+<p>To make this decision the encoder first computes the hash value for
+the NHASH bytes in the window and then looks at all the locations in
+the "origin" which have the same signature. This part uses the hash
+table created by the pre-processing step to effiently find these
+locations.</p>
+
+<p>For each of the possible candidates the encoder finds the maximal
+range of bytes common to both "origin" and "target", going forward and
+backward from "slide" in the "target", and the candidate location in
+the "origin". This search is constrained on the side of the "target"
+by the "base" (backward search), and the end of the "target" (forward
+search), and on the side of the "origin" by the beginning and end of
+the "origin", respectively.</p>
+
+<p>From the ranges for all the candidates the best (= largest) common
+range is taken and it is determined how many bytes are needed to
+encode the bytes between the "base" and the end of that range. If the
+range extended back to the "base" then this can be done in a single
+copy instruction. Otherwise, i.e if there is a gap between the "base"
+and the beginning of the range then two instructions are needed, one
+to insert the bytes in the gap as a literal, and a copy instruction
+for the range itself. The general situation at this point can be seen
+in the picture to the right.</p>
+
+<p>If the number of bytes needed to encode both gap (if present), and
+range is less than the number of bytes we are encoding the encoder
+will emit the necessary instructions as described above, set "base"
+and "slide" to the end of the encoded range and start the next
+iteration at that point.</p>
+
+<p>If, on the other hand, the encoder either did not find candidate
+locations in the origin, or the best range coming out of the search
+needed more bytes to encode the range than there were bytes in the
+range, then no instructions are emitted and the window is moved one
+byte forward. The "base" is left unchanged in that case.</p>
+
+<p>The processing loop stops at one of two conditions:
+<ol>
+<li>The encoder decided to move the window forward, but the end of the
+window reached the end of the "target". 
+</li>
+<li>After the emission of instructions the new "base" location is
+within NHASH bytes of end of the "target", i.e. there are no more than
+at most NHASH bytes left.
+</li>
+</ol>
+</p>
+
+<p>If the processing loop left bytes unencoded, i.e. "base" not
+exactly at the end of the "target", as is possible for both end
+conditions, then one last insert instruction is emitted to put these
+bytes into the delta.<p>
 
 <a name="exceptions"><h2>3.0 Exceptions</h2>
 
@@ -102,16 +176,19 @@ the list of chunk locations having this hash.
 changes is possible, and the segment-list of the delta consists of a
 single literal which contains the entire "target".</p>
 
+<p>This is actually equivalent to the second end condition of the
+processing loop described in the previous section, just checked before
+actually entering the loop.</p>
 
 <a name="rollhash"><h2>4.0 The rolling hash</h2>
 
 <p>The rolling hash described below and used to compute content
 signatures was chosen not only for good hashing properties, but also
 to enable the easy (incremental) recalculation of its value for a
-sliding window, i.e. where the oldest character is removed from the
-window and a new character is shifted in.<p>
+sliding window, i.e. where the oldest byte is removed from the window
+and a new byte is shifted in.<p>
 
-<a name="rhdef"><h2>4.1 Definition</h2>
+<a name="rhdef"><h3>4.1 Definition</h3>
 
 <p>Assuming an array Z of NHASH bytes (indexing starting at 0) the
 hash V is computed via</p>
@@ -125,7 +202,7 @@ hash V is computed via</p>
 where A and B are unsigned 16-bit integers (hence the <u>mod</u>), and
 V is a 32-bit unsigned integer with B as MSB, A as LSB.
 
-<a name="rhincr"><h2>4.2 Incremental recalculation</h2>
+<a name="rhincr"><h3>4.2 Incremental recalculation</h3>
 
 <p>Assuming an array Z of NHASH bytes (indexing starting at 0) with
 hash V (and components A and B), the dropped

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\ssection\snumbers\sto\sdelta\sformat,\slabels\sfor\slinking,\snavigation\sbar.\sAdded\sdelta\sencoder\sdescription\s(incomplete,\sright\snow\sonly\sall\sthe\strivial\sparts).\sUsing\sTeX\sfor\sformulas,\sand\smimetex\sfor\sconversion.
-D 2007-08-26T22:22:01
+C Completed\sthe\sdescription\sof\sthe\sdelta\sencoder
+D 2007-08-27T04:35:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -15,6 +15,7 @@ F art/delta4.dia 7184224cface58098e74c518e1aeb155645fb915
 F art/delta5.dia 42c52e3c7c6b853b3eca596b183fa43d75fd841d
 F art/delta6.dia 638abaa6b4ca7c348d1a00d96f5d6676231e6e37
 F art/encode1.tex bb4fa24df875f09c104ac535727a885ecd1b0126
+F art/encode10.dia 5957690e4d2e7e75412247830267678e95634552
 F art/encode2.tex 0a86eb21bb6fd8ccec597e6651d5d038aaf07baf
 F art/encode3.tex e14430ac5a65400a5c2c4f0fef0274bfe94c69ea
 F art/encode4.tex ef19f3297df533c6baa0500dbcda54de333b8830
@@ -96,9 +97,10 @@ F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.html 8a9f809ab990084d0b144a17549d01c1f6f8f5f8
+F www/delta_encoder_algorithm.html 75d37d5e32b703ce437e94eda3820c3e9e4958b8
 F www/delta_format.html db8d44b23e31e469b4fc2ff718eecf858b838182
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
+F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
 F www/encode3.gif 1565ebf8d7579785bc05ce80434b2eae1773a813
 F www/encode4.gif 7879afadc59db61606e70f88ad387587ccb6242d
@@ -112,14 +114,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 4bf5cf121ec2a56e28acf3c8639324cf4189e6e6
-R 1484a00ef727a3f710d0490ed1bf8ddd
+P 6f1af23ebe3a862c7288713b897223b6e59a4f3c
+R 149e5fa827eb16dbd432e37b095992c9
 U aku
-Z 7569148649ff391d7e9a39207ed2584c
+Z abedeea4da5083548f97603dd42a75ed
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0f0NvonzZ/CRa7gRAkjHAJ9Rr39BC1M1tWpMPfIJllD4kvkQXwCfZ7oK
-G1gATuDzXE2o2FbxUDBmqGE=
-=nKXK
+iD8DBQFG0lSEvonzZ/CRa7gRAq8rAJkB40jW821iX3CAC+cn4gLzCT8nNwCeO9iI
+d4KN+mjzw9U4oJEWSZxWrTQ=
+=nc4e
 -----END PGP SIGNATURE-----
