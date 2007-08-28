@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\stypos,\sand\sextended\sthe\sdocumentation\sof\scontent_deltify.
-D 2007-08-28T05:00:20
+C Reworked\smy\snotes\sregarding\s'reconstruct'\sbased\son\smy\sreading\sof\scontent.c,\scheckin.c,\sand\smanifest.c
+D 2007-08-28T05:01:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -25,7 +25,7 @@ F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 06c022ce6b21d411e45b27977e5908701698b733
-F ci_fossil.txt ffe422bb7a0a4b807739b1a03292e07d4e600286
+F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F ideas.txt 429a4a9a12a726a14406ffc2b442f98666e1ac5b
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
@@ -116,14 +116,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 103c397e4b36b1ddfb4afe52d120489361cac9c8
-R 05b17242a8b8d8ebcaddd794e71af95e
+P 8857e1eabbea1466c7d194d9db3381e501ef4540
+R 84c334ae1d0814c98989fd0323a46b67
 U aku
-Z 61f526d0688331326815d39158ad6d4f
+Z 1d2b392fc2c10d5a56bed4073f2cf714
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG06vovonzZ/CRa7gRAseOAJ9teh7IkDg559ROHRfgTwKNPTsIvACgm1CI
-EmBnn7OCQce2BBqGY3wamEQ=
-=PYVy
+iD8DBQFG06wjvonzZ/CRa7gRAg+zAJ9/LAA/T6s6MZmO0k0tA+WpgpwfxwCeN46f
+G4j+rrFYxV8tcaFv0CIW2YU=
+=e2lV
 -----END PGP SIGNATURE-----
