@@ -51,7 +51,7 @@ character that acts as the line separator.
 </p>
 
 <p>
-All lines of the manifest occur in strict sorted lexigraphical order.
+All lines of the manifest occur in strict sorted lexicographical order.
 No line may be duplicated.
 The entire manifest file may be PGP clear-signed, but otherwise it
 may contain no additional text or data beyond what is described here.
@@ -130,7 +130,7 @@ a single argument which is the MD5 checksum of all files in
 the baseline except the manifest itself.  The checksum is expressed
 as 32-characters of lowercase hexadecimal.   The checksum is
 computed as follows:  For each file in the baseline (except for
-the manifest itself) in strict sorted lexigraphical order, 
+the manifest itself) in strict sorted lexicographical order, 
 take the pathname of the file relative to the root of the
 repository, append a single space (ASCII 0x20), the
 size of the file in ASCII decimal, a single newline

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Completed\sthe\sdescription\sof\sthe\sdelta\sencoder
-D 2007-08-27T04:35:10
+C Fixed\stypos.
+D 2007-08-28T03:18:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -109,19 +109,19 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html b4104959a67175f02d6b415480be22a239f1f077
+F www/fileformat.html 677ac744b20c5a847aca8620d1c2cb7813b5ffd1
 F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 6f1af23ebe3a862c7288713b897223b6e59a4f3c
-R 149e5fa827eb16dbd432e37b095992c9
+P 59ad045fef5234bfca9e0a83eb1ab98d8214b981
+R 925793e98068f3f035b7ab250e9d23b1
 U aku
-Z abedeea4da5083548f97603dd42a75ed
+Z fd81387492010c12f27d17c0acc5a96f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG0lSEvonzZ/CRa7gRAq8rAJkB40jW821iX3CAC+cn4gLzCT8nNwCeO9iI
-d4KN+mjzw9U4oJEWSZxWrTQ=
-=nc4e
+iD8DBQFG05QUvonzZ/CRa7gRAiwgAJ0cfy60vK0MyA8sFk4Eyh7O9N/WywCffXX0
+uqbSUYIs92U5Y1Dqze02HEU=
+=SeyU
 -----END PGP SIGNATURE-----
