@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Updated\smy\swork\slist,\sadded\sfirst\snotes\sabout\s'cvs\simport'\sfunctionality.
-D 2007-08-28T03:34:12
+C Fixed\stypos,\sand\sextended\sthe\sdocumentation\sof\scontent_deltify.
+D 2007-08-28T05:00:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,7 +37,7 @@ F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/content.c 896054a3e46e2e1b4c4edf2310a608a1ba88e170
+F src/content.c 60a9520d479793775a112f75959246fdc8f11d41
 F src/db.c f2c507419fdb63b176bef7dc7f808a26da94b026
 F src/delta.c 4f6e9c70e904e3f8bb0c975dfe3896e133c6cc41
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -116,14 +116,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 63564202fd0d6a95f1f0b12fa7082a40e25c39cf
-R dd90ef1ae7d3b4f482f73b1474049c66
+P 103c397e4b36b1ddfb4afe52d120489361cac9c8
+R 05b17242a8b8d8ebcaddd794e71af95e
 U aku
-Z 0382c2e3b2d9283b3d9eeb181b7a4e39
+Z 61f526d0688331326815d39158ad6d4f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG05fBvonzZ/CRa7gRAqo7AJ9aqLlci3MG+Yxrd+PiDLmHhHFatwCZAWZK
-opQtQK0A1JbSSzJl4KWPJWA=
-=zuhY
+iD8DBQFG06vovonzZ/CRa7gRAseOAJ9teh7IkDg559ROHRfgTwKNPTsIvACgm1CI
+EmBnn7OCQce2BBqGY3wamEQ=
+=PYVy
 -----END PGP SIGNATURE-----

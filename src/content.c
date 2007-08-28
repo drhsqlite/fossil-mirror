@@ -177,8 +177,8 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     rid = db_column_int(&s1, 0);
     if( db_column_int(&s1, 1)>=0 || pBlob==0 ){
       /* Either the entry is not a phantom or it is a phantom but we
-      ** have no data with which to dephathomize it.  In either case,
-      ** there is nothing for use to do other than return the RID. */
+      ** have no data with which to dephantomize it.  In either case,
+      ** there is nothing for us to do other than return the RID. */
       db_finalize(&s1);
       db_end_transaction(0);
       return rid;
@@ -309,6 +309,15 @@ void test_content_undelta_cmd(void){
 **
 ** If srcid is a delta that depends on rid, then srcid is
 ** converted to undeltaed text.
+**
+** If either rid or srcid contain less than 50 bytes, or if the
+** resulting delta does not achieve a compression of at least 25% on
+** its own the rid is left untouched.
+**
+** NOTE: IMHO the creation of the delta should be defered until after
+** the blob sizes have been checked. Doing it before the check as is
+** done now the code will generate a delta just to immediately throw
+** it away, wasting space and time.
 */
 void content_deltify(int rid, int srcid, int force){
   int s;
