@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\stypos.
-D 2007-08-28T03:18:31
+C Updated\smy\swork\slist,\sadded\sfirst\snotes\sabout\s'cvs\simport'\sfunctionality.
+D 2007-08-28T03:34:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -24,6 +24,8 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
+F ci_cvs.txt 06c022ce6b21d411e45b27977e5908701698b733
+F ci_fossil.txt ffe422bb7a0a4b807739b1a03292e07d4e600286
 F ideas.txt 429a4a9a12a726a14406ffc2b442f98666e1ac5b
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
@@ -84,7 +86,7 @@ F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
-F todo-ak.txt 0f794bbab70d28f757c465e22e55cfa67f6c9926
+F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 3d872fddda203e00717e13b0e849240c64acf928
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
@@ -114,14 +116,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 59ad045fef5234bfca9e0a83eb1ab98d8214b981
-R 925793e98068f3f035b7ab250e9d23b1
+P 63564202fd0d6a95f1f0b12fa7082a40e25c39cf
+R dd90ef1ae7d3b4f482f73b1474049c66
 U aku
-Z fd81387492010c12f27d17c0acc5a96f
+Z 0382c2e3b2d9283b3d9eeb181b7a4e39
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG05QUvonzZ/CRa7gRAiwgAJ0cfy60vK0MyA8sFk4Eyh7O9N/WywCffXX0
-uqbSUYIs92U5Y1Dqze02HEU=
-=SeyU
+iD8DBQFG05fBvonzZ/CRa7gRAqo7AJ9aqLlci3MG+Yxrd+PiDLmHhHFatwCZAWZK
+opQtQK0A1JbSSzJl4KWPJWA=
+=zuhY
 -----END PGP SIGNATURE-----

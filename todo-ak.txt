@@ -13,11 +13,11 @@ Things to work on:
   packages. Foundations like delta, etc. first, work up to
   higher-levels.
 
-* Document delta format, delta encoder.
-
 * Document the merge algorithm.
 
 * Document the xfer protocol.
+
+* CVS import. Testcases: Tcl, Tk, Tcllib.
 
 Questions
 

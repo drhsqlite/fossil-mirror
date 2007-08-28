@@ -1,0 +1,86 @@
+
+Notes about CVS import, regarding CVS.
+
+- Problem: CVS does not really track changesets, but only individual
+  revisions of files. To recover changesets it is necessary to look at
+  author, branch, timestamp information, and the commit messages. Even
+  so this is only heuristic, not foolproof.
+
+  Existing tool: cvsps.
+
+  Processes the output of 'cvs log' to recover changesets. Problem:
+  Sees only a linear list of revisions, does not see branchpoints,
+  etc. Cannot use the tree structure to help in making the decisions.
+
+- Problem: CVS does not track merge-points at all. Recovery through
+  heuristics is brittle at best, looking for keywords in commit
+  messages which might indicate that a branch was merged with some
+  other.
+
+
+Ideas regarding an algorithm to recover changesets.
+
+Key feature: Uses the per-file revision trees to help in uncovering
+the underlying changesets and global revision tree G.
+
+The per-file revision tree for a file X is in essence the global
+revision tree with all nodes not pertaining to X removed from it. In
+the reverse this allows us to built up the global revision tree from
+the per-file trees by matching nodes to each other and extending.
+
+Start with the per file revision tree of a single file as initial
+approximation of the global tree. All nodes of this tree refer to the
+revision of the file belonging to it, and through that the file
+itself. At each step the global tree contains the nodes for a finite
+set of files, and all nodes in the tree refer to revisions of all
+files in the set, making the mapping total.
+
+To add a file X to the tree take the per-file revision tree R and
+performs the following actions:
+
+- For each node N in R use the tuple <author, branch, commit message>
+  to identify a set of nodes in G which may match N. Use the timestamp
+  to locate the node nearest in time.
+
+- This process will leave nodes in N unmapped. If there are unmapped
+  nodes which have no neighbouring mapped nodes we have to
+  abort.
+
+  Otherwise take the nodes which have mapped neighbours. Trace the
+  edges and see which of these nodes are connected in the local
+  tree. Then look at the identified neighbours and trace their
+  connections.
+
+  If two global nodes have a direct connection, but a multi-edge
+  connection in the local tree insert global nodes mapping to the
+  local nodes and map them together. This expands the global tree to
+  hold the revisions added by the new file.
+
+  Otherwise, both sides have multi-edge connections then abort. This
+  looks like a merge of two different branches, but there are no such
+  in CVS ... Wait ... sort the nodes over time and fit the new nodes
+  in between the other nodes, per the timestamps. We have overlapping
+  / alternating changes to one file and others.
+
+  A last possibility is that a node is only connected to a mapped
+  parent. This may be a new branch, or again an alternating change on
+  the given line. Symbols on the revisions will help to map this.
+
+- We now have an extended global tree which incorporates the revisions
+  of the new file. However new nodes will refer only to the new file,
+  and old nodes may not refer to the new file. This has to be fixed,
+  as all nodes have to refer to all files.
+
+  Run over the tree and look at each parent/child pair. If a file is
+  not referenced in the child, but the parent, then copy a reference
+  to the file revision on the parent forward to the child. This
+  signals that the file did not change in the given revision.
+
+- After all files have been integrated in this manner we have global
+  revision tree capturing all changesets, including the unchanged
+  files per changeset.
+
+
+This algorithm has to be refined to also take Attic/ files into
+account.
+
