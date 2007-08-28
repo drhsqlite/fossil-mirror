@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reworked\smy\snotes\sregarding\s'reconstruct'\sbased\son\smy\sreading\sof\scontent.c,\scheckin.c,\sand\smanifest.c
-D 2007-08-28T05:01:23
+C Fixed\sbug\sin\sblob_write_to_file,\sadded\smissing\sargument\sto\sfossil_panic.
+D 2007-08-28T07:12:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -29,7 +29,7 @@ F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F ideas.txt 429a4a9a12a726a14406ffc2b442f98666e1ac5b
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
-F src/blob.c 8ec1e279a6cd0cfd5f1e3f8a39f2e9a1682e0113
+F src/blob.c 57c4e58592db596cca32789da3eb8af7722d251a
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
 F src/checkin.c 24fdcaa11cf174afdadb5a4ee3db31801428cb0f
 F src/checkout.c 59343953ba42e0f41b57d59fdc75fffe5b0ff94c
@@ -116,14 +116,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 8857e1eabbea1466c7d194d9db3381e501ef4540
-R 84c334ae1d0814c98989fd0323a46b67
+P 10062df2fa9b02069f0d3c90dd1d990717a921a9
+R b1b0589f177f32efefea6c73e1319607
 U aku
-Z 1d2b392fc2c10d5a56bed4073f2cf714
+Z a1afb0dfeda2eca2273cf03d091293a9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG06wjvonzZ/CRa7gRAg+zAJ9/LAA/T6s6MZmO0k0tA+WpgpwfxwCeN46f
-G4j+rrFYxV8tcaFv0CIW2YU=
-=e2lV
+iD8DBQFG08rOvonzZ/CRa7gRAjEsAKCgHpD/tpqPgKgaAHLQxBI3cTEJdgCcC/A1
+G2Rh9Q3egckpOYFoHCiKpPU=
+=Ggs2
 -----END PGP SIGNATURE-----

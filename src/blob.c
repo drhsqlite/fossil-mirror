@@ -572,7 +572,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       if( zName[i]=='/' ){
         zName[i] = 0;
         if( file_mkdir(zName, 1) ){
-          fossil_panic("unable to create directory %s");
+          fossil_panic("unable to create directory %s", zName);
         }
         zName[i] = '/';
       }
