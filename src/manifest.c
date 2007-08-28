@@ -303,25 +303,27 @@ int manifest_crosslink(int rid, Blob *pContent){
     return 0;
   }
   db_begin_transaction();
-  for(i=0; i<m.nParent; i++){
-    int pid = uuid_to_rid(m.azParent[i], 1);
-    db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-                  "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, m.rDate);
-    if( i==0 ){
-      add_mlink(pid, 0, rid, &m);
+  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
+    for(i=0; i<m.nParent; i++){
+      int pid = uuid_to_rid(m.azParent[i], 1);
+      db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
+                    "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, m.rDate);
+      if( i==0 ){
+        add_mlink(pid, 0, rid, &m);
+      }
     }
+    db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int cid = db_column_int(&q, 0);
+      add_mlink(rid, &m, cid, 0);
+    }
+    db_finalize(&q);
+    db_multi_exec(
+      "INSERT INTO event(type,mtime,objid,user,comment)"
+      "VALUES('ci',%.17g,%d,%Q,%Q)",
+      m.rDate, rid, m.zUser, m.zComment
+    );
   }
-  db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    int cid = db_column_int(&q, 0);
-    add_mlink(rid, &m, cid, 0);
-  }
-  db_finalize(&q);
-  db_multi_exec(
-    "INSERT INTO event(type,mtime,objid,user,comment)"
-    "VALUES('ci',%.17g,%d,%Q,%Q)",
-    m.rDate, rid, m.zUser, m.zComment
-  );
   db_end_transaction(0);
   manifest_clear(&m);
   return 1;

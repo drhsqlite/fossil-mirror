@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tweaked\sthe\shighlighting
-D 2007-08-27T13:21:20
+C Make\ssure\sthe\ssame\smanifest\snever\sgets\sinserted\sinto\sthe\smetadata\ntables\stwice\s-\sresulting\sin\sduplicate\stimeline\sentries.
+D 2007-08-28T03:04:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile e5d56bbe1577d8e08158b0cdfe3056a97db63bae
@@ -42,7 +42,7 @@ F src/main.mk 7b8ae816c0619d22294cd74ceeb184a64a0eb59b
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl af0c777839a797e999f774dc83f5e00c27d3cbf4
-F src/manifest.c 02dabff2470c1eba8de228a077443d2aba174f91
+F src/manifest.c bf7dfee62a46e35c2a93451cf09d1fe491ab380d
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 6daf84ba0a8dca66e1289b9dbb5c50f5dc42e38e
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
@@ -92,14 +92,14 @@ F www/index.html 7006a635c10ce37bf2b6f8a38f6e1c9c88f3a26d
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 53416550852e1da68162ac5ed1f367b3a45983c7
-R 447f8fe72c2fffaf3aa51ef3c877858b
-U aku
-Z 4544c0f8b1c54a98fda1b06d13efab55
+P e12f2f1839a622a085b658dd08e6823d16a167e9
+R d75754d907069404a0576a9ba04d4d50
+U drh
+Z 3a83c928545104e14099f03df2f2d82a
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG0s/UvonzZ/CRa7gRArI0AJ9wszT4XgY549u/0EcDoAec17QANACguOzp
-rIX6cK/Tmhq5JYMgotutz1g=
-=JIZm
+iD8DBQFG05CvoxKgR168RlERAjHaAJ93F4ru+wysCtM7zPq54OSaC+wyOgCfaiDQ
+r1CWQaG2CGu9GNaSx5AN/tI=
+=e5Nv
 -----END PGP SIGNATURE-----
