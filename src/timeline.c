@@ -41,6 +41,22 @@ void hyperlink_to_uuid(const char *zUuid){
 }
 
 /*
+** Generate a hyperlink that invokes javascript to highlight
+** a version on mouseover.
+*/
+void hyperlink_to_uuid_with_highlight(const char *zUuid, int id){
+  char zShortUuid[UUID_SIZE+1];
+  sprintf(zShortUuid, "%.10s", zUuid);
+  if( g.okHistory ){
+    @ <a onmouseover='hilite("m%d(id)")' onmouseout='unhilite("m%d(id)")'
+    @    href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
+  }else{
+    @ <b onmouseover='hilite("m%d(id)")' onmouseout='unhilite("m%d(id)")'>
+    @ [%s(zShortUuid)]</b>
+  }
+}
+
+/*
 ** Generate a hyperlink to a diff between two versions.
 */
 void hyperlink_to_diff(const char *zV1, const char *zV2){
@@ -57,17 +73,33 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 ** Output a timeline in the web format given a query.  The query
 ** should return 4 columns:
 **
-**    0.  UUID
-**    1.  Date/Time
-**    2.  Comment string
-**    3.  User
+**    0.  rid
+**    1.  UUID
+**    2.  Date/Time
+**    3.  Comment string
+**    4.  User
+**    5.  Number of non-merge children
+**    6.  Number of parents
+**    7.  True if is a leaf
 */
-void www_print_timeline(Stmt *pQuery, char *zLastDate){
+void www_print_timeline(
+  Stmt *pQuery,
+  char *zLastDate,
+  int (*xCallback)(int, Blob*),
+  Blob *pArg
+ ){
   char zPrevDate[20];
   zPrevDate[0] = 0;
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(pQuery)==SQLITE_ROW ){
-    const char *zDate = db_column_text(pQuery, 1);
+    int rid = db_column_int(pQuery, 0);
+    int nPChild = db_column_int(pQuery, 5);
+    int nParent = db_column_int(pQuery, 6);
+    int isLeaf = db_column_int(pQuery, 7);
+    const char *zDate = db_column_text(pQuery, 2);
+    if( xCallback ){
+      xCallback(rid, pArg);
+    }
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -79,11 +111,47 @@ void www_print_timeline(Stmt *pQuery, char *zLastDate){
       @ </td></tr></table>
       @ </td></tr>
     }
-    @ <tr><td valign="top">%s(&zDate[11])</td>
+    @ <tr id="m%d(rid)" onmouseover='xin("m%d(rid)")'
+    @     onmouseout='xout("m%d(rid)")'>
+    @ <td valign="top">%s(&zDate[11])</td>
     @ <td width="20"></td>
     @ <td valign="top" align="left">
-    hyperlink_to_uuid(db_column_text(pQuery,0));
-    @ %h(db_column_text(pQuery,2)) (by %h(db_column_text(pQuery,3)))</td>
+    hyperlink_to_uuid(db_column_text(pQuery,1));
+    @ %h(db_column_text(pQuery,3))
+    if( nParent>1 ){
+      Stmt q;
+      @ <b>Merge</b> from
+      db_prepare(&q,
+        "SELECT rid, uuid FROM plink, blob"
+        " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim=0",
+        rid
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        int mrid = db_column_int(&q, 0);
+        const char *zUuid = db_column_text(&q, 1);
+        hyperlink_to_uuid_with_highlight(zUuid, mrid);
+      }
+      db_finalize(&q);
+    }
+    if( nPChild>1 ){
+      Stmt q;
+      @ <b>Fork</b> to
+      db_prepare(&q,
+        "SELECT rid, uuid FROM plink, blob"
+        " WHERE plink.pid=%d AND blob.rid=plink.cid AND plink.isprim>0",
+        rid
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        int frid = db_column_int(&q, 0);
+        const char *zUuid = db_column_text(&q, 1);
+        hyperlink_to_uuid_with_highlight(zUuid, frid);
+      }
+      db_finalize(&q);
+    }
+    if( isLeaf ){
+      @ <b>Leaf</b>
+    }
+    @ (by %h(db_column_text(pQuery,4)))</td></tr>
     if( zLastDate ){
       strcpy(zLastDate, zDate);
     }
@@ -91,7 +159,36 @@ void www_print_timeline(Stmt *pQuery, char *zLastDate){
   @ </table>
 }
 
+/*
+** Generate javascript code that records the parents and children
+** of the version rid.
+*/
+static int save_parentage_javascript(int rid, Blob *pOut){
+  const char *zSep;
+  Stmt q;
 
+  db_prepare(&q, "SELECT pid FROM plink WHERE cid=%d", rid);
+  zSep = "";
+  blob_appendf(pOut, "parentof[\"m%d\"] = [", rid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q, 0);
+    blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
+    zSep = ",";
+  }
+  db_finalize(&q);
+  blob_appendf(pOut, "];\n");
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d", rid);
+  zSep = "";
+  blob_appendf(pOut, "childof[\"m%d\"] = [", rid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q, 0);
+    blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
+    zSep = ",";
+  }
+  db_finalize(&q);
+  blob_appendf(pOut, "];\n");
+  return 0;
+}
 
 /*
 ** WEBPAGE: timeline
@@ -99,6 +196,7 @@ void www_print_timeline(Stmt *pQuery, char *zLastDate){
 void page_timeline(void){
   Stmt q;
   char *zSQL;
+  Blob scriptInit;
   char zDate[100];
   const char *zStart = P("d");
   int nEntry = atoi(PD("n","25"));
@@ -117,7 +215,10 @@ void page_timeline(void){
     @ historical information if <a href="%s(g.zBaseURL)/login">login</a>.</p>
   }
   zSQL = mprintf(
-    "SELECT uuid, datetime(event.mtime,'localtime'), comment, user"
+    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'), comment, user,"
+    "       (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),"
+    "       (SELECT count(*) FROM plink WHERE cid=blob.rid),"
+    "       NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid)"
     "  FROM event, blob"
     " WHERE event.type='ci' AND blob.rid=event.objid"
   );
@@ -132,11 +233,71 @@ void page_timeline(void){
   db_prepare(&q, zSQL);
   free(zSQL);
   zDate[0] = 0;
-  www_print_timeline(&q, zDate);
+  blob_zero(&scriptInit);
+  www_print_timeline(&q, zDate, save_parentage_javascript, &scriptInit);
   db_finalize(&q);
   if( zStart==0 ){
     zStart = zDate;
   }
+  @ <script>
+  @ var parentof = new Object();
+  @ var childof = new Object();
+  cgi_append_content(blob_buffer(&scriptInit), blob_size(&scriptInit));
+  blob_reset(&scriptInit);
+  @ function setall(value){
+  @   for(var x in parentof){
+  @     setone(x,value);
+  @   }
+  @ }
+  @ function setone(id, onoff){
+  @   if( parentof[id]==null ) return 0;
+  @   var w = document.getElementById(id);
+  @   var clr = onoff==1 ? "#e0e0ff" : "#ffffff";
+  @   if( w.backgroundColor==clr ){
+  @     return 0
+  @   }else{
+  @     w.style.backgroundColor = clr
+  @     return 1
+  @   }
+  @ }
+  @ function xin(id) {
+  @   setall(0);
+  @   setone(id,1);
+  @   set_children(id);
+  @   set_parents(id);
+  @ }
+  @ function xout(id) {
+  @   setall(0);
+  @ }
+  @ function set_parents(id){
+  @   var plist = parentof[id];
+  @   if( plist==null ) return;
+  @   for(var x in plist){
+  @     var pid = plist[x];
+  @     if( setone(pid,1)==1 ){
+  @       set_parents(pid);
+  @     }
+  @   }
+  @ }
+  @ function set_children(id){
+  @   var clist = childof[id];
+  @   if( clist==null ) return;
+  @   for(var x in clist){
+  @     var cid = clist[x];
+  @     if( setone(cid,1)==1 ){
+  @       set_children(cid);
+  @     }
+  @   }
+  @ }
+  @ function hilite(id) {
+  @   var x = document.getElementById(id);
+  @   x.style.color = "#ff0000";
+  @ }
+  @ function unhilite(id) {
+  @   var x = document.getElementById(id);
+  @   x.style.color = "#000000";
+  @ }
+  @ </script>
   @ <hr>
   @ <form method="GET" action="%s(g.zBaseURL)/timeline">
   @ Start Date:

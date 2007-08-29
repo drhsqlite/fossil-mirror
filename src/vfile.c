@@ -57,6 +57,25 @@ int uuid_to_rid(const char *zUuid, int phantomize){
 }
 
 /*
+** Verify that an object is not a phantom.  If the object is
+** a phantom, output an error message and quick.
+*/
+void vfile_verify_not_phantom(int rid, const char *zFilename){
+  if( db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+    if( zFilename ){
+      fossil_fatal("content missing for %s", zFilename);
+    }else{
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      if( zUuid ){
+        fossil_fatal("content missing for [%.10s]", zUuid);
+      }else{
+        fossil_panic("bad object id: %d", rid);
+      }
+    }
+  }
+}
+
+/*
 ** Build a catalog of all files in a baseline.
 ** We scan the baseline file for lines of the form:
 **
@@ -71,6 +90,7 @@ void vfile_build(int vid, Blob *p){
   Blob line, token, name, uuid;
   int seenHeader = 0;
   db_begin_transaction();
+  vfile_verify_not_phantom(vid, 0);
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
   db_prepare(&ins,
     "INSERT INTO vfile(vid,rid,mrid,pathname) "
@@ -92,6 +112,7 @@ void vfile_build(int vid, Blob *p){
     defossilize(zName);
     zUuid = blob_str(&uuid);
     rid = uuid_to_rid(zUuid, 0);
+    vfile_verify_not_phantom(rid, zName);
     if( rid>0 && file_is_simple_pathname(zName) ){
       db_bind_int(&ins, ":id", rid);
       db_bind_text(&ins, ":name", zName);
