@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C New\stimeline\sformatting\sexperiment.\s\sForeground\sfont\scolor\schanges\nwhen\smousing\sover\sthe\svinfo\shyperline\sshow\sall\simmediate\sparents\sin\nred\sand\simmediate\schildren\sin\sgreen\sand\shide\sall\sentries\sthat\sare\snot\npart\sof\sthe\scurrent\sline.
-D 2007-08-29T11:48:58
+C Merge\saku's\smakefile\schanges.
+D 2007-08-29T11:51:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -51,10 +51,10 @@ F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
 F src/info.c e4bf002e1d5f261a0a23e073a1ea47ba340b5bce
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
 F src/main.c 500655758a6aa3a0cb4178b354ec9ed7a3046f97
-F src/main.mk b8f1b0de7966842ac78267373a777425b03014c6
+F src/main.mk d7d0790c5705664a66e23bfc822b1c0da8ff240e
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 7c5cc8110a242aa09015afb7b5db58d64b76dc7d
+F src/makemake.tcl e6f77439f48a4e310468c13e29802db261728dd3
 F src/manifest.c bf7dfee62a46e35c2a93451cf09d1fe491ab380d
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 6daf84ba0a8dca66e1289b9dbb5c50f5dc42e38e
@@ -117,14 +117,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P b616c3d8c321209f3c2f166b70a9af640b414880
-R 4d9793e264f681368b11155d98cc0d85
+P 4d051c1eda312ef2be17c7f254c54a8d15850688 5f83d2720e094c5164028d34049fa71682179d69
+R 9dbe22b81909c07ac3a5250b064af28a
 U drh
-Z 971a1f828f51e15e7da9e1b96d7c8e64
+Z 724fb24f72c4891dfed59217765733e1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG1V0yoxKgR168RlERAg/lAJ9nF9W7R54bUJLjerCG52lxfXAdWwCeJxhG
-i0tgCOEUE+y2+XaCWzg9tUk=
-=MiX7
+iD8DBQFG1V2toxKgR168RlERAlZ+AKCMYd8lSj5zD5Uy1pmigooaJFtdpQCfYIEQ
+wMO+B18i0WzD52/59Z2SuNM=
+=QOa8
 -----END PGP SIGNATURE-----
