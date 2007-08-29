@@ -27,29 +27,19 @@
 #include "rebuild.h"
 #include <assert.h>
 
-
 /*
-** COMMAND:  rebuild
-**
-** Usage: %fossil rebuild REPOSITORY
-**
-** Reconstruct the named repository database from the core
-** records.  Run this command after updating the fossil
-** executable in a way that changes the database schema.
+** Core function to rebuild the infomration in the derived tables of a
+** fossil repository from the blobs. This function is shared between
+** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
+** ('reconstruct'), both of which have to regenerate this information
+** from scratch.
 */
-void rebuild_database(void){
+
+int rebuild_db(void){
   Stmt s;
-  int errCnt;
-  int forceFlag;
+  int errCnt = 0;
   char *zTable;
 
-  forceFlag = find_option("force","f",0)!=0;
-  if( g.argc!=3 ){
-    usage("REPOSITORY-FILENAME");
-  }
-  errCnt = 0;
-  db_open_repository(g.argv[2]);
-  db_begin_transaction();
   db_multi_exec(
     "CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
   );
@@ -77,7 +67,29 @@ void rebuild_database(void){
       db_multi_exec("INSERT INTO phantom VALUES(%d)", rid);
     }
   }
+  return errCnt;
+}
 
+/*
+** COMMAND:  rebuild
+**
+** Usage: %fossil rebuild REPOSITORY
+**
+** Reconstruct the named repository database from the core
+** records.  Run this command after updating the fossil
+** executable in a way that changes the database schema.
+*/
+void rebuild_database(void){
+  int forceFlag;
+  int errCnt;
+
+  forceFlag = find_option("force","f",0)!=0;
+  if( g.argc!=3 ){
+    usage("REPOSITORY-FILENAME");
+  }
+  db_open_repository(g.argv[2]);
+  db_begin_transaction();
+  errCnt = rebuild_db();
   if( errCnt && !forceFlag ){
     printf("%d errors. Rolling back changes. Use --force to force a commit.\n",
             errCnt);

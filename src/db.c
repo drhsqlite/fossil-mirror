@@ -644,28 +644,22 @@ void db_create_repository(const char *zFilename){
   );
 }
 
-
 /*
-** COMMAND: new
+** Fill an empty repository database with the basic information for a
+** repository. This function is shared between 'create_repository_cmd'
+** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
+** new repositories.
 **
-** Usage: %fossil new FILENAME
-** Create a repository for a new project in the file named FILENAME.
-** This command is distinct from "clone".  The "clone" command makes
-** a copy of an existing project.  This command starts a new project.
+** The caller determines wheter the function inserts an empty root
+** manifest (zRoot == TRUE), or not (zRoot == FALSE).
 */
-void create_repository_cmd(void){
+
+void db_initial_setup (int zRoot){
   char *zDate;
   char *zUser;
   Blob hash;
   Blob manifest;
 
-  if( g.argc!=3 ){
-    usage("REPOSITORY-NAME");
-  }
-  db_create_repository(g.argv[2]);
-  db_open_repository(g.argv[2]);
-  db_open_config();
-  db_begin_transaction();
   db_set("content-schema", CONTENT_SCHEMA);
   db_set("aux-schema", AUX_SCHEMA);
   db_set_int("authenticate-localhost", 0);
@@ -691,19 +685,41 @@ void create_repository_cmd(void){
      "   VALUES('nobody','','jor','Nobody');"
   );
   user_select();
-  blob_zero(&manifest);
-  blob_appendf(&manifest, "C initial\\sempty\\sbaseline\n");
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10]='T';
-  blob_appendf(&manifest, "D %s\n", zDate);
-  blob_appendf(&manifest, "P\n");
-  md5sum_init();
-  blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
-  blob_appendf(&manifest, "U %F\n", g.zLogin);
-  md5sum_blob(&manifest, &hash);
-  blob_appendf(&manifest, "Z %b\n", &hash);
-  blob_reset(&hash);
-  content_put(&manifest, 0, 0);
+
+  if (zRoot){
+    blob_zero(&manifest);
+    blob_appendf(&manifest, "C initial\\sempty\\sbaseline\n");
+    zDate = db_text(0, "SELECT datetime('now')");
+    zDate[10]='T';
+    blob_appendf(&manifest, "D %s\n", zDate);
+    blob_appendf(&manifest, "P\n");
+    md5sum_init();
+    blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
+    blob_appendf(&manifest, "U %F\n", g.zLogin);
+    md5sum_blob(&manifest, &hash);
+    blob_appendf(&manifest, "Z %b\n", &hash);
+    blob_reset(&hash);
+    content_put(&manifest, 0, 0);
+  }
+}
+
+/*
+** COMMAND: new
+**
+** Usage: %fossil new FILENAME
+** Create a repository for a new project in the file named FILENAME.
+** This command is distinct from "clone".  The "clone" command makes
+** a copy of an existing project.  This command starts a new project.
+*/
+void create_repository_cmd(void){
+  if( g.argc!=3 ){
+    usage("REPOSITORY-NAME");
+  }
+  db_create_repository(g.argv[2]);
+  db_open_repository(g.argv[2]);
+  db_open_config();
+  db_begin_transaction();
+  db_initial_setup (1);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sbug\sin\sblob_write_to_file,\sadded\smissing\sargument\sto\sfossil_panic.
-D 2007-08-28T07:12:09
+C Moved\sthe\score\slogic\sof\sboth\s"rebuild_database"\sand\s"create_repository_cmd"\sinto\stheir\sown\sfunctions,\sfor\ssharing\swith\s"reconstruct_cmd".
+D 2007-08-29T02:42:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -38,7 +38,7 @@ F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/content.c 60a9520d479793775a112f75959246fdc8f11d41
-F src/db.c f2c507419fdb63b176bef7dc7f808a26da94b026
+F src/db.c ca474c1e96e925e6fe5f3830cbd1186fd1d1821b
 F src/delta.c 4f6e9c70e904e3f8bb0c975dfe3896e133c6cc41
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 5d5c8b9dec4c55e253d3560fa48239a933a7c145
@@ -62,7 +62,7 @@ F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
-F src/rebuild.c 3f04f9d6cbe8efba210ccb3c97c9b5e49d769882
+F src/rebuild.c 104f7b4bf822e163f06e5983f7a29386c55c226d
 F src/schema.c 4ba2fd38a23f1037495da8826482ef25849412ef
 F src/setup.c 1750dc4678b4fbc1551687157dd3c713f66e7557
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
@@ -116,14 +116,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 10062df2fa9b02069f0d3c90dd1d990717a921a9
-R b1b0589f177f32efefea6c73e1319607
+P 033ad72c712b7b990f7fce53c1347a1f4e6ff10e
+R 35c0927b1acce5fc30066d29cca70d4c
 U aku
-Z a1afb0dfeda2eca2273cf03d091293a9
+Z 11cb5e48c0eb8140988d22a6a3225ac4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG08rOvonzZ/CRa7gRAjEsAKCgHpD/tpqPgKgaAHLQxBI3cTEJdgCcC/A1
-G2Rh9Q3egckpOYFoHCiKpPU=
-=Ggs2
+iD8DBQFG1N0WvonzZ/CRa7gRAj+rAKCJnIVz9xvxb/ipNVp8hyD9VlSk2gCfW8Je
+J6uTU61g/dpNG3BVHNBGcnw=
+=fd/M
 -----END PGP SIGNATURE-----
