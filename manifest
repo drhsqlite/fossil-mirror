@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Patch\sup\smakemake.tcl\sto\sincorporate\saku's\sedits,\sthen\sregenerate\sthe\nmain.mk\sfile.
-D 2007-08-29T03:22:20
+C New\stimeline\sformatting\sexperiment.\s\sForeground\sfont\scolor\schanges\nwhen\smousing\sover\sthe\svinfo\shyperline\sshow\sall\simmediate\sparents\sin\nred\sand\simmediate\schildren\sin\sgreen\sand\shide\sall\sentries\sthat\sare\snot\npart\sof\sthe\scurrent\sline.
+D 2007-08-29T11:48:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -71,7 +71,7 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c a0b837b0fbbb2088557521aa86c91abf08ec1f82
+F src/timeline.c 5cd9dc9d0bac2c6e60dd51af7c48b22f40649ce4
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -117,14 +117,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 15652ff081973f686974992ab86ff9d40479b53a
-R 61bb28bc90428f780eeee71e08773816
+P b616c3d8c321209f3c2f166b70a9af640b414880
+R 4d9793e264f681368b11155d98cc0d85
 U drh
-Z c5ce1e7135ae4b3578dc6772e0018d8a
+Z 971a1f828f51e15e7da9e1b96d7c8e64
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG1OZwoxKgR168RlERAghLAJ9oeyGQNILi93+8pg1v+RExJwWeWACggVut
-fAgahwdFuFZn8T55YgrNwZQ=
-=Vgxf
+iD8DBQFG1V0yoxKgR168RlERAg/lAJ9nF9W7R54bUJLjerCG52lxfXAdWwCeJxhG
+i0tgCOEUE+y2+XaCWzg9tUk=
+=MiX7
 -----END PGP SIGNATURE-----

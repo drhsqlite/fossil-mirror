@@ -44,14 +44,19 @@ void hyperlink_to_uuid(const char *zUuid){
 ** Generate a hyperlink that invokes javascript to highlight
 ** a version on mouseover.
 */
-void hyperlink_to_uuid_with_highlight(const char *zUuid, int id){
+void hyperlink_to_uuid_with_mouseover(
+  const char *zUuid,   /* The UUID to display */
+  const char *zIn,     /* Javascript proc for mouseover */
+  const char *zOut,    /* Javascript proc for mouseout */
+  int id               /* Argument to javascript procs */
+){
   char zShortUuid[UUID_SIZE+1];
   sprintf(zShortUuid, "%.10s", zUuid);
   if( g.okHistory ){
-    @ <a onmouseover='hilite("m%d(id)")' onmouseout='unhilite("m%d(id)")'
+    @ <a onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'
     @    href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
   }else{
-    @ <b onmouseover='hilite("m%d(id)")' onmouseout='unhilite("m%d(id)")'>
+    @ <b onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'>
     @ [%s(zShortUuid)]</b>
   }
 }
@@ -93,6 +98,7 @@ void www_print_timeline(
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
+    const char *zUuid = db_column_text(pQuery, 1);
     int nPChild = db_column_int(pQuery, 5);
     int nParent = db_column_int(pQuery, 6);
     int isLeaf = db_column_int(pQuery, 7);
@@ -111,46 +117,21 @@ void www_print_timeline(
       @ </td></tr></table>
       @ </td></tr>
     }
-    @ <tr id="m%d(rid)" onmouseover='xin("m%d(rid)")'
-    @     onmouseout='xout("m%d(rid)")'>
+    @ <tr id="m%d(rid)">
     @ <td valign="top">%s(&zDate[11])</td>
     @ <td width="20"></td>
     @ <td valign="top" align="left">
-    hyperlink_to_uuid(db_column_text(pQuery,1));
-    @ %h(db_column_text(pQuery,3))
+    hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
     if( nParent>1 ){
-      Stmt q;
-      @ <b>Merge</b> from
-      db_prepare(&q,
-        "SELECT rid, uuid FROM plink, blob"
-        " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim=0",
-        rid
-      );
-      while( db_step(&q)==SQLITE_ROW ){
-        int mrid = db_column_int(&q, 0);
-        const char *zUuid = db_column_text(&q, 1);
-        hyperlink_to_uuid_with_highlight(zUuid, mrid);
-      }
-      db_finalize(&q);
+      @ <b>Merge</b> 
     }
     if( nPChild>1 ){
-      Stmt q;
-      @ <b>Fork</b> to
-      db_prepare(&q,
-        "SELECT rid, uuid FROM plink, blob"
-        " WHERE plink.pid=%d AND blob.rid=plink.cid AND plink.isprim>0",
-        rid
-      );
-      while( db_step(&q)==SQLITE_ROW ){
-        int frid = db_column_int(&q, 0);
-        const char *zUuid = db_column_text(&q, 1);
-        hyperlink_to_uuid_with_highlight(zUuid, frid);
-      }
-      db_finalize(&q);
+      @ <b>Fork</b>
     }
     if( isLeaf ){
       @ <b>Leaf</b>
     }
+    @ %h(db_column_text(pQuery,3))
     @ (by %h(db_column_text(pQuery,4)))</td></tr>
     if( zLastDate ){
       strcpy(zLastDate, zDate);
@@ -249,53 +230,58 @@ void page_timeline(void){
   @     setone(x,value);
   @   }
   @ }
-  @ function setone(id, onoff){
+  @ function setone(id, clr){
   @   if( parentof[id]==null ) return 0;
   @   var w = document.getElementById(id);
-  @   var clr = onoff==1 ? "#e0e0ff" : "#ffffff";
-  @   if( w.backgroundColor==clr ){
+  @   if( w.style.color==clr ){
   @     return 0
   @   }else{
-  @     w.style.backgroundColor = clr
+  @     w.style.color = clr
   @     return 1
   @   }
   @ }
   @ function xin(id) {
-  @   setall(0);
-  @   setone(id,1);
-  @   set_children(id);
-  @   set_parents(id);
+  @   setall("#ffffff");
+  @   setone(id,"#000000");
+  @   set_children(id, "#002000");
+  @   set_parents(id, "#200000");
+  @   for(var x in parentof[id]){
+  @     var pid = parentof[id][x]
+  @     var w = document.getElementById(pid);
+  @     if( w!=null ){
+  @       w.style.color = "#ff0000";
+  @     }
+  @   }
+  @   for(var x in childof[id]){
+  @     var cid = childof[id][x]
+  @     var w = document.getElementById(cid);
+  @     if( w!=null ){
+  @       w.style.color = "#008000";
+  @     }
+  @   }
   @ }
   @ function xout(id) {
-  @   setall(0);
+  @   setall("#000000");
   @ }
-  @ function set_parents(id){
+  @ function set_parents(id, clr){
   @   var plist = parentof[id];
   @   if( plist==null ) return;
   @   for(var x in plist){
   @     var pid = plist[x];
-  @     if( setone(pid,1)==1 ){
-  @       set_parents(pid);
+  @     if( setone(pid,clr)==1 ){
+  @       set_parents(pid,clr);
   @     }
   @   }
   @ }
-  @ function set_children(id){
+  @ function set_children(id,clr){
   @   var clist = childof[id];
   @   if( clist==null ) return;
   @   for(var x in clist){
   @     var cid = clist[x];
-  @     if( setone(cid,1)==1 ){
-  @       set_children(cid);
+  @     if( setone(cid,clr)==1 ){
+  @       set_children(cid,clr);
   @     }
   @   }
-  @ }
-  @ function hilite(id) {
-  @   var x = document.getElementById(id);
-  @   x.style.color = "#ff0000";
-  @ }
-  @ function unhilite(id) {
-  @   var x = document.getElementById(id);
-  @   x.style.color = "#000000";
   @ }
   @ </script>
   @ <hr>
