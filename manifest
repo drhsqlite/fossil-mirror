@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\simplementations\sfor\sthe\smethods\s"deconstruct",\sand\s"construct".
-D 2007-08-29T02:46:41
+C Moved\scommon\slarge\slists\sof\sheader\sfiles\sinto\sMake\svariables.
+D 2007-08-29T02:49:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -51,7 +51,7 @@ F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
 F src/info.c e4bf002e1d5f261a0a23e073a1ea47ba340b5bce
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
 F src/main.c 500655758a6aa3a0cb4178b354ec9ed7a3046f97
-F src/main.mk 96738c84e585b99fd8b643f5ee7ae42be968aad5
+F src/main.mk f65e1ad0eebe22c5b4eb7fba616e6ea170836109
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl af0c777839a797e999f774dc83f5e00c27d3cbf4
@@ -117,14 +117,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P e00384d26d5e24bc41daf1788352e38dd85968c9
-R 0f81c0ec257431aa04188c6a683de30e
+P fc952557850fd095d73a23891a762456e580560d
+R 17e59c30da37d4cc6ea249a636b68f47
 U aku
-Z d5480470785fef6777340cc31ad2d0b5
+Z c7da736c5ac02b3c09912bd06d86b039
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG1N4RvonzZ/CRa7gRAki5AJ48pMphQ4i864KMogdOB6hNr7ysxwCgiMwZ
-jGZip52z8GG+3D+dUckgft0=
-=Nag6
+iD8DBQFG1N7TvonzZ/CRa7gRAlLJAJ4nwdGF6ogi460lMdZc5aL15N/8PwCeNHw4
+Bvm9xXdmIujN+ew0rKBU3iE=
+=BQAE
 -----END PGP SIGNATURE-----

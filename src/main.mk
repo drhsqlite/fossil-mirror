@@ -147,6 +147,100 @@ OBJ = \
   xfer.o \
   zip.o
 
+HDR = \
+  add.h \
+  blob.h \
+  cgi.h \
+  checkin.h \
+  checkout.h \
+  clearsign.h \
+  clone.h \
+  comformat.h \
+  construct.h \
+  content.h \
+  db.h \
+  delta.h \
+  deltacmd.h \
+  descendents.h \
+  diff.h \
+  diffcmd.h \
+  encode.h \
+  file.h \
+  http.h \
+  info.h \
+  login.h \
+  main.h \
+  manifest.h \
+  md5.h \
+  merge.h \
+  merge3.h \
+  name.h \
+  pivot.h \
+  printf.h \
+  rebuild.h \
+  schema.h \
+  setup.h \
+  sha1.h \
+  style.h \
+  sync.h \
+  timeline.h \
+  update.h \
+  url.h \
+  user.h \
+  verify.h \
+  vfile.h \
+  wiki.h \
+  wikiformat.h \
+  xfer.h \
+  zip.h
+
+MHDR = \
+  add_.c:add.h \
+  blob_.c:blob.h \
+  cgi_.c:cgi.h \
+  checkin_.c:checkin.h \
+  checkout_.c:checkout.h \
+  clearsign_.c:clearsign.h \
+  clone_.c:clone.h \
+  comformat_.c:comformat.h \
+  construct_.c:construct.h \
+  content_.c:content.h \
+  db_.c:db.h \
+  delta_.c:delta.h \
+  deltacmd_.c:deltacmd.h \
+  descendents_.c:descendents.h \
+  diff_.c:diff.h \
+  diffcmd_.c:diffcmd.h \
+  encode_.c:encode.h \
+  file_.c:file.h \
+  http_.c:http.h \
+  info_.c:info.h \
+  login_.c:login.h \
+  main_.c:main.h \
+  manifest_.c:manifest.h \
+  md5_.c:md5.h \
+  merge_.c:merge.h \
+  merge3_.c:merge3.h \
+  name_.c:name.h \
+  pivot_.c:pivot.h \
+  printf_.c:printf.h \
+  rebuild_.c:rebuild.h \
+  schema_.c:schema.h \
+  setup_.c:setup.h \
+  sha1_.c:sha1.h \
+  style_.c:style.h \
+  sync_.c:sync.h \
+  timeline_.c:timeline.h \
+  update_.c:update.h \
+  url_.c:url.h \
+  user_.c:user.h \
+  verify_.c:verify.h \
+  vfile_.c:vfile.h \
+  wiki_.c:wiki.h \
+  wikiformat_.c:wikiformat.h \
+  xfer_.c:xfer.h \
+  zip_.c:zip.h
+
 APPNAME = fossil$(E)
 
 
@@ -180,10 +274,10 @@ $(APPNAME):	headers $(OBJ) sqlite3.o
 clean:	
 	rm -f *.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers
-	rm -f add.h blob.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h construct.h content.h db.h delta.h deltacmd.h descendents.h diff.h diffcmd.h encode.h file.h http.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h printf.h rebuild.h schema.h setup.h sha1.h style.h sync.h timeline.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h xfer.h zip.h
+	rm -f $(HDR)
 
 headers:	makeheaders mkindex $(TRANS_SRC) ./VERSION.h
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	./mkindex $(TRANS_SRC) >page_index.h
 	touch headers
 
@@ -194,7 +288,7 @@ add.o:	add_.c add.h  $(SRCDIR)/config.h
 	$(XTCC) -o add.o -c add_.c
 
 add.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 blob_.c:	$(SRCDIR)/blob.c $(SRCDIR)/VERSION translate
@@ -204,7 +298,7 @@ blob.o:	blob_.c blob.h  $(SRCDIR)/config.h
 	$(XTCC) -o blob.o -c blob_.c
 
 blob.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 cgi_.c:	$(SRCDIR)/cgi.c $(SRCDIR)/VERSION translate
@@ -214,7 +308,7 @@ cgi.o:	cgi_.c cgi.h  $(SRCDIR)/config.h
 	$(XTCC) -o cgi.o -c cgi_.c
 
 cgi.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 checkin_.c:	$(SRCDIR)/checkin.c $(SRCDIR)/VERSION translate
@@ -224,7 +318,7 @@ checkin.o:	checkin_.c checkin.h  $(SRCDIR)/config.h
 	$(XTCC) -o checkin.o -c checkin_.c
 
 checkin.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 checkout_.c:	$(SRCDIR)/checkout.c $(SRCDIR)/VERSION translate
@@ -234,7 +328,7 @@ checkout.o:	checkout_.c checkout.h  $(SRCDIR)/config.h
 	$(XTCC) -o checkout.o -c checkout_.c
 
 checkout.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 clearsign_.c:	$(SRCDIR)/clearsign.c $(SRCDIR)/VERSION translate
@@ -244,7 +338,7 @@ clearsign.o:	clearsign_.c clearsign.h  $(SRCDIR)/config.h
 	$(XTCC) -o clearsign.o -c clearsign_.c
 
 clearsign.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 clone_.c:	$(SRCDIR)/clone.c $(SRCDIR)/VERSION translate
@@ -254,7 +348,7 @@ clone.o:	clone_.c clone.h  $(SRCDIR)/config.h
 	$(XTCC) -o clone.o -c clone_.c
 
 clone.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 comformat_.c:	$(SRCDIR)/comformat.c $(SRCDIR)/VERSION translate
@@ -264,7 +358,7 @@ comformat.o:	comformat_.c comformat.h  $(SRCDIR)/config.h
 	$(XTCC) -o comformat.o -c comformat_.c
 
 comformat.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 construct_.c:	$(SRCDIR)/construct.c $(SRCDIR)/VERSION translate
@@ -274,7 +368,7 @@ construct.o:	construct_.c construct.h  $(SRCDIR)/config.h
 	$(XTCC) -o construct.o -c construct_.c
 
 construct.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 content_.c:	$(SRCDIR)/content.c $(SRCDIR)/VERSION translate
@@ -284,7 +378,7 @@ content.o:	content_.c content.h  $(SRCDIR)/config.h
 	$(XTCC) -o content.o -c content_.c
 
 content.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 db_.c:	$(SRCDIR)/db.c $(SRCDIR)/VERSION translate
@@ -294,7 +388,7 @@ db.o:	db_.c db.h  $(SRCDIR)/config.h
 	$(XTCC) -o db.o -c db_.c
 
 db.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 delta_.c:	$(SRCDIR)/delta.c $(SRCDIR)/VERSION translate
@@ -304,7 +398,7 @@ delta.o:	delta_.c delta.h  $(SRCDIR)/config.h
 	$(XTCC) -o delta.o -c delta_.c
 
 delta.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 deltacmd_.c:	$(SRCDIR)/deltacmd.c $(SRCDIR)/VERSION translate
@@ -314,7 +408,7 @@ deltacmd.o:	deltacmd_.c deltacmd.h  $(SRCDIR)/config.h
 	$(XTCC) -o deltacmd.o -c deltacmd_.c
 
 deltacmd.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 descendents_.c:	$(SRCDIR)/descendents.c $(SRCDIR)/VERSION translate
@@ -324,7 +418,7 @@ descendents.o:	descendents_.c descendents.h  $(SRCDIR)/config.h
 	$(XTCC) -o descendents.o -c descendents_.c
 
 descendents.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 diff_.c:	$(SRCDIR)/diff.c $(SRCDIR)/VERSION translate
@@ -334,7 +428,7 @@ diff.o:	diff_.c diff.h  $(SRCDIR)/config.h
 	$(XTCC) -o diff.o -c diff_.c
 
 diff.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 diffcmd_.c:	$(SRCDIR)/diffcmd.c $(SRCDIR)/VERSION translate
@@ -344,7 +438,7 @@ diffcmd.o:	diffcmd_.c diffcmd.h  $(SRCDIR)/config.h
 	$(XTCC) -o diffcmd.o -c diffcmd_.c
 
 diffcmd.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 encode_.c:	$(SRCDIR)/encode.c $(SRCDIR)/VERSION translate
@@ -354,7 +448,7 @@ encode.o:	encode_.c encode.h  $(SRCDIR)/config.h
 	$(XTCC) -o encode.o -c encode_.c
 
 encode.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 file_.c:	$(SRCDIR)/file.c $(SRCDIR)/VERSION translate
@@ -364,7 +458,7 @@ file.o:	file_.c file.h  $(SRCDIR)/config.h
 	$(XTCC) -o file.o -c file_.c
 
 file.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 http_.c:	$(SRCDIR)/http.c $(SRCDIR)/VERSION translate
@@ -374,7 +468,7 @@ http.o:	http_.c http.h  $(SRCDIR)/config.h
 	$(XTCC) -o http.o -c http_.c
 
 http.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 info_.c:	$(SRCDIR)/info.c $(SRCDIR)/VERSION translate
@@ -384,7 +478,7 @@ info.o:	info_.c info.h  $(SRCDIR)/config.h
 	$(XTCC) -o info.o -c info_.c
 
 info.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 login_.c:	$(SRCDIR)/login.c $(SRCDIR)/VERSION translate
@@ -394,7 +488,7 @@ login.o:	login_.c login.h  $(SRCDIR)/config.h
 	$(XTCC) -o login.o -c login_.c
 
 login.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 main_.c:	$(SRCDIR)/main.c $(SRCDIR)/VERSION translate
@@ -404,7 +498,7 @@ main.o:	main_.c main.h page_index.h $(SRCDIR)/config.h
 	$(XTCC) -o main.o -c main_.c
 
 main.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 manifest_.c:	$(SRCDIR)/manifest.c $(SRCDIR)/VERSION translate
@@ -414,7 +508,7 @@ manifest.o:	manifest_.c manifest.h  $(SRCDIR)/config.h
 	$(XTCC) -o manifest.o -c manifest_.c
 
 manifest.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 md5_.c:	$(SRCDIR)/md5.c $(SRCDIR)/VERSION translate
@@ -424,7 +518,7 @@ md5.o:	md5_.c md5.h  $(SRCDIR)/config.h
 	$(XTCC) -o md5.o -c md5_.c
 
 md5.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 merge_.c:	$(SRCDIR)/merge.c $(SRCDIR)/VERSION translate
@@ -434,7 +528,7 @@ merge.o:	merge_.c merge.h  $(SRCDIR)/config.h
 	$(XTCC) -o merge.o -c merge_.c
 
 merge.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 merge3_.c:	$(SRCDIR)/merge3.c $(SRCDIR)/VERSION translate
@@ -444,7 +538,7 @@ merge3.o:	merge3_.c merge3.h  $(SRCDIR)/config.h
 	$(XTCC) -o merge3.o -c merge3_.c
 
 merge3.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 name_.c:	$(SRCDIR)/name.c $(SRCDIR)/VERSION translate
@@ -454,7 +548,7 @@ name.o:	name_.c name.h  $(SRCDIR)/config.h
 	$(XTCC) -o name.o -c name_.c
 
 name.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 pivot_.c:	$(SRCDIR)/pivot.c $(SRCDIR)/VERSION translate
@@ -464,7 +558,7 @@ pivot.o:	pivot_.c pivot.h  $(SRCDIR)/config.h
 	$(XTCC) -o pivot.o -c pivot_.c
 
 pivot.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 printf_.c:	$(SRCDIR)/printf.c $(SRCDIR)/VERSION translate
@@ -474,7 +568,7 @@ printf.o:	printf_.c printf.h  $(SRCDIR)/config.h
 	$(XTCC) -o printf.o -c printf_.c
 
 printf.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 rebuild_.c:	$(SRCDIR)/rebuild.c $(SRCDIR)/VERSION translate
@@ -484,7 +578,7 @@ rebuild.o:	rebuild_.c rebuild.h  $(SRCDIR)/config.h
 	$(XTCC) -o rebuild.o -c rebuild_.c
 
 rebuild.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 schema_.c:	$(SRCDIR)/schema.c $(SRCDIR)/VERSION translate
@@ -494,7 +588,7 @@ schema.o:	schema_.c schema.h  $(SRCDIR)/config.h
 	$(XTCC) -o schema.o -c schema_.c
 
 schema.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 setup_.c:	$(SRCDIR)/setup.c $(SRCDIR)/VERSION translate
@@ -504,7 +598,7 @@ setup.o:	setup_.c setup.h  $(SRCDIR)/config.h
 	$(XTCC) -o setup.o -c setup_.c
 
 setup.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 sha1_.c:	$(SRCDIR)/sha1.c $(SRCDIR)/VERSION translate
@@ -514,7 +608,7 @@ sha1.o:	sha1_.c sha1.h  $(SRCDIR)/config.h
 	$(XTCC) -o sha1.o -c sha1_.c
 
 sha1.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 style_.c:	$(SRCDIR)/style.c $(SRCDIR)/VERSION translate
@@ -524,7 +618,7 @@ style.o:	style_.c style.h  $(SRCDIR)/config.h
 	$(XTCC) -o style.o -c style_.c
 
 style.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 sync_.c:	$(SRCDIR)/sync.c $(SRCDIR)/VERSION translate
@@ -534,7 +628,7 @@ sync.o:	sync_.c sync.h  $(SRCDIR)/config.h
 	$(XTCC) -o sync.o -c sync_.c
 
 sync.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 timeline_.c:	$(SRCDIR)/timeline.c $(SRCDIR)/VERSION translate
@@ -544,7 +638,7 @@ timeline.o:	timeline_.c timeline.h  $(SRCDIR)/config.h
 	$(XTCC) -o timeline.o -c timeline_.c
 
 timeline.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 update_.c:	$(SRCDIR)/update.c $(SRCDIR)/VERSION translate
@@ -554,7 +648,7 @@ update.o:	update_.c update.h  $(SRCDIR)/config.h
 	$(XTCC) -o update.o -c update_.c
 
 update.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 url_.c:	$(SRCDIR)/url.c $(SRCDIR)/VERSION translate
@@ -564,7 +658,7 @@ url.o:	url_.c url.h  $(SRCDIR)/config.h
 	$(XTCC) -o url.o -c url_.c
 
 url.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 user_.c:	$(SRCDIR)/user.c $(SRCDIR)/VERSION translate
@@ -574,7 +668,7 @@ user.o:	user_.c user.h  $(SRCDIR)/config.h
 	$(XTCC) -o user.o -c user_.c
 
 user.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 verify_.c:	$(SRCDIR)/verify.c $(SRCDIR)/VERSION translate
@@ -584,7 +678,7 @@ verify.o:	verify_.c verify.h  $(SRCDIR)/config.h
 	$(XTCC) -o verify.o -c verify_.c
 
 verify.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 vfile_.c:	$(SRCDIR)/vfile.c $(SRCDIR)/VERSION translate
@@ -594,7 +688,7 @@ vfile.o:	vfile_.c vfile.h  $(SRCDIR)/config.h
 	$(XTCC) -o vfile.o -c vfile_.c
 
 vfile.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 wiki_.c:	$(SRCDIR)/wiki.c $(SRCDIR)/VERSION translate
@@ -604,7 +698,7 @@ wiki.o:	wiki_.c wiki.h  $(SRCDIR)/config.h
 	$(XTCC) -o wiki.o -c wiki_.c
 
 wiki.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 wikiformat_.c:	$(SRCDIR)/wikiformat.c $(SRCDIR)/VERSION translate
@@ -614,7 +708,7 @@ wikiformat.o:	wikiformat_.c wikiformat.h  $(SRCDIR)/config.h
 	$(XTCC) -o wikiformat.o -c wikiformat_.c
 
 wikiformat.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 xfer_.c:	$(SRCDIR)/xfer.c $(SRCDIR)/VERSION translate
@@ -624,7 +718,7 @@ xfer.o:	xfer_.c xfer.h  $(SRCDIR)/config.h
 	$(XTCC) -o xfer.o -c xfer_.c
 
 xfer.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 zip_.c:	$(SRCDIR)/zip.c $(SRCDIR)/VERSION translate
@@ -634,7 +728,7 @@ zip.o:	zip_.c zip.h  $(SRCDIR)/config.h
 	$(XTCC) -o zip.o -c zip_.c
 
 zip.h:	makeheaders
-	./makeheaders  add_.c:add.h blob_.c:blob.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendents_.c:descendents.h diff_.c:diff.h diffcmd_.c:diffcmd.h encode_.c:encode.h file_.c:file.h http_.c:http.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h printf_.c:printf.h rebuild_.c:rebuild.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h style_.c:style.h sync_.c:sync.h timeline_.c:timeline.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h ./VERSION.h
+	./makeheaders  $(MHDR) $(SRCDIR)/sqlite3.h ./VERSION.h
 	touch headers
 
 sqlite3.o:	$(SRCDIR)/sqlite3.c
