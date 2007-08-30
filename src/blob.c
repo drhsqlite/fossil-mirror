@@ -345,7 +345,9 @@ void blob_rewind(Blob *p){
 /*
 ** Extract a single line of text from pFrom beginning at the current 
 ** cursor location and use that line of text to initialize pTo.
-** Return the number of bytes in the line.
+** pTo will include the terminating \n.  Return the number of bytes
+** in the line including the \n at the end.  0 is returned at
+** end-of-file.
 **
 ** The cursor of pFrom is left pointing at the first byte past the
 ** \n that terminated the line.
@@ -357,13 +359,13 @@ int blob_line(Blob *pFrom, Blob *pTo){
   char *aData = pFrom->aData;
   int n = pFrom->nUsed;
   int i = pFrom->iCursor;
-  /* Do not skip blank lines
-  ** while( i<n && aData[i]=='\n' ){ i++; }
-  ** pFrom->iCursor = i;
-  */
+
   while( i<n && aData[i]!='\n' ){ i++; }
+  if( i<n ){
+    assert( aData[i]=='\n' );
+    i++;
+  }
   blob_extract(pFrom, i-pFrom->iCursor, pTo);
-  if( i<n && aData[i]=='\n' ){ pFrom->iCursor++; }
   return pTo->nUsed;
 }
 

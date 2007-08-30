@@ -96,7 +96,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       if( seenHeader ){
         break;
       }
-      while( blob_line(pContent, &line)>1 ){}
+      while( blob_line(pContent, &line)>2 ){}
       if( blob_line(pContent, &line)==0 ) break;
       z = blob_buffer(&line);
     }
@@ -104,7 +104,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;
     if( z[0]=='F' ){
       char *zName, *zUuid;
-      md5sum_step_text(blob_buffer(&line), blob_size(&line)+1);
+      md5sum_step_text(blob_buffer(&line), blob_size(&line));
       if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
@@ -128,7 +128,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         goto manifest_syntax_error;
       }
     }else if( z[0]=='C' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line)+1);
+      md5sum_step_text(blob_buffer(&line), blob_size(&line));
       if( p->zComment!=0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
@@ -136,21 +136,21 @@ int manifest_parse(Manifest *p, Blob *pContent){
       defossilize(p->zComment);
     }else if( z[0]=='D' ){
       char *zDate;
-      md5sum_step_text(blob_buffer(&line), blob_size(&line)+1);
+      md5sum_step_text(blob_buffer(&line), blob_size(&line));
       if( p->rDate!=0.0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
       zDate = blob_terminate(&a1);
       p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
     }else if( z[0]=='U' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line)+1);
+      md5sum_step_text(blob_buffer(&line), blob_size(&line));
       if( p->zUser!=0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
       p->zUser = blob_terminate(&a1);
       defossilize(p->zUser);
     }else if( z[0]=='R' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line)+1);
+      md5sum_step_text(blob_buffer(&line), blob_size(&line));
       if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
       if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
@@ -158,7 +158,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       p->zRepoCksum = blob_terminate(&a1);
       if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
     }else if( z[0]=='P' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line)+1);
+      md5sum_step_text(blob_buffer(&line), blob_size(&line));
       while( blob_token(&line, &a1) ){
         char *zUuid;
         if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;

@@ -237,7 +237,9 @@ static void prepare_commit_comment(Blob *pComment){
     z = blob_buffer(&line);
     for(i=0; i<n && isspace(z[i]);  i++){}
     if( i<n && z[i]=='#' ) continue;
-    blob_appendf(pComment, "%b\n", &line);
+    if( i<n || blob_size(pComment)>0 ){
+      blob_appendf(pComment, "%b", &line);
+    }
   }
   blob_reset(&text);
   zComment = blob_str(pComment);
