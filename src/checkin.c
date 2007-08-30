@@ -394,6 +394,9 @@ void commit_cmd(void){
 
   /* Create the manifest */
   blob_zero(&manifest);
+  if( blob_size(&comment)==0 ){
+    blob_append(&comment, "(no comment)", -1);
+  }
   blob_appendf(&manifest, "C %F\n", blob_str(&comment));
   zDate = db_text(0, "SELECT datetime('now')");
   zDate[10] = 'T';

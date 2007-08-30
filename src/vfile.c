@@ -386,11 +386,14 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   Manifest m;
   char zBuf[100];
 
+  blob_zero(pOut);
+  if( pManOut ){
+    blob_zero(pManOut);
+  }
   db_must_be_within_tree();
   content_get(vid, &mfile);
   if( manifest_parse(&m, &mfile)==0 ){
-    blob_zero(pOut);
-    return;
+    fossil_panic("manifest file (%d) is malformed", vid);
   }
   for(i=0; i<m.nFile; i++){
     fid = uuid_to_rid(m.aFile[i].zUuid, 0);
@@ -402,7 +405,6 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
     blob_reset(&file);
   }
   if( pManOut ){
-    blob_zero(pManOut);
     blob_append(pManOut, m.zRepoCksum, -1);
   }
   manifest_clear(&m);

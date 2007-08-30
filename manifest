@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\saku's\smakefile\schanges.
-D 2007-08-29T11:51:05
+C Fix\sbugs\sthat\scan\scause\sa\ssegfault\sif\sa\sblank\scheck-in\scomment\nis\sentered.
+D 2007-08-30T18:05:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -31,7 +31,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/blob.c 57c4e58592db596cca32789da3eb8af7722d251a
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c 24fdcaa11cf174afdadb5a4ee3db31801428cb0f
+F src/checkin.c 670906c45d932f2ad71176e6a8bce735a9a5ac76
 F src/checkout.c 59343953ba42e0f41b57d59fdc75fffe5b0ff94c
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -77,7 +77,7 @@ F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
-F src/vfile.c aea4942364ad53aca2c99985bcf227385bb82f07
+F src/vfile.c 5ad913c384f94b6fa54b89ec9a7aeb1e1f600144
 F src/wiki.c daf8014fa804a286d33d80111694bdfc18d036f0
 F src/wikiformat.c 4db346d7739b9f456825a212afa76b75af93d7a2
 F src/xfer.c f732b233d1ab879b603b26716e10e08f81c80769
@@ -117,14 +117,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 4d051c1eda312ef2be17c7f254c54a8d15850688 5f83d2720e094c5164028d34049fa71682179d69
-R 9dbe22b81909c07ac3a5250b064af28a
+P fad606934c49623defb74e13af98c916ca5f516a
+R 2c6bf85484cad6a36863b71aff45ec0c
 U drh
-Z 724fb24f72c4891dfed59217765733e1
+Z c536c8dc473b0258500eb61880f1cc77
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG1V2toxKgR168RlERAlZ+AKCMYd8lSj5zD5Uy1pmigooaJFtdpQCfYIEQ
-wMO+B18i0WzD52/59Z2SuNM=
-=QOa8
+iD8DBQFG1wbioxKgR168RlERAm3LAJ4nShQd5L7rXUPMOSbHW2bvnmz7hwCeI86a
+k3EaRwK3nQhxf98NE8aulrM=
+=dIQS
 -----END PGP SIGNATURE-----
