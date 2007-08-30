@@ -307,6 +307,7 @@ void commit_cmd(void){
   Stmt q2;
   char *zUuid, *zDate;
   int noSign = 0;        /* True to omit signing the manifest using GPG */
+  int isAMerge = 0;      /* True if checking in a merge */
   char *zManifestFile;   /* Name of the manifest file */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -331,14 +332,15 @@ void commit_cmd(void){
   ** should be committed.
   */
   select_commit_files();
-  if( g.aCommitFile && db_exists("SELECT 1 FROM vmerge") ){
+  isAMerge = db_exists("SELECT 1 FROM vmerge");
+  if( g.aCommitFile && isAMerge ){
     fossil_fatal("cannot do a partial commit of a merge");
   }
 
   user_select();
   db_begin_transaction();
   rc = unsaved_changes();
-  if( rc==0 ){
+  if( rc==0 && !isAMerge ){
     fossil_panic("nothing has changed");
   }
 

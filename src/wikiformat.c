@@ -914,7 +914,6 @@ static void wiki_render(Renderer *p, char *z){
 */
 void wiki_convert(Blob *pIn, Blob *pOut, int ops){
   char *z;
-  int n;
   Renderer renderer;
   
   memset(&renderer, 0, sizeof(renderer));

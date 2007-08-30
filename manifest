@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\smultiple\sbugs\sin\sthe\scomment\sparser\sof\sthe\scommit\scommand.\nAllow\sblank\slines\sin\scomments.
-D 2007-08-30T19:46:06
+C Fix\ssome\sannoyances\swith\s"merge".\s\sThis\sinvolves\sa\sschema\schange\nto\sthe\s_FOSSIL_\sfile.\s\sOlder\sversions\swill\scontinue\sto\swork,\sbut\nit\swould\smake\ssince\sto\s"close"\sand\s"open"\slocal\ssource\stree\safter\s\nupdating\sto\sthis\sversion\sof\sfossil,\sin\sorder\sto\supdate\sthe\sschema.
+D 2007-08-30T20:27:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -31,7 +31,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/blob.c f2c016552c1006e1ead1f64366a650471e0e4064
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c 66b4512b4593626e0045315e72668c6788f2a246
+F src/checkin.c e53057ad70bde64dfd9a064777ff33cd6ea5e25e
 F src/checkout.c 59343953ba42e0f41b57d59fdc75fffe5b0ff94c
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -57,14 +57,14 @@ F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl e6f77439f48a4e310468c13e29802db261728dd3
 F src/manifest.c 2a7dfdcb1682935ee51522647a00a9bd9edede81
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
-F src/merge.c 6daf84ba0a8dca66e1289b9dbb5c50f5dc42e38e
+F src/merge.c de0f1b5a7621c222d2d342486ac953d0772c6cd2
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 104f7b4bf822e163f06e5983f7a29386c55c226d
-F src/schema.c 4ba2fd38a23f1037495da8826482ef25849412ef
+F src/schema.c c780fb4f32ae73072ae3d93c07bc6c24d5270cdb
 F src/setup.c 1750dc4678b4fbc1551687157dd3c713f66e7557
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
@@ -79,7 +79,7 @@ F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 5ad913c384f94b6fa54b89ec9a7aeb1e1f600144
 F src/wiki.c daf8014fa804a286d33d80111694bdfc18d036f0
-F src/wikiformat.c 4db346d7739b9f456825a212afa76b75af93d7a2
+F src/wikiformat.c 8a54463d32676c9605db1997dc90d52c633eae4f
 F src/xfer.c f732b233d1ab879b603b26716e10e08f81c80769
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
@@ -117,14 +117,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 1871a93dd4908cb547189d8c6cda978a82bfcdb6
-R 08275aba008b36145c74f9b6937190c7
+P f030c0aea76a40c60e420db1aaaf82bab07ebe4b
+R 41710fef346ae3970c9d1e13f0e728b4
 U drh
-Z 485924c4c4cdef1dff287214bfc702e5
+Z c5832e405c598ba39dd3a61f1d6e52fd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG1x6CoxKgR168RlERAi0BAJ44hoP1sVrHX7RVY/7f0t+2u3tdaQCeJpxT
-eVoVHTtdhn4YorgQQJORrII=
-=AmNm
+iD8DBQFG1ygmoxKgR168RlERAjg7AJ9870jsF6pArJJMeEn9vpwztd3rzgCcDz7J
+ScZWmEz6CB7G6SL4psbPrfA=
+=ahuB
 -----END PGP SIGNATURE-----

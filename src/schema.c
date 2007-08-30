@@ -247,7 +247,8 @@ const char zLocalSchema[] =
 @
 @ CREATE TABLE vmerge(
 @   id INTEGER REFERENCES vfile,      -- VFILE entry that has been merged
-@   merge INTEGER                     -- Merged with this record
+@   merge INTEGER,                    -- Merged with this record
+@   UNIQUE(id, merge)
 @ );
 ;
 

@@ -237,7 +237,8 @@ void merge_cmd(void){
     blob_reset(&m);
     blob_reset(&v);
     blob_reset(&r);
-    db_multi_exec("INSERT INTO vmerge(id,merge) VALUES(%d,%d)",idv,ridm);
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
+                  idv,ridm);
   }
   db_finalize(&q);
 
@@ -264,6 +265,6 @@ void merge_cmd(void){
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
-  db_multi_exec("INSERT INTO vmerge(id,merge) VALUES(0,%d)", mid);
+  db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
   db_end_transaction(0);
 }
