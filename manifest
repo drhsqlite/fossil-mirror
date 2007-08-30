@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\ssome\sannoyances\swith\s"merge".\s\sThis\sinvolves\sa\sschema\schange\nto\sthe\s_FOSSIL_\sfile.\s\sOlder\sversions\swill\scontinue\sto\swork,\sbut\nit\swould\smake\ssince\sto\s"close"\sand\s"open"\slocal\ssource\stree\safter\s\nupdating\sto\sthis\sversion\sof\sfossil,\sin\sorder\sto\supdate\sthe\sschema.
-D 2007-08-30T20:27:14
+C Put\sa\scolored\sasterisk\sbeside\sentries\sof\sinterest\sin\sthe\stimeline,\nrather\sthan\sdoing\slots\sof\sannoying\stext\scolor\sand\sbackground\schanges.
+D 2007-08-30T21:37:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -71,7 +71,7 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c 5cd9dc9d0bac2c6e60dd51af7c48b22f40649ce4
+F src/timeline.c 7962fee79e8e5369d63cc622fe658cb77edc4c30
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -117,14 +117,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P f030c0aea76a40c60e420db1aaaf82bab07ebe4b
-R 41710fef346ae3970c9d1e13f0e728b4
+P 4c82c7773f49c1330a7c90220857696df6dbfd0f
+R 452c04038289117835cbbe6792bba089
 U drh
-Z c5832e405c598ba39dd3a61f1d6e52fd
+Z 25538c03d6ebfeef3d949e1e900cf290
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG1ygmoxKgR168RlERAjg7AJ9870jsF6pArJJMeEn9vpwztd3rzgCcDz7J
-ScZWmEz6CB7G6SL4psbPrfA=
-=ahuB
+iD8DBQFG1zipoxKgR168RlERAhVbAJ9bDRuyd4m7SQVnFIZsPsPFWSrP4wCbB86U
+4qPLrT49krIV71fhep6hOdU=
+=khfR
 -----END PGP SIGNATURE-----

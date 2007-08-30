@@ -117,9 +117,10 @@ void www_print_timeline(
       @ </td></tr></table>
       @ </td></tr>
     }
-    @ <tr id="m%d(rid)">
+    @ <tr>
     @ <td valign="top">%s(&zDate[11])</td>
-    @ <td width="20"></td>
+    @ <td width="20" align="center" valign="top">
+    @ <font id="m%d(rid)" size="+1" color="white">*</font></td>
     @ <td valign="top" align="left">
     hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
     if( nParent>1 ){
@@ -230,6 +231,7 @@ void page_timeline(void){
   @     setone(x,value);
   @   }
   @ }
+  @ setall("#ffffff");
   @ function setone(id, clr){
   @   if( parentof[id]==null ) return 0;
   @   var w = document.getElementById(id);
@@ -242,26 +244,26 @@ void page_timeline(void){
   @ }
   @ function xin(id) {
   @   setall("#ffffff");
-  @   setone(id,"#000000");
-  @   set_children(id, "#002000");
-  @   set_parents(id, "#200000");
+  @   setone(id,"#ff0000");
+  @   set_children(id, "#b0b0b0");
+  @   set_parents(id, "#b0b0b0");
   @   for(var x in parentof[id]){
   @     var pid = parentof[id][x]
   @     var w = document.getElementById(pid);
   @     if( w!=null ){
-  @       w.style.color = "#ff0000";
+  @       w.style.color = "#000000";
   @     }
   @   }
   @   for(var x in childof[id]){
   @     var cid = childof[id][x]
   @     var w = document.getElementById(cid);
   @     if( w!=null ){
-  @       w.style.color = "#008000";
+  @       w.style.color = "#000000";
   @     }
   @   }
   @ }
   @ function xout(id) {
-  @   setall("#000000");
+  @   /* setall("#000000"); */
   @ }
   @ function set_parents(id, clr){
   @   var plist = parentof[id];
