@@ -99,9 +99,6 @@ Things to work on:
  *  Full-text search against check-in comments and diffs of each
     check-in.
 
- *  Ability to check-in some subset of changes to the tree instead
-    of having to check in all changes.
-
  *  Add a "revert" command that will undo all changes to a file
     or files in the current check-out - restoring the files back
     to their original check-out state.
@@ -119,15 +116,6 @@ Things to work on:
     a check-in comment with a new comment.  Comment changes should be
     GPG clearsigned at the very least.  Comment changes only apply if
     the user who made the change has the right permissions.
-
- *  New cli commands: "deconstruct" and "reconstruct".  The deconstruct
-    command populates an indicated directory with copies of all files
-    contained within the repository.  Files are named aaa/bbbbbbb where
-    aaa is the first 3 characters of the uuid and bbbbbb is the
-    remaining 37 characters.  reconstruct builds a new repository
-    containing all files in an indicated directory.  When reconstructing,
-    some information is lost: project-code, server-code, users.  
-    Just make up a new project-code.  
 
  *  Get a build working for win32.  Perhaps use cygwin.  Or omit
     the server component from win32 (to eliminate the need for fork()).
