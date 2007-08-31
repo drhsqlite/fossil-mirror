@@ -89,12 +89,18 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 */
 void www_print_timeline(
   Stmt *pQuery,
-  char *zLastDate,
+  int *pFirstEvent,
+  int *pLastEvent,
   int (*xCallback)(int, Blob*),
   Blob *pArg
  ){
   char zPrevDate[20];
   zPrevDate[0] = 0;
+  int cnt = 0;
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS seen(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM seen;"
+  );
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -103,6 +109,13 @@ void www_print_timeline(
     int nParent = db_column_int(pQuery, 6);
     int isLeaf = db_column_int(pQuery, 7);
     const char *zDate = db_column_text(pQuery, 2);
+    if( cnt==0 && pFirstEvent ){
+      *pFirstEvent = rid;
+    }
+    if( pLastEvent ){
+      *pLastEvent = rid;
+    }
+    db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
     if( xCallback ){
       xCallback(rid, pArg);
     }
@@ -134,9 +147,6 @@ void www_print_timeline(
     }
     @ %h(db_column_text(pQuery,3))
     @ (by %h(db_column_text(pQuery,4)))</td></tr>
-    if( zLastDate ){
-      strcpy(zLastDate, zDate);
-    }
   }
   @ </table>
 }
@@ -174,6 +184,15 @@ static int save_parentage_javascript(int rid, Blob *pOut){
 
 /*
 ** WEBPAGE: timeline
+**
+** Query parameters:
+**
+**    d=STARTDATE    date in iso8601 notation.          dflt: newest event
+**    n=INTEGER      number of events to show.          dflt: 25
+**    e=INTEGER      starting event id.                 dflt: nil
+**    u=NAME         show only events from user.        dflt: nil
+**    a              show events after and including.   dflt: false
+**    r              show only related events.          dflt: false
 */
 void page_timeline(void){
   Stmt q;
@@ -181,7 +200,13 @@ void page_timeline(void){
   Blob scriptInit;
   char zDate[100];
   const char *zStart = P("d");
-  int nEntry = atoi(PD("n","25"));
+  int nEntry = atoi(PD("n","20"));
+  const char *zUser = P("u");
+  int objid = atoi(PD("e","0"));
+  int relatedEvents = P("r")!=0;
+  int afterFlag = P("a")!=0;
+  int firstEvent;
+  int lastEvent;
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -204,11 +229,21 @@ void page_timeline(void){
     "  FROM event, blob"
     " WHERE event.type='ci' AND blob.rid=event.objid"
   );
+  if( zUser ){
+    zSQL = mprintf("%z AND event.user=%Q", zSQL, zUser);
+  }
+  if( objid ){
+    char *z = db_text(0, "SELECT datetime(event.mtime) FROM event"
+                         " WHERE objid=%d", objid);
+    if( z ){
+      zStart = z;
+    }
+  }
   if( zStart ){
     while( isspace(zStart[0]) ){ zStart++; }
     if( zStart[0] ){
-      zSQL = mprintf("%z AND event.mtime<=julianday(%Q, 'localtime')",
-                      zSQL, zStart);
+      zSQL = mprintf("%z AND event.mtime %s julianday(%Q, 'localtime')",
+                      zSQL, afterFlag ? ">=" : "<=", zStart);
     }
   }
   zSQL = mprintf("%z ORDER BY event.mtime DESC LIMIT %d", zSQL, nEntry);
@@ -216,7 +251,9 @@ void page_timeline(void){
   free(zSQL);
   zDate[0] = 0;
   blob_zero(&scriptInit);
-  www_print_timeline(&q, zDate, save_parentage_javascript, &scriptInit);
+  zDate[0] = 0;
+  www_print_timeline(&q, &firstEvent, &lastEvent,
+                     save_parentage_javascript, &scriptInit);
   db_finalize(&q);
   if( zStart==0 ){
     zStart = zDate;

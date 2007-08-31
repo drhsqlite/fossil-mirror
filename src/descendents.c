@@ -32,36 +32,42 @@
 /*
 ** Create a temporary table named "leaves" if it does not
 ** already exist.  Load this table with the RID of all
-** versions that are leaves are which are decended from
+** versions that are leaves which are decended from
 ** version iBase.
 */
 void compute_leaves(int iBase){
-  int generation = 0;
-  int chngCnt = 0;
+  Bag seen;       /* Descendents seen */
+  Bag pending;    /* Unpropagated descendents */
 
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS leaves("
-    "  rid INTEGER PRIMARY KEY,"
-    "  generation INTEGER"
+    "  rid INTEGER PRIMARY KEY"
     ");"
     "DELETE FROM leaves;"
-    "INSERT INTO leaves VALUES(%d,0);",
-    iBase
   );
-  do{
-    db_multi_exec(
-      "INSERT OR IGNORE INTO leaves(rid,generation) "
-      "SELECT cid, %d FROM plink"
-      " WHERE pid IN (SELECT rid FROM leaves WHERE generation=%d)",
-      generation+1, generation
-    );
-    generation++;
-    chngCnt = db_changes();
-  }while( chngCnt>0 );
-  db_multi_exec(
-    "DELETE FROM leaves"
-    " WHERE EXISTS(SELECT 1 FROM plink WHERE pid=rid)"
-  );
+  bag_init(&seen);
+  bag_init(&pending);
+  bag_insert(&pending, iBase);
+  while( bag_count(&pending) ){
+    int rid = bag_first(&pending);
+    int cnt = 0;
+    Stmt q;
+    bag_remove(&pending, rid);
+    db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int cid = db_column_int(&q, 0);
+      if( bag_insert(&seen, cid) ){
+        bag_insert(&pending, cid);
+      }
+      cnt++;
+    }
+    db_finalize(&q);
+    if( cnt==0 ){
+      db_multi_exec("INSERT INTO leaves VALUES(%d)", rid);
+    }
+  }
+  bag_clear(&pending);
+  bag_clear(&seen);
 }
 
 /*
@@ -119,8 +125,9 @@ void branches_cmd(void){
   db_finalize(&q);
 }
 
+#if 0
 /*
-** WEBPAGE:  leaves
+** WEB PAGE:  leaves
 **
 ** Find leaves of all branches.
 */
@@ -150,3 +157,4 @@ void branches_page(void){
   @ </script>
   style_footer();
 }
+#endif

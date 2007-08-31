@@ -7,6 +7,7 @@
 #
 set src {
   add
+  bag
   blob
   cgi
   checkin
