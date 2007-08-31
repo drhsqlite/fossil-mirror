@@ -1,3 +1,87 @@
+===============================================================================
+
+First experimental codes ...
+
+toosl/import-cvs.tcl
+tools/lib/rcsparser.tcl
+
+No actual import, right now only working on getting csets right. The
+code uses CVSROOT/history as foundation, and augments that with data
+from the individual RCS files (commit messages).
+
+Statistics of a run ...
+	3516 csets.
+
+	1545 breaks on user change
+	 558 breaks on file duplicate
+	  13 breaks on branch/trunk change
+	1402 breaks on commit message change
+
+Time statistics ...
+	3297 were processed in <= 1 seconds (93.77%)
+	 217 were processed in between 2 seconds and 14 minutes.
+	   1 was  processed in ~41 minutes
+	   1 was  processed in ~22 hours
+
+Time fuzz - Differences between csets range from 0 seconds to 66
+days. Needs stats analysis to see if there is an obvious break. Even
+so the times within csets and between csets overlap a great deal,
+making time a bad criterium for cset separation, IMHO.
+
+Leaving that topic, back to the current cset separator ...
+
+It has a problem:
+	The history file is not starting at the root!
+
+Examples:
+	The first three changesets are
+
+	=============================/user
+	M {Wed Nov 22 09:28:49 AM PST 2000} ericm 1.4 tcllib/modules/ftpd/ChangeLog
+	M {Wed Nov 22 09:28:49 AM PST 2000} ericm 1.7 tcllib/modules/ftpd/ftpd.tcl
+	files: 2
+	delta: 0
+	range: 0 seconds
+	=============================/cmsg
+	M {Wed Nov 29 02:14:33 PM PST 2000} ericm 1.3 tcllib/aclocal.m4
+	files: 1
+	delta: 
+	range: 0 seconds
+	=============================/cmsg
+	M {Sun Feb 04 12:28:35 AM PST 2001} ericm 1.9 tcllib/modules/mime/ChangeLog
+	M {Sun Feb 04 12:28:35 AM PST 2001} ericm 1.12 tcllib/modules/mime/mime.tcl
+	files: 2
+	delta: 0
+	range: 0 seconds
+
+All csets modify files which already have several revisions. We have
+no csets from before that in the history, but these csets are in the
+RCS files.
+
+I wonder, is SF maybe removing old entries from the history when it
+grows too large ?
+
+This also affects incremental import ... I cannot assume that the
+history always grows. It may shrink ... I cannot keep an offset, will
+have to record the time of the last entry, or even the full entry
+processed last, to allow me to skip ahead to anything not known yet.
+
+I might have to try to implement the algorithm outlined below,
+matching the revision trees of the individual RCS files to each other
+to form the global tree of revisions. Maybe we can use the history to
+help in the matchup, for the parts where we do have it.
+
+Wait. This might be easier ... Take the delta information from the RCS
+files and generate a fake history ... Actually, this might even allow
+us to create a total history ... No, not quite, the merge entries the
+actual history may contain will be missing. These we can mix in from
+the actual history, as much as we have.
+
+Still, lets try that, a fake history, and then run this script on it
+to see if/where are differences.
+
+===============================================================================
+
 
 Notes about CVS import, regarding CVS.
 
