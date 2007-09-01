@@ -537,8 +537,10 @@ void diff_page(void){
 
 /*
 ** WEBPAGE: fview
-**
-** Show the complete content of a file identified by g.zExtra
+** URL: /fview/UUID
+** 
+** Show the complete content of a file identified by UUID
+** as preformatted text.
 */
 void fview_page(void){
   int rid;

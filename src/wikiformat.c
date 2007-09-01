@@ -714,10 +714,10 @@ static void addMissingMarkup(Renderer *p){
 
 /*
 ** Resolve a hyperlink.  The argument is the content of the [...]
-** in the wiki.  Append the URL to the given blob.
+** in the wiki.  Append the URL to the output of the Renderer.
 */
-static void resolveHyperlink(const char *zTarget, Blob *pOut){
-  blob_appendf(pOut, "http://www.fossil-scm.org/test-%T", zTarget);
+static void resolveHyperlink(const char *zTarget, Renderer *p){
+  blob_appendf(p->pOut, "http://www.fossil-scm.org/test-%T", zTarget);
 }
 
 /*
@@ -806,7 +806,7 @@ static void wiki_render(Renderer *p, char *z){
           while( isspace(*zDisplay) ) zDisplay++;
         }
         blob_append(p->pOut, "<a href=\"", -1);
-        resolveHyperlink(zTarget, p->pOut);
+        resolveHyperlink(zTarget, p);
         blob_append(p->pOut, "\">", -1);
         savedState = p->state;
         p->state &= ~ALLOW_WIKI;

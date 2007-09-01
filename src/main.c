@@ -341,7 +341,7 @@ static void multi_column_list(const char **azWord, int nWord){
 }
 
 /*
-** COMMAND: commands
+** COM MAND: commands
 **
 ** Usage: %fossil commands
 ** List all supported commands.
@@ -387,6 +387,7 @@ void help_cmd(void){
   if( g.argc!=3 ){
     printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n", g.argv[0]);
     cmd_cmd_list();
+    printf("You are running fossil baseline " MANIFEST_UUID "\n");
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
@@ -410,16 +411,6 @@ void help_cmd(void){
     }
   }
   putchar('\n');
-}
-
-/*
-** COMMAND: baseline
-**
-** Show the baseline number of the source code from which this
-** fossil executable was generated.
-*/
-void baseline_cmd(void){
-  printf("%s\n", MANIFEST_UUID);
 }
 
 /*
