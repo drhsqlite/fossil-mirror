@@ -35,6 +35,7 @@ set src {
   merge3
   name
   pivot
+  pqueue
   printf
   rebuild
   schema

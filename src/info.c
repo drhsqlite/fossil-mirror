@@ -213,7 +213,6 @@ static void showLeaves(void){
     " WHERE plink.cid=leaves.rid"
     "   AND blob.rid=leaves.rid"
     "   AND event.objid=leaves.rid"
-    "   AND +generation>0"
     " ORDER BY event.mtime DESC"
   );
   while( db_step(&q)==SQLITE_ROW ){
