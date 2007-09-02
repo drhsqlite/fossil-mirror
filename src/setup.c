@@ -522,7 +522,8 @@ void setup_config(void){
   entry_attribute("Home page", 60, "homepage", "hp", "");
   @ <p>The name of a wiki file that is the homepage for the website.
   @ The home page is the page that is displayed by the "Home" link
-  @ at the top of this screen.</p>
+  @ at the top of this screen.  Omit the path and the ".wiki"
+  @ suffix.  </p>
 
   entry_attribute("Ticket subdirectory", 60, "ticket-subdir", "tsd", "");
   @ <p>A subdirectory in the file hierarchy that contains all trouble

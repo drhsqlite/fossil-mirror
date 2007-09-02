@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s/wiki\sand\s/bwiki\sweb\spages.\s\sCurrently\srenders\scontent\sfrom\nthe\scheck-out\sas\sreadonly.
-D 2007-09-01T21:11:33
+C The\s/index\swebpage\spulls\sup\sthe\swiki\spage\sspecified\sin\sSetup/Configuration.s
+D 2007-09-02T01:23:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -67,11 +67,11 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 104f7b4bf822e163f06e5983f7a29386c55c226d
 F src/schema.c c780fb4f32ae73072ae3d93c07bc6c24d5270cdb
-F src/setup.c 1750dc4678b4fbc1551687157dd3c713f66e7557
+F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
+F src/style.c 4e8cafc457e75f0630b6b672a2989e5956a87374
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/timeline.c fd68452592986a9d1a507090c9aafa00101965cc
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
@@ -122,14 +122,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P abce5105e2d9e22385f2162b18420e3fe2011dc3
-R 30891e280a5d20f01177bd57041423b4
+P b2e55c0d4db063caefc3d40f7e6b26f9acc313a6
+R ef72a669038ac8ea4bcecd2fc7c3fd09
 U drh
-Z 18081c11138cad7b801489f4f3d393f2
+Z 98d731d378c885e8938a2958d2c4ed3d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG2dWKoxKgR168RlERAi8uAJ9IfozS1UqbXdbgvwvgXWHcX/SYdACfWev/
-u2FbcD2/gnjMpI0rdZjPH1M=
-=BRc3
+iD8DBQFG2hCFoxKgR168RlERAnSSAJ9jfT0iNUHHoc2GYXEHXOSrPGRyjACfcbfG
+lEs3ZvdCa5mdQ90buHRm8t4=
+=hQfD
 -----END PGP SIGNATURE-----

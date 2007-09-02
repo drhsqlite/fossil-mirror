@@ -135,9 +135,16 @@ void style_footer(void){
 ** WEBPAGE: not_found
 */
 void page_index(void){
-  style_header("Main Title Page");
-  @ This will become the title page
-  style_footer();
+  char *zHome = db_get("homepage", 0);
+  if( zHome ){
+    g.zExtra = zHome;
+    g.okRdWiki = 1;
+    wiki_page();
+  }else{
+    style_header("Main Title Page");
+    @ No homepage configured for this server
+    style_footer();
+  }
 }
 
 /*
