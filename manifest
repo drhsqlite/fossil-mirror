@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\s/index\swebpage\spulls\sup\sthe\swiki\spage\sspecified\sin\sSetup/Configuration.s
-D 2007-09-02T01:23:13
+C Add\sthe\s"index.wiki"\swiki\spage.\s\sFix\sa\sbug\sin\sthe\swiki\srendering\sengine.\nThe\spage\sdisplays\snow,\sbut\snot\scorrectly\s-\sthere\sare\sclearly\sadditional\nbugs\sto\sbe\sfound\sand\sfixed.
+D 2007-09-02T02:01:35
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -81,7 +81,7 @@ F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 5ad913c384f94b6fa54b89ec9a7aeb1e1f600144
 F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
-F src/wikiformat.c 0d1f6957febe3a4af8863a08bc357843b1f88e92
+F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
 F src/xfer.c f732b233d1ab879b603b26716e10e08f81c80769
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
@@ -119,17 +119,18 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.html 677ac744b20c5a847aca8620d1c2cb7813b5ffd1
 F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
+F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P b2e55c0d4db063caefc3d40f7e6b26f9acc313a6
-R ef72a669038ac8ea4bcecd2fc7c3fd09
+P 4f641e7e4e8f3705794cb93e334954473fb3ac1d
+R 5f3fc160e3f836217160c8708c964eec
 U drh
-Z 98d731d378c885e8938a2958d2c4ed3d
+Z 5d6f8b71c94f4b8d0b03cd89633053b6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG2hCFoxKgR168RlERAnSSAJ9jfT0iNUHHoc2GYXEHXOSrPGRyjACfcbfG
-lEs3ZvdCa5mdQ90buHRm8t4=
-=hQfD
+iD8DBQFG2hmHoxKgR168RlERAj2BAJ9P9AMAUj8gwta8mpvT2LU7hTQLnwCghMWm
+1k9JaqQbv98deWBCUrauU70=
+=xEzD
 -----END PGP SIGNATURE-----

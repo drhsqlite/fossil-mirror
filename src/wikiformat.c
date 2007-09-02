@@ -321,6 +321,7 @@ static int markupLength(const char *z){
     if( z[n]=='"' ){
       inparen = !inparen;
     }
+    n++;
   }
   if( z[n]!='>' ) return 0;
   return n+1;

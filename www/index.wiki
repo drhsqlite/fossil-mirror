@@ -1,0 +1,88 @@
+<title>Fossil SCM Homepage</title>
+
+This is a preliminary homepage for a new software configuration
+management system called "Fossil".
+The system is 
+<a href="http://fossil-scm.hwaci.com/fossil/timeline">self-hosting</a> on
+<a href="http://www.hwaci.com/cgi-bin/fossil/timeline">two separate servers</a>.
+You can download the lastest sources
+compile it yourself using the instructions below.
+
+<h2>Design Goals For Fossil:</h1>
+
+<ul>
+<li>Supports disconnected, distributed development (like
+<a href="http://kerneltrap.org/node/4982">git</a>,
+<a href="http://www.venge.net/monotone/">monotone</a>,
+<a href="http://www.selenic.com/mercurial/wiki/index.cgi">mercurial</a>, or
+<a href="http://www.bitkeeper.com/">bitkeeper</a>)
+or client/server operation (like 
+<a href="http://www.nongnu.org/cvs/">CVS</a> or
+<a href="http://subversion.tigris.org/">subversion</a>)
+or both at the same time</li>
+<li>Integrated bug tracking and wiki, along the lines of
+<a href="http://www.cvstrac.org/">CVSTrac</a> and
+<a href="http://www.edgewall.com/trac/">Trac</a>.</li>
+<li>Built-in web interface that supports deep archaeological digs through
+historical source code.</li>
+<li>All network communication via 
+<a href="http://en.wikipedia.org/wiki/HTTP">HTTP</a>
+(so that everything works from behind restrictive firewalls).</li>
+<li>Everything included in a single self-contained executable -
+    trivial to install</li>
+<li>Server runs as <a href="http://www.w3.org/CGI/">CGI</a>, using
+<a href="http://en.wikipedia.org/wiki/inetd">inetd</a> or
+<a href="http://www.xinetd.org/">xinetd</a> or using its own built-in,
+standalone web server.</li>
+<li>An entire project contained in single disk file (which also
+happens to be an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
+<li>Trivial to setup and administer</li>
+<li>Files and versions are identified by their
+<a href="http://en.wikipedia.org/wiki/SHA-1">SHA1</a> signature.</a>
+Any unique prefix is sufficient to identify a file
+or version - usually the first 4 or 5 characters suffice.</li>
+<li>The file format is trival and requires nothing more complex
+than a text editor and the "sha1sum" command-line utility to decode.</li>
+<li>Automatic <a href="selfcheck.html">self-check</a>
+on repository changes makes it exceedingly
+unlikely that data will ever be lost because of a software bug.</li>
+</ul>
+
+<h2>Objectives Of Fossil:</h2>
+
+<ul>
+<li>Fossil should be ridiculously easy to 
+<a href="build.html">install</a> and 
+<a href="quickstart.html">operate</a>.</li>
+<li>With fossil, it should be possible (and 
+<a href="quickstart.html#serversetup">easy</a>) to set up a project
+on an inexpensive shared-hosting ISP
+(example: <a href="http://www.he.net/hosting.html">Hurricane Electric</a>)
+that provides nothing more than web space and CGI capability.
+Here is <a href="http://www.hwaci.com/cgi-bin/fossil/timeline">a demo</a>.</li>
+<li>Fossil should provide in-depth historical and status information about the
+project through a web interface</li>
+<li>The integration of <a href="http://wiki.org/wiki.cgi?WhatIsWiki">Wiki</a>
+and the ability to safely support anonymous check-in are features sometimes
+described as
+<a href="http://www.oreillynet.com/pub/a/oreilly/tim/news/2005/09/30/what-is-web-20.html">Web 2.0</a>.
+Fossil attempts to better capture "collective intelligence" and 
+"the wisdom of crowds" by opening up write access to the masses.</li>
+</ul>
+
+<p>Other Links:</p>
+
+<ul>
+<li>The <a href="concepts.html">concepts</b> behind fossil</li>
+<li><a href="build.html">Building And Installing</a></li>
+<li><a href="quickstart.html">Quick Start</a> guide to using fossil
+<li><a href="pop.html">Principals Of Operation</a></li>
+<li>The <a href="selfcheck.html">automatic self-check</a> mechanism
+helps insure project integrity.</li>
+<li>The <a href="fileformat.html">file format</a> used by every content
+file stored in the repository.</li>
+<li>The <a href="delta_format.html">format of deltas</a> used to
+efficiently store changes between file revisions.</li>
+<li>The <a href="delta_encoder_algorithm.html">encoder algorithm</a> used to
+efficiently generate deltas.</li>
+</ul>
