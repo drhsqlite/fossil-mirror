@@ -61,6 +61,18 @@ Random thoughts:
      + Timeline shows forks and merges
      + Tags shown on timeline (maybe) and in vinfo (surely).
 
+Features needed:
+  * Means to suppress artifacts
+  * Means to cap a branch
+  * Ticketing
+     +  Problem is/is-not expressed in baseline X.
+     +  Append comment and zero or more attachments
+  * Modify comments on baselines
+  * Append comments to any artifact
+  * Wiki?
+
+  
+
 Extended manifests.
   * normal manifest has:
        C comment
@@ -70,6 +82,19 @@ Extended manifests.
        R repository-md5sum
        U user-login
        Z manifest-checksum
+
+  * Accessory:
+       A uuid|* attachment-uuid description
+       B (+|-)branchtag uuid
+       D date-time
+       E uuid new-comment
+       G uuid appended-remark
+       S repositoryid serial-number
+       U userid
+       V (+|-)versiontag uuid
+       X uuid-to-surpress
+       Z this-file-checksum
+
   * Change the comment on a version:   -- always a leaf except in cluster
        D date-time
        E new-comment

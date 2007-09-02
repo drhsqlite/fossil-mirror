@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"index.wiki"\swiki\spage.\s\sFix\sa\sbug\sin\sthe\swiki\srendering\sengine.\nThe\spage\sdisplays\snow,\sbut\snot\scorrectly\s-\sthere\sare\sclearly\sadditional\nbugs\sto\sbe\sfound\sand\sfixed.
-D 2007-09-02T02:01:35
+C Added\stext\snotes\son\sideas\sfor\sdealing\swith\stickets\sand\swiki.
+D 2007-09-02T20:33:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -26,7 +26,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 13f4f929b286b6f5740b70414fd41f8c62493f5d
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt ff113a4540579edf21123eb051cd1efdd0486762
+F ideas.txt a6d94120b0ea5803de750ac689083409bc1ff84f
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -95,6 +95,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 8e70daebc024cb0f10b01b64f668618eff07802b
 F tools/lib/pkgIndex.tcl 71b6b857ad6d9eaf18fc7cb06485c73add04d7a9
 F tools/lib/rcsparser.tcl 69db20ceda47f1a219414e6ff2d194f0ec60e2ad
+F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -123,14 +124,14 @@ F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 4f641e7e4e8f3705794cb93e334954473fb3ac1d
-R 5f3fc160e3f836217160c8708c964eec
+P 11976cfdc232c1e50b4d1cfdad7b2423c390498e
+R e6d05d74686e0ad227290b3465e27dfa
 U drh
-Z 5d6f8b71c94f4b8d0b03cd89633053b6
+Z b1a44d0ade534c2630e534dc2159f7dc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG2hmHoxKgR168RlERAj2BAJ9P9AMAUj8gwta8mpvT2LU7hTQLnwCghMWm
-1k9JaqQbv98deWBCUrauU70=
-=xEzD
+iD8DBQFG2x4PoxKgR168RlERAox6AJwLaAme0yhf/eOVKe8j5U4xlHcmUwCfVrfO
+ViI0Y/JilXGQYgQ1kwzv1ng=
+=8pEb
 -----END PGP SIGNATURE-----
