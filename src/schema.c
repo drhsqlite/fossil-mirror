@@ -170,6 +170,22 @@ const char zRepositorySchema2[] =
 @   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
 @ );
 @
+@ -- Unclustered records.  An unclustered record is a record (including
+@ -- a cluster records themselves) that is not mentioned by some other
+@ -- cluster.
+@ --
+@ CREATE TABLE unclustered(
+@   rid INTEGER PRIMARY KEY         -- Record ID of the unclustered file
+@ );
+@
+@ -- Records which have never been pushed to another server.  This is
+@ -- used to reduce push operations to a single HTTP request in the
+@ -- common case when one repository only talks to a single server.
+@ --
+@ CREATE TABLE unsent(
+@   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
+@ );
+@
 @ -- Aggregated ticket information
 @ --
 @ CREATE TABLE tkt(

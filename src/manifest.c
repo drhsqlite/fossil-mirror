@@ -29,7 +29,7 @@
 
 #if INTERFACE
 /*
-** A parsed manifest
+** A parsed manifest or cluster.
 */
 struct Manifest {
   Blob content;         /* The original content blob */
@@ -46,6 +46,9 @@ struct Manifest {
   int nParent;          /* Number of parents */
   int nParentAlloc;     /* Slots allocated in azParent[] */
   char **azParent;      /* UUIDs of parents */
+  int nCChild;          /* Number of cluster children */
+  int nCChildAlloc;     /* Number of closts allocated in azCChild[] */
+  char **azCChild;      /* UUIDs of referenced objects in a cluster */
 };
 #endif
 
@@ -57,6 +60,7 @@ void manifest_clear(Manifest *p){
   blob_reset(&p->content);
   free(p->aFile);
   free(p->azParent);
+  free(p->azCChild);
   memset(p, 0, sizeof(*p));
 }
 
@@ -142,6 +146,24 @@ int manifest_parse(Manifest *p, Blob *pContent){
       if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
       zDate = blob_terminate(&a1);
       p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
+    }else if( z[0]=='M' ){
+      char *zUuid;
+      md5sum_step_text(blob_buffer(&line), blob_size(&line));
+      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+      zUuid = blob_terminate(&a1);
+      if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+      if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+      if( p->nCChild>=p->nCChildAlloc ){
+        p->nCChildAlloc = p->nCChildAlloc*2 + 10;
+        p->azCChild = 
+           realloc(p->azCChild, p->nCChildAlloc*sizeof(p->azCChild[0]) );
+        if( p->azCChild==0 ) fossil_panic("out of memory");
+      }
+      i = p->nCChild++;
+      p->azCChild[i] = zUuid;
+      if( i>0 && strcmp(p->azCChild[i-1], zUuid)>=0 ){
+        goto manifest_syntax_error;
+      }
     }else if( z[0]=='U' ){
       md5sum_step_text(blob_buffer(&line), blob_size(&line));
       if( p->zUser!=0 ) goto manifest_syntax_error;
@@ -293,6 +315,10 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 ** Scan record rid/pContent to see if it is a manifest.  If
 ** it is a manifest, then populate the mlink, plink,
 ** filename, and event tables with cross-reference information.
+**
+** (Later:) Also check to see if pContent is a cluster.  If it
+** is a cluster then remove all referenced elements from the
+** unclustered table and create phantoms for any unknown elements.
 */
 int manifest_crosslink(int rid, Blob *pContent){
   int i;
@@ -323,6 +349,16 @@ int manifest_crosslink(int rid, Blob *pContent){
       "VALUES('ci',%.17g,%d,%Q,%Q)",
       m.rDate, rid, m.zUser, m.zComment
     );
+  }
+  for(i=0; i<m.nCChild; i++){
+    static Stmt dc;
+    db_static_prepare(&dc,
+      "DELETE FROM unclustered WHERE rid ="
+      " (SELECT rid FROM blob WHERE uuid=:u)"
+    );
+    db_bind_text(&dc, ":u", m.azCChild[i]);
+    db_step(&dc);
+    db_reset(&dc);
   }
   db_end_transaction(0);
   manifest_clear(&m);

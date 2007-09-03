@@ -54,6 +54,10 @@ int rebuild_db(void){
   }
   db_multi_exec(zRepositorySchema2);
 
+  db_multi_exec("INSERT INTO unclustered SELECT rid FROM blob");
+  db_multi_exec(
+    "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
+  );
   db_prepare(&s, "SELECT rid, size FROM blob");
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);

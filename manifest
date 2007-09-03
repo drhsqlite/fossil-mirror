@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\stext\snotes\son\sideas\sfor\sdealing\swith\stickets\sand\swiki.
-D 2007-09-02T20:33:16
+C Add\sthe\sunclustered\stable\sand\sthe\sM\slines\sto\smanifests.\s\sProcess\nclusters\sin\smanifest_parse\sand\smanifest_crossref.\s\sThe\sxfer\sprocess\nstill\sdoes\snot\syet\suse\sclusters\sthough\sso\sit\sis\sstill\scompatible.\s\sBut\nthat\sis\sabout\sto\schange.
+D 2007-09-03T01:28:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -26,7 +26,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 13f4f929b286b6f5740b70414fd41f8c62493f5d
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt a6d94120b0ea5803de750ac689083409bc1ff84f
+F ideas.txt 084c43a6534289d4045cb657a0aceb3651244e39
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -56,7 +56,7 @@ F src/main.mk fc782f901a410a65a1fbac87495a336922f161e8
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl a8dc2e6dd471196652f64fc921f3bd135dfa681b
-F src/manifest.c 2a7dfdcb1682935ee51522647a00a9bd9edede81
+F src/manifest.c b1ae7fa07b488a18ceceaf26dafd32e6a110d31a
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c de0f1b5a7621c222d2d342486ac953d0772c6cd2
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
@@ -65,8 +65,8 @@ F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
-F src/rebuild.c 104f7b4bf822e163f06e5983f7a29386c55c226d
-F src/schema.c c780fb4f32ae73072ae3d93c07bc6c24d5270cdb
+F src/rebuild.c fab565baa9b845cba453c65b9cae1894544a10bf
+F src/schema.c 7efe24b157ed379954cbe05a146c2822e3d26c5f
 F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
@@ -124,14 +124,14 @@ F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 11976cfdc232c1e50b4d1cfdad7b2423c390498e
-R e6d05d74686e0ad227290b3465e27dfa
+P 251545cd43bdbf1a7034fa0bc0b2cd4f2aa9ac04
+R 7919db24125a818e426d27d7033a9122
 U drh
-Z b1a44d0ade534c2630e534dc2159f7dc
+Z bbab92eeaa0861113336724567ef7dc1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG2x4PoxKgR168RlERAox6AJwLaAme0yhf/eOVKe8j5U4xlHcmUwCfVrfO
-ViI0Y/JilXGQYgQ1kwzv1ng=
-=8pEb
+iD8DBQFG22NcoxKgR168RlERAjm8AJ9PI10U3dY2dfrRaxO9Oq9FVQep9QCfVTOK
+Ds++w6NnJPAyYIVoiNez85c=
+=UWqN
 -----END PGP SIGNATURE-----
