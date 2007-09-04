@@ -3,368 +3,183 @@
 exec tclsh "$0" ${1+"$@"}
 
 # -----------------------------------------------------------------------------
+
+# Import the trunk of a CVS repository wholesale into a fossil repository.
+
+# Limitations implicitly mentioned:
+# - No incremental import.
+# - No import of branches.
+
+# WIBNI features (beyond eliminating the limitations):
+# - Restrict import to specific directory subtrees (SF projects use
+#   one repository for several independent modules. Examples: tcllib
+#   -> tcllib, tklib, tclapps, etc.). The restriction would allow import
+#   of only a specific module.
+# - Related to the previous, strip elements from the base path to keep
+#   it short.
+# - Export to CVS, trunk, possibly branches. I.e. extend the system to be
+#   a full bridge. Either Fossil or CVS could be the master repository.
+
+# HACKS. I.e. I do not know if the 'fixes' I use are the correct way
+#        of handling the encountered situations.
+#
+# - File F has archives F,v and Attic/F,v. Currently I will ignore the
+#   file in the Attic.
+#   Examples: sqlite/os_unix.h
+#
+# - A specific revision of a file F cannot be checked out (reported
+#   error is 'invalid change text'). This indicates a corrupt RCS
+#   file, one or more delta are bad. We report but ignore the problem
+#   in a best-effort attempt at getting as much history as possible.
+#   Examples: tcllib/tklib/modules/tkpiechart/pie.tcl
+
+# -----------------------------------------------------------------------------
 # Make private packages accessible.
 
 lappend auto_path [file join [file dirname [info script]] lib]
-package require rcsparser
-package require fileutil
 
 # -----------------------------------------------------------------------------
-# Repository management (CVS)
+# Requirements
 
-namespace eval ::cvs {
-    variable base   ; set       base   {} ; # Repository toplevel directory.
-    variable npaths ; array set npaths {} ; # path -> actual path mapping.
-    variable rpaths ; array set rpaths {} ; # path -> rcs file mapping.
-    variable cmsg   ; array set cmsg   {} ; # Cache of commit messages.
-}
+package Tcl 8.4
+package require cvs    ; # Frontend, reading from source repository
+package require fossil ; # Backend,  writing to destination repository.
 
-proc ::cvs::hextime {hex} {
-    set t 0
-    foreach d [string map {
-	a 10 b 11 c 12 d 13 e 14 f 15
-	A 10 B 11 C 12 D 13 E 14 F 15
-    } [split $hex {}]] {
-	set t [expr {($t << 4) + $d}];#horner
+# -----------------------------------------------------------------------------
+
+proc main {} {
+    global argv tot nto cvs fossil ntrunk
+
+    commandline
+
+    fossil::feedback Write ; # Setup progress feedback from the libraries
+    cvs::feedback    Write
+
+    cvs::at       $cvs  ; # Define location of CVS repository
+    cvs::scan           ; # Gather revision data from the archives
+    cvs::csets          ; # Group changes into sets
+    cvs::rtree          ; # Build revision tree (trunk only right now).
+
+    set tot 0.0
+    set nto 0
+
+    Write info {Importing ...}
+    Write info {    Setting up cvs workspace and temporary fossil repository}
+
+    cvs::workspace ; # cd's to workspace
+    fossil::new    ; # Uses cwd as workspace to connect to.
+
+    set ntrunk [cvs::ntrunk]
+    cvs::foreach_cset cset [cvs::root] {
+	import $cset
     }
-    return $t
-}
+    cvs::wsclear
 
-proc ::cvs::at {path} {
-    variable base $path
+    Write info "    ========= [string repeat = 61]"
+    Write info "    Imported $nto [expr {($nto == 1) ? "changeset" : "changesets"}]"
+    Write info "    Within [format %.2f $tot] seconds (avg [format %.2f [expr {$tot/$nto}]] seconds/changeset)"
+
+    Write info {    Moving to final destination}
+
+    fossil::destination $fossil
+
+    Write info Ok.
     return
 }
 
-proc ::cvs::cmsg {path rev} {
-    variable cmsg
-    set key [list $path $rev]
-
-    if {![info exists cmsg($key)]} {
-	set rcs [cvs::rcsfile $path]
-
-	#puts stderr "scan $path => $rcs"
-
-	array set p [::rcsparser::process $rcs]
-
-	foreach {r msg} $p(commit) {
-	    set cmsg([list $path $r]) $msg
-	}
-
-	if {![info exists cmsg($key)]} {
-	    return -code error "Bogus revision $rev of file $path"
-	}
-    }
-
-    return $cmsg($key)
-}
-
-proc ::cvs::norm {path} {
-    variable npaths
-    if {![info exists npaths($path)]} {
-	set npaths($path) [NormFile $path]
-    }
-    return $npaths($path)
-}
-
-proc ::cvs::NormFile {path} {
-    variable base
-
-    set f $base/$path,v
-    if {[::file exists $f]} {return $path}
-
-    set hd [::file dirname $path]
-    set tl [::file tail    $path]
-
-    set f $base/$hd/Attic/$tl,v
-    if {[::file exists $f]} {return $path}
-
-    # Bad. The dir can be truncated, i.e. it may not be an exact
-    # subdirectory of base, but deeper inside, with parents between it
-    # and base left out. Example (from the tcllib history file):
-    #
-    # M3f1d1245|afaupell|<remote>|ipentry|1.2|ChangeLog
-    # The correct path is 'tklib/modules/ipentry'.
-    # This we have to resolve too.
-
-    # normalize dance - old fileutil, modern fileutil (cvs head) doesn't do that.
-    set bx [file normalize $base]
-    foreach c [fileutil::findByPattern $bx -glob $hd] {
-	set cx [fileutil::stripPath $bx $c]
-	set c  $base/$cx
-
-	set f $c/$tl,v
-	if {[::file exists $f]} {return $cx/$tl}
-	set f $c/Attic/$tl,v
-	if {[::file exists $f]} {return $cx/$tl}
-    }
-
-    puts stderr <$f>
-    return -code error "Unable to locate actual file for $path"
-}
-
-proc ::cvs::rcsfile {path} {
-    variable rpaths
-    if {![info exists rpaths($path)]} {
-	set rpaths($path) [RcsFile $path]
-    }
-    return $rpaths($path)
-}
-
-proc ::cvs::RcsFile {path} {
-    variable base
-
-    set f $base/$path,v
-    if {[::file exists $f]} {return $f}
-
-    set hd [::file dirname $path]
-    set tl [::file tail    $path]
-
-    set f $base/$hd/Attic/$tl,v
-    if {[::file exists $f]} {return $f}
-
-    # We do not have truncated directories here, assuming that only
-    # norm paths are fed into this command.
-
-    if 0 {
-	# Bad. The dir can be truncated, i.e. it may not be an exact
-	# subdirectory of base, but deeper inside, with parents
-	# between it and base left out. Example (from the tcllib
-	# history file):
-	#
-	# M3f1d1245|afaupell|<remote>|ipentry|1.2|ChangeLog The
-	# correct path is 'tklib/modules/ipentry'.  This we have to
-	# resolve too.
-
-	# normalize dance - old fileutil, modern fileutil (cvs head)
-	# doesn't do that.
-	set bx [file normalize $base]
-	foreach c [fileutil::findByPattern $bx -glob $hd] {
-	    set c $base/[fileutil::stripPath $bx $c]
-
-	    set f $c/$tl,v
-	    if {[::file exists $f]} {return $f}
-	    set f $c/Attic/$tl,v
-	    if {[::file exists $f]} {return $f}
-	}
-    }
-
-    puts stderr <$f>
-    return -code error "Unable to locate rcs file for $path"
-}
-
-proc ::cvs::history {} {
-    variable base
-    return $base/CVSROOT/history
-}
 
 # -----------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
+proc commandline {} {
+    global argv cvs fossil nosign log
 
-cvs::at [lindex $argv 0]
-
-#puts [::cvs::norm ipentry/ChangeLog]
-#exit
-
-#changeset state
-global cs csf
-array set cs {
-    start {} end {} cm {}
-    usr   {} dt  {}
-}
-array set csf {}
-
-proc rh {} {
-    global argv cs csf repo
-
-    set f [open [cvs::history] r]
-
-    while {[gets $f line] >= 0} {
-	# Decode line
-	foreach {op usr _ dir rev file} [split [string trim $line] |] break
-	set ts [cvs::hextime [string range $op 1 end]]
-	set op [string index $op 0]
-
-	# Filter out irrelevant parts
-	if {$op eq "O"} continue ; # checkout
-	if {$op eq "F"} continue ; # release
-	if {$op eq "T"} continue ; # rtag
-	if {$op eq "W"} continue ; # delete on update
-	if {$op eq "U"} continue ; # update
-	if {$op eq "P"} continue ; # update by patch
-	#if {$op eq "G"} continue ; # merge on update - FUTURE - identifies mergepoints.
-	if {$op eq "C"} continue ; # conflict on update - s.a.
-	if {$op eq "E"} continue ; # export
-	# left types
-	# M: commit
-	# A: addition
-	# R: removal
-
-	set df $dir/$file
-	if {[newcs $op $usr $ts $rev df cause]} {
-
-	    # NOTE 1: ChangeSets containing CVSROOT => remove such files.
-	    # NOTE 2: Empty changesets, ignore.
-
-	    #commit
-	    csstats
-
-	    if {$cause eq "cmsg"} {
-set msg
-	    } else {
-set msg ""
-	    }
-
-	    if {$cs(end) ne ""} {
-		puts =============================/$cause\ delta\ [expr {$ts - $cs(end)}]
-	    } else {
-		puts =============================/$cause
-	    }
-	    csclear
+    set nosign 0
+    while {[string match "-*" [set opt [lindex $argv 0]]]} {
+	if {$opt eq "--nosign"} {
+	    set nosign 1
+	    set argv [lrange $argv 1 end]
+	    continue
 	}
-
-	# Note: newcs normalizes df, in case the log information is
-	# bogus. So the df here may be different from before newcs
-	csadd $op $usr $ts $rev $df
-	# apply modification to workspace
+	usage
     }
-}
+    if {[llength $argv] != 2} usage
+    foreach {cvs fossil} $argv break
 
-proc newcs {op usr ts rev dfv rv} {
-    global cs csf
-    upvar 1 $rv reason $dfv df
-
-    # Logic to detect when a new change set begins. A new change sets
-    # has started with the current entry when the entry
-    #
-    # 1. is for a different user than the last.
-    # 2. tries to add a file to the changeset which is already part of it.
-    # 3.is on the trunk, and the last on a branch, or vice versa.
-    # 4. the current entry has a different commit message than the last.
-
-    set df [cvs::norm $df]
-
-    # User changed
-    if {$usr ne $cs(usr)} {
-	set reason user
-	return 1
+    if {
+	![file exists      $cvs] ||
+	![file readable    $cvs] ||
+	![file isdirectory $cvs]
+    } {
+	usage "CVS directory missing, not readable, or not a directory."
+    } elseif {[file exists $fossil]} {
+	usage "Fossil destination repository exists already."
     }
 
-    # File is already in the changeset
-    if {[info exists csf($df)]} {
-	set reason file
-	return 1
-    }
-
-    # last/current are different regarding trunk/branch
-    set depth [llength [split $rev .]]
-    if {($cs(lastd) == 2) != ($depth == 2)} {
-	set reason branch
-	return 1
-    }
-
-    # Commit message changed
-    if {[cvs::cmsg $cs(lastf) $cs(lastr)] ne [cvs::cmsg $df $rev]} {
-	set reason cmsg
-	return 1
-    }
-
-    # Same changeset
-    return 0
-}
-
-proc csclear {} {
-    global cs csf
-    array set cs {start {} usr {} end {} dt {}}
-    array unset csf *
+    set log [open ${fossil}.log w]
     return
 }
 
-proc csadd {op usr ts rev df} {
-    global cs csf
+proc usage {{text {}}} {
+    global argv0
+    puts stderr "Usage: $argv0 ?--nosign? cvs-repository fossil-rpeository"
+    if {$text eq ""} return
+    puts stderr "       $text"
+    exit
+}
 
-    if {$cs(usr) eq ""} {set cs(usr) $usr}
-    if {$cs(start) eq ""} {
-	set cs(start) $ts
+proc import {cset} {
+    global tot nto nosign ntrunk
+    Write info "    Importing $cset [string repeat = [expr {60 - [string length $cset]}]]"
+    Write info "        At $nto/$ntrunk ([format %.2f [expr {double($nto)/$ntrunk}]]%)"
+
+    set usec [lindex [time {
+	foreach {uuid ad rm ch} [fossil::commit cvs2fossil $nosign \
+				     [cvs::wssetup $cset] \
+				     ::cvs::wsignore] break
+    } 1] 0]
+    cvs::uuid $cset $uuid
+
+    set sec [expr {$usec/1e6}]
+    set tot [expr {$tot + $sec}]
+    incr nto
+
+    Write info "        == $uuid +${ad}-${rm}*${ch}"
+    Write info "        in $sec seconds"
+
+    set avg [expr {$tot/$nto}]
+    set max [expr {$ntrunk * $avg}]
+    set rem [expr {$max - $tot}]
+
+    Write info "        st avg [format %.2f $avg]"
+    Write info "        st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
+    Write info "        st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
+    Write info "        st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
+    return
+}
+
+# -----------------------------------------------------------------------------
+
+array set fl {
+    debug   {DEBUG  }
+    info    {       }
+    warning {Warning}
+    error   {ERROR  }
+}
+
+proc Write {l t} {
+    global fl log
+
+    if {[string index $t 0] eq "\r"} {
+	puts -nonewline stdout "\r$fl($l) [string range $t 0 end-1]"
     } else {
-	lappend cs(dt) [expr {$ts - $cs(end)}]
+	puts stdout "$fl($l) $t"
+	puts $log   "$fl($l) $t"
     }
-    set cs(end) $ts
-
-    set csf($df) [list $op $rev]
-    set cs(lastf) $df
-    set cs(lastr) $rev
-    set cs(lastd) [llength [split $rev .]]
-
-    puts [list $op [clock format $ts] $usr $rev $df]
+    flush stdout
     return
 }
 
-proc csstats {} {
-    global cs csf
+# -----------------------------------------------------------------------------
 
-    if {$cs(start) eq ""} return
-
-    puts "files: [array size csf]"
-    puts "delta: $cs(dt)"
-    puts "range: [expr {$cs(end) - $cs(start)}] seconds"
-    return
-}
-
-rh
-
+main
 exit
-
-=========================================
-new fossil
-new fossil workspace
-
-open history
-
-foreach line {
-    ignore unwanted lines
-
-    accumulate changesets data
-    new change-set => commit and continue
-
-    current branch and branch of new change different ?
-    => move fossil workspace to proper revision.
-
-    apply change to workspace
-    uncommitted
-}
-
-if uncommitted => commit
-delete workspace
-copy fossil repo to destination
-=========================================
-
-Not dealt with in outline: branches, tags, merging
-
-=========================================
-
-complexities
-- apply to workspace
-  - remove simple, direct translation
-  - add => requires extraction of indicated revision from ,v
-  - modify => see above (without add following)
-
-- ,v file => Can be the either dir/file,v, or dir/Attic/file,v
-  Both ? Priority ?
-
-- How to detect changes on branches ?
-
-- Have to keep knowledge of which branches went there.
- => save change-sets information, + uuid in fossil
- => need only the leaves of each branch, and of branch points.
- => better keep all until complete.
- => uuid can be gotten from 'manifest.uuid' in workspace.
-- keep tag information ? (symbolics)
-
-=========================================
-
-CVSROOT=ORIGIN
-
-cvs -d ORIGIN checkout -r REV FILE
-Extract specific revision of a specific file.
--q, -Q quietness

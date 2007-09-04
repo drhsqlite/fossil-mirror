@@ -168,3 +168,25 @@ performs the following actions:
 This algorithm has to be refined to also take Attic/ files into
 account.
 
+-------------------------------------------------------------------------
+
+Two archive files mapping to the same user file. How are they
+interleaved ?
+
+(a)	sqlite/src/os_unix.h,v
+(b)	sqlite/src/Attic/os_unix.h,v
+
+Problem: Max version of (a) is 1.9
+	 Max version of (b) is 1.11
+	 cvs co 1.10 -> no longer in the repository.
+
+This seems to indicate that the non-Attic file is relevant.
+
+--------------------------------------------------------------------------
+
+tcllib - more problems - tklib/pie.tcl,v -
+
+invalid change text in
+/home/aku/Projects/Tcl/Fossil/Devel/Examples/cvs-tcllib/tklib/modules/tkpiechart/pie.tcl,v
+
+Possibly braces ?

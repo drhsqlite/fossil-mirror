@@ -14,13 +14,44 @@ namespace eval ::rcsparser {}
 # -----------------------------------------------------------------------------
 # API
 
+proc ::rcsparser::feedback {logcmd} {
+    variable lc $logcmd
+    return
+}
+
 proc ::rcsparser::process {path} {
     set data [fileutil::cat -encoding binary $path]
     array set res {}
+    set res(size) [file size $path]
+    set res(done) 0
+    set res(nsize) [string length $res(size)]
+
     Admin
     Deltas
     Description
     DeltaTexts
+
+    Feedback \r
+
+    # Remove parser state
+    catch {unset res(id)}
+    catch {unset res(lastval)}
+    unset res(size)
+    unset res(nsize)
+    unset res(done)
+
+    # res: 'head'    -> head revision
+    #      'branch'  -> ?
+    #      'symbol'  -> (sym -> revision)
+    #      'lock'    -> (sym -> revision)
+    #      'comment' -> file comment
+    #      'expand'  -> ?
+    #      'date'    -> (revision -> date)
+    #      'author'  -> (revision -> author)
+    #      'state'   -> (revision -> state)
+    #      'parent'  -> (revision -> parent revision)
+    #      'commit'  -> (revision -> commit message)
+
     return [array get res]
 }
 
@@ -35,7 +66,7 @@ proc ::rcsparser::Admin {} {
 
 proc ::rcsparser::Deltas {} {
     upvar 1 data data res res
-    while {[Num 0]} { Date ; Author ; State ; Branches ; NextRev }
+    while {[Num 0]} { IsIdent ; Date ; Author ; State ; Branches ; NextRev }
     return
 }
 
@@ -49,7 +80,7 @@ proc ::rcsparser::Description {} {
 
 proc ::rcsparser::DeltaTexts {} {
     upvar 1 data data res res
-    while {[Num 0]} { Log ; Text }
+    while {[Num 0]} { IsIdent ; Log ; Text }
     return
 }
 
@@ -116,18 +147,23 @@ proc ::rcsparser::Expand {} {
 proc ::rcsparser::Date {} {
     upvar 1 data data res res
     Literal date ; Num 1 ; Literal \;
+
+    foreach {yr mo dy h m s} [split $res(lastval) .] break
+    if {$yr < 100} {incr yr 1900}
+    set res(lastval) [join [list $yr $mo $dy $h $m $s] .]
+    Map date
     return
 }
 
 proc ::rcsparser::Author {} {
     upvar 1 data data res res
-    Literal author ; Skip ; Literal \;
+    Literal author ; Skip ; Literal \; ; Map author
     return
 }
 
 proc ::rcsparser::State {} {
     upvar 1 data data res res
-    Literal state ; Skip ; Literal \;
+    Literal state ; Skip ; Literal \; ; Map state
     return
 }
 
@@ -139,13 +175,13 @@ proc ::rcsparser::Branches {} {
 
 proc ::rcsparser::NextRev {} {
     upvar 1 data data res res
-    Literal next ; Skip ; Literal \;
+    Literal next ; Skip ; Literal \; ; Map parent
     return
 }
 
 proc ::rcsparser::Log {} {
     upvar 1 data data res res
-    IsIdent ; Literal log ; String 1 ; Map commit
+    Literal log ; String 1 ; Map commit
     return
 }
 
@@ -154,6 +190,8 @@ proc ::rcsparser::Text {} {
     Literal text ; String 1
     return
 }
+
+# -----------------------------------------------------------------------------
 
 proc ::rcsparser::Ident {} {
     upvar 1 data data res res
@@ -215,7 +253,8 @@ proc ::rcsparser::Num {required} {
 
 proc ::rcsparser::Skip {} {
     upvar 1 data data res res
-    regexp -indices -- {^\s*[^;]*\s*} $data match
+    regexp -indices -- {^\s*([^;]*)\s*} $data match val
+    Get $val
     Next
     return
 }
@@ -232,7 +271,7 @@ proc ::rcsparser::Map {key} {
     lappend res($key) $res(id) $res(lastval)
     #puts Map($res(id))=($res(lastval))
     unset res(lastval)
-    unset res(id)
+    #unset res(id);#Keep id for additional mappings.
     return
 }
 
@@ -252,11 +291,28 @@ proc ::rcsparser::Get {val} {
 }
 
 proc ::rcsparser::Next {} {
-    upvar 1 match match data data
+    upvar 1 match match data data res res
     foreach {s e} $match break ; incr e
     set data [string range $data $e end]
+    set res(done) [expr {$res(size) - [string length $data]}]
+
+    Feedback "\r    [format "%$res(nsize)s" $res(done)]/$res(size) "
     return
 }
+
+# -----------------------------------------------------------------------------
+
+namespace eval ::rcsparser {
+    variable lc ::rcs::Nop
+}
+
+proc ::rcsparser::Feedback {text} {
+    variable lc
+    uplevel #0 [linsert $lc end info $text]
+    return
+}
+
+proc ::rcsparser::Nop {args} {}
 
 # -----------------------------------------------------------------------------
 # Ready
