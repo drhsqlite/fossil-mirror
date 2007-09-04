@@ -41,7 +41,7 @@ lappend auto_path [file join [file dirname [info script]] lib]
 # -----------------------------------------------------------------------------
 # Requirements
 
-package Tcl 8.4
+package require Tcl 8.4
 package require cvs    ; # Frontend, reading from source repository
 package require fossil ; # Backend,  writing to destination repository.
 

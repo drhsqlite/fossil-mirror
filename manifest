@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C First\ssemi-complete\sapp\sfor\simport\sfrom\sCVS.\sTrunk\sonly,\swholesale\sonly.
-D 2007-09-04T05:36:56
+C (no\scomment)
+D 2007-09-04T05:38:29
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -90,7 +90,7 @@ F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/import-cvs.tcl bb9275318e19fd792ff9c9d2ed6438dac1f71039
+F tools/import-cvs.tcl 1bdf863b6552c0eb0016a33badb822f8b034692e
 F tools/lib/cvs.tcl abba347c2b2d0df4c81c44d98377e66bfafd3c1d
 F tools/lib/fossil.tcl 64ed240c1f70588bf1131f5ede480d5c1362fd73
 F tools/lib/pkgIndex.tcl bb6c58a2d8ee2c6e6c8175047d871aea27c508f2
@@ -122,14 +122,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P f166b0a63c5e75950de23d297d46e03dafaf4e51
-R 9410d5d70acf6a79f9684efcd5f99bb5
+P df91d389d58f7e9f068e7866a568fae14a6b4282
+R 9f795fd676ec3a5599a2110714ee1847
 U aku
-Z a06796ac285b73769154e150ad408e0b
+Z 1b88ea4bfdfda7b73d7a4591a7090607
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG3O79vonzZ/CRa7gRAmKAAKCpRBKAadc4oBAfXaJKQSSyB5ownQCdHtex
-lUOP4ihLr+K03mYp0j0JehI=
-=+RUv
+iD8DBQFG3O9VvonzZ/CRa7gRAodmAJ447pLSmFr0ht7XVXxHDbxs1QdRugCfbgIR
+riqquXGQzUnPLYNmFI9HslA=
+=Xlja
 -----END PGP SIGNATURE-----
