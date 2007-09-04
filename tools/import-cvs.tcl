@@ -91,12 +91,19 @@ proc main {} {
 # -----------------------------------------------------------------------------
 
 proc commandline {} {
-    global argv cvs fossil nosign log
+    global argv cvs fossil nosign log debugcommit
 
     set nosign 0
+    set debugcommit 0
+
     while {[string match "-*" [set opt [lindex $argv 0]]]} {
 	if {$opt eq "--nosign"} {
 	    set nosign 1
+	    set argv [lrange $argv 1 end]
+	    continue
+	}
+	if {$opt eq "--debugcommit"} {
+	    set debugcommit 1
 	    set argv [lrange $argv 1 end]
 	    continue
 	}
@@ -116,6 +123,8 @@ proc commandline {} {
     }
 
     set log [open ${fossil}.log w]
+
+    fossil::debugcommit $debugcommit
     return
 }
 

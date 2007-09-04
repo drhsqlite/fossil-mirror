@@ -47,12 +47,26 @@ namespace eval ::fossil {
 
     # Fossil application
     variable fossil [auto_execok fossil]
+
+    # Debug the commit command (write a Tcl script containing the
+    # exact command used). And the file the data goes to.
+    variable debugcommit 0
+    variable dcfile      {}
 }
 
+proc ::fossil::debugcommit {flag} {
+    variable debugcommit $flag
+    if {$debugcommit} {
+	variable dcfile [file normalize cvs2fossil_commit.tcl]
+    }
+    return
+}
 
 proc ::fossil::commit {appname nosign meta ignore} {
     variable fossil
     variable lastuuid
+    variable debugcommit
+    variable dcfile
 
     # Commit the current state of the workspace. Scan for new and
     # removed files and issue the appropriate fossil add/rm commands
@@ -99,12 +113,18 @@ proc ::fossil::commit {appname nosign meta ignore} {
 			   "-- Imported by $appname" \
 			   $message] \n]
 
+    if {$nosign} {
+	set cmd [list exec $fossil commit -m $message --nosign]
+    } else {
+	set cmd [list exec $fossil commit -m $message]
+    }
+
+    if {$debugcommit} {
+	fileutil::writeFile $dcfile "\#!tclsh\n$cmd\n"
+    }
+
     if {[catch {
-	if {$nosign} {
-	    exec $fossil commit -m $message --nosign
-	} else {
-	    exec $fossil commit -m $message
-	}
+	eval $cmd
     } line]} {
 	if {![string match "*nothing has changed*" $line]} {
 	    return -code error $line
