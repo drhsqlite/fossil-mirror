@@ -1,5 +1,8 @@
-C Importer\sextended\sto\sallow\scapture\sof\sexact\sfossil\scommit\scommand
-D 2007-09-04T22:00:31
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Fix\scalculating\spercentage\sof\scommitted\schangesets.
+D 2007-09-05T02:03:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -87,7 +90,7 @@ F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/import-cvs.tcl 123e6be7b468b0b3f920d290d935180703122464
+F tools/import-cvs.tcl 8b0ca8d137ec1f59e4fd80272cb939333721ac74
 F tools/lib/cvs.tcl abba347c2b2d0df4c81c44d98377e66bfafd3c1d
 F tools/lib/fossil.tcl 4a2de34bc9e4c5cb1bd730046c26aa6e078f0e5a
 F tools/lib/pkgIndex.tcl bb6c58a2d8ee2c6e6c8175047d871aea27c508f2
@@ -119,7 +122,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 7003caa9828fac6416ea979fab27749777c2e0cd
-R 10027904ccb7432f064f15f0d974c92f
+P 492531e3a86fcc4fb8ac3c56b2efddd2ad244aa4
+R 2f8727d4c26fa89aa1434ec69ed3a73a
 U aku
-Z 3d0956710ccd83fe4a1adae2024f6fa1
+Z 944e5e865abafac474396b787b26b87e
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.3 (GNU/Linux)
+
+iD8DBQFG3g55vonzZ/CRa7gRAqjsAJ9drYoVJc4ZVATqrUwXVuQorBZ9TgCcD98G
+NYpxkCFFkSmckCibvv8Cr34=
+=qZAy
+-----END PGP SIGNATURE-----

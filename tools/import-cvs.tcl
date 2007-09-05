@@ -139,7 +139,7 @@ proc usage {{text {}}} {
 proc import {cset} {
     global tot nto nosign ntrunk
     Write info "    Importing $cset [string repeat = [expr {60 - [string length $cset]}]]"
-    Write info "        At $nto/$ntrunk ([format %.2f [expr {double($nto)/$ntrunk}]]%)"
+    Write info "        At $nto/$ntrunk ([format %.2f [expr {$nto*100.0/$ntrunk}]]%)"
 
     set usec [lindex [time {
 	foreach {uuid ad rm ch} [fossil::commit cvs2fossil $nosign \
