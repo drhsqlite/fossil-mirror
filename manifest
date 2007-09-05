@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\stext\snotes\son\sideas\sfor\sdealing\swith\stickets\sand\swiki.
-D 2007-09-02T20:33:16
+C Fix\spathological\sN*2\sbehavior\sin\sthe\sdelta\sgenerator.
+D 2007-09-05T18:46:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -41,7 +41,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 10bb790dafbf85fb41571d9cab31a16c2026da94
 F src/content.c 60a9520d479793775a112f75959246fdc8f11d41
 F src/db.c 7ab2af8add0d0220c923bc506be2396424a28f2d
-F src/delta.c 4f6e9c70e904e3f8bb0c975dfe3896e133c6cc41
+F src/delta.c d84dda2bcdf5a62690e442e538af6449c4e4be35
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 420beefa611a5c5792d7f6cc1d0fe1dd8f4989ae
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
@@ -84,7 +84,6 @@ F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
 F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
 F src/xfer.c f732b233d1ab879b603b26716e10e08f81c80769
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
-F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -124,14 +123,14 @@ F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 11976cfdc232c1e50b4d1cfdad7b2423c390498e
-R e6d05d74686e0ad227290b3465e27dfa
+P 251545cd43bdbf1a7034fa0bc0b2cd4f2aa9ac04
+R a058ccafeb5a0243d2aab740bc644a75
 U drh
-Z b1a44d0ade534c2630e534dc2159f7dc
+Z 532c02a182308fdb0b89c16b3c8b489a
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG2x4PoxKgR168RlERAox6AJwLaAme0yhf/eOVKe8j5U4xlHcmUwCfVrfO
-ViI0Y/JilXGQYgQ1kwzv1ng=
-=8pEb
+iD8DBQFG3vmooxKgR168RlERAoGqAJwPT1K9uf012Ul2AnKZUemW8wBvxgCfeiWR
+4gcP1FGkA2G6unEdA3NPCt0=
+=ZxV8
 -----END PGP SIGNATURE-----
