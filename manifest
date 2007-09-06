@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\spathological\sN*2\sbehavior\sin\sthe\sdelta\sgenerator.
-D 2007-09-05T18:46:59
+C Raise\sthe\shash\schain\slimit\sin\sthe\sdelta\smodule\sfrom\s50\sto\s250.
+D 2007-09-06T00:47:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -41,7 +41,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 10bb790dafbf85fb41571d9cab31a16c2026da94
 F src/content.c 60a9520d479793775a112f75959246fdc8f11d41
 F src/db.c 7ab2af8add0d0220c923bc506be2396424a28f2d
-F src/delta.c d84dda2bcdf5a62690e442e538af6449c4e4be35
+F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 420beefa611a5c5792d7f6cc1d0fe1dd8f4989ae
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
@@ -123,14 +123,14 @@ F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 251545cd43bdbf1a7034fa0bc0b2cd4f2aa9ac04
-R a058ccafeb5a0243d2aab740bc644a75
+P b816fadfc76c2e7b00da9ed2c23a8dfdddd6a7b8
+R 28f7e5f4f19cfb7c0a4d53eb5cc1decc
 U drh
-Z 532c02a182308fdb0b89c16b3c8b489a
+Z 38d1281eb9bf7309409e91e7b8c37972
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG3vmooxKgR168RlERAoGqAJwPT1K9uf012Ul2AnKZUemW8wBvxgCfeiWR
-4gcP1FGkA2G6unEdA3NPCt0=
-=ZxV8
+iD8DBQFG304LoxKgR168RlERAvDVAJ0eWe1POuDqd4LYPvsVO1lVkAAikACcCdK0
+9N7gUqQNhhGIFcRI/Be8z5g=
+=e9h4
 -----END PGP SIGNATURE-----

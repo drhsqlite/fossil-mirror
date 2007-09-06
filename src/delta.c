@@ -342,7 +342,7 @@ int delta_create(
     bestCnt = 0;
     while( 1 ){
       int hv;
-      int limit = 50;
+      int limit = 250;
 
       hv = hash_32bit(&h) & (MX_LANDMARK-1);
       DEBUG2( printf("LOOKING: %4d [%s]\n", base+i, print16(&zOut[base+i])); )
