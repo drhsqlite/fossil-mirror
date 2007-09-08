@@ -342,7 +342,19 @@ proc ::cvs::foreach_cset {cv node script} {
 
     set c $node
     while {1} {
-	uplevel 1 $script
+	set code [catch {uplevel 1 $script} res]
+
+	# 0 - ok, 1 - error, 2 - return, 3 - break, 4 - continue
+	switch -- $code {
+	    0 {}
+	    1 { return -errorcode $::errorcode -code error $res }
+	    2 {}
+	    3 { return }
+	    4 {}
+	    default {
+		return -code $code $result
+	    }
+	}
 
 	# Stop on reaching the head.
 	if {![llength [$rtree children $c]]} break

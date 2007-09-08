@@ -48,7 +48,7 @@ package require fossil ; # Backend,  writing to destination repository.
 # -----------------------------------------------------------------------------
 
 proc main {} {
-    global argv tot nto cvs fossil ntrunk
+    global argv tot nto cvs fossil ntrunk stopat
 
     commandline
 
@@ -72,6 +72,7 @@ proc main {} {
     set ntrunk [cvs::ntrunk]
     cvs::foreach_cset cset [cvs::root] {
 	import $cset
+	if {$stopat == $cset} exit
     }
     cvs::wsclear
 
@@ -91,10 +92,11 @@ proc main {} {
 # -----------------------------------------------------------------------------
 
 proc commandline {} {
-    global argv cvs fossil nosign log debugcommit
+    global argv cvs fossil nosign log debugcommit stopat
 
     set nosign 0
     set debugcommit 0
+    set stopat {}
 
     while {[string match "-*" [set opt [lindex $argv 0]]]} {
 	if {$opt eq "--nosign"} {
@@ -105,6 +107,11 @@ proc commandline {} {
 	if {$opt eq "--debugcommit"} {
 	    set debugcommit 1
 	    set argv [lrange $argv 1 end]
+	    continue
+	}
+	if {$opt eq "--stopat"} {
+	    set stopat [lindex $argv 1] 
+	    set argv   [lrange $argv 2 end]
 	    continue
 	}
 	usage
@@ -137,12 +144,20 @@ proc usage {{text {}}} {
 }
 
 proc import {cset} {
-    global tot nto nosign ntrunk
+    global tot nto nosign ntrunk stopat
     Write info "    Importing $cset [string repeat = [expr {60 - [string length $cset]}]]"
     Write info "        At $nto/$ntrunk ([format %.2f [expr {$nto*100.0/$ntrunk}]]%)"
 
+    if {$stopat == $cset} {
+	fossil::commit 1 cvs2fossil $nosign \
+	    [cvs::wssetup $cset] \
+	    ::cvs::wsignore
+	Write info "        %% STOP"
+	return
+    }
+
     set usec [lindex [time {
-	foreach {uuid ad rm ch} [fossil::commit cvs2fossil $nosign \
+	foreach {uuid ad rm ch} [fossil::commit 0 cvs2fossil $nosign \
 				     [cvs::wssetup $cset] \
 				     ::cvs::wsignore] break
     } 1] 0]

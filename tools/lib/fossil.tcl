@@ -62,7 +62,7 @@ proc ::fossil::debugcommit {flag} {
     return
 }
 
-proc ::fossil::commit {appname nosign meta ignore} {
+proc ::fossil::commit {break appname nosign meta ignore} {
     variable fossil
     variable lastuuid
     variable debugcommit
@@ -122,6 +122,9 @@ proc ::fossil::commit {appname nosign meta ignore} {
     if {$debugcommit} {
 	fileutil::writeFile $dcfile "\#!tclsh\n$cmd\n"
     }
+
+    # Stop, do not actually commit.
+    if {$break} return
 
     if {[catch {
 	eval $cmd
