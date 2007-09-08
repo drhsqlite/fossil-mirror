@@ -42,87 +42,38 @@ lappend auto_path [file join [file dirname [info script]] lib]
 # Requirements
 
 package require Tcl 8.4
-package require cvs    ; # Frontend, reading from source repository
-package require fossil ; # Backend,  writing to destination repository.
-package require tools::log
-
-::tools::log::system import
+package require tools::log  ; # User Feedback
+package require import::cvs ; # Importer Control
 
 # -----------------------------------------------------------------------------
 
 proc main {} {
-    global argv tot nto cvs fossil ntrunk stopat nmax ntfmt nmfmt
-
-    commandline
-
-    cvs::at       $cvs  ; # Define location of CVS repository
-    cvs::scan           ; # Gather revision data from the archives
-    cvs::csets          ; # Group changes into sets
-    cvs::rtree          ; # Build revision tree (trunk only right now).
-
-    set tot 0.0
-    set nto 0
-
-    ::tools::log::write 0 import {Begin conversion}
-    ::tools::log::write 0 import {Setting up workspaces}
-
-    cvs::workspace ; # cd's to workspace
-    fossil::new    ; # Uses cwd as workspace to connect to.
-
-    set ntrunk [cvs::ntrunk] ; set ntfmt %[string length $ntrunk]s
-    set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
-
-    cvs::foreach_cset cset [cvs::root] {
-	import $cset
-	if {$stopat == $cset} exit
-    }
-    cvs::wsclear
-
-    ::tools::log::write 0 import "========= [string repeat = 61]"
-    ::tools::log::write 0 import "Imported $nto [expr {($nto == 1) ? "changeset" : "changesets"}]"
-    ::tools::log::write 0 import "Within [format %.2f $tot] seconds (avg [format %.2f [expr {$tot/$nto}]] seconds/changeset)"
-
-    fossil::destination $fossil
-
-    ::tools::log::write 0 import Ok.
+    commandline    -> cvs  fossil
+    import::cvs::run $cvs $fossil
     return
 }
 
-
 # -----------------------------------------------------------------------------
 
-proc commandline {} {
-    global argv cvs fossil nosign debugcommit stopat
+proc commandline {__ cv fv} {
+    global argv
+    upvar 1 $cv cvs $fv fossil
 
-    set nosign 0
-    set debugcommit 0
-    set stopat {}
     set verbosity 0
 
-    while {[string match "-*" [set opt [lindex $argv 0]]]} {
-	if {$opt eq "--nosign"} {
-	    set nosign 1
-	    set argv [lrange $argv 1 end]
-	    continue
+    clinit
+    while {[string match "-*" [set opt [this]]]} {
+	switch -exact -- $opt {
+	    --nosign      {        import::cvs::configure -nosign      1 }
+	    --debugcommit {        import::cvs::configure -debugcommit 1 }
+	    --stopat      { next ; import::cvs::configure -stopat [this] }
+	    -v            { incr verbosity ; ::tools::log::verbosity $verbosity }
+	    default usage
 	}
-	if {$opt eq "--debugcommit"} {
-	    set debugcommit 1
-	    set argv [lrange $argv 1 end]
-	    continue
-	}
-	if {$opt eq "--stopat"} {
-	    set stopat [lindex $argv 1] 
-	    set argv   [lrange $argv 2 end]
-	    continue
-	}
-	if {$opt eq "-v"} {
-	    incr verbosity
-	    ::tools::log::verbosity $verbosity
-	    set argv   [lrange $argv 1 end]
-	    continue
-	}
-	usage
+	next
     }
+
+    remainder
     if {[llength $argv] != 2} usage
     foreach {cvs fossil} $argv break
 
@@ -136,53 +87,40 @@ proc commandline {} {
 	usage "Fossil destination repository exists already."
     }
 
-    fossil::debugcommit $debugcommit
+    return
+}
+
+proc this {} {
+    global argv
+    upvar 1 at at
+    return [lindex $argv $at]
+}
+
+proc next {} {
+    upvar 1 at at
+    incr at
+    return
+}
+
+proc remainder {} {
+    upvar 1 at at
+    global argv
+    set argv [lrange $argv $at end]
+    return
+}
+
+proc clinit {} {
+    upvar 1 at at
+    set at 0
     return
 }
 
 proc usage {{text {}}} {
     global argv0
-    puts stderr "Usage: $argv0 ?--nosign? cvs-repository fossil-rpeository"
+    puts stderr "Usage: $argv0 ?--nosign? ?-v? ?--stopat id? ?--debugcommit? cvs-repository fossil-repository"
     if {$text eq ""} return
     puts stderr "       $text"
     exit
-}
-
-proc import {cset} {
-    global tot nto nosign ntrunk stopat ntfmt nmfmt
-    ::tools::log::write 0 import "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $nto]/$ntrunk ([format %6.2f [expr {$nto*100.0/$ntrunk}]]%)"
-
-    if {$stopat == $cset} {
-	fossil::commit 1 cvs2fossil $nosign \
-	    [cvs::wssetup $cset] \
-	    ::cvs::wsignore
-	::tools::log::write 1 import {%% STOP}
-	return
-    }
-
-    set usec [lindex [time {
-	foreach {uuid ad rm ch} [fossil::commit 0 cvs2fossil $nosign \
-				     [cvs::wssetup $cset] \
-				     ::cvs::wsignore] break
-    } 1] 0]
-    cvs::uuid $cset $uuid
-
-    set sec [expr {$usec/1e6}]
-    set tot [expr {$tot + $sec}]
-    incr nto
-
-    ::tools::log::write 2 import "== $uuid +${ad}-${rm}*${ch}"
-    ::tools::log::write 2 import "st in  [format %.2f $sec] sec"
-
-    set avg [expr {$tot/$nto}]
-    set max [expr {$ntrunk * $avg}]
-    set rem [expr {$max - $tot}]
-
-    ::tools::log::write 3 import "st avg [format %.2f $avg] sec"
-    ::tools::log::write 3 import "st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
-    ::tools::log::write 3 import "st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
-    ::tools::log::write 3 import "st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
-    return
 }
 
 # -----------------------------------------------------------------------------
