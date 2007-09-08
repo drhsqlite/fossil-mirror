@@ -36,8 +36,8 @@ Wiki header format:
 
 Cluster format:
 
-   "Cluster"
-   (UUID\n)+
+       M+ uuid
+       Z manifest-cksum
 
    * Cluster generated in server mode only.
    * Embargo cluster that reference phantoms or other embargoed clusters.
@@ -69,6 +69,7 @@ Details of new push algorithm:
      * Server creates phantoms for unknown ihaves
      * Server sends gimme messages for all phantoms
      ------
+     * Client clears its unsent table
      * For each gimme message add an entry to wanted
      * Halt if the wanted table is empty
 

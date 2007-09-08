@@ -351,14 +351,11 @@ int manifest_crosslink(int rid, Blob *pContent){
     );
   }
   for(i=0; i<m.nCChild; i++){
-    static Stmt dc;
-    db_static_prepare(&dc,
-      "DELETE FROM unclustered WHERE rid ="
-      " (SELECT rid FROM blob WHERE uuid=:u)"
-    );
-    db_bind_text(&dc, ":u", m.azCChild[i]);
-    db_step(&dc);
-    db_reset(&dc);
+    int rid;
+    rid = uuid_to_rid(m.azCChild[i], 1);
+    if( rid>0 ){
+      db_multi_exec("DELETE FROM unclustered WHERE rid=%d", rid);
+    }
   }
   db_end_transaction(0);
   manifest_clear(&m);

@@ -236,6 +236,13 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   if( srcId ){
     db_multi_exec("REPLACE INTO delta(rid,srcid) VALUES(%d,%d)", rid, srcId);
   }
+  
+  /* Add the element to the unclustered table if it is not a
+  ** a phantom
+  */
+  if( pBlob ){
+    db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d)", rid);
+  }
 
   /* Finish the transaction and cleanup */
   db_finalize(&s1);

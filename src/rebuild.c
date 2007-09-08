@@ -68,7 +68,7 @@ int rebuild_db(void){
       manifest_crosslink(rid, &content);
       blob_reset(&content);
     }else{
-      db_multi_exec("INSERT INTO phantom VALUES(%d)", rid);
+      db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
   }
   return errCnt;

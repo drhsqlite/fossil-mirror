@@ -236,101 +236,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int srcId){
 }
 
 /*
-** Send the file identified by mid and pUuid.  If that file happens
-** to be a manifest, then also send all of the associated content
-** files for that manifest.  If the file is not a manifest, then this
-** routine is the equivalent of send_file().
-*/
-static void send_manifest(Xfer *pXfer, int mid, Blob *pUuid, int srcId){
-  Stmt q2;
-  send_file(pXfer, mid, pUuid, srcId);
-  db_prepare(&q2,
-     "SELECT pid, uuid, fid FROM mlink, blob"
-     " WHERE rid=fid AND mid=%d",
-     mid
-  );
-  while( db_step(&q2)==SQLITE_ROW ){
-    int pid, fid;
-    Blob uuid;
-    pid = db_column_int(&q2, 0);
-    db_ephemeral_blob(&q2, 1, &uuid);
-    fid = db_column_int(&q2, 2);
-    send_file(pXfer, fid, &uuid, pid);
-  }
-  db_finalize(&q2);
-}
-
-/*
-** This routine runs when either client or server is notified that
-** the other side thinks rid is a leaf manifest.  If we hold
-** children of rid, then send them over to the other side.
-*/
-static void leaf_response(Xfer *pXfer, int rid){
-  Stmt q1;
-  db_prepare(&q1,
-      "SELECT cid, uuid FROM plink, blob"
-      " WHERE blob.rid=plink.cid"
-      "   AND plink.pid=%d",
-      rid
-  );
-  while( db_step(&q1)==SQLITE_ROW ){
-    Blob uuid;
-    int cid;
-
-    cid = db_column_int(&q1, 0);
-    db_ephemeral_blob(&q1, 1, &uuid);
-    send_manifest(pXfer, cid, &uuid, rid);
-    if( blob_size(pXfer->pOut)<pXfer->mxSend ){
-      leaf_response(pXfer, cid);
-    }
-  }
-}
-
-/*
-** Sent a leaf message for every leaf.
-*/
-static void send_leaves(Xfer *pXfer){
-  Stmt q;
-  db_prepare(&q, 
-    "SELECT uuid FROM blob WHERE rid IN"
-    "  (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    blob_appendf(pXfer->pOut, "leaf %s\n", zUuid);
-  }
-  db_finalize(&q);
-}
-
-/*
-** Sent leaf content for every leaf that is not found in the
-** onremote table.  This is intended to send leaf content for
-** every leaf that is unknown on the remote end.
-**
-** In addition, we might send "igot" messages for a few generations of
-** parents of the unknown leaves.  This will speed the transmission
-** of new branches.  
-*/
-static void send_unknown_leaf_content(Xfer *pXfer){
-  Stmt q1;
-  db_prepare(&q1,
-    "SELECT rid, uuid FROM blob WHERE rid IN"
-    "  (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
-    "  AND NOT EXISTS(SELECT 1 FROM onremote WHERE rid=blob.rid)"
-  );
-  while( db_step(&q1)==SQLITE_ROW ){
-    Blob uuid;
-    int cid;
-
-    cid = db_column_int(&q1, 0);
-    db_ephemeral_blob(&q1, 1, &uuid);
-    send_manifest(pXfer, cid, &uuid, 0);
-  }
-  db_finalize(&q1);
-}
-
-/*
-** Sen a gimme message for every phantom.
+** Send a gimme message for every phantom.
 */
 static void request_phantoms(Xfer *pXfer){
   Stmt q;
@@ -398,6 +304,65 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   db_reset(&q);
 }
 
+/*
+** Send the content of all files in the unsent table.
+**
+** This is really just an optimization.  If you clear the
+** unsent table, all the right files will still get transferred.
+** It just might require an extra round trip or two.
+*/
+static void send_unsent(Xfer *pXfer){
+  Stmt q;
+  db_prepare(&q, "SELECT rid FROM unsent");
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    send_file(pXfer, rid, 0, 0);
+  }
+  db_finalize(&q);
+  db_multi_exec("DELETE FROM unsent");
+}
+
+/*
+** Check to see if the number of unclustered entries is greater than
+** 100 and if it is, form a new cluster.
+*/
+static void create_cluster(void){
+  Blob cluster, cksum;
+  Stmt q;
+  int rid;
+  if( db_int(0, "SELECT count(*) FROM unclustered")<10 ){
+    return;
+  }
+  blob_zero(&cluster);
+  db_prepare(&q, "SELECT uuid FROM unclustered JOIN blob USING(rid)"
+                 " ORDER BY 1");
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(&cluster, "M %s\n", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+  md5sum_blob(&cluster, &cksum);
+  blob_appendf(&cluster, "Z %b\n", &cksum);
+  blob_reset(&cksum);
+  db_multi_exec("DELETE FROM unclustered");
+  content_put(&cluster, 0, 0);
+  blob_reset(&cluster);
+}
+
+/*
+** Send an igot message for every entry in unclustered table.
+** Return the number of messages sent.
+*/
+static int send_unclustered(Xfer *pXfer){
+  Stmt q;
+  int cnt = 0;
+  db_prepare(&q, "SELECT uuid FROM unclustered JOIN blob USING(rid)");
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
+    cnt++;
+  }
+  db_finalize(&q);
+  return cnt;
+}
 
 /*
 ** If this variable is set, disable login checks.  Used for debugging
@@ -456,9 +421,7 @@ void page_xfer(void){
 
     /*   gimme UUID
     **
-    ** Client is requesting a file.  If the file is a manifest,
-    ** the server can assume that the client also needs all content
-    ** files associated with that manifest.
+    ** Client is requesting a file.  Send it.
     */
     if( blob_eq(&xfer.aToken[0], "gimme")
      && xfer.nToken==2
@@ -467,7 +430,7 @@ void page_xfer(void){
       if( isPull ){
         int rid = rid_from_uuid(&xfer.aToken[1], 0);
         if( rid ){
-          send_manifest(&xfer, rid, &xfer.aToken[1], 0);
+          send_file(&xfer, rid, &xfer.aToken[1], 0);
         }
       }
     }else
@@ -486,28 +449,6 @@ void page_xfer(void){
     }else
   
     
-    /*   leaf UUID
-    **
-    ** Client announces that it has a particular manifest.  If
-    ** the server has children of this leaf, then send those
-    ** children back to the client.  If the server lacks this
-    ** leaf, request it.
-    */
-    if( xfer.nToken==2
-     && blob_eq(&xfer.aToken[0], "leaf")
-     && blob_is_uuid(&xfer.aToken[1])
-    ){
-      int rid = rid_from_uuid(&xfer.aToken[1], 0);
-      if( rid ){
-        remote_has(rid);
-        if( isPull ){
-          leaf_response(&xfer, rid);
-        }
-      }else if( isPush ){
-        content_put(0, blob_str(&xfer.aToken[1]), 0);
-      }
-    }else
-
     /*    pull  SERVERCODE  PROJECTCODE
     **    push  SERVERCODE  PROJECTCODE
     **
@@ -559,7 +500,6 @@ void page_xfer(void){
           nErr++;
           break;
         }
-        send_leaves(&xfer);
         isPush = 1;
       }
     }else
@@ -569,7 +509,6 @@ void page_xfer(void){
     ** The client knows nothing.  Tell all.
     */
     if( blob_eq(&xfer.aToken[0], "clone") ){
-      int rootid;
       login_check_credentials();
       if( !g.okClone ){
         cgi_reset_content();
@@ -579,14 +518,6 @@ void page_xfer(void){
       }
       isPull = 1;
       @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
-      rootid = db_int(0, 
-          "SELECT pid FROM plink AS a"
-          " WHERE NOT EXISTS(SELECT 1 FROM plink WHERE cid=a.pid)"
-      );
-      if( rootid ){
-        send_file(&xfer, rootid, 0, -1);
-        leaf_response(&xfer, rootid);
-      }
     }else
 
     /*    login  USER  NONCE  SIGNATURE
@@ -616,7 +547,8 @@ void page_xfer(void){
     request_phantoms(&xfer);
   }
   if( isPull ){
-    send_unknown_leaf_content(&xfer);
+    create_cluster();
+    send_unclustered(&xfer);
   }
   db_end_transaction(0);
 }
@@ -718,7 +650,10 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     */
     if( pullFlag ){
       request_phantoms(&xfer);
-      send_leaves(&xfer);
+    }
+    if( pushFlag ){
+      send_unsent(&xfer);
+      nMsg += send_unclustered(&xfer);
     }
 
     /* Exchange messages with the server */
@@ -775,7 +710,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         nMsg++;
         if( pushFlag ){
           int rid = rid_from_uuid(&xfer.aToken[1], 0);
-          send_manifest(&xfer, rid, &xfer.aToken[1], 0);
+          send_file(&xfer, rid, &xfer.aToken[1], 0);
         }
       }else
   
@@ -807,30 +742,6 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       }else
     
       
-      /*   leaf UUID
-      **
-      ** Server announces that it has a particular manifest.  Send
-      ** any children of this leaf that we have if we are pushing.
-      ** Make the leaf a phantom if we are pulling.  Remember that the
-      ** remote end has the specified UUID.
-      */
-      if( xfer.nToken==2
-       && blob_eq(&xfer.aToken[0], "leaf")
-       && blob_is_uuid(&xfer.aToken[1])
-      ){
-        int rid = rid_from_uuid(&xfer.aToken[1], 0);
-        nMsg++;
-        if( pushFlag && rid ){
-          leaf_response(&xfer, rid);
-        }
-        if( pullFlag && rid==0 ){
-          rid = content_put(0, blob_str(&xfer.aToken[1]), 0);
-          newPhantom = 1;
-        }
-        remote_has(rid);
-      }else
-  
-  
       /*   push  SERVERCODE  PRODUCTCODE
       **
       ** Should only happen in response to a clone.  This message tells
