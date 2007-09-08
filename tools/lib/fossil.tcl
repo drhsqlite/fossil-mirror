@@ -5,8 +5,12 @@
 # Requirements
 
 package require Tcl 8.4
+package require tools::log ; # User feedback
 
-namespace eval ::fossil {}
+namespace eval ::fossil {
+    tools::log::system fossil
+    namespace import ::tools::log::write
+}
 
 # -----------------------------------------------------------------------------
 # API
@@ -21,16 +25,9 @@ proc ::fossil::new {} {
     exec $fossil new  $fr ; # create and
     exec $fossil open $fr ; # connect
 
-    Log info "    Fossil:    $fr"
+    write 0 fossil "Repository: $fr"
 
     return $fr
-}
-
-# Define logging callback command
-
-proc ::fossil::feedback {logcmd} {
-    variable lc $logcmd
-    return
 }
 
 # Move generated fossil repository to final destination
@@ -87,10 +84,10 @@ proc ::fossil::commit {break appname nosign meta ignore} {
 	if {![file exists $path]} {
 	    exec $fossil rm $path
 	    incr removed
-	    Log info "        ** - $path"
+	    write 2 fossil "-  $path"
 	} else {
 	    incr changed
-	    Log info "        ** * $path"
+	    write 2 fossil "*  $path"
 	}
     }
 
@@ -100,7 +97,7 @@ proc ::fossil::commit {break appname nosign meta ignore} {
 	if {[IGNORE $ignore $path]} continue
 	exec $fossil add $path
 	incr added
-	Log info "        ** + $path"
+	write 2 fossil "+  $path"
     }
 
     # Now commit, using the provided meta data, and capture the uuid
@@ -138,7 +135,7 @@ proc ::fossil::commit {break appname nosign meta ignore} {
 	# re-use the last baseline. TODO: Mark them as branchpoint,
 	# and for what file.
 
-	Log info "        UNCHANGED, keeping last"
+	write 1 fossil "UNCHANGED, keeping last"
 
 	return [list $lastuuid 0 0 0]
     }
@@ -155,19 +152,6 @@ proc ::fossil::commit {break appname nosign meta ignore} {
 
 proc ::fossil::IGNORE {ignore path} {
     return [uplevel #0 [linsert $ignore end $path]]
-}
-
-proc ::fossil::Log {level text} {
-    variable lc
-    uplevel #0 [linsert $lc end $level $text]
-    return
-}
-
-proc ::fossil::Nop {args} {}
-
-namespace eval ::fossil {
-    # Logging callback. No logging by default.
-    variable lc ::fossil::Nop
 }
 
 # -----------------------------------------------------------------------------

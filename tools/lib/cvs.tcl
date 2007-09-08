@@ -5,11 +5,15 @@
 # Requirements
 
 package require Tcl 8.4
-package require fileutil  ; # Tcllib (cat)
-package require rcsparser ; # Handling the RCS archive files.
+package require fileutil      ; # Tcllib (traverse directory hierarchy)
+package require rcsparser     ; # Handling the RCS archive files.
+package require tools::log    ; # User feedback
 package require struct::tree
 
-namespace eval ::cvs {}
+namespace eval ::cvs {
+    tools::log::system cvs
+    namespace import ::tools::log::write
+}
 
 # -----------------------------------------------------------------------------
 # API
@@ -18,20 +22,13 @@ namespace eval ::cvs {}
 
 proc ::cvs::at {path} {
     variable base [file normalize $path]
+    write 0 cvs "Base: $base"
     return
 }
 
 namespace eval ::cvs {
     # Toplevel repository directory
     variable base {}
-}
-
-# Define logging callback command
-
-proc ::cvs::feedback {logcmd} {
-    variable lc $logcmd
-    ::rcsparser::feedback $logcmd
-    return
 }
 
 # Scan repository, collect archives, parse them, and collect revision
@@ -43,17 +40,17 @@ proc ::cvs::scan {} {
     variable rpaths
     variable timeline
 
-    Log info "Scanning CVS tree $base"
+    write 0 cvs {Scanning directory hierarchy}
 
     set n 0
     foreach rcs [fileutil::findByPattern $base -glob *,v] {
 	set rcs [fileutil::stripPath $base $rcs]
 	# Now rcs is relative to base
 
-	Log info "    Parsing archive $rcs"
+	write 1 cvs "Archive $rcs"
 
 	if {[string match CVSROOT* $rcs]} {
-	    Log info "                 => Ignoring admin file"
+	    write 2 cvs {Ignored. Administrative file}
 	    continue
 	}
 
@@ -66,7 +63,8 @@ proc ::cvs::scan {} {
 		# We have a regular archive and an Attic archive
 		# refering to the same user visible file. Ignore the
 		# file in the Attic.
-		Log info "                 => Ignoring attic for regular archive"
+
+		write 2 cvs "Ignored. Attic superceded by regular archive"
 
 		# TODO/CHECK. My method of co'ing exact file revisions
 		# per the info in the collected csets has the flaw
@@ -87,8 +85,6 @@ proc ::cvs::scan {} {
 	# Get the meta data we need (revisions, timeline, messages).
 	set meta [::rcsparser::process $base/$rcs]
 
-	Log info "         => $f"
-
 	set npaths($rcs) $f
 	set rpaths($f) $rcs
 
@@ -105,7 +101,7 @@ proc ::cvs::scan {} {
 	    # symbols has a tag, refering to a branch, possibly magic.
 
 	    if {($rev eq "1.1") && ($op eq "R")} {
-		Log info "         => Dead first"
+		write 2 cvs {Dead root revision}
 	    }
 
 	    lappend timeline($ts) [list $op $ts $a $rev $f $cm]
@@ -117,7 +113,7 @@ proc ::cvs::scan {} {
 	incr n
     }
 
-    Log info "Processed $n [expr {($n == 1) ? "file" : "files"}]"
+    write 0 cvs "Processed $n [expr {($n == 1) ? "file" : "files"}]"
     return
 }
 
@@ -145,7 +141,7 @@ proc ::cvs::csets {} {
     array unset cmap  * ; array set cmap  {}
     set ncs 0
 
-    Log info "Processing timeline"
+    write 0 cvs "Processing timeline"
 
     set n 0
     CSClear
@@ -169,9 +165,10 @@ proc ::cvs::csets {} {
 	}
     }
 
-    Log info "Processed $n [expr {($n == 1) ? "entry" : "entries"}]"
+    write 0 cvs "Processed $n [expr {($n == 1) ? "entry" : "entries"}]"
+
     set n [array size csets]
-    Log info "Found     $n [expr {($n == 1) ? "changeset" : "changesets"}]"
+    write 0 cvs "Found     $n [expr {($n == 1) ? "changeset" : "changesets"}]"
     return
 }
 
@@ -194,7 +191,7 @@ proc ::cvs::rtree {} {
     variable rtree {}
     variable ntrunk 0
 
-    Log info "Extracting the trunk"
+    write 0 cvs "Extracting the trunk"
 
     set rtree [struct::tree ::cvs::RT]
     $rtree rename root 0 ; # Root is first changeset, always.
@@ -220,8 +217,8 @@ proc ::cvs::rtree {} {
 	incr ntrunk
     }
 
-    Log info "Processed $ntrunk trunk  [expr {($ntrunk == 1) ? "changeset" : "changesets"}]"
-    Log info "Ignored   $b branch [expr {($b == 1) ? "changeset" : "changesets"}]"
+    write 0 cvs "Processed $ntrunk trunk  [expr {($ntrunk == 1) ? "changeset" : "changesets"}]"
+    write 0 cvs "Ignored   $b branch [expr {($b == 1) ? "changeset" : "changesets"}]"
     return
 }
 
@@ -239,7 +236,7 @@ proc ::cvs::workspace {} {
     file delete $workspace
     file mkdir  $workspace
 
-    Log info "    Workspace: $workspace"
+    write 0 cvs "Workspace:  $workspace"
 
     cd     $workspace ; # Checkouts go here.
     return $workspace
@@ -268,15 +265,15 @@ proc ::cvs::wssetup {c} {
 
     foreach {u cm s e rd fs} $csets($c) break
 
-    Log info "        @  $s"
+    write 1 cvs "@  $s"
 
     foreach l [split [string trim $cm] \n] {
-	Log info "        |  $l"
+	write 1 cvs "|  $l"
     }
 
     foreach {f or} $fs {
 	foreach {op r} $or break
-	Log info "        -- $op $f $r"
+	write 2 cvs "$op  $f $r"
 
 	if {$op eq "R"} {
 	    # Remove file from workspace. Prune empty directories.
@@ -314,7 +311,7 @@ proc ::cvs::wssetup {c} {
 		    # ignoring the problem we however get as much as
 		    # is possible.
 
-		    Log info "        EE Corrupted archive file. Inaccessible revision."
+		    write 0 cvs "EE Corrupted archive file. Inaccessible revision."
 		    continue
 		}
 		return -code error $msg
@@ -347,7 +344,7 @@ proc ::cvs::foreach_cset {cv node script} {
 	# 0 - ok, 1 - error, 2 - return, 3 - break, 4 - continue
 	switch -- $code {
 	    0 {}
-	    1 { return -errorcode $::errorcode -code error $res }
+	    1 { return -errorcode $::errorCode -errorinfo $::errorInfo -code error $res }
 	    2 {}
 	    3 { return }
 	    4 {}
@@ -374,6 +371,11 @@ proc ::cvs::root {} {
 proc ::cvs::ntrunk {} {
     variable ntrunk
     return  $ntrunk
+}
+
+proc ::cvs::ncsets {} {
+    variable ncs
+    return  $ncs
 }
 
 proc ::cvs::uuid {c uuid} {
@@ -472,22 +474,6 @@ proc ::cvs::CSDump {c} {
 	puts "$b $o $f $r"
     }
     return
-}
-
-# -----------------------------------------------------------------------------
-# Internal helper commands
-
-proc ::cvs::Log {level text} {
-    variable lc
-    uplevel #0 [linsert $lc end $level $text]
-    return
-}
-
-proc ::cvs::Nop {args} {}
-
-namespace eval ::cvs {
-    # Logging callback. No logging by default.
-    variable lc ::cvs::Nop
 }
 
 # -----------------------------------------------------------------------------

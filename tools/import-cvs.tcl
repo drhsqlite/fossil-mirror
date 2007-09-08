@@ -44,16 +44,16 @@ lappend auto_path [file join [file dirname [info script]] lib]
 package require Tcl 8.4
 package require cvs    ; # Frontend, reading from source repository
 package require fossil ; # Backend,  writing to destination repository.
+package require tools::log
+
+::tools::log::system import
 
 # -----------------------------------------------------------------------------
 
 proc main {} {
-    global argv tot nto cvs fossil ntrunk stopat
+    global argv tot nto cvs fossil ntrunk stopat nmax ntfmt nmfmt
 
     commandline
-
-    fossil::feedback Write ; # Setup progress feedback from the libraries
-    cvs::feedback    Write
 
     cvs::at       $cvs  ; # Define location of CVS repository
     cvs::scan           ; # Gather revision data from the archives
@@ -63,28 +63,28 @@ proc main {} {
     set tot 0.0
     set nto 0
 
-    Write info {Importing ...}
-    Write info {    Setting up cvs workspace and temporary fossil repository}
+    ::tools::log::write 0 import {Begin conversion}
+    ::tools::log::write 0 import {Setting up workspaces}
 
     cvs::workspace ; # cd's to workspace
     fossil::new    ; # Uses cwd as workspace to connect to.
 
-    set ntrunk [cvs::ntrunk]
+    set ntrunk [cvs::ntrunk] ; set ntfmt %[string length $ntrunk]s
+    set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
+
     cvs::foreach_cset cset [cvs::root] {
 	import $cset
 	if {$stopat == $cset} exit
     }
     cvs::wsclear
 
-    Write info "    ========= [string repeat = 61]"
-    Write info "    Imported $nto [expr {($nto == 1) ? "changeset" : "changesets"}]"
-    Write info "    Within [format %.2f $tot] seconds (avg [format %.2f [expr {$tot/$nto}]] seconds/changeset)"
-
-    Write info {    Moving to final destination}
+    ::tools::log::write 0 import "========= [string repeat = 61]"
+    ::tools::log::write 0 import "Imported $nto [expr {($nto == 1) ? "changeset" : "changesets"}]"
+    ::tools::log::write 0 import "Within [format %.2f $tot] seconds (avg [format %.2f [expr {$tot/$nto}]] seconds/changeset)"
 
     fossil::destination $fossil
 
-    Write info Ok.
+    ::tools::log::write 0 import Ok.
     return
 }
 
@@ -92,11 +92,12 @@ proc main {} {
 # -----------------------------------------------------------------------------
 
 proc commandline {} {
-    global argv cvs fossil nosign log debugcommit stopat
+    global argv cvs fossil nosign debugcommit stopat
 
     set nosign 0
     set debugcommit 0
     set stopat {}
+    set verbosity 0
 
     while {[string match "-*" [set opt [lindex $argv 0]]]} {
 	if {$opt eq "--nosign"} {
@@ -114,6 +115,12 @@ proc commandline {} {
 	    set argv   [lrange $argv 2 end]
 	    continue
 	}
+	if {$opt eq "-v"} {
+	    incr verbosity
+	    ::tools::log::verbosity $verbosity
+	    set argv   [lrange $argv 1 end]
+	    continue
+	}
 	usage
     }
     if {[llength $argv] != 2} usage
@@ -129,8 +136,6 @@ proc commandline {} {
 	usage "Fossil destination repository exists already."
     }
 
-    set log [open ${fossil}.log w]
-
     fossil::debugcommit $debugcommit
     return
 }
@@ -144,15 +149,14 @@ proc usage {{text {}}} {
 }
 
 proc import {cset} {
-    global tot nto nosign ntrunk stopat
-    Write info "    Importing $cset [string repeat = [expr {60 - [string length $cset]}]]"
-    Write info "        At $nto/$ntrunk ([format %.2f [expr {$nto*100.0/$ntrunk}]]%)"
+    global tot nto nosign ntrunk stopat ntfmt nmfmt
+    ::tools::log::write 0 import "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $nto]/$ntrunk ([format %6.2f [expr {$nto*100.0/$ntrunk}]]%)"
 
     if {$stopat == $cset} {
 	fossil::commit 1 cvs2fossil $nosign \
 	    [cvs::wssetup $cset] \
 	    ::cvs::wsignore
-	Write info "        %% STOP"
+	::tools::log::write 1 import {%% STOP}
 	return
     }
 
@@ -167,39 +171,17 @@ proc import {cset} {
     set tot [expr {$tot + $sec}]
     incr nto
 
-    Write info "        == $uuid +${ad}-${rm}*${ch}"
-    Write info "        in $sec seconds"
+    ::tools::log::write 2 import "== $uuid +${ad}-${rm}*${ch}"
+    ::tools::log::write 2 import "st in  [format %.2f $sec] sec"
 
     set avg [expr {$tot/$nto}]
     set max [expr {$ntrunk * $avg}]
     set rem [expr {$max - $tot}]
 
-    Write info "        st avg [format %.2f $avg]"
-    Write info "        st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
-    Write info "        st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
-    Write info "        st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
-    return
-}
-
-# -----------------------------------------------------------------------------
-
-array set fl {
-    debug   {DEBUG  }
-    info    {       }
-    warning {Warning}
-    error   {ERROR  }
-}
-
-proc Write {l t} {
-    global fl log
-
-    if {[string index $t 0] eq "\r"} {
-	puts -nonewline stdout "\r$fl($l) [string range $t 0 end-1]"
-    } else {
-	puts stdout "$fl($l) $t"
-	puts $log   "$fl($l) $t"
-    }
-    flush stdout
+    ::tools::log::write 3 import "st avg [format %.2f $avg] sec"
+    ::tools::log::write 3 import "st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
+    ::tools::log::write 3 import "st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
+    ::tools::log::write 3 import "st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
     return
 }
 

@@ -1,23 +1,51 @@
-
 # -----------------------------------------------------------------------------
-# Parse RCS files (,v) - ignore the deltas - we need only the commit messages
-# Recursive Descent Parser
+# Tool packages. Parsing RCS files.
+#
+# Some of the information in RCS files is skipped over, most
+# importantly the actual delta texts. The users of this parser need
+# only the meta-data about when revisions were added, the tree
+# (branching) structure, commit messages.
+#
+# The parser is based on Recursive Descent.
 
 # -----------------------------------------------------------------------------
 # Requirements
 
 package require Tcl 8.4
-package require fileutil ; # Tcllib (cat)
+package require fileutil   ; # Tcllib (cat)
+package require tools::log ; # User feedback
 
-namespace eval ::rcsparser {}
+namespace eval ::rcsparser {
+    tools::log::system rcs
+    namespace import ::tools::log::progress
+}
 
 # -----------------------------------------------------------------------------
 # API
 
-proc ::rcsparser::feedback {logcmd} {
-    variable lc $logcmd
-    return
-}
+# rcsparser::process file
+#
+# Parses the rcs file and returns a dictionary containing the meta
+# data. The following keys are used
+#
+# Key		Meaning
+# ---		-------
+# 'head'	head revision
+# 'branch'	?
+# 'symbol'	dict (symbol -> revision)
+# 'lock'	dict (symbol -> revision)
+# 'comment'	file comment
+# 'expand'	?
+# 'date'	dict (revision -> date)
+# 'author'	dict (revision -> author)
+# 'state'	dict (revision -> state)
+# 'parent'	dict (revision -> parent revision)
+# 'commit'	dict (revision -> commit message)
+#
+# The state 'dead' has special meaning, the user should know that.
+
+# -----------------------------------------------------------------------------
+# API Implementation
 
 proc ::rcsparser::process {path} {
     set data [fileutil::cat -encoding binary $path]
@@ -31,8 +59,6 @@ proc ::rcsparser::process {path} {
     Description
     DeltaTexts
 
-    Feedback \r
-
     # Remove parser state
     catch {unset res(id)}
     catch {unset res(lastval)}
@@ -40,23 +66,11 @@ proc ::rcsparser::process {path} {
     unset res(nsize)
     unset res(done)
 
-    # res: 'head'    -> head revision
-    #      'branch'  -> ?
-    #      'symbol'  -> (sym -> revision)
-    #      'lock'    -> (sym -> revision)
-    #      'comment' -> file comment
-    #      'expand'  -> ?
-    #      'date'    -> (revision -> date)
-    #      'author'  -> (revision -> author)
-    #      'state'   -> (revision -> state)
-    #      'parent'  -> (revision -> parent revision)
-    #      'commit'  -> (revision -> commit message)
-
     return [array get res]
 }
 
 # -----------------------------------------------------------------------------
-# Internal helper commands
+# Internal - Recursive Descent functions implementing the syntax.
 
 proc ::rcsparser::Admin {} {
     upvar 1 data data res res
@@ -192,6 +206,7 @@ proc ::rcsparser::Text {} {
 }
 
 # -----------------------------------------------------------------------------
+# Internal - Lexicographical commands and data aquisition preparation
 
 proc ::rcsparser::Ident {} {
     upvar 1 data data res res
@@ -259,6 +274,9 @@ proc ::rcsparser::Skip {} {
     return
 }
 
+# -----------------------------------------------------------------------------
+# Internal - Data aquisition
+
 proc ::rcsparser::Def {key} {
     upvar 1 data data res res
     set res($key) $res(lastval)
@@ -296,23 +314,9 @@ proc ::rcsparser::Next {} {
     set data [string range $data $e end]
     set res(done) [expr {$res(size) - [string length $data]}]
 
-    Feedback "\r    [format "%$res(nsize)s" $res(done)]/$res(size) "
+    progress 2 rcs $res(done) $res(size)
     return
 }
-
-# -----------------------------------------------------------------------------
-
-namespace eval ::rcsparser {
-    variable lc ::rcs::Nop
-}
-
-proc ::rcsparser::Feedback {text} {
-    variable lc
-    uplevel #0 [linsert $lc end info $text]
-    return
-}
-
-proc ::rcsparser::Nop {args} {}
 
 # -----------------------------------------------------------------------------
 # Ready
