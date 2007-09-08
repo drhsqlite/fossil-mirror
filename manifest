@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Raise\sthe\shash\schain\slimit\sin\sthe\sdelta\smodule\sfrom\s50\sto\s250.
-D 2007-09-06T00:47:02
+C Updated\sdocumentation\sof\sthe\sdelta\sencoder\sto\smention\sthe\snew\slimits\son\ssearching\sthe\shash\schain.
+D 2007-09-08T03:50:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -105,7 +105,7 @@ F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.html 75d37d5e32b703ce437e94eda3820c3e9e4958b8
+F www/delta_encoder_algorithm.html 2fdda5715167189835f74038508c3cccddcd1c4d
 F www/delta_format.html db8d44b23e31e469b4fc2ff718eecf858b838182
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -123,14 +123,14 @@ F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P b816fadfc76c2e7b00da9ed2c23a8dfdddd6a7b8
-R 28f7e5f4f19cfb7c0a4d53eb5cc1decc
-U drh
-Z 38d1281eb9bf7309409e91e7b8c37972
+P f6b4c6458b2ffc6918c69a743569fcfda29db824
+R 6441e3e5b4f69bce2ad4804f43c36e0c
+U aku
+Z 7e74f03161b761b3211c269258869022
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG304LoxKgR168RlERAvDVAJ0eWe1POuDqd4LYPvsVO1lVkAAikACcCdK0
-9N7gUqQNhhGIFcRI/Be8z5g=
-=e9h4
+iD8DBQFG4hwTvonzZ/CRa7gRAku6AKCBPxtEK0lRW9YwDSfS7hpe5+roNACgjqff
+x9gYQ7cOy8EllE25pvs6rW0=
+=hJW+
 -----END PGP SIGNATURE-----
