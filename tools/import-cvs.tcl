@@ -42,8 +42,8 @@ lappend auto_path [file join [file dirname [info script]] lib]
 # Requirements
 
 package require Tcl 8.4
-package require tools::log  ; # User Feedback
-package require import::cvs ; # Importer Control
+package require vc::tools::log ; # User Feedback
+package require import::cvs    ; # Importer Control
 
 # -----------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ proc commandline {__ cv fv} {
 	    --nosign      {        import::cvs::configure -nosign      1 }
 	    --debugcommit {        import::cvs::configure -debugcommit 1 }
 	    --stopat      { next ; import::cvs::configure -stopat [this] }
-	    -v            { incr verbosity ; ::tools::log::verbosity $verbosity }
+	    -v            { incr verbosity ; ::vc::tools::log::verbosity $verbosity }
 	    default usage
 	}
 	next

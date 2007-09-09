@@ -5,22 +5,22 @@
 # Requirements
 
 package require Tcl 8.4
-namespace eval ::tools::log {}
+namespace eval ::vc::tools::log {}
 
 # -----------------------------------------------------------------------------
 # API
 
 # Feedback generation.
 #
-#	tools::log::write    verbosity system text  - Write message to the log.
-#	tools::log::progress verbosity system n max - Drive a progress display.
+#	vc::tools::log::write    verbosity system text  - Write message to the log.
+#	vc::tools::log::progress verbosity system n max - Drive a progress display.
 
 # Administrative operations.
 #
-#	tools::log::verbosity level  - Set the verbosity level of the application.
-#	tools::log::verbosity?       - Query the verbosity level of the application.
-#	tools::log::setCmd cmdprefix - Set callback for output
-#	tools::log::system name      - Register a system (enables tabular log formatting).
+#	vc::tools::log::verbosity level  - Set the verbosity level of the application.
+#	vc::tools::log::verbosity?       - Query the verbosity level of the application.
+#	vc::tools::log::setCmd cmdprefix - Set callback for output
+#	vc::tools::log::system name      - Register a system (enables tabular log formatting).
 
 # Callback API ( Executed at the global level).
 #
@@ -36,7 +36,7 @@ namespace eval ::tools::log {}
 # is written if and only if the message verbosity is less or equal the
 # chosen verbosity. A message of verbosity 0 cannot be blocked.
 
-proc ::tools::log::write {verbosity system text} {
+proc ::vc::tools::log::write {verbosity system text} {
     variable loglevel
     variable logcmd
     variable sysfmt
@@ -49,7 +49,7 @@ proc ::tools::log::write {verbosity system text} {
 # drive progress displays. It signals that for some long running
 # operation we are at tick 'n' of at most 'max' ticks.
 
-proc ::tools::log::progress {verbosity system n max} {
+proc ::vc::tools::log::progress {verbosity system n max} {
     variable loglevel
     variable logcmd
     variable sysfmt
@@ -64,7 +64,7 @@ proc ::tools::log::progress {verbosity system n max} {
 # Set verbosity to the chosen 'level'. Only messages with a level less
 # or equal to this one will be shown.
 
-proc ::tools::log::verbosity {level} {
+proc ::vc::tools::log::verbosity {level} {
     variable loglevel
     if {$level < 1} {set level 0}
     set loglevel $level
@@ -73,7 +73,7 @@ proc ::tools::log::verbosity {level} {
 
 # Query the currently set verbosity.
 
-proc ::tools::log::verbosity? {} {
+proc ::vc::tools::log::verbosity? {} {
     variable loglevel
     return  $loglevel
 }
@@ -81,7 +81,7 @@ proc ::tools::log::verbosity? {} {
 # Set the log callback handling the actual output of messages going
 # through the package.
 
-proc ::tools::log::setCmd {cmdprefix} {
+proc ::vc::tools::log::setCmd {cmdprefix} {
     variable logcmd $cmdprefix
     return
 }
@@ -91,7 +91,7 @@ proc ::tools::log::setCmd {cmdprefix} {
 # handled in the generation command, before the output callback is
 # invoked.
 
-proc ::tools::log::system {name} {
+proc ::vc::tools::log::system {name} {
     variable sysfmt
     variable syslen
 
@@ -108,22 +108,22 @@ proc ::tools::log::system {name} {
 
 # Dispatch to the handlers of the possible operations.
 
-proc ::tools::log::OUT {op args} {
-    eval [linsert $args 0 ::tools::log::OUT/$op]
+proc ::vc::tools::log::OUT {op args} {
+    eval [linsert $args 0 ::vc::tools::log::OUT/$op]
     return
 }
 
 # Write handler. Each message is a line.
 
-proc ::tools::log::OUT/write {system text} {
+proc ::vc::tools::log::OUT/write {system text} {
     puts "$system $text"
     return
 }
 
-# Progress handler. Using \r to return to the beginning of the current
+# Progress handler. Uses \r to return to the beginning of the current
 # line without advancing.
 
-proc ::tools::log::OUT/progress {system n max} {
+proc ::vc::tools::log::OUT/progress {system n max} {
     puts -nonewline "$system [format %[string length $max]s $n]/$max\r"
     flush stdout
     return
@@ -131,11 +131,11 @@ proc ::tools::log::OUT/progress {system n max} {
 
 # -----------------------------------------------------------------------------
 
-namespace eval ::tools::log {
-    variable loglevel 0                 ; # Allow only uninteruptible messages.
-    variable logcmd   ::tools::log::OUT ; # Standard output to stdout.
-    variable sysfmt %s                  ; # Non-tabular formatting.
-    variable syslen 0                   ; # Ditto.
+namespace eval ::vc::tools::log {
+    variable loglevel 0                     ; # Allow only uninteruptible messages.
+    variable logcmd   ::vc::tools::log::OUT ; # Standard output to stdout.
+    variable sysfmt %s                      ; # Non-tabular formatting.
+    variable syslen 0                       ; # Ditto.
 
     namespace export write progress
 }
@@ -143,5 +143,5 @@ namespace eval ::tools::log {
 # -----------------------------------------------------------------------------
 # Ready
 
-package provide tools::log 1.0
+package provide vc::tools::log 1.0
 return

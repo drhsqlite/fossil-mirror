@@ -5,13 +5,13 @@
 # Requirements
 
 package require Tcl 8.4
-package require cvs           ; # Frontend, reading from source repository
-package require fossil        ; # Backend,  writing to destination repository.
-package require tools::log    ; # User feedback
+package require cvs             ; # Frontend, reading from source repository
+package require fossil          ; # Backend,  writing to destination repository.
+package require vc::tools::log  ; # User feedback
 
 namespace eval ::import::cvs {
-    tools::log::system import
-    namespace import ::tools::log::write
+    vc::tools::log::system import
+    namespace import ::vc::tools::log::write
 }
 
 # -----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ proc ::import::cvs::run {src dst} {
     set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
 
     cvs::foreach_cset cset [cvs::root] {
-	::tools::log::write 0 import "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $nto]/$ntrunk ([format %6.2f [expr {$nto*100.0/$ntrunk}]]%)"
+	::vc::tools::log::write 0 import "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $nto]/$ntrunk ([format %6.2f [expr {$nto*100.0/$ntrunk}]]%)"
 	Statistics [OneChangeSet $cset]
     }
 
@@ -117,10 +117,10 @@ proc ::import::cvs::Statistics {sec} {
     set max [expr {$ntrunk * $avg}]
     set rem [expr {$max - $tot}]
 
-    ::tools::log::write 3 import "st avg [format %.2f $avg] sec"
-    ::tools::log::write 3 import "st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
-    ::tools::log::write 3 import "st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
-    ::tools::log::write 3 import "st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
+    ::vc::tools::log::write 3 import "st avg [format %.2f $avg] sec"
+    ::vc::tools::log::write 3 import "st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
+    ::vc::tools::log::write 3 import "st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
+    ::vc::tools::log::write 3 import "st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
     return
 }
 
@@ -145,8 +145,8 @@ proc ::import::cvs::OneChangeSet {cset} {
 
     set sec [expr {$usec/1e6}]
 
-    ::tools::log::write 2 import "== $uuid +${ad}-${rm}*${ch}"
-    ::tools::log::write 2 import "st in  [format %.2f $sec] sec"
+    ::vc::tools::log::write 2 import "== $uuid +${ad}-${rm}*${ch}"
+    ::vc::tools::log::write 2 import "st in  [format %.2f $sec] sec"
 
     return $sec
 }

@@ -12,12 +12,12 @@
 # Requirements
 
 package require Tcl 8.4
-package require fileutil   ; # Tcllib (cat)
-package require tools::log ; # User feedback
+package require fileutil       ; # Tcllib (cat)
+package require vc::tools::log ; # User feedback
 
 namespace eval ::rcsparser {
-    tools::log::system rcs
-    namespace import ::tools::log::progress
+    vc::tools::log::system rcs
+    namespace import ::vc::tools::log::progress
 }
 
 # -----------------------------------------------------------------------------

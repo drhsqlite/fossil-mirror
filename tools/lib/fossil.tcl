@@ -5,11 +5,11 @@
 # Requirements
 
 package require Tcl 8.4
-package require tools::log ; # User feedback
+package require vc::tools::log ; # User feedback
 
 namespace eval ::fossil {
-    tools::log::system fossil
-    namespace import ::tools::log::write
+    vc::tools::log::system fossil
+    namespace import ::vc::tools::log::write
 }
 
 # -----------------------------------------------------------------------------
