@@ -164,7 +164,8 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX event_i1 ON event(mtime);
 @ CREATE INDEX event_i2 ON event(objid);
 @
-@ -- A record of phantoms
+@ -- A record of phantoms.  A phantom is a record for which we know the
+@ -- UUID but we do not (yet) know the file content.
 @ --
 @ CREATE TABLE phantom(
 @   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
@@ -173,6 +174,11 @@ const char zRepositorySchema2[] =
 @ -- Unclustered records.  An unclustered record is a record (including
 @ -- a cluster records themselves) that is not mentioned by some other
 @ -- cluster.
+@ --
+@ -- Phantoms are usually included in the unclustered table.  A new cluster
+@ -- will never be created that contains a phantom.  But another repository
+@ -- might send us a cluster that contains entries that are phantoms to
+@ -- us.
 @ --
 @ CREATE TABLE unclustered(
 @   rid INTEGER PRIMARY KEY         -- Record ID of the unclustered file

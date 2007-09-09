@@ -156,6 +156,8 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   Stmt s1;
   Blob cmpr;
   Blob hash;
+  int markAsUnclustered = 0;
+  
   assert( g.repositoryOpen );
   if( pBlob && srcId==0 ){
     sha1sum_blob(pBlob, &hash);
@@ -185,6 +187,7 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     }
   }else{
     rid = 0;  /* No entry with the same UUID currently exists */
+    markAsUnclustered = 1;
   }
   db_finalize(&s1);
 
@@ -237,10 +240,10 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     db_multi_exec("REPLACE INTO delta(rid,srcid) VALUES(%d,%d)", rid, srcId);
   }
   
-  /* Add the element to the unclustered table if it is not a
-  ** a phantom
+  /* Add the element to the unclustered table if has never been
+  ** previously seen.
   */
-  if( pBlob ){
+  if( markAsUnclustered ){
     db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d)", rid);
   }
 

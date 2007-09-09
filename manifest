@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Sync\susing\sclusters\sappears\sto\swork.\s\sMore\stesting\sis\sneeded\sbefore\swe\sgo\nlive.
-D 2007-09-08T16:01:28
+C Cluster-based\ssynchronization\sappears\sto\sbe\sworking.
+D 2007-09-09T17:51:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -39,7 +39,7 @@ F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 10bb790dafbf85fb41571d9cab31a16c2026da94
-F src/content.c 52f1a41cd5a6b8dd9591624a0eba4fa2090ff32c
+F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
 F src/db.c 7ab2af8add0d0220c923bc506be2396424a28f2d
 F src/delta.c 4f6e9c70e904e3f8bb0c975dfe3896e133c6cc41
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -66,7 +66,7 @@ F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 45c4994360d49e70cdb7767c2a37cb0277dee72c
-F src/schema.c 7efe24b157ed379954cbe05a146c2822e3d26c5f
+F src/schema.c 2f12edc522f2edfeaf3e0198539b52791e058076
 F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
@@ -82,7 +82,7 @@ F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 5ad913c384f94b6fa54b89ec9a7aeb1e1f600144
 F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
 F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
-F src/xfer.c bebb266beeb1b6a4b6005f321484ee17c60f5037
+F src/xfer.c 00b48b75136b77208d4cf7b36bd60d220b6325a4
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -124,14 +124,14 @@ F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P ba486fec5a2b429fbf5fcff8feaef90c08ec8619
-R e1a70c4b61206d200293749e29983e79
+P e1c1877c99bf13c0ace4c6f0ba74c9e304aca372
+R 0abb7c391bae20a123f7aba7d6a0f0ea
 U drh
-Z e1a0a16f06a217e0d421cda2fc73bf44
+Z 10a733b35dc72a212093b10f620c0180
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG4sdeoxKgR168RlERAleIAJ0VodnT7H+zAEC/sR5eErb61h1oegCeJlz0
-9pwlE0G58DCp7Lj216sic7M=
-=IqPq
+iD8DBQFG5DKaoxKgR168RlERArMXAJ9UjT8DB4bzZhjCRQy4K3+JEf0GvwCeJyJU
+jSvD9GpqvH9B0S3Onucj/NY=
+=YVFK
 -----END PGP SIGNATURE-----

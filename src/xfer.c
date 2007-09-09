@@ -324,17 +324,25 @@ static void send_unsent(Xfer *pXfer){
 
 /*
 ** Check to see if the number of unclustered entries is greater than
-** 100 and if it is, form a new cluster.
+** 100 and if it is, form a new cluster.  Unclustered phantoms do not
+** count toward the 100 total.  And phantoms are never added to a new
+** cluster.
 */
 static void create_cluster(void){
   Blob cluster, cksum;
   Stmt q;
-  int rid;
-  if( db_int(0, "SELECT count(*) FROM unclustered")<10 ){
+  int nUncl;
+  nUncl = db_int(0, "SELECT count(*) FROM unclustered"
+                    " WHERE NOT EXISTS(SELECT 1 FROM phantom"
+                                      " WHERE rid=unclustered.rid)");
+  if( nUncl<100 ){
     return;
   }
   blob_zero(&cluster);
-  db_prepare(&q, "SELECT uuid FROM unclustered JOIN blob USING(rid)"
+  db_prepare(&q, "SELECT uuid FROM unclustered, blob"
+                 " WHERE NOT EXISTS(SELECT 1 FROM phantom"
+                 "                   WHERE rid!=unclustered.rid)"
+                 "   AND unclustered.rid=blob.rid"
                  " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(&cluster, "M %s\n", db_column_text(&q, 0));
@@ -534,6 +542,27 @@ void page_xfer(void){
         check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3]);
       }
     }else
+    
+    /*    cookie TEXT
+    **
+    ** A cookie contains a arbitrary-length argument that is server-defined.
+    ** The argument must be encoded so as not to contain any whitespace.
+    ** The server can optionally send a cookie to the client.  The client
+    ** might then return the same cookie back to the server on its next
+    ** communication.  The cookie might record information that helps
+    ** the server optimize a push or pull.
+    **
+    ** The client is not required to return a cookie.  So the server
+    ** must not depend on the cookie.  The cookie should be an optimization
+    ** only.  The client might also send a cookie that came from a different
+    ** server.  So the server must be prepared to distinguish its own cookie
+    ** from cookies originating from other servers.  The client might send
+    ** back several different cookies to the server.  The server should be
+    ** prepared to sift through the cookies and pick the one that it wants.
+    */
+    if( blob_eq(&xfer.aToken[0], "cookie") && xfer.nToken==2 ){
+      /* Process the cookie */
+    }else
 
     /* Unknown message
     */
@@ -602,6 +631,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   int nMsg = 0;          /* Number of messages sent or received */
   int nCycle = 0;        /* Number of round trips to the server */
   int nFileSend = 0;
+  const char *zCookie;   /* Server cookie */
   Blob send;        /* Text we are sending to the server */
   Blob recv;        /* Reply we got back from the server */
   Xfer xfer;        /* Transfer data */
@@ -645,6 +675,14 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   while( go ){
     int newPhantom = 0;
 
+    /* Send make the most recently received cookie.  Let the server
+    ** figure out if this is a cookie that it cares about.
+    */
+    zCookie = db_get("cookie", 0);
+    if( zCookie ){
+      blob_appendf(&send, "cookie %s\n", zCookie);
+    }
+    
     /* Generate gimme messages for phantoms and leaf messages
     ** for all leaves.
     */
@@ -679,7 +717,6 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
       nMsg++;
     }
-
 
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
@@ -766,6 +803,19 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
         nMsg++;
       }else
+      
+      /*    cookie TEXT
+      **
+      ** The server might include a cookie in its reply.  The client
+      ** should remember this cookie and send it back to the server
+      ** in its next query.
+      **
+      ** Each cookie received overwrites the prior cookie from the
+      ** same server.
+      */
+      if( blob_eq(&xfer.aToken[0], "cookie") && xfer.nToken==2 ){
+        db_set("cookie", blob_str(&xfer.aToken[1]));
+      }else
 
       /*   error MESSAGE
       **
@@ -794,23 +844,21 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
             xfer.nFileRcvd, xfer.nDeltaRcvd, xfer.nDanglingFile);
 
     blob_reset(&recv);
+    nCycle++;
+    go = 0;
+
+    /* If we received one or more files on the previous exchange but
+    ** there are still phantoms, then go another round.
+    */
+    if( (xfer.nFileRcvd+xfer.nDeltaRcvd+xfer.nDanglingFile>0 || newPhantom)
+         && db_exists("SELECT 1 FROM phantom")
+    ){
+      go = 1;
+    }
     nMsg = 0;
     xfer.nFileRcvd = 0;
     xfer.nDeltaRcvd = 0;
     xfer.nDanglingFile = 0;
-    nCycle++;
-    go = 0;
-
-    /* If we have received one or more files on this cycle or if
-    ** we have received information that has caused us to create
-    ** new phantoms and we have one or more phantoms, then go for 
-    ** another round
-    */
-    if( (xfer.nFileRcvd+xfer.nDeltaRcvd+xfer.nDanglingFile>0 || newPhantom)
-     && db_exists("SELECT 1 FROM phantom")
-    ){
-      go = 1;
-    }
 
     /* If we have one or more files queued to send, then go
     ** another round 
