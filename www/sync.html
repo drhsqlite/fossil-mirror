@@ -104,7 +104,7 @@ section details the "x-fossil" content type.</p>
 
 <p>The x-fossil content type consists of zero or more "cards".  Cards
 are separate by the newline character ("\n").  Leading and trailing
-whitespace on a card is ignore.  Blank cards are ignored.</p>
+whitespace on a card is ignored.  Blank cards are ignored.</p>
 
 <p>Each card is divided into zero or more space separated tokens.
 The first token on each card is the operator.  Subsequent tokens
@@ -114,7 +114,7 @@ are very similar.</p>
 
 <h3>2.2 Login Cards</h3>
 
-<p>Every message from client to server begins with one more login
+<p>Every message from client to server begins with one or more login
 cards.  Each login card has the following format:</p>
 
 <blockquote>
@@ -149,7 +149,7 @@ other file.</p>
 
 <p>File cards are different from all other cards in that they
 followed by in-line "payload" data.  The content of the file
-or the file delta consists of first <i>size</i> bytes of the
+or the file delta consists of the first <i>size</i> bytes of the
 x-fossil content that immediately follow the newline that
 terminates the file card.  No other cards have this characteristic.
 </p>
@@ -296,34 +296,34 @@ hold.  When a server is generating its reply or when a client is
 generating a new request, it will usually send gimme cards for every
 phantom that it holds.</p>
 
-<p>A cluster is a special file that tells of the existance of other
+<p>A cluster is a special file that tells of the existence of other
 files.  Any file in the repository that follows the syntactic rules
 of a cluster is considered a cluster.</p>
 
-<p>A cluster consists is a line oriented file.  Each line of a cluster
+<p>A cluster is a line oriented file.  Each line of a cluster
 is a card.  The cards are separated by the newline ("\n") character.
 Each card consists of a single character card type, a space, and a
 single argument.  No extra whitespace and no trailing or leading
 whitespace is allowed.  All cards in the cluster must occur in
-strict lexigraphical order.</p>
+strict lexicographical order.</p>
 
 <p>A cluster consists of one or more "M" cards followed by a single
 "Z" card.  Each M card holds an argument which is a UUID for a file
 in the repository.  The Z card has a single argument which is the
 lower-case hexadecimal representation of the MD5 checksum of all
-preceeding M cards up to and included the newline character that
+preceding M cards up to and included the newline character that
 occurred just before the Z that starts the Z card.</p>
 
 <p>Any file that does not match the specifications of a cluster
 exactly is not a cluster.  There must be no extra whitespace in
 the file.  There must be one or more M cards.  There must be a
 single Z card with a correct MD5 checksum.  And all cards must
-be in strict lexigraphical order.</p>
+be in strict lexicographical order.</p>
 
 <h3>3.1 The Unclustered Table</h3>
 
 <p>Every repository maintains a table named "<b>unclustered</b>"
-which records the identify of every file and phantom it holds that is not
+which records the identity of every file and phantom it holds that is not
 mentioned in a cluster.  The entries in the unclustered table can
 be thought of as leaves on a tree of files.  Some of the unclustered
 files will be clusters.  Those clusters may contain other clusters,
