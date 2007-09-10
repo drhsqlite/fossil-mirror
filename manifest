@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\sthe\sdelta\sencoder\schanges.
-D 2007-09-10T00:43:02
+C Fix\sa\sC++-ism\sin\sthe\stimeline\smodule.
+D 2007-09-10T00:48:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -73,7 +73,7 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 4e8cafc457e75f0630b6b672a2989e5956a87374
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c fd68452592986a9d1a507090c9aafa00101965cc
+F src/timeline.c 6222d040d3e23af63a75fb535469294ed4145fe6
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
@@ -124,14 +124,14 @@ F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
 F www/sync.html ca710f907d71442884616a34ce8afa7314540349
-P 26131cfcc5fe3b5f852b5c14150cb7988f9117f6 3e899ae0e5e6c2738bcbaa9c8a876da3c17f64fd
-R cda90fe357e68e1e769e5080ed27c39f
+P 01e3e3f51e6767ccc81b2a8ec5caf9837c2141a6
+R 59dd518bccd213efdde0ad93c7be3840
 U drh
-Z 82d73c7c47da110a5d94623733d05411
+Z 0ecb42772806c8b39daa3f2aab55716d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG5JMcoxKgR168RlERApxFAJ9Cw/dffTXXV1iii4YDZDvNM6pRwgCfQ6GO
-g1CaZY7F0Rgw4C6k9L9Os3c=
-=eXqz
+iD8DBQFG5JR7oxKgR168RlERAnRTAJoCbCBwKW3zSZ8X54q9tJbGQtnYDwCdGaxm
+ze7caku7t/hL7iehL1t31g0=
+=cp7m
 -----END PGP SIGNATURE-----

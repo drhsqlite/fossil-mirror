@@ -96,8 +96,8 @@ void www_print_timeline(
   Blob *pArg
  ){
   char zPrevDate[20];
-  zPrevDate[0] = 0;
   int cnt = 0;
+  zPrevDate[0] = 0;
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS seen(rid INTEGER PRIMARY KEY);"
      "DELETE FROM seen;"
