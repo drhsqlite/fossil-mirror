@@ -342,11 +342,12 @@ int delta_create(
     bestCnt = 0;
     while( 1 ){
       int hv;
+      int limit = 250;
 
       hv = hash_32bit(&h) & (MX_LANDMARK-1);
       DEBUG2( printf("LOOKING: %4d [%s]\n", base+i, print16(&zOut[base+i])); )
       iBlock = landmark[hv];
-      while( iBlock>=0 ){
+      while( iBlock>=0 && (limit--)>0 ){
         /*
         ** The hash window has identified a potential match against 
         ** landmark block iBlock.  But we need to investigate further.
@@ -406,7 +407,7 @@ int delta_create(
       /* We have a copy command that does not cause the delta to be larger
       ** than a literal insert.  So add the copy command to the delta.
       */
-      if( bestCnt>0 && base+i>=bestOfst+NHASH ){
+      if( bestCnt>0 ){
         if( bestLitsz>0 ){
           /* Add an insert command before the copy */
           putInt(bestLitsz,&zDelta);

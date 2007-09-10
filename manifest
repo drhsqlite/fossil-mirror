@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\sfirst\sdraft\sof\sthe\ssynchronization\sprotocol\sdocument.\nUnproofed.
-D 2007-09-10T00:39:28
+C Merge\sin\sthe\sdelta\sencoder\schanges.
+D 2007-09-10T00:43:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -41,7 +41,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 10bb790dafbf85fb41571d9cab31a16c2026da94
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
 F src/db.c 7ab2af8add0d0220c923bc506be2396424a28f2d
-F src/delta.c 4f6e9c70e904e3f8bb0c975dfe3896e133c6cc41
+F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 420beefa611a5c5792d7f6cc1d0fe1dd8f4989ae
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
@@ -84,7 +84,6 @@ F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
 F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
 F src/xfer.c 00b48b75136b77208d4cf7b36bd60d220b6325a4
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
-F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -106,7 +105,7 @@ F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.html 75d37d5e32b703ce437e94eda3820c3e9e4958b8
+F www/delta_encoder_algorithm.html 2fdda5715167189835f74038508c3cccddcd1c4d
 F www/delta_format.html db8d44b23e31e469b4fc2ff718eecf858b838182
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -125,14 +124,14 @@ F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
 F www/sync.html ca710f907d71442884616a34ce8afa7314540349
-P 48c4e69d2bf23dab30c91609ab5c9b250609b679
-R 3695a6bbd8903409b6e2e50787b78ab1
+P 26131cfcc5fe3b5f852b5c14150cb7988f9117f6 3e899ae0e5e6c2738bcbaa9c8a876da3c17f64fd
+R cda90fe357e68e1e769e5080ed27c39f
 U drh
-Z d1cf2866bf971b3cc11052b03ef0e23a
+Z 82d73c7c47da110a5d94623733d05411
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG5JJnoxKgR168RlERAuxJAJ9aVY/yIO+mTlkM7sY0Aw0btP2LOACgirk2
-Kfm65Yeq5HbD/Xj8kTw1bww=
-=uOql
+iD8DBQFG5JMcoxKgR168RlERApxFAJ9Cw/dffTXXV1iii4YDZDvNM6pRwgCfQ6GO
+g1CaZY7F0Rgw4C6k9L9Os3c=
+=eXqz
 -----END PGP SIGNATURE-----
