@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Cluster-based\ssynchronization\sappears\sto\sbe\sworking.
-D 2007-09-09T17:51:16
+C Add\sa\sfirst\sdraft\sof\sthe\ssynchronization\sprotocol\sdocument.\nUnproofed.
+D 2007-09-10T00:39:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -119,19 +119,20 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.html 677ac744b20c5a847aca8620d1c2cb7813b5ffd1
-F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
+F www/index.html a0290afac486be3f0ed820132e9290f9c8a6ed98
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P e1c1877c99bf13c0ace4c6f0ba74c9e304aca372
-R 0abb7c391bae20a123f7aba7d6a0f0ea
+F www/sync.html ca710f907d71442884616a34ce8afa7314540349
+P 48c4e69d2bf23dab30c91609ab5c9b250609b679
+R 3695a6bbd8903409b6e2e50787b78ab1
 U drh
-Z 10a733b35dc72a212093b10f620c0180
+Z d1cf2866bf971b3cc11052b03ef0e23a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG5DKaoxKgR168RlERArMXAJ9UjT8DB4bzZhjCRQy4K3+JEf0GvwCeJyJU
-jSvD9GpqvH9B0S3Onucj/NY=
-=YVFK
+iD8DBQFG5JJnoxKgR168RlERAuxJAJ9aVY/yIO+mTlkM7sY0Aw0btP2LOACgirk2
+Kfm65Yeq5HbD/Xj8kTw1bww=
+=uOql
 -----END PGP SIGNATURE-----
