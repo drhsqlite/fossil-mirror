@@ -76,6 +76,7 @@ void update_cmd(void){
 
   db_begin_transaction();
   vfile_check_signature(vid);
+  undo_begin();
   load_vfile_from_rid(tid);
 
   /*
@@ -145,10 +146,12 @@ void update_cmd(void){
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       printf("ADD %s\n", zName);
+      undo_save(zName);
       vfile_to_disk(0, idt, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
       /* The file is unedited.  Change it to the target version */
       printf("UPDATE %s\n", zName);
+      undo_save(zName);
       vfile_to_disk(0, idt, 0);
     }else if( idt==0 && idv>0 ){
       if( chnged ){
@@ -156,6 +159,7 @@ void update_cmd(void){
       }else{
         char *zFullPath;
         printf("REMOVE %s\n", zName);
+        undo_save(zName);
         zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
         unlink(zFullPath);
         free(zFullPath);
@@ -165,6 +169,7 @@ void update_cmd(void){
       Blob e, r, t, v;
       char *zFullPath;
       printf("MERGE %s\n", zName);
+      undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
       content_get(ridt, &t);
       content_get(ridv, &v);
