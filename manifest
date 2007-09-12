@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Slight\seditorial\schanges\sto\ssync\sdocumentation,\sfixing\sspelling\serrors.
-D 2007-09-10T02:21:46
+C Added\snavbar\sto\sall\spages,\slinking\sback\sto\sthe\sindex.\sFixed\stypo\sin\sthe\sindex\spage.
+D 2007-09-12T04:19:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -95,10 +95,10 @@ F tools/import-cvs.tcl 8e70daebc024cb0f10b01b64f668618eff07802b
 F tools/lib/pkgIndex.tcl 71b6b857ad6d9eaf18fc7cb06485c73add04d7a9
 F tools/lib/rcsparser.tcl 69db20ceda47f1a219414e6ff2d194f0ec60e2ad
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
-F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
+F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html 8da6496b93c0e6cd255ed57d4974adf0e9c3ed0c
+F www/concepts.html d53cc73d6e92ab43f53ddd878e2267d6480af076
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -117,21 +117,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 677ac744b20c5a847aca8620d1c2cb7813b5ffd1
-F www/index.html a0290afac486be3f0ed820132e9290f9c8a6ed98
+F www/fileformat.html 65db56924de1ac3c632126100c6a5dbccdaa2845
+F www/index.html c49cf389d31138dedb23a39910aaa049667e664e
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
-F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
-F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
-F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-F www/sync.html e2578a406693cd9b71d7cf7af26aeee5069b369b
-P 9a76119307e5fadf855396bbcbfc1675c8269cac
-R e5e71d7df46b3371df3420a60d744d85
+F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
+F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
+F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
+F www/sync.html 748c60be8567eb08a69572ff4ef44461f0ba1d86
+P 4038525bc57ebf41442110e335b616d9df872c98
+R 2620bfae65f7faced259c503a644ba23
 U aku
-Z f381208a1d6d0b361b9546c88dd53d41
+Z a5aff7f3943135946b07c7551a2368ea
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG5Ko/vonzZ/CRa7gRAtoOAJ0XOQUu0/FaOdmcT6h1i8YD5wsRJACePtCj
-k4Lhn6JVZ7QJWTLAJReKdoo=
-=uPGB
+iD8DBQFG52j1vonzZ/CRa7gRAv+xAKCJqEj35ksEnZmuVnlsZGWd2/6VJQCdHZDG
+VssYQ14SMxBozKFuregytGA=
+=A8al
 -----END PGP SIGNATURE-----
