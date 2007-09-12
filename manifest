@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"undo"\sand\s"redo"\scommands.\s\sUntested\sat\sthis\spoint\sso\sdon't\ntry\sto\suse\sthem\syet.
-D 2007-09-11T02:25:19
+C Fix\sbugs\sin\sundo/redo.\s\sAppears\sto\swork\snow\sbut\snot\sheavily\stested.
+D 2007-09-12T01:46:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -75,7 +75,7 @@ F src/style.c 4e8cafc457e75f0630b6b672a2989e5956a87374
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/timeline.c 6222d040d3e23af63a75fb535469294ed4145fe6
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
-F src/undo.c 1e4377482c84195c43fb6283b5ef21a0668cfe15
+F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c f281e3565d4660dfed9a13ee628de23d136b0327
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
@@ -125,14 +125,14 @@ F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
 F www/sync.html e2578a406693cd9b71d7cf7af26aeee5069b369b
-P 4038525bc57ebf41442110e335b616d9df872c98
-R d3d7dcbaa9bf9cc5832b59a5c5ae5f8e
+P a36177bccecb0c9b8968537237c40822c4037b5b
+R 2cebb685240016d53fd06f00351f744d
 U drh
-Z 212a20c48c956a858b26a9772792517b
+Z 474dd7a6565a1176c294461a0531e1a9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG5fyToxKgR168RlERArX6AJ9HrvbRT8bjAEtU8cJBq5D2WM62dwCfTjq5
-lQ7q0kyhGonwT4PTyjrPUrU=
-=4p46
+iD8DBQFG50TqoxKgR168RlERAiYDAJsH1dNPA3hDIX5yqSUzyp5OPZduxgCdGvW6
+9Nt7VFcGG5IMp0tWxwNV+Rg=
+=p4P3
 -----END PGP SIGNATURE-----

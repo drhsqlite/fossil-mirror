@@ -38,7 +38,7 @@ static void undo_one(const char *zPathname, int redoFlag){
   Stmt q;
   char *zFullname;
   db_prepare(&q,
-    "SELECT content, exists FROM undo WHERE pathname=%Q AND redoflag=%d",
+    "SELECT content, existsflag FROM undo WHERE pathname=%Q AND redoflag=%d",
      zPathname, redoFlag
   );
   if( db_step(&q)==SQLITE_ROW ){
@@ -58,7 +58,6 @@ static void undo_one(const char *zPathname, int redoFlag){
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
-    printf("%sdo changes to %s\n", redoFlag ? "Re" : "Un", zPathname);
     if( old_exists ){
       if( new_exists ){
         printf("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
@@ -92,9 +91,11 @@ static void undo_one(const char *zPathname, int redoFlag){
 */
 static void undo_all(int redoFlag){
   Stmt q;
+  int ucid;
+  int ncid;
   db_prepare(&q, "SELECT pathname FROM undo WHERE redoflag=%d"
                  " ORDER BY +pathname", redoFlag);
-  while( db_step(&q) ){
+  while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     undo_one(zPathname, redoFlag);
   }
@@ -113,6 +114,10 @@ static void undo_all(int redoFlag){
     "INSERT INTO undo_vmerge SELECT * FROM undo_vmerge_2;"
     "DROP TABLE undo_vmerge_2;"
   );
+  ncid = db_lget_int("undo_checkout", 0);
+  ucid = db_lget_int("checkout", 0);
+  db_lset_int("undo_checkout", ucid);
+  db_lset_int("checkout", ncid);
 }
 
 /*
@@ -126,12 +131,14 @@ void undo_reset(void){
     ;
   db_multi_exec(zSql);
   db_lset_int("undo_available", 0);
+  db_lset_int("undo_checkout", 0);
 }
 
 /*
 ** Begin capturing a snapshot that can be undone.
 */
 void undo_begin(void){
+  int cid;
   static const char zSql[] = 
     @ CREATE TABLE undo(
     @   pathname TEXT UNIQUE,             -- Name of the file
@@ -140,10 +147,12 @@ void undo_begin(void){
     @   content BLOB                      -- Saved content
     @ );
     @ CREATE TABLE undo_vfile AS SELECT * FROM vfile;
-    @ CREATE TABLE undo_vfile AS SELECT * FROM vmerge;
+    @ CREATE TABLE undo_vmerge AS SELECT * FROM vmerge;
   ;
   undo_reset();
   db_multi_exec(zSql);
+  cid = db_lget_int("checkout", 0);
+  db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
 }
 
@@ -172,7 +181,9 @@ void undo_save(const char *zPathname){
   free(zFullname);
   db_step(&q);
   db_finalize(&q);
-  blob_reset(&content);
+  if( existsFlag ){
+    blob_reset(&content);
+  }
 }
 
 /*
