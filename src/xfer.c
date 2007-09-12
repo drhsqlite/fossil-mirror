@@ -249,6 +249,23 @@ static void request_phantoms(Xfer *pXfer){
   db_finalize(&q);
 }
 
+/*
+** Compute an SHA1 hash on the tail of pMsg.  Verify that it matches the
+** the hash given in pHash.  Return 1 on a successful match.  Return 0
+** if there is a mismatch.
+*/
+static int check_tail_hash(Blob *pHash, Blob *pMsg){
+  Blob tail;
+  Blob h2;
+  int rc;
+  blob_tail(pMsg, &tail);
+  sha1sum_blob(&tail, &h2);
+  rc = blob_compare(pHash, &h2);
+  blob_reset(&h2);
+  blob_reset(&tail);
+  return rc==0;
+}
+
 
 /*
 ** Check the signature on an application/x-fossil payload received by
@@ -256,9 +273,9 @@ static void request_phantoms(Xfer *pXfer){
 **
 **        login LOGIN NONCE SIGNATURE
 **
-** The NONCE is a random string.  The server will never accept a
-** repeat NONCE.  SIGNATURE is the SHA1 checksum of the NONCE 
-** concatenated with the users password.
+** The NONCE is the SHA1 hash of the remainder of the input.  
+** SIGNATURE is the SHA1 checksum of the NONCE concatenated 
+** with the users password.
 **
 ** The parameters to this routine are ephermeral blobs holding the
 ** LOGIN, NONCE and SIGNATURE.
@@ -276,9 +293,6 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   Stmt q;
   int rc;
 
-  if( db_exists("SELECT 1 FROM rcvfrom WHERE nonce=%B", pNonce) ){
-    return;  /* Never accept a repeated nonce */
-  }
   db_prepare(&q, "SELECT pw, cap, uid FROM user WHERE login=%B", pLogin);
   if( db_step(&q)==SQLITE_ROW ){
     Blob pw, combined, hash;
@@ -538,7 +552,7 @@ void page_xfer(void){
     ){
       if( disableLogin ){
         g.okRead = g.okWrite = 1;
-      }else{
+      }else if( check_tail_hash(&xfer.aToken[2], xfer.pIn) ){
         check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3]);
       }
     }else

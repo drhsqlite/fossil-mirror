@@ -122,12 +122,15 @@ cards.  Each login card has the following format:</p>
 </blockquote>
 
 <p>The userid is the name of the user that is requesting service
-from the server.  The nonce is a random one-use hexadecimal number.
-The signature is the SHA1 hash of the users password.</p>
+from the server.  The nonce is the SHA1 hash of the remainder of
+the message - all text that follows the newline character that
+terminates the login card.  The signature is the SHA1 hash of
+the concatenation of the nonce and the users password.</p>
 
 <p>For each login card, the server looks up the user and verifies
-that the nonce has never before been used.  It then checks the
-signature hash to make sure the signature matches.  If everything
+that the nonce matches the SHA1 hash of the remainder of the
+message.  It then checks the signature hash to make sure the 
+signature matches.  If everything
 checks out, then the client is granted all privileges of the
 specified user.</p>
 

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sbugs\sin\sundo/redo.\s\sAppears\sto\swork\snow\sbut\snot\sheavily\stested.
-D 2007-09-12T01:46:14
+C The\snonce\sof\sa\slogin\scard\sin\sthe\ssync\sprotocol\sis\snow\sthe\sSHA1\shash\nof\sthe\sremainder\sof\sthe\ssync\smessage.\s\sThe\ssignature\sis\sthe\sSHA1\shash\nof\sthe\sconcatenation\sof\sthe\snonce\sand\sthe\susers\spassword.
+D 2007-09-12T02:25:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -48,7 +48,7 @@ F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
-F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
+F src/http.c 43986095c41b6de6095f6067a10a97cc5b9a09b3
 F src/info.c 1d02bccab4f60d6f2f926c8cefd3420359f01901
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
 F src/main.c 17322e8c2b317c1b328757ebda8ad020366baa4a
@@ -83,7 +83,7 @@ F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 5ad913c384f94b6fa54b89ec9a7aeb1e1f600144
 F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
 F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
-F src/xfer.c 00b48b75136b77208d4cf7b36bd60d220b6325a4
+F src/xfer.c 1a89a70762f7321928e500ce489ecdafe50e74ba
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -124,15 +124,15 @@ F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-F www/sync.html e2578a406693cd9b71d7cf7af26aeee5069b369b
-P a36177bccecb0c9b8968537237c40822c4037b5b
-R 2cebb685240016d53fd06f00351f744d
+F www/sync.html 4b94620e2465084bcd81479925282ab4cce6e66d
+P 6f5654c7ab4b38848a362bda2c0422c369283233
+R a3d842ea1d7b02b3cc77f110e9e570cf
 U drh
-Z 474dd7a6565a1176c294461a0531e1a9
+Z d055f3b38d64e7456e7fd2ec39828049
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG50TqoxKgR168RlERAiYDAJsH1dNPA3hDIX5yqSUzyp5OPZduxgCdGvW6
-9Nt7VFcGG5IMp0tWxwNV+Rg=
-=p4P3
+iD8DBQFG504loxKgR168RlERAtCkAJ0V854s59GnrWl0tlQHEb48Vv0a4ACdEJHV
+ah/pnDHC/xkNxoWT6o8CxZ0=
+=oosR
 -----END PGP SIGNATURE-----
