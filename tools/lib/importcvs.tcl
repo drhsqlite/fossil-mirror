@@ -9,7 +9,7 @@ package require cvs             ; # Frontend, reading from source repository
 package require fossil          ; # Backend,  writing to destination repository.
 package require vc::tools::log  ; # User feedback
 
-namespace eval ::import::cvs {
+namespace eval ::vc::fossil::import::cvs {
     vc::tools::log::system import
     namespace import ::vc::tools::log::write
 }
@@ -19,7 +19,7 @@ namespace eval ::import::cvs {
 
 # Configuration
 #
-#	import::cvs::configure key value - Set configuration
+#	vc::fossil::import::cvs::configure key value - Set configuration
 #
 #	Legal keys:	-nosign		<bool>, default false
 #			-debugcommit	<bool>, default false
@@ -27,12 +27,12 @@ namespace eval ::import::cvs {
 #
 # Functionality
 #
-#	import::cvs::run src dst         - Perform an import.
+#	vc::fossil::import::cvs::run src dst         - Perform an import.
 
 # -----------------------------------------------------------------------------
 # API Implementation - Functionality
 
-proc ::import::cvs::configure {key value} {
+proc ::vc::fossil::import::cvs::configure {key value} {
     variable nosign
     variable stopat
 
@@ -63,7 +63,7 @@ proc ::import::cvs::configure {key value} {
 # Import the CVS repository found at directory 'src' into the new
 # fossil repository at 'dst'.
 
-proc ::import::cvs::run {src dst} {
+proc ::vc::fossil::import::cvs::run {src dst} {
     variable stopat
 
     cvs::at       $src  ; # Define location of CVS repository
@@ -85,7 +85,7 @@ proc ::import::cvs::run {src dst} {
     set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
 
     cvs::foreach_cset cset [cvs::root] {
-	::vc::tools::log::write 0 import "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $nto]/$ntrunk ([format %6.2f [expr {$nto*100.0/$ntrunk}]]%)"
+	write 0 import "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $nto]/$ntrunk ([format %6.2f [expr {$nto*100.0/$ntrunk}]]%)"
 	Statistics [OneChangeSet $cset]
     }
 
@@ -104,7 +104,7 @@ proc ::import::cvs::run {src dst} {
 # -----------------------------------------------------------------------------
 # Internal operations - Import a single changeset.
 
-proc ::import::cvs::Statistics {sec} {
+proc ::vc::fossil::import::cvs::Statistics {sec} {
     upvar 1 tot tot nto nto ntrunk ntrunk
 
     # No statistics if the commit was stopped before it was run
@@ -117,14 +117,14 @@ proc ::import::cvs::Statistics {sec} {
     set max [expr {$ntrunk * $avg}]
     set rem [expr {$max - $tot}]
 
-    ::vc::tools::log::write 3 import "st avg [format %.2f $avg] sec"
-    ::vc::tools::log::write 3 import "st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
-    ::vc::tools::log::write 3 import "st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
-    ::vc::tools::log::write 3 import "st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
+    write 3 import "st avg [format %.2f $avg] sec"
+    write 3 import "st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
+    write 3 import "st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
+    write 3 import "st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
     return
 }
 
-proc ::import::cvs::OneChangeSet {cset} {
+proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
     variable nosign
     variable stopat
 
@@ -145,22 +145,24 @@ proc ::import::cvs::OneChangeSet {cset} {
 
     set sec [expr {$usec/1e6}]
 
-    ::vc::tools::log::write 2 import "== $uuid +${ad}-${rm}*${ch}"
-    ::vc::tools::log::write 2 import "st in  [format %.2f $sec] sec"
+    write 2 import "== $uuid +${ad}-${rm}*${ch}"
+    write 2 import "st in  [format %.2f $sec] sec"
 
     return $sec
 }
 
 # -----------------------------------------------------------------------------
 
-namespace eval ::import::cvs {
+namespace eval ::vc::fossil::import::cvs {
     variable debugcommit 0  ; # Debug the commit operation.
     variable nosign      0  ; # Require signing
     variable stopat      {} ; # Stop nowhere
+
+    namespace export run configure
 }
 
 # -----------------------------------------------------------------------------
 # Ready
 
-package provide import::cvs 1.0
+package provide vc::fossil::import::cvs 1.0
 return

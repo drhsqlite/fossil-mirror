@@ -42,14 +42,18 @@ lappend auto_path [file join [file dirname [info script]] lib]
 # Requirements
 
 package require Tcl 8.4
-package require vc::tools::log ; # User Feedback
-package require import::cvs    ; # Importer Control
+package require vc::tools::log          ; # User Feedback
+package require vc::fossil::import::cvs ; # Importer Control
+
+namespace eval ::import {
+    namespace import ::vc::fossil::import::cvs::*
+}
 
 # -----------------------------------------------------------------------------
 
 proc main {} {
-    commandline    -> cvs  fossil
-    import::cvs::run $cvs $fossil
+    commandline -> cvs  fossil
+    import::run   $cvs $fossil
     return
 }
 
@@ -64,9 +68,9 @@ proc commandline {__ cv fv} {
     clinit
     while {[string match "-*" [set opt [this]]]} {
 	switch -exact -- $opt {
-	    --nosign      {        import::cvs::configure -nosign      1 }
-	    --debugcommit {        import::cvs::configure -debugcommit 1 }
-	    --stopat      { next ; import::cvs::configure -stopat [this] }
+	    --nosign      {        import::configure -nosign      1 }
+	    --debugcommit {        import::configure -debugcommit 1 }
+	    --stopat      { next ; import::configure -stopat [this] }
 	    -v            { incr verbosity ; ::vc::tools::log::verbosity $verbosity }
 	    default usage
 	}

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Started\sto\srestructure\sthe\snamespace\shierarchy,\sbeginning\sat\sthe\sbottom,\swith\sthe\slog\smodule.
-D 2007-09-09T00:58:18
+C Continued\srestructuring\sof\sthe\scode\s(namespace\shierarchy,\simport\scontrol).
+D 2007-09-13T05:43:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -90,12 +90,12 @@ F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/import-cvs.tcl ddccc2da016f93895e9327be9319195ed4c3eec5
+F tools/import-cvs.tcl 5138f35894984889a556a29b8b6a724bd7c808be
 F tools/lib/cvs.tcl e04bcf97f2ca6604fb28ee16860b44d346de11c7
 F tools/lib/fossil.tcl 71d028abee7fbc6357d9b020852017df47f022da
-F tools/lib/importcvs.tcl d9f32d3964921faf296f08b2fbda4069e65a1a2c
+F tools/lib/importcvs.tcl b9cf7cd8dfe0e3d7234f6b80bb7b94d79d80c7d4
 F tools/lib/log.tcl a68dbe32df715397f6eb7251b6d03740cb8621a3
-F tools/lib/pkgIndex.tcl bb0d5bc884751b4013c3941af2ac979d5ae3a3ca
+F tools/lib/pkgIndex.tcl 8aad5ceaab4246f36836b7dd2889a7a277a2937c
 F tools/lib/rcsparser.tcl ac06de305c3aa393c67960d9d2ef30e440523893
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -124,14 +124,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P c172959c326501ac205a8cc423cec6e22cd602e6
-R ce88087047080d5db45a42bef5f5ac18
+P 86a7f249c1f950d84dbfe93ec3acaa7715519f49
+R aedc1b05e4bf21335c55663c751bd8c3
 U aku
-Z ebfd0731b46a13e79afaf238b3c2b81a
+Z b8c718bbcf66c610aa63a0f2d59be6d1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG40UxvonzZ/CRa7gRAkyHAKCB6pT3gbcGPyrMj6T7RcBsM+OSZQCgtCNJ
-4QYWDJUWwU9tqFC+WGodIAA=
-=9u/o
+iD8DBQFG6M4hvonzZ/CRa7gRAvXmAJ96lLcbIYoSsrC7X1LQpx2U7p+74gCgi2GI
+J5RbTgG+krvafkA3tLaFbCw=
+=K1I4
 -----END PGP SIGNATURE-----
