@@ -8,12 +8,14 @@ package require Tcl 8.4
 package require fileutil        ; # Tcllib (traverse directory hierarchy)
 package require vc::rcs::parser ; # Handling the RCS archive files.
 package require vc::tools::log  ; # User feedback
+package require vc::cvs::cmd    ; # Access to cvs application.
 package require struct::tree
 
 namespace eval ::vc::cvs::ws {
     vc::tools::log::system cvs
     namespace import ::vc::tools::log::write
     namespace import ::vc::rcs::parser::process
+    namespace import ::vc::cvs::cmd::dova
 }
 
 # -----------------------------------------------------------------------------
@@ -259,7 +261,6 @@ proc ::vc::cvs::ws::wsclear {} {
 
 proc ::vc::cvs::ws::wssetup {c} {
     variable csets
-    variable cvs
     variable base
 
     # pwd = workspace
@@ -301,7 +302,7 @@ proc ::vc::cvs::ws::wssetup {c} {
 	    # into the workspace.
 
 	    if {[catch {
-		exec $cvs -d $base co -r $r $f
+		dova -d $base co -r $r $f
 	    } msg]} {
 		if {[string match {*invalid change text*} $msg]} {
 		    # The archive of the file is corrupted and the
@@ -325,11 +326,9 @@ proc ::vc::cvs::ws::wssetup {c} {
 }
 
 namespace eval ::vc::cvs::ws {
-    # CVS application
     # Workspace where checkouts happen
     # Current working directory to go back to after the import.
 
-    variable cvs       [auto_execok cvs]
     variable workspace {}
     variable cwd       {}
 }

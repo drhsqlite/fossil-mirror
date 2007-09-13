@@ -5,11 +5,14 @@
 # Requirements
 
 package require Tcl 8.4
-package require vc::tools::log ; # User feedback
+package require vc::tools::log  ; # User feedback
+package require vc::fossil::cmd ; # Access to fossil application.
 
 namespace eval ::vc::fossil::ws {
     vc::tools::log::system fossil
     namespace import ::vc::tools::log::write
+    namespace import ::vc::fossil::cmd::do
+    namespace import ::vc::fossil::cmd::dova
 }
 
 # -----------------------------------------------------------------------------
@@ -19,11 +22,10 @@ namespace eval ::vc::fossil::ws {
 
 proc ::vc::fossil::ws::new {} {
     variable fr     [file normalize [fileutil::tempfile import2_fsl_rp_]]
-    variable fossil
 
     # pwd = workspace
-    exec $fossil new  $fr ; # create and
-    exec $fossil open $fr ; # connect
+    dova new  $fr ; # create and
+    dova open $fr ; # connect
 
     write 0 fossil "Repository: $fr"
 
@@ -42,9 +44,6 @@ namespace eval ::vc::fossil::ws {
     # Repository file
     variable fr {}
 
-    # Fossil application
-    variable fossil [auto_execok fossil]
-
     # Debug the commit command (write a Tcl script containing the
     # exact command used). And the file the data goes to.
     variable debugcommit 0
@@ -60,7 +59,6 @@ proc ::vc::fossil::ws::debugcommit {flag} {
 }
 
 proc ::vc::fossil::ws::commit {break appname nosign meta ignore} {
-    variable fossil
     variable lastuuid
     variable debugcommit
     variable dcfile
@@ -77,12 +75,12 @@ proc ::vc::fossil::ws::commit {break appname nosign meta ignore} {
     set removed 0
     set changed 0
 
-    foreach line [split [exec $fossil changes] \n] {
+    foreach line [split [dova changes] \n] {
 	regsub {^\s*EDITED\s*} $line {} path
 	if {[IGNORE $ignore $path]} continue
 
 	if {![file exists $path]} {
-	    exec $fossil rm $path
+	    dova rm $path
 	    incr removed
 	    write 2 fossil "-  $path"
 	} else {
@@ -93,9 +91,9 @@ proc ::vc::fossil::ws::commit {break appname nosign meta ignore} {
 
     # Now look for unregistered added files.
 
-    foreach path [split [exec $fossil extra] \n] {
+    foreach path [split [dova extra] \n] {
 	if {[IGNORE $ignore $path]} continue
-	exec $fossil add $path
+	dova add $path
 	incr added
 	write 2 fossil "+  $path"
     }
@@ -110,21 +108,18 @@ proc ::vc::fossil::ws::commit {break appname nosign meta ignore} {
 			   "-- Imported by $appname" \
 			   $message] \n]
 
-    if {$nosign} {
-	set cmd [list exec $fossil commit -m $message --nosign]
-    } else {
-	set cmd [list exec $fossil commit -m $message]
-    }
+    set cmd [list commit -m $message]
+    if {$nosign} { lappend cmd --nosign }
 
     if {$debugcommit} {
-	fileutil::writeFile $dcfile "\#!tclsh\n$cmd\n"
+	fileutil::writeFile $dcfile "$cmd\n"
     }
 
     # Stop, do not actually commit.
     if {$break} return
 
     if {[catch {
-	eval $cmd
+	do $cmd
     } line]} {
 	if {![string match "*nothing has changed*" $line]} {
 	    return -code error $line
