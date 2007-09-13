@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Continued\srestructuring\sof\sthe\scode\s(namespace\shierarchy,\simport\scontrol).
-D 2007-09-13T05:43:56
+C Continuing\snamespace\schanges,\sfossil\sbackend.
+D 2007-09-13T06:03:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -92,10 +92,10 @@ F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 5138f35894984889a556a29b8b6a724bd7c808be
 F tools/lib/cvs.tcl e04bcf97f2ca6604fb28ee16860b44d346de11c7
-F tools/lib/fossil.tcl 71d028abee7fbc6357d9b020852017df47f022da
-F tools/lib/importcvs.tcl b9cf7cd8dfe0e3d7234f6b80bb7b94d79d80c7d4
+F tools/lib/fossil.tcl d4147a8c46c33b27001ecd97992caf6d9f36464c
+F tools/lib/importcvs.tcl e0760f3260ea63c1cabd8a85cbee340316651cd9
 F tools/lib/log.tcl a68dbe32df715397f6eb7251b6d03740cb8621a3
-F tools/lib/pkgIndex.tcl 8aad5ceaab4246f36836b7dd2889a7a277a2937c
+F tools/lib/pkgIndex.tcl e2affafb1d7b4d66eeb2ebf1b40047e71f2ef66e
 F tools/lib/rcsparser.tcl ac06de305c3aa393c67960d9d2ef30e440523893
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -124,14 +124,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 86a7f249c1f950d84dbfe93ec3acaa7715519f49
-R aedc1b05e4bf21335c55663c751bd8c3
+P 9671b65174e6ac8b17c2e048259bbc7d3e102cca
+R 50b9ed79c31bf456cfe6d1e816bc2654
 U aku
-Z b8c718bbcf66c610aa63a0f2d59be6d1
+Z 0c75b2c7750374bac4fcbd7c0709d1a2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG6M4hvonzZ/CRa7gRAvXmAJ96lLcbIYoSsrC7X1LQpx2U7p+74gCgi2GI
-J5RbTgG+krvafkA3tLaFbCw=
-=K1I4
+iD8DBQFG6NK3vonzZ/CRa7gRAkuCAJ9qngko1JK6bhcUwIYNKFaWy3ev/QCeJ1tf
+cirk3nUOP90FUPp1FmsY2V4=
+=GlI+
 -----END PGP SIGNATURE-----

@@ -6,7 +6,7 @@
 
 package require Tcl 8.4
 package require cvs             ; # Frontend, reading from source repository
-package require fossil          ; # Backend,  writing to destination repository.
+package require vc::fossil::ws  ; # Backend,  writing to destination repository.
 package require vc::tools::log  ; # User feedback
 
 namespace eval ::vc::fossil::import::cvs {
@@ -41,7 +41,7 @@ proc ::vc::fossil::import::cvs::configure {key value} {
 	    if {![string is boolean -strict $value]} {
 		return -code error "Expected boolean, got \"$value\""
 	    }
-	    fossil::debugcommit $value
+	    vc::fossil::ws::debugcommit $value
 	}
 	-nosign {
 	    if {![string is boolean -strict $value]} {
@@ -78,8 +78,8 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     write 0 import {Begin conversion}
     write 0 import {Setting up workspaces}
 
-    cvs::workspace ; # cd's to workspace
-    fossil::new    ; # Uses cwd as workspace to connect to.
+    cvs::workspace      ; # cd's to workspace
+    vc::fossil::ws::new ; # Uses cwd as workspace to connect to.
 
     set ntrunk [cvs::ntrunk] ; set ntfmt %[string length $ntrunk]s
     set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
@@ -96,7 +96,7 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     if {$stopat == $cset} return
 
     cvs::wsclear
-    fossil::destination $dst
+    vc::fossil::ws::destination $dst
     write 0 import Ok.
     return
 }
@@ -129,7 +129,7 @@ proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
     variable stopat
 
     if {$stopat == $cset} {
-	fossil::commit 1 cvs2fossil $nosign \
+	vc::fossil::ws::commit 1 cvs2fossil $nosign \
 	    [cvs::wssetup $cset] ::cvs::wsignore
 	write 0 import Stopped.
 	return -code break
@@ -137,7 +137,7 @@ proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
 
     set usec [lindex [time {
 	foreach {uuid ad rm ch} \
-	    [fossil::commit 0 cvs2fossil $nosign \
+	    [vc::fossil::ws::commit 0 cvs2fossil $nosign \
 		 [cvs::wssetup $cset] ::cvs::wsignore] \
 	    break
     } 1] 0]

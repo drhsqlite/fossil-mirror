@@ -7,7 +7,7 @@
 package require Tcl 8.4
 package require vc::tools::log ; # User feedback
 
-namespace eval ::fossil {
+namespace eval ::vc::fossil::ws {
     vc::tools::log::system fossil
     namespace import ::vc::tools::log::write
 }
@@ -17,7 +17,7 @@ namespace eval ::fossil {
 
 # Define repository file, and connect to workspace in CWD.
 
-proc ::fossil::new {} {
+proc ::vc::fossil::ws::new {} {
     variable fr     [file normalize [fileutil::tempfile import2_fsl_rp_]]
     variable fossil
 
@@ -32,13 +32,13 @@ proc ::fossil::new {} {
 
 # Move generated fossil repository to final destination
 
-proc ::fossil::destination {path} {
+proc ::vc::fossil::ws::destination {path} {
     variable fr
     file rename $fr $path
     return
 }
 
-namespace eval ::fossil {
+namespace eval ::vc::fossil::ws {
     # Repository file
     variable fr {}
 
@@ -51,7 +51,7 @@ namespace eval ::fossil {
     variable dcfile      {}
 }
 
-proc ::fossil::debugcommit {flag} {
+proc ::vc::fossil::ws::debugcommit {flag} {
     variable debugcommit $flag
     if {$debugcommit} {
 	variable dcfile [file normalize cvs2fossil_commit.tcl]
@@ -59,7 +59,7 @@ proc ::fossil::debugcommit {flag} {
     return
 }
 
-proc ::fossil::commit {break appname nosign meta ignore} {
+proc ::vc::fossil::ws::commit {break appname nosign meta ignore} {
     variable fossil
     variable lastuuid
     variable debugcommit
@@ -150,12 +150,12 @@ proc ::fossil::commit {break appname nosign meta ignore} {
 # -----------------------------------------------------------------------------
 # Internal helper commands
 
-proc ::fossil::IGNORE {ignore path} {
+proc ::vc::fossil::ws::IGNORE {ignore path} {
     return [uplevel #0 [linsert $ignore end $path]]
 }
 
 # -----------------------------------------------------------------------------
 # Ready
 
-package provide fossil 1.0
+package provide vc::fossil::ws 1.0
 return
