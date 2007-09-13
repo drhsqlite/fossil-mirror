@@ -154,6 +154,10 @@ proc ::vc::fossil::ws::IGNORE {ignore path} {
     return [uplevel #0 [linsert $ignore end $path]]
 }
 
+namespace eval ::vc::fossil::ws {
+    namespace export new destination debugcommit commit
+}
+
 # -----------------------------------------------------------------------------
 # Ready
 

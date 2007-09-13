@@ -10,7 +10,7 @@ package require rcsparser      ; # Handling the RCS archive files.
 package require vc::tools::log ; # User feedback
 package require struct::tree
 
-namespace eval ::cvs {
+namespace eval ::vc::cvs::ws {
     vc::tools::log::system cvs
     namespace import ::vc::tools::log::write
 }
@@ -20,13 +20,13 @@ namespace eval ::cvs {
 
 # Define repository directory.
 
-proc ::cvs::at {path} {
+proc ::vc::cvs::ws::at {path} {
     variable base [file normalize $path]
     write 0 cvs "Base: $base"
     return
 }
 
-namespace eval ::cvs {
+namespace eval ::vc::cvs::ws {
     # Toplevel repository directory
     variable base {}
 }
@@ -34,7 +34,7 @@ namespace eval ::cvs {
 # Scan repository, collect archives, parse them, and collect revision
 # information (file, revision -> date, author, commit message)
 
-proc ::cvs::scan {} {
+proc ::vc::cvs::ws::scan {} {
     variable base
     variable npaths
     variable rpaths
@@ -117,7 +117,7 @@ proc ::cvs::scan {} {
     return
 }
 
-namespace eval ::cvs {
+namespace eval ::vc::cvs::ws {
     # Path mappings. npaths: rcs file  -> user file
     #                rpaths: user file -> rcs file, dead-status
 
@@ -131,7 +131,7 @@ namespace eval ::cvs {
 
 # Group single changes into changesets
 
-proc ::cvs::csets {} {
+proc ::vc::cvs::ws::csets {} {
     variable timeline
     variable csets
     variable ncs
@@ -173,7 +173,7 @@ proc ::cvs::csets {} {
 }
 
 
-namespace eval ::cvs {
+namespace eval ::vc::cvs::ws {
     # Changeset data:
     # ncs:   Counter-based id generation
     # csets: id -> (user commit start end depth (file -> (op rev)))
@@ -186,14 +186,14 @@ namespace eval ::cvs {
 # Limitation: Currently only trunk csets is handled.
 # Limitation: Dead files are not removed, i.e. no 'R' actions right now.
 
-proc ::cvs::rtree {} {
+proc ::vc::cvs::ws::rtree {} {
     variable csets
     variable rtree {}
     variable ntrunk 0
 
     write 0 cvs "Extracting the trunk"
 
-    set rtree [struct::tree ::cvs::RT]
+    set rtree [struct::tree ::vc::cvs::ws::RT]
     $rtree rename root 0 ; # Root is first changeset, always.
     set trunk 0
     set ntrunk 1 ; # Root is on the trunk.
@@ -222,7 +222,7 @@ proc ::cvs::rtree {} {
     return
 }
 
-namespace eval ::cvs {
+namespace eval ::vc::cvs::ws {
     # Tree holding trunk and branch information (struct::tree).
     # Node names are cset id's.
 
@@ -230,7 +230,7 @@ namespace eval ::cvs {
     variable ntrunk 0
 }
 
-proc ::cvs::workspace {} {
+proc ::vc::cvs::ws::workspace {} {
     variable cwd [pwd]
     variable workspace [fileutil::tempfile importF_cvs_ws_]
     file delete $workspace
@@ -242,13 +242,13 @@ proc ::cvs::workspace {} {
     return $workspace
 }
 
-proc ::cvs::wsignore {path} {
+proc ::vc::cvs::ws::wsignore {path} {
     # Ignore CVS admin files.
     if {[string match */CVS/* $path]} {return 1}
     return 0
 }
 
-proc ::cvs::wsclear {} {
+proc ::vc::cvs::ws::wsclear {} {
     variable cwd
     variable workspace
     cd $cwd
@@ -256,7 +256,7 @@ proc ::cvs::wsclear {} {
     return
 }
 
-proc ::cvs::wssetup {c} {
+proc ::vc::cvs::ws::wssetup {c} {
     variable csets
     variable cvs
     variable base
@@ -323,7 +323,7 @@ proc ::cvs::wssetup {c} {
     return [list $u $cm $s]
 }
 
-namespace eval ::cvs {
+namespace eval ::vc::cvs::ws {
     # CVS application
     # Workspace where checkouts happen
     # Current working directory to go back to after the import.
@@ -333,7 +333,7 @@ namespace eval ::cvs {
     variable cwd       {}
 }
 
-proc ::cvs::foreach_cset {cv node script} {
+proc ::vc::cvs::ws::foreach_cset {cv node script} {
     upvar 1 $cv c
     variable rtree
 
@@ -364,21 +364,21 @@ proc ::cvs::foreach_cset {cv node script} {
     return
 }
 
-proc ::cvs::root {} {
+proc ::vc::cvs::ws::root {} {
     return 0
 }
 
-proc ::cvs::ntrunk {} {
+proc ::vc::cvs::ws::ntrunk {} {
     variable ntrunk
     return  $ntrunk
 }
 
-proc ::cvs::ncsets {} {
+proc ::vc::cvs::ws::ncsets {} {
     variable ncs
     return  $ncs
 }
 
-proc ::cvs::uuid {c uuid} {
+proc ::vc::cvs::ws::uuid {c uuid} {
     variable rtree
     $rtree set $c uuid $uuid
     return
@@ -387,7 +387,7 @@ proc ::cvs::uuid {c uuid} {
 # -----------------------------------------------------------------------------
 # Internal helper commands: Changeset inspection and construction.
 
-proc ::cvs::CSClear {} {
+proc ::vc::cvs::ws::CSClear {} {
     upvar 1 start start end end cm cm user user files files lastd lastd
 
     set start {}
@@ -400,12 +400,12 @@ proc ::cvs::CSClear {} {
     return
 }
 
-proc ::cvs::CSNone {} {
+proc ::vc::cvs::ws::CSNone {} {
     upvar 1 start start
     return [expr {$start eq ""}]
 }
 
-proc ::cvs::CSNew {entry} {
+proc ::vc::cvs::ws::CSNew {entry} {
     upvar 1 start start end end cm cm user user files files lastd lastd reason reason
 
     #puts -nonewline stdout . ; flush stdout
@@ -429,7 +429,7 @@ proc ::cvs::CSNew {entry} {
     return 0
 }
 
-proc ::cvs::CSSave {} {
+proc ::vc::cvs::ws::CSSave {} {
     variable cmap
     variable csets
     variable ncs
@@ -449,7 +449,7 @@ proc ::cvs::CSSave {} {
     return
 }
 
-proc ::cvs::CSAdd {entry} {
+proc ::vc::cvs::ws::CSAdd {entry} {
     upvar 1 start start end end cm cm user user files files lastd lastd
 
     foreach {op ts a rev f ecm} $entry break
@@ -463,7 +463,7 @@ proc ::cvs::CSAdd {entry} {
     return
 }
 
-proc ::cvs::CSDump {c} {
+proc ::vc::cvs::ws::CSDump {c} {
     variable csets
     foreach {u cm s e rd f} $csets($c) break
 
@@ -476,8 +476,13 @@ proc ::cvs::CSDump {c} {
     return
 }
 
+namespace eval ::vc::cvs::ws {
+    namespace export at scan csets rtree workspace wsignore wsclear wssetup \
+	foreach_cset root ntrunk ncsets uuid
+}
+
 # -----------------------------------------------------------------------------
 # Ready
 
-package provide cvs 1.0
+package provide vc::cvs::ws 1.0
 return

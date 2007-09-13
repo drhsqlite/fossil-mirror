@@ -5,13 +5,15 @@
 # Requirements
 
 package require Tcl 8.4
-package require cvs             ; # Frontend, reading from source repository
+package require vc::cvs::ws     ; # Frontend, reading from source repository
 package require vc::fossil::ws  ; # Backend,  writing to destination repository.
 package require vc::tools::log  ; # User feedback
 
 namespace eval ::vc::fossil::import::cvs {
     vc::tools::log::system import
     namespace import ::vc::tools::log::write
+    namespace eval cvs    { namespace import ::vc::cvs::ws::* }
+    namespace eval fossil { namespace import ::vc::fossil::ws::* }
 }
 
 # -----------------------------------------------------------------------------
@@ -41,7 +43,7 @@ proc ::vc::fossil::import::cvs::configure {key value} {
 	    if {![string is boolean -strict $value]} {
 		return -code error "Expected boolean, got \"$value\""
 	    }
-	    vc::fossil::ws::debugcommit $value
+	    fossil::debugcommit $value
 	}
 	-nosign {
 	    if {![string is boolean -strict $value]} {
@@ -66,11 +68,10 @@ proc ::vc::fossil::import::cvs::configure {key value} {
 proc ::vc::fossil::import::cvs::run {src dst} {
     variable stopat
 
-    cvs::at       $src  ; # Define location of CVS repository
-
-    cvs::scan           ; # Gather revision data from the archives
-    cvs::csets          ; # Group changes into sets
-    cvs::rtree          ; # Build revision tree (trunk only right now).
+    cvs::at $src  ; # Define location of CVS repository
+    cvs::scan     ; # Gather revision data from the archives
+    cvs::csets    ; # Group changes into sets
+    cvs::rtree    ; # Build revision tree (trunk only right now).
 
     set tot 0.0
     set nto 0
@@ -78,8 +79,8 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     write 0 import {Begin conversion}
     write 0 import {Setting up workspaces}
 
-    cvs::workspace      ; # cd's to workspace
-    vc::fossil::ws::new ; # Uses cwd as workspace to connect to.
+    cvs::workspace ; # cd's to workspace
+    fossil::new    ; # Uses cwd as workspace to connect to.
 
     set ntrunk [cvs::ntrunk] ; set ntfmt %[string length $ntrunk]s
     set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
@@ -96,7 +97,7 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     if {$stopat == $cset} return
 
     cvs::wsclear
-    vc::fossil::ws::destination $dst
+    fossil::destination $dst
     write 0 import Ok.
     return
 }
@@ -129,16 +130,16 @@ proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
     variable stopat
 
     if {$stopat == $cset} {
-	vc::fossil::ws::commit 1 cvs2fossil $nosign \
-	    [cvs::wssetup $cset] ::cvs::wsignore
+	fossil::commit 1 cvs2fossil $nosign \
+	    [cvs::wssetup $cset] ::vc::cvs::ws::wsignore
 	write 0 import Stopped.
 	return -code break
     }
 
     set usec [lindex [time {
 	foreach {uuid ad rm ch} \
-	    [vc::fossil::ws::commit 0 cvs2fossil $nosign \
-		 [cvs::wssetup $cset] ::cvs::wsignore] \
+	    [fossil::commit 0 cvs2fossil $nosign \
+		 [cvs::wssetup $cset] ::vc::cvs::ws::wsignore] \
 	    break
     } 1] 0]
     cvs::uuid $cset $uuid
