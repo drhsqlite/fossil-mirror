@@ -378,7 +378,7 @@ void print_timeline(Stmt *q, int mxLine){
       nLine++;
     }
     if( zCom==0 ) zCom = "";
-    printf("%.5s [%.10s] ", &zDate[11], zUuid);
+    printf("%.8s ", &zDate[11]);
     if( nChild>1 || nParent>1 ){
       int n = 0;
       char zPrefix[50];
@@ -390,9 +390,11 @@ void print_timeline(Stmt *q, int mxLine){
         sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
         n = strlen(zPrefix);
       }
-      zCom = zFree = sqlite3_mprintf("%s%s", zPrefix, zCom);
+      zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
+    }else{
+      zFree = sqlite3_mprintf("[%.10s] %s", zUuid, zCom);
     }
-    nLine += comment_print(zCom, 19, 79);
+    nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
   }
 }

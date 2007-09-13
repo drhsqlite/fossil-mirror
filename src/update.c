@@ -69,7 +69,17 @@ void update_cmd(void){
   }else{
     compute_leaves(vid);
     if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
-      fossil_fatal("multiple descendents");
+      db_prepare(&q, 
+        "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'),"
+        "       comment || ' (by ' || user || ')', 1, 1"
+        "  FROM event, blob"
+        " WHERE event.type='ci' AND blob.rid=event.objid"
+        "   AND event.objid IN leaves"
+        " ORDER BY event.mtime DESC"
+      );
+      print_timeline(&q, 100);
+      db_finalize(&q);
+      fossil_fatal("Multiple descendents");
     }
     tid = db_int(0, "SELECT rid FROM leaves"); 
   }

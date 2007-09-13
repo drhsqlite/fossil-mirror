@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\snonce\sof\sa\slogin\scard\sin\sthe\ssync\sprotocol\sis\snow\sthe\sSHA1\shash\nof\sthe\sremainder\sof\sthe\ssync\smessage.\s\sThe\ssignature\sis\sthe\sSHA1\shash\nof\sthe\sconcatenation\sof\sthe\snonce\sand\sthe\susers\spassword.
-D 2007-09-12T02:25:37
+C Improvements\sto\sthe\sCLI\stimeline\sdisplay.\s\sWhen\san\supdate\sfails\sdue\sto\s\nmultiple\sdescendents,\sshow\sall\sof\sthe\sdescendents\sin\stimeline\sformat.
+D 2007-09-13T03:52:04
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -73,10 +73,10 @@ F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 4e8cafc457e75f0630b6b672a2989e5956a87374
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c 6222d040d3e23af63a75fb535469294ed4145fe6
+F src/timeline.c 44b77956607345d6301a2febcaeaf28debad78e7
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c f281e3565d4660dfed9a13ee628de23d136b0327
+F src/update.c 6cc6e53fd7e4a07c6c3e28335b9553e4df7ae69b
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
@@ -125,14 +125,14 @@ F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
 F www/sync.html 4b94620e2465084bcd81479925282ab4cce6e66d
-P 6f5654c7ab4b38848a362bda2c0422c369283233
-R a3d842ea1d7b02b3cc77f110e9e570cf
+P 776753118f1bafcab5b2867aeec5a6c0dacea765
+R 97b74061e0c8b16b35a0ad3cd0b91cb5
 U drh
-Z d055f3b38d64e7456e7fd2ec39828049
+Z d696c6f153189656c46fd50a4b987414
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG504loxKgR168RlERAtCkAJ0V854s59GnrWl0tlQHEb48Vv0a4ACdEJHV
-ah/pnDHC/xkNxoWT6o8CxZ0=
-=oosR
+iD8DBQFG6LPooxKgR168RlERAv/LAJ97QajadZ5CX1KL/joismuWQz22cQCfRiDt
+JX3NpUozYWtVzPu70itmdWs=
+=H8j0
 -----END PGP SIGNATURE-----
