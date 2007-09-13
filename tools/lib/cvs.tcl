@@ -5,14 +5,15 @@
 # Requirements
 
 package require Tcl 8.4
-package require fileutil       ; # Tcllib (traverse directory hierarchy)
-package require rcsparser      ; # Handling the RCS archive files.
-package require vc::tools::log ; # User feedback
+package require fileutil        ; # Tcllib (traverse directory hierarchy)
+package require vc::rcs::parser ; # Handling the RCS archive files.
+package require vc::tools::log  ; # User feedback
 package require struct::tree
 
 namespace eval ::vc::cvs::ws {
     vc::tools::log::system cvs
     namespace import ::vc::tools::log::write
+    namespace import ::vc::rcs::parser::process
 }
 
 # -----------------------------------------------------------------------------
@@ -83,7 +84,7 @@ proc ::vc::cvs::ws::scan {} {
 	}
 
 	# Get the meta data we need (revisions, timeline, messages).
-	set meta [::rcsparser::process $base/$rcs]
+	set meta [process $base/$rcs]
 
 	set npaths($rcs) $f
 	set rpaths($f) $rcs

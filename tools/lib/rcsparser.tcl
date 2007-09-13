@@ -15,7 +15,7 @@ package require Tcl 8.4
 package require fileutil       ; # Tcllib (cat)
 package require vc::tools::log ; # User feedback
 
-namespace eval ::rcsparser {
+namespace eval ::vc::rcs::parser {
     vc::tools::log::system rcs
     namespace import ::vc::tools::log::progress
 }
@@ -23,7 +23,7 @@ namespace eval ::rcsparser {
 # -----------------------------------------------------------------------------
 # API
 
-# rcsparser::process file
+# vc::rcs::parser::process file
 #
 # Parses the rcs file and returns a dictionary containing the meta
 # data. The following keys are used
@@ -47,7 +47,7 @@ namespace eval ::rcsparser {
 # -----------------------------------------------------------------------------
 # API Implementation
 
-proc ::rcsparser::process {path} {
+proc ::vc::rcs::parser::process {path} {
     set data [fileutil::cat -encoding binary $path]
     array set res {}
     set res(size) [file size $path]
@@ -72,19 +72,19 @@ proc ::rcsparser::process {path} {
 # -----------------------------------------------------------------------------
 # Internal - Recursive Descent functions implementing the syntax.
 
-proc ::rcsparser::Admin {} {
+proc ::vc::rcs::parser::Admin {} {
     upvar 1 data data res res
     Head ; Branch ; Access ; Symbols ; Locks ; Strict ; Comment ; Expand
     return
 }
 
-proc ::rcsparser::Deltas {} {
+proc ::vc::rcs::parser::Deltas {} {
     upvar 1 data data res res
     while {[Num 0]} { IsIdent ; Date ; Author ; State ; Branches ; NextRev }
     return
 }
 
-proc ::rcsparser::Description {} {
+proc ::vc::rcs::parser::Description {} {
     upvar 1 data data res res
     Literal desc
     String 1
@@ -92,33 +92,33 @@ proc ::rcsparser::Description {} {
     return
 }
 
-proc ::rcsparser::DeltaTexts {} {
+proc ::vc::rcs::parser::DeltaTexts {} {
     upvar 1 data data res res
     while {[Num 0]} { IsIdent ; Log ; Text }
     return
 }
 
-proc ::rcsparser::Head {} {
+proc ::vc::rcs::parser::Head {} {
     upvar 1 data data res res
     Literal head ; Num 1 ; Literal \;
     Def head
     return
 }
 
-proc ::rcsparser::Branch {} {
+proc ::vc::rcs::parser::Branch {} {
     upvar 1 data data res res
     if {![Literal branch 0]} return ; Num 1 ; Literal \;
     Def branch
     return
 }
 
-proc ::rcsparser::Access {} {
+proc ::vc::rcs::parser::Access {} {
     upvar 1 data data res res
     Literal access ; Literal \;
     return
 }
 
-proc ::rcsparser::Symbols {} {
+proc ::vc::rcs::parser::Symbols {} {
     upvar 1 data data res res
     Literal symbols
     while {[Ident]} { Num 1 ; Map symbol }
@@ -126,7 +126,7 @@ proc ::rcsparser::Symbols {} {
     return
 }
 
-proc ::rcsparser::Locks {} {
+proc ::vc::rcs::parser::Locks {} {
     upvar 1 data data res res
     Literal locks
     while {[Ident]} { Num 1 ; Map lock }
@@ -134,13 +134,13 @@ proc ::rcsparser::Locks {} {
     return
 }
 
-proc ::rcsparser::Strict {} {
+proc ::vc::rcs::parser::Strict {} {
     upvar 1 data data res res
     if {![Literal strict 0]} return ; Literal \;
     return
 }
 
-proc ::rcsparser::Comment {} {
+proc ::vc::rcs::parser::Comment {} {
     upvar 1 data data res res
     if {![Literal comment 0]} return ;
     if {![String 0]} return ;
@@ -149,7 +149,7 @@ proc ::rcsparser::Comment {} {
     return
 }
 
-proc ::rcsparser::Expand {} {
+proc ::vc::rcs::parser::Expand {} {
     upvar 1 data data res res
     if {![Literal expand 0]} return ;
     if {![String 0]} return ;
@@ -158,7 +158,7 @@ proc ::rcsparser::Expand {} {
     return
 }
 
-proc ::rcsparser::Date {} {
+proc ::vc::rcs::parser::Date {} {
     upvar 1 data data res res
     Literal date ; Num 1 ; Literal \;
 
@@ -169,37 +169,37 @@ proc ::rcsparser::Date {} {
     return
 }
 
-proc ::rcsparser::Author {} {
+proc ::vc::rcs::parser::Author {} {
     upvar 1 data data res res
     Literal author ; Skip ; Literal \; ; Map author
     return
 }
 
-proc ::rcsparser::State {} {
+proc ::vc::rcs::parser::State {} {
     upvar 1 data data res res
     Literal state ; Skip ; Literal \; ; Map state
     return
 }
 
-proc ::rcsparser::Branches {} {
+proc ::vc::rcs::parser::Branches {} {
     upvar 1 data data res res
     Literal branches ; Skip ; Literal \;
     return
 }
 
-proc ::rcsparser::NextRev {} {
+proc ::vc::rcs::parser::NextRev {} {
     upvar 1 data data res res
     Literal next ; Skip ; Literal \; ; Map parent
     return
 }
 
-proc ::rcsparser::Log {} {
+proc ::vc::rcs::parser::Log {} {
     upvar 1 data data res res
     Literal log ; String 1 ; Map commit
     return
 }
 
-proc ::rcsparser::Text {} {
+proc ::vc::rcs::parser::Text {} {
     upvar 1 data data res res
     Literal text ; String 1
     return
@@ -208,7 +208,7 @@ proc ::rcsparser::Text {} {
 # -----------------------------------------------------------------------------
 # Internal - Lexicographical commands and data aquisition preparation
 
-proc ::rcsparser::Ident {} {
+proc ::vc::rcs::parser::Ident {} {
     upvar 1 data data res res
 
     #puts I@?<[string range $data 0 10]...>
@@ -224,7 +224,7 @@ proc ::rcsparser::Ident {} {
     return 1
 }
 
-proc ::rcsparser::Literal {name {required 1}} {
+proc ::vc::rcs::parser::Literal {name {required 1}} {
     upvar 1 data data res res
     if {![regexp -indices -- "^\\s*$name\\s*" $data match]} {
 	if {$required} {
@@ -237,7 +237,7 @@ proc ::rcsparser::Literal {name {required 1}} {
     return 1
 }
 
-proc ::rcsparser::String {{required 1}} {
+proc ::vc::rcs::parser::String {{required 1}} {
     upvar 1 data data res res
 
     if {![regexp -indices -- {^\s*@(([^@]*(@@)*)*)@\s*} $data match val]} {
@@ -252,7 +252,7 @@ proc ::rcsparser::String {{required 1}} {
     return 1
 }
 
-proc ::rcsparser::Num {required} {
+proc ::vc::rcs::parser::Num {required} {
     upvar 1 data data res res
     if {![regexp -indices -- {^\s*((\d|\.)+)\s*} $data match val]} {
 	if {$required} {
@@ -266,7 +266,7 @@ proc ::rcsparser::Num {required} {
     return 1
 }
 
-proc ::rcsparser::Skip {} {
+proc ::vc::rcs::parser::Skip {} {
     upvar 1 data data res res
     regexp -indices -- {^\s*([^;]*)\s*} $data match val
     Get $val
@@ -277,14 +277,14 @@ proc ::rcsparser::Skip {} {
 # -----------------------------------------------------------------------------
 # Internal - Data aquisition
 
-proc ::rcsparser::Def {key} {
+proc ::vc::rcs::parser::Def {key} {
     upvar 1 data data res res
     set res($key) $res(lastval)
     unset res(lastval)
     return
 }
 
-proc ::rcsparser::Map {key} {
+proc ::vc::rcs::parser::Map {key} {
     upvar 1 data data res res
     lappend res($key) $res(id) $res(lastval)
     #puts Map($res(id))=($res(lastval))
@@ -293,14 +293,14 @@ proc ::rcsparser::Map {key} {
     return
 }
 
-proc ::rcsparser::IsIdent {} {
+proc ::vc::rcs::parser::IsIdent {} {
     upvar 1 data data res res
     set res(id) $res(lastval)
     unset res(lastval)
     return
 }
 
-proc ::rcsparser::Get {val} {
+proc ::vc::rcs::parser::Get {val} {
     upvar 1 data data res res
     foreach {s e} $val break
     set res(lastval) [string range $data $s $e]
@@ -308,7 +308,7 @@ proc ::rcsparser::Get {val} {
     return
 }
 
-proc ::rcsparser::Next {} {
+proc ::vc::rcs::parser::Next {} {
     upvar 1 match match data data res res
     foreach {s e} $match break ; incr e
     set data [string range $data $e end]
@@ -318,8 +318,12 @@ proc ::rcsparser::Next {} {
     return
 }
 
+namespace eval ::vc::rcs::parser {
+    namespace export process
+}
+
 # -----------------------------------------------------------------------------
 # Ready
 
-package provide rcsparser 1.0
+package provide vc::rcs::parser 1.0
 return
