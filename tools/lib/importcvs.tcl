@@ -14,6 +14,9 @@ namespace eval ::vc::fossil::import::cvs {
     namespace import ::vc::tools::log::write
     namespace eval cvs    { namespace import ::vc::cvs::ws::* }
     namespace eval fossil { namespace import ::vc::fossil::ws::* }
+
+    fossil::configure -appname cvs2fossil
+    fossil::configure -ignore  ::vc::cvs::ws::wsignore
 }
 
 # -----------------------------------------------------------------------------
@@ -24,8 +27,8 @@ namespace eval ::vc::fossil::import::cvs {
 #	vc::fossil::import::cvs::configure key value - Set configuration
 #
 #	Legal keys:	-nosign		<bool>, default false
-#			-debugcommit	<bool>, default false
-#			-stopat		<int>,  default :none:
+#			-breakat	<int>,  default :none:
+#			-saveto		<path>, default :none:
 #
 # Functionality
 #
@@ -35,28 +38,15 @@ namespace eval ::vc::fossil::import::cvs {
 # API Implementation - Functionality
 
 proc ::vc::fossil::import::cvs::configure {key value} {
-    variable nosign
-    variable stopat
-
+    # The options are simply passed through to the fossil importer
+    # backend.
     switch -exact -- $key {
-	-debugcommit {
-	    if {![string is boolean -strict $value]} {
-		return -code error "Expected boolean, got \"$value\""
-	    }
-	    fossil::debugcommit $value
-	}
-	-nosign {
-	    if {![string is boolean -strict $value]} {
-		return -code error "Expected boolean, got \"$value\""
-	    }
-	    set nosign $value
-	}
-	-stopat {
-	    set stopat $value
-	}
+	-breakat { fossil::configure -breakat $value }
+	-nosign  { fossil::configure -nosign  $value }
+	-saveto  { fossil::configure -saveto  $value }
 	default {
 	    return -code error "Unknown switch $key, expected one of \
-                                   -debugcommit, -nosign, or -stopat"
+                                   -breakat, -nosign, or -saveto"
 	}
     }
     return
@@ -66,8 +56,6 @@ proc ::vc::fossil::import::cvs::configure {key value} {
 # fossil repository at 'dst'.
 
 proc ::vc::fossil::import::cvs::run {src dst} {
-    variable stopat
-
     cvs::at $src  ; # Define location of CVS repository
     cvs::scan     ; # Gather revision data from the archives
     cvs::csets    ; # Group changes into sets
@@ -79,8 +67,8 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     write 0 import {Begin conversion}
     write 0 import {Setting up workspaces}
 
-    cvs::workspace ; # cd's to workspace
-    fossil::new    ; # Uses cwd as workspace to connect to.
+    cvs::workspace      ; # cd's to workspace
+    fossil::begin [pwd] ; # Uses cwd as workspace to connect to.
 
     set ntrunk [cvs::ntrunk] ; set ntfmt %[string length $ntrunk]s
     set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
@@ -94,10 +82,8 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     write 0 import "Imported $nto [expr {($nto == 1) ? "changeset" : "changesets"}]"
     write 0 import "Within [format %.2f $tot] seconds (avg [format %.2f [expr {$tot/$nto}]] seconds/changeset)"
 
-    if {$stopat == $cset} return
-
     cvs::wsclear
-    fossil::destination $dst
+    fossil::close $dst
     write 0 import Ok.
     return
 }
@@ -126,21 +112,9 @@ proc ::vc::fossil::import::cvs::Statistics {sec} {
 }
 
 proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
-    variable nosign
-    variable stopat
-
-    if {$stopat == $cset} {
-	fossil::commit 1 cvs2fossil $nosign \
-	    [cvs::wssetup $cset] ::vc::cvs::ws::wsignore
-	write 0 import Stopped.
-	return -code break
-    }
-
     set usec [lindex [time {
-	foreach {uuid ad rm ch} \
-	    [fossil::commit 0 cvs2fossil $nosign \
-		 [cvs::wssetup $cset] ::vc::cvs::ws::wsignore] \
-	    break
+	foreach {user message timestamp} [cvs::wssetup $cset] break
+	foreach {uuid ad rm ch} [fossil::commit $cset $user $timestamp $message] break
     } 1] 0]
     cvs::uuid $cset $uuid
 
@@ -155,10 +129,6 @@ proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
 # -----------------------------------------------------------------------------
 
 namespace eval ::vc::fossil::import::cvs {
-    variable debugcommit 0  ; # Debug the commit operation.
-    variable nosign      0  ; # Require signing
-    variable stopat      {} ; # Stop nowhere
-
     namespace export run configure
 }
 

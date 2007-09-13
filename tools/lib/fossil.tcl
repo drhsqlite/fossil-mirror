@@ -18,105 +18,82 @@ namespace eval ::vc::fossil::ws {
 # -----------------------------------------------------------------------------
 # API
 
-# Define repository file, and connect to workspace in CWD.
+# vc::fossil::ws::configure key value         - Configure the subsystem.
+# vc::fossil::ws::begin     src               - Start new workspace for directory
+# vc::fossil::ws::done      dst               - Close workspace and copy to destination.
+# vc::fossil::ws::commit    cset usr time msg - Look for changes and commit as new revision.
 
-proc ::vc::fossil::ws::new {} {
-    variable fr     [file normalize [fileutil::tempfile import2_fsl_rp_]]
+# Configuration keys:
+#
+# -nosign  bool		default 0 (= sign imported changesets)
+# -breakat num		default empty, no breakpoint.
+#			Otherwise stop before committing the identified changeset.
+# -saveto  path		default empty, no saving.
+#			Otherwise save the commit command to a file.
+# -appname string	Default empty. Text to add to all commit messages.
+# -ignore  cmdprefix	Command to check if a file is relevant to the commit or not.
+#			Signature: cmdprefix path -> bool; true => ignore.
 
-    # pwd = workspace
-    dova new  $fr ; # create and
-    dova open $fr ; # connect
+# -----------------------------------------------------------------------------
+# API Implementation
 
-    write 0 fossil "Repository: $fr"
+proc ::vc::fossil::ws::configure {key value} {
+    variable nosign
+    variable breakat
+    variable saveto
+    variable appname
+    variable ignore
 
-    return $fr
-}
-
-# Move generated fossil repository to final destination
-
-proc ::vc::fossil::ws::destination {path} {
-    variable fr
-    file rename $fr $path
-    return
-}
-
-namespace eval ::vc::fossil::ws {
-    # Repository file
-    variable fr {}
-
-    # Debug the commit command (write a Tcl script containing the
-    # exact command used). And the file the data goes to.
-    variable debugcommit 0
-    variable dcfile      {}
-}
-
-proc ::vc::fossil::ws::debugcommit {flag} {
-    variable debugcommit $flag
-    if {$debugcommit} {
-	variable dcfile [file normalize cvs2fossil_commit.tcl]
+    switch -exact -- $key {
+	-appname { set appname $value }
+	-breakat { set breakat $value }
+	-ignore  { set ignore  $value }
+	-nosign {
+	    if {![string is boolean -strict $value]} {
+		return -code error "Expected boolean, got \"$value\""
+	    }
+	    set nosign $value
+	}
+	-saveto  { set saveto $value }
+	default {
+	    return -code error "Unknown switch $key, expected one of \
+                                   -appname, -breakat, -ignore, -nosign, or -saveto"
+	}
     }
     return
 }
 
-proc ::vc::fossil::ws::commit {break appname nosign meta ignore} {
+proc ::vc::fossil::ws::begin {origin} {
+    variable rp [file normalize [fileutil::tempfile import2_fsl_rp_]]
+
+    cd $origin
+    dova new  $rp ; # create and ...
+    dova open $rp ; # ... connect
+
+    write 0 fossil "Repository: $rp"
+    return
+}
+
+proc ::vc::fossil::ws::done {destination} {
+    variable rp
+    file rename -force $rp $destination
+    set rp {}
+    return
+}
+
+proc ::vc::fossil::ws::commit {cset user timestamp message} {
     variable lastuuid
-    variable debugcommit
-    variable dcfile
 
     # Commit the current state of the workspace. Scan for new and
     # removed files and issue the appropriate fossil add/rm commands
     # before actually comitting.
 
-    # Modified/Removed files first, that way there won't be any ADDED
-    # indicators. Nor REMOVED, only EDITED. Removed files show up as
-    # EDITED while they are not registered as removed.
-
-    set added   0
-    set removed 0
-    set changed 0
-
-    foreach line [split [dova changes] \n] {
-	regsub {^\s*EDITED\s*} $line {} path
-	if {[IGNORE $ignore $path]} continue
-
-	if {![file exists $path]} {
-	    dova rm $path
-	    incr removed
-	    write 2 fossil "-  $path"
-	} else {
-	    incr changed
-	    write 2 fossil "*  $path"
-	}
-    }
-
-    # Now look for unregistered added files.
-
-    foreach path [split [dova extra] \n] {
-	if {[IGNORE $ignore $path]} continue
-	dova add $path
-	incr added
-	write 2 fossil "+  $path"
-    }
+    HandleChanges added removed changed
 
     # Now commit, using the provided meta data, and capture the uuid
     # of the new baseline.
 
-    foreach {user message tstamp} $meta break
-
-    set message [join [list \
-			   "-- Originally by $user @ $tstamp" \
-			   "-- Imported by $appname" \
-			   $message] \n]
-
-    set cmd [list commit -m $message]
-    if {$nosign} { lappend cmd --nosign }
-
-    if {$debugcommit} {
-	fileutil::writeFile $dcfile "$cmd\n"
-    }
-
-    # Stop, do not actually commit.
-    if {$break} return
+    set cmd [Command $cset [Message $user $timestamp $message]]
 
     if {[catch {
 	do $cmd
@@ -135,22 +112,100 @@ proc ::vc::fossil::ws::commit {break appname nosign meta ignore} {
 	return [list $lastuuid 0 0 0]
     }
 
-    set line [string trim $line]
-    regsub -nocase -- {^\s*New_Version:\s*} $line {} uuid
+    # Extract the uuid of the new revision.
+    regsub -nocase -- {^\s*New_Version:\s*} [string trim $line] {} uuid
 
     set lastuuid $uuid
     return [list $uuid $added $removed $changed]
 }
 
 # -----------------------------------------------------------------------------
-# Internal helper commands
+# Internal helper commands, and data structures.
 
-proc ::vc::fossil::ws::IGNORE {ignore path} {
+proc ::vc::fossil::ws::HandleChanges {av rv cv} {
+    upvar 1 $av added $rv removed $cv changed
+
+    set added   0
+    set removed 0
+    set changed 0
+
+    # Look for modified/removed files first, that way there won't be
+    # any ADDED indicators. Nor REMOVED, only EDITED. Removed files
+    # show up as EDITED while they are not registered as removed.
+
+    foreach line [split [do changes] \n] {
+        regsub {^\s*EDITED\s*} $line {} path
+        if {[Ignore $path]} continue
+
+        if {![file exists $path]} {
+	    dova rm $path
+            incr removed
+            write 2 fossil "-  $path"
+        } else {
+            incr changed
+            write 2 fossil "*  $path"
+        }
+    }
+
+    # Now look for unregistered added files.
+
+    foreach path [split [do extra] \n] {
+        if {[Ignore $path]} continue
+        dova add $path
+        incr added
+        write 2 fossil "+  $path"
+    }
+
+    return
+}
+
+proc ::vc::fossil::ws::Message {user timestamp message} {
+    variable appname
+    set lines {}
+    lappend lines "-- Originally by $user @ $timestamp"
+    if {$appname ne ""} {
+	lappend lines "-- Imported by $appname"
+    }
+    lappend lines [string trim $message]
+    return [join $lines \n]
+}
+
+proc ::vc::fossil::ws::Command {cset message} {
+    variable nosign
+    variable saveto
+    variable breakat
+
+    set cmd [list commit -m $message]
+
+    if {$nosign}           { lappend cmd --nosign }
+    if {$saveto ne ""}     { fileutil::writeFile $saveto "$cmd\n" }
+
+    if {$breakat eq $cset} {
+	write 0 fossil Stopped.
+	exit 0
+    }
+
+    return $cmd
+}
+
+proc ::vc::fossil::ws::Ignore {path} {
+    variable ignore
+    if {![llength $ignore]} {return 0}
     return [uplevel #0 [linsert $ignore end $path]]
 }
 
 namespace eval ::vc::fossil::ws {
-    namespace export new destination debugcommit commit
+    # Configuration settings.
+    variable nosign 0   ; # Sign imported changesets
+    variable breakat {} ; # Do not stop
+    variable saveto  {} ; # Do not save commit message
+    variable appname {} ; # Name of importer application using the package.
+    variable ignore  {} ; # No files to ignore.
+
+    variable rp       {} ; # Repository the package works on.
+    variable lastuuid {} ; # Uuid of last imported changeset.
+
+    namespace export configure begin done commit
 }
 
 # -----------------------------------------------------------------------------

@@ -68,11 +68,12 @@ proc commandline {__ cv fv} {
     clinit
     while {[string match "-*" [set opt [this]]]} {
 	switch -exact -- $opt {
-	    --nosign      {        import::configure -nosign      1 }
-	    --debugcommit {        import::configure -debugcommit 1 }
-	    --stopat      { next ; import::configure -stopat [this] }
+	    --breakat     { next ; import::configure -breakat [this] }
+	    --nosign      {        import::configure -nosign       1 }
+	    --saveto      { next ; import::configure -saveto  [file normalize [this]] }
 	    -v            { incr verbosity ; ::vc::tools::log::verbosity $verbosity }
-	    default usage
+	    -h            -
+	    default       usage
 	}
 	next
     }
@@ -121,9 +122,15 @@ proc clinit {} {
 
 proc usage {{text {}}} {
     global argv0
-    puts stderr "Usage: $argv0 ?--nosign? ?-v? ?--stopat id? ?--debugcommit? cvs-repository fossil-repository"
-    if {$text eq ""} return
-    puts stderr "       $text"
+    puts stderr "Usage: $argv0 ?-v? ?--nosign? ?--breakat id? ?--saveto path? cvs-repository fossil-repository"
+    if {$text eq ""} {
+	puts stderr "       --nosign:  Do not sign the imported changesets."
+	puts stderr "       --breakat: Stop just before committing the identified changeset."
+	puts stderr "       --saveto:  Save commit command to the specified file."
+	puts stderr "       -v:        Increase log verbosity. Can be used multiple times."
+    } else {
+	puts stderr "       $text"
+    }
     exit
 }
 

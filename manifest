@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Encapsulated\saccess\sto\sthe\sfossil\sand\scvs\sapplications\sin\stheir\sown\spackages.
-D 2007-09-13T06:59:24
+C Unhacked\sthe\sfossil\sbackend.\nIOW\sreworked\sthe\sAPI\sand\smade\sit\snicer,\smore\sstructured,\sbetter\scommand\sand\soption\snames.\nGave\sthe\sinternals\smore\sstructure,\sand\ssimplified\sthe\shandling\sof\s-breakat\s(old\s-stopat\sbreakpoint).\nUpdated\susers,\sand\supdated\sthe\suser\svisible\sswitches\sas\swell.\nAdded\sa\s-h\sswitch\sfor\shelp.
+D 2007-09-13T08:02:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -90,12 +90,12 @@ F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/import-cvs.tcl 5138f35894984889a556a29b8b6a724bd7c808be
+F tools/import-cvs.tcl c75797ae1904c1de7d324ef70753098094268dfb
 F tools/lib/cvs.tcl 5855edb7f000935b4ef5741ef454402bc2d2a7fc
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
-F tools/lib/fossil.tcl d2dc326337397863d1638c69a145914f2d7aa2bf
+F tools/lib/fossil.tcl a0b0c0df17a55e7b7ec135d0a7499d5df769ac2e
 F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
-F tools/lib/importcvs.tcl ab3e3cfde79c3cf234a17a5519a78fc45bbb8800
+F tools/lib/importcvs.tcl 0d2f09ecb4c7582010e1e1154c136232e299c2d6
 F tools/lib/log.tcl a68dbe32df715397f6eb7251b6d03740cb8621a3
 F tools/lib/pkgIndex.tcl 97cb78f4d81eb51c65e3fe99c5cd072c64f79f33
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
@@ -126,14 +126,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P d4aa7da67da6387025ed85eabf24e339f7dd0bae
-R 0f72b50c638b47373a856f3e05f3ab2c
+P cdf5e6d8b71fddb1a9f62451021c7f999dc686db
+R b78bc1dadfa6febc5c2eff4319216aef
 U aku
-Z da980a6748ba834b0b1d96d48fdf4cae
+Z a572725fe681fe4cf3a34d9cb937bdca
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG6N/QvonzZ/CRa7gRAubTAJ0bPhUFuts2dA8du4I81ewjUXsLfACgvvys
-33VbBZrvor0ZrdP7+9Wx7xc=
-=oHI7
+iD8DBQFG6O6XvonzZ/CRa7gRApABAKCEoc8OzJFIR1kKimm8pe4nPpu4ngCcDhcV
+VhF9TbZ08WwYMH5Z//I0yW8=
+=JBmc
 -----END PGP SIGNATURE-----
