@@ -184,13 +184,12 @@ void branches_cmd(void){
   db_finalize(&q);
 }
 
-#if 0
 /*
-** WEB PAGE:  leaves
+** WEBPAGE:  leaves
 **
 ** Find leaves of all branches.
 */
-void branches_page(void){
+void leaves_page(void){
   Stmt q;
 
   login_check_credentials();
@@ -206,7 +205,7 @@ void branches_page(void){
     "   AND event.objid=blob.rid"
     " ORDER BY event.mtime DESC"
   );
-  www_print_timeline(&q, 0, 0, 0);
+  www_print_timeline(&q, 0, 0, 0, 0);
   db_finalize(&q);
   @ <script>
   @ function xin(id){
@@ -216,4 +215,3 @@ void branches_page(void){
   @ </script>
   style_footer();
 }
-#endif

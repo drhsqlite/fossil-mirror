@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sSQLite\samalgamation\sfile\sto\sversion\s3.5.0.
-D 2007-09-14T14:59:38
+C Fix\sthe\s"leaves"\swebpage.
+D 2007-09-14T21:10:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -43,7 +43,7 @@ F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
 F src/db.c 7ab2af8add0d0220c923bc506be2396424a28f2d
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendents.c 420beefa611a5c5792d7f6cc1d0fe1dd8f4989ae
+F src/descendents.c 7c7444f8a0affbdd9be7ad6b0f17bca7797c4497
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
@@ -125,14 +125,14 @@ F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
 F www/sync.html 4b94620e2465084bcd81479925282ab4cce6e66d
-P fcabd4774c2199a33f7e61af487c28bab3ac6cbd
-R 1bcb04f073c4e0c4fd5931c809ba88a3
+P c287665ba8c4c224fcde3274365a1e09274cdde3
+R aebe94674c97680cf26d35fec898846d
 U drh
-Z 4d4c2c253df87ea2f146a1d4bf0a5d20
+Z c5d4b472081a55aca16fd7101dc59343
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG6qHeoxKgR168RlERAsfSAKCCnGkjXl/Iza5he6dHye+Ci0DdUQCfWlKY
-3eNyxz7khVR6P07DWVK+oLk=
-=EqK/
+iD8DBQFG6vjgoxKgR168RlERAu+FAJ9L2a8tZ+/Qzdr52SQoQyalpBKgyACbBEri
+MkC2XaeCe3cIotRP/t/DQR8=
+=ds+l
 -----END PGP SIGNATURE-----
