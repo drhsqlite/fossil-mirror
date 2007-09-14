@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Unhacked\sthe\sfossil\sbackend.\nIOW\sreworked\sthe\sAPI\sand\smade\sit\snicer,\smore\sstructured,\sbetter\scommand\sand\soption\snames.\nGave\sthe\sinternals\smore\sstructure,\sand\ssimplified\sthe\shandling\sof\s-breakat\s(old\s-stopat\sbreakpoint).\nUpdated\susers,\sand\supdated\sthe\suser\svisible\sswitches\sas\swell.\nAdded\sa\s-h\sswitch\sfor\shelp.
-D 2007-09-13T08:02:26
+C Moved\sthe\shandling\sof\sthe\simport\sstatistics\sinto\sits\sown\spackage.\sUntested.
+D 2007-09-14T23:23:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -95,9 +92,10 @@ F tools/lib/cvs.tcl 5855edb7f000935b4ef5741ef454402bc2d2a7fc
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
 F tools/lib/fossil.tcl a0b0c0df17a55e7b7ec135d0a7499d5df769ac2e
 F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
-F tools/lib/importcvs.tcl 0d2f09ecb4c7582010e1e1154c136232e299c2d6
+F tools/lib/import_statistics.tcl 561c79f2a3d2a19a167f15bf1f8892dfa607d32b
+F tools/lib/importcvs.tcl 77cdacb9e51b0f7c83a8245d40a24a911bad8c1e
 F tools/lib/log.tcl a68dbe32df715397f6eb7251b6d03740cb8621a3
-F tools/lib/pkgIndex.tcl 97cb78f4d81eb51c65e3fe99c5cd072c64f79f33
+F tools/lib/pkgIndex.tcl b623451fbffab30175b3cd4cb0c02484799b2340
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -126,14 +124,7 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P cdf5e6d8b71fddb1a9f62451021c7f999dc686db
-R b78bc1dadfa6febc5c2eff4319216aef
+P 7b2619b7ef45faa0c4b3b56858db692691a9e688
+R 0d1a2e403d819178b7ba5a28c94122b2
 U aku
-Z a572725fe681fe4cf3a34d9cb937bdca
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
-
-iD8DBQFG6O6XvonzZ/CRa7gRApABAKCEoc8OzJFIR1kKimm8pe4nPpu4ngCcDhcV
-VhF9TbZ08WwYMH5Z//I0yW8=
-=JBmc
------END PGP SIGNATURE-----
+Z 3782dc129bf3ce480350dd2d7ebbb78e

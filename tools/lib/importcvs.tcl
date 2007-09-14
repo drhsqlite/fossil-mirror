@@ -5,15 +5,17 @@
 # Requirements
 
 package require Tcl 8.4
-package require vc::cvs::ws     ; # Frontend, reading from source repository
-package require vc::fossil::ws  ; # Backend,  writing to destination repository.
-package require vc::tools::log  ; # User feedback
+package require vc::cvs::ws               ; # Frontend, reading from source repository
+package require vc::fossil::ws            ; # Backend,  writing to destination repository.
+package require vc::tools::log            ; # User feedback
+package require vc::fossil::import::stats ; # Import Statistics
 
 namespace eval ::vc::fossil::import::cvs {
     vc::tools::log::system import
     namespace import ::vc::tools::log::write
     namespace eval cvs    { namespace import ::vc::cvs::ws::* }
     namespace eval fossil { namespace import ::vc::fossil::ws::* }
+    namespace eval stats  { namespace import ::vc::fossil::import::stats::* }
 
     fossil::configure -appname cvs2fossil
     fossil::configure -ignore  ::vc::cvs::ws::wsignore
@@ -61,29 +63,21 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     cvs::csets    ; # Group changes into sets
     cvs::rtree    ; # Build revision tree (trunk only right now).
 
-    set tot 0.0
-    set nto 0
-
     write 0 import {Begin conversion}
     write 0 import {Setting up workspaces}
 
     cvs::workspace      ; # cd's to workspace
     fossil::begin [pwd] ; # Uses cwd as workspace to connect to.
-
-    set ntrunk [cvs::ntrunk] ; set ntfmt %[string length $ntrunk]s
-    set nmax   [cvs::ncsets] ; set nmfmt %[string length $nmax]s
+    stats::setup [cvs::ntrunk] [cvs::ncsets]
 
     cvs::foreach_cset cset [cvs::root] {
-	write 0 import "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $nto]/$ntrunk ([format %6.2f [expr {$nto*100.0/$ntrunk}]]%)"
-	Statistics [OneChangeSet $cset]
+	OneChangeSet $cset
     }
 
-    write 0 import "========= [string repeat = 61]"
-    write 0 import "Imported $nto [expr {($nto == 1) ? "changeset" : "changesets"}]"
-    write 0 import "Within [format %.2f $tot] seconds (avg [format %.2f [expr {$tot/$nto}]] seconds/changeset)"
-
+    stats::done
     cvs::wsclear
     fossil::close $dst
+
     write 0 import Ok.
     return
 }
@@ -91,39 +85,20 @@ proc ::vc::fossil::import::cvs::run {src dst} {
 # -----------------------------------------------------------------------------
 # Internal operations - Import a single changeset.
 
-proc ::vc::fossil::import::cvs::Statistics {sec} {
-    upvar 1 tot tot nto nto ntrunk ntrunk
-
-    # No statistics if the commit was stopped before it was run
-    if {$sec eq ""} return
-
-    incr nto
-
-    set tot [expr {$tot + $sec}]
-    set avg [expr {$tot/$nto}]
-    set max [expr {$ntrunk * $avg}]
-    set rem [expr {$max - $tot}]
-
-    write 3 import "st avg [format %.2f $avg] sec"
-    write 3 import "st run [format %7.2f $tot] sec [format %6.2f [expr {$tot/60}]] min [format %5.2f [expr {$tot/3600}]] hr"
-    write 3 import "st end [format %7.2f $max] sec [format %6.2f [expr {$max/60}]] min [format %5.2f [expr {$max/3600}]] hr"
-    write 3 import "st rem [format %7.2f $rem] sec [format %6.2f [expr {$rem/60}]] min [format %5.2f [expr {$rem/3600}]] hr"
-    return
-}
-
 proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
-    set usec [lindex [time {
+    stats::csbegin $cset
+
+    set microseconds [lindex [time {
 	foreach {user message timestamp} [cvs::wssetup $cset] break
 	foreach {uuid ad rm ch} [fossil::commit $cset $user $timestamp $message] break
     } 1] 0]
+    set seconds [expr {$microseconds/1e6}]
+
     cvs::uuid $cset $uuid
-
-    set sec [expr {$usec/1e6}]
-
     write 2 import "== $uuid +${ad}-${rm}*${ch}"
-    write 2 import "st in  [format %.2f $sec] sec"
 
-    return $sec
+    stats::csend $seconds
+    return
 }
 
 # -----------------------------------------------------------------------------
