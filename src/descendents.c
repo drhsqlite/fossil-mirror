@@ -130,13 +130,13 @@ void compute_descendents(int rid, int N){
 }
 
 /*
-** COMMAND:  leaves
+** COMMAND:  descendents
 **
-** Usage: %fossil leaves ?UUID?
+** Usage: %fossil descendents ?UUID?
 ** Find all leaf descendents of the current version or of the
 ** specified version.
 */
-void leaves_cmd(void){
+void descendents_cmd(void){
   Stmt q;
   int base;
 
@@ -161,9 +161,9 @@ void leaves_cmd(void){
 }
 
 /*
-** COMMAND:  branches
+** COMMAND:  leaves
 **
-** Usage: %fossil branches
+** Usage: %fossil leaves
 ** Find leaves of all branches.
 */
 void branches_cmd(void){
@@ -180,7 +180,7 @@ void branches_cmd(void){
     "   AND event.objid=blob.rid"
     " ORDER BY event.mtime DESC"
   );
-  print_timeline(&q, 20);
+  print_timeline(&q, 2000);
   db_finalize(&q);
 }
 
