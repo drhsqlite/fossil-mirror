@@ -1,5 +1,8 @@
-C Moved\sthe\shandling\sof\sthe\simport\sstatistics\sinto\sits\sown\spackage.\sUntested.
-D 2007-09-14T23:23:48
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Fixed\sproblems\swith\sthe\suntested\sstatistics\smodule.\nMoved\scset\s<->\suuid\smap\sout\sof\scvs\sto\scontrol\slayer,\sseparate\spackage.\nCurrently\snot\sreally\suseful,\swill\sbe\sneeded\swhen\shandling\scvs\sbranches.\nMoved\ssome\suser\sfeedback\saround,\sand\sthe\simport\scontrol\stoo.
+D 2007-09-15T03:18:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -88,14 +91,15 @@ F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl c75797ae1904c1de7d324ef70753098094268dfb
-F tools/lib/cvs.tcl 5855edb7f000935b4ef5741ef454402bc2d2a7fc
+F tools/lib/cvs.tcl a015f1382f998fda8c172c918e905d43a356a9ae
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
 F tools/lib/fossil.tcl a0b0c0df17a55e7b7ec135d0a7499d5df769ac2e
 F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
-F tools/lib/import_statistics.tcl 561c79f2a3d2a19a167f15bf1f8892dfa607d32b
-F tools/lib/importcvs.tcl 77cdacb9e51b0f7c83a8245d40a24a911bad8c1e
+F tools/lib/import_map.tcl 44f71078463b33427051428288410b62dda2df82
+F tools/lib/import_statistics.tcl aa215e83ab0d99d2badb25987102602565e62679
+F tools/lib/importcvs.tcl 4409d3ed45811bc980b48b6f610f74458baebb2a
 F tools/lib/log.tcl a68dbe32df715397f6eb7251b6d03740cb8621a3
-F tools/lib/pkgIndex.tcl b623451fbffab30175b3cd4cb0c02484799b2340
+F tools/lib/pkgIndex.tcl 66cbd64e60205447f4a0c41dd64e8eaa5d023867
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -124,7 +128,14 @@ F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
 F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
 F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
 F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P 7b2619b7ef45faa0c4b3b56858db692691a9e688
-R 0d1a2e403d819178b7ba5a28c94122b2
+P 18251642f3b24b7110f66e706647000965e13342
+R fc28fd174d3e18c5cccae642a0d5c196
 U aku
-Z 3782dc129bf3ce480350dd2d7ebbb78e
+Z e59926f9c2ec9dea2a4fda77678332e7
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.3 (GNU/Linux)
+
+iD8DBQFG608MvonzZ/CRa7gRAnYLAJ93JYP9gGxgp7qg2XhU+vXtdJJpUwCcDDhF
+Oi4ofoI/igFwwb5nwxMYBTs=
+=CE6/
+-----END PGP SIGNATURE-----

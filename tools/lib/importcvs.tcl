@@ -7,8 +7,9 @@
 package require Tcl 8.4
 package require vc::cvs::ws               ; # Frontend, reading from source repository
 package require vc::fossil::ws            ; # Backend,  writing to destination repository.
-package require vc::tools::log            ; # User feedback
-package require vc::fossil::import::stats ; # Import Statistics
+package require vc::tools::log            ; # User feedback.
+package require vc::fossil::import::stats ; # Management for the Import Statistics.
+package require vc::fossil::import::map   ; # Management of the cset <-> uuid mapping.
 
 namespace eval ::vc::fossil::import::cvs {
     vc::tools::log::system import
@@ -16,6 +17,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace eval cvs    { namespace import ::vc::cvs::ws::* }
     namespace eval fossil { namespace import ::vc::fossil::ws::* }
     namespace eval stats  { namespace import ::vc::fossil::import::stats::* }
+    namespace eval map    { namespace import ::vc::fossil::import::map::* }
 
     fossil::configure -appname cvs2fossil
     fossil::configure -ignore  ::vc::cvs::ws::wsignore
@@ -66,17 +68,18 @@ proc ::vc::fossil::import::cvs::run {src dst} {
     write 0 import {Begin conversion}
     write 0 import {Setting up workspaces}
 
+    #B map::set {} {}
     cvs::workspace      ; # cd's to workspace
     fossil::begin [pwd] ; # Uses cwd as workspace to connect to.
     stats::setup [cvs::ntrunk] [cvs::ncsets]
 
     cvs::foreach_cset cset [cvs::root] {
-	OneChangeSet $cset
+	Import1 $cset
     }
 
     stats::done
     cvs::wsclear
-    fossil::close $dst
+    fossil::done $dst
 
     write 0 import Ok.
     return
@@ -85,19 +88,28 @@ proc ::vc::fossil::import::cvs::run {src dst} {
 # -----------------------------------------------------------------------------
 # Internal operations - Import a single changeset.
 
-proc ::vc::fossil::import::cvs::OneChangeSet {cset} {
+proc ::vc::fossil::import::cvs::Import1 {cset} {
     stats::csbegin $cset
 
-    set microseconds [lindex [time {
-	foreach {user message timestamp} [cvs::wssetup $cset] break
-	foreach {uuid ad rm ch} [fossil::commit $cset $user $timestamp $message] break
-    } 1] 0]
-    set seconds [expr {$microseconds/1e6}]
-
-    cvs::uuid $cset $uuid
-    write 2 import "== $uuid +${ad}-${rm}*${ch}"
+    set microseconds [lindex [time {ImportCS $cset} 1] 0]
+    set seconds      [expr {$microseconds/1e6}]
 
     stats::csend $seconds
+    return
+}
+
+proc ::vc::fossil::import::cvs::ImportCS {cset} {
+    #B fossil::setup [map::get [cvs::parentOf $cset]]
+    lassign [cvs::wssetup   $cset] user  timestamp  message
+    lassign [fossil::commit $cset $user $timestamp $message] uuid ad rm ch
+    write 2 import "== +${ad}-${rm}*${ch}"
+    map::set $cset $uuid
+    return
+}
+
+proc ::vc::fossil::import::cvs::lassign {l args} {
+    foreach v $args {upvar 1 $v $v} 
+    foreach $args $l break
     return
 }
 

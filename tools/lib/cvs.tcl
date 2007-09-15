@@ -322,7 +322,7 @@ proc ::vc::cvs::ws::wssetup {c} {
     }
 
     # Provide metadata about the changeset the backend may wish to have
-    return [list $u $cm $s]
+    return [list $u $s $cm]
 }
 
 namespace eval ::vc::cvs::ws {
@@ -376,12 +376,6 @@ proc ::vc::cvs::ws::ntrunk {} {
 proc ::vc::cvs::ws::ncsets {} {
     variable ncs
     return  $ncs
-}
-
-proc ::vc::cvs::ws::uuid {c uuid} {
-    variable rtree
-    $rtree set $c uuid $uuid
-    return
 }
 
 # -----------------------------------------------------------------------------
@@ -478,7 +472,7 @@ proc ::vc::cvs::ws::CSDump {c} {
 
 namespace eval ::vc::cvs::ws {
     namespace export at scan csets rtree workspace wsignore wsclear wssetup \
-	foreach_cset root ntrunk ncsets uuid
+	foreach_cset root ntrunk ncsets
 }
 
 # -----------------------------------------------------------------------------

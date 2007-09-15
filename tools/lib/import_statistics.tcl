@@ -25,13 +25,12 @@ namespace eval ::vc::fossil::import::stats {
 # -----------------------------------------------------------------------------
 # API Implementation - Functionality
 
-proc ::vc::fossil::import::stats::init {n m} {
+proc ::vc::fossil::import::stats::setup {n m} {
+    variable run_format    %[string length $n]s
+    variable max_format    %[string length $m]s
     variable total_csets   $n
     variable total_running 0
     variable total_seconds 0.0
-
-    variable ntfmt %[string length $n]s
-    variable nmfmt %[string length $m]s
     return
 }
 
@@ -41,14 +40,17 @@ proc ::vc::fossil::import::stats::done {} {
 
     write 0 stats "========= [string repeat = 61]"
     write 0 stats "Imported $total_csets [expr {($total_csets == 1) ? "changeset" : "changesets"}]"
-    write 0 stats "Within [F $tot] seconds (avg [F [Avg]] seconds/changeset)"
+    write 0 stats "Within [F $total_seconds] seconds (avg [F [Avg]] seconds/changeset)"
     return
 }
 
 proc ::vc::fossil::import::stats::csbegin {cset} {
-    variable nmfmt
-    variable ntfmt
-    write 0 stats "ChangeSet [format $nmfmt $cset] @ [format $ntfmt $total_running]/$total_csets ([F6 [expr {$total_running*100.0/$total_csets}]]%)"
+    variable max_format
+    variable run_format
+    variable total_running
+    variable total_csets
+
+    write 0 stats "ChangeSet [format $max_format $cset] @ [format $run_format $total_running]/$total_csets ([F6 [expr {$total_running*100.0/$total_csets}]]%)"
     return
 }
 
@@ -58,7 +60,7 @@ proc ::vc::fossil::import::stats::csend {seconds} {
     variable total_running
 
     incr total_running
-    set  total_seconds [expr {$total_seconds + $sec}]
+    set  total_seconds [expr {$total_seconds + $seconds}]
 
     set avg [Avg]
     set end [expr {$total_csets * $avg}]
@@ -97,7 +99,13 @@ proc ::vc::fossil::import::stats::Avg {} {
 # -----------------------------------------------------------------------------
 
 namespace eval ::vc::fossil::import::stats {
-    namespace export setup done begin add
+    variable total_csets   0 ; # Number of changesets to expect to be imported
+    variable total_running 0 ; # Number of changesets which have been imported so far
+    variable total_seconds 0 ; # Current runtime in seconds
+    variable max_format   %s ; # Format to print changeset id, based on the largest id.
+    variable run_format   %s ; # Format to print the number of imported csets.
+
+    namespace export setup done csbegin csend
 }
 
 # -----------------------------------------------------------------------------
