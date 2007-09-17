@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sstructure\sto\sthe\sCVS\sfrontend\scode,\sputting\sthe\srepository\straversal\ninto\sits\sown\spackage.
-D 2007-09-17T01:43:07
+C More\sstructuring\sof\sthe\sCVS\sbackend,\sencapsulated\sthe\smanagement\s\nof\sthe\sglobal\stimeline\sof\sevents\sin\sthe\sproject\sin\sa\sseparate\spackage.
+D 2007-09-17T03:03:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -93,16 +93,17 @@ F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
-F tools/lib/cvs.tcl a7a859e048c9c69b7889d91701f831f6c79ca68a
+F tools/lib/cvs.tcl 57072982aad7f476650a3fdfe7fb013951aa68c9
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
-F tools/lib/cvs_files.tcl 605edf3ab369d1997a54c963c6c16b1283cad9aa
+F tools/lib/cvs_files.tcl 24c1271ded974ae38a3a44d55b84c1b9db27ffa5
+F tools/lib/cvs_timeline.tcl 24ba5c2cd79bc309a4b9401bac44c1aa8d81d30f
 F tools/lib/fossil.tcl a6c49a2ab2603c03757e9ea90555264c3d54fad8
 F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
 F tools/lib/import_map.tcl 44f71078463b33427051428288410b62dda2df82
 F tools/lib/import_statistics.tcl aa215e83ab0d99d2badb25987102602565e62679
 F tools/lib/importcvs.tcl 8476a3bcc6203de7b7692e76024c158fe26772a3
 F tools/lib/log.tcl edfb9cfb1eb6e72efd614a31c5e1e4bf05219e0e
-F tools/lib/pkgIndex.tcl 5bdfea38bf87844aa680e6f9bb22dbefad84171e
+F tools/lib/pkgIndex.tcl acc6b0f0f5a44aa5c977fda45dd4b8086d5348ed
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
@@ -134,14 +135,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ebb94f75cb229fddf31e3eb8d81b9cf056593b2e
-R fd78956fb15a6255bce1b32a68a8708f
+P 6f121db1e2d4ebc1051ce20f35a3f9f74eb0c628
+R 93c89a0ad439cfda76f8868ae04e49d2
 U aku
-Z 229af232be46e15dd862189dcacbb366
+Z 69d706b93d305f7e57b0e270fb82124a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG7durvonzZ/CRa7gRAhk6AJ40AC6LIuQLQ2tvDa9y/QQJr4Z2HgCeNUjD
-KZfBJU9Hcbn3+Q0EU7Hjmrw=
-=El4e
+iD8DBQFG7e6CvonzZ/CRa7gRAku1AJ9k8sfIZaxgBbdoEkpEcsW5EpD7AQCdHtPn
+PvuK/hIe2kmPA1dFWDOiJnU=
+=g+wM
 -----END PGP SIGNATURE-----

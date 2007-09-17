@@ -11,7 +11,6 @@ package require vc::tools::log     ; # User feedback
 namespace eval ::vc::cvs::ws::files {
     namespace import ::vc::tools::log::write
     namespace import ::vc::tools::log::progress
-    namespace import ::vc::tools::log::verbosity?
 }
 
 # -----------------------------------------------------------------------------

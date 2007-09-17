@@ -5,11 +5,12 @@
 # Requirements
 
 package require Tcl 8.4
-package require fileutil           ; # Tcllib (traverse directory hierarchy)
-package require vc::rcs::parser    ; # Handling the RCS archive files.
-package require vc::tools::log     ; # User feedback
-package require vc::cvs::cmd       ; # Access to cvs application.
-package require vc::cvs::ws::files ; # Scan CVS repository for relevant files.
+package require fileutil              ; # Tcllib (traverse directory hierarchy)
+package require vc::rcs::parser       ; # Handling the RCS archive files.
+package require vc::tools::log        ; # User feedback
+package require vc::cvs::cmd          ; # Access to cvs application.
+package require vc::cvs::ws::files    ; # Scan CVS repository for relevant files.
+package require vc::cvs::ws::timeline ; # Manage timeline of all changes.
 package require struct::tree
 
 namespace eval ::vc::cvs::ws {
@@ -70,22 +71,14 @@ proc ::vc::cvs::ws::check {src mv} {
 
 proc ::vc::cvs::ws::begin {src} {
     variable project
-    variable base
 
     set src [file normalize $src]
-    if {![check $src msg]} {
-	return -code error $msg
-    }
-    set base $src
-    write 0 cvs "Base:    $base"
-    if {$project eq ""} {
-	write 0 cvs "Project: <ALL>"
-    } else {
-	write 0 cvs "Project: $project"
-    }
+    if {![check $src msg]} { return -code error $msg }
+
+    DefBase $src
+    MakeTimeline [ScanArchives [files::find [RootPath]]]
 
     # OLD api calls ... TODO rework for more structure ...
-    scan     ; # Gather revision data from the archives
     csets    ; # Group changes into sets
     rtree    ; # Build revision tree (trunk only right now).
 
@@ -142,61 +135,97 @@ proc ::vc::cvs::ws::checkout {id} {
 # -----------------------------------------------------------------------------
 # Internals - Old API for now.
 
-# Scan repository, collect archives, parse them, and collect revision
-# information (file, revision -> date, author, commit message)
-
-proc ::vc::cvs::ws::scan {} {
+proc ::vc::cvs::ws::DefBase {path} {
     variable project
     variable base
-    variable timeline
 
-    set n 0
-    set d $base ; if {$project ne ""} {append d /$project}
+    set base $path
 
-    set files [::vc::cvs::ws::files::find $d]
-
-    write 0 cvs "Scanning archives ..."
-
-    ::foreach {rcs f} $files {
-	write 1 cvs "Archive $rcs"
-
-	# Get the meta data we need (revisions, timeline, messages).
-	set meta [process $d/$rcs]
-
-	array set p $meta
-
-	::foreach {rev ts} $p(date) {_ a} $p(author) {_ cm} $p(commit) {_ st} $p(state) {
-	    set op [expr {($rev eq "1.1") ? "A" : "M"}]
-	    if {$st eq "dead"} {set op "R"}
-
-	    # A dead-first revision is rev 1.1 with op R. For an
-	    # example see the file memchan/DEPENDENCIES. Such a file
-	    # seems to exist only! on its branch. The branches
-	    # information is set on the revision (extend rcsparser!),
-	    # symbols has a tag, refering to a branch, possibly magic.
-
-	    if {($rev eq "1.1") && ($op eq "R")} {
-		write 2 cvs {Dead root revision}
-	    }
-
-	    lappend timeline($ts) [list $op $ts $a $rev $f $cm]
-	}
-
-	#unset p(commit)
-	#parray p
-
-	incr n
+    write 0 cvs "Base:    $base"
+    if {$project eq ""} {
+	write 0 cvs "Project: <ALL>"
+    } else {
+	write 0 cvs "Project: $project"
     }
-
-    write 0 cvs "Processed $n [expr {($n == 1) ? "file" : "files"}]"
     return
 }
 
-namespace eval ::vc::cvs::ws {
-    # Timeline: tstamp -> (op, tstamp, author, revision, file, commit message)
+proc ::vc::cvs::ws::RootPath {} {
+    variable project
+    variable base
 
-    variable timeline ; array set timeline {}
+    if {$project eq ""} {
+	return $base
+    } else {
+	return $base/$project
+    }
 }
+
+# Scan repository, collect archives, parse them, and collect revision
+# information (file, revision -> date, author, commit message)
+
+proc ::vc::cvs::ws::ScanArchives {files} {
+    write 0 cvs "Scanning archives ..."
+
+    set d [RootPath]
+    set r {}
+    set n 0
+
+    ::foreach {rcs f} $files {
+	write 1 cvs "Archive $rcs"
+	# Get the meta data we need (revisions, timeline, messages).
+	lappend r $f [process $d/$rcs]
+	incr    n
+    }
+
+    write 0 cvs "Processed [NSIPL $n file]"
+    return $r
+}
+
+proc ::vc::cvs::ws::MakeTimeline {meta} {
+    write 0 cvs "Generating coalesced timeline ..."
+
+    set n 0
+    ::foreach {f meta} $meta {
+	array set md   $meta
+	array set date $md(date)
+	array set auth $md(author)
+	array set cmsg $md(commit)
+	array set stat $md(state)
+
+	::foreach rev [lsort -dict [array names date]] {
+	    set operation [Operation $rev $stat($rev)]
+	    NoteDeadRoots $f $rev $operation
+	    timeline::add $date($rev) $f $rev $operation $auth($rev) $cmsg($rev)
+	    incr n
+	}
+	#B Extend branch management
+    }
+
+    write 0 cvs "Generated [NSIPL $n entry entries]"
+    return
+}
+
+proc ::vc::cvs::ws::NoteDeadRoots {f rev operation} {
+    # A dead-first revision is rev 1.1 with op R. For an example see
+    # the file memchan/DEPENDENCIES. Such a file seems to exist only!
+    # on its branch. The branches information is set on the revision
+    # (extend rcsparser!), symbols has a tag, refering to a branch,
+    # possibly magic.
+
+    if {($rev eq "1.1") && ($operation eq "R")} {
+	write 2 cvs "Dead root revision: $f"
+    }
+    return
+}
+
+proc ::vc::cvs::ws::Operation {rev state} {
+    if {$state eq "dead"} {return "R"} ; # Removed
+    if {$rev   eq "1.1"}  {return "A"} ; # Added
+    return "M"                         ; # Modified
+}
+
+
 
 # Group single changes into changesets
 
@@ -210,34 +239,21 @@ proc ::vc::cvs::ws::csets {} {
     array unset cmap  * ; array set cmap  {}
     set ncs 0
 
-    write 0 cvs "Processing timeline"
+    write 0 cvs "Generating changesets from timeline"
 
-    set n 0
     CSClear
-    ::foreach ts [lsort -dict [array names timeline]] {
+    timeline::foreach date file revision operation author cmsg {
+	# API adaption
+	set entry [list $operation $date $author $revision $file $cmsg]
 
-	# op tstamp author revision file commit
-	# 0  1      2      3        4    5/end
-	# b         c                    a
-
-	set entries [lsort -index 2 [lsort -index 0 [lsort -index end $timeline($ts)]]]
-	#puts [join $entries \n]
-
-	::foreach entry  $entries {
-	    if {![CSNone] && [CSNew $entry]} {
-		CSSave
-		CSClear
-		#puts ==\n$reason
-	    }
-	    CSAdd $entry
-	    incr n
+	if {![CSNone] && [CSNew $entry]} {
+	    CSSave
+	    CSClear
 	}
+	CSAdd $entry
     }
 
-    write 0 cvs "Processed $n [expr {($n == 1) ? "entry" : "entries"}]"
-
-    set n [array size csets]
-    write 0 cvs "Found     $n [expr {($n == 1) ? "changeset" : "changesets"}]"
+    write 0 cvs "Found [NSIPL [array size csets] changeset]"
     return
 }
 
@@ -508,6 +524,15 @@ proc ::vc::cvs::ws::CSDump {c} {
 	puts "$b $o $f $r"
     }
     return
+}
+
+proc ::vc::cvs::ws::NSIPL {n singular {plural {}}} {
+    return "$n [SIPL $n $singular $plural]"
+}
+proc ::vc::cvs::ws::SIPL {n singular {plural {}}} {
+    if {$n == 1} {return $singular}
+    if {$plural eq ""} {set plural ${singular}s}
+    return $plural
 }
 
 # -----------------------------------------------------------------------------
