@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Pulled\sthe\slatest\sCLI,\swebsite,\sand\ssqlite\schanges\sinto\sthe\simporter\sbranch.
-D 2007-09-17T01:00:32
+C Semantics\sof\sthe\sprogress\sdisplay\sextended\sto\sallow\san\sempty\smaximum\sto\ssignal\suse\sof\san\sinfinite\s(open-ended)\sdisplay.
+D 2007-09-17T01:41:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,7 +100,7 @@ F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
 F tools/lib/import_map.tcl 44f71078463b33427051428288410b62dda2df82
 F tools/lib/import_statistics.tcl aa215e83ab0d99d2badb25987102602565e62679
 F tools/lib/importcvs.tcl 8476a3bcc6203de7b7692e76024c158fe26772a3
-F tools/lib/log.tcl a68dbe32df715397f6eb7251b6d03740cb8621a3
+F tools/lib/log.tcl edfb9cfb1eb6e72efd614a31c5e1e4bf05219e0e
 F tools/lib/pkgIndex.tcl 66cbd64e60205447f4a0c41dd64e8eaa5d023867
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
@@ -133,14 +133,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P bbcb6326c9068b37546503156dc4212ed0c95592 bc68e61bb2880605a4c0ddc9a0a42ff5a693d882
-R c9b5952e952210a1c33a3dcb33e9522b
+P f76192b24597c6ccd61c5a5c4de111c4460c5c36
+R bd87305fa73b95763b59c55b54119d83
 U aku
-Z 0fbb1399d6a8cc64442671cb6b1b9201
+Z 52f9004bd7ff6ff93dc05a4579381873
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG7dGwvonzZ/CRa7gRAkrZAJwOr2l87xo9gpgzLYIpRjWZD0mH3ACeJ3vb
-YOxs/LLk7XJy/XBzSDw43Ho=
-=zADr
+iD8DBQFG7dtrvonzZ/CRa7gRAug3AJ4xEmeVANz9fSuyqy2zwUv3Yz3DJgCbBPkJ
+OP2Dp8FT+y07EKis4Nwubk0=
+=fXXW
 -----END PGP SIGNATURE-----

@@ -14,6 +14,8 @@ namespace eval ::vc::tools::log {}
 #
 #	vc::tools::log::write    verbosity system text  - Write message to the log.
 #	vc::tools::log::progress verbosity system n max - Drive a progress display.
+#
+#       Note: max empty => infinite progress display, otherwise a finite display.
 
 # Administrative operations.
 #
@@ -124,7 +126,11 @@ proc ::vc::tools::log::OUT/write {system text} {
 # line without advancing.
 
 proc ::vc::tools::log::OUT/progress {system n max} {
-    puts -nonewline "$system [format %[string length $max]s $n]/$max\r"
+    if {$max eq {}} {
+	puts -nonewline "$system $n\r"
+    } else {
+	puts -nonewline "$system [format %[string length $max]s $n]/$max\r"
+    }
     flush stdout
     return
 }
