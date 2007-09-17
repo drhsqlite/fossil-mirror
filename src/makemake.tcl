@@ -7,6 +7,7 @@
 #
 set src {
   add
+  bag
   blob
   cgi
   checkin
@@ -34,6 +35,7 @@ set src {
   merge3
   name
   pivot
+  pqueue
   printf
   rebuild
   schema

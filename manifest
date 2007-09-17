@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reworked\sthe\sCVS\shandling\scode\sto\shave\sa\ssimpler\sAPI,\smore\slike\sthe\sreworked\sFossil\sAPI.\nThe\sAPI\snow\shas\sa\sform\swhere\sadding\sthe\shandling\sof\sbranches\sshould\snot\srequire\scomplex\nchanges\sin\sthe\simport\scontroller\sany\slonger.\sExtended\sthe\ssystem\sto\sallow\sthe\suser\sto\nrestrict\sthe\simporting\sto\sa\ssub-directory\sof\sthe\schosen\srepository,\svia\sthe\snew\sswitch\n--project.\sThis\sis\srequired\sto\spull\sa\sSF\sCVS\srepository\sapart\sinto\sthe\svarious\sprojects\nit\smay\shave.\sExample:\sUnder\sTcl\swe\shave\s3\sprojects,\snamely\sTcl\sitself,\ssampleextension,\nand\sThread.
-D 2007-09-17T00:56:40
+C Pulled\sin\sthe\snavbar\sand\stimeline\schanges.
+D 2007-09-17T00:58:51
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -26,63 +26,64 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt ff113a4540579edf21123eb051cd1efdd0486762
+F ideas.txt 44635deb96c9ba324a8b472924c49b76b3e1fcc1
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
+F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c f2c016552c1006e1ead1f64366a650471e0e4064
 F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c e53057ad70bde64dfd9a064777ff33cd6ea5e25e
+F src/checkin.c 2b31bba6d0f8169e3d911d9dd26fc3bf422d88c4
 F src/checkout.c 59343953ba42e0f41b57d59fdc75fffe5b0ff94c
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 10bb790dafbf85fb41571d9cab31a16c2026da94
-F src/content.c 60a9520d479793775a112f75959246fdc8f11d41
-F src/db.c ca474c1e96e925e6fe5f3830cbd1186fd1d1821b
-F src/delta.c 4f6e9c70e904e3f8bb0c975dfe3896e133c6cc41
+F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
+F src/db.c 7ab2af8add0d0220c923bc506be2396424a28f2d
+F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendents.c cea178cd6b519c1716ea500ccb9d945361b5416e
+F src/descendents.c 420beefa611a5c5792d7f6cc1d0fe1dd8f4989ae
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 3357e23c4756559fb86f7faa2b45eea9f98dc387
-F src/info.c e4bf002e1d5f261a0a23e073a1ea47ba340b5bce
+F src/info.c 1d02bccab4f60d6f2f926c8cefd3420359f01901
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
-F src/main.c 500655758a6aa3a0cb4178b354ec9ed7a3046f97
-F src/main.mk d7d0790c5705664a66e23bfc822b1c0da8ff240e
+F src/main.c 17322e8c2b317c1b328757ebda8ad020366baa4a
+F src/main.mk fc782f901a410a65a1fbac87495a336922f161e8
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl e6f77439f48a4e310468c13e29802db261728dd3
-F src/manifest.c 2a7dfdcb1682935ee51522647a00a9bd9edede81
+F src/makemake.tcl a8dc2e6dd471196652f64fc921f3bd135dfa681b
+F src/manifest.c 3b8a4242be7e04db315808edf032bbaa004f4b00
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c de0f1b5a7621c222d2d342486ac953d0772c6cd2
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
+F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
-F src/rebuild.c 104f7b4bf822e163f06e5983f7a29386c55c226d
-F src/schema.c c780fb4f32ae73072ae3d93c07bc6c24d5270cdb
-F src/setup.c 1750dc4678b4fbc1551687157dd3c713f66e7557
+F src/rebuild.c 45c4994360d49e70cdb7767c2a37cb0277dee72c
+F src/schema.c 2f12edc522f2edfeaf3e0198539b52791e058076
+F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c aec3efbd92c6447389d2be17b16b0d029011a5e6
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c 7dcde67735b2bb0808e216b5202169b8160f17e8
+F src/style.c 4e8cafc457e75f0630b6b672a2989e5956a87374
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
-F src/timeline.c 7962fee79e8e5369d63cc622fe658cb77edc4c30
+F src/timeline.c 6222d040d3e23af63a75fb535469294ed4145fe6
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/update.c eb47b7b9da681bd3c078212637a39c46e420978d
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 5ad913c384f94b6fa54b89ec9a7aeb1e1f600144
-F src/wiki.c daf8014fa804a286d33d80111694bdfc18d036f0
-F src/wikiformat.c 8a54463d32676c9605db1997dc90d52c633eae4f
-F src/xfer.c f732b233d1ab879b603b26716e10e08f81c80769
+F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
+F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
+F src/xfer.c 00b48b75136b77208d4cf7b36bd60d220b6325a4
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
-F test/basic1.test d90e14fae8e50a0f7fde78385f6e9db41c27e86d
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -101,17 +102,18 @@ F tools/lib/importcvs.tcl 8476a3bcc6203de7b7692e76024c158fe26772a3
 F tools/lib/log.tcl a68dbe32df715397f6eb7251b6d03740cb8621a3
 F tools/lib/pkgIndex.tcl 66cbd64e60205447f4a0c41dd64e8eaa5d023867
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
-F www/build.html 6089f0b563a9db0a6d90682fe47fd7161ff867c8
+F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
+F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html 8da6496b93c0e6cd255ed57d4974adf0e9c3ed0c
+F www/concepts.html d53cc73d6e92ab43f53ddd878e2267d6480af076
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.html 75d37d5e32b703ce437e94eda3820c3e9e4958b8
+F www/delta_encoder_algorithm.html 2fdda5715167189835f74038508c3cccddcd1c4d
 F www/delta_format.html db8d44b23e31e469b4fc2ff718eecf858b838182
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -123,19 +125,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 677ac744b20c5a847aca8620d1c2cb7813b5ffd1
-F www/index.html 976b9491beacc78dc4782d6469a2533a758ab041
-F www/pop.html c4c7a9be7e5e2e1c939909b215817c6163365c49
-F www/quickstart.html 02bea354bebce26c6d9d7fd5d07df08d1342a4e0
-F www/selfcheck.html 849df9860df602dc2c55163d658c6b138213122f
-P b504674c5fa3d043d0458e01a888100d5a613c78
-R 71cf61b7b7c6851e7e1b84ee7c9ed71a
+F www/fileformat.html 65db56924de1ac3c632126100c6a5dbccdaa2845
+F www/index.html c49cf389d31138dedb23a39910aaa049667e664e
+F www/index.wiki 314475c431784269892809f8882996d9c80fa185
+F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
+F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
+F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
+F www/sync.html 748c60be8567eb08a69572ff4ef44461f0ba1d86
+P d8c18fc148f545ddcb8769389177a892a18666e8 469002ccdf757ea545791b53c45123fdcc31dd33
+R 1deb61375146a731e656e23641a3fdc2
 U aku
-Z 90eae306afaec36453b681052b9bf141
+Z a0781108ff4696b9180f01bac1c02f04
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG7dDOvonzZ/CRa7gRAoKPAJ9HNJRFijlnb/nym3JlHQbmf8pdVgCgm7k2
-Jy/LgHpuBiZK1HpW9we+Nj4=
-=CFvT
+iD8DBQFG7dFLvonzZ/CRa7gRAhTSAKCjdmW/n88GVYxC7BOy8mR13t2BigCcD2P2
+wh6sMi8p/3N+BWyKS2tQsuU=
+=I6JO
 -----END PGP SIGNATURE-----

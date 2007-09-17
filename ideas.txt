@@ -1,3 +1,104 @@
+Possible ticket file format:
+
+   "Ticket"
+   title: TEXT
+   ticketid: TEXT
+   exists-in: BASELINE   -- 0 or more
+   fixed-in: BASELINE    -- 0 or more
+   tag: TAG              -- 0 or more
+   created: DATETIME
+   attachment: FILENAME DESCRIPTION
+   parent: UUID*
+   derived-from: TICKET-FILENAME
+   description: MULTILINE-TEXT
+   remarks: MULTILINE-TEXT
+
+   * Things handles with tags:
+     created-by
+     assigned-to
+     priority
+     severity
+     target-release
+     status
+     resolution
+     type
+     subsystem
+
+Wiki header format:
+   "WikiPage"
+   parent: UUID*
+   title: TEXT
+   pagename: TEXT
+   mode: (readonly|appendonly|readwrite)
+   attachment: UUID name description
+
+   * Header ends with a blank line.  wiki content follows.
+
+Cluster format:
+
+       M+ uuid
+       Z manifest-cksum
+
+   * Cluster generated in server mode only.
+   * Embargo cluster that reference phantoms or other embargoed clusters.
+   * Never send or ihave an embargoed cluster
+
+New sync algorithm based on clusters:
+
+   * Keep a table of unclustered artifacts.  Strive to keep this table
+     less than 100 entries.
+   * Client sends content of unclustered table as ihaves to server
+   * Server builds a new cluster if size of cluster table >100.
+   * Server sends unclustered table to client
+   * Server sends gimme for all unknown ihave received from client
+   * Client sends gimme for all unknown ihave received from server
+   * Previous two steps repeat until no more gimmes
+
+Details of new push algorithm:
+
+   * Table "unsent" contains all files never pushed
+   * TEMP table "wanted" contains files the server does not have
+   Loop:
+     * Client sends login and "push" record
+     * Client sends file message for all files in unsent and removes
+       those files from the table.
+     * Client sends file message for all files in wanted.
+     * Client sends ihave messages for each entry in unclustered
+     ------
+     * Server receives file message
+     * Server creates phantoms for unknown ihaves
+     * Server sends gimme messages for all phantoms
+     ------
+     * Client clears its unsent table
+     * For each gimme message add an entry to wanted
+     * Halt if the wanted table is empty
+
+Details on new pull algorithm:
+
+   Loop:
+     * Client sends login and "pull" record
+     * Client sends "prior" message with repository id and max record number
+     * Client sends "gimme" for each phantom
+     --------
+     * Server creates new clusters to get unclustered size below 100
+     * If there is "prior" message with repository id that matches this
+       server, then send file messages for all record ids greater than
+       prior
+     * Server sends ihave messages for each entry in unclustered
+     * Server sends maxrid message
+     --------
+     * Client receives file records
+     * Client creates phantoms for unknown ihaves
+     * If no phantoms exist, record maxrid for the server and halt
+
+Need a dephantomize algorithm
+
+
+Auxiliary tables needed for new sync algorithm:
+
+   * unsent:  files that have never been sent to another repository
+   * unclustered: non-phantom files not mentioned by a cluster
+
 Random thoughts:
 
   *  Changes to manifest to support:
@@ -61,6 +162,18 @@ Random thoughts:
      + Timeline shows forks and merges
      + Tags shown on timeline (maybe) and in vinfo (surely).
 
+Features needed:
+  * Means to suppress artifacts
+  * Means to cap a branch
+  * Ticketing
+     +  Problem is/is-not expressed in baseline X.
+     +  Append comment and zero or more attachments
+  * Modify comments on baselines
+  * Append comments to any artifact
+  * Wiki?
+
+  
+
 Extended manifests.
   * normal manifest has:
        C comment
@@ -70,6 +183,19 @@ Extended manifests.
        R repository-md5sum
        U user-login
        Z manifest-checksum
+
+  * Accessory:
+       A uuid|* attachment-uuid description
+       B (+|-)branchtag uuid
+       D date-time
+       E uuid new-comment
+       G uuid appended-remark
+       S repositoryid serial-number
+       U userid
+       V (+|-)versiontag uuid
+       X uuid-to-surpress
+       Z this-file-checksum
+
   * Change the comment on a version:   -- always a leaf except in cluster
        D date-time
        E new-comment

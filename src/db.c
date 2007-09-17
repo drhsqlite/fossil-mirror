@@ -259,7 +259,7 @@ double db_column_double(Stmt *pStmt, int N){
 const char *db_column_text(Stmt *pStmt, int N){
   return (char*)sqlite3_column_text(pStmt->pStmt, N);
 }
-const char *db_column_malloc(Stmt *pStmt, int N){
+char *db_column_malloc(Stmt *pStmt, int N){
   return mprintf("%s", db_column_text(pStmt, N));
 }
 void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){

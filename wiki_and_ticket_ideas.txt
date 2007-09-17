@@ -1,0 +1,190 @@
+Thoughts On How To Implement Wiki And Tickets In Fossil
+
+The crux of the problem of wiki and tickets is not how
+to render the information.  There are countless other
+wiki and ticket systems that have explored this territory.
+We have a lot of experience rendering wiki and writing
+ticketing systems and we know how that part works.  The
+hard part about doing wiki and tickets in Fossil is
+figuring how how to synchronize the wiki and tickets
+across different repositories.
+
+There are a number of approaches:
+
+(1) Don't synchronize.  Write a traditional wiki and ticket
+    system that lives on a single repository.  Fossil will
+    sync the source tree from one repository to another but
+    the wiki and tickets live in separate tables of the
+    database stay on a single repository.
+
+(2) Make each wiki pages and each ticket a file in the source
+    tree.  Each change to a wiki page or ticket creates a new
+    baseline.  Actually, wiki and ticket changes could cluster
+    so that each new baseline contained multiple wiki and
+    ticket changes, but any isolated wiki or ticket change
+    still requires a new baseline.
+
+(3) Store each wiki page and ticket as a separate branch of
+    the source tree that forks at the very root of the tree.
+    Every change to a wiki page or ticket still requires a
+    new baseline, but the baseline consists of single file
+    change and is thus quite compact and easy to manage.
+
+(4) Other synchronization methods.  We could treat the wiki
+    and/or tickets as a completely separate system with its
+    on synchronization protocol that just happens to live in
+    the same executable and use the same database as the
+    source tree sync mechanism.
+
+(5) Hybrid approaches.  One can combine any of the previous
+    four approaches to wiki and ticket synchronization to
+    generate a hybrid.
+
+The advantage of (1) is that it is simple and direct and
+easy to implement.  We already know how to do wiki and tickets
+on a single server with a database.  CVSTrac is a good example
+of these and there are countless other excellent examples.
+Method (1) also keeps the wiki and tickets distinct from the
+source files.  The problem with (1) is that you cannot take
+the wiki or tickets with your for disconnected operation.
+Well, maybe you could pull down a complete copy of the wiki
+and ticket tables to carry with you on the airplane, but even
+then you would not be able to make changes and then later
+synchronize those changes with the main repository.
+
+Method (2) makes each wiki page and each ticket a separate
+file in the source tree.  This means that the existing versioning
+and synchronization logic is unchanged.  And the repository
+file format is simple and easy to describe.  (The simplicity
+of the file format is an important feature for my intended
+use of Fossil.  The ability to reconstruct a baseline from
+raw artifacts with no special software is an important though
+not well described feature of Fossil.)  Having wiki and tickets
+readily at hand also gives the interesting possibility of editing
+tickets and especially wiki using your favorite text editor,
+rather than having to use an often clunky web interface.
+The web interface is still provided, of course, but if the
+wiki source text is there in a file in front of you, how much
+easier it would be to edit it using emacs or vi.
+
+Among the disadvantages of (2) is that it greatly increases
+the number of files in the source tree because of the added
+wiki and tickets.  The SQLite project, for example, currently 
+has about 560 files in the tree.  But there are around 2600 
+tickets and 120 wiki pages.  If we remove tickets that are 
+closed we can get down to around 800 tickets.  And if I were 
+more aggressive about closing tickets, that number might be 
+lower.  But there are still more tickets than there are source 
+files.  The number of wiki pages is not that great, but on 
+the other hand the SQLite wiki is not active like the Tcl/Tk 
+wiki.
+
+Another disadvantage of (2) is that you cannot add a ticket
+or fix a ticket on a baseline after the baseline is created.
+To add or fix a ticket, you have to create a new baseline.
+That means that if a bug is discovered in a baseline after its
+release, you cannot add the ticket to the baseline in which
+the bug was found; you have to put the ticket in a follow-on
+baseline.  This seems weird.  Perhaps some additional processing
+inside of fossil can identify when tickets are added to subsequent
+baselines and tag prior baselines accordingly.  On the other hand,
+because tickets are part of the baseline, tickets fixed in one
+branch remain open in parallel branches until fixed separately
+there, as they should be.
+
+Any interesting question with method (2) is what baseline to
+use for displaying wiki and tickets on the web interface.
+Clearly the display should use a leaf baseline.  But the
+project might have several peer branches each with their
+own leaves.  Which leaf should be used to display the wiki
+and tickets?  Is there an interface that allows the user to
+browse through wiki and tickets from prior baselines?
+
+The third method solves the many-files problem of method (2).
+In (3), each wiki page and ever ticket becomes a separate
+branch of the baseline change hierarchy.  So the number of 
+files in the source tree remains small.  The problem here is
+the number of branches in the baseline hierarchy explodes.
+The amount of network traffic used by the synchronization
+protocol (and to some degree the amount of CPU time) is
+proportional to the number of leaves in the baseline hierarchy.
+If every wiki page and every ticket is in its own tree with
+at least one leaf, then suddenly the project goes from have
+a 6 or 12 leaves to having thousands.  The synchronization
+protocol would have to be enhanced to deal with this.  I have
+outlined ways of doing this, but they involve more complex
+file format and more complicated wire protocols.  My assessment
+is that this approach is not consistent with simplicity.
+
+In the list above, I mention methods (4) and (5) mostly as a
+way of showing that the list of (1) through (3) does not intend
+to be exhaustive.  One can certainly devise variations on 
+methods (1) through (3) to accomplish the same thing.  And there
+might be other techniques that I have not thought of yet.
+
+I have been vacillating between methods (1), (2), and (3) for
+months.  As of this writing, I am leaning toward (2) with 
+careful attention to the ticket interpreter within Fossil so
+that when a ticket in a later baseline is written against an
+earlier baseline, a link is established in the database so that
+the later ticket is displayed with the earlier baseline.  (The
+details are still sketchy.)  Scaling is still an issue.  But
+for the kinds of projects that Fossil is intended, I do not
+expect the number of wiki pages or tickets to become excessive.
+Fossil is not intended to be a replacement for the tcler's wiki
+or for wikipedia.  Fossil is designed to be a convenient and
+self-contained CM system for an SQLite-sized project.  Just
+as SQLite is not intended to replace Oracle, so Fossil is not
+intended to replace the server farm at a Web 2.0 startup.
+
+------------- 2007-08-02 ---------------
+
+Wiki and tickets need not be handled in the same way.  Method
+(1) is disadvantageous to tickets since we what to be able to
+carry tickets with us, and modify them, while working offline.
+But the need to modify wiki offline is not nearly as acute.
+Hence consideration should be given to implementations that
+use different methods for handling tickets and wiki.
+
+Another hybrid method worth consideration is to place
+baselines of wiki and/or tickets in the source tree but
+allow overlays or deltas to be entered on a per-server
+basis.  The overlays or deltas are not synchronized between
+servers.  But one can take a "snapshot" of the overlays/deltas
+to create a new source tree baseline which could then be
+synchronized and used and/or modified offline.  Let us call
+refer to this new methods as (6).  Here are the details:
+
+  *  Tickets or wiki or both are stored as part of the tree
+     as described in method (2).
+
+  *  Web-based changes to wiki or tickets are not written back
+     into the tree but are instead stored locally in a cache
+     of exceptions or overlays.
+
+  *  When the web interface goes to look for a ticket or a
+     wiki it consults its local cache first and then if not
+     found there, a designated baseline.
+
+  *  The cache of changes is not synchronized by the push,
+     pull, or sync commands.  It is local to the repository
+     on which it is entered.
+
+  *  A button on the web interface (invoked by users with
+     appropriate privileges) takes all locally cached changes
+     and adds them to the tree in a new baseline.
+
+  *  Locally cached changes are against a specific baseline.
+     That specific baseline is used as backup if a page or
+     ticket request is not found in the local cache.  If the
+     backing baseline is changed, the local cache automatically
+     merges in the differences in wiki or tickets between
+     the old and new baselines.
+
+This approach still leaves the many-files problem.  In SQLite,
+there are about 500 source files and about 3000 different ticket
+and wiki page titles.  But if the wiki isn't that big and if 
+tickets are removed from baselines after they have been closed
+for 30 days or longer and if tickets are dealt with aggressively,
+there perhaps the many-files problem won't be such a big deal.
+

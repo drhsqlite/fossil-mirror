@@ -213,7 +213,6 @@ static void showLeaves(void){
     " WHERE plink.cid=leaves.rid"
     "   AND blob.rid=leaves.rid"
     "   AND event.objid=leaves.rid"
-    "   AND +generation>0"
     " ORDER BY event.mtime DESC"
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -538,8 +537,10 @@ void diff_page(void){
 
 /*
 ** WEBPAGE: fview
-**
-** Show the complete content of a file identified by g.zExtra
+** URL: /fview/UUID
+** 
+** Show the complete content of a file identified by UUID
+** as preformatted text.
 */
 void fview_page(void){
   int rid;

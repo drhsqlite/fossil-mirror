@@ -1,11 +1,5 @@
-<html>
-<head>
 <title>Fossil SCM Homepage</title>
-</head>
-<body bgcolor="white">
-<h1>Fossil - A Software Configuration Management System</h1>
 
-<p>
 This is a preliminary homepage for a new software configuration
 management system called "Fossil".
 The system is 
@@ -13,9 +7,8 @@ The system is
 <a href="http://www.hwaci.com/cgi-bin/fossil/timeline">two separate servers</a>.
 You can download the lastest sources
 compile it yourself using the instructions below.
-</p>
 
-<p>Design Goals For Fossil:</p>
+<h2>Design Goals For Fossil:</h1>
 
 <ul>
 <li>Supports disconnected, distributed development (like
@@ -55,7 +48,7 @@ on repository changes makes it exceedingly
 unlikely that data will ever be lost because of a software bug.</li>
 </ul>
 
-<p>Objectives Of Fossil:</p>
+<h2>Objectives Of Fossil:</h2>
 
 <ul>
 <li>Fossil should be ridiculously easy to 
@@ -83,7 +76,7 @@ Fossil attempts to better capture "collective intelligence" and
 <li>The <a href="concepts.html">concepts</b> behind fossil</li>
 <li><a href="build.html">Building And Installing</a></li>
 <li><a href="quickstart.html">Quick Start</a> guide to using fossil
-<li><a href="pop.html">Principles Of Operation</a></li>
+<li><a href="pop.html">Principals Of Operation</a></li>
 <li>The <a href="selfcheck.html">automatic self-check</a> mechanism
 helps insure project integrity.</li>
 <li>The <a href="fileformat.html">file format</a> used by every content
@@ -92,8 +85,4 @@ file stored in the repository.</li>
 efficiently store changes between file revisions.</li>
 <li>The <a href="delta_encoder_algorithm.html">encoder algorithm</a> used to
 efficiently generate deltas.</li>
-<li>The <a href="sync.html">synchronization protocol</a>.
 </ul>
-
-</body>
-</html>
