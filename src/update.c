@@ -69,13 +69,24 @@ void update_cmd(void){
   }else{
     compute_leaves(vid);
     if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
-      fossil_fatal("multiple descendents");
+      db_prepare(&q, 
+        "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'),"
+        "       comment || ' (by ' || user || ')', 1, 1"
+        "  FROM event, blob"
+        " WHERE event.type='ci' AND blob.rid=event.objid"
+        "   AND event.objid IN leaves"
+        " ORDER BY event.mtime DESC"
+      );
+      print_timeline(&q, 100);
+      db_finalize(&q);
+      fossil_fatal("Multiple descendents");
     }
     tid = db_int(0, "SELECT rid FROM leaves"); 
   }
 
   db_begin_transaction();
   vfile_check_signature(vid);
+  undo_begin();
   load_vfile_from_rid(tid);
 
   /*
@@ -145,10 +156,12 @@ void update_cmd(void){
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       printf("ADD %s\n", zName);
+      undo_save(zName);
       vfile_to_disk(0, idt, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
       /* The file is unedited.  Change it to the target version */
       printf("UPDATE %s\n", zName);
+      undo_save(zName);
       vfile_to_disk(0, idt, 0);
     }else if( idt==0 && idv>0 ){
       if( chnged ){
@@ -156,6 +169,7 @@ void update_cmd(void){
       }else{
         char *zFullPath;
         printf("REMOVE %s\n", zName);
+        undo_save(zName);
         zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
         unlink(zFullPath);
         free(zFullPath);
@@ -165,6 +179,7 @@ void update_cmd(void){
       Blob e, r, t, v;
       char *zFullPath;
       printf("MERGE %s\n", zName);
+      undo_save(zName);
       zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
       content_get(ridt, &t);
       content_get(ridv, &v);

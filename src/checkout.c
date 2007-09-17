@@ -158,6 +158,7 @@ void checkout_cmd(void){
     vfile_to_disk(vid, 0, 1);
     manifest_to_disk(vid);
     db_lset_int("checkout", vid);
+    undo_reset();
   }
   db_multi_exec("DELETE FROM vmerge");
   vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);

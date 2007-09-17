@@ -79,6 +79,7 @@ void merge_cmd(void){
   }
   vfile_check_signature(vid);
   db_begin_transaction();
+  undo_begin();
   load_vfile_from_rid(mid);
   load_vfile_from_rid(pid);
 
@@ -173,6 +174,7 @@ void merge_cmd(void){
     int idm = db_column_int(&q, 0);
     int rowid = db_column_int(&q, 1);
     int idv;
+    const char *zName;
     db_multi_exec(
       "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,pathname)"
       "  SELECT %d,3,0,rid,mrid,pathname FROM vfile WHERE id=%d",
@@ -180,7 +182,9 @@ void merge_cmd(void){
     );
     idv = db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
-    printf("ADDED %s\n", db_column_text(&q, 2));
+    zName = db_column_text(&q, 2);
+    printf("ADDED %s\n", zName);
+    undo_save(zName);
     vfile_to_disk(0, idm, 0);
   }
   db_finalize(&q);
@@ -200,6 +204,7 @@ void merge_cmd(void){
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
     /* Copy content from idm over into idv.  Overwrite idv. */
     printf("UPDATE %s\n", zName);
+    undo_save(zName);
     db_multi_exec(
       "UPDATE vfile SET mrid=%d, chnged=2 WHERE id=%d", ridm, idv
     );
@@ -225,6 +230,7 @@ void merge_cmd(void){
     Blob m, p, v, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     printf("MERGE %s\n", zName);
+    undo_save(zName);
     zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
     free(zName);
     content_get(ridp, &p);
@@ -254,6 +260,7 @@ void merge_cmd(void){
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
     /* Delete the file idv */
     printf("DELETE %s\n", zName);
+    undo_save(zName);
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );

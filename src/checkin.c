@@ -503,6 +503,9 @@ void commit_cmd(void){
     fossil_panic("tree checksums before and after commit do not match");
   }
 
+  /* Clear the undo/redo stack */
+  undo_reset();
+
   /* Commit */
   db_end_transaction(0);  
 }

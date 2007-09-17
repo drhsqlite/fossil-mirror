@@ -169,7 +169,7 @@ void http_exchange(Blob *pSend, Blob *pRecv){
 
   blob_zero(&nonce);
   blob_zero(&pw);
-  db_blob(&nonce, "SELECT hex(randomblob(20))");
+  sha1sum_blob(pSend, &nonce);
   blob_copy(&pw, &nonce);
   blob_zero(&login);
   if( g.urlUser==0 ){

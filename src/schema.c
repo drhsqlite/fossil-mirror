@@ -272,6 +272,7 @@ const char zLocalSchema[] =
 @   merge INTEGER,                    -- Merged with this record
 @   UNIQUE(id, merge)
 @ );
+@   
 ;
 
 const char zServerTempSchema[] =
