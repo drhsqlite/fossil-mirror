@@ -64,9 +64,11 @@ proc ::vc::fossil::ws::configure {key value} {
 }
 
 proc ::vc::fossil::ws::begin {origin} {
-    variable rp [file normalize [fileutil::tempfile import2_fsl_rp_]]
+    variable base [file normalize $origin]
+    variable rp   [file normalize [fileutil::tempfile import2_fsl_rp_]]
 
     cd $origin
+
     dova new  $rp ; # create and ...
     dova open $rp ; # ... connect
 
@@ -83,6 +85,9 @@ proc ::vc::fossil::ws::done {destination} {
 
 proc ::vc::fossil::ws::commit {cset user timestamp message} {
     variable lastuuid
+    variable base
+
+    cd $base
 
     # Commit the current state of the workspace. Scan for new and
     # removed files and issue the appropriate fossil add/rm commands
@@ -202,6 +207,7 @@ namespace eval ::vc::fossil::ws {
     variable appname {} ; # Name of importer application using the package.
     variable ignore  {} ; # No files to ignore.
 
+    variable base     {} ; # Workspace directory
     variable rp       {} ; # Repository the package works on.
     variable lastuuid {} ; # Uuid of last imported changeset.
 

@@ -20,7 +20,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace eval map    { namespace import ::vc::fossil::import::map::* }
 
     fossil::configure -appname cvs2fossil
-    fossil::configure -ignore  ::vc::cvs::ws::wsignore
+    fossil::configure -ignore  ::vc::cvs::ws::isadmin
 }
 
 # -----------------------------------------------------------------------------
@@ -30,9 +30,10 @@ namespace eval ::vc::fossil::import::cvs {
 #
 #	vc::fossil::import::cvs::configure key value - Set configuration
 #
-#	Legal keys:	-nosign		<bool>, default false
-#			-breakat	<int>,  default :none:
-#			-saveto		<path>, default :none:
+#       Legal keys:     -nosign  <bool>, default false
+#                       -breakat <int>,  default :none:
+#                       -saveto  <path>, default :none:
+#                       -limit   <path>, default :none:
 #
 # Functionality
 #
@@ -47,6 +48,7 @@ proc ::vc::fossil::import::cvs::configure {key value} {
     switch -exact -- $key {
 	-breakat { fossil::configure -breakat $value }
 	-nosign  { fossil::configure -nosign  $value }
+	-project { cvs::configure    -project $value }
 	-saveto  { fossil::configure -saveto  $value }
 	default {
 	    return -code error "Unknown switch $key, expected one of \
@@ -60,26 +62,22 @@ proc ::vc::fossil::import::cvs::configure {key value} {
 # fossil repository at 'dst'.
 
 proc ::vc::fossil::import::cvs::run {src dst} {
-    cvs::at $src  ; # Define location of CVS repository
-    cvs::scan     ; # Gather revision data from the archives
-    cvs::csets    ; # Group changes into sets
-    cvs::rtree    ; # Build revision tree (trunk only right now).
-
-    write 0 import {Begin conversion}
-    write 0 import {Setting up workspaces}
-
     #B map::set {} {}
-    cvs::workspace      ; # cd's to workspace
-    fossil::begin [pwd] ; # Uses cwd as workspace to connect to.
-    stats::setup [cvs::ntrunk] [cvs::ncsets]
 
-    cvs::foreach_cset cset [cvs::root] {
+    set src [file normalize $src]
+    set dst [file normalize $dst]
+
+    set ws [cvs::begin $src]
+    fossil::begin $ws
+    stats::setup [cvs::ncsets -import] [cvs::ncsets]
+
+    cvs::foreach cset {
 	Import1 $cset
     }
 
     stats::done
-    cvs::wsclear
     fossil::done $dst
+    cvs::done
 
     write 0 import Ok.
     return
@@ -100,7 +98,7 @@ proc ::vc::fossil::import::cvs::Import1 {cset} {
 
 proc ::vc::fossil::import::cvs::ImportCS {cset} {
     #B fossil::setup [map::get [cvs::parentOf $cset]]
-    lassign [cvs::wssetup   $cset] user  timestamp  message
+    lassign [cvs::checkout  $cset] user  timestamp  message
     lassign [fossil::commit $cset $user $timestamp $message] uuid ad rm ch
     write 2 import "== +${ad}-${rm}*${ch}"
     map::set $cset $uuid

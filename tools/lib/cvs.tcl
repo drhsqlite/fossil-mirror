@@ -21,23 +21,131 @@ namespace eval ::vc::cvs::ws {
 # -----------------------------------------------------------------------------
 # API
 
-# Define repository directory.
+# vc::cvs::ws::configure key value    - Configure the subsystem.
+# vc::cvs::ws::check     src mv       - Check if src is a CVS repository directory.
+# vc::cvs::ws::begin     src          - Start new workspace and return the top-
+#                                       most directory co'd files are put into.
+# vc::cvs::ws::ncsets    ?-import?    - Retrieve number of csets (all/to import)
+# vc::cvs::ws::foreach   csvar script - Run the script for each changeset, the
+#                                       id of the current changeset stored in
+#                                       the variable named by csvar.
+# vc::cvs::ws::done                   - Close workspace and delete it.
+# vc::cvs::ws::isadmin path           - Check if path is an admin file of CVS
+# vc::cvs::ws::checkout id            - Have workspace contain the changeset id.
+#
+# Configuration keys:
+#
+# -project path - Sub directory under 'src' to limit the import to.
 
-proc ::vc::cvs::ws::at {path} {
-    variable base [file normalize $path]
-    write 0 cvs "Base: $base"
+# -----------------------------------------------------------------------------
+# API Implementation
+
+proc ::vc::cvs::ws::configure {key value} {
+    variable project
+
+    switch -exact -- $key {
+	-project { set project $value }
+	default {
+	    return -code error "Unknown switch $key, expected \
+                                   -project"
+	}
+    }
     return
 }
 
-namespace eval ::vc::cvs::ws {
-    # Toplevel repository directory
-    variable base {}
+proc ::vc::cvs::ws::check {src mv} {
+    variable project
+    upvar 1 $mv msg
+    if {
+	![fileutil::test $src         erd msg "CVS Repository"] ||
+	![fileutil::test $src/CVSROOT erd msg "CVS Admin directory"] ||
+	(($project ne "") &&
+	 ![fileutil::test $src/$project erd msg "Project directory"])
+    } {
+	return 0
+    }
+    return 1
 }
+
+proc ::vc::cvs::ws::begin {src} {
+    variable project
+    variable base
+
+    set src [file normalize $src]
+    if {![check $src msg]} {
+	return -code error $msg
+    }
+    set base $src
+    write 0 cvs "Base:    $base"
+    if {$project eq ""} {
+	write 0 cvs "Project: <ALL>"
+    } else {
+	write 0 cvs "Project: $project"
+    }
+
+    # OLD api calls ... TODO rework for more structure ...
+    scan     ; # Gather revision data from the archives
+    csets    ; # Group changes into sets
+    rtree    ; # Build revision tree (trunk only right now).
+
+    set w [workspace]   ; # OLD api ... TODO inline
+    if {$project ne ""} {
+	set w $w/$project
+	file mkdir $w
+    }
+    return $w
+}
+
+proc ::vc::cvs::ws::done {} {
+    variable cwd
+    variable workspace
+    cd $cwd
+    file delete -force $workspace
+    return
+}
+
+proc ::vc::cvs::ws::foreach {cv script} {
+    # OLD api ... TODO inline
+    uplevel 1 [list ::vc::cvs::ws::foreach_cset $cv 0 $script]
+}
+
+proc ::vc::cvs::ws::ncsets {args} {
+    variable ncs
+    variable ntrunk
+
+    if {[llength $args] > 1} {
+	return -code error "wrong#args: Expected ?-import?"
+    } elseif {[llength $args] == 1} {
+	if {[set k [lindex $args 0]] ne "-import"} {
+	    return -code "Unknown switch $k, expected -import"
+	} else {
+	    return $ntrunk
+	}
+    }
+
+    return  $ncs
+}
+
+proc ::vc::cvs::ws::isadmin {path} {
+    # Check if path is a CVS admin file.
+    if {[string match CVS/*   $path]} {return 1}
+    if {[string match */CVS/* $path]} {return 1}
+    return 0
+}
+
+proc ::vc::cvs::ws::checkout {id} {
+    variable workspace ; cd $workspace
+    wssetup $id ; # OLD api ... TODO inline
+}
+
+# -----------------------------------------------------------------------------
+# Internals - Old API for now.
 
 # Scan repository, collect archives, parse them, and collect revision
 # information (file, revision -> date, author, commit message)
 
 proc ::vc::cvs::ws::scan {} {
+    variable project
     variable base
     variable npaths
     variable rpaths
@@ -46,13 +154,15 @@ proc ::vc::cvs::ws::scan {} {
     write 0 cvs {Scanning directory hierarchy}
 
     set n 0
-    foreach rcs [fileutil::findByPattern $base -glob *,v] {
-	set rcs [fileutil::stripPath $base $rcs]
-	# Now rcs is relative to base
+    set d $base ; if {$project ne ""} {append d /$project}
+
+    ::foreach rcs [fileutil::findByPattern $d -glob *,v] {
+	set rcs [fileutil::stripPath $d $rcs]
+	# Now rcs is relative to base/project
 
 	write 1 cvs "Archive $rcs"
 
-	if {[string match CVSROOT* $rcs]} {
+	if {[string match CVSROOT/* $rcs]} {
 	    write 2 cvs {Ignored. Administrative file}
 	    continue
 	}
@@ -61,8 +171,15 @@ proc ::vc::cvs::ws::scan {} {
 	# the ",v" suffix, and remove a possible "Attic".
 	set f [string range $rcs 0 end-2]
 	if {"Attic" eq [lindex [file split $rcs] end-1]} {
-	    set f [file join [file dirname [file dirname $f]] [file tail $f]]
-	    if {[file exists $base/$f,v]} {
+
+	    # The construction below ensures that Attic/X maps to X
+	    # instead of ./X. Otherwise, Y/Attic/X maps to Y/X.
+
+	    set fx [file dirname [file dirname $f]]
+	    set f  [file tail $f]
+	    if {$fx ne "."} { set f [file join $fx $f] }
+
+	    if {[file exists $d/$f,v]} {
 		# We have a regular archive and an Attic archive
 		# refering to the same user visible file. Ignore the
 		# file in the Attic.
@@ -86,14 +203,14 @@ proc ::vc::cvs::ws::scan {} {
 	}
 
 	# Get the meta data we need (revisions, timeline, messages).
-	set meta [process $base/$rcs]
+	set meta [process $d/$rcs]
 
 	set npaths($rcs) $f
 	set rpaths($f) $rcs
 
 	array set p $meta
 
-	foreach {rev ts} $p(date) {_ a} $p(author) {_ cm} $p(commit) {_ st} $p(state) {
+	::foreach {rev ts} $p(date) {_ a} $p(author) {_ cm} $p(commit) {_ st} $p(state) {
 	    set op [expr {($rev eq "1.1") ? "A" : "M"}]
 	    if {$st eq "dead"} {set op "R"}
 
@@ -148,7 +265,7 @@ proc ::vc::cvs::ws::csets {} {
 
     set n 0
     CSClear
-    foreach ts [lsort -dict [array names timeline]] {
+    ::foreach ts [lsort -dict [array names timeline]] {
 
 	# op tstamp author revision file commit
 	# 0  1      2      3        4    5/end
@@ -157,7 +274,7 @@ proc ::vc::cvs::ws::csets {} {
 	set entries [lsort -index 2 [lsort -index 0 [lsort -index end $timeline($ts)]]]
 	#puts [join $entries \n]
 
-	foreach entry  $entries {
+	::foreach entry  $entries {
 	    if {![CSNone] && [CSNew $entry]} {
 		CSSave
 		CSClear
@@ -205,8 +322,8 @@ proc ::vc::cvs::ws::rtree {} {
     # Extracting the trunk is easy, simply by looking at the involved
     # version numbers. 
 
-    foreach c [lrange [lsort -integer [array names csets]] 1 end] {
-	foreach {u cm s e rd f} $csets($c) break
+    ::foreach c [lrange [lsort -integer [array names csets]] 1 end] {
+	::foreach {u cm s e rd f} $csets($c) break
 
 	# Ignore branch changes, just count them for the statistics.
 	if {$rd != 2} {
@@ -245,36 +362,23 @@ proc ::vc::cvs::ws::workspace {} {
     return $workspace
 }
 
-proc ::vc::cvs::ws::wsignore {path} {
-    # Ignore CVS admin files.
-    if {[string match */CVS/* $path]} {return 1}
-    return 0
-}
-
-proc ::vc::cvs::ws::wsclear {} {
-    variable cwd
-    variable workspace
-    cd $cwd
-    file delete -force $workspace
-    return
-}
-
 proc ::vc::cvs::ws::wssetup {c} {
     variable csets
     variable base
+    variable project
 
     # pwd = workspace
 
-    foreach {u cm s e rd fs} $csets($c) break
+    ::foreach {u cm s e rd fs} $csets($c) break
 
     write 1 cvs "@  $s"
 
-    foreach l [split [string trim $cm] \n] {
+    ::foreach l [split [string trim $cm] \n] {
 	write 1 cvs "|  $l"
     }
 
-    foreach {f or} $fs {
-	foreach {op r} $or break
+    ::foreach {f or} $fs {
+	::foreach {op r} $or break
 	write 2 cvs "$op  $f $r"
 
 	if {$op eq "R"} {
@@ -301,6 +405,7 @@ proc ::vc::cvs::ws::wssetup {c} {
 	    # Added or modified, put the requested version of the file
 	    # into the workspace.
 
+	    if {$project ne ""} {set f $project/$f}
 	    if {[catch {
 		dova -d $base co -r $r $f
 	    } msg]} {
@@ -308,7 +413,7 @@ proc ::vc::cvs::ws::wssetup {c} {
 		    # The archive of the file is corrupted and the
 		    # chosen version not accessible due to that. We
 		    # report the problem, but otherwise ignore it. As
-		    # a consequence the fossil repository will not
+		    # a consequence the destination repository will not
 		    # contain the full history of the named file. By
 		    # ignoring the problem we however get as much as
 		    # is possible.
@@ -364,20 +469,6 @@ proc ::vc::cvs::ws::foreach_cset {cv node script} {
     return
 }
 
-proc ::vc::cvs::ws::root {} {
-    return 0
-}
-
-proc ::vc::cvs::ws::ntrunk {} {
-    variable ntrunk
-    return  $ntrunk
-}
-
-proc ::vc::cvs::ws::ncsets {} {
-    variable ncs
-    return  $ncs
-}
-
 # -----------------------------------------------------------------------------
 # Internal helper commands: Changeset inspection and construction.
 
@@ -404,7 +495,7 @@ proc ::vc::cvs::ws::CSNew {entry} {
 
     #puts -nonewline stdout . ; flush stdout
 
-    foreach {op ts a rev f ecm} $entry break
+    ::foreach {op ts a rev f ecm} $entry break
 
     # User change
     if {$a ne $user} {set reason user ; return 1}
@@ -432,8 +523,8 @@ proc ::vc::cvs::ws::CSSave {} {
     set csets($ncs) [list $user $cm $start $end $lastd [array get files]]
 
     # Record which revisions of a file are in what csets
-    foreach {f or} [array get files] {
-	foreach {_ rev} $or break
+    ::foreach {f or} [array get files] {
+	::foreach {_ rev} $or break
 	set cmap([list $f $rev]) $ncs
     }
 
@@ -446,7 +537,7 @@ proc ::vc::cvs::ws::CSSave {} {
 proc ::vc::cvs::ws::CSAdd {entry} {
     upvar 1 start start end end cm cm user user files files lastd lastd
 
-    foreach {op ts a rev f ecm} $entry break
+    ::foreach {op ts a rev f ecm} $entry break
 
     if {$start eq ""} {set start $ts}
     set end       $ts
@@ -459,20 +550,24 @@ proc ::vc::cvs::ws::CSAdd {entry} {
 
 proc ::vc::cvs::ws::CSDump {c} {
     variable csets
-    foreach {u cm s e rd f} $csets($c) break
+    ::foreach {u cm s e rd f} $csets($c) break
 
     puts "$u $s"; regsub -all {.} $u { } b
     puts "$b $e"
-    foreach {f or} $f {
-	foreach {o r} $or break
+    ::foreach {f or} $f {
+	::foreach {o r} $or break
 	puts "$b $o $f $r"
     }
     return
 }
 
+# -----------------------------------------------------------------------------
+
 namespace eval ::vc::cvs::ws {
-    namespace export at scan csets rtree workspace wsignore wsclear wssetup \
-	foreach_cset root ntrunk ncsets
+    variable base    {} ; # Toplevel repository directory
+    variable project {} ; # Sub directory to limit the import to.
+
+    namespace export configure begin done foreach ncsets checkout
 }
 
 # -----------------------------------------------------------------------------

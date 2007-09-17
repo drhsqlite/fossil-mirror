@@ -44,6 +44,7 @@ lappend auto_path [file join [file dirname [info script]] lib]
 package require Tcl 8.4
 package require vc::tools::log          ; # User Feedback
 package require vc::fossil::import::cvs ; # Importer Control
+package require vc::cvs::ws             ; # CVS frontend
 
 namespace eval ::import {
     namespace import ::vc::fossil::import::cvs::*
@@ -71,6 +72,7 @@ proc commandline {__ cv fv} {
 	    --breakat     { next ; import::configure -breakat [this] }
 	    --nosign      {        import::configure -nosign       1 }
 	    --saveto      { next ; import::configure -saveto  [file normalize [this]] }
+	    --project     { next ; import::configure -project [this] }
 	    -v            { incr verbosity ; ::vc::tools::log::verbosity $verbosity }
 	    -h            -
 	    default       usage
@@ -82,12 +84,8 @@ proc commandline {__ cv fv} {
     if {[llength $argv] != 2} usage
     foreach {cvs fossil} $argv break
 
-    if {
-	![file exists      $cvs] ||
-	![file readable    $cvs] ||
-	![file isdirectory $cvs]
-    } {
-	usage "CVS directory missing, not readable, or not a directory."
+    if {![::vc::cvs::ws::check $cvs msg]} {
+	usage $msg
     } elseif {[file exists $fossil]} {
 	usage "Fossil destination repository exists already."
     }
@@ -126,6 +124,7 @@ proc usage {{text {}}} {
     if {$text eq ""} {
 	puts stderr "       --nosign:  Do not sign the imported changesets."
 	puts stderr "       --breakat: Stop just before committing the identified changeset."
+	puts stderr "       --project: Path in the CVS repository to limit the import to."
 	puts stderr "       --saveto:  Save commit command to the specified file."
 	puts stderr "       -v:        Increase log verbosity. Can be used multiple times."
     } else {
