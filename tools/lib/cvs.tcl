@@ -5,10 +5,11 @@
 # Requirements
 
 package require Tcl 8.4
-package require fileutil        ; # Tcllib (traverse directory hierarchy)
-package require vc::rcs::parser ; # Handling the RCS archive files.
-package require vc::tools::log  ; # User feedback
-package require vc::cvs::cmd    ; # Access to cvs application.
+package require fileutil           ; # Tcllib (traverse directory hierarchy)
+package require vc::rcs::parser    ; # Handling the RCS archive files.
+package require vc::tools::log     ; # User feedback
+package require vc::cvs::cmd       ; # Access to cvs application.
+package require vc::cvs::ws::files ; # Scan CVS repository for relevant files.
 package require struct::tree
 
 namespace eval ::vc::cvs::ws {
@@ -147,66 +148,20 @@ proc ::vc::cvs::ws::checkout {id} {
 proc ::vc::cvs::ws::scan {} {
     variable project
     variable base
-    variable npaths
-    variable rpaths
     variable timeline
-
-    write 0 cvs {Scanning directory hierarchy}
 
     set n 0
     set d $base ; if {$project ne ""} {append d /$project}
 
-    ::foreach rcs [fileutil::findByPattern $d -glob *,v] {
-	set rcs [fileutil::stripPath $d $rcs]
-	# Now rcs is relative to base/project
+    set files [::vc::cvs::ws::files::find $d]
 
+    write 0 cvs "Scanning archives ..."
+
+    ::foreach {rcs f} $files {
 	write 1 cvs "Archive $rcs"
-
-	if {[string match CVSROOT/* $rcs]} {
-	    write 2 cvs {Ignored. Administrative file}
-	    continue
-	}
-
-	# Derive the regular path from the rcs path. Meaning: Chop of
-	# the ",v" suffix, and remove a possible "Attic".
-	set f [string range $rcs 0 end-2]
-	if {"Attic" eq [lindex [file split $rcs] end-1]} {
-
-	    # The construction below ensures that Attic/X maps to X
-	    # instead of ./X. Otherwise, Y/Attic/X maps to Y/X.
-
-	    set fx [file dirname [file dirname $f]]
-	    set f  [file tail $f]
-	    if {$fx ne "."} { set f [file join $fx $f] }
-
-	    if {[file exists $d/$f,v]} {
-		# We have a regular archive and an Attic archive
-		# refering to the same user visible file. Ignore the
-		# file in the Attic.
-
-		write 2 cvs "Ignored. Attic superceded by regular archive"
-
-		# TODO/CHECK. My method of co'ing exact file revisions
-		# per the info in the collected csets has the flaw
-		# that I may have to know exactly when what archive
-		# file to use, see above. It might be better to use
-		# the info only to gather when csets begin and end,
-		# and then to co complete slices per exact timestamp
-		# (-D) instead of file revisions (-r). The flaw in
-		# that is that csets can occur in the same second
-		# (trf, memchan - check for examples). For that exact
-		# checkout may be needed to recreate exact sequence of
-		# changes. Grr. Six of one ...
-
-		continue
-	    }
-	}
 
 	# Get the meta data we need (revisions, timeline, messages).
 	set meta [process $d/$rcs]
-
-	set npaths($rcs) $f
-	set rpaths($f) $rcs
 
 	array set p $meta
 
@@ -238,12 +193,6 @@ proc ::vc::cvs::ws::scan {} {
 }
 
 namespace eval ::vc::cvs::ws {
-    # Path mappings. npaths: rcs file  -> user file
-    #                rpaths: user file -> rcs file, dead-status
-
-    variable npaths   ; array set npaths   {}
-    variable rpaths   ; array set rpaths   {}
-
     # Timeline: tstamp -> (op, tstamp, author, revision, file, commit message)
 
     variable timeline ; array set timeline {}
