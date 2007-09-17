@@ -11,6 +11,7 @@ package require vc::tools::log        ; # User feedback
 package require vc::cvs::cmd          ; # Access to cvs application.
 package require vc::cvs::ws::files    ; # Scan CVS repository for relevant files.
 package require vc::cvs::ws::timeline ; # Manage timeline of all changes.
+package require vc::cvs::ws::csets    ; # Manage the changesets found in the timeline
 package require struct::tree
 
 namespace eval ::vc::cvs::ws {
@@ -74,9 +75,9 @@ proc ::vc::cvs::ws::begin {src} {
 
     DefBase $src
     MakeTimeline [ScanArchives [files::find [RootPath]]]
+    MakeChangesets
 
     # OLD api calls ... TODO rework for more structure ...
-    csets    ; # Group changes into sets
     rtree    ; # Build revision tree (trunk only right now).
 
     return [MakeWorkspace]
@@ -94,7 +95,6 @@ proc ::vc::cvs::ws::foreach {cv script} {
 }
 
 proc ::vc::cvs::ws::ncsets {args} {
-    variable ncs
     variable ntrunk
 
     if {[llength $args] > 1} {
@@ -107,7 +107,7 @@ proc ::vc::cvs::ws::ncsets {args} {
 	}
     }
 
-    return  $ncs
+    return [csets::num]
 }
 
 proc ::vc::cvs::ws::isadmin {path} {
@@ -118,12 +118,26 @@ proc ::vc::cvs::ws::isadmin {path} {
 }
 
 proc ::vc::cvs::ws::checkout {id} {
-    variable workspace ; cd $workspace
-    wssetup $id ; # OLD api ... TODO inline
+    variable workspace
+    cd      $workspace
+
+    array set cs [csets::get $id]
+
+    write 1 cvs "@  $cs(date)"
+    ::foreach l [split [string trim $cs(cmsg)] \n] {
+	write 1 cvs "|  $l"
+    }
+
+    ::foreach {f r} $cs(removed) { write 2 cvs "R  $f $r" ; Remove   $f $r }
+    ::foreach {f r} $cs(added)   { write 2 cvs "A  $f $r" ; Checkout $f $r }
+    ::foreach {f r} $cs(changed) { write 2 cvs "M  $f $r" ; Checkout $f $r }
+
+    # Provide metadata about the changeset the backend may wish to have
+    return [list $cs(author) $cs(date) $cs(cmsg)]
 }
 
 # -----------------------------------------------------------------------------
-# Internals - Old API for now.
+# Internals
 
 proc ::vc::cvs::ws::DefBase {path} {
     variable project
@@ -150,9 +164,6 @@ proc ::vc::cvs::ws::RootPath {} {
 	return $base/$project
     }
 }
-
-# Scan repository, collect archives, parse them, and collect revision
-# information (file, revision -> date, author, commit message)
 
 proc ::vc::cvs::ws::ScanArchives {files} {
     write 0 cvs "Scanning archives ..."
@@ -198,7 +209,7 @@ proc ::vc::cvs::ws::MakeTimeline {meta} {
 	unset stat
     }
 
-    write 0 cvs "Generated [NSIPL $n entry entries]"
+    write 0 cvs "Timeline has [NSIPL $n entry entries]"
     return
 }
 
@@ -221,6 +232,19 @@ proc ::vc::cvs::ws::Operation {rev state} {
     return "M"                         ; # Modified
 }
 
+proc ::vc::cvs::ws::MakeChangesets {} {
+    write 0 cvs "Generating changesets from timeline"
+
+    csets::init
+    timeline::foreach date file revision operation author cmsg {
+	csets::add $date $file $revision $operation $author $cmsg
+    }
+    csets::done
+
+    write 0 cvs "Found [NSIPL [csets::num] changeset]"
+    return
+}
+
 proc ::vc::cvs::ws::MakeWorkspace {} {
     variable project
     variable workspace [fileutil::tempfile importF_cvs_ws_]
@@ -235,53 +259,11 @@ proc ::vc::cvs::ws::MakeWorkspace {} {
     return $w
 }
 
-
-# Group single changes into changesets
-
-proc ::vc::cvs::ws::csets {} {
-    variable timeline
-    variable csets
-    variable ncs
-    variable cmap
-
-    array unset csets * ; array set csets {}
-    array unset cmap  * ; array set cmap  {}
-    set ncs 0
-
-    write 0 cvs "Generating changesets from timeline"
-
-    CSClear
-    timeline::foreach date file revision operation author cmsg {
-	# API adaption
-	set entry [list $operation $date $author $revision $file $cmsg]
-
-	if {![CSNone] && [CSNew $entry]} {
-	    CSSave
-	    CSClear
-	}
-	CSAdd $entry
-    }
-
-    write 0 cvs "Found [NSIPL [array size csets] changeset]"
-    return
-}
-
-
-namespace eval ::vc::cvs::ws {
-    # Changeset data:
-    # ncs:   Counter-based id generation
-    # csets: id -> (user commit start end depth (file -> (op rev)))
-
-    variable ncs      ; set       ncs   0  ; # Counter for changesets
-    variable csets    ; array set csets {} ; # Changeset data
-}
-
 # Building the revision tree from the changesets.
 # Limitation: Currently only trunk csets is handled.
 # Limitation: Dead files are not removed, i.e. no 'R' actions right now.
 
 proc ::vc::cvs::ws::rtree {} {
-    variable csets
     variable rtree {}
     variable ntrunk 0
 
@@ -296,11 +278,10 @@ proc ::vc::cvs::ws::rtree {} {
     # Extracting the trunk is easy, simply by looking at the involved
     # version numbers. 
 
-    ::foreach c [lrange [lsort -integer [array names csets]] 1 end] {
-	::foreach {u cm s e rd f} $csets($c) break
-
+    for {set c 1} {$c < [csets::num]} {incr c} {
+	array set cs [csets::get $c]
 	# Ignore branch changes, just count them for the statistics.
-	if {$rd != 2} {
+	if {$cs(lastd) != 2} {
 	    incr b
 	    continue
 	}
@@ -322,74 +303,6 @@ namespace eval ::vc::cvs::ws {
 
     variable rtree {}
     variable ntrunk 0
-}
-
-proc ::vc::cvs::ws::wssetup {c} {
-    variable csets
-    variable base
-    variable project
-
-    # pwd = workspace
-
-    ::foreach {u cm s e rd fs} $csets($c) break
-
-    write 1 cvs "@  $s"
-
-    ::foreach l [split [string trim $cm] \n] {
-	write 1 cvs "|  $l"
-    }
-
-    ::foreach {f or} $fs {
-	::foreach {op r} $or break
-	write 2 cvs "$op  $f $r"
-
-	if {$op eq "R"} {
-	    # Remove file from workspace. Prune empty directories.
-	    #
-	    # NOTE: A dead-first file (rev 1.1 dead) will never have
-	    # existed.
-	    #
-	    # NOTE: Logically empty directories still physically
-	    # contain the CVS admin directory, hence the check for ==
-	    # 1, not == 0. There might also be hidden files, we count
-	    # them as well. Always hidden are . and .. and they do not
-	    # count as user file.
-
-	    file delete $f
-	    set fd [file dirname $f]
-	    if {
-		([llength [glob -nocomplain -directory              $fd *]] == 1) &&
-		([llength [glob -nocomplain -directory -type hidden $fd *]] == 2)
-	    } {
-		file delete -force $fd
-	    }
-	} else {
-	    # Added or modified, put the requested version of the file
-	    # into the workspace.
-
-	    if {$project ne ""} {set f $project/$f}
-	    if {[catch {
-		dova -d $base co -r $r $f
-	    } msg]} {
-		if {[string match {*invalid change text*} $msg]} {
-		    # The archive of the file is corrupted and the
-		    # chosen version not accessible due to that. We
-		    # report the problem, but otherwise ignore it. As
-		    # a consequence the destination repository will not
-		    # contain the full history of the named file. By
-		    # ignoring the problem we however get as much as
-		    # is possible.
-
-		    write 0 cvs "EE Corrupted archive file. Inaccessible revision."
-		    continue
-		}
-		return -code error $msg
-	    }
-	}
-    }
-
-    # Provide metadata about the changeset the backend may wish to have
-    return [list $u $s $cm]
 }
 
 proc ::vc::cvs::ws::foreach_cset {cv node script} {
@@ -423,94 +336,54 @@ proc ::vc::cvs::ws::foreach_cset {cv node script} {
     return
 }
 
-# -----------------------------------------------------------------------------
-# Internal helper commands: Changeset inspection and construction.
+proc ::vc::cvs::ws::Checkout {f r} {
+    variable base
+    variable project
 
-proc ::vc::cvs::ws::CSClear {} {
-    upvar 1 start start end end cm cm user user files files lastd lastd
+    # Added or modified, put the requested version of the file into
+    # the workspace.
 
-    set start {}
-    set end   {}
-    set cm    {}
-    set user  {}
-    set lastd {}
-    array unset files *
-    array set files {}
-    return
-}
+    if {$project ne ""} {set f $project/$f}
+    if {[catch {
+	dova -d $base co -r $r $f
+    } msg]} {
+	if {[string match {*invalid change text*} $msg]} {
 
-proc ::vc::cvs::ws::CSNone {} {
-    upvar 1 start start
-    return [expr {$start eq ""}]
-}
+	    # The archive of the file is corrupted and the chosen
+	    # version not accessible due to that. We report the
+	    # problem, but otherwise ignore it. As a consequence the
+	    # destination repository will not contain the full history
+	    # of the named file. By ignoring the problem we however
+	    # get as much as is possible.
 
-proc ::vc::cvs::ws::CSNew {entry} {
-    upvar 1 start start end end cm cm user user files files lastd lastd reason reason
-
-    #puts -nonewline stdout . ; flush stdout
-
-    ::foreach {op ts a rev f ecm} $entry break
-
-    # User change
-    if {$a ne $user} {set reason user ; return 1}
-
-    # File already in current cset
-    if {[info exists files($f)]} {set reason file ; return 1}
-
-    # Current cset trunk/branch different from entry.
-    set depth [llength [split $rev .]]
-    if {($lastd == 2) != ($depth == 2)} {set reason depth/$lastd/$depth/($rev)/$f ; return 1}
-
-    # Commit message changed
-    if {$cm ne $ecm} {set reason cmsg\ <<$ecm>> ; return 1}
-
-    # Everything is good, still the same cset
-    return 0
-}
-
-proc ::vc::cvs::ws::CSSave {} {
-    variable cmap
-    variable csets
-    variable ncs
-    upvar 1 start start end end cm cm user user files files lastd lastd
-
-    set csets($ncs) [list $user $cm $start $end $lastd [array get files]]
-
-    # Record which revisions of a file are in what csets
-    ::foreach {f or} [array get files] {
-	::foreach {_ rev} $or break
-	set cmap([list $f $rev]) $ncs
+	    write 0 cvs "EE Corrupted archive file. Inaccessible revision."
+	    return
+	}
+	return -code error $msg
     }
-
-    #CSDump $ncs
-
-    incr ncs
     return
 }
 
-proc ::vc::cvs::ws::CSAdd {entry} {
-    upvar 1 start start end end cm cm user user files files lastd lastd
+proc ::vc::cvs::ws::Remove {f r} {
+    # Remove file from workspace. Prune empty directories.
+    # NOTE: A dead-first file (rev 1.1 dead) will never have existed.
 
-    ::foreach {op ts a rev f ecm} $entry break
-
-    if {$start eq ""} {set start $ts}
-    set end       $ts
-    set cm        $ecm
-    set user      $a
-    set files($f) [list $op $rev]
-    set lastd     [llength [split $rev .]]
+    file delete $f
+    Prune [file dirname $f]
     return
 }
 
-proc ::vc::cvs::ws::CSDump {c} {
-    variable csets
-    ::foreach {u cm s e rd f} $csets($c) break
+proc ::vc::cvs::ws::Prune {path} {
+    # NOTE: Logically empty directories still physically contain the
+    # CVS admin directory, hence the check for == 1, not == 0. There
+    # might also be hidden files, we count them as well. Always hidden
+    # are . and .. and they do not count as user file.
 
-    puts "$u $s"; regsub -all {.} $u { } b
-    puts "$b $e"
-    ::foreach {f or} $f {
-	::foreach {o r} $or break
-	puts "$b $o $f $r"
+    if {
+	([llength [glob -nocomplain -directory              $path *]] == 1) &&
+	([llength [glob -nocomplain -directory -type hidden $path *]] == 2)
+    } {
+	file delete -force $path
     }
     return
 }
