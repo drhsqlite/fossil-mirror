@@ -21,7 +21,7 @@ namespace eval ::vc::cvs::ws::timeline {}
 
 proc ::vc::cvs::ws::timeline::add {date file revision operation author cmsg} {
     variable timeline
-    lappend timeline($date) [list $file $revision $operation $author $cmsg]
+    lappend  timeline($date) [list $file $revision $operation $author $cmsg]
     return
 }
 

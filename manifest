@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Cleaned\sup\sthe\screation\sof\sthe\sworkspace\sdirectory.
-D 2007-09-17T03:13:07
+C Fixed\sbug\sin\sthe\snew\scode\ssetting\sup\sthe\stimeline,\sforgot\sto\sclean\sup\sloop\sstate,\ncausing\sdata\sfrom\sprevious\siterations\sto\sbleed\sinto\sthe\scurrent\sone,\scausing\sthe\nuse\sof\sbogus\sdata\sand\sultimatively\sa\sbogus\stimeline.\sNote!\sIncidentially\sa\sbug\nin\sthe\sold\scode\swas\sfixed\sby\sthe\snew\sone,\sthe\suse\sof\smismatching\srevisions\sand\ncommit\smessages.\sThat\scaused\sthe\sgeneration\sof\sextra\schangesets\sin\sthe\sold\scode.
+D 2007-09-17T04:14:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -93,10 +93,10 @@ F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
-F tools/lib/cvs.tcl ceb442330d6a924d24be47f3c1d231ed5db08a11
+F tools/lib/cvs.tcl c0a3a1641dbd2c966d376d993e3831e4185cdf7a
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
 F tools/lib/cvs_files.tcl 24c1271ded974ae38a3a44d55b84c1b9db27ffa5
-F tools/lib/cvs_timeline.tcl 24ba5c2cd79bc309a4b9401bac44c1aa8d81d30f
+F tools/lib/cvs_timeline.tcl 0ce8e923d5ed478fcf93b47b60ba9e3d3646caaf
 F tools/lib/fossil.tcl a6c49a2ab2603c03757e9ea90555264c3d54fad8
 F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
 F tools/lib/import_map.tcl 44f71078463b33427051428288410b62dda2df82
@@ -135,14 +135,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 1593006ef37f4dcc677860ad9185acd609bf6288
-R ee5954d56be5b27b2dd8355481491a69
+P 2740b48b6323093e9abcb57e3bcc90d8dd503bac
+R 8d6b347afde8711bda193d37ca533397
 U aku
-Z 93f6501d8636dfbba4b7edbba76ec0ff
+Z 000add6ecd3a367a43ac5075bf30abbb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG7fDDvonzZ/CRa7gRApRfAJ9DiRzGzABtGq5TtI+IrjvLSDRJGQCginw5
-dUeJ2Os6f4cAVukWX1P0A6E=
-=bb8G
+iD8DBQFG7f8evonzZ/CRa7gRAmpsAJ49im7OhcK13tZhfA4DVqWuXh8yuACgr6nq
+XQFqMnURwxwsTwmGUnRd4DM=
+=l+oN
 -----END PGP SIGNATURE-----

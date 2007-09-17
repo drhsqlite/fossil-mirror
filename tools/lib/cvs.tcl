@@ -190,6 +190,12 @@ proc ::vc::cvs::ws::MakeTimeline {meta} {
 	    incr n
 	}
 	#B Extend branch management
+
+	unset md
+	unset date
+	unset auth
+	unset cmsg
+	unset stat
     }
 
     write 0 cvs "Generated [NSIPL $n entry entries]"
