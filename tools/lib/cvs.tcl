@@ -70,9 +70,6 @@ proc ::vc::cvs::ws::check {src mv} {
 }
 
 proc ::vc::cvs::ws::begin {src} {
-    variable project
-
-    set src [file normalize $src]
     if {![check $src msg]} { return -code error $msg }
 
     DefBase $src
@@ -82,18 +79,11 @@ proc ::vc::cvs::ws::begin {src} {
     csets    ; # Group changes into sets
     rtree    ; # Build revision tree (trunk only right now).
 
-    set w [workspace]   ; # OLD api ... TODO inline
-    if {$project ne ""} {
-	set w $w/$project
-	file mkdir $w
-    }
-    return $w
+    return [MakeWorkspace]
 }
 
 proc ::vc::cvs::ws::done {} {
-    variable cwd
-    variable workspace
-    cd $cwd
+    variable            workspace
     file delete -force $workspace
     return
 }
@@ -225,6 +215,19 @@ proc ::vc::cvs::ws::Operation {rev state} {
     return "M"                         ; # Modified
 }
 
+proc ::vc::cvs::ws::MakeWorkspace {} {
+    variable project
+    variable workspace [fileutil::tempfile importF_cvs_ws_]
+
+    set w $workspace
+    if {$project ne ""} { append w /$project }
+
+    file delete $workspace
+    file mkdir  $w
+
+    write 0 cvs "Workspace:  $workspace"
+    return $w
+}
 
 
 # Group single changes into changesets
@@ -315,18 +318,6 @@ namespace eval ::vc::cvs::ws {
     variable ntrunk 0
 }
 
-proc ::vc::cvs::ws::workspace {} {
-    variable cwd [pwd]
-    variable workspace [fileutil::tempfile importF_cvs_ws_]
-    file delete $workspace
-    file mkdir  $workspace
-
-    write 0 cvs "Workspace:  $workspace"
-
-    cd     $workspace ; # Checkouts go here.
-    return $workspace
-}
-
 proc ::vc::cvs::ws::wssetup {c} {
     variable csets
     variable base
@@ -393,14 +384,6 @@ proc ::vc::cvs::ws::wssetup {c} {
 
     # Provide metadata about the changeset the backend may wish to have
     return [list $u $s $cm]
-}
-
-namespace eval ::vc::cvs::ws {
-    # Workspace where checkouts happen
-    # Current working directory to go back to after the import.
-
-    variable workspace {}
-    variable cwd       {}
 }
 
 proc ::vc::cvs::ws::foreach_cset {cv node script} {
@@ -538,8 +521,9 @@ proc ::vc::cvs::ws::SIPL {n singular {plural {}}} {
 # -----------------------------------------------------------------------------
 
 namespace eval ::vc::cvs::ws {
-    variable base    {} ; # Toplevel repository directory
-    variable project {} ; # Sub directory to limit the import to.
+    variable base      {} ; # Toplevel repository directory
+    variable project   {} ; # Sub directory to limit the import to.
+    variable workspace {} ; # Directory to checkout changesets to.
 
     namespace export configure begin done foreach ncsets checkout
 }
