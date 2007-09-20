@@ -175,7 +175,7 @@ proc ::vc::cvs::ws::csets::Current::Complete {} {
     set res [list \
 		date    $start \
 		author  $author \
-		cmsg    $cmsg \
+		cmsg    [string trim $cmsg] \
 		removed $removed \
 		added   $added \
 		changed $changed \
