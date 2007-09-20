@@ -8,6 +8,7 @@ package require Tcl 8.4
 package require fileutil              ; # Tcllib (traverse directory hierarchy)
 package require vc::rcs::parser       ; # Handling the RCS archive files.
 package require vc::tools::log        ; # User feedback
+package require vc::tools::trouble    ; # Error handling
 package require vc::cvs::cmd          ; # Access to cvs application.
 package require vc::cvs::ws::files    ; # Scan CVS repository for relevant files.
 package require vc::cvs::ws::timeline ; # Manage timeline of all changes.
@@ -19,6 +20,8 @@ namespace eval ::vc::cvs::ws {
     namespace import ::vc::tools::log::write
     namespace import ::vc::rcs::parser::process
     namespace import ::vc::cvs::cmd::dova
+
+    namespace eval trouble { namespace import ::vc::tools::trouble::* }
 }
 
 # -----------------------------------------------------------------------------
@@ -356,7 +359,7 @@ proc ::vc::cvs::ws::Checkout {f r} {
 	    # of the named file. By ignoring the problem we however
 	    # get as much as is possible.
 
-	    write 0 cvs "EE Corrupted archive file. Inaccessible revision."
+	    trouble::add "$f: Corrupted archive file. Inaccessible revision $r."
 	    return
 	}
 	return -code error $msg

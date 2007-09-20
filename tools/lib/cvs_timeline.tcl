@@ -32,12 +32,14 @@ proc ::vc::cvs::ws::timeline::foreach {dv fv rv ov av cv script} {
     ::foreach date [lsort -dict [array names timeline]] {
 	# file revision operation author commitmsg
 	# 0    1        2         3      4/end
-	#               b         c      a
+	# d    e        b         c      a
 
-	set entries [lsort -index 3 \
-			 [lsort -index 2 \
-			      [lsort -index end \
-				   $timeline($date)]]]
+	set entries [lsort -index 1 \
+			 [lsort -index 0 \
+			      [lsort -index 3 \
+				   [lsort -index 2 \
+					[lsort -index end \
+					     $timeline($date)]]]]]
 	#puts [join $entries \n]
 
 	::foreach entry $entries {

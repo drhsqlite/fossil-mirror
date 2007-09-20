@@ -11,3 +11,4 @@ package ifneeded vc::fossil::import::cvs   1.0 [list source [file join $dir impo
 package ifneeded vc::fossil::import::stats 1.0 [list source [file join $dir import_statistics.tcl]]
 package ifneeded vc::fossil::import::map   1.0 [list source [file join $dir import_map.tcl]]
 package ifneeded vc::tools::log            1.0 [list source [file join $dir log.tcl]]
+package ifneeded vc::tools::trouble        1.0 [list source [file join $dir trouble.tcl]]
