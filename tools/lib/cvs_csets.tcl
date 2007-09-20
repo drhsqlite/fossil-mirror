@@ -22,6 +22,7 @@ namespace eval ::vc::cvs::ws::csets::Current {}
 # API Implementation
 
 proc ::vc::cvs::ws::csets::init {} {
+    variable ncs 0
     Current::Clear
     return
 }
@@ -49,6 +50,24 @@ proc ::vc::cvs::ws::csets::get {id} {
 proc ::vc::cvs::ws::csets::num {} {
     variable csets
     return [array size csets]
+}
+
+proc ::vc::cvs::ws::csets::isTrunk {id} {
+    variable csets
+    array set cs $csets($id)
+    return [expr {$cs(lastd) == 2}]
+}
+
+proc ::vc::cvs::ws::csets::setParentOf {id parent} {
+    variable csets
+    lappend  csets($id) parent $parent
+    return
+}
+
+proc ::vc::cvs::ws::csets::parentOf {id} {
+    variable      csets
+    array set cs $csets($id)
+    return   $cs(parent)
 }
 
 # -----------------------------------------------------------------------------
@@ -198,7 +217,7 @@ namespace eval ::vc::cvs::ws::csets {
 	array set files {}   ; # file -> revision
     }
 
-    namespace export init add done get num
+    namespace export init add done get num isTrunk setParentOf parentOf
 }
 
 # -----------------------------------------------------------------------------

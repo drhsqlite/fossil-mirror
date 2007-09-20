@@ -21,6 +21,7 @@ namespace eval ::vc::fossil::ws {
 # vc::fossil::ws::configure key value         - Configure the subsystem.
 # vc::fossil::ws::begin     src               - Start new workspace for directory
 # vc::fossil::ws::done      dst               - Close workspace and copy to destination.
+# vc::fossil::ws::setup     uuid              - Move workspace to an older revision.
 # vc::fossil::ws::commit    cset usr time msg - Look for changes and commit as new revision.
 
 # Configuration keys:
@@ -80,6 +81,15 @@ proc ::vc::fossil::ws::done {destination} {
     variable rp
     file rename -force $rp $destination
     set rp {}
+    return
+}
+
+proc ::vc::fossil::ws::setup {uuid} {
+    variable lastuuid
+    if {$uuid eq $lastuuid} return
+    write 1 fossil "=> goto $uuid"
+    dova update $uuid
+    set lastuuid $uuid
     return
 }
 
@@ -211,7 +221,7 @@ namespace eval ::vc::fossil::ws {
     variable rp       {} ; # Repository the package works on.
     variable lastuuid {} ; # Uuid of last imported changeset.
 
-    namespace export configure begin done commit
+    namespace export configure begin done setup commit
 }
 
 # -----------------------------------------------------------------------------

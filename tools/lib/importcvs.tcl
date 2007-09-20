@@ -62,14 +62,14 @@ proc ::vc::fossil::import::cvs::configure {key value} {
 # fossil repository at 'dst'.
 
 proc ::vc::fossil::import::cvs::run {src dst} {
-    #B map::set {} {}
+    map::set {} {}
 
     set src [file normalize $src]
     set dst [file normalize $dst]
 
     set ws [cvs::begin $src]
     fossil::begin $ws
-    stats::setup [cvs::ncsets -import] [cvs::ncsets]
+    stats::setup [cvs::nimportable] [cvs::ncsets]
 
     cvs::foreach cset {
 	Import1 $cset
@@ -97,7 +97,7 @@ proc ::vc::fossil::import::cvs::Import1 {cset} {
 }
 
 proc ::vc::fossil::import::cvs::ImportCS {cset} {
-    #B fossil::setup [map::get [cvs::parentOf $cset]]
+    fossil::setup [map::get [cvs::parentOf $cset]]
     lassign [cvs::checkout  $cset] user  timestamp  message
     lassign [fossil::commit $cset $user $timestamp $message] uuid ad rm ch
     write 2 import "== +${ad}-${rm}*${ch}"

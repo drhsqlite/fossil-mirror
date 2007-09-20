@@ -13,7 +13,6 @@ package require vc::cvs::cmd          ; # Access to cvs application.
 package require vc::cvs::ws::files    ; # Scan CVS repository for relevant files.
 package require vc::cvs::ws::timeline ; # Manage timeline of all changes.
 package require vc::cvs::ws::csets    ; # Manage the changesets found in the timeline
-package require struct::tree
 
 namespace eval ::vc::cvs::ws {
     vc::tools::log::system cvs
@@ -31,13 +30,15 @@ namespace eval ::vc::cvs::ws {
 # vc::cvs::ws::check     src mv       - Check if src is a CVS repository directory.
 # vc::cvs::ws::begin     src          - Start new workspace and return the top-
 #                                       most directory co'd files are put into.
-# vc::cvs::ws::ncsets    ?-import?    - Retrieve number of csets (all/to import)
+# vc::cvs::ws::ncsets                 - Retrieve total number of csets
+# vc::cvs::ws::nimportable            - Retrieve number of importable csets
 # vc::cvs::ws::foreach   csvar script - Run the script for each changeset, the
 #                                       id of the current changeset stored in
 #                                       the variable named by csvar.
 # vc::cvs::ws::done                   - Close workspace and delete it.
 # vc::cvs::ws::isadmin path           - Check if path is an admin file of CVS
 # vc::cvs::ws::checkout id            - Have workspace contain the changeset id.
+# vc::cvs::ws::get      id            - Retrieve data of a changeset.
 #
 # Configuration keys:
 #
@@ -79,9 +80,7 @@ proc ::vc::cvs::ws::begin {src} {
     DefBase $src
     MakeTimeline [ScanArchives [files::find [RootPath]]]
     MakeChangesets
-
-    # OLD api calls ... TODO rework for more structure ...
-    rtree    ; # Build revision tree (trunk only right now).
+    ProcessBranches
 
     return [MakeWorkspace]
 }
@@ -93,24 +92,32 @@ proc ::vc::cvs::ws::done {} {
 }
 
 proc ::vc::cvs::ws::foreach {cv script} {
-    # OLD api ... TODO inline
-    uplevel 1 [list ::vc::cvs::ws::foreach_cset $cv 0 $script]
+    variable importable
+    upvar 1 $cv c
+
+    ::foreach c [lsort -integer -increasing $importable] {
+	set code [catch {uplevel 1 $script} res]
+
+	# 0 - ok, 1 - error, 2 - return, 3 - break, 4 - continue
+	switch -- $code {
+	    0 {}
+	    1 { return -errorcode $::errorCode -errorinfo $::errorInfo -code error $res }
+	    2 {}
+	    3 { return }
+	    4 {}
+	    default { return -code $code $result }
+	}
+    }
+    return
 }
 
 proc ::vc::cvs::ws::ncsets {args} {
-    variable ntrunk
-
-    if {[llength $args] > 1} {
-	return -code error "wrong#args: Expected ?-import?"
-    } elseif {[llength $args] == 1} {
-	if {[set k [lindex $args 0]] ne "-import"} {
-	    return -code "Unknown switch $k, expected -import"
-	} else {
-	    return $ntrunk
-	}
-    }
-
     return [csets::num]
+}
+
+proc ::vc::cvs::ws::nimportable {args} {
+    variable importable
+    return [llength $importable]
 }
 
 proc ::vc::cvs::ws::isadmin {path} {
@@ -120,10 +127,15 @@ proc ::vc::cvs::ws::isadmin {path} {
     return 0
 }
 
+proc ::vc::cvs::ws::parentOf {id} { csets::parentOf $id }
+
 proc ::vc::cvs::ws::checkout {id} {
     variable workspace
     cd      $workspace
 
+    # TODO: Hide the direct access to the data structures behind
+    # TODO: accessors for date, cmsg, removed, added, changed, and
+    # TODO: author
     array set cs [csets::get $id]
 
     write 1 cvs "@  $cs(date)"
@@ -266,77 +278,48 @@ proc ::vc::cvs::ws::MakeWorkspace {} {
 # Limitation: Currently only trunk csets is handled.
 # Limitation: Dead files are not removed, i.e. no 'R' actions right now.
 
-proc ::vc::cvs::ws::rtree {} {
-    variable rtree {}
-    variable ntrunk 0
+proc ::vc::cvs::ws::ProcessBranches {} {
+    variable importable
 
-    write 0 cvs "Extracting the trunk"
+    write 0 cvs "Organizing the changesets into branches"
 
-    set rtree [struct::tree ::vc::cvs::ws::RT]
-    $rtree rename root 0 ; # Root is first changeset, always.
-    set trunk 0
-    set ntrunk 1 ; # Root is on the trunk.
-    set b      0 ; # No branch csets found yet.
+    set remainder [ProcessTrunk]
+    # TODO: Processing non-trunk branches
 
-    # Extracting the trunk is easy, simply by looking at the involved
-    # version numbers. 
 
-    for {set c 1} {$c < [csets::num]} {incr c} {
-	array set cs [csets::get $c]
-	# Ignore branch changes, just count them for the statistics.
-	if {$cs(lastd) != 2} {
-	    incr b
-	    continue
-	}
+    # Status information ...
+    set nr  [llength $remainder]
+    set ni  [llength $importable]
+    set fmt %[string length [csets::num]]s
 
-	# Trunk revision, connect to, and update the head.
-	$rtree insert $trunk end $c
-	set trunk $c
-	incr ntrunk
-    }
-
-    write 0 cvs "Processed $ntrunk trunk  [expr {($ntrunk == 1) ? "changeset" : "changesets"}]"
-    write 0 cvs "Ignored   $b branch [expr {($b == 1) ? "changeset" : "changesets"}]"
+    write 0 cvs "Unprocessed: [format $fmt $nr] [SIPL $nr changeset] (Will be ignored)"
+    write 0 cvs "To import:   [format $fmt $ni] [SIPL $ni changeset]"
     return
 }
 
-namespace eval ::vc::cvs::ws {
-    # Tree holding trunk and branch information (struct::tree).
-    # Node names are cset id's.
+proc ::vc::cvs::ws::ProcessTrunk {} {
+    variable importable
 
-    variable rtree {}
-    variable ntrunk 0
-}
+    write 0 cvs "Processing the trunk changesets"
 
-proc ::vc::cvs::ws::foreach_cset {cv node script} {
-    upvar 1 $cv c
-    variable rtree
+    set remainder {}
+    set t         0
+    set n         [csets::num]
+    set parent    {}
 
-    set c $node
-    while {1} {
-	set code [catch {uplevel 1 $script} res]
-
-	# 0 - ok, 1 - error, 2 - return, 3 - break, 4 - continue
-	switch -- $code {
-	    0 {}
-	    1 { return -errorcode $::errorCode -errorinfo $::errorInfo -code error $res }
-	    2 {}
-	    3 { return }
-	    4 {}
-	    default {
-		return -code $code $result
-	    }
+    for {set c 0} {$c < $n} {incr c} {
+	if {[csets::isTrunk $c]} {
+	    csets::setParentOf $c $parent
+	    set parent $c
+	    incr t
+	    lappend importable $c
+	} else {
+	    lappend remainder $c
 	}
-
-	# Stop on reaching the head.
-	if {![llength [$rtree children $c]]} break
-
-	#puts <[$rtree children $c]>
-
-	# Go to next child in trunk (leftmost).
-	set c [lindex [$rtree children $c] 0]
     }
-    return
+
+    write 0 cvs "Found [NSIPL $t {trunk changeset}], [NSIPL [llength $remainder] {branch changeset}]"
+    return $remainder
 }
 
 proc ::vc::cvs::ws::Checkout {f r} {
@@ -403,11 +386,13 @@ proc ::vc::cvs::ws::SIPL {n singular {plural {}}} {
 # -----------------------------------------------------------------------------
 
 namespace eval ::vc::cvs::ws {
-    variable base      {} ; # Toplevel repository directory
-    variable project   {} ; # Sub directory to limit the import to.
-    variable workspace {} ; # Directory to checkout changesets to.
+    variable base       {} ; # Toplevel repository directory
+    variable project    {} ; # Sub directory to limit the import to.
+    variable workspace  {} ; # Directory to checkout changesets to.
+    variable importable {} ; # List of the csets which can be imported.
 
-    namespace export configure begin done foreach ncsets checkout
+    namespace export configure begin done foreach ncsets nimportable checkout
+    namespace export parentOf
 }
 
 # -----------------------------------------------------------------------------
