@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Trim\sthe\scommit\smessages\sto\sremove\sirrelevant\sleading\sand\strailing\sline-endings.
-D 2007-09-20T07:33:12
+C Entered\sthe\sgeneral\sstructure\splanned\sfor\sprocessing\sof\sbranches.\nIncomplete.\sThis\scode\sright\snow\sexits\swhen\sit\sfinds\sbranch\scsets.\nSome\sdebug\soutput\sto\ssee\sdetailed\sinternals\sfrom\swhich\sto\spull\nthe\spieces\stogether.
+D 2007-09-20T07:37:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -93,7 +93,7 @@ F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
-F tools/lib/cvs.tcl 1e095fdc74d0bd98b33657a8db0f558860611992
+F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
 F tools/lib/cvs_csets.tcl c6beb0fbbb66803abb0992c32f581b4655a04c5e
 F tools/lib/cvs_files.tcl 24c1271ded974ae38a3a44d55b84c1b9db27ffa5
@@ -137,14 +137,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P cbbf9a7575ae82dec05c2e5dda09d79e7c48f9b0
-R 936d1bad478d33ae50a6a6ac8af61d58
+P a9dcf0912441604277a70fcbd1591c62a28c4466
+R 08695dc67ca348a986b2b5b1b9d222e9
 U aku
-Z d61df855ebdd21fd28b477822215dba0
+Z 5afd743c70d5c3ec8e73b0a2ed50b6a4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG8iI8vonzZ/CRa7gRAkIiAJ47AYHfvokC8RsdV5scIlB3hW7zjwCfQMrS
-z5LqrElQPshpbcU+4pQooZU=
-=o15a
+iD8DBQFG8iNAvonzZ/CRa7gRAl8iAKCjsYEY8LXCbiIR4L/+8elmvip0QgCfasTa
+0NiPvPUOUl2QhdQjENP0wEk=
+=r1Hd
 -----END PGP SIGNATURE-----

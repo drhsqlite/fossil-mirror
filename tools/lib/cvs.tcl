@@ -284,8 +284,11 @@ proc ::vc::cvs::ws::ProcessBranches {} {
     write 0 cvs "Organizing the changesets into branches"
 
     set remainder [ProcessTrunk]
-    # TODO: Processing non-trunk branches
-
+    while {[llength $remainder]} {
+	set remainder [ProcessBranch $remainder]
+	# return -code break may be signaled to give up with non-empty
+	# set of unprocessed changesets.
+    }
 
     # Status information ...
     set nr  [llength $remainder]
@@ -321,6 +324,63 @@ proc ::vc::cvs::ws::ProcessTrunk {} {
     write 0 cvs "Found [NSIPL $t {trunk changeset}], [NSIPL [llength $remainder] {branch changeset}]"
     return $remainder
 }
+
+proc ::vc::cvs::ws::ProcessBranch {cslist} {
+    write 0 cvs "Processing the remaining changesets"
+
+    set base   [lindex $cslist 0]
+    set cslist [lrange $cslist 1 end]
+
+    set remainder {}
+    set t         0
+
+    ### ### ### ######### ######### #########
+    ## Dump data of the unprocessing changeset
+
+    puts /${base}/_________________
+    array set cs [csets::get $base]
+    parray    cs
+
+    # Which branch does base belong to?
+    # - It has to be the base of an unprocessed branch!
+    #   Otherwise it would have been on either the trunk
+    #   or an already processed branch.
+    # Where is its root changeset ?
+    # - The root has to come before the base, it has already
+    #   been processed => Smaller id, older in time.
+    # - Based on the files changed/removed by the base, and their
+    #   versions we know the root versions of these files, and we
+    #   can determine the changesets they are in => Intersection
+    #   plus cap from previous contraint gives us the possible
+    #   candidates.
+
+    # ### ### ### ######### ######### #########
+    exit
+
+    set tag  [FindBranch $base ..]
+    set root [FindRoot   $tag ...]
+
+    csets::setParentOf $base $root
+
+    foreach c $cslist {
+	if {[csets::sameBranch $c $base]} {
+	    csets::setParentOf $c $base
+	    set base $c
+	    incr t
+	    lappend importable $c
+	} else {
+	    lappend remainder $c
+	}
+    }
+
+    #write 0 cvs "Found [NSIPL $t {trunk changeset}], [NSIPL [llength $remainder] {branch changeset}]"
+    return $remainder
+}
+
+#TBD
+#... FindBranch
+#... FindRoot
+#... SameBranch
 
 proc ::vc::cvs::ws::Checkout {f r} {
     variable base
