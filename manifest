@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Modified\ssorting\sof\stimeline\sentries\sfor\sthe\ssame\ssecond\sto\sproperly\ssplit\sfiles\sand\sfile\sversions\sfrom\seach\sother,\sand\sto\shave\snewer\srevisions\slater.\sFurther\sadded\sa\sstorage\sfor\serror\smessages\sto\sbe\srepeated\swhen\sthe\simporter\sexist.\sFirst\suser\sis\sthe\scode\sreporting\scorrupted\sarchive\sfiles\sdetected\sduring\sa\scheckout.
-D 2007-09-20T03:51:49
+C Moved\sthe\scounting\sof\simported\schangesets\sto\sthe\sbeginning\sfor\sa\smore\naccurate\spercent\scalculation\sand\sproper\sending\sat\s100%.
+D 2007-09-20T07:08:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -101,7 +101,7 @@ F tools/lib/cvs_timeline.tcl 09c55e80b27f760a9025a764c6d2551ab9b562a7
 F tools/lib/fossil.tcl a6c49a2ab2603c03757e9ea90555264c3d54fad8
 F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
 F tools/lib/import_map.tcl 44f71078463b33427051428288410b62dda2df82
-F tools/lib/import_statistics.tcl aa215e83ab0d99d2badb25987102602565e62679
+F tools/lib/import_statistics.tcl afdce6cc237ef902be4c16a03e458e46a0dbb94b
 F tools/lib/importcvs.tcl 8476a3bcc6203de7b7692e76024c158fe26772a3
 F tools/lib/log.tcl edfb9cfb1eb6e72efd614a31c5e1e4bf05219e0e
 F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
@@ -137,14 +137,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ae54e928c2726d1ddc5110a3b9a349761d507374
-R f05a4e200e17f9757911485df8ddfc4b
+P a5476aed2741947407eed9ea34a57e1d11889a6c
+R 1d45aba40d87125717f2d5f99c5275c1
 U aku
-Z 1905cc7eaff5d6f6a1eccc1eb683b967
+Z 38cebb0564c821ef28147db15234af9a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG8e5avonzZ/CRa7gRAiEdAJ9o+QrvDhJHlLYZCVcbuf8iVIwf/ACfVB3T
-t+cF5gX43h3kW7lKTxNI48c=
-=3h71
+iD8DBQFG8hyCvonzZ/CRa7gRAuoxAKCvfiTsCVOa35kzaltvdP1tVXUj1QCfb866
+GK/sv/dR70f0By8a2Smocvc=
+=l0x3
 -----END PGP SIGNATURE-----

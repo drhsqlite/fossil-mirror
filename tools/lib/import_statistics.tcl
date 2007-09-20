@@ -50,6 +50,8 @@ proc ::vc::fossil::import::stats::csbegin {cset} {
     variable total_running
     variable total_csets
 
+    incr total_running
+
     write 0 stats "ChangeSet [format $max_format $cset] @ [format $run_format $total_running]/$total_csets ([F6 [expr {$total_running*100.0/$total_csets}]]%)"
     return
 }
@@ -59,7 +61,6 @@ proc ::vc::fossil::import::stats::csend {seconds} {
     variable total_seconds
     variable total_running
 
-    incr total_running
     set  total_seconds [expr {$total_seconds + $seconds}]
 
     set avg [Avg]
