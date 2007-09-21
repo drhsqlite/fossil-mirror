@@ -1,0 +1,15 @@
+Notes: Porting fossil to win32
+======================================================================
+
+Setting up my build environment:
+----------------------------------------------------------------------
+
+  Install:
+    MinGW 5.1.3
+    MSYS  1.0.10
+  
+  Download/compile/install zlib (configure --prefix=/mingw)
+  Download/compile/install tclsh (configure --prefix=/) (for tests)
+  
+  All commands were issued in the MSYS shell, not a cmd.exe
+

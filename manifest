@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Win32\sport:\scompiles,\sall\stests\spass\sbut\smany\sfunctions\sfail\sdue\sto\spath\sseparators.\sIncomplete.\sPath\sfixes\sto\scome\snext
-D 2007-09-21T21:53:28
+C Added\swin32\sbuild\snotes
+D 2007-09-21T22:07:35
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 32e99207027e697f1d6a5c729d8189703ccd0209
@@ -109,6 +109,7 @@ F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
+F win32.txt efd9bcfec94c4ad397092d3149d25268113353c4
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -138,14 +139,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3dc92fdb7f45b8a6fe22430bd260a943a72ee4dd
-R 3bde1e8b8baf064469a8471853bddc3a
-U anonymous
-Z efe09042ef67f64f7f20098504126bfe
+P 83c876b44708a2a5c7380645814ea218cbbaf4ab
+R 2eab80cef285794f42c886b817d6de28
+U jnc
+Z 3691dd69a252b9bd10f8d6ca4568b503
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG9D1YHaWnYYor31ERAjTxAJ9jIw4t8bm9LqIrdAVp7MOPXXQ05wCfQGMS
-Et5dh3wiklhTsW51o7/m3EU=
-=5ANn
+iD8DBQFG9ECnHaWnYYor31ERAtDXAKCF1tWMLjTNV/DT0EhMXIVKMkKG/QCfcy56
+ncepWaJ473SA8HVlKOmzogU=
+=w1sa
 -----END PGP SIGNATURE-----
