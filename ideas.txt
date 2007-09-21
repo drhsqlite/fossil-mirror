@@ -186,13 +186,12 @@ Extended manifests.
 
   * Accessory:
        A uuid|* attachment-uuid description
-       B (+|-)branchtag uuid
        D date-time
        E uuid new-comment
        G uuid appended-remark
        S repositoryid serial-number
+       T (+|-)tag uuid
        U userid
-       V (+|-)versiontag uuid
        X uuid-to-surpress
        Z this-file-checksum
 
@@ -227,23 +226,25 @@ Extended manifests.
        V* (+|-) tag uuid    -- + to set, - to clear.  
        Z manifest-cksum
        -- Must have at least one B or V.
-       -- Tag "hidden" means do not sync
-       -- Tag "closed" means do not display as a leaf
+       -- Branch tag "hidden" means do not sync
+       -- Version tag "closed" means do not display as a leaf
   * A cluster
        M+ uuid
        Z manifest-cksum
-  * Complete set of cards in a manifest files:
-       A filename uuid
-       B (+|-)branch-tag uuid
-       C comment
-       D date-time
-       E edited-comment
-       F filename uuid
-       N name
-       P uuid ...
-       R repository-md5sum
-       T uuid
-       U user-login
-       V (+|-)version-tag uuid
-       W uuid
-       Z manifest-checksum
+
+  * Complete set of cards in a control file:
+       A filename uuid             
+       B (+|-)branch-tag uuid      
+       C comment                   
+       D date-time                 
+       E uuid edited-comment       
+       F filename uuid             
+       M uuid                      
+       N name                      
+       P uuid ...                  
+       R repository-md5sum         
+       T uuid                      
+       U user-login                
+       V (+|-)version-tag uuid     
+       W uuid                      
+       Z manifest-checksum         

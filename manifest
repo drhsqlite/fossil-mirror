@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Entered\sthe\sgeneral\sstructure\splanned\sfor\sprocessing\sof\sbranches.\nIncomplete.\sThis\scode\sright\snow\sexits\swhen\sit\sfinds\sbranch\scsets.\nSome\sdebug\soutput\sto\ssee\sdetailed\sinternals\sfrom\swhich\sto\spull\nthe\spieces\stogether.
-D 2007-09-20T07:37:36
+C Work\stoward\sadding\sa\stagging\ssystem.\s\sCode\scompiles\sbut\sis\sincomplete\nand\sprobably\sdoes\snot\swork.
+D 2007-09-21T02:41:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -26,7 +26,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt 44635deb96c9ba324a8b472924c49b76b3e1fcc1
+F ideas.txt b490c0916102ac8827b5075de27f5cd394a2883a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -40,7 +40,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 10bb790dafbf85fb41571d9cab31a16c2026da94
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c 7ab2af8add0d0220c923bc506be2396424a28f2d
+F src/db.c 16bbdf549424811b70bbdf4970287aebd21f5064
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c fc1b9b6b12455726a754a420e8a06c8e95b91323
@@ -52,10 +52,10 @@ F src/http.c 43986095c41b6de6095f6067a10a97cc5b9a09b3
 F src/info.c 1d02bccab4f60d6f2f926c8cefd3420359f01901
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
 F src/main.c 17322e8c2b317c1b328757ebda8ad020366baa4a
-F src/main.mk 0a509459607c19e704eaaa235dde94972857711a
+F src/main.mk 8bdfcd9b6ebeccf44354b4262a43dea4b5f94099
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 7db41ee41dc37b4eec3bd29823582629d11de795
+F src/makemake.tcl 2a6513c5c3ed3cdfa8194996f017d7ec18aa0f3c
 F src/manifest.c 3b8a4242be7e04db315808edf032bbaa004f4b00
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 246b01382f1423be023aff0845007ea514eb846e
@@ -66,13 +66,14 @@ F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 45c4994360d49e70cdb7767c2a37cb0277dee72c
-F src/schema.c 23e27b4093eec0b91367d4db75e8e97d469fac95
+F src/schema.c 7e3c94d41ed5fe67c5be266d526bd3e1d7f632c1
 F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 4e8cafc457e75f0630b6b672a2989e5956a87374
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
+F src/tag.c 51309dc47d23d6bba4a39f9ffec2c851d153f803
 F src/timeline.c 44b77956607345d6301a2febcaeaf28debad78e7
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -130,21 +131,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 65db56924de1ac3c632126100c6a5dbccdaa2845
+F www/fileformat.html 7e9e427973c57a5f4460f62e7c9319dbb783b764
 F www/index.html c49cf389d31138dedb23a39910aaa049667e664e
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P a9dcf0912441604277a70fcbd1591c62a28c4466
-R 08695dc67ca348a986b2b5b1b9d222e9
-U aku
-Z 5afd743c70d5c3ec8e73b0a2ed50b6a4
+P 25bc72107635a464fcfba9ea98c38a2f82b1c7fd
+R 26f84aa86e8360b8c8ef4b8d26165de6
+U drh
+Z 1270f7fc15f0831a1c5519bf513217a3
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG8iNAvonzZ/CRa7gRAl8iAKCjsYEY8LXCbiIR4L/+8elmvip0QgCfasTa
-0NiPvPUOUl2QhdQjENP0wEk=
-=r1Hd
+iD8DBQFG8y92oxKgR168RlERAgkqAJ9vLpOfurXC5KBA23rzOzXnHbmIwACfba5V
+df+fuJ7GOEXB253eqdo+pwk=
+=3xAu
 -----END PGP SIGNATURE-----

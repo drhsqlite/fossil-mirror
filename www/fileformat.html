@@ -156,7 +156,50 @@ a sanity check to prove that the manifest is well-formed and
 consistent.
 </p>
 
-<h2>2.0 Trouble Tickets</h2>
+<h2>2.0 Clusters</h2>
+
+<p>
+A cluster is a file that states the existance of other files.
+Clusters are used during repository synchronization to help 
+reduce network traffic.
+</p>
+
+<p>
+Clusters follow a syntax that is very similar to manifests.
+A Cluster is a line-oriented text file.  Newline characters
+(ASCII 0x0a) separate lines.  Each line begins with a single
+character "line type".  Zero or more arguments may follow
+the line type.  All arguments are separated from each other
+and from the line-type character by a single space
+character.  There is no surplus white space between arguments
+and no leading or trailing whitespace except for the newline 
+character that acts as the line separator.
+All lines of a cluter occur in strict sorted lexicographical order.
+No line may be duplicated.
+The cluster may not contain additional text or data beyond 
+what is described here.
+</p>
+
+<p>
+Allowed lines in the cluster are as follows:
+</p>
+
+<blockquote>
+<b>M</b> <i>uuid</i>
+<b>Z</b> <i>manifest-checksum</i>
+</blockquote>
+
+<p>
+A cluster contains one or more "M" lines followed by a single "Z"
+line.  Each M line has a single argument which is the UUID of 
+another record in the repository.  The Z line work exactly like
+the Z line of a manifest.  The argument to the Z line is the
+lower-case hexadecimal representation of the MD5 checksum of all
+prior lines in the cluster.
+</p>
+
+
+<h2>3.0 Trouble Tickets</h2>
 
 <p>
 Each trouble ticket is a file in the repository and appears in
@@ -170,7 +213,7 @@ has a particular file format defined below.
 
 <i>To be continued...</i>
 
-<h2>3.0 Wiki Pages</h2>
+<h2>4.0 Wiki Pages</h2>
 
 <p>
 Each wiki is a file in the repository and appears in

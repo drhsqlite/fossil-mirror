@@ -166,6 +166,9 @@ int db_bind_int(Stmt *pStmt, const char *zParamName, int iValue){
 int db_bind_int64(Stmt *pStmt, const char *zParamName, i64 iValue){
   return sqlite3_bind_int64(pStmt->pStmt, paramIdx(pStmt, zParamName), iValue);
 }
+int db_bind_double(Stmt *pStmt, const char *zParamName, double rValue){
+  return sqlite3_bind_double(pStmt->pStmt, paramIdx(pStmt, zParamName), rValue);
+}
 int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
   return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
                            -1, SQLITE_STATIC);

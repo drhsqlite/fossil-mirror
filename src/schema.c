@@ -154,15 +154,14 @@ const char zRepositorySchema2[] =
 @ -- Events used to generate a timeline
 @ --
 @ CREATE TABLE event(
-@   type TEXT,
-@   mtime DATETIME,
-@   objid INTEGER,
-@   uid INTEGER REFERENCES user,
-@   user TEXT,
-@   comment TEXT
+@   type TEXT,                      -- Type of event
+@   mtime DATETIME,                 -- Date and time when the event occurs
+@   objid INTEGER PRIMARY KEY,      -- Associated record ID
+@   uid INTEGER REFERENCES user,    -- User who caused the event
+@   user TEXT,                      -- Name of the user
+@   comment TEXT                    -- Comment describing the event
 @ );
 @ CREATE INDEX event_i1 ON event(mtime);
-@ CREATE INDEX event_i2 ON event(objid);
 @
 @ -- A record of phantoms.  A phantom is a record for which we know the
 @ -- UUID but we do not (yet) know the file content.
@@ -192,25 +191,27 @@ const char zRepositorySchema2[] =
 @   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
 @ );
 @
-@ -- Aggregated ticket information
+@ -- Each baseline or manifest can have one or more tags.  A tag
+@ -- is defined by a row in the next table.
+@ -- 
+@ -- Tags that begin with "br" automatically propagate to direct
+@ -- children, but not to merge children.
 @ --
-@ CREATE TABLE tkt(
-@   tktid INTEGER PRIMARY KEY,           -- Internal ticket ID
-@   fnid INTEGER REFERENCES filename,    -- Name of the ticket file
-@   rid INTEGER REFERENCES blob,         -- version of ticket file scanned
-@   title TEXT,                          -- title of the ticket
-@   remarks TEXT                         -- text of the ticket
+@ CREATE TABLE tag(
+@   tagid INTEGER PRIMARY KEY,       -- Numeric tag ID
+@   tagname TEXT UNIQUE              -- Tag name.  Prefixed by 'v' or 'b'
 @ );
-@ CREATE TABLE tkttag(
-@   tagid INTEGER PRIMARY KEY,           -- Numeric tag ID
-@   name TEXT UNIQUE                     -- Human-readable name of tag
+@
+@ -- Assignments of tags to baselines
+@ --
+@ CREATE TABLE tagxref(
+@   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
+@   addFlag BOOLEAN,                -- True to add the tag, False to remove
+@   srcid INTEGER REFERENCES blob,  -- Origin of the tag. 0 for propagated tags
+@   mtime TIMESTAMP,                -- Time of addition or removal
+@   rid INTEGER REFERENCE blob,     -- Baseline that tag added/removed from
+@   UNIQUE(rid, tagid)
 @ );
-@ CREATE TABLE tktmap(
-@   tktid INTEGER REFERENCES tkt,        -- This ticket
-@   tagid INTEGER REFERENCES tkttag,     --    ....holds this tag
-@   UNIQUE(tktid, tagid)
-@ );
-@ CREATE INDEX tktmap_i2 ON tktmap(tagid);
 ;
 
 /*

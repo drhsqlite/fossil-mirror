@@ -43,6 +43,7 @@ set src {
   sha1
   style
   sync
+  tag
   timeline
   undo
   update
