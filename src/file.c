@@ -107,7 +107,11 @@ int file_mkdir(const char *zName, int forceFlag){
     unlink(zName);
   }
   if( rc!=1 ){
+#ifdef __MINGW32__
+    return mkdir(zName);
+#else
     return mkdir(zName, 0755);
+#endif
   }
   return 0;
 }

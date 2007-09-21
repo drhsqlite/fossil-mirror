@@ -35,10 +35,12 @@
 **
 */
 #include "config.h"
+#ifndef __MINGW32__
+#  include <pwd.h>
+#endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <pwd.h>
 #include <unistd.h>
 #include "db.h"
 

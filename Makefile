@@ -26,7 +26,8 @@ E =
 #
 #TCC = gcc -O6
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
-TCC = gcc -g -Os -Wall
+#TCC = gcc -g -Os -Wall
+TCC = gcc -g -Os -Wall -DFOSSIL_I18N=0
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no
@@ -34,7 +35,9 @@ TCC = gcc -g -Os -Wall
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
-LIB = -lz
+#LIB = -lz
+LIB = -lz -lwsock32
+
 
 #### Tcl shell for use in running the fossil testsuite.
 #

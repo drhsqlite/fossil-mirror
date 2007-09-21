@@ -47,6 +47,46 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
+#ifdef __MINGW32__
+/*
+** getpass for Windows
+*/
+static char *getpass(const char *prompt){
+  static char pwd[64];
+  size_t i;
+  
+  fputs(prompt,stderr);
+  fflush(stderr);
+  for(i=0; i<sizeof(pwd)-1; ++i){
+    pwd[i] = _getch();
+    if(pwd[i]=='\r' || pwd[i]=='\n'){
+      break;
+    }
+    /* BS or DEL */
+    else if(i>0 && (pwd[i]==8 || pwd[i]==127)){
+      i -= 2;
+      continue;
+    }
+    /* CTRL-C */
+    else if(pwd[i]==3) {
+      i=0;
+      break;
+    }
+    /* ESC */
+    else if(pwd[i]==27){
+      i=0;
+      break;
+    }
+    else{
+      fputc('*',stderr);
+    }
+  }
+  pwd[i]='\0';
+  fputs("\n", stderr);
+  return pwd;
+}
+#endif
+
 /*
 ** Do a single prompt for a passphrase.  Store the results in the blob.
 */

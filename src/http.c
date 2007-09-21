@@ -25,12 +25,17 @@
 */
 #include "config.h"
 #include "http.h"
+#ifdef __MINGW32__
+#  include <windows.h>
+#  include <winsock.h>
+#else
+#  include <arpa/inet.h>
+#  include <sys/socket.h>
+#  include <netdb.h>
+#  include <netinet/in.h>
+#endif
 #include <assert.h>
-#include <arpa/inet.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <signal.h>
 
 /*
@@ -79,7 +84,9 @@ static int http_open_socket(void){
     fossil_panic("cannot connect to host %s:%d", g.urlName, g.urlPort);
   }
   pSocket = fdopen(s,"r+");
+#ifndef __MINGW32__
   signal(SIGPIPE, SIG_IGN);
+#endif
   return 0;
 }
 

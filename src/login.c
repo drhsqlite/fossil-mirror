@@ -46,6 +46,10 @@
 */
 #include "config.h"
 #include "login.h"
+#ifdef __MINGW32__
+#  include <windows.h>           /* for Sleep */
+#  define sleep Sleep            /* windows does not have sleep, but Sleep */
+#endif
 #include <time.h>
 
 /*

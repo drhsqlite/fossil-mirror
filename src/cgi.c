@@ -28,16 +28,22 @@
 ** decode strings in HTML or HTTP.
 */
 #include "config.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#ifdef __MINGW32__
+#  include <windows.h>           /* for Sleep once server works again */
+#  include <winsock.h>           /* socket operations */
+#  define sleep Sleep            /* windows does not have sleep, but Sleep */
+#else
+#  include <sys/socket.h>
+#  include <netinet/in.h>
+#  include <arpa/inet.h>
+#  include <sys/times.h>
+#  include <sys/time.h>
+#  include <sys/wait.h>
+#  include <sys/select.h>
+#endif
 #include <time.h>
-#include <sys/times.h>
-#include <sys/time.h>
-#include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/select.h>
 #include <unistd.h>
 #include "cgi.h"
 
@@ -1078,6 +1084,10 @@ void cgi_handle_http_request(void){
 ** The parent never returns from this procedure.
 */
 void cgi_http_server(int iPort){
+#ifdef __MINGW32__
+  fprintf(stderr,"server not yet available in windows version of fossil\n");
+  exit(1);
+#else
   int listener;                /* The server socket */
   int connection;              /* A socket for each individual connection */
   fd_set readfds;              /* Set of file descriptors for select() */
@@ -1144,6 +1154,7 @@ void cgi_http_server(int iPort){
   }
   /* NOT REACHED */  
   exit(1);
+#endif
 }
 
 /*
