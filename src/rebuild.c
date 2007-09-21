@@ -33,9 +33,13 @@
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
 ** from scratch.
+**
+** If the randomize parameter is true, then the BLOBs are deliberately
+** extracted in a random order.  This feature is used to test the
+** ability of fossil to accept records in any order and still
+** construct a sane repository.
 */
-
-int rebuild_db(void){
+int rebuild_db(int randomize){
   Stmt s;
   int errCnt = 0;
   char *zTable;
@@ -58,7 +62,10 @@ int rebuild_db(void){
   db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
-  db_prepare(&s, "SELECT rid, size FROM blob");
+  db_prepare(&s,
+     "SELECT rid, size FROM blob %s",
+     randomize ? "ORDER BY random()" : ""
+  );
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
@@ -85,15 +92,17 @@ int rebuild_db(void){
 */
 void rebuild_database(void){
   int forceFlag;
+  int randomizeFlag;
   int errCnt;
 
   forceFlag = find_option("force","f",0)!=0;
+  randomizeFlag = find_option("randomize", 0, 0)!=0;
   if( g.argc!=3 ){
     usage("REPOSITORY-FILENAME");
   }
   db_open_repository(g.argv[2]);
   db_begin_transaction();
-  errCnt = rebuild_db();
+  errCnt = rebuild_db(randomizeFlag);
   if( errCnt && !forceFlag ){
     printf("%d errors. Rolling back changes. Use --force to force a commit.\n",
             errCnt);

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Work\stoward\sadding\sa\stagging\ssystem.\s\sCode\scompiles\sbut\sis\sincomplete\nand\sprobably\sdoes\snot\swork.
-D 2007-09-21T02:41:53
+C Add\sthe\s--randomize\sparameter\sto\sthe\srebuild\scommand.\s\sUsed\sfor\ntesting.
+D 2007-09-21T18:33:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -38,7 +38,7 @@ F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/construct.c 10bb790dafbf85fb41571d9cab31a16c2026da94
+F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
 F src/db.c 16bbdf549424811b70bbdf4970287aebd21f5064
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
@@ -65,7 +65,7 @@ F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
-F src/rebuild.c 45c4994360d49e70cdb7767c2a37cb0277dee72c
+F src/rebuild.c 6a267b5a2563f0a7a89a2b66cb42a99d887b783e
 F src/schema.c 7e3c94d41ed5fe67c5be266d526bd3e1d7f632c1
 F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
@@ -138,14 +138,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 25bc72107635a464fcfba9ea98c38a2f82b1c7fd
-R 26f84aa86e8360b8c8ef4b8d26165de6
+P 2bc0e2c565c93f7089955e6e40ae5b3365497854
+R 5b517780ea6b35fb376ac2c03019b33f
 U drh
-Z 1270f7fc15f0831a1c5519bf513217a3
+Z 05e3bf209a449cdd155d57825cc8b4b4
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG8y92oxKgR168RlERAgkqAJ9vLpOfurXC5KBA23rzOzXnHbmIwACfba5V
-df+fuJ7GOEXB253eqdo+pwk=
-=3xAu
+iD8DBQFG9A5uoxKgR168RlERAqBhAJ9hjgQDbBqdQGKM7hsMkLb3zmuTlwCaAsma
+dDVYgdvjiKov8VvYN1kjw44=
+=mSL4
 -----END PGP SIGNATURE-----
