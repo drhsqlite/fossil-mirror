@@ -49,6 +49,12 @@ struct Manifest {
   int nCChild;          /* Number of cluster children */
   int nCChildAlloc;     /* Number of closts allocated in azCChild[] */
   char **azCChild;      /* UUIDs of referenced objects in a cluster */
+  int nTag;             /* Number of T lines */
+  int nTagAlloc;        /* Slots allocated in aTag[] */
+  struct { 
+    char *zName;           /* Name of the tag */
+    char *zUuid;           /* UUID that the tag is applied to */
+  } *aTag;
 };
 #endif
 
@@ -82,6 +88,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   int seenHeader = 0;
   int i;
   Blob line, token, a1, a2, a3;
+  char zPrevLine[10];
 
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
@@ -91,6 +98,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   blob_zero(&a1);
   blob_zero(&a2);
   md5sum_init();
+  zPrevLine[0] = 0;
   while( blob_line(pContent, &line) ){
     char *z = blob_buffer(&line);
     if( z[0]=='-' ){
@@ -104,112 +112,249 @@ int manifest_parse(Manifest *p, Blob *pContent){
       if( blob_line(pContent, &line)==0 ) break;
       z = blob_buffer(&line);
     }
+    if( strcmp(z, zPrevLine)<0 ){
+      /* Lines of a manifest must occur in lexicographical order */
+      goto manifest_syntax_error;
+    }
+    sqlite3_snprintf(sizeof(zPrevLine), zPrevLine, "%s", z);
     seenHeader = 1;
     if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;
-    if( z[0]=='F' ){
-      char *zName, *zUuid;
-      md5sum_step_text(blob_buffer(&line), blob_size(&line));
-      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
-      zName = blob_terminate(&a1);
-      zUuid = blob_terminate(&a2);
-      if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
-      if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
-      defossilize(zName);
-      if( !file_is_simple_pathname(zName) ){
-        goto manifest_syntax_error;
+    switch( z[0] ){
+      /*
+      **     C <comment>
+      **
+      ** Comment text is fossil-encoded.  There may be no more than
+      ** one C line.  C lines are required for manifests and are
+      ** disallowed on all other control files.
+      */
+      case 'C': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->zComment!=0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        p->zComment = blob_terminate(&a1);
+        defossilize(p->zComment);
+        break;
       }
-      if( p->nFile>=p->nFileAlloc ){
-        p->nFileAlloc = p->nFileAlloc*2 + 10;
-        p->aFile = realloc(p->aFile, p->nFileAlloc*sizeof(p->aFile[0]) );
-        if( p->aFile==0 ) fossil_panic("out of memory");
+
+      /*
+      **     D <timestamp>
+      **
+      ** The timestamp should be ISO 8601.   YYYY-MM-DDtHH:MM:SS
+      ** There can be no more than 1 D line.  D lines are required
+      ** for all control files except for clusters.
+      */
+      case 'D': {
+        char *zDate;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->rDate!=0.0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        zDate = blob_terminate(&a1);
+        p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
+        break;
       }
-      i = p->nFile++;
-      p->aFile[i].zName = zName;
-      p->aFile[i].zUuid = zUuid;
-      if( i>0 && strcmp(p->aFile[i-1].zName, zName)>=0 ){
-        goto manifest_syntax_error;
-      }
-    }else if( z[0]=='C' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line));
-      if( p->zComment!=0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-      p->zComment = blob_terminate(&a1);
-      defossilize(p->zComment);
-    }else if( z[0]=='D' ){
-      char *zDate;
-      md5sum_step_text(blob_buffer(&line), blob_size(&line));
-      if( p->rDate!=0.0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-      zDate = blob_terminate(&a1);
-      p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
-    }else if( z[0]=='M' ){
-      char *zUuid;
-      md5sum_step_text(blob_buffer(&line), blob_size(&line));
-      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-      zUuid = blob_terminate(&a1);
-      if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
-      if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
-      if( p->nCChild>=p->nCChildAlloc ){
-        p->nCChildAlloc = p->nCChildAlloc*2 + 10;
-        p->azCChild = 
-           realloc(p->azCChild, p->nCChildAlloc*sizeof(p->azCChild[0]) );
-        if( p->azCChild==0 ) fossil_panic("out of memory");
-      }
-      i = p->nCChild++;
-      p->azCChild[i] = zUuid;
-      if( i>0 && strcmp(p->azCChild[i-1], zUuid)>=0 ){
-        goto manifest_syntax_error;
-      }
-    }else if( z[0]=='U' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line));
-      if( p->zUser!=0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-      p->zUser = blob_terminate(&a1);
-      defossilize(p->zUser);
-    }else if( z[0]=='R' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line));
-      if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-      if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
-      p->zRepoCksum = blob_terminate(&a1);
-      if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
-    }else if( z[0]=='P' ){
-      md5sum_step_text(blob_buffer(&line), blob_size(&line));
-      while( blob_token(&line, &a1) ){
-        char *zUuid;
-        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
-        zUuid = blob_terminate(&a1);
+
+      /*
+      **     F <filename> <uuid>
+      **
+      ** Identifies a file in a manifest.  Multiple F lines are
+      ** allowed in a manifest.  F lines are not allowed in any
+      ** other control file.  The filename is fossil-encoded.
+      */
+      case 'F': {
+        char *zName, *zUuid;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
+        zName = blob_terminate(&a1);
+        zUuid = blob_terminate(&a2);
+        if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
-        if( p->nParent>=p->nParentAlloc ){
-          p->nParentAlloc = p->nParentAlloc*2 + 5;
-          p->azParent = realloc(p->azParent, p->nParentAlloc*sizeof(char*));
-          if( p->azParent==0 ) fossil_panic("out of memory");
+        defossilize(zName);
+        if( !file_is_simple_pathname(zName) ){
+          goto manifest_syntax_error;
         }
-        i = p->nParent++;
-        p->azParent[i] = zUuid;
+        if( p->nFile>=p->nFileAlloc ){
+          p->nFileAlloc = p->nFileAlloc*2 + 10;
+          p->aFile = realloc(p->aFile, p->nFileAlloc*sizeof(p->aFile[0]) );
+          if( p->aFile==0 ) fossil_panic("out of memory");
+        }
+        i = p->nFile++;
+        p->aFile[i].zName = zName;
+        p->aFile[i].zUuid = zUuid;
+        if( i>0 && strcmp(p->aFile[i-1].zName, zName)>=0 ){
+          goto manifest_syntax_error;
+        }
+        break;
       }
-    }else if( z[0]=='Z' ){
-      int rc;
-      Blob hash;
-      if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-      if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-      if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
-      if( !validate16(blob_buffer(&a1), 32) ) goto manifest_syntax_error;
-      md5sum_finish(&hash);
-      rc = blob_compare(&hash, &a1);
-      blob_reset(&hash);
-      if( rc!=0 ) goto manifest_syntax_error;
-    }else{
-      goto manifest_syntax_error;
+
+      /*
+      **    M <uuid>
+      **
+      ** An M-line identifies another artifact by its UUID.  M-lines
+      ** occur in clusters only.
+      */
+      case 'M': {
+        char *zUuid;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        zUuid = blob_terminate(&a1);
+        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        if( p->nCChild>=p->nCChildAlloc ){
+          p->nCChildAlloc = p->nCChildAlloc*2 + 10;
+          p->azCChild = 
+             realloc(p->azCChild, p->nCChildAlloc*sizeof(p->azCChild[0]) );
+          if( p->azCChild==0 ) fossil_panic("out of memory");
+        }
+        i = p->nCChild++;
+        p->azCChild[i] = zUuid;
+        if( i>0 && strcmp(p->azCChild[i-1], zUuid)>=0 ){
+          goto manifest_syntax_error;
+        }
+        break;
+      }
+
+      /*
+      **    T (+|-)<tagname> <uuid>
+      **
+      ** Create or cancel a tag.  The tagname is fossil-encoded.  The
+      ** first character must be either "+" to create or "-" to delete.
+      ** Tags are not allowed in clusters.  Multiple T lines are allowed.
+      */
+      case 'T': {
+        char *zName, *zUuid;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
+        zName = blob_terminate(&a1);
+        zUuid = blob_terminate(&a2);
+        if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
+        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        defossilize(zName);
+        if( zName[0]!='-' && zName[0]!='+' ){
+          goto manifest_syntax_error;
+        }
+        if( p->nTag>=p->nTagAlloc ){
+          p->nTagAlloc = p->nTagAlloc*2 + 10;
+          p->aTag = realloc(p->aTag, p->nTagAlloc*sizeof(p->aTag[0]) );
+          if( p->aTag==0 ) fossil_panic("out of memory");
+        }
+        i = p->nTag++;
+        p->aTag[i].zName = zName;
+        p->aTag[i].zUuid = zUuid;
+        if( i>0 && strcmp(p->aTag[i-1].zName, zName)>=0 ){
+          goto manifest_syntax_error;
+        }
+        break;
+      }
+
+      /*
+      **     U <login>
+      **
+      ** Identify the user who created this control file by their
+      ** login.  Only one U line is allowed.  Prohibited in clusters.
+      */
+      case 'U': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->zUser!=0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        p->zUser = blob_terminate(&a1);
+        defossilize(p->zUser);
+        break;
+      }
+
+      /*
+      **     R <md5sum>
+      **
+      ** Specify the MD5 checksum of the entire baseline in a
+      ** manifest.
+      */
+      case 'R': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
+        p->zRepoCksum = blob_terminate(&a1);
+        if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
+        break;
+      }
+
+      /*
+      **     P <uuid> ...
+      **
+      ** Specify one or more other artifacts where are the parents of
+      ** this artifact.  The first parent is the primary parent.  All
+      ** others are parents by merge.
+      */
+      case 'P': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        while( blob_token(&line, &a1) ){
+          char *zUuid;
+          if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+          zUuid = blob_terminate(&a1);
+          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+          if( p->nParent>=p->nParentAlloc ){
+            p->nParentAlloc = p->nParentAlloc*2 + 5;
+            p->azParent = realloc(p->azParent, p->nParentAlloc*sizeof(char*));
+            if( p->azParent==0 ) fossil_panic("out of memory");
+          }
+          i = p->nParent++;
+          p->azParent[i] = zUuid;
+        }
+        break;
+      }
+
+      /*
+      **     Z <md5sum>
+      **
+      ** MD5 checksum on this control file.  The checksum is over all
+      ** lines (other than PGP-signature lines) prior to the current
+      ** line.  This must be the last record.
+      */
+      case 'Z': {
+        int rc;
+        Blob hash;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
+        if( !validate16(blob_buffer(&a1), 32) ) goto manifest_syntax_error;
+        md5sum_finish(&hash);
+        rc = blob_compare(&hash, &a1);
+        blob_reset(&hash);
+        if( rc!=0 ) goto manifest_syntax_error;
+        break;
+      }
+      default: {
+        goto manifest_syntax_error;
+      }
     }
   }
   if( !seenHeader ) goto manifest_syntax_error;
+
+  if( p->nFile>0 ){
+    if( p->nCChild>0 ) goto manifest_syntax_error;
+    if( p->rDate==0.0 ) goto manifest_syntax_error;
+  }else if( p->nCChild>0 ){
+    if( p->rDate>0.0 ) goto manifest_syntax_error;
+    if( p->zComment!=0 ) goto manifest_syntax_error;
+    if( p->zUser!=0 ) goto manifest_syntax_error;
+    if( p->nTag>0 ) goto manifest_syntax_error;
+    if( p->nParent>0 ) goto manifest_syntax_error;
+    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+  }else if( p->nTag>0 ){
+    if( p->rDate<=0.0 ) goto manifest_syntax_error;
+    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+    if( p->nParent>0 ) goto manifest_syntax_error;
+  }else{
+    goto manifest_syntax_error;
+  }
+    
   md5sum_init();
   return 1;
 
