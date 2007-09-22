@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Socket\soperations\snow\sfunctional\sin\sWin32\sport.\sAdded\squotes\saround\sthe\sfilename\sportion\sof\sthe\scommand\sto\sedit\sthus\sworking\sof\swindows\sin\spaths\swhere\sthe\stemp\sdirectory\scontains\sspaces.\sAdded\s-all\sflag\sto\sclean\scommand.\sIf\snot\sspecified\seach\sfile\sis\sprompted\sfor\sbefore\sremoving.
-D 2007-09-22T18:34:49
+C Merged\swin32.txt\swhich\scaused\sthe\sbranch\sinitially
+D 2007-09-22T18:38:04
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 7035415b04a450e40789aa5be1e5dfecc9520892
@@ -139,14 +139,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c7278fd013abfe2490ed36ad257e716c9daebf2b
+P 8372cc0b8125d2c52332021a3e0a2cbbf9b2506f 46f96301f10b9ecda595edb5150937b71ec3ed90
 R da29d2c322ee709da9ad8be40f344827
 U jnc
-Z 28ef722515f74643efcfa5437e32ac87
+Z 4626df93ec0b278195c850fb1755b09a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (MingW32)
 
-iD8DBQFG9WBJHaWnYYor31ERAuFtAJ9l6e172/W5hZ0CVN8IZr3Iy/XocwCdEmjk
-cb59sjUJp4JbALfnuqXZRUo=
-=J86x
+iD8DBQFG9WEMHaWnYYor31ERAkXhAJwO47qkeIn064aydTb1aROidDcNewCcC+LJ
+eneTPf4RiIvgvC7l8m0/MSU=
+=3Jlc
 -----END PGP SIGNATURE-----
