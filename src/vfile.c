@@ -100,7 +100,7 @@ void vfile_build(int vid, Blob *p){
     char *z = blob_buffer(&line);
     if( z[0]=='-' ){
       if( seenHeader ) break;
-      while( blob_line(p, &line)>1 ){}
+      while( blob_line(p, &line)>2 ){}
       if( blob_line(p, &line)==0 ) break;
     }
     seenHeader = 1;

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bug\sfix\sin\sthe\supdate\scommand.
-D 2007-09-22T19:03:22
+C Fix\sa\sbug\sin\sthe\smanifest\sparser\sso\sthat\sit\sis\sable\sto\sparse\sthe\nPGP\sheaders\seven\sif\sthe\sheader\scontains\s\\r\scharacters.
+D 2007-09-22T19:32:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -81,7 +81,7 @@ F src/update.c 7b1df8d7e100d35e49f9729ea3944cac139f1d60
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
-F src/vfile.c 5ad913c384f94b6fa54b89ec9a7aeb1e1f600144
+F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
 F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
 F src/xfer.c 1a89a70762f7321928e500ce489ecdafe50e74ba
@@ -138,14 +138,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 72b3b1ad47f479df8f0046b6a69fbd4d51d4882b
-R 4f06963d2cdab91f4c3d955287028593
+P b5d82ebd7e25ee6f05012a5537ac83b2b7a39774
+R 5f30156f4fdca454a0c2e2c5cbfaef8b
 U drh
-Z 9fafe1ee922759e653ded22c25cd722e
+Z 94cfabcd9eb798a2470cd4e643fba768
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG9Wb+oxKgR168RlERAo2FAJ0U4M2tDvIQdh8Ljk7KCjOqFkXrbwCfdYxf
-ttKovOsRKduxxJXi0OB4H/w=
-=KqiP
+iD8DBQFG9W3IoxKgR168RlERAiu5AJ41aKNrNtq0agZpYixGnAdRtY0l+gCgjMuU
+yPlQmCG1i9I6NUt11Ietioc=
+=JmrL
 -----END PGP SIGNATURE-----
