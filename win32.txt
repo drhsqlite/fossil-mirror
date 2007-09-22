@@ -1,0 +1,84 @@
+Notes: Porting fossil to win32
+======================================================================
+
+Setting up my build environment:
+----------------------------------------------------------------------
+
+  Install:
+    MinGW 5.1.3
+    MSYS  1.0.10
+  
+  Download/compile/install zlib (configure --prefix=/mingw)
+  Download/compile/install tclsh (configure --prefix=/) (for tests)
+  
+  All commands were issued in the MSYS shell, not a cmd.exe
+
+Outstanding Issues:
+----------------------------------------------------------------------
+
+* server is totally non-functional - #if/#end'd out of the code
+
+Commands status:
+----------------------------------------------------------------------
+
+add               OK
+cgi               Not tested
+changes           OK
+checkout          BAD #1
+clean             OK
+clone             OK
+close             OK
+commit            OK
+config            OK
+deconstruct       OK
+del               OK
+descendents       OK
+diff              OK
+extra             OK
+help              OK
+http              Not Tested
+info              OK
+leaves            OK
+ls                OK
+merge             OK
+new               OK
+open              OK
+pull              OK
+push              OK
+rebuild           OK (didn't have a corrupt file to try on though)
+redo              BAD #3
+rm                OK
+server            BAD #4
+status            OK
+sync              OK
+timeline          OK
+tkdiff            OK
+undo              OK
+update            OK
+user capabilities OK
+user default      OK
+user list         OK
+user new          OK
+user password     OK
+
+#1 Have a repo where I removed a file. I did a fossil checkout 123abc,
+   which is the last version that had the file. The file does not
+   appear. fossil checkout --force 123abc does things, but still the
+   file does not appear.
+   
+   Make a new dir, fossil open ../repo.fsl && fossil checkout 123abc and
+   the file appears.
+   
+   Is that normal operation?
+
+#3 In test1/ I edited a file, test2/ I updated, type file.txt changes
+   were there. I then did fossil undo file.txt. The changes were gone
+   and fossil status said I had edited file.txt. A fossil redo did not
+   print anything to the screen and the changes for file.txt are not
+   in the file. fossil status still reports that the file was edited.
+   There was no commit/update or any other command inbetween these
+   actions.
+
+#4 There were various difficulties in this function beyond simple socket
+   problems. The major one being fork. This will probably be the last
+   command to be functional in fossil on windows.

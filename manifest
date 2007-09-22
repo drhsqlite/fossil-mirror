@@ -1,11 +1,12 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\smanifest\sparser\sso\sthat\sit\sis\sable\sto\sparse\sthe\nPGP\sheaders\seven\sif\sthe\sheader\scontains\s\\r\scharacters.
-D 2007-09-22T19:32:21
+C Merge\sin\sthe\sw32\schanges.
+D 2007-09-22T19:43:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
+F Makefile.w32 7035415b04a450e40789aa5be1e5dfecc9520892
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
@@ -28,11 +29,11 @@ F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F ideas.txt 880f1290f03cce385824593d3051dc431919b6d6
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
+F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
-F src/blob.c f2c016552c1006e1ead1f64366a650471e0e4064
-F src/cgi.c f25a72aeb6ba2d5d8eb1886de143c32d389244ff
-F src/checkin.c 08fa2df4cf4b605db36faa8e6adc87d3717a1a4d
+F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
+F src/cgi.c 57f4d7daa35b4be43195e297695fe9e430e34521
+F src/checkin.c 39235e784733cff4cf3534917aa19fa10aa3f02d
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -40,17 +41,17 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c 16bbdf549424811b70bbdf4970287aebd21f5064
+F src/db.c b9655281e8393d992f5c9d2e4d3d5cd8d8f58fa7
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
-F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
-F src/http.c 43986095c41b6de6095f6067a10a97cc5b9a09b3
+F src/file.c 0453cec09998ba192d2443ba1c5849f6180c3e52
+F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
 F src/info.c 51260a23a75154526013e86ebb45e89d4ab318b0
-F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
+F src/login.c d1ac22275c7a7238a6a89d6dc256b67a25c911e9
 F src/main.c 1a17fea25b4c4cfb21797b6d543436cabe100fd9
 F src/main.mk bf38d6b94ea87de1d57d62b47cce145804e4e893
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -64,7 +65,7 @@ F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c 36506ea7895b25fa687b1ce74401c2e87af1cf0d
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
-F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
+F src/printf.c 63619c9ec6ef80499feb9f342cf2806ace37d02e
 F src/rebuild.c 6a267b5a2563f0a7a89a2b66cb42a99d887b783e
 F src/schema.c 051f5076cffafff89697e18ea9b014b8585c8845
 F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
@@ -79,7 +80,7 @@ F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 7b1df8d7e100d35e49f9729ea3944cac139f1d60
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
-F src/user.c 7f6b214713c458a4bfc9c2bdffb36b100ff96def
+F src/user.c 2a5d91addf1911ac6e7c8bf99af4a97b98fb25d4
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
@@ -109,6 +110,7 @@ F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
+F win32.txt f8b38cdb44ab89a6926d86ee520cdde928f07bae
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -138,14 +140,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b5d82ebd7e25ee6f05012a5537ac83b2b7a39774
-R 5f30156f4fdca454a0c2e2c5cbfaef8b
+P 3ed92143382f3dd9707a73764b412efe1a32b0cb b57d456718ea0864fbaea003ab18fc11b7f10ac8
+R 6da6ae45e10086e032b0f19b9dd17911
 U drh
-Z 94cfabcd9eb798a2470cd4e643fba768
+Z b7b26734442bdaeff93d6299303bf359
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG9W3IoxKgR168RlERAiu5AJ41aKNrNtq0agZpYixGnAdRtY0l+gCgjMuU
-yPlQmCG1i9I6NUt11Ietioc=
-=JmrL
+iD8DBQFG9XB+oxKgR168RlERAtG7AJoClm9EyvufXratrTxGWIINTRxEQACfYfgl
+6QJ7XS9bp7F176JYptLTzOE=
+=3vxi
 -----END PGP SIGNATURE-----
