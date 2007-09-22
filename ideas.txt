@@ -1,3 +1,19 @@
+Properties:
+
+   * Started out as tags.  AKU suggests adding a value.  That
+     seems to work well.
+   * If the name begins with "br" then it propagates to non-merge
+     children.
+   * Special tags and properties:
+      +  br-bg-color=COLOR and bg-color=COLOR  -- Set timeline BG color
+      +  comment=TEXT         -- Revise the check-in comment text
+      +  user=TEXT            -- Revise the check-in username
+      +  closed               -- Do not display as a leaf
+   * Tags and properties initially live in the tagxref table.
+   * Separate operation captured tags and properites as artifacts 
+     so that they can be synced.
+
+
 Possible ticket file format:
 
    "Ticket"
@@ -247,4 +263,4 @@ Extended manifests.
        U user-login                
        V (+|-)version-tag uuid     
        W uuid                      
-       Z manifest-checksum         
+       Z manifest-checksum

@@ -54,6 +54,7 @@ struct Manifest {
   struct { 
     char *zName;           /* Name of the tag */
     char *zUuid;           /* UUID that the tag is applied to */
+    char *zValue;          /* Value if the tag is really a property */
   } *aTag;
 };
 #endif
@@ -218,20 +219,27 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **    T (+|-)<tagname> <uuid>
+      **    T (+|-)<tagname> <uuid> ?<value>?
       **
-      ** Create or cancel a tag.  The tagname is fossil-encoded.  The
-      ** first character must be either "+" to create or "-" to delete.
+      ** Create or cancel a tag or property.  The tagname is fossil-encoded.
+      ** The first character of the name must be either "+" to create or 
+      ** "-" to cancel. The tag is applied to <uuid>.  If <value> is
+      ** provided then the tag is really a property with the given value.
       ** Tags are not allowed in clusters.  Multiple T lines are allowed.
       */
       case 'T': {
-        char *zName, *zUuid;
+        char *zName, *zUuid, *zValue;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
         zUuid = blob_terminate(&a2);
+        if( blob_token(&line, &a3)==0 ){
+          zValue = 0;
+        }else{
+          zValue = blob_terminate(&a3);
+          defossilize(zValue);
+        }
         if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         defossilize(zName);
@@ -246,6 +254,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         i = p->nTag++;
         p->aTag[i].zName = zName;
         p->aTag[i].zUuid = zUuid;
+        p->aTag[i].zValue = zValue;
         if( i>0 && strcmp(p->aTag[i-1].zName, zName)>=0 ){
           goto manifest_syntax_error;
         }
