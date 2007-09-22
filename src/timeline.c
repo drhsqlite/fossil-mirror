@@ -77,7 +77,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 
 /*
 ** Output a timeline in the web format given a query.  The query
-** should return 4 columns:
+** should return these columns:
 **
 **    0.  rid
 **    1.  UUID
@@ -191,6 +191,40 @@ static int save_parentage_javascript(int rid, Blob *pOut){
 }
 
 /*
+** Return a pointer to a constant string that forms the basis
+** for a timeline query for the WWW interface.
+*/
+const char *timeline_query_for_www(void){
+  static const char zBaseSql[] =
+    @ SELECT
+    @   blob.rid,
+    @   uuid,
+    @   datetime(event.mtime,'localtime'),
+    @   coalesce((SELECT value FROM tagxref
+    @              WHERE rid=blob.rid
+    @                AND tagid=(SELECT tagid FROM tag WHERE tagname='comment')),
+    @            comment),
+    @   coalesce((SELECT value FROM tagxref
+    @              WHERE rid=blob.rid
+    @                AND tagid=(SELECT tagid FROM tag WHERE tagname='user')),
+    @            user),
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
+    @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
+    @   (SELECT value FROM tagxref
+    @     WHERE rid=blob.rid
+    @       AND tagid=(SELECT tagid FROM tag WHERE tagname='bgcolor')
+    @    UNION ALL
+    @    SELECT value FROM tagxref
+    @     WHERE rid=blob.rid
+    @       AND tagid=(SELECT tagid FROM tag WHERE tagname='br-bgcolor'))
+    @  FROM event JOIN blob 
+    @ WHERE blob.rid=event.objid
+  ;
+  return zBaseSql;
+}
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -215,7 +249,6 @@ void page_timeline(void){
   int afterFlag = P("a")!=0;
   int firstEvent;
   int lastEvent;
-  int clr1, clr2;     /* Tag IDs for specifying background colors */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -223,8 +256,6 @@ void page_timeline(void){
   if( !g.okRead ){ login_needed(); return; }
 
   style_header("Timeline");
-  clr1 = db_int(0, "SELECT tagid FROM tag WHERE tagname='br-bg-color'");
-  clr2 = db_int(0, "SELECT tagid FROM tag WHERE tagname='bg-color'");
   if( !g.okHistory &&
       db_exists("SELECT 1 FROM user"
                 " WHERE login='anonymous'"
@@ -232,17 +263,7 @@ void page_timeline(void){
     @ <p><b>Note:</b> You will be able to access <u>much</u> more
     @ historical information if <a href="%s(g.zBaseURL)/login">login</a>.</p>
   }
-  zSQL = mprintf(
-    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'), comment, user,"
-    "       (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),"
-    "       (SELECT count(*) FROM plink WHERE cid=blob.rid),"
-    "       NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),"
-    "       (SELECT value FROM tagxref WHERE rid=blob.rid AND tagid=%d"
-    "        UNION ALL"
-    "        SELECT value FROM tagxref WHERE rid=blob.rid AND tagid=%d)"
-    "  FROM event JOIN blob"
-    " WHERE event.type='ci' AND blob.rid=event.objid", clr2, clr1
-  );
+  zSQL = mprintf("%s", timeline_query_for_www());
   if( zUser ){
     zSQL = mprintf("%z AND event.user=%Q", zSQL, zUser);
   }
@@ -369,6 +390,15 @@ void page_timeline(void){
 ** summary of those records.
 **
 ** Limit the number of entries printed to nLine.
+** 
+** The query should return these columns:
+**
+**    0.  rid
+**    1.  uuid
+**    2.  Date/Time
+**    3.  Comment string and user
+**    4.  Number of non-merge children
+**    5.  Number of parents
 */
 void print_timeline(Stmt *q, int mxLine){
   int nLine = 0;
@@ -410,6 +440,34 @@ void print_timeline(Stmt *q, int mxLine){
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
   }
+}
+
+/*
+** Return a pointer to a static string that forms the basis for
+** a timeline query for display on a TTY.
+*/
+const char *timeline_query_for_tty(void){
+  static const char zBaseSql[] = 
+    @ SELECT
+    @   blob.rid,
+    @   uuid,
+    @   datetime(event.mtime,'localtime'),
+    @   coalesce((SELECT value FROM tagxref
+    @             WHERE rid=blob.rid
+    @             AND tagid=(SELECT tagid FROM tag WHERE tagname='comment')),
+    @            comment)
+    @     || ' (by ' ||
+    @     coalesce((SELECT value FROM tagxref
+    @               WHERE rid=blob.rid
+    @               AND tagid=(SELECT tagid FROM tag WHERE tagname='user')),
+    @              user)
+    @     || ')',
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
+    @ FROM event, blob
+    @ WHERE blob.rid=event.objid
+  ;
+  return zBaseSql;
 }
 
 
@@ -494,15 +552,10 @@ void timeline_cmd(void){
     }
     zDate = mprintf("(SELECT julianday(%Q, 'utc'))", zOrigin);
   }
-  zSQL = mprintf(
-    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'),"
-    "       comment || ' (by ' || user || ')',"
-    "       (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),"
-    "       (SELECT count(*) FROM plink WHERE cid=blob.rid)"
-    "  FROM event, blob"
-    " WHERE event.type='ci' AND blob.rid=event.objid"
-    "   AND event.mtime %s %s",
-    (mode==1 || mode==4) ? "<=" : ">=", zDate
+  zSQL = mprintf("%s AND event.mtime %s %s",
+     timeline_query_for_tty(),
+     (mode==1 || mode==4) ? "<=" : ">=",
+     zDate
   );
   if( mode==3 || mode==4 ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");

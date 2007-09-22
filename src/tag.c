@@ -122,6 +122,35 @@ int tag_findid(const char *zTag, int createFlag){
   return id;
 }
 
+/*
+** Insert a tag into the database.
+*/
+void tag_insert(
+  const char *zTag,        /* Name of the tag (w/o the "+" or "-" prefix */
+  int addFlag,             /* True to add.  False to remove */
+  const char *zValue,      /* Value if the tag is really a property */
+  int srcId,               /* Artifact that contains this tag */
+  double mtime,            /* Timestamp.  Use default if <=0.0 */
+  int rid                  /* Artifact to which the tag is to attached */
+){
+  Stmt s;
+  int tagid = tag_findid(zTag, 1);
+  if( mtime<=0.0 ){
+    mtime = db_double(0.0, "SELECT julianday('now')");
+  }
+  db_prepare(&s, 
+    "REPLACE INTO tagxref(tagid,addFlag,srcId,value,mtime,rid)"
+    " VALUES(%d,%d,%d,%Q,:mtime,%d)",
+    tagid, addFlag, srcId, zValue, rid
+  );
+  db_bind_double(&s, ":mtime", mtime);
+  db_step(&s);
+  db_finalize(&s);
+  if( strncmp(zTag, "br", 2)==0 ){
+    tag_propagate(rid, tagid, 1, zValue, mtime);
+  }
+}
+
 
 /*
 ** COMMAND: test-addtag
@@ -135,9 +164,7 @@ int tag_findid(const char *zTag, int createFlag){
 void addtag_cmd(void){
   const char *zTag;
   const char *zValue;
-  int tagid;
   int rid;
-  double now;
   db_must_be_within_tree();
   if( g.argc!=4 && g.argc!=5 ){
     usage("TAGNAME UUID ?VALUE?");
@@ -147,17 +174,33 @@ void addtag_cmd(void){
   if( rid==0 ){
     fossil_fatal("no such object: %s", g.argv[3]);
   }
-  db_begin_transaction();
-  tagid = tag_findid(zTag, 1);
   zValue = g.argc==5 ? g.argv[4] : 0;
-  db_multi_exec(
-    "REPLACE INTO tagxref(tagid,addFlag,srcId,value,mtime,rid)"
-    " VALUES(%d,1,-1,%Q,julianday('now'),%d)",
-    tagid, rid, zValue, rid
-  );
-  if( strncmp(zTag, "br", 2)==0 ){
-    now = db_double(0.0, "SELECT julianday('now')");
-    tag_propagate(rid, tagid, 1, zValue, now);
+  db_begin_transaction();
+  tag_insert(zTag, 1, zValue, -1, 0.0, rid);
+  db_end_transaction(0); 
+}
+/*
+** COMMAND: test-deltag
+** %fossil test-deltag TAGNAME UUID
+**
+** Cancel a tag to the rebuildable tables of the local repository.
+** No tag artifact is created so the cancellation is undone the next
+** time the repository is rebuilt.  This routine is for testing
+** use only.
+*/
+void deltag_cmd(void){
+  const char *zTag;
+  int rid;
+  db_must_be_within_tree();
+  if( g.argc!=4 ){
+    usage("TAGNAME UUID");
   }
+  zTag = g.argv[2];
+  rid = name_to_rid(g.argv[3]);
+  if( rid==0 ){
+    fossil_fatal("no such object: %s", g.argv[3]);
+  }
+  db_begin_transaction();
+  tag_insert(zTag, 0, 0, -1, 0.0, rid);
   db_end_transaction(0); 
 }

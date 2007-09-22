@@ -70,12 +70,10 @@ void update_cmd(void){
     compute_leaves(vid);
     if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
       db_prepare(&q, 
-        "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'),"
-        "       comment || ' (by ' || user || ')', 1, 1"
-        "  FROM event, blob"
-        " WHERE event.type='ci' AND blob.rid=event.objid"
+        "%s "
         "   AND event.objid IN leaves"
-        " ORDER BY event.mtime DESC"
+        " ORDER BY event.mtime DESC",
+        timeline_query_for_tty()
       );
       print_timeline(&q, 100);
       db_finalize(&q);
