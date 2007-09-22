@@ -200,24 +200,12 @@ const char *timeline_query_for_www(void){
     @   blob.rid,
     @   uuid,
     @   datetime(event.mtime,'localtime'),
-    @   coalesce((SELECT value FROM tagxref
-    @              WHERE rid=blob.rid
-    @                AND tagid=(SELECT tagid FROM tag WHERE tagname='comment')),
-    @            comment),
-    @   coalesce((SELECT value FROM tagxref
-    @              WHERE rid=blob.rid
-    @                AND tagid=(SELECT tagid FROM tag WHERE tagname='user')),
-    @            user),
+    @   coalesce(ecomment, comment),
+    @   coalesce(euser, user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
     @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
-    @   (SELECT value FROM tagxref
-    @     WHERE rid=blob.rid
-    @       AND tagid=(SELECT tagid FROM tag WHERE tagname='bgcolor')
-    @    UNION ALL
-    @    SELECT value FROM tagxref
-    @     WHERE rid=blob.rid
-    @       AND tagid=(SELECT tagid FROM tag WHERE tagname='br-bgcolor'))
+    @   coalesce(bgcolor, brbgcolor)
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -452,16 +440,7 @@ const char *timeline_query_for_tty(void){
     @   blob.rid,
     @   uuid,
     @   datetime(event.mtime,'localtime'),
-    @   coalesce((SELECT value FROM tagxref
-    @             WHERE rid=blob.rid
-    @             AND tagid=(SELECT tagid FROM tag WHERE tagname='comment')),
-    @            comment)
-    @     || ' (by ' ||
-    @     coalesce((SELECT value FROM tagxref
-    @               WHERE rid=blob.rid
-    @               AND tagid=(SELECT tagid FROM tag WHERE tagname='user')),
-    @              user)
-    @     || ')',
+    @   coalesce(ecomment,comment) || ' (by ' || coalesce(euser,user) || ')',
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
     @ FROM event, blob

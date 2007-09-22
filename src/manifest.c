@@ -21,7 +21,8 @@
 **
 *******************************************************************************
 **
-** This file contains code used to cross link manifests
+** This file contains code used to cross link control files and
+** manifests.
 */
 #include "config.h"
 #include "manifest.h"
@@ -29,10 +30,18 @@
 
 #if INTERFACE
 /*
+** Types of control files
+*/
+#define CFTYPE_MANIFEST   1
+#define CFTYPE_CLUSTER    2
+#define CFTYPE_CONTROL    3
+
+/*
 ** A parsed manifest or cluster.
 */
 struct Manifest {
   Blob content;         /* The original content blob */
+  int type;             /* Type of file */
   char *zComment;       /* Decoded comment */
   double rDate;         /* Time in the "D" line */
   char *zUser;          /* Name of the user */
@@ -246,6 +255,10 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( zName[0]!='-' && zName[0]!='+' ){
           goto manifest_syntax_error;
         }
+        if( validate16(&zName[1], strlen(&zName[1])) ){
+          /* Do not allow tags whose names look like UUIDs */
+          goto manifest_syntax_error;
+        }
         if( p->nTag>=p->nTagAlloc ){
           p->nTagAlloc = p->nTagAlloc*2 + 10;
           p->aTag = realloc(p->aTag, p->nTagAlloc*sizeof(p->aTag[0]) );
@@ -349,6 +362,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   if( p->nFile>0 ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->rDate==0.0 ) goto manifest_syntax_error;
+    p->type = CFTYPE_MANIFEST;
   }else if( p->nCChild>0 ){
     if( p->rDate>0.0 ) goto manifest_syntax_error;
     if( p->zComment!=0 ) goto manifest_syntax_error;
@@ -356,10 +370,12 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->nParent>0 ) goto manifest_syntax_error;
     if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+    p->type = CFTYPE_CLUSTER;
   }else if( p->nTag>0 ){
     if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
     if( p->nParent>0 ) goto manifest_syntax_error;
+    p->type = CFTYPE_CONTROL;
   }else{
     goto manifest_syntax_error;
   }
@@ -483,32 +499,44 @@ int manifest_crosslink(int rid, Blob *pContent){
     return 0;
   }
   db_begin_transaction();
-  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
-    for(i=0; i<m.nParent; i++){
-      int pid = uuid_to_rid(m.azParent[i], 1);
-      db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-                    "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, m.rDate);
-      if( i==0 ){
-        add_mlink(pid, 0, rid, &m);
+  if( m.type==CFTYPE_MANIFEST ){
+    if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
+      for(i=0; i<m.nParent; i++){
+        int pid = uuid_to_rid(m.azParent[i], 1);
+        db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
+                      "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, m.rDate);
+        if( i==0 ){
+          add_mlink(pid, 0, rid, &m);
+        }
+      }
+      db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
+      while( db_step(&q)==SQLITE_ROW ){
+        int cid = db_column_int(&q, 0);
+        add_mlink(rid, &m, cid, 0);
+      }
+      db_finalize(&q);
+      db_multi_exec(
+        "INSERT INTO event(type,mtime,objid,user,comment)"
+        "VALUES('ci',%.17g,%d,%Q,%Q)",
+        m.rDate, rid, m.zUser, m.zComment
+      );
+    }
+  }
+  if( m.type==CFTYPE_CLUSTER ){
+    for(i=0; i<m.nCChild; i++){
+      int mid;
+      mid = uuid_to_rid(m.azCChild[i], 1);
+      if( mid>0 ){
+        db_multi_exec("DELETE FROM unclustered WHERE rid=%d", mid);
       }
     }
-    db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      int cid = db_column_int(&q, 0);
-      add_mlink(rid, &m, cid, 0);
-    }
-    db_finalize(&q);
-    db_multi_exec(
-      "INSERT INTO event(type,mtime,objid,user,comment)"
-      "VALUES('ci',%.17g,%d,%Q,%Q)",
-      m.rDate, rid, m.zUser, m.zComment
-    );
   }
-  for(i=0; i<m.nCChild; i++){
-    int rid;
-    rid = uuid_to_rid(m.azCChild[i], 1);
-    if( rid>0 ){
-      db_multi_exec("DELETE FROM unclustered WHERE rid=%d", rid);
+  if( m.type==CFTYPE_CONTROL || m.type==CFTYPE_MANIFEST ){
+    for(i=0; i<m.nTag; i++){
+      int tid;
+      tid = uuid_to_rid(m.aTag[i].zUuid, 1);
+      tag_insert(&m.aTag[i].zName[1], m.aTag[i].zName[0]=='+',
+                 m.aTag[i].zValue, rid, m.rDate, tid);
     }
   }
   db_end_transaction(0);

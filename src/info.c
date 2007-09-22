@@ -116,7 +116,8 @@ static int showDescendents(int pid, int depth, const char *zTitle){
   int cnt = 0;
   db_prepare(&q,
     "SELECT plink.cid, blob.uuid, datetime(plink.mtime, 'localtime'),"
-    "       event.user, event.comment"
+    "       coalesce(event.euser,event.user),"
+    "       coalesce(event.comment,event.ecomment)"
     "  FROM plink, blob, event"
     " WHERE plink.pid=%d"
     "   AND blob.rid=plink.cid"
@@ -151,6 +152,7 @@ static int showDescendents(int pid, int depth, const char *zTitle){
       @ <b>leaf</b>
     }
   }
+  db_finalize(&q);
   if( cnt ){
     @ </ul>
   }
@@ -166,7 +168,8 @@ static void showAncestors(int pid, int depth, const char *zTitle){
   int cnt = 0;
   db_prepare(&q,
     "SELECT plink.pid, blob.uuid, datetime(event.mtime, 'localtime'),"
-    "       event.user, event.comment"
+    "       coalesce(event.euser,event.user),"
+    "       coalesce(event.comment,event.ecomment)"
     "  FROM plink, blob, event"
     " WHERE plink.cid=%d"
     "   AND blob.rid=plink.pid"
@@ -194,6 +197,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
       showAncestors(cid, depth-1, 0);
     }
   }
+  db_finalize(&q);
   if( cnt ){
     @ </ul>
   }
@@ -208,7 +212,8 @@ static void showLeaves(void){
   int cnt = 0;
   db_prepare(&q,
     "SELECT blob.uuid, datetime(event.mtime, 'localtime'),"
-    "       event.user, event.comment"
+    "       coalesce(event.euser, event.user),"
+    "       coalesce(event.ecomment,event.comment)"
     "  FROM leaves, plink, blob, event"
     " WHERE plink.cid=leaves.rid"
     "   AND blob.rid=leaves.rid"
@@ -229,6 +234,57 @@ static void showLeaves(void){
     hyperlink_to_uuid(zUuid);
     @ %s(zCom) (by %s(zUser) on %s(zDate))
   }
+  db_finalize(&q);
+  if( cnt ){
+    @ </ul>
+  }
+}
+
+/*
+** Show information about all tags on a given node.
+*/
+static void showTags(int rid){
+  Stmt q;
+  int cnt = 0;
+  db_prepare(&q,
+    "SELECT tag.tagid, tagname, srcid, blob.uuid, value,"
+    "       datetime(tagxref.mtime,'localtime'), addflag"
+    "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
+    "       LEFT JOIN blob ON blob.rid=tagxref.srcid"
+    " WHERE tagxref.rid=%d"
+    " ORDER BY tagname", rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int tagid = db_column_int(&q, 0);
+    const char *zTagname = db_column_text(&q, 1);
+    int srcid = db_column_int(&q, 2);
+    const char *zUuid = db_column_text(&q, 3);
+    const char *zValue = db_column_text(&q, 4);
+    const char *zDate = db_column_text(&q, 5);
+    int addFlag = db_column_int(&q, 6);
+    cnt++;
+    if( cnt==1 ){
+      @ <h2>Tags And Properties</h2>
+      @ <ul>
+    }
+    @ <li>
+    @ <b>%h(zTagname)</b>
+    if( zValue ){
+      @ = %h(zValue)<i>
+    }else if( !addFlag ){
+      @ <i>Cancelled
+    }else{
+      @ <i>
+    }
+    if( srcid==0 ){
+      @ Inherited
+    }else if( zUuid ){
+      @ From
+      hyperlink_to_uuid(zUuid);
+    }
+    @ on %s(zDate)</i>
+  }
+  db_finalize(&q);
   if( cnt ){
     @ </ul>
   }
@@ -268,8 +324,8 @@ void vinfo_page(void){
     @ <h2>Version %s(zUuid)</h2>
     @ <ul>
     @ <li><b>Date:</b> %s(db_column_text(&q, 1))</li>
-    @ <li><b>User:</b> %s(db_column_text(&q, 2))</li>
-    @ <li><b>Comment:</b> %s(db_column_text(&q, 3))</li>
+    @ <li><b>Original&nbsp;User:</b> %s(db_column_text(&q, 2))</li>
+    @ <li><b>Original&nbsp;Comment:</b> %s(db_column_text(&q, 3))</li>
     @ <li><a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a></li>
     @ <li><a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a></li>
     @ <li><a href="%s(g.zBaseURL)/fview/%d(rid)">manifest</a></li>
@@ -279,6 +335,7 @@ void vinfo_page(void){
     @ </ul>
   }
   db_finalize(&q);
+  showTags(rid);
   @ <p><h2>Changes:</h2>
   @ <ul>
   db_prepare(&q, 
@@ -326,7 +383,9 @@ void finfo_page(void){
   zPrevDate[0] = 0;
   db_prepare(&q,
     "SELECT a.uuid, substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
-    "       event.comment, event.user, mlink.pid, mlink.fid"
+    "       coalesce(event.ecomment, event.comment),"
+    "       coalesce(event.euser, event.user),"
+    "       mlink.pid, mlink.fid"
     "  FROM mlink, blob a, blob b, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
     "   AND a.rid=mlink.mid"
@@ -451,7 +510,9 @@ static void object_description(int rid, int linkToView){
   int cnt = 0;
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime), substr(a.uuid,1,10),"
-    "       event.comment, event.user, b.uuid"
+    "       coalesce(event.comment,event.ecomment),"
+    "       coalesce(event.euser,event.user),"
+    "       b.uuid"
     "  FROM mlink, filename, event, blob a, blob b"
     " WHERE filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"

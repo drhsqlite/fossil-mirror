@@ -44,7 +44,7 @@ void tag_propagate(
   double mtime         /* Timestamp on the tag */
 ){
   PQueue queue;
-  Stmt s, ins;
+  Stmt s, ins, eventupdate;
   pqueue_init(&queue);
   pqueue_insert(&queue, pid, 0.0);
   db_prepare(&s, 
@@ -63,8 +63,14 @@ void tag_propagate(
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
+    zValue = 0;
     db_prepare(&ins,
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid
+    );
+  }
+  if( tagid==TAG_BR_BGCOLOR ){
+    db_prepare(&eventupdate,
+      "UPDATE event SET brbgcolor=%Q WHERE objid=:rid", zValue
     );
   }
   while( (pid = pqueue_extract(&queue))!=0 ){
@@ -78,6 +84,11 @@ void tag_propagate(
         db_bind_int(&ins, ":rid", cid);
         db_step(&ins);
         db_reset(&ins);
+        if( tagid==TAG_BR_BGCOLOR ){
+          db_bind_int(&eventupdate, ":rid", cid);
+          db_step(&eventupdate);
+          db_reset(&eventupdate);
+        }
       }
     }
     db_reset(&s);
@@ -85,6 +96,9 @@ void tag_propagate(
   pqueue_clear(&queue);
   db_finalize(&ins);
   db_finalize(&s);
+  if( tagid==TAG_BR_BGCOLOR ){
+    db_finalize(&eventupdate);
+  }
 }
 
 /*
@@ -146,8 +160,29 @@ void tag_insert(
   db_bind_double(&s, ":mtime", mtime);
   db_step(&s);
   db_finalize(&s);
+  if( addFlag==0 ){
+    zValue = 0;
+  }
+  switch( tagid ){
+    case TAG_BGCOLOR: {
+      db_multi_exec("UPDATE event SET bgcolor=%Q WHERE objid=%d", zValue, rid);
+      break;
+    }
+    case TAG_BR_BGCOLOR: {
+      db_multi_exec("UPDATE event SET brbgcolor=%Q WHERE objid=%d", zValue,rid);
+      break;
+    }
+    case TAG_COMMENT: {
+      db_multi_exec("UPDATE event SET ecomment=%Q WHERE objid=%d", zValue, rid);
+      break;
+    }
+    case TAG_USER: {
+      db_multi_exec("UPDATE event SET euser=%Q WHERE objid=%d", zValue, rid);
+      break;
+    }
+  }
   if( strncmp(zTag, "br", 2)==0 ){
-    tag_propagate(rid, tagid, 1, zValue, mtime);
+    tag_propagate(rid, tagid, addFlag, zValue, mtime);
   }
 }
 
@@ -203,4 +238,163 @@ void deltag_cmd(void){
   db_begin_transaction();
   tag_insert(zTag, 0, 0, -1, 0.0, rid);
   db_end_transaction(0); 
+}
+
+/*
+** Add a control record to the repository that either creates
+** or cancels a tag.
+*/
+static void tag_add_artifact(
+  const char *zTagname,       /* The tag to add or cancel */
+  const char *zObjName,       /* Name of object attached to */
+  const char *zValue,         /* Value for the tag.  Might be NULL */
+  int addFlag                 /* True to add.  false to cancel */
+){
+  int rid;
+  int nrid;
+  char *zDate;
+  Blob uuid;
+  Blob ctrl;
+  Blob cksum;
+
+  user_select();
+  rid = name_to_rid(zObjName);
+  blob_zero(&uuid);
+  db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  blob_zero(&ctrl);
+  
+  if( validate16(zTagname, strlen(zTagname)) ){
+    fossil_fatal("invalid tag name \"%s\" - might be confused with a UUID",
+                 zTagname);
+  }
+  zDate = db_text(0, "SELECT datetime('now')");
+  zDate[10] = 'T';
+  blob_appendf(&ctrl, "D %s\n", zDate);
+  blob_appendf(&ctrl, "T %c%F %b", addFlag ? '+' : '-', zTagname, &uuid);
+  if( addFlag && zValue && zValue[0] ){
+    blob_appendf(&ctrl, " %F\n", zValue);
+  }else{
+    blob_appendf(&ctrl, "\n");
+  }
+  blob_appendf(&ctrl, "U %F\n", g.zLogin);
+  md5sum_blob(&ctrl, &cksum);
+  blob_appendf(&ctrl, "Z %b\n", &cksum);
+  db_begin_transaction();
+  nrid = content_put(&ctrl, 0, 0);
+  manifest_crosslink(nrid, &ctrl);
+  db_end_transaction(0);
+}
+
+/*
+** COMMAND: tag
+** Usage: %fossil tag SUBCOMMAND ...
+**
+** Run various subcommands to control tags and properties
+**
+**     %fossil tag add TAGNAME UUID ?VALUE?
+**
+**         Add a new tag or property to UUID.
+**
+**     %fossil tag delete TAGNAME UUID
+**
+**         Delete the tag TAGNAME from UUID
+**
+**     %fossil tag find TAGNAME
+**
+**         List all baselines that use TAGNAME
+**
+**     %fossil tag list ?UUID?
+**
+**         List all tags, or if UUID is supplied, list
+**         all tags and their values for UUID.
+*/
+void tag_cmd(void){
+  int n;
+  db_find_and_open_repository();
+  if( g.argc<3 ){
+    goto tag_cmd_usage;
+  }
+  n = strlen(g.argv[2]);
+  if( n==0 ){
+    goto tag_cmd_usage;
+  }
+
+  if( strncmp(g.argv[2],"add",n)==0 ){
+    char *zValue;
+    if( g.argc!=5 && g.argc!=6 ){
+      usage("tag add TAGNAME UUID ?VALUE?");
+    }
+    zValue = g.argc==6 ? g.argv[5] : 0;
+    tag_add_artifact(g.argv[3], g.argv[4], zValue, 1);
+  }else
+
+  if( strncmp(g.argv[2],"delete",n)==0 ){
+    if( g.argc!=5 ){
+      usage("tag delete TAGNAME UUID");
+    }
+    tag_add_artifact(g.argv[3], g.argv[4], 0, 0);
+  }else
+
+  if( strncmp(g.argv[2],"find",n)==0 ){
+    Stmt q;
+    if( g.argc!=4 ){
+      usage("tag find TAGNAME");
+    }
+    db_prepare(&q,
+      "SELECT blob.uuid FROM tagxref, blob"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      "   AND blob.rid=tagxref.rid", g.argv[3]
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      printf("%s\n", db_column_text(&q, 0));
+    }
+    db_finalize(&q);
+  }else
+
+  if( strncmp(g.argv[2],"list",n)==0 ){
+    Stmt q;
+    if( g.argc==3 ){
+      db_prepare(&q, 
+        "SELECT tagname"
+        "  FROM tag"
+        " WHERE EXISTS(SELECT 1 FROM tagxref"
+        "               WHERE tagid=tag.tagid"
+        "                 AND addflag)"
+        " ORDER BY tagname"
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        printf("%s\n", db_column_text(&q, 0));
+      }
+      db_finalize(&q);
+    }else if( g.argc==4 ){
+      int rid = name_to_rid(g.argv[3]);
+      db_prepare(&q,
+        "SELECT tagname, value"
+        "  FROM tagxref, tag"
+        " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
+        "   AND addflag"
+        " ORDER BY tagname",
+        rid
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        const char *zName = db_column_text(&q, 0);
+        const char *zValue = db_column_text(&q, 1);
+        if( zValue ){
+          printf("%s=%s\n", zName, zValue);
+        }else{
+          printf("%s\n", zName);
+        }
+      }
+      db_finalize(&q);
+    }else{
+      usage("tag list ?UUID?");
+    }
+  }else
+  {
+    goto tag_cmd_usage;
+  }
+  return;
+
+tag_cmd_usage:
+  usage("add|delete|find|list ...");
 }

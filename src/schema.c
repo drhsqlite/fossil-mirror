@@ -158,7 +158,11 @@ const char zRepositorySchema2[] =
 @   mtime DATETIME,                 -- Date and time when the event occurs
 @   objid INTEGER PRIMARY KEY,      -- Associated record ID
 @   uid INTEGER REFERENCES user,    -- User who caused the event
+@   bgcolor TEXT,                   -- Color set by 'bgcolor' property
+@   brbgcolor TEXT,                 -- Color set by 'br-bgcolor' property
+@   euser TEXT,                     -- User set by 'user' property
 @   user TEXT,                      -- Name of the user
+@   ecomment TEXT,                  -- Comment set by 'comment' property
 @   comment TEXT                    -- Comment describing the event
 @ );
 @ CREATE INDEX event_i1 ON event(mtime);
@@ -201,6 +205,10 @@ const char zRepositorySchema2[] =
 @   tagid INTEGER PRIMARY KEY,       -- Numeric tag ID
 @   tagname TEXT UNIQUE              -- Tag name.  Prefixed by 'v' or 'b'
 @ );
+@ INSERT INTO tag VALUES(1, 'bgcolor');         -- TAG_BGCOLOR
+@ INSERT INTO tag VALUES(2, 'br-bgcolor');      -- TAG_BR_BGCOLOR
+@ INSERT INTO tag VALUES(3, 'comment');         -- TAG_COMMENT
+@ INSERT INTO tag VALUES(4, 'user');            -- TAG_USER
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -218,6 +226,16 @@ const char zRepositorySchema2[] =
 @ );
 @ CREATE INDEX tagxref_i1 ON tagxref(tagid);
 ;
+
+/*
+** Predefined tagid values
+*/
+#if INTERFACE
+# define TAG_BGCOLOR    1
+# define TAG_BR_BGCOLOR 2
+# define TAG_COMMENT    3
+# define TAG_USER       4
+#endif
 
 /*
 ** The schema for the locate FOSSIL database file found at the root

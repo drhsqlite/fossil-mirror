@@ -36,6 +36,9 @@
 ** case and might only be a prefix of the full UUID and converts it
 ** into the full-length UUID in canonical form.
 **
+** If the input is not a UUID or a UUID prefix, then try to resolve
+** the name as a tag.
+**
 ** Return the number of errors.
 */
 int name_to_uuid(Blob *pName, int iErrPriority){
@@ -43,8 +46,32 @@ int name_to_uuid(Blob *pName, int iErrPriority){
   int sz;
   sz = blob_size(pName);
   if( sz>UUID_SIZE || sz<4 || !validate16(blob_buffer(pName), sz) ){
-    fossil_error(iErrPriority, "not a valid object name: %b", pName);
-    return 1;
+    Stmt q;
+    Blob uuid;
+
+    db_prepare(&q,
+      "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
+      "  FROM tagxref JOIN event ON rid=objid"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%B)"
+      "   AND addflag"
+      "   AND value IS NULL"
+      " ORDER BY event.mtime DESC",
+      pName
+    );
+    blob_zero(&uuid);
+    if( db_step(&q)==SQLITE_ROW ){
+      db_column_blob(&q, 0, &uuid);
+    }
+    db_finalize(&q);
+    if( blob_size(&uuid)==0 ){
+      fossil_error(iErrPriority, "not a valid object name: %b", pName);
+      blob_reset(&uuid);
+      return 1;
+    }else{
+      blob_reset(pName);
+      *pName = uuid;
+      return 0;
+    }
   }
   blob_materialize(pName);
   canonical16(blob_buffer(pName), sz);
@@ -122,7 +149,7 @@ int name_to_rid(const char *zName){
   }
   blob_init(&name, zName, -1);
   if( name_to_uuid(&name, 1) ){
-    fossil_panic("%s", g.zErrMsg);
+    fossil_fatal("%s", g.zErrMsg);
   }
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &name);
   blob_reset(&name);
