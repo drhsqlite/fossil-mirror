@@ -573,9 +573,20 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-        if( file_mkdir(zName, 1) ){
-          fossil_panic("unable to create directory %s", zName);
+#ifdef __MINGW32__
+        /*
+        ** On Windows, local path looks like: C:/develop/project/file.txt
+        ** The if stops us from trying to create a directory of a drive letter
+        ** C: in this example.
+        */
+        if( !(i==2 && zName[1]==':') ){
+#endif
+          if( file_mkdir(zName, 1) ){
+            fossil_panic("unable to create directory %s", zName);
+          }
+#ifdef __MINGW32__
         }
+#endif
         zName[i] = '/';
       }
     }

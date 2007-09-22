@@ -194,7 +194,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
       exit(1);
     }
     blob_zero(pOut);
-    blob_appendf(pOut, "%s/%s", zPwd, zOrigName);
+    blob_appendf(pOut, "%//%/", zPwd, zOrigName);
   }
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut)));
 }

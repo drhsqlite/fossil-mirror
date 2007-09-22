@@ -52,7 +52,7 @@ void add_cmd(void){
     Blob pathname;
     int isDir;
 
-    zName = mprintf("%s", g.argv[i]);
+    zName = mprintf("%/", g.argv[i]);
     isDir = file_isdir(zName);
     if( isDir==1 ) continue;
     if( isDir==0 ){
@@ -102,7 +102,7 @@ void del_cmd(void){
     char *zPath;
     Blob pathname;
 
-    zName = mprintf("%s", g.argv[i]);
+    zName = mprintf("%/", g.argv[i]);
     file_tree_name(zName, &pathname);
     zPath = blob_str(&pathname);
     if( !db_exists(

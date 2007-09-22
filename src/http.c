@@ -43,6 +43,24 @@
 */
 static FILE *pSocket = 0;   /* The socket on which we talk to the server */
 
+#ifdef __MINGW32__
+static WSADATA ws_info;
+#endif
+
+static void ws_init(){
+#ifdef __MINGW32__
+  if (WSAStartup(MAKEWORD(1,1), &ws_info) != 0){
+    fossil_panic("can't initialize winsock");
+  }
+#endif
+}
+
+static void ws_cleanup(){
+#ifdef __MINGW32__
+  WSACleanup();
+#endif
+}
+
 /*
 ** Open a socket connection to the server.  Return 0 on success and
 ** non-zero if an error occurs.
@@ -51,8 +69,10 @@ static int http_open_socket(void){
   static struct sockaddr_in addr;  /* The server address */
   static int addrIsInit = 0;       /* True once addr is initialized */
   int s;
-
+  
   if( !addrIsInit ){
+    ws_init();
+
     addr.sin_family = AF_INET;
     addr.sin_port = htons(g.urlPort);
     *(int*)&addr.sin_addr = inet_addr(g.urlName);
@@ -271,5 +291,6 @@ void http_close(void){
   if( pSocket ){
     fclose(pSocket);
     pSocket = 0;
+    ws_cleanup();
   }
 }

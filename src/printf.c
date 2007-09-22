@@ -51,6 +51,7 @@
 #define etHTTPIZE    17 /* Make text safe for HTTP.  "/" encoded as %2f */
 #define etURLIZE     18 /* Make text safe for HTTP.  "/" not encoded */
 #define etFOSSILIZE  19 /* The fossil header encoding format. */
+#define etPATH       20 /* Path type */
 
 
 /*
@@ -111,6 +112,7 @@ static const et_info fmtinfo[] = {
   {  'n',  0, 0, etSIZE,       0,  0 },
   {  '%',  0, 0, etPERCENT,    0,  0 },
   {  'p', 16, 0, etPOINTER,    0,  1 },
+  {  '/',  0, 0, etPATH,       0,  0 },
 };
 #define etNINFO  (sizeof(fmtinfo)/sizeof(fmtinfo[0]))
 
@@ -543,6 +545,22 @@ int vxprintf(
         }
         bufpt = buf;
         break;
+      case etPATH: {
+        int i;
+        char *e = va_arg(ap,char*);
+        if( e==0 ){e="";}
+        length = strlen(e);
+        zExtra = bufpt = malloc(length+1);
+        for( i=0; i<length; i++ ){
+          if( e[i]=='\\' ){
+            bufpt[i]='/';
+          }else{
+            bufpt[i]=e[i];
+          }
+        }
+        bufpt[length]='\0';
+        break;
+      }
       case etSTRING:
       case etDYNSTRING:
         bufpt = va_arg(ap,char*);

@@ -492,11 +492,27 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 */
 void db_open_config(void){
   char *zDbName;
-  const char *zHome = getenv("HOME");
+  const char *zHome;
+#ifdef __MINGW32__
+  zHome = getenv("LOCALAPPDATA");
+  if( zHome==0 ){
+    zHome = getenv("APPDATA");
+    if( zHome==0 ){
+      zHome = getenv("HOMEPATH");
+    }
+  }
+#else
+  zHome = getenv("HOME");
+#endif
   if( zHome==0 ){
     db_err("cannot local home directory");
   }
+#ifdef __MINGW32__
+  /* . filenames give some window systems problems and many apps problems */
+  zDbName = mprintf("%s/_fossil", zHome);
+#else
   zDbName = mprintf("%s/.fossil", zHome);
+#endif
   if( g.configOpen ) return;
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
@@ -538,11 +554,15 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int n;
   char zPwd[2000];
+  char *zPwdConv;
   if( g.localOpen) return 1;
   if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
     db_err("pwd too big: max %d", sizeof(zPwd)-20);
   }
   n = strlen(zPwd);
+  zPwdConv = mprintf("%/", zPwd);
+  strncpy(zPwd, zPwdConv, 2000-20);
+  free(zPwdConv);
   while( n>0 ){
     if( access(zPwd, W_OK) ) break;
     strcpy(&zPwd[n], "/_FOSSIL_");

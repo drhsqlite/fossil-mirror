@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Added\swin32\sbuild\snotes
-D 2007-09-21T22:07:35
+C Win32\sport\snow\sfunctional\sexcept\snetwork\soperations.\sThis\scommit\swas\sdone\son\swindows\s:-).\sSee\swin32.txt\sfor\sstatus\sof\sall\scommands.\sNo\snetworking\scommands\sare\sfunctional\syet.\sAll\spath\soperations\sare\snow\sfunctioning.
+D 2007-09-22T06:47:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 32e99207027e697f1d6a5c729d8189703ccd0209
@@ -28,9 +25,9 @@ F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F ideas.txt b490c0916102ac8827b5075de27f5cd394a2883a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c 771768ca0df7c60d60b2e88140d0a1c8d2c76fbf
+F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
-F src/blob.c f2c016552c1006e1ead1f64366a650471e0e4064
+F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
 F src/cgi.c 1e442c1fcaa12dd23a052ca680f27c9bfa2bbea3
 F src/checkin.c 08fa2df4cf4b605db36faa8e6adc87d3717a1a4d
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
@@ -40,15 +37,15 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c 327a476fd7324c865b124743a2ec46b55b863648
+F src/db.c b9655281e8393d992f5c9d2e4d3d5cd8d8f58fa7
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c fc1b9b6b12455726a754a420e8a06c8e95b91323
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
-F src/file.c b0274645f0f771e8bf7d282cf9498210794cb9d7
-F src/http.c 02b60e1f62a89de8855a725ea816b7d7cb47d47c
+F src/file.c 0453cec09998ba192d2443ba1c5849f6180c3e52
+F src/http.c 02357907c7f30c248e1789e7e9297838b6a0cc39
 F src/info.c 1d02bccab4f60d6f2f926c8cefd3420359f01901
 F src/login.c d1ac22275c7a7238a6a89d6dc256b67a25c911e9
 F src/main.c 17322e8c2b317c1b328757ebda8ad020366baa4a
@@ -64,7 +61,7 @@ F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c c08d5131363b500cd7d2f34f28be387b01076f85
 F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
-F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
+F src/printf.c 63619c9ec6ef80499feb9f342cf2806ace37d02e
 F src/rebuild.c 6a267b5a2563f0a7a89a2b66cb42a99d887b783e
 F src/schema.c 7e3c94d41ed5fe67c5be266d526bd3e1d7f632c1
 F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
@@ -109,7 +106,7 @@ F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
-F win32.txt efd9bcfec94c4ad397092d3149d25268113353c4
+F win32.txt a31e062bd36bd32306a15f9d15e0d63eafddb178
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -139,14 +136,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 83c876b44708a2a5c7380645814ea218cbbaf4ab
-R 2eab80cef285794f42c886b817d6de28
+P 5890c67d8664da6fa665ce1bf867c2743f805e18
+R 73f935db0a157e1734072ffcf1a8c849
 U jnc
-Z 3691dd69a252b9bd10f8d6ca4568b503
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (Darwin)
-
-iD8DBQFG9ECnHaWnYYor31ERAtDXAKCF1tWMLjTNV/DT0EhMXIVKMkKG/QCfcy56
-ncepWaJ473SA8HVlKOmzogU=
-=w1sa
------END PGP SIGNATURE-----
+Z fae30047b18736978142e4a677c70f2d
