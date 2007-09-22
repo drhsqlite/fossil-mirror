@@ -13,23 +13,10 @@ Setting up my build environment:
   
   All commands were issued in the MSYS shell, not a cmd.exe
 
-
-
 Outstanding Issues:
 ----------------------------------------------------------------------
 
 * server is totally non-functional - #if/#end'd out of the code
-* all path operations are defunct
-* remote network operations are reporting: can't resolve host name: xyz
-  
-  Winsock must be initialized before using:
-  
-      WSADATA info;
-      if (WSAStartup(MAKEWORD(1,1), &info) != 0){
-        fossil_panic("can't initialize winsock");
-      }
-
-
 
 Commands status:
 ----------------------------------------------------------------------
@@ -39,9 +26,9 @@ cgi               Not tested
 changes           OK
 checkout          BAD #1
 clean             OK
-clone             Local Only #2
+clone             OK
 close             OK
-commit            OK (not tested with gpg signing yet)
+commit            OK
 config            OK
 deconstruct       OK
 del               OK
@@ -56,14 +43,14 @@ ls                OK
 merge             OK
 new               OK
 open              OK
-pull              BAD #2
-push              BAD #2
+pull              OK
+push              OK
 rebuild           OK (didn't have a corrupt file to try on though)
 redo              BAD #3
 rm                OK
-server            BAD #2,#4
+server            BAD #4
 status            OK
-sync              BAD #2
+sync              OK
 timeline          OK
 tkdiff            OK
 undo              OK
@@ -83,8 +70,6 @@ user password     OK
    the file appears.
    
    Is that normal operation?
-
-#2 No socket operations are functioning yet
 
 #3 In test1/ I edited a file, test2/ I updated, type file.txt changes
    were there. I then did fossil undo file.txt. The changes were gone

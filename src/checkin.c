@@ -164,14 +164,20 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean
+** Usage: %fossil clean ?-all
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
-** the "extra" command.
+** the "extra" command. This operation cannot be undone. 
+**
+** You will be prompted before removing each file. If you are
+** sure you wish to remove all "extra" files you can specify the
+** optional -all flag.
 */
 void clean_cmd(void){
+  int allFlag;
   Blob path;
   Stmt q;
+  allFlag = find_option("all","a",0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   chdir(g.zLocalRoot);
@@ -182,7 +188,19 @@ void clean_cmd(void){
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
       " ORDER BY 1", g.zLocalRoot);
   while( db_step(&q)==SQLITE_ROW ){
-    unlink(db_column_text(&q, 0));
+    if( allFlag ){
+      unlink(db_column_text(&q, 0));
+      continue;
+    }
+    
+    Blob ans;
+    char *prompt = mprintf("remove unmanaged file \"%s\" [y/N]? ",
+      db_column_text(&q, 0));
+    blob_zero(&ans);
+    prompt_user(prompt, &ans);
+    if( blob_str(&ans)[0]=='y' ){
+      unlink(db_column_text(&q, 0));
+    }
   }
   db_finalize(&q);
 }
@@ -220,7 +238,7 @@ static void prepare_commit_comment(Blob *pComment){
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                    g.zLocalRoot);
   blob_write_to_file(&text, zFile);
-  zCmd = mprintf("%s %s", zEditor, zFile);
+  zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
   if( system(zCmd) ){
     fossil_panic("editor aborted");

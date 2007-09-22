@@ -30,7 +30,7 @@
 #include "config.h"
 #ifdef __MINGW32__
 #  include <windows.h>           /* for Sleep once server works again */
-#  include <winsock.h>           /* socket operations */
+#  include <winsock2.h>          /* socket operations */
 #  define sleep Sleep            /* windows does not have sleep, but Sleep */
 #else
 #  include <sys/socket.h>

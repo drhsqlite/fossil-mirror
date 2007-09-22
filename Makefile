@@ -36,7 +36,7 @@ TCC = gcc -g -Os -Wall -DFOSSIL_I18N=0
 #    chroot jail.
 #
 #LIB = -lz
-LIB = -lz -lwsock32
+LIB = -lz -lws2_32
 
 
 #### Tcl shell for use in running the fossil testsuite.

@@ -1,8 +1,11 @@
-C Win32\sport\snow\sfunctional\sexcept\snetwork\soperations.\sThis\scommit\swas\sdone\son\swindows\s:-).\sSee\swin32.txt\sfor\sstatus\sof\sall\scommands.\sNo\snetworking\scommands\sare\sfunctional\syet.\sAll\spath\soperations\sare\snow\sfunctioning.
-D 2007-09-22T06:47:11
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Socket\soperations\snow\sfunctional\sin\sWin32\sport.\sAdded\squotes\saround\sthe\sfilename\sportion\sof\sthe\scommand\sto\sedit\sthus\sworking\sof\swindows\sin\spaths\swhere\sthe\stemp\sdirectory\scontains\sspaces.\sAdded\s-all\sflag\sto\sclean\scommand.\sIf\snot\sspecified\seach\sfile\sis\sprompted\sfor\sbefore\sremoving.
+D 2007-09-22T18:34:49
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile 32e99207027e697f1d6a5c729d8189703ccd0209
+F Makefile 7035415b04a450e40789aa5be1e5dfecc9520892
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
@@ -28,8 +31,8 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
-F src/cgi.c 1e442c1fcaa12dd23a052ca680f27c9bfa2bbea3
-F src/checkin.c 08fa2df4cf4b605db36faa8e6adc87d3717a1a4d
+F src/cgi.c 57f4d7daa35b4be43195e297695fe9e430e34521
+F src/checkin.c 39235e784733cff4cf3534917aa19fa10aa3f02d
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -45,7 +48,7 @@ F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 0453cec09998ba192d2443ba1c5849f6180c3e52
-F src/http.c 02357907c7f30c248e1789e7e9297838b6a0cc39
+F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
 F src/info.c 1d02bccab4f60d6f2f926c8cefd3420359f01901
 F src/login.c d1ac22275c7a7238a6a89d6dc256b67a25c911e9
 F src/main.c 17322e8c2b317c1b328757ebda8ad020366baa4a
@@ -106,7 +109,7 @@ F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
-F win32.txt a31e062bd36bd32306a15f9d15e0d63eafddb178
+F win32.txt f8b38cdb44ab89a6926d86ee520cdde928f07bae
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -136,7 +139,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 5890c67d8664da6fa665ce1bf867c2743f805e18
-R 73f935db0a157e1734072ffcf1a8c849
+P c7278fd013abfe2490ed36ad257e716c9daebf2b
+R da29d2c322ee709da9ad8be40f344827
 U jnc
-Z fae30047b18736978142e4a677c70f2d
+Z 28ef722515f74643efcfa5437e32ac87
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (MingW32)
+
+iD8DBQFG9WBJHaWnYYor31ERAuFtAJ9l6e172/W5hZ0CVN8IZr3Iy/XocwCdEmjk
+cb59sjUJp4JbALfnuqXZRUo=
+=J86x
+-----END PGP SIGNATURE-----
