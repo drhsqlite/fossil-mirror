@@ -214,9 +214,8 @@ static void showLeaves(void){
     "SELECT blob.uuid, datetime(event.mtime, 'localtime'),"
     "       coalesce(event.euser, event.user),"
     "       coalesce(event.ecomment,event.comment)"
-    "  FROM leaves, plink, blob, event"
-    " WHERE plink.cid=leaves.rid"
-    "   AND blob.rid=leaves.rid"
+    "  FROM leaves, blob, event"
+    " WHERE blob.rid=leaves.rid"
     "   AND event.objid=leaves.rid"
     " ORDER BY event.mtime DESC"
   );
@@ -255,7 +254,6 @@ static void showTags(int rid){
     " ORDER BY tagname", rid
   );
   while( db_step(&q)==SQLITE_ROW ){
-    int tagid = db_column_int(&q, 0);
     const char *zTagname = db_column_text(&q, 1);
     int srcid = db_column_int(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
@@ -547,14 +545,15 @@ static void object_description(int rid, int linkToView){
     const char *zUuid = db_column_text(&q, 3);
     const char *zCom = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 1);
-    @ Version
+    @ Manifest of version
     hyperlink_to_uuid(zUuid);
     @ %s(zCom) by %s(zUser) on %s(zDate).
     cnt++;
   }
   db_finalize(&q);
   if( cnt==0 ){
-    @ Empty file
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    @ Control file %s(zUuid).
   }else if( linkToView ){
     @ <a href="%s(g.zBaseURL)/fview/%d(rid)">[view]</a>
   }
@@ -567,8 +566,8 @@ static void object_description(int rid, int linkToView){
 ** the two records.
 */
 void diff_page(void){
-  int v1 = atoi(PD("v1","0"));
-  int v2 = atoi(PD("v2","0"));
+  int v1 = name_to_rid(PD("v1","0"));
+  int v2 = name_to_rid(PD("v2","0"));
   Blob c1, c2, diff;
 
   login_check_credentials();
@@ -597,6 +596,7 @@ void diff_page(void){
 }
 
 /*
+** WEBPAGE: info
 ** WEBPAGE: fview
 ** URL: /fview/UUID
 ** 
@@ -610,6 +610,11 @@ void fview_page(void){
   rid = name_to_rid(g.zExtra);
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
+  if( g.zPath[0]=='i' &&
+      db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
+    vinfo_page();
+    return;
+  }
   style_header("File Content");
   @ <h2>Content Of:</h2>
   @ <blockquote>

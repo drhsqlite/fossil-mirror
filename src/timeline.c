@@ -35,7 +35,7 @@ void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
   sprintf(zShortUuid, "%.10s", zUuid);
   if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
+    @ <a href="%s(g.zBaseURL)/info/%s(zUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b>[%s(zShortUuid)]</b>
   }

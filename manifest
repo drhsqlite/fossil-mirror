@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improved\sdisplay\sof\sversion\sinformation\son\sthe\shelp\scommand.\s\sDisplay\nfossil\sversion\snumber\sand\sdate\son\sthe\sbottom\sof\severy\swebpage.
-D 2007-09-22T17:38:57
+C Incremental\sweb\sinterface\senhancments.
+D 2007-09-22T18:13:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -49,7 +49,7 @@ F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 43aa6bdf650be1e986e24eb5ac04f42a1d8d3cb7
 F src/http.c 43986095c41b6de6095f6067a10a97cc5b9a09b3
-F src/info.c ae734c2dfec66ed14ac97a52fbe7d391c034e009
+F src/info.c 51260a23a75154526013e86ebb45e89d4ab318b0
 F src/login.c 4e89d2580b81c4f0b42fefe243c410b10240b75d
 F src/main.c 1a17fea25b4c4cfb21797b6d543436cabe100fd9
 F src/main.mk bf38d6b94ea87de1d57d62b47cce145804e4e893
@@ -66,7 +66,7 @@ F src/pivot.c 2953f62a20e8f8584f272b125b6ee4f1e28a9d90
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 48f1118d8ef597aefabf09ff489f7b3bfa462ffa
 F src/rebuild.c 6a267b5a2563f0a7a89a2b66cb42a99d887b783e
-F src/schema.c a15ec88bcc0eba7b277295dbd570c899af6a99e4
+F src/schema.c 051f5076cffafff89697e18ea9b014b8585c8845
 F src/setup.c 0c2a6e74d50d0a2f1548f6bb70db4b90b95a3672
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
@@ -74,7 +74,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 974ef8af807248976bdbbc3eb4d8d6e7abc8bf62
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/tag.c c028c6b677d6497e332209e3859edc074657c3c3
-F src/timeline.c e450db18e86df9419c00093bc8a4c7b6b73f75ea
+F src/timeline.c a8be29736d48d2f5a4575d28dd152c5320126f9f
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 07dea7ee93099095a37dff6ead09a7eea362ede3
@@ -138,14 +138,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3b5514ed825c5cd629359a712b357254a81fe719
-R 6190622e6e0064aaca67b81d52ac2355
+P c2d1e3c70ab5f209fc6df4f10bc6920f239c7f5b
+R 36ad461c793c551a5bb0cabc636df9bf
 U drh
-Z d5747a689bcada15ea521e27ad45a699
+Z 67837549f68c8212a2739dfd14c8b0c0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG9VM1oxKgR168RlERAlgNAJkBXtq23r0edg+IbqqQlh7aV2jqpgCfa8J5
-CWgBPDiGtsCw/c5SSGZCx/0=
-=jVtI
+iD8DBQFG9VtOoxKgR168RlERAgKtAJ0SYvGfmdXz+Pb3BkBDaYogTLrWCACfa+tC
+7G5AdgDRebUmpAcM880PAQs=
+=O5ho
 -----END PGP SIGNATURE-----

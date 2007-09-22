@@ -129,6 +129,9 @@ const char zRepositorySchema2[] =
 @ -- Linkages between manifests, files created by that manifest, and
 @ -- the names of those files.
 @ --
+@ -- pid==0 if the file is added by check-in mid.
+@ -- fid==0 if the file is removed by check-in mid.
+@ --
 @ CREATE TABLE mlink(
 @   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
 @   pid INTEGER REFERENCES blob,        -- File ID in parent manifest
