@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\sthe\sw32\schanges.
-D 2007-09-22T19:43:55
+C More\sdescriptive\sbuild\sprocess\sin\swin32.txt,\salso\sremoved\swin32\sport\sfrom\sthe\stodo.txt
+D 2007-09-22T21:40:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -92,7 +92,7 @@ F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
-F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
+F todo.txt a134ed615f7d5080863f9a93989b549bffbc61fa
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
 F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
@@ -110,7 +110,7 @@ F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
-F win32.txt f8b38cdb44ab89a6926d86ee520cdde928f07bae
+F win32.txt ee38ffb58e908925e8e4161d82e755cbf9d8d63c
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -140,14 +140,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3ed92143382f3dd9707a73764b412efe1a32b0cb b57d456718ea0864fbaea003ab18fc11b7f10ac8
-R 6da6ae45e10086e032b0f19b9dd17911
-U drh
-Z b7b26734442bdaeff93d6299303bf359
+P 3c5482959c058d62b032ad5819a738dd418a73cf
+R 5a61617ee6530bfc84502435286b3ae9
+U jnc
+Z 9be6c7c2df584576495cb065c06f08ca
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.7 (MingW32)
 
-iD8DBQFG9XB+oxKgR168RlERAtG7AJoClm9EyvufXratrTxGWIINTRxEQACfYfgl
-6QJ7XS9bp7F176JYptLTzOE=
-=3vxi
+iD8DBQFG9YuxHaWnYYor31ERAsRbAJ0YMEOFSni36Fd42vzvZJwUR9R+KgCfbq+m
+Q0VqU60PceEb+eXhYcj56ps=
+=VC65
 -----END PGP SIGNATURE-----

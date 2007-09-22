@@ -1,7 +1,7 @@
-Notes: Porting fossil to win32
+Fossil on Win32
 ======================================================================
 
-Setting up my build environment:
+Setting up the build environment:
 ----------------------------------------------------------------------
 
   Install:
@@ -11,12 +11,33 @@ Setting up my build environment:
   Download/compile/install zlib (configure --prefix=/mingw)
   Download/compile/install tclsh (configure --prefix=/) (for tests)
   
-  All commands were issued in the MSYS shell, not a cmd.exe
+  Installing zlib and tclsh was done in the MSYS shell so I could
+  easily use the configure scripts. Tcl is only required to run the
+  tests. You could install a binary distribution of Tcl/Tk and use
+  that to run the tests, or you could opt to simply trust that 
+  everything worked and not run the tests.
+  
+  There is a contributed zlib package on the MinGW site. 
+  
+  Downloading and installing a binary Tcl/Tk package and the 
+  contributed zlib package would remove the requirement of MSYS.
+  
+
+Building on Windows:
+----------------------------------------------------------------------
+
+  Ensure you have read "Setting up the build environment" first.
+  
+  Building is as simple as one command:
+  
+      C:\fossil-src> make -f Makefile.w32
+
 
 Outstanding Issues:
 ----------------------------------------------------------------------
 
 * server is totally non-functional - #if/#end'd out of the code
+
 
 Commands status:
 ----------------------------------------------------------------------
@@ -45,7 +66,7 @@ new               OK
 open              OK
 pull              OK
 push              OK
-rebuild           OK (didn't have a corrupt file to try on though)
+rebuild           OK
 redo              BAD #3
 rm                OK
 server            BAD #4
