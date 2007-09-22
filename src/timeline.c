@@ -87,6 +87,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 **    5.  Number of non-merge children
 **    6.  Number of parents
 **    7.  True if is a leaf
+**    8.  background color
 */
 void www_print_timeline(
   Stmt *pQuery,
@@ -98,6 +99,7 @@ void www_print_timeline(
   char zPrevDate[20];
   int cnt = 0;
   zPrevDate[0] = 0;
+
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS seen(rid INTEGER PRIMARY KEY);"
      "DELETE FROM seen;"
@@ -109,6 +111,7 @@ void www_print_timeline(
     int nPChild = db_column_int(pQuery, 5);
     int nParent = db_column_int(pQuery, 6);
     int isLeaf = db_column_int(pQuery, 7);
+    const char *zBgClr = db_column_text(pQuery, 8);
     const char *zDate = db_column_text(pQuery, 2);
     if( cnt==0 && pFirstEvent ){
       *pFirstEvent = rid;
@@ -135,7 +138,11 @@ void www_print_timeline(
     @ <td valign="top">%s(&zDate[11])</td>
     @ <td width="20" align="center" valign="top">
     @ <font id="m%d(rid)" size="+1" color="white">*</font></td>
-    @ <td valign="top" align="left">
+    if( zBgClr && zBgClr[0] ){
+      @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
+    }else{
+      @ <td valign="top" align="left">
+    }
     hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
     if( nParent>1 ){
       @ <b>Merge</b> 
@@ -208,6 +215,7 @@ void page_timeline(void){
   int afterFlag = P("a")!=0;
   int firstEvent;
   int lastEvent;
+  int clr1, clr2;     /* Tag IDs for specifying background colors */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -215,6 +223,8 @@ void page_timeline(void){
   if( !g.okRead ){ login_needed(); return; }
 
   style_header("Timeline");
+  clr1 = db_int(0, "SELECT tagid FROM tag WHERE tagname='br-bg-color'");
+  clr2 = db_int(0, "SELECT tagid FROM tag WHERE tagname='bg-color'");
   if( !g.okHistory &&
       db_exists("SELECT 1 FROM user"
                 " WHERE login='anonymous'"
@@ -226,9 +236,12 @@ void page_timeline(void){
     "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'), comment, user,"
     "       (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),"
     "       (SELECT count(*) FROM plink WHERE cid=blob.rid),"
-    "       NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid)"
-    "  FROM event, blob"
-    " WHERE event.type='ci' AND blob.rid=event.objid"
+    "       NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),"
+    "       (SELECT value FROM tagxref WHERE rid=blob.rid AND tagid=%d"
+    "        UNION ALL"
+    "        SELECT value FROM tagxref WHERE rid=blob.rid AND tagid=%d)"
+    "  FROM event JOIN blob"
+    " WHERE event.type='ci' AND blob.rid=event.objid", clr2, clr1
   );
   if( zUser ){
     zSQL = mprintf("%z AND event.user=%Q", zSQL, zUser);

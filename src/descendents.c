@@ -198,7 +198,7 @@ void leaves_page(void){
   style_header("Leaves");
   db_prepare(&q,
     "SELECT blob.rid, blob.uuid, datetime(event.mtime,'localtime'),"
-    "       event.comment, event.user, 1, 1, 0"
+    "       event.comment, event.user, 1, 1, 0, NULL"
     "  FROM blob, event"
     " WHERE blob.rid IN"
     "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"

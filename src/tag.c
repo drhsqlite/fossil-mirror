@@ -37,17 +37,19 @@
 ** tag is removed.
 */
 void tag_propagate(
-  int pid,         /* Propagate the tag to children of this node */
-  int tagid,       /* Tag to propagate */
-  int addFlag,     /* True to add the tag. False to delete it. */
-  double mtime     /* Timestamp on the tag */
+  int pid,             /* Propagate the tag to children of this node */
+  int tagid,           /* Tag to propagate */
+  int addFlag,         /* True to add the tag. False to delete it. */
+  const char *zValue,  /* Value of the tag.  Might be NULL */
+  double mtime         /* Timestamp on the tag */
 ){
   PQueue queue;
   Stmt s, ins;
   pqueue_init(&queue);
   pqueue_insert(&queue, pid, 0.0);
   db_prepare(&s, 
-     "SELECT cid, mtime, coalesce(srcid=0 AND mtime<:mtime, %d) AS doit"
+     "SELECT cid, plink.mtime,"
+     "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
      " WHERE pid=:pid AND isprim",
      addFlag, tagid
@@ -55,9 +57,9 @@ void tag_propagate(
   db_bind_double(&s, ":mtime", mtime);
   if( addFlag ){
     db_prepare(&ins,
-       "REPLACE INTO tagxref(tagid, addFlag, srcid, mtime, rid)"
-       "VALUES(%d,1,0,:mtime,:rid)",
-       tagid
+       "REPLACE INTO tagxref(tagid, addFlag, srcid, value, mtime, rid)"
+       "VALUES(%d,1,0,%Q,:mtime,:rid)",
+       tagid, zValue
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
@@ -91,7 +93,7 @@ void tag_propagate(
 void tag_propagate_all(int pid){
   Stmt q;
   db_prepare(&q,
-     "SELECT tagid, addflag, mtime FROM tagxref"
+     "SELECT tagid, addflag, mtime, value FROM tagxref"
      " WHERE rid=%d"
      "   AND (SELECT tagname FROM tag WHERE tagid=tagxref.tagid) LIKE 'br%'",
      pid
@@ -100,7 +102,62 @@ void tag_propagate_all(int pid){
     int tagid = db_column_int(&q, 0);
     int addflag = db_column_int(&q, 1);
     double mtime = db_column_double(&q, 2);
-    tag_propagate(pid, tagid, addflag, mtime);
+    const char *zValue = db_column_text(&q, 3);
+    tag_propagate(pid, tagid, addflag, zValue, mtime);
   }
   db_finalize(&q);
+}
+
+/*
+** Get a tagid for the given TAG.  Create a new tag if necessary
+** if createFlag is 1.
+*/
+int tag_findid(const char *zTag, int createFlag){
+  int id;
+  id = db_int(0, "SELECT tagid FROM tag WHERE tagname=%Q", zTag);
+  if( id==0 && createFlag ){
+    db_multi_exec("INSERT INTO tag(tagname) VALUES(%Q)", zTag);
+    id = db_last_insert_rowid();
+  }
+  return id;
+}
+
+
+/*
+** COMMAND: test-addtag
+** %fossil test-addtag TAGNAME UUID ?VALUE?
+**
+** Add a tag to the rebuildable tables of the local repository.
+** No tag artifact is created so the new tag is erased the next
+** time the repository is rebuilt.  This routine is for testing
+** use only.
+*/
+void addtag_cmd(void){
+  const char *zTag;
+  const char *zValue;
+  int tagid;
+  int rid;
+  double now;
+  db_must_be_within_tree();
+  if( g.argc!=4 && g.argc!=5 ){
+    usage("TAGNAME UUID ?VALUE?");
+  }
+  zTag = g.argv[2];
+  rid = name_to_rid(g.argv[3]);
+  if( rid==0 ){
+    fossil_fatal("no such object: %s", g.argv[3]);
+  }
+  db_begin_transaction();
+  tagid = tag_findid(zTag, 1);
+  zValue = g.argc==5 ? g.argv[4] : 0;
+  db_multi_exec(
+    "REPLACE INTO tagxref(tagid,addFlag,srcId,value,mtime,rid)"
+    " VALUES(%d,1,-1,%Q,julianday('now'),%d)",
+    tagid, rid, zValue, rid
+  );
+  if( strncmp(zTag, "br", 2)==0 ){
+    now = db_double(0.0, "SELECT julianday('now')");
+    tag_propagate(rid, tagid, 1, zValue, now);
+  }
+  db_end_transaction(0); 
 }

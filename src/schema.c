@@ -202,16 +202,21 @@ const char zRepositorySchema2[] =
 @   tagname TEXT UNIQUE              -- Tag name.  Prefixed by 'v' or 'b'
 @ );
 @
-@ -- Assignments of tags to baselines
+@ -- Assignments of tags to baselines.  Note that we allow tags to
+@ -- have values assigned to them.  So we are not really dealing with
+@ -- tags here.  These are really properties.  But we are going to
+@ -- keep calling them tags because in many cases the value is ignored.
 @ --
 @ CREATE TABLE tagxref(
 @   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
 @   addFlag BOOLEAN,                -- True to add the tag, False to remove
 @   srcid INTEGER REFERENCES blob,  -- Origin of the tag. 0 for propagated tags
+@   value TEXT,                     -- Value of the tag.  Might be NULL.
 @   mtime TIMESTAMP,                -- Time of addition or removal
 @   rid INTEGER REFERENCE blob,     -- Baseline that tag added/removed from
 @   UNIQUE(rid, tagid)
 @ );
+@ CREATE INDEX tagxref_i1 ON tagxref(tagid);
 ;
 
 /*
