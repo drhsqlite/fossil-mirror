@@ -387,7 +387,7 @@ void help_cmd(void){
   if( g.argc!=3 ){
     printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n", g.argv[0]);
     cmd_cmd_list();
-    printf("You are running fossil baseline " MANIFEST_UUID "\n");
+    printf("This is fossil version " MANIFEST_VERSION " " MANIFEST_DATE "\n");
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);

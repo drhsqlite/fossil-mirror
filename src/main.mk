@@ -189,8 +189,10 @@ mkindex:	$(SRCDIR)/mkindex.c
 test:	$(APPNAME)
 	$(TCLSH) test/tester.tcl $(APPNAME)
 
-VERSION.h:	$(SRCDIR)/../manifest.uuid
+VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >VERSION.h
+	awk '{ printf "#define MANIFEST_VERSION \"[%.10s]\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >>VERSION.h
+	awk '$$1=="D"{printf "#define MANIFEST_DATE \"%s %s\"\n", substr($$2,1,10),substr($$2,12)}'  $(SRCDIR)/../manifest >>VERSION.h
 
 $(APPNAME):	headers $(OBJ) sqlite3.o
 	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o $(LIB)

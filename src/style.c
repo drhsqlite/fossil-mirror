@@ -127,6 +127,10 @@ void style_header(const char *zTitle){
 ** Draw the footer at the bottom of the page.
 */
 void style_footer(void){
+  @ <hr>
+  @ <p align="left"><font size="1">
+  @ Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)
+  @ </font></p>
 }
 
 /*
