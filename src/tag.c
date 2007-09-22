@@ -33,18 +33,21 @@
 ** This routine assumes that tagid is a tag that should be
 ** propagated and that the tag is already present in pid.
 **
-** If addFlag is true then the tag is added.  If false, then the
-** tag is removed.
+** If tagtype is 2 then the tag is being propagated from an
+** ancestor node.  If tagtype is 0 it means a branch tag is
+** being cancelled.
 */
 void tag_propagate(
   int pid,             /* Propagate the tag to children of this node */
   int tagid,           /* Tag to propagate */
-  int addFlag,         /* True to add the tag. False to delete it. */
+  int tagType,         /* 2 for a propagating tag.  0 for an antitag */
   const char *zValue,  /* Value of the tag.  Might be NULL */
   double mtime         /* Timestamp on the tag */
 ){
   PQueue queue;
   Stmt s, ins, eventupdate;
+
+  assert( tagType==0 || tagType==2 );
   pqueue_init(&queue);
   pqueue_insert(&queue, pid, 0.0);
   db_prepare(&s, 
@@ -52,13 +55,13 @@ void tag_propagate(
      "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
      " WHERE pid=:pid AND isprim",
-     addFlag, tagid
+     tagType!=0, tagid
   );
   db_bind_double(&s, ":mtime", mtime);
-  if( addFlag ){
+  if( tagType==2 ){
     db_prepare(&ins,
-       "REPLACE INTO tagxref(tagid, addFlag, srcid, value, mtime, rid)"
-       "VALUES(%d,1,0,%Q,:mtime,:rid)",
+       "REPLACE INTO tagxref(tagid, tagtype, srcid, value, mtime, rid)"
+       "VALUES(%d,2,0,%Q,:mtime,:rid)",
        tagid, zValue
     );
     db_bind_double(&ins, ":mtime", mtime);
@@ -68,7 +71,7 @@ void tag_propagate(
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid
     );
   }
-  if( tagid==TAG_BR_BGCOLOR ){
+  if( tagid==TAG_BGCOLOR ){
     db_prepare(&eventupdate,
       "UPDATE event SET brbgcolor=%Q WHERE objid=:rid", zValue
     );
@@ -84,7 +87,7 @@ void tag_propagate(
         db_bind_int(&ins, ":rid", cid);
         db_step(&ins);
         db_reset(&ins);
-        if( tagid==TAG_BR_BGCOLOR ){
+        if( tagid==TAG_BGCOLOR ){
           db_bind_int(&eventupdate, ":rid", cid);
           db_step(&eventupdate);
           db_reset(&eventupdate);
@@ -96,7 +99,7 @@ void tag_propagate(
   pqueue_clear(&queue);
   db_finalize(&ins);
   db_finalize(&s);
-  if( tagid==TAG_BR_BGCOLOR ){
+  if( tagid==TAG_BGCOLOR ){
     db_finalize(&eventupdate);
   }
 }
@@ -107,17 +110,17 @@ void tag_propagate(
 void tag_propagate_all(int pid){
   Stmt q;
   db_prepare(&q,
-     "SELECT tagid, addflag, mtime, value FROM tagxref"
+     "SELECT tagid, tagtype, mtime, value FROM tagxref"
      " WHERE rid=%d"
-     "   AND (SELECT tagname FROM tag WHERE tagid=tagxref.tagid) LIKE 'br%'",
+     "   AND (tagtype=0 OR tagtype=2)",
      pid
   );
   while( db_step(&q)==SQLITE_ROW ){
     int tagid = db_column_int(&q, 0);
-    int addflag = db_column_int(&q, 1);
+    int tagtype = db_column_int(&q, 1);
     double mtime = db_column_double(&q, 2);
     const char *zValue = db_column_text(&q, 3);
-    tag_propagate(pid, tagid, addflag, zValue, mtime);
+    tag_propagate(pid, tagid, tagtype, zValue, mtime);
   }
   db_finalize(&q);
 }
@@ -141,102 +144,89 @@ int tag_findid(const char *zTag, int createFlag){
 */
 void tag_insert(
   const char *zTag,        /* Name of the tag (w/o the "+" or "-" prefix */
-  int addFlag,             /* True to add.  False to remove */
+  int tagtype,             /* 0:cancel  1:singleton  2:propagated */
   const char *zValue,      /* Value if the tag is really a property */
   int srcId,               /* Artifact that contains this tag */
   double mtime,            /* Timestamp.  Use default if <=0.0 */
   int rid                  /* Artifact to which the tag is to attached */
 ){
   Stmt s;
+  const char *zCol;
   int tagid = tag_findid(zTag, 1);
   if( mtime<=0.0 ){
     mtime = db_double(0.0, "SELECT julianday('now')");
   }
   db_prepare(&s, 
-    "REPLACE INTO tagxref(tagid,addFlag,srcId,value,mtime,rid)"
+    "REPLACE INTO tagxref(tagid,tagtype,srcId,value,mtime,rid)"
     " VALUES(%d,%d,%d,%Q,:mtime,%d)",
-    tagid, addFlag, srcId, zValue, rid
+    tagid, tagtype, srcId, zValue, rid
   );
   db_bind_double(&s, ":mtime", mtime);
   db_step(&s);
   db_finalize(&s);
-  if( addFlag==0 ){
+  if( tagtype==0 ){
     zValue = 0;
   }
+  zCol = 0;
   switch( tagid ){
     case TAG_BGCOLOR: {
-      db_multi_exec("UPDATE event SET bgcolor=%Q WHERE objid=%d", zValue, rid);
-      break;
-    }
-    case TAG_BR_BGCOLOR: {
-      db_multi_exec("UPDATE event SET brbgcolor=%Q WHERE objid=%d", zValue,rid);
+      if( tagtype==1 ){
+        zCol = "bgcolor";
+      }else{
+        zCol = "brbgcolor";
+      }
       break;
     }
     case TAG_COMMENT: {
-      db_multi_exec("UPDATE event SET ecomment=%Q WHERE objid=%d", zValue, rid);
+      zCol = "ecomment";
       break;
     }
     case TAG_USER: {
-      db_multi_exec("UPDATE event SET euser=%Q WHERE objid=%d", zValue, rid);
+      zCol = "euser";
       break;
     }
   }
-  if( strncmp(zTag, "br", 2)==0 ){
-    tag_propagate(rid, tagid, addFlag, zValue, mtime);
+  if( zCol ){
+    db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
+  }
+  if( tagtype==0 || tagtype==2 ){
+    tag_propagate(rid, tagid, tagtype, zValue, mtime);
   }
 }
 
 
 /*
-** COMMAND: test-addtag
-** %fossil test-addtag TAGNAME UUID ?VALUE?
+** COMMAND: test-tag
+** %fossil test-tag (+|*|-)TAGNAME UUID ?VALUE?
 **
-** Add a tag to the rebuildable tables of the local repository.
+** Add a tag or anti-tag to the rebuildable tables of the local repository.
 ** No tag artifact is created so the new tag is erased the next
 ** time the repository is rebuilt.  This routine is for testing
 ** use only.
 */
-void addtag_cmd(void){
+void testtag_cmd(void){
   const char *zTag;
   const char *zValue;
   int rid;
+  int tagtype;
   db_must_be_within_tree();
   if( g.argc!=4 && g.argc!=5 ){
     usage("TAGNAME UUID ?VALUE?");
   }
   zTag = g.argv[2];
+  switch( zTag[0] ){
+    case '+':  tagtype = 1;  break;
+    case '*':  tagtype = 2;  break;
+    case '-':  tagtype = 0;  break;
+    default:   fossil_fatal("tag should begin with '+', '*', or '-'");
+  }
   rid = name_to_rid(g.argv[3]);
   if( rid==0 ){
     fossil_fatal("no such object: %s", g.argv[3]);
   }
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
-  tag_insert(zTag, 1, zValue, -1, 0.0, rid);
-  db_end_transaction(0); 
-}
-/*
-** COMMAND: test-deltag
-** %fossil test-deltag TAGNAME UUID
-**
-** Cancel a tag to the rebuildable tables of the local repository.
-** No tag artifact is created so the cancellation is undone the next
-** time the repository is rebuilt.  This routine is for testing
-** use only.
-*/
-void deltag_cmd(void){
-  const char *zTag;
-  int rid;
-  db_must_be_within_tree();
-  if( g.argc!=4 ){
-    usage("TAGNAME UUID");
-  }
-  zTag = g.argv[2];
-  rid = name_to_rid(g.argv[3]);
-  if( rid==0 ){
-    fossil_fatal("no such object: %s", g.argv[3]);
-  }
-  db_begin_transaction();
-  tag_insert(zTag, 0, 0, -1, 0.0, rid);
+  tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
   db_end_transaction(0); 
 }
 
@@ -248,7 +238,7 @@ static void tag_add_artifact(
   const char *zTagname,       /* The tag to add or cancel */
   const char *zObjName,       /* Name of object attached to */
   const char *zValue,         /* Value for the tag.  Might be NULL */
-  int addFlag                 /* True to add.  false to cancel */
+  int tagtype                 /* 0:cancel 1:singleton 2:propagated */
 ){
   int rid;
   int nrid;
@@ -256,7 +246,9 @@ static void tag_add_artifact(
   Blob uuid;
   Blob ctrl;
   Blob cksum;
+  static const char zTagtype[] = { '-', '+', '*' };
 
+  assert( tagtype>=0 && tagtype<=2 );
   user_select();
   rid = name_to_rid(zObjName);
   blob_zero(&uuid);
@@ -270,8 +262,8 @@ static void tag_add_artifact(
   zDate = db_text(0, "SELECT datetime('now')");
   zDate[10] = 'T';
   blob_appendf(&ctrl, "D %s\n", zDate);
-  blob_appendf(&ctrl, "T %c%F %b", addFlag ? '+' : '-', zTagname, &uuid);
-  if( addFlag && zValue && zValue[0] ){
+  blob_appendf(&ctrl, "T %c%F %b", zTagtype[tagtype], zTagname, &uuid);
+  if( tagtype && zValue && zValue[0] ){
     blob_appendf(&ctrl, " %F\n", zValue);
   }else{
     blob_appendf(&ctrl, "\n");
@@ -294,6 +286,11 @@ static void tag_add_artifact(
 **     %fossil tag add TAGNAME UUID ?VALUE?
 **
 **         Add a new tag or property to UUID.
+**
+**     %fossil tag branch TAGNAME UUID ?VALUE?
+**
+**         Add a new tag or property to UUID and make that
+**         tag propagate to all direct children.
 **
 **     %fossil tag delete TAGNAME UUID
 **
@@ -328,6 +325,15 @@ void tag_cmd(void){
     tag_add_artifact(g.argv[3], g.argv[4], zValue, 1);
   }else
 
+  if( strncmp(g.argv[2],"branch",n)==0 ){
+    char *zValue;
+    if( g.argc!=5 && g.argc!=6 ){
+      usage("tag branch TAGNAME UUID ?VALUE?");
+    }
+    zValue = g.argc==6 ? g.argv[5] : 0;
+    tag_add_artifact(g.argv[3], g.argv[4], zValue, 2);
+  }else
+
   if( strncmp(g.argv[2],"delete",n)==0 ){
     if( g.argc!=5 ){
       usage("tag delete TAGNAME UUID");
@@ -359,7 +365,7 @@ void tag_cmd(void){
         "  FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
-        "                 AND addflag)"
+        "                 AND tagtype>0)"
         " ORDER BY tagname"
       );
       while( db_step(&q)==SQLITE_ROW ){
@@ -372,7 +378,7 @@ void tag_cmd(void){
         "SELECT tagname, value"
         "  FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-        "   AND addflag"
+        "   AND tagtype>0"
         " ORDER BY tagname",
         rid
       );
@@ -396,5 +402,5 @@ void tag_cmd(void){
   return;
 
 tag_cmd_usage:
-  usage("add|delete|find|list ...");
+  usage("add|branch|delete|find|list ...");
 }

@@ -247,7 +247,7 @@ static void showTags(int rid){
   int cnt = 0;
   db_prepare(&q,
     "SELECT tag.tagid, tagname, srcid, blob.uuid, value,"
-    "       datetime(tagxref.mtime,'localtime'), addflag"
+    "       datetime(tagxref.mtime,'localtime'), tagtype"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
     "       LEFT JOIN blob ON blob.rid=tagxref.srcid"
     " WHERE tagxref.rid=%d"
@@ -259,7 +259,7 @@ static void showTags(int rid){
     const char *zUuid = db_column_text(&q, 3);
     const char *zValue = db_column_text(&q, 4);
     const char *zDate = db_column_text(&q, 5);
-    int addFlag = db_column_int(&q, 6);
+    int tagtype = db_column_int(&q, 6);
     cnt++;
     if( cnt==1 ){
       @ <h2>Tags And Properties</h2>
@@ -269,7 +269,7 @@ static void showTags(int rid){
     @ <b>%h(zTagname)</b>
     if( zValue ){
       @ = %h(zValue)<i>
-    }else if( !addFlag ){
+    }else if( tagtype==0 ){
       @ <i>Cancelled
     }else{
       @ <i>

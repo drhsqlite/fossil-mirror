@@ -53,7 +53,7 @@ int name_to_uuid(Blob *pName, int iErrPriority){
       "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
       "  FROM tagxref JOIN event ON rid=objid"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%B)"
-      "   AND addflag"
+      "   AND tagtype>0"
       "   AND value IS NULL"
       " ORDER BY event.mtime DESC",
       pName

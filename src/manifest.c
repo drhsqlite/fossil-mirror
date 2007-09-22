@@ -22,7 +22,9 @@
 *******************************************************************************
 **
 ** This file contains code used to cross link control files and
-** manifests.
+** manifests.  The file is named "manifest.c" because it was
+** original only used to parse manifests.  Then later clusters
+** and control files were added.
 */
 #include "config.h"
 #include "manifest.h"
@@ -43,6 +45,7 @@ struct Manifest {
   Blob content;         /* The original content blob */
   int type;             /* Type of file */
   char *zComment;       /* Decoded comment */
+  char zUuid[UUID_SIZE+1];  /* Self UUID */
   double rDate;         /* Time in the "D" line */
   char *zUser;          /* Name of the user */
   char *zRepoCksum;     /* MD5 checksum of the baseline content */
@@ -98,10 +101,14 @@ int manifest_parse(Manifest *p, Blob *pContent){
   int seenHeader = 0;
   int i;
   Blob line, token, a1, a2, a3;
+  Blob selfuuid;
   char zPrevLine[10];
 
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
+  sha1sum_blob(&p->content, &selfuuid);
+  memcpy(p->zUuid, blob_buffer(&selfuuid), UUID_SIZE);
+  p->zUuid[UUID_SIZE] = 0;
   blob_zero(pContent);
   pContent = &p->content;
 
@@ -228,12 +235,18 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **    T (+|-)<tagname> <uuid> ?<value>?
+      **    T (+|*|-)<tagname> <uuid> ?<value>?
       **
       ** Create or cancel a tag or property.  The tagname is fossil-encoded.
-      ** The first character of the name must be either "+" to create or 
-      ** "-" to cancel. The tag is applied to <uuid>.  If <value> is
-      ** provided then the tag is really a property with the given value.
+      ** The first character of the name must be either "+" to create a
+      ** singleton tag, "*" to create a propagating tag, or "-" to create
+      ** anti-tag that undoes a prior "+" or blocks propagation of of
+      ** a "*".
+      **
+      ** The tag is applied to <uuid>.  If <uuid> is "*" then the tag is
+      ** applied to the current manifest.  If <value> is provided then 
+      ** the tag is really a property with the given value.
+      **
       ** Tags are not allowed in clusters.  Multiple T lines are allowed.
       */
       case 'T': {
@@ -249,10 +262,15 @@ int manifest_parse(Manifest *p, Blob *pContent){
           zValue = blob_terminate(&a3);
           defossilize(zValue);
         }
-        if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        if( blob_size(&a2)==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
+          /* A valid uuid */
+        }else if( blob_size(&a2)==1 && zUuid[0]=='*' ){
+          zUuid = p->zUuid;
+        }else{
+          goto manifest_syntax_error;
+        }
         defossilize(zName);
-        if( zName[0]!='-' && zName[0]!='+' ){
+        if( zName[0]!='-' && zName[0]!='+' && zName[0]!='*' ){
           goto manifest_syntax_error;
         }
         if( validate16(&zName[1], strlen(&zName[1])) ){
@@ -534,9 +552,15 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( m.type==CFTYPE_CONTROL || m.type==CFTYPE_MANIFEST ){
     for(i=0; i<m.nTag; i++){
       int tid;
+      int type;
       tid = uuid_to_rid(m.aTag[i].zUuid, 1);
-      tag_insert(&m.aTag[i].zName[1], m.aTag[i].zName[0]=='+',
-                 m.aTag[i].zValue, rid, m.rDate, tid);
+      switch( m.aTag[i].zName[0] ){
+        case '+':  type = 1; break;
+        case '*':  type = 2; break;
+        case '-':  type = 0; break;
+      }
+      tag_insert(&m.aTag[i].zName[1], type, m.aTag[i].zValue, 
+                 rid, m.rDate, tid);
     }
   }
   db_end_transaction(0);

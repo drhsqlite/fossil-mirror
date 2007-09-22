@@ -206,12 +206,11 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE tag(
 @   tagid INTEGER PRIMARY KEY,       -- Numeric tag ID
-@   tagname TEXT UNIQUE              -- Tag name.  Prefixed by 'v' or 'b'
+@   tagname TEXT UNIQUE              -- Tag name.
 @ );
 @ INSERT INTO tag VALUES(1, 'bgcolor');         -- TAG_BGCOLOR
-@ INSERT INTO tag VALUES(2, 'br-bgcolor');      -- TAG_BR_BGCOLOR
-@ INSERT INTO tag VALUES(3, 'comment');         -- TAG_COMMENT
-@ INSERT INTO tag VALUES(4, 'user');            -- TAG_USER
+@ INSERT INTO tag VALUES(2, 'comment');         -- TAG_COMMENT
+@ INSERT INTO tag VALUES(3, 'user');            -- TAG_USER
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -220,7 +219,7 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE tagxref(
 @   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
-@   addFlag BOOLEAN,                -- True to add the tag, False to remove
+@   tagtype INTEGER,                -- 0:cancel  1:single  2:branch
 @   srcid INTEGER REFERENCES blob,  -- Origin of the tag. 0 for propagated tags
 @   value TEXT,                     -- Value of the tag.  Might be NULL.
 @   mtime TIMESTAMP,                -- Time of addition or removal
@@ -235,9 +234,8 @@ const char zRepositorySchema2[] =
 */
 #if INTERFACE
 # define TAG_BGCOLOR    1
-# define TAG_BR_BGCOLOR 2
-# define TAG_COMMENT    3
-# define TAG_USER       4
+# define TAG_COMMENT    2
+# define TAG_USER       3
 #endif
 
 /*
