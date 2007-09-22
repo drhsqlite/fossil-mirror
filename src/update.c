@@ -29,6 +29,13 @@
 #include <assert.h>
 
 /*
+** Return true if artifact rid is a version
+*/
+int is_a_version(int rid){
+  return db_exists("SELECT 1 FROM plink WHERE cid=%d", rid);
+}
+
+/*
 ** COMMAND: update
 **
 ** Usage: %fossil update ?VERSION?
@@ -63,7 +70,7 @@ void update_cmd(void){
     if( tid==0 ){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
-    if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", tid) ){
+    if( !is_a_version(tid) ){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
   }else{
