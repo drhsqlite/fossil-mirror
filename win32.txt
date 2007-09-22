@@ -19,7 +19,6 @@ Outstanding Issues:
 ----------------------------------------------------------------------
 
 * server is totally non-functional - #if/#end'd out of the code
-* all path operations are defunct
 * remote network operations are reporting: can't resolve host name: xyz
   
   Winsock must be initialized before using:

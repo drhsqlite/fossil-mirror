@@ -1,5 +1,8 @@
-C Win32\sport\snow\sfunctional\sexcept\snetwork\soperations.\sThis\scommit\swas\sdone\son\swindows\s:-).\sSee\swin32.txt\sfor\sstatus\sof\sall\scommands.\sNo\snetworking\scommands\sare\sfunctional\syet.\sAll\spath\soperations\sare\snow\sfunctioning.
-D 2007-09-22T06:47:11
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Forgot\sto\sremove\spath\sproblems\sfrom\s'Outstading\sIssues'
+D 2007-09-22T06:49:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 32e99207027e697f1d6a5c729d8189703ccd0209
@@ -106,7 +109,7 @@ F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
 F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
 F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
-F win32.txt a31e062bd36bd32306a15f9d15e0d63eafddb178
+F win32.txt 4b3ff889f8ded19a3d524e0ac09325bb75f324ca
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -136,7 +139,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 5890c67d8664da6fa665ce1bf867c2743f805e18
-R 73f935db0a157e1734072ffcf1a8c849
+P c7278fd013abfe2490ed36ad257e716c9daebf2b
+R 9dfd5d3fee88a340d4bfcf3649673bbf
 U jnc
-Z fae30047b18736978142e4a677c70f2d
+Z 79de53f61d5d4088bdcdaee09db10338
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (Darwin)
+
+iD8DBQFG9LsLHaWnYYor31ERAvJOAJ46P5cMjUsE7Q1HCTN4l1g6r1h7fwCgkpNn
+MVkJI/L0fmTL3hWbZoGvi7o=
+=WpPz
+-----END PGP SIGNATURE-----
