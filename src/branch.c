@@ -127,7 +127,7 @@ void branch_new(void){
     }
   }
   
-  blob_write_to_file(&manifest, "manifest.new");
+  /*blob_write_to_file(&manifest, "manifest.new");*/
 
   nvid = content_put(&manifest, 0, 0);
   if( nvid==0 ){
@@ -138,7 +138,6 @@ void branch_new(void){
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);
-  /*db_lset_int("checkout", nvid);*/
 
   /* Verify that the manifest checksum matches the expected checksum */
   vfile_aggregate_checksum_repository(nvid, &cksum2);

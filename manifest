@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\swin32\sinfo\supdate\sand\sbranch\saddition
-D 2007-09-23T03:17:30
+C Forgot\sa\sline\sof\sdebug\scode,\swritting\smanifest.new...\snow\sremoved
+D 2007-09-23T03:21:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -32,7 +32,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
-F src/branch.c 572086091650a3d3f527d14be70eddf4bc41754e
+F src/branch.c 3a849760c1ba5b12a8faf9c34920123d5f4c78eb
 F src/cgi.c 57f4d7daa35b4be43195e297695fe9e430e34521
 F src/checkin.c 39235e784733cff4cf3534917aa19fa10aa3f02d
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
@@ -141,14 +141,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b8a8959ec5e980bcd4263c8ef06d771a9f00dcd4 34accdd0cd130c5870ae4aff1eab38a44811e3e9
-R 35a6c161d1bd54bb05fc39ec6d24b085
+P 96f0d64a70357b5796b550b90f6906100b83b973
+R a363ac723c96c8e1ad186d65c95e7e06
 U jnc
-Z 7eaa9575810b9eb862a0be37be17c533
+Z d011086bda80cd34c4d993df014b707e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG9drKHaWnYYor31ERAjfVAJ9m9FKL9bdnl1RDlYkBZDWZgtZHuQCgg4cv
-++9BEmk4U3s6KaENew8kPR8=
-=V312
+iD8DBQFG9dupHaWnYYor31ERAurMAJ4ou4zdVj1VXkI/9+ABCjdTGYxZigCeIegC
+BESkPksTI8ftjxok53MST70=
+=n8x3
 -----END PGP SIGNATURE-----
