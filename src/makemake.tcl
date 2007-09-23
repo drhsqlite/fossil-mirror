@@ -9,6 +9,7 @@ set src {
   add
   bag
   blob
+  branch
   cgi
   checkin
   checkout
