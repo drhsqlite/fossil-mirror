@@ -102,7 +102,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   int i;
   Blob line, token, a1, a2, a3;
   Blob selfuuid;
-  char zPrevLine[10];
+  char cPrevType = 0;
 
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
@@ -115,7 +115,6 @@ int manifest_parse(Manifest *p, Blob *pContent){
   blob_zero(&a1);
   blob_zero(&a2);
   md5sum_init();
-  zPrevLine[0] = 0;
   while( blob_line(pContent, &line) ){
     char *z = blob_buffer(&line);
     if( z[0]=='-' ){
@@ -129,11 +128,11 @@ int manifest_parse(Manifest *p, Blob *pContent){
       if( blob_line(pContent, &line)==0 ) break;
       z = blob_buffer(&line);
     }
-    if( strcmp(z, zPrevLine)<0 ){
+    if( z[0]<cPrevType ){
       /* Lines of a manifest must occur in lexicographical order */
       goto manifest_syntax_error;
     }
-    sqlite3_snprintf(sizeof(zPrevLine), zPrevLine, "%s", z);
+    cPrevType = z[0];
     seenHeader = 1;
     if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;
     switch( z[0] ){
