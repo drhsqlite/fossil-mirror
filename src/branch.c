@@ -21,8 +21,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to check-out versions of the project
-** from the local repository.
+** This file contains code used to create new branches within a repository.
 */
 #include "config.h"
 #include "branch.h"
@@ -189,6 +188,7 @@ void branch_cmd(void){
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     branch_new();
   }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
+    fossil_panic("branch list is not yet completed");
   }else{
     fossil_panic("branch subcommand should be one of: "
                  "new list");

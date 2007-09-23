@@ -39,6 +39,7 @@ set src {
   pqueue
   printf
   rebuild
+  rss
   schema
   setup
   sha1
