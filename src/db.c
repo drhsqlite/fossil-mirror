@@ -890,7 +890,9 @@ void cmd_open(void){
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
   db_lset_int("checkout", vid);
-  if( vid!=0 ){
+  if( vid==0 ){
+    db_lset_int("checkout", 1);
+  }else{
     g.argv = azNewArgv;
     g.argc = 3;
     update_cmd();
