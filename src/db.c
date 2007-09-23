@@ -874,6 +874,8 @@ void db_lset_int(const char *zName, int value){
 */
 void cmd_open(void){
   Blob path;
+  int vid;
+  static char *azNewArgv[] = { 0, "update", "--latest", 0 };
   if( g.argc!=3 ){
     usage("REPOSITORY-FILENAME");
   }
@@ -885,7 +887,12 @@ void cmd_open(void){
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
   db_open_local();
   db_lset("repository", blob_str(&path));
-  db_lset_int("checkout", 1);
+  vid = db_int(0, "SELECT pid FROM plink y"
+                  " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
+  db_lset_int("checkout", vid);
+  g.argv = azNewArgv;
+  g.argc = 3;
+  update_cmd();
 }
 
 /*

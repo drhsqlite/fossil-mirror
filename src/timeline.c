@@ -366,9 +366,15 @@ void page_timeline(void){
   @ <br><input type="submit" value="Submit">
   @ </form>
   @ <form method="GET" action="%s(g.zBaseURL)/timeline">
-  @ <input type="hidden" value="%h(zDate)" name="d">
+  @ <input type="hidden" value="%d(lastEvent)" name="e">
   @ <input type="hidden" value="%d(nEntry)" name="n">
   @ <input type="submit" value="Next %d(nEntry) Rows">
+  @ </form>
+  @ <form method="GET" action="%s(g.zBaseURL)/timeline">
+  @ <input type="hidden" value="%d(firstEvent)" name="e">
+  @ <input type="hidden" value="1" name="a">
+  @ <input type="hidden" value="%d(nEntry)" name="n">
+  @ <input type="submit" value="Previous %d(nEntry) Rows">
   @ </form>
   style_footer();
 }

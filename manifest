@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Branching\snow\sworking\scorrectly,\sincluding\sadding\sof\sbgcolor\stag\sand\scorrect\sR\sline
-D 2007-09-23T15:02:58
+C Fixes\sto\sthe\stimeline\swebpage\sand\sthe\s"open"\sand\s"update"\scommands.
+D 2007-09-23T18:49:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -42,7 +42,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c b9655281e8393d992f5c9d2e4d3d5cd8d8f58fa7
+F src/db.c 0660888f68c63d381117c50341dc6f9f2e6d3957
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -76,10 +76,10 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 974ef8af807248976bdbbc3eb4d8d6e7abc8bf62
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
-F src/timeline.c a8be29736d48d2f5a4575d28dd152c5320126f9f
+F src/timeline.c dc980b14e8187df30bad57f613e457fef6946bf5
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 7b1df8d7e100d35e49f9729ea3944cac139f1d60
+F src/update.c c90f6451d90980876c0d0ab56205c3cadba92502
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 2a5d91addf1911ac6e7c8bf99af4a97b98fb25d4
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
@@ -141,14 +141,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P dea1ae50d3f9d7e76de5aa2fe93bb80e08af4aa0
-R 73cec0c417fd598998fdb8064631bb07
-U jnc
-Z 6b6f6039d68e0d2b24a28aba5bd5d040
+P 2ad378d06534c3bd0e33baf148514ac5d790b606
+R 2c8f13412449cd4e612b1e620168d663
+U drh
+Z bfa933ba149fbadc9323be659587a338
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG9oAiHaWnYYor31ERAg2cAJ9axnVKLA40s2EIGlf7QXz7GrRPLQCgkzKy
-3HJLodI4uK0VvEDaEp+cWWc=
-=PMV2
+iD8DBQFG9rVSoxKgR168RlERAp4LAJ46DWWeaMDSoCWPcJqHmPqwiSejyACfWmmb
+lDNxhP+RsifQcOAb+wVRCJ0=
+=GS0q
 -----END PGP SIGNATURE-----

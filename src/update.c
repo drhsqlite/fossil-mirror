@@ -53,14 +53,16 @@ void update_cmd(void){
   int vid;              /* Current version */
   int tid;              /* Target version - version we are changing to */
   Stmt q;
+  int latestFlag;       /* Pick the latest version if true */
 
+  latestFlag = find_option("latest",0, 0)!=0;
   if( g.argc!=3 && g.argc!=2 ){
     usage("?VERSION?");
   }
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    vid = 1;
+    fossil_fatal("cannot find current version");
   }
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
@@ -75,7 +77,7 @@ void update_cmd(void){
     }
   }else{
     compute_leaves(vid);
-    if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
+    if( !latestFlag && db_int(0, "SELECT count(*) FROM leaves")>1 ){
       db_prepare(&q, 
         "%s "
         "   AND event.objid IN leaves"
@@ -86,7 +88,9 @@ void update_cmd(void){
       db_finalize(&q);
       fossil_fatal("Multiple descendents");
     }
-    tid = db_int(0, "SELECT rid FROM leaves"); 
+    tid = db_int(0, "SELECT rid FROM leaves, event"
+                    " WHERE event.objid=leaves.rid"
+                    " ORDER BY event.mtime DESC"); 
   }
 
   db_begin_transaction();
