@@ -190,16 +190,15 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( allFlag ){
       unlink(db_column_text(&q, 0));
-      continue;
-    }
-    
-    Blob ans;
-    char *prompt = mprintf("remove unmanaged file \"%s\" [y/N]? ",
-      db_column_text(&q, 0));
-    blob_zero(&ans);
-    prompt_user(prompt, &ans);
-    if( blob_str(&ans)[0]=='y' ){
-      unlink(db_column_text(&q, 0));
+    }else{
+      Blob ans;
+      char *prompt = mprintf("remove unmanaged file \"%s\" [y/N]? ",
+                              db_column_text(&q, 0));
+      blob_zero(&ans);
+      prompt_user(prompt, &ans);
+      if( blob_str(&ans)[0]=='y' ){
+        unlink(db_column_text(&q, 0));
+      }
     }
   }
   db_finalize(&q);

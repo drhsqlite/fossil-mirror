@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixes\sto\sthe\stimeline\swebpage\sand\sthe\s"open"\sand\s"update"\scommands.
-D 2007-09-23T18:49:50
+C Fix\sa\sC++-ism.
+D 2007-09-23T18:55:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -34,7 +34,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
 F src/branch.c c0919d6b520c5fcdfba022e1c366fe06266a9d51
 F src/cgi.c 57f4d7daa35b4be43195e297695fe9e430e34521
-F src/checkin.c 39235e784733cff4cf3534917aa19fa10aa3f02d
+F src/checkin.c 484fa282d63e330a48d649b765cf7a0873208351
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -141,14 +141,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2ad378d06534c3bd0e33baf148514ac5d790b606
-R 2c8f13412449cd4e612b1e620168d663
+P ff4cc5fae2e88f97c536462ac5b63387b5a5605f
+R 7049487324af6e141ab93c8fb5ab25d6
 U drh
-Z bfa933ba149fbadc9323be659587a338
+Z 6e41629e3f35323bdca6ff400c0fadcd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFG9rVSoxKgR168RlERAp4LAJ46DWWeaMDSoCWPcJqHmPqwiSejyACfWmmb
-lDNxhP+RsifQcOAb+wVRCJ0=
-=GS0q
+iD8DBQFG9rasoxKgR168RlERArohAJ0Toh245redjBV7Q5NQKjG+P3TjiQCeOe/b
+Bd0rFGWJupQDq7T+rmoWDaQ=
+=F5UY
 -----END PGP SIGNATURE-----
