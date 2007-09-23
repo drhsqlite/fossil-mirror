@@ -73,6 +73,10 @@ void style_header(const char *zTitle){
   const char *zLogInOut = "Logout";
   login_check_credentials();
   @ <html>
+  @ <head>
+  @ <title>%s(zTitle)</title>
+  @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="%s(g.zBaseURL)/timeline.rss">
+  @ </head>
   @ <body bgcolor="white">
   @ <hr size="1">
   @ <table border="0" cellpadding="0" cellspacing="0" width="100%%">

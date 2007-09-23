@@ -463,6 +463,26 @@ static void entry_attribute(
   @ %s(zLabel)
 }
 
+/*
+** Generate a text box for an attribute.
+*/
+static void textarea_attribute(
+  const char *zLabel,   /* The text label on the textarea */
+  int rows,             /* Rows in the textarea */
+  int cols,             /* Columns in the textarea */
+  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zQParm,   /* The query parameter */
+  const char *zDflt     /* Default value if VAR table entry does not exist */
+){
+  const char *zVal = db_get(zVar, zDflt);
+  const char *zQ = P(zQParm);
+  if( zQ && strcmp(zQ,zVal)!=0 ){
+    db_set(zVar, zQ);
+    zVal = zQ;
+  }
+  @ <textarea name="%s(zQParm)" rows="%d(rows)" cols="%d(cols)">%h(zVal)</textarea>
+  @ %s(zLabel)
+}
 
 
 /*
@@ -536,7 +556,15 @@ void setup_config(void){
   @ Leave this blank to disable wiki.  Wiki pages are
   @ files within this subdirectory whose name is he wiki page title
   @ and with the suffix ".wiki".</p>
-
+  
+  entry_attribute("RSS Feed Title", 60, "rss-title", "rst", "");
+  @ <p>The title of the RSS feed that publishes the changes to the
+  @ repository. If left blank, the system will generate a generic
+  @ title that, unfortunantly, not very helpful.</p>
+  
+  textarea_attribute("RSS Feed Description", 5, 60, "rss-description", "rsd", "");
+  @ <p>The description of the RSS feed that publishes the changes to
+  @ the repository. If left blank, the system will use the RSS Feed Title.
    
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
