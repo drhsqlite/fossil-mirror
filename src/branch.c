@@ -31,11 +31,11 @@
 void branch_new(void){
   int vid, nvid, noSign;
   Stmt q;
-  char *zBranch, *zUuid, *zDate, *zComment, *zManifestFile;
+  char *zBranch, *zUuid, *zDate, *zComment;
   const char *zColor;
   Blob manifest;
   Blob mcksum;           /* Self-checksum on the manifest */
-  Blob cksum1, cksum2, dskcksum1;   /* Before and after commit checksums */
+  Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
  
   noSign = find_option("nosign","",0)!=0;
@@ -50,6 +50,9 @@ void branch_new(void){
     usage("branch new ?-bgcolor COLOR BRANCH-NAME");
   }
   zBranch = g.argv[3];
+  if( zBranch==0 || zBranch[0]==0 ){
+    fossil_panic("branch name cannot be empty");
+  }
 
   user_select();
   db_begin_transaction();
@@ -57,30 +60,15 @@ void branch_new(void){
     fossil_panic("there are uncommitted changes. please commit first");
   }
 
-  /* Create a new rid? */
-  zManifestFile = mprintf("%smanifest", g.zLocalRoot);
-  blob_read_from_file(&manifest, zManifestFile);
-  free(zManifestFile);
-  
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10] = 'T';
-  
-  blob_appendf(&manifest, "D %s\n", zDate);
-  blob_appendf(&manifest, "T *%F *\n", zBranch);
-
-  md5sum_init();
-  md5sum_step_blob(&manifest);
-  md5sum_finish(&cksum1);
-  
-  blob_reset(&manifest);
-
   vid = db_lget_int("checkout", 0);
-  vfile_aggregate_checksum_disk(vid, &dskcksum1);
+  vfile_aggregate_checksum_disk(vid, &cksum1);
   
   /* Create our new manifest */
   blob_zero(&manifest);
   zComment = mprintf("Branch created %s", zBranch);
   blob_appendf(&manifest, "C %F\n", zComment);
+  zDate = db_text(0, "SELECT datetime('now')");
+  zDate[10] = 'T';
   blob_appendf(&manifest, "D %s\n", zDate);
 
   db_prepare(&q,
@@ -99,9 +87,16 @@ void branch_new(void){
   blob_appendf(&manifest, "R %b\n", &cksum1);
   
   if( zColor!=0 ){
-    blob_appendf(&manifest, "T *bgcolor * %F\n", zColor);
+    if( strcmp("bgcolor",zBranch)>=0 ){
+      blob_appendf(&manifest, "T *%F *\n", zBranch);
+      blob_appendf(&manifest, "T *bgcolor * %F\n", zColor);
+    }else{
+      blob_appendf(&manifest, "T *bgcolor * %F\n", zColor);
+      blob_appendf(&manifest, "T *%F *\n", zBranch);
+    }
+  }else{
+    blob_appendf(&manifest, "T *%F *\n", zBranch);
   }
-  blob_appendf(&manifest, "T *%F *\n", zBranch);
 
   /* Cancel any tags that propagate */
   db_prepare(&q, 
@@ -137,7 +132,13 @@ void branch_new(void){
   manifest_crosslink(nvid, &manifest);
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
-  printf("New_Version: %s\n", zUuid);
+  printf("Branch Version: %s\n", zUuid);
+  printf("\n");
+  printf("Notice: working copy not updated to the new branch. If\n");
+  printf("        you wish to work on the new branch, update to\n");
+  printf("        that branch first:\n");
+  printf("\n");
+  printf("        fossil update %s\n", zBranch);
 
   /* Verify that the manifest checksum matches the expected checksum */
   vfile_aggregate_checksum_repository(nvid, &cksum2);
@@ -149,7 +150,7 @@ void branch_new(void){
   
   /* Verify that the commit did not modify any disk images. */
   vfile_aggregate_checksum_disk(vid, &cksum2);
-  if( blob_compare(&dskcksum1, &cksum2) ){
+  if( blob_compare(&cksum1, &cksum2) ){
     fossil_panic("tree checksums before and after commit do not match");
   }
 

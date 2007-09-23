@@ -99,7 +99,7 @@ void manifest_clear(Manifest *p){
 */
 int manifest_parse(Manifest *p, Blob *pContent){
   int seenHeader = 0;
-  int i;
+  int i, lineNo=0;
   Blob line, token, a1, a2, a3;
   Blob selfuuid;
   char cPrevType = 0;
@@ -117,6 +117,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   md5sum_init();
   while( blob_line(pContent, &line) ){
     char *z = blob_buffer(&line);
+    lineNo++;
     if( z[0]=='-' ){
       if( strncmp(z, "-----BEGIN PGP ", 15)!=0 ){
         goto manifest_syntax_error;
@@ -251,8 +252,12 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'T': {
         char *zName, *zUuid, *zValue;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ){
+          goto manifest_syntax_error;
+        }
+        if( blob_token(&line, &a2)==0 ){
+          goto manifest_syntax_error;
+        }
         zName = blob_terminate(&a1);
         zUuid = blob_terminate(&a2);
         if( blob_token(&line, &a3)==0 ){
@@ -401,6 +406,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   return 1;
 
 manifest_syntax_error:
+  /*fprintf(stderr, "Manifest error on line %i\n", lineNo);fflush(stderr);*/
   md5sum_init();
   manifest_clear(p);
   return 0;
