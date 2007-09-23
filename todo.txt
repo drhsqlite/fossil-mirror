@@ -117,9 +117,6 @@ Things to work on:
     GPG clearsigned at the very least.  Comment changes only apply if
     the user who made the change has the right permissions.
 
- *  Get a build working for win32.  Perhaps use cygwin.  Or omit
-    the server component from win32 (to eliminate the need for fork()).
-
  *  Make the interface to fossil look pretty and be customizable so
     that other people will be attracted to it, will take over maintenance
     of it, and we can eventually move on to other things.
