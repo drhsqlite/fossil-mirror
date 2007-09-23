@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sthe\sRSS\schanges.
-D 2007-09-23T20:18:58
+C Fixed\sbug\sin\sopen_cmd.\sAs\sof\sff4c,\sopen\snow\sruns\supdate\s--latest\sas\swell,\swhich\swould\serr\son\sa\sbrand\snew,\sblank,\sdatabase.\sopen_cmd\snow\sonly\sruns\supdate\s--latest\sif\sthe\scurrent\spid\s!=\s0
+D 2007-09-23T22:27:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -42,7 +42,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c 0660888f68c63d381117c50341dc6f9f2e6d3957
+F src/db.c 6ce289dbfac9bb9a35fc1166fd3036ecd2689dc1
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -142,14 +142,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 820a1a1a534f32bfff50d9eddd28b5aaf918e3a3 07eaead5dc84f3237718ed1394de44ca23cde981
-R c4c6a88102571774e9eba4d99fb325cd
-U drh
-Z ee5ac958346994ff7718c23a738d4c41
+P dad40ffac010e6cf884617ba4a93c8cb745d8e5a
+R 9e80778c9f6a0e9dc93cb26308e4e90e
+U jnc
+Z 797e239b5a55307dd00d3088479d3606
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG9so2oxKgR168RlERAkIpAJ9lAzrpevUFLM9LKEeI+KTl9eR1QACdE/y7
-gkf8PiPzQn36qx+eKJZwJ5k=
-=WyGw
+iD8DBQFG9uhsHaWnYYor31ERAm2dAJ90mi7ETEEfecdYHCxof1zKiBpP0wCeIKag
+zoMWLdWRfcN3FBIe/h6487I=
+=oP7Y
 -----END PGP SIGNATURE-----
