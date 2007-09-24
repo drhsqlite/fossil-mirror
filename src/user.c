@@ -215,7 +215,7 @@ void user_cmd(void){
     char *zPrompt;
     int uid;
     Blob pw;
-    if( g.argc!=4 ) usage("user password USERNAME");
+    if( g.argc!=4 ) usage("password USERNAME");
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
     if( uid==0 ){
       fossil_fatal("no such user: %s", g.argv[3]);

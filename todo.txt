@@ -25,6 +25,7 @@ Bugs:
  *  Bug: Make sure merge and other commands (check-out) do not try
     to use a phantom.
 
+ *  Bug: When clone use incorrect http URL, local repo file is still created.
 
 Things to work on:
 
