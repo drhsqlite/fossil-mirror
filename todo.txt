@@ -22,7 +22,7 @@ Things to work on:
 
  *  Bug: Make sure merge and other commands (check-out) do not try
     to use a phantom.
-¿
+Â¿
  *  The ipaddr field of the rcvfrom table is not being set.  This
     field should be the IP address from which information is received
     for the local repository.  So when somebody does a push of new
@@ -48,9 +48,7 @@ Things to work on:
  *  Enhancements to the diff and tkdiff commands in the cli.
     Allow the entire tree or a subtree to be diffed, not just a 
     single file.  Allow diffs against any two arbitrary versions,
-    not just diffs against the current check-out.  Allow 
-    configuration options to replace tkdiff with some other
-    visual differ of the users choice. Example: eskil.
+    not just diffs against the current check-out.
 
  *  Ticketing interface (expand this bullet)
 
@@ -120,3 +118,7 @@ Things to work on:
  *  Make the interface to fossil look pretty and be customizable so
     that other people will be attracted to it, will take over maintenance
     of it, and we can eventually move on to other things.
+    
+    This has begun, but I wonder if we need to use a templating system for
+    full customization. If the CSS is done correctly, you can change 99.9%
+    of everything. See: http://www.csszengarden.com/

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sstyle.css\spage\sthat\sget's\sfrom\sthe\srepo\sor\suses\sa\sbuilt\sin\sstyle.css.\sRemoved\sstatic\sformatting\sin\sheader/footer,\sreplaced\swith\sdivs,\sspans\sand\sids\swhich\sthe\sstyle.css\scan\stotally\scontrol.\sThe\sdefault\sstyle.css\sis\ssimple,\suses\sblue\scolors\sfrom\stimeline\sdate\sarea.\sFixed\sminor\sbug\son\ssetup_ulist\swhere\sit\swould\sdisplay\sfooter\sat\stop.
-D 2007-09-24T04:37:18
+C Added\ssupport\sfor\sa\suser\sdefined\sdiff\scommand,\swhich\sif\sset\s(fossil\sconfig\sdiff-command),\sis\srun\sby\sdefault.\sThe\suser\scan\sgive\sa\s-i\sflag\sto\srun\sthe\sinternal\sdiff\scommand\sregardless\sof\suser\sdefined\sdiff\scommand\ssetting.\sRemoved\scommand\stkdiff,\sno\slonger\sneeded.\sMade\sthe\sconfig\sremove\smessage\sa\sbit\smore\sclear,\swhen\sremoving\sa\sconfig\ssetting,\sit\sstates\sit\shas\sbeen\sremoved\sinstead\sof\stelling\syou\sit's\sundefined.
+D 2007-09-24T06:53:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -42,12 +42,12 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c c864ef2a7b20278ab053c54129f79d26f8bb79ae
+F src/db.c 65cc9f7698f3564b3ee5d41aa3a8f3a6f537b4d6
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
-F src/diffcmd.c 16a1f7054397ddb7f075514b927f3e4fbc7a3be5
+F src/diffcmd.c a10658363034abb916a29c53e2b5d96789576d0e
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 0453cec09998ba192d2443ba1c5849f6180c3e52
 F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
@@ -94,7 +94,7 @@ F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
-F todo.txt a134ed615f7d5080863f9a93989b549bffbc61fa
+F todo.txt 8c698d097112f8f6013fa886a15308365a389d97
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
 F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
@@ -142,14 +142,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 55dc2abc60a4692e7b029f3dcbafb986286623ad
-R e5d1c44e99d20e691f1f7b3e1b25f2dd
+P 5cd959742854ddf2fcd21f4a8b0be5099954f16e
+R 80b982423cd11184f56fcc87ed856b5c
 U jnc
-Z a72127ea0f9268eafb9ba7c08366728b
+Z 27c23f166a5f3e85c98d71a4705ae723
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG9z7+HaWnYYor31ERAvTCAKCLIOG+fGFNZ7bs23PrAw/YwARYCQCfcE+Z
-EkC1uZApjc8w1t4NOvDCQrc=
-=Zr2D
+iD8DBQFG9176HaWnYYor31ERAnLjAJ40A5ouNqJHKgwp9ZXQtO9ukiHcUgCfdPYg
+UjW6ldunflpJQEjzgNVOCDc=
+=NO+9
 -----END PGP SIGNATURE-----

@@ -42,31 +42,48 @@ static void shell_escape(Blob *pBlob, const char *zIn){
   }
 }
 
-
-
 /*
 ** COMMAND: diff
-** COMMAND: tkdiff
 **
-** Usage: %fossil diff|tkdiff FILE...
+** Usage: %fossil diff ?-i FILE...
+**
 ** Show the difference between the current version of a file (as it
-** exists on disk) and that same file as it was checked out.  Use
-** either "diff -u" or "tkdiff".
+** exists on disk) and that same file as it was checked out.
+** If -i is supplied, the internal diff command will be executed
+** otherwise, fossil attempts to use the user configured diff-command.
+**
+** Here are a few external diff command settings, for example:
+**
+**   %fossil config diff-command=tkdiff
+**   %fossil config diff-command=eskill22
+**   %fossil config diff-command=tortoisemerge
+**   %fossil config diff-command=meld
+**   %fossil config diff-command=xxdiff
+**   %fossil config diff-command=kdiff3
 */
 void diff_cmd(void){
   const char *zFile;
   Blob cmd;
   Blob fname;
-  int i;
+  int i, internalDiff;
   char *zV1 = 0;
   char *zV2 = 0;
-
+  
+  internalDiff = find_option("intertal","i",0)!=0;
+  
   if( g.argc<3 ){
     usage("?OPTIONS? FILE");
   }
   db_must_be_within_tree();
-  blob_zero(&cmd);
-  blob_appendf(&cmd, "%s ", g.argv[1]);
+  
+  if( internalDiff==0 ){
+  	const char *zExternalCommand = db_global_get("diff-command", 0);
+    if( zExternalCommand==0 ){
+      internalDiff=1;
+    }
+  	blob_zero(&cmd);
+  	blob_appendf(&cmd, "%s ", zExternalCommand);
+  }
   for(i=2; i<g.argc-1; i++){
     const char *z = g.argv[i];
     if( (strcmp(z,"-v")==0 || strcmp(z,"--version")==0) && i<g.argc-2 ){
@@ -78,7 +95,9 @@ void diff_cmd(void){
         fossil_panic("too many versions");
       }
     }else{
-      blob_appendf(&cmd, "%s ", z);
+      if( internalDiff==0 ){
+        blob_appendf(&cmd, "%s ", z);
+      }
     }
   }
   zFile = g.argv[g.argc-1];
@@ -100,15 +119,27 @@ void diff_cmd(void){
       blob_appendf(&vname, "%s~%d", zFile, cnt++);
     }while( access(blob_str(&vname),0)==0 );
     content_get(rid, &record);
-    blob_write_to_file(&record, blob_str(&vname));
-    blob_reset(&record);
-    shell_escape(&cmd, blob_str(&vname));
-    blob_appendf(&cmd, " ");
-    shell_escape(&cmd, zFile);
-    system(blob_str(&cmd));
-    unlink(blob_str(&vname));
-    blob_reset(&vname);
-    blob_reset(&cmd);
+    if( internalDiff==1 ){
+      Blob current;
+      Blob out;
+      blob_zero(&current);
+      blob_read_from_file(&current, zFile);
+      blob_zero(&out);
+      unified_diff(&current, &record, 5, &out);
+      printf("%s\n", blob_str(&out));
+      blob_reset(&current);
+      blob_reset(&out);
+    }else{
+      blob_write_to_file(&record, blob_str(&vname));
+      blob_reset(&record);
+      shell_escape(&cmd, blob_str(&vname));
+      blob_appendf(&cmd, " ");
+      shell_escape(&cmd, zFile);
+      system(blob_str(&cmd));
+      unlink(blob_str(&vname));
+      blob_reset(&vname);
+      blob_reset(&cmd);
+    }
   }else{
     fossil_panic("not yet implemented");
   }

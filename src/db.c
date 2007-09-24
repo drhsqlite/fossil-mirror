@@ -923,7 +923,7 @@ void cmd_config(void){
     db_begin_transaction();
     for(i=2; i<g.argc; i++){
       char *zName, *zValue;
-      int j;
+      int j, removed=0;
 
       zName = mprintf("%s", g.argv[i]);
       for(j=0; zName[j] && zName[j]!='='; j++){}
@@ -934,13 +934,18 @@ void cmd_config(void){
           db_global_set(zName, zValue);
         }else{
           db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
+          removed=1;
         }
       }
       zValue = db_global_get(zName, 0);
       if( zValue ){
         printf("%s=%s\n", zName, zValue);
       }else{
-        printf("%s is undefined\n", zName);
+        if( removed==1 ){
+          printf("%s has been removed from configuration\n", zName);
+        }else{
+          printf("%s is undefined\n", zName);
+        }
       }
     }
     db_end_transaction(0);
