@@ -44,22 +44,31 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 
 /*
 ** COMMAND: diff
+** COMMAND: gdiff
 **
-** Usage: %fossil diff ?-i FILE...
+** Usage: %fossil diff|gdiff ?-i FILE...
 **
 ** Show the difference between the current version of a file (as it
 ** exists on disk) and that same file as it was checked out.
-** If -i is supplied, the internal diff command will be executed
-** otherwise, fossil attempts to use the user configured diff-command.
+**
+** diff will show a textual diff while gdiff will attempt to run a
+** graphical diff command that you have setup. If the choosen command
+** is not yet configured, the internal textual diff command will be
+** used.
+**
+** If -i is supplied for either diff or gdiff, the internal textual
+** diff command will be executed.
 **
 ** Here are a few external diff command settings, for example:
 **
-**   %fossil config diff-command=tkdiff
-**   %fossil config diff-command=eskill22
-**   %fossil config diff-command=tortoisemerge
-**   %fossil config diff-command=meld
-**   %fossil config diff-command=xxdiff
-**   %fossil config diff-command=kdiff3
+**   %fossil config diff-command=diff
+**
+**   %fossil config gdiff-command=tkdiff
+**   %fossil config gdiff-command=eskill22
+**   %fossil config gdiff-command=tortoisemerge
+**   %fossil config gdiff-command=meld
+**   %fossil config gdiff-command=xxdiff
+**   %fossil config gdiff-command=kdiff3
 */
 void diff_cmd(void){
   const char *zFile;
@@ -69,7 +78,7 @@ void diff_cmd(void){
   char *zV1 = 0;
   char *zV2 = 0;
   
-  internalDiff = find_option("intertal","i",0)!=0;
+  internalDiff = find_option("internal","i",0)!=0;
   
   if( g.argc<3 ){
     usage("?OPTIONS? FILE");
@@ -77,12 +86,17 @@ void diff_cmd(void){
   db_must_be_within_tree();
   
   if( internalDiff==0 ){
-  	const char *zExternalCommand = db_global_get("diff-command", 0);
+    const char *zExternalCommand;
+    if( strcmp(g.argv[1], "diff")==0 ){
+      zExternalCommand = db_global_get("diff-command", 0);
+    }else{
+      zExternalCommand = db_global_get("gdiff-command", 0);
+    }
     if( zExternalCommand==0 ){
       internalDiff=1;
     }
-  	blob_zero(&cmd);
-  	blob_appendf(&cmd, "%s ", zExternalCommand);
+    blob_zero(&cmd);
+    blob_appendf(&cmd, "%s ", zExternalCommand);
   }
   for(i=2; i<g.argc-1; i++){
     const char *z = g.argv[i];
@@ -125,7 +139,7 @@ void diff_cmd(void){
       blob_zero(&current);
       blob_read_from_file(&current, zFile);
       blob_zero(&out);
-      unified_diff(&current, &record, 5, &out);
+      unified_diff(&record, &current, 5, &out);
       printf("%s\n", blob_str(&out));
       blob_reset(&current);
       blob_reset(&out);

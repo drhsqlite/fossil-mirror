@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\ssupport\sfor\sa\suser\sdefined\sdiff\scommand,\swhich\sif\sset\s(fossil\sconfig\sdiff-command),\sis\srun\sby\sdefault.\sThe\suser\scan\sgive\sa\s-i\sflag\sto\srun\sthe\sinternal\sdiff\scommand\sregardless\sof\suser\sdefined\sdiff\scommand\ssetting.\sRemoved\scommand\stkdiff,\sno\slonger\sneeded.\sMade\sthe\sconfig\sremove\smessage\sa\sbit\smore\sclear,\swhen\sremoving\sa\sconfig\ssetting,\sit\sstates\sit\shas\sbeen\sremoved\sinstead\sof\stelling\syou\sit's\sundefined.
-D 2007-09-24T06:53:46
+C Added\sa\sgdiff\scommand.\sdiff\scommand\snow\sruns\sconfig\sdiff-command,\sgdiff\scommand\s(graphical\sdiff)\snow\sruns\sconfig\sgdiff-command.\sWith\sboth,\sif\s-i\sis\ssupplied,\sinternal\sdiff\sis\sused.\sWith\sboth,\sif\sthey\sare\snot\sconfigured,\sinternal\sdiff\sis\sused.\sFixed\sbug\swith\sinternal\sdiff\sgiving\sfiles\sin\sreverse\sorder.\sAlso\sput\sdiv\sid="sub-menu"\sinside\sof\ssubmenu\sif,\sas\sto\snot\sdisplay\sthe\ssub\smenu\sif\sno\ssub\smenu\sitems\sexist
+D 2007-09-24T14:02:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -47,7 +47,7 @@ F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
-F src/diffcmd.c a10658363034abb916a29c53e2b5d96789576d0e
+F src/diffcmd.c 4af4f0ff55bd4fbeef90a57acf89d1658f026843
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 0453cec09998ba192d2443ba1c5849f6180c3e52
 F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
@@ -74,7 +74,7 @@ F src/setup.c 10731e95e771a7e2fd9ef19920dd4efb1e3c629d
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c f0dc6f508bd0887bdea8c34f2372ab7282c13eb6
+F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
 F src/timeline.c dc980b14e8187df30bad57f613e457fef6946bf5
@@ -142,14 +142,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 5cd959742854ddf2fcd21f4a8b0be5099954f16e
-R 80b982423cd11184f56fcc87ed856b5c
+P c82fb617751103296e041d5839b9a7408cebda83
+R 02fcb8298473b95ab1850f99d7548312
 U jnc
-Z 27c23f166a5f3e85c98d71a4705ae723
+Z 2f53db22b97122584f2cf8638f7a31da
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG9176HaWnYYor31ERAnLjAJ40A5ouNqJHKgwp9ZXQtO9ukiHcUgCfdPYg
-UjW6ldunflpJQEjzgNVOCDc=
-=NO+9
+iD8DBQFG98N2HaWnYYor31ERAteGAJ4hwsZ3+tF4hxO+N3E0mdaDhlOSkgCfaPd7
+gqx/j803KyV/hLA2HQ5cd6Y=
+=9N0n
 -----END PGP SIGNATURE-----

@@ -109,8 +109,8 @@ void style_header(const char *zTitle){
     @ | <a href="%s(g.zBaseURL)/login">%s(zLogInOut)</a>
   }
   @ </div>
-  @ <div id="sub-menu">
   if( nSubmenu>0 ){
+    @ <div id="sub-menu">
     int i;
     qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
     for(i=0; i<nSubmenu; i++){
@@ -124,8 +124,8 @@ void style_header(const char *zTitle){
         @ <span class="tail">%s(zTail)</span>
       }
     }
+    @ </div>
   }
-  @ </div>
   @ <div id="page">
   g.cgiPanic = 1;
 }
