@@ -1,5 +1,5 @@
-C Corrected\s"fossil\suser\spassword"\serror\smessage.\sIt\shad\san\sextra\suser
-D 2007-09-24T20:21:52
+C Timeline\scalculated\slocaltime\sincorrectly\sso\sit\sdidn't\sdisplay\slatest\schanges\sif\suser\sis\sin\sTZ\sUTC+X
+D 2007-09-24T20:50:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -74,7 +74,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
-F src/timeline.c dc980b14e8187df30bad57f613e457fef6946bf5
+F src/timeline.c 19a54bcbde64459cb46aa69eed03b7c9e695f6a9
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 7eb6f9c77775af16ce302a57cd4ccd6733368470
@@ -139,7 +139,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c841af0d501417c67cc1e8758ebbb85381c5e5d7
-R 7053bc204482b3f862a56f5a48101761
+P df3d6cbff5949a10e10957ad2ca016f0e8cafb2f
+R 11e992b057e87c5b80f93dee5b46a752
 U mjanssen
-Z d56f19de3cb61224d478eb5bd22ed9ae
+Z 8147d024beaf6377b76039a5d0664991

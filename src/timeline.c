@@ -445,7 +445,7 @@ const char *timeline_query_for_tty(void){
     @ SELECT
     @   blob.rid,
     @   uuid,
-    @   datetime(event.mtime,'localtime'),
+    @   datetime(event.mtime,'utc'),
     @   coalesce(ecomment,comment) || ' (by ' || coalesce(euser,user) || ')',
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
@@ -524,7 +524,7 @@ void timeline_cmd(void){
     if( mode==3 || mode==4 ){
       fossil_fatal("cannot compute descendents or ancestors of a date");
     }
-    zDate = mprintf("(SELECT julianday('now','utc'))");
+    zDate = mprintf("(SELECT datetime('now'))");
   }else if( strncmp(zOrigin, "current", k)==0 ){
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
