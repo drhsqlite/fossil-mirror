@@ -1,12 +1,9 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Added\srevert\scommand,\scurrently\sonly\soffering\srevert\sto\scurrent\sversion.\sOrganized\stodo.txt\sa\sbit,\sadded\snew\sbug\sreport
-D 2007-09-24T17:11:51
+C Build\sfrom\sbuild\sdirectory
+D 2007-09-24T19:32:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
-F Makefile.w32 7035415b04a450e40789aa5be1e5dfecc9520892
+F Makefile.w32 eaef66a4a3fabcca9e68904d21c7199df81e5a55
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
@@ -142,14 +139,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 01ce2cf3dc8949a16646fecaa3f48bd353fe12d7
-R 04a8644796032cda9bbc54f9b40ebee5
-U jnc
-Z bfc7c77d1af5ab848d3935d87c2274a7
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (Darwin)
-
-iD8DBQFG9+/XHaWnYYor31ERApSYAJ9BXs8m6FBBi0M6y2bPUNOQfftbiwCdEOct
-u2HqOdwnd8icLBFxAQD3cyc=
-=KsQg
------END PGP SIGNATURE-----
+P 255bacf9078d3c4c4b6fdf1cf6ac95e5e038e1d6
+R c3f4e80e8b2519c98825d85f3092028e
+U anonymous
+Z 3d73e9f80e2e787faed63b4436e4a2cc
