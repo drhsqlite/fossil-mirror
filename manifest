@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C One\smore\sminor\schange\sto\sthe\sfix\sof\sff4c,\sset\sthe\scurrent\scheckout\sto\s1\sif\sthis\sis\sa\sbrand\snew\sfile.
-D 2007-09-23T23:05:42
+C Some\selements\smoved\sto\scorrect\sorder\sin\swiki\sAllowedMarkup\sarray.\sRemoved\shardcoded\slink\sin\sresolveHyperlink\sand\salso\smade\sit\shandle\soutside\slinks,\ssuch\sas\shttp,\sftp,\smailto,\setc...\sWhen\slooking\sfor\svalid\sHTML\scodes,\sI\schanged\sisalpha\sto\sisalnum\sso\sthat\sH1,\sH2,\setc...\swould\sbe\srecognized.\sBetter\scode\sfor\ssetting\sinital\scheckout\sdb\sentry.
+D 2007-09-24T01:38:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -42,7 +42,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c 6fa9884a7281acc5f82227ea28e3ef97e0cc037b
+F src/db.c c864ef2a7b20278ab053c54129f79d26f8bb79ae
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -86,7 +86,7 @@ F src/user.c 2a5d91addf1911ac6e7c8bf99af4a97b98fb25d4
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
-F src/wikiformat.c a4e0918f2378286f902317c65fe778e6e03be2a8
+F src/wikiformat.c 12488f8f7c88977fc96aac7bc509938e27a251be
 F src/xfer.c 1a89a70762f7321928e500ce489ecdafe50e74ba
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -142,14 +142,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4dc622f36c5aec900cd8039d4087f578afe31eb3
-R fd109f6e6ea92112ed1e83f10d70aa30
+P 746a0b8588547d256f913d412eed6325ae55cb90
+R fa961d7edda32066cc79764b2face0fd
 U jnc
-Z 23bf3dd771b81ff8f5cdf2c317ae34d2
+Z 6ca3706bd53b489e809b5b6bb1a9f040
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG9vFGHaWnYYor31ERAvjqAJ4+AKCUfrvkI1A9Ce74+BQ+5Un6CACfcjYh
-4nsfRlcJ0eLI7BB3znCTDy0=
-=JnKB
+iD8DBQFG9xUlHaWnYYor31ERAsy9AJ4xXXm8yJYhQCY5yqJwLZ2wqS445ACZAXft
+FWZlCvd1Oj3eameCScwZMmY=
+=7l7M
 -----END PGP SIGNATURE-----

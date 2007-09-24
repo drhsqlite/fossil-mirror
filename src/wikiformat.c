@@ -128,9 +128,9 @@ static int findAttr(const char *z){
 #define MARKUP_INVALID         255
 #define MARKUP_A                 0
 #define MARKUP_ADDRESS           1
-#define MARKUP_BIG               2
-#define MARKUP_BLOCKQUOTE        3
-#define MARKUP_B                 4
+#define MARKUP_B                 2
+#define MARKUP_BIG               3
+#define MARKUP_BLOCKQUOTE        4
 #define MARKUP_BR                5
 #define MARKUP_CENTER            6
 #define MARKUP_CITE              7
@@ -157,9 +157,9 @@ static int findAttr(const char *z){
 #define MARKUP_OL               28
 #define MARKUP_P                29
 #define MARKUP_PRE              30
-#define MARKUP_SAMP             31
-#define MARKUP_SMALL            32
-#define MARKUP_S                33
+#define MARKUP_S                31
+#define MARKUP_SAMP             32
+#define MARKUP_SMALL            33
 #define MARKUP_STRIKE           34
 #define MARKUP_STRONG           35
 #define MARKUP_SUB              36
@@ -169,8 +169,8 @@ static int findAttr(const char *z){
 #define MARKUP_TH               40
 #define MARKUP_TR               41
 #define MARKUP_TT               42
-#define MARKUP_UL               43
-#define MARKUP_U                44
+#define MARKUP_U                43
+#define MARKUP_UL               44
 #define MARKUP_VAR              45
 #define MARKUP_VERBATIM         46
 
@@ -199,9 +199,9 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,     ATTR_HREF },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
+ { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
  { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         0  },
- { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "br",            MARKUP_BR,           MUTYPE_SINGLE,        ATTR_CLEAR  },
  { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         0  },
  { "cite",          MARKUP_CITE,         MUTYPE_FONT,          0  },
@@ -234,9 +234,9 @@ static const struct AllowedMarkup {
                     ATTR_START|ATTR_TYPE|ATTR_COMPACT  },
  { "p",             MARKUP_P,            MUTYPE_BLOCK,         ATTR_ALIGN  },
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
+ { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
  { "small",         MARKUP_SMALL,        MUTYPE_FONT,          0  },
- { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          0  },
  { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          0  },
  { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
@@ -253,9 +253,9 @@ static const struct AllowedMarkup {
  { "tr",            MARKUP_TR,           MUTYPE_TR, 
                     ATTR_ALIGN|ATTR_BGCOLOR||ATTR_VALIGN  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
+ { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,          
                     ATTR_TYPE|ATTR_COMPACT  },
- { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       ATTR_ID },
 };
@@ -315,7 +315,7 @@ static int markupLength(const char *z){
   int inparen = 0;
   if( z[n]=='/' ){ n++; }
   if( !isalpha(z[n]) ) return 0;
-  while( isalpha(z[n]) ){ n++; }
+  while( isalnum(z[n]) ){ n++; }
   if( z[n]!='>' && !isspace(z[n]) ) return 0;
   while( z[n] && (z[n]!='>' || inparen) ){
     if( z[n]=='"' ){
@@ -718,7 +718,16 @@ static void addMissingMarkup(Renderer *p){
 ** in the wiki.  Append the URL to the output of the Renderer.
 */
 static void resolveHyperlink(const char *zTarget, Renderer *p){
-  blob_appendf(p->pOut, "http://www.fossil-scm.org/test-%T", zTarget);
+  if( strncmp(zTarget, "http:", 5)==0 
+   || strncmp(zTarget, "https:", 6)==0
+   || strncmp(zTarget, "ftp:", 4)==0 
+   || strncmp(zTarget, "mailto:", 7)==0
+   || strncmp(zTarget, "gopher:", 7)==0
+  ){
+    blob_appendf(p->pOut, zTarget);
+  }else{
+    blob_appendf(p->pOut, "%s/wiki/%T", g.zBaseURL, zTarget);
+  }
 }
 
 /*

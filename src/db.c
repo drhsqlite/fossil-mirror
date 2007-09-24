@@ -889,10 +889,10 @@ void cmd_open(void){
   db_lset("repository", blob_str(&path));
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
-  db_lset_int("checkout", vid);
   if( vid==0 ){
     db_lset_int("checkout", 1);
   }else{
+    db_lset_int("checkout", vid);
     g.argv = azNewArgv;
     g.argc = 3;
     update_cmd();
