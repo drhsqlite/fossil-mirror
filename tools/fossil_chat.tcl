@@ -16,7 +16,7 @@ wm iconname . [wm title .]
 set ::PRIVATE 0
 
 menu .mb -type menubar
-if {$tcl_platform(platform)=="unix"} {
+if {$tcl_platform(platform)=="unix" && $tcl_platform(os)!="Darwin"} {
   pack .mb -side top -fill x
 } else {
   . config -menu .mb
