@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2006 D. Richard Hipp
+** Copyright (c) 2006,2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public
@@ -76,19 +76,19 @@ void style_header(const char *zTitle){
   @ <head>
   @ <title>%s(zTitle)</title>
   @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="%s(g.zBaseURL)/timeline.rss">
+  @ <link rel="stylesheet" href="%s(g.zBaseURL)/style.css" type="text/css" media="screen">
   @ </head>
-  @ <body bgcolor="white">
-  @ <hr size="1">
-  @ <table border="0" cellpadding="0" cellspacing="0" width="100%%">
-  @ <tr><td valign="top" align="left">
-  @ <big><big><b>%s(zTitle)</b></big></big><br>
+  @ <body>
+  @ <div id="page-title">%s(zTitle)</div>
+  @ <div id="login-status">
   if( g.zLogin==0 ){
-    @ <small>not logged in</small>
+    @ not logged in
     zLogInOut = "Login";
   }else{
-    @ <small>logged in as %h(g.zLogin)</small>
+    @ logged in as %h(g.zLogin)
   }
-  @ </td><td valign="top" align="right">
+  @ </div>
+  @ <div id="main-menu">
   @ <a href="%s(g.zBaseURL)/index">Home</a>
   if( g.okRead ){
     @ | <a href="%s(g.zBaseURL)/leaves">Leaves</a>
@@ -108,22 +108,25 @@ void style_header(const char *zTitle){
   if( !g.noPswd ){
     @ | <a href="%s(g.zBaseURL)/login">%s(zLogInOut)</a>
   }
+  @ </div>
+  @ <div id="sub-menu">
   if( nSubmenu>0 ){
     int i;
-    @ <br>
     qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
     for(i=0; i<nSubmenu; i++){
       struct Submenu *p = &aSubmenu[i];
       char *zTail = i<nSubmenu-1 ? " | " : "";
       if( p->zLink==0 ){
-        @ <font color="#888888">%h(p->zLabel)</font> %s(zTail)
+        @ <span class="label">%h(p->zLabel)</span>
+        @ <span class="tail">%s(zTail)</span>
       }else{
-        @ <a href="%T(p->zLink)">%h(p->zLabel)</a> %s(zTail)
+        @ <a class="label" href="%T(p->zLink)">%h(p->zLabel)</a>
+        @ <span class="tail">%s(zTail)</span>
       }
     }
   }
-  @ </td></tr></table>
-  @ <hr size="1">
+  @ </div>
+  @ <div id="page">
   g.cgiPanic = 1;
 }
 
@@ -131,10 +134,11 @@ void style_header(const char *zTitle){
 ** Draw the footer at the bottom of the page.
 */
 void style_footer(void){
-  @ <hr>
-  @ <p align="left"><font size="1">
+  /* end the <div id="page"> from style_header() */
+  @ </div>
+  @ <div id="style-footer">
   @ Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)
-  @ </font></p>
+  @ </div>
 }
 
 /*
@@ -152,6 +156,137 @@ void page_index(void){
     style_header("Main Title Page");
     @ No homepage configured for this server
     style_footer();
+  }
+}
+
+/*
+** TODO: COPIED FROM WIKI.C... BAD
+*/
+/*
+** Create a fake replicate of the "vfile" table as a TEMP table
+** using the manifest identified by manid.
+*/
+static void style_create_fake_vfile(int manid){
+  static const char zVfileDef[] = 
+    @ CREATE TEMP TABLE vfile(
+    @   id INTEGER PRIMARY KEY,     -- ID of the checked out file
+    @   vid INTEGER REFERENCES blob, -- The version this file is part of.
+    @   chnged INT DEFAULT 0,       -- 0:unchnged 1:edited 2:m-chng 3:m-add
+    @   deleted BOOLEAN DEFAULT 0,  -- True if deleted 
+    @   rid INTEGER,                -- Originally from this repository record
+    @   mrid INTEGER,               -- Based on this record due to a merge
+    @   pathname TEXT,              -- Full pathname
+    @   UNIQUE(pathname,vid)
+    @ );
+    ;
+  db_multi_exec(zVfileDef);
+  load_vfile_from_rid(manid);
+}
+
+
+/*
+** WEBPAGE: style.css
+*/
+void page_style_css(void){
+  Stmt q;
+  int id = 0;
+  int rid = 0;
+  int chnged = 0;
+  char *zPathname = 0;
+  char *z;
+  
+  cgi_set_content_type("text/css");
+
+  login_check_credentials();
+  if( !g.localOpen ){
+    int headid = db_int(0,
+       "SELECT cid FROM plink ORDER BY mtime DESC LIMIT 1"
+    );
+    style_create_fake_vfile(headid);
+  }
+  
+  db_prepare(&q,
+     "SELECT id, rid, chnged, pathname FROM vfile"
+     " WHERE (pathname='style.css' OR pathname LIKE '%%/style.css')"
+     "   AND NOT deleted"
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    id = db_column_int(&q, 0);
+    rid = db_column_int(&q, 1);
+    chnged = db_column_int(&q, 2);
+    if( chnged || rid==0 ){
+      zPathname = db_column_malloc(&q, 3);
+    }
+  }
+  db_finalize(&q);
+  if( id ){
+    Blob src;
+    blob_zero(&src);
+    if( zPathname ){
+      zPathname = mprintf("%s/%z", g.zLocalRoot, zPathname);
+      blob_read_from_file(&src, zPathname);
+      free(zPathname);
+    }else{
+      content_get(rid, &src);
+    }
+
+    z = blob_str(&src);
+    @ %s(z)
+  }else{
+    /* No CSS file found, use our own */
+    /*
+    ** Selector order: tags, ids, classes, other
+    ** Content order: margin, borders, padding, fonts, colors, other 
+    ** Note: Once things are finialize a bit we can collapse this and
+    **       make it much smaller, if necessary. Right now, it's verbose
+    **       but easy to edit.
+    */
+    @ body {
+    @   margin: 0px;
+    @   padding: 0px;
+    @   background-color: white;
+    @ }
+    @ #page-title {
+    @   padding: 10px 10px 10px 10px;
+    @   font-size: 2em;
+    @   font-weight: bold;
+    @   background-color: #d0d9f4;
+    @ }
+    @ #login-status {
+    @   padding: 0px 10px 10px 0px;
+    @   font-size: 0.9em;
+    @   text-align: right;
+    @   background-color: #d0d9f4;
+    @   position: absolute;
+    @   top: 10;
+    @   right: 0;
+    @ }
+    @ #main-menu {
+    @   border-top: 2px solid #a0b5f4;
+    @   padding: 3px 10px 1px 0px;
+    @   font-size: 0.9em;
+    @   text-align: center;
+    @   background-color: #d0d9f4;
+    @ }
+    @ #sub-menu {
+    @   border-bottom: 2px solid #a0b5f4;
+    @   padding: 3px 10px 3px 0px;
+    @   font-size: 0.9em;
+    @   text-align: center;
+    @   background-color: #d0d9f4;
+    @ }
+    @ #main-menu a:visited, #sub-menu a:visited {
+    @   color: blue;
+    @ }
+    @ #page {
+    @   padding: 10px 20px 10px 20px;
+    @ }
+    @ #style-footer { 
+    @   font-size: 0.8em; 
+    @   margin-top: 12px;
+    @   padding-top: 5px;
+    @   border-top: 1px solid black; 
+    @ }
   }
 }
 

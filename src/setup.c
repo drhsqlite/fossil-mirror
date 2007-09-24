@@ -81,7 +81,6 @@ void setup_page(void){
 void setup_ulist(void){
   Stmt s;
   
-  style_footer();
   login_check_credentials();
   if( !g.okSetup ){
     login_needed();
