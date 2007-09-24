@@ -221,10 +221,12 @@ proc handle_input {} {
     set from [lindex $line 1]
     .msg.t insert end "\[$time $from\] " meta [lindex $line 2]\n norm
     .msg.t see end
+    set current_focus [focus]
     bell
     wm deiconify .
     update
     raise .
+    focus $current_focus
   } elseif {$cmd=="noop"} {
     # do nothing
   } elseif {$cmd=="meta"} {

@@ -1,5 +1,5 @@
-C Use\stcl_platform\sto\sdetermine\susername,\sthis\sis\splatform\sindependent
-D 2007-09-24T21:05:45
+C Fossil\schat\sclient\sentry\swidget\swill\snot\slose\sfocus\son\sWin32\swhen\sreceiving\sa\smessage.
+D 2007-09-24T22:13:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -93,7 +93,7 @@ F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 18c6921332390f031f9b5397ff6e1f82c4387cf6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/fossil_chat.tcl 8a1ca9df00e69410ec3499333ba150a8069261c3
+F tools/fossil_chat.tcl facd17494d16b0f79e3abef45cd0e567e0538659
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
 F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
@@ -140,7 +140,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e202319ebbdb39853a6905d98422e719011dbba9
-R 215ac173a332bb4c537919f2373914d2
+P e0232ce1a0317187b91df415b5dcd51119680f45
+R de98dc0e972abb97ffef7094744fe903
 U mjanssen
-Z fa7b18ec3831e2327eb27eacbad8429f
+Z 011e2e67e373a1f998229bb2b30aea68
