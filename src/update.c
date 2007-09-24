@@ -213,3 +213,57 @@ void update_cmd(void){
   db_lset_int("checkout", tid);
   db_end_transaction(0);
 }
+
+/*
+** COMMAND: revert
+**
+** Usage: %fossil revert ?-yes FILE
+**
+** Revert to the current repository version of FILE. This
+** command will confirm your operation, unless you do so
+** at the command line via the -yes option.
+**/
+void revert_cmd(void){
+  const char *zFile;
+  Blob fname;
+  Blob record;
+  Blob ans;
+  int rid, yesRevert;
+  
+  yesRevert = find_option("yes","y", 0)!=0;
+  verify_all_options();
+  
+  if( g.argc<3 ){
+    usage("?OPTIONS FILE");
+  }
+  db_must_be_within_tree();
+  
+  zFile = g.argv[g.argc-1];
+  if( !file_tree_name(zFile, &fname) ){
+    fossil_panic("unknown file: %s", zFile);
+  }
+  rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+
+  if( rid==0 ){
+    fossil_panic("no history for file: %b", &fname);
+  }
+
+  if( yesRevert==0 ){
+    char *prompt = mprintf("revert file %B? this will destroy local changes [y/N]? ",
+                           &fname);
+    blob_zero(&ans);
+    prompt_user(prompt, &ans);
+    if( blob_str(&ans)[0]=='y' ){
+      yesRevert = 1;
+    }
+  }
+  if( yesRevert==1 ){
+    content_get(rid, &record);
+    blob_write_to_file(&record, blob_str(&fname));
+    printf("%s reverted\n", blob_str(&fname));
+    blob_reset(&record);
+    blob_reset(&fname);
+  }else{
+    printf("revert canceled\n");
+  }
+}

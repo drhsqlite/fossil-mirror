@@ -1,3 +1,31 @@
+Bugs:
+
+ *  When doing an update, if a file is not found that should be there
+    then the update aborts, only after it has written several files. It
+    does not update your checked out version, thus when doing a fossil
+    changes, you see everything that has come over from your update
+    command. Steps to reproduce:
+    
+    $ rm src/main.c
+    $ fossil update 9b30
+    UPDATE ... etc ...
+    fossil: no such file: src/main.c
+    $ fossil info
+    (shows version you were on prior to update)
+    $ fossil changes
+    EDITED ... many ...
+    
+ *  Bug: If the server closes the socket unexpectedly, the
+    fwrite() in http.c:103 throws a signal and kills the child
+    process.  fwrite() is not suppose to do this.  Need to figure
+    out what is going wrong.
+
+ *  Bug: pull is ending prematurely.
+
+ *  Bug: Make sure merge and other commands (check-out) do not try
+    to use a phantom.
+
+
 Things to work on:
 
  *  Use the wiki_convert() routine to render comments and other text
@@ -13,16 +41,6 @@ Things to work on:
     message exceeds the maximum POST size of the server) the client
     does not report this error back to the user as it should.
 
- *  Bug: If the server closes the socket unexpectedly, the
-    fwrite() in http.c:103 throws a signal and kills the child
-    process.  fwrite() is not suppose to do this.  Need to figure
-    out what is going wrong.
-
- *  Bug: pull is ending prematurely.
-
- *  Bug: Make sure merge and other commands (check-out) do not try
-    to use a phantom.
-¿
  *  The ipaddr field of the rcvfrom table is not being set.  This
     field should be the IP address from which information is received
     for the local repository.  So when somebody does a push of new
