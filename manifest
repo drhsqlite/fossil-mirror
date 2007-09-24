@@ -1,9 +1,9 @@
-C Build\sfrom\sbuild\sdirectory
-D 2007-09-24T19:32:26
+C Fixed\serror\swith\sabsolute\spathnames\swhen\sopening\sa\srepo\son\sWin32
+D 2007-09-24T19:42:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
-F Makefile.w32 eaef66a4a3fabcca9e68904d21c7199df81e5a55
+F Makefile.w32 c6249fceb58da0ae0ec8f03a2ec9c79c006a3569
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
@@ -46,7 +46,7 @@ F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 4af4f0ff55bd4fbeef90a57acf89d1658f026843
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
-F src/file.c 0453cec09998ba192d2443ba1c5849f6180c3e52
+F src/file.c 18cdda54a23a37249d6635b457aad4bbc3f60f05
 F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
 F src/info.c ce5dc953e15336df787697b35d6507c5f1b98923
 F src/login.c d1ac22275c7a7238a6a89d6dc256b67a25c911e9
@@ -139,7 +139,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 255bacf9078d3c4c4b6fdf1cf6ac95e5e038e1d6
-R c3f4e80e8b2519c98825d85f3092028e
-U anonymous
-Z 3d73e9f80e2e787faed63b4436e4a2cc
+P 5a30fa45df78106e090d53c458fb2776e071dffa
+R e931fca75d523a42e4cd8a7620f7e42a
+U mjanssen
+Z b1941a3864252c7160d5cddb9c571b47
