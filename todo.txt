@@ -20,8 +20,6 @@ Bugs:
     process.  fwrite() is not suppose to do this.  Need to figure
     out what is going wrong.
 
- *  Bug: pull is ending prematurely.
-
  *  Bug: Make sure merge and other commands (check-out) do not try
     to use a phantom.
 
@@ -46,7 +44,7 @@ Things to work on:
     field should be the IP address from which information is received
     for the local repository.  So when somebody does a push of new
     files we record the ipaddr.  Or when we do a pull, we record
-    the ipaddr.
+    the ipaddr.  (I think this has been fixed.  Need to test.)
 
  *  Additional information displayed for the "vinfo" page:
 
@@ -56,13 +54,6 @@ Things to work on:
         See the compute_leaves() function to see how to find all
         leaves.
      +  Add file diff links to the file change list.
-
- *  Timeline enhanced so that you can specify a range of dates.
-
- *  The /xfer handler (for push, pull, and clone) does not do
-    delta compression.  This results in excess bandwidth usage.
-    There are some pieces in xfer.c that are sketches of ideas on
-    how to do delta compression, but nothing has been implemented.
 
  *  Enhancements to the diff and tkdiff commands in the cli.
     Allow the entire tree or a subtree to be diffed, not just a 
