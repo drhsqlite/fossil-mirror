@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\ssupport\sfor\sa\suser\sdefined\sdiff\scommand,\swhich\sif\sset\s(fossil\sconfig\sdiff-command),\sis\srun\sby\sdefault.\sThe\suser\scan\sgive\sa\s-i\sflag\sto\srun\sthe\sinternal\sdiff\scommand\sregardless\sof\suser\sdefined\sdiff\scommand\ssetting.\sRemoved\scommand\stkdiff,\sno\slonger\sneeded.\sMade\sthe\sconfig\sremove\smessage\sa\sbit\smore\sclear,\swhen\sremoving\sa\sconfig\ssetting,\sit\sstates\sit\shas\sbeen\sremoved\sinstead\sof\stelling\syou\sit's\sundefined.
-D 2007-09-24T06:53:46
+C Minor\supdates\sto\sthe\stodo.txt\sand\sideas.txt\sfiles.
+D 2007-09-24T12:55:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -27,7 +27,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt 880f1290f03cce385824593d3051dc431919b6d6
+F ideas.txt 80884fde4d3605c111e6a0cff7112ae38734a76c
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -94,7 +94,7 @@ F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
-F todo.txt 8c698d097112f8f6013fa886a15308365a389d97
+F todo.txt 7c83661feb7a54d7ee6a3b64b8a25cdcbc33fee7
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
 F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
@@ -142,14 +142,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 5cd959742854ddf2fcd21f4a8b0be5099954f16e
-R 80b982423cd11184f56fcc87ed856b5c
-U jnc
-Z 27c23f166a5f3e85c98d71a4705ae723
+P c82fb617751103296e041d5839b9a7408cebda83
+R 999af6af9979b10d5cd5cac189de4d7d
+U drh
+Z 2dbf43a596894a7d10b17e96be9d915b
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (Darwin)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG9176HaWnYYor31ERAnLjAJ40A5ouNqJHKgwp9ZXQtO9ukiHcUgCfdPYg
-UjW6ldunflpJQEjzgNVOCDc=
-=NO+9
+iD8DBQFG97PUoxKgR168RlERAiQ3AJsErqVD9vShh+Gs1+hjn3a0nTxK7QCfRJoS
+WO6ar10Kle77fPYXyyQ41FI=
+=ImyN
 -----END PGP SIGNATURE-----

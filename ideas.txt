@@ -50,106 +50,15 @@ Wiki header format:
 
    * Header ends with a blank line.  wiki content follows.
 
-Cluster format:
-
-       M+ uuid
-       Z manifest-cksum
-
-   * Cluster generated in server mode only.
-   * Embargo cluster that reference phantoms or other embargoed clusters.
-   * Never send or ihave an embargoed cluster
-
-New sync algorithm based on clusters:
-
-   * Keep a table of unclustered artifacts.  Strive to keep this table
-     less than 100 entries.
-   * Client sends content of unclustered table as ihaves to server
-   * Server builds a new cluster if size of cluster table >100.
-   * Server sends unclustered table to client
-   * Server sends gimme for all unknown ihave received from client
-   * Client sends gimme for all unknown ihave received from server
-   * Previous two steps repeat until no more gimmes
-
-Details of new push algorithm:
-
-   * Table "unsent" contains all files never pushed
-   * TEMP table "wanted" contains files the server does not have
-   Loop:
-     * Client sends login and "push" record
-     * Client sends file message for all files in unsent and removes
-       those files from the table.
-     * Client sends file message for all files in wanted.
-     * Client sends ihave messages for each entry in unclustered
-     ------
-     * Server receives file message
-     * Server creates phantoms for unknown ihaves
-     * Server sends gimme messages for all phantoms
-     ------
-     * Client clears its unsent table
-     * For each gimme message add an entry to wanted
-     * Halt if the wanted table is empty
-
-Details on new pull algorithm:
-
-   Loop:
-     * Client sends login and "pull" record
-     * Client sends "prior" message with repository id and max record number
-     * Client sends "gimme" for each phantom
-     --------
-     * Server creates new clusters to get unclustered size below 100
-     * If there is "prior" message with repository id that matches this
-       server, then send file messages for all record ids greater than
-       prior
-     * Server sends ihave messages for each entry in unclustered
-     * Server sends maxrid message
-     --------
-     * Client receives file records
-     * Client creates phantoms for unknown ihaves
-     * If no phantoms exist, record maxrid for the server and halt
-
 Need a dephantomize algorithm
 
 
-Auxiliary tables needed for new sync algorithm:
-
-   * unsent:  files that have never been sent to another repository
-   * unclustered: non-phantom files not mentioned by a cluster
-
 Random thoughts:
-
-  *  Changes to manifest to support:
-     +  Trees of wiki pages and tickets
-     +  The ability to cap or close a branch
-     +  See "Extended Manifests" below
-
-  *  Add the concept of "clusters" to speed the transfer of "tips"
-     on a sync.
-
-  *  Auxiliary tables:
-     +  tip
-     +  phantom
-     +  mlink
-     +  plink
-     +  branch
-     +  tree
 
   * Plink.isprim changed to record:
      +  child is the principal descendent of parent. (1)
      +  child is a branch from parent (2)
      +  child uses parent as a merge (0)
-
-  * tree records
-     + type  (code, wiki, ticket)
-     + name  (for wiki and ticket only)
-     + treeid
-
-  * branch records
-     + treeid
-     + origin_rid
-     + origin_time
-     + tip_rid
-     + tip_time
-     + color
 
   * website can toggle isprim between principal and branch.
      + How to preserve across rebuild.  A new record type?
