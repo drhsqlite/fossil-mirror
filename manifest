@@ -1,5 +1,5 @@
-C Fossil\schat\sclient\sentry\swidget\swill\snot\slose\sfocus\son\sWin32\swhen\sreceiving\sa\smessage.
-D 2007-09-24T22:13:23
+C Accidently\schanged\stime\sformat\sin\stimeline_query_for_tty\soutput\sin\scheckin\s[aad573b31c]\sreverted\sso\sthat\stimeline\sshows\slocal\stimestamps\sagain.
+D 2007-09-24T23:19:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -74,7 +74,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
-F src/timeline.c 19a54bcbde64459cb46aa69eed03b7c9e695f6a9
+F src/timeline.c 34894e45848adfc9b7c5f5267c364e72c96a0885
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 7eb6f9c77775af16ce302a57cd4ccd6733368470
@@ -140,7 +140,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e0232ce1a0317187b91df415b5dcd51119680f45
-R de98dc0e972abb97ffef7094744fe903
+P 45f9af32408fc54ee7e7e6042b7e7536f809b282
+R d374d5a07e667f557a81e092674f0d30
 U mjanssen
-Z 011e2e67e373a1f998229bb2b30aea68
+Z 1af15d9dd1de38df881fe7b271181870

@@ -445,7 +445,7 @@ const char *timeline_query_for_tty(void){
     @ SELECT
     @   blob.rid,
     @   uuid,
-    @   datetime(event.mtime,'utc'),
+    @   datetime(event.mtime,'localtime'),
     @   coalesce(ecomment,comment) || ' (by ' || coalesce(euser,user) || ')',
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
