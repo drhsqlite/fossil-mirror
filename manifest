@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\sdhr's\stodo\sand\sideas\supdate
-D 2007-09-24T23:56:25
+C Merged\smjanssen's\stimeline\supdates
+D 2007-09-24T23:58:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -77,7 +77,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
-F src/timeline.c 19a54bcbde64459cb46aa69eed03b7c9e695f6a9
+F src/timeline.c 34894e45848adfc9b7c5f5267c364e72c96a0885
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 7eb6f9c77775af16ce302a57cd4ccd6733368470
@@ -96,7 +96,7 @@ F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 5e00e8293a76175ff435937e71c0ba5e5a6ec371
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/fossil_chat.tcl 25cf4e8b76a41d7093f893c09c934a7622869417
+F tools/fossil_chat.tcl 713a7ff91084b28a252b105dc0283e24b96f7fb3
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
 F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P aeb2ac781d8ee71ad9fad05108c4f3fa267eb69d 43b33702b441b9240160f685da821cdd365f85dd
-R 7ae9b9a0941f7f859f1c19ebd262e587
+P b8cc22ebdf58e37c0ec0fa6ca72bdd77f83d5840 d54731dac961d737c3bf3f0674d3895cb729609b
+R 87f2c188b26d3824406009700f532eab
 U jnc
-Z 339c047c17f258048569ea7940060e67
+Z f968ee91258c25eb983f30feabe798c6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+E6pHaWnYYor31ERAhCsAJ9K3CVhZQlXBG/QEq4+M1oEpNytnACdHEiL
-KILCDagkCUC/qeesl1NDHrg=
-=74ff
+iD8DBQFG+E8/HaWnYYor31ERAqJbAJ9MMKo1e8DWXJsuOY7PX4wJa6KXUwCeJRjZ
+DRjnVF7HNzt9Ng8Kk070KEg=
+=V4o9
 -----END PGP SIGNATURE-----
