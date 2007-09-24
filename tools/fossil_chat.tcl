@@ -81,12 +81,12 @@ proc keep_alive {} {
 
 # Connect to the server
 proc connect {} {
-  global SOCKET env
+  global SOCKET tcl_platform
   catch {close $SOCKET}
   if {[catch {
     set SOCKET [socket $::SERVERHOST $::SERVERPORT]
     fconfigure $SOCKET -translation binary -blocking 0
-    puts $SOCKET [list login $env(USER) fact,fuzz]
+    puts $SOCKET [list login $tcl_platform(user) fact,fuzz]
     flush $SOCKET
     fileevent $SOCKET readable handle_input
     keep_alive
