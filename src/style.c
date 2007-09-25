@@ -248,35 +248,44 @@ void page_style_css(void){
     @ }
     @ #page-title {
     @   padding: 10px 10px 10px 10px;
-    @   font-size: 2em;
+    @   font-size: 1.8em;
     @   font-weight: bold;
-    @   background-color: #d0d9f4;
+    @   background-color: #6a7ec7;
+    @   color: #0a1e67;
     @ }
     @ #login-status {
     @   padding: 0px 10px 10px 0px;
     @   font-size: 0.9em;
     @   text-align: right;
-    @   background-color: #d0d9f4;
+    @   background-color: #6a7ec7;
+    @   color: white;
     @   position: absolute;
     @   top: 10;
     @   right: 0;
     @ }
     @ #main-menu {
-    @   border-top: 2px solid #a0b5f4;
-    @   padding: 3px 10px 1px 0px;
+    @   padding: 5px 10px 5px 10px;
     @   font-size: 0.9em;
+    @   font-weight: bold;
     @   text-align: center;
-    @   background-color: #d0d9f4;
+    @   letter-spacing: 1px;
+    @   background-color: #414f84;
+    @   color: white;
     @ }
     @ #sub-menu {
-    @   border-bottom: 2px solid #a0b5f4;
     @   padding: 3px 10px 3px 0px;
     @   font-size: 0.9em;
     @   text-align: center;
-    @   background-color: #d0d9f4;
+    @   background-color: #414f84;
+    @   color: white;
     @ }
-    @ #main-menu a:visited, #sub-menu a:visited {
-    @   color: blue;
+    @ #main-menu a, #main-menu a:visited, #sub-menu a, #sub-menu a:visited {
+    @   padding: 3px 10px 3px 10px;
+    @   color: white;
+    @ }
+    @ #main-menu a:hover, #sub-menu a:hover {
+    @   color: #414f84;
+    @   background-color: white;
     @ }
     @ #page {
     @   padding: 10px 20px 10px 20px;
@@ -284,8 +293,10 @@ void page_style_css(void){
     @ #style-footer { 
     @   font-size: 0.8em; 
     @   margin-top: 12px;
-    @   padding-top: 5px;
-    @   border-top: 1px solid black; 
+    @   padding: 5px 10px 5px 10px;
+    @   text-align: right;
+    @   background-color: #414f84;
+    @   color: white;
     @ }
   }
 }
