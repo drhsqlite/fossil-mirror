@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Once\sa\ssuccessful\scommit\sis\smade,\sif\sautosync\sis\son,\sa\spush\sis\snow\sdone.\sThis\scommit\swill\sbe\sthe\sfirst\stest\sof\sthat\snew\sfunctionality\s:-)
-D 2007-09-25T07:11:57
+C Ran\san\sold\sfossil,\sdid\snot\sauto-push...\sUpdated\sideas.txt\sto\sreflect\sthat\swork\shas\sbegun\son\sthis\stask\sand\swhat\shas\salready\sbeen\sdone.\sHopefully\sthis\sone\swill\sauto-push...
+D 2007-09-25T07:15:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -27,7 +27,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt 80884fde4d3605c111e6a0cff7112ae38734a76c
+F ideas.txt 3180d9f1a4435bfd28915a298c877ef840ef1aa5
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b773dda29bce549a7b66d1a89aea43ad8e87bfc2
-R 69f2c1a280acdc4ba20df79f9094cc41
+P 0431f14edfbc452aea7f3981e03cfb306121551e
+R 8fc3eb640aa114d9c24e29f387259238
 U jnc
-Z 520bdb455a2c25539c190d0f0520d285
+Z 7a509fe39ffdb39f02af29828bbf1404
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+LS9HaWnYYor31ERAiaRAKCQbH565iqwTwDDtyBksbh/rR+rEwCff5KR
-z4bXc4CfnThEGQ9dykHDHHQ=
-=YAkA
+iD8DBQFG+LV2HaWnYYor31ERAh/QAJ9BcUUeQ8UB7Gff0rb+PkCEMmQTYQCeJI+0
+06thCW0cGrBuTFqzmaRe7Q0=
+=B+07
 -----END PGP SIGNATURE-----

@@ -68,15 +68,18 @@ Random thoughts:
     For a tie, go with the earliest check-in as the principal'
 
   * Autosync mode
-     + Set a preferred remote repository to use as a server
-        =  Clone repository is the default
-     + On commit, first pull.  If commit baseline is not a tip
-       prompt user to cancel or branch.  Default is cancel.
-     + Push after commit
-     + Automatically pull prior to update.
-     + Need an "undo" capability
-     + Designed to avoid branching in highly collaborative 
-       environments.
+     * Notes:
+       + Designed to avoid branching in highly collaborative 
+         environments.
+     * Outstanding:
+       + On commit, first pull.  If commit baseline is not a tip
+         prompt user to cancel or branch.  Default is cancel.
+       + Need an "undo" capability
+     * Done:
+       * Set a preferred remote repository to use as a server
+          =  Clone repository is the default
+       * Push after commit
+       * Automatically pull prior to update.
 
   * Archeological webpage improvements:
      + Use a small amount of CSS+javascript on timelines so that
