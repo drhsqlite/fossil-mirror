@@ -292,12 +292,8 @@ static void tag_add_artifact(
   manifest_crosslink(nrid, &ctrl);
   db_end_transaction(0);
   
-  /* Autosync and do a push? */
-  if( do_autosync() ){  
-    g.argc=2;
-    g.argv[1]="push";
-    push_cmd();
-  }
+  /* Do an autosync push if requested */
+  autosync(0);
 }
 
 /*

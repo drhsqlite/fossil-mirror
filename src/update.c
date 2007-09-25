@@ -78,11 +78,8 @@ void update_cmd(void){
     }
   }
 
-  if( do_autosync() ){  
-    g.argc=2;
-    g.argv[1]="pull";
-    pull_cmd();
-  }
+  /* Do an autosync pull prior to the update, if autosync is on */
+  autosync(1);
 
   if( tid==0 ){
     compute_leaves(vid);

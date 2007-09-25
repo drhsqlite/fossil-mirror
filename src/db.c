@@ -958,3 +958,41 @@ void cmd_config(void){
     db_finalize(&q);
   }
 }
+
+/*
+** COMMAND: setting
+** %fossil setting ?PROPERTY? ?VALUE?
+**
+** With no arguments, list all properties and their values.  With just
+** a property name, show the value of that property.  With a value
+** arugment, change the property for the current repository.
+*/
+void setting_cmd(void){
+  static const char *azName[] = {
+    "autosync",
+    "safemerge"
+  };
+  int i;
+  db_find_and_open_repository();
+  if( g.argc==2 ){
+    for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
+      printf("%-20s %d\n", azName[i], db_get_int(azName[i], 0));
+    }
+  }else if( g.argc==3 || g.argc==4 ){
+    const char *zName = g.argv[2];
+    int n = strlen(zName);
+    for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
+      if( strncmp(azName[i], zName, n)==0 ) break;
+    }
+    if( i>=sizeof(azName)/sizeof(azName[0]) ){
+      fossil_fatal("no such setting: %s", zName);
+    }
+    if( g.argc==4 ){
+      db_set(azName[i], g.argv[3]);
+    }else{
+      printf("%-20s %d\n", azName[i], db_get_int(azName[i], 0));
+    }
+  }else{
+    usage("?PROPERTY? ?VALUE?");
+  }
+}

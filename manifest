@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merger\sw/fossil\schat\supdate\s(5e3f)
-D 2007-09-25T19:32:07
+C Updates\sto\sthe\sautosync\slogic.\s\sAdd\sthe\s"setting"\scommand.
+D 2007-09-25T20:23:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -32,9 +32,9 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
-F src/branch.c 1d4c15b285af4e360b83f6d0879737f53878c852
+F src/branch.c 6f4b5c89ef9bc796d30d12822102866da14f442c
 F src/cgi.c 57f4d7daa35b4be43195e297695fe9e430e34521
-F src/checkin.c 45c26e70ac8cda8014dc29d8ed1fe66078650002
+F src/checkin.c 55cded443214446f04f877f6b64ef263cde9ee4a
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -42,7 +42,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
 F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
-F src/db.c 65cc9f7698f3564b3ee5d41aa3a8f3a6f537b4d6
+F src/db.c df88f7f101d92142d3fad6a7a1cec08eb69f44de
 F src/delta.c e79479fc0f1bd3543cc6772955beb2c2c4714120
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -75,12 +75,12 @@ F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7236258d23dca67295c816d6fb4a44f1160a293a
-F src/sync.c 49100c83b143a69297f49d15c2c2197926dceb64
-F src/tag.c 53f340db144b9221d096ec61c0d4653d6bdf762a
+F src/sync.c 6c1dfe7a9d25e1640d3968ac37a891e2431be83d
+F src/tag.c 1b7c8db1b93d29d96b5381287ab99c2d1e7215fd
 F src/timeline.c b24fc763bef401a085c6e000a4a001841ee39424
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c ee3b58703f4648d519a3f5f4db2a99be13429a83
+F src/update.c 38dd8e9b100b1d5127c9541f1e8cff34092c0d50
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c bd013e3f3c6cf264928161e58261676e83e38cd5
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 99eabf9b0c1d24165c47badd22fed72d4ac0e8f2 5e3f5322e2a730a2c60f3d0584e51e16b2a668d4
-R 517d2f74e2578c0f6e08ffc3cd10768b
-U jnc
-Z 4170455ec7f303aa24b4df13b68d927f
+P e6d1cd96793dcbf7e3ea27b81d35196cf45b047d
+R eb1521b1324712ccc408d9b6bca2395c
+U drh
+Z e3d6e416c167e7041be246d3f0a3acc6
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (Darwin)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+WI3HaWnYYor31ERAoi7AJ9rGxy65w0VD2Ql9jSigvrBD3SrygCfTXL0
-Vjq+4NwNLBO5ptQWfbDVpl0=
-=zCEb
+iD8DBQFG+W5coxKgR168RlERArRQAJ9B5/NyXJUrW+2oSbIFZ+huOumajgCfdAe2
+3jz7q85ZB6OQGZRcWxl/n4M=
+=SijE
 -----END PGP SIGNATURE-----

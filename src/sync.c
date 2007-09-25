@@ -28,19 +28,31 @@
 #include <assert.h>
 
 /*
-** Determine if an autosync should be done or not. The config setting,
-** autosync must start with 1, y or Y. The last-sync-url must also be
-** defined.
+** If the respository is configured for autosyncing, then do an
+** autosync.  This will be a pull if the argument is true or a push
+** if the argument is false.  Return true if the autosync is done
+** and false if autosync is not requested for the current repository.
 */
-int do_autosync(void){
-  const char *zAutoSync = db_global_get("autosync", 0);
-  if( zAutoSync != 0 
-      && (zAutoSync[0]=='1' || zAutoSync[0]=='y' || zAutoSync=='Y') 
-      && db_get("last-sync-url", 0)!=0 ){
-    return 1;
-  }else{
+int autosync(int pullFlag){
+  const char *zUrl;
+  if( db_get_int("autosync", 0)==0 ){
     return 0;
   }
+  zUrl = db_get("last-sync-url", 0);
+  if( zUrl ){
+    return 0;  /* No default server */
+  }
+  url_parse(zUrl);
+  if( g.urlIsFile ){
+    return 0;  /* Network sync only */
+  }
+  if( g.urlPort!=80 ){
+    printf("Autosync:  http://%s:%d%s\n", g.urlName, g.urlPort, g.urlPath);
+  }else{
+    printf("Autosync:  http://%s%s\n", g.urlName, g.urlPath);
+  }
+  client_sync(!pullFlag, pullFlag, 0);
+  return 1;
 }
 
 /*

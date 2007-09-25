@@ -325,6 +325,7 @@ void commit_cmd(void){
   char *zUuid, *zDate;
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
+  int forceFlag = 0;     /* Force a fork */
   char *zManifestFile;   /* Name of the manifest file */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -334,10 +335,16 @@ void commit_cmd(void){
  
   noSign = find_option("nosign","",0)!=0;
   zComment = find_option("comment","m",1);
+  forceFlag = find_option("force", "r", 0)!=0;
   db_must_be_within_tree();
   noSign = db_get_int("omit-ci-sig", 0)|noSign;
   verify_all_options();
-
+  
+  /*
+  ** Autosync if requested.
+  */
+  autosync(1);
+  
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
   ** in the checked out directory are committed. If one or more arguments
@@ -357,7 +364,7 @@ void commit_cmd(void){
   user_select();
   db_begin_transaction();
   rc = unsaved_changes();
-  if( rc==0 && !isAMerge ){
+  if( rc==0 && !isAMerge && !forceFlag ){
     fossil_panic("nothing has changed");
   }
 
@@ -377,6 +384,9 @@ void commit_cmd(void){
   }
 
   vid = db_lget_int("checkout", 0);
+  if( !forceFlag && db_exists("SELECT 1 FROM plink WHERE pid=%d", vid) ){
+    fossil_fatal("would fork.  use -f or --force");
+  }
   vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
@@ -526,10 +536,6 @@ void commit_cmd(void){
   /* Commit */
   db_end_transaction(0);
   
-  /* Autosync and do a push? */
-  if( do_autosync() ){  
-    g.argc=2;
-    g.argv[1]="push";
-    push_cmd();
-  }
+  /* Do an autosync push if requested */
+  autosync(0);
 }
