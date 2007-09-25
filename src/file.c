@@ -184,7 +184,8 @@ int file_simplify_name(char *z, int n){
 ** Convert /A/../ to just /
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut){
-  if( zOrigName[0]=='/' || (zOrigName[1]==':' && zOrigName[2]=='\\') ){
+  if( zOrigName[0]=='/' 
+      || (strlen(zOrigName)>3 && zOrigName[1]==':' && zOrigName[2]=='\\') ){
     blob_set(pOut, zOrigName);
     blob_materialize(pOut);
   }else{

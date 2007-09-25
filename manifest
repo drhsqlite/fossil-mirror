@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\smjanssen's\stimeline\supdates
-D 2007-09-24T23:58:55
+C When\schecking\sfor\swin32\sabsolute\spaths,\sI\sadded\sa\scheck\sto\smake\ssure\swe\sdon't\soverstep\sthe\sbounds\sof\sa\sstring
+D 2007-09-25T00:17:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -49,7 +49,7 @@ F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c 43924b37217e5d2e902869d9bef0a95ea6b143a5
 F src/diffcmd.c 4af4f0ff55bd4fbeef90a57acf89d1658f026843
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
-F src/file.c 18cdda54a23a37249d6635b457aad4bbc3f60f05
+F src/file.c 525e8c0661397d7d4f869cfbbb5f5cf8ec4de400
 F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
 F src/info.c ce5dc953e15336df787697b35d6507c5f1b98923
 F src/login.c d1ac22275c7a7238a6a89d6dc256b67a25c911e9
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b8cc22ebdf58e37c0ec0fa6ca72bdd77f83d5840 d54731dac961d737c3bf3f0674d3895cb729609b
-R 87f2c188b26d3824406009700f532eab
+P 798a48ee468a15085a89f636977ea49379dde8b7
+R d2f54fed1be12b32bb3c3f213dcb8346
 U jnc
-Z f968ee91258c25eb983f30feabe798c6
+Z 829a4a4e0780fb544e0bc516b84c6237
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+E8/HaWnYYor31ERAqJbAJ9MMKo1e8DWXJsuOY7PX4wJa6KXUwCeJRjZ
-DRjnVF7HNzt9Ng8Kk070KEg=
-=V4o9
+iD8DBQFG+FOjHaWnYYor31ERAswwAKCIO6KncL6uGrioOhtpeIjIWz4i8wCgk8nQ
+pH9rSVfLuy8+AVPEeFVJOq4=
+=x2EU
 -----END PGP SIGNATURE-----
