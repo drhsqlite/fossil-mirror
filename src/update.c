@@ -51,7 +51,7 @@ int is_a_version(int rid){
 */
 void update_cmd(void){
   int vid;              /* Current version */
-  int tid;              /* Target version - version we are changing to */
+  int tid=0;            /* Target version - version we are changing to */
   Stmt q;
   int latestFlag;       /* Pick the latest version if true */
 
@@ -67,6 +67,7 @@ void update_cmd(void){
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
+      
   if( g.argc==3 ){
     tid = name_to_rid(g.argv[2]);
     if( tid==0 ){
@@ -75,7 +76,15 @@ void update_cmd(void){
     if( !is_a_version(tid) ){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
-  }else{
+  }
+
+  if( do_autosync() ){  
+    g.argc=2;
+    g.argv[1]="pull";
+    pull_cmd();
+  }
+
+  if( tid==0 ){
     compute_leaves(vid);
     if( !latestFlag && db_int(0, "SELECT count(*) FROM leaves")>1 ){
       db_prepare(&q, 

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\ssome\sproblems\swith\stag\spropagation.\s\sMore\sproblems\sremain.
-D 2007-09-25T03:14:30
+C Autosync\sconfig\sparameter\sadded\s(autosync).\sSetting\sthis\sto\s1,\sy\sor\sY\s(or\syes,\sYes,\syes,\sYES,\setc...)\swill\scause\sautosync's\sto\shappen\sduring\scertian\soperations.\sRight\snow,\sthe\sonly\soperation\spaying\sattention\sto\sthis\sis\supdate.\sIf\sautosync\sand\syou\sdo\sfossil\supdate,\sa\spull\stakes\splace\sfirst,\sthen\san\supdate.\sOthers\swill\sfollow\s(commit\sfor\sone).
+D 2007-09-25T06:56:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -75,12 +75,12 @@ F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
-F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
+F src/sync.c 49100c83b143a69297f49d15c2c2197926dceb64
 F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
 F src/timeline.c b24fc763bef401a085c6e000a4a001841ee39424
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 7eb6f9c77775af16ce302a57cd4ccd6733368470
+F src/update.c ee3b58703f4648d519a3f5f4db2a99be13429a83
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c bd013e3f3c6cf264928161e58261676e83e38cd5
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6f9c0e4a1e68fa2e417d6aa0f48181454250819f
-R bda858af4f55721f403c0c6344d21d46
-U drh
-Z b7d20d91ccd4fa7bba2ceea8ca1d92eb
+P 913608a5a6848d575a1abd75540274d1a2d8f83b
+R 88b7232bbb91b8fa48ebdf8cc02d9f01
+U jnc
+Z 74a3b5a4efce9cc9d1ffbb47efd36944
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+H0boxKgR168RlERAmjaAJ9HuGXaf7iLurlefN+Dk/ts+WAX/ACfav+E
-9R8aMGb3rkCpf2xybw+zAYE=
-=mgMp
+iD8DBQFG+LE2HaWnYYor31ERAo6QAJ4wMRN8mfeL/diqD11ILCODqsw8vgCdEHes
+zg27L2ve9FdFd4SDhZM/qWc=
+=1kx/
 -----END PGP SIGNATURE-----

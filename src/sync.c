@@ -28,6 +28,22 @@
 #include <assert.h>
 
 /*
+** Determine if an autosync should be done or not. The config setting,
+** autosync must start with 1, y or Y. The last-sync-url must also be
+** defined.
+*/
+int do_autosync(void){
+  const char *zAutoSync = db_global_get("autosync", 0);
+  if( zAutoSync != 0 
+      && (zAutoSync[0]=='1' || zAutoSync[0]=='y' || zAutoSync=='Y') 
+      && db_get("last-sync-url", 0)!=0 ){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** This routine processes the command-line argument for push, pull,
 ** and sync.  If a command-line argument is given, that is the URL
 ** of a server to sync against.  If no argument is given, use the
