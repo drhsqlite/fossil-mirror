@@ -397,7 +397,19 @@ void page_timeline(void){
 void print_timeline(Stmt *q, int mxLine){
   int nLine = 0;
   char zPrevDate[20];
+  char *delims;
+  const char *zCurrentUuid;
+  Stmt currentQ;
+  int rid = db_lget_int("checkout", 0);
   zPrevDate[0] = 0;
+
+  db_prepare(&currentQ,
+    "SELECT uuid"
+    "  FROM blob WHERE rid=%d", rid
+  );
+  if( db_step(&currentQ)==SQLITE_ROW ){
+    zCurrentUuid = db_column_text(&currentQ, 0);
+  }
 
   while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
     const char *zId = db_column_text(q, 1);
@@ -407,6 +419,12 @@ void print_timeline(Stmt *q, int mxLine){
     int nParent = db_column_int(q, 5);
     char *zFree = 0;
     char zUuid[UUID_SIZE+1];
+    
+    if( strcmp(zCurrentUuid, zId)==0 ){
+      delims = "**";
+    }else{
+      delims = "[]";
+    }
 
     sprintf(zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
@@ -427,13 +445,15 @@ void print_timeline(Stmt *q, int mxLine){
         sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
         n = strlen(zPrefix);
       }
-      zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
+      zFree = sqlite3_mprintf("%c%.10s%c %s%s", delims[0], zUuid, delims[1], 
+                              zPrefix, zCom);
     }else{
-      zFree = sqlite3_mprintf("[%.10s] %s", zUuid, zCom);
+      zFree = sqlite3_mprintf("%c%.10s%c %s", delims[0], zUuid, delims[1], zCom);
     }
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
   }
+  db_finalize(&currentQ);
 }
 
 /*
