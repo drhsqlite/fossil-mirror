@@ -13,8 +13,6 @@ set SERVERPORT 8615
 wm title . Fossil-Chat
 wm iconname . [wm title .]
 
-set ::PRIVATE 0
-
 menu .mb -type menubar
 if {$tcl_platform(platform)=="unix" && $tcl_platform(os)!="Darwin"} {
   pack .mb -side top -fill x
@@ -25,7 +23,6 @@ if {$tcl_platform(platform)=="unix" && $tcl_platform(os)!="Darwin"} {
 menu .mb.file -tearoff 0
 .mb.file add command -label Send -command send_message
 .mb.file add command -label {Remove older messages} -command cleanup_record
-.mb.file add checkbutton -label {Private} -variable PRIVATE
 .mb.file add separator
 .mb.file add command -label {Exit} -command exit
 
@@ -39,10 +36,8 @@ label .who.time -text {} -justify right
 proc update_time {} {
   after 1000 update_time
   set now [clock seconds]
-  set time1 [clock format [expr {$now-4*3600}] -format {%H:%M} -gmt 1]
-  set time2 [clock format [expr {$now+10*3600}] -format {%H:%M} -gmt 1]
-  set time3 [clock format $now -format %H:%M -gmt 1]
-  .who.time config -text "AEST: $time2\nUTC: $time3\nEST: $time1"
+  set time [clock format $now -format %H:%M -gmt 1]
+  .who.time config -text "UTC: $time"
 }
 update_time
 pack .who.time -side bottom -anchor sw
@@ -107,11 +102,7 @@ proc send_message {} {
   regsub -all "\[ \t\n\f\r\]+" [string trim $txt] { } txt
   if {$txt==""} return
   global SOCKET
-  if {$::PRIVATE} {
-    puts $SOCKET [list private_message $txt [list dan drh]]
-  } else {
-    puts $SOCKET [list message $txt]
-  }
+  puts $SOCKET [list message $txt]
   flush $SOCKET
 }
 
@@ -156,12 +147,7 @@ proc send_file {} {
   fconfigure $f -translation binary
   set data [read $f]
   close $f
-  if {$::PRIVATE} {
-    puts $SOCKET [list private_file [file tail $openfile] [encode $data] \
-        [list dan drh]]
-  } else {
-    puts $SOCKET [list file [file tail $openfile] [encode $data]]
-  }
+  puts $SOCKET [list file [file tail $openfile] [encode $data]]
   flush $SOCKET
   set time [clock format [clock seconds] -format {%H:%M} -gmt 1]
   .msg.t insert end "\[$time\] sent file [file tail $openfile]\
@@ -216,17 +202,15 @@ proc handle_input {} {
       append ulist $u\n
     }
     .who.list config -text [string trim $ulist]
-  } elseif {$cmd=="message"||$cmd=="private_message"} {
+  } elseif {$cmd=="message"} {
     set time [clock format [clock seconds] -format {%H:%M} -gmt 1]
     set from [lindex $line 1]
     .msg.t insert end "\[$time $from\] " meta [lindex $line 2]\n norm
     .msg.t see end
-    set current_focus [focus]
     bell
     wm deiconify .
     update
     raise .
-    focus $current_focus
   } elseif {$cmd=="noop"} {
     # do nothing
   } elseif {$cmd=="meta"} {
@@ -234,7 +218,7 @@ proc handle_input {} {
     set time [clock format $now -format {%H:%M} -gmt 1]
     .msg.t insert end "\[$time\] [lindex $line 1]\n" meta
     .msg.t see end
-  } elseif {$cmd=="file"||$cmd=="private_file"} {
+  } elseif {$cmd=="file"} {
     if {[info commands handle_file]=="handle_file"} {
       handle_file [lindex $line 1] [lindex $line 2] [lindex $line 3]
     }
