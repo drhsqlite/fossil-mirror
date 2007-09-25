@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C After\slooking\sat\sit\sa\sbit,\smjanssen\sand\sI\sdecided\s<...>\slooks\sbetter\sthan\s*...*\sfor\smarking\sthe\scurrent\scheckout
-D 2007-09-25T01:25:32
+C Fix\ssome\sproblems\swith\stag\spropagation.\s\sMore\sproblems\sremain.
+D 2007-09-25T03:14:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -58,7 +58,7 @@ F src/main.mk 853909751a864c1d5a8b4c201d568a60332e8012
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl f7573fec3a9eb1697ebf8f3926e15aebdafedcde
-F src/manifest.c ad3136f6608693094298eeb2bec4db3e03cc09f3
+F src/manifest.c 743c23b52ef554058c4086ce137fab05b4b3696b
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 246b01382f1423be023aff0845007ea514eb846e
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2db88ec63945e2947b9220601d14e628aa0a8eec
-R fe43f1112c56fade92b828dd03b0d2b1
-U jnc
-Z e59af0bb8e354e7d7fc06ea1f9070aab
+P 6f9c0e4a1e68fa2e417d6aa0f48181454250819f
+R bda858af4f55721f403c0c6344d21d46
+U drh
+Z b7d20d91ccd4fa7bba2ceea8ca1d92eb
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (Darwin)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+GOMHaWnYYor31ERAsiYAJ440SJz1vlNshnC5OVhk1/1xqpN4QCePe0u
-o1WeWWFfCe3yQo4o0NIlpNM=
-=R9ZZ
+iD8DBQFG+H0boxKgR168RlERAmjaAJ9HuGXaf7iLurlefN+Dk/ts+WAX/ACfav+E
+9R8aMGb3rkCpf2xybw+zAYE=
+=mgMp
 -----END PGP SIGNATURE-----

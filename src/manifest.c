@@ -517,6 +517,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   int i;
   Manifest m;
   Stmt q;
+  int parentid = 0;
 
   if( manifest_parse(&m, pContent)==0 ){
     return 0;
@@ -530,6 +531,7 @@ int manifest_crosslink(int rid, Blob *pContent){
                       "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, m.rDate);
         if( i==0 ){
           add_mlink(pid, 0, rid, &m);
+          parentid = pid;
         }
       }
       db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
@@ -566,7 +568,14 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       tag_insert(&m.aTag[i].zName[1], type, m.aTag[i].zValue, 
                  rid, m.rDate, tid);
+      if( tid!=rid ){
+        tag_propagate_all(tid);
+      }
     }
+    if( parentid ){
+      tag_propagate_all(parentid);
+    }
+    tag_propagate_all(rid);
   }
   db_end_transaction(0);
   manifest_clear(&m);
