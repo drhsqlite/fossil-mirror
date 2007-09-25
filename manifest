@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merger\sw/fossil\schat\supdate\s(5e3f)
-D 2007-09-25T19:32:07
+C Styled\sthe\svinfo\spage
+D 2007-09-25T20:21:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -51,7 +51,7 @@ F src/diffcmd.c 4af4f0ff55bd4fbeef90a57acf89d1658f026843
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 525e8c0661397d7d4f869cfbbb5f5cf8ec4de400
 F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
-F src/info.c ce5dc953e15336df787697b35d6507c5f1b98923
+F src/info.c 15b63940c8bc1044af930687e643ee0c7591afd3
 F src/login.c d1ac22275c7a7238a6a89d6dc256b67a25c911e9
 F src/main.c 1a17fea25b4c4cfb21797b6d543436cabe100fd9
 F src/main.mk 853909751a864c1d5a8b4c201d568a60332e8012
@@ -74,7 +74,7 @@ F src/setup.c 10731e95e771a7e2fd9ef19920dd4efb1e3c629d
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c 7236258d23dca67295c816d6fb4a44f1160a293a
+F src/style.c 687033cd1421d68e01250f76df4f61fd5adb87bb
 F src/sync.c 49100c83b143a69297f49d15c2c2197926dceb64
 F src/tag.c 53f340db144b9221d096ec61c0d4653d6bdf762a
 F src/timeline.c b24fc763bef401a085c6e000a4a001841ee39424
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 99eabf9b0c1d24165c47badd22fed72d4ac0e8f2 5e3f5322e2a730a2c60f3d0584e51e16b2a668d4
-R 517d2f74e2578c0f6e08ffc3cd10768b
+P e6d1cd96793dcbf7e3ea27b81d35196cf45b047d
+R e1b47e460a1317f8115ecc8276c4eab7
 U jnc
-Z 4170455ec7f303aa24b4df13b68d927f
+Z cee80aaa70e527cebd27d15151e3186f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+WI3HaWnYYor31ERAoi7AJ9rGxy65w0VD2Ql9jSigvrBD3SrygCfTXL0
-Vjq+4NwNLBO5ptQWfbDVpl0=
-=zCEb
+iD8DBQFG+W3HHaWnYYor31ERApcBAJ0U9ED51Ap8f/uFWETDs6gEkePXwACfVotm
+PaJOTIQVz2w3UVeIetuMZMs=
+=FEEr
 -----END PGP SIGNATURE-----

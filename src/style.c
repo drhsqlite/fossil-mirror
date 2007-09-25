@@ -298,6 +298,18 @@ void page_style_css(void){
     @   background-color: #414f84;
     @   color: white;
     @ }
+    @ table.label-value th {
+    @   text-align: right;
+    @   vertical-align: top;
+    @ }
+    @ div.section-title {
+    @   margin-bottom: 0px;
+    @   padding: 1px 1px 1px 1px;
+    @   font-size: 1.2em;
+    @   font-weight: bold;
+    @   background-color: #6a7ec7;
+    @   color: #0a1e67;
+    @ }
   }
 }
 
