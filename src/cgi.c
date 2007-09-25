@@ -1024,7 +1024,7 @@ void cgi_handle_http_request(void){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( getpeername(fileno(stdin), (struct sockaddr*)&remoteName, &size)>=0 ){
+  if( getpeername(fileno(stdin), (struct sockaddr*)&remoteName, (socklen_t*)&size)>=0 ){
     char *zIpAddr = inet_ntoa(remoteName.sin_addr);
     cgi_setenv("REMOTE_ADDR", zIpAddr);
 
@@ -1127,7 +1127,7 @@ void cgi_http_server(int iPort){
     FD_SET( listener, &readfds);
     if( select( listener+1, &readfds, 0, 0, &delay) ){
       lenaddr = sizeof(inaddr);
-      connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
+      connection = accept(listener, (struct sockaddr*)&inaddr, (socklen_t*) &lenaddr);
       if( connection>=0 ){
         child = fork();
         if( child!=0 ){

@@ -101,6 +101,8 @@ int name_to_uuid(Blob *pName, int iErrPriority){
          rc = 0;
       }
     }
+  }else{
+    rc = 0;
   }
   return rc;
 }

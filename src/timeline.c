@@ -398,7 +398,7 @@ void print_timeline(Stmt *q, int mxLine){
   int nLine = 0;
   char zPrevDate[20];
   char *delims;
-  const char *zCurrentUuid;
+  const char *zCurrentUuid=0;
   Stmt currentQ;
   int rid = db_lget_int("checkout", 0);
   zPrevDate[0] = 0;
