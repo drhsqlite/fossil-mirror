@@ -135,7 +135,7 @@ static int showDescendents(int pid, int depth, const char *zTitle){
     cnt++;
     if( cnt==1 ){
       if( zTitle ){
-        @ <h2>%s(zTitle)</h2>
+        @ <div class="section-title">%s(zTitle)</div>
       }
       @ <ul>
     }
@@ -186,7 +186,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
     cnt++;
     if( cnt==1 ){
       if( zTitle ){
-        @ <h2>%s(zTitle)</h2>
+        @ <div class="section-title">%s(zTitle)</div>
       }
       @ <ul>
     }
@@ -226,7 +226,7 @@ static void showLeaves(void){
     const char *zCom = db_column_text(&q, 3);
     cnt++;
     if( cnt==1 ){
-      @ <h2>Leaves</h2>
+      @ <div class="section-title">Leaves</div>
       @ <ul>
     }
     @ <li>
@@ -262,7 +262,7 @@ static void showTags(int rid){
     int tagtype = db_column_int(&q, 6);
     cnt++;
     if( cnt==1 ){
-      @ <h2>Tags And Properties</h2>
+      @ <div class="section-title">Tags And Properties</div>
       @ <ul>
     }
     @ <li>
@@ -302,9 +302,9 @@ void vinfo_page(void){
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  style_header("Version Information");
   rid = name_to_rid(g.zExtra);
   if( rid==0 ){
+    style_header("Version Information Error");
     @ No such object: %h(g.argv[2])
     style_footer();
     return;
@@ -319,22 +319,33 @@ void vinfo_page(void){
   );
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
-    @ <h2>Version %s(zUuid)</h2>
-    @ <ul>
-    @ <li><b>Date:</b> %s(db_column_text(&q, 1))</li>
-    @ <li><b>Original&nbsp;User:</b> %s(db_column_text(&q, 2))</li>
-    @ <li><b>Original&nbsp;Comment:</b> %s(db_column_text(&q, 3))</li>
-    @ <li><a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a></li>
-    @ <li><a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a></li>
-    @ <li><a href="%s(g.zBaseURL)/fview/%d(rid)">manifest</a></li>
+    char *zTitle = mprintf("Version: [%.10s]", zUuid);
+    style_header(zTitle);
+    free(zTitle);
+    /*@ <h2>Version %s(zUuid)</h2>*/
+    @ <div class="section-title">Overview</div>
+    @ <p><table class="label-value">
+    @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
+    @ <tr><th>Date:</th><td>%s(db_column_text(&q, 1))</td></tr>
     if( g.okSetup ){
-      @ <li><b>Record ID:</b> %d(rid)</li>
+      @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
     }
-    @ </ul>
+    @ <tr><th>Original&nbsp;User:</th><td>%s(db_column_text(&q, 2))</td></tr>
+    @ <tr><th>Original&nbsp;Comment:</th><td>%s(db_column_text(&q, 3))</td></tr>
+    @ <tr><th>Commands:</th>
+    @   <td>
+    @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
+    @     | <a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a>
+    @     | <a href="%s(g.zBaseURL)/fview/%d(rid)">manifest</a>
+    @   </td>
+    @ </tr>
+    @ </table></p>
+  }else{
+    style_header("Version Information");
   }
   db_finalize(&q);
   showTags(rid);
-  @ <p><h2>Changes:</h2>
+  @ <div class="section-title">Changes</div>
   @ <ul>
   db_prepare(&q, 
      "SELECT name, pid, fid"

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sC++-ism\sin\sstyle.c
-D 2007-09-25T20:35:32
+C Merge\sthe\svinfo\sCSS\spatches.
+D 2007-09-25T20:39:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -51,7 +51,7 @@ F src/diffcmd.c 4af4f0ff55bd4fbeef90a57acf89d1658f026843
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c 525e8c0661397d7d4f869cfbbb5f5cf8ec4de400
 F src/http.c 54410d4f2bc2741e9dfd2b422617ac1ac2714287
-F src/info.c ce5dc953e15336df787697b35d6507c5f1b98923
+F src/info.c 15b63940c8bc1044af930687e643ee0c7591afd3
 F src/login.c d1ac22275c7a7238a6a89d6dc256b67a25c911e9
 F src/main.c 1a17fea25b4c4cfb21797b6d543436cabe100fd9
 F src/main.mk 853909751a864c1d5a8b4c201d568a60332e8012
@@ -74,7 +74,7 @@ F src/setup.c 10731e95e771a7e2fd9ef19920dd4efb1e3c629d
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c 61cb7fb3b218c0b7cc024c5c9a5ac6b5d0e42db3
+F src/style.c 24a4432c1edfcc3dcfbe4a8ceafa3e8b3363fefa
 F src/sync.c 6c1dfe7a9d25e1640d3968ac37a891e2431be83d
 F src/tag.c 1b7c8db1b93d29d96b5381287ab99c2d1e7215fd
 F src/timeline.c b24fc763bef401a085c6e000a4a001841ee39424
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P fff234b77cc774ca649f8279cd50585a9d44ac4b
-R b11b924b3d0b0660153df9ee1e8781e4
+P 64569b3a7a47fde83623ef2509ad3de16420e538 cfc7984edead9fa6c1adfb4c9f4c6f868d1e2c95
+R fbd6cb32e3d2edc11d087b5c488be71f
 U drh
-Z f30317f343d3e8ca0f2c66750eb3b43f
+Z 84ada190b25863933440421256ea6093
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+XEZoxKgR168RlERAgLFAJ9OY4QNI5BLjbsaJU8oH5Kbw7Aq4ACeLCSP
-ud0ohZnhu2jwLqoyrMxTpK4=
-=tIZl
+iD8DBQFG+XH2oxKgR168RlERAgdSAJ9no4CgSPsBcAGB/DErR1nUxxw+UgCePHDo
+T0A76TfnS/vvgjxbBnu2fa8=
+=MO6t
 -----END PGP SIGNATURE-----
