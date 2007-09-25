@@ -176,7 +176,7 @@ for(y=0; y<=nB; y++){
   x = y = 0;
   cnt = nContext;
   while( x<nA || y<nB ){
-    int t1, t2;
+    int t1=0, t2=0;
     if( (t1 = M(x+1,y))<0 || (t2 = M(x,y+1))<0 ){
       if( cnt>=nContext ){
         blob_appendf(pOut, "@@ -%d +%d @@\n", 

@@ -234,7 +234,9 @@ void testtag_cmd(void){
     case '+':  tagtype = 1;  break;
     case '*':  tagtype = 2;  break;
     case '-':  tagtype = 0;  break;
-    default:   fossil_fatal("tag should begin with '+', '*', or '-'");
+    default:   
+      fossil_fatal("tag should begin with '+', '*', or '-'");
+      return;
   }
   rid = name_to_rid(g.argv[3]);
   if( rid==0 ){

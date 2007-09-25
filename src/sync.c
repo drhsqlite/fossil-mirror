@@ -34,8 +34,8 @@
 */
 int do_autosync(void){
   const char *zAutoSync = db_global_get("autosync", 0);
-  if( zAutoSync != 0 
-      && (zAutoSync[0]=='1' || zAutoSync[0]=='y' || zAutoSync=='Y') 
+  if( zAutoSync!=0
+      && (zAutoSync[0]=='1' || zAutoSync[0]=='y' || zAutoSync[0]=='Y') 
       && db_get("last-sync-url", 0)!=0 ){
     return 1;
   }else{

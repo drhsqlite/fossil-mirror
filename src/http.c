@@ -123,6 +123,7 @@ static int http_open_socket(void){
   return 0;
 }
 
+#ifdef __MINGW32__
 /*
 ** Read the socket until a newline '\n' is found.  Return the number
 ** of characters read. pSockId contains the socket handel.  pOut
@@ -169,6 +170,7 @@ int socket_read_blob(Blob *pBlob, int pSockId, int nToRead){
   }
   return blob_size(pBlob);
 }
+#endif
 
 /*
 ** Make a single attempt to talk to the server.  Return TRUE on success

@@ -84,7 +84,7 @@ void pivot_set_secondary(int rid){
 */
 int pivot_find(void){
   Stmt q1, q2, u1, i1;
-  int rid;
+  int rid = 0;
   
   /* aqueue must contain at least one primary and one other.  Otherwise
   ** we abort early

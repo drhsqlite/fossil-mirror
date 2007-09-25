@@ -191,7 +191,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
   }else{
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", sizeof(zPwd)-20);
+      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
       exit(1);
     }
     blob_zero(pOut);
@@ -230,7 +230,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut){
     Blob tmp;
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", sizeof(zPwd)-20);
+      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
       exit(1);
     }
     for(i=1; zPath[i] && zPwd[i]==zPath[i]; i++){}

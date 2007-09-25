@@ -574,6 +574,9 @@ int manifest_crosslink(int rid, Blob *pContent){
         case '+':  type = 1; break;
         case '*':  type = 2; break;
         case '-':  type = 0; break;
+        default:
+          fossil_fatal("unknown tag type in manifest: %s", m.aTag);
+          return 0;
       }
       tag_insert(&m.aTag[i].zName[1], type, m.aTag[i].zValue, 
                  rid, m.rDate, tid);
