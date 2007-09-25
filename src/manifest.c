@@ -541,9 +541,18 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       db_finalize(&q);
       db_multi_exec(
-        "INSERT INTO event(type,mtime,objid,user,comment)"
-        "VALUES('ci',%.17g,%d,%Q,%Q)",
-        m.rDate, rid, m.zUser, m.zComment
+        "INSERT INTO event(type,mtime,objid,user,comment,"
+        "                  bgcolor,brbgcolor,euser,ecomment)"
+        "VALUES('ci',%.17g,%d,%Q,%Q,"
+        " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
+        "(SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype!=1),"
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
+        m.rDate, rid, m.zUser, m.zComment, 
+        TAG_BGCOLOR, rid,
+        TAG_BGCOLOR, rid,
+        TAG_USER, rid,
+        TAG_COMMENT, rid
       );
     }
   }
@@ -568,14 +577,10 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       tag_insert(&m.aTag[i].zName[1], type, m.aTag[i].zValue, 
                  rid, m.rDate, tid);
-      if( tid!=rid ){
-        tag_propagate_all(tid);
-      }
     }
     if( parentid ){
       tag_propagate_all(parentid);
     }
-    tag_propagate_all(rid);
   }
   db_end_transaction(0);
   manifest_clear(&m);

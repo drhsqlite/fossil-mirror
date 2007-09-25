@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Autosync\sis\snow\sworking.\sAdded\sautosync\sto\stag\sadd,\stag\sbranch\sand\sbranch\screate.
-D 2007-09-25T07:19:55
+C Correct\stag\spropagationl.\s\sNow\sworks\seven\swhen\srebuilding\sin\sa\srandomized\sorder.
+D 2007-09-25T08:38:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -58,7 +58,7 @@ F src/main.mk 853909751a864c1d5a8b4c201d568a60332e8012
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl f7573fec3a9eb1697ebf8f3926e15aebdafedcde
-F src/manifest.c 743c23b52ef554058c4086ce137fab05b4b3696b
+F src/manifest.c 134870951b4e225b9a7e6c97746201d08c4307a6
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 246b01382f1423be023aff0845007ea514eb846e
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
@@ -76,7 +76,7 @@ F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
 F src/sync.c 49100c83b143a69297f49d15c2c2197926dceb64
-F src/tag.c 9d05af9d92c1d32dc581f0302f69291ca6c23484
+F src/tag.c 53f340db144b9221d096ec61c0d4653d6bdf762a
 F src/timeline.c b24fc763bef401a085c6e000a4a001841ee39424
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6847e9b22a52ae2631027f04105e8b0f1f65208b
-R f8413bdf84ce1a777a13844748093eac
-U jnc
-Z 7995906b30937798297478c7fc8f1b63
+P e4517465f35f02639c67c92a96462154cd99b86c
+R ffb47d8ba100b9eb6ec60ce019f5b665
+U drh
+Z 9710977b1334655e33e0758366abe400
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (Darwin)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+LabHaWnYYor31ERAp2jAJ9/RV7PL7pcxU/RFzAMyHiJRiYQXQCbB5pf
-+By+RW2DDAxHcRUzGYE+0Nc=
-=WZRQ
+iD8DBQFG+MkFoxKgR168RlERAtTOAJ0WtswTbX5OdY1EbsMTsGeTlqWL6wCfeorG
+o6XSldbhUQGQUougwX68GCQ=
+=IiLO
 -----END PGP SIGNATURE-----

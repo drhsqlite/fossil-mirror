@@ -153,8 +153,24 @@ void tag_insert(
   Stmt s;
   const char *zCol;
   int tagid = tag_findid(zTag, 1);
+  int rc;
+
   if( mtime<=0.0 ){
     mtime = db_double(0.0, "SELECT julianday('now')");
+  }
+  db_prepare(&s,
+    "SELECT 1 FROM tagxref"
+    " WHERE tagid=%d"
+    "   AND rid=%d"
+    "   AND mtime>=:mtime",
+    tagid, rid
+  );
+  db_bind_double(&s, ":mtime", mtime);
+  rc = db_step(&s);
+  db_finalize(&s);
+  if( rc==SQLITE_ROW ){
+    /* Another entry this is more recent already exists.  Do nothing */
+    return;
   }
   db_prepare(&s, 
     "REPLACE INTO tagxref(tagid,tagtype,srcId,value,mtime,rid)"
