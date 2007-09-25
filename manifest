@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Ran\san\sold\sfossil,\sdid\snot\sauto-push...\sUpdated\sideas.txt\sto\sreflect\sthat\swork\shas\sbegun\son\sthis\stask\sand\swhat\shas\salready\sbeen\sdone.\sHopefully\sthis\sone\swill\sauto-push...
-D 2007-09-25T07:15:02
+C Autosync\sis\snow\sworking.\sAdded\sautosync\sto\stag\sadd,\stag\sbranch\sand\sbranch\screate.
+D 2007-09-25T07:19:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -32,7 +32,7 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
-F src/branch.c 97ebfed53d9d2170c26e5a0b1cd62befad874fff
+F src/branch.c 1d4c15b285af4e360b83f6d0879737f53878c852
 F src/cgi.c 57f4d7daa35b4be43195e297695fe9e430e34521
 F src/checkin.c 45c26e70ac8cda8014dc29d8ed1fe66078650002
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
@@ -76,7 +76,7 @@ F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
 F src/sync.c 49100c83b143a69297f49d15c2c2197926dceb64
-F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
+F src/tag.c 9d05af9d92c1d32dc581f0302f69291ca6c23484
 F src/timeline.c b24fc763bef401a085c6e000a4a001841ee39424
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0431f14edfbc452aea7f3981e03cfb306121551e
-R 8fc3eb640aa114d9c24e29f387259238
+P 6847e9b22a52ae2631027f04105e8b0f1f65208b
+R f8413bdf84ce1a777a13844748093eac
 U jnc
-Z 7a509fe39ffdb39f02af29828bbf1404
+Z 7995906b30937798297478c7fc8f1b63
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+LV2HaWnYYor31ERAh/QAJ9BcUUeQ8UB7Gff0rb+PkCEMmQTYQCeJI+0
-06thCW0cGrBuTFqzmaRe7Q0=
-=B+07
+iD8DBQFG+LabHaWnYYor31ERAp2jAJ9/RV7PL7pcxU/RFzAMyHiJRiYQXQCbB5pf
++By+RW2DDAxHcRUzGYE+0Nc=
+=WZRQ
 -----END PGP SIGNATURE-----

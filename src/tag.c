@@ -275,6 +275,13 @@ static void tag_add_artifact(
   nrid = content_put(&ctrl, 0, 0);
   manifest_crosslink(nrid, &ctrl);
   db_end_transaction(0);
+  
+  /* Autosync and do a push? */
+  if( do_autosync() ){  
+    g.argc=2;
+    g.argv[1]="push";
+    push_cmd();
+  }
 }
 
 /*
