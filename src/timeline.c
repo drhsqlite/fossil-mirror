@@ -421,7 +421,7 @@ void print_timeline(Stmt *q, int mxLine){
     char zUuid[UUID_SIZE+1];
     
     if( strcmp(zCurrentUuid, zId)==0 ){
-      delims = "**";
+      delims = "<>";
     }else{
       delims = "[]";
     }

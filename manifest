@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Timeline\sand\sLeaves\son\sTTY\snow\smarks\swith\s*...*\s(vs\s[...])\syou\scurrent\sworking\srevision
-D 2007-09-25T01:02:25
+C After\slooking\sat\sit\sa\sbit,\smjanssen\sand\sI\sdecided\s<...>\slooks\sbetter\sthan\s*...*\sfor\smarking\sthe\scurrent\scheckout
+D 2007-09-25T01:25:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -77,7 +77,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b61388a5666b709ab9ea06534248180abffcf44d
 F src/sync.c fc0e1584ee16739bd0601104e5e3a4c6a1e29642
 F src/tag.c c707ca1de0e81c0924977ca006929b687669b478
-F src/timeline.c d7ec196da15848a62768048e5765c54cdcae5ef8
+F src/timeline.c b24fc763bef401a085c6e000a4a001841ee39424
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 7eb6f9c77775af16ce302a57cd4ccd6733368470
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P af3a751841e268336fea30c2d6499c2d85e6d71e
-R 8f49201097dab431d9f6628da3b484bc
+P 2db88ec63945e2947b9220601d14e628aa0a8eec
+R fe43f1112c56fade92b828dd03b0d2b1
 U jnc
-Z a871199cece7f9516826b4839e699157
+Z e59af0bb8e354e7d7fc06ea1f9070aab
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+F4hHaWnYYor31ERAtcuAJ4+W6TOAJ5rC6XxUipPPxuxH9YrywCeJEen
-cFYHnAxNu6kPcYastLljzLU=
-=IwxF
+iD8DBQFG+GOMHaWnYYor31ERAsiYAJ440SJz1vlNshnC5OVhk1/1xqpN4QCePe0u
+o1WeWWFfCe3yQo4o0NIlpNM=
+=R9ZZ
 -----END PGP SIGNATURE-----
