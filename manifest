@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Autosync\sconfig\sparameter\sadded\s(autosync).\sSetting\sthis\sto\s1,\sy\sor\sY\s(or\syes,\sYes,\syes,\sYES,\setc...)\swill\scause\sautosync's\sto\shappen\sduring\scertian\soperations.\sRight\snow,\sthe\sonly\soperation\spaying\sattention\sto\sthis\sis\supdate.\sIf\sautosync\sand\syou\sdo\sfossil\supdate,\sa\spull\stakes\splace\sfirst,\sthen\san\supdate.\sOthers\swill\sfollow\s(commit\sfor\sone).
-D 2007-09-25T06:56:54
+C Once\sa\ssuccessful\scommit\sis\smade,\sif\sautosync\sis\son,\sa\spush\sis\snow\sdone.\sThis\scommit\swill\sbe\sthe\sfirst\stest\sof\sthat\snew\sfunctionality\s:-)
+D 2007-09-25T07:11:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -34,7 +34,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 70f1a3c914a7bc8d1b2f31bb8c74eaec7a19f2da
 F src/branch.c 97ebfed53d9d2170c26e5a0b1cd62befad874fff
 F src/cgi.c 57f4d7daa35b4be43195e297695fe9e430e34521
-F src/checkin.c 484fa282d63e330a48d649b765cf7a0873208351
+F src/checkin.c 45c26e70ac8cda8014dc29d8ed1fe66078650002
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b83f245b62403c327b76020cadae9206a5b98623
 F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 913608a5a6848d575a1abd75540274d1a2d8f83b
-R 88b7232bbb91b8fa48ebdf8cc02d9f01
+P b773dda29bce549a7b66d1a89aea43ad8e87bfc2
+R 69f2c1a280acdc4ba20df79f9094cc41
 U jnc
-Z 74a3b5a4efce9cc9d1ffbb47efd36944
+Z 520bdb455a2c25539c190d0f0520d285
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+LE2HaWnYYor31ERAo6QAJ4wMRN8mfeL/diqD11ILCODqsw8vgCdEHes
-zg27L2ve9FdFd4SDhZM/qWc=
-=1kx/
+iD8DBQFG+LS9HaWnYYor31ERAiaRAKCQbH565iqwTwDDtyBksbh/rR+rEwCff5KR
+z4bXc4CfnThEGQ9dykHDHHQ=
+=YAkA
 -----END PGP SIGNATURE-----
