@@ -110,8 +110,8 @@ void style_header(const char *zTitle){
   }
   @ </div>
   if( nSubmenu>0 ){
-    @ <div id="sub-menu">
     int i;
+    @ <div id="sub-menu">
     qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
     for(i=0; i<nSubmenu; i++){
       struct Submenu *p = &aSubmenu[i];
