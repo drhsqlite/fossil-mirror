@@ -46,7 +46,7 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
-** Usage: %fossil diff|gdiff ?-i FILE...
+** Usage: %fossil diff|gdiff ?-i ?-r REVISION FILE...
 **
 ** Show the difference between the current version of a file (as it
 ** exists on disk) and that same file as it was checked out.
@@ -71,14 +71,16 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 **   %fossil config gdiff-command=kdiff3
 */
 void diff_cmd(void){
-  const char *zFile;
+  const char *zFile, *zRevision;
   Blob cmd;
   Blob fname;
-  int i, internalDiff;
-  char *zV1 = 0;
-  char *zV2 = 0;
+  Blob vname;
+  Blob record;
+  int cnt=0,internalDiff;
   
   internalDiff = find_option("internal","i",0)!=0;
+  zRevision = find_option("revision", "r", 1);
+  verify_all_options();
   
   if( g.argc<3 ){
     usage("?OPTIONS? FILE");
@@ -98,64 +100,46 @@ void diff_cmd(void){
     blob_zero(&cmd);
     blob_appendf(&cmd, "%s ", zExternalCommand);
   }
-  for(i=2; i<g.argc-1; i++){
-    const char *z = g.argv[i];
-    if( (strcmp(z,"-v")==0 || strcmp(z,"--version")==0) && i<g.argc-2 ){
-      if( zV1==0 ){
-        zV1 = g.argv[i+1];
-      }else if( zV2==0 ){
-        zV2 = g.argv[i+1];
-      }else{
-        fossil_panic("too many versions");
-      }
-    }else{
-      if( internalDiff==0 ){
-        blob_appendf(&cmd, "%s ", z);
-      }
-    }
-  }
   zFile = g.argv[g.argc-1];
   if( !file_tree_name(zFile, &fname) ){
     fossil_panic("unknown file: %s", zFile);
   }
-  if( zV1==0 ){
+  
+  blob_zero(&vname);
+  do{
+    blob_reset(&vname);
+    blob_appendf(&vname, "%s~%d", zFile, cnt++);
+  }while( access(blob_str(&vname),0)==0 );
+  
+  if( zRevision==0 ){
     int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
-    Blob record;
-    Blob vname;
-    int cnt = 0;
-
     if( rid==0 ){
       fossil_panic("no history for file: %b", &fname);
     }
-    blob_zero(&vname);
-    do{
-      blob_reset(&vname);
-      blob_appendf(&vname, "%s~%d", zFile, cnt++);
-    }while( access(blob_str(&vname),0)==0 );
     content_get(rid, &record);
-    if( internalDiff==1 ){
-      Blob current;
-      Blob out;
-      blob_zero(&current);
-      blob_read_from_file(&current, zFile);
-      blob_zero(&out);
-      unified_diff(&record, &current, 5, &out);
-      printf("%s\n", blob_str(&out));
-      blob_reset(&current);
-      blob_reset(&out);
-    }else{
-      blob_write_to_file(&record, blob_str(&vname));
-      blob_reset(&record);
-      shell_escape(&cmd, blob_str(&vname));
-      blob_appendf(&cmd, " ");
-      shell_escape(&cmd, zFile);
-      system(blob_str(&cmd));
-      unlink(blob_str(&vname));
-      blob_reset(&vname);
-      blob_reset(&cmd);
-    }
   }else{
-    fossil_panic("not yet implemented");
+    content_get_historical_file(zRevision, zFile, &record);
+  }
+  if( internalDiff==1 ){
+    Blob out;
+    Blob current;
+    blob_zero(&current);
+    blob_read_from_file(&current, zFile);
+    blob_zero(&out);
+    unified_diff(&record, &current, 5, &out);
+    printf("%s\n", blob_str(&out));
+    blob_reset(&current);
+    blob_reset(&out);
+  }else{
+    blob_write_to_file(&record, blob_str(&vname));
+    blob_reset(&record);
+    shell_escape(&cmd, blob_str(&vname));
+    blob_appendf(&cmd, " ");
+    shell_escape(&cmd, zFile);
+    system(blob_str(&cmd));
+    unlink(blob_str(&vname));
+    blob_reset(&vname);
+    blob_reset(&cmd);
   }
   blob_reset(&fname);
 }

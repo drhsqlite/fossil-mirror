@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\sthe\scompiler\swarning\sfixes\sinto\smainstream
-D 2007-09-25T21:28:30
+C Added\srevision\ssupport\sto\sdiff\sand\srevert
+D 2007-09-26T03:37:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -41,13 +41,13 @@ F src/clone.c 9c95e6e8e67cc7ac7968dcb16b3c5c57c14702df
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 238e2858a9bf1dcd84b20f8a7044f4b97e60f099
-F src/content.c 310f7c7a1fcc286122bbf7df225db81d1682bac6
+F src/content.c 02e1a3dfd6fd5643b0d52a459e5f0f3951f2519e
 F src/db.c df88f7f101d92142d3fad6a7a1cec08eb69f44de
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c a87d3034507b009b9e1c3f66b8b3366a37ba0bab
-F src/diffcmd.c 4af4f0ff55bd4fbeef90a57acf89d1658f026843
+F src/diffcmd.c e546baef8b569f9b97ba5617f1581c160e331b73
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
@@ -80,7 +80,7 @@ F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 9aeba121ead7cc39db51d31cb24deb3e8db4e29a
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 38dd8e9b100b1d5127c9541f1e8cff34092c0d50
+F src/update.c 1e8d7a1bd12ab0fb905ec0ee0e83500cb9f57eec
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c bd013e3f3c6cf264928161e58261676e83e38cd5
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 16551da2e3ccbbad0d2dcc651eb496d05c2ce44b e63a9fd9d0356a19c3c29bf847943122c415420e
-R 19563f66b83a6e803ca2d00b1a45166e
+P 92291035fe251899a61464d304c16973ee241da0
+R 3420a71dbfc9d0d1d587f923c31936e8
 U jnc
-Z 010e257b05e5a93433895391d8f86c6f
+Z fdef78b64ecba60a945e8eabef9e8cc7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFG+X1+HaWnYYor31ERAqaYAJwJy4Se2JOVmXr007lEczQHe2htJACfZjmH
-M0fx2wRclfEziJDYjrU2qPs=
-=Fh8e
+iD8DBQFG+dPoHaWnYYor31ERAkeFAJ4zu6xj5ipEXKlvtNdzqK0nmoHVuACfQuJq
+yXpyHSSNK7LfaTKgke3yw+U=
+=0E2a
 -----END PGP SIGNATURE-----
