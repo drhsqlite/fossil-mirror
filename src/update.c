@@ -223,7 +223,7 @@ void update_cmd(void){
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?-yes FILE
+** Usage: %fossil revert ?-yes ?-r REVISION FILE
 **
 ** Revert to the current repository version of FILE. This
 ** command will confirm your operation, unless you do so
@@ -231,12 +231,14 @@ void update_cmd(void){
 **/
 void revert_cmd(void){
   const char *zFile;
+  const char *zRevision;
   Blob fname;
   Blob record;
   Blob ans;
-  int rid, yesRevert;
+  int rid = 0, yesRevert;
   
-  yesRevert = find_option("yes","y", 0)!=0;
+  yesRevert = find_option("yes", "y", 0)!=0;
+  zRevision = find_option("revision", "r", 1);
   verify_all_options();
   
   if( g.argc<3 ){
@@ -245,15 +247,11 @@ void revert_cmd(void){
   db_must_be_within_tree();
   
   zFile = g.argv[g.argc-1];
+
   if( !file_tree_name(zFile, &fname) ){
     fossil_panic("unknown file: %s", zFile);
   }
-  rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
-
-  if( rid==0 ){
-    fossil_panic("no history for file: %b", &fname);
-  }
-
+  
   if( yesRevert==0 ){
     char *prompt = mprintf("revert file %B? this will destroy local changes [y/N]? ",
                            &fname);
@@ -263,8 +261,18 @@ void revert_cmd(void){
       yesRevert = 1;
     }
   }
-  if( yesRevert==1 ){
+
+  if( yesRevert==1 && zRevision!=0 ){
+    content_get_historical_file(zRevision, zFile, &record);
+  }else if( yesRevert==1 ){
+    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+    if( rid==0 ){
+      fossil_panic("no history for file: %b", &fname);
+    }
     content_get(rid, &record);
+  }
+  
+  if( yesRevert==1 ){
     blob_write_to_file(&record, blob_str(&fname));
     printf("%s reverted\n", blob_str(&fname));
     blob_reset(&record);

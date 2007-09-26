@@ -78,6 +78,32 @@ int content_get(int rid, Blob *pBlob){
 }
 
 /*
+** Get the contents of a file within a given revision.
+*/
+int content_get_historical_file(const char *revision, const char *file, Blob *content){
+  Blob mfile;
+  Manifest m;
+  int i, rid=0;
+  
+  rid = name_to_rid(revision);
+  content_get(rid, &mfile);
+  
+  if( manifest_parse(&m, &mfile) ){
+    for(i=0; i<m.nFile; i++){
+      if( strcmp(m.aFile[i].zName, file)==0 ){
+        rid = uuid_to_rid(m.aFile[i].zUuid, 0);
+        return content_get(rid, content);
+      }
+    }
+    fossil_panic("file: %s does not exist in revision: %s", file, revision);
+  }else{
+    fossil_panic("could not parse manifest for revision: %s", revision);
+  }
+  
+  return 0;
+}
+
+/*
 ** COMMAND:  test-content-get
 **
 ** Extract a blob from the database and write it into a file.
