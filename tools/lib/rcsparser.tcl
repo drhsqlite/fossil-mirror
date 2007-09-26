@@ -61,21 +61,27 @@ proc ::vc::rcs::parser::configure {key value} {
 }
 
 proc ::vc::rcs::parser::process {path} {
-    set cache [Cache $path]
+    variable cache
+
+    if {!$cache} {
+	return [Process $path]
+    }
+
+    set cachefile [Cache $path]
     if {
-	[file exists $cache] &&
-	([file mtime $cache] > [file mtime $path])
+	[file exists $cachefile] &&
+	([file mtime $cachefile] > [file mtime $path])
     } {
 	# Use preparsed data if not invalidated by changes to the
 	# archive they are derived from.
 	write 4 rcs {Load preparsed data block}
-	return [fileutil::cat -encoding binary $cache]
+	return [fileutil::cat -encoding binary $cachefile]
     }
 
     set res [Process $path]
 
     # Save parse result for quick pickup by future runs.
-    fileutil::writeFile $cache $res
+    fileutil::writeFile $cachefile $res
 
     return $res
 }
