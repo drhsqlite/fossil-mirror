@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sautosync\scommit\s-\scleanup\sthe\sonremote\stemp\stable\safter\suse.
-D 2007-09-26T13:49:54
+C Cleanup\sof\sthe\ssafemerge\sflag\son\supdate.\s\sOverride\savailable\susing\sthe\s--force\soption.
+D 2007-09-26T16:20:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -80,7 +80,7 @@ F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 8bccb237e443ed72e7d7661848f2c9a2f8c89e48
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c ca0677b5f765ebf58f0e307f3b9998ce554fac4e
+F src/update.c abfa21b27a1cc1cf3c508533550ac5d9529bc308
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 0bda7093839bd7bc8aced2aa00af8cc3a4398b09
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P d8d6dc85e1e059e9aa9727321f34f1b30674fe48
-R 2701b5e017c80b46e47c951432fd75e2
+P a15122ff2d64cb7316c36d2474cee969cbb911d9
+R c7f394ca03e4c27eb5c0d5b2154bf3e9
 U drh
-Z a8c43f25b8458315dad25f5c649a2e89
+Z 05b59938984cbd57ca348e9b37915801
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+mOFoxKgR168RlERAqIOAJ9YaKhSdM01TgiMSm5ro7vf06M1fwCeIzxb
-/Qq+lCOL6+PpBHWLEDshnoQ=
-=GME3
+iD8DBQFG+obcoxKgR168RlERAq57AJ4mS+5d22SU7OOdF3miPLl0KCp5XgCfaBai
+/xxGjbc5YLgwvJBTse132l8=
+=sMIj
 -----END PGP SIGNATURE-----

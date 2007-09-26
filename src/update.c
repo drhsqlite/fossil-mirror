@@ -38,24 +38,30 @@ int is_a_version(int rid){
 /*
 ** COMMAND: update
 **
-** Usage: %fossil update ?VERSION?
+** Usage: %fossil update ?VERSION? ?--force? ?--latest?
 **
 ** The optional argument is a version that should become the current
 ** version.  If the argument is omitted, then use the leaf of the
 ** tree that begins with the current version, if there is only a 
-** single leaf.  
+** single leaf.  If there are a multiple leaves, the latest is used
+** if the --latest flag is present.
 **
 ** This command is different from the "checkout" in that edits are
 ** not overwritten.  Edits are merged into the new version.
 **
+** If there are uncommitted edits and the safemerge option is
+** enabled then no update will occur unless you provide the 
+** --force flag.
 */
 void update_cmd(void){
   int vid;              /* Current version */
   int tid=0;            /* Target version - version we are changing to */
   Stmt q;
   int latestFlag;       /* Pick the latest version if true */
+  int forceFlag;        /* True force the update */
 
   latestFlag = find_option("latest",0, 0)!=0;
+  forceFlag = find_option("force","f",0)!=0;
   if( g.argc!=3 && g.argc!=2 ){
     usage("?VERSION?");
   }
@@ -67,10 +73,10 @@ void update_cmd(void){
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
-  if( unsaved_changes() && db_get_int("safemerge", 0) ){
-    fossil_fatal("you have uncommitted changes and safemerge is enabled");
+  if( !forceFlag && db_get_int("safemerge", 0) && unsaved_changes() ){
+    fossil_fatal("there are uncommitted changes and safemerge is enabled");
   }
-      
+
   if( g.argc==3 ){
     tid = name_to_rid(g.argv[2]);
     if( tid==0 ){
@@ -233,7 +239,7 @@ void update_cmd(void){
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?-yes ?-r REVISION FILE
+** Usage: %fossil revert ?--yes? ?-r REVISION? FILE
 **
 ** Revert to the current repository version of FILE. This
 ** command will confirm your operation, unless you do so
@@ -263,7 +269,8 @@ void revert_cmd(void){
   }
   
   if( yesRevert==0 ){
-    char *prompt = mprintf("revert file %B? this will destroy local changes [y/N]? ",
+    char *prompt = mprintf("revert file %B? this will"
+                           " destroy local changes [y/N]? ",
                            &fname);
     blob_zero(&ans);
     prompt_user(prompt, &ans);
