@@ -10,6 +10,7 @@ package require vc::fossil::ws            ; # Backend,  writing to destination r
 package require vc::tools::log            ; # User feedback.
 package require vc::fossil::import::stats ; # Management for the Import Statistics.
 package require vc::fossil::import::map   ; # Management of the cset <-> uuid mapping.
+package require vc::rcs::parser           ; # Parser configuration
 
 namespace eval ::vc::fossil::import::cvs {
     vc::tools::log::system import
@@ -18,6 +19,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace eval fossil { namespace import ::vc::fossil::ws::* }
     namespace eval stats  { namespace import ::vc::fossil::import::stats::* }
     namespace eval map    { namespace import ::vc::fossil::import::map::* }
+    namespace eval rcs    { namespace import ::vc::rcs::parser::* }
 
     fossil::configure -appname cvs2fossil
     fossil::configure -ignore  ::vc::cvs::ws::isadmin
@@ -46,13 +48,14 @@ proc ::vc::fossil::import::cvs::configure {key value} {
     # The options are simply passed through to the fossil importer
     # backend.
     switch -exact -- $key {
-	-breakat { fossil::configure -breakat $value }
-	-nosign  { fossil::configure -nosign  $value }
-	-project { cvs::configure    -project $value }
-	-saveto  { fossil::configure -saveto  $value }
+	-breakat   { fossil::configure -breakat $value }
+	-cache-rcs { rcs::configure    -cache   $value }
+	-nosign    { fossil::configure -nosign  $value }
+	-project   { cvs::configure    -project $value }
+	-saveto    { fossil::configure -saveto  $value }
 	default {
 	    return -code error "Unknown switch $key, expected one of \
-                                   -breakat, -nosign, or -saveto"
+                                   -breakat, -cache, -nosign, -project, or -saveto"
 	}
     }
     return

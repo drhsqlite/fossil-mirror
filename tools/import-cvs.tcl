@@ -69,10 +69,11 @@ proc commandline {__ cv fv} {
     clinit
     while {[string match "-*" [set opt [this]]]} {
 	switch -exact -- $opt {
-	    --breakat     { next ; import::configure -breakat [this] }
-	    --nosign      {        import::configure -nosign       1 }
-	    --saveto      { next ; import::configure -saveto  [file normalize [this]] }
-	    --project     { next ; import::configure -project [this] }
+	    --breakat     { next ; import::configure -breakat   [this] }
+	    --cache-rcs   { next ; import::configure -cache-rcs [this] }
+	    --nosign      {        import::configure -nosign         1 }
+	    --project     { next ; import::configure -project   [this] }
+	    --saveto      { next ; import::configure -saveto    [file normalize [this]] }
 	    -v            { incr verbosity ; ::vc::tools::log::verbosity $verbosity }
 	    -h            -
 	    default       usage
@@ -122,11 +123,12 @@ proc usage {{text {}}} {
     global argv0
     puts stderr "Usage: $argv0 ?-v? ?--nosign? ?--breakat id? ?--saveto path? cvs-repository fossil-repository"
     if {$text eq ""} {
-	puts stderr "       --nosign:  Do not sign the imported changesets."
-	puts stderr "       --breakat: Stop just before committing the identified changeset."
-	puts stderr "       --project: Path in the CVS repository to limit the import to."
-	puts stderr "       --saveto:  Save commit command to the specified file."
-	puts stderr "       -v:        Increase log verbosity. Can be used multiple times."
+	puts stderr "       --nosign:    Do not sign the imported changesets."
+	puts stderr "       --breakat:   Stop just before committing the identified changeset."
+	puts stderr "       --cache-rcs: Boolean. Activate caching of rcs parse results"
+	puts stderr "       --project:   Path in the CVS repository to limit the import to."
+	puts stderr "       --saveto:    Save commit command to the specified file."
+	puts stderr "       -v:          Increase log verbosity. Can be used multiple times."
     } else {
 	puts stderr "       $text"
     }

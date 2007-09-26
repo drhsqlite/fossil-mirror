@@ -17,7 +17,7 @@ package require vc::tools::log ; # User feedback
 
 namespace eval ::vc::rcs::parser {
     vc::tools::log::system rcs
-    namespace import ::vc::tools::log::progress
+    namespace import ::vc::tools::log::*
 }
 
 # -----------------------------------------------------------------------------
@@ -47,7 +47,42 @@ namespace eval ::vc::rcs::parser {
 # -----------------------------------------------------------------------------
 # API Implementation
 
+proc ::vc::rcs::parser::configure {key value} {
+    variable cache
+    switch -exact -- $key {
+	-cache  {
+	    set cache $value
+	}
+	default {
+	    return -code error "Unknown switch $key, expected one of -cache"
+	}
+    }
+    return
+}
+
 proc ::vc::rcs::parser::process {path} {
+    set cache [Cache $path]
+    if {
+	[file exists $cache] &&
+	([file mtime $cache] > [file mtime $path])
+    } {
+	# Use preparsed data if not invalidated by changes to the
+	# archive they are derived from.
+	write 4 rcs {Load preparsed data block}
+	return [fileutil::cat -encoding binary $cache]
+    }
+
+    set res [Process $path]
+
+    # Save parse result for quick pickup by future runs.
+    fileutil::writeFile $cache $res
+
+    return $res
+}
+
+# -----------------------------------------------------------------------------
+
+proc ::vc::rcs::parser::Process {path} {
     set data [fileutil::cat -encoding binary $path]
     array set res {}
     set res(size) [file size $path]
@@ -67,6 +102,10 @@ proc ::vc::rcs::parser::process {path} {
     unset res(done)
 
     return [array get res]
+}
+
+proc ::vc::rcs::parser::Cache {path} {
+    return ${path},,preparsed
 }
 
 # -----------------------------------------------------------------------------
@@ -318,8 +357,12 @@ proc ::vc::rcs::parser::Next {} {
     return
 }
 
+# -----------------------------------------------------------------------------
+
 namespace eval ::vc::rcs::parser {
-    namespace export process
+    variable cache 0 ; # No result caching by default.
+
+    namespace export process configure
 }
 
 # -----------------------------------------------------------------------------
