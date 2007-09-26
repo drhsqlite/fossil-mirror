@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Minor\schanges\sto\sthe\squickstart.html\sdocument.
-D 2007-09-26T12:24:07
+C Fix\sa\sbug\sin\sautosync\scommit\s-\scleanup\sthe\sonremote\stemp\stable\safter\suse.
+D 2007-09-26T13:49:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -87,7 +87,7 @@ F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
 F src/wikiformat.c 12488f8f7c88977fc96aac7bc509938e27a251be
-F src/xfer.c 1a89a70762f7321928e500ce489ecdafe50e74ba
+F src/xfer.c 8babb1577e81c2aa4bd21aa38359f199c4e8c2c2
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P cbe0ace8f3e3fdfc2aa422b26dbfd8d26fafb683
-R 9ebacab616c4c5825e6d374dfb580346
+P d8d6dc85e1e059e9aa9727321f34f1b30674fe48
+R 2701b5e017c80b46e47c951432fd75e2
 U drh
-Z 844172dea93297d9121f978c901a94c3
+Z a8c43f25b8458315dad25f5c649a2e89
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+k9qoxKgR168RlERAgNzAJ92sE8i3qS2CL05di+lGikQ7NP6OACdFqd2
-qkzls0I37mQxV/9x0ayMe48=
-=zpo9
+iD8DBQFG+mOFoxKgR168RlERAqIOAJ9YaKhSdM01TgiMSm5ro7vf06M1fwCeIzxb
+/Qq+lCOL6+PpBHWLEDshnoQ=
+=GME3
 -----END PGP SIGNATURE-----

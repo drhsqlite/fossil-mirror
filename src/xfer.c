@@ -882,5 +882,6 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     }
   };
   http_close();
+  db_multi_exec("DROP TABLE onremote");
   db_end_transaction(0);
 }
