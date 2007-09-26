@@ -5,6 +5,8 @@ package ifneeded vc::cvs::ws               1.0 [list source [file join $dir cvs.
 package ifneeded vc::cvs::ws::files        1.0 [list source [file join $dir cvs_files.tcl]]
 package ifneeded vc::cvs::ws::timeline     1.0 [list source [file join $dir cvs_timeline.tcl]]
 package ifneeded vc::cvs::ws::csets        1.0 [list source [file join $dir cvs_csets.tcl]]
+package ifneeded vc::cvs::ws::branch       1.0 [list source [file join $dir cvs_branch.tcl]]
+package ifneeded vc::cvs::ws::sig          1.0 [list source [file join $dir cvs_sig.tcl]]
 package ifneeded vc::fossil::cmd           1.0 [list source [file join $dir fossil_cmd.tcl]]
 package ifneeded vc::fossil::ws            1.0 [list source [file join $dir fossil.tcl]]
 package ifneeded vc::fossil::import::cvs   1.0 [list source [file join $dir importcvs.tcl]]

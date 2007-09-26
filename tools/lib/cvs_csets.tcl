@@ -5,8 +5,12 @@
 # Requirements
 
 package require Tcl 8.4
+package require vc::cvs::ws::sig      ; # Changeset file/rev signatures
 
 namespace eval ::vc::cvs::ws::csets::Current {}
+namespace eval ::vc::cvs::ws::csets::sig {
+    namespace import ::vc::cvs::ws::sig::*
+}
 
 # -----------------------------------------------------------------------------
 # API
@@ -47,6 +51,14 @@ proc ::vc::cvs::ws::csets::get {id} {
     return  $csets($id)
 }
 
+
+proc ::vc::cvs::ws::csets::DUMP {id} {
+    puts /${id}/_________________
+    array set cs [get $id]
+    parray cs
+    return
+}
+
 proc ::vc::cvs::ws::csets::num {} {
     variable csets
     return [array size csets]
@@ -61,6 +73,9 @@ proc ::vc::cvs::ws::csets::isTrunk {id} {
 proc ::vc::cvs::ws::csets::setParentOf {id parent} {
     variable csets
     lappend  csets($id) parent $parent
+
+    array set cs $csets($id)
+    sig::def            $id $parent $cs(added) $cs(changed) $cs(removed)
     return
 }
 
@@ -68,6 +83,12 @@ proc ::vc::cvs::ws::csets::parentOf {id} {
     variable      csets
     array set cs $csets($id)
     return   $cs(parent)
+}
+
+proc ::vc::cvs::ws::csets::sameBranch {id parent tag} {
+    variable      csets
+    array set cs $csets($id)
+    return [sig::next $parent $cs(added) $cs(changed) $cs(removed) $tag $cs(date)]
 }
 
 # -----------------------------------------------------------------------------
@@ -217,7 +238,7 @@ namespace eval ::vc::cvs::ws::csets {
 	array set files {}   ; # file -> revision
     }
 
-    namespace export init add done get num isTrunk setParentOf parentOf
+    namespace export init add done get num isTrunk setParentOf parentOf sameBranch
 }
 
 # -----------------------------------------------------------------------------

@@ -13,6 +13,8 @@ package require vc::cvs::cmd          ; # Access to cvs application.
 package require vc::cvs::ws::files    ; # Scan CVS repository for relevant files.
 package require vc::cvs::ws::timeline ; # Manage timeline of all changes.
 package require vc::cvs::ws::csets    ; # Manage the changesets found in the timeline
+package require vc::cvs::ws::branch   ; # Branch database
+package require vc::cvs::ws::sig      ; # Changeset file/rev signatures
 
 namespace eval ::vc::cvs::ws {
     vc::tools::log::system cvs
@@ -215,7 +217,10 @@ proc ::vc::cvs::ws::MakeTimeline {meta} {
 	    timeline::add $date($rev) $f $rev $operation $auth($rev) $cmsg($rev)
 	    incr n
 	}
-	#B Extend branch management
+
+	if {[info exists md(symbol)]} {
+	    branch::def $f date $md(symbol)
+	}
 
 	unset md
 	unset date
@@ -242,9 +247,10 @@ proc ::vc::cvs::ws::NoteDeadRoots {f rev operation} {
 }
 
 proc ::vc::cvs::ws::Operation {rev state} {
-    if {$state eq "dead"} {return "R"} ; # Removed
-    if {$rev   eq "1.1"}  {return "A"} ; # Added
-    return "M"                         ; # Modified
+    if {$state eq "dead"}          {return "R"} ; # Removed
+    if {$rev   eq "1.1"}           {return "A"} ; # Added
+    if {[string match *.1.1 $rev]} {return "A"} ; # Added on a branch
+    return "M"                                  ; # Modified
 }
 
 proc ::vc::cvs::ws::MakeChangesets {} {
@@ -326,20 +332,12 @@ proc ::vc::cvs::ws::ProcessTrunk {} {
 }
 
 proc ::vc::cvs::ws::ProcessBranch {cslist} {
-    write 0 cvs "Processing the remaining changesets"
+    write 0 cvs "Processing the remaining [SIPL [llength $cslist] changeset "[llength $cslist] changesets"]"
 
     set base   [lindex $cslist 0]
     set cslist [lrange $cslist 1 end]
 
-    set remainder {}
-    set t         0
-
-    ### ### ### ######### ######### #########
-    ## Dump data of the unprocessing changeset
-
-    puts /${base}/_________________
-    array set cs [csets::get $base]
-    parray    cs
+    csets::DUMP $base
 
     # Which branch does base belong to?
     # - It has to be the base of an unprocessed branch!
@@ -354,16 +352,26 @@ proc ::vc::cvs::ws::ProcessBranch {cslist} {
     #   plus cap from previous contraint gives us the possible
     #   candidates.
 
-    # ### ### ### ######### ######### #########
-    exit
+    write 4 cvs "Branch base $base"
 
-    set tag  [FindBranch $base ..]
-    set root [FindRoot   $tag ...]
+    ::foreach {tag rootsig} [branch::find [csets::get $base]] break
 
+    write 4 cvs "Branch tag  $tag"
+    write 4 cvs "Root sig    $rootsig"
+
+    set root [sig::find $base $rootsig]
+
+    write 4 cvs "Branch root $root"
+
+    write 0 cvs "Changeset $base, starting branch \"$tag\", rooted at $root"
     csets::setParentOf $base $root
 
-    foreach c $cslist {
-	if {[csets::sameBranch $c $base]} {
+    set remainder {}
+    set t         1
+
+    ::foreach c $cslist {
+	#csets::DUMP $c
+	if {[csets::sameBranch $c $base $tag]} {
 	    csets::setParentOf $c $base
 	    set base $c
 	    incr t
@@ -373,14 +381,9 @@ proc ::vc::cvs::ws::ProcessBranch {cslist} {
 	}
     }
 
-    #write 0 cvs "Found [NSIPL $t {trunk changeset}], [NSIPL [llength $remainder] {branch changeset}]"
+    write 0 cvs "Found [NSIPL $t "$tag changeset"], [NSIPL [llength $remainder] changeset] outside"
     return $remainder
 }
-
-#TBD
-#... FindBranch
-#... FindRoot
-#... SameBranch
 
 proc ::vc::cvs::ws::Checkout {f r} {
     variable base
