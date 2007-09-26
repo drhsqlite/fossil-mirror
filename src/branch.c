@@ -39,7 +39,7 @@ void branch_new(void){
  
   noSign = find_option("nosign","",0)!=0;
   db_must_be_within_tree();
-  noSign = db_get_int("omit-ci-sig", 0)|noSign;
+  noSign = db_get_int("omit-sign", 0)|noSign;
   zColor = find_option("bgcolor","c",1);
   
   verify_all_options();

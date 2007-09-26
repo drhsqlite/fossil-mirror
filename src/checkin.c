@@ -317,7 +317,7 @@ void select_commit_files(void){
 */
 void commit_cmd(void){
   int rc;
-  int vid, nrid, nvid;
+  int vid, nrid, nvid, wouldFork=0;
   Blob comment;
   const char *zComment;
   Stmt q;
@@ -337,7 +337,7 @@ void commit_cmd(void){
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "r", 0)!=0;
   db_must_be_within_tree();
-  noSign = db_get_int("omit-ci-sig", 0)|noSign;
+  noSign = db_get_int("omit-sign", 0)|noSign;
   verify_all_options();
   
   /*
@@ -384,8 +384,11 @@ void commit_cmd(void){
   }
 
   vid = db_lget_int("checkout", 0);
-  if( !forceFlag && db_exists("SELECT 1 FROM plink WHERE pid=%d", vid) ){
-    fossil_fatal("would fork.  use -f or --force");
+  if( db_exists("SELECT 1 FROM plink WHERE pid=%d", vid) ){
+    wouldFork=1;
+    if( forceFlag==0 && db_get_int("safemerge", 0)==0 ){
+      fossil_fatal("would fork.  use -f or --force");
+    }
   }
   vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
@@ -536,6 +539,15 @@ void commit_cmd(void){
   /* Commit */
   db_end_transaction(0);
   
-  /* Do an autosync push if requested */
-  autosync(0);
+  if( wouldFork==0 ){
+    /* Do an autosync push if requested. If wouldFork == 1, then they either
+    ** forced this commit or safe merge is on, and this commit did indeed
+    ** create a fork. In this case, we want the user to merge before sending
+    ** their new commit back to the rest of the world, so do not auto-push.
+    */
+    autosync(0);
+  }else{
+    printf("Warning: commit caused a fork to occur. Please merge and push\n");
+    printf("         your changes as soon as possible.\n");
+  }
 }

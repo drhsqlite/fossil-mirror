@@ -684,7 +684,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   char *zUser;
   Blob hash;
   Blob manifest;
-
+  
   db_set("content-schema", CONTENT_SCHEMA);
   db_set("aux-schema", AUX_SCHEMA);
   if( makeServerCodes ){
@@ -696,6 +696,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
     );
   }
   db_set_int("autosync", 1);
+  db_set_int("safemerge", 0);
   db_set_int("localauth", 0);
   zUser = db_global_get("default-user", 0);
   if( zUser==0 ){
@@ -920,6 +921,9 @@ void cmd_open(void){
 **
 **   clear-sign    Command used to clear-sign manifests at check-in.
 **                 The default is "gpg --clearsign -o ".
+**
+**   omit-sign     When enabled, fossil will not attempt to sign any
+**                 commit with gpg. All commits will be unsigned.
 */
 void cmd_config(void){
   db_open_config();
@@ -976,15 +980,20 @@ void cmd_config(void){
 **                     commit or update and automatically push
 **                     after commit or tag or branch creation.
 **
-**    localauth        If true, require that HTTP connections from
+**    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
+**
+**    safemerge        If enabled, when commit will cause a fork, the
+**                     commit will not abort with warning. Also update
+**                     will not be allowed if local changes exist.
 */
 void setting_cmd(void){
   static const char *azName[] = {
     "autosync",
-    "localauth"
+    "localauth",
+    "safemerge",
   };
   int i;
   db_find_and_open_repository();

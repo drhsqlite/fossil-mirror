@@ -67,6 +67,9 @@ void update_cmd(void){
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
+  if( unsaved_changes() && db_get_int("safemerge", 0) ){
+    fossil_fatal("you have uncommitted changes and safemerge is enabled");
+  }
       
   if( g.argc==3 ){
     tid = name_to_rid(g.argv[2]);
@@ -78,9 +81,16 @@ void update_cmd(void){
     }
   }
 
-  /* Do an autosync pull prior to the update, if autosync is on */
-  autosync(1);
-
+  if( tid==0 ){
+    /* 
+    ** Do an autosync pull prior to the update, if autosync is on and they
+    ** did not want a specific version (i.e. another branch, a past revision).
+    ** By not giving a specific version, they are asking for the latest, thus
+    ** pull to get the latest, then update.
+    */
+    autosync(1);
+  }
+  
   if( tid==0 ){
     compute_leaves(vid);
     if( !latestFlag && db_int(0, "SELECT count(*) FROM leaves")>1 ){
