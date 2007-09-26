@@ -517,12 +517,16 @@ void page_xfer(void){
         isPull = 1;
       }else{
         if( !g.okWrite ){
-          cgi_reset_content();
-          @ error not\sauthorized\sto\swrite
-          nErr++;
-          break;
+          if( !isPull ){
+            cgi_reset_content();
+            @ error not\sauthorized\sto\swrite
+            nErr++;
+          }else{
+            @ message pull\sonly\s-\snot\sauthorized\sto\spush
+          }
+        }else{
+          isPush = 1;
         }
-        isPush = 1;
       }
     }else
 
@@ -831,9 +835,19 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         db_set("cookie", blob_str(&xfer.aToken[1]));
       }else
 
+      /*   message MESSAGE
+      **
+      ** Print a message.  Similar to "error" but does not stop processing
+      */        
+      if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
+        char *zMsg = blob_terminate(&xfer.aToken[1]);
+        defossilize(zMsg);
+        printf("Server says: %s\n", zMsg);
+      }else
+
       /*   error MESSAGE
       **
-      ** Report an error
+      ** Report an error and abandon the sync session
       */        
       if( blob_eq(&xfer.aToken[0],"error") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
