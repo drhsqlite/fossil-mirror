@@ -499,7 +499,7 @@ void setup_access(void){
 
   @ <hr>
   onoff_attribute("Require password for local access",
-     "authenticate-localhost", "localauth", 1);
+     "localauth", "localauth", 1);
   @ <p>When enabled, the password sign-in is required for
   @ web access coming from 127.0.0.1.  When disabled, web access
   @ from 127.0.0.1 is allows without any login - the user id is selected

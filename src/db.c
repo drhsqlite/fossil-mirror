@@ -675,11 +675,11 @@ void db_create_repository(const char *zFilename){
 ** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
 ** new repositories.
 **
-** The caller determines wheter the function inserts an empty root
-** manifest (zRoot == TRUE), or not (zRoot == FALSE).
+** The makeInitialVersion flag determines whether or not an initial
+** manifest is created.  The makeServerCodes flag determines whether or
+** not server and project codes are invented for this repository.
 */
-
-void db_initial_setup (int zRoot){
+void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   char *zDate;
   char *zUser;
   Blob hash;
@@ -687,11 +687,16 @@ void db_initial_setup (int zRoot){
 
   db_set("content-schema", CONTENT_SCHEMA);
   db_set("aux-schema", AUX_SCHEMA);
-  db_set_int("authenticate-localhost", 0);
-  db_multi_exec(
-    "INSERT INTO config(name,value) VALUES('server-code', hex(randomblob(20)));"
-    "INSERT INTO config(name,value) VALUES('project-code',hex(randomblob(20)));"
-  );
+  if( makeServerCodes ){
+    db_multi_exec(
+      "INSERT INTO config(name,value)"
+      " VALUES('server-code', lower(hex(randomblob(20))));"
+      "INSERT INTO config(name,value)"
+      " VALUES('project-code', lower(hex(randomblob(20))));"
+    );
+  }
+  db_set_int("autosync", 1);
+  db_set_int("localauth", 0);
   zUser = db_global_get("default-user", 0);
   if( zUser==0 ){
     zUser = getenv("USER");
@@ -711,7 +716,7 @@ void db_initial_setup (int zRoot){
   );
   user_select();
 
-  if (zRoot){
+  if (makeInitialVersion){
     blob_zero(&manifest);
     blob_appendf(&manifest, "C initial\\sempty\\sbaseline\n");
     zDate = db_text(0, "SELECT datetime('now')");
@@ -744,7 +749,7 @@ void create_repository_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config();
   db_begin_transaction();
-  db_initial_setup (1);
+  db_initial_setup(1, 1);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
@@ -965,12 +970,21 @@ void cmd_config(void){
 **
 ** With no arguments, list all properties and their values.  With just
 ** a property name, show the value of that property.  With a value
-** arugment, change the property for the current repository.
+** argument, change the property for the current repository.
+**
+**    autosync         If enabled, automatically pull prior to
+**                     commit or update and automatically push
+**                     after commit or tag or branch creation.
+**
+**    localauth        If true, require that HTTP connections from
+**                     127.0.0.1 be authenticated by password.  If
+**                     false, all HTTP requests from localhost have
+**                     unrestricted access to the repository.
 */
 void setting_cmd(void){
   static const char *azName[] = {
     "autosync",
-    "safemerge"
+    "localauth"
   };
   int i;
   db_find_and_open_repository();

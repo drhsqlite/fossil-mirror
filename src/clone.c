@@ -47,6 +47,8 @@ void clone_cmd(void){
   url_parse(g.argv[2]);
   db_create_repository(g.argv[3]);
   db_open_repository(g.argv[3]);
+  db_begin_transaction();
+  db_initial_setup(0, 0);
   user_select();
   db_set("content-schema", CONTENT_SCHEMA);
   db_set("aux-schema", AUX_SCHEMA);
@@ -54,12 +56,12 @@ void clone_cmd(void){
     db_set("last-sync-url", g.argv[2]);
   }
   db_multi_exec(
-    "INSERT INTO config(name,value) VALUES('server-code', hex(randomblob(20)));"
+    "INSERT INTO config(name,value)"
+    " VALUES('server-code', lower(hex(randomblob(20))));"
   );
   if( g.urlIsFile ){
     Stmt q;
     db_multi_exec("ATTACH DATABASE %Q AS orig", g.urlName);
-    db_begin_transaction();
     db_prepare(&q, 
       "SELECT name FROM orig.sqlite_master"
       " WHERE type='table'"
@@ -70,8 +72,8 @@ void clone_cmd(void){
                     zTab, zTab);
     }
     db_finalize(&q);
-    db_end_transaction(0);
   }else{
     client_sync(0,0,1);
   }
+  db_end_transaction(0);
 }

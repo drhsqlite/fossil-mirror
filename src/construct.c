@@ -142,7 +142,7 @@ void reconstruct_cmd(void){
   db_open_config();
   db_begin_transaction();
 
-  db_initial_setup(0);
+  db_initial_setup(0, 1);
 
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));

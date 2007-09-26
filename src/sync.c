@@ -39,7 +39,7 @@ int autosync(int pullFlag){
     return 0;
   }
   zUrl = db_get("last-sync-url", 0);
-  if( zUrl ){
+  if( zUrl==0 ){
     return 0;  /* No default server */
   }
   url_parse(zUrl);

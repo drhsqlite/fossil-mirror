@@ -397,7 +397,6 @@ void page_timeline(void){
 void print_timeline(Stmt *q, int mxLine){
   int nLine = 0;
   char zPrevDate[20];
-  char *delims;
   const char *zCurrentUuid=0;
   Stmt currentQ;
   int rid = db_lget_int("checkout", 0);
@@ -418,14 +417,10 @@ void print_timeline(Stmt *q, int mxLine){
     int nChild = db_column_int(q, 4);
     int nParent = db_column_int(q, 5);
     char *zFree = 0;
+    int n = 0;
+    char zPrefix[80];
     char zUuid[UUID_SIZE+1];
     
-    if( strcmp(zCurrentUuid, zId)==0 ){
-      delims = "<>";
-    }else{
-      delims = "[]";
-    }
-
     sprintf(zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       printf("=== %.10s ===\n", zDate);
@@ -434,22 +429,20 @@ void print_timeline(Stmt *q, int mxLine){
     }
     if( zCom==0 ) zCom = "";
     printf("%.8s ", &zDate[11]);
-    if( nChild>1 || nParent>1 ){
-      int n = 0;
-      char zPrefix[50];
-      if( nParent>1 ){
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
-        n = strlen(zPrefix);
-      }
-      if( nChild>1 ){
-        sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
-        n = strlen(zPrefix);
-      }
-      zFree = sqlite3_mprintf("%c%.10s%c %s%s", delims[0], zUuid, delims[1], 
-                              zPrefix, zCom);
-    }else{
-      zFree = sqlite3_mprintf("%c%.10s%c %s", delims[0], zUuid, delims[1], zCom);
+    zPrefix[0] = 0;
+    if( nParent>1 ){
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
+      n = strlen(zPrefix);
     }
+    if( nChild>1 ){
+      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
+      n = strlen(zPrefix);
+    }
+    if( strcmp(zCurrentUuid,zId)==0 ){
+      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
+      n += strlen(zPrefix);
+    }
+    zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
   }
