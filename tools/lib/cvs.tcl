@@ -357,7 +357,7 @@ proc ::vc::cvs::ws::ProcessBranch {cslist} {
     ::foreach {tag rootsig} [branch::find [csets::get $base]] break
 
     write 4 cvs "Branch tag  $tag"
-    write 4 cvs "Root sig    $rootsig"
+    write 5 cvs "Root sig    $rootsig"
 
     set root [sig::find $base $rootsig]
 

@@ -29,8 +29,24 @@ proc ::vc::cvs::ws::sig::next {id added changed removed tag ts} {
     variable sig
     array set rev $sig($id)
 
+    #puts sig::next/$ts
     foreach {f r} [concat $changed $removed] {
-	if {![info exists rev($f)] || ![branch::successor $r $rev($f)]} {
+	if {![info exists rev($f)]}              {
+
+	    # A file missing in the candidate parent changeset is
+	    # _not_ a reason to reject it, at least not immediately.
+	    # The code generating the timeline entries has only
+	    # partial information and is prone to misclassify files
+	    # added to branches as changed instead of added. Thus we
+	    # move this file to the list of added things and check it
+	    # again as part of that, see below.
+
+	    lappend added $f $r
+	    continue
+	}
+	if {[branch::rootSuccessor $r $rev($f)]} continue
+	if {![branch::successor    $r $rev($f)]} {
+	    #puts "not-successor($r of $rev($f))"
 	    return 0
 	}
     }
@@ -38,6 +54,7 @@ proc ::vc::cvs::ws::sig::next {id added changed removed tag ts} {
     if {[llength $added]} {
 	# Check that added files belong to the branch too!
 	if {$tag ne [branch::has $ts $added]} {
+	    #puts "not-added-into-same-branch"
 	    return 0
 	}
     }
@@ -82,6 +99,47 @@ proc ::vc::cvs::ws::sig::Cut {id cslist} {
 
 proc ::vc::cvs::ws::sig::Find {sig} {
     # Locate all changesets which contain the given signature.
+
+    # First we try to the exact changeset, by intersecting the
+    # live-intervals for all file revisions found in the
+    # signature. This however may fail, as CVS is able to contain
+    # a-causal branch definitions.
+
+    # Example: sqlite, branch "gdbm-branch".
+
+    # File 'db.c', branch 1.6.2, root 1.6, entered on Jan 31, 2001.
+    # Then 'dbbegdbm.c',  1.1.2, root 1.1, entered on Oct 19, 2000.
+
+    # More pertinent, revision 1.2 was entered Jan 13, 2001,
+    # i.e. existed before Jan 31, before the branchwas actually
+    # made. Thus it is unclear why 1.1 is in the branch instead.
+
+    # An alternative complementary question would be how db.c 1.6
+    # ended up in a branch tag created before Jan 13, when this
+    # revision did not exist yet.
+
+    # So, CVS repositories can be a-causal when it comes to branches,
+    # at least in the details. Therefore while try for an exact result
+    # first we do not fail if that fails, but use a voting scheme as
+    # fallback which answers the question about which changeset is
+    # acceptable to the most file revisions in the signature.
+
+    # Note that multiple changesets are ok at this level and are
+    # simply returned.
+
+    set res [Intersect $sig]
+    puts Exact=($res)
+
+    if {[llength $res]} { return $res }
+
+    set res [Vote $sig]
+    puts Vote=($res)
+
+    return $res
+}
+
+
+proc ::vc::cvs::ws::sig::Intersect {sig} {
     variable csl
 
     set res {}
@@ -90,36 +148,55 @@ proc ::vc::cvs::ws::sig::Find {sig} {
 	#puts $f/$r?
 	# Unknown file not used anywhere
 	if {![info exists csl($f,$r)]} {return {}}
-	puts $f/$r\t=\t($csl($f,$r))*($res)/$first
+	#puts $f/$r\t=\t($csl($f,$r))*($res)/$first
 
 	if {$first} {
 	    set res $csl($f,$r)
 	    set first 0
 	    #puts F($res)
 	} else {
-	    set new [struct::set intersect $res $csl($f,$r)]
-	    set rv $r
-	    while {![llength $new]} {
-		# Assume that the problem file was added and as such
-		# does not exist yet at the root revision. However its
-		# root should exist, and some point.
-
-	       set rv [branch::revroot $rv]
-	       if {$rv eq ""} {
-		   puts BREAK/\t($f\ $r)
-		   exit
-	       }
-	       if {![info exists csl($f,$rv)]} {return {}}
-	       #puts $f/$r\t=\t($csl($f,$rv))
-	       set new [struct::set intersect $res $csl($f,$rv)]
-	    }
-	    set res $new
+	    set res [struct::set intersect $res $csl($f,$r)]
 	    #puts R($res)
-	    #if {![llength $res]} {return {}}
+	    if {![llength $res]} {return {}}
 	}
     }
     return $res
 }
+
+
+proc ::vc::cvs::ws::sig::Vote {sig} {
+    variable csl
+
+    # I. Accumulate votes.
+    array set v {}
+    foreach {f r} $sig {
+	# Unknown revisions do not vote.
+	if {![info exists csl($f,$r)]} continue
+	foreach c $csl($f,$r) {
+	    if {[info exists v($c)]} {
+		incr v($c)
+	    } else {
+		set v($c) 1
+	    }
+	}
+    }
+
+    # Invert index for easier finding the max, compute the max at the
+    # same time.
+    array set tally {}
+    set max -1
+    foreach {c n} [array get v] {
+	lappend tally($n) $c
+	if {$n > $max} {set max $n}
+    }
+
+    #parray tally
+    puts Max=$max
+
+    # Return the changesets having the most votes.
+    return $tally($max)
+}
+
 
 proc ::vc::cvs::ws::sig::DictSort {dict} {
     array set a $dict

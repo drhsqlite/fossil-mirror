@@ -210,6 +210,16 @@ proc ::vc::cvs::ws::branch::successor {ra rb} {
     }
 }
 
+proc ::vc::cvs::ws::branch::rootSuccessor {ra rb} {
+    # a root-successor-of b ? (<=> b root version of a ?)
+
+    if {$rb eq [revroot $ra]} {
+	return 1
+    } else {
+	return 0
+    }
+}
+
 proc ::vc::cvs::ws::branch::Signatures {bv deflist} {
     upvar 1 $bv bdata
     # Sort branch data by symbolic name for the upcoming checks, and
@@ -252,7 +262,7 @@ proc ::vc::cvs::ws::branch::TimeRelevant {date} {
 namespace eval ::vc::cvs::ws::branch {
     variable bra {}
 
-    namespace export def find successor revroot has
+    namespace export def find successor rootSuccessor revroot has
 }
 
 package provide vc::cvs::ws::branch 1.0
