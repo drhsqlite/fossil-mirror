@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C If\syou\s"sync"\sagainst\sa\sserver\sfor\swhich\syou\sdo\snot\shave\spush\spermission,\nyou\sget\san\serror\smessage\sbut\sit\sstill\sdoes\sthe\spull.
-D 2007-09-26T19:46:37
+C Updates\sto\sthe\sideas.txt\sfile\swith\snotes\son\sideas\sfor\sdoing\stickets.
+D 2007-09-27T03:24:49
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -27,7 +27,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt 3180d9f1a4435bfd28915a298c877ef840ef1aa5
+F ideas.txt 403e94306f8d3f1731cbd8c1941311641672977b
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7eecb079ed3c029eb31e6038e14bdd13f6592ece
-R 5f6bf78f5a78f9854c86bf17aab1acb4
+P 2b51dbe02b0e507897e5b4bf89efd45404d45ac2
+R 174285096a8396c8e176cc2481677102
 U drh
-Z b956cc7ad8824a5d1c4d6c48be877070
+Z ca17bf20d4171b8049f4da78a1ce816d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+rchoxKgR168RlERApZwAJ0fGYBMG1TNVaxiFlOQ+dbvQ04iPQCgiTem
-LAi+cafEKQuq7/v6nsiBYGI=
-=SeLH
+iD8DBQFG+yKFoxKgR168RlERAkQeAJ9bthjkC8cZuuqjSqn9FAeVYa5AVACgjO5B
+5T2GLqG9bLfb5jUDwaPok/M=
+=Bmb5
 -----END PGP SIGNATURE-----

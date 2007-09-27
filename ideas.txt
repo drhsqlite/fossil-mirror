@@ -1,45 +1,50 @@
-Properties:
-
-   * Started out as tags.  AKU suggests adding a value.  That
-     seems to work well.
-   * If the name begins with "br" then it propagates to non-merge
-     children.
-   * Special tags and properties:
-      +  br-bg-color=COLOR and bg-color=COLOR  -- Set timeline BG color
-      +  comment=TEXT         -- Revise the check-in comment text
-      +  user=TEXT            -- Revise the check-in username
-      +  closed               -- Do not display as a leaf
-   * Tags and properties initially live in the tagxref table.
-   * Separate operation captured tags and properites as artifacts 
-     so that they can be synced.
-
 
 Possible ticket file format:
 
-   "Ticket"
-   title: TEXT
-   ticketid: TEXT
-   exists-in: BASELINE   -- 0 or more
-   fixed-in: BASELINE    -- 0 or more
-   tag: TAG              -- 0 or more
-   created: DATETIME
-   attachment: FILENAME DESCRIPTION
-   parent: UUID*
-   derived-from: TICKET-FILENAME
-   description: MULTILINE-TEXT
-   remarks: MULTILINE-TEXT
+   A uuid name description
+   D datetime
+   J field value
+   K uuid
+   U user
+   Z md5sum
+   
+FIELDs:
 
-   * Things handles with tags:
-     created-by
-     assigned-to
-     priority
-     severity
-     target-release
-     status
-     resolution
-     type
-     subsystem
+   comment         cumulative text
+   title           text
+   assignedto      text
+   status          enum
+   resolution      enum
+   subsystem       enum
+   type            enum
+   priority        enum
+   severity        enum
+   deferuntil      datetime
+   duedate         datetime
+   derivedfrom     add or subtract uuid
+   relatedversions add or subtract associate with manifest
+   presentin       add or subtract uuid
+   fixedin         add or subtract uuid
 
+Other table columns:
+   origintime
+   lastchange
+   
+
+Tables:
+
+   tktrid(rid, tkid, mtime);  index(tkid, mtime);
+   ticket(tkid, tkuuid, title, com, status, ...);
+   tktfield(name, type, width, height, default, valuelist);
+   tktxref(tkid, mid); index(tkid); index(mid);
+
+Tktformat in the config table.
+
+   * Three pages:  creation, display, and edit
+   * HTML
+   * [[field]] to substitute the appropriate form or display element
+
+------------------------------------------------------------------------
 Wiki header format:
    "WikiPage"
    parent: UUID*
