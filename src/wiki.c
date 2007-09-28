@@ -111,7 +111,7 @@ static void locate_and_render_wikipage(const char *zPageName){
     /* Render the page */
     style_header(zTitle);
     blob_init(&page, z, -1);
-    wiki_convert(&page, cgi_output_blob(), WIKI_HTML);
+    wiki_convert(&page, 0);
     blob_reset(&src);
   }else{
     style_header("Unknown Wiki Page");

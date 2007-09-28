@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Updates\sto\sthe\sideas.txt\sfile\swith\snotes\son\sideas\sfor\sdoing\stickets.
-D 2007-09-27T03:24:49
+C Add\senumeration\slists\sand\sindented\sparagraphs\sin\sthe\swiki.
+D 2007-09-28T15:44:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -27,7 +27,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt 403e94306f8d3f1731cbd8c1941311641672977b
+F ideas.txt 555b72ded17f4d117832787938a94cc47dcfd6dd
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -85,8 +85,8 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 0bda7093839bd7bc8aced2aa00af8cc3a4398b09
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c 804763a66e138a63988dc8f659c517d40cd7ef20
-F src/wikiformat.c 12488f8f7c88977fc96aac7bc509938e27a251be
+F src/wiki.c 3d314ebfebb1f6dafec0e65b127f4c61d78db7c2
+F src/wikiformat.c 75615129b5121738ea053e10c191f491c0cb4039
 F src/xfer.c 70f34cd4732bed214b1aaaceebc016174c0eea3b
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -143,14 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2b51dbe02b0e507897e5b4bf89efd45404d45ac2
-R 174285096a8396c8e176cc2481677102
+P bd35e982745fedabde631a4389d6de3735664c75
+R d232de3b8a7d77d2e77f1b82cdba2958
 U drh
-Z ca17bf20d4171b8049f4da78a1ce816d
+Z e0551dc2897e872f8d4ebc513582ffab
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFG+yKFoxKgR168RlERAkQeAJ9bthjkC8cZuuqjSqn9FAeVYa5AVACgjO5B
-5T2GLqG9bLfb5jUDwaPok/M=
-=Bmb5
+iD8DBQFG/SFNoxKgR168RlERAvMpAJwJoc91v5PjbmXeaibqHB5vAwcw3wCfQRV0
+NfiHnTUY3P4rnxCKp+TpBxE=
+=H26S
 -----END PGP SIGNATURE-----

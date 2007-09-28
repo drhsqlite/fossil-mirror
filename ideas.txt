@@ -45,18 +45,40 @@ Tktformat in the config table.
    * [[field]] to substitute the appropriate form or display element
 
 ------------------------------------------------------------------------
-Wiki header format:
-   "WikiPage"
-   parent: UUID*
-   title: TEXT
-   pagename: TEXT
-   mode: (readonly|appendonly|readwrite)
-   attachment: UUID name description
+Change to wiki:
 
-   * Header ends with a blank line.  wiki content follows.
+   A uuid filename description
+   D datetime
+   P uuid ...
+   U user
+   W wikipagename uuid
+   Z md5sum
 
-Need a dephantomize algorithm
+On page:
 
+   <title>....</title>
+   <readonly/>
+
+Hyperlinks:
+
+   [lowercasehex]       /info/lowercasehex
+   [attachment.gif]     inline image
+   [tagname]            /info/tagname
+   [wikipagename]       /wiki/wikipagename
+   [/internal/page]     /internal/page
+   [http:...]           external link
+
+Markup:
+
+   blank-line           paragraph break
+   _*__                 bullet
+   __                   indentation
+   _#.__                enumeration
+   *text*               bold
+   _text_               italic
+
+
+------------------------------------------------------------------------
 
 Random thoughts:
 
