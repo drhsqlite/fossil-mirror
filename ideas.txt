@@ -29,7 +29,16 @@ FIELDs:
 Other table columns:
    origintime
    lastchange
-   
+
+
+Field Types:
+
+   text                 width height
+   enum                 width valuelist
+   datetime             width
+   cumulative-text      width height
+   set-of-uuid          width
+   set-of-checkin       width
 
 Tables:
 

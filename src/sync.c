@@ -76,7 +76,7 @@ static void process_sync_args(void){
   if( g.urlIsFile ){
     fossil_fatal("network sync only");
   }
-  db_set("last-sync-url", zUrl);
+  db_set("last-sync-url", zUrl, 0);
   user_select();
   if( g.argc==2 ){
     if( g.urlPort!=80 ){

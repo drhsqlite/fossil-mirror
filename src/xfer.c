@@ -814,7 +814,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         nMsg++;
         if( zPCode==0 ){
           zPCode = mprintf("%b", &xfer.aToken[2]);
-          db_set("project-code", zPCode);
+          db_set("project-code", zPCode, 0);
         }
         cloneFlag = 0;
         pullFlag = 1;
@@ -832,7 +832,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       ** same server.
       */
       if( blob_eq(&xfer.aToken[0], "cookie") && xfer.nToken==2 ){
-        db_set("cookie", blob_str(&xfer.aToken[1]));
+        db_set("cookie", blob_str(&xfer.aToken[1]), 0);
       }else
 
       /*   message MESSAGE

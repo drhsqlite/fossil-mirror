@@ -51,10 +51,10 @@ void clone_cmd(void){
   db_begin_transaction();
   db_initial_setup(0, 0);
   user_select();
-  db_set("content-schema", CONTENT_SCHEMA);
-  db_set("aux-schema", AUX_SCHEMA);
+  db_set("content-schema", CONTENT_SCHEMA, 0);
+  db_set("aux-schema", AUX_SCHEMA, 0);
   if( !g.urlIsFile ){
-    db_set("last-sync-url", g.argv[2]);
+    db_set("last-sync-url", g.argv[2], 0);
   }
   db_multi_exec(
     "INSERT INTO config(name,value)"

@@ -202,7 +202,7 @@ void user_cmd(void){
     }else if( g.localOpen ){
       db_lset("default-user", g.zLogin);
     }else{
-      db_set("default-user", g.zLogin);
+      db_set("default-user", g.zLogin, 0);
     }
   }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;

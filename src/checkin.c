@@ -224,7 +224,7 @@ static void prepare_commit_comment(Blob *pComment){
     "#\n"
   );
   status_report(&text, "# ");
-  zEditor = db_global_get("editor", 0);
+  zEditor = db_get("editor", 0);
   if( zEditor==0 ){
     zEditor = getenv("VISUAL");
   }

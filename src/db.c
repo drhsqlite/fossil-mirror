@@ -681,12 +681,12 @@ void db_create_repository(const char *zFilename){
 */
 void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   char *zDate;
-  char *zUser;
+  const char *zUser;
   Blob hash;
   Blob manifest;
   
-  db_set("content-schema", CONTENT_SCHEMA);
-  db_set("aux-schema", AUX_SCHEMA);
+  db_set("content-schema", CONTENT_SCHEMA, 0);
+  db_set("aux-schema", AUX_SCHEMA, 0);
   if( makeServerCodes ){
     db_multi_exec(
       "INSERT INTO config(name,value)"
@@ -695,10 +695,10 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
       " VALUES('project-code', lower(hex(randomblob(20))));"
     );
   }
-  db_set_int("autosync", 1);
-  db_set_int("safemerge", 0);
-  db_set_int("localauth", 0);
-  zUser = db_global_get("default-user", 0);
+  if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
+  if( !db_is_global("safemerge") ) db_set_int("safemerge", 0, 0);
+  if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
+  zUser = db_get("default-user", 0);
   if( zUser==0 ){
     zUser = getenv("USER");
   }
@@ -834,26 +834,58 @@ LOCAL void db_connection_init(void){
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
-char *db_get(const char *zName, const char *zDefault){
-  return db_text((char*)zDefault, 
-                 "SELECT value FROM config WHERE name=%Q", zName);
+const char *db_get(const char *zName, const char *zDefault){
+  const char *z = 0;
+  if( g.repositoryOpen ){
+    z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
+  }
+  if( z==0 ){
+    z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
+  }
+  if( z==0 ){
+    z = zDefault;
+  }
+  return z;
 }
-void db_set(const char *zName, const char *zValue){
-  db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%Q)", zName, zValue);
+void db_set(const char *zName, const char *zValue, int globalFlag){
+  db_begin_transaction();
+  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%Q)",
+                 globalFlag ? "global_" : "", zName, zValue);
+  if( globalFlag && g.repositoryOpen ){
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
+  db_end_transaction(0);
+}
+int db_is_global(const char *zName){
+  return db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
 }
 int db_get_int(const char *zName, int dflt){
-  return db_int(dflt, "SELECT value FROM config WHERE name=%Q", zName);
+  int v;
+  int rc;
+  if( g.repositoryOpen ){
+    Stmt q;
+    db_prepare(&q, "SELECT value FROM config WHERE name=%Q", zName);
+    rc = db_step(&q);
+    if( rc==SQLITE_ROW ){
+      v = db_column_int(&q, 0);
+    }
+    db_finalize(&q);
+  }else{
+    rc = SQLITE_DONE;
+  }
+  if( rc==SQLITE_DONE ){
+    v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
+  }
+  return v;
 }
-void db_set_int(const char *zName, int value){
-  db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%d)", zName, value);
-}
-char *db_global_get(const char *zName, const char *zDefault){
-  return db_text((char*)zDefault, 
-                 "SELECT value FROM global_config WHERE name=%Q", zName);
-}
-void db_global_set(const char *zName, const char *zValue){
-  db_multi_exec("REPLACE INTO global_config(name,value)"
-                "VALUES(%Q,%Q)", zName, zValue);
+void db_set_int(const char *zName, int value, int globalFlag){
+  db_begin_transaction();
+  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%d)",
+                globalFlag ? "global_" : "", zName, value);
+  if( globalFlag && g.repositoryOpen ){
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
+  db_end_transaction(0);
 }
 char *db_lget(const char *zName, const char *zDefault){
   return db_text((char*)zDefault, 
@@ -906,71 +938,29 @@ void cmd_open(void){
 }
 
 /*
-** COMMAND: config
-**
-** Usage: %fossil config NAME=VALUE ...
-**
-** List or change the global configuration settings.  With no arguments,
-** all settings are listed.  Arguments of simply NAME cause that setting
-** to be displayed.  Arguments of the form NAME=VALUE change the value of
-** a setting.  Arguments of the form NAME= delete a setting.
-**
-** Recognized settings include:
-**
-**   editor        Text editor command used for check-in comments.
-**
-**   clear-sign    Command used to clear-sign manifests at check-in.
-**                 The default is "gpg --clearsign -o ".
-**
-**   omit-sign     When enabled, fossil will not attempt to sign any
-**                 commit with gpg. All commits will be unsigned.
+** Print the value of a setting named zName
 */
-void cmd_config(void){
-  db_open_config();
-  if( g.argc>2 ){
-    int i;
-    db_begin_transaction();
-    for(i=2; i<g.argc; i++){
-      char *zName, *zValue;
-      int j, removed=0;
-
-      zName = mprintf("%s", g.argv[i]);
-      for(j=0; zName[j] && zName[j]!='='; j++){}
-      if( zName[j] ){
-        zName[j] = 0;
-        zValue = &zName[j+1];
-        if( zValue[0] ){
-          db_global_set(zName, zValue);
-        }else{
-          db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
-          removed=1;
-        }
-      }
-      zValue = db_global_get(zName, 0);
-      if( zValue ){
-        printf("%s=%s\n", zName, zValue);
-      }else{
-        if( removed==1 ){
-          printf("%s has been removed from configuration\n", zName);
-        }else{
-          printf("%s is undefined\n", zName);
-        }
-      }
-    }
-    db_end_transaction(0);
+static void print_setting(const char *zName){
+  Stmt q;
+  db_prepare(&q, 
+     "SELECT '(local)', value FROM config WHERE name=%Q"
+     " UNION ALL "
+     "SELECT '(global)', value FROM global_config WHERE name=%Q",
+     zName, zName
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    printf("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
+        db_column_text(&q, 1));
   }else{
-    Stmt q;
-    db_prepare(&q, "SELECT name, value FROM global_config ORDER BY name");
-    while( db_step(&q)==SQLITE_ROW ){
-      printf("%s=%s\n", db_column_text(&q, 0), db_column_text(&q, 1));
-    }
-    db_finalize(&q);
+    printf("%-20s\n", zName);
   }
+  db_finalize(&q);
 }
 
+
 /*
-** COMMAND: setting
-** %fossil setting ?PROPERTY? ?VALUE?
+** COMMAND: settings
+** %fossil setting ?PROPERTY? ?VALUE? ?-global?
 **
 ** With no arguments, list all properties and their values.  With just
 ** a property name, show the value of that property.  With a value
@@ -980,10 +970,18 @@ void cmd_config(void){
 **                     commit or update and automatically push
 **                     after commit or tag or branch creation.
 **
+**    clear-sign       Command used to clear-sign manifests at check-in.
+**                     The default is "gpg --clearsign -o ".
+**
+**    editor           Text editor command used for check-in comments.
+**
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
+**
+**    omit-sign        When enabled, fossil will not attempt to sign any
+**                     commit with gpg. All commits will be unsigned.
 **
 **    safemerge        If enabled, when commit will cause a fork, the
 **                     commit will not abort with warning. Also update
@@ -992,14 +990,18 @@ void cmd_config(void){
 void setting_cmd(void){
   static const char *azName[] = {
     "autosync",
+    "clearsign",
+    "editor",
     "localauth",
+    "omitsig",
     "safemerge",
   };
   int i;
+  int globalFlag = find_option("global","g",0)!=0;
   db_find_and_open_repository();
   if( g.argc==2 ){
     for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
-      printf("%-20s %d\n", azName[i], db_get_int(azName[i], 0));
+      print_setting(azName[i]);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -1011,9 +1013,9 @@ void setting_cmd(void){
       fossil_fatal("no such setting: %s", zName);
     }
     if( g.argc==4 ){
-      db_set(azName[i], g.argv[3]);
+      db_set(azName[i], g.argv[3], globalFlag);
     }else{
-      printf("%-20s %d\n", azName[i], db_get_int(azName[i], 0));
+      print_setting(azName[i]);
     }
   }else{
     usage("?PROPERTY? ?VALUE?");

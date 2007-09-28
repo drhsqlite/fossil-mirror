@@ -147,7 +147,7 @@ void style_footer(void){
 ** WEBPAGE: not_found
 */
 void page_index(void){
-  char *zHome = db_get("homepage", 0);
+  char *zHome = (char*)db_get("homepage", 0);
   if( zHome ){
     g.zExtra = zHome;
     g.okRdWiki = 1;

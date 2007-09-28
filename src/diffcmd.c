@@ -90,9 +90,9 @@ void diff_cmd(void){
   if( internalDiff==0 ){
     const char *zExternalCommand;
     if( strcmp(g.argv[1], "diff")==0 ){
-      zExternalCommand = db_global_get("diff-command", 0);
+      zExternalCommand = db_get("diff-command", 0);
     }else{
-      zExternalCommand = db_global_get("gdiff-command", 0);
+      zExternalCommand = db_get("gdiff-command", 0);
     }
     if( zExternalCommand==0 ){
       internalDiff=1;

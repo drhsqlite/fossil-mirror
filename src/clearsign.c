@@ -36,7 +36,7 @@ int clearsign(Blob *pIn, Blob *pOut){
   char *zRand;
   char *zIn;
   char *zOut;
-  char *zBase = db_global_get("clear-sign", "gpg --clearsign -o ");
+  char *zBase = db_get("clear-sign", "gpg --clearsign -o ");
   char *zCmd;
   int rc;
   zRand = db_text(0, "SELECT hex(randomblob(10))");

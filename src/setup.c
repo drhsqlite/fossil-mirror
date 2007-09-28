@@ -431,7 +431,7 @@ static void onoff_attribute(
   if( zQ ){
     int iQ = strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
-      db_set(zVar, iQ ? "1" : "0");
+      db_set(zVar, iQ ? "1" : "0", 0);
       iVal = iQ;
     }
   }
@@ -455,7 +455,7 @@ static void entry_attribute(
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
   if( zQ && strcmp(zQ,zVal)!=0 ){
-    db_set(zVar, zQ);
+    db_set(zVar, zQ, 0);
     zVal = zQ;
   }
   @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)">
@@ -476,7 +476,7 @@ static void textarea_attribute(
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
   if( zQ && strcmp(zQ,zVal)!=0 ){
-    db_set(zVar, zQ);
+    db_set(zVar, zQ, 0);
     zVal = zQ;
   }
   @ <textarea name="%s(zQParm)" rows="%d(rows)" cols="%d(cols)">%h(zVal)</textarea>
