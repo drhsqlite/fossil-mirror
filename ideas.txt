@@ -43,7 +43,8 @@ Field Types:
 Tables:
 
    tktrid(rid, tkid, mtime);  index(tkid, mtime);
-   ticket(tkid, tkuuid, title, com, status, ...);
+   ticket(tkid, tkuuid UNIQUE, starttime, lastmod, ...);
+   tktfield(fieldname UNIQUE, type, width, other);
    tktxref(tkid, mid); index(tkid); index(mid);
 
 Tktformat in the config table.
@@ -71,8 +72,10 @@ Todo:
        + tkt-new-template
        + tkt-view-template
        + tkt-edit-template
-
+       + Reconstruct the ticket table schema
+       + Repopulate tktfield
    * Ticket control file parser
+       + 
    * Transfer tkt control info to ticket table
    * Setup pages for selecting and editing ticket configuration
    * Ticket display

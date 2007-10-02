@@ -51,6 +51,13 @@ struct Blob {
 */
 #define blob_buffer(X)  ((X)->aData)
 
+/*
+** Seek whence parameter values
+*/
+#define BLOB_SEEK_SET 1
+#define BLOB_SEEK_CUR 2
+#define BLOB_SEEK_END 3
+
 #endif /* INTERFACE */
 
 /*
@@ -343,6 +350,33 @@ void blob_rewind(Blob *p){
 }
 
 /*
+** Seek the cursor in a blob to the indicated offset.
+*/
+int blob_seek(Blob *p, int offset, int whence){
+  if( whence==BLOB_SEEK_SET ){
+    p->iCursor = offset;
+  }else if( whence==BLOB_SEEK_CUR ){
+    p->iCursor += offset;
+  }else if( whence==BLOB_SEEK_END ){
+    p->iCursor = p->nUsed + offset - 1;
+  }
+  if( p->iCursor<0 ){
+    p->iCursor = 0;
+  }
+  if( p->iCursor>p->nUsed ){
+    p->iCursor = p->nUsed;
+  }
+  return p->iCursor;
+}
+
+/*
+** Return the current offset into the blob
+*/
+int blob_tell(Blob *p){
+  return p->iCursor;
+}
+
+/*
 ** Extract a single line of text from pFrom beginning at the current 
 ** cursor location and use that line of text to initialize pTo.
 ** pTo will include the terminating \n.  Return the number of bytes
@@ -373,6 +407,9 @@ int blob_line(Blob *pFrom, Blob *pTo){
 ** Extract a single token from pFrom and use it to initialize pTo.
 ** Return the number of bytes in the token.  If no token is found,
 ** return 0.
+**
+** A token consists of one or more non-space characters.  Leading
+** whitespace is ignored.
 **
 ** The cursor of pFrom is left pointing at the first character past
 ** the end of the token.

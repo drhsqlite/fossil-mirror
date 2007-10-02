@@ -47,6 +47,7 @@ set src {
   sync
   tag
   timeline
+  tktconf
   undo
   update
   url
