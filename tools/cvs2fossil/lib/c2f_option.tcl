@@ -21,6 +21,7 @@
 package require Tcl 8.4                         ; # Required runtime.
 package require snit                            ; # OO system.
 package require vc::tools::trouble              ; # Error reporting.
+package require vc::fossil::import::cvs::pass   ; # Pass management
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -31,9 +32,10 @@ snit::type ::vc::fossil::import::cvs::option {
 
     # --help, --help-passes, -h
     # --version
+    # -p, --pass, --passes
+
     # --project
     # --cache (conversion status, ala config.cache)
-
     # -o, --output
     # --dry-run
     # --trunk-only
@@ -54,9 +56,14 @@ snit::type ::vc::fossil::import::cvs::option {
 	while {[IsOption arguments -> option]} {
 	    switch -exact -- $option {
 		-h            -
-		--help        PrintHelp
-		--help-passes PrintHelpPasses
-		--version     PrintVersion
+		--help        { PrintHelp    ; exit 0 }
+		--help-passes { pass help    ; exit 0 }
+		--version     { PrintVersion ; exit 0 }
+		-p            -
+		--pass        -
+		--passes      {
+		    pass select [Value arguments]
+		}
 		--project     {
 		    #cvs::repository addproject [Value arguments]
 		}
@@ -90,37 +97,31 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "    --help-passes Print list of passes and exit with success"
 	trouble info "    --version     Print version number of $argv0"
 	trouble info ""
+	trouble info "  Conversion control options"
+	trouble info ""
+	trouble info "    -p, --pass PASS            Run only the specified conversion pass"
+	trouble info "    -p, --passes ?START?:?END? Run only the passes START through END,"
+	trouble info "                               inclusive."
+	trouble info ""
+	trouble info "                               Passes are specified by name."
+	trouble info ""
 	# --project, --cache
 	# ...
-	exit 0
-    }
-
-    proc PrintHelpPasses {} {
-	trouble info ""
-	trouble info "Conversion passes:"
-	trouble info ""
-	set n 0
-	foreach {p desc} {
-	    CollectAr  {Collect archives}
-	    CollectRev {Collect revisions}
-	} { trouble info "  [format %2d $n]: $p $desc" ; incr n }
-	trouble info ""
-	exit 0
+	return
     }
 
     proc PrintVersion {} {
 	global argv0
 	set v [package require vc::fossil::import::cvs]
 	trouble info "$argv0 v$v"
-	exit 0
+	return
     }
 
     proc Usage {{text {}}} {
 	global argv0
-	if {$text ne ""} {set text \n$text}
-	trouble fatal "Usage: $argv0 $usage$text"
-	# Not reached
-	return
+	trouble fatal "Usage: $argv0 $usage"
+	if {$text ne ""} { trouble fatal "$text" }
+	exit 1
     }
 
     # # ## ### ##### ######## #############
@@ -151,6 +152,11 @@ snit::type ::vc::fossil::import::cvs::option {
     ## Internal methods, state validation
 
     proc Validate {} {
+	# Prevent in-depth validation if the options were already bad.
+	trouble abort?
+
+
+	trouble abort?
 	return
     }
 
@@ -166,6 +172,7 @@ snit::type ::vc::fossil::import::cvs::option {
 
 namespace eval ::vc::fossil::import::cvs::option {
     namespace import ::vc::tools::trouble
+    namespace import ::vc::fossil::import::cvs::pass
 }
 
 # # ## ### ##### ######## ############# #####################

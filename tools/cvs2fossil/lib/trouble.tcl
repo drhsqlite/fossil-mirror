@@ -26,9 +26,14 @@ snit::type ::vc::tools::trouble {
     # # ## ### ##### ######## #############
     ## Public API, Methods
 
+    typemethod internal {text} {
+	foreach line [split $text \n] { $type fatal "INTERNAL ERROR! $line" }
+	exit 1
+    }
+
     typemethod fatal {text} {
 	lappend myfatal $text
-	exit 1
+	return
     }
 
     typemethod warn {text} {
@@ -47,6 +52,16 @@ snit::type ::vc::tools::trouble {
 	foreach m $mywarn  { log write 0 warning $m }
 	foreach m $myfatal { log write 0 fatal   $m }
 	return
+    }
+
+    typemethod abort? {} {
+	if {
+	    ![llength $myinfo] &&
+	    ![llength $mywarn] &&
+	    ![llength $myfatal]
+	} return
+	# We have error messages to print, so stop.
+	exit 1
     }
 
     # # ## ### ##### ######## #############

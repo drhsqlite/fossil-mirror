@@ -19,6 +19,7 @@
 package require Tcl 8.4                         ; # Required runtime.
 package require snit                            ; # OO system
 package require vc::fossil::import::cvs::option ; # Cmd line parsing & database
+package require vc::fossil::import::cvs::pass   ; # Pass management
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -28,17 +29,13 @@ snit::type ::vc::fossil::import::cvs {
     ## Public API, Methods
 
     typemethod run {arguments} {
-	option process $arguments
-
 	# Run a series of passes over the cvs repository to extract,
 	# filter, and order its historical information. Which passes
 	# are actually run is determined through the specified options
 	# and their defaults.
 
-	foreach pass [option passes] {
-	    $pass run
-	}
-
+	option process $arguments
+	pass run
 	return
     }
 
