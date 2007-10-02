@@ -44,14 +44,42 @@ Tables:
 
    tktrid(rid, tkid, mtime);  index(tkid, mtime);
    ticket(tkid, tkuuid, title, com, status, ...);
-   tktfield(name, type, width, height, default, valuelist);
    tktxref(tkid, mid); index(tkid); index(mid);
 
 Tktformat in the config table.
 
    * Three pages:  creation, display, and edit
+   * Separate global and local versions of each page.  Local overwrites
+     global if it exists.
    * HTML
    * [[field]] to substitute the appropriate form or display element
+
+Ticket Configuraiton File:
+
+   * Format:
+      ticket-configuration
+      field <fieldname> <type> <param> ...
+      template <type> <delimiter>
+      <text>
+   * Each repository selects a single ticket config for its own use.
+   * Rescan all tickets following any config change
+   * Use the ticket-configuration tag must be on the file
+
+Todo:
+
+   * Configuration file parser
+       + tkt-new-template
+       + tkt-view-template
+       + tkt-edit-template
+
+   * Ticket control file parser
+   * Transfer tkt control info to ticket table
+   * Setup pages for selecting and editing ticket configuration
+   * Ticket display
+   * New ticket creation display
+   * Ticket change screen
+   * Ticket query screens
+
 
 ------------------------------------------------------------------------
 Change to wiki:

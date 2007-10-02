@@ -1,5 +1,8 @@
-C Added\srudimentary\sproxy\ssupport\sto\sfossil\schat\sclient
-D 2007-10-02T10:34:46
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Notes\son\show\sto\sproceed\swith\sticket\sintegration\sadded\sto\sideas.txt.
+D 2007-10-02T15:22:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -24,7 +27,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F ideas.txt df889dde5c2a17ced86b45bcc50f0e4b55f2eb8b
+F ideas.txt 55033169a0c553c28d992971bf26c3d2ff1a1f26
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -140,7 +143,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 134e2aeccc0acc8a4ced04da5403df234ddc1397
-R 709d27197fa3cc81b1ab40d5b0428965
-U mjanssen
-Z ea710fd84510b4fbde6eaab694ec8d4c
+P 307233d828ecccdded86d89973523a9ab7271c8b
+R f6a45beab18066ad16dc1167fca3c8a3
+U drh
+Z 0d8e9820f72cede9ec813adb846c3458
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (Darwin)
+
+iD8DBQFHAmItoxKgR168RlERAg6dAJ9JAYeLZGuqOxvSKAhaT4l9Dx+GvgCbBbGs
+BvcjkvX2jLGwGYjrZw0LGvI=
+=1HWS
+-----END PGP SIGNATURE-----
