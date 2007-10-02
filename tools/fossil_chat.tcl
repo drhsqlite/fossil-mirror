@@ -9,6 +9,10 @@ set SERVERHOST fossil-scm.hwaci.com
 #set SERVERHOST 64.5.53.192
 set SERVERPORT 8615
 
+# set to correct values if you have to use a proxy
+set PROXYHOST {}
+set PROXYPORT {}
+
 # Setup the user interface
 wm title . Fossil-Chat
 wm iconname . [wm title .]
@@ -79,7 +83,14 @@ proc connect {} {
   global SOCKET tcl_platform
   catch {close $SOCKET}
   if {[catch {
-    set SOCKET [socket $::SERVERHOST $::SERVERPORT]
+      if {$::PROXYHOST ne {}} {
+          set SOCKET [socket $::PROXYHOST $::PROXYPORT]
+          puts $SOCKET "CONNECT $::SERVERHOST:$::SERVERPORT HTTP/1.1"
+          puts $SOCKET "Host:  $::SERVERHOST:$::SERVERPORT" 
+          puts $SOCKET ""
+      } else {
+          set SOCKET [socket $::SERVERHOST $::SERVERPORT]
+      }
     fconfigure $SOCKET -translation binary -blocking 0
     puts $SOCKET [list login $tcl_platform(user) fact,fuzz]
     flush $SOCKET

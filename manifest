@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Combine\sthe\s"config"\sand\s"setting"\scommands\sinto\sa\ssingle\s"settings"\scommand.
-D 2007-09-28T20:08:32
+C Added\srudimentary\sproxy\ssupport\sto\sfossil\schat\sclient
+D 2007-10-02T10:34:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -96,7 +93,7 @@ F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 5e00e8293a76175ff435937e71c0ba5e5a6ec371
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/fossil_chat.tcl eef7e18abf862374a4909165553f03650505dd49
+F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
 F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
 F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
@@ -143,14 +140,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ab637af752641f503f69e1a12ac6c129a8758b35
-R 6ca2a527395c5629f26be01eaadd953d
-U drh
-Z 17a6deb12dd8d0fd7070bd9d93ea0e32
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
-
-iD8DBQFG/V9KoxKgR168RlERAo7HAJ9If4+r4zs5zNlKpXWHBtlBF0VuxgCcD8V+
-YNXkxAiwApH/83wBs5JN9ao=
-=6rk0
------END PGP SIGNATURE-----
+P 134e2aeccc0acc8a4ced04da5403df234ddc1397
+R 709d27197fa3cc81b1ab40d5b0428965
+U mjanssen
+Z ea710fd84510b4fbde6eaab694ec8d4c
