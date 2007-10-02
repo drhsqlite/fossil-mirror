@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Third\sattempt\sat\sgetting\sa\scvs\simporter\swhich\scan\shandle\sbranches.\nUsing\scvs2svn\scode\sand\sdesign\snotes\sas\sa\sguide.
-D 2007-10-02T03:05:43
+C Re-added\sthe\suser\sfeedback\sand\serror\sreporting\sutilities,\swith\smodifications,\sand\scompleted\sthe\shandling\sof\sthe\sinformational\soptions.
+D 2007-10-02T05:33:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -94,9 +94,11 @@ F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
-F tools/cvs2fossil/lib/c2f_option.tcl db1981ab3568e703e8df68a0dbdd5ad11eb1e229
+F tools/cvs2fossil/lib/c2f_option.tcl fc9f62797d8b72454da2b871dc20254cad3ef9ab
 F tools/cvs2fossil/lib/cvs2fossil.tcl 2ea7561a94d5fab9e4278573768cda363033c1c0
-F tools/cvs2fossil/lib/pkgIndex.tcl 5b7b4433365b9ebe8bf88c262b0992ca86202aae
+F tools/cvs2fossil/lib/log.tcl dd3a2d5171af0ecc5834b26b732b1a349f42c6b9
+F tools/cvs2fossil/lib/pkgIndex.tcl 6725ddc0539f847d6dbd1b6cbe428ce91e05c84b
+F tools/cvs2fossil/lib/trouble.tcl fdf622fa2099ec0acf077f5434b7895a20007573
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
@@ -128,14 +130,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7a64b9e738eea1f6e84ef48acecf58f680495aa6
-R 3ff267a5b2bf013d7fa40d404355d6b0
+P 2a98ac44bd535270ce50afb7f20ec3955bff6d83
+R ca031b7493b4170448ea332e6014112d
 U aku
-Z 513e34550f2de5dd73fca851074da244
+Z e8c683ea52b1e3870e113ee99c2f65a5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHAbWNvonzZ/CRa7gRAo/5AKCCvSZGUBGDlB8PEGs/14t2eZykhgCdG12d
-fqGMC+Ph/78+2USyrMmd3uQ=
-=evzS
+iD8DBQFHAdgbvonzZ/CRa7gRAgCEAKCHlG0n+qk2X2J4tqDTsSGjVvnrrQCeJ2Zq
+tpStoe4TR6Te0py6IY4zwHE=
+=EWuZ
 -----END PGP SIGNATURE-----

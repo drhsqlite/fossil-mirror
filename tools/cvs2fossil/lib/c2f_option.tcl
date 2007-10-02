@@ -19,7 +19,8 @@
 ## Requirements
 
 package require Tcl 8.4                         ; # Required runtime.
-package require snit                            ; # OO system
+package require snit                            ; # OO system.
+package require vc::tools::trouble              ; # Error reporting.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -77,8 +78,55 @@ snit::type ::vc::fossil::import::cvs::option {
     }
 
     # # ## ### ##### ######## #############
-    ## Internal methods and state
+    ## Internal methods, printing information.
 
+    proc PrintHelp {} {
+	global argv0
+	trouble info "Usage: $argv0 $usage"
+	trouble info ""
+	trouble info "  Information options"
+	trouble info ""
+	trouble info "    -h, --help    Print this message and exit with success"
+	trouble info "    --help-passes Print list of passes and exit with success"
+	trouble info "    --version     Print version number of $argv0"
+	trouble info ""
+	# --project, --cache
+	# ...
+	exit 0
+    }
+
+    proc PrintHelpPasses {} {
+	trouble info ""
+	trouble info "Conversion passes:"
+	trouble info ""
+	set n 0
+	foreach {p desc} {
+	    CollectAr  {Collect archives}
+	    CollectRev {Collect revisions}
+	} { trouble info "  [format %2d $n]: $p $desc" ; incr n }
+	trouble info ""
+	exit 0
+    }
+
+    proc PrintVersion {} {
+	global argv0
+	set v [package require vc::fossil::import::cvs]
+	trouble info "$argv0 v$v"
+	exit 0
+    }
+
+    proc Usage {{text {}}} {
+	global argv0
+	if {$text ne ""} {set text \n$text}
+	trouble fatal "Usage: $argv0 $usage$text"
+	# Not reached
+	return
+    }
+
+    # # ## ### ##### ######## #############
+    ## Internal methods, command line processing
+
+    typevariable usage     "?option ?value?...? cvs-repository-path"
     typevariable nocvs     "       The cvs-repository-path is missing."
     typevariable badoption "       Bad option "
     typevariable gethelp   "       Use --help to get help."
@@ -99,16 +147,11 @@ snit::type ::vc::fossil::import::cvs::option {
 	return $v
     }
 
+    # # ## ### ##### ######## #############
+    ## Internal methods, state validation
+
     proc Validate {} {
 	return
-    }
-
-    proc Usage {{text {}}} {
-	global argv0
-	if {$text ne ""} {set text \n$text}
-	#trouble fatal "Usage: $argv0 ?option ?value?...? cvs-repository-path$text"
-	puts "Usage: $argv0 ?option ?value?...? cvs-repository-path$text"
-	exit 1
     }
 
     # # ## ### ##### ######## #############
@@ -119,6 +162,10 @@ snit::type ::vc::fossil::import::cvs::option {
     pragma -hastypedestroy no ; # immortal
 
     # # ## ### ##### ######## #############
+}
+
+namespace eval ::vc::fossil::import::cvs::option {
+    namespace import ::vc::tools::trouble
 }
 
 # # ## ### ##### ######## ############# #####################
