@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C CVS\simport.\sFirst,\sfixed\ssig::next\sregarding\stwo\sthings.\sOne,\swe\shave\sto\stake\sthe\sroot\sversion\sof\sa\sfile\sinto\saccount\sas\sa\spossible\spredecessor.\sTwo,\sa\smissing\schanged\sfile\smay\sbe\smisclassified\sand\sactually\sbe\sadded\sinstead.\sSecond,\smodified\sthe\ssearch\sfor\sa\sroot\schangeset\sof\sa\sbranch.\sWe\snow\stry\sthe\sexisting\sregular\sintersection\sfirst\sfor\sexactness,\sand\sin\scase\sof\sfailure\swe\sfall\sback\sto\sa\svoting\sscheme\sto\slocate\sthe\smost\sacceptable\saka\snon-conflicting\schangeset.
-D 2007-09-27T04:44:19
+C Third\sattempt\sat\sgetting\sa\scvs\simporter\swhich\scan\shandle\sbranches.\nUsing\scvs2svn\scode\sand\sdesign\snotes\sas\sa\sguide.
+D 2007-10-02T03:05:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -91,24 +91,13 @@ F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
+F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
+F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
+F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
+F tools/cvs2fossil/lib/c2f_option.tcl db1981ab3568e703e8df68a0dbdd5ad11eb1e229
+F tools/cvs2fossil/lib/cvs2fossil.tcl 2ea7561a94d5fab9e4278573768cda363033c1c0
+F tools/cvs2fossil/lib/pkgIndex.tcl 5b7b4433365b9ebe8bf88c262b0992ca86202aae
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
-F tools/import-cvs.tcl 6f6129caeb9ecfaa6fd1f89dd0fced1c1de6742c
-F tools/lib/cvs.tcl c60b1c7187020a00be5d926f4449056f86dc48f2
-F tools/lib/cvs_branch.tcl 152bdf41973ec4de636bd8b13508e22d01293e0a
-F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
-F tools/lib/cvs_csets.tcl 4ade9049c69c82a66e2552c3e423f9bf5a6a23ef
-F tools/lib/cvs_files.tcl 24c1271ded974ae38a3a44d55b84c1b9db27ffa5
-F tools/lib/cvs_sig.tcl c7b83a7c1c1b9ec99a52853eca61b7d12efac24a
-F tools/lib/cvs_timeline.tcl 09c55e80b27f760a9025a764c6d2551ab9b562a7
-F tools/lib/fossil.tcl 6aae29bf144b86d8f3cfa70cfd7eb6849a612201
-F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
-F tools/lib/import_map.tcl 44f71078463b33427051428288410b62dda2df82
-F tools/lib/import_statistics.tcl afdce6cc237ef902be4c16a03e458e46a0dbb94b
-F tools/lib/importcvs.tcl 55d61c3242f0de86ebe5140d5f70adaeebedc6e6
-F tools/lib/log.tcl edfb9cfb1eb6e72efd614a31c5e1e4bf05219e0e
-F tools/lib/pkgIndex.tcl fde05dafaad24f49d5b0f62f195f5ccae93b66c5
-F tools/lib/rcsparser.tcl f2a4e1c86429ae8ba35187a8876af1d20ed1d78a
-F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -139,14 +128,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f6f5c902e60fdbf223c96ef7424d1fff548941d3
-R 35b389c9c15d0ee21226727e2979e010
+P 7a64b9e738eea1f6e84ef48acecf58f680495aa6
+R 3ff267a5b2bf013d7fa40d404355d6b0
 U aku
-Z 2ae3615ce5dd4bd04bb59da779faa438
+Z 513e34550f2de5dd73fca851074da244
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFG+zUpvonzZ/CRa7gRAnikAJ0fWCT8Ry1bx8SJhGgbKzxo0dPDLgCeITOB
-dusm2O/Bwrr1SUlPtuIiuRw=
-=zQIZ
+iD8DBQFHAbWNvonzZ/CRa7gRAo/5AKCCvSZGUBGDlB8PEGs/14t2eZykhgCdG12d
+fqGMC+Ph/78+2USyrMmd3uQ=
+=evzS
 -----END PGP SIGNATURE-----
