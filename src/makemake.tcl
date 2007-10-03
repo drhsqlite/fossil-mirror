@@ -47,6 +47,7 @@ set src {
   sync
   tag
   timeline
+  tkt
   tktconf
   tktsetup
   undo

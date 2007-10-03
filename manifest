@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Test\scommands\sfor\simporting\sand\sexporting\sticket\sconfigurations.
-D 2007-10-03T12:20:00
+C Add\sthe\stkt.c\ssource\sfile\sas\san\sempty\stemplate.
+D 2007-10-03T12:28:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -54,10 +54,10 @@ F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 15b63940c8bc1044af930687e643ee0c7591afd3
 F src/login.c afd46b3a876a49b7574536c584ee1205812b5c09
 F src/main.c 157f4f53781413fb0dc98c4c19760fe11e988c6b
-F src/main.mk a1f766be4997070b8d8daae7657850ad10c0a05b
+F src/main.mk de95462e676dfcbc81669898d40f271683c765c3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 5a5a43e8d30b49bcfa3203b3fe1c84e7bfaa835f
+F src/makemake.tcl 4e54933e0f51f3aa8b30ab216c73af3d4665bce7
 F src/manifest.c c6998d2022eb6caa479dc6d5362c69fad658670b
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 246b01382f1423be023aff0845007ea514eb846e
@@ -78,6 +78,7 @@ F src/style.c 7864b9469af90dbcd422a95dbe37d85d4483695e
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 8bccb237e443ed72e7d7661848f2c9a2f8c89e48
+F src/tkt.c 98ba13ea1e889397e5855c4026432c40cf6bd3fc
 F src/tktconf.c d2929cd22625a33f76d315a342673648cfd9d69e
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
@@ -145,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0edee97370f324f760565d82ccf032c129d345a9
-R 13edf6295d982158c240e9507a1bfa7b
+P 1e9c0e287e9609f3ee097136ff751d4701278cf5
+R fd01ecdb6b623ba44419d8187583894a
 U drh
-Z 91735cdcad9c2b48b04ff5a906a2528a
+Z f0106feccf21919de1735e959c5d8271
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHA4jzoxKgR168RlERAqDzAJ92nwdjh9DNfNUUfnm91YnsO75vRwCgi0pD
-eYBt6U2U4UMziX51PO5/PeM=
-=+cgj
+iD8DBQFHA4sKoxKgR168RlERAtFXAJ9nKoGWRYW82sfdSYviorVqC9V+RACfTQA0
+ifMgRoFSfMM1u5o35IqfQYI=
+=CTKf
 -----END PGP SIGNATURE-----
