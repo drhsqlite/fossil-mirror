@@ -154,7 +154,7 @@ int ticket_config_parse(Blob *pConfig, int testFlag, Blob *pErr){
   */
   blob_appendf(&tbldef, 
      "DROP TABLE IF EXISTS ticket;\n"
-     "CREATE TABLE ticket(\n"
+     "CREATE TABLE repository.ticket(\n"
      "  tktid INTEGER PRIMARY KEY,\n"
      "  tktuuid TEXT UNIQUE,\n"
      "  starttime DATETIME,\n"
@@ -162,7 +162,7 @@ int ticket_config_parse(Blob *pConfig, int testFlag, Blob *pErr){
   );
   blob_appendf(&sql,
      "DROP TABLE IF EXISTS tktfield;\n"
-     "CREATE TABLE tktfield(\n"
+     "CREATE TABLE repository.tktfield(\n"
      "  fidx INTEGER PRIMARY KEY,\n"
      "  name TEXT UNIQUE,\n"
      "  type TEXT,\n"
@@ -310,7 +310,6 @@ int ticket_config_parse(Blob *pConfig, int testFlag, Blob *pErr){
     if( blob_eq(&token, "description")
      && blob_token(&line, &arg)
     ){
-      int idx;
       Blob content;
       int start;
       int end;
@@ -369,7 +368,7 @@ bad_config_file:
 /*
 ** COMMAND: test-tktconfig-parse
 */
-void test_tktconfig_cmd(void){
+void test_tktconfig_parse_cmd(void){
   Blob config, err;
   if( g.argc!=3 ){
     usage("FILENAME");
@@ -377,6 +376,24 @@ void test_tktconfig_cmd(void){
   blob_read_from_file(&config, g.argv[2]);
   blob_zero(&err);
   ticket_config_parse(&config, 1, &err);
+  if( blob_size(&err) ){
+    blob_write_to_file(&err, "-");
+  }
+}
+/*
+** COMMAND: test-tktconfig-import
+*/
+void test_tktconfig_import_cmd(void){
+  Blob config, err;
+  db_must_be_within_tree();
+  if( g.argc!=3 ){
+    usage("FILENAME");
+  }
+  blob_read_from_file(&config, g.argv[2]);
+  blob_zero(&err);
+  db_begin_transaction();
+  ticket_config_parse(&config, 0, &err);
+  db_end_transaction(0);
   if( blob_size(&err) ){
     blob_write_to_file(&err, "-");
   }
@@ -562,4 +579,90 @@ void ticket_load_default_config(void){
     fossil_fatal("%b", &errmsg);
   }
   db_end_transaction(0);
+}
+
+/*
+** Return the length of a string without its trailing whitespace.
+*/
+static int non_whitespace_length(const char *z){
+  int n = strlen(z);
+  while( n>0 && isspace(z[n-1]) ){ n--; }
+  return n;
+}
+
+/*
+** Fill the given Blob with text that describes the current
+** ticket configuration.  This is the inverse of ticket_config_parse()
+*/
+void ticket_config_render(Blob *pOut){
+  char *zDelim;
+  char *zContent;
+  Stmt q;
+  int n;
+
+  blob_appendf(pOut, "ticket-configuration\n");
+  zDelim = db_text(0, "SELECT '--end-of-text--' || hex(random(20))");
+  blob_appendf(pOut, "###################################################\n");
+  db_prepare(&q, "SELECT name, type, width, arg FROM tktfield");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zType = db_column_text(&q, 1);
+    int width = db_column_int(&q, 2);
+    const char *zArg = db_column_text(&q, 3);
+    blob_appendf(pOut, "field %s %s %d %s\n", zName, zType, width, zArg);
+  }
+  db_finalize(&q);
+  blob_appendf(pOut, "###################################################\n");
+  blob_appendf(pOut, "template new %s\n", zDelim);
+  zContent = db_get("tkt-new-template", 0);
+  if( zContent ){
+    n = non_whitespace_length(zContent);
+    blob_appendf(pOut, "%.*s\n", n, zContent);
+    free(zContent);
+  }
+  blob_appendf(pOut, "%s\n", zDelim);
+  blob_appendf(pOut, "###################################################\n");
+  blob_appendf(pOut, "template edit %s\n", zDelim);
+  zContent = db_get("tkt-edit-template", 0);
+  if( zContent ){
+    n = non_whitespace_length(zContent);
+    blob_appendf(pOut, "%.*s\n", n, zContent);
+    free(zContent);
+  }
+  blob_appendf(pOut, "%s\n", zDelim);
+  blob_appendf(pOut, "###################################################\n");
+  blob_appendf(pOut, "template view %s\n", zDelim);
+  zContent = db_get("tkt-view-template", 0);
+  if( zContent ){
+    n = non_whitespace_length(zContent);
+    blob_appendf(pOut, "%.*s\n", n, zContent);
+    free(zContent);
+  }
+  blob_appendf(pOut, "%s\n", zDelim);
+  blob_appendf(pOut, "###################################################\n");
+  blob_appendf(pOut, "description %s\n", zDelim);
+  zContent = db_get("tkt-desc", 0);
+  if( zContent ){
+    n = non_whitespace_length(zContent);
+    blob_appendf(pOut, "%.*s\n", n, zContent);
+    free(zContent);
+  }
+  blob_appendf(pOut, "%s\n", zDelim);
+}
+
+/*
+** COMMAND: test-tktconfig-export
+** Write the current ticket configuration out to a file.
+*/
+void tktconfig_render_cmd(void){
+  Blob config;
+
+  db_must_be_within_tree();
+  if( g.argc!=3 ){
+    usage("FILENAME");
+  }
+  blob_zero(&config);
+  ticket_config_render(&config);
+  blob_write_to_file(&config, g.argv[2]);
+  blob_reset(&config);
 }

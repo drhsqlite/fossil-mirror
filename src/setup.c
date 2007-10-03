@@ -452,7 +452,7 @@ static void entry_attribute(
   int width,            /* Width of the entry box */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */
-  const char *zDflt     /* Default value if VAR table entry does not exist */
+  char *zDflt     /* Default value if VAR table entry does not exist */
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
@@ -473,7 +473,7 @@ static void textarea_attribute(
   int cols,             /* Columns in the textarea */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */
-  const char *zDflt     /* Default value if VAR table entry does not exist */
+  char *zDflt           /* Default value if VAR table entry does not exist */
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);

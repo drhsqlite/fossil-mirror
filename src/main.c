@@ -600,6 +600,15 @@ void cmd_http(void){
 }
 
 /*
+** COMMAND: test-http
+** Works like the http command but gives setup permission to all users.
+*/
+void cmd_test_http(void){
+  login_set_capabilities("s");
+  cmd_http();
+}
+
+/*
 ** COMMAND: server
 **
 ** Usage: %fossil server ?-P|--port TCPPORT? ?REPOSITORY?

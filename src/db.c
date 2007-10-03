@@ -834,8 +834,8 @@ LOCAL void db_connection_init(void){
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
-const char *db_get(const char *zName, const char *zDefault){
-  const char *z = 0;
+char *db_get(const char *zName, char *zDefault){
+  char *z = 0;
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
@@ -887,7 +887,7 @@ void db_set_int(const char *zName, int value, int globalFlag){
   }
   db_end_transaction(0);
 }
-char *db_lget(const char *zName, const char *zDefault){
+char *db_lget(const char *zName, char *zDefault){
   return db_text((char*)zDefault, 
                  "SELECT value FROM vvar WHERE name=%Q", zName);
 }
