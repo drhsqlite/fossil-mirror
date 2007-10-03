@@ -35,7 +35,7 @@
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
 ** the menu entry has no hyperlink - it is disabled.
 */
-static void menu_entry(
+void setup_menu_entry(
   const char *zTitle,
   const char *zLink,
   const char *zDesc
@@ -61,12 +61,14 @@ void setup_page(void){
 
   style_header("Setup");
   @ <dl id="setup">
-  menu_entry("Users", "setup_ulist",
+  setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
-  menu_entry("Access", "setup_access",
+  setup_menu_entry("Access", "setup_access",
     "Control access settings.");
-  menu_entry("Configuration", "setup_config",
+  setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
+  setup_menu_entry("Tickets", "tktsetup",
+    "Configure the trouble-ticketing system for this repository");
   @ </dl>
 
   style_footer();

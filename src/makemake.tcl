@@ -48,6 +48,7 @@ set src {
   tag
   timeline
   tktconf
+  tktsetup
   undo
   update
   url

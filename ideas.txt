@@ -75,7 +75,8 @@ Todo:
        + Reconstruct the ticket table schema
        + Repopulate tktfield
    * Ticket control file parser
-       + 
+       + Create ticket entry if necessary
+       + Update fields.  Ignore unrecognized fields.
    * Transfer tkt control info to ticket table
    * Setup pages for selecting and editing ticket configuration
    * Ticket display

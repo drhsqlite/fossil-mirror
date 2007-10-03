@@ -76,6 +76,8 @@ static int is_valid_enum(Blob *p){
 **     field <fieldname> <fieldtype> <width> <param> ...
 **     template <type> <delimiter>
 **     <text>
+**     description <delimiter>
+**     <text>
 **
 ** All lines are separated by \n.  Trailing whitespace is
 ** ignored.  The first line must be "ticket-configuration".
@@ -87,7 +89,7 @@ static int is_valid_enum(Blob *p){
 ** database.  The fields appear in the table in the order in 
 ** which they appear in the configuration artifact.  The <fieldname>
 ** must consist of alphanumerics and underscores.  <fieldtype>
-** is one of:  text, ctext, enum, date, uuid, baseline.  All
+** is one of:  text, ctext, enum, date, uuid, baseline, private.  All
 ** types have at least a <width> parameter.  Text and Ctext types
 ** have a height parameter.  Enum has a list of allowed values.
 **
@@ -96,6 +98,13 @@ static int is_valid_enum(Blob *p){
 ** that terminates the template.  The body of the template is subsequent
 ** lines of text up to but not including the <delimiter>.  Trailing
 ** whitespace on the delimiter is ignored.
+**
+** There should be one description entry.  The text that follows
+** is a human-readable plaintext description of this ticket
+** configuration.  The description is visible to the administrator
+** and is used to help identify this configuration among several
+** options.  The first line of the description is a one-line
+** summary.  Subsequent lines are details.
 **
 ** The pConfig parameter is the complete text of the configuration
 ** file to be parsed.  testFlag is 1 to cause the results to be printed
@@ -201,7 +210,8 @@ int ticket_config_parse(Blob *pConfig, int testFlag, Blob *pErr){
         goto bad_config_file;
       }
       blob_appendf(&tbldef, ",\n  tkt_%b", &name);
-      if( blob_eq(&type,"text") || blob_eq(&type,"ctext") ){
+      if( blob_eq(&type,"text") || blob_eq(&type,"ctext")
+            || blob_eq(&type,"private") ){
         int height;
         if( !blob_token(&line, &arg) || !blob_is_int(&arg, &height) ){
           blob_appendf(&err, "invalid height: %b", &arg);
@@ -249,14 +259,15 @@ int ticket_config_parse(Blob *pConfig, int testFlag, Blob *pErr){
         blob_appendf(&err, "unknown field type: %b", &type);
         goto bad_config_file;
       }
-      
+    }else    
+  
     /*
     **  template <type> <delimiter>
     **  <text>
     */      
-    }else if( blob_eq(&token, "template")
-           && blob_token(&line, &type)
-           && blob_token(&line, &arg)
+    if( blob_eq(&token, "template")
+     && blob_token(&line, &type)
+     && blob_token(&line, &arg)
     ){
       int idx;
       Blob content;
@@ -290,7 +301,35 @@ int ticket_config_parse(Blob *pConfig, int testFlag, Blob *pErr){
         &type, &content
       );
       blob_reset(&content);
-    }else{
+    }else
+
+    /*
+    **  description <delimiter>
+    **  <text>
+    */      
+    if( blob_eq(&token, "description")
+     && blob_token(&line, &arg)
+    ){
+      int idx;
+      Blob content;
+      int start;
+      int end;
+
+      start = end = blob_tell(pConfig);
+      while( blob_line(pConfig, &line) ){
+         blob_token(&line, &token);
+         if( blob_compare(&token, &arg)==0 ) break;
+         end = blob_tell(pConfig);
+      }
+      blob_init(&content, &blob_buffer(pConfig)[start], end - start);
+      blob_appendf(&sql, 
+        "REPLACE INTO config(name, value) VALUES('tkt-desc',%B);\n",
+         &content
+      );
+      blob_reset(&content);
+    }else
+
+    {
       blob_appendf(&err, "unknown command: %b", &token);
       goto bad_config_file;
     }
@@ -341,4 +380,186 @@ void test_tktconfig_cmd(void){
   if( blob_size(&err) ){
     blob_write_to_file(&err, "-");
   }
+}
+
+/*
+** Load the default ticket configuration.
+*/
+void ticket_load_default_config(void){
+  static const char zDefaultConfig[] = 
+    @ ticket-configuration
+    @ description END-OF-DESCRIPTION
+    @ Default Ticket Configuration
+    @ The default ticket configuration for new projects
+    @ END-OF-DESCRIPTION
+    @ #####################################################################
+    @ field title text 60 1
+    @ field comment ctext 80 20
+    @ field assignedto text 20 1
+    @ field subsystem text 20 1
+    @ field type enum 12 Code Build_Problem Documentation Feature_Request Incident
+    @ field priority enum 10 High Medium Low
+    @ field severity enum 10 Critical Severe Important Minor Cosmetic
+    @ field sesolution enum 20 Open Fixed Rejected Unable_To_Reproduce Works_As_Designed External_Bug Not_A_Bug Duplicate Overcome_By_Events Drive_By_Patch
+    @ field status enum 10 Open Verified In_Process Deferred Fixed Tested Closed
+    @ field contact private 50 1
+    @ field foundin text 30 1
+    @ field assocvers baseline 50
+    @ field presentin uuid 50
+    @ field fixedin uuid 50
+    @ field dueby date 20
+    @ field deferuntil date 20
+    @ ######################################################################
+    @ template new END-OF-NEW-TEMPLATE
+    @ <table cellpadding="5">
+    @ <tr>
+    @ <td cellpadding="2">
+    @ Enter a one-line summary of the problem:<br>
+    @ [entrywidget title]
+    @ </td>
+    @ </tr>
+    @ 
+    @ <tr>
+    @ <td align="right">Type:
+    @ [entrywidget type]
+    @ </td>
+    @ <td>What type of ticket is this?</td>
+    @ </tr>
+    @ 
+    @ <tr>
+    @ <td align="right">Version: 
+    @ [entrywidget foundin]
+    @ </td>
+    @ <td>In what version or build number do you observer the problem?</td>
+    @ </tr>
+    @ 
+    @ <tr>
+    @ <td align="right">Severity:
+    @ [entrywidget severity]
+    @ </td>
+    @ <td>How debilitating is the problem?  How badly does the problem
+    @ effect the operation of the product?</td>
+    @ </tr>
+    @ 
+    @ <tr>
+    @ <td colspan="2">
+    @ Enter a detailed description of the problem.
+    @ For code defects, be sure to provide details on exactly how
+    @ the problem can be reproduced.  Provide as much detail as
+    @ possible.
+    @ <br>
+    @ [entrywidget comment noappend]
+    @ [ifpreview comment]
+    @ <hr>
+    @ [viewwidget comment]
+    @ </hr>
+    @ </tr>
+    @ 
+    @ <tr>
+    @ <td align="right">
+    @ [submitbutton]
+    @ </td>
+    @ <td>After filling in the information above, press this button to create
+    @ the new ticket</td>
+    @ </tr>
+    @ </table>
+    @ [defaultvalue status Open]
+    @ [defaultvalue resolution Open]
+    @ END-OF-NEW-TEMPLATE
+    @ ######################################################################
+    @ template edit END-OF-EDIT-TEMPLATE
+    @ <table cellpadding="5">
+    @ <tr><td align="right">Title:</td><td>
+    @ [entrywidget title]
+    @ </td></tr>
+    @ <tr><td align="right">Status:</td><td>
+    @ [entrywidget status]
+    @ </td></tr>
+    @ <tr><td align="right">Type:</td><td>
+    @ [entrywidget type]
+    @ </td></tr>
+    @ <tr><td align="right">Severity:</td><td>
+    @ [entrywidget severity]
+    @ </td></tr>
+    @ <tr><td align="right">Priority:</td><td>
+    @ [entrywidget priority]
+    @ </td></tr>
+    @ <tr><td align="right">Resolution:</td><td>
+    @ [entrywidget resolution]
+    @ </td></tr>
+    @ <tr><td align="right">Subsystem:</td><td>
+    @ [entrywidget subsystem]
+    @ </td></tr>
+    @ <tr><td align="right">Assigned&nbsp;To:</td><td>
+    @ [entrywidget assignedto]
+    @ </td></tr>
+    @ <tr><td align="right">Contact:</td><td>
+    @ [entrywidget contact]
+    @ </td></tr>
+    @ <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
+    @ [entrywidget foundin]
+    @ </td></tr>
+    @ <tr><td colspan="2">
+    @ [ifappend comment]
+    @   New Remarks:<br>
+    @   [appendwidget comment]
+    @ [else]
+    @   Description And Comments:<br>
+    @   [entrywidget comment]
+    @ [endif]
+    @ </td></tr>
+    @ <tr><td align="right"></td><td>
+    @ [submitbutton]
+    @ </td></tr>
+    @ </table>
+    @ END-OF-EDIT-TEMPLATE
+    @ ######################################################################
+    @ template view END-OF-VIEW-TEMPLATE
+    @ <table cellpadding="5">
+    @ <tr><td align="right">Title:</td><td>
+    @ [viewwidget title]
+    @ </td></tr>
+    @ <tr><td align="right">Status:</td><td>
+    @ [viewwidget status]
+    @ </td></tr>
+    @ <tr><td align="right">Type:</td><td>
+    @ [viewwidget type]
+    @ </td></tr>
+    @ <tr><td align="right">Severity:</td><td>
+    @ [viewwidget severity]
+    @ </td></tr>
+    @ <tr><td align="right">Priority:</td><td>
+    @ [viewwidget priority]
+    @ </td></tr>
+    @ <tr><td align="right">Resolution:</td><td>
+    @ [viewwidget resolution]
+    @ </td></tr>
+    @ <tr><td align="right">Subsystem:</td><td>
+    @ [viewwidget subsystem]
+    @ </td></tr>
+    @ <tr><td align="right">Assigned&nbsp;To:</td><td>
+    @ [viewwidget assignedto]
+    @ </td></tr>
+    @ <tr><td align="right">Contact:</td><td>
+    @ [viewwidget contact]
+    @ </td></tr>
+    @ <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
+    @ [viewwidget foundin]
+    @ </td></tr>
+    @ <tr><td colspan="2">
+    @ Description And Comments:<br>
+    @ [viewwidget comment]
+    @ </td></tr>
+    @ </table>
+    @ END-OF-VIEW-TEMPLATE
+  ;
+  Blob config, errmsg;
+  blob_init(&config, zDefaultConfig, sizeof(zDefaultConfig)-1);
+  db_begin_transaction();
+  blob_zero(&errmsg);
+  ticket_config_parse(&config, 0, &errmsg);
+  if( blob_size(&errmsg) ){
+    fossil_fatal("%b", &errmsg);
+  }
+  db_end_transaction(0);
 }
