@@ -18,10 +18,12 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                         ; # Required runtime.
-package require snit                            ; # OO system.
-package require vc::tools::trouble              ; # Error reporting.
-package require vc::fossil::import::cvs::pass   ; # Pass management
+package require Tcl 8.4                               ; # Required runtime.
+package require snit                                  ; # OO system.
+package require vc::tools::trouble                    ; # Error reporting.
+package require vc::fossil::import::cvs::pass         ; # Pass management
+package require vc::fossil::import::cvs::pass::collar ; # Pass I.
+package require vc::fossil::import::cvs::repository   ; # Repository management
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -33,6 +35,7 @@ snit::type ::vc::fossil::import::cvs::option {
     # --help, --help-passes, -h
     # --version
     # -p, --pass, --passes
+    # --ignore-conflicting-attics
 
     # --project
     # --cache (conversion status, ala config.cache)
@@ -64,8 +67,11 @@ snit::type ::vc::fossil::import::cvs::option {
 		--passes      {
 		    pass select [Value arguments]
 		}
+		--ignore-conflicting-attics {
+		    collar ignore_conflicting_attics
+		}
 		--project     {
-		    #cvs::repository addproject [Value arguments]
+		    repository add [Value arguments]
 		}
 		--cache       {
 		    # [Value arguments]
@@ -78,7 +84,7 @@ snit::type ::vc::fossil::import::cvs::option {
 
 	if {[llength $arguments] > 1} Usage
 	if {[llength $arguments] < 1} { Usage $nocvs }
-	#cvs::repository setbase [lindex $arguments 0]
+	repository base [lindex $arguments 0]
 
 	Validate
 	return
@@ -105,6 +111,11 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info ""
 	trouble info "                               Passes are specified by name."
 	trouble info ""
+	trouble info "    --ignore-conflicting-attics"
+	trouble info "                               Prevent abort when conflicting archives"
+	trouble info "                               were found in both regular and Attic."
+	trouble info ""
+
 	# --project, --cache
 	# ...
 	return
@@ -155,6 +166,7 @@ snit::type ::vc::fossil::import::cvs::option {
 	# Prevent in-depth validation if the options were already bad.
 	trouble abort?
 
+	repository validate
 
 	trouble abort?
 	return
@@ -170,9 +182,14 @@ snit::type ::vc::fossil::import::cvs::option {
     # # ## ### ##### ######## #############
 }
 
-namespace eval ::vc::fossil::import::cvs::option {
-    namespace import ::vc::tools::trouble
-    namespace import ::vc::fossil::import::cvs::pass
+namespace eval ::vc::fossil::import::cvs {
+    namespace export option
+    namespace eval option {
+	namespace import ::vc::tools::trouble
+	namespace import ::vc::fossil::import::cvs::pass
+	namespace import ::vc::fossil::import::cvs::pass::collar
+	namespace import ::vc::fossil::import::cvs::repository
+    }
 }
 
 # # ## ### ##### ######## ############# #####################

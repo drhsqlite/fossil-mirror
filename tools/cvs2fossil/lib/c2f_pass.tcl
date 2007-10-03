@@ -20,6 +20,7 @@
 package require Tcl 8.4                         ; # Required runtime.
 package require snit                            ; # OO system.
 package require vc::tools::trouble              ; # Error reporting.
+package require vc::tools::log                  ; # User feedback.
 package require struct::list                    ; # Portable lassign
 
 # # ## ### ##### ######## ############# #####################
@@ -97,8 +98,16 @@ snit::type ::vc::fossil::import::cvs::pass {
 	# TODO: 
 	# TODO: 
 
-	foreach p $runlist { Call $p setup }
-	foreach p $runlist { Call $p run   }
+	foreach p $runlist {
+	    log write 0 pass "Setup $p" 
+	    Call $p setup
+	}
+	foreach p $runlist {
+	    log write 0 pass "Begin $p" 
+	    Call $p run
+	    log write 0 pass "Done  $p"
+	    trouble abort?
+	}
 	return
     }
 
@@ -129,7 +138,7 @@ snit::type ::vc::fossil::import::cvs::pass {
 	upvar 1 mycmd mycmd
 	set cmd $mycmd($code)
 	foreach a $args { lappend cmd $a }
-	eval $a
+	eval $cmd
 	return
     }
 
@@ -155,7 +164,11 @@ snit::type ::vc::fossil::import::cvs::pass {
 
 namespace eval ::vc::fossil::import::cvs {
     namespace export pass
-    namespace eval pass { namespace import ::vc::tools::trouble }
+    namespace eval pass {
+	namespace import ::vc::tools::trouble
+	namespace import ::vc::tools::log    
+	log register pass
+    }
 }
 
 # # ## ### ##### ######## ############# #####################

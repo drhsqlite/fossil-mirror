@@ -18,6 +18,17 @@
 
 package require Tcl 8.4                         ; # Required runtime.
 package require snit                            ; # OO system
+
+# # ## ### ##### ######## ############# #####################
+## Passes. The order in which the import passes are loaded is
+## important. It is the same order they will register, and then be run
+## in.
+
+package require vc::fossil::import::cvs::pass::collar ; # Coll'ect AR'chives.
+
+# # ## ### ##### ######## ############# #####################
+## Support for passes etc.
+
 package require vc::fossil::import::cvs::option ; # Cmd line parsing & database
 package require vc::fossil::import::cvs::pass   ; # Pass management
 
