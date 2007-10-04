@@ -21,6 +21,7 @@
 package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
 package require vc::tools::trouble                    ; # Error reporting.
+package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::pass         ; # Pass management
 package require vc::fossil::import::cvs::pass::collar ; # Pass I.
 package require vc::fossil::import::cvs::repository   ; # Repository management
@@ -36,8 +37,10 @@ snit::type ::vc::fossil::import::cvs::option {
     # --version
     # -p, --pass, --passes
     # --ignore-conflicting-attics
-
     # --project
+    # -v, --verbose
+    # -q, --quiet
+
     # --cache (conversion status, ala config.cache)
     # -o, --output
     # --dry-run
@@ -47,8 +50,6 @@ snit::type ::vc::fossil::import::cvs::option {
     # --symbol-transform RE:XX
     # --exclude
     # -p, --passes
-    # -v, --verbose
-    # -q, --quiet
 
     # # ## ### ##### ######## #############
     ## Public API, Methods
@@ -62,23 +63,23 @@ snit::type ::vc::fossil::import::cvs::option {
 		--help        { PrintHelp    ; exit 0 }
 		--help-passes { pass help    ; exit 0 }
 		--version     { PrintVersion ; exit 0 }
-		-p            -
-		--pass        -
-		--passes      {
-		    pass select [Value arguments]
-		}
-		--ignore-conflicting-attics {
-		    collar ignore_conflicting_attics
-		}
-		--project     {
-		    repository add [Value arguments]
-		}
+
+		-p                          -
+		--pass                      -
+		--passes                    { pass select [Value arguments] }
+
+		--ignore-conflicting-attics { collar ignore_conflicting_attics }
+
+		--project { repository add [Value arguments] }
+		-v        -
+		--verbose { log verbose }
+		-q        -
+		--quiet   { log quiet }
+
 		--cache       {
 		    # [Value arguments]
 		}
-		default {
-		    Usage $badoption$option\n$gethelp
-		}
+		default { Usage $badoption$option\n$gethelp }
 	    }
 	}
 
@@ -186,6 +187,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace export option
     namespace eval option {
 	namespace import ::vc::tools::trouble
+	namespace import ::vc::tools::log
 	namespace import ::vc::fossil::import::cvs::pass
 	namespace import ::vc::fossil::import::cvs::pass::collar
 	namespace import ::vc::fossil::import::cvs::repository
