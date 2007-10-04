@@ -15,8 +15,13 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                             ; # Required runtime.
-package require snit                                ; # OO system.
+package require Tcl 8.4                          ; # Required runtime.
+package require snit                             ; # OO system.
+package require vc::tools::trouble               ; # Error reporting.
+package require vc::tools::log                   ; # User feedback.
+package require vc::tools::misc                  ; # Text formatting
+package require vc::fossil::import::cvs::project ; # CVS projects
+package require struct::list                     ; # List operations.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -26,15 +31,148 @@ snit::type ::vc::fossil::import::cvs::repository {
     ## Public API
 
     typemethod base {path} {
+	# Could be checked, easier to defer to the overall validation.
+	set mybase $path
+	return
     }
 
     typemethod add {path} {
+	# Cannot be checked immediately, the base is not known while
+	# projects are added.
+	lappend myprojpaths $path
+	return
     }
 
     typemethod projects {} {
+	# TODO: Loading from the state database if CollAr is skipped
+	# in a run.
+
+	return [TheProjects]
     }
 
+    typemethod base? {} { return $mybase }
+
     typemethod validate {} {
+	if {![IsRepositoryBase $mybase msg]} {
+	    trouble fatal $msg
+	    # Without a good base directory checking any projects is
+	    # wasted time, so we leave now.
+	    return
+	}
+	foreach pp $myprojpaths {
+	    if {![IsProjectBase $mybase/$pp $mybase/CVSROOT msg]} {
+		trouble fatal $msg
+	    }
+	}
+	return
+    }
+
+    typemethod printstatistics {} {
+	set prlist [TheProjects]
+	set npr [llength $prlist]
+
+	log write 2 repository "Scanned [nsp $npr project]"
+
+	if {$npr > 1} {
+	    set  bmax [max [struct::list map $prlist [myproc .BaseLength]]]
+	    incr bmax 2
+	    set  bfmt %-${bmax}s
+
+	    set  nmax [max [struct::list map $prlist [myproc .NFileLength]]]
+	    set  nfmt %${nmax}s
+	} else {
+	    set bfmt %s
+	    set nfmt %s
+	}
+
+	set keep {}
+	foreach p $prlist {
+	    set nfiles [llength [$p files]]
+	    set line "Project [format $bfmt \"[$p printbase]\"] : [format $nfmt $nfiles] [sp $nfiles file]"
+	    if {$nfiles < 1} {
+		append line ", dropped"
+	    } else {
+		lappend keep $p
+	    }
+	    log write 2 repository $line
+	}
+
+	if {![llength $keep]} {
+	    trouble warn "Dropped all projects"
+	} elseif {$npr == [llength $keep]} {
+	    log write 2 repository "Keeping all projects"
+	} else {
+	    log write 2 repository "Keeping [nsp [llength $keep] project]"
+	    trouble warn "Dropped [nsp [expr {$npr - [llength $keep]}] {empty project}]"
+	}
+
+	# Keep reduced set of projects.
+	set projects $keep
+	return
+    }
+
+    typemethod persist {} {
+    }
+
+    # # ## ### ##### ######## #############
+    ## State
+
+    typevariable mybase      {}
+    typevariable myprojpaths {}
+    typevariable myprojects  {}
+
+    # # ## ### ##### ######## #############
+    ## Internal methods
+
+    proc .BaseLength {p} {
+	return [string length [$p printbase]]
+    }
+
+    proc .NFileLength {p} {
+	return [string length [llength [$p files]]]
+    }
+
+    proc IsRepositoryBase {path mv} {
+	upvar 1 $mv msg mybase mybase
+	if {![fileutil::test $mybase         edr msg {CVS Repository}]}      {return 0}
+	if {![fileutil::test $mybase/CVSROOT edr msg {CVS Admin Directory}]} {return 0}
+	return 1
+    }
+
+    proc IsProjectBase {path admin mv} {
+	upvar 1 $mv msg
+	if {![fileutil::test $path edr msg Project]} {return 0}
+	if {
+	    ($path eq $admin) ||
+	    [string match $admin/* $path]
+	} {
+	    set msg "Administrative subdirectory $path cannot be a project"
+	    return 0
+	}
+	return 1
+    }
+
+    proc TheProjects {} {
+	upvar 1 myprojects myprojects myprojpaths myprojpaths mybase mybase
+
+	if {![llength $myprojects]} {
+	    set myprojects [EmptyProjects $myprojpaths]
+	}
+	return $myprojects
+    }
+
+    proc EmptyProjects {projpaths} {
+	upvar 1 mybase mybase
+	set res {}
+	if {[llength $projpaths]} {
+	    foreach pp $projpaths {
+		lappend res [project %AUTO% $pp]
+	    }
+	} else {
+	    # Base is the single project.
+	    lappend res [project %AUTO% ""]
+	}
+	return $res
     }
 
     # # ## ### ##### ######## #############
@@ -50,9 +188,11 @@ snit::type ::vc::fossil::import::cvs::repository {
 namespace eval ::vc::fossil::import::cvs {
     namespace export repository
     namespace eval repository {
-	#namespace import ::vc::tools::trouble
-	#namespace import ::vc::tools::log
-	#log register collar
+	namespace import ::vc::fossil::import::cvs::project
+	namespace import ::vc::tools::trouble
+	namespace import ::vc::tools::log
+	namespace import ::vc::tools::misc::*
+	log register repository
     }
 }
 

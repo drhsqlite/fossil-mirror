@@ -31,6 +31,7 @@ package require vc::fossil::import::cvs::pass::collar ; # Coll'ect AR'chives.
 
 package require vc::fossil::import::cvs::option ; # Cmd line parsing & database
 package require vc::fossil::import::cvs::pass   ; # Pass management
+package require vc::tools::log                  ; # User feedback
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -47,6 +48,8 @@ snit::type ::vc::fossil::import::cvs {
 
 	option process $arguments
 	pass run
+
+	vc::tools::log write 0 cvs2fossil Done
 	return
     }
 

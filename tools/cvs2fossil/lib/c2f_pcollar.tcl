@@ -47,8 +47,9 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
     }
 
     typemethod run {} {
+	set rbase [repository base?]
 	foreach project [repository projects] {
-	    set base [$project base]
+	    set base [file join $rbase [$project base]]
 	    log write 1 collar "Scan $base"
 
 	    set traverse [fileutil::traverse %AUTO% $base]
@@ -63,27 +64,34 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 		set usr [UserPath $rcs isattic]
 		if {[IsSuperceded $base $rcs $usr $isattic]} continue
 
-		log write 1 collar "Found   $rcs"
+		log write 4 collar "Found   $rcs"
 		$project add $rcs $usr
 
 		incr n
-		log progress 0 collar $n {}
+		if {[log verbosity?] < 4} {
+		    log progress 0 collar $n {}
+		}
 	    }
 
 	    $traverse destroy
 	}
+
+	repository printstatistics
+	repository persist
+
+	log write 1 collar "Scan completed"
 	return
     }
 
     typemethod ignore_conflicting_attics {} {
-	set ignore 1
+	set myignore 1
 	return
     }
 
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    typevariable ignore 0
+    typevariable myignore 0
 
     proc IsRCSArchive {path} {
 	if {![string match *,v $path]}     {return 0}
@@ -94,7 +102,7 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 
     proc IsCVSAdmin {rcs} {
 	if {![string match CVSROOT/* $rcs]} {return 0}
-	log write 2 collar "Ignored $rcs, administrative archive"
+	log write 4 collar "Ignored $rcs, administrative archive"
 	return 1
     }
 
@@ -135,7 +143,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	# In that case the warning is still printed, but will not
 	# induce an abort any longer.
 
-	if {$ignore} {
+	upvar 1 myignore myignore
+	if {$myignore} {
 	    log write 2 collar "Ignored $rcs, superceded archive"
 	} else {
 	    trouble warn       "Ignored $rcs, superceded archive"

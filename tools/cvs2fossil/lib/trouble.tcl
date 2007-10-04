@@ -60,7 +60,14 @@ snit::type ::vc::tools::trouble {
 	    ![llength $mywarn] &&
 	    ![llength $myfatal]
 	} return
-	# We have error messages to print, so stop.
+
+	# Frame the pending messages to make them more clear as the
+	# cause of the abort.
+
+	set     myinfo [linsert $myinfo 0 "" "Encountered problems." ""]
+	lappend myfatal "Stopped due to problems."
+
+	# We have error messages to print, so stop now.
 	exit 1
     }
 
