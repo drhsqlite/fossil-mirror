@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Add\sthe\stkt.c\ssource\sfile\sas\san\sempty\stemplate.
-D 2007-10-03T12:28:55
+C Changes\sto\scgi.c\sin\scheck-in\s[e63a9fd9d0]\sbroke\sthe\swindows\sbuild\sbecause\sof\sundefined\ssocklen_t.\sAdded\sthe\sappropriate\sinclude\sfile
+D 2007-10-04T17:37:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -33,7 +30,7 @@ F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c d66858e82e6ad1e661a411209344c982857f8632
 F src/branch.c efd61694e3aa6f1a61dfa3354a4c999dcd71cd87
-F src/cgi.c 5b9875dd08d596f4b16e0b2f7439caf21268e4b3
+F src/cgi.c 3772dc1166e934aab4278efb367ac14cc2676c49
 F src/checkin.c 1fd79ac4b7b782586deed0e2a2afc66c5f305c62
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
@@ -146,14 +143,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 1e9c0e287e9609f3ee097136ff751d4701278cf5
-R fd01ecdb6b623ba44419d8187583894a
-U drh
-Z f0106feccf21919de1735e959c5d8271
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHA4sKoxKgR168RlERAtFXAJ9nKoGWRYW82sfdSYviorVqC9V+RACfTQA0
-ifMgRoFSfMM1u5o35IqfQYI=
-=CTKf
------END PGP SIGNATURE-----
+P a3e4a5d27d88382fc08aefab5f6d1064c14743e1
+R b362748dfc691bcdc18c4c094dbe8529
+U mjanssen
+Z 0da8fc49f9204d0ed51ec215ffe7465b

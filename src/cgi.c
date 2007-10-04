@@ -32,6 +32,7 @@
 #  include <windows.h>           /* for Sleep once server works again */
 #  include <winsock2.h>          /* socket operations */
 #  define sleep Sleep            /* windows does not have sleep, but Sleep */
+#  include <ws2tcpip.h>          
 #else
 #  include <sys/socket.h>
 #  include <netinet/in.h>
