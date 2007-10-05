@@ -21,6 +21,7 @@ package require vc::tools::trouble               ; # Error reporting.
 package require vc::tools::log                   ; # User feedback.
 package require vc::tools::misc                  ; # Text formatting
 package require vc::fossil::import::cvs::project ; # CVS projects
+package require vc::fossil::import::cvs::state   ; # State storage
 package require struct::list                     ; # List operations.
 package require fileutil                         ; # File operations.
 
@@ -117,6 +118,10 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     typemethod persist {} {
+	state transaction {
+	    foreach p [TheProjects] { $p persist }
+	}
+	return
     }
 
     # # ## ### ##### ######## #############
@@ -194,6 +199,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace export repository
     namespace eval repository {
 	namespace import ::vc::fossil::import::cvs::project
+	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	namespace import ::vc::tools::misc::*

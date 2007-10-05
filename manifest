@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Collapse\smultiple\suses\sof\sa\sproject\spath\sinto\sone\sproject.
-D 2007-10-05T07:08:35
+C Completed\sintegration\sof\sstate\swith\spass\sI,\snow\ssaving\sprojects\sand\sfiles\sinto\sit.
+D 2007-10-05T07:27:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -97,9 +97,9 @@ F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/lib/c2f_option.tcl 5618bdee19c73cb4f25d1a76bbab8edbe995c329
 F tools/cvs2fossil/lib/c2f_pass.tcl 556a226a8a4e834495ffd8aa33f7484034782c1c
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 983f456f591672b1da8504c23dafe0cff9282b52
-F tools/cvs2fossil/lib/c2f_project.tcl 116b688f6574565de447c795708a972c00e6be5d
-F tools/cvs2fossil/lib/c2f_repository.tcl 10e1f473b989e9be6e3423aa52810fd2e8ffaec0
-F tools/cvs2fossil/lib/c2f_state.tcl 2094dd757c13469ca5b200e28952cd60abdb52b3
+F tools/cvs2fossil/lib/c2f_project.tcl 870e1c1dce2ade201d8c2691066e37917df996fd
+F tools/cvs2fossil/lib/c2f_repository.tcl 9c6eebce1bc47cd2d72ec6e5b6a8af9ef2720a32
+F tools/cvs2fossil/lib/c2f_state.tcl 4f1e5d7899f9ed6bcf470b03c73494814f01c237
 F tools/cvs2fossil/lib/cvs2fossil.tcl 00e210c9718fe9df3bddb6e7a33d890a35e84e14
 F tools/cvs2fossil/lib/log.tcl dd3a2d5171af0ecc5834b26b732b1a349f42c6b9
 F tools/cvs2fossil/lib/misc.tcl d5db2a2c742a6aedd91b70acc03ec47936ee0f8d
@@ -136,14 +136,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 78da61db0ef93a652fd267d20e034a9319ca4f2a
-R 9e07e5b9c08a3ef8469c009bdc6392cd
+P d174affb48499e3c07a3513a2f501bbc56bb639a
+R 43fb5667dc7ab1ac5b49047eac3f3557
 U aku
-Z 699e51b1a77f863998d2d0b4c88ef200
+Z 6b61a91d4a5147ff23bbae4f9e71799e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHBeL4vonzZ/CRa7gRAqrFAJ0czIKjSGFzYuqvk/1qYU0gtOKVwgCgibBy
-dLGnA+Em5GUFt1Xza9MRbqQ=
-=ig3T
+iD8DBQFHBed8vonzZ/CRa7gRArYUAKCaPbc5Q/kyGvzT2iOc5EKeVHBQeQCeKQOs
+yQjunvOdHHpvCaIV9yi+Ils=
+=tEWF
 -----END PGP SIGNATURE-----

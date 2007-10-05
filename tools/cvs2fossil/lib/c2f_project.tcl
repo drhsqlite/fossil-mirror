@@ -17,6 +17,7 @@
 
 package require Tcl 8.4                          ; # Required runtime.
 package require snit                             ; # OO system.
+package require vc::fossil::import::cvs::state   ; # State storage
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -46,6 +47,30 @@ snit::type ::vc::fossil::import::cvs::project {
 	return [array names myfiles]
     }
 
+    method persist {} {
+	state transaction {
+	    # Project data first. Required so that we have its id
+	    # ready for the files.
+
+	    state run {
+		INSERT INTO project (pid,  name)
+		VALUES              (NULL, $mybase);
+	    }
+	    set pid [state id]
+
+	    # Then all files, with proper backreference to their
+	    # project.
+
+	    foreach {rcs usr} [array get myfiles] {
+		state run {
+		    INSERT INTO file (fid,  pid,  name, visible)
+		    VALUES           (NULL, $pid, $rcs, $usr);
+		}
+	    }
+	}
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
@@ -65,6 +90,9 @@ snit::type ::vc::fossil::import::cvs::project {
 
 namespace eval ::vc::fossil::import::cvs {
     namespace export project
+    namespace eval project {
+	namespace import ::vc::fossil::import::cvs::state
+    }
 }
 
 # # ## ### ##### ######## ############# #####################
