@@ -19,6 +19,7 @@
 
 package require Tcl 8.4                         ; # Required runtime.
 package require snit                            ; # OO system.
+package require vc::fossil::import::cvs::state  ; # State storage
 package require vc::tools::trouble              ; # Error reporting.
 package require vc::tools::log                  ; # User feedback.
 package require struct::list                    ; # Portable lassign
@@ -108,6 +109,8 @@ snit::type ::vc::fossil::import::cvs::pass {
 	    log write 0 pass "Done  $p"
 	    trouble abort?
 	}
+
+	state release
 	return
     }
 
@@ -165,6 +168,7 @@ snit::type ::vc::fossil::import::cvs::pass {
 namespace eval ::vc::fossil::import::cvs {
     namespace export pass
     namespace eval pass {
+	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log    
 	log register pass

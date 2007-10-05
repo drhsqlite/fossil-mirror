@@ -22,6 +22,7 @@ package require vc::tools::log                   ; # User feedback.
 package require vc::tools::misc                  ; # Text formatting
 package require vc::fossil::import::cvs::project ; # CVS projects
 package require struct::list                     ; # List operations.
+package require fileutil                         ; # File operations.
 
 # # ## ### ##### ######## ############# #####################
 ## 

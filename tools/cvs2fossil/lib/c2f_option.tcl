@@ -25,6 +25,7 @@ package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::pass         ; # Pass management
 package require vc::fossil::import::cvs::pass::collar ; # Pass I.
 package require vc::fossil::import::cvs::repository   ; # Repository management
+package require vc::fossil::import::cvs::state        ; # State storage
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -40,8 +41,8 @@ snit::type ::vc::fossil::import::cvs::option {
     # --project
     # -v, --verbose
     # -q, --quiet
+    # --state (conversion status, ala config.cache)
 
-    # --cache (conversion status, ala config.cache)
     # -o, --output
     # --dry-run
     # --trunk-only
@@ -49,7 +50,6 @@ snit::type ::vc::fossil::import::cvs::option {
     # --force-tag RE
     # --symbol-transform RE:XX
     # --exclude
-    # -p, --passes
 
     # # ## ### ##### ######## #############
     ## Public API, Methods
@@ -59,27 +59,23 @@ snit::type ::vc::fossil::import::cvs::option {
 
 	while {[IsOption arguments -> option]} {
 	    switch -exact -- $option {
-		-h            -
-		--help        { PrintHelp    ; exit 0 }
-		--help-passes { pass help    ; exit 0 }
-		--version     { PrintVersion ; exit 0 }
-
+		-h                          -
+		--help                      { PrintHelp    ; exit 0 }
+		--help-passes               { pass help    ; exit 0 }
+		--version                   { PrintVersion ; exit 0 }
 		-p                          -
 		--pass                      -
 		--passes                    { pass select [Value arguments] }
-
 		--ignore-conflicting-attics { collar ignore_conflicting_attics }
-
-		--project { repository add [Value arguments] }
-		-v        -
-		--verbose { log verbose }
-		-q        -
-		--quiet   { log quiet }
-
-		--cache       {
-		    # [Value arguments]
+		--project                   { repository add [Value arguments] }
+		-v                          -
+		--verbose                   { log verbose }
+		-q                          -
+		--quiet                     { log quiet }
+		--state                     { state use [Value arguments] }
+		default {
+		    Usage $badoption$option\n$gethelp
 		}
-		default { Usage $badoption$option\n$gethelp }
 	    }
 	}
 
@@ -103,6 +99,8 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "    -h, --help    Print this message and exit with success"
 	trouble info "    --help-passes Print list of passes and exit with success"
 	trouble info "    --version     Print version number of $argv0"
+	trouble info "    -v, --verbose Increase application's verbosity"
+	trouble info "    -q, --quiet   Decrease application's verbosity"
 	trouble info ""
 	trouble info "  Conversion control options"
 	trouble info ""
@@ -115,6 +113,9 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "    --ignore-conflicting-attics"
 	trouble info "                               Prevent abort when conflicting archives"
 	trouble info "                               were found in both regular and Attic."
+	trouble info ""
+	trouble info "    --state PATH               Save state to the specified file, and"
+	trouble info "                               load state of previous runs from it too."
 	trouble info ""
 
 	# --project, --cache
@@ -168,6 +169,7 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble abort?
 
 	repository validate
+	state      setup
 
 	trouble abort?
 	return
@@ -191,6 +193,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::fossil::import::cvs::pass
 	namespace import ::vc::fossil::import::cvs::pass::collar
 	namespace import ::vc::fossil::import::cvs::repository
+	namespace import ::vc::fossil::import::cvs::state
     }
 }
 
