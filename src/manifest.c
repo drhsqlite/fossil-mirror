@@ -830,8 +830,12 @@ int manifest_crosslink(int rid, Blob *pContent){
     int prior;
     tag_insert(zTag, 1, 0, rid, m.rDate, rid);
     free(zTag);
-    prior = db_int(0, "SELECT rid FROM tagxref WHERE tagid=%d"
-                      " ORDER BY mtime DESC LIMIT 1 OFFSET 1", tagid);
+    prior = db_int(0,
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=%d AND mtime<%.17g"
+      " ORDER BY mtime DESC",
+      tagid, m.rDate
+    );
     if( prior ){
       content_deltify(prior, rid, 0);
     }

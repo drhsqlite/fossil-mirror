@@ -108,6 +108,10 @@ static void xfer_accept_file(Xfer *pXfer){
   blob_zero(&content);
   blob_zero(&hash);
   blob_extract(pXfer->pIn, n, &content);
+  if( db_exists("SELECT 1 FROM shun WHERE uuid=%B", &pXfer->aToken[1]) ){
+    /* Ignore files that have been shunned */
+    return;
+  }
   if( pXfer->nToken==4 ){
     Blob src;
     int srcid = rid_from_uuid(&pXfer->aToken[2], 1);
@@ -240,7 +244,10 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int srcId){
 */
 static void request_phantoms(Xfer *pXfer){
   Stmt q;
-  db_prepare(&q, "SELECT uuid FROM phantom JOIN blob USING(rid)");
+  db_prepare(&q, 
+    "SELECT uuid FROM phantom JOIN blob USING(rid)"
+    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     blob_appendf(pXfer->pOut, "gimme %s\n", zUuid);
@@ -377,7 +384,10 @@ static void create_cluster(void){
 static int send_unclustered(Xfer *pXfer){
   Stmt q;
   int cnt = 0;
-  db_prepare(&q, "SELECT uuid FROM unclustered JOIN blob USING(rid)");
+  db_prepare(&q, 
+    "SELECT uuid FROM unclustered JOIN blob USING(rid)"
+    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+  );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
     cnt++;

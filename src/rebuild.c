@@ -46,12 +46,13 @@ int rebuild_db(int randomize){
 
   db_multi_exec(
     "CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
+    "CREATE TABLE IF NOT EXISTS shun(uuid UNIQUE);"
   );
   for(;;){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master"
        " WHERE type='table'"
-       " AND name NOT IN ('blob','delta','rcvfrom','user','config')");
+       " AND name NOT IN ('blob','delta','rcvfrom','user','config','shun')");
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
     free(zTable);
@@ -60,10 +61,15 @@ int rebuild_db(int randomize){
 
   db_multi_exec("INSERT INTO unclustered SELECT rid FROM blob");
   db_multi_exec(
+     "DELETE FROM unclustered"
+     " WHERE rid IN (SELECT rid FROM shun JOIN blob USING(uuid))"
+  );
+  db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
   db_prepare(&s,
-     "SELECT rid, size FROM blob %s",
+     "SELECT rid, size FROM blob %s"
+     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)",
      randomize ? "ORDER BY random()" : ""
   );
   while( db_step(&s)==SQLITE_ROW ){

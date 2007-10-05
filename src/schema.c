@@ -117,6 +117,13 @@ const char zRepositorySchema1[] =
 @   value CLOB,                      -- Content of the named parameter
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
 @ );
+@
+@ -- Artifacts that should not be processed are identified in the
+@ -- "shun" table.  Artifacts that are control-file forgeries or
+@ -- spam can be shunned in order to prevent them from contaminating
+@ -- the repository.
+@ --
+@ CREATE TABLE shun(uuid UNIQUE);
 ;
 const char zRepositorySchema2[] =
 @ -- Filenames
@@ -201,8 +208,9 @@ const char zRepositorySchema2[] =
 @ -- Each baseline or manifest can have one or more tags.  A tag
 @ -- is defined by a row in the next table.
 @ -- 
-@ -- Tags that begin with "br" automatically propagate to direct
-@ -- children, but not to merge children.
+@ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
+@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where 
+@ -- UUID is the indentifier of the ticket.
 @ --
 @ CREATE TABLE tag(
 @   tagid INTEGER PRIMARY KEY,       -- Numeric tag ID
