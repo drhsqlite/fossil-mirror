@@ -63,10 +63,13 @@ snit::type ::vc::fossil::import::cvs::state {
 	# itself, this ensures that the file is _not_ cleaned up after
 	# a run.
 
-	catch { ${type}::STATE close }
-	rename  ${type}::TEMP ${type}::STATE
+	set mystate ${type}::STATE
+	set mypath  {}
 
-	set mypath {}
+	catch { $mystate close }
+	rename  ${type}::TEMP $mystate
+
+	log write 2 state "is $path"
 	return
     }
 
@@ -74,10 +77,11 @@ snit::type ::vc::fossil::import::cvs::state {
 	# If, and only if no state database was defined by the user
 	# then it is now the time to create our own using a tempfile.
 
-	if {[llength [info commands ${type}::STATE]]} return
+	if {$mystate ne ""} return
 
 	set mypath  [fileutil::tempfile cvs2fossil_state_]
-	sqlite3 ${type}::STATE $mypath
+	set mystate ${type}::STATE
+	sqlite3 $mystate $mypath
 
 	log write 2 state "using $mypath"
 	return
@@ -89,6 +93,42 @@ snit::type ::vc::fossil::import::cvs::state {
 	if {$mypath eq ""} return
 	file delete $mypath
 	return
+    }
+
+    typemethod writing {name definition} {
+	# Method for a user to declare a table its needs for storing
+	# persistent state, and the expected structure. A possibly
+	# previously existing definition is dropped.
+
+	$mystate transaction {
+	    catch { $mystate eval "DROP TABLE $name" }
+	    $mystate eval "CREATE TABLE $name ( $definition )"
+	}
+	return
+    }
+
+    typemethod reading {name} {
+	# Method for a user to declare a table it wishes to read
+	# from. A missing table is an internal error causing an
+	# immediate exit.
+
+	set found [llength [$mystate eval {
+	    SELECT name
+	    FROM sqlite_master
+	    WHERE type = 'table'
+	    AND   name = $name
+	    ;
+	}]]
+
+	if {$found} return
+
+	trouble internal "The required table \"$name\" is not defined."
+	# Not reached
+	return
+    }
+
+    typemethod run {args} {
+	return [uplevel 1 [linsert $args 0 $mystate eval]]
     }
 
     # # ## ### ##### ######## #############

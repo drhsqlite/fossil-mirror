@@ -26,6 +26,7 @@ package require vc::tools::trouble                  ; # Error reporting.
 package require vc::tools::log                      ; # User feedback.
 package require vc::fossil::import::cvs::pass       ; # Pass management.
 package require vc::fossil::import::cvs::repository ; # Repository management.
+package require vc::fossil::import::cvs::state      ; # State storage
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -43,7 +44,20 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
     ## Public API
 
     typemethod setup {} {
-	# TODO ... artifact/cache - drop projects/files, create projects/files
+	# Define names and structure of the persistent state of this
+	# pass.
+
+	state writing project {
+	    pid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
+	    name TEXT     NOT NULL  UNIQUE
+	}
+	state writing files {
+	    fid     INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
+	    pid     INTEGER  NOT NULL  REFERENCES project,
+	    name    TEXT     NOT NULL  UNIQUE,
+	    visible TEXT     NOT NULL  UNIQUE
+	}
+	return
     }
 
     typemethod run {} {
@@ -166,6 +180,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
     namespace export collar
     namespace eval collar {
 	namespace import ::vc::fossil::import::cvs::repository
+	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	log register collar
