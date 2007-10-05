@@ -92,13 +92,8 @@ Change to wiki:
    D datetime
    P uuid ...
    U user
-   W wikipagename uuid
-   Z md5sum
-
-On page:
-
-   <title>....</title>
-   <readonly/>
+   W size \n text \n
+   Z cksum
 
 Hyperlinks:
 

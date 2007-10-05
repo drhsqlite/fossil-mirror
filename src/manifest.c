@@ -24,7 +24,7 @@
 ** This file contains code used to cross link control files and
 ** manifests.  The file is named "manifest.c" because it was
 ** original only used to parse manifests.  Then later clusters
-** and control files were added.
+** and control files and wiki pages and tickets were added.
 */
 #include "config.h"
 #include "manifest.h"
@@ -37,6 +37,15 @@
 #define CFTYPE_MANIFEST   1
 #define CFTYPE_CLUSTER    2
 #define CFTYPE_CONTROL    3
+#define CFTYPE_WIKI       4
+#define CFTYPE_TICKET     5
+
+/*
+** Mode parameter values
+*/
+#define CFMODE_READ       1
+#define CFMODE_APPEND     2
+#define CFMODE_WRITE      3
 
 /*
 ** A parsed manifest or cluster.
@@ -44,11 +53,15 @@
 struct Manifest {
   Blob content;         /* The original content blob */
   int type;             /* Type of file */
+  int mode;             /* Access mode */
   char *zComment;       /* Decoded comment */
   char zUuid[UUID_SIZE+1];  /* Self UUID */
   double rDate;         /* Time in the "D" line */
   char *zUser;          /* Name of the user */
   char *zRepoCksum;     /* MD5 checksum of the baseline content */
+  char *zWiki;          /* Text of the wiki page */
+  char *zWikiTitle;     /* Name of the wiki page */
+  char *zTicketUuid;    /* UUID for a ticket */
   int nFile;            /* Number of F lines */
   int nFileAlloc;       /* Slots allocated in aFile[] */
   struct { 
@@ -68,6 +81,19 @@ struct Manifest {
     char *zUuid;           /* UUID that the tag is applied to */
     char *zValue;          /* Value if the tag is really a property */
   } *aTag;
+  int nField;           /* Number of J lines */
+  int nFieldAlloc;      /* Slots allocated in aField[] */
+  struct { 
+    char *zName;           /* Key or field name */
+    char *zValue;          /* Value of the field */
+  } *aField;
+  int nAttach;          /* Number of A lines */
+  int nAttachAlloc;     /* Slots allocated in aAttach[] */
+  struct { 
+    char *zUuid;           /* UUID of the attachment */
+    char *zName;           /* Name of the attachment */
+    char *zDesc;           /* Description of the attachment */
+  } *aAttach;
 };
 #endif
 
@@ -80,25 +106,42 @@ void manifest_clear(Manifest *p){
   free(p->aFile);
   free(p->azParent);
   free(p->azCChild);
+  free(p->aTag);
+  free(p->aField);
+  free(p->aAttach);
   memset(p, 0, sizeof(*p));
 }
 
 /*
-** Parse a manifest blob into a Manifest object.  The Manifest
-** object takes over the input blob and will free it when the
+** Parse a blob into a Manifest object.  The Manifest object
+** takes over the input blob and will free it when the
 ** Manifest object is freed.  Zeros are inserted into the blob
 ** as string terminators so that blob should not be used again.
 **
-** Return TRUE if the content really is a manifest.  Return FALSE
-** if there are syntax errors.
+** Return TRUE if the content really is a control file of some
+** kind.  Return FALSE if there are syntax errors.
+**
+** This routine is strict about the format of a control file.
+** The format must match exactly or else it is rejected.  This
+** rule minimizes the risk that a content file will be mistaken
+** for a control file simply because they look the same.
 **
 ** The pContent is reset.  If TRUE is returned, then pContent will
 ** be reset when the Manifest object is cleared.  If FALSE is
 ** returned then the Manifest object is cleared automatically
 ** and pContent is reset before the return.
+**
+** The entire file can be PGP clear-signed.  The signature is ignored.
+** The file consists of zero or more cards, one card per line.
+** (Except: the content of the W card can extend of multiple lines.)
+** Each card is divided into tokens by a single space character.
+** The first token is a single upper-case letter which is the card type.
+** The card type determines the other parameters to the card.
+** Cards must occur in lexicographical order.
 */
 int manifest_parse(Manifest *p, Blob *pContent){
   int seenHeader = 0;
+  int seenZ = 0;
   int i, lineNo=0;
   Blob line, token, a1, a2, a3;
   Blob selfuuid;
@@ -138,6 +181,44 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;
     switch( z[0] ){
       /*
+      **     A <uuid> <filename> <description>
+      **
+      ** Identifies an attachment to either a wiki page or a ticket.
+      ** <uuid> is the artifact that is the attachment.
+      */
+      case 'A': {
+        char *zName, *zUuid, *zDesc;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a3)==0 ) goto manifest_syntax_error;
+        zUuid = blob_terminate(&a1);
+        zName = blob_terminate(&a2);
+        zDesc = blob_terminate(&a3);
+        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        defossilize(zName);
+        if( !file_is_simple_pathname(zName) ){
+          goto manifest_syntax_error;
+        }
+        defossilize(zDesc);
+        if( p->nAttach>=p->nAttachAlloc ){
+          p->nAttachAlloc = p->nAttachAlloc*2 + 10;
+          p->aAttach = realloc(p->aAttach,
+                               p->nAttachAlloc*sizeof(p->aAttach[0]) );
+          if( p->aAttach==0 ) fossil_panic("out of memory");
+        }
+        i = p->nAttach++;
+        p->aAttach[i].zUuid = zUuid;
+        p->aAttach[i].zName = zName;
+        p->aAttach[i].zDesc = zDesc;
+        if( i>0 && strcmp(p->aAttach[i-1].zUuid, zUuid)>=0 ){
+          goto manifest_syntax_error;
+        }
+        break;
+      }
+
+      /*
       **     C <comment>
       **
       ** Comment text is fossil-encoded.  There may be no more than
@@ -169,6 +250,29 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         zDate = blob_terminate(&a1);
         p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
+        break;
+      }
+
+      /*
+      **     E <mode>
+      **
+      ** Access mode.  <mode> can be one of "read", "append",
+      ** or "write".
+      */
+      case 'E': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->mode!=0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( blob_eq(&a1, "write") ){
+          p->mode = CFMODE_WRITE;
+        }else if( blob_eq(&a1, "append") ){
+          p->mode = CFMODE_APPEND;
+        }else if( blob_eq(&a1, "read") ){
+          p->mode = CFMODE_READ;
+        }else{
+          goto manifest_syntax_error;
+        }
         break;
       }
 
@@ -208,6 +312,70 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
+      **     J <name> <value>
+      **
+      ** Specifies a name value pair for ticket. 
+      */
+      case 'J': {
+        char *zName, *zValue;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
+        zName = blob_terminate(&a1);
+        zValue = blob_terminate(&a2);
+        defossilize(zValue);
+        if( p->nField>=p->nFieldAlloc ){
+          p->nFieldAlloc = p->nFieldAlloc*2 + 10;
+          p->aField = realloc(p->aField,
+                               p->nFieldAlloc*sizeof(p->aField[0]) );
+          if( p->aField==0 ) fossil_panic("out of memory");
+        }
+        i = p->nField++;
+        p->aField[i].zName = zName;
+        p->aField[i].zValue = zValue;
+        if( i>0 && strcmp(p->aField[i-1].zName, zName)>=0 ){
+          goto manifest_syntax_error;
+        }
+        break;
+      }
+
+
+      /*
+      **    K <uuid>
+      **
+      ** A K-line gives the UUID for the ticket which this control file
+      ** is amending.
+      */
+      case 'K': {
+        char *zUuid;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        zUuid = blob_terminate(&a1);
+        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
+        p->zTicketUuid = zUuid;
+        break;
+      }
+
+      /*
+      **     L <wikitite>
+      **
+      ** The wiki page title is fossil-encoded.  There may be no more than
+      ** one L line.
+      */
+      case 'L': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->zWikiTitle!=0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        p->zWikiTitle = blob_terminate(&a1);
+        defossilize(p->zWikiTitle);
+        break;
+      }
+
+      /*
       **    M <uuid>
       **
       ** An M-line identifies another artifact by its UUID.  M-lines
@@ -231,6 +399,48 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( i>0 && strcmp(p->azCChild[i-1], zUuid)>=0 ){
           goto manifest_syntax_error;
         }
+        break;
+      }
+
+      /*
+      **     P <uuid> ...
+      **
+      ** Specify one or more other artifacts where are the parents of
+      ** this artifact.  The first parent is the primary parent.  All
+      ** others are parents by merge.
+      */
+      case 'P': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        while( blob_token(&line, &a1) ){
+          char *zUuid;
+          if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+          zUuid = blob_terminate(&a1);
+          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+          if( p->nParent>=p->nParentAlloc ){
+            p->nParentAlloc = p->nParentAlloc*2 + 5;
+            p->azParent = realloc(p->azParent, p->nParentAlloc*sizeof(char*));
+            if( p->azParent==0 ) fossil_panic("out of memory");
+          }
+          i = p->nParent++;
+          p->azParent[i] = zUuid;
+        }
+        break;
+      }
+
+      /*
+      **     R <md5sum>
+      **
+      ** Specify the MD5 checksum of the entire baseline in a
+      ** manifest.
+      */
+      case 'R': {
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
+        p->zRepoCksum = blob_terminate(&a1);
+        if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
         break;
       }
 
@@ -313,46 +523,31 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     R <md5sum>
+      **     W <size>
       **
-      ** Specify the MD5 checksum of the entire baseline in a
-      ** manifest.
+      ** The next <size> bytes of the file contain the text of the wiki
+      ** page.  There is always an extra \n before the start of the next
+      ** record.
       */
-      case 'R': {
+      case 'W': {
+        int size;
+        Blob wiki;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
-        p->zRepoCksum = blob_terminate(&a1);
-        if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
+        if( !blob_is_int(&a1, &size) ) goto manifest_syntax_error;
+        if( size<0 ) goto manifest_syntax_error;
+        if( p->zWiki!=0 ) goto manifest_syntax_error;
+        blob_zero(&wiki);
+        if( blob_extract(pContent, size+1, &wiki)!=size+1 ){
+          goto manifest_syntax_error;
+        }
+        p->zWiki = blob_buffer(&wiki);
+        if( p->zWiki[size]!='\n' ) goto manifest_syntax_error;
+        p->zWiki[size] = 0;
         break;
       }
 
-      /*
-      **     P <uuid> ...
-      **
-      ** Specify one or more other artifacts where are the parents of
-      ** this artifact.  The first parent is the primary parent.  All
-      ** others are parents by merge.
-      */
-      case 'P': {
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        while( blob_token(&line, &a1) ){
-          char *zUuid;
-          if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
-          zUuid = blob_terminate(&a1);
-          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
-          if( p->nParent>=p->nParentAlloc ){
-            p->nParentAlloc = p->nParentAlloc*2 + 5;
-            p->azParent = realloc(p->azParent, p->nParentAlloc*sizeof(char*));
-            if( p->azParent==0 ) fossil_panic("out of memory");
-          }
-          i = p->nParent++;
-          p->azParent[i] = zUuid;
-        }
-        break;
-      }
 
       /*
       **     Z <md5sum>
@@ -360,6 +555,10 @@ int manifest_parse(Manifest *p, Blob *pContent){
       ** MD5 checksum on this control file.  The checksum is over all
       ** lines (other than PGP-signature lines) prior to the current
       ** line.  This must be the last record.
+      **
+      ** This card is required for all control file types except for
+      ** Manifest.  It is not required for manifest only for historical
+      ** compatibility reasons.
       */
       case 'Z': {
         int rc;
@@ -372,6 +571,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         rc = blob_compare(&hash, &a1);
         blob_reset(&hash);
         if( rc!=0 ) goto manifest_syntax_error;
+        seenZ = 1;
         break;
       }
       default: {
@@ -384,6 +584,12 @@ int manifest_parse(Manifest *p, Blob *pContent){
   if( p->nFile>0 ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->nField>0 ) goto manifest_syntax_error;
+    if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->nAttach>0 ) goto manifest_syntax_error;
+    if( p->zWiki ) goto manifest_syntax_error;
+    if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->zTicketUuid ) goto manifest_syntax_error;
     p->type = CFTYPE_MANIFEST;
   }else if( p->nCChild>0 ){
     if( p->rDate>0.0 ) goto manifest_syntax_error;
@@ -392,11 +598,44 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->nParent>0 ) goto manifest_syntax_error;
     if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+    if( p->nField>0 ) goto manifest_syntax_error;
+    if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->nAttach>0 ) goto manifest_syntax_error;
+    if( p->zWiki ) goto manifest_syntax_error;
+    if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_CLUSTER;
+  }else if( p->nField>0 ){
+    if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+    if( p->zWiki ) goto manifest_syntax_error;
+    if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->nCChild>0 ) goto manifest_syntax_error;
+    if( p->nTag>0 ) goto manifest_syntax_error;
+    if( p->zTicketUuid==0 ) goto manifest_syntax_error;
+    if( p->zUser==0 ) goto manifest_syntax_error;
+    if( !seenZ ) goto manifest_syntax_error;
+    p->type = CFTYPE_TICKET;
+  }else if( p->zWiki!=0 ){
+    if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
+    if( p->nCChild>0 ) goto manifest_syntax_error;
+    if( p->nTag>0 ) goto manifest_syntax_error;
+    if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
+    if( p->zUser==0 ) goto manifest_syntax_error;
+    if( p->zWikiTitle==0 ) goto manifest_syntax_error;
+    if( !seenZ ) goto manifest_syntax_error;
+    p->type = CFTYPE_WIKI;
   }else if( p->nTag>0 ){
     if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
     if( p->nParent>0 ) goto manifest_syntax_error;
+    if( p->nAttach>0 ) goto manifest_syntax_error;
+    if( p->nField>0 ) goto manifest_syntax_error;
+    if( p->zWiki ) goto manifest_syntax_error;
+    if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_CONTROL;
   }else{
     goto manifest_syntax_error;
@@ -583,6 +822,18 @@ int manifest_crosslink(int rid, Blob *pContent){
     }
     if( parentid ){
       tag_propagate_all(parentid);
+    }
+  }
+  if( m.type==CFTYPE_WIKI ){
+    char *zTag = mprintf("wiki-%s", m.zWikiTitle);
+    int tagid = tag_findid(zTag, 1);
+    int prior;
+    tag_insert(zTag, 1, 0, rid, m.rDate, rid);
+    free(zTag);
+    prior = db_int(0, "SELECT rid FROM tagxref WHERE tagid=%d"
+                      " ORDER BY mtime DESC LIMIT 1 OFFSET 1", tagid);
+    if( prior ){
+      content_deltify(prior, rid, 0);
     }
   }
   db_end_transaction(0);

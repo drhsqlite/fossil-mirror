@@ -760,7 +760,6 @@ static void resolveHyperlink(const char *zTarget, Renderer *p){
    || strncmp(zTarget, "https:", 6)==0
    || strncmp(zTarget, "ftp:", 4)==0 
    || strncmp(zTarget, "mailto:", 7)==0
-   || strncmp(zTarget, "gopher:", 7)==0
   ){
     blob_appendf(p->pOut, zTarget);
   }else{
@@ -995,7 +994,6 @@ void wiki_convert(Blob *pIn, Blob *pOut){
   blob_append(pOut, "\n", 1);
   free(renderer.aStack);
 }
-
 
 /*
 ** COMMAND: test-wiki-render

@@ -226,7 +226,7 @@ const char zRepositorySchema2[] =
 @   rid INTEGER REFERENCE blob,     -- Baseline that tag added/removed from
 @   UNIQUE(rid, tagid)
 @ );
-@ CREATE INDEX tagxref_i1 ON tagxref(tagid);
+@ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
 ;
 
 /*
