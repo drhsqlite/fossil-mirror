@@ -38,8 +38,12 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     typemethod add {path} {
-	# Cannot be checked immediately, the base is not known while
-	# projects are added.
+	# Most things cannot be checked immediately, as the base is
+	# not known while projects are added. We can and do check for
+	# uniqueness. We accept multiple occurences of a name, and
+	# treat them as a single project.
+
+	if {[lsearch -exact $myprojpaths $path] >= 0} return
 	lappend myprojpaths $path
 	return
     }
