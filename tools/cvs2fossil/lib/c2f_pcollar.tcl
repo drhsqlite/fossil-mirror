@@ -47,15 +47,34 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	# Define names and structure of the persistent state of this
 	# pass.
 
+	# We deal with repository projects, and the rcs archive files
+	# in the projects.
+
+	# For the first, projects, we keep their names, which are
+	# their paths relative to the base directory of the whole
+	# repository. These have to be globally unique, i.e. no two
+	# projects can have the same name.
+
+	# For the files we keep their names, which are their paths
+	# relative to the base directory of the whole project! These
+	# have to be unique within a project, however globally this
+	# does not hold, a name may occur several times, in different
+	# projects. We further store the user visible file name
+	# associated with the rcs archive.
+
+	# Both projects and files are identified by globally unique
+	# integer ids, automatically assigned by the database.
+
 	state writing project {
 	    pid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    name TEXT     NOT NULL  UNIQUE
 	}
-	state writing files {
+	state writing file {
 	    fid     INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    pid     INTEGER  NOT NULL  REFERENCES project,
-	    name    TEXT     NOT NULL  UNIQUE,
-	    visible TEXT     NOT NULL  UNIQUE
+	    name    TEXT     NOT NULL,
+	    visible TEXT     NOT NULL,
+	    UNIQUE (pid, name)
 	}
 	return
     }
