@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bringing\sback\sin\sthe\sold\sparser\sfor\srcs\sarchives.
-D 2007-10-06T18:28:33
+C Fleshed\sout\spass\sII,\sadded\sskeleton\sof\srcs\sarchive\sclass,\sstarted\sintegration\sof\srcs\sparser.
+D 2007-10-06T18:43:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -94,18 +94,19 @@ F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
+F tools/cvs2fossil/lib/c2f_file.tcl d278cae8eb2a4895dbe6bed6664a23b6bb09a130
 F tools/cvs2fossil/lib/c2f_option.tcl 5618bdee19c73cb4f25d1a76bbab8edbe995c329
 F tools/cvs2fossil/lib/c2f_pass.tcl 7af6ad1f9794b23d29cd056bb4244258236366bf
 F tools/cvs2fossil/lib/c2f_pcollar.tcl e8bf2c5266a38dbf8057e410b7effc3dc05b552f
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl db77055e397ee5b0ee6f7859457767c78fc62d49
-F tools/cvs2fossil/lib/c2f_project.tcl 870e1c1dce2ade201d8c2691066e37917df996fd
-F tools/cvs2fossil/lib/c2f_repository.tcl 66efb474fbdace4f0cce7bd13adf47b43cd93105
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl 71d77fda76553845a5de9a21fcdcb4f4e4dab86a
+F tools/cvs2fossil/lib/c2f_project.tcl 079a9bd314ba13664e3ae79edb6531a7595f372e
+F tools/cvs2fossil/lib/c2f_repository.tcl e7ff366ee10efd6005d3eadf64d42a9d1dafb194
 F tools/cvs2fossil/lib/c2f_state.tcl e652a4a1264a027d05dd58dc6eaf233695520239
 F tools/cvs2fossil/lib/cvs2fossil.tcl b81dcdcb7db84a2e038193f093f4b04535977016
 F tools/cvs2fossil/lib/log.tcl dd3a2d5171af0ecc5834b26b732b1a349f42c6b9
 F tools/cvs2fossil/lib/misc.tcl d5db2a2c742a6aedd91b70acc03ec47936ee0f8d
-F tools/cvs2fossil/lib/pkgIndex.tcl 96ca91f42cbb5e0b1cccf4ced414478ee3b7b06b
-F tools/cvs2fossil/lib/rcsparser.tcl f2a4e1c86429ae8ba35187a8876af1d20ed1d78a
+F tools/cvs2fossil/lib/pkgIndex.tcl 94d4362076ebaeb6ae9e891e6835d368299a2c18
+F tools/cvs2fossil/lib/rcsparser.tcl 2b8758d0ac5e1c2e6856e8b3e5c3cd29d77901b3
 F tools/cvs2fossil/lib/trouble.tcl 2697d806a7b2de5a72213977e4becae2291923c7
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
@@ -138,14 +139,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P fdbc01df955c9359f60c9b2f1d52623c4f27ebb7
-R 953313dc2f79727874fc219b7b905749
+P 860f533e98efba37a38bffd56706299a0299430c
+R a1593e2ef0d62452704e3b9bda3ce744
 U aku
-Z 2edeb9f97a63deb52656e93978e43edf
+Z b29bdd50614233ba6f5c686b2ad011a9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHB9PZvonzZ/CRa7gRAv/1AJ0Vfq6fXLMp3bVqhu2P0O0X13cfrwCgiEt0
-de2ozZ85fwxTaCpatTklBIk=
-=MQLV
+iD8DBQFHB9c6vonzZ/CRa7gRAvt8AJwNzwaufAuo/uJUhfToeK9ZeQF48QCdH29N
+V0ZM141NTJYYMfXokJfKi8I=
+=G9G3
 -----END PGP SIGNATURE-----

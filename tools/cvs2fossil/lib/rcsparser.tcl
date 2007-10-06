@@ -16,8 +16,8 @@ package require fileutil       ; # Tcllib (cat)
 package require vc::tools::log ; # User feedback
 
 namespace eval ::vc::rcs::parser {
-    vc::tools::log::system rcs
-    namespace import ::vc::tools::log::*
+    namespace import ::vc::tools::log
+    log register rcs
 }
 
 # -----------------------------------------------------------------------------

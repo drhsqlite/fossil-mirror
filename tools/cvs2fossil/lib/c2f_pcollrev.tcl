@@ -24,7 +24,8 @@ package require vc::tools::trouble                  ; # Error reporting.
 package require vc::tools::log                      ; # User feedback.
 package require vc::fossil::import::cvs::pass       ; # Pass management.
 package require vc::fossil::import::cvs::repository ; # Repository management.
-package require vc::fossil::import::cvs::state      ; # State storage
+package require vc::fossil::import::cvs::state      ; # State storage.
+package require vc::rcs::parser                     ; # Rcs archive data extraction.
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -158,6 +159,9 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (pid, bid, aid, cid)
 	}
 
+	# Author and commit message information is fully global,
+	# i.e. per repository.
+
 	state writing author {
 	    aid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
 	    name TEXT     NOT NULL  UNIQUE
@@ -180,6 +184,21 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
     }
 
     typemethod run {} {
+	set rbase [repository base?]
+	foreach project [repository projects] {
+	    set base [file join $rbase [$project base]]
+	    log write 1 collrev "Processing $base"
+
+	    foreach file [$project files] {
+		set path [$file path]
+		log write 2 collrev "Parsing $path"
+		rcs::process [file join $base $path] $file
+	    }
+	}
+
+	repository printrevstatistics
+	repository persistrev
+
 	log write 1 collrev "Scan completed"
 	return
     }
@@ -200,6 +219,9 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 namespace eval ::vc::fossil::import::cvs::pass {
     namespace export collrev
     namespace eval collrev {
+	namespace eval rcs {
+	    namespace import ::vc::rcs::parser::process
+	}
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::trouble

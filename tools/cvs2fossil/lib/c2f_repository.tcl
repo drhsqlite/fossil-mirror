@@ -93,7 +93,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 
 	set keep {}
 	foreach p $prlist {
-	    set nfiles [llength [$p files]]
+	    set nfiles [llength [$p filenames]]
 	    set line "Project [format $bfmt \"[$p printbase]\"] : [format $nfmt $nfiles] [sp $nfiles file]"
 	    if {$nfiles < 1} {
 		append line ", dropped"
@@ -139,7 +139,7 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     proc .NFileLength {p} {
-	return [string length [llength [$p files]]]
+	return [string length [llength [$p filenames]]]
     }
 
     proc IsRepositoryBase {path mv} {

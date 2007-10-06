@@ -17,6 +17,7 @@
 
 package require Tcl 8.4                          ; # Required runtime.
 package require snit                             ; # OO system.
+package require vc::fossil::import::cvs::file    ; # CVS archive file.
 package require vc::fossil::import::cvs::state   ; # State storage
 
 # # ## ### ##### ######## ############# #####################
@@ -43,8 +44,17 @@ snit::type ::vc::fossil::import::cvs::project {
 	return
     }
 
-    method files {} {
+    method filenames {} {
 	return [array names myfiles]
+    }
+
+    method files {} {
+	# TODO: Loading from state
+	set res {}
+	foreach f [array names myfiles] {
+	    lappend res [file %AUTO% $f $self]
+	}
+	return $res
     }
 
     method persist {} {
@@ -75,7 +85,7 @@ snit::type ::vc::fossil::import::cvs::project {
     ## State
 
     variable mybase         {} ; # Project directory
-    variable myfiles -array {} ; # Maps rcss archive to their user files.
+    variable myfiles -array {} ; # Maps rcs archive to their user files.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -91,6 +101,7 @@ snit::type ::vc::fossil::import::cvs::project {
 namespace eval ::vc::fossil::import::cvs {
     namespace export project
     namespace eval project {
+	namespace import ::vc::fossil::import::cvs::file
 	namespace import ::vc::fossil::import::cvs::state
     }
 }
