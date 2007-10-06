@@ -12,6 +12,8 @@
 
 ## Repository manager. Keeps projects and their files around.
 
+package provide vc::fossil::import::cvs::repository 1.0
+
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
@@ -20,7 +22,7 @@ package require snit                             ; # OO system.
 package require vc::tools::trouble               ; # Error reporting.
 package require vc::tools::log                   ; # User feedback.
 package require vc::tools::misc                  ; # Text formatting
-package require vc::fossil::import::cvs::project ; # CVS projects
+# CVS Projects later (see bottom) to handle circular dependency in 'file'.
 package require vc::fossil::import::cvs::state   ; # State storage
 package require struct::list                     ; # List operations.
 package require fileutil                         ; # File operations.
@@ -70,6 +72,16 @@ snit::type ::vc::fossil::import::cvs::repository {
 		trouble fatal $msg
 	    }
 	}
+	return
+    }
+
+    typemethod author {a} {
+	set myauthor($a) ""
+	return
+    }
+
+    typemethod cmessage {cm} {
+	set mycmsg($cm) ""
 	return
     }
 
@@ -136,7 +148,8 @@ snit::type ::vc::fossil::import::cvs::repository {
     # pass II persistence
     typemethod persistrev {} {
 	state transaction {
-	    # TODO: per repository persistence (authors, commit messages)
+	    SaveAuthors
+	    SaveCommitMessages
 	    foreach p [TheProjects] { $p persistrev }
 	}
 	return
@@ -145,9 +158,11 @@ snit::type ::vc::fossil::import::cvs::repository {
     # # ## ### ##### ######## #############
     ## State
 
-    typevariable mybase      {}
-    typevariable myprojpaths {}
-    typevariable myprojects  {}
+    typevariable mybase          {} ; # Base path to CVS repository.
+    typevariable myprojpaths     {} ; # Paths to all declared projects, relative to mybase.
+    typevariable myprojects      {} ; # Objects for all declared projects.
+    typevariable myauthor -array {} ; # Names of all authors found, later with id.
+    typevariable mycmsg   -array {} ; # All commit messages found, later with id.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -203,6 +218,32 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return $res
     }
 
+    proc SaveAuthors {} {
+	::variable myauthor
+	foreach a [lsort -dict [array names myauthor]] {
+	    state run {
+		INSERT INTO author (aid, name)
+		VALUES             (NULL, $a);
+	    }
+	    # Save id for use by the project/file persistence code.
+	    set myauthor($a) [state id]
+	}
+	return
+    }
+
+    proc SaveCommitMessages {} {
+	::variable mycmsg
+	foreach t [lsort -dict [array names mycmsg]] {
+	    state run {
+		INSERT INTO cmessage (cid, text)
+		VALUES             (NULL, $t);
+	    }
+	    # Save id for use by the project/file persistence code.
+	    set mycmsg($t) [state id]
+	}
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## Configuration
 
@@ -215,18 +256,23 @@ snit::type ::vc::fossil::import::cvs::repository {
 
 namespace eval ::vc::fossil::import::cvs {
     namespace export repository
-    namespace eval repository {
-	namespace import ::vc::fossil::import::cvs::project
-	namespace import ::vc::fossil::import::cvs::state
-	namespace import ::vc::tools::misc::*
-	namespace import ::vc::tools::trouble
-	namespace import ::vc::tools::log
-	log register repository
-    }
+}
+
+# CVS projects here to handle circular dependency
+# repository <- project <- file <- repository
+
+package require vc::fossil::import::cvs::project
+
+namespace eval ::vc::fossil::import::cvs::repository {
+    namespace import ::vc::fossil::import::cvs::project
+    namespace import ::vc::fossil::import::cvs::state
+    namespace import ::vc::tools::misc::*
+    namespace import ::vc::tools::trouble
+    namespace import ::vc::tools::log
+    log register repository
 }
 
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide vc::fossil::import::cvs::repository 1.0
 return

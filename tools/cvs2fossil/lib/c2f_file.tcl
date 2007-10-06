@@ -16,8 +16,9 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                          ; # Required runtime.
-package require snit                             ; # OO system.
+package require Tcl 8.4                             ; # Required runtime.
+package require snit                                ; # OO system.
+package require vc::fossil::import::cvs::repository ; # Repository management.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -62,7 +63,6 @@ snit::type ::vc::fossil::import::cvs::file {
     #method extend {rev commitmsg deltarange} {puts "extend $commitmsg $deltarange"}
     #method done {} {puts done}
 
-
     # # ## ### ##### ######## #############
     ## Persistence (pass II)
 
@@ -70,10 +70,52 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     # # ## ### ##### ######## #############
+    ## Implement the sink
+
+    method begin     {} {}
+    method done      {} {}
+    method admindone {} {}
+
+    method sethead {h} {
+	set myhead $h
+	return
+    }
+
+    method setprincipalbranch {b} {
+	set myprincipal $b
+	return
+    }
+
+    method setsymbols {dict} {
+	# Slice symbols into branches and tags, canonical numbers ...
+array set _ $dict
+parray _
+    }
+
+    method setcomment {c} {# ignore}
+    method setdesc    {d} {# ignore}
+
+    method def {rev date author state next branches} {
+	set myrev($rev) [list $date $author $state $next $branches]
+	repository author $author
+	return
+    }
+
+    method extend {rev commitmsg deltarange} {
+	set cm [string trim $commitmsg]
+	lappend myrev($rev) $cm $deltarange
+	repository cmessage $cm
+	return
+    }
+
+    # # ## ### ##### ######## #############
     ## State
 
-    variable mypath    {} ; # Path of rcs archive
-    variable myproject {} ; # Project object the file belongs to.
+    variable mypath       {} ; # Path of rcs archive
+    variable myproject    {} ; # Project object the file belongs to.
+    variable myrev -array {} ; # All revisions and their connections.
+    variable myhead       {} ; # Head revision    (rev number)
+    variable myprincipal  {} ; # Principal branch (branch number)
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -88,6 +130,9 @@ snit::type ::vc::fossil::import::cvs::file {
 
 namespace eval ::vc::fossil::import::cvs {
     namespace export file
+    namespace eval file {
+	namespace import ::vc::fossil::import::cvs::repository
+    }
 }
 
 # # ## ### ##### ######## ############# #####################
