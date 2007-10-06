@@ -29,155 +29,158 @@
 
 
 /*
-** Create a fake replicate of the "vfile" table as a TEMP table
-** using the manifest identified by manid.
+** WEBPAGE: wiki
+** URL: /wiki/PAGENAME
 */
-static void create_fake_vfile(int manid){
-  static const char zVfileDef[] = 
-    @ CREATE TEMP TABLE vfile(
-    @   id INTEGER PRIMARY KEY,     -- ID of the checked out file
-    @   vid INTEGER REFERENCES blob, -- The version this file is part of.
-    @   chnged INT DEFAULT 0,       -- 0:unchnged 1:edited 2:m-chng 3:m-add
-    @   deleted BOOLEAN DEFAULT 0,  -- True if deleted 
-    @   rid INTEGER,                -- Originally from this repository record
-    @   mrid INTEGER,               -- Based on this record due to a merge
-    @   pathname TEXT,              -- Full pathname
-    @   UNIQUE(pathname,vid)
-    @ );
-    ;
-  db_multi_exec(zVfileDef);
-  load_vfile_from_rid(manid);
-}
+void wiki_page(void){
+  char *zTag;
+  int rid;
+  Blob wiki;
+  Manifest m;
+  char *zPageName;
+  char *zHtmlPageName;
+  char *zBody = mprintf("%s","<i>Empty Page</i>");
 
-/*
-** Locate the wiki page with the name zPageName and render it.
-*/
-static void locate_and_render_wikipage(const char *zPageName){
-  Stmt q;
-  int id = 0;
-  int rid = 0;
-  int chnged = 0;
-  char *zPathname = 0;
-  db_prepare(&q,
-     "SELECT id, rid, chnged, pathname FROM vfile"
-     " WHERE (pathname='%q.wiki' OR pathname LIKE '%%/%q.wiki')"
-     "   AND NOT deleted", zPageName, zPageName
+  login_check_credentials();
+  if( !g.okRdWiki ){ login_needed(); return; }
+  zPageName = mprintf("%s", g.zExtra);
+  dehttpize(zPageName);
+  zTag = mprintf("wiki-%s", zPageName);
+  rid = db_int(0, 
+    "SELECT rid FROM tagxref"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+    " ORDER BY mtime DESC", zTag
   );
-  if( db_step(&q)==SQLITE_ROW ){
-    id = db_column_int(&q, 0);
-    rid = db_column_int(&q, 1);
-    chnged = db_column_int(&q, 2);
-    if( chnged || rid==0 ){
-      zPathname = db_column_malloc(&q, 3);
+  free(zTag);
+  memset(&m, 0, sizeof(m));
+  blob_zero(&m.content);
+  if( rid ){
+    Blob content;
+    content_get(rid, &content);
+    manifest_parse(&m, &content);
+    if( m.type==CFTYPE_WIKI ){
+      zBody = m.zWiki;
     }
   }
-  db_finalize(&q);
-  if( id ){
-    Blob page, src;
-    char *zTitle = "wiki";
-    char *z;
-    blob_zero(&src);
-    if( zPathname ){
-      zPathname = mprintf("%s/%z", g.zLocalRoot, zPathname);
-      blob_read_from_file(&src, zPathname);
-      free(zPathname);
-    }else{
-      content_get(rid, &src);
-    }
-
-    /* The wiki page content is now in src.  Check to see if
-    ** there is a <readonly/> or <appendonly/> element at the
-    ** beginning of the content.
-    */
-    z = blob_str(&src);
-    while( isspace(*z) ) z++;
-    if( strncmp(z, "<readonly/>", 11)==0 ){
-      z += 11;
-    }else if( strncmp(z, "<appendonly/>", 13)==0 ){
-      z += 13;
-    }
-    
-    /* Check for <title>...</title> markup and remove it if present. */
-    while( isspace(*z) ) z++;
-    if( strncmp(z, "<title>", 7)==0 ){
-      int i;
-      for(i=7; z[i] && z[i]!='<'; i++){}
-      if( z[i]=='<' && strncmp(&z[i], "</title>", 8)==0 ){
-        zTitle = htmlize(&z[7], i-7);
-        z = &z[i+8];
-      }
-    }
-    
-    /* Render the page */
-    style_header(zTitle);
-    blob_init(&page, z, -1);
-    wiki_convert(&page, 0);
-    blob_reset(&src);
-  }else{
-    style_header("Unknown Wiki Page");
-    @ The wiki page "%h(zPageName)" does not exist.
+  zHtmlPageName = mprintf("%h", zPageName);
+  style_header(zHtmlPageName);
+  blob_init(&wiki, zBody, -1);
+  wiki_convert(&wiki, 0);
+  blob_reset(&wiki);
+  manifest_clear(&m);
+  @ <hr>
+  if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+    @ [<a href="%s(g.zBaseURL)/wikiedit/%s(g.zExtra)">Edit</a>]
   }
   style_footer();
 }
 
 /*
-** WEBPAGE: wiki
-** URL: /wiki/PAGENAME
-**
-** If the local database is available (which only happens if run
-** as "server" instead of "cgi" or "http") then the file is taken
-** from the local checkout.  If there is no local checkout, then
-** the content is taken from the "head" baseline.
+** WEBPAGE: wikiedit
+** URL: /wikiedit/PAGENAME
 */
-void wiki_page(void){
-  login_check_credentials();
-  if( !g.okRdWiki ){ login_needed(); return; }
-  if( !g.localOpen ){
-    int headid = db_int(0,
-       "SELECT cid FROM plink ORDER BY mtime DESC LIMIT 1"
-    );
-    create_fake_vfile(headid);
-  }
-  locate_and_render_wikipage(g.zExtra);
-}
+void wikiedit_page(void){
+  char *zTag;
+  int rid;
+  Blob wiki;
+  Manifest m;
+  char *zPageName;
+  char *zHtmlPageName;
+  int n;
+  const char *z;
+  char *zBody = (char*)P("w");
 
-/*
-** The g.zExtra value is of the form UUID/otherstuff.
-** Extract the UUID and convert it to a record id.  Leave
-** g.zExtra holding just otherstuff.  If UUID does not exist
-** or is malformed, return 0 and leave g.zExtra unchanged.
-*/
-int extract_uuid_from_url(void){
-  int i, rid;
-  Blob uuid;
-  for(i=0; g.zExtra[i] && g.zExtra[i]!='/'; i++){}
-  blob_zero(&uuid);
-  blob_append(&uuid, g.zExtra, i);
-  rid = name_to_uuid(&uuid, 0);
-  blob_reset(&uuid);
-  if( rid ){
-    while( g.zExtra[i]=='/' ){ i++; }
-    g.zExtra = &g.zExtra[i];
+  if( zBody ){
+    zBody = mprintf("%s", zBody);
   }
-  return rid;  
-}
-
-/*
-** WEBPAGE: bwiki
-** URL: /bwiki/UUID/PAGENAME
-**
-** UUID specifies a baseline.  Render the wiki page PAGENAME as
-** it appears in that baseline.
-*/
-void bwiki_page(void){
-  int headid;
   login_check_credentials();
-  if( !g.okRdWiki || !g.okHistory ){ login_needed(); return; }
-  headid = extract_uuid_from_url();
-  if( headid ){
-    create_fake_vfile(headid);
+  zPageName = mprintf("%s", g.zExtra);
+  dehttpize(zPageName);
+  zTag = mprintf("wiki-%s", zPageName);
+  rid = db_int(0, 
+    "SELECT rid FROM tagxref"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+    " ORDER BY mtime DESC", zTag
+  );
+  free(zTag);
+  if( (rid && !g.okWrWiki) || (!rid && !g.okNewWiki) ){
+    login_needed();
+    return;
   }
-  locate_and_render_wikipage(g.zExtra);
+  memset(&m, 0, sizeof(m));
+  blob_zero(&m.content);
+  if( rid && zBody==0 ){
+    Blob content;
+    content_get(rid, &content);
+    manifest_parse(&m, &content);
+    if( m.type==CFTYPE_WIKI ){
+      zBody = m.zWiki;
+    }
+  }
+  if( P("submit")!=0 && zBody!=0 ){
+    char *zDate;
+    Blob cksum;
+    int nrid;
+    blob_zero(&wiki);
+    db_begin_transaction();
+    zDate = db_text(0, "SELECT datetime('now')");
+    zDate[10] = 'T';
+    blob_appendf(&wiki, "D %s\n", zDate);
+    free(zDate);
+    blob_appendf(&wiki, "L %F\n", zPageName);
+    if( rid ){
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      blob_appendf(&wiki, "P %s\n", zUuid);
+      free(zUuid);
+    }
+    if( g.zLogin ){
+      blob_appendf(&wiki, "U %F\n", g.zLogin);
+    }
+    blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
+    md5sum_blob(&wiki, &cksum);
+    blob_appendf(&wiki, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+    nrid = content_put(&wiki, 0, 0);
+    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+    manifest_crosslink(nrid, &wiki);
+    blob_reset(&wiki);
+    content_deltify(rid, nrid, 0);
+    db_end_transaction(0);
+    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+  }
+  if( P("cancel")!=0 ){
+    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+    return;
+  }
+  if( zBody==0 ){
+    zBody = mprintf("<i>Empty Page</i>");
+  }
+  zHtmlPageName = mprintf("Edit: %h", zPageName);
+  style_header(zHtmlPageName);
+  if( P("preview")!=0 ){
+    blob_zero(&wiki);
+    blob_append(&wiki, zBody, -1);
+    @ Preview:<hr>
+    wiki_convert(&wiki, 0);
+    @ <hr>
+    blob_reset(&wiki);
+  }
+  for(n=2, z=zBody; z[0]; z++){
+    if( z[0]=='\n' ) n++;
+  }
+  if( n<20 ) n = 20;
+  if( n>200 ) n = 200;
+  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit/%s(g.zExtra)">
+  @ <textarea name="w" class="wikiedit" cols="80" 
+  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+  @ <br>
+  @ <input type="submit" name="preview" value="Preview Your Changes">
+  @ <input type="submit" name="submit" value="Apply These Changes">
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ </form>
+  manifest_clear(&m);
+  style_footer();
+
 }
 
 /*

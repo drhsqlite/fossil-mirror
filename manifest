@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sshun\stable.\s\sDo\snot\sprocess\sartifacts\snamed\sin\sthe\sshun\stable.
-D 2007-10-05T13:47:00
+C Now\sable\sto\senter\sand\sedit\sand\sdisplay\swiki\spages.\s\sStill\smany\sproblems\nto\sbe\sresolved.
+D 2007-10-06T13:13:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -52,13 +52,13 @@ F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 15b63940c8bc1044af930687e643ee0c7591afd3
-F src/login.c afd46b3a876a49b7574536c584ee1205812b5c09
+F src/login.c 4002a249f4b0b4be9263ec6c4ac2796543c8fb4f
 F src/main.c 157f4f53781413fb0dc98c4c19760fe11e988c6b
 F src/main.mk de95462e676dfcbc81669898d40f271683c765c3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 4e54933e0f51f3aa8b30ab216c73af3d4665bce7
-F src/manifest.c 6fb6d5c8bf3366bfcb290f570e02c38a8f7cb7e8
+F src/manifest.c cf922053aa529f0eb9dd7a3213c3cb55d5a36306
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 246b01382f1423be023aff0845007ea514eb846e
 F src/merge3.c 5d18e08162e0656a84213840d2d938a5c6fb3690
@@ -88,8 +88,8 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 45a74402e3b598933ba70391d503bb26606eb1c7
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c 3d314ebfebb1f6dafec0e65b127f4c61d78db7c2
-F src/wikiformat.c 5309fd824096f3f3272a3086bb5c1c2721437e27
+F src/wiki.c e5a543524110bdfe52dca7c8c8736e050351627c
+F src/wikiformat.c 6d7f89510a38892567c5226f4d5d5f2f69c59383
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -146,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2ab2db0bd3be4d7e16bf53f2e6c1386d3961d86e
-R 62e5cd8fa9e2913e140f7e8b68a59a6b
+P 70d5cc86b72dcaff64a5ce720d61fb8d7b4ab723
+R 0a9160b87a22e5c122039889bbab4ad5
 U drh
-Z 0a4ab88d2295fa0e58006730c5a0193e
+Z a8b42946f362878ac0e35ea5e1761cf9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHBkBYoxKgR168RlERAtKQAJ4w80eZA5Hz6zqDdCbf4eKiv6WxPgCfRbpJ
-3oQUOjtxlfs3LJSyefWO5YI=
-=+zxo
+iD8DBQFHB4oBoxKgR168RlERAhbXAJ9LPjVf+70lVCtqV7zTZlshY9r0sACeKzJy
+DjGb89aEmE5D0uXuOKl+UoM=
+=LMcC
 -----END PGP SIGNATURE-----

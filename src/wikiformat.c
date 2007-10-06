@@ -991,7 +991,7 @@ void wiki_convert(Blob *pIn, Blob *pOut){
   while( renderer.nStack ){
     popStack(&renderer);
   }
-  blob_append(pOut, "\n", 1);
+  blob_append(renderer.pOut, "\n", 1);
   free(renderer.aStack);
 }
 

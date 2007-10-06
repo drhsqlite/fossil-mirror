@@ -543,6 +543,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
           goto manifest_syntax_error;
         }
         p->zWiki = blob_buffer(&wiki);
+        md5sum_step_text(p->zWiki, size+1);
         if( p->zWiki[size]!='\n' ) goto manifest_syntax_error;
         p->zWiki[size] = 0;
         break;
@@ -622,7 +623,6 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
-    if( p->zUser==0 ) goto manifest_syntax_error;
     if( p->zWikiTitle==0 ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_WIKI;
