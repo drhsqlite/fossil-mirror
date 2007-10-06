@@ -200,9 +200,9 @@ namespace eval ::vc::fossil::import::cvs {
     namespace eval repository {
 	namespace import ::vc::fossil::import::cvs::project
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
-	namespace import ::vc::tools::misc::*
 	log register repository
     }
 }

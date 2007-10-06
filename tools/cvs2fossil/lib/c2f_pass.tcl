@@ -20,6 +20,7 @@
 package require Tcl 8.4                         ; # Required runtime.
 package require snit                            ; # OO system.
 package require vc::fossil::import::cvs::state  ; # State storage
+package require vc::tools::misc                 ; # Text formatting
 package require vc::tools::trouble              ; # Error reporting.
 package require vc::tools::log                  ; # User feedback.
 package require struct::list                    ; # Portable lassign
@@ -46,8 +47,13 @@ snit::type ::vc::fossil::import::cvs::pass {
 	trouble info "Conversion passes:"
 	trouble info ""
 	set n 0
+
+	set clen [max [struct::list map $mypasses {string length}]]
+	set cfmt %-${clen}s
+	set nfmt %[string length [llength $mypasses]]s
+
 	foreach code $mypasses {
-	    trouble info "  [format %2d $n]: $code $mydesc($code)"
+	    trouble info "  [format $nfmt $n]: [format $cfmt $code] : $mydesc($code)"
 	    incr n
 	}
 	trouble info ""
@@ -169,6 +175,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace export pass
     namespace eval pass {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log    
 	log register pass
