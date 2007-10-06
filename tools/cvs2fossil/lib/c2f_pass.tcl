@@ -124,7 +124,8 @@ snit::type ::vc::fossil::import::cvs::pass {
     ## Internal methods
 
     proc Ok? {code label ov {emptyok 1}} {
-	upvar 1 mydesc mydesc $ov ok
+	upvar 1 $ov ok
+	::variable mydesc
 	if {$emptyok && ($code eq "")} return
 	if {[info exists mydesc($code)]} return
 	if {$label ne ""} {append label " "}
@@ -134,17 +135,17 @@ snit::type ::vc::fossil::import::cvs::pass {
     }
 
     proc Convert {code default} {
-	upvar 1 mypasses mypasses
+	::variable mypasses
 	return [expr {($code eq "") ? $default : [Id $code]}]
     }
 
     proc Id {code} {
-	upvar 1 mypasses mypasses
+	::variable mypasses
 	return [lsearch -exact $mypasses $code]
     }
 
     proc Call {code args} {
-	upvar 1 mycmd mycmd
+	::variable mycmd
 	set cmd $mycmd($code)
 	foreach a $args { lappend cmd $a }
 	eval $cmd

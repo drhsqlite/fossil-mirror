@@ -176,7 +176,8 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     proc IsRepositoryBase {path mv} {
-	upvar 1 $mv msg mybase mybase
+	::variable mybase
+	upvar 1 $mv msg
 	if {![fileutil::test $mybase         edr msg {CVS Repository}]}      {return 0}
 	if {![fileutil::test $mybase/CVSROOT edr msg {CVS Admin Directory}]} {return 0}
 	return 1
@@ -196,7 +197,10 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     proc TheProjects {} {
-	upvar 1 myprojects myprojects myprojpaths myprojpaths mybase mybase type type
+	upvar 1 type type
+	::variable myprojects
+	::variable myprojpaths
+	::variable mybase
 
 	if {![llength $myprojects]} {
 	    set myprojects [EmptyProjects $myprojpaths]
@@ -205,7 +209,8 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     proc EmptyProjects {projpaths} {
-	upvar 1 mybase mybase type type
+	::variable mybase
+	upvar 1 type type
 	set res {}
 	if {[llength $projpaths]} {
 	    foreach pp $projpaths {

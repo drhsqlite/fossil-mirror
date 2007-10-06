@@ -165,6 +165,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
     }
 
     proc IsSuperceded {base rcs usr isattic} {
+	::variable myignore
+
 	if {!$isattic}                   {return 0}
 	if {![file exists $base/$usr,v]} {return 0}
 
@@ -176,7 +178,6 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	# In that case the warning is still printed, but will not
 	# induce an abort any longer.
 
-	upvar 1 myignore myignore
 	if {$myignore} {
 	    log write 2 collar "Ignored $rcs, superceded archive"
 	} else {

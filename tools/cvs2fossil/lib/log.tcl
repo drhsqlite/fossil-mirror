@@ -109,7 +109,7 @@ snit::type ::vc::tools::log {
     ## Internal, helper methods (formatting, dispatch)
 
     proc System {s} {
-	upvar 1 mysysfmt mysysfmt
+	::variable mysysfmt
 	return [format $mysysfmt $s]
     }
 
