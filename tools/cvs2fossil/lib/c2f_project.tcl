@@ -45,13 +45,13 @@ snit::type ::vc::fossil::import::cvs::project {
     }
 
     method filenames {} {
-	return [array names myfiles]
+	return [lsort -dict [array names myfiles]]
     }
 
     method files {} {
 	# TODO: Loading from state
 	set res {}
-	foreach f [array names myfiles] {
+	foreach f [lsort -dict [array names myfiles]] {
 	    lappend res [file %AUTO% $f $self]
 	}
 	return $res

@@ -192,7 +192,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    foreach file [$project files] {
 		set path [$file path]
 		log write 2 collrev "Parsing $path"
-		rcs::process [file join $base $path] $file
+		parser process [file join $base $path] $file
 	    }
 	}
 
@@ -219,9 +219,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 namespace eval ::vc::fossil::import::cvs::pass {
     namespace export collrev
     namespace eval collrev {
-	namespace eval rcs {
-	    namespace import ::vc::rcs::parser::process
-	}
+	namespace import ::vc::rcs::parser
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::trouble

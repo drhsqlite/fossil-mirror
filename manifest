@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fleshed\sout\spass\sII,\sadded\sskeleton\sof\srcs\sarchive\sclass,\sstarted\sintegration\sof\srcs\sparser.
-D 2007-10-06T18:43:01
+C Nicer\sparser\sintegration\sinto\spass\sII,\sand\ssort\sfiles\sfor\seasier\sfilesystem\straversal\sduring\sparsing.
+D 2007-10-06T20:58:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -98,8 +98,8 @@ F tools/cvs2fossil/lib/c2f_file.tcl d278cae8eb2a4895dbe6bed6664a23b6bb09a130
 F tools/cvs2fossil/lib/c2f_option.tcl 5618bdee19c73cb4f25d1a76bbab8edbe995c329
 F tools/cvs2fossil/lib/c2f_pass.tcl 7af6ad1f9794b23d29cd056bb4244258236366bf
 F tools/cvs2fossil/lib/c2f_pcollar.tcl e8bf2c5266a38dbf8057e410b7effc3dc05b552f
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl 71d77fda76553845a5de9a21fcdcb4f4e4dab86a
-F tools/cvs2fossil/lib/c2f_project.tcl 079a9bd314ba13664e3ae79edb6531a7595f372e
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl daf2ded7dd513fa15aec921c7fe268c81c006052
+F tools/cvs2fossil/lib/c2f_project.tcl 9873cc90461ca91741350b429c248e4c6e9de5ab
 F tools/cvs2fossil/lib/c2f_repository.tcl e7ff366ee10efd6005d3eadf64d42a9d1dafb194
 F tools/cvs2fossil/lib/c2f_state.tcl e652a4a1264a027d05dd58dc6eaf233695520239
 F tools/cvs2fossil/lib/cvs2fossil.tcl b81dcdcb7db84a2e038193f093f4b04535977016
@@ -139,14 +139,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 860f533e98efba37a38bffd56706299a0299430c
-R a1593e2ef0d62452704e3b9bda3ce744
+P 8a93ffa9c1aac9943459f1de4b2b31f3ab532278
+R e745ac059d147406f64d96f4d7247396
 U aku
-Z b29bdd50614233ba6f5c686b2ad011a9
+Z 11b7ab92485733eeac687020608bb525
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHB9c6vonzZ/CRa7gRAvt8AJwNzwaufAuo/uJUhfToeK9ZeQF48QCdH29N
-V0ZM141NTJYYMfXokJfKi8I=
-=G9G3
+iD8DBQFHB/b0vonzZ/CRa7gRAvThAJ0S0tluITIcTJUUnlrA6RXXGcP1DACgk4oI
+DYwFgJfAWQDHPBL6EKKTniA=
+=ZzfS
 -----END PGP SIGNATURE-----
