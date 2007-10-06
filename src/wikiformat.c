@@ -762,8 +762,10 @@ static void resolveHyperlink(const char *zTarget, Renderer *p){
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, zTarget);
-  }else{
+  }else if( wiki_name_is_wellformed(zTarget) ){
     blob_appendf(p->pOut, "%s/wiki/%T", g.zBaseURL, zTarget);
+  }else{
+    blob_appendf(p->pOut, "error");
   }
 }
 
@@ -864,7 +866,7 @@ static void wiki_render(Renderer *p, char *z){
       case TOKEN_LINK: {
         char *zTarget;
         char *zDisplay = 0;
-        int i;
+        int i, j;
         int savedState;
         addMissingMarkup(p);
         zTarget = &z[1];
@@ -872,6 +874,7 @@ static void wiki_render(Renderer *p, char *z){
           if( z[i]=='|' && zDisplay==0 ){
             zDisplay = &z[i+1];
             z[i] = 0;
+            for(j=i-1; j>0 && isspace(z[j]); j--){ z[j] = 0; }
           }
         }
         z[i] = 0;

@@ -27,6 +27,49 @@
 #include "config.h"
 #include "wiki.h"
 
+/*
+** Return true if the input string is a well-formed wiki page name.
+**
+** Well-formed wiki page names do not begin or end with whitespace,
+** and do not contain tabs or other control characters and do not
+** contain more than a single space character in a row.  Well-formed
+** names must be between 3 and 100 chracters in length, inclusive.
+*/
+int wiki_name_is_wellformed(const char *z){
+  int i;
+  if( z[0]<=0x20 ){
+    return 0;
+  }
+  for(i=1; z[i]; i++){
+    if( z[i]<0x20 ) return 0;
+    if( z[i]==0x20 && z[i-1]==0x20 ) return 0;
+  }
+  if( z[i-1]==' ' ) return 0;
+  if( i<3 || i>100 ) return 0;
+  return 1;
+}
+
+/*
+** Check a wiki name.  If it is not well-formed, then issue an error
+** and return true.  If it is well-formed, return false.
+*/
+static int check_name(const char *z){
+  if( !wiki_name_is_wellformed(z) ){
+    style_header("Wiki Page Name Error");
+    @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
+    @ wiki page names:
+    @ <ul>
+    @ <li> Must not begin or end with a space.
+    @ <li> Must not contain any control characters, including tab or
+    @      newline.
+    @ <li> Must not have two or more spaces in a row internally.
+    @ <li> Must be between 3 and 100 characters in length.
+    @ </ul>
+    style_footer();
+    return 1;
+  }
+  return 0;
+}
 
 /*
 ** WEBPAGE: wiki
@@ -45,6 +88,7 @@ void wiki_page(void){
   if( !g.okRdWiki ){ login_needed(); return; }
   zPageName = mprintf("%s", g.zExtra);
   dehttpize(zPageName);
+  if( check_name(zPageName) ) return;
   zTag = mprintf("wiki-%s", zPageName);
   rid = db_int(0, 
     "SELECT rid FROM tagxref"
@@ -68,7 +112,7 @@ void wiki_page(void){
   wiki_convert(&wiki, 0);
   blob_reset(&wiki);
   manifest_clear(&m);
-  if( zPageName[0] && ((rid && g.okWrWiki) || (!rid && g.okNewWiki)) ){
+  if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
     @ <hr>
     @ [<a href="%s(g.zBaseURL)/wikiedit/%s(g.zExtra)">Edit</a>]
   }
@@ -96,6 +140,7 @@ void wikiedit_page(void){
   login_check_credentials();
   zPageName = mprintf("%s", g.zExtra);
   dehttpize(zPageName);
+  if( check_name(zPageName) ) return;
   zTag = mprintf("wiki-%s", zPageName);
   rid = db_int(0, 
     "SELECT rid FROM tagxref"
@@ -148,7 +193,7 @@ void wikiedit_page(void){
     db_end_transaction(0);
     cgi_redirect(mprintf("wiki/%s", g.zExtra));
   }
-  if( P("cancel")!=0 || zPageName[0]==0 ){
+  if( P("cancel")!=0 ){
     cgi_redirect(mprintf("wiki/%s", g.zExtra));
     return;
   }
