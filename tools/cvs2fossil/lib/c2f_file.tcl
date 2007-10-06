@@ -18,7 +18,6 @@
 
 package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
-package require vc::fossil::import::cvs::repository ; # Repository management.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -97,14 +96,14 @@ parray _
 
     method def {rev date author state next branches} {
 	set myrev($rev) [list $date $author $state $next $branches]
-	repository author $author
+	$myproject author $author
 	return
     }
 
     method extend {rev commitmsg deltarange} {
 	set cm [string trim $commitmsg]
 	lappend myrev($rev) $cm $deltarange
-	repository cmessage $cm
+	$myproject cmessage $cm
 	return
     }
 
@@ -130,9 +129,6 @@ parray _
 
 namespace eval ::vc::fossil::import::cvs {
     namespace export file
-    namespace eval file {
-	namespace import ::vc::fossil::import::cvs::repository
-    }
 }
 
 # # ## ### ##### ######## ############# #####################

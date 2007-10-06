@@ -27,8 +27,9 @@ snit::type ::vc::fossil::import::cvs::project {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {path} {
-	set mybase $path
+    constructor {path r} {
+	set mybase       $path
+	set myrepository $r
 	return
     }
 
@@ -52,6 +53,9 @@ snit::type ::vc::fossil::import::cvs::project {
 	# TODO: Loading from state
 	return [TheFiles]
     }
+
+    delegate method author   to myrepository
+    delegate method cmessage to myrepository
 
     # pass I persistence
     method persist {} {
@@ -95,6 +99,7 @@ snit::type ::vc::fossil::import::cvs::project {
     variable mybase         {} ; # Project directory
     variable myfiles -array {} ; # Maps rcs archive to their user files.
     variable myfobj         {} ; # File objects for the rcs archives
+    variable myrepository   {} ; # Repository the prject belongs to.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -122,7 +127,6 @@ snit::type ::vc::fossil::import::cvs::project {
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
     pragma -hastypemethods no  ; # type is not relevant.
-    pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############
 }

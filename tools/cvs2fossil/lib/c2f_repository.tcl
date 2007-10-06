@@ -21,9 +21,9 @@ package require Tcl 8.4                          ; # Required runtime.
 package require snit                             ; # OO system.
 package require vc::tools::trouble               ; # Error reporting.
 package require vc::tools::log                   ; # User feedback.
-package require vc::tools::misc                  ; # Text formatting
-# CVS Projects later (see bottom) to handle circular dependency in 'file'.
-package require vc::fossil::import::cvs::state   ; # State storage
+package require vc::tools::misc                  ; # Text formatting.
+package require vc::fossil::import::cvs::project ; # CVS projects.
+package require vc::fossil::import::cvs::state   ; # State storage.
 package require struct::list                     ; # List operations.
 package require fileutil                         ; # File operations.
 
@@ -196,7 +196,7 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     proc TheProjects {} {
-	upvar 1 myprojects myprojects myprojpaths myprojpaths mybase mybase
+	upvar 1 myprojects myprojects myprojpaths myprojpaths mybase mybase type type
 
 	if {![llength $myprojects]} {
 	    set myprojects [EmptyProjects $myprojpaths]
@@ -205,15 +205,15 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     proc EmptyProjects {projpaths} {
-	upvar 1 mybase mybase
+	upvar 1 mybase mybase type type
 	set res {}
 	if {[llength $projpaths]} {
 	    foreach pp $projpaths {
-		lappend res [project %AUTO% $pp]
+		lappend res [project %AUTO% $pp $type]
 	    }
 	} else {
 	    # Base is the single project.
-	    lappend res [project %AUTO% ""]
+	    lappend res [project %AUTO% "" $type]
 	}
 	return $res
     }
@@ -256,20 +256,14 @@ snit::type ::vc::fossil::import::cvs::repository {
 
 namespace eval ::vc::fossil::import::cvs {
     namespace export repository
-}
-
-# CVS projects here to handle circular dependency
-# repository <- project <- file <- repository
-
-package require vc::fossil::import::cvs::project
-
-namespace eval ::vc::fossil::import::cvs::repository {
-    namespace import ::vc::fossil::import::cvs::project
-    namespace import ::vc::fossil::import::cvs::state
-    namespace import ::vc::tools::misc::*
-    namespace import ::vc::tools::trouble
-    namespace import ::vc::tools::log
-    log register repository
+    namespace eval repository {
+	namespace import ::vc::fossil::import::cvs::project
+	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::tools::misc::*
+	namespace import ::vc::tools::trouble
+	namespace import ::vc::tools::log
+	log register repository
+    }
 }
 
 # # ## ### ##### ######## ############# #####################
