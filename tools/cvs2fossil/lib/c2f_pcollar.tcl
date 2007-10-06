@@ -71,10 +71,10 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	}
 	state writing file {
 	    fid     INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
-	    pid     INTEGER  NOT NULL  REFERENCES project,
+	    pid     INTEGER  NOT NULL  REFERENCES project,       -- project the file belongs to
 	    name    TEXT     NOT NULL,
 	    visible TEXT     NOT NULL,
-	    UNIQUE (pid, name)
+	    UNIQUE (pid, name)         -- file names are unique within a project
 	}
 	return
     }

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Better\sformatting\sfor\s--help-passes,\salign\scodes.
-D 2007-10-06T03:53:41
+C Added\sdocumentation\sto\sstate\sdefinition,\sand\sdebugging\soutput\sto\sthe\sstate\ssystem\sitself.
+D 2007-10-06T03:55:06
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -96,10 +96,10 @@ F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/lib/c2f_option.tcl 5618bdee19c73cb4f25d1a76bbab8edbe995c329
 F tools/cvs2fossil/lib/c2f_pass.tcl 7af6ad1f9794b23d29cd056bb4244258236366bf
-F tools/cvs2fossil/lib/c2f_pcollar.tcl 983f456f591672b1da8504c23dafe0cff9282b52
+F tools/cvs2fossil/lib/c2f_pcollar.tcl e8bf2c5266a38dbf8057e410b7effc3dc05b552f
 F tools/cvs2fossil/lib/c2f_project.tcl 870e1c1dce2ade201d8c2691066e37917df996fd
 F tools/cvs2fossil/lib/c2f_repository.tcl 66efb474fbdace4f0cce7bd13adf47b43cd93105
-F tools/cvs2fossil/lib/c2f_state.tcl 4f1e5d7899f9ed6bcf470b03c73494814f01c237
+F tools/cvs2fossil/lib/c2f_state.tcl e652a4a1264a027d05dd58dc6eaf233695520239
 F tools/cvs2fossil/lib/cvs2fossil.tcl 00e210c9718fe9df3bddb6e7a33d890a35e84e14
 F tools/cvs2fossil/lib/log.tcl dd3a2d5171af0ecc5834b26b732b1a349f42c6b9
 F tools/cvs2fossil/lib/misc.tcl d5db2a2c742a6aedd91b70acc03ec47936ee0f8d
@@ -136,14 +136,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 042d54bae54539a162f79f23faaf7ee45dbded2f
-R 2b8787bad7c98beca9119216a4cd0598
+P 43d72c62467108c09a8ed87fc0c30620033020cf
+R 182f26a8ca5edac57d681bac81c239c0
 U aku
-Z 7ad3170052a6e4eb6e65161e5207da98
+Z b2d0ebb5ee1fc2b92f5eb2b04591cedd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHBwbKvonzZ/CRa7gRArhKAJ9hTjlI0mmEUn21tmHBq+Vf3TmB7ACeOINg
-haplnz+Gn0MriPSDvxlGoKY=
-=gBbo
+iD8DBQFHBwcdvonzZ/CRa7gRAlB4AKCfAobcSHguRlF1Xn9Z3bLDrvQ25wCeJw82
+4MpXKIYaksZ8K+nWI+LtibA=
+=CPmb
 -----END PGP SIGNATURE-----
