@@ -1,378 +1,423 @@
-# -----------------------------------------------------------------------------
-# Tool packages. Parsing RCS files.
+## -*- tcl -*-
+# # ## ### ##### ######## ############# #####################
+## Copyright (c) 2007 Andreas Kupries.
 #
-# Some of the information in RCS files is skipped over, most
-# importantly the actual delta texts. The users of this parser need
-# only the meta-data about when revisions were added, the tree
-# (branching) structure, commit messages.
+# This software is licensed as described in the file LICENSE, which
+# you should have received as part of this distribution.
 #
-# The parser is based on Recursive Descent.
+# This software consists of voluntary contributions made by many
+# individuals.  For exact contribution history, see the revision
+# history and logs, available at http://fossil-scm.hwaci.com/fossil
+# # ## ### ##### ######## ############# #####################
 
-# -----------------------------------------------------------------------------
-# Requirements
+# A tool package, provides a parser for RCS archive files. This parser
+# is implemented via recursive descent. It is not only given a file to
+# process, but also a 'sink', an object it calls out to at important
+# places of the parsing process to either signal an event and/or
+# convey gathered information to it. The sink is responsible for the
+# actual processing of the data in whatever way it desires.
 
-package require Tcl 8.4
-package require fileutil       ; # Tcllib (cat)
-package require vc::tools::log ; # User feedback
+# # ## ### ##### ######## ############# #####################
+## Requirements
 
-namespace eval ::vc::rcs::parser {
-    namespace import ::vc::tools::log
-    log register rcs
-}
+package require Tcl 8.4                             ; # Required runtime.
+package require snit                                ; # OO system.
+package require fileutil                            ; # File utilities.
+package require vc::tools::log                      ; # User feedback.
+package require struct::list                        ; # Advanced list ops.
 
-# -----------------------------------------------------------------------------
-# API
+# # ## ### ##### ######## ############# #####################
+## 
 
-# vc::rcs::parser::process file
-#
-# Parses the rcs file and returns a dictionary containing the meta
-# data. The following keys are used
-#
-# Key		Meaning
-# ---		-------
-# 'head'	head revision
-# 'branch'	?
-# 'symbol'	dict (symbol -> revision)
-# 'lock'	dict (symbol -> revision)
-# 'comment'	file comment
-# 'expand'	?
-# 'date'	dict (revision -> date)
-# 'author'	dict (revision -> author)
-# 'state'	dict (revision -> state)
-# 'parent'	dict (revision -> parent revision)
-# 'commit'	dict (revision -> commit message)
-#
-# The state 'dead' has special meaning, the user should know that.
+snit::type ::vc::rcs::parser {
+    # # ## ### ##### ######## #############
+    ## Public API
 
-# -----------------------------------------------------------------------------
-# API Implementation
+    typemethod process {path sink} {
+	Initialize $path $sink
+	Call begin
+	Admin ; Deltas ; Description ; DeltaTexts
+	Call done
+	return
+    }
 
-proc ::vc::rcs::parser::configure {key value} {
-    variable cache
-    switch -exact -- $key {
-	-cache  {
-	    set cache $value
+    # # ## ### ##### ######## #############
+    ## Internal methods, recursive descent, syntactical processing
+
+    proc Admin {} {
+	Head ; PrincipalBranch ; Access ; Symbols
+	Locks ; Strictness ; FileComment ; Expand
+	Call admindone
+	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc Head {} {
+	RequiredLiteral head
+	RequiredNumber -> head
+	Semicolon
+	Call sethead $head
+	return
+    }
+
+    proc PrincipalBranch {} {
+	if {![OptionalLiteral branch]} return
+	RequiredNumber -> branch
+	Semicolon
+	Call setprincipalbranch $branch
+	return
+    }
+
+    proc Access {} {
+	RequiredLiteral access ;
+	Semicolon
+	return
+    }
+
+    proc Symbols {} {
+	set d {}
+	RequiredLiteral symbols
+	while {[Ident -> symbol]} {
+	    RequiredNumber -> rev
+	    # TODO: distinguish branch/tag symbols, transform revision
+	    # numbers into canonical form.
+	    lappend d $symbol $rev
 	}
-	default {
-	    return -code error "Unknown switch $key, expected one of -cache"
+	Semicolon
+	Call setsymbols $d
+	return
+    }
+
+    proc Locks {} {
+	# Not saving locks.
+	RequiredLiteral locks
+	while {[Ident -> symbol]} {
+	    RequiredNumber -> l
 	}
-    }
-    return
-}
-
-proc ::vc::rcs::parser::process {path} {
-    variable cache
-
-    if {!$cache} {
-	return [Process $path]
+	Semicolon
+	return
     }
 
-    set cachefile [Cache $path]
-    if {
-	[file exists $cachefile] &&
-	([file mtime $cachefile] > [file mtime $path])
-    } {
-	# Use preparsed data if not invalidated by changes to the
-	# archive they are derived from.
-	write 4 rcs {Load preparsed data block}
-	return [fileutil::cat -encoding binary $cachefile]
+    proc Strictness {} {
+	# Not saving strictness
+	if {![OptionalLiteral strict]} return
+	Semicolon
+	return
     }
 
-    set res [Process $path]
-
-    # Save parse result for quick pickup by future runs.
-    fileutil::writeFile $cachefile $res
-
-    return $res
-}
-
-# -----------------------------------------------------------------------------
-
-proc ::vc::rcs::parser::Process {path} {
-    set data [fileutil::cat -encoding binary $path]
-    array set res {}
-    set res(size) [file size $path]
-    set res(done) 0
-    set res(nsize) [string length $res(size)]
-
-    Admin
-    Deltas
-    Description
-    DeltaTexts
-
-    # Remove parser state
-    catch {unset res(id)}
-    catch {unset res(lastval)}
-    unset res(size)
-    unset res(nsize)
-    unset res(done)
-
-    return [array get res]
-}
-
-proc ::vc::rcs::parser::Cache {path} {
-    return ${path},,preparsed
-}
-
-# -----------------------------------------------------------------------------
-# Internal - Recursive Descent functions implementing the syntax.
-
-proc ::vc::rcs::parser::Admin {} {
-    upvar 1 data data res res
-    Head ; Branch ; Access ; Symbols ; Locks ; Strict ; Comment ; Expand
-    return
-}
-
-proc ::vc::rcs::parser::Deltas {} {
-    upvar 1 data data res res
-    while {[Num 0]} { IsIdent ; Date ; Author ; State ; Branches ; NextRev }
-    return
-}
-
-proc ::vc::rcs::parser::Description {} {
-    upvar 1 data data res res
-    Literal desc
-    String 1
-    Def desc
-    return
-}
-
-proc ::vc::rcs::parser::DeltaTexts {} {
-    upvar 1 data data res res
-    while {[Num 0]} { IsIdent ; Log ; Text }
-    return
-}
-
-proc ::vc::rcs::parser::Head {} {
-    upvar 1 data data res res
-    Literal head ; Num 1 ; Literal \;
-    Def head
-    return
-}
-
-proc ::vc::rcs::parser::Branch {} {
-    upvar 1 data data res res
-    if {![Literal branch 0]} return ; Num 1 ; Literal \;
-    Def branch
-    return
-}
-
-proc ::vc::rcs::parser::Access {} {
-    upvar 1 data data res res
-    Literal access ; Literal \;
-    return
-}
-
-proc ::vc::rcs::parser::Symbols {} {
-    upvar 1 data data res res
-    Literal symbols
-    while {[Ident]} { Num 1 ; Map symbol }
-    Literal \;
-    return
-}
-
-proc ::vc::rcs::parser::Locks {} {
-    upvar 1 data data res res
-    Literal locks
-    while {[Ident]} { Num 1 ; Map lock }
-    Literal \;
-    return
-}
-
-proc ::vc::rcs::parser::Strict {} {
-    upvar 1 data data res res
-    if {![Literal strict 0]} return ; Literal \;
-    return
-}
-
-proc ::vc::rcs::parser::Comment {} {
-    upvar 1 data data res res
-    if {![Literal comment 0]} return ;
-    if {![String 0]} return ;
-    Literal \;
-    Def comment
-    return
-}
-
-proc ::vc::rcs::parser::Expand {} {
-    upvar 1 data data res res
-    if {![Literal expand 0]} return ;
-    if {![String 0]} return ;
-    Literal \;
-    Def expand
-    return
-}
-
-proc ::vc::rcs::parser::Date {} {
-    upvar 1 data data res res
-    Literal date ; Num 1 ; Literal \;
-
-    foreach {yr mo dy h m s} [split $res(lastval) .] break
-    if {$yr < 100} {incr yr 1900}
-    set res(lastval) [join [list $yr $mo $dy $h $m $s] .]
-    Map date
-    return
-}
-
-proc ::vc::rcs::parser::Author {} {
-    upvar 1 data data res res
-    Literal author ; Skip ; Literal \; ; Map author
-    return
-}
-
-proc ::vc::rcs::parser::State {} {
-    upvar 1 data data res res
-    Literal state ; Skip ; Literal \; ; Map state
-    return
-}
-
-proc ::vc::rcs::parser::Branches {} {
-    upvar 1 data data res res
-    Literal branches ; Skip ; Literal \;
-    return
-}
-
-proc ::vc::rcs::parser::NextRev {} {
-    upvar 1 data data res res
-    Literal next ; Skip ; Literal \; ; Map parent
-    return
-}
-
-proc ::vc::rcs::parser::Log {} {
-    upvar 1 data data res res
-    Literal log ; String 1 ; Map commit
-    return
-}
-
-proc ::vc::rcs::parser::Text {} {
-    upvar 1 data data res res
-    Literal text ; String 1
-    return
-}
-
-# -----------------------------------------------------------------------------
-# Internal - Lexicographical commands and data aquisition preparation
-
-proc ::vc::rcs::parser::Ident {} {
-    upvar 1 data data res res
-
-    #puts I@?<[string range $data 0 10]...>
-
-    if {[regexp -indices -- {^\s*;\s*} $data]} {
-	return 0
-    } elseif {![regexp -indices -- {^\s*([^:]*)\s*:\s*} $data match val]} {
-	return 0
+    proc FileComment {} {
+	if {![OptionalLiteral comment]} return
+	if {![OptionalString -> c]} return
+	Semicolon
+	Call setcomment $c
+	return
     }
 
-    Get $val ; IsIdent
-    Next
-    return 1
-}
+    proc Expand {} {
+	# Not saving expanded keywords
+	if {![OptionalLiteral expand]} return
+	if {![OptionalString -> dummy]} return
+	Semicolon
+	return
+    }
 
-proc ::vc::rcs::parser::Literal {name {required 1}} {
-    upvar 1 data data res res
-    if {![regexp -indices -- "^\\s*$name\\s*" $data match]} {
-	if {$required} {
-	    return -code error "Expected '$name' @ '[string range $data 0 30]...'"
+    # # ## ### ##### ######## #############
+
+    proc Deltas {} {
+	while {[OptionalNumber -> rev]} {
+	    Date     -> d
+	    Author   -> a
+	    State    -> s
+	    Branches -> b
+	    NextRev  -> n
+	    Call def $rev $d $a $s $n $b
 	}
-	return 0
+	return
     }
 
-    Next
-    return 1
-}
+    # # ## ### ##### ######## #############
 
-proc ::vc::rcs::parser::String {{required 1}} {
-    upvar 1 data data res res
+    proc Date {_ dv} {
+	upvar 1 $dv d
+	RequiredLiteral date
+	RequiredNumber -> d
+	Semicolon
 
-    if {![regexp -indices -- {^\s*@(([^@]*(@@)*)*)@\s*} $data match val]} {
-	if {$required} {
-	    return -code error "Expected string @ '[string range $data 0 30]...'"
+	struct::list assign [split $d .] year month day hour min sec
+	if {$year < 100} {incr year 1900}
+	set d [clock scan "${year}-${month}-${day} ${hour}:${min}:${sec}"]
+	return
+    }
+
+    proc Author {_ av} {
+	upvar 1 $av a
+	RequiredLiteral author
+	Anything -> a
+	Semicolon
+	return
+    }
+
+    proc State {_ sv} {
+	upvar 1 $sv s
+	RequiredLiteral state
+	Anything -> s
+	Semicolon
+	return
+    }
+
+    proc Branches {_ bv} {
+	upvar 1 $bv b
+	RequiredLiteral branches
+	Anything -> b
+	Semicolon
+	return
+    }
+
+    proc NextRev {_ nv} {
+	upvar 1 $nv n
+	RequiredLiteral next
+	Anything -> n
+	Semicolon
+	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc Description {} {
+	upvar 1 data data res res
+	RequiredLiteral desc
+	RequiredString -> d
+	Call setdesc $d
+	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc DeltaTexts {} {
+	while {[OptionalNumber -> rev]} {
+	    RequiredLiteral log
+	    RequiredString      -> cmsg
+	    RequiredLiteral text
+	    RequiredStringRange -> delta
+	    Call extend $rev $cmsg $delta
 	}
-	return 0
+	return
     }
 
-    Get $val
-    Next
-    return 1
-}
+    # # ## ### ##### ######## #############
+    ## Internal methods, lexiographical processing
 
-proc ::vc::rcs::parser::Num {required} {
-    upvar 1 data data res res
-    if {![regexp -indices -- {^\s*((\d|\.)+)\s*} $data match val]} {
-	if {$required} {
-	    return -code error "Expected id @ '[string range $data 0 30]...'"
-	}
-	return 0
+    proc Semicolon {} {
+	::variable mydata
+	::variable mypos
+
+	set ok [regexp -start $mypos -indices -- {\A\s*;\s*} $mydata match]
+	if {!$ok} { Expected ';' }
+
+	SkipOver match
+	return
     }
 
-    Get $val
-    Next
-    return 1
+    proc RequiredLiteral {name} {
+	::variable mydata
+	::variable mypos
+
+	set pattern "\\A\\s*$name\\s*"
+	set ok [regexp -start $mypos -indices -- $pattern $mydata match]
+	if {!$ok} { Expected '$name' }
+
+	SkipOver match
+	return
+    }
+
+    proc OptionalLiteral {name} {
+	::variable mydata
+	::variable mypos
+
+	set pattern "\\A\\s*$name\\s*"
+	set ok [regexp -start $mypos -indices -- $pattern $mydata match]
+	if {!$ok} { return 0 }
+
+	SkipOver match
+	return 1
+    }
+
+    proc RequiredNumber {_ v} {
+	upvar 1 $v value
+	::variable mydata
+	::variable mypos
+
+	set pattern {\A\s*((\d|\.)+)\s*}
+	set ok [regexp -start $mypos -indices -- $pattern $mydata match v]
+	if {!$ok} { Expected id }
+
+	Extract $v -> value
+	SkipOver match
+	return
+    }
+
+    proc OptionalNumber {_ v} {
+	upvar 1 $v value
+	::variable mydata
+	::variable mypos
+
+	set pattern {\A\s*((\d|\.)+)\s*}
+	set ok [regexp -start $mypos -indices -- $pattern $mydata match v]
+	if {!$ok} { return 0 }
+
+	Extract $v -> value
+	SkipOver match
+	return 1
+    }
+
+    proc RequiredString {_ v} {
+	upvar 1 $v value
+	::variable mydata
+	::variable mypos
+
+	set ok [regexp -start $mypos -indices -- {\A\s*@(([^@]*(@@)*)*)@\s*} $mydata match v]
+	if {!$ok} { Expected string }
+
+	Extract $v -> value
+	set value [string map {@@ @} $value]
+	SkipOver match
+	return
+    }
+
+    proc RequiredStringRange {_ v} {
+	upvar 1 $v value
+	::variable mydata
+	::variable mypos
+
+	set ok [regexp -start $mypos -indices -- {\A\s*@(([^@]*(@@)*)*)@\s*} $mydata match value]
+	if {!$ok} { Expected string }
+
+	SkipOver match
+	return
+    }
+
+    proc OptionalString {_ v} {
+	upvar 1 $v value
+	::variable mydata
+	::variable mypos
+
+	set ok [regexp -start $mypos -indices -- {\A\s*@(([^@]*(@@)*)*)@\s*} $mydata match v]
+	if {!$ok} { return 0 }
+
+	Extract $v -> value
+	set value [string map {@@ @} $value]
+	SkipOver match
+	return 1
+    }
+
+    proc Ident {_ v} {
+	upvar 1 $v value
+	::variable mydata
+	::variable mypos
+
+	set ok [regexp -start $mypos -indices -- {\A\s*;\s*} $mydata]
+	if {$ok} { return 0 }
+
+	set ok [regexp -start $mypos -indices -- {\A\s*([^:]*)\s*:\s*} $mydata match v]
+	if {!$ok} { return 0 }
+
+	Extract $v -> value
+	SkipOver match
+	return 1
+    }
+
+    proc Anything {_ v} {
+	upvar 1 $v value
+	::variable mydata
+	::variable mypos
+
+	regexp -start $mypos -indices -- {\A\s*([^;]*)\s*} $mydata match v
+
+	Extract $v -> value
+	SkipOver match
+	return
+    }
+
+    # # ## ### ##### ######## #############
+    ## Internal methods, input handling
+
+    proc Extract {range _ v} {
+	upvar 1 $v value
+	::variable mydata
+	struct::list assign $range s e
+	set value [string range $mydata $s $e]
+	return
+    }
+
+    proc SkipOver {mv} {
+	# Note: The indices are absolute!, not relative to the start
+	# location.
+	upvar 1 $mv match
+	::variable mypos
+	::variable mysize
+
+	struct::list assign $match s e
+	#puts "<$s $e> [info level -1]"
+
+	set  mypos $e
+	incr mypos
+
+	log progress 2 rcs $mypos $mysize
+	#puts $mypos/$mysize
+	return
+    }
+
+    proc Expected {x} {
+	::variable mydata
+	::variable mypos
+	set e $mypos ; incr e 30
+	return -code error "Expected $x @ '[string range $mydata $mypos $e]...'"
+    }
+
+    # # ## ### ##### ######## #############
+    ## Setup, callbacks.
+
+    proc Initialize {path sink} {
+	::variable mypos  0
+	::variable mydata [fileutil::cat -encoding binary $path]
+	::variable mysize [file size $path]
+	::variable mysink $sink
+	return
+    }
+
+    proc Call {args} {
+	::variable mysink
+	set cmd $mysink
+	foreach a $args { lappend cmd $a }
+	eval $cmd
+	return
+    }
+
+    # # ## ### ##### ######## #############
+    ## Configuration
+
+    typevariable mydata {} ; # Rcs archive contents to process
+    typevariable mysize 0  ; # Length of contents
+    typevariable mysink {} ; # Sink to report to
+
+    pragma -hasinstances   no ; # singleton
+    pragma -hastypeinfo    no ; # no introspection
+    pragma -hastypedestroy no ; # immortal
+
+    # # ## ### ##### ######## #############
 }
 
-proc ::vc::rcs::parser::Skip {} {
-    upvar 1 data data res res
-    regexp -indices -- {^\s*([^;]*)\s*} $data match val
-    Get $val
-    Next
-    return
+namespace eval ::vc::rcs {
+    namespace export parser
+    namespace eval parser {
+	namespace import ::vc::tools::log
+	log register rcs
+    }
 }
 
-# -----------------------------------------------------------------------------
-# Internal - Data aquisition
-
-proc ::vc::rcs::parser::Def {key} {
-    upvar 1 data data res res
-    set res($key) $res(lastval)
-    unset res(lastval)
-    return
-}
-
-proc ::vc::rcs::parser::Map {key} {
-    upvar 1 data data res res
-    lappend res($key) $res(id) $res(lastval)
-    #puts Map($res(id))=($res(lastval))
-    unset res(lastval)
-    #unset res(id);#Keep id for additional mappings.
-    return
-}
-
-proc ::vc::rcs::parser::IsIdent {} {
-    upvar 1 data data res res
-    set res(id) $res(lastval)
-    unset res(lastval)
-    return
-}
-
-proc ::vc::rcs::parser::Get {val} {
-    upvar 1 data data res res
-    foreach {s e} $val break
-    set res(lastval) [string range $data $s $e]
-    #puts G|$res(lastval)
-    return
-}
-
-proc ::vc::rcs::parser::Next {} {
-    upvar 1 match match data data res res
-    foreach {s e} $match break ; incr e
-    set data [string range $data $e end]
-    set res(done) [expr {$res(size) - [string length $data]}]
-
-    progress 2 rcs $res(done) $res(size)
-    return
-}
-
-# -----------------------------------------------------------------------------
-
-namespace eval ::vc::rcs::parser {
-    variable cache 0 ; # No result caching by default.
-
-    namespace export process configure
-}
-
-# -----------------------------------------------------------------------------
-# Ready
+# # ## ### ##### ######## ############# #####################
+## Ready
 
 package provide vc::rcs::parser 1.0
 return
