@@ -839,7 +839,7 @@ char *db_get(const char *zName, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
-  if( z==0 ){
+  if( z==0 && g.configOpen ){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
   }
   if( z==0 ){
@@ -857,7 +857,11 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   db_end_transaction(0);
 }
 int db_is_global(const char *zName){
-  return db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
+  if( g.configOpen ){
+    return db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
+  }else{
+    return 0;
+  }
 }
 int db_get_int(const char *zName, int dflt){
   int v;
@@ -873,7 +877,7 @@ int db_get_int(const char *zName, int dflt){
   }else{
     rc = SQLITE_DONE;
   }
-  if( rc==SQLITE_DONE ){
+  if( rc==SQLITE_DONE && g.configOpen ){
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
   }
   return v;

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Timeline\scomments\sare\snow\srendered\sas\swiki.\s\sWiki\schanges\sappear\son\nthe\stimeline.
-D 2007-10-06T16:37:39
+C Do\snot\sattempt\sto\saccess\sthe\sglobal_config\stable\sif\sthe\s~/.fossil\sdatabase\nhas\snot\sbeen\sopened.
+D 2007-10-06T16:40:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -42,7 +42,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 81214718116c3828321fbc5a3db4b54970fa52ae
 F src/content.c 02e1a3dfd6fd5643b0d52a459e5f0f3951f2519e
-F src/db.c 0feeb7fd066bd92180f0e49932df736a6bdbbbc4
+F src/db.c a10c6acdaeb0964d6ea488d5f1bf625ef006801b
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -146,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P bf428e685457cc187ced6432d322e5c116de1760
-R ba6cad1b15cb0f48f6b35687116efd77
+P 6d586137576db9e08ef404ce0391d0fc5cd8e483
+R fb067f8d89eb13569b924738a7feef28
 U drh
-Z 499faef8c6abdde11b6a4bfb79d856f9
+Z 1845cb364e6b8ced8686a2dc09137a9f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHB7nWoxKgR168RlERAr+3AJ4mosunihHlu/YA74c3SvCy84gb9gCePVJJ
-kzRLXHcMiLtjKynYGXYGMVo=
-=WUXb
+iD8DBQFHB7qUoxKgR168RlERAvqGAJ0YFXUGuL/nleaDB1tsgQY62rscFwCfenYt
+HDN+D4FCtuOw96VYXgZVhwU=
+=A16v
 -----END PGP SIGNATURE-----
