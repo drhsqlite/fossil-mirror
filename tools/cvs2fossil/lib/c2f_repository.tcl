@@ -73,6 +73,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
+    # pass I results
     typemethod printstatistics {} {
 	set prlist [TheProjects]
 	set npr [llength $prlist]
@@ -117,9 +118,26 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
+    # pass I persistence
     typemethod persist {} {
 	state transaction {
 	    foreach p [TheProjects] { $p persist }
+	}
+	return
+    }
+
+    # pass II results
+    typemethod printrevstatistics {} {
+	log write 2 repository "Scanned ..."
+	# number of revisions, symbols, repository wide, per project ...
+	return
+    }
+
+    # pass II persistence
+    typemethod persistrev {} {
+	state transaction {
+	    # TODO: per repository persistence (authors, commit messages)
+	    foreach p [TheProjects] { $p persistrev }
 	}
 	return
     }

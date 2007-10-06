@@ -50,13 +50,10 @@ snit::type ::vc::fossil::import::cvs::project {
 
     method files {} {
 	# TODO: Loading from state
-	set res {}
-	foreach f [lsort -dict [array names myfiles]] {
-	    lappend res [file %AUTO% $f $self]
-	}
-	return $res
+	return [TheFiles]
     }
 
+    # pass I persistence
     method persist {} {
 	state transaction {
 	    # Project data first. Required so that we have its id
@@ -81,14 +78,46 @@ snit::type ::vc::fossil::import::cvs::project {
 	return
     }
 
+    # pass II persistence
+    method persistrev {} {
+	state transaction {
+	    # TODO: per project persistence (symbols, meta data)
+	    foreach f [TheFiles] {
+		$f persist
+	    }
+	}
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
     variable mybase         {} ; # Project directory
     variable myfiles -array {} ; # Maps rcs archive to their user files.
+    variable myfobj         {} ; # File objects for the rcs archives
 
     # # ## ### ##### ######## #############
     ## Internal methods
+
+    proc TheFiles {} {
+	upvar 1 myfiles myfiles myfobj myfobj self self
+	if {![llength $myfobj]} {
+	    set myfobj [EmptyFiles myfiles]
+	}
+	return $myfobj
+    }
+
+    proc EmptyFiles {fv} {
+	upvar 1 $fv myfiles self self
+	set res {}
+	foreach f [lsort -dict [array names myfiles]] {
+	    lappend res [file %AUTO% $f $self]
+	}
+	return $res
+    }
+
+    # # ## ### ##### ######## #############
+    ## Configuration
 
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
