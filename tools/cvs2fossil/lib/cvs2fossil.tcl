@@ -24,7 +24,8 @@ package require snit                            ; # OO system
 ## important. It is the same order they will register, and then be run
 ## in.
 
-package require vc::fossil::import::cvs::pass::collar ; # Coll'ect AR'chives.
+package require vc::fossil::import::cvs::pass::collar  ; # Coll'ect AR'chives.
+package require vc::fossil::import::cvs::pass::collrev ; # Coll'ect REV'isions.
 
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
