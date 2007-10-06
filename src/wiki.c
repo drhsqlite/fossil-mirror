@@ -68,8 +68,8 @@ void wiki_page(void){
   wiki_convert(&wiki, 0);
   blob_reset(&wiki);
   manifest_clear(&m);
-  @ <hr>
-  if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+  if( zPageName[0] && ((rid && g.okWrWiki) || (!rid && g.okNewWiki)) ){
+    @ <hr>
     @ [<a href="%s(g.zBaseURL)/wikiedit/%s(g.zExtra)">Edit</a>]
   }
   style_footer();
@@ -148,7 +148,7 @@ void wikiedit_page(void){
     db_end_transaction(0);
     cgi_redirect(mprintf("wiki/%s", g.zExtra));
   }
-  if( P("cancel")!=0 ){
+  if( P("cancel")!=0 || zPageName[0]==0 ){
     cgi_redirect(mprintf("wiki/%s", g.zExtra));
     return;
   }

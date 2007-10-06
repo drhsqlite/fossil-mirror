@@ -99,12 +99,14 @@ void www_print_timeline(
   char zPrevDate[20];
   int cnt = 0;
   zPrevDate[0] = 0;
+  Blob comment;
 
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS seen(rid INTEGER PRIMARY KEY);"
      "DELETE FROM seen;"
   );
   @ <table cellspacing=0 border=0 cellpadding=0>
+  blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
     const char *zUuid = db_column_text(pQuery, 1);
@@ -153,7 +155,9 @@ void www_print_timeline(
     if( isLeaf ){
       @ <b>Leaf</b>
     }
-    @ %h(db_column_text(pQuery,3))
+    db_column_blob(pQuery, 3, &comment);
+    wiki_convert(&comment, 0);
+    blob_reset(&comment);
     @ (by %h(db_column_text(pQuery,4)))</td></tr>
   }
   @ </table>
@@ -459,7 +463,7 @@ const char *timeline_query_for_tty(void){
     @   blob.rid,
     @   uuid,
     @   datetime(event.mtime,'localtime'),
-    @   coalesce(ecomment,comment) || ' (by ' || coalesce(euser,user) || ')',
+    @   coalesce(ecomment,comment) || ' (by ' || coalesce(euser,user,'?') ||')',
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
     @ FROM event, blob

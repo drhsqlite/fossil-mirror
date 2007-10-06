@@ -828,6 +828,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     char *zTag = mprintf("wiki-%s", m.zWikiTitle);
     int tagid = tag_findid(zTag, 1);
     int prior;
+    char *zComment;
     tag_insert(zTag, 1, 0, rid, m.rDate, rid);
     free(zTag);
     prior = db_int(0,
@@ -839,6 +840,22 @@ int manifest_crosslink(int rid, Blob *pContent){
     if( prior ){
       content_deltify(prior, rid, 0);
     }
+    zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+    db_multi_exec(
+      "INSERT INTO event(type,mtime,objid,user,comment,"
+      "                  bgcolor,brbgcolor,euser,ecomment)"
+      "VALUES('w',%.17g,%d,%Q,%Q,"
+      " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
+      "(SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype!=1),"
+      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
+      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
+      m.rDate, rid, m.zUser, zComment, 
+      TAG_BGCOLOR, rid,
+      TAG_BGCOLOR, rid,
+      TAG_USER, rid,
+      TAG_COMMENT, rid
+    );
+    free(zComment);
   }
   db_end_transaction(0);
   manifest_clear(&m);
