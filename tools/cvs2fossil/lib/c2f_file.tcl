@@ -35,6 +35,31 @@ snit::type ::vc::fossil::import::cvs::file {
     method path {} { return $mypath }
 
     # # ## ### ##### ######## #############
+    ## Methods required for the class to be a sink of the rcs parser
+
+    method begin {} {}
+    method sethead {h} {}
+    method setprincipalbranch {b} {}
+    method setsymbols {dict} {}
+    method setcomment {c} {}
+    method admindone {} {}
+    method def {rev date author state next branches} {}
+    method setdesc {d} {}
+    method extend {rev commitmsg deltarange} {}
+    method done {} {}
+
+    #method begin {} {puts begin}
+    #method sethead {h} {puts head=$h}
+    #method setprincipalbranch {b} {puts pb=$b}
+    #method setsymbols {dict} {puts symbols=$dict}
+    #method setcomment {c} {puts comment=$c}
+    #method admindone {} {puts admindone}
+    #method def {rev date author state next branches} {puts "def $rev $date $author $state $next $branches"}
+    #method setdesc {d} {puts desc=$d}
+    #method extend {rev commitmsg deltarange} {puts "extend $commitmsg $deltarange"}
+    #method done {} {puts done}
+
+    # # ## ### ##### ######## #############
     ## State
 
     variable mypath    {} ; # Path of rcs archive
