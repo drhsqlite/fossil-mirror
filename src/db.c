@@ -700,7 +700,11 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   zUser = db_get("default-user", 0);
   if( zUser==0 ){
+#ifdef __MINGW32__
+    zUser = getenv("USERNAME");
+#else
     zUser = getenv("USER");
+#endif
   }
   if( zUser==0 ){
     zUser = "root";
@@ -974,7 +978,7 @@ static void print_setting(const char *zName){
 **                     commit or update and automatically push
 **                     after commit or tag or branch creation.
 **
-**    clear-sign       Command used to clear-sign manifests at check-in.
+**    clearsign        Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
 **
 **    editor           Text editor command used for check-in comments.
@@ -984,7 +988,7 @@ static void print_setting(const char *zName){
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
 **
-**    omit-sign        When enabled, fossil will not attempt to sign any
+**    omitsign         When enabled, fossil will not attempt to sign any
 **                     commit with gpg. All commits will be unsigned.
 **
 **    safemerge        If enabled, when commit will cause a fork, the
@@ -997,7 +1001,7 @@ void setting_cmd(void){
     "clearsign",
     "editor",
     "localauth",
-    "omitsig",
+    "omitsign",
     "safemerge",
   };
   int i;

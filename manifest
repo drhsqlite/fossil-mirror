@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Enforce\swell-formedness\sconstraints\son\swiki\spagenames.
-D 2007-10-06T17:10:47
+C Fixed\somitsign\sdiscrepancies.\sWindows\sversion\snow\slooks\sfor\sUSERNAME\sinstead\sof\sUSER\swhen\screating\snew\sdatabase.
+D 2007-10-07T14:38:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -32,9 +29,9 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 7e200015f86fc9465179afafdd2b66c9df33748a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c d66858e82e6ad1e661a411209344c982857f8632
-F src/branch.c efd61694e3aa6f1a61dfa3354a4c999dcd71cd87
+F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
 F src/cgi.c 3772dc1166e934aab4278efb367ac14cc2676c49
-F src/checkin.c 1fd79ac4b7b782586deed0e2a2afc66c5f305c62
+F src/checkin.c 6e8cb78df89cb8ed7e82e3c69300200518218616
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
@@ -42,7 +39,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c 81214718116c3828321fbc5a3db4b54970fa52ae
 F src/content.c 02e1a3dfd6fd5643b0d52a459e5f0f3951f2519e
-F src/db.c a10c6acdaeb0964d6ea488d5f1bf625ef006801b
+F src/db.c 61d4843c1da76532a8c8c48e78381d77d234d7c0
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -146,14 +143,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3cdb768fca1e7bfbacfab98b193329c43f6d89be
-R 44203e630972a3b96a17ec673ac278d9
-U drh
-Z d3097af36a78cfd8359e57476d193682
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHB8GaoxKgR168RlERAtQTAJ0etUF+Z86IUst//44Ho3c+mZZddgCfZDjR
-Wp1Jdcs6JxbFbEBihYolvnc=
-=o+pr
------END PGP SIGNATURE-----
+P 488afb97461a34ae63ac2a1f5e8b018e68466686
+R cc3ed72036905e81aa6e51f6ea675745
+U jnc
+Z a7437378f571b341598345b26d45ab1a
