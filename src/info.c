@@ -377,6 +377,66 @@ void vinfo_page(void){
 }
 
 /*
+** WEBPAGE: winfo
+**
+** Return information about a wiki page.  The version number is contained
+** in g.zExtra.
+*/
+void winfo_page(void){
+  Stmt q;
+  int rid;
+
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  rid = name_to_rid(g.zExtra);
+  if( rid==0 ){
+    style_header("Wiki Page Information Error");
+    @ No such object: %h(g.argv[2])
+    style_footer();
+    return;
+  }
+  db_prepare(&q, 
+     "SELECT substr(tagname, 6, 1000), uuid,"
+     "       datetime(event.mtime, 'localtime'), user"
+     "  FROM tagxref, tag, blob, event"
+     " WHERE tagxref.rid=%d"
+     "   AND tag.tagid=tagxref.tagid"
+     "   AND tag.tagname LIKE 'wiki-%%'"
+     "   AND blob.rid=%d"
+     "   AND event.objid=%d",
+     rid, rid, rid
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    char *zTitle = mprintf("Wiki Page %s", zName);
+    style_header(zTitle);
+    free(zTitle);
+    @ <div class="section-title">Overview</div>
+    @ <p><table class="label-value">
+    @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
+    @ <tr><th>Date:</th><td>%s(db_column_text(&q, 2))</td></tr>
+    if( g.okSetup ){
+      @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
+    }
+    @ <tr><th>Original&nbsp;User:</th><td>%s(db_column_text(&q, 3))</td></tr>
+    @ <tr><th>Commands:</th>
+    @   <td>
+/*    @     <a href="%s(g.zBaseURL)/wdiff/%d(rid)">diff</a> | */
+    @     <a href="%s(g.zBaseURL)/wlist/%t(zName)">history</a>
+    @     | <a href="%s(g.zBaseURL)/fview/%d(rid)">raw-text</a>
+    @   </td>
+    @ </tr>
+    @ </table></p>
+  }else{
+    style_header("Wiki Information");
+  }
+  db_finalize(&q);
+  showTags(rid);
+  style_footer();
+}
+
+/*
 ** WEBPAGE: finfo
 **
 ** Show the complete change history for a single file.  The name
@@ -517,6 +577,7 @@ void vdiff_page(void){
 static void object_description(int rid, int linkToView){
   Stmt q;
   int cnt = 0;
+  int nWiki = 0;
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime), substr(a.uuid,1,10),"
     "       coalesce(event.comment,event.ecomment),"
@@ -544,24 +605,48 @@ static void object_description(int rid, int linkToView){
     cnt++;
   }
   db_finalize(&q);
-  db_prepare(&q,
-    "SELECT datetime(mtime), user, comment, uuid"
-    "  FROM event, blob"
-    " WHERE event.objid=%d"
-    "   AND blob.rid=%d",
-    rid, rid
+  db_prepare(&q, 
+    "SELECT substr(tagname, 6, 10000), datetime(event.mtime),"
+    "       coalesce(event.euser, event.user), uuid"
+    "  FROM tagxref, tag, event, blob"
+    " WHERE tagxref.rid=%d"
+    "   AND tag.tagid=tagxref.tagid" 
+    "   AND tag.tagname LIKE 'wiki-%%'"
+    "   AND event.objid=tagxref.rid"
+    "   AND blob.rid=tagxref.rid",
+    rid
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
+    const char *zPagename = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
-    const char *zCom = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 1);
-    @ Manifest of version
-    hyperlink_to_uuid(zUuid);
-    @ %s(zCom) by %s(zUser) on %s(zDate).
+    @ Wiki page [<a href="%s(g.zBaseURL)/wiki/%t(zPagename)">%h(zPagename)</a>]
+    @ uuid %s(zUuid) by %h(zUser) on %s(zDate)
+    nWiki++;
     cnt++;
   }
   db_finalize(&q);
+  if( nWiki==0 ){
+    db_prepare(&q,
+      "SELECT datetime(mtime), user, comment, uuid"
+      "  FROM event, blob"
+      " WHERE event.objid=%d"
+      "   AND blob.rid=%d",
+      rid, rid
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zDate = db_column_text(&q, 0);
+      const char *zUuid = db_column_text(&q, 3);
+      const char *zCom = db_column_text(&q, 2);
+      const char *zUser = db_column_text(&q, 1);
+      @ Manifest of version
+      hyperlink_to_uuid(zUuid);
+      @ %s(zCom) by %s(zUser) on %s(zDate).
+      cnt++;
+    }
+    db_finalize(&q);
+  }
   if( cnt==0 ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     @ Control file %s(zUuid).
@@ -621,10 +706,16 @@ void fview_page(void){
   rid = name_to_rid(g.zExtra);
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  if( g.zPath[0]=='i' &&
-      db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
-    vinfo_page();
-    return;
+  if( g.zPath[0]=='i' ){
+    if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
+                  " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
+      winfo_page();
+      return;
+    }
+    if( db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
+      vinfo_page();
+      return;
+    }
   }
   style_header("File Content");
   @ <h2>Content Of:</h2>

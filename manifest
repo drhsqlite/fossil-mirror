@@ -1,5 +1,8 @@
-C Fixed\somitsign\sdiscrepancies.\sWindows\sversion\snow\slooks\sfor\sUSERNAME\sinstead\sof\sUSER\swhen\screating\snew\sdatabase.
-D 2007-10-07T14:38:54
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Refinements\sto\sthe\stimeline\sfor\sgiving\sbetter\sinformation\sabout\swiki\npages.
+D 2007-10-09T02:35:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -48,7 +51,7 @@ F src/diffcmd.c 4cfcd3d811e9d155a55cb030908b3a0a07f8081c
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
-F src/info.c 15b63940c8bc1044af930687e643ee0c7591afd3
+F src/info.c ee44c7829b6bd26b769826e2f1dd1ffaa1f96fc1
 F src/login.c 4002a249f4b0b4be9263ec6c4ac2796543c8fb4f
 F src/main.c 157f4f53781413fb0dc98c4c19760fe11e988c6b
 F src/main.mk de95462e676dfcbc81669898d40f271683c765c3
@@ -74,7 +77,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7864b9469af90dbcd422a95dbe37d85d4483695e
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
-F src/timeline.c bffeb82d75f565bb19a258268728ce0ff84a708c
+F src/timeline.c dc6941a79a31d5eae998b4fd3341c6c09a0d3dfb
 F src/tkt.c 98ba13ea1e889397e5855c4026432c40cf6bd3fc
 F src/tktconf.c d2929cd22625a33f76d315a342673648cfd9d69e
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
@@ -143,7 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 488afb97461a34ae63ac2a1f5e8b018e68466686
-R cc3ed72036905e81aa6e51f6ea675745
-U jnc
-Z a7437378f571b341598345b26d45ab1a
+P a21806dcf394d6b99c775fa5f3daccab091d1795
+R 4c6f4be29a62a0158712ec354e5cec91
+U drh
+Z 9541898ad8fe9b39d37f4ce325ba989d
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHCujuoxKgR168RlERAmKbAJ9ZNX6a/KVTNr/8uw+xziKjAbSGHQCeJOw6
+rkVfWwJGiLXz0Dj4YaN81lo=
+=Zk1y
+-----END PGP SIGNATURE-----

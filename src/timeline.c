@@ -88,6 +88,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 **    6.  Number of parents
 **    7.  True if is a leaf
 **    8.  background color
+**    9.  type ("ci", "w")
 */
 void www_print_timeline(
   Stmt *pQuery,
@@ -115,6 +116,8 @@ void www_print_timeline(
     int isLeaf = db_column_int(pQuery, 7);
     const char *zBgClr = db_column_text(pQuery, 8);
     const char *zDate = db_column_text(pQuery, 2);
+    const char *zType = db_column_text(pQuery, 9);
+    const char *zUser = db_column_text(pQuery, 4);
     if( cnt==0 && pFirstEvent ){
       *pFirstEvent = rid;
     }
@@ -145,20 +148,24 @@ void www_print_timeline(
     }else{
       @ <td valign="top" align="left">
     }
-    hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
-    if( nParent>1 ){
-      @ <b>Merge</b> 
-    }
-    if( nPChild>1 ){
-      @ <b>Fork</b>
-    }
-    if( isLeaf ){
-      @ <b>Leaf</b>
+    if( zType[0]=='c' ){
+      hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
+      if( nParent>1 ){
+        @ <b>Merge</b> 
+      }
+      if( nPChild>1 ){
+        @ <b>Fork</b>
+      }
+      if( isLeaf ){
+        @ <b>Leaf</b>
+      }
+    }else{
+      hyperlink_to_uuid(zUuid);
     }
     db_column_blob(pQuery, 3, &comment);
     wiki_convert(&comment, 0);
     blob_reset(&comment);
-    @ (by %h(db_column_text(pQuery,4)))</td></tr>
+    @ (by %h(zUser))</td></tr>
   }
   @ </table>
 }
@@ -209,7 +216,8 @@ const char *timeline_query_for_www(void){
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
     @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
-    @   coalesce(bgcolor, brbgcolor)
+    @   coalesce(bgcolor, brbgcolor),
+    @   event.type
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -383,6 +391,34 @@ void page_timeline(void){
   style_footer();
 }
 
+
+/*
+** WEBPAGE: wlist
+**
+** Show the complete change history for a single wiki page.  The name
+** of the wiki is in g.zExtra
+*/
+void wlist_page(void){
+  Stmt q;
+  char *zTitle;
+  char *zSQL;
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  zTitle = mprintf("History Of %h", g.zExtra);
+  style_header(zTitle);
+  free(zTitle);
+
+  zSQL = mprintf("%s AND event.objid IN "
+                 "  (SELECT rid FROM tagxref WHERE tagid="
+                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q'))",
+                 timeline_query_for_www(), g.zExtra);
+  db_prepare(&q, zSQL);
+  free(zSQL);
+  www_print_timeline(&q, 0, 0, 0, 0);
+  db_finalize(&q);
+  style_footer();
+}
+
 /*
 ** The input query q selects various records.  Print a human-readable
 ** summary of those records.
@@ -471,7 +507,6 @@ const char *timeline_query_for_tty(void){
   ;
   return zBaseSql;
 }
-
 
 /*
 ** COMMAND: timeline
