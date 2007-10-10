@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -77,16 +77,16 @@ void diff_cmd(void){
   Blob vname;
   Blob record;
   int cnt=0,internalDiff;
-  
+
   internalDiff = find_option("internal","i",0)!=0;
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
-  
+
   if( g.argc<3 ){
     usage("?OPTIONS? FILE");
   }
   db_must_be_within_tree();
-  
+
   if( internalDiff==0 ){
     const char *zExternalCommand;
     if( strcmp(g.argv[1], "diff")==0 ){
@@ -104,13 +104,13 @@ void diff_cmd(void){
   if( !file_tree_name(zFile, &fname) ){
     fossil_panic("unknown file: %s", zFile);
   }
-  
+
   blob_zero(&vname);
   do{
     blob_reset(&vname);
     blob_appendf(&vname, "%s~%d", zFile, cnt++);
   }while( access(blob_str(&vname),0)==0 );
-  
+
   if( zRevision==0 ){
     int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
     if( rid==0 ){

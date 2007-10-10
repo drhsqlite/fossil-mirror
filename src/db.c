@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -20,7 +20,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** Code for interfacing to the various databases.
 **
 ** There are three separate database files that fossil interacts
@@ -101,7 +101,7 @@ void db_force_rollback(void){
   }
   nBegin = 0;
 }
- 
+
 /*
 ** Prepare or reprepare the sqlite3 statement from the raw SQL text.
 */
@@ -542,7 +542,7 @@ static int isValidLocalDb(const char *zDbName){
 ** directory is found by searching for a file named "FOSSIL" that contains
 ** a valid repository database.
 **
-** If no valid FOSSIL file is found, we move up one level and try again.  
+** If no valid FOSSIL file is found, we move up one level and try again.
 ** Once the file is found, the g.zLocalRoot variable is set to the root of
 ** the repository tree and this routine returns 1.  If no database is
 ** found, then this routine return 0.
@@ -684,7 +684,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   const char *zUser;
   Blob hash;
   Blob manifest;
-  
+
   db_set("content-schema", CONTENT_SCHEMA, 0);
   db_set("aux-schema", AUX_SCHEMA, 0);
   if( makeServerCodes ){
@@ -896,7 +896,7 @@ void db_set_int(const char *zName, int value, int globalFlag){
   db_end_transaction(0);
 }
 char *db_lget(const char *zName, char *zDefault){
-  return db_text((char*)zDefault, 
+  return db_text((char*)zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
 }
 void db_lset(const char *zName, const char *zValue){
@@ -950,7 +950,7 @@ void cmd_open(void){
 */
 static void print_setting(const char *zName){
   Stmt q;
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT '(local)', value FROM config WHERE name=%Q"
      " UNION ALL "
      "SELECT '(global)', value FROM global_config WHERE name=%Q",
@@ -994,6 +994,12 @@ static void print_setting(const char *zName){
 **    safemerge        If enabled, when commit will cause a fork, the
 **                     commit will not abort with warning. Also update
 **                     will not be allowed if local changes exist.
+**
+**   diff-command      External command to run when performing a diff.
+**                     If undefined, the internal text diff will be used.
+**
+**   gdiff-command     External command to run when performing a graphical
+**                     diff. If undefined, text diff will be used.
 */
 void setting_cmd(void){
   static const char *azName[] = {
@@ -1003,6 +1009,8 @@ void setting_cmd(void){
     "localauth",
     "omitsign",
     "safemerge",
+    "diff-command",
+    "gdiff-command",
   };
   int i;
   int globalFlag = find_option("global","g",0)!=0;
