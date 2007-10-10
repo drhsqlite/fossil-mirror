@@ -76,16 +76,12 @@ snit::type ::vc::rcs::parser {
     }
 
     proc Symbols {} {
-	set d {}
 	RequiredLiteral symbols
 	while {[Ident -> symbol]} {
 	    RequiredNumber -> rev
-	    # TODO: distinguish branch/tag symbols, transform revision
-	    # numbers into canonical form.
-	    lappend d $symbol $rev
+	    Call deftag $symbol $rev
 	}
 	Semicolon
-	Call setsymbols $d
 	return
     }
 

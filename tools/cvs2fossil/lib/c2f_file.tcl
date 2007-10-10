@@ -44,9 +44,9 @@ snit::type ::vc::fossil::import::cvs::file {
     method sethead            {h} {}
     method setprincipalbranch {b} {}
 
-    method setsymbols {dict} {}
-    method setcomment {c}    {}
-    method setdesc    {d}    {}
+    method deftag     {s r} {}
+    method setcomment {c}   {}
+    method setdesc    {d}   {}
 
     method def    {rev date author state next branches} {}
     method extend {rev commitmsg deltarange} {}
@@ -54,7 +54,7 @@ snit::type ::vc::fossil::import::cvs::file {
     #method begin {} {puts begin}
     #method sethead {h} {puts head=$h}
     #method setprincipalbranch {b} {puts pb=$b}
-    #method setsymbols {dict} {puts symbols=$dict}
+    #method deftag {s r} {puts $s=$r }
     #method setcomment {c} {puts comment=$c}
     #method admindone {} {puts admindone}
     #method def {rev date author state next branches} {puts "def $rev $date $author $state $next $branches"}
@@ -85,10 +85,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    method setsymbols {dict} {
+    method deftag {symbol rev} {
 	# Slice symbols into branches and tags, canonical numbers ...
-array set _ $dict
-parray _
     }
 
     method setcomment {c} {# ignore}
