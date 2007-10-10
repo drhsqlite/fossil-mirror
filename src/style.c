@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -71,12 +71,16 @@ static int submenuCompare(const void *a, const void *b){
 */
 void style_header(const char *zTitle){
   const char *zLogInOut = "Logout";
+  char *zProjectDescr = db_get("project-description", 0);
   login_check_credentials();
   @ <html>
   @ <head>
   @ <title>%s(zTitle)</title>
   @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="%s(g.zBaseURL)/timeline.rss">
   @ <link rel="stylesheet" href="%s(g.zBaseURL)/style.css" type="text/css" media="screen">
+  if( zProjectDescr != 0 ){
+    @ <meta name="description" content="%s(zProjectDescr)">
+  }
   @ </head>
   @ <body>
   @ <div id="page-title">%s(zTitle)</div>
@@ -93,9 +97,6 @@ void style_header(const char *zTitle){
   if( g.okRead ){
     @ | <a href="%s(g.zBaseURL)/leaves">Leaves</a>
     @ | <a href="%s(g.zBaseURL)/timeline">Timeline</a>
-  }
-  if( g.okRdWiki ){
-    @ | <a href="%s(g.zBaseURL)/wiki">Wiki</a>
   }
 #if 0
   @ | <font color="#888888">Search</font>
@@ -147,7 +148,7 @@ void style_footer(void){
 ** WEBPAGE: not_found
 */
 void page_index(void){
-  char *zHome = (char*)db_get("homepage", 0);
+  char *zHome = "Home";
   if( zHome ){
     g.zExtra = zHome;
     g.okRdWiki = 1;
@@ -167,12 +168,12 @@ void page_index(void){
 ** using the manifest identified by manid.
 */
 static void style_create_fake_vfile(int manid){
-  static const char zVfileDef[] = 
+  static const char zVfileDef[] =
     @ CREATE TEMP TABLE vfile(
     @   id INTEGER PRIMARY KEY,     -- ID of the checked out file
     @   vid INTEGER REFERENCES blob, -- The version this file is part of.
     @   chnged INT DEFAULT 0,       -- 0:unchnged 1:edited 2:m-chng 3:m-add
-    @   deleted BOOLEAN DEFAULT 0,  -- True if deleted 
+    @   deleted BOOLEAN DEFAULT 0,  -- True if deleted
     @   rid INTEGER,                -- Originally from this repository record
     @   mrid INTEGER,               -- Based on this record due to a merge
     @   pathname TEXT,              -- Full pathname
@@ -194,7 +195,7 @@ void page_style_css(void){
   int chnged = 0;
   char *zPathname = 0;
   char *z;
-  
+
   cgi_set_content_type("text/css");
 
   login_check_credentials();
@@ -204,7 +205,7 @@ void page_style_css(void){
     );
     style_create_fake_vfile(headid);
   }
-  
+
   db_prepare(&q,
      "SELECT id, rid, chnged, pathname FROM vfile"
      " WHERE (pathname='style.css' OR pathname LIKE '%%/style.css')"
@@ -236,7 +237,7 @@ void page_style_css(void){
     /* No CSS file found, use our own */
     /*
     ** Selector order: tags, ids, classes, other
-    ** Content order: margin, borders, padding, fonts, colors, other 
+    ** Content order: margin, borders, padding, fonts, colors, other
     ** Note: Once things are finialize a bit we can collapse this and
     **       make it much smaller, if necessary. Right now, it's verbose
     **       but easy to edit.
@@ -290,8 +291,8 @@ void page_style_css(void){
     @ #page {
     @   padding: 10px 20px 10px 20px;
     @ }
-    @ #style-footer { 
-    @   font-size: 0.8em; 
+    @ #style-footer {
+    @   font-size: 0.8em;
     @   margin-top: 12px;
     @   padding: 5px 10px 5px 10px;
     @   text-align: right;

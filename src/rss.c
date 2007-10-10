@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -30,14 +30,14 @@
 
 time_t rss_datetime_to_time_t(const char *dt){
   struct tm the_tm;
-  
+
   the_tm.tm_year = atoi(dt)-1900;
   the_tm.tm_mon  = atoi(&dt[5])-1;
   the_tm.tm_mday = atoi(&dt[8]);
   the_tm.tm_hour = atoi(&dt[11]);
   the_tm.tm_min  = atoi(&dt[14]);
   the_tm.tm_sec  = atoi(&dt[17]);
-  
+
   return mktime(&the_tm);
 }
 
@@ -48,7 +48,7 @@ time_t rss_datetime_to_time_t(const char *dt){
 void page_timeline_rss(void){
   Stmt q;
   int nLine=0;
-  char *zPubDate, *zRSSTitle, *zRSSDescr, *zFreeRSSTitle=0;
+  char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   const char zSQL[] =
     @ SELECT
     @   blob.rid,
@@ -62,27 +62,27 @@ void page_timeline_rss(void){
     @ WHERE blob.rid=event.objid
     @ ORDER BY event.mtime DESC
   ;
-  
+
   cgi_set_content_type("application/rss+xml");
-  
-  zRSSTitle = db_get("rss-title", 0);
-  if( zRSSTitle==0 ){
-    zFreeRSSTitle = zRSSTitle = mprintf("Fossil source repository for: %s",
+
+  zProjectName = db_get("project-name", 0);
+  if( zProjectName==0 ){
+    zFreeProjectName = zProjectName = mprintf("Fossil source repository for: %s",
       g.zBaseURL);
   }
-  zRSSDescr = db_get("rss-description", 0);
-  if( zRSSDescr==0 ){
-    zRSSDescr = zRSSTitle;
+  zProjectDescr = db_get("project-description", 0);
+  if( zProjectDescr==0 ){
+    zProjectDescr = zProjectName;
   }
-  
+
   zPubDate = cgi_rfc822_datestamp(time(NULL));
-  
+
   @ <?xml version="1.0"?>
   @ <rss version="2.0">
   @   <channel>
-  @     <title>%s(zRSSTitle)</title>
+  @     <title>%s(zProjectName)</title>
   @     <link>%s(g.zBaseURL)</link>
-  @     <description>%s(zRSSDescr)</description>
+  @     <description>%s(zProjectDescr)</description>
   @     <pubDate>%s(zPubDate)</pubDate>
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
   db_prepare(&q, zSQL);
@@ -94,9 +94,9 @@ void page_timeline_rss(void){
     char *zPrefix = "";
     int nChild = db_column_int(&q, 5);
     int nParent = db_column_int(&q, 6);
-    
+
     zDate = cgi_rfc822_datestamp(rss_datetime_to_time_t(zDate));
-    
+
     if( nParent>1 && nChild>1 ){
       zPrefix = "*MERGE/FORK* ";
     }else if( nParent>1 ){
@@ -119,4 +119,8 @@ void page_timeline_rss(void){
   db_finalize(&q);
   @   </channel>
   @ </rss>
+
+  if( zFreeProjectName != 0 ){
+    free( zFreeProjectName );
+  }
 }

@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -54,7 +54,7 @@ static void strip_string(Blob *pBlob, char *z){
 static char *getpass(const char *prompt){
   static char pwd[64];
   size_t i;
-  
+
   fputs(prompt,stderr);
   fflush(stderr);
   for(i=0; i<sizeof(pwd)-1; ++i){

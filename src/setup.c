@@ -10,7 +10,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -82,7 +82,7 @@ void setup_page(void){
 */
 void setup_ulist(void){
   Stmt s;
-  
+
   login_check_credentials();
   if( !g.okSetup ){
     login_needed();
@@ -239,7 +239,7 @@ void user_edit(void){
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zLogin = P("login");
-    if( uid>0 && 
+    if( uid>0 &&
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
       style_header("User Creation Error");
@@ -369,7 +369,7 @@ void user_edit(void){
   @
   @ <li><p>
   @ The <b>Query</b> privilege allows the user to create or edit
-  @ report formats by specifying appropriate SQL.  Users can run 
+  @ report formats by specifying appropriate SQL.  Users can run
   @ existing reports without the Query privilege.
   @ </p></li>
   @
@@ -514,11 +514,11 @@ void setup_access(void){
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
   @ to a year.</p>
-   
+
   @ <hr>
   onoff_attribute("Allow anonymous signup", "anon-signup", "asu", 0);
   @ <p>Allow users to create their own accounts</p>
-   
+
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
@@ -539,35 +539,19 @@ void setup_config(void){
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/setup_config" method="POST">
 
-  @ <hr>
-  entry_attribute("Home page", 60, "homepage", "hp", "");
-  @ <p>The name of a wiki file that is the homepage for the website.
-  @ The home page is the page that is displayed by the "Home" link
-  @ at the top of this screen.  Omit the path and the ".wiki"
-  @ suffix.  </p>
+  @ <hr />
 
-  entry_attribute("Ticket subdirectory", 60, "ticket-subdir", "tsd", "");
-  @ <p>A subdirectory in the file hierarchy that contains all trouble
-  @ tickets.  Leave this blank to disable ticketing.  Tickets text
-  @ files within this subdirectory containing a particular format
-  @ (documented separately) and with the ".tkt" suffix.</p>
+  entry_attribute("Project Name", 60, "project-name", "pn", "");
+  @ <p>Give your project a name so visitors know what this site is about.
+  @ The project name will also be used as the RSS feed title.</p>
 
-  entry_attribute("Wiki subdirectory", 60, "wiki-subdir", "wsd", "");
-  @ <p>A subdirectory in the file hierarchy that contains wiki pages.
-  @ Leave this blank to disable wiki.  Wiki pages are
-  @ files within this subdirectory whose name is he wiki page title
-  @ and with the suffix ".wiki".</p>
-  
-  entry_attribute("RSS Feed Title", 60, "rss-title", "rst", "");
-  @ <p>The title of the RSS feed that publishes the changes to the
-  @ repository. If left blank, the system will generate a generic
-  @ title that, unfortunantly, not very helpful.</p>
-  
-  textarea_attribute("RSS Feed Description", 5, 60, "rss-description", "rsd", "");
-  @ <p>The description of the RSS feed that publishes the changes to
-  @ the repository. If left blank, the system will use the RSS Feed Title.
-   
-  @ <hr>
+  @ <hr />
+
+  textarea_attribute("Project Description", 5, 60, "project-description", "pd", "");
+  @ <p>Describe your project. This will be used in page headers for search
+  @ engines as well as a short RSS description.</p>
+
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);
