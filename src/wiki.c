@@ -215,7 +215,7 @@ void wikiedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>200 ) n = 200;
-  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit/%s(g.zExtra)">
+  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit/%t(g.zExtra)">
   @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ <br>

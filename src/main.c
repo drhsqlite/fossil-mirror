@@ -483,15 +483,16 @@ static void process_one_web_page(void){
   if( zPath[i]=='/' ){
     zPath[i] = 0;
     g.zExtra = &zPath[i+1];
-
-    /* CGI parameters get this treatment elsewhere, but places like getfile
-    ** will use g.zExtra directly.
-    */
-    dehttpize(g.zExtra);
   }else{
     g.zExtra = 0;
   }
   g.zBaseURL = get_base_url();
+  if( g.zExtra ){
+    /* CGI parameters get this treatment elsewhere, but places like getfile
+    ** will use g.zExtra directly.
+    */
+    dehttpize(g.zExtra);
+  }
 
   /* Prevent robots from indexing this site.
   */
