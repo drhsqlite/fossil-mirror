@@ -132,7 +132,6 @@ void setup_ulist(void){
   @ <li value="9"><b>Check-In</b>: Commit new versions in the repository</li>
   @ <li value="10"><b>Read-Wiki</b>: View wiki pages</li>
   @ <li value="11"><b>Write-Wiki</b>: Edit wiki pages</li>
-  @ <li value="12"><b>Lock-Wiki</b>: Lock or unlock wiki pages</li>
   @ <li value="13"><b>Append-Wiki</b>: Append to wiki pages</li>
   @ <li value="14"><b>New-Tkt</b>: Create new tickets</li>
   @ <li value="15"><b>Check-Out</b>: Check out versions</li>
@@ -162,7 +161,7 @@ void setup_ulist(void){
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap ;
-  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag, *oal;
+  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -216,7 +215,6 @@ void user_edit(void){
     int am = P("am")!=0;
     int ah = P("ah")!=0;
     int ag = P("ag")!=0;
-    int al = P("al")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
@@ -226,7 +224,6 @@ void user_edit(void){
     if( ai ){ zCap[i++] = 'i'; }
     if( aj ){ zCap[i++] = 'j'; }
     if( ak ){ zCap[i++] = 'k'; }
-    if( al ){ zCap[i++] = 'l'; }
     if( am ){ zCap[i++] = 'm'; }
     if( an ){ zCap[i++] = 'n'; }
     if( ao ){ zCap[i++] = 'o'; }
@@ -267,7 +264,7 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
-  oaa = oac = oad = oaf = oag = oah = oai = oaj = oak = oal = oam =
+  oaa = oac = oad = oaf = oag = oah = oai = oaj = oak = oam =
         oan = oao = oap = oaq = oar = oas = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
@@ -282,7 +279,6 @@ void user_edit(void){
     if( strchr(zCap, 'i') ) oai = " checked";
     if( strchr(zCap, 'j') ) oaj = " checked";
     if( strchr(zCap, 'k') ) oak = " checked";
-    if( strchr(zCap, 'l') ) oal = " checked";
     if( strchr(zCap, 'm') ) oam = " checked";
     if( strchr(zCap, 'n') ) oan = " checked";
     if( strchr(zCap, 'o') ) oao = " checked";
@@ -338,7 +334,6 @@ void user_edit(void){
   @     <input type="checkbox" name="af"%s(oaf)>New Wiki</input><br>
   @     <input type="checkbox" name="am"%s(oam)>Append Wiki</input><br>
   @     <input type="checkbox" name="ak"%s(oak)>Write Wiki</input><br>
-  @     <input type="checkbox" name="al"%s(oak)>Lock Wiki</input><br>
   @     <input type="checkbox" name="ar"%s(oar)>Read Tkt</input><br>
   @     <input type="checkbox" name="an"%s(oan)>New Tkt</input><br>
   @     <input type="checkbox" name="ac"%s(oac)>Append Tkt</input><br>

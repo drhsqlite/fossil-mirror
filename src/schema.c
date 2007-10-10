@@ -219,6 +219,9 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(1, 'bgcolor');         -- TAG_BGCOLOR
 @ INSERT INTO tag VALUES(2, 'comment');         -- TAG_COMMENT
 @ INSERT INTO tag VALUES(3, 'user');            -- TAG_USER
+@ INSERT INTO tag VALUES(4, 'hidden');          -- TAG_HIDDEN
+@ INSERT INTO tag VALUES(5, 'readonly');        -- TAG_READONLY
+@ INSERT INTO tag VALUES(6, 'appendonly');      -- TAG_APPENDONLY
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -244,6 +247,9 @@ const char zRepositorySchema2[] =
 # define TAG_BGCOLOR    1
 # define TAG_COMMENT    2
 # define TAG_USER       3
+# define TAG_HIDDEN     4
+# define TAG_READONLY   5
+# define TAG_APPENDONLY 6
 #endif
 
 /*

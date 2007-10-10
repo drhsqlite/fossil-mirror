@@ -101,7 +101,6 @@ struct Global {
   int okNewWiki;          /* f: create new wiki via web */
   int okApndWiki;         /* m: append to wiki via web */
   int okWrWiki;           /* k: edit wiki via web */
-  int okLockWiki;         /* l: lock and unlock wiki via web */
   int okRdTkt;            /* r: view tickets via web */
   int okNewTkt;           /* n: create new tickets */
   int okApndTkt;          /* c: append to tickets via the web */

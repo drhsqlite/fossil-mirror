@@ -107,7 +107,6 @@ void wiki_page(void){
   int rid;
   Blob wiki;
   Manifest m;
-  int seenHr = 0;
   char *zPageName;
   char *zHtmlPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
@@ -136,7 +135,11 @@ void wiki_page(void){
   }
   if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
     style_submenu_element("Edit", "Edit Wiki Page", 
-         mprintf("%s/wikiedit/%s", g.zTop, g.zExtra));
+       mprintf("%s/wikiedit/%s", g.zTop, g.zExtra));
+  }
+  if( rid && g.okApndWiki ){
+    style_submenu_element("Append", "Add A Comment", 
+       mprintf("%s/wikiappend/%s", g.zTop, g.zExtra));
   }
   if( g.okHistory ){
     style_submenu_element("History", "History", 
@@ -148,20 +151,6 @@ void wiki_page(void){
   wiki_convert(&wiki, 0);
   blob_reset(&wiki);
   manifest_clear(&m);
-#if 0
-  if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
-    @ <hr>
-    @ [<a href="%s(g.zBaseURL)/wikiedit/%s(g.zExtra)">Edit</a>]
-    seenHr = 1;
-  }
-  if( g.okHistory ){
-    if( !seenHr ){
-      @ <hr>
-      seenHr = 1;
-    }
-    @ [<a href="%s(g.zBaseUrl)/whistory/%s(g.zExtra)">History</a>]
-  }
-#endif
   style_footer();
 }
 
@@ -271,7 +260,129 @@ void wikiedit_page(void){
   @ </form>
   manifest_clear(&m);
   style_footer();
+}
 
+/*
+** Append the wiki text for an remark to the end of the given BLOB.
+*/
+static void appendRemark(Blob *p){
+  char *zDate;
+  const char *zUser;
+  const char *zRemark;
+
+  zDate = db_text(0, "SELECT datetime('now')");
+  blob_appendf(p, "On %s UTC %h", zDate, g.zLogin);
+  free(zDate);
+  zUser = PD("u",g.zLogin);
+  if( zUser[0] && strcmp(zUser,g.zLogin) ){
+    blob_appendf(p, " (claiming to be %h)", zUser);
+  }
+  zRemark = PD("r","");
+  blob_appendf(p, " added:\n\n%s", zRemark);
+}
+
+/*
+** WEBPAGE: wikiappend
+** URL: /wikiappend/PAGENAME
+*/
+void wikiappend_page(void){
+  char *zTag;
+  int rid;
+  char *zPageName;
+  char *zHtmlPageName;
+  const char *zUser;
+
+  login_check_credentials();
+  zPageName = mprintf("%s", g.zExtra);
+  dehttpize(zPageName);
+  if( check_name(zPageName) ) return;
+  zTag = mprintf("wiki-%s", zPageName);
+  rid = db_int(0, 
+    "SELECT rid FROM tagxref"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+    " ORDER BY mtime DESC", zTag
+  );
+  free(zTag);
+  if( !rid ){
+    cgi_redirect("index");
+    return;
+  }
+  if( !g.okApndWiki ){
+    login_needed();
+    return;
+  }
+  if( P("submit")!=0 && P("r")!=0 && P("u")!=0 ){
+    char *zDate;
+    Blob cksum;
+    int nrid;
+    Blob body;
+    Blob content;
+    Blob wiki;
+    Manifest m;
+
+    content_get(rid, &content);
+    manifest_parse(&m, &content);
+    blob_zero(&body);
+    if( m.type==CFTYPE_WIKI ){
+      blob_appendf(&body, m.zWiki, -1);
+    }
+    manifest_clear(&m);
+    blob_zero(&wiki);
+    db_begin_transaction();
+    zDate = db_text(0, "SELECT datetime('now')");
+    zDate[10] = 'T';
+    blob_appendf(&wiki, "D %s\n", zDate);
+    blob_appendf(&wiki, "L %F\n", zPageName);
+    if( rid ){
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      blob_appendf(&wiki, "P %s\n", zUuid);
+      free(zUuid);
+    }
+    if( g.zLogin ){
+      blob_appendf(&wiki, "U %F\n", g.zLogin);
+    }
+    blob_appendf(&body, "\n<hr>\n");
+    appendRemark(&body);
+    blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
+    md5sum_blob(&wiki, &cksum);
+    blob_appendf(&wiki, "Z %b\n", &cksum);
+    blob_reset(&cksum);
+    nrid = content_put(&wiki, 0, 0);
+    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+    manifest_crosslink(nrid, &wiki);
+    blob_reset(&wiki);
+    content_deltify(rid, nrid, 0);
+    db_end_transaction(0);
+    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+  }
+  if( P("cancel")!=0 ){
+    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+    return;
+  }
+  zHtmlPageName = mprintf("Append Comment To: %h", zPageName);
+  style_header(zHtmlPageName);
+  if( P("preview")!=0 ){
+    Blob preview;
+    blob_zero(&preview);
+    appendRemark(&preview);
+    @ Preview:<hr>
+    wiki_convert(&preview, 0);
+    @ <hr>
+    blob_reset(&preview);
+  }
+  zUser = PD("u", g.zLogin);
+  @ <form method="POST" action="%s(g.zBaseURL)/wikiappend/%t(g.zExtra)">
+  @ Your Name:
+  @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
+  @ Comment to append:<br>
+  @ <textarea name="r" class="wikiedit" cols="80" 
+  @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
+  @ <br>
+  @ <input type="submit" name="preview" value="Preview Your Comment">
+  @ <input type="submit" name="submit" value="Append Your Changes">
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ </form>
+  style_footer();
 }
 
 /*

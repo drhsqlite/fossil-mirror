@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Many\schanges\sand\sbug\sfixes\sin\sthe\swiki\sprocessing.\s\sMoving\stoward\na\sworkable\swiki\ssystem.\s\sThe\s"Home"\smenu\soption\snow\stakes\syou\sto\nthe\swiki\spage\swhose\sname\sis\sthe\ssame\sas\sthe\sProject\sName.\s\sThere\nis\sa\s"wcontent"\spage,\sbut\sno\slink\sto\sit\syet.\s\sMany\sother\schanges.
-D 2007-10-10T21:15:17
+C Get\srid\sof\sthe\s"locking"\scapability\son\swiki\spages.\s\sAssume\sthat\sanybody\nwho\scan\swrite\sor\sappend\sto\sa\swiki\spage\scan\sdo\sso\sto\sany\swiki\spage.\nAdd\sthe\s/wikiappend\spage\sfor\sappending\scomments\sto\sthe\send\sof\swiki.
+D 2007-10-10T23:10:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -52,8 +52,8 @@ F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 9f9776b1a23fd6e8e142a11fc70be0640ea31a44
-F src/login.c 9dc968113f0253dc80a3a3f9e9f5bc8a3adf5fda
-F src/main.c ef101c5a9185ba3835f37a02c8fa6bb32e0f7695
+F src/login.c f15d2f5703b7778d86669f500e4436cdc66820f5
+F src/main.c 5b5ca5ba39de424e46fd221f78c63e726285e849
 F src/main.mk de95462e676dfcbc81669898d40f271683c765c3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -69,8 +69,8 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 63619c9ec6ef80499feb9f342cf2806ace37d02e
 F src/rebuild.c 6f9e0bad18357cc54480b8aaddf76f603bdd8574
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c 551d7af8e56f187048b014e05b378c1dde2dd9e4
-F src/setup.c 743163c8fae109b29ba63ed3e6fdff59a8dcb0fe
+F src/schema.c f8f803b8a21fa864da117e583a3ad9cec98838dd
+F src/setup.c 9f35614dc364944b273d71ad1bc4577d2a537ef5
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
@@ -88,7 +88,7 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 9649e144263c124d53603b4844dea91f9cd1b9a9
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c 9a9d53861a48d2732c1e5031a33d6cb3504398a1
+F src/wiki.c c34537ff45231689368a418d5046f513731f1f3b
 F src/wikiformat.c 5c4069b17693e94c9b82da94087d21fd3c09a25b
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c a6ead783d298ac49f3edfeb9e0d41d64cdcf40ed
@@ -146,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9f89a8e68e6cf18256fe6af158cf18816b151ee7
-R b374c9f53e45bff63e131c0cd385a67a
+P 50a58adb76175391f3179deff1fb954a204b0f93
+R a5b6dc2915de32914638ff627db54ecb
 U drh
-Z 6a4e1190d817f6000f1574d450041d89
+Z ca54f37341e77e83391cf2d00a7ae1f4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHDUDsoxKgR168RlERAkSwAJwMYKGGesynXoQduH+MeiWx3/InKwCfZ8Te
-0EVbOCg6+JaKLbPnIKgAleY=
-=KKuC
+iD8DBQFHDVv8oxKgR168RlERAu9cAJ40WIlAofG0v73bUqfbc4C9nkCEJQCfQ7Zd
+/lBbt1dsub9/hh1XHQdU1/Y=
+=xwzu
 -----END PGP SIGNATURE-----
