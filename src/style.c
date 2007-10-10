@@ -62,7 +62,7 @@ void style_submenu_element(
 */
 static int submenuCompare(const void *a, const void *b){
   const struct Submenu *A = (const struct Submenu*)a;
-  const struct Submenu *B = (const struct Submenu*)B;
+  const struct Submenu *B = (const struct Submenu*)b;
   return strcmp(A->zLabel, B->zLabel);
 }
 
@@ -93,7 +93,7 @@ void style_header(const char *zTitle){
   }
   @ </div>
   @ <div id="main-menu">
-  @ <a href="%s(g.zBaseURL)/index">Home</a>
+  @ <a href="%s(g.zBaseURL)/home">Home</a>
   if( g.okRead ){
     @ | <a href="%s(g.zBaseURL)/leaves">Leaves</a>
     @ | <a href="%s(g.zBaseURL)/timeline">Timeline</a>
@@ -142,97 +142,17 @@ void style_footer(void){
   @ </div>
 }
 
-/*
-** WEBPAGE: index
-** WEBPAGE: home
-** WEBPAGE: not_found
-*/
-void page_index(void){
-  char *zHome = "Home";
-  if( zHome ){
-    g.zExtra = zHome;
-    g.okRdWiki = 1;
-    wiki_page();
-  }else{
-    style_header("Main Title Page");
-    @ No homepage configured for this server
-    style_footer();
-  }
-}
-
-/*
-** TODO: COPIED FROM WIKI.C... BAD
-*/
-/*
-** Create a fake replicate of the "vfile" table as a TEMP table
-** using the manifest identified by manid.
-*/
-static void style_create_fake_vfile(int manid){
-  static const char zVfileDef[] =
-    @ CREATE TEMP TABLE vfile(
-    @   id INTEGER PRIMARY KEY,     -- ID of the checked out file
-    @   vid INTEGER REFERENCES blob, -- The version this file is part of.
-    @   chnged INT DEFAULT 0,       -- 0:unchnged 1:edited 2:m-chng 3:m-add
-    @   deleted BOOLEAN DEFAULT 0,  -- True if deleted
-    @   rid INTEGER,                -- Originally from this repository record
-    @   mrid INTEGER,               -- Based on this record due to a merge
-    @   pathname TEXT,              -- Full pathname
-    @   UNIQUE(pathname,vid)
-    @ );
-    ;
-  db_multi_exec(zVfileDef);
-  load_vfile_from_rid(manid);
-}
-
 
 /*
 ** WEBPAGE: style.css
 */
 void page_style_css(void){
-  Stmt q;
-  int id = 0;
-  int rid = 0;
-  int chnged = 0;
-  char *zPathname = 0;
-  char *z;
+  char *zCSS = 0;
 
   cgi_set_content_type("text/css");
-
-  login_check_credentials();
-  if( !g.localOpen ){
-    int headid = db_int(0,
-       "SELECT cid FROM plink ORDER BY mtime DESC LIMIT 1"
-    );
-    style_create_fake_vfile(headid);
-  }
-
-  db_prepare(&q,
-     "SELECT id, rid, chnged, pathname FROM vfile"
-     " WHERE (pathname='style.css' OR pathname LIKE '%%/style.css')"
-     "   AND NOT deleted"
-  );
-  if( db_step(&q)==SQLITE_ROW ){
-    id = db_column_int(&q, 0);
-    rid = db_column_int(&q, 1);
-    chnged = db_column_int(&q, 2);
-    if( chnged || rid==0 ){
-      zPathname = db_column_malloc(&q, 3);
-    }
-  }
-  db_finalize(&q);
-  if( id ){
-    Blob src;
-    blob_zero(&src);
-    if( zPathname ){
-      zPathname = mprintf("%s/%z", g.zLocalRoot, zPathname);
-      blob_read_from_file(&src, zPathname);
-      free(zPathname);
-    }else{
-      content_get(rid, &src);
-    }
-
-    z = blob_str(&src);
-    @ %s(z)
+  zCSS = db_get("css",0);
+  if( zCSS ){
+    cgi_append_content(zCSS, -1);
   }else{
     /* No CSS file found, use our own */
     /*

@@ -289,7 +289,7 @@ void login_set_capabilities(const char *zCap){
   int i;
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
-      case 's':   g.okSetup = g.okDelete = 1;
+      case 's':   g.okSetup = 1;
       case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okQuery =
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okHistory = g.okClone = 

@@ -61,6 +61,7 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
   char *zErrMsg;          /* Text of an error message */
@@ -100,6 +101,7 @@ struct Global {
   int okNewWiki;          /* f: create new wiki via web */
   int okApndWiki;         /* m: append to wiki via web */
   int okWrWiki;           /* k: edit wiki via web */
+  int okLockWiki;         /* l: lock and unlock wiki via web */
   int okRdTkt;            /* r: view tickets via web */
   int okNewTkt;           /* n: create new tickets */
   int okApndTkt;          /* c: append to tickets via the web */
@@ -414,11 +416,11 @@ void help_cmd(void){
 }
 
 /*
-** RSS feeds need to reference absolute URLs so we need to calculate
-** the base URL onto which we add components. This is basically
-** cgi_redirect() stripped down and always returning an absolute URL.
+** Set the g.zBaseURL value to the full URL for the toplevel of
+** the fossil tree.  Set g.zHomeURL to g.zBaseURL without the
+** leading "http://" and the host and port.
 */
-static char *get_base_url(void){
+void set_base_url(void){
   int i;
   const char *zHost = PD("HTTP_HOST","");
   const char *zMode = PD("HTTPS","off");
@@ -438,9 +440,12 @@ static char *get_base_url(void){
   while( i>0 && zCur[i-1]=='/' ){ i--; }
 
   if( strcmp(zMode,"on")==0 ){
-    return mprintf("https://%s%.*s", zHost, i, zCur);
+    g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
+    g.zTop = &g.zBaseURL[8+strlen(zHost)+i];
+  }else{
+    g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
+    g.zTop = &g.zBaseURL[7+strlen(zHost)+i];
   }
-  return mprintf("http://%s%.*s", zHost, i, zCur);
 }
 
 /*
@@ -486,7 +491,7 @@ static void process_one_web_page(void){
   }else{
     g.zExtra = 0;
   }
-  g.zBaseURL = get_base_url();
+  set_base_url();
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
     ** will use g.zExtra directly.

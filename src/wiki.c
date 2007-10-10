@@ -72,6 +72,33 @@ static int check_name(const char *z){
 }
 
 /*
+** WEBPAGE: home
+** WEBPAGE: index
+** WEBPAGE: not_found
+*/
+void home_page(void){
+  char *zPageName = db_get("project-name",0);
+  if( zPageName ){
+    login_check_credentials();
+    g.zExtra = zPageName;
+    g.okRdWiki = 1;
+    g.okApndWiki = 0;
+    g.okWrWiki = 0;
+    g.okHistory = 0;
+    wiki_page();
+    return;
+  }
+  style_header("Home");
+  @ <p>This is a stub home-page for the project.
+  @ To fill in this page, first go to
+  @ <a href="%s(g.zBaseURL)/setup_config">setup/config</a>
+  @ and establish a "Project Name".  Then create a
+  @ wiki page with that name.  The content of that wiki page
+  @ will be displayed in place of this message.
+  style_footer();
+}
+
+/*
 ** WEBPAGE: wiki
 ** URL: /wiki/PAGENAME
 */
@@ -80,6 +107,7 @@ void wiki_page(void){
   int rid;
   Blob wiki;
   Manifest m;
+  int seenHr = 0;
   char *zPageName;
   char *zHtmlPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
@@ -106,16 +134,34 @@ void wiki_page(void){
       zBody = m.zWiki;
     }
   }
+  if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+    style_submenu_element("Edit", "Edit Wiki Page", 
+         mprintf("%s/wikiedit/%s", g.zTop, g.zExtra));
+  }
+  if( g.okHistory ){
+    style_submenu_element("History", "History", 
+         mprintf("%s/whistory/%s", g.zTop, g.zExtra));
+  }
   zHtmlPageName = mprintf("%h", zPageName);
   style_header(zHtmlPageName);
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0);
   blob_reset(&wiki);
   manifest_clear(&m);
+#if 0
   if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
     @ <hr>
     @ [<a href="%s(g.zBaseURL)/wikiedit/%s(g.zExtra)">Edit</a>]
+    seenHr = 1;
   }
+  if( g.okHistory ){
+    if( !seenHr ){
+      @ <hr>
+      seenHr = 1;
+    }
+    @ [<a href="%s(g.zBaseUrl)/whistory/%s(g.zExtra)">History</a>]
+  }
+#endif
   style_footer();
 }
 
@@ -226,6 +272,57 @@ void wikiedit_page(void){
   manifest_clear(&m);
   style_footer();
 
+}
+
+/*
+** WEBPAGE: whistory
+**
+** Show the complete change history for a single wiki page.  The name
+** of the wiki is in g.zExtra
+*/
+void whistory_page(void){
+  Stmt q;
+  char *zTitle;
+  char *zSQL;
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  zTitle = mprintf("History Of %h", g.zExtra);
+  style_header(zTitle);
+  free(zTitle);
+
+  zSQL = mprintf("%s AND event.objid IN "
+                 "  (SELECT rid FROM tagxref WHERE tagid="
+                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q'))"
+                 "ORDER BY mtime DESC",
+                 timeline_query_for_www(), g.zExtra);
+  db_prepare(&q, zSQL);
+  free(zSQL);
+  www_print_timeline(&q, 0, 0, 0, 0);
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: wcontent
+**
+** List all available wiki pages with date created and last modified.
+*/
+void wcontent_page(void){
+  Stmt q;
+  login_check_credentials();
+  if( !g.okRdWiki ){ login_needed(); return; }
+  style_header("Available Wiki Pages");
+  @ <ul>
+  db_prepare(&q, 
+    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
+    " ORDER BY lower(tagname)"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    @ <li><a href="%s(g.zBaseURL)/wiki/%t(zName)">%h(zName)</a></li>
+  }
+  db_finalize(&q);
+  style_footer();
 }
 
 /*

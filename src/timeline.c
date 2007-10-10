@@ -235,6 +235,7 @@ const char *timeline_query_for_www(void){
 **    u=NAME         show only events from user.        dflt: nil
 **    a              show events after and including.   dflt: false
 **    r              show only related events.          dflt: false
+**    y=TYPE         show only TYPE ('ci' or 'w')       dflt: nil
 */
 void page_timeline(void){
   Stmt q;
@@ -247,6 +248,7 @@ void page_timeline(void){
   int objid = atoi(PD("e","0"));
   int relatedEvents = P("r")!=0;
   int afterFlag = P("a")!=0;
+  const char *zType = P("y");
   int firstEvent;
   int lastEvent;
 
@@ -261,9 +263,12 @@ void page_timeline(void){
                 " WHERE login='anonymous'"
                 "   AND cap LIKE '%%h%%'") ){
     @ <p><b>Note:</b> You will be able to access <u>much</u> more
-    @ historical information if <a href="%s(g.zBaseURL)/login">login</a>.</p>
+    @ historical information if <a href="%s(g.zTop)/login">login</a>.</p>
   }
   zSQL = mprintf("%s", timeline_query_for_www());
+  if( zType ){
+    zSQL = mprintf("%z AND event.type=%Q", zSQL, zType);
+  }
   if( zUser ){
     zSQL = mprintf("%z AND event.user=%Q", zSQL, zUser);
   }
@@ -388,34 +393,6 @@ void page_timeline(void){
   @ <input type="hidden" value="%d(nEntry)" name="n">
   @ <input type="submit" value="Previous %d(nEntry) Rows">
   @ </form>
-  style_footer();
-}
-
-
-/*
-** WEBPAGE: wlist
-**
-** Show the complete change history for a single wiki page.  The name
-** of the wiki is in g.zExtra
-*/
-void wlist_page(void){
-  Stmt q;
-  char *zTitle;
-  char *zSQL;
-  login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
-  zTitle = mprintf("History Of %h", g.zExtra);
-  style_header(zTitle);
-  free(zTitle);
-
-  zSQL = mprintf("%s AND event.objid IN "
-                 "  (SELECT rid FROM tagxref WHERE tagid="
-                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q'))",
-                 timeline_query_for_www(), g.zExtra);
-  db_prepare(&q, zSQL);
-  free(zSQL);
-  www_print_timeline(&q, 0, 0, 0, 0);
-  db_finalize(&q);
   style_footer();
 }
 

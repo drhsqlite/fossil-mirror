@@ -423,7 +423,7 @@ void winfo_page(void){
     @ <tr><th>Commands:</th>
     @   <td>
 /*    @     <a href="%s(g.zBaseURL)/wdiff/%d(rid)">diff</a> | */
-    @     <a href="%s(g.zBaseURL)/wlist/%t(zName)">history</a>
+    @     <a href="%s(g.zBaseURL)/whistory/%t(zName)">history</a>
     @     | <a href="%s(g.zBaseURL)/fview/%d(rid)">raw-text</a>
     @   </td>
     @ </tr>
