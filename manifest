@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C API\stweak\srcs\sparser,\sdefinition\sof\ssymbols,\scall\sthrough\sthe\scallback\sonce\sper\ssymbol\sinstead\sof\sonce\sfor\sthe\swhole\sset.
-D 2007-10-10T04:23:22
+C Added\smore\schecks\sto\spass\sI\slooking\sfor\spossible\sfile/directory\sconflicts\sin\sthe\srepository,\sand\smodified\straverser\sto\sreport\son\sand\signore\ssub\sdirectories\sof\sAttic's.
+D 2007-10-10T05:36:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -101,7 +101,7 @@ F tools/cvs2fossil/lib/c2f_fsym.tcl 3c4c8aa555c651a7023c2320c10795b3689e36b1
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_option.tcl 5618bdee19c73cb4f25d1a76bbab8edbe995c329
 F tools/cvs2fossil/lib/c2f_pass.tcl 9bb3590160f5fce3b0a29750562285bc35f19b79
-F tools/cvs2fossil/lib/c2f_pcollar.tcl 464bb34df8344705b5a583154f566413b74dee4b
+F tools/cvs2fossil/lib/c2f_pcollar.tcl 97283400aedc6c31072e12fb8d75585467f6ec35
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl daf2ded7dd513fa15aec921c7fe268c81c006052
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
@@ -147,14 +147,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 84de38d73fe60325c221937c8b1612c0da9e7171
-R b79ac02ff298fe3c863942a19cd1f092
+P 338854a61ad1f3b9e69d722b3d487cd07461bd0f
+R c4892f6cbb8e222c8f2e727ca7c59968
 U aku
-Z 16171f796052e7a7b4c3f66f692c6e7f
+Z 678914fcf086ff9cc9f0b0748daa8195
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHDFO/vonzZ/CRa7gRAl9EAJ9j1sLiq12cLxDPguwBwzY0wf4KlgCfX/vx
-7SJBgXvtw0yhXOiLnXQAdaM=
-=PT+X
+iD8DBQFHDGTfvonzZ/CRa7gRAq0dAJ0WIcIH9INUKlFHufWWw6gz+NKYWQCgq8LX
+lar9MHfq+kcUtJgfM9fjwFg=
+=7g4+
 -----END PGP SIGNATURE-----

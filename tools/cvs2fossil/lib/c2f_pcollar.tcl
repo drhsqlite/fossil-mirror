@@ -85,7 +85,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	    set base [file join $rbase [$project base]]
 	    log write 1 collar "Scan $base"
 
-	    set traverse [fileutil::traverse %AUTO% $base]
+	    set traverse [fileutil::traverse %AUTO% $base \
+			      -prefilter [myproc FilterAtticSubdir $base]]
 	    set n 0
 	    set r {}
 
@@ -96,6 +97,17 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 
 		set usr [UserPath $rcs isattic]
 		if {[IsSuperceded $base $rcs $usr $isattic]} continue
+
+		if {
+		    [file exists      $base/$usr] &&
+		    [file isdirectory $base/$usr]
+		} {
+		    trouble fatal "Directory name conflicts with filename."
+		    trouble fatal "Please remove or rename one of the following:"
+		    trouble fatal "    $base/$usr"
+		    trouble fatal "    $base/$rcs"
+		    continue
+		}
 
 		log write 4 collar "Found   $rcs"
 		$project add $rcs $usr
@@ -125,6 +137,20 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
     ## Internal methods
 
     typevariable myignore 0
+
+    proc FilterAtticSubdir {base path} {
+	# This command is used by the traverser to prevent it from
+	# scanning into subdirectories of an Attic. We get away with
+	# checking the immediate parent directory of the current path
+	# as our rejection means that deeper path do not occur.
+
+	if {[file tail [file dirname $path]] eq "Attic"} {
+	    set ad [fileutil::stripPath $base $path]
+	    log write 1 collar "Directory $ad found in Attic, ignoring."
+	    return 0
+	}
+	return 1
+    }
 
     proc IsRCSArchive {path} {
 	if {![string match *,v $path]}     {return 0}
