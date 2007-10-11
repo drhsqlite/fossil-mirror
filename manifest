@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\srid\sof\sthe\s"locking"\scapability\son\swiki\spages.\s\sAssume\sthat\sanybody\nwho\scan\swrite\sor\sappend\sto\sa\swiki\spage\scan\sdo\sso\sto\sany\swiki\spage.\nAdd\sthe\s/wikiappend\spage\sfor\sappending\scomments\sto\sthe\send\sof\swiki.
-D 2007-10-10T23:10:48
+C Remove\sunused\shard-coded\stags\sfrom\sthe\sschema.\s\sOutput\sa\srow\scount\nas\sa\sstatus\sindicator\swhen\sdoing\sa\srebuild.
+D 2007-10-11T01:17:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -40,7 +40,7 @@ F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/construct.c 81214718116c3828321fbc5a3db4b54970fa52ae
+F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 02e1a3dfd6fd5643b0d52a459e5f0f3951f2519e
 F src/db.c 9ee28c7627aaa08457fe6c8f0f3b7522046626d9
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
@@ -67,9 +67,9 @@ F src/name.c 8d07e9c5fdb127818043015d250afe5365f8b8dc
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 63619c9ec6ef80499feb9f342cf2806ace37d02e
-F src/rebuild.c 6f9e0bad18357cc54480b8aaddf76f603bdd8574
+F src/rebuild.c 45d87035e5f481e19866228873b578e48d6919c9
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c f8f803b8a21fa864da117e583a3ad9cec98838dd
+F src/schema.c 3e36e323dca2de766d7d691c8f7fdc34e86b5ea5
 F src/setup.c 9f35614dc364944b273d71ad1bc4577d2a537ef5
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
@@ -146,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 50a58adb76175391f3179deff1fb954a204b0f93
-R a5b6dc2915de32914638ff627db54ecb
+P 61ce5e3685fb867ff382c7336f96d9b1033f71ad
+R f0cdf3a2fe7b79a5e1f47bd3bc529551
 U drh
-Z ca54f37341e77e83391cf2d00a7ae1f4
+Z bbd7e26638f2b734e37e6d66d853f05b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHDVv8oxKgR168RlERAu9cAJ40WIlAofG0v73bUqfbc4C9nkCEJQCfQ7Zd
-/lBbt1dsub9/hh1XHQdU1/Y=
-=xwzu
+iD8DBQFHDXmjoxKgR168RlERArGhAKCNupTkzRVgwpV2aY1yRBFANBbUnwCZAYqo
+vCXRmVd4mSsu6XCk+wbWtvs=
+=65zB
 -----END PGP SIGNATURE-----

@@ -156,7 +156,7 @@ void reconstruct_cmd(void){
 	 "file" : "files");
 
   /* Finalize the repository, rebuild the derived tables */
-  errCnt = rebuild_db(0);
+  errCnt = rebuild_db(0, 0);
 
   if( errCnt ){
     printf("%d %s. Rolling back changes.\n", errCnt, errCnt == 1 ?

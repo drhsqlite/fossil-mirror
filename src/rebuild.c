@@ -39,10 +39,11 @@
 ** ability of fossil to accept records in any order and still
 ** construct a sane repository.
 */
-int rebuild_db(int randomize){
+int rebuild_db(int randomize, int ttyOutput){
   Stmt s;
   int errCnt = 0;
   char *zTable;
+  int cnt = 0;
 
   db_multi_exec(
     "CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
@@ -77,12 +78,21 @@ int rebuild_db(int randomize){
     int size = db_column_int(&s, 1);
     if( size>=0 ){
       Blob content;
+      if( ttyOutput ){
+        cnt++;
+        printf("%d...\r", cnt);
+        fflush(stdout);
+      }
       content_get(rid, &content);
       manifest_crosslink(rid, &content);
       blob_reset(&content);
     }else{
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
+  }
+  db_finalize(&s);
+  if( ttyOutput ){
+    printf("\n");
   }
   return errCnt;
 }
@@ -108,7 +118,7 @@ void rebuild_database(void){
   }
   db_open_repository(g.argv[2]);
   db_begin_transaction();
-  errCnt = rebuild_db(randomizeFlag);
+  errCnt = rebuild_db(randomizeFlag, 1);
   if( errCnt && !forceFlag ){
     printf("%d errors. Rolling back changes. Use --force to force a commit.\n",
             errCnt);
