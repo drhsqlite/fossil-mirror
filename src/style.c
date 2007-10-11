@@ -240,7 +240,8 @@ void page_style_css(void){
 void page_test_env(void){
   style_header("Environment Test");
   @ g.zBaseURL = %h(g.zBaseURL)<br>
-  @ g.zTop = %h(g.zTop)<hr>
+  @ g.zTop = %h(g.zTop)<br>
+  @ g.zExtra = %h(g.zExtra)<hr>
   cgi_print_all();
   style_footer();
 }

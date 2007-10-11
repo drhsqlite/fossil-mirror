@@ -440,10 +440,10 @@ void set_base_url(void){
 
   if( strcmp(zMode,"on")==0 ){
     g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
-    g.zTop = &g.zBaseURL[8+strlen(zHost)+i];
+    g.zTop = &g.zBaseURL[8+strlen(zHost)];
   }else{
     g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
-    g.zTop = &g.zBaseURL[7+strlen(zHost)+i];
+    g.zTop = &g.zBaseURL[7+strlen(zHost)];
   }
 }
 
