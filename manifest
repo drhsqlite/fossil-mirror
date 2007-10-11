@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sunused\shard-coded\stags\sfrom\sthe\sschema.\s\sOutput\sa\srow\scount\nas\sa\sstatus\sindicator\swhen\sdoing\sa\srebuild.
-D 2007-10-11T01:17:20
+C Fix\sa\sC++-ism.
+D 2007-10-11T01:20:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -77,7 +77,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 9469a23cd89ca50674982acbe22330bc8c601407
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
-F src/timeline.c 0cd823eb585e5ff569b4b61501edad8b8db3b3e8
+F src/timeline.c ca926d4172af53451e1c3c881088c97889648659
 F src/tkt.c 98ba13ea1e889397e5855c4026432c40cf6bd3fc
 F src/tktconf.c d2929cd22625a33f76d315a342673648cfd9d69e
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
@@ -146,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 61ce5e3685fb867ff382c7336f96d9b1033f71ad
-R f0cdf3a2fe7b79a5e1f47bd3bc529551
+P e38fc922a5bff1f8b22c6cb9b80f481bb616877c
+R daeefdd5a93075a2ec60deccc02bdf39
 U drh
-Z bbd7e26638f2b734e37e6d66d853f05b
+Z 33a556f00fb67c3bf1a9df965f13ff56
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHDXmjoxKgR168RlERArGhAKCNupTkzRVgwpV2aY1yRBFANBbUnwCZAYqo
-vCXRmVd4mSsu6XCk+wbWtvs=
-=65zB
+iD8DBQFHDXpxoxKgR168RlERAqbvAKCIVQEfMY1mYbZ6XaQY9lQJwi3RoQCfeGdF
+td+jG30N0zmDGvjfrE7CRcM=
+=gcCE
 -----END PGP SIGNATURE-----
