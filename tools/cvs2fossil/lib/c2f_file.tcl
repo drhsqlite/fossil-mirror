@@ -20,6 +20,7 @@ package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require struct::set                         ; # Set operations.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
+package require vc::fossil::import::cvs::file::sym  ; # CVS per file symbols.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -39,20 +40,6 @@ snit::type ::vc::fossil::import::cvs::file {
 
     # # ## ### ##### ######## #############
     ## Methods required for the class to be a sink of the rcs parser
-
-    method begin     {} {}
-    method done      {} {}
-    method admindone {} {}
-
-    method sethead            {h} {}
-    method setprincipalbranch {b} {}
-
-    method deftag     {s r} {}
-    method setcomment {c}   {}
-    method setdesc    {d}   {}
-
-    method def    {rev date author state next branches} {}
-    method extend {rev commitmsg deltarange} {}
 
     #method begin {} {puts begin}
     #method sethead {h} {puts head=$h}
@@ -121,7 +108,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    return
 	}
 
-	set myrev($revnr) [rev %AUTO% $date $author $state $self]
+	set myrev($revnr) [rev %AUTO% $revnr $date $author $state $self]
 
 	RecordBasicDependencies $revnr $next
 	return
@@ -155,6 +142,10 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	$rev setcommitmsg $cm
 	$rev settext  $deltarange
+
+	if {![rev istrunkrevnr $revnr]} {
+	    $rev setbranch [[$self Rev2Branch $revnr] name]
+	}
 
 	# If this is revision 1.1, we have to determine whether the
 	# file seems to have been created through 'cvs add' instead of
@@ -233,19 +224,13 @@ snit::type ::vc::fossil::import::cvs::file {
 	    log write 1 file "Cannot have second name '$name', ignoring it"
 	    return
 	}
-	set sym ""
-	set branch ""
-	#TODO set sym [$myproject getsymbol $name ]
-	#TODO set tag [sym %AUTO% branch $sym $branchnr]
+	set branch [sym %AUTO% branch $branchnr [$myproject getsymbol $name]]
 	set mybranches($branchnr) $branch
 	return $branch
     }
 
     method AddTag {name revnr} {
-	set sym ""
-	set tag ""
-	#TODO set sym [$myproject getsymbol $name ]
-	#TODO set tag [sym %AUTO% tag $sym $revnr]
+	set tag [sym %AUTO% tag $revnr [$myproject getsymbol $name]]
 	lappend mytags($revnr) $tag
 	return $tag
     }
@@ -299,6 +284,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace eval file {
 	# Import not required, already a child namespace.
 	# namespace import vc::fossil::import::cvs::file::rev
+	# namespace import vc::fossil::import::cvs::file::sym
     }
 }
 

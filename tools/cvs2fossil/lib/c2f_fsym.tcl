@@ -25,12 +25,21 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {} {
+    constructor {symtype nr symbol} {
+	set mytype   $symtype
+	set mynr     $nr
+	set mysymbol $symbol
 	return
     }
 
+    delegate method name to mysymbol
+
     # # ## ### ##### ######## #############
     ## State
+
+    variable mytype   {} ; # Symbol type, 'tag', or 'branch'.
+    variable mynr     {} ; # Revision number of a 'tag', branch number of a 'branch'.
+    variable mysymbol {} ; # Ref to symbol object at project level.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -41,7 +50,6 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
     pragma -hastypemethods no  ; # type is not relevant.
-    pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############
 }

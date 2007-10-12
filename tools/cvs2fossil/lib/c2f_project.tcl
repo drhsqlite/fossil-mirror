@@ -15,10 +15,11 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                          ; # Required runtime.
-package require snit                             ; # OO system.
-package require vc::fossil::import::cvs::file    ; # CVS archive file.
-package require vc::fossil::import::cvs::state   ; # State storage
+package require Tcl 8.4                               ; # Required runtime.
+package require snit                                  ; # OO system.
+package require vc::fossil::import::cvs::file         ; # CVS archive file.
+package require vc::fossil::import::cvs::state        ; # State storage
+package require vc::fossil::import::cvs::project::sym ; # Per project symbols
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -56,6 +57,13 @@ snit::type ::vc::fossil::import::cvs::project {
 
     delegate method author   to myrepository
     delegate method cmessage to myrepository
+
+    method getsymbol {name} {
+	if {![info exists mysymbols($name)]} {
+	    set mysymbols($name) [sym %AUTO% $name]
+	}
+	return $mysymbols($name)
+    }
 
     # pass I persistence
     method persist {} {
@@ -96,10 +104,11 @@ snit::type ::vc::fossil::import::cvs::project {
     # # ## ### ##### ######## #############
     ## State
 
-    variable mybase         {} ; # Project directory
-    variable myfiles -array {} ; # Maps rcs archive to their user files.
-    variable myfobj         {} ; # File objects for the rcs archives
-    variable myrepository   {} ; # Repository the prject belongs to.
+    variable mybase           {} ; # Project directory
+    variable myfiles   -array {} ; # Maps rcs archive to their user files.
+    variable myfobj           {} ; # File objects for the rcs archives
+    variable myrepository     {} ; # Repository the prject belongs to.
+    variable mysymbols -array {} ; # Map symbol names to project-level symbol objects.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -136,6 +145,8 @@ namespace eval ::vc::fossil::import::cvs {
     namespace eval project {
 	namespace import ::vc::fossil::import::cvs::file
 	namespace import ::vc::fossil::import::cvs::state
+	# Import not required, already a child namespace.
+	# namespace import ::vc::fossil::import::cvs::project::sym
     }
 }
 

@@ -25,26 +25,38 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {date author state thefile} {
+    constructor {revnr date author state thefile} {
+	set myrevnr  $revnr
+	set mydate   $date
+	set myauthor $author
+	set mystate  $state
+	set myfile   $thefile
 	return
     }
 
-    method hascommitmsg {} {
-	# TODO: check that we have the commit message
-	return 0
-    }
+    method hascommitmsg {} { return $myhascm }
 
     method setcommitmsg {cm} {
+	set mycommitmsg $cm
+	set myhascm 1
+	return
     }
 
     method settext {text} {
+	set mytext $text
+	return
+    }
+
+    method setbranch {branchnr} {
+	set mybranchnr $branchnr
+	return
     }
 
     # # ## ### ##### ######## #############
     ## Type API
 
     typemethod istrunkrevnr {revnr} {
-	return [expr {[llength [split $revnr .]] == 1}]
+	return [expr {[llength [split $revnr .]] == 2}]
     }
 
     typemethod 2branchnr {revnr} {
@@ -63,7 +75,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     typemethod isbranchrevnr {revnr _ bv} {
 	if {[regexp $mybranchpattern $revnr -> head tail]} {
 	    upvar 1 $bv branchnr
-	    set branchnr ${head}.$tail
+	    set branchnr ${head}$tail
 	    return 1
 	}
 	return 0
@@ -77,6 +89,21 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     # CVS then sticks an extra 0 in here; RCS does not.
     # And the last digit group.
 
+    variable myrevnr     {} ; # Revision number of the revision.
+    variable mydate      {} ; # Timestamp of the revision, seconds since epoch
+    variable mystate     {} ; # State of the revision.
+    variable myfile      {} ; # Ref to the file object the revision belongs to.
+    variable myhascm     0  ; # Bool flag, set when the commit msg was set.
+    variable mytext      {} ; # Range of the (delta) text for this revision in the file.
+
+    # The meta data block used later to group revisions into changesets.
+    # The project name factors into this as well, but is not stored
+    # here. The name is acessible via myfile's project.
+
+    variable myauthor    {} ; # Name of the user who committed the revision.
+    variable mycommitmsg {} ; # The message entered as part of the commit.
+    variable mybranchnr  {} ; # The number of the branch the commit was done on.
+
     # # ## ### ##### ######## #############
     ## Internal methods
 
@@ -85,7 +112,6 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
-    #pragma -hastypemethods no  ; # type is not relevant.
     pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############

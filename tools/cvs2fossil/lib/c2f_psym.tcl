@@ -25,12 +25,17 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {} {
+    constructor {name} {
+	set myname $name
 	return
     }
 
+    method name {} { return $myname }
+
     # # ## ### ##### ######## #############
     ## State
+
+    variable myname {}
 
     # # ## ### ##### ######## #############
     ## Internal methods
