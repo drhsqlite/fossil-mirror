@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\smore\schecks\sto\spass\sI\slooking\sfor\spossible\sfile/directory\sconflicts\sin\sthe\srepository,\sand\smodified\straverser\sto\sreport\son\sand\signore\ssub\sdirectories\sof\sAttic's.
-D 2007-10-10T05:36:27
+C Started\sto\sflesh\sout\sthe\shandling\ssymbols\sand\srevisions\scoming\sin\sfrom\sthe\srcs\sparser.\sFirst\sfragments\sof\srevision\sobject.\sType\smethods\sfor\sclassification\sof\srevision\snumb\sers.
+D 2007-10-12T05:56:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -94,9 +94,9 @@ F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
-F tools/cvs2fossil/lib/c2f_file.tcl 4bd5111a527cddf1cd9a8655bd70e86497ea81a3
+F tools/cvs2fossil/lib/c2f_file.tcl a86b5d44240190335a9fc532e08f62a8af73cbec
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
-F tools/cvs2fossil/lib/c2f_frev.tcl a6284f75015e25c4d68cce3dd4d738aa85cff0cc
+F tools/cvs2fossil/lib/c2f_frev.tcl f56084c1389807968105cf3b4079cc1b5d383842
 F tools/cvs2fossil/lib/c2f_fsym.tcl 3c4c8aa555c651a7023c2320c10795b3689e36b1
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_option.tcl 5618bdee19c73cb4f25d1a76bbab8edbe995c329
@@ -147,14 +147,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 338854a61ad1f3b9e69d722b3d487cd07461bd0f
-R c4892f6cbb8e222c8f2e727ca7c59968
+P a10f654ac719780b97e647130c79c9654043978f
+R eb01de0cd12efee8999cd70bcbe97caa
 U aku
-Z 678914fcf086ff9cc9f0b0748daa8195
+Z 0608ebba678c235bb9c9a945fce0dbca
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHDGTfvonzZ/CRa7gRAq0dAJ0WIcIH9INUKlFHufWWw6gz+NKYWQCgq8LX
-lar9MHfq+kcUtJgfM9fjwFg=
-=7g4+
+iD8DBQFHDwyivonzZ/CRa7gRAkLmAKCD6dh6j763LQw2x9lBt0dV5EJ5igCePNN1
+NW4I+X7yR+5aVx1MdOjUkYA=
+=4FJm
 -----END PGP SIGNATURE-----

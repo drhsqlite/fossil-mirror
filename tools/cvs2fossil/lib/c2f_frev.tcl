@@ -25,12 +25,57 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {} {
+    constructor {date author state thefile} {
 	return
+    }
+
+    method hascommitmsg {} {
+	# TODO: check that we have the commit message
+	return 0
+    }
+
+    method setcommitmsg {cm} {
+    }
+
+    method settext {text} {
+    }
+
+    # # ## ### ##### ######## #############
+    ## Type API
+
+    typemethod istrunkrevnr {revnr} {
+	return [expr {[llength [split $revnr .]] == 1}]
+    }
+
+    typemethod 2branchnr {revnr} {
+	# Input is a branch revision number, i.e. a revision number
+	# with an even number of components; for example '2.9.2.1'
+	# (never '2.9.2' nor '2.9.0.2').  The return value is the
+	# branch number (for example, '2.9.2').  For trunk revisions,
+	# like '3.4', we return the empty string.
+
+	if {[$type istrunkrevnr $revnr]} {
+	    return ""
+	}
+	return [join [lrange [split $revnr .] 0 end-1] .]
+    }
+
+    typemethod isbranchrevnr {revnr _ bv} {
+	if {[regexp $mybranchpattern $revnr -> head tail]} {
+	    upvar 1 $bv branchnr
+	    set branchnr ${head}.$tail
+	    return 1
+	}
+	return 0
     }
 
     # # ## ### ##### ######## #############
     ## State
+
+    typevariable mybranchpattern {^((?:\d+\.\d+\.)+)(?:0\.)?(\d+)$}
+    # First a nonzero even number of digit groups with trailing dot
+    # CVS then sticks an extra 0 in here; RCS does not.
+    # And the last digit group.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -40,7 +85,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
-    pragma -hastypemethods no  ; # type is not relevant.
+    #pragma -hastypemethods no  ; # type is not relevant.
     pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############
