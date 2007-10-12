@@ -291,9 +291,9 @@ static void showTags(int rid){
 
 /*
 ** WEBPAGE: vinfo
+** URL:  /vinfo?name=RID|UUID
 **
-** Return information about a version.  The version number is contained
-** in g.zExtra.
+** Return information about a version.
 */
 void vinfo_page(void){
   Stmt q;
@@ -302,7 +302,7 @@ void vinfo_page(void){
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  rid = name_to_rid(g.zExtra);
+  rid = name_to_rid(PD("name","0"));
   if( rid==0 ){
     style_header("Version Information Error");
     @ No such object: %h(g.argv[2])
@@ -366,7 +366,7 @@ void vinfo_page(void){
     }else{
       @ <b>Deleted:</b>
     }
-    @ <a href="%s(g.zBaseURL)/finfo/%T(zName)">%h(zName)</a></li>
+    @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></li>
   }
   @ </ul>
   compute_leaves(rid);
@@ -378,9 +378,9 @@ void vinfo_page(void){
 
 /*
 ** WEBPAGE: winfo
+** URL:  /winfo?name=RID
 **
-** Return information about a wiki page.  The version number is contained
-** in g.zExtra.
+** Return information about a wiki page.
 */
 void winfo_page(void){
   Stmt q;
@@ -388,7 +388,7 @@ void winfo_page(void){
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  rid = name_to_rid(g.zExtra);
+  rid = name_to_rid(PD("name","0"));
   if( rid==0 ){
     style_header("Wiki Page Information Error");
     @ No such object: %h(g.argv[2])
@@ -423,7 +423,7 @@ void winfo_page(void){
     @ <tr><th>Commands:</th>
     @   <td>
 /*    @     <a href="%s(g.zBaseURL)/wdiff/%d(rid)">diff</a> | */
-    @     <a href="%s(g.zBaseURL)/whistory/%t(zName)">history</a>
+    @     <a href="%s(g.zBaseURL)/whistory?page=%t(zName)">history</a>
     @     | <a href="%s(g.zBaseURL)/fview/%d(rid)">raw-text</a>
     @   </td>
     @ </tr>
@@ -438,18 +438,20 @@ void winfo_page(void){
 
 /*
 ** WEBPAGE: finfo
+** URL: /finfo?name=FILENAME
 **
-** Show the complete change history for a single file.  The name
-** of the file is in g.zExtra
+** Show the complete change history for a single file. 
 */
 void finfo_page(void){
   Stmt q;
+  const char *zFilename;
   char zPrevDate[20];
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
   style_header("File History");
 
   zPrevDate[0] = 0;
+  zFilename = PD("name","");
   db_prepare(&q,
     "SELECT a.uuid, substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
     "       coalesce(event.ecomment, event.comment),"
@@ -461,9 +463,9 @@ void finfo_page(void){
     "   AND b.rid=mlink.fid"
     "   AND event.objid=mlink.mid"
     " ORDER BY event.mtime DESC",
-    g.zExtra
+    zFilename
   );
-  @ <h2>History of %h(g.zExtra)</h2>
+  @ <h2>History of %h(zFilename)</h2>
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zVers = db_column_text(&q, 0);
@@ -491,7 +493,9 @@ void finfo_page(void){
     @ %h(zCom) (By: %h(zUser))
     @ Id: %s(zUuid)/%d(frid)
     @ <a href="%s(g.zBaseURL)/fview/%d(frid)">[view]</a>
-    @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
+    if( fpid ){
+      @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
+    }
     @ </td>
   }
   db_finalize(&q);
@@ -517,8 +521,9 @@ static void append_diff(int fromid, int toid){
 
 /*
 ** WEBPAGE: vdiff
+** URL: /vdiff?name=RID
 **
-** Show all differences for a particular check-in specified by g.zExtra
+** Show all differences for a particular check-in.
 */
 void vdiff_page(void){
   int rid;
@@ -529,7 +534,7 @@ void vdiff_page(void){
   if( !g.okHistory ){ login_needed(); return; }
   style_header("Version Diff");
 
-  rid = name_to_rid(g.zExtra);
+  rid = name_to_rid(PD("name",""));
   if( rid==0 ){
     cgi_redirect("index");
   }
@@ -549,7 +554,7 @@ void vdiff_page(void){
     int pid = db_column_int(&q,0);
     int fid = db_column_int(&q,1);
     const char *zName = db_column_text(&q,2);
-    @ <p><a href="%s(g.zBaseURL)/finfo/%T(zName)">%h(zName)</a></p>
+    @ <p><a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></p>
     @ <blockquote><pre>
     append_diff(pid, fid);
     @ </pre></blockquote>
@@ -598,7 +603,7 @@ static void object_description(int rid, int linkToView){
     const char *zCom = db_column_text(&q, 3);
     const char *zUser = db_column_text(&q, 4);
     const char *zVers = db_column_text(&q, 5);
-    @ File <a href="%s(g.zBaseURL)/finfo/%T(zName)">%h(zName)</a>
+    @ File <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
     @ uuid %s(zFuuid) part of check-in
     hyperlink_to_uuid(zVers);
     @ %s(zCom) by %s(zUser) on %s(zDate).
@@ -621,7 +626,8 @@ static void object_description(int rid, int linkToView){
     const char *zDate = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
-    @ Wiki page [<a href="%s(g.zBaseURL)/wiki/%t(zPagename)">%h(zPagename)</a>]
+    @ Wiki page
+    @ [<a href="%s(g.zBaseURL)/wiki?page=%t(zPagename)">%h(zPagename)</a>]
     @ uuid %s(zUuid) by %h(zUser) on %s(zDate)
     nWiki++;
     cnt++;
@@ -694,7 +700,7 @@ void diff_page(void){
 /*
 ** WEBPAGE: info
 ** WEBPAGE: fview
-** URL: /fview/UUID
+** URL: /fview?name=UUID
 ** 
 ** Show the complete content of a file identified by UUID
 ** as preformatted text.
@@ -703,7 +709,7 @@ void fview_page(void){
   int rid;
   Blob content;
 
-  rid = name_to_rid(g.zExtra);
+  rid = name_to_rid(PD("name","0"));
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
   if( g.zPath[0]=='i' ){

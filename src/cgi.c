@@ -308,6 +308,12 @@ void cgi_redirect(const char *zURL){
   cgi_reply();
   exit(0);
 }
+void cgi_redirectf(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap, zFormat);
+  cgi_redirect(vmprintf(zFormat, ap));
+  va_end(ap);
+}
 
 /*
 ** Information about all query parameters and cookies are stored
@@ -331,7 +337,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
 ** zName and zValue are not copied and must not change or be
 ** deallocated after this routine returns.
 */
-static void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
+void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   if( nAllocQP<=nUsedQP ){
     nAllocQP = nAllocQP*2 + 10;
     aParamQP = realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );

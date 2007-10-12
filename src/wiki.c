@@ -81,6 +81,7 @@ void home_page(void){
   if( zPageName ){
     login_check_credentials();
     g.zExtra = zPageName;
+    cgi_set_parameter_nocopy("name", g.zExtra);
     g.okRdWiki = 1;
     g.okApndWiki = 0;
     g.okWrWiki = 0;
@@ -100,21 +101,20 @@ void home_page(void){
 
 /*
 ** WEBPAGE: wiki
-** URL: /wiki/PAGENAME
+** URL: /wiki?name=PAGENAME
 */
 void wiki_page(void){
   char *zTag;
   int rid;
   Blob wiki;
   Manifest m;
-  char *zPageName;
+  const char *zPageName;
   char *zHtmlPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
-  zPageName = mprintf("%s", g.zExtra);
-  dehttpize(zPageName);
+  zPageName = PD("name","");
   if( check_name(zPageName) ) return;
   zTag = mprintf("wiki-%s", zPageName);
   rid = db_int(0, 
@@ -135,15 +135,15 @@ void wiki_page(void){
   }
   if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
     style_submenu_element("Edit", "Edit Wiki Page", 
-       mprintf("%s/wikiedit/%s", g.zTop, g.zExtra));
+       mprintf("%s/wikiedit?name=%t", g.zTop, zPageName));
   }
   if( rid && g.okApndWiki ){
     style_submenu_element("Append", "Add A Comment", 
-       mprintf("%s/wikiappend/%s", g.zTop, g.zExtra));
+       mprintf("%s/wikiappend?name=%t", g.zTop, zPageName));
   }
   if( g.okHistory ){
     style_submenu_element("History", "History", 
-         mprintf("%s/whistory/%s", g.zTop, g.zExtra));
+         mprintf("%s/whistory?name=%t", g.zTop, zPageName));
   }
   zHtmlPageName = mprintf("%h", zPageName);
   style_header(zHtmlPageName);
@@ -156,14 +156,14 @@ void wiki_page(void){
 
 /*
 ** WEBPAGE: wikiedit
-** URL: /wikiedit/PAGENAME
+** URL: /wikiedit?page=PAGENAME
 */
 void wikiedit_page(void){
   char *zTag;
   int rid;
   Blob wiki;
   Manifest m;
-  char *zPageName;
+  const char *zPageName;
   char *zHtmlPageName;
   int n;
   const char *z;
@@ -173,8 +173,7 @@ void wikiedit_page(void){
     zBody = mprintf("%s", zBody);
   }
   login_check_credentials();
-  zPageName = mprintf("%s", g.zExtra);
-  dehttpize(zPageName);
+  zPageName = PD("name","");
   if( check_name(zPageName) ) return;
   zTag = mprintf("wiki-%s", zPageName);
   rid = db_int(0, 
@@ -226,10 +225,10 @@ void wikiedit_page(void){
     blob_reset(&wiki);
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
-    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+    cgi_redirectf("wiki?name=%t", zPageName);
   }
   if( P("cancel")!=0 ){
-    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+    cgi_redirectf("wiki?name=%t", zPageName);
     return;
   }
   if( zBody==0 ){
@@ -250,7 +249,8 @@ void wikiedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>200 ) n = 200;
-  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit/%t(g.zExtra)">
+  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
+  @ <input type="hidden" name="name" value="%t(zPageName)">
   @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ <br>
@@ -283,18 +283,17 @@ static void appendRemark(Blob *p){
 
 /*
 ** WEBPAGE: wikiappend
-** URL: /wikiappend/PAGENAME
+** URL: /wikiappend?name=PAGENAME
 */
 void wikiappend_page(void){
   char *zTag;
   int rid;
-  char *zPageName;
+  const char *zPageName;
   char *zHtmlPageName;
   const char *zUser;
 
   login_check_credentials();
-  zPageName = mprintf("%s", g.zExtra);
-  dehttpize(zPageName);
+  zPageName = PD("name","");
   if( check_name(zPageName) ) return;
   zTag = mprintf("wiki-%s", zPageName);
   rid = db_int(0, 
@@ -353,10 +352,10 @@ void wikiappend_page(void){
     blob_reset(&wiki);
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
-    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+    cgi_redirectf("wiki?name=%t", zPageName);
   }
   if( P("cancel")!=0 ){
-    cgi_redirect(mprintf("wiki/%s", g.zExtra));
+    cgi_redirectf("wiki?name=%t", zPageName);
     return;
   }
   zHtmlPageName = mprintf("Append Comment To: %h", zPageName);
@@ -371,7 +370,8 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="POST" action="%s(g.zBaseURL)/wikiappend/%t(g.zExtra)">
+  @ <form method="POST" action="%s(g.zBaseURL)/wikiappend">
+  @ <input type="hidden" name="name" value="%t(zPageName)">
   @ Your Name:
   @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
   @ Comment to append:<br>
@@ -387,17 +387,19 @@ void wikiappend_page(void){
 
 /*
 ** WEBPAGE: whistory
+** URL: /whistory?name=PAGENAME
 **
-** Show the complete change history for a single wiki page.  The name
-** of the wiki is in g.zExtra
+** Show the complete change history for a single wiki page.
 */
 void whistory_page(void){
   Stmt q;
   char *zTitle;
   char *zSQL;
+  const char *zPageName;
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  zTitle = mprintf("History Of %h", g.zExtra);
+  zPageName = PD("name","");
+  zTitle = mprintf("History Of %h", zPageName);
   style_header(zTitle);
   free(zTitle);
 
@@ -405,7 +407,7 @@ void whistory_page(void){
                  "  (SELECT rid FROM tagxref WHERE tagid="
                        "(SELECT tagid FROM tag WHERE tagname='wiki-%q'))"
                  "ORDER BY mtime DESC",
-                 timeline_query_for_www(), g.zExtra);
+                 timeline_query_for_www(), zPageName);
   db_prepare(&q, zSQL);
   free(zSQL);
   www_print_timeline(&q, 0, 0, 0, 0);
@@ -430,34 +432,8 @@ void wcontent_page(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zBaseURL)/wiki/%t(zName)">%h(zName)</a></li>
+    @ <li><a href="%s(g.zBaseURL)/wiki?page=%t(zName)">%h(zName)</a></li>
   }
   db_finalize(&q);
-  style_footer();
-}
-
-/*
-** WEBPAGE: ambiguous
-**
-** This is the destination for UUID hyperlinks that are ambiguous.
-** Show all possible choices for the destination with links to each.
-**
-** The ambiguous UUID prefix is in g.zExtra
-*/
-void ambiguous_page(void){
-  Stmt q;
-  style_header("Ambiguous UUID");
-  @ <p>The link <a href="%s(g.zBaseURL)/ambiguous/%T(g.zExtra)">
-  @ [%h(g.zExtra)]</a> is ambiguous.  It might mean any of the following:</p>
-  @ <ul>
-  db_prepare(&q, "SELECT uuid, rid FROM blob WHERE uuid>=%Q AND uuid<'%qz'"
-                 " ORDER BY uuid", g.zExtra, g.zExtra);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    int rid = db_column_int(&q, 1);
-    @ <li> %s(zUuid) - %d(rid)
-  }
-  db_finalize(&q);
-  @ </ul>
   style_footer();
 }

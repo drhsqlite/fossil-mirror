@@ -121,7 +121,7 @@ void style_header(const char *zTitle){
         @ <span class="label">%h(p->zLabel)</span>
         @ <span class="tail">%s(zTail)</span>
       }else{
-        @ <a class="label" href="%T(p->zLink)">%h(p->zLabel)</a>
+        @ <a class="label" href="%s(p->zLink)">%h(p->zLabel)</a>
         @ <span class="tail">%s(zTail)</span>
       }
     }
@@ -241,7 +241,6 @@ void page_test_env(void){
   style_header("Environment Test");
   @ g.zBaseURL = %h(g.zBaseURL)<br>
   @ g.zTop = %h(g.zTop)<br>
-  @ g.zExtra = %h(g.zExtra)<hr>
   cgi_print_all();
   style_footer();
 }

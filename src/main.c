@@ -450,7 +450,7 @@ void set_base_url(void){
 /*
 ** Preconditions:
 **
-**    * Environment various are set up according to the CGI standard.
+**    * Environment variables are set up according to the CGI standard.
 **    * The respository database has been located and opened.
 ** 
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
@@ -496,6 +496,7 @@ static void process_one_web_page(void){
     ** will use g.zExtra directly.
     */
     dehttpize(g.zExtra);
+    cgi_set_parameter_nocopy("name", g.zExtra);
   }
 
   /* Prevent robots from indexing this site.
