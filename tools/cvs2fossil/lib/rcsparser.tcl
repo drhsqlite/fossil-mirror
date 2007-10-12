@@ -368,7 +368,8 @@ snit::type ::vc::rcs::parser {
 	::variable mydata
 	::variable mypos
 	set e $mypos ; incr e 30
-	return -code error "Expected $x @ '[string range $mydata $mypos $e]...'"
+	return -code error -errorcode vc::rcs::parser \
+	    "Expected $x @ '[string range $mydata $mypos $e]...'" 
     }
 
     # # ## ### ##### ######## #############

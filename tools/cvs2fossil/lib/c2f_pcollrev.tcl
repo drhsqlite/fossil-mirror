@@ -192,7 +192,17 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    foreach file [$project files] {
 		set path [$file path]
 		log write 2 collrev "Parsing $path"
-		parser process [file join $base $path] $file
+		if {[catch {
+		    parser process [file join $base $path] $file
+		} msg]} {
+		    global errorCode
+		    if {$errorCode eq "vc::rcs::parser"} {
+			trouble fatal "$path is not a valid RCS archive ($msg)"
+		    } else {
+			global errorInfo
+			trouble internal $errorInfo
+		    }
+		}
 	    }
 	}
 

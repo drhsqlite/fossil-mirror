@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Started\sto\sflesh\sout\sthe\shandling\ssymbols\sand\srevisions\scoming\sin\sfrom\sthe\srcs\sparser.\sFirst\sfragments\sof\srevision\sobject.\sType\smethods\sfor\sclassification\sof\srevision\snumb\sers.
-D 2007-10-12T05:56:46
+C Extended\srcs\sparser\sto\stag\serrors\swhich\sare\ssyntax\serrors\sin\sthe\sRCS\sarchive.\sExtended\spass\shandling\sto\scapture\strouble\sand\sdistinguish\sbetween\sinternal\sproblems\sand\ssyntax\serrors.
+D 2007-10-12T05:57:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -102,7 +102,7 @@ F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_option.tcl 5618bdee19c73cb4f25d1a76bbab8edbe995c329
 F tools/cvs2fossil/lib/c2f_pass.tcl 9bb3590160f5fce3b0a29750562285bc35f19b79
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 97283400aedc6c31072e12fb8d75585467f6ec35
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl daf2ded7dd513fa15aec921c7fe268c81c006052
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl c79989ff1bde5545b066d54f5d2fa2e78818a54b
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
 F tools/cvs2fossil/lib/c2f_project.tcl 642334e74c449122cdb81b73f04526ad003fe6b4
@@ -114,7 +114,7 @@ F tools/cvs2fossil/lib/cvs2fossil.tcl b81dcdcb7db84a2e038193f093f4b04535977016
 F tools/cvs2fossil/lib/log.tcl 9e72db66cbfbeb5ba0b97b2fcbdc6ada4387a977
 F tools/cvs2fossil/lib/misc.tcl d5db2a2c742a6aedd91b70acc03ec47936ee0f8d
 F tools/cvs2fossil/lib/pkgIndex.tcl 4291c23aa895731881f3243d553ce440cc7e885d
-F tools/cvs2fossil/lib/rcsparser.tcl 407895594017d5fb7ddb073e13c8165252129bf6
+F tools/cvs2fossil/lib/rcsparser.tcl de1194a8ed6a5a793a376b007854bd9ae28cb2fd
 F tools/cvs2fossil/lib/trouble.tcl 2697d806a7b2de5a72213977e4becae2291923c7
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
@@ -147,14 +147,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P a10f654ac719780b97e647130c79c9654043978f
-R eb01de0cd12efee8999cd70bcbe97caa
+P bd131addb9a700df2cef390ee558ba8721fe47bb
+R c5eb3756538925cbb4fc4a3800e42cea
 U aku
-Z 0608ebba678c235bb9c9a945fce0dbca
+Z 07a6f38193b657086788e29ccb282f1d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHDwyivonzZ/CRa7gRAkLmAKCD6dh6j763LQw2x9lBt0dV5EJ5igCePNN1
-NW4I+X7yR+5aVx1MdOjUkYA=
-=4FJm
+iD8DBQFHDwzhvonzZ/CRa7gRAgMfAJ9Un4xRMRyRA3VPZsG681V+u8vSPQCfVti8
+oj3ur5IyB0RhxCV/qHESFe0=
+=sth1
 -----END PGP SIGNATURE-----
