@@ -48,6 +48,7 @@ snit::type ::vc::fossil::import::cvs::file {
     #method setcomment {c} {puts comment=$c}
     #method admindone {} {puts admindone}
     #method def {rev date author state next branches} {puts "def $rev $date $author $state $next $branches"}
+    #method defdone {} {puts def-done}
     #method setdesc {d} {puts desc=$d}
     #method extend {rev commitmsg deltarange} {puts "extend $commitmsg $deltarange"}
     #method done {} {puts done}
@@ -61,12 +62,7 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## Implement the sink
 
-    method begin {} {}
-    method done {} {}
-
-    method admindone {} {
-	# We do nothing at the boundary of admin and revision data
-    }
+    method begin {} {#ignore}
 
     method sethead {revnr} {
 	set myhead $revnr
@@ -97,7 +93,10 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method setcomment {c} {# ignore}
-    method setdesc    {d} {# ignore}
+
+    method admindone {} {
+	# We do nothing at the boundary of admin and revision data
+    }
 
     method def {revnr date author state next branches} {
 	$self LookForUnlabeledBranches $branches
@@ -113,6 +112,11 @@ snit::type ::vc::fossil::import::cvs::file {
 	RecordBasicDependencies $revnr $next
 	return
     }
+
+    method defdone {} {
+    }
+
+    method setdesc {d} {# ignore}
 
     method extend {revnr commitmsg deltarange} {
 	set cm [string trim $commitmsg]
@@ -166,6 +170,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	lappend myrevisions $rev
 	return
     }
+
+    method done {} {}
 
     # # ## ### ##### ######## #############
     ## State

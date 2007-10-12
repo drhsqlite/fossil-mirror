@@ -129,6 +129,7 @@ snit::type ::vc::rcs::parser {
 	    NextRev  -> n
 	    Call def $rev $d $a $s $n $b
 	}
+	Call defdone
 	return
     }
 
