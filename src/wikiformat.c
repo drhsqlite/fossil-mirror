@@ -68,6 +68,7 @@ static const struct AllowedAttribute {
   const char *zName;
   unsigned int iMask;
 } aAttribute[] = {
+  { 0, 0 },
   { "align",         ATTR_ALIGN,          },
   { "alt",           ATTR_ALT,            },
   { "bgcolor",       ATTR_BGCOLOR,        },
@@ -99,13 +100,13 @@ static const struct AllowedAttribute {
 */
 static int findAttr(const char *z){
   int i, c, first, last;
-  first = 0;
+  first = 1;
   last = sizeof(aAttribute)/sizeof(aAttribute[0]) - 1;
   while( first<=last ){
     i = (first+last)/2;
     c = strcmp(aAttribute[i].zName, z);
     if( c==0 ){
-      return aAttribute[i].iMask;
+      return i;
     }else if( c<0 ){
       first = i+1;
     }else{
@@ -658,7 +659,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
   }else{
     blob_appendf(pOut, "<%s", aMarkup[p->iCode].zName);
     for(i=0; i<p->nAttr; i++){
-      blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iCode]);
+      blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iCode].zName);
       if( p->aAttr[i].zValue ){
         blob_appendf(pOut, "=\"%s\"", p->aAttr[i].zValue);
       }

@@ -135,15 +135,15 @@ void wiki_page(void){
   }
   if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
     style_submenu_element("Edit", "Edit Wiki Page", 
-       mprintf("%s/wikiedit?name=%t", g.zTop, zPageName));
+       mprintf("%s/wikiedit?name=%T", g.zTop, zPageName));
   }
   if( rid && g.okApndWiki ){
     style_submenu_element("Append", "Add A Comment", 
-       mprintf("%s/wikiappend?name=%t", g.zTop, zPageName));
+       mprintf("%s/wikiappend?name=%T", g.zTop, zPageName));
   }
   if( g.okHistory ){
     style_submenu_element("History", "History", 
-         mprintf("%s/whistory?name=%t", g.zTop, zPageName));
+         mprintf("%s/whistory?name=%T", g.zTop, zPageName));
   }
   zHtmlPageName = mprintf("%h", zPageName);
   style_header(zHtmlPageName);
@@ -225,10 +225,10 @@ void wikiedit_page(void){
     blob_reset(&wiki);
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
-    cgi_redirectf("wiki?name=%t", zPageName);
+    cgi_redirectf("wiki?name=%T", zPageName);
   }
   if( P("cancel")!=0 ){
-    cgi_redirectf("wiki?name=%t", zPageName);
+    cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
   if( zBody==0 ){
@@ -250,7 +250,7 @@ void wikiedit_page(void){
   if( n<20 ) n = 20;
   if( n>200 ) n = 200;
   @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
-  @ <input type="hidden" name="name" value="%t(zPageName)">
+  @ <input type="hidden" name="name" value="%h(zPageName)">
   @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ <br>
@@ -352,10 +352,10 @@ void wikiappend_page(void){
     blob_reset(&wiki);
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
-    cgi_redirectf("wiki?name=%t", zPageName);
+    cgi_redirectf("wiki?name=%T", zPageName);
   }
   if( P("cancel")!=0 ){
-    cgi_redirectf("wiki?name=%t", zPageName);
+    cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
   zHtmlPageName = mprintf("Append Comment To: %h", zPageName);
@@ -371,7 +371,7 @@ void wikiappend_page(void){
   }
   zUser = PD("u", g.zLogin);
   @ <form method="POST" action="%s(g.zBaseURL)/wikiappend">
-  @ <input type="hidden" name="name" value="%t(zPageName)">
+  @ <input type="hidden" name="name" value="%h(zPageName)">
   @ Your Name:
   @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
   @ Comment to append:<br>
@@ -432,7 +432,7 @@ void wcontent_page(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zBaseURL)/wiki?page=%t(zName)">%h(zName)</a></li>
+    @ <li><a href="%s(g.zBaseURL)/wiki?page=%T(zName)">%h(zName)</a></li>
   }
   db_finalize(&q);
   style_footer();

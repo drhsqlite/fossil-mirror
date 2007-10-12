@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sg.zExtra\sparameter\sis\snow\salways\savailable\sas\sP("name").\s\sThis\nmeans\sthe\s/wiki/xyz\sand\s/wiki?name=xyz\sare\sequivalent\sURLs.
-D 2007-10-12T22:56:18
+C Fix\ssome\s(certainly\snot\sall)\sproblems\swith\swiki\sediting.
+D 2007-10-12T23:18:35
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -88,8 +88,8 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 9649e144263c124d53603b4844dea91f9cd1b9a9
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c 63e0aa644ac75f393da530c4ef9133e6ebf377dd
-F src/wikiformat.c 5c4069b17693e94c9b82da94087d21fd3c09a25b
+F src/wiki.c ba2a75dd4c8685c7a523d214e437b643f7e2245e
+F src/wikiformat.c 13dfb968ea484fdf9f9a0f7c32907c2598a20218
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -146,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 1ce716b2ecf72a18fdeef0f7460193180970203b
-R 47af5b9c9e569d48915570174f1f5a7d
+P 677aa71bca93b776afc2f0d9b2e06bb972c1d94d
+R ee6066cfe87e8aaf3d5e489833fe067e
 U drh
-Z d1c1de8924913d2d9d88ff764f2b5758
+Z b03c40e79dbaf80f12f185c2c452ef0d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHD/uVoxKgR168RlERAgc6AJ9KkMKQnbqAzXd4GH9rgcgbWywXMgCggUbd
-Owtmk7LexV8G+FxbZxko2FM=
-=WVq5
+iD8DBQFHEADOoxKgR168RlERAhXlAJ44cFEfI3FydUAO3yqRZVPyV3RlNwCcCT/G
+hxgI5YogdFplZpgFctfdZTs=
+=7XeK
 -----END PGP SIGNATURE-----
