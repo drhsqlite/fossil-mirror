@@ -21,6 +21,8 @@ package require snit                                ; # OO system.
 package require struct::set                         ; # Set operations.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::file::sym  ; # CVS per file symbols.
+package require vc::tools::trouble                  ; # Error reporting.
+package require vc::tools::misc                     ; # Text formatting
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -99,7 +101,7 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method def {revnr date author state next branches} {
-	$self LookForUnlabeledBranches $branches
+	$self RecordBranchCommits $branches
 	$myproject author $author
 
 	if {[info exists myrev($revnr)]} {
@@ -114,6 +116,16 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method defdone {} {
+	# This is all done after the revision tree has been extracted
+	# from the file, before the commit mesages and delta texts are
+	# processed.
+
+	ProcessPrimaryDependencies
+	ProcessBranchDependencies
+	SortBranches
+	ProcessTagDependencies
+	DetermineTheRootRevision
+	return
     }
 
     method setdesc {d} {# ignore}
@@ -148,7 +160,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	$rev settext  $deltarange
 
 	if {![rev istrunkrevnr $revnr]} {
-	    $rev setbranch [[$self Rev2Branch $revnr] name]
+	    $rev setbranchname [[$self Rev2Branch $revnr] name]
 	}
 
 	# If this is revision 1.1, we have to determine whether the
@@ -176,23 +188,43 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## State
 
-    variable mypath            {} ; # Path of rcs archive
-    variable myproject         {} ; # Project object the file belongs to.
-    variable myrev -array      {} ; # All revisions and their connections.
-    variable myrevisions       {} ; # Same as myrev, but a list, giving us the order
-    #                             ; # of revisions.
+    variable mypath            {} ; # Path of our rcs archive.
+    variable myproject         {} ; # Reference to the project object
+				    # the file belongs to.
+    variable myrev -array      {} ; # Maps revision number to the
+				    # associated revision object.
+    variable myrevisions       {} ; # Same as myrev, but a list,
+				    # giving us the order of
+				    # revisions.
     variable myhead            {} ; # Head revision (revision number)
-    variable myprincipal       {} ; # Principal branch (branch number)
-    #                             ; # Contrary to the name this is the default branch.
-    variable mydependencies    {} ; # Dictionary parent -> child, dependency recorder.
-    variable myimported        0  ; # Boolean flag. Set iff rev 1.1 of the file seemingly
-    #                             ; # was imported instead of added normally.
-    variable myroot            {} ; # Revision number of the root revision. Usually '1.1'.
-    #                             ; # Can be a different number, because of 'cvsadmin -o'.
-    variable mybranches -array {} ; # branch number   -> symbol object handling the branch
-    variable mytags     -array {} ; # revision number -> list of symbol object for the tags
-    #                             ; # associated with the revision.
-    variable mysymbols         {} ; # Set of symbol names found in this file.
+    variable myprincipal       {} ; # Principal branch (branch number).
+				    # Contrary to the name this is the
+				    # default branch.
+    variable mydependencies    {} ; # Dictionary parent -> child,
+				    # records primary dependencies.
+    variable myimported        0  ; # Boolean flag. Set if and only if
+				    # rev 1.1 of the file seemingly
+				    # was imported instead of added
+				    # normally.
+    variable myroot            {} ; # Reference to the revision object
+				    # holding the root revision.  Its
+				    # number usually is '1.1'. Can be
+				    # a different number, because of
+				    # gaps created via 'cvsadmin -o'.
+    variable mybranches -array {} ; # Maps branch number to the symbol
+				    # object handling the branch.
+    variable mytags     -array {} ; # Maps revision number to the list
+				    # of symbol objects for the tags
+				    # associated with the revision.
+    variable mysymbols         {} ; # Set of the symbol names found in
+				    # this file.
+
+    variable mybranchcnt 0 ; # Counter for branches, to record their
+			     # order of definition. This also defines
+			     # their order of creation, which is the
+			     # reverse of definition.  I.e. a smaller
+			     # number means 'Defined earlier', means
+			     # 'Created later'.
 
     ### TODO ###
     ### File flag - executable,
@@ -201,14 +233,19 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    method LookForUnlabeledBranches {branches} {
+    method RecordBranchCommits {branches} {
 	foreach branchrevnr $branches {
 	    if {[catch {
 		set branch [$self Rev2Branch $branchrevnr]
 	    }]} {
 		set branch [$self AddUnlabeledBranch [rev 2branchnr $branchrevnr]]
 	    }
-	    # TODO $branch child $branchrevnr - when add-unlabeled has sensible return value
+
+	    # Record the commit, just as revision number for
+	    # now. ProcesBranchDependencies will extend that ito a
+	    # proper object reference.
+
+	    $branch setchildrevnr $branchrevnr
 	}
 	return
     }
@@ -231,6 +268,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    return
 	}
 	set branch [sym %AUTO% branch $branchnr [$myproject getsymbol $name]]
+	$branch setposition [incr mybranchcnt]
 	set mybranches($branchnr) $branch
 	return $branch
     }
@@ -273,6 +311,97 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
+    proc ProcessPrimaryDependencies {} {
+	upvar 1 mydependencies mydependencies myrev myrev
+
+	foreach {parentrevnr childrevnr} $mydependencies {
+	    set parent $myrev($parentrevnr)
+	    set child  $myrev($childrevnr)
+	    $parent setchild $child
+	    $child setparent $parent
+	}
+	return
+    }
+
+    proc ProcessBranchDependencies {} {
+	upvar 1 mybranches mybranches myrev myrev
+
+	foreach {branchnr branch} [array get mybranches] {
+	    set revnr [$branch parentrevnr]
+
+	    if {![info exists myrev($revnr)]} {
+		log write 1 file "In '$mypath': The branch '[$branch name]' references"
+		log write 1 file "the bogus revision '$revnr' and will be ignored."
+		$branch destroy
+		unset mybranches($branchnr)
+	    } else {
+		set rev $myrev($revnr)
+		$rev addbranch $branch
+
+		# If revisions were committed on the branch we store a
+		# reference to the branch there, and further declare
+		# the first child's parent to be branch's parent, and
+		# list this child in the parent revision.
+
+		if {[$branch haschild]} {
+		    set childrevnr [$branch childrevnr]
+		    set child $myrev($childrevnr)
+
+		    $child setparentbranch $branch
+		    $child setparent       $rev
+		    $rev addchildonbranch $child
+		}
+	    }
+	}
+	return
+    }
+
+    proc SortBranches {} {
+	upvar 1 myrev myrev
+
+	foreach {revnr rev} [array get myrev] {
+	    $rev sortbranches
+	}
+	return
+    }
+
+    proc ProcessTagDependencies {} {
+	upvar 1 mytags mytags myrev myrev
+
+	foreach {revnr taglist} [array get mytags] {
+	    if {![info exists myrev($revnr)]} {
+		set n [llength $taglist]
+		log write 1 file "In '$mypath': The following [nsp $n tag] reference"
+		log write 1 file "the bogus revision '$revnr' and will be ignored."
+		foreach tag $taglist {
+		    log write 1 file "    [$tag name]"
+		    $tag destroy
+		}
+		unset mytags($revnr)
+	    } else {
+		set rev $myrev($revnr)
+		foreach tag $taglist { $rev addtag $tag }
+	    }
+	}
+	return
+    }
+
+    proc DetermineTheRootRevision {} {
+	upvar 1 myrev myrev myroot myroot
+
+	# The root is the one revision which has no parent. By
+	# checking all revisions we ensure that we can detect and
+	# report the case of multiple roots. Without that we could
+	# simply take one revision and follow the parent links to
+	# their root (sic!).
+
+	foreach {revnr rev} [array get myrev] {
+	    if {[$rev hasparent]} continue
+	    if {$myroot ne ""} { trouble internal "Multiple root revisions found" }
+	    set myroot $rev
+	}
+	return
+    }
 
     # # ## ### ##### ######## #############
     ## Configuration
@@ -289,8 +418,10 @@ namespace eval ::vc::fossil::import::cvs {
     namespace export file
     namespace eval file {
 	# Import not required, already a child namespace.
-	# namespace import vc::fossil::import::cvs::file::rev
-	# namespace import vc::fossil::import::cvs::file::sym
+	# namespace import ::vc::fossil::import::cvs::file::rev
+	# namespace import ::vc::fossil::import::cvs::file::sym
+	namespace import ::vc::tools::misc::*
+	namespace import ::vc::tools::trouble
     }
 }
 
