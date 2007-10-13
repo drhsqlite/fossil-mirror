@@ -183,7 +183,15 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	return
     }
 
+    typemethod load {} {
+	# TODO
+	return
+    }
+
     typemethod run {} {
+	# Pass manager interface. Executed to perform the
+	# functionality of the pass.
+
 	set rbase [repository base?]
 	foreach project [repository projects] {
 	    set base [file join $rbase [$project base]]
@@ -210,6 +218,25 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	repository persistrev
 
 	log write 1 collrev "Scan completed"
+	return
+    }
+
+    typemethod discard {} {
+	# Pass manager interface. Executed for all passes after the
+	# run passes, to remove all data of this pass from the state,
+	# as being out of date.
+
+	state discard rcs
+	state discard item
+	state discard revision
+	state discard tag
+	state discard branch
+	state discard symbol
+	state discard blocker
+	state discard parent
+	state discard meta
+	state discard author
+	state discard cmessage
 	return
     }
 

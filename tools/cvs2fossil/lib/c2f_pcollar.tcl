@@ -80,7 +80,20 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	return
     }
 
+    typemethod load {} {	
+	# Pass manager interface. Executed for all passes before the
+	# run passes, to load all data of their pass from the state,
+	# as if it had been computed by the pass itself.
+
+	state reading project
+	state reading file
+	return
+    }
+
     typemethod run {} {
+	# Pass manager interface. Executed to perform the
+	# functionality of the pass.
+
 	set rbase [repository base?]
 	foreach project [repository projects] {
 	    set base [file join $rbase [$project base]]
@@ -126,6 +139,16 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	repository persist
 
 	log write 1 collar "Scan completed"
+	return
+    }
+
+    typemethod discard {} {
+	# Pass manager interface. Executed for all passes after the
+	# run passes, to remove all data of this pass from the state,
+	# as being out of date.
+
+	state discard project
+	state discard file
 	return
     }
 

@@ -97,23 +97,34 @@ snit::type ::vc::fossil::import::cvs::pass {
 
     typemethod run {} {
 	if {$mystart < 0} {set mystart 0}
-	if {$myend   < 0} {set myend end}
+	if {$myend   < 0} {set myend [expr {[llength $mypasses] - 1}]}
 
-	set runlist [lrange $mypasses $mystart $myend]
 	# TODO: Timing statistics for the passes.
 	# TODO: Artifact manager (clean after pass?. need to know skipped/defered passes ?)
 	# TODO: 
 	# TODO: 
 
-	foreach p $runlist {
+	set skipped [lrange $mypasses 0 [expr {$mystart - 1}]]
+	set run     [lrange $mypasses $mystart $myend]
+	set defered [lrange $mypasses [expr {$myend + 1}] end]
+
+	foreach p $skipped {
+	    log write 0 pass "Skip  $p" 
+	    Call $p load
+	}
+	foreach p $run {
 	    log write 0 pass "Setup $p" 
 	    Call $p setup
 	}
-	foreach p $runlist {
+	foreach p $run {
 	    log write 0 pass "Begin $p" 
 	    Call $p run
 	    log write 0 pass "Done  $p"
 	    trouble abort?
+	}
+	foreach p $defered {
+	    log write 0 pass "Defer $p" 
+	    Call $p discard
 	}
 
 	state release

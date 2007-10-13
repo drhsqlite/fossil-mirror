@@ -131,6 +131,18 @@ snit::type ::vc::fossil::import::cvs::state {
 	return
     }
 
+    typemethod discard {name} {
+	# Method for a user to remove outdated information from the
+	# persistent state, table by table.
+
+	log write 0 state "discard $name" ; # TODO move to level 5 or so
+
+	$mystate transaction {
+	    catch { $mystate eval "DROP TABLE $name" }
+	}
+	return
+    }
+
     typemethod run {args} {
 	return [uplevel 1 [linsert $args 0 $mystate eval]]
     }
