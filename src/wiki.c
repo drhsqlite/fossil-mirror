@@ -148,7 +148,7 @@ void wiki_page(void){
   zHtmlPageName = mprintf("%h", zPageName);
   style_header(zHtmlPageName);
   blob_init(&wiki, zBody, -1);
-  wiki_convert(&wiki, 0);
+  wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
   manifest_clear(&m);
   style_footer();
@@ -240,7 +240,7 @@ void wikiedit_page(void){
     blob_zero(&wiki);
     blob_append(&wiki, zBody, -1);
     @ Preview:<hr>
-    wiki_convert(&wiki, 0);
+    wiki_convert(&wiki, 0, 0);
     @ <hr>
     blob_reset(&wiki);
   }
@@ -365,7 +365,7 @@ void wikiappend_page(void){
     blob_zero(&preview);
     appendRemark(&preview);
     @ Preview:<hr>
-    wiki_convert(&preview, 0);
+    wiki_convert(&preview, 0, 0);
     @ <hr>
     blob_reset(&preview);
   }

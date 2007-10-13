@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\ssome\s(certainly\snot\sall)\sproblems\swith\swiki\sediting.
-D 2007-10-12T23:18:35
+C Much\simproved\swiki\srendering.\s\sAutomatic\sparagraph\stags\snow\smatch\ncorrectly.\s\sAll\stags\sshould\sbalance.
+D 2007-10-13T01:18:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -77,7 +77,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 43dff7bad09eceb7fdd889a0876db700e6140e22
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
-F src/timeline.c ca926d4172af53451e1c3c881088c97889648659
+F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
 F src/tkt.c 98ba13ea1e889397e5855c4026432c40cf6bd3fc
 F src/tktconf.c d2929cd22625a33f76d315a342673648cfd9d69e
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
@@ -88,8 +88,8 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 9649e144263c124d53603b4844dea91f9cd1b9a9
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c ba2a75dd4c8685c7a523d214e437b643f7e2245e
-F src/wikiformat.c 13dfb968ea484fdf9f9a0f7c32907c2598a20218
+F src/wiki.c 15b33bf9300e2d7d849a92ab387793ffdf2052c0
+F src/wikiformat.c a1f06c841df76070d9170bad122d7e673f3d75e6
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -146,14 +146,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 677aa71bca93b776afc2f0d9b2e06bb972c1d94d
-R ee6066cfe87e8aaf3d5e489833fe067e
+P df646a7f4ca2562878294c860ef57c4a0a5b1afa
+R a5b1a6022987bb32bad11b4ef5a4090e
 U drh
-Z b03c40e79dbaf80f12f185c2c452ef0d
+Z 3d62172292d1ca94bad8d99ac602a988
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHEADOoxKgR168RlERAhXlAJ44cFEfI3FydUAO3yqRZVPyV3RlNwCcCT/G
-hxgI5YogdFplZpgFctfdZTs=
-=7XeK
+iD8DBQFHEBz/oxKgR168RlERAr6CAJ9o8rTQsF+hH7wwQbKS7lcqynZxVgCcCb8w
+3NK+SlMeu0Ge6N2c53WPL68=
+=FQCr
 -----END PGP SIGNATURE-----

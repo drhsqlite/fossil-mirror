@@ -163,7 +163,7 @@ void www_print_timeline(
       hyperlink_to_uuid(zUuid);
     }
     db_column_blob(pQuery, 3, &comment);
-    wiki_convert(&comment, 0);
+    wiki_convert(&comment, 0, WIKI_INLINE);
     blob_reset(&comment);
     @ (by %h(zUser))</td></tr>
   }
