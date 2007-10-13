@@ -31,9 +31,10 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {path project} {
-	set mypath    $path
-	set myproject $project
+    constructor {path executable project} {
+	set mypath       $path
+	set myexecutable $executable
+	set myproject    $project
 	return
     }
 
@@ -188,7 +189,8 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## State
 
-    variable mypath            {} ; # Path of our rcs archive.
+    variable mypath            {} ; # Path of the file's rcs archive.
+    variable myexecutable      0  ; # Boolean flag 'file executable'.
     variable myproject         {} ; # Reference to the project object
 				    # the file belongs to.
     variable myrev -array      {} ; # Maps revision number to the
@@ -227,7 +229,6 @@ snit::type ::vc::fossil::import::cvs::file {
 			     # 'Created later'.
 
     ### TODO ###
-    ### File flag - executable,
     ### RCS mode info (kb, kkb, ...)
 
     # # ## ### ##### ######## #############

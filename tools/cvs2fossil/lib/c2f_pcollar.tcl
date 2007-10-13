@@ -74,6 +74,7 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	    pid     INTEGER  NOT NULL  REFERENCES project,       -- project the file belongs to
 	    name    TEXT     NOT NULL,
 	    visible TEXT     NOT NULL,
+	    exec    INTEGER  NOT NULL, -- boolean, 'file executable'.
 	    UNIQUE (pid, name)         -- file names are unique within a project
 	}
 	return
@@ -110,7 +111,7 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 		}
 
 		log write 4 collar "Found   $rcs"
-		$project add $rcs $usr
+		$project addfile $rcs $usr [file executable $rcs]
 
 		incr n
 		if {[log verbosity?] < 4} {

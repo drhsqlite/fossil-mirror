@@ -18,8 +18,9 @@
 package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
 package require vc::fossil::import::cvs::file         ; # CVS archive file.
-package require vc::fossil::import::cvs::state        ; # State storage
-package require vc::fossil::import::cvs::project::sym ; # Per project symbols
+package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::project::sym ; # Per project symbols.
+package require struct::list                          ; # Advanced list operations..
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -41,8 +42,8 @@ snit::type ::vc::fossil::import::cvs::project {
 	return $mybase
     }
 
-    method add {rcs usr} {
-	set myfiles($rcs) $usr
+    method addfile {rcs usr executable} {
+	set myfiles($rcs) [list $usr $executable]
 	return
     }
 
@@ -80,10 +81,11 @@ snit::type ::vc::fossil::import::cvs::project {
 	    # Then all files, with proper backreference to their
 	    # project.
 
-	    foreach {rcs usr} [array get myfiles] {
+	    foreach {rcs item} [array get myfiles] {
+		struct::list assign $item usr executable
 		state run {
-		    INSERT INTO file (fid,  pid,  name, visible)
-		    VALUES           (NULL, $pid, $rcs, $usr);
+		    INSERT INTO file (fid,  pid,  name, visible, exec)
+		    VALUES           (NULL, $pid, $rcs, $usr,    $executable);
 		}
 	    }
 	}
@@ -124,8 +126,9 @@ snit::type ::vc::fossil::import::cvs::project {
     proc EmptyFiles {fv} {
 	upvar 1 $fv myfiles self self
 	set res {}
-	foreach f [lsort -dict [array names myfiles]] {
-	    lappend res [file %AUTO% $f $self]
+	foreach item [lsort -dict [array names myfiles]] {
+	    struct::list assign $item f executable
+	    lappend res [file %AUTO% $f $executable $self]
 	}
 	return $res
     }
