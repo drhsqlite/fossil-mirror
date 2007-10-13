@@ -87,6 +87,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 
 	state reading project
 	state reading file
+
+	repository load
 	return
     }
 

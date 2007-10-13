@@ -52,9 +52,6 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     typemethod projects {} {
-	# TODO: Loading from the state database if CollAr is skipped
-	# in a run.
-
 	return [TheProjects]
     }
 
@@ -138,6 +135,24 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
+    typemethod load {} {
+	array set pr {}
+	state transaction {
+	    foreach   {pid  name} [state run {
+		SELECT pid, name FROM project ;
+	    }] {
+		lappend myprojpaths $name
+		lappend myprojects [set pr($pid) [project %AUTO% $name $type]]
+	    }
+	    foreach   {fid  pid  name  visible  exec} [state run {
+		SELECT fid, pid, name, visible, exec FROM file ;
+	    }] {
+		$pr($pid) addfile $name $visible $exec
+	    }
+	}
+	return
+    }
+
     # pass II results
     typemethod printrevstatistics {} {
 	log write 2 repository "Scanned ..."
@@ -200,7 +215,6 @@ snit::type ::vc::fossil::import::cvs::repository {
 	upvar 1 type type
 	::variable myprojects
 	::variable myprojpaths
-	::variable mybase
 
 	if {![llength $myprojects]} {
 	    set myprojects [EmptyProjects $myprojpaths]

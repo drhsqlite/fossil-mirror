@@ -52,7 +52,6 @@ snit::type ::vc::fossil::import::cvs::project {
     }
 
     method files {} {
-	# TODO: Loading from state
 	return [TheFiles]
     }
 
