@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Work\stoward\sa\snew\smechanism\sfor\sconfiguring\sthe\sticket\ssubsystem\nand\srendering\sticket\sentry,\sediting,\sand\sviewing\sscreens.\s\sNothing\nworks,\sbut\sit\sis\sall\scommented\sout\sso\sthe\scode\scode\scompile.
-D 2007-10-14T00:29:14
+C Add\sa\ssample\sticket\sconfiguration\sscript.\s\sThis\sis\sjust\sworking\nnotes.\s\sIt\swill\seventually\sbe\sremoved.
+D 2007-10-14T00:30:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -69,6 +69,7 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 63619c9ec6ef80499feb9f342cf2806ace37d02e
 F src/rebuild.c 45d87035e5f481e19866228873b578e48d6919c9
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
+F src/sample-config1.txt 17dcdcf216b2a417b6bdb923d7f6eb2170dd037f
 F src/schema.c 3e36e323dca2de766d7d691c8f7fdc34e86b5ea5
 F src/setup.c 9f35614dc364944b273d71ad1bc4577d2a537ef5
 F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
@@ -147,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c963a7763d96836b4f407a837718c14bf391ec08
-R 99b389219bf3b0584103f5053749a995
+P 39aa870f8f1caada590d02d1345fb6e87571f92b
+R 8fdf74030b75d3111e4d99d30d61ff1b
 U drh
-Z 481548d68144411ab18627bcce091901
+Z 0ffd3f215486ee460c77f82b00ab9b50
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHEWLeoxKgR168RlERApCZAJ9iMSbW1bh7HK95fO75LiBvvad0JACeNERw
-fA7tniCqj9hmOYUEL/NL48g=
-=TmJY
+iD8DBQFHEWMyoxKgR168RlERArapAJ9YbX7JnXoLzB1i5Wlj7uD/Jfd+iQCaAo36
+MNBc5ePFX2ATEY5SahPIyEE=
+=LDng
 -----END PGP SIGNATURE-----

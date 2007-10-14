@@ -1,0 +1,198 @@
+{Default Ticket Configuration} /config_title set
+{type status subsystem priority severity contact title comment} setfields
+{Code Build_Problem Documentation Feature_Request Incident} /type_choices set
+{High Medium Low} /priority_choices set
+{Critical Severe Important Minor Cosmetic} /severity_choices set
+{
+  Open
+  Fixed
+  Rejected
+  Unable_To_Reproduce
+  Works_As_Designed
+  External_Bug
+  Not_A_Bug
+  Duplicate
+  Overcome_By_Events
+  Drive_By_Patch
+} /resolution_choices set
+{
+  Open
+  Verified
+  In_Process
+  Deferred
+  Fixed
+  Tested
+  Closed
+} /status_choices set
+######################################################################
+{
+  <table cellpadding="5">
+  <tr>
+  <td cellpadding="2">
+  Enter a one-line summary of the problem:<br>
+  [/title 60 textedit]
+  </td>
+  </tr>
+  
+  <tr>
+  <td align="right">Type:
+  [/type typechoices 20 combobox]
+  </td>
+  <td>What type of ticket is this?</td>
+  </tr>
+  
+  <tr>
+  <td align="right">Version: 
+  [/foundin 20 textedit]
+  </td>
+  <td>In what version or build number do you observer the problem?</td>
+  </tr>
+  
+  <tr>
+  <td align="right">Severity:
+  [/severity {High Medium Low} 8 combobox]
+  </td>
+  <td>How debilitating is the problem?  How badly does the problem
+  effect the operation of the product?</td>
+  </tr>
+  
+  <tr>
+  <td colspan="2">
+  Enter a detailed description of the problem.
+  For code defects, be sure to provide details on exactly how
+  the problem can be reproduced.  Provide as much detail as
+  possible.
+  <br>
+  [/cmpv 0 cgi_parameter enable_output]
+  [/comment wikiview]
+  <hr>
+  [1 enable_output]
+  [/comment 70 /comment linecount 15 max multilineedit]
+  <br>
+  [/cmpv {Preview} auxbutton]
+  </tr>
+  
+  <tr>
+  <td align="right">
+  [submitbutton]
+  </td>
+  <td>After filling in the information above, press this button to create
+  the new ticket</td>
+  </tr>
+  </table>
+  [/status /Open default_value]
+} /new_template set
+######################################################################
+{
+  <table cellpadding="5">
+  <tr><td align="right">Title:</td><td>
+  [/title 60 textedit]
+  </td></tr>
+  <tr><td align="right">Status:</td><td>
+  [/status status_choices 20 combobox]
+  </td></tr>
+  <tr><td align="right">Type:</td><td>
+  [/type type_choices 20 combobox]
+  </td></tr>
+  <tr><td align="right">Severity:</td><td>
+  [/severity {High Medium Low} 10 combobox]
+  </td></tr>
+  <tr><td align="right">Priority:</td><td>
+  [/priority {High Medium Low} 10 combobox]
+  </td></tr>
+  <tr><td align="right">Resolution:</td><td>
+  [/resolution resolution_choices 20 combobox]
+  </td></tr>
+  <tr><td align="right">Subsystem:</td><td>
+  [/subsystem subsystem_choices 30 combobox]
+  </td></tr>
+  [is_anon not enable_output]
+    <tr><td align="right">Contact:</td><td>
+    [/contact 40 textedit]
+    </td></tr>
+  [1 enable_output]
+  <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
+  [/foundin 50 textedit]
+  </td></tr>
+  <tr><td colspan="2">
+  [ok_wrtkt /eall 0 paramget and /eall store]
+  [eall enable_output]
+    Description And Comments:<br>
+    [/comment 70 /comment linecount 15 max multilineedit]<br>
+    [/aonly {Append Remark} auxbutton]
+  [eall not enable_output]
+    Append Remark:<br>
+    [/comment /cmappnd 70 /cmappnd linecount 10 max multilineappend]<br>
+    [ok_wrtkt enable_output /eall {Edit All} auxbutton]
+  [1 enable_output]
+  </td></tr>
+  <tr><td align="right"></td><td>
+  [{Submit Changes} submitbutton]
+  </td></tr>
+  </table>
+} /edit_template set
+######################################################################
+{
+  <table cellpadding="5">
+  <tr><td align="right">Title:</td><td>
+  [/title textview]
+  </td></tr>
+  <tr><td align="right">Status:</td><td>
+  [/status textview]
+  </td></tr>
+  <tr><td align="right">Type:</td><td>
+  [/type textview]
+  </td></tr>
+  <tr><td align="right">Severity:</td><td>
+  [/severity textview]
+  </td></tr>
+  <tr><td align="right">Priority:</td><td>
+  [/priority textview]
+  </td></tr>
+  <tr><td align="right">Resolution:</td><td>
+  [/priority textview]
+  </td></tr>
+  <tr><td align="right">Subsystem:</td><td>
+  [/subsystem textview]
+  </td></tr>
+  [is_anon not enable_output]
+    <tr><td align="right">Contact:</td><td>
+    [/contact textview]
+    </td></tr>
+  [1 enable_output]
+  <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
+  [/foundin textview]
+  </td></tr>
+  <tr><td colspan="2">
+  Description And Comments:<br>
+  [/comment wikiview]
+  </td></tr>
+  </table>
+} /view_template set
+
+##############
+# Verb list:
+#
+# CNEV
+# ****  VALUE NAME set
+# *---  LIST setfields
+#
+# -*--  FIELD STRING default_value
+# -**-  FIELD WIDTH textedit
+# -**-  FIELD CHOICELIST WIDTH combobox
+# -**-  FIELD WIDTH HEIGHT multilineedit
+# --*-  FIELD CGIFIELD WIDTH HEIGHT multilineappend
+# -**-  CGIFIELD LABEL auxbutton
+# -**-  LABEL submitbutton
+#
+# -***  FIELD wikiview
+# -***  FIELD textview
+# -***  FIELD linecount INT
+# -**-  CGIFIELD DEFAULT paramget VALUE
+# -***  BOOLEAN enable_output
+# -***  ok_wrtkt BOOLEAN
+# -***  is_anon BOOLEAN
+#
+# -***  INT INT max INT
+# -***  BOOLEAN not BOOLEAN
+# -***  BOOLEAN BOOLEAN and BOOLEAN
