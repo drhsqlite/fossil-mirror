@@ -152,10 +152,9 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	state writing meta {
 	    mid INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
 	    pid INTEGER  NOT NULL  REFERENCES project,  -- project the commit was on
-	    bid INTEGER  NOT NULL  REFERENCES symbol,   -- branch the commit was on
+	    bid INTEGER            REFERENCES symbol,   -- branch the commit was on, NULL for :trunk:
 	    aid INTEGER  NOT NULL  REFERENCES author,
 	    cid INTEGER  NOT NULL  REFERENCES cmessage,
-
 	    UNIQUE (pid, bid, aid, cid)
 	}
 

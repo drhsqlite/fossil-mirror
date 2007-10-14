@@ -68,7 +68,7 @@ snit::type ::vc::fossil::import::cvs::file {
     method begin {} {#ignore}
 
     method sethead {revnr} {
-	set myhead $revnr
+	set myheadrevnr $revnr
 	return
     }
 
@@ -103,14 +103,14 @@ snit::type ::vc::fossil::import::cvs::file {
 
     method def {revnr date author state next branches} {
 	$self RecordBranchCommits $branches
-	$myproject author $author
 
 	if {[info exists myrev($revnr)]} {
 	    trouble fatal "File $mypath contains duplicate definitions for revision $revnr."
 	    return
 	}
 
-	set myrev($revnr) [rev %AUTO% $revnr $date $author $state $self]
+	set myaid($revnr) [$myproject defauthor $author]
+	set myrev($revnr) [rev %AUTO% $revnr $date $state $self]
 
 	RecordBasicDependencies $revnr $next
 	return
@@ -131,13 +131,12 @@ snit::type ::vc::fossil::import::cvs::file {
 
     method setdesc {d} {# ignore}
 
-    method extend {revnr commitmsg deltarange} {
-	set cm [string trim $commitmsg]
-	$myproject cmessage $cm
+    method extend {revnr commitmsg textrange} {
+	set cmid [$myproject defcmessage [string trim $commitmsg]]
 
 	set rev $myrev($revnr)
 
-	if {[$rev hascommitmsg]} {
+	if {[$rev hasmeta]} {
 	    # Apparently repositories exist in which the delta data
 	    # for revision 1.1 is provided several times, at least
 	    # twice. The actual cause of this duplication is not
@@ -154,15 +153,14 @@ snit::type ::vc::fossil::import::cvs::file {
 	    return
 	}
 
-	# Extend the revision with the new information. The revision
-	# object uses this to complete its meta data set.
-
-	$rev setcommitmsg $cm
-	$rev settext  $deltarange
-
-	if {![rev istrunkrevnr $revnr]} {
-	    $rev setbranchname [[$self Rev2Branch $revnr] name]
+	if {[rev istrunkrevnr $revnr]} {
+	    set branchid {}
+	} else {
+	    set branchid [[$self Rev2Branch $revnr] id]
 	}
+
+	$rev setmeta [$myproject defmeta $branchid $myaid($revnr) $cmid]
+	$rev settext $textrange
 
 	# If this is revision 1.1, we have to determine whether the
 	# file seems to have been created through 'cvs add' instead of
@@ -198,7 +196,12 @@ snit::type ::vc::fossil::import::cvs::file {
     variable myrevisions       {} ; # Same as myrev, but a list,
 				    # giving us the order of
 				    # revisions.
-    variable myhead            {} ; # Head revision (revision number)
+    variable myaid      -array {} ; # Map revision numbers to the id
+				    # of the author who committed
+				    # it. This is later aggregated
+				    # with commit message, branch name
+				    # and project id for a meta id.
+    variable myheadrevnr       {} ; # Head revision (revision number)
     variable myprincipal       {} ; # Principal branch (branch number).
 				    # Contrary to the name this is the
 				    # default branch.
@@ -227,9 +230,6 @@ snit::type ::vc::fossil::import::cvs::file {
 			     # reverse of definition.  I.e. a smaller
 			     # number means 'Defined earlier', means
 			     # 'Created later'.
-
-    ### TODO ###
-    ### RCS mode info (kb, kkb, ...)
 
     # # ## ### ##### ######## #############
     ## Internal methods

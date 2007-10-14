@@ -43,6 +43,7 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     # Symbol acessor methods.
 
     delegate method name to mysymbol
+    delegate method id   to mysymbol
 
     # Branch acessor methods.
 

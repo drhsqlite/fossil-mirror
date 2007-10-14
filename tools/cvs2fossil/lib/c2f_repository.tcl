@@ -72,14 +72,38 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
-    typemethod author {a} {
-	set myauthor($a) ""
-	return
+    typemethod defauthor {a} {
+	if {![info exists myauthor($a)]} {
+	    set myauthor($a) [incr myauthorcnt]
+	    log write 6 repository "author '$a' =  $myauthor($a)"
+	}
+	return $myauthor($a)
     }
 
-    typemethod cmessage {cm} {
-	set mycmsg($cm) ""
-	return
+    typemethod defcmessage {cm} {
+	if {![info exists mycmsg($cm)]} {
+	    set mycmsg($cm) [incr mycmsgcnt]
+	    log write 6 repository "cmessage '$cm' =  $mycmsg($cm)"
+	}
+	return $mycmsg($cm)
+    }
+
+    typemethod defsymbol {pid name} {
+	set key [list $pid $name]
+	if {![info exists mysymbol($key)]} {
+	    set mysymbol($key) [incr mysymbolcnt]
+	    log write 6 repository "symbol ($key) =  $mysymbol($key)"
+	}
+	return $mysymbol($key)
+    }
+
+    typemethod defmeta {pid bid aid cid} {
+	set key [list $pid $bid $aid $cid]
+	if {![info exists mymeta($key)]} {
+	    set mymeta($key) [incr mymetacnt]
+	    log write 6 repository "meta ($key) =  $mymeta($key)"
+	}
+	return $mymeta($key)
     }
 
     # pass I results
@@ -143,6 +167,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	    }] {
 		lappend myprojpaths $name
 		lappend myprojects [set pr($pid) [project %AUTO% $name $type]]
+		$pr($pid) setid $pid
 	    }
 	    foreach   {fid  pid  name  visible  exec} [state run {
 		SELECT fid, pid, name, visible, exec FROM file ;
@@ -165,6 +190,10 @@ snit::type ::vc::fossil::import::cvs::repository {
 	state transaction {
 	    SaveAuthors
 	    SaveCommitMessages
+	    # TODO: Save symbols of all projects (before the revisions
+	    # in the projects, as they are referenced by the meta
+	    # tuples)
+	    SaveMeta
 	    foreach p [TheProjects] { $p persistrev }
 	}
 	return
@@ -174,10 +203,25 @@ snit::type ::vc::fossil::import::cvs::repository {
     ## State
 
     typevariable mybase          {} ; # Base path to CVS repository.
-    typevariable myprojpaths     {} ; # Paths to all declared projects, relative to mybase.
-    typevariable myprojects      {} ; # Objects for all declared projects.
-    typevariable myauthor -array {} ; # Names of all authors found, later with id.
-    typevariable mycmsg   -array {} ; # All commit messages found, later with id.
+    typevariable myprojpaths     {} ; # List of paths to all declared
+				      # projects, relative to mybase.
+    typevariable myprojects      {} ; # List of objects for all
+				      # declared projects.
+    typevariable myauthor -array {} ; # Names of all authors found,
+				      # maps to their ids.
+    typevariable myauthorcnt     0  ; # Counter for author ids.
+    typevariable mycmsg   -array {} ; # All commit messages found,
+				      # maps to their ids.
+    typevariable mycmsgcnt       0  ; # Counter for message ids.
+    typevariable mymeta   -array {} ; # Maps all meta data tuples
+				      # (project, branch, author,
+				      # cmessage) to their ids.
+    typevariable mymetacnt       0  ; # Counter for meta ids.
+    typevariable mysymbol -array {} ; # Map symbols identified by
+				      # project and name to their
+				      # id. This information is not
+				      # saved directly.
+    typevariable mysymbolcnt     0  ; # Counter for symbol ids.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -239,26 +283,42 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     proc SaveAuthors {} {
 	::variable myauthor
-	foreach a [lsort -dict [array names myauthor]] {
+	foreach {name aid} [array get myauthor] {
 	    state run {
-		INSERT INTO author (aid, name)
-		VALUES             (NULL, $a);
+		INSERT INTO author ( aid,  name)
+		VALUES             ($aid, $name);
 	    }
-	    # Save id for use by the project/file persistence code.
-	    set myauthor($a) [state id]
 	}
 	return
     }
 
     proc SaveCommitMessages {} {
 	::variable mycmsg
-	foreach t [lsort -dict [array names mycmsg]] {
+	foreach {text cid} [array get mycmsg] {
 	    state run {
-		INSERT INTO cmessage (cid, text)
-		VALUES             (NULL, $t);
+		INSERT INTO cmessage ( cid,  text)
+		VALUES               ($cid, $text);
 	    }
-	    # Save id for use by the project/file persistence code.
-	    set mycmsg($t) [state id]
+	}
+	return
+    }
+
+    proc SaveMeta {} {
+	::variable mymeta
+	foreach {key mid} [array get mymeta] {
+	    struct::list assign $key pid bid aid cid
+	    if {$bid eq ""} {
+		# Trunk. Encoded as NULL.
+		state run {
+		    INSERT INTO meta ( mid,  pid,  bid,  aid,  cid)
+		    VALUES           ($mid, $pid, NULL, $aid, $cid);
+		}
+	    } else {
+		state run {
+		    INSERT INTO meta ( mid,  pid,  bid,  aid,  cid)
+		    VALUES           ($mid, $pid, $bid, $aid, $cid);
+		}
+	    }
 	}
 	return
     }

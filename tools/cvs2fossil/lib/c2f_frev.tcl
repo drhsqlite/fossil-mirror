@@ -25,11 +25,10 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {revnr date author state thefile} {
+    constructor {revnr date state thefile} {
 	set myrevnr    $revnr
 	set mydate     $date
 	set myorigdate $date
-	set myauthor   $author
 	set mystate    $state
 	set myfile     $thefile
 	return
@@ -37,11 +36,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
     # Basic pieces ________________________
 
-    method hascommitmsg {} { return $myhascm }
-
-    method setcommitmsg  {cm}   { set mycommitmsg  $cm   ; set myhascm 1 ; return }
-    method settext       {text} { set mytext       $text ; return }
-    method setbranchname {name} { set mybranchname $name ; return }
+    method hasmeta {}     { return [expr {$mymetaid ne ""}] }
+    method setmeta {meta} { set mymetaid $meta ; return }
+    method settext {text} { set mytext   $text ; return }
 
     method revnr {} { return $myrevnr }
 
@@ -164,16 +161,17 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     variable myorigdate  {} ; # Original unmodified timestamp.
     variable mystate     {} ; # State of the revision.
     variable myfile      {} ; # Ref to the file object the revision belongs to.
-    variable myhascm     0  ; # Bool flag, set when the commit msg was set.
     variable mytext      {} ; # Range of the (delta) text for this revision in the file.
 
-    # The meta data block used later to group revisions into changesets.
-    # The project name factors into this as well, but is not stored
-    # here. The name is acessible via myfile's project.
-
-    variable myauthor     {} ; # Name of the user who committed the revision.
-    variable mycommitmsg  {} ; # The message entered as part of the commit.
-    variable mybranchname {} ; # The name of the branch the revision was committed on.
+    variable mymetaid    {} ; # Id of the meta data group the revision
+			      # belongs to. This is later used to put
+			      # the file revisions into preliminary
+			      # changesets (aka project revisions).
+			      # This id encodes 4 pieces of data,
+			      # namely: the project and branch the
+			      # revision was committed to, the author
+			      # who did the commit, and the message
+			      # used.
 
     # Basic parent/child linkage (lines of development)
 

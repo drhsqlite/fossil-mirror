@@ -25,17 +25,22 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {name} {
+    constructor {name id} {
 	set myname $name
+	set myid   $id
 	return
     }
 
-    method name {} { return $myname }
+    method name {} { return $myname   }
+    method id   {} { return $myid }
 
     # # ## ### ##### ######## #############
     ## State
 
-    variable myname {}
+    variable myname {} ; # The symbol's name
+    variable myid   {} ; # Repository wide numeric id of the symbol.
+			 # This implicitly encodes the project as
+			 # well.
 
     # # ## ### ##### ######## #############
     ## Internal methods

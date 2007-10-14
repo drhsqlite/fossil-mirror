@@ -42,6 +42,8 @@ snit::type ::vc::fossil::import::cvs::project {
 	return $mybase
     }
 
+    method setid {id} { set myid $id ; return }
+
     method addfile {rcs usr executable} {
 	set myfiles($rcs) [list $usr $executable]
 	return
@@ -55,12 +57,17 @@ snit::type ::vc::fossil::import::cvs::project {
 	return [TheFiles]
     }
 
-    delegate method author   to myrepository
-    delegate method cmessage to myrepository
+    delegate method defauthor   to myrepository
+    delegate method defcmessage to myrepository
+
+    method defmeta {bid aid cid} {
+	return [$myrepository defmeta $myid $bid $aid $cid]
+    }
 
     method getsymbol {name} {
 	if {![info exists mysymbols($name)]} {
-	    set mysymbols($name) [sym %AUTO% $name]
+	    set mysymbols($name) \
+		[sym %AUTO% $name [$myrepository defsymbol $myid $name]]
 	}
 	return $mysymbols($name)
     }
@@ -75,7 +82,7 @@ snit::type ::vc::fossil::import::cvs::project {
 		INSERT INTO project (pid,  name)
 		VALUES              (NULL, $mybase);
 	    }
-	    set pid [state id]
+	    set myid [state id]
 
 	    # Then all files, with proper backreference to their
 	    # project.
@@ -83,8 +90,8 @@ snit::type ::vc::fossil::import::cvs::project {
 	    foreach {rcs item} [array get myfiles] {
 		struct::list assign $item usr executable
 		state run {
-		    INSERT INTO file (fid,  pid,  name, visible, exec)
-		    VALUES           (NULL, $pid, $rcs, $usr,    $executable);
+		    INSERT INTO file (fid,  pid,   name, visible, exec)
+		    VALUES           (NULL, $myid, $rcs, $usr,    $executable);
 		}
 	    }
 	}
@@ -106,6 +113,7 @@ snit::type ::vc::fossil::import::cvs::project {
     ## State
 
     variable mybase           {} ; # Project directory
+    variable myid             {} ; # Project id in the persistent state.
     variable myfiles   -array {} ; # Maps rcs archive to their user files.
     variable myfobj           {} ; # File objects for the rcs archives
     variable myrepository     {} ; # Repository the prject belongs to.
