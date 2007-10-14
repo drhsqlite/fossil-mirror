@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Much\simproved\swiki\srendering.\s\sAutomatic\sparagraph\stags\snow\smatch\ncorrectly.\s\sAll\stags\sshould\sbalance.
-D 2007-10-13T01:18:52
+C Work\stoward\sa\snew\smechanism\sfor\sconfiguring\sthe\sticket\ssubsystem\nand\srendering\sticket\sentry,\sediting,\sand\sviewing\sscreens.\s\sNothing\nworks,\sbut\sit\sis\sall\scommented\sout\sso\sthe\scode\scode\scompile.
+D 2007-10-14T00:29:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -75,11 +75,12 @@ F src/sha1.c 2a394ff16cb67dad1e87190be62bc7ccfc244ed9
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 43dff7bad09eceb7fdd889a0876db700e6140e22
+F src/subscript.c dd44ba15200c912d459ff11ebf184834be9a203a
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
-F src/tkt.c 98ba13ea1e889397e5855c4026432c40cf6bd3fc
-F src/tktconf.c d2929cd22625a33f76d315a342673648cfd9d69e
+F src/tkt.c 0661d23511c0aca51bda2bb44d9b455372b980bc
+F src/tktconf.c d769ab03450ca4fe1b794c56206ef03776c14e80
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -146,14 +147,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P df646a7f4ca2562878294c860ef57c4a0a5b1afa
-R a5b1a6022987bb32bad11b4ef5a4090e
+P c963a7763d96836b4f407a837718c14bf391ec08
+R 99b389219bf3b0584103f5053749a995
 U drh
-Z 3d62172292d1ca94bad8d99ac602a988
+Z 481548d68144411ab18627bcce091901
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHEBz/oxKgR168RlERAr6CAJ9o8rTQsF+hH7wwQbKS7lcqynZxVgCcCb8w
-3NK+SlMeu0Ge6N2c53WPL68=
-=FQCr
+iD8DBQFHEWLeoxKgR168RlERApCZAJ9iMSbW1bh7HK95fO75LiBvvad0JACeNERw
+fA7tniCqj9hmOYUEL/NL48g=
+=TmJY
 -----END PGP SIGNATURE-----

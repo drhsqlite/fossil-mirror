@@ -432,13 +432,13 @@ void ticket_load_default_config(void){
     @ <tr>
     @ <td cellpadding="2">
     @ Enter a one-line summary of the problem:<br>
-    @ [entrywidget title]
+    @ [/title 60 1 textentry]
     @ </td>
     @ </tr>
     @ 
     @ <tr>
     @ <td align="right">Type:
-    @ [entrywidget type]
+    @ [/type entrywidget]
     @ </td>
     @ <td>What type of ticket is this?</td>
     @ </tr>
