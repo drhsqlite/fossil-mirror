@@ -66,6 +66,9 @@ void add_cmd(void){
     if( strcmp(zPath, "manifest")==0 || strcmp(zPath, "_FOSSIL_")==0 ){
       fossil_fatal("cannot add %s", zPath);
     }
+    if( !file_is_simple_pathname(zPath) ){
+      fossil_fatal("filename contains illegal characters: %s", zPath);
+    }
     if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
       db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
     }else{
