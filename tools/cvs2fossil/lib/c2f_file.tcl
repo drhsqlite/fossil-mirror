@@ -35,6 +35,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	set mypath       $path
 	set myexecutable $executable
 	set myproject    $project
+	set mytrunk      [$myproject trunk]
 	return
     }
 
@@ -153,14 +154,19 @@ snit::type ::vc::fossil::import::cvs::file {
 	    return
 	}
 
-	if {[rev istrunkrevnr $revnr]} {
-	    set branchid {}
-	} else {
-	    set branchid [[$self Rev2Branch $revnr] id]
-	}
+	# Determine the line of development for the revision (project
+	# level). This gives us the branchid too, required for the
+	# meta data group the revision is in. (Note: By putting both
+	# branch/lod and project information into the group we ensure
+	# that any cross-project and cross-branch commits are
+	# separated into multiple commits, one in each of the projects
+	# and/or branches).
 
-	$rev setmeta [$myproject defmeta $branchid $myaid($revnr) $cmid]
+	set lod [GetLOD $revnr]
+
+	$rev setmeta [$myproject defmeta [$lod id] $myaid($revnr) $cmid]
 	$rev settext $textrange
+	$rev setlod  $lod
 
 	# If this is revision 1.1, we have to determine whether the
 	# file seems to have been created through 'cvs add' instead of
@@ -182,7 +188,17 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    method done {} {}
+    method done {} {
+	# Complete the revisions, branches, and tags. This includes
+	# looking for a non-trunk default branch, marking its members
+	# and linking them into the trunk.
+
+	DetermineRevisionOperations
+	DetermineLinesOfDevelopment
+
+	# list of roots ... first only one, later can become more.
+	return
+    }
 
     # # ## ### ##### ######## #############
     ## State
@@ -230,6 +246,8 @@ snit::type ::vc::fossil::import::cvs::file {
 			     # reverse of definition.  I.e. a smaller
 			     # number means 'Defined earlier', means
 			     # 'Created later'.
+
+    variable mytrunk {} ; # Direct reference to myproject -> trunk.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -338,6 +356,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    } else {
 		set rev $myrev($revnr)
 		$rev addbranch $branch
+		$branch setparent $rev
 
 		# If revisions were committed on the branch we store a
 		# reference to the branch there, and further declare
@@ -381,7 +400,10 @@ snit::type ::vc::fossil::import::cvs::file {
 		unset mytags($revnr)
 	    } else {
 		set rev $myrev($revnr)
-		foreach tag $taglist { $rev addtag $tag }
+		foreach tag $taglist {
+		    $rev addtag $tag
+		    $tag settagrev $rev
+		}
 	    }
 	}
 	return
@@ -402,6 +424,40 @@ snit::type ::vc::fossil::import::cvs::file {
 	    set myroot $rev
 	}
 	return
+    }
+
+    proc DetermineRevisionOperations {} {
+	upvar 1 myrevisions myrevisions
+	foreach rev $myrevisions { $rev determineoperation }
+	return
+    }
+
+    proc DetermineLinesOfDevelopment {} {
+	# For revisions this has been done already, in 'extend'. Now
+	# we do this for the branches and tags.
+
+	upvar 1 self self mybranches mybranches mytags mytags mytrunk mytrunk
+
+	foreach {_ branch} [array get mybranches] {
+	    $branch setlod [GetLOD [$branch parentrevnr]]
+	}
+
+	foreach {_ taglist} [array get mytags] {
+	    foreach tag $taglist {
+		$tag setlod [GetLOD [$tag tagrevnr]]
+	    }
+	}
+	return
+    }
+
+    proc GetLOD {revnr} {
+	if {[rev istrunkrevnr $revnr]} {
+	    upvar 1 mytrunk mytrunk
+	    return $mytrunk
+	} else {
+	    upvar 1 self self
+	    return [$self Rev2Branch $revnr]
+	}
     }
 
     # # ## ### ##### ######## #############

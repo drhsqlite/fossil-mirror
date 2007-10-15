@@ -39,8 +39,11 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     method hasmeta {}     { return [expr {$mymetaid ne ""}] }
     method setmeta {meta} { set mymetaid $meta ; return }
     method settext {text} { set mytext   $text ; return }
+    method setlod  {lod}  { set mylod    $lod  ; return }
 
     method revnr {} { return $myrevnr }
+    method state {} { return $mystate }
+    method lod   {} { return $mylod   }
 
     # Basic parent/child linkage __________
 
@@ -114,6 +117,21 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
+    method determineoperation {} {
+	# Look at the state of both this revision and its parent to
+	# determine the type opf operation which was performed (add,
+	# modify, delete, none).
+	#
+	# The important information is dead vs not-dead for both,
+	# giving rise to four possible types.
+
+	set sdead [expr {$mystate eq "dead"}]
+	set pdead [expr {$myparent eq "" || [$myparent state] eq "dead"}]
+
+	set myoperation $myopstate([list $pdead $sdead])
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## Type API
 
@@ -162,7 +180,6 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     variable mystate     {} ; # State of the revision.
     variable myfile      {} ; # Ref to the file object the revision belongs to.
     variable mytext      {} ; # Range of the (delta) text for this revision in the file.
-
     variable mymetaid    {} ; # Id of the meta data group the revision
 			      # belongs to. This is later used to put
 			      # the file revisions into preliminary
@@ -172,6 +189,12 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 			      # revision was committed to, the author
 			      # who did the commit, and the message
 			      # used.
+    variable mylod       {} ; # Reference to the line-of-development
+			      # object the revision belongs to. An
+			      # alternative idiom would be to call it
+			      # the branch the revision is on. This
+			      # reference is to a project-level object
+			      # (symbol or trunk).
 
     # Basic parent/child linkage (lines of development)
 
@@ -210,6 +233,20 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     # Tag linkage ________________________
 
     variable mytags {} ; # List of tags (objs) associated with this revision.
+
+    # More derived data
+
+    variable myoperation {} ; # One of 'add', 'change', 'delete', or
+			      # 'nothing'. Derived from our and its
+			      # parent's state.
+
+    # dead(self) x dead(parent) -> operation
+    typevariable myopstate -array {
+	{0 0} change
+	{0 1} delete
+	{1 0} add
+	{1 1} nothing
+    }
 
     # # ## ### ##### ######## #############
     ## Internal methods

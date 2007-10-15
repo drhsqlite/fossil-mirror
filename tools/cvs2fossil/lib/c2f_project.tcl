@@ -15,12 +15,13 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                               ; # Required runtime.
-package require snit                                  ; # OO system.
-package require vc::fossil::import::cvs::file         ; # CVS archive file.
-package require vc::fossil::import::cvs::state        ; # State storage.
-package require vc::fossil::import::cvs::project::sym ; # Per project symbols.
-package require struct::list                          ; # Advanced list operations..
+package require Tcl 8.4                                 ; # Required runtime.
+package require snit                                    ; # OO system.
+package require vc::fossil::import::cvs::file           ; # CVS archive file.
+package require vc::fossil::import::cvs::state          ; # State storage.
+package require vc::fossil::import::cvs::project::sym   ; # Per project symbols.
+package require vc::fossil::import::cvs::project::trunk ; # Per project trunk, main lod
+package require struct::list                            ; # Advanced list operations..
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -32,10 +33,12 @@ snit::type ::vc::fossil::import::cvs::project {
     constructor {path r} {
 	set mybase       $path
 	set myrepository $r
+	set mytrunk      [trunk %AUTO%]
 	return
     }
 
-    method base {} { return $mybase }
+    method base  {} { return $mybase  }
+    method trunk {} { return $mytrunk }
 
     method printbase {} {
 	if {$mybase eq ""} {return <Repository>}
@@ -112,12 +115,16 @@ snit::type ::vc::fossil::import::cvs::project {
     # # ## ### ##### ######## #############
     ## State
 
-    variable mybase           {} ; # Project directory
+    variable mybase           {} ; # Project directory.
     variable myid             {} ; # Project id in the persistent state.
-    variable myfiles   -array {} ; # Maps rcs archive to their user files.
+    variable mytrunk          {} ; # Reference to the main line of
+				   # development for the project.
+    variable myfiles   -array {} ; # Maps the rcs archive paths to
+				   # their user-visible files.
     variable myfobj           {} ; # File objects for the rcs archives
     variable myrepository     {} ; # Repository the prject belongs to.
-    variable mysymbols -array {} ; # Map symbol names to project-level symbol objects.
+    variable mysymbols -array {} ; # Map symbol names to project-level
+				   # symbol objects.
 
     # # ## ### ##### ######## #############
     ## Internal methods

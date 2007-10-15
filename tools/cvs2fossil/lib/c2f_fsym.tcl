@@ -53,20 +53,43 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	return
     }
 
-    method setposition {n} { set mybranchposition $n }
+    method setposition {n}   { set mybranchposition $n ; return }
+    method setparent   {rev} { set mybranchparent $rev ; return }
 
     method branchnr    {} { return $mynr }
     method parentrevnr {} { return $mybranchparentrevnr }
     method childrevnr  {} { return $mybranchchildrevnr }
-
     method haschild    {} { return [expr {$mybranchchildrevnr ne ""}] }
     method child       {} { return $mybranchchild }
-
-    method position {} { return $mybranchposition }
+    method position    {} { return $mybranchposition }
 
     # Tag acessor methods.
 
-    method tagrevnr {} { return $mynr }
+    method tagrevnr  {}    { return $mynr }
+    method settagrev {rev} {set mytagrev $rev ; return }
+
+    # Derived information
+
+    method lod {} { return $mylod }
+
+    method setlod {lod} {
+	set mylod $lod
+
+	# Consistency check integrated. The symbol's
+	# line-of-development has to be same as the
+	# line-of-development of its source.
+
+	switch -exact -- $mytype {
+	    branch  { set slod [$mybranchparent lod] }
+	    tag     { set slod [$mytagrev       lod] }
+	}
+
+	if {$mylod ne $slod} {
+	    trouble fatal "For [$mysymbol name]: LOD conflict with source, '[$mylod name]' vs. '[$slod name]'"
+	    return
+	}
+	return
+    }
 
     # # ## ### ##### ######## #############
     ## State
@@ -78,6 +101,11 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 			   # of a 'branch'.
     variable mysymbol {} ; # Reference to the symbol object of this
 			   # symbol at the project level.
+    variable mylod    {} ; # Reference to the line-of-development
+			   # object the symbol belongs to. An
+			   # alternative idiom would be to call it the
+			   # branch the symbol is on. This reference
+			   # is to a project-level symbol object.
 
     ## Branch symbols _____________________
 
@@ -97,6 +125,9 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 				      # creation order.
 
     ## Tag symbols ________________________
+
+    variable mytagrev {} ; # Reference to the revision object the tag
+			   # is on, identified by 'mynr'.
 
     # ... nothing special ... (only mynr, see basic)
 
