@@ -50,11 +50,21 @@ namespace eval ::vc::tools::misc {
 	return $max
     }
 
+    proc ldelete {lv item} {
+	upvar 1 $lv list
+	set pos [lsearch -exact $list $item]
+	if {$pos < 0} return
+	set list [lreplace $list $pos $pos]
+	return
+    }
+
+    # Delete item from list by name
+
     # # ## ### ##### ######## #############
 }
 
 namespace eval ::vc::tools::misc {
-    namespace export sp nsp max
+    namespace export sp nsp max ldelete
 }
 
 # -----------------------------------------------------------------------------
