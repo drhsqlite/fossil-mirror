@@ -52,6 +52,24 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     method lod   {} { return $mylod   }
     method date  {} { return $mydate  }
 
+    method isneeded {} {
+	if {$myoperation ne "nothing"}         {return 1}
+	if {$myrevnr ne "1.1"}                 {return 1}
+	if {![$mylod istrunk]}                 {return 1}
+	if {![llength $mybranches]}            {return 1}
+	set firstbranch [lindex $mybranches 0]
+	if {![$firstbranch haschild]}          {return 1}
+	if {$myisondefaultbranch}              {return 1}
+
+	# FIX: This message will not match if the RCS file was renamed
+	# manually after it was created.
+
+	set gen "file [file tail [$myfile usrpath]] was initially added on branch [$firstbranch name]."
+	set log [$myfile commitmessageof $mymetaid]
+
+	return [expr {$log ne $gen}]
+    }
+
     # Basic parent/child linkage __________
 
     method hasparent {} { return [expr {$myparent ne ""}] }
@@ -84,6 +102,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     }
 
     method parentbranch {} { return $myparentbranch }
+    method branches     {} { return $mybranches }
 
     method addbranch {branch} {
 	lappend mybranches $branch
@@ -150,10 +169,25 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
+    method removeallbranches {} {
+	foreach branch $mybranches {
+	    $branch destroy
+	}
+	set mybranches       {}
+	set mybranchchildren {}
+	return
+    }
+
     # Tag linkage _________________________
 
     method addtag {tag} {
 	lappend mytags $tag
+	return
+    }
+
+    method removealltags {} {
+	foreach tag $mytags { $tag destroy }
+	set mytags {}
 	return
     }
 

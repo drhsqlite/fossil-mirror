@@ -32,8 +32,9 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {path executable project} {
+    constructor {path usrpath executable project} {
 	set mypath       $path
+	set myusrpath    $usrpath
 	set myexecutable $executable
 	set myproject    $project
 	set mytrunk      [$myproject trunk]
@@ -41,7 +42,10 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method path    {} { return $mypath }
+    method usrpath {} { return $myusrpath }
     method project {} { return $myproject }
+
+    delegate method commitmessageof to myproject
 
     # # ## ### ##### ######## #############
     ## Methods required for the class to be a sink of the rcs parser
@@ -210,6 +214,7 @@ snit::type ::vc::fossil::import::cvs::file {
     ## State
 
     variable mypath            {} ; # Path of the file's rcs archive.
+    variable myusrpath         {} ; # Path of the file as seen by users.
     variable myexecutable      0  ; # Boolean flag 'file executable'.
     variable myproject         {} ; # Reference to the project object
 				    # the file belongs to.
@@ -688,6 +693,50 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method RemoveIrrelevantDeletions {} {
+	# From cvs2fossil:
+	# If a file is added on a branch, then a trunk revision is
+	# added at the same time in the 'Dead' state.  This revision
+	# doesn't do anything useful, so delete it.
+
+	foreach root $myroots {
+	    if {[$root isneeded]} continue
+	    log write 2 file "Removing unnecessary dead revision [$root revnr]"
+
+	    # Remove as root, make its child new root after
+	    # disconnecting it from the revision just going away.
+
+	    ldelete myroots $root
+	    if {[$root haschild]} {
+		set child [$root child]
+		$child cutfromparent
+		lappend myroots $child
+	    }
+
+	    # Remove the branches spawned by the revision to be
+	    # deleted. If the branch has revisions they should already
+	    # use operation 'add', no need to change that. The first
+	    # revision on each branch becomes a new and disconnected
+	    # root.
+
+	    foreach branch [$root branches] {
+		if {![$branch haschild]} continue
+		set first [$branch child]
+		$first cutfromparentbranch
+		$first cutfromparent
+		lappend myroots $first
+	    }
+	    $root removeallbranches
+
+	    # Tagging a dead revision doesn't do anything, so remove
+	    # any tags that were set on it.
+
+	    $root removealltags
+
+	    # This can only happen once per file, and we might have
+	    # just changed myroots, so break out of the loop:
+	    break
+	}
+	return
     }
 
     method RemoveInitialBranchDeletions {} {
@@ -702,7 +751,6 @@ snit::type ::vc::fossil::import::cvs::file {
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
     pragma -hastypemethods no  ; # type is not relevant.
-    pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############
 }

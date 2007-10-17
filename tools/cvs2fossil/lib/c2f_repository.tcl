@@ -85,8 +85,9 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     typemethod defcmessage {cm} {
 	if {![info exists mycmsg($cm)]} {
-	    set mycmsg($cm) [incr mycmsgcnt]
-	    log write 6 repository "cmessage '$cm' =  $mycmsg($cm)"
+	    set mycmsg($cm) [set cid [incr mycmsgcnt]]
+	    set mycmsginv($cid) $cm
+	    log write 6 repository "cmessage '$cm' =  $cid"
 	}
 	return $mycmsg($cm)
     }
@@ -103,10 +104,16 @@ snit::type ::vc::fossil::import::cvs::repository {
     typemethod defmeta {pid bid aid cid} {
 	set key [list $pid $bid $aid $cid]
 	if {![info exists mymeta($key)]} {
-	    set mymeta($key) [incr mymetacnt]
+	    set mymeta($key) [set mid [incr mymetacnt]]
+	    set mymetainv($mid) $key
 	    log write 6 repository "meta ($key) =  $mymeta($key)"
 	}
 	return $mymeta($key)
+    }
+
+    typemethod commitmessageof {metaid} {
+	struct::list assign $mymetainv($metaid) pid bid aid cid
+	return $mycmsginv($cid)
     }
 
     # pass I results
@@ -205,30 +212,31 @@ snit::type ::vc::fossil::import::cvs::repository {
     # # ## ### ##### ######## #############
     ## State
 
-    typevariable mybase          {} ; # Base path to CVS repository.
-    typevariable myprojpaths     {} ; # List of paths to all declared
-				      # projects, relative to mybase.
-    typevariable myprojects      {} ; # List of objects for all
-				      # declared projects.
-    typevariable myauthor -array {} ; # Names of all authors found,
-				      # maps to their ids.
-    typevariable myauthorcnt     0  ; # Counter for author ids.
-    typevariable mycmsg   -array {} ; # All commit messages found,
-				      # maps to their ids.
-    typevariable mycmsgcnt       0  ; # Counter for message ids.
-    typevariable mymeta   -array {} ; # Maps all meta data tuples
-				      # (project, branch, author,
-				      # cmessage) to their ids.
-    typevariable mymetacnt       0  ; # Counter for meta ids.
-    typevariable mysymbol -array {} ; # Map symbols identified by
-				      # project and name to their
-				      # id. This information is not
-				      # saved directly.
-    typevariable mysymbolcnt     0  ; # Counter for symbol ids.
-
-    typevariable mytrunkonly     0  ; # Boolean flag. Set by option
-				      # processing when the user
-				      # requested a trunk-only import
+    typevariable mybase           {} ; # Base path to CVS repository.
+    typevariable myprojpaths      {} ; # List of paths to all declared
+				       # projects, relative to mybase.
+    typevariable myprojects       {} ; # List of objects for all
+				       # declared projects.
+    typevariable myauthor  -array {} ; # Names of all authors found,
+				       # maps to their ids.
+    typevariable myauthorcnt      0  ; # Counter for author ids.
+    typevariable mycmsg    -array {} ; # All commit messages found,
+				       # maps to their ids.
+    typevariable mycmsginv -array {} ; # Inverted index, keyed by id.
+    typevariable mycmsgcnt        0  ; # Counter for message ids.
+    typevariable mymeta    -array {} ; # Maps all meta data tuples
+				       # (project, branch, author,
+				       # cmessage) to their ids.
+    typevariable mymetainv -array {} ; # Inverted index, keyed by id.
+    typevariable mymetacnt        0  ; # Counter for meta ids.
+    typevariable mysymbol -array  {} ; # Map symbols identified by
+				       # project and name to their
+				       # id. This information is not
+				       # saved directly.
+    typevariable mysymbolcnt      0  ; # Counter for symbol ids.
+    typevariable mytrunkonly      0  ; # Boolean flag. Set by option
+				       # processing when the user
+				       # requested a trunk-only import
 
     # # ## ### ##### ######## #############
     ## Internal methods

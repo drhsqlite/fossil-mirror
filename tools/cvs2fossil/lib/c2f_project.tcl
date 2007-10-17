@@ -60,9 +60,10 @@ snit::type ::vc::fossil::import::cvs::project {
 	return [TheFiles]
     }
 
-    delegate method defauthor   to myrepository
-    delegate method defcmessage to myrepository
-    delegate method trunkonly   to myrepository
+    delegate method defauthor       to myrepository
+    delegate method defcmessage     to myrepository
+    delegate method trunkonly       to myrepository
+    delegate method commitmessageof to myrepository
 
     method defmeta {bid aid cid} {
 	return [$myrepository defmeta $myid $bid $aid $cid]
@@ -141,9 +142,9 @@ snit::type ::vc::fossil::import::cvs::project {
     proc EmptyFiles {fv} {
 	upvar 1 $fv myfiles self self
 	set res {}
-	foreach item [lsort -dict [array names myfiles]] {
-	    struct::list assign $item f executable
-	    lappend res [file %AUTO% $f $executable $self]
+	foreach rcs [lsort -dict [array names myfiles]] {
+	    struct::list assign $myfiles($rcs) f executable
+	    lappend res [file %AUTO% $rcs $f $executable $self]
 	}
 	return $res
     }
