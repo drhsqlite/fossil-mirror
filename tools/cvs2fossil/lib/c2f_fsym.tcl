@@ -45,6 +45,8 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     delegate method name to mysymbol
     delegate method id   to mysymbol
 
+    method istrunk {} { return 0 }
+
     # Branch acessor methods.
 
     method setchildrevnr  {revnr} {

@@ -29,8 +29,9 @@ snit::type ::vc::fossil::import::cvs::project::trunk {
 	return
     }
 
-    method name {} { return :trunk: }
-    method id   {} { return {}      }
+    method name    {} { return :trunk: }
+    method id      {} { return {}      }
+    method istrunk {} { return 1 }
 
     # # ## ### ##### ######## #############
     ## State
