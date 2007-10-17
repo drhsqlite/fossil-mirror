@@ -62,6 +62,7 @@ snit::type ::vc::fossil::import::cvs::project {
 
     delegate method defauthor   to myrepository
     delegate method defcmessage to myrepository
+    delegate method trunkonly   to myrepository
 
     method defmeta {bid aid cid} {
 	return [$myrepository defmeta $myid $bid $aid $cid]

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\snew\soption\s--trunk-only,\sstate\sand\sprocessing.
-D 2007-10-17T03:09:58
+C More\shandling\sfor\soption\s--trunk-only.
+D 2007-10-17T03:10:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -105,7 +105,7 @@ F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl 47f6b87c0bc9b02c3caafae9dfe20253b87f3b6f
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
-F tools/cvs2fossil/lib/c2f_project.tcl 855fb163a96cdb67824e793c1de4ed3892fb6595
+F tools/cvs2fossil/lib/c2f_project.tcl 9e2870d71cb149cad9ac6b2ad538ae95d8bee8a2
 F tools/cvs2fossil/lib/c2f_psym.tcl e2a62e00ad5a3368dc0cfa5f85b08ca0f7f46da8
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl 21f2d5f77f99fe9efbd5e576e16d1e0eee519379
 F tools/cvs2fossil/lib/c2f_repository.tcl 7f7328b5b7c3d3228724813eca4ae97158e531fc
@@ -147,14 +147,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4e49cbf03bb46ac5c67133bf116654b9890e8d41
-R 70ecd074579ebf73b0ce66fb3f2b1449
+P 3bde1a2e2ff4d72354c1729f9681711b83e38d26
+R 8c471cc989b58c5a3e5da47147bbd9bd
 U aku
-Z 7cc2a395f97aa5d251f36893de06f092
+Z 426d492637c4cdb119f5c8f9116e1519
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHFX0GvonzZ/CRa7gRArLfAJ4lMaOubH9zHeud0xaoESF8y03iEQCeK8Oq
-j1hY4jQwvyJ6RYKZKj0db34=
-=ZFGx
+iD8DBQFHFX02vonzZ/CRa7gRAoHaAJ4iMseJXf5O2xLcBNIijG81HJoapACgsYfb
+//c5zrwiUsQERKk4RltPUZ0=
+=vcqH
 -----END PGP SIGNATURE-----
