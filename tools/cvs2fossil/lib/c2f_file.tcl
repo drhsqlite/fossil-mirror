@@ -114,7 +114,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	set myaid($revnr) [$myproject defauthor $author]
 	set myrev($revnr) [rev %AUTO% $revnr $date $state $self]
 
-	RecordBasicDependencies $revnr $next
+	$self RecordBasicDependencies $revnr $next
 	return
     }
 
@@ -123,11 +123,11 @@ snit::type ::vc::fossil::import::cvs::file {
 	# from the file, before the commit mesages and delta texts are
 	# processed.
 
-	ProcessPrimaryDependencies
-	ProcessBranchDependencies
-	SortBranches
-	ProcessTagDependencies
-	DetermineTheRootRevision
+	$self ProcessPrimaryDependencies
+	$self ProcessBranchDependencies
+	$self SortBranches
+	$self ProcessTagDependencies
+	$self DetermineTheRootRevision
 	return
     }
 
@@ -163,7 +163,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	# separated into multiple commits, one in each of the projects
 	# and/or branches).
 
-	set lod [GetLOD $revnr]
+	set lod [$self GetLOD $revnr]
 
 	$rev setmeta [$myproject defmeta [$lod id] $myaid($revnr) $cmid]
 	$rev settext $textrange
@@ -194,14 +194,14 @@ snit::type ::vc::fossil::import::cvs::file {
 	# looking for a non-trunk default branch, marking its members
 	# and linking them into the trunk.
 
-	DetermineRevisionOperations
-	DetermineLinesOfDevelopment
-	HandleNonTrunkDefaultBranch
-	RemoveIrrelevantDeletions
-	RemoveInitialBranchDeletions
+	$self DetermineRevisionOperations
+	$self DetermineLinesOfDevelopment
+	$self HandleNonTrunkDefaultBranch
+	$self RemoveIrrelevantDeletions
+	$self RemoveInitialBranchDeletions
 
 	if {[$myproject trunkonly]} {
-	    ExcludeNonTrunkInformation
+	    $self ExcludeNonTrunkInformation
 	}
 	return
     }
@@ -308,7 +308,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	return $tag
     }
 
-    proc RecordBasicDependencies {revnr next} {
+    method RecordBasicDependencies {revnr next} {
 	# Handle the revision dependencies. Record them for now, do
 	# nothing with them yet.
 
@@ -328,9 +328,6 @@ snit::type ::vc::fossil::import::cvs::file {
 	# pointers.
 
 	if {$next eq ""} return
-
-	upvar 1 mydependencies mydependencies
-
 	#                          parent -> child
 	if {[rev istrunkrevnr $revnr]} {
 	    lappend mydependencies $next $revnr
@@ -340,9 +337,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    proc ProcessPrimaryDependencies {} {
-	upvar 1 mydependencies mydependencies myrev myrev
-
+    method ProcessPrimaryDependencies {} {
 	foreach {parentrevnr childrevnr} $mydependencies {
 	    set parent $myrev($parentrevnr)
 	    set child  $myrev($childrevnr)
@@ -352,9 +347,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    proc ProcessBranchDependencies {} {
-	upvar 1 mybranches mybranches myrev myrev
-
+    method ProcessBranchDependencies {} {
 	foreach {branchnr branch} [array get mybranches] {
 	    set revnr [$branch parentrevnr]
 
@@ -387,18 +380,12 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    proc SortBranches {} {
-	upvar 1 myrev myrev
-
-	foreach {revnr rev} [array get myrev] {
-	    $rev sortbranches
-	}
+    method SortBranches {} {
+	foreach {revnr rev} [array get myrev] { $rev sortbranches }
 	return
     }
 
-    proc ProcessTagDependencies {} {
-	upvar 1 mytags mytags myrev myrev
-
+    method ProcessTagDependencies {} {
 	foreach {revnr taglist} [array get mytags] {
 	    if {![info exists myrev($revnr)]} {
 		set n [llength $taglist]
@@ -420,9 +407,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    proc DetermineTheRootRevision {} {
-	upvar 1 myrev myrev myroot myroot
-
+    method DetermineTheRootRevision {} {
 	# The root is the one revision which has no parent. By
 	# checking all revisions we ensure that we can detect and
 	# report the case of multiple roots. Without that we could
@@ -441,52 +426,45 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    proc DetermineRevisionOperations {} {
-	upvar 1 myrevisions myrevisions
+    method DetermineRevisionOperations {} {
 	foreach rev $myrevisions { $rev determineoperation }
 	return
     }
 
-    proc DetermineLinesOfDevelopment {} {
+    method DetermineLinesOfDevelopment {} {
 	# For revisions this has been done already, in 'extend'. Now
 	# we do this for the branches and tags.
 
-	upvar 1 self self mybranches mybranches mytags mytags mytrunk mytrunk
-
 	foreach {_ branch} [array get mybranches] {
-	    $branch setlod [GetLOD [$branch parentrevnr]]
+	    $branch setlod [$self GetLOD [$branch parentrevnr]]
 	}
 
 	foreach {_ taglist} [array get mytags] {
 	    foreach tag $taglist {
-		$tag setlod [GetLOD [$tag tagrevnr]]
+		$tag setlod [$self GetLOD [$tag tagrevnr]]
 	    }
 	}
 	return
     }
 
-    proc GetLOD {revnr} {
+    method GetLOD {revnr} {
 	if {[rev istrunkrevnr $revnr]} {
-	    upvar 1 mytrunk mytrunk
 	    return $mytrunk
 	} else {
-	    upvar 1 self self
 	    return [$self Rev2Branch $revnr]
 	}
     }
 
-    proc HandleNonTrunkDefaultBranch {} {
-	upvar 1 myprincipal myprincipal myroot myroot mybranches mybranches myimported myimported myroots myroots myrev myrev
-
-	set revlist [NonTrunkDefaultRevisions]
+    method HandleNonTrunkDefaultBranch {} {
+	set revlist [$self NonTrunkDefaultRevisions]
 	if {![llength $revlist]} return
 
-	AdjustNonTrunkDefaultBranch $revlist
-	CheckLODs
+	$self AdjustNonTrunkDefaultBranch $revlist
+	$self CheckLODs
 	return
     }
 
-    proc NonTrunkDefaultRevisions {} {
+    method NonTrunkDefaultRevisions {} {
 	# From cvs2svn the following explanation (with modifications
 	# for our algorithm):
 
@@ -513,8 +491,6 @@ snit::type ::vc::fossil::import::cvs::file {
 	# -> 1.1.1.100 dated after 1.2.  In this case, we should
 	# record 1.1.1.96 as the last vendor revision to have been the
 	# head of the default branch.
-
-	upvar 1 myprincipal myprincipal myroot myroot mybranches mybranches myimported myimported
 
 	if {$myprincipal ne ""} {
 	    # There is still a default branch; that means that all
@@ -595,8 +571,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	}
     }
 
-    proc AdjustNonTrunkDefaultBranch {revlist} {
-	upvar 1 myroot myroot myimported myimported myroots myroots myrev myrev mybranches mybranches
+    method AdjustNonTrunkDefaultBranch {revlist} {
 	set stop [$myroot child] ;# rev '1.2'
 
 	log write 5 file "Adjusting NTDB containing [nsp [llength $revlist] revision]"
@@ -704,24 +679,21 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
-    proc CheckLODs {} {
-	upvar 1 mybranches mybranches mytags mytags
-
-	foreach {_ branch} [array get mybranches] { $branch checklod }
-
+    method CheckLODs {} {
+	foreach {_ branch}  [array get mybranches] { $branch checklod }
 	foreach {_ taglist} [array get mytags] {
 	    foreach tag $taglist { $tag checklod }
 	}
 	return
     }
 
-    proc RemoveIrrelevantDeletions {} {
+    method RemoveIrrelevantDeletions {} {
     }
 
-    proc RemoveInitialBranchDeletions {} {
+    method RemoveInitialBranchDeletions {} {
     }
 
-    proc ExcludeNonTrunkInformation {} {
+    method ExcludeNonTrunkInformation {} {
     }
 
     # # ## ### ##### ######## #############
