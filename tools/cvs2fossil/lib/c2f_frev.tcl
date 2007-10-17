@@ -17,6 +17,7 @@
 
 package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
+package require vc::tools::misc                     ; # Text formatting
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -36,7 +37,12 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
     # Basic pieces ________________________
 
-    method hasmeta {}     { return [expr {$mymetaid ne ""}] }
+    method hasmeta {} { return [expr {$mymetaid ne ""}] }
+    method hastext {} {
+	struct::list assign $mytext s e
+	return [expr {$s <= $e}]
+    }
+
     method setmeta {meta} { set mymetaid $meta ; return }
     method settext {text} { set mytext   $text ; return }
     method setlod  {lod}  { set mylod    $lod  ; return }
@@ -44,6 +50,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     method revnr {} { return $myrevnr }
     method state {} { return $mystate }
     method lod   {} { return $mylod   }
+    method date  {} { return $mydate  }
 
     # Basic parent/child linkage __________
 
@@ -55,6 +62,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	set myparent $parent
 	return
     }
+
+    method cutfromparent {} { set myparent "" ; return }
+    method cutfromchild  {} { set mychild  "" ; return }
 
     method setchild {child} {
 	if {$mychild ne ""} { trouble internal "Child already defined" }
@@ -73,9 +83,10 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
+    method parentbranch {} { return $myparentbranch }
+
     method addbranch {branch} {
 	lappend mybranches $branch
-	#sorted in ascending order by branch number?
 	return
     }
 
@@ -84,10 +95,15 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
-    # Tag linkage _________________________
+    method cutfromparentbranch {} { set myparentbranch "" ; return }
 
-    method addtag {tag} {
-	lappend mytags $tag
+    method removebranch {branch} {
+	ldelete mybranches $branch
+	return
+    }
+
+    method removechildonbranch {rev} {
+	ldelete mybranchchildren $rev
 	return
     }
 
@@ -111,11 +127,59 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
 	set mybranches {}
 	foreach item [lsort -index 1 -decreasing $tmp] {
-	    struct::list assign $item -> branch position
+	    struct::list assign $item branch position
 	    lappend mybranches $branch
 	}
 	return
     }
+
+    method movebranchesto {rev} {
+	set revlod [$rev lod]
+	foreach branch $mybranches {
+	    $rev addbranch $branch
+	    $branch setparent $rev
+	    $branch setlod $revlod
+	}
+	foreach branchrev $mybranchchildren {
+	    $rev addchildonbranch $branchrev
+	    $branchrev cutfromparent
+	    $branchrev setparent $rev
+	}
+	set mybranches       {}
+	set mybranchchildren {}
+	return
+    }
+
+    # Tag linkage _________________________
+
+    method addtag {tag} {
+	lappend mytags $tag
+	return
+    }
+
+    method movetagsto {rev} {
+	set revlod [$rev lod]
+	foreach tag $mytags {
+	    $rev addtag $tag
+	    $tag settagrev $rev
+	    $tag setlod $revlod
+	}
+	set mytags {}
+	return
+    }
+
+    # general symbol operations ___________
+
+    method movesymbolsto {rev} {
+	# Move the tags and branches attached to this revision to the
+	# destination and fix all pointers.
+
+	$self movetagsto     $rev
+	$self movebranchesto $rev
+	return
+    }
+
+    # Derived stuff _______________________
 
     method determineoperation {} {
 	# Look at the state of both this revision and its parent to
@@ -128,6 +192,23 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	set sdead [expr {$mystate eq "dead"}]
 	set pdead [expr {$myparent eq "" || [$myparent state] eq "dead"}]
 
+	set myoperation $myopstate([list $pdead $sdead])
+	return
+    }
+
+    method operation {} { return $myoperation }
+    method retype {x} { set myoperation $x ; return }
+
+    method isondefaultbranch {} { set myisondefaultbranch 1 ; return }
+
+    method setdefaultbranchchild  {rev} { set mydbchild $rev ; return }
+    method setdefaultbranchparent {rev} {
+	set mydbparent $rev
+
+	# Retype the revision (may change from 'add' to 'change').
+
+	set sdead [expr {$myoperation     ne "change"}]
+	set pdead [expr {[$rev operation] ne "change"}]
 	set myoperation $myopstate([list $pdead $sdead])
 	return
     }
@@ -236,9 +317,21 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
     # More derived data
 
-    variable myoperation {} ; # One of 'add', 'change', 'delete', or
-			      # 'nothing'. Derived from our and its
-			      # parent's state.
+    variable myoperation        {} ; # One of 'add', 'change', 'delete', or
+			             # 'nothing'. Derived from our and
+			             # its parent's state.
+    variable myisondefaultbranch 0 ; # Boolean flag, set if the
+				     # revision is on the non-trunk
+				     # default branch, aka vendor
+				     # branch.
+    variable mydbparent         {} ; # Reference to the last revision
+				     # on the vendor branch if this is
+				     # the primary child of the
+				     # regular root.
+    variable mydbchild          {} ; # Reference to the primary child
+				     # of the regular root if this is
+				     # the last revision on the vendor
+				     # branch.
 
     # dead(self) x dead(parent) -> operation
     typevariable myopstate -array {
@@ -263,6 +356,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
 namespace eval ::vc::fossil::import::cvs::file {
     namespace export rev
+    namespace eval rev {
+	namespace import ::vc::tools::misc::*
+    }
 }
 
 # # ## ### ##### ######## ############# #####################

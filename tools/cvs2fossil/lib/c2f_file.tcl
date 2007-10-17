@@ -22,6 +22,7 @@ package require struct::set                         ; # Set operations.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::file::sym  ; # CVS per file symbols.
 package require vc::tools::trouble                  ; # Error reporting.
+package require vc::tools::log                      ; # User feedback
 package require vc::tools::misc                     ; # Text formatting
 
 # # ## ### ##### ######## ############# #####################
@@ -177,7 +178,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	# determine whether this file might have had a default branch
 	# in the past.)
 
-	if {$revnr eq ""} {
+	if {$revnr eq "1.1"} {
 	    set myimported [expr {$commitmsg eq "Initial revision\n"}]
 	}
 
@@ -195,8 +196,13 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	DetermineRevisionOperations
 	DetermineLinesOfDevelopment
+	HandleNonTrunkDefaultBranch
+	RemoveIrrelevantDeletions
+	RemoveInitialBranchDeletions
 
-	# list of roots ... first only one, later can become more.
+	if {[$myproject trunkonly]} {
+	    ExcludeNonTrunkInformation
+	}
 	return
     }
 
@@ -248,6 +254,10 @@ snit::type ::vc::fossil::import::cvs::file {
 			     # 'Created later'.
 
     variable mytrunk {} ; # Direct reference to myproject -> trunk.
+    variable myroots {} ; # List of roots in the forest of
+			  # lod's. Object references to revisions and
+			  # branches. The latter can appear when they
+			  # are severed from their parent.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -366,6 +376,7 @@ snit::type ::vc::fossil::import::cvs::file {
 		if {[$branch haschild]} {
 		    set childrevnr [$branch childrevnr]
 		    set child $myrev($childrevnr)
+		    $branch setchild $child
 
 		    $child setparentbranch $branch
 		    $child setparent       $rev
@@ -423,6 +434,10 @@ snit::type ::vc::fossil::import::cvs::file {
 	    if {$myroot ne ""} { trouble internal "Multiple root revisions found" }
 	    set myroot $rev
 	}
+
+	# In the future we also need a list, as branches can become
+	# severed from their parent, making them their own root.
+	set myroots [list $myroot]
 	return
     }
 
@@ -460,6 +475,255 @@ snit::type ::vc::fossil::import::cvs::file {
 	}
     }
 
+    proc HandleNonTrunkDefaultBranch {} {
+	upvar 1 myprincipal myprincipal myroot myroot mybranches mybranches myimported myimported myroots myroots myrev myrev
+
+	set revlist [NonTrunkDefaultRevisions]
+	if {![llength $revlist]} return
+
+	AdjustNonTrunkDefaultBranch $revlist
+	CheckLODs
+	return
+    }
+
+    proc NonTrunkDefaultRevisions {} {
+	# From cvs2svn the following explanation (with modifications
+	# for our algorithm):
+
+	# Determine whether there are any non-trunk default branch
+	# revisions.
+
+	# If a non-trunk default branch is determined to have existed,
+	# return a list of objects for all revisions that were once
+	# non-trunk default revisions, in dependency order (i.e. root
+	# first).
+
+	# There are two cases to handle:
+
+	# One case is simple.  The RCS file lists a default branch
+	# explicitly in its header, such as '1.1.1'.  In this case, we
+	# know that every revision on the vendor branch is to be
+	# treated as head of trunk at that point in time.
+
+	# But there's also a degenerate case.  The RCS file does not
+	# currently have a default branch, yet we can deduce that for
+	# some period in the past it probably *did* have one.  For
+	# example, the file has vendor revisions 1.1.1.1 -> 1.1.1.96,
+	# all of which are dated before 1.2, and then it has 1.1.1.97
+	# -> 1.1.1.100 dated after 1.2.  In this case, we should
+	# record 1.1.1.96 as the last vendor revision to have been the
+	# head of the default branch.
+
+	upvar 1 myprincipal myprincipal myroot myroot mybranches mybranches myimported myimported
+
+	if {$myprincipal ne ""} {
+	    # There is still a default branch; that means that all
+	    # revisions on that branch get marked.
+
+	    log write 5 file "Found explicitly marked NTDB"
+
+	    set rnext [$myroot child]
+	    if {$rnext ne ""} {
+		trouble fatal "File with default branch $myprincipal also has revision [$rnext revnr]"
+		return
+	    }
+
+	    set rev [$mybranches($myprincipal) child]
+	    set res {}
+
+	    while {$rev ne ""} {
+		lappend res $rev
+		set rev [$rev child]
+	    }
+
+	    return $res
+
+	} elseif {$myimported} {
+	    # No default branch, but the file appears to have been
+	    # imported.  So our educated guess is that all revisions
+	    # on the '1.1.1' branch with timestamps prior to the
+	    # timestamp of '1.2' were non-trunk default branch
+	    # revisions.
+	    
+	    # This really only processes standard '1.1.1.*'-style
+	    # vendor revisions.  One could conceivably have a file
+	    # whose default branch is 1.1.3 or whatever, or was that
+	    # at some point in time, with vendor revisions 1.1.3.1,
+	    # 1.1.3.2, etc.  But with the default branch gone now,
+	    # we'd have no basis for assuming that the non-standard
+	    # vendor branch had ever been the default branch anyway.
+	    
+	    # Note that we rely on comparisons between the timestamps
+	    # of the revisions on the vendor branch and that of
+	    # revision 1.2, even though the timestamps might be
+	    # incorrect due to clock skew.  We could do a slightly
+	    # better job if we used the changeset timestamps, as it is
+	    # possible that the dependencies that went into
+	    # determining those timestamps are more accurate.  But
+	    # that would require an extra pass or two.
+
+	    if {![info exists mybranches(1.1.1)]} { return {} }
+
+	    log write 5 file "Deduced existence of NTDB"
+
+	    set rev  [$mybranches(1.1.1) child]
+	    set res  {}
+	    set stop [$myroot child]
+
+	    if {$stop eq ""} {
+		# Get everything on the branch
+		while {$rev ne ""} {
+		    lappend res $rev
+		    set rev [$rev child]
+		}
+	    } else {
+		# Collect everything on the branch which seems to have
+		# been committed before the first primary child of the
+		# root revision.
+		set stopdate [$stop date]
+		while {$rev ne ""} {
+		    if {[$rev date] >= $stopdate} break
+		    lappend res $rev
+		    set rev [$rev child]
+		}
+	    }
+
+	    return $res
+
+	} else {
+	    return {}
+	}
+    }
+
+    proc AdjustNonTrunkDefaultBranch {revlist} {
+	upvar 1 myroot myroot myimported myimported myroots myroots myrev myrev mybranches mybranches
+	set stop [$myroot child] ;# rev '1.2'
+
+	log write 5 file "Adjusting NTDB containing [nsp [llength $revlist] revision]"
+
+	# From cvs2svn the following explanation (with modifications
+	# for our algorithm):
+
+	# Adjust the non-trunk default branch revisions found in the
+	# 'revlist'.
+
+	# 'myimported' is a boolean flag indicating whether this file
+	# appears to have been imported, which also means that
+	# revision 1.1 has a generated log message that need not be
+	# preserved.  'revlist' is a list of object references for the
+	# revisions that have been determined to be non-trunk default
+	# branch revisions.
+
+	# Note that the first revision on the default branch is
+	# handled strangely by CVS.  If a file is imported (as opposed
+	# to being added), CVS creates a 1.1 revision, then creates a
+	# vendor branch 1.1.1 based on 1.1, then creates a 1.1.1.1
+	# revision that is identical to the 1.1 revision (i.e., its
+	# deltatext is empty).  The log message that the user typed
+	# when importing is stored with the 1.1.1.1 revision.  The 1.1
+	# revision always contains a standard, generated log message,
+	# 'Initial revision\n'.
+
+	# When we detect a straightforward import like this, we want
+	# to handle it by deleting the 1.1 revision (which doesn't
+	# contain any useful information) and making 1.1.1.1 into an
+	# independent root in the file's dependency tree.  In SVN,
+	# 1.1.1.1 will be added directly to the vendor branch with its
+	# initial content.  Then in a special 'post-commit', the
+	# 1.1.1.1 revision is copied back to trunk.
+
+	# If the user imports again to the same vendor branch, then CVS
+	# creates revisions 1.1.1.2, 1.1.1.3, etc. on the vendor branch,
+	# *without* counterparts in trunk (even though these revisions
+	# effectively play the role of trunk revisions).  So after we add
+	# such revisions to the vendor branch, we also copy them back to
+	# trunk in post-commits.
+
+	# We mark the revisions found in 'revlist' as default branch
+	# revisions.  Also, if the root revision has a primary child
+	# we set that revision to depend on the last non-trunk default
+	# branch revision and possibly adjust its type accordingly.
+
+	set first [lindex $revlist 0]
+
+	log write 6 file "<[$first revnr]> [expr {$myimported ? "imported" : "not imported"}], [$first operation], [expr {[$first hastext] ? "has text" : "no text"}]"
+
+	if {$myimported &&
+	    [$first revnr] eq "1.1.1.1" &&
+	    [$first operation] eq "change" &&
+	    ![$first hastext]} {
+
+	    set rev11 [$first parent] ; # Assert: Should be myroot.
+	    log write 3 file "Removing irrelevant revision [$rev11 revnr]"
+
+	    # Cut out the old myroot revision.
+
+	    ldelete myroots $rev11 ; # Not a root any longer.
+	    unset myrev([$rev11 revnr])
+
+	    $first cutfromparent ; # Sever revision from parent revision.
+	    if {$stop ne ""} {
+		$stop cutfromparent
+		lappend myroots $stop ; # New root, after vendor branch
+	    }
+
+	    # Cut out the vendor branch symbol
+
+	    set vendor [$first parentbranch]
+	    if {$vendor eq ""} { trouble internal "First NTDB revision has no branch" }
+	    if {[$vendor parent] eq $rev11} {
+		unset mybranches([$vendor branchnr])
+		$rev11 removebranch        $vendor
+		$rev11 removechildonbranch $first
+		$first cutfromparentbranch
+		lappend myroots $first
+	    }
+
+	    # Change the type of first (typically from Change to Add):
+	    $first retype add
+
+	    # Move any tags and branches from the old to the new root.
+	    $rev11 movesymbolsto $first
+	}
+
+	# Mark all the special revisions as such
+	foreach rev $revlist {
+	    log write 3 file "Revision on default branch: [$rev revnr]"
+	    $rev isondefaultbranch
+	}
+
+	if {$stop ne ""} {
+	    # Revision 1.2 logically follows the imported revisions,
+	    # not 1.1.  Accordingly, connect it to the last NTDBR and
+	    # possibly change its type.
+
+	    set last [lindex $revlist end]
+	    $stop setdefaultbranchparent $last ; # Retypes the revision too.
+	    $last setdefaultbranchchild  $stop
+	}
+	return
+    }
+
+    proc CheckLODs {} {
+	upvar 1 mybranches mybranches mytags mytags
+
+	foreach {_ branch} [array get mybranches] { $branch checklod }
+
+	foreach {_ taglist} [array get mytags] {
+	    foreach tag $taglist { $tag checklod }
+	}
+	return
+    }
+
+    proc RemoveIrrelevantDeletions {} {
+    }
+
+    proc RemoveInitialBranchDeletions {} {
+    }
+
+    proc ExcludeNonTrunkInformation {} {
+    }
+
     # # ## ### ##### ######## #############
     ## Configuration
 
@@ -479,6 +743,7 @@ namespace eval ::vc::fossil::import::cvs {
 	# namespace import ::vc::fossil::import::cvs::file::sym
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
+	namespace import ::vc::tools::log
     }
 }
 

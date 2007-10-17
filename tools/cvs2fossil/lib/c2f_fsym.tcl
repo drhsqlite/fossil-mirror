@@ -55,13 +55,16 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 
     method setposition {n}   { set mybranchposition $n ; return }
     method setparent   {rev} { set mybranchparent $rev ; return }
+    method setchild    {rev} { set mybranchchild  $rev ; return }
 
     method branchnr    {} { return $mynr }
     method parentrevnr {} { return $mybranchparentrevnr }
     method childrevnr  {} { return $mybranchchildrevnr }
     method haschild    {} { return [expr {$mybranchchildrevnr ne ""}] }
+    method parent      {} { return $mybranchparent }
     method child       {} { return $mybranchchild }
     method position    {} { return $mybranchposition }
+
 
     # Tag acessor methods.
 
@@ -74,10 +77,14 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 
     method setlod {lod} {
 	set mylod $lod
+	$self checklod
+	return
+    }
 
-	# Consistency check integrated. The symbol's
-	# line-of-development has to be same as the
-	# line-of-development of its source.
+    method checklod {} {
+	# Consistency check. The symbol's line-of-development has to
+	# be same as the line-of-development of its source (parent
+	# revision of a branch, revision of a tag itself).
 
 	switch -exact -- $mytype {
 	    branch  { set slod [$mybranchparent lod] }
@@ -85,7 +92,7 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	}
 
 	if {$mylod ne $slod} {
-	    trouble fatal "For [$mysymbol name]: LOD conflict with source, '[$mylod name]' vs. '[$slod name]'"
+	    trouble fatal "For $mytype [$mysymbol name]: LOD conflict with source, '[$mylod name]' vs. '[$slod name]'"
 	    return
 	}
 	return
@@ -105,7 +112,8 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 			   # object the symbol belongs to. An
 			   # alternative idiom would be to call it the
 			   # branch the symbol is on. This reference
-			   # is to a project-level symbol object.
+			   # is to a project-level object (symbol or
+			   # trunk).
 
     ## Branch symbols _____________________
 
