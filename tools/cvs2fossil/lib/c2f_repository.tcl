@@ -51,6 +51,9 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
+    typemethod trunkonly! {} { set mytrunkonly 1 ; return }
+    typemethod trunkonly  {} { return $mytrunkonly }
+
     typemethod projects {} {
 	return [TheProjects]
     }
@@ -222,6 +225,10 @@ snit::type ::vc::fossil::import::cvs::repository {
 				      # id. This information is not
 				      # saved directly.
     typevariable mysymbolcnt     0  ; # Counter for symbol ids.
+
+    typevariable mytrunkonly     0  ; # Boolean flag. Set by option
+				      # processing when the user
+				      # requested a trunk-only import
 
     # # ## ### ##### ######## #############
     ## Internal methods

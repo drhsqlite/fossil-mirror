@@ -42,10 +42,10 @@ snit::type ::vc::fossil::import::cvs::option {
     # -v, --verbose
     # -q, --quiet
     # --state (conversion status, ala config.cache)
+    # --trunk-only
 
     # -o, --output
     # --dry-run
-    # --trunk-only
     # --force-branch RE
     # --force-tag RE
     # --symbol-transform RE:XX
@@ -73,6 +73,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		-q                          -
 		--quiet                     { log quiet }
 		--state                     { state use [Value arguments] }
+		--trunk-only                { repository trunkonly! }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
