@@ -78,7 +78,7 @@ snit::type ::vc::fossil::import::cvs::repository {
     typemethod defauthor {a} {
 	if {![info exists myauthor($a)]} {
 	    set myauthor($a) [incr myauthorcnt]
-	    log write 6 repository "author '$a' =  $myauthor($a)"
+	    log write 7 repository "author '$a' =  $myauthor($a)"
 	}
 	return $myauthor($a)
     }
@@ -87,7 +87,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	if {![info exists mycmsg($cm)]} {
 	    set mycmsg($cm) [set cid [incr mycmsgcnt]]
 	    set mycmsginv($cid) $cm
-	    log write 6 repository "cmessage '$cm' =  $cid"
+	    log write 7 repository "cmessage '$cm' =  $cid"
 	}
 	return $mycmsg($cm)
     }
@@ -96,7 +96,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	set key [list $pid $name]
 	if {![info exists mysymbol($key)]} {
 	    set mysymbol($key) [incr mysymbolcnt]
-	    log write 6 repository "symbol ($key) =  $mysymbol($key)"
+	    log write 7 repository "symbol ($key) =  $mysymbol($key)"
 	}
 	return $mysymbol($key)
     }
@@ -106,7 +106,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	if {![info exists mymeta($key)]} {
 	    set mymeta($key) [set mid [incr mymetacnt]]
 	    set mymetainv($mid) $key
-	    log write 6 repository "meta ($key) =  $mymeta($key)"
+	    log write 7 repository "meta ($key) =  $mymeta($key)"
 	}
 	return $mymeta($key)
     }

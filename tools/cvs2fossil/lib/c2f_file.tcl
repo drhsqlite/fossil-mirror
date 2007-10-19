@@ -693,10 +693,9 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method RemoveIrrelevantDeletions {} {
-	# From cvs2fossil:
-	# If a file is added on a branch, then a trunk revision is
-	# added at the same time in the 'Dead' state.  This revision
-	# doesn't do anything useful, so delete it.
+	# From cvs2svn: If a file is added on a branch, then a trunk
+	# revision is added at the same time in the 'Dead' state.
+	# This revision doesn't do anything useful, so delete it.
 
 	foreach root $myroots {
 	    if {[$root isneeded]} continue
@@ -733,13 +732,76 @@ snit::type ::vc::fossil::import::cvs::file {
 	    $root removealltags
 
 	    # This can only happen once per file, and we might have
-	    # just changed myroots, so break out of the loop:
+	    # just changed myroots, so end the loop
 	    break
 	}
 	return
     }
 
     method RemoveInitialBranchDeletions {} {
+	# From cvs2svn: If the first revision on a branch is an
+	# unnecessary delete, remove it.
+	#
+	# If a file is added on a branch (whether or not it already
+	# existed on trunk), then new versions of CVS add a first
+	# branch revision in the 'dead' state (to indicate that the
+	# file did not exist on the branch when the branch was
+	# created) followed by the second branch revision, which is an
+	# add.  When we encounter this situation, we sever the branch
+	# from trunk and delete the first branch revision.
+
+	# At this point we may have already multiple roots in myroots,
+	# we have to process them all.
+
+	set lodroots [$self LinesOfDevelopment]
+	foreach root $lodroots {
+	    if {[$root isneededbranchdel]} continue
+	    log write 2 file "Removing unnecessary initial branch delete [$root revnr]"
+
+	    set branch [$root parentbranch]
+	    set parent [$root parent]
+	    set child  [$root child]
+
+	    ldelete myroots $root
+	    unset myrev([$root revnr])
+	    $child cutfromparent
+	    lappend myroots $child
+
+	    $parent removechildonbranch $root
+	    $parent removebranch        $branch
+
+	    $branch destroy
+	    $root   destroy
+	}
+	return
+    }
+
+    method LinesOfDevelopment {} {
+	# Determine all lines of development for the file. This are
+	# the known roots, and the root of all branches found on the
+	# line of primary children.
+
+	set lodroots {}
+	foreach root $myroots {
+	    $self AddBranchedLinesOfDevelopment lodroots $root
+	    lappend lodroots $root
+	}
+	return $lodroots
+    }
+
+    method AddBranchedLinesOfDevelopment {lv root} {
+	upvar 1 $lv lodroots
+	while {$root ne ""} {
+	    foreach branch [$root branches] {
+		if {![$branch haschild]} continue
+		set child [$branch child]
+		# Recurse into the branch for deeper branches.
+		$self AddBranchedLinesOfDevelopment lodroots $child
+		lappend lodroots $child
+	    }
+	    set root [$root child]
+	}
+	return
     }
 
     method ExcludeNonTrunkInformation {} {

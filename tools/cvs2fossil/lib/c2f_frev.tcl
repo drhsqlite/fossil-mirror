@@ -70,6 +70,43 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return [expr {$log ne $gen}]
     }
 
+    method isneededbranchdel {} {
+	if {$myparentbranch eq ""}           {return 1} ; # not first on a branch, needed
+	set base [$myparentbranch parent]
+	if {$base           eq ""}           {return 1} ; # branch has parent lod, needed
+	if {[$self LODLength] < 2}           {return 1} ; # our lod contains only ourselves, needed.
+	if {$myoperation ne "delete"}        {return 1} ; # Not a deletion, needed
+	if {[llength $mytags]}               {return 1} ; # Have tags, needed
+	if {[llength $mybranches]}           {return 1} ; # Have other branches, needed
+	if {abs($mydate - [$base date]) > 2} {return 1} ; # Next rev > 2 seconds apart, needed
+
+        # FIXME: This message will not match if the RCS file was
+        # renamed manually after it was created.
+
+	set qfile [string map {
+	    .  \\.  ?  \\?  *  \\*  \\ \\\\ +  \\+  ^ \\^ $ \\$
+	    \[ \\\[ \] \\\] (  \\(   ) \\)  \{ \\\{ \} \\\}
+	} [file tail [$myfile usrpath]]]
+	set pattern "file $qfile was added on branch .* on \\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}( \[+-\]\\d{4})?"
+	set log     [$myfile commitmessageof $mymetaid]
+
+	# Not the special message, needed
+	if {![regexp -- $pattern $log]} {return 1}
+
+	# This is an unneeded initial branch delete.
+	return 0
+    }
+
+    method LODLength {} {
+	set n 1 ; # count self
+	set rev $mychild
+	while {$rev ne ""} {
+	    incr n
+	    set rev [$rev child]
+	}
+	return $n
+    }
+
     # Basic parent/child linkage __________
 
     method hasparent {} { return [expr {$myparent ne ""}] }
