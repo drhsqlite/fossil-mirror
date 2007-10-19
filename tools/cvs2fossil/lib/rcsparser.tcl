@@ -121,13 +121,35 @@ snit::type ::vc::rcs::parser {
     # # ## ### ##### ######## #############
 
     proc Deltas {} {
-	while {[OptionalNumber -> rev]} {
+	set ok [OptionalNumber -> rev]
+	while {$ok} {
 	    Date     -> d
 	    Author   -> a
 	    State    -> s
 	    Branches -> b
 	    NextRev  -> n
 	    Call def $rev $d $a $s $n $b
+
+	    # Check if this is followed by a revision number or the
+	    # literal 'desc'. If neither we consume whatever is there
+	    # until the next semicolon, as it has to be a 'new
+	    # phrase'. Otherwise, for a revision number we loop back
+	    # and consume that revision, and lastly for 'desc' we stop
+	    # completely as this signals the end of the revision tree
+	    # and the beginning of the deltas.
+
+	    while {1} {
+		set ok [OptionalNumber -> rev]
+		if {$ok} break
+
+		if {[LiteralPeek desc]} {
+		    set ok 0
+		    break
+		}
+
+		Anything -> dummy
+		Semicolon
+	    }
 	}
 	Call defdone
 	return
@@ -237,6 +259,18 @@ snit::type ::vc::rcs::parser {
 	if {!$ok} { return 0 }
 
 	SkipOver match
+	return 1
+    }
+
+    proc LiteralPeek {name} {
+	::variable mydata
+	::variable mypos
+
+	set pattern "\\A\\s*$name\\s*"
+	set ok [regexp -start $mypos -indices -- $pattern $mydata match]
+	if {!$ok} { return 0 }
+
+	# NO - SkipOver match - Only looking ahead here.
 	return 1
     }
 
