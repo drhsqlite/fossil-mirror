@@ -54,6 +54,15 @@ static struct Subscript *pInterp = 0;
 static int nField = 0;
 static Blob fieldList;
 static char **azField = 0;
+static char **azValue = 0;
+static unsigned char *aChanged = 0;
+
+/*
+** Compare two entries in azField for sorting purposes
+*/
+static int nameCmpr(void *a, void *b){
+  return strcmp((char*)a, (char*)b);
+}
 
 /*
 ** Subscript command:      LIST setfields
@@ -72,15 +81,79 @@ static int setFieldsCmd(struct Subscript *p, void *pNotUsed){
     while( blob_token(&fieldList, &field) ){
       nField++;
     }
-    azField = malloc( sizeof(azField[0])*nField );
-    blob_rewind(&fieldList);
-    i = 0;
-    while( blob_token(&fieldList, &field) ){
-      azField[i] = blob_terminate(&field);
+    azField = malloc( sizeof(azField[0])*nField*2 + nField );
+    if( azField ){
+      azValue = &azField[nField];
+      aChanged = (unsigned char*)&azValue[nField];
+      blob_rewind(&fieldList);
+      i = 0;
+      while( blob_token(&fieldList, &field) ){
+        azField[i] = blob_terminate(&field);
+        azValue[i] = 0;
+        aChanged[i] = 0;
+      }
     }
+    qsort(azField, nField, sizeof(azField[0]), nameCmpr);
   }
   SbS_Pop(p, 1);
   return 0;
+}
+
+/*
+** Find the text of the field whose name is the Nth element down
+** on the Subscript stack.  0 means the top of the stack.
+**
+** First check for a value for this field as passed in via
+** CGI parameter.  If not found, then use the value from the
+** database.
+*/
+static const char *field_value(int N){
+  const char *zFName;
+  int nFName;
+  char *zName;
+  int i;
+  const char *zValue;
+  
+  zFName = SbS_StackValue(pInterp, N, &nFName);
+  if( zField==0 ){
+    return 0;
+  }
+  zName = mprintf("%.*s", nFName, zFName);
+  zValue = P(zName);
+  if( zValue==0 ){
+    for(i=0; i<nField; i++){
+      if( strcmp(azField[i], zName)==0 ){
+        zValue = azValue[i];
+        break;
+      }
+    }
+  }
+  free(zName);
+  return zValue;
+}
+
+/*
+** Fill in the azValue[] array with the contents of the ticket
+** table for the entry determined by the "name" CGI parameter.
+*/
+static void fetchOriginalValues(void){
+  Blob sql;
+  Stmt q;
+  int i;
+  char *zSep = "SELECT ";
+  blob_zero(&sql);
+  for(i=0; i<nField; i++){
+    blob_appendf(&sql, "%s%s", zSep, azField[i]);
+    zSep = ", ";
+  }
+  blob_appendf(" FROM ticket WHERE uuid=%Q", PD("name",""));
+  db_prepare(&q, "%b", &sql);
+  if( db_step(&q)==SQLITE_ROW ){
+    for(i=0; i<nField; i++){
+      azValue[i] = db_column_malloc(&q, i);
+    }
+  }
+  db_finalize(&q);
 }
 
 /*

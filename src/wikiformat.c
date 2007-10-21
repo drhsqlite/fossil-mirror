@@ -1009,7 +1009,6 @@ static void wiki_render(Renderer *p, char *z){
     }
     z += n;
   }
-  endAutoParagraph(p);
 }
 
 
@@ -1035,6 +1034,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 
   z = blob_str(pIn);
   wiki_render(&renderer, z);
+  endAutoParagraph(&renderer);
   while( renderer.nStack ){
     popStack(&renderer);
   }

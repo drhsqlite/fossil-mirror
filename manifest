@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"add"\scommand\sis\sthat\sit\sdoes\snot\sallow\susers\sto\saccidently\nadd\sfiles\sthat\scontain\sshell\swildcard\scharacters.
-D 2007-10-15T20:45:11
+C Fix\sa\sbug\sin\swiki\srendering\sthat\scaused\san\sextra\sparagraph\send\stag\nfollowing\sa\shyperlink.
+D 2007-10-21T11:11:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -80,7 +80,7 @@ F src/subscript.c dd44ba15200c912d459ff11ebf184834be9a203a
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
-F src/tkt.c 0661d23511c0aca51bda2bb44d9b455372b980bc
+F src/tkt.c 5149f78c34fb6b7e80571ee35d134e057b03faf5
 F src/tktconf.c d769ab03450ca4fe1b794c56206ef03776c14e80
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
@@ -91,7 +91,7 @@ F src/user.c 9649e144263c124d53603b4844dea91f9cd1b9a9
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 15b33bf9300e2d7d849a92ab387793ffdf2052c0
-F src/wikiformat.c a1f06c841df76070d9170bad122d7e673f3d75e6
+F src/wikiformat.c aab9e4b7002232bfe0b188ec5f0cbc6cf62749ca
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P d29dd11f2eb1793e5ec306d954a313b10f802518
-R b63b8f7c884661c0325be913f5f5ab50
+P da9d38e2c38f5271e1abbdee4a771a09be3a1812
+R 95104d2b3ca29fa5d8c54855a43f2501
 U drh
-Z 28e879b9dbab2f96f7d852ceb07193c8
+Z d09fd8ab4bd536619c90fc0af9871c0d
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHE9FaoxKgR168RlERAqK4AJ9uumtK5KwUEZr7f+x+RtX5/CYxGwCeL2VV
-5O696OuLcyHMNAMdSJFnfx8=
-=hEeR
+iD8DBQFHGzPNoxKgR168RlERAr/kAJ0ZEXTIJMMXdQ/CLuEougUwam5uKACeIdGZ
+hXC1LbQZ4yogcRUITMCTbIc=
+=CqVi
 -----END PGP SIGNATURE-----
