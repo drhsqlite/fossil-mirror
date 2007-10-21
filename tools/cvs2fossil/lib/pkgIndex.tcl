@@ -24,4 +24,4 @@ package ifneeded vc::rcs::parser                          1.0 [list source [file
 package ifneeded vc::tools::log                           1.0 [list source [file join $dir log.tcl]]
 package ifneeded vc::tools::misc                          1.0 [list source [file join $dir misc.tcl]]
 package ifneeded vc::tools::trouble                       1.0 [list source [file join $dir trouble.tcl]]
-
+package ifneeded vc::tools::id                            1.0 [list source [file join $dir id.tcl]]

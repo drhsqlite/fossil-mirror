@@ -22,6 +22,7 @@ package require snit                             ; # OO system.
 package require vc::tools::trouble               ; # Error reporting.
 package require vc::tools::log                   ; # User feedback.
 package require vc::tools::misc                  ; # Text formatting.
+package require vc::tools::id                    ; # Indexing and id generation.
 package require vc::fossil::import::cvs::project ; # CVS projects.
 package require vc::fossil::import::cvs::state   ; # State storage.
 package require struct::list                     ; # List operations.
@@ -75,45 +76,14 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
-    typemethod defauthor {a} {
-	if {![info exists myauthor($a)]} {
-	    set myauthor($a) [incr myauthorcnt]
-	    log write 7 repository "author '$a' =  $myauthor($a)"
-	}
-	return $myauthor($a)
-    }
+    typemethod defauthor   {a}               { $myauthor put $a }
+    typemethod defcmessage {cm}              { $mycmsg   put $cm }
+    typemethod defsymbol   {pid name}        { $mysymbol put [list $pid $name] }
+    typemethod defmeta     {pid bid aid cid} { $mymeta   put [list $pid $bid $aid $cid] }
 
-    typemethod defcmessage {cm} {
-	if {![info exists mycmsg($cm)]} {
-	    set mycmsg($cm) [set cid [incr mycmsgcnt]]
-	    set mycmsginv($cid) $cm
-	    log write 7 repository "cmessage '$cm' =  $cid"
-	}
-	return $mycmsg($cm)
-    }
-
-    typemethod defsymbol {pid name} {
-	set key [list $pid $name]
-	if {![info exists mysymbol($key)]} {
-	    set mysymbol($key) [incr mysymbolcnt]
-	    log write 7 repository "symbol ($key) =  $mysymbol($key)"
-	}
-	return $mysymbol($key)
-    }
-
-    typemethod defmeta {pid bid aid cid} {
-	set key [list $pid $bid $aid $cid]
-	if {![info exists mymeta($key)]} {
-	    set mymeta($key) [set mid [incr mymetacnt]]
-	    set mymetainv($mid) $key
-	    log write 7 repository "meta ($key) =  $mymeta($key)"
-	}
-	return $mymeta($key)
-    }
-
-    typemethod commitmessageof {metaid} {
-	struct::list assign $mymetainv($metaid) pid bid aid cid
-	return $mycmsginv($cid)
+    typemethod commitmessageof {mid} {
+	struct::list assign [$mymeta keyof $mid] pid bid aid cid
+	return [$mycmsg keyof $cid]
     }
 
     # pass I results
@@ -217,29 +187,31 @@ snit::type ::vc::fossil::import::cvs::repository {
 				       # projects, relative to mybase.
     typevariable myprojects       {} ; # List of objects for all
 				       # declared projects.
-    typevariable myauthor  -array {} ; # Names of all authors found,
+    typevariable myauthor         {} ; # Names of all authors found,
 				       # maps to their ids.
-    typevariable myauthorcnt      0  ; # Counter for author ids.
-    typevariable mycmsg    -array {} ; # All commit messages found,
+    typevariable mycmsg           {} ; # All commit messages found,
 				       # maps to their ids.
-    typevariable mycmsginv -array {} ; # Inverted index, keyed by id.
-    typevariable mycmsgcnt        0  ; # Counter for message ids.
-    typevariable mymeta    -array {} ; # Maps all meta data tuples
+    typevariable mymeta           {} ; # Maps all meta data tuples
 				       # (project, branch, author,
 				       # cmessage) to their ids.
-    typevariable mymetainv -array {} ; # Inverted index, keyed by id.
-    typevariable mymetacnt        0  ; # Counter for meta ids.
-    typevariable mysymbol -array  {} ; # Map symbols identified by
+    typevariable mysymbol         {} ; # Map symbols identified by
 				       # project and name to their
 				       # id. This information is not
 				       # saved directly.
-    typevariable mysymbolcnt      0  ; # Counter for symbol ids.
     typevariable mytrunkonly      0  ; # Boolean flag. Set by option
 				       # processing when the user
 				       # requested a trunk-only import
 
     # # ## ### ##### ######## #############
     ## Internal methods
+
+    typeconstructor {
+	set myauthor [vc::tools::id %AUTO%]
+	set mycmsg   [vc::tools::id %AUTO%]
+	set mymeta   [vc::tools::id %AUTO%]
+	set mysymbol [vc::tools::id %AUTO%]
+	return
+    }
 
     proc .BaseLength {p} {
 	return [string length [$p printbase]]
@@ -354,6 +326,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::fossil::import::cvs::project
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::misc::*
+	namespace import ::vc::tools::id
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	log register repository
