@@ -664,6 +664,7 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	    # Move any tags and branches from the old to the new root.
 	    $rev11 movesymbolsto $first
+	    $rev11 destroy
 	}
 
 	# Mark all the special revisions as such
@@ -943,13 +944,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	    $rev12 cutdefaultbranchparent
 	    $last  cutdefaultbranchchild
 
-	    # TODO :: Combine into one method 'changeparent', or
-	    # 'moveparent', etc.
-	    $rev12 cutfromparent
-	    $rev12 setparent $last
-
-	    $last cutfromchild
-	    $last setchild $rev12
+	    $rev12 changeparent $last
+	    $last  changechild $rev12
 
 	    ldelete myroots $rev12
 

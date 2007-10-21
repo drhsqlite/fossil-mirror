@@ -127,6 +127,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
+    method changeparent {parent} { set myparent $parent ; return }
+    method changechild  {child}  { set mychild  $child  ; return }
+
     method parent {} { return $myparent }
     method child  {} { return $mychild  }
 
