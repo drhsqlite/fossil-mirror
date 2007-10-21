@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Created\sa\sseparate\scommon\sclass\sfor\sthe\sid\sdatabases\sused\sby\sthe\srepository,\sand\supdated\sthe\srepository\scode\sto\suse\sit.
-D 2007-10-21T04:42:14
+C Added\scode\sable\sto\sexclude\sall\snon-trunk\srevisions\supon\suser\srequest.
+D 2007-10-21T06:10:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -94,9 +94,9 @@ F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
-F tools/cvs2fossil/lib/c2f_file.tcl 26e48dda4d0560b190831de1450ad0e47e57b76d
+F tools/cvs2fossil/lib/c2f_file.tcl 3105dc0d623e4baa947ccc95a1319f6153dfd059
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
-F tools/cvs2fossil/lib/c2f_frev.tcl f4f21fda7f279277c72eccdfafc6bf8464046765
+F tools/cvs2fossil/lib/c2f_frev.tcl 590fdb0ca9f8cc8e60eb35b66f62714f920f2ca1
 F tools/cvs2fossil/lib/c2f_fsym.tcl 0f3cff0586b0b9e85479326e7543a4d7d01cbf73
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_option.tcl 90466e503f1fe1cfd404769241d221d2d43854fd
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 510cd0230374a2ccb952d45203fde9245ddbf8e6
-R f0dbfbb95fe5f02ca0c31486baf830c6
+P 99e165d5c40732458560dfc0522b4c301621b0ca
+R d58e0efa0bed11db8feab9ff4675d14f
 U aku
-Z c164a91b6b59a7bdfeebcdd2584b0df6
+Z 868bb8bd7c6cf9c0c00e96c397b9fb85
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHGtirvonzZ/CRa7gRAhMsAKCN1Ye5o/rUQa1ew9EfRAR7HVxfeACgk9jf
-v3c+UA/RUGU/X2QxBLdD/Kk=
-=RBTl
+iD8DBQFHGu1LvonzZ/CRa7gRAjaDAJsHfhfh7RLP8NHhXL71+qBajQ/GqQCaAqAj
+hsunubYHJXHIevRDTDn5lZ4=
+=E1qp
 -----END PGP SIGNATURE-----

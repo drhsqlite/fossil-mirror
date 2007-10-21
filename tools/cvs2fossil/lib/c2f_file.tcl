@@ -669,7 +669,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	# Mark all the special revisions as such
 	foreach rev $revlist {
 	    log write 3 file "Revision on default branch: [$rev revnr]"
-	    $rev isondefaultbranch
+	    $rev setondefaultbranch 1
 	}
 
 	if {$stop ne ""} {
@@ -753,8 +753,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	# At this point we may have already multiple roots in myroots,
 	# we have to process them all.
 
-	set lodroots [$self LinesOfDevelopment]
-	foreach root $lodroots {
+	foreach root [$self LinesOfDevelopment] {
 	    if {[$root isneededbranchdel]} continue
 	    log write 2 file "Removing unnecessary initial branch delete [$root revnr]"
 
@@ -805,6 +804,170 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method ExcludeNonTrunkInformation {} {
+	# Remove all non-trunk branches, revisions, and tags. We do
+	# keep the tags which are on the trunk.
+
+	set ntdbroot ""
+	foreach root [$self LinesOfDevelopment] {
+	    # Note: Here the order of the roots is important,
+	    # i.e. that we get them in depth first order. This ensures
+	    # that the removal of a branch happens only after the
+	    # branches spawned from it were removed. Otherwise the
+	    # system might try to access deleted objects.
+
+	    # Do not exclude the trunk.
+	    if {[[$root lod] istrunk]} continue
+	    $self ExcludeBranch $root ntdbroot
+	}
+
+	if {$ntdbroot ne ""} {
+	    $self GraftNTDB2Trunk $ntdbroot
+	}
+	return
+    }
+
+    method ExcludeBranch {root nv} {
+	# Exclude the branch/lod starting at root, a revision.
+	#
+	# If the LOD starts with non-trunk default branch revisions,
+	# we leave them in place and do not delete the branch. In that
+	# case the command sets the variable in NV so that we can
+	# later rework these revisons to be purely trunk.
+
+	if {[$root isondefaultbranch]} {
+	    # Handling a NTDB. This branch may consists not only of
+	    # NTDB revisions, but also some non-NTDB. The latter are
+	    # truly on a branch and have to be excluded. The following
+	    # loop determines if there are such revisions.
+
+	    upvar 1 $nv ntdbroot
+	    set ntdbroot $root
+
+	    set rev [$root child]
+	    while {$rev ne ""} {
+		# See note [x].
+		$rev removeallbranches
+		if {[$rev isondefaultbranch]} {
+		    set rev [$rev child]
+		} else {
+		    set rev ""
+		}
+	    }
+
+	    # rev now contains the first non-NTDB revision after the
+	    # NTDB, or is empty if there is no such. If we have some
+	    # they have to removed.
+
+	    if {$rev ne ""}  {
+		set lastntdb [$rev parent]
+		$lastntdb cutfromchild
+		while {$rev ne ""} {
+		    set next [$rev child]
+		    unset myrev([$rev revnr])
+		    $rev removealltags
+		    # Note [x]: We may still have had branches on the
+		    # revision. Branches without revisions committed
+		    # on them do not show up in the list of roots aka
+		    # lines of development).
+		    $root removeallbranches
+		    $rev destroy
+		    set rev $next
+		}
+	    }
+	    return
+	}
+
+	# No NTDB stuff to deal with. First delete the branch object
+	# itself, after cutting all the various connections.
+
+	set branch [$root parentbranch]
+	if {$branch ne ""} {
+	    set bparentrev [$branch parent]
+	    $bparentrev removebranch        $branch
+	    $bparentrev removechildonbranch $root
+	    $branch destroy
+	}
+
+	# The root is no such any longer either.
+	ldelete myroots $root
+
+	# Now go through the line and remove all its revisions.
+
+	while {$root ne ""} {
+	    set next [$root child]
+	    unset myrev([$root revnr])
+	    $root removealltags
+	    # Note: See the note [x].
+	    $root removeallbranches
+
+	    # From cvs2svn: If this is the last default revision on a
+	    # non-trunk default branch followed by a 1.2 revision,
+	    # then the 1.2 revision depends on this one.  FIXME: It is
+	    # questionable whether this handling is correct, since the
+	    # non-trunk default branch revisions affect trunk and
+	    # should therefore not just be discarded even if
+	    # --trunk-only.
+
+	    if {[$root hasdefaultbranchchild]} {
+		set ntdbchild [$root defaultbranchchild]
+		if {[$ntdbchild defaultbranchparent] ne $ntdbchild} {
+		    trouble internal "ntdb - trunk linkage broken"
+		}
+		$ntdbchild cutdefaultbranchparent
+		if {[$ntdbchild hasparent]} {
+		    lappend myroots [$ntdbchild parent]
+		}
+	    }
+
+	    $root destroy
+	    set root $next
+	}
+
+	return
+    }
+
+    method GraftNTDB2Trunk {root} {
+	# We can now graft the non-trunk default branch revisions to
+	# trunk. They should already be alone on a CVSBranch-less
+	# branch.
+
+	if {[$root hasparentbranch]} { trouble internal "NTDB root still has its branch symbol" }
+	if {[$root hasbranches]}     { trouble internal "NTDB root still has spawned branches" }
+
+	set last $root
+	while {[$last haschild]} {set last [$last child]}
+
+	if {[$last hasdefaultbranchchild]} {
+
+	    set rev12 [$last defaultbranchchild]
+	    $rev12 cutdefaultbranchparent
+	    $last  cutdefaultbranchchild
+
+	    # TODO :: Combine into one method 'changeparent', or
+	    # 'moveparent', etc.
+	    $rev12 cutfromparent
+	    $rev12 setparent $last
+
+	    $last cutfromchild
+	    $last setchild $rev12
+
+	    ldelete myroots $rev12
+
+	    # Note and remember that the type of rev12 was already
+	    # adjusted by AdjustNonTrunkDefaultBranch, so we don't
+	    # have to change its type here.
+	}
+
+	while {$root ne ""} {
+	    $root setondefaultbranch 0
+	    $root setlod $mytrunk
+	    foreach tag [$root tags] {
+		$tag setlod $mytrunk
+	    }
+	    set root [$root child]
+	}
+
+        return
     }
 
     # # ## ### ##### ######## #############

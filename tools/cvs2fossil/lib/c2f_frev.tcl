@@ -138,6 +138,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
+    method hasparentbranch {} { return [expr {$myparentbranch ne ""}] }
+    method hasbranches     {} { return [llength $mybranches] }
+
     method parentbranch {} { return $myparentbranch }
     method branches     {} { return $mybranches }
 
@@ -222,6 +225,8 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
+    method tags {} { return $mytags }
+
     method removealltags {} {
 	foreach tag $mytags { $tag destroy }
 	set mytags {}
@@ -270,7 +275,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     method operation {} { return $myoperation }
     method retype {x} { set myoperation $x ; return }
 
-    method isondefaultbranch {} { set myisondefaultbranch 1 ; return }
+    method isondefaultbranch    {} { return $myisondefaultbranch }
+
+    method setondefaultbranch   {x} { set myisondefaultbranch $x ; return }
 
     method setdefaultbranchchild  {rev} { set mydbchild $rev ; return }
     method setdefaultbranchparent {rev} {
@@ -283,6 +290,15 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	set myoperation $myopstate([list $pdead $sdead])
 	return
     }
+
+    method cutdefaultbranchparent {} { set mydbparent "" ; return }
+    method cutdefaultbranchchild  {} { set mydbchild  "" ; return }
+
+    method defaultbranchchild  {} { return $mydbchild }
+    method defaultbranchparent {} { return $mydbparent }
+
+    method hasdefaultbranchchild  {} { return [expr {$mydbchild  ne ""}] }
+    method hasdefaultbranchparent {} { return [expr {$mydbparent ne ""}] }
 
     # # ## ### ##### ######## #############
     ## Type API
