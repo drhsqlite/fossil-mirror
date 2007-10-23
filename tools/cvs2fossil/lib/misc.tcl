@@ -60,11 +60,16 @@ namespace eval ::vc::tools::misc {
 
     # Delete item from list by name
 
+    proc striptrailingslash {path} {
+	# split and rejoin gets rid of a traling / character.
+	return [eval [linsert [file split $path] 0 file join]]
+    }
+
     # # ## ### ##### ######## #############
 }
 
 namespace eval ::vc::tools::misc {
-    namespace export sp nsp max ldelete
+    namespace export sp nsp max ldelete striptrailingslash
 }
 
 # -----------------------------------------------------------------------------

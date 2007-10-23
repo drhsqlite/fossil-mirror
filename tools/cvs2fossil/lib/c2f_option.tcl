@@ -22,6 +22,7 @@ package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
+package require vc::tools::misc                       ; # Misc. path reformatting.
 package require vc::fossil::import::cvs::pass         ; # Pass management
 package require vc::fossil::import::cvs::pass::collar ; # Pass I.
 package require vc::fossil::import::cvs::repository   ; # Repository management
@@ -82,7 +83,7 @@ snit::type ::vc::fossil::import::cvs::option {
 
 	if {[llength $arguments] > 1} Usage
 	if {[llength $arguments] < 1} { Usage $nocvs }
-	repository base [lindex $arguments 0]
+	repository base [striptrailingslash [lindex $arguments 0]]
 
 	Validate
 	return
@@ -191,6 +192,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace eval option {
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
+	namespace import ::vc::tools::misc::striptrailingslash
 	namespace import ::vc::fossil::import::cvs::pass
 	namespace import ::vc::fossil::import::cvs::pass::collar
 	namespace import ::vc::fossil::import::cvs::repository
