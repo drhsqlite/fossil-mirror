@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reworked\sobject\sdeletion\sto\shappen\scentrally\safter\sthe\sfile\shas\sbeen\sprocessed\s(drop).\sSimplified\sthe\scode\srestructuring\sthe\srevision\stree\sas\sit\snow\sdoesn't\shave\sto\sthink\sabout\swhen\sand\swhere\sto\sremove\sobjects.
-D 2007-10-23T03:29:36
+C Added\smore\schecks\sto\sthe\sRCS\sparser\sto\sdetect\sbogus\ssymbol\snames\sand\sproblematic\slog\smessages.\sAdded\sability\sto\srewind\sback\sto\sthe\sbeginning\sof\sthe\slast\srecognized\stoken\sfor\sa\snicer\spositioned\serror\smessage.
+D 2007-10-23T04:32:06
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -115,7 +115,7 @@ F tools/cvs2fossil/lib/id.tcl 43c9bdd4801b71812debc9981b55044d618b7f62
 F tools/cvs2fossil/lib/log.tcl 9e72db66cbfbeb5ba0b97b2fcbdc6ada4387a977
 F tools/cvs2fossil/lib/misc.tcl 090ed4e354363cf9de1f17deca1957e1a8e56cee
 F tools/cvs2fossil/lib/pkgIndex.tcl 94c8694e6630ccf0652b33e74c6bb77b82b21c00
-F tools/cvs2fossil/lib/rcsparser.tcl b7e70320c9a8e0a58d93506bd614d333c8ef311e
+F tools/cvs2fossil/lib/rcsparser.tcl b3b8dd19e7e2673f8cbe18c314788bd223692387
 F tools/cvs2fossil/lib/trouble.tcl 2697d806a7b2de5a72213977e4becae2291923c7
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3a00ac5aa2b0a4b67f043f8dd30608b6211a4053
-R 94707521d714649c9e5329c70b988a79
+P a766b08198e86c8aa0ca60c9b79e02af0afefacc
+R 0742692a542bec23cfb94d66443817f7
 U aku
-Z ea6af9bebf693767db7cf3ceb35db6fb
+Z 1ebbdd7eb4102d3043d0f3ff87a2d4b7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHHWqlvonzZ/CRa7gRAqk5AKCubjvopEJFCUyO5qfW2gSBPYHoyQCgkInn
-cJHknQJuFfqNaJM15nCRHs8=
-=K8oE
+iD8DBQFHHXlLvonzZ/CRa7gRAsXWAKCeXL/RKKRUhKXAFTp4Y0G52L5bJwCaAhHL
+wnNucNi5lbkwWT9exdOXZ40=
+=TzBB
 -----END PGP SIGNATURE-----

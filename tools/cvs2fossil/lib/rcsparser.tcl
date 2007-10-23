@@ -78,6 +78,10 @@ snit::type ::vc::rcs::parser {
     proc Symbols {} {
 	RequiredLiteral symbols
 	while {[Ident -> symbol]} {
+	    if {![regexp {^\d*[^/,.:;@$]([^/,.:;@$]*\d*)*$} $symbol]} {
+		Rewind
+		Bad {symbol name}
+	    }
 	    RequiredNumber -> rev
 	    Call deftag $symbol $rev
 	}
@@ -217,6 +221,11 @@ snit::type ::vc::rcs::parser {
 	while {[OptionalNumber -> rev]} {
 	    RequiredLiteral log
 	    RequiredString      -> cmsg
+	    if {[regexp {[\000-\010\013\014\016-\037]} $cmsg]} {
+		Rewind
+		Bad "log message for $rev contains at least one control character"
+	    }
+
 	    RequiredLiteral text
 	    RequiredStringRange -> delta
 	    Call extend $rev $cmsg $delta
@@ -387,15 +396,25 @@ snit::type ::vc::rcs::parser {
 	upvar 1 $mv match
 	::variable mypos
 	::variable mysize
+	::variable mylastpos
 
 	struct::list assign $match s e
 	#puts "<$s $e> [info level -1]"
 
+	set  mylastpos $mypos
 	set  mypos $e
 	incr mypos
 
 	log progress 2 rcs $mypos $mysize
 	#puts $mypos/$mysize
+	return
+    }
+
+    proc Rewind {} {
+	::variable mypos
+	::variable mylastpos
+
+	set  mypos $mylastpos
 	return
     }
 
@@ -405,6 +424,14 @@ snit::type ::vc::rcs::parser {
 	set e $mypos ; incr e 30
 	return -code error -errorcode vc::rcs::parser \
 	    "Expected $x @ '[string range $mydata $mypos $e]...'" 
+    }
+
+    proc Bad {x} {
+	::variable mydata
+	::variable mypos
+	set e $mypos ; incr e 30
+	return -code error -errorcode vc::rcs::parser \
+	    "Bad $x @ '[string range $mydata $mypos $e]...'" 
     }
 
     # # ## ### ##### ######## #############
