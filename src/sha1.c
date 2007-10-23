@@ -3,6 +3,7 @@
 ** contained in RFC-3174.
 */
 #include <stdint.h>
+#include <sys/types.h>
 #include "config.h"
 #include "sha1.h"
 
