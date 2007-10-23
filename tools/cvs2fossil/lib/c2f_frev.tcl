@@ -213,9 +213,6 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     }
 
     method removeallbranches {} {
-	foreach branch $mybranches {
-	    $branch destroy
-	}
 	set mybranches       {}
 	set mybranchchildren {}
 	return
@@ -231,7 +228,6 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     method tags {} { return $mytags }
 
     method removealltags {} {
-	foreach tag $mytags { $tag destroy }
 	set mytags {}
 	return
     }

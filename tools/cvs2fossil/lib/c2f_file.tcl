@@ -69,6 +69,12 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method drop {} {
+	foreach {_ rev}    [array get myrev]      { $rev destroy }
+	foreach {_ branch} [array get mybranches] { $branch destroy }
+	foreach {_ taglist} [array get mytags] {
+	    foreach tag $taglist { $tag destroy }
+	}
+	return
     }
 
     # # ## ### ##### ######## #############
@@ -579,6 +585,16 @@ snit::type ::vc::fossil::import::cvs::file {
 	}
     }
 
+    # General note: In the following methods we only modify the links
+    # between revisions and symbols to restructure the revision
+    # tree. We do __not__ destroy the objects. Given the complex links
+    # GC is difficult at this level. It is much easier to drop
+    # everything when we we are done. This happens in 'drop', using
+    # the state variable 'myrev', 'mybranches', and 'mytags'. What we
+    # have to persist, performed by 'persist', we know will be
+    # reachable through the revisions listed in 'myroots' and their
+    # children and symbols.
+
     method AdjustNonTrunkDefaultBranch {revlist} {
 	set stop [$myroot child] ;# rev '1.2'
 
@@ -642,7 +658,6 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # Cut out the old myroot revision.
 
 	    ldelete myroots $rev11 ; # Not a root any longer.
-	    unset myrev([$rev11 revnr])
 
 	    $first cutfromparent ; # Sever revision from parent revision.
 	    if {$stop ne ""} {
@@ -655,7 +670,6 @@ snit::type ::vc::fossil::import::cvs::file {
 	    set vendor [$first parentbranch]
 	    if {$vendor eq ""} { trouble internal "First NTDB revision has no branch" }
 	    if {[$vendor parent] eq $rev11} {
-		unset mybranches([$vendor branchnr])
 		$rev11 removebranch        $vendor
 		$rev11 removechildonbranch $first
 		$first cutfromparentbranch
@@ -667,7 +681,6 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	    # Move any tags and branches from the old to the new root.
 	    $rev11 movesymbolsto $first
-	    $rev11 destroy
 	}
 
 	# Mark all the special revisions as such
@@ -766,15 +779,11 @@ snit::type ::vc::fossil::import::cvs::file {
 	    set child  [$root child]
 
 	    ldelete myroots $root
-	    unset myrev([$root revnr])
-	    $child cutfromparent
 	    lappend myroots $child
 
-	    $parent removechildonbranch $root
+	    $child  cutfromparent
 	    $parent removebranch        $branch
-
-	    $branch destroy
-	    $root   destroy
+	    $parent removechildonbranch $root
 	}
 	return
     }
@@ -849,8 +858,9 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	    set rev [$root child]
 	    while {$rev ne ""} {
-		# See note [x].
 		$rev removeallbranches
+		# See note [x].
+
 		if {[$rev isondefaultbranch]} {
 		    set rev [$rev child]
 		} else {
@@ -866,16 +876,13 @@ snit::type ::vc::fossil::import::cvs::file {
 		set lastntdb [$rev parent]
 		$lastntdb cutfromchild
 		while {$rev ne ""} {
-		    set next [$rev child]
-		    unset myrev([$rev revnr])
 		    $rev removealltags
+		    $rev removeallbranches
 		    # Note [x]: We may still have had branches on the
 		    # revision. Branches without revisions committed
 		    # on them do not show up in the list of roots aka
-		    # lines of development).
-		    $root removeallbranches
-		    $rev destroy
-		    set rev $next
+		    # lines of development.
+		    set rev [$rev child]
 		}
 	    }
 	    return
@@ -886,10 +893,9 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	set branch [$root parentbranch]
 	if {$branch ne ""} {
-	    set bparentrev [$branch parent]
-	    $bparentrev removebranch        $branch
-	    $bparentrev removechildonbranch $root
-	    $branch destroy
+	    set branchparent [$branch parent]
+	    $branchparent removebranch        $branch
+	    $branchparent removechildonbranch $root
 	}
 
 	# The root is no such any longer either.
@@ -898,11 +904,9 @@ snit::type ::vc::fossil::import::cvs::file {
 	# Now go through the line and remove all its revisions.
 
 	while {$root ne ""} {
-	    set next [$root child]
-	    unset myrev([$root revnr])
 	    $root removealltags
-	    # Note: See the note [x].
 	    $root removeallbranches
+	    # Note: See the note [x].
 
 	    # From cvs2svn: If this is the last default revision on a
 	    # non-trunk default branch followed by a 1.2 revision,
@@ -923,8 +927,7 @@ snit::type ::vc::fossil::import::cvs::file {
 		}
 	    }
 
-	    $root destroy
-	    set root $next
+	    set root [$root child]
 	}
 
 	return
