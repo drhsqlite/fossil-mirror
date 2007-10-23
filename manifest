@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\srid\sof\sthe\s(silly?)\sint_least16_t\stype\sin\ssha1.c\sand\sjust\suse\sgood\nold\s"int"\sinstead.\s\sMakes\sthings\seasier\sto\scompile\son\solder\ssystems.
-D 2007-10-23T16:35:04
+C Untested,\sexperimental\spatch\sfor\scorrect\sredirect\sto\sthe\s/index\spage\nwhen\sonly\sthe\sCGI\sscript\sname\sis\sspecified.
+D 2007-10-23T18:04:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -33,7 +33,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c d66858e82e6ad1e661a411209344c982857f8632
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
-F src/cgi.c fa39badf00bdfc6623bdd19226b365aca10b3eae
+F src/cgi.c 36809061c4b7b97769438ecae6082e3e64fb10e0
 F src/checkin.c 6e8cb78df89cb8ed7e82e3c69300200518218616
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
@@ -53,7 +53,7 @@ F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 2ca8ead9e17bd6b6cc20fd856bed0feca5646727
 F src/login.c f15d2f5703b7778d86669f500e4436cdc66820f5
-F src/main.c d1ff45663d26c0b0a96c134bd24ed5869aac566f
+F src/main.c 5992525fcecc50b8fff4f5d7276428174981767e
 F src/main.mk de95462e676dfcbc81669898d40f271683c765c3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 17486c353f2e582a10e2f476303bd73be87a4414
-R 217d1dbe0b41ab4743aaf67492602849
+P 8fb641e071dc2298638dd2aa8e32211c4398261a
+R c670547bac012dce76798b25b08d17bb
 U drh
-Z 3b96746c2cfeb11d20f36624a777940c
+Z bb94ce4d51a8eb495ab818977c929ed9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHHiLxoxKgR168RlERAjshAJ4lE6hOeyeY7MtsKTrSXb4LsnckeACgh0l/
-LgZ87YeQCl9EMDQyldvMQ8Q=
-=c8CZ
+iD8DBQFHHjenoxKgR168RlERAiaEAJ0V1HNv5Rtg7F1KmQZORNqnt5/GwQCbBoV3
+IVy12BHiHW4kmBaE9OuRJWY=
+=tLC1
 -----END PGP SIGNATURE-----

@@ -468,14 +468,10 @@ static void process_one_web_page(void){
   zPathInfo = P("PATH_INFO");
   if( zPathInfo==0 || zPathInfo[0]==0 ){
     const char *zUri;
-    char *zBase;
     zUri = PD("REQUEST_URI","/");
     for(i=0; zUri[i] && zUri[i]!='?' && zUri[i]!='#'; i++){}
     for(j=i; j>0 && zUri[j-1]!='/'; j--){}
-    zBase = mprintf("%.*s/index", i-j, &zUri[j]);
-    cgi_redirect(zBase);
-    cgi_reply();
-    return;
+    cgi_redirectf("%.*s/index", i, zUri);
   }else{
     zPath = mprintf("%s", zPathInfo);
   }
