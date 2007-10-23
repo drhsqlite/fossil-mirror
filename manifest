@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sa\sbit\sof\spath\snormalization,\sstripping\sof\sa\strailing\sslash\sfrom\sthe\spath\sto\sthe\scvs\srepository.\sBefore\ssuch\sa\sslash\scould\sbreak\sa\slater\scoming\sfileutil::stripPath.
-D 2007-10-23T04:34:12
+C Restructured\sthe\scode\shandling\sNTBD\sin\sExcludeBranch\sa\sbit\sto\sprevent\sthe\sasserts\sin\sGraftNTDB2Trunk\sto\sbail\sout.
+D 2007-10-23T04:36:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -94,7 +94,7 @@ F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
-F tools/cvs2fossil/lib/c2f_file.tcl 78de4a9477bc0576b6e4c045ce543ed9d9917667
+F tools/cvs2fossil/lib/c2f_file.tcl f06eb21d1d41bbaa268bd8ff39e8842dfd809174
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
 F tools/cvs2fossil/lib/c2f_frev.tcl 2e41dc7df6083814005dc0e90f0a9235531c91cc
 F tools/cvs2fossil/lib/c2f_fsym.tcl 0f3cff0586b0b9e85479326e7543a4d7d01cbf73
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 1527954d87e2e530b81531d90444e43e149cfee6
-R 62f4d4095d4407488cdd19480a830599
+P 9f3fd3ec4b65c657d5c42422d2a110df9f6c0c11
+R 0a0ade1d621728fae5375216476c7b14
 U aku
-Z d466382fd039a1d5bb554eacf68615c7
+Z 02b6ddcd732acc129805d1dca787229a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHHXnEvonzZ/CRa7gRAjkNAJ0eVqRu9MF2+AYlYxmRCpKrCEUuFACdH3BZ
-s2OUnMOXXDUFeJmNitzPqrE=
-=SVTy
+iD8DBQFHHXpPvonzZ/CRa7gRAhScAJ4y2SphnF23fyQUzkbApSqDRHTFbACgufzk
+gvk5cCIb5wmUb9cOF27BaWA=
+=aSe5
 -----END PGP SIGNATURE-----

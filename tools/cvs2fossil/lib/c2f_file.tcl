@@ -855,8 +855,9 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	    upvar 1 $nv ntdbroot
 	    set ntdbroot $root
+	    $root cutfromparentbranch
 
-	    set rev [$root child]
+	    set rev $root
 	    while {$rev ne ""} {
 		$rev removeallbranches
 		# See note [x].
@@ -864,7 +865,7 @@ snit::type ::vc::fossil::import::cvs::file {
 		if {[$rev isondefaultbranch]} {
 		    set rev [$rev child]
 		} else {
-		    set rev ""
+		    break
 		}
 	    }
 
