@@ -210,6 +210,17 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 			trouble internal $errorInfo
 		    }
 		}
+
+		# We persist the core of the data collected about each
+		# file immediately after it has been parsed and
+		# wrangled into shape, and then drop it from
+		# memory. This is done to keep the memory requirements
+		# within limits, i.e. without doing it this way it is
+		# easy to blow 1G of RAM with all the objects
+		# (revisions and file-level symbols).
+
+		$file persist
+		$file drop
 	    }
 	}
 

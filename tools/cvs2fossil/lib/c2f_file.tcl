@@ -68,6 +68,9 @@ snit::type ::vc::fossil::import::cvs::file {
     method persist {} {
     }
 
+    method drop {} {
+    }
+
     # # ## ### ##### ######## #############
     ## Implement the sink
 
@@ -404,7 +407,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    } else {
 		set rev $myrev($revnr)
 		foreach tag $taglist {
-		    $rev addtag $tag
+		    $rev addtag    $tag
 		    $tag settagrev $rev
 		}
 	    }
