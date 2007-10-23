@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Untested,\sexperimental\spatch\sfor\scorrect\sredirect\sto\sthe\s/index\spage\nwhen\sonly\sthe\sCGI\sscript\sname\sis\sspecified.
-D 2007-10-23T18:04:19
+C No\schanges\sfrom\sthe\sprevious\scheck-in.\s\sThis\sjust\sconfirms\sthat\sthe\nprevious\scheck-in\shas\snow\sbeen\stested\sand\sappears\sto\swork\scorrectly.
+D 2007-10-23T19:43:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8fb641e071dc2298638dd2aa8e32211c4398261a
+P f66089ec43a9dd200b3c7d20d27ab8d5876073f3
 R c670547bac012dce76798b25b08d17bb
 U drh
-Z bb94ce4d51a8eb495ab818977c929ed9
+Z 079cfa4d00264dc2082dd2c31ba06791
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHHjenoxKgR168RlERAiaEAJ0V1HNv5Rtg7F1KmQZORNqnt5/GwQCbBoV3
-IVy12BHiHW4kmBaE9OuRJWY=
-=tLC1
+iD8DBQFHHk72oxKgR168RlERAvnNAJ0RIHVkRzDCty6g7/8cpDEVqWssUACdENh0
+hycCR+RbC2/3M3ADJq3Rb0M=
+=2n6Q
 -----END PGP SIGNATURE-----
