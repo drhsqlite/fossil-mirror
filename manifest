@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Restructured\sthe\scode\shandling\sNTBD\sin\sExcludeBranch\sa\sbit\sto\sprevent\sthe\sasserts\sin\sGraftNTDB2Trunk\sto\sbail\sout.
-D 2007-10-23T04:36:31
+C Disabled\scheck\sfor\scontrol\scharacters\sin\sthe\slog\smessage.\sAllowing\sthis\sfor\sthe\smoment,\slets\ssee\sif\swe\srun\sinto\strouble\slater\son.\sFurther\sreworked\sthe\scheck\sof\ssymbol\snames,\sdisallow\sforward\sslashs\sonly\sat\send.\sFound\slegal\stags\scontaining\sforward\sslashs\sin\sthe\smiddle.
+D 2007-10-24T07:54:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -115,7 +115,7 @@ F tools/cvs2fossil/lib/id.tcl 43c9bdd4801b71812debc9981b55044d618b7f62
 F tools/cvs2fossil/lib/log.tcl 9e72db66cbfbeb5ba0b97b2fcbdc6ada4387a977
 F tools/cvs2fossil/lib/misc.tcl a87f1adea4a159b96ee2c0d25637a3dcbd3495db
 F tools/cvs2fossil/lib/pkgIndex.tcl 94c8694e6630ccf0652b33e74c6bb77b82b21c00
-F tools/cvs2fossil/lib/rcsparser.tcl b3b8dd19e7e2673f8cbe18c314788bd223692387
+F tools/cvs2fossil/lib/rcsparser.tcl 93e4a1e5a55baba7b897dd6af2745f374b18af15
 F tools/cvs2fossil/lib/trouble.tcl 2697d806a7b2de5a72213977e4becae2291923c7
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9f3fd3ec4b65c657d5c42422d2a110df9f6c0c11
-R 0a0ade1d621728fae5375216476c7b14
+P e94b52b6f2fd7a5ba59708d7c5dd49325f69e0e8
+R 5ecd689c330990a7c9f58f329ac9aa96
 U aku
-Z 02b6ddcd732acc129805d1dca787229a
+Z 7cda55d281c72522b29f41089fc3a376
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHHXpPvonzZ/CRa7gRAhScAJ4y2SphnF23fyQUzkbApSqDRHTFbACgufzk
-gvk5cCIb5wmUb9cOF27BaWA=
-=aSe5
+iD8DBQFHHvodvonzZ/CRa7gRAsWpAJ4iJD4mxXvZDVoYR5PJRwRtlWWxqwCgspcD
+9tKZCGs8n8kqLbMDcezkwOI=
+=xvA5
 -----END PGP SIGNATURE-----

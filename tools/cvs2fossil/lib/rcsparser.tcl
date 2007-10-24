@@ -78,7 +78,10 @@ snit::type ::vc::rcs::parser {
     proc Symbols {} {
 	RequiredLiteral symbols
 	while {[Ident -> symbol]} {
-	    if {![regexp {^\d*[^/,.:;@$]([^/,.:;@$]*\d*)*$} $symbol]} {
+	    if {
+		![regexp {^\d*[^,.:;@$]([^,.:;@$]*\d*)*$} $symbol] ||
+		[string match */ $symbol]
+	    } {
 		Rewind
 		Bad {symbol name}
 	    }
@@ -222,8 +225,8 @@ snit::type ::vc::rcs::parser {
 	    RequiredLiteral log
 	    RequiredString      -> cmsg
 	    if {[regexp {[\000-\010\013\014\016-\037]} $cmsg]} {
-		Rewind
-		Bad "log message for $rev contains at least one control character"
+		#Rewind
+		#Bad "log message for $rev contains at least one control character"
 	    }
 
 	    RequiredLiteral text
