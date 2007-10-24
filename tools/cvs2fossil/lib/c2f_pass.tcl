@@ -99,11 +99,6 @@ snit::type ::vc::fossil::import::cvs::pass {
 	if {$mystart < 0} {set mystart 0}
 	if {$myend   < 0} {set myend [expr {[llength $mypasses] - 1}]}
 
-	# TODO: Timing statistics for the passes.
-	# TODO: Artifact manager (clean after pass?. need to know skipped/defered passes ?)
-	# TODO: 
-	# TODO: 
-
 	set skipped [lrange $mypasses 0 [expr {$mystart - 1}]]
 	set run     [lrange $mypasses $mystart $myend]
 	set defered [lrange $mypasses [expr {$myend + 1}] end]
@@ -118,7 +113,7 @@ snit::type ::vc::fossil::import::cvs::pass {
 	}
 	foreach p $run {
 	    log write 0 pass "Begin $p" 
-	    Call $p run
+	    Time $p [lindex [time {Call $p run} 1] 0]
 	    log write 0 pass "Done  $p"
 	    trouble abort?
 	}
@@ -128,6 +123,22 @@ snit::type ::vc::fossil::import::cvs::pass {
 	}
 
 	state release
+	ShowTimes
+	return
+    }
+
+    proc Time {pass useconds} {
+	::variable mytime
+	lappend    mytime $pass $useconds
+	return
+    }
+
+    proc ShowTimes {} {
+	::variable mytime
+	foreach {pass useconds} $mytime {
+	    set sec [format %8.2f [expr {double($useconds)/1e6}]]
+	    log write 0 pass "$sec sec/$pass"
+	}
 	return
     }
 
@@ -172,6 +183,7 @@ snit::type ::vc::fossil::import::cvs::pass {
 
     typevariable mystart -1
     typevariable myend   -1
+    typevariable mytime  {} ; # Timing data for each executed pass.
 
     # # ## ### ##### ######## #############
     ## Configuration
