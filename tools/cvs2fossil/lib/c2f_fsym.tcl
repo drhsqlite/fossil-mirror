@@ -19,6 +19,7 @@ package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require vc::tools::trouble                  ; # Error reporting.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
+package require vc::fossil::import::cvs::state      ; # State storage.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -27,7 +28,8 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {symtype nr symbol} {
+    constructor {symtype nr symbol file} {
+	set myfile   $file
 	set mytype   $symtype
 	set mynr     $nr
 	set mysymbol $symbol
@@ -39,6 +41,13 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	}
 	return
     }
+
+    method defid {} {
+	set myid [incr myidcounter]
+	return
+    }
+
+    method fid {} { return $myid }
 
     # Symbol acessor methods.
 
@@ -58,11 +67,13 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     method setposition {n}   { set mybranchposition $n ; return }
     method setparent   {rev} { set mybranchparent $rev ; return }
     method setchild    {rev} { set mybranchchild  $rev ; return }
+    method cutchild    {}    { set mybranchchild  ""   ; return }
 
     method branchnr    {} { return $mynr }
     method parentrevnr {} { return $mybranchparentrevnr }
     method childrevnr  {} { return $mybranchchildrevnr }
-    method haschild    {} { return [expr {$mybranchchildrevnr ne ""}] }
+    method haschildrev {} { return [expr {$mybranchchildrevnr ne ""}] }
+    method haschild    {} { return [expr {$mybranchchild ne ""}] }
     method parent      {} { return $mybranchparent }
     method child       {} { return $mybranchchild }
     method position    {} { return $mybranchposition }
@@ -101,10 +112,69 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     }
 
     # # ## ### ##### ######## #############
+
+    method persist {} {
+	# Save the information we need after the collection pass.
+
+	# NOTE: mybranchposition is currently not saved. This can
+	# likely be figured out later from the id itself. If yes, we
+	# can also get rid of 'sortbranches' (cvs::file) and the
+	# associated information.
+
+	set fid [$myfile   id]
+	set sid [$mysymbol id]
+
+	lappend map @L@ [expr { [$mylod istrunk] ? "NULL" : [$mylod id] }]
+
+	switch -exact -- $mytype {
+	    tag {
+		set rid [$mytagrev id]
+		set cmd {
+		    INSERT INTO tag ( tid,   fid, lod,  sid,  rev)
+		    VALUES          ($myid, $fid, @L@, $sid, $rid);
+		}
+	    }
+	    branch {
+		lappend map @F@ [expr { ($mybranchchild eq "") ? "NULL" : [$mybranchchild id] }]
+
+		set rid [$mybranchparent id]
+		set cmd {
+		    INSERT INTO branch ( bid,   fid, lod,  sid,  root, first, bra )
+		    VALUES             ($myid, $fid, @L@, $sid, $rid,  @F@, $mynr);
+		}
+	    }
+	}
+
+	state transaction {
+	    state run [string map $map $cmd]
+	}
+	return
+    }
+
+    # # ## ### ##### ######## #############
     ## State
+
+    # Persistent:
+    #        Tag: myid           - tag.tid 
+    #             myfile         - tag.fid 
+    #             mylod          - tag.lod 
+    #             mysymbol       - tag.sid 
+    #             mytagrev       - tag.rev
+    #
+    #     Branch: myid           - branch.bid 
+    #		  myfile         - branch.fid 
+    #		  mylod          - branch.lod 
+    #             mysymbol       - branch.sid
+    #             mybranchparent - branch.root
+    #             mybranchchild  - branch.first
+    #             mynr           - branch.bra
+
+    typevariable myidcounter 0 ; # Counter for symbol ids.
+    variable myid           {} ; # Symbol id.
 
     ## Basic, all symbols _________________
 
+    variable myfile   {} ; # Reference to the file the symbol is in.
     variable mytype   {} ; # Symbol type, 'tag', or 'branch'.
     variable mynr     {} ; # Revision number of a 'tag', branch number
 			   # of a 'branch'.
@@ -164,6 +234,7 @@ namespace eval ::vc::fossil::import::cvs::file {
     namespace export sym
     namespace eval sym {
 	namespace import ::vc::fossil::import::cvs::file::rev
+	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::trouble
     }
 }

@@ -47,8 +47,8 @@ snit::type ::vc::fossil::import::cvs::project {
 
     method setid {id} { set myid $id ; return }
 
-    method addfile {rcs usr executable} {
-	set myfiles($rcs) [list $usr $executable]
+    method addfile {rcs usr executable {fid {}}} {
+	set myfiles($rcs) [list $usr $executable $fid]
 	return
     }
 
@@ -79,6 +79,8 @@ snit::type ::vc::fossil::import::cvs::project {
 
     # pass I persistence
     method persist {} {
+	TheFiles ; # Force id assignment.
+
 	state transaction {
 	    # Project data first. Required so that we have its id
 	    # ready for the files.
@@ -92,12 +94,13 @@ snit::type ::vc::fossil::import::cvs::project {
 	    # Then all files, with proper backreference to their
 	    # project.
 
-	    foreach {rcs item} [array get myfiles] {
-		struct::list assign $item usr executable
+	    foreach rcs [lsort -dict [array names myfiles]] {
+		struct::list assign $myfiles($rcs) usr executable _fid_
 		state run {
 		    INSERT INTO file (fid,  pid,   name, visible, exec)
 		    VALUES           (NULL, $myid, $rcs, $usr,    $executable);
 		}
+		$myfmap($rcs) setid [state id]
 	    }
 	}
 	return
@@ -105,11 +108,14 @@ snit::type ::vc::fossil::import::cvs::project {
 
     # pass II persistence
     method persistrev {} {
+	# Note: The per file information (incl. revisions and symbols)
+	# has already been saved and dropped, immediately after
+	# processing it, to keep out use of memory under control. Now
+	# we just have to save the remaining project level parts to
+	# fix the left-over dangling references.
+
 	state transaction {
 	    # TODO: per project persistence (symbols, meta data)
-	    foreach f [TheFiles] {
-		$f persist
-	    }
 	}
 	return
     }
@@ -124,6 +130,7 @@ snit::type ::vc::fossil::import::cvs::project {
     variable myfiles   -array {} ; # Maps the rcs archive paths to
 				   # their user-visible files.
     variable myfobj           {} ; # File objects for the rcs archives
+    variable myfmap    -array {} ; # Map rcs archive to their object.
     variable myrepository     {} ; # Repository the prject belongs to.
     variable mysymbols -array {} ; # Map symbol names to project-level
 				   # symbol objects.
@@ -132,7 +139,7 @@ snit::type ::vc::fossil::import::cvs::project {
     ## Internal methods
 
     proc TheFiles {} {
-	upvar 1 myfiles myfiles myfobj myfobj self self
+	upvar 1 myfiles myfiles myfobj myfobj self self myfmap myfmap
 	if {![llength $myfobj]} {
 	    set myfobj [EmptyFiles myfiles]
 	}
@@ -140,11 +147,13 @@ snit::type ::vc::fossil::import::cvs::project {
     }
 
     proc EmptyFiles {fv} {
-	upvar 1 $fv myfiles self self
+	upvar 1 $fv myfiles self self myfmap myfmap
 	set res {}
 	foreach rcs [lsort -dict [array names myfiles]] {
-	    struct::list assign $myfiles($rcs) f executable
-	    lappend res [file %AUTO% $rcs $f $executable $self]
+	    struct::list assign $myfiles($rcs) f executable fid
+	    set file [file %AUTO% $fid $rcs $f $executable $self]
+	    lappend res $file
+	    set myfmap($rcs) $file
 	}
 	return $res
     }

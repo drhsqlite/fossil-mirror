@@ -18,6 +18,7 @@
 package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require vc::tools::misc                     ; # Text formatting
+package require vc::fossil::import::cvs::state      ; # State storage.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -34,6 +35,13 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	set myfile     $thefile
 	return
     }
+
+    method defid {} {
+	set myid [incr myidcounter]
+	return
+    }
+
+    method id {} { return $myid }
 
     # Basic pieces ________________________
 
@@ -334,12 +342,60 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     }
 
     # # ## ### ##### ######## #############
+
+    method persist {} {
+	set fid [$myfile id]
+	set op  $myopcode($myoperation)
+	set idb $myisondefaultbranch
+
+	struct::list assign $mytext cs cl
+	set cl [expr {$cl - $cs}]
+
+	lappend map @L@ [expr { [$mylod istrunk]        ? "NULL" : [$mylod          id] }]
+	lappend map @P@ [expr { ($myparent       eq "") ? "NULL" : [$myparent       id] }]
+	lappend map @C@ [expr { ($mychild        eq "") ? "NULL" : [$mychild        id] }]
+	lappend map @DP [expr { ($mydbparent     eq "") ? "NULL" : [$mydbparent     id] }]
+	lappend map @DC [expr { ($mydbchild      eq "") ? "NULL" : [$mydbchild      id] }]
+	lappend map @BP [expr { ($myparentbranch eq "") ? "NULL" : [$myparentbranch id] }]
+
+	set cmd {
+	    INSERT INTO revision ( rid,   fid, lod,  rev,      date,    state,    mid,       cs,  cl, op,   isdefault, parent, child, dbparent, dbchild, bparent)
+	    VALUES               ($myid, $fid, @L@, $myrevnr, $mydate, $mystate, $mymetaid, $cs, $cl, $op, $idb,       @P@,    @C@,   @DP,      @DC,     @BP);
+	}
+
+	state transaction {
+	    state run [string map $map $cmd]
+	}
+	return
+    }
+
+    # # ## ### ##### ######## #############
     ## State
+
+    # Persistent: myid                - revision.rid
+    #             myfile              - revision.fid
+    #             mylod               - revision.lod
+    #             myrevnr             - revision.rev
+    #             mydate              - revision.date
+    #             mystate             - revision.state
+    #             mymetaid            - revision.mid
+    #             mytext              - revision.{cs,cl}
+    #             myparent            - revision.parent
+    #             mychild             - revision.child
+    #             myparentbranch      - revision.bparent
+    #             myoperation         - revision.op
+    #             myisondefaultbranch - revision.isdefault
+    #             mydbparent          - revision.dbparent
+    #             mydbchild           - revision.dbchild
+ 
 
     typevariable mybranchpattern {^((?:\d+\.\d+\.)+)(?:0\.)?(\d+)$}
     # First a nonzero even number of digit groups with trailing dot
     # CVS then sticks an extra 0 in here; RCS does not.
     # And the last digit group.
+
+    typevariable myidcounter 0 ; # Counter for revision ids.
+    variable myid           {} ; # Revision id.
 
     variable myrevnr     {} ; # Revision number of the revision.
     variable mydate      {} ; # Timestamp of the revision, seconds since epoch
@@ -426,6 +482,12 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	{1 0} add
 	{1 1} nothing
     }
+    typevariable myopcode -array {
+	change   2
+	delete  -1
+	add      1
+	nothing  0
+    }
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -444,6 +506,7 @@ namespace eval ::vc::fossil::import::cvs::file {
     namespace export rev
     namespace eval rev {
 	namespace import ::vc::tools::misc::*
+	namespace import ::vc::fossil::import::cvs::state
     }
 }
 

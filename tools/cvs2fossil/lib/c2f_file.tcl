@@ -21,6 +21,7 @@ package require snit                                ; # OO system.
 package require struct::set                         ; # Set operations.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::file::sym  ; # CVS per file symbols.
+package require vc::fossil::import::cvs::state      ; # State storage.
 package require vc::tools::trouble                  ; # Error reporting.
 package require vc::tools::log                      ; # User feedback
 package require vc::tools::misc                     ; # Text formatting
@@ -32,7 +33,8 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {path usrpath executable project} {
+    constructor {id path usrpath executable project} {
+	set myid         $id
 	set mypath       $path
 	set myusrpath    $usrpath
 	set myexecutable $executable
@@ -41,6 +43,13 @@ snit::type ::vc::fossil::import::cvs::file {
 	return
     }
 
+    method setid {id} {
+	if {$myid ne ""} { trouble internal "File '$mypath' already has an id, '$myid'" }
+	set myid $id
+	return
+    }
+
+    method id      {} { return $myid }
     method path    {} { return $mypath }
     method usrpath {} { return $myusrpath }
     method project {} { return $myproject }
@@ -66,6 +75,26 @@ snit::type ::vc::fossil::import::cvs::file {
     ## Persistence (pass II)
 
     method persist {} {
+	# First collect the reachable revisions and symbols, then
+	# assign id's to all. They are sorted so that we will have ids
+	# which sort in order of creation. Then we can save them. This
+	# is done bottom up. Revisions, then symbols. __NOTE__ This
+	# works only because sqlite is not checking foreign key
+	# references during insert. This allows to have dangling
+	# references which are fixed later. The longest dangling
+	# references are for the project level symbols, these we do
+	# not save here, but at the end of the pass. What we need are
+	# the ids, hence the two phases.
+
+	struct::list assign [$self Active] revisions symbols
+	foreach rev $revisions { $rev defid }
+	foreach sym $symbols   { $sym defid }
+
+	state transaction {
+	    foreach rev $revisions { $rev persist }
+	    foreach sym $symbols   { $sym persist }
+	}
+	return
     }
 
     method drop {} {
@@ -222,6 +251,7 @@ snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
     ## State
 
+    variable myid              {} ; # File id in the persistent state.
     variable mypath            {} ; # Path of the file's rcs archive.
     variable myusrpath         {} ; # Path of the file as seen by users.
     variable myexecutable      0  ; # Boolean flag 'file executable'.
@@ -310,14 +340,14 @@ snit::type ::vc::fossil::import::cvs::file {
 	    log write 1 file "Cannot have second name '$name', ignoring it"
 	    return
 	}
-	set branch [sym %AUTO% branch $branchnr [$myproject getsymbol $name]]
+	set branch [sym %AUTO% branch $branchnr [$myproject getsymbol $name] $self]
 	$branch setposition [incr mybranchcnt]
 	set mybranches($branchnr) $branch
 	return $branch
     }
 
     method AddTag {name revnr} {
-	set tag [sym %AUTO% tag $revnr [$myproject getsymbol $name]]
+	set tag [sym %AUTO% tag $revnr [$myproject getsymbol $name] $self]
 	lappend mytags($revnr) $tag
 	return $tag
     }
@@ -380,7 +410,7 @@ snit::type ::vc::fossil::import::cvs::file {
 		# the first child's parent to be branch's parent, and
 		# list this child in the parent revision.
 
-		if {[$branch haschild]} {
+		if {[$branch haschildrev]} {
 		    set childrevnr [$branch childrevnr]
 		    set child $myrev($childrevnr)
 		    $branch setchild $child
@@ -672,6 +702,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    if {[$vendor parent] eq $rev11} {
 		$rev11 removebranch        $vendor
 		$rev11 removechildonbranch $first
+		$vendor cutchild
 		$first cutfromparentbranch
 		lappend myroots $first
 	    }
@@ -728,7 +759,7 @@ snit::type ::vc::fossil::import::cvs::file {
 		lappend myroots $child
 	    }
 
-	    # Remove the branches spawned by the revision to be
+	    # Cut out the branches spawned by the revision to be
 	    # deleted. If the branch has revisions they should already
 	    # use operation 'add', no need to change that. The first
 	    # revision on each branch becomes a new and disconnected
@@ -739,6 +770,7 @@ snit::type ::vc::fossil::import::cvs::file {
 		set first [$branch child]
 		$first cutfromparentbranch
 		$first cutfromparent
+		$branch cutchild
 		lappend myroots $first
 	    }
 	    $root removeallbranches
@@ -781,7 +813,9 @@ snit::type ::vc::fossil::import::cvs::file {
 	    ldelete myroots $root
 	    lappend myroots $child
 
+	    $branch cutchild
 	    $child  cutfromparent
+
 	    $parent removebranch        $branch
 	    $parent removechildonbranch $root
 	}
@@ -973,6 +1007,25 @@ snit::type ::vc::fossil::import::cvs::file {
         return
     }
 
+    method Active {} {
+	set revisions {}
+	set symbols   {}
+
+	foreach root [$self LinesOfDevelopment] {
+	    if {[$root hasparentbranch]} { lappend symbols [$root parentbranch] }
+	    while {$root ne ""} {
+		lappend revisions $root
+		foreach tag    [$root tags]     { lappend symbols $tag    }
+		foreach branch [$root branches] { lappend symbols $branch }
+		set lod [$root lod]
+		if {![$lod istrunk]} { lappend symbols $lod }
+		set root [$root child]
+	    }
+	}
+
+	return [list [lsort -unique -dict $revisions] [lsort -unique -dict $symbols]]
+    }
+
     # # ## ### ##### ######## #############
     ## Configuration
 
@@ -992,6 +1045,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
+	namespace import ::vc::fossil::import::cvs::state
     }
 }
 

@@ -58,53 +58,60 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# symbols information is merged.
 
 	# File level ...
-	#	Event, Revision, Symbol, Branch, Tag
+	#	Revisions, Branches, Tags
 	#
-	#	Tag    <- Symbol <- Event
-	#	Branch <- Symbol <- Event
-	#	Revision <- Event
-	#
-	#	Head revision, Principal branch, Comment
-
-	state writing rcs {
-	    fid       INTEGER  NOT NULL  REFERENCES file,    -- RCS inherit from FILE
-	    head      INTEGER  NOT NULL  REFERENCES revision,
-	    principal INTEGER  NOT NULL  REFERENCES branch,
-	    comment   TEXT     NOT NULL
-	}
-
-	state writing item {
-	    iid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
-	    type INTEGER  NOT NULL,                 -- enum { tag = 1, branch, revision }
-	    fid  INTEGER  NOT NULL  REFERENCES file  -- File the item belongs to
-	}
+	# Pseudo class hierarchy
+	#	Tag      <- Symbol <- Event
+	#	Branch   <- Symbol <- Event
+	#	Revision           <- Event
 
 	state writing revision {
-	    iid   INTEGER  NOT NULL  REFERENCES item,   -- REVISION inherit from ITEM
-	    lod   INTEGER  NOT NULL  REFERENCES symbol, -- Line of development
+	    rid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
+	    fid  INTEGER  NOT NULL  REFERENCES file,   -- File the item belongs to
+	    lod  INTEGER            REFERENCES symbol, -- Line of development (NULL => Trunk)
 
 	    -- The tags and branches belonging to a revision can be
 	    -- determined by selecting on the backreferences in the
 	    -- tag and branch tables.
 
-	    rev   TEXT     NOT NULL,                     -- revision number
-	    date  INTEGER  NOT NULL,                     -- date of entry, seconds since epoch
-	    state TEXT     NOT NULL,                     -- state of revision
-	    mid   INTEGER  NOT NULL REFERENCES meta,     -- meta data (author, commit message)
-	    next  INTEGER  NOT NULL REFERENCES revision, -- next in chain of revisions.
-	    cs    INTEGER  NOT NULL, -- Revision content as offset and length
-	    cl    INTEGER  NOT NULL  -- into the archive file.
+	    rev   TEXT     NOT NULL,                 -- revision number
+	    date  INTEGER  NOT NULL,                 -- date of entry, seconds since epoch
+	    state TEXT     NOT NULL,                 -- state of revision
+	    mid   INTEGER  NOT NULL REFERENCES meta, -- meta data (author, commit message)
+	    cs    INTEGER  NOT NULL,                 -- Revision content as offset and
+	    cl    INTEGER  NOT NULL,                 -- length into the archive file.
+
+	    -- Derived information, and links
+	    -- Basic: Parent/Child
+	    -- NTDB:  DefaultParent/DefaultChild
+	    -- Branches: Branch parent revision
+
+	    op        INTEGER NOT NULL,
+	    isdefault INTEGER NOT NULL,
+	    parent    INTEGER        REFERENCES revision,
+	    child     INTEGER        REFERENCES revision,
+	    dbparent  INTEGER        REFERENCES revision,
+	    dbchild   INTEGER        REFERENCES revision,
+	    bparent   INTEGER        REFERENCES symbol
 	}
 
 	state writing tag {
-	    iid INTEGER  NOT NULL  REFERENCES item,     -- TAG inherit from ITEM
-	    sid INTEGER  NOT NULL  REFERENCES symbol,   -- Symbol capturing the tag
-	    rev INTEGER  NOT NULL  REFERENCES revision -- The revision being tagged.
+	    tid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
+	    fid  INTEGER  NOT NULL  REFERENCES file,     -- File the item belongs to
+	    lod  INTEGER            REFERENCES symbol,   -- Line of development (NULL => Trunk)
+
+	    sid  INTEGER  NOT NULL  REFERENCES symbol,   -- Symbol capturing the tag
+
+	    rev  INTEGER  NOT NULL  REFERENCES revision  -- The revision being tagged.
 	}
 
 	state writing branch {
-	    iid   INTEGER  NOT NULL  REFERENCES item,     -- BRANCH inherit from ITEM
+	    bid   INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
+	    fid   INTEGER  NOT NULL  REFERENCES file,     -- File the item belongs to
+	    lod   INTEGER            REFERENCES symbol,   -- Line of development (NULL => Trunk)
+
 	    sid   INTEGER  NOT NULL  REFERENCES symbol,   -- Symbol capturing the branch
+
 	    root  INTEGER  NOT NULL  REFERENCES revision, -- Revision the branch sprouts from
 	    first INTEGER            REFERENCES revision, -- First revision committed to the branch
 	    bra   TEXT     NOT NULL                       -- branch number
@@ -209,17 +216,19 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 			global errorInfo
 			trouble internal $errorInfo
 		    }
+		} else {
+		    # We persist the core of the data collected about
+		    # each file immediately after it has been parsed
+		    # and wrangled into shape, and then drop it from
+		    # memory. This is done to keep the amount of
+		    # required memory within sensible limits. Without
+		    # doing it this way we would easily gobble up 1G
+		    # of RAM or more with all the objects (revisions
+		    # and file-level symbols).
+
+		    $file persist
 		}
 
-		# We persist the core of the data collected about each
-		# file immediately after it has been parsed and
-		# wrangled into shape, and then drop it from
-		# memory. This is done to keep the memory requirements
-		# within limits, i.e. without doing it this way it is
-		# easy to blow 1G of RAM with all the objects
-		# (revisions and file-level symbols).
-
-		$file persist
 		$file drop
 	    }
 	}
@@ -236,8 +245,6 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# run passes, to remove all data of this pass from the state,
 	# as being out of date.
 
-	state discard rcs
-	state discard item
 	state discard revision
 	state discard tag
 	state discard branch

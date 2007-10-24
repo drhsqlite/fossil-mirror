@@ -152,7 +152,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	    foreach   {fid  pid  name  visible  exec} [state run {
 		SELECT fid, pid, name, visible, exec FROM file ;
 	    }] {
-		$pr($pid) addfile $name $visible $exec
+		$pr($pid) addfile $name $visible $exec $fid
 	    }
 	}
 	return
