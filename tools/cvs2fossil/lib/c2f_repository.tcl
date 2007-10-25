@@ -270,7 +270,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     proc SaveAuthors {} {
 	::variable myauthor
-	foreach {name aid} [array get myauthor] {
+	foreach {name aid} [$myauthor get] {
 	    state run {
 		INSERT INTO author ( aid,  name)
 		VALUES             ($aid, $name);
@@ -281,7 +281,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     proc SaveCommitMessages {} {
 	::variable mycmsg
-	foreach {text cid} [array get mycmsg] {
+	foreach {text cid} [$mycmsg get] {
 	    state run {
 		INSERT INTO cmessage ( cid,  text)
 		VALUES               ($cid, $text);
@@ -292,19 +292,11 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     proc SaveMeta {} {
 	::variable mymeta
-	foreach {key mid} [array get mymeta] {
+	foreach {key mid} [$mymeta get] {
 	    struct::list assign $key pid bid aid cid
-	    if {$bid eq ""} {
-		# Trunk. Encoded as NULL.
-		state run {
-		    INSERT INTO meta ( mid,  pid,  bid,  aid,  cid)
-		    VALUES           ($mid, $pid, NULL, $aid, $cid);
-		}
-	    } else {
-		state run {
-		    INSERT INTO meta ( mid,  pid,  bid,  aid,  cid)
-		    VALUES           ($mid, $pid, $bid, $aid, $cid);
-		}
+	    state run {
+		INSERT INTO meta ( mid,  pid,  bid,  aid,  cid)
+		VALUES           ($mid, $pid, $bid, $aid, $cid);
 	    }
 	}
 	return

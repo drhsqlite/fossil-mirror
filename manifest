@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Formatting\schange,\scode\salignment.
-D 2007-10-25T05:14:20
+C Fixed\ssaving\sof\sauthors,\slog\smessages,\smeta\sdata.\sThis\swas\swrong\ssince\srevision\s[99e165d5c4],\swhen\sthe\sid\sdatabases\swere\sintroduced.\sSimplified\smeta\ssaving\sdue\sto\schanged\strunk\scoding\s(no\sNULL).
+D 2007-10-25T05:16:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -108,10 +108,10 @@ F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
 F tools/cvs2fossil/lib/c2f_project.tcl 78ad19a406a27646f818316b104b96dda50e274d
 F tools/cvs2fossil/lib/c2f_psym.tcl 52d4c355267ec1cf6ad1675e00d7a84feb817a75
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl 186b2dcb0d57d97751c29023c9bc648c911b3fe5
-F tools/cvs2fossil/lib/c2f_repository.tcl e30942cde8036057d8c3c145775e7bbe3e6ecee4
+F tools/cvs2fossil/lib/c2f_repository.tcl f4ffdfa30fc73a9b85082ed8d485d743fff3e6df
 F tools/cvs2fossil/lib/c2f_state.tcl 03d1122d661cafe1e7b532cf39feca43deebca23
 F tools/cvs2fossil/lib/cvs2fossil.tcl b81dcdcb7db84a2e038193f093f4b04535977016
-F tools/cvs2fossil/lib/id.tcl 43c9bdd4801b71812debc9981b55044d618b7f62
+F tools/cvs2fossil/lib/id.tcl 618dedd4787479016e002dafd4b1b0c48d5c8d73
 F tools/cvs2fossil/lib/log.tcl 9e72db66cbfbeb5ba0b97b2fcbdc6ada4387a977
 F tools/cvs2fossil/lib/misc.tcl a87f1adea4a159b96ee2c0d25637a3dcbd3495db
 F tools/cvs2fossil/lib/pkgIndex.tcl 94c8694e6630ccf0652b33e74c6bb77b82b21c00
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2c08006d9dcaf2e0ed0eb04d23e3083d7d55d6a6
-R 0330ff4b108b1850df68f47a9cf747d9
+P 7375ebb988e181e073ccd9bbc5556569ab592dc6
+R 94349df0e42281fd9cb6875b7fa111b3
 U aku
-Z a67ba9f200a18ddca754a6dc881eeddc
+Z 74b2d6545c8465c2591e5d271e2761cc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHICYsvonzZ/CRa7gRAvY8AJ9o8GhMYAgikSkfKQC/sdol82wYYwCfazZE
-KajFpVWKYwIJT813xCGphCY=
-=4ho2
+iD8DBQFHICbJvonzZ/CRa7gRAv+bAJ4ieJF0b2uA+ckfjqbftz+oOhOSBwCfUa5c
+ujmL+m3v6TmQWC/tG6rGEqw=
+=5Xo3
 -----END PGP SIGNATURE-----

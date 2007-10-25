@@ -36,6 +36,7 @@ snit::type ::vc::tools::id {
     }
 
     method keyof {id} { return $myinvert($id) }
+    method get   {}   { return [array get mydata] }
 
     # # ## ### ##### ######## #############
     ## Internal. State.
