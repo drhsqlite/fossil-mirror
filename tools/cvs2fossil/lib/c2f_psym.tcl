@@ -31,8 +31,8 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 	return
     }
 
-    method name {} { return $myname   }
-    method id   {} { return $myid }
+    method name {} { return $myname }
+    method id   {} { return $myid   }
 
     # # ## ### ##### ######## #############
     ## State

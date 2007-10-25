@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Changed\sthe\scoding\sof\strunk\ssymbols.\sUsing\sNULL\smakes\sfor\sdifficult\scomparisons\slater\swhen\sdoing\sintegrity\schecks.\sEach\strunk\snow\shas\sa\sregular\sunique\sid\sas\sa\ssymbol.\sAdded\sdocumentation\sto\sthe\stable\sdefinitions,\sabout\sreferences,\sconstraints,\setc.
-D 2007-10-25T05:13:41
+C Formatting\schange,\scode\salignment.
+D 2007-10-25T05:14:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -106,7 +106,7 @@ F tools/cvs2fossil/lib/c2f_pcollrev.tcl 0cf7d28b6923f940fd95a6d430c62097ad406d70
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
 F tools/cvs2fossil/lib/c2f_project.tcl 78ad19a406a27646f818316b104b96dda50e274d
-F tools/cvs2fossil/lib/c2f_psym.tcl e2a62e00ad5a3368dc0cfa5f85b08ca0f7f46da8
+F tools/cvs2fossil/lib/c2f_psym.tcl 52d4c355267ec1cf6ad1675e00d7a84feb817a75
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl 186b2dcb0d57d97751c29023c9bc648c911b3fe5
 F tools/cvs2fossil/lib/c2f_repository.tcl e30942cde8036057d8c3c145775e7bbe3e6ecee4
 F tools/cvs2fossil/lib/c2f_state.tcl 03d1122d661cafe1e7b532cf39feca43deebca23
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 05f9c95573a075fa7fdbf3175c1e328a3f42b471
-R 789881c6811c0511e60802cf7818d40e
+P 2c08006d9dcaf2e0ed0eb04d23e3083d7d55d6a6
+R 0330ff4b108b1850df68f47a9cf747d9
 U aku
-Z 27b9a15da7230ed5ba12abff5af6c2ab
+Z a67ba9f200a18ddca754a6dc881eeddc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHICYKvonzZ/CRa7gRAtnAAJwM0z/R3pi+Op+EbcQxFLtzM+ViCgCeNx2E
-wx/XmOj8XZXIJd5JaW3k6JM=
-=c5Vb
+iD8DBQFHICYsvonzZ/CRa7gRAvY8AJ9o8GhMYAgikSkfKQC/sdol82wYYwCfazZE
+KajFpVWKYwIJT813xCGphCY=
+=4ho2
 -----END PGP SIGNATURE-----
