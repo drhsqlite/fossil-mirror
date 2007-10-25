@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Extended\spass\smanager\sto\skeep\stiming\sdata\sfor\sthe\sexecuted\spasses\sand\sshow\sthem\safter\scompletion\sof\sall\spasses.
-D 2007-10-24T14:44:57
+C Changed\sthe\scoding\sof\strunk\ssymbols.\sUsing\sNULL\smakes\sfor\sdifficult\scomparisons\slater\swhen\sdoing\sintegrity\schecks.\sEach\strunk\snow\shas\sa\sregular\sunique\sid\sas\sa\ssymbol.\sAdded\sdocumentation\sto\sthe\stable\sdefinitions,\sabout\sreferences,\sconstraints,\setc.
+D 2007-10-25T05:13:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -96,18 +96,18 @@ F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/lib/c2f_file.tcl bd5c5d46d200a8e9a509e68b80ebe97ee026f494
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
-F tools/cvs2fossil/lib/c2f_frev.tcl 8b070e357900fc25c2a97fd7aaabd011b1ea37ee
-F tools/cvs2fossil/lib/c2f_fsym.tcl 0342b00fc26c68af97c6f6eae74d533f7732f90b
+F tools/cvs2fossil/lib/c2f_frev.tcl f165072caaab411926d97109a39b19172f922631
+F tools/cvs2fossil/lib/c2f_fsym.tcl ce3e976f9177449de88b3a6043ff94d5af4916d9
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_option.tcl ebc8b51de97513d8f132a127687a5b7083cc187e
 F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl a41e2628dd39f79f3167df233cb6ce663d05ef0c
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl 0cf7d28b6923f940fd95a6d430c62097ad406d70
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
-F tools/cvs2fossil/lib/c2f_project.tcl cfcc67163f57aa134bbe05c7b96e58d90d09aaee
+F tools/cvs2fossil/lib/c2f_project.tcl 78ad19a406a27646f818316b104b96dda50e274d
 F tools/cvs2fossil/lib/c2f_psym.tcl e2a62e00ad5a3368dc0cfa5f85b08ca0f7f46da8
-F tools/cvs2fossil/lib/c2f_ptrunk.tcl eb3e864d3396898281dd9d3b7d30c45e815586a6
+F tools/cvs2fossil/lib/c2f_ptrunk.tcl 186b2dcb0d57d97751c29023c9bc648c911b3fe5
 F tools/cvs2fossil/lib/c2f_repository.tcl e30942cde8036057d8c3c145775e7bbe3e6ecee4
 F tools/cvs2fossil/lib/c2f_state.tcl 03d1122d661cafe1e7b532cf39feca43deebca23
 F tools/cvs2fossil/lib/cvs2fossil.tcl b81dcdcb7db84a2e038193f093f4b04535977016
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P adf168e23e3d3812bb7c49d385a1bfd797e23a36
-R 2d7ccaa142570a4eaa40439d97d2c34c
+P 05f9c95573a075fa7fdbf3175c1e328a3f42b471
+R 789881c6811c0511e60802cf7818d40e
 U aku
-Z d4caff98e729b2a96bcfe1d51d2dbc07
+Z 27b9a15da7230ed5ba12abff5af6c2ab
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHH1puvonzZ/CRa7gRAmkNAKC+hJVxWTQmsCD/VF63T9y0oRp3sACgnM/q
-AgOuKlvFUxfGGcH7RYBaeVI=
-=jB65
+iD8DBQFHICYKvonzZ/CRa7gRAtnAAJwM0z/R3pi+Op+EbcQxFLtzM+ViCgCeNx2E
+wx/XmOj8XZXIJd5JaW3k6JM=
+=c5Vb
 -----END PGP SIGNATURE-----

@@ -123,15 +123,16 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 
 	set fid [$myfile   id]
 	set sid [$mysymbol id]
-
-	lappend map @L@ [expr { [$mylod istrunk] ? "NULL" : [$mylod id] }]
+	set lod [$mylod    id]
 
 	switch -exact -- $mytype {
 	    tag {
 		set rid [$mytagrev id]
-		set cmd {
-		    INSERT INTO tag ( tid,   fid, lod,  sid,  rev)
-		    VALUES          ($myid, $fid, @L@, $sid, $rid);
+		state transaction {
+		    state run {
+			INSERT INTO tag ( tid,   fid,  lod,  sid,  rev)
+			VALUES          ($myid, $fid, $lod, $sid, $rid);
+		    }
 		}
 	    }
 	    branch {
@@ -139,15 +140,15 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 
 		set rid [$mybranchparent id]
 		set cmd {
-		    INSERT INTO branch ( bid,   fid, lod,  sid,  root, first, bra )
-		    VALUES             ($myid, $fid, @L@, $sid, $rid,  @F@, $mynr);
+		    INSERT INTO branch ( bid,   fid,  lod,  sid,  root, first, bra )
+		    VALUES             ($myid, $fid, $lod, $sid, $rid,  @F@,  $mynr);
+		}
+		state transaction {
+		    state run [string map $map $cmd]
 		}
 	    }
 	}
 
-	state transaction {
-	    state run [string map $map $cmd]
-	}
 	return
     }
 

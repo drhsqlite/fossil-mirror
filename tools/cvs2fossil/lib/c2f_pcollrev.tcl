@@ -66,33 +66,83 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	#	Revision           <- Event
 
 	state writing revision {
+	    -- Revisions. Identified by a global numeric id each
+	    -- belongs to a single file, identified by its id. It
+	    -- further has a dotted revision number (DTN).
+	    --
+	    -- Constraint: The dotted revision number is unique within
+            --             the file. See end of definition.
+
 	    rid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
-	    fid  INTEGER  NOT NULL  REFERENCES file,   -- File the item belongs to
-	    lod  INTEGER            REFERENCES symbol, -- Line of development (NULL => Trunk)
+	    fid  INTEGER  NOT NULL  REFERENCES file,   -- File owning revision.
+	    rev  TEXT     NOT NULL,                    -- Dotted Rev Number.
 
-	    -- The tags and branches belonging to a revision can be
-	    -- determined by selecting on the backreferences in the
-	    -- tag and branch tables.
+	    -- All revisions belong to a line-of-development,
+	    -- identified by a symbol (project level). During data
+	    -- collection it was a file-level branch symbol.
+	    --
+	    -- Constraint: All the LOD symbols are in the same project
+	    --             as the file itself. This cannot be
+	    --             expressed in CREATE TABLE syntax.
 
-	    rev   TEXT     NOT NULL,                 -- revision number
-	    date  INTEGER  NOT NULL,                 -- date of entry, seconds since epoch
-	    state TEXT     NOT NULL,                 -- state of revision
-	    mid   INTEGER  NOT NULL REFERENCES meta, -- meta data (author, commit message)
-	    cs    INTEGER  NOT NULL,                 -- Revision content as offset and
-	    cl    INTEGER  NOT NULL,                 -- length into the archive file.
+	    lod  INTEGER  NOT NULL  REFERENCES symbol, -- Line of development
 
-	    -- Derived information, and links
-	    -- Basic: Parent/Child
-	    -- NTDB:  DefaultParent/DefaultChild
-	    -- Branches: Branch parent revision
+	    -- The revisions in a file are organized in a forest of
+	    -- trees, with the main lines defined through the parent /
+	    -- child references. A revision without a parent is the
+	    -- root of a tree, and a revision without a child is a
+	    -- leaf.
 
-	    op        INTEGER NOT NULL,
-	    isdefault INTEGER NOT NULL,
-	    parent    INTEGER        REFERENCES revision,
-	    child     INTEGER        REFERENCES revision,
-	    dbparent  INTEGER        REFERENCES revision,
-	    dbchild   INTEGER        REFERENCES revision,
-	    bparent   INTEGER        REFERENCES symbol
+	    -- Constraints: All revisions coupled through parent/child
+	    --              refer to the same LOD symbol. The parent
+	    --              of a child of X is X. The child of a
+	    --              parent of X is X.
+
+	    parent  INTEGER            REFERENCES revision,
+	    child   INTEGER            REFERENCES revision,
+
+	    -- The representation of a branch in a tree is the
+	    -- exception to the three constraints above.
+
+	    -- The beginning of a branch is represented by a non-NULL
+	    -- bparent of a revision. This revision B is the first on
+	    -- the branch. Its parent P is the revision the branch is
+	    -- rooted in, and it is not the child of P. B and P refer
+	    -- to different LOD symbols. The bparent of B is also its
+	    -- LOD, and the LOD of its children.
+
+	    bparent INTEGER            REFERENCES symbol,
+
+	    -- Lastly we keep information is about non-trunk default
+	    -- branches (NTDB) in the revisions.
+
+	    -- All revisions on the NTDB have 'isdefault' TRUE,
+	    -- everyone else FALSE. The last revision X on the NTDB
+	    -- which is still considered to be on the trunk as well
+	    -- has a non-NULL 'dbchild' which refers to the root of
+	    -- the trunk. The root also has a non-NULL dbparent
+	    -- refering to X.
+
+	    isdefault INTEGER  NOT NULL,
+	    dbparent  INTEGER            REFERENCES revision,
+	    dbchild   INTEGER            REFERENCES revision,
+
+	    -- The main payload of the revision are the date/time it
+	    -- was entered, its state, operation (= type/class), text
+	    -- content, and meta data (author, log message, branch,
+	    -- project). The last is encoded as single id, see table
+	    -- 'meta'. The date/time is given in seconds since the
+	    -- epoch, for easy comparison. The text content is an
+	    -- (offset,length) pair into the rcs archive.
+
+	    op    INTEGER  NOT NULL,
+	    date  INTEGER  NOT NULL,
+	    state TEXT     NOT NULL,
+	    mid   INTEGER  NOT NULL REFERENCES meta,
+	    coff  INTEGER  NOT NULL,
+	    clen  INTEGER  NOT NULL,
+
+	    UNIQUE (fid, rev) -- The DTN is unique within the revision's file.
 	}
 
 	state writing tag {
@@ -157,16 +207,35 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	}
 
 	state writing meta {
+	    -- Meta data of revisions. See revision.mid for the
+	    -- reference. Many revisions can share meta data. This is
+	    -- actually one of the criterions used to sort revisions
+	    -- into changesets.
+
 	    mid INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
-	    pid INTEGER  NOT NULL  REFERENCES project,  -- project the commit was on
-	    bid INTEGER            REFERENCES symbol,   -- branch the commit was on, NULL for :trunk:
-	    aid INTEGER  NOT NULL  REFERENCES author,
-	    cid INTEGER  NOT NULL  REFERENCES cmessage,
+
+	    -- Meta data belongs to a specific project, stronger, to a
+	    -- branch in that project. It further has a log message,
+	    -- and its author. This is unique with the project and
+	    -- branch.
+
+	    pid INTEGER  NOT NULL  REFERENCES project,  --
+	    bid INTEGER  NOT NULL  REFERENCES symbol,   --
+	    aid INTEGER  NOT NULL  REFERENCES author,   --
+	    cid INTEGER  NOT NULL  REFERENCES cmessage, --
+
 	    UNIQUE (pid, bid, aid, cid)
+
+	    -- Constraints: The project of the meta data of a revision
+	    --              X is the same as the project of X itself.
+	    --
+	    -- ............ The branch of the meta data of a revision
+	    --              X is the same as the line of development
+	    --              of X itself.
 	}
 
-	# Author and commit message information is fully global,
-	# i.e. per repository.
+	# Authors and commit messages are fully global, i.e. per
+	# repository.
 
 	state writing author {
 	    aid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
@@ -177,14 +246,6 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    cid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
 	    text TEXT     NOT NULL  UNIQUE
 	}
-
-	# Consistency constraints.
-	#
-	# Items (Tags, Branches, Revisions) belong to a file to a
-	# project. All refer to other items, and symbols, which again
-	# belong to a project. The projects have to agree with each
-	# other. I.e. items may not refer to items or symbols which
-	# belong to a different project than their own.
 
 	return
     }

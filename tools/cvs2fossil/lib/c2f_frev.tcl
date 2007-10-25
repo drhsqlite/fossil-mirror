@@ -345,13 +345,13 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
     method persist {} {
 	set fid [$myfile id]
+	set lod [$mylod id]
 	set op  $myopcode($myoperation)
 	set idb $myisondefaultbranch
 
-	struct::list assign $mytext cs cl
-	set cl [expr {$cl - $cs}]
+	struct::list assign $mytext coff end
+	set clen [expr {$end - $coff}]
 
-	lappend map @L@ [expr { [$mylod istrunk]        ? "NULL" : [$mylod          id] }]
 	lappend map @P@ [expr { ($myparent       eq "") ? "NULL" : [$myparent       id] }]
 	lappend map @C@ [expr { ($mychild        eq "") ? "NULL" : [$mychild        id] }]
 	lappend map @DP [expr { ($mydbparent     eq "") ? "NULL" : [$mydbparent     id] }]
@@ -359,8 +359,8 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	lappend map @BP [expr { ($myparentbranch eq "") ? "NULL" : [$myparentbranch id] }]
 
 	set cmd {
-	    INSERT INTO revision ( rid,   fid, lod,  rev,      date,    state,    mid,       cs,  cl, op,   isdefault, parent, child, dbparent, dbchild, bparent)
-	    VALUES               ($myid, $fid, @L@, $myrevnr, $mydate, $mystate, $mymetaid, $cs, $cl, $op, $idb,       @P@,    @C@,   @DP,      @DC,     @BP);
+	    INSERT INTO revision ( rid,   fid,  rev,      lod, parent, child,  isdefault, dbparent, dbchild, bparent,  op,  date,    state,    mid,       coff,  clen)
+	    VALUES               ($myid, $fid, $myrevnr, $lod, @P@,    @C@,   $idb,       @DP,      @DC,     @BP    , $op, $mydate, $mystate, $mymetaid, $coff, $clen);
 	}
 
 	state transaction {

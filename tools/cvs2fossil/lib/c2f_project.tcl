@@ -33,7 +33,7 @@ snit::type ::vc::fossil::import::cvs::project {
     constructor {path r} {
 	set mybase       $path
 	set myrepository $r
-	set mytrunk      [trunk %AUTO%]
+	set mytrunk      [trunk %AUTO% $self]
 	return
     }
 

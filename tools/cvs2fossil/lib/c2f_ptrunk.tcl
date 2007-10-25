@@ -25,16 +25,20 @@ snit::type ::vc::fossil::import::cvs::project::trunk {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {} {
+    constructor {project} {
+	set myid [[$project getsymbol $myname] id]
 	return
     }
 
-    method name    {} { return :trunk: }
-    method id      {} { return {}      }
+    method name    {} { return $myname }
+    method id      {} { return $myid   }
     method istrunk {} { return 1 }
 
     # # ## ### ##### ######## #############
     ## State
+
+    typevariable myname :trunk: ; # Name shared by all trunk symbols.
+    variable     myid   {}      ; # The trunk's symbol id.
 
     # # ## ### ##### ######## #############
     ## Internal methods
