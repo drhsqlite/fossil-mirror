@@ -453,7 +453,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		WHERE R.fid = F.fid
 		AND   R.bparent IS NOT NULL
 		AND   R.parent IS NOT NULL
-		AND   R.parent = P.child
+		AND   R.parent = P.rid
+		AND   P.child = R.rid
 		;
 	    }
 	# Find all revisions with a non-NTDB child which are not on
