@@ -45,6 +45,7 @@ snit::type ::vc::fossil::import::cvs::project {
 	return $mybase
     }
 
+    method id    {}   { return $myid }
     method setid {id} { set myid $id ; return }
 
     method addfile {rcs usr executable {fid {}}} {
@@ -70,11 +71,11 @@ snit::type ::vc::fossil::import::cvs::project {
     }
 
     method getsymbol {name} {
-	if {![info exists mysymbols($name)]} {
-	    set mysymbols($name) \
-		[sym %AUTO% $name [$myrepository defsymbol $myid $name]]
+	if {![info exists mysymbol($name)]} {
+	    set mysymbol($name) \
+		[sym %AUTO% $name [$myrepository defsymbol $myid $name] $self]
 	}
-	return $mysymbols($name)
+	return $mysymbol($name)
     }
 
     # pass I persistence
@@ -109,13 +110,20 @@ snit::type ::vc::fossil::import::cvs::project {
     # pass II persistence
     method persistrev {} {
 	# Note: The per file information (incl. revisions and symbols)
-	# has already been saved and dropped, immediately after
-	# processing it, to keep out use of memory under control. Now
-	# we just have to save the remaining project level parts to
-	# fix the left-over dangling references.
+	# has already been saved and dropped. This was done
+	# immediately after processing it, i.e. as part of the main
+	# segment of the pass, to keep out use of memory under
+	# control.
+	#
+	# The repository level information has been saved as well too,
+	# just before saving the projects started. So now we just have
+	# to save the remaining project level parts to fix the
+	# left-over dangling references, which are the symbols.
 
 	state transaction {
-	    # TODO: per project persistence (symbols, meta data)
+	    foreach {name symbol} [array get mysymbol] {
+		$symbol persistrev
+	    }
 	}
 	return
     }
@@ -132,7 +140,7 @@ snit::type ::vc::fossil::import::cvs::project {
     variable myfobj           {} ; # File objects for the rcs archives
     variable myfmap    -array {} ; # Map rcs archive to their object.
     variable myrepository     {} ; # Repository the prject belongs to.
-    variable mysymbols -array {} ; # Map symbol names to project-level
+    variable mysymbol  -array {} ; # Map symbol names to project-level
 				   # symbol objects.
 
     # # ## ### ##### ######## #############
