@@ -167,7 +167,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **
 **        List all users known to the repository
 **
-**    %fossil user new
+**    %fossil user new ?USERNAME?
 **
 **        Create a new user in the repository.  Users can never be
 **        deleted.  They can be denied all access but they must continue
@@ -187,7 +187,15 @@ void user_cmd(void){
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     Blob passwd, login, contact;
 
-    prompt_user("login: ", &login);
+    if( g.argc>=4 ){
+      blob_zero(&login);
+      blob_append(&login, g.argv[3], -1);
+    }else{
+      prompt_user("login: ", &login);
+    }
+    if( db_exists("SELECT 1 FROM user WHERE login=%B", &login) ){
+      fossil_fatal("user %b already exists", &login);
+    }
     prompt_user("contact-info: ", &contact);
     prompt_for_password("password: ", &passwd, 1);
     db_multi_exec(

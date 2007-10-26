@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C No\schanges\sfrom\sthe\sprevious\scheck-in.\s\sThis\sjust\sconfirms\sthat\sthe\nprevious\scheck-in\shas\snow\sbeen\stested\sand\sappears\sto\swork\scorrectly.
-D 2007-10-23T19:43:47
+C Prevent\sduplicate\slogins\son\sthe\s"user\sadd"\scommand.\s\sAlso,\sallow\sthe\nlogin\sto\sbe\sspecified\son\sthe\scommand\sline.
+D 2007-10-26T18:18:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -87,7 +87,7 @@ F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c abfa21b27a1cc1cf3c508533550ac5d9529bc308
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
-F src/user.c 9649e144263c124d53603b4844dea91f9cd1b9a9
+F src/user.c dde3c3d16a89ff29c0bfb2b70e32431f45640400
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 15b33bf9300e2d7d849a92ab387793ffdf2052c0
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f66089ec43a9dd200b3c7d20d27ab8d5876073f3
-R c670547bac012dce76798b25b08d17bb
+P f4c30de75af105d8507eb54d57ec761e3aeede5c
+R e06ff04ca4c04afa19f1b5370429f192
 U drh
-Z 079cfa4d00264dc2082dd2c31ba06791
+Z dff31851da2f0d79755c31dc1c866392
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHHk72oxKgR168RlERAvnNAJ0RIHVkRzDCty6g7/8cpDEVqWssUACdENh0
-hycCR+RbC2/3M3ADJq3Rb0M=
-=2n6Q
+iD8DBQFHIi+XoxKgR168RlERAoAJAJwMe/6nT0uJR0HnKQMYt5P+mkiyBwCeKQsD
+MSpV04JSj7Ljcn/Ii1bVX9g=
+=Fgl2
 -----END PGP SIGNATURE-----
