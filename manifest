@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sone\sof\sthe\scross-reference\schecks.
-D 2007-10-26T06:11:21
+C Added\sanother\sconsistency\scheck,\sand\srevised\sthe\scomments\sto\suse\sthe\smore\sexact\sterms\sfor\sthe\svarious\srelationships.
+D 2007-10-26T06:53:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -102,7 +102,7 @@ F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_option.tcl ebc8b51de97513d8f132a127687a5b7083cc187e
 F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl 2f4f8082a359d923c9f8b6230a8d505243640395
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl 0ebb647b467ca2ebae2f4952e2339bdd974d8479
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
 F tools/cvs2fossil/lib/c2f_project.tcl 00f1aee876a778aaa160148355f02cfcd935808b
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2434ad3bfe860659e3b41ca21a91d26a64f20a33
-R 28c7ebc35b94cf77c505454fa3116454
+P 2e7cbb2829f167c5317f16aa139761287549acae
+R b47525c7815cbeb8269239b4a6ddd3e9
 U aku
-Z 230160207ca1ab956be2fe904e304580
+Z 1bc417db55155e54c7596346a5aca92c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHIYUNvonzZ/CRa7gRAiupAJ4kXS+o6KGKRWF11/zQgfwL8h2IeQCgrEku
-h7ZIRtWIJyhnIHncGgou3kE=
-=0vwU
+iD8DBQFHIY7hvonzZ/CRa7gRAsdZAJ49+2iYzMtUnEdPM9VcizHYMmbQ2gCfZLRD
+BUzxS2b1OgrMipWoXUqhQgc=
+=eeym
 -----END PGP SIGNATURE-----

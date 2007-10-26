@@ -365,17 +365,31 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   R.fid = F.fid
 		;
 	    }
-	# Find all revisions with a child which disagrees about the
-	# file they belong to.
+	# Find all revisions with a primary child which disagrees
+	# about the file they belong to.
 	Check \
-	    {Revisions and their children have to be in the same file} \
-	    {disagrees with its child about the owning file} {
+	    {Revisions and their primary children have to be in the same file} \
+	    {disagrees with its primary child about the owning file} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
 		WHERE R.fid = F.fid
 		AND   R.child IS NOT NULL
 		AND   R.child = C.rid
 		AND   C.fid != R.fid
+		;
+	    }
+
+	# Find all revisions with a branch parent symbol whose parent
+	# disagrees about the file they belong to.
+	Check \
+	    {Revisions and their branch children have to be in the same file} \
+	    {at the beginning of its branch and its parent disagree about the owning file} {
+		SELECT F.name, R.rev
+		FROM revision R, revision P, file F
+		WHERE R.fid = F.fid
+		AND   R.bparent IS NOT NULL
+		AND   R.parent = P.rid
+		AND   R.fid != P.fid
 		;
 	    }
 	# Find all revisions with a non-NTDB child which disagrees
@@ -391,11 +405,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   C.fid != R.fid
 		;
 	    }
-	# Find all revisions which have a child, but the child does
-	# not have them as parent.
+	# Find all revisions which have a primary child, but the child
+	# does not have them as parent.
 	Check \
-	    {Revisions have to be parents of their children} \
-	    {is not the parent of its child} {
+	    {Revisions have to be parents of their primary children} \
+	    {is not the parent of its primary child} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
 		WHERE R.fid = F.fid
@@ -404,11 +418,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   C.parent != R.rid
 		;
 	    }
-	# Find all revisions which have a child, but the child has a
-	# branch parent.
+	# Find all revisions which have a primrary child, but the
+	# child has a branch parent symbol making them brach starters.
 	Check \
-	    {Revision's children must not be branch starters} \
-	    {is parent of a child which is the beginning of a branch} {
+	    {Primary children of revisions must not start branches} \
+	    {is parent of a primary child which is the beginning of a branch} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
 		WHERE R.fid = F.fid
@@ -417,10 +431,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   C.bparent IS NOT NULL
 		;
 	    }
-	# Find all revisions without branch parent which have a
-	# parent, but the parent does not have them as child.
+	# Find all revisions without branch parent symbol which have a
+	# parent, but the parent does not have them as primary child.
 	Check \
-	    {Revisions have to be children of their parents} \
+	    {Revisions have to be primary children of their parents, if any} \
 	    {is not the child of its parent} {
 		SELECT F.name, R.rev
 		FROM revision R, revision P, file F
@@ -431,8 +445,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   P.child != R.rid
 		;
 	    }
-	# Find all revisions with a branch parent which do not have a
-	# parent.
+	# Find all revisions with a branch parent symbol which do not
+	# have a parent.
 	Check \
 	    {Branch starting revisions have to have a parent} \
 	    {at the beginning of its branch has no parent} {
@@ -443,11 +457,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   R.parent IS NULL
 		;
 	    }
-	# Find all revisions with a branch parent whose parent has
-	# them as child.
+	# Find all revisions with a branch parent symbol whose parent
+	# has them as primary child.
 	Check \
-	    {Branch starting revisions must not be children of their parents} \
-	    {at the beginning of its branch is the child of its parent} {
+	    {Branch starting revisions must not be primary children of their parents} \
+	    {at the beginning of its branch is the primary child of its parent} {
 		SELECT F.name, R.rev
 		FROM revision R, revision P, file F
 		WHERE R.fid = F.fid
@@ -483,9 +497,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# Find all revisions with a child which disagrees about the
 	# line of development they belong to.
 	Check \
-	    {Revisions and their children have to be in the same LOD} \
-	    {and its child disagree about their LOD} {
-
+	    {Revisions and their primary children have to be in the same LOD} \
+	    {and its primary child disagree about their LOD} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
 		WHERE R.fid = F.fid
@@ -499,7 +512,6 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	Check \
 	    {NTDB and trunk revisions have to be in different LODs} \
 	    {on NTDB and its non-NTDB child wrongly agree about their LOD} {
-
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
 		WHERE R.fid = F.fid
@@ -508,11 +520,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   C.lod = R.lod
 		;
 	    }
-	# Find all revisions with a branch parent which is not their
-	# line of development.
+	# Find all revisions with a branch parent symbol which is not
+	# their LOD.
 	Check \
-	    {Branch starting revisions have to have their LOD as branch parent} \
-	    {at the beginning of its branch does not have the branch as its LOD} {
+	    {Branch starting revisions have to have their LOD as branch parent symbol} \
+	    {at the beginning of its branch does not have the branch symbol as its LOD} {
 		SELECT F.name, R.rev
 		FROM revision R, file F
 		WHERE R.fid = F.fid
@@ -520,8 +532,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 		AND   R.lod != R.bparent
 		;
 	    }
-	# Find all revisions with a branch parent whose parent is in
-	# the same line of development.
+	# Find all revisions with a branch parent symbol whose parent
+	# is in the same line of development.
 	Check \
 	    {Revisions and their branch children have to be in different LODs} \
 	    {at the beginning of its branch and its parent wrongly agree about their LOD} {
