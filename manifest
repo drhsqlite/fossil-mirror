@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Prevent\sduplicate\slogins\son\sthe\s"user\sadd"\scommand.\s\sAlso,\sallow\sthe\nlogin\sto\sbe\sspecified\son\sthe\scommand\sline.
-D 2007-10-26T18:18:59
+C Fix\sthe\shyperlink\sto\swiki\sso\sthat\sit\suses\sa\squery\sparameter\sfor\sthe\nwiki\spage\sname.
+D 2007-10-27T13:52:17
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -91,7 +91,7 @@ F src/user.c dde3c3d16a89ff29c0bfb2b70e32431f45640400
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 15b33bf9300e2d7d849a92ab387793ffdf2052c0
-F src/wikiformat.c aab9e4b7002232bfe0b188ec5f0cbc6cf62749ca
+F src/wikiformat.c 418172709f7223dda034b79c9bd4256c8c92c805
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f4c30de75af105d8507eb54d57ec761e3aeede5c
-R e06ff04ca4c04afa19f1b5370429f192
+P 783df88ba84e919e1fef79aa0136342d978d5fbf
+R 7a99f377519b6e4f489d310e5962853d
 U drh
-Z dff31851da2f0d79755c31dc1c866392
+Z 92e8ce2fd994d4cbffff062f698ce701
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHIi+XoxKgR168RlERAoAJAJwMe/6nT0uJR0HnKQMYt5P+mkiyBwCeKQsD
-MSpV04JSj7Ljcn/Ii1bVX9g=
-=Fgl2
+iD8DBQFHI0KVoxKgR168RlERAsj1AJoCOXYxF1P8Belp0GoVFPYKX5NlmwCfd8hX
+dcpEpt0kjTW6pS2nmkjZqHU=
+=y0Gp
 -----END PGP SIGNATURE-----

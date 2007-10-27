@@ -785,7 +785,7 @@ static void resolveHyperlink(const char *zTarget, Renderer *p){
   }else if( zTarget[0]=='/' ){
     blob_appendf(p->pOut, "%s%h", g.zBaseURL, zTarget);
   }else if( wiki_name_is_wellformed(zTarget) ){
-    blob_appendf(p->pOut, "%s/wiki/%T", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "%s/wiki?name=%T", g.zBaseURL, zTarget);
   }else{
     blob_appendf(p->pOut, "error");
   }
