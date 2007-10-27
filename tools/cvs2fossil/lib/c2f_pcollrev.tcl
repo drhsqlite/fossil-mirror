@@ -317,17 +317,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# database for inconsistent cross-references.
 	log write 4 collrev {Check database consistency}
 
-	#
-	#    +-> Symbol ------------------+
-	#    |      ^                     | [1]
-	#    |      |                     V
-	#    |   Revision --> File --> Project
-	#    | [3]  |                     ^
-	#    |      V                     | [2]
-	#    +--- Meta -------------------+
-	#
-
-	set n 0
+	set n 0 ; # Counter for the checks (we print an id before the
+		  # main label).
 
 	# Find all revisions which disagree with their line of
 	# development about the project they are owned by.
