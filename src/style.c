@@ -142,6 +142,86 @@ void style_footer(void){
   @ </div>
 }
 
+/*
+** The default Cascading Style Sheet.
+**
+** Selector order: tags, ids, classes, other
+** Content order: margin, borders, padding, fonts, colors, other
+** Note: Once things are finialize a bit we can collapse this and
+**       make it much smaller, if necessary. Right now, it's verbose
+**       but easy to edit.
+*/
+const char zDefaultCSS[] = 
+@ body {
+@   margin: 0px;
+@   padding: 0px;
+@   background-color: white;
+@ }
+@ #page-title {
+@   padding: 10px 10px 10px 10px;
+@   font-size: 1.8em;
+@   font-weight: bold;
+@   background-color: #6a7ec7;
+@   color: #0a1e67;
+@ }
+@ #login-status {
+@   padding: 0px 10px 10px 0px;
+@   font-size: 0.9em;
+@   text-align: right;
+@   background-color: #6a7ec7;
+@   color: white;
+@   position: absolute;
+@   top: 10;
+@   right: 0;
+@ }
+@ #main-menu {
+@   padding: 5px 10px 5px 10px;
+@   font-size: 0.9em;
+@   font-weight: bold;
+@   text-align: center;
+@   letter-spacing: 1px;
+@   background-color: #414f84;
+@   color: white;
+@ }
+@ #sub-menu {
+@   padding: 3px 10px 3px 0px;
+@   font-size: 0.9em;
+@   text-align: center;
+@   background-color: #414f84;
+@   color: white;
+@ }
+@ #main-menu a, #main-menu a:visited, #sub-menu a, #sub-menu a:visited {
+@   padding: 3px 10px 3px 10px;
+@   color: white;
+@ }
+@ #main-menu a:hover, #sub-menu a:hover {
+@   color: #414f84;
+@   background-color: white;
+@ }
+@ #page {
+@   padding: 10px 20px 10px 20px;
+@ }
+@ #style-footer {
+@   font-size: 0.8em;
+@   margin-top: 12px;
+@   padding: 5px 10px 5px 10px;
+@   text-align: right;
+@   background-color: #414f84;
+@   color: white;
+@ }
+@ table.label-value th {
+@   text-align: right;
+@   vertical-align: top;
+@ }
+@ div.section-title {
+@   margin-bottom: 0px;
+@   padding: 1px 1px 1px 1px;
+@   font-size: 1.2em;
+@   font-weight: bold;
+@   background-color: #6a7ec7;
+@   color: #0a1e67;
+@ }
+;
 
 /*
 ** WEBPAGE: style.css
@@ -154,83 +234,7 @@ void page_style_css(void){
   if( zCSS ){
     cgi_append_content(zCSS, -1);
   }else{
-    /* No CSS file found, use our own */
-    /*
-    ** Selector order: tags, ids, classes, other
-    ** Content order: margin, borders, padding, fonts, colors, other
-    ** Note: Once things are finialize a bit we can collapse this and
-    **       make it much smaller, if necessary. Right now, it's verbose
-    **       but easy to edit.
-    */
-    @ body {
-    @   margin: 0px;
-    @   padding: 0px;
-    @   background-color: white;
-    @ }
-    @ #page-title {
-    @   padding: 10px 10px 10px 10px;
-    @   font-size: 1.8em;
-    @   font-weight: bold;
-    @   background-color: #6a7ec7;
-    @   color: #0a1e67;
-    @ }
-    @ #login-status {
-    @   padding: 0px 10px 10px 0px;
-    @   font-size: 0.9em;
-    @   text-align: right;
-    @   background-color: #6a7ec7;
-    @   color: white;
-    @   position: absolute;
-    @   top: 10;
-    @   right: 0;
-    @ }
-    @ #main-menu {
-    @   padding: 5px 10px 5px 10px;
-    @   font-size: 0.9em;
-    @   font-weight: bold;
-    @   text-align: center;
-    @   letter-spacing: 1px;
-    @   background-color: #414f84;
-    @   color: white;
-    @ }
-    @ #sub-menu {
-    @   padding: 3px 10px 3px 0px;
-    @   font-size: 0.9em;
-    @   text-align: center;
-    @   background-color: #414f84;
-    @   color: white;
-    @ }
-    @ #main-menu a, #main-menu a:visited, #sub-menu a, #sub-menu a:visited {
-    @   padding: 3px 10px 3px 10px;
-    @   color: white;
-    @ }
-    @ #main-menu a:hover, #sub-menu a:hover {
-    @   color: #414f84;
-    @   background-color: white;
-    @ }
-    @ #page {
-    @   padding: 10px 20px 10px 20px;
-    @ }
-    @ #style-footer {
-    @   font-size: 0.8em;
-    @   margin-top: 12px;
-    @   padding: 5px 10px 5px 10px;
-    @   text-align: right;
-    @   background-color: #414f84;
-    @   color: white;
-    @ }
-    @ table.label-value th {
-    @   text-align: right;
-    @   vertical-align: top;
-    @ }
-    @ div.section-title {
-    @   margin-bottom: 0px;
-    @   padding: 1px 1px 1px 1px;
-    @   font-size: 1.2em;
-    @   font-weight: bold;
-    @   background-color: #6a7ec7;
-    @   color: #0a1e67;
-    @ }
+    cgi_append_content(zDefaultCSS, -1);
   }
 }
 

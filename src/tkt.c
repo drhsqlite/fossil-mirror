@@ -143,7 +143,7 @@ static void fetchOriginalValues(void){
   char *zSep = "SELECT ";
   blob_zero(&sql);
   for(i=0; i<nField; i++){
-    blob_appendf(&sql, "%s%s", zSep, azField[i]);
+    blob_appendf(&sql, "%stkt_%s", zSep, azField[i]);
     zSep = ", ";
   }
   blob_appendf(" FROM ticket WHERE uuid=%Q", PD("name",""));
@@ -241,7 +241,9 @@ static void tkt_screen_init(int flags){
   zConfig = db_get("ticket-config","");
   SbS_Eval(pInter, zConfig, -1);
   for(i=0; i<sizeof(aVerb)/sizeof(aVerb[0]); i++){
-    SbS_AddVerb(pInterp, aVerb[i].zName, aVerb[i].xVerb, 0);
+    if( flags & aVerb[i].mask ){
+      SbS_AddVerb(pInterp, aVerb[i].zName, aVerb[i].xVerb, 0);
+    }
   }
   /* Extract appropriate template */
   return pInterp;
@@ -256,6 +258,15 @@ void tktnew_page(void){
   int nPage;
 
   tkt_screen_init(M_NEW);
+  if( P("submit")!=0 ){
+    // * Construct the ticket artifact
+    //    + Prefix
+    //    + Field/Value pairs in sorted order
+    //    + Suffix
+    // * Register the artifact
+    // * Update the ticket table
+    // * redirect to the ticket viewer
+  }
   style_header("New Ticket");
   @ This will become a page for entering new tickets.
   style_footer();
@@ -266,13 +277,38 @@ void tktnew_page(void){
 ** URL: tktview?name=UUID
 **
 */
-void tktnew_page(void){
+void tktedit_page(void){
   struct Subscript *pInterp;
   const char *zPage;
   int nPage;
 
-  tkt_screen_init(M_NEW);
-  style_header("New Ticket");
+  tkt_screen_init(M_VIEW);
+  style_header("View Ticket");
+  @ This will become a page for entering new tickets.
+  style_footer();
+}
+
+/*
+** PAGE: tktedit
+** URL: tktedit?name=UUID
+**
+*/
+void tktedit_page(void){
+  struct Subscript *pInterp;
+  const char *zPage;
+  int nPage;
+
+  tkt_screen_init(M_EDIT);
+  if( P("submit") ){
+    // * Construct ticket change artifact
+    //   +  Prefix
+    //   +  Modified field/value pairs in sorted order
+    //   +  Suffix
+    // * Register the artifact
+    // * Update the ticket table
+    // * redirect to the ticket viewer
+  }
+  style_header("Edit Ticket");
   @ This will become a page for entering new tickets.
   style_footer();
 }

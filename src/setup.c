@@ -69,6 +69,8 @@ void setup_page(void){
     "Configure the WWW components of the repository");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("CSS", "editcss",
+    "Edit the Cascading Style Sheet used by all pages of this repository");
   @ </dl>
 
   style_footer();
@@ -540,22 +542,35 @@ void setup_config(void){
   style_header("WWW Configuration");
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/setup_config" method="POST">
-
   @ <hr />
-
   entry_attribute("Project Name", 60, "project-name", "pn", "");
   @ <p>Give your project a name so visitors know what this site is about.
   @ The project name will also be used as the RSS feed title.</p>
-
   @ <hr />
-
   textarea_attribute("Project Description", 5, 60, "project-description", "pd", "");
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
-
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: editcss
+*/
+void setup_editcss(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  style_header("Edit CSS");
+  @ <form action="%s(g.zBaseURL)/editcss" method="POST">
+  @ Edit the CSS:<br />
+  textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ </form>
   style_footer();
 }

@@ -27,8 +27,29 @@
 ** language.  It contains the barest of bare essentials.  It is
 ** stack-based and forth-like.  Everything is in a single global
 ** namespace.  There is only a single datatype of zero-terminated
-** string.  The stack is of fixed, limited depth.  The hash table
+** string.  The stack is of fixed, limited depth.  The symbal table
 ** is of a limited and fixed size.
+**
+** TOKENS:
+**
+**      *  All tokens are separated from each other by whitespace.
+**      *  Leading and trailing whitespace is ignored.
+**      *  Text within nested {...} is a single string token.  The outermost
+**         curly braces are not part of the token.
+**      *  An identifier with a leading "/" is a string token.
+**      *  A token that looks like a number is a string token.
+**      *  An identifier token is called a "verb".
+**
+** PROCESSING:
+**
+**      *  The input is divided into tokens.  Whitespace is discarded.
+**         String and verb tokens are passed into the engine.
+**      *  String tokens are pushed onto the stack.
+**      *  If a verb token corresponds to a procedure, that procedure is
+**         run.  The procedure might use, pop, or pull elements from 
+**         the stack.
+**      *  If a verb token corresponds to a variable, the value of that
+**         variable is pushed onto the stack.
 **
 ** This module attempts to be completely self-contained so that it can
 ** be portable to other projects.
@@ -292,7 +313,7 @@ static int sbs_push(Subscript *p, SbSValue *pVal){
 }
 
 /*
-** Destroy an underscore interpreter
+** Destroy an subscript interpreter
 */
 void SbS_Destroy(struct Subscript *p){
   int i;
@@ -516,7 +537,7 @@ static int setCmd(Subscript *p, void *pNotUsed){
 
 
 /*
-** Create a new underscore interpreter
+** Create a new subscript interpreter
 */
 struct Subscript *SbS_Create(void){
   Subscript *p;
