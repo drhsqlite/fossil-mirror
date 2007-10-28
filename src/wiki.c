@@ -114,7 +114,11 @@ void wiki_page(void){
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
-  zPageName = PD("name","");
+  zPageName = P("name");
+  if( zPageName==0 ){
+    wcontent_page();
+    return;
+  }
   if( check_name(zPageName) ) return;
   zTag = mprintf("wiki-%s", zPageName);
   rid = db_int(0, 
@@ -156,7 +160,7 @@ void wiki_page(void){
 
 /*
 ** WEBPAGE: wikiedit
-** URL: /wikiedit?page=PAGENAME
+** URL: /wikiedit?name=PAGENAME
 */
 void wikiedit_page(void){
   char *zTag;
@@ -432,8 +436,9 @@ void wcontent_page(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zBaseURL)/wiki?page=%T(zName)">%h(zName)</a></li>
+    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
   }
   db_finalize(&q);
+  @ </ul>
   style_footer();
 }

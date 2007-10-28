@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixes\sto\sthe\srendering\sof\s&lt;verbatim&gt;\sand\s&lt;nowiki&gt;
-D 2007-10-28T21:09:32
+C The\s"wiki"\sURI\swithout\sa\spage\sname\sargument\snow\sgives\syou\sa\slist\sof\nexisting\swiki\spages.\s\sThis\sworks\sfine\sas\slong\sas\sthere\sare\sa\sreasonable\nnumber\s(no\smore\sthan\sa\sfew\shundred)\swiki\spages.\s\sWe\sneed\sto\sthink\sof\nsomething\sbetter\sfor\slarge\swikis.\s\sWe\salso\sneed\sto\sthink\sof\sways\sto\sgive\nusers\sbetter\sguidance\sfor\screating\snew\swiki\spages.
+D 2007-10-28T21:26:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -90,7 +90,7 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c dde3c3d16a89ff29c0bfb2b70e32431f45640400
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c 15b33bf9300e2d7d849a92ab387793ffdf2052c0
+F src/wiki.c fbea7b5b38993806f2a3ca12afdf7a4cd57456b0
 F src/wikiformat.c 99707514c54320db6c38187f03510ff9770e0643
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8ffd32c2b7ff83e4d4071d0ad785c67311433d1c
-R 7cec86c03214568add729653f6f9a87c
+P e75f9a2ab45aa3b47bb0ac6043bd42118d77f9ea
+R 34153dab4238214967a7e3d283aa880e
 U drh
-Z 67db5fa7f4f91d48bfedf80880286104
+Z d982a3f1bf4b47447608b5c45ea5dbd7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHJPqQoxKgR168RlERAoikAJ9hUJ/R5KvXjIwR27e22BkJd5WQBQCfejnQ
-F1VxtuWXTWM7/dphG/xnPAE=
-=hknF
+iD8DBQFHJP5yoxKgR168RlERAv51AJ9goS2ul+AevSXWyXYP6aMPbrkFLwCbB6L+
+/xzXSurXDZiRmdQoVAR9Uvw=
+=7ib6
 -----END PGP SIGNATURE-----
