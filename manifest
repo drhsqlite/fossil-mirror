@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sability\sto\sedit\sthe\sCSS\sfor\sall\spages\sin\sthe\sSetup\smenu.\s\sOther\nmiscellaneous\schanges\stoward\sgetting\sticketing\sto\swork.
-D 2007-10-28T20:52:52
+C Fixes\sto\sthe\srendering\sof\s&lt;verbatim&gt;\sand\s&lt;nowiki&gt;
+D 2007-10-28T21:09:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -91,7 +91,7 @@ F src/user.c dde3c3d16a89ff29c0bfb2b70e32431f45640400
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 15b33bf9300e2d7d849a92ab387793ffdf2052c0
-F src/wikiformat.c 418172709f7223dda034b79c9bd4256c8c92c805
+F src/wikiformat.c 99707514c54320db6c38187f03510ff9770e0643
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 421a1e1fa4f9e5d4fa628163f48f50ef17357b9b
-R a7997eb803bc311adb63a8a05dd5d522
+P 8ffd32c2b7ff83e4d4071d0ad785c67311433d1c
+R 7cec86c03214568add729653f6f9a87c
 U drh
-Z dd2870227b362d385ce00d97b586acab
+Z 67db5fa7f4f91d48bfedf80880286104
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHJPapoxKgR168RlERAsdQAJoDYJFB4YiQ3Rilm7JtJZlv0nEyzgCfdqFN
-8GzHzaaZ3FJM2O7fJ5h6tBs=
-=noOe
+iD8DBQFHJPqQoxKgR168RlERAoikAJ9hUJ/R5KvXjIwR27e22BkJd5WQBQCfejnQ
+F1VxtuWXTWM7/dphG/xnPAE=
+=hknF
 -----END PGP SIGNATURE-----

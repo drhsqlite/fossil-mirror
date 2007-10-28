@@ -514,7 +514,7 @@ static int linkLength(const char *z){
 ** z points to the start of a token.  Return the number of
 ** characters in that token.  Write the token type into *pTokenType.
 */
-static int nextToken(const char *z, int state, int *pTokenType){
+static int nextToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
     n = markupLength(z);
@@ -526,11 +526,11 @@ static int nextToken(const char *z, int state, int *pTokenType){
       return 1;
     }
   }
-  if( z[0]=='&' && !isElement(z) ){
+  if( z[0]=='&' && (p->inVerbatim || !isElement(z)) ){
     *pTokenType = TOKEN_CHARACTER;
     return 1;
   }
-  if( (state & ALLOW_WIKI)!=0 ){
+  if( (p->state & ALLOW_WIKI)!=0 ){
     if( z[0]=='\n' ){
       n = paragraphBreakLength(z);
       if( n>0 ){
@@ -541,8 +541,7 @@ static int nextToken(const char *z, int state, int *pTokenType){
         return 1;
       }
     }
-    if( (state & AT_NEWLINE)!=0 /* && (state & (AT_PARAGRAPH|IN_LIST))!=0 */
-             && isspace(z[0]) ){
+    if( (p->state & AT_NEWLINE)!=0 && isspace(z[0]) ){
       n = bulletLength(z);
       if( n>0 ){
         *pTokenType = TOKEN_BULLET;
@@ -554,7 +553,7 @@ static int nextToken(const char *z, int state, int *pTokenType){
         return n;
       }
     }
-    if( (state & AT_PARAGRAPH)!=0 && isspace(z[0]) ){
+    if( (p->state & AT_PARAGRAPH)!=0 && isspace(z[0]) ){
       n = indentLength(z);
       if( n>0 ){
         *pTokenType = TOKEN_INDENT;
@@ -567,7 +566,7 @@ static int nextToken(const char *z, int state, int *pTokenType){
     }
   }
   *pTokenType = TOKEN_TEXT;
-  return 1 + textLength(z+1, state & ALLOW_WIKI);
+  return 1 + textLength(z+1, p->state & ALLOW_WIKI);
 }
 
 /*
@@ -826,7 +825,7 @@ static void wiki_render(Renderer *p, char *z){
   int n;
 
   while( z[0] ){
-    n = nextToken(z, p->state, &tokenType);
+    n = nextToken(z, p, &tokenType);
     p->state &= ~(AT_NEWLINE|AT_PARAGRAPH);
     switch( tokenType ){
       case TOKEN_PARAGRAPH: {
@@ -952,7 +951,7 @@ static void wiki_render(Renderer *p, char *z){
           if( markup.endTag ){
             p->state |= ALLOW_WIKI;
           }else{
-            p->state &= ALLOW_WIKI;
+            p->state &= ~ALLOW_WIKI;
           }
         }else if( markup.endTag ){
           popStackToTag(p, markup.iCode);
