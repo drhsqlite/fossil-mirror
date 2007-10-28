@@ -100,12 +100,21 @@ void home_page(void){
 }
 
 /*
+** Return true if the given pagename is the name of the sandbox
+*/
+static int is_sandbox(const char *zPagename){
+  return strcasecmp(zPagename,"sandbox")==0 ||
+         strcasecmp(zPagename,"sand box")==0;
+}
+
+/*
 ** WEBPAGE: wiki
 ** URL: /wiki?name=PAGENAME
 */
 void wiki_page(void){
   char *zTag;
   int rid;
+  int isSandbox;
   Blob wiki;
   Manifest m;
   const char *zPageName;
@@ -116,36 +125,52 @@ void wiki_page(void){
   if( !g.okRdWiki ){ login_needed(); return; }
   zPageName = P("name");
   if( zPageName==0 ){
-    wcontent_page();
+    style_header("Wiki");
+    @ <ul>
+    @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
+    @      pages. </li>
+    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
+    @      wiki.</li>
+    @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
+    @      to experiment.</li>
+    @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
+    @      available on this server.</li>
+    @ </ul>
+    style_footer();
     return;
   }
   if( check_name(zPageName) ) return;
-  zTag = mprintf("wiki-%s", zPageName);
-  rid = db_int(0, 
-    "SELECT rid FROM tagxref"
-    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-    " ORDER BY mtime DESC", zTag
-  );
-  free(zTag);
-  memset(&m, 0, sizeof(m));
-  blob_zero(&m.content);
-  if( rid ){
-    Blob content;
-    content_get(rid, &content);
-    manifest_parse(&m, &content);
-    if( m.type==CFTYPE_WIKI ){
-      zBody = m.zWiki;
+  isSandbox = is_sandbox(zPageName);
+  if( isSandbox ){
+    zBody = db_get("sandbox",zBody);
+  }else{
+    zTag = mprintf("wiki-%s", zPageName);
+    rid = db_int(0, 
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      " ORDER BY mtime DESC", zTag
+    );
+    free(zTag);
+    memset(&m, 0, sizeof(m));
+    blob_zero(&m.content);
+    if( rid ){
+      Blob content;
+      content_get(rid, &content);
+      manifest_parse(&m, &content);
+      if( m.type==CFTYPE_WIKI ){
+        zBody = m.zWiki;
+      }
     }
   }
-  if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+  if( isSandbox || (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
     style_submenu_element("Edit", "Edit Wiki Page", 
        mprintf("%s/wikiedit?name=%T", g.zTop, zPageName));
   }
-  if( rid && g.okApndWiki ){
+  if( isSandbox || (rid && g.okApndWiki) ){
     style_submenu_element("Append", "Add A Comment", 
        mprintf("%s/wikiappend?name=%T", g.zTop, zPageName));
   }
-  if( g.okHistory ){
+  if( !isSandbox && g.okHistory ){
     style_submenu_element("History", "History", 
          mprintf("%s/whistory?name=%T", g.zTop, zPageName));
   }
@@ -154,7 +179,9 @@ void wiki_page(void){
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
-  manifest_clear(&m);
+  if( !isSandbox ){
+    manifest_clear(&m);
+  }
   style_footer();
 }
 
@@ -165,6 +192,7 @@ void wiki_page(void){
 void wikiedit_page(void){
   char *zTag;
   int rid;
+  int isSandbox;
   Blob wiki;
   Manifest m;
   const char *zPageName;
@@ -179,25 +207,32 @@ void wikiedit_page(void){
   login_check_credentials();
   zPageName = PD("name","");
   if( check_name(zPageName) ) return;
-  zTag = mprintf("wiki-%s", zPageName);
-  rid = db_int(0, 
-    "SELECT rid FROM tagxref"
-    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-    " ORDER BY mtime DESC", zTag
-  );
-  free(zTag);
-  if( (rid && !g.okWrWiki) || (!rid && !g.okNewWiki) ){
-    login_needed();
-    return;
-  }
-  memset(&m, 0, sizeof(m));
-  blob_zero(&m.content);
-  if( rid && zBody==0 ){
-    Blob content;
-    content_get(rid, &content);
-    manifest_parse(&m, &content);
-    if( m.type==CFTYPE_WIKI ){
-      zBody = m.zWiki;
+  isSandbox = is_sandbox(zPageName);
+  if( isSandbox ){
+    if( zBody==0 ){
+      zBody = db_get("sandbox","");
+    }
+  }else{
+    zTag = mprintf("wiki-%s", zPageName);
+    rid = db_int(0, 
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      " ORDER BY mtime DESC", zTag
+    );
+    free(zTag);
+    if( (rid && !g.okWrWiki) || (!rid && !g.okNewWiki) ){
+      login_needed();
+      return;
+    }
+    memset(&m, 0, sizeof(m));
+    blob_zero(&m.content);
+    if( rid && zBody==0 ){
+      Blob content;
+      content_get(rid, &content);
+      manifest_parse(&m, &content);
+      if( m.type==CFTYPE_WIKI ){
+        zBody = m.zWiki;
+      }
     }
   }
   if( P("submit")!=0 && zBody!=0 ){
@@ -206,28 +241,32 @@ void wikiedit_page(void){
     int nrid;
     blob_zero(&wiki);
     db_begin_transaction();
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
-    blob_appendf(&wiki, "D %s\n", zDate);
-    free(zDate);
-    blob_appendf(&wiki, "L %F\n", zPageName);
-    if( rid ){
-      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      blob_appendf(&wiki, "P %s\n", zUuid);
-      free(zUuid);
+    if( isSandbox ){
+      db_set("sandbox",zBody,0);
+    }else{
+      zDate = db_text(0, "SELECT datetime('now')");
+      zDate[10] = 'T';
+      blob_appendf(&wiki, "D %s\n", zDate);
+      free(zDate);
+      blob_appendf(&wiki, "L %F\n", zPageName);
+      if( rid ){
+        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+        blob_appendf(&wiki, "P %s\n", zUuid);
+        free(zUuid);
+      }
+      if( g.zLogin ){
+        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      }
+      blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
+      md5sum_blob(&wiki, &cksum);
+      blob_appendf(&wiki, "Z %b\n", &cksum);
+      blob_reset(&cksum);
+      nrid = content_put(&wiki, 0, 0);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+      manifest_crosslink(nrid, &wiki);
+      blob_reset(&wiki);
+      content_deltify(rid, nrid, 0);
     }
-    if( g.zLogin ){
-      blob_appendf(&wiki, "U %F\n", g.zLogin);
-    }
-    blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
-    md5sum_blob(&wiki, &cksum);
-    blob_appendf(&wiki, "Z %b\n", &cksum);
-    blob_reset(&cksum);
-    nrid = content_put(&wiki, 0, 0);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-    manifest_crosslink(nrid, &wiki);
-    blob_reset(&wiki);
-    content_deltify(rid, nrid, 0);
     db_end_transaction(0);
     cgi_redirectf("wiki?name=%T", zPageName);
   }
@@ -262,7 +301,9 @@ void wikiedit_page(void){
   @ <input type="submit" name="submit" value="Apply These Changes">
   @ <input type="submit" name="cancel" value="Cancel">
   @ </form>
-  manifest_clear(&m);
+  if( !isSandbox ){
+    manifest_clear(&m);
+  }
   style_footer();
 }
 
@@ -275,14 +316,14 @@ static void appendRemark(Blob *p){
   const char *zRemark;
 
   zDate = db_text(0, "SELECT datetime('now')");
-  blob_appendf(p, "On %s UTC %h", zDate, g.zLogin);
+  blob_appendf(p, "\n\n<hr><i>On %s UTC %h", zDate, g.zLogin);
   free(zDate);
   zUser = PD("u",g.zLogin);
   if( zUser[0] && strcmp(zUser,g.zLogin) ){
     blob_appendf(p, " (claiming to be %h)", zUser);
   }
   zRemark = PD("r","");
-  blob_appendf(p, " added:\n\n%s", zRemark);
+  blob_appendf(p, " added:</i><br />\n%s", zRemark);
 }
 
 /*
@@ -292,6 +333,7 @@ static void appendRemark(Blob *p){
 void wikiappend_page(void){
   char *zTag;
   int rid;
+  int isSandbox;
   const char *zPageName;
   char *zHtmlPageName;
   const char *zUser;
@@ -299,16 +341,19 @@ void wikiappend_page(void){
   login_check_credentials();
   zPageName = PD("name","");
   if( check_name(zPageName) ) return;
-  zTag = mprintf("wiki-%s", zPageName);
-  rid = db_int(0, 
-    "SELECT rid FROM tagxref"
-    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-    " ORDER BY mtime DESC", zTag
-  );
-  free(zTag);
-  if( !rid ){
-    cgi_redirect("index");
-    return;
+  isSandbox = is_sandbox(zPageName);
+  if( !isSandbox ){
+    zTag = mprintf("wiki-%s", zPageName);
+    rid = db_int(0, 
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      " ORDER BY mtime DESC", zTag
+    );
+    free(zTag);
+    if( !rid ){
+      cgi_redirect("index");
+      return;
+    }
   }
   if( !g.okApndWiki ){
     login_needed();
@@ -323,39 +368,45 @@ void wikiappend_page(void){
     Blob wiki;
     Manifest m;
 
-    content_get(rid, &content);
-    manifest_parse(&m, &content);
     blob_zero(&body);
-    if( m.type==CFTYPE_WIKI ){
-      blob_appendf(&body, m.zWiki, -1);
+    if( isSandbox ){
+      blob_appendf(&body, db_get("sandbox",""));
+      appendRemark(&body);
+      db_set("sandbox", blob_str(&body), 0);
+    }else{
+      content_get(rid, &content);
+      manifest_parse(&m, &content);
+      if( m.type==CFTYPE_WIKI ){
+        blob_appendf(&body, m.zWiki, -1);
+      }
+      manifest_clear(&m);
+      blob_zero(&wiki);
+      db_begin_transaction();
+      zDate = db_text(0, "SELECT datetime('now')");
+      zDate[10] = 'T';
+      blob_appendf(&wiki, "D %s\n", zDate);
+      blob_appendf(&wiki, "L %F\n", zPageName);
+      if( rid ){
+        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+        blob_appendf(&wiki, "P %s\n", zUuid);
+        free(zUuid);
+      }
+      if( g.zLogin ){
+        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      }
+      blob_appendf(&body, "\n<hr>\n");
+      appendRemark(&body);
+      blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
+      md5sum_blob(&wiki, &cksum);
+      blob_appendf(&wiki, "Z %b\n", &cksum);
+      blob_reset(&cksum);
+      nrid = content_put(&wiki, 0, 0);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+      manifest_crosslink(nrid, &wiki);
+      blob_reset(&wiki);
+      content_deltify(rid, nrid, 0);
+      db_end_transaction(0);
     }
-    manifest_clear(&m);
-    blob_zero(&wiki);
-    db_begin_transaction();
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
-    blob_appendf(&wiki, "D %s\n", zDate);
-    blob_appendf(&wiki, "L %F\n", zPageName);
-    if( rid ){
-      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-      blob_appendf(&wiki, "P %s\n", zUuid);
-      free(zUuid);
-    }
-    if( g.zLogin ){
-      blob_appendf(&wiki, "U %F\n", g.zLogin);
-    }
-    blob_appendf(&body, "\n<hr>\n");
-    appendRemark(&body);
-    blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
-    md5sum_blob(&wiki, &cksum);
-    blob_appendf(&wiki, "Z %b\n", &cksum);
-    blob_reset(&cksum);
-    nrid = content_put(&wiki, 0, 0);
-    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-    manifest_crosslink(nrid, &wiki);
-    blob_reset(&wiki);
-    content_deltify(rid, nrid, 0);
-    db_end_transaction(0);
     cgi_redirectf("wiki?name=%T", zPageName);
   }
   if( P("cancel")!=0 ){
@@ -442,3 +493,109 @@ void wcontent_page(void){
   @ </ul>
   style_footer();
 }
+
+/*
+** WEBPAGE: wiki_rules
+*/
+void wikirules_page(void){
+  style_header("Wiki Formatting Rules");
+  @ <h2>Formatting Rule Summary</h2>
+  @ <ol>
+  @ <li> Blank lines are paragraph breaks
+  @ <li> Bullet list items are a "*" at the beginning of the line.
+  @ <li> Enumeration list items are a number at the beginning of a line.
+  @ <li> Indented pargraphs begin with a tab or two spaces.
+  @ <li> Hyperlinks are contained with square brackets:  "[target]"
+  @ <li> Most ordinary HTML works.
+  @ <li> &lt;verbatim&gt; and &lt;nowiki&gt;.
+  @ </ol>
+  @ <p>We call the first five rules above "wiki" formatting rules.  The
+  @ last two rules are the HTML formatting rule.</p>
+  @ <h2>Formatting Rule Details</h2>
+  @ <ol>
+  @ <li> <p><b>Paragraphs</b>.  Any sequence of one or more blank lines forms
+  @ a paragraph break.  Centered or right-justified paragraphs are not
+  @ supported by wiki markup, but you can do these things if you need them
+  @ using HTML.</p>
+  @ <li> <p><b>Bullet Lists</b>.
+  @ A bullet list item begins with a single "*" character surrounded on
+  @ both sides by two or more spaces or by a tab.  Only a single level
+  @ of bullet list is supported by wiki.  For tested lists, use HTML.</p>
+  @ <li> <p><b>Enumeration Lists</b>.
+  @ An enumeration list item begins with one or more digits optionally
+  @ followed by a "." surrounded on both sides by two or more spaces or
+  @ by a tab.  The number is significant and becomes the number shown
+  @ in the rendered enumeration item.  Only a single level of enumeration
+  @ list is supported by wiki.  For nested enumerations or for
+  @ enumerations that count using letters or roman numerials, use HTML.</p>
+  @ <li> <p><b>Indented Paragraphs</b>.
+  @ Any paragraph that begins with two or more spaces or a tab and
+  @ which is not a bullet or enumeration list item is rendered 
+  @ indented.  Only a single level of indentation is supported by</p>
+  @ <li> <p><b>Hyperlinks</b>.
+  @ Text within square brackets ("[...]") becomes a hyperlink.  The
+  @ target can be a wiki page name, the UUID of a check-in or ticket,
+  @ the name of an image, or a URL.  By default, the target is displayed
+  @ as the text of the hyperlink.  But you can specify alternative text
+  @ after the target name separated by a "|" character.</p>
+  @ <li> <p><b>HTML</b>.
+  @ The following standard HTML elements may be used:
+  @ &lt;a&gt;
+  @ &lt;address&gt;
+  @ &lt;b&gt;
+  @ &lt;big&gt;
+  @ &lt;blockquote&gt;
+  @ &lt;br&gt;
+  @ &lt;center&gt;
+  @ &lt;cite&gt;
+  @ &lt;code&gt;
+  @ &lt;dd&gt;
+  @ &lt;dfn&gt;
+  @ &lt;dl&gt;
+  @ &lt;dt&gt;
+  @ &lt;em&gt;
+  @ &lt;font&gt;
+  @ &lt;h1&gt;
+  @ &lt;h2&gt;
+  @ &lt;h3&gt;
+  @ &lt;h4&gt;
+  @ &lt;h5&gt;
+  @ &lt;h6&gt;
+  @ &lt;hr&gt;
+  @ &lt;img&gt;
+  @ &lt;i&gt;
+  @ &lt;kbd&gt;
+  @ &lt;li&gt;
+  @ &lt;nobr&gt;
+  @ &lt;ol&gt;
+  @ &lt;p&gt;
+  @ &lt;pre&gt;
+  @ &lt;s&gt;
+  @ &lt;samp&gt;
+  @ &lt;small&gt;
+  @ &lt;strike&gt;
+  @ &lt;strong&gt;
+  @ &lt;sub&gt;
+  @ &lt;sup&gt;
+  @ &lt;table&gt;
+  @ &lt;td&gt;
+  @ &lt;th&gt;
+  @ &lt;tr&gt;
+  @ &lt;tt&gt;
+  @ &lt;u&gt;
+  @ &lt;ul&gt;
+  @ &lt;var&gt;.
+  @ In addition, there are two non-standard elements available:
+  @ &lt;verbatim&gt; and &lt;nowiki&gt;.
+  @ No other elements are allowed.  All attributes are checked and
+  @ only a few benign attributes are allowed on each element.
+  @ In particular, any attributes that specify javascript or CSS
+  @ are elided.</p>
+  @ <p>The &lt;verbatim&gt; tag disables all wiki and HTML markup
+  @ up through the next &lt;/verbatim&gt;.  The &lt;nowiki&gt; tag
+  @ disables all wiki formatting rules through the matching
+  @ &lt;/nowiki&gt; element.
+  @ </ol>
+  style_footer();
+}
+

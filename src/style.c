@@ -98,6 +98,9 @@ void style_header(const char *zTitle){
     @ | <a href="%s(g.zBaseURL)/leaves">Leaves</a>
     @ | <a href="%s(g.zBaseURL)/timeline">Timeline</a>
   }
+  if( g.okRdWiki ){
+    @ | <a href="%s(g.zBaseURL)/wiki">Wiki</a>
+  }
 #if 0
   @ | <font color="#888888">Search</font>
   @ | <font color="#888888">Ticket</font>
