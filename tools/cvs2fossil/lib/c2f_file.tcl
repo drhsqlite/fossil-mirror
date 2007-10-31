@@ -234,7 +234,8 @@ snit::type ::vc::fossil::import::cvs::file {
     method done {} {
 	# Complete the revisions, branches, and tags. This includes
 	# looking for a non-trunk default branch, marking its members
-	# and linking them into the trunk.
+	# and linking them into the trunk, possibly excluding
+	# non-trunk data, and collecting aggregate symbol statistics.
 
 	$self DetermineRevisionOperations
 	$self DetermineLinesOfDevelopment
@@ -245,6 +246,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	if {[$myproject trunkonly]} {
 	    $self ExcludeNonTrunkInformation
 	}
+
+	$self AggregateSymbolData
 	return
     }
 
@@ -1024,6 +1027,60 @@ snit::type ::vc::fossil::import::cvs::file {
 	}
 
 	return [list [lsort -unique -dict $revisions] [lsort -unique -dict $symbols]]
+    }
+
+
+    method AggregateSymbolData {} {
+	# Now that the exact set of revisions (and through that
+	# branches and tags) is known we can update the aggregate
+	# symbol statistics.
+
+	foreach root [$self LinesOfDevelopment] {
+	    set lod [$root lod]
+
+	    # Note: If the LOD is the trunk the count*, etc. methods
+	    # will do nothing, as it is always present (cannot be
+	    # excluded), and is always a branch too.
+
+	    # Lines of development count as branches and have a commit
+	    # on them (root). If they are still attached to a tree we
+	    # have to compute and register possible parents.
+
+	    $lod countasbranch
+	    $lod countacommit
+
+	    if {[$root hasparentbranch]} {
+		# Note lod == [$root parentbranch]
+		$lod possibleparents
+	    }
+
+	    # For the revisions in the line we register their branches
+	    # and tags as blockers for the lod, and update the type
+	    # counters as well. As branch symbols without commits on
+	    # them are not listed as lines of development, we have to
+	    # count them here as well, as plain branches. At last we
+	    # have to compute and register the possible parents of the
+	    # tags, in case they are later converted as branches.
+
+	    while {$root ne ""} {
+		foreach branch [$root branches] {
+		    $lod blockedby $branch
+		    $branch possibleparents
+		    if {[$branch haschild]} continue
+		    $branch countasbranch
+		}
+
+		foreach tag [$root tags] {
+		    $lod blockedby $tag
+		    $tag possibleparents
+		    $tag countastag
+		}
+
+		set root [$root child]
+	    }
+	}
+
+	return
     }
 
     # # ## ### ##### ######## #############

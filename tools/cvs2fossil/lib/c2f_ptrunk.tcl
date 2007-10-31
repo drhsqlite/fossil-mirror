@@ -26,19 +26,37 @@ snit::type ::vc::fossil::import::cvs::project::trunk {
     ## Public API
 
     constructor {project} {
-	set myid [[$project getsymbol $myname] id]
+	set mysymbol [$project getsymbol $myname]
+	set myid     [$mysymbol id]
 	return
+    }
+
+    destructor {
+	$mysymbol destroy
     }
 
     method name    {} { return $myname }
     method id      {} { return $myid   }
     method istrunk {} { return 1 }
+    method symbol  {} { return $self }
+
+    method countasbranch {} {}
+    method countastag    {} {}
+    method countacommit  {} {}
+
+    method blockedby      {symbol} {}
+    method possibleparent {symbol} {}
+
+    method isghost {} { return 0 }
+
+    delegate method persistrev to mysymbol
 
     # # ## ### ##### ######## #############
     ## State
 
-    typevariable myname :trunk: ; # Name shared by all trunk symbols.
-    variable     myid   {}      ; # The trunk's symbol id.
+    typevariable myname   :trunk: ; # Name shared by all trunk symbols.
+    variable     myid     {}      ; # The trunk's symbol id.
+    variable     mysymbol {}      ; # The symbol underneath the trunk.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -49,7 +67,6 @@ snit::type ::vc::fossil::import::cvs::project::trunk {
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
     pragma -hastypemethods no  ; # type is not relevant.
-    pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############
 }

@@ -21,6 +21,7 @@ package require vc::fossil::import::cvs::file           ; # CVS archive file.
 package require vc::fossil::import::cvs::state          ; # State storage.
 package require vc::fossil::import::cvs::project::sym   ; # Per project symbols.
 package require vc::fossil::import::cvs::project::trunk ; # Per project trunk, main lod
+package require vc::tools::log                          ; # User feedback
 package require struct::list                            ; # Advanced list operations..
 
 # # ## ### ##### ######## ############# #####################
@@ -34,6 +35,7 @@ snit::type ::vc::fossil::import::cvs::project {
 	set mybase       $path
 	set myrepository $r
 	set mytrunk      [trunk %AUTO% $self]
+	set mysymbol([$mytrunk name]) $mytrunk
 	return
     }
 
@@ -76,6 +78,21 @@ snit::type ::vc::fossil::import::cvs::project {
 		[sym %AUTO% $name [$myrepository defsymbol $myid $name] $self]
 	}
 	return $mysymbol($name)
+    }
+
+    method purgeghostsymbols {} {
+	set changes 1
+	while {$changes} {
+	    set changes 0
+	    foreach {name symbol} [array get mysymbol] {
+		if {![$symbol isghost]} continue
+		log write 3 project "$mybase: Deleting ghost symbol '$name'"
+		$symbol destroy
+		unset mysymbol($name)
+		set changes 1
+	    }
+	}
+	return
     }
 
     # pass I persistence
@@ -179,6 +196,7 @@ snit::type ::vc::fossil::import::cvs::project {
 namespace eval ::vc::fossil::import::cvs {
     namespace export project
     namespace eval project {
+	namespace import ::vc::tools::log
 	namespace import ::vc::fossil::import::cvs::file
 	namespace import ::vc::fossil::import::cvs::state
 	# Import not required, already a child namespace.

@@ -17,6 +17,7 @@
 
 package require Tcl 8.4                                 ; # Required runtime.
 package require snit                                    ; # OO system.
+package require struct::set                             ; # Set handling.
 package require vc::fossil::import::cvs::state          ; # State storage.
 
 # # ## ### ##### ######## ############# #####################
@@ -37,18 +38,64 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     method id   {} { return $myid   }
 
     # # ## ### ##### ######## #############
+    ## Symbol statistics
+
+    method countasbranch {} { incr mybranchcount ; return }
+    method countastag    {} { incr mytagcount    ; return }
+    method countacommit  {} { incr mycommitcount ; return }
+
+    method blockedby {symbol} {
+	# Remember the symbol as preventing the removal of this
+	# symbol. Ot is a tag or branch that spawned from a revision
+	# on this symbol.
+
+	struct::set include myblockers $symbol
+	return
+    }
+
+    method possibleparent {symbol} {
+	if {[info exists mypparent($symbol)]} {
+	    incr mypparent($symbol)
+	} else {
+	    set  mypparent($symbol) 1
+	}
+	return
+    }
+
+    method isghost {} {
+	# Checks if this symbol (as line of development) never
+	# existed.
+
+	if {$mycommitcount > 0}         { return 0 }
+	if {[llength $myblockers]}      { return 0 }
+	if {[array size mypparent] > 0} { return 0 }
+
+	return 1
+    }
+
+    # # ## ### ##### ######## #############
 
     method persistrev {} {
 	set pid [$myproject id]
 
-	# TODO: Compute the various counts. All the necessary
-	# TODO: information is already in the database. Actually it
-	# TODO: never was in memory.
-
 	state transaction {
 	    state run {
-		INSERT INTO symbol ( sid,   pid,  name,   type,     tag_count, branch_count, commit_count)
-		VALUES             ($myid, $pid, $myname, $myundef, 0,         0,            0);
+		INSERT INTO symbol ( sid,   pid,  name,   type,     tag_count,   branch_count,   commit_count)
+		VALUES             ($myid, $pid, $myname, $myundef, $mytagcount, $mybranchcount, $mycommitcount);
+	    }
+	    foreach symbol $myblockers {
+		set bid [$symbol id]
+		state run {
+		    INSERT INTO blocker (sid,   bid)
+		    VALUES              ($myid, $bid);
+		}
+	    }
+	    foreach {symbol count} [array get mypparent] {
+		set pid [$symbol id]
+		state run {
+		    INSERT INTO parent (sid,   pid,  n)
+		    VALUES             ($myid, $pid, $count);
+		}
 	    }
 	}
 	return
@@ -63,6 +110,17 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     variable myid      {} ; # Repository wide numeric id of the
 			    # symbol. This implicitly encodes the
 			    # project as well.
+
+    variable mybranchcount 0 ; # Count how many uses as branch.
+    variable mytagcount    0 ; # Count how many uses as tag.
+    variable mycommitcount 0 ; # Count how many files did a commit on the symbol.
+
+    variable myblockers   {} ; # List (Set) of the symbols which block
+			       # the exclusion of this symbol.
+
+    variable mypparent -array {} ; # Maps from symbols to the number
+				   # of files in which it could have
+				   # been a parent of this symbol.
 
     typevariable mytag    1 ; # Code for symbols which are tags.
     typevariable mybranch 2 ; # Code for symbols which are branches.

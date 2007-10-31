@@ -188,14 +188,21 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	}
 
 	state writing blocker {
+	    -- For each symbol we save which other symbols are
+	    -- blocking its removal (if the user asks for it).
+
 	    sid INTEGER  NOT NULL  REFERENCES symbol, -- 
 	    bid INTEGER  NOT NULL  REFERENCES symbol, -- Sprouted from sid, blocks it.
 	    UNIQUE (sid, bid)
 	}
 
 	state writing parent {
+	    -- For each symbol we save which other symbols can act as
+	    -- a possible parent in some file, and how often.
+
 	    sid INTEGER  NOT NULL  REFERENCES symbol, -- 
 	    pid INTEGER  NOT NULL  REFERENCES symbol, -- Possible parent of sid
+	    n   INTEGER  NOT NULL,                    -- How often pid can act as parent.
 	    UNIQUE (sid, pid)
 	}
 
@@ -285,6 +292,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 
 		$file drop
 	    }
+
+	    $project purgeghostsymbols
 	}
 
 	repository printrevstatistics
@@ -314,7 +323,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 
     proc Paranoia {} {
 	# This code performs a number of paranoid checks of the
-	# database for inconsistent cross-references.
+	# database, searching for inconsistent cross-references.
 	log write 4 collrev {Check database consistency}
 
 	set n 0 ; # Counter for the checks (we print an id before the

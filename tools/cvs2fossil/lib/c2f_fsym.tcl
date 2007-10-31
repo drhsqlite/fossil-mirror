@@ -47,12 +47,68 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	return
     }
 
-    method fid {} { return $myid }
+    method fid    {} { return $myid     }
+    method symbol {} { return $mysymbol }
 
     # Symbol acessor methods.
 
     delegate method name to mysymbol
     delegate method id   to mysymbol
+
+    # Symbol aggregation methods
+
+    delegate method countasbranch to mysymbol
+    delegate method countastag    to mysymbol
+    delegate method countacommit  to mysymbol
+
+    method blockedby {fsymbol} {
+	$mysymbol blockedby [$fsymbol symbol]
+	return
+    }
+
+    method possibleparents {} {
+	switch -exact -- $mytype {
+	    branch { $self BranchParents }
+	    tag    { $self TagParents    }
+	}
+	return
+    }
+
+    method BranchParents {} {
+	# The "obvious" parent of a branch is the branch holding the
+	# revision spawning the branch. Any other branches that are
+	# rooted at the same revision and were committed earlier than
+	# the branch are also possible parents.
+
+	$mysymbol possibleparent [[$mybranchparent lod] symbol]
+
+	foreach branch [$mybranchparent branches] {
+	    # A branch cannot be its own parent. Nor can a branch
+	    # created after this one be its parent. This means that we
+	    # can abort the loop when we have reached ourselves in the
+	    # list of branches. Here the order of file::rev.mybranches
+	    # comes into play, as created by file::rev::sortbranches.
+
+	    if {$branch eq $self} break
+	    $mysymbol possibleparent [$branch symbol]
+	}
+	return
+    }
+
+    method TagParents {} {
+	# The "obvious" parent of a tag is the branch holding the
+	# revision spawning the tag. Branches that are spawned by the
+	# same revision are also possible parents.
+
+	$mysymbol possibleparent [[$mytagrev lod] symbol]
+
+	foreach branch [$mytagrev branches] {
+	    $mysymbol possibleparent [$branch symbol]
+	}
+	return
+    }
+
+    #
 
     method istrunk {} { return 0 }
 
@@ -77,7 +133,6 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     method parent      {} { return $mybranchparent }
     method child       {} { return $mybranchchild }
     method position    {} { return $mybranchposition }
-
 
     # Tag acessor methods.
 
