@@ -15,10 +15,13 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                                 ; # Required runtime.
-package require snit                                    ; # OO system.
-package require struct::set                             ; # Set handling.
-package require vc::fossil::import::cvs::state          ; # State storage.
+package require Tcl 8.4                               ; # Required runtime.
+package require snit                                  ; # OO system.
+package require vc::tools::trouble                    ; # Error reporting.
+package require vc::tools::log                        ; # User feedback.
+package require vc::tools::misc                       ; # Text formatting.
+package require vc::fossil::import::cvs::state        ; # State storage.
+package require struct::set                           ; # Set handling.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -31,11 +34,54 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 	set myname    $name
 	set myid      $id
 	set myproject $project
+
+	# Count total number of symbols.
+	incr mynum
 	return
     }
 
     method name {} { return $myname }
     method id   {} { return $myid   }
+
+    # # ## ### ##### ######## #############
+    ## Symbol type
+
+    method determinetype {} {
+	# This is done by a fixed heuristics, with guidance by the
+	# user in edge-cases. Contrary to cvs2svn which uses a big
+	# honking streagy class and rule objects. Keep it simple, we
+	# can expand later when we actually need all the complexity
+	# for configurability.
+
+	# The following guidelines are applied:
+	# - Is usage unambigous ?
+	# - Was there ever a commit on the symbol ?
+	# - More used as tag, or more used as branch ?
+	# - At last, what has the user told us about it ?
+	# - Fail
+	
+	foreach rule {
+	    UserConfig
+	    Unambigous
+	    HasCommits
+	    VoteCounts
+	} {
+	   set chosen [$self $rule]
+	   if {$chosen eq $myundef} continue
+	   $self MarkAs $rule $chosen
+	   return
+	}
+
+	# None of the above was able to decide which type to assign to
+	# the symbol. This is a fatal error preventing the execution
+	# of the passes after 'CollateSymbols'.
+
+	incr myrulecount(Undecided_)
+	trouble fatal "Unable to decide how to convert symbol '$myname'"
+	return
+    }
+
+    method markthetrunk {} { $self MarkAs IsTheTrunk $mybranch ; return }
 
     # # ## ### ##### ######## #############
     ## Symbol statistics
@@ -129,21 +175,137 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 				   # of files in which it could have
 				   # been a parent of this symbol.
 
+    variable mytype {} ; # The type chosen for the symbol to use in
+			 # the conversion.
+
+    # # ## ### ##### ######## #############
+
+    typemethod getsymtypes {} {
+	foreach {tid name} [state run {
+	    SELECT tid, name FROM symtype;
+	}] { set mysymtype($tid) $name }
+	return
+    }
+
     # Keep the codes below in sync with 'pass::collrev/setup('symtype').
-    typevariable myexcluded 0 ; # Code for symbols which are excluded.
-    typevariable mytag      1 ; # Code for symbols which are tags.
-    typevariable mybranch   2 ; # Code for symbols which are branches.
-    typevariable myundef    3 ; # Code for symbols of unknown type.
+    typevariable myexcluded        0 ; # Code for symbols which are excluded.
+    typevariable mytag             1 ; # Code for symbols which are tags.
+    typevariable mybranch          2 ; # Code for symbols which are branches.
+    typevariable myundef           3 ; # Code for symbols of unknown type.
+    typevariable mysymtype -array {} ; # Map from type code to label for the log.
+
+    typemethod printrulestatistics {} {
+	log write 2 symbol "Rule usage statistics:"
+
+	set fmt %[string length $mynum]s
+	set all 0
+
+	foreach key [lsort [array names myrulecount]] {
+	    log write 2 symbol "* [format $fmt $myrulecount($key)] $key"
+	    incr all $myrulecount($key)
+	}
+
+	log write 2 symbol "= [format $fmt $all] total"
+	return
+    }
+
+    # Statistics on how often each 'rule' was used to decide on the
+    # type of a symbol.
+    typevariable myrulecount -array {
+	HasCommits 0
+	IsTheTrunk 0
+	Unambigous 0
+	Undecided_ 0
+	UserConfig 0
+	VoteCounts 0
+    }
+
+    typemethod printtypestatistics {} {
+	log write 2 symbol "Symbol type statistics:"
+
+	set fmt %[string length $mynum]s
+	set all 0
+
+	foreach {stype splural n} [state run {
+	    SELECT T.name, T.plural, COUNT (s.sid)
+	    FROM symbol S, symtype T
+	    WHERE S.type = T.tid
+	    GROUP BY T.name
+	    ORDER BY T.name
+	    ;
+	}] {
+	    log write 2 symbol "* [format $fmt $n] [sp $n $stype $splural]"
+	    incr all $n
+	}
+
+	log write 2 symbol "= [format $fmt $all] total"
+	return
+    }
+
+    typevariable mynum 0
 
     # # ## ### ##### ######## #############
     ## Internal methods
+
+    method UserConfig {} {
+	# No user based guidance yet.
+	return $myundef
+    }
+
+    method Unambigous {} {
+	# If a symbol is used unambiguously as a tag/branch, convert
+	# it as such.
+
+	set istag    [expr {$mytagcount    > 0}]	
+	set isbranch [expr {$mybranchcount > 0 || $mycommitcount > 0}]
+
+	if {$istag && $isbranch} { return $myundef  }
+	if {$istag}              { return $mytag    }
+	if {$isbranch}           { return $mybranch }
+
+	# Symbol was not used at all.
+	return $myundef
+    }
+
+    method HasCommits {} {
+	# If there was ever a commit on the symbol, convert it as a
+	# branch.
+
+	if {$mycommitcount > 0} { return $mybranch }
+	return $myundef
+    }
+
+    method VoteCounts {} {
+	# Convert the symbol based on how often it was used as a
+	# branch/tag. Whichever happened more often determines how the
+	# symbol is converted.
+
+	if {$mytagcount > $mybranchcount} { return $mytag }
+	if {$mytagcount < $mybranchcount} { return $mybranch }
+	return $myundef
+    }
+
+    method MarkAs {label chosen} {
+	log write 3 symbol "\[$label\] Converting symbol '$myname' as $mysymtype($chosen)"
+
+	set mytype $chosen
+	incr myrulecount($label)
+
+	# This is stored directly into the database.
+	state run {
+	    UPDATE symbol
+	    SET type = $chosen
+	    WHERE sid = $myid
+	    ;
+	}
+	return
+    }
 
     # # ## ### ##### ######## #############
     ## Configuration
 
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
-    pragma -hastypemethods no  ; # type is not relevant.
     pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############
@@ -153,6 +315,10 @@ namespace eval ::vc::fossil::import::cvs::project {
     namespace export sym
     namespace eval sym {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::tools::misc::*
+	namespace import ::vc::tools::trouble
+	namespace import ::vc::tools::log
+	log register symbol
     }
 }
 

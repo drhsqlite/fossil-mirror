@@ -18,15 +18,16 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                             ; # Required runtime.
-package require snit                                ; # OO system.
-#package require fileutil::traverse                  ; # Directory traversal.
-#package require fileutil                            ; # File & path utilities.
-#package require vc::tools::trouble                  ; # Error reporting.
-package require vc::tools::log                      ; # User feedback.
-#package require vc::fossil::import::cvs::pass       ; # Pass management.
-#package require vc::fossil::import::cvs::repository ; # Repository management.
-package require vc::fossil::import::cvs::state      ; # State storage.
+package require Tcl 8.4                               ; # Required runtime.
+package require snit                                  ; # OO system.
+#package require fileutil::traverse                    ; # Directory traversal.
+#package require fileutil                              ; # File & path utilities.
+#package require vc::tools::trouble                    ; # Error reporting.
+package require vc::tools::log                        ; # User feedback.
+#package require vc::fossil::import::cvs::pass         ; # Pass management.
+package require vc::fossil::import::cvs::repository   ; # Repository management.
+package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -63,6 +64,13 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
+	state transaction {
+	    repository   determinesymboltypes
+
+	    project::sym printrulestatistics
+	    project::sym printtypestatistics
+	}
+
 	log write 1 collsym "Collation completed"
 	return
     }
@@ -91,8 +99,11 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 namespace eval ::vc::fossil::import::cvs::pass {
     namespace export collsym
     namespace eval collsym {
-	#namespace import ::vc::fossil::import::cvs::repository
+	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
+	namespace eval project {
+	    namespace import ::vc::fossil::import::cvs::project::sym
+	}
 	#namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	log register collsym

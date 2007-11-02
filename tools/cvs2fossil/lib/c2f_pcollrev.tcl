@@ -16,14 +16,15 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                             ; # Required runtime.
-package require snit                                ; # OO system.
-package require vc::tools::trouble                  ; # Error reporting.
-package require vc::tools::log                      ; # User feedback.
-package require vc::fossil::import::cvs::pass       ; # Pass management.
-package require vc::fossil::import::cvs::repository ; # Repository management.
-package require vc::fossil::import::cvs::state      ; # State storage.
-package require vc::rcs::parser                     ; # Rcs archive data extraction.
+package require Tcl 8.4                               ; # Required runtime.
+package require snit                                  ; # OO system.
+package require vc::tools::trouble                    ; # Error reporting.
+package require vc::tools::log                        ; # User feedback.
+package require vc::fossil::import::cvs::pass         ; # Pass management.
+package require vc::fossil::import::cvs::repository   ; # Repository management.
+package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::project::sym ; # Project level symbols
+package require vc::rcs::parser                       ; # Rcs archive data extraction.
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -205,9 +206,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	}
 
 	state writing symtype {
-	    tid   INTEGER  NOT NULL  PRIMARY KEY,
-	    name  TEXT     NOT NULL,
+	    tid    INTEGER  NOT NULL  PRIMARY KEY,
+	    name   TEXT     NOT NULL,
+	    plural TEXT     NOT NULL,
 	    UNIQUE (name)
+	    UNIQUE (plural)
 	}
 	state run {
 	    INSERT INTO symtype VALUES (0,'excluded');
@@ -257,13 +260,16 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    text TEXT     NOT NULL  UNIQUE
 	}
 
+	project::sym getsymtypes
 	return
     }
 
     typemethod load {} {
 	state reading symbol
+	state reading symtype
 
-	repository loadsymbols
+	project::sym getsymtypes
+	repository   loadsymbols
 	return
     }
 
@@ -591,6 +597,9 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::rcs::parser
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
+	namespace eval project {
+	    namespace import ::vc::fossil::import::cvs::project::sym
+	}
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	log register collrev

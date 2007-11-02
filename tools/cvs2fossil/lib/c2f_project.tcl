@@ -99,6 +99,13 @@ snit::type ::vc::fossil::import::cvs::project {
 	return
     }
 
+    method determinesymboltypes {} {
+	foreach {name symbol} [array get mysymbol] {
+	    $symbol determinetype
+	}
+	return
+    }
+
     # pass I persistence
     method persist {} {
 	TheFiles ; # Force id assignment.

@@ -55,6 +55,8 @@ snit::type ::vc::fossil::import::cvs::project::trunk {
 
     delegate method persistrev to mysymbol
 
+    method determinetype {} { $mysymbol markthetrunk }
+
     # # ## ### ##### ######## #############
     ## State
 

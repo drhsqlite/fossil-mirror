@@ -213,6 +213,13 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
+    typemethod determinesymboltypes {} {
+	foreach project [TheProjects] {
+	    $project determinesymboltypes
+	}
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
