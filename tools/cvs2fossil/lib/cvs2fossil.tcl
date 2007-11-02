@@ -26,6 +26,7 @@ package require snit                            ; # OO system
 
 package require vc::fossil::import::cvs::pass::collar  ; # Coll'ect Ar'chives.
 package require vc::fossil::import::cvs::pass::collrev ; # Coll'ect Rev'isions.
+package require vc::fossil::import::cvs::pass::collsym ; # Coll'ate Sym'bols
 
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
