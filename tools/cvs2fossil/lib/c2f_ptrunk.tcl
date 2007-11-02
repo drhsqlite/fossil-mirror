@@ -40,6 +40,10 @@ snit::type ::vc::fossil::import::cvs::project::trunk {
     method istrunk {} { return 1 }
     method symbol  {} { return $self }
 
+    method forceid {id} { set myid $id ; return }
+
+    method defcounts {tc bc cc} {}
+
     method countasbranch {} {}
     method countastag    {} {}
     method countacommit  {} {}

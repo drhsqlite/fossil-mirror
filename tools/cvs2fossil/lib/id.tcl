@@ -35,6 +35,12 @@ snit::type ::vc::tools::id {
 	return $mycounter
     }
 
+    # Explicitly load the database with a mapping.
+    method map {id key} {
+	set mydata($key)   $id
+	set myinvert($id) $key
+    }
+
     method keyof {id} { return $myinvert($id) }
     method get   {}   { return [array get mydata] }
 

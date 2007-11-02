@@ -140,19 +140,21 @@ snit::type ::vc::fossil::import::cvs::repository {
     }
 
     typemethod load {} {
-	array set pr {}
 	state transaction {
 	    foreach   {pid  name} [state run {
 		SELECT pid, name FROM project ;
 	    }] {
+		set project [project %AUTO% $name $type]
+
 		lappend myprojpaths $name
-		lappend myprojects [set pr($pid) [project %AUTO% $name $type]]
-		$pr($pid) setid $pid
+		lappend myprojects  $project
+		set myprojmap($pid) $project
+		$project setid $pid
 	    }
 	    foreach   {fid  pid  name  visible  exec} [state run {
 		SELECT fid, pid, name, visible, exec FROM file ;
 	    }] {
-		$pr($pid) addfile $name $visible $exec $fid
+		$myprojmap($pid) addfile $name $visible $exec $fid
 	    }
 	}
 	return
@@ -179,6 +181,38 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
+    typemethod loadsymbols {} {
+	state transaction {
+	    # We load the symbol ids at large to have the mapping
+	    # right from the beginning.
+
+	    foreach {sid pid name tc bc cc} [state run {
+		SELECT sid, pid, name, tag_count, branch_count, commit_count
+		FROM symbol
+		;
+	    }] {
+		$mysymbol map $sid [list $pid $name]
+		set project $myprojmap($pid)
+
+		set force  [$project hassymbol $name]
+		set symbol [$project getsymbol $name]
+
+		# Forcing happens only for the trunks.
+		if {$force} { $symbol forceid $sid }
+
+		# Set the loaded counts.
+		$symbol defcounts $tc $bc $cc
+
+		# Note: The type is neither retrieved nor set, for
+		# this is used to load the pass II data, which means
+		# that everything is 'undefined' at this point anyway.
+
+		# future: $symbol load (blockers, and parents)
+	    }
+	}
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
@@ -187,6 +221,8 @@ snit::type ::vc::fossil::import::cvs::repository {
 				       # projects, relative to mybase.
     typevariable myprojects       {} ; # List of objects for all
 				       # declared projects.
+    typevariable myprojmap -array {} ; # Map from project ids to their
+				       # objects.
     typevariable myauthor         {} ; # Names of all authors found,
 				       # maps to their ids.
     typevariable mycmsg           {} ; # All commit messages found,

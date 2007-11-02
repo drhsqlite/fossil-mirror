@@ -80,6 +80,10 @@ snit::type ::vc::fossil::import::cvs::project {
 	return $mysymbol($name)
     }
 
+    method hassymbol {name} {
+	return [info exists mysymbol($name)]
+    }
+
     method purgeghostsymbols {} {
 	set changes 1
 	while {$changes} {

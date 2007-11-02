@@ -10,7 +10,7 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass II. This pass parses the colected rcs archives and extracts
+## Pass II. This pass parses the collected rcs archives and extracts
 ## all the information they contain (revisions, and symbols).
 
 # # ## ### ##### ######## ############# #####################
@@ -18,8 +18,6 @@
 
 package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
-package require fileutil::traverse                  ; # Directory traversal.
-package require fileutil                            ; # File & path utilities.
 package require vc::tools::trouble                  ; # Error reporting.
 package require vc::tools::log                      ; # User feedback.
 package require vc::fossil::import::cvs::pass       ; # Pass management.
@@ -178,7 +176,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    sid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    pid  INTEGER  NOT NULL  REFERENCES project,  -- Project the symbol belongs to
 	    name TEXT     NOT NULL,
-	    type INTEGER  NOT NULL,                      -- enum { tag = 1, branch, undefined }
+	    type INTEGER  NOT NULL  REFERENCES symtype,  -- enum { excluded = 0, tag, branch, undefined }
 
 	    tag_count    INTEGER  NOT NULL, -- How often the symbol is used as tag.
 	    branch_count INTEGER  NOT NULL, -- How often the symbol is used as branch
@@ -204,6 +202,18 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    pid INTEGER  NOT NULL  REFERENCES symbol, -- Possible parent of sid
 	    n   INTEGER  NOT NULL,                    -- How often pid can act as parent.
 	    UNIQUE (sid, pid)
+	}
+
+	state writing symtype {
+	    tid   INTEGER  NOT NULL  PRIMARY KEY,
+	    name  TEXT     NOT NULL,
+	    UNIQUE (name)
+	}
+	state run {
+	    INSERT INTO symtype VALUES (0,'excluded');
+	    INSERT INTO symtype VALUES (1,'tag');
+	    INSERT INTO symtype VALUES (2,'branch');
+	    INSERT INTO symtype VALUES (3,'undefined');
 	}
 
 	state writing meta {
@@ -251,7 +261,9 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
     }
 
     typemethod load {} {
-	# TODO
+	state reading symbol
+
+	repository loadsymbols
 	return
     }
 
@@ -315,6 +327,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	state discard symbol
 	state discard blocker
 	state discard parent
+	state discard symtype
 	state discard meta
 	state discard author
 	state discard cmessage

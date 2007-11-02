@@ -40,6 +40,13 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     # # ## ### ##### ######## #############
     ## Symbol statistics
 
+    method defcounts {tc bc cc} {
+	set mybranchcount $tc
+	set mytagcount    $bc
+	set mycommitcount $cc
+	return
+    }
+
     method countasbranch {} { incr mybranchcount ; return }
     method countastag    {} { incr mytagcount    ; return }
     method countacommit  {} { incr mycommitcount ; return }
@@ -122,9 +129,11 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 				   # of files in which it could have
 				   # been a parent of this symbol.
 
-    typevariable mytag    1 ; # Code for symbols which are tags.
-    typevariable mybranch 2 ; # Code for symbols which are branches.
-    typevariable myundef  3 ; # Code for symbols of unknown type.
+    # Keep the codes below in sync with 'pass::collrev/setup('symtype').
+    typevariable myexcluded 0 ; # Code for symbols which are excluded.
+    typevariable mytag      1 ; # Code for symbols which are tags.
+    typevariable mybranch   2 ; # Code for symbols which are branches.
+    typevariable myundef    3 ; # Code for symbols of unknown type.
 
     # # ## ### ##### ######## #############
     ## Internal methods
