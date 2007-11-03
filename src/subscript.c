@@ -617,6 +617,20 @@ static const struct {
   { "sub",   3,    bopCmd,  (void*)SBSOP_SUB    },
 };
 
+/*
+** A table of built-in string and integer values
+*/
+static const struct {
+  const char *zVar;
+  int nVar;
+  int *pI;
+  char *z;
+} aVars[] = {
+  { "okAdmin", 7,  &g.okAdmin,  0 },
+  { "okSetup", 7,  &g.okSetup,  0 },
+};
+  
+
 
 /*
 ** Create a new subscript interpreter
@@ -669,8 +683,11 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
         break;
       }
       case SBSTT_VERB: {
+        /* First look up the verb in the hash table */
         const SbSValue *pVal = sbs_fetch(&p->symTab, (char*)zScript, n);
         if( pVal==0 ){
+          /* If the verb is not in the hash table, look for a 
+          ** built-in command */
           int upr = sizeof(aBuiltin)/sizeof(aBuiltin[0]) - 1;
           int lwr = 0;
           rc = SBS_ERROR;
@@ -684,6 +701,29 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
               upr = i-1;
             }else{
               lwr = i+1;
+            }
+          }
+          if( upr<lwr ){
+            /* If it is not a built-in command, look for a built-in
+            ** variable */
+            upr = sizeof(aVars)/sizeof(aVars[0]) - 1;
+            lwr = 0;
+            while( upr>=lwr ){
+              int i = (upr+lwr)/2;
+              int c = strncmp(zScript, aVars[i].zVar, n);
+              if( c==0 ){
+                if( aVars[i].pI ){
+                  SbS_PushInt(p, *aVars[i].pI);
+                }else{
+                  SbS_Push(p, aVars[i].z, -1, 0);
+                }
+                rc = SBS_OK;
+                break;
+              }else if( c<0 ){
+                upr = i-1;
+              }else{
+                lwr = i+1;
+              }
             }
           }
         }else if( pVal->flags & SBSVAL_VERB ){

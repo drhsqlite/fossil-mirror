@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sbasic\smath\soperators\sto\ssubscript.
-D 2007-11-03T04:23:43
+C Add\ssupport\sfor\sbuilt-in\svariables\sin\ssubscript.
+D 2007-11-03T04:39:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -76,7 +76,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7ae579f21df86730a0aca35503b03d77527d153c
-F src/subscript.c 40164688772e851d7f62b23f872b1b2376abd598
+F src/subscript.c a19913b6c5157484021e56af562bf3e75263c743
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8ef26c5e72e4a98a7a5b30b882a87ee0afd04867
-R 9c296a25f93ab509716ca3df1cfb7ed6
+P 92f6081d11c4361b32dcac2346a5b72a45867025
+R a67346bd178aacb890fa3fc5b080d3c0
 U drh
-Z addee8eb3bf9c7741bc6070915d999bf
+Z 286117dcdc33821bd3ba1669181adf79
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHK/fToxKgR168RlERAgebAJ4hRVy5TX0VCgoKg0hRO4al1LfuDgCghdyd
-VavT1mL3H6NmqfmdXfeiL+U=
-=5Sze
+iD8DBQFHK/uNoxKgR168RlERAnWYAJ0dbJGCCiLAjoN520XGfLkwCxsaqgCfaLgp
+E5QWuA9ehwOiK1wESVKcdAI=
+=YO6b
 -----END PGP SIGNATURE-----
