@@ -157,44 +157,6 @@ static void fetchOriginalValues(void){
 }
 
 /*
-** Subscript command:      INTEGER not INTEGER
-*/
-static int notCmd(struct Subscript *p, void *pNotUsed){
-  int n;
-  if( SbS_RequireStack(p, 1) ) return 1;
-  n = SbS_StackValueInt(p, 0);
-  SbS_Pop(p, 1);
-  SbS_PushInt(p, !n);
-  return 0;
-}
-
-/*
-** Subscript command:      INTEGER INTEGER max INTEGER
-*/
-static int maxCmd(struct Subscript *p, void *pNotUsed){
-  int a, b;
-  if( SbS_RequireStack(p, 2) ) return 1;
-  a = SbS_StackValueInt(p, 0);
-  b = SbS_StackValueInt(p, 1);
-  SbS_Pop(p, 2);
-  SbS_PushInt(p, a>b ? a : b);
-  return 0;
-}
-
-/*
-** Subscript command:      INTEGER INTEGER and INTEGER
-*/
-static int andCmd(struct Subscript *p, void *pNotUsed){
-  int a, b;
-  if( SbS_RequireStack(p, 2) ) return 1;
-  a = SbS_StackValueInt(p, 0);
-  b = SbS_StackValueInt(p, 1);
-  SbS_Pop(p, 2);
-  SbS_PushInt(p, a && b);
-  return 0;
-}
-
-/*
 ** Subscript command:      FIELD wikiview
 */
 static int wikiViewCmd(struct Subscript *p, void *pNotUsed){

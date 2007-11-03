@@ -58,6 +58,12 @@
 #include "subscript.h"
 #include <assert.h>
 
+#if INTERFACE
+typedef struct Subscript Subscript;
+#define SBS_OK      0
+#define SBS_ERROR   1
+#endif
+
 /*
 ** Configuration constants
 */
@@ -158,7 +164,7 @@ struct SbSValue {
       char *z;         /* Pointer to string content */
     } str;          /* Value if SBSVAL_STR */
     struct {
-      int (*xVerb)(Subscript*), void*);  /* Function to do the work */
+      int (*xVerb)(Subscript*, void*);     /* Function to do the work */
       void *pArg;                          /* 2nd parameter to xVerb */
     } verb;         /* Value if SBSVAL_VERB */
   } u;              
@@ -184,9 +190,9 @@ static void sbs_value_reset(SbSValue *p){
 /*
 ** An entry in the hash table is an instance of this structure.
 */
-typedef struct UsHashEntry UsHashEntry;
-struct UsHashEntry {
-  UsHashEntry *pNext;     /* Next entry with the same hash on zKey */
+typedef struct SbsHashEntry SbsHashEntry;
+struct SbsHashEntry {
+  SbsHashEntry *pNext;     /* Next entry with the same hash on zKey */
   SbSValue val;            /* The payload */
   int nKey;               /* Length of the key */
   char zKey[0];           /* The key */
@@ -195,9 +201,9 @@ struct UsHashEntry {
 /*
 ** A hash table is an instance of the following structure.
 */
-typedef struct UsHashTab UsHashTab;
-struct UsHashTab {
-  UsHashEntry *aHash[SBSCONFIG_NHASH];  /* The hash table */
+typedef struct SbsHashTab SbsHashTab;
+struct SbsHashTab {
+  SbsHashEntry *aHash[SBSCONFIG_NHASH];  /* The hash table */
 };
 
 /*
@@ -218,12 +224,12 @@ static int sbs_hash(const char *z, int n){
 ** Return NULL if not found.
 */
 static const SbSValue *sbs_fetch(
-  sbs_hash *pHash, 
+  SbsHashTab *pHash, 
   const char *zKey, 
   int nKey
 ){
   int h;
-  UsHashEntry *p;
+  SbsHashEntry *p;
 
   if( nKey<0 ) nKey = strlen(zKey);
   h = sbs_hash(zKey, nKey);
@@ -243,13 +249,13 @@ static const SbSValue *sbs_fetch(
 ** the hash table will take over responsibiliity for doing so.
 */
 static int sbs_store(
-  sbs_hash *pHash,         /* Insert into this hash table */
-  const char *zKey,       /* The key */
-  int nKey,               /* Size of the key */
+  SbsHashTab *pHash,       /* Insert into this hash table */
+  const char *zKey,        /* The key */
+  int nKey,                /* Size of the key */
   const SbSValue *pValue   /* The value to be stored */
 ){
   int h;
-  UsHashEntry *p;
+  SbsHashEntry *p, *pNew;
 
   if( nKey<0 ) nKey = strlen(zKey);
   h = sbs_hash(zKey, nKey);
@@ -275,9 +281,9 @@ static int sbs_store(
 /*
 ** Reset a hash table.
 */
-static void sbs_hash_reset(sbs_hash *pHash){
+static void sbs_hash_reset(SbsHashTab *pHash){
   int i;
-  UsHashEntry *p, *pNext;
+  SbsHashEntry *p, *pNext;
   for(i=0; i<SBSCONFIG_NHASH; i++){
     for(p=pHash->aHash[i]; p; p=pNext){
       pNext = p->pNext;
@@ -293,17 +299,15 @@ static void sbs_hash_reset(sbs_hash *pHash){
 */
 struct Subscript {
   int nStack;                      /* Number of entries on stack */
-  UsHashTab symTab;                /* The symbol table */
+  SbsHashTab symTab;                /* The symbol table */
   char zErrMsg[SBSCONFIG_ERRSIZE];  /* Space to write an error message */
   SbSValue aStack[SBSCONFIG_NSTACK]; /* The stack */
 };
-
 
 /*
 ** Push a value onto the stack of an interpreter
 */
 static int sbs_push(Subscript *p, SbSValue *pVal){
-  SbSValue *pStk;
   if( p->nStack>=SBSCONFIG_NSTACK ){
     sqlite3_snprintf(SBSCONFIG_ERRSIZE, p->zErrMsg, "stack overflow");
     return SBS_ERROR;
@@ -373,13 +377,13 @@ int SbS_AddVerb(
 */
 int SbS_Push(
   struct Subscript *p,  /* Push onto this interpreter */
-  const char *z,          /* String value to push */
-  int n,                  /* Length of the string, or -1 */
-  int dyn                 /* If true, z was obtained from malloc */
+  char *z,              /* String value to push */
+  int n,                /* Length of the string, or -1 */
+  int dyn               /* If true, z was obtained from malloc */
 ){
   SbSValue v;
   v.flags = SBSVAL_STR;
-  if( needToFree ){
+  if( dyn ){
     v.flags |= SBSVAL_DYN;
   }
   if( n<0 ) n = strlen(z);
@@ -457,7 +461,7 @@ const char *SbS_StackValue(struct Subscript *p, int N, int *pSize){
 int SbS_StackValueInt(struct Subscript *p, int N){
   int n, v;
   int isNeg = 0;
-  char *z = SbS_StackValue(p, N, &n);
+  const char *z = SbS_StackValue(p, N, &n);
   v = 0;
   if( n==0 ) return 0;
   if( z[0]=='-' ){
@@ -492,7 +496,7 @@ const char *SbS_Fetch(
   const char *zKey,        /* Name of the variable.  Case sensitive */
   int *pLength             /* Write the length here */
 ){
-  SbSValue *pVal;
+  const SbSValue *pVal;
 
   pVal = sbs_fetch(&p->symTab, zKey, -1);
   if( pVal==0 || (pVal->flags & SBSVAL_STR)==0 ){
@@ -510,7 +514,7 @@ const char *SbS_Fetch(
 ** the implementation of verbs.
 */
 int SbS_RequireStack(struct Subscript *p, int N, const char *zCmd){
-  if( p->nStack>N ) return 0;
+  if( p->nStack>=N ) return 0;
   sqlite3_snprintf(sizeof(p->zErrMsg), p->zErrMsg,
      "\"%s\" requires at least %d stack elements - only found %d",
      zCmd, N, p->nStack);
@@ -518,9 +522,7 @@ int SbS_RequireStack(struct Subscript *p, int N, const char *zCmd){
 }
 
 /*
-** The built-in "set" command:
-**
-**       STRING NAME set
+** Subscript command:       STRING NAME set
 **
 ** Write the value of STRING into variable called NAME.
 */
@@ -528,12 +530,79 @@ static int setCmd(Subscript *p, void *pNotUsed){
   SbSValue *pTos;
   SbSValue *pNos;
   if( SbS_RequireStack(p, 2, "set") ) return SBS_ERROR;
-  pTos = p->aStack[--p->nStack];
-  pNos = p->aStack[--p->nStack];
+  pTos = &p->aStack[--p->nStack];
+  pNos = &p->aStack[--p->nStack];
   sbs_store(&p->symTab, pTos->u.str.z, pTos->u.str.size, pNos);
   sbs_value_reset(pTos);
   return 0;
 }
+
+/*
+** Subscript command:      INTEGER not INTEGER
+*/
+static int notCmd(struct Subscript *p, void *pNotUsed){
+  int n;
+  if( SbS_RequireStack(p, 1, "not") ) return 1;
+  n = SbS_StackValueInt(p, 0);
+  SbS_Pop(p, 1);
+  SbS_PushInt(p, !n);
+  return 0;
+}
+
+/*
+** Subscript command:      INTEGER INTEGER max INTEGER
+*/
+static int maxCmd(struct Subscript *p, void *pNotUsed){
+  int a, b;
+  if( SbS_RequireStack(p, 2, "max") ) return 1;
+  a = SbS_StackValueInt(p, 0);
+  b = SbS_StackValueInt(p, 1);
+  SbS_Pop(p, 2);
+  SbS_PushInt(p, a>b ? a : b);
+  return 0;
+}
+
+/*
+** Subscript command:      INTEGER INTEGER and INTEGER
+*/
+static int andCmd(struct Subscript *p, void *pNotUsed){
+  int a, b;
+  if( SbS_RequireStack(p, 2, "max") ) return 1;
+  a = SbS_StackValueInt(p, 0);
+  b = SbS_StackValueInt(p, 1);
+  SbS_Pop(p, 2);
+  SbS_PushInt(p, a && b);
+  return 0;
+}
+
+/*
+** Subscript command:      STRING puts
+*/
+static int putsCmd(struct Subscript *p, void *pNotUsed){
+  int size;
+  const char *z;
+  if( SbS_RequireStack(p, 1, "puts") ) return 1;
+  z = SbS_StackValue(p, 0, &size);
+  printf("%.*s\n", size, z);
+  SbS_Pop(p, 1);
+  return 0;
+}
+
+
+/*
+** A table of built-in commands
+*/
+static const struct {
+  const char *zCmd;
+  int nCmd;
+  int (*xCmd)(Subscript*,void*);
+} aBuiltin[] = {
+  { "and",   3,    andCmd    },
+  { "max",   3,    maxCmd    },
+  { "not",   3,    notCmd    },
+  { "puts",  4,    putsCmd   },
+  { "set",   3,    setCmd    },
+};
 
 
 /*
@@ -545,7 +614,6 @@ struct Subscript *SbS_Create(void){
   p = malloc( sizeof(*p) );
   if( p ){
     memset(p, 0, sizeof(*p));
-    SbS_AddVerb(p, "set", setCmd, 0);
   }
   return p;
 }
@@ -560,7 +628,7 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
   while( nScript>0 && rc==SBS_OK ){
     int n;
     int ttype;
-    n = sbs_token_type(zScript, nScript, &ttype);
+    n = sbs_next_token(zScript, nScript, &ttype);
     switch( ttype ){
       case SBSTT_WHITESPACE: {
         break;
@@ -576,27 +644,41 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
         break;
       }
       case SBSTT_INTEGER: {
-        rc = sbs_push(p, zScript, n);
+        rc = SbS_Push(p, (char*)zScript, n, 0);
         break;
       }
       case SBSTT_NAME: {
-        rc = sbs_push(p, &zScript[1], n-1);
+        rc = SbS_Push(p, (char*)&zScript[1], n-1, 0);
         break;
       }
       case SBSTT_STRING: {
-        rc = sbs_push(p, &zScript[1], n-2);
+        rc = SbS_Push(p, (char*)&zScript[1], n-2, 0);
         break;
       }
       case SBSTT_VERB: {
-        SbSValue *pVal = sbs_fetch(p->pHash, zScript, nScript);
+        const SbSValue *pVal = sbs_fetch(&p->symTab, (char*)zScript, n);
         if( pVal==0 ){
+          int upr = sizeof(aBuiltin)/sizeof(aBuiltin[0]) - 1;
+          int lwr = 0;
           rc = SBS_ERROR;
+          while( upr>=lwr ){
+            int i = (upr+lwr)/2;
+            int c = strncmp(zScript, aBuiltin[i].zCmd, n);
+            if( c==0 ){
+              rc = aBuiltin[i].xCmd(p, 0);
+              break;
+            }else if( c<0 ){
+              upr = i-1;
+            }else{
+              lwr = i+1;
+            }
+          }
         }else if( pVal->flags & SBSVAL_VERB ){
           rc = pVal->u.verb.xVerb(p, pVal->u.verb.pArg);
         }else if( pVal->flags & SBSVAL_EXEC ){
           rc = SbS_Eval(p, pVal->u.str.z, pVal->u.str.size);
         }else{
-          rc = sbs_push(p, pVal->u.str.z, pVal->u.str.size);
+          rc = SbS_Push(p, pVal->u.str.z, pVal->u.str.size, 0);
         }
         break;
       }
@@ -605,4 +687,16 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
     nScript -= n;
   }
   return rc;
+}
+
+/*
+** COMMAND: test-subscript
+*/
+void test_subscript(void){
+  Subscript *p;
+  if( g.argc<3 ){
+    usage("SCRIPT");
+  }
+  p = SbS_Create();
+  SbS_Eval(p, g.argv[2], strlen(g.argv[2]));
 }

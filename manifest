@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sa\s"wiki"\slink\sto\sthe\smain\smenu.\s\sAdded\sbuilt-in\sdescription\sof\swiki\nformatting\srules.\s\sAdded\sa\swiki\s"homepage"\sthat\sdisplays\swhen\sthe\n"wiki"\sURI\sis\sused\swithout\sa\spagename.\sAdded\ssupport\sfor\sa\swiki\nsandbox\sthat\sdoes\snot\ssave\sto\sthe\srepository.
-D 2007-10-28T23:27:12
+C Subscript\sinterpreter\sis\snow\srunning.
+D 2007-11-03T04:01:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -54,10 +54,10 @@ F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 2ca8ead9e17bd6b6cc20fd856bed0feca5646727
 F src/login.c f15d2f5703b7778d86669f500e4436cdc66820f5
 F src/main.c 5992525fcecc50b8fff4f5d7276428174981767e
-F src/main.mk de95462e676dfcbc81669898d40f271683c765c3
+F src/main.mk 3d6c79ffca88b8abb1f1d32acda23edc79b38775
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 4e54933e0f51f3aa8b30ab216c73af3d4665bce7
+F src/makemake.tcl 58cb9ba8de83ee54c3a6e9e360f9734ea368128f
 F src/manifest.c d51cf77a0b712be4263bb99495f0ba7310e973a3
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 246b01382f1423be023aff0845007ea514eb846e
@@ -76,11 +76,11 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7ae579f21df86730a0aca35503b03d77527d153c
-F src/subscript.c ad67c7f9bbdd625cb6b69c3ae5a1a182f2b84171
+F src/subscript.c 940e69c4e0a174d0857fb98ab479145c8c2efdc6
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
-F src/tkt.c afc132298b359947bd487ea56b8df38fd0b6e28c
+F src/tkt.c e0b71a54048cda68ddffe3481391d79146137c2b
 F src/tktconf.c d769ab03450ca4fe1b794c56206ef03776c14e80
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f40230a7e831ebb118afd736af1424b381ce7edc
-R e10415e0ce17538390ab0afbf4af9853
+P f08adf3d58c4afc0bc526618440f0e460278e3b1
+R 7e949715a7ef210e0a1487fb86f55c1e
 U drh
-Z 9deab44d8fad6c44565d375bf595a798
+Z 6e06acf56414f2b7a2381ea544aa8938
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHJRrUoxKgR168RlERAnlVAJwIWwdJxsKbe6ZO0OWCcnUj2mxQ/wCfQLTx
-YJoI0ushysiw7b2QuIudglg=
-=lSnF
+iD8DBQFHK/NNoxKgR168RlERAmW2AJ95RLoZr7q2pAnQjEzPFkI9jrTFWACdHCAC
+WzgDGDSccu6XVqSF+CHZ/GE=
+=ljNL
 -----END PGP SIGNATURE-----
