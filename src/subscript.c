@@ -549,29 +549,35 @@ static int notCmd(struct Subscript *p, void *pNotUsed){
   return 0;
 }
 
-/*
-** Subscript command:      INTEGER INTEGER max INTEGER
-*/
-static int maxCmd(struct Subscript *p, void *pNotUsed){
-  int a, b;
-  if( SbS_RequireStack(p, 2, "max") ) return 1;
-  a = SbS_StackValueInt(p, 0);
-  b = SbS_StackValueInt(p, 1);
-  SbS_Pop(p, 2);
-  SbS_PushInt(p, a>b ? a : b);
-  return 0;
-}
+#define SBSOP_ADD   1
+#define SBSOP_SUB   2
+#define SBSOP_MUL   3
+#define SBSOP_DIV   4
+#define SBSOP_AND   5
+#define SBSOP_OR    6
+#define SBSOP_MIN   7
+#define SBSOP_MAX   8
 
 /*
-** Subscript command:      INTEGER INTEGER and INTEGER
+** Subscript command:      INTEGER INTEGER <binary-op> INTEGER
 */
-static int andCmd(struct Subscript *p, void *pNotUsed){
-  int a, b;
-  if( SbS_RequireStack(p, 2, "max") ) return 1;
+static int bopCmd(struct Subscript *p, void *pOp){
+  int a, b, c;
+  if( SbS_RequireStack(p, 2, "BINARY-OP") ) return 1;
   a = SbS_StackValueInt(p, 0);
   b = SbS_StackValueInt(p, 1);
+  switch( (int)pOp ){
+    case SBSOP_ADD:  c = a+b;            break;
+    case SBSOP_SUB:  c = a-b;            break;
+    case SBSOP_MUL:  c = a*b;            break;
+    case SBSOP_DIV:  c = b!=0 ? a/b : 0; break;
+    case SBSOP_AND:  c = a && b;         break;
+    case SBSOP_OR:  c = a || b;          break;
+    case SBSOP_MIN:  c = a<b ? a : b;    break;
+    case SBSOP_MAX:  c = a<b ? b : a;    break;
+  }
   SbS_Pop(p, 2);
-  SbS_PushInt(p, a && b);
+  SbS_PushInt(p, c);
   return 0;
 }
 
@@ -596,12 +602,19 @@ static const struct {
   const char *zCmd;
   int nCmd;
   int (*xCmd)(Subscript*,void*);
+  void *pArg;
 } aBuiltin[] = {
-  { "and",   3,    andCmd    },
-  { "max",   3,    maxCmd    },
-  { "not",   3,    notCmd    },
-  { "puts",  4,    putsCmd   },
-  { "set",   3,    setCmd    },
+  { "add",   3,    bopCmd,  (void*)SBSOP_AND    },
+  { "and",   3,    bopCmd,  (void*)SBSOP_AND    },
+  { "div",   3,    bopCmd,  (void*)SBSOP_DIV    },
+  { "max",   3,    bopCmd,  (void*)SBSOP_MAX    },
+  { "min",   3,    bopCmd,  (void*)SBSOP_MIN    },
+  { "mul",   3,    bopCmd,  (void*)SBSOP_MUL    },
+  { "not",   3,    notCmd,  0                   },
+  { "or",    2,    bopCmd,  (void*)SBSOP_OR     },
+  { "puts",  4,    putsCmd, 0                   },
+  { "set",   3,    setCmd,  0                   },
+  { "sub",   3,    bopCmd,  (void*)SBSOP_SUB    },
 };
 
 
@@ -665,7 +678,7 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
             int i = (upr+lwr)/2;
             int c = strncmp(zScript, aBuiltin[i].zCmd, n);
             if( c==0 ){
-              rc = aBuiltin[i].xCmd(p, 0);
+              rc = aBuiltin[i].xCmd(p, aBuiltin[i].pArg);
               break;
             }else if( c<0 ){
               upr = i-1;
