@@ -27,6 +27,7 @@ package require vc::fossil::import::cvs::pass         ; # Pass management
 package require vc::fossil::import::cvs::pass::collar ; # Pass I.
 package require vc::fossil::import::cvs::repository   ; # Repository management
 package require vc::fossil::import::cvs::state        ; # State storage
+package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -44,13 +45,13 @@ snit::type ::vc::fossil::import::cvs::option {
     # -q, --quiet
     # --state (conversion status, ala config.cache)
     # --trunk-only
+    # --exclude, --force-tag, --force-branch
 
     # -o, --output
     # --dry-run
     # --force-branch RE
     # --force-tag RE
     # --symbol-transform RE:XX
-    # --exclude
 
     # # ## ### ##### ######## #############
     ## Public API, Methods
@@ -75,6 +76,9 @@ snit::type ::vc::fossil::import::cvs::option {
 		--quiet                     { log quiet }
 		--state                     { state use [Value arguments] }
 		--trunk-only                { repository trunkonly! }
+		--exclude                   { project::sym exclude     [Value arguments] }
+		--force-tag                 { project::sym forcetag    [Value arguments] }
+		--force-branch              { project::sym forcebranch [Value arguments] }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -118,6 +122,22 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info ""
 	trouble info "    --state PATH               Save state to the specified file, and"
 	trouble info "                               load state of previous runs from it too."
+	trouble info ""
+	trouble info "    --exclude ?PROJECT:?SYMBOL Exclude the named symbol from all or"
+	trouble info "                               just the specified project. Both project"
+	trouble info "                               and symbol names are glob patterns."
+	trouble info ""
+	trouble info "    --force-tag ?PROJECT:?SYMBOL"
+	trouble info "                               Force the named symbol from all or just"
+	trouble info "                               the specified project to be converted as"
+	trouble info "                               tag. Both project and symbol names are"
+	trouble info "                               glob patterns."
+	trouble info ""
+	trouble info "    --force-branch ?PROJECT:?SYMBOL"
+	trouble info "                               Force the named symbol from all or just"
+	trouble info "                               the specified project to be converted as"
+	trouble info "                               branch. Both project and symbol names"
+	trouble info "                               are glob patterns."
 	trouble info ""
 
 	# --project, --cache
@@ -190,13 +210,16 @@ snit::type ::vc::fossil::import::cvs::option {
 namespace eval ::vc::fossil::import::cvs {
     namespace export option
     namespace eval option {
-	namespace import ::vc::tools::trouble
-	namespace import ::vc::tools::log
 	namespace import ::vc::tools::misc::striptrailingslash
 	namespace import ::vc::fossil::import::cvs::pass
 	namespace import ::vc::fossil::import::cvs::pass::collar
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
+	namespace eval project {
+	    namespace import ::vc::fossil::import::cvs::project::sym
+	}
+	namespace import ::vc::tools::trouble
+	namespace import ::vc::tools::log
     }
 }
 

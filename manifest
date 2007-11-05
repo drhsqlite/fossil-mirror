@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Continued\swork\son\spass\s3,\sadded\scode\sto\sdetermine\sthe\stype\sof\ssymbols\sbased\son\sthe\stag-,\sbranch-,\sand\scommit-counts.\sHook\sfor\shandling\sdata\scoming\sfrom\sthe\soption\sprocessoris\spresent\s(UserConfig),\sbut\sonly\sas\sa\splaceholder.
-D 2007-11-02T06:06:24
+C Extended\soptions\sprocessing\sto\shandle\s--exclude,\s--force-tag,\sand\s--force-branch\soptions.\sExtended\sproject::sym\sclass\swith\sin-memkory\sdatabases\sto\shold\sthe\soption\sinformation\sand\sreplaced\sthe\s'UserConfig'\splaceholder\swith\sthe\sactual\scode\susing\sthe\snew\sdatabases\sto\sdetermine\ssymbol\stypes\sbased\son\suser-requests.\sExtended\sthe\spass\sitself\swith\scode\sperforming\svarious\schecks\son\sthe\sresults\sof\stype\sdetermination,\spartially\sparanoia,\spartially\sto\sfind\sgenuine\sbad\srequests\s(excluding\ssymbols\swith\sunexcluded\sblockers,\smaking\sa\ssymbol\swith\scommits\son\sit\sa\stag,\s...).\sNYI:\sComputation\sof\sthe\sprefered\sparent\sfor\sall\ssymbols.
+D 2007-11-05T09:04:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -103,15 +103,15 @@ F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
 F tools/cvs2fossil/lib/c2f_frev.tcl f165072caaab411926d97109a39b19172f922631
 F tools/cvs2fossil/lib/c2f_fsym.tcl 605873f19e5d4892fedf6a2893c26436a391ae2e
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
-F tools/cvs2fossil/lib/c2f_option.tcl ebc8b51de97513d8f132a127687a5b7083cc187e
+F tools/cvs2fossil/lib/c2f_option.tcl d7008b5e1ad9a5295ecc3f1934ac4200af09220a
 F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl 98fd60f5700afe6687e8683d096f7c0ff0e82a19
-F tools/cvs2fossil/lib/c2f_pcollsym.tcl 77182f7016e8a07d1adb851797348cda8d793e5c
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl 903f0278312ce7bdafb9a0fbf4e04e5bc17bcc9a
+F tools/cvs2fossil/lib/c2f_pcollsym.tcl c53c706e1d3423335e2336fcd69d8375884b6be9
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl 72f0105a20210fcb423a8d95da5f18e5bfde29b4
 F tools/cvs2fossil/lib/c2f_project.tcl 39d1bb0e929ef13145d932534344a56ac57b586d
-F tools/cvs2fossil/lib/c2f_psym.tcl 9138dfe62a694135b268ae7a985fa0c0d36fb375
+F tools/cvs2fossil/lib/c2f_psym.tcl 69d3d4a188c515615f8f7ef1136bc6908e6fb594
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
 F tools/cvs2fossil/lib/c2f_repository.tcl 7a9e86cef9ab9818ba53772cd92fe99f8c934310
 F tools/cvs2fossil/lib/c2f_state.tcl 03d1122d661cafe1e7b532cf39feca43deebca23
@@ -121,7 +121,7 @@ F tools/cvs2fossil/lib/log.tcl 9e72db66cbfbeb5ba0b97b2fcbdc6ada4387a977
 F tools/cvs2fossil/lib/misc.tcl a87f1adea4a159b96ee2c0d25637a3dcbd3495db
 F tools/cvs2fossil/lib/pkgIndex.tcl 1cffea0d233699a34dc2e22d349d466edb382242
 F tools/cvs2fossil/lib/rcsparser.tcl 93e4a1e5a55baba7b897dd6af2745f374b18af15
-F tools/cvs2fossil/lib/trouble.tcl 2697d806a7b2de5a72213977e4becae2291923c7
+F tools/cvs2fossil/lib/trouble.tcl f653273970b3dbf6c7328ce53de6e964948c44a0
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -157,14 +157,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6d4eb24738e9908a7cdca5742a43e4de03a06e06
-R 7dec9c44c45c5fca5a436c64bf335b7c
+P f888f06fe35bc379d20ea71303e88d205a5106e9
+R 7aebf97a5b132dd70a037721f414be5e
 U aku
-Z aae8b3882083b792776c403f6a762339
+Z 254adf86f3ac2bb4e0ee9781523f2b85
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHKr5mvonzZ/CRa7gRAmgNAJ9jNNtngVAxtWVgSkON3UnLNM+oNgCguqBQ
-EXa3XbjQ73zr1bi6srAmxfk=
-=40ZR
+iD8DBQFHLtyevonzZ/CRa7gRApsYAJ45W+BGS1wXzalYOlhDYRvd75Z9rQCeJvx4
+8HMWKdK1RUQMsCGSBIXeN/c=
+=hzp5
 -----END PGP SIGNATURE-----

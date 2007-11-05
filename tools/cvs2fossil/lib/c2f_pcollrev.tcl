@@ -317,8 +317,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	repository printrevstatistics
 	repository persistrev
 
-	log write 1 collrev "Scan completed"
 	Paranoia
+	log write 1 collrev "Scan completed"
 	return
     }
 

@@ -180,6 +180,57 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 
     # # ## ### ##### ######## #############
 
+    typemethod exclude {pattern} {
+	# Store the pattern in memory for use by the code doing type
+	# determination.
+
+	lappend myexcludepattern [ProcessPattern $pattern exclusion]
+	return
+    }
+
+    typemethod forcetag {pattern} {
+	# Store the pattern in memory for use by the code doing type
+	# determination.
+
+	lappend myforcepattern [ProcessPattern $pattern force-tag] $mytag
+	return
+    }
+
+    typemethod forcebranch {pattern} {
+	# Store the pattern in memory for use by the code doing type
+	# determination.
+
+	lappend myforcepattern [ProcessPattern $pattern force-branch] $mybranch
+	return
+    }
+
+    proc ProcessPattern {pattern label} {
+	if {[string match *:*:* $pattern]} {
+	    # Bad syntax for the pattern, using multiple colons.
+
+	    trouble fatal "Bad $label pattern '$pattern'"
+	} elseif {![string match *:* $pattern]} {
+	    # When only a symbol pattern is specified it applies to
+	    # all projects.
+
+	    return [list * $pattern]
+	} else {
+	    # Both project and symbol patterns are present, we split
+	    # them apart now for storage and easier extraction later.
+
+	    return [split $pattern :]
+	}
+    }
+
+    typevariable myexcludepattern {} ; # List of patterns specifying
+				       # the symbols to exclude from
+				       # conversion. Tags and/or
+				       # branches.
+
+    typevariable myforcepattern {} ; # List of patterns and types
+				     # specifying which symbols to
+				     # force to specific types.
+
     typemethod getsymtypes {} {
 	foreach {tid name} [state run {
 	    SELECT tid, name FROM symtype;
@@ -193,6 +244,10 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     typevariable mybranch          2 ; # Code for symbols which are branches.
     typevariable myundef           3 ; # Code for symbols of unknown type.
     typevariable mysymtype -array {} ; # Map from type code to label for the log.
+
+    typemethod undef    {} { return $myundef    }
+    typemethod excluded {} { return $myexcluded }
+    typemethod tag      {} { return $mytag      }
 
     typemethod printrulestatistics {} {
 	log write 2 symbol "Rule usage statistics:"
@@ -248,7 +303,31 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     ## Internal methods
 
     method UserConfig {} {
-	# No user based guidance yet.
+	set project [$myproject base]
+
+	# First check if the user requested the exclusion of the
+	# symbol from conversion.
+
+	foreach ex $myexcludepattern {
+	    struct::list assign $ex pp sp
+	    if {![string match $pp $project]} continue
+	    if {![string match $sp $myname]}  continue
+	    return $myexcluded
+	}
+
+	# If the symbol is not excluded further check if the user
+	# forces its conversion as a specific type.
+
+	foreach {ex stype} $myforcepattern {
+	    struct::list assign $ex pp sp
+	    if {![string match $pp $project]} continue
+	    if {![string match $sp $myname]}  continue
+	    return $stype
+	}
+
+	# Nothing is forced, have the main system hand the symbol over
+	# to the regular heuristics.
+
 	return $myundef
     }
 

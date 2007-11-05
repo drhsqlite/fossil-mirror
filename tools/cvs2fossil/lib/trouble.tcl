@@ -54,6 +54,14 @@ snit::type ::vc::tools::trouble {
 	return
     }
 
+    typemethod ? {} {
+	return [expr {
+	    [llength $myinfo] ||
+	    [llength $mywarn] ||
+	    [llength $myfatal]
+	}]
+    }
+
     typemethod abort? {} {
 	if {
 	    ![llength $myinfo] &&
