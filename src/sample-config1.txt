@@ -81,45 +81,84 @@
   </tr>
   </table>
   [/status /Open default_value]
-} /new_template set
+} /new setpage
 ######################################################################
 {
+  [
+     # Extract the current information from the ticket table
+     {SELECT type, status, subsystem, priority,
+             severity, contact, title, comment
+        FROM ticket
+       WHERE tktid=:name} db_prepare
+     /name {} cgi_parameter {:name} db_bind
+     db_exec
+     if /title exists not {
+        {<i>No such ticket: } puts
+        /name {} cgi_parameter htmlize puts
+        {</i>} puts
+        return
+     } endif
+     /title title cgiparam /vtitle store
+     /status status cgiparam /vstatus store
+     /type type cgiparam /vtype store
+
+     if /submit cgiexists {
+       /name {} cgi_parameter login ticketchng_begin
+       if /apndcom cgiexists {
+         {+comment}
+         {<hr><i>Added by }
+         login htmlize concat
+         { on } concat
+         datetime concat
+         {:</i><br} concat
+         /apndcom {} cgi_parameter htmlize concat
+         ticketchng_field
+       } else {
+         if vcomment comment eq not {/comment vcomment ticketchng_field} endif
+       } endif
+       if vtitle title eq not {/title vtitle ticketchng_field} endif
+       ticketchng_submit
+       baseurl /tktview?name= concat /name {} cgi_parameter concat redirect
+     } endif
+  ]
+  <form method="POST" action="[baseurl]/tktedit">
   <table cellpadding="5">
   <tr><td align="right">Title:</td><td>
-  [/title 60 textedit]
+  <input type="text" name="title" value="[vtitle htmlize puts] size=60">
   </td></tr>
   <tr><td align="right">Status:</td><td>
-  [/status status_choices 20 combobox]
+  [vstatus /status status_choices 20 combobox]
   </td></tr>
   <tr><td align="right">Type:</td><td>
-  [/type type_choices 20 combobox]
+  [vtype /type type_choices 20 combobox]
   </td></tr>
   <tr><td align="right">Severity:</td><td>
-  [/severity {High Medium Low} 10 combobox]
+  [vseverity /severity {High Medium Low} 10 combobox]
   </td></tr>
   <tr><td align="right">Priority:</td><td>
-  [/priority {High Medium Low} 10 combobox]
+  [vpriority /priority {High Medium Low} 10 combobox]
   </td></tr>
   <tr><td align="right">Resolution:</td><td>
-  [/resolution resolution_choices 20 combobox]
+  [vresolution /resolution resolution_choices 20 combobox]
   </td></tr>
   <tr><td align="right">Subsystem:</td><td>
-  [/subsystem subsystem_choices 30 combobox]
+  [vsubsystem /subsystem subsystem_choices 30 combobox]
   </td></tr>
-  [is_anon not enable_output]
+  [{e} hascap enable_output]
     <tr><td align="right">Contact:</td><td>
-    [/contact 40 textedit]
+    <input type="text" name="contact" size="40" value="[vcontact htmlize puts]">
     </td></tr>
   [1 enable_output]
   <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
-  [/foundin 50 textedit]
+  <input type="text" name="foundin" size="50" value="[foundin htmlize puts]">
   </td></tr>
   <tr><td colspan="2">
-  [ok_wrtkt /eall 0 paramget and /eall store]
+  [w hascap /eall 0 paramget and /eall store]
   [eall enable_output]
     Description And Comments:<br>
-    [/comment 70 /comment linecount 15 max multilineedit]<br>
-    [/aonly {Append Remark} auxbutton]
+    <textarea name="comment" cols="80" rows="[comment linecount 15 max 10 min]"
+     wrap="virtual" class="wikiedit">[comment htmlize puts]</textarea><br>
+    <input type="submit" name="aonly" value="Append Remark">
   [eall not enable_output]
     Append Remark:<br>
     [/comment /cmappnd 70 /cmappnd linecount 10 max multilineappend]<br>
@@ -130,12 +169,12 @@
   [{Submit Changes} submitbutton]
   </td></tr>
   </table>
-} /edit_template set
+} /edit setpage
 ######################################################################
 {
   <table cellpadding="5">
   <tr><td align="right">Title:</td><td>
-  [/title textview]
+  [/title htmlize]
   </td></tr>
   <tr><td align="right">Status:</td><td>
   [/status textview]
@@ -155,7 +194,7 @@
   <tr><td align="right">Subsystem:</td><td>
   [/subsystem textview]
   </td></tr>
-  [is_anon not enable_output]
+  [{e} hascap enable_output]
     <tr><td align="right">Contact:</td><td>
     [/contact textview]
     </td></tr>
@@ -168,7 +207,7 @@
   [/comment wikiview]
   </td></tr>
   </table>
-} /view_template set
+} /view setpage
 
 ##############
 # Verb list:

@@ -293,7 +293,7 @@ void login_set_capabilities(const char *zCap){
       case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okQuery =
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
-                              g.okNewTkt = g.okPassword = 1;
+                              g.okNewTkt = g.okPassword = g.okRdAddr = 1;
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
 
@@ -308,6 +308,7 @@ void login_set_capabilities(const char *zCap){
       case 'm':   g.okApndWiki = 1;                             break;
       case 'f':   g.okNewWiki = 1;                              break;
 
+      case 'e':   g.okRdAddr = 1;                               break;
       case 'r':   g.okRdTkt = 1;                                break;
       case 'n':   g.okNewTkt = 1;                               break;
       case 'w':   g.okWrTkt = g.okRdTkt = g.okNewTkt = 
@@ -315,6 +316,41 @@ void login_set_capabilities(const char *zCap){
       case 'c':   g.okApndTkt = 1;                              break;
     }
   }
+}
+
+/*
+** If the current login lacks any of the capabilities listed in
+** the input, then return 0.  If all capabilities are present, then
+** return 1.
+*/
+int login_has_capability(const char *zCap, int nCap){
+  int i;
+  int rc = 1;
+  if( nCap<0 ) nCap = strlen(zCap);
+  for(i=0; i<nCap && rc && zCap[i]; i++){
+    switch( zCap[i] ){
+      case 'a':  rc = g.okAdmin;     break;
+      case 'c':  rc = g.okApndTkt;   break;
+      case 'd':  rc = g.okDelete;    break;
+      case 'e':  rc = g.okRdAddr;    break;
+      case 'f':  rc = g.okNewWiki;   break;
+      case 'g':  rc = g.okClone;     break;
+      case 'h':  rc = g.okHistory;   break;
+      case 'i':  rc = g.okWrite;     break;
+      case 'j':  rc = g.okRdWiki;    break;
+      case 'k':  rc = g.okWrWiki;    break;
+      case 'm':  rc = g.okApndWiki;  break;
+      case 'n':  rc = g.okNewTkt;    break;
+      case 'o':  rc = g.okRead;      break;
+      case 'p':  rc = g.okPassword;  break;
+      case 'q':  rc = g.okQuery;     break;
+      case 'r':  rc = g.okRdTkt;     break;
+      case 's':  rc = g.okSetup;     break;
+      case 'w':  rc = g.okWrTkt;     break;
+      default:   rc = 0;             break;
+    }
+  }
+  return rc;
 }
 
 /*

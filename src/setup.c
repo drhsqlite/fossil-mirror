@@ -128,6 +128,7 @@ void setup_ulist(void){
   @ <li value="1"><b>Admin</b>: Create and delete users</li>
   @ <li value="3"><b>Append-Tkt</b>: Append to tickets</li>
   @ <li value="4"><b>Delete</b>: Delete wiki and tickets</li>
+  @ <li value="5"><b>Email</b>: View EMail addresses on tickets</li>
   @ <li value="6"><b>New-Wiki</b>: Create new wiki pages</li>
   @ <li value="7"><b>Clone</b>: Clone the repository</li>
   @ <li value="8"><b>History</b>: View detail repository history</li>
@@ -162,8 +163,8 @@ void setup_ulist(void){
 */
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
-  char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap ;
-  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag;
+  char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
+  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag, *oae;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -202,6 +203,7 @@ void user_edit(void){
     int i = 0;
     int aa = P("aa")!=0;
     int ad = P("ad")!=0;
+    int ae = P("ae")!=0;
     int ai = P("ai")!=0;
     int aj = P("aj")!=0;
     int ak = P("ak")!=0;
@@ -220,6 +222,7 @@ void user_edit(void){
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
+    if( ae ){ zCap[i++] = 'e'; }
     if( af ){ zCap[i++] = 'f'; }
     if( ah ){ zCap[i++] = 'h'; }
     if( ag ){ zCap[i++] = 'g'; }
@@ -266,7 +269,7 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
-  oaa = oac = oad = oaf = oag = oah = oai = oaj = oak = oam =
+  oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
         oan = oao = oap = oaq = oar = oas = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
@@ -275,6 +278,7 @@ void user_edit(void){
     if( strchr(zCap, 'a') ) oaa = " checked";
     if( strchr(zCap, 'c') ) oac = " checked";
     if( strchr(zCap, 'd') ) oad = " checked";
+    if( strchr(zCap, 'e') ) oae = " checked";
     if( strchr(zCap, 'f') ) oaf = " checked";
     if( strchr(zCap, 'g') ) oag = " checked";
     if( strchr(zCap, 'h') ) oah = " checked";
@@ -326,6 +330,7 @@ void user_edit(void){
   }
   @     <input type="checkbox" name="aa"%s(oaa)>Admin</input><br>
   @     <input type="checkbox" name="ad"%s(oad)>Delete</input><br>
+  @     <input type="checkbox" name="ae"%s(oad)>Email</input><br>
   @     <input type="checkbox" name="ap"%s(oap)>Password</input><br>
   @     <input type="checkbox" name="aq"%s(oaq)>Query</input><br>
   @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>

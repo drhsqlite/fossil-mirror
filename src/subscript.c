@@ -84,6 +84,59 @@ typedef struct Subscript Subscript;
 #define SBSTT_EOF         8    /* End of input */
 
 /*
+** Values are stored in the hash table as instances of the following
+** structure.
+*/
+typedef struct SbSValue SbSValue;
+struct SbSValue {
+  int flags;        /* Bitmask of SBSVAL_* values */
+  union {
+    struct {
+      int size;        /* Number of bytes in string, not counting final zero */
+      char *z;         /* Pointer to string content */
+    } str;          /* Value if SBSVAL_STR */
+    struct {
+      int (*xVerb)(Subscript*, void*);     /* Function to do the work */
+      void *pArg;                          /* 2nd parameter to xVerb */
+    } verb;         /* Value if SBSVAL_VERB */
+  } u;              
+};
+#define SBSVAL_VERB    0x0001      /* Value stored in u.verb */
+#define SBSVAL_STR     0x0002      /* Value stored in u.str */ 
+#define SBSVAL_DYN     0x0004      /* u.str.z is dynamically allocated */
+#define SBSVAL_EXEC    0x0008      /* u.str.z is a script */
+
+/*
+** An entry in the hash table is an instance of this structure.
+*/
+typedef struct SbsHashEntry SbsHashEntry;
+struct SbsHashEntry {
+  SbsHashEntry *pNext;     /* Next entry with the same hash on zKey */
+  SbSValue val;            /* The payload */
+  int nKey;               /* Length of the key */
+  char zKey[0];           /* The key */
+};
+
+/*
+** A hash table is an instance of the following structure.
+*/
+typedef struct SbsHashTab SbsHashTab;
+struct SbsHashTab {
+  SbsHashEntry *aHash[SBSCONFIG_NHASH];  /* The hash table */
+};
+
+/*
+** An instance of the Subscript interpreter
+*/
+struct Subscript {
+  int nStack;                      /* Number of entries on stack */
+  SbsHashTab symTab;                /* The symbol table */
+  char zErrMsg[SBSCONFIG_ERRSIZE];  /* Space to write an error message */
+  SbSValue aStack[SBSCONFIG_NSTACK]; /* The stack */
+};
+
+
+/*
 ** Given an input string z of length n, identify the token that
 ** starts at z[0].  Write the token type into *pTokenType and
 ** return the length of the token.
@@ -152,29 +205,6 @@ static int sbs_next_token(const char *z, int n, int *pTokenType){
 
 
 /*
-** Values are stored in the hash table as instances of the following
-** structure.
-*/
-typedef struct SbSValue SbSValue;
-struct SbSValue {
-  int flags;        /* Bitmask of SBSVAL_* values */
-  union {
-    struct {
-      int size;        /* Number of bytes in string, not counting final zero */
-      char *z;         /* Pointer to string content */
-    } str;          /* Value if SBSVAL_STR */
-    struct {
-      int (*xVerb)(Subscript*, void*);     /* Function to do the work */
-      void *pArg;                          /* 2nd parameter to xVerb */
-    } verb;         /* Value if SBSVAL_VERB */
-  } u;              
-};
-#define SBSVAL_VERB    0x0001      /* Value stored in u.verb */
-#define SBSVAL_STR     0x0002      /* Value stored in u.str */ 
-#define SBSVAL_DYN     0x0004      /* u.str.z is dynamically allocated */
-#define SBSVAL_EXEC    0x0008      /* u.str.z is a script */
-
-/*
 ** Release any memory allocated by a value.
 */
 static void sbs_value_reset(SbSValue *p){
@@ -185,26 +215,6 @@ static void sbs_value_reset(SbSValue *p){
     p->u.str.size = 0;
   }
 }
-
-
-/*
-** An entry in the hash table is an instance of this structure.
-*/
-typedef struct SbsHashEntry SbsHashEntry;
-struct SbsHashEntry {
-  SbsHashEntry *pNext;     /* Next entry with the same hash on zKey */
-  SbSValue val;            /* The payload */
-  int nKey;               /* Length of the key */
-  char zKey[0];           /* The key */
-};
-
-/*
-** A hash table is an instance of the following structure.
-*/
-typedef struct SbsHashTab SbsHashTab;
-struct SbsHashTab {
-  SbsHashEntry *aHash[SBSCONFIG_NHASH];  /* The hash table */
-};
 
 /*
 ** Compute a hash on a string.
@@ -295,16 +305,6 @@ static void sbs_hash_reset(SbsHashTab *pHash){
 }
 
 /*
-** An instance of the Subscript interpreter
-*/
-struct Subscript {
-  int nStack;                      /* Number of entries on stack */
-  SbsHashTab symTab;                /* The symbol table */
-  char zErrMsg[SBSCONFIG_ERRSIZE];  /* Space to write an error message */
-  SbSValue aStack[SBSCONFIG_NSTACK]; /* The stack */
-};
-
-/*
 ** Push a value onto the stack of an interpreter
 */
 static int sbs_push(Subscript *p, SbSValue *pVal){
@@ -314,6 +314,19 @@ static int sbs_push(Subscript *p, SbSValue *pVal){
   }
   p->aStack[p->nStack++] = *pVal;
   return SBS_OK;
+}
+
+/*
+** Create a new subscript interpreter.  Return a pointer to the
+** new interpreter, or return NULL if malloc fails.
+*/
+struct Subscript *SbS_Create(void){
+  Subscript *p;
+  p = malloc( sizeof(*p) );
+  if( p ){
+    memset(p, 0, sizeof(*p));
+  }
+  return p;
 }
 
 /*
@@ -572,13 +585,28 @@ static int bopCmd(struct Subscript *p, void *pOp){
     case SBSOP_MUL:  c = a*b;            break;
     case SBSOP_DIV:  c = b!=0 ? a/b : 0; break;
     case SBSOP_AND:  c = a && b;         break;
-    case SBSOP_OR:  c = a || b;          break;
+    case SBSOP_OR:   c = a || b;         break;
     case SBSOP_MIN:  c = a<b ? a : b;    break;
     case SBSOP_MAX:  c = a<b ? b : a;    break;
   }
   SbS_Pop(p, 2);
   SbS_PushInt(p, c);
   return 0;
+}
+
+/*
+** Subscript command:     STRING hascap INTEGER
+**
+** Return true if the user has all of the capabilities listed.
+*/
+static int hascapCmd(struct Subscript *p, void *pNotUsed){
+  const char *z;
+  int i, n, a;
+  if( SbS_RequireStack(p, 1, "hascap") ) return 1;
+  z = SbS_StackValue(p, 0, &n);
+  a = login_has_capability(z, n);
+  SbS_Pop(p, 1);
+  SbS_PushInt(p, a);
 }
 
 /*
@@ -589,7 +617,13 @@ static int putsCmd(struct Subscript *p, void *pNotUsed){
   const char *z;
   if( SbS_RequireStack(p, 1, "puts") ) return 1;
   z = SbS_StackValue(p, 0, &size);
-  printf("%.*s\n", size, z);
+  if( g.cgiPanic ){
+    char *zCopy = mprintf("%.*s", size, z);
+    cgi_printf("%h", zCopy);
+    free(zCopy);
+  }else{
+    printf("%.*s\n", size, z);
+  }
   SbS_Pop(p, 1);
   return 0;
 }
@@ -600,49 +634,34 @@ static int putsCmd(struct Subscript *p, void *pNotUsed){
 */
 static const struct {
   const char *zCmd;
-  int nCmd;
   int (*xCmd)(Subscript*,void*);
   void *pArg;
 } aBuiltin[] = {
-  { "add",   3,    bopCmd,  (void*)SBSOP_AND    },
-  { "and",   3,    bopCmd,  (void*)SBSOP_AND    },
-  { "div",   3,    bopCmd,  (void*)SBSOP_DIV    },
-  { "max",   3,    bopCmd,  (void*)SBSOP_MAX    },
-  { "min",   3,    bopCmd,  (void*)SBSOP_MIN    },
-  { "mul",   3,    bopCmd,  (void*)SBSOP_MUL    },
-  { "not",   3,    notCmd,  0                   },
-  { "or",    2,    bopCmd,  (void*)SBSOP_OR     },
-  { "puts",  4,    putsCmd, 0                   },
-  { "set",   3,    setCmd,  0                   },
-  { "sub",   3,    bopCmd,  (void*)SBSOP_SUB    },
-};
-
-/*
-** A table of built-in string and integer values
-*/
-static const struct {
-  const char *zVar;
-  int nVar;
-  int *pI;
-  char *z;
-} aVars[] = {
-  { "okAdmin", 7,  &g.okAdmin,  0 },
-  { "okSetup", 7,  &g.okSetup,  0 },
+  { "add",    bopCmd,    (void*)SBSOP_AND    },
+  { "and",    bopCmd,    (void*)SBSOP_AND    },
+  { "div",    bopCmd,    (void*)SBSOP_DIV    },
+  { "hascap", hascapCmd, 0                },
+  { "max",    bopCmd,    (void*)SBSOP_MAX    },
+  { "min",    bopCmd,    (void*)SBSOP_MIN    },
+  { "mul",    bopCmd,    (void*)SBSOP_MUL    },
+  { "not",    notCmd,    0                   },
+  { "or",     bopCmd,    (void*)SBSOP_OR     },
+  { "puts",   putsCmd,   0                   },
+  { "set",    setCmd,    0                   },
+  { "sub",    bopCmd,    (void*)SBSOP_SUB    },
 };
   
 
-
 /*
-** Create a new subscript interpreter
+** Compare a zero-terminated string zPattern against
+** an unterminated string zStr of length nStr.
 */
-struct Subscript *SbS_Create(void){
-  Subscript *p;
-
-  p = malloc( sizeof(*p) );
-  if( p ){
-    memset(p, 0, sizeof(*p));
+static int compare_cmd(const char *zPattern, const char *zStr, int nStr){
+  int c = strncmp(zPattern, zStr, nStr);
+  if( c==0 && zPattern[nStr]!=0 ){
+    c = -1;
   }
-  return p;
+  return c;
 }
 
 /*
@@ -693,7 +712,7 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
           rc = SBS_ERROR;
           while( upr>=lwr ){
             int i = (upr+lwr)/2;
-            int c = strncmp(zScript, aBuiltin[i].zCmd, n);
+            int c = compare_cmd(aBuiltin[i].zCmd, zScript, n);
             if( c==0 ){
               rc = aBuiltin[i].xCmd(p, aBuiltin[i].pArg);
               break;
@@ -701,29 +720,6 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
               upr = i-1;
             }else{
               lwr = i+1;
-            }
-          }
-          if( upr<lwr ){
-            /* If it is not a built-in command, look for a built-in
-            ** variable */
-            upr = sizeof(aVars)/sizeof(aVars[0]) - 1;
-            lwr = 0;
-            while( upr>=lwr ){
-              int i = (upr+lwr)/2;
-              int c = strncmp(zScript, aVars[i].zVar, n);
-              if( c==0 ){
-                if( aVars[i].pI ){
-                  SbS_PushInt(p, *aVars[i].pI);
-                }else{
-                  SbS_Push(p, aVars[i].z, -1, 0);
-                }
-                rc = SBS_OK;
-                break;
-              }else if( c<0 ){
-                upr = i-1;
-              }else{
-                lwr = i+1;
-              }
             }
           }
         }else if( pVal->flags & SBSVAL_VERB ){
