@@ -21,6 +21,7 @@ package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
 package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -87,7 +88,95 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
     ## Internal methods
 
     proc FilterExcludedSymbols {} {
+	# We pull all the excluded symbols together into a table for
+	# easy reference by the upcoming DELETE and other statements.
+	# ('x IN table' clauses).
+
+	set excl [project::sym excluded]
+
 	state run {
+	    CREATE TEMPORARY TABLE excludedsymbols AS
+	    SELECT sid
+	    FROM   symbol
+	    WHERE  type = $excl
+	}
+
+	# First we have to handle the possibility of an excluded
+	# NTDB. This is a special special case there we have to
+	# regraft the revisions which are shared between the NTDB and
+	# Trunk onto the trunk, preventing their deletion later. We
+	# have code for that in 'file', however that operated on the
+	# in-memory revision objects, which we do not have here. We do
+	# the same now without object, by directly manipulating the
+	# links in the database.
+
+	array set ntdb {}
+	array set link {}
+
+	foreach {id parent transfer} [state run {
+	    SELECT R.rid, R.parent, R.dbchild
+	    FROM  revision R, symbol S
+	    WHERE R.lod = S.sid
+	    AND   S.sid IN excludedsymbols
+	    AND   R.isdefault
+	}] {
+	    set ntdb($id) $parent
+	    if {$transfer eq ""} continue
+	    set link($id) $transfer
+	}
+
+	foreach joint [array names link] {
+	    # The joints are the highest NTDB revisions which are
+	    # shared with their respective trunk. We disconnect from
+	    # their NTDB children, and make them parents of their
+	    # 'dbchild'. The associated 'dbparent' is squashed
+	    # instead. All parents of the joints are moved to the
+	    # trunk as well.
+
+	    set tjoint $link($joint)
+	    set tlod [lindex [state run {
+		SELECT lod FROM revision WHERE rid = $tjoint
+	    }] 0]
+
+	    # Covnert db/parent/child into regular parent/child links.
+	    state run {
+		UPDATE revision SET dbparent = NULL, parent = $joint  WHERE rid = $tjoint ;
+		UPDATE revision SET dbchild  = NULL, child  = $tjoint WHERE rid = $joint  ;
+	    }
+	    while {1} {
+		# Move the NTDB trunk revisions to trunk.
+		state run {
+		    UPDATE revision SET lod = $tlod, isdefault = 0 WHERE rid = $joint
+		}
+		set last $joint
+		set joint $ntdb($joint)
+		if {![info exists ntdb($joint)]} break
+	    }
+
+	    # Reached the NTDB basis in the trunk. Finalize the
+	    # parent/child linkage and squash the branch parent symbol
+	    # reference.
+
+	    state run {
+		UPDATE revision SET child   = $last WHERE rid = $joint ;
+		UPDATE revision SET bparent = NULL  WHERE rid = $last  ;
+	    }
+	}
+
+	# Now that the special case is done we can simply kill all the
+	# revisions, tags, and branches referencing any of the
+	# excluded symbols in some way. This is easy as we do not have
+	# to select them again and again from the base tables any
+	# longer.
+
+	state run {
+	    DELETE FROM revision WHERE lod IN excludedsymbols;
+	    DELETE FROM tag      WHERE lod IN excludedsymbols;
+	    DELETE FROM tag      WHERE sid IN excludedsymbols;
+	    DELETE FROM branch   WHERE lod IN excludedsymbols;
+	    DELETE FROM branch   WHERE sid IN excludedsymbols;
+
+	    DROP TABLE excludedsymbols;
 	}
 	return
     }
@@ -106,6 +195,9 @@ namespace eval ::vc::fossil::import::cvs::pass {
     namespace export filtersym
     namespace eval filtersym {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace eval project {
+	    namespace import ::vc::fossil::import::cvs::project::sym
+	}
 	namespace import ::vc::tools::log
 	log register filtersym
     }
