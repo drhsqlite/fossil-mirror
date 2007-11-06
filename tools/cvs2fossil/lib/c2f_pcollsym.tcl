@@ -48,6 +48,16 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	state reading symbol
 	state reading blocker
 	state reading parent
+
+	state writing preferedparent {
+	    -- For each symbol the prefered parent. This describes the
+	    -- tree of the found lines of development. Actually a
+	    -- forest in case of multiple projects, with one tree per
+	    -- project.
+
+	    sid INTEGER  NOT NULL  PRIMARY KEY  REFERENCES symbol,
+	    pid INTEGER  NOT NULL               REFERENCES symbol
+	}
 	return
     }
 
@@ -76,6 +86,7 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	if {![trouble ?]} {
 	    DropExcludedSymbolsFromReferences
+	    DeterminePreferedParents
 	}
 
 	log write 1 collsym "Collation completed"
@@ -86,6 +97,8 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	# Pass manager interface. Executed for all passes after the
 	# run passes, to remove all data of this pass from the state,
 	# as being out of date.
+
+	state discard preferedparent
 	return
     }
 
@@ -186,6 +199,62 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 			  FROM   symbol
 			  WhERE  type = $excl);
 	}
+	return
+    }
+
+    proc DeterminePreferedParents {} {
+	array set prefered {}
+
+	# Phase I: Pull the possible parents, using sorting to put the
+	#          prefered parent of each symbol last among all
+	#          candidates, allowing us get the prefered one by
+	#          each candidate overwriting all previous selections.
+
+	foreach {s p sname pname prname} [state run {
+	    SELECT   S.sid, P.pid, S.name, SB.name, PR.name
+	    FROM     symbol S, parent P, symbol SB, project PR
+	    WHERE    S.sid = P.sid
+	    AND      P.pid = SB.sid
+	    AND      S.pid = PR.pid
+	    ORDER BY P.n ASC, P.pid DESC
+	    -- Higher votes and smaller ids (= earlier branches) last
+	    -- We simply keep the last possible parent for each
+	    -- symbol.  This parent will have the max number of votes
+	    -- for its symbol and will be the earliest created branch
+	    -- possible among all with many votes.
+	}] {
+	    set prefered($s) [list $p $sname $pname $prname]
+	}
+
+	# Phase II: Write the found preferences back into the table
+	#           this pass defined for it.
+
+	foreach {s x} [array get prefered] {
+	    struct::list assign $x p sname pname prname
+	    state run {
+		INSERT INTO preferedparent (sid, pid)
+		VALUES                     ($s,  $p);
+	    }
+
+	    log write 3 pcollsym "$prname : '$sname's prefered parent is '$pname'"
+	}
+
+	# Phase III: Check the result that all symbols except for
+	#            trunks have a prefered parent.
+
+	foreach {pname sname} [state run {
+	    SELECT S.name, PR.name
+	    FROM   project PR, symbol S LEFT OUTER JOIN preferedparent P
+	    ON     S.sid = P.sid
+	    WHERE  P.pid IS NULL
+	    AND    S.name != ':trunk:'
+	    AND    S.pid = PR.pid
+	}] {
+	    trouble fatal "$prname : '$sname' has no prefered parent."
+	}
+
+	# The reverse, having prefered parents for unknown symbols
+	# cannot occur.
 	return
     }
 
