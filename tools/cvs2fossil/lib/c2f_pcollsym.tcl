@@ -62,7 +62,12 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
     }
 
     typemethod load {} {
-	# TODO
+	# Pass manager interface. Executed to load data computed by
+	# this pass into memory when this pass is skipped instead of
+	# executed.
+
+	# The results of this pass are fully in the persistent state,
+	# there is nothing to load.
 	return
     }
 
@@ -205,10 +210,15 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
     proc DeterminePreferedParents {} {
 	array set prefered {}
 
+	set excl [project::sym excluded]
+
 	# Phase I: Pull the possible parents, using sorting to put the
 	#          prefered parent of each symbol last among all
 	#          candidates, allowing us get the prefered one by
-	#          each candidate overwriting all previous selections.
+	#          each candidate overwriting all previous
+	#          selections. Note that we ignore excluded symbol, we
+	#          do not care about their prefered parents and do not
+	#          attempt to compute them.
 
 	foreach {s p sname pname prname} [state run {
 	    SELECT   S.sid, P.pid, S.name, SB.name, PR.name
@@ -216,6 +226,7 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	    WHERE    S.sid = P.sid
 	    AND      P.pid = SB.sid
 	    AND      S.pid = PR.pid
+	    AND      S.type != $excl
 	    ORDER BY P.n ASC, P.pid DESC
 	    -- Higher votes and smaller ids (= earlier branches) last
 	    -- We simply keep the last possible parent for each
@@ -240,17 +251,20 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	}
 
 	# Phase III: Check the result that all symbols except for
-	#            trunks have a prefered parent.
+	#            trunks have a prefered parent. We also ignore
+	#            excluded symbols, as we intentionally did not
+	#            compute a prefered parent for them, see phase I.
 
 	foreach {pname sname} [state run {
-	    SELECT S.name, PR.name
+	    SELECT PR.name, S.name
 	    FROM   project PR, symbol S LEFT OUTER JOIN preferedparent P
 	    ON     S.sid = P.sid
 	    WHERE  P.pid IS NULL
 	    AND    S.name != ':trunk:'
 	    AND    S.pid = PR.pid
+	    AND    S.type != $excl
 	}] {
-	    trouble fatal "$prname : '$sname' has no prefered parent."
+	    trouble fatal "$pname : '$sname' has no prefered parent."
 	}
 
 	# The reverse, having prefered parents for unknown symbols
