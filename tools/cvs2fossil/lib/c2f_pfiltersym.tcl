@@ -73,6 +73,8 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    FilterExcludedSymbols
 	    MutateTagsToBranch
 	    MutateBranchesToTag
+	    AdjustTagParents
+	    AdjustBranchParents
 
 	    # Consider a rerun of the pass 2 paranoia checks.
 	}
@@ -196,13 +198,12 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 
 	set branch [project::sym branch]
 
-	set tagstomutate [state run {
+	foreach {id fid lod sid rev} [state run {
 	    SELECT T.tid, T.fid, T.lod, T.sid, T.rev
 	    FROM tag T, symbol S
 	    WHERE T.sid = S.sid
 	    AND S.type = $branch
-	}]
-	foreach {id fid lod sid rev} $tagstomutate {
+	}] {
 	    state run {
 		DELETE FROM tag WHERE tid = $id ;
 		INSERT INTO branch (bid, fid,  lod,  sid,  root, first, bra)
@@ -221,19 +222,74 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 
 	set tag [project::sym tag]
 
-	set branchestomutate [state run {
+	foreach {id fid lod sid root first bra} [state run {
 	    SELECT B.bid, B.fid, B.lod, B.sid, B.root, B.first, B.bra
 	    FROM branch B, symbol S
 	    WHERE B.sid = S.sid
 	    AND S.type = $tag
-	}]
-	foreach {id fid lod sid root first bra} $branchestomutate {
+	}] {
 	    state run {
 		DELETE FROM branch WHERE bid = $id ;
 		INSERT INTO tag (tid, fid,  lod,  sid,  rev)
 		VALUES          ($id, $fid, $lod, $sid, $root);
 	    }
 	}
+	return
+    }
+
+    # Adjust the parents of symbols to their preferred parents.
+
+    # If a file level ymbol has a preferred parent that is different
+    # than its current parent, and if the preferred parent is an
+    # allowed parent of the symbol in this file, then we graft the
+    # aSymbol onto its preferred parent.
+
+    proc AdjustTagParents {} {
+	log write 3 filtersym "Adjust tag parents"
+
+	# Find the tags whose current parent (lod) is not the prefered
+	# parent, the prefered parent is not the trunk, and the
+	# prefered parent is a possible parent per the tag's file ().
+
+	foreach {id fid lod pid preferedname revnr} [state run {
+	    SELECT T.tid, T.fid, T.lod, P.pid, S.name, R.rev
+	    FROM tag T, preferedparent P, symbol S, revision R
+	    WHERE T.sid = P.sid
+	    AND   T.lod != P.pid
+	    AND   P.pid = S.sid
+	    AND   S.name != ':trunk:'
+	    AND   T.rev = R.rid	
+	    AND   P.pid IN (SELECT B.sid FROM branch B WHERE B.root = R.rid)
+	}] {
+	    # The names for use in the log output are retrieved
+	    # separately, to keep the join selecting the adjustable
+	    # tags small, not burdened with the dereferencing of links
+	    # to name.
+
+	    set tagname [lindex [state run {
+		SELECT S.name FROM tag T, symbol S WHERE T.sid = S.sid AND T.tid = $id
+	    }] 0]
+	    set oldname [lindex [state run {
+		SELECT L.name FROM symbol L WHERE L.sid = $lod
+	    }] 0]
+	    struct::list assign [state run {
+		SELECT F.name, P.name
+		FROM file F, project P
+		WHERE F.fid = $fid AND F.pid = P.pid
+	    }] fname prname
+
+	    # Do the grafting.
+
+	    log write 3 filtersym "$prname : Grafting tag '$tagname' on $fname/$revnr from '$oldname' onto '$preferedname'"
+	    state run {
+		UPDATE tag SET lod = $pid WHERE tid = $id ;
+	    }
+	}
+	return
+    }
+
+    proc AdjustBranchParents {} {
+	log write 3 filtersym "Adjust branch parents"
 	return
     }
 
