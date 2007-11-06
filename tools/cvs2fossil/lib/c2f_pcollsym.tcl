@@ -67,7 +67,7 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	# executed.
 
 	# The results of this pass are fully in the persistent state,
-	# there is nothing to load.
+	# there is nothing to load for the next one.
 	return
     }
 
