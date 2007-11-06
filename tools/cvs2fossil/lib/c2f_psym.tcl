@@ -248,6 +248,7 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     typemethod undef    {} { return $myundef    }
     typemethod excluded {} { return $myexcluded }
     typemethod tag      {} { return $mytag      }
+    typemethod branch   {} { return $mybranch   }
 
     typemethod printrulestatistics {} {
 	log write 2 symbol "Rule usage statistics:"

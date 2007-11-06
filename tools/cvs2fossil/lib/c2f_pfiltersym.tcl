@@ -71,6 +71,10 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 
 	state transaction {
 	    FilterExcludedSymbols
+	    MutateTagsToBranch
+	    MutateBranchesToTag
+
+	    # Consider a rerun of the pass 2 paranoia checks.
 	}
 
 	log write 1 filtersym "Filtering completed"
@@ -88,6 +92,8 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
     ## Internal methods
 
     proc FilterExcludedSymbols {} {
+	log write 3 filtersym "Filter out excluded symbols and users"
+
 	# We pull all the excluded symbols together into a table for
 	# easy reference by the upcoming DELETE and other statements.
 	# ('x IN table' clauses).
@@ -177,6 +183,56 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    DELETE FROM branch   WHERE sid IN excludedsymbols;
 
 	    DROP TABLE excludedsymbols;
+	}
+	return
+    }
+
+    proc MutateTagsToBranch {} {
+	log write 3 filtersym "Mutate tags to branches"
+
+	# Next, now that we know which symbols are what we look for
+	# file level tags which are actually converted as branches
+	# (project level), and put them into the correct table.
+
+	set branch [project::sym branch]
+
+	set tagstomutate [state run {
+	    SELECT T.tid, T.fid, T.lod, T.sid, T.rev
+	    FROM tag T, symbol S
+	    WHERE T.sid = S.sid
+	    AND S.type = $branch
+	}]
+	foreach {id fid lod sid rev} $tagstomutate {
+	    state run {
+		DELETE FROM tag WHERE tid = $id ;
+		INSERT INTO branch (bid, fid,  lod,  sid,  root, first, bra)
+		VALUES             ($id, $fid, $lod, $sid, $rev, NULL,  '');
+	    }
+	}
+	return
+    }
+
+    proc MutateBranchesToTag {} {
+	log write 3 filtersym "Mutate branches to tags"
+
+	# Next, now that we know which symbols are what we look for
+	# file level branches which are actually converted as tags
+	# (project level), and put them into the correct table.
+
+	set tag [project::sym tag]
+
+	set branchestomutate [state run {
+	    SELECT B.bid, B.fid, B.lod, B.sid, B.root, B.first, B.bra
+	    FROM branch B, symbol S
+	    WHERE B.sid = S.sid
+	    AND S.type = $tag
+	}]
+	foreach {id fid lod sid root first bra} $branchestomutate {
+	    state run {
+		DELETE FROM branch WHERE bid = $id ;
+		INSERT INTO tag (tid, fid,  lod,  sid,  rev)
+		VALUES          ($id, $fid, $lod, $sid, $root);
+	    }
 	}
 	return
     }
