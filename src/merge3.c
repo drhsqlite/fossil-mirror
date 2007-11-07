@@ -275,6 +275,7 @@ static void MappingInit(
   Mapping *pMap          /* Write the map of similaries here */
 ){
   int i, j, base, prefix;
+  int changes;
   hash h;
   int *collide;
   int origLenOut = lenOut;
@@ -422,10 +423,12 @@ static void MappingInit(
     }
   }
   free(collide);
+#if 0
   DEBUG1(
    printf("after creation:\n");
    MappingPrint(pMap);
   )
+#endif
 
   /* In this step, we will remove overlapping entries from the mapping.
   **
@@ -435,67 +438,72 @@ static void MappingInit(
   ** all mappings have been processed.
   */
   MappingSortSize(pMap);
-  for(i=0; i<pMap->nUsed; i++){
-    int sortNeeded = 0;
-    int purgeNeeded = 0;
-    struct Mapping_entry *pA;
-    pA = &pMap->aMap[i];
-    for(j=i+1; j<pMap->nUsed; j++){
-      int diff;
-      struct Mapping_entry *pB;
-      pB = &pMap->aMap[j];
-      if( pB->fromLast<pA->fromFirst || pB->fromFirst>pA->fromLast ){
-        /* No overlap.  Do nothing */
-      }else if( pB->fromFirst>=pA->fromFirst && pB->fromLast<=pA->fromLast ){
-        /* B is contained entirely within A.  Drop B */
-        pB->fromFirst = -1;
-        purgeNeeded = 1;
-        continue;
-      }else if( pB->fromFirst<pA->fromFirst ){
-        /* The tail B overlaps the head of A */
-        assert( pB->fromLast>=pA->fromFirst && pB->fromLast<=pA->fromLast );
-        diff = pB->fromLast + 1 - pA->fromFirst;
-        pB->fromLast -= diff;
-        pB->toLast -= diff;
-        sortNeeded = 1;
-      }else{
-        /* The head of B overlaps the tail of A */
-        assert( pB->fromFirst<=pA->fromLast && pB->fromLast>pA->fromLast );
-        diff = pA->fromLast + 1 - pB->fromFirst;
-        pB->fromFirst += diff;
-        pB->toFirst += diff;
-        sortNeeded = 1;
+  do{
+    changes = 0;
+    for(i=0; i<pMap->nUsed; i++){
+      int sortNeeded = 0;
+      int purgeNeeded = 0;
+      struct Mapping_entry *pA;
+      pA = &pMap->aMap[i];
+      for(j=i+1; j<pMap->nUsed; j++){
+        int diff;
+        struct Mapping_entry *pB;
+        pB = &pMap->aMap[j];
+        if( pB->fromLast<pA->fromFirst || pB->fromFirst>pA->fromLast ){
+          /* No overlap.  Do nothing */
+        }else if( pB->fromFirst>=pA->fromFirst && pB->fromLast<=pA->fromLast ){
+          /* B is contained entirely within A.  Drop B */
+          pB->fromFirst = -1;
+          purgeNeeded = 1;
+          continue;
+        }else if( pB->fromFirst<pA->fromFirst ){
+          /* The tail B overlaps the head of A */
+          assert( pB->fromLast>=pA->fromFirst && pB->fromLast<=pA->fromLast );
+          diff = pB->fromLast + 1 - pA->fromFirst;
+          pB->fromLast -= diff;
+          pB->toLast -= diff;
+          sortNeeded = 1;
+        }else{
+          /* The head of B overlaps the tail of A */
+          assert( pB->fromFirst<=pA->fromLast && pB->fromLast>pA->fromLast );
+          diff = pA->fromLast + 1 - pB->fromFirst;
+          pB->fromFirst += diff;
+          pB->toFirst += diff;
+          sortNeeded = 1;
+        }
+        if( pB->toLast<pA->toFirst || pB->toFirst>pA->toLast ){
+          /* No overlap.  Do nothing */
+        }else if( pB->toFirst>=pA->toFirst && pB->toLast<=pA->toLast ){
+          /* B is contained entirely within A.  Drop B */
+          pB->fromFirst = -1;
+          purgeNeeded = 1;
+        }else if( pB->toFirst<pA->toFirst ){
+          /* The tail of B overlaps the head of A */
+          assert( pB->toLast>=pA->toFirst && pB->toLast<=pA->toLast );
+          diff = pB->toLast + 1 - pA->toFirst;
+          pB->fromLast -= diff;
+          pB->toLast -= diff;
+          sortNeeded = 1;
+        }else{
+          /* The head of B overlaps the tail of A */
+          assert( pB->toFirst<=pA->toLast && pB->toLast>pA->toLast );
+          diff = pA->toLast + 1 - pB->toFirst;
+          pB->fromFirst += diff;
+          pB->toFirst += diff;
+          sortNeeded = 1;
+        }
       }
-      if( pB->toLast<pA->toFirst || pB->toFirst>pA->toLast ){
-        /* No overlap.  Do nothing */
-      }else if( pB->toFirst>=pA->toFirst && pB->toLast<=pA->toLast ){
-        /* B is contained entirely within A.  Drop B */
-        pB->fromFirst = -1;
-        purgeNeeded = 1;
-      }else if( pB->toFirst<pA->toFirst ){
-        /* The tail of B overlaps the head of A */
-        assert( pB->toLast>=pA->toFirst && pB->toLast<=pA->toLast );
-        diff = pB->toLast + 1 - pA->toFirst;
-        pB->fromLast -= diff;
-        pB->toLast -= diff;
-        sortNeeded = 1;
-      }else{
-        /* The head of B overlaps the tail of A */
-        assert( pB->toFirst<=pA->toLast && pB->toLast>pA->toLast );
-        diff = pA->toLast + 1 - pB->toFirst;
-        pB->fromFirst += diff;
-        pB->toFirst += diff;
-        sortNeeded = 1;
+      if( purgeNeeded ){
+        MappingPurgeDeletedEntries(pMap);
+        /* changes++; */
+      }
+      if( sortNeeded && i<pMap->nUsed-2 ){
+        MappingSortSize(pMap);
+        /* changes++; */
       }
     }
-    if( purgeNeeded ){
-      MappingPurgeDeletedEntries(pMap);
-    }
-    if( sortNeeded && i<pMap->nUsed-2 ){
-      MappingSortSize(pMap);
-    }
-  }
-
+  }while( changes );
+  
   /* Final step:  Arrange the mapping entires so that they are in the
   ** order of the output file.  Then fill in the nExtra values.
   */
@@ -549,11 +557,10 @@ static int MappingTranslate(Mapping *p, int iFrom, int *pInserted){
 ** Do a three-way merge.  Initialize pOut to contain the result.
 */
 void blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
-  Mapping map1, map2;
-  int i;
+  Mapping map1, map2, map3;
+  int i, j;
   const char *zV1, *zV2;
   blob_zero(pOut);
-  DEBUG1( printf("map1:\n"); )
   MappingInit(
     blob_buffer(pPivot), blob_size(pPivot),
     blob_buffer(pV1), blob_size(pV1),
@@ -562,7 +569,6 @@ void blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   DEBUG1( 
     printf("map1-final:\n");
     MappingPrint(&map1);
-    printf("map2:\n");
   )
   MappingInit(
     blob_buffer(pPivot), blob_size(pPivot),
@@ -572,9 +578,16 @@ void blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     printf("map2-final:\n");
     MappingPrint(&map2);
   )
+  MappingInit(
+    blob_buffer(pV1), blob_size(pV1),
+    blob_buffer(pV2), blob_size(pV2),
+    &map3);
+  DEBUG1(
+    printf("map3-final:\n");
+    MappingPrint(&map3);
+  )
   zV1 = blob_buffer(pV1);
   zV2 = blob_buffer(pV2);
-  if( map2.nUsed==0 ) return;
   if( map1.aMap[0].toFirst>0 ){
     blob_append(pOut, zV1, map1.aMap[0].toFirst);
     DEBUG1( printf("INSERT %d bytes from V1[0..%d]\n",
@@ -585,9 +598,26 @@ void blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     DEBUG1( printf("INSERT %d bytes from V2[0..%d]\n",
             map2.aMap[0].toFirst, map2.aMap[0].toFirst-1); )
   }
-  for(i=0; i<map2.nUsed; i++){
-    int iFirst, iLast, nInsert;
+  for(i=j=0; i<map2.nUsed; i++){
+    int iFirst, iLast, nInsert, iTail;
     struct Mapping_entry *p = &map2.aMap[i];
+    while( j<map3.nUsed-1 && map3.aMap[j+1].toFirst>p->toFirst ){ j++; }
+    DEBUG1(
+      printf("map2: %6d..%-6d %6d..%-6d  %d\n",
+        p->fromFirst, p->fromLast, p->toFirst, p->toLast, p->nExtra);
+      printf("map3:       j=%-6d %6d..%-6d\n", j, map3.aMap[j].toFirst,
+        map3.aMap[j].toLast);
+    );
+    iTail = p->toLast + p->nExtra;
+    if( i<map2.nUsed-1 &&
+         map3.aMap[j].toFirst<=p->toFirst && map3.aMap[j].toLast>=iTail ){
+      blob_append(pOut, &zV2[p->toFirst], iTail - p->toFirst + 1);
+      DEBUG1(
+        printf("COPY %d bytes from V2[%d..%d]\n", iTail - p->toFirst+1,
+                p->toFirst, iTail);
+      )
+      continue;
+    }
     iFirst = MappingTranslate(&map1, p->fromFirst, 0);
     iLast = MappingTranslate(&map1, p->fromLast, &nInsert);
     blob_append(pOut, &zV1[iFirst], iLast - iFirst + 1);
@@ -595,8 +625,8 @@ void blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       printf("COPY %d bytes from V1[%d..%d]\n", iLast-iFirst+1, iFirst, iLast);
     )
     if( p->nExtra>0 ){
-      if( p->nExtra==nInsert
-          && memcmp(&zV2[p->toLast+1], &zV1[iLast-nInsert+1], nInsert)==0 ){
+      if( p->nExtra==nInsert &&
+          memcmp(&zV2[p->toLast+1], &zV1[iLast-nInsert+1], nInsert)==0 ){
         /* Omit a duplicate insert */
         DEBUG1( printf("OMIT duplicate insert\n"); )
       }else{
@@ -610,6 +640,7 @@ void blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   }
   MappingClear(&map1);
   MappingClear(&map2);
+  MappingClear(&map3);
 }
 
 /*
@@ -653,7 +684,7 @@ void delta_3waymerge_cmd(void){
 */
 void mapping_test(void){
   int i;
-  const char *z;
+  const char *za, *zb;
   Blob a, b;
   Mapping map;
   if( g.argc!=4 ){
@@ -665,13 +696,22 @@ void mapping_test(void){
   MappingInit(blob_buffer(&a), blob_size(&a),
               blob_buffer(&b), blob_size(&b),
               &map);
-  z = blob_buffer(&a);
+  DEBUG1(
+    printf("map-final:\n");
+    MappingPrint(&map);
+  )
+  za = blob_buffer(&a);
+  zb = blob_buffer(&b);
   for(i=0; i<map.nUsed; i++){
     printf("======= %6d..%-6d %6d..%-6d %d\n", 
          map.aMap[i].fromFirst, map.aMap[i].fromLast,
          map.aMap[i].toFirst, map.aMap[i].toLast,
          map.aMap[i].nExtra);
     printf("%.*s\n", map.aMap[i].fromLast - map.aMap[i].fromFirst + 1, 
-                     &z[map.aMap[i].fromFirst]);
+                     &za[map.aMap[i].fromFirst]);
+    if( map.aMap[i].nExtra ){
+      printf("======= EXTRA:\n");
+      printf("%.*s\n", map.aMap[i].nExtra, &zb[map.aMap[i].toLast+1]);
+    }
   }
 }
