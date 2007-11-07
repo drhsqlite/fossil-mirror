@@ -171,11 +171,6 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     method persist {} {
 	# Save the information we need after the collection pass.
 
-	# NOTE: mybranchposition is currently not saved. This can
-	# likely be figured out later from the id itself. If yes, we
-	# can also get rid of 'sortbranches' (cvs::file) and the
-	# associated information.
-
 	set fid [$myfile   id]
 	set sid [$mysymbol id]
 	set lod [$mylod    id]
@@ -195,8 +190,8 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 
 		set rid [$mybranchparent id]
 		set cmd {
-		    INSERT INTO branch ( bid,   fid,  lod,  sid,  root, first, bra )
-		    VALUES             ($myid, $fid, $lod, $sid, $rid,  @F@,  $mynr);
+		    INSERT INTO branch ( bid,   fid,  lod,  sid,  root, first, bra,  pos              )
+		    VALUES             ($myid, $fid, $lod, $sid, $rid,  @F@,  $mynr, $mybranchposition);
 		}
 		state transaction {
 		    state run [string map $map $cmd]

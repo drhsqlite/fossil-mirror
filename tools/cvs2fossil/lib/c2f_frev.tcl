@@ -178,7 +178,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     }
 
     method sortbranches {} {
-	if {![llength $mybranches]} return
+	# Pass 2: CollectRev
+
+	if {[llength $mybranches] < 2} return
 
 	# Sort the branches spawned by this revision in creation
 	# order. To help in this our file gave all branches a position
@@ -482,6 +484,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	{1 0} add
 	{1 1} nothing
     }
+    # Keep myopcode in sync with project::collrev.optype
     typevariable myopcode -array {
 	change   2
 	delete  -1

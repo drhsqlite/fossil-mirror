@@ -134,21 +134,31 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    -- epoch, for easy comparison. The text content is an
 	    -- (offset,length) pair into the rcs archive.
 
-	    op    INTEGER  NOT NULL,
+	    op    INTEGER  NOT NULL  REFERENCES optype,
 	    date  INTEGER  NOT NULL,
 	    state TEXT     NOT NULL,
-	    mid   INTEGER  NOT NULL REFERENCES meta,
+	    mid   INTEGER  NOT NULL  REFERENCES meta,
 	    coff  INTEGER  NOT NULL,
 	    clen  INTEGER  NOT NULL,
 
 	    UNIQUE (fid, rev) -- The DTN is unique within the revision's file.
 	}
-
+	state writing optype {
+	    oid   INTEGER  NOT NULL  PRIMARY KEY,
+	    name  TEXT     NOT NULL,
+	    UNIQUE(text)
+	}
+	# Keep optype in sync with file::rev.myopcode
+	state run {
+	    INSERT INTO optype VALUES (-1,'delete');
+	    INSERT INTO optype VALUES ( 0,'nothing');
+	    INSERT INTO optype VALUES ( 1,'add');
+	    INSERT INTO optype VALUES ( 2,'change');
+	}
 	state writing tag {
 	    tid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    fid  INTEGER  NOT NULL  REFERENCES file,     -- File the item belongs to
 	    lod  INTEGER            REFERENCES symbol,   -- Line of development (NULL => Trunk)
-
 	    sid  INTEGER  NOT NULL  REFERENCES symbol,   -- Symbol capturing the tag
 
 	    rev  INTEGER  NOT NULL  REFERENCES revision  -- The revision being tagged.
@@ -158,12 +168,12 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    bid   INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    fid   INTEGER  NOT NULL  REFERENCES file,     -- File the item belongs to
 	    lod   INTEGER            REFERENCES symbol,   -- Line of development (NULL => Trunk)
-
 	    sid   INTEGER  NOT NULL  REFERENCES symbol,   -- Symbol capturing the branch
 
 	    root  INTEGER  NOT NULL  REFERENCES revision, -- Revision the branch sprouts from
 	    first INTEGER            REFERENCES revision, -- First revision committed to the branch
-	    bra   TEXT     NOT NULL                       -- branch number
+	    bra   TEXT     NOT NULL,                      -- branch number
+	    pos   INTEGER  NOT NULL                       -- creation order in root.
 	}
 
 	# Project level ...
@@ -213,10 +223,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (plural)
 	}
 	state run {
-	    INSERT INTO symtype VALUES (0,'excluded');
-	    INSERT INTO symtype VALUES (1,'tag');
-	    INSERT INTO symtype VALUES (2,'branch');
-	    INSERT INTO symtype VALUES (3,'undefined');
+	    INSERT INTO symtype VALUES (0,'excluded', 'excluded');
+	    INSERT INTO symtype VALUES (1,'tag',      'tags');
+	    INSERT INTO symtype VALUES (2,'branch',   'branches');
+	    INSERT INTO symtype VALUES (3,'undefined','undefined');
 	}
 
 	state writing meta {
