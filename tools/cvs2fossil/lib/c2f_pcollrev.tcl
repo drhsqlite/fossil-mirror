@@ -23,7 +23,8 @@ package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::pass         ; # Pass management.
 package require vc::fossil::import::cvs::repository   ; # Repository management.
 package require vc::fossil::import::cvs::state        ; # State storage.
-package require vc::fossil::import::cvs::project::sym ; # Project level symbols
+package require vc::fossil::import::cvs::project::sym ; # Project level symbols.
+package require vc::fossil::import::cvs::file::rev    ; # File level revisions.
 package require vc::rcs::parser                       ; # Rcs archive data extraction.
 
 # # ## ### ##### ######## ############# #####################
@@ -146,14 +147,13 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	state writing optype {
 	    oid   INTEGER  NOT NULL  PRIMARY KEY,
 	    name  TEXT     NOT NULL,
-	    UNIQUE(text)
+	    UNIQUE(name)
 	}
-	# Keep optype in sync with file::rev.myopcode
 	state run {
-	    INSERT INTO optype VALUES (-1,'delete');
-	    INSERT INTO optype VALUES ( 0,'nothing');
-	    INSERT INTO optype VALUES ( 1,'add');
-	    INSERT INTO optype VALUES ( 2,'change');
+	    INSERT INTO optype VALUES (-1,'delete');  -- The opcode names are the
+	    INSERT INTO optype VALUES ( 0,'nothing'); -- fixed pieces, see myopstate
+	    INSERT INTO optype VALUES ( 1,'add');     -- in file::rev. myopcode is
+	    INSERT INTO optype VALUES ( 2,'change');  -- loaded from this.
 	}
 	state writing tag {
 	    tid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
@@ -271,14 +271,17 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	}
 
 	project::sym getsymtypes
+	file::rev    getopcodes
 	return
     }
 
     typemethod load {} {
 	state reading symbol
 	state reading symtype
+	state reading optype
 
 	project::sym getsymtypes
+	file::rev    getopcodes
 	repository   loadsymbols
 	return
     }
@@ -609,6 +612,9 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::fossil::import::cvs::state
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
+	}
+	namespace eval file {
+	    namespace import ::vc::fossil::import::cvs::file::rev
 	}
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log

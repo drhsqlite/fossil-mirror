@@ -484,13 +484,15 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	{1 0} add
 	{1 1} nothing
     }
-    # Keep myopcode in sync with project::collrev.optype
-    typevariable myopcode -array {
-	change   2
-	delete  -1
-	add      1
-	nothing  0
+
+    typemethod getopcodes {} {
+	foreach {id name} [state run {
+	    SELECT oid, name FROM optype;
+	}] { set myopcode($name) $id }
+	return
     }
+
+    typevariable myopcode -array {}
 
     # # ## ### ##### ######## #############
     ## Internal methods

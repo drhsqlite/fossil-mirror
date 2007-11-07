@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Pass\s4\snearly\scompleted.\sRewrite\ssymbol\smutation,\scompleted\sadjustment\sof\ssymbol\sparents,\sadded\ssymbol\srefinement\s(noop\sor\snot\sflags).\sNow\sonly\smissing\spiece\sis\sreplication\sof\sthe\spass\s2\sparanoia\schecks.\sNote:\sChecks\sin\sthe\sadjustment\sof\sparents\sare\sa\sbottleneck.\sMay\sneed\sindices,\sor\ssomething\swe\scan\sdo\sin\smemory.
-D 2007-11-07T06:22:32
+C Opcode\ssynchronization\sreworked,\soptype\stable\sis\smaster\sfrom\swhich\sthe\sin-memory\sarray\sis\sloaded.
+D 2007-11-07T07:46:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,13 +100,13 @@ F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/lib/c2f_file.tcl a0a48d681efabeb95ae5e8d59aeb112ddf404678
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
-F tools/cvs2fossil/lib/c2f_frev.tcl 10659a0b86774b5f1b0b904ca7d026084848e14f
+F tools/cvs2fossil/lib/c2f_frev.tcl edfbe469f8d4a913c7c440b4f32044ae9760d567
 F tools/cvs2fossil/lib/c2f_fsym.tcl 31fcf57a5226a8f008a3da425d0d27cf38c65aa1
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_option.tcl d7008b5e1ad9a5295ecc3f1934ac4200af09220a
 F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl ef1b5512b84952336891659aa13aae334a7aac1f
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl 3d675ee00abf88ebad3126d7a5d9f8a5ba170f43
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7553c6538ad7d3fd2acf03514cc7d52210d116ae
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 3dc3d0fe9b761bf79ddad7337dd1b35f8a9e8a41
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
@@ -158,14 +158,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7ab490df244230f349455bbb106e2093c99a69a0
-R 7f80db923b5f0bc2eea4647494d0a9f0
+P 37734390caae38e38b6b9f4df3e4fbb3befba82a
+R 8627a3c8947dbd0bdcba86f1c745a4a0
 U aku
-Z d3082cd852065823f9131cd9a1fe456b
+Z a9418b33d7335600b1008d892582bc1c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHMVmovonzZ/CRa7gRAnwmAJ9l21grcPHGLVXvCL4QjFYnfH69GQCgrQwu
-id/FuxDU14vdhJafecr6pOc=
-=6rge
+iD8DBQFHMW1cvonzZ/CRa7gRAqxdAKCy/3hEBKpElGHmA4K1TJ2lbqqWOQCfdbDj
+Qfhxll9BIn0H/NzH/jzSYz8=
+=y2V+
 -----END PGP SIGNATURE-----
