@@ -19,6 +19,7 @@
 
 package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
+package require vc::tools::misc                       ; # Text formatting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols
@@ -49,6 +50,11 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	state reading revision
 	state reading branch
 	state reading tag
+
+	state writing noop {
+	    id    INTEGER NOT NULL  PRIMARY KEY, -- tag/branch reference
+	    noop  INTEGER NOT NULL
+	}
 	return
     }
 
@@ -71,10 +77,9 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 
 	state transaction {
 	    FilterExcludedSymbols
-	    MutateTagsToBranch
-	    MutateBranchesToTag
-	    AdjustTagParents
-	    AdjustBranchParents
+	    MutateSymbols
+	    AdjustParents
+	    RefineSymbols
 
 	    # Consider a rerun of the pass 2 paranoia checks.
 	}
@@ -189,51 +194,65 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	return
     }
 
-    proc MutateTagsToBranch {} {
-	log write 3 filtersym "Mutate tags to branches"
-
+    proc MutateSymbols {} {
 	# Next, now that we know which symbols are what we look for
 	# file level tags which are actually converted as branches
-	# (project level), and put them into the correct table.
+	# (project level, and vice versa), and move them to the
+	# correct tables.
+
+	# # ## ### ##### ######## #############
+
+	log write 3 filtersym "Mutate symbols, preparation"
 
 	set branch [project::sym branch]
+	set tag    [project::sym tag]
 
-	foreach {id fid lod sid rev} [state run {
+	set tagstomutate [state run {
 	    SELECT T.tid, T.fid, T.lod, T.sid, T.rev
 	    FROM tag T, symbol S
 	    WHERE T.sid = S.sid
 	    AND S.type = $branch
-	}] {
-	    state run {
-		DELETE FROM tag WHERE tid = $id ;
-		INSERT INTO branch (bid, fid,  lod,  sid,  root, first, bra)
-		VALUES             ($id, $fid, $lod, $sid, $rev, NULL,  '');
-	    }
-	}
-	return
-    }
+	}]
 
-    proc MutateBranchesToTag {} {
-	log write 3 filtersym "Mutate branches to tags"
-
-	# Next, now that we know which symbols are what we look for
-	# file level branches which are actually converted as tags
-	# (project level), and put them into the correct table.
-
-	set tag [project::sym tag]
-
-	foreach {id fid lod sid root first bra} [state run {
+	set branchestomutate [state run {
 	    SELECT B.bid, B.fid, B.lod, B.sid, B.root, B.first, B.bra
 	    FROM branch B, symbol S
 	    WHERE B.sid = S.sid
 	    AND S.type = $tag
-	}] {
+	}]
+
+	log write 4 filtersym "Changing [nsp [expr {[llength $tagstomutate]/5}] tag] into branches"
+	log write 4 filtersym "Changing [nsp [expr {[llength $branchestomutate]/7}] branch branches] into tags"
+
+	# # ## ### ##### ######## #############
+
+	log write 3 filtersym "Mutate tags to branches"
+
+	foreach {id fid lod sid rev} $tagstomutate {
+	    state run {
+		DELETE FROM tag WHERE tid = $id ;
+		INSERT INTO branch (bid, fid,  lod,  sid,  root, first, bra, pos)
+		VALUES             ($id, $fid, $lod, $sid, $rev, NULL,  '',  -1);
+	    }
+	}
+
+	log write 3 filtersym "Ok."
+
+	# # ## ### ##### ######## #############
+
+	log write 3 filtersym "Mutate branches to tags"
+
+	foreach {id fid lod sid root first bra} $branchestomutate {
 	    state run {
 		DELETE FROM branch WHERE bid = $id ;
 		INSERT INTO tag (tid, fid,  lod,  sid,  rev)
 		VALUES          ($id, $fid, $lod, $sid, $root);
 	    }
 	}
+
+	log write 3 filtersym "Ok."
+
+	# # ## ### ##### ######## #############
 	return
     }
 
@@ -244,52 +263,206 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
     # allowed parent of the symbol in this file, then we graft the
     # aSymbol onto its preferred parent.
 
-    proc AdjustTagParents {} {
-	log write 3 filtersym "Adjust tag parents"
+    proc AdjustParents {} {
+	log write 3 filtersym "Adjust parents, loading data in preparation"
 
-	# Find the tags whose current parent (lod) is not the prefered
-	# parent, the prefered parent is not the trunk, and the
-	# prefered parent is a possible parent per the tag's file ().
+	# We pull important maps once into memory so that we do quick
+	# hash lookup later when processing the graft candidates.
 
-	foreach {id fid lod pid preferedname revnr} [state run {
-	    SELECT T.tid, T.fid, T.lod, P.pid, S.name, R.rev
+	# Tag/Branch names ...
+	array set sn [state run { SELECT T.tid, S.name FROM tag T,    symbol S WHERE T.sid = S.sid }]
+	array set sn [state run { SELECT B.bid, S.name FROM branch B, symbol S WHERE B.sid = S.sid }]
+	# Symbol names ...
+	array set sx [state run { SELECT L.sid, L.name FROM symbol L }]
+	# Files and projects.
+	array set fpn {}
+	foreach {id fn pn} [state run {
+		SELECT F.fid, F.name, P.name
+		FROM   file F, project P
+		WHERE  F.pid = P.pid
+	}] { set fpn($id) [list $fn $pn] }
+
+	set tagstoadjust [state run {
+	    SELECT T.tid, T.fid, T.lod, P.pid, S.name, R.rev, R.rid
 	    FROM tag T, preferedparent P, symbol S, revision R
 	    WHERE T.sid = P.sid
 	    AND   T.lod != P.pid
 	    AND   P.pid = S.sid
 	    AND   S.name != ':trunk:'
 	    AND   T.rev = R.rid	
-	    AND   P.pid IN (SELECT B.sid FROM branch B WHERE B.root = R.rid)
-	}] {
+	}]
+
+	set branchestoadjust [state run {
+	    SELECT B.bid, B.fid, B.lod, B.pos, P.pid, S.name, R.rev, R.rid
+	    FROM branch B, preferedparent P, symbol S, revision R
+	    WHERE B.sid = P.sid
+	    AND   B.lod != P.pid
+	    AND   P.pid = S.sid
+	    AND   S.name != ':trunk:'
+	    AND   B.root = R.rid	
+	}]
+
+	set tmax [expr {[llength $tagstoadjust] / 7}]
+	set bmax [expr {[llength $branchestoadjust] / 8}]
+
+	log write 4 filtersym "Reparenting at most [nsp $tmax tag]"
+	log write 4 filtersym "Reparenting at most [nsp $bmax branch branches]"
+
+	log write 3 filtersym "Adjust tag parents"
+
+	# Find the tags whose current parent (lod) is not the prefered
+	# parent, the prefered parent is not the trunk, and the
+	# prefered parent is a possible parent per the tag's revision.
+
+	set fmt %[string length $tmax]s
+	set mxs [format $fmt $tmax]
+
+	set n 0
+	foreach {id fid lod pid preferedname revnr rid} $tagstoadjust {
+
+	    # BOTTLE-NECK ...
+	    #
+	    # The check if the candidate (pid) is truly viable is
+	    # based finding the branch as possible parent, and done
+	    # now instead of as part of the already complex join.
+	    #
+	    # ... AND P.pid IN (SELECT B.sid
+	    #                   FROM branch B
+	    #                   WHERE B.root = R.rid)
+
+	    if {![lindex [state run {
+		SELECT COUNT(*)
+		FROM branch B
+		WHERE  B.sid  = $pid
+		AND    B.root = $rid
+	    }] 0]} {
+		incr tmax -1
+		set  mxs [format $fmt $tmax]
+		continue
+	    }
+
+	    #
+	    # BOTTLE-NECK ...
+
 	    # The names for use in the log output are retrieved
 	    # separately, to keep the join selecting the adjustable
 	    # tags small, not burdened with the dereferencing of links
 	    # to name.
 
-	    set tagname [lindex [state run {
-		SELECT S.name FROM tag T, symbol S WHERE T.sid = S.sid AND T.tid = $id
-	    }] 0]
-	    set oldname [lindex [state run {
-		SELECT L.name FROM symbol L WHERE L.sid = $lod
-	    }] 0]
-	    struct::list assign [state run {
-		SELECT F.name, P.name
-		FROM file F, project P
-		WHERE F.fid = $fid AND F.pid = P.pid
-	    }] fname prname
+	    set tagname $sn($id)
+	    set oldname $sx($lod)
+	    struct::list assign $fpn($fid) fname prname
 
 	    # Do the grafting.
 
-	    log write 3 filtersym "$prname : Grafting tag '$tagname' on $fname/$revnr from '$oldname' onto '$preferedname'"
-	    state run {
-		UPDATE tag SET lod = $pid WHERE tid = $id ;
-	    }
+	    log write 4 filtersym "\[[format $fmt $n]/$mxs\] $prname : Grafting tag '$tagname' on $fname/$revnr from '$oldname' onto '$preferedname'"
+	    state run { UPDATE tag SET lod = $pid WHERE tid = $id ; }
+	    incr n
 	}
+
+	log write 3 filtersym "Reparented [nsp $n tag]"
+
+	log write 3 filtersym "Adjust branch parents"
+
+	# Find the branches whose current parent (lod) is not the
+	# prefered parent, the prefered parent is not the trunk, and
+	# the prefered parent is a possible parent per the branch's
+	# revision.
+
+	set fmt %[string length $bmax]s
+	set mxs [format $fmt $bmax]
+
+	set n 0
+	foreach {id fid lod pos pid preferedname revnr rid} $branchestoadjust {
+
+	    # BOTTLE-NECK ...
+	    #
+	    # The check if the candidate (pid) is truly viable is
+	    # based on the branch positions in the spawning revision,
+	    # and done now instead of as part of the already complex
+	    # join.
+	    #
+	    # ... AND P.pid IN (SELECT BX.sid
+	    #                   FROM branch BX
+	    #                   WHERE BX.root = R.rid
+	    #                   AND   BX.pos > B.pos)
+
+	    if {![lindex [state run {
+		SELECT COUNT(*)
+		FROM branch B
+		WHERE  B.sid  = $pid
+		AND    B.root = $rid
+		AND    B.pos  > $pos
+	    }] 0]} {
+		incr bmax -1
+		set  mxs [format $fmt $bmax]
+		continue
+	    }
+
+	    #
+	    # BOTTLE-NECK ...
+
+	    # The names for use in the log output are retrieved
+	    # separately, to keep the join selecting the adjustable
+	    # tags small, not burdened with the dereferencing of links
+	    # to name.
+
+	    set braname $sn($id)
+	    set oldname $sx($lod)
+	    struct::list assign $fpn($fid) fname prname
+
+	    # Do the grafting.
+
+	    log write 4 filtersym "\[[format $fmt $n]/$mxs\] $prname : Grafting branch '$braname' on $fname/$revnr from '$oldname' onto '$preferedname'"
+	    state run { UPDATE tag SET lod = $pid WHERE tid = $id ; }
+	    incr n
+	}
+
+	log write 3 filtersym "Reparented [nsp $n branch branches]"
 	return
     }
 
-    proc AdjustBranchParents {} {
-	log write 3 filtersym "Adjust branch parents"
+    proc RefineSymbols {} {
+	# Tags and branches are marked as normal/noop based on the op
+	# of their revision.
+
+	log write 3 filtersym "Refine symbols (no-op or not?)"
+
+	log write 4 filtersym "    Regular tags"
+	state run {
+	    INSERT INTO noop
+	    SELECT T.tid, 0
+	    FROM tag T, revision R
+	    WHERE T.rev  = R.rid
+	    AND   R.op  != 0 -- 0 == nothing
+	}
+
+	log write 4 filtersym "    No-op tags"
+	state run {
+	    INSERT INTO noop
+	    SELECT T.tid, 1
+	    FROM tag T, revision R
+	    WHERE T.rev  = R.rid
+	    AND   R.op   = 0 -- nothing
+	}
+
+	log write 4 filtersym "    Regular branches"
+	state run {
+	    INSERT INTO noop
+	    SELECT B.bid, 0
+	    FROM branch B, revision R
+	    WHERE B.root = R.rid
+	    AND   R.op  != 0 -- nothing
+	}
+
+	log write 4 filtersym "    No-op branches"
+	state run {
+	    INSERT INTO noop
+	    SELECT B.bid, 1
+	    FROM branch B, revision R
+	    WHERE B.root = R.rid
+	    AND   R.op   = 0 -- nothing
+	}
 	return
     }
 
@@ -310,6 +483,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
 	}
+	namespace import ::vc::tools::misc::nsp
 	namespace import ::vc::tools::log
 	log register filtersym
     }
