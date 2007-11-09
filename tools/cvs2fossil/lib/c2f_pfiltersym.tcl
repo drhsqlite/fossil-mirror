@@ -22,6 +22,7 @@ package require snit                                  ; # OO system.
 package require vc::tools::misc                       ; # Text formatting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::integrity    ; # State storage integrity checks.
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
@@ -81,7 +82,19 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    AdjustParents
 	    RefineSymbols
 
-	    # Consider a rerun of the pass 2 paranoia checks.
+	    # Strict integrity enforces that all meta entries are in
+	    # the same LOD as the revision using them. At this point
+	    # this may not be true any longer. If a NTDB was excluded
+	    # then all revisions it shared with the trunk were moved
+	    # to the trunk LOD, however their meta entries will still
+	    # refer to the now gone LOD symbol. This is fine however,
+	    # it will not affect our ability to use the meta entries
+	    # to distinguish and group revisions into changesets. It
+	    # should be noted that we cannot simply switch the meta
+	    # entries over to the trunk either, as that may cause the
+	    # modified entries to violate the unique-ness constrain
+	    # set on that table.
+	    integrity metarelaxed
 	}
 
 	log write 1 filtersym "Filtering completed"
@@ -480,6 +493,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
     namespace export filtersym
     namespace eval filtersym {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
 	}

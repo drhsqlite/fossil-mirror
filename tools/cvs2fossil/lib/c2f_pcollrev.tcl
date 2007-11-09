@@ -23,6 +23,7 @@ package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::pass         ; # Pass management.
 package require vc::fossil::import::cvs::repository   ; # Repository management.
 package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols.
 package require vc::fossil::import::cvs::file::rev    ; # File level revisions.
 package require vc::rcs::parser                       ; # Rcs archive data extraction.
@@ -329,8 +330,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 
 	repository printrevstatistics
 	repository persistrev
+	integrity  strict
 
-	Paranoia
 	log write 1 collrev "Scan completed"
 	return
     }
@@ -610,6 +611,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::rcs::parser
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
 	}
