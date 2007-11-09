@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Moved\sthe\sparanoid\sintegrity\schecks\sof\spass\s2\sinto\sa\sseparate\spackage\sfor\suse\sby\sother\spasses,\sand\schanged\spass\s4\sto\salso\srun\sthese\schecks,\salbeit\sin\sa\s(slightly)\srelaxed\sform.\sSee\sthe\scomments\sat\sthe\spoint\sof\scall\sfor\sthe\sreason.\sThis\scompletes\spass\s4.
-D 2007-11-09T06:28:19
+C Added\snote\sabout\swhy\swe\somit\scvs2svn's\ssorting\spasses.
+D 2007-11-09T06:42:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -117,7 +117,7 @@ F tools/cvs2fossil/lib/c2f_psym.tcl e97d1e5410b79da3de12c44139dc5f188da36353
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
 F tools/cvs2fossil/lib/c2f_repository.tcl 7a9e86cef9ab9818ba53772cd92fe99f8c934310
 F tools/cvs2fossil/lib/c2f_state.tcl 03d1122d661cafe1e7b532cf39feca43deebca23
-F tools/cvs2fossil/lib/cvs2fossil.tcl a62e286ebf00dc48cee6534c1c1feb1725dcb748
+F tools/cvs2fossil/lib/cvs2fossil.tcl 9c5940261ae164f1fdb6a797bdf19586c83bf5c3
 F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
 F tools/cvs2fossil/lib/log.tcl 9e72db66cbfbeb5ba0b97b2fcbdc6ada4387a977
 F tools/cvs2fossil/lib/misc.tcl a87f1adea4a159b96ee2c0d25637a3dcbd3495db
@@ -159,14 +159,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e45f47ec4aa0f67092c90e80b3f701b2df601ef1
-R 624277b04131803377096df65bd35055
+P 131f0518802152fa2842d773b4470282800dd8ad
+R fa5007c5d4718f65851b47a2d25812dd
 U aku
-Z dadb2357e2af58211b3aa3e3b124d7ec
+Z 29666c3c68f831294795d6de812e0ea9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHM/4JvonzZ/CRa7gRAjRUAKCYIii8f0FjhulesT1l5cUPpdBbXQCfRCzn
-di5fBvO8u5yzaPVRmFURaQM=
-=9Uyl
+iD8DBQFHNAFrvonzZ/CRa7gRAp12AJ4sASqgJ7r0KJvR6HrB138VNB0zagCguYqJ
+AKjk1cgq9hUx8XRdr2qkDEo=
+=FOYm
 -----END PGP SIGNATURE-----

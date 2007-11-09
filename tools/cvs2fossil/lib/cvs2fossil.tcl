@@ -29,6 +29,11 @@ package require vc::fossil::import::cvs::pass::collrev   ; # Coll'ect Rev'isions
 package require vc::fossil::import::cvs::pass::collsym   ; # Coll'ate Sym'bols
 package require vc::fossil::import::cvs::pass::filtersym ; # Filter'  Sym'bols
 
+# Note: cvs2svn's SortRevisionSummaryPass and SortSymbolSummaryPass
+#       are not implemented by us. They are irrelevant due to our use
+#       of a relational database proper for the persistent state,
+#       allowing us to sort the data on the fly as we need it.
+
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
 
