@@ -367,6 +367,15 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
 	state transaction {
 	    state run [string map $map $cmd]
+
+	    # And the branch children as well, for pass 5.
+	    foreach bc $mybranchchildren {
+		set bcid [$bc id]
+		state run {
+		    INSERT INTO revisionbranchchildren (rid,   brid)
+		    VALUES                             ($myid, $bcid);
+		}
+	    }
 	}
 	return
     }

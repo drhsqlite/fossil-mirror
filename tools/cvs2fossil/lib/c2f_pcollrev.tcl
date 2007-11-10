@@ -145,6 +145,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 
 	    UNIQUE (fid, rev) -- The DTN is unique within the revision's file.
 	}
+
 	state writing optype {
 	    oid   INTEGER  NOT NULL  PRIMARY KEY,
 	    name  TEXT     NOT NULL,
@@ -156,6 +157,18 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    INSERT INTO optype VALUES ( 1,'add');     -- in file::rev. myopcode is
 	    INSERT INTO optype VALUES ( 2,'change');  -- loaded from this.
 	}
+
+	state writing revisionbranchchildren {
+	    -- The non-primary children of a revision, as reachable
+	    -- through a branch symbol, are listed here. This is
+	    -- needed by pass 5 to break internal dependencies in a
+	    -- changeset.
+
+	    rid   INTEGER  NOT NULL  REFERENCES revision,
+	    brid  INTEGER  NOT NULL  REFERENCES revision,
+	    UNIQUE(rid,brid)
+	}
+
 	state writing tag {
 	    tid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    fid  INTEGER  NOT NULL  REFERENCES file,     -- File the item belongs to
