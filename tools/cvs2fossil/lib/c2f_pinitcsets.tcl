@@ -285,35 +285,13 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# dependencies, only external ones.
 
 	log write 3 initcsets {Break internal dependencies}
-	set n 0
+	set old [llength $csets]
 
 	foreach cset $csets {
-	    # The main method for splitting does only one split, which
-	    # may not be enough. The code here iterates until no more
-	    # splits can be performed. An iterative algorithm was
-	    # chosen over a recursive one to prevent running into
-	    # stack limits.
-
-	    set tosplit [list $cset]
-	    set at 0
-	    while {$at < [llength $tosplit]} {
-		# Note here how we are __not__ advancing in the list
-		#      when we were able to break the current
-		#      changeset into two pieces, causing the loop to
-		#      immediately check the first of the two pieces
-		#      again for further break possibilities. The
-		#      other piece is added at the end, thus processed
-		#      later.
-		while {[[lindex $tosplit $at] breakinternaldependencies tosplit]} {}
-		incr at
-	    }
-
-	    # At last the generated fragments are added to the main
-	    # list of changesets. The first element is skipped as it
-	    # is already in the list.
-	    foreach cset [lrange $tosplit 1 end] { lappend csets $cset ; incr n }
+	    $cset breakinternaldependencies csets
 	}
 
+	set n [expr {[llength $csets] - $old}]
 	log write 4 initcsets "Created [nsp $n {additional revision changeset}]"
 	log write 4 initcsets Ok.
 	return

@@ -47,6 +47,10 @@ snit::type ::vc::tools::log {
 	return
     }
 
+    typemethod visible? {verbosity} {
+	return [expr {$verbosity <= $myloglevel}]
+    }
+
     # # ## ### ##### ######## #############
     # Public API, Administrative methods
 
