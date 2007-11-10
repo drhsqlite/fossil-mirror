@@ -220,6 +220,10 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return
     }
 
+    typemethod projectof {pid} {
+	return $myprojmap($pid)
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
