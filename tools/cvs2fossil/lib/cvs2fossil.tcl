@@ -34,6 +34,8 @@ package require vc::fossil::import::cvs::pass::filtersym ; # Filter'  Sym'bols
 #       of a relational database proper for the persistent state,
 #       allowing us to sort the data on the fly as we need it.
 
+package require vc::fossil::import::cvs::pass::initcsets ; # Init'ialize C'hange'Sets
+
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
 
