@@ -24,17 +24,18 @@ package require snit                            ; # OO system
 ## important. It is the same order they will register, and then be run
 ## in.
 
-package require vc::fossil::import::cvs::pass::collar    ; # Coll'ect Ar'chives.
-package require vc::fossil::import::cvs::pass::collrev   ; # Coll'ect Rev'isions.
-package require vc::fossil::import::cvs::pass::collsym   ; # Coll'ate Sym'bols
-package require vc::fossil::import::cvs::pass::filtersym ; # Filter'  Sym'bols
+package require vc::fossil::import::cvs::pass::collar      ; # Coll'ect Ar'chives.
+package require vc::fossil::import::cvs::pass::collrev     ; # Coll'ect Rev'isions.
+package require vc::fossil::import::cvs::pass::collsym     ; # Coll'ate Sym'bols
+package require vc::fossil::import::cvs::pass::filtersym   ; # Filter'  Sym'bols
 
 # Note: cvs2svn's SortRevisionSummaryPass and SortSymbolSummaryPass
 #       are not implemented by us. They are irrelevant due to our use
 #       of a relational database proper for the persistent state,
 #       allowing us to sort the data on the fly as we need it.
 
-package require vc::fossil::import::cvs::pass::initcsets ; # Init'ialize C'hange'Sets
+package require vc::fossil::import::cvs::pass::initcsets   ; # Init'ialize C'hange'Sets
+package require vc::fossil::import::cvs::pass::breakrcycle ; # Break' R'evision Cycle's
 
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
