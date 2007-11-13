@@ -100,7 +100,24 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# Pass manager interface. Executed to load data computed by
 	# this pass into memory when this pass is skipped instead of
 	# executed.
-	# /TODO/load changesets
+
+	state reading changeset
+	state reading csrevision
+	state reading cstype
+
+	foreach {id pid cstype srcid} [state run {
+	    SELECT C.cid, C.pid, C.type, C.src
+	    FROM   changeset C
+	    ORDER BY C.cid
+	}] {
+	    set r [project::rev %AUTO% [repository projectof $pid] $cstype $srcid [state run {
+		SELECT C.rid
+		FROM   csrevision C
+		WHERE  C.cid = $id
+		ORDER  BY C.pos
+	    }]]
+	    $r setid $id
+	}
 
 	project::rev getcstypes
 	return
@@ -110,12 +127,11 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
-	set csets {}
 	state transaction {
-	    CreateRevisionChangesets  csets ; # Group file revisions into csets.
-	    BreakInternalDependencies csets ; # Split the csets based on internal conflicts.
-	    CreateSymbolChangesets    csets ; # Create csets for tags and branches.
-	    PersistTheChangesets     $csets
+	    CreateRevisionChangesets  ; # Group file revisions into csets.
+	    BreakInternalDependencies ; # Split the csets based on internal conflicts.
+	    CreateSymbolChangesets    ; # Create csets for tags and branches.
+	    PersistTheChangesets
 	}
 	return
     }
@@ -134,9 +150,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    proc CreateRevisionChangesets {cv} {
-	upvar 1 $cv csets
-
+    proc CreateRevisionChangesets {} {
 	log write 3 initcsets {Create changesets based on revisions}
 
 	# To get the initial of changesets we first group all file
@@ -176,7 +190,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    lappend csets [project::rev %AUTO% $p rev $lastmeta $revisions]
+		    project::rev %AUTO% $p rev $lastmeta $revisions
 		    set revisions {}
 		}
 		set lastmeta    $mid
@@ -188,16 +202,14 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $revisions]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    lappend csets [project::rev %AUTO% $p rev $lastmeta $revisions]
+	    project::rev %AUTO% $p rev $lastmeta $revisions
 	}
 
 	log write 4 initcsets "Created [nsp $n {revision changeset}]"
 	return
     }
 
-    proc CreateSymbolChangesets {cv} {
-	upvar 1 $cv csets
-
+    proc CreateSymbolChangesets {} {
 	log write 3 initcsets {Create changesets based on symbols}
 
 	# Tags and branches induce changesets as well, containing the
@@ -224,7 +236,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    lappend csets [project::rev %AUTO% $p sym $lastsymbol $revisions]
+		    project::rev %AUTO% $p sym $lastsymbol $revisions
 		    set revisions {}
 		}
 		set lastsymbol  $sid
@@ -236,7 +248,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $revisions]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    lappend csets [project::rev %AUTO% $p sym $lastsymbol $revisions]
+	    project::rev %AUTO% $p sym $lastsymbol $revisions
 	}
 
 	set lastsymbol {}
@@ -254,7 +266,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    lappend csets [project::rev %AUTO% $p sym $lastsymbol $revisions]
+		    project::rev %AUTO% $p sym $lastsymbol $revisions
 		    set revisions {}
 		}
 		set lastsymbol  $sid
@@ -266,16 +278,14 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $revisions]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    lappend csets [project::rev %AUTO% $p sym $lastsymbol $revisions]
+	    project::rev %AUTO% $p sym $lastsymbol $revisions
 	}
 
 	log write 4 initcsets "Created [nsp $n {symbol changeset}]"
 	return
     }
 
-    proc BreakInternalDependencies {cv} {
-	upvar 1 $cv csets
-
+    proc BreakInternalDependencies {} {
 	# This code operates on the revision changesets created by
 	# 'CreateRevisionChangesets'. As such it has to follow after
 	# it, before the symbol changesets are made. The changesets
@@ -285,22 +295,22 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# dependencies, only external ones.
 
 	log write 3 initcsets {Break internal dependencies}
-	set old [llength $csets]
+	set old [llength [project::rev all]]
 
-	foreach cset $csets {
-	    $cset breakinternaldependencies csets
+	foreach cset [project::rev all] {
+	    $cset breakinternaldependencies
 	}
 
-	set n [expr {[llength $csets] - $old}]
+	set n [expr {[llength [project::rev all]] - $old}]
 	log write 4 initcsets "Created [nsp $n {additional revision changeset}]"
 	log write 4 initcsets Ok.
 	return
     }
 
-    proc PersistTheChangesets {csets} {
-	log write 3 initcsets "Saving [nsp [llength $csets] {initial changeset}] to the persistent state"
+    proc PersistTheChangesets {} {
+	log write 3 initcsets "Saving [nsp [llength [project::rev all]] {initial changeset}] to the persistent state"
 
-	foreach cset $csets {
+	foreach cset [project::rev all] {
 	    $cset persist
 	}
 

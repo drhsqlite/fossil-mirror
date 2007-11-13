@@ -36,14 +36,16 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set mytype      $cstype	  
 	set mysrcid	$srcid	  
 	set myrevisions $revisions
+
+	# Keep track of the generated changesets.
+	lappend mychangesets $self
 	return
     }
 
     method id {} { return $myid }
+    method setid {id} { set myid $id ; return }
 
-    method breakinternaldependencies {cv} {
-	upvar 2 $cv csets ; # simple-dispatch!
-
+    method breakinternaldependencies {} {
 	# This method inspects the changesets for internal
 	# dependencies. Nothing is done if there are no
 	# such. Otherwise the changeset is split into a set of
@@ -167,7 +169,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    }
 
 	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myrevisions $s $e]]
-	    lappend csets $new
 
             log write 4 csets "Breaking <$myid> @ $laste, new <[$new id]>, cutting $breaks($laste)"
 
@@ -467,6 +468,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set s [lindex $range 0]
 	set e [lindex $range end]
 	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    typevariable mychangesets {} ; # List of all known changesets.
+
+    typemethod all {} {
+	return $mychangesets
     }
 
     # # ## ### ##### ######## #############
