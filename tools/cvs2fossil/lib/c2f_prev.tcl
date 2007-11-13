@@ -37,13 +37,31 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set mysrcid	$srcid	  
 	set myrevisions $revisions
 
-	# Keep track of the generated changesets.
+	# Keep track of the generated changesets and of the inverse
+	# mapping from revisions to them.
 	lappend mychangesets $self
+	foreach r $revisions { set myrevmap($r) $self }
 	return
     }
 
-    method id {} { return $myid }
+    method id        {} { return $myid }
+    method revisions {} { return $myrevisions }
+
     method setid {id} { set myid $id ; return }
+
+    method bysymbol   {} { return [expr {$mytype eq "sym"}] }
+    method byrevision {} { return [expr {$mytype eq "rev"}] }
+
+    method successors {} {
+	# NOTE / FUTURE: Possible bottleneck.
+	array set dependencies {}
+	PullSuccessorRevisions dependencies $myrevisions
+	set csets {}
+	foreach {_ child} [array get dependencies] {
+	    lappend csets $myrevmap($child)
+	}
+	return [lsort -unique $csets]
+    }
 
     method breakinternaldependencies {} {
 	# This method inspects the changesets for internal
@@ -68,7 +86,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# the state, and limited to successors within the changeset.
 
 	array set dependencies {}
-	PullInternalDependencies dependencies $myrevisions
+	PullSuccessorRevisions dependencies $myrevisions
 	if {![array size dependencies]} {return 0} ; # Nothing to break.
 
 	log write 6 csets ...<$myid>.......................................................
@@ -207,6 +225,15 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
+    method timerange {} {
+	set theset ('[join $myrevisions {','}]')
+	return [state run "
+	    SELECT MIN(R.date), MAX(R.date)
+	    FROM revision R
+	    WHERE R.rid IN $theset
+	"]
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
@@ -229,7 +256,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    proc PullInternalDependencies {dv revisions} {
+    proc PullSuccessorRevisions {dv revisions} {
 	upvar 1 $dv dependencies
 	set theset ('[join $revisions {','}]')
 
@@ -293,7 +320,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# Note 2: start == end is not possible. It indicates a
 	#         self-dependency due to the uniqueness of positions,
 	#         and that is something we have ruled out already, see
-	#         PullInternalDependencies.
+	#         PullSuccessorRevisions.
 
 	foreach {rid child} [array get dependencies] {
 	    set dkey    [list $rid $child]
@@ -472,7 +499,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     # # ## ### ##### ######## #############
 
-    typevariable mychangesets {} ; # List of all known changesets.
+    typevariable mychangesets    {} ; # List of all known changesets.
+    typevariable myrevmap -array {} ; # Map from revisions to their changeset.
 
     typemethod all {} {
 	return $mychangesets
