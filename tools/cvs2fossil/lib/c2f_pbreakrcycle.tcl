@@ -17,13 +17,14 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                               ; # Required runtime.
-package require snit                                  ; # OO system.
-package require struct::graph                         ; # Graph handling.
-package require struct::list                          ; # Higher order list operations.
-package require vc::tools::log                        ; # User feedback.
-package require vc::fossil::import::cvs::state        ; # State storage.
-package require vc::fossil::import::cvs::project::rev ; # Project level changesets
+package require Tcl 8.4                                   ; # Required runtime.
+package require snit                                      ; # OO system.
+package require struct::graph                             ; # Graph handling.
+package require struct::list                              ; # Higher order list operations.
+package require vc::tools::log                            ; # User feedback.
+package require vc::fossil::import::cvs::state            ; # State storage.
+package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
+package require vc::fossil::import::cvs::project::revlink ; # Cycle links.
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -67,6 +68,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	# functionality of the pass.
 
 	state reading revision
+	state reading changeset
+	state reading csrevision
 
 	# We create a graph of the revision changesets, using the file
 	# level dependencies to construct a first approximation of
@@ -76,7 +79,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	# 1. Create nodes for all relevant changesets and a mapping
 	#    from the revisions to their changesets/nodes.
 
-	log write 3 brkrcycle {Creating changeset graph, filling with nodes}
+	log write 3 breakrcycle {Creating changeset graph, filling with nodes}
 
 	set dg [struct::graph dg]
 
@@ -92,7 +95,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	#    dependencies. Map the latter back to changesets and
 	#    construct the corresponding arcs.
 
-	log write 3 brkrcycle {Setting up node dependencies}
+	log write 3 breakrcycle {Setting up node dependencies}
 
 	state transaction {
 	    foreach cset [project::rev all] {
@@ -109,7 +112,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	#    we find no nodes without predecessors we have a cycle,
 	#    and work on breaking it.
 
-	log write 3 brkrcycle {Computing changeset order, breaking cycles}
+	log write 3 breakrcycle {Computing changeset order, breaking cycles}
 
 	InitializeCandidates $dg
 	state transaction {
@@ -118,8 +121,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 		    SaveAndRemove $dg $n
 		}
 		if {![llength [dg nodes]]} break
-		set cycle [FindCycle $dg]
-		BreakCycle $dg $cycle
+		BreakCycle $dg [FindCycle $dg]
+		InitializeCandidates $dg
 	    }
 	}
 
@@ -226,7 +229,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	    # already, the circle has been closed.
 	    if {[info exists seen($start)]} break
 	    lappend path $start
-	    set seen($start) [llength $path]
+	    set seen($start) [expr {[llength $path]-1}]
 	    # Choose arbitrary predecessor
 	    set start [lindex [$dg nodes -in $start] 0]
 	}
@@ -234,8 +237,64 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	return [struct::list reverse [lrange $path $seen($start) end]]
     }
 
+    proc ID {cset} { return "<[$cset id]>" }
+
     proc BreakCycle {dg cycle} {
-	trouble internal "Break cycle <$cycle>"
+	# The cycle we have gotten is broken by breaking apart one or
+	# more of the changesets in the cycle. This causes us to
+	# create one or more changesets which are to be committed,
+	# added to the graph, etc. pp.
+
+	set cprint [join [struct::list map $cycle [myproc ID]] { }]
+
+	lappend cycle [lindex $cycle 0] [lindex $cycle 1]
+	set bestlink {}
+	set bestnode {}
+
+	foreach \
+	    prev [lrange $cycle 0 end-2] \
+	    cset [lrange $cycle 1 end-1] \
+	    next [lrange $cycle 2 end] {
+
+		# Each triple PREV -> CSET -> NEXT of changesets, a
+		# 'link' in the cycle, is analysed and the best
+		# location where to at least weaken the cycle is
+		# chosen for further processing.
+
+		set link [project::revlink %AUTO% $prev $cset $next]
+		if {$bestlink eq ""} {
+		    set bestlink $link
+		    set bestnode $cset
+		} elseif {[$link betterthan $bestlink]} {
+		    $bestlink destroy
+		    set bestlink $link
+		    set bestnode $cset
+		} else {
+		    $link destroy
+		}
+	    }
+
+	log write 5 breakrcycle "Breaking cycle ($cprint) by splitting changeset <[$bestnode id]>"
+
+	set newcsets [$bestlink break]
+	$bestlink destroy
+
+        # At this point the old changeset (BESTNODE) is gone
+        # already. We remove it from the graph as well and then enter
+        # the fragments generated for it.
+
+        $dg node delete $bestnode
+
+	foreach cset $newcsets {
+	    dg node insert $cset
+	    dg node set    $cset timerange [$cset timerange]
+	}
+
+	foreach cset $newcsets {
+	    foreach succ [$cset successors] {
+		dg arc insert $cset $succ
+	    }
+	}
 	return
     }
 
@@ -258,9 +317,10 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::fossil::import::cvs::state
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::rev
+	    namespace import ::vc::fossil::import::cvs::project::revlink
 	}
 	namespace import ::vc::tools::log
-	log register brkrcycle
+	log register breakrcycle
     }
 }
 

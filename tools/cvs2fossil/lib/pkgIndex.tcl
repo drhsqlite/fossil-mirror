@@ -21,6 +21,7 @@ package ifneeded vc::fossil::import::cvs::pass::breakrcycle 1.0 [list source [fi
 package ifneeded vc::fossil::import::cvs::project           1.0 [list source [file join $dir c2f_project.tcl]]
 package ifneeded vc::fossil::import::cvs::project::lodmgr   1.0 [list source [file join $dir c2f_plodmgr.tcl]]
 package ifneeded vc::fossil::import::cvs::project::rev      1.0 [list source [file join $dir c2f_prev.tcl]]
+package ifneeded vc::fossil::import::cvs::project::revlink  1.0 [list source [file join $dir c2f_prevlink.tcl]]
 package ifneeded vc::fossil::import::cvs::project::sym      1.0 [list source [file join $dir c2f_psym.tcl]]
 package ifneeded vc::fossil::import::cvs::project::trunk    1.0 [list source [file join $dir c2f_ptrunk.tcl]]
 package ifneeded vc::fossil::import::cvs::repository        1.0 [list source [file join $dir c2f_repository.tcl]]

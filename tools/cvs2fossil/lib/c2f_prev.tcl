@@ -46,6 +46,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     method id        {} { return $myid }
     method revisions {} { return $myrevisions }
+    method data      {} { return [list $myproject $mytype $mysrcid] }
 
     method setid {id} { set myid $id ; return }
 
@@ -54,13 +55,20 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     method successors {} {
 	# NOTE / FUTURE: Possible bottleneck.
-	array set dependencies {}
-	PullSuccessorRevisions dependencies $myrevisions
 	set csets {}
-	foreach {_ child} [array get dependencies] {
-	    lappend csets $myrevmap($child)
+	foreach {_ children} [$self nextmap] {
+	    foreach child $children {
+		lappend csets $myrevmap($child)
+	    }
 	}
 	return [lsort -unique $csets]
+    }
+
+    method nextmap {} {
+	if {[llength $mynextmap]} { return $mynextmap }
+	PullSuccessorRevisions tmp $myrevisions
+	set mynextmap [array get tmp]
+	return $mynextmap
     }
 
     method breakinternaldependencies {} {
@@ -86,7 +94,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# the state, and limited to successors within the changeset.
 
 	array set dependencies {}
-	PullSuccessorRevisions dependencies $myrevisions
+	PullInternalSuccessorRevisions dependencies $myrevisions
 	if {![array size dependencies]} {return 0} ; # Nothing to break.
 
 	log write 6 csets ...<$myid>.......................................................
@@ -234,14 +242,36 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	"]
     }
 
+    method drop {} {
+	state transaction {
+	    state run {
+		DELETE FROM changeset  WHERE cid = $myid;
+		DELETE FROM csrevision WHERE cid = $myid;
+	    }
+	}
+	foreach r $myrevisions { unset myrevmap($r) }
+	set pos          [lsearch -exact $mychangesets $self]
+	set mychangesets [lreplace $mychangesets $pos $pos]
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
-    variable myid        ; # Id of the cset for the persistent state.
-    variable myproject   ; # Reference of the project object the changeset belongs to.
-    variable mytype      ; # rev or sym, where the cset originated from.
-    variable mysrcid     ; # id of the metadata or symbol the cset is based on.
-    variable myrevisions ; # List of the file level revisions in the cset.
+    variable myid        {} ; # Id of the cset for the persistent
+			      # state.
+    variable myproject   {} ; # Reference of the project object the
+			      # changeset belongs to.
+    variable mytype      {} ; # rev or sym, where the cset originated
+			      # from.
+    variable mysrcid     {} ; # Id of the metadata or symbol the cset
+			      # is based on.
+    variable myrevisions {} ; # List of the file level revisions in
+			      # the cset.
+    variable mynextmap   {} ; # Dictionary mapping from the revisions
+			      # to their successors. Cache to avoid
+			      # loading this from the state more than
+			      # once.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -256,7 +286,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    proc PullSuccessorRevisions {dv revisions} {
+    proc PullInternalSuccessorRevisions {dv revisions} {
 	upvar 1 $dv dependencies
 	set theset ('[join $revisions {','}]')
 
@@ -286,7 +316,38 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    if {$rid == $child} {
 		trouble internal "Revision $rid depends on itself."
 	    }
-	    set dependencies($rid) $child
+	    lappend dependencies($rid) $child
+	}
+    }
+
+    proc PullSuccessorRevisions {dv revisions} {
+	upvar 1 $dv dependencies
+	set theset ('[join $revisions {','}]')
+
+	foreach {rid child} [state run "
+   -- Primary children
+	    SELECT R.rid, R.child
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset
+	    AND    R.child IS NOT NULL
+    UNION
+    -- Transition NTDB to trunk
+	    SELECT R.rid, R.dbchild
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset
+	    AND    R.dbchild IS NOT NULL
+    UNION
+    -- Secondary (branch) children
+	    SELECT R.rid, B.brid
+	    FROM   revision R, revisionbranchchildren B
+	    WHERE  R.rid   IN $theset
+	    AND    R.rid = B.rid
+	"] {
+	    # Consider moving this to the integrity module.
+	    if {$rid == $child} {
+		trouble internal "Revision $rid depends on itself."
+	    }
+	    lappend dependencies($rid) $child
 	}
     }
 
@@ -320,7 +381,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# Note 2: start == end is not possible. It indicates a
 	#         self-dependency due to the uniqueness of positions,
 	#         and that is something we have ruled out already, see
-	#         PullSuccessorRevisions.
+	#         PullInternalSuccessorRevisions.
 
 	foreach {rid child} [array get dependencies] {
 	    set dkey    [list $rid $child]

@@ -39,7 +39,7 @@ namespace eval ::vc::tools::misc {
 	return "$n [sp $n $singular $plural]"
     }
 
-    # Find maximum in a list.
+    # Find maximum/minimum in a list.
 
     proc max {list} {
 	set max -1
@@ -48,6 +48,27 @@ namespace eval ::vc::tools::misc {
 	    set max $e
 	}
 	return $max
+    }
+
+    proc min {list} {
+	set min {}
+	foreach e $list {
+	    if {$min == {}} {
+		set min $e
+	    } elseif {$e > $min} continue
+	    set min $e
+	}
+	return $min
+    }
+
+    proc max2 {a b} {
+	if {$a > $b}  { return $a }
+	return $b
+    }
+
+    proc min2 {a b} {
+	if {$a < $b}  { return $a }
+	return $b
     }
 
     proc ldelete {lv item} {
@@ -69,7 +90,7 @@ namespace eval ::vc::tools::misc {
 }
 
 namespace eval ::vc::tools::misc {
-    namespace export sp nsp max ldelete striptrailingslash
+    namespace export sp nsp max min max2 min2 ldelete striptrailingslash
 }
 
 # -----------------------------------------------------------------------------
