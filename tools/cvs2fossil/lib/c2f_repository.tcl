@@ -133,8 +133,12 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     # pass I persistence
     typemethod persist {} {
+	::variable myprojmap
 	state transaction {
-	    foreach p [TheProjects] { $p persist }
+	    foreach p [TheProjects] {
+		$p persist
+		set myprojmap([$p id]) $p
+	    }
 	}
 	return
     }
