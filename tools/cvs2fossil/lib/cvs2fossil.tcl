@@ -20,9 +20,9 @@ package require Tcl 8.4                         ; # Required runtime.
 package require snit                            ; # OO system
 
 # # ## ### ##### ######## ############# #####################
-## Passes. The order in which the import passes are loaded is
-## important. It is the same order they will register, and then be run
-## in.
+## Passes. The order in which the various passes are loaded is
+##         important. It is the same order in which they will
+##         register, and then be run in.
 
 package require vc::fossil::import::cvs::pass::collar      ; # Coll'ect Ar'chives.
 package require vc::fossil::import::cvs::pass::collrev     ; # Coll'ect Rev'isions.
@@ -36,6 +36,10 @@ package require vc::fossil::import::cvs::pass::filtersym   ; # Filter'  Sym'bols
 
 package require vc::fossil::import::cvs::pass::initcsets   ; # Init'ialize C'hange'Sets
 package require vc::fossil::import::cvs::pass::breakrcycle ; # Break' R'evision Cycle's
+
+# Note: cvs2svn's RevisionTopologicalSortPass is not a separate pass,
+#       but was subsumed by the previous pass, by immediately saving
+#       the order of consumed graph nodes to 'csorder'.
 
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
