@@ -126,7 +126,7 @@ void diff_cmd(void){
     blob_zero(&current);
     blob_read_from_file(&current, zFile);
     blob_zero(&out);
-    unified_diff(&record, &current, 5, &out);
+    text_diff(&record, &current, &out, 5);
     printf("%s\n", blob_str(&out));
     blob_reset(&current);
     blob_reset(&out);
