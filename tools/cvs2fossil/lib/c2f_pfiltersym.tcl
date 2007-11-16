@@ -49,6 +49,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	state reading parent
 	state reading preferedparent
 	state reading revision
+	state reading revisionbranchchildren
 	state reading branch
 	state reading tag
 
@@ -196,12 +197,19 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	# longer.
 
 	state run {
+	    CREATE TEMPORARY TABLE excludedrevisions AS
+	    SELECT rid FROM revision WHERE lod IN excludedsymbols;
+
 	    DELETE FROM revision WHERE lod IN excludedsymbols;
 	    DELETE FROM tag      WHERE lod IN excludedsymbols;
 	    DELETE FROM tag      WHERE sid IN excludedsymbols;
 	    DELETE FROM branch   WHERE lod IN excludedsymbols;
 	    DELETE FROM branch   WHERE sid IN excludedsymbols;
 
+	    DELETE FROM revisionbranchchildren WHERE rid  IN excludedrevisions;
+	    DELETE FROM revisionbranchchildren WHERE brid IN excludedrevisions;
+
+	    DROP TABLE excludedrevisions;
 	    DROP TABLE excludedsymbols;
 	}
 	return

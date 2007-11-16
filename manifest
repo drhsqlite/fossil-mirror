@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bugfix.\sIn\spass\s5,\sloading\sthe\schangesets\sused\sthe\stype\scodes\sinstead\sof\sthe\stype\snames.\sModified\sthe\sSQL\sselecting\sthe\sdata\sto\sreturn\sthe\sproper\snames.
-D 2007-11-16T03:52:18
+C Bugfix.\sWhen\sI\sintroduced\sthe\s'revisionbranchchildren'\stable\sto\spass\s2\sI\sforgot\sto\supdate\spass\s4\sas\swell.\sAdded\scode\sto\sdrop\sthe\sexcluded\srevisons\sfrom\sthis\stable\sas\swell,\sas\seither\sparent\sof\sbranches,\sor\sbranch\schild\sof\ssome\sother\srevision.
+D 2007-11-16T03:54:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -111,7 +111,7 @@ F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 94ee2e3a5d6909a3c06f8ed17083809ace94
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl 9385b6cf1b9a5e59ed7eace66e1b6429a31307f6
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7553c6538ad7d3fd2acf03514cc7d52210d116ae
-F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 53988122b99428b764ad276fdccd9d297a94b51b
+F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 852144546e242a873be533117963bbfcba119412
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl bb434d64fd7929912969d1f3dbfd77a8a5e8ec13
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl b05edeebe658907bf08e12dc5924ac2af15cb9e7
@@ -163,14 +163,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 258366a37a382ae1d8cb58dee82882b29bd44065
-R 3a2476287820b71c1f993e19cd1eec9b
+P 341d96be210caf63eaedfc3387473f77ec49282a
+R 9471dd3e00d6d7fec2d902e6c665415e
 U aku
-Z ce689ae57fbfb157ac3e75b7295b70c4
+Z 872bc0b577775e342cc93fe00242c942
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHPRP2vonzZ/CRa7gRAp0HAKC3nlerl/FicIqDaa5sNcsaIOsu8ACggAhD
-BpUNqACxRfFxSeAEwj19FBU=
-=OOh/
+iD8DBQFHPRSOvonzZ/CRa7gRAlrBAJ4nqBviYgGdh2aXp9nhlpyXbOZRLACfUmS4
+cf2iZXdU5WBn9RIOHi4X3iM=
+=gUbu
 -----END PGP SIGNATURE-----
