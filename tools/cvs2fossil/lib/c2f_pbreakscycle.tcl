@@ -22,6 +22,7 @@ package require Tcl 8.4                                   ; # Required runtime.
 package require snit                                      ; # OO system.
 package require struct::list                              ; # Higher order list operations.
 package require vc::fossil::import::cvs::cyclebreaker     ; # Breaking dependency cycles.
+package require vc::fossil::import::cvs::repository       ; # Repository management.
 package require vc::fossil::import::cvs::state            ; # State storage.
 package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
 
@@ -65,6 +66,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 	    cyclebreaker run [struct::list filter [project::rev all] \
 				  [myproc IsBySymbol]]
 	}
+
+	repository printcsetstatistics
 	return
     }
 
@@ -94,6 +97,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
     namespace export breakscycle
     namespace eval breakscycle {
 	namespace import ::vc::fossil::import::cvs::cyclebreaker
+	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::rev

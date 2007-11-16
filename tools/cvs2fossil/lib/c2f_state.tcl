@@ -147,6 +147,10 @@ snit::type ::vc::fossil::import::cvs::state {
 	return [uplevel 1 [linsert $args 0 $mystate eval]]
     }
 
+    typemethod one {args} {
+	return [lindex [uplevel 1 [linsert $args 0 $mystate eval]] 0]
+    }
+
     typemethod transaction {script} {
 	return [uplevel 1 [list $mystate transaction $script]]
     }

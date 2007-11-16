@@ -21,6 +21,7 @@ package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
 package require vc::tools::misc                       ; # Text formatting.
 package require vc::tools::log                        ; # User feedback.
+package require vc::fossil::import::cvs::repository   ; # Repository management.
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::integrity    ; # State storage integrity checks.
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols
@@ -83,6 +84,8 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    AdjustParents
 	    RefineSymbols
 
+	    repository printrevstatistics
+
 	    # Strict integrity enforces that all meta entries are in
 	    # the same LOD as the revision using them. At this point
 	    # this may not be true any longer. If a NTDB was excluded
@@ -113,7 +116,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
     ## Internal methods
 
     proc FilterExcludedSymbols {} {
-	log write 3 filtersym "Filter out excluded symbols and users"
+	log write 3 filtersym "Remove the excluded symbols and their users"
 
 	# We pull all the excluded symbols together into a table for
 	# easy reference by the upcoming DELETE and other statements.
@@ -161,9 +164,9 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    # trunk as well.
 
 	    set tjoint $link($joint)
-	    set tlod [lindex [state run {
+	    set tlod [state one {
 		SELECT lod FROM revision WHERE rid = $tjoint
-	    }] 0]
+	    }]
 
 	    # Covnert db/parent/child into regular parent/child links.
 	    state run {
@@ -351,12 +354,12 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    #                   FROM branch B
 	    #                   WHERE B.root = R.rid)
 
-	    if {![lindex [state run {
+	    if {![state one {
 		SELECT COUNT(*)
 		FROM branch B
 		WHERE  B.sid  = $pid
 		AND    B.root = $rid
-	    }] 0]} {
+	    }]} {
 		incr tmax -1
 		set  mxs [format $fmt $tmax]
 		continue
@@ -408,13 +411,13 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    #                   WHERE BX.root = R.rid
 	    #                   AND   BX.pos > B.pos)
 
-	    if {![lindex [state run {
+	    if {![state one {
 		SELECT COUNT(*)
 		FROM branch B
 		WHERE  B.sid  = $pid
 		AND    B.root = $rid
 		AND    B.pos  > $pos
-	    }] 0]} {
+	    }]} {
 		incr bmax -1
 		set  mxs [format $fmt $bmax]
 		continue
@@ -500,6 +503,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 namespace eval ::vc::fossil::import::cvs::pass {
     namespace export filtersym
     namespace eval filtersym {
+	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {

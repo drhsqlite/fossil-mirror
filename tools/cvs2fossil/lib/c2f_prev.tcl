@@ -144,7 +144,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 		set breaks($best) $cross($best)
 
-		log write 6 csets "Best break @ $best, cuts [nsp $cross($best) dependency dependencies]"
+		log write 6 csets "Best break @ $best, cutting [nsp $cross($best) dependency dependencies]"
 
 		# Note: The value of best is an abolute location in
 		# myrevisions. Use the start of current to make it an
@@ -288,9 +288,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     typemethod loadcounter {} {
 	# Initialize the counter from the state
-	set mycounter [lindex [state run {
-	    SELECT MAX(cid) FROM changeset
-	}] 0]
+	set mycounter [state one { SELECT MAX(cid) FROM changeset }]
 	return
     }
 

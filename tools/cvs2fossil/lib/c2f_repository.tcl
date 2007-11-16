@@ -91,7 +91,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	set prlist [TheProjects]
 	set npr [llength $prlist]
 
-	log write 2 repository "Scanned [nsp $npr project]"
+	log write 2 repository "Statistics: Scanned [nsp $npr project]"
 
 	if {$npr > 1} {
 	    set  bmax [max [struct::list map $prlist [myproc .BaseLength]]]
@@ -108,7 +108,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	set keep {}
 	foreach p $prlist {
 	    set nfiles [llength [$p filenames]]
-	    set line "Project [format $bfmt \"[$p printbase]\"] : [format $nfmt $nfiles] [sp $nfiles file]"
+	    set line "Statistics: Project [format $bfmt \"[$p printbase]\"] : [format $nfmt $nfiles] [sp $nfiles file]"
 	    if {$nfiles < 1} {
 		append line ", dropped"
 	    } else {
@@ -166,8 +166,55 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     # pass II results
     typemethod printrevstatistics {} {
-	log write 2 repository "Scanned ..."
-	# number of revisions, symbols, repository wide, per project ...
+	log write 2 repository "Revision statistics"
+	# number of revisions, symbols, repository wide, and per project ...
+
+	set rcount [state one { SELECT COUNT (*) FROM revision }]
+	set tcount [state one { SELECT COUNT (*) FROM tag      }]
+	set bcount [state one { SELECT COUNT (*) FROM branch   }]
+	set scount [state one { SELECT COUNT (*) FROM symbol   }]
+	set acount [state one { SELECT COUNT (*) FROM author   }]
+	set ccount [state one { SELECT COUNT (*) FROM cmessage }]
+	set fmt %[string length [max [list $rcount $tcount $bcount $scount $acount $ccount]]]s
+
+	log write 2 repository "Statistics: [format $fmt $rcount] [sp $rcount revision]"
+	log write 2 repository "Statistics: [format $fmt $tcount] [sp $tcount tag]"
+	log write 2 repository "Statistics: [format $fmt $bcount] [sp $bcount branch branches]"
+	log write 2 repository "Statistics: [format $fmt $scount] [sp $scount symbol]"
+	log write 2 repository "Statistics: [format $fmt $acount] [sp $acount author]"
+	log write 2 repository "Statistics: [format $fmt $ccount] [sp $ccount {log message}]"
+
+	set prlist [TheProjects]
+	set npr [llength $prlist]
+
+	if {$npr > 1} {
+	    set  bmax [max [struct::list map $prlist [myproc .BaseLength]]]
+	    incr bmax 2
+	    set  bfmt %-${bmax}s
+	} else {
+	    set bfmt %s
+	}
+
+	foreach p $prlist {
+	    set pid [$p id]
+	    set prefix "Statistics: Project [format $bfmt \"[$p printbase]\"]"
+	    regsub -all {[^	]} $prefix { } blanks
+	    set sep " : "
+
+	    set rcount [state one { SELECT COUNT (*) FROM revision R, file F WHERE R.fid = F.fid AND F.pid = $pid }]
+	    set tcount [state one { SELECT COUNT (*) FROM tag T,      file F WHERE T.fid = F.fid AND F.pid = $pid }]
+	    set bcount [state one { SELECT COUNT (*) FROM branch B,   file F WHERE B.fid = F.fid AND F.pid = $pid }]
+	    set scount [state one { SELECT COUNT (*) FROM symbol             WHERE pid = $pid                     }]
+	    set acount [state one { SELECT COUNT (*) FROM author   WHERE aid IN (SELECT DISTINCT aid FROM meta WHERE pid = $pid) }]
+	    set ccount [state one { SELECT COUNT (*) FROM cmessage WHERE cid IN (SELECT DISTINCT cid FROM meta WHERE pid = $pid) }]
+
+	    log write 2 repository "$prefix$sep[format $fmt $rcount] [sp $rcount revision]"
+	    log write 2 repository "$blanks$sep[format $fmt $tcount] [sp $tcount tag]"
+	    log write 2 repository "$blanks$sep[format $fmt $bcount] [sp $bcount branch branches]"
+	    log write 2 repository "$blanks$sep[format $fmt $scount] [sp $scount symbol]"
+	    log write 2 repository "$blanks$sep[format $fmt $acount] [sp $acount author]"
+	    log write 2 repository "$blanks$sep[format $fmt $ccount] [sp $ccount {log message}]"
+	}
 	return
     }
 
@@ -226,6 +273,49 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     typemethod projectof {pid} {
 	return $myprojmap($pid)
+    }
+
+
+    # pass IV+ results
+    typemethod printcsetstatistics {} {
+	log write 2 repository "Changeset statistics"
+	# number of revisions, symbols, repository wide, and per project ...
+
+	set ccount [state one { SELECT COUNT (*) FROM changeset                }]
+	set rcount [state one { SELECT COUNT (*) FROM changeset WHERE type = 0 }]
+	set scount [state one { SELECT COUNT (*) FROM changeset WHERE type = 1 }]
+	set fmt %[string length [max [list $ccount $rcount $scount]]]s
+
+	log write 2 repository "Statistics: [format $fmt $ccount] [sp $ccount changeset]"
+	log write 2 repository "Statistics: [format $fmt $rcount] [sp $rcount {revision changeset}]"
+	log write 2 repository "Statistics: [format $fmt $scount] [sp $scount {symbol changeset}]"
+
+	set prlist [TheProjects]
+	set npr [llength $prlist]
+
+	if {$npr > 1} {
+	    set  bmax [max [struct::list map $prlist [myproc .BaseLength]]]
+	    incr bmax 2
+	    set  bfmt %-${bmax}s
+	} else {
+	    set bfmt %s
+	}
+
+	foreach p $prlist {
+	    set pid [$p id]
+	    set prefix "Statistics: Project [format $bfmt \"[$p printbase]\"]"
+	    regsub -all {[^	]} $prefix { } blanks
+	    set sep " : "
+
+	    set ccount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid              }]
+	    set rcount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid AND type = 0 }]
+	    set scount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid AND type = 1 }]
+
+	    log write 2 repository "$prefix$sep[format $fmt $ccount] [sp $ccount changeset]"
+	    log write 2 repository "$blanks$sep[format $fmt $rcount] [sp $rcount {revision changeset}]"
+	    log write 2 repository "$blanks$sep[format $fmt $scount] [sp $scount {symbol changeset}]"
+	}
+	return
     }
 
     # # ## ### ##### ######## #############

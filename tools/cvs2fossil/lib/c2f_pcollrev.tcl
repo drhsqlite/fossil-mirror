@@ -341,8 +341,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    $project purgeghostsymbols
 	}
 
-	repository printrevstatistics
 	repository persistrev
+	repository printrevstatistics
 	integrity  strict
 
 	log write 1 collrev "Scan completed"

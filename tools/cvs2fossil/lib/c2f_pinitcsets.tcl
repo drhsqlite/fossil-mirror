@@ -133,6 +133,8 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	    BreakInternalDependencies ; # Split the csets based on internal conflicts.
 	    CreateSymbolChangesets    ; # Create csets for tags and branches.
 	    PersistTheChangesets
+
+	    repository printcsetstatistics
 	}
 	return
     }
