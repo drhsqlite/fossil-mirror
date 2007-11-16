@@ -101,6 +101,9 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	    foreach cset [project::rev all] {
 		if {[$cset bysymbol]} continue
 		foreach succ [$cset successors] {
+		    # Changesets may have dependencies outside of the
+		    # chosen set. These are ignored
+		    if {![dg node exists $succ]} continue
 		    dg arc insert $cset $succ
 		}
 	    }
@@ -286,13 +289,16 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
         $dg node delete $bestnode
 
 	foreach cset $newcsets {
-	    dg node insert $cset
-	    dg node set    $cset timerange [$cset timerange]
+	    $dg node insert $cset
+	    $dg node set    $cset timerange [$cset timerange]
 	}
 
 	foreach cset $newcsets {
 	    foreach succ [$cset successors] {
-		dg arc insert $cset $succ
+		# Changesets may have dependencies outside of the
+		# chosen set. These are ignored
+		if {![dg node exists $succ]} continue
+		$dg arc insert $cset $succ
 	    }
 	}
 	return
