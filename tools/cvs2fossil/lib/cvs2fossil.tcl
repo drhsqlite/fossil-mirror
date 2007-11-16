@@ -42,6 +42,7 @@ package require vc::fossil::import::cvs::pass::breakrcycle ; # Break' R'evision 
 #       the order of consumed graph nodes to 'csorder'.
 
 package require vc::fossil::import::cvs::pass::breakscycle ; # Break' S'ymbol Cycle's
+package require vc::fossil::import::cvs::pass::breakacycle ; # Break' A'll Cycle's
 
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
