@@ -276,13 +276,21 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    typevariable mycounter        0 ; # Id counter for csets.
+    typevariable mycounter        0 ; # Id counter for csets. Last id used.
     typevariable mycstype -array {} ; # Map cstypes to persistent ids.
 
     typemethod getcstypes {} {
 	foreach {tid name} [state run {
 	    SELECT tid, name FROM cstype;
 	}] { set mycstype($name) $tid }
+	return
+    }
+
+    typemethod loadcounter {} {
+	# Initialize the counter from the state
+	set mycounter [lindex [state run {
+	    SELECT MAX(cid) FROM changeset
+	}] 0]
 	return
     }
 

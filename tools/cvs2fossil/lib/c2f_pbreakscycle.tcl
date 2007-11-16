@@ -12,15 +12,18 @@
 
 ## Pass VII. This pass goes over the set of symbol based changesets
 ## and breaks all dependency cycles they may be in. We need a
-## dependency tree.
+## dependency tree. Identical to pass VI, except for the selection of
+## the changesets.
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
 package require Tcl 8.4                                   ; # Required runtime.
 package require snit                                      ; # OO system.
-package require vc::tools::log                            ; # User feedback.
+package require struct::list                              ; # Higher order list operations.
+package require vc::fossil::import::cvs::cyclebreaker     ; # Breaking dependency cycles.
 package require vc::fossil::import::cvs::state            ; # State storage.
+package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -53,6 +56,15 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
     typemethod run {} {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
+
+	state reading revision
+	state reading changeset
+	state reading csrevision
+
+	state transaction {
+	    cyclebreaker run [struct::list filter [project::rev all] \
+				  [myproc IsBySymbol]]
+	}
 	return
     }
 
@@ -65,6 +77,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 
     # # ## ### ##### ######## #############
     ## Internal methods
+
+    proc IsBySymbol {cset} { $cset bysymbol }
 
     # # ## ### ##### ######## #############
     ## Configuration
@@ -79,9 +93,11 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 namespace eval ::vc::fossil::import::cvs::pass {
     namespace export breakscycle
     namespace eval breakscycle {
+	namespace import ::vc::fossil::import::cvs::cyclebreaker
 	namespace import ::vc::fossil::import::cvs::state
-	namespace import ::vc::tools::log
-	log register breakscycle
+	namespace eval project {
+	    namespace import ::vc::fossil::import::cvs::project::rev
+	}
     }
 }
 
