@@ -208,6 +208,7 @@ void update_cmd(void){
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
       Blob e, r, t, v;
+      int rc;
       char *zFullPath;
       printf("MERGE %s\n", zName);
       undo_save(zName);
@@ -216,13 +217,21 @@ void update_cmd(void){
       content_get(ridv, &v);
       blob_zero(&e);
       blob_read_from_file(&e, zFullPath);
-      blob_merge(&v, &e, &t, &r);
-      blob_write_to_file(&r, zFullPath);
+      rc = blob_merge(&v, &e, &t, &r);
+      if( rc>=0 ){
+        blob_write_to_file(&r, zFullPath);
+        if( rc>0 ){
+          printf("***** %d merge conflicts in %s\n", rc, zName);
+        }
+      }else{
+        printf("***** Cannot merge binary file %s\n", zName);
+      }
       free(zFullPath);
       blob_reset(&v);
       blob_reset(&e);
       blob_reset(&t);
       blob_reset(&r);
+      
     }
   }
   db_finalize(&q);

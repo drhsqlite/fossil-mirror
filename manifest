@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bug\sfixes\sin\sthe\sMyers\sdiff\salgorithm.
-D 2007-11-16T03:17:35
+C Rework\sthe\smerge\salgorithm.\s\sIt\snow\sonly\sworks\sfor\stext\sfiles.\s\sBut,\nit\sno\slonger\sgets\sconfused\sby\sline\sendings\s(\\r\\n\sversus\s\\n)\sand\sit\nreports\sconflicts.
+D 2007-11-16T20:42:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -31,7 +31,7 @@ F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
-F src/blob.c d66858e82e6ad1e661a411209344c982857f8632
+F src/blob.c 1da99958db39fb320b6d97191f357bf3ab151ecc
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
 F src/cgi.c 36809061c4b7b97769438ecae6082e3e64fb10e0
 F src/checkin.c 6e8cb78df89cb8ed7e82e3c69300200518218616
@@ -46,7 +46,7 @@ F src/db.c 9ee28c7627aaa08457fe6c8f0f3b7522046626d9
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c 09050dfe396ff565d20a2609a6705ee3456c542a
+F src/diff.c 017b4249144920782678e4964f219ea565667ac4
 F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -60,8 +60,8 @@ F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 58cb9ba8de83ee54c3a6e9e360f9734ea368128f
 F src/manifest.c d51cf77a0b712be4263bb99495f0ba7310e973a3
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
-F src/merge.c 4db3ee048dd4cee60af13679d1107128ffa5ef09
-F src/merge3.c 2a2187581aa16c3a59a59097a9188e8339ae7e5f
+F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
+F src/merge3.c b966dfba2bae917eaf5f0a567fd9cb53d2be401f
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c 8d07e9c5fdb127818043015d250afe5365f8b8dc
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
@@ -85,7 +85,7 @@ F src/tktconf.c d769ab03450ca4fe1b794c56206ef03776c14e80
 F src/tktsetup.c 1bb9488bc91a04b8f38c90d0011b4d00d12873e9
 F src/translate.c 40ee3ab1003fceddf0e90115c8bb28e040da4550
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c abfa21b27a1cc1cf3c508533550ac5d9529bc308
+F src/update.c 86ce4008279aaf0127390b5acb4a4db223cb30e2
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c dde3c3d16a89ff29c0bfb2b70e32431f45640400
 F src/verify.c a3038ce20f3906ca1dbcb516fc0c389c19b218fd
@@ -95,9 +95,9 @@ F src/wikiformat.c 99707514c54320db6c38187f03510ff9770e0643
 F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
-F test/merge1.test 419c5c1aa7f65358008dca1190900e2f90f48950
+F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
-F test/tester.tcl 8cd24c134d1f6a87a9d5d0493d6b44be4b66be4b
+F test/tester.tcl ba01105cd099ba556e6a9131bad4f90fe88b73c7
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 5e00e8293a76175ff435937e71c0ba5e5a6ec371
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 57b2735ebd12f83d9c98a441ffe946ce1fe9ab56
-R 93a0c71a0cd9ea967c7d440d4a2ec964
+P f1b55da0ac3d3c33077b2586585a920663b33b91
+R 30118bab6d50a1fffa1e03400a493a90
 U drh
-Z 0f9eac6a2739b68ab13cefa20ae8535b
+Z 87742b9bd218257fbe9e3e2e71a637b0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHPQvToxKgR168RlERAnv0AJ4nDE0KhUDAazT+NMrJvyxlI/bAFwCfRNVJ
-snxcnkVrsGUTTi+hReT0Rtg=
-=gOVu
+iD8DBQFHPgC7oxKgR168RlERAphoAKCHjK7yZq8GHyGS73+TzlSFzvvw/wCfUCke
+Gy6g4zMjTQIz0ZpJv5MPULM=
+=gvfg
 -----END PGP SIGNATURE-----

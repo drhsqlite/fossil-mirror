@@ -404,6 +404,21 @@ int blob_line(Blob *pFrom, Blob *pTo){
 }
 
 /*
+** Trim whitespace off of the end of a blob.  Return the number
+** of characters remaining.
+**
+** All this does is reduce the length counter.  This routine does
+** not insert a new zero terminator.
+*/
+int blob_trim(Blob *p){
+  char *z = p->aData;
+  int n = p->nUsed;
+  while( n>0 && isspace(z[n-1]) ){ n--; }
+  p->nUsed = n;
+  return n;
+}
+
+/*
 ** Extract a single token from pFrom and use it to initialize pTo.
 ** Return the number of bytes in the token.  If no token is found,
 ** return 0.
@@ -440,6 +455,36 @@ int blob_tail(Blob *pFrom, Blob *pTo){
   blob_extract(pFrom, pFrom->nUsed-pFrom->iCursor, pTo);
   pFrom->iCursor = iCursor;
   return pTo->nUsed;
+}
+
+/*
+** Copy N lines of text from pFrom into pTo.  The copy begins at the
+** current cursor position of pIn.  The pIn cursor is left pointing
+** at the first character past the last \n copied.
+**
+** If pTo==NULL then this routine simply skips over N lines.
+*/
+void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
+  char *z = pFrom->aData;
+  int i = pFrom->iCursor;
+  int n = pFrom->nUsed;
+  int cnt = 0;
+
+  if( N==0 ) return;
+  while( i<n ){
+    if( z[i]=='\n' ){
+      cnt++;
+      if( cnt==N ){
+        i++;
+        break;
+      }
+    }
+    i++;
+  }
+  if( pTo ){
+    blob_append(pTo, &pFrom->aData[pFrom->iCursor], i - pFrom->iCursor);
+  }
+  pFrom->iCursor = i;
 }
 
 /*

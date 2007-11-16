@@ -228,6 +228,7 @@ void merge_cmd(void){
     int idv = db_column_int(&q, 1);
     int ridp = db_column_int(&q, 2);
     int ridv = db_column_int(&q, 3);
+    int rc;
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
     char *zFullPath;
     Blob m, p, v, r;
@@ -239,13 +240,20 @@ void merge_cmd(void){
     }
     undo_save(zName);
     zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
-    free(zName);
     content_get(ridp, &p);
     content_get(ridm, &m);
     blob_zero(&v);
     blob_read_from_file(&v, zFullPath);
-    blob_merge(&p, &m, &v, &r);
-    blob_write_to_file(&r, zFullPath);
+    rc = blob_merge(&p, &m, &v, &r);
+    if( rc>=0 ){
+      blob_write_to_file(&r, zFullPath);
+      if( rc>0 ){
+        printf("***** %d merge conflicts in %s\n", rc, zName);
+      }
+    }else{
+      printf("***** Cannot merge binary file %s\n", zName);
+    }
+    free(zName);
     blob_reset(&p);
     blob_reset(&m);
     blob_reset(&v);

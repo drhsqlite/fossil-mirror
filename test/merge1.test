@@ -79,14 +79,27 @@ write_file_indented t3 {
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t23 {
-  111 - This is line ONE OF the demo program - 1111
+  >>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
+  111 - This is line ONE of the demo program - 1111
+  111 - This is line one OF the demo program - 1111
+  >>>>>>>>> END MERGE CONFLICT <<<<<<<<<
+  222 - The second line program line in code - 2222
+  333 - This is a test of the merging algohm - 3333
+  444 - If all goes well, we will be pleased - 4444
+  555 - we think it well and other stuff too - 5555
+}
+write_file_indented t32 {
+  >>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
+  111 - This is line one OF the demo program - 1111
+  111 - This is line ONE of the demo program - 1111
+  >>>>>>>>> END MERGE CONFLICT <<<<<<<<<
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
 fossil test-3 t1 t3 t2 a32
-test merge1-2.1 {[same_file t23 a32]}
+test merge1-2.1 {[same_file t32 a32]}
 fossil test-3 t1 t2 t3 a23
 test merge1-2.2 {[same_file t23 a23]}
 
@@ -224,35 +237,3 @@ fossil test-3 t1 t3 t2 a32
 test merge1-6.1 {[same_file t32 a32]}
 fossil test-3 t1 t2 t3 a23
 test merge1-6.2 {[same_file t32 a23]}
-
-# 123456789 123456789 123456789 123456789 123456789 123456789 
-write_file_indented t1 {
-  111 - This is line one of the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t2 {
-  222 - The second line program line in code - 2222
-  333 - This is a test of THREE rging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  111 - This is line one of the demo program - 1111
-  555 - we think it well and other stuff too - 5555
-}
-write_file_indented t3 {
-  111 - This is line ONEONE the demo program - 1111
-  222 - The second line program line in code - 2222
-  333 - This is a test of the merging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  555 - we think it FIVEFIVE other stuff too - 5555
-}
-write_file_indented t32 {
-  222 - The second line program line in code - 2222
-  333 - This is a test of THREE rging algohm - 3333
-  444 - If all goes well, we will be pleased - 4444
-  111 - This is line ONEONE the demo program - 1111
-  555 - we think it FIVEFIVE other stuff too - 5555
-}
-fossil test-3 t1 t3 t2 a32
-test merge1-6.1 {[same_file t32 a32]}

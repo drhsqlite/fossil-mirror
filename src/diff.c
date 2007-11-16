@@ -28,8 +28,19 @@
 #include "diff2.h"
 #include <assert.h>
 
+
+#if 0
+#define DEBUG(X) X
+#else
+#define DEBUG(X)
+#endif
+
 /*
 ** Information about each line of a file being diffed.
+**
+** The lower 20 bits of the hash are the length of the
+** line.  If any line is longer than 1048575 characters,
+** the file is considered binary.
 */
 typedef struct DLine DLine;
 struct DLine {
@@ -37,12 +48,17 @@ struct DLine {
   unsigned int h;   /* Hash of the line */
 };
 
+#define LENGTH_MASK  0x000fffff
+
 /*
-** Break a blob into lines by converting inserting \000 characters.
 ** Return an array of DLine objects containing a pointer to the
-** start of each line and a hash of that line.
+** start of each line and a hash of that line.  The lower 
+** bits of the hash store the length of each line.
 **
 ** Trailing whitespace is removed from each line.
+**
+** Return 0 if the file is binary or contains a line that is
+** longer than 1048575 bytes.
 */
 static DLine *break_into_lines(char *z, int *pnLine){
   int nLine, i, j, k, x;
@@ -52,8 +68,21 @@ static DLine *break_into_lines(char *z, int *pnLine){
   /* Count the number of lines.  Allocate space to hold
   ** the returned array.
   */
-  for(i=0, nLine=1; z[i]; i++){
-    if( z[i]=='\n' && z[i+1]!=0 ) nLine++;
+  for(i=j=0, nLine=1; z[i]; i++, j++){
+    int c = z[i];
+    if( c==0 ){
+      return 0;
+    }
+    if( c=='\n' && z[i+1]!=0 ){
+      nLine++;
+      if( j>1048575 ){
+        return 0;
+      }
+      j = 0;
+    }
+  }
+  if( j>1048575 ){
+    return 0;
   }
   a = malloc( nLine*sizeof(a[0]) );
   if( a==0 ) fossil_panic("out of memory");
@@ -63,11 +92,10 @@ static DLine *break_into_lines(char *z, int *pnLine){
     a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
     for(k=j; k>0 && isspace(z[k-1]); k--){}
-    z[k] = 0;
     for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
-    a[i].h = h;
+    a[i].h = (h<<20) | k;;
     z += j+1;
   }
 
@@ -80,22 +108,24 @@ static DLine *break_into_lines(char *z, int *pnLine){
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
-  return pA->h==pB->h && strcmp(pA->z,pB->z)==0;
+  return pA->h==pB->h && memcmp(pA->z,pB->z,pA->h & LENGTH_MASK)==0;
 }
 
 /*
 ** Generate a report of the differences between files pA and pB.
-** The line ending (\r\n versus \n) is ignored - the two line
-** endings are considered to be equivalent.
-**
-** The return is a pointer to an array of integers that describes
-** the difference.  Integers come in triples.  For each triple,
+** If pOut is not NULL then a unified diff is appended there.  It
+** is assumed that pOut has already been initialized.  If pOut is
+** NULL, then a pointer to an array of integers is returned.  
+** The integers come in triples.  For each triple,
 ** the elements are the number of lines copied, the number of
-** lines delete, and the number of lines inserted.  The vector
+** lines deleted, and the number of lines inserted.  The vector
 ** is terminated by a triple of all zeros.
 **
-** The two blobs is destroyed ('\000' values are inserted)
-** by the diffing process.  
+** This diff utility does not work on binary files.  If a binary
+** file is encountered, 0 is returned and pOut is written with
+** text "cannot compute difference between binary files".
+**
+****************************************************************************
 **
 ** The core algorithm is a variation on the classic Wagner
 ** minimum edit distance with enhancements to reduce the runtime
@@ -173,7 +203,12 @@ static int same_dline(DLine *pA, DLine *pB){
 ** larger files (100K lines) is more memory than we have at
 ** hand.
 */
-int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
+int *text_diff(
+  Blob *pA_Blob,   /* FROM file */
+  Blob *pB_Blob,   /* TO file */
+  Blob *pOut,      /* Write unified diff here if not NULL */
+  int nContext     /* Amount of context to unified diff */
+){
   DLine *A, *B;    /* Files being compared */
   int X, Y;        /* Number of elements in A and B */
   int x, y;        /* Indices:  A[x] and B[y] */
@@ -182,7 +217,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
   int i, d;        /* Indices on M.  M[d][i] */
   int k, q;        /* Diagonal number and distinct from (0,0) */
   int K, D;        /* The diagonal and d for the final solution */          
-  int *R;          /* Result vector */
+  int *R = 0;      /* Result vector */
   int r;           /* Loop variables */
   int go = 1;      /* Outer loop control */
   int MAX;         /* Largest of X and Y */
@@ -192,6 +227,15 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
   */
   A = break_into_lines(blob_str(pA_Blob), &X);
   B = break_into_lines(blob_str(pB_Blob), &Y);
+
+  if( A==0 || B==0 ){
+    free(A);
+    free(B);
+    if( pOut ){
+      blob_appendf(pOut, "cannot compute difference between binary files\n");
+    }
+    return 0;
+  }
 
   szM = 0;
   MAX = X>Y ? X : Y;
@@ -213,7 +257,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
         q = 0;
       }else if( i==0 ){
         q = M[d-1][0];
-      }else if( M[d-1][i-1] < M[d-1][i] ){
+      }else if( i<d-1 && M[d-1][i-1] < M[d-1][i] ){
         q = M[d-1][i];
       }else{
         q = M[d-1][i-1];
@@ -226,7 +270,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
         while( x<X && y<Y && same_dline(&A[x],&B[y]) ){ x++; y++; }
       }
       M[d][i] = x + y;
-      /* printf("M[%d][%i] = %d  k=%d (%d,%d)\n", d, i, x+y, k, x, y); */
+      DEBUG( printf("M[%d][%i] = %d  k=%d (%d,%d)\n", d, i, x+y, k, x, y); )
       if( x==X && y==Y ){
         go = 0;
         break;
@@ -251,7 +295,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
     D = d - 1;
     K = X - Y;
     for(d=D, i=(K+D)/2; d>0; d--){
-      /* printf("d=%d i=%d\n", d, i); */
+      DEBUG( printf("d=%d i=%d\n", d, i); )
       if( i==d || (i>0 && M[d-1][i-1] > M[d-1][i]) ){
         M[d][0] = M[d][i] - M[d-1][i-1] - 1;
         M[d][1] = 0;
@@ -262,13 +306,12 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
       }
     }
     
-    
-    /*
-    printf("---------------\nM[0][0] = %5d\n", M[0][0]);
-    for(d=1; d<=D; d++){
-      printf("M[%d][0] = %5d    M[%d][1] = %d\n",d,M[d][0],d,M[d][1]);
-    }
-    */
+    DEBUG(
+      printf("---------------\nM[0][0] = %5d\n", M[0][0]);
+      for(d=1; d<=D; d++){
+        printf("M[%d][0] = %5d    M[%d][1] = %d\n",d,M[d][0],d,M[d][1]);
+      }
+    )
     
     /* Allocate the output vector
     */
@@ -337,7 +380,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
     for(r=0; R[r+1] || R[r+2] || R[r+3]; r += 3*nr){
       /* Figure out how many triples to show in a single block */
       for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
-      /* printf("r=%d nr=%d\n", r, nr); */
+      DEBUG( printf("r=%d nr=%d\n", r, nr); )
 
       /* For the current block comprising nr triples, figure out
       ** how many lines of A and B are to be displayed
@@ -371,7 +414,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
       b += skip;
       m = R[r] - skip;
       for(j=0; j<m; j++){
-        blob_appendf(pOut," %s\n", A[a+j].z);
+        blob_appendf(pOut," %.*s\n", A[a+j].h & LENGTH_MASK, A[a+j].z);
       }
       a += m;
       b += m;
@@ -380,18 +423,18 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
       for(i=0; i<nr; i++){
         m = R[r+i*3+1];
         for(j=0; j<m; j++){
-          blob_appendf(pOut,"-%s\n", A[a+j].z);
+          blob_appendf(pOut,"-%.*s\n", A[a+j].h & LENGTH_MASK, A[a+j].z);
         }
         a += m;
         m = R[r+i*3+2];
         for(j=0; j<m; j++){
-          blob_appendf(pOut,"+%s\n", B[b+j].z);
+          blob_appendf(pOut,"+%.*s\n", B[b+j].h & LENGTH_MASK, B[b+j].z);
         }
         b += m;
         if( i<nr-1 ){
           m = R[r+i*3+3];
           for(j=0; j<m; j++){
-            blob_appendf(pOut," %s\n", B[b+j].z);
+            blob_appendf(pOut," %.*s\n", B[b+j].h & LENGTH_MASK, B[b+j].z);
           }
           b += m;
           a += m;
@@ -403,7 +446,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
       m = R[r+nr*3];
       if( m>nContext ) m = nContext;
       for(j=0; j<m; j++){
-        blob_appendf(pOut," %s\n", B[b+j].z);
+        blob_appendf(pOut," %.*s\n", B[b+j].h & LENGTH_MASK, B[b+j].z);
       }
     }
     free(R);
@@ -424,15 +467,20 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
 void test_rawdiff_cmd(void){
   Blob a, b;
   int r;
+  int i;
   int *R;
-  if( g.argc!=4 ) usage("FILE1 FILE2");
+  if( g.argc<4 ) usage("FILE1 FILE2 ...");
   blob_read_from_file(&a, g.argv[2]);
-  blob_read_from_file(&b, g.argv[3]);
-  R = text_diff(&a, &b, 0, 0);
-  for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
-    printf(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
+  for(i=3; i<g.argc; i++){
+    if( i>3 ) printf("-------------------------------\n");
+    blob_read_from_file(&b, g.argv[i]);
+    R = text_diff(&a, &b, 0, 0);
+    for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
+      printf(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
+    }
+    /* free(R); */
+    blob_reset(&b);
   }
-  free(R);
 }
 
 /*
