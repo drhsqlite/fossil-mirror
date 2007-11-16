@@ -87,6 +87,8 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    InitializeCandidates $dg
 	}
 
+	dg destroy
+
 	log write 3 cyclebreaker Done.
 	return
     }
