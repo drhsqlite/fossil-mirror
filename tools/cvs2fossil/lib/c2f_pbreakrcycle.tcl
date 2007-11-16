@@ -45,6 +45,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	# Define the names and structure of the persistent state of
 	# this pass.
 
+	state reading revision
+	state reading changeset
+	state reading csrevision
+
 	state writing csorder {
 	    -- Commit order of changesets based on their dependencies
 	    cid INTEGER  NOT NULL  REFERENCES changeset,
@@ -68,10 +72,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
     typemethod run {} {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
-
-	state reading revision
-	state reading changeset
-	state reading csrevision
 
 	state transaction {
 	    cyclebreaker run [struct::list filter [project::rev all] \

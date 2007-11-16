@@ -43,6 +43,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
     typemethod setup {} {
 	# Define the names and structure of the persistent state of
 	# this pass.
+
+	state reading revision
+	state reading changeset
+	state reading csrevision
 	return
     }
 
@@ -56,10 +60,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
     typemethod run {} {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
-
-	state reading revision
-	state reading changeset
-	state reading csrevision
 
 	state transaction {
 	    cyclebreaker run [struct::list filter [project::rev all] \
