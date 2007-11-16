@@ -53,7 +53,7 @@ static DLine *break_into_lines(char *z, int *pnLine){
   ** the returned array.
   */
   for(i=0, nLine=1; z[i]; i++){
-    if( z[i]=='\n' ) nLine++;
+    if( z[i]=='\n' && z[i+1]!=0 ) nLine++;
   }
   a = malloc( nLine*sizeof(a[0]) );
   if( a==0 ) fossil_panic("out of memory");
@@ -185,6 +185,7 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
   int *R;          /* Result vector */
   int r;           /* Loop variables */
   int go = 1;      /* Outer loop control */
+  int MAX;         /* Largest of X and Y */
 
   /* Break the two files being diffed into individual lines.
   ** Compute hashes on each line for fast comparison.
@@ -193,7 +194,8 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
   B = break_into_lines(blob_str(pB_Blob), &Y);
 
   szM = 0;
-  for(d=0; go; d++){
+  MAX = X>Y ? X : Y;
+  for(d=0; go && d<=MAX; d++){
     if( szM<d+1 ){
       szM += szM + 10;
       M = realloc(M, sizeof(M[0])*szM);
@@ -218,79 +220,102 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
       }
       x = (k + q + 1)/2;
       y = x - k;
-      while( x<X && y<Y && same_dline(&A[x],&B[y]) ){ x++; y++; }
+      if( x<0 || x>X || y<0 || y>Y ){
+        x = y = 0;
+      }else{
+        while( x<X && y<Y && same_dline(&A[x],&B[y]) ){ x++; y++; }
+      }
       M[d][i] = x + y;
+      /* printf("M[%d][%i] = %d  k=%d (%d,%d)\n", d, i, x+y, k, x, y); */
       if( x==X && y==Y ){
         go = 0;
         break;
       }
     }
   }
-
-  /* Reuse M[] as follows:
-  **
-  **     M[d][1] = 1 if a line is inserted or 1 if a line is deleted.
-  **     M[d][0] = number of lines copied at this step.
-  **
-  */
-  D = d - 1;
-  K = X - Y;
-  for(d=D, i=(K+D)/2; d>0; d--){
-    if( i==d || M[d-1][i-1] > M[d-1][i] ){
-      M[d][0] = M[d][i] - M[d-1][i-1] - 1;
-      M[d][1] = 0;
-      i--;
-    }else{
-      M[d][0] = M[d][i] - M[d-1][i] - 1;
-      M[d][1] = 1;
+  if( d>MAX ){
+    R = malloc( sizeof(R[0])*6 );
+    R[0] = 0;
+    R[1] = X;
+    R[2] = Y;
+    R[3] = 0;
+    R[4] = 0;
+    R[5] = 0;
+  }else{
+    /* Reuse M[] as follows:
+    **
+    **     M[d][1] = 1 if a line is inserted or 0 if a line is deleted.
+    **     M[d][0] = number of lines copied after the ins or del above.
+    **
+    */
+    D = d - 1;
+    K = X - Y;
+    for(d=D, i=(K+D)/2; d>0; d--){
+      /* printf("d=%d i=%d\n", d, i); */
+      if( i==d || (i>0 && M[d-1][i-1] > M[d-1][i]) ){
+        M[d][0] = M[d][i] - M[d-1][i-1] - 1;
+        M[d][1] = 0;
+        i--;
+      }else{
+        M[d][0] = M[d][i] - M[d-1][i] - 1;
+        M[d][1] = 1;
+      }
     }
-  }
-
-  /* Allocate the output vector
-  */
-  R = malloc( sizeof(R[0])*(D+2)*3 );
-  if( R==0 ){
-    fossil_fatal("out of memory");
-  }
-
-  /* Populate the output vector
-  */
-  d = r = 0;
-  while( d<=D ){
-    int n;
-    R[r++] = M[d++][0]/2;   /* COPY */
-    if( d>D ){
-      R[r++] = 0;
-      R[r++] = 0;
-      break;
+    
+    
+    /*
+    printf("---------------\nM[0][0] = %5d\n", M[0][0]);
+    for(d=1; d<=D; d++){
+      printf("M[%d][0] = %5d    M[%d][1] = %d\n",d,M[d][0],d,M[d][1]);
     }
-    if( M[d][1]==0 ){
+    */
+    
+    /* Allocate the output vector
+    */
+    R = malloc( sizeof(R[0])*(D+2)*3 );
+    if( R==0 ){
+      fossil_fatal("out of memory");
+    }
+    
+    /* Populate the output vector
+    */
+    d = r = 0;
+    while( d<=D ){
+      int n;
+      R[r++] = M[d++][0]/2;   /* COPY */
+      if( d>D ){
+        R[r++] = 0;
+        R[r++] = 0;
+        break;
+      }
+      if( M[d][1]==0 ){
+        n = 1;
+        while( M[d][0]==0 && d<D && M[d+1][1]==0 ){
+          d++;
+          n++;
+        }
+        R[r++] = n;           /* DELETE */
+        if( d==D || M[d][0]>0 ){
+          R[r++] = 0;         /* INSERT */
+          continue;
+        }
+        d++;
+      }else{
+        R[r++] = 0;           /* DELETE */
+      }
+      assert( M[d][1]==1 );
       n = 1;
-      while( M[d][0]==0 && d<D && M[d+1][1]==0 ){
+      while( M[d][0]==0 && d<D && M[d+1][1]==1 ){
         d++;
         n++;
       }
-      R[r++] = n;           /* DELETE */
-      if( d==D || M[d][0]>0 ){
-        R[r++] = 0;         /* INSERT */
-        continue;
-      }
-      d++;
-    }else{
-      R[r++] = 0;           /* DELETE */
+      R[r++] = n;            /* INSERT */
     }
-    assert( M[d][1]==1 );
-    n = 1;
-    while( M[d][0]==0 && d<D && M[d+1][1]==1 ){
-      d++;
-      n++;
-    }
-    R[r++] = n;            /* INSERT */
+    R[r++] = 0;
+    R[r++] = 0;
+    R[r++] = 0;
   }
-  R[r++] = 0;
-  R[r++] = 0;
-  R[r++] = 0;
-
+    
   /* Free the Myers matrix */
   for(d=0; d<=D; d++){
     free(M[d]);
@@ -309,9 +334,10 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
     int m;        /* Number of lines to output */
     int skip;     /* Number of lines to skip */
 
-    for(r=0; R[r+3]; r += 3*nr){
+    for(r=0; R[r+1] || R[r+2] || R[r+3]; r += 3*nr){
       /* Figure out how many triples to show in a single block */
       for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+      /* printf("r=%d nr=%d\n", r, nr); */
 
       /* For the current block comprising nr triples, figure out
       ** how many lines of A and B are to be displayed
@@ -327,12 +353,12 @@ int *text_diff(Blob *pA_Blob, Blob *pB_Blob, Blob *pOut, int nContext){
         na += R[r+i*3+1];
         nb += R[r+i*3+2];
       }
-      if( R[r+i*3]>nContext ){
+      if( R[r+nr*3]>nContext ){
         na += nContext;
         nb += nContext;
       }else{
-        na += R[r+i*3];
-        nb += R[r+i*3];
+        na += R[r+nr*3];
+        nb += R[r+nr*3];
       }
       for(i=1; i<nr; i++){
         na += R[r+i*3];

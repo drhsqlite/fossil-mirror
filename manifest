@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Enhanced\stext\sdiff\ssubroutine\suses\sMyers\senhancements\sto\sWagners\nminimum\sedit\sdistance\salgorithm.\s\sWhite\sspace\sat\sthe\send\sof\slines\nis\signored.
-D 2007-11-15T21:49:14
+C Bug\sfixes\sin\sthe\sMyers\sdiff\salgorithm.
+D 2007-11-16T03:17:35
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -46,7 +46,7 @@ F src/db.c 9ee28c7627aaa08457fe6c8f0f3b7522046626d9
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c cb5702628e9656f5cabfd4d65007f41433928a53
+F src/diff.c 09050dfe396ff565d20a2609a6705ee3456c542a
 F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -148,14 +148,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 50ff86afd0ea05c68d5cb7ec67e7d64df1bc92ac
-R bee6f116032e20ada0364fa7373880b7
+P 57b2735ebd12f83d9c98a441ffe946ce1fe9ab56
+R 93a0c71a0cd9ea967c7d440d4a2ec964
 U drh
-Z 289f62d32bd90af2adf5571f82049529
+Z 0f9eac6a2739b68ab13cefa20ae8535b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHPL7doxKgR168RlERArlSAJwOKQjIZzvYY5T4HTBb62QrBCU4nQCeI1YT
-XHUnC3vGhy+LT7I7mK+1TvA=
-=AXNx
+iD8DBQFHPQvToxKgR168RlERAnv0AJ4nDE0KhUDAazT+NMrJvyxlI/bAFwCfRNVJ
+snxcnkVrsGUTTi+hReT0Rtg=
+=gOVu
 -----END PGP SIGNATURE-----
