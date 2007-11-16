@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sskeleton\sfiles\sfor\spass\s7,\sthe\sbreaking\sof\sdependency\scycles\sover\ssymbol-based\schangesets.
-D 2007-11-15T07:17:07
+C Bugfix.\sIn\spass\s5,\sloading\sthe\schangesets\sused\sthe\stype\scodes\sinstead\sof\sthe\stype\snames.\sModified\sthe\sSQL\sselecting\sthe\sdata\sto\sreturn\sthe\sproper\snames.
+D 2007-11-16T03:52:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -112,7 +112,7 @@ F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl 9385b6cf1b9a5e59ed7eace66e1b6429a31307f6
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7553c6538ad7d3fd2acf03514cc7d52210d116ae
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 53988122b99428b764ad276fdccd9d297a94b51b
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 960f3c67b51891564741483118cafd5d1cdf73f0
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl bb434d64fd7929912969d1f3dbfd77a8a5e8ec13
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl b05edeebe658907bf08e12dc5924ac2af15cb9e7
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 01734176b9489d88add09b3fd41a7de60f230021
@@ -163,14 +163,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f631d438b43ab0f1c0edba7c4b4c13b53033e4c2
-R 7b3a61fd0459f428aa7a27e6df4e0f37
+P 258366a37a382ae1d8cb58dee82882b29bd44065
+R 3a2476287820b71c1f993e19cd1eec9b
 U aku
-Z 1c7813d4049cdef71c79d462337c2ae5
+Z ce689ae57fbfb157ac3e75b7295b70c4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHO/J4vonzZ/CRa7gRAnkiAJ4kbj6v1aQn5UHCUITQCYDIyMmfZQCfakpb
-h4heIF5axI/B+J6EjQtVUFs=
-=FDy7
+iD8DBQFHPRP2vonzZ/CRa7gRAp0HAKC3nlerl/FicIqDaa5sNcsaIOsu8ACggAhD
+BpUNqACxRfFxSeAEwj19FBU=
+=OOh/
 -----END PGP SIGNATURE-----

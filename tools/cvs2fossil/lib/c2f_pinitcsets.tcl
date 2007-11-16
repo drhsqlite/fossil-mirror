@@ -106,8 +106,9 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	state reading cstype
 
 	foreach {id pid cstype srcid} [state run {
-	    SELECT C.cid, C.pid, C.type, C.src
-	    FROM   changeset C
+	    SELECT C.cid, C.pid, CS.name, C.src
+	    FROM   changeset C, cstype CS
+	    WHERE  C.type = CS.tid
 	    ORDER BY C.cid
 	}] {
 	    set r [project::rev %AUTO% [repository projectof $pid] $cstype $srcid [state run {
