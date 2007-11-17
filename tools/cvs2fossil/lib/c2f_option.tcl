@@ -46,11 +46,10 @@ snit::type ::vc::fossil::import::cvs::option {
     # --state (conversion status, ala config.cache)
     # --trunk-only
     # --exclude, --force-tag, --force-branch
+    # --batch
 
     # -o, --output
     # --dry-run
-    # --force-branch RE
-    # --force-tag RE
     # --symbol-transform RE:XX
 
     # # ## ### ##### ######## #############
@@ -79,6 +78,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--exclude                   { project::sym exclude     [Value arguments] }
 		--force-tag                 { project::sym forcetag    [Value arguments] }
 		--force-branch              { project::sym forcebranch [Value arguments] }
+		--batch                     { log noprogress }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -107,6 +107,8 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "    --version     Print version number of $argv0"
 	trouble info "    -v, --verbose Increase application's verbosity"
 	trouble info "    -q, --quiet   Decrease application's verbosity"
+	trouble info "    --batch       Disable the progress feedback standard to"
+	trouble info "                  interactive use."
 	trouble info ""
 	trouble info "  Conversion control options"
 	trouble info ""

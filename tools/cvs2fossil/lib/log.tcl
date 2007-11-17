@@ -42,6 +42,7 @@ snit::type ::vc::tools::log {
     # empty 'max' indicates an infinite progress display.
 
     typemethod progress {verbosity system n max} {
+	if {!$myprogress}             return
 	if {$verbosity > $myloglevel} return
 	uplevel #0 [linsert $mylogcmd end progress [System $system] $n $max]
 	return
@@ -65,6 +66,11 @@ snit::type ::vc::tools::log {
 
     typemethod verbose {} {
 	incr myloglevel
+	return
+    }
+
+    typemethod noprogress {} {
+	set myprogress 0
 	return
     }
 
@@ -106,8 +112,9 @@ snit::type ::vc::tools::log {
 
     typevariable myloglevel 2                     ; # Some verbosity, not too much
     typevariable mylogcmd   ::vc::tools::log::OUT ; # Standard output to stdout.
-    typevariable mysysfmt %s                      ; # Non-tabular formatting.
-    typevariable mysyslen 0                       ; # Ditto.
+    typevariable mysysfmt   %s                    ; # Non-tabular formatting.
+    typevariable mysyslen   0                     ; # Ditto.
+    typevariable myprogress 1                     ; # Progress output is standard.
 
     # # ## ### ##### ######## #############
     ## Internal, helper methods (formatting, dispatch)
