@@ -25,7 +25,7 @@
 ** text files.
 */
 #include "config.h"
-#include "diff2.h"
+#include "diff.h"
 #include <assert.h>
 
 

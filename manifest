@@ -1,12 +1,16 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Rework\sthe\smerge\salgorithm.\s\sIt\snow\sonly\sworks\sfor\stext\sfiles.\s\sBut,\nit\sno\slonger\sgets\sconfused\sby\sline\sendings\s(\\r\\n\sversus\s\\n)\sand\sit\nreports\sconflicts.
-D 2007-11-16T20:42:31
+C Merge\saku's\sCVS\simport\schanges\sinto\sthe\smain\sline.\s\sFix\sa\ssmall\sbug\sin\sdiff.c.
+D 2007-11-17T00:29:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
 F Makefile.w32 c6249fceb58da0ae0ec8f03a2ec9c79c006a3569
+F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
+F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
+F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
+F art/CollRev4.dia be6e84c213b52cad03e3192fe8ba941709564fd4
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
@@ -46,7 +50,7 @@ F src/db.c 9ee28c7627aaa08457fe6c8f0f3b7522046626d9
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c 017b4249144920782678e4964f219ea565667ac4
+F src/diff.c fe83b4caec1e1262b7be9ef0fba825b5d9bf74ef
 F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
 F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -100,25 +104,49 @@ F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl ba01105cd099ba556e6a9131bad4f90fe88b73c7
 F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
 F todo.txt 5e00e8293a76175ff435937e71c0ba5e5a6ec371
+F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
+F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
+F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 41093323e5c42f3af7c63b40a3b364d74d5288ae
+F tools/cvs2fossil/lib/c2f_file.tcl a0a48d681efabeb95ae5e8d59aeb112ddf404678
+F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
+F tools/cvs2fossil/lib/c2f_frev.tcl b685fd71ec9c7edd21f430686db3eaa6f3639e95
+F tools/cvs2fossil/lib/c2f_fsym.tcl 31fcf57a5226a8f008a3da425d0d27cf38c65aa1
+F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
+F tools/cvs2fossil/lib/c2f_integrity.tcl f5cf3c56374ce48ced3fc6b70542efebd9693336
+F tools/cvs2fossil/lib/c2f_option.tcl d7008b5e1ad9a5295ecc3f1934ac4200af09220a
+F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 9a96d4494154654fae5101158302a44bdb1ecdaa
+F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 030100362abd7e38d917a9224aee2d280335f2b5
+F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl a1d560028116637b2bccbea1c2d646318cac8b59
+F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl e9c8eea44f2612ed75e5253e285232fa5502d57b
+F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7553c6538ad7d3fd2acf03514cc7d52210d116ae
+F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 29f48baf1681e05ab6663c3ca9ca6a094c8541a9
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 10710518c21acecb66ba2959b943d6018d013559
+F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
+F tools/cvs2fossil/lib/c2f_prev.tcl 458c8956e4aa6ccc33f81d56865b639aeb4ab0ea
+F tools/cvs2fossil/lib/c2f_prevlink.tcl 01734176b9489d88add09b3fd41a7de60f230021
+F tools/cvs2fossil/lib/c2f_project.tcl 39d1bb0e929ef13145d932534344a56ac57b586d
+F tools/cvs2fossil/lib/c2f_psym.tcl e97d1e5410b79da3de12c44139dc5f188da36353
+F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
+F tools/cvs2fossil/lib/c2f_repository.tcl 6cbcf7b826dae830b9b69054444b34432c508027
+F tools/cvs2fossil/lib/c2f_state.tcl 5356f2147dab77b10348cff6d5507cfb3c18ef85
+F tools/cvs2fossil/lib/cvs2fossil.tcl 516ad355383b08d6e2203260cb9802e514cd8e44
+F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
+F tools/cvs2fossil/lib/log.tcl 2d2937d11bead564d9088fc99c2f72c4ce4bec0b
+F tools/cvs2fossil/lib/misc.tcl d837793c993226d30d8c8b46e945ba77c8e47da9
+F tools/cvs2fossil/lib/pkgIndex.tcl 326b42f7682bacef0697cb3acaaec28e6fba0985
+F tools/cvs2fossil/lib/rcsparser.tcl 93e4a1e5a55baba7b897dd6af2745f374b18af15
+F tools/cvs2fossil/lib/trouble.tcl f653273970b3dbf6c7328ce53de6e964948c44a0
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
-F tools/import-cvs.tcl 8655038b6314bdccb1d99405fa9963ac4f6ba4a3
-F tools/lib/cvs.tcl e947a38eb89049f6239526d491e8789f9431fd8a
-F tools/lib/cvs_cmd.tcl 47fea6fc5d2ffcafb151532f4a0a354ec5573c80
-F tools/lib/cvs_csets.tcl c6beb0fbbb66803abb0992c32f581b4655a04c5e
-F tools/lib/cvs_files.tcl 24c1271ded974ae38a3a44d55b84c1b9db27ffa5
-F tools/lib/cvs_timeline.tcl 09c55e80b27f760a9025a764c6d2551ab9b562a7
-F tools/lib/fossil.tcl 6aae29bf144b86d8f3cfa70cfd7eb6849a612201
-F tools/lib/fossil_cmd.tcl 49d37a1b8b7a29138710efd3f1dc563b4201b7a6
-F tools/lib/import_map.tcl 44f71078463b33427051428288410b62dda2df82
-F tools/lib/import_statistics.tcl afdce6cc237ef902be4c16a03e458e46a0dbb94b
-F tools/lib/importcvs.tcl d5f1e97a321f56205047f9e8f1868d08c3f628aa
-F tools/lib/log.tcl edfb9cfb1eb6e72efd614a31c5e1e4bf05219e0e
-F tools/lib/pkgIndex.tcl 48d829569b168084bf737551a072b81faa11fa6b
-F tools/lib/rcsparser.tcl 564a99c1a778d21bebf59924c30eb0414d791525
-F tools/lib/trouble.tcl a4a0b8a72bb3cc473b7e2f2e2af117ea0fbafc16
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F win32.txt ee38ffb58e908925e8e4161d82e755cbf9d8d63c
+F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
+F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
+F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
+F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -148,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f1b55da0ac3d3c33077b2586585a920663b33b91
-R 30118bab6d50a1fffa1e03400a493a90
+P 36b96b861614cd44073a9e33c9d6f91608d03158 96b7bfb83401cc7e8ea8ad0eb803e6f50b3b50ff
+R cdf4afff1de29e2d52021ca42ddcb059
 U drh
-Z 87742b9bd218257fbe9e3e2e71a637b0
+Z 2b7af35a4a21d23f52a5145e3d1bcf5a
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHPgC7oxKgR168RlERAphoAKCHjK7yZq8GHyGS73+TzlSFzvvw/wCfUCke
-Gy6g4zMjTQIz0ZpJv5MPULM=
-=gvfg
+iD8DBQFHPjX8oxKgR168RlERAkcKAJwN8XMq+rMILaDVxxsTtHk7ccMfcQCfQsFZ
+ljRrmkkCCPYseqPhJj4U15M=
+=HJLs
 -----END PGP SIGNATURE-----

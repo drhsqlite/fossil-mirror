@@ -1,0 +1,32 @@
+#!/bin/sh
+## -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
+# # ## ### ##### ######## ############# #####################
+## Copyright (c) 2007 Andreas Kupries.
+#
+# This software is licensed as described in the file LICENSE, which
+# you should have received as part of this distribution.
+#
+# This software consists of voluntary contributions made by many
+# individuals.  For exact contribution history, see the revision
+# history and logs, available at http://fossil-scm.hwaci.com/fossil
+# # ## ### ##### ######## ############# #####################
+
+## Command line application wrapped around the import packages.
+
+# # ## ### ##### ######## ############# #####################
+## Requirements, extended package management for local packages.
+
+lappend auto_path [file join [file dirname [info script]] lib]
+
+package require Tcl 8.4                 ; # Required runtime.
+package require vc::fossil::import::cvs ; # Main functionality.
+
+# # ## ### ##### ######## ############# #####################
+## Execution
+
+vc::fossil::import::cvs run $argv
+exit 0
+
+# # ## ### ##### ######## ############# #####################
