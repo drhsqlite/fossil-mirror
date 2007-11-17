@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\saku's\sCVS\simport\schanges\sinto\sthe\smain\sline.\s\sFix\sa\ssmall\sbug\sin\sdiff.c.
-D 2007-11-17T00:29:42
+C Continuing\swork\son\sthe\sinfrastructure\sfor\stickets.
+D 2007-11-17T17:48:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -73,14 +73,14 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 63619c9ec6ef80499feb9f342cf2806ace37d02e
 F src/rebuild.c 45d87035e5f481e19866228873b578e48d6919c9
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/sample-config1.txt 54c5c82c83223fc598c0b129e9ce1735030ec4b9
+F src/sample-config1.txt 870c66c21eeaa6be5f241a2feeba1422883c6721
 F src/schema.c 3e36e323dca2de766d7d691c8f7fdc34e86b5ea5
 F src/setup.c 24c884627955f9ffb551dacef105b91a93f2ff66
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7ae579f21df86730a0aca35503b03d77527d153c
-F src/subscript.c 3df34dd9530732ffd721abd0bd5da9212bd50059
+F src/subscript.c 10b9ab48f7f13ec40148c850a1d9143fa8bdb40d
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 36b96b861614cd44073a9e33c9d6f91608d03158 96b7bfb83401cc7e8ea8ad0eb803e6f50b3b50ff
-R cdf4afff1de29e2d52021ca42ddcb059
+P 38b967dcf5613a918fcddcde269df452ce378752
+R 7c74aa141c7fe142662d7252b5554ed4
 U drh
-Z 2b7af35a4a21d23f52a5145e3d1bcf5a
+Z 54d9c6378a5873544dbbacba1bfbf66a
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHPjX8oxKgR168RlERAkcKAJwN8XMq+rMILaDVxxsTtHk7ccMfcQCfQsFZ
-ljRrmkkCCPYseqPhJj4U15M=
-=HJLs
+iD8DBQFHPymBoxKgR168RlERAh6lAJ9LW6iSFA89yjDKjKRK7m54+hp76ACZAYd2
+e5BzG3Fb6x3ieDs0SAAtCbg=
+=Co3o
 -----END PGP SIGNATURE-----

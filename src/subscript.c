@@ -129,9 +129,9 @@ struct SbsHashTab {
 ** An instance of the Subscript interpreter
 */
 struct Subscript {
-  int nStack;                      /* Number of entries on stack */
-  SbsHashTab symTab;                /* The symbol table */
-  char zErrMsg[SBSCONFIG_ERRSIZE];  /* Space to write an error message */
+  int nStack;                        /* Number of entries on stack */
+  SbsHashTab symTab;                 /* The symbol table */
+  char zErrMsg[SBSCONFIG_ERRSIZE];   /* Space to write an error message */
   SbSValue aStack[SBSCONFIG_NSTACK]; /* The stack */
 };
 
@@ -601,28 +601,120 @@ static int bopCmd(struct Subscript *p, void *pOp){
 */
 static int hascapCmd(struct Subscript *p, void *pNotUsed){
   const char *z;
-  int i, n, a;
+  int n, a;
   if( SbS_RequireStack(p, 1, "hascap") ) return 1;
   z = SbS_StackValue(p, 0, &n);
   a = login_has_capability(z, n);
   SbS_Pop(p, 1);
   SbS_PushInt(p, a);
+  return 0;
+}
+
+/*
+** Subscript command:     STRING linecount INTEGER
+**
+** Return one more than the number of \n characters in STRING.
+*/
+static int linecntCmd(struct Subscript *p, void *pNotUsed){
+  const char *z;
+  int size, n, i;
+  if( SbS_RequireStack(p, 1, "linecount") ) return 1;
+  z = SbS_StackValue(p, 0, &size);
+  for(n=1, i=0; i<size; i++){
+    if( z[i]=='\n' ) n++;
+  }
+  SbS_Pop(p, 1);
+  SbS_PushInt(p, n);
+  return 0;
+}
+
+/*
+** Subscript command:     NAME exists INTEGER
+**
+** Return TRUE if the variable NAME exists.
+*/
+static int existsCmd(struct Subscript *p, void *pNotUsed){
+  const char *z;
+  int size, x;
+  if( SbS_RequireStack(p, 1, "exists") ) return 1;
+  z = SbS_StackValue(p, 0, &size);
+  x = sbs_fetch(&p->symTab, (char*)z, size)!=0;
+  SbS_Pop(p, 1);
+  SbS_PushInt(p, x);
+  return 0;
+}
+
+/*
+** Subscript command:       VALUE NAME get VALUE
+**
+** Push the value of varible NAME onto the stack if it exists.
+** If NAME does not exist, puts VALUE onto the stack instead.
+*/
+static int getCmd(Subscript *p, void *pNotUsed){
+  const char *zName;
+  int nName;
+  const SbSValue *pVal;
+  int rc = 0;
+  
+  if( SbS_RequireStack(p, 2, "get") ) return SBS_ERROR;
+  zName = SbS_StackValue(p, 0, &nName);
+  pVal = sbs_fetch(&p->symTab, (char*)zName, nName);
+  if( pVal!=0 && (pVal->flags & SBSVAL_STR)!=0 ){
+    SbS_Pop(p, 2);
+    rc = SbS_Push(p, pVal->u.str.z, pVal->u.str.size, 0);
+  }else{
+    SbS_Pop(p, 1);
+  }
+  return rc;
+}
+
+
+
+/*
+** True if output is enabled.  False if disabled.
+*/
+static int enableOutput = 1;
+
+/*
+** Subscript command:      BOOLEAN enable_output
+**
+** Enable or disable the puts and hputs commands.
+*/
+static int enableOutputCmd(struct Subscript *p, void *pNotUsed){
+  if( SbS_RequireStack(p, 1, "enable_output") ) return 1;
+  enableOutput = SbS_StackValueInt(p, 0)!=0;
+  SbS_Pop(p, 1);
+  return 0;
 }
 
 /*
 ** Subscript command:      STRING puts
+** Subscript command:      STRING html
+**
+** Output STRING as HTML (html) or unchanged (puts).  
+** Pop it from the stack.
 */
-static int putsCmd(struct Subscript *p, void *pNotUsed){
+static int putsCmd(struct Subscript *p, void *pConvert){
   int size;
   const char *z;
+  char *zOut;
   if( SbS_RequireStack(p, 1, "puts") ) return 1;
-  z = SbS_StackValue(p, 0, &size);
-  if( g.cgiPanic ){
-    char *zCopy = mprintf("%.*s", size, z);
-    cgi_printf("%h", zCopy);
-    free(zCopy);
-  }else{
-    printf("%.*s\n", size, z);
+  if( enableOutput ){
+    z = SbS_StackValue(p, 0, &size);
+    if( pConvert ){    
+      zOut = htmlize(z, size);
+      size = strlen(zOut);
+    }else{
+      zOut = (char*)z;
+    }
+    if( g.cgiPanic ){
+      cgi_append_content(zOut, size);
+    }else{
+      printf("%.*s\n", size, zOut);
+    }
+    if( pConvert ){
+      free(zOut);
+    }
   }
   SbS_Pop(p, 1);
   return 0;
@@ -637,29 +729,37 @@ static const struct {
   int (*xCmd)(Subscript*,void*);
   void *pArg;
 } aBuiltin[] = {
-  { "add",    bopCmd,    (void*)SBSOP_AND    },
-  { "and",    bopCmd,    (void*)SBSOP_AND    },
-  { "div",    bopCmd,    (void*)SBSOP_DIV    },
-  { "hascap", hascapCmd, 0                },
-  { "max",    bopCmd,    (void*)SBSOP_MAX    },
-  { "min",    bopCmd,    (void*)SBSOP_MIN    },
-  { "mul",    bopCmd,    (void*)SBSOP_MUL    },
-  { "not",    notCmd,    0                   },
-  { "or",     bopCmd,    (void*)SBSOP_OR     },
-  { "puts",   putsCmd,   0                   },
-  { "set",    setCmd,    0                   },
-  { "sub",    bopCmd,    (void*)SBSOP_SUB    },
+  { "add",             bopCmd,               (void*)SBSOP_AND    },
+  { "and",             bopCmd,               (void*)SBSOP_AND    },
+  { "div",             bopCmd,               (void*)SBSOP_DIV    },
+  { "enable_output",   enableOutputCmd,      0                   },
+  { "exists",          existsCmd,            0,                  },
+  { "get",             getCmd,               0,                  },
+  { "hascap",          hascapCmd,            0                   },
+  { "html",            putsCmd,              (void*)1            },
+  { "linecount",       linecntCmd,           0                   },
+  { "max",             bopCmd,               (void*)SBSOP_MAX    },
+  { "min",             bopCmd,               (void*)SBSOP_MIN    },
+  { "mul",             bopCmd,               (void*)SBSOP_MUL    },
+  { "not",             notCmd,               0                   },
+  { "or",              bopCmd,               (void*)SBSOP_OR     },
+  { "puts",            putsCmd,              0                   },
+  { "set",             setCmd,               0                   },
+  { "sub",             bopCmd,               (void*)SBSOP_SUB    },
 };
   
 
 /*
 ** Compare a zero-terminated string zPattern against
 ** an unterminated string zStr of length nStr.
+**
+** Return less than, equal to, or greater than zero if
+** zPattern is less than, equal to, or greater than zStr.
 */
 static int compare_cmd(const char *zPattern, const char *zStr, int nStr){
   int c = strncmp(zPattern, zStr, nStr);
   if( c==0 && zPattern[nStr]!=0 ){
-    c = -1;
+    c = 1;
   }
   return c;
 }
@@ -675,6 +775,23 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
     int n;
     int ttype;
     n = sbs_next_token(zScript, nScript, &ttype);
+
+#if 0
+    {
+      int i, nElem;
+      const char *zElem;
+      printf("TOKEN(%d): [%.*s]\n", ttype, n, zScript);
+      if( p->nStack>0 ){
+        printf("STACK:");
+        for(i=0; i<p->nStack; i++){
+          zElem = SbS_StackValue(p, i, &nElem);
+          printf(" [%.*s]", nElem, zElem);
+        }
+        printf("\n");
+      }
+    }
+#endif
+
     switch( ttype ){
       case SBSTT_WHITESPACE: {
         break;
@@ -716,7 +833,7 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
             if( c==0 ){
               rc = aBuiltin[i].xCmd(p, aBuiltin[i].pArg);
               break;
-            }else if( c<0 ){
+            }else if( c>0 ){
               upr = i-1;
             }else{
               lwr = i+1;
