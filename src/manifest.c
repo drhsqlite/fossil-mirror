@@ -312,9 +312,11 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     J <name> <value>
+      **     J '+'?<name> <value>
       **
-      ** Specifies a name value pair for ticket. 
+      ** Specifies a name value pair for ticket.  If the first character
+      ** of <name> is "+" then the value is appended to any preexisting
+      ** value.
       */
       case 'J': {
         char *zName, *zValue;
@@ -360,7 +362,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     L <wikitite>
+      **     L <wikititle>
       **
       ** The wiki page title is fossil-encoded.  There may be no more than
       ** one L line.

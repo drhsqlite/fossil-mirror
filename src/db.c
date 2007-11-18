@@ -79,18 +79,47 @@ static void db_err(const char *zFormat, ...){
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
 static int doRollback = 0;  /* True to force a rollback */
+static int nCommitHook = 0; /* Number of commit hooks */
+static struct sCommitHook {
+  int (*xHook)(void);  /* Functions to call at db_end_transaction() */
+  int sequence;        /* Call functions in sequence order */
+} aHook[5];
+
+/*
+** This routine is called by the SQLite commit-hook mechanism
+** just prior to each omit.  All this routine does is verify
+** that nBegin really is zero.  That insures that transactions
+** cannot commit by any means other than by calling db_end_transaction()
+** below.
+**
+** This is just a safety and sanity check.
+*/
+static int db_verify_at_commit(void *notUsed){
+  if( nBegin ){
+    fossil_panic("illegal commit attempt");
+    return 1;
+  }
+  return 0;
+}
 
 /*
 ** Begin and end a nested transaction
 */
 void db_begin_transaction(void){
-  if( nBegin==0 ) db_multi_exec("BEGIN");
+  if( nBegin==0 ){
+    db_multi_exec("BEGIN");
+    sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
+  }
   nBegin++;
 }
 void db_end_transaction(int rollbackFlag){
   if( rollbackFlag ) doRollback = 1;
   nBegin--;
   if( nBegin==0 ){
+    int i;
+    for(i=0; doRollback==0 && i<nCommitHook; i++){
+      doRollback |= aHook[i].xHook();
+    }
     db_multi_exec(doRollback ? "ROLLBACK" : "COMMIT");
     doRollback = 0;
   }
@@ -100,6 +129,35 @@ void db_force_rollback(void){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
   }
   nBegin = 0;
+}
+
+/*
+** Install a commit hook.  Hooks are installed in sequence order.
+** It is an error to install the same commit hook more than once.
+**
+** Each commit hook is called (in order of accending sequence) at
+** each commit operation.  If any commit hook returns non-zero,
+** the subsequence commit hooks are omitted and the transaction
+** rolls back rather than commit.  It is the responsibility of the
+** hooks themselves to issue any error messages.
+*/
+void db_commit_hook(int (*x)(void), int sequence){
+  int i;
+  assert( nCommitHook < sizeof(aHook)/sizeof(aHook[1]) );
+  for(i=0; i<nCommitHook; i++){
+    assert( x!=aHook[i].xHook );
+    if( aHook[i].sequence>sequence ){
+      int s = sequence;
+      int (*xS)(void) = x;
+      sequence = aHook[i].sequence;
+      x = aHook[i].xHook;
+      aHook[i].sequence = s;
+      aHook[i].xHook = xS;
+    }
+  }
+  aHook[nCommitHook].sequence = sequence;
+  aHook[nCommitHook].xHook = x;
+  nCommitHook++;
 }
 
 /*

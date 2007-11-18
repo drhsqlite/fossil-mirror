@@ -30,32 +30,17 @@
 #include <assert.h>
 
 /*
-** Flags to indicate what kind of ticket string is being generated.
-** A bitmask of these is associated with each verb in order to indicate
-** which verbs go on which pages.
-*/
-#define M_NEW  0x01
-#define M_EDIT 0x02
-#define M_VIEW 0x04
-
-/*
-** The Subscript interpreter used to parse the ticket configure
-** and to render ticket screens.
-*/
-static struct Subscript *pInterp = 0;
-
-/*
-** The list of database fields in the ticket table.
-** This is the user-defined list in the configuration file.
-** Add the "tkt_" prefix to all of these names in the real table.
-** The real table also contains some addition fields not found
-** here.
+** The list of database user-defined fields in the TICKET table.
+** The real table also contains some addition fields for internal
+** used.  The internal-use fields begin with "tkt_".
 */
 static int nField = 0;
-static Blob fieldList;
 static char **azField = 0;
-static char **azValue = 0;
-static unsigned char *aChanged = 0;
+
+/*
+** A subscript interpreter used for processing Tickets.
+*/
+struct Subscript *pInterp = 0;
 
 /*
 ** Compare two entries in azField for sorting purposes
@@ -65,213 +50,136 @@ static int nameCmpr(void *a, void *b){
 }
 
 /*
-** Subscript command:      LIST setfields
-**
-** Parse up the list and populate the nField and azField variables.
+** Obtain a list of all fields of the TICKET table.  Put them 
+** in sorted order.
 */
-static int setFieldsCmd(struct Subscript *p, void *pNotUsed){
-  if( SbS_RequireStack(p, 1) ) return 1;
-  if( nField==0 ){
-    char *zFieldList;
-    int nFieldList, i;
-    Blob field;
-    blob_zero(&fieldList);
-    zFieldList = SbS_StackValue(p, 0, &nFieldList);
-    blob_appendf(&fieldList, zFieldList, nFieldList);
-    while( blob_token(&fieldList, &field) ){
-      nField++;
-    }
-    azField = malloc( sizeof(azField[0])*nField*2 + nField );
-    if( azField ){
-      azValue = &azField[nField];
-      aChanged = (unsigned char*)&azValue[nField];
-      blob_rewind(&fieldList);
-      i = 0;
-      while( blob_token(&fieldList, &field) ){
-        azField[i] = blob_terminate(&field);
-        azValue[i] = 0;
-        aChanged[i] = 0;
+static void getAllTicketFields(void){
+  Stmt q;
+  if( nField>0 ) return;
+  db_prepare(&q, "PRAGMA table_info(ticket)");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zField = db_column_text(&q, 1);
+    if( strncmp(zField,"tkt_",4)==0 ) continue;
+    if( nField%10==0 ){
+      azField = realloc(azField, sizeof(azField)*(nField+10) );
+      if( azField==0 ){
+        fossil_fatal("out of memory");
       }
     }
-    qsort(azField, nField, sizeof(azField[0]), nameCmpr);
+    azField[nField] = mprintf("%s", zField);
+    nField++;
   }
-  SbS_Pop(p, 1);
+  db_finalize(&q);
+  qsort(azField, nField, sizeof(azField[0]), nameCmpr);
+}
+
+/*
+** Return true if zField is a field within the TICKET table.
+*/
+static int isTicketField(const char *zField){
+  int i;
+  for(i=0; i<nField; i++){
+    if( strcmp(azField[i], zField)==0 ) return 1;
+  }
   return 0;
 }
 
 /*
-** Find the text of the field whose name is the Nth element down
-** on the Subscript stack.  0 means the top of the stack.
-**
-** First check for a value for this field as passed in via
-** CGI parameter.  If not found, then use the value from the
-** database.
+** Update an entry of the TICKET table according to the information
+** in the control file.
 */
-static const char *field_value(int N){
-  const char *zFName;
-  int nFName;
-  char *zName;
-  int i;
-  const char *zValue;
-  
-  zFName = SbS_StackValue(pInterp, N, &nFName);
-  if( zField==0 ){
-    return 0;
-  }
-  zName = mprintf("%.*s", nFName, zFName);
-  zValue = P(zName);
-  if( zValue==0 ){
-    for(i=0; i<nField; i++){
-      if( strcmp(azField[i], zName)==0 ){
-        zValue = azValue[i];
-        break;
-      }
-    }
-  }
-  free(zName);
-  return zValue;
-}
-
-/*
-** Fill in the azValue[] array with the contents of the ticket
-** table for the entry determined by the "name" CGI parameter.
-*/
-static void fetchOriginalValues(void){
+void ticket_insert(Manifest *p, int createFlag){
   Blob sql;
   Stmt q;
   int i;
-  char *zSep = "SELECT ";
-  blob_zero(&sql);
-  for(i=0; i<nField; i++){
-    blob_appendf(&sql, "%stkt_%s", zSep, azField[i]);
-    zSep = ", ";
+
+  if( createFlag ){  
+    db_multi_exec("INSERT OR IGNORE INTO ticket(tkt_uuid) "
+                  "VALUES(%Q)", p->zTicketUuid);
   }
-  blob_appendf(" FROM ticket WHERE uuid=%Q", PD("name",""));
-  db_prepare(&q, "%b", &sql);
-  if( db_step(&q)==SQLITE_ROW ){
-    for(i=0; i<nField; i++){
-      azValue[i] = db_column_malloc(&q, i);
+  blob_zero(&sql);
+  blob_appendf(&sql, "UPDATE ticket SET tkt_mtime=:mtime");
+  zSep = "SET";
+  for(i=0; i<p->nField; i++){
+    const char *zName = p->aField[i].zName;
+    if( zName[0]=='+' ){
+      if( !isTicketField(zName) ) continue;
+      blob_appendf(&sql,", %s=%s || %Q", zName, zName, p->aField[i].zValue);
+    }else{
+      if( !isTicketField(zName) ) continue;
+      blob_appendf(&sql,", %s=%Q", zName, p->aField[i].zValue);
     }
+  }
+  blob_appendf(&sql, " WHERE tkt_uuid='%s'", p->zTicketUuid);
+  db_prepare(&q, "%s", blob_str(&sql));
+  db_bind_double(&q, ":mtime", p->rDate);
+  db_step(&q);
+  db_finalize(&q);
+  blob_reset(&sql);
+}
+
+/*
+** Rebuild an entire entry in the TICKET table
+*/
+void ticket_rebuild_entry(const char *zTktUuid){
+  char *zTag = mprintf("tkt-%s", zTktUuid);
+  int tagid = tag_findid(zTag, 1);
+  Stmt *q;
+  Manifest manifest;
+  Blob content;
+  int clearFlag = 1;
+  
+  db_multi_exec(
+     "DELETE FROM ticket WHERE tkt_uuid=%Q", zTktUuid
+  );
+  db_prepare(&q, "SELECT rid FROM tagxref WHERE tagid=%d ORDER BY mtime",tagid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    content_get(rid, &entry);
+    manifest_parse(&manifest, &entry);
+    ticket_insert(&manifest, clearFlag);
+    manifest_clear(&manifest);
+    clearFlag = 0;
   }
   db_finalize(&q);
 }
 
 /*
-** Subscript command:      FIELD wikiview
+** Create the subscript interpreter and load the ticket configuration.
 */
-static int wikiViewCmd(struct Subscript *p, void *pNotUsed){
-  if( SbS_RequireStack(p, 2) ) return 1;
-  
-  SbS_Pop(p, 1);
-  return 0;
-}
-
-
-/*
-** Create an Subscript interpreter appropriate for processing
-** Ticket pages.
-*/
-static void tkt_screen_init(int flags){
+void ticket_init(void){
   char *zConfig;
-  int i;
-  static const struct {
-     const char *zName;
-     int (*xVerb);
-     int mask;
-  } aVerb[] = {
-    { "not",              notCmd,                M_NEW|M_EDIT|M_VIEW },
-    { "max",              maxCmd,                M_NEW|M_EDIT|M_VIEW },
-    { "and",              andCmd,                M_NEW|M_EDIT|M_VIEW },
-    { "wikiview",         wikiViewCmd,           M_NEW|M_EDIT|M_VIEW },
-    { "textview",         textViewCmd,           M_NEW|M_EDIT|M_VIEW },
-    { "linecount",        lineCountCmd,          M_NEW|M_EDIT|M_VIEW },
-    { "cgiparam",         cgiParamCmd,           M_NEW|M_EDIT|M_VIEW },
-    { "enable_output",    enableOutputCmd,       M_NEW|M_EDIT|M_VIEW },
-    { "is_anon",          isAnonCmd,             M_NEW|M_EDIT|M_VIEW },
-    { "ok_wrtkt",         okWrTktCmd,            M_NEW|M_EDIT|M_VIEW },
-    { "default_value",    dfltValueCmd,          M_NEW               },
-    { "textedit",         textEditCmd,           M_NEW|M_EDIT        },
-    { "combobox",         comboBoxCmd,           M_NEW|M_EDIT        },
-    { "multilineedit",    multiLineEditCmd,      M_NEW|M_EDIT        },
-    { "multilineappend",  multiAppendCmd,              M_EDIT        },
-    { "auxbutton",        auxButtonCmd,          M_NEW|M_EDIT        },
-    { "submitbutton",     submitButtonCmd,       M_NEW|M_EDIT        },
-  };
-
+  if( pInterp ) return;
   pInterp = SbS_Create();
-  SbS_AddVerb(pInterp, "setfields", setFieldsCmd, 0);
-  zConfig = db_get("ticket-config","");
-  SbS_Eval(pInter, zConfig, -1);
-  for(i=0; i<sizeof(aVerb)/sizeof(aVerb[0]); i++){
-    if( flags & aVerb[i].mask ){
-      SbS_AddVerb(pInterp, aVerb[i].zName, aVerb[i].xVerb, 0);
-    }
-  }
-  /* Extract appropriate template */
-  return pInterp;
+  zConfig = db_text(zDefaultTicketConfig,
+             "SELECT value FROM config WHERE name='ticket-configuration'");
+  SbS_Eval(pInterp, zConfig);
 }
 
 /*
-** PAGE: tktnew
+** Rebuild the entire TICKET table.
 */
-void tktnew_page(void){
-  struct Subscript *pInterp;
-  const char *zPage;
-  int nPage;
-
-  tkt_screen_init(M_NEW);
-  if( P("submit")!=0 ){
-    // * Construct the ticket artifact
-    //    + Prefix
-    //    + Field/Value pairs in sorted order
-    //    + Suffix
-    // * Register the artifact
-    // * Update the ticket table
-    // * redirect to the ticket viewer
+void ticket_rebuild(void){
+  char *zSql;
+  int nSql;
+  db_multi_exec("DROP TABLE IF EXISTS ticket;");
+  ticket_init();
+  zSql = SbS_Fetch(pInterp, "ticket_sql", &nSql);
+  if( zSql==0 ){
+    fossil_error("no ticket_sql defined by ticket configuration");
   }
-  style_header("New Ticket");
-  @ This will become a page for entering new tickets.
-  style_footer();
-}
-
-/*
-** PAGE: tktview
-** URL: tktview?name=UUID
-**
-*/
-void tktedit_page(void){
-  struct Subscript *pInterp;
-  const char *zPage;
-  int nPage;
-
-  tkt_screen_init(M_VIEW);
-  style_header("View Ticket");
-  @ This will become a page for entering new tickets.
-  style_footer();
-}
-
-/*
-** PAGE: tktedit
-** URL: tktedit?name=UUID
-**
-*/
-void tktedit_page(void){
-  struct Subscript *pInterp;
-  const char *zPage;
-  int nPage;
-
-  tkt_screen_init(M_EDIT);
-  if( P("submit") ){
-    // * Construct ticket change artifact
-    //   +  Prefix
-    //   +  Modified field/value pairs in sorted order
-    //   +  Suffix
-    // * Register the artifact
-    // * Update the ticket table
-    // * redirect to the ticket viewer
+  zSql = mprintf("%.*s", nSql, zSql);
+  db_init_database(g.zRepositoryName, zSql, 0);
+  free(zSql);
+  db_prepare(&q,"SELECT tagname FROM tag WHERE tagname GLOB 'tkt-*'");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    int len;
+    zName += 4;
+    len = strlen(zName);
+    if( len<20 || !validate16(zName, len) ) continue;
+    ticket_rebuild_entry(zName);
   }
-  style_header("Edit Ticket");
-  @ This will become a page for entering new tickets.
-  style_footer();
+  db_finalize(&q);
 }
 #endif

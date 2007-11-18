@@ -49,7 +49,7 @@ set src {
   tag
   timeline
   tkt
-  tktconf
+  tktconfig
   tktsetup
   undo
   update

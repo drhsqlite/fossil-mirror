@@ -22,7 +22,13 @@
 *******************************************************************************
 **
 ** This file contains code used to help verify the integrity of the
-** the repository
+** the repository.
+**
+** This file primarily implements the verify_before_commit() interface.
+** Any function can call verify_before_commit() with a record id (RID)
+** as an argument.  Then before the next change to the database commits,
+** this routine will reach in and check that the record can be extracted
+** correctly from the BLOB table.
 */
 #include "config.h"
 #include "verify.h"
@@ -58,17 +64,25 @@ static void verify_rid(int rid){
 }
 
 /*
-**  
+** The following bag holds the rid for every record that needs
+** to be verified.
 */
-static int verify_at_commit(void *notUsed){
-  Stmt q;
-  db_prepare(&q, "SELECT rid FROM toverify");
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
+static Bag toVerify;
+static int inFinalVerify = 0;
+
+/*
+** This routine is called just prior to each commit operation.  
+*/
+static int verify_at_commit(void){
+  int rid;
+  inFinalVerify = 1;
+  rid = bag_first(&toVerify);
+  while( rid>0 ){
     verify_rid(rid);
+    rid = bag_next(&toVerify, rid);
   }
-  db_finalize(&q);
-  db_multi_exec("DELETE FROM toverify");
+  bag_clear(&toVerify);
+  inFinalVerify = 0;
   return 0;
 }
 
@@ -82,16 +96,12 @@ static int verify_at_commit(void *notUsed){
 void verify_before_commit(int rid){
   static int isInit = 0;
   if( !isInit ){
-    db_multi_exec(
-       "CREATE TEMP TABLE toverify(rid INTEGER PRIMARY KEY);"
-    );
-    sqlite3_commit_hook(g.db, verify_at_commit, 0);
+    db_commit_hook(verify_at_commit, 1000);
     isInit = 1;
   }
+  assert( !inFinalVerify );
   if( rid>0 ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO toverify VALUES(%d)", rid
-    );
+    bag_insert(&toVerify, rid);
   }
 }
 
@@ -102,11 +112,16 @@ void verify_before_commit(int rid){
 */
 void verify_all_cmd(void){
   Stmt q;
+  int cnt = 0;
   db_must_be_within_tree();
   db_prepare(&q, "SELECT rid FROM blob");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
-    verify_rid(rid);
+    verify_before_commit(rid);
+    cnt++;
+    assert( bag_count(&toVerify)==cnt );
   }
   db_finalize(&q);
+  verify_at_commit();
+  assert( bag_count(&toVerify)==0 );
 }
