@@ -710,7 +710,7 @@ static int putsCmd(struct Subscript *p, void *pConvert){
     if( g.cgiPanic ){
       cgi_append_content(zOut, size);
     }else{
-      printf("%.*s\n", size, zOut);
+      printf("%.*s", size, zOut);
     }
     if( pConvert ){
       free(zOut);
@@ -856,13 +856,53 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
 }
 
 /*
+** The z[] input contains text mixed with subscript scripts.
+** The subscript scripts are contained within [...].  This routine
+** processes the template and writes the results on either
+** stdout or into CGI.
+*/
+int SbS_Render(struct Subscript *p, const char *z){
+  int i = 0;
+  int rc = SBS_OK;
+  while( z[i] ){
+    if( z[i]=='[' ){
+      if( g.cgiPanic ){
+        cgi_append_content(z, i);
+      }else{
+        fwrite(z, 1, i, stdout);
+      }
+      z += i+1;
+      for(i=0; z[i] && z[i]!=']'; i++){}
+      rc = SbS_Eval(p, z, i);
+      if( rc!=SBS_OK ) break;
+      if( z[i] ) i++;
+      z += i;
+      i = 0;
+    }else{
+      i++;
+    }
+  }
+  if( i>0 ){
+    if( g.cgiPanic ){
+      cgi_append_content(z, i);
+    }else{
+      fwrite(z, 1, i, stdout);
+    }
+  } 
+  return rc;
+}
+
+/*
 ** COMMAND: test-subscript
 */
 void test_subscript(void){
   Subscript *p;
+  Blob in;
   if( g.argc<3 ){
-    usage("SCRIPT");
+    usage("FILE");
   }
+  blob_zero(&in);
+  blob_read_from_file(&in, g.argv[2]);
   p = SbS_Create();
-  SbS_Eval(p, g.argv[2], strlen(g.argv[2]));
+  SbS_Render(p, blob_str(&in));
 }

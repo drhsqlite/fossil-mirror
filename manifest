@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\smore\sadvanced\scommit-hook\smechanism\sthat\sallows\sus\sto\nspecify\smultiple\sprocedures\sin\sa\sparticular\sorder\sprior\sto\scommit.\nContinuing\swork\stoward\sgetting\stickets\sgoing.
-D 2007-11-18T20:48:07
+C Add\sthe\sSbS_Render()\sinterface\sfor\srendering\sHTML\swith\sembedded\ssubscript.
+D 2007-11-20T23:54:34
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -80,7 +80,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c 7ae579f21df86730a0aca35503b03d77527d153c
-F src/subscript.c 10b9ab48f7f13ec40148c850a1d9143fa8bdb40d
+F src/subscript.c 2945fb3a8dae213710e96c5540173326e107fed5
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8c96ed62f5ba69a67713c2c9c1494013f1c971bb
-R feff4dc6ae2b76df46d6c4d275b2c42c
+P d5e7891b07677bc83a5b973f25f7926cc96c31e9
+R 1e99aeafed312a5a40d0052f998a3c7d
 U drh
-Z 3f5080f962c5d97329a627dc5b359a2d
+Z d4b636162adb3b30d4c0ea64412a5b54
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHQKUMoxKgR168RlERAtb8AJwL4jk8JRdjX+Sq/7Smz6Kuc89+8wCcClfb
-Z0gXqaxAxpEsORv4e4AE6FY=
-=yzuk
+iD8DBQFHQ3O9oxKgR168RlERAvv6AJwKK85vUhE4EfShjzDic0tm6vXgCQCfXxVb
+9koeWjiR3DgIO+fsnJb8i1E=
+=nVnk
 -----END PGP SIGNATURE-----
