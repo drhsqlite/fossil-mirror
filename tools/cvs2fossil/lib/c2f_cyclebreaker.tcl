@@ -20,6 +20,7 @@ package require Tcl 8.4                                   ; # Required runtime.
 package require snit                                      ; # OO system.
 package require struct::graph                             ; # Graph handling.
 package require struct::list                              ; # Higher order list operations.
+package require vc::tools::dot                            ; # User feedback. DOT export.
 package require vc::tools::log                            ; # User feedback.
 package require vc::tools::misc                           ; # Text formatting.
 package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
@@ -32,9 +33,26 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     # # ## ### ##### ######## #############
     ## Public API
 
-    typemethod run {changesets {savecmd {}}} {
-	::variable save $savecmd
-	::variable at   0
+    typemethod dotsto {path} {
+	::variable mydotdestination $path
+	return
+    }
+
+    typemethod dot {label changesets} {
+	::variable mydotprefix $label
+	::variable mydotid     0
+
+	set dg [Setup $changesets 0]
+	Mark $dg
+	$dg destroy
+	return
+    }
+
+    typemethod run {label changesets {savecmd {}}} {
+	::variable mysave      $savecmd
+	::variable myat        0
+	::variable mydotprefix $label
+	::variable mydotid     0
 
 	# We create a graph of the revision changesets, using the file
 	# level dependencies to construct a first approximation of the
@@ -44,30 +62,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	# 1. Create nodes for all relevant changesets and a mapping
 	#    from the revisions to their changesets/nodes.
 
-	log write 3 cyclebreaker "Creating changeset graph, filling with nodes"
-	log write 3 cyclebreaker "Adding [nsp [llength $changesets] node]"
-
-	set dg [struct::graph dg]
-
-	foreach cset $changesets {
-	    dg node insert $cset
-	    dg node set    $cset timerange [$cset timerange]
-	}
-
-	# 2. Find for all relevant changeset their revisions and their
-	#    dependencies. Map the latter back to changesets and
-	#    construct the corresponding arcs.
-
-	log write 3 cyclebreaker {Setting up node dependencies}
-
-	foreach cset $changesets {
-	    foreach succ [$cset successors] {
-		# Changesets may have dependencies outside of the
-		# chosen set. These are ignored
-		if {![dg node exists $succ]} continue
-		dg arc insert $cset $succ
-	    }
-	}
+	set dg [Setup $changesets]
 
 	# 3. Lastly we iterate the graph topologically. We mark off
 	#    the nodes which have no predecessors, in order from
@@ -96,6 +91,39 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     # # ## ### ##### ######## #############
     ## Internal methods
 
+    proc Setup {changesets {log 1}} {
+	if {$log} {
+	    log write 3 cyclebreaker "Creating changeset graph, filling with nodes"
+	    log write 3 cyclebreaker "Adding [nsp [llength $changesets] node]"
+	}
+
+	set dg [struct::graph dg]
+
+	foreach cset $changesets {
+	    $dg node insert $cset
+	    $dg node set    $cset timerange [$cset timerange]
+	}
+
+	# 2. Find for all relevant changeset their revisions and their
+	#    dependencies. Map the latter back to changesets and
+	#    construct the corresponding arcs.
+
+	if {$log} {
+	    log write 3 cyclebreaker {Setting up node dependencies}
+	}
+
+	foreach cset $changesets {
+	    foreach succ [$cset successors] {
+		# Changesets may have dependencies outside of the
+		# chosen set. These are ignored
+		if {![$dg node exists $succ]} continue
+		$dg arc insert $cset $succ
+	    }
+	}
+
+	return $dg
+    }
+
     # Instead of searching the whole graph for the degree-0 nodes in
     # each iteration we compute the list once to start, and then only
     # update it incrementally based on the outgoing neighbours of the
@@ -103,23 +131,23 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     proc InitializeCandidates {dg} {
 	# bottom = list (list (node, range min, range max))
-	::variable bottom
+	::variable mybottom
 	foreach n [$dg nodes] {
 	    if {[$dg node degree -in $n]} continue
-	    lappend bottom [linsert [$dg node get $n timerange] 0 $n]
+	    lappend mybottom [linsert [$dg node get $n timerange] 0 $n]
 	}
-	set bottom [lsort -index 1 -integer [lsort -index 2 -integer $bottom]]
+	set mybottom [lsort -index 1 -integer [lsort -index 2 -integer $mybottom]]
 	return
     }
 
     proc WithoutPredecessor {dg nv} {
-	::variable bottom
+	::variable mybottom
 
 	upvar 1 $nv n
-	if {![llength $bottom]} { return 0 }
+	if {![llength $mybottom]} { return 0 }
 
-	set n [lindex [lindex $bottom 0] 0]
-	set bottom [lrange $bottom 1 end]
+	set n [lindex [lindex $mybottom 0] 0]
+	set mybottom [lrange $mybottom 1 end]
 	set changed 0
 
 	# Update list of nodes without predecessor, based on the
@@ -130,11 +158,11 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    if {[$dg node degree -in $out] > 1} continue
 	    # Degree-1 neighbour, will have no predecessors after the
 	    # removal of n. Put on the list.
-	    lappend bottom [linsert [$dg node get $out timerange] 0 $out]
+	    lappend mybottom [linsert [$dg node get $out timerange] 0 $out]
 	    set changed 1
 	}
 	if {$changed} {
-	    set bottom [lsort -index 1 -integer [lsort -index 2 -integer $bottom]]
+	    set mybottom [lsort -index 1 -integer [lsort -index 2 -integer $mybottom]]
 	}
 
 	# We do not delete the node immediately, to allow the Save
@@ -144,17 +172,17 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     }
 
     proc SaveAndRemove {dg n} {
-	::variable at
-	::variable save
+	::variable myat
+	::variable mysave
 
 	# Give the user of the cycle breaker the opportunity to work
 	# with the changeset before it is removed from the graph.
 
-	if {[llength $save]} {
-	    uplevel #0 [linsert $save end $at $n]
+	if {[llength $mysave]} {
+	    uplevel #0 [linsert $mysave end $myat $n]
 	}
 
-	incr at
+	incr myat
 	$dg node delete $n
 	return
     }
@@ -231,6 +259,8 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    }
 
 	log write 5 breakrcycle "Breaking cycle ($cprint) by splitting changeset <[$bestnode id]>"
+	set ID [$bestnode id]
+	Mark $dg -${ID}-before
 
 	set newcsets [$bestlink break]
 	$bestlink destroy
@@ -238,6 +268,14 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
         # At this point the old changeset (BESTNODE) is gone
         # already. We remove it from the graph as well and then enter
         # the fragments generated for it.
+
+	# NOTE. We have to get the list of incoming neighbours and
+	# recompute their successors after the new nodes have been
+	# inserted. Their outgoing arcs will now go to one or both of
+	# the new nodes, and not redoing them may cause us to forget
+	# circles, leaving them in, unbroken.
+
+	set pre [$dg nodes -in $bestnode]
 
         $dg node delete $bestnode
 
@@ -254,12 +292,50 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		$dg arc insert $cset $succ
 	    }
 	}
+	foreach cset $pre {
+	    foreach succ [$cset successors] {
+		# Note that the arc may already exist in the graph. If
+		# so ignore it. The new changesets may have
+		# dependencies outside of the chosen set. These are
+		# ignored
+		if {![$dg node exists $succ]} continue
+		if {[HasArc $dg $cset $succ]} continue;# TODO should be graph method.
+		$dg arc insert $cset $succ
+	    }
+	}
+
+	Mark $dg -${ID}-after
 	return
     }
 
-    typevariable at      0 ; # Counter for commit ids for the changesets.
-    typevariable bottom {} ; # List of candidate nodes for committing.
-    typevariable save   {} ; # The command to call for each processed node
+    # TODO: This should be a graph method.
+    proc HasArc {dg a b} {
+	#8.5: return [expr {$b in [$dg nodes -out $a]}]
+	if {[lsearch -exact [$dg nodes -out $a] $b] < 0} { return 0 }
+	return 1
+    }
+
+    proc Mark {dg {suffix {}}} {
+	::variable mydotdestination
+	if {$mydotdestination eq ""} return
+	::variable mydotprefix
+	::variable mydotid
+	set fname $mydotdestination/${mydotprefix}${mydotid}${suffix}.dot
+	file mkdir [file dirname $fname]
+	dot write $dg $mydotprefix$suffix $fname
+	incr mydotid
+
+	log write 5 cyclebreaker ".dot export $fname"
+	return
+    }
+
+    typevariable myat         0 ; # Counter for commit ids for the changesets.
+    typevariable mybottom    {} ; # List of candidate nodes for committing.
+    typevariable mysave      {} ; # The command to call for each processed node
+
+    typevariable mydotdestination {} ; # Destination directory for .dot files.
+    typevariable mydotprefix {} ; # Prefix for dot files when exporting the graphs.
+    typevariable mydotid      0 ; # Counter for dot file name generation.
 
     # # ## ### ##### ######## #############
     ## Configuration
@@ -280,6 +356,7 @@ namespace eval ::vc::fossil::import::cvs {
 	}
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::log
+	namespace import ::vc::tools::dot
 	log register cyclebreaker
     }
 }

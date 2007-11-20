@@ -28,6 +28,7 @@ package require vc::fossil::import::cvs::pass::collar ; # Pass I.
 package require vc::fossil::import::cvs::repository   ; # Repository management
 package require vc::fossil::import::cvs::state        ; # State storage
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols
+package require vc::fossil::import::cvs::cyclebreaker ; # Breaking dependency cycles.
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -79,6 +80,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--force-tag                 { project::sym forcetag    [Value arguments] }
 		--force-branch              { project::sym forcebranch [Value arguments] }
 		--batch                     { log noprogress }
+		--dots                      { cyclebreaker dotsto [Value arguments] }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -140,6 +142,10 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "                               the specified project to be converted as"
 	trouble info "                               branch. Both project and symbol names"
 	trouble info "                               are glob patterns."
+	trouble info ""
+	trouble info "    --dots PATH                Write the changeset graphs before, after,"
+	trouble info "                               and during breaking the of cycles to the"
+	trouble info "                               direcotry PATH, using GraphViz's dot format"
 	trouble info ""
 
 	# --project, --cache
@@ -215,6 +221,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::tools::misc::striptrailingslash
 	namespace import ::vc::fossil::import::cvs::pass
 	namespace import ::vc::fossil::import::cvs::pass::collar
+	namespace import ::vc::fossil::import::cvs::cyclebreaker
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace eval project {

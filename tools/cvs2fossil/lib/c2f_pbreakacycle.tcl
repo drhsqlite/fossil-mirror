@@ -58,6 +58,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     typemethod run {} {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
+
+	set changesets [project::rev all]
+	cyclebreaker dot break-all-start $changesets
+
 	return
     }
 

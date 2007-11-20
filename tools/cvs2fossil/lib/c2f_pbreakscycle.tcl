@@ -62,10 +62,15 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
+	set changesets [struct::list filter [project::rev all] [myproc IsBySymbol]]
+	cyclebreaker dot break-sym-start $changesets
+
 	state transaction {
-	    cyclebreaker run [struct::list filter [project::rev all] \
-				  [myproc IsBySymbol]]
+	    cyclebreaker run break-sym $changesets
 	}
+
+	set changesets [struct::list filter [project::rev all] [myproc IsBySymbol]]
+	cyclebreaker dot break-sym-done $changesets
 
 	repository printcsetstatistics
 	return

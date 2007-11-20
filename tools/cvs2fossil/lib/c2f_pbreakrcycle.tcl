@@ -74,11 +74,15 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
+	set changesets [struct::list filter [project::rev all] [myproc IsByRevision]]
+	cyclebreaker dot break-rev-start $changesets
+
 	state transaction {
-	    cyclebreaker run [struct::list filter [project::rev all] \
-				  [myproc IsByRevision]] \
-		[myproc SaveOrder]
+	    cyclebreaker run break-rev $changesets [myproc SaveOrder]
 	}
+
+	set changesets [struct::list filter [project::rev all] [myproc IsByRevision]]
+	cyclebreaker dot break-rev-done $changesets
 
 	repository printcsetstatistics
 	return
