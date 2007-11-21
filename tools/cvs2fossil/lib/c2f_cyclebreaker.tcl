@@ -289,7 +289,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		}
 	    }
 
-	log write 5 breakrcycle "Breaking cycle ($cprint) by splitting changeset <[$bestnode id]>"
+	log write 5 cyclebreaker "Breaking cycle ($cprint) by splitting changeset <[$bestnode id]>"
 	set ID [$bestnode id]
 	Mark $dg -${ID}-before
 

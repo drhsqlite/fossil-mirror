@@ -23,6 +23,7 @@ package require Tcl 8.4                                   ; # Required runtime.
 package require snit                                      ; # OO system.
 package require struct::list                              ; # Higher order list operations.
 package require vc::tools::log                            ; # User feedback.
+package require vc::fossil::import::cvs::repository       ; # Repository management.
 package require vc::fossil::import::cvs::cyclebreaker     ; # Breaking dependency cycles.
 package require vc::fossil::import::cvs::state            ; # State storage.
 package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
@@ -59,9 +60,15 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
-	set changesets [project::rev all]
-	#cyclebreaker dot break-all-start $changesets
+	cyclebreaker precmd   [myproc BreakRetrogradeBranches]
+	cyclebreaker savecmd  [myproc SaveOrder]
+	cyclebreaker breakcmd [myproc BreakCycle]
 
+	state transaction {
+	    cyclebreaker run break-all [myproc Changesets]
+	}
+
+	repository printcsetstatistics
 	return
     }
 
@@ -78,6 +85,22 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     proc Changesets {} { project::rev all }
 
     # # ## ### ##### ######## #############
+
+    proc BreakRetrogradeBranches {graph} {
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc SaveOrder {cset pos} {
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc BreakCycle {graph} {
+	cyclebreaker break $graph
+    }
+
+    # # ## ### ##### ######## #############
     ## Configuration
 
     pragma -hasinstances   no ; # singleton
@@ -91,6 +114,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
     namespace export breakacycle
     namespace eval breakacycle {
 	namespace import ::vc::fossil::import::cvs::cyclebreaker
+	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::rev
