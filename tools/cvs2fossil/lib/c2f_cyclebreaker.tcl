@@ -68,7 +68,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     # # ## ### ##### ######## #############
 
-    typemethod run {label changesets} {
+    typemethod run {label changesetcmd} {
 	::variable myat        0
 	::variable mydotprefix $label
 	::variable mydotid     0
@@ -81,6 +81,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	# 1. Create nodes for all relevant changesets and a mapping
 	#    from the revisions to their changesets/nodes.
 
+	set changesets [uplevel #0 $changesetcmd]
 	set dg [Setup $changesets]
 
 	# 3. Lastly we iterate the graph topologically. We mark off
@@ -105,10 +106,20 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    InitializeCandidates $dg
 	}
 
-	dg destroy
+	$dg destroy
 
 	log write 3 cyclebreaker Done.
 	ClearHooks
+
+	# Reread the graph and dump its final form, if graph export
+	# was activated.
+
+	::variable mydotdestination
+	if {$mydotdestination eq ""} return
+
+	set   dg [Setup [uplevel #0 $changesetcmd] 0]
+	Mark $dg -done
+	$dg destroy
 	return
     }
 
@@ -155,8 +166,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	# Run the user hook to manipulate the graph before
 	# consummation.
 
+	if {$log} { Mark $dg -start }
 	PreHook $dg
-	return $dg
+	return  $dg
     }
 
     # Instead of searching the whole graph for the degree-0 nodes in
@@ -359,6 +371,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	if {![llength $myprecmd]} return
 
 	uplevel #0 [linsert $myprecmd end $graph]
+	Mark $graph -pre-done
 	return
     }
 

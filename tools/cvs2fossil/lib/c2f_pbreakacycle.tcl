@@ -60,7 +60,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# functionality of the pass.
 
 	set changesets [project::rev all]
-	cyclebreaker dot break-all-start $changesets
+	#cyclebreaker dot break-all-start $changesets
 
 	return
     }
@@ -74,6 +74,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     # # ## ### ##### ######## #############
     ## Internal methods
+
+    proc Changesets {} { project::rev all }
 
     # # ## ### ##### ######## #############
     ## Configuration
