@@ -372,12 +372,14 @@ int *text_diff(
     int a = 0;    /* Index of next line in A[] */
     int b = 0;    /* Index of next line in B[] */
     int nr;       /* Number of COPY/DELETE/INSERT triples to process */
+    int mxr;      /* Maximum value for r */
     int na, nb;   /* Number of lines shown from A and B */
     int i, j;     /* Loop counters */
     int m;        /* Number of lines to output */
     int skip;     /* Number of lines to skip */
 
-    for(r=0; R[r+1] || R[r+2] || R[r+3]; r += 3*nr){
+    for(mxr=0; R[mxr+1] || R[mxr+2] || R[mxr+3]; mxr += 3){}
+    for(r=0; r<mxr; r += 3*nr){
       /* Figure out how many triples to show in a single block */
       for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
       DEBUG( printf("r=%d nr=%d\n", r, nr); )
