@@ -33,6 +33,11 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     # # ## ### ##### ######## #############
     ## Public API
 
+    typemethod savecmd {cmd} {
+	::variable mysavecmd $cmd
+	return
+    }
+
     typemethod dotsto {path} {
 	::variable mydotdestination $path
 	return
@@ -48,8 +53,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return
     }
 
-    typemethod run {label changesets {savecmd {}}} {
-	::variable mysave      $savecmd
+    typemethod run {label changesets} {
 	::variable myat        0
 	::variable mydotprefix $label
 	::variable mydotid     0
@@ -85,6 +89,8 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	dg destroy
 
 	log write 3 cyclebreaker Done.
+
+	ClearHooks
 	return
     }
 
@@ -173,17 +179,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     proc SaveAndRemove {dg n} {
 	::variable myat
-	::variable mysave
-
-	# Give the user of the cycle breaker the opportunity to work
-	# with the changeset before it is removed from the graph.
-
-	if {[llength $mysave]} {
-	    uplevel #0 [linsert $mysave end $myat $n]
-	}
-
-	incr myat
+	ProcessedHook $n $myat
 	$dg node delete $n
+	incr myat
 	return
     }
 
@@ -329,13 +327,40 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return
     }
 
-    typevariable myat         0 ; # Counter for commit ids for the changesets.
-    typevariable mybottom    {} ; # List of candidate nodes for committing.
-    typevariable mysave      {} ; # The command to call for each processed node
+    # # ## ### ##### ######## #############
+    ## Callback invokation ...
 
-    typevariable mydotdestination {} ; # Destination directory for .dot files.
-    typevariable mydotprefix {} ; # Prefix for dot files when exporting the graphs.
-    typevariable mydotid      0 ; # Counter for dot file name generation.
+    proc ProcessedHook {cset pos} {
+	# Give the user of the cycle breaker the opportunity to work
+	# with the changeset before it is removed from the graph.
+
+	::variable mysavecmd
+	if {![llength $mysavecmd]} return
+
+	uplevel #0 [linsert $mysavecmd end $pos $cset]
+	return
+    }
+
+    proc ClearHooks {} {
+	::variable mysavecmd {}
+	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    typevariable myat      0 ; # Counter for commit ids for the
+			       # changesets.
+    typevariable mybottom {} ; # List of the candidate nodes for
+			       # committing.
+
+    typevariable mysavecmd  {} ; # Callback, for each processed node.
+
+    typevariable mydotdestination {} ; # Destination directory for the
+				       # generated .dot files.
+    typevariable mydotprefix      {} ; # Prefix for dot files when
+				       # exporting the graphs.
+    typevariable mydotid           0 ; # Counter for dot file name
+				       # generation.
 
     # # ## ### ##### ######## #############
     ## Configuration
