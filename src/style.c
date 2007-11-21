@@ -81,6 +81,7 @@ void style_header(const char *zTitle){
   SbS_Store(p, "baseurl", g.zBaseURL, 0);
   if( g.zLogin ){
     SbS_Store(p, "login", g.zLogin, 0);
+    zLogInOut = "Login";
   }
   SbS_Render(p, zHeader);
   SbS_Destroy(p);

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Render\sthe\sheader\sof\severy\spage\susing\ssubscript.\s\sAdd\sa\ssetup\spage\sthat\nfor\sediting\sthat\ssubscript.
-D 2007-11-21T03:01:40
+C Get\sthe\sname\sof\sthe\sLogin/Logout\smenu\soption\sright.
+D 2007-11-21T03:17:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -79,7 +79,7 @@ F src/setup.c d38440e1a35c3890ee9c36c408e1427ef154c9be
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c a2b3fea577a2a6d812af946bc713cba46d790adf
+F src/style.c d988a19a76e1b68de97676c1a90b60b72cab8fc3
 F src/subscript.c 7a4e64645a3111066c8cdcc50f59cb399bb7ad5e
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e29abeff8053030ba117b1f69b237faf36d36071
-R 884937ad2926621b2e9b57ae00fbdb80
+P 555911dff52103c7831b172659b1963ea2c48826
+R fecd742ce805c1dae970cad3d9c1e338
 U drh
-Z e9d0a94c36c80bc9d2040a900ff10542
+Z 37306289cc2a519266d73c2b2aca5003
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHQ5+XoxKgR168RlERAhaIAJ9rRMQVMZD0N4yTOHOtpdra3WBYhwCffRjq
-Zn213CVBaP8upMp/ZIWqBL0=
-=aVZ7
+iD8DBQFHQ6NloxKgR168RlERAg1uAJ4iujlIxDqL3sk4Qp3OqcyiSULGfgCbBZH4
+saD6h9LgQDMtieQWAF7p79U=
+=P6AU
 -----END PGP SIGNATURE-----
