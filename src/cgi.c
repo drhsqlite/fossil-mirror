@@ -363,6 +363,18 @@ void cgi_set_parameter(const char *zName, const char *zValue){
 }
 
 /*
+** Replace a parameter with a new value.
+*/
+void cgi_replace_parameter(const char *zName, const char *zValue){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( strcmp(aParamQP[i].zName,zName)==0 ){
+      aParamQP[i].zValue = zValue;
+    }
+  }
+}
+
+/*
 ** Add a query parameter.  The zName portion is fixed but a copy
 ** must be made of zValue.
 */

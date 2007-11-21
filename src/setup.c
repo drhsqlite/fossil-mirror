@@ -69,8 +69,10 @@ void setup_page(void){
     "Configure the WWW components of the repository");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
-  setup_menu_entry("CSS", "editcss",
+  setup_menu_entry("CSS", "setup_editcss",
     "Edit the Cascading Style Sheet used by all pages of this repository");
+  setup_menu_entry("Header", "setup_header",
+    "Edit HTML text inserted at the top of every page");
   @ </dl>
 
   style_footer();
@@ -481,17 +483,19 @@ static void textarea_attribute(
   int rows,             /* Rows in the textarea */
   int cols,             /* Columns in the textarea */
   const char *zVar,     /* The corresponding row in the VAR table */
-  const char *zQParm,   /* The query parameter */
+  const char *zQP,      /* The query parameter */
   char *zDflt           /* Default value if VAR table entry does not exist */
 ){
-  const char *zVal = db_get(zVar, zDflt);
-  const char *zQ = P(zQParm);
-  if( zQ && strcmp(zQ,zVal)!=0 ){
+  const char *z = db_get(zVar, zDflt);
+  const char *zQ = P(zQP);
+  if( zQ && strcmp(zQ,z)!=0 ){
     db_set(zVar, zQ, 0);
-    zVal = zQ;
+    z = zQ;
   }
-  @ <textarea name="%s(zQParm)" rows="%d(rows)" cols="%d(cols)">%h(zVal)</textarea>
-  @ %s(zLabel)
+  if( rows>0 && cols>0 ){
+    @ <textarea name="%s(zQP)" rows="%d(rows)" cols="%d(cols)">%h(z)</textarea>
+    @ %s(zLabel)
+  }
 }
 
 
@@ -552,7 +556,8 @@ void setup_config(void){
   @ <p>Give your project a name so visitors know what this site is about.
   @ The project name will also be used as the RSS feed title.</p>
   @ <hr />
-  textarea_attribute("Project Description", 5, 60, "project-description", "pd", "");
+  textarea_attribute("Project Description", 5, 60,
+                     "project-description", "pd", "");
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
   @ <hr />
@@ -563,7 +568,7 @@ void setup_config(void){
 }
 
 /*
-** WEBPAGE: editcss
+** WEBPAGE: setup_editcss
 */
 void setup_editcss(void){
   login_check_credentials();
@@ -571,11 +576,49 @@ void setup_editcss(void){
     login_needed();
   }
   style_header("Edit CSS");
-  @ <form action="%s(g.zBaseURL)/editcss" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
   @ Edit the CSS:<br />
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes">
   @ </form>
+  @ <hr>
+  @ Here is the default CSS:
+  @ <blockquote><pre>
+  @ %h(zDefaultCSS)
+  @ </pre></blockquote>
   style_footer();
+}
+
+/*
+** WEBPAGE: setup_header
+*/
+void setup_header(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name='header'");
+    cgi_replace_parameter("header", zDefaultHeader);
+  }else{
+    textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader);
+  }
+  style_header("Edit Page Header");
+  @ <form action="%s(g.zBaseURL)/setup_header" method="POST">
+  @ <p>Edit HTML text with embedded subscript that will be used to
+  @ generate the beginning of every page through start of the main
+  @ menu.</p>
+  textarea_attribute("", 40, 80, "header", "header", zDefaultHeader);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ </form>
+  @ <hr>
+  @ Here is the default page header:
+  @ <blockquote><pre>
+  @ %h(zDefaultHeader)
+  @ </pre></blockquote>
+  db_end_transaction(0);
 }

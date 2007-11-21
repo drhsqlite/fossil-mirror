@@ -379,6 +379,27 @@ int SbS_AddVerb(
 }
 
 /*
+** Store a value in an interpreter variable.
+*/
+int SbS_Store(
+  struct Subscript *p,   /* Store into this interpreter */
+  const char *zName,     /* Name of the variable */
+  const char *zValue,    /* Value of the variable */
+  int makeCopy           /* If true, interpreter makes its own copy */
+){
+  SbSValue v;
+  v.flags = SBSVAL_STR;
+  v.u.str.size = strlen(zValue);
+  if( makeCopy ){
+    v.u.str.z = mprintf("%s", zValue);
+    v.flags |= SBSVAL_DYN;
+  }else{
+    v.u.str.z = zValue;
+  }
+  return sbs_store(&p->symTab, zName, -1, &v);
+}
+
+/*
 ** Push a string value onto the stack.
 **
 ** If the 4th parameter is 0, then the string is static.
@@ -780,7 +801,6 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
     {
       int i, nElem;
       const char *zElem;
-      printf("TOKEN(%d): [%.*s]\n", ttype, n, zScript);
       if( p->nStack>0 ){
         printf("STACK:");
         for(i=0; i<p->nStack; i++){
@@ -789,6 +809,7 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
         }
         printf("\n");
       }
+      printf("TOKEN(%d): [%.*s]\n", ttype, n, zScript);
     }
 #endif
 
@@ -866,10 +887,12 @@ int SbS_Render(struct Subscript *p, const char *z){
   int rc = SBS_OK;
   while( z[i] ){
     if( z[i]=='[' ){
-      if( g.cgiPanic ){
-        cgi_append_content(z, i);
-      }else{
-        fwrite(z, 1, i, stdout);
+      if( enableOutput ){
+        if( g.cgiPanic ){
+          cgi_append_content(z, i);
+        }else{
+          fwrite(z, 1, i, stdout);
+        }
       }
       z += i+1;
       for(i=0; z[i] && z[i]!=']'; i++){}
@@ -882,7 +905,7 @@ int SbS_Render(struct Subscript *p, const char *z){
       i++;
     }
   }
-  if( i>0 ){
+  if( i>0 && enableOutput ){
     if( g.cgiPanic ){
       cgi_append_content(z, i);
     }else{

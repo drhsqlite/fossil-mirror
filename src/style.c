@@ -71,46 +71,40 @@ static int submenuCompare(const void *a, const void *b){
 */
 void style_header(const char *zTitle){
   const char *zLogInOut = "Logout";
-  char *zProjectDescr = db_get("project-description", 0);
+  const char *zHeader = db_get("header", zDefaultHeader);  
+  struct Subscript *p;
   login_check_credentials();
-  @ <html>
-  @ <head>
-  @ <title>%s(zTitle)</title>
-  @ <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="%s(g.zBaseURL)/timeline.rss">
-  @ <link rel="stylesheet" href="%s(g.zBaseURL)/style.css" type="text/css" media="screen">
-  if( zProjectDescr != 0 ){
-    @ <meta name="description" content="%s(zProjectDescr)">
+
+  /* Generate the header up through the main menu */
+  p = SbS_Create();
+  SbS_Store(p, "title", zTitle, 0);
+  SbS_Store(p, "baseurl", g.zBaseURL, 0);
+  if( g.zLogin ){
+    SbS_Store(p, "login", g.zLogin, 0);
   }
-  @ </head>
-  @ <body>
-  @ <div id="page-title">%s(zTitle)</div>
-  @ <div id="login-status">
-  if( g.zLogin==0 ){
-    @ not logged in
-    zLogInOut = "Login";
-  }else{
-    @ logged in as %h(g.zLogin)
-  }
-  @ </div>
+  SbS_Render(p, zHeader);
+  SbS_Destroy(p);
+
+  /* Generate the main menu and the submenu (if any) */
   @ <div id="main-menu">
   @ <a href="%s(g.zBaseURL)/home">Home</a>
   if( g.okRead ){
-    @ | <a href="%s(g.zBaseURL)/leaves">Leaves</a>
-    @ | <a href="%s(g.zBaseURL)/timeline">Timeline</a>
+    @ <a href="%s(g.zBaseURL)/leaves">Leaves</a>
+    @ <a href="%s(g.zBaseURL)/timeline">Timeline</a>
   }
   if( g.okRdWiki ){
-    @ | <a href="%s(g.zBaseURL)/wiki">Wiki</a>
+    @ <a href="%s(g.zBaseURL)/wiki">Wiki</a>
   }
 #if 0
-  @ | <font color="#888888">Search</font>
-  @ | <font color="#888888">Ticket</font>
-  @ | <font color="#888888">Reports</font>
+  @ <font color="#888888">Search</font>
+  @ <font color="#888888">Ticket</font>
+  @ <font color="#888888">Reports</font>
 #endif
   if( g.okSetup ){
-    @ | <a href="%s(g.zBaseURL)/setup">Setup</a>
+    @ <a href="%s(g.zBaseURL)/setup">Setup</a>
   }
   if( !g.noPswd ){
-    @ | <a href="%s(g.zBaseURL)/login">%s(zLogInOut)</a>
+    @ <a href="%s(g.zBaseURL)/login">%s(zLogInOut)</a>
   }
   @ </div>
   if( nSubmenu>0 ){
@@ -119,13 +113,10 @@ void style_header(const char *zTitle){
     qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
     for(i=0; i<nSubmenu; i++){
       struct Submenu *p = &aSubmenu[i];
-      char *zTail = i<nSubmenu-1 ? " | " : "";
       if( p->zLink==0 ){
         @ <span class="label">%h(p->zLabel)</span>
-        @ <span class="tail">%s(zTail)</span>
       }else{
         @ <a class="label" href="%s(p->zLink)">%h(p->zLabel)</a>
-        @ <span class="tail">%s(zTail)</span>
       }
     }
     @ </div>
@@ -144,6 +135,29 @@ void style_footer(void){
   @ Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)
   @ </div>
 }
+
+/*
+** The default page header.
+*/
+const char zDefaultHeader[] = 
+@ <html>
+@ <head>
+@ <title>Edit CSS</title>
+@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+@       href="[baseurl puts]/timeline.rss">
+@ <link rel="stylesheet" href="[baseurl puts]/style.css" type="text/css"
+@       media="screen">
+@ </head>
+@ <body>
+@ <div id="page-title">[title html]</div>
+@ <div id="login-status">
+@ [/login exists enable_output]
+@ logged in as [0 /login get html]
+@ [/login exists not enable_output]
+@ not logged in
+@ [1 enable_output]
+@ </div>
+;
 
 /*
 ** The default Cascading Style Sheet.
