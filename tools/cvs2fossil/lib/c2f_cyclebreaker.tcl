@@ -22,6 +22,7 @@ package require struct::graph                             ; # Graph handling.
 package require struct::list                              ; # Higher order list operations.
 package require vc::tools::dot                            ; # User feedback. DOT export.
 package require vc::tools::log                            ; # User feedback.
+package require vc::tools::trouble                        ; # Error reporting.
 package require vc::tools::misc                           ; # Text formatting.
 package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
 package require vc::fossil::import::cvs::project::revlink ; # Cycle links.
@@ -37,6 +38,13 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	::variable mysavecmd $cmd
 	return
     }
+ 
+    typemethod breakcmd {cmd} {
+	::variable mybreakcmd $cmd
+	return
+    }
+
+    # # ## ### ##### ######## #############
 
     typemethod dotsto {path} {
 	::variable mydotdestination $path
@@ -52,6 +60,8 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	$dg destroy
 	return
     }
+
+    # # ## ### ##### ######## #############
 
     typemethod run {label changesets} {
 	::variable myat        0
@@ -79,18 +89,28 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	InitializeCandidates $dg
 	while {1} {
 	    while {[WithoutPredecessor $dg n]} {
-		SaveAndRemove $dg $n
+		ProcessedHook $n $myat
+		$dg node delete $n
+		incr myat
 	    }
+
 	    if {![llength [dg nodes]]} break
-	    BreakCycle $dg [FindCycle $dg]
+
+	    BreakCycleHook       $dg
 	    InitializeCandidates $dg
 	}
 
 	dg destroy
 
 	log write 3 cyclebreaker Done.
-
 	ClearHooks
+	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    typemethod break {graph} {
+	BreakCycle $graph [FindCycle $graph]
 	return
     }
 
@@ -175,14 +195,6 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	# procedure to save the dependencies as well (encoded in the
 	# arcs).
 	return 1
-    }
-
-    proc SaveAndRemove {dg n} {
-	::variable myat
-	ProcessedHook $n $myat
-	$dg node delete $n
-	incr myat
-	return
     }
 
     proc FindCycle {dg} {
@@ -341,8 +353,23 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return
     }
 
+    proc BreakCycleHook {graph} {
+	# Call out to the chosen algorithm for cycle breaking. Finding
+	# a cycle if no breaker was chosen is an error.
+
+	::variable mybreakcmd
+	if {![llength $mybreakcmd]} {
+	    trouble fatal "Found a cycle, expecting none."
+	    exit 1
+	}
+
+	uplevel #0 [linsert $mybreakcmd end $graph]
+	return
+    }
+
     proc ClearHooks {} {
-	::variable mysavecmd {}
+	::variable mysavecmd  {}
+	::variable mybreakcmd {}
 	return
     }
 
@@ -354,6 +381,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 			       # committing.
 
     typevariable mysavecmd  {} ; # Callback, for each processed node.
+    typevariable mybreakcmd {} ; # Callback, for each found cycle.
 
     typevariable mydotdestination {} ; # Destination directory for the
 				       # generated .dot files.
@@ -381,6 +409,7 @@ namespace eval ::vc::fossil::import::cvs {
 	}
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::log
+	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::dot
 	log register cyclebreaker
     }

@@ -77,7 +77,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	set changesets [Changesets]
 	cyclebreaker dot break-rev-start $changesets
 
-	cyclebreaker savecmd [myproc SaveOrder]
+	cyclebreaker savecmd  [myproc SaveOrder]
+	cyclebreaker breakcmd {::vc::fossil::import::cvs::cyclebreaker break}
 
 	state transaction {
 	    cyclebreaker run break-rev $changesets
