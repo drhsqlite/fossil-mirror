@@ -70,7 +70,7 @@ static int submenuCompare(const void *a, const void *b){
 ** Draw the header.
 */
 void style_header(const char *zTitle){
-  const char *zLogInOut = "Logout";
+  const char *zLogInOut = "Login";
   const char *zHeader = db_get("header", zDefaultHeader);  
   struct Subscript *p;
   login_check_credentials();
@@ -81,7 +81,7 @@ void style_header(const char *zTitle){
   SbS_Store(p, "baseurl", g.zBaseURL, 0);
   if( g.zLogin ){
     SbS_Store(p, "login", g.zLogin, 0);
-    zLogInOut = "Login";
+    zLogInOut = "Logout";
   }
   SbS_Render(p, zHeader);
   SbS_Destroy(p);
