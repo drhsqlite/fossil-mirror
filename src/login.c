@@ -56,7 +56,15 @@
 ** Return the name of the login cookie
 */
 static char *login_cookie_name(void){
-  return "fossil_login";
+  static char *zCookieName = 0;
+  if( zCookieName==0 ){
+    int n = strlen(g.zTop);
+    zCookieName = malloc( n*2+16 );
+                      /* 0123456789 12345 */
+    strcpy(zCookieName, "fossil_login_");
+    encode16((unsigned char*)g.zTop, (unsigned char*)&zCookieName[13], n);
+  }
+  return zCookieName;
 }
 
 /*

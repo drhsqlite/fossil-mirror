@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Attach\slogin\scookies\sto\sthe\sroot\spath\sof\sthe\sserver,\sso\sthat\smultiple\nservers\scan\scoexist\son\sthe\ssame\ssite.
-D 2007-11-21T12:21:03
+C Append\sthe\spathname\sto\sthe\slogin\scookie\sname\sso\sthat\sseparate\scookies\nare\sused\sfor\seach\sserver.
+D 2007-11-21T13:52:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -52,11 +52,11 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c fe83b4caec1e1262b7be9ef0fba825b5d9bf74ef
 F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
-F src/encode.c 6c31150f725f911658fbc10192a8a7e39bfad10c
+F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c d4602a7e162a2b4ab91bd0cd93aafc62523c3be7
-F src/login.c 457f0114fe20194a4e45dd82ef6039123bdc1faf
+F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
 F src/main.c cfe3d68152a6fde6342565bbaf3330a1738a9e85
 F src/main.mk 7ed240df88ae9947c02fb015981788edbf65967f
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f0a9e3b52382724e657157ae7e76d93c53ea7582
-R 5d093c91d5f8a74a75c75a2c82e9e54b
+P 68a202e101e733749ce0e6c345e79da455aef96b
+R 288acf0b2448bae5d72d5903c83a400d
 U drh
-Z 3904a35709673ccc6518ca1bd4723a6e
+Z 5cdc4777a2f3aeb73f82095a6282f2b6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHRCKyoxKgR168RlERAs2DAJ4gHsisDXqq+oT7tmFhGskXR/LMtgCdFOV7
-Uers/ksRB2BFyQA+xUjUfkE=
-=rpa0
+iD8DBQFHRDgeoxKgR168RlERArMAAJ0euk/pWfikf3locHB/zymw6p5AqwCdHjuj
+OZ3/kVFNd/9OCX6Tzo8ue54=
+=rkWp
 -----END PGP SIGNATURE-----
