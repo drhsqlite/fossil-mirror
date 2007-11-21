@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Try\sagain\sto\sget\sthe\sLogin/Logout\smenu\sname\scorrect.
-D 2007-11-21T03:19:21
+C Attach\slogin\scookies\sto\sthe\sroot\spath\sof\sthe\sserver,\sso\sthat\smultiple\nservers\scan\scoexist\son\sthe\ssame\ssite.
+D 2007-11-21T12:21:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,7 +37,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 1da99958db39fb320b6d97191f357bf3ab151ecc
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
-F src/cgi.c fb85a3385bdb28bbce74e844eadd731546c1f501
+F src/cgi.c 470b9d6c4cce87b36502b21367c516a1cd26ab74
 F src/checkin.c 6e8cb78df89cb8ed7e82e3c69300200518218616
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
@@ -79,7 +79,7 @@ F src/setup.c d38440e1a35c3890ee9c36c408e1427ef154c9be
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c f64336963a949813dd5d987f8e7f8652d939be4a
+F src/style.c c9b574b26484948a152aea321bf92108ac11028d
 F src/subscript.c 7a4e64645a3111066c8cdcc50f59cb399bb7ad5e
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P bd667b1940b6bc08d967bb219495b32ed8ec23ae
-R 57cdda3ea64fe39778350f4e32b26536
+P f0a9e3b52382724e657157ae7e76d93c53ea7582
+R 5d093c91d5f8a74a75c75a2c82e9e54b
 U drh
-Z 80140f41e71344feb98d63d11a9bf16c
+Z 3904a35709673ccc6518ca1bd4723a6e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHQ6O9oxKgR168RlERAnTSAJ4rTMo04OMCe1wMJdMue4GT3XnyxQCfRDte
-BEV61i+guHfSDZPPJ6ubDkY=
-=FAQD
+iD8DBQFHRCKyoxKgR168RlERAs2DAJ4gHsisDXqq+oT7tmFhGskXR/LMtgCdFOV7
+Uers/ksRB2BFyQA+xUjUfkE=
+=rpa0
 -----END PGP SIGNATURE-----

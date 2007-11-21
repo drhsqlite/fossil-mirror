@@ -71,7 +71,7 @@ static int submenuCompare(const void *a, const void *b){
 */
 void style_header(const char *zTitle){
   const char *zLogInOut = "Login";
-  const char *zHeader = db_get("header", zDefaultHeader);  
+  const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   struct Subscript *p;
   login_check_credentials();
 

@@ -152,7 +152,7 @@ void cgi_set_cookie(
   const char *zPath,    /* Path cookie applies to.  NULL means "/" */
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
-  if( zPath==0 ) zPath = "/";
+  if( zPath==0 ) zPath = g.zTop;
   if( lifetime>0 ){
     lifetime += (int)time(0);
     blob_appendf(&extraHeader,
