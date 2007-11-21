@@ -34,6 +34,11 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     # # ## ### ##### ######## #############
     ## Public API
 
+    typemethod precmd {cmd} {
+	::variable myprecmd $cmd
+	return
+    }
+
     typemethod savecmd {cmd} {
 	::variable mysavecmd $cmd
 	return
@@ -147,6 +152,10 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    }
 	}
 
+	# Run the user hook to manipulate the graph before
+	# consummation.
+
+	PreHook $dg
 	return $dg
     }
 
@@ -342,6 +351,17 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     # # ## ### ##### ######## #############
     ## Callback invokation ...
 
+    proc PreHook {graph} {
+	# Give the user of the cycle breaker the opportunity to work
+	# with the graph between setup and consummation.
+
+	::variable myprecmd
+	if {![llength $myprecmd]} return
+
+	uplevel #0 [linsert $myprecmd end $graph]
+	return
+    }
+
     proc ProcessedHook {cset pos} {
 	# Give the user of the cycle breaker the opportunity to work
 	# with the changeset before it is removed from the graph.
@@ -368,6 +388,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     }
 
     proc ClearHooks {} {
+	::variable myprecmd   {}
 	::variable mysavecmd  {}
 	::variable mybreakcmd {}
 	return
@@ -380,6 +401,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
     typevariable mybottom {} ; # List of the candidate nodes for
 			       # committing.
 
+    typevariable myprecmd   {} ; # Callback, change graph before walk.
     typevariable mysavecmd  {} ; # Callback, for each processed node.
     typevariable mybreakcmd {} ; # Callback, for each found cycle.
 
