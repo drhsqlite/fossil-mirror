@@ -604,13 +604,17 @@ static void object_description(int rid, int linkToView){
     const char *zName = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zFuuid = db_column_text(&q, 2);
-    const char *zCom = db_column_text(&q, 3);
     const char *zUser = db_column_text(&q, 4);
     const char *zVers = db_column_text(&q, 5);
+    Blob comment;
     @ File <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
     @ uuid %s(zFuuid) part of check-in
     hyperlink_to_uuid(zVers);
-    @ %s(zCom) by %s(zUser) on %s(zDate).
+    blob_zero(&comment);
+    db_column_blob(&q, 3, &comment);
+    blob_appendf(&comment, " by %h(zUser) on %s(zDate)");
+    wiki_convert(&comment, 0, 0);
+    blob_reset(&comment);
     cnt++;
   }
   db_finalize(&q);
@@ -648,11 +652,15 @@ static void object_description(int rid, int linkToView){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zDate = db_column_text(&q, 0);
       const char *zUuid = db_column_text(&q, 3);
-      const char *zCom = db_column_text(&q, 2);
       const char *zUser = db_column_text(&q, 1);
+      Blob comment;
       @ Manifest of version
       hyperlink_to_uuid(zUuid);
-      @ %s(zCom) by %s(zUser) on %s(zDate).
+      blob_zero(&comment);
+      db_column_blob(&q, 2, &comment);
+      blob_appendf(&comment, " by %h(zUser) on %s(zDate)");
+      wiki_convert(&comment, 0, 0);
+      blob_reset(&comment);
       cnt++;
     }
     db_finalize(&q);
