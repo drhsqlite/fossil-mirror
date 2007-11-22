@@ -41,10 +41,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set mytype      $cstype	  
 	set mysrcid	$srcid	  
 	set myrevisions $revisions
+	set mypos       {} ; # Commit location is not known yet.
 
 	# Keep track of the generated changesets and of the inverse
 	# mapping from revisions to them.
-	lappend mychangesets $self
+	lappend mychangesets   $self
+	set     myidmap($myid) $self
 	foreach r $revisions { set myrevmap($r) $self }
 	return
     }
@@ -55,6 +57,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     method bysymbol   {} { return [expr {$mytype eq "sym"}] }
     method byrevision {} { return [expr {$mytype eq "rev"}] }
+
+    method setpos {p} { set mypos $p ; return }
+    method pos    {}  { return $mypos }
 
     method successors {} {
 	# NOTE / FUTURE: Possible bottleneck.
@@ -296,6 +301,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 			      # to their successors. Cache to avoid
 			      # loading this from the state more than
 			      # once.
+    variable mypos       {} ; # Commit position of the changeset, if
+			      # known.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -592,8 +599,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     typevariable mychangesets    {} ; # List of all known changesets.
     typevariable myrevmap -array {} ; # Map from revisions to their changeset.
+    typevariable myidmap  -array {} ; # Map from changeset id to changeset.
 
-    typemethod all {} { return $mychangesets }
+    typemethod all {}   { return $mychangesets }
+    typemethod of  {id} { return $myidmap($id) }
 
     # # ## ### ##### ######## #############
     ## Configuration

@@ -46,6 +46,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     typemethod setup {} {
 	# Define the names and structure of the persistent state of
 	# this pass.
+
+	state reading csorder
 	return
     }
 
@@ -65,6 +67,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	cyclebreaker breakcmd [myproc BreakCycle]
 
 	state transaction {
+	    LoadCommitOrder
 	    cyclebreaker run break-all [myproc Changesets]
 	}
 
@@ -84,6 +87,23 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     proc Changesets {} { project::rev all }
 
+    proc LoadCommitOrder {} {
+	::variable mycset
+
+	state transaction {
+	    foreach {cid pos} [state run { SELECT cid, pos FROM csorder }] {
+		set cset [project::rev of $cid]
+		$cset setpos $pos
+		set mycset($pos) $cset
+	    }
+	    # Remove the order information now that we have it in
+	    # memory, so that we can save it once more, for all
+	    # changesets, while breaking the remaining cycles.
+	    state run { DELETE FROM csorder }
+	}
+	return
+    }
+
     # # ## ### ##### ######## #############
 
     proc BreakRetrogradeBranches {graph} {
@@ -99,6 +119,12 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     proc BreakCycle {graph} {
 	cyclebreaker break $graph
     }
+
+    # # ## ### ##### ######## #############
+
+    typevariable mycset -array {} ; # Map from commit positions to the
+				    # changeset (object ref) at that
+				    # position.
 
     # # ## ### ##### ######## #############
     ## Configuration
