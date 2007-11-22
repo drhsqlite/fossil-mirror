@@ -318,6 +318,7 @@ void vinfo_page(void){
      rid, rid
   );
   if( db_step(&q)==SQLITE_ROW ){
+    Blob comment;
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Version: [%.10s]", zUuid);
     style_header(zTitle);
@@ -331,7 +332,10 @@ void vinfo_page(void){
       @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
     }
     @ <tr><th>Original&nbsp;User:</th><td>%s(db_column_text(&q, 2))</td></tr>
-    @ <tr><th>Original&nbsp;Comment:</th><td>%s(db_column_text(&q, 3))</td></tr>
+    @ <tr><th>Original&nbsp;Comment:</th><td>
+    db_ephemeral_blob(&q, 3, &comment);
+    wiki_convert(&comment, 0, 0);
+    @ </td></tr>
     @ <tr><th>Commands:</th>
     @   <td>
     @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>

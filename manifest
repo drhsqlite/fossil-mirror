@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\ssome\scompiler\swarnings.\s\sComment\schanges\son\snon-functioning\scode\sin\stkt.c.
-D 2007-11-22T01:53:24
+C Fix\sthe\srendering\sof\scomments\swith\sunclosed\sblock\sHTML\smarkup\sin\nthe\svinfo\spage.
+D 2007-11-22T22:02:06
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -55,7 +55,7 @@ F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
-F src/info.c d4602a7e162a2b4ab91bd0cd93aafc62523c3be7
+F src/info.c 0cdd4e239207f1894dc8a5a99102f8291de0b7a2
 F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
 F src/main.c cfe3d68152a6fde6342565bbaf3330a1738a9e85
 F src/main.mk 7ed240df88ae9947c02fb015981788edbf65967f
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4db464a748d9895ee3ae0a3091808fe518ae5000
-R 4d7a294e6cbbfb47415ac2367d89d4ae
+P 2a707334c9320fa24f6353d00415f6c0e49f1464
+R 3f64f4ca2e43051b3f8eca3bf0ccabab
 U drh
-Z 7805ddf5aa1d6b850a683ccb4f3ddfff
+Z af317c7c7d6dd13922c5653cd6415d07
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHROEYoxKgR168RlERAl7TAKCJvPGipsEWvi1cTR2xRqe38dzxcwCfRrcV
-b+iYmDETKVDT2VQ+fdInEU4=
-=PT7x
+iD8DBQFHRfxjoxKgR168RlERAmljAJ9KGd75YWuODXj2y+GGzIO35Z2nBQCdGmfx
+fHOhObH5QHB2LuI8Fxfd3yE=
+=2gf4
 -----END PGP SIGNATURE-----
