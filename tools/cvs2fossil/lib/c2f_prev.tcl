@@ -675,11 +675,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     typemethod of    {id} { return $myidmap($id) }
     typemethod ofrev {id} { return $myrevmap($id) }
 
-    typeconstructor {
-	set mybranchcode [project::sym branch]
-	return
-    }
-
     # # ## ### ##### ######## #############
     ## Configuration
 
@@ -697,6 +692,7 @@ namespace eval ::vc::fossil::import::cvs::project {
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
 	}
+	::variable mybranchcode [project::sym branch]
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
