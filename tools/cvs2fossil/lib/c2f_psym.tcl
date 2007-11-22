@@ -107,6 +107,8 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     }
 
     method possibleparent {symbol} {
+	log write 9 symbol "Possible parent ($myname) = [$symbol name]"
+
 	if {[info exists mypparent($symbol)]} {
 	    incr mypparent($symbol)
 	} else {

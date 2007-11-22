@@ -1052,6 +1052,12 @@ snit::type ::vc::fossil::import::cvs::file {
 	    if {[$root hasparentbranch]} {
 		# Note lod == [$root parentbranch]
 		$lod possibleparents
+	    } elseif {![$lod istrunk] && [$root isondefaultbranch]} {
+		# This is the root revision of a detached NTDB. We
+		# have to manually set the only possible parent for
+		# this LOD, the trunk itself.
+
+		[$lod symbol] possibleparent $mytrunk
 	    }
 
 	    # For the revisions in the line we register their branches

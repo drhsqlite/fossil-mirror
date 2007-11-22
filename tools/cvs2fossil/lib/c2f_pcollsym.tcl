@@ -220,8 +220,8 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	#          do not care about their prefered parents and do not
 	#          attempt to compute them.
 
-	foreach {s p sname pname prname} [state run {
-	    SELECT   S.sid, P.pid, S.name, SB.name, PR.name
+	foreach {s p sname pname prname votes} [state run {
+	    SELECT   S.sid, P.pid, S.name, SB.name, PR.name, P.n
 	    FROM     symbol S, parent P, symbol SB, project PR
 	    WHERE    S.sid = P.sid
 	    AND      P.pid = SB.sid
@@ -234,6 +234,8 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	    -- for its symbol and will be the earliest created branch
 	    -- possible among all with many votes.
 	}] {
+	    log write 9 pcollsym "Voting $votes for Parent($sname) = $pname"
+
 	    set prefered($s) [list $p $sname $pname $prname]
 	}
 
