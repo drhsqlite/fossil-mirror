@@ -98,6 +98,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		ProcessedHook $n $myat
 		$dg node delete $n
 		incr myat
+		ShowPendingNodes
 	    }
 
 	    if {![llength [dg nodes]]} break
@@ -127,6 +128,11 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     typemethod break {graph} {
 	BreakCycle $graph [FindCycle $graph]
+	return
+    }
+
+    typemethod replace {graph n replacements} {
+	Replace $graph $n $replacements
 	return
     }
 
@@ -184,6 +190,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    lappend mybottom [linsert [$dg node get $n timerange] 0 $n]
 	}
 	set mybottom [lsort -index 1 -integer [lsort -index 2 -integer $mybottom]]
+	ShowPendingNodes
 	return
     }
 
@@ -217,6 +224,16 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	# arcs).
 	return 1
     }
+
+    proc ShowPendingNodes {} {
+	if {[log verbosity?] < 10} return
+	::variable mybottom
+	log write 10 cyclebreaker \
+	    "Pending: [struct::list map $mybottom [myproc FormatPendingItem]]"
+	return
+    }
+
+    proc FormatPendingItem {item} { lreplace $item 0 0 <[[lindex $item 0] id]> }
 
     proc FindCycle {dg} {
 	# This procedure is run if and only the graph is not empty and
@@ -300,40 +317,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
         # already. We remove it from the graph as well and then enter
         # the fragments generated for it.
 
-	# NOTE. We have to get the list of incoming neighbours and
-	# recompute their successors after the new nodes have been
-	# inserted. Their outgoing arcs will now go to one or both of
-	# the new nodes, and not redoing them may cause us to forget
-	# circles, leaving them in, unbroken.
-
-	set pre [$dg nodes -in $bestnode]
-
-        $dg node delete $bestnode
-
-	foreach cset $newcsets {
-	    $dg node insert $cset
-	    $dg node set    $cset timerange [$cset timerange]
-	}
-
-	foreach cset $newcsets {
-	    foreach succ [$cset successors] {
-		# The new changesets may have dependencies outside of
-		# the chosen set. These are ignored
-		if {![$dg node exists $succ]} continue
-		$dg arc insert $cset $succ
-	    }
-	}
-	foreach cset $pre {
-	    foreach succ [$cset successors] {
-		# Note that the arc may already exist in the graph. If
-		# so ignore it. The new changesets may have
-		# dependencies outside of the chosen set. These are
-		# ignored
-		if {![$dg node exists $succ]} continue
-		if {[HasArc $dg $cset $succ]} continue;# TODO should be graph method.
-		$dg arc insert $cset $succ
-	    }
-	}
+	Replace $dg $bestnode $newcsets
 
 	Mark $dg -${ID}-after
 	return
@@ -357,6 +341,45 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	incr mydotid
 
 	log write 5 cyclebreaker ".dot export $fname"
+	return
+    }
+
+    proc Replace {dg n replacements} {
+	# NOTE. We have to get the list of incoming neighbours and
+	# recompute their successors after the new nodes have been
+	# inserted. Their outgoing arcs will now go to one or both of
+	# the new nodes, and not redoing them may cause us to forget
+	# circles, leaving them in, unbroken.
+
+	set pre [$dg nodes -in $n]
+
+        $dg node delete $n
+
+	foreach cset $replacements {
+	    $dg node insert $cset
+	    $dg node set    $cset timerange [$cset timerange]
+	}
+
+	foreach cset $replacements {
+	    foreach succ [$cset successors] {
+		# The new changesets may have dependencies outside of
+		# the chosen set. These are ignored
+		if {![$dg node exists $succ]} continue
+		$dg arc insert $cset $succ
+	    }
+	}
+	foreach cset $pre {
+	    foreach succ [$cset successors] {
+		# Note that the arc may already exist in the graph. If
+		# so ignore it. The new changesets may have
+		# dependencies outside of the chosen set. These are
+		# ignored
+		if {![$dg node exists $succ]} continue
+		if {[HasArc $dg $cset $succ]} continue;# TODO should be graph method.
+		$dg arc insert $cset $succ
+	    }
+	}
+
 	return
     }
 
