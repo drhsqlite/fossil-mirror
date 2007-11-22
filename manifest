@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sthe\scalculation\sof\spossible\sparents\sfor\sa\sdetached\sNTDB.\sHas\sto\sbe\strunk.\sThe\ssymbols\swere\sskipped\sbefore,\scausing\sthem\sto\shave\sno\sparents\sat\sall\slater\son,\sforcing\san\sabort\safter\sCollateSymbols.\sAdded\ssome\shigh\sverbosity\slog\scommands\sfor\sdebugging\sof\sthis\sarea.
-D 2007-11-22T06:03:47
+C Tweaked\sthe\slog\soutput\sfor\sthe\sstatistics\sa\sbit.
+D 2007-11-22T07:21:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -121,7 +121,7 @@ F tools/cvs2fossil/lib/c2f_prevlink.tcl b25fedd0c7631934c6eb2eab0b5933f61c4bfc4d
 F tools/cvs2fossil/lib/c2f_project.tcl 39d1bb0e929ef13145d932534344a56ac57b586d
 F tools/cvs2fossil/lib/c2f_psym.tcl bed2d949173aa58dd86bbed6d9e9089b33ad207b
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
-F tools/cvs2fossil/lib/c2f_repository.tcl 6cbcf7b826dae830b9b69054444b34432c508027
+F tools/cvs2fossil/lib/c2f_repository.tcl 7d5182fefd18b96c3ec5344c2ecc6ad414e8425a
 F tools/cvs2fossil/lib/c2f_state.tcl 5356f2147dab77b10348cff6d5507cfb3c18ef85
 F tools/cvs2fossil/lib/cvs2fossil.tcl 516ad355383b08d6e2203260cb9802e514cd8e44
 F tools/cvs2fossil/lib/dot.tcl 191e7fb3472b2b6cfd69770b5f31f0a3748ebfe4
@@ -166,14 +166,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 47e271a448a38d7bee7884bc3cea5b51c3ef4f12
-R 7ee51d466d278363be26db8f19b6b021
+P 930ec162ce0db00d35d29069a5cd11135b9abee1
+R ddcaacd2eb960dc9c5de244f9e781828
 U aku
-Z 4c1eb6916bbfef4d8128d88045670912
+Z 324273b9e62e4fe3d021b8f18f542fd1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHRRvMvonzZ/CRa7gRAlgoAJ4wL9nzURvS6AO3cn5R1sm7TqgX0wCeKueG
-d18nY+Kgoa4qcpBczTSOHzw=
-=pjYc
+iD8DBQFHRS3tvonzZ/CRa7gRAv3qAKCtXQb0aHOde4gyv9QrWVMSPMKPWQCfWFDe
+wsX4QLP593lKsuLJH4YUNlQ=
+=4FWY
 -----END PGP SIGNATURE-----
