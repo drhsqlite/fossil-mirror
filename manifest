@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sHTML\stags\sin\swiki\sare\sterminated\sin\sthe\sdiff\sscreen\stoo.
-D 2007-11-22T22:14:38
+C Add\sthe\s%w\sand\s%W\sformatting\soptions\sfor\sinternal\sprintf\susage.\s\sUse\nthese\sformatting\scharacters\sto\srender\swiki.\s\sFix\sadditional\sproblems\sof\nunterminated\swiki\son\swebpage\srendering\sby\susing\s%w.\s\s(There\sare\sprobably\nmore\sproblems\syet\sto\sbe\sdiscovered\sand\sfixed.)
+D 2007-11-22T22:55:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -35,9 +35,9 @@ F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
-F src/blob.c 1da99958db39fb320b6d97191f357bf3ab151ecc
+F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
-F src/cgi.c 470b9d6c4cce87b36502b21367c516a1cd26ab74
+F src/cgi.c 144475b0edd18ddb9cadefb0df59df0e835e0dfe
 F src/checkin.c 6e8cb78df89cb8ed7e82e3c69300200518218616
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
@@ -55,7 +55,7 @@ F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
-F src/info.c 17c99730c3b75af9bddd153e7b03ffc7075a0c4c
+F src/info.c 5b0da28053d262d321020a186167c816145e8bc6
 F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
 F src/main.c cfe3d68152a6fde6342565bbaf3330a1738a9e85
 F src/main.mk 7ed240df88ae9947c02fb015981788edbf65967f
@@ -70,7 +70,7 @@ F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c 8d07e9c5fdb127818043015d250afe5365f8b8dc
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
-F src/printf.c 63619c9ec6ef80499feb9f342cf2806ace37d02e
+F src/printf.c af38cba6b01c8e55eb695dcebbdbf94c1b8025e4
 F src/rebuild.c 45d87035e5f481e19866228873b578e48d6919c9
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/sample-config1.txt cd7d68e8665eff6edab236fe4f475e7cc434e217
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3afcc4388c8a619218d71471e769efee9c1d56a3
-R 99a750e64fd80d569b5fad3c62750024
+P d6ad7aa034f090e7cad99d607a9d2b0a11951281
+R b53e5ca18ec4daaf0d5ea167565b108e
 U drh
-Z aa551493965d770d599c4db34475cee0
+Z aafac7eec3c7f53879af570ca4fce31e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHRf9RoxKgR168RlERAg2cAJ9uTLoB6BQ501DNO0dsfR4B5gyF5ACcD0x3
-XEYMuBWScIdGdsjuiaqkfV0=
-=2L1s
+iD8DBQFHRgjPoxKgR168RlERAmrsAJ418SCkTLuG/fmqu7RiZOuRrxm5bQCfR6rP
+EQI8JQT55eKNSFB6aNMD/n4=
+=s5ju
 -----END PGP SIGNATURE-----

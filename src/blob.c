@@ -541,28 +541,17 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
   return i;
 }
 
-/* 
-** This function implements the callback from vxprintf. 
-**
-** This routine add nNewChar characters of text in zNewText to
-** the Blob structure pointed to by "arg".
-*/
-static void bout(void *arg, const char *zNewText, int nNewChar){
-  Blob *pBlob = (Blob*)arg;
-  blob_append(pBlob, zNewText, nNewChar);
-}
-
 /*
 ** Do printf-style string rendering and append the results to a blob.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
   va_list ap;
   va_start(ap, zFormat);
-  vxprintf(bout, pBlob, zFormat, ap);
+  vxprintf(pBlob, zFormat, ap);
   va_end(ap);
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  vxprintf(bout, pBlob, zFormat, ap);
+  vxprintf(pBlob, zFormat, ap);
 }
 
 /*

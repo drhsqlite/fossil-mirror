@@ -922,16 +922,6 @@ void cgi_v_optionmenu2(
   cgi_printf("%*s</select>\n", in, "");
 }
 
-/* 
-** This function implements the callback from vxprintf. 
-**
-** This routine sends nNewChar characters of text in zNewText to
-** CGI reply content buffer.
-*/
-static void sout(void *NotUsed, const char *zNewText, int nNewChar){
-  cgi_append_content(zNewText, nNewChar);
-}
-
 /*
 ** This routine works like "printf" except that it has the
 ** extra formatting capabilities such as %h and %t.
@@ -939,7 +929,7 @@ static void sout(void *NotUsed, const char *zNewText, int nNewChar){
 void cgi_printf(const char *zFormat, ...){
   va_list ap;
   va_start(ap,zFormat);
-  vxprintf(sout,0,zFormat,ap);
+  vxprintf(&cgiContent,zFormat,ap);
   va_end(ap);
 }
 
@@ -948,7 +938,7 @@ void cgi_printf(const char *zFormat, ...){
 ** extra formatting capabilities such as %h and %t.
 */
 void cgi_vprintf(const char *zFormat, va_list ap){
-  vxprintf(sout,0,zFormat,ap);
+  vxprintf(&cgiContent,zFormat,ap);
 }
 
 
@@ -976,7 +966,7 @@ void cgi_panic(const char *zFormat, ...){
     "<plaintext>"
   );
   va_start(ap, zFormat);
-  vxprintf(sout,0,zFormat,ap);
+  vxprintf(&cgiContent,zFormat,ap);
   va_end(ap);
   cgi_reply();
   exit(1);

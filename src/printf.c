@@ -52,6 +52,8 @@
 #define etURLIZE     18 /* Make text safe for HTTP.  "/" not encoded */
 #define etFOSSILIZE  19 /* The fossil header encoding format. */
 #define etPATH       20 /* Path type */
+#define etWIKISTR    21 /* Wiki text rendered from a char* */
+#define etWIKIBLOB   22 /* Wiki text rendered from a Blob* */
 
 
 /*
@@ -95,6 +97,8 @@ static const et_info fmtinfo[] = {
   {  'Q',  0, 4, etSQLESCAPE2, 0,  0 },
   {  'b',  0, 2, etBLOB,       0,  0 },
   {  'B',  0, 2, etBLOBSQL,    0,  0 },
+  {  'w',  0, 2, etWIKISTR,    0,  0 },
+  {  'W',  0, 2, etWIKIBLOB,   0,  0 },
   {  'h',  0, 4, etHTMLIZE,    0,  0 },
   {  't',  0, 4, etHTTPIZE,    0,  0 },  /* "/" -> "%2F" */
   {  'T',  0, 4, etURLIZE,     0,  0 },  /* "/" unchanged */
@@ -173,8 +177,7 @@ static int et_getdigit(long double *val, int *cnt){
 ** will run.
 */
 int vxprintf(
-  void (*func)(void*,const char*,int),     /* Consumer of text */
-  void *arg,                         /* First argument to the consumer */
+  Blob *pBlob,                       /* Append output to this blob */
   const char *fmt,                   /* Format string */
   va_list ap                         /* arguments */
 ){
@@ -212,7 +215,6 @@ int vxprintf(
   etByte flag_exp;           /* True to force display of the exponent */
   int nsd;                   /* Number of significant digits returned */
 
-  func(arg,"",0);
   count = length = 0;
   bufpt = 0;
   for(; (c=(*fmt))!=0; ++fmt){
@@ -221,13 +223,13 @@ int vxprintf(
       bufpt = (char *)fmt;
       amt = 1;
       while( (c=(*++fmt))!='%' && c!=0 ) amt++;
-      (*func)(arg,bufpt,amt);
+      blob_append(pBlob,bufpt,amt);
       count += amt;
       if( c==0 ) break;
     }
     if( (c=(*++fmt))==0 ){
       errorflag = 1;
-      (*func)(arg,"%",1);
+      blob_append(pBlob,"%",1);
       count++;
       break;
     }
@@ -661,12 +663,27 @@ int vxprintf(
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
+      case etWIKISTR: {
+        char *zWiki = va_arg(ap, char*);
+        Blob wiki;
+        blob_init(&wiki, zWiki, -1);
+        wiki_convert(&wiki, pBlob, WIKI_INLINE);
+        blob_reset(&wiki);
+        length = width = 0;
+        break;
+      }
+      case etWIKIBLOB: {
+        Blob *pWiki = va_arg(ap, Blob*);
+        wiki_convert(pWiki, pBlob, WIKI_INLINE);
+        length = width = 0;
+        break;
+      }
       case etERROR:
         buf[0] = '%';
         buf[1] = c;
         errorflag = 0;
         idx = 1+(c!=0);
-        (*func)(arg,"%",idx);
+        blob_append(pBlob,"%",idx);
         count += idx;
         if( c==0 ) fmt--;
         break;
@@ -682,14 +699,14 @@ int vxprintf(
       if( nspace>0 ){
         count += nspace;
         while( nspace>=etSPACESIZE ){
-          (*func)(arg,spaces,etSPACESIZE);
+          blob_append(pBlob,spaces,etSPACESIZE);
           nspace -= etSPACESIZE;
         }
-        if( nspace>0 ) (*func)(arg,spaces,nspace);
+        if( nspace>0 ) blob_append(pBlob,spaces,nspace);
       }
     }
     if( length>0 ){
-      (*func)(arg,bufpt,length);
+      blob_append(pBlob,bufpt,length);
       count += length;
     }
     if( flag_leftjustify ){
@@ -698,10 +715,10 @@ int vxprintf(
       if( nspace>0 ){
         count += nspace;
         while( nspace>=etSPACESIZE ){
-          (*func)(arg,spaces,etSPACESIZE);
+          blob_append(pBlob,spaces,etSPACESIZE);
           nspace -= etSPACESIZE;
         }
-        if( nspace>0 ) (*func)(arg,spaces,nspace);
+        if( nspace>0 ) blob_append(pBlob,spaces,nspace);
       }
     }
     if( zExtra ){
