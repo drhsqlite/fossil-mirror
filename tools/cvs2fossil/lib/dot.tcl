@@ -31,17 +31,27 @@ snit::type ::vc::tools::dot {
 	lappend lines "digraph \"$name\" \{"
 
 	foreach n [$g nodes] {
-	    set    cmd "[$n id] \["
-	    append cmd " label=\"<[$n id]>\""
+	    set cmd "\"$n\""
+	    set sep " "
+	    set head " \["
+	    set tail ""
+	    foreach {gattr nodekey} {
+		label label
+		shape shape
+	    } {
+		if {![$g node keyexists $n $nodekey]} continue
+		append cmd "$head$sep${gattr}=\"[$g node get $n $nodekey]\""
 
-	    if {[$g node keyexists $n shape]} {
-		append cmd  " shape=[$g node get $n shape]"
+		set sep ", "
+		set head ""
+		set tail " \]"
 	    }
-	    append cmd " \];"
+
+	    append cmd ${tail} ";"
 	    lappend lines $cmd
 	}
 	foreach a [$g arcs] {
-	    lappend lines "[[$g arc source $a] id] -> [[$g arc target $a] id];"
+	    lappend lines "\"[$g arc source $a]\" -> \"[$g arc target $a]\";"
 	}
 
 	lappend lines "\}"
