@@ -123,7 +123,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# having to check each changeset separately. Consider this
 	# later, get the pass working first.
 	#
-	# NOTE 2: Might we even be able to select the retrograde
+	# NOTE 2: Might we even be able to select the backward branch
 	# changesets too ?
 
 	foreach cset [$graph nodes] {
@@ -137,7 +137,45 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	while {[IsABackwardBranch $graph $cset]} {
 	    log write 5 breakacycle "Breaking backward branch changeset <[$cset id]>"
 
-	    break
+	    # Knowing that the branch is backward we now look at the
+	    # individual revisions in the changeset and determine
+	    # which of them are responsible for the overlap. This
+	    # allows us to split them into two sets, one of
+	    # non-overlapping revisions, and of overlapping ones. Each
+	    # induces a new changeset, and the second may still be
+	    # backward and need further splitting. Hence the looping.
+	    #
+	    # The border used for the split is the minimal commit
+	    # position among the minimal sucessor commit positions for
+	    # the revisions in the changeset.
+
+	    # Note that individual revisions may not have revision
+	    # changesets are predecessors and/or successors, leaving
+	    # the limits partially or completely undefined.
+
+	    # limits : dict (revision -> list (max predecessor commit, min sucessor commit))
+
+	    ComputeLimits $cset limits border
+
+	    log write 6 breakacycle "At commit position border $border"
+
+	    # Then we sort the file level items based on there they
+	    # sit relative to the border into before and after the
+	    # border.
+
+	    SplitRevisions $limits normalrevisions backwardrevisions
+
+	    set replacements [project::rev split $cset $normalrevisions $backwardrevisions]
+	    cyclebreaker replace $graph $cset $replacements
+
+	    # At last check that the normal frament is indeed not
+	    # backward, and iterate over the possibly still backward
+	    # second fragment.
+
+	    struct::list assign $replacements normal backward
+	    if {[IsABackwardBranch $dg $normal]} { trouble internal "The normal fragment is unexpectedly a backward branch" }
+
+	    set cset $backward
 	}
 	return
     }
@@ -184,6 +222,85 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     proc ToPosition    {cset} { $cset pos }
     proc ValidPosition {pos}  { expr {$pos ne ""} }
+
+    proc ComputeLimits {cset lv bv} {
+	upvar 1 $lv thelimits $bv border
+
+	# Initialize the boundaries for all revisions.
+
+	array set limits {}
+	foreach revision [$cset revisions] {
+	    set limits($revision) {0 {}}
+	}
+
+	# Compute and store the maximal predecessors per revision
+
+	foreach {revision csets} [$cset predecessormap] {
+	    set s [Positions $csets]
+	    if {![llength $s]} continue
+	    set limits($revision) [lreplace $limits($revision) 0 0 [max $s]]
+	}
+
+	# Compute and store the minimal successors per revision
+
+	foreach {revision csets} [$cset successormap] {
+	    set s [Positions $csets]
+	    if {![llength $s]} continue
+	    set limits($revision) [lreplace $limits($revision) 1 1 [min $s]]
+	}
+
+	# Check that the ordering at the file level is correct. We
+	# cannot have backward ordering per revision, or something is
+	# wrong.
+
+	foreach revision [array names limits] {
+	    struct::list assign $limits($revision) maxp mins
+	    # Handle min successor position "" as representing infinity
+	    if {$mins eq ""} continue
+	    if {$maxp < $mins} continue
+
+	    trouble internal "Branch revision $revision is backward at file level ($maxp >= $mins)"
+	}
+
+	# Save the limits for the splitter, and compute the border at
+	# which to split as the minimum of all minimal successor
+	# positions.
+
+	set thelimits [array get limits]
+	set border [min [struct::list filter [struct::list map [Values $thelimits] \
+						  [myproc MinSuccessorPosition]] \
+			     [myproc ValidPosition]]]
+	return
+    }
+
+    proc Values {dict} {
+	set res {}
+	foreach {k v} $dict { lappend res $v }
+	return $res
+    }
+
+    proc MinSuccessorPosition {item} { lindex $item 1 }
+
+    proc SplitRevisions {limits nv bv} {
+	upvar 1 $nv normalrevisions $bv backwardrevisions
+
+	set normalrevisions   {}
+	set backwardrevisions {}
+
+	foreach {rev v} $limits {
+	    struct::list assign $v maxp mins
+	    if {$maxp >= $border} {
+		lappend backwardrevisions  $rev
+	    } else {
+		lappend normalrevisions $rev
+	    }
+	}
+
+	if {![llength $normalrevisions]}   { trouble internal "Set of normal revisions is empty" }
+	if {![llength $backwardrevisions]} { trouble internal "Set of backward revisions is empty" }
+	return
+    }
+
 
     # # ## ### ##### ######## #############
 

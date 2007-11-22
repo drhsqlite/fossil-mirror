@@ -69,6 +69,18 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		      }])}]
     }
 
+    method successormap {} {
+	# NOTE / FUTURE: Possible bottleneck.
+	array set tmp {}
+	foreach {rev children} [$self nextmap] {
+	    foreach child $children {
+		lappend tmp($rev) $myrevmap($child)
+	    }
+	    set tmp($rev) [lsort -unique $tmp($rev)]
+	}
+	return [array get tmp]
+    }
+
     method successors {} {
 	# NOTE / FUTURE: Possible bottleneck.
 	set csets {}
@@ -80,12 +92,32 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return [lsort -unique $csets]
     }
 
+    method predecessormap {} {
+	# NOTE / FUTURE: Possible bottleneck.
+	array set tmp {}
+	foreach {rev children} [$self premap] {
+	    foreach child $children {
+		lappend tmp($rev) $myrevmap($child)
+	    }
+	    set tmp($rev) [lsort -unique $tmp($rev)]
+	}
+	return [array get tmp]
+    }
+
     # revision -> list (revision)
     method nextmap {} {
 	if {[llength $mynextmap]} { return $mynextmap }
 	PullSuccessorRevisions tmp $myrevisions
 	set mynextmap [array get tmp]
 	return $mynextmap
+    }
+
+    # revision -> list (revision)
+    method premap {} {
+	if {[llength $mypremap]} { return $mypremap }
+	PullPredecessorRevisions tmp $myrevisions
+	set mypremap [array get tmp]
+	return $mypremap
     }
 
     method breakinternaldependencies {} {
@@ -305,6 +337,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 			      # is based on.
     variable myrevisions {} ; # List of the file level revisions in
 			      # the cset.
+    variable mypremap    {} ; # Dictionary mapping from the revisions
+			      # to their predecessors. Cache to avoid
+			      # loading this from the state more than
+			      # once.
     variable mynextmap   {} ; # Dictionary mapping from the revisions
 			      # to their successors. Cache to avoid
 			      # loading this from the state more than
@@ -393,6 +429,31 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		trouble internal "Revision $rid depends on itself."
 	    }
 	    lappend dependencies($rid) $child
+	}
+    }
+
+    proc PullPredecessorRevisions {dv revisions} {
+	upvar 1 $dv dependencies
+	set theset ('[join $revisions {','}]')
+
+	foreach {rid parent} [state run "
+   -- Primary parent, can be in different LOD for first in a branch
+	    SELECT R.rid, R.parent
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset
+	    AND    R.parent IS NOT NULL
+    UNION
+    -- Transition trunk to NTDB
+	    SELECT R.rid, R.dbparent
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset
+	    AND    R.dbparent IS NOT NULL
+	"] {
+	    # Consider moving this to the integrity module.
+	    if {$rid == $parent} {
+		trouble internal "Revision $rid depends on itself."
+	    }
+	    lappend dependencies($rid) $parent
 	}
     }
 
@@ -610,8 +671,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     typevariable myidmap  -array {} ; # Map from changeset id to changeset.
     typevariable mybranchcode    {} ; # Local copy of project::sym/mybranch.
 
-    typemethod all {}   { return $mychangesets }
-    typemethod of  {id} { return $myidmap($id) }
+    typemethod all   {}   { return $mychangesets }
+    typemethod of    {id} { return $myidmap($id) }
+    typemethod ofrev {id} { return $myrevmap($id) }
 
     typeconstructor {
 	set mybranchcode [project::sym branch]
