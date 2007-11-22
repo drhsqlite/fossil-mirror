@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reworked\sthe\sdot\sexport\sinternals\sa\sbit\sto\sbe\smore\sgeneral\sregarding\slabeling\sand\sattribute\swriting.\sUpdated\sthe\scycle\sbreaker\sto\sdefine\sproper\slabels.
-D 2007-11-22T07:22:38
+C Added\stwo\shelper\sapplications\swhich\speek\sinto\sa\sconversion\sstate\sand\sgenerate\sgraphs\sfrom\sit.\sBoth\shelpers\slook\sat\sthe\stree\sof\ssymbols\sand\sshow\sit\sin\stoto\s(symbol\stree),\sor\srestrict\sthemselves\sto\sthe\sbranches,\saka\slines\sof\sdevelopment\s(lodtree).
+D 2007-11-22T07:24:06
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -131,6 +131,8 @@ F tools/cvs2fossil/lib/misc.tcl d837793c993226d30d8c8b46e945ba77c8e47da9
 F tools/cvs2fossil/lib/pkgIndex.tcl 48c254587c0e3f8748838e6b43d54901a051aa25
 F tools/cvs2fossil/lib/rcsparser.tcl 93e4a1e5a55baba7b897dd6af2745f374b18af15
 F tools/cvs2fossil/lib/trouble.tcl f653273970b3dbf6c7328ce53de6e964948c44a0
+F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
+F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -166,14 +168,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2630e50610bdd0ed0370b3958a4a41c6dc962483
-R d8e2877319ffc5b15ba0963f717e2f75
+P f2848471340dde88a890bbcbee857a8b73a11a37
+R 1c22f4a017ea3c5e3ed91073cd18f1f3
 U aku
-Z d16dc589e0f15191f66daa86d60bada7
+Z ee9fa50a0c611f04c5a761a8db2d0f2c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHRS4+vonzZ/CRa7gRAiq2AJ4nw4gza0j5DXTLgq8NxRCrSLIIEACgtqx7
-LtBD7saeZPJVwvZm7QblxZ8=
-=H54j
+iD8DBQFHRS6WvonzZ/CRa7gRAjh3AJ9rw1viaIP/Y8SO76Wcd226cMBsZgCggvsC
+N1qStawZeDy7g2mEQODIK/k=
+=BVz3
 -----END PGP SIGNATURE-----
