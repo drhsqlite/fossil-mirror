@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Continued\swork\son\spass\s8,\sadded\soutline\sfor\shandling\sof\sretrograde\sbranches,\sextended\schangesets\swith\spredicate\sallowing\sus\sto\sfind\sthe\sbranch\schangesets.
-D 2007-11-22T03:33:32
+C Continued\swork\son\spass\s8.\sRenamed\s'retrograde'\sto\s'Backward\sBranch',\sshould\sbe\seasier\sto\sunderstand,\sand\scompleted\sthe\spredicate\stesting\sif\sa\sbranch\schangeset\sis\sbackward\sor\snot.
+D 2007-11-22T03:47:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -107,7 +107,7 @@ F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_integrity.tcl f5cf3c56374ce48ced3fc6b70542efebd9693336
 F tools/cvs2fossil/lib/c2f_option.tcl 5b894a43fc43af3f4223d44431940e9b427949ea
 F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl a4b4de4900927d9db170c0c53ea778fe80fddf01
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 2f61c9c5705a7452ca3074ee7f9526445e3fab96
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9bec773f1f030e48b2694e2ada5cb1918280458e
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 436cc24e8ca781b91fcc4331fc56272d07bd3584
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
@@ -166,14 +166,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P de4cff4142168685027cd1e212782c72fe097349
-R 70ce7a6535aed80d8c83a867b3db587f
+P 4866889e88a0324e60732d9b48b388c90ddd761f
+R cd435b49795e4f72c8add5592e4d3c7d
 U aku
-Z a38472cf24e403b119512412889c9dc2
+Z f575a9950db8183d3422cefb2919aead
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHRPiQvonzZ/CRa7gRAscmAKC6uBm4eRN+F7zyoU6hbiTq+mCOZgCdG5Wi
-83+RNhvueMXsXRW5IjqtRvE=
-=INCf
+iD8DBQFHRPvevonzZ/CRa7gRApxIAJwI4oU6sdr8Yi6aXQS3MY9BHNGZ6QCfe2K3
+8+WJ49ltQ2KKJXnqtwf0ZJA=
+=WZRY
 -----END PGP SIGNATURE-----

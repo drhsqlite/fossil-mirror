@@ -64,7 +64,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
-	cyclebreaker precmd   [myproc BreakRetrogradeBranches]
+	cyclebreaker precmd   [myproc BreakBackwardBranches]
 	cyclebreaker savecmd  [myproc SaveOrder]
 	cyclebreaker breakcmd [myproc BreakCycle]
 
@@ -108,12 +108,14 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     # # ## ### ##### ######## #############
 
-    proc BreakRetrogradeBranches {graph} {
+    proc BreakBackwardBranches {graph} {
 	# We go over all branch changesets, i.e. the changesets
 	# created by the symbols which are translated as branches, and
-	# break any which are 'retrograde'. Meaning that they have
-	# incoming revision changesets which are committed after some
-	# outgoing revision changeset.
+	# break any which are 'backward', which means that they have
+	# at least one incoming revision changeset which is committed
+	# after at least one of the outgoing revision changesets, per
+	# the order computed in pass 6. In "cvs2svn" this is called
+	# "retrograde".
 
 	# NOTE: We might be able to use our knowledge that we are
 	# looking at all changesets to create a sql which selects all
@@ -126,23 +128,62 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
 	foreach cset [$graph nodes] {
 	    if {![$cset isbranch]} continue
-	    CheckAndBreakRetrograde $graph $cset
+	    CheckAndBreakBackwardBranch $graph $cset
 	}
 	return
     }
 
-    proc CheckAndBreakRetrograde {graph cset} {
-	while {[IsRetrograde $graph $cset]} {
-	    log write 5 breakacycle "Breaking retrograde changeset <[$cset id]>"
+    proc CheckAndBreakBackwardBranch {graph cset} {
+	while {[IsABackwardBranch $graph $cset]} {
+	    log write 5 breakacycle "Breaking backward branch changeset <[$cset id]>"
 
 	    break
 	}
 	return
     }
 
-    proc IsRetrograde {dg cset} {
-	return 0
+    proc IsABackwardBranch {dg cset} {
+	# A branch is "backward" if it has at least one incoming
+	# revision changeset which is committed after at least one of
+	# the outgoing revision changesets, per the order computed in
+	# pass 6.
+
+	# Rephrased, the maximal commit position found among the
+	# incoming revision changesets is larger than the minimal
+	# commit position found among the outgoing revision
+	# changesets. Assuming that we have both incoming and outgoing
+	# revision changesets.
+
+	# The helper "Positions" computes the set of commit positions
+	# for a set of changesets, which can be a mix of revision and
+	# symbol changesets.
+
+	set predecessors [Positions [$dg nodes -in  $cset]]
+	set successors   [Positions [$dg nodes -out $cset]]
+
+	return [expr {
+		      [llength $predecessors] &&
+		      [llength $successors]   &&
+		      ([max $predecessors] >= [min $successors])
+		  }]
     }
+
+    proc Positions {changesets} {
+	# To compute the set of commit positions from the set of
+	# changesets we first map each changeset to its position (*)
+	# and then filter out the invalid responses (the empty string)
+	# returned by the symbol changesets.
+	#
+	# (*) This data was loaded into memory earlir in the pass, by
+	#     LoadCommitOrder.
+
+	return [struct::list filter [struct::list map $changesets \
+					 [myproc ToPosition]] \
+		    [myproc ValidPosition]]
+    }
+
+    proc ToPosition    {cset} { $cset pos }
+    proc ValidPosition {pos}  { expr {$pos ne ""} }
 
     # # ## ### ##### ######## #############
 
