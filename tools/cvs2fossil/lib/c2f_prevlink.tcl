@@ -150,22 +150,10 @@ snit::type ::vc::fossil::import::cvs::project::revlink {
 				      $mycategory(pass)]
 	}
 
-	# We now have the split in the mycategory(prev|next)
-	# elements. As part of the creation of the new changesets the
-	# old one is dropped from all databases, in and out of memory,
-	# and then destroyed.
+	# We now have the revisions for the two fragments to be in the
+	# (prev|next) elements of mycategory.
 
-	struct::list assign [$mycset data] project cstype cssrc
-	$mycset drop
-	$mycset destroy
-
-	set newcsets {}
-	lappend newcsets [project::rev %AUTO% $project $cstype $cssrc $mycategory(prev)]
-	lappend newcsets [project::rev %AUTO% $project $cstype $cssrc $mycategory(next)]
-
-	foreach c $newcsets { $c persist }
-
-	return $newcsets
+	return [project::rev split $mycset $mycategory(prev) $mycategory(next)]
     }
 
     # # ## ### ##### ######## #############

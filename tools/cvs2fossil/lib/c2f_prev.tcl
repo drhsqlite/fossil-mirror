@@ -64,6 +64,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return [lsort -unique $csets]
     }
 
+    # revision -> list (revision)
     method nextmap {} {
 	if {[llength $mynextmap]} { return $mynextmap }
 	PullSuccessorRevisions tmp $myrevisions
@@ -253,6 +254,26 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set pos          [lsearch -exact $mychangesets $self]
 	set mychangesets [lreplace $mychangesets $pos $pos]
 	return
+    }
+
+    typemethod split {cset args} {
+	# As part of the creation of the new changesets specified in
+	# ARGS as sets of revisions, all subsets of CSET's revision
+	# set, CSET will be dropped from all databases, in and out of
+	# memory, and then destroyed.
+
+	struct::list assign [$cset data] project cstype cssrc
+
+	$cset drop
+	$cset destroy
+
+	set newcsets {}
+	foreach fragmentrevisions $args {
+	    lappend newcsets [$type %AUTO% $project $cstype $cssrc $fragmentrevisions]
+	}
+
+	foreach c $newcsets { $c persist }
+	return $newcsets
     }
 
     # # ## ### ##### ######## #############
@@ -569,9 +590,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     typevariable mychangesets    {} ; # List of all known changesets.
     typevariable myrevmap -array {} ; # Map from revisions to their changeset.
 
-    typemethod all {} {
-	return $mychangesets
-    }
+    typemethod all {} { return $mychangesets }
 
     # # ## ### ##### ######## #############
     ## Configuration

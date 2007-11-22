@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\stypo\sin\scycle\sbreaker\slogging.\sExtended\spass\s8,\swrote\sthe\soutline\swith\sall\sthe\srelevant\scustom\scallbacks.
-D 2007-11-21T04:44:13
+C Moved\sthe\sfunctionality\sfor\ssplitting\sa\schangeset\sbased\son\sthe\ssets\sof\srevisions\sfor\sthe\sfragments\sto\sbe\sinto\sa\sseparate\scommand,\sand\sinto\sthe\schangeset\sclass,\sfor\suse\soutside\sof\schangeset\slinks.
+D 2007-11-22T02:58:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -116,8 +116,8 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7553c6538ad7d3fd2acf03514cc7d52210d116ae
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 29f48baf1681e05ab6663c3ca9ca6a094c8541a9
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 10710518c21acecb66ba2959b943d6018d013559
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
-F tools/cvs2fossil/lib/c2f_prev.tcl 458c8956e4aa6ccc33f81d56865b639aeb4ab0ea
-F tools/cvs2fossil/lib/c2f_prevlink.tcl 01734176b9489d88add09b3fd41a7de60f230021
+F tools/cvs2fossil/lib/c2f_prev.tcl da85eb5f98037187b1b8ab1abd0a5bf3eba1dd68
+F tools/cvs2fossil/lib/c2f_prevlink.tcl b25fedd0c7631934c6eb2eab0b5933f61c4bfc4d
 F tools/cvs2fossil/lib/c2f_project.tcl 39d1bb0e929ef13145d932534344a56ac57b586d
 F tools/cvs2fossil/lib/c2f_psym.tcl e97d1e5410b79da3de12c44139dc5f188da36353
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
@@ -166,14 +166,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2a0ec504c5d4e843a0e9ff637dbe025af7a85d0b
-R c32eef936134a2596e395e92dc9a5ed0
+P 1f600181195ba2807a7d96b9c5ee8063d50cafac
+R 1de033445b0365641156d5f5d4e9a037
 U aku
-Z 2388935d588d42b1c0ef5e4455cdd72b
+Z d793106bd7b51f5522e7033052e7119f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHQ7edvonzZ/CRa7gRAplXAJ9D7gEUCzV7wkAcfxvlCjOm9x+siwCfSs8B
-QhVU3Y8Sav04Rrrbcbu6tMY=
-=KPRf
+iD8DBQFHRPBIvonzZ/CRa7gRAmBDAJ9aHl3vAnfZ9ghemLCBfrrKZEbAHwCgwD2I
+TEJiDE2NdHs55/npAoqbeVU=
+=Ito2
 -----END PGP SIGNATURE-----
