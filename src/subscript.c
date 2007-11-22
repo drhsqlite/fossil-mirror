@@ -394,7 +394,7 @@ int SbS_Store(
     v.u.str.z = mprintf("%s", zValue);
     v.flags |= SBSVAL_DYN;
   }else{
-    v.u.str.z = zValue;
+    v.u.str.z = (char*)zValue;
   }
   return sbs_store(&p->symTab, zName, -1, &v);
 }

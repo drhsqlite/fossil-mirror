@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\sunified\sdiff\sgenerator.
-D 2007-11-21T16:03:19
+C Fix\ssome\scompiler\swarnings.\s\sComment\schanges\son\snon-functioning\scode\sin\stkt.c.
+D 2007-11-22T01:53:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -75,16 +75,16 @@ F src/rebuild.c 45d87035e5f481e19866228873b578e48d6919c9
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/sample-config1.txt cd7d68e8665eff6edab236fe4f475e7cc434e217
 F src/schema.c 3e36e323dca2de766d7d691c8f7fdc34e86b5ea5
-F src/setup.c d38440e1a35c3890ee9c36c408e1427ef154c9be
+F src/setup.c 6f12e979c371f72e1b1cdea1b07a218c774a0d44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c c9b574b26484948a152aea321bf92108ac11028d
-F src/subscript.c 7a4e64645a3111066c8cdcc50f59cb399bb7ad5e
+F src/subscript.c 1ea8902693e785e75445d33df0f6b068d81f1183
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
 F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
-F src/tkt.c 739fe0dd6c9c86cb321432d96fca414964c51fa6
+F src/tkt.c e32e47c61cd666d747e0c82099f3656413e4861e
 F src/tktconf.c d769ab03450ca4fe1b794c56206ef03776c14e80
 F src/tktconfig.c a3312ee19399f32bbb281497afc9b3886c63768f
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P d2b4469934765b9a2380cc39d80d2e5210d9aaa0
-R ffd28cfc624c3ed2a11826852c720cd6
+P 4db464a748d9895ee3ae0a3091808fe518ae5000
+R 4d7a294e6cbbfb47415ac2367d89d4ae
 U drh
-Z 691c6ad32ddbcb75b47bf449a42f5abb
+Z 7805ddf5aa1d6b850a683ccb4f3ddfff
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHRFbLoxKgR168RlERAnV/AJoDgRHgjQpNb5/Q49XWTXb5KJnq/QCfYkml
-FIfGgKbtVozOL0GHUNYqAuQ=
-=zTWU
+iD8DBQFHROEYoxKgR168RlERAl7TAKCJvPGipsEWvi1cTR2xRqe38dzxcwCfRrcV
+b+iYmDETKVDT2VQ+fdInEU4=
+=PT7x
 -----END PGP SIGNATURE-----

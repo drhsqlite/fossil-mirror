@@ -484,9 +484,9 @@ static void textarea_attribute(
   int cols,             /* Columns in the textarea */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQP,      /* The query parameter */
-  char *zDflt           /* Default value if VAR table entry does not exist */
+  const char *zDflt     /* Default value if VAR table entry does not exist */
 ){
-  const char *z = db_get(zVar, zDflt);
+  const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
   if( zQ && strcmp(zQ,z)!=0 ){
     db_set(zVar, zQ, 0);

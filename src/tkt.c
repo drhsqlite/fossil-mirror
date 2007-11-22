@@ -86,9 +86,12 @@ static int isTicketField(const char *zField){
 
 /*
 ** Update an entry of the TICKET table according to the information
-** in the control file.
+** in the control file given in p.  Attempt to create the appropriate
+** TICKET table entry if createFlag is true.  If createFlag is false,
+** that means we already know the entry exists and so we can save the
+** work of trying to create it.
 */
-void ticket_insert(Manifest *p, int createFlag){
+void ticket_insert(Manifest *p, int createFlag, int checkTime){
   Blob sql;
   Stmt q;
   int i;
