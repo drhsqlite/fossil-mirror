@@ -116,11 +116,11 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		FROM   csrevision C
 		WHERE  C.cid = $id
 		ORDER  BY C.pos
-	    }]]
-	    $r setid $id
+	    }] $id]
 	}
 
 	project::rev getcstypes
+	project::rev loadcounter
 	return
     }
 

@@ -30,8 +30,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {project cstype srcid revisions} {
-	set myid        [incr mycounter]
+    constructor {project cstype srcid revisions {theid {}}} {
+	if {$theid ne ""} {
+	    set myid $theid
+	} else {
+	    set myid [incr mycounter]
+	}
+
 	set myproject   $project
 	set mytype      $cstype	  
 	set mysrcid	$srcid	  
@@ -47,8 +52,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method id        {} { return $myid }
     method revisions {} { return $myrevisions }
     method data      {} { return [list $myproject $mytype $mysrcid] }
-
-    method setid {id} { set myid $id ; return }
 
     method bysymbol   {} { return [expr {$mytype eq "sym"}] }
     method byrevision {} { return [expr {$mytype eq "rev"}] }
