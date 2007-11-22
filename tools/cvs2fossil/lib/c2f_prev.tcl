@@ -22,6 +22,7 @@ package require vc::tools::misc                       ; # Text formatting
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
 ## 
@@ -60,6 +61,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     method setpos {p} { set mypos $p ; return }
     method pos    {}  { return $mypos }
+
+    method isbranch {} {
+	return [expr {($mytype eq "sym") &&
+		      ($mybranchcode == [state one {
+			  SELECT type FROM symbol WHERE sid = $mysrcid
+		      }])}]
+    }
 
     method successors {} {
 	# NOTE / FUTURE: Possible bottleneck.
@@ -600,9 +608,15 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     typevariable mychangesets    {} ; # List of all known changesets.
     typevariable myrevmap -array {} ; # Map from revisions to their changeset.
     typevariable myidmap  -array {} ; # Map from changeset id to changeset.
+    typevariable mybranchcode    {} ; # Local copy of project::sym/mybranch.
 
     typemethod all {}   { return $mychangesets }
     typemethod of  {id} { return $myidmap($id) }
+
+    typeconstructor {
+	set mybranchcode [project::sym branch]
+	return
+    }
 
     # # ## ### ##### ######## #############
     ## Configuration
@@ -618,6 +632,9 @@ namespace eval ::vc::fossil::import::cvs::project {
     namespace export rev
     namespace eval rev {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace eval project {
+	    namespace import ::vc::fossil::import::cvs::project::sym
+	}
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log

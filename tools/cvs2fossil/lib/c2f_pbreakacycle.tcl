@@ -22,7 +22,9 @@
 package require Tcl 8.4                                   ; # Required runtime.
 package require snit                                      ; # OO system.
 package require struct::list                              ; # Higher order list operations.
+package require vc::tools::misc                           ; # Min, max.
 package require vc::tools::log                            ; # User feedback.
+package require vc::tools::trouble                        ; # Error reporting.
 package require vc::fossil::import::cvs::repository       ; # Repository management.
 package require vc::fossil::import::cvs::cyclebreaker     ; # Breaking dependency cycles.
 package require vc::fossil::import::cvs::state            ; # State storage.
@@ -107,6 +109,39 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     # # ## ### ##### ######## #############
 
     proc BreakRetrogradeBranches {graph} {
+	# We go over all branch changesets, i.e. the changesets
+	# created by the symbols which are translated as branches, and
+	# break any which are 'retrograde'. Meaning that they have
+	# incoming revision changesets which are committed after some
+	# outgoing revision changeset.
+
+	# NOTE: We might be able to use our knowledge that we are
+	# looking at all changesets to create a sql which selects all
+	# the branch changesets from the state in one go instead of
+	# having to check each changeset separately. Consider this
+	# later, get the pass working first.
+	#
+	# NOTE 2: Might we even be able to select the retrograde
+	# changesets too ?
+
+	foreach cset [$graph nodes] {
+	    if {![$cset isbranch]} continue
+	    CheckAndBreakRetrograde $graph $cset
+	}
+	return
+    }
+
+    proc CheckAndBreakRetrograde {graph cset} {
+	while {[IsRetrograde $graph $cset]} {
+	    log write 5 breakacycle "Breaking retrograde changeset <[$cset id]>"
+
+	    break
+	}
+	return
+    }
+
+    proc IsRetrograde {dg cset} {
+	return 0
     }
 
     # # ## ### ##### ######## #############
@@ -145,6 +180,8 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::rev
 	}
+	namespace import ::vc::tools::misc::*
+	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	log register breakacycle
     }
