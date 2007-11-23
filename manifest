@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s%w\sand\s%W\sformatting\soptions\sfor\sinternal\sprintf\susage.\s\sUse\nthese\sformatting\scharacters\sto\srender\swiki.\s\sFix\sadditional\sproblems\sof\nunterminated\swiki\son\swebpage\srendering\sby\susing\s%w.\s\s(There\sare\sprobably\nmore\sproblems\syet\sto\sbe\sdiscovered\sand\sfixed.)
-D 2007-11-22T22:55:05
+C Remove\sobsolete\sfile\scontaining\ssample\sticket\sconfiguration\sscript.
+D 2007-11-23T12:49:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -73,7 +73,6 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c af38cba6b01c8e55eb695dcebbdbf94c1b8025e4
 F src/rebuild.c 45d87035e5f481e19866228873b578e48d6919c9
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/sample-config1.txt cd7d68e8665eff6edab236fe4f475e7cc434e217
 F src/schema.c 3e36e323dca2de766d7d691c8f7fdc34e86b5ea5
 F src/setup.c 6f12e979c371f72e1b1cdea1b07a218c774a0d44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
@@ -177,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P d6ad7aa034f090e7cad99d607a9d2b0a11951281
-R b53e5ca18ec4daaf0d5ea167565b108e
+P 285929373757b9813748fd31744b4379dc163dfd
+R edfb37b9fe24d7c5cd4b368e22ecbd38
 U drh
-Z aafac7eec3c7f53879af570ca4fce31e
+Z 7ed456fe70d13e40bfb80d918dd351cb
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHRgjPoxKgR168RlERAmrsAJ418SCkTLuG/fmqu7RiZOuRrxm5bQCfR6rP
-EQI8JQT55eKNSFB6aNMD/n4=
-=s5ju
+iD8DBQFHRsxCoxKgR168RlERAqj9AJ9+1X7H2dMFem5WwPENlIPihhco5QCeJB+r
+PToH5CRbBP7YS32HTDOrBK0=
+=IjBz
 -----END PGP SIGNATURE-----
