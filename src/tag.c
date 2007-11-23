@@ -340,7 +340,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("tag add TAGNAME UUID ?VALUE?");
+      usage("add TAGNAME UUID ?VALUE?");
     }
     zValue = g.argc==6 ? g.argv[5] : 0;
     tag_add_artifact(g.argv[3], g.argv[4], zValue, 1);
@@ -349,7 +349,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"branch",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("tag branch TAGNAME UUID ?VALUE?");
+      usage("branch TAGNAME UUID ?VALUE?");
     }
     zValue = g.argc==6 ? g.argv[5] : 0;
     tag_add_artifact(g.argv[3], g.argv[4], zValue, 2);
@@ -357,7 +357,7 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"delete",n)==0 ){
     if( g.argc!=5 ){
-      usage("tag delete TAGNAME UUID");
+      usage("delete TAGNAME UUID");
     }
     tag_add_artifact(g.argv[3], g.argv[4], 0, 0);
   }else
@@ -365,7 +365,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
     if( g.argc!=4 ){
-      usage("tag find TAGNAME");
+      usage("find TAGNAME");
     }
     db_prepare(&q,
       "SELECT blob.uuid FROM tagxref, blob"

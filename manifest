@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sobsolete\sfile\scontaining\ssample\sticket\sconfiguration\sscript.
-D 2007-11-23T12:49:02
+C Fix\sa\sredundancy\sin\sthe\stext\soutput\sof\sthe\susage\scomment\s\non\sthe\stag\scommand.
+D 2007-11-23T12:55:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -81,7 +81,7 @@ F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c c9b574b26484948a152aea321bf92108ac11028d
 F src/subscript.c 1ea8902693e785e75445d33df0f6b068d81f1183
 F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
-F src/tag.c bdc0f633b7993cfc737708d85a11333d452cdfc5
+F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
 F src/timeline.c 4abc5a498759e59b2c1f9b9408414b9a47316e6b
 F src/tkt.c e32e47c61cd666d747e0c82099f3656413e4861e
 F src/tktconf.c d769ab03450ca4fe1b794c56206ef03776c14e80
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 285929373757b9813748fd31744b4379dc163dfd
-R edfb37b9fe24d7c5cd4b368e22ecbd38
+P 6311ce2ec11db4808a3ad81c0043f4e6d15283b3
+R 401af49c35f9ea9fa561b7a460431ce4
 U drh
-Z 7ed456fe70d13e40bfb80d918dd351cb
+Z baad5bfa6edb95cf304796b6024ade2f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHRsxCoxKgR168RlERAqj9AJ9+1X7H2dMFem5WwPENlIPihhco5QCeJB+r
-PToH5CRbBP7YS32HTDOrBK0=
-=IjBz
+iD8DBQFHRs3hoxKgR168RlERApoJAKCN+UBN8k6GCnnw8K6TQmN1GQ6j8wCfSAhX
+gZXN3vHsjUAMuAjBN84snbM=
+=4aKW
 -----END PGP SIGNATURE-----
