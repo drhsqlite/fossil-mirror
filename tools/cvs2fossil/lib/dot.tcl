@@ -27,39 +27,32 @@ snit::type ::vc::tools::dot {
     # # ## ### ##### ######## #############
     ## Public API, Methods
 
-    typemethod format {g name} {
+    typemethod format {g name {subgraph {}}} {
 	lappend lines "digraph \"$name\" \{"
 
-	foreach n [$g nodes] {
-	    set cmd "\"$n\""
-	    set sep " "
-	    set head " \["
-	    set tail ""
-	    foreach {gattr nodekey} {
-		label label
-		shape shape
-	    } {
-		if {![$g node keyexists $n $nodekey]} continue
-		append cmd "$head$sep${gattr}=\"[$g node get $n $nodekey]\""
-
-		set sep ", "
-		set head ""
-		set tail " \]"
-	    }
-
-	    append cmd ${tail} ";"
-	    lappend lines $cmd
+	if {![llength $subgraph]} {
+	    set nodes [$g nodes]
+	    set arcs  [$g arcs]
+	} else {
+	    set nodes $subgraph
+	    set arcs [eval [linsert $subgraph 0 $g arcs -inner]]
 	}
-	foreach a [$g arcs] {
-	    lappend lines "\"[$g arc source $a]\" -> \"[$g arc target $a]\";"
+
+	foreach n $nodes {
+	    set style [Style $g node $n {label label shape shape}]
+	    lappend lines "\"$n\" ${style};"
+	}
+	foreach a $arcs {
+	    set style [Style $g arc $a {color color}]
+	    lappend lines "\"[$g arc source $a]\" -> \"[$g arc target $a]\" ${style};"
 	}
 
 	lappend lines "\}"
 	return [join $lines \n]
     }
 
-    typemethod write {g name file} {
-	fileutil::writeFile $file [$type format $g $name]
+    typemethod write {g name file {subgraph {}}} {
+	fileutil::writeFile $file [$type format $g $name $subgraph]
 	return
     }
 
@@ -73,6 +66,23 @@ snit::type ::vc::tools::dot {
 
     # # ## ### ##### ######## #############
     ## Internal, state
+
+    proc Style {graph x y dict} {
+	set sep " "
+	set head " \["
+	set tail ""
+	set style ""
+	foreach {gattr key} $dict {
+	    if {![$graph $x keyexists $y $key]} continue
+	    append style "$head$sep${gattr}=\"[$graph $x get $y $key]\""
+	    set sep ", "
+	    set head ""
+	    set tail " \]"
+	}
+
+	append style ${tail}
+	return $style
+    }
 
     # # ## ### ##### ######## #############
     ## Internal, helper methods (formatting, dispatch)

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\stwo\smore\sdebugging\shelper\sapplications.\sOne\sto\sextract\sand\sshow\sa\sfile\srevision\stree,\sthe\sother\sto\sdisplay\sa\sdot\sfile\sgenerated\sby\sthe\simporter\sduring\scycle\sbreaking\spasses.
-D 2007-11-23T05:38:12
+C Extended\sthe\sdot\sgraph\sexporter\sto\sallow\sthe\sexport\sof\sa\ssubgraph\sspecified\sthrough\sa\sset\sof\snodes.\sDefault\sis\sthe\sexport\sof\sthe\swhole\sgraph,\sas\sbefore.
+D 2007-11-23T05:41:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -125,7 +125,7 @@ F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
 F tools/cvs2fossil/lib/c2f_repository.tcl 7d5182fefd18b96c3ec5344c2ecc6ad414e8425a
 F tools/cvs2fossil/lib/c2f_state.tcl 5356f2147dab77b10348cff6d5507cfb3c18ef85
 F tools/cvs2fossil/lib/cvs2fossil.tcl 516ad355383b08d6e2203260cb9802e514cd8e44
-F tools/cvs2fossil/lib/dot.tcl 405d093d08180130e8b764f9269d8d515d2e9acf
+F tools/cvs2fossil/lib/dot.tcl 52485496600954a24766ea5ac85f5b3391673ced
 F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
 F tools/cvs2fossil/lib/log.tcl b0cf40fdc1ff3261f498d4b97730bbada21ce528
 F tools/cvs2fossil/lib/misc.tcl d837793c993226d30d8c8b46e945ba77c8e47da9
@@ -170,14 +170,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b8c3542172c11e429a12696ea8f6d78397f9b97b
-R 757748d621905ef0c83120320d9c612f
+P 64d0019e0fdc2971f890b21c42ee0d6f3ca25a39
+R d115b9e83be3a1cf7c536a420b3a7ff1
 U aku
-Z 474c26d3610aaaa79e9221e49b061717
+Z 9885fe07853951eb1a525ad28250141d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHRmdJvonzZ/CRa7gRAsW5AKCqf6jNYUHDbcn9Yrt+yflzzxEplwCfQBqj
-6KNh1JxL8d9QCWC6/W16o+E=
-=4MoG
+iD8DBQFHRmgBvonzZ/CRa7gRAupTAJ9y+W/xcHd46UzzgIN3Vue+Zp2qvwCfVMxO
+wRvd4azMSeyQTpFZX6SLdRk=
+=Zj5A
 -----END PGP SIGNATURE-----
