@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Extended\sthe\sdot\sgraph\sexporter\sto\sallow\sthe\sexport\sof\sa\ssubgraph\sspecified\sthrough\sa\sset\sof\snodes.\sDefault\sis\sthe\sexport\sof\sthe\swhole\sgraph,\sas\sbefore.
-D 2007-11-23T05:41:21
+C Modified\scycle\sbreaker\sAPI.\sHook\sfor\sprocessed\snodes\snow\stakes\sthe\sgraph\sas\snew\sfirst\sargument.\sExtended\sAPI,\sexposed\smethod\sfor\sdumping\sthe\scurrent\sstate\sof\sthe\sgraph,\sincluding\sability\sto\sdump\sa\ssub\sgraph.
+D 2007-11-23T05:43:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -99,7 +99,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree 5736267763b2b886670f3a3ddacc2be5b4b210fb
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 00c265ebb6c2bf602a2ea5eb0db4be65bdd914b9
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 0d5893505cae5cd1208aff43417c5cf319d3bc1e
 F tools/cvs2fossil/lib/c2f_file.tcl 244708335681ce784b535108c2e10e98dea03caf
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
 F tools/cvs2fossil/lib/c2f_frev.tcl b685fd71ec9c7edd21f430686db3eaa6f3639e95
@@ -170,14 +170,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 64d0019e0fdc2971f890b21c42ee0d6f3ca25a39
-R d115b9e83be3a1cf7c536a420b3a7ff1
+P 86f3319041f2b26b6121b35001cb4bb7bdf3e1e2
+R 442b1ea3a5c3622bb655972f011cee0a
 U aku
-Z 9885fe07853951eb1a525ad28250141d
+Z 65123f0321a9ea599fe0c4020c8eec24
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHRmgBvonzZ/CRa7gRAupTAJ9y+W/xcHd46UzzgIN3Vue+Zp2qvwCfVMxO
-wRvd4azMSeyQTpFZX6SLdRk=
-=Zj5A
+iD8DBQFHRmh9vonzZ/CRa7gRArFNAJ4qrPm2PmGB8p0FGFqh9H5NL2HnpQCeLZpW
+StFyaQKqa99E5UYMfeeq1dQ=
+=0QMl
 -----END PGP SIGNATURE-----

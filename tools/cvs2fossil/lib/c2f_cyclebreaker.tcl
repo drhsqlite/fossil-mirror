@@ -66,6 +66,11 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return
     }
 
+    typemethod mark {graph suffix {subgraph {}}} {
+	Mark $graph $suffix $subgraph
+	return
+    }
+
     # # ## ### ##### ######## #############
 
     typemethod run {label changesetcmd} {
@@ -95,7 +100,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	InitializeCandidates $dg
 	while {1} {
 	    while {[WithoutPredecessor $dg n]} {
-		ProcessedHook $n $myat
+		ProcessedHook $dg $n $myat
 		$dg node delete $n
 		incr myat
 		ShowPendingNodes
@@ -151,6 +156,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    $dg node insert $cset
 	    $dg node set    $cset timerange [$cset timerange]
 	    $dg node set    $cset label     [ID $cset]
+	    $dg node set    $cset __id__ [$cset id]
 	}
 
 	# 2. Find for all relevant changeset their revisions and their
@@ -331,14 +337,14 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return 1
     }
 
-    proc Mark {dg {suffix {}}} {
+    proc Mark {dg {suffix {}} {subgraph {}}} {
 	::variable mydotdestination
 	if {$mydotdestination eq ""} return
 	::variable mydotprefix
 	::variable mydotid
 	set fname $mydotdestination/${mydotprefix}${mydotid}${suffix}.dot
 	file mkdir [file dirname $fname]
-	dot write $dg $mydotprefix$suffix $fname
+	dot write $dg $mydotprefix$suffix $fname $subgraph
 	incr mydotid
 
 	log write 5 cyclebreaker ".dot export $fname"
@@ -399,14 +405,14 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return
     }
 
-    proc ProcessedHook {cset pos} {
+    proc ProcessedHook {dg cset pos} {
 	# Give the user of the cycle breaker the opportunity to work
 	# with the changeset before it is removed from the graph.
 
 	::variable mysavecmd
 	if {![llength $mysavecmd]} return
 
-	uplevel #0 [linsert $mysavecmd end $pos $cset]
+	uplevel #0 [linsert $mysavecmd end $dg $pos $cset]
 	return
     }
 
