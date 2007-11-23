@@ -114,7 +114,7 @@ struct SbsHashEntry {
   SbsHashEntry *pNext;     /* Next entry with the same hash on zKey */
   SbSValue val;            /* The payload */
   int nKey;               /* Length of the key */
-  char zKey[0];           /* The key */
+  char zKey[1];           /* The key */
 };
 
 /*
@@ -385,16 +385,18 @@ int SbS_Store(
   struct Subscript *p,   /* Store into this interpreter */
   const char *zName,     /* Name of the variable */
   const char *zValue,    /* Value of the variable */
-  int makeCopy           /* If true, interpreter makes its own copy */
+  int persistence        /* 0: static.  1: ephemeral.  2: dynamic */
 ){
   SbSValue v;
   v.flags = SBSVAL_STR;
   v.u.str.size = strlen(zValue);
-  if( makeCopy ){
+  if( persistence==1 ){
     v.u.str.z = mprintf("%s", zValue);
-    v.flags |= SBSVAL_DYN;
   }else{
     v.u.str.z = (char*)zValue;
+  }
+  if( persistence>0 ){
+    v.flags |= SBSVAL_DYN;
   }
   return sbs_store(&p->symTab, zName, -1, &v);
 }

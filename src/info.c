@@ -135,7 +135,7 @@ static int showDescendents(int pid, int depth, const char *zTitle){
     cnt++;
     if( cnt==1 ){
       if( zTitle ){
-        @ <div class="section-title">%s(zTitle)</div>
+        @ <div class="section">%s(zTitle)</div>
       }
       @ <ul>
     }
@@ -186,7 +186,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
     cnt++;
     if( cnt==1 ){
       if( zTitle ){
-        @ <div class="section-title">%s(zTitle)</div>
+        @ <div class="section">%s(zTitle)</div>
       }
       @ <ul>
     }
@@ -226,7 +226,7 @@ static void showLeaves(void){
     const char *zCom = db_column_text(&q, 3);
     cnt++;
     if( cnt==1 ){
-      @ <div class="section-title">Leaves</div>
+      @ <div class="section">Leaves</div>
       @ <ul>
     }
     @ <li>
@@ -262,7 +262,7 @@ static void showTags(int rid){
     int tagtype = db_column_int(&q, 6);
     cnt++;
     if( cnt==1 ){
-      @ <div class="section-title">Tags And Properties</div>
+      @ <div class="section">Tags And Properties</div>
       @ <ul>
     }
     @ <li>
@@ -323,7 +323,7 @@ void vinfo_page(void){
     style_header(zTitle);
     free(zTitle);
     /*@ <h2>Version %s(zUuid)</h2>*/
-    @ <div class="section-title">Overview</div>
+    @ <div class="section">Overview</div>
     @ <p><table class="label-value">
     @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
     @ <tr><th>Date:</th><td>%s(db_column_text(&q, 1))</td></tr>
@@ -346,7 +346,7 @@ void vinfo_page(void){
   }
   db_finalize(&q);
   showTags(rid);
-  @ <div class="section-title">Changes</div>
+  @ <div class="section">Changes</div>
   @ <ul>
   db_prepare(&q, 
      "SELECT name, pid, fid"
@@ -413,7 +413,7 @@ void winfo_page(void){
     char *zTitle = mprintf("Wiki Page %s", zName);
     style_header(zTitle);
     free(zTitle);
-    @ <div class="section-title">Overview</div>
+    @ <div class="section">Overview</div>
     @ <p><table class="label-value">
     @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
     @ <tr><th>Date:</th><td>%s(db_column_text(&q, 2))</td></tr>

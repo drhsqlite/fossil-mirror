@@ -67,27 +67,34 @@ static int submenuCompare(const void *a, const void *b){
 }
 
 /*
+** The Subscript interpreter used to render header and footer.
+*/
+static struct Subscript *pInterp;
+
+/*
 ** Draw the header.
 */
 void style_header(const char *zTitle){
   const char *zLogInOut = "Login";
   const char *zHeader = db_get("header", (char*)zDefaultHeader);  
-  struct Subscript *p;
   login_check_credentials();
 
   /* Generate the header up through the main menu */
-  p = SbS_Create();
-  SbS_Store(p, "title", zTitle, 0);
-  SbS_Store(p, "baseurl", g.zBaseURL, 0);
+  pInterp = SbS_Create();
+  SbS_Store(pInterp, "project_name",
+                     db_get("project-name","Unnamed Fossil Project"), 0);
+  SbS_Store(pInterp, "title", zTitle, 0);
+  SbS_Store(pInterp, "baseurl", g.zBaseURL, 0);
+  SbS_Store(pInterp, "manifest_version", MANIFEST_VERSION, 0);
+  SbS_Store(pInterp, "manifest_date", MANIFEST_DATE, 0);
   if( g.zLogin ){
-    SbS_Store(p, "login", g.zLogin, 0);
+    SbS_Store(pInterp, "login", g.zLogin, 0);
     zLogInOut = "Logout";
   }
-  SbS_Render(p, zHeader);
-  SbS_Destroy(p);
+  SbS_Render(pInterp, zHeader);
 
   /* Generate the main menu and the submenu (if any) */
-  @ <div id="main-menu">
+  @ <div class="mainmenu">
   @ <a href="%s(g.zBaseURL)/home">Home</a>
   if( g.okRead ){
     @ <a href="%s(g.zBaseURL)/leaves">Leaves</a>
@@ -110,7 +117,7 @@ void style_header(const char *zTitle){
   @ </div>
   if( nSubmenu>0 ){
     int i;
-    @ <div id="sub-menu">
+    @ <div class="submenu">
     qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
     for(i=0; i<nSubmenu; i++){
       struct Submenu *p = &aSubmenu[i];
@@ -122,7 +129,7 @@ void style_header(const char *zTitle){
     }
     @ </div>
   }
-  @ <div id="page">
+  @ <div class="content">
   g.cgiPanic = 1;
 }
 
@@ -130,114 +137,164 @@ void style_header(const char *zTitle){
 ** Draw the footer at the bottom of the page.
 */
 void style_footer(void){
-  /* end the <div id="page"> from style_header() */
+  const char *zFooter = db_get("footer", (char*)zDefaultFooter);
   @ </div>
-  @ <div id="style-footer">
-  @ Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)
-  @ </div>
+  SbS_Render(pInterp, zFooter);
+  SbS_Destroy(pInterp);
 }
 
+/* @-comment: // */
 /*
 ** The default page header.
 */
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
-@ <title>Edit CSS</title>
+@ <title>[project_name html]: [title html]</title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="[baseurl puts]/timeline.rss">
 @ <link rel="stylesheet" href="[baseurl puts]/style.css" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
-@ <div id="page-title">[title html]</div>
-@ <div id="login-status">
-@ [/login exists enable_output]
-@ logged in as [0 /login get html]
-@ [/login exists not enable_output]
-@ not logged in
-@ [1 enable_output]
+@ <div class="header">
+@   <div class="logo">
+@     <!-- <img src="logo.gif" alt="logo"><br></br> -->
+@     <nobr>[project_name html]</nobr>
+@   </div>
+@   <div class="title">[title html]</div>
+@   <div class="status"><nobr>
+@     [login exists enable_output]     Logged in as [0 /login get html]
+@     [login exists not enable_output] Not logged in
+@     [1 enable_output]
+@   </nobr></div>
 @ </div>
 ;
 
 /*
+** The default page footer
+*/
+const char zDefaultFooter[] = 
+@ <div class="footer">
+@ Fossil version [manifest_version puts] [manifest_date puts]
+@ </div>
+@ </body></html>
+;
+
+/*
 ** The default Cascading Style Sheet.
-**
-** Selector order: tags, ids, classes, other
-** Content order: margin, borders, padding, fonts, colors, other
-** Note: Once things are finialize a bit we can collapse this and
-**       make it much smaller, if necessary. Right now, it's verbose
-**       but easy to edit.
 */
 const char zDefaultCSS[] = 
+@ /* General settings for the entire page */
 @ body {
-@   margin: 0px;
+@   margin: 0ex 1ex;
 @   padding: 0px;
 @   background-color: white;
+@   font-family: "sans serif";
 @ }
-@ #page-title {
-@   padding: 10px 10px 10px 10px;
-@   font-size: 1.8em;
+@
+@ /* The project logo in the upper left-hand corner of each page */
+@ div.logo {
+@   display: table-cell;
+@   text-align: center;
+@   vertical-align: bottom;
 @   font-weight: bold;
-@   background-color: #6a7ec7;
-@   color: #0a1e67;
+@   color: #558195;
 @ }
-@ #login-status {
-@   padding: 0px 10px 10px 0px;
-@   font-size: 0.9em;
+@
+@ /* The page title centered at the top of each page */
+@ div.title {
+@   display: table-cell;
+@   font-size: 2em;
+@   font-weight: bold;
+@   text-align: center;
+@   color: #558195;
+@   vertical-align: bottom;
+@   width: 100%;
+@ }
+@
+@ /* The login status message in the top right-hand corner */
+@ div.status {
+@   display: table-cell;
 @   text-align: right;
-@   background-color: #6a7ec7;
-@   color: white;
-@   position: absolute;
-@   top: 10;
-@   right: 0;
+@   vertical-align: bottom;
+@   color: #558195;
+@   font-size: 0.8em;
+@   font-weight: bold;
 @ }
-@ #main-menu {
+@
+@ /* The header across the top of the page */
+@ div.header {
+@   display: table;
+@   width: 100%;
+@ }
+@
+@ /* The main menu bar that appears at the top of the page beneath
+@ ** the header */
+@ div.mainmenu {
 @   padding: 5px 10px 5px 10px;
 @   font-size: 0.9em;
 @   font-weight: bold;
 @   text-align: center;
 @   letter-spacing: 1px;
-@   background-color: #414f84;
+@   background-color: #558195;
 @   color: white;
 @ }
-@ #sub-menu {
+@
+@ /* The submenu bar that *sometimes* appears below the main menu */
+@ div.submenu {
 @   padding: 3px 10px 3px 0px;
 @   font-size: 0.9em;
 @   text-align: center;
-@   background-color: #414f84;
+@   background-color: #456878;
 @   color: white;
 @ }
-@ #main-menu a, #main-menu a:visited, #sub-menu a, #sub-menu a:visited {
+@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited {
 @   padding: 3px 10px 3px 10px;
 @   color: white;
+@   text-decoration: none;
 @ }
-@ #main-menu a:hover, #sub-menu a:hover {
-@   color: #414f84;
+@ div.mainmenu a:hover, div.submenu a:hover {
+@   color: #558195;
 @   background-color: white;
 @ }
-@ #page {
-@   padding: 10px 20px 10px 20px;
+@
+@ /* All page content from the bottom of the menu or submenu down to
+@ ** the footer */
+@ div.content {
+@   padding: 0ex 1ex 0ex 2ex;
 @ }
-@ #style-footer {
+@
+@ /* Some pages have section dividers */
+@ div.section {
+@   margin-bottom: 0px;
+@   margin-top: 1em;
+@   padding: 1px 1px 1px 1px;
+@   font-size: 1.2em;
+@   font-weight: bold;
+@   background-color: #558195;
+@   color: white;
+@ }
+@
+@ /* The "Date" that occurs on the left hand side of timelines */
+@ div.divider {
+@   background: #a1c4d4;
+@   border: 2px #558195 solid;
+@   font-size: 1em; font-weight: normal;
+@   padding: .25em;
+@   margin: .2em 0 .2em 0;
+@   float: left;
+@   clear: left;
+@ }
+@
+@ /* The footer at the very bottom of the page */
+@ div.footer {
 @   font-size: 0.8em;
 @   margin-top: 12px;
 @   padding: 5px 10px 5px 10px;
 @   text-align: right;
-@   background-color: #414f84;
+@   background-color: #558195;
 @   color: white;
-@ }
-@ table.label-value th {
-@   text-align: right;
-@   vertical-align: top;
-@ }
-@ div.section-title {
-@   margin-bottom: 0px;
-@   padding: 1px 1px 1px 1px;
-@   font-size: 1.2em;
-@   font-weight: bold;
-@   background-color: #6a7ec7;
-@   color: #0a1e67;
 @ }
 ;
 
@@ -248,12 +305,8 @@ void page_style_css(void){
   char *zCSS = 0;
 
   cgi_set_content_type("text/css");
-  zCSS = db_get("css",0);
-  if( zCSS ){
-    cgi_append_content(zCSS, -1);
-  }else{
-    cgi_append_content(zDefaultCSS, -1);
-  }
+  zCSS = db_get("css",(char*)zDefaultCSS);
+  cgi_append_content(zCSS, -1);
 }
 
 /*

@@ -73,6 +73,8 @@ void setup_page(void){
     "Edit the Cascading Style Sheet used by all pages of this repository");
   setup_menu_entry("Header", "setup_header",
     "Edit HTML text inserted at the top of every page");
+  setup_menu_entry("Footer", "setup_footer",
+    "Edit HTML text inserted at the bottom of every page");
   @ </dl>
 
   style_footer();
@@ -619,6 +621,38 @@ void setup_header(void){
   @ Here is the default page header:
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
+  @ </pre></blockquote>
+  db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_footer
+*/
+void setup_footer(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name='footer'");
+    cgi_replace_parameter("footer", zDefaultFooter);
+  }else{
+    textarea_attribute(0, 0, 0, "footer", "footer", zDefaultFooter);
+  }
+  style_header("Edit Page Footer");
+  @ <form action="%s(g.zBaseURL)/setup_footer" method="POST">
+  @ <p>Edit HTML text with embedded subscript that will be used to
+  @ generate the end of every page.</p>
+  textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ </form>
+  @ <hr>
+  @ Here is the default page footer:
+  @ <blockquote><pre>
+  @ %h(zDefaultFooter)
   @ </pre></blockquote>
   db_end_transaction(0);
 }
