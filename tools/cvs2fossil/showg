@@ -1,0 +1,6 @@
+#!/bin/sh
+
+dot -Tpng -o $$.png $1
+display $$.png
+rm $$.png
+exit

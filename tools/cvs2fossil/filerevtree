@@ -1,0 +1,168 @@
+#!/bin/sh
+## -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
+# # ## ### ##### ######## ############# #####################
+## Copyright (c) 2007 Andreas Kupries.
+#
+# This software is licensed as described in the file LICENSE, which
+# you should have received as part of this distribution.
+#
+# This software consists of voluntary contributions made by many
+# individuals.  For exact contribution history, see the revision
+# history and logs, available at http://fossil-scm.hwaci.com/fossil
+# # ## ### ##### ######## ############# #####################
+
+## Helper application, debugging of cvs2fossil. This application
+## extracts the tree of revisions for a file of interest, specified
+## either directly through its id, or indirectly through the id of a
+## revision it contains, and generates a nice graphical representation
+## of it (png image). It uses GraphiViz's 'dot' tool to do all the
+## layouting.
+
+# # ## ### ##### ######## ############# #####################
+## Requirements, extended package management for local packages.
+
+lappend auto_path [file join [file dirname [info script]] lib]
+
+package require Tcl 8.4                               ; # Required runtime.
+package require struct::graph                         ; # Graph handling.
+package require struct::list                          ; # Higher order list ops.
+package require vc::fossil::import::cvs::project::rev ; # Changesets
+package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::tools::misc                       ; # Min/max.
+package require vc::tools::dot                        ; # Graph export to DOT.
+
+namespace import ::vc::fossil::import::cvs::state
+namespace import ::vc::fossil::import::cvs::project::rev
+namespace import ::vc::tools::dot
+namespace import ::vc::tools::misc::*
+
+# Process the command line, i.e. get the database to access, and file
+# of interest. The latter can be specified by name, id, or indirectly
+# through the id of one of the revisions it contains.
+
+state use [lindex $argv 0]
+state reading project
+state reading file
+state reading revision
+state reading revisionbranchchildren
+state reading changeset
+state reading csrevision
+state reading csorder
+
+set what [lindex $argv 1]
+set centralrid -1
+
+switch -exact -- $what {
+    rid {
+	# Get the revision of interest, identified by the internal
+	# numeric id used by cvs2fossil.
+	set centralrid [lindex $argv 2]
+
+	puts "Revision : [state one { SELECT rev FROM revision WHERE rid = $centralrid }] ($centralrid)"
+
+	# Map it to the file containing the revision of interest.
+	set fid [state one { SELECT fid FROM revision WHERE rid = $centralrid }]
+    }
+    fid {
+	# Get the file of interest, identified by internal numeric id
+	# used by cvs2fossil.
+	set fid [lindex $argv 2]
+    }
+    fname {
+	# Get the file of interest, identified by its name.
+
+	set fname [lindex $argv 2]
+	set fid [state one { SELECT fid FROM file WHERE name == $fname }]
+    }
+    default {
+	trouble fatal \
+	    "Unknown spec \"$what\", expected one of \"fid\", \"fname\", or \"rid\""
+    }
+}
+
+set pid [state one { SELECT pid FROM file WHERE fid == $fid }]
+
+puts "File     : [state one { SELECT name FROM file    WHERE fid = $fid }] ($fid)"
+puts "Project  : [state one { SELECT name FROM project WHERE pid = $pid }] ($pid)"
+
+# Get the data of all revisions in the file of interest, as a list for
+# iteration, and as array for random access of neighbouring revisions.
+
+array set rev {}
+foreach {rid revnr lod date isdefault} [set revisions [state run {
+    SELECT R.rid, R.rev, S.name, R.date, R.isdefault
+    FROM revision R, symbol S
+    WHERE R.fid = $fid
+    AND   R.lod = S.sid
+}]] {
+    set cs [state run {
+	SELECT CR.cid, CO.pos, CT.name
+	FROM csrevision CR, csorder CO, cstype CT, changeset C
+	WHERE CR.rid = $rid
+	AND   CR.cid = CO.cid
+	AND   CR.cid = C.cid
+	AND   CT.tid = C.type
+    }]
+
+    set rev($rid) [list $revnr $lod $date $isdefault $cs]
+}
+
+puts "#Revs    : [array size rev]"
+
+# Start the graph
+
+struct::graph dg
+
+# Convert the revisions into nodes of the graph, and use node
+# attributes to highlight various pieces of interest for the dot
+# conversion. Label => Revnr, Symbol (LOD), Changeset id (if
+# available), formatted date. Background fill colors to show the
+# different branches ?.
+
+foreach {rid revnr lod date isdefault} $revisions {
+    set label  "$rid = <$revnr> @ $lod / [clock format $date]"
+    set cs [lindex $rev($rid) 4]
+    if {[llength $cs]} {
+	foreach {cs ord cstype} $cs {
+	    append label "\\nCS/${cstype}($cs) @$ord"
+	}
+    }
+    dg node insert $rid
+    dg node set    $rid label $label
+    dg node set    $rid shape [expr {$isdefault ? "diamond" : "box"}]
+}
+
+# Go through the revisions a second time and set up the arcs based on
+# the stored successor information.
+
+::vc::fossil::import::cvs::project::rev::PullSuccessorRevisions dep [array names rev]
+
+proc Ord {cmd rid} {
+    global rev
+    set ords {}
+    foreach {cs ord cstype} [lindex $rev($rid) 4] { lappend ords $ord }
+    return [$cmd $ords]
+}
+
+foreach {rid children} [array get dep] {
+    set max [Ord max $rid]
+
+    foreach child $children {
+	set a [dg arc insert $rid $child]
+
+	if {$max > [Ord min $child]} {
+	    puts "Backward : $rid -> $child"
+	    dg arc set $a color red
+	}
+    }
+}
+
+# Convert the graph to dot, then run the layouter and convert to png,
+# at last show the image.
+
+vc::tools::dot layout png dg SymbolTree st.png
+exec display st.png
+file delete st.png
+exit
