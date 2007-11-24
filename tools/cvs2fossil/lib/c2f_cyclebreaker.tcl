@@ -156,7 +156,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    $dg node insert $cset
 	    $dg node set    $cset timerange [$cset timerange]
 	    $dg node set    $cset label     [ID $cset]
-	    $dg node set    $cset __id__ [$cset id]
+	    $dg node set    $cset __id__    [$cset id]
 	}
 
 	# 2. Find for all relevant changeset their revisions and their
@@ -365,6 +365,8 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	foreach cset $replacements {
 	    $dg node insert $cset
 	    $dg node set    $cset timerange [$cset timerange]
+	    $dg node set    $cset label     [ID $cset]
+	    $dg node set    $cset __id__    [$cset id]
 	}
 
 	foreach cset $replacements {
