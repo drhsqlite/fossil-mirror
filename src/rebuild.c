@@ -59,6 +59,7 @@ int rebuild_db(int randomize, int ttyOutput){
     free(zTable);
   }
   db_multi_exec(zRepositorySchema2);
+  ticket_create_table(0);
 
   db_multi_exec("INSERT INTO unclustered SELECT rid FROM blob");
   db_multi_exec(

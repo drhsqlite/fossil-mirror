@@ -105,30 +105,23 @@ const char zDefaultTicketConfig[] =
 @ # be unique and must not begin with "tkt_".
 @ #
 @ {
-@    type
-@    status
-@    subsystem
-@    priority
-@    severity
-@    contact
-@    title
-@    comment
-@ } /ticket_fields
-@ {
 @    CREATE TABLE ticket(
 @      -- Do not change any column that begins with tkt_
 @      tkt_id INTEGER PRIMARY KEY,
-@      tkt_uuid TEXT UNIQUE,
+@      tkt_uuid TEXT,
 @      tkt_mtime DATE,
-@      tkt_valid BOOLEAN,
 @      -- Add as many field as required below this line
 @      type TEXT,
 @      status TEXT,
 @      subsystem TEXT,
 @      priority TEXT,
 @      severity TEXT,
+@      foundin TEXT,
+@      contact TEXT,
 @      title TEXT,
-@      comment TEXT
+@      comment TEXT,
+@      -- Do not alter this UNIQUE clause:
+@      UNIQUE(tkt_uuid, tkt_mtime)
 @    );
 @    -- Add indices as desired
 @ } /ticket_sql set
@@ -137,8 +130,14 @@ const char zDefaultTicketConfig[] =
 @ # You can define additional variables here.  These variables will be
 @ # accessible to the page templates when they run.
 @ #
-@ {Code Build_Problem Documentation Feature_Request Incident} /type_choices set
-@ {High Medium Low} /priority_choices set
+@ {
+@    Code_Defect
+@    Build_Problem
+@    Documentation
+@    Feature_Request
+@    Incident
+@ } /type_choices set
+@ {Immediate High Medium Low Zero} /priority_choices set
 @ {Critical Severe Important Minor Cosmetic} /severity_choices set
 @ {
 @   Open
@@ -161,6 +160,7 @@ const char zDefaultTicketConfig[] =
 @   Tested
 @   Closed
 @ } /status_choices set
+@ {} /subsystem_choices set
 @ 
 @ ##########################################################################
 @ # The "tktnew_template" variable is set to text which is a template for
@@ -174,32 +174,40 @@ const char zDefaultTicketConfig[] =
 @   [{Open} /status set /submit submit_new_ticket]
 @   <table cellpadding="5">
 @   <tr>
-@   <td cellpadding="2">
+@   <td colspan="2">
 @   Enter a one-line summary of the problem:<br>
-@   <input type="text" name="title" size="60" value="[title html]">
+@   <input type="text" name="title" size="60" value="[{} /title get html]">
 @   </td>
 @   </tr>
 @   
 @   <tr>
 @   <td align="right">Type:
-@   [/type typechoices 20 combobox]
+@   [/type type_choices 1 combobox]
 @   </td>
 @   <td>What type of ticket is this?</td>
 @   </tr>
 @   
 @   <tr>
 @   <td align="right">Version: 
-@   <input type="text" name="foundin" size="20" value="[foundin html]">
+@   <input type="text" name="foundin" size="20" value="[{} /foundin get html]">
 @   </td>
 @   <td>In what version or build number do you observer the problem?</td>
 @   </tr>
 @   
 @   <tr>
 @   <td align="right">Severity:
-@   [/severity {High Medium Low} 8 combobox]
+@   [/severity severity_choices 1 combobox]
 @   </td>
 @   <td>How debilitating is the problem?  How badly does the problem
 @   effect the operation of the product?</td>
+@   </tr>
+@   
+@   <tr>
+@   <td align="right">EMail:
+@   [/severity severity_choices 1 combobox]
+@   </td>
+@   <td>Not publically visible. Used by developers to contact you with
+@   questions.</td>
 @   </tr>
 @   
 @   <tr>
@@ -209,16 +217,16 @@ const char zDefaultTicketConfig[] =
 @   the problem can be reproduced.  Provide as much detail as
 @   possible.
 @   <br>
-@   <textarea name="comment" cols="80" rows="[comment linecount 50 max 10 min]"
-@    wrap="virtual" class="wikiedit">[comment html]</textarea><br>
-@   <br>
+@   <textarea name="comment" cols="80"
+@    rows="[{} /comment linecount 50 max 10 min]"
+@    wrap="virtual" class="wikiedit">[{} /comment get html]</textarea><br>
 @   <input type="submit" name="preview" value="Preview">
 @   </tr>
 @ 
-@   [0 /preview get enable_output]
+@   [/preview exists enable_output]
 @   <tr><td colspan="2">
 @   Description Preview:<br><hr>
-@   [/comment html]
+@   [{} /comment get wiki]
 @   <hr>
 @   </td></tr>
 @   [1 enable_output]
@@ -248,22 +256,22 @@ const char zDefaultTicketConfig[] =
 @   <input type="text" name="title" value="[title html] size=60">
 @   </td></tr>
 @   <tr><td align="right">Status:</td><td>
-@   [/status status_choices 20 combobox]
+@   [/status status_choices 1 combobox]
 @   </td></tr>
 @   <tr><td align="right">Type:</td><td>
-@   [/type type_choices 20 combobox]
+@   [/type type_choices 1 combobox]
 @   </td></tr>
 @   <tr><td align="right">Severity:</td><td>
-@   [/severity {High Medium Low} 10 combobox]
+@   [/severity severity_choices 1 combobox]
 @   </td></tr>
 @   <tr><td align="right">Priority:</td><td>
-@   [/priority {High Medium Low} 10 combobox]
+@   [/priority priority_choices 1 combobox]
 @   </td></tr>
 @   <tr><td align="right">Resolution:</td><td>
-@   [/resolution resolution_choices 20 combobox]
+@   [/resolution resolution_choices 1 combobox]
 @   </td></tr>
 @   <tr><td align="right">Subsystem:</td><td>
-@   [/subsystem subsystem_choices 30 combobox]
+@   [/subsystem subsystem_choices 1 combobox]
 @   </td></tr>
 @   [/e hascap enable_output]
 @     <tr><td align="right">Contact:</td><td>
@@ -305,37 +313,37 @@ const char zDefaultTicketConfig[] =
 @   <!-- load database fields automatically loaded into variables -->
 @   <table cellpadding="5">
 @   <tr><td align="right">Title:</td><td>
-@   [/title html]
+@   [title html]
 @   </td></tr>
 @   <tr><td align="right">Status:</td><td>
-@   [/status html]
+@   [status html]
 @   </td></tr>
 @   <tr><td align="right">Type:</td><td>
-@   [/type html]
+@   [type html]
 @   </td></tr>
 @   <tr><td align="right">Severity:</td><td>
-@   [/severity html]
+@   [severity html]
 @   </td></tr>
 @   <tr><td align="right">Priority:</td><td>
-@   [/priority html]
+@   [priority html]
 @   </td></tr>
 @   <tr><td align="right">Resolution:</td><td>
-@   [/priority html]
+@   [priority html]
 @   </td></tr>
 @   <tr><td align="right">Subsystem:</td><td>
-@   [/subsystem html]
+@   [subsystem html]
 @   </td></tr>
 @   [{e} hascap enable_output]
 @     <tr><td align="right">Contact:</td><td>
-@     [/contact html]
+@     [contact html]
 @     </td></tr>
 @   [1 enable_output]
 @   <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
-@   [/foundin html]
+@   [foundin html]
 @   </td></tr>
 @   <tr><td colspan="2">
 @   Description And Comments:<br>
-@   [/comment html]
+@   [comment wiki]
 @   </td></tr>
 @   </table>
 @ } /tktview_template set

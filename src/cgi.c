@@ -730,6 +730,18 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 }
 
 /*
+** Return the name of the i-th CGI parameter.  Return NULL if there
+** are fewer than i registered CGI parmaeters.
+*/
+const char *cgi_parameter_name(int i){
+  if( i>=0 && i<nUsedQP ){
+    return aParamQP[i].zName;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** Print CGI debugging messages.
 */
 void cgi_debug(const char *zFormat, ...){

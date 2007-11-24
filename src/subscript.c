@@ -62,6 +62,8 @@
 typedef struct Subscript Subscript;
 #define SBS_OK      0
 #define SBS_ERROR   1
+#define SBS_RETURN  2
+#define SBS_BREAK   3
 #endif
 
 /*
@@ -345,13 +347,21 @@ void SbS_Destroy(struct Subscript *p){
 ** Set the error message for an interpreter.  Verb implementations
 ** use this routine when they encounter an error.
 */
-void SbS_SetErrorMessage(struct Subscript *p, const char *zErr){
-  int nErr = strlen(zErr);
+void SbS_SetErrorMessage(struct Subscript *p, const char *zErr, ...){
+  int nErr;
+  char *zMsg;
+  va_list ap;
+
+  va_start(ap, zErr);
+  zMsg = vmprintf(zErr, ap);
+  va_end(ap);
+  nErr = strlen(zMsg);
   if( nErr>sizeof(p->zErrMsg)-1 ){
     nErr = sizeof(p->zErrMsg)-1;
   }
-  memcpy(p->zErrMsg, zErr, nErr);
+  memcpy(p->zErrMsg, zMsg, nErr);
   p->zErrMsg[nErr] = 0;
+  free(zMsg);
 }
 
 /*
@@ -530,11 +540,12 @@ int SbS_StackValueInt(struct Subscript *p, int N){
 const char *SbS_Fetch(
   struct Subscript *p,   /* The interpreter we are interrogating */
   const char *zKey,        /* Name of the variable.  Case sensitive */
+  int nKey,                /* Length of the key */
   int *pLength             /* Write the length here */
 ){
   const SbSValue *pVal;
 
-  pVal = sbs_fetch(&p->symTab, zKey, -1);
+  pVal = sbs_fetch(&p->symTab, zKey, nKey);
   if( pVal==0 || (pVal->flags & SBSVAL_STR)==0 ){
     *pLength = 0;
     return 0;
@@ -711,6 +722,21 @@ static int enableOutputCmd(struct Subscript *p, void *pNotUsed){
 }
 
 /*
+** Send text to the appropriate output:  Either to the console
+** or to the CGI reply buffer.
+*/
+static void sendText(const char *z, int n){
+  if( enableOutput && n ){
+    if( n<0 ) n = strlen(z);
+    if( g.cgiPanic ){
+      cgi_append_content(z, n);
+    }else{
+      fwrite(z, 1, n, stdout);
+    }
+  }
+}
+
+/*
 ** Subscript command:      STRING puts
 ** Subscript command:      STRING html
 **
@@ -730,16 +756,79 @@ static int putsCmd(struct Subscript *p, void *pConvert){
     }else{
       zOut = (char*)z;
     }
-    if( g.cgiPanic ){
-      cgi_append_content(zOut, size);
-    }else{
-      printf("%.*s", size, zOut);
-    }
+    sendText(zOut, size);
     if( pConvert ){
       free(zOut);
     }
   }
   SbS_Pop(p, 1);
+  return 0;
+}
+
+/*
+** Subscript command:      STRING wiki
+**
+** Render the input string as wiki.
+*/
+static int wikiCmd(struct Subscript *p, void *pConvert){
+  int size;
+  const char *z;
+  if( SbS_RequireStack(p, 1, "wiki") ) return 1;
+  if( enableOutput ){
+    Blob src;
+    z = SbS_StackValue(p, 0, &size);
+    blob_init(&src, z, size);
+    wiki_convert(&src, 0, WIKI_INLINE);
+    blob_reset(&src);
+  }
+  SbS_Pop(p, 1);
+  return 0;
+}
+
+/*
+** Subscript command:   NAME TEXT-LIST NUMLINES combobox
+**
+** Generate an HTML combobox.  NAME is both the name of the
+** CGI parameter and the name of a variable that contains the
+** currently selected value.  TEXT-LIST is a list of possible
+** values for the combobox.  NUMLINES is 1 for a true combobox.
+** If NUMLINES is greater than one then the display is a listbox
+** with the number of lines given.
+*/
+static int comboboxCmd(struct Subscript *p, void *NotUsed){
+  if( SbS_RequireStack(p, 3, "combobox") ) return 1;
+  if( enableOutput ){
+    int height;
+    Blob list, elem;
+    char *zName, *zList;
+    int nName, nList, nValue;
+    const char *zValue;
+    char *z, *zH;
+
+    height = SbS_StackValueInt(p, 0);
+    zList = (char*)SbS_StackValue(p, 1, &nList);
+    blob_init(&list, zList, nList);
+    zName = (char*)SbS_StackValue(p, 2, &nName);
+    zValue = SbS_Fetch(p, zName, nName, &nValue);
+    z = mprintf("<select name=\"%.*h\" size=\"%d\">", nName, zName, height);
+    sendText(z, -1);
+    free(z);
+    while( blob_token(&list, &elem) ){
+      zH = mprintf("%.*h", blob_size(&elem), blob_buffer(&elem));
+      if( zValue && blob_size(&elem)==nValue 
+             && memcmp(zValue, blob_buffer(&elem), nValue)==0 ){
+        z = mprintf("<option value=\"%s\" selected>%s</option>", zH, zH);
+      }else{
+        z = mprintf("<option value=\"%s\">%s</option>", zH, zH);
+      }
+      free(zH);
+      sendText(z, -1);
+      free(z);
+    }
+    sendText("</select>", -1);
+    blob_reset(&list);
+  }
+  SbS_Pop(p, 3);
   return 0;
 }
 
@@ -754,6 +843,7 @@ static const struct {
 } aBuiltin[] = {
   { "add",             bopCmd,               (void*)SBSOP_AND    },
   { "and",             bopCmd,               (void*)SBSOP_AND    },
+  { "combobox",        comboboxCmd,          0,                  },
   { "div",             bopCmd,               (void*)SBSOP_DIV    },
   { "enable_output",   enableOutputCmd,      0                   },
   { "exists",          existsCmd,            0,                  },
@@ -769,6 +859,7 @@ static const struct {
   { "puts",            putsCmd,              0                   },
   { "set",             setCmd,               0                   },
   { "sub",             bopCmd,               (void*)SBSOP_SUB    },
+  { "wiki",            wikiCmd,              0,                  },
 };
   
 
@@ -862,6 +953,9 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
               lwr = i+1;
             }
           }
+          if( upr<lwr ){
+            SbS_SetErrorMessage(p, "unknown verb: %.*s", n, zScript);
+          }
         }else if( pVal->flags & SBSVAL_VERB ){
           rc = pVal->u.verb.xVerb(p, pVal->u.verb.pArg);
         }else if( pVal->flags & SBSVAL_EXEC ){
@@ -889,13 +983,7 @@ int SbS_Render(struct Subscript *p, const char *z){
   int rc = SBS_OK;
   while( z[i] ){
     if( z[i]=='[' ){
-      if( enableOutput ){
-        if( g.cgiPanic ){
-          cgi_append_content(z, i);
-        }else{
-          fwrite(z, 1, i, stdout);
-        }
-      }
+      sendText(z, i);
       z += i+1;
       for(i=0; z[i] && z[i]!=']'; i++){}
       rc = SbS_Eval(p, z, i);
@@ -907,13 +995,13 @@ int SbS_Render(struct Subscript *p, const char *z){
       i++;
     }
   }
-  if( i>0 && enableOutput ){
-    if( g.cgiPanic ){
-      cgi_append_content(z, i);
-    }else{
-      fwrite(z, 1, i, stdout);
-    }
-  } 
+  if( rc==SBS_ERROR ){
+    sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1);
+    sendText(SbS_GetErrorMessage(p), -1);
+    sendText("</b></font></p>", -1);
+  }else{
+    sendText(z, i);
+  }
   return rc;
 }
 

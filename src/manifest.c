@@ -862,6 +862,22 @@ int manifest_crosslink(int rid, Blob *pContent){
     );
     free(zComment);
   }
+  if( m.type==CFTYPE_TICKET ){
+    char *zTag;
+    char *zComment;
+
+    ticket_insert(&m, 1, 1);
+    zTag = mprintf("tkt-%s", m.zTicketUuid);
+    tag_insert(zTag, 1, 0, rid, m.rDate, rid);
+    free(zTag);
+    zComment = mprintf("Changes to ticket [%.10s]", m.zTicketUuid);
+    db_multi_exec(
+      "INSERT INTO event(type,mtime,objid,user,comment)"
+      "VALUES('t',%.17g,%d,%Q,%Q)",
+      m.rDate, rid, m.zUser, zComment
+    );
+    free(zComment);
+  }
   db_end_transaction(0);
   manifest_clear(&m);
   return 1;

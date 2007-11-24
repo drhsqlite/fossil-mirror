@@ -322,6 +322,12 @@ double db_column_double(Stmt *pStmt, int N){
 const char *db_column_text(Stmt *pStmt, int N){
   return (char*)sqlite3_column_text(pStmt->pStmt, N);
 }
+const char *db_column_name(Stmt *pStmt, int N){
+  return (char*)sqlite3_column_name(pStmt->pStmt, N);
+}
+int db_column_count(Stmt *pStmt){
+  return (char*)sqlite3_column_count(pStmt->pStmt);
+}
 char *db_column_malloc(Stmt *pStmt, int N){
   return mprintf("%s", db_column_text(pStmt, N));
 }
