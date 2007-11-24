@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Progress\stoward\sticket\sediting.\s\sThis\sis\san\sincremental\scheck-in.
-D 2007-11-24T21:28:03
+C More\swork\son\sticketing.\s\sThis\sis\sa\snon-working\sincremental\scheck-in.
+D 2007-11-24T23:59:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -79,12 +79,12 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b0eab5fa34d5cad766bc53edd1054024a85c0146
-F src/subscript.c 64131ef2eafe0f4e9f65cfd8cc16e4d952d3528c
+F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
 F src/timeline.c 088a229b705d26b43cd06b8e296353cf6065ff55
-F src/tkt.c c07694441f97bfb11a9e294b841248edbd0f8af4
-F src/tktconfig.c dabb2f23c9ada753312052c2976062defaa95a9b
+F src/tkt.c f8ab2686b70095da2e2b1200b2a84fd08918408b
+F src/tktconfig.c 745ff35aaa93eac4d4208cff38e11ea2a1bc80d1
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -175,14 +175,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P fb358ca492904507ebfc504c40b0a6e4f957537a
-R 6f3f64c21f4196e53187530277bc7c70
+P d913179b825b18633bd2dedede45c958e322f455
+R 3c5ed356d4c81d70ec2fff5baddeb64c
 U drh
-Z 485b60c415fe5200bc4eaf0193600cc8
+Z 728b4109c5b31970424bb20a176a32bd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHSJdnoxKgR168RlERAqMvAKCAQnCqa1dQoE6DZp30akz5qEZ/YACeNdVf
-WTKJxiFkFxxfty5yUrQRzV4=
-=tbkO
+iD8DBQFHSLr5oxKgR168RlERArNUAJ4u4GcZoA+lkYFk16Z86N4cGo2HggCfTo5I
+lEP3aIKR3SwTAxTzJpP0iDE=
+=/h/1
 -----END PGP SIGNATURE-----

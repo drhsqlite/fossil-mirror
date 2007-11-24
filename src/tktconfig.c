@@ -171,7 +171,10 @@ const char zDefaultTicketConfig[] =
 @ {
 @   <!-- load database field names not found in CGI with an empty string -->
 @   <!-- start a form -->
-@   [{Open} /status set /submit submit_new_ticket]
+@   [{
+@      {Open} /status set
+@       submit_new_ticket
+@   } /submit exists if]
 @   <table cellpadding="5">
 @   <tr>
 @   <td colspan="2">
@@ -244,16 +247,30 @@ const char zDefaultTicketConfig[] =
 @ 
 @ ##########################################################################
 @ # The template for the "edit ticket" page
+@ #
+@ # Then generated text is inserted inside a form which feeds back to itself.
+@ # All CGI parameters are loaded into variables.  All database files are
+@ # loaded into variables if they have not previously been loaded by
+@ # CGI parameters.
 @ {
-@   <!-- database field names not found as CGI parameters are loaded
-@        from the database automatically -->
-@   <!-- start a form -->
-@   [{
-@     <hr><i>%LOGIN% added on %DATE%:</i><br>
-@    } {
-@     <hr><i>%LOGIN% claiming to be %USER% added on %DATE%:</i><br>
-@    } /username /cmappnd /comment append_remark
-@   /submit submit_ticket_change]
+@   [
+@     login /username get /username set
+@     {
+@       {
+@         username login eq /samename set
+@  "samename=" html samename html "<br>" puts
+@         {
+@            "\n<hr><i>" login " added on " date ":</i></br>\n" cmappnd 6 concat
+@            /comment append_field
+@         } samename if
+@         {
+@            "\n<hr><i>" login " claiming to be " username " added on " date
+@            "</i><br>\n" cmappnd 8 concat /comment append_field
+@         } samename not if
+@       } 0 {} /cmappnd get length lt if
+@       submit_ticket
+@     } /submit exists if
+@   ]
 @   <table cellpadding="5">
 @   <tr><td align="right">Title:</td><td>
 @   <input type="text" name="title" value="[title html]" size="60">
@@ -285,10 +302,14 @@ const char zDefaultTicketConfig[] =
 @   <input type="text" name="foundin" size="50" value="[foundin html]">
 @   </td></tr>
 @   <tr><td colspan="2">
-@   [0 /eall 0 get /eall set]
-@   [/aonlybtn exists not /eall set]
-@   [/eallbtn exists /eall set]
-@   [/w hascap eall and /eall set]
+@
+@   [
+@      0 /eall get /eall set           # eall means "edit all".  default==no
+@      /aonlybtn exists not /eall set  # Edit all if no aonlybtn CGI param
+@      /eallbtn exists /eall set       # Edit all if eallbtn CGI param
+@      /w hascap eall and /eall set    # WrTkt permission needed to edit all
+@   ]
+@ 
 @   [eall enable_output]
 @     Description And Comments:<br>
 @     <textarea name="comment" cols="80" 
@@ -296,19 +317,21 @@ const char zDefaultTicketConfig[] =
 @      wrap="virtual" class="wikiedit">[comment html]</textarea><br>
 @     <input type="hidden" name="eall" value="1">
 @     <input type="submit" name="aonlybtn" value="Append Remark">
+@   
 @   [eall not enable_output]
-@     Append Remark:<br>
+@     Append Remark from 
+@     <input type="text" name="username" value="[username html]" size="30">:<br>
 @     <textarea name="cmappnd" cols="80" rows="15"
 @      wrap="virtual" class="wikiedit">[{} /cmappnd get html]</textarea><br>
 @     [/w hascap eall not and enable_output]
 @     <input type="submit" name="eallbtn" value="Edit All">
+@
 @   [1 enable_output]
 @   </td></tr>
 @   <tr><td align="right"></td><td>
 @   <input type="submit" name="submit" value="Submit Changes">
 @   </td></tr>
 @   </table>
-@   <!-- end-form inserted automatically -->
 @ } /tktedit_template set
 @ 
 @ ##########################################################################

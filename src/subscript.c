@@ -70,7 +70,7 @@ typedef struct Subscript Subscript;
 ** Configuration constants
 */
 #define SBSCONFIG_NHASH    41         /* Size of the hash table */
-#define SBSCONFIG_NSTACK   10         /* Maximum stack depth */
+#define SBSCONFIG_NSTACK   20         /* Maximum stack depth */
 #define SBSCONFIG_ERRSIZE  100        /* Maximum size of an error message */
 
 /*
@@ -80,10 +80,11 @@ typedef struct Subscript Subscript;
 #define SBSTT_NAME        2    /* ex:   /abcde  */
 #define SBSTT_VERB        3    /* ex:   abcde   */
 #define SBSTT_STRING      4    /* ex:   {...}   */
-#define SBSTT_INTEGER     5    /* Integer including option sign */
-#define SBSTT_INCOMPLETE  6    /* Unterminated string token */
-#define SBSTT_UNKNOWN     7    /* Unknown token */
-#define SBSTT_EOF         8    /* End of input */
+#define SBSTT_QUOTED      5    /* ex:   "...\n..." */
+#define SBSTT_INTEGER     6    /* Integer including option sign */
+#define SBSTT_INCOMPLETE  7    /* Unterminated string token */
+#define SBSTT_UNKNOWN     8    /* Unknown token */
+#define SBSTT_EOF         9    /* End of input */
 
 /*
 ** Values are stored in the hash table as instances of the following
@@ -161,6 +162,19 @@ static int sbs_next_token(const char *z, int n, int *pTokenType){
     for(i=1; i<n && z[i] && z[i-1]!='\n'; i++){}
     *pTokenType = SBSTT_WHITESPACE;
     return i;
+  }
+  if( c=='"' ){
+    int i;
+    for(i=1; i<n && z[i] && z[i]!='"'; i++){
+       if( z[i]=='\\' && i<n-1 ){ i++; }
+    }
+    if( z[i]=='"' ){
+      *pTokenType = SBSTT_QUOTED;
+      return i+1;
+    }else{
+      *pTokenType = SBSTT_INCOMPLETE;
+      return i;
+    }
   }
   if( c=='{' ){
     int depth = 1;
@@ -604,6 +618,12 @@ static int notCmd(struct Subscript *p, void *pNotUsed){
 #define SBSOP_OR    6
 #define SBSOP_MIN   7
 #define SBSOP_MAX   8
+#define SBSOP_EQ    9
+#define SBSOP_NE   10
+#define SBSOP_LT   11
+#define SBSOP_GT   12
+#define SBSOP_LE   13
+#define SBSOP_GE   14
 
 /*
 ** Subscript command:      INTEGER INTEGER <binary-op> INTEGER
@@ -611,9 +631,15 @@ static int notCmd(struct Subscript *p, void *pNotUsed){
 static int bopCmd(struct Subscript *p, void *pOp){
   int a, b, c;
   if( SbS_RequireStack(p, 2, "BINARY-OP") ) return 1;
-  a = SbS_StackValueInt(p, 0);
-  b = SbS_StackValueInt(p, 1);
+  a = SbS_StackValueInt(p, 1);
+  b = SbS_StackValueInt(p, 0);
   switch( (int)pOp ){
+    case SBSOP_EQ:   c = a==b;           break;
+    case SBSOP_NE:   c = a!=b;           break;
+    case SBSOP_LT:   c = a<b;            break;
+    case SBSOP_LE:   c = a<=b;           break;
+    case SBSOP_GT:   c = a>b;            break;
+    case SBSOP_GE:   c = a>=b;           break;
     case SBSOP_ADD:  c = a+b;            break;
     case SBSOP_SUB:  c = a-b;            break;
     case SBSOP_MUL:  c = a*b;            break;
@@ -623,6 +649,22 @@ static int bopCmd(struct Subscript *p, void *pOp){
     case SBSOP_MIN:  c = a<b ? a : b;    break;
     case SBSOP_MAX:  c = a<b ? b : a;    break;
   }
+  SbS_Pop(p, 2);
+  SbS_PushInt(p, c);
+  return 0;
+}
+
+/*
+** Subscript command:      STRING STRING streq INTEGER
+*/
+static int streqCmd(struct Subscript *p, void *pOp){
+  int c, nA, nB;
+  const char *A, *B;
+  
+  if( SbS_RequireStack(p, 2, "BINARY-OP") ) return 1;
+  A = SbS_StackValue(p, 1, &nA);
+  B = SbS_StackValue(p, 0, &nB);
+  c = nA==nB && memcmp(A,B,nA)==0;
   SbS_Pop(p, 2);
   SbS_PushInt(p, c);
   return 0;
@@ -659,6 +701,20 @@ static int linecntCmd(struct Subscript *p, void *pNotUsed){
   }
   SbS_Pop(p, 1);
   SbS_PushInt(p, n);
+  return 0;
+}
+
+/*
+** Subscript command:     STRING length INTEGER
+**
+** Return one more than the number characters in STRING.
+*/
+static int lengthCmd(struct Subscript *p, void *pNotUsed){
+  int size;
+  if( SbS_RequireStack(p, 1, "length") ) return 1;
+  SbS_StackValue(p, 0, &size);
+  SbS_Pop(p, 1);
+  SbS_PushInt(p, size);
   return 0;
 }
 
@@ -833,6 +889,62 @@ static int comboboxCmd(struct Subscript *p, void *NotUsed){
   return 0;
 }
 
+/*
+** Subscript command:     STRING BOOLEAN if
+**
+** Evaluate STRING as a script if BOOLEAN is true.
+*/
+static int ifCmd(struct Subscript *p, void *pNotUsed){
+  int cond;
+  int rc = SBS_OK;
+
+  if( SbS_RequireStack(p, 2, "if") ) return 1;
+  cond = SbS_StackValueInt(p, 0);
+  if( cond ){
+    SbSValue script = p->aStack[p->nStack-2];
+    p->aStack[p->nStack-2].flags = 0;
+    SbS_Pop(p, 2);
+    rc = SbS_Eval(p, script.u.str.z, script.u.str.size);
+    sbs_value_reset(&script);
+  }else{
+    SbS_Pop(p, 2);
+  }
+  return rc;
+}
+
+/*
+** Subscript command:     ... STRING COUNT concat STRING
+**
+** Concatenate COUNT strings into a single string and leave
+** the concatenation on the stack. 
+*/
+static int concatCmd(struct Subscript *p, void *pNotUsed){
+  int count;
+  int nByte;
+  char *z;
+  int i, j;
+
+  if( SbS_RequireStack(p, 1, "concat") ) return SBS_ERROR;
+  count = SbS_StackValueInt(p, 0);
+  if( SbS_RequireStack(p, count+1, "concat") ) return SBS_ERROR;
+  SbS_Pop(p, 1);
+  nByte = 1;
+  for(i=p->nStack-count; i<p->nStack; i++){
+    nByte += p->aStack[i].u.str.size;
+  }
+  z = malloc(nByte);
+  if( z==0 ){ fossil_panic("out of memory"); }
+  for(j=0, i=p->nStack-count; i<p->nStack; i++){
+    nByte = p->aStack[i].u.str.size;
+    memcpy(&z[j], p->aStack[i].u.str.z, nByte);
+    j += nByte;
+  }
+  z[j] = 0;
+  SbS_Pop(p, count);
+  SbS_Push(p, z, j, 1);
+  return SBS_OK;
+}
+
 
 /*
 ** A table of built-in commands
@@ -845,13 +957,19 @@ static const struct {
   { "add",             bopCmd,               (void*)SBSOP_AND    },
   { "and",             bopCmd,               (void*)SBSOP_AND    },
   { "combobox",        comboboxCmd,          0,                  },
+  { "concat",          concatCmd,            0,                  },
   { "div",             bopCmd,               (void*)SBSOP_DIV    },
   { "enable_output",   enableOutputCmd,      0                   },
+  { "eq",              bopCmd,               (void*)SBSOP_EQ     },
   { "exists",          existsCmd,            0,                  },
   { "get",             getCmd,               0,                  },
   { "hascap",          hascapCmd,            0                   },
   { "html",            putsCmd,              (void*)1            },
+  { "if",              ifCmd,                0,                  },
+  { "le",              bopCmd,               (void*)SBSOP_LE     },
+  { "length",          lengthCmd,            0                   },
   { "linecount",       linecntCmd,           0                   },
+  { "lt",              bopCmd,               (void*)SBSOP_LT     },
   { "max",             bopCmd,               (void*)SBSOP_MAX    },
   { "min",             bopCmd,               (void*)SBSOP_MIN    },
   { "mul",             bopCmd,               (void*)SBSOP_MUL    },
@@ -859,6 +977,7 @@ static const struct {
   { "or",              bopCmd,               (void*)SBSOP_OR     },
   { "puts",            putsCmd,              0                   },
   { "set",             setCmd,               0                   },
+  { "streq",           streqCmd,             0                   },
   { "sub",             bopCmd,               (void*)SBSOP_SUB    },
   { "wiki",            wikiCmd,              0,                  },
 };
@@ -931,6 +1050,30 @@ int SbS_Eval(struct Subscript *p, const char *zScript, int nScript){
       }
       case SBSTT_STRING: {
         rc = SbS_Push(p, (char*)&zScript[1], n-2, 0);
+        break;
+      }
+      case SBSTT_QUOTED: {
+        char *z = mprintf("%.*s", n-2, &zScript[1]);
+        int i, j;
+        for(i=j=0; z[i]; i++, j++){
+          int c = z[i];
+          if( c=='\\' && z[i+1] ){
+            c = z[++i];
+            if( c=='n' ){
+              c = '\n';
+            }else if( c>='0' && c<='7' ){
+              int k;
+              c -= '0';
+              for(k=1; k<3 && z[i+k]>='0' && z[i+k]<='7'; k++){
+                c = c*8 + z[i+k] - '0';
+              }
+              i += k-1;
+            }
+          }
+          z[j] = c;
+        }
+        z[j] = 0;
+        rc = SbS_Push(p, z, j, 1);
         break;
       }
       case SBSTT_VERB: {

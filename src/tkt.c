@@ -52,7 +52,10 @@ static int nameCmpr(const void *a, const void *b){
 
 /*
 ** Obtain a list of all fields of the TICKET table.  Put them 
-** in sorted order.
+** in sorted order in azField[].
+**
+** Also allocate space for azValue[] and azAppend[] and initialize
+** all the values there to zero.
 */
 static void getAllTicketFields(void){
   Stmt q;
@@ -78,14 +81,15 @@ static void getAllTicketFields(void){
 }
 
 /*
-** Return true if zField is a field within the TICKET table.
+** Return the index into azField[] of the given field name.
+** Return -1 if zField is not in azField[].
 */
-static int isTicketField(const char *zField){
+static int fieldId(const char *zField){
   int i;
   for(i=0; i<nField; i++){
-    if( strcmp(azField[i], zField)==0 ) return 1;
+    if( strcmp(azField[i], zField)==0 ) return i;
   }
-  return 0;
+  return -1;
 }
 
 /*
@@ -191,10 +195,10 @@ void ticket_insert(Manifest *p, int createFlag, int checkTime){
     const char *zName = p->aField[i].zName;
     if( zName[0]=='+' ){
       zName++;
-      if( !isTicketField(zName) ) continue;
+      if( fieldId(zName)<0 ) continue;
       blob_appendf(&sql,", %s=%s || %Q", zName, zName, p->aField[i].zValue);
     }else{
-      if( !isTicketField(zName) ) continue;
+      if( fieldId(zName)<0 ) continue;
       blob_appendf(&sql,", %s=%Q", zName, p->aField[i].zValue);
     }
   }
@@ -314,7 +318,7 @@ void tktview_page(void){
 }
 
 /*
-** Subscript command:   LABEL submit_new_ticket
+** Subscript command:   submit_new_ticket
 **
 ** If the variable named LABEL exists, then submit a new ticket
 ** based on the values of other defined variables.
@@ -372,6 +376,104 @@ static int submitNewCmd(struct Subscript *p, void *pNotify){
   return SBS_OK;  
 }
 
+
+/*
+** Subscript command:   STRING FIELD append_field
+**
+** FIELD is the name of a database column to which we might want
+** to append text.  STRING is the text to be appended to that
+** column.  The append does not actually occur until the
+** submit_ticket_change verb is run.
+*/
+static int appendRemarkCmd(struct Subscript *p, void *notUsed){
+  int idx;
+  const char *zField, *zValue;
+  int nField, nValue;
+
+  if( SbS_RequireStack(p, 2, "append_field") ) return 1;
+  zField = SbS_StackValue(p, 0, &nField);
+  for(idx=0; idx<nField; idx++){
+    if( strncmp(azField[idx], zField, nField)==0 && azField[idx][nField]==0 ){
+      break;
+    }
+  }
+  if( idx>=nField ){
+    SbS_SetErrorMessage(p, "no such TICKET column: %.*s", nField, zField);
+    return SBS_ERROR;
+  }
+  zValue = SbS_StackValue(p, 1, &nValue);
+  azAppend[idx] = mprintf("%.*s", nValue, zValue);
+  SbS_Pop(p, 2);
+  return SBS_OK;
+}
+
+/*
+** Subscript command:   submit_ticket
+**
+** Construct and submit a new ticket artifact.
+*/
+static int submitTicketCmd(struct Subscript *p, void *pUuid){
+  char *zDate;
+  const char *zUuid;
+  int i;
+  int rid;
+  Blob tktchng, cksum;
+
+  zUuid = (const char *)pUuid;
+  blob_zero(&tktchng);
+  zDate = db_text(0, "SELECT datetime('now')");
+  zDate[10] = 'T';
+  blob_appendf(&tktchng, "D %s\n", zDate);
+  free(zDate);
+  for(i=0; i<nField; i++){
+    const char *zValue;
+    int nValue;
+    if( azAppend[i] ){
+      blob_appendf(&tktchng, "J +%s %z\n", azField[i],
+                   fossilize(azAppend[i], -1));
+    }else{
+      zValue = SbS_Fetch(p, azField[i], -1, &nValue);
+      if( zValue ){
+        while( nValue>0 && isspace(zValue[nValue-1]) ){ nValue--; }
+        if( strncmp(zValue, azValue[i], nValue)
+                || strlen(azValue[i])!=nValue ){
+          blob_appendf(&tktchng, "J %s %z\n",
+             azField[i], fossilize(zValue,nValue));
+        }
+      }
+    }
+  }
+  if( *(char**)pUuid==0 ){
+    zUuid = db_text(0, 
+       "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", P("name")
+    );
+  }else{
+    zUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
+  }
+  *(const char**)pUuid = zUuid;
+  blob_appendf(&tktchng, "K %s\n", zUuid);
+  blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
+  md5sum_blob(&tktchng, &cksum);
+  blob_appendf(&tktchng, "Z %b\n", &cksum);
+
+#if 1
+  @ <hr><pre>
+  @ %h(blob_str(&tktchng))
+  @ </pre><hr>
+  blob_zero(&tktchng);
+  SbS_Pop(p, 1);
+  return SBS_OK;
+#endif
+
+  rid = content_put(&tktchng, 0, 0);
+  if( rid==0 ){
+    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+  }
+  manifest_crosslink(rid, &tktchng);
+  return SBS_RETURN;
+}
+
+
 /*
 ** WEBPAGE: tktnew
 */
@@ -389,7 +491,9 @@ void tktnew_page(void){
   @ <form method="POST" action="%s(g.zBaseURL)/tktnew">
   zScript = (char*)SbS_Fetch(pInterp, "tktnew_template", -1, &nScript);
   zScript = mprintf("%.*s", nScript, zScript);
-  SbS_AddVerb(pInterp, "submit_new_ticket", submitNewCmd, (void*)&zNewUuid);
+  SbS_Store(pInterp, "login", g.zLogin, 0);
+  SbS_Store(pInterp, "date", db_text(0, "SELECT datetime('now')"), 2);
+  SbS_AddVerb(pInterp, "submit_ticket", submitNewCmd, (void*)&zNewUuid);
   if( SbS_Render(pInterp, zScript)==SBS_RETURN && zNewUuid ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zNewUuid));
     return;
@@ -401,167 +505,15 @@ void tktnew_page(void){
 
 
 /*
-** Subscript command:   STR1 STR2 USERVAR APPENDVAR FIELD append_remark
-**
-** FIELD is the name of a database column to which we might want
-** to append text.  APPENDVAR is the name of a CGI parameter which
-** (if it exists) contains the text to be appended.  The append
-** operation will only happen if APPENDVAR exists.  USERVAR is
-** a CGI parameter which contains the name that the user wants to
-** to be known by.  STR1 and STR2 are prefixes that are prepended
-** to the text in the APPENDVAR CGI parameter.  STR1 is used if
-** USERVAR is the same as g.zLogin or if USERVAR does not exist.
-** STR2 is used if USERVAR exists and is different than g.zLogin.
-** Within STR1 and STR2, the following substitutions occur:
-**
-**     %LOGIN%    The value of g.zLogin
-**     %USER%     The value of the USERVAR CGI parameter
-**     %DATE%     The current date and time
-**
-** The concatenation STR1 or STR2 with the content of APPENDVAR
-** is written into azApnd[] in the FIELD slot so that it will be
-** picked up and used by the submit_ticket_change command.
-*/
-static int appendRemarkCmd(struct Subscript *p, void *notUsed){
-  int i, j, idx;
-  const char *zField, *zAppendVar, *zUserVar, *zStr, *zValue, *zUser;
-  int nField, nAppendVar, nUserVar, nStr, nValue, nUser;
-
-  if( SbS_RequireStack(p, 5, "append_remark") ) return 1;
-  zField = SbS_StackValue(p, 0, &nField);
-  for(idx=0; idx<nField; idx++){
-    if( strncmp(azField[idx], zField, nField)==0 && azField[idx][nField]==0 ){
-      break;
-    }
-  }
-  if( idx>=nField ){
-    SbS_SetErrorMessage(p, "no such TICKET column: %.*s", nField, zField);
-    return SBS_ERROR;
-  }
-  zAppendVar = SbS_StackValue(p, 1, &nAppendVar);
-  zValue = SbS_Fetch(p, zAppendVar, nAppendVar, &nValue);
-  if( zValue ){
-    Blob out;
-    blob_zero(&out);
-    zUserVar = SbS_StackValue(p, 2, &nUserVar);
-    zUser = SbS_Fetch(p, zUserVar, nUserVar, &nUser);
-    if( zUser && (strncmp(zUser, g.zLogin, nUser) || g.zLogin[nUser]!=0) ){
-      zStr = SbS_StackValue(p, 3, &nStr);
-    }else{
-      zStr = SbS_StackValue(p, 4, &nStr);
-    }
-    for(i=j=0; i<nStr; i++){
-      if( zStr[i]!='%' ) continue;
-      if( i>j ){
-        blob_append(&out, &zStr[j], i-j);
-        j = i;
-      }
-      if( strncmp(&zStr[j], "%USER%", 6)==0 ){
-        blob_appendf(&out, "%z", htmlize(zUser, nUser));
-        i += 5;
-        j = i+1;
-      }else if( strncmp(&zStr[j], "%LOGIN%", 7)==0 ){
-        blob_appendf(&out, "%z", htmlize(g.zLogin, -1));
-        i += 6;
-        j = i+1;
-      }else if( strncmp(&zStr[j], "%DATE%", 6)==0 ){
-        blob_appendf(&out, "%z", db_text(0, "SELECT datetime('now')"));
-        i += 5;
-        j = i+1;
-      }
-    }
-    if( i>j ){
-      blob_append(&out, &zStr[j], i-j);     
-    }
-    blob_append(&out, zValue, nValue);
-    azAppend[idx] = blob_str(&out);
-  }
-  SbS_Pop(p, 5);
-  return SBS_OK;
-}
-
-/*
-** Subscript command:   LABEL submit_ticket_change
-**
-** If the variable named LABEL exists, then submit a change to
-** the ticket identified by the "name" CGI parameter.
-*/
-static int submitEditCmd(struct Subscript *p, void *pNotify){
-  const char *zLabel;
-  int nLabel, size;
-
-  if( SbS_RequireStack(p, 1, "submit_ticket_change") ) return 1;
-  zLabel = SbS_StackValue(p, 0, &nLabel);
-  if( SbS_Fetch(p, zLabel, nLabel, &size)!=0 ){
-    char *zDate, *zUuid;
-    int i;
-    int rid;
-    Blob tktchng, cksum;
-
-    (*(int*)pNotify) = 1;
-    blob_zero(&tktchng);
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
-    blob_appendf(&tktchng, "D %s\n", zDate);
-    free(zDate);
-    for(i=0; i<nField; i++){
-      const char *zValue;
-      int nValue;
-      if( azAppend[i] ){
-        blob_appendf(&tktchng, "J +%s %z\n", azField[i],
-                     fossilize(azAppend[i], -1));
-      }else{
-        zValue = SbS_Fetch(p, azField[i], -1, &nValue);
-        if( zValue ){
-          while( nValue>0 && isspace(zValue[nValue-1]) ){ nValue--; }
-          if( strncmp(zValue, azValue[i], nValue)
-                  || strlen(azValue[i])!=nValue ){
-            blob_appendf(&tktchng, "J %s %z\n",
-               azField[i], fossilize(zValue,nValue));
-          }
-        }
-      }
-    }
-    zUuid = db_text(0, 
-       "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'",
-       P("name")
-    );
-    blob_appendf(&tktchng, "K %s\n", zUuid);
-    (*(char**)pNotify) = zUuid;
-    blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
-    md5sum_blob(&tktchng, &cksum);
-    blob_appendf(&tktchng, "Z %b\n", &cksum);
-
-#if 1
-    @ <hr><pre>
-    @ %h(blob_str(&tktchng))
-    @ </pre><hr>
-    blob_zero(&tktchng);
-    SbS_Pop(p, 1);
-    return SBS_OK;
-#endif
-
-    rid = content_put(&tktchng, 0, 0);
-    if( rid==0 ){
-      fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-    }
-    manifest_crosslink(rid, &tktchng);
-    return SBS_RETURN;
-  }
-  SbS_Pop(p, 1);
-  return SBS_OK;  
-}
-
-/*
 ** WEBPAGE: tktedit
 */
 void tktedit_page(void){
   char *zScript;
   int nScript;
-  int chnged = 0;
   int nName;
   const char *zName;
   int nRec;
+  char *zUuid = 0;
 
   login_check_credentials();
   if( !g.okApndTkt && !g.okWrTkt ){ login_needed(); return; }
@@ -593,10 +545,12 @@ void tktedit_page(void){
   @ <input type="hidden" name="name" value="%s(zName)">
   zScript = (char*)SbS_Fetch(pInterp, "tktedit_template", -1, &nScript);
   zScript = mprintf("%.*s", nScript, zScript);
-  SbS_AddVerb(pInterp, "append_remark", appendRemarkCmd, 0);
-  SbS_AddVerb(pInterp, "submit_ticket_change", submitEditCmd, (void*)&chnged);
-  if( SbS_Render(pInterp, zScript)==SBS_RETURN && chnged ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zName));
+  SbS_Store(pInterp, "login", g.zLogin, 0);
+  SbS_Store(pInterp, "date", db_text(0, "SELECT datetime('now')"), 2);
+  SbS_AddVerb(pInterp, "append_field", appendRemarkCmd, 0);
+  SbS_AddVerb(pInterp, "submit_ticket", submitTicketCmd, (void*)&zUuid);
+  if( SbS_Render(pInterp, zScript)==SBS_RETURN && zUuid ){
+    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zUuid));
     return;
   }
   @ </form>
