@@ -125,7 +125,7 @@ snit::type ::vc::fossil::import::cvs::project::revlink {
 
     method break {} {
 	if {![$self breakable]} {
-	    trouble internal "Changeset <[$mycset id]> is not breakable."
+	    trouble internal "Changeset [$mycset str] is not breakable."
 	}
 
 	# One thing to choose when splitting CSET is where the

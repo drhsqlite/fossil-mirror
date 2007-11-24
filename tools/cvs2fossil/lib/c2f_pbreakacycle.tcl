@@ -135,7 +135,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     proc CheckAndBreakBackwardBranch {graph cset} {
 	while {[IsABackwardBranch $graph $cset]} {
-	    log write 5 breakacycle "Breaking backward branch changeset <[$cset id]>"
+	    log write 5 breakacycle "Breaking backward branch changeset [$cset str]"
 
 	    # Knowing that the branch is backward we now look at the
 	    # individual revisions in the changeset and determine
@@ -304,7 +304,16 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     # # ## ### ##### ######## #############
 
-    proc SaveOrder {graph cset pos} {
+    proc SaveOrder {graph at cset} {
+	set cid [$cset id]
+
+	log write 4 breakacycle "Comitting @ $at: [$cset str]"
+	state run {
+	    INSERT INTO csorder (cid,  pos)
+	    VALUES              ($cid, $at)
+	}
+	# MAYBE TODO: Write the project level changeset dependencies as well.
+	return
     }
 
     # # ## ### ##### ######## #############

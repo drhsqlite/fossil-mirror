@@ -155,7 +155,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	foreach cset $changesets {
 	    $dg node insert $cset
 	    $dg node set    $cset timerange [$cset timerange]
-	    $dg node set    $cset label     [ID $cset]
+	    $dg node set    $cset label     [$cset str]
 	    $dg node set    $cset __id__    [$cset id]
 	}
 
@@ -184,13 +184,13 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# and dump internal structures to make it easier to
 		# trace the links causing the problem.
 		if {$succ eq $cset} {
-		    trouble fatal "Self-referencing changeset <[$cset id]>"
-		    log write 2 cyclebreaker "LOOP changeset <[$cset id]> __________________"
+		    trouble fatal "Self-referencing changeset [$cset str]"
+		    log write 2 cyclebreaker "LOOP changeset [$cset str] __________________"
 		    array set nmap [$cset nextmap]
 		    foreach r [lsort -dict [array names nmap]] {
 			foreach succrev $nmap($r) {
 			    log write 2 cyclebreaker \
-				"LOOP * rev <$r> --> rev <$succrev> --> cs [join [struct::list map [project::rev ofrev $succrev] [myproc ID]] { }]"
+				"LOOP * rev <$r> --> rev <$succrev> --> cs [project::rev strlist [project::rev ofrev $succrev]]"
 			}
 		    }
 		}
@@ -264,7 +264,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return
     }
 
-    proc FormatPendingItem {item} { lreplace $item 0 0 <[[lindex $item 0] id]> }
+    proc FormatPendingItem {item} { lreplace $item 0 0 [[lindex $item 0] str] }
 
     proc FindCycle {dg} {
 	# This procedure is run if and only the graph is not empty and
@@ -300,8 +300,6 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return [struct::list reverse [lrange $path $seen($start) end]]
     }
 
-    proc ID {cset} { return "<[$cset id]>" }
-
     proc BreakCycle {dg cycle} {
 	# The cycle we have gotten is broken by breaking apart one or
 	# more of the changesets in the cycle. This causes us to
@@ -309,7 +307,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	# added to the graph, etc. pp.
 
 	# NOTE/TODO. Move this map operation to project::rev, as typemethod.
-	set cprint [join [struct::list map $cycle [myproc ID]] { }]
+	set cprint [project::rev strlist $cycle]
 
 	lappend cycle [lindex $cycle 0] [lindex $cycle 1]
 	set bestlink {}
@@ -338,7 +336,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		}
 	    }
 
-	log write 5 cyclebreaker "Breaking cycle ($cprint) by splitting changeset <[$bestnode id]>"
+	log write 5 cyclebreaker "Breaking cycle ($cprint) by splitting changeset [$bestnode str]"
 	set ID [$bestnode id]
 	Mark $dg -${ID}-before
 
@@ -390,7 +388,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	foreach cset $replacements {
 	    $dg node insert $cset
 	    $dg node set    $cset timerange [$cset timerange]
-	    $dg node set    $cset label     [ID $cset]
+	    $dg node set    $cset label     [$cset str]
 	    $dg node set    $cset __id__    [$cset id]
 	}
 
@@ -401,7 +399,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
 		if {$succ eq $cset} {
-		    trouble internal "Self-referencing changeset <[$cset id]>"
+		    trouble internal "Self-referencing changeset [$cset str]"
 		}
 	    }
 	}

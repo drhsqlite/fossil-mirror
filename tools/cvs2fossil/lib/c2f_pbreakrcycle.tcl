@@ -106,12 +106,12 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
     proc SaveOrder {graph at cset} {
 	set cid [$cset id]
 
-	log write 4 breakrcycle "Comitting @ $at: <$cid>"
+	log write 4 breakrcycle "Comitting @ $at: [$cset str]"
 	state run {
 	    INSERT INTO csorder (cid,  pos)
 	    VALUES              ($cid, $at)
 	}
-	# TODO: Write the project level changeset dependencies as well.
+	# MAYBE TODO: Write the project level changeset dependencies as well.
 	return
     }
 

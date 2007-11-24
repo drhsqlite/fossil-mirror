@@ -52,6 +52,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
+    method str {} { return "<${myid}>" }
+
     method id        {} { return $myid }
     method revisions {} { return $myrevisions }
     method data      {} { return [list $myproject $mytype $mysrcid] }
@@ -157,7 +159,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	PullInternalSuccessorRevisions dependencies $myrevisions
 	if {![array size dependencies]} {return 0} ; # Nothing to break.
 
-	log write 6 csets ...<$myid>.......................................................
+	log write 6 csets ...[$self str].......................................................
 
 	# We have internal dependencies to break. We now iterate over
 	# all positions in the list (which is chronological, at least
@@ -263,7 +265,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myrevisions $s $e]]
 
-            log write 4 csets "Breaking <$myid> @ $laste, new <[$new id]>, cutting $breaks($laste)"
+            log write 4 csets "Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)"
 
 	    set laste $e
 	}
@@ -358,6 +360,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	foreach c $newcsets { $c persist }
 	return $newcsets
     }
+
+    typemethod strlist {changesets} {
+	return [join [struct::list map $changesets [myproc ID]]]
+    }
+
+    proc ID {cset} { $cset str }
 
     # # ## ### ##### ######## #############
     ## State
