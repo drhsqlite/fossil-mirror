@@ -317,6 +317,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	set newcsets {}
 	foreach fragmentrevisions $args {
+	    if {![llength $fragmentrevisions]} {
+		trouble internal "Attempted to create an empty changeset, i.e. without revisions"
+	    }
 	    lappend newcsets [$type %AUTO% $project $cstype $cssrc $fragmentrevisions]
 	}
 
@@ -430,6 +433,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    }
 	    lappend dependencies($rid) $child
 	}
+	return
     }
 
     proc PullPredecessorRevisions {dv revisions} {
@@ -455,6 +459,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    }
 	    lappend dependencies($rid) $parent
 	}
+	return
     }
 
     proc InitializeBreakState {revisions} {

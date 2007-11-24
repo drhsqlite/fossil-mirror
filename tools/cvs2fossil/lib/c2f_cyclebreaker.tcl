@@ -173,6 +173,27 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# chosen set. These are ignored
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
+
+		# Check for changesets referencing themselves. Such a
+		# loop shows that the changeset in question has
+		# internal dependencies. Something which is supposed
+		# to be not possible, as pass 5 (InitCsets) takes care
+		# to transform internal into external dependencies by
+		# breaking the relevant changesets apart. So having
+		# one indicates big trouble in pass 5. We report them
+		# and dump internal structures to make it easier to
+		# trace the links causing the problem.
+		if {$succ eq $cset} {
+		    trouble fatal "Self-referencing changeset <[$cset id]>"
+		    log write 2 cyclebreaker "LOOP changeset <[$cset id]> __________________"
+		    array set nmap [$cset nextmap]
+		    foreach r [lsort -dict [array names nmap]] {
+			foreach succrev $nmap($r) {
+			    log write 2 cyclebreaker \
+				"LOOP * rev <$r> --> rev <$succrev> --> cs [join [struct::list map [project::rev ofrev $succrev] [myproc ID]] { }]"
+			}
+		    }
+		}
 	    }
 	}
 
@@ -181,6 +202,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
 	if {$log} { Mark $dg -start }
 	PreHook $dg
+
+	# This kills the application if loops (see above) were found.
+	trouble abort?
 	return  $dg
     }
 
@@ -284,6 +308,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	# create one or more changesets which are to be committed,
 	# added to the graph, etc. pp.
 
+	# NOTE/TODO. Move this map operation to project::rev, as typemethod.
 	set cprint [join [struct::list map $cycle [myproc ID]] { }]
 
 	lappend cycle [lindex $cycle 0] [lindex $cycle 1]
@@ -375,6 +400,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# the chosen set. These are ignored
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
+		if {$succ eq $cset} {
+		    trouble internal "Self-referencing changeset <[$cset id]>"
+		}
 	    }
 	}
 	foreach cset $pre {
