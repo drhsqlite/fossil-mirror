@@ -103,7 +103,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 
     proc IsByRevision {cset} { $cset byrevision }
 
-    proc SaveOrder {at cset} {
+    proc SaveOrder {graph at cset} {
 	set cid [$cset id]
 
 	log write 4 breakrcycle "Comitting @ $at: <$cid>"

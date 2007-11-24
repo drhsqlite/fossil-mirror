@@ -304,7 +304,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     # # ## ### ##### ######## #############
 
-    proc SaveOrder {cset pos} {
+    proc SaveOrder {graph cset pos} {
     }
 
     # # ## ### ##### ######## #############
