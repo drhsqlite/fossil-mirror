@@ -17,6 +17,12 @@ lose your files.  This note describes the defensive measures that
 fossil uses to help prevent file loss due to bugs.
 </p>
 
+<p><i>Follow-up as of 2007-11-24:</i>
+Fossil has been hosting itself and several other projects for
+months now.  Many bugs have been encountered.  But, thanks in large
+part to the defensive measures described here, no data has been
+lost.  The integrity checks are doing their job well.</p>
+
 <h2>Atomic Check-ins With Rollback</h2>
 
 <p>
@@ -44,7 +50,7 @@ is rolled back and the database is unchanged.
 The content files that comprise the global state of a fossil respository
 are stored in the repository as a tree.  The leaves of the tree are
 stored as zlib-compressed BLOBs.  Interior nodes are deltas from their
-decendents.  There is a lot of encoding going on here.  There is
+decendents.  A lot of encoding is going on.  There is
 zlib-compression which is relatively well-tested but still might
 cause corruption if used improperly.  And there is the relatively
 new delta-encoding mechanism designed expressly for fossil.  We want
@@ -56,7 +62,8 @@ loss of data.
 To increase our confidence that everything in the repository is
 recoverable, fossil makes sure it can extract an exact replicate
 of every content file that it changes just prior to transaction
-commit.  So during the course of check-in, many different files
+commit.  So during the course of check-in (or other repository
+operation) many different files
 in the repository might be modified.  Some files are simply
 compressed.  Other files are delta encoded and then compressed.
 While all this is going on, fossil makes a record of every file
@@ -70,7 +77,7 @@ message is printed and the transaction rolls back.
 
 <p>
 So, in other words, fossil always checks to make sure it can
-re-extract a file before it commits a check-in of that file.
+re-extract a file before it commits a change to that file.
 Hence bugs in fossil are unlikely to corrupt the repository in
 a way that prevents us from extracting historical versions of 
 files.
@@ -79,8 +86,8 @@ files.
 <h2>Checksum Over All Files In A Baseline</h2>
 
 <p>
-Manifest files that define a baseline have two fields (the
-R-line and Z-line) that record MD5 hashs of the manifest itself
+Manifest artifacts that define a baseline have two fields (the
+R-card and Z-card) that record MD5 hashs of the manifest itself
 and of all other files in the manifest.  Prior to any check-in
 commit, these checksums are verified to ensure that the baseline
 checked in agrees exactly with what is on disk.  Similarly,

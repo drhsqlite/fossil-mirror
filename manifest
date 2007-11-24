@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sautosync\ssetting\sunderstands\svalues\slike\s"on",\s"off",\s"true",\sand\s"false"\nin\saddition\sto\s0\sand\s1.\s\sUpdates\sto\sthe\sdocumentation.
-D 2007-11-24T02:45:39
+C Documentation\supdates.
+D 2007-11-24T14:06:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -169,21 +169,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html d48039839878b9c4a4be9ebf1b16b45fe2db5793
+F www/fileformat.html 66d010256941b003ea885472fdd951d8bd8fa3ec
 F www/index.html c49cf389d31138dedb23a39910aaa049667e664e
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
-F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
+F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 13732d495df485b4e9163f18a6563909531b7f31
-R a4950e81292752a2f01e01f651700883
+P f9f7cf5684d27947eb49283af145f86c214cc119
+R cba21cce45b3d9f72f6f3fc0d92b1794
 U drh
-Z 557adb9ecf9548c66bf26af6c9ee752d
+Z 672a9007ec093404744037509efc887a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHR5BcoxKgR168RlERAgrBAKCNldM1CXf+WkBGbCdeLFpMLq5xqwCfSV0J
-NHbas59alJbz026yy0NMjGk=
-=5+w1
+iD8DBQFHSC/yoxKgR168RlERApMWAKCA6TcM8nTOuOVcsvJ7Fph/Y1SFyQCfThQG
+5ntYYbPj1f1W8XGRknrVGcs=
+=8TPo
 -----END PGP SIGNATURE-----

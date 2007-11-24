@@ -26,15 +26,28 @@ is exactly the same SHA1 hash that is computed by sha1sum
 on the file as it exists in your source tree.</p>
 
 <p>
-Some artifacts have a particular format which qualifies them
-as "manifests".  A manifest assigns filenames to a subset
-of the artifacts in the repository, in order to provide a
-snapshot of the state of the project at a point in time.
-Each manifest corresponds to a version or baseline
-of the project.
-</p>
+Some artifacts have a particular format which gives them special
+meaning to fossil.  Fossil recognizes:</p>
+
+<ul>
+<li> Manifests </li>
+<li> Clusters </li>
+<li> Control Artifacts </li>
+<li> Wiki Pages </li>
+<li> Ticket Changes </li>
+</ul>
+
+<p>These five artifact types are described in the sequel.</p>
 
 <h2>1.0 The Manifest</h2>
+
+<p>A manifest defines a baseline or version of the project
+source tree.  The manifest contains a list of artifacts for
+each file in the project and the corresponding filenames, as
+well as information such as parent baselines, the name of the
+programmer who created the baseline, the date and time when
+the baseline was created, and any check-in comments associated
+with the baseline.</p>
 
 <p>
 Any artifact in the repository that follows the syntactic rules
@@ -44,8 +57,8 @@ is rare.
 </p>
 
 <p>
-A manifest is a line-oriented text file.  Newline characters
-(ASCII 0x0a) separate lines.  Each line is called a "card".
+A manifest is a text file.  Newline characters
+(ASCII 0x0a) separate the file into "cards".
 Each card begins with a single
 character "card type".  Zero or more arguments may follow
 the card type.  All arguments are separated from each other
@@ -188,7 +201,7 @@ Allowed cards in the cluster are as follows:
 </p>
 
 <blockquote>
-<b>M</b> <i>uuid</i>
+<b>M</b> <i>uuid</i><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
@@ -221,7 +234,7 @@ Allowed cards in a control artifact are as follows:
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>T</b> <i>tag-name  uuid  ?value?</i><br />
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  uuid  ?value?</i><br />
 <b>Z</b> <i>checksum</i><br />
 </blockquote>
 
@@ -242,9 +255,11 @@ first value is the tag name.  The first character of the tag
 is either "+", "-", or "*".  A "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
-and all direct decendents (but not branches) of the artifact.
+and all direct decendents (but not branches) of the artifact down
+to but not including the first decendent that contains a 
+more recent "-" tag with the same name.
 The optional third argument is the value of the tag.  A tag
-without a value is considered to be a boolean.</p>
+without a value is a boolean.</p>
 
 <p>When two or more tags with the same name are applied to the
 same artifact, the tag with the latest (most recent) date is
@@ -256,7 +271,7 @@ for display purposes.</p>
 
 <h2>4.0 Wiki Pages</h2>
 
-<p>A wiki page is an artifact in a format similar to manifests,
+<p>A wiki page is an artifact with a format similar to manifests,
 clusters, and control artifacts.  The artifact is divided into
 cards by newline characters.  The format of each card is as in
 manifests, clusters, and control artifacts.  Wiki artifacts accept
@@ -265,13 +280,28 @@ the following card types:</p>
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>L</b> <i>wiki-title</i><br />
+<b>P</b> <i>parent-uuid</i>+<br />
 <b>U</b> <i>user-name</i><br />
-<b>W</b> <i>size</i> \n <i>text</i> \n<br />
+<b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
+<p>The D card is the date and time when the wiki page was edited.
+The P card specifies the parent wiki pages, if any.  The L card
+gives the name of the wiki page.  The U card specifies the login
+of the user who made this edit to the wiki page.  The Z card is
+the usual checksum over the either artifact.</p>
+
+<p>The W card is used to specify the text of the wiki page.  The
+argument to the W card is an integer which is the number of bytes
+of text in the wiki page.  That text follows the newline character
+that terminates the W card.  The wiki text is always followed by one
+extra newline.</p>
 
 <h2>5.0 Ticket Changes</h2>
+
+<p>A ticket-change artifact represents a change to a trouble ticket.
+The following cards are allowed on a ticket change artifact:</p>
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
@@ -281,3 +311,31 @@ the following card types:</p>
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
+<p>
+The D card is the usual date and time stamp and represents the point
+in time when the change was entered.  The U card is the login of the
+programmer who entered this change.  The Z card is the checksum over
+the entire artifact.</p>
+
+<p>
+Every ticket has a UUID.  The ticket to which this change is applied
+is specified by the K card.  A ticket exists if it contains one or
+more changes.  The first "change" to a ticket is what brings the
+ticket into existance.</p>
+
+<p>
+J cards specify changes to "fields" of the ticket.  Each fossil
+server has a ticket configuration which specifies the fields its
+understands.  This is not a limit on the fields that can appear
+on the J cards, however.  If a J card specifies a field that a
+particular fossil server does not recognize, then that J card
+is simply ignored.</p>
+
+<p>
+The first argument of the J card is the field name.  The second
+value is the field value.  If the field name begins with "+" then
+the value is appended to the prior value.  Otherwise, the value
+on the J card replaces any previous value of the field.
+The field name and value are both encoded using the character
+escapes defined for the C card of a manifest.
+</p>
