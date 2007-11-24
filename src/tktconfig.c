@@ -160,7 +160,7 @@ const char zDefaultTicketConfig[] =
 @   Tested
 @   Closed
 @ } /status_choices set
-@ {} /subsystem_choices set
+@ {one two three} /subsystem_choices set
 @ 
 @ ##########################################################################
 @ # The "tktnew_template" variable is set to text which is a template for
@@ -218,7 +218,7 @@ const char zDefaultTicketConfig[] =
 @   possible.
 @   <br>
 @   <textarea name="comment" cols="80"
-@    rows="[{} /comment linecount 50 max 10 min]"
+@    rows="[{} /comment get linecount 50 max 10 min html]"
 @    wrap="virtual" class="wikiedit">[{} /comment get html]</textarea><br>
 @   <input type="submit" name="preview" value="Preview">
 @   </tr>
@@ -248,12 +248,15 @@ const char zDefaultTicketConfig[] =
 @   <!-- database field names not found as CGI parameters are loaded
 @        from the database automatically -->
 @   <!-- start a form -->
-@   [{<hr><i>%USER% added on %DATE%:</i><br>}
-@     /cmappnd /comment append_remark]
-@   [/submit submit_ticket_change]
+@   [{
+@     <hr><i>%LOGIN% added on %DATE%:</i><br>
+@    } {
+@     <hr><i>%LOGIN% claiming to be %USER% added on %DATE%:</i><br>
+@    } /username /cmappnd /comment append_remark
+@   /submit submit_ticket_change]
 @   <table cellpadding="5">
 @   <tr><td align="right">Title:</td><td>
-@   <input type="text" name="title" value="[title html] size=60">
+@   <input type="text" name="title" value="[title html]" size="60">
 @   </td></tr>
 @   <tr><td align="right">Status:</td><td>
 @   [/status status_choices 1 combobox]
@@ -288,15 +291,16 @@ const char zDefaultTicketConfig[] =
 @   [/w hascap eall and /eall set]
 @   [eall enable_output]
 @     Description And Comments:<br>
-@     <textarea name="comment" cols="80" rows="[comment linecount 15 max 10 min]"
+@     <textarea name="comment" cols="80" 
+@      rows="[{} /comment get linecount 15 max 10 min html]"
 @      wrap="virtual" class="wikiedit">[comment html]</textarea><br>
 @     <input type="hidden" name="eall" value="1">
 @     <input type="submit" name="aonlybtn" value="Append Remark">
 @   [eall not enable_output]
 @     Append Remark:<br>
 @     <textarea name="cmappnd" cols="80" rows="15"
-@      wrap="virtual" class="wikiedit">[cmappnd html]</textarea><br>
-@     [ok_wrtkt enable_output]
+@      wrap="virtual" class="wikiedit">[{} /cmappnd get html]</textarea><br>
+@     [/w hascap eall not and enable_output]
 @     <input type="submit" name="eallbtn" value="Edit All">
 @   [1 enable_output]
 @   </td></tr>

@@ -810,11 +810,12 @@ static int comboboxCmd(struct Subscript *p, void *NotUsed){
     blob_init(&list, zList, nList);
     zName = (char*)SbS_StackValue(p, 2, &nName);
     zValue = SbS_Fetch(p, zName, nName, &nValue);
-    z = mprintf("<select name=\"%.*h\" size=\"%d\">", nName, zName, height);
+    z = mprintf("<select name=\"%z\" size=\"%d\">", 
+                 htmlize(zName, nName), height);
     sendText(z, -1);
     free(z);
     while( blob_token(&list, &elem) ){
-      zH = mprintf("%.*h", blob_size(&elem), blob_buffer(&elem));
+      zH = htmlize(blob_buffer(&elem), blob_size(&elem));
       if( zValue && blob_size(&elem)==nValue 
              && memcmp(zValue, blob_buffer(&elem), nValue)==0 ){
         z = mprintf("<option value=\"%s\" selected>%s</option>", zH, zH);
