@@ -440,24 +440,62 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	upvar 1 $dv dependencies
 	set theset ('[join $revisions {','}]')
 
+	# The following cases specify when a revision S is a successor
+	# of a revision R. Each of the cases translates into one of
+	# the branches of the SQL UNION coming below.
+	#
+	# (1) S can be a primary child of R, i.e. in the same LOD. R
+	#     references S directly. R.child = S(.rid), if it exists.
+	#
+	# (2) S can be a secondary, i.e. branch, child of R. Here the
+	#     link is made through the helper table
+	#     REVISIONBRANCHCHILDREN. R.rid -> RBC.rid, RBC.brid =
+	#     S(.rid)
+	#
+	# (3) If R is the trunk root of its file and S is the root of
+	#     the NTDB of the same file, then S is a successor of
+	#     R. There is no direct link between the two in the
+	#     database. An indirect link can be made through the FILE
+	#     they belong too, and their combination of attributes to
+	#     identify them. We check R for trunk rootness and then
+	#     select for the NTDB root, crossing the table with
+	#     itself.
+	#
+	# (4) If R is the last of the NTDB revisions which belong to
+	#     the trunk, then the primary child of the trunk root (the
+	#     '1.2' revision) is a successor, if it exists.
+
 	foreach {rid child} [state run "
-   -- Primary children
+   -- (1) Primary child
 	    SELECT R.rid, R.child
 	    FROM   revision R
-	    WHERE  R.rid   IN $theset
-	    AND    R.child IS NOT NULL
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.child IS NOT NULL    -- Has primary child
     UNION
-    -- Transition NTDB to trunk
-	    SELECT R.rid, R.dbchild
-	    FROM   revision R
-	    WHERE  R.rid   IN $theset
-	    AND    R.dbchild IS NOT NULL
-    UNION
-    -- Secondary (branch) children
+    -- (2) Secondary (branch) children
 	    SELECT R.rid, B.brid
 	    FROM   revision R, revisionbranchchildren B
-	    WHERE  R.rid   IN $theset
-	    AND    R.rid = B.rid
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.rid = B.rid          -- Select subset of branch children
+    UNION
+    -- (3) NTDB root successor of Trunk root
+	    SELECT R.rid, RX.rid
+	    FROM   revision R, revision RX
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.parent IS NULL       -- Restrict to root
+	    AND    NOT R.isdefault        -- on the trunk
+	    AND    R.fid = RX.fid         -- Select all revision in the same file
+	    AND    RX.parent IS NULL      -- Restrict to root
+	    AND    RX.isdefault           -- on the NTDB
+    UNION
+    -- (4) Child of trunk root successor of last NTDB on trunk.
+	    SELECT R.rid, RA.child
+	    FROM revision R, revision RA
+	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
+	    AND   R.isdefault             -- Restrict to NTDB
+	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
+	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
+	    AND   RA.child IS NOT NULL    -- Has primary child.
 	"] {
 	    # Consider moving this to the integrity module.
 	    if {$rid == $child} {
@@ -472,18 +510,48 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	upvar 1 $dv dependencies
 	set theset ('[join $revisions {','}]')
 
+	# The following cases specify when a revision P is a
+	# predecessor of a revision R. Each of the cases translates
+	# into one of the branches of the SQL UNION coming below.
+	#
+	# (1) The immediate parent R.parent of R is a predecessor of
+	#     R. NOTE: This is true for R either primary or secondary
+	#     child of P. It not necessary to distinguish the two
+	#     cases, in contrast to the code retrieving the successor
+	#     information.
+	#
+	# (2) The complement of successor case (3). The trunk root is
+	#     a predecessor of a NTDB root.
+	#
+	# (3) The complement of successor case (4). The last NTDB
+	#     revision belonging to the trunk is a predecessor of the
+	#     primary child of the trunk root (The '1.2' revision).
+
 	foreach {rid parent} [state run "
-   -- Primary parent, can be in different LOD for first in a branch
+   -- (1) Primary parent, can be in different LOD for first in a branch
 	    SELECT R.rid, R.parent
 	    FROM   revision R
-	    WHERE  R.rid   IN $theset
-	    AND    R.parent IS NOT NULL
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.parent IS NOT NULL   -- Has primary parent
     UNION
-    -- Transition trunk to NTDB
-	    SELECT R.rid, R.dbparent
-	    FROM   revision R
-	    WHERE  R.rid   IN $theset
-	    AND    R.dbparent IS NOT NULL
+    -- (2) Trunk root predecessor of NTDB root.
+	    SELECT R.rid, RX.rid
+	    FROM   revision R, revision RX
+	    WHERE  R.rid IN $theset     -- Restrict to revisions of interest
+	    AND    R.parent IS NULL     -- which are root
+	    AND    R.isdefault          -- on NTDB
+	    AND    R.fid = RX.fid       -- Select all revision in the same file
+	    AND    RX.parent IS NULL    -- which are root
+	    AND    NOT RX.isdefault     -- on the trunk
+    UNION
+    -- (3) Last NTDB on trunk is predecessor of child of trunk root
+	    SELECT R.rid, RA.dbparent
+	    FROM revision R, revision RA
+	    WHERE R.rid IN $theset       -- Restrict to revisions of interest
+	    AND NOT R.isdefault          -- not on NTDB
+	    AND R.parent IS NOT NULL     -- which are not root
+	    AND RA.rid = R.parent        -- go to their parent
+	    AND RA.dbparent IS NOT NULL  -- which has to refer to NTDB's root
 	"] {
 	    # Consider moving this to the integrity module.
 	    if {$rid == $parent} {
