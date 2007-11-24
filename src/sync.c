@@ -35,7 +35,7 @@
 */
 int autosync(int pullFlag){
   const char *zUrl;
-  if( db_get_int("autosync", 0)==0 ){
+  if( db_get_boolean("autosync", 0)==0 ){
     return 0;
   }
   zUrl = db_get("last-sync-url", 0);

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\sdefault\sheader.
-D 2007-11-23T23:06:09
+C The\sautosync\ssetting\sunderstands\svalues\slike\s"on",\s"off",\s"true",\sand\s"false"\nin\saddition\sto\s0\sand\s1.\s\sUpdates\sto\sthe\sdocumentation.
+D 2007-11-24T02:45:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -46,7 +46,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 02e1a3dfd6fd5643b0d52a459e5f0f3951f2519e
-F src/db.c 3bb9c7887b3723fee765e80cddde1a3a94e49d7f
+F src/db.c 96be69e00f38a4ac17103f18b9a5268af232449f
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -80,7 +80,7 @@ F src/sqlite3.c 78b516735165072e986247f4667a84a5870fd889
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
 F src/style.c b0eab5fa34d5cad766bc53edd1054024a85c0146
 F src/subscript.c fb8956976f7155f2aab7947e1ec1e4c08843a73c
-F src/sync.c f3710d7eb57aeae3d316637d153a466c4b1a515e
+F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
 F src/timeline.c 088a229b705d26b43cd06b8e296353cf6065ff55
 F src/tkt.c e32e47c61cd666d747e0c82099f3656413e4861e
@@ -150,7 +150,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html d53cc73d6e92ab43f53ddd878e2267d6480af076
+F www/concepts.html 599347ea73f8ac8f2db11792493e8f57ee26fe92
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -169,21 +169,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 7e9e427973c57a5f4460f62e7c9319dbb783b764
+F www/fileformat.html d48039839878b9c4a4be9ebf1b16b45fe2db5793
 F www/index.html c49cf389d31138dedb23a39910aaa049667e664e
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 34af72801d08a58a3c97d1ef75557b21fabb2e94
-R af7a08448f56e71c86d8246d873ff3b5
+P 13732d495df485b4e9163f18a6563909531b7f31
+R a4950e81292752a2f01e01f651700883
 U drh
-Z 4b4c368e220570c2bf780082f6f8e17c
+Z 557adb9ecf9548c66bf26af6c9ee752d
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHR1zloxKgR168RlERAtWgAJwMP5QFS5eFWCM2efO6ADlJPO/ougCfV4bl
-FAp4oXaRVSpRzGqGebbcTV0=
-=mRHj
+iD8DBQFHR5BcoxKgR168RlERAgrBAKCNldM1CXf+WkBGbCdeLFpMLq5xqwCfSV0J
+NHbas59alJbz026yy0NMjGk=
+=5+w1
 -----END PGP SIGNATURE-----

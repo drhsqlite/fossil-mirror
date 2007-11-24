@@ -953,6 +953,19 @@ void db_set_int(const char *zName, int value, int globalFlag){
   }
   db_end_transaction(0);
 }
+int db_get_boolean(const char *zName, int dflt){
+  static const char *azOn[] = { "on", "yes", "true", "1" };
+  static const char *azOff[] = { "off", "no", "false", "0" };
+  int i;
+  char *zVal = db_get(zName, dflt ? "on" : "off");
+  for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
+    if( strcmp(zVal,azOn[i])==0 ) return 1;
+  }
+  for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
+    if( strcmp(zVal,azOff[i])==0 ) return 0;
+  }
+  return dflt;
+}
 char *db_lget(const char *zName, char *zDefault){
   return db_text((char*)zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
