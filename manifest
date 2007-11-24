@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tweaked\slog\soutput\sa\sbit.\sBugfixes:\sForgot\sto\spropagate\sthe\sborder\sinformation\sinto\sSplitRevisions,\sand\sa\svarname\stypo.
-D 2007-11-24T04:19:15
+C Bugfix\sin\sthe\schangeset\sclass.\sThe\sindex\sfrom\srevisions\sto\scontaining\schangesets\sis\snot\s1:1,\sbut\s1:n.\sWhile\sonly\sone\srevision\schangeset\sis\spossible\sthere\scan\salso\sbe\szero\sor\smore\ssymbol\schangesets.
+D 2007-11-24T04:29:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -117,7 +117,7 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7f9106e82c706b6b7e384b880377bff8cd252746
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 29f48baf1681e05ab6663c3ca9ca6a094c8541a9
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 940095b79c6d7787da825569ba9e73166307d01d
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
-F tools/cvs2fossil/lib/c2f_prev.tcl 3c9d1e003d420c5a7bf298a08d4de021a4fa5a09
+F tools/cvs2fossil/lib/c2f_prev.tcl d3b49cf4d51768f788eca11be7983e90cd947472
 F tools/cvs2fossil/lib/c2f_prevlink.tcl b25fedd0c7631934c6eb2eab0b5933f61c4bfc4d
 F tools/cvs2fossil/lib/c2f_project.tcl 39d1bb0e929ef13145d932534344a56ac57b586d
 F tools/cvs2fossil/lib/c2f_psym.tcl bed2d949173aa58dd86bbed6d9e9089b33ad207b
@@ -170,14 +170,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P eabaea870afdc22be494d98edac5b2fab37a30df
-R e6564076f228bf979c8ba495f0269b7f
+P 6d63634309ff7e98019353cf539e471641a65730
+R d6c104aed4d3f7a57944ad05ea9bc160
 U aku
-Z a7409270124119a003d1c23825f1b077
+Z 14f6f8fcc4ecbdf77f2feeeb0fb8ce4f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHR6ZDvonzZ/CRa7gRAvspAJ47G1/ynAOa5BX0F4Yyb32RjU6w5QCeJzRN
-+AoqprCyDiOaMkPo/oE6cGU=
-=nFnb
+iD8DBQFHR6iuvonzZ/CRa7gRAvtiAKCDeX+qgC0m+4tXShCqNUlgkFk4gwCgs1o9
+PmnNnWkIPw0ReISV8P1jWuU=
+=x9Cn
 -----END PGP SIGNATURE-----

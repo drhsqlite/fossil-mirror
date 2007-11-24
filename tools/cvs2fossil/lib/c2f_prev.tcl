@@ -48,7 +48,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# mapping from revisions to them.
 	lappend mychangesets   $self
 	set     myidmap($myid) $self
-	foreach r $revisions { set myrevmap($r) $self }
+	foreach r $revisions { lappend myrevmap($r) $self }
 	return
     }
 
@@ -69,12 +69,16 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		      }])}]
     }
 
+    # result = dict (revision -> list (changeset))
     method successormap {} {
 	# NOTE / FUTURE: Possible bottleneck.
 	array set tmp {}
 	foreach {rev children} [$self nextmap] {
 	    foreach child $children {
-		lappend tmp($rev) $myrevmap($child)
+		# 8.5 lappend tmp($rev) {*}$myrevmap($child)
+		foreach cset $myrevmap($child) {
+		    lappend tmp($rev) $cset
+		}
 	    }
 	    set tmp($rev) [lsort -unique $tmp($rev)]
 	}
@@ -86,18 +90,25 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set csets {}
 	foreach {_ children} [$self nextmap] {
 	    foreach child $children {
-		lappend csets $myrevmap($child)
+		# 8.5 lappend csets {*}$myrevmap($child)
+		foreach cset $myrevmap($child) {
+		    lappend csets $cset
+		}
 	    }
 	}
 	return [lsort -unique $csets]
     }
 
+    # result = dict (revision -> list (changeset))
     method predecessormap {} {
 	# NOTE / FUTURE: Possible bottleneck.
 	array set tmp {}
 	foreach {rev children} [$self premap] {
 	    foreach child $children {
-		lappend tmp($rev) $myrevmap($child)
+		# 8.5 lappend tmp($rev) {*}$myrevmap($child)
+		foreach cset $myrevmap($child) {
+		    lappend tmp($rev) $cset
+		}
 	    }
 	    set tmp($rev) [lsort -unique $tmp($rev)]
 	}
@@ -298,7 +309,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		DELETE FROM csrevision WHERE cid = $myid;
 	    }
 	}
-	foreach r $myrevisions { unset myrevmap($r) }
+	foreach r $myrevisions {
+	    if {[llength $myrevmap($r)] == 1} {
+		unset myrevmap($r)
+	    } else {
+		set pos [lsearch -exact $myrevmap($r) $self]
+		set myrevmap($r) [lreplace $myrevmap($r) $pos $pos]
+	    }
+	}
 	set pos          [lsearch -exact $mychangesets $self]
 	set mychangesets [lreplace $mychangesets $pos $pos]
 	return
@@ -672,7 +690,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
 
     typevariable mychangesets    {} ; # List of all known changesets.
-    typevariable myrevmap -array {} ; # Map from revisions to their changeset.
+    typevariable myrevmap -array {} ; # Map from revisions to the list
+				      # of changesets containing
+				      # it. NOTE: While only one
+				      # revision changeset can contain
+				      # the revision, there can
+				      # however also be one or more
+				      # additional symbol changesets
+				      # which use it, hence a list.
     typevariable myidmap  -array {} ; # Map from changeset id to changeset.
     typevariable mybranchcode    {} ; # Local copy of project::sym/mybranch.
 
