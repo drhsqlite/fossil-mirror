@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sa\snumber\sof\sassertions\sand\smust-not-happens\swith\sassociated\slog\soutput.\sPlus\ssome\ssmall\stweaks,\sand\snotes.
-D 2007-11-24T04:15:46
+C Tweaked\slog\soutput\sa\sbit.\sBugfixes:\sForgot\sto\spropagate\sthe\sborder\sinformation\sinto\sSplitRevisions,\sand\sa\svarname\stypo.
+D 2007-11-24T04:19:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -108,7 +108,7 @@ F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_integrity.tcl f5cf3c56374ce48ced3fc6b70542efebd9693336
 F tools/cvs2fossil/lib/c2f_option.tcl 5b894a43fc43af3f4223d44431940e9b427949ea
 F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl ba2a0b846b278c8ee3e28c28461c369ea2a0eb51
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 42309dffc262bd5856231c2ce9a2c052668b2fe2
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 956cfdff4d49789a545950d4f0ca59d81aff4add
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 436cc24e8ca781b91fcc4331fc56272d07bd3584
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
@@ -170,14 +170,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P a99d5798f66d3d6afee447d97fed18536760a8d1
-R eb851fdd6e4c832426d325873184ea86
+P eabaea870afdc22be494d98edac5b2fab37a30df
+R e6564076f228bf979c8ba495f0269b7f
 U aku
-Z 51fc00e4e5b3fb42c553a39ac3c19eb1
+Z a7409270124119a003d1c23825f1b077
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHR6V2vonzZ/CRa7gRAhVGAKCX0vp1fG/ONeo5w7w+Ib5TjYC72ACgo6w0
-gKl0Cnw1YVbvYF8XKFrVpZ4=
-=Lios
+iD8DBQFHR6ZDvonzZ/CRa7gRAvspAJ47G1/ynAOa5BX0F4Yyb32RjU6w5QCeJzRN
++AoqprCyDiOaMkPo/oE6cGU=
+=nFnb
 -----END PGP SIGNATURE-----

@@ -157,13 +157,13 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
 	    ComputeLimits $cset limits border
 
-	    log write 6 breakacycle "At commit position border $border"
+	    log write 6 breakacycle "Using commit position $border as border"
 
 	    # Then we sort the file level items based on there they
 	    # sit relative to the border into before and after the
 	    # border.
 
-	    SplitRevisions $limits normalrevisions backwardrevisions
+	    SplitRevisions $limits $border normalrevisions backwardrevisions
 
 	    set replacements [project::rev split $cset $normalrevisions $backwardrevisions]
 	    cyclebreaker replace $graph $cset $replacements
@@ -173,7 +173,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	    # second fragment.
 
 	    struct::list assign $replacements normal backward
-	    if {[IsABackwardBranch $dg $normal]} { trouble internal "The normal fragment is unexpectedly a backward branch" }
+	    if {[IsABackwardBranch $graph $normal]} { trouble internal "The normal fragment is unexpectedly a backward branch" }
 
 	    set cset $backward
 	}
@@ -281,7 +281,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     proc MinSuccessorPosition {item} { lindex $item 1 }
 
-    proc SplitRevisions {limits nv bv} {
+    proc SplitRevisions {limits border nv bv} {
 	upvar 1 $nv normalrevisions $bv backwardrevisions
 
 	set normalrevisions   {}
