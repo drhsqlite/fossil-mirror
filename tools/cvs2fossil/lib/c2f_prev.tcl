@@ -233,6 +233,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	log write 6 csets ". . .. ... ..... ........ ............."
 
+	# (*) We clear out the associated part of the myrevmap
+	# in-memory index in preparation for new data. A simple unset
+	# is enough, we have no symbol changesets at this time, and
+	# thus never more than one reference in the list.
+
+	foreach r $myrevisions { unset myrevmap($r) }
+
 	# Create changesets for the fragments, reusing the current one
 	# for the first fragment. We sort them in order to allow
 	# checking for gaps and nice messages.
@@ -265,8 +272,15 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    trouble internal "Bad fragment end @ $laste, gap, or beyond end of the range"
 	}
 
-	# Put the first fragment into the current changeset.
+	# Put the first fragment into the current changeset, and
+	# update the in-memory index. We can simply (re)add the
+	# revisions because we cleared the previously existing
+	# information, see (*) above. Persistence does not matter
+	# here, none of the changesets has been saved to the
+	# persistent state yet.
+
 	set myrevisions [lrange $myrevisions 0 $firste]
+	foreach r $myrevisions { lappend myrevmap($r) $self }
 
 	return 1
     }
