@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Moved\smore\sparts\staken\sover\sby\sthe\stop.\ssort\spasses\sout\sthe\sbreaker\spasses,\sand\srenumbered\sthem.
-D 2007-11-25T03:05:21
+C Filerevtree\shelper.\sAdded\smissing\srequirements,\sand\sdialed\sthe\sverbosity\sdown.
+D 2007-11-25T07:30:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -98,7 +98,7 @@ F todo.txt 55905ed361b156c0a8fb71b32eb99213ee74434e
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
-F tools/cvs2fossil/filerevtree 5736267763b2b886670f3a3ddacc2be5b4b210fb
+F tools/cvs2fossil/filerevtree adf892ac6cf90e86852191161ea57fc82a72888e
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 20cdcc5766dcb83f21e52f84484785252bf7217b
 F tools/cvs2fossil/lib/c2f_file.tcl 244708335681ce784b535108c2e10e98dea03caf
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 755aedadae93d8c32043b10820c5b98c1c3815c7
@@ -172,14 +172,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b6b7ff79ccf41d67015daea1f8baf283c599dda8
-R b8794cdd26e794cf1b609617528a22af
+P d743f04bd2e2cf7903b18f73689a162d7f9af14f
+R 1429b85981df65a5140eaad79c5ac449
 U aku
-Z d5311430be2b625ae6a3c563fa5cd067
+Z b124b57f252af4aee2798c9cf039d791
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHSOZxvonzZ/CRa7gRAuCsAJ9x8OhU79+9sY5Z7lJzIAIQfWNTeQCfT5s8
-0CwaI31fjmiK/Vnp3NlL8Gg=
-=IA2a
+iD8DBQFHSSS0vonzZ/CRa7gRApxwAJ0RzwJSx8V1gVo1/NW7IFCbey3f/ACgk0fU
+UpaE0MnIuh2cWE5kvMpi+aQ=
+=3Wne
 -----END PGP SIGNATURE-----

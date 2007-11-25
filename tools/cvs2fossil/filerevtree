@@ -32,11 +32,17 @@ package require vc::fossil::import::cvs::project::rev ; # Changesets
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::tools::misc                       ; # Min/max.
 package require vc::tools::dot                        ; # Graph export to DOT.
+package require vc::tools::trouble                    ; # Error reporting
+package require vc::tools::log                        ; # User feedback
 
 namespace import ::vc::fossil::import::cvs::state
 namespace import ::vc::fossil::import::cvs::project::rev
 namespace import ::vc::tools::dot
+namespace import ::vc::tools::trouble
+namespace import ::vc::tools::log
 namespace import ::vc::tools::misc::*
+
+log verbosity 0
 
 # Process the command line, i.e. get the database to access, and file
 # of interest. The latter can be specified by name, id, or indirectly
@@ -81,6 +87,7 @@ switch -exact -- $what {
 	    "Unknown spec \"$what\", expected one of \"fid\", \"fname\", or \"rid\""
     }
 }
+trouble abort?
 
 set pid [state one { SELECT pid FROM file WHERE fid == $fid }]
 
