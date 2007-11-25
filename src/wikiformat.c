@@ -771,6 +771,18 @@ static void endAutoParagraph(Renderer *p){
 }
 
 /*
+** If the input string corresponds to an existing baseline,
+** return true.
+*/
+static int is_valid_uuid(const char *z){
+  int n = strlen(z);
+  int rid;
+  if( n<4 || n>UUID_SIZE ) return 0;
+  if( !validate16(z, n) ) return 0;
+  return 1;
+}
+
+/*
 ** Resolve a hyperlink.  The argument is the content of the [...]
 ** in the wiki.  Append the URL to the output of the Renderer.
 */
@@ -783,6 +795,8 @@ static void resolveHyperlink(const char *zTarget, Renderer *p){
     blob_appendf(p->pOut, zTarget);
   }else if( zTarget[0]=='/' ){
     blob_appendf(p->pOut, "%s%h", g.zBaseURL, zTarget);
+  }else if( is_valid_uuid(zTarget) ){
+    blob_appendf(p->pOut, "%s/info/%s", g.zBaseURL, zTarget);
   }else if( wiki_name_is_wellformed(zTarget) ){
     blob_appendf(p->pOut, "%s/wiki?name=%T", g.zBaseURL, zTarget);
   }else{

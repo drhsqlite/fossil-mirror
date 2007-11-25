@@ -59,6 +59,7 @@ static int nameCmpr(const void *a, const void *b){
 */
 static void getAllTicketFields(void){
   Stmt q;
+  int i;
   if( nField>0 ) return;
   db_prepare(&q, "PRAGMA table_info(ticket)");
   while( db_step(&q)==SQLITE_ROW ){
@@ -76,8 +77,11 @@ static void getAllTicketFields(void){
   db_finalize(&q);
   qsort(azField, nField, sizeof(azField[0]), nameCmpr);
   azAppend = &azField[nField];
-  memset(azAppend, 0, sizeof(azAppend[0])*nField*2);
+  memset(azAppend, 0, sizeof(azAppend[0])*nField);
   azValue = &azAppend[nField];
+  for(i=0; i<nField; i++){
+    azValue[i] = "";
+  }
 }
 
 /*
@@ -215,7 +219,7 @@ void ticket_insert(Manifest *p, int createFlag, int checkTime){
       db_commit_hook(ticket_rebuild_at_commit, 1);
       isInit = 1;
     }
-    db_multi_exec("INSERT OR IGNORE INTO _pending_ticket"
+    db_multi_exec("INSERT OR IGNORE INTO _pending_ticket "
                   "VALUES(%Q)", p->zTicketUuid);
   }
   blob_reset(&sql);
@@ -317,64 +321,6 @@ void tktview_page(void){
   style_footer();
 }
 
-/*
-** Subscript command:   submit_new_ticket
-**
-** If the variable named LABEL exists, then submit a new ticket
-** based on the values of other defined variables.
-*/
-static int submitNewCmd(struct Subscript *p, void *pNotify){
-  const char *zLabel;
-  int nLabel, size;
-  if( SbS_RequireStack(p, 1, "submit_new_ticket") ) return 1;
-  zLabel = SbS_StackValue(p, 0, &nLabel);
-  if( SbS_Fetch(p, zLabel, nLabel, &size)!=0 ){
-    char *zDate, *zUuid;
-    int i;
-    int rid;
-    Blob tktchng, cksum;
-
-    blob_zero(&tktchng);
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
-    blob_appendf(&tktchng, "D %s\n", zDate);
-    free(zDate);
-    for(i=0; i<nField; i++){
-      const char *zValue;
-      int nValue;
-      zValue = SbS_Fetch(p, azField[i], -1, &nValue);
-      if( zValue ){
-        while( nValue>0 && isspace(zValue[nValue-1]) ){ nValue--; }
-        blob_appendf(&tktchng, "J %s %z\n",
-           azField[i], fossilize(zValue,nValue));
-      }
-    }
-    zUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
-    blob_appendf(&tktchng, "K %s\n", zUuid);
-    (*(char**)pNotify) = zUuid;
-    blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
-    md5sum_blob(&tktchng, &cksum);
-    blob_appendf(&tktchng, "Z %b\n", &cksum);
-
-#if 0
-    @ <hr><pre>
-    @ %h(blob_str(&tktchng))
-    @ </pre><hr>
-    blob_zero(&tktchng)
-    SbS_Pop(p, 1);
-    return SBS_OK;
-#endif
-
-    rid = content_put(&tktchng, 0, 0);
-    if( rid==0 ){
-      fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-    }
-    manifest_crosslink(rid, &tktchng);
-    return SBS_RETURN;
-  }
-  SbS_Pop(p, 1);
-  return SBS_OK;  
-}
 
 
 /*
@@ -443,7 +389,7 @@ static int submitTicketCmd(struct Subscript *p, void *pUuid){
       }
     }
   }
-  if( *(char**)pUuid==0 ){
+  if( *(char**)pUuid ){
     zUuid = db_text(0, 
        "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", P("name")
     );
@@ -456,14 +402,14 @@ static int submitTicketCmd(struct Subscript *p, void *pUuid){
   md5sum_blob(&tktchng, &cksum);
   blob_appendf(&tktchng, "Z %b\n", &cksum);
 
-#if 1
-  @ <hr><pre>
-  @ %h(blob_str(&tktchng))
-  @ </pre><hr>
-  blob_zero(&tktchng);
-  SbS_Pop(p, 1);
-  return SBS_OK;
-#endif
+  if( strncmp(g.zPath,"debug_",6)==0 ){
+    @ <hr><pre>
+    @ %h(blob_str(&tktchng))
+    @ </pre><hr>
+    blob_zero(&tktchng);
+    SbS_Pop(p, 1);
+    return SBS_OK;
+  }
 
   rid = content_put(&tktchng, 0, 0);
   if( rid==0 ){
@@ -476,6 +422,7 @@ static int submitTicketCmd(struct Subscript *p, void *pUuid){
 
 /*
 ** WEBPAGE: tktnew
+** WEBPAGE: debug_tktnew
 */
 void tktnew_page(void){
   char *zScript;
@@ -488,12 +435,12 @@ void tktnew_page(void){
   ticket_init();
   getAllTicketFields();
   initializeVariablesFromCGI();
-  @ <form method="POST" action="%s(g.zBaseURL)/tktnew">
+  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
   zScript = (char*)SbS_Fetch(pInterp, "tktnew_template", -1, &nScript);
   zScript = mprintf("%.*s", nScript, zScript);
   SbS_Store(pInterp, "login", g.zLogin, 0);
   SbS_Store(pInterp, "date", db_text(0, "SELECT datetime('now')"), 2);
-  SbS_AddVerb(pInterp, "submit_ticket", submitNewCmd, (void*)&zNewUuid);
+  SbS_AddVerb(pInterp, "submit_ticket", submitTicketCmd, (void*)&zNewUuid);
   if( SbS_Render(pInterp, zScript)==SBS_RETURN && zNewUuid ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zNewUuid));
     return;
@@ -506,6 +453,7 @@ void tktnew_page(void){
 
 /*
 ** WEBPAGE: tktedit
+** WEBPAGE: debug_tktedit
 */
 void tktedit_page(void){
   char *zScript;
@@ -513,7 +461,6 @@ void tktedit_page(void){
   int nName;
   const char *zName;
   int nRec;
-  char *zUuid = 0;
 
   login_check_credentials();
   if( !g.okApndTkt && !g.okWrTkt ){ login_needed(); return; }
@@ -541,16 +488,16 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
-  @ <form method="POST" action="%s(g.zBaseURL)/tktedit">
+  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
   @ <input type="hidden" name="name" value="%s(zName)">
   zScript = (char*)SbS_Fetch(pInterp, "tktedit_template", -1, &nScript);
   zScript = mprintf("%.*s", nScript, zScript);
   SbS_Store(pInterp, "login", g.zLogin, 0);
   SbS_Store(pInterp, "date", db_text(0, "SELECT datetime('now')"), 2);
   SbS_AddVerb(pInterp, "append_field", appendRemarkCmd, 0);
-  SbS_AddVerb(pInterp, "submit_ticket", submitTicketCmd, (void*)&zUuid);
-  if( SbS_Render(pInterp, zScript)==SBS_RETURN && zUuid ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zUuid));
+  SbS_AddVerb(pInterp, "submit_ticket", submitTicketCmd, (void*)&zName);
+  if( SbS_Render(pInterp, zScript)==SBS_RETURN && zName ){
+    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zName));
     return;
   }
   @ </form>

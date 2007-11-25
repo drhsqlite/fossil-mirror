@@ -173,7 +173,7 @@ const char zDefaultTicketConfig[] =
 @   <!-- start a form -->
 @   [{
 @      {Open} /status set
-@       submit_new_ticket
+@       submit_ticket
 @   } /submit exists if]
 @   <table cellpadding="5">
 @   <tr>
@@ -207,7 +207,7 @@ const char zDefaultTicketConfig[] =
 @   
 @   <tr>
 @   <td align="right">EMail:
-@   [/severity severity_choices 1 combobox]
+@   <input type="text" name="contact" value="[{} /contact get html]" size="30">
 @   </td>
 @   <td>Not publically visible. Used by developers to contact you with
 @   questions.</td>
@@ -258,13 +258,12 @@ const char zDefaultTicketConfig[] =
 @     {
 @       {
 @         username login eq /samename set
-@  "samename=" html samename html "<br>" puts
 @         {
-@            "\n<hr><i>" login " added on " date ":</i></br>\n" cmappnd 6 concat
-@            /comment append_field
+@            "\n\n<hr><i>" login " added on " date ":</i><br>\n"
+@            cmappnd 6 concat /comment append_field
 @         } samename if
 @         {
-@            "\n<hr><i>" login " claiming to be " username " added on " date
+@            "\n\n<hr><i>" login " claiming to be " username " added on " date
 @            "</i><br>\n" cmappnd 8 concat /comment append_field
 @         } samename not if
 @       } 0 {} /cmappnd get length lt if

@@ -699,7 +699,6 @@ void diff_page(void){
 }
 
 /*
-** WEBPAGE: info
 ** WEBPAGE: fview
 ** URL: /fview?name=UUID
 ** 
@@ -736,4 +735,89 @@ void fview_page(void){
   @ </pre></blockquote>
   blob_reset(&content);
   style_footer();
+}
+
+/*
+** WEBPAGE: info
+** URL: info/UUID
+**
+** The argument is a UUID which might be a baseline or a file or
+** a ticket or something else.  It might also be a wiki page name.
+** Figure out what the UUID is an jump to it.  If there is ambiguity,
+** draw a page and let the user select the interpretation.
+*/
+void info_page(void){
+  const char *zName;
+  int rc, nName, cnt;
+  Stmt q;
+  
+  zName = P("name");
+  if( zName==0 ) cgi_redirect("index");
+  nName = strlen(zName);
+  if( nName<4 || nName>UUID_SIZE || !validate16(zName, nName) ){
+    cgi_redirect("index");
+  }
+  db_multi_exec(
+     "CREATE TEMP TABLE refs(type,link);"
+     "INSERT INTO refs "
+     "  SELECT 'f', rid FROM blob WHERE uuid GLOB '%s*'"
+     "  UNION ALL"
+     "  SELECT 'w', substr(tagname,6) FROM tag"
+     "   WHERE tagname='wiki-%q'"
+     "  UNION ALL"
+     "  SELECT 't', tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*';",
+     zName, zName, zName
+  );
+  cnt = db_int(0, "SELECT count(*) FROM refs");
+  if( cnt==0 ){
+    style_header("Broken Link");
+    @ <p>No such object: %h(zName)</p>
+    style_footer();
+    return;
+  }
+  db_prepare(&q, "SELECT type, link FROM refs");
+  db_step(&q);
+  if( cnt==1 ){
+    int type = *db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    db_finalize(&q);
+    if( type=='w' ){
+      wiki_page();
+    }else if( type=='t' ){
+      tktview_page();
+    }else{
+      cgi_replace_parameter("name", mprintf("%d", rid));
+      if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
+        vinfo_page();
+      }else{
+        finfo_page();
+      }
+    }
+    return;
+  }
+  /* Multiple objects */
+  style_header("Ambiguous Link");
+  @ <h2>Ambiguous Link: %h(zName)</h2>
+  @ <ul>
+  while( rc==SQLITE_ROW ){
+    int type = *db_column_text(&q, 0);
+    if( type=='f' ){
+      @ <li><p>
+      object_description(db_column_int(&q, 1), 1);
+      @ </p></li>
+    }else if( type=='w' ){
+      @ <li><p>
+      @ Wiki page <a href="%s(g.zBaseURL)/wiki?name=%s(zName)">%s(zName)</a>.
+      @ </li><p>
+    }else if( type=='t' ){
+      const char *zUuid = db_column_text(&q, 1);
+      @ <li><p>
+      @ Ticket <a href="%s(g.zBaseURL)/tktview?name=%s(zUuid)">%s(zUuid)</a>.
+      @ </li><p>
+    }
+    rc = db_step(&q);
+  }
+  @ </ul>
+  style_footer();
+  db_finalize(&q);
 }

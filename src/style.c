@@ -78,6 +78,8 @@ void style_header(const char *zTitle){
   const char *zLogInOut = "Login";
   const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   login_check_credentials();
+  
+  if( pInterp ) return;
 
   /* Generate the header up through the main menu */
   pInterp = SbS_Create();
@@ -137,10 +139,14 @@ void style_header(const char *zTitle){
 ** Draw the footer at the bottom of the page.
 */
 void style_footer(void){
-  const char *zFooter = db_get("footer", (char*)zDefaultFooter);
+  const char *zFooter;
+  
+  if( pInterp==0 ) return;
+  zFooter = db_get("footer", (char*)zDefaultFooter);
   @ </div>
   SbS_Render(pInterp, zFooter);
   SbS_Destroy(pInterp);
+  pInterp = 0;
 }
 
 /* @-comment: // */
