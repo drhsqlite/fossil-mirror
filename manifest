@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Changesets:\sAdded\saccessor\sfor\sto\sretrieve\snumber\sof\schangesets\sknown,\sand\sdropped\sthe\s"trunk\sroot\s->\sNTDB\sroot"\sdependency,\sis\sproblematic.
-D 2007-11-25T07:39:53
+C Tweaked\slog\soutput\sof\sthe\stopological\ssorter\s(revisions)\sto\sbe\stabular\s(aligned\scolumns),\sadded\sinformation\s(time\sranges).
+D 2007-11-25T07:41:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -121,7 +121,7 @@ F tools/cvs2fossil/lib/c2f_plodmgr.tcl cb6fc6ef5f06fac3350e8f1872a8a4f8244ffd18
 F tools/cvs2fossil/lib/c2f_prev.tcl e10db583177b07c3e29547515c30079d2a0422e5
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 4abdaecd6fa93c11461385f6b2ec4d9f5b5f212e
 F tools/cvs2fossil/lib/c2f_project.tcl 39d1bb0e929ef13145d932534344a56ac57b586d
-F tools/cvs2fossil/lib/c2f_prtopsort.tcl 96780b3d36b6672b6b3d93127ca61d36c63b258d
+F tools/cvs2fossil/lib/c2f_prtopsort.tcl 8a68348b95ae4a3d3a4a5eac363b604074752200
 F tools/cvs2fossil/lib/c2f_psym.tcl bed2d949173aa58dd86bbed6d9e9089b33ad207b
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
 F tools/cvs2fossil/lib/c2f_repository.tcl 7d5182fefd18b96c3ec5344c2ecc6ad414e8425a
@@ -172,14 +172,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 63052cb60ac0a9948db3cdfe60bf0c92f91f90d2
-R 59185e73f2c53493ac96a5d080be4ee3
+P 96167b2a48d198c844f636d17a45472303c13230
+R 73b979d4e9e1093f0793321bc760f3d5
 U aku
-Z 0e0e33ae5b3015e01764c7c1d02058fe
+Z bcf80b0ce2d664e1dd32fbde4ab0a048
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHSSbJvonzZ/CRa7gRAgkjAJ9Yb4Z7YVUJDxWB00Gnunolum3iYgCgs7BF
-TDVmb1V/3DTdknM4ZNAovpE=
-=rmxe
+iD8DBQFHSScTvonzZ/CRa7gRAtE3AKDAWlJ73gyAdyNs31p/dSx/ccgJYwCfU928
+Y+eGYr4WH1OwOjFBfZxD/5w=
+=xQJ8
 -----END PGP SIGNATURE-----

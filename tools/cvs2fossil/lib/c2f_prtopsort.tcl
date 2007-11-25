@@ -75,9 +75,15 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
+	set len [string length [project::rev num]]
+	set myatfmt %${len}s
+	incr len 6
+	set mycsfmt %${len}s
+
 	cyclebreaker savecmd  [myproc SaveOrder]
+
 	state transaction {
-	    cyclebreaker run break-rev [myproc Changesets]
+	    cyclebreaker run tsort-rev [myproc Changesets]
 	}
 	return
     }
@@ -101,15 +107,25 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
     proc IsByRevision {cset} { $cset byrevision }
 
     proc SaveOrder {graph at cset} {
+	::variable myatfmt
+	::variable mycsfmt
+
 	set cid [$cset id]
 
-	log write 4 rtopsort "Changeset @ $at: [$cset str] <<[$graph node set $cset timerange]>>"
+	log write 4 rtopsort "Changeset @ [format $myatfmt $at]: [format $mycsfmt [$cset str]] <<[FormatTR $graph $cset]>>"
 	state run {
 	    INSERT INTO csorder (cid,  pos)
 	    VALUES              ($cid, $at)
 	}
 	return
     }
+
+    proc FormatTR {graph cset} {
+	return [join [struct::list map [$graph node set $cset timerange] {clock format}] { -- }]
+    }
+
+    typevariable myatfmt ; # Format for log output to gain better alignment of the various columns.
+    typevariable mycsfmt ; # Ditto for the changesets.
 
     # # ## ### ##### ######## #############
     ## Configuration
