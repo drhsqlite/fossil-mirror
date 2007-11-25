@@ -77,7 +77,7 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 
 	state transaction {
 	    LoadSymbolChangesets
-	    cyclebreaker run break-all [myproc Changesets]
+	    cyclebreaker run tsort-all [myproc Changesets]
 	}
 	return
     }
@@ -100,6 +100,8 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 	set mysymchangesets [struct::list filter [project::rev all] [myproc IsBySymbol]]
 	return
     }
+
+    proc IsBySymbol {cset} { $cset bysymbol }
 
     proc SaveTimestamps {graph at cset} {
 	set cid [$cset id]

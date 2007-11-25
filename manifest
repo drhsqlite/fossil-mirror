@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Extended\scycle\sbreaker\swith\sdebug\sfacility\sallowing\sthe\suser\sto\swatch\sthe\sneighbourhood\sof\sspecific\schangesets\sduring\sthe\straversal.\sExtended\slabel\sinformation,\shighlighting\sof\sthe\snodes\sof\sinterest.\sTweaked\slog\soutput\sa\sbit.
-D 2007-11-25T07:35:30
+C Fixed\slog\soutput\sfor\spass\s10,\sand\sadded\smissing\scommand.
+D 2007-11-25T07:37:04
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -108,7 +108,7 @@ F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_integrity.tcl f5cf3c56374ce48ced3fc6b70542efebd9693336
 F tools/cvs2fossil/lib/c2f_option.tcl 36ee7e3cab7cc41f3e52bc78a6215faab0a8c857
 F tools/cvs2fossil/lib/c2f_pass.tcl 7583043b11eb24b97e5bc51f89e83788170e4dc7
-F tools/cvs2fossil/lib/c2f_patopsort.tcl 76cc206f7397ab20d320fbdd0d88b3ee02bdf75b
+F tools/cvs2fossil/lib/c2f_patopsort.tcl 77156b1a4b4ae58b3e10ba188fade3eba0482134
 F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 456c81fca5a350d0c5b094e6c2a94c217111f3e8
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 21b55594dbf59b8ef415501bb1a3434d121396b1
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl ec541821592d7e63bb8740e31f3e1a1b6803b892
@@ -172,14 +172,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 00e041dd220e6ee1006ea20bc0e536396d9186d2
-R 725a1a231da3cd536a61aa5ca6a60b1c
+P 97b4405ecf7ef61e838044ffa5ea5a6754a3d20e
+R b2117fd43f7b8aa2431b6c99c95f51af
 U aku
-Z 0b7fd25f607c341d6ca6713291947b2c
+Z b16a4115e5c489313cb1264b034a631a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHSSXCvonzZ/CRa7gRAgDBAJkB/Fb6KYThQuEzHZkYsm0txlKnZQCcCjT5
-DmL0kDZt+qG8T9JJVpsQJNY=
-=vUJY
+iD8DBQFHSSYgvonzZ/CRa7gRAhXkAJ9NeDgXcmUImQaumC8Hiz5KHXY5AgCgozt0
+kBmDGfZWH/nra2Ra/2pWPvg=
+=jlKT
 -----END PGP SIGNATURE-----
