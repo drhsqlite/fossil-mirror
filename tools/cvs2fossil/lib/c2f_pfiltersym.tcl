@@ -245,8 +245,11 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    AND S.type = $tag
 	}]
 
-	log write 4 filtersym "Changing [nsp [expr {[llength $tagstomutate]/5}] tag] into branches"
-	log write 4 filtersym "Changing [nsp [expr {[llength $branchestomutate]/7}] branch branches] into tags"
+	set nt [expr {[llength $tagstomutate]/5}]
+	set nb [expr {[llength $branchestomutate]/7}]
+
+	log write 4 filtersym "Changing [nsp $nt tag] into  [nsp $nt branch branches]"
+	log write 4 filtersym "Changing [nsp $nb branch branches] into  [nsp $nb tag]"
 
 	# # ## ### ##### ######## #############
 
