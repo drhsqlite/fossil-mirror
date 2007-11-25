@@ -410,31 +410,42 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
+    typemethod num {} { return $mycounter }
+
     proc PullInternalSuccessorRevisions {dv revisions} {
 	upvar 1 $dv dependencies
 	set theset ('[join $revisions {','}]')
 
+	# See PullSuccessorRevisions below for the main explanation of
+	# the various cases. This piece is special in that it
+	# restricts the successors we look for to the same set of
+	# revisions we start from. Sensible as we are looking for
+	# changeset internal dependencies.
+
 	foreach {rid child} [state run "
-   -- Primary children
+   -- (1) Primary child
 	    SELECT R.rid, R.child
 	    FROM   revision R
-	    WHERE  R.rid   IN $theset
-	    AND    R.child IS NOT NULL
-	    AND    R.child IN $theset
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.child IS NOT NULL    -- Has primary child
+	    AND    R.child IN $theset     -- Which is also of interest
     UNION
-    -- Transition NTDB to trunk
-	    SELECT R.rid, R.dbchild
-	    FROM   revision R
-	    WHERE  R.rid   IN $theset
-	    AND    R.dbchild IS NOT NULL
-	    AND    R.dbchild IN $theset
-    UNION
-    -- Secondary (branch) children
+    -- (2) Secondary (branch) children
 	    SELECT R.rid, B.brid
 	    FROM   revision R, revisionbranchchildren B
-	    WHERE  R.rid   IN $theset
-	    AND    R.rid = B.rid
-	    AND    B.brid IN $theset
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.rid = B.rid          -- Select subset of branch children
+	    AND    B.brid IN $theset      -- Which is also of interest
+    UNION
+    -- (4) Child of trunk root successor of last NTDB on trunk.
+	    SELECT R.rid, RA.child
+	    FROM revision R, revision RA
+	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
+	    AND   R.isdefault             -- Restrict to NTDB
+	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
+	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
+	    AND   RA.child IS NOT NULL    -- Has primary child.
+            AND   RA.child IN $theset     -- Which is also of interest
 	"] {
 	    # Consider moving this to the integrity module.
 	    if {$rid == $child} {
@@ -460,14 +471,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#     REVISIONBRANCHCHILDREN. R.rid -> RBC.rid, RBC.brid =
 	#     S(.rid)
 	#
-	# (3) If R is the trunk root of its file and S is the root of
-	#     the NTDB of the same file, then S is a successor of
-	#     R. There is no direct link between the two in the
-	#     database. An indirect link can be made through the FILE
-	#     they belong too, and their combination of attributes to
-	#     identify them. We check R for trunk rootness and then
-	#     select for the NTDB root, crossing the table with
-	#     itself.
+	# (3) Originally this use case defined the root of a detached
+	#     NTDB as the successor of the trunk root. This leads to a
+	#     bad tangle later on. With a detached NTDB the original
+	#     trunk root revision was removed as irrelevant, allowing
+	#     the nominal root to be later in time than the NTDB
+	#     root. Now setting this dependency will be backward in
+	#     time. REMOVED.
 	#
 	# (4) If R is the last of the NTDB revisions which belong to
 	#     the trunk, then the primary child of the trunk root (the
@@ -485,16 +495,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    FROM   revision R, revisionbranchchildren B
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.rid = B.rid          -- Select subset of branch children
-    UNION
-    -- (3) NTDB root successor of Trunk root
-	    SELECT R.rid, RX.rid
-	    FROM   revision R, revision RX
-	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
-	    AND    R.parent IS NULL       -- Restrict to root
-	    AND    NOT R.isdefault        -- on the trunk
-	    AND    R.fid = RX.fid         -- Select all revision in the same file
-	    AND    RX.parent IS NULL      -- Restrict to root
-	    AND    RX.isdefault           -- on the NTDB
     UNION
     -- (4) Child of trunk root successor of last NTDB on trunk.
 	    SELECT R.rid, RA.child
@@ -529,7 +529,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#     information.
 	#
 	# (2) The complement of successor case (3). The trunk root is
-	#     a predecessor of a NTDB root.
+	#     a predecessor of a NTDB root. REMOVED. See
+	#     PullSuccessorRevisions for the explanation.
 	#
 	# (3) The complement of successor case (4). The last NTDB
 	#     revision belonging to the trunk is a predecessor of the
@@ -541,16 +542,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    FROM   revision R
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.parent IS NOT NULL   -- Has primary parent
-    UNION
-    -- (2) Trunk root predecessor of NTDB root.
-	    SELECT R.rid, RX.rid
-	    FROM   revision R, revision RX
-	    WHERE  R.rid IN $theset     -- Restrict to revisions of interest
-	    AND    R.parent IS NULL     -- which are root
-	    AND    R.isdefault          -- on NTDB
-	    AND    R.fid = RX.fid       -- Select all revision in the same file
-	    AND    RX.parent IS NULL    -- which are root
-	    AND    NOT RX.isdefault     -- on the trunk
     UNION
     -- (3) Last NTDB on trunk is predecessor of child of trunk root
 	    SELECT R.rid, RA.dbparent
