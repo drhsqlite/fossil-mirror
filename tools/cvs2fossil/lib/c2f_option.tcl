@@ -81,6 +81,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--force-branch              { project::sym forcebranch [Value arguments] }
 		--batch                     { log noprogress }
 		--dots                      { cyclebreaker dotsto [Value arguments] }
+		--watch                     { cyclebreaker watch  [Value arguments] }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}

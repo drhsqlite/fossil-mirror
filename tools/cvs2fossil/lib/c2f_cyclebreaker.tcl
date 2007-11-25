@@ -56,6 +56,11 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return
     }
 
+    typemethod watch {id} {
+	::variable mywatchids
+	lappend mywatchids $id
+    }
+
     typemethod dot {label changesets} {
 	::variable mydotprefix $label
 	::variable mydotid     0
@@ -100,6 +105,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	InitializeCandidates $dg
 	while {1} {
 	    while {[WithoutPredecessor $dg n]} {
+		MarkWatch $dg
 		ProcessedHook $dg $n $myat
 		$dg node delete $n
 		incr myat
@@ -110,6 +116,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
 	    BreakCycleHook       $dg
 	    InitializeCandidates $dg
+	    MarkWatch            $dg
 	}
 
 	$dg destroy
@@ -162,25 +169,29 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     proc Setup {changesets {log 1}} {
 	if {$log} {
-	    log write 3 cyclebreaker "Create changeset graph, [nsp [llength $changesets] node]"
+	    log write 3 cyclebreaker "Creating graph of changesets"
 	}
 
 	set dg [struct::graph dg]
 
 	foreach cset $changesets {
+	    set tr [$cset timerange]
 	    $dg node insert $cset
-	    $dg node set    $cset timerange [$cset timerange]
-	    $dg node set    $cset label     [$cset str]
+	    $dg node set    $cset timerange $tr
+	    $dg node set    $cset label     "[$cset str]\\n[join [struct::list map $tr {::clock format}] "\\n"]"
 	    $dg node set    $cset __id__    [$cset id]
+	    $dg node set    $cset shape     [expr {[$cset bysymbol]
+						   ? "ellipse"
+						   : "box"}]
+	}
+
+	if {$log} {
+	    log write 3 cyclebreaker "Has [nsp [llength $changesets] changeset]"
 	}
 
 	# 2. Find for all relevant changeset their revisions and their
 	#    dependencies. Map the latter back to changesets and
 	#    construct the corresponding arcs.
-
-	if {$log} {
-	    log write 3 cyclebreaker {Setting up node dependencies}
-	}
 
 	foreach cset $changesets {
 	    foreach succ [$cset successors] {
@@ -212,11 +223,17 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    }
 	}
 
+	if {$log} {
+	    log write 3 cyclebreaker "Has [nsp [llength [$dg arcs]] dependency dependencies]"
+	}
+
 	# Run the user hook to manipulate the graph before
 	# consummation.
 
 	if {$log} { Mark $dg -start }
-	PreHook $dg
+	MarkWatch $dg
+	PreHook   $dg
+	MarkWatch $dg
 
 	# This kills the application if loops (see above) were found.
 	trouble abort?
@@ -397,10 +414,14 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
         $dg node delete $n
 
 	foreach cset $replacements {
+	    set tr [$cset timerange]
 	    $dg node insert $cset
-	    $dg node set    $cset timerange [$cset timerange]
-	    $dg node set    $cset label     [$cset str]
+	    $dg node set    $cset timerange $tr
+	    $dg node set    $cset label     "[$cset str]\\n[join [struct::list map $tr {::clock format}] "\\n"]"
 	    $dg node set    $cset __id__    [$cset id]
+	    $dg node set    $cset shape     [expr {[$cset bysymbol]
+						   ? "ellipse"
+						   : "box"}]
 	}
 
 	foreach cset $replacements {
@@ -478,6 +499,31 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     # # ## ### ##### ######## #############
 
+    proc MarkWatch {graph} {
+	::variable mywatchids
+	set watched [Watched $graph $mywatchids]
+	if {![llength $watched]} return
+	set neighbours [eval [linsert $watched 0 $graph nodes -adj]]
+	#foreach n $neighbours { log write 6 cyclebreaker "Neighbor [$n id] => $n" }
+	Mark $graph watched [concat $watched $neighbours]
+	return
+    }
+
+    proc Watched {graph watchids} {
+	set res {}
+	foreach id $watchids {
+	    set nl [$graph nodes -key __id__ -value $id]
+	    if {![llength $nl]} continue
+	    lappend res $nl
+	    #log write 6 breakrcycle "Watching $id => $nl"
+	    $graph node set $nl fontcolor red
+	}
+	return $res
+    }
+
+    # # ## ### ##### ######## #############
+
+
     typevariable myat      0 ; # Counter for commit ids for the
 			       # changesets.
     typevariable mybottom {} ; # List of the candidate nodes for
@@ -493,6 +539,8 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 				       # exporting the graphs.
     typevariable mydotid           0 ; # Counter for dot file name
 				       # generation.
+    typevariable mywatchids       {} ; # Changesets to watch the
+				       # neighbourhood of.
 
     # # ## ### ##### ######## #############
     ## Configuration
