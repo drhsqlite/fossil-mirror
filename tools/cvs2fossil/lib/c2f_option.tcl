@@ -31,7 +31,7 @@ package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 package require vc::fossil::import::cvs::cyclebreaker ; # Breaking dependency cycles.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::option {
     # # ## ### ##### ######## #############

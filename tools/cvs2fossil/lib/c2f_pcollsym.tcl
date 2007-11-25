@@ -35,7 +35,7 @@ vc::fossil::import::cvs::pass define \
     ::vc::fossil::import::cvs::pass::collsym
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass::collsym {
     # # ## ### ##### ######## #############
@@ -184,7 +184,7 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	}] {
 	    trouble fatal "$pname : The symbol '$sname' cannot be forced to be converted as tag because it has commits."
 	}
-	return 
+	return
     }
 
     proc DropExcludedSymbolsFromReferences {} {

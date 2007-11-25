@@ -49,7 +49,7 @@ package require vc::fossil::import::cvs::pass   ; # Pass management
 package require vc::tools::log                  ; # User feedback
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs {
     # # ## ### ##### ######## #############

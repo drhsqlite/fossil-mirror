@@ -22,7 +22,7 @@ package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::state      ; # State storage.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::file::sym {
     # # ## ### ##### ######## #############
@@ -206,15 +206,15 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     ## State
 
     # Persistent:
-    #        Tag: myid           - tag.tid 
-    #             myfile         - tag.fid 
-    #             mylod          - tag.lod 
-    #             mysymbol       - tag.sid 
+    #        Tag: myid           - tag.tid
+    #             myfile         - tag.fid
+    #             mylod          - tag.lod
+    #             mysymbol       - tag.sid
     #             mytagrev       - tag.rev
     #
-    #     Branch: myid           - branch.bid 
-    #		  myfile         - branch.fid 
-    #		  mylod          - branch.lod 
+    #     Branch: myid           - branch.bid
+    #		  myfile         - branch.fid
+    #		  mylod          - branch.lod
     #             mysymbol       - branch.sid
     #             mybranchparent - branch.root
     #             mybranchchild  - branch.first

@@ -35,7 +35,7 @@ vc::fossil::import::cvs::pass define \
     ::vc::fossil::import::cvs::pass::atopsort
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass::atopsort {
     # # ## ### ##### ######## #############
@@ -150,7 +150,7 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 
     typevariable mysymchangesets {} ; # Set of the symbol changesets.
     typevariable mylasttimestamp 0  ; # Last delivered timestamp.
-    typevariable mymaxtimestamp 
+    typevariable mymaxtimestamp
 
     typeconstructor {
 	# The maximum timestamp considered as reasonable is

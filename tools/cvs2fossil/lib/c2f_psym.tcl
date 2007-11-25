@@ -24,7 +24,7 @@ package require vc::fossil::import::cvs::state        ; # State storage.
 package require struct::set                           ; # Set handling.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::project::sym {
     # # ## ### ##### ######## #############
@@ -59,7 +59,7 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 	# - More used as tag, or more used as branch ?
 	# - At last, what has the user told us about it ?
 	# - Fail
-	
+
 	foreach rule {
 	    UserConfig
 	    Unambigous
@@ -338,7 +338,7 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 	# If a symbol is used unambiguously as a tag/branch, convert
 	# it as such.
 
-	set istag    [expr {$mytagcount    > 0}]	
+	set istag    [expr {$mytagcount    > 0}]
 	set isbranch [expr {$mybranchcount > 0 || $mycommitcount > 0}]
 
 	if {$istag && $isbranch} { return $myundef  }

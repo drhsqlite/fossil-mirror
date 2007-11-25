@@ -25,7 +25,7 @@ package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
@@ -39,8 +39,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	}
 
 	set myproject   $project
-	set mytype      $cstype	  
-	set mysrcid	$srcid	  
+	set mytype      $cstype
+	set mysrcid	$srcid
 	set myrevisions $revisions
 	set mypos       {} ; # Commit location is not known yet.
 
@@ -573,7 +573,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set depc  {}
 	set range       {}
 	set n 0
-	foreach rev $revisions { 
+	foreach rev $revisions {
 	    lappend range $n
 	    set pos($rev) $n
 	    set cross($n) 0

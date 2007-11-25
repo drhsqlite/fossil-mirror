@@ -35,7 +35,7 @@ vc::fossil::import::cvs::pass define \
     ::vc::fossil::import::cvs::pass::initcsets
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass::initcsets {
     # # ## ### ##### ######## #############
@@ -80,7 +80,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# only at revision changesets. However a revision can appear
 	# in both revision and symbol changesets, and in multiple
 	# symbol changesets as well. So we can only say that it is
-	# unique within the changeset. 
+	# unique within the changeset.
 	#
 	# TODO: Check if integrity checks are possible.
 

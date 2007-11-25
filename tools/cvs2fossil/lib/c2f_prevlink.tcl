@@ -31,7 +31,7 @@ package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::project::rev ; # Project level changesets
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::project::revlink {
     # # ## ### ##### ######## #############

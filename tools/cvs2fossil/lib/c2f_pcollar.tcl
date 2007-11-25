@@ -37,7 +37,7 @@ vc::fossil::import::cvs::pass define \
     ::vc::fossil::import::cvs::pass::collar
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass::collar {
     # # ## ### ##### ######## #############
@@ -80,7 +80,7 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	return
     }
 
-    typemethod load {} {	
+    typemethod load {} {
 	# Pass manager interface. Executed for all passes before the
 	# run passes, to load all data of their pass from the state,
 	# as if it had been computed by the pass itself.

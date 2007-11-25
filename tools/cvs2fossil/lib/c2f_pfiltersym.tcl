@@ -35,7 +35,7 @@ vc::fossil::import::cvs::pass define \
     ::vc::fossil::import::cvs::pass::filtersym
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass::filtersym {
     # # ## ### ##### ######## #############
@@ -316,7 +316,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    AND   T.lod != P.pid
 	    AND   P.pid = S.sid
 	    AND   S.name != ':trunk:'
-	    AND   T.rev = R.rid	
+	    AND   T.rev = R.rid
 	}]
 
 	set branchestoadjust [state run {
@@ -326,7 +326,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    AND   B.lod != P.pid
 	    AND   P.pid = S.sid
 	    AND   S.name != ':trunk:'
-	    AND   B.root = R.rid	
+	    AND   B.root = R.rid
 	}]
 
 	set tmax [expr {[llength $tagstoadjust] / 7}]

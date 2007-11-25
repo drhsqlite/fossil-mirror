@@ -21,7 +21,7 @@ package require vc::tools::misc                     ; # Text formatting
 package require vc::fossil::import::cvs::state      ; # State storage.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::file::rev {
     # # ## ### ##### ######## #############
@@ -398,7 +398,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     #             myisondefaultbranch - revision.isdefault
     #             mydbparent          - revision.dbparent
     #             mydbchild           - revision.dbchild
- 
+
 
     typevariable mybranchpattern {^((?:\d+\.\d+\.)+)(?:0\.)?(\d+)$}
     # First a nonzero even number of digit groups with trailing dot

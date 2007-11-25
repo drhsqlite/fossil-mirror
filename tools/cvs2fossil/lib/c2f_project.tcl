@@ -25,7 +25,7 @@ package require vc::tools::log                          ; # User feedback
 package require struct::list                            ; # Advanced list operations..
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::project {
     # # ## ### ##### ######## #############

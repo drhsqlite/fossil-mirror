@@ -23,7 +23,7 @@ package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::integrity {
     # # ## ### ##### ######## #############
@@ -39,6 +39,13 @@ snit::type ::vc::fossil::import::cvs::integrity {
     typemethod metarelaxed {} {
 	set n 0
 	AllButMeta
+	return
+    }
+
+    typemethod changesets {} {
+	set n 0
+	RevisionChangesets
+	SymbolChangesets
 	return
     }
 

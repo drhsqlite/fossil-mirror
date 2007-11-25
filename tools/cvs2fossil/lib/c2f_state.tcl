@@ -25,7 +25,7 @@ package require vc::tools::trouble               ; # Error reporting.
 package require vc::tools::log                   ; # User feedback.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::state {
     # # ## ### ##### ######## #############

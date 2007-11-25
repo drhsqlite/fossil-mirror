@@ -27,7 +27,7 @@ package require vc::tools::log                      ; # User feedback.
 package require struct::list                        ; # Advanced list ops.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::rcs::parser {
     # # ## ### ##### ######## #############
@@ -426,7 +426,7 @@ snit::type ::vc::rcs::parser {
 	::variable mypos
 	set e $mypos ; incr e 30
 	return -code error -errorcode vc::rcs::parser \
-	    "Expected $x @ '[string range $mydata $mypos $e]...'" 
+	    "Expected $x @ '[string range $mydata $mypos $e]...'"
     }
 
     proc Bad {x} {
@@ -434,7 +434,7 @@ snit::type ::vc::rcs::parser {
 	::variable mypos
 	set e $mypos ; incr e 30
 	return -code error -errorcode vc::rcs::parser \
-	    "Bad $x @ '[string range $mydata $mypos $e]...'" 
+	    "Bad $x @ '[string range $mydata $mypos $e]...'"
     }
 
     # # ## ### ##### ######## #############

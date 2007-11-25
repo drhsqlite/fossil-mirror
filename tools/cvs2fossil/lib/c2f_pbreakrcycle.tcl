@@ -36,7 +36,7 @@ vc::fossil::import::cvs::pass define \
     ::vc::fossil::import::cvs::pass::breakrcycle
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
     # # ## ### ##### ######## #############

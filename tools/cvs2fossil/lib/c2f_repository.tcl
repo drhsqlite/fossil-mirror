@@ -29,7 +29,7 @@ package require struct::list                     ; # List operations.
 package require fileutil                         ; # File operations.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::repository {
     # # ## ### ##### ######## #############

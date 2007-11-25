@@ -27,7 +27,7 @@ package require vc::tools::log                      ; # User feedback
 package require vc::tools::misc                     ; # Text formatting
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::file {
     # # ## ### ##### ######## #############
@@ -567,7 +567,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # on the '1.1.1' branch with timestamps prior to the
 	    # timestamp of '1.2' were non-trunk default branch
 	    # revisions.
-	    
+
 	    # This really only processes standard '1.1.1.*'-style
 	    # vendor revisions.  One could conceivably have a file
 	    # whose default branch is 1.1.3 or whatever, or was that
@@ -575,7 +575,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # 1.1.3.2, etc.  But with the default branch gone now,
 	    # we'd have no basis for assuming that the non-standard
 	    # vendor branch had ever been the default branch anyway.
-	    
+
 	    # Note that we rely on comparisons between the timestamps
 	    # of the revisions on the vendor branch and that of
 	    # revision 1.2, even though the timestamps might be

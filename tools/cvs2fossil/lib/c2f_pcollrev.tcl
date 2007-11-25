@@ -37,7 +37,7 @@ vc::fossil::import::cvs::pass define \
     ::vc::fossil::import::cvs::pass::collrev
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass::collrev {
     # # ## ### ##### ######## #############
@@ -214,7 +214,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    -- For each symbol we save which other symbols are
 	    -- blocking its removal (if the user asks for it).
 
-	    sid INTEGER  NOT NULL  REFERENCES symbol, -- 
+	    sid INTEGER  NOT NULL  REFERENCES symbol, --
 	    bid INTEGER  NOT NULL  REFERENCES symbol, -- Sprouted from sid, blocks it.
 	    UNIQUE (sid, bid)
 	}
@@ -223,7 +223,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    -- For each symbol we save which other symbols can act as
 	    -- a possible parent in some file, and how often.
 
-	    sid INTEGER  NOT NULL  REFERENCES symbol, -- 
+	    sid INTEGER  NOT NULL  REFERENCES symbol, --
 	    pid INTEGER  NOT NULL  REFERENCES symbol, -- Possible parent of sid
 	    n   INTEGER  NOT NULL,                    -- How often pid can act as parent.
 	    UNIQUE (sid, pid)

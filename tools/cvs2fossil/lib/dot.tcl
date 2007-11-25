@@ -21,7 +21,7 @@ package require snit     ; # OO system.
 package require fileutil ; # Helper commands.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::tools::dot {
     # # ## ### ##### ######## #############

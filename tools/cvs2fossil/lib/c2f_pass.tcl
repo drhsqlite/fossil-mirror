@@ -26,7 +26,7 @@ package require vc::tools::log                  ; # User feedback.
 package require struct::list                    ; # Portable lassign
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::pass {
     # # ## ### ##### ######## #############
@@ -104,21 +104,21 @@ snit::type ::vc::fossil::import::cvs::pass {
 	set defered [lrange $mypasses [expr {$myend + 1}] end]
 
 	foreach p $skipped {
-	    log write 0 pass "Skip  $p" 
+	    log write 0 pass "Skip  $p"
 	    Call $p load
 	}
 	foreach p $run {
-	    log write 0 pass "Setup $p" 
+	    log write 0 pass "Setup $p"
 	    Call $p setup
 	}
 	foreach p $run {
-	    log write 0 pass "Begin $p" 
+	    log write 0 pass "Begin $p"
 	    Time $p [lindex [time {Call $p run} 1] 0]
 	    log write 0 pass "Done  $p"
 	    trouble abort?
 	}
 	foreach p $defered {
-	    log write 0 pass "Defer $p" 
+	    log write 0 pass "Defer $p"
 	    Call $p discard
 	}
 
@@ -201,7 +201,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
-	namespace import ::vc::tools::log    
+	namespace import ::vc::tools::log
 	log register pass
     }
 }

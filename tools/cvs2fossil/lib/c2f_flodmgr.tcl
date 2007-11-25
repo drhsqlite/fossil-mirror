@@ -19,7 +19,7 @@ package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::file::lodmgr {
     # # ## ### ##### ######## #############

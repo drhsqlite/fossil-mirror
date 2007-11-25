@@ -20,7 +20,7 @@ package require vc::tools::log ; # Basic log generation.
 package require snit           ; # OO system.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::tools::trouble {
     # # ## ### ##### ######## #############

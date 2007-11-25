@@ -28,7 +28,7 @@ package require vc::fossil::import::cvs::project::rev     ; # Project level chan
 package require vc::fossil::import::cvs::project::revlink ; # Cycle links.
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 snit::type ::vc::fossil::import::cvs::cyclebreaker {
     # # ## ### ##### ######## #############
@@ -43,7 +43,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	::variable mysavecmd $cmd
 	return
     }
- 
+
     typemethod breakcmd {cmd} {
 	::variable mybreakcmd $cmd
 	return

@@ -18,7 +18,7 @@
 package require Tcl 8.4 ; # Required runtime
 
 # # ## ### ##### ######## ############# #####################
-## 
+##
 
 namespace eval ::vc::tools::misc {
     # # ## ### ##### ######## #############
