@@ -1,0 +1,119 @@
+#!/bin/sh
+## -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
+# # ## ### ##### ######## ############# #####################
+## Copyright (c) 2007 Andreas Kupries.
+#
+# This software is licensed as described in the file LICENSE, which
+# you should have received as part of this distribution.
+#
+# This software consists of voluntary contributions made by many
+# individuals.  For exact contribution history, see the revision
+# history and logs, available at http://fossil-scm.hwaci.com/fossil
+# # ## ### ##### ######## ############# #####################
+
+## Helper application, debugging of cvs2fossil. This application
+## extracts all information about a changeset and writes it nicely
+## formatted to stdout. The changeset is specified by its internal
+## numerical id. 
+
+# # ## ### ##### ######## ############# #####################
+## Requirements, extended package management for local packages.
+
+lappend auto_path [file join [file dirname [info script]] lib]
+
+package require Tcl 8.4                               ; # Required runtime.
+package require struct::graph                         ; # Graph handling.
+package require struct::list                          ; # Higher order list ops.
+package require vc::fossil::import::cvs::project::rev ; # Changesets
+package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::tools::misc                       ; # Min/max.
+
+namespace import ::vc::fossil::import::cvs::state
+namespace import ::vc::fossil::import::cvs::project::rev
+namespace import ::vc::tools::misc::*
+namespace import ::vc::tools::log
+log verbosity 0
+
+# Process the command line, i.e. get the database to access, and file
+# of interest. The latter can be specified by name, id, or indirectly
+# through the id of one of the revisions it contains.
+
+state use [lindex $argv 0]
+state reading changeset
+state reading cstype
+state reading csrevision
+state reading project
+state reading revision
+state reading file
+state reading symbol
+state reading meta
+state reading author
+state reading cmessage
+
+set cid [lindex $argv 1]
+
+struct::list assign [state run {
+    SELECT C.cid, C.pid, C.src, P.name, CT.name
+    FROM changeset C, project P, cstype CT
+    WHERE C.cid = $cid
+    AND   P.pid = C.pid
+    AND   CT.tid = C.type
+}] cid pid src pname tname
+
+puts ""
+puts "Changeset <$tname $cid> in project \"$pname\" ($pid)"
+
+if {$tname eq "sym"} {
+    puts "Symbol \"[state run {
+	SELECT name
+	FROM symbol
+	WHERE sid = $src
+    }]\""
+} else {
+    struct::list assign [state run {
+	SELECT P.name, S.name, A.name, L.text
+	FROM meta M, project P, symbol S, author A, cmessage L
+	WHERE M.mid = $src
+	AND P.pid = M.pid
+	AND S.sid = M.bid
+	AND A.aid = M.aid
+	AND L.cid = M.cid
+    }] project lod author cmessage
+    puts "Meta: Project = \"$project\""
+    puts "Meta: LOD     = \"$lod\""
+    puts "Meta: Author  = \"$author\""
+    puts "Meta: Log     |[join [split $cmessage \n] "\"\nMeta: Log     |"]"
+}
+
+array set rev {}
+foreach {rid date pos fname frev default} [state run {
+    SELECT R.rid, R.date, C.pos, F.name, R.rev, R.isdefault
+    FROM csrevision C, revision R, file F
+    WHERE C.cid = $cid
+    AND   R.rid = C.rid
+    AND   F.fid = R.fid
+    ORDER BY C.pos, R.date
+}] {
+    set rev($rid) [list $pos $date $fname $frev $default]
+    puts "File: [expr {$default?"D":" "}] [clock format $date] [format %3d $pos]/[format %6d $rid] ${frev}::$fname"
+}
+
+
+::vc::fossil::import::cvs::project::rev::PullPredecessorRevisions pdep [array names rev]
+::vc::fossil::import::cvs::project::rev::PullSuccessorRevisions   sdep [array names rev]
+
+
+
+puts ""
+exit
+
+
+
+
+
+
+
+
+exit
