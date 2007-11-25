@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tweaks\sof\sthe\slog\soutput,\sand\sreworked\sinternals\sto\sexpose\snot\sonly\sbreaking\sof\scycles,\sbut\sof\spaths\sas\swell.
-D 2007-11-25T02:51:50
+C Bugfix\sin\spass\smanager,\shandling\sof\sopen-ended\spass\sspecifications.
+D 2007-11-25T02:52:49
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -107,7 +107,7 @@ F tools/cvs2fossil/lib/c2f_fsym.tcl 31fcf57a5226a8f008a3da425d0d27cf38c65aa1
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 4dd74e0101d299f994ee3a6b98891147deaad527
 F tools/cvs2fossil/lib/c2f_integrity.tcl f5cf3c56374ce48ced3fc6b70542efebd9693336
 F tools/cvs2fossil/lib/c2f_option.tcl 5b894a43fc43af3f4223d44431940e9b427949ea
-F tools/cvs2fossil/lib/c2f_pass.tcl 6faa3b2682fc85190e3852d8fc02efc7737480ef
+F tools/cvs2fossil/lib/c2f_pass.tcl 7583043b11eb24b97e5bc51f89e83788170e4dc7
 F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl c41eb33de6fcc1fcff8400b702a14f755beda215
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl e139c81d892d12544b22965254e9f2c7e7e1ab13
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 436cc24e8ca781b91fcc4331fc56272d07bd3584
@@ -170,14 +170,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 87cf60902113c7564a2ae43de7ede9e83d23af1c
-R 224dda5eaee1f88785caa03209f4bd25
+P 54e9b0a1439023bd37ee40edc6f6ccb1b5b23213
+R a26512b82466d42ba9b3bffc76cbf4c9
 U aku
-Z bcbe8b789261e609edc1e968d81d3ec9
+Z 74400b6276909b3bc233551d0c98009d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHSONKvonzZ/CRa7gRAtLWAKCzQsVXj6nRPoh2w3JnAaB/P1M1DACeNsp0
-4ttI6gWJr0wtAAKF1FtAhuo=
-=ZVrV
+iD8DBQFHSOOBvonzZ/CRa7gRAlewAJ990xRCrcoSri4lmQRgiXtaYowzSgCgq3Eg
+6TREx9faU/LjUy+MFoQmjZQ=
+=YLCq
 -----END PGP SIGNATURE-----

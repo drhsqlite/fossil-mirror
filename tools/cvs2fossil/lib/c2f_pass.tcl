@@ -82,7 +82,7 @@ snit::type ::vc::fossil::import::cvs::pass {
 
 	    if {$ok} {
 		set mystart [Convert $start 0]
-		set myend   [Convert $end end]
+		set myend   [Convert $end   [expr {[llength $mypasses] - 1}]]
 		if {$mystart > $myend} {
 		    trouble fatal "Start pass is after end pass"
 		}
