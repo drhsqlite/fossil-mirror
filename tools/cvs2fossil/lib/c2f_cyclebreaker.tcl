@@ -95,7 +95,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	#    we find no nodes without predecessors we have a cycle,
 	#    and work on breaking it.
 
-	log write 3 cyclebreaker {Now sorting the changesets, breaking cycles}
+	log write 3 cyclebreaker {Traverse changesets}
 
 	InitializeCandidates $dg
 	while {1} {
@@ -131,8 +131,24 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     # # ## ### ##### ######## #############
 
+    typemethod break-segment {graph} {
+	BreakSegment $graph $path "segment ([project::rev strlist $path])"
+	return
+    }
+
     typemethod break {graph} {
-	BreakCycle $graph [FindCycle $graph]
+	set cycle [FindCycle $graph]
+	set label "cycle ([project::rev strlist $cycle])"
+
+	# NOTE: cvs2svn uses the sequence "end-1, cycle, 0" to create
+	#       the path from the cycle. The only effect I can see is
+	#       that this causes the link-triples to be generated in a
+	#       sightly different order, i.e. one link rotated to the
+	#       right. This should have no effect on the search for
+	#       the best of all.
+
+	lappend cycle [lindex $cycle 0] [lindex $cycle 1]
+	BreakSegment $graph $cycle $label
 	return
     }
 
@@ -146,8 +162,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     proc Setup {changesets {log 1}} {
 	if {$log} {
-	    log write 3 cyclebreaker "Creating changeset graph, filling with nodes"
-	    log write 3 cyclebreaker "Adding [nsp [llength $changesets] node]"
+	    log write 3 cyclebreaker "Create changeset graph, [nsp [llength $changesets] node]"
 	}
 
 	set dg [struct::graph dg]
@@ -300,23 +315,19 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return [struct::list reverse [lrange $path $seen($start) end]]
     }
 
-    proc BreakCycle {dg cycle} {
-	# The cycle we have gotten is broken by breaking apart one or
-	# more of the changesets in the cycle. This causes us to
-	# create one or more changesets which are to be committed,
-	# added to the graph, etc. pp.
+    proc BreakSegment {dg path label} {
+	# The path, usually a cycle, we have gotten is broken by
+	# breaking apart one or more of the changesets in the
+	# cycle. This causes us to create one or more changesets which
+	# are to be committed, added to the graph, etc. pp.
 
-	# NOTE/TODO. Move this map operation to project::rev, as typemethod.
-	set cprint [project::rev strlist $cycle]
-
-	lappend cycle [lindex $cycle 0] [lindex $cycle 1]
 	set bestlink {}
 	set bestnode {}
 
 	foreach \
-	    prev [lrange $cycle 0 end-2] \
-	    cset [lrange $cycle 1 end-1] \
-	    next [lrange $cycle 2 end] {
+	    prev [lrange $path 0 end-2] \
+	    cset [lrange $path 1 end-1] \
+	    next [lrange $path 2 end] {
 
 		# Each triple PREV -> CSET -> NEXT of changesets, a
 		# 'link' in the cycle, is analysed and the best
@@ -336,7 +347,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		}
 	    }
 
-	log write 5 cyclebreaker "Breaking cycle ($cprint) by splitting changeset [$bestnode str]"
+	log write 5 cyclebreaker "Breaking $label by splitting changeset [$bestnode str]"
 	set ID [$bestnode id]
 	Mark $dg -${ID}-before
 
