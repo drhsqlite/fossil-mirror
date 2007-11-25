@@ -10,11 +10,11 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass VIII. This is the final pass for breaking changeset dependency
-## cycles. The two previous passes broke cycles covering revision and
-## symbol changesets, respectively. This pass now breaks any remaining
-## cycles each of which has to contain at least one revision and at
-## least one symbol changeset.
+## Pass IX. This is the final pass for breaking changeset dependency
+## cycles. The previous breaker passes (6 and 8) broke cycles covering
+## revision and symbol changesets, respectively. This pass now breaks
+## any remaining cycles, each of which has to contain at least one
+## revision and at least one symbol changeset.
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -65,7 +65,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# functionality of the pass.
 
 	cyclebreaker precmd   [myproc BreakBackwardBranches]
-	cyclebreaker savecmd  [myproc SaveOrder]
 	cyclebreaker breakcmd [myproc BreakCycle]
 
 	state transaction {
@@ -301,20 +300,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	return
     }
 
-
-    # # ## ### ##### ######## #############
-
-    proc SaveOrder {graph at cset} {
-	set cid [$cset id]
-
-	log write 4 breakacycle "Comitting @ $at: [$cset str]"
-	state run {
-	    INSERT INTO csorder (cid,  pos)
-	    VALUES              ($cid, $at)
-	}
-	# MAYBE TODO: Write the project level changeset dependencies as well.
-	return
-    }
 
     # # ## ### ##### ######## #############
 
