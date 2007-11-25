@@ -10,7 +10,7 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass VII. This pass goes over the set of symbol based changesets
+## Pass VIII. This pass goes over the set of symbol based changesets
 ## and breaks all dependency cycles they may be in. We need a
 ## dependency tree. Identical to pass VI, except for the selection of
 ## the changesets.

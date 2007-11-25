@@ -49,14 +49,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	state reading revision
 	state reading changeset
 	state reading csrevision
-
-	state writing csorder {
-	    -- Commit order of changesets based on their dependencies
-	    cid INTEGER  NOT NULL  REFERENCES changeset,
-	    pos INTEGER  NOT NULL,
-	    UNIQUE (cid),
-	    UNIQUE (pos)
-	}
 	return
     }
 
@@ -64,9 +56,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	# Pass manager interface. Executed to load data computed by
 	# this pass into memory when this pass is skipped instead of
 	# executed.
-
-	state reading changeset
-	project::rev loadcounter
 	return
     }
 
@@ -74,7 +63,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
-	cyclebreaker savecmd  [myproc SaveOrder]
 	cyclebreaker breakcmd {::vc::fossil::import::cvs::cyclebreaker break}
 
 	state transaction {
@@ -89,8 +77,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	# Pass manager interface. Executed for all passes after the
 	# run passes, to remove all data of this pass from the state,
 	# as being out of date.
-
-	state discard csorder
 	return
     }
 
@@ -102,18 +88,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
     }
 
     proc IsByRevision {cset} { $cset byrevision }
-
-    proc SaveOrder {graph at cset} {
-	set cid [$cset id]
-
-	log write 4 breakrcycle "Comitting @ $at: [$cset str]"
-	state run {
-	    INSERT INTO csorder (cid,  pos)
-	    VALUES              ($cid, $at)
-	}
-	# MAYBE TODO: Write the project level changeset dependencies as well.
-	return
-    }
 
     # # ## ### ##### ######## #############
     ## Configuration

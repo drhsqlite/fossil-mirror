@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Investigation\sof\schangeset\sorder\sdifferences\sbetween\srunning\spasses\s1\sto\s6\sand\spass\s6\salone\sshow\swhy\sthe\stopological\ssort\spasses\sare\sseparate\sin\scvs2svn.\sThe\sbreaking\sof\scycles\scan\schange\sthe\sorder\sof\sthings\sdue\sto\sdifferent\stimeranges\sand\sdependencies\sof\sthe\sbroken\schangesets.\sCreated\stwo\snew\spasses\sfor\sthe\ssorting.\sThe\sbreak\spasses\s7\sand\s8\sare\snow\spasses\s8\sand\s9,\sand\sthe\snew\ssort\spasses\sare\s7\sand\s10.
-D 2007-11-25T02:59:21
+C Moved\sthe\sparts\staken\sover\sby\sthe\stop.\ssort\spasses\sout\sthe\sbreaker\spasses,\sand\srenumbered\sthem\s(comments).
+D 2007-11-25T03:00:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -110,8 +110,8 @@ F tools/cvs2fossil/lib/c2f_option.tcl 5b894a43fc43af3f4223d44431940e9b427949ea
 F tools/cvs2fossil/lib/c2f_pass.tcl 7583043b11eb24b97e5bc51f89e83788170e4dc7
 F tools/cvs2fossil/lib/c2f_patopsort.tcl 76cc206f7397ab20d320fbdd0d88b3ee02bdf75b
 F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl c41eb33de6fcc1fcff8400b702a14f755beda215
-F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl e139c81d892d12544b22965254e9f2c7e7e1ab13
-F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 436cc24e8ca781b91fcc4331fc56272d07bd3584
+F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 21b55594dbf59b8ef415501bb1a3434d121396b1
+F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl ec541821592d7e63bb8740e31f3e1a1b6803b892
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 32b24a90ebaa22467da3ef6e09ff1b358bb9d793
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl e9c8eea44f2612ed75e5253e285232fa5502d57b
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7f9106e82c706b6b7e384b880377bff8cd252746
@@ -172,14 +172,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b41127b9d811b2ae6ab4102bb8c2697f60cc1af1
-R 149955d090eb67adbb3caa0f0248ecb8
+P 66c85b4db47d612813594021856271974b584157
+R 11c280db9e64170583c4862bc940fc05
 U aku
-Z d564b5e5d0cdd77dfb7302a6ea6dad53
+Z d866c1b242b2659beabd8c796664db2a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHSOUJvonzZ/CRa7gRAtw/AKCsbG0ZoVS356rs7uu8TbL68uPSYACfSWqk
-VZgABaOXqltna8k4yXyidjg=
-=4Hor
+iD8DBQFHSOVivonzZ/CRa7gRAr1GAKC4ZDUGFk6GmJoCMPcmjIYU6XrsmwCfVWm8
+DDOGhu0oPyBv3RAQ97gV/b8=
+=nHwv
 -----END PGP SIGNATURE-----
