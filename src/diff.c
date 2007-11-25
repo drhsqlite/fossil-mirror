@@ -112,6 +112,16 @@ static int same_dline(DLine *pA, DLine *pB){
 }
 
 /*
+** Append a single line of "diff" output to pOut.
+*/
+static void appendDiffLine(Blob *pOut, char *zPrefix, DLine *pLine){
+  blob_append(pOut, zPrefix, 1);
+  blob_append(pOut, pLine->z, pLine->h & LENGTH_MASK);
+  blob_append(pOut, "\n", 1);
+}
+
+
+/*
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
@@ -239,6 +249,7 @@ int *text_diff(
 
   szM = 0;
   MAX = X>Y ? X : Y;
+  if( MAX>2000 ) MAX = 2000;
   for(d=0; go && d<=MAX; d++){
     if( szM<d+1 ){
       szM += szM + 10;
@@ -416,7 +427,7 @@ int *text_diff(
       b += skip;
       m = R[r] - skip;
       for(j=0; j<m; j++){
-        blob_appendf(pOut," %.*s\n", A[a+j].h & LENGTH_MASK, A[a+j].z);
+        appendDiffLine(pOut, " ", &A[a+j]);
       }
       a += m;
       b += m;
@@ -425,18 +436,18 @@ int *text_diff(
       for(i=0; i<nr; i++){
         m = R[r+i*3+1];
         for(j=0; j<m; j++){
-          blob_appendf(pOut,"-%.*s\n", A[a+j].h & LENGTH_MASK, A[a+j].z);
+          appendDiffLine(pOut, "-", &A[a+j]);
         }
         a += m;
         m = R[r+i*3+2];
         for(j=0; j<m; j++){
-          blob_appendf(pOut,"+%.*s\n", B[b+j].h & LENGTH_MASK, B[b+j].z);
+          appendDiffLine(pOut, "+", &B[b+j]);
         }
         b += m;
         if( i<nr-1 ){
           m = R[r+i*3+3];
           for(j=0; j<m; j++){
-            blob_appendf(pOut," %.*s\n", B[b+j].h & LENGTH_MASK, B[b+j].z);
+            appendDiffLine(pOut, " ", &B[b+j]);
           }
           b += m;
           a += m;
@@ -448,7 +459,7 @@ int *text_diff(
       m = R[r+nr*3];
       if( m>nContext ) m = nContext;
       for(j=0; j<m; j++){
-        blob_appendf(pOut," %.*s\n", B[b+j].h & LENGTH_MASK, B[b+j].z);
+        appendDiffLine(pOut, " ", &B[b+j]);
       }
     }
     free(R);

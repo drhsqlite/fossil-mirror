@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sSQLite\sto\sthe\slatest\sbuild\sfrom\sCVS.\s\sAdd\sin\sthe\sFTS3\sextension,\nthough\sit\sis\snot\syet\sbeing\sused.\s\sAdditional\swork\stoward\stickets.
-D 2007-11-25T16:13:52
+C Changes\sto\sthe\sdiff\salgorithm\sto\sput\sbounds\son\srun-time\sfor\svery\slarge\nfiles\swith\smany\sdifferences.\s\s(This\scame\sup\son\sthe\sprevious\scheck-in\swhen\nyou\stry\sto\sdiff\sthe\stwo\sversions\sof\ssqlite3.c.)
+D 2007-11-25T17:13:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -50,7 +50,7 @@ F src/db.c 48224de87a88df3026d7bfd4c90b3b79ac11f4ab
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c 0027a16891092c3e2ecf8626e444d58d508781fd
+F src/diff.c 562003166f46dde18071f9a04e7914e7c6b3dbab
 F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -175,14 +175,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P a5e4e1ba961dc03d988e07400fb3c79b9cc0e2db
-R f5ecfe2f325485dff1a95208db61d4dc
+P f394d845601592086f19411cec9aa25e12b58d09
+R 2e00f648d8e0606d8c6d809d442afbe6
 U drh
-Z 7941cc74decef535ed29f85c0fbcf314
+Z 5e6b24e63dbb8b4112bf065b756ec2d5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHSZ9HoxKgR168RlERAr/1AJ9Ipe+dW3Pyd9kldAbAphHlDoqbSQCeMLds
-OYbxEHPURvxCLIjGmZ0uXY0=
-=pFFz
+iD8DBQFHSa0uoxKgR168RlERAptQAJwIUXJ+eEit7nSrNiUL4y4aQvKljQCfTrTQ
+8C6n7n32l+9Yr1ajBBHAf0g=
+=v9L2
 -----END PGP SIGNATURE-----
