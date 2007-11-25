@@ -36,13 +36,10 @@ package require vc::fossil::import::cvs::pass::filtersym   ; # Filter'  Sym'bols
 
 package require vc::fossil::import::cvs::pass::initcsets   ; # Init'ialize C'hange'Sets
 package require vc::fossil::import::cvs::pass::breakrcycle ; # Break' R'evision Cycle's
-
-# Note: cvs2svn's RevisionTopologicalSortPass is not a separate pass,
-#       but was subsumed by the previous pass, by immediately saving
-#       the order of consumed graph nodes to 'csorder'.
-
+package require vc::fossil::import::cvs::pass::rtopsort    ; # R'evision Top'ological Sort'
 package require vc::fossil::import::cvs::pass::breakscycle ; # Break' S'ymbol Cycle's
 package require vc::fossil::import::cvs::pass::breakacycle ; # Break' A'll Cycle's
+package require vc::fossil::import::cvs::pass::atopsort    ; # A'll Top'ological Sort'
 
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.
