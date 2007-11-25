@@ -39,7 +39,7 @@ snit::type ::vc::tools::dot {
 	}
 
 	foreach n $nodes {
-	    set style [Style $g node $n {label label shape shape}]
+	    set style [Style $g node $n {label label shape shape fontcolor fontcolor}]
 	    lappend lines "\"$n\" ${style};"
 	}
 	foreach a $arcs {

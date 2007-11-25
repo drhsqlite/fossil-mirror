@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Filerevtree\shelper.\sAdded\smissing\srequirements,\sand\sdialed\sthe\sverbosity\sdown.
-D 2007-11-25T07:30:39
+C Dot\sexport\sextended,\sallow\sgraph\sto\sdefine\slabel\scolor\sfor\shighlighting.
+D 2007-11-25T07:31:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -127,7 +127,7 @@ F tools/cvs2fossil/lib/c2f_ptrunk.tcl b20f9bb07d64c33f8bd95a463cba8629a4ceb5ac
 F tools/cvs2fossil/lib/c2f_repository.tcl 7d5182fefd18b96c3ec5344c2ecc6ad414e8425a
 F tools/cvs2fossil/lib/c2f_state.tcl 5356f2147dab77b10348cff6d5507cfb3c18ef85
 F tools/cvs2fossil/lib/cvs2fossil.tcl d1c727000f11308848caf308c01353719b79f579
-F tools/cvs2fossil/lib/dot.tcl 52485496600954a24766ea5ac85f5b3391673ced
+F tools/cvs2fossil/lib/dot.tcl 87fcd0807497317002d5aef426f4ce16abb43389
 F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
 F tools/cvs2fossil/lib/log.tcl b0cf40fdc1ff3261f498d4b97730bbada21ce528
 F tools/cvs2fossil/lib/misc.tcl d837793c993226d30d8c8b46e945ba77c8e47da9
@@ -172,14 +172,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P d743f04bd2e2cf7903b18f73689a162d7f9af14f
-R 1429b85981df65a5140eaad79c5ac449
+P 124fef5b1cdefe9e10f943e17cee2b731f3fa50f
+R eb486e0e4ed9107d3ffdcfbf892bb1de
 U aku
-Z b124b57f252af4aee2798c9cf039d791
+Z 6bf27b8a19403e8aaff904dad29b60ec
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHSSS0vonzZ/CRa7gRApxwAJ0RzwJSx8V1gVo1/NW7IFCbey3f/ACgk0fU
-UpaE0MnIuh2cWE5kvMpi+aQ=
-=3Wne
+iD8DBQFHSSTfvonzZ/CRa7gRAvo4AKCDQZOuuuH7s1A/LaYVSIvrpudKPQCfYedF
+veoeevf0RClOwDbNbKl0aYc=
+=yW4b
 -----END PGP SIGNATURE-----
