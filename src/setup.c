@@ -40,14 +40,13 @@ void setup_menu_entry(
   const char *zLink,
   const char *zDesc
 ){
-  @ <dt>
+  @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
     @ <a href="%s(zLink)">%h(zTitle)</a>
   }else{
     @ %h(zTitle)
   }
-  @ </dt>
-  @ <dd>%h(zDesc)</dd>
+  @ </td><td valign="top">%h(zDesc)</td></tr>
 }
 
 /*
@@ -60,14 +59,14 @@ void setup_page(void){
   }
 
   style_header("Setup");
-  @ <dl id="setup">
+  @ <table border="0" cellspacing="20">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
   setup_menu_entry("Access", "setup_access",
     "Control access settings.");
   setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
-  setup_menu_entry("Tickets", "tktsetup",
+  setup_menu_entry("Tickets", "setup_ticket",
     "Configure the trouble-ticketing system for this repository");
   setup_menu_entry("CSS", "setup_editcss",
     "Edit the Cascading Style Sheet used by all pages of this repository");
@@ -75,7 +74,7 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
-  @ </dl>
+  @ </table>
 
   style_footer();
 }
@@ -653,6 +652,57 @@ void setup_footer(void){
   @ Here is the default page footer:
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
+  @ </pre></blockquote>
+  db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_ticket
+*/
+void setup_ticket(void){
+  const char *zConfig;
+  int isSubmit;
+  
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  isSubmit = P("submit")!=0;
+  db_begin_transaction();
+  zConfig = P("cfg");
+  if( zConfig==0 ){
+    zConfig = db_text((char*)zDefaultTicketConfig,
+               "SELECT value FROM config WHERE name='ticket-configuration'");
+  }
+  style_header("Edit Ticket Configuration");
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name='ticket-configuration'");
+    zConfig = zDefaultTicketConfig;
+  }else if( isSubmit ){
+    char *zErr = ticket_config_check(zConfig);
+    if( zErr==0 ){
+      db_multi_exec(
+         "REPLACE INTO config(name,value) VALUES('ticket-configuration',"
+         "%Q)", zConfig
+      );
+    }else{
+      @ <p><font color="red"><b>
+      @ SCRIPT ERROR: %h(zErr)
+      @ </b></font></p>
+    }
+  }
+  @ <form action="%s(g.zBaseURL)/setup_ticket" method="POST">
+  @ <p>Edit the "subscript" script that defines the ticketing
+  @ system setup for this server.</p>
+  @ <textarea name="cfg" rows="40" cols="80">%h(zConfig)</textarea>
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ </form>
+  @ <hr>
+  @ Here is the default page header:
+  @ <blockquote><pre>
+  @ %h(zDefaultTicketConfig)
   @ </pre></blockquote>
   db_end_transaction(0);
 }

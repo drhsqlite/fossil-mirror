@@ -306,12 +306,18 @@ void ticket_rebuild(void){
 
 /*
 ** WEBPAGE: tktview
+**
+** View a ticket.
 */
 void tktview_page(void){
   char *zScript;
   int nScript;
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
+  if( g.okWrTkt ){
+    style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
+        g.zTop, PD("name",""));
+  }
   style_header("View Ticket");
   ticket_init();
   initializeVariablesFromDb();
@@ -423,6 +429,14 @@ static int submitTicketCmd(struct Subscript *p, void *pUuid){
 /*
 ** WEBPAGE: tktnew
 ** WEBPAGE: debug_tktnew
+**
+** Enter a new ticket.  the tktnew_template script in the ticket
+** configuration is used.  The /tktnew page is the official ticket
+** entry page.  The /debug_tktnew page is used for debugging the
+** tktnew_template in the ticket configuration.  /debug_tktnew works
+** just like /tktnew except that it does not really save the new ticket
+** when you press submit - it just prints the ticket artifact at the
+** top of the screen.
 */
 void tktnew_page(void){
   char *zScript;
@@ -449,11 +463,16 @@ void tktnew_page(void){
   style_footer();
 }
 
-
-
 /*
 ** WEBPAGE: tktedit
 ** WEBPAGE: debug_tktedit
+**
+** Edit a ticket.  The ticket is identified by the name CGI parameter.
+** /tktedit is the official page.  The /debug_tktedit page does the same
+** thing except that it does not save the ticket change record when you
+** press submit - it instead prints the ticket change record at the top
+** of the page.  The /debug_tktedit page is intended to be used when
+** debugging ticket configurations.
 */
 void tktedit_page(void){
   char *zScript;
@@ -502,4 +521,61 @@ void tktedit_page(void){
   }
   @ </form>
   style_footer();
+}
+
+/*
+** Check the ticket configuration in zConfig to see if it appears to
+** be well-formed.  If everything is OK, return NULL.  If something is
+** amiss, then return a pointer to a string (obtained from malloc) that
+** describes the problem.
+*/
+char *ticket_config_check(const char *zConfig){
+  struct Subscript *p;
+  char *zErr = 0;
+  const char *z;
+  int n;
+  int i;
+  int rc;
+  sqlite3 *db;
+  static const char *azRequired[] = {
+     "tktnew_template",
+     "tktview_template",
+     "tktedit_template",
+  };
+  
+  p = SbS_Create();
+  rc = SbS_Eval(p, zConfig, strlen(zConfig));
+  if( rc!=SBS_OK ){
+    zErr = mprintf("%s", SbS_GetErrorMessage(p));
+    SbS_Destroy(p);
+    return zErr;
+  }
+  for(i=0; i<sizeof(azRequired)/sizeof(azRequired[0]); i++){
+    z = SbS_Fetch(p, azRequired[i], -1, &n);
+    if( z==0 ){
+      zErr = mprintf("missing definition: %s", azRequired[i]);
+      SbS_Destroy(p);
+      return zErr;
+    }
+  }
+  z = SbS_Fetch(p, "ticket_sql", -1, &n);
+  if( z==0 ){
+    zErr = mprintf("missing definition: ticket_sql");
+    SbS_Destroy(p);
+    return zErr;
+  }
+  rc = sqlite3_open(":memory:", &db);
+  if( rc==SQLITE_OK ){
+    char *zSql = mprintf("%.*s", n, z);
+    rc = sqlite3_exec(db, zSql, 0, 0, &zErr);
+    if( rc!=SQLITE_OK ){
+      sqlite3_close(db);
+      SbS_Destroy(p);
+      return zErr;
+    }
+    /* TODO: verify that the TICKET table exists and has required fields */
+    sqlite3_close(db);
+  }
+  SbS_Destroy(p);
+  return 0;
 }

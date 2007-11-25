@@ -87,22 +87,15 @@
 ** of the variables are additional subscript scripts.
 */
 
-/* @-comment: # */
+/* @-comment: ** */
 const char zDefaultTicketConfig[] = 
-@ ##########################################################################
-@ #
-@ # Every ticket configuration file should have a title.  When you
-@ # come up with a new ticket configuration, please change the title
-@ # to something descriptive.
-@ #
-@ {Default Ticket Configuration} /ticket_config_title set
-@ 
 @ ############################################################################
-@ # Every ticket configuration *must* define a set of columns for the
-@ # "ticket" table of the database.  These column names will also be
-@ # used as CGI parameter names, so to avoid problems it is best that
-@ # the names be all lower-case alphabetic characters.  The names must
-@ # be unique and must not begin with "tkt_".
+@ # Every ticket configuration *must* define an SQL statement that creates
+@ # the TICKET table.  This table must have three columns named
+@ # tkt_id, tkt_uuid, and tkt_mtime.  tkt_id must be the integer primary
+@ # key and tkt_uuid and tkt_mtime must be unique.  A configuration should
+@ # define addition columns as necessary.  All columns should be in all
+@ # lower-case letters and should not begin with "tkt".
 @ #
 @ {
 @    CREATE TABLE ticket(

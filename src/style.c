@@ -48,12 +48,16 @@ static int nSubmenu = 0;
 void style_submenu_element(
   const char *zLabel,
   const char *zTitle,
-  const char *zLink
+  const char *zLink,
+  ...
 ){
+  va_list ap;
   assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
   aSubmenu[nSubmenu].zLabel = zLabel;
   aSubmenu[nSubmenu].zTitle = zTitle;
-  aSubmenu[nSubmenu].zLink = zLink;
+  va_start(ap, zLink);
+  aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
+  va_end(ap);
   nSubmenu++;
 }
 
