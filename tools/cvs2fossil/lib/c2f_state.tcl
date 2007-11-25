@@ -100,7 +100,7 @@ snit::type ::vc::fossil::import::cvs::state {
 	# persistent state, and the expected structure. A possibly
 	# previously existing definition is dropped.
 
-	log write 0 state "writing $name" ; # TODO move to level 5 or so
+	log write 1 state "writing $name" ; # TODO move to level 5 or so
 
 	$mystate transaction {
 	    catch { $mystate eval "DROP TABLE $name" }
@@ -110,7 +110,7 @@ snit::type ::vc::fossil::import::cvs::state {
     }
 
     typemethod reading {name} {
-	log write 0 state "reading $name" ; # TODO move to level 5 or so
+	log write 1 state "reading $name" ; # TODO move to level 5 or so
 
 	# Method for a user to declare a table it wishes to read
 	# from. A missing table is an internal error causing an
@@ -135,7 +135,7 @@ snit::type ::vc::fossil::import::cvs::state {
 	# Method for a user to remove outdated information from the
 	# persistent state, table by table.
 
-	log write 0 state "discard $name" ; # TODO move to level 5 or so
+	log write 1 state "discard $name" ; # TODO move to level 5 or so
 
 	$mystate transaction {
 	    catch { $mystate eval "DROP TABLE $name" }
