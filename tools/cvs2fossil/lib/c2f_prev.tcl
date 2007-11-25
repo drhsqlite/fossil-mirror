@@ -52,7 +52,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    method str {} { return "<${myid}>" }
+    method str {} { return "<$mytype ${myid}>" }
 
     method id        {} { return $myid }
     method revisions {} { return $myrevisions }
