@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sticket\sconfiguration\sediting\scapability.
-D 2007-11-25T21:11:33
+C Begin\sporting\sthe\sCVSTrac\sticket\sreporting\scode\sover\sto\sfossil.\s\sThe\nnew\scode\sis\snot\syet\sconnected\sinto\sthe\ssystem.\s\sThe\sport\sis\sincomplete.
+D 2007-11-26T01:33:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -71,9 +71,10 @@ F src/name.c 8d07e9c5fdb127818043015d250afe5365f8b8dc
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c af38cba6b01c8e55eb695dcebbdbf94c1b8025e4
-F src/rebuild.c d7213a8b187a3755a36ccffffcc09ff3bc2b4a3e
+F src/rebuild.c d164c66a471636f13b15306fbe9e67ea4988d371
+F src/report.c 3412e750ff7f9ca108ed9a31977a48aefbe02792
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c 3e36e323dca2de766d7d691c8f7fdc34e86b5ea5
+F src/schema.c 384e115ad09cb7cfa7da6f8770aa19318981482a
 F src/setup.c ecaf658269c2bcbd844938ee1418c307e5a025bb
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 81b02daa4d8a20e3ae099207737c8b30f366cfe4
@@ -175,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4c22ae52fd85027ef5651c64eecbcc50e79e333f
-R b2fc401b8e2b598b481a38cc66da59ca
+P 5f3ddcc1b80bc8e20a09be8ff131522caa5d9359
+R 285fc1389ba9403f720c76297ff2f21d
 U drh
-Z 858634d47b49818dad66b32a27aa23ea
+Z 3c31444d0c479e6f5dcc07627b8a6925
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHSeUJoxKgR168RlERArv0AJ9Ls6/eyR/pkiHZRAP0p3/sZOI0FQCeKCoJ
-IMF/WsJtKQpJsFxZuy9aAZE=
-=yqhY
+iD8DBQFHSiKCoxKgR168RlERAtARAJ0WjVLzAZlyykjJATLukYF7Lq7mgwCgjkcE
+Pf2AYzsxm7ZDxJzDrMD/Xls=
+=TrTK
 -----END PGP SIGNATURE-----

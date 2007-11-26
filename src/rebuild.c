@@ -28,6 +28,33 @@
 #include <assert.h>
 
 /*
+** Schema changes
+*/
+static const char zSchemaUpdates[] =
+@ -- Index on the delta table
+@ --
+@ CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
+@
+@ -- Artifacts that should not be processed are identified in the
+@ -- "shun" table.  Artifacts that are control-file forgeries or
+@ -- spam can be shunned in order to prevent them from contaminating
+@ -- the repository.
+@ --
+@ CREATE TABLE IF NOT EXISTS shun(uuid UNIQUE);
+@
+@ -- An entry in this table describes a database query that generates a
+@ -- table of tickets.
+@ --
+@ CREATE TABLE IF NOT EXISTS reportfmt(
+@    rn integer primary key,  -- Report number
+@    owner text,              -- Owner of this report format (not used)
+@    title text,              -- Title of this report
+@    cols text,               -- A color-key specification
+@    sqlcode text             -- An SQL SELECT statement for this report
+@ );
+;
+
+/*
 ** Core function to rebuild the infomration in the derived tables of a
 ** fossil repository from the blobs. This function is shared between
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
@@ -45,10 +72,7 @@ int rebuild_db(int randomize, int ttyOutput){
   char *zTable;
   int cnt = 0;
 
-  db_multi_exec(
-    "CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
-    "CREATE TABLE IF NOT EXISTS shun(uuid UNIQUE);"
-  );
+  db_multi_exec(zSchemaUpdates);
   for(;;){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master"

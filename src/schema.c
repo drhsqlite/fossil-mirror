@@ -124,7 +124,19 @@ const char zRepositorySchema1[] =
 @ -- the repository.
 @ --
 @ CREATE TABLE shun(uuid UNIQUE);
+@
+@ -- An entry in this table describes a database query that generates a
+@ -- table of tickets.
+@ --
+@ CREATE TABLE reportfmt(
+@    rn integer primary key,  -- Report number
+@    owner text,              -- Owner of this report format (not used)
+@    title text,              -- Title of this report
+@    cols text,               -- A color-key specification
+@    sqlcode text             -- An SQL SELECT statement for this report
+@ );
 ;
+
 const char zRepositorySchema2[] =
 @ -- Filenames
 @ --
