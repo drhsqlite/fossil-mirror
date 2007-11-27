@@ -227,17 +227,18 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# their ids do not overlap with each other.
 
 	set lastsymbol  {}
+	set lastlod     {}
 	set lastproject {}
 	set revisions   {}
 
-	foreach {sid rid pid} [state run {
-	    SELECT S.sid, R.rid, S.pid
+	foreach {sid rid lod pid} [state run {
+	    SELECT S.sid, R.rid, R.lod, S.pid
 	    FROM  tag T, revision R, symbol S     -- T ==> R/S, using PK indices of R, S.
 	    WHERE T.rev = R.rid
 	    AND   T.sid = S.sid
-	    ORDER BY S.sid, R.date
+	    ORDER BY S.sid, R.lod, R.date
 	}] {
-	    if {$lastsymbol != $sid} {
+	    if {($lastlod != $lod) || ($lastsymbol != $sid)} {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
@@ -245,6 +246,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		    set revisions {}
 		}
 		set lastsymbol  $sid
+		set lastlod     $lod
 		set lastproject $pid
 	    }
 	    lappend revisions $rid
@@ -257,17 +259,18 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	}
 
 	set lastsymbol {}
+	set lastlod    {}
 	set lasproject {}
 	set revisions  {}
 
-	foreach {sid rid pid} [state run {
-	    SELECT S.sid, R.rid, S.pid
+	foreach {sid rid lod pid} [state run {
+	    SELECT S.sid, R.rid, R.lod, S.pid
 	    FROM  branch B, revision R, symbol S  -- B ==> R/S, using PK indices of R, S.
 	    WHERE B.root = R.rid
 	    AND   B.sid  = S.sid
-	    ORDER BY S.sid, R.date
+	    ORDER BY S.sid, R.lod, R.date
 	}] {
-	    if {$lastsymbol != $sid} {
+	    if {($lastlod != $lod) || ($lastsymbol != $sid)} {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
@@ -275,6 +278,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		    set revisions {}
 		}
 		set lastsymbol  $sid
+		set lastlod     $lod
 		set lastproject $pid
 	    }
 	    lappend revisions $rid

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bugfixes\swhen\sgenerating\srevision\schangesets.\s(1)\sThe\sdependencies\sfor\sa\srevision\sare\sa\slist,\snot\ssingle.\s(2)\sUse\spseudo-dependencies\sto\sseparate\srevisions\sof\sthe\ssame\sfile\sfrom\seach\sother\sif\sthey\shave\sno\sdirect\sdependencies\sin\sthe\sstate.
-D 2007-11-27T05:08:54
+C Bugfix\sin\sthe\sgeneration\sof\sthe\sinitial\ssymbol\schangesets.\sKeep\sentries\sapart\sper\sline-of-development.
+D 2007-11-27T08:59:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -117,7 +117,7 @@ F tools/cvs2fossil/lib/c2f_pcollar.tcl a368b702c329d622929f35b637cacd10af57f4a1
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl ea94dc166cfb94b6428a406a77c5b4c07b08824a
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl ec9b1e0027f96c5af8cd36167da4a1863a0991a9
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 3b39c5f0f79e37aa67e43aac87224d62c6aff443
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 30453369b1f5836b1e002c3ac46f2b035a3da774
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
 F tools/cvs2fossil/lib/c2f_prev.tcl c24182717e7b2c40371f1481785b50639d3fe8f9
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 3543c0875d0bb88a5835948537a2fc9a5f65c9e8
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8c6488ded2d656ba8e025c0abf9ed9bfaeab5007
-R 12c6f2b33f749df12c0f84a8f7e3aab2
+P 678765068d56702bb06b73a5f43758c60a788f27
+R dc2e6a34bbfb0052252a70e9fb7b1483
 U aku
-Z ba8c441b594be4699e11859427a9f881
+Z 3190c47221a8fa85c9c83bf62273818b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHS6ZqvonzZ/CRa7gRAmx/AJoDr+crAdL/puhgvgHJ5X2xvEa1gwCgimBN
-6pnftS0juwvJYOMcoGk4Uj0=
-=flkI
+iD8DBQFHS9yPvonzZ/CRa7gRAqCfAJ9nrappb5Yxny0wSK6tcGkumXQDHgCgqTNN
+3aJ3c0FR67ycnw5VYbRFy8A=
+=pCCl
 -----END PGP SIGNATURE-----
