@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Updated\sto\sextended\schangeset\sstring,\sand\sadded\stabular\sformatting.\sFurther\stweaked\soutput,\sputting\stimestamp\sadjust\smessages\son\sthe\ssame\sline\sas\sthe\schangeset\sitself.
-D 2007-11-27T09:04:46
+C Bugfix:\sSort\spending\snodes\sfully\sdeterministic,\sand\smoved\sto\sseparate\shelper\scommand.\sTweaked\slog\soutput.
+D 2007-11-27T09:05:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,7 +100,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree adf892ac6cf90e86852191161ea57fc82a72888e
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 6387ad3ed8bce115fa53c0bfeeac27419c18e5c9
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl be1a345cb264d10b3b66296d8e4058d24c0cc6f8
 F tools/cvs2fossil/lib/c2f_file.tcl 0e3e1e66e0b39c1ae4a96bcee5a1287b5e367c0a
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 0385926f22bb5f59f9a6b9b2b3ade1903001f84b
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 911d56a8c8b9bac7f22ba3baacf3125d00e53f4c
-R cc6f898281729650560f72096dfb9d86
+P 1c39e57637d4bfb976b43bebe223381c9dab269d
+R e48c610093098b750f25da400fcd2b0c
 U aku
-Z 782070957695174640f9ef386f0c0a1b
+Z 69c21e454c147736dd1c443f00753f8b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHS92uvonzZ/CRa7gRAtP/AJ4mR3OPzDm2jItJdr2O9qSGwfoPAgCfb/RT
-qUZ/HfiOzqzRG5INte0DsOI=
-=dGN8
+iD8DBQFHS93pvonzZ/CRa7gRAnaHAKCOOVPnkJ7WhaEbeZYYaNcr29RckwCeN1Fj
+CQI9AfRqwQOROTfqIZNjNgY=
+=HiKt
 -----END PGP SIGNATURE-----

@@ -252,7 +252,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    if {[$dg node degree -in $n]} continue
 	    lappend mybottom [linsert [$dg node get $n timerange] 0 $n]
 	}
-	set mybottom [lsort -index 1 -integer [lsort -index 2 -integer $mybottom]]
+	ScheduleCandidates
 	ShowPendingNodes
 	return
     }
@@ -279,7 +279,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    set changed 1
 	}
 	if {$changed} {
-	    set mybottom [lsort -index 1 -integer [lsort -index 2 -integer $mybottom]]
+	    ScheduleCandidates
 	}
 
 	# We do not delete the node immediately, to allow the Save
@@ -288,15 +288,25 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	return 1
     }
 
-    proc ShowPendingNodes {} {
-	if {[log verbosity?] < 10} return
+    proc ScheduleCandidates {} {
 	::variable mybottom
-	log write 10 cyclebreaker \
-	    "Pending: [struct::list map $mybottom [myproc FormatPendingItem]]"
+	set mybottom [lsort -index 1 -integer [lsort -index 2 -integer [lsort -index 0 -dict $mybottom]]]
 	return
     }
 
-    proc FormatPendingItem {item} { lreplace $item 0 0 [[lindex $item 0] str] }
+    proc ShowPendingNodes {} {
+	if {[log verbosity?] < 10} return
+	::variable mybottom
+	log write 10 cyclebreaker "Pending..............................."
+	foreach item [struct::list map $mybottom [myproc FormatPendingItem]] {
+	    log write 10 cyclebreaker "Pending:     $item"
+	}
+	return
+    }
+
+    proc FormatPendingItem {item} {
+	join [list [[lindex $item 0] str] [clock format [lindex $item 1]] [clock format [lindex $item 2]]]
+    }
 
     proc FindCycle {dg} {
 	# This procedure is run if and only the graph is not empty and
