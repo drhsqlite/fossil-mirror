@@ -52,7 +52,22 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    method str {} { return "<$mytype ${myid}>" }
+    method str {} {
+	set str    "<"
+	set detail ""
+	if {$mytype eq "sym"} {
+	    struct::list assign [state run {
+		SELECT T.name, S.name
+		FROM   symtype T, symbol S
+		WHERE  S.sid = $mysrcid
+		AND    T.tid = S.type
+	    }] stype detail
+	    append str $stype " "
+	    set detail " '$detail'"
+	}
+	append str "$mytype ${myid}${detail}>"
+	return $str
+    }
 
     method id        {} { return $myid }
     method revisions {} { return $myrevisions }
@@ -65,6 +80,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method pos    {}  { return $mypos }
 
     method isbranch {} {
+	error NOT-USED
 	return [expr {($mytype eq "sym") &&
 		      ($mybranchcode == [state one {
 			  SELECT type FROM symbol WHERE sid = $mysrcid
@@ -159,7 +175,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	PullInternalSuccessorRevisions dependencies $myrevisions
 	if {![array size dependencies]} {return 0} ; # Nothing to break.
 
-	log write 6 csets ...[$self str].......................................................
+	log write 5 csets ...[$self str].......................................................
 
 	# We have internal dependencies to break. We now iterate over
 	# all positions in the list (which is chronological, at least
@@ -775,7 +791,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    if {!$six} continue
 
 	    struct::list assign $dep parent child
-	    log write 6 csets "Broke dependency [PD $parent] --> [PD $child]"
+	    log write 5 csets "Broke dependency [PD $parent] --> [PD $child]"
 	}
 
 	return
