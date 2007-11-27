@@ -422,6 +422,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# revisions we start from. Sensible as we are looking for
 	# changeset internal dependencies.
 
+	array set dep {}
+
 	foreach {rid child} [state run "
    -- (1) Primary child
 	    SELECT R.rid, R.child
@@ -452,7 +454,49 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		trouble internal "Revision $rid depends on itself."
 	    }
 	    lappend dependencies($rid) $child
+	    set dep($rid,$child) .
 	}
+
+	# The sql statements above looks only for direct dependencies
+	# between revision in the changeset. However due to the
+	# vagaries of meta data it is possible for two revisions of
+	# the same file to end up in the same changeset, without a
+	# direct dependency between them. However we know that there
+	# has to be a an indirect dependency, be it through primary
+	# children, branch children, or a combination thereof.
+
+	# We now fill in these pseudo-dependencies, if no such
+	# dependency exists already. The direction of the dependency
+	# is actually irrelevant for this.
+
+	# NOTE: This is different from cvs2svn. Our spiritual ancestor
+	# does not use such pseudo-dependencies, however it uses a
+	# COMMIT_THRESHOLD, a time interval commits should fall. This
+	# will greatly reduces the risk of getting far separated
+	# revisions of the same file into one changeset.
+
+	# We allow revisions to be far apart in time in the same
+	# changeset, but need the pseudo-dependencies for this.
+
+	array set fids {}
+	foreach {rid fid} [state run "
+	    SELECT R.rid, R.fid FROM revision R WHERE R.rid IN $theset
+	"] { lappend fids($fid) $rid }
+
+	foreach {fid rids} [array get fids] {
+	    if {[llength $rids] < 2} continue
+	    foreach a $rids {
+		foreach b $rids {
+		    if {$a == $b} continue
+		    if {[info exists dep($a,$b)]} continue
+		    if {[info exists dep($b,$a)]} continue
+		    lappend dependencies($a) $b
+		    set dep($a,$b) .
+		    set dep($b,$a) .
+		}
+	    }
+	}
+	return
     }
 
     proc PullSuccessorRevisions {dv revisions} {
@@ -593,26 +637,28 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#         and that is something we have ruled out already, see
 	#         PullInternalSuccessorRevisions.
 
-	foreach {rid child} [array get dependencies] {
-	    set dkey    [list $rid $child]
-	    set start   $pos($rid)
-	    set end     $pos($child)
-	    set crosses {}
+	foreach {rid children} [array get dependencies] {
+	    foreach child $children {
+		set dkey    [list $rid $child]
+		set start   $pos($rid)
+		set end     $pos($child)
+		set crosses {}
 
-	    if {$start > $end} {
-		while {$end < $start} {
-		    lappend crosses $end
-		    incr cross($end)
-		    incr end
+		if {$start > $end} {
+		    while {$end < $start} {
+			lappend crosses $end
+			incr cross($end)
+			incr end
+		    }
+		} else {
+		    while {$start < $end} {
+			lappend crosses $start
+			incr cross($start)
+			incr start
+		    }
 		}
-	    } else {
-		while {$start < $end} {
-		    lappend crosses $start
-		    incr cross($start)
-		    incr start
-		}
+		set depc($dkey) $crosses
 	    }
-	    set depc($dkey) $crosses
 	}
 
 	InitializeDeltas $revisions
