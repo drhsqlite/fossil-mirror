@@ -73,6 +73,11 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 	# Pass manager interface. Executed to perform the
 	# functionality of the pass.
 
+	set len [string length [project::rev num]]
+	set myatfmt %${len}s
+	incr len 12
+	set mycsfmt %${len}s
+
 	cyclebreaker savecmd  [myproc SaveTimestamps]
 
 	state transaction {
@@ -107,9 +112,11 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 	set cid [$cset id]
 
 	set date [GetTime [lindex [$graph node get $cset timerange] 1] \
-		      [struct::set contain $mysymchangesets $cset]]
+		      [struct::set contain $mysymchangesets $cset] \
+		     message]
 
-	log write 4 atopsort "Changeset @ $at: [$cset str]"
+	log write 4 atopsort "Changeset @ [format $myatfmt $at]: [format $mycsfmt [$cset str]]$message"
+
 	state run {
 	    INSERT INTO cstimestamp (cid,  pos, date)
 	    VALUES                  ($cid, $at, $date)
@@ -117,8 +124,10 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 	return
     }
 
-    proc GetTime {stamp expectchange} {
+    proc GetTime {stamp expectchange mv} {
 	::variable mylasttimestamp
+	upvar 1 $mv message
+	set message ""
 	if {$stamp > $mymaxtimestamp} {
 	    # A timestamp in the future is believed to be bogus and
 	    # shifted backwars in time to prevent it from forcing
@@ -135,18 +144,21 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 
 	    incr mylasttimestamp
 	    if {!$expectchange} {
-		log write 4 atopsort "Timestamp [clock format $stamp] is in the future; shifted back to [clock format $mylasttimestamp]"
+		set message " Timestamp [clock format $stamp] is in the future; shifted back to [clock format $mylasttimestamp] ([expr {$mylasttimestamp - $stamp}])"
 	    }
 	} elseif {$stamp < ($mylasttimestamp)+1} {
 	    incr mylasttimestamp
 	    if {!$expectchange} {
-		log write 4 atopsort "Timestamp [clock format $stamp] adjusted to [clock format $mylasttimestamp]"
+		set message " Timestamp [clock format $stamp] adjusted to [clock format $mylasttimestamp] (+[expr {$mylasttimestamp - $stamp}])"
 	    }
 	} else {
 	    set mylasttimestamp $stamp
 	}
 	return $mylasttimestamp
     }
+
+    typevariable myatfmt ; # Format for log output to gain better alignment of the various columns.
+    typevariable mycsfmt ; # Ditto for the changesets.
 
     typevariable mysymchangesets {} ; # Set of the symbol changesets.
     typevariable mylasttimestamp 0  ; # Last delivered timestamp.

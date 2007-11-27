@@ -77,7 +77,7 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
 
 	set len [string length [project::rev num]]
 	set myatfmt %${len}s
-	incr len 6
+	incr len 12
 	set mycsfmt %${len}s
 
 	cyclebreaker savecmd  [myproc SaveOrder]
