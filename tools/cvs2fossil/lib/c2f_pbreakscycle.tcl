@@ -67,10 +67,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 
 	state transaction {
 	    cyclebreaker run break-sym [myproc Changesets]
-
-	    repository printcsetstatistics
-	    integrity changesets
 	}
+
+	repository printcsetstatistics
+	integrity changesets
 	return
     }
 

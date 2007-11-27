@@ -78,10 +78,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	state transaction {
 	    LoadCommitOrder
 	    cyclebreaker run break-all [myproc Changesets]
-
-	    repository printcsetstatistics
-	    integrity changesets
 	}
+
+	repository printcsetstatistics
+	integrity changesets
 	return
     }
 
