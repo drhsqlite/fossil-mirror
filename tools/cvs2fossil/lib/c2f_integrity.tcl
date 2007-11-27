@@ -44,6 +44,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
     typemethod changesets {} {
 	set n 0
+	RevisionCSetLinkage
 	RevisionChangesets
 	SymbolChangesets
 	return
@@ -289,6 +290,16 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	return
     }
+
+    proc RevisionCSetLinkage {} {
+    }
+
+    proc RevisionChangesets {} {
+    }
+
+    proc SymbolChangesets {} {
+    }
+
 
     proc Check {header label sql} {
 	upvar 1 n n

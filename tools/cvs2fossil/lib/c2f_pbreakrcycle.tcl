@@ -25,6 +25,7 @@ package require vc::tools::log                            ; # User feedback.
 package require vc::fossil::import::cvs::repository       ; # Repository management.
 package require vc::fossil::import::cvs::cyclebreaker     ; # Breaking dependency cycles.
 package require vc::fossil::import::cvs::state            ; # State storage.
+package require vc::fossil::import::cvs::integrity        ; # State integrity checks.
 package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
 
 # # ## ### ##### ######## ############# #####################
@@ -67,9 +68,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 
 	state transaction {
 	    cyclebreaker run break-rev [myproc Changesets]
-	}
 
-	repository printcsetstatistics
+	    repository printcsetstatistics
+	    integrity changesets
+	}
 	return
     }
 
@@ -105,6 +107,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::fossil::import::cvs::cyclebreaker
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::rev
 	}
