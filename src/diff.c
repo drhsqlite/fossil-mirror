@@ -289,13 +289,14 @@ int *text_diff(
     }
   }
   if( d>MAX ){
-    R = malloc( sizeof(R[0])*6 );
+    R = malloc( sizeof(R[0])*7 );
     R[0] = 0;
     R[1] = X;
     R[2] = Y;
     R[3] = 0;
     R[4] = 0;
     R[5] = 0;
+    R[6] = 0;
   }else{
     /* Reuse M[] as follows:
     **

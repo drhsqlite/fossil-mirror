@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Begin\sporting\sthe\sCVSTrac\sticket\sreporting\scode\sover\sto\sfossil.\s\sThe\nnew\scode\sis\snot\syet\sconnected\sinto\sthe\ssystem.\s\sThe\sport\sis\sincomplete.
-D 2007-11-26T01:33:50
+C Fix\sa\sbug\sin\sthe\sunified\sdiff\sgenerator.
+D 2007-11-27T03:30:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -50,7 +50,7 @@ F src/db.c 48224de87a88df3026d7bfd4c90b3b79ac11f4ab
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c 562003166f46dde18071f9a04e7914e7c6b3dbab
+F src/diff.c ec5d7996135d53a6c7d5db2e7a22337212ea6c9b
 F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 5f3ddcc1b80bc8e20a09be8ff131522caa5d9359
-R 285fc1389ba9403f720c76297ff2f21d
+P 62f37c972204304cb0412b7f61a0754fb8c1fd38
+R 0414491a75e32f1cf01e990a22693ade
 U drh
-Z 3c31444d0c479e6f5dcc07627b8a6925
+Z f5d611c64c6537eeb10554b001b81178
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHSiKCoxKgR168RlERAtARAJ0WjVLzAZlyykjJATLukYF7Lq7mgwCgjkcE
-Pf2AYzsxm7ZDxJzDrMD/Xls=
-=TrTK
+iD8DBQFHS49toxKgR168RlERAiguAJ9oOe5glFqulHhBzNIx1+1adKzRwgCdHlWb
+EdFjaEgsjTZlmjjrOqCO91w=
+=TKSf
 -----END PGP SIGNATURE-----
