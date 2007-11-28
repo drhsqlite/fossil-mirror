@@ -383,7 +383,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    # Do the grafting.
 
 	    log write 4 filtersym {\[[format $fmt $n]/$mxs\] $prname : Grafting tag '$tagname' on $fname/$revnr from '$oldname' onto '$preferedname'}
-	    state run { UPDATE tag SET lod = $pid WHERE tid = $id ; }
+	    state run { UPDATE tag SET lod = $pid WHERE tid = $id }
 	    incr n
 	}
 
@@ -441,7 +441,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    # Do the grafting.
 
 	    log write 4 filtersym {\[[format $fmt $n]/$mxs\] $prname : Grafting branch '$braname' on $fname/$revnr from '$oldname' onto '$preferedname'}
-	    state run { UPDATE tag SET lod = $pid WHERE tid = $id ; }
+	    state run { UPDATE branch SET lod = $pid WHERE bid = $id }
 	    incr n
 	}
 
