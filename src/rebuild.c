@@ -33,7 +33,7 @@
 static const char zSchemaUpdates[] =
 @ -- Index on the delta table
 @ --
-@ CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
+@ CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);
 @
 @ -- Artifacts that should not be processed are identified in the
 @ -- "shun" table.  Artifacts that are control-file forgeries or
