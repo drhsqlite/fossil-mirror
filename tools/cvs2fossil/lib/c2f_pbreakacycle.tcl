@@ -176,9 +176,9 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	    # second fragment.
 
 	    struct::list assign $replacements normal backward
-	    if {[IsBackward $graph $normal]} {
-		trouble internal "The normal fragment is unexpectedly backward"
-	    }
+	    integrity assert {
+		![IsBackward $graph $normal]
+	    } {The normal fragment is unexpectedly backward}
 
 	    set cset $backward
 	}
@@ -261,10 +261,9 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	foreach revision [array names limits] {
 	    struct::list assign $limits($revision) maxp mins
 	    # Handle min successor position "" as representing infinity
-	    if {$mins eq ""} continue
-	    if {$maxp < $mins} continue
-
-	    trouble internal "Branch revision $revision is backward at file level ($maxp >= $mins)"
+	    integrity assert {
+		($mins eq "") || ($maxp < $mins) 
+	    } {Branch revision $revision is backward at file level ($maxp >= $mins)}
 	}
 
 	# Save the limits for the splitter, and compute the border at
@@ -301,8 +300,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	    }
 	}
 
-	if {![llength $normalrevisions]}   { trouble internal "Set of normal revisions is empty" }
-	if {![llength $backwardrevisions]} { trouble internal "Set of backward revisions is empty" }
+	integrity assert {[llength $normalrevisions]}   {Set of normal revisions is empty}
+	integrity assert {[llength $backwardrevisions]} {Set of backward revisions is empty}
 	return
     }
 
@@ -371,7 +370,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 		set old [$mycset($mylastpos) str]@$mylastpos
 	    }
 
-	    trouble internal "Ordering of revision changesets violated, [$cset str]@$new is not immediately after $old"
+	    integrity assert 0 {Ordering of revision changesets violated, [$cset str]@$new is not immediately after $old}
 	}
 
 	set mylastpos $new

@@ -32,7 +32,8 @@ snit::type ::vc::tools::log {
 
     typemethod write {verbosity system text} {
 	if {$verbosity > $myloglevel} return
-	uplevel #0 [linsert $mylogcmd end write [System $system] $text]
+	uplevel #0 [linsert $mylogcmd end write [System $system] \
+	    [uplevel 1 [list ::subst $text]]]
 	return
     }
 

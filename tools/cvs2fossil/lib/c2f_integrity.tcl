@@ -29,6 +29,13 @@ snit::type ::vc::fossil::import::cvs::integrity {
     # # ## ### ##### ######## #############
     ## Public API
 
+    typemethod assert {expression failmessage} {
+	set ok [uplevel 1 [list ::expr $expression]]
+	if {$ok} return
+	trouble internal [uplevel 1 [list ::subst $failmessage]]
+	return
+    }
+
     typemethod strict {} {
 	log write 4 integrity {Check database consistency}
 
@@ -517,7 +524,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    set ok 0
 	    trouble fatal "$fname <$revnr> $label"
 	}
-	log write 5 integrity "\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header"
+	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
 	return
     }
 
@@ -528,7 +535,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    set ok 0
 	    trouble fatal "<$ctype $cid> $label"
 	}
-	log write 5 integrity "\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header"
+	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
 	return
     }
 
@@ -540,7 +547,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    set b "<$cstype $csid>"
 	    trouble fatal "$fname <$revnr> [string map [list @ $b] $label]"
 	}
-	log write 5 integrity "\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header"
+	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
 	return
     }
 

@@ -17,13 +17,14 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4                         ; # Required runtime.
-package require snit                            ; # OO system.
-package require vc::fossil::import::cvs::state  ; # State storage
-package require vc::tools::misc                 ; # Text formatting
-package require vc::tools::trouble              ; # Error reporting.
-package require vc::tools::log                  ; # User feedback.
-package require struct::list                    ; # Portable lassign
+package require Tcl 8.4                            ; # Required runtime.
+package require snit                               ; # OO system.
+package require vc::fossil::import::cvs::state     ; # State storage
+package require vc::fossil::import::cvs::integrity ; # State integrity checks.
+package require vc::tools::misc                    ; # Text formatting
+package require vc::tools::trouble                 ; # Error reporting.
+package require vc::tools::log                     ; # User feedback.
+package require struct::list                       ; # Portable lassign
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -33,9 +34,9 @@ snit::type ::vc::fossil::import::cvs::pass {
     ## Public API, Methods (Setup, query)
 
     typemethod define {name description command} {
-	if {[info exists mydesc($name)]} {
-	    trouble internal "Multiple definitions for pass code '$name'"
-	}
+	integrity assert {
+	    ![info exists mydesc($name)]
+	} {Multiple definitions for pass code '$name'}
 	lappend mypasses $name
 	set mydesc($name) $description
 	set mycmd($name)  $command
@@ -199,6 +200,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace export pass
     namespace eval pass {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log

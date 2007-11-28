@@ -124,8 +124,8 @@ snit::type ::vc::fossil::import::cvs::state {
 	    ;
 	}]]
 
+	# No assert, would cause cycle in package dependencies
 	if {$found} return
-
 	trouble internal "The required table \"$name\" is not defined."
 	# Not reached
 	return

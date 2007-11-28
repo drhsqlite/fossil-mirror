@@ -19,6 +19,7 @@ package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require vc::tools::misc                     ; # Text formatting
 package require vc::fossil::import::cvs::state      ; # State storage.
+package require vc::fossil::import::cvs::integrity  ; # State integrity checks.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -121,7 +122,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     method haschild  {} { return [expr {$mychild  ne ""}] }
 
     method setparent {parent} {
-	if {$myparent ne ""} { trouble internal "Parent already defined" }
+	integrity assert {$myparent eq ""} {Parent already defined}
 	set myparent $parent
 	return
     }
@@ -130,7 +131,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     method cutfromchild  {} { set mychild  "" ; return }
 
     method setchild {child} {
-	if {$mychild ne ""} { trouble internal "Child already defined" }
+	integrity assert {$mychild eq ""} {Child already defined}
 	set mychild $child
 	return
     }
@@ -144,7 +145,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     # Branch linkage ______________________
 
     method setparentbranch {branch} {
-	if {$myparentbranch ne ""} { trouble internal "Branch parent already defined" }
+	integrity assert {$myparentbranch eq ""} {Branch parent already defined}
 	set myparentbranch $branch
 	return
     }
@@ -521,6 +522,7 @@ namespace eval ::vc::fossil::import::cvs::file {
     namespace eval rev {
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
     }
 }
 

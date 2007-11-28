@@ -22,6 +22,7 @@ package require struct::set                         ; # Set operations.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::file::sym  ; # CVS per file symbols.
 package require vc::fossil::import::cvs::state      ; # State storage.
+package require vc::fossil::import::cvs::integrity  ; # State integrity checks.
 package require vc::tools::trouble                  ; # Error reporting.
 package require vc::tools::log                      ; # User feedback
 package require vc::tools::misc                     ; # Text formatting
@@ -44,7 +45,7 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method setid {id} {
-	if {$myid ne ""} { trouble internal "File '$mypath' already has an id, '$myid'" }
+	integrity assert {$myid eq ""} {File '$mypath' already has an id, '$myid'}
 	set myid $id
 	return
     }
@@ -327,9 +328,7 @@ snit::type ::vc::fossil::import::cvs::file {
     }
 
     method Rev2Branch {revnr} {
-	if {[rev istrunkrevnr $revnr]} {
-	    trouble internal "Expected a branch revision number"
-	}
+        integrity assert {![rev istrunkrevnr $revnr]} {Expected a branch revision number}
 	return $mybranches([rev 2branchnr $revnr])
     }
 
@@ -463,7 +462,7 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	foreach {revnr rev} [array get myrev] {
 	    if {[$rev hasparent]} continue
-	    if {$myroot ne ""} { trouble internal "Multiple root revisions found" }
+	    integrity assert {$myroot eq ""} {Multiple root revisions found}
 	    set myroot $rev
 	}
 
@@ -701,7 +700,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # Cut out the vendor branch symbol
 
 	    set vendor [$first parentbranch]
-	    if {$vendor eq ""} { trouble internal "First NTDB revision has no branch" }
+	    integrity assert {$vendor ne ""} {First NTDB revision has no branch}
 	    if {[$vendor parent] eq $rev11} {
 		$rev11 removebranch        $vendor
 		$rev11 removechildonbranch $first
@@ -956,9 +955,9 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	    if {[$root hasdefaultbranchchild]} {
 		set ntdbchild [$root defaultbranchchild]
-		if {[$ntdbchild defaultbranchparent] ne $ntdbchild} {
-		    trouble internal "ntdb - trunk linkage broken"
-		}
+		integrity assert {
+		    [$ntdbchild defaultbranchparent] eq $ntdbchild
+		} {ntdb - trunk linkage broken}
 		$ntdbchild cutdefaultbranchparent
 		if {[$ntdbchild hasparent]} {
 		    lappend myroots [$ntdbchild parent]
@@ -976,8 +975,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	# trunk. They should already be alone on a CVSBranch-less
 	# branch.
 
-	if {[$root hasparentbranch]} { trouble internal "NTDB root still has its branch symbol" }
-	if {[$root hasbranches]}     { trouble internal "NTDB root still has spawned branches" }
+	integrity assert {![$root hasparentbranch]} {NTDB root still has its branch symbol}
+	integrity assert {![$root hasbranches]}     {NTDB root still has spawned branches}
 
 	set last $root
 	while {[$last haschild]} {set last [$last child]}
@@ -1109,6 +1108,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
     }
 }
 

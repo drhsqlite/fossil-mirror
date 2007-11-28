@@ -28,6 +28,7 @@ package require vc::tools::misc                       ; # Text formatting
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
 package require vc::fossil::import::cvs::project::rev ; # Project level changesets
 
 # # ## ### ##### ######## ############# #####################
@@ -124,9 +125,7 @@ snit::type ::vc::fossil::import::cvs::project::revlink {
     }
 
     method break {} {
-	if {![$self breakable]} {
-	    trouble internal "Changeset [$mycset str] is not breakable."
-	}
+	integrity assert {[$self breakable]} {Changeset [$mycset str] is not breakable.}
 
 	# One thing to choose when splitting CSET is where the
 	# revision in categories 1 and 2 (none and passthrough
@@ -219,6 +218,7 @@ namespace eval ::vc::fossil::import::cvs::project {
     namespace export revlink
     namespace eval revlink {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace eval project {

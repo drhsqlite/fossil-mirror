@@ -368,7 +368,7 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     }
 
     method MarkAs {label chosen} {
-	log write 3 symbol "\[$label\] Converting symbol '$myname' as $mysymtype($chosen)"
+	log write 3 symbol {\[$label\] Converting symbol '$myname' as $mysymtype($chosen)}
 
 	set mytype $chosen
 	incr myrulecount($label)

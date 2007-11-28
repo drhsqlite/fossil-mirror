@@ -22,6 +22,7 @@ package require vc::tools::misc                       ; # Text formatting
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
+package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
@@ -202,9 +203,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	while {$at < [llength $pending]} {
 	    set current [lindex $pending $at]
 
-	    log write 6 csets ". . .. ... ..... ........ ............."
-	    log write 6 csets "Scheduled   [join [PRs [lrange $pending $at end]] { }]"
-	    log write 6 csets "Considering [PR $current] \[$at/[llength $pending]\]"
+	    log write 6 csets {. . .. ... ..... ........ .............}
+	    log write 6 csets {Scheduled   [join [PRs [lrange $pending $at end]] { }]}
+	    log write 6 csets {Considering [PR $current] \[$at/[llength $pending]\]}
 
 	    set best [FindBestBreak $current]
 
@@ -235,12 +236,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 		log write 6 csets "New pieces  [PR $fragbefore] [PR $fragafter]"
 
-		if {![llength $fragbefore]} {
-		    trouble internal "Tried to split off a zero-length fragment at the beginning"
-		}
-		if {![llength $fragafter]} {
-		    trouble internal "Tried to split off a zero-length fragment at the end"
-		}
+		integrity assert {[llength $fragbefore]} {Found zero-length fragment at the beginning}
+		integrity assert {[llength $fragafter]}  {Found zero-length fragment at the end}
 
 		lappend pending $fragbefore $fragafter
 		CutAt $best
@@ -268,16 +265,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	Border [lindex $fragments 0] firsts firste
 
-	if {$firsts != 0} {
-	    trouble internal "Bad fragment start @ $firsts, gap, or before beginning of the range"
-	}
+	integrity assert {$firsts == 0} {Bad fragment start @ $firsts, gap, or before beginning of the range}
 
 	set laste $firste
 	foreach fragment [lrange $fragments 1 end] {
 	    Border $fragment s e
-	    if {$laste != ($s - 1)} {
-		trouble internal "Bad fragment border <$laste | $s>, gap or overlap"
-	    }
+	    integrity assert {$laste == ($s - 1)} {Bad fragment border <$laste | $s>, gap or overlap}
 
 	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myrevisions $s $e]]
 
@@ -286,9 +279,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    set laste $e
 	}
 
-	if {$laste != ([llength $myrevisions]-1)} {
-	    trouble internal "Bad fragment end @ $laste, gap, or beyond end of the range"
-	}
+	integrity assert {
+	    $laste == ([llength $myrevisions]-1)
+	} {Bad fragment end @ $laste, gap, or beyond end of the range}
 
 	# Put the first fragment into the current changeset, and
 	# update the in-memory index. We can simply (re)add the
@@ -367,9 +360,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	set newcsets {}
 	foreach fragmentrevisions $args {
-	    if {![llength $fragmentrevisions]} {
-		trouble internal "Attempted to create an empty changeset, i.e. without revisions"
-	    }
+	    integrity assert {
+		[llength $fragmentrevisions]
+	    } {Attempted to create an empty changeset, i.e. without revisions}
 	    lappend newcsets [$type %AUTO% $project $cstype $cssrc $fragmentrevisions]
 	}
 
@@ -466,9 +459,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
             AND   RA.child IN $theset     -- Which is also of interest
 	"] {
 	    # Consider moving this to the integrity module.
-	    if {$rid == $child} {
-		trouble internal "Revision $rid depends on itself."
-	    }
+	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
 	    lappend dependencies($rid) $child
 	    set dep($rid,$child) .
 	}
@@ -566,9 +557,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    AND   RA.child IS NOT NULL    -- Has primary child.
 	"] {
 	    # Consider moving this to the integrity module.
-	    if {$rid == $child} {
-		trouble internal "Revision $rid depends on itself."
-	    }
+	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
 	    lappend dependencies($rid) $child
 	}
 	return
@@ -613,9 +602,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    AND RA.dbparent IS NOT NULL  -- which has to refer to NTDB's root
 	"] {
 	    # Consider moving this to the integrity module.
-	    if {$rid == $parent} {
-		trouble internal "Revision $rid depends on itself."
-	    }
+	    integrity assert {$rid != $parent} {Revision $rid depends on itself.}
 	    lappend dependencies($rid) $parent
 	}
 	return
@@ -862,6 +849,7 @@ namespace eval ::vc::fossil::import::cvs::project {
     namespace export rev
     namespace eval rev {
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
 	}

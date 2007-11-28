@@ -20,6 +20,7 @@ package require snit                                ; # OO system.
 package require vc::tools::trouble                  ; # Error reporting.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::state      ; # State storage.
+package require vc::fossil::import::cvs::integrity  ; # State integrity checks.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -35,10 +36,10 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	set mysymbol $symbol
 
 	switch -exact -- $mytype {
-	    branch  { SetupBranch }
-	    tag     { }
-	    default { trouble internal "Bad symbol type '$mytype'" }
+	    branch  { SetupBranch ; return }
+	    tag     { return }
 	}
+	integrity assert 0 {Bad symbol type '$mytype'}
 	return
     }
 
@@ -115,7 +116,7 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     # Branch acessor methods.
 
     method setchildrevnr  {revnr} {
-	if {$mybranchchildrevnr ne ""} { trouble internal "Child already defined" }
+	integrity assert {$mybranchchildrevnr eq ""} {Child already defined}
 	set mybranchchildrevnr $revnr
 	return
     }
@@ -286,6 +287,7 @@ namespace eval ::vc::fossil::import::cvs::file {
     namespace eval sym {
 	namespace import ::vc::fossil::import::cvs::file::rev
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace import ::vc::tools::trouble
     }
 }
