@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sequivalent\schecks\sfor\sthe\stag\sand\sbranch\sbased\schangesets.
-D 2007-11-29T06:47:18
+C Moved\sthe\sexisting\ssuccessor/predecessor\scode\sfrom\smain\sclass\sto\sthe\sproper\ssingleton.\sFixed\sconfig\sof\smain\sclass,\sisn't\ssimple\sdispatch\sany\slonger.\sSimplified\scalculation\sof\sthe\sreadable\srepresentation\sof\schangesets\sand\sremoved\scode\swhich\shas\sbecome\ssuperfluous.
+D 2007-11-29T06:58:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -119,7 +119,7 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 2020f6d70d0dc62c0db4df69bbba538719f0e779
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl cec097c0345ad77a93741d4dce9aa1cda5ecb9d0
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl 225212eea46a32769b6fe7d59f3ba3f65bd919f4
+F tools/cvs2fossil/lib/c2f_prev.tcl 15d330b01f73e588bd0b4a28a211d0f5deabf424
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 38dafe8989e55aee0ffeaf0049391dc898bd2097
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl ef7809d0566b6393e2973c5ff9bd134f070462e2
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P de10b2301e874f9edb4cb1b9249b540a157a10b9
-R a4bfe9b60c415154c6e9c85bc4e2a3c4
+P 4b15fa348d8f98e02403a50f7e822139b6669406
+R 802481226d3ab72816a9a9b0a7bdfca3
 U aku
-Z 2f32f523719a80fe44a09605d16df6df
+Z b2b7105ba47eb09f9aa48ed6b0d47619
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTmB2vonzZ/CRa7gRAj5NAKCLMjVPLr04i9QFRpcDbiSwJYcBpgCeLZpv
-gHCr/ZbvlylwlKbv8z4uz80=
-=m2s5
+iD8DBQFHTmMFvonzZ/CRa7gRAqqZAJ9M0dgfTJ/+lu/hzurUvRvWPP7CrgCdEFxv
+4DkvGANggnPnCoNrwWNE1xM=
+=GHyK
 -----END PGP SIGNATURE-----

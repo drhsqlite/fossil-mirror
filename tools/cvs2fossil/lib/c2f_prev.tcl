@@ -23,7 +23,6 @@ package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
-package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -59,15 +58,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method str {} {
 	set str    "<"
 	set detail ""
-	if {$mytype eq "sym"} {
-	    struct::list assign [state run {
-		SELECT T.name, S.name
-		FROM   symtype T, symbol S
+	if {[$mytypeobj bysymbol]} {
+	    set detail " '[state one {
+		SELECT S.name
+		FROM   symbol S
 		WHERE  S.sid = $mysrcid
-		AND    T.tid = S.type
-	    }] stype detail
-	    append str $stype " "
-	    set detail " '$detail'"
+	    }]'"
 	}
 	append str "$mytype ${myid}${detail}>"
 	return $str
@@ -401,7 +397,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    typevariable mycounter        0 ; # Id counter for csets. Last id used.
+    typevariable mycounter        0 ; # Id counter for csets. Last id
+				      # used.
     typevariable mycstype -array {} ; # Map cstypes (names) to persistent
 				      # ids. Note that we have to keep
 				      # the names in the table 'cstype'
@@ -422,193 +419,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     typemethod num {} { return $mycounter }
-
-    proc PullInternalSuccessorRevisions {dv revisions} {
-	upvar 1 $dv dependencies
-	set theset ('[join $revisions {','}]')
-
-	# See PullSuccessorRevisions below for the main explanation of
-	# the various cases. This piece is special in that it
-	# restricts the successors we look for to the same set of
-	# revisions we start from. Sensible as we are looking for
-	# changeset internal dependencies.
-
-	array set dep {}
-
-	foreach {rid child} [state run "
-   -- (1) Primary child
-	    SELECT R.rid, R.child
-	    FROM   revision R
-	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
-	    AND    R.child IS NOT NULL    -- Has primary child
-	    AND    R.child IN $theset     -- Which is also of interest
-    UNION
-    -- (2) Secondary (branch) children
-	    SELECT R.rid, B.brid
-	    FROM   revision R, revisionbranchchildren B
-	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
-	    AND    R.rid = B.rid          -- Select subset of branch children
-	    AND    B.brid IN $theset      -- Which is also of interest
-    UNION
-    -- (4) Child of trunk root successor of last NTDB on trunk.
-	    SELECT R.rid, RA.child
-	    FROM revision R, revision RA
-	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
-	    AND   R.isdefault             -- Restrict to NTDB
-	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
-	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
-	    AND   RA.child IS NOT NULL    -- Has primary child.
-            AND   RA.child IN $theset     -- Which is also of interest
-	"] {
-	    # Consider moving this to the integrity module.
-	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
-	    lappend dependencies($rid) $child
-	    set dep($rid,$child) .
-	}
-
-	# The sql statements above looks only for direct dependencies
-	# between revision in the changeset. However due to the
-	# vagaries of meta data it is possible for two revisions of
-	# the same file to end up in the same changeset, without a
-	# direct dependency between them. However we know that there
-	# has to be a an indirect dependency, be it through primary
-	# children, branch children, or a combination thereof.
-
-	# We now fill in these pseudo-dependencies, if no such
-	# dependency exists already. The direction of the dependency
-	# is actually irrelevant for this.
-
-	# NOTE: This is different from cvs2svn. Our spiritual ancestor
-	# does not use such pseudo-dependencies, however it uses a
-	# COMMIT_THRESHOLD, a time interval commits should fall. This
-	# will greatly reduces the risk of getting far separated
-	# revisions of the same file into one changeset.
-
-	# We allow revisions to be far apart in time in the same
-	# changeset, but need the pseudo-dependencies for this.
-
-	array set fids {}
-	foreach {rid fid} [state run "
-	    SELECT R.rid, R.fid FROM revision R WHERE R.rid IN $theset
-	"] { lappend fids($fid) $rid }
-
-	foreach {fid rids} [array get fids] {
-	    if {[llength $rids] < 2} continue
-	    foreach a $rids {
-		foreach b $rids {
-		    if {$a == $b} continue
-		    if {[info exists dep($a,$b)]} continue
-		    if {[info exists dep($b,$a)]} continue
-		    lappend dependencies($a) $b
-		    set dep($a,$b) .
-		    set dep($b,$a) .
-		}
-	    }
-	}
-	return
-    }
-
-    proc PullSuccessorRevisions {dv revisions} {
-	upvar 1 $dv dependencies
-	set theset ('[join $revisions {','}]')
-
-	# The following cases specify when a revision S is a successor
-	# of a revision R. Each of the cases translates into one of
-	# the branches of the SQL UNION coming below.
-	#
-	# (1) S can be a primary child of R, i.e. in the same LOD. R
-	#     references S directly. R.child = S(.rid), if it exists.
-	#
-	# (2) S can be a secondary, i.e. branch, child of R. Here the
-	#     link is made through the helper table
-	#     REVISIONBRANCHCHILDREN. R.rid -> RBC.rid, RBC.brid =
-	#     S(.rid)
-	#
-	# (3) Originally this use case defined the root of a detached
-	#     NTDB as the successor of the trunk root. This leads to a
-	#     bad tangle later on. With a detached NTDB the original
-	#     trunk root revision was removed as irrelevant, allowing
-	#     the nominal root to be later in time than the NTDB
-	#     root. Now setting this dependency will be backward in
-	#     time. REMOVED.
-	#
-	# (4) If R is the last of the NTDB revisions which belong to
-	#     the trunk, then the primary child of the trunk root (the
-	#     '1.2' revision) is a successor, if it exists.
-
-	foreach {rid child} [state run "
-   -- (1) Primary child
-	    SELECT R.rid, R.child
-	    FROM   revision R
-	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
-	    AND    R.child IS NOT NULL    -- Has primary child
-    UNION
-    -- (2) Secondary (branch) children
-	    SELECT R.rid, B.brid
-	    FROM   revision R, revisionbranchchildren B
-	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
-	    AND    R.rid = B.rid          -- Select subset of branch children
-    UNION
-    -- (4) Child of trunk root successor of last NTDB on trunk.
-	    SELECT R.rid, RA.child
-	    FROM revision R, revision RA
-	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
-	    AND   R.isdefault             -- Restrict to NTDB
-	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
-	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
-	    AND   RA.child IS NOT NULL    -- Has primary child.
-	"] {
-	    # Consider moving this to the integrity module.
-	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
-	    lappend dependencies($rid) $child
-	}
-	return
-    }
-
-    proc PullPredecessorRevisions {dv revisions} {
-	upvar 1 $dv dependencies
-	set theset ('[join $revisions {','}]')
-
-	# The following cases specify when a revision P is a
-	# predecessor of a revision R. Each of the cases translates
-	# into one of the branches of the SQL UNION coming below.
-	#
-	# (1) The immediate parent R.parent of R is a predecessor of
-	#     R. NOTE: This is true for R either primary or secondary
-	#     child of P. It not necessary to distinguish the two
-	#     cases, in contrast to the code retrieving the successor
-	#     information.
-	#
-	# (2) The complement of successor case (3). The trunk root is
-	#     a predecessor of a NTDB root. REMOVED. See
-	#     PullSuccessorRevisions for the explanation.
-	#
-	# (3) The complement of successor case (4). The last NTDB
-	#     revision belonging to the trunk is a predecessor of the
-	#     primary child of the trunk root (The '1.2' revision).
-
-	foreach {rid parent} [state run "
-   -- (1) Primary parent, can be in different LOD for first in a branch
-	    SELECT R.rid, R.parent
-	    FROM   revision R
-	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
-	    AND    R.parent IS NOT NULL   -- Has primary parent
-    UNION
-    -- (3) Last NTDB on trunk is predecessor of child of trunk root
-	    SELECT R.rid, RA.dbparent
-	    FROM revision R, revision RA
-	    WHERE R.rid IN $theset       -- Restrict to revisions of interest
-	    AND NOT R.isdefault          -- not on NTDB
-	    AND R.parent IS NOT NULL     -- which are not root
-	    AND RA.rid = R.parent        -- go to their parent
-	    AND RA.dbparent IS NOT NULL  -- which has to refer to NTDB's root
-	"] {
-	    # Consider moving this to the integrity module.
-	    integrity assert {$rid != $parent} {Revision $rid depends on itself.}
-	    lappend dependencies($rid) $parent
-	}
-	return
-    }
 
     proc InitializeBreakState {revisions} {
 	upvar 1 pos pos cross cross range range depc depc delta delta \
@@ -640,7 +450,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# Note 2: start == end is not possible. It indicates a
 	#         self-dependency due to the uniqueness of positions,
 	#         and that is something we have ruled out already, see
-	#         PullInternalSuccessorRevisions.
+	#         'rev internalsuccessors'.
 
 	foreach {rid children} [array get dependencies] {
 	    foreach child $children {
@@ -831,7 +641,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 				      # additional symbol changesets
 				      # which use it, hence a list.
     typevariable myidmap  -array {} ; # Map from changeset id to changeset.
-    typevariable mybranchcode    {} ; # Local copy of project::sym/mybranch.
 
     typemethod all   {}   { return $mychangesets }
     typemethod of    {id} { return $myidmap($id) }
@@ -842,7 +651,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     pragma -hastypeinfo    no  ; # no type introspection
     pragma -hasinfo        no  ; # no object introspection
-    pragma -simpledispatch yes ; # simple fast dispatch
 
     # # ## ### ##### ######## #############
 }
@@ -868,14 +676,226 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 
     # var(dv) = dict (revision -> list (revision))
     typemethod internalsuccessors {dv revisions} {
+	upvar 1 $dv dependencies
+	set theset ('[join $revisions {','}]')
+
+	# See 'successors' below for the main explanation of
+	# the various cases. This piece is special in that it
+	# restricts the successors we look for to the same set of
+	# revisions we start from. Sensible as we are looking for
+	# changeset internal dependencies.
+
+	array set dep {}
+
+	foreach {rid child} [state run "
+   -- (1) Primary child
+	    SELECT R.rid, R.child
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.child IS NOT NULL    -- Has primary child
+	    AND    R.child IN $theset     -- Which is also of interest
+    UNION
+    -- (2) Secondary (branch) children
+	    SELECT R.rid, B.brid
+	    FROM   revision R, revisionbranchchildren B
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.rid = B.rid          -- Select subset of branch children
+	    AND    B.brid IN $theset      -- Which is also of interest
+    UNION
+    -- (4) Child of trunk root successor of last NTDB on trunk.
+	    SELECT R.rid, RA.child
+	    FROM revision R, revision RA
+	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
+	    AND   R.isdefault             -- Restrict to NTDB
+	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
+	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
+	    AND   RA.child IS NOT NULL    -- Has primary child.
+            AND   RA.child IN $theset     -- Which is also of interest
+	"] {
+	    # Consider moving this to the integrity module.
+	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
+	    lappend dependencies($rid) $child
+	    set dep($rid,$child) .
+	}
+
+	# The sql statements above looks only for direct dependencies
+	# between revision in the changeset. However due to the
+	# vagaries of meta data it is possible for two revisions of
+	# the same file to end up in the same changeset, without a
+	# direct dependency between them. However we know that there
+	# has to be a an indirect dependency, be it through primary
+	# children, branch children, or a combination thereof.
+
+	# We now fill in these pseudo-dependencies, if no such
+	# dependency exists already. The direction of the dependency
+	# is actually irrelevant for this.
+
+	# NOTE: This is different from cvs2svn. Our spiritual ancestor
+	# does not use such pseudo-dependencies, however it uses a
+	# COMMIT_THRESHOLD, a time interval commits should fall. This
+	# will greatly reduces the risk of getting far separated
+	# revisions of the same file into one changeset.
+
+	# We allow revisions to be far apart in time in the same
+	# changeset, but need the pseudo-dependencies for this.
+
+	array set fids {}
+	foreach {rid fid} [state run "
+	    SELECT R.rid, R.fid FROM revision R WHERE R.rid IN $theset
+	"] { lappend fids($fid) $rid }
+
+	foreach {fid rids} [array get fids] {
+	    if {[llength $rids] < 2} continue
+	    foreach a $rids {
+		foreach b $rids {
+		    if {$a == $b} continue
+		    if {[info exists dep($a,$b)]} continue
+		    if {[info exists dep($b,$a)]} continue
+		    lappend dependencies($a) $b
+		    set dep($a,$b) .
+		    set dep($b,$a) .
+		}
+	    }
+	}
+	return
     }
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod successors {dv revisions} {
+	upvar 1 $dv dependencies
+	set theset ('[join $revisions {','}]')
+
+	# The following cases specify when a revision S is a successor
+	# of a revision R. Each of the cases translates into one of
+	# the branches of the SQL UNION coming below.
+	#
+	# (1) S can be a primary child of R, i.e. in the same LOD. R
+	#     references S directly. R.child = S(.rid), if it exists.
+	#
+	# (2) S can be a secondary, i.e. branch, child of R. Here the
+	#     link is made through the helper table
+	#     REVISIONBRANCHCHILDREN. R.rid -> RBC.rid, RBC.brid =
+	#     S(.rid)
+	#
+	# (3) Originally this use case defined the root of a detached
+	#     NTDB as the successor of the trunk root. This leads to a
+	#     bad tangle later on. With a detached NTDB the original
+	#     trunk root revision was removed as irrelevant, allowing
+	#     the nominal root to be later in time than the NTDB
+	#     root. Now setting this dependency will be backward in
+	#     time. REMOVED.
+	#
+	# (4) If R is the last of the NTDB revisions which belong to
+	#     the trunk, then the primary child of the trunk root (the
+	#     '1.2' revision) is a successor, if it exists.
+
+	# Note that the branches spawned from the revisions, and the
+	# tags associated with them are successors as well.
+
+	foreach {rid child} [state run "
+   -- (1) Primary child
+	    SELECT R.rid, R.child
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.child IS NOT NULL    -- Has primary child
+    UNION
+    -- (2) Secondary (branch) children
+	    SELECT R.rid, B.brid
+	    FROM   revision R, revisionbranchchildren B
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.rid = B.rid          -- Select subset of branch children
+    UNION
+    -- (4) Child of trunk root successor of last NTDB on trunk.
+	    SELECT R.rid, RA.child
+	    FROM revision R, revision RA
+	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
+	    AND   R.isdefault             -- Restrict to NTDB
+	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
+	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
+	    AND   RA.child IS NOT NULL    -- Has primary child.
+	"] {
+	    # Consider moving this to the integrity module.
+	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
+	    lappend dependencies([list rev $rid]) [list rev $child]
+	}
+	foreach {rid child} [state run "
+	    SELECT R.rid, T.tid
+	    FROM   revision R, tag T
+	    WHERE  R.rid in $theset
+	    AND    T.rev = R.rid
+	"] {
+	    lappend dependencies([list rev $rid]) [list sym::tag $child]
+	}
+	foreach {rid child} [state run "
+	    SELECT R.rid, B.bid
+	    FROM   revision R, branch B
+	    WHERE  R.rid in $theset
+	    AND    B.root = R.rid
+	"] {
+	    lappend dependencies([list rev $rid]) [list sym::branch $child]
+	}
+	return
     }
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod predecessors {dv revisions} {
+	upvar 1 $dv dependencies
+	set theset ('[join $revisions {','}]')
+
+	# The following cases specify when a revision P is a
+	# predecessor of a revision R. Each of the cases translates
+	# into one of the branches of the SQL UNION coming below.
+	#
+	# (1) The immediate parent R.parent of R is a predecessor of
+	#     R. NOTE: This is true for R either primary or secondary
+	#     child of P. It not necessary to distinguish the two
+	#     cases, in contrast to the code retrieving the successor
+	#     information.
+	#
+	# (2) The complement of successor case (3). The trunk root is
+	#     a predecessor of a NTDB root. REMOVED. See 'successors'
+	#     for the explanation.
+	#
+	# (3) The complement of successor case (4). The last NTDB
+	#     revision belonging to the trunk is a predecessor of the
+	#     primary child of the trunk root (The '1.2' revision).
+
+	foreach {rid parent} [state run "
+   -- (1) Primary parent, can be in different LOD for first in a branch
+	    SELECT R.rid, R.parent
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.parent IS NOT NULL   -- Has primary parent
+    UNION
+    -- (3) Last NTDB on trunk is predecessor of child of trunk root
+	    SELECT R.rid, RA.dbparent
+	    FROM   revision R, revision RA
+	    WHERE  R.rid IN $theset         -- Restrict to revisions of interest
+	    AND    NOT R.isdefault          -- not on NTDB
+	    AND    R.parent IS NOT NULL     -- which are not root
+	    AND    RA.rid = R.parent        -- go to their parent
+	    AND    RA.dbparent IS NOT NULL  -- which has to refer to NTDB's root
+	"] {
+	    # Consider moving this to the integrity module.
+	    integrity assert {$rid != $parent} {Revision $rid depends on itself.}
+	    lappend dependencies([list rev $rid]) [list rev $parent]
+	}
+
+	# The revisions which are the first on a branch have that
+	# branch as their predecessor. Note that revisions cannot be
+	# on tags in the same manner, so tags cannot be predecessors
+	# of revisions. This complements that they have no successors
+	# (See sym::tag/successors).
+
+	foreach {rid parent} [state run "
+	    SELECT R.rid B.bid
+	    FROM   revision R, branch B
+	    WHERE  R.rid IN $theset
+	    AND    B.first = R.rid
+	"] {
+	    lappend dependencies([list rev $rid]) [list sym::branch $parent]
+	}
+	return
     }
 }
 
@@ -938,10 +958,6 @@ namespace eval ::vc::fossil::import::cvs::project {
     namespace eval rev {
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::fossil::import::cvs::integrity
-	namespace eval project {
-	    namespace import ::vc::fossil::import::cvs::project::sym
-	}
-	::variable mybranchcode [project::sym branch]
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
