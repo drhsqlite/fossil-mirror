@@ -124,17 +124,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# the order computed in pass 6. In "cvs2svn" this is called
 	# "retrograde".
 
-	# NOTE: We might be able to use our knowledge that we are
-	# looking at all changesets to create a sql which selects all
-	# the branch changesets from the state in one go instead of
-	# having to check each changeset separately. Consider this
-	# later, get the pass working first.
-	#
-	# NOTE 2: Might we even be able to select the backward branch
-	# changesets too ?
-
 	foreach cset [$graph nodes] {
-	    if {![$cset bysymbol]} continue
+	    if {![$cset isbranch]} continue
 	    CheckAndBreakBackward $graph $cset
 	}
 	return
@@ -142,20 +133,21 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     proc CheckAndBreakBackward {graph cset} {
 	while {[IsBackward $graph $cset]} {
-	    # Knowing that the branch is backward we now look at the
-	    # individual revisions in the changeset and determine
-	    # which of them are responsible for the overlap. This
-	    # allows us to split them into two sets, one of
-	    # non-overlapping revisions, and of overlapping ones. Each
-	    # induces a new changeset, and the second may still be
-	    # backward and need further splitting. Hence the looping.
+	    # Knowing that the branch changeset is backward we now
+	    # look at the individual branches in the changeset and
+	    # determine which of them are responsible for the
+	    # overlap. This allows us to split them into two sets, one
+	    # of non-overlapping branches, and of overlapping
+	    # ones. Each set induces a new changeset, and the second
+	    # one may still be backward and in need of further
+	    # splitting. Hence the looping.
 	    #
 	    # The border used for the split is the minimal commit
 	    # position among the minimal sucessor commit positions for
-	    # the revisions in the changeset.
+	    # the branches in the changeset.
 
-	    # Note that individual revisions may not have revision
-	    # changesets are predecessors and/or successors, leaving
+	    # Note that individual branches may not have changesets
+	    # which are their predecessors and/or successors, leaving
 	    # the limits partially or completely undefined.
 
 	    # limits : dict (revision -> list (max predecessor commit, min sucessor commit))
@@ -164,13 +156,13 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
 	    log write 5 breakacycle "Breaking backward changeset [$cset str] with commit position $border as border"
 
-	    # Then we sort the file level items based on there they
-	    # sit relative to the border into before and after the
-	    # border.
+	    # Secondly we sort the file level items based on there
+	    # they sit relative to the border into before and after
+	    # the border.
 
-	    SplitRevisions $limits $border normalrevisions backwardrevisions
+	    SplitItems $limits $border normalitems backwarditems
 
-	    set replacements [project::rev split $cset $normalrevisions $backwardrevisions]
+	    set replacements [project::rev split $cset $normalitems $backwarditems]
 	    cyclebreaker replace $graph $cset $replacements
 
 	    # At last check that the normal frament is indeed not
@@ -190,14 +182,14 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     proc IsBackward {dg cset} {
 	# A branch is "backward" if it has at least one incoming
 	# revision changeset which is committed after at least one of
-	# the outgoing revision changesets, per the order computed in
+	# the outgoing revision changesets, per the order computed by
 	# pass 6.
 
 	# Rephrased, the maximal commit position found among the
 	# incoming revision changesets is larger than the minimal
 	# commit position found among the outgoing revision
 	# changesets. Assuming that we have both incoming and outgoing
-	# revision changesets.
+	# revision changesets for the branch.
 
 	# The helper "Positions" computes the set of commit positions
 	# for a set of changesets, which can be a mix of revision and
@@ -233,39 +225,39 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     proc ComputeLimits {cset lv bv} {
 	upvar 1 $lv thelimits $bv border
 
-	# Initialize the boundaries for all revisions.
+	# Initialize the boundaries for all items.
 
 	array set limits {}
-	foreach revision [$cset revisions] {
+	foreach revision [$cset items] {
 	    set limits($revision) {0 {}}
 	}
 
-	# Compute and store the maximal predecessors per revision
+	# Compute and store the maximal predecessors per item (branch)
 
-	foreach {revision csets} [$cset predecessormap] {
+	foreach {item csets} [$cset predecessormap] {
 	    set s [Positions $csets]
 	    if {![llength $s]} continue
-	    set limits($revision) [lreplace $limits($revision) 0 0 [max $s]]
+	    set limits($item) [lreplace $limits($item) 0 0 [max $s]]
 	}
 
-	# Compute and store the minimal successors per revision
+	# Compute and store the minimal successors per item (branch)
 
-	foreach {revision csets} [$cset successormap] {
+	foreach {item csets} [$cset successormap] {
 	    set s [Positions $csets]
 	    if {![llength $s]} continue
-	    set limits($revision) [lreplace $limits($revision) 1 1 [min $s]]
+	    set limits($item) [lreplace $limits($item) 1 1 [min $s]]
 	}
 
 	# Check that the ordering at the file level is correct. We
-	# cannot have backward ordering per revision, or something is
+	# cannot have backward ordering per branch, or something is
 	# wrong.
 
-	foreach revision [array names limits] {
-	    struct::list assign $limits($revision) maxp mins
+	foreach item [array names limits] {
+	    struct::list assign $limits($item) maxp mins
 	    # Handle min successor position "" as representing infinity
 	    integrity assert {
 		($mins eq "") || ($maxp < $mins) 
-	    } {Branch revision $revision is backward at file level ($maxp >= $mins)}
+	    } {Item <$item> is backward at file level ($maxp >= $mins)}
 	}
 
 	# Save the limits for the splitter, and compute the border at
@@ -287,23 +279,23 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
     proc MinSuccessorPosition {item} { lindex $item 1 }
 
-    proc SplitRevisions {limits border nv bv} {
-	upvar 1 $nv normalrevisions $bv backwardrevisions
+    proc SplitItems {limits border nv bv} {
+	upvar 1 $nv normalitems $bv backwarditems
 
-	set normalrevisions   {}
-	set backwardrevisions {}
+	set normalitems   {}
+	set backwarditems {}
 
 	foreach {rev v} $limits {
 	    struct::list assign $v maxp mins
 	    if {$maxp >= $border} {
-		lappend backwardrevisions  $rev
+		lappend backwarditems  $rev
 	    } else {
-		lappend normalrevisions $rev
+		lappend normalitems $rev
 	    }
 	}
 
-	integrity assert {[llength $normalrevisions]}   {Set of normal revisions is empty}
-	integrity assert {[llength $backwardrevisions]} {Set of backward revisions is empty}
+	integrity assert {[llength $normalitems]}   {Set of normal items is empty}
+	integrity assert {[llength $backwarditems]} {Set of backward items is empty}
 	return
     }
 
@@ -327,37 +319,32 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# consumed in the same order as generated by pass 7
 	# (RevTopologicalSort). Per the code in cvs2svn.
 
-	# IMHO this will work if and only if none of the symbol
-	# changesets are "backwards", which explains the breaking of
-	# the backward changesets first, in the pre-hook. A difference
-	# to cvs2svn however is that we are breaking all backward
-	# symbol changesets, both branch and tag. cvs2svn can
-	# apparently assume here that tag symbol changesets are not
-	# backwards, ever. We can't, apparently. It is unclear to me
-	# where the difference is.
+	# This works if and only if none of the symbol changesets are
+	# "backwards", hence our breaking of the backward changesets
+	# first, in the pre-hook.
 
-	# An interesting thing IMHO, is that after breaking backward
-	# symbol changesets we should not have any circles any
-	# longer. Each circle which was still present had to involve a
-	# backward symbol, and that we split.
+	# Note that tah changesets cannot be backward as they don't
+	# have successors at all.
 
-	# Proof: Let us assume we that have a circle
+	# An interesting thing IMHO, is that after breaking the
+	# backward symbol changesets we should not have any circles
+	# any longer. Each circle which would still be present has to
+	# involve a backward symbol, and we split them all, so there
+	# can't be a circle..
+
+	# Proof:
+	# Let us assume we that have a circle
 	# 	C: R1 -> ... -> Rx -> S -> Ry -> ... -> Rn -> R1
-	# Let us further assume that S is not backward. That means
-	# ORD(Rx) < ORD(Ry).  The earlier topological sorting without
-	# symbols now forces this relationship through to be
-	#	ORD(Rx) < ORD(R1) < ORD(Rx).
-	# We have reached an impossibility, a paradox. Our initial
+	# Let us further assume that the symbol changeset S in that
+	# circle is not backward. That means ORD(Rx) < ORD(Ry).  The
+	# earlier topological sorting without symbols now forces this
+	# relationship through to be ORD(Rx) < ORD(R1) < ORD(Rx).  We
+	# have reached an impossibility, a paradox. Our initial
 	# assumption of S not being backward cannot hold.
 	#
 	# Alternate, direct, reasoning: Without S the chain of
 	# dependencies is Ry -> .. -> R1 -> .. -> Rx, therefore
 	# ORD(Ry) < ORD(Rx) holds, and this means S is backward.
-
-	# NOTE. Even with the backward symbols broken, it is not clear
-	# to me yet what this means in terms of tagging revisions
-	# later, as we now have more than one place where the symbol
-	# occurs on the relevant LOD.
 
 	struct::set exclude myrevisionchangesets $cset
 
