@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Brought\sknowledge\sof\sthe\snew\stypes\sto\sthe\sstate\sdefinition,\schanged\sthe\screation\sof\sthe\sinitial\schangesets\sto\suse\stags\sand\sbranches.
-D 2007-11-29T06:21:57
+C Updated\sthe\scode\sprinting\sthe\schangeset\sstatistics\sto\sknow\sabout\schange\sto\sthe\schangeset\stypes.
+D 2007-11-29T06:23:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -125,7 +125,7 @@ F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl ef7809d0566b6393e2973c5ff9bd134f070462e2
 F tools/cvs2fossil/lib/c2f_psym.tcl 46632d18742da9acbf167ec1163f5055b3c54249
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl b801a7da3aa8da90b8af810554353e74a70ab155
-F tools/cvs2fossil/lib/c2f_repository.tcl 9dd75e0c539f039e7859cc21456d544ece366a90
+F tools/cvs2fossil/lib/c2f_repository.tcl 6b33138cb4b327fe004cdc2193b0ceb2716f9afc
 F tools/cvs2fossil/lib/c2f_state.tcl fe7e766e18aa5c54a969d29e9128cc4ef8232549
 F tools/cvs2fossil/lib/cvs2fossil.tcl fe8a4a6dae335f23d5c25c0b3a1597b3c64f4d72
 F tools/cvs2fossil/lib/dot.tcl d011b07faecc7d1f73bd7e2ad424aec40f12aa36
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c74fe3de3fd031f4ca45685850aa0389ef910ddf
-R 3138a21bc331066f2114fbe6d7392683
+P 215d2f1ad99b8705e7fe961fa169cf76430c7864
+R 4b8eccaea1d2084d8ae86134b4be5cdc
 U aku
-Z 179aee6a6a88f382f61190c5a60ff1bd
+Z 348d5eddfb30c7bb014bae529f41a28b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTlqJvonzZ/CRa7gRAsL7AKCqAZ8CvaypdIZQ9Bpfag8CkSVnCgCfeUky
-g7XBDLnT2CR/7opxg608pS4=
-=OOAA
+iD8DBQFHTlrivonzZ/CRa7gRApM9AJ9qy9G8lufCGXddn56qitNjgrX1WACeISFQ
+yjJ0CtoYzE/gb1hOZRj072k=
+=Ol2T
 -----END PGP SIGNATURE-----

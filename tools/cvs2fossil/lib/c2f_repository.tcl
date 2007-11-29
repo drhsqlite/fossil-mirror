@@ -281,14 +281,16 @@ snit::type ::vc::fossil::import::cvs::repository {
 	log write 2 repository "Changeset statistics"
 	# number of revisions, symbols, repository wide, and per project ...
 
-	set ccount [state one { SELECT COUNT (*) FROM changeset                }]
+	set ccount [state one { SELECT COUNT (*) FROM changeset                 }]
 	set rcount [state one { SELECT COUNT (*) FROM changeset WHERE type = 0 }]
-	set scount [state one { SELECT COUNT (*) FROM changeset WHERE type = 1 }]
-	set fmt %[string length [max [list $ccount $rcount $scount]]]s
+	set tcount [state one { SELECT COUNT (*) FROM changeset WHERE type = 1 }]
+	set bcount [state one { SELECT COUNT (*) FROM changeset WHERE type = 2 }]
+	set fmt %[string length [max [list $ccount $rcount $tcount $bcount]]]s
 
 	log write 2 repository "Statistics: [format $fmt $ccount] [sp $ccount changeset]"
 	log write 2 repository "Statistics: [format $fmt $rcount] [sp $rcount {revision changeset}]"
-	log write 2 repository "Statistics: [format $fmt $scount] [sp $scount {symbol changeset}]"
+	log write 2 repository "Statistics: [format $fmt $tcount] [sp $tcount {tag symbol changeset}]"
+	log write 2 repository "Statistics: [format $fmt $bcount] [sp $bcount {branch symbol changeset}]"
 
 	set prlist [TheProjects]
 	set npr [llength $prlist]
@@ -309,11 +311,13 @@ snit::type ::vc::fossil::import::cvs::repository {
 
 	    set ccount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid              }]
 	    set rcount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid AND type = 0 }]
-	    set scount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid AND type = 1 }]
+	    set tcount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid AND type = 1 }]
+	    set bcount [state one { SELECT COUNT (*) FROM changeset WHERE pid = $pid AND type = 2 }]
 
 	    log write 2 repository "Statistics: $prefix$sep[format $fmt $ccount] [sp $ccount changeset]"
 	    log write 2 repository "Statistics: $blanks$sep[format $fmt $rcount] [sp $rcount {revision changeset}]"
-	    log write 2 repository "Statistics: $blanks$sep[format $fmt $scount] [sp $scount {symbol changeset}]"
+	    log write 2 repository "Statistics: $blanks$sep[format $fmt $tcount] [sp $tcount {tag symbol changeset}]"
+	    log write 2 repository "Statistics: $blanks$sep[format $fmt $bcount] [sp $bcount {branch symbol changeset}]"
 	}
 	return
     }
