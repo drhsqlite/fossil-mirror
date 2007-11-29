@@ -910,14 +910,60 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 
     # result = list (mintime, maxtime)
     typemethod timerange {tags} {
+	# The range is defined as the range of the revisions the tags
+	# are attached to.
+
+	set theset ('[join $tags {','}]')
+	return [state run "
+	    SELECT MIN(R.date), MAX(R.date)
+	    FROM revision R, tag T
+	    WHERE T.tid IN $theset
+            AND   R.rid = T.rev
+	"]
     }
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod successors {dv tags} {
+	# Tags have no successors.
+	return
     }
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod predecessors {dv tags} {
+	# The predecessors of a tag are all the revisions the tags are
+	# attached to, as well as all the branches or tags which are
+	# their prefered parents.
+
+	set theset ('[join $tags {','}]')
+	foreach {tid parent} [state run "
+	    SELECT T.tid, R.rid
+	    FROM   revision R, tag T
+	    WHERE  T.tid IN $theset
+	    AND    T.rev = R.rid
+	"] {
+	    lappend dependencies([list sym::tag $tid]) [list rev $parent]
+	}
+
+	foreach {tid parent} [state run "
+	    SELECT T.tid, B.bid
+	    FROM   tag T, branch B, preferedparent P
+	    WHERE  T.tid IN $theset
+	    AND    T.sid = P.sid
+	    AND    P.pid = B.sid
+	"] {
+	    lappend dependencies([list sym::tag $tid]) [list sym::branch $parent]
+	}
+
+	foreach {tid parent} [state run "
+	    SELECT T.tid, TX.tid
+	    FROM   tag T, tag TX, preferedparent P
+	    WHERE  T.tid IN $theset
+	    AND    T.sid = P.sid
+	    AND    P.pid = TX.sid
+	"] {
+	    lappend dependencies([list sym::tag $tid]) [list sym::tag $parent]
+	}
+	return
     }
 }
 
@@ -932,14 +978,92 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 
     # result = list (mintime, maxtime)
     typemethod timerange {branches} {
+	# The range of a branch is defined as the range of the
+	# revisions the branches are spawned by. NOTE however that the
+	# branches associated with a detached NTDB will have no root
+	# spawning them, hence they have no real timerange any
+	# longer. By using 0 we put them in front of everything else,
+	# as they logically are.
+
+	set theset ('[join $branches {','}]')
+	return [state run "
+	    SELECT IFNULL(MIN(R.date),0), IFNULL(MAX(R.date),0)
+	    FROM revision R, branch B
+	    WHERE B.bid IN $theset
+            AND   R.rid = B.root
+	"]
     }
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod successors {dv branches} {
+	# The first revision committed on a branch, and all branches
+	# and tags which have it as their prefered parent are the
+	# successors of a branch.
+
+	set theset ('[join $branches {','}]')
+	foreach {bid child} [state run "
+	    SELECT B.bid, R.rid
+	    FROM   revision R, branch B
+	    WHERE  B.bid IN $theset
+	    AND    B.first = R.rid
+	"] {
+	    lappend dependencies([list sym::tag $bid]) [list rev $child]
+	}
+	foreach {bid child} [state run "
+	    SELECT B.bid, BX.bid
+	    FROM   branch B, branch BX, preferedparent P
+	    WHERE  B.bid IN $theset
+	    AND    B.sid = P.pid
+	    AND    BX.sid = P.sid
+	"] {
+	    lappend dependencies([list sym::tag $bid]) [list sym::branch $child]
+	}
+	foreach {bid child} [state run "
+	    SELECT B.bid, T.tid
+	    FROM   branch B, tag T, preferedparent P
+	    WHERE  B.bid IN $theset
+	    AND    B.sid = P.pid
+	    AND    T.sid = P.sid
+	"] {
+	    lappend dependencies([list sym::tag $bid]) [list sym::tag $child]
+	}
+	return
     }
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod predecessors {dv branches} {
+	# The predecessors of a branch are all the revisions the
+	# branches are spawned from, as well as all the branches or
+	# tags which are their prefered parents.
+
+	set theset ('[join $tags {','}]')
+	foreach {bid parent} [state run "
+	    SELECT B.Bid, R.rid
+	    FROM   revision R, branch B
+	    WHERE  B.bid IN $theset
+	    AND    B.root = R.rid
+	"] {
+	    lappend dependencies([list sym::branch $bid]) [list rev $parent]
+	}
+	foreach {bid parent} [state run "
+	    SELECT B.bid, BX.bid
+	    FROM   branch B, branch BX, preferedparent P
+	    WHERE  B.bid IN $theset
+	    AND    B.sid = P.sid
+	    AND    P.pid = BX.sid
+	"] {
+	    lappend dependencies([list sym::branch $bid]) [list sym::branch $parent]
+	}
+	foreach {bid parent} [state run "
+	    SELECT B.bid, T.tid
+	    FROM   branch B, tag T, preferedparent P
+	    WHERE  B.tid IN $theset
+	    AND    B.sid = P.sid
+	    AND    P.pid = T.sid
+	"] {
+	    lappend dependencies([list sym::branch $bid]) [list sym::tag $parent]
+	}
+	return
     }
 
     # # ## ### ##### ######## #############
