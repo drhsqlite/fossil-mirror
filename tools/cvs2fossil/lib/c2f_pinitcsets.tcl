@@ -235,60 +235,60 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 
 	set lastsymbol  {}
 	set lastproject {}
-	set revisions   {}
+	set tags        {}
 
-	foreach {sid rid pid} [state run {
+	foreach {sid tid pid} [state run {
 	    SELECT S.sid, T.tid, S.pid
 	    FROM  tag T, symbol S     -- T ==> R/S, using PK indices of R, S.
 	    WHERE T.sid = S.sid
 	    ORDER BY S.sid, T.tid
 	}] {
 	    if {$lastsymbol != $sid} {
-		if {[llength $revisions]} {
+		if {[llength $tags]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    project::rev %AUTO% $p sym::tag $lastsymbol $revisions
-		    set revisions {}
+		    project::rev %AUTO% $p sym::tag $lastsymbol $tags
+		    set tags {}
 		}
 		set lastsymbol  $sid
 		set lastproject $pid
 	    }
-	    lappend revisions $rid
+	    lappend tags $tid
 	}
 
-	if {[llength $revisions]} {
+	if {[llength $tags]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    project::rev %AUTO% $p sym::tag $lastsymbol $revisions
+	    project::rev %AUTO% $p sym::tag $lastsymbol $tags
 	}
 
 	set lastsymbol {}
 	set lasproject {}
-	set revisions  {}
+	set branches   {}
 
-	foreach {sid rid pid} [state run {
+	foreach {sid bid pid} [state run {
 	    SELECT S.sid, B.bid, S.pid
 	    FROM  branch B, symbol S  -- B ==> R/S, using PK indices of R, S.
 	    WHERE B.sid  = S.sid
 	    ORDER BY S.sid, B.bid
 	}] {
 	    if {$lastsymbol != $sid} {
-		if {[llength $revisions]} {
+		if {[llength $branches]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    project::rev %AUTO% $p sym::branch $lastsymbol $revisions
-		    set revisions {}
+		    project::rev %AUTO% $p sym::branch $lastsymbol $branches
+		    set branches {}
 		}
 		set lastsymbol  $sid
 		set lastproject $pid
 	    }
-	    lappend revisions $rid
+	    lappend branches $bid
 	}
 
-	if {[llength $revisions]} {
+	if {[llength $branches]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    project::rev %AUTO% $p sym::branch $lastsymbol $revisions
+	    project::rev %AUTO% $p sym::branch $lastsymbol $branches
 	}
 
 	log write 4 initcsets "Created [nsp $n {symbol changeset}]"
