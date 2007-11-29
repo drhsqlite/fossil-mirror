@@ -845,6 +845,86 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
 }
 
+# # ## ### ##### ######## ############# #####################
+## Helper singleton. Commands for revision changesets.
+
+snit::type ::vc::fossil::import::cvs::project::rev::rev {
+    typemethod byrevision {} { return 1 }
+    typemethod bysymbol   {} { return 0 }
+    typemethod istag      {} { return 0 }
+    typemethod isbranch   {} { return 0 }
+
+    # result = list (mintime, maxtime)
+    typemethod timerange {items} {
+    }
+
+    # var(dv) = dict (revision -> list (revision))
+    typemethod internalsuccessors {dv revisions} {
+    }
+
+    # var(dv) = dict (item -> list (item)), item  = list (type id)
+    typemethod successors {dv revisions} {
+    }
+
+    # var(dv) = dict (item -> list (item)), item  = list (type id)
+    typemethod predecessors {dv revisions} {
+    }
+}
+
+# # ## ### ##### ######## ############# #####################
+## Helper singleton. Commands for tag symbol changesets.
+
+snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
+    typemethod byrevision {} { return 0 }
+    typemethod bysymbol   {} { return 1 }
+    typemethod istag      {} { return 1 }
+    typemethod isbranch   {} { return 0 }
+
+    # result = list (mintime, maxtime)
+    typemethod timerange {tags} {
+    }
+
+    # var(dv) = dict (item -> list (item)), item  = list (type id)
+    typemethod successors {dv tags} {
+    }
+
+    # var(dv) = dict (item -> list (item)), item  = list (type id)
+    typemethod predecessors {dv tags} {
+    }
+}
+
+# # ## ### ##### ######## ############# #####################
+## Helper singleton. Commands for branch symbol changesets.
+
+snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
+    typemethod byrevision {} { return 0 }
+    typemethod bysymbol   {} { return 1 }
+    typemethod istag      {} { return 0 }
+    typemethod isbranch   {} { return 1 }
+
+    # result = list (mintime, maxtime)
+    typemethod timerange {branches} {
+    }
+
+    # var(dv) = dict (item -> list (item)), item  = list (type id)
+    typemethod successors {dv branches} {
+    }
+
+    # var(dv) = dict (item -> list (item)), item  = list (type id)
+    typemethod predecessors {dv branches} {
+    }
+
+    # # ## ### ##### ######## #############
+    ## Configuration
+
+    pragma -hasinstances   no ; # singleton
+    pragma -hastypeinfo    no ; # no introspection
+    pragma -hastypedestroy no ; # immortal
+}
+
+# # ## ### ##### ######## ############# #####################
+##
+
 namespace eval ::vc::fossil::import::cvs::project {
     namespace export rev
     namespace eval rev {
@@ -858,6 +938,20 @@ namespace eval ::vc::fossil::import::cvs::project {
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
 	log register csets
+
+	# Set up the helper singletons
+	namespace eval rev {
+	    namespace import ::vc::fossil::import::cvs::state
+	    namespace import ::vc::fossil::import::cvs::integrity
+	}
+	namespace eval sym::tag {
+	    namespace import ::vc::fossil::import::cvs::state
+	    namespace import ::vc::fossil::import::cvs::integrity
+	}
+	namespace eval sym::branch {
+	    namespace import ::vc::fossil::import::cvs::state
+	    namespace import ::vc::fossil::import::cvs::integrity
+	}
     }
 }
 
