@@ -78,10 +78,10 @@ snit::type ::vc::fossil::import::cvs::project::revlink {
 	set prevrev [$myprev items]
 	set nextrev [$mynext items]
 
-	foreach items [$mycset items] {
-	    set rt [RT $items]
+	foreach item [$mycset items] {
+	    set rt [RT $item]
 	    incr    mycount($rt)
-	    lappend mycategory($rt) $r
+	    lappend mycategory($rt) $item
 	}
 	return
     }
