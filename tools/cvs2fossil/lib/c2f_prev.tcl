@@ -31,7 +31,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
     ## Public API
 
-    constructor {project cstype srcid revisions {theid {}}} {
+    constructor {project cstype srcid items {theid {}}} {
 	if {$theid ne ""} {
 	    set myid $theid
 	} else {
@@ -44,16 +44,16 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set mytype      $cstype
 	set mytypeobj   ::vc::fossil::import::cvs::project::rev::${cstype}
 	set mysrcid	$srcid
-	set myrevisions $revisions
+	set myitems     $items
 	set mypos       {} ; # Commit location is not known yet.
 
 	# Keep track of the generated changesets and of the inverse
-	# mapping from revisions to them.
+	# mapping from items to them.
 	lappend mychangesets   $self
 	set     myidmap($myid) $self
-	foreach r $revisions {
-	    set key [list $cstype $id]
-	    set myrevmap($key) $self
+	foreach iid $items {
+	    set key [list $cstype $iid]
+	    set myitemmap($key) $self
 	    lappend mytitems $key
 	}
 	return
@@ -91,8 +91,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set tmp {}
 	foreach {rev children} [$self nextmap] {
 	    foreach child $children {
-		# 8.5 lappend tmp($rev) {*}$myrevmap($child)
-		foreach cset $myrevmap($child) {
+		# 8.5 lappend tmp($rev) {*}$myitemmap($child)
+		foreach cset $myitemmap($child) {
 		    lappend tmp($rev) $cset
 		}
 	    }
@@ -107,8 +107,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set csets {}
 	foreach {_ children} [$self nextmap] {
 	    foreach child $children {
-		# 8.5 lappend csets {*}$myrevmap($child)
-		foreach cset $myrevmap($child) {
+		# 8.5 lappend csets {*}$myitemmap($child)
+		foreach cset $myitemmap($child) {
 		    lappend csets $cset
 		}
 	    }
@@ -122,8 +122,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set tmp {}
 	foreach {rev children} [$self premap] {
 	    foreach child $children {
-		# 8.5 lappend tmp($rev) {*}$myrevmap($child)
-		foreach cset $myrevmap($child) {
+		# 8.5 lappend tmp($rev) {*}$myitemmap($child)
+		foreach cset $myitemmap($child) {
 		    lappend tmp($rev) $cset
 		}
 	    }
@@ -135,7 +135,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # item -> list (item)
     method nextmap {} {
 	if {[llength $mynextmap]} { return $mynextmap }
-	$mytypeobj successors tmp $myrevisions
+	$mytypeobj successors tmp $myitems
 	set mynextmap [array get tmp]
 	return $mynextmap
     }
@@ -143,7 +143,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # item -> list (item)
     method premap {} {
 	if {[llength $mypremap]} { return $mypremap }
-	$mytypeobj predecessors tmp $myrevisions
+	$mytypeobj predecessors tmp $myitems
 	set mypremap [array get tmp]
 	return $mypremap
     }
@@ -171,7 +171,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# the state, and limited to successors within the changeset.
 
 	array set dependencies {}
-	$mytypeobj internalsuccessors dependencies $myrevisions
+	$mytypeobj internalsuccessors dependencies $myitems
 	if {![array size dependencies]} {return 0} ; # Nothing to break.
 
 	log write 5 csets ...[$self str].......................................................
@@ -191,7 +191,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# List: RANGE Of the positions itself.
 	# A dependency is a single-element map parent -> child
 
-	InitializeBreakState $myrevisions
+	InitializeBreakState $myitems
 
 	set fragments {}
 	set pending   [list $range]
@@ -224,7 +224,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		log write 6 csets "Best break @ $best, cutting [nsp $cross($best) dependency dependencies]"
 
 		# Note: The value of best is an abolute location in
-		# myrevisions. Use the start of current to make it an
+		# myitems. Use the start of current to make it an
 		# index absolute to current.
 
 		set brel [expr {$best - [lindex $current 0]}]
@@ -246,14 +246,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	log write 6 csets ". . .. ... ..... ........ ............."
 
-	# (*) We clear out the associated part of the myrevmap
+	# (*) We clear out the associated part of the myitemmap
 	# in-memory index in preparation for new data. A simple unset
 	# is enough, we have no symbol changesets at this time, and
 	# thus never more than one reference in the list.
 
-	foreach r $myrevisions {
-	    set key [list $mytype $r]
-	    unset myrevmap($key)
+	foreach iid $myitems {
+	    set key [list $mytype $iid]
+	    unset myitemmap($key)
 	}
 
 	# Create changesets for the fragments, reusing the current one
@@ -273,7 +273,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    Border $fragment s e
 	    integrity assert {$laste == ($s - 1)} {Bad fragment border <$laste | $s>, gap or overlap}
 
-	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myrevisions $s $e]]
+	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myitems $s $e]]
 
             log write 4 csets "Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)"
 
@@ -281,20 +281,19 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	}
 
 	integrity assert {
-	    $laste == ([llength $myrevisions]-1)
+	    $laste == ([llength $myitems]-1)
 	} {Bad fragment end @ $laste, gap, or beyond end of the range}
 
 	# Put the first fragment into the current changeset, and
-	# update the in-memory index. We can simply (re)add the
-	# revisions because we cleared the previously existing
-	# information, see (*) above. Persistence does not matter
-	# here, none of the changesets has been saved to the
-	# persistent state yet.
+	# update the in-memory index. We can simply (re)add the items
+	# because we cleared the previously existing information, see
+	# (*) above. Persistence does not matter here, none of the
+	# changesets has been saved to the persistent state yet.
 
-	set myrevisions [lrange $myrevisions 0 $firste]
-	foreach r $myrevisions {
-	    set key [list $mytype $r]
-	    set myrevmap($key) $self
+	set myitems [lrange $myitems 0 $firste]
+	foreach iid $myitems {
+	    set key [list $mytype $iid]
+	    set myitemmap($key) $self
 	}
 
 	return 1
@@ -311,10 +310,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		VALUES                ($myid, $pid, $tid, $mysrcid);
 	    }
 
-	    foreach rid $myrevisions {
+	    foreach iid $myitems {
 		state run {
 		    INSERT INTO csrevision (cid,   pos,  rid)
-		    VALUES                 ($myid, $pos, $rid);
+		    VALUES                 ($myid, $pos, $iid);
 		}
 		incr pos
 	    }
@@ -322,7 +321,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    method timerange {} { return [$mytypeobj timerange $myrevisions] }
+    method timerange {} { return [$mytypeobj timerange $myitems] }
 
     method drop {} {
 	state transaction {
@@ -331,9 +330,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		DELETE FROM csrevision WHERE cid = $myid;
 	    }
 	}
-	foreach r $myrevisions {
-	    set key [list $mytype $r]
-	    unset myrevmap($key)
+	foreach iid $myitems {
+	    set key [list $mytype $iid]
+	    unset myitemmap($key)
 	}
 	set pos          [lsearch -exact $mychangesets $self]
 	set mychangesets [lreplace $mychangesets $pos $pos]
@@ -342,9 +341,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     typemethod split {cset args} {
 	# As part of the creation of the new changesets specified in
-	# ARGS as sets of revisions, all subsets of CSET's revision
-	# set, CSET will be dropped from all databases, in and out of
-	# memory, and then destroyed.
+	# ARGS as sets of items, all subsets of CSET's item set, CSET
+	# will be dropped from all databases, in and out of memory,
+	# and then destroyed.
 	#
 	# Note: The item lists found in args are tagged items. They
 	# have to have the same type as the changeset, being subsets
@@ -356,12 +355,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	$cset destroy
 
 	set newcsets {}
-	foreach fragmentrevisions $args {
+	foreach fragmentitems $args {
 	    integrity assert {
-		[llength $fragmentrevisions]
-	    } {Attempted to create an empty changeset, i.e. without revisions}
+		[llength $fragmentitems]
+	    } {Attempted to create an empty changeset, i.e. without items}
 	    lappend newcsets [$type %AUTO% $project $cstype $cssrc \
-				  [Untag $fragmentrevisions $cstype]]
+				  [Untag $fragmentitems $cstype]]
 	}
 
 	foreach c $newcsets { $c persist }
@@ -403,10 +402,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 			      # mytype.
     variable mysrcid     {} ; # Id of the metadata or symbol the cset
 			      # is based on.
-    variable myrevisions {} ; # List of the file level revisions,
+    variable myitems     {} ; # List of the file level revisions,
 			      # tags, or branches in the cset, as
 			      # ids. Not tagged.
-    variable mytitems    {} ; # As myrevisions, the tagged form.
+    variable mytitems    {} ; # As myitems, the tagged form.
     variable mypremap    {} ; # Dictionary mapping from the items (tagged now)
 			      # to their predecessors, also tagged. A
 			      # cache to avoid loading this from the
@@ -655,16 +654,18 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     # # ## ### ##### ######## #############
 
-    typevariable mychangesets    {} ; # List of all known changesets.
-    typevariable myrevmap -array {} ; # Map from items (tagged) to the
-				      # list of changesets containing
-				      # it. Each item can be used by
-				      # only one changeset.
-    typevariable myidmap  -array {} ; # Map from changeset id to changeset.
+    typevariable mychangesets     {} ; # List of all known changesets.
+    typevariable myitemmap -array {} ; # Map from items (tagged) to
+				       # the list of changesets
+				       # containing it. Each item can
+				       # be used by only one
+				       # changeset.
+    typevariable myidmap   -array {} ; # Map from changeset id to
+				       # changeset.
 
-    typemethod all   {}   { return $mychangesets }
-    typemethod of    {id} { return $myidmap($id) }
-    typemethod ofrev {id} { return $myrevmap($id) }
+    typemethod all   {}    { return $mychangesets }
+    typemethod of    {cid} { return $myidmap($cid) }
+    typemethod ofrev {iid} { return $myitemmap($iid) }
 
     # # ## ### ##### ######## #############
     ## Configuration

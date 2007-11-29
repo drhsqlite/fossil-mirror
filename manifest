@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reworked\sthe\sin-memory\sdatabases\sof\schangesets.\sObjects\snow\shold\sitems,\snot\sonly\srevisions.\sTags,\sand\sbranches\sare\snew\spossibilities.\sLists\sof\sids\sgo\sto\sthe\stype-dependent\sretrieval\scommand.\sList\sof\stagged\sitems\s(type/id\spairs)\scome\sback,\sand\sare\sin\sthe\sAPI.\sThe\s1:n\smap\srevisions\sto\schangesets\sis\snow\san\s1:1-map\stagged\sitems\sto\schangeset.
-D 2007-11-29T07:24:39
+C Brought\sthe\svariable\snames\sinto\salignment\swith\sthe\ssemantics,\snow\sagain\snaming\swhat\sis\sstored\sin\sthem.
+D 2007-11-29T07:36:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -119,7 +119,7 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 2020f6d70d0dc62c0db4df69bbba538719f0e779
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl cec097c0345ad77a93741d4dce9aa1cda5ecb9d0
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl 2ef585bdd8bc54b990e3f7a4c8f89fae62937696
+F tools/cvs2fossil/lib/c2f_prev.tcl 01c2b1ab5bf66339b15d59f30e53512e47a42877
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 38dafe8989e55aee0ffeaf0049391dc898bd2097
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl ef7809d0566b6393e2973c5ff9bd134f070462e2
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b1666f8ff4a2c16d8a9531697d438ce8720d20ac
-R 7f7ca43df3c12c0da0f6a49df906fac0
+P 0fcfbf78284063c4832621645afa080b30185887
+R c44a7f107ae1c141399ae0ae0c00954f
 U aku
-Z de9f47ab6d41690f7519f7760411bbe0
+Z 289415e46eaf7ab2193475263ab99954
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTmk6vonzZ/CRa7gRAgHmAKC57NDaC1NGgSwXPNNJKWSgGL+RRQCeNMmw
-O8bG+INrrjBwIdpwm0Tpy30=
-=m/G4
+iD8DBQFHTmv/vonzZ/CRa7gRAgC0AJ9jTRdthKAikFhB6TCD01r8cynI2ACgrKKd
+z0eocHVwkaagIY+d4Z4ui3U=
+=ueh/
 -----END PGP SIGNATURE-----
