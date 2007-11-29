@@ -57,9 +57,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	log write 4 integrity {Check database consistency}
 
 	set n 0
-	AllChangesets
 	RevisionChangesets
-	SymbolChangesets
+	TagChangesets
+	BranchChangesets
 	return
     }
 
@@ -75,7 +75,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 	# Find all revisions which disagree with their line of
 	# development about the project they are owned by.
-	Check \
+	CheckRev \
 	    {Revisions and their LODs have to be in the same project} \
 	    {disagrees with its LOD about owning project} {
 		SELECT F.name, R.rev
@@ -87,7 +87,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions which disgree with their meta data about
 	# the project they are owned by.
-	Check \
+	CheckRev \
 	    {Revisions and their meta data have to be in the same project} \
 	    {disagrees with its meta data about owning project} {
 		SELECT F.name, R.rev
@@ -99,7 +99,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a primary child which disagrees
 	# about the file they belong to.
-	Check \
+	CheckRev \
 	    {Revisions and their primary children have to be in the same file} \
 	    {disagrees with its primary child about the owning file} {
 		SELECT F.name, R.rev
@@ -113,7 +113,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 	# Find all revisions with a branch parent symbol whose parent
 	# disagrees about the file they belong to.
-	Check \
+	CheckRev \
 	    {Revisions and their branch children have to be in the same file} \
 	    {at the beginning of its branch and its parent disagree about the owning file} {
 		SELECT F.name, R.rev
@@ -126,7 +126,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a non-NTDB child which disagrees
 	# about the file they belong to.
-	Check \
+	CheckRev \
 	    {Revisions and their non-NTDB children have to be in the same file} \
 	    {disagrees with its non-NTDB child about the owning file} {
 		SELECT F.name, R.rev
@@ -139,7 +139,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions which have a primary child, but the child
 	# does not have them as parent.
-	Check \
+	CheckRev \
 	    {Revisions have to be parents of their primary children} \
 	    {is not the parent of its primary child} {
 		SELECT F.name, R.rev
@@ -152,7 +152,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions which have a primrary child, but the
 	# child has a branch parent symbol making them brach starters.
-	Check \
+	CheckRev \
 	    {Primary children of revisions must not start branches} \
 	    {is parent of a primary child which is the beginning of a branch} {
 		SELECT F.name, R.rev
@@ -165,7 +165,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions without branch parent symbol which have a
 	# parent, but the parent does not have them as primary child.
-	Check \
+	CheckRev \
 	    {Revisions have to be primary children of their parents, if any} \
 	    {is not the child of its parent} {
 		SELECT F.name, R.rev
@@ -179,7 +179,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a branch parent symbol which do not
 	# have a parent.
-	Check \
+	CheckRev \
 	    {Branch starting revisions have to have a parent} \
 	    {at the beginning of its branch has no parent} {
 		SELECT F.name, R.rev
@@ -191,7 +191,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a branch parent symbol whose parent
 	# has them as primary child.
-	Check \
+	CheckRev \
 	    {Branch starting revisions must not be primary children of their parents} \
 	    {at the beginning of its branch is the primary child of its parent} {
 		SELECT F.name, R.rev
@@ -205,7 +205,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a non-NTDB child which are not on
 	# the NTDB.
-	Check \
+	CheckRev \
 	    {NTDB to trunk transition has to begin on NTDB} \
 	    {has a non-NTDB child, yet is not on the NTDB} {
 		SELECT F.name, R.rev
@@ -216,7 +216,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		;
 	    }
 	# Find all revisions with a NTDB parent which are on the NTDB.
-	Check \
+	CheckRev \
 	    {NTDB to trunk transition has to end on non-NTDB} \
 	    {has a NTDB parent, yet is on the NTDB} {
 		SELECT F.name, R.rev
@@ -228,7 +228,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a child which disagrees about the
 	# line of development they belong to.
-	Check \
+	CheckRev \
 	    {Revisions and their primary children have to be in the same LOD} \
 	    {and its primary child disagree about their LOD} {
 		SELECT F.name, R.rev
@@ -241,7 +241,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a non-NTDB child which agrees about
 	# the line of development they belong to.
-	Check \
+	CheckRev \
 	    {NTDB and trunk revisions have to be in different LODs} \
 	    {on NTDB and its non-NTDB child wrongly agree about their LOD} {
 		SELECT F.name, R.rev
@@ -254,7 +254,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a branch parent symbol which is not
 	# their LOD.
-	Check \
+	CheckRev \
 	    {Branch starting revisions have to have their LOD as branch parent symbol} \
 	    {at the beginning of its branch does not have the branch symbol as its LOD} {
 		SELECT F.name, R.rev
@@ -266,7 +266,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions with a branch parent symbol whose parent
 	# is in the same line of development.
-	Check \
+	CheckRev \
 	    {Revisions and their branch children have to be in different LODs} \
 	    {at the beginning of its branch and its parent wrongly agree about their LOD} {
 		SELECT F.name, R.rev
@@ -289,7 +289,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 	# Find all revisions which disgree with their meta data about
 	# the branch/line of development they belong to.
-	Check \
+	CheckRev \
 	    {Revisions and their meta data have to be in the same LOD} \
 	    {disagrees with its meta data about owning LOD} {
 		SELECT F.name, R.rev
@@ -312,7 +312,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 	# Find all revisions which are not used by at least one
 	# revision changeset.
-	Check \
+	CheckRev \
 	    {All revisions have to be used by least one revision changeset} \
 	    {is not used by a revision changeset} {
 		-- Unused revisions = All revisions
@@ -333,7 +333,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    }
 	# Find all revisions which are used by more than one revision
 	# changeset.
-	Check \
+	CheckRev \
 	    {All revisions have to be used by at most one revision changeset} \
 	    {is used by multiple revision changesets} {
 		-- Principle of operation: Get all revision/changeset
@@ -453,6 +453,28 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
+    proc TagChangesets {} {
+	# This code performs a number of paranoid checks of the
+	# database, searching for inconsistent changeset/revision
+	# information.
+
+	return ; # Disabled for now, bottlenecks ...
+
+	upvar 1 n n ; # Counter for the checks (we print an id before
+		      # the main label).
+    }
+
+    proc BranchChangesets {} {
+	# This code performs a number of paranoid checks of the
+	# database, searching for inconsistent changeset/revision
+	# information.
+
+	return ; # Disabled for now, bottlenecks ...
+
+	upvar 1 n n ; # Counter for the checks (we print an id before
+		      # the main label).
+    }
+
     proc SymbolChangesets {} {
 	# This code performs a number of paranoid checks of the
 	# database, searching for inconsistent changeset/revision
@@ -517,12 +539,34 @@ snit::type ::vc::fossil::import::cvs::integrity {
     }
 
 
-    proc Check {header label sql} {
+    proc CheckRev {header label sql} {
 	upvar 1 n n
 	set ok 1
 	foreach {fname revnr} [state run $sql] {
 	    set ok 0
 	    trouble fatal "$fname <$revnr> $label"
+	}
+	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
+	return
+    }
+
+    proc CheckTag {header label sql} {
+	upvar 1 n n
+	set ok 1
+	foreach {pname sname} [state run $sql] {
+	    set ok 0
+	    trouble fatal "<$pname tag '$sname'> $label"
+	}
+	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
+	return
+    }
+
+    proc CheckBranch {header label sql} {
+	upvar 1 n n
+	set ok 1
+	foreach {pname sname} [state run $sql] {
+	    set ok 0
+	    trouble fatal "<$pname branch '$sname'> $label"
 	}
 	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
 	return
