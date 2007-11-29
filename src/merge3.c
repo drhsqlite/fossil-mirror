@@ -51,8 +51,8 @@ static int sameLine(Blob *pV1, Blob *pV2){
   char *z1, *z2;
   int i;
 
-  z1 = blob_buffer(pV1);
-  z2 = blob_buffer(pV2);
+  z1 = &blob_buffer(pV1)[blob_tell(pV1)];
+  z2 = &blob_buffer(pV2)[blob_tell(pV2)];
   for(i=0; z1[i]!='\n' && z1[i]==z2[i]; i++){}
   return z2[i]=='\n' || (z2[i]=='\r' && z2[i+1]=='\n')
           || (z1[i]=='\r' && z2[i]=='\n' && z1[i+1]=='\n');
