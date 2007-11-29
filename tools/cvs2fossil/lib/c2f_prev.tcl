@@ -51,7 +51,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# mapping from revisions to them.
 	lappend mychangesets   $self
 	set     myidmap($myid) $self
-	foreach r $revisions { lappend myrevmap($r) $self }
+	foreach r $revisions {
+	    set key [list $cstype $id]
+	    set myrevmap($key) $self
+	    lappend mytitems $key
+	}
 	return
     }
 
@@ -70,7 +74,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     method id        {} { return $myid }
-    method revisions {} { return $myrevisions }
+    method revisions {} { return $mytitems }
     method data      {} { return [list $myproject $mytype $mysrcid] }
 
     delegate method bysymbol   to mytypeobj
@@ -81,7 +85,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method setpos {p} { set mypos $p ; return }
     method pos    {}  { return $mypos }
 
-    # result = dict (revision -> list (changeset))
+    # result = dict (item -> list (changeset))
     method successormap {} {
 	# NOTE / FUTURE: Possible bottleneck.
 	array set tmp {}
@@ -97,6 +101,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return [array get tmp]
     }
 
+    # result = list (changeset)
     method successors {} {
 	# NOTE / FUTURE: Possible bottleneck.
 	set csets {}
@@ -111,7 +116,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return [lsort -unique $csets]
     }
 
-    # result = dict (revision -> list (changeset))
+    # result = dict (item -> list (changeset))
     method predecessormap {} {
 	# NOTE / FUTURE: Possible bottleneck.
 	array set tmp {}
@@ -127,7 +132,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return [array get tmp]
     }
 
-    # revision -> list (revision)
+    # item -> list (item)
     method nextmap {} {
 	if {[llength $mynextmap]} { return $mynextmap }
 	$mytypeobj successors tmp $myrevisions
@@ -135,7 +140,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return $mynextmap
     }
 
-    # revision -> list (revision)
+    # item -> list (item)
     method premap {} {
 	if {[llength $mypremap]} { return $mypremap }
 	$mytypeobj predecessors tmp $myrevisions
@@ -246,7 +251,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# is enough, we have no symbol changesets at this time, and
 	# thus never more than one reference in the list.
 
-	foreach r $myrevisions { unset myrevmap($r) }
+	foreach r $myrevisions {
+	    set key [list $mytype $r]
+	    unset myrevmap($key)
+	}
 
 	# Create changesets for the fragments, reusing the current one
 	# for the first fragment. We sort them in order to allow
@@ -284,7 +292,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# persistent state yet.
 
 	set myrevisions [lrange $myrevisions 0 $firste]
-	foreach r $myrevisions { lappend myrevmap($r) $self }
+	foreach r $myrevisions {
+	    set key [list $mytype $r]
+	    set myrevmap($key) $self
+	}
 
 	return 1
     }
@@ -321,12 +332,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    }
 	}
 	foreach r $myrevisions {
-	    if {[llength $myrevmap($r)] == 1} {
-		unset myrevmap($r)
-	    } else {
-		set pos [lsearch -exact $myrevmap($r) $self]
-		set myrevmap($r) [lreplace $myrevmap($r) $pos $pos]
-	    }
+	    set key [list $mytype $r]
+	    unset myrevmap($key)
 	}
 	set pos          [lsearch -exact $mychangesets $self]
 	set mychangesets [lreplace $mychangesets $pos $pos]
@@ -338,6 +345,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# ARGS as sets of revisions, all subsets of CSET's revision
 	# set, CSET will be dropped from all databases, in and out of
 	# memory, and then destroyed.
+	#
+	# Note: The item lists found in args are tagged items. They
+	# have to have the same type as the changeset, being subsets
+	# of its items. This is checked in Untag1.
 
 	struct::list assign [$cset data] project cstype cssrc
 
@@ -349,7 +360,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    integrity assert {
 		[llength $fragmentrevisions]
 	    } {Attempted to create an empty changeset, i.e. without revisions}
-	    lappend newcsets [$type %AUTO% $project $cstype $cssrc $fragmentrevisions]
+	    lappend newcsets [$type %AUTO% $project $cstype $cssrc \
+				  [Untag $fragmentrevisions $cstype]]
 	}
 
 	foreach c $newcsets { $c persist }
@@ -361,6 +373,16 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     proc ID {cset} { $cset str }
+
+    proc Untag {taggeditems cstype} {
+	return [struct::list map $taggeditems [myproc Untag1 $cstype]]
+    }
+
+    proc Untag1 {cstype theitem} {
+	struct::list assign $theitem t i
+	integrity assert {$cstype eq $t} {Item $i's type is '$t', expected '$cstype'}
+	return $i
+    }
 
     # # ## ### ##### ######## #############
     ## State
@@ -381,16 +403,18 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 			      # mytype.
     variable mysrcid     {} ; # Id of the metadata or symbol the cset
 			      # is based on.
-    variable myrevisions {} ; # List of the file level revisions in
-			      # the cset.
-    variable mypremap    {} ; # Dictionary mapping from the revisions
-			      # to their predecessors. Cache to avoid
-			      # loading this from the state more than
-			      # once.
-    variable mynextmap   {} ; # Dictionary mapping from the revisions
-			      # to their successors. Cache to avoid
-			      # loading this from the state more than
-			      # once.
+    variable myrevisions {} ; # List of the file level revisions,
+			      # tags, or branches in the cset, as
+			      # ids. Not tagged.
+    variable mytitems    {} ; # As myrevisions, the tagged form.
+    variable mypremap    {} ; # Dictionary mapping from the items (tagged now)
+			      # to their predecessors, also tagged. A
+			      # cache to avoid loading this from the
+			      # state more than once.
+    variable mynextmap   {} ; # Dictionary mapping from the items (tagged)
+			      # to their successors (also tagged). A
+			      # cache to avoid loading this from the
+			      # state more than once.
     variable mypos       {} ; # Commit position of the changeset, if
 			      # known.
 
@@ -632,14 +656,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # # ## ### ##### ######## #############
 
     typevariable mychangesets    {} ; # List of all known changesets.
-    typevariable myrevmap -array {} ; # Map from revisions to the list
-				      # of changesets containing
-				      # it. NOTE: While only one
-				      # revision changeset can contain
-				      # the revision, there can
-				      # however also be one or more
-				      # additional symbol changesets
-				      # which use it, hence a list.
+    typevariable myrevmap -array {} ; # Map from items (tagged) to the
+				      # list of changesets containing
+				      # it. Each item can be used by
+				      # only one changeset.
     typevariable myidmap  -array {} ; # Map from changeset id to changeset.
 
     typemethod all   {}   { return $mychangesets }
