@@ -51,6 +51,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# Define the names and structure of the persistent state of
 	# this pass.
 
+	state reading changeset
+	state reading csrevision
 	state reading csorder
 	return
     }
