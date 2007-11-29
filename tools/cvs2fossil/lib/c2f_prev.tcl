@@ -91,10 +91,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set tmp {}
 	foreach {rev children} [$self nextmap] {
 	    foreach child $children {
-		# 8.5 lappend tmp($rev) {*}$myitemmap($child)
-		foreach cset $myitemmap($child) {
-		    lappend tmp($rev) $cset
-		}
+		lappend tmp($rev) $myitemmap($child)
 	    }
 	    set tmp($rev) [lsort -unique $tmp($rev)]
 	}
@@ -107,10 +104,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set csets {}
 	foreach {_ children} [$self nextmap] {
 	    foreach child $children {
-		# 8.5 lappend csets {*}$myitemmap($child)
-		foreach cset $myitemmap($child) {
-		    lappend csets $cset
-		}
+		lappend csets $myitemmap($child)
 	    }
 	}
 	return [lsort -unique $csets]
@@ -122,10 +116,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set tmp {}
 	foreach {rev children} [$self premap] {
 	    foreach child $children {
-		# 8.5 lappend tmp($rev) {*}$myitemmap($child)
-		foreach cset $myitemmap($child) {
-		    lappend tmp($rev) $cset
-		}
+		lappend tmp($rev) $myitemmap($child)
 	    }
 	    set tmp($rev) [lsort -unique $tmp($rev)]
 	}

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Brought\sthe\svariable\snames\sinto\salignment\swith\sthe\ssemantics,\snow\sagain\snaming\swhat\sis\sstored\sin\sthem.
-D 2007-11-29T07:36:27
+C Simplified\ssome\scode\sdealing\swith\sthe\sitem\s->\schangeset\smap,\susing\sthe\schanged\ssemantics\s(1:n\s->\s1:1).
+D 2007-11-29T07:41:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -119,7 +119,7 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 2020f6d70d0dc62c0db4df69bbba538719f0e779
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl cec097c0345ad77a93741d4dce9aa1cda5ecb9d0
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl 01c2b1ab5bf66339b15d59f30e53512e47a42877
+F tools/cvs2fossil/lib/c2f_prev.tcl ee1979daea3118a2ae26e6375e117a5774b28c5a
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 38dafe8989e55aee0ffeaf0049391dc898bd2097
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl ef7809d0566b6393e2973c5ff9bd134f070462e2
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0fcfbf78284063c4832621645afa080b30185887
-R c44a7f107ae1c141399ae0ae0c00954f
+P deab4d035be04cb3c33888d610944d7176cd415b
+R 694dad3c4a14be98f9b6383527430794
 U aku
-Z 289415e46eaf7ab2193475263ab99954
+Z 989098e83b20ce8e915e972536d75d6a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTmv/vonzZ/CRa7gRAgC0AJ9jTRdthKAikFhB6TCD01r8cynI2ACgrKKd
-z0eocHVwkaagIY+d4Z4ui3U=
-=ueh/
+iD8DBQFHTm08vonzZ/CRa7gRAkNrAJ4iaJCyyHRJdUDEt0Yqa9hMpaFQ/QCggMS7
+KR8ob+N00/7Lts2gO8F+o4s=
+=FhaB
 -----END PGP SIGNATURE-----
