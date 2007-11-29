@@ -460,6 +460,143 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 	upvar 1 n n ; # Counter for the checks (we print an id before
 		      # the main label).
+
+	# Find all tags which are not used by at least one changeset.
+	CheckTag \
+	    {All tags have to be used by least one changeset} \
+	    {is not used by a changeset} {
+		-- Unused tags = All tags
+		--             - revisions used by tag changesets.
+		--
+		-- Both sets can be computed easily, and subtracted
+                -- from each other. Then we can get the associated
+                -- file (name) for display.
+
+		SELECT P.name, S.name
+		FROM project P, tag T, symbol S
+		WHERE T.tid IN (SELECT tid                    -- All tags
+				FROM   tag
+				EXCEPT                        -- subtract
+				SELECT CR.rid                 -- tags used
+				FROM   csrevision CR, changeset C
+				WHERE  C.cid = CR.cid         -- by any tag
+				AND    C.type = 1)            -- changeset
+		AND   S.sid = T.sid               -- get symbol of tag
+		AND   P.pid = S.pid               -- get project of symbol
+	    }
+	# Find all tags which are used by more than one changeset.
+	CheckRev \
+	    {All tags have to be used by at most one changeset} \
+	    {is used by multiple changesets} {
+		-- Principle of operation: Get all tag/changeset pairs
+                -- for all tag changesets, group by tag to aggregate
+                -- the changeset, counting them. From the resulting
+                -- tag/count table select those with more than one
+                -- user, and get their associated file (name) for
+                -- display.
+
+		SELECT P.name, S.name
+		FROM tag T, project P, symbol S,
+		     (SELECT CR.rid AS rid, count(CR.cid) AS count
+		      FROM csrevision CR, changeset C
+		      WHERE C.type = 1
+		      AND   C.cid = CR.cid
+		      GROUP BY CR.rid) AS U
+		WHERE U.count > 1
+		AND   T.tid = U.rid
+		AND   S.sid = T.sid               -- get symbol of tag
+		AND   P.pid = S.pid               -- get project of symbol
+	    }
+	if 0 {
+	    # This check is disabled for the moment. Apparently tags
+	    # can cross lines of development, at least if the involved
+	    # LODs are the trunk, and the NTDB. That makes sense, as
+	    # the NTDB revisions are initially logically a part of the
+	    # trunk. The standard check below however does not capture
+	    # this. When I manage to rephrase it to accept this type
+	    # of cross-over it will be re-activated.
+
+	    # All tags have to agree on the LOD their changeset
+	    # belongs to. In other words, all tags in a changeset have
+	    # to refer to the same line of development.
+	    #
+	    # Instead of looking at all pairs of tags in all
+	    # changesets we generate the distinct set of all LODs
+	    # referenced by the tags of a changeset, look for those
+	    # with cardinality > 1, and get the identifying
+	    # information for the changesets found thusly.
+	    CheckCS \
+		{All tags in a changeset have to belong to the same LOD} \
+		{: Its tags disagree about the LOD they belong to} {
+		    SELECT T.name, C.cid
+		    FROM   changeset C, cstype T
+		    WHERE  C.cid IN (SELECT U.cid
+				     FROM (SELECT DISTINCT CR.cid AS cid, T.lod AS lod
+					   FROM   csrevision CR, changeset C, tag T
+					   WHERE  CR.rid = T.tid
+					   AND    C.cid = CR.cid
+					   AND    C.type = 1) AS U
+				     GROUP BY U.cid HAVING COUNT(U.lod) > 1)
+		    AND    T.tid = C.type
+		}
+	}
+	# All tags have to agree on the project their changeset
+	# belongs to. In other words, all tags in a changeset have to
+	# refer to the same project.
+	#
+	# Instead of looking at all pairs of tags in all changesets we
+	# generate the distinct set of all projects referenced by the
+	# tags of a changeset, look for those with cardinality > 1,
+	# and get the identifying information for the changesets found
+	# thusly.
+	CheckCS \
+	    {All tags in a changeset have to belong to the same project} \
+	    {: Its tags disagree about the project they belong to} {
+		SELECT T.name, C.cid
+		FROM   changeset C, cstype T
+		WHERE  C.cid IN (SELECT U.cid
+				 FROM (SELECT DISTINCT CR.cid AS cid, F.pid AS pid
+				       FROM   csrevision CR, changeset C, tag T, file F
+				       WHERE  CR.rid = T.tid
+				       AND    C.cid = CR.cid
+				       AND    C.type = 1
+				       AND    F.fid  = T.fid) AS U
+				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
+		AND    T.tid = C.type
+	    }
+	# All tags in a single changeset have to belong to different
+	# files. Conversely: No two tags of a single file are allowed
+	# to be in the same changeset.
+	#
+	# Instead of looking at all pairs of tags in all changesets we
+	# generate the distinct set of all files referenced by the
+	# tags of a changeset, and look for those with cardinality <
+	# the cardinality of the set of tags, and get the identifying
+	# information for the changesets found thusly.
+	CheckCS \
+	    {All tags in a changeset have to belong to different files} \
+	    {: Its tags share files} {
+		SELECT T.name, C.cid
+		FROM   changeset C, cstype T
+		WHERE  C.cid IN (SELECT VV.cid
+				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
+				       FROM (SELECT DISTINCT CR.cid AS cid, T.fid AS fid
+					     FROM   csrevision CR, changeset C, tag T
+					     WHERE  CR.rid = T.tid
+					     AND    C.cid = CR.cid
+					     AND    C.type = 1
+					     ) AS U
+				       GROUP BY U.cid) AS UU,
+				      (SELECT V.cid AS cid, COUNT (V.rid) AS rcount
+				       FROM   csrevision V, changeset X
+				       WHERE  X.cid = V.cid
+				       AND    X.type = 1
+				       GROUP BY V.cid) AS VV
+				 WHERE VV.cid = UU.cid
+				 AND   UU.fcount < VV.rcount)
+		AND    T.tid = C.type
+	    }
+	return
     }
 
     proc BranchChangesets {} {
@@ -469,6 +606,135 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 	upvar 1 n n ; # Counter for the checks (we print an id before
 		      # the main label).
+
+	# Find all branches which are not used by at least one
+	# changeset.
+	CheckBranch \
+	    {All branches have to be used by least one changeset} \
+	    {is not used by a changeset} {
+		-- Unused branches = All branches
+		--                 - branches used by branch changesets.
+		--
+		-- Both sets can be computed easily, and subtracted
+                -- from each other. Then we can get the associated
+                -- file (name) for display.
+
+		SELECT P.name, S.name
+		FROM project P, branch B, symbol S
+		WHERE B.bid IN (SELECT bid                    -- All branches
+				FROM   branch
+				EXCEPT                        -- subtract
+				SELECT CR.rid                 -- branches used
+				FROM   csrevision CR, changeset C
+				WHERE  C.cid = CR.cid         -- by any branch
+				AND    C.type = 2)            -- changeset
+		AND   S.sid = B.sid               -- get symbol of branch
+		AND   P.pid = S.pid               -- get project of symbol
+	    }
+	# Find all branches which are used by more than one changeset.
+	CheckRev \
+	    {All branches have to be used by at most one changeset} \
+	    {is used by multiple changesets} {
+		-- Principle of operation: Get all branch/changeset
+                -- pairs for all branch changesets, group by tag to
+                -- aggregate the changeset, counting them. From the
+                -- resulting branch/count table select those with more
+                -- than one user, and get their associated file (name)
+                -- for display.
+
+		SELECT P.name, S.name
+		FROM branch B, project P, symbol S,
+		     (SELECT CR.rid AS rid, count(CR.cid) AS count
+		      FROM csrevision CR, changeset C
+		      WHERE C.type = 2
+		      AND   C.cid = CR.cid
+		      GROUP BY CR.rid ) AS U
+		WHERE U.count > 1
+		AND   B.bid = U.rid
+		AND   S.sid = B.sid               -- get symbol of branch
+		AND   P.pid = S.pid               -- get project of symbol
+	    }
+	# All branches have to agree on the LOD their changeset
+	# belongs to. In other words, all branches in a changeset have
+	# to refer to the same line of development.
+	#
+	# Instead of looking at all pairs of branches in all
+	# changesets we generate the distinct set of all LODs
+	# referenced by the branches of a changeset, look for those
+	# with cardinality > 1, and get the identifying information
+	# for the changesets found thusly.
+	CheckCS \
+	    {All branches in a changeset have to belong to the same LOD} \
+	    {: Its branches disagree about the LOD they belong to} {
+		SELECT T.name, C.cid
+		FROM   changeset C, cstype T
+		WHERE  C.cid IN (SELECT U.cid
+				 FROM (SELECT DISTINCT CR.cid AS cid, B.lod AS lod
+				       FROM   csrevision CR, changeset C, branch B
+				       WHERE  CR.rid = B.bid
+				       AND    C.cid = CR.cid
+				       AND    C.type = 2) AS U
+				 GROUP BY U.cid HAVING COUNT(U.lod) > 1)
+		AND    T.tid = C.type
+	    }
+	# All branches have to agree on the project their changeset
+	# belongs to. In other words, all branches in a changeset have
+	# to refer to the same project.
+	#
+	# Instead of looking at all pairs of branches in all
+	# changesets we generate the distinct set of all projects
+	# referenced by the branches of a changeset, look for those
+	# with cardinality > 1, and get the identifying information
+	# for the changesets found thusly.
+	CheckCS \
+	    {All branches in a changeset have to belong to the same project} \
+	    {: Its branches disagree about the project they belong to} {
+		SELECT T.name, C.cid
+		FROM   changeset C, cstype T
+		WHERE  C.cid IN (SELECT U.cid
+				 FROM (SELECT DISTINCT CR.cid AS cid, F.pid AS pid
+				       FROM   csrevision CR, changeset C, branch B, file F
+				       WHERE  CR.rid = B.bid
+				       AND    C.cid = CR.cid
+				       AND    C.type = 2
+				       AND    F.fid  = B.fid) AS U
+				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
+		AND    T.tid = C.type
+	    }
+	# All branches in a single changeset have to belong to
+	# different files. Conversely: No two branches of a single
+	# file are allowed to be in the same changeset.
+	#
+	# Instead of looking at all pairs of branches in all
+	# changesets we generate the distinct set of all files
+	# referenced by the branches of a changeset, and look for
+	# those with cardinality < the cardinality of the set of
+	# branches, and get the identifying information for the
+	# changesets found thusly.
+	CheckCS \
+	    {All branches in a changeset have to belong to different files} \
+	    {: Its branches share files} {
+		SELECT T.name, C.cid
+		FROM   changeset C, cstype T
+		WHERE  C.cid IN (SELECT VV.cid
+				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
+				       FROM (SELECT DISTINCT CR.cid AS cid, B.fid AS fid
+					     FROM   csrevision CR, changeset C, branch B
+					     WHERE  CR.rid = B.bid
+					     AND    C.cid = CR.cid
+					     AND    C.type = 2
+					     ) AS U
+				       GROUP BY U.cid) AS UU,
+				      (SELECT V.cid AS cid, COUNT (V.rid) AS rcount
+				       FROM   csrevision V, changeset X
+				       WHERE  X.cid = V.cid
+				       AND    X.type = 2
+				       GROUP BY V.cid) AS VV
+				 WHERE VV.cid = UU.cid
+				 AND   UU.fcount < VV.rcount)
+		AND    T.tid = C.type
+	    }
+	return
     }
 
     proc ___UnusedChangesetChecks___ {} {
