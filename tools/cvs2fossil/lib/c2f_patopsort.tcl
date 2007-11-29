@@ -45,6 +45,8 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 	# Define the names and structure of the persistent state of
 	# this pass.
 
+	state reading revision
+	state reading changeset
 	state reading csorder
 
 	state writing cstimestamp {
