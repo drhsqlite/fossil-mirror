@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Started\sto\sadapt\sthe\sintegrity\smodule.\sRenamed\sCheck\sto\sCheckRev,\sand\sadded\sanaloguous\scommands\sfor\sTags\sand\sBranches.\sAdded\splaceholders\sfor\sthe\snew\sintegrity\scommands,\supdated\smain\schangeset\sintegrity\scommand.
-D 2007-11-29T06:31:08
+C Shuffled\sand\supdated\sthe\sexisting\schecks\sof\srevision\schangesets.
+D 2007-11-29T06:40:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -106,7 +106,7 @@ F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
 F tools/cvs2fossil/lib/c2f_fsym.tcl a9a75d2cd27f50eeb2689c144ae884f61cad996a
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
-F tools/cvs2fossil/lib/c2f_integrity.tcl 0fe3d374ff222ac9bfb9ea2dff968d557acee68b
+F tools/cvs2fossil/lib/c2f_integrity.tcl 6b8e82544dfc4e88297c8808b11712f1f334039e
 F tools/cvs2fossil/lib/c2f_option.tcl 21dce38cba529d5ef7bb41d62092b28484e05e10
 F tools/cvs2fossil/lib/c2f_pass.tcl b27a6e1d116415dc5ca7d92637f4729089ca5c32
 F tools/cvs2fossil/lib/c2f_patopsort.tcl 4f410cc1a2ab0e8f8ba5b6d8fac601ea65f663ee
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8e3012423b2db720c1c09b01a8cf2df53f9743bb
-R 7e026666ec4e8c13b4727c6dc744114c
+P 7c28fe1312286211e78d5b18c4cfae9edef9a200
+R 3f0654290338423bb1e43b7bccc5d0aa
 U aku
-Z 1507e7e4a8c775414af6b2a86babb2c7
+Z 8112a860d1c6bb903e6ecf013b9c37a7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTlysvonzZ/CRa7gRAr0mAKCVusZbcbd9VOY4f7ravuyIaz0HNwCbB2JK
-u9D9mYtgeo7jg466SRBNlCU=
-=bsft
+iD8DBQFHTl7TvonzZ/CRa7gRAsFrAJ4oRt4YtIdFWRmiwu423F/VzgWOJwCglkLw
+aHOj49OirfGVIzcl4RmslGw=
+=YlY8
 -----END PGP SIGNATURE-----

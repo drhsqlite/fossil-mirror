@@ -302,7 +302,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    proc AllChangesets {} {
+    proc RevisionChangesets {} {
 	# This code performs a number of paranoid checks of the
 	# database, searching for inconsistent changeset/revision
 	# information.
@@ -311,10 +311,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		      # the main label).
 
 	# Find all revisions which are not used by at least one
-	# revision changeset.
+	# changeset.
 	CheckRev \
-	    {All revisions have to be used by least one revision changeset} \
-	    {is not used by a revision changeset} {
+	    {All revisions have to be used by least one changeset} \
+	    {is not used by a changeset} {
 		-- Unused revisions = All revisions
 		--                  - revisions used by revision changesets.
 		--
@@ -324,18 +324,20 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 		SELECT F.name, R.rev
 		FROM revision R, file F
-		WHERE R.rid IN (SELECT rid FROM revision                      -- All revisions
-				EXCEPT                                     -- subtract
-				SELECT CR.rid FROM csrevision CR, changeset C -- revisions used
-				WHERE C.cid = CR.cid                          -- by any revision
-				AND C.type = 0)                               -- changeset
+		WHERE R.rid IN (SELECT rid
+				FROM revision                -- All revisions
+				EXCEPT                       -- subtract
+				SELECT CR.rid
+				FROM csrevision CR, changeset C  -- revisions used
+				WHERE C.cid = CR.cid         -- by any revision
+				AND C.type = 0)              -- changeset
 		AND   R.fid = F.fid              -- get file of unused revision
 	    }
-	# Find all revisions which are used by more than one revision
+	# Find all revisions which are used by more than one
 	# changeset.
 	CheckRev \
-	    {All revisions have to be used by at most one revision changeset} \
-	    {is used by multiple revision changesets} {
+	    {All revisions have to be used by at most one changeset} \
+	    {is used by multiple changesets} {
 		-- Principle of operation: Get all revision/changeset
                 -- pairs for all revision changesets, group by
                 -- revision to aggregate the changeset, counting
@@ -349,14 +351,28 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		      FROM csrevision CR, changeset C
 		      WHERE C.type = 0
 		      AND   C.cid = CR.cid
-		      GROUP BY CR.rid ) AS U
+		      GROUP BY CR.rid) AS U
 		WHERE U.count > 1
 		AND R.rid = U.rid
 		AND R.fid = F.fid
 	    }
-	# All revisions in all changesets have to agree on the LOD
-	# their changeset belongs to. In other words, all revisions in
-	# a changeset have to refer to the same line of development.
+	# All revisions have to refer to the same meta information as
+	# their changeset.
+	CheckRevCS \
+	    {All revisions have to agree with their changeset about the used meta information} \
+	    {disagrees with its changeset @ about the meta information} {
+		SELECT CT.name, C.cid, F.name, R.rev
+		FROM changeset C, cstype CT, revision R, file F, csrevision CR
+		WHERE C.type = 0       -- revision changesets only
+		AND   C.cid  = CR.cid  -- changeset --> its revisions
+		AND   R.rid  = CR.rid  -- look at them
+		AND   R.mid != C.src   -- Only those which disagree with changeset about the meta
+		AND   R.fid = F.fid    -- get file of the revision
+		AND   CT.tid = C.type  -- get changeset type, for labeling
+	    }
+	# All revisions have to agree on the LOD their changeset
+	# belongs to. In other words, all revisions in a changeset
+	# have to refer to the same line of development.
 	#
 	# Instead of looking at all pairs of revisions in all
 	# changesets we generate the distinct set of all LODs
@@ -370,14 +386,16 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
 				 FROM (SELECT DISTINCT CR.cid AS cid, R.lod AS lod
-				       FROM   csrevision CR, revision R
-				       WHERE  CR.rid = R.rid) AS U
+				       FROM   csrevision CR, changeset C, revision R
+				       WHERE  CR.rid = R.rid
+				       AND    C.cid = CR.cid
+				       AND    C.type = 0) AS U
 				 GROUP BY U.cid HAVING COUNT(U.lod) > 1)
 		AND    T.tid = C.type
 	    }
-	# All revisions in all changesets have to agree on the project
-	# their changeset belongs to. In other words, all revisions in
-	# a changeset have to refer to the same project.
+	# All revisions have to agree on the project their changeset
+	# belongs to. In other words, all revisions in a changeset
+	# have to refer to the same project.
 	#
 	# Instead of looking at all pairs of revisions in all
 	# changesets we generate the distinct set of all projects
@@ -391,8 +409,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
 				 FROM (SELECT DISTINCT CR.cid AS cid, F.pid AS pid
-				       FROM   csrevision CR, revision R, file F
+				       FROM   csrevision CR, changeset C, revision R, file F
 				       WHERE  CR.rid = R.rid
+				       AND    C.cid = CR.cid
+				       AND    C.type = 0
 				       AND    F.fid  = R.fid) AS U
 				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
 		AND    T.tid = C.type
@@ -415,11 +435,16 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		WHERE  C.cid IN (SELECT VV.cid
 				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
 				       FROM (SELECT DISTINCT CR.cid AS cid, R.fid AS fid
-					     FROM   csrevision CR, revision R
-					     WHERE  CR.rid = R.rid) AS U
+					     FROM   csrevision CR, changeset C, revision R
+					     WHERE  CR.rid = R.rid
+					     AND    C.cid = CR.cid
+					     AND    C.type = 0
+					     ) AS U
 				       GROUP BY U.cid) AS UU,
 				      (SELECT V.cid AS cid, COUNT (V.rid) AS rcount
-				       FROM csrevision V
+				       FROM   csrevision V, changeset X
+				       WHERE  X.cid = V.cid
+				       AND    X.type = 0
 				       GROUP BY V.cid) AS VV
 				 WHERE VV.cid = UU.cid
 				 AND   UU.fcount < VV.rcount)
@@ -428,37 +453,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    proc RevisionChangesets {} {
-	# This code performs a number of paranoid checks of the
-	# database, searching for inconsistent changeset/revision
-	# information.
-
-	upvar 1 n n ; # Counter for the checks (we print an id before
-		      # the main label).
-
-	# All revisions used by revision changesets have to refer to
-	# the same meta information as their changeset.
-	CheckInCS \
-	    {All revisions have to agree with their revision changeset about the used meta information} \
-	    {disagrees with its revision changeset @ about the meta information} {
-		SELECT CT.name, C.cid, F.name, R.rev
-		FROM changeset C, cstype CT, revision R, file F, csrevision CR
-		WHERE C.type = 0       -- revision changesets only
-		AND   C.cid  = CR.cid  -- changeset --> its revisions
-		AND   R.rid  = CR.rid  -- look at them
-		AND   R.mid != C.src   -- Only those which disagree with changeset about the meta
-		AND   R.fid = F.fid    -- get file of the revision
-		AND   CT.tid = C.type  -- get changeset type, for labeling
-	    }
-	return
-    }
-
     proc TagChangesets {} {
 	# This code performs a number of paranoid checks of the
 	# database, searching for inconsistent changeset/revision
 	# information.
-
-	return ; # Disabled for now, bottlenecks ...
 
 	upvar 1 n n ; # Counter for the checks (we print an id before
 		      # the main label).
@@ -469,13 +467,11 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	# database, searching for inconsistent changeset/revision
 	# information.
 
-	return ; # Disabled for now, bottlenecks ...
-
 	upvar 1 n n ; # Counter for the checks (we print an id before
 		      # the main label).
     }
 
-    proc SymbolChangesets {} {
+    proc ___UnusedChangesetChecks___ {} {
 	# This code performs a number of paranoid checks of the
 	# database, searching for inconsistent changeset/revision
 	# information.
@@ -493,7 +489,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 	# All revisions used by tag symbol changesets have to have the
 	# changeset's tag associated with them.
-	CheckInCS \
+	CheckRevCS \
 	    {All revisions used by tag symbol changesets have to have the changeset's tag attached to them} \
 	    {does not have the tag of its symbol changeset @ attached to it} {
 		SELECT CT.name, C.cid, F.name, R.rev
@@ -512,7 +508,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	# All revisions used by branch symbol changesets have to have
 	# the changeset's branch associated with them.
 
-	CheckInCS \
+	CheckRevCS \
 	    {All revisions used by branch symbol changesets have to have the changeset's branch attached to them} \
 	    {does not have the branch of its symbol changeset @ attached to it} {
 		SELECT CT.name, C.cid, F.name, R.rev, C.cid
@@ -544,7 +540,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	set ok 1
 	foreach {fname revnr} [state run $sql] {
 	    set ok 0
-	    trouble fatal "$fname <$revnr> $label"
+	    trouble fatal "${revnr}::$fname $label"
 	}
 	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
 	return
@@ -583,7 +579,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    proc CheckInCS {header label sql} {
+    proc CheckRevCS {header label sql} {
 	upvar 1 n n
 	set ok 1
 	foreach {cstype csid fname revnr} [state run $sql] {
