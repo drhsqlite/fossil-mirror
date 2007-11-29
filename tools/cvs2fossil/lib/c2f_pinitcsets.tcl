@@ -69,26 +69,30 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	    name  TEXT     NOT NULL,
 	    UNIQUE (name)
 	}
+	# Note: Keep the labels used here in sync with the names for
+	#       singleton helper classes for 'project::rev'. They are
+	#       the valid type names for changesets and also hardwired
+	#       in some code.
 	state run {
 	    INSERT INTO cstype VALUES (0,'rev');
-	    INSERT INTO cstype VALUES (1,'sym');
+	    INSERT INTO cstype VALUES (1,'sym::tag');
+	    INSERT INTO cstype VALUES (2,'sym::branch');
 	}
 
-	# Map from changesets to the (file level) revisions they
-	# contain. The pos'ition provides an order of the revisions
-	# within a changeset. They are unique within the changeset.
-	# The revisions are in principle unique, if we were looking
-	# only at revision changesets. However a revision can appear
-	# in both revision and symbol changesets, and in multiple
-	# symbol changesets as well. So we can only say that it is
-	# unique within the changeset.
-	#
-	# TODO: Check if integrity checks are possible.
+	# Map from changesets to the (file level) revisions, tags, or
+	# branches they contain. The pos'ition provides an order of
+	# the items within a changeset. They are unique within the
+	# changeset.  The items are in principle unique, if we were
+	# looking only at relevant changesets. However as they come
+	# from disparate sources the same id may have different
+	# meaning, be in different changesets and so is formally not
+	# unique. So we can only say that it is unique within the
+	# changeset. The integrity module has stronger checks.
 
 	state writing csrevision {
 	    cid  INTEGER  NOT NULL  REFERENCES changeset,
 	    pos  INTEGER  NOT NULL,
-	    rid  INTEGER  NOT NULL  REFERENCES revision,
+	    rid  INTEGER  NOT NULL, -- REFERENCES revision|tag|branch
 	    UNIQUE (cid, pos),
 	    UNIQUE (cid, rid)
 	}
@@ -106,6 +110,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	state reading csrevision
 	state reading cstype
 
+	# Need the types first, the constructor in the loop below uses
+	# them to assert the correctness of type names.
+	project::rev getcstypes
+
 	foreach {id pid cstype srcid} [state run {
 	    SELECT C.cid, C.pid, CS.name, C.src
 	    FROM   changeset C, cstype CS
@@ -120,7 +128,6 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	    }] $id]
 	}
 
-	project::rev getcstypes
 	project::rev loadcounter
 	return
     }
@@ -227,26 +234,23 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# their ids do not overlap with each other.
 
 	set lastsymbol  {}
-	set lastlod     {}
 	set lastproject {}
 	set revisions   {}
 
-	foreach {sid rid lod pid} [state run {
-	    SELECT S.sid, R.rid, R.lod, S.pid
-	    FROM  tag T, revision R, symbol S     -- T ==> R/S, using PK indices of R, S.
-	    WHERE T.rev = R.rid
-	    AND   T.sid = S.sid
-	    ORDER BY S.sid, R.lod, R.date
+	foreach {sid rid pid} [state run {
+	    SELECT S.sid, T.tid, S.pid
+	    FROM  tag T, symbol S     -- T ==> R/S, using PK indices of R, S.
+	    WHERE T.sid = S.sid
+	    ORDER BY S.sid, T.tid
 	}] {
-	    if {($lastlod != $lod) || ($lastsymbol != $sid)} {
+	    if {$lastsymbol != $sid} {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    project::rev %AUTO% $p sym $lastsymbol $revisions
+		    project::rev %AUTO% $p sym::tag $lastsymbol $revisions
 		    set revisions {}
 		}
 		set lastsymbol  $sid
-		set lastlod     $lod
 		set lastproject $pid
 	    }
 	    lappend revisions $rid
@@ -255,30 +259,27 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $revisions]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    project::rev %AUTO% $p sym $lastsymbol $revisions
+	    project::rev %AUTO% $p sym::tag $lastsymbol $revisions
 	}
 
 	set lastsymbol {}
-	set lastlod    {}
 	set lasproject {}
 	set revisions  {}
 
-	foreach {sid rid lod pid} [state run {
-	    SELECT S.sid, R.rid, R.lod, S.pid
-	    FROM  branch B, revision R, symbol S  -- B ==> R/S, using PK indices of R, S.
-	    WHERE B.root = R.rid
-	    AND   B.sid  = S.sid
-	    ORDER BY S.sid, R.lod, R.date
+	foreach {sid rid pid} [state run {
+	    SELECT S.sid, B.bid, S.pid
+	    FROM  branch B, symbol S  -- B ==> R/S, using PK indices of R, S.
+	    WHERE B.sid  = S.sid
+	    ORDER BY S.sid, B.bid
 	}] {
-	    if {($lastlod != $lod) || ($lastsymbol != $sid)} {
+	    if {$lastsymbol != $sid} {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    project::rev %AUTO% $p sym $lastsymbol $revisions
+		    project::rev %AUTO% $p sym::branch $lastsymbol $revisions
 		    set revisions {}
 		}
 		set lastsymbol  $sid
-		set lastlod     $lod
 		set lastproject $pid
 	    }
 	    lappend revisions $rid
@@ -287,7 +288,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $revisions]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    project::rev %AUTO% $p sym $lastsymbol $revisions
+	    project::rev %AUTO% $p sym::branch $lastsymbol $revisions
 	}
 
 	log write 4 initcsets "Created [nsp $n {symbol changeset}]"

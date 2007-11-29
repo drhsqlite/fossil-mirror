@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Integrate\sthe\snew\ssingletons\swith\sthe\smain\sclass,\sroute\sthe\srelevant\splaces\sto\sthem.
-D 2007-11-29T06:10:18
+C Brought\sknowledge\sof\sthe\snew\stypes\sto\sthe\sstate\sdefinition,\schanged\sthe\screation\sof\sthe\sinitial\schangesets\sto\suse\stags\sand\sbranches.
+D 2007-11-29T06:21:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -117,7 +117,7 @@ F tools/cvs2fossil/lib/c2f_pcollar.tcl a368b702c329d622929f35b637cacd10af57f4a1
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl ea94dc166cfb94b6428a406a77c5b4c07b08824a
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 2020f6d70d0dc62c0db4df69bbba538719f0e779
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 30453369b1f5836b1e002c3ac46f2b035a3da774
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl cec097c0345ad77a93741d4dce9aa1cda5ecb9d0
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
 F tools/cvs2fossil/lib/c2f_prev.tcl 225212eea46a32769b6fe7d59f3ba3f65bd919f4
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 38dafe8989e55aee0ffeaf0049391dc898bd2097
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 27b15b7095e1c53df376e85a86f6348421bd31a0
-R 8ad3d1da68082b90836deb9e35edcae2
+P c74fe3de3fd031f4ca45685850aa0389ef910ddf
+R 3138a21bc331066f2114fbe6d7392683
 U aku
-Z 02381bb670f765e7da73b4797d72030d
+Z 179aee6a6a88f382f61190c5a60ff1bd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTlfOvonzZ/CRa7gRApBWAJ9s0gthVICPfMkp9KDT5W3b/Z5YFwCeJpNm
-06LhYhuoMzJ8QA7p6kHV+Ko=
-=pgqc
+iD8DBQFHTlqJvonzZ/CRa7gRAsL7AKCqAZ8CvaypdIZQ9Bpfag8CkSVnCgCfeUky
+g7XBDLnT2CR/7opxg608pS4=
+=OOAA
 -----END PGP SIGNATURE-----
