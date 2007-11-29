@@ -210,15 +210,15 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# and dump internal structures to make it easier to
 		# trace the links causing the problem.
 		if {$succ eq $cset} {
-		    trouble fatal "Self-referencing changeset [$cset str]"
 		    log write 2 cyclebreaker "LOOP changeset [$cset str] __________________"
 		    array set nmap [$cset nextmap]
 		    foreach r [lsort -dict [array names nmap]] {
 			foreach succrev $nmap($r) {
 			    log write 2 cyclebreaker \
-				"LOOP * rev <$r> --> rev <$succrev> --> cs [project::rev str [project::rev ofitem $succrev]]"
+				"LOOP * <$r> --> <$succrev> --> cs [[project::rev ofitem $succrev] str]"
 			}
 		    }
+		    trouble fatal "Self-referencing changeset [$cset str]"
 		}
 	    }
 	}
@@ -443,6 +443,14 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
 		if {$succ eq $cset} {
+		    log write 2 cyclebreaker "LOOP changeset [$cset str] __________________"
+		    array set nmap [$cset nextmap]
+		    foreach r [lsort -dict [array names nmap]] {
+			foreach succrev $nmap($r) {
+			    log write 2 cyclebreaker \
+				"LOOP * <$r> --> <$succrev> --> cs [[project::rev ofitem $succrev] str]"
+			}
+		    }
 		    trouble internal "Self-referencing changeset [$cset str]"
 		}
 	    }
