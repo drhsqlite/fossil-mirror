@@ -654,9 +654,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     typevariable myidmap   -array {} ; # Map from changeset id to
 				       # changeset.
 
-    typemethod all   {}    { return $mychangesets }
-    typemethod of    {cid} { return $myidmap($cid) }
-    typemethod ofrev {iid} { return $myitemmap($iid) }
+    typemethod all    {}    { return $mychangesets }
+    typemethod of     {cid} { return $myidmap($cid) }
+    typemethod ofitem {iid} { return $myitemmap($iid) }
 
     # # ## ### ##### ######## #############
     ## Configuration

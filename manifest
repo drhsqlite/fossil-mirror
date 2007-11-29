@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\smissing\sstate\sdeclarations.
-D 2007-11-29T07:50:36
+C Renamed\schangeset\smethod\sto\sdescribe\smodified\sresults,\sand\supdated\sthe\sone\sinvoker.\sModified\sthe\ssorting\sof\stime\sranges.\sNow\sby\smax,\smin\sas\stiebreaker,\sand\sobject\sname\sas\slast\stiebreaker.
+D 2007-11-29T07:55:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,7 +100,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree adf892ac6cf90e86852191161ea57fc82a72888e
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl be1a345cb264d10b3b66296d8e4058d24c0cc6f8
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 60fbae5ce7277f575adbf2c0d3f9f48e12b32605
 F tools/cvs2fossil/lib/c2f_file.tcl 91fadc851ab9ffe18f31881afe107adaf9e146a4
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
@@ -119,7 +119,7 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 2020f6d70d0dc62c0db4df69bbba538719f0e779
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 37a8f5de58487063cfc0b290ff686e94279e7f7d
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl ee1979daea3118a2ae26e6375e117a5774b28c5a
+F tools/cvs2fossil/lib/c2f_prev.tcl aa2d0f358950916b11c160877ec4503b0555be52
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 38dafe8989e55aee0ffeaf0049391dc898bd2097
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl ef7809d0566b6393e2973c5ff9bd134f070462e2
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 31d0fe7dd712e197cee2e755b95bce393214fecc
-R c98b7cdbdd5ff7634e2645246be6ccb6
+P 2c9c26815f5db13709ecd2fe543d7b29fe2f2cee
+R 70d761f0d3e531ce43e9c649e380ea0c
 U aku
-Z ccf8889d94e91d042aa8d86103cfaa7d
+Z af320b216b7697235ae916b87d4c51f3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTm9MvonzZ/CRa7gRAhfCAJ9V5X/CE3fc+rBOph2LRYJN+DKZ5wCZATfE
-vgDJpz0mHML+XZOQXlM4zBY=
-=S881
+iD8DBQFHTnBVvonzZ/CRa7gRAribAJ9+l6QPK6xmocHrYuy90bGRwjzzFQCfUC9o
+Dc9fOBBuUiQY55ev+LmZe5Y=
+=OBHS
 -----END PGP SIGNATURE-----

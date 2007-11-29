@@ -216,7 +216,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		    foreach r [lsort -dict [array names nmap]] {
 			foreach succrev $nmap($r) {
 			    log write 2 cyclebreaker \
-				"LOOP * rev <$r> --> rev <$succrev> --> cs [project::rev strlist [project::rev ofrev $succrev]]"
+				"LOOP * rev <$r> --> rev <$succrev> --> cs [project::rev str [project::rev ofitem $succrev]]"
 			}
 		    }
 		}
@@ -290,7 +290,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
     proc ScheduleCandidates {} {
 	::variable mybottom
-	set mybottom [lsort -index 1 -integer [lsort -index 2 -integer [lsort -index 0 -dict $mybottom]]]
+	# Sort by cset object name, lower border of timerange, at last
+	# by the upper border.
+	set mybottom [lsort -index 2 -integer [lsort -index 1 -integer [lsort -index 0 -dict $mybottom]]]
 	return
     }
 
