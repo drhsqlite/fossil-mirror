@@ -303,8 +303,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	    foreach iid $myitems {
 		state run {
-		    INSERT INTO csrevision (cid,   pos,  rid)
-		    VALUES                 ($myid, $pos, $iid);
+		    INSERT INTO csitem (cid,   pos,  iid)
+		    VALUES             ($myid, $pos, $iid);
 		}
 		incr pos
 	    }
@@ -317,8 +317,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method drop {} {
 	state transaction {
 	    state run {
-		DELETE FROM changeset  WHERE cid = $myid;
-		DELETE FROM csrevision WHERE cid = $myid;
+		DELETE FROM changeset WHERE cid = $myid;
+		DELETE FROM csitem    WHERE cid = $myid;
 	    }
 	}
 	foreach iid $myitems {

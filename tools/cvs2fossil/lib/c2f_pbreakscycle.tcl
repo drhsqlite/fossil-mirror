@@ -48,7 +48,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 
 	state reading revision
 	state reading changeset
-	state reading csrevision
+	state reading csitem
 	return
     }
 

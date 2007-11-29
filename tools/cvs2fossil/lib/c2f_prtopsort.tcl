@@ -47,7 +47,7 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
 
 	state reading revision
 	state reading changeset
-	state reading csrevision
+	state reading csitem
 
 	state writing csorder {
 	    -- Commit order of the revision changesets based on their

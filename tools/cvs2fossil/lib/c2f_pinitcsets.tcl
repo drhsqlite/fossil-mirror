@@ -89,12 +89,12 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# unique. So we can only say that it is unique within the
 	# changeset. The integrity module has stronger checks.
 
-	state writing csrevision {
+	state writing csitem {
 	    cid  INTEGER  NOT NULL  REFERENCES changeset,
 	    pos  INTEGER  NOT NULL,
-	    rid  INTEGER  NOT NULL, -- REFERENCES revision|tag|branch
+	    iid  INTEGER  NOT NULL, -- REFERENCES revision|tag|branch
 	    UNIQUE (cid, pos),
-	    UNIQUE (cid, rid)
+	    UNIQUE (cid, iid)
 	}
 
 	project::rev getcstypes
@@ -107,7 +107,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# executed.
 
 	state reading changeset
-	state reading csrevision
+	state reading csitem
 	state reading cstype
 
 	# Need the types first, the constructor in the loop below uses
@@ -121,10 +121,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	    ORDER BY C.cid
 	}] {
 	    set r [project::rev %AUTO% [repository projectof $pid] $cstype $srcid [state run {
-		SELECT C.rid
-		FROM   csrevision C
+		SELECT C.iid
+		FROM   csitem C
 		WHERE  C.cid = $id
-		ORDER  BY C.pos
+		ORDER BY C.pos
 	    }] $id]
 	}
 
@@ -155,7 +155,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 
 	state discard changeset
 	state discard cstype
-	state discard csrevision
+	state discard csitem
 	return
     }
 

@@ -327,9 +327,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		WHERE R.rid IN (SELECT rid
 				FROM revision                -- All revisions
 				EXCEPT                       -- subtract
-				SELECT CR.rid
-				FROM csrevision CR, changeset C  -- revisions used
-				WHERE C.cid = CR.cid         -- by any revision
+				SELECT CI.iid
+				FROM csitem CI, changeset C  -- revisions used
+				WHERE C.cid = CI.cid         -- by any revision
 				AND C.type = 0)              -- changeset
 		AND   R.fid = F.fid              -- get file of unused revision
 	    }
@@ -347,11 +347,11 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 		SELECT F.name, R.rev
 		FROM revision R, file F,
-		     (SELECT CR.rid AS rid, count(CR.cid) AS count
-		      FROM csrevision CR, changeset C
+		     (SELECT CI.iid AS rid, count(CI.cid) AS count
+		      FROM csitem CI, changeset C
 		      WHERE C.type = 0
-		      AND   C.cid = CR.cid
-		      GROUP BY CR.rid) AS U
+		      AND   C.cid = CI.cid
+		      GROUP BY CI.iid) AS U
 		WHERE U.count > 1
 		AND R.rid = U.rid
 		AND R.fid = F.fid
@@ -362,10 +362,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {All revisions have to agree with their changeset about the used meta information} \
 	    {disagrees with its changeset @ about the meta information} {
 		SELECT CT.name, C.cid, F.name, R.rev
-		FROM changeset C, cstype CT, revision R, file F, csrevision CR
+		FROM changeset C, cstype CT, revision R, file F, csitem CI
 		WHERE C.type = 0       -- revision changesets only
-		AND   C.cid  = CR.cid  -- changeset --> its revisions
-		AND   R.rid  = CR.rid  -- look at them
+		AND   C.cid  = CI.cid  -- changeset --> its revisions
+		AND   R.rid  = CI.iid  -- look at them
 		AND   R.mid != C.src   -- Only those which disagree with changeset about the meta
 		AND   R.fid = F.fid    -- get file of the revision
 		AND   CT.tid = C.type  -- get changeset type, for labeling
@@ -385,10 +385,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CR.cid AS cid, R.lod AS lod
-				       FROM   csrevision CR, changeset C, revision R
-				       WHERE  CR.rid = R.rid
-				       AND    C.cid = CR.cid
+				 FROM (SELECT DISTINCT CI.cid AS cid, R.lod AS lod
+				       FROM   csitem CI, changeset C, revision R
+				       WHERE  CI.iid = R.rid
+				       AND    C.cid = CI.cid
 				       AND    C.type = 0) AS U
 				 GROUP BY U.cid HAVING COUNT(U.lod) > 1)
 		AND    T.tid = C.type
@@ -408,10 +408,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CR.cid AS cid, F.pid AS pid
-				       FROM   csrevision CR, changeset C, revision R, file F
-				       WHERE  CR.rid = R.rid
-				       AND    C.cid = CR.cid
+				 FROM (SELECT DISTINCT CI.cid AS cid, F.pid AS pid
+				       FROM   csitem CI, changeset C, revision R, file F
+				       WHERE  CI.iid = R.rid
+				       AND    C.cid = CI.cid
 				       AND    C.type = 0
 				       AND    F.fid  = R.fid) AS U
 				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
@@ -434,15 +434,15 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT VV.cid
 				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
-				       FROM (SELECT DISTINCT CR.cid AS cid, R.fid AS fid
-					     FROM   csrevision CR, changeset C, revision R
-					     WHERE  CR.rid = R.rid
-					     AND    C.cid = CR.cid
+				       FROM (SELECT DISTINCT CI.cid AS cid, R.fid AS fid
+					     FROM   csitem CI, changeset C, revision R
+					     WHERE  CI.iid = R.rid
+					     AND    C.cid = CI.cid
 					     AND    C.type = 0
 					     ) AS U
 				       GROUP BY U.cid) AS UU,
-				      (SELECT V.cid AS cid, COUNT (V.rid) AS rcount
-				       FROM   csrevision V, changeset X
+				      (SELECT V.cid AS cid, COUNT (V.iid) AS rcount
+				       FROM   csitem V, changeset X
 				       WHERE  X.cid = V.cid
 				       AND    X.type = 0
 				       GROUP BY V.cid) AS VV
@@ -477,9 +477,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		WHERE T.tid IN (SELECT tid                    -- All tags
 				FROM   tag
 				EXCEPT                        -- subtract
-				SELECT CR.rid                 -- tags used
-				FROM   csrevision CR, changeset C
-				WHERE  C.cid = CR.cid         -- by any tag
+				SELECT CI.iid                 -- tags used
+				FROM   csitem CI, changeset C
+				WHERE  C.cid = CI.cid         -- by any tag
 				AND    C.type = 1)            -- changeset
 		AND   S.sid = T.sid               -- get symbol of tag
 		AND   P.pid = S.pid               -- get project of symbol
@@ -497,13 +497,13 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 		SELECT P.name, S.name
 		FROM tag T, project P, symbol S,
-		     (SELECT CR.rid AS rid, count(CR.cid) AS count
-		      FROM csrevision CR, changeset C
+		     (SELECT CI.iid AS iid, count(CI.cid) AS count
+		      FROM csitem CI, changeset C
 		      WHERE C.type = 1
-		      AND   C.cid = CR.cid
-		      GROUP BY CR.rid) AS U
+		      AND   C.cid = CI.cid
+		      GROUP BY CI.iid) AS U
 		WHERE U.count > 1
-		AND   T.tid = U.rid
+		AND   T.tid = U.iid
 		AND   S.sid = T.sid               -- get symbol of tag
 		AND   P.pid = S.pid               -- get project of symbol
 	    }
@@ -531,10 +531,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		    SELECT T.name, C.cid
 		    FROM   changeset C, cstype T
 		    WHERE  C.cid IN (SELECT U.cid
-				     FROM (SELECT DISTINCT CR.cid AS cid, T.lod AS lod
-					   FROM   csrevision CR, changeset C, tag T
-					   WHERE  CR.rid = T.tid
-					   AND    C.cid = CR.cid
+				     FROM (SELECT DISTINCT CI.cid AS cid, T.lod AS lod
+					   FROM   csitem CI, changeset C, tag T
+					   WHERE  CI.iid = T.tid
+					   AND    C.cid = CI.cid
 					   AND    C.type = 1) AS U
 				     GROUP BY U.cid HAVING COUNT(U.lod) > 1)
 		    AND    T.tid = C.type
@@ -555,10 +555,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CR.cid AS cid, F.pid AS pid
-				       FROM   csrevision CR, changeset C, tag T, file F
-				       WHERE  CR.rid = T.tid
-				       AND    C.cid = CR.cid
+				 FROM (SELECT DISTINCT CI.cid AS cid, F.pid AS pid
+				       FROM   csitem CI, changeset C, tag T, file F
+				       WHERE  CI.iid = T.tid
+				       AND    C.cid = CI.cid
 				       AND    C.type = 1
 				       AND    F.fid  = T.fid) AS U
 				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
@@ -580,15 +580,15 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT VV.cid
 				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
-				       FROM (SELECT DISTINCT CR.cid AS cid, T.fid AS fid
-					     FROM   csrevision CR, changeset C, tag T
-					     WHERE  CR.rid = T.tid
-					     AND    C.cid = CR.cid
+				       FROM (SELECT DISTINCT CI.cid AS cid, T.fid AS fid
+					     FROM   csitem CI, changeset C, tag T
+					     WHERE  CI.iid = T.tid
+					     AND    C.cid = CI.cid
 					     AND    C.type = 1
 					     ) AS U
 				       GROUP BY U.cid) AS UU,
-				      (SELECT V.cid AS cid, COUNT (V.rid) AS rcount
-				       FROM   csrevision V, changeset X
+				      (SELECT V.cid AS cid, COUNT (V.iid) AS rcount
+				       FROM   csitem V, changeset X
 				       WHERE  X.cid = V.cid
 				       AND    X.type = 1
 				       GROUP BY V.cid) AS VV
@@ -624,9 +624,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		WHERE B.bid IN (SELECT bid                    -- All branches
 				FROM   branch
 				EXCEPT                        -- subtract
-				SELECT CR.rid                 -- branches used
-				FROM   csrevision CR, changeset C
-				WHERE  C.cid = CR.cid         -- by any branch
+				SELECT CI.iid                 -- branches used
+				FROM   csitem CI, changeset C
+				WHERE  C.cid = CI.cid         -- by any branch
 				AND    C.type = 2)            -- changeset
 		AND   S.sid = B.sid               -- get symbol of branch
 		AND   P.pid = S.pid               -- get project of symbol
@@ -644,13 +644,13 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 		SELECT P.name, S.name
 		FROM branch B, project P, symbol S,
-		     (SELECT CR.rid AS rid, count(CR.cid) AS count
-		      FROM csrevision CR, changeset C
+		     (SELECT CI.iid AS iid, count(CI.cid) AS count
+		      FROM csitem CI, changeset C
 		      WHERE C.type = 2
-		      AND   C.cid = CR.cid
-		      GROUP BY CR.rid ) AS U
+		      AND   C.cid = CI.cid
+		      GROUP BY CI.iid ) AS U
 		WHERE U.count > 1
-		AND   B.bid = U.rid
+		AND   B.bid = U.iid
 		AND   S.sid = B.sid               -- get symbol of branch
 		AND   P.pid = S.pid               -- get project of symbol
 	    }
@@ -669,10 +669,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CR.cid AS cid, B.lod AS lod
-				       FROM   csrevision CR, changeset C, branch B
-				       WHERE  CR.rid = B.bid
-				       AND    C.cid = CR.cid
+				 FROM (SELECT DISTINCT CI.cid AS cid, B.lod AS lod
+				       FROM   csitem CI, changeset C, branch B
+				       WHERE  CI.iid = B.bid
+				       AND    C.cid = CI.cid
 				       AND    C.type = 2) AS U
 				 GROUP BY U.cid HAVING COUNT(U.lod) > 1)
 		AND    T.tid = C.type
@@ -692,10 +692,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CR.cid AS cid, F.pid AS pid
-				       FROM   csrevision CR, changeset C, branch B, file F
-				       WHERE  CR.rid = B.bid
-				       AND    C.cid = CR.cid
+				 FROM (SELECT DISTINCT CI.cid AS cid, F.pid AS pid
+				       FROM   csitem CI, changeset C, branch B, file F
+				       WHERE  CI.iid = B.bid
+				       AND    C.cid = CI.cid
 				       AND    C.type = 2
 				       AND    F.fid  = B.fid) AS U
 				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
@@ -718,15 +718,15 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT VV.cid
 				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
-				       FROM (SELECT DISTINCT CR.cid AS cid, B.fid AS fid
-					     FROM   csrevision CR, changeset C, branch B
-					     WHERE  CR.rid = B.bid
-					     AND    C.cid = CR.cid
+				       FROM (SELECT DISTINCT CI.cid AS cid, B.fid AS fid
+					     FROM   csitem CI, changeset C, branch B
+					     WHERE  CI.iid = B.bid
+					     AND    C.cid = CI.cid
 					     AND    C.type = 2
 					     ) AS U
 				       GROUP BY U.cid) AS UU,
-				      (SELECT V.cid AS cid, COUNT (V.rid) AS rcount
-				       FROM   csrevision V, changeset X
+				      (SELECT V.cid AS cid, COUNT (V.iid) AS rcount
+				       FROM   csitem V, changeset X
 				       WHERE  X.cid = V.cid
 				       AND    X.type = 2
 				       GROUP BY V.cid) AS VV
@@ -759,11 +759,11 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {All revisions used by tag symbol changesets have to have the changeset's tag attached to them} \
 	    {does not have the tag of its symbol changeset @ attached to it} {
 		SELECT CT.name, C.cid, F.name, R.rev
-		FROM   changeset C, cstype CT, revision R, file F, csrevision CR, tag T
+		FROM   changeset C, cstype CT, revision R, file F, csitem CI, tag T
 		WHERE  C.type = 1       -- symbol changesets only
 		AND    C.src  = T.sid   -- tag only, linked by symbol id 
-		AND    C.cid  = CR.cid  -- changeset --> its revisions
-		AND    R.rid  = CR.rid  -- look at the revisions
+		AND    C.cid  = CI.cid  -- changeset --> its revisions
+		AND    R.rid  = CI.iid  -- look at the revisions
 		-- and look for the tag among the attached ones.
 		AND    T.sid NOT IN (SELECT TB.sid
 				     FROM   tag TB
@@ -778,11 +778,11 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {All revisions used by branch symbol changesets have to have the changeset's branch attached to them} \
 	    {does not have the branch of its symbol changeset @ attached to it} {
 		SELECT CT.name, C.cid, F.name, R.rev, C.cid
-		FROM   changeset C, cstype CT, revision R, file F, csrevision CR, branch B
+		FROM   changeset C, cstype CT, revision R, file F, csitem CI, branch B
 		WHERE  C.type = 1       -- symbol changesets only
 		AND    C.src  = B.sid   -- branches only
-		AND    C.cid  = CR.cid  -- changeset --> its revisions
-		AND    R.rid  = CR.rid  -- look at the revisions
+		AND    C.cid  = CI.cid  -- changeset --> its revisions
+		AND    R.rid  = CI.iid  -- look at the revisions
 		-- and look for the branch among the attached ones.
 		AND    B.sid NOT IN (SELECT BB.sid
 				     FROM   branch BB
