@@ -73,9 +73,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return $str
     }
 
-    method id        {} { return $myid }
-    method revisions {} { return $mytitems }
-    method data      {} { return [list $myproject $mytype $mysrcid] }
+    method id    {} { return $myid }
+    method items {} { return $mytitems }
+    method data  {} { return [list $myproject $mytype $mysrcid] }
 
     delegate method bysymbol   to mytypeobj
     delegate method byrevision to mytypeobj

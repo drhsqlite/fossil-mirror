@@ -75,11 +75,11 @@ snit::type ::vc::fossil::import::cvs::project::revlink {
 	array set csetprevmap [Invert [$myprev nextmap]]
 	array set csetnextmap [$mycset nextmap]
 
-	set prevrev [$myprev revisions]
-	set nextrev [$mynext revisions]
+	set prevrev [$myprev items]
+	set nextrev [$mynext items]
 
-	foreach r [$mycset revisions] {
-	    set rt [RT $r]
+	foreach items [$mycset items] {
+	    set rt [RT $items]
 	    incr    mycount($rt)
 	    lappend mycategory($rt) $r
 	}
