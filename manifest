@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C This\scommit\sstarts\sa\sseries\sof\sincremental\schanges\snot\squite\ncompletely\soverhauling\sthe\shandling\sof\schangesets,\si.e.\sof\nproject-level\srevisions.\sActually\sthis\sseries\sof\schanges\salready\nstarted\swith\s[8ce7ffff21]\sas\sthe\sbug\sit\sfixes\swas\sfound\swhen\sthe\sfirst\nparts\sof\sthe\soverhaul\stripped\sthe\snew\sintegrity\sconditions\sfor\sthe\nmodified\schangesets.\n\nBackground:\sIn\sthe\slast\sfew\sdays\sI\srepeatedly\sran\sagainst\sthe\swall\sof\nan\sassertion\sin\spass\s9,\slast\sof\sthe\scycle\sbreakers,\swith\sthe\srevision\nchangesets\scoming\sin\sout\sof\sorder\swhen\sthe\ssymbols\swere\sadded\sto\sthe\ndependency\sgraph.\n\nWhile\swalking\sto\sthe\soffice,\sand\slater\sre-reading\sthe\srelevant\sparts\nof\scvs2svn\sagain\sI\shad\sseveral\sinsights.\sTrigger\swas\sthe\srealization\nthat\sgiving\sthe\stag\schangesets\ssuccessor\sdependencies\swas\swrong.\sTags\ndescribe\sa\sstate,\sthey\shave\sno\ssuccessors.\sThis\scaused\sthe\sre-read,\nand\sI\srecognized\sthat\smy\shandling\sof\sthe\ssymbol\schangesets\swas\ncompletely\swrong,\sthat\swith\susing\srevisions\sas\stheir\sdata.\sIt\sshould\nhave\sbeen\sthe\stags\sand\sbranches.\sFrom\sthere\stheir\sactual\sdependencies\n(versus\smy\sreuse\sof\srevision\sdependencies)\sfell\sout\snaturally.\n\nI\shave\sdecided\sto\scommit\smy\srewrite\sof\sthe\sinternals\sincrementally\sto\nmake\sit\seasier\sto\sfollow\sthem,\sdespite\sleaving\sthe\ssourcebase\sin\san\nunusable\sstate\sduring\sthe\sseries.\sOne\sbig\scommit\swould\sbe\smuch\smore\ndifficult\sto\sunderstand.\n\nThe\scentral\schange\sis\sto\sthe\schangeset\sclass,\swhich\sbecomes\sa\strinity,\nholding\seither\srevisions,\stags,\sor\sbranches,\swith\stype-dependent\scode\nto\sretrieve\stheir\sdependencies.\sThe\sremainder\sof\sthe\schanges\sare\n'just'\sadaptions\sof\sthe\susers\sto\sthe\schanged\sAPI.\n\nFirst\schange:\sAdd\soutline\sof\sthe\shelper\sclasses,\ssingletons\sactually,\nto\shold\sthe\stype-dependent\sfunctionality.
-D 2007-11-29T05:58:53
+C Integrate\sthe\snew\ssingletons\swith\sthe\smain\sclass,\sroute\sthe\srelevant\splaces\sto\sthem.
+D 2007-11-29T06:10:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -119,7 +119,7 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 2020f6d70d0dc62c0db4df69bbba538719f0e779
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 30453369b1f5836b1e002c3ac46f2b035a3da774
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl dd4e59c472e0c8a22480a13029f9f3987b1ec98a
+F tools/cvs2fossil/lib/c2f_prev.tcl 225212eea46a32769b6fe7d59f3ba3f65bd919f4
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 38dafe8989e55aee0ffeaf0049391dc898bd2097
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl ef7809d0566b6393e2973c5ff9bd134f070462e2
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8ce7ffff2192b58eef1b2a3fd679af41093531a3
-R 80b2c59fab2860aaa2291c6d0e7aba93
+P 27b15b7095e1c53df376e85a86f6348421bd31a0
+R 8ad3d1da68082b90836deb9e35edcae2
 U aku
-Z db8e60dcff03b82599068d936cc00689
+Z 02381bb670f765e7da73b4797d72030d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHTlUivonzZ/CRa7gRAkvHAJ4vugomd3Yp60+sydPGaBoB2Lkc5gCaA+nX
-epiQ2pRvnJbcFZ2WO1lAjTM=
-=gOza
+iD8DBQFHTlfOvonzZ/CRa7gRApBWAJ9s0gthVICPfMkp9KDT5W3b/Z5YFwCeJpNm
+06LhYhuoMzJ8QA7p6kHV+Ko=
+=pgqc
 -----END PGP SIGNATURE-----

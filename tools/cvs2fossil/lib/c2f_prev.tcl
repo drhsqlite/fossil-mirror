@@ -39,8 +39,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    set myid [incr mycounter]
 	}
 
+	integrity assert {[info exists mycstype($cstype)]} {Bad changeset type '$cstype'.}
+
 	set myproject   $project
 	set mytype      $cstype
+	set mytypeobj   ::vc::fossil::import::cvs::project::rev::${cstype}
 	set mysrcid	$srcid
 	set myrevisions $revisions
 	set mypos       {} ; # Commit location is not known yet.
@@ -74,19 +77,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method revisions {} { return $myrevisions }
     method data      {} { return [list $myproject $mytype $mysrcid] }
 
-    method bysymbol   {} { return [expr {$mytype eq "sym"}] }
-    method byrevision {} { return [expr {$mytype eq "rev"}] }
+    delegate method bysymbol   to mytypeobj
+    delegate method byrevision to mytypeobj
+    delegate method isbranch   to mytypeobj
+    delegate method istag      to mytypeobj
 
     method setpos {p} { set mypos $p ; return }
     method pos    {}  { return $mypos }
-
-    method isbranch {} {
-	error NOT-USED
-	return [expr {($mytype eq "sym") &&
-		      ($mybranchcode == [state one {
-			  SELECT type FROM symbol WHERE sid = $mysrcid
-		      }])}]
-    }
 
     # result = dict (revision -> list (changeset))
     method successormap {} {
@@ -137,7 +134,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # revision -> list (revision)
     method nextmap {} {
 	if {[llength $mynextmap]} { return $mynextmap }
-	PullSuccessorRevisions tmp $myrevisions
+	$mytypeobj successors tmp $myrevisions
 	set mynextmap [array get tmp]
 	return $mynextmap
     }
@@ -145,7 +142,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     # revision -> list (revision)
     method premap {} {
 	if {[llength $mypremap]} { return $mypremap }
-	PullPredecessorRevisions tmp $myrevisions
+	$mytypeobj predecessors tmp $myrevisions
 	set mypremap [array get tmp]
 	return $mypremap
     }
@@ -173,7 +170,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# the state, and limited to successors within the changeset.
 
 	array set dependencies {}
-	PullInternalSuccessorRevisions dependencies $myrevisions
+	$mytypeobj internalsuccessors dependencies $myrevisions
 	if {![array size dependencies]} {return 0} ; # Nothing to break.
 
 	log write 5 csets ...[$self str].......................................................
@@ -318,14 +315,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    method timerange {} {
-	set theset ('[join $myrevisions {','}]')
-	return [state run "
-	    SELECT MIN(R.date), MAX(R.date)
-	    FROM revision R
-	    WHERE R.rid IN $theset
-	"]
-    }
+    method timerange {} { return [$mytypeobj timerange $myrevisions] }
 
     method drop {} {
 	state transaction {
@@ -383,8 +373,16 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 			      # state.
     variable myproject   {} ; # Reference of the project object the
 			      # changeset belongs to.
-    variable mytype      {} ; # rev or sym, where the cset originated
-			      # from.
+    variable mytype      {} ; # What the changeset is based on
+			      # (revisions, tags, or branches).
+			      # Values: See mycstype. Note that we
+			      # have to keep the names of the helper
+			      # singletons in sync with the contents
+			      # of state table 'cstype', and various
+			      # other places using them hardwired.
+    variable mytypeobj   {} ; # Reference to the container for the
+			      # type dependent code. Derived from
+			      # mytype.
     variable mysrcid     {} ; # Id of the metadata or symbol the cset
 			      # is based on.
     variable myrevisions {} ; # List of the file level revisions in
@@ -404,7 +402,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     ## Internal methods
 
     typevariable mycounter        0 ; # Id counter for csets. Last id used.
-    typevariable mycstype -array {} ; # Map cstypes to persistent ids.
+    typevariable mycstype -array {} ; # Map cstypes (names) to persistent
+				      # ids. Note that we have to keep
+				      # the names in the table 'cstype'
+				      # in sync with the names of the
+				      # helper singletons.
 
     typemethod getcstypes {} {
 	foreach {tid name} [state run {
@@ -856,6 +858,12 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 
     # result = list (mintime, maxtime)
     typemethod timerange {items} {
+	set theset ('[join $items {','}]')
+	return [state run "
+	    SELECT MIN(R.date), MAX(R.date)
+	    FROM revision R
+	    WHERE R.rid IN $theset
+	"]
     }
 
     # var(dv) = dict (revision -> list (revision))
