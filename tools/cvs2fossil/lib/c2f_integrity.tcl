@@ -60,7 +60,14 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	RevisionChangesets
 	TagChangesets
 	BranchChangesets
-	Selfreferentiality $csets
+	trouble abort? ; # Avoid expensive check if anything found before
+
+	LoopCheck $csets
+	return
+    }
+
+    typemethof loopcheckon {} {
+	set myloopcheck 1
 	return
     }
 
@@ -738,11 +745,14 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    proc Selfreferentiality {csets} {
+    proc LoopCheck {csets} {
+	variable ::myloopcheck
+	if {!$myloopcheck} return
+
 	log write 4 integrity {Checking changesets for self-references}
 
 	foreach cset $csets {
-	    if {[$cset selfreferential]} {
+	    if {[$cset loopcheck]} {
 		trouble fatal "[$cset str] depends on itself"
 	    }
 	}
@@ -868,6 +878,13 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
 	return
     }
+
+    # # ## ### ##### ######## #############
+
+    typevariable myloopcheck 0 ; # Boolean flag. Controls whether
+				 # 'integrity changesets' looks for
+				 # changesets with loops or not.
+				 # Default is to not look for them.
 
     # # ## ### ##### ######## #############
     ## Configuration

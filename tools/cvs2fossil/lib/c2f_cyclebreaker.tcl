@@ -26,6 +26,7 @@ package require vc::tools::trouble                        ; # Error reporting.
 package require vc::tools::misc                           ; # Text formatting.
 package require vc::fossil::import::cvs::project::rev     ; # Project level changesets
 package require vc::fossil::import::cvs::project::revlink ; # Cycle links.
+package require vc::fossil::import::cvs::integrity        ; # State integrity checks.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -199,6 +200,10 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# chosen set. These are ignored
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
+		if {$succ eq $cset} {
+		    $cset loopcheck
+		    trouble fatal "[$cset str] depends on itself"
+		}
 	    }
 	}
 
@@ -418,6 +423,10 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# the chosen set. These are ignored
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
+		if {$succ eq $cset} {
+		    $cset loopcheck
+		    trouble fatal "[$cset str] depends on itself"
+		}
 	    }
 	}
 	foreach cset $pre {
@@ -541,6 +550,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace export cyclebreaker
     namespace eval cyclebreaker {
 	namespace eval project {
+	    namespace import ::vc::fossil::import::cvs::integrity
 	    namespace import ::vc::fossil::import::cvs::project::rev
 	    namespace import ::vc::fossil::import::cvs::project::revlink
 	}

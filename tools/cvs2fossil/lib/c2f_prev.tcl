@@ -365,7 +365,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    method selfreferential {} {
+    method loopcheck {} {
 	log write 7 csets {Checking [$self str] /[llength $myitems]}
 
 	if {![struct::set contains [$self successors] $self]} {
@@ -424,7 +424,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    lappend newcsets $fragment
 	    $fragment persist
 
-	    if {[$fragment selfreferential]} {
+	    if {[$fragment loopcheck]} {
 		trouble fatal "[$fragment str] depends on itself"
 	    }
 	}

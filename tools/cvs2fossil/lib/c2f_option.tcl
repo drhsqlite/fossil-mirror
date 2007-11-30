@@ -27,6 +27,7 @@ package require vc::fossil::import::cvs::pass         ; # Pass management
 package require vc::fossil::import::cvs::pass::collar ; # Pass I.
 package require vc::fossil::import::cvs::repository   ; # Repository management
 package require vc::fossil::import::cvs::state        ; # State storage
+package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
 package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 package require vc::fossil::import::cvs::cyclebreaker ; # Breaking dependency cycles.
 
@@ -48,6 +49,7 @@ snit::type ::vc::fossil::import::cvs::option {
     # --trunk-only
     # --exclude, --force-tag, --force-branch
     # --batch
+    # --loopcheck
 
     # -o, --output
     # --dry-run
@@ -82,6 +84,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--batch                     { log noprogress }
 		--dots                      { cyclebreaker dotsto [Value arguments] }
 		--watch                     { cyclebreaker watch  [Value arguments] }
+		--loopcheck                 { integrity loopcheckon }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -148,6 +151,8 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "                               and during breaking the of cycles to the"
 	trouble info "                               direcotry PATH, using GraphViz's dot format"
 	trouble info ""
+	trouble info "    --loopcheck                Activate the expensive search for change-"
+	trouble info "                               with loops, i.e. depending on themselves."
 
 	# --project, --cache
 	# ...
@@ -225,6 +230,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::fossil::import::cvs::cyclebreaker
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
 	}
