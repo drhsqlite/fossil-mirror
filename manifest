@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Easier\sname\sfor\sself-referential\schangesets,\sloopcheck.\sMade\sconditional\son\soption\s--loopcheck,\sdefault\soff,\sand\savoided\sif\sthe\sgeneral\schecks\son\schangesets\sreport\strouble.\sReinstated\sthe\sloop\scheck\sin\sthe\scycle\sbreaker\score\sin\ssimpler\sform,\sreusing\sthe\snew\scommand\sin\sthe\schangeset\sclass.
-D 2007-11-30T06:57:19
+C Fixed\stypo\sof\skeyword.
+D 2007-11-30T15:20:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -106,7 +106,7 @@ F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
 F tools/cvs2fossil/lib/c2f_fsym.tcl a9a75d2cd27f50eeb2689c144ae884f61cad996a
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
-F tools/cvs2fossil/lib/c2f_integrity.tcl 59163ec67c901e76bdaa9ef9580d019267da71a3
+F tools/cvs2fossil/lib/c2f_integrity.tcl bd6c4a1382b4cb75c2b6b3d4a5b49b8b0bdd2a4d
 F tools/cvs2fossil/lib/c2f_option.tcl b6d7645a3c29f3b958241ca9b23d6341914dfd2b
 F tools/cvs2fossil/lib/c2f_pass.tcl b27a6e1d116415dc5ca7d92637f4729089ca5c32
 F tools/cvs2fossil/lib/c2f_patopsort.tcl 271b9b7ee3cb2df7b01ee7558e3abf8dcba47def
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c14e8f84cd33db73c2eeee82e2781f964d650752
-R 4328f72b16ea4519f140d91ed7a75f5b
+P 0af7a3c8acfdfce52ff74a7949db128303c3c3da
+R c2aeea8c5f65a93edb02ca5fd8eb31a6
 U aku
-Z 1cb5897bec78be9a1bf405e5e7cbd11f
+Z 81ed9533243b95c4c723bb67b6514929
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHT7RWvonzZ/CRa7gRAuoOAKCDnC+pUN5bdxeua109pfX1BxnmQQCeNnJJ
-bfVeEk4ucJA6o/q8TNfGVi0=
-=pB0L
+iD8DBQFHUCpNvonzZ/CRa7gRAoKWAJ9OTqdzM475amsmOVumWpeX+XppSwCfQDUj
+Edh/UZ6ROr0aZHVdD/Y7/SI=
+=3V4R
 -----END PGP SIGNATURE-----

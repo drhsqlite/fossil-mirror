@@ -66,7 +66,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    typemethof loopcheckon {} {
+    typemethod loopcheckon {} {
 	set myloopcheck 1
 	return
     }
