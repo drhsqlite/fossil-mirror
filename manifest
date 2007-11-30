@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Renamed\sstate\stable\s'csrevision'\sto\s'csitem'\sto\sreflect\sthe\snew\sinternals\sof\schangesets.\sUpdated\sall\splaces\swhere\sit\sis\sused.
-D 2007-11-29T09:16:33
+C Replaced\sthe\schecks\sfor\sself-referential\schangesets\sin\sthe\scycle\sbreaker\swith\sa\sscheme\sin\sthe\schangeset\sclass\sdoing\schecks\swhen\ssplitting\sa\schangeset,\swhich\sis\salso\scalled\sby\sthe\sgeneral\schangeset\sintegrity\scode,\safter\seach\spass.\sExtended\slog\soutput\sat\shigh\sverbosity\slevels.\sThorough\schecking\sof\sthe\sfragments\sa\schangeset\sis\sto\sbe\ssplit\sinto.
+D 2007-11-30T03:57:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,26 +100,26 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree adf892ac6cf90e86852191161ea57fc82a72888e
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl df041b57315a0b449663c5317abe6987a9f3c975
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 10b6b95ceb723019aeba896310332236d33cfe92
 F tools/cvs2fossil/lib/c2f_file.tcl 91fadc851ab9ffe18f31881afe107adaf9e146a4
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
 F tools/cvs2fossil/lib/c2f_fsym.tcl a9a75d2cd27f50eeb2689c144ae884f61cad996a
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
-F tools/cvs2fossil/lib/c2f_integrity.tcl 6d1e02083a7009931a8f3b96f7e98cdbc268cc48
+F tools/cvs2fossil/lib/c2f_integrity.tcl ea08d30250e331ed94965fc84135ddce7260a3e1
 F tools/cvs2fossil/lib/c2f_option.tcl 21dce38cba529d5ef7bb41d62092b28484e05e10
 F tools/cvs2fossil/lib/c2f_pass.tcl b27a6e1d116415dc5ca7d92637f4729089ca5c32
 F tools/cvs2fossil/lib/c2f_patopsort.tcl 271b9b7ee3cb2df7b01ee7558e3abf8dcba47def
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl da5cab23e35e50144f0bd9e95ba956d500ccfc76
-F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 4ea6d5327b66cff9cabd782518dee978a9cf147d
-F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl aa112553eddc0fdc77ab9562e22dbe153d8f6c54
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 2c3ba3a1ced4344264d058219d00940457695d5d
+F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 0b1951c1de3ae64de46e2bb1a9a10de97a9534ad
+F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 427766d2fb537e12d3b3345d14ac9f256281e361
 F tools/cvs2fossil/lib/c2f_pcollar.tcl a368b702c329d622929f35b637cacd10af57f4a1
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl ea94dc166cfb94b6428a406a77c5b4c07b08824a
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 0ef91b21f1b229be262c34925bbcb875c4d29944
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 2020f6d70d0dc62c0db4df69bbba538719f0e779
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl b1c3a78eda5fa79bfc74875acee65d53bec9e070
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 39a67db2c5713b9ae43653893e301125a0549bc4
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl 1c3ee2d5188aa2e6306886ff27eab1907d1d32a6
+F tools/cvs2fossil/lib/c2f_prev.tcl 6ad5e0375044306133a3a1ef24caac197047ec23
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 3ad12043d17dfda16a9a836c543dbf6a918b739f
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl b280cf33d262a746461bde5c0a29414d9f79bdba
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4859304926731ffec95cf8977e46e5094dcffa60
-R 71d589ac14ccdc0a712fc098d07e8b6c
+P 80b1e8936fad7ce85fc2af156031b93d7a2e2f43
+R d10aa8f70faba33f015174f26b6e9f0b
 U aku
-Z 8c0b98d28bf49c3c66227f65263d1337
+Z fd7a67a07ab5f1152ef24684f3c5fb35
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHToNxvonzZ/CRa7gRAoyVAJ0ZurVCC5KgXFIjK0PdLBeEdkSFWQCeMA6V
-X2/hxW1ZfnHFnRY9q9jUx+A=
-=+Mcp
+iD8DBQFHT4ojvonzZ/CRa7gRAqMNAJwMy3pAU6c2/sezYUVt2hY0ZYh/YwCbB1+e
+fwCD8/whTEeTllS5/M5DVrc=
+=E26x
 -----END PGP SIGNATURE-----

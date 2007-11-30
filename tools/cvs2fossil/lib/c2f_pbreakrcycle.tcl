@@ -71,7 +71,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	}
 
 	repository printcsetstatistics
-	integrity changesets
+	integrity changesets [project::rev all]
 	return
     }
 

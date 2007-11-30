@@ -18,6 +18,7 @@
 
 package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
+package require struct::set                           ; # Set operations.
 package require vc::tools::misc                       ; # Text formatting
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
@@ -38,7 +39,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    set myid [incr mycounter]
 	}
 
-	integrity assert {[info exists mycstype($cstype)]} {Bad changeset type '$cstype'.}
+	integrity assert {
+	    [info exists mycstype($cstype)]
+	} {Bad changeset type '$cstype'.}
 
 	set myproject   $project
 	set mytype      $cstype
@@ -55,6 +58,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    set key [list $cstype $iid]
 	    set myitemmap($key) $self
 	    lappend mytitems $key
+	    log write 8 csets {MAP+ item <$key> $self = [$self str]}
 	}
 	return
     }
@@ -245,6 +249,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	foreach iid $myitems {
 	    set key [list $mytype $iid]
 	    unset myitemmap($key)
+	    log write 8 csets {MAP- item <$key> $self = [$self str]}
 	}
 
 	# Create changesets for the fragments, reusing the current one
@@ -285,6 +290,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	foreach iid $myitems {
 	    set key [list $mytype $iid]
 	    set myitemmap($key) $self
+	    log write 8 csets {MAP+ item <$key> $self = [$self str]}
 	}
 
 	return 1
@@ -315,6 +321,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method timerange {} { return [$mytypeobj timerange $myitems] }
 
     method drop {} {
+	log write 8 csets {Dropping $self = [$self str]}
+
 	state transaction {
 	    state run {
 		DELETE FROM changeset WHERE cid = $myid;
@@ -324,10 +332,41 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	foreach iid $myitems {
 	    set key [list $mytype $iid]
 	    unset myitemmap($key)
+	    log write 8 csets {MAP- item <$key> $self = [$self str]}
 	}
 	set pos          [lsearch -exact $mychangesets $self]
 	set mychangesets [lreplace $mychangesets $pos $pos]
 	return
+    }
+
+    method selfreferential {} {
+	log write 9 csets {Checking [$self str] /[llength $myitems]}
+
+	if {![struct::set contains [$self successors] $self]} {
+	    return 0
+	}
+	if {[log verbosity?] < 8} { return 1 }
+
+	# Print the detailed successor structure of the self-
+	# referential changeset, if the verbosity of the log is dialed
+	# high enough.
+
+	log write 8 csets [set hdr {Self-referential changeset [$self str] __________________}]
+	array set nmap [$self nextmap]
+	foreach item [lsort -dict [array names nmap]] {
+	    foreach succitem $nmap($item) {
+		set succcs $myitemmap($succitem)
+		set hint [expr {($succcs eq $self)
+				? "LOOP"
+				: "    "}]
+		set i   "<$item [$type itemstr $item]>"
+		set s   "<$succitem [$type itemstr $succitem]>"
+		set scs [$succcs str]
+		log write 8 csets {$hint * $i --> $s --> cs $scs}
+	    }
+	}
+	log write 8 csets [regsub -all {[^ 	]} $hdr {_}]
+	return 1
     }
 
     typemethod split {cset args} {
@@ -340,6 +379,39 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# have to have the same type as the changeset, being subsets
 	# of its items. This is checked in Untag1.
 
+	# Constraints: No fragment must be empty. All fragments have
+	# to be subsets of the cset. The union has to cover the
+	# original. All pairwise intersections have to be empty.
+
+	log write 8 csets {OLD: [lsort [$cset items]]}
+
+	set cover {}
+	foreach fragmentitems $args {
+	    log write 8 csets {NEW: [lsort $fragmentitems]}
+
+	    integrity assert {
+		![struct::set empty $fragmentitems]
+	    } {changeset fragment is empty}
+	    integrity assert {
+		[struct::set subsetof $fragmentitems [$cset items]]
+	    } {changeset fragment is not a subset}
+	    struct::set add cover $fragmentitems
+	}
+	integrity assert {
+	    [struct::set equal $cover [$cset items]]
+	 } {The fragments do not cover the original changeset}
+	set i 1
+	foreach fia $args {
+	    foreach fib [lrange $args $i end] {
+		integrity assert {
+		    [struct::set empty [struct::set intersect $fia $fib]]
+		} {The fragments <$fia> and <$fib> overlap}
+	    }
+	    incr i
+	}
+
+	# All checks pass, actually perform the split.
+
 	struct::list assign [$cset data] project cstype cssrc
 
 	$cset drop
@@ -347,14 +419,19 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	set newcsets {}
 	foreach fragmentitems $args {
-	    integrity assert {
-		[llength $fragmentitems]
-	    } {Attempted to create an empty changeset, i.e. without items}
-	    lappend newcsets [$type %AUTO% $project $cstype $cssrc \
-				  [Untag $fragmentitems $cstype]]
+	    log write 8 csets {MAKE: [lsort $fragmentitems]}
+
+	    set fragment [$type %AUTO% $project $cstype $cssrc \
+			      [Untag $fragmentitems $cstype]]
+	    lappend newcsets $fragment
+	    $fragment persist
+
+	    if {[$fragment selfreferential]} {
+		trouble fatal "[$fragment str] depends on itself"
+	    }
 	}
 
-	foreach c $newcsets { $c persist }
+	trouble abort?
 	return $newcsets
     }
 
@@ -372,6 +449,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	struct::list assign $theitem t i
 	integrity assert {$cstype eq $t} {Item $i's type is '$t', expected '$cstype'}
 	return $i
+    }
+
+    typemethod itemstr {item} {
+	struct::list assign $item itype iid
+	return [$itype str $iid]
     }
 
     # # ## ### ##### ######## #############
@@ -676,6 +758,17 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
     typemethod istag      {} { return 0 }
     typemethod isbranch   {} { return 0 }
 
+    typemethod str {revision} {
+	struct::list assign [state run {
+	    SELECT R.rev, F.name, P.name
+	    FROM   revision R, file F, project P
+	    WHERE  R.rid = $revision
+	    AND    F.fid = R.fid
+	    AND    P.pid = F.pid
+	}] revnr fname pname
+	return "$pname/${revnr}::$fname"
+    }
+
     # result = list (mintime, maxtime)
     typemethod timerange {items} {
 	set theset ('[join $items {','}]')
@@ -920,6 +1013,18 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
     typemethod istag      {} { return 1 }
     typemethod isbranch   {} { return 0 }
 
+    typemethod str {tag} {
+	struct::list assign [state run {
+	    SELECT S.name, F.name, P.name
+	    FROM   tag T, symbol S, file F, project P
+	    WHERE  T.tid = $tag
+	    AND    F.fid = T.fid
+	    AND    P.pid = F.pid
+	    AND    S.sid = T.sid
+	}] sname fname pname
+	return "$pname/T'${sname}'::$fname"
+    }
+
     # result = list (mintime, maxtime)
     typemethod timerange {tags} {
 	# The range is defined as the range of the revisions the tags
@@ -987,6 +1092,18 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
     typemethod bysymbol   {} { return 1 }
     typemethod istag      {} { return 0 }
     typemethod isbranch   {} { return 1 }
+
+    typemethod str {branch} {
+	struct::list assign [state run {
+	    SELECT S.name, F.name, P.name
+	    FROM   branch B, symbol S, file F, project P
+	    WHERE  B.bid = $branch
+	    AND    F.fid = B.fid
+	    AND    P.pid = F.pid
+	    AND    S.sid = B.sid
+	}] sname fname pname
+	return "$pname/B'${sname}'::$fname"
+    }
 
     # result = list (mintime, maxtime)
     typemethod timerange {branches} {

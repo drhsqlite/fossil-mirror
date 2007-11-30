@@ -53,13 +53,14 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    typemethod changesets {} {
+    typemethod changesets {csets} {
 	log write 4 integrity {Check database consistency}
 
 	set n 0
 	RevisionChangesets
 	TagChangesets
 	BranchChangesets
+	Selfreferentiality $csets
 	return
     }
 
@@ -734,6 +735,17 @@ snit::type ::vc::fossil::import::cvs::integrity {
 				 AND   UU.fcount < VV.rcount)
 		AND    T.tid = C.type
 	    }
+	return
+    }
+
+    proc Selfreferentiality {csets} {
+	log write 4 integrity {Checking changesets for self-references}
+
+	foreach cset $csets {
+	    if {[$cset selfreferential]} {
+		trouble fatal "[$cset str] depends on itself"
+	    }
+	}
 	return
     }
 

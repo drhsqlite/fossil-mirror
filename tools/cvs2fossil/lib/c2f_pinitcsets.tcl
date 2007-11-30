@@ -144,7 +144,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	}
 
 	repository printcsetstatistics
-	integrity changesets
+	integrity changesets [project::rev all]
 	return
     }
 
