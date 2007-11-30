@@ -144,6 +144,16 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     method breakinternaldependencies {} {
+
+	##
+	## NOTE: This method, maybe in conjunction with its caller
+	##       seems to be a memory hog, especially for large
+	##       changesets, with 'large' meaning to have a 'long list
+	##       of items, several thousand'. Investigate where the
+	##       memory is spent and then look for ways of rectifying
+	##       the problem.
+	##
+
 	# This method inspects the changesets for internal
 	# dependencies. Nothing is done if there are no
 	# such. Otherwise the changeset is split into a set of
@@ -189,54 +199,69 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	InitializeBreakState $myitems
 
 	set fragments {}
-	set pending   [list $range]
-	set at        0
+	set new       [list $range]
 	array set breaks {}
 
-	while {$at < [llength $pending]} {
-	    set current [lindex $pending $at]
+	# Instead of one list holding both processed and pending
+	# fragments we use two, one for the framents to process, one
+	# to hold the new fragments, and the latter is copied to the
+	# former when they run out. This keeps the list of pending
+	# fragments short without sacrificing speed by shifting stuff
+	# down. We especially drop the memory of fragments broken
+	# during processing after a short time, instead of letting it
+	# consume memory.
 
-	    log write 6 csets {. . .. ... ..... ........ .............}
-	    log write 6 csets {Scheduled   [join [PRs [lrange $pending $at end]] { }]}
-	    log write 6 csets {Considering [PR $current] \[$at/[llength $pending]\]}
+	while {[llength $new]} {
 
-	    set best [FindBestBreak $current]
+	    set pending $new
+	    set new     {}
+	    set at      0
 
-	    if {$best < 0} {
-		# The inspected range has no internal
-		# dependencies. This is a complete fragment.
-		lappend fragments $current
+	    while {$at < [llength $pending]} {
+		set current [lindex $pending $at]
 
-		log write 6 csets "No breaks, final"
-	    } else {
-		# Split the range and schedule the resulting fragments
-		# for further inspection. Remember the number of
-		# dependencies cut before we remove them from
-		# consideration, for documentation later.
+		log write 6 csets {. . .. ... ..... ........ .............}
+		log write 6 csets {Scheduled   [join [PRs [lrange $pending $at end]] { }]}
+		log write 6 csets {Considering [PR $current] \[$at/[llength $pending]\]}
 
-		set breaks($best) $cross($best)
+		set best [FindBestBreak $current]
 
-		log write 6 csets "Best break @ $best, cutting [nsp $cross($best) dependency dependencies]"
+		if {$best < 0} {
+		    # The inspected range has no internal
+		    # dependencies. This is a complete fragment.
+		    lappend fragments $current
 
-		# Note: The value of best is an abolute location in
-		# myitems. Use the start of current to make it an
-		# index absolute to current.
+		    log write 6 csets "No breaks, final"
+		} else {
+		    # Split the range and schedule the resulting
+		    # fragments for further inspection. Remember the
+		    # number of dependencies cut before we remove them
+		    # from consideration, for documentation later.
 
-		set brel [expr {$best - [lindex $current 0]}]
-		set bnext $brel ; incr bnext
-		set fragbefore [lrange $current 0 $brel]
-		set fragafter  [lrange $current $bnext end]
+		    set breaks($best) $cross($best)
 
-		log write 6 csets "New pieces  [PR $fragbefore] [PR $fragafter]"
+		    log write 6 csets "Best break @ $best, cutting [nsp $cross($best) dependency dependencies]"
 
-		integrity assert {[llength $fragbefore]} {Found zero-length fragment at the beginning}
-		integrity assert {[llength $fragafter]}  {Found zero-length fragment at the end}
+		    # Note: The value of best is an abolute location
+		    # in myitems. Use the start of current to make it
+		    # an index absolute to current.
 
-		lappend pending $fragbefore $fragafter
-		CutAt $best
+		    set brel [expr {$best - [lindex $current 0]}]
+		    set bnext $brel ; incr bnext
+		    set fragbefore [lrange $current 0 $brel]
+		    set fragafter  [lrange $current $bnext end]
+
+		    log write 6 csets "New pieces  [PR $fragbefore] [PR $fragafter]"
+
+		    integrity assert {[llength $fragbefore]} {Found zero-length fragment at the beginning}
+		    integrity assert {[llength $fragafter]}  {Found zero-length fragment at the end}
+
+		    lappend new $fragbefore $fragafter
+		    CutAt $best
+		}
+
+		incr at
 	    }
-
-	    incr at
 	}
 
 	log write 6 csets ". . .. ... ..... ........ ............."
@@ -341,7 +366,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     method selfreferential {} {
-	log write 9 csets {Checking [$self str] /[llength $myitems]}
+	log write 7 csets {Checking [$self str] /[llength $myitems]}
 
 	if {![struct::set contains [$self successors] $self]} {
 	    return 0
@@ -380,36 +405,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# have to have the same type as the changeset, being subsets
 	# of its items. This is checked in Untag1.
 
-	# Constraints: No fragment must be empty. All fragments have
-	# to be subsets of the cset. The union has to cover the
-	# original. All pairwise intersections have to be empty.
-
 	log write 8 csets {OLD: [lsort [$cset items]]}
-
-	set cover {}
-	foreach fragmentitems $args {
-	    log write 8 csets {NEW: [lsort $fragmentitems]}
-
-	    integrity assert {
-		![struct::set empty $fragmentitems]
-	    } {changeset fragment is empty}
-	    integrity assert {
-		[struct::set subsetof $fragmentitems [$cset items]]
-	    } {changeset fragment is not a subset}
-	    struct::set add cover $fragmentitems
-	}
-	integrity assert {
-	    [struct::set equal $cover [$cset items]]
-	 } {The fragments do not cover the original changeset}
-	set i 1
-	foreach fia $args {
-	    foreach fib [lrange $args $i end] {
-		integrity assert {
-		    [struct::set empty [struct::set intersect $fia $fib]]
-		} {The fragments <$fia> and <$fib> overlap}
-	    }
-	    incr i
-	}
+	ValidateFragments $cset $args
 
 	# All checks pass, actually perform the split.
 
@@ -436,6 +433,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return $newcsets
     }
 
+    typemethod itemstr {item} {
+	struct::list assign $item itype iid
+	return [$itype str $iid]
+    }
+
     typemethod strlist {changesets} {
 	return [join [struct::list map $changesets [myproc ID]]]
     }
@@ -452,9 +454,51 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return $i
     }
 
-    typemethod itemstr {item} {
-	struct::list assign $item itype iid
-	return [$itype str $iid]
+    proc ValidateFragments {cset fragments} {
+	# Check the various integrity constraints for the fragments
+	# specifying how to split the changeset:
+	#
+	# * We must have two or more fragments, as splitting a
+	#   changeset into one makes no sense.
+	# * No fragment may be empty.
+	# * All fragments have to be true subsets of the items in the
+	#   changeset to split. The 'true' is implied because none are
+	#   allowed to be empty, so each has to be smaller than the
+	#   total.
+	# * The union of the fragments has to be the item set of the
+	#   changeset.
+	# * The fragment must not overlap, i.e. their pairwise
+	#   intersections have to be empty.
+
+	set cover {}
+	foreach fragmentitems $args {
+	    log write 8 csets {NEW: [lsort $fragmentitems]}
+
+	    integrity assert {
+		![struct::set empty $fragmentitems]
+	    } {changeset fragment is empty}
+
+	    integrity assert {
+		[struct::set subsetof $fragmentitems [$cset items]]
+	    } {changeset fragment is not a subset}
+	    struct::set add cover $fragmentitems
+	}
+
+	integrity assert {
+	    [struct::set equal $cover [$cset items]]
+	 } {The fragments do not cover the original changeset}
+
+	set i 1
+	foreach fia $args {
+	    foreach fib [lrange $args $i end] {
+		integrity assert {
+		    [struct::set empty [struct::set intersect $fia $fib]]
+		} {The fragments <$fia> and <$fib> overlap}
+	    }
+	    incr i
+	}
+
+	return
     }
 
     # # ## ### ##### ######## #############
@@ -749,6 +793,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     # # ## ### ##### ######## #############
 }
+
+##
+## NOTE: The successor and predecessor methods defined by the classes
+##       below are -- bottle necks --. Look for ways to make the SQL
+##       faster.
+##
 
 # # ## ### ##### ######## ############# #####################
 ## Helper singleton. Commands for revision changesets.
