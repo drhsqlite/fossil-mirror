@@ -54,7 +54,7 @@ state reading file
 state reading revision
 state reading revisionbranchchildren
 state reading changeset
-state reading csrevision
+state reading csitem
 state reading csorder
 
 set what [lindex $argv 1]
@@ -106,8 +106,8 @@ foreach {rid revnr lod date isdefault} [set revisions [state run {
 }]] {
     set cs [state run {
 	SELECT CR.cid, CO.pos, CT.name
-	FROM csrevision CR, csorder CO, cstype CT, changeset C
-	WHERE CR.rid = $rid
+	FROM csitem CR, csorder CO, cstype CT, changeset C
+	WHERE CR.iid = $rid
 	AND   CR.cid = CO.cid
 	AND   CR.cid = C.cid
 	AND   CT.tid = C.type
