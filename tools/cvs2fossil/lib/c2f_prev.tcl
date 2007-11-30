@@ -286,7 +286,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# (*) above. Persistence does not matter here, none of the
 	# changesets has been saved to the persistent state yet.
 
-	set myitems [lrange $myitems 0 $firste]
+	set myitems  [lrange $myitems  0 $firste]
+	set mytitems [lrange $mytitems 0 $firste]
 	foreach iid $myitems {
 	    set key [list $mytype $iid]
 	    set myitemmap($key) $self
