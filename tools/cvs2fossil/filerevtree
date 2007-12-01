@@ -136,17 +136,18 @@ foreach {rid revnr lod date isdefault} $revisions {
 	    append label "\\nCS/${cstype}($cs) @$ord"
 	}
     }
-    dg node insert $rid
-    dg node set    $rid label $label
-    dg node set    $rid shape [expr {$isdefault ? "diamond" : "box"}]
+    set key [list rev $rid]
+    dg node insert $key
+    dg node set    $key label $label
+    dg node set    $key shape [expr {$isdefault ? "diamond" : "box"}]
 }
 
 # Go through the revisions a second time and set up the arcs based on
 # the stored successor information.
 
-::vc::fossil::import::cvs::project::rev::PullSuccessorRevisions dep [array names rev]
+::vc::fossil::import::cvs::project::rev::rev successors dep [array names rev]
 
-proc Ord {cmd rid} {
+proc Ord {cmd rid} {return 0
     global rev
     set ords {}
     foreach {cs ord cstype} [lindex $rev($rid) 4] { lappend ords $ord }
@@ -157,7 +158,9 @@ foreach {rid children} [array get dep] {
     set max [Ord max $rid]
 
     foreach child $children {
-	set a [dg arc insert $rid $child]
+	if {[catch {
+	    set a [dg arc insert $rid $child]
+	}]} continue
 
 	if {$max > [Ord min $child]} {
 	    puts "Backward : $rid -> $child"

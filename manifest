@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Updated\shelper\sapp\sto\schanged\sstate\sdefinition\s(csrevision\s->\scsitem).
-D 2007-11-30T15:21:14
+C Helper\supdated\sto\schanges\sin\sstate\sdefinition.
+D 2007-12-01T18:35:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -99,7 +99,7 @@ F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
-F tools/cvs2fossil/filerevtree 9d86241d7579696eda0475b117077baea1e57bd6
+F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 9dfc0b4e4fd3ed1f151ba71720b7163cf60f20c6
 F tools/cvs2fossil/lib/c2f_file.tcl 91fadc851ab9ffe18f31881afe107adaf9e146a4
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3db03be62fb25d8409abeb685024651329eec857
-R 7bfc8cdd0f467cbd039fc943951b22f3
+P fc635d597718b336a3e4ce43254b99136b996b13
+R c2ca04acf3b03be4db97a6f9098c1b4e
 U aku
-Z d55927e93e4866e7f70ecddb8d698f3f
+Z dd884cb2eaa000a4870c40fc609415a3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHUCpxvonzZ/CRa7gRAv5OAJ0Q/vP8+tfGpIWxzPTNiV1UWFR/HwCfYvDa
-2zzMPfzBf/ZHRSSLdX1Uj2s=
-=sJzx
+iD4DBQFHUalfvonzZ/CRa7gRAmAfAJYq5EQ4MY6ZtLsbk8RWN+Bs9y5WAJ9naAfR
+jDQPgJcKLLskG/ParvdvFw==
+=BXCp
 -----END PGP SIGNATURE-----
