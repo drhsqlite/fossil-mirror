@@ -320,6 +320,14 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	}]
 
 	set branchestoadjust [state run {
+	    SELECT B.bid, B.fid, B.lod, B.pos, P.pid, S.name, NULL, NULL
+	    FROM branch B, preferedparent P, symbol S
+	    WHERE B.sid = P.sid
+	    AND   B.lod != P.pid
+	    AND   P.pid = S.sid
+	    AND   S.name != ':trunk:'
+	    AND   B.root IS NULL -- Accept free-floating branch
+	    UNION
 	    SELECT B.bid, B.fid, B.lod, B.pos, P.pid, S.name, R.rev, R.rid
 	    FROM branch B, preferedparent P, symbol S, revision R
 	    WHERE B.sid = P.sid
@@ -346,7 +354,6 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 
 	set n 0
 	foreach {id fid lod pid preferedname revnr rid} $tagstoadjust {
-
 	    # BOTTLE-NECK ...
 	    #
 	    # The check if the candidate (pid) is truly viable is
@@ -414,7 +421,14 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    #                   WHERE BX.root = R.rid
 	    #                   AND   BX.pos > B.pos)
 
-	    if {![state one {
+	    # Note: rid eq "" hear means that this is a free-floating
+	    # branch, whose original root was removed as a unnecessary
+	    # dead revision (See 'file::RemoveIrrelevantDeletions').
+	    # Such a branch can be regrafted without trouble and there
+	    # is no need to look for the new parent in its
+	    # non-existent root.
+
+	    if {($rid ne "") && ![state one {
 		SELECT COUNT(*)
 		FROM branch B
 		WHERE  B.sid  = $pid

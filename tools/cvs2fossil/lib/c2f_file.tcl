@@ -768,6 +768,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # root.
 
 	    foreach branch [$root branches] {
+		$branch cutbranchparent
 		if {![$branch haschild]} continue
 		set first [$branch child]
 		$first cutfromparentbranch

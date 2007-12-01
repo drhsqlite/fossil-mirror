@@ -121,10 +121,11 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	return
     }
 
-    method setposition {n}   { set mybranchposition $n ; return }
-    method setparent   {rev} { set mybranchparent $rev ; return }
-    method setchild    {rev} { set mybranchchild  $rev ; return }
-    method cutchild    {}    { set mybranchchild  ""   ; return }
+    method setposition  {n}   { set mybranchposition $n ; return }
+    method setparent    {rev} { set mybranchparent $rev ; return }
+    method setchild     {rev} { set mybranchchild  $rev ; return }
+    method cutchild     {}    { set mybranchchild  ""   ; return }
+    method cutbranchparent {} { set mybranchparent ""   ; return }
 
     method branchnr    {} { return $mynr }
     method parentrevnr {} { return $mybranchparentrevnr }
@@ -187,12 +188,12 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 		}
 	    }
 	    branch {
-		lappend map @F@ [expr { ($mybranchchild eq "") ? "NULL" : [$mybranchchild id] }]
+		lappend map @F@ [expr { ($mybranchchild  eq "") ? "NULL" : [$mybranchchild  id] }]
+		lappend map @P@ [expr { ($mybranchparent eq "") ? "NULL" : [$mybranchparent id] }]
 
-		set rid [$mybranchparent id]
 		set cmd {
 		    INSERT INTO branch ( bid,   fid,  lod,  sid,  root, first, bra,  pos              )
-		    VALUES             ($myid, $fid, $lod, $sid, $rid,  @F@,  $mynr, $mybranchposition);
+		    VALUES             ($myid, $fid, $lod, $sid,  @P@,  @F@,  $mynr, $mybranchposition);
 		}
 		state transaction {
 		    state run [string map $map $cmd]

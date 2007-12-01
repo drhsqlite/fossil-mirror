@@ -184,10 +184,17 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    lod   INTEGER            REFERENCES symbol,   -- Line of development (NULL => Trunk)
 	    sid   INTEGER  NOT NULL  REFERENCES symbol,   -- Symbol capturing the branch
 
-	    root  INTEGER  NOT NULL  REFERENCES revision, -- Revision the branch sprouts from
+	    root  INTEGER            REFERENCES revision, -- Revision the branch sprouts from
 	    first INTEGER            REFERENCES revision, -- First revision committed to the branch
 	    bra   TEXT     NOT NULL,                      -- branch number
 	    pos   INTEGER  NOT NULL                       -- creation order in root.
+
+	    -- A branch can exist without root. It happens when the
+            -- only revision on trunk is the unnecessary dead one the
+            -- branch was sprouted from and it has commits. The branch
+            -- will exist to be the LOD of its revisions, nothing to
+            -- sprout from, the dead revision was removed, hence no
+            -- root.
 	}
 
 	# Project level ...
