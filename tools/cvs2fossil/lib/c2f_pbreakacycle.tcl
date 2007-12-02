@@ -124,7 +124,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# the order computed in pass 6. In "cvs2svn" this is called
 	# "retrograde".
 
+	set n 0
+	set max [llength [$graph nodes]]
 	foreach cset [$graph nodes] {
+	    log progress 2 breakacycle $n $max ; incr n
 	    if {![$cset isbranch]} continue
 	    CheckAndBreakBackward $graph $cset
 	}

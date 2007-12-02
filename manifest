@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Finally\scommitting\sanother\sdisabled\sintegrity\sconstraint\sfor\schangesets,\sexplanations\sin\sthe\scomments.
-D 2007-12-02T06:57:56
+C Added\sprogress\soutput\sto\sthe\sbreaking\sof\sbackward\sbranches.
+D 2007-12-02T06:58:49
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -110,7 +110,7 @@ F tools/cvs2fossil/lib/c2f_integrity.tcl 3a6b91462b1b6639782f4ba630752b603d3d988
 F tools/cvs2fossil/lib/c2f_option.tcl b6d7645a3c29f3b958241ca9b23d6341914dfd2b
 F tools/cvs2fossil/lib/c2f_pass.tcl b27a6e1d116415dc5ca7d92637f4729089ca5c32
 F tools/cvs2fossil/lib/c2f_patopsort.tcl 271b9b7ee3cb2df7b01ee7558e3abf8dcba47def
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 2c3ba3a1ced4344264d058219d00940457695d5d
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl f65b1a93225c7fb72288255df98d0065b6caf652
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 0b1951c1de3ae64de46e2bb1a9a10de97a9534ad
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 427766d2fb537e12d3b3345d14ac9f256281e361
 F tools/cvs2fossil/lib/c2f_pcollar.tcl a368b702c329d622929f35b637cacd10af57f4a1
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c7847514850766977712b19018baad6afddfdce9
-R 9778fb69d9a1c8c3ecfae2e62bd6dde7
+P fd93aa26a6abff8a2e7539c7c50f108ab6410c3a
+R 6929540aced2daa9aa078197398d4bfe
 U aku
-Z b0eb04141e0aec5c8a7bc9e6a616362b
+Z 3b3e27924b0b0d6b735486fa11e2ceb4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHUld0vonzZ/CRa7gRAtPNAJ4+lZDDd//AZc1u2uw230O/2z7iUACZAVlP
-D9xHzNK5IGQGN8CijNSNG70=
-=NtXk
+iD8DBQFHUlepvonzZ/CRa7gRAtBDAJwNcNiFqhlyXGu3AaOC2aTuj1ORXQCgt3du
+tUoM69O9Gm7X3TcbCGle7Z0=
+=bhA4
 -----END PGP SIGNATURE-----
