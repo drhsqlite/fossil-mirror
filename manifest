@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bugfix\sin\sValidateFragments,\stweaked\scomment\sa\sbit,\sbugfix\sin\sSQL,\sreordered\stables\sin\sthe\ssuccessor/predecessor\squeries\sa\sbit\sto\sshow\sthe\sactual\sprogression\sof\stheir\suse.
-D 2007-12-02T03:46:33
+C Deactivated\scaching\sof\sthe\snextmap/premap\sdata,\swith\sthe\sindices\sthe\sretrieval\sseems\sto\sbe\sfast\senough\sto\sallow\sus\sto\sreduce\smem\sconsumption.\sTweaked\slog\soutput,\sand\ssql\sformatting.
+D 2007-12-02T03:49:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -119,7 +119,7 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 47871c6aa239d6e4e80064d73a63780e5fb240d0
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 940562fb7e45bcc0c57a61bffb0df9bade952ecd
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 39a67db2c5713b9ae43653893e301125a0549bc4
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl 0103dd59f00e4283a08f62a66e4f6297fd18c578
+F tools/cvs2fossil/lib/c2f_prev.tcl 9054f71640dbf3ad74ee29773810919a5379435b
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 3ad12043d17dfda16a9a836c543dbf6a918b739f
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl b280cf33d262a746461bde5c0a29414d9f79bdba
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0a97ad385a7ad688a9e4cc7b5f4fc64b8654b8d0
-R cd7eea1b0443cb3c8bbb0ac97b2bbf50
+P fbfb53186811bd65b69ae5368c2d8f713995a63c
+R cd8421fba7b00c87b198f5062f70402d
 U aku
-Z b2f3ca52c62b0955445b5d7b5d314d90
+Z 37fdf2e03cdc40f76e495b9bfe5f280f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHUiqZvonzZ/CRa7gRAvQ9AJ9qI9PbeEQpgTmEGhvqNqXriE22DACfSdl1
-B+I5gNFfiR0YwGqbzmh3HQY=
-=WV/a
+iD8DBQFHUis3vonzZ/CRa7gRApdaAJ4vRemNwswxqejb69DoDMCWeZMjAwCeLKj4
+N6JmE3Vsy2WJM9sZyGTPhmk=
+=0MAB
 -----END PGP SIGNATURE-----

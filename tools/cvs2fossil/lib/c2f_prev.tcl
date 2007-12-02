@@ -129,18 +129,20 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     # item -> list (item)
     method nextmap {} {
-	if {[llength $mynextmap]} { return $mynextmap }
+	#if {[llength $mynextmap]} { return $mynextmap }
 	$mytypeobj successors tmp $myitems
-	set mynextmap [array get tmp]
-	return $mynextmap
+	return [array get tmp]
+	#set mynextmap [array get tmp]
+	#return $mynextmap
     }
 
     # item -> list (item)
     method premap {} {
-	if {[llength $mypremap]} { return $mypremap }
+	#if {[llength $mypremap]} { return $mypremap }
 	$mytypeobj predecessors tmp $myitems
-	set mypremap [array get tmp]
-	return $mypremap
+	return [array get tmp]
+	#set mypremap [array get tmp]
+	#return $mypremap
     }
 
     method breakinternaldependencies {} {
@@ -366,7 +368,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     method loopcheck {} {
-	log write 7 csets {Checking [$self str] /[llength $myitems]}
+	log write 7 csets {Checking [$self str] for loops /[llength $myitems]}
 
 	if {![struct::set contains [$self successors] $self]} {
 	    return 0
@@ -739,14 +741,15 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     # Print identifying data for a revision (project, file, dotted rev
     # number), for high verbosity log output.
+    # TODO: Replace with call to itemstr (list rev $id)
 
     proc PD {id} {
 	foreach {p f r} [state run {
 		SELECT P.name , F.name, R.rev
 		FROM revision R, file F, project P
 		WHERE R.rid = $id
-		AND   R.fid = F.fid
-		AND   F.pid = P.pid
+		AND   F.fid = R.fid
+		AND   P.pid = F.pid
 	}] break
 	return "'$p : $f/$r'"
     }
