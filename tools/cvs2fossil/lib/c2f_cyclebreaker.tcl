@@ -209,7 +209,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		$dg arc insert $cset $succ
 		if {$succ eq $cset} {
 		    $cset loopcheck
-		    trouble fatal "[$cset str] depends on itself"
+		    trouble internal "[$cset str] depends on itself"
 		}
 	    }
 	    incr n
@@ -433,7 +433,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		$dg arc insert $cset $succ
 		if {$succ eq $cset} {
 		    $cset loopcheck
-		    trouble fatal "[$cset str] depends on itself"
+		    trouble internal "[$cset str] depends on itself"
 		}
 	    }
 	}

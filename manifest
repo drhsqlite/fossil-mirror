@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\stable\slinkage\sin\squery,\sand\sduplicated\sconditions\s:(
-D 2007-12-02T06:17:59
+C Modified\sloop\scheck\sin\scycle\sbreaker\sto\sabort\simmediately\son\sfirst\slooped\schangeset.
+D 2007-12-02T06:18:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,7 +100,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl c1b1baf75a8fe079500c46028c9963855d490dec
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 6e157515edcd96eb7d7b82adf78a73e01b103de9
 F tools/cvs2fossil/lib/c2f_file.tcl 995eee5b4cfa45df61352be1c23043921d91b896
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9c5705502507e993fa2486d31093571139db2128
-R a403bb473c1e7eabce5f027d07b11ba2
+P f7cca3f082ea5a47499da3a26a0bc113eee2159a
+R c157e634809c72dcceb443d97e7d27ab
 U aku
-Z 4c70a7c70286b59703965d2fe12c00ea
+Z a6b744e49b2a6ca0f471f6e0c531d6f3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHUk4bvonzZ/CRa7gRApp1AKCStMFZ/GOAXVIRscPuj+E90ihYewCgs/9u
-FQzctno+GwYIz+w31Kn4GQc=
-=djeu
+iD8DBQFHUk5GvonzZ/CRa7gRAn9nAJ9A8QnqcWMoBFhxAsBEW9Y5bXNM8QCdH+cR
+girC9NoCu4oHP13O3034k+4=
+=bzKl
 -----END PGP SIGNATURE-----
