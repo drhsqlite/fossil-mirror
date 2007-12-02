@@ -746,7 +746,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
     }
 
     proc LoopCheck {csets} {
-	variable ::myloopcheck
+	::variable myloopcheck
 	if {!$myloopcheck} return
 
 	log write 4 integrity {Checking changesets for self-references}
