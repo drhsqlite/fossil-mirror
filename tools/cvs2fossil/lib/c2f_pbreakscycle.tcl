@@ -47,9 +47,13 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 	# Define the names and structure of the persistent state of
 	# this pass.
 
-	state reading revision
-	state reading changeset
-	state reading csitem
+	state use revision
+	state use tag
+	state use branch
+	state use symbol
+	state use changeset
+	state use csitem
+	state use cssuccessor
 	return
     }
 

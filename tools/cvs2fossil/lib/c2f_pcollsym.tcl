@@ -45,11 +45,13 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	# Define names and structure of the persistent state of this
 	# pass.
 
-	state reading symbol
-	state reading blocker
-	state reading parent
+	state use project
+	state use symbol
+	state use symtype
+	state use blocker
+	state use parent
 
-	state writing preferedparent {
+	state extend preferedparent {
 	    -- For each symbol the prefered parent. This describes the
 	    -- tree of the found lines of development. Actually a
 	    -- forest in case of multiple projects, with one tree per

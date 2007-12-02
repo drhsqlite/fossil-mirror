@@ -45,11 +45,14 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
 	# Define the names and structure of the persistent state of
 	# this pass.
 
-	state reading revision
-	state reading changeset
-	state reading csitem
+	state use revision
+	state use symbol
+	state use changeset
+	state use csitem
+	state use cstype
+	state use cssuccessor
 
-	state writing csorder {
+	state extend csorder {
 	    -- Commit order of the revision changesets based on their
 	    -- dependencies
 
@@ -66,7 +69,7 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
 	# this pass into memory when this pass is skipped instead of
 	# executed.
 
-	state reading changeset
+	state use changeset
 	project::rev loadcounter
 	return
     }

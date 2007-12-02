@@ -45,25 +45,27 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# Define the names and structure of the persistent state of
 	# this pass.
 
-	state reading meta
-	state reading revision
-	state reading revisionbranchchildren
-	state reading branch
-	state reading tag
-	state reading symbol
+	state use project
+	state use file
+	state use revision
+	state use revisionbranchchildren
+	state use branch
+	state use tag
+	state use symbol
+	state use meta
 
 	# Data per changeset, namely the project it belongs to, how it
 	# was induced (revision or symbol), plus reference to the
 	# primary entry causing it (meta entry or symbol). An adjunct
 	# table translates the type id's into human readable labels.
 
-	state writing changeset {
+	state extend changeset {
 	    cid   INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
 	    pid   INTEGER  NOT NULL  REFERENCES project,
 	    type  INTEGER  NOT NULL  REFERENCES cstype,
 	    src   INTEGER  NOT NULL -- REFERENCES meta|symbol (type dependent)
 	}
-	state writing cstype {
+	state extend cstype {
 	    tid   INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
 	    name  TEXT     NOT NULL,
 	    UNIQUE (name)
@@ -88,7 +90,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# unique. So we can only say that it is unique within the
 	# changeset. The integrity module has stronger checks.
 
-	state writing csitem {
+	state extend csitem {
 	    cid  INTEGER  NOT NULL  REFERENCES changeset,
 	    pos  INTEGER  NOT NULL,
 	    iid  INTEGER  NOT NULL, -- REFERENCES revision|tag|branch
@@ -106,9 +108,9 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# this pass into memory when this pass is skipped instead of
 	# executed.
 
-	state reading changeset
-	state reading csitem
-	state reading cstype
+	state use changeset
+	state use csitem
+	state use cstype
 
 	# Need the types first, the constructor in the loop below uses
 	# them to assert the correctness of type names.

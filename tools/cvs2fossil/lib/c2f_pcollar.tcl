@@ -65,11 +65,11 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	# Both projects and files are identified by globally unique
 	# integer ids, automatically assigned by the database.
 
-	state writing project {
+	state extend project {
 	    pid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    name TEXT     NOT NULL  UNIQUE
 	}
-	state writing file {
+	state extend file {
 	    fid     INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    pid     INTEGER  NOT NULL  REFERENCES project,       -- project the file belongs to
 	    name    TEXT     NOT NULL,
@@ -85,8 +85,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	# run passes, to load all data of their pass from the state,
 	# as if it had been computed by the pass itself.
 
-	state reading project
-	state reading file
+	state use project
+	state use file
 
 	repository load
 	return

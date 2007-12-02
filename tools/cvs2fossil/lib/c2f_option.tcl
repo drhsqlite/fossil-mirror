@@ -75,7 +75,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--verbose                   { log verbose }
 		-q                          -
 		--quiet                     { log quiet }
-		--state                     { state use [Value arguments] }
+		--state                     { state usedb [Value arguments] }
 		--trunk-only                { repository trunkonly! }
 		--exclude                   { project::sym exclude     [Value arguments] }
 		--force-tag                 { project::sym forcetag    [Value arguments] }
@@ -83,6 +83,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--batch                     { log noprogress }
 		--dots                      { cyclebreaker dotsto [Value arguments] }
 		--watch                     { cyclebreaker watch  [Value arguments] }
+		--statesavequeriesto        { state savequeriesto [Value arguments] }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -144,6 +145,8 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "                               the specified project to be converted as"
 	trouble info "                               branch. Both project and symbol names"
 	trouble info "                               are glob patterns."
+	trouble info ""
+	trouble info "  Debug options"
 	trouble info ""
 	trouble info "    --dots PATH                Write the changeset graphs before, after,"
 	trouble info "                               and during breaking the of cycles to the"

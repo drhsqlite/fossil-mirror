@@ -128,23 +128,31 @@ snit::type ::vc::fossil::import::cvs::pass {
 	return
     }
 
+    typemethod current {} { return $mycurrentpass }
+
+    # # ## ### ##### ######## #############
+    ## Internal methods
+
     proc Time {pass useconds} {
 	::variable mytime
 	lappend    mytime $pass $useconds
+	ShowTime          $pass $useconds
 	return
     }
 
     proc ShowTimes {} {
 	::variable mytime
 	foreach {pass useconds} $mytime {
-	    set sec [format %8.2f [expr {double($useconds)/1e6}]]
-	    log write 0 pass "$sec sec/$pass"
+	    ShowTime $pass $useconds
 	}
 	return
     }
 
-    # # ## ### ##### ######## #############
-    ## Internal methods
+    proc ShowTime {pass useconds} {
+	set sec [format %8.2f [expr {double($useconds)/1e6}]]
+	log write 0 pass "$sec sec/$pass"
+	return
+    }
 
     proc Ok? {code label ov {emptyok 1}} {
 	upvar 1 $ov ok
@@ -182,9 +190,10 @@ snit::type ::vc::fossil::import::cvs::pass {
     typevariable mydesc -array {} ; # Pass descriptions (one line).
     typevariable mycmd  -array {} ; # Pass callback command.
 
-    typevariable mystart -1
-    typevariable myend   -1
-    typevariable mytime  {} ; # Timing data for each executed pass.
+    typevariable mystart       -1
+    typevariable myend         -1
+    typevariable mytime        {} ; # Timing data for each executed pass.
+    typevariable mycurrentpass {} ; # Pass currently running.
 
     # # ## ### ##### ######## #############
     ## Configuration

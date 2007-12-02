@@ -45,11 +45,16 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 	# Define the names and structure of the persistent state of
 	# this pass.
 
-	state reading revision
-	state reading changeset
-	state reading csorder
+	state use revision
+	state use tag
+	state use branch
+	state use symbol
+	state use changeset
+	state use csitem
+	state use cssuccessor
+	state use csorder
 
-	state writing cstimestamp {
+	state extend cstimestamp {
 	    -- Commit order of all changesets based on their
 	    -- dependencies, plus a monotonically increasing
 	    -- timestamp.

@@ -45,16 +45,21 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	# Define names and structure of the persistent state of this
 	# pass.
 
-	state reading symbol
-	state reading blocker
-	state reading parent
-	state reading preferedparent
-	state reading revision
-	state reading revisionbranchchildren
-	state reading branch
-	state reading tag
+	state use project
+	state use file
+	state use revision
+	state use revisionbranchchildren
+	state use branch
+	state use tag
+	state use symbol
+	state use blocker
+	state use parent
+	state use author
+	state use cmessage
+	state use preferedparent
 
-	state writing noop {
+	# NOTE: So far no pass coming after this makes us of this information.
+	state extend noop {
 	    id    INTEGER NOT NULL  PRIMARY KEY, -- tag/branch reference
 	    noop  INTEGER NOT NULL
 	}

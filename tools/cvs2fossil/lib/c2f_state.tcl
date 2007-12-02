@@ -31,7 +31,7 @@ snit::type ::vc::fossil::import::cvs::state {
     # # ## ### ##### ######## #############
     ## Public API
 
-    typemethod use {path} {
+    typemethod usedb {path} {
 	# Immediate validation. There are are two possibilities to
 	# consider. The path exists or it doesn't.
 
@@ -95,12 +95,14 @@ snit::type ::vc::fossil::import::cvs::state {
 	return
     }
 
-    typemethod writing {name definition {indices {}}} {
-	# Method for a user to declare a table its needs for storing
-	# persistent state, and the expected structure. A possibly
-	# previously existing definition is dropped.
+    # Declare a table needed for the storing of persistent state, and
+    # its structure. A possibly previously existing definition is
+    # dropped. To be used when a table is needed and not assumed to
+    # exist from previous passes.
 
-	log write 1 state "writing $name" ; # TODO move to level 5 or so
+    typemethod extend {name definition {indices {}}} {
+	log write 5 state "extend $name"
+	Save "extend $name ================================"
 
 	$mystate transaction {
 	    catch { $mystate eval "DROP TABLE $name" }
@@ -108,7 +110,7 @@ snit::type ::vc::fossil::import::cvs::state {
 
 	    set id 0
 	    foreach columns $indices {
-		log write 1 state "index   $name$id" ; # TODO move to level 5 or so
+		log write 5 state "index  $name$id"
 
 		$mystate eval "CREATE INDEX ${name}$id ON ${name} ( [join $columns ,] )"
 		incr id
@@ -117,12 +119,13 @@ snit::type ::vc::fossil::import::cvs::state {
 	return
     }
 
-    typemethod reading {name} {
-	log write 1 state "reading $name" ; # TODO move to level 5 or so
+    # Declare that a table is needed for reading from and/or storing
+    # to persistent state, and is assumed to already exist. A missing
+    # table is an internal error causing an immediate exit.
 
-	# Method for a user to declare a table it wishes to read
-	# from. A missing table is an internal error causing an
-	# immediate exit.
+    typemethod use {name} {
+	log write 5 state "use    $name"
+	Save "use $name ==================================="
 
 	set found [llength [$mystate eval {
 	    SELECT name
@@ -143,7 +146,7 @@ snit::type ::vc::fossil::import::cvs::state {
 	# Method for a user to remove outdated information from the
 	# persistent state, table by table.
 
-	log write 1 state "discard $name" ; # TODO move to level 5 or so
+	log write 5 state "discard $name"
 
 	$mystate transaction {
 	    catch { $mystate eval "DROP TABLE $name" }
@@ -152,11 +155,13 @@ snit::type ::vc::fossil::import::cvs::state {
     }
 
     typemethod run {args} {
+	Save $args
 	return [uplevel 1 [linsert $args 0 $mystate eval]]
     }
 
     typemethod one {args} {
-	return [lindex [uplevel 1 [linsert $args 0 $mystate eval]] 0]
+	Save $args
+	return [uplevel 1 [linsert $args 0 $mystate onecolumn]]
     }
 
     typemethod transaction {script} {
@@ -167,11 +172,26 @@ snit::type ::vc::fossil::import::cvs::state {
 	return [$mystate last_insert_rowid]
     }
 
+    typemethod savequeriesto {path} {
+	set mysavepath $path
+	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc Save {text} {
+	::variable mysavepath
+	if {$mysavepath eq ""} return
+	fileutil::appendToFile $mysavepath $text\n\n
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
-    typevariable mystate {} ; # Sqlite database (command) holding the converter state.
-    typevariable mypath  {} ; # Path to the database, for cleanup of a temp database.
+    typevariable mystate    {} ; # Sqlite database (command) holding the converter state.
+    typevariable mypath     {} ; # Path to the database, for cleanup of a temp database.
+    typevariable mysavepath {} ; # Path where to save queries for introspection.
 
     # # ## ### ##### ######## #############
     ## Internal methods

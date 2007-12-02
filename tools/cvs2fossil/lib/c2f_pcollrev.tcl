@@ -47,8 +47,8 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# Define names and structure of the persistent state of this
 	# pass.
 
-	state reading project
-	state reading file
+	state use project
+	state use file
 
 	# We deal with per project and per file data, the first
 	# collated from the second.
@@ -66,7 +66,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	#	Branch   <- Symbol <- Event
 	#	Revision           <- Event
 
-	state writing revision {
+	state extend revision {
 	    -- Revisions. Identified by a global numeric id each
 	    -- belongs to a single file, identified by its id. It
 	    -- further has a dotted revision number (DTN).
@@ -146,7 +146,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (fid, rev) -- The DTN is unique within the revision's file.
 	}
 
-	state writing optype {
+	state extend optype {
 	    oid   INTEGER  NOT NULL  PRIMARY KEY,
 	    name  TEXT     NOT NULL,
 	    UNIQUE(name)
@@ -158,7 +158,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    INSERT INTO optype VALUES ( 2,'change');  -- loaded from this.
 	}
 
-	state writing revisionbranchchildren {
+	state extend revisionbranchchildren {
 	    -- The non-primary children of a revision, as reachable
 	    -- through a branch symbol, are listed here. This is
 	    -- needed by pass 5 to break internal dependencies in a
@@ -169,7 +169,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE(rid,brid)
 	}
 
-	state writing tag {
+	state extend tag {
 	    tid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    fid  INTEGER  NOT NULL  REFERENCES file,     -- File the item belongs to
 	    lod  INTEGER            REFERENCES symbol,   -- Line of development (NULL => Trunk)
@@ -180,7 +180,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# Indices on: rev (revision successors)
 	#             sid (tag predecessors, branch successors/predecessors)
 
-	state writing branch {
+	state extend branch {
 	    bid   INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    fid   INTEGER  NOT NULL  REFERENCES file,     -- File the item belongs to
 	    lod   INTEGER            REFERENCES symbol,   -- Line of development (NULL => Trunk)
@@ -209,7 +209,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	#	pBranch <- pSymbol, pLineOfDevelopment
 	#	pTag    <- pSymbol, pLineOfDevelopment
 
-	state writing symbol {
+	state extend symbol {
 	    sid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
 	    pid  INTEGER  NOT NULL  REFERENCES project,  -- Project the symbol belongs to
 	    name TEXT     NOT NULL,
@@ -222,7 +222,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (pid, name) -- Symbols are unique within the project
 	}
 
-	state writing blocker {
+	state extend blocker {
 	    -- For each symbol we save which other symbols are
 	    -- blocking its removal (if the user asks for it).
 
@@ -231,7 +231,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (sid, bid)
 	}
 
-	state writing parent {
+	state extend parent {
 	    -- For each symbol we save which other symbols can act as
 	    -- a possible parent in some file, and how often.
 
@@ -241,7 +241,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (sid, pid)
 	}
 
-	state writing symtype {
+	state extend symtype {
 	    tid    INTEGER  NOT NULL  PRIMARY KEY,
 	    name   TEXT     NOT NULL,
 	    plural TEXT     NOT NULL,
@@ -255,7 +255,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    INSERT INTO symtype VALUES (3,'undefined','undefined');
 	}
 
-	state writing meta {
+	state extend meta {
 	    -- Meta data of revisions. See revision.mid for the
 	    -- reference. Many revisions can share meta data. This is
 	    -- actually one of the criterions used to sort revisions
@@ -286,12 +286,12 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# Authors and commit messages are fully global, i.e. per
 	# repository.
 
-	state writing author {
+	state extend author {
 	    aid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
 	    name TEXT     NOT NULL  UNIQUE
 	}
 
-	state writing cmessage {
+	state extend cmessage {
 	    cid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
 	    text TEXT     NOT NULL  UNIQUE
 	}
@@ -302,9 +302,9 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
     }
 
     typemethod load {} {
-	state reading symbol
-	state reading symtype
-	state reading optype
+	state use symbol
+	state use symtype
+	state use optype
 
 	project::sym getsymtypes
 	file::rev    getopcodes
