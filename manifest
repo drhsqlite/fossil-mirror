@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bugfix.\sHave\sthe\ssymbol\sdependency\sretrieval\scommands\sactually\sreturn\ssomething.
-D 2007-12-02T04:55:38
+C Performance\sbugfix.\snextmap/premap\scan\sstill\sbe\sperformance\skillers\sand\smemory\shogs.\sMoved\sthe\scomputation\sof\ssucessor\schangesets\sdown\sto\sthe\stype-dependent\scode\s(new\smethods)\sand\sthe\sSQL\sdatabase,\si.e.\sthe\sC\slevel.\sIn\sthe\scurrent\ssetup\sit\swas\spossible\sthat\sthe\sDB\swould\sdeliver\sus\smillions\sof\sfile-level\sdependency\spairs\swhich\sthe\sTcl\slevel\swould\sthen\sreduce\sto\stens\sof\sactual\schangeset\sdependencies.\sTcl\sdid\snot\scope\swell\swith\sthat\samount\sof\sdata.\sNow\sthe\sreduction\shappens\sin\sthe\squery\sitself.\sA\sconcrete\sexample\swas\sa\sbranch\sin\sthe\sTcl\sCVS\sgenerating\snearly\s9\smillion\spairs,\swhich\sreduced\sto\sroughly\s200\schangeset\sdependencies.\sThis\sblew\sthe\smemory\sout\sof\sthe\swater\sand\sthe\sconverter\sground\sto\sa\shalt,\sbusily\sswapping.\sOk,\scauses\sbehind\sus,\salso\sadded\sanother\sindex\son\s'csitem(iid)'\sto\sspeed\sthe\ssearch\sfor\schangesets\sfrom\sthe\srevisions,\stags,\sand\sbranches.
+D 2007-12-02T05:49:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -117,9 +117,9 @@ F tools/cvs2fossil/lib/c2f_pcollar.tcl a368b702c329d622929f35b637cacd10af57f4a1
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl e100446c46d797aeaee0a541bb2078b2d5176cd8
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 47871c6aa239d6e4e80064d73a63780e5fb240d0
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 940562fb7e45bcc0c57a61bffb0df9bade952ecd
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 39a67db2c5713b9ae43653893e301125a0549bc4
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl f56c12b551375bf84b20863229faa5480c52a80a
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl e427524ce6a7374c10838a5022561f46ae98dd3e
+F tools/cvs2fossil/lib/c2f_prev.tcl a4cf35790a1fcb4e822bf5c9330ad2bd31091228
 F tools/cvs2fossil/lib/c2f_prevlink.tcl 3ad12043d17dfda16a9a836c543dbf6a918b739f
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl b280cf33d262a746461bde5c0a29414d9f79bdba
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ac026148036db7afcd882f3760455f02f4f74ce9
-R 3cbbbdfe09b4b3a51b08c59b678da27e
+P 712010580ae12c2e126e5cf39d0d73211f75bfa6
+R 20effc0ef763537336d1d20205522d49
 U aku
-Z c6f157142202387f0897f9d4b8d411ad
+Z 9e1bf76e5cc17216f28ca17601c26de7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHUjrOvonzZ/CRa7gRAhLFAJ4sHtMeXgMTNkKgZT8NIVczzG9iugCeNzmQ
-TnIS+IUWHWmL3G1+79EVe64=
-=Hiv+
+iD8DBQFHUkdQvonzZ/CRa7gRAiFnAKCIIeEQYnnO1OlZBTMEnvSeQmlW2wCgr+fJ
+ELMqFzWUlAY0fMC1lYH2wA0=
+=zAVa
 -----END PGP SIGNATURE-----

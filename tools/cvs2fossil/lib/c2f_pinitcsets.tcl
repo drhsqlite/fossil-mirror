@@ -95,7 +95,8 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	    iid  INTEGER  NOT NULL, -- REFERENCES revision|tag|branch
 	    UNIQUE (cid, pos),
 	    UNIQUE (cid, iid)
-	}
+	} { iid }
+	# Index on: iid (successor/predecessor retrieval)
 
 	project::rev getcstypes
 	return

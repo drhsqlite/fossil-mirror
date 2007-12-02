@@ -89,9 +89,21 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method setpos {p} { set mypos $p ; return }
     method pos    {}  { return $mypos }
 
+    # result = list (changeset)
+    method successors {} {
+	return [struct::list map \
+		    [$mytypeobj cs_successors $myitems] \
+		    [mytypemethod of]]
+    }
+
     # result = dict (item -> list (changeset))
     method successormap {} {
-	# NOTE / FUTURE: Possible bottleneck.
+	# NOTE / FUTURE: Definitive bottleneck (can be millions of pairs).
+	#
+	# Only user is pass 9, computing the limits of backward
+	# branches per branch in the changeset. TODO: Fold that into
+	# the SQL query, i.e. move the crunching from Tcl to C.
+
 	array set tmp {}
 	foreach {rev children} [$self nextmap] {
 	    foreach child $children {
@@ -102,21 +114,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return [array get tmp]
     }
 
-    # result = list (changeset)
-    method successors {} {
-	# NOTE / FUTURE: Possible bottleneck.
-	set csets {}
-	foreach {_ children} [$self nextmap] {
-	    foreach child $children {
-		lappend csets $myitemmap($child)
-	    }
-	}
-	return [lsort -unique $csets]
-    }
-
     # result = dict (item -> list (changeset))
     method predecessormap {} {
-	# NOTE / FUTURE: Possible bottleneck.
+	# NOTE / FUTURE: Definitive bottleneck (can be millions of pairs).
+	#
+	# Only user is pass 9, computing the limits of backward
+	# branches per branch in the changeset. TODO: Fold that into
+	# the SQL query, i.e. move the crunching from Tcl to C.
+
 	array set tmp {}
 	foreach {rev children} [$self premap] {
 	    foreach child $children {
@@ -1059,6 +1064,64 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	}
 	return
     }
+
+    # result = list (changeset-id)
+    typemethod cs_successors {revisions} {
+        # This is a variant of 'successors' which maps the low-level
+        # data directly to the associated changesets. I.e. instead
+        # millions of dependency pairs (in extreme cases (Example: Tcl
+        # CVS)) we return a very short and much more manageable list
+        # of changesets.
+
+	set theset ('[join $revisions {','}]')
+	return [state run "
+	    SELECT C.cid
+	    FROM   revision R, csitem CI, changeset C
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.child IS NOT NULL    -- Has primary child
+            AND    CI.iid = R.rid
+            AND    C.cid = CI.cid
+            AND    C.type = 0
+    UNION
+	    SELECT C.cid
+	    FROM   revision R, revisionbranchchildren B, csitem CI, changeset C
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.rid = B.rid          -- Select subset of branch children
+            AND    CI.iid = R.rid
+            AND    C.cid = CI.cid
+            AND    C.type = 0
+    UNION
+	    SELECT C.cid
+	    FROM   revision R, revision RA, csitem CI, changeset C
+	    WHERE  R.rid   IN $theset      -- Restrict to revisions of interest
+	    AND    R.isdefault             -- Restrict to NTDB
+	    AND    R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
+	    AND    RA.rid = R.dbchild      -- Go directly to trunk root
+	    AND    RA.child IS NOT NULL    -- Has primary child.
+            AND    CI.iid = R.rid
+            AND    C.cid = CI.cid
+            AND    C.type = 0
+            AND    CI.iid = R.rid
+            AND    C.cid = CI.cid
+            AND    C.type = 0
+    UNION
+	    SELECT C.cid
+	    FROM   revision R, tag T, csitem CI, changeset C
+	    WHERE  R.rid in $theset
+	    AND    T.rev = R.rid
+            AND    CI.iid = T.tid
+            AND    C.cid = CI.cid
+            AND    C.type = 1
+    UNION
+	    SELECT C.cid
+	    FROM   revision R, branch B, csitem CI, changeset C
+	    WHERE  R.rid in $theset
+	    AND    B.root = R.rid
+            AND    CI.iid = B.bid
+            AND    C.cid = CI.cid
+            AND    C.type = 2
+	"]
+    }
 }
 
 # # ## ### ##### ######## ############# #####################
@@ -1138,6 +1201,12 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	"] {
 	    lappend dependencies([list sym::tag $tid]) [list sym::tag $parent]
 	}
+	return
+    }
+
+    # result = list (changeset-id)
+    typemethod cs_successors {tags} {
+	# Tags have no successors.
 	return
     }
 }
@@ -1252,6 +1321,45 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	"] {
 	    lappend dependencies([list sym::branch $bid]) [list sym::tag $parent]
 	}
+	return
+    }
+
+    # result = list (changeset-id)
+    typemethod cs_successors {branches} {
+        # This is a variant of 'successors' which maps the low-level
+        # data directly to the associated changesets. I.e. instead
+        # millions of dependency pairs (in extreme cases (Example: Tcl
+        # CVS)) we return a very short and much more manageable list
+        # of changesets.
+
+	set theset ('[join $branches {','}]')
+        return [state run "
+	    SELECT C.cid
+	    FROM   branch B, revision R, csitem CI, changeset C
+	    WHERE  B.bid IN $theset
+	    AND    B.first = R.rid
+            AND    CI.iid = R.rid
+            AND    C.cid = CI.cid
+            AND    C.type = 0
+    UNION
+	    SELECT C.cid
+	    FROM   branch B, preferedparent P, branch BX, csitem CI, changeset C
+	    WHERE  B.bid IN $theset
+	    AND    B.sid = P.pid
+	    AND    BX.sid = P.sid
+            AND    CI.iid = BX.bid
+            AND    C.cid = CI.cid
+            AND    C.type = 2
+    UNION
+	    SELECT C.cid
+	    FROM   branch B, preferedparent P, tag T, csitem CI, changeset C
+	    WHERE  B.bid IN $theset
+	    AND    B.sid = P.pid
+	    AND    T.sid = P.sid
+            AND    CI.iid = T.tid
+            AND    C.cid = CI.cid
+            AND    C.type = 1
+	"]
 	return
     }
 
