@@ -1079,7 +1079,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    FROM   revision R, csitem CI, changeset C
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.child IS NOT NULL    -- Has primary child
-            AND    CI.iid = R.rid
+            AND    CI.iid = R.child
             AND    C.cid = CI.cid
             AND    C.type = 0
     UNION
@@ -1087,7 +1087,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    FROM   revision R, revisionbranchchildren B, csitem CI, changeset C
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.rid = B.rid          -- Select subset of branch children
-            AND    CI.iid = R.rid
+            AND    CI.iid = B.brid
             AND    C.cid = CI.cid
             AND    C.type = 0
     UNION
@@ -1098,10 +1098,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    AND    R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
 	    AND    RA.rid = R.dbchild      -- Go directly to trunk root
 	    AND    RA.child IS NOT NULL    -- Has primary child.
-            AND    CI.iid = R.rid
-            AND    C.cid = CI.cid
-            AND    C.type = 0
-            AND    CI.iid = R.rid
+            AND    CI.iid = RA.child
             AND    C.cid = CI.cid
             AND    C.type = 0
     UNION
