@@ -662,29 +662,55 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		AND   S.sid = B.sid               -- get symbol of branch
 		AND   P.pid = S.pid               -- get project of symbol
 	    }
-	# All branches have to agree on the LOD their changeset
-	# belongs to. In other words, all branches in a changeset have
-	# to refer to the same line of development.
-	#
-	# Instead of looking at all pairs of branches in all
-	# changesets we generate the distinct set of all LODs
-	# referenced by the branches of a changeset, look for those
-	# with cardinality > 1, and get the identifying information
-	# for the changesets found thusly.
-	CheckCS \
-	    {All branches in a changeset have to belong to the same LOD} \
-	    {: Its branches disagree about the LOD they belong to} {
-		SELECT T.name, C.cid
-		FROM   changeset C, cstype T
-		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CI.cid AS cid, B.lod AS lod
-				       FROM   csitem CI, changeset C, branch B
-				       WHERE  CI.iid = B.bid
-				       AND    C.cid = CI.cid
-				       AND    C.type = 2) AS U
-				 GROUP BY U.cid HAVING COUNT(U.lod) > 1)
-		AND    T.tid = C.type
-	    }
+	if 0 {
+	    # This check has been disabled. When the converter was run
+	    # on the Tcl CVS several branches tripped this
+	    # constraint. One of them was a free-floating branch, and
+	    # its handling has been fixed by now. The others however
+	    # seem semi-legitimate, in the sense that they show
+	    # inconsistencies in the CVS history the user is not
+	    # really able to solve, but it might be possible to simply
+	    # ignore them.
+
+	    # For example in Tcl we have a branch X with a prefered
+	    # parent Y, except for a single file where the prefered
+	    # parent seems to be created after its current parent,
+	    # making re-parenting impossible. However we may be able
+	    # to ignore this, it should only cause the branch to have
+	    # more than one predecessor, and shifting it around in the
+	    # commit order. The backend would still use the prefered
+	    # parent for the attachment point in fossil.
+
+	    # So, for now I have decided to disable this and press
+	    # forward. Of course, if we run into actual trouble we
+	    # will have to go back here see what can be done to fix
+	    # this. Even if only giving the user the instruction how
+	    # to edit the CVS repository to remove the inconsistency.
+
+	    # All branches have to agree on the LOD their changeset
+	    # belongs to. In other words, all branches in a changeset
+	    # have to refer to the same line of development.
+	    #
+	    # Instead of looking at all pairs of branches in all
+	    # changesets we generate the distinct set of all LODs
+	    # referenced by the branches of a changeset, look for
+	    # those with cardinality > 1, and get the identifying
+	    # information for the changesets found thusly.
+	    CheckCS \
+		{All branches in a changeset have to belong to the same LOD} \
+		{: Its branches disagree about the LOD they belong to} {
+		    SELECT T.name, C.cid
+		    FROM   changeset C, cstype T
+		    WHERE  C.cid IN (SELECT U.cid
+				     FROM (SELECT DISTINCT CI.cid AS cid, B.lod AS lod
+					   FROM   csitem CI, changeset C, branch B
+					   WHERE  CI.iid = B.bid
+					   AND    C.cid = CI.cid
+					   AND    C.type = 2) AS U
+				     GROUP BY U.cid HAVING COUNT(U.lod) > 1)
+		    AND    T.tid = C.type
+		}
+	}
 	# All branches have to agree on the project their changeset
 	# belongs to. In other words, all branches in a changeset have
 	# to refer to the same project.
