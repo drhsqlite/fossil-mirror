@@ -175,7 +175,11 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 
 	set dg [struct::graph dg]
 
+	set n 0
+	set max [llength $changesets]
+
 	foreach cset $changesets {
+	    log progress 2 cyclebreaker $n $max
 	    set tr [$cset timerange]
 	    $dg node insert $cset
 	    $dg node set    $cset timerange $tr
@@ -184,6 +188,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	    $dg node set    $cset shape     [expr {[$cset bysymbol]
 						   ? "ellipse"
 						   : "box"}]
+	    incr n
 	}
 
 	if {$log} {
@@ -194,7 +199,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	#    dependencies. Map the latter back to changesets and
 	#    construct the corresponding arcs.
 
+	set n 0
 	foreach cset $changesets {
+	    log progress 2 cyclebreaker $n $max
 	    foreach succ [$cset successors] {
 		# Changesets may have dependencies outside of the
 		# chosen set. These are ignored
@@ -205,6 +212,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		    trouble fatal "[$cset str] depends on itself"
 		}
 	    }
+	    incr n
 	}
 
 	if {$log} {

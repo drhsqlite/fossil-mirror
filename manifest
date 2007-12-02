@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sability\sto\sdeclare\sindices\son\stables\sin\sthe\spersistent\sstate.\sUsed\sthis\sto\sdeclare\sindices\son\scritical\scolumns.\sSlows\sdown\sthe\stransactions\ssaving\schangesets,\sthis\showever\sis\smade\sup\swhen\sit\scomes\sto\ssuccessor/predecessor\sretrieval\sof\schangesets.
-D 2007-12-02T03:40:56
+C Added\sprogress\soutput\sto\sthe\scode\sloading\sup\sthe\sgraph\sto\straverse,\snodes,\sand\sarcs.
+D 2007-12-02T03:41:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,7 +100,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 9dfc0b4e4fd3ed1f151ba71720b7163cf60f20c6
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl c1b1baf75a8fe079500c46028c9963855d490dec
 F tools/cvs2fossil/lib/c2f_file.tcl 995eee5b4cfa45df61352be1c23043921d91b896
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 79c227a9c0acd62dc2d96248acdc5b95af138c13
-R d405e44dbf4cc9caadc305a1f220bf86
+P 74854a30b8b4cc44a19fc8e305768fac8c536a14
+R bf7fc148c9c4b0fbdff23e13ed4cb31e
 U aku
-Z 23567a9a3b3f92afb8cd90d9acfc4ce9
+Z bec56eee81eccecc1a896674403b98cc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD4DBQFHUilMvonzZ/CRa7gRAiyWAJ0QWd9Fq59Oem1VefLm40lW4VkDZgCXSk33
-/A727qBu1PUSULKcpNwNMg==
-=Hh2W
+iD8DBQFHUiltvonzZ/CRa7gRAuQbAKCQIti5qeK1RBKSb/pMiAW9x/hcwQCdHFHy
+5kqievs/FfeKdMw+d/vDwRw=
+=Crb3
 -----END PGP SIGNATURE-----
