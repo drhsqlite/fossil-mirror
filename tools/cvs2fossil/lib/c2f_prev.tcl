@@ -1104,6 +1104,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod predecessors {dv tags} {
+	upvar 1 $dv dependencies
 	# The predecessors of a tag are all the revisions the tags are
 	# attached to, as well as all the branches or tags which are
 	# their prefered parents.
@@ -1182,6 +1183,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod successors {dv branches} {
+	upvar 1 $dv dependencies
 	# The first revision committed on a branch, and all branches
 	# and tags which have it as their prefered parent are the
 	# successors of a branch.
@@ -1218,6 +1220,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod predecessors {dv branches} {
+	upvar 1 $dv dependencies
 	# The predecessors of a branch are all the revisions the
 	# branches are spawned from, as well as all the branches or
 	# tags which are their prefered parents.
