@@ -35,6 +35,7 @@ package require vc::fossil::import::cvs::pass::filtersym   ; # Filter'  Sym'bols
 #       allowing us to sort the data on the fly as we need it.
 
 package require vc::fossil::import::cvs::pass::initcsets   ; # Init'ialize C'hange'Sets
+package require vc::fossil::import::cvs::pass::csetdeps    ; # C'hange'Set Dep'endencies
 package require vc::fossil::import::cvs::pass::breakrcycle ; # Break' R'evision Cycle's
 package require vc::fossil::import::cvs::pass::rtopsort    ; # R'evision Top'ological Sort'
 package require vc::fossil::import::cvs::pass::breakscycle ; # Break' S'ymbol Cycle's

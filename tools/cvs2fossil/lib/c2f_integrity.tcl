@@ -53,21 +53,13 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    typemethod changesets {csets} {
+    typemethod changesets {} {
 	log write 4 integrity {Check database consistency}
 
 	set n 0
 	RevisionChangesets
 	TagChangesets
 	BranchChangesets
-	trouble abort? ; # Avoid expensive check if anything found before
-
-	LoopCheck $csets
-	return
-    }
-
-    typemethod loopcheckon {} {
-	set myloopcheck 1
 	return
     }
 
@@ -771,20 +763,6 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	return
     }
 
-    proc LoopCheck {csets} {
-	::variable myloopcheck
-	if {!$myloopcheck} return
-
-	log write 4 integrity {Checking changesets for self-references}
-
-	foreach cset $csets {
-	    if {[$cset loopcheck]} {
-		trouble fatal "[$cset str] depends on itself"
-	    }
-	}
-	return
-    }
-
     proc ___UnusedChangesetChecks___ {} {
 	# This code performs a number of paranoid checks of the
 	# database, searching for inconsistent changeset/revision
@@ -904,13 +882,6 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	log write 5 integrity {\[[format %02d [incr n]]\] [expr {$ok ? "Ok    " : "Failed"}] ... $header}
 	return
     }
-
-    # # ## ### ##### ######## #############
-
-    typevariable myloopcheck 0 ; # Boolean flag. Controls whether
-				 # 'integrity changesets' looks for
-				 # changesets with loops or not.
-				 # Default is to not look for them.
 
     # # ## ### ##### ######## #############
     ## Configuration

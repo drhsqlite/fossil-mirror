@@ -10,7 +10,7 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass VII. This pass goes over the set of revision based changesets
+## Pass VIII. This pass goes over the set of revision based changesets
 ## and sorts them topologically. It assumes that there are no cycles
 ## which could impede it, any having been broken by the previous pass,
 ## and aborts if that condition doesn't hold.
@@ -101,10 +101,9 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
     ## Internal methods
 
     proc Changesets {} {
-	return [struct::list filter [project::rev all] [myproc IsByRevision]]
+	log write 2 breakscycle {Selecting the revision changesets}
+	return [project::rev rev]
     }
-
-    proc IsByRevision {cset} { $cset byrevision }
 
     proc SaveOrder {graph at cset} {
 	::variable myatfmt

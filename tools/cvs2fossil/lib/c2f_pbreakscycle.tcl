@@ -10,10 +10,10 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass VIII. This pass goes over the set of symbol based changesets
-## and breaks all dependency cycles they may be in. We need a
-## dependency tree. Identical to pass VI, except for the selection of
-## the changesets.
+## Pass IX. This pass goes over the set of symbol based changesets and
+## breaks all dependency cycles they may be in. We need a dependency
+## tree. Identical to pass VII, except for the selection of the
+## changesets.
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -21,6 +21,7 @@
 package require Tcl 8.4                                   ; # Required runtime.
 package require snit                                      ; # OO system.
 package require struct::list                              ; # Higher order list operations.
+package require vc::tools::log                            ; # User feedback.
 package require vc::fossil::import::cvs::cyclebreaker     ; # Breaking dependency cycles.
 package require vc::fossil::import::cvs::repository       ; # Repository management.
 package require vc::fossil::import::cvs::state            ; # State storage.
@@ -70,7 +71,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
 	}
 
 	repository printcsetstatistics
-	integrity changesets [project::rev all]
+	integrity changesets
 	return
     }
 
@@ -85,10 +86,9 @@ snit::type ::vc::fossil::import::cvs::pass::breakscycle {
     ## Internal methods
 
     proc Changesets {} {
-	return [struct::list filter [project::rev all] [myproc IsBySymbol]]
+	log write 2 breakscycle {Selecting the symbol changesets}
+	return [project::rev sym]
     }
-
-    proc IsBySymbol {cset} { $cset bysymbol }
 
     # # ## ### ##### ######## #############
     ## Configuration
@@ -110,6 +110,8 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::rev
 	}
+	namespace import ::vc::tools::log
+	log register breakscycle
     }
 }
 

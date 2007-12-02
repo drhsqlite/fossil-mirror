@@ -104,8 +104,12 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 	log write 3 cyclebreaker {Traverse changesets}
 
 	InitializeCandidates $dg
+
+	set k   0
+	set max [llength [$dg nodes]]
 	while {1} {
 	    while {[WithoutPredecessor $dg n]} {
+		log progress 2 cyclebreaker $k $max ; incr k
 		MarkWatch $dg
 		ProcessedHook $dg $n $myat
 		$dg node delete $n
@@ -207,10 +211,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# chosen set. These are ignored
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
-		if {$succ eq $cset} {
-		    $cset loopcheck
-		    trouble internal "[$cset str] depends on itself"
-		}
+		integrity assert {
+		    $succ ne $cset
+		} {[$cset reportloop 0]Changeset loop was not detected during creation}
 	    }
 	    incr n
 	}
@@ -431,10 +434,9 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		# the chosen set. These are ignored
 		if {![$dg node exists $succ]} continue
 		$dg arc insert $cset $succ
-		if {$succ eq $cset} {
-		    $cset loopcheck
-		    trouble internal "[$cset str] depends on itself"
-		}
+		integrity assert {
+		    $succ ne $cset
+		} {[$cset reportloop 0]Changeset loop was not detected during creation}
 	    }
 	}
 	foreach cset $pre {
@@ -557,8 +559,8 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 namespace eval ::vc::fossil::import::cvs {
     namespace export cyclebreaker
     namespace eval cyclebreaker {
+	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
-	    namespace import ::vc::fossil::import::cvs::integrity
 	    namespace import ::vc::fossil::import::cvs::project::rev
 	    namespace import ::vc::fossil::import::cvs::project::revlink
 	}

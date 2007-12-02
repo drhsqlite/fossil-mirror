@@ -10,9 +10,9 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass VI. This pass goes over the set of revision based changesets
+## Pass VII. This pass goes over the set of revision based changesets
 ## and breaks all dependency cycles they may be in. We need a
-## dependency tree. Identical to pass VII, except for the selection of
+## dependency tree. Identical to pass IX, except for the selection of
 ## the changesets.
 
 # # ## ### ##### ######## ############# #####################
@@ -71,7 +71,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
 	}
 
 	repository printcsetstatistics
-	integrity changesets [project::rev all]
+	integrity changesets
 	return
     }
 
@@ -86,10 +86,9 @@ snit::type ::vc::fossil::import::cvs::pass::breakrcycle {
     ## Internal methods
 
     proc Changesets {} {
-	return [struct::list filter [project::rev all] [myproc IsByRevision]]
+	log write 2 breakrcycle {Selecting the revision changesets}
+	return [project::rev rev]
     }
-
-    proc IsByRevision {cset} { $cset byrevision }
 
     # # ## ### ##### ######## #############
     ## Configuration

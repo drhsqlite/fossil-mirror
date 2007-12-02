@@ -24,7 +24,6 @@ package require vc::tools::log                        ; # User feedback.
 package require vc::fossil::import::cvs::repository   ; # Repository management.
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
-package require vc::fossil::import::cvs::project::sym ; # Project level symbols
 package require vc::fossil::import::cvs::project::rev ; # Project level changesets
 
 # # ## ### ##### ######## ############# #####################
@@ -115,18 +114,23 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# them to assert the correctness of type names.
 	project::rev getcstypes
 
+	# TODO: Move to project::rev
+	set n 0
+	log write 2 initcsets {Loading the changesets}
 	foreach {id pid cstype srcid} [state run {
 	    SELECT C.cid, C.pid, CS.name, C.src
 	    FROM   changeset C, cstype CS
 	    WHERE  C.type = CS.tid
 	    ORDER BY C.cid
 	}] {
+	    log progress 2 initcsets $n {}
 	    set r [project::rev %AUTO% [repository projectof $pid] $cstype $srcid [state run {
 		SELECT C.iid
 		FROM   csitem C
 		WHERE  C.cid = $id
 		ORDER BY C.pos
 	    }] $id]
+	    incr n
 	}
 
 	project::rev loadcounter
@@ -145,7 +149,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	}
 
 	repository printcsetstatistics
-	integrity changesets [project::rev all]
+	integrity changesets
 	return
     }
 

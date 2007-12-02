@@ -49,7 +49,6 @@ snit::type ::vc::fossil::import::cvs::option {
     # --trunk-only
     # --exclude, --force-tag, --force-branch
     # --batch
-    # --loopcheck
 
     # -o, --output
     # --dry-run
@@ -84,7 +83,6 @@ snit::type ::vc::fossil::import::cvs::option {
 		--batch                     { log noprogress }
 		--dots                      { cyclebreaker dotsto [Value arguments] }
 		--watch                     { cyclebreaker watch  [Value arguments] }
-		--loopcheck                 { integrity loopcheckon }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -151,8 +149,6 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "                               and during breaking the of cycles to the"
 	trouble info "                               direcotry PATH, using GraphViz's dot format"
 	trouble info ""
-	trouble info "    --loopcheck                Activate the expensive search for change-"
-	trouble info "                               with loops, i.e. depending on themselves."
 
 	# --project, --cache
 	# ...

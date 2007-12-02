@@ -10,7 +10,7 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass X. This pass goes over all changesets and sorts them
+## Pass XI. This pass goes over all changesets and sorts them
 ## topologically. It assumes that there are no cycles which could
 ## impede it, any remaining having been broken by the previous two
 ## passes, and aborts if that condition doesn't hold.

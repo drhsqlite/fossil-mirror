@@ -53,6 +53,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# Keep track of the generated changesets and of the inverse
 	# mapping from items to them.
 	lappend mychangesets   $self
+	lappend mytchangesets($cstype) $self
 	set     myidmap($myid) $self
 	foreach iid $items {
 	    set key [list $cstype $iid]
@@ -89,11 +90,38 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     method setpos {p} { set mypos $p ; return }
     method pos    {}  { return $mypos }
 
+    method determinesuccessors {} {
+	# Pass 6 operation. Compute project-level dependencies from
+	# the file-level data and save it back to the state. This may
+	# be called during the cycle breaker passes as well, to adjust
+	# the successor information of changesets which are the
+	# predecessors of dropped changesets. For them we have to
+	# remove their existing information first before inserting the
+	# new data.
+	state run {
+	    DELETE FROM cssuccessor WHERE cid = $myid;
+	}
+	set loop 0
+	foreach nid [$mytypeobj cs_successors $myitems] {
+	    state run {
+		INSERT INTO cssuccessor (cid,  nid)
+		VALUES                  ($myid,$nid)
+	    }
+	    if {$nid == $myid} { set loop 1 }
+	}
+	# Report after the complete structure has been saved.
+	if {$loop} { $self reportloop }
+	return
+    }
+
     # result = list (changeset)
     method successors {} {
-	return [struct::list map \
-		    [$mytypeobj cs_successors $myitems] \
-		    [mytypemethod of]]
+	# Use the data saved by pass 6.
+	return [struct::list map [state run {
+	    SELECT S.nid
+	    FROM   cssuccessor S
+	    WHERE  S.cid = $myid
+	}] [mytypemethod of]]
     }
 
     # result = dict (item -> list (changeset))
@@ -174,7 +202,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# for each of the fragments. It should be easier to update and
 	# reuse that state.
 
-	# The code checks only sucessor dependencies, as this
+	# The code checks only successor dependencies, as this
 	# automatically covers the predecessor dependencies as well (A
 	# successor dependency a -> b is also a predecessor dependency
 	# b -> a).
@@ -358,8 +386,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	state transaction {
 	    state run {
-		DELETE FROM changeset WHERE cid = $myid;
-		DELETE FROM csitem    WHERE cid = $myid;
+		DELETE FROM changeset   WHERE cid = $myid;
+		DELETE FROM csitem      WHERE cid = $myid;
+		DELETE FROM cssuccessor WHERE cid = $myid;
 	    }
 	}
 	foreach iid $myitems {
@@ -369,37 +398,40 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	}
 	set pos          [lsearch -exact $mychangesets $self]
 	set mychangesets [lreplace $mychangesets $pos $pos]
-	return
+	set pos                    [lsearch -exact $mytchangesets($mytype) $self]
+	set mytchangesets($mytype) [lreplace $mytchangesets($mytype) $pos $pos]
+
+	# Return the list of predecessors so that they can be adjusted.
+	return [struct::list map [state run {
+	    SELECT cid
+	    FROM   cssuccessor
+	    WHERE  nid = $myid
+	}] [mytypemethod of]]
     }
 
-    method loopcheck {} {
-	log write 7 csets {Checking [$self str] for loops /[llength $myitems]}
+    method reportloop {{kill 1}} {
+	# We print the items which are producing the loop, and how.
 
-	if {![struct::set contains [$self successors] $self]} {
-	    return 0
+	set hdr "Self-referential changeset [$self str] __________________"
+	set ftr [regsub -all {[^ 	]} $hdr {_}]
+
+	log write 0 csets $hdr
+	foreach {item nextitem} [$mytypeobj loops $myitems] {
+	    # Create tagged items from the id and our type.
+	    set item     [list $mytype  $item]
+	    set nextitem [list $mytype $nextitem]
+	    # Printable labels.
+	    set i  "<[$type itemstr $item]>"
+	    set n  "<[$type itemstr $nextitem]>"
+	    set ncs $myitemmap($nextitem)
+	    # Print
+	    log write 0 csets {* $i --> $n --> cs [$ncs str]}
 	}
-	if {[log verbosity?] < 8} { return 1 }
+	log write 0 csets $ftr
 
-	# Print the detailed successor structure of the self-
-	# referential changeset, if the verbosity of the log is dialed
-	# high enough.
-
-	log write 8 csets [set hdr {Self-referential changeset [$self str] __________________}]
-	array set nmap [$self nextmap]
-	foreach item [lsort -dict [array names nmap]] {
-	    foreach succitem $nmap($item) {
-		set succcs $myitemmap($succitem)
-		set hint [expr {($succcs eq $self)
-				? "LOOP"
-				: "    "}]
-		set i   "<$item [$type itemstr $item]>"
-		set s   "<$succitem [$type itemstr $succitem]>"
-		set scs [$succcs str]
-		log write 8 csets {$hint * $i --> $s --> cs $scs}
-	    }
-	}
-	log write 8 csets [regsub -all {[^ 	]} $hdr {_}]
-	return 1
+	if {!$kill} return
+	trouble internal "[$self str] depends on itself"
+	return
     }
 
     typemethod split {cset args} {
@@ -419,7 +451,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	struct::list assign [$cset data] project cstype cssrc
 
-	$cset drop
+	set predecessors [$cset drop]
 	$cset destroy
 
 	set newcsets {}
@@ -429,14 +461,18 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    set fragment [$type %AUTO% $project $cstype $cssrc \
 			      [Untag $fragmentitems $cstype]]
 	    lappend newcsets $fragment
-	    $fragment persist
 
-	    if {[$fragment loopcheck]} {
-		trouble fatal "[$fragment str] depends on itself"
-	    }
+	    $fragment persist
+	    $fragment determinesuccessors
 	}
 
-	trouble abort?
+	# The predecessors have to recompute their successors, i.e.
+	# remove the dropped changeset and put one of the fragments
+	# into its place.
+	foreach p $predecessors {
+	    $p determinesuccessors
+	}
+
 	return $newcsets
     }
 
@@ -562,6 +598,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     typemethod loadcounter {} {
 	# Initialize the counter from the state
+	log write 2 initcsets {Loading changeset counter}
 	set mycounter [state one { SELECT MAX(cid) FROM changeset }]
 	return
     }
@@ -780,18 +817,26 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     # # ## ### ##### ######## #############
 
-    typevariable mychangesets     {} ; # List of all known changesets.
-    typevariable myitemmap -array {} ; # Map from items (tagged) to
-				       # the list of changesets
-				       # containing it. Each item can
-				       # be used by only one
-				       # changeset.
+    typevariable mychangesets         {} ; # List of all known
+					   # changesets.
+    typevariable mytchangesets -array {} ; # List of all known
+					   # changesets of a type.
+    typevariable myitemmap     -array {} ; # Map from items (tagged)
+					   # to the list of changesets
+					   # containing it. Each item
+					   # can be used by only one
+					   # changeset.
     typevariable myidmap   -array {} ; # Map from changeset id to
 				       # changeset.
 
     typemethod all    {}    { return $mychangesets }
     typemethod of     {cid} { return $myidmap($cid) }
     typemethod ofitem {iid} { return $myitemmap($iid) }
+
+    typemethod rev    {}    { return $mytchangesets(rev) }
+    typemethod sym    {}    { return [concat \
+					  ${mytchangesets(sym::branch)} \
+					  ${mytchangesets(sym::tag)}] }
 
     # # ## ### ##### ######## #############
     ## Configuration
@@ -927,6 +972,42 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	return
     }
 
+    # result = 4-list (itemtype itemid nextitemtype nextitemid ...)
+    typemethod loops {revisions} {
+	# Note: Tags and branches cannot cause the loop. Their id's,
+	# bein of a fundamentally different type than the revisions
+	# coming in cannot be in the set.
+
+	set theset ('[join $revisions {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    -- (1) Primary child
+	    SELECT R.rid, R.child
+	    FROM   revision R
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.child IS NOT NULL    -- Has primary child
+	    AND    R.child IN $theset     -- Loop
+	    --
+	    UNION
+	    -- (2) Secondary (branch) children
+	    SELECT R.rid, B.brid
+	    FROM   revision R, revisionbranchchildren B
+	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
+	    AND    R.rid = B.rid          -- Select subset of branch children
+	    AND    B.rid   IN $theset     -- Loop
+	    --
+	    UNION
+	    -- (4) Child of trunk root successor of last NTDB on trunk.
+	    SELECT R.rid, RA.child
+	    FROM   revision R, revision RA
+	    WHERE  R.rid    IN $theset     -- Restrict to revisions of interest
+	    AND    R.isdefault             -- Restrict to NTDB
+	    AND    R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
+	    AND    RA.rid = R.dbchild      -- Go directly to trunk root
+	    AND    RA.child IS NOT NULL    -- Has primary child.
+	    AND    RA.child IN $theset     -- Loop
+	}]]
+    }
+
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod successors {dv revisions} {
 	upvar 1 $dv dependencies
@@ -988,7 +1069,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	foreach {rid child} [state run "
 	    SELECT R.rid, T.tid
 	    FROM   revision R, tag T
-	    WHERE  R.rid in $theset
+	    WHERE  R.rid IN $theset
 	    AND    T.rev = R.rid
 	"] {
 	    lappend dependencies([list rev $rid]) [list sym::tag $child]
@@ -996,7 +1077,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	foreach {rid child} [state run "
 	    SELECT R.rid, B.bid
 	    FROM   revision R, branch B
-	    WHERE  R.rid in $theset
+	    WHERE  R.rid IN $theset
 	    AND    B.root = R.rid
 	"] {
 	    lappend dependencies([list rev $rid]) [list sym::branch $child]
@@ -1162,6 +1243,12 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	return
     }
 
+    # result = 4-list (itemtype itemid nextitemtype nextitemid ...)
+    typemethod loops {tags} {
+	# Tags have no successors, therefore cannot cause loops
+	return {}
+    }
+
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod predecessors {dv tags} {
 	upvar 1 $dv dependencies
@@ -1247,6 +1334,23 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	"]
     }
 
+    # result = 4-list (itemtype itemid nextitemtype nextitemid ...)
+    typemethod loops {branches} {
+	# Note: Revisions and tags cannot cause the loop. Being of a
+	# fundamentally different type they cannot be in the incoming
+	# set of ids.
+
+	set theset ('[join $branches {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    SELECT B.bid, BX.bid
+	    FROM   branch B, preferedparent P, branch BX
+	    WHERE  B.bid IN $theset
+	    AND    B.sid = P.pid
+	    AND    BX.sid = P.sid
+	    AND    BX.bid IN $theset
+	}]]
+    }
+
     # var(dv) = dict (item -> list (item)), item  = list (type id)
     typemethod successors {dv branches} {
 	upvar 1 $dv dependencies
@@ -1261,7 +1365,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	    WHERE  B.bid IN $theset
 	    AND    B.first = R.rid
 	"] {
-	    lappend dependencies([list sym::tag $bid]) [list rev $child]
+	    lappend dependencies([list sym::branch $bid]) [list rev $child]
 	}
 	foreach {bid child} [state run "
 	    SELECT B.bid, BX.bid
@@ -1270,7 +1374,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	    AND    B.sid = P.pid
 	    AND    BX.sid = P.sid
 	"] {
-	    lappend dependencies([list sym::tag $bid]) [list sym::branch $child]
+	    lappend dependencies([list sym::branch $bid]) [list sym::branch $child]
 	}
 	foreach {bid child} [state run "
 	    SELECT B.bid, T.tid
@@ -1279,7 +1383,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	    AND    B.sid = P.pid
 	    AND    T.sid = P.sid
 	"] {
-	    lappend dependencies([list sym::tag $bid]) [list sym::tag $child]
+	    lappend dependencies([list sym::branch $bid]) [list sym::tag $child]
 	}
 	return
     }

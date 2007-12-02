@@ -10,8 +10,8 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass IX. This is the final pass for breaking changeset dependency
-## cycles. The previous breaker passes (6 and 8) broke cycles covering
+## Pass X. This is the final pass for breaking changeset dependency
+## cycles. The previous breaker passes (7 and 9) broke cycles covering
 ## revision and symbol changesets, respectively. This pass now breaks
 ## any remaining cycles, each of which has to contain at least one
 ## revision and at least one symbol changeset.
@@ -82,7 +82,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	}
 
 	repository printcsetstatistics
-	integrity changesets [project::rev all]
+	integrity changesets
 	return
     }
 
@@ -96,7 +96,10 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    proc Changesets {} { project::rev all }
+    proc Changesets {} {
+	log write 2 breakrcycle {Selecting all changesets}
+	return [project::rev all]
+    }
 
     proc LoadCommitOrder {} {
 	::variable mycset

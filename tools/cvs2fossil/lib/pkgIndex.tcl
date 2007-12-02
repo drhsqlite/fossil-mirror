@@ -17,6 +17,7 @@ package ifneeded vc::fossil::import::cvs::pass::collrev     1.0 [list source [fi
 package ifneeded vc::fossil::import::cvs::pass::collsym     1.0 [list source [file join $dir c2f_pcollsym.tcl]]
 package ifneeded vc::fossil::import::cvs::pass::filtersym   1.0 [list source [file join $dir c2f_pfiltersym.tcl]]
 package ifneeded vc::fossil::import::cvs::pass::initcsets   1.0 [list source [file join $dir c2f_pinitcsets.tcl]]
+package ifneeded vc::fossil::import::cvs::pass::csetdeps    1.0 [list source [file join $dir c2f_pcsetdeps.tcl]]
 package ifneeded vc::fossil::import::cvs::pass::breakrcycle 1.0 [list source [file join $dir c2f_pbreakrcycle.tcl]]
 package ifneeded vc::fossil::import::cvs::pass::rtopsort    1.0 [list source [file join $dir c2f_prtopsort.tcl]]
 package ifneeded vc::fossil::import::cvs::pass::breakscycle 1.0 [list source [file join $dir c2f_pbreakscycle.tcl]]
