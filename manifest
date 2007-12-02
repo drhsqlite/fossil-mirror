@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sperformance\swas\sstill\snot\ssatisfying,\seven\swith\sfaster\srecomputing\nof\ssuccessors.\sDoing\sit\smultiple\stimes\s(Building\sthe\sgraph\sin\seach\nbreaker\sand\ssort\spasses)\seats\stime.\sCaching\sin\smemory\sblows\sthe\nmemory.\sChosen\ssolution:\sCache\sthis\sinformation\sin\sthe\sdatabase.\n\nCreated\sa\snew\spass\s'CsetDeps'\swhich\sis\srun\sbetween\s'InitCsets'\sand\n'BreakRevCsetCycles'\s(i.e.\schangeset\screation\sand\sfirst\sbreaker\spass).\nIt\scomputes\sthe\schangeset\sdependencies\sfrom\sthe\sfile-level\ndependencies\sonce\sand\ssaves\sthe\sresult\sin\sthe\sstate,\sin\sthe\snew\stable\n'cssuccessor'.\sNow\sthe\sbreaker\sand\ssort\spasses\scan\sget\sthe\sinformation\nquickly,\swith\svirtually\sno\seffort.\sThe\sdependencies\sare\srecomputed\nincrementally\swhen\sa\schangeset\sis\ssplit\sby\sone\sof\sthe\sbreaker\spasses,\nfor\sits\sfragments\sand\sits\spredecessors.\n\nThe\sloop\scheck\sis\snow\strivial,\sand\sintegrated\sinto\sthe\ssuccessor\ncomputation,\swith\sthe\sheavy\slifting\sfor\sthe\sdetailed\sanalysis\sand\nreporting\smoved\sdown\sinto\sthe\stype-dependent\sSQL\squeries.\sThe\srelevant\nnew\smethod\sis\s'loops'.\sNow\sthat\sthe\sloop\scheck\sis\sincremental\sthe\spass\nbased\schecks\shave\sbeen\sremoved\sfrom\sthe\sintegrity\smodule,\sand\sthe\noption\s'--loopcheck'\shas\sbeen\seliminated.\sFor\sparanoia\sthe\sgraph\ssetup\nand\smodification\scode\sgot\sits\sloop\scheck\sreinstated\sas\san\sassert,\nredusing\sthe\schangeset\sreport\scode.\n\nRenumbered\sthe\sbreaker\sand\ssort\spasses.\sA\snumber\sof\splaces,\slike\sgraph\nsetup\sand\straversal,\sloading\sof\schangesets,\setc.\sgot\sfeedback\nindicators\sto\sshow\stheir\sprogress.\n\nThe\sselection\sof\srevision\sand\ssymbol\schangesets\sfor\sthe\sassociated\nbreaker\spasses\swas\sa\sbit\son\sthe\sslow\sside.\sWe\snow\skeep\schangeset\slists\nsorted\sby\stype\s(during\sloading\sor\sgeneral\sconstruction)\sand\saccess\nthem\sdirectly.
-D 2007-12-02T20:04:40
+C Importer\sStatus...\n\nSpeed.\sThis\sis\snow\smostly\sacceptable.\sThe\sone\sexception\sis\spass\n'BreakAllCsetCycles'.\sThe\sreason\sis\sthat\sthe\slimit\scomputation\sit\sdoes\nfor\sbackward\sbranches\sstill\suses\sthe\sinefficient\sfile-level\sdependency\ncomputation.\sThis\swill\sbe\stackled\sin\sshort\sorder.\sFor\sthe\sother\spasses\nthe\sfile\sspent\sis\s'CsetsDeps'\sis\srecouped\sby\sthe\smuch\sfaster\sgraph\nsetup.\n\nMemory.\sThis\sseems\sto\sbe\smostly\sacceptable\sas\swell,\swith\sthe\nexceptions\sof\s'BreakAllCsetCycles'\s(again,\sfor\sreasons\ssee\sabove),\sand\n'InitCsets'.\sIt\sseems\sto\shappen\swhile\sthe\spass\sbreaks\sinternal\ndependencies,\sbut\sthere\sis\sno\shard\sdata.\sI\shave\sto\smeasure\susing\sa\nmemory-debug\senabled\stclsh.\sI\ssuspect\seither\sthe\sactual\sinternal\ndependencies,\sor\sthe\spseudo-dependencies.\sMaybe\scombined\swith\sa\sbad\nchoice\sof\sdata\sstructures.\sWell,\smeasuring\sfirst.
+D 2007-12-02T20:06:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -173,14 +173,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P a437da486daf3e17604928a8d566f2cca9359aa6
+P 00bf8c198ee6db85e9ec3868df1b6649695ae0e3
 R 84543c0f3dbf65340a1256eb15de3277
 U aku
-Z 3f06b1677ef5f06a3e23d53501a4151f
+Z b0759352903b812d66a0676105598b00
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHUw/ivonzZ/CRa7gRAlDuAKC85Ge3aExCW6m+xRWVeKsAv3eF7gCfVvie
-BOXDKLhqUTIQsJEFDg0xsGs=
-=ow0e
+iD8DBQFHUxA1vonzZ/CRa7gRAtuQAJ0ftQddITxWmAtV+T/8FGzF+zbVzgCeJvZm
+5tV6BoaXmvpSoAmep2r4mwY=
+=z76X
 -----END PGP SIGNATURE-----
