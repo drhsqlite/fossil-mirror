@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\smerge\sconflict\sdetection.
-D 2007-11-29T00:37:41
+C Addition\sto\sthe\sdefault\sstyle\ssheet\sto\scover\sthe\sname/value\spairs\nat\sthe\stop\sof\sthe\svinfo\spage.\s\sAlso\sa\sbugfix\sin\sthe\sreport.c\scode.
+D 2007-12-02T22:30:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -72,14 +72,14 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c af38cba6b01c8e55eb695dcebbdbf94c1b8025e4
 F src/rebuild.c 5e55de3bcde162781cfac661d3893a1d0db86c9e
-F src/report.c 3412e750ff7f9ca108ed9a31977a48aefbe02792
+F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c 384e115ad09cb7cfa7da6f8770aa19318981482a
 F src/setup.c ecaf658269c2bcbd844938ee1418c307e5a025bb
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 81b02daa4d8a20e3ae099207737c8b30f366cfe4
 F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
-F src/style.c 59e6a727114f6616951a56e129e6a1f1ee08ce85
+F src/style.c 773050316bf1ec612989f087ded00ff4d4298f41
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f088412c49121f541d80030aab8b78dca576b817
-R b4278ecc259239e145dcdf1a07482e36
+P ba9af9acedf935cb086faa22dcfac54d4dd5ba88
+R f0685e1a7b789e5f252d5592866ff3c0
 U drh
-Z 92f48deef341e2599ad67ec81b717481
+Z 7c63443e73fa88a3e8f1039b8687b284
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHTgnboxKgR168RlERAhM1AKCFna6TEvlty1QCR1at9Fitg4iZtACeJqML
-RPS5Ckd/LwbsOtLbCaVv/Yw=
-=v5H0
+iD8DBQFHUzH1oxKgR168RlERAsHlAJ42j98/742j0/Ef1c2O5MPoV4n/KACePjyz
+NsOFnG9zAS/B2K6adEUt6ko=
+=Fb1o
 -----END PGP SIGNATURE-----

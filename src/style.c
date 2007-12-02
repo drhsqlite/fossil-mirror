@@ -306,6 +306,13 @@ const char zDefaultCSS[] =
 @   background-color: #558195;
 @   color: white;
 @ }
+@
+@ /* The label/value pairs on (for example) the vinfo page */
+@ table.label-value th {
+@   vertical-align: top;
+@   text-align: right;
+@   padding: 0.2ex 2ex;
+@ }
 ;
 
 /*

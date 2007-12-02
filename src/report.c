@@ -918,7 +918,7 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
 ** then the output consists of lines of tab-separated fields instead of
 ** an HTML table.
 */
-void view_view(void){
+void rptview_page(void){
   int count = 0;
   int rn;
   char *zSql;
