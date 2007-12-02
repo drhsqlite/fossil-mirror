@@ -176,7 +176,9 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    sid  INTEGER  NOT NULL  REFERENCES symbol,   -- Symbol capturing the tag
 
 	    rev  INTEGER  NOT NULL  REFERENCES revision  -- The revision being tagged.
-	}
+	} { rev sid }
+	# Indices on: rev (revision successors)
+	#             sid (tag predecessors, branch successors/predecessors)
 
 	state writing branch {
 	    bid   INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
@@ -195,7 +197,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
             -- will exist to be the LOD of its revisions, nothing to
             -- sprout from, the dead revision was removed, hence no
             -- root.
-	}
+	} { root first sid }
+	# Indices on: root  (revision successors)
+	#             first (revision predecessors)
+	#             sid   (tag predecessors, branch successors/predecessors)
 
 	# Project level ...
 	#	pLineOfDevelopment, pSymbol, pBranch, pTag, pTrunk

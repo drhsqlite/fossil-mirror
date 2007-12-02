@@ -57,7 +57,8 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	    sid INTEGER  NOT NULL  PRIMARY KEY  REFERENCES symbol,
 	    pid INTEGER  NOT NULL               REFERENCES symbol
-	}
+	} { pid }
+	# Index on: pid (branch successors`)
 	return
     }
 

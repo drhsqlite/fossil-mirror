@@ -95,7 +95,7 @@ snit::type ::vc::fossil::import::cvs::state {
 	return
     }
 
-    typemethod writing {name definition} {
+    typemethod writing {name definition {indices {}}} {
 	# Method for a user to declare a table its needs for storing
 	# persistent state, and the expected structure. A possibly
 	# previously existing definition is dropped.
@@ -105,6 +105,14 @@ snit::type ::vc::fossil::import::cvs::state {
 	$mystate transaction {
 	    catch { $mystate eval "DROP TABLE $name" }
 	    $mystate eval "CREATE TABLE $name ( $definition )"
+
+	    set id 0
+	    foreach columns $indices {
+		log write 1 state "index   $name$id" ; # TODO move to level 5 or so
+
+		$mystate eval "CREATE INDEX ${name}$id ON ${name} ( [join $columns ,] )"
+		incr id
+	    }
 	}
 	return
     }
