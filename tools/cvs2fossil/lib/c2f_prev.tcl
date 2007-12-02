@@ -471,7 +471,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#   intersections have to be empty.
 
 	set cover {}
-	foreach fragmentitems $args {
+	foreach fragmentitems $fragments {
 	    log write 8 csets {NEW: [lsort $fragmentitems]}
 
 	    integrity assert {
@@ -489,8 +489,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	 } {The fragments do not cover the original changeset}
 
 	set i 1
-	foreach fia $args {
-	    foreach fib [lrange $args $i end] {
+	foreach fia $fragments {
+	    foreach fib [lrange $fragments $i end] {
 		integrity assert {
 		    [struct::set empty [struct::set intersect $fia $fib]]
 		} {The fragments <$fia> and <$fib> overlap}
@@ -893,11 +893,14 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# revisions of the same file into one changeset.
 
 	# We allow revisions to be far apart in time in the same
-	# changeset, but need the pseudo-dependencies for this.
+	# changeset, but in turn need the pseudo-dependencies to
+	# handle this.
 
 	array set fids {}
 	foreach {rid fid} [state run "
-	    SELECT R.rid, R.fid FROM revision R WHERE R.rid IN $theset
+	    SELECT R.rid, R.fid
+            FROM   revision R
+            WHERE  R.rid IN $theset
 	"] { lappend fids($fid) $rid }
 
 	foreach {fid rids} [array get fids] {
@@ -1044,7 +1047,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# (See sym::tag/successors).
 
 	foreach {rid parent} [state run "
-	    SELECT R.rid B.bid
+	    SELECT R.rid, B.bid
 	    FROM   revision R, branch B
 	    WHERE  R.rid IN $theset
 	    AND    B.first = R.rid
@@ -1084,9 +1087,9 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	set theset ('[join $tags {','}]')
 	return [state run "
 	    SELECT MIN(R.date), MAX(R.date)
-	    FROM revision R, tag T
-	    WHERE T.tid IN $theset
-            AND   R.rid = T.rev
+	    FROM   tag T, revision R
+	    WHERE  T.tid IN $theset
+            AND    R.rid = T.rev
 	"]
     }
 
@@ -1105,7 +1108,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	set theset ('[join $tags {','}]')
 	foreach {tid parent} [state run "
 	    SELECT T.tid, R.rid
-	    FROM   revision R, tag T
+	    FROM   tag T, revision R
 	    WHERE  T.tid IN $theset
 	    AND    T.rev = R.rid
 	"] {
@@ -1114,7 +1117,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 
 	foreach {tid parent} [state run "
 	    SELECT T.tid, B.bid
-	    FROM   tag T, branch B, preferedparent P
+	    FROM   tag T, preferedparent P, branch B
 	    WHERE  T.tid IN $theset
 	    AND    T.sid = P.sid
 	    AND    P.pid = B.sid
@@ -1124,7 +1127,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 
 	foreach {tid parent} [state run "
 	    SELECT T.tid, TX.tid
-	    FROM   tag T, tag TX, preferedparent P
+	    FROM   tag T, preferedparent P, tag TX
 	    WHERE  T.tid IN $theset
 	    AND    T.sid = P.sid
 	    AND    P.pid = TX.sid
@@ -1168,7 +1171,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	set theset ('[join $branches {','}]')
 	return [state run "
 	    SELECT IFNULL(MIN(R.date),0), IFNULL(MAX(R.date),0)
-	    FROM revision R, branch B
+	    FROM  branch B, revision R
 	    WHERE B.bid IN $theset
             AND   R.rid = B.root
 	"]
@@ -1183,7 +1186,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	set theset ('[join $branches {','}]')
 	foreach {bid child} [state run "
 	    SELECT B.bid, R.rid
-	    FROM   revision R, branch B
+	    FROM   branch B, revision R
 	    WHERE  B.bid IN $theset
 	    AND    B.first = R.rid
 	"] {
@@ -1191,7 +1194,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	}
 	foreach {bid child} [state run "
 	    SELECT B.bid, BX.bid
-	    FROM   branch B, branch BX, preferedparent P
+	    FROM   branch B, preferedparent P, branch BX
 	    WHERE  B.bid IN $theset
 	    AND    B.sid = P.pid
 	    AND    BX.sid = P.sid
@@ -1200,7 +1203,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	}
 	foreach {bid child} [state run "
 	    SELECT B.bid, T.tid
-	    FROM   branch B, tag T, preferedparent P
+	    FROM   branch B, preferedparent P, tag T
 	    WHERE  B.bid IN $theset
 	    AND    B.sid = P.pid
 	    AND    T.sid = P.sid
@@ -1219,7 +1222,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	set theset ('[join $tags {','}]')
 	foreach {bid parent} [state run "
 	    SELECT B.Bid, R.rid
-	    FROM   revision R, branch B
+	    FROM   branch B, revision R
 	    WHERE  B.bid IN $theset
 	    AND    B.root = R.rid
 	"] {
@@ -1227,7 +1230,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	}
 	foreach {bid parent} [state run "
 	    SELECT B.bid, BX.bid
-	    FROM   branch B, branch BX, preferedparent P
+	    FROM   branch B, preferedparent P, branch BX
 	    WHERE  B.bid IN $theset
 	    AND    B.sid = P.sid
 	    AND    P.pid = BX.sid
@@ -1236,8 +1239,8 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	}
 	foreach {bid parent} [state run "
 	    SELECT B.bid, T.tid
-	    FROM   branch B, tag T, preferedparent P
-	    WHERE  B.tid IN $theset
+	    FROM   branch B, preferedparent P, tag T
+	    WHERE  B.bid IN $theset
 	    AND    B.sid = P.sid
 	    AND    P.pid = T.sid
 	"] {
