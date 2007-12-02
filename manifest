@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Importer\sStatus...\n\nSpeed.\sThis\sis\snow\smostly\sacceptable.\sThe\sone\sexception\sis\spass\n'BreakAllCsetCycles'.\sThe\sreason\sis\sthat\sthe\slimit\scomputation\sit\sdoes\nfor\sbackward\sbranches\sstill\suses\sthe\sinefficient\sfile-level\sdependency\ncomputation.\sThis\swill\sbe\stackled\sin\sshort\sorder.\sFor\sthe\sother\spasses\nthe\sfile\sspent\sis\s'CsetsDeps'\sis\srecouped\sby\sthe\smuch\sfaster\sgraph\nsetup.\n\nMemory.\sThis\sseems\sto\sbe\smostly\sacceptable\sas\swell,\swith\sthe\nexceptions\sof\s'BreakAllCsetCycles'\s(again,\sfor\sreasons\ssee\sabove),\sand\n'InitCsets'.\sIt\sseems\sto\shappen\swhile\sthe\spass\sbreaks\sinternal\ndependencies,\sbut\sthere\sis\sno\shard\sdata.\sI\shave\sto\smeasure\susing\sa\nmemory-debug\senabled\stclsh.\sI\ssuspect\seither\sthe\sactual\sinternal\ndependencies,\sor\sthe\spseudo-dependencies.\sMaybe\scombined\swith\sa\sbad\nchoice\sof\sdata\sstructures.\sWell,\smeasuring\sfirst.
-D 2007-12-02T20:06:13
+C Actually\sput\sthe\scode\sfor\sthe\snew\spass\sinto\sthe\srepository.
+D 2007-12-02T23:45:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -116,6 +116,7 @@ F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 24924cb693d1755631ecf99c7c559ea8ee21
 F tools/cvs2fossil/lib/c2f_pcollar.tcl a368b702c329d622929f35b637cacd10af57f4a1
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl e100446c46d797aeaee0a541bb2078b2d5176cd8
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 47871c6aa239d6e4e80064d73a63780e5fb240d0
+F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df759
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 940562fb7e45bcc0c57a61bffb0df9bade952ecd
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl ced4d957b164bc3d628e7d7765aea4c1dfe6e338
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
@@ -173,14 +174,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 00bf8c198ee6db85e9ec3868df1b6649695ae0e3
-R 84543c0f3dbf65340a1256eb15de3277
+P e8c374f670bebb46b6c176ffc410cb9e5e7961ad
+R 70b3e592c4fd182be21a160a79f6e5c4
 U aku
-Z b0759352903b812d66a0676105598b00
+Z 0763237fab6f4f5648f4825f3593e0ae
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHUxA1vonzZ/CRa7gRAtuQAJ0ftQddITxWmAtV+T/8FGzF+zbVzgCeJvZm
-5tV6BoaXmvpSoAmep2r4mwY=
-=z76X
+iD8DBQFHU0OKvonzZ/CRa7gRAhAeAJ0ZGs3b1BYVlg70wR5R3y6AVm+SGwCeNYPH
+9A5vi38h4TPmqyWlsB+Ed8I=
+=r0S7
 -----END PGP SIGNATURE-----
