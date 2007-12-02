@@ -1291,7 +1291,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	# branches are spawned from, as well as all the branches or
 	# tags which are their prefered parents.
 
-	set theset ('[join $tags {','}]')
+	set theset ('[join $branches {','}]')
 	foreach {bid parent} [state run "
 	    SELECT B.Bid, R.rid
 	    FROM   branch B, revision R
