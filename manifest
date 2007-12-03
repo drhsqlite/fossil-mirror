@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Patch\sproblems\swith\stimeline.\s\sNeed\sto\srethink\sthe\swhole\simplementation.
-D 2007-12-03T00:27:15
+C Detect\sdelta\sloops\sand\smake\sat\sleast\sone\smember\sof\sthe\sloop\sa\sphantom.
+D 2007-12-03T14:42:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -45,7 +45,7 @@ F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
-F src/content.c 02e1a3dfd6fd5643b0d52a459e5f0f3951f2519e
+F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
 F src/db.c 48224de87a88df3026d7bfd4c90b3b79ac11f4ab
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P dff17229ff68a85ef38dcc2c15fcb127700a7698
-R 96e5a02ea5ecbd005441dfac70446f62
+P 20553a420cb6c453a82924e8edbe11b0f0cbbf40
+R 97c0d5474e571b3b2d40c3b0632c02b7
 U drh
-Z 564ad1ceaaa201aebe7ceb2f94c76fac
+Z 02119feda9842cb514e949e18c66bb47
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHU01moxKgR168RlERAqPGAKCNNvcNY9B3yIRVkONXAI2jLjobSQCfYgD5
-IwOOc7KHujn0d+MZ4jG9NAg=
-=MdDZ
+iD8DBQFHVBXcoxKgR168RlERAgLAAJ9ZfcXhv4AbR6O0+Fbao6rf3u1QqQCfXBqL
+heqX8sHmhhR4vDjQR25VI1I=
+=43wH
 -----END PGP SIGNATURE-----
