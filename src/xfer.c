@@ -93,6 +93,7 @@ static void remote_has(int rid){
 static void xfer_accept_file(Xfer *pXfer){
   int n;
   int rid;
+  int srcid = 0;
   Blob content, hash;
   
   if( pXfer->nToken<3 
@@ -114,7 +115,7 @@ static void xfer_accept_file(Xfer *pXfer){
   }
   if( pXfer->nToken==4 ){
     Blob src;
-    int srcid = rid_from_uuid(&pXfer->aToken[2], 1);
+    srcid = rid_from_uuid(&pXfer->aToken[2], 1);
     if( content_get(srcid, &src)==0 ){
       content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
       blob_appendf(pXfer->pOut, "gimme %b\n", &pXfer->aToken[2]);
@@ -143,31 +144,34 @@ static void xfer_accept_file(Xfer *pXfer){
 }
 
 /*
-** Try to send a file as a delta.  If successful, return the number
-** of bytes in the delta.  If not, return zero.
-**
-** If srcId is specified, use it.  If not, try to figure out a
-** reasonable srcId.
+** Try to send a file as a delta against its parent.
+** If successful, return the number of bytes in the delta.
+** If we cannot generate an appropriate delta, then send
+** nothing and return zero.
 */
-static int send_as_delta(
+static int send_delta_parent(
   Xfer *pXfer,            /* The transfer context */
   int rid,                /* record id of the file to send */
   Blob *pContent,         /* The content of the file to send */
-  Blob *pUuid,            /* The UUID of the file to send */
-  int srcId               /* Send as a delta against this record */
+  Blob *pUuid             /* The UUID of the file to send */
 ){
   static const char *azQuery[] = {
-    "SELECT pid FROM plink"
+    "SELECT pid FROM plink x"
     " WHERE cid=%d"
-    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)",
+    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
+    "   AND NOT EXISTS(SELECT 1 FROM plink y"
+                      " WHERE y.pid=x.cid AND y.cid=x.pid)",
 
-    "SELECT pid FROM mlink"
+    "SELECT pid FROM mlink x"
     " WHERE fid=%d"
-    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)",
+    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
+    "   AND NOT EXISTS(SELECT 1 FROM mlink y"
+                     "  WHERE y.pid=x.fid AND y.fid=x.pid)"
   };
   int i;
   Blob src, delta;
   int size = 0;
+  int srcId = 0;
 
   for(i=0; srcId==0 && i<count(azQuery); i++){
     srcId = db_int(0, azQuery[i], rid);
@@ -191,17 +195,49 @@ static int send_as_delta(
 }
 
 /*
+** Try to send a file as a native delta.  
+** If successful, return the number of bytes in the delta.
+** If we cannot generate an appropriate delta, then send
+** nothing and return zero.
+*/
+static int send_delta_native(
+  Xfer *pXfer,            /* The transfer context */
+  int rid,                /* record id of the file to send */
+  Blob *pUuid             /* The UUID of the file to send */
+){
+  Blob src, delta;
+  int size = 0;
+  int srcId;
+
+  srcId = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", rid);
+  if( srcId>0 ){
+    blob_zero(&delta);
+    db_blob(&delta, "SELECT content FROM blob WHERE rid=%d", rid);
+    blob_uncompress(&delta, &delta);
+    blob_zero(&src);
+    db_blob(&src, "SELECT uuid FROM blob WHERE rid=%d", srcId);
+    blob_appendf(pXfer->pOut, "file %b %b %d\n",
+                pUuid, &src, blob_size(&delta));
+    blob_append(pXfer->pOut, blob_buffer(&delta), blob_size(&delta));
+    size = blob_size(&delta);
+    blob_reset(&delta);
+    blob_reset(&src);
+  }else{
+    size = 0;
+  }
+  return size;
+}
+
+/*
 ** Send the file identified by rid.
 **
 ** The pUuid can be NULL in which case the correct UUID is computed
 ** from the rid.
 **
-** If srcId is positive, then a delta is sent against that srcId.
-** If srcId is zero, then an attempt is made to find an appropriate
-** file to delta against.   If srcId is negative, the file is sent
-** without deltaing.
+** Try to send the file as a native delta if nativeDelta is true, or
+** as a parent delta if nativeDelta is false.
 */
-static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int srcId){
+static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   Blob content, uuid;
   int size = 0;
 
@@ -222,18 +258,26 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int srcId){
     blob_reset(&uuid);
     return;
   }
-  content_get(rid, &content);
-
-  if( blob_size(&content)>100 ){
-    size = send_as_delta(pXfer, rid, &content, pUuid, srcId);
+  if( nativeDelta ){
+    size = send_delta_native(pXfer, rid, pUuid);
+    if( size ){
+      pXfer->nDeltaSent++;
+    }
   }
   if( size==0 ){
-    int size = blob_size(&content);
-    blob_appendf(pXfer->pOut, "file %b %d\n", pUuid, size);
-    blob_append(pXfer->pOut, blob_buffer(&content), size);
-    pXfer->nFileSent++;
-  }else{
-    pXfer->nDeltaSent++;
+    content_get(rid, &content);
+
+    if( !nativeDelta && blob_size(&content)>100 ){
+      size = send_delta_parent(pXfer, rid, &content, pUuid);
+    }
+    if( size==0 ){
+      int size = blob_size(&content);
+      blob_appendf(pXfer->pOut, "file %b %d\n", pUuid, size);
+      blob_append(pXfer->pOut, blob_buffer(&content), size);
+      pXfer->nFileSent++;
+    }else{
+      pXfer->nDeltaSent++;
+    }
   }
   remote_has(rid);
   blob_reset(&uuid);
@@ -414,6 +458,7 @@ void page_xfer(void){
   int isPush = 0;
   int nErr = 0;
   Xfer xfer;
+  int nativeDeltaFlag = 0;
 
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
@@ -553,6 +598,7 @@ void page_xfer(void){
         break;
       }
       isPull = 1;
+      /* nativeDeltaFlag = 1; */
       @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
     }else
 
@@ -714,7 +760,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     /* Generate gimme messages for phantoms and leaf messages
     ** for all leaves.
     */
-    if( pullFlag ){
+    if( pullFlag || cloneFlag ){
       request_phantoms(&xfer);
     }
     if( pushFlag ){
@@ -793,7 +839,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       ){
         int rid = 0;
         nMsg++;
-        if( pullFlag ){
+        if( pullFlag || cloneFlag ){
           if( !db_exists("SELECT 1 FROM blob WHERE uuid='%b' AND size>=0",
                 &xfer.aToken[1]) ){
             rid = content_put(0, blob_str(&xfer.aToken[1]), 0);
@@ -826,9 +872,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
         }
-        cloneFlag = 0;
-        pullFlag = 1;
-        blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
+        blob_appendf(&send, "clone\n");
         nMsg++;
       }else
       

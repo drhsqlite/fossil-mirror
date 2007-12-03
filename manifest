@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Detect\sdelta\sloops\sand\smake\sat\sleast\sone\smember\sof\sthe\sloop\sa\sphantom.
-D 2007-12-03T14:42:32
+C Fix\sthe\sdelta\scomputation\son\sdownload\sso\sthat\sit\snever\stries\sto\ndelta\sa\sfile\sthat\shas\sthe\ssame\sfile\sas\sboth\sits\sparent\sand\sits\schild.
+D 2007-12-03T19:08:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -46,7 +46,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
-F src/db.c 48224de87a88df3026d7bfd4c90b3b79ac11f4ab
+F src/db.c dab15ea695bf5df78c21e8a14e03fc335bc4e228
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -96,7 +96,7 @@ F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
 F src/wikiformat.c e974e961724ed88300a0037b00d76dbc3f8534b8
-F src/xfer.c 3c34086239f722e51de37e3ce82c3a642123e571
+F src/xfer.c 36f1bd89218a9679207c375df1f66287f2aca21c
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 20553a420cb6c453a82924e8edbe11b0f0cbbf40
-R 97c0d5474e571b3b2d40c3b0632c02b7
+P fb90abe5bdfb92223dfcc291441868be1c2029af
+R 4d0e783c3be035b991d63faed8e41b4d
 U drh
-Z 02119feda9842cb514e949e18c66bb47
+Z fd11577189846ba4912ef1e6529d6caf
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHVBXcoxKgR168RlERAgLAAJ9ZfcXhv4AbR6O0+Fbao6rf3u1QqQCfXBqL
-heqX8sHmhhR4vDjQR25VI1I=
-=43wH
+iD8DBQFHVFQfoxKgR168RlERAvYuAJ9NBMAv6RdDqHUM1IbrzN9Bm4o/YQCcCTgA
+ao4W+MwBd+kq4BE8imxQDRo=
+=zwhR
 -----END PGP SIGNATURE-----

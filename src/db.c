@@ -74,7 +74,6 @@ static void db_err(const char *zFormat, ...){
   }
   db_force_rollback();
   exit(1);
-  exit(1);
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
