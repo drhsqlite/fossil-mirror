@@ -458,7 +458,7 @@ void page_xfer(void){
   int isPush = 0;
   int nErr = 0;
   Xfer xfer;
-  int nativeDeltaFlag = 0;
+  int deltaFlag = 0;
 
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
@@ -507,7 +507,7 @@ void page_xfer(void){
       if( isPull ){
         int rid = rid_from_uuid(&xfer.aToken[1], 0);
         if( rid ){
-          send_file(&xfer, rid, &xfer.aToken[1], 0);
+          send_file(&xfer, rid, &xfer.aToken[1], deltaFlag);
         }
       }
     }else
@@ -598,7 +598,7 @@ void page_xfer(void){
         break;
       }
       isPull = 1;
-      /* nativeDeltaFlag = 1; */
+      deltaFlag = 1;
       @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
     }else
 

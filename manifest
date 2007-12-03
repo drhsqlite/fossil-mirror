@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\sdelta\scomputation\son\sdownload\sso\sthat\sit\snever\stries\sto\ndelta\sa\sfile\sthat\shas\sthe\ssame\sfile\sas\sboth\sits\sparent\sand\sits\schild.
-D 2007-12-03T19:08:11
+C Send\snative\sdeltas\swhen\scloning.\s\sThe\sreduces\sbandwidth\sand\sreduces\nserver\sload.
+D 2007-12-03T19:17:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -96,7 +96,7 @@ F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
 F src/wikiformat.c e974e961724ed88300a0037b00d76dbc3f8534b8
-F src/xfer.c 36f1bd89218a9679207c375df1f66287f2aca21c
+F src/xfer.c fe8089aded0fe6cc51c22df98eb5ff17aedf2516
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P fb90abe5bdfb92223dfcc291441868be1c2029af
-R 4d0e783c3be035b991d63faed8e41b4d
+P 16fbb59b96bd8731edd17d952c11fd31e78e1a43
+R 8103eb0627bbc45eff992f4c2882f6f5
 U drh
-Z fd11577189846ba4912ef1e6529d6caf
+Z 41a85f45f20a2af8e1982191e5619843
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHVFQfoxKgR168RlERAvYuAJ9NBMAv6RdDqHUM1IbrzN9Bm4o/YQCcCTgA
-ao4W+MwBd+kq4BE8imxQDRo=
-=zwhR
+iD8DBQFHVFZeoxKgR168RlERAr8NAJ9AhkriaBu02auXCKrICL2NJyN7iACeMN6Y
+j4GjQaX7J8pO7jfNzvQsp7s=
+=72cW
 -----END PGP SIGNATURE-----
