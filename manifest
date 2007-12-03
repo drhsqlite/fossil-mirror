@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Addition\sto\sthe\sdefault\sstyle\ssheet\sto\scover\sthe\sname/value\spairs\nat\sthe\stop\sof\sthe\svinfo\spage.\s\sAlso\sa\sbugfix\sin\sthe\sreport.c\scode.
-D 2007-12-02T22:30:09
+C Patch\sproblems\swith\stimeline.\s\sNeed\sto\srethink\sthe\swhole\simplementation.
+D 2007-12-03T00:27:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -83,7 +83,7 @@ F src/style.c 773050316bf1ec612989f087ded00ff4d4298f41
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
-F src/timeline.c 088a229b705d26b43cd06b8e296353cf6065ff55
+F src/timeline.c 88675c9828695558803e9f4cec25ae3c0c05c386
 F src/tkt.c 1c6be6341e09c0711fad6e2ca39a7ee6dbd90c73
 F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ba9af9acedf935cb086faa22dcfac54d4dd5ba88
-R f0685e1a7b789e5f252d5592866ff3c0
+P dff17229ff68a85ef38dcc2c15fcb127700a7698
+R 96e5a02ea5ecbd005441dfac70446f62
 U drh
-Z 7c63443e73fa88a3e8f1039b8687b284
+Z 564ad1ceaaa201aebe7ceb2f94c76fac
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHUzH1oxKgR168RlERAsHlAJ42j98/742j0/Ef1c2O5MPoV4n/KACePjyz
-NsOFnG9zAS/B2K6adEUt6ko=
-=Fb1o
+iD8DBQFHU01moxKgR168RlERAqPGAKCNNvcNY9B3yIRVkONXAI2jLjobSQCfYgD5
+IwOOc7KHujn0d+MZ4jG9NAg=
+=MdDZ
 -----END PGP SIGNATURE-----

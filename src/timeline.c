@@ -121,6 +121,7 @@ void www_print_timeline(
     if( cnt==0 && pFirstEvent ){
       *pFirstEvent = rid;
     }
+    cnt++;
     if( pLastEvent ){
       *pLastEvent = rid;
     }
@@ -158,7 +159,16 @@ void www_print_timeline(
       hyperlink_to_uuid(zUuid);
     }
     db_column_blob(pQuery, 3, &comment);
-    wiki_convert(&comment, 0, WIKI_INLINE);
+    if( blob_size(&comment)>200 ){
+      Blob truncated;
+      blob_zero(&truncated);
+      blob_append(&truncated, blob_buffer(&comment), 200);
+      blob_append(&truncated, "...", 3);
+      wiki_convert(&truncated, 0, WIKI_INLINE);
+      blob_reset(&truncated);
+    }else{
+      wiki_convert(&comment, 0, WIKI_INLINE);
+    }
     blob_reset(&comment);
     @ (by %h(zUser))</td></tr>
   }
@@ -205,7 +215,7 @@ const char *timeline_query_for_www(void){
     @ SELECT
     @   blob.rid,
     @   uuid,
-    @   datetime(event.mtime,'localtime'),
+    @   datetime(event.mtime,'localtime') AS timestamp,
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
@@ -231,9 +241,11 @@ const char *timeline_query_for_www(void){
 **    a              show events after and including.   dflt: false
 **    r              show only related events.          dflt: false
 **    y=TYPE         show only TYPE ('ci' or 'w')       dflt: nil
+**    s              show the SQL                       dflt: nil
 */
 void page_timeline(void){
   Stmt q;
+  Blob sql;
   char *zSQL;
   Blob scriptInit;
   char zDate[100];
@@ -260,15 +272,16 @@ void page_timeline(void){
     @ <p><b>Note:</b> You will be able to access <u>much</u> more
     @ historical information if <a href="%s(g.zTop)/login">login</a>.</p>
   }
-  zSQL = mprintf("%s", timeline_query_for_www());
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
   if( zType ){
-    zSQL = mprintf("%z AND event.type=%Q", zSQL, zType);
+    blob_appendf(&sql, " AND event.type=%Q", zType);
   }
   if( zUser ){
-    zSQL = mprintf("%z AND event.user=%Q", zSQL, zUser);
+    blob_appendf(&sql, " AND event.user=%Q", zUser);
   }
   if( objid ){
-    char *z = db_text(0, "SELECT datetime(event.mtime) FROM event"
+    char *z = db_text(0, "SELECT datetime(event.mtime, 'localtime') FROM event"
                          " WHERE objid=%d", objid);
     if( z ){
       zStart = z;
@@ -277,8 +290,9 @@ void page_timeline(void){
   if( zStart ){
     while( isspace(zStart[0]) ){ zStart++; }
     if( zStart[0] ){
-      zSQL = mprintf("%z AND event.mtime %s julianday(%Q, 'localtime')",
-                      zSQL, afterFlag ? ">=" : "<=", zStart);
+      blob_appendf(&sql, 
+         " AND event.mtime %s (SELECT julianday(%Q, 'utc'))",
+                          afterFlag ? ">=" : "<=", zStart);
     }
   }
   if( relatedEvents && objid ){
@@ -290,17 +304,34 @@ void page_timeline(void){
     }else{
       compute_ancestors(objid, nEntry);
     }
-    zSQL = mprintf("%z AND event.objid IN ok", zSQL);
+    blob_append(&sql, " AND event.objid IN ok", -1);
   }
-  zSQL = mprintf("%z ORDER BY event.mtime DESC LIMIT %d", zSQL, nEntry);
+  if( afterFlag ){
+    blob_appendf(&sql, " ORDER BY event.mtime ASC LIMIT %d",
+                 nEntry);
+  }else{
+    blob_appendf(&sql, " ORDER BY event.mtime DESC LIMIT %d",
+                 nEntry);
+  }
+  zSQL = blob_str(&sql);
+  if( afterFlag ){
+    zSQL = mprintf("SELECT * FROM (%s) ORDER BY timestamp DESC", zSQL);
+  }
   db_prepare(&q, zSQL);
-  free(zSQL);
+  if( P("s")!=0 ){
+    @ <hr><p>%h(zSQL)</p><hr>
+  }
+  blob_zero(&sql);
+  if( afterFlag ){
+    free(zSQL);
+  }
   zDate[0] = 0;
   blob_zero(&scriptInit);
   zDate[0] = 0;
   www_print_timeline(&q, &firstEvent, &lastEvent,
                      save_parentage_javascript, &scriptInit);
   db_finalize(&q);
+  @ <p>firstEvent=%d(firstEvent) lastEvent=%d(lastEvent)</p>
   if( zStart==0 ){
     zStart = zDate;
   }
@@ -377,17 +408,18 @@ void page_timeline(void){
   @ <input type="text" size="4" value="%d(nEntry)" name="n">
   @ <br><input type="submit" value="Submit">
   @ </form>
+  @ <table><tr><td>
   @ <form method="GET" action="%s(g.zBaseURL)/timeline">
   @ <input type="hidden" value="%d(lastEvent)" name="e">
   @ <input type="hidden" value="%d(nEntry)" name="n">
   @ <input type="submit" value="Next %d(nEntry) Rows">
-  @ </form>
+  @ </form></td><td>
   @ <form method="GET" action="%s(g.zBaseURL)/timeline">
   @ <input type="hidden" value="%d(firstEvent)" name="e">
-  @ <input type="hidden" value="1" name="a">
   @ <input type="hidden" value="%d(nEntry)" name="n">
+  @ <input type="hidden" value="1" name="a">
   @ <input type="submit" value="Previous %d(nEntry) Rows">
-  @ </form>
+  @ </form></td></tr></table>
   style_footer();
 }
 
