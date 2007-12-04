@@ -46,7 +46,7 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
-** Usage: %fossil diff|gdiff ?-i ?-r REVISION FILE...
+** Usage: %fossil diff|gdiff ?-i? ?-r REVISION? FILE...
 **
 ** Show the difference between the current version of a file (as it
 ** exists on disk) and that same file as it was checked out.
@@ -61,14 +61,14 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 **
 ** Here are a few external diff command settings, for example:
 **
-**   %fossil config diff-command=diff
+**   %fossil setting diff-command diff
 **
-**   %fossil config gdiff-command=tkdiff
-**   %fossil config gdiff-command=eskill22
-**   %fossil config gdiff-command=tortoisemerge
-**   %fossil config gdiff-command=meld
-**   %fossil config gdiff-command=xxdiff
-**   %fossil config gdiff-command=kdiff3
+**   %fossil setting gdiff-command tkdiff
+**   %fossil setting gdiff-command eskill22
+**   %fossil setting gdiff-command tortoisemerge
+**   %fossil setting gdiff-command meld
+**   %fossil setting gdiff-command xxdiff
+**   %fossil setting gdiff-command kdiff3
 */
 void diff_cmd(void){
   const char *zFile, *zRevision;
@@ -118,7 +118,7 @@ void diff_cmd(void){
     }
     content_get(rid, &record);
   }else{
-    content_get_historical_file(zRevision, zFile, &record);
+    historical_version_of_file(zRevision, zFile, &record);
   }
   if( internalDiff==1 ){
     Blob out;

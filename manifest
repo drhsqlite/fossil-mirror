@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Send\snative\sdeltas\swhen\scloning.\s\sThe\sreduces\sbandwidth\sand\sreduces\nserver\sload.
-D 2007-12-03T19:17:45
+C Fix\sthe\srevert\scommand\sso\sthat\sit\sworks\sfrom\ssubdirectories.\s\sOther\nminor\scomment\sand\shelp-text\schanges.
+D 2007-12-04T01:26:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -38,7 +38,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
 F src/cgi.c 1c055038717de0273b07651aef227c7341d76a5f
-F src/checkin.c 6e8cb78df89cb8ed7e82e3c69300200518218616
+F src/checkin.c 5435deb8410083ce4a3920403f72e7f99e89cd03
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
@@ -46,12 +46,12 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
-F src/db.c dab15ea695bf5df78c21e8a14e03fc335bc4e228
+F src/db.c dc611498354d21e93c444696f8faf3ee133df502
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c ec5d7996135d53a6c7d5db2e7a22337212ea6c9b
-F src/diffcmd.c dfc5dfd3503ea2707c6a4412ec22a9766b56a109
+F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
@@ -89,13 +89,13 @@ F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 86ce4008279aaf0127390b5acb4a4db223cb30e2
+F src/update.c 676d19419e60b2c5516d86436ad58d06c5c8b2a9
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c dde3c3d16a89ff29c0bfb2b70e32431f45640400
 F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
-F src/wikiformat.c e974e961724ed88300a0037b00d76dbc3f8534b8
+F src/wikiformat.c d9ba82df4d6ff07fb65d6cd2b4ad9c8443127809
 F src/xfer.c fe8089aded0fe6cc51c22df98eb5ff17aedf2516
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 16fbb59b96bd8731edd17d952c11fd31e78e1a43
-R 8103eb0627bbc45eff992f4c2882f6f5
+P 18fbb9c52d0ff928fc7ddbb85233e2ce4c396aca
+R 75e72a09a1689d4e35423f3fb50feb04
 U drh
-Z 41a85f45f20a2af8e1982191e5619843
+Z 0f2e8f01e0e5d3bbaa27dedd7a2abd74
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHVFZeoxKgR168RlERAr8NAJ9AhkriaBu02auXCKrICL2NJyN7iACeMN6Y
-j4GjQaX7J8pO7jfNzvQsp7s=
-=72cW
+iD8DBQFHVKzBoxKgR168RlERAiRyAJ9JPHoLAlWZR62P0cIQ0nz03D7kIACfdAtI
+JU5sqEf2zNZXomN4CPbPdlE=
+=OwFV
 -----END PGP SIGNATURE-----

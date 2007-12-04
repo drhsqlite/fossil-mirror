@@ -46,8 +46,11 @@ static void status_report(Blob *report, const char *zPrefix){
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
+    char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
-    if( isNew ){
+    if( access(zFullName, 0) ){
+      blob_appendf(report, "MISSING  %s\n", zPathname);
+    }else if( isNew ){
       blob_appendf(report, "ADDED    %s\n", zPathname);
     }else if( isDeleted ){
       blob_appendf(report, "DELETED  %s\n", zPathname);
@@ -58,6 +61,7 @@ static void status_report(Blob *report, const char *zPrefix){
     }else{
       blob_appendf(report, "EDITED   %s\n", zPathname);
     }
+    free(zFullName);
   }
   db_finalize(&q);
   db_prepare(&q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"

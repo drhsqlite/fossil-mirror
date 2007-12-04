@@ -245,14 +245,46 @@ void update_cmd(void){
   db_end_transaction(0);
 }
 
+
+/*
+** Get the contents of a file within a given revision.
+*/
+int historical_version_of_file(
+  const char *revision,    /* The baseline name containing the file */
+  const char *file,        /* Full treename of the file */
+  Blob *content            /* Put the content here */
+){
+  Blob mfile;
+  Manifest m;
+  int i, rid=0;
+  
+  rid = name_to_rid(revision);
+  content_get(rid, &mfile);
+  
+  if( manifest_parse(&m, &mfile) ){
+    for(i=0; i<m.nFile; i++){
+      if( strcmp(m.aFile[i].zName, file)==0 ){
+        rid = uuid_to_rid(m.aFile[i].zUuid, 0);
+        return content_get(rid, content);
+      }
+    }
+    fossil_fatal("file %s does not exist in baseline: %s", file, revision);
+  }else{
+    fossil_panic("could not parse manifest for baseline: %s", revision);
+  }
+  return 0;
+}
+
+
 /*
 ** COMMAND: revert
 **
 ** Usage: %fossil revert ?--yes? ?-r REVISION? FILE
 **
-** Revert to the current repository version of FILE. This
-** command will confirm your operation, unless you do so
-** at the command line via the -yes option.
+** Revert to the current repository version of FILE, or to
+** the version associated with baseline REVISION if the -r flag
+** appears.  This command will confirm your operation unless the
+** file is missing or the --yes option is used.
 **/
 void revert_cmd(void){
   const char *zFile;
@@ -271,12 +303,13 @@ void revert_cmd(void){
   }
   db_must_be_within_tree();
   
-  zFile = g.argv[g.argc-1];
+  zFile = mprintf("%/", g.argv[g.argc-1]);
 
   if( !file_tree_name(zFile, &fname) ){
     fossil_panic("unknown file: %s", zFile);
   }
-  
+
+  if( access(zFile, 0) ) yesRevert = 1;  
   if( yesRevert==0 ){
     char *prompt = mprintf("revert file %B? this will"
                            " destroy local changes [y/N]? ",
@@ -289,7 +322,7 @@ void revert_cmd(void){
   }
 
   if( yesRevert==1 && zRevision!=0 ){
-    content_get_historical_file(zRevision, zFile, &record);
+    historical_version_of_file(zRevision, zFile, &record);
   }else if( yesRevert==1 ){
     rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
     if( rid==0 ){
@@ -299,8 +332,8 @@ void revert_cmd(void){
   }
   
   if( yesRevert==1 ){
-    blob_write_to_file(&record, blob_str(&fname));
-    printf("%s reverted\n", blob_str(&fname));
+    blob_write_to_file(&record, zFile);
+    printf("%s reverted\n", zFile);
     blob_reset(&record);
     blob_reset(&fname);
   }else{
