@@ -785,7 +785,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       db_finalize(&q);
       db_multi_exec(
-        "INSERT INTO event(type,mtime,objid,user,comment,"
+        "REPLACE INTO event(type,mtime,objid,user,comment,"
         "                  bgcolor,brbgcolor,euser,ecomment)"
         "VALUES('ci',%.17g,%d,%Q,%Q,"
         " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
@@ -847,7 +847,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     }
     zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
     db_multi_exec(
-      "INSERT INTO event(type,mtime,objid,user,comment,"
+      "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,brbgcolor,euser,ecomment)"
       "VALUES('w',%.17g,%d,%Q,%Q,"
       " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
@@ -872,7 +872,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     free(zTag);
     zComment = mprintf("Changes to ticket [%.10s]", m.zTicketUuid);
     db_multi_exec(
-      "INSERT INTO event(type,mtime,objid,user,comment)"
+      "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('t',%.17g,%d,%Q,%Q)",
       m.rDate, rid, m.zUser, zComment
     );
