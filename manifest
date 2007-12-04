@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\srevert\scommand\sso\sthat\sit\sworks\sfrom\ssubdirectories.\s\sOther\nminor\scomment\sand\shelp-text\schanges.
-D 2007-12-04T01:26:21
+C Fix\stypos\sin\sthe\s"concepts.html"\sdocument.
+D 2007-12-04T01:55:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -150,7 +150,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html 599347ea73f8ac8f2db11792493e8f57ee26fe92
+F www/concepts.html d4951ef6037a6683579d4928cc8604ce1825771a
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 18fbb9c52d0ff928fc7ddbb85233e2ce4c396aca
-R 75e72a09a1689d4e35423f3fb50feb04
+P 371dd6574c3aa26439bb597f9bd69f0a88e7b3f5
+R 52ef8ce9840a3e335fb2cdf52d0b75fd
 U drh
-Z 0f2e8f01e0e5d3bbaa27dedd7a2abd74
+Z 0d0be67c3e65d8086368d490940d4b24
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHVKzBoxKgR168RlERAiRyAJ9JPHoLAlWZR62P0cIQ0nz03D7kIACfdAtI
-JU5sqEf2zNZXomN4CPbPdlE=
-=OwFV
+iD8DBQFHVLN/oxKgR168RlERAkFwAJsELOlNJJIP+hI9u5C7l+1lb7DC8QCdH6Z6
+TFFhwt4V9iIWJAFGDoJk868=
+=xsT/
 -----END PGP SIGNATURE-----

@@ -32,7 +32,8 @@ A source tree is a hierarchy of files that are used to generate
 the end product.  The source tree changes over time as the
 software grows and expands and as features are added and bugs
 are fixed.  A snapshot of the source tree at any point in time
-is called a "version" or a "baseline" of the product.</p>
+is called a "version" or "revision" or a "baseline" of the product.
+In fossil, we use the name "baseline".</p>
 
 <p>A "repository" is a database that contains copies of all historical
 versions or baselines for a project.  Baselines are normally stored in the
@@ -55,7 +56,7 @@ tree per repository is the most common configuration.)  So a
 single repository can be associated with many source trees, but
 each source tree is associated with only one repository.</p>
 
-<p>Fossil source tree may not overlap.  A fossil source tree is identified
+<p>Fossil source trees may not overlap.  A fossil source tree is identified
 by a file named "_FOSSIL_" in the root directory of the source tree.  Every
 file that is a sibling of _FOSSIL_ and every file in every subfolder is
 considered potentially a part of the source tree.  The _FOSSIL_ file
@@ -95,7 +96,7 @@ for the artifact.  The SHA1 algorithm is created with the purpose of
 providing a highly forgery-resistent identifier for a file.  Given any
 file it is simple to find the UUID for that file.  But given a
 UUID it is computationally intractable to generate a file that will
-generate that UUID.</p>
+have that UUID.</p>
 
 
 <p>UUIDs look something like this:</p>
@@ -158,7 +159,7 @@ be PGP clearsigned.</p>
 <h3>2.3 Key concepts</h3>
 
 <ul>
-<li>A <b>baseline</b> or <b>version</b> is a set of files arranged
+<li>A <b>baseline</b> is a set of files arranged
     in a hierarchy.</li>
 <li>A <b>repository</b> keeps a record of historical baselines.</li>
 <li>Repositories share their changes using <b>push</b>, <b>pull</b>,
@@ -187,8 +188,10 @@ fossil effectively.  You will want to have some kind of text editor
 for entering check-in comments.  Fossil will use whatever text editor
 is identified by your VISUAL environment variable.  Fossil will also
 use GPG to clearsign your manifests if you happen to have it installed,
-but fossil will skip that step if you do not have GPG so it is not
-essential.</p>
+but fossil will skip that step if GPG missing from your system.
+You can optionally set up fossil to use external "diff" programs, 
+though a perfectly functional "diff" algorithm is built it and works
+find for most people.</p>
 
 <p>To uninstall fossil, simply delete the executable.</p>
 
