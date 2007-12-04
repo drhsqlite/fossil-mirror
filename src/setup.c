@@ -66,6 +66,8 @@ void setup_page(void){
     "Control access settings.");
   setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
+  setup_menu_entry("Timeline", "setup_timeline",
+    "Timeline display preferences");
   setup_menu_entry("Tickets", "setup_ticket",
     "Configure the trouble-ticketing system for this repository");
   setup_menu_entry("CSS", "setup_editcss",
@@ -530,8 +532,36 @@ void setup_access(void){
   @ to a year.</p>
 
   @ <hr>
-  onoff_attribute("Allow anonymous signup", "anon-signup", "asu", 0);
-  @ <p>Allow users to create their own accounts</p>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </form>
+  db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_timeline
+*/
+void setup_timeline(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+
+  style_header("Timeline Display Preferences");
+  db_begin_transaction();
+  @ <form action="%s(g.zBaseURL)/setup_timeline" method="POST">
+
+  @ <hr>
+  onoff_attribute("Block markup in timeline",
+                  "timeline-block-markup", "tbm", 0);
+  @ <p>In timeline displays, check-in comments can be displayed with or
+  @ without block markup (paragraphs, tables, etc.)</p>
+
+  @ <hr>
+  entry_attribute("Max timeline comment length", 6, 
+                  "timeline-max-comment", "tmc", "0");
+  @ <p>The maximum length of a comment to be displayed in a timeline.
+  @ "0" there is no length limit.</p>
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>

@@ -98,9 +98,18 @@ void www_print_timeline(
   Blob *pArg
  ){
   int cnt = 0;
+  int wikiFlags;
+  int mxWikiLen;
   Blob comment;
   char zPrevDate[20];
   zPrevDate[0] = 0;
+
+  mxWikiLen = db_get_int("timeline-max-comment", 0);
+  if( db_get_boolean("timeline-block-markup", 0) ){
+    wikiFlags = WIKI_INLINE;
+  }else{
+    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
+  }
 
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS seen(rid INTEGER PRIMARY KEY);"
@@ -159,15 +168,15 @@ void www_print_timeline(
       hyperlink_to_uuid(zUuid);
     }
     db_column_blob(pQuery, 3, &comment);
-    if( blob_size(&comment)>200 ){
+    if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
       Blob truncated;
       blob_zero(&truncated);
-      blob_append(&truncated, blob_buffer(&comment), 200);
+      blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
       blob_append(&truncated, "...", 3);
-      wiki_convert(&truncated, 0, WIKI_INLINE);
+      wiki_convert(&truncated, 0, wikiFlags);
       blob_reset(&truncated);
     }else{
-      wiki_convert(&comment, 0, WIKI_INLINE);
+      wiki_convert(&comment, 0, wikiFlags);
     }
     blob_reset(&comment);
     @ (by %h(zUser))</td></tr>
