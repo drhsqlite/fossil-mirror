@@ -381,6 +381,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     method timerange {} { return [$mytypeobj timerange $myitems] }
 
+    method limits {} {
+	struct::list assign [$mytypeobj limits $myitems] maxp mins
+	return [list [TagItemDict $maxp $mytype] [TagItemDict $mins $mytype]]
+    }
+
     method drop {} {
 	log write 8 csets {Dropping $self = [$self str]}
 
@@ -495,6 +500,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	struct::list assign $theitem t i
 	integrity assert {$cstype eq $t} {Item $i's type is '$t', expected '$cstype'}
 	return $i
+    }
+
+    proc TagItemDict {itemdict cstype} {
+	set res {}
+	foreach {i v} $itemdict { lappend res [list $cstype $i] $v }
+	return $res
     }
 
     proc ValidateFragments {cset fragments} {
@@ -1462,6 +1473,45 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
             AND    C.type = 1
 	"]
 	return
+    }
+
+    typemethod limits {branches} {
+	# Notes. This method exists only for branches. It is needed to
+	# get detailed information about a backward branch. It does
+	# not apply to tags, nor revisions. The queries can also
+	# restrict themselves to the revision sucessors/predecessors
+	# of branches, as only they have ordering data and thus can
+	# cause the backwardness.
+
+	set theset ('[join $branches {','}]')
+
+	set maxp [state run [subst -nocommands -nobackslashes {
+	    -- maximal predecessor position per branch
+	    SELECT B.bid, MAX (CO.pos)
+	    FROM   branch B, revision R, csitem CI, changeset C, csorder CO
+	    WHERE  B.bid IN $theset
+	    AND    B.root = R.rid
+	    AND    CI.iid = R.rid
+	    AND    C.cid = CI.cid
+	    AND    C.type = 0
+	    AND    CO.cid = C.cid
+	    GROUP BY B.bid
+	}]]
+
+	set mins [state run [subst -nocommands -nobackslashes {
+	    -- minimal successor position per branch
+	    SELECT B.bid, MIN (CO.pos)
+	    FROM   branch B, revision R, csitem CI, changeset C, csorder CO
+	    WHERE  B.bid IN $theset
+	    AND    B.first = R.rid
+	    AND    CI.iid = R.rid
+	    AND    C.cid = CI.cid
+	    AND    C.type = 0
+	    AND    CO.cid = C.cid
+	    GROUP BY B.bid
+	}]]
+
+        return [list $maxp $mins]
     }
 
     # # ## ### ##### ######## #############

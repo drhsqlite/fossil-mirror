@@ -109,12 +109,17 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	::variable mycset
 	::variable myrevisionchangesets
 
+	log write 2 breakacycle {Loading revision commit order}
+
+	set n 0
 	state transaction {
 	    foreach {cid pos} [state run { SELECT cid, pos FROM csorder }] {
+		log progress 2 breakacycle $n
 		set cset [project::rev of $cid]
 		$cset setpos $pos
 		set mycset($pos) $cset
 		lappend myrevisionchangesets $cset
+		incr n
 	    }
 	}
 	return
@@ -151,31 +156,29 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	    # ones. Each set induces a new changeset, and the second
 	    # one may still be backward and in need of further
 	    # splitting. Hence the looping.
-	    #
+
 	    # The border used for the split is the minimal commit
 	    # position among the minimal sucessor commit positions for
-	    # the branches in the changeset.
-
-	    # Note that individual branches may not have changesets
-	    # which are their predecessors and/or successors, leaving
-	    # the limits partially or completely undefined.
+	    # the branches in the changeset.  We sort the file level
+	    # items based on there they sit relative to the border
+	    # into before and after the border. As the branches cannot
+	    # be backward at file level thos before the border cannot
+	    # generate a backward symbol changeset, however the
+	    # branches after may constitute another backward branch
+	    # with a new border.
 
 	    # limits : dict (revision -> list (max predecessor commit, min sucessor commit))
 
 	    ComputeLimits $cset limits border
 
-	    log write 5 breakacycle "Breaking backward changeset [$cset str] with commit position $border as border"
-
-	    # Secondly we sort the file level items based on there
-	    # they sit relative to the border into before and after
-	    # the border.
+	    log write 5 breakacycle "Breaking backward changeset [$cset str] using commit position $border as border"
 
 	    SplitItems $limits $border normalitems backwarditems
 
 	    set replacements [project::rev split $cset $normalitems $backwarditems]
 	    cyclebreaker replace $graph $cset $replacements
 
-	    # At last check that the normal frament is indeed not
+	    # At last we check that the normal frament is indeed not
 	    # backward, and iterate over the possibly still backward
 	    # second fragment.
 
@@ -235,36 +238,37 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
     proc ComputeLimits {cset lv bv} {
 	upvar 1 $lv thelimits $bv border
 
-	# Initialize the boundaries for all items.
+	# Individual branches may not have revision changesets which
+	# are their predecessors and/or successors, leaving the limits
+	# partially or completely undefined. To overcome this
+	# initialize boundaries for all items with proper defaults (-1
+	# for max, {} for min, representing +infinity).
 
-	array set limits {}
-	foreach revision [$cset items] {
-	    set limits($revision) {0 {}}
+	array set maxpa {}
+	array set minsa {}
+	foreach item [$cset items] {
+	    set maxpa($item) -1
+	    set minsa($item) {}
 	}
 
-	# Compute and store the maximal predecessors per item (branch)
+	# Get the limits from the database, for the items which
+	# actually have such, and merge the information with the
+	# defaults.
 
-	foreach {item csets} [$cset predecessormap] {
-	    set s [Positions $csets]
-	    if {![llength $s]} continue
-	    set limits($item) [lreplace $limits($item) 0 0 [max $s]]
-	}
+	struct::list assign [$cset limits] maxpdict minsdict
 
-	# Compute and store the minimal successors per item (branch)
-
-	foreach {item csets} [$cset successormap] {
-	    set s [Positions $csets]
-	    if {![llength $s]} continue
-	    set limits($item) [lreplace $limits($item) 1 1 [min $s]]
-	}
+	array set maxpa $maxpdict
+	array set minsa $minsdict
 
 	# Check that the ordering at the file level is correct. We
 	# cannot have backward ordering per branch, or something is
 	# wrong.
 
 	foreach item [array names limits] {
-	    struct::list assign $limits($item) maxp mins
-	    # Handle min successor position "" as representing infinity
+	    set mins $minsa($item)
+	    set maxp $maxp($item)
+	    # Note that for the min successor position "" represents
+	    # +infinity
 	    integrity assert {
 		($mins eq "") || ($maxp < $mins) 
 	    } {Item <$item> is backward at file level ($maxp >= $mins)}
@@ -274,10 +278,14 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# which to split as the minimum of all minimal successor
 	# positions.
 
-	set thelimits [array get limits]
-	set border [min [struct::list filter [struct::list map [Values $thelimits] \
-						  [myproc MinSuccessorPosition]] \
-			     [myproc ValidPosition]]]
+	# Compute the border at which to split as the minimum of all
+	# minimal successor positions. By using the database info we
+	# automatically/implicitly filter out anything without a min
+	# successor. Further the data going into the comparison with
+	# the border is put together.
+
+	set border    [min [Values $minsdict]]
+	set thelimits [array get maxpa]
 	return
     }
 
@@ -287,20 +295,17 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	return $res
     }
 
-    proc MinSuccessorPosition {item} { lindex $item 1 }
-
     proc SplitItems {limits border nv bv} {
 	upvar 1 $nv normalitems $bv backwarditems
 
 	set normalitems   {}
 	set backwarditems {}
 
-	foreach {rev v} $limits {
-	    struct::list assign $v maxp mins
+	foreach {item maxp} $limits {
 	    if {$maxp >= $border} {
-		lappend backwarditems  $rev
+		lappend backwarditems $item
 	    } else {
-		lappend normalitems $rev
+		lappend normalitems   $item
 	    }
 	}
 
@@ -308,7 +313,6 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	integrity assert {[llength $backwarditems]} {Set of backward items is empty}
 	return
     }
-
 
     # # ## ### ##### ######## #############
 
