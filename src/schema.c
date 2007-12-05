@@ -117,7 +117,26 @@ const char zRepositorySchema1[] =
 @   value CLOB,                      -- Content of the named parameter
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
 @ );
+@
+@ -- Artifacts that should not be processed are identified in the
+@ -- "shun" table.  Artifacts that are control-file forgeries or
+@ -- spam can be shunned in order to prevent them from contaminating
+@ -- the repository.
+@ --
+@ CREATE TABLE shun(uuid UNIQUE);
+@
+@ -- An entry in this table describes a database query that generates a
+@ -- table of tickets.
+@ --
+@ CREATE TABLE reportfmt(
+@    rn integer primary key,  -- Report number
+@    owner text,              -- Owner of this report format (not used)
+@    title text,              -- Title of this report
+@    cols text,               -- A color-key specification
+@    sqlcode text             -- An SQL SELECT statement for this report
+@ );
 ;
+
 const char zRepositorySchema2[] =
 @ -- Filenames
 @ --
@@ -128,6 +147,9 @@ const char zRepositorySchema2[] =
 @
 @ -- Linkages between manifests, files created by that manifest, and
 @ -- the names of those files.
+@ --
+@ -- pid==0 if the file is added by check-in mid.
+@ -- fid==0 if the file is removed by check-in mid.
 @ --
 @ CREATE TABLE mlink(
 @   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
@@ -154,15 +176,18 @@ const char zRepositorySchema2[] =
 @ -- Events used to generate a timeline
 @ --
 @ CREATE TABLE event(
-@   type TEXT,
-@   mtime DATETIME,
-@   objid INTEGER,
-@   uid INTEGER REFERENCES user,
-@   user TEXT,
-@   comment TEXT
+@   type TEXT,                      -- Type of event
+@   mtime DATETIME,                 -- Date and time when the event occurs
+@   objid INTEGER PRIMARY KEY,      -- Associated record ID
+@   uid INTEGER REFERENCES user,    -- User who caused the event
+@   bgcolor TEXT,                   -- Color set by 'bgcolor' property
+@   brbgcolor TEXT,                 -- Color set by 'br-bgcolor' property
+@   euser TEXT,                     -- User set by 'user' property
+@   user TEXT,                      -- Name of the user
+@   ecomment TEXT,                  -- Comment set by 'comment' property
+@   comment TEXT                    -- Comment describing the event
 @ );
 @ CREATE INDEX event_i1 ON event(mtime);
-@ CREATE INDEX event_i2 ON event(objid);
 @
 @ -- A record of phantoms.  A phantom is a record for which we know the
 @ -- UUID but we do not (yet) know the file content.
@@ -192,26 +217,48 @@ const char zRepositorySchema2[] =
 @   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
 @ );
 @
-@ -- Aggregated ticket information
+@ -- Each baseline or manifest can have one or more tags.  A tag
+@ -- is defined by a row in the next table.
+@ -- 
+@ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
+@ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where 
+@ -- UUID is the indentifier of the ticket.
 @ --
-@ CREATE TABLE tkt(
-@   tktid INTEGER PRIMARY KEY,           -- Internal ticket ID
-@   fnid INTEGER REFERENCES filename,    -- Name of the ticket file
-@   rid INTEGER REFERENCES blob,         -- version of ticket file scanned
-@   title TEXT,                          -- title of the ticket
-@   remarks TEXT                         -- text of the ticket
+@ CREATE TABLE tag(
+@   tagid INTEGER PRIMARY KEY,       -- Numeric tag ID
+@   tagname TEXT UNIQUE              -- Tag name.
 @ );
-@ CREATE TABLE tkttag(
-@   tagid INTEGER PRIMARY KEY,           -- Numeric tag ID
-@   name TEXT UNIQUE                     -- Human-readable name of tag
+@ INSERT INTO tag VALUES(1, 'bgcolor');         -- TAG_BGCOLOR
+@ INSERT INTO tag VALUES(2, 'comment');         -- TAG_COMMENT
+@ INSERT INTO tag VALUES(3, 'user');            -- TAG_USER
+@ INSERT INTO tag VALUES(4, 'hidden');          -- TAG_HIDDEN
+@
+@ -- Assignments of tags to baselines.  Note that we allow tags to
+@ -- have values assigned to them.  So we are not really dealing with
+@ -- tags here.  These are really properties.  But we are going to
+@ -- keep calling them tags because in many cases the value is ignored.
+@ --
+@ CREATE TABLE tagxref(
+@   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
+@   tagtype INTEGER,                -- 0:cancel  1:single  2:branch
+@   srcid INTEGER REFERENCES blob,  -- Origin of the tag. 0 for propagated tags
+@   value TEXT,                     -- Value of the tag.  Might be NULL.
+@   mtime TIMESTAMP,                -- Time of addition or removal
+@   rid INTEGER REFERENCE blob,     -- Baseline that tag added/removed from
+@   UNIQUE(rid, tagid)
 @ );
-@ CREATE TABLE tktmap(
-@   tktid INTEGER REFERENCES tkt,        -- This ticket
-@   tagid INTEGER REFERENCES tkttag,     --    ....holds this tag
-@   UNIQUE(tktid, tagid)
-@ );
-@ CREATE INDEX tktmap_i2 ON tktmap(tagid);
+@ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
 ;
+
+/*
+** Predefined tagid values
+*/
+#if INTERFACE
+# define TAG_BGCOLOR    1
+# define TAG_COMMENT    2
+# define TAG_USER       3
+# define TAG_HIDDEN     4
+#endif
 
 /*
 ** The schema for the locate FOSSIL database file found at the root

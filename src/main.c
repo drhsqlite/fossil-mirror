@@ -61,6 +61,7 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
   char *zErrMsg;          /* Text of an error message */
@@ -104,6 +105,7 @@ struct Global {
   int okNewTkt;           /* n: create new tickets */
   int okApndTkt;          /* c: append to tickets via the web */
   int okWrTkt;            /* w: make changes to tickets via web */
+  int okRdAddr;           /* e: read email addresses on tickets */
 
   FILE *fDebug;           /* Write debug information here, if the file exists */
 };
@@ -387,7 +389,7 @@ void help_cmd(void){
   if( g.argc!=3 ){
     printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n", g.argv[0]);
     cmd_cmd_list();
-    printf("You are running fossil baseline " MANIFEST_UUID "\n");
+    printf("This is fossil version " MANIFEST_VERSION " " MANIFEST_DATE "\n");
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
@@ -414,11 +416,11 @@ void help_cmd(void){
 }
 
 /*
-** RSS feeds need to reference absolute URLs so we need to calculate
-** the base URL onto which we add components. This is basically
-** cgi_redirect() stripped down and always returning an absolute URL.
+** Set the g.zBaseURL value to the full URL for the toplevel of
+** the fossil tree.  Set g.zHomeURL to g.zBaseURL without the
+** leading "http://" and the host and port.
 */
-static char *get_base_url(void){
+void set_base_url(void){
   int i;
   const char *zHost = PD("HTTP_HOST","");
   const char *zMode = PD("HTTPS","off");
@@ -438,15 +440,18 @@ static char *get_base_url(void){
   while( i>0 && zCur[i-1]=='/' ){ i--; }
 
   if( strcmp(zMode,"on")==0 ){
-    return mprintf("https://%s%.*s", zHost, i, zCur);
+    g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
+    g.zTop = &g.zBaseURL[8+strlen(zHost)];
+  }else{
+    g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
+    g.zTop = &g.zBaseURL[7+strlen(zHost)];
   }
-  return mprintf("http://%s%.*s", zHost, i, zCur);
 }
 
 /*
 ** Preconditions:
 **
-**    * Environment various are set up according to the CGI standard.
+**    * Environment variables are set up according to the CGI standard.
 **    * The respository database has been located and opened.
 ** 
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
@@ -464,14 +469,10 @@ static void process_one_web_page(void){
   zPathInfo = P("PATH_INFO");
   if( zPathInfo==0 || zPathInfo[0]==0 ){
     const char *zUri;
-    char *zBase;
     zUri = PD("REQUEST_URI","/");
     for(i=0; zUri[i] && zUri[i]!='?' && zUri[i]!='#'; i++){}
     for(j=i; j>0 && zUri[j-1]!='/'; j--){}
-    zBase = mprintf("%.*s/index", i-j, &zUri[j]);
-    cgi_redirect(zBase);
-    cgi_reply();
-    return;
+    cgi_redirectf("%.*s/index", i, zUri);
   }else{
     zPath = mprintf("%s", zPathInfo);
   }
@@ -483,15 +484,17 @@ static void process_one_web_page(void){
   if( zPath[i]=='/' ){
     zPath[i] = 0;
     g.zExtra = &zPath[i+1];
-
+  }else{
+    g.zExtra = 0;
+  }
+  set_base_url();
+  if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
     ** will use g.zExtra directly.
     */
     dehttpize(g.zExtra);
-  }else{
-    g.zExtra = 0;
+    cgi_set_parameter_nocopy("name", g.zExtra);
   }
-  g.zBaseURL = get_base_url();
 
   /* Prevent robots from indexing this site.
   */
@@ -597,6 +600,15 @@ void cmd_http(void){
   }
   cgi_handle_http_request();
   process_one_web_page();
+}
+
+/*
+** COMMAND: test-http
+** Works like the http command but gives setup permission to all users.
+*/
+void cmd_test_http(void){
+  login_set_capabilities("s");
+  cmd_http();
 }
 
 /*

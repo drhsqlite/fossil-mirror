@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -46,6 +46,46 @@ static void strip_string(Blob *pBlob, char *z){
   }
   blob_append(pBlob, z, -1);
 }
+
+#ifdef __MINGW32__
+/*
+** getpass for Windows
+*/
+static char *getpass(const char *prompt){
+  static char pwd[64];
+  size_t i;
+
+  fputs(prompt,stderr);
+  fflush(stderr);
+  for(i=0; i<sizeof(pwd)-1; ++i){
+    pwd[i] = _getch();
+    if(pwd[i]=='\r' || pwd[i]=='\n'){
+      break;
+    }
+    /* BS or DEL */
+    else if(i>0 && (pwd[i]==8 || pwd[i]==127)){
+      i -= 2;
+      continue;
+    }
+    /* CTRL-C */
+    else if(pwd[i]==3) {
+      i=0;
+      break;
+    }
+    /* ESC */
+    else if(pwd[i]==27){
+      i=0;
+      break;
+    }
+    else{
+      fputc('*',stderr);
+    }
+  }
+  pwd[i]='\0';
+  fputs("\n", stderr);
+  return pwd;
+}
+#endif
 
 /*
 ** Do a single prompt for a passphrase.  Store the results in the blob.
@@ -127,7 +167,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **
 **        List all users known to the repository
 **
-**    %fossil user new
+**    %fossil user new ?USERNAME?
 **
 **        Create a new user in the repository.  Users can never be
 **        deleted.  They can be denied all access but they must continue
@@ -147,7 +187,15 @@ void user_cmd(void){
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     Blob passwd, login, contact;
 
-    prompt_user("login: ", &login);
+    if( g.argc>=4 ){
+      blob_zero(&login);
+      blob_append(&login, g.argv[3], -1);
+    }else{
+      prompt_user("login: ", &login);
+    }
+    if( db_exists("SELECT 1 FROM user WHERE login=%B", &login) ){
+      fossil_fatal("user %b already exists", &login);
+    }
     prompt_user("contact-info: ", &contact);
     prompt_for_password("password: ", &passwd, 1);
     db_multi_exec(
@@ -162,7 +210,7 @@ void user_cmd(void){
     }else if( g.localOpen ){
       db_lset("default-user", g.zLogin);
     }else{
-      db_set("default-user", g.zLogin);
+      db_set("default-user", g.zLogin, 0);
     }
   }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
@@ -175,7 +223,7 @@ void user_cmd(void){
     char *zPrompt;
     int uid;
     Blob pw;
-    if( g.argc!=4 ) usage("user password USERNAME");
+    if( g.argc!=4 ) usage("password USERNAME");
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
     if( uid==0 ){
       fossil_fatal("no such user: %s", g.argv[3]);
@@ -254,7 +302,8 @@ void user_select(void){
 
   if( attempt_user(getenv("USER")) ) return;
 
-  db_prepare(&s, "SELECT uid, login FROM user WHERE login<>'anonymous'");
+  db_prepare(&s, "SELECT uid, login FROM user"
+                 " WHERE login NOT IN ('anonymous','nobody')");
   if( db_step(&s)==SQLITE_ROW ){
     g.userUid = db_column_int(&s, 0);
     g.zLogin = mprintf("%s", db_column_text(&s, 1));
@@ -273,7 +322,7 @@ void user_select(void){
   if( g.userUid==0 ){
     db_multi_exec(
       "INSERT INTO user(login, pw, cap, info)"
-      "VALUES('anonymous', '', '', '')"
+      "VALUES('anonymous', '', 'cfghjkmnoqw', '')"
     );
     g.userUid = db_last_insert_rowid();
     g.zLogin = "anonymous";

@@ -1,139 +1,127 @@
+
 Possible ticket file format:
 
-   "Ticket"
-   title: TEXT
-   ticketid: TEXT
-   exists-in: BASELINE   -- 0 or more
-   fixed-in: BASELINE    -- 0 or more
-   tag: TAG              -- 0 or more
-   created: DATETIME
-   attachment: FILENAME DESCRIPTION
-   parent: UUID*
-   derived-from: TICKET-FILENAME
-   description: MULTILINE-TEXT
-   remarks: MULTILINE-TEXT
+   A uuid name description
+   D datetime
+   J field value
+   K uuid
+   U user
+   Z md5sum
+   
+FIELDs:
 
-   * Things handles with tags:
-     created-by
-     assigned-to
-     priority
-     severity
-     target-release
-     status
-     resolution
-     type
-     subsystem
+   comment         cumulative text
+   title           text
+   assignedto      text
+   status          enum
+   resolution      enum
+   subsystem       enum
+   type            enum
+   priority        enum
+   severity        enum
+   deferuntil      datetime
+   duedate         datetime
+   derivedfrom     add or subtract uuid
+   relatedversions add or subtract associate with manifest
+   presentin       add or subtract uuid
+   fixedin         add or subtract uuid
 
-Wiki header format:
-   "WikiPage"
-   parent: UUID*
-   title: TEXT
-   pagename: TEXT
-   mode: (readonly|appendonly|readwrite)
-   attachment: UUID name description
-
-   * Header ends with a blank line.  wiki content follows.
-
-Cluster format:
-
-       M+ uuid
-       Z manifest-cksum
-
-   * Cluster generated in server mode only.
-   * Embargo cluster that reference phantoms or other embargoed clusters.
-   * Never send or ihave an embargoed cluster
-
-New sync algorithm based on clusters:
-
-   * Keep a table of unclustered artifacts.  Strive to keep this table
-     less than 100 entries.
-   * Client sends content of unclustered table as ihaves to server
-   * Server builds a new cluster if size of cluster table >100.
-   * Server sends unclustered table to client
-   * Server sends gimme for all unknown ihave received from client
-   * Client sends gimme for all unknown ihave received from server
-   * Previous two steps repeat until no more gimmes
-
-Details of new push algorithm:
-
-   * Table "unsent" contains all files never pushed
-   * TEMP table "wanted" contains files the server does not have
-   Loop:
-     * Client sends login and "push" record
-     * Client sends file message for all files in unsent and removes
-       those files from the table.
-     * Client sends file message for all files in wanted.
-     * Client sends ihave messages for each entry in unclustered
-     ------
-     * Server receives file message
-     * Server creates phantoms for unknown ihaves
-     * Server sends gimme messages for all phantoms
-     ------
-     * Client clears its unsent table
-     * For each gimme message add an entry to wanted
-     * Halt if the wanted table is empty
-
-Details on new pull algorithm:
-
-   Loop:
-     * Client sends login and "pull" record
-     * Client sends "prior" message with repository id and max record number
-     * Client sends "gimme" for each phantom
-     --------
-     * Server creates new clusters to get unclustered size below 100
-     * If there is "prior" message with repository id that matches this
-       server, then send file messages for all record ids greater than
-       prior
-     * Server sends ihave messages for each entry in unclustered
-     * Server sends maxrid message
-     --------
-     * Client receives file records
-     * Client creates phantoms for unknown ihaves
-     * If no phantoms exist, record maxrid for the server and halt
-
-Need a dephantomize algorithm
+Other table columns:
+   origintime
+   lastchange
 
 
-Auxiliary tables needed for new sync algorithm:
+Field Types:
 
-   * unsent:  files that have never been sent to another repository
-   * unclustered: non-phantom files not mentioned by a cluster
+   text                 width height
+   enum                 width valuelist
+   datetime             width
+   cumulative-text      width height
+   set-of-uuid          width
+   set-of-checkin       width
+
+Tables:
+
+   tktrid(rid, tkid, mtime);  index(tkid, mtime);
+   ticket(tkid, tkuuid UNIQUE, starttime, lastmod, ...);
+   tktfield(fieldname UNIQUE, type, width, other);
+   tktxref(tkid, mid); index(tkid); index(mid);
+
+Tktformat in the config table.
+
+   * Three pages:  creation, display, and edit
+   * Separate global and local versions of each page.  Local overwrites
+     global if it exists.
+   * HTML
+   * [[field]] to substitute the appropriate form or display element
+
+Ticket Configuraiton File:
+
+   * Format:
+      ticket-configuration
+      field <fieldname> <type> <param> ...
+      template <type> <delimiter>
+      <text>
+   * Each repository selects a single ticket config for its own use.
+   * Rescan all tickets following any config change
+   * Use the ticket-configuration tag must be on the file
+
+Todo:
+
+   * Configuration file parser
+       + tkt-new-template
+       + tkt-view-template
+       + tkt-edit-template
+       + Reconstruct the ticket table schema
+       + Repopulate tktfield
+   * Ticket control file parser
+       + Create ticket entry if necessary
+       + Update fields.  Ignore unrecognized fields.
+   * Transfer tkt control info to ticket table
+   * Setup pages for selecting and editing ticket configuration
+   * Ticket display
+   * New ticket creation display
+   * Ticket change screen
+   * Ticket query screens
+
+
+------------------------------------------------------------------------
+Change to wiki:
+
+   A uuid filename description
+   D datetime
+   P uuid ...
+   U user
+   W size \n text \n
+   Z cksum
+
+Hyperlinks:
+
+   [lowercasehex]       /info/lowercasehex
+   [attachment.gif]     inline image
+   [tagname]            /info/tagname
+   [wikipagename]       /wiki/wikipagename
+   [/internal/page]     /internal/page
+   [http:...]           external link
+
+Markup:
+
+   blank-line           paragraph break
+   _*__                 bullet
+   __                   indentation
+   _#.__                enumeration
+   *text*               bold
+   _text_               italic
+
+
+------------------------------------------------------------------------
 
 Random thoughts:
-
-  *  Changes to manifest to support:
-     +  Trees of wiki pages and tickets
-     +  The ability to cap or close a branch
-     +  See "Extended Manifests" below
-
-  *  Add the concept of "clusters" to speed the transfer of "tips"
-     on a sync.
-
-  *  Auxiliary tables:
-     +  tip
-     +  phantom
-     +  mlink
-     +  plink
-     +  branch
-     +  tree
 
   * Plink.isprim changed to record:
      +  child is the principal descendent of parent. (1)
      +  child is a branch from parent (2)
      +  child uses parent as a merge (0)
-
-  * tree records
-     + type  (code, wiki, ticket)
-     + name  (for wiki and ticket only)
-     + treeid
-
-  * branch records
-     + treeid
-     + origin_rid
-     + origin_time
-     + tip_rid
-     + tip_time
-     + color
 
   * website can toggle isprim between principal and branch.
      + How to preserve across rebuild.  A new record type?
@@ -143,15 +131,18 @@ Random thoughts:
     For a tie, go with the earliest check-in as the principal'
 
   * Autosync mode
-     + Set a preferred remote repository to use as a server
-        =  Clone repository is the default
-     + On commit, first pull.  If commit baseline is not a tip
-       prompt user to cancel or branch.  Default is cancel.
-     + Push after commit
-     + Automatically pull prior to update.
-     + Need an "undo" capability
-     + Designed to avoid branching in highly collaborative 
-       environments.
+     * Notes:
+       + Designed to avoid branching in highly collaborative 
+         environments.
+     * Outstanding:
+       + On commit, first pull.  If commit baseline is not a tip
+         prompt user to cancel or branch.  Default is cancel.
+       + Need an "undo" capability
+     * Done:
+       * Set a preferred remote repository to use as a server
+          =  Clone repository is the default
+       * Push after commit
+       * Automatically pull prior to update.
 
   * Archeological webpage improvements:
      + Use a small amount of CSS+javascript on timelines so that
@@ -186,13 +177,12 @@ Extended manifests.
 
   * Accessory:
        A uuid|* attachment-uuid description
-       B (+|-)branchtag uuid
        D date-time
        E uuid new-comment
        G uuid appended-remark
        S repositoryid serial-number
+       T (+|-)tag uuid
        U userid
-       V (+|-)versiontag uuid
        X uuid-to-surpress
        Z this-file-checksum
 
@@ -227,23 +217,25 @@ Extended manifests.
        V* (+|-) tag uuid    -- + to set, - to clear.  
        Z manifest-cksum
        -- Must have at least one B or V.
-       -- Tag "hidden" means do not sync
-       -- Tag "closed" means do not display as a leaf
+       -- Branch tag "hidden" means do not sync
+       -- Version tag "closed" means do not display as a leaf
   * A cluster
        M+ uuid
        Z manifest-cksum
-  * Complete set of cards in a manifest files:
-       A filename uuid
-       B (+|-)branch-tag uuid
-       C comment
-       D date-time
-       E edited-comment
-       F filename uuid
-       N name
-       P uuid ...
-       R repository-md5sum
-       T uuid
-       U user-login
-       V (+|-)version-tag uuid
-       W uuid
+
+  * Complete set of cards in a control file:
+       A filename uuid             
+       B (+|-)branch-tag uuid      
+       C comment                   
+       D date-time                 
+       E uuid edited-comment       
+       F filename uuid             
+       M uuid                      
+       N name                      
+       P uuid ...                  
+       R repository-md5sum         
+       T uuid                      
+       U user-login                
+       V (+|-)version-tag uuid     
+       W uuid                      
        Z manifest-checksum

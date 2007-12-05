@@ -89,7 +89,11 @@ proc write_file_indented {filename txt} {
 # Return true if two files are the same
 #
 proc same_file {a b} {
-  return [expr {[read_file $a]==[read_file $b]}]
+  set x [read_file $a]
+  regsub -all { +\n} $x \n x
+  set y [read_file $b]
+  regsub -all { +\n} $y \n y
+  return [expr {$x==$y}]
 }
 
 # Perform a test

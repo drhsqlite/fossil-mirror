@@ -25,18 +25,51 @@
 */
 #include "config.h"
 #include "http.h"
+#ifdef __MINGW32__
+#  include <windows.h>
+#  include <winsock2.h>
+#else
+#  include <arpa/inet.h>
+#  include <sys/socket.h>
+#  include <netdb.h>
+#  include <netinet/in.h>
+#endif
 #include <assert.h>
-#include <arpa/inet.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <signal.h>
 
 /*
 ** Persistent information about the HTTP connection.
 */
-static FILE *pSocket = 0;   /* The socket on which we talk to the server */
+
+#ifdef __MINGW32__
+static WSADATA ws_info;
+static int pSocket = 0;     /* The socket on which we talk to the server on */
+#else
+static FILE *pSocket = 0;   /* The socket filehandle on which we talk to the server */
+#endif
+
+/*
+** Winsock must be initialize before use.  This helper method allows us to
+** always call ws_init in our code regardless of platform but only actually
+** initialize winsock on the windows platform.
+*/
+static void ws_init(){
+#ifdef __MINGW32__
+  if (WSAStartup(MAKEWORD(2,0), &ws_info) != 0){
+    fossil_panic("can't initialize winsock");
+  }
+#endif
+}
+
+/*
+** Like ws_init, winsock must also be cleaned up after.
+*/
+static void ws_cleanup(){
+#ifdef __MINGW32__
+  WSACleanup();
+#endif
+}
 
 /*
 ** Open a socket connection to the server.  Return 0 on success and
@@ -47,7 +80,10 @@ static int http_open_socket(void){
   static int addrIsInit = 0;       /* True once addr is initialized */
   int s;
 
+  ws_init();
+  
   if( !addrIsInit ){
+
     addr.sin_family = AF_INET;
     addr.sin_port = htons(g.urlPort);
     *(int*)&addr.sin_addr = inet_addr(g.urlName);
@@ -78,10 +114,63 @@ static int http_open_socket(void){
   if( connect(s,(struct sockaddr*)&addr,sizeof(addr))<0 ){
     fossil_panic("cannot connect to host %s:%d", g.urlName, g.urlPort);
   }
+#ifdef __MINGW32__
+  pSocket = s;
+#else
   pSocket = fdopen(s,"r+");
   signal(SIGPIPE, SIG_IGN);
+#endif
   return 0;
 }
+
+#ifdef __MINGW32__
+/*
+** Read the socket until a newline '\n' is found.  Return the number
+** of characters read. pSockId contains the socket handel.  pOut
+** contains a pointer to the buffer to write to.  pOutSize contains
+** the maximum size of the line that pOut can handle.
+*/
+static int socket_recv_line(int pSockId, char* pOut, int pOutSize){
+  int received=0;
+  char letter;
+  memset(pOut,0,pOutSize);
+  for(; received<pOutSize-1;received++){
+    if( recv(pSockId,(char*)&letter,1,0)>0 ){
+      pOut[received]=letter;
+      if( letter=='\n' ){
+        break;
+      }
+    }else{
+      break;
+    }
+  }
+  return received;
+}
+
+/*
+** Initialize a blob to the data on an input socket.  return
+** the number of bytes read into the blob.  Any prior content
+** of the blob is discarded, not freed.
+**
+** The function was placed here in http.c due to it's socket
+** nature and we did not want to introduce socket headers into
+** the socket netural blob.c file.
+*/
+int socket_read_blob(Blob *pBlob, int pSockId, int nToRead){
+  int i=0,read=0;
+  char rbuf[50];
+  blob_zero(pBlob);
+  while ( i<nToRead ){
+    read = recv(pSockId, rbuf, 50, 0);
+    i += read;
+    if( read<0 ){
+      return 0;
+    }
+    blob_append(pBlob, rbuf, read);
+  }
+  return blob_size(pBlob);
+}
+#endif
 
 /*
 ** Make a single attempt to talk to the server.  Return TRUE on success
@@ -95,8 +184,8 @@ static int http_open_socket(void){
 ** closes the persistent connection, if any.
 */
 static int http_send_recv(Blob *pHeader, Blob *pPayload, Blob *pReply){
+  int closeConnection=1;   /* default to closing the connection */
   int rc;
-  int closeConnection;
   int iLength;
   int iHttpVersion;
   int i;
@@ -106,6 +195,45 @@ static int http_send_recv(Blob *pHeader, Blob *pPayload, Blob *pReply){
   if( pSocket==0 && http_open_socket() ){
     return 0;
   }
+  iLength = -1;
+#ifdef __MINGW32__
+  /*
+  ** Use recv/send on the windows platform as winsock does not allow
+  ** sockets to be used as FILE handles, thus fdopen, fwrite, fgets
+  ** does not function on windows for sockets.
+  */
+  rc = send(pSocket, blob_buffer(pHeader), blob_size(pHeader), 0);
+  if( rc!=blob_size(pHeader) ) goto write_err;
+  rc = send(pSocket, blob_buffer(pPayload), blob_size(pPayload), 0);
+  if( rc!=blob_size(pPayload) ) goto write_err;
+  
+  /* Read the response */
+  while( socket_recv_line(pSocket, zLine, 2000) ){
+    for( i=0; zLine[i] && zLine[i]!='\n' && zLine[i]!='\r'; i++ ){}
+    if( i==0 ) break;
+    zLine[i] = 0;
+    if( strncasecmp(zLine, "http/1.", 7)==0 ){
+      if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
+      if( rc!=200 ) goto write_err;
+      if( iHttpVersion==0 ){
+        closeConnection = 1;
+      }else{
+        closeConnection = 0;
+      }
+    } else if( strncasecmp(zLine, "content-length:", 15)==0 ){
+      iLength = atoi(&zLine[16]);
+    }else if( strncasecmp(zLine, "connection:", 11)==0 ){
+      for(i=12; isspace(zLine[i]); i++){}
+      if( zLine[i]=='c' || zLine[i]=='C' ){
+        closeConnection = 1;
+      }else if( zLine[i]=='k' || zLine[i]=='K' ){
+        closeConnection = 0;
+      }
+    }
+  }
+  if( iLength<0 ) goto write_err;
+  nRead = socket_read_blob(pReply, pSocket, iLength);
+#else
   rc = fwrite(blob_buffer(pHeader), 1, blob_size(pHeader), pSocket);
   if( rc!=blob_size(pHeader) ) goto write_err;
   rc = fwrite(blob_buffer(pPayload), 1, blob_size(pPayload), pSocket);
@@ -115,16 +243,15 @@ static int http_send_recv(Blob *pHeader, Blob *pPayload, Blob *pReply){
   if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
   if( rc!=200 ) goto write_err;
   if( iHttpVersion==0 ){
-    closeConnection = 1;
+    closeConnection = 1;   /* Connection: close */
   }else{
-    closeConnection = 0;
+    closeConnection = 0;   /* Connection: keep-alive */
   }
-  iLength = -1;
   while( fgets(zLine, sizeof(zLine), pSocket) ){
     for(i=0; zLine[i] && zLine[i]!='\n' && zLine[i]!='\r'; i++){}
     if( i==0 ) break;
     zLine[i] = 0;
-    if( strncasecmp(zLine, "content-length:",15)==0 ){
+    if( strncasecmp(zLine,"content-length:",15)==0 ){
       iLength = atoi(&zLine[16]);
     }else if( strncasecmp(zLine, "connection:", 11)==0 ){
       for(i=12; isspace(zLine[i]); i++){}
@@ -137,6 +264,7 @@ static int http_send_recv(Blob *pHeader, Blob *pPayload, Blob *pReply){
   }
   if( iLength<0 ) goto write_err;
   nRead = blob_read_from_channel(pReply, pSocket, iLength);
+#endif
   if( nRead!=iLength ){
     blob_reset(pReply);
     goto write_err;
@@ -262,7 +390,19 @@ void http_exchange(Blob *pSend, Blob *pRecv){
 */
 void http_close(void){
   if( pSocket ){
+#ifdef __MINGW32__
+    closesocket(pSocket);
+#else
     fclose(pSocket);
+#endif
     pSocket = 0;
   }
+  /*
+  ** This is counter productive. Each time we open a connection we initialize
+  ** winsock and then when closing we cleanup. It would be better to
+  ** initialize winsock once at application start when we know we are going to
+  ** use the socket interface and then cleanup once at application exit when
+  ** we are all done with all socket operations.
+  */
+  ws_cleanup();
 }

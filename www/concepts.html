@@ -32,7 +32,8 @@ A source tree is a hierarchy of files that are used to generate
 the end product.  The source tree changes over time as the
 software grows and expands and as features are added and bugs
 are fixed.  A snapshot of the source tree at any point in time
-is called a "version" or a "baseline" of the product.</p>
+is called a "version" or "revision" or a "baseline" of the product.
+In fossil, we use the name "baseline".</p>
 
 <p>A "repository" is a database that contains copies of all historical
 versions or baselines for a project.  Baselines are normally stored in the
@@ -55,7 +56,7 @@ tree per repository is the most common configuration.)  So a
 single repository can be associated with many source trees, but
 each source tree is associated with only one repository.</p>
 
-<p>Fossil source tree may not overlap.  A fossil source tree is identified
+<p>Fossil source trees may not overlap.  A fossil source tree is identified
 by a file named "_FOSSIL_" in the root directory of the source tree.  Every
 file that is a sibling of _FOSSIL_ and every file in every subfolder is
 considered potentially a part of the source tree.  The _FOSSIL_ file
@@ -77,7 +78,7 @@ which is a shortcut for doing both a push and a pull at the same time.
 Fossil also has the concept of "cloning".  A "clone" is like a "pull",
 except that instead of beginning with an existing local repository,
 a clone begins with nothing and creates a new local repository that
-is a replicate of a remote repository.</p>
+is a duplicate of a remote repository.</p>
 
 <p>Communication between repositories is via HTTP.  Remote
 repositories are identified by URL.  You can also point a webbrowser
@@ -95,7 +96,7 @@ for the artifact.  The SHA1 algorithm is created with the purpose of
 providing a highly forgery-resistent identifier for a file.  Given any
 file it is simple to find the UUID for that file.  But given a
 UUID it is computationally intractable to generate a file that will
-generate that UUID.</p>
+have that UUID.</p>
 
 
 <p>UUIDs look something like this:</p>
@@ -142,9 +143,10 @@ manifest for that baseline.</p>
 <p>Fossil automatically generates a manifest whenever you "commit" 
 a new baseline.  So this is not something that you, the developer,
 need to worry with.  The format of a manifest is intentionally
-designed to be simple to parse, however, so that if
+designed to be simple to parse, so that if
 you want to read and interpret a manifest, either by hand or
-with a script, that is easy to do.</p>
+with a script, that is easy to do.  But you will probably never
+need to do so.</p>
 
 <p>In addition to identifying all files in the baseline, a
 manifest also contains a check-in comment, the date and time
@@ -157,7 +159,7 @@ be PGP clearsigned.</p>
 <h3>2.3 Key concepts</h3>
 
 <ul>
-<li>A <b>baseline</b> or <b>version</b> is a set of files arranged
+<li>A <b>baseline</b> is a set of files arranged
     in a hierarchy.</li>
 <li>A <b>repository</b> keeps a record of historical baselines.</li>
 <li>Repositories share their changes using <b>push</b>, <b>pull</b>,
@@ -186,8 +188,10 @@ fossil effectively.  You will want to have some kind of text editor
 for entering check-in comments.  Fossil will use whatever text editor
 is identified by your VISUAL environment variable.  Fossil will also
 use GPG to clearsign your manifests if you happen to have it installed,
-but fossil will skip that step if you do not have GPG so it is not
-essential.</p>
+but fossil will skip that step if GPG missing from your system.
+You can optionally set up fossil to use external "diff" programs, 
+though a perfectly functional "diff" algorithm is built it and works
+find for most people.</p>
 
 <p>To uninstall fossil, simply delete the executable.</p>
 
@@ -276,6 +280,38 @@ and then push the new baseline back to your coworker.
 Repeat all of the above until you have generated great software.
 </p></li>
 </ol>
+
+<h3>4.1 Variations</h3>
+
+<p>The <b>settings</b> lets you view and modify various operating
+properties of fossil.  Among the available settings is "autosync"
+mode.  When autosync is enabled, the push and pull of content from
+your local server is largely automated.  Whenever you use the <b>update</b>
+command, fossil first does a <b>pull</b> to see if other users have
+perhaps added new baselines to the central repository.  When you
+<b>commit</b>, fossil also does a <b>pull</b> and issues a warning
+if your check-in would cause a fork.  After a <b>commit</b>, fossil
+automatically does a <b>push</b> to send your changes up to the
+central server.</p>
+
+<p>With autosync enabled, fossil works like
+<a href="http://www.nongnu.org/cvs/">CVS</a> or 
+<a href="http://subversion.tigris.org/">Subversion</a>.
+When autosync disabled, fossil works more like
+<a href="http://monotone.ca/">Monotone</a>, 
+<a href="http://git.or.cz">GIT</a>, or
+<a href="http://www.selenic.com/mercurial/wiki/">Mercurial</a>.
+The fun thing about fossil is that it will work either
+way, depending on your needs of the moment.  You can freely switch
+between these operating modes using commands like:</p>
+
+<blockquote>
+<b>fossil setting autosync off<br />
+fossil setting autosync on</b>
+</blockquote>
+
+<p>For additional information about autosync and other settings
+using the <b>help</b> command.</p>
 
 <h2>5.0 Setting Up A Fossil Server</h2>
 

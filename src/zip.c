@@ -324,9 +324,10 @@ void baseline_zip_cmd(void){
 
 /*
 ** WEBPAGE: zip
+** URL: /zip/RID.zip
 **
-** Generate a ZIP archive for the baseline specified by g.zExtra
-** and return that ZIP archive as the HTTP reply content.
+** Generate a ZIP archive for the baseline.
+** Return that ZIP archive as the HTTP reply content.
 */
 void baseline_zip_page(void){
   int rid;
@@ -336,7 +337,7 @@ void baseline_zip_page(void){
 
   login_check_credentials();
   if( !g.okRead || !g.okHistory ){ login_needed(); return; }
-  zName = mprintf("%s", g.zExtra);
+  zName = mprintf("%s", PD("name",""));
   i = strlen(zName);
   for(i=strlen(zName)-1; i>5; i--){
     if( zName[i]=='.' ){

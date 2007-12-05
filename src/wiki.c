@@ -27,181 +27,575 @@
 #include "config.h"
 #include "wiki.h"
 
-
 /*
-** Create a fake replicate of the "vfile" table as a TEMP table
-** using the manifest identified by manid.
+** Return true if the input string is a well-formed wiki page name.
+**
+** Well-formed wiki page names do not begin or end with whitespace,
+** and do not contain tabs or other control characters and do not
+** contain more than a single space character in a row.  Well-formed
+** names must be between 3 and 100 chracters in length, inclusive.
 */
-static void create_fake_vfile(int manid){
-  static const char zVfileDef[] = 
-    @ CREATE TEMP TABLE vfile(
-    @   id INTEGER PRIMARY KEY,     -- ID of the checked out file
-    @   vid INTEGER REFERENCES blob, -- The version this file is part of.
-    @   chnged INT DEFAULT 0,       -- 0:unchnged 1:edited 2:m-chng 3:m-add
-    @   deleted BOOLEAN DEFAULT 0,  -- True if deleted 
-    @   rid INTEGER,                -- Originally from this repository record
-    @   mrid INTEGER,               -- Based on this record due to a merge
-    @   pathname TEXT,              -- Full pathname
-    @   UNIQUE(pathname,vid)
-    @ );
-    ;
-  db_multi_exec(zVfileDef);
-  load_vfile_from_rid(manid);
+int wiki_name_is_wellformed(const char *z){
+  int i;
+  if( z[0]<=0x20 ){
+    return 0;
+  }
+  for(i=1; z[i]; i++){
+    if( z[i]<0x20 ) return 0;
+    if( z[i]==0x20 && z[i-1]==0x20 ) return 0;
+  }
+  if( z[i-1]==' ' ) return 0;
+  if( i<3 || i>100 ) return 0;
+  return 1;
 }
 
 /*
-** Locate the wiki page with the name zPageName and render it.
+** Check a wiki name.  If it is not well-formed, then issue an error
+** and return true.  If it is well-formed, return false.
 */
-static void locate_and_render_wikipage(const char *zPageName){
-  Stmt q;
-  int id = 0;
-  int rid = 0;
-  int chnged = 0;
-  char *zPathname = 0;
-  db_prepare(&q,
-     "SELECT id, rid, chnged, pathname FROM vfile"
-     " WHERE (pathname='%q.wiki' OR pathname LIKE '%%/%q.wiki')"
-     "   AND NOT deleted", zPageName, zPageName
-  );
-  if( db_step(&q)==SQLITE_ROW ){
-    id = db_column_int(&q, 0);
-    rid = db_column_int(&q, 1);
-    chnged = db_column_int(&q, 2);
-    if( chnged || rid==0 ){
-      zPathname = db_column_malloc(&q, 3);
-    }
+static int check_name(const char *z){
+  if( !wiki_name_is_wellformed(z) ){
+    style_header("Wiki Page Name Error");
+    @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
+    @ wiki page names:
+    @ <ul>
+    @ <li> Must not begin or end with a space.
+    @ <li> Must not contain any control characters, including tab or
+    @      newline.
+    @ <li> Must not have two or more spaces in a row internally.
+    @ <li> Must be between 3 and 100 characters in length.
+    @ </ul>
+    style_footer();
+    return 1;
   }
-  db_finalize(&q);
-  if( id ){
-    Blob page, src;
-    char *zTitle = "wiki";
-    char *z;
-    blob_zero(&src);
-    if( zPathname ){
-      zPathname = mprintf("%s/%z", g.zLocalRoot, zPathname);
-      blob_read_from_file(&src, zPathname);
-      free(zPathname);
-    }else{
-      content_get(rid, &src);
-    }
+  return 0;
+}
 
-    /* The wiki page content is now in src.  Check to see if
-    ** there is a <readonly/> or <appendonly/> element at the
-    ** beginning of the content.
-    */
-    z = blob_str(&src);
-    while( isspace(*z) ) z++;
-    if( strncmp(z, "<readonly/>", 11)==0 ){
-      z += 11;
-    }else if( strncmp(z, "<appendonly/>", 13)==0 ){
-      z += 13;
-    }
-    
-    /* Check for <title>...</title> markup and remove it if present. */
-    while( isspace(*z) ) z++;
-    if( strncmp(z, "<title>", 7)==0 ){
-      int i;
-      for(i=7; z[i] && z[i]!='<'; i++){}
-      if( z[i]=='<' && strncmp(&z[i], "</title>", 8)==0 ){
-        zTitle = htmlize(&z[7], i-7);
-        z = &z[i+8];
+/*
+** WEBPAGE: home
+** WEBPAGE: index
+** WEBPAGE: not_found
+*/
+void home_page(void){
+  char *zPageName = db_get("project-name",0);
+  if( zPageName ){
+    login_check_credentials();
+    g.zExtra = zPageName;
+    cgi_set_parameter_nocopy("name", g.zExtra);
+    g.okRdWiki = 1;
+    g.okApndWiki = 0;
+    g.okWrWiki = 0;
+    g.okHistory = 0;
+    wiki_page();
+    return;
+  }
+  style_header("Home");
+  @ <p>This is a stub home-page for the project.
+  @ To fill in this page, first go to
+  @ <a href="%s(g.zBaseURL)/setup_config">setup/config</a>
+  @ and establish a "Project Name".  Then create a
+  @ wiki page with that name.  The content of that wiki page
+  @ will be displayed in place of this message.
+  style_footer();
+}
+
+/*
+** Return true if the given pagename is the name of the sandbox
+*/
+static int is_sandbox(const char *zPagename){
+  return strcasecmp(zPagename,"sandbox")==0 ||
+         strcasecmp(zPagename,"sand box")==0;
+}
+
+/*
+** WEBPAGE: wiki
+** URL: /wiki?name=PAGENAME
+*/
+void wiki_page(void){
+  char *zTag;
+  int rid;
+  int isSandbox;
+  Blob wiki;
+  Manifest m;
+  const char *zPageName;
+  char *zHtmlPageName;
+  char *zBody = mprintf("%s","<i>Empty Page</i>");
+
+  login_check_credentials();
+  if( !g.okRdWiki ){ login_needed(); return; }
+  zPageName = P("name");
+  if( zPageName==0 ){
+    style_header("Wiki");
+    @ <ul>
+    @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
+    @      pages. </li>
+    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
+    @      wiki.</li>
+    @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
+    @      to experiment.</li>
+    @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
+    @      available on this server.</li>
+    @ </ul>
+    style_footer();
+    return;
+  }
+  if( check_name(zPageName) ) return;
+  isSandbox = is_sandbox(zPageName);
+  if( isSandbox ){
+    zBody = db_get("sandbox",zBody);
+  }else{
+    zTag = mprintf("wiki-%s", zPageName);
+    rid = db_int(0, 
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      " ORDER BY mtime DESC", zTag
+    );
+    free(zTag);
+    memset(&m, 0, sizeof(m));
+    blob_zero(&m.content);
+    if( rid ){
+      Blob content;
+      content_get(rid, &content);
+      manifest_parse(&m, &content);
+      if( m.type==CFTYPE_WIKI ){
+        zBody = m.zWiki;
       }
     }
-    
-    /* Render the page */
-    style_header(zTitle);
-    blob_init(&page, z, -1);
-    wiki_convert(&page, cgi_output_blob(), WIKI_HTML);
-    blob_reset(&src);
-  }else{
-    style_header("Unknown Wiki Page");
-    @ The wiki page "%h(zPageName)" does not exist.
+  }
+  if( isSandbox || (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+    style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
+         g.zTop, zPageName);
+  }
+  if( isSandbox || (rid && g.okApndWiki) ){
+    style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
+         g.zTop, zPageName);
+  }
+  if( !isSandbox && g.okHistory ){
+    style_submenu_element("History", "History", "%s/whistory?name=%T",
+         g.zTop, zPageName);
+  }
+  zHtmlPageName = mprintf("%h", zPageName);
+  style_header(zHtmlPageName);
+  blob_init(&wiki, zBody, -1);
+  wiki_convert(&wiki, 0, 0);
+  blob_reset(&wiki);
+  if( !isSandbox ){
+    manifest_clear(&m);
   }
   style_footer();
 }
 
 /*
-** WEBPAGE: wiki
-** URL: /wiki/PAGENAME
-**
-** If the local database is available (which only happens if run
-** as "server" instead of "cgi" or "http") then the file is taken
-** from the local checkout.  If there is no local checkout, then
-** the content is taken from the "head" baseline.
+** WEBPAGE: wikiedit
+** URL: /wikiedit?name=PAGENAME
 */
-void wiki_page(void){
+void wikiedit_page(void){
+  char *zTag;
+  int rid;
+  int isSandbox;
+  Blob wiki;
+  Manifest m;
+  const char *zPageName;
+  char *zHtmlPageName;
+  int n;
+  const char *z;
+  char *zBody = (char*)P("w");
+
+  if( zBody ){
+    zBody = mprintf("%s", zBody);
+  }
+  login_check_credentials();
+  zPageName = PD("name","");
+  if( check_name(zPageName) ) return;
+  isSandbox = is_sandbox(zPageName);
+  if( isSandbox ){
+    if( zBody==0 ){
+      zBody = db_get("sandbox","");
+    }
+  }else{
+    zTag = mprintf("wiki-%s", zPageName);
+    rid = db_int(0, 
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      " ORDER BY mtime DESC", zTag
+    );
+    free(zTag);
+    if( (rid && !g.okWrWiki) || (!rid && !g.okNewWiki) ){
+      login_needed();
+      return;
+    }
+    memset(&m, 0, sizeof(m));
+    blob_zero(&m.content);
+    if( rid && zBody==0 ){
+      Blob content;
+      content_get(rid, &content);
+      manifest_parse(&m, &content);
+      if( m.type==CFTYPE_WIKI ){
+        zBody = m.zWiki;
+      }
+    }
+  }
+  if( P("submit")!=0 && zBody!=0 ){
+    char *zDate;
+    Blob cksum;
+    int nrid;
+    blob_zero(&wiki);
+    db_begin_transaction();
+    if( isSandbox ){
+      db_set("sandbox",zBody,0);
+    }else{
+      zDate = db_text(0, "SELECT datetime('now')");
+      zDate[10] = 'T';
+      blob_appendf(&wiki, "D %s\n", zDate);
+      free(zDate);
+      blob_appendf(&wiki, "L %F\n", zPageName);
+      if( rid ){
+        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+        blob_appendf(&wiki, "P %s\n", zUuid);
+        free(zUuid);
+      }
+      if( g.zLogin ){
+        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      }
+      blob_appendf(&wiki, "W %d\n%s\n", strlen(zBody), zBody);
+      md5sum_blob(&wiki, &cksum);
+      blob_appendf(&wiki, "Z %b\n", &cksum);
+      blob_reset(&cksum);
+      nrid = content_put(&wiki, 0, 0);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+      manifest_crosslink(nrid, &wiki);
+      blob_reset(&wiki);
+      content_deltify(rid, nrid, 0);
+    }
+    db_end_transaction(0);
+    cgi_redirectf("wiki?name=%T", zPageName);
+  }
+  if( P("cancel")!=0 ){
+    cgi_redirectf("wiki?name=%T", zPageName);
+    return;
+  }
+  if( zBody==0 ){
+    zBody = mprintf("<i>Empty Page</i>");
+  }
+  zHtmlPageName = mprintf("Edit: %h", zPageName);
+  style_header(zHtmlPageName);
+  if( P("preview")!=0 ){
+    blob_zero(&wiki);
+    blob_append(&wiki, zBody, -1);
+    @ Preview:<hr>
+    wiki_convert(&wiki, 0, 0);
+    @ <hr>
+    blob_reset(&wiki);
+  }
+  for(n=2, z=zBody; z[0]; z++){
+    if( z[0]=='\n' ) n++;
+  }
+  if( n<20 ) n = 20;
+  if( n>200 ) n = 200;
+  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
+  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ <textarea name="w" class="wikiedit" cols="80" 
+  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+  @ <br>
+  @ <input type="submit" name="preview" value="Preview Your Changes">
+  @ <input type="submit" name="submit" value="Apply These Changes">
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ </form>
+  if( !isSandbox ){
+    manifest_clear(&m);
+  }
+  style_footer();
+}
+
+/*
+** Append the wiki text for an remark to the end of the given BLOB.
+*/
+static void appendRemark(Blob *p){
+  char *zDate;
+  const char *zUser;
+  const char *zRemark;
+
+  zDate = db_text(0, "SELECT datetime('now')");
+  blob_appendf(p, "\n\n<hr><i>On %s UTC %h", zDate, g.zLogin);
+  free(zDate);
+  zUser = PD("u",g.zLogin);
+  if( zUser[0] && strcmp(zUser,g.zLogin) ){
+    blob_appendf(p, " (claiming to be %h)", zUser);
+  }
+  zRemark = PD("r","");
+  blob_appendf(p, " added:</i><br />\n%s", zRemark);
+}
+
+/*
+** WEBPAGE: wikiappend
+** URL: /wikiappend?name=PAGENAME
+*/
+void wikiappend_page(void){
+  char *zTag;
+  int rid;
+  int isSandbox;
+  const char *zPageName;
+  char *zHtmlPageName;
+  const char *zUser;
+
+  login_check_credentials();
+  zPageName = PD("name","");
+  if( check_name(zPageName) ) return;
+  isSandbox = is_sandbox(zPageName);
+  if( !isSandbox ){
+    zTag = mprintf("wiki-%s", zPageName);
+    rid = db_int(0, 
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+      " ORDER BY mtime DESC", zTag
+    );
+    free(zTag);
+    if( !rid ){
+      cgi_redirect("index");
+      return;
+    }
+  }
+  if( !g.okApndWiki ){
+    login_needed();
+    return;
+  }
+  if( P("submit")!=0 && P("r")!=0 && P("u")!=0 ){
+    char *zDate;
+    Blob cksum;
+    int nrid;
+    Blob body;
+    Blob content;
+    Blob wiki;
+    Manifest m;
+
+    blob_zero(&body);
+    if( isSandbox ){
+      blob_appendf(&body, db_get("sandbox",""));
+      appendRemark(&body);
+      db_set("sandbox", blob_str(&body), 0);
+    }else{
+      content_get(rid, &content);
+      manifest_parse(&m, &content);
+      if( m.type==CFTYPE_WIKI ){
+        blob_appendf(&body, m.zWiki, -1);
+      }
+      manifest_clear(&m);
+      blob_zero(&wiki);
+      db_begin_transaction();
+      zDate = db_text(0, "SELECT datetime('now')");
+      zDate[10] = 'T';
+      blob_appendf(&wiki, "D %s\n", zDate);
+      blob_appendf(&wiki, "L %F\n", zPageName);
+      if( rid ){
+        char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+        blob_appendf(&wiki, "P %s\n", zUuid);
+        free(zUuid);
+      }
+      if( g.zLogin ){
+        blob_appendf(&wiki, "U %F\n", g.zLogin);
+      }
+      blob_appendf(&body, "\n<hr>\n");
+      appendRemark(&body);
+      blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
+      md5sum_blob(&wiki, &cksum);
+      blob_appendf(&wiki, "Z %b\n", &cksum);
+      blob_reset(&cksum);
+      nrid = content_put(&wiki, 0, 0);
+      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+      manifest_crosslink(nrid, &wiki);
+      blob_reset(&wiki);
+      content_deltify(rid, nrid, 0);
+      db_end_transaction(0);
+    }
+    cgi_redirectf("wiki?name=%T", zPageName);
+  }
+  if( P("cancel")!=0 ){
+    cgi_redirectf("wiki?name=%T", zPageName);
+    return;
+  }
+  zHtmlPageName = mprintf("Append Comment To: %h", zPageName);
+  style_header(zHtmlPageName);
+  if( P("preview")!=0 ){
+    Blob preview;
+    blob_zero(&preview);
+    appendRemark(&preview);
+    @ Preview:<hr>
+    wiki_convert(&preview, 0, 0);
+    @ <hr>
+    blob_reset(&preview);
+  }
+  zUser = PD("u", g.zLogin);
+  @ <form method="POST" action="%s(g.zBaseURL)/wikiappend">
+  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ Your Name:
+  @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
+  @ Comment to append:<br>
+  @ <textarea name="r" class="wikiedit" cols="80" 
+  @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
+  @ <br>
+  @ <input type="submit" name="preview" value="Preview Your Comment">
+  @ <input type="submit" name="submit" value="Append Your Changes">
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ </form>
+  style_footer();
+}
+
+/*
+** WEBPAGE: whistory
+** URL: /whistory?name=PAGENAME
+**
+** Show the complete change history for a single wiki page.
+*/
+void whistory_page(void){
+  Stmt q;
+  char *zTitle;
+  char *zSQL;
+  const char *zPageName;
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  zPageName = PD("name","");
+  zTitle = mprintf("History Of %h", zPageName);
+  style_header(zTitle);
+  free(zTitle);
+
+  zSQL = mprintf("%s AND event.objid IN "
+                 "  (SELECT rid FROM tagxref WHERE tagid="
+                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q'))"
+                 "ORDER BY mtime DESC",
+                 timeline_query_for_www(), zPageName);
+  db_prepare(&q, zSQL);
+  free(zSQL);
+  www_print_timeline(&q, 0, 0, 0, 0);
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: wcontent
+**
+** List all available wiki pages with date created and last modified.
+*/
+void wcontent_page(void){
+  Stmt q;
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
-  if( !g.localOpen ){
-    int headid = db_int(0,
-       "SELECT cid FROM plink ORDER BY mtime DESC LIMIT 1"
-    );
-    create_fake_vfile(headid);
-  }
-  locate_and_render_wikipage(g.zExtra);
-}
-
-/*
-** The g.zExtra value is of the form UUID/otherstuff.
-** Extract the UUID and convert it to a record id.  Leave
-** g.zExtra holding just otherstuff.  If UUID does not exist
-** or is malformed, return 0 and leave g.zExtra unchanged.
-*/
-int extract_uuid_from_url(void){
-  int i, rid;
-  Blob uuid;
-  for(i=0; g.zExtra[i] && g.zExtra[i]!='/'; i++){}
-  blob_zero(&uuid);
-  blob_append(&uuid, g.zExtra, i);
-  rid = name_to_uuid(&uuid, 0);
-  blob_reset(&uuid);
-  if( rid ){
-    while( g.zExtra[i]=='/' ){ i++; }
-    g.zExtra = &g.zExtra[i];
-  }
-  return rid;  
-}
-
-/*
-** WEBPAGE: bwiki
-** URL: /bwiki/UUID/PAGENAME
-**
-** UUID specifies a baseline.  Render the wiki page PAGENAME as
-** it appears in that baseline.
-*/
-void bwiki_page(void){
-  int headid;
-  login_check_credentials();
-  if( !g.okRdWiki || !g.okHistory ){ login_needed(); return; }
-  headid = extract_uuid_from_url();
-  if( headid ){
-    create_fake_vfile(headid);
-  }
-  locate_and_render_wikipage(g.zExtra);
-}
-
-/*
-** WEBPAGE: ambiguous
-**
-** This is the destination for UUID hyperlinks that are ambiguous.
-** Show all possible choices for the destination with links to each.
-**
-** The ambiguous UUID prefix is in g.zExtra
-*/
-void ambiguous_page(void){
-  Stmt q;
-  style_header("Ambiguous UUID");
-  @ <p>The link <a href="%s(g.zBaseURL)/ambiguous/%T(g.zExtra)">
-  @ [%h(g.zExtra)]</a> is ambiguous.  It might mean any of the following:</p>
+  style_header("Available Wiki Pages");
   @ <ul>
-  db_prepare(&q, "SELECT uuid, rid FROM blob WHERE uuid>=%Q AND uuid<'%qz'"
-                 " ORDER BY uuid", g.zExtra, g.zExtra);
+  db_prepare(&q, 
+    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
+    " ORDER BY lower(tagname)"
+  );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    int rid = db_column_int(&q, 1);
-    @ <li> %s(zUuid) - %d(rid)
+    const char *zName = db_column_text(&q, 0);
+    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
   }
   db_finalize(&q);
   @ </ul>
   style_footer();
 }
+
+/*
+** WEBPAGE: wiki_rules
+*/
+void wikirules_page(void){
+  style_header("Wiki Formatting Rules");
+  @ <h2>Formatting Rule Summary</h2>
+  @ <ol>
+  @ <li> Blank lines are paragraph breaks
+  @ <li> Bullet list items are a "*" at the beginning of the line.
+  @ <li> Enumeration list items are a number at the beginning of a line.
+  @ <li> Indented pargraphs begin with a tab or two spaces.
+  @ <li> Hyperlinks are contained with square brackets:  "[target]"
+  @ <li> Most ordinary HTML works.
+  @ <li> &lt;verbatim&gt; and &lt;nowiki&gt;.
+  @ </ol>
+  @ <p>We call the first five rules above "wiki" formatting rules.  The
+  @ last two rules are the HTML formatting rule.</p>
+  @ <h2>Formatting Rule Details</h2>
+  @ <ol>
+  @ <li> <p><b>Paragraphs</b>.  Any sequence of one or more blank lines forms
+  @ a paragraph break.  Centered or right-justified paragraphs are not
+  @ supported by wiki markup, but you can do these things if you need them
+  @ using HTML.</p>
+  @ <li> <p><b>Bullet Lists</b>.
+  @ A bullet list item begins with a single "*" character surrounded on
+  @ both sides by two or more spaces or by a tab.  Only a single level
+  @ of bullet list is supported by wiki.  For tested lists, use HTML.</p>
+  @ <li> <p><b>Enumeration Lists</b>.
+  @ An enumeration list item begins with one or more digits optionally
+  @ followed by a "." surrounded on both sides by two or more spaces or
+  @ by a tab.  The number is significant and becomes the number shown
+  @ in the rendered enumeration item.  Only a single level of enumeration
+  @ list is supported by wiki.  For nested enumerations or for
+  @ enumerations that count using letters or roman numerials, use HTML.</p>
+  @ <li> <p><b>Indented Paragraphs</b>.
+  @ Any paragraph that begins with two or more spaces or a tab and
+  @ which is not a bullet or enumeration list item is rendered 
+  @ indented.  Only a single level of indentation is supported by</p>
+  @ <li> <p><b>Hyperlinks</b>.
+  @ Text within square brackets ("[...]") becomes a hyperlink.  The
+  @ target can be a wiki page name, the UUID of a check-in or ticket,
+  @ the name of an image, or a URL.  By default, the target is displayed
+  @ as the text of the hyperlink.  But you can specify alternative text
+  @ after the target name separated by a "|" character.</p>
+  @ <li> <p><b>HTML</b>.
+  @ The following standard HTML elements may be used:
+  @ &lt;a&gt;
+  @ &lt;address&gt;
+  @ &lt;b&gt;
+  @ &lt;big&gt;
+  @ &lt;blockquote&gt;
+  @ &lt;br&gt;
+  @ &lt;center&gt;
+  @ &lt;cite&gt;
+  @ &lt;code&gt;
+  @ &lt;dd&gt;
+  @ &lt;dfn&gt;
+  @ &lt;dl&gt;
+  @ &lt;dt&gt;
+  @ &lt;em&gt;
+  @ &lt;font&gt;
+  @ &lt;h1&gt;
+  @ &lt;h2&gt;
+  @ &lt;h3&gt;
+  @ &lt;h4&gt;
+  @ &lt;h5&gt;
+  @ &lt;h6&gt;
+  @ &lt;hr&gt;
+  @ &lt;img&gt;
+  @ &lt;i&gt;
+  @ &lt;kbd&gt;
+  @ &lt;li&gt;
+  @ &lt;nobr&gt;
+  @ &lt;ol&gt;
+  @ &lt;p&gt;
+  @ &lt;pre&gt;
+  @ &lt;s&gt;
+  @ &lt;samp&gt;
+  @ &lt;small&gt;
+  @ &lt;strike&gt;
+  @ &lt;strong&gt;
+  @ &lt;sub&gt;
+  @ &lt;sup&gt;
+  @ &lt;table&gt;
+  @ &lt;td&gt;
+  @ &lt;th&gt;
+  @ &lt;tr&gt;
+  @ &lt;tt&gt;
+  @ &lt;u&gt;
+  @ &lt;ul&gt;
+  @ &lt;var&gt;.
+  @ In addition, there are two non-standard elements available:
+  @ &lt;verbatim&gt; and &lt;nowiki&gt;.
+  @ No other elements are allowed.  All attributes are checked and
+  @ only a few benign attributes are allowed on each element.
+  @ In particular, any attributes that specify javascript or CSS
+  @ are elided.</p>
+  @ <p>The &lt;verbatim&gt; tag disables all wiki and HTML markup
+  @ up through the next &lt;/verbatim&gt;.  The &lt;nowiki&gt; tag
+  @ disables all wiki formatting rules through the matching
+  @ &lt;/nowiki&gt; element.
+  @ </ol>
+  style_footer();
+}
+

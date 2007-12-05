@@ -149,12 +149,10 @@ void descendents_cmd(void){
   if( base==0 ) return;
   compute_leaves(base);
   db_prepare(&q,
-    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'), comment, 0,"
-    "       (SELECT count(*) FROM plink WHERE cid=blob.rid)"
-    "  FROM leaves, blob, event"
-    " WHERE blob.rid=leaves.rid"
-    "   AND event.objid=leaves.rid"
-    " ORDER BY event.mtime DESC"
+    "%s"
+    "   AND event.objid IN (SELECT rid FROM leaves)"
+    " ORDER BY event.mtime DESC",
+    timeline_query_for_tty()
   );
   print_timeline(&q, 20);
   db_finalize(&q);
@@ -171,14 +169,11 @@ void branches_cmd(void){
 
   db_must_be_within_tree();
   db_prepare(&q,
-    "SELECT blob.rid, blob.uuid, datetime(event.mtime,'localtime'),"
-    "       event.comment, 0,"
-    "       (SELECT count(*) FROM plink WHERE cid=blob.rid)"
-    "  FROM blob, event"
-    " WHERE blob.rid IN"
+    "%s"
+    "   AND blob.rid IN"
     "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
-    "   AND event.objid=blob.rid"
-    " ORDER BY event.mtime DESC"
+    " ORDER BY event.mtime DESC",
+    timeline_query_for_tty()
   );
   print_timeline(&q, 2000);
   db_finalize(&q);
@@ -197,13 +192,11 @@ void leaves_page(void){
 
   style_header("Leaves");
   db_prepare(&q,
-    "SELECT blob.rid, blob.uuid, datetime(event.mtime,'localtime'),"
-    "       event.comment, event.user, 1, 1, 0"
-    "  FROM blob, event"
-    " WHERE blob.rid IN"
+    "%s"
+    "   AND blob.rid IN"
     "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
-    "   AND event.objid=blob.rid"
-    " ORDER BY event.mtime DESC"
+    " ORDER BY event.mtime DESC",
+    timeline_query_for_www()
   );
   www_print_timeline(&q, 0, 0, 0, 0);
   db_finalize(&q);

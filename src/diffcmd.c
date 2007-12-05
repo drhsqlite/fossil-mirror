@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -42,64 +42,95 @@ static void shell_escape(Blob *pBlob, const char *zIn){
   }
 }
 
-
-
 /*
 ** COMMAND: diff
-** COMMAND: tkdiff
+** COMMAND: gdiff
 **
-** Usage: %fossil diff|tkdiff FILE...
+** Usage: %fossil diff|gdiff ?-i? ?-r REVISION? FILE...
+**
 ** Show the difference between the current version of a file (as it
-** exists on disk) and that same file as it was checked out.  Use
-** either "diff -u" or "tkdiff".
+** exists on disk) and that same file as it was checked out.
+**
+** diff will show a textual diff while gdiff will attempt to run a
+** graphical diff command that you have setup. If the choosen command
+** is not yet configured, the internal textual diff command will be
+** used.
+**
+** If -i is supplied for either diff or gdiff, the internal textual
+** diff command will be executed.
+**
+** Here are a few external diff command settings, for example:
+**
+**   %fossil setting diff-command diff
+**
+**   %fossil setting gdiff-command tkdiff
+**   %fossil setting gdiff-command eskill22
+**   %fossil setting gdiff-command tortoisemerge
+**   %fossil setting gdiff-command meld
+**   %fossil setting gdiff-command xxdiff
+**   %fossil setting gdiff-command kdiff3
 */
 void diff_cmd(void){
-  const char *zFile;
+  const char *zFile, *zRevision;
   Blob cmd;
   Blob fname;
-  int i;
-  char *zV1 = 0;
-  char *zV2 = 0;
+  Blob vname;
+  Blob record;
+  int cnt=0,internalDiff;
+
+  internalDiff = find_option("internal","i",0)!=0;
+  zRevision = find_option("revision", "r", 1);
+  verify_all_options();
 
   if( g.argc<3 ){
     usage("?OPTIONS? FILE");
   }
   db_must_be_within_tree();
-  blob_zero(&cmd);
-  blob_appendf(&cmd, "%s ", g.argv[1]);
-  for(i=2; i<g.argc-1; i++){
-    const char *z = g.argv[i];
-    if( (strcmp(z,"-v")==0 || strcmp(z,"--version")==0) && i<g.argc-2 ){
-      if( zV1==0 ){
-        zV1 = g.argv[i+1];
-      }else if( zV2==0 ){
-        zV2 = g.argv[i+1];
-      }else{
-        fossil_panic("too many versions");
-      }
+
+  if( internalDiff==0 ){
+    const char *zExternalCommand;
+    if( strcmp(g.argv[1], "diff")==0 ){
+      zExternalCommand = db_get("diff-command", 0);
     }else{
-      blob_appendf(&cmd, "%s ", z);
+      zExternalCommand = db_get("gdiff-command", 0);
     }
+    if( zExternalCommand==0 ){
+      internalDiff=1;
+    }
+    blob_zero(&cmd);
+    blob_appendf(&cmd, "%s ", zExternalCommand);
   }
   zFile = g.argv[g.argc-1];
   if( !file_tree_name(zFile, &fname) ){
     fossil_panic("unknown file: %s", zFile);
   }
-  if( zV1==0 ){
-    int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
-    Blob record;
-    Blob vname;
-    int cnt = 0;
 
+  blob_zero(&vname);
+  do{
+    blob_reset(&vname);
+    blob_appendf(&vname, "%s~%d", zFile, cnt++);
+  }while( access(blob_str(&vname),0)==0 );
+
+  if( zRevision==0 ){
+    int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
     if( rid==0 ){
       fossil_panic("no history for file: %b", &fname);
     }
-    blob_zero(&vname);
-    do{
-      blob_reset(&vname);
-      blob_appendf(&vname, "%s~%d", zFile, cnt++);
-    }while( access(blob_str(&vname),0)==0 );
     content_get(rid, &record);
+  }else{
+    historical_version_of_file(zRevision, zFile, &record);
+  }
+  if( internalDiff==1 ){
+    Blob out;
+    Blob current;
+    blob_zero(&current);
+    blob_read_from_file(&current, zFile);
+    blob_zero(&out);
+    text_diff(&record, &current, &out, 5);
+    printf("%s\n", blob_str(&out));
+    blob_reset(&current);
+    blob_reset(&out);
+  }else{
     blob_write_to_file(&record, blob_str(&vname));
     blob_reset(&record);
     shell_escape(&cmd, blob_str(&vname));
@@ -109,8 +140,6 @@ void diff_cmd(void){
     unlink(blob_str(&vname));
     blob_reset(&vname);
     blob_reset(&cmd);
-  }else{
-    fossil_panic("not yet implemented");
   }
   blob_reset(&fname);
 }

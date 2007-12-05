@@ -1,3 +1,30 @@
+Bugs:
+
+ *  When doing an update, if a file is not found that should be there
+    then the update aborts, only after it has written several files. It
+    does not update your checked out version, thus when doing a fossil
+    changes, you see everything that has come over from your update
+    command. Steps to reproduce:
+    
+    $ rm src/main.c
+    $ fossil update 9b30
+    UPDATE ... etc ...
+    fossil: no such file: src/main.c
+    $ fossil info
+    (shows version you were on prior to update)
+    $ fossil changes
+    EDITED ... many ...
+    
+ *  Bug: If the server closes the socket unexpectedly, the
+    fwrite() in http.c:103 throws a signal and kills the child
+    process.  fwrite() is not suppose to do this.  Need to figure
+    out what is going wrong.
+
+ *  Bug: Make sure merge and other commands (check-out) do not try
+    to use a phantom.
+
+ *  Bug: When clone use incorrect http URL, local repo file is still created.
+
 Things to work on:
 
  *  Use the wiki_convert() routine to render comments and other text
@@ -13,21 +40,11 @@ Things to work on:
     message exceeds the maximum POST size of the server) the client
     does not report this error back to the user as it should.
 
- *  Bug: If the server closes the socket unexpectedly, the
-    fwrite() in http.c:103 throws a signal and kills the child
-    process.  fwrite() is not suppose to do this.  Need to figure
-    out what is going wrong.
-
- *  Bug: pull is ending prematurely.
-
- *  Bug: Make sure merge and other commands (check-out) do not try
-    to use a phantom.
-¿
  *  The ipaddr field of the rcvfrom table is not being set.  This
     field should be the IP address from which information is received
     for the local repository.  So when somebody does a push of new
     files we record the ipaddr.  Or when we do a pull, we record
-    the ipaddr.
+    the ipaddr.  (I think this has been fixed.  Need to test.)
 
  *  Additional information displayed for the "vinfo" page:
 
@@ -38,19 +55,10 @@ Things to work on:
         leaves.
      +  Add file diff links to the file change list.
 
- *  Timeline enhanced so that you can specify a range of dates.
-
- *  The /xfer handler (for push, pull, and clone) does not do
-    delta compression.  This results in excess bandwidth usage.
-    There are some pieces in xfer.c that are sketches of ideas on
-    how to do delta compression, but nothing has been implemented.
-
  *  Enhancements to the diff and tkdiff commands in the cli.
     Allow the entire tree or a subtree to be diffed, not just a 
     single file.  Allow diffs against any two arbitrary versions,
-    not just diffs against the current check-out.  Allow 
-    configuration options to replace tkdiff with some other
-    visual differ of the users choice. Example: eskil.
+    not just diffs against the current check-out.
 
  *  Ticketing interface (expand this bullet)
 
@@ -117,9 +125,10 @@ Things to work on:
     GPG clearsigned at the very least.  Comment changes only apply if
     the user who made the change has the right permissions.
 
- *  Get a build working for win32.  Perhaps use cygwin.  Or omit
-    the server component from win32 (to eliminate the need for fork()).
-
  *  Make the interface to fossil look pretty and be customizable so
     that other people will be attracted to it, will take over maintenance
     of it, and we can eventually move on to other things.
+    
+    This has begun, but I wonder if we need to use a templating system for
+    full customization. If the CSS is done correctly, you can change 99.9%
+    of everything. See: http://www.csszengarden.com/

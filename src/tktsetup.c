@@ -21,45 +21,24 @@
 **
 *******************************************************************************
 **
-** This file contains code used to clear-sign documents using an
-** external gpg command.
+** This file contains code to implement the ticket configuration
+** setup screens.
 */
 #include "config.h"
-#include "clearsign.h"
+#include "tktsetup.h"
 #include <assert.h>
 
 /*
-** Clearsign the given blob.  Put the signed version in
-** pOut.
+** Main sub-menu for configuring the ticketing system.
+** WEBPAGE: /tktsetup
 */
-int clearsign(Blob *pIn, Blob *pOut){
-  char *zRand;
-  char *zIn;
-  char *zOut;
-  char *zBase = db_get("clear-sign", "gpg --clearsign -o ");
-  char *zCmd;
-  int rc;
-  zRand = db_text(0, "SELECT hex(randomblob(10))");
-  zOut = mprintf("out-%s", zRand);
-  zIn = mprintf("in-%z", zRand);
-  blob_write_to_file(pIn, zOut);
-  zCmd = mprintf("%s %s %s", zBase, zIn, zOut);
-  rc = system(zCmd);
-  free(zCmd);
-  if( rc==0 ){
-    if( pOut==pIn ){
-      blob_reset(pIn);
-    }
-    blob_zero(pOut);
-    blob_read_from_file(pOut, zIn);
-  }else{
-    if( pOut!=pIn ){
-      blob_copy(pOut, pIn);
-    }
+void tktsetup_page(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
   }
-  unlink(zOut);
-  unlink(zIn);
-  free(zOut);
-  free(zIn);
-  return rc;
+
+  style_header("Ticket Setup");
+  @ <i>TBD...</i>
+  style_footer();
 }

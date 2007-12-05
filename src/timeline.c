@@ -35,7 +35,7 @@ void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
   sprintf(zShortUuid, "%.10s", zUuid);
   if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
+    @ <a href="%s(g.zBaseURL)/info/%s(zUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b>[%s(zShortUuid)]</b>
   }
@@ -77,7 +77,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 
 /*
 ** Output a timeline in the web format given a query.  The query
-** should return 4 columns:
+** should return these columns:
 **
 **    0.  rid
 **    1.  UUID
@@ -87,6 +87,8 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 **    5.  Number of non-merge children
 **    6.  Number of parents
 **    7.  True if is a leaf
+**    8.  background color
+**    9.  type ("ci", "w")
 */
 void www_print_timeline(
   Stmt *pQuery,
@@ -95,24 +97,40 @@ void www_print_timeline(
   int (*xCallback)(int, Blob*),
   Blob *pArg
  ){
-  char zPrevDate[20];
   int cnt = 0;
+  int wikiFlags;
+  int mxWikiLen;
+  Blob comment;
+  char zPrevDate[20];
   zPrevDate[0] = 0;
+
+  mxWikiLen = db_get_int("timeline-max-comment", 0);
+  if( db_get_boolean("timeline-block-markup", 0) ){
+    wikiFlags = WIKI_INLINE;
+  }else{
+    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
+  }
+
   db_multi_exec(
      "CREATE TEMP TABLE IF NOT EXISTS seen(rid INTEGER PRIMARY KEY);"
      "DELETE FROM seen;"
   );
   @ <table cellspacing=0 border=0 cellpadding=0>
+  blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
     const char *zUuid = db_column_text(pQuery, 1);
     int nPChild = db_column_int(pQuery, 5);
     int nParent = db_column_int(pQuery, 6);
     int isLeaf = db_column_int(pQuery, 7);
+    const char *zBgClr = db_column_text(pQuery, 8);
     const char *zDate = db_column_text(pQuery, 2);
+    const char *zType = db_column_text(pQuery, 9);
+    const char *zUser = db_column_text(pQuery, 4);
     if( cnt==0 && pFirstEvent ){
       *pFirstEvent = rid;
     }
+    cnt++;
     if( pLastEvent ){
       *pLastEvent = rid;
     }
@@ -123,31 +141,45 @@ void www_print_timeline(
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
-      @ <table cellpadding=2 border=0>
-      @ <tr><td bgcolor="#a0b5f4" class="border1">
-      @ <table cellpadding=2 cellspacing=0 border=0><tr>
-      @ <td bgcolor="#d0d9f4" class="bkgnd1">%s(zPrevDate)</td>
-      @ </tr></table>
-      @ </td></tr></table>
+      @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
     }
     @ <tr>
     @ <td valign="top">%s(&zDate[11])</td>
     @ <td width="20" align="center" valign="top">
     @ <font id="m%d(rid)" size="+1" color="white">*</font></td>
-    @ <td valign="top" align="left">
-    hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
-    if( nParent>1 ){
-      @ <b>Merge</b> 
+    if( zBgClr && zBgClr[0] ){
+      @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
+    }else{
+      @ <td valign="top" align="left">
     }
-    if( nPChild>1 ){
-      @ <b>Fork</b>
+    if( zType[0]=='c' ){
+      hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
+      if( nParent>1 ){
+        @ <b>Merge</b> 
+      }
+      if( nPChild>1 ){
+        @ <b>Fork</b>
+      }
+      if( isLeaf ){
+        @ <b>Leaf</b>
+      }
+    }else{
+      hyperlink_to_uuid(zUuid);
     }
-    if( isLeaf ){
-      @ <b>Leaf</b>
+    db_column_blob(pQuery, 3, &comment);
+    if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
+      Blob truncated;
+      blob_zero(&truncated);
+      blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
+      blob_append(&truncated, "...", 3);
+      wiki_convert(&truncated, 0, wikiFlags);
+      blob_reset(&truncated);
+    }else{
+      wiki_convert(&comment, 0, wikiFlags);
     }
-    @ %h(db_column_text(pQuery,3))
-    @ (by %h(db_column_text(pQuery,4)))</td></tr>
+    blob_reset(&comment);
+    @ (by %h(zUser))</td></tr>
   }
   @ </table>
 }
@@ -184,6 +216,29 @@ static int save_parentage_javascript(int rid, Blob *pOut){
 }
 
 /*
+** Return a pointer to a constant string that forms the basis
+** for a timeline query for the WWW interface.
+*/
+const char *timeline_query_for_www(void){
+  static const char zBaseSql[] =
+    @ SELECT
+    @   blob.rid,
+    @   uuid,
+    @   datetime(event.mtime,'localtime') AS timestamp,
+    @   coalesce(ecomment, comment),
+    @   coalesce(euser, user),
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
+    @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
+    @   coalesce(bgcolor, brbgcolor),
+    @   event.type
+    @  FROM event JOIN blob 
+    @ WHERE blob.rid=event.objid
+  ;
+  return zBaseSql;
+}
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -194,9 +249,12 @@ static int save_parentage_javascript(int rid, Blob *pOut){
 **    u=NAME         show only events from user.        dflt: nil
 **    a              show events after and including.   dflt: false
 **    r              show only related events.          dflt: false
+**    y=TYPE         show only TYPE ('ci' or 'w')       dflt: nil
+**    s              show the SQL                       dflt: nil
 */
 void page_timeline(void){
   Stmt q;
+  Blob sql;
   char *zSQL;
   Blob scriptInit;
   char zDate[100];
@@ -206,6 +264,7 @@ void page_timeline(void){
   int objid = atoi(PD("e","0"));
   int relatedEvents = P("r")!=0;
   int afterFlag = P("a")!=0;
+  const char *zType = P("y");
   int firstEvent;
   int lastEvent;
 
@@ -220,21 +279,18 @@ void page_timeline(void){
                 " WHERE login='anonymous'"
                 "   AND cap LIKE '%%h%%'") ){
     @ <p><b>Note:</b> You will be able to access <u>much</u> more
-    @ historical information if <a href="%s(g.zBaseURL)/login">login</a>.</p>
+    @ historical information if <a href="%s(g.zTop)/login">login</a>.</p>
   }
-  zSQL = mprintf(
-    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'), comment, user,"
-    "       (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),"
-    "       (SELECT count(*) FROM plink WHERE cid=blob.rid),"
-    "       NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid)"
-    "  FROM event, blob"
-    " WHERE event.type='ci' AND blob.rid=event.objid"
-  );
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  if( zType ){
+    blob_appendf(&sql, " AND event.type=%Q", zType);
+  }
   if( zUser ){
-    zSQL = mprintf("%z AND event.user=%Q", zSQL, zUser);
+    blob_appendf(&sql, " AND event.user=%Q", zUser);
   }
   if( objid ){
-    char *z = db_text(0, "SELECT datetime(event.mtime) FROM event"
+    char *z = db_text(0, "SELECT datetime(event.mtime, 'localtime') FROM event"
                          " WHERE objid=%d", objid);
     if( z ){
       zStart = z;
@@ -243,8 +299,9 @@ void page_timeline(void){
   if( zStart ){
     while( isspace(zStart[0]) ){ zStart++; }
     if( zStart[0] ){
-      zSQL = mprintf("%z AND event.mtime %s julianday(%Q, 'localtime')",
-                      zSQL, afterFlag ? ">=" : "<=", zStart);
+      blob_appendf(&sql, 
+         " AND event.mtime %s (SELECT julianday(%Q, 'utc'))",
+                          afterFlag ? ">=" : "<=", zStart);
     }
   }
   if( relatedEvents && objid ){
@@ -256,17 +313,34 @@ void page_timeline(void){
     }else{
       compute_ancestors(objid, nEntry);
     }
-    zSQL = mprintf("%z AND event.objid IN ok", zSQL);
+    blob_append(&sql, " AND event.objid IN ok", -1);
   }
-  zSQL = mprintf("%z ORDER BY event.mtime DESC LIMIT %d", zSQL, nEntry);
+  if( afterFlag ){
+    blob_appendf(&sql, " ORDER BY event.mtime ASC LIMIT %d",
+                 nEntry);
+  }else{
+    blob_appendf(&sql, " ORDER BY event.mtime DESC LIMIT %d",
+                 nEntry);
+  }
+  zSQL = blob_str(&sql);
+  if( afterFlag ){
+    zSQL = mprintf("SELECT * FROM (%s) ORDER BY timestamp DESC", zSQL);
+  }
   db_prepare(&q, zSQL);
-  free(zSQL);
+  if( P("s")!=0 ){
+    @ <hr><p>%h(zSQL)</p><hr>
+  }
+  blob_zero(&sql);
+  if( afterFlag ){
+    free(zSQL);
+  }
   zDate[0] = 0;
   blob_zero(&scriptInit);
   zDate[0] = 0;
   www_print_timeline(&q, &firstEvent, &lastEvent,
                      save_parentage_javascript, &scriptInit);
   db_finalize(&q);
+  @ <p>firstEvent=%d(firstEvent) lastEvent=%d(lastEvent)</p>
   if( zStart==0 ){
     zStart = zDate;
   }
@@ -343,11 +417,18 @@ void page_timeline(void){
   @ <input type="text" size="4" value="%d(nEntry)" name="n">
   @ <br><input type="submit" value="Submit">
   @ </form>
+  @ <table><tr><td>
   @ <form method="GET" action="%s(g.zBaseURL)/timeline">
-  @ <input type="hidden" value="%h(zDate)" name="d">
+  @ <input type="hidden" value="%d(lastEvent)" name="e">
   @ <input type="hidden" value="%d(nEntry)" name="n">
   @ <input type="submit" value="Next %d(nEntry) Rows">
-  @ </form>
+  @ </form></td><td>
+  @ <form method="GET" action="%s(g.zBaseURL)/timeline">
+  @ <input type="hidden" value="%d(firstEvent)" name="e">
+  @ <input type="hidden" value="%d(nEntry)" name="n">
+  @ <input type="hidden" value="1" name="a">
+  @ <input type="submit" value="Previous %d(nEntry) Rows">
+  @ </form></td></tr></table>
   style_footer();
 }
 
@@ -356,11 +437,31 @@ void page_timeline(void){
 ** summary of those records.
 **
 ** Limit the number of entries printed to nLine.
+** 
+** The query should return these columns:
+**
+**    0.  rid
+**    1.  uuid
+**    2.  Date/Time
+**    3.  Comment string and user
+**    4.  Number of non-merge children
+**    5.  Number of parents
 */
 void print_timeline(Stmt *q, int mxLine){
   int nLine = 0;
   char zPrevDate[20];
+  const char *zCurrentUuid=0;
+  Stmt currentQ;
+  int rid = db_lget_int("checkout", 0);
   zPrevDate[0] = 0;
+
+  db_prepare(&currentQ,
+    "SELECT uuid"
+    "  FROM blob WHERE rid=%d", rid
+  );
+  if( db_step(&currentQ)==SQLITE_ROW ){
+    zCurrentUuid = db_column_text(&currentQ, 0);
+  }
 
   while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
     const char *zId = db_column_text(q, 1);
@@ -369,8 +470,10 @@ void print_timeline(Stmt *q, int mxLine){
     int nChild = db_column_int(q, 4);
     int nParent = db_column_int(q, 5);
     char *zFree = 0;
+    int n = 0;
+    char zPrefix[80];
     char zUuid[UUID_SIZE+1];
-
+    
     sprintf(zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       printf("=== %.10s ===\n", zDate);
@@ -379,26 +482,44 @@ void print_timeline(Stmt *q, int mxLine){
     }
     if( zCom==0 ) zCom = "";
     printf("%.8s ", &zDate[11]);
-    if( nChild>1 || nParent>1 ){
-      int n = 0;
-      char zPrefix[50];
-      if( nParent>1 ){
-        sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
-        n = strlen(zPrefix);
-      }
-      if( nChild>1 ){
-        sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
-        n = strlen(zPrefix);
-      }
-      zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
-    }else{
-      zFree = sqlite3_mprintf("[%.10s] %s", zUuid, zCom);
+    zPrefix[0] = 0;
+    if( nParent>1 ){
+      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
+      n = strlen(zPrefix);
     }
+    if( nChild>1 ){
+      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
+      n = strlen(zPrefix);
+    }
+    if( strcmp(zCurrentUuid,zId)==0 ){
+      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
+      n += strlen(zPrefix);
+    }
+    zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
   }
+  db_finalize(&currentQ);
 }
 
+/*
+** Return a pointer to a static string that forms the basis for
+** a timeline query for display on a TTY.
+*/
+const char *timeline_query_for_tty(void){
+  static const char zBaseSql[] = 
+    @ SELECT
+    @   blob.rid,
+    @   uuid,
+    @   datetime(event.mtime,'localtime'),
+    @   coalesce(ecomment,comment) || ' (by ' || coalesce(euser,user,'?') ||')',
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
+    @ FROM event, blob
+    @ WHERE blob.rid=event.objid
+  ;
+  return zBaseSql;
+}
 
 /*
 ** COMMAND: timeline
@@ -468,7 +589,7 @@ void timeline_cmd(void){
     if( mode==3 || mode==4 ){
       fossil_fatal("cannot compute descendents or ancestors of a date");
     }
-    zDate = mprintf("(SELECT julianday('now','utc'))");
+    zDate = mprintf("(SELECT datetime('now'))");
   }else if( strncmp(zOrigin, "current", k)==0 ){
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
@@ -481,15 +602,10 @@ void timeline_cmd(void){
     }
     zDate = mprintf("(SELECT julianday(%Q, 'utc'))", zOrigin);
   }
-  zSQL = mprintf(
-    "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'),"
-    "       comment || ' (by ' || user || ')',"
-    "       (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),"
-    "       (SELECT count(*) FROM plink WHERE cid=blob.rid)"
-    "  FROM event, blob"
-    " WHERE event.type='ci' AND blob.rid=event.objid"
-    "   AND event.mtime %s %s",
-    (mode==1 || mode==4) ? "<=" : ">=", zDate
+  zSQL = mprintf("%s AND event.mtime %s %s",
+     timeline_query_for_tty(),
+     (mode==1 || mode==4) ? "<=" : ">=",
+     zDate
   );
   if( mode==3 || mode==4 ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");

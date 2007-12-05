@@ -46,11 +46,23 @@ int content_get(int rid, Blob *pBlob){
   Blob src;
   int srcid;
   int rc = 0;
+  static Bag inProcess;
 
   assert( g.repositoryOpen );
   srcid = findSrcid(rid);
   blob_zero(pBlob);
   if( srcid ){
+    if( bag_find(&inProcess, srcid) ){
+      db_multi_exec(
+        "UPDATE blob SET content=NULL, size=-1 WHERE rid=%d;"
+        "DELETE FROM delta WHERE rid=%d;"
+        "INSERT OR IGNORE INTO phantom VALUES(%d);",
+        srcid, srcid, srcid
+      );
+      blob_zero(pBlob);
+      return 0;
+    }
+    bag_insert(&inProcess, srcid);
     if( content_get(srcid, &src) ){
       db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
       if( db_step(&q)==SQLITE_ROW ){
@@ -65,6 +77,7 @@ int content_get(int rid, Blob *pBlob){
       db_finalize(&q);
       blob_reset(&src);
     }
+    bag_remove(&inProcess, srcid);
   }else{
     db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
     if( db_step(&q)==SQLITE_ROW ){
@@ -75,6 +88,32 @@ int content_get(int rid, Blob *pBlob){
     db_finalize(&q);
   }
   return rc;
+}
+
+/*
+** Get the contents of a file within a given revision.
+*/
+int content_get_historical_file(const char *revision, const char *file, Blob *content){
+  Blob mfile;
+  Manifest m;
+  int i, rid=0;
+  
+  rid = name_to_rid(revision);
+  content_get(rid, &mfile);
+  
+  if( manifest_parse(&m, &mfile) ){
+    for(i=0; i<m.nFile; i++){
+      if( strcmp(m.aFile[i].zName, file)==0 ){
+        rid = uuid_to_rid(m.aFile[i].zUuid, 0);
+        return content_get(rid, content);
+      }
+    }
+    fossil_panic("file: %s does not exist in revision: %s", file, revision);
+  }else{
+    fossil_panic("could not parse manifest for revision: %s", revision);
+  }
+  
+  return 0;
 }
 
 /*

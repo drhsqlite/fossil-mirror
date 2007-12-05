@@ -28,6 +28,34 @@
 #include <assert.h>
 
 /*
+** If the respository is configured for autosyncing, then do an
+** autosync.  This will be a pull if the argument is true or a push
+** if the argument is false.  Return true if the autosync is done
+** and false if autosync is not requested for the current repository.
+*/
+int autosync(int pullFlag){
+  const char *zUrl;
+  if( db_get_boolean("autosync", 0)==0 ){
+    return 0;
+  }
+  zUrl = db_get("last-sync-url", 0);
+  if( zUrl==0 ){
+    return 0;  /* No default server */
+  }
+  url_parse(zUrl);
+  if( g.urlIsFile ){
+    return 0;  /* Network sync only */
+  }
+  if( g.urlPort!=80 ){
+    printf("Autosync:  http://%s:%d%s\n", g.urlName, g.urlPort, g.urlPath);
+  }else{
+    printf("Autosync:  http://%s%s\n", g.urlName, g.urlPath);
+  }
+  client_sync(!pullFlag, pullFlag, 0);
+  return 1;
+}
+
+/*
 ** This routine processes the command-line argument for push, pull,
 ** and sync.  If a command-line argument is given, that is the URL
 ** of a server to sync against.  If no argument is given, use the
@@ -48,7 +76,7 @@ static void process_sync_args(void){
   if( g.urlIsFile ){
     fossil_fatal("network sync only");
   }
-  db_set("last-sync-url", zUrl);
+  db_set("last-sync-url", zUrl, 0);
   user_select();
   if( g.argc==2 ){
     if( g.urlPort!=80 ){

@@ -28,16 +28,23 @@
 ** decode strings in HTML or HTTP.
 */
 #include "config.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#ifdef __MINGW32__
+#  include <windows.h>           /* for Sleep once server works again */
+#  include <winsock2.h>          /* socket operations */
+#  define sleep Sleep            /* windows does not have sleep, but Sleep */
+#  include <ws2tcpip.h>          
+#else
+#  include <sys/socket.h>
+#  include <netinet/in.h>
+#  include <arpa/inet.h>
+#  include <sys/times.h>
+#  include <sys/time.h>
+#  include <sys/wait.h>
+#  include <sys/select.h>
+#endif
 #include <time.h>
-#include <sys/times.h>
-#include <sys/time.h>
-#include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/select.h>
 #include <unistd.h>
 #include "cgi.h"
 
@@ -145,7 +152,7 @@ void cgi_set_cookie(
   const char *zPath,    /* Path cookie applies to.  NULL means "/" */
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
-  if( zPath==0 ) zPath = "/";
+  if( zPath==0 ) zPath = g.zTop;
   if( lifetime>0 ){
     lifetime += (int)time(0);
     blob_appendf(&extraHeader,
@@ -290,9 +297,10 @@ void cgi_redirect(const char *zURL){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 || *zURL=='/' ){
-    cgi_panic("invalid redirect URL: %s", zURL);
+    zLocation = mprintf("Location: %s\r\n", zURL);
+  }else{
+    zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
-  zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   cgi_append_header(zLocation);
   cgi_reset_content();
   cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zURL);
@@ -300,6 +308,12 @@ void cgi_redirect(const char *zURL){
   free(zLocation);
   cgi_reply();
   exit(0);
+}
+void cgi_redirectf(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap, zFormat);
+  cgi_redirect(vmprintf(zFormat, ap));
+  va_end(ap);
 }
 
 /*
@@ -324,7 +338,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
 ** zName and zValue are not copied and must not change or be
 ** deallocated after this routine returns.
 */
-static void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
+void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   if( nAllocQP<=nUsedQP ){
     nAllocQP = nAllocQP*2 + 10;
     aParamQP = realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );
@@ -346,6 +360,18 @@ static void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
 */
 void cgi_set_parameter(const char *zName, const char *zValue){
   cgi_set_parameter_nocopy(mprintf("%s",zName), mprintf("%s",zValue));
+}
+
+/*
+** Replace a parameter with a new value.
+*/
+void cgi_replace_parameter(const char *zName, const char *zValue){
+  int i;
+  for(i=0; i<nUsedQP; i++){
+    if( strcmp(aParamQP[i].zName,zName)==0 ){
+      aParamQP[i].zValue = zValue;
+    }
+  }
 }
 
 /*
@@ -704,6 +730,18 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
 }
 
 /*
+** Return the name of the i-th CGI parameter.  Return NULL if there
+** are fewer than i registered CGI parmaeters.
+*/
+const char *cgi_parameter_name(int i){
+  if( i>=0 && i<nUsedQP ){
+    return aParamQP[i].zName;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** Print CGI debugging messages.
 */
 void cgi_debug(const char *zFormat, ...){
@@ -896,16 +934,6 @@ void cgi_v_optionmenu2(
   cgi_printf("%*s</select>\n", in, "");
 }
 
-/* 
-** This function implements the callback from vxprintf. 
-**
-** This routine sends nNewChar characters of text in zNewText to
-** CGI reply content buffer.
-*/
-static void sout(void *NotUsed, const char *zNewText, int nNewChar){
-  cgi_append_content(zNewText, nNewChar);
-}
-
 /*
 ** This routine works like "printf" except that it has the
 ** extra formatting capabilities such as %h and %t.
@@ -913,7 +941,7 @@ static void sout(void *NotUsed, const char *zNewText, int nNewChar){
 void cgi_printf(const char *zFormat, ...){
   va_list ap;
   va_start(ap,zFormat);
-  vxprintf(sout,0,zFormat,ap);
+  vxprintf(&cgiContent,zFormat,ap);
   va_end(ap);
 }
 
@@ -922,7 +950,7 @@ void cgi_printf(const char *zFormat, ...){
 ** extra formatting capabilities such as %h and %t.
 */
 void cgi_vprintf(const char *zFormat, va_list ap){
-  vxprintf(sout,0,zFormat,ap);
+  vxprintf(&cgiContent,zFormat,ap);
 }
 
 
@@ -950,7 +978,7 @@ void cgi_panic(const char *zFormat, ...){
     "<plaintext>"
   );
   va_start(ap, zFormat);
-  vxprintf(sout,0,zFormat,ap);
+  vxprintf(&cgiContent,zFormat,ap);
   va_end(ap);
   cgi_reply();
   exit(1);
@@ -1018,7 +1046,7 @@ void cgi_handle_http_request(void){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( getpeername(fileno(stdin), (struct sockaddr*)&remoteName, &size)>=0 ){
+  if( getpeername(fileno(stdin), (struct sockaddr*)&remoteName, (socklen_t*)&size)>=0 ){
     char *zIpAddr = inet_ntoa(remoteName.sin_addr);
     cgi_setenv("REMOTE_ADDR", zIpAddr);
 
@@ -1078,6 +1106,10 @@ void cgi_handle_http_request(void){
 ** The parent never returns from this procedure.
 */
 void cgi_http_server(int iPort){
+#ifdef __MINGW32__
+  fprintf(stderr,"server not yet available in windows version of fossil\n");
+  exit(1);
+#else
   int listener;                /* The server socket */
   int connection;              /* A socket for each individual connection */
   fd_set readfds;              /* Set of file descriptors for select() */
@@ -1117,7 +1149,7 @@ void cgi_http_server(int iPort){
     FD_SET( listener, &readfds);
     if( select( listener+1, &readfds, 0, 0, &delay) ){
       lenaddr = sizeof(inaddr);
-      connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
+      connection = accept(listener, (struct sockaddr*)&inaddr, (socklen_t*) &lenaddr);
       if( connection>=0 ){
         child = fork();
         if( child!=0 ){
@@ -1144,6 +1176,7 @@ void cgi_http_server(int iPort){
   }
   /* NOT REACHED */  
   exit(1);
+#endif
 }
 
 /*

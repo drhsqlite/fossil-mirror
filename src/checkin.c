@@ -46,8 +46,11 @@ static void status_report(Blob *report, const char *zPrefix){
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
+    char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
-    if( isNew ){
+    if( access(zFullName, 0) ){
+      blob_appendf(report, "MISSING  %s\n", zPathname);
+    }else if( isNew ){
       blob_appendf(report, "ADDED    %s\n", zPathname);
     }else if( isDeleted ){
       blob_appendf(report, "DELETED  %s\n", zPathname);
@@ -58,6 +61,7 @@ static void status_report(Blob *report, const char *zPrefix){
     }else{
       blob_appendf(report, "EDITED   %s\n", zPathname);
     }
+    free(zFullName);
   }
   db_finalize(&q);
   db_prepare(&q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"
@@ -164,14 +168,20 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean
+** Usage: %fossil clean ?-all
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
-** the "extra" command.
+** the "extra" command. This operation cannot be undone. 
+**
+** You will be prompted before removing each file. If you are
+** sure you wish to remove all "extra" files you can specify the
+** optional -all flag.
 */
 void clean_cmd(void){
+  int allFlag;
   Blob path;
   Stmt q;
+  allFlag = find_option("all","a",0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   chdir(g.zLocalRoot);
@@ -182,7 +192,18 @@ void clean_cmd(void){
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
       " ORDER BY 1", g.zLocalRoot);
   while( db_step(&q)==SQLITE_ROW ){
-    unlink(db_column_text(&q, 0));
+    if( allFlag ){
+      unlink(db_column_text(&q, 0));
+    }else{
+      Blob ans;
+      char *prompt = mprintf("remove unmanaged file \"%s\" [y/N]? ",
+                              db_column_text(&q, 0));
+      blob_zero(&ans);
+      prompt_user(prompt, &ans);
+      if( blob_str(&ans)[0]=='y' ){
+        unlink(db_column_text(&q, 0));
+      }
+    }
   }
   db_finalize(&q);
 }
@@ -207,7 +228,7 @@ static void prepare_commit_comment(Blob *pComment){
     "#\n"
   );
   status_report(&text, "# ");
-  zEditor = db_global_get("editor", 0);
+  zEditor = db_get("editor", 0);
   if( zEditor==0 ){
     zEditor = getenv("VISUAL");
   }
@@ -220,7 +241,7 @@ static void prepare_commit_comment(Blob *pComment){
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                    g.zLocalRoot);
   blob_write_to_file(&text, zFile);
-  zCmd = mprintf("%s %s", zEditor, zFile);
+  zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
   if( system(zCmd) ){
     fossil_panic("editor aborted");
@@ -300,7 +321,7 @@ void select_commit_files(void){
 */
 void commit_cmd(void){
   int rc;
-  int vid, nrid, nvid;
+  int vid, nrid, nvid, wouldFork=0;
   Blob comment;
   const char *zComment;
   Stmt q;
@@ -308,6 +329,7 @@ void commit_cmd(void){
   char *zUuid, *zDate;
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
+  int forceFlag = 0;     /* Force a fork */
   char *zManifestFile;   /* Name of the manifest file */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -317,10 +339,16 @@ void commit_cmd(void){
  
   noSign = find_option("nosign","",0)!=0;
   zComment = find_option("comment","m",1);
+  forceFlag = find_option("force", "r", 0)!=0;
   db_must_be_within_tree();
-  noSign = db_get_int("omit-ci-sig", 0)|noSign;
+  noSign = db_get_int("omitsign", 0)|noSign;
   verify_all_options();
-
+  
+  /*
+  ** Autosync if requested.
+  */
+  autosync(1);
+  
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
   ** in the checked out directory are committed. If one or more arguments
@@ -340,7 +368,7 @@ void commit_cmd(void){
   user_select();
   db_begin_transaction();
   rc = unsaved_changes();
-  if( rc==0 && !isAMerge ){
+  if( rc==0 && !isAMerge && !forceFlag ){
     fossil_panic("nothing has changed");
   }
 
@@ -360,6 +388,12 @@ void commit_cmd(void){
   }
 
   vid = db_lget_int("checkout", 0);
+  if( db_exists("SELECT 1 FROM plink WHERE pid=%d", vid) ){
+    wouldFork=1;
+    if( forceFlag==0 && db_get_int("safemerge", 0)==0 ){
+      fossil_fatal("would fork.  use -f or --force");
+    }
+  }
   vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
@@ -507,5 +541,17 @@ void commit_cmd(void){
   undo_reset();
 
   /* Commit */
-  db_end_transaction(0);  
+  db_end_transaction(0);
+  
+  if( wouldFork==0 ){
+    /* Do an autosync push if requested. If wouldFork == 1, then they either
+    ** forced this commit or safe merge is on, and this commit did indeed
+    ** create a fork. In this case, we want the user to merge before sending
+    ** their new commit back to the rest of the world, so do not auto-push.
+    */
+    autosync(0);
+  }else{
+    printf("Warning: commit caused a fork to occur. Please merge and push\n");
+    printf("         your changes as soon as possible.\n");
+  }
 }

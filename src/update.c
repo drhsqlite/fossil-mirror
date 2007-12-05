@@ -29,59 +29,90 @@
 #include <assert.h>
 
 /*
+** Return true if artifact rid is a version
+*/
+int is_a_version(int rid){
+  return db_exists("SELECT 1 FROM plink WHERE cid=%d", rid);
+}
+
+/*
 ** COMMAND: update
 **
-** Usage: %fossil update ?VERSION?
+** Usage: %fossil update ?VERSION? ?--force? ?--latest?
 **
 ** The optional argument is a version that should become the current
 ** version.  If the argument is omitted, then use the leaf of the
 ** tree that begins with the current version, if there is only a 
-** single leaf.  
+** single leaf.  If there are a multiple leaves, the latest is used
+** if the --latest flag is present.
 **
 ** This command is different from the "checkout" in that edits are
 ** not overwritten.  Edits are merged into the new version.
 **
+** If there are uncommitted edits and the safemerge option is
+** enabled then no update will occur unless you provide the 
+** --force flag.
 */
 void update_cmd(void){
   int vid;              /* Current version */
-  int tid;              /* Target version - version we are changing to */
+  int tid=0;            /* Target version - version we are changing to */
   Stmt q;
+  int latestFlag;       /* Pick the latest version if true */
+  int forceFlag;        /* True force the update */
 
+  latestFlag = find_option("latest",0, 0)!=0;
+  forceFlag = find_option("force","f",0)!=0;
   if( g.argc!=3 && g.argc!=2 ){
     usage("?VERSION?");
   }
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    vid = 1;
+    fossil_fatal("cannot find current version");
   }
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
+  if( !forceFlag && db_get_int("safemerge", 0) && unsaved_changes() ){
+    fossil_fatal("there are uncommitted changes and safemerge is enabled");
+  }
+
   if( g.argc==3 ){
     tid = name_to_rid(g.argv[2]);
     if( tid==0 ){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
-    if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", tid) ){
+    if( !is_a_version(tid) ){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
-  }else{
+  }
+
+  if( tid==0 ){
+    /* 
+    ** Do an autosync pull prior to the update, if autosync is on and they
+    ** did not want a specific version (i.e. another branch, a past revision).
+    ** By not giving a specific version, they are asking for the latest, thus
+    ** pull to get the latest, then update.
+    */
+    autosync(1);
+  }
+  
+  if( tid==0 ){
     compute_leaves(vid);
-    if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
+    if( !latestFlag && db_int(0, "SELECT count(*) FROM leaves")>1 ){
       db_prepare(&q, 
-        "SELECT blob.rid, uuid, datetime(event.mtime,'localtime'),"
-        "       comment || ' (by ' || user || ')', 1, 1"
-        "  FROM event, blob"
-        " WHERE event.type='ci' AND blob.rid=event.objid"
+        "%s "
         "   AND event.objid IN leaves"
-        " ORDER BY event.mtime DESC"
+        " ORDER BY event.mtime DESC",
+        timeline_query_for_tty()
       );
       print_timeline(&q, 100);
       db_finalize(&q);
       fossil_fatal("Multiple descendents");
     }
-    tid = db_int(0, "SELECT rid FROM leaves"); 
+    tid = db_int(0, "SELECT rid FROM leaves, event"
+                    " WHERE event.objid=leaves.rid"
+                    " ORDER BY event.mtime DESC"); 
   }
 
   db_begin_transaction();
@@ -177,6 +208,7 @@ void update_cmd(void){
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
       Blob e, r, t, v;
+      int rc;
       char *zFullPath;
       printf("MERGE %s\n", zName);
       undo_save(zName);
@@ -185,13 +217,21 @@ void update_cmd(void){
       content_get(ridv, &v);
       blob_zero(&e);
       blob_read_from_file(&e, zFullPath);
-      blob_merge(&v, &e, &t, &r);
-      blob_write_to_file(&r, zFullPath);
+      rc = blob_merge(&v, &e, &t, &r);
+      if( rc>=0 ){
+        blob_write_to_file(&r, zFullPath);
+        if( rc>0 ){
+          printf("***** %d merge conflicts in %s\n", rc, zName);
+        }
+      }else{
+        printf("***** Cannot merge binary file %s\n", zName);
+      }
       free(zFullPath);
       blob_reset(&v);
       blob_reset(&e);
       blob_reset(&t);
       blob_reset(&r);
+      
     }
   }
   db_finalize(&q);
@@ -203,4 +243,100 @@ void update_cmd(void){
   manifest_to_disk(tid);
   db_lset_int("checkout", tid);
   db_end_transaction(0);
+}
+
+
+/*
+** Get the contents of a file within a given revision.
+*/
+int historical_version_of_file(
+  const char *revision,    /* The baseline name containing the file */
+  const char *file,        /* Full treename of the file */
+  Blob *content            /* Put the content here */
+){
+  Blob mfile;
+  Manifest m;
+  int i, rid=0;
+  
+  rid = name_to_rid(revision);
+  content_get(rid, &mfile);
+  
+  if( manifest_parse(&m, &mfile) ){
+    for(i=0; i<m.nFile; i++){
+      if( strcmp(m.aFile[i].zName, file)==0 ){
+        rid = uuid_to_rid(m.aFile[i].zUuid, 0);
+        return content_get(rid, content);
+      }
+    }
+    fossil_fatal("file %s does not exist in baseline: %s", file, revision);
+  }else{
+    fossil_panic("could not parse manifest for baseline: %s", revision);
+  }
+  return 0;
+}
+
+
+/*
+** COMMAND: revert
+**
+** Usage: %fossil revert ?--yes? ?-r REVISION? FILE
+**
+** Revert to the current repository version of FILE, or to
+** the version associated with baseline REVISION if the -r flag
+** appears.  This command will confirm your operation unless the
+** file is missing or the --yes option is used.
+**/
+void revert_cmd(void){
+  const char *zFile;
+  const char *zRevision;
+  Blob fname;
+  Blob record;
+  Blob ans;
+  int rid = 0, yesRevert;
+  
+  yesRevert = find_option("yes", "y", 0)!=0;
+  zRevision = find_option("revision", "r", 1);
+  verify_all_options();
+  
+  if( g.argc<3 ){
+    usage("?OPTIONS FILE");
+  }
+  db_must_be_within_tree();
+  
+  zFile = mprintf("%/", g.argv[g.argc-1]);
+
+  if( !file_tree_name(zFile, &fname) ){
+    fossil_panic("unknown file: %s", zFile);
+  }
+
+  if( access(zFile, 0) ) yesRevert = 1;  
+  if( yesRevert==0 ){
+    char *prompt = mprintf("revert file %B? this will"
+                           " destroy local changes [y/N]? ",
+                           &fname);
+    blob_zero(&ans);
+    prompt_user(prompt, &ans);
+    if( blob_str(&ans)[0]=='y' ){
+      yesRevert = 1;
+    }
+  }
+
+  if( yesRevert==1 && zRevision!=0 ){
+    historical_version_of_file(zRevision, zFile, &record);
+  }else if( yesRevert==1 ){
+    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+    if( rid==0 ){
+      fossil_panic("no history for file: %b", &fname);
+    }
+    content_get(rid, &record);
+  }
+  
+  if( yesRevert==1 ){
+    blob_write_to_file(&record, zFile);
+    printf("%s reverted\n", zFile);
+    blob_reset(&record);
+    blob_reset(&fname);
+  }else{
+    printf("revert canceled\n");
+  }
 }

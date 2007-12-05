@@ -142,7 +142,7 @@ void reconstruct_cmd(void){
   db_open_config();
   db_begin_transaction();
 
-  db_initial_setup(0);
+  db_initial_setup(0, 1);
 
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
@@ -156,7 +156,7 @@ void reconstruct_cmd(void){
 	 "file" : "files");
 
   /* Finalize the repository, rebuild the derived tables */
-  errCnt = rebuild_db ();
+  errCnt = rebuild_db(0, 0);
 
   if( errCnt ){
     printf("%d %s. Rolling back changes.\n", errCnt, errCnt == 1 ?

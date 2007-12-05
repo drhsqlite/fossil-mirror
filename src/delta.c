@@ -336,7 +336,7 @@ int delta_create(
   base = 0;    /* We have already generated everything before zOut[base] */
   while( base+NHASH<lenOut ){
     int iSrc, iBlock;
-    unsigned int bestCnt, bestOfst, bestLitsz;
+    unsigned int bestCnt, bestOfst=0, bestLitsz=0;
     hash_init(&h, &zOut[base]);
     i = 0;     /* Trying to match a landmark against zOut[base+i] */
     bestCnt = 0;

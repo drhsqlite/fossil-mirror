@@ -51,6 +51,13 @@ struct Blob {
 */
 #define blob_buffer(X)  ((X)->aData)
 
+/*
+** Seek whence parameter values
+*/
+#define BLOB_SEEK_SET 1
+#define BLOB_SEEK_CUR 2
+#define BLOB_SEEK_END 3
+
 #endif /* INTERFACE */
 
 /*
@@ -343,6 +350,33 @@ void blob_rewind(Blob *p){
 }
 
 /*
+** Seek the cursor in a blob to the indicated offset.
+*/
+int blob_seek(Blob *p, int offset, int whence){
+  if( whence==BLOB_SEEK_SET ){
+    p->iCursor = offset;
+  }else if( whence==BLOB_SEEK_CUR ){
+    p->iCursor += offset;
+  }else if( whence==BLOB_SEEK_END ){
+    p->iCursor = p->nUsed + offset - 1;
+  }
+  if( p->iCursor<0 ){
+    p->iCursor = 0;
+  }
+  if( p->iCursor>p->nUsed ){
+    p->iCursor = p->nUsed;
+  }
+  return p->iCursor;
+}
+
+/*
+** Return the current offset into the blob
+*/
+int blob_tell(Blob *p){
+  return p->iCursor;
+}
+
+/*
 ** Extract a single line of text from pFrom beginning at the current 
 ** cursor location and use that line of text to initialize pTo.
 ** pTo will include the terminating \n.  Return the number of bytes
@@ -370,9 +404,27 @@ int blob_line(Blob *pFrom, Blob *pTo){
 }
 
 /*
+** Trim whitespace off of the end of a blob.  Return the number
+** of characters remaining.
+**
+** All this does is reduce the length counter.  This routine does
+** not insert a new zero terminator.
+*/
+int blob_trim(Blob *p){
+  char *z = p->aData;
+  int n = p->nUsed;
+  while( n>0 && isspace(z[n-1]) ){ n--; }
+  p->nUsed = n;
+  return n;
+}
+
+/*
 ** Extract a single token from pFrom and use it to initialize pTo.
 ** Return the number of bytes in the token.  If no token is found,
 ** return 0.
+**
+** A token consists of one or more non-space characters.  Leading
+** whitespace is ignored.
 **
 ** The cursor of pFrom is left pointing at the first character past
 ** the end of the token.
@@ -403,6 +455,36 @@ int blob_tail(Blob *pFrom, Blob *pTo){
   blob_extract(pFrom, pFrom->nUsed-pFrom->iCursor, pTo);
   pFrom->iCursor = iCursor;
   return pTo->nUsed;
+}
+
+/*
+** Copy N lines of text from pFrom into pTo.  The copy begins at the
+** current cursor position of pIn.  The pIn cursor is left pointing
+** at the first character past the last \n copied.
+**
+** If pTo==NULL then this routine simply skips over N lines.
+*/
+void blob_copy_lines(Blob *pTo, Blob *pFrom, int N){
+  char *z = pFrom->aData;
+  int i = pFrom->iCursor;
+  int n = pFrom->nUsed;
+  int cnt = 0;
+
+  if( N==0 ) return;
+  while( i<n ){
+    if( z[i]=='\n' ){
+      cnt++;
+      if( cnt==N ){
+        i++;
+        break;
+      }
+    }
+    i++;
+  }
+  if( pTo ){
+    blob_append(pTo, &pFrom->aData[pFrom->iCursor], i - pFrom->iCursor);
+  }
+  pFrom->iCursor = i;
 }
 
 /*
@@ -459,28 +541,17 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
   return i;
 }
 
-/* 
-** This function implements the callback from vxprintf. 
-**
-** This routine add nNewChar characters of text in zNewText to
-** the Blob structure pointed to by "arg".
-*/
-static void bout(void *arg, const char *zNewText, int nNewChar){
-  Blob *pBlob = (Blob*)arg;
-  blob_append(pBlob, zNewText, nNewChar);
-}
-
 /*
 ** Do printf-style string rendering and append the results to a blob.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
   va_list ap;
   va_start(ap, zFormat);
-  vxprintf(bout, pBlob, zFormat, ap);
+  vxprintf(pBlob, zFormat, ap);
   va_end(ap);
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  vxprintf(bout, pBlob, zFormat, ap);
+  vxprintf(pBlob, zFormat, ap);
 }
 
 /*
@@ -573,9 +644,20 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-        if( file_mkdir(zName, 1) ){
-          fossil_panic("unable to create directory %s", zName);
+#ifdef __MINGW32__
+        /*
+        ** On Windows, local path looks like: C:/develop/project/file.txt
+        ** The if stops us from trying to create a directory of a drive letter
+        ** C: in this example.
+        */
+        if( !(i==2 && zName[1]==':') ){
+#endif
+          if( file_mkdir(zName, 1) ){
+            fossil_panic("unable to create directory %s", zName);
+          }
+#ifdef __MINGW32__
         }
+#endif
         zName[i] = '/';
       }
     }

@@ -46,7 +46,9 @@ void merge_cmd(void){
   int mid;              /* Version we are merging against */
   int pid;              /* The pivot version - most recent common ancestor */
   Stmt q;
+  int detailFlag;
 
+  detailFlag = find_option("detail",0,0)!=0;
   if( g.argc!=3 ){
     usage("VERSION");
   }
@@ -217,7 +219,7 @@ void merge_cmd(void){
   ** Do a three-way merge on files that have changes pid->mid and pid->vid
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp FROM fv"
+    "SELECT ridm, idv, ridp, ridv FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)"
   );
@@ -225,20 +227,33 @@ void merge_cmd(void){
     int ridm = db_column_int(&q, 0);
     int idv = db_column_int(&q, 1);
     int ridp = db_column_int(&q, 2);
+    int ridv = db_column_int(&q, 3);
+    int rc;
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
     char *zFullPath;
     Blob m, p, v, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
-    printf("MERGE %s\n", zName);
+    if( detailFlag ){
+      printf("MERGE %s  (pivot=%d v1=%d v2=%d)\n", zName, ridp, ridm, ridv);
+    }else{
+      printf("MERGE %s\n", zName);
+    }
     undo_save(zName);
     zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
-    free(zName);
     content_get(ridp, &p);
     content_get(ridm, &m);
     blob_zero(&v);
     blob_read_from_file(&v, zFullPath);
-    blob_merge(&p, &m, &v, &r);
-    blob_write_to_file(&r, zFullPath);
+    rc = blob_merge(&p, &m, &v, &r);
+    if( rc>=0 ){
+      blob_write_to_file(&r, zFullPath);
+      if( rc>0 ){
+        printf("***** %d merge conflicts in %s\n", rc, zName);
+      }
+    }else{
+      printf("***** Cannot merge binary file %s\n", zName);
+    }
+    free(zName);
     blob_reset(&p);
     blob_reset(&m);
     blob_reset(&v);

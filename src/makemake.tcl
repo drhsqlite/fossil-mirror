@@ -9,6 +9,7 @@ set src {
   add
   bag
   blob
+  branch
   cgi
   checkin
   checkout
@@ -38,12 +39,18 @@ set src {
   pqueue
   printf
   rebuild
+  rss
   schema
   setup
   sha1
   style
+  subscript
   sync
+  tag
   timeline
+  tkt
+  tktconfig
+  tktsetup
   undo
   update
   url
@@ -113,9 +120,14 @@ mkindex:	$(SRCDIR)/mkindex.c
 test:	$(APPNAME)
 	$(TCLSH) test/tester.tcl $(APPNAME)
 
-VERSION.h:	$(SRCDIR)/../manifest.uuid
+VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}' \
 		$(SRCDIR)/../manifest.uuid >VERSION.h
+	awk '{ printf "#define MANIFEST_VERSION \"[%.10s]\"\n", $$1}' \
+		$(SRCDIR)/../manifest.uuid >>VERSION.h
+	awk '$$1=="D"{printf "#define MANIFEST_DATE \"%s %s\"\n",\
+		substr($$2,1,10),substr($$2,12)}' \
+		$(SRCDIR)/../manifest >>VERSION.h
 
 $(APPNAME):	headers $(OBJ) sqlite3.o
 	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o $(LIB)
@@ -152,5 +164,6 @@ foreach s [lsort $src] {
 
 puts "sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_PRIVATE=}
-append opt " -DTHREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
+append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
+append opt " -DSQLITE_ENABLE_FTS3=1"
 puts "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o sqlite3.o\n"

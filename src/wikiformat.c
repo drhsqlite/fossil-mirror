@@ -33,41 +33,45 @@
 */
 #define WIKI_NOFOLLOW       0x001
 #define WIKI_HTML           0x002
+#define WIKI_INLINE         0x004  /* Do not surround with <p>..</p> */
+#define WIKI_NOBLOCK        0x008  /* No block markup of any kind */
 #endif
 
 
 /*
 ** These are the only markup attributes allowed.
 */
-#define ATTR_ALIGN              0x000001
-#define ATTR_ALT                0x000002
-#define ATTR_BGCOLOR            0x000004
-#define ATTR_BORDER             0x000008
-#define ATTR_CELLPADDING        0x000010
-#define ATTR_CELLSPACING        0x000020
-#define ATTR_CLEAR              0x000040
-#define ATTR_COLOR              0x000080
-#define ATTR_COLSPAN            0x000100
-#define ATTR_COMPACT            0x000200
-#define ATTR_FACE               0x000400
-#define ATTR_HEIGHT             0x000800
-#define ATTR_HREF               0x001000
-#define ATTR_HSPACE             0x002000
-#define ATTR_ID                 0x004000
-#define ATTR_ROWSPAN            0x008000
-#define ATTR_SIZE               0x010000
-#define ATTR_SRC                0x020000
-#define ATTR_START              0x040000
-#define ATTR_TYPE               0x080000
-#define ATTR_VALIGN             0x100000
-#define ATTR_VALUE              0x200000
-#define ATTR_VSPACE             0x400000
-#define ATTR_WIDTH              0x800000
+#define ATTR_ALIGN              0x0000001
+#define ATTR_ALT                0x0000002
+#define ATTR_BGCOLOR            0x0000004
+#define ATTR_BORDER             0x0000008
+#define ATTR_CELLPADDING        0x0000010
+#define ATTR_CELLSPACING        0x0000020
+#define ATTR_CLEAR              0x0000040
+#define ATTR_COLOR              0x0000080
+#define ATTR_COLSPAN            0x0000100
+#define ATTR_COMPACT            0x0000200
+#define ATTR_FACE               0x0000400
+#define ATTR_HEIGHT             0x0000800
+#define ATTR_HREF               0x0001000
+#define ATTR_HSPACE             0x0002000
+#define ATTR_ID                 0x0004000
+#define ATTR_NAME               0x0008000
+#define ATTR_ROWSPAN            0x0010000
+#define ATTR_SIZE               0x0020000
+#define ATTR_SRC                0x0040000
+#define ATTR_START              0x0080000
+#define ATTR_TYPE               0x0100000
+#define ATTR_VALIGN             0x0200000
+#define ATTR_VALUE              0x0400000
+#define ATTR_VSPACE             0x0800000
+#define ATTR_WIDTH              0x1000000
 
 static const struct AllowedAttribute {
   const char *zName;
   unsigned int iMask;
 } aAttribute[] = {
+  { 0, 0 },
   { "align",         ATTR_ALIGN,          },
   { "alt",           ATTR_ALT,            },
   { "bgcolor",       ATTR_BGCOLOR,        },
@@ -83,6 +87,7 @@ static const struct AllowedAttribute {
   { "href",          ATTR_HREF,           },
   { "hspace",        ATTR_HSPACE,         },
   { "id",            ATTR_ID,             },
+  { "name",          ATTR_NAME,           },
   { "rowspan",       ATTR_ROWSPAN,        },
   { "size",          ATTR_SIZE,           },
   { "src",           ATTR_SRC,            },
@@ -99,13 +104,13 @@ static const struct AllowedAttribute {
 */
 static int findAttr(const char *z){
   int i, c, first, last;
-  first = 0;
+  first = 1;
   last = sizeof(aAttribute)/sizeof(aAttribute[0]) - 1;
   while( first<=last ){
     i = (first+last)/2;
     c = strcmp(aAttribute[i].zName, z);
     if( c==0 ){
-      return aAttribute[i].iMask;
+      return i;
     }else if( c<0 ){
       first = i+1;
     }else{
@@ -125,54 +130,54 @@ static int findAttr(const char *z){
 ** The value for MARKUP_XYZ must correspond to the <xyz> entry 
 ** in aAllowedMarkup[].
 */
-#define MARKUP_INVALID         255
-#define MARKUP_A                 0
-#define MARKUP_ADDRESS           1
-#define MARKUP_BIG               2
-#define MARKUP_BLOCKQUOTE        3
-#define MARKUP_B                 4
-#define MARKUP_BR                5
-#define MARKUP_CENTER            6
-#define MARKUP_CITE              7
-#define MARKUP_CODE              8
-#define MARKUP_DD                9
-#define MARKUP_DFN              10
-#define MARKUP_DL               11
-#define MARKUP_DT               12
-#define MARKUP_EM               13
-#define MARKUP_FONT             14
-#define MARKUP_H1               15
-#define MARKUP_H2               16
-#define MARKUP_H3               17
-#define MARKUP_H4               18
-#define MARKUP_H5               19
-#define MARKUP_H6               20
-#define MARKUP_HR               21
-#define MARKUP_IMG              22
-#define MARKUP_I                23
-#define MARKUP_KBD              24
-#define MARKUP_LI               25
-#define MARKUP_NOBR             26
-#define MARKUP_NOWIKI           27
-#define MARKUP_OL               28
-#define MARKUP_P                29
-#define MARKUP_PRE              30
-#define MARKUP_SAMP             31
-#define MARKUP_SMALL            32
-#define MARKUP_S                33
-#define MARKUP_STRIKE           34
-#define MARKUP_STRONG           35
-#define MARKUP_SUB              36
-#define MARKUP_SUP              37
-#define MARKUP_TABLE            38
-#define MARKUP_TD               39
-#define MARKUP_TH               40
-#define MARKUP_TR               41
-#define MARKUP_TT               42
-#define MARKUP_UL               43
+#define MARKUP_INVALID           0
+#define MARKUP_A                 1
+#define MARKUP_ADDRESS           2
+#define MARKUP_B                 3
+#define MARKUP_BIG               4
+#define MARKUP_BLOCKQUOTE        5
+#define MARKUP_BR                6
+#define MARKUP_CENTER            7
+#define MARKUP_CITE              8
+#define MARKUP_CODE              9
+#define MARKUP_DD               10
+#define MARKUP_DFN              11
+#define MARKUP_DL               12
+#define MARKUP_DT               13
+#define MARKUP_EM               14
+#define MARKUP_FONT             15
+#define MARKUP_H1               16
+#define MARKUP_H2               17
+#define MARKUP_H3               18
+#define MARKUP_H4               19
+#define MARKUP_H5               20
+#define MARKUP_H6               21
+#define MARKUP_HR               22
+#define MARKUP_IMG              23
+#define MARKUP_I                24
+#define MARKUP_KBD              25
+#define MARKUP_LI               26
+#define MARKUP_NOBR             27
+#define MARKUP_NOWIKI           28
+#define MARKUP_OL               29
+#define MARKUP_P                30
+#define MARKUP_PRE              31
+#define MARKUP_S                32
+#define MARKUP_SAMP             33
+#define MARKUP_SMALL            34
+#define MARKUP_STRIKE           35
+#define MARKUP_STRONG           36
+#define MARKUP_SUB              37
+#define MARKUP_SUP              38
+#define MARKUP_TABLE            39
+#define MARKUP_TD               40
+#define MARKUP_TH               41
+#define MARKUP_TR               42
+#define MARKUP_TT               43
 #define MARKUP_U                44
-#define MARKUP_VAR              45
-#define MARKUP_VERBATIM         46
+#define MARKUP_UL               45
+#define MARKUP_VAR              46
+#define MARKUP_VERBATIM         47
 
 /*
 ** The various markup is divided into the following types:
@@ -180,7 +185,6 @@ static int findAttr(const char *z){
 #define MUTYPE_SINGLE      0x0001   /* <img>, <br>, or <hr> */
 #define MUTYPE_BLOCK       0x0002   /* Forms a new paragraph. ex: <p>, <h2> */
 #define MUTYPE_FONT        0x0004   /* Font changes. ex: <b>, <font>, <sub> */
-#define MUTYPE_LINK        0x0008   /* Hyperlink: <a> */
 #define MUTYPE_LIST        0x0010   /* Lists.  <ol>, <ul>, or <dl> */
 #define MUTYPE_LI          0x0020   /* List items.  <li>, <dd>, <dt> */
 #define MUTYPE_TABLE       0x0040   /* <table> */
@@ -189,7 +193,15 @@ static int findAttr(const char *z){
 #define MUTYPE_SPECIAL     0x0200   /* <nowiki> or <verbatim> */
 #define MUTYPE_HYPERLINK   0x0400   /* <a> */
 
+/*
+** These markup types must have an end tag.
+*/
 #define MUTYPE_STACK  (MUTYPE_BLOCK | MUTYPE_FONT | MUTYPE_LIST | MUTYPE_TABLE)
+
+/*
+** This markup types are allowed for "inline" text.
+*/
+#define MUTYPE_INLINE (MUTYPE_FONT | MUTYPE_HYPERLINK)
 
 static const struct AllowedMarkup {
   const char *zName;       /* Name of the markup */
@@ -197,11 +209,13 @@ static const struct AllowedMarkup {
   short int iType;         /* The MUTYPE_* code */
   int allowedAttr;         /* Allowed attributes on this markup */
 } aMarkup[] = {
- { "a",             MARKUP_A,            MUTYPE_HYPERLINK,     ATTR_HREF },
+ { 0,               MARKUP_INVALID,      0,                    0  },
+ { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
+                    ATTR_HREF|ATTR_NAME },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
+ { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
  { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         0  },
- { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "br",            MARKUP_BR,           MUTYPE_SINGLE,        ATTR_CLEAR  },
  { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         0  },
  { "cite",          MARKUP_CITE,         MUTYPE_FONT,          0  },
@@ -234,9 +248,9 @@ static const struct AllowedMarkup {
                     ATTR_START|ATTR_TYPE|ATTR_COMPACT  },
  { "p",             MARKUP_P,            MUTYPE_BLOCK,         ATTR_ALIGN  },
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
+ { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
  { "small",         MARKUP_SMALL,        MUTYPE_FONT,          0  },
- { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          0  },
  { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          0  },
  { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
@@ -253,9 +267,9 @@ static const struct AllowedMarkup {
  { "tr",            MARKUP_TR,           MUTYPE_TR, 
                     ATTR_ALIGN|ATTR_BGCOLOR||ATTR_VALIGN  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
+ { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,          
                     ATTR_TYPE|ATTR_COMPACT  },
- { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       ATTR_ID },
 };
@@ -265,7 +279,7 @@ static const struct AllowedMarkup {
 */
 static int findTag(const char *z){
   int i, c, first, last;
-  first = 0;
+  first = 1;
   last = sizeof(aMarkup)/sizeof(aMarkup[0]) - 1;
   while( first<=last ){
     i = (first+last)/2;
@@ -298,11 +312,31 @@ static int findTag(const char *z){
 /*
 ** State flags
 */
-#define AT_NEWLINE        0x001  /* At start of a line */
-#define AT_PARAGRAPH      0x002  /* At start of a paragraph */
-#define ALLOW_WIKI        0x004  /* Allow wiki markup */
-#define FONT_MARKUP_ONLY  0x008  /* Only allow MUTYPE_FONT markup */
-#define IN_LIST           0x010  /* Within <ul> */
+#define AT_NEWLINE          0x001  /* At start of a line */
+#define AT_PARAGRAPH        0x002  /* At start of a paragraph */
+#define ALLOW_WIKI          0x004  /* Allow wiki markup */
+#define FONT_MARKUP_ONLY    0x008  /* Only allow MUTYPE_FONT markup */
+#define INLINE_MARKUP_ONLY  0x010  /* Allow only "inline" markup */
+#define IN_LIST             0x020  /* Within wiki <ul> or <ol> */
+
+/*
+** Current state of the rendering engine
+*/
+typedef struct Renderer Renderer;
+struct Renderer {
+  Blob *pOut;                 /* Output appended to this blob */
+  int state;                  /* Flag that govern rendering */
+  int wikiList;               /* Current wiki list type */
+  int inVerbatim;             /* True in <verbatim> mode */
+  int preVerbState;           /* Value of state prior to verbatim */
+  int wantAutoParagraph;      /* True if a <p> is desired */
+  int inAutoParagraph;        /* True if within an automatic paragraph */
+  const char *zVerbatimId;    /* The id= attribute of <verbatim> */
+  int nStack;                 /* Number of elements on the stack */
+  int nAlloc;                 /* Space allocated for aStack */
+  unsigned char *aStack;      /* Open markup stack */
+};
+
 
 /*
 ** z points to a "<" character.  Check to see if this is the start of
@@ -315,7 +349,7 @@ static int markupLength(const char *z){
   int inparen = 0;
   if( z[n]=='/' ){ n++; }
   if( !isalpha(z[n]) ) return 0;
-  while( isalpha(z[n]) ){ n++; }
+  while( isalnum(z[n]) ){ n++; }
   if( z[n]!='>' && !isspace(z[n]) ) return 0;
   while( z[n] && (z[n]!='>' || inparen) ){
     if( z[n]=='"' ){
@@ -414,6 +448,42 @@ static int bulletLength(const char *z){
 }
 
 /*
+** Check to see if the z[] string is the beginning of a enumeration value.
+** If it is, return the length of the bullet text.  Otherwise return 0.
+**
+** Syntax:
+**    *  a tab or two or more spaces
+**    *  one or more digits
+**    *  optional "."
+**    *  another tab or two ore more spaces.
+**
+*/
+static int enumLength(const char *z){
+  int i, n;
+  n = 0;
+  i = 0;
+  while( z[n]==' ' || z[n]=='\t' ){
+    if( z[n]=='\t' ) i++;
+    i++;
+    n++;
+  }
+  if( i<2 ) return 0;
+  for(i=0; isdigit(z[n]); i++, n++){}
+  if( i==0 ) return 0;
+  if( z[n]=='.' ){
+    n++;
+  }
+  i = 0;
+  while( z[n]==' ' || z[n]=='\t' ){
+    if( z[n]=='\t' ) i++;
+    i++;
+    n++;
+  }
+  if( i<2 || isspace(z[n]) ) return 0;
+  return n;
+}
+
+/*
 ** Check to see if the z[] string is the beginning of an indented
 ** paragraph.  If it is, return the length of the indent.  Otherwise
 ** return 0.
@@ -451,7 +521,7 @@ static int linkLength(const char *z){
 ** z points to the start of a token.  Return the number of
 ** characters in that token.  Write the token type into *pTokenType.
 */
-static int nextToken(const char *z, int state, int *pTokenType){
+static int nextToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
     n = markupLength(z);
@@ -463,11 +533,11 @@ static int nextToken(const char *z, int state, int *pTokenType){
       return 1;
     }
   }
-  if( z[0]=='&' && !isElement(z) ){
+  if( z[0]=='&' && (p->inVerbatim || !isElement(z)) ){
     *pTokenType = TOKEN_CHARACTER;
     return 1;
   }
-  if( (state & ALLOW_WIKI)!=0 ){
+  if( (p->state & ALLOW_WIKI)!=0 ){
     if( z[0]=='\n' ){
       n = paragraphBreakLength(z);
       if( n>0 ){
@@ -478,22 +548,19 @@ static int nextToken(const char *z, int state, int *pTokenType){
         return 1;
       }
     }
-    if( (state & AT_NEWLINE)!=0 /* && (state & (AT_PARAGRAPH|IN_LIST))!=0 */
-             && isspace(z[0]) ){
+    if( (p->state & AT_NEWLINE)!=0 && isspace(z[0]) ){
       n = bulletLength(z);
       if( n>0 ){
         *pTokenType = TOKEN_BULLET;
         return n;
       }
-#if 0
       n = enumLength(z);
       if( n>0 ){
         *pTokenType = TOKEN_ENUM;
         return n;
       }
-#endif
     }
-    if( (state & AT_PARAGRAPH)!=0 && isspace(z[0]) ){
+    if( (p->state & AT_PARAGRAPH)!=0 && isspace(z[0]) ){
       n = indentLength(z);
       if( n>0 ){
         *pTokenType = TOKEN_INDENT;
@@ -506,7 +573,7 @@ static int nextToken(const char *z, int state, int *pTokenType){
     }
   }
   *pTokenType = TOKEN_TEXT;
-  return 1 + textLength(z+1, state & ALLOW_WIKI);
+  return 1 + textLength(z+1, p->state & ALLOW_WIKI);
 }
 
 /*
@@ -606,7 +673,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
   }else{
     blob_appendf(pOut, "<%s", aMarkup[p->iCode].zName);
     for(i=0; i<p->nAttr; i++){
-      blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iCode]);
+      blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iCode].zName);
       if( p->aAttr[i].zValue ){
         blob_appendf(pOut, "=\"%s\"", p->aAttr[i].zValue);
       }
@@ -629,21 +696,6 @@ static void unparseMarkup(ParsedMarkup *p){
     z[n] = p->aAttr[i].cTerm;
   }
 }
-
-/*
-** Current state of the rendering engine
-*/
-typedef struct Renderer Renderer;
-struct Renderer {
-  Blob *pOut;                 /* Output appended to this blob */
-  int state;                  /* Flag that govern rendering */
-  int inVerbatim;             /* True in <verbatim> mode */
-  int preVerbState;           /* Value of state prior to verbatim */
-  const char *zVerbatimId;    /* The id= attribute of <verbatim> */
-  int nStack;                 /* Number of elements on the stack */
-  int nAlloc;                 /* Space allocated for aStack */
-  unsigned char *aStack;      /* Open markup stack */
-};
 
 /*
 ** Pop a single element off of the stack.  As the element is popped,
@@ -688,9 +740,10 @@ static void popStackToTag(Renderer *p, int iTag){
 /*
 ** Pop the stack until the top-most element of the stack
 ** is an element that matches the type in iMask.  Return
-** true on success.  If the stack does not have an element
+** code of the markup element that is on left on top of the stack.
+** If the stack does not have an element
 ** that matches iMask, then leave the stack unchanged and
-** return false.
+** return false (MARKUP_INVALID).
 */
 static int backupToType(Renderer *p, int iMask){
   int i;
@@ -700,17 +753,39 @@ static int backupToType(Renderer *p, int iMask){
   while( p->nStack>i ){
     popStack(p);
   }
-  return 1;
+  return p->aStack[i-1];
 }
 
 /*
-** Add missing markup in preparation for writing text.
-**
-** "Missing" markup are things like start tags for table rows
-** or table columns or paragraphs that are omitted from input.
+** Begin a new paragraph if that something that is needed.
 */
-static void addMissingMarkup(Renderer *p){
-  /* TBD */
+static void startAutoParagraph(Renderer *p){
+  if( p->wantAutoParagraph==0 ) return;
+  blob_appendf(p->pOut, "<p>", -1);
+  pushStack(p, MARKUP_P);
+  p->wantAutoParagraph = 0;
+  p->inAutoParagraph = 1;
+}
+
+/*
+** End a paragraph if we are in one.
+*/
+static void endAutoParagraph(Renderer *p){
+  if( p->inAutoParagraph ){
+    popStackToTag(p, MARKUP_P);
+    p->inAutoParagraph = 0;
+  }
+}
+
+/*
+** If the input string corresponds to an existing baseline,
+** return true.
+*/
+static int is_valid_uuid(const char *z){
+  int n = strlen(z);
+  if( n<4 || n>UUID_SIZE ) return 0;
+  if( !validate16(z, n) ) return 0;
+  return 1;
 }
 
 /*
@@ -718,7 +793,21 @@ static void addMissingMarkup(Renderer *p){
 ** in the wiki.  Append the URL to the output of the Renderer.
 */
 static void resolveHyperlink(const char *zTarget, Renderer *p){
-  blob_appendf(p->pOut, "http://www.fossil-scm.org/test-%T", zTarget);
+  if( strncmp(zTarget, "http:", 5)==0 
+   || strncmp(zTarget, "https:", 6)==0
+   || strncmp(zTarget, "ftp:", 4)==0 
+   || strncmp(zTarget, "mailto:", 7)==0
+  ){
+    blob_appendf(p->pOut, zTarget);
+  }else if( zTarget[0]=='/' ){
+    blob_appendf(p->pOut, "%s%h", g.zBaseURL, zTarget);
+  }else if( is_valid_uuid(zTarget) ){
+    blob_appendf(p->pOut, "%s/info/%s", g.zBaseURL, zTarget);
+  }else if( wiki_name_is_wellformed(zTarget) ){
+    blob_appendf(p->pOut, "%s/wiki?name=%T", g.zBaseURL, zTarget);
+  }else{
+    blob_appendf(p->pOut, "error");
+  }
 }
 
 /*
@@ -754,15 +843,26 @@ static void wiki_render(Renderer *p, char *z){
   int tokenType;
   ParsedMarkup markup;
   int n;
+  int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
 
   while( z[0] ){
-    n = nextToken(z, p->state, &tokenType);
+    n = nextToken(z, p, &tokenType);
     p->state &= ~(AT_NEWLINE|AT_PARAGRAPH);
     switch( tokenType ){
       case TOKEN_PARAGRAPH: {
-        blob_append(p->pOut, "\n\n<p>", -1);
+        if( inlineOnly ){
+          /* blob_append(p->pOut, " &para; ", -1); */
+          blob_append(p->pOut, " &nbsp;&nbsp; ", -1);
+        }else{
+          if( p->wikiList ){
+            popStackToTag(p, p->wikiList);
+            p->wikiList = 0;
+          }
+          endAutoParagraph(p);
+          blob_appendf(p->pOut, "\n\n", 1);
+          p->wantAutoParagraph = 1;
+        }
         p->state |= AT_PARAGRAPH|AT_NEWLINE;
-        popStackToTag(p, MARKUP_P);
         break;
       }
       case TOKEN_NEWLINE: {
@@ -771,15 +871,55 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_BULLET: {
-        if( backupToType(p, MUTYPE_LIST)==0 ){
-          pushStack(p, MARKUP_UL);
-          blob_append(p->pOut, "<ul>", 4);
+        if( inlineOnly ){
+          blob_append(p->pOut, " &#149; ", -1);
+        }else{
+          if( p->wikiList!=MARKUP_UL ){
+            if( p->wikiList ){
+              popStackToTag(p, p->wikiList);
+            }
+            pushStack(p, MARKUP_UL);
+            blob_append(p->pOut, "<ul>", 4);
+            p->wikiList = MARKUP_UL;
+          }
+          popStackToTag(p, MARKUP_LI);
+          startAutoParagraph(p);
+          pushStack(p, MARKUP_LI);
+          blob_append(p->pOut, "<li>", 4);
         }
-        pushStack(p, MARKUP_LI);
-        blob_append(p->pOut, "<li>", 4);
+        break;
+      }
+      case TOKEN_ENUM: {
+        if( inlineOnly ){
+          blob_appendf(p->pOut, " (%d) ", atoi(z));
+        }else{
+          if( p->wikiList!=MARKUP_OL ){
+            if( p->wikiList ){
+              popStackToTag(p, p->wikiList);
+            }
+            pushStack(p, MARKUP_OL);
+            blob_append(p->pOut, "<ol>", 4);
+            p->wikiList = MARKUP_OL;
+          }
+          popStackToTag(p, MARKUP_LI);
+          startAutoParagraph(p);
+          pushStack(p, MARKUP_LI);
+          blob_appendf(p->pOut, "<li value=\"%d\">", atoi(z));
+        }
+        break;
+      }
+      case TOKEN_INDENT: {
+        if( inlineOnly ){
+          assert( p->wikiList==0 );
+          pushStack(p, MARKUP_BLOCKQUOTE);
+          blob_append(p->pOut, "<blockquote>", -1);
+          p->wantAutoParagraph = 0;
+          p->wikiList = MARKUP_BLOCKQUOTE;
+        }
         break;
       }
       case TOKEN_CHARACTER: {
+        startAutoParagraph(p);
         if( z[0]=='<' ){
           blob_append(p->pOut, "&lt;", 4);
         }else if( z[0]=='&' ){
@@ -790,14 +930,15 @@ static void wiki_render(Renderer *p, char *z){
       case TOKEN_LINK: {
         char *zTarget;
         char *zDisplay = 0;
-        int i;
+        int i, j;
         int savedState;
-        addMissingMarkup(p);
+        startAutoParagraph(p);
         zTarget = &z[1];
         for(i=1; z[i] && z[i]!=']'; i++){
           if( z[i]=='|' && zDisplay==0 ){
             zDisplay = &z[i+1];
             z[i] = 0;
+            for(j=i-1; j>0 && isspace(z[j]); j--){ z[j] = 0; }
           }
         }
         z[i] = 0;
@@ -818,7 +959,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_TEXT: {
-        addMissingMarkup(p);
+        startAutoParagraph(p);
         blob_append(p->pOut, z, n);
         break;
       }
@@ -835,16 +976,20 @@ static void wiki_render(Renderer *p, char *z){
             n = 1;
           }
         }else if( markup.iCode==MARKUP_INVALID ){
+          unparseMarkup(&markup);
+          startAutoParagraph(p);
           blob_append(p->pOut, "&lt;", 4);
           n = 1;
         }else if( (markup.iType&MUTYPE_FONT)==0
                     && (p->state & FONT_MARKUP_ONLY)!=0 ){
           /* Do nothing */
+        }else if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
+          /* Do nothing */
         }else if( markup.iCode==MARKUP_NOWIKI ){
           if( markup.endTag ){
             p->state |= ALLOW_WIKI;
           }else{
-            p->state &= ALLOW_WIKI;
+            p->state &= ~ALLOW_WIKI;
           }
         }else if( markup.endTag ){
           popStackToTag(p, markup.iCode);
@@ -858,6 +1003,7 @@ static void wiki_render(Renderer *p, char *z){
           p->preVerbState = p->state;
           p->state &= ~ALLOW_WIKI;
           blob_append(p->pOut, "<pre>", 5);
+          p->wantAutoParagraph = 0;
         }else if( markup.iType==MUTYPE_LI ){
           if( backupToType(p, MUTYPE_LIST)==0 ){
             pushStack(p, MARKUP_UL);
@@ -879,7 +1025,17 @@ static void wiki_render(Renderer *p, char *z){
             pushStack(p, markup.iCode);
             renderMarkup(p->pOut, &markup);
           }
+        }else if( markup.iType==MUTYPE_HYPERLINK ){
+          popStackToTag(p, markup.iCode);
+          startAutoParagraph(p);
+          renderMarkup(p->pOut, &markup);
+          pushStack(p, markup.iCode);
         }else{
+          if( markup.iType==MUTYPE_FONT ){
+            startAutoParagraph(p);
+          }else if( markup.iType==MUTYPE_BLOCK ){
+            p->wantAutoParagraph = 0;
+          }
           if( (markup.iType & MUTYPE_STACK )!=0 ){
             pushStack(p, markup.iCode);
           }
@@ -897,39 +1053,38 @@ static void wiki_render(Renderer *p, char *z){
 ** Transform the text in the pIn blob.  Write the results
 ** into the pOut blob.  The pOut blob should already be
 ** initialized.  The output is merely appended to pOut.
-**
-** The transformations carried out depend on the ops flag:
-**
-** WIKI_NOFOLLOW
-**
-**     * Add the nofollow attribute to external links
-**
-** WIKI_HTML
-**
-**     * Convert wiki into HTML
-**     * Remove <nowiki> and <verbatium>
-**     * Convert & into &amp;
-**     * Unrecognized markup and markup within <verbatim>
-**       is converted into &lt;...&gt;
-**     * Unauthorized attributes on markup are removed
+** If pOut is NULL, then the output is appended to the CGI
+** reply.
 */
-void wiki_convert(Blob *pIn, Blob *pOut, int ops){
+void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   char *z;
   Renderer renderer;
   
   memset(&renderer, 0, sizeof(renderer));
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
-  renderer.pOut = pOut;
+  if( flags & WIKI_NOBLOCK ){
+    renderer.state |= INLINE_MARKUP_ONLY;
+  }
+  if( flags & WIKI_INLINE ){
+    renderer.wantAutoParagraph = 0;
+  }else{
+    renderer.wantAutoParagraph = 1;
+  }
+  if( pOut ){
+    renderer.pOut = pOut;
+  }else{
+    renderer.pOut = cgi_output_blob();
+  }
 
   z = blob_str(pIn);
   wiki_render(&renderer, z);
+  endAutoParagraph(&renderer);
   while( renderer.nStack ){
     popStack(&renderer);
   }
-  blob_append(pOut, "\n", 1);
+  blob_append(renderer.pOut, "\n", 1);
   free(renderer.aStack);
 }
-
 
 /*
 ** COMMAND: test-wiki-render
@@ -939,6 +1094,6 @@ void test_wiki_render(void){
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
   blob_read_from_file(&in, g.argv[2]);
-  wiki_convert(&in, &out, WIKI_HTML);
+  wiki_convert(&in, &out, 0);
   blob_write_to_file(&out, "-");
 }

@@ -28,48 +28,96 @@
 #include <assert.h>
 
 /*
+** Schema changes
+*/
+static const char zSchemaUpdates[] =
+@ -- Index on the delta table
+@ --
+@ CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);
+@
+@ -- Artifacts that should not be processed are identified in the
+@ -- "shun" table.  Artifacts that are control-file forgeries or
+@ -- spam can be shunned in order to prevent them from contaminating
+@ -- the repository.
+@ --
+@ CREATE TABLE IF NOT EXISTS shun(uuid UNIQUE);
+@
+@ -- An entry in this table describes a database query that generates a
+@ -- table of tickets.
+@ --
+@ CREATE TABLE IF NOT EXISTS reportfmt(
+@    rn integer primary key,  -- Report number
+@    owner text,              -- Owner of this report format (not used)
+@    title text,              -- Title of this report
+@    cols text,               -- A color-key specification
+@    sqlcode text             -- An SQL SELECT statement for this report
+@ );
+;
+
+/*
 ** Core function to rebuild the infomration in the derived tables of a
 ** fossil repository from the blobs. This function is shared between
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
 ** from scratch.
+**
+** If the randomize parameter is true, then the BLOBs are deliberately
+** extracted in a random order.  This feature is used to test the
+** ability of fossil to accept records in any order and still
+** construct a sane repository.
 */
-
-int rebuild_db(void){
+int rebuild_db(int randomize, int ttyOutput){
   Stmt s;
   int errCnt = 0;
   char *zTable;
+  int cnt = 0;
 
-  db_multi_exec(
-    "CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);"
-  );
+  db_multi_exec(zSchemaUpdates);
   for(;;){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master"
        " WHERE type='table'"
-       " AND name NOT IN ('blob','delta','rcvfrom','user','config')");
+       " AND name NOT IN ('blob','delta','rcvfrom','user','config','shun')");
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
     free(zTable);
   }
   db_multi_exec(zRepositorySchema2);
+  ticket_create_table(0);
 
   db_multi_exec("INSERT INTO unclustered SELECT rid FROM blob");
   db_multi_exec(
+     "DELETE FROM unclustered"
+     " WHERE rid IN (SELECT rid FROM shun JOIN blob USING(uuid))"
+  );
+  db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
-  db_prepare(&s, "SELECT rid, size FROM blob");
+  db_prepare(&s,
+     "SELECT rid, size FROM blob %s"
+     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)",
+     randomize ? "ORDER BY random()" : ""
+  );
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
     if( size>=0 ){
       Blob content;
+      if( ttyOutput ){
+        cnt++;
+        printf("%d...\r", cnt);
+        fflush(stdout);
+      }
       content_get(rid, &content);
       manifest_crosslink(rid, &content);
       blob_reset(&content);
     }else{
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
+  }
+  db_finalize(&s);
+  if( ttyOutput ){
+    printf("\n");
   }
   return errCnt;
 }
@@ -85,15 +133,17 @@ int rebuild_db(void){
 */
 void rebuild_database(void){
   int forceFlag;
+  int randomizeFlag;
   int errCnt;
 
   forceFlag = find_option("force","f",0)!=0;
+  randomizeFlag = find_option("randomize", 0, 0)!=0;
   if( g.argc!=3 ){
     usage("REPOSITORY-FILENAME");
   }
   db_open_repository(g.argv[2]);
   db_begin_transaction();
-  errCnt = rebuild_db();
+  errCnt = rebuild_db(randomizeFlag, 1);
   if( errCnt && !forceFlag ){
     printf("%d errors. Rolling back changes. Use --force to force a commit.\n",
             errCnt);

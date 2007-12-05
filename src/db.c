@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -20,7 +20,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-** 
+**
 ** Code for interfacing to the various databases.
 **
 ** There are three separate database files that fossil interacts
@@ -35,10 +35,12 @@
 **
 */
 #include "config.h"
+#ifndef __MINGW32__
+#  include <pwd.h>
+#endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <pwd.h>
 #include <unistd.h>
 #include "db.h"
 
@@ -72,23 +74,51 @@ static void db_err(const char *zFormat, ...){
   }
   db_force_rollback();
   exit(1);
-  exit(1);
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
 static int doRollback = 0;  /* True to force a rollback */
+static int nCommitHook = 0; /* Number of commit hooks */
+static struct sCommitHook {
+  int (*xHook)(void);  /* Functions to call at db_end_transaction() */
+  int sequence;        /* Call functions in sequence order */
+} aHook[5];
+
+/*
+** This routine is called by the SQLite commit-hook mechanism
+** just prior to each omit.  All this routine does is verify
+** that nBegin really is zero.  That insures that transactions
+** cannot commit by any means other than by calling db_end_transaction()
+** below.
+**
+** This is just a safety and sanity check.
+*/
+static int db_verify_at_commit(void *notUsed){
+  if( nBegin ){
+    fossil_panic("illegal commit attempt");
+    return 1;
+  }
+  return 0;
+}
 
 /*
 ** Begin and end a nested transaction
 */
 void db_begin_transaction(void){
-  if( nBegin==0 ) db_multi_exec("BEGIN");
+  if( nBegin==0 ){
+    db_multi_exec("BEGIN");
+    sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
+  }
   nBegin++;
 }
 void db_end_transaction(int rollbackFlag){
   if( rollbackFlag ) doRollback = 1;
   nBegin--;
   if( nBegin==0 ){
+    int i;
+    for(i=0; doRollback==0 && i<nCommitHook; i++){
+      doRollback |= aHook[i].xHook();
+    }
     db_multi_exec(doRollback ? "ROLLBACK" : "COMMIT");
     doRollback = 0;
   }
@@ -99,7 +129,36 @@ void db_force_rollback(void){
   }
   nBegin = 0;
 }
- 
+
+/*
+** Install a commit hook.  Hooks are installed in sequence order.
+** It is an error to install the same commit hook more than once.
+**
+** Each commit hook is called (in order of accending sequence) at
+** each commit operation.  If any commit hook returns non-zero,
+** the subsequence commit hooks are omitted and the transaction
+** rolls back rather than commit.  It is the responsibility of the
+** hooks themselves to issue any error messages.
+*/
+void db_commit_hook(int (*x)(void), int sequence){
+  int i;
+  assert( nCommitHook < sizeof(aHook)/sizeof(aHook[1]) );
+  for(i=0; i<nCommitHook; i++){
+    assert( x!=aHook[i].xHook );
+    if( aHook[i].sequence>sequence ){
+      int s = sequence;
+      int (*xS)(void) = x;
+      sequence = aHook[i].sequence;
+      x = aHook[i].xHook;
+      aHook[i].sequence = s;
+      aHook[i].xHook = xS;
+    }
+  }
+  aHook[nCommitHook].sequence = sequence;
+  aHook[nCommitHook].xHook = x;
+  nCommitHook++;
+}
+
 /*
 ** Prepare or reprepare the sqlite3 statement from the raw SQL text.
 */
@@ -165,6 +224,9 @@ int db_bind_int(Stmt *pStmt, const char *zParamName, int iValue){
 }
 int db_bind_int64(Stmt *pStmt, const char *zParamName, i64 iValue){
   return sqlite3_bind_int64(pStmt->pStmt, paramIdx(pStmt, zParamName), iValue);
+}
+int db_bind_double(Stmt *pStmt, const char *zParamName, double rValue){
+  return sqlite3_bind_double(pStmt->pStmt, paramIdx(pStmt, zParamName), rValue);
 }
 int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
   return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
@@ -258,6 +320,12 @@ double db_column_double(Stmt *pStmt, int N){
 }
 const char *db_column_text(Stmt *pStmt, int N){
   return (char*)sqlite3_column_text(pStmt->pStmt, N);
+}
+const char *db_column_name(Stmt *pStmt, int N){
+  return (char*)sqlite3_column_name(pStmt->pStmt, N);
+}
+int db_column_count(Stmt *pStmt){
+  return sqlite3_column_count(pStmt->pStmt);
 }
 char *db_column_malloc(Stmt *pStmt, int N){
   return mprintf("%s", db_column_text(pStmt, N));
@@ -487,11 +555,27 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 */
 void db_open_config(void){
   char *zDbName;
-  const char *zHome = getenv("HOME");
+  const char *zHome;
+#ifdef __MINGW32__
+  zHome = getenv("LOCALAPPDATA");
+  if( zHome==0 ){
+    zHome = getenv("APPDATA");
+    if( zHome==0 ){
+      zHome = getenv("HOMEPATH");
+    }
+  }
+#else
+  zHome = getenv("HOME");
+#endif
   if( zHome==0 ){
     db_err("cannot local home directory");
   }
+#ifdef __MINGW32__
+  /* . filenames give some window systems problems and many apps problems */
+  zDbName = mprintf("%s/_fossil", zHome);
+#else
   zDbName = mprintf("%s/.fossil", zHome);
+#endif
   if( g.configOpen ) return;
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
@@ -521,7 +605,7 @@ static int isValidLocalDb(const char *zDbName){
 ** directory is found by searching for a file named "FOSSIL" that contains
 ** a valid repository database.
 **
-** If no valid FOSSIL file is found, we move up one level and try again.  
+** If no valid FOSSIL file is found, we move up one level and try again.
 ** Once the file is found, the g.zLocalRoot variable is set to the root of
 ** the repository tree and this routine returns 1.  If no database is
 ** found, then this routine return 0.
@@ -533,11 +617,15 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int n;
   char zPwd[2000];
+  char *zPwdConv;
   if( g.localOpen) return 1;
   if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
     db_err("pwd too big: max %d", sizeof(zPwd)-20);
   }
   n = strlen(zPwd);
+  zPwdConv = mprintf("%/", zPwd);
+  strncpy(zPwd, zPwdConv, 2000-20);
+  free(zPwdConv);
   while( n>0 ){
     if( access(zPwd, W_OK) ) break;
     strcpy(&zPwd[n], "/_FOSSIL_");
@@ -650,26 +738,36 @@ void db_create_repository(const char *zFilename){
 ** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
 ** new repositories.
 **
-** The caller determines wheter the function inserts an empty root
-** manifest (zRoot == TRUE), or not (zRoot == FALSE).
+** The makeInitialVersion flag determines whether or not an initial
+** manifest is created.  The makeServerCodes flag determines whether or
+** not server and project codes are invented for this repository.
 */
-
-void db_initial_setup (int zRoot){
+void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   char *zDate;
-  char *zUser;
+  const char *zUser;
   Blob hash;
   Blob manifest;
 
-  db_set("content-schema", CONTENT_SCHEMA);
-  db_set("aux-schema", AUX_SCHEMA);
-  db_set_int("authenticate-localhost", 0);
-  db_multi_exec(
-    "INSERT INTO config(name,value) VALUES('server-code', hex(randomblob(20)));"
-    "INSERT INTO config(name,value) VALUES('project-code',hex(randomblob(20)));"
-  );
-  zUser = db_global_get("default-user", 0);
+  db_set("content-schema", CONTENT_SCHEMA, 0);
+  db_set("aux-schema", AUX_SCHEMA, 0);
+  if( makeServerCodes ){
+    db_multi_exec(
+      "INSERT INTO config(name,value)"
+      " VALUES('server-code', lower(hex(randomblob(20))));"
+      "INSERT INTO config(name,value)"
+      " VALUES('project-code', lower(hex(randomblob(20))));"
+    );
+  }
+  if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
+  if( !db_is_global("safemerge") ) db_set_int("safemerge", 0, 0);
+  if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
+  zUser = db_get("default-user", 0);
   if( zUser==0 ){
+#ifdef __MINGW32__
+    zUser = getenv("USERNAME");
+#else
     zUser = getenv("USER");
+#endif
   }
   if( zUser==0 ){
     zUser = "root";
@@ -686,7 +784,7 @@ void db_initial_setup (int zRoot){
   );
   user_select();
 
-  if (zRoot){
+  if (makeInitialVersion){
     blob_zero(&manifest);
     blob_appendf(&manifest, "C initial\\sempty\\sbaseline\n");
     zDate = db_text(0, "SELECT datetime('now')");
@@ -719,7 +817,7 @@ void create_repository_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config();
   db_begin_transaction();
-  db_initial_setup (1);
+  db_initial_setup(1, 1);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
@@ -803,29 +901,78 @@ LOCAL void db_connection_init(void){
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
-char *db_get(const char *zName, const char *zDefault){
-  return db_text((char*)zDefault, 
-                 "SELECT value FROM config WHERE name=%Q", zName);
+char *db_get(const char *zName, char *zDefault){
+  char *z = 0;
+  if( g.repositoryOpen ){
+    z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
+  }
+  if( z==0 && g.configOpen ){
+    z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
+  }
+  if( z==0 ){
+    z = zDefault;
+  }
+  return z;
 }
-void db_set(const char *zName, const char *zValue){
-  db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%Q)", zName, zValue);
+void db_set(const char *zName, const char *zValue, int globalFlag){
+  db_begin_transaction();
+  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%Q)",
+                 globalFlag ? "global_" : "", zName, zValue);
+  if( globalFlag && g.repositoryOpen ){
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
+  db_end_transaction(0);
+}
+int db_is_global(const char *zName){
+  if( g.configOpen ){
+    return db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
+  }else{
+    return 0;
+  }
 }
 int db_get_int(const char *zName, int dflt){
-  return db_int(dflt, "SELECT value FROM config WHERE name=%Q", zName);
+  int v;
+  int rc;
+  if( g.repositoryOpen ){
+    Stmt q;
+    db_prepare(&q, "SELECT value FROM config WHERE name=%Q", zName);
+    rc = db_step(&q);
+    if( rc==SQLITE_ROW ){
+      v = db_column_int(&q, 0);
+    }
+    db_finalize(&q);
+  }else{
+    rc = SQLITE_DONE;
+  }
+  if( rc==SQLITE_DONE && g.configOpen ){
+    v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
+  }
+  return v;
 }
-void db_set_int(const char *zName, int value){
-  db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%d)", zName, value);
+void db_set_int(const char *zName, int value, int globalFlag){
+  db_begin_transaction();
+  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%d)",
+                globalFlag ? "global_" : "", zName, value);
+  if( globalFlag && g.repositoryOpen ){
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
+  db_end_transaction(0);
 }
-char *db_global_get(const char *zName, const char *zDefault){
-  return db_text((char*)zDefault, 
-                 "SELECT value FROM global_config WHERE name=%Q", zName);
+int db_get_boolean(const char *zName, int dflt){
+  static const char *azOn[] = { "on", "yes", "true", "1" };
+  static const char *azOff[] = { "off", "no", "false", "0" };
+  int i;
+  char *zVal = db_get(zName, dflt ? "on" : "off");
+  for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
+    if( strcmp(zVal,azOn[i])==0 ) return 1;
+  }
+  for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
+    if( strcmp(zVal,azOff[i])==0 ) return 0;
+  }
+  return dflt;
 }
-void db_global_set(const char *zName, const char *zValue){
-  db_multi_exec("REPLACE INTO global_config(name,value)"
-                "VALUES(%Q,%Q)", zName, zValue);
-}
-char *db_lget(const char *zName, const char *zDefault){
-  return db_text((char*)zDefault, 
+char *db_lget(const char *zName, char *zDefault){
+  return db_text((char*)zDefault,
                  "SELECT value FROM vvar WHERE name=%Q", zName);
 }
 void db_lset(const char *zName, const char *zValue){
@@ -849,6 +996,8 @@ void db_lset_int(const char *zName, int value){
 */
 void cmd_open(void){
   Blob path;
+  int vid;
+  static char *azNewArgv[] = { 0, "update", "--latest", 0 };
   if( g.argc!=3 ){
     usage("REPOSITORY-FILENAME");
   }
@@ -860,60 +1009,107 @@ void cmd_open(void){
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
   db_open_local();
   db_lset("repository", blob_str(&path));
-  db_lset_int("checkout", 1);
+  vid = db_int(0, "SELECT pid FROM plink y"
+                  " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
+  if( vid==0 ){
+    db_lset_int("checkout", 1);
+  }else{
+    db_lset_int("checkout", vid);
+    g.argv = azNewArgv;
+    g.argc = 3;
+    update_cmd();
+  }
 }
 
 /*
-** COMMAND: config
-**
-** Usage: %fossil config NAME=VALUE ...
-**
-** List or change the global configuration settings.  With no arguments,
-** all settings are listed.  Arguments of simply NAME cause that setting
-** to be displayed.  Arguments of the form NAME=VALUE change the value of
-** a setting.  Arguments of the form NAME= delete a setting.
-**
-** Recognized settings include:
-**
-**   editor        Text editor command used for check-in comments.
-**
-**   clear-sign    Command used to clear-sign manifests at check-in.
-**                 The default is "gpg --clearsign -o ".
+** Print the value of a setting named zName
 */
-void cmd_config(void){
-  db_open_config();
-  if( g.argc>2 ){
-    int i;
-    db_begin_transaction();
-    for(i=2; i<g.argc; i++){
-      char *zName, *zValue;
-      int j;
-
-      zName = mprintf("%s", g.argv[i]);
-      for(j=0; zName[j] && zName[j]!='='; j++){}
-      if( zName[j] ){
-        zName[j] = 0;
-        zValue = &zName[j+1];
-        if( zValue[0] ){
-          db_global_set(zName, zValue);
-        }else{
-          db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
-        }
-      }
-      zValue = db_global_get(zName, 0);
-      if( zValue ){
-        printf("%s=%s\n", zName, zValue);
-      }else{
-        printf("%s is undefined\n", zName);
-      }
-    }
-    db_end_transaction(0);
+static void print_setting(const char *zName){
+  Stmt q;
+  db_prepare(&q,
+     "SELECT '(local)', value FROM config WHERE name=%Q"
+     " UNION ALL "
+     "SELECT '(global)', value FROM global_config WHERE name=%Q",
+     zName, zName
+  );
+  if( db_step(&q)==SQLITE_ROW ){
+    printf("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
+        db_column_text(&q, 1));
   }else{
-    Stmt q;
-    db_prepare(&q, "SELECT name, value FROM global_config ORDER BY name");
-    while( db_step(&q)==SQLITE_ROW ){
-      printf("%s=%s\n", db_column_text(&q, 0), db_column_text(&q, 1));
+    printf("%-20s\n", zName);
+  }
+  db_finalize(&q);
+}
+
+
+/*
+** COMMAND: settings
+** %fossil setting ?PROPERTY? ?VALUE? ?-global?
+**
+** With no arguments, list all properties and their values.  With just
+** a property name, show the value of that property.  With a value
+** argument, change the property for the current repository.
+**
+**    autosync         If enabled, automatically pull prior to
+**                     commit or update and automatically push
+**                     after commit or tag or branch creation.
+**
+**    clearsign        Command used to clear-sign manifests at check-in.
+**                     The default is "gpg --clearsign -o ".
+**
+**    editor           Text editor command used for check-in comments.
+**
+**    localauth        If enabled, require that HTTP connections from
+**                     127.0.0.1 be authenticated by password.  If
+**                     false, all HTTP requests from localhost have
+**                     unrestricted access to the repository.
+**
+**    omitsign         When enabled, fossil will not attempt to sign any
+**                     commit with gpg. All commits will be unsigned.
+**
+**    safemerge        If enabled, when commit will cause a fork, the
+**                     commit will not abort with warning. Also update
+**                     will not be allowed if local changes exist.
+**
+**   diff-command      External command to run when performing a diff.
+**                     If undefined, the internal text diff will be used.
+**
+**   gdiff-command     External command to run when performing a graphical
+**                     diff. If undefined, text diff will be used.
+*/
+void setting_cmd(void){
+  static const char *azName[] = {
+    "autosync",
+    "clearsign",
+    "editor",
+    "localauth",
+    "omitsign",
+    "safemerge",
+    "diff-command",
+    "gdiff-command",
+  };
+  int i;
+  int globalFlag = find_option("global","g",0)!=0;
+  db_find_and_open_repository();
+  if( g.argc==2 ){
+    for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
+      print_setting(azName[i]);
     }
-    db_finalize(&q);
+  }else if( g.argc==3 || g.argc==4 ){
+    const char *zName = g.argv[2];
+    int n = strlen(zName);
+    for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
+      if( strncmp(azName[i], zName, n)==0 ) break;
+    }
+    if( i>=sizeof(azName)/sizeof(azName[0]) ){
+      fossil_fatal("no such setting: %s", zName);
+    }
+    if( g.argc==4 ){
+      db_set(azName[i], g.argv[3], globalFlag);
+    }else{
+      print_setting(azName[i]);
+    }
+  }else{
+    usage("?PROPERTY? ?VALUE?");
   }
 }

@@ -107,7 +107,11 @@ int file_mkdir(const char *zName, int forceFlag){
     unlink(zName);
   }
   if( rc!=1 ){
+#ifdef __MINGW32__
+    return mkdir(zName);
+#else
     return mkdir(zName, 0755);
+#endif
   }
   return 0;
 }
@@ -180,17 +184,18 @@ int file_simplify_name(char *z, int n){
 ** Convert /A/../ to just /
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut){
-  if( zOrigName[0]=='/' ){
+  if( zOrigName[0]=='/' 
+      || (strlen(zOrigName)>3 && zOrigName[1]==':' && zOrigName[2]=='\\') ){
     blob_set(pOut, zOrigName);
     blob_materialize(pOut);
   }else{
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", sizeof(zPwd)-20);
+      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
       exit(1);
     }
     blob_zero(pOut);
-    blob_appendf(pOut, "%s/%s", zPwd, zOrigName);
+    blob_appendf(pOut, "%//%/", zPwd, zOrigName);
   }
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut)));
 }
@@ -225,7 +230,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut){
     Blob tmp;
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", sizeof(zPwd)-20);
+      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
       exit(1);
     }
     for(i=1; zPath[i] && zPwd[i]==zPath[i]; i++){}

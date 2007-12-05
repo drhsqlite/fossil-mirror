@@ -52,7 +52,7 @@ void add_cmd(void){
     Blob pathname;
     int isDir;
 
-    zName = mprintf("%s", g.argv[i]);
+    zName = mprintf("%/", g.argv[i]);
     isDir = file_isdir(zName);
     if( isDir==1 ) continue;
     if( isDir==0 ){
@@ -65,6 +65,9 @@ void add_cmd(void){
     zPath = blob_str(&pathname);
     if( strcmp(zPath, "manifest")==0 || strcmp(zPath, "_FOSSIL_")==0 ){
       fossil_fatal("cannot add %s", zPath);
+    }
+    if( !file_is_simple_pathname(zPath) ){
+      fossil_fatal("filename contains illegal characters: %s", zPath);
     }
     if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
       db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
@@ -102,7 +105,7 @@ void del_cmd(void){
     char *zPath;
     Blob pathname;
 
-    zName = mprintf("%s", g.argv[i]);
+    zName = mprintf("%/", g.argv[i]);
     file_tree_name(zName, &pathname);
     zPath = blob_str(&pathname);
     if( !db_exists(

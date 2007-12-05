@@ -10,7 +10,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -35,19 +35,18 @@
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
 ** the menu entry has no hyperlink - it is disabled.
 */
-static void menu_entry(
+void setup_menu_entry(
   const char *zTitle,
   const char *zLink,
   const char *zDesc
 ){
-  @ <dt>
+  @ <tr><td valign="top" align="right">
   if( zLink && zLink[0] ){
     @ <a href="%s(zLink)">%h(zTitle)</a>
   }else{
     @ %h(zTitle)
   }
-  @ </dt>
-  @ <dd>%h(zDesc)</dd>
+  @ </td><td valign="top">%h(zDesc)</td></tr>
 }
 
 /*
@@ -60,14 +59,24 @@ void setup_page(void){
   }
 
   style_header("Setup");
-  @ <dl id="setup">
-  menu_entry("Users", "setup_ulist",
+  @ <table border="0" cellspacing="20">
+  setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
-  menu_entry("Access", "setup_access",
+  setup_menu_entry("Access", "setup_access",
     "Control access settings.");
-  menu_entry("Configuration", "setup_config",
+  setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
-  @ </dl>
+  setup_menu_entry("Timeline", "setup_timeline",
+    "Timeline display preferences");
+  setup_menu_entry("Tickets", "setup_ticket",
+    "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("CSS", "setup_editcss",
+    "Edit the Cascading Style Sheet used by all pages of this repository");
+  setup_menu_entry("Header", "setup_header",
+    "Edit HTML text inserted at the top of every page");
+  setup_menu_entry("Footer", "setup_footer",
+    "Edit HTML text inserted at the bottom of every page");
+  @ </table>
 
   style_footer();
 }
@@ -80,8 +89,7 @@ void setup_page(void){
 */
 void setup_ulist(void){
   Stmt s;
-  
-  style_footer();
+
   login_check_credentials();
   if( !g.okSetup ){
     login_needed();
@@ -125,6 +133,7 @@ void setup_ulist(void){
   @ <li value="1"><b>Admin</b>: Create and delete users</li>
   @ <li value="3"><b>Append-Tkt</b>: Append to tickets</li>
   @ <li value="4"><b>Delete</b>: Delete wiki and tickets</li>
+  @ <li value="5"><b>Email</b>: View EMail addresses on tickets</li>
   @ <li value="6"><b>New-Wiki</b>: Create new wiki pages</li>
   @ <li value="7"><b>Clone</b>: Clone the repository</li>
   @ <li value="8"><b>History</b>: View detail repository history</li>
@@ -159,8 +168,8 @@ void setup_ulist(void){
 */
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
-  char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap ;
-  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag;
+  char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
+  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag, *oae;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -199,6 +208,7 @@ void user_edit(void){
     int i = 0;
     int aa = P("aa")!=0;
     int ad = P("ad")!=0;
+    int ae = P("ae")!=0;
     int ai = P("ai")!=0;
     int aj = P("aj")!=0;
     int ak = P("ak")!=0;
@@ -217,6 +227,7 @@ void user_edit(void){
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
+    if( ae ){ zCap[i++] = 'e'; }
     if( af ){ zCap[i++] = 'f'; }
     if( ah ){ zCap[i++] = 'h'; }
     if( ag ){ zCap[i++] = 'g'; }
@@ -238,7 +249,7 @@ void user_edit(void){
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zLogin = P("login");
-    if( uid>0 && 
+    if( uid>0 &&
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
       style_header("User Creation Error");
@@ -263,7 +274,7 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
-  oaa = oac = oad = oaf = oag = oah = oai = oaj = oak = oam =
+  oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
         oan = oao = oap = oaq = oar = oas = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
@@ -272,6 +283,7 @@ void user_edit(void){
     if( strchr(zCap, 'a') ) oaa = " checked";
     if( strchr(zCap, 'c') ) oac = " checked";
     if( strchr(zCap, 'd') ) oad = " checked";
+    if( strchr(zCap, 'e') ) oae = " checked";
     if( strchr(zCap, 'f') ) oaf = " checked";
     if( strchr(zCap, 'g') ) oag = " checked";
     if( strchr(zCap, 'h') ) oah = " checked";
@@ -323,6 +335,7 @@ void user_edit(void){
   }
   @     <input type="checkbox" name="aa"%s(oaa)>Admin</input><br>
   @     <input type="checkbox" name="ad"%s(oad)>Delete</input><br>
+  @     <input type="checkbox" name="ae"%s(oad)>Email</input><br>
   @     <input type="checkbox" name="ap"%s(oap)>Password</input><br>
   @     <input type="checkbox" name="aq"%s(oaq)>Query</input><br>
   @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
@@ -363,12 +376,14 @@ void user_edit(void){
   @ <li><p>
   @ The <b>Delete</b> privilege give the user the ability to erase
   @ wiki, tickets, and atttachments that have been added by anonymous
-  @ users.  This capability is intended for deletion of spam.
+  @ users.  This capability is intended for deletion of spam.  The
+  @ delete capability is only in effect for 24 hours after the item
+  @ is first posted.  The Setup user can delete anything at any time.
   @ </p></li>
   @
   @ <li><p>
   @ The <b>Query</b> privilege allows the user to create or edit
-  @ report formats by specifying appropriate SQL.  Users can run 
+  @ report formats by specifying appropriate SQL.  Users can run
   @ existing reports without the Query privilege.
   @ </p></li>
   @
@@ -432,7 +447,7 @@ static void onoff_attribute(
   if( zQ ){
     int iQ = strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
-      db_set(zVar, iQ ? "1" : "0");
+      db_set(zVar, iQ ? "1" : "0", 0);
       iVal = iQ;
     }
   }
@@ -451,18 +466,40 @@ static void entry_attribute(
   int width,            /* Width of the entry box */
   const char *zVar,     /* The corresponding row in the VAR table */
   const char *zQParm,   /* The query parameter */
-  const char *zDflt     /* Default value if VAR table entry does not exist */
+  char *zDflt     /* Default value if VAR table entry does not exist */
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
   if( zQ && strcmp(zQ,zVal)!=0 ){
-    db_set(zVar, zQ);
+    db_set(zVar, zQ, 0);
     zVal = zQ;
   }
   @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)">
   @ %s(zLabel)
 }
 
+/*
+** Generate a text box for an attribute.
+*/
+static void textarea_attribute(
+  const char *zLabel,   /* The text label on the textarea */
+  int rows,             /* Rows in the textarea */
+  int cols,             /* Columns in the textarea */
+  const char *zVar,     /* The corresponding row in the VAR table */
+  const char *zQP,      /* The query parameter */
+  const char *zDflt     /* Default value if VAR table entry does not exist */
+){
+  const char *z = db_get(zVar, (char*)zDflt);
+  const char *zQ = P(zQP);
+  if( zQ && strcmp(zQ,z)!=0 ){
+    db_set(zVar, zQ, 0);
+    z = zQ;
+  }
+  if( rows>0 && cols>0 ){
+    @ <textarea name="%s(zQP)" rows="%d(rows)" cols="%d(cols)">%h(z)</textarea>
+    @ %s(zLabel)
+  }
+}
 
 
 /*
@@ -480,7 +517,7 @@ void setup_access(void){
 
   @ <hr>
   onoff_attribute("Require password for local access",
-     "authenticate-localhost", "localauth", 1);
+     "localauth", "localauth", 1);
   @ <p>When enabled, the password sign-in is required for
   @ web access coming from 127.0.0.1.  When disabled, web access
   @ from 127.0.0.1 is allows without any login - the user id is selected
@@ -493,11 +530,39 @@ void setup_access(void){
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
   @ to a year.</p>
-   
+
   @ <hr>
-  onoff_attribute("Allow anonymous signup", "anon-signup", "asu", 0);
-  @ <p>Allow users to create their own accounts</p>
-   
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </form>
+  db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_timeline
+*/
+void setup_timeline(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+
+  style_header("Timeline Display Preferences");
+  db_begin_transaction();
+  @ <form action="%s(g.zBaseURL)/setup_timeline" method="POST">
+
+  @ <hr>
+  onoff_attribute("Block markup in timeline",
+                  "timeline-block-markup", "tbm", 0);
+  @ <p>In timeline displays, check-in comments can be displayed with or
+  @ without block markup (paragraphs, tables, etc.)</p>
+
+  @ <hr>
+  entry_attribute("Max timeline comment length", 6, 
+                  "timeline-max-comment", "tmc", "0");
+  @ <p>The maximum length of a comment to be displayed in a timeline.
+  @ "0" there is no length limit.</p>
+
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
@@ -517,30 +582,157 @@ void setup_config(void){
   style_header("WWW Configuration");
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/setup_config" method="POST">
-
-  @ <hr>
-  entry_attribute("Home page", 60, "homepage", "hp", "");
-  @ <p>The name of a wiki file that is the homepage for the website.
-  @ The home page is the page that is displayed by the "Home" link
-  @ at the top of this screen.  Omit the path and the ".wiki"
-  @ suffix.  </p>
-
-  entry_attribute("Ticket subdirectory", 60, "ticket-subdir", "tsd", "");
-  @ <p>A subdirectory in the file hierarchy that contains all trouble
-  @ tickets.  Leave this blank to disable ticketing.  Tickets text
-  @ files within this subdirectory containing a particular format
-  @ (documented separately) and with the ".tkt" suffix.</p>
-
-  entry_attribute("Wiki subdirectory", 60, "wiki-subdir", "wsd", "");
-  @ <p>A subdirectory in the file hierarchy that contains wiki pages.
-  @ Leave this blank to disable wiki.  Wiki pages are
-  @ files within this subdirectory whose name is he wiki page title
-  @ and with the suffix ".wiki".</p>
-
-   
-  @ <hr>
+  @ <hr />
+  entry_attribute("Project Name", 60, "project-name", "pn", "");
+  @ <p>Give your project a name so visitors know what this site is about.
+  @ The project name will also be used as the RSS feed title.</p>
+  @ <hr />
+  textarea_attribute("Project Description", 5, 60,
+                     "project-description", "pd", "");
+  @ <p>Describe your project. This will be used in page headers for search
+  @ engines as well as a short RSS description.</p>
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);
   style_footer();
+}
+
+/*
+** WEBPAGE: setup_editcss
+*/
+void setup_editcss(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  style_header("Edit CSS");
+  @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
+  @ Edit the CSS:<br />
+  textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ </form>
+  @ <hr>
+  @ Here is the default CSS:
+  @ <blockquote><pre>
+  @ %h(zDefaultCSS)
+  @ </pre></blockquote>
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_header
+*/
+void setup_header(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name='header'");
+    cgi_replace_parameter("header", zDefaultHeader);
+  }else{
+    textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader);
+  }
+  style_header("Edit Page Header");
+  @ <form action="%s(g.zBaseURL)/setup_header" method="POST">
+  @ <p>Edit HTML text with embedded subscript that will be used to
+  @ generate the beginning of every page through start of the main
+  @ menu.</p>
+  textarea_attribute("", 40, 80, "header", "header", zDefaultHeader);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ </form>
+  @ <hr>
+  @ Here is the default page header:
+  @ <blockquote><pre>
+  @ %h(zDefaultHeader)
+  @ </pre></blockquote>
+  db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_footer
+*/
+void setup_footer(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name='footer'");
+    cgi_replace_parameter("footer", zDefaultFooter);
+  }else{
+    textarea_attribute(0, 0, 0, "footer", "footer", zDefaultFooter);
+  }
+  style_header("Edit Page Footer");
+  @ <form action="%s(g.zBaseURL)/setup_footer" method="POST">
+  @ <p>Edit HTML text with embedded subscript that will be used to
+  @ generate the end of every page.</p>
+  textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ </form>
+  @ <hr>
+  @ Here is the default page footer:
+  @ <blockquote><pre>
+  @ %h(zDefaultFooter)
+  @ </pre></blockquote>
+  db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_ticket
+*/
+void setup_ticket(void){
+  const char *zConfig;
+  int isSubmit;
+  
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  isSubmit = P("submit")!=0;
+  db_begin_transaction();
+  zConfig = P("cfg");
+  if( zConfig==0 ){
+    zConfig = db_text((char*)zDefaultTicketConfig,
+               "SELECT value FROM config WHERE name='ticket-configuration'");
+  }
+  style_header("Edit Ticket Configuration");
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name='ticket-configuration'");
+    zConfig = zDefaultTicketConfig;
+  }else if( isSubmit ){
+    char *zErr = ticket_config_check(zConfig);
+    if( zErr==0 ){
+      db_multi_exec(
+         "REPLACE INTO config(name,value) VALUES('ticket-configuration',"
+         "%Q)", zConfig
+      );
+    }else{
+      @ <p><font color="red"><b>
+      @ SCRIPT ERROR: %h(zErr)
+      @ </b></font></p>
+    }
+  }
+  @ <form action="%s(g.zBaseURL)/setup_ticket" method="POST">
+  @ <p>Edit the "subscript" script that defines the ticketing
+  @ system setup for this server.</p>
+  @ <textarea name="cfg" rows="40" cols="80">%h(zConfig)</textarea>
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
+  @ </form>
+  @ <hr>
+  @ Here is the default page header:
+  @ <blockquote><pre>
+  @ %h(zDefaultTicketConfig)
+  @ </pre></blockquote>
+  db_end_transaction(0);
 }

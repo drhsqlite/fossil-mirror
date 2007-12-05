@@ -11,56 +11,72 @@ Fossil File Formats
 
 <p>
 The global state of a fossil repository is determined by an unordered
-set of files.  Some files are used to represent wiki pages, trouble tickets,
-and the special "manifest" file has a specific and well-defined format.
-Other files are just data.  Files can be text or binary.
+set of files.  A file in fossil is called an "artifact".
+An artifact might be a source code file, the text of a wiki page,
+part of a trouble ticket, or one of several special control artifacts
+used to show the relationships between other artifacts within the
+project.  Artifacts can be text or binary.
 </p>
 
 <p>
-Each file in the repository is named by its SHA1 hash.
-No prefixes or meta information is added to a file before
-its hash is computed.  The name of a file in the repository
+Each artifact in the repository is named by its SHA1 hash.
+No prefixes or meta information is added to a artifact before
+its hash is computed.  The name of a artifact in the repository
 is exactly the same SHA1 hash that is computed by sha1sum 
 on the file as it exists in your source tree.</p>
 
 <p>
-Some files have a particular format which qualifies them
-as "manifests".  A manifest assigns filenames to a subset
-of the files in the repository, in order to provide a
-snapshot of the state of the project at a point in time.
-Each manifest file corresponds to a version or baseline
-of the project.
-</p>
+Some artifacts have a particular format which gives them special
+meaning to fossil.  Fossil recognizes:</p>
 
-<h2>1.0 The Manifest File</h2>
+<ul>
+<li> Manifests </li>
+<li> Clusters </li>
+<li> Control Artifacts </li>
+<li> Wiki Pages </li>
+<li> Ticket Changes </li>
+</ul>
+
+<p>These five artifact types are described in the sequel.</p>
+
+<h2>1.0 The Manifest</h2>
+
+<p>A manifest defines a baseline or version of the project
+source tree.  The manifest contains a list of artifacts for
+each file in the project and the corresponding filenames, as
+well as information such as parent baselines, the name of the
+programmer who created the baseline, the date and time when
+the baseline was created, and any check-in comments associated
+with the baseline.</p>
 
 <p>
-Any file in the repository that follows the syntactic rules
+Any artifact in the repository that follows the syntactic rules
 of a manifest is a manifest.  Note that a manifest can
 be both a real manifest and also a content file, though this
 is rare.
 </p>
 
 <p>
-A manifest is a line-oriented text file.  Newline characters
-(ASCII 0x0a) separate lines.  Each line begins with a single
-character "line type".  Zero or more arguments may follow
-the line type.  All arguments are separated from each other
-and from the line-type character by a single space
+A manifest is a text file.  Newline characters
+(ASCII 0x0a) separate the file into "cards".
+Each card begins with a single
+character "card type".  Zero or more arguments may follow
+the card type.  All arguments are separated from each other
+and from the card-type character by a single space
 character.  There is no surplus white space between arguments
 and no leading or trailing whitespace except for the newline 
-character that acts as the line separator.
+character that acts as the card separator.
 </p>
 
 <p>
-All lines of the manifest occur in strict sorted lexicographical order.
-No line may be duplicated.
-The entire manifest file may be PGP clear-signed, but otherwise it
+All cards of the manifest occur in strict sorted lexicographical order.
+No card may be duplicated.
+The entire manifest may be PGP clear-signed, but otherwise it
 may contain no additional text or data beyond what is described here.
 </p>
 
 <p>
-Allowed lines in the manifest are as follows:
+Allowed cards in the manifest are as follows:
 </p>
 
 <blockquote>
@@ -74,8 +90,8 @@ Allowed lines in the manifest are as follows:
 </blockquote>
 
 <p>
-A manifest must have exactly one C-line.  The sole argument to
-the C-line is a check-in comment that describes the baseline that
+A manifest must have exactly one C-card.  The sole argument to
+the C-card is a check-in comment that describes the check-in that
 the manifest defines.  The check-in comment is text.  The following
 escape sequences are applied to the text:
 A space (ASCII 0x20) is represented as "\s" (ASCII 0x5C, 0x73).  A
@@ -87,8 +103,8 @@ in the comment.
 </p>
 
 <p>
-A manifest must have exactly one D-line.  The sole argument to
-the D-line is a date-time stamp in the ISO8601 format.  The
+A manifest must have exactly one D-card.  The sole argument to
+the D-card is a date-time stamp in the ISO8601 format.  The
 date and time should be in coordinated universal time (UTC).
 The format is:
 </p>
@@ -98,36 +114,35 @@ The format is:
 </blockquote>
 
 <p>
-A manifest has zero or more F-lines.  Each F-line defines a file
+A manifest has zero or more F-cards.  Each F-card defines a file
 (other than the manifest itself) which is part of the baseline that
 the manifest defines.  There are two arguments.  The first argment
 is the pathname of the file in the baseline relative to the root
 of the project file hierarchy.  No ".." or "." directories are allowed
-within the filename.  Space characters are escaped as in C-line
+within the filename.  Space characters are escaped as in C-card
 comment text.  Backslash characters and newlines are not allowed
 within filenames.  The directory separator character is a forward
-slash (ASCII 0x2F).  The second argument to the F-line is the
-full 40-character hexadecimal SHA1 hash of the file content.  
-Upper-case letters ABCDEF are used for the higher digits of the
-hexadecimal.
+slash (ASCII 0x2F).  The second argument to the F-card is the
+full 40-character lower-case hexadecimal SHA1 hash of the content
+artifact.
 </p>
 
 <p>
-A manifest has zero or one P-lines.  Most manifests have one P-line.
-The P-line has a varying number of arguments that
+A manifest has zero or one P-cards.  Most manifests have one P-card.
+The P-card has a varying number of arguments that
 defines other manifests from which the current manifest
 is derived.  Each argument is an 40-character lowercase 
 hexadecimal SHA1 of the predecessor manifest.  All arguments
-to the P-line must be unique to that line.
-The first predecessor is the manifests direct ancestor.
+to the P-card must be unique to that line.
+The first predecessor is the direct ancestor of the manifest.
 Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
-a P-line with a single argument.  The first manifest in the
-project has no ancestors and thus has no P-line.
+a P-card with a single argument.  The first manifest in the
+project has no ancestors and thus has no P-card.
 </p>
 
 <p>
-A manifest may optionally have a single R-line.  The R-line has
+A manifest may optionally have a single R-card.  The R-card has
 a single argument which is the MD5 checksum of all files in 
 the baseline except the manifest itself.  The checksum is expressed
 as 32-characters of lowercase hexadecimal.   The checksum is
@@ -141,46 +156,186 @@ Compute the MD5 checksum of the the result.
 </p>
 
 <p>
-Each manifest has a single U-line.  The argument to the U-line is
+Each manifest has a single U-card.  The argument to the U-card is
 the login of the user who created the manifest.  The login name
 is encoded using the same character escapes as is used for the
-check-in comment argument to the C-line.
+check-in comment argument to the C-card.
 </p>
 
 <p>
-A manifest has an option Z-line as its last line.  The argument
-to the Z-line is a 32-character lowercase hexadecimal MD5 hash
+A manifest has an option Z-card as its last line.  The argument
+to the Z-card is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline 
-character that immediately preceeds the "Z".  The Z-line is just
+character that immediately preceeds the "Z".  The Z-card is just
 a sanity check to prove that the manifest is well-formed and
 consistent.
 </p>
 
-<h2>2.0 Trouble Tickets</h2>
+<h2>2.0 Clusters</h2>
 
 <p>
-Each trouble ticket is a file in the repository and appears in
-a manifest for every baseline in which the ticket exists.
-Trouble tickets occur in a specific subdirectory of the file
-heirarchy.  The name of the subdirectory that contains tickets
-is part of the local state of each repository.  The filename
-of each trouble ticket has a ".tkt" suffix.  The trouble ticket
-has a particular file format defined below.
+A cluster is a artifact that declares the existance of other artifacts.
+Clusters are used during repository synchronization to help 
+reduce network traffic.
 </p>
-
-<i>To be continued...</i>
-
-<h2>3.0 Wiki Pages</h2>
 
 <p>
-Each wiki is a file in the repository and appears in
-a manifest for every baseline in which that wiki page exists.
-Wiki pages occur in a specific subdirectory of the file
-heirarchy.  The name of the subdirectory that contains wiki pages
-is part of the local state of each repository.  The filename
-of each wiki page has a ".wiki" suffix.  The base name of
-the file is the name of the wiki page.  The wiki pages
-have a particular file format defined below.
+Clusters follow a syntax that is very similar to manifests.
+A Cluster is a line-oriented text file.  Newline characters
+(ASCII 0x0a) separate the artifact into cards.  Each card begins with a single
+character "card type".  Zero or more arguments may follow
+the card type.  All arguments are separated from each other
+and from the card-type character by a single space
+character.  There is no surplus white space between arguments
+and no leading or trailing whitespace except for the newline 
+character that acts as the card separator.
+All cards of a cluter occur in strict sorted lexicographical order.
+No card may be duplicated.
+The cluster may not contain additional text or data beyond 
+what is described here.
+Unlike manifests, clusters are never PGP signed.
 </p>
 
-<i>To be continued...</i>
+<p>
+Allowed cards in the cluster are as follows:
+</p>
+
+<blockquote>
+<b>M</b> <i>uuid</i><br />
+<b>Z</b> <i>checksum</i>
+</blockquote>
+
+<p>
+A cluster contains one or more "M" cards followed by a single "Z"
+line.  Each M card has a single argument which is the UUID of 
+another artifact in the repository.  The Z card work exactly like
+the Z card of a manifest.  The argument to the Z card is the
+lower-case hexadecimal representation of the MD5 checksum of all
+prior cards in the cluster.  Note that the Z card is required
+on a cluster.
+</p>
+
+
+<h2>3.0 Control Artifacts</h2>
+
+<p>
+Control artifacts are used to assign properties to other artifacts
+within the repository.  The basic format of a control artifact is
+the same as a manifest or cluster.  A control artifact is a text
+files divided into cards by newline characters.  Each card has a
+single-character card type followed by arguments.  Spaces separate
+the card type and the arguments.  No surplus whitespace is allowed.
+All cards must occur in strict lexigraphical order.
+</p>
+
+<p>
+Allowed cards in a control artifact are as follows:
+</p>
+
+<blockquote>
+<b>D</b> <i>time-and-date-stamp</i><br />
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  uuid  ?value?</i><br />
+<b>Z</b> <i>checksum</i><br />
+</blockquote>
+
+<p>
+A control artifact must have one D card and one Z card and
+one or more or more T cards.  No other cards or other text is
+allowed in a control artifact.  Control artifacts might be PGP
+clearsigned.</p>
+
+<p>The D card and the Z card of a control artifact are the same
+as in a manifest.</p>
+
+<p>The T card represents a "tag" or property that is applied to
+some other artifact.  The T card has two or three values.  The
+second argument is the 40 character lowercase UUID of the artifact
+to which the tag is to be applied. The
+first value is the tag name.  The first character of the tag
+is either "+", "-", or "*".  A "+" means the tag should be added
+to the artifact.  The "-" means the tag should be removed.
+The "*" character means the tag should be added to the artifact
+and all direct decendents (but not branches) of the artifact down
+to but not including the first decendent that contains a 
+more recent "-" tag with the same name.
+The optional third argument is the value of the tag.  A tag
+without a value is a boolean.</p>
+
+<p>When two or more tags with the same name are applied to the
+same artifact, the tag with the latest (most recent) date is
+used.</p>
+
+<p>Some tags have special meaning.  The "comment" tag when applied
+to a baseline will override the check-in comment of that baseline
+for display purposes.</p>
+
+<h2>4.0 Wiki Pages</h2>
+
+<p>A wiki page is an artifact with a format similar to manifests,
+clusters, and control artifacts.  The artifact is divided into
+cards by newline characters.  The format of each card is as in
+manifests, clusters, and control artifacts.  Wiki artifacts accept
+the following card types:</p>
+
+<blockquote>
+<b>D</b> <i>time-and-date-stamp</i><br />
+<b>L</b> <i>wiki-title</i><br />
+<b>P</b> <i>parent-uuid</i>+<br />
+<b>U</b> <i>user-name</i><br />
+<b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
+<b>Z</b> <i>checksum</i>
+</blockquote>
+
+<p>The D card is the date and time when the wiki page was edited.
+The P card specifies the parent wiki pages, if any.  The L card
+gives the name of the wiki page.  The U card specifies the login
+of the user who made this edit to the wiki page.  The Z card is
+the usual checksum over the either artifact.</p>
+
+<p>The W card is used to specify the text of the wiki page.  The
+argument to the W card is an integer which is the number of bytes
+of text in the wiki page.  That text follows the newline character
+that terminates the W card.  The wiki text is always followed by one
+extra newline.</p>
+
+<h2>5.0 Ticket Changes</h2>
+
+<p>A ticket-change artifact represents a change to a trouble ticket.
+The following cards are allowed on a ticket change artifact:</p>
+
+<blockquote>
+<b>D</b> <i>time-and-date-stamp</i><br />
+<b>J</b> ?<b>+</b>?<i>name value</i><br />
+<b>K</b> <i>ticket-uuid</i><br />
+<b>U</b> <i>user-name</i><br />
+<b>Z</b> <i>checksum</i>
+</blockquote>
+
+<p>
+The D card is the usual date and time stamp and represents the point
+in time when the change was entered.  The U card is the login of the
+programmer who entered this change.  The Z card is the checksum over
+the entire artifact.</p>
+
+<p>
+Every ticket has a UUID.  The ticket to which this change is applied
+is specified by the K card.  A ticket exists if it contains one or
+more changes.  The first "change" to a ticket is what brings the
+ticket into existance.</p>
+
+<p>
+J cards specify changes to "fields" of the ticket.  Each fossil
+server has a ticket configuration which specifies the fields its
+understands.  This is not a limit on the fields that can appear
+on the J cards, however.  If a J card specifies a field that a
+particular fossil server does not recognize, then that J card
+is simply ignored.</p>
+
+<p>
+The first argument of the J card is the field name.  The second
+value is the field value.  If the field name begins with "+" then
+the value is appended to the prior value.  Otherwise, the value
+on the J card replaces any previous value of the field.
+The field name and value are both encoded using the character
+escapes defined for the C card of a manifest.
+</p>
