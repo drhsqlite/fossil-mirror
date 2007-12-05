@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Integrated\sthe\snew\sfossil\smanagement\sclass\swith\sthe\soption\sprocessor.\sNew\soption\s--fossil\sto\sspecify\sthe\sfossil\sexecutable\sif\sit\swas\snot\sfound\sin\sthe\sPATH,\sor\sto\soveride\sthe\sPATH.
-D 2007-12-05T07:53:11
+C Extended\sfile\shandling\swith\smain\slogic\sto\simport\san\sarchive\sinto\sfossil.\sMain\sparts\sare\sdetermining\sthe\svarious\sorders\sfor\sexpansion\sand\simport,\sand\sexpanding\sall\srevisions\sin\san\sarchive\sinto\sfull\stexts,\siteratively\sapplying\sthe\sstored\sdeltas.
+D 2007-12-05T07:55:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -101,7 +101,7 @@ F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
-F tools/cvs2fossil/lib/c2f_file.tcl 04dc95a1eba04a6241eccd0626ef7dc4a2bf7154
+F tools/cvs2fossil/lib/c2f_file.tcl b1c125a0626a3d8e7194c2c59d8d3710e963a355
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_fossil.tcl 368156861d49a97d7b41576a3f3f633381653104
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
@@ -176,14 +176,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b6bf21e2a81ce241a94584d9fca9accf5d97276b
-R 75c752c38dcd72202b95ed4a46104ecb
+P 1a20a81f33681c6a06a36e149567b80b350ad9c9
+R b822dd4c370d4263d8e7a501d3bcbe9f
 U aku
-Z 364082d3241c2a889aed362debdf999a
+Z fa9e0577f3f04b69b1d36c79642304fe
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHVljnvonzZ/CRa7gRAnM/AJ9QRJKO5CNTrmSvDGdxHevA2tfKwgCcCT0Y
-uF7qV7jYUIqm06Oho4xLHpA=
-=0YKb
+iD8DBQFHVlmPvonzZ/CRa7gRAuvTAJ9QlBKzxKJvKZAgnxW9eQzmlFfnNACfZ0oR
+oQVtyOuNlhJDXh0Y5l6xS9Y=
+=f55q
 -----END PGP SIGNATURE-----

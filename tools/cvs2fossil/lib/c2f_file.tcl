@@ -19,10 +19,12 @@
 package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require struct::set                         ; # Set operations.
+package require struct::list                        ; # Higher order operations.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::file::sym  ; # CVS per file symbols.
 package require vc::fossil::import::cvs::state      ; # State storage.
 package require vc::fossil::import::cvs::integrity  ; # State integrity checks.
+package require vc::fossil::import::cvs::gtcore     ; # Graph traversal core.
 package require vc::tools::trouble                  ; # Error reporting.
 package require vc::tools::log                      ; # User feedback
 package require vc::tools::misc                     ; # Text formatting
@@ -251,6 +253,251 @@ snit::type ::vc::fossil::import::cvs::file {
 	$self AggregateSymbolData
 	return
     }
+
+    # # ## ### ##### ######## #############
+    ## Pass XII (Import).
+
+    method pushto {repository} {
+	set ws [$repository workspace]
+	struct::list assign [$self Expand $ws] filemap revmap
+	# filemap = dict (path -> uuid)
+	# revmap  = dict (path -> rid)
+
+	array set idmap [$repository importfiles $filemap]
+
+	# Wipe workspace clean of the imported files.
+	foreach x [glob -directory $ws r*] { file delete $x }
+
+	foreach {path rid} $revmap {
+	    set uuid $idmap($path)
+	    state run {
+		INSERT INTO revuuid (rid,  uuid)
+		VALUES              ($rid, $uuid)
+	    }
+	}
+	return
+    }
+
+    method Expand {dir} {
+	set ex [struct::graph ex] ; # Expansion graph.
+	set zp [struct::graph zp] ; # Zip/Import graph.
+
+	close [open $dir/r__empty__ w];# Base for detached roots on branches.
+
+	# Phase I: Pull the revisions from memory and fill the graphs
+	#          with them...
+
+	set earcs   {} ; # Arcs for expansion graph
+	set zarcs   {} ; # Arcs for zip graph
+	set revmap  {} ; # path -> rid map to later merge uuid information
+
+	foreach {rid revnr parent child coff clen} [state run {
+	    SELECT R.rid, R.rev, R.parent, R.child, R.coff, R.clen
+	    FROM   revision R
+	    WHERE  R.fid = $myid
+	}] {
+	    lappend revmap r$revnr $rid
+
+	    $zp node insert $rid
+	    $zp node set    $rid revnr $revnr
+	    $zp node set    $rid label <$revnr>
+
+	    if {$child ne ""} {
+		lappend zarcs $child $rid
+	    }
+
+	    $ex node insert $rid
+	    $ex node set    $rid text  [list $coff $clen]
+	    $ex node set    $rid revnr $revnr
+	    $ex node set    $rid label <$revnr>
+
+	    if {[rev istrunkrevnr $revnr]} {
+		# On the trunk, this revision is a delta based on the
+		# child. That makes the child our predecessor.
+
+		if {$child eq ""} continue
+		lappend earcs $child $rid
+	    } else {
+		# On a branch this revision is a delta based on the
+		# parent. That makes the parent our predecessor.
+
+		if {$parent eq ""} {
+		    # Detached branch root, this is a patch based on
+		    # the empty string.
+		    $ex node set $rid __base__ r__empty__ 
+		    continue
+		}
+		lappend earcs $parent $rid
+	    }
+	}
+
+	# Phase II: Insert the accumulated dependencies
+
+	foreach {from to} $earcs { $ex arc insert $from $to }
+	foreach {from to} $zarcs { $zp arc insert $from $to }
+
+	# Phase III: Traverse the graphs, expand the file, and
+	#            generate import instructions.
+
+	set archive [file join [$myproject fullpath] $mypath]
+	set ac      [open $archive r]
+	fconfigure $ac -translation binary
+
+	# First traverse the expansion graph, this gives us the
+	# revisions in the order we have to expand them, which we do.
+
+	gtcore datacmd   [mymethod ExpandData]
+	gtcore formatcmd [mymethod ExpandFormat]
+	gtcore sortcmd   [mymethod ExpandSort]
+	gtcore savecmd   [mymethod Expand1 $ac $dir]
+
+	gtcore traverse $ex ; # The graph is gone after the call
+	close $ac
+
+	# Now traverse the import graph, this builds the instruction
+	# map for the fossil deltas.
+
+	gtcore datacmd   [mymethod ExpandData]
+	gtcore formatcmd [mymethod ExpandFormat]
+	gtcore sortcmd   [mymethod ExpandSort]
+	gtcore savecmd   [mymethod Expand2]
+
+	set myimport {}
+	gtcore traverse $zp ; # The graph is gone after the call
+	set filemap $myimport
+	unset myimport
+
+	# And back to import control
+
+	return [list $filemap $revmap]
+    }
+
+    method ExpandData   {graph node} { return [$graph node get $node revnr] }
+    method ExpandFormat {graph item} { return <[lindex $item 1]> } ; # revnr
+    method ExpandSort   {graph candidates} {
+	# candidates = list(item), item = list(node revnr)
+	# Sort by node and revnr -> Trunk revisions come first.
+	return [lsort -index 1 -dict [lsort -index 0 -dict $candidates]]
+    }
+    method Expand1 {chan dir graph node} {
+	set revnr           [$graph node get $node revnr]
+	set fname          r$revnr
+	struct::list assign [$graph node get $node text] offset length
+
+	seek $chan $offset start
+	set data [string map {@@ @} [read $chan $length]]
+
+	if {![$graph node keyexists $node __base__]} {
+	    # Full text node. Get the data, decode it, and save.
+
+	    log write 2 file {Expanding <$revnr>, full text}
+
+	    fileutil::writeFile -translation binary $dir/$fname $data
+	} else {
+	    # Delta node. __base__ is the name of the file containing
+	    # the baseline. The patch is at the specified location of
+	    # the archive file.
+
+	    set fbase [$graph node get $node __base__]
+	    log write 2 file {Expanding <$revnr>, is delta of <$fbase>}
+
+	    set base [fileutil::cat -translation binary $dir/$fbase]
+
+	    # Writing the patch to disk is just for better
+	    # debugging. It is not used otherwise.
+	    fileutil::writeFile $dir/rpatch $data
+	    fileutil::writeFile -translation binary $dir/$fname \
+		[Apply $base $data]
+	}
+
+	# Post to all successors that the just generated file is their
+	# baseline.
+
+	foreach out [$graph nodes -out $node] {
+	    $graph node set $out __base__ $fname
+	}
+	return
+    }
+
+    proc Apply {base delta} {
+	# base  = base text.
+	# delta = delta in rcs format.
+	#
+	# Both strings are unencoded, i.e. things like @@, etc. have
+	# already been replaced with their proper characters.
+	#
+	# Return value is the patched text.
+
+	set base [split $base \n]
+	set blen [llength $base]
+	set ooff 0
+	set res ""
+
+	set lines  [split $delta \n]
+	set nlines [llength $lines]
+
+	for {set i 0} {$i < $nlines} {} {
+	    if {![regexp {^([ad])(\d+)\s(\d+)$} [lindex $lines $i] -> cmd sl cn]} {
+		trouble internal "Bad ed command '[lindex $lines $i]'"
+	    }
+
+	    incr i
+	    set el [expr {$sl + $cn}]
+
+	    switch -exact -- $cmd {
+		d {
+		    incr sl -1
+		    incr el -1
+		    if {$sl < $ooff} { trouble internal {Deletion before last edit} }
+		    if {$sl > $blen} { trouble internal {Deletion past file end} }
+		    if {$el > $blen} { trouble internal {Deletion beyond file end} }
+		    foreach x [lrange $base $ooff $sl] { lappend res $x }
+		    set  ooff $el
+		}
+		a {
+		    if {$sl < $ooff} { trouble internal {Insert before last edit} }
+		    if {$sl > $blen} { trouble internal {Insert past file end} }
+
+		    foreach x [lrange $base $ooff $sl]             { lappend res $x }
+		    foreach x [lrange $lines $i [expr {$i + $cn}]] { lappend res $x }
+		    set ooff $sl
+		    incr i $cn
+		}
+	    }
+	}
+	foreach x [lrange $base $ooff end] { lappend res $x }
+	return [join $res \n]
+    }
+
+    method Expand2 {graph node} {
+	set revnr [$graph node get $node revnr]
+
+	# First import the file.
+	lappend myimport [list A r$revnr {}]
+
+	if {[$graph node keyexists $node __base__]} {
+	    # Delta node. __base__ is the name of the file containing
+	    # the baseline. Generate instruction to make the delta as
+	    # well.
+
+	    set fbase [$graph node get $node __base__]
+	    lappend myimport [list D r$revnr r$fbase]
+	}
+
+	# Post to all successors that the just generated file is their
+	# baseline. Exception: Those which ave already a baseline set.
+	# Together with the sorting of trunk revisions first the trunk
+	# should one uninterupted line, with branch roots _not_ delta
+	# compressed per their branches.
+
+	foreach out [$graph nodes -out $node] {
+	    if {[$graph node keyexists $out __base__]} continue
+	    $graph node set $out __base__ $revnr
+	}
+	return
+    }
+
+    variable myimport
 
     # # ## ### ##### ######## #############
     ## State
@@ -1122,6 +1369,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::tools::log
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::fossil::import::cvs::integrity
+	namespace import ::vc::fossil::import::cvs::gtcore
     }
 }
 
