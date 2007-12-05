@@ -23,6 +23,7 @@ package require snit                                  ; # OO system.
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::tools::misc                       ; # Misc. path reformatting.
+package require vc::fossil::import::cvs::fossil       ; # Fossil repository access
 package require vc::fossil::import::cvs::pass         ; # Pass management
 package require vc::fossil::import::cvs::pass::collar ; # Pass I.
 package require vc::fossil::import::cvs::repository   ; # Repository management
@@ -49,6 +50,7 @@ snit::type ::vc::fossil::import::cvs::option {
     # --trunk-only
     # --exclude, --force-tag, --force-branch
     # --batch
+    # --fossil PATH
 
     # -o, --output
     # --dry-run
@@ -84,6 +86,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--dots                      { cyclebreaker dotsto [Value arguments] }
 		--watch                     { cyclebreaker watch  [Value arguments] }
 		--statesavequeriesto        { state savequeriesto [Value arguments] }
+		--fossil                    { fossil setlocation  [Value arguments] }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -146,6 +149,12 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "                               branch. Both project and symbol names"
 	trouble info "                               are glob patterns."
 	trouble info ""
+	trouble info "  Output control options"
+	trouble info ""
+	trouble info "    --fossil PATH              Specify where to find the fossil execu-"
+	trouble info "                               table if cv2fossil could not find it in"
+	trouble info "                               the PATH."
+	trouble info ""
 	trouble info "  Debug options"
 	trouble info ""
 	trouble info "    --dots PATH                Write the changeset graphs before, after,"
@@ -203,6 +212,7 @@ snit::type ::vc::fossil::import::cvs::option {
 	# Prevent in-depth validation if the options were already bad.
 	trouble abort?
 
+	fossil     validate
 	repository validate
 	state      setup
 
@@ -224,6 +234,7 @@ namespace eval ::vc::fossil::import::cvs {
     namespace export option
     namespace eval option {
 	namespace import ::vc::tools::misc::striptrailingslash
+	namespace import ::vc::fossil::import::cvs::fossil
 	namespace import ::vc::fossil::import::cvs::pass
 	namespace import ::vc::fossil::import::cvs::pass::collar
 	namespace import ::vc::fossil::import::cvs::cyclebreaker
