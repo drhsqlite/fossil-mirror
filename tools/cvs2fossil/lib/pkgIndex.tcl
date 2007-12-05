@@ -9,6 +9,7 @@ package ifneeded vc::fossil::import::cvs::file::lodmgr      1.0 [list source [fi
 package ifneeded vc::fossil::import::cvs::file::rev         1.0 [list source [file join $dir c2f_frev.tcl]]
 package ifneeded vc::fossil::import::cvs::file::sym         1.0 [list source [file join $dir c2f_fsym.tcl]]
 package ifneeded vc::fossil::import::cvs::file::trunk       1.0 [list source [file join $dir c2f_ftrunk.tcl]]
+package ifneeded vc::fossil::import::cvs::fossil            1.0 [list source [file join $dir c2f_fossil.tcl]]
 package ifneeded vc::fossil::import::cvs::option            1.0 [list source [file join $dir c2f_option.tcl]]
 package ifneeded vc::fossil::import::cvs::integrity         1.0 [list source [file join $dir c2f_integrity.tcl]]
 package ifneeded vc::fossil::import::cvs::pass              1.0 [list source [file join $dir c2f_pass.tcl]]
