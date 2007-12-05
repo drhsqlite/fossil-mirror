@@ -771,9 +771,7 @@ snit::type ::vc::fossil::import::cvs::file {
 		$branch cutbranchparent
 		if {![$branch haschild]} continue
 		set first [$branch child]
-		$first cutfromparentbranch
 		$first cutfromparent
-		$branch cutchild
 		lappend myroots $first
 	    }
 	    $root removeallbranches
@@ -816,8 +814,12 @@ snit::type ::vc::fossil::import::cvs::file {
 	    ldelete myroots $root
 	    lappend myroots $child
 
+	    $branch cutbranchparent
 	    $branch cutchild
 	    $child  cutfromparent
+
+	    $branch setchild        $child
+	    $child  setparentbranch $branch
 
 	    $parent removebranch        $branch
 	    $parent removechildonbranch $root
@@ -1019,9 +1021,19 @@ snit::type ::vc::fossil::import::cvs::file {
 	    while {$root ne ""} {
 		lappend revisions $root
 		foreach tag    [$root tags]     { lappend symbols $tag    }
-		foreach branch [$root branches] { lappend symbols $branch }
+		foreach branch [$root branches] {
+		    integrity assert {
+			[$branch parent] eq $root
+		    } {Backreference branch to its root is missing or wrong}
+		    lappend symbols $branch
+		}
 		set lod [$root lod]
-		if {![$lod istrunk]} { lappend symbols $lod }
+		if {![$lod istrunk]} {
+		    integrity assert {
+			[$lod haschild]
+		    } {Branch is LOD symbol without revisions}
+		    lappend symbols $lod
+		}
 		set root [$root child]
 	    }
 	}

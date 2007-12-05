@@ -180,13 +180,16 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	# Find all revisions with a branch parent symbol which do not
 	# have a parent.
 	CheckRev \
-	    {Branch starting revisions have to have a parent} \
-	    {at the beginning of its branch has no parent} {
+	    {Branch starting revisions have to have a parent, if not detached} \
+	    {at the beginning of its branch has no parent, but its branch has} {
 		SELECT F.name, R.rev
-		FROM revision R, file F
+		FROM revision R, file F, branch B
 		WHERE R.fid = F.fid
 		AND   R.bparent IS NOT NULL
-		AND   R.parent IS NULL
+		AND   R.parent  IS NULL
+		AND   B.sid = R.bparent
+		AND   B.fid = R.fid
+		AND   B.root    IS NOT NULL
 		;
 	    }
 	# Find all revisions with a branch parent symbol whose parent

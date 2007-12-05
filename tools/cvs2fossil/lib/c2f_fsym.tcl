@@ -81,6 +81,9 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	# rooted at the same revision and were committed earlier than
 	# the branch are also possible parents.
 
+	# Ignore this if the branch symbol is detached.
+	if {$mybranchparent eq ""} return
+
 	$mysymbol possibleparent [[$mybranchparent lod] symbol]
 
 	foreach branch [$mybranchparent branches] {
