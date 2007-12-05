@@ -42,6 +42,8 @@ snit::type ::vc::fossil::import::cvs::project {
     method base  {} { return $mybase  }
     method trunk {} { return $mytrunk }
 
+    method fullpath {} { return [$myrepository base?]/$mybase }
+
     method printbase {} {
 	if {$mybase eq ""} {return <Repository>}
 	return $mybase
