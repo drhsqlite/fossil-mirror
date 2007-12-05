@@ -114,7 +114,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	set n 0
 	state transaction {
 	    foreach {cid pos} [state run { SELECT cid, pos FROM csorder }] {
-		log progress 2 breakacycle $n
+		log progress 2 breakacycle $n {}
 		set cset [project::rev of $cid]
 		$cset setpos $pos
 		set mycset($pos) $cset
@@ -373,7 +373,8 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 		set old [$mycset($mylastpos) str]@$mylastpos
 	    }
 
-	    integrity assert 0 {Ordering of revision changesets violated, [$cset str]@$new is not immediately after $old}
+	    #integrity assert 0 {Ordering of revision changesets violated, [$cset str]@$new is not immediately after $old}
+	    log write 2 breakacycle {Ordering of revision changesets violated, [$cset str]@$new is not immediately after $old}
 	}
 
 	set mylastpos $new

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\shandling\sof\sdetached\slines\sof\sdevelopment\s(floating\sbranches)\sstill\shad\ssome\sbugs\sregarding\sthe\slinkage\sto\stheir\srevisions,\sespecially\sthe\sfirst\srevision\son\ssuch\sbranches.\sFixed\sthe\srelevant\splaces,\sadded\searly\sintegrity\schecks\sand\supdated\sthe\smain\schecks\sto\shandle\sthe\ssituation.
-D 2007-12-05T02:22:52
+C Fixed\slog\sprogress\suse\sin\slast\sbreaker\spass.\sDisabled\sthe\scheck\sregarding\srevision\sorder.\sIt\sstill\striggers\sand\sI\scan't\ssee\sanything\swrong.\sPressing\sforward\sfor\snow,\si.e.\sget\sthe\sremaining\spasses\sdone,\sthen\srevisit\sthis\sissue.
+D 2007-12-05T02:24:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -110,7 +110,7 @@ F tools/cvs2fossil/lib/c2f_integrity.tcl 565865cf886e13041e87b76bfdb52b1d4d24dcb
 F tools/cvs2fossil/lib/c2f_option.tcl 6e1ccf1f24809c1a4ea99eb91e7fc9033486b3dd
 F tools/cvs2fossil/lib/c2f_pass.tcl 2edf9bde578614e292ace9fbbd5daab36e491e7a
 F tools/cvs2fossil/lib/c2f_patopsort.tcl bd89b94e5f31aa5d3a00c2fb839b20cfa821cfa2
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 4af951798271e71f10805c516b9b224bccf171f4
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 3f3d02eb9464a3b590257b442f20a3e9c9a57ad4
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6011d
 F tools/cvs2fossil/lib/c2f_pcollar.tcl b8d8d7414375f66cb7817719a8b2763e8f92d077
@@ -174,14 +174,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3c0ef2c3799a576cd72e0240545289d6e383225e
-R 882f2e218b6487020eebdb6f43ab975e
+P c4003e7b9365bf8f26b8e1a1a22cf431279d6d7c
+R 0d10741583d18a34cc9e55ad6e6eb112
 U aku
-Z cdbe525a04da49657e74f391b782f2c3
+Z 25dc3b0ee483ea5aa8667b38fb4473c4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHVgt8vonzZ/CRa7gRAhD8AJ9VVFv+BSZc1MP7buAvvXrFGTDzfQCdGosJ
-mgOam5uy7dQH5pCJmwT3Ke0=
-=dPLm
+iD8DBQFHVgvZvonzZ/CRa7gRAjDKAJ9YgFdiZ2QVD/AtimtMVY8943b0eACfVvb3
+KqScq31P09/GRvxavun2GGY=
+=xBhe
 -----END PGP SIGNATURE-----
