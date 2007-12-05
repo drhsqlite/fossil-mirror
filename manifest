@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\stypo,\salthough\sit\sdid\snot\sbreak\sanything.
-D 2007-12-05T02:25:30
+C Went\sto\sexplicit\svar-substitution\sfor\sthe\sdynamic\ssql\squeries,\smakes\sformatting\seasier.
+D 2007-12-05T02:29:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -120,7 +120,7 @@ F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df75
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 84d0049634e4c32b97b1e6a9dd40de73626cb875
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 87cc4829ade8aa1f9eae261de7bc0ce7d79774bc
 F tools/cvs2fossil/lib/c2f_plodmgr.tcl 12b4220042da8084b8902b4b4603b71fcb36e9f5
-F tools/cvs2fossil/lib/c2f_prev.tcl 9958d4b1a2edd41bd9bc34448043b68e153043cc
+F tools/cvs2fossil/lib/c2f_prev.tcl 28af7570f15551cb5edce769100f4145c8424612
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
 F tools/cvs2fossil/lib/c2f_project.tcl 2573fce4030b56489527b3ba261e9149fdef5e17
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl bc1fe01638f0cb36455c225af63bc17f94ba0ac3
@@ -174,14 +174,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 229050721f10aa7c9a12a1fdb0c4ea96cfc33494
-R f3a28a0297b912eac0b12596e1acc6cf
+P 5b2d15f18356351f18a69fa57f148971dc770e62
+R a0f4aa64e4f5b02690ff81b22795c91a
 U aku
-Z 31a2c56d8eab0e8a4f26b14ef69486af
+Z 4c8e9b9ed4c8bea08b4151381ad25da6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHVgwavonzZ/CRa7gRAlnGAKCL2HK0a+eGgajK1s/FjdMh2UdKZACeJCTQ
-h/eDMbcojl6Nd2qBdo6pcbM=
-=QBeg
+iD8DBQFHVg0cvonzZ/CRa7gRAiRJAKCjU94yVos1ymWiTmymAluFdCmaTACgo1fN
+gswLBOGcHhUX3yi/FdC8HmI=
+=0HSN
 -----END PGP SIGNATURE-----

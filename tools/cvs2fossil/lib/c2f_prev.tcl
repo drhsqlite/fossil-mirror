@@ -630,11 +630,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set stamp {}
 
 	set theset ('[join $revisions {','}]')
-	foreach {rid time} [state run "
+	foreach {rid time} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, R.date
 	    FROM revision R
 	    WHERE R.rid IN $theset
-	"] {
+	}]] {
 	    set stamp($rid) $time
 	}
 
@@ -831,11 +831,11 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
     # result = list (mintime, maxtime)
     typemethod timerange {items} {
 	set theset ('[join $items {','}]')
-	return [state run "
+	return [state run [subst -nocommands -nobackslashes {
 	    SELECT MIN(R.date), MAX(R.date)
 	    FROM revision R
 	    WHERE R.rid IN $theset
-	"]
+	}]]
     }
 
     # var(dv) = dict (revision -> list (revision))
@@ -851,7 +851,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 
 	array set dep {}
 
-	foreach {rid child} [state run "
+	foreach {rid child} [state run [subst -nocommands -nobackslashes {
    -- (1) Primary child
 	    SELECT R.rid, R.child
 	    FROM   revision R
@@ -875,7 +875,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
 	    AND   RA.child IS NOT NULL    -- Has primary child.
             AND   RA.child IN $theset     -- Which is also of interest
-	"] {
+	}]] {
 	    # Consider moving this to the integrity module.
 	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
 	    lappend dependencies($rid) $child
@@ -905,11 +905,11 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# handle this.
 
 	array set fids {}
-	foreach {rid fid} [state run "
+	foreach {rid fid} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, R.fid
             FROM   revision R
             WHERE  R.rid IN $theset
-	"] { lappend fids($fid) $rid }
+	}]] { lappend fids($fid) $rid }
 
 	foreach {fid rids} [array get fids] {
 	    if {[llength $rids] < 2} continue
@@ -995,7 +995,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# Note that the branches spawned from the revisions, and the
 	# tags associated with them are successors as well.
 
-	foreach {rid child} [state run "
+	foreach {rid child} [state run [subst -nocommands -nobackslashes {
    -- (1) Primary child
 	    SELECT R.rid, R.child
 	    FROM   revision R
@@ -1016,25 +1016,25 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
 	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
 	    AND   RA.child IS NOT NULL    -- Has primary child.
-	"] {
+	}]] {
 	    # Consider moving this to the integrity module.
 	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
 	    lappend dependencies([list rev $rid]) [list rev $child]
 	}
-	foreach {rid child} [state run "
+	foreach {rid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, T.tid
 	    FROM   revision R, tag T
 	    WHERE  R.rid IN $theset
 	    AND    T.rev = R.rid
-	"] {
+	}]] {
 	    lappend dependencies([list rev $rid]) [list sym::tag $child]
 	}
-	foreach {rid child} [state run "
+	foreach {rid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, B.bid
 	    FROM   revision R, branch B
 	    WHERE  R.rid IN $theset
 	    AND    B.root = R.rid
-	"] {
+	}]] {
 	    lappend dependencies([list rev $rid]) [list sym::branch $child]
 	}
 	return
@@ -1049,7 +1049,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
         # of changesets.
 
 	set theset ('[join $revisions {','}]')
-	return [state run "
+	return [state run [subst -nocommands -nobackslashes {
 	    SELECT C.cid
 	    FROM   revision R, csitem CI, changeset C
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
@@ -1092,7 +1092,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
             AND    CI.iid = B.bid
             AND    C.cid = CI.cid
             AND    C.type = 2
-	"]
+	}]]
     }
 }
 
@@ -1123,12 +1123,12 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	# are attached to.
 
 	set theset ('[join $tags {','}]')
-	return [state run "
+	return [state run [subst -nocommands -nobackslashes {
 	    SELECT MIN(R.date), MAX(R.date)
 	    FROM   tag T, revision R
 	    WHERE  T.tid IN $theset
             AND    R.rid = T.rev
-	"]
+	}]]
     }
 
     # var(dv) = dict (item -> list (item)), item  = list (type id)
@@ -1181,12 +1181,12 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	# as they logically are.
 
 	set theset ('[join $branches {','}]')
-	return [state run "
+	return [state run [subst -nocommands -nobackslashes {
 	    SELECT IFNULL(MIN(R.date),0), IFNULL(MAX(R.date),0)
 	    FROM  branch B, revision R
 	    WHERE B.bid IN $theset
             AND   R.rid = B.root
-	"]
+	}]]
     }
 
     # result = 4-list (itemtype itemid nextitemtype nextitemid ...)
@@ -1214,30 +1214,30 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	# successors of a branch.
 
 	set theset ('[join $branches {','}]')
-	foreach {bid child} [state run "
+	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, R.rid
 	    FROM   branch B, revision R
 	    WHERE  B.bid IN $theset
 	    AND    B.first = R.rid
-	"] {
+	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list rev $child]
 	}
-	foreach {bid child} [state run "
+	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, BX.bid
 	    FROM   branch B, preferedparent P, branch BX
 	    WHERE  B.bid IN $theset
 	    AND    B.sid = P.pid
 	    AND    BX.sid = P.sid
-	"] {
+	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list sym::branch $child]
 	}
-	foreach {bid child} [state run "
+	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, T.tid
 	    FROM   branch B, preferedparent P, tag T
 	    WHERE  B.bid IN $theset
 	    AND    B.sid = P.pid
 	    AND    T.sid = P.sid
-	"] {
+	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list sym::tag $child]
 	}
 	return
@@ -1252,7 +1252,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
         # of changesets.
 
 	set theset ('[join $branches {','}]')
-        return [state run "
+        return [state run [subst -nocommands -nobackslashes {
 	    SELECT C.cid
 	    FROM   branch B, revision R, csitem CI, changeset C
 	    WHERE  B.bid IN $theset
@@ -1278,7 +1278,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
             AND    CI.iid = T.tid
             AND    C.cid = CI.cid
             AND    C.type = 1
-	"]
+	}]]
 	return
     }
 
