@@ -52,7 +52,7 @@ snit::type ::vc::fossil::import::cvs::project::revlink {
 	#    count, as they did not induce any of the two dependencies
 	#    under consideration. They can be ignored.
 
-	# 2. Revisions which have predecessors in PREV and sucessors
+	# 2. Revisions which have predecessors in PREV and successors
 	#    in NEXT. They are called 'passthrough' in cvs2svn. They
 	#    induce both dependencies under consideration and are thus
 	#    critical in the creation of the cycle. As such they are
@@ -71,6 +71,10 @@ snit::type ::vc::fossil::import::cvs::project::revlink {
 	# wherever, will break the cycle. If category 2 revisions are
 	# present we can still perform the split, this will however
 	# not break the cycle, only weaken it.
+
+	# NOTE: This is the only remaining user of 'nextmap'. Look
+	# into the possibility of performing the relevant counting
+	# within the database.
 
 	array set csetprevmap [Invert [$myprev nextmap]]
 	array set csetnextmap [$mycset nextmap]

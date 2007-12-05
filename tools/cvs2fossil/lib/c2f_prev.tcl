@@ -124,58 +124,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	}] [mytypemethod of]]
     }
 
-    # result = dict (item -> list (changeset))
-    method successormap {} {
-	# NOTE / FUTURE: Definitive bottleneck (can be millions of pairs).
-	#
-	# Only user is pass 9, computing the limits of backward
-	# branches per branch in the changeset. TODO: Fold that into
-	# the SQL query, i.e. move the crunching from Tcl to C.
-
-	array set tmp {}
-	foreach {rev children} [$self nextmap] {
-	    foreach child $children {
-		lappend tmp($rev) $myitemmap($child)
-	    }
-	    set tmp($rev) [lsort -unique $tmp($rev)]
-	}
-	return [array get tmp]
-    }
-
-    # result = dict (item -> list (changeset))
-    method predecessormap {} {
-	# NOTE / FUTURE: Definitive bottleneck (can be millions of pairs).
-	#
-	# Only user is pass 9, computing the limits of backward
-	# branches per branch in the changeset. TODO: Fold that into
-	# the SQL query, i.e. move the crunching from Tcl to C.
-
-	array set tmp {}
-	foreach {rev children} [$self premap] {
-	    foreach child $children {
-		lappend tmp($rev) $myitemmap($child)
-	    }
-	    set tmp($rev) [lsort -unique $tmp($rev)]
-	}
-	return [array get tmp]
-    }
-
     # item -> list (item)
     method nextmap {} {
-	#if {[llength $mynextmap]} { return $mynextmap }
 	$mytypeobj successors tmp $myitems
 	return [array get tmp]
-	#set mynextmap [array get tmp]
-	#return $mynextmap
-    }
-
-    # item -> list (item)
-    method premap {} {
-	#if {[llength $mypremap]} { return $mypremap }
-	$mytypeobj predecessors tmp $myitems
-	return [array get tmp]
-	#set mypremap [array get tmp]
-	#return $mypremap
     }
 
     method breakinternaldependencies {} {
@@ -578,14 +530,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 			      # tags, or branches in the cset, as
 			      # ids. Not tagged.
     variable mytitems    {} ; # As myitems, the tagged form.
-    variable mypremap    {} ; # Dictionary mapping from the items (tagged now)
-			      # to their predecessors, also tagged. A
-			      # cache to avoid loading this from the
-			      # state more than once.
-    variable mynextmap   {} ; # Dictionary mapping from the items (tagged)
-			      # to their successors (also tagged). A
-			      # cache to avoid loading this from the
-			      # state more than once.
     variable mypos       {} ; # Commit position of the changeset, if
 			      # known.
 
@@ -1096,67 +1040,6 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	return
     }
 
-    # var(dv) = dict (item -> list (item)), item  = list (type id)
-    typemethod predecessors {dv revisions} {
-	upvar 1 $dv dependencies
-	set theset ('[join $revisions {','}]')
-
-	# The following cases specify when a revision P is a
-	# predecessor of a revision R. Each of the cases translates
-	# into one of the branches of the SQL UNION coming below.
-	#
-	# (1) The immediate parent R.parent of R is a predecessor of
-	#     R. NOTE: This is true for R either primary or secondary
-	#     child of P. It not necessary to distinguish the two
-	#     cases, in contrast to the code retrieving the successor
-	#     information.
-	#
-	# (2) The complement of successor case (3). The trunk root is
-	#     a predecessor of a NTDB root. REMOVED. See 'successors'
-	#     for the explanation.
-	#
-	# (3) The complement of successor case (4). The last NTDB
-	#     revision belonging to the trunk is a predecessor of the
-	#     primary child of the trunk root (The '1.2' revision).
-
-	foreach {rid parent} [state run "
-   -- (1) Primary parent, can be in different LOD for first in a branch
-	    SELECT R.rid, R.parent
-	    FROM   revision R
-	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
-	    AND    R.parent IS NOT NULL   -- Has primary parent
-    UNION
-    -- (3) Last NTDB on trunk is predecessor of child of trunk root
-	    SELECT R.rid, RA.dbparent
-	    FROM   revision R, revision RA
-	    WHERE  R.rid IN $theset         -- Restrict to revisions of interest
-	    AND    NOT R.isdefault          -- not on NTDB
-	    AND    R.parent IS NOT NULL     -- which are not root
-	    AND    RA.rid = R.parent        -- go to their parent
-	    AND    RA.dbparent IS NOT NULL  -- which has to refer to NTDB's root
-	"] {
-	    # Consider moving this to the integrity module.
-	    integrity assert {$rid != $parent} {Revision $rid depends on itself.}
-	    lappend dependencies([list rev $rid]) [list rev $parent]
-	}
-
-	# The revisions which are the first on a branch have that
-	# branch as their predecessor. Note that revisions cannot be
-	# on tags in the same manner, so tags cannot be predecessors
-	# of revisions. This complements that they have no successors
-	# (See sym::tag/successors).
-
-	foreach {rid parent} [state run "
-	    SELECT R.rid, B.bid
-	    FROM   revision R, branch B
-	    WHERE  R.rid IN $theset
-	    AND    B.first = R.rid
-	"] {
-	    lappend dependencies([list rev $rid]) [list sym::branch $parent]
-	}
-	return
-    }
-
     # result = list (changeset-id)
     typemethod cs_successors {revisions} {
         # This is a variant of 'successors' which maps the low-level
@@ -1260,45 +1143,6 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	return {}
     }
 
-    # var(dv) = dict (item -> list (item)), item  = list (type id)
-    typemethod predecessors {dv tags} {
-	upvar 1 $dv dependencies
-	# The predecessors of a tag are all the revisions the tags are
-	# attached to, as well as all the branches or tags which are
-	# their prefered parents.
-
-	set theset ('[join $tags {','}]')
-	foreach {tid parent} [state run "
-	    SELECT T.tid, R.rid
-	    FROM   tag T, revision R
-	    WHERE  T.tid IN $theset
-	    AND    T.rev = R.rid
-	"] {
-	    lappend dependencies([list sym::tag $tid]) [list rev $parent]
-	}
-
-	foreach {tid parent} [state run "
-	    SELECT T.tid, B.bid
-	    FROM   tag T, preferedparent P, branch B
-	    WHERE  T.tid IN $theset
-	    AND    T.sid = P.sid
-	    AND    P.pid = B.sid
-	"] {
-	    lappend dependencies([list sym::tag $tid]) [list sym::branch $parent]
-	}
-
-	foreach {tid parent} [state run "
-	    SELECT T.tid, TX.tid
-	    FROM   tag T, preferedparent P, tag TX
-	    WHERE  T.tid IN $theset
-	    AND    T.sid = P.sid
-	    AND    P.pid = TX.sid
-	"] {
-	    lappend dependencies([list sym::tag $tid]) [list sym::tag $parent]
-	}
-	return
-    }
-
     # result = list (changeset-id)
     typemethod cs_successors {tags} {
 	# Tags have no successors.
@@ -1395,43 +1239,6 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	    AND    T.sid = P.sid
 	"] {
 	    lappend dependencies([list sym::branch $bid]) [list sym::tag $child]
-	}
-	return
-    }
-
-    # var(dv) = dict (item -> list (item)), item  = list (type id)
-    typemethod predecessors {dv branches} {
-	upvar 1 $dv dependencies
-	# The predecessors of a branch are all the revisions the
-	# branches are spawned from, as well as all the branches or
-	# tags which are their prefered parents.
-
-	set theset ('[join $branches {','}]')
-	foreach {bid parent} [state run "
-	    SELECT B.Bid, R.rid
-	    FROM   branch B, revision R
-	    WHERE  B.bid IN $theset
-	    AND    B.root = R.rid
-	"] {
-	    lappend dependencies([list sym::branch $bid]) [list rev $parent]
-	}
-	foreach {bid parent} [state run "
-	    SELECT B.bid, BX.bid
-	    FROM   branch B, preferedparent P, branch BX
-	    WHERE  B.bid IN $theset
-	    AND    B.sid = P.sid
-	    AND    P.pid = BX.sid
-	"] {
-	    lappend dependencies([list sym::branch $bid]) [list sym::branch $parent]
-	}
-	foreach {bid parent} [state run "
-	    SELECT B.bid, T.tid
-	    FROM   branch B, preferedparent P, tag T
-	    WHERE  B.bid IN $theset
-	    AND    B.sid = P.sid
-	    AND    P.pid = T.sid
-	"] {
-	    lappend dependencies([list sym::branch $bid]) [list sym::tag $parent]
 	}
 	return
     }
