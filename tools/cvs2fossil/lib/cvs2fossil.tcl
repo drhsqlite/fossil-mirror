@@ -41,6 +41,7 @@ package require vc::fossil::import::cvs::pass::rtopsort    ; # R'evision Top'olo
 package require vc::fossil::import::cvs::pass::breakscycle ; # Break' S'ymbol Cycle's
 package require vc::fossil::import::cvs::pass::breakacycle ; # Break' A'll Cycle's
 package require vc::fossil::import::cvs::pass::atopsort    ; # A'll Top'ological Sort'
+package require vc::fossil::import::cvs::pass::import      ; # Import' Files and Changesets
 
 # # ## ### ##### ######## ############# #####################
 ## Support for passes etc.

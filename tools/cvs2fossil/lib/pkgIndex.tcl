@@ -24,6 +24,7 @@ package ifneeded vc::fossil::import::cvs::pass::rtopsort    1.0 [list source [fi
 package ifneeded vc::fossil::import::cvs::pass::breakscycle 1.0 [list source [file join $dir c2f_pbreakscycle.tcl]]
 package ifneeded vc::fossil::import::cvs::pass::breakacycle 1.0 [list source [file join $dir c2f_pbreakacycle.tcl]]
 package ifneeded vc::fossil::import::cvs::pass::atopsort    1.0 [list source [file join $dir c2f_patopsort.tcl]]
+package ifneeded vc::fossil::import::cvs::pass::import      1.0 [list source [file join $dir c2f_pimport.tcl]]
 package ifneeded vc::fossil::import::cvs::gtcore            1.0 [list source [file join $dir c2f_gtcore.tcl]]
 package ifneeded vc::fossil::import::cvs::cyclebreaker      1.0 [list source [file join $dir c2f_cyclebreaker.tcl]]
 package ifneeded vc::fossil::import::cvs::project           1.0 [list source [file join $dir c2f_project.tcl]]
