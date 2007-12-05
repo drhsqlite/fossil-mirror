@@ -117,7 +117,7 @@ snit::type ::vc::fossil::import::cvs::cyclebreaker {
 		ShowPendingNodes
 	    }
 
-	    if {![llength [dg nodes]]} break
+	    if {![llength [$dg nodes]]} break
 
 	    BreakCycleHook       $dg
 	    InitializeCandidates $dg

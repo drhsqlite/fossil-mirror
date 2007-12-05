@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\slog\sprogress\suse\sin\slast\sbreaker\spass.\sDisabled\sthe\scheck\sregarding\srevision\sorder.\sIt\sstill\striggers\sand\sI\scan't\ssee\sanything\swrong.\sPressing\sforward\sfor\snow,\si.e.\sget\sthe\sremaining\spasses\sdone,\sthen\srevisit\sthis\sissue.
-D 2007-12-05T02:24:25
+C Fixed\stypo,\salthough\sit\sdid\snot\sbreak\sanything.
+D 2007-12-05T02:25:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -100,7 +100,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
-F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 775fd1f9e50b00e78a90fa8b6dff8b58f288294e
+F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
 F tools/cvs2fossil/lib/c2f_file.tcl 04dc95a1eba04a6241eccd0626ef7dc4a2bf7154
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
@@ -174,14 +174,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c4003e7b9365bf8f26b8e1a1a22cf431279d6d7c
-R 0d10741583d18a34cc9e55ad6e6eb112
+P 229050721f10aa7c9a12a1fdb0c4ea96cfc33494
+R f3a28a0297b912eac0b12596e1acc6cf
 U aku
-Z 25dc3b0ee483ea5aa8667b38fb4473c4
+Z 31a2c56d8eab0e8a4f26b14ef69486af
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHVgvZvonzZ/CRa7gRAjDKAJ9YgFdiZ2QVD/AtimtMVY8943b0eACfVvb3
-KqScq31P09/GRvxavun2GGY=
-=xBhe
+iD8DBQFHVgwavonzZ/CRa7gRAlnGAKCL2HK0a+eGgajK1s/FjdMh2UdKZACeJCTQ
+h/eDMbcojl6Nd2qBdo6pcbM=
+=QBeg
 -----END PGP SIGNATURE-----
