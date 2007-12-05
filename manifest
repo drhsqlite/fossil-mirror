@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Created\snew\spass\sfor\sthe\simport\sof\sfiles\sand\schangesets.\sUses\sthe\snew\sfile\smethod\sand\sfossil\saccessor\sclass\sto\shandle\sthe\sfile\simport.\sChangeset\s->\smanifest\sconversion\sis\s_not_\scovered\syet.
-D 2007-12-05T07:57:50
+C Bugfix.\sTranslation\simplies\sencoding,\snot\sthe\sreverse.\sThis\scaused\sproblems\swhen\sparsing\sfiles\swith\smixed-mode\sline-endings.\sThe\sgenerated\schar\soffsets\sand\slengths\swere\soff.\sFound\sduring\sexpansion.
+D 2007-12-05T07:58:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -137,7 +137,7 @@ F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
 F tools/cvs2fossil/lib/log.tcl 875fe25bc72ca017813d7a62fa65a6fbe23e44db
 F tools/cvs2fossil/lib/misc.tcl 98d22d51095be285caadea050ee08bb6664153f7
 F tools/cvs2fossil/lib/pkgIndex.tcl fde79c6697f59e09ef7d9a3d2bb48e6695cf1329
-F tools/cvs2fossil/lib/rcsparser.tcl e6259bae92fc248b523c3a45c3c600b83192a9a9
+F tools/cvs2fossil/lib/rcsparser.tcl 6518936d0c3152fb53024c91aa587de15b354262
 F tools/cvs2fossil/lib/trouble.tcl c6cef7555cede649dab283c4a15ea0d2ec71d042
 F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
 F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
@@ -177,14 +177,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html 427965635d9c24b6a330b14cec2cf5566f464f8a
 F www/selfcheck.html 48d946181712dc8f97cff5b6a039d06755a75258
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e100314ec2deed52da780bd226ab583efd59271b
-R efae6b416e0ef2734aee6d0df721ab7d
+P d9fc75e58714bc3006917ddd5383d7224761b734
+R 24029644c661a1be7c09f3d1e7da4c92
 U aku
-Z 4398f3a94ebfaa0ed0ea295996e823c6
+Z 0c88021f1d43587641e47c081eaaff5c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHVln+vonzZ/CRa7gRAshXAJsEXhlELdBBHeXhFo/coH9EqUp2mwCgnLcR
-7GUP7gsFmzBwLN/x31B8LwA=
-=gnjz
+iD8DBQFHVlpAvonzZ/CRa7gRAnT7AKCpJkDjhbYbfB0enHv691yKQuIcJgCgwFAe
+CAWY39FaEJv4/a9iSmOPrNk=
+=ErCQ
 -----END PGP SIGNATURE-----

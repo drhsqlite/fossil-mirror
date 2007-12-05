@@ -442,7 +442,7 @@ snit::type ::vc::rcs::parser {
 
     proc Initialize {path sink} {
 	::variable mypos  0
-	::variable mydata [fileutil::cat -encoding binary $path]
+	::variable mydata [fileutil::cat -translation binary $path]
 	::variable mysize [file size $path]
 	::variable mysink $sink
 	return
