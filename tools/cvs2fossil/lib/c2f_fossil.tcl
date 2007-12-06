@@ -60,11 +60,17 @@ snit::type ::vc::fossil::import::cvs::fossil {
 
 	array set id {}
 	$self InWorkspace
+
+	set n   0
+	set max [llength $map]
+
 	foreach insn $map {
+	    log progress 3 fossil $n $max ; incr n
+
 	    struct::list assign $insn cmd pa pb
 	    switch -exact -- $cmd {
 		A {
-		    log write 2 fossil {Importing   <$pa>,}
+		    log write 8 fossil {Importing   <$pa>,}
 
 		    # Result = 'inserted as record :FOO:'
 		    #           0        1  2     3
@@ -75,7 +81,7 @@ snit::type ::vc::fossil::import::cvs::fossil {
 		    set id($pa) [lindex $res 3]
 		}
 		D {
-		    log write 2 fossil {Compressing <$pa>, as delta of <$pb>}
+		    log write 8 fossil {Compressing <$pa>, as delta of <$pb>}
 
 		    Do test-content-deltify $id($pa) $id($pb) 1
 		}

@@ -346,10 +346,13 @@ snit::type ::vc::fossil::import::cvs::file {
 	# First traverse the expansion graph, this gives us the
 	# revisions in the order we have to expand them, which we do.
 
+	set max [llength [$ex nodes]]
+	set myimport 0
+
 	gtcore datacmd   [mymethod ExpandData]
 	gtcore formatcmd [mymethod ExpandFormat]
 	gtcore sortcmd   [mymethod ExpandSort]
-	gtcore savecmd   [mymethod Expand1 $ac $dir]
+	gtcore savecmd   [mymethod Expand1 $ac $dir $max]
 
 	gtcore traverse $ex ; # The graph is gone after the call
 	close $ac
@@ -379,7 +382,9 @@ snit::type ::vc::fossil::import::cvs::file {
 	# Sort by node and revnr -> Trunk revisions come first.
 	return [lsort -index 1 -dict [lsort -index 0 -dict $candidates]]
     }
-    method Expand1 {chan dir graph node} {
+    method Expand1 {chan dir max graph node} {
+	log progress 3 file $myimport $max ; incr myimport
+
 	set revnr           [$graph node get $node revnr]
 	set fname          r$revnr
 	struct::list assign [$graph node get $node text] offset length
@@ -394,7 +399,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	if {![$graph node keyexists $node __base__]} {
 	    # Full text node. Get the data, decode it, and save.
 
-	    log write 2 file {Expanding <$revnr>, full text}
+	    log write 8 file {Expanding <$revnr>, full text}
 
 	    fileutil::writeFile -translation binary $dir/$fname $data
 	} else {
@@ -403,7 +408,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # the archive file.
 
 	    set fbase [$graph node get $node __base__]
-	    log write 2 file {Expanding <$revnr>, is delta of <$fbase>}
+	    log write 8 file {Expanding <$revnr>, is delta of <$fbase>}
 
 	    set base [fileutil::cat -translation binary $dir/$fbase]
 
