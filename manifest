@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Removed\sthe\sautomatic\sdestruction\sof\sthe\straversed\sgraph\sfrom\sthe\straversal\score\sand\sput\sit\sinto\sthe\scaller\s(import\sonly,\scurrently).
-D 2007-12-06T03:56:07
+C Extended\straversal\score\sto\sallow\scustom\slabeling\sof\sthe\slog\soutput\simmediately\sbefore\sthe\straversal\sstarts.
+D 2007-12-06T03:58:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -110,13 +110,13 @@ F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
-F tools/cvs2fossil/lib/c2f_file.tcl 7bea1e82e636be48b0ac405b9fb5ab23131c931d
+F tools/cvs2fossil/lib/c2f_file.tcl 59c3833ae178d91df5e3c8bc3aed00869969e9aa
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_fossil.tcl ebb0d19e1f32a9e3c4feb1e6257c38341b58ff3a
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
 F tools/cvs2fossil/lib/c2f_fsym.tcl b2ddfe62f2727495b0338bc7a8f5f3fbc7c4526c
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
-F tools/cvs2fossil/lib/c2f_gtcore.tcl f5a1fffb8ffa22edb543af6c0d859359c3121caf
+F tools/cvs2fossil/lib/c2f_gtcore.tcl 6d553315880f6054c1bf453a26a91732cc1dc504
 F tools/cvs2fossil/lib/c2f_integrity.tcl 565865cf886e13041e87b76bfdb52b1d4d24dcbf
 F tools/cvs2fossil/lib/c2f_option.tcl 490b79f397c887c6d5a94f3678f951000d202975
 F tools/cvs2fossil/lib/c2f_pass.tcl 2edf9bde578614e292ace9fbbd5daab36e491e7a
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 08f8085700fef9944101ad38f239acfb7ad3b192
-R 37c2beead7d0f166c3006cbd51e79870
+P b59cdc7f8a605c0baa16c27e603fbbb912f4347f
+R db99913daffaf7ae151fa67043987eef
 U aku
-Z 8562082078cd6457a16a6549d50e85ca
+Z ecc7a2108217f84e16add79d7742f217
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHV3LXvonzZ/CRa7gRAuonAJ9paT9x+l5q//CA+P12y5FFqbXyJACgkf0e
-nZYLOXfa0lT0/NsxOPekWts=
-=WW1c
+iD8DBQFHV3NJvonzZ/CRa7gRAnBwAKCq3Yy9vcjPlHj9csZI0REFzPerPwCeJx51
+swiDFMtXdvEbShoiaGSf1cI=
+=//py
 -----END PGP SIGNATURE-----

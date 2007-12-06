@@ -354,7 +354,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	gtcore sortcmd   [mymethod ExpandSort]
 	gtcore savecmd   [mymethod Expand1 $ac $dir $max]
 
-	gtcore traverse $ex
+	gtcore traverse $ex {Expanding revisions...}
 	close $ac
 
 	# Now traverse the import graph, this builds the instruction
@@ -366,7 +366,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	gtcore savecmd   [mymethod Expand2]
 
 	set myimport {}
-	gtcore traverse $zp
+	gtcore traverse $zp {Generating revision order for import...}
 	set filemap $myimport
 	unset myimport
 

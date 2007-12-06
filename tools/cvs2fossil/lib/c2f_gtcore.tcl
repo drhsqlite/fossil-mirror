@@ -39,10 +39,10 @@ snit::type ::vc::fossil::import::cvs::gtcore {
 
     # # ## ### ##### ######## #############
 
-    typemethod traverse {graph} {
+    typemethod traverse {graph {label Traverse}} {
 	InitializeCandidates $graph
 
-	log write 3 gtcore {Traverse}
+	log write 3 gtcore {$label}
 
 	set k   0
 	set max [llength [$graph nodes]]
