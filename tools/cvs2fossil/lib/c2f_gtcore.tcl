@@ -63,8 +63,6 @@ snit::type ::vc::fossil::import::cvs::gtcore {
 	    InitializeCandidates $graph
 	}
 
-	$graph destroy
-
 	log write 3 gtcore Done.
 	ClearHooks
 	return

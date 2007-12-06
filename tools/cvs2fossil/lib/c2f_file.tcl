@@ -354,7 +354,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	gtcore sortcmd   [mymethod ExpandSort]
 	gtcore savecmd   [mymethod Expand1 $ac $dir $max]
 
-	gtcore traverse $ex ; # The graph is gone after the call
+	gtcore traverse $ex
 	close $ac
 
 	# Now traverse the import graph, this builds the instruction
@@ -366,11 +366,14 @@ snit::type ::vc::fossil::import::cvs::file {
 	gtcore savecmd   [mymethod Expand2]
 
 	set myimport {}
-	gtcore traverse $zp ; # The graph is gone after the call
+	gtcore traverse $zp
 	set filemap $myimport
 	unset myimport
 
 	# And back to import control
+
+	$ex destroy
+	$zp destroy
 
 	return [list $filemap $revmap]
     }
