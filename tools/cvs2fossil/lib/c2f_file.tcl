@@ -384,8 +384,12 @@ snit::type ::vc::fossil::import::cvs::file {
 	set fname          r$revnr
 	struct::list assign [$graph node get $node text] offset length
 
-	seek $chan $offset start
-	set data [string map {@@ @} [read $chan $length]]
+	if {$length < 0} {
+	    set data ""
+	} else {
+	    seek $chan $offset start
+	    set data [string map {@@ @} [read $chan $length]]
+	}
 
 	if {![$graph node keyexists $node __base__]} {
 	    # Full text node. Get the data, decode it, and save.

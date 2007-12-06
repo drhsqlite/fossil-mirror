@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\smainline\sinto\smy\sbranch\sto\sget\sthe\snewest\sapplication.
-D 2007-12-05T08:07:46
+C Fixed\shandling\sof\sempty\srevisions.
+D 2007-12-06T03:48:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -110,7 +110,7 @@ F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
-F tools/cvs2fossil/lib/c2f_file.tcl b1c125a0626a3d8e7194c2c59d8d3710e963a355
+F tools/cvs2fossil/lib/c2f_file.tcl 44f7ae687cb0fc07949bf6dc8caab7ea50985dd3
 F tools/cvs2fossil/lib/c2f_flodmgr.tcl 36700e34ad9e3f222efcd08dc5fc670df8d132ab
 F tools/cvs2fossil/lib/c2f_fossil.tcl 368156861d49a97d7b41576a3f3f633381653104
 F tools/cvs2fossil/lib/c2f_frev.tcl 72b07e1bd51da1c7273808716c20a00e09c3a8c4
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6f1c4424b4d53322ece0345231e1358b7f912849 ebb2765954407a3ebe5b252130f3f7d7f0230330
-R 2818b5a37b6203466e2954f7ee0ab6be
+P d0305b305ad0a15a1aa38dbd1830bc9b7654eb69
+R 91c808367fdb806290e9f734a637a2d5
 U aku
-Z 603ea1e3e968d16866d87501598e9e02
+Z 430de5e9b2993878cc35540f2b20cd65
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHVlxWvonzZ/CRa7gRAiMQAJoCaQ7agzpJyOdWPSvT+pt4fFn/BgCcDkUU
-7ho+uwbuWJmzfVZ9gThttW4=
-=Y0bE
+iD8DBQFHV3EPvonzZ/CRa7gRAiTpAJwMndoyLiPtvZjqa0oMG9y3JWYIAACgoywj
+rDclyVgKyO0l+4zXqidw+vs=
+=GYXA
 -----END PGP SIGNATURE-----
