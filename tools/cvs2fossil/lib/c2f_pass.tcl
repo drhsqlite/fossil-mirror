@@ -114,8 +114,11 @@ snit::type ::vc::fossil::import::cvs::pass {
 	}
 	foreach p $run {
 	    log write 0 pass "Begin $p"
-	    Time $p [lindex [time {Call $p run} 1] 0]
+	    set secbegin [clock seconds]
+	    Call $p run
+	    set secstop  [clock seconds]
 	    log write 0 pass "Done  $p"
+	    Time $p [expr {$secstop - $secbegin}]
 	    trouble abort?
 	}
 	foreach p $defered {
@@ -133,24 +136,23 @@ snit::type ::vc::fossil::import::cvs::pass {
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    proc Time {pass useconds} {
+    proc Time {pass seconds} {
 	::variable mytime
-	lappend    mytime $pass $useconds
-	ShowTime          $pass $useconds
+	lappend    mytime $pass $seconds
+	ShowTime          $pass $seconds
 	return
     }
 
     proc ShowTimes {} {
 	::variable mytime
-	foreach {pass useconds} $mytime {
-	    ShowTime $pass $useconds
+	foreach {pass seconds} $mytime {
+	    ShowTime $pass $seconds
 	}
 	return
     }
 
-    proc ShowTime {pass useconds} {
-	set sec [format %8.2f [expr {double($useconds)/1e6}]]
-	log write 0 pass "$sec sec/$pass"
+    proc ShowTime {pass seconds} {
+	log write 0 pass "[format %8d $seconds] sec/$pass"
 	return
     }
 

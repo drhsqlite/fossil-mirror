@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Extended\straversal\score\sto\sallow\scustom\slabeling\sof\sthe\slog\soutput\simmediately\sbefore\sthe\straversal\sstarts.
-D 2007-12-06T03:58:01
+C Reworked\stime\skeeping\sin\sthe\spass\smanager,\sthe\smicroseconds\skept\sby\sby\sthe\s'time'\scommand\sflow\sover\safter\sroughly\s72\sminutes\s(2^32\smicroseconds).\sWe\snow\suse\s'clock\sseconds'\sto\sexplicitly\skeep\stime.\sThis\sshould\sflow\sover\sonly\safter\sabuut\s136\syears.\sThe\sloss\sof\sresolution\sis\sok,\sthe\sconverter\sdoes\snot\sneed\sit.\sSeconds\sare\sgood\senough.
+D 2007-12-06T04:05:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -119,7 +119,7 @@ F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
 F tools/cvs2fossil/lib/c2f_gtcore.tcl 6d553315880f6054c1bf453a26a91732cc1dc504
 F tools/cvs2fossil/lib/c2f_integrity.tcl 565865cf886e13041e87b76bfdb52b1d4d24dcbf
 F tools/cvs2fossil/lib/c2f_option.tcl 490b79f397c887c6d5a94f3678f951000d202975
-F tools/cvs2fossil/lib/c2f_pass.tcl 2edf9bde578614e292ace9fbbd5daab36e491e7a
+F tools/cvs2fossil/lib/c2f_pass.tcl 98d1ccdb7b4b2f9c80fcf511382cc57c63fd2bfa
 F tools/cvs2fossil/lib/c2f_patopsort.tcl bd89b94e5f31aa5d3a00c2fb839b20cfa821cfa2
 F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 3f3d02eb9464a3b590257b442f20a3e9c9a57ad4
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b59cdc7f8a605c0baa16c27e603fbbb912f4347f
-R db99913daffaf7ae151fa67043987eef
+P b81901adcb9d1a51828d311dd58ab219c3650c3f
+R ea5fd0094ddb43a8b21ce66459b58d0d
 U aku
-Z ecc7a2108217f84e16add79d7742f217
+Z 414c204720bae299e9fb5636cdf4fe74
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHV3NJvonzZ/CRa7gRAnBwAKCq3Yy9vcjPlHj9csZI0REFzPerPwCeJx51
-swiDFMtXdvEbShoiaGSf1cI=
-=//py
+iD8DBQFHV3UQvonzZ/CRa7gRAuSBAJ43XuREk7gV0R4UtXG6QnPmg/fC3wCgj/NR
+fu5GgJ5oON9zXstBo+PD1Us=
+=zqTz
 -----END PGP SIGNATURE-----
