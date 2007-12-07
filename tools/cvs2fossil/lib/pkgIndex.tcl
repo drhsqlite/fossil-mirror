@@ -5,7 +5,6 @@
 if {![package vsatisfies [package require Tcl] 8.4]} return
 package ifneeded vc::fossil::import::cvs                    1.0 [list source [file join $dir cvs2fossil.tcl]]
 package ifneeded vc::fossil::import::cvs::file              1.0 [list source [file join $dir c2f_file.tcl]]
-package ifneeded vc::fossil::import::cvs::file::lodmgr      1.0 [list source [file join $dir c2f_flodmgr.tcl]]
 package ifneeded vc::fossil::import::cvs::file::rev         1.0 [list source [file join $dir c2f_frev.tcl]]
 package ifneeded vc::fossil::import::cvs::file::sym         1.0 [list source [file join $dir c2f_fsym.tcl]]
 package ifneeded vc::fossil::import::cvs::file::trunk       1.0 [list source [file join $dir c2f_ftrunk.tcl]]
@@ -28,7 +27,6 @@ package ifneeded vc::fossil::import::cvs::pass::import      1.0 [list source [fi
 package ifneeded vc::fossil::import::cvs::gtcore            1.0 [list source [file join $dir c2f_gtcore.tcl]]
 package ifneeded vc::fossil::import::cvs::cyclebreaker      1.0 [list source [file join $dir c2f_cyclebreaker.tcl]]
 package ifneeded vc::fossil::import::cvs::project           1.0 [list source [file join $dir c2f_project.tcl]]
-package ifneeded vc::fossil::import::cvs::project::lodmgr   1.0 [list source [file join $dir c2f_plodmgr.tcl]]
 package ifneeded vc::fossil::import::cvs::project::rev      1.0 [list source [file join $dir c2f_prev.tcl]]
 package ifneeded vc::fossil::import::cvs::project::revlink  1.0 [list source [file join $dir c2f_prevlink.tcl]]
 package ifneeded vc::fossil::import::cvs::project::sym      1.0 [list source [file join $dir c2f_psym.tcl]]
