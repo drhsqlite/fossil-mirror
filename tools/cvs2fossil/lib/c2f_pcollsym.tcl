@@ -60,7 +60,7 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	    sid INTEGER  NOT NULL  PRIMARY KEY  REFERENCES symbol,
 	    pid INTEGER  NOT NULL               REFERENCES symbol
 	} { pid }
-	# Index on: pid (branch successors`)
+	# Index on: pid (branch successors)
 	return
     }
 
@@ -113,6 +113,9 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
     # # ## ### ##### ######## #############
     ## Internal methods
 
+    ## TODO: Move UnconvertedSymbols, BadSymbolTypes, BlockedIncludes,
+    ##       InvalidTags to the integrity module?
+
     proc UnconvertedSymbols {} {
 	# Paranoia - Have we left symbols without conversion
 	# information (i.e. with type 'undefined') ?
@@ -121,9 +124,9 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	foreach {pname sname} [state run {
 	    SELECT P.name, S.name
-	    FROM   project P, symbol S
-	    WHERE  P.pid = S.pid
-	    AND    S.type = $undef
+	    FROM   symbol S, project P
+	    WHERE  S.type = $undef  -- Restrict to undefined symbols
+	    AND    P.pid = S.pid    -- Get project for symbol
 	}] {
 	    trouble fatal "$pname : The symbol '$sname' was left undefined"
 	}
@@ -137,9 +140,9 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	foreach {pname sname} [state run {
 	    SELECT P.name, S.name
-	    FROM   project P, symbol S
-	    WHERE  P.pid = S.pid
-	    AND    S.type NOT IN (0,1,2)
+	    FROM   symbol S, project P
+	    WHERE  S.type NOT IN (0,1,2) -- Restrict to symbols with bogus type codes
+	    AND    P.pid = S.pid         -- Get project of symbol
 	}] {
 	    trouble fatal "$pname : The symbol '$sname' has no proper conversion type"
 	}
@@ -154,12 +157,12 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	foreach {pname sname bname} [state run {
 	    SELECT P.name, S.name, SB.name
-	    FROM   project P, symbol S, blocker B, symbol SB
-	    WHERE  P.pid = S.pid
-	    AND    S.type = $excl
-	    AND    S.sid = B.sid
-	    AND    B.bid = SB.sid
-	    AND    SB.type != $excl
+	    FROM   symbol S, blocker B, symbol SB, project P
+	    WHERE  S.type = $excl   -- Restrict to excluded symbols
+	    AND    S.sid = B.sid    -- Get symbols blocking them
+	    AND    B.bid = SB.sid   -- and
+	    AND    SB.type != $excl -- which are not excluded themselves
+	    AND    P.pid = S.pid    -- Get project of symbol
 	}] {
 	    trouble fatal "$pname : The symbol '$sname' cannot be excluded as the unexcluded symbol '$bname' depends on it."
 	}
@@ -181,9 +184,9 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	foreach {pname sname} [state run {
 	    SELECT P.name, S.name
 	    FROM   project P, symbol S
-	    WHERE  P.pid = S.pid
-	    AND    S.type = $tag
-	    AND    S.commit_count > 0
+	    WHERE  S.type = $tag        -- Restrict to tag symbols
+	    AND    S.commit_count > 0   -- which have revisions committed to them
+	    AND    P.pid = S.pid        -- Get project of symbol
 	}] {
 	    trouble fatal "$pname : The symbol '$sname' cannot be forced to be converted as tag because it has commits."
 	}
@@ -201,11 +204,11 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	    DELETE FROM blocker
 	    WHERE bid IN (SELECT sid
 			  FROM   symbol
-			  WhERE  type = $excl);
+			  WhERE  type = $excl); -- Get excluded symbols
 	    DELETE FROM parent
 	    WHERE pid IN (SELECT sid
 			  FROM   symbol
-			  WhERE  type = $excl);
+			  WhERE  type = $excl); -- Get excluded symbols
 	}
 	return
     }
@@ -226,11 +229,12 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	foreach {s p sname pname prname votes} [state run {
 	    SELECT   S.sid, P.pid, S.name, SB.name, PR.name, P.n
 	    FROM     symbol S, parent P, symbol SB, project PR
-	    WHERE    S.sid = P.sid
-	    AND      P.pid = SB.sid
-	    AND      S.pid = PR.pid
-	    AND      S.type != $excl
-	    ORDER BY P.n ASC, P.pid DESC
+	    WHERE    S.type != $excl      -- Restrict to wanted symbols
+	    AND      S.sid = P.sid        -- Get possible parents of symbol
+	    AND      P.pid = SB.sid       -- and
+	    AND      S.pid = PR.pid       -- the project of the symbol
+	    ORDER BY P.n ASC, P.pid DESC  -- Sorting, see below
+	    --
 	    -- Higher votes and smaller ids (= earlier branches) last
 	    -- We simply keep the last possible parent for each
 	    -- symbol.  This parent will have the max number of votes
@@ -262,12 +266,13 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	foreach {pname sname} [state run {
 	    SELECT PR.name, S.name
-	    FROM   project PR, symbol S LEFT OUTER JOIN preferedparent P
-	    ON     S.sid = P.sid
-	    WHERE  P.pid IS NULL
-	    AND    S.name != ':trunk:'
-	    AND    S.pid = PR.pid
-	    AND    S.type != $excl
+	    FROM   symbol S LEFT OUTER JOIN preferedparent P
+	    ON     S.sid = P.sid,       -- From symbol to prefered parent
+	           project PR
+	    WHERE  P.pid IS NULL        -- restrict to symbols without a preference
+	    AND    S.type != $excl      -- which are not excluded
+	    AND    S.name != ':trunk:'  -- and are not a trunk
+	    AND    S.pid = PR.pid       -- get project of symbol
 	}] {
 	    trouble fatal "$pname : '$sname' has no prefered parent."
 	}
