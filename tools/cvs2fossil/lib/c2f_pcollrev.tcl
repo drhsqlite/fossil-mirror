@@ -379,6 +379,7 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	return
     }
 
+    # TODO: Move this code to the integrity module
     proc Paranoia {} {
 	# This code performs a number of paranoid checks of the
 	# database, searching for inconsistent cross-references.
@@ -393,10 +394,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their LODs have to be in the same project} \
 	    {disagrees with its LOD about owning project} {
 		SELECT F.name, R.rev
-		FROM revision R, file F, symbol S
-		WHERE R.fid = F.fid
-		AND   R.lod = S.sid
-		AND   F.pid != S.pid
+		FROM   revision R, file F, symbol S
+		WHERE  R.fid = F.fid   -- Get file of revision
+		AND    R.lod = S.sid   -- Get symbol for revision's LOD
+		AND    F.pid != S.pid  -- but symbol is for a different project
 		;
 	    }
 	# Find all revisions which disgree with their meta data about
@@ -405,10 +406,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their meta data have to be in the same project} \
 	    {disagrees with its meta data about owning project} {
 		SELECT F.name, R.rev
-		FROM revision R, file F, meta M
-		WHERE R.fid = F.fid
-		AND   R.mid = M.mid
-		AND   F.pid != M.pid
+		FROM   revision R, file F, meta M
+		WHERE  R.fid = F.fid   -- Get file of revision
+		AND    R.mid = M.mid   -- Get meta data of revision
+		AND    F.pid != M.pid  -- but is for a different project
 		;
 	    }
 	# Find all revisions which disgree with their meta data about
@@ -417,10 +418,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their meta data have to be in the same LOD} \
 	    {disagrees with its meta data about owning LOD} {
 		SELECT F.name, R.rev
-		FROM revision R, meta M, file F
-		WHERE R.mid = M.mid
-		AND   R.lod != M.bid
-		AND   R.fid = F.fid
+		FROM   revision R, meta M, file F
+		WHERE  R.mid = M.mid   -- Get meta data of revision
+		AND    R.lod != M.bid  -- but is for a different LOD
+		AND    R.fid = F.fid   -- Get file of revision
 		;
 	    }
 	# Find all revisions with a primary child which disagrees
@@ -429,11 +430,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their primary children have to be in the same file} \
 	    {disagrees with its primary child about the owning file} {
 		SELECT F.name, R.rev
-		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.fid != R.fid
+		FROM   revision R, revision C, file F
+		WHERE  R.fid = F.fid        -- Get file of revision
+		AND    R.child IS NOT NULL  -- Restrict to non-leaf revisions
+		AND    R.child = C.rid      -- Get child (has to exist)
+		AND    C.fid != R.fid       -- Whic wrongly is in a different file
 		;
 	    }
 
@@ -443,11 +444,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their branch children have to be in the same file} \
 	    {at the beginning of its branch and its parent disagree about the owning file} {
 		SELECT F.name, R.rev
-		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   R.fid != P.fid
+		FROM   revision R, revision P, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.bparent IS NOT NULL  -- Restrict to first on branch
+		AND    R.parent = P.rid       -- Get out-of-branch parent
+		AND    R.fid != P.fid         -- Which wrongly is in a different file
 		;
 	    }
 	# Find all revisions with a non-NTDB child which disagrees
@@ -456,11 +457,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their non-NTDB children have to be in the same file} \
 	    {disagrees with its non-NTDB child about the owning file} {
 		SELECT F.name, R.rev
-		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.dbchild IS NOT NULL
-		AND   R.dbchild = C.rid
-		AND   C.fid != R.fid
+		FROM   revision R, revision C, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.dbchild IS NOT NULL  -- Restrict to semi-last NTDB revision
+		AND    R.dbchild = C.rid      -- Got to associated trunk revision
+		AND    C.fid != R.fid         -- Which wrongly is in a different file
 		;
 	    }
 	# Find all revisions which have a primary child, but the child
@@ -469,11 +470,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions have to be parents of their primary children} \
 	    {is not the parent of its primary child} {
 		SELECT F.name, R.rev
-		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.parent != R.rid
+		FROM   revision R, revision C, file F
+		WHERE  R.fid = F.fid        -- Get file of revision
+		AND    R.child IS NOT NULL  -- Restrict to non-leaves
+		AND    R.child = C.rid      -- Get the child (has to exist)
+		AND    C.parent != R.rid    -- Which does not have us as its parent.
 		;
 	    }
 	# Find all revisions which have a primrary child, but the
@@ -482,11 +483,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Primary children of revisions must not start branches} \
 	    {is parent of a primary child which is the beginning of a branch} {
 		SELECT F.name, R.rev
-		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.bparent IS NOT NULL
+		FROM   revision R, revision C, file F
+		WHERE  R.fid = F.fid           -- Get file of revision
+		AND    R.child IS NOT NULL     -- Restrict to non-leaves
+		AND    R.child = C.rid         -- Get the child (has to exist)
+		AND    C.bparent IS NOT NULL   -- wrongly claiming to be first on branch
 		;
 	    }
 	# Find all revisions without branch parent symbol which have a
@@ -495,12 +496,12 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions have to be primary children of their parents, if any} \
 	    {is not the child of its parent} {
 		SELECT F.name, R.rev
-		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NULL
-		AND   R.parent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   P.child != R.rid
+		FROM   revision R, revision P, file F
+		WHERE  R.fid = F.fid
+		AND    R.bparent IS NULL     -- Get file of revision
+		AND    R.parent IS NOT NULL  -- Restrict to everything not first on a branch
+		AND    R.parent = P.rid      -- Get the parent (has to exist)
+		AND    P.child != R.rid      -- Which do not have us as their child
 		;
 	    }
 	# Find all revisions with a branch parent symbol which do not
@@ -509,10 +510,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Branch starting revisions have to have a parent} \
 	    {at the beginning of its branch has no parent} {
 		SELECT F.name, R.rev
-		FROM revision R, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent IS NULL
+		FROM   revision R, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.bparent IS NOT NULL  -- Restrict to first on a branch
+		AND    R.parent IS NULL       -- But there is no out-of-branch parent
 		;
 	    }
 	# Find all revisions with a branch parent symbol whose parent
@@ -521,12 +522,12 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Branch starting revisions must not be primary children of their parents} \
 	    {at the beginning of its branch is the primary child of its parent} {
 		SELECT F.name, R.rev
-		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   P.child = R.rid
+		FROM   revision R, revision P, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.bparent IS NOT NULL  -- Restrict to first on a branch
+		AND    R.parent IS NOT NULL   -- Which are not detached
+		AND    R.parent = P.rid       -- Get their non-branch parent
+		AND    P.child = R.rid        -- which improperly has them as primary child
 		;
 	    }
 	# Find all revisions with a non-NTDB child which are not on
@@ -535,10 +536,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {NTDB to trunk transition has to begin on NTDB} \
 	    {has a non-NTDB child, yet is not on the NTDB} {
 		SELECT F.name, R.rev
-		FROM revision R, file F
-		WHERE R.fid = F.fid
-		AND   R.dbchild IS NOT NULL
-		AND   NOT R.isdefault
+		FROM   revision R, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.dbchild IS NOT NULL  -- Restrict to semi-last NTDB revision
+		AND    NOT R.isdefault        -- Improperly claiming to not be on NTDB
 		;
 	    }
 	# Find all revisions with a NTDB parent which are on the NTDB.
@@ -546,10 +547,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {NTDB to trunk transition has to end on non-NTDB} \
 	    {has a NTDB parent, yet is on the NTDB} {
 		SELECT F.name, R.rev
-		FROM revision R, file F
-		WHERE R.fid = F.fid
-		AND   R.dbparent IS NOT NULL
-		AND   R.isdefault
+		FROM   revision R, file F
+		WHERE  R.fid = F.fid           -- Get file of revision
+		AND    R.dbparent IS NOT NULL  -- Restrict to trunk roots with NTDB around
+		AND    R.isdefault             -- But root improperly claims to be on NTDB
 		;
 	    }
 	# Find all revisions with a child which disagrees about the
@@ -558,11 +559,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their primary children have to be in the same LOD} \
 	    {and its primary child disagree about their LOD} {
 		SELECT F.name, R.rev
-		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.lod != R.lod
+		FROM   revision R, revision C, file F
+		WHERE  R.fid = F.fid        -- Get file of revision
+		AND    R.child IS NOT NULL  -- Restrict to non-leaves
+		AND    R.child = C.rid      -- Get child (has to exist)
+		AND    C.lod != R.lod       -- which improperly uses a different LOD
 		;
 	    }
 	# Find all revisions with a non-NTDB child which agrees about
@@ -571,11 +572,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {NTDB and trunk revisions have to be in different LODs} \
 	    {on NTDB and its non-NTDB child wrongly agree about their LOD} {
 		SELECT F.name, R.rev
-		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.dbchild IS NOT NULL
-		AND   R.dbchild = C.rid
-		AND   C.lod = R.lod
+		FROM   revision R, revision C, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.dbchild IS NOT NULL  -- Restrict to semi-last NTDB revision
+		AND    R.dbchild = C.rid      -- Get associated trunk root revision
+		AND    C.lod = R.lod          -- Improperly uses the same LOD
 		;
 	    }
 	# Find all revisions with a branch parent symbol which is not
@@ -584,10 +585,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Branch starting revisions have to have their LOD as branch parent symbol} \
 	    {at the beginning of its branch does not have the branch symbol as its LOD} {
 		SELECT F.name, R.rev
-		FROM revision R, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.lod != R.bparent
+		FROM   revision R, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.bparent IS NOT NULL  -- Restrict to revisions first on a branch
+		AND    R.lod != R.bparent     -- and their branch is not their LOD
 		;
 	    }
 	# Find all revisions with a branch parent symbol whose parent
@@ -596,11 +597,11 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    {Revisions and their branch children have to be in different LODs} \
 	    {at the beginning of its branch and its parent wrongly agree about their LOD} {
 		SELECT F.name, R.rev
-		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   R.lod = P.lod
+		FROM   revision R, revision P, file F
+		WHERE  R.fid = F.fid          -- Get file of revision
+		AND    R.bparent IS NOT NULL  -- Restrict to revisions first on a branch
+		AND    R.parent = P.rid       -- Get their non-branch parent
+		AND    R.lod = P.lod          -- Which improperly uses the same LOD
 		;
 	    }
 	return

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Removed\stwo\sunused\sclasses.
-D 2007-12-07T08:55:21
+C Added\scomments\sexplaining\sthe\sselect\sstatement\schecking\srevision/file/project/metadata\sintegrity
+D 2007-12-08T02:59:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -124,7 +124,7 @@ F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 3f3d02eb9464a3b590257b442f20a3e9c9a5
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6011d
 F tools/cvs2fossil/lib/c2f_pcollar.tcl b8d8d7414375f66cb7817719a8b2763e8f92d077
-F tools/cvs2fossil/lib/c2f_pcollrev.tcl 5bb47f2e683e7118cdd1199256b85a82a80c6e66
+F tools/cvs2fossil/lib/c2f_pcollrev.tcl f56e45ca7ec484ccd8e11e7d08edde2553fb3ecb
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 50ae29e5d87a2f84e1604daab40cf24f8d9573fb
 F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df759
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 84d0049634e4c32b97b1e6a9dd40de73626cb875
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9a763fe59632c27e7ff0e88e5a593763e4e5f354
-R 052f31c45cbd144bfdd6c57c6b907511
+P 97e0e9dda94ea0fe577408ff08e894f68b9c19c2
+R c40aaae000de31df6cf41faa0f9478cb
 U aku
-Z 3bbfc359264c988ac3380c9c6e2a8c80
+Z 7651e94b628bfd27b17bb096573bf920
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHWQp9vonzZ/CRa7gRAgfAAKCLvkJwK7FioRBNIqNqdraDg4fbkQCfexuZ
-NGASEs75yEVlL7rmde2gfBo=
-=9hr4
+iD8DBQFHWgiBvonzZ/CRa7gRAg0OAJ9bUAoEfjFRyieM5FqnCv+kKRe+DQCgmadw
+uXqdraQWbAb7R62aeikWgKI=
+=kC9Q
 -----END PGP SIGNATURE-----
