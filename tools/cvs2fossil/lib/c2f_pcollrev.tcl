@@ -249,10 +249,10 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (plural)
 	}
 	state run {
-	    INSERT INTO symtype VALUES (0,'excluded', 'excluded');
-	    INSERT INTO symtype VALUES (1,'tag',      'tags');
-	    INSERT INTO symtype VALUES (2,'branch',   'branches');
-	    INSERT INTO symtype VALUES (3,'undefined','undefined');
+	    INSERT INTO symtype VALUES (0,'excluded', 'excluded');  -- The ids are the fixed
+	    INSERT INTO symtype VALUES (1,'tag',      'tags');      -- pieces, see project::sym,
+	    INSERT INTO symtype VALUES (2,'branch',   'branches');  -- getsymtypes and associated
+	    INSERT INTO symtype VALUES (3,'undefined','undefined'); -- typevariables.
 	}
 
 	state extend meta {
@@ -287,13 +287,13 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	# repository.
 
 	state extend author {
-	    aid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
-	    name TEXT     NOT NULL  UNIQUE
+	    aid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT, -- Pool of the unique
+	    name TEXT     NOT NULL  UNIQUE                      -- author names.
 	}
 
 	state extend cmessage {
-	    cid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT,
-	    text TEXT     NOT NULL  UNIQUE
+	    cid  INTEGER  NOT NULL  PRIMARY KEY  AUTOINCREMENT, -- Pool of the unique
+	    text TEXT     NOT NULL  UNIQUE                      -- log messages
 	}
 
 	project::sym getsymtypes

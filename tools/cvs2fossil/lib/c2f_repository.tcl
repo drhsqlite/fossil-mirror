@@ -281,7 +281,7 @@ snit::type ::vc::fossil::import::cvs::repository {
 	log write 2 repository "Changeset statistics"
 	# number of revisions, symbols, repository wide, and per project ...
 
-	set ccount [state one { SELECT COUNT (*) FROM changeset                 }]
+	set ccount [state one { SELECT COUNT (*) FROM changeset                }]
 	set rcount [state one { SELECT COUNT (*) FROM changeset WHERE type = 0 }]
 	set tcount [state one { SELECT COUNT (*) FROM changeset WHERE type = 1 }]
 	set bcount [state one { SELECT COUNT (*) FROM changeset WHERE type = 2 }]

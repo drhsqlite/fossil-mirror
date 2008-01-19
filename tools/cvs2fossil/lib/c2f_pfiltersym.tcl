@@ -151,9 +151,9 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	foreach {id parent transfer} [state run {
 	    SELECT R.rid, R.parent, R.dbchild
 	    FROM  revision R, symbol S
-	    WHERE R.lod = S.sid
-	    AND   S.sid IN excludedsymbols
-	    AND   R.isdefault
+	    WHERE R.lod = S.sid            -- Get symbol of line-of-development of all revisions
+	    AND   S.sid IN excludedsymbols -- Restrict to the excluded symbols
+	    AND   R.isdefault              -- Restrict to NTDB revisions
 	}] {
 	    set ntdb($id) $parent
 	    if {$transfer eq ""} continue
@@ -317,29 +317,29 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	set tagstoadjust [state run {
 	    SELECT T.tid, T.fid, T.lod, P.pid, S.name, R.rev, R.rid
 	    FROM tag T, preferedparent P, symbol S, revision R
-	    WHERE T.sid = P.sid
-	    AND   T.lod != P.pid
-	    AND   P.pid = S.sid
-	    AND   S.name != ':trunk:'
-	    AND   T.rev = R.rid
+	    WHERE T.sid = P.sid        -- For all tags, get left-hand of prefered parent via symbol
+	    AND   T.lod != P.pid       -- Restrict to tags whose LOD is not their prefered parent
+	    AND   P.pid = S.sid        -- Get symbol of prefered parent
+	    AND   S.name != ':trunk:'  -- Exclude trunk parentage
+	    AND   T.rev = R.rid        -- Get revision the tag is attached to.
 	}]
 
 	set branchestoadjust [state run {
 	    SELECT B.bid, B.fid, B.lod, B.pos, P.pid, S.name, NULL, NULL
 	    FROM branch B, preferedparent P, symbol S
-	    WHERE B.sid = P.sid
-	    AND   B.lod != P.pid
-	    AND   P.pid = S.sid
-	    AND   S.name != ':trunk:'
-	    AND   B.root IS NULL -- Accept free-floating branch
-	    UNION
+	    WHERE B.sid = P.sid        -- For all branches, get left-hand of prefered parent via symbol
+	    AND   B.lod != P.pid       -- Restrict to branches whose LOD is not their prefered parent
+	    AND   P.pid = S.sid        -- Get symbol of prefered parent
+	    AND   S.name != ':trunk:'  -- Exclude trunk parentage
+	    AND   B.root IS NULL       -- Accept free-floating branch
+    UNION
 	    SELECT B.bid, B.fid, B.lod, B.pos, P.pid, S.name, R.rev, R.rid
 	    FROM branch B, preferedparent P, symbol S, revision R
-	    WHERE B.sid = P.sid
-	    AND   B.lod != P.pid
-	    AND   P.pid = S.sid
-	    AND   S.name != ':trunk:'
-	    AND   B.root = R.rid
+	    WHERE B.sid = P.sid        -- For all branches, get left-hand of prefered parent via symbol
+	    AND   B.lod != P.pid       -- Restrict to branches whose LOD is not their prefered parent
+	    AND   P.pid = S.sid	       -- Get symbol of prefered parent
+	    AND   S.name != ':trunk:'  -- Exclude trunk parentage
+	    AND   B.root = R.rid       -- Get root revision of the branch
 	}]
 
 	set tmax [expr {[llength $tagstoadjust] / 7}]
@@ -362,7 +362,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    # BOTTLE-NECK ...
 	    #
 	    # The check if the candidate (pid) is truly viable is
-	    # based finding the branch as possible parent, and done
+	    # based on finding the branch as possible parent, and done
 	    # now instead of as part of the already complex join.
 	    #
 	    # ... AND P.pid IN (SELECT B.sid
@@ -370,10 +370,10 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    #                   WHERE B.root = R.rid)
 
 	    if {![state one {
-		SELECT COUNT(*)
+		SELECT COUNT(*)       -- Count <=> Check existence.
 		FROM branch B
-		WHERE  B.sid  = $pid
-		AND    B.root = $rid
+		WHERE  B.sid  = $pid  -- Restrict to branch for that symbol
+		AND    B.root = $rid  -- attached to that revision
 	    }]} {
 		incr tmax -1
 		set  mxs [format $fmt $tmax]
@@ -434,11 +434,11 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    # non-existent root.
 
 	    if {($rid ne "") && ![state one {
-		SELECT COUNT(*)
+		SELECT COUNT(*)       -- Count <=> Check existence.
 		FROM branch B
-		WHERE  B.sid  = $pid
-		AND    B.root = $rid
-		AND    B.pos  > $pos
+		WHERE  B.sid  = $pid  -- Look for branch by symbol
+		AND    B.root = $rid  -- Spawned by the given revision
+		AND    B.pos  > $pos  -- And defined before branch to mutate
 	    }]} {
 		incr bmax -1
 		set  mxs [format $fmt $bmax]
@@ -473,6 +473,9 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	# of their revision.
 
 	log write 3 filtersym "Refine symbols (no-op or not?)"
+
+	# Note: The noop information is not used anywhere. Consider
+	# disabling this code, and removing the data from the state.
 
 	log write 4 filtersym "    Regular tags"
 	state run {

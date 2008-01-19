@@ -744,9 +744,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	foreach {p f r} [state run {
 		SELECT P.name , F.name, R.rev
 		FROM revision R, file F, project P
-		WHERE R.rid = $id
-		AND   F.fid = R.fid
-		AND   P.pid = F.pid
+		WHERE R.rid = $id    -- Find specified file revision
+		AND   F.fid = R.fid  -- Get file of the revision
+		AND   P.pid = F.pid  -- Get project of the file.
 	}] break
 	return "'$p : $f/$r'"
     }
@@ -821,9 +821,9 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	struct::list assign [state run {
 	    SELECT R.rev, F.name, P.name
 	    FROM   revision R, file F, project P
-	    WHERE  R.rid = $revision
-	    AND    F.fid = R.fid
-	    AND    P.pid = F.pid
+	    WHERE  R.rid = $revision -- Find specified file revision
+	    AND    F.fid = R.fid     -- Get file of the revision
+	    AND    P.pid = F.pid     -- Get project of the file.
 	}] revnr fname pname
 	return "$pname/${revnr}::$fname"
     }
@@ -834,7 +834,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	return [state run [subst -nocommands -nobackslashes {
 	    SELECT MIN(R.date), MAX(R.date)
 	    FROM revision R
-	    WHERE R.rid IN $theset
+	    WHERE R.rid IN $theset -- Restrict to revisions of interest
 	}]]
     }
 
@@ -852,7 +852,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	array set dep {}
 
 	foreach {rid child} [state run [subst -nocommands -nobackslashes {
-   -- (1) Primary child
+    -- (1) Primary child
 	    SELECT R.rid, R.child
 	    FROM   revision R
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
@@ -930,7 +930,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
     # result = 4-list (itemtype itemid nextitemtype nextitemid ...)
     typemethod loops {revisions} {
 	# Note: Tags and branches cannot cause the loop. Their id's,
-	# bein of a fundamentally different type than the revisions
+	# being of a fundamentally different type than the revisions
 	# coming in cannot be in the set.
 
 	set theset ('[join $revisions {','}]')
@@ -996,7 +996,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# tags associated with them are successors as well.
 
 	foreach {rid child} [state run [subst -nocommands -nobackslashes {
-   -- (1) Primary child
+    -- (1) Primary child
 	    SELECT R.rid, R.child
 	    FROM   revision R
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
@@ -1024,16 +1024,16 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	foreach {rid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, T.tid
 	    FROM   revision R, tag T
-	    WHERE  R.rid IN $theset
-	    AND    T.rev = R.rid
+	    WHERE  R.rid IN $theset       -- Restrict to revisions of interest
+	    AND    T.rev = R.rid          -- Select tags attached to them
 	}]] {
 	    lappend dependencies([list rev $rid]) [list sym::tag $child]
 	}
 	foreach {rid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, B.bid
 	    FROM   revision R, branch B
-	    WHERE  R.rid IN $theset
-	    AND    B.root = R.rid
+	    WHERE  R.rid IN $theset       -- Restrict to revisions of interest
+	    AND    B.root = R.rid         -- Select branches attached to them
 	}]] {
 	    lappend dependencies([list rev $rid]) [list sym::branch $child]
 	}
@@ -1050,22 +1050,25 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 
 	set theset ('[join $revisions {','}]')
 	return [state run [subst -nocommands -nobackslashes {
+    -- (1) Primary child
 	    SELECT C.cid
 	    FROM   revision R, csitem CI, changeset C
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.child IS NOT NULL    -- Has primary child
-            AND    CI.iid = R.child
-            AND    C.cid = CI.cid
-            AND    C.type = 0
+            AND    CI.iid = R.child       -- Select all changesets
+            AND    C.cid = CI.cid         -- containing the primary child
+            AND    C.type = 0             -- which are revision changesets
     UNION
+    -- (2) Secondary (branch) children
 	    SELECT C.cid
 	    FROM   revision R, revisionbranchchildren B, csitem CI, changeset C
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.rid = B.rid          -- Select subset of branch children
-            AND    CI.iid = B.brid
-            AND    C.cid = CI.cid
-            AND    C.type = 0
+            AND    CI.iid = B.brid        -- Select all changesets
+            AND    C.cid = CI.cid	  -- containing the branch
+            AND    C.type = 0		  -- which are revision changesets
     UNION
+    -- (4) Child of trunk root successor of last NTDB on trunk.
 	    SELECT C.cid
 	    FROM   revision R, revision RA, csitem CI, changeset C
 	    WHERE  R.rid   IN $theset      -- Restrict to revisions of interest
@@ -1073,25 +1076,25 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    AND    R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
 	    AND    RA.rid = R.dbchild      -- Go directly to trunk root
 	    AND    RA.child IS NOT NULL    -- Has primary child.
-            AND    CI.iid = RA.child
-            AND    C.cid = CI.cid
-            AND    C.type = 0
+            AND    CI.iid = RA.child       -- Select all changesets
+            AND    C.cid = CI.cid	   -- containing the primary child
+            AND    C.type = 0		   -- which are revision changesets
     UNION
 	    SELECT C.cid
 	    FROM   revision R, tag T, csitem CI, changeset C
-	    WHERE  R.rid in $theset
-	    AND    T.rev = R.rid
-            AND    CI.iid = T.tid
-            AND    C.cid = CI.cid
-            AND    C.type = 1
+	    WHERE  R.rid in $theset        -- Restrict to revisions of interest
+	    AND    T.rev = R.rid	   -- Select tags attached to them
+            AND    CI.iid = T.tid          -- Select all changesets
+            AND    C.cid = CI.cid	   -- containing the tags
+            AND    C.type = 1		   -- which are tag changesets
     UNION
 	    SELECT C.cid
 	    FROM   revision R, branch B, csitem CI, changeset C
-	    WHERE  R.rid in $theset
-	    AND    B.root = R.rid
-            AND    CI.iid = B.bid
-            AND    C.cid = CI.cid
-            AND    C.type = 2
+	    WHERE  R.rid in $theset        -- Restrict to revisions of interest
+	    AND    B.root = R.rid	   -- Select branches attached to them
+            AND    CI.iid = B.bid          -- Select all changesets
+            AND    C.cid = CI.cid	   -- containing the branches
+            AND    C.type = 2		   -- which are branch changesets
 	}]]
     }
 }
@@ -1109,10 +1112,10 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	struct::list assign [state run {
 	    SELECT S.name, F.name, P.name
 	    FROM   tag T, symbol S, file F, project P
-	    WHERE  T.tid = $tag
-	    AND    F.fid = T.fid
-	    AND    P.pid = F.pid
-	    AND    S.sid = T.sid
+	    WHERE  T.tid = $tag   -- Find specified tag
+	    AND    F.fid = T.fid  -- Get file of tag
+	    AND    P.pid = F.pid  -- Get project of file
+	    AND    S.sid = T.sid  -- Get symbol of tag
 	}] sname fname pname
 	return "$pname/T'${sname}'::$fname"
     }
@@ -1126,8 +1129,8 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
 	return [state run [subst -nocommands -nobackslashes {
 	    SELECT MIN(R.date), MAX(R.date)
 	    FROM   tag T, revision R
-	    WHERE  T.tid IN $theset
-            AND    R.rid = T.rev
+	    WHERE  T.tid IN $theset  -- Restrict to tags of interest
+            AND    R.rid = T.rev     -- Select tag parent revisions
 	}]]
     }
 
@@ -1163,10 +1166,10 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	struct::list assign [state run {
 	    SELECT S.name, F.name, P.name
 	    FROM   branch B, symbol S, file F, project P
-	    WHERE  B.bid = $branch
-	    AND    F.fid = B.fid
-	    AND    P.pid = F.pid
-	    AND    S.sid = B.sid
+	    WHERE  B.bid = $branch  -- Find specified branch
+	    AND    F.fid = B.fid    -- Get file of branch
+	    AND    P.pid = F.pid    -- Get project of file
+	    AND    S.sid = B.sid    -- Get symbol of branch
 	}] sname fname pname
 	return "$pname/B'${sname}'::$fname"
     }
@@ -1184,8 +1187,8 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	return [state run [subst -nocommands -nobackslashes {
 	    SELECT IFNULL(MIN(R.date),0), IFNULL(MAX(R.date),0)
 	    FROM  branch B, revision R
-	    WHERE B.bid IN $theset
-            AND   R.rid = B.root
+	    WHERE B.bid IN $theset   -- Restrict to branches of interest
+            AND   R.rid = B.root     -- Select branch parent revisions
 	}]]
     }
 
@@ -1199,10 +1202,10 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	return [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, BX.bid
 	    FROM   branch B, preferedparent P, branch BX
-	    WHERE  B.bid IN $theset
-	    AND    B.sid = P.pid
-	    AND    BX.sid = P.sid
-	    AND    BX.bid IN $theset
+	    WHERE  B.bid IN $theset   -- Restrict to branches of interest
+	    AND    B.sid = P.pid      -- Get the prefered branches via
+	    AND    BX.sid = P.sid     -- the branch symbols
+	    AND    BX.bid IN $theset  -- Loop
 	}]]
     }
 
@@ -1217,26 +1220,26 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, R.rid
 	    FROM   branch B, revision R
-	    WHERE  B.bid IN $theset
-	    AND    B.first = R.rid
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.first = R.rid      -- Get first revision on the branch
 	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list rev $child]
 	}
 	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, BX.bid
 	    FROM   branch B, preferedparent P, branch BX
-	    WHERE  B.bid IN $theset
-	    AND    B.sid = P.pid
-	    AND    BX.sid = P.sid
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.sid = P.pid        -- Get subordinate branches via the
+	    AND    BX.sid = P.sid       -- prefered parents of their symbols
 	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list sym::branch $child]
 	}
 	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, T.tid
 	    FROM   branch B, preferedparent P, tag T
-	    WHERE  B.bid IN $theset
-	    AND    B.sid = P.pid
-	    AND    T.sid = P.sid
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.sid = P.pid        -- Get subordinate tags via the
+	    AND    T.sid = P.sid        -- prefered parents of their symbols
 	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list sym::tag $child]
 	}
@@ -1255,29 +1258,29 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
         return [state run [subst -nocommands -nobackslashes {
 	    SELECT C.cid
 	    FROM   branch B, revision R, csitem CI, changeset C
-	    WHERE  B.bid IN $theset
-	    AND    B.first = R.rid
-            AND    CI.iid = R.rid
-            AND    C.cid = CI.cid
-            AND    C.type = 0
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.first = R.rid	-- Get first revision on the branch
+            AND    CI.iid = R.rid       -- Select all changesets
+            AND    C.cid = CI.cid	-- containing this revision
+            AND    C.type = 0		-- which are revision changesets
     UNION
 	    SELECT C.cid
 	    FROM   branch B, preferedparent P, branch BX, csitem CI, changeset C
-	    WHERE  B.bid IN $theset
-	    AND    B.sid = P.pid
-	    AND    BX.sid = P.sid
-            AND    CI.iid = BX.bid
-            AND    C.cid = CI.cid
-            AND    C.type = 2
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.sid = P.pid	-- Get subordinate branches via the
+	    AND    BX.sid = P.sid	-- prefered parents of their symbols
+            AND    CI.iid = BX.bid      -- Select all changesets
+            AND    C.cid = CI.cid	-- containing the subordinate branches
+            AND    C.type = 2		-- which are branch changesets
     UNION
 	    SELECT C.cid
 	    FROM   branch B, preferedparent P, tag T, csitem CI, changeset C
-	    WHERE  B.bid IN $theset
-	    AND    B.sid = P.pid
-	    AND    T.sid = P.sid
-            AND    CI.iid = T.tid
-            AND    C.cid = CI.cid
-            AND    C.type = 1
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.sid = P.pid	-- Get subordinate tags via the
+	    AND    T.sid = P.sid	-- prefered parents of their symbols
+            AND    CI.iid = T.tid       -- Select all changesets
+            AND    C.cid = CI.cid	-- containing the subordinate tags
+            AND    C.type = 1		-- which are tag changesets
 	}]]
 	return
     }
@@ -1296,12 +1299,12 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	    -- maximal predecessor position per branch
 	    SELECT B.bid, MAX (CO.pos)
 	    FROM   branch B, revision R, csitem CI, changeset C, csorder CO
-	    WHERE  B.bid IN $theset
-	    AND    B.root = R.rid
-	    AND    CI.iid = R.rid
-	    AND    C.cid = CI.cid
-	    AND    C.type = 0
-	    AND    CO.cid = C.cid
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.root = R.rid       -- Get branch root revisions
+	    AND    CI.iid = R.rid       -- Get changesets containing the
+	    AND    C.cid = CI.cid       -- root revisions, which are
+	    AND    C.type = 0           -- revision changesets
+	    AND    CO.cid = C.cid       -- Get their topological ordering
 	    GROUP BY B.bid
 	}]]
 
@@ -1309,12 +1312,12 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	    -- minimal successor position per branch
 	    SELECT B.bid, MIN (CO.pos)
 	    FROM   branch B, revision R, csitem CI, changeset C, csorder CO
-	    WHERE  B.bid IN $theset
-	    AND    B.first = R.rid
-	    AND    CI.iid = R.rid
-	    AND    C.cid = CI.cid
-	    AND    C.type = 0
-	    AND    CO.cid = C.cid
+	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
+	    AND    B.first = R.rid      -- Get the first revisions on the branches
+	    AND    CI.iid = R.rid       -- Get changesets containing the
+	    AND    C.cid = CI.cid	-- first revisions, which are
+	    AND    C.type = 0		-- revision changesets
+	    AND    CO.cid = C.cid	-- Get their topological ordering
 	    GROUP BY B.bid
 	}]]
 
