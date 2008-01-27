@@ -142,7 +142,7 @@ snit::type ::vc::fossil::import::cvs::file::sym {
     # Tag acessor methods.
 
     method tagrevnr  {}    { return $mynr }
-    method settagrev {rev} {set mytagrev $rev ; return }
+    method settagrev {rev} { set mytagrev $rev ; return }
 
     # Derived information
 
@@ -160,7 +160,13 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	# revision of a branch, revision of a tag itself).
 
 	switch -exact -- $mytype {
-	    branch  { set slod [$mybranchparent lod] }
+	    branch  {
+		# However, ignore this if the branch symbol is
+		# detached.
+		if {$mybranchparent eq ""} return
+
+		set slod [$mybranchparent lod]
+	    }
 	    tag     { set slod [$mytagrev       lod] }
 	}
 
@@ -204,6 +210,22 @@ snit::type ::vc::fossil::import::cvs::file::sym {
 	    }
 	}
 
+	return
+    }
+
+    method DUMP {label} {
+	puts "$label = $self $mytype [$self name] \{"
+	switch -exact -- $mytype {
+	    tag {
+		puts "\tR\t$mytagrev"
+	    }
+	    branch {
+		puts "\tP\t$mybranchparent"
+		puts "\tC\t$mybranchchild"
+		puts "\t\t<$mynr>"
+	    }
+	}
+	puts "\}"
 	return
     }
 
