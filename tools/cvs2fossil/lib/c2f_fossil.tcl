@@ -58,6 +58,8 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	# add   = list ('A', path)
 	# delta = list ('D', path, src)
 
+	log write 3 fossil {Importing revisions...}
+
 	array set id {}
 	$self InWorkspace
 
@@ -88,6 +90,8 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	    }
 	}
 	$self RestorePwd
+
+	log write 3 fossil Done.
 	return [array get id]
     }
 
