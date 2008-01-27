@@ -80,9 +80,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {disagrees with its LOD about owning project} {
 		SELECT F.name, R.rev
 		FROM revision R, file F, symbol S
-		WHERE R.fid = F.fid
-		AND   R.lod = S.sid
-		AND   F.pid != S.pid
+		WHERE R.fid = F.fid   -- get file of rev
+		AND   R.lod = S.sid   -- get symbol of its lod
+		AND   F.pid != S.pid  -- disagreement about the owning project
 		;
 	    }
 	# Find all revisions which disgree with their meta data about
@@ -92,9 +92,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {disagrees with its meta data about owning project} {
 		SELECT F.name, R.rev
 		FROM revision R, file F, meta M
-		WHERE R.fid = F.fid
-		AND   R.mid = M.mid
-		AND   F.pid != M.pid
+		WHERE R.fid = F.fid   -- get file of rev
+		AND   R.mid = M.mid   -- get meta of rev
+		AND   F.pid != M.pid  -- disagreement about owning project
 		;
 	    }
 	# Find all revisions with a primary child which disagrees
@@ -104,10 +104,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {disagrees with its primary child about the owning file} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.fid != R.fid
+		WHERE R.fid = F.fid       -- get file of rev
+		AND   R.child IS NOT NULL -- get all with primary children
+		AND   R.child = C.rid     -- get primary child
+		AND   C.fid != R.fid      -- wrongly in different file
 		;
 	    }
 
@@ -118,10 +118,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {at the beginning of its branch and its parent disagree about the owning file} {
 		SELECT F.name, R.rev
 		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   R.fid != P.fid
+		WHERE R.fid = F.fid         -- get file of rev
+		AND   R.bparent IS NOT NULL -- get first-of-branch revisions
+		AND   R.parent = P.rid      -- get out-of-branch parent
+		AND   R.fid != P.fid        -- wrongly in different file
 		;
 	    }
 	# Find all revisions with a non-NTDB child which disagrees
@@ -131,10 +131,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {disagrees with its non-NTDB child about the owning file} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.dbchild IS NOT NULL
-		AND   R.dbchild = C.rid
-		AND   C.fid != R.fid
+		WHERE R.fid = F.fid         -- get file of rev
+		AND   R.dbchild IS NOT NULL -- get last NTDB revisions
+		AND   R.dbchild = C.rid     -- get their child
+		AND   C.fid != R.fid        -- wrongly in different file
 		;
 	    }
 	# Find all revisions which have a primary child, but the child
@@ -144,10 +144,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {is not the parent of its primary child} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.parent != R.rid
+		WHERE R.fid = F.fid         -- get file of rev
+		AND   R.child IS NOT NULL   -- get all with primary children
+		AND   R.child = C.rid       -- get primary child
+		AND   C.parent != R.rid     -- child's parent wrongly not us
 		;
 	    }
 	# Find all revisions which have a primrary child, but the
@@ -157,10 +157,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {is parent of a primary child which is the beginning of a branch} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.bparent IS NOT NULL
+		WHERE R.fid = F.fid         -- get file of rev
+		AND   R.child IS NOT NULL   -- get all with primary children
+		AND   R.child = C.rid       -- get primary child
+		AND   C.bparent IS NOT NULL -- but indicates to be on branch
 		;
 	    }
 	# Find all revisions without branch parent symbol which have a
@@ -170,11 +170,11 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {is not the child of its parent} {
 		SELECT F.name, R.rev
 		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NULL
-		AND   R.parent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   P.child != R.rid
+		WHERE R.fid = F.fid        -- get file of revision
+		AND   R.bparent IS NULL    -- exclude all first-on-branch revisions
+		AND   R.parent IS NOT NULL -- which are not root of their line
+		AND   R.parent = P.rid     -- get in-lod parent
+		AND   P.child != R.rid     -- but does not have rev as primary child
 		;
 	    }
 	# Find all revisions with a branch parent symbol which do not
@@ -184,12 +184,12 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {at the beginning of its branch has no parent, but its branch has} {
 		SELECT F.name, R.rev
 		FROM revision R, file F, branch B
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent  IS NULL
-		AND   B.sid = R.bparent
-		AND   B.fid = R.fid
-		AND   B.root    IS NOT NULL
+		WHERE R.fid = F.fid         -- get file of revision
+		AND   R.bparent IS NOT NULL -- limit to first-on-branch revisions
+		AND   R.parent  IS NULL     -- which are detached
+		AND   B.sid = R.bparent     -- get branch governing the rev
+		AND   B.fid = R.fid         -- in the revision's file
+		AND   B.root    IS NOT NULL -- but says that branch is attached
 		;
 	    }
 	# Find all revisions with a branch parent symbol whose parent
@@ -199,11 +199,11 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {at the beginning of its branch is the primary child of its parent} {
 		SELECT F.name, R.rev
 		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   P.child = R.rid
+		WHERE R.fid = F.fid         -- get file of revision
+		AND   R.bparent IS NOT NULL -- limit to first-on-branch revisions
+		AND   R.parent IS NOT NULL  -- which are attached
+		AND   R.parent = P.rid      -- get out-of-branch parent
+		AND   P.child = R.rid       -- wrongly has rev as primary child
 		;
 	    }
 	# Find all revisions with a non-NTDB child which are not on
@@ -213,9 +213,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {has a non-NTDB child, yet is not on the NTDB} {
 		SELECT F.name, R.rev
 		FROM revision R, file F
-		WHERE R.fid = F.fid
-		AND   R.dbchild IS NOT NULL
-		AND   NOT R.isdefault
+		WHERE R.fid = F.fid         -- get file of revision
+		AND   R.dbchild IS NOT NULL -- limit to last NTDB revision
+		AND   NOT R.isdefault       -- but signals not-NTDB
 		;
 	    }
 	# Find all revisions with a NTDB parent which are on the NTDB.
@@ -224,9 +224,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {has a NTDB parent, yet is on the NTDB} {
 		SELECT F.name, R.rev
 		FROM revision R, file F
-		WHERE R.fid = F.fid
-		AND   R.dbparent IS NOT NULL
-		AND   R.isdefault
+		WHERE R.fid = F.fid          -- get file of revision
+		AND   R.dbparent IS NOT NULL -- limit to roots of non-NTDB
+		AND   R.isdefault            -- but signals to be NTDB
 		;
 	    }
 	# Find all revisions with a child which disagrees about the
@@ -236,10 +236,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {and its primary child disagree about their LOD} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.child IS NOT NULL
-		AND   R.child = C.rid
-		AND   C.lod != R.lod
+		WHERE R.fid = F.fid       -- get file of revision
+		AND   R.child IS NOT NULL -- revision has a primary child
+		AND   R.child = C.rid     -- get that child
+		AND   C.lod != R.lod      -- child wrongly disagrees with lod
 		;
 	    }
 	# Find all revisions with a non-NTDB child which agrees about
@@ -249,10 +249,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {on NTDB and its non-NTDB child wrongly agree about their LOD} {
 		SELECT F.name, R.rev
 		FROM revision R, revision C, file F
-		WHERE R.fid = F.fid
-		AND   R.dbchild IS NOT NULL
-		AND   R.dbchild = C.rid
-		AND   C.lod = R.lod
+		WHERE R.fid = F.fid         -- get file of revision
+		AND   R.dbchild IS NOT NULL -- limit to last NTDB revision
+		AND   R.dbchild = C.rid     -- get non-NTDB child
+		AND   C.lod = R.lod         -- child wrongly has same lod
 		;
 	    }
 	# Find all revisions with a branch parent symbol which is not
@@ -262,9 +262,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {at the beginning of its branch does not have the branch symbol as its LOD} {
 		SELECT F.name, R.rev
 		FROM revision R, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.lod != R.bparent
+		WHERE R.fid = F.fid         -- get file of revision
+		AND   R.bparent IS NOT NULL -- limit to branch-first revisions
+		AND   R.lod != R.bparent    -- out-of-branch parent wrongly is not the lod
 		;
 	    }
 	# Find all revisions with a branch parent symbol whose parent
@@ -274,10 +274,10 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {at the beginning of its branch and its parent wrongly agree about their LOD} {
 		SELECT F.name, R.rev
 		FROM revision R, revision P, file F
-		WHERE R.fid = F.fid
-		AND   R.bparent IS NOT NULL
-		AND   R.parent = P.rid
-		AND   R.lod = P.lod
+		WHERE R.fid = F.fid          -- get file of revision
+		AND   R.bparent IS NOT NULL  -- limit to branch-first revisions
+		AND   R.parent = P.rid       -- get out-of-branch parent of revision
+		AND   R.lod = P.lod          -- rev and parent wrongly agree on lod
 		;
 	    }
 	return
@@ -297,9 +297,9 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	    {disagrees with its meta data about owning LOD} {
 		SELECT F.name, R.rev
 		FROM revision R, meta M, file F
-		WHERE R.mid = M.mid
-		AND   R.lod != M.bid
-		AND   R.fid = F.fid
+		WHERE R.mid = M.mid   -- get meta data of revision
+		AND   R.lod != M.bid  -- rev wrongly disagrees with meta about lod
+		AND   R.fid = F.fid   -- get file of revision
 		;
 	    }
 	return
@@ -350,14 +350,16 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 		SELECT F.name, R.rev
 		FROM revision R, file F,
-		     (SELECT CI.iid AS rid, count(CI.cid) AS count
+		     (SELECT CI.iid        AS rid,  -- revision item
+		             count(CI.cid) AS count -- number of csets using item
 		      FROM csitem CI, changeset C
-		      WHERE C.type = 0
-		      AND   C.cid = CI.cid
-		      GROUP BY CI.iid) AS U
-		WHERE U.count > 1
-		AND R.rid = U.rid
-		AND R.fid = F.fid
+		      WHERE C.type = 0            -- limit to revision csets
+		      AND   C.cid  = CI.cid       -- get item in changeset
+		      GROUP BY CI.iid             -- aggregate by item, count csets/item
+		     ) AS U
+		WHERE U.count > 1    -- limit to item with multiple users
+		AND   R.rid = U.rid  -- get revision of item
+		AND   R.fid = F.fid  -- get file of revision
 	    }
 	# All revisions have to refer to the same meta information as
 	# their changeset.
@@ -388,12 +390,17 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CI.cid AS cid, R.lod AS lod
+				 FROM (SELECT DISTINCT       -- unique cset/lod pairs
+				              CI.cid AS cid, -- revision cset
+				              R.lod  AS lod  -- lod of item in cset
 				       FROM   csitem CI, changeset C, revision R
-				       WHERE  CI.iid = R.rid
-				       AND    C.cid = CI.cid
-				       AND    C.type = 0) AS U
-				 GROUP BY U.cid HAVING COUNT(U.lod) > 1)
+				       WHERE  CI.iid = R.rid  -- get rev of item in cset
+				       AND    C.cid  = CI.cid -- get changeset of item
+				       AND    C.type = 0      -- limit to rev csets
+				      ) AS U
+				 GROUP BY U.cid          -- aggregate by cset, count lods/cset
+				 HAVING COUNT(U.lod) > 1 -- find csets with multiple lods
+				)
 		AND    T.tid = C.type
 	    }
 	# All revisions have to agree on the project their changeset
@@ -411,14 +418,19 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CI.cid AS cid, F.pid AS pid
+				 FROM (SELECT DISTINCT       -- unique cset/proj pairs
+				              CI.cid AS cid, -- rev cset
+				              F.pid  AS pid  -- project of item in cset
 				       FROM   csitem CI, changeset C, revision R, file F
-				       WHERE  CI.iid = R.rid
-				       AND    C.cid = CI.cid
-				       AND    C.type = 0
-				       AND    F.fid  = R.fid) AS U
-				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
-		AND    T.tid = C.type
+				       WHERE  CI.iid = R.rid  -- get rev of item in cset
+				       AND    C.cid  = CI.cid -- get changeset of item
+				       AND    C.type = 0      -- limit to rev changesets
+				       AND    F.fid  = R.fid  -- get file of revision
+				      ) AS U
+				 GROUP BY U.cid          -- aggregate by csets, count proj/cset
+				 HAVING COUNT(U.pid) > 1 -- find csets with multiple projects
+				)
+		AND    T.tid = C.type -- get readable changeset type
 	    }
 	# All revisions in a single changeset have to belong to
 	# different files. Conversely: No two revisions of a single
@@ -436,22 +448,30 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT VV.cid
-				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
-				       FROM (SELECT DISTINCT CI.cid AS cid, R.fid AS fid
+				 FROM (SELECT U.cid         AS cid,   -- rev changeset
+				              COUNT (U.fid) AS fcount -- number of files by items
+				       FROM (SELECT DISTINCT       -- unique cset/file pairs
+					            CI.cid AS cid, -- rev changeset
+					            R.fid AS fid   -- file of item in changeset
 					     FROM   csitem CI, changeset C, revision R
-					     WHERE  CI.iid = R.rid
-					     AND    C.cid = CI.cid
-					     AND    C.type = 0
+					     WHERE  CI.iid = R.rid  -- get rev of item in changeset
+					     AND    C.cid  = CI.cid -- get changeset of item
+					     AND    C.type = 0      -- limit to rev csets
 					     ) AS U
-				       GROUP BY U.cid) AS UU,
-				      (SELECT V.cid AS cid, COUNT (V.iid) AS rcount
+				       GROUP BY U.cid -- aggregate by csets, count files/cset
+				      ) AS UU,
+				      (SELECT V.cid         AS cid,   -- rev changeset
+				              COUNT (V.iid) AS rcount -- number of items
 				       FROM   csitem V, changeset X
-				       WHERE  X.cid = V.cid
-				       AND    X.type = 0
-				       GROUP BY V.cid) AS VV
-				 WHERE VV.cid = UU.cid
-				 AND   UU.fcount < VV.rcount)
-		AND    T.tid = C.type
+				       WHERE  X.cid  = V.cid  -- get changeset of item
+				       AND    X.type = 0      -- limit to rev csets
+				       GROUP BY V.cid         -- aggregate by csets, count items/cset
+				      ) AS VV
+				 WHERE VV.cid = UU.cid        -- sync #items/cset with #files/cset
+				 AND   UU.fcount < VV.rcount  -- less files than items
+				                              -- => items belong to the same file.
+				)
+		AND    T.tid = C.type -- get readable changeset type
 	    }
 	return
     }
@@ -500,15 +520,17 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 		SELECT P.name, S.name
 		FROM tag T, project P, symbol S,
-		     (SELECT CI.iid AS iid, count(CI.cid) AS count
+		     (SELECT CI.iid        AS iid,  -- item
+		             count(CI.cid) AS count -- number of csets using item
 		      FROM csitem CI, changeset C
-		      WHERE C.type = 1
-		      AND   C.cid = CI.cid
-		      GROUP BY CI.iid) AS U
-		WHERE U.count > 1
-		AND   T.tid = U.iid
-		AND   S.sid = T.sid               -- get symbol of tag
-		AND   P.pid = S.pid               -- get project of symbol
+		      WHERE C.type = 1       -- limit to tag csets
+		      AND   C.cid  = CI.cid  -- get items of cset
+		      GROUP BY CI.iid        -- aggregate by item, count csets/item
+		     ) AS U
+		WHERE U.count > 1            -- find tag item used multiple times
+		AND   T.tid = U.iid          -- get tag of item
+		AND   S.sid = T.sid          -- get symbol of tag
+		AND   P.pid = S.pid          -- get project of symbol
 	    }
 	if 0 {
 	    # This check is disabled for the moment. Apparently tags
@@ -558,14 +580,19 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CI.cid AS cid, F.pid AS pid
+				 FROM (SELECT DISTINCT       -- unique cset/proj pairs
+				              CI.cid AS cid, -- tag cset
+				              F.pid  AS pid  -- project of item in cset
 				       FROM   csitem CI, changeset C, tag T, file F
-				       WHERE  CI.iid = T.tid
-				       AND    C.cid = CI.cid
-				       AND    C.type = 1
-				       AND    F.fid  = T.fid) AS U
-				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
-		AND    T.tid = C.type
+				       WHERE  CI.iid = T.tid  -- get tag of item in cset
+				       AND    C.cid  = CI.cid -- get changeset of item
+				       AND    C.type = 1      -- limit to tag changesets
+				       AND    F.fid  = T.fid  -- get file of tag
+                                      ) AS U
+				 GROUP BY U.cid           -- aggregate by csets, count proj/cset
+				 HAVING COUNT(U.pid) > 1  -- find csets with multiple projects
+		                )
+		AND    T.tid = C.type -- get readable changeset type
 	    }
 	# All tags in a single changeset have to belong to different
 	# files. Conversely: No two tags of a single file are allowed
@@ -582,22 +609,30 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT VV.cid
-				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
-				       FROM (SELECT DISTINCT CI.cid AS cid, T.fid AS fid
+				 FROM (SELECT U.cid         AS cid,   -- changeset
+				              COUNT (U.fid) AS fcount -- number of files by items
+				       FROM (SELECT DISTINCT       -- unique cset/file pairs
+					            CI.cid AS cid, -- tag changeset
+					            T.fid  AS fid  -- file of item in changeset
 					     FROM   csitem CI, changeset C, tag T
-					     WHERE  CI.iid = T.tid
-					     AND    C.cid = CI.cid
-					     AND    C.type = 1
+					     WHERE  CI.iid = T.tid -- get tag of item in changeset
+					     AND    C.cid = CI.cid -- get changeset of item
+					     AND    C.type = 1     -- limit to tag changesets
 					     ) AS U
-				       GROUP BY U.cid) AS UU,
-				      (SELECT V.cid AS cid, COUNT (V.iid) AS rcount
+				       GROUP BY U.cid -- aggregate by csets, count files/cset
+                                      ) AS UU,
+				      (SELECT V.cid         AS cid,   -- changeset
+				              COUNT (V.iid) AS rcount -- number of items in cset
 				       FROM   csitem V, changeset X
-				       WHERE  X.cid = V.cid
-				       AND    X.type = 1
-				       GROUP BY V.cid) AS VV
-				 WHERE VV.cid = UU.cid
-				 AND   UU.fcount < VV.rcount)
-		AND    T.tid = C.type
+				       WHERE  X.cid  = V.cid -- get changeset of item
+				       AND    X.type = 1     -- limit to tag changesets
+				       GROUP BY V.cid        -- aggregate by csets, count items/cset
+                                      ) AS VV
+				 WHERE VV.cid = UU.cid       -- sync #items/cset with #files/cset
+				 AND   UU.fcount < VV.rcount -- less files than items
+				                             -- => items belong to the same file.
+				)
+		AND    T.tid = C.type -- get readable changeset type
 	    }
 	return
     }
@@ -630,7 +665,8 @@ snit::type ::vc::fossil::import::cvs::integrity {
 				SELECT CI.iid                 -- branches used
 				FROM   csitem CI, changeset C
 				WHERE  C.cid = CI.cid         -- by any branch
-				AND    C.type = 2)            -- changeset
+				AND    C.type = 2             -- changeset
+			       )
 		AND   S.sid = B.sid               -- get symbol of branch
 		AND   P.pid = S.pid               -- get project of symbol
 	    }
@@ -647,15 +683,17 @@ snit::type ::vc::fossil::import::cvs::integrity {
 
 		SELECT P.name, S.name
 		FROM branch B, project P, symbol S,
-		     (SELECT CI.iid AS iid, count(CI.cid) AS count
+		     (SELECT CI.iid        AS iid,  -- item
+                             count(CI.cid) AS count -- number of csets for item
 		      FROM csitem CI, changeset C
-		      WHERE C.type = 2
-		      AND   C.cid = CI.cid
-		      GROUP BY CI.iid ) AS U
-		WHERE U.count > 1
-		AND   B.bid = U.iid
-		AND   S.sid = B.sid               -- get symbol of branch
-		AND   P.pid = S.pid               -- get project of symbol
+		      WHERE C.type = 2        -- limit to branch changesets,
+		      AND   C.cid = CI.cid    -- get the items they contain,
+		      GROUP BY CI.iid         -- aggregate by items, count csets/item (x)
+                     ) AS U
+		WHERE U.count > 1             -- find items used multiple times
+		AND   B.bid = U.iid           -- get the users (branch changesets)
+		AND   S.sid = B.sid           -- get symbol of branch
+		AND   P.pid = S.pid           -- get project of symbol
 	    }
 	if 0 {
 	    # This check has been disabled. When the converter was run
@@ -721,14 +759,19 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT U.cid
-				 FROM (SELECT DISTINCT CI.cid AS cid, F.pid AS pid
+				 FROM (SELECT DISTINCT        -- Unique cset/proj pairs
+				              CI.cid AS cid,  -- Branch cset
+				              F.pid  AS pid   -- Project of item in cset
 				       FROM   csitem CI, changeset C, branch B, file F
-				       WHERE  CI.iid = B.bid
-				       AND    C.cid = CI.cid
-				       AND    C.type = 2
-				       AND    F.fid  = B.fid) AS U
-				 GROUP BY U.cid HAVING COUNT(U.pid) > 1)
-		AND    T.tid = C.type
+				       WHERE  CI.iid = B.bid  -- get branch of item in cset
+				       AND    C.cid  = CI.cid -- get changeset of item
+				       AND    C.type = 2      -- limit to branch changesets
+				       AND    F.fid  = B.fid  -- get file of branch
+                                      ) AS U
+				 GROUP BY U.cid          -- aggregate by csets, count proj/cset
+				 HAVING COUNT(U.pid) > 1 -- find cset with multiple projects
+				)
+		AND    T.tid = C.type -- get readable changeset type
 	    }
 	# All branches in a single changeset have to belong to
 	# different files. Conversely: No two branches of a single
@@ -746,22 +789,30 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT T.name, C.cid
 		FROM   changeset C, cstype T
 		WHERE  C.cid IN (SELECT VV.cid
-				 FROM (SELECT U.cid as cid, COUNT (U.fid) AS fcount
-				       FROM (SELECT DISTINCT CI.cid AS cid, B.fid AS fid
+				 FROM (SELECT U.cid         AS cid,   -- changeset
+				              COUNT (U.fid) AS fcount -- number of files by items
+				       FROM (SELECT DISTINCT       -- unique cset/file pairs
+					            CI.cid AS cid, -- Branch changeset
+					            B.fid  AS fid  -- File of item in changeset
 					     FROM   csitem CI, changeset C, branch B
-					     WHERE  CI.iid = B.bid
-					     AND    C.cid = CI.cid
-					     AND    C.type = 2
+					     WHERE  CI.iid = B.bid  -- get tag of item in changeset
+					     AND    C.cid  = CI.cid -- get changeset of item
+					     AND    C.type = 2      -- limit to branch changesets
 					     ) AS U
-				       GROUP BY U.cid) AS UU,
-				      (SELECT V.cid AS cid, COUNT (V.iid) AS rcount
+				       GROUP BY U.cid -- aggregate by csets, count files/cset
+				      ) AS UU,
+				      (SELECT V.cid         AS cid,   -- changeset
+				              COUNT (V.iid) AS rcount -- number of items in cset
 				       FROM   csitem V, changeset X
-				       WHERE  X.cid = V.cid
-				       AND    X.type = 2
-				       GROUP BY V.cid) AS VV
-				 WHERE VV.cid = UU.cid
-				 AND   UU.fcount < VV.rcount)
-		AND    T.tid = C.type
+				       WHERE  X.cid  = V.cid -- get changeset of item
+				       AND    X.type = 2     -- limit to branch changesets
+				       GROUP BY V.cid	     -- aggregate by csets, count items/cset
+				      ) AS VV
+				 WHERE VV.cid = UU.cid       -- sync #items/cset with #files/cset
+				 AND   UU.fcount < VV.rcount -- less files than items
+							     -- => items belong to the same file.
+				)
+		AND    T.tid = C.type -- get readable changeset type
 	    }
 	return
     }
@@ -790,7 +841,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 		SELECT CT.name, C.cid, F.name, R.rev
 		FROM   changeset C, cstype CT, revision R, file F, csitem CI, tag T
 		WHERE  C.type = 1       -- symbol changesets only
-		AND    C.src  = T.sid   -- tag only, linked by symbol id 
+		AND    C.src  = T.sid   -- tag only, linked by symbol id
 		AND    C.cid  = CI.cid  -- changeset --> its revisions
 		AND    R.rid  = CI.iid  -- look at the revisions
 		-- and look for the tag among the attached ones.
