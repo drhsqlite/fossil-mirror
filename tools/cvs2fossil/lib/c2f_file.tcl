@@ -963,8 +963,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	    if {[$vendor parent] eq $rev11} {
 		$rev11 removebranch        $vendor
 		$rev11 removechildonbranch $first
-		$vendor cutchild
-		$first cutfromparentbranch
+		$vendor cutbranchparent    ;# bp = rev11, about to be gone
+		$first cutfromparentbranch ;# pb = vendor, to be a detached LOD
 		lappend myroots $first
 	    }
 
