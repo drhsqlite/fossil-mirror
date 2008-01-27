@@ -42,7 +42,8 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	return
     }
 
-    method id {} { return $myid }
+    method id   {} { return $myid }
+    method file {} { return $myfile }
 
     # Basic pieces ________________________
 
@@ -400,6 +401,22 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     #             mydbparent          - revision.dbparent
     #             mydbchild           - revision.dbchild
 
+    method DUMP {label} {
+	puts "$label = $self <$myrevnr> (NTDB=$myisondefaultbranch) \{"
+	puts "\tP\t$myparent"
+	puts "\tC\t$mychild"
+	puts "\tPB\t$myparentbranch"
+	puts "\tdbP\t$mydbparent"
+	puts "\tdbC\t$mydbchild"
+	foreach b $mybranches {
+	    puts \t\tB\t$b
+	}
+	foreach b $mybranchchildren {
+	    puts \t\tBC\t$b
+	}
+	puts "\}"
+	return
+    }
 
     typevariable mybranchpattern {^((?:\d+\.\d+\.)+)(?:0\.)?(\d+)$}
     # First a nonzero even number of digit groups with trailing dot
@@ -428,8 +445,8 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 			      # object the revision belongs to. An
 			      # alternative idiom would be to call it
 			      # the branch the revision is on. This
-			      # reference is to a project-level object
-			      # (symbol or trunk).
+			      # reference is to either project-level
+			      # trunk or file-level symbol.
 
     # Basic parent/child linkage (lines of development)
 
