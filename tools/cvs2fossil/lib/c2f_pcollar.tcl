@@ -98,7 +98,7 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 
 	set rbase [repository base?]
 	foreach project [repository projects] {
-	    set base [file join $rbase [$project base]]
+	    set base [::file join $rbase [$project base]]
 	    log write 1 collar "Scan $base"
 
 	    set traverse [fileutil::traverse %AUTO% $base \
@@ -114,9 +114,10 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 		set usr [UserPath $rcs isattic]
 		if {[IsSuperceded $base $rcs $usr $isattic]} continue
 
+		# XXX Checkme: not sure if this will still fail in the case where a directory does conflict with a file XXX
 		if {
-		    [file exists      $base/$usr] &&
-		    [file isdirectory $base/$usr]
+		    [lsearch [glob -tail -types f -directory $base *] $usr] != -1 &&
+		    [lsearch [glob -tail -types d -directory $base *] $usr] != -1 
 		} {
 		    trouble fatal "Directory name conflicts with filename."
 		    trouble fatal "Please remove or rename one of the following:"
@@ -220,7 +221,9 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	::variable myignore
 
 	if {!$isattic}                   {return 0}
-	if {![file exists $base/$usr,v]} {return 0}
+
+	# use glob to account for case insensitive file systems 
+	if {[lsearch [glob -tail -directory $base *] $usr,v] == -1} {return 0}
 
 	# We have a regular archive and an Attic archive refering to
 	# the same user visible file. Ignore the file in the Attic.

@@ -44,7 +44,7 @@ snit::type ::vc::fossil::import::cvs::state {
 	# and check that. This is done by opening it, sqlite will then
 	# try to create it, and may fail.
 
-	if {[file exists $path]} {
+	if {[::file exists $path]} {
 	    if {![fileutil::test $path frw msg {cvs2fossil state}]} {
 		trouble fatal $msg
 		return
@@ -53,6 +53,7 @@ snit::type ::vc::fossil::import::cvs::state {
 
 	if {[catch {
 	    sqlite3 ${type}::TEMP $path
+	    ${type}::TEMP eval {PRAGMA synchronous=OFF;}
 	} res]} {
 	    trouble fatal $res
 	    return
@@ -82,6 +83,7 @@ snit::type ::vc::fossil::import::cvs::state {
 	set mypath  [fileutil::tempfile cvs2fossil_state_]
 	set mystate ${type}::STATE
 	sqlite3 $mystate $mypath
+        $mystate eval {PRAGMA synchronous=OFF;}
 
 	log write 2 state "using $mypath"
 	return
@@ -91,7 +93,7 @@ snit::type ::vc::fossil::import::cvs::state {
 	log write 2 state release
 	${type}::STATE close
 	if {$mypath eq ""} return
-	file delete $mypath
+	::file delete $mypath
 	return
     }
 

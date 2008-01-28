@@ -119,7 +119,7 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 	set cid [$cset id]
 
 	set date [GetTime [lindex [$graph node get $cset timerange] 1] \
-		      [struct::set contain $mysymchangesets $cset] \
+		      [struct::set contains $mysymchangesets $cset] \
 		     message]
 
 	log write 4 atopsort "Changeset @ [format $myatfmt $at]: [format $mycsfmt [$cset str]]$message"

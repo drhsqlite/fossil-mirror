@@ -32,11 +32,11 @@ snit::type ::vc::fossil::import::cvs::fossil {
     constructor {} {
 	set myrepository [fileutil::tempfile cvs2fossil_repo_]
 	set myworkspace  [fileutil::tempfile cvs2fossil_wspc_]
-	file delete $myworkspace
-	file mkdir  $myworkspace
+	::file delete $myworkspace
+	::file mkdir  $myworkspace
 
-	Do new $myrepository
-	$self InWorkspace ; Do open $myrepository
+	Do new [::file nativename $myrepository]
+	$self InWorkspace ; Do open [::file nativename $myrepository]
 	$self RestorePwd
 	return
     }
@@ -96,8 +96,8 @@ snit::type ::vc::fossil::import::cvs::fossil {
     }
 
     method finalize {destination} {
-	file rename -force $myrepository $destination
-	file delete -force $myworkspace
+	::file rename -force $myrepository $destination
+	::file delete -force $myworkspace
 	$self destroy
 	return
     }

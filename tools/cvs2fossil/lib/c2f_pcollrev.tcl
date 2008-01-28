@@ -318,14 +318,14 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 
 	set rbase [repository base?]
 	foreach project [repository projects] {
-	    set base [file join $rbase [$project base]]
+	    set base [::file join $rbase [$project base]]
 	    log write 1 collrev "Processing $base"
 
 	    foreach file [$project files] {
 		set path [$file path]
 		log write 2 collrev "Parsing $path"
 		if {[catch {
-		    parser process [file join $base $path] $file
+		    parser process [::file join $base $path] $file
 		} msg]} {
 		    global errorCode
 		    if {$errorCode eq "vc::rcs::parser"} {

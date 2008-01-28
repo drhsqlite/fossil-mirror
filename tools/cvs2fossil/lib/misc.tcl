@@ -83,7 +83,7 @@ namespace eval ::vc::tools::misc {
 
     proc striptrailingslash {path} {
 	# split and rejoin gets rid of a traling / character.
-	return [eval [linsert [file split $path] 0 file join]]
+	return [eval [linsert [file split $path] 0 ::file join]]
     }
 
     # # ## ### ##### ######## #############

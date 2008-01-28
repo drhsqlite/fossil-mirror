@@ -60,7 +60,7 @@ snit::type ::vc::tools::dot {
 	set f [fileutil::tempfile c2fdot_]
 	$type write $g $name $f
 	exec dot -T $format -o $file $f
-	file delete $f
+	::file delete $f
 	return
     }
 

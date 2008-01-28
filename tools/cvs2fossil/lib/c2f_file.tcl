@@ -266,7 +266,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	array set idmap [$repository importfiles $filemap]
 
 	# Wipe workspace clean of the imported files.
-	foreach x [glob -directory $ws r*] { file delete $x }
+	foreach x [glob -directory $ws r*] { ::file delete $x }
 
 	foreach {path rid} $revmap {
 	    set uuid $idmap($path)
@@ -339,7 +339,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	# Phase III: Traverse the graphs, expand the file, and
 	#            generate import instructions.
 
-	set archive [file join [$myproject fullpath] $mypath]
+	set archive [::file join [$myproject fullpath] $mypath]
 	set ac      [open $archive r]
 	fconfigure $ac -translation binary
 
