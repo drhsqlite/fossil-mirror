@@ -1,5 +1,5 @@
-C Changes\sto\scvs2fossil\sto\simport\stcllib\sCVS\sinto\sfossil\son\sWin32\n\n*\susing\s[::file]\sinstead\sof\s[file]\sin\ssnit\smethods\sto\sget\sthe\score\sfile\scommand\n*\staking\scare\sof\sfiles\sthat\sonly\sdiffer\sin\scase\sin\sthe\sAttic\sand\sthe\srepo\son\scase\sinsensitive\sFS\n*\spassing\splatform\sspecific
-D 2008-01-28T23:57:27
+C cvs2fossil:\sadd\s-nocomplain\sflag\sto\sglob\sto\sprevent\san\serror\sif\sno\sfiles/dirs\smatch
+D 2008-01-29T00:12:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -120,7 +120,7 @@ F tools/cvs2fossil/lib/c2f_patopsort.tcl 24672c709ecb089054d318aa9799108c2084cc6
 F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 3f3d02eb9464a3b590257b442f20a3e9c9a57ad4
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6011d
-F tools/cvs2fossil/lib/c2f_pcollar.tcl 49b5ac04536d515849cdf1679e1a6d6c55b31385
+F tools/cvs2fossil/lib/c2f_pcollar.tcl 9ec73f8d5c2917061a8273b5057cc25be582bbeb
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl 1a71981488df969893b3dd68a8fa88e7ac43348b
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7383c81d45fc3ee64493b995e53e35206bae9201
 F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df759
@@ -183,7 +183,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7aa9a2e206454f9d4e4f71660ef0b2c03ec2300c
-R 99984bc78812c8223c36f64d17baa6fe
+P 7208c7ac4d1562657ecad27e7bc3e6e81405d460
+R 57be41b45f1f7ff2bec9e18934b17ac2
 U mjanssen
-Z cc6bb39ade5d08099b080732b621d157
+Z 6ae1bb6aebdbc75d0a80169c9e746a53

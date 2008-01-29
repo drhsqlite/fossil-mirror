@@ -116,8 +116,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 
 		# XXX Checkme: not sure if this will still fail in the case where a directory does conflict with a file XXX
 		if {
-		    [lsearch [glob -tail -types f -directory $base *] $usr] != -1 &&
-		    [lsearch [glob -tail -types d -directory $base *] $usr] != -1 
+		    [lsearch [glob -nocomplain -tail -types f -directory $base *] $usr] != -1 &&
+		    [lsearch [glob -nocomplain -tail -types d -directory $base *] $usr] != -1 
 		} {
 		    trouble fatal "Directory name conflicts with filename."
 		    trouble fatal "Please remove or rename one of the following:"
@@ -223,7 +223,7 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	if {!$isattic}                   {return 0}
 
 	# use glob to account for case insensitive file systems 
-	if {[lsearch [glob -tail -directory $base *] $usr,v] == -1} {return 0}
+	if {[lsearch [glob -nocomplain -tail -directory $base *] $usr,v] == -1} {return 0}
 
 	# We have a regular archive and an Attic archive refering to
 	# the same user visible file. Ignore the file in the Attic.
