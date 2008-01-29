@@ -24,6 +24,7 @@ package require fileutil::traverse                  ; # Directory traversal.
 package require fileutil                            ; # File & path utilities.
 package require vc::tools::trouble                  ; # Error reporting.
 package require vc::tools::log                      ; # User feedback.
+package require vc::tools::misc                     ; # Local file utilities.
 package require vc::fossil::import::cvs::pass       ; # Pass management.
 package require vc::fossil::import::cvs::repository ; # Repository management.
 package require vc::fossil::import::cvs::state      ; # State storage
@@ -116,8 +117,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 
 		# XXX Checkme: not sure if this will still fail in the case where a directory does conflict with a file XXX
 		if {
-		    [lsearch [glob -nocomplain -tail -types f -directory $base *] $usr] != -1 &&
-		    [lsearch [glob -nocomplain -tail -types d -directory $base *] $usr] != -1 
+		    [fileexists_ci $base/$usr] &&
+		    [fileisdir_ci  $base/$usr]
 		} {
 		    trouble fatal "Directory name conflicts with filename."
 		    trouble fatal "Please remove or rename one of the following:"
@@ -220,10 +221,8 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
     proc IsSuperceded {base rcs usr isattic} {
 	::variable myignore
 
-	if {!$isattic}                   {return 0}
-
-	# use glob to account for case insensitive file systems 
-	if {[lsearch [glob -nocomplain -tail -directory $base *] $usr,v] == -1} {return 0}
+	if {!$isattic}                     {return 0}
+	if {![fileexists_ci $base/$usr,v]} {return 0}
 
 	# We have a regular archive and an Attic archive refering to
 	# the same user visible file. Ignore the file in the Attic.
@@ -258,6 +257,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
+	namespace import ::vc::tools::misc::file*
 	log register collar
     }
 }

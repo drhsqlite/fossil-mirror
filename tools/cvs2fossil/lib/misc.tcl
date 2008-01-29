@@ -86,11 +86,55 @@ namespace eval ::vc::tools::misc {
 	return [eval [linsert [file split $path] 0 ::file join]]
     }
 
+    # The windows filesystem is storing file-names case-sensitive, but
+    # matching is case-insensitive. That is a problem as without
+    # precaution the two files Attic/X,v and x,v may be mistakenly
+    # identified as the same file. A similar thing can happen for
+    # files and directories. To prevent such mistakes we need commands
+    # which do case-sensitive file matching even on systems which do
+    # not perform this natively. These are below.
+
+    if {$tcl_platform(platform) eq "windows"} {
+	# We use glob to get the list of files (with proper case in
+	# the names) to perform our own, case-sensitive matching. WE
+	# use 8.5 features where possible, for clarity.
+
+	if {[package vsatisfies [package present Tcl] 8.5]} {
+	    proc fileexists_ci {path} {
+		set dir  [::file dirname $path]
+		set file [::file tail    $path]
+		return [expr {$file in [glob -nocomplain -tail -directory $dir *]}]
+	    }
+
+	    proc fileisdir_ci {path} {
+		set dir  [::file dirname $path]
+		set file [::file tail    $path]
+		return [expr {$file in [glob -nocomplain -types d -tail -directory $dir *]}]
+	    }
+	} else {
+	    proc fileexists_ci {path} {
+		set dir  [::file dirname $path]
+		set file [::file tail    $path]
+		return [expr {[lsearch [glob -nocomplain -tail -directory $dir *] $file] >= 0}]
+	    }
+
+	    proc fileisdir_ci {path} {
+		set dir  [::file dirname $path]
+		set file [::file tail    $path]
+		return [expr {[lsearch [glob -nocomplain -types d -tail -directory $dir *] $file] >= 0}]
+	    }
+	}
+    } else {
+	proc fileexists_ci {path} { return [file exists      $path] }
+	proc fileisdir_ci  {path} { return [file isdirectory $path] }
+    }
+
     # # ## ### ##### ######## #############
 }
 
 namespace eval ::vc::tools::misc {
-    namespace export sp nsp max min max2 min2 ldelete striptrailingslash
+    namespace export sp nsp max min max2 min2 ldelete
+    namespace export striptrailingslash fileexists_ci fileisdir_ci
 }
 
 # -----------------------------------------------------------------------------
