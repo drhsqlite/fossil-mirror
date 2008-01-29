@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\s"user\sdefault"\scommand.
-D 2008-01-29T00:38:06
+C Error\smessage\son\s"commit"\sor\s"user\sdefault"\sif\sthe\suser\sdoes\snot\sexist.
+D 2008-01-29T01:11:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -38,7 +38,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
 F src/cgi.c 1c055038717de0273b07651aef227c7341d76a5f
-F src/checkin.c 5435deb8410083ce4a3920403f72e7f99e89cd03
+F src/checkin.c fe0fcda1069a016540d31d56583c0a55520fc59e
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
@@ -91,7 +91,7 @@ F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 676d19419e60b2c5516d86436ad58d06c5c8b2a9
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
-F src/user.c fb0522ab9268fb1c6f68c30f1fb3f61013a3e356
+F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
 F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6625739eda3e533c36d498bbc8b86a693795e367
-R d815a4bfc9b82d68b32d3b30f69677a1
+P 0921b68f669f7364768013bc182199747127fc81
+R effaa29985eef48cd7bbebf96b9dadb6
 U drh
-Z 7cc33725b7d9b957003c7515e07c35a1
+Z 76b544d01987ed8f58365e2054c534db
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHnnVyoxKgR168RlERAv6oAJ9oIg3ieKUGwwuZaVnBNcqYE0+lUwCdFzWs
-xEC1GPPvSaANgXAWzgCQl1o=
-=Oh2l
+iD8DBQFHnn1CoxKgR168RlERAl+yAJ4yKJ2u1KfnElioRC/ygPYqRxyyOgCdEJdw
+nre+K8oidbW9Jaoxt0eD9QU=
+=cmzc
 -----END PGP SIGNATURE-----

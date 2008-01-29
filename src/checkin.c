@@ -343,7 +343,7 @@ void commit_cmd(void){
   db_must_be_within_tree();
   noSign = db_get_int("omitsign", 0)|noSign;
   verify_all_options();
-  
+
   /*
   ** Autosync if requested.
   */
@@ -366,6 +366,13 @@ void commit_cmd(void){
   }
 
   user_select();
+  /*
+  ** Check that the user exists.
+  */
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
+    fossil_fatal("no such user: %s", g.zLogin);
+  }
+  
   db_begin_transaction();
   rc = unsaved_changes();
   if( rc==0 && !isAMerge && !forceFlag ){

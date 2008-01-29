@@ -207,10 +207,15 @@ void user_cmd(void){
     user_select();
     if( g.argc==3 ){
       printf("%s\n", g.zLogin);
-    }else if( g.localOpen ){
-      db_lset("default-user", g.argv[3]);
     }else{
-      db_set("default-user", g.argv[3], 0);
+      if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
+        fossil_fatal("no such user: %s", g.argv[3]);
+      }
+      if( g.localOpen ){
+        db_lset("default-user", g.argv[3]);
+      }else{
+        db_set("default-user", g.argv[3], 0);
+      }
     }
   }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
