@@ -1,5 +1,8 @@
-C cvs2fossil:\sadd\s-nocomplain\sflag\sto\sglob\sto\sprevent\san\serror\sif\sno\sfiles/dirs\smatch
-D 2008-01-29T00:12:12
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Fix\sa\sbug\sin\sthe\s"user\sdefault"\scommand.
+D 2008-01-29T00:38:06
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -88,7 +91,7 @@ F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 676d19419e60b2c5516d86436ad58d06c5c8b2a9
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
-F src/user.c dde3c3d16a89ff29c0bfb2b70e32431f45640400
+F src/user.c fb0522ab9268fb1c6f68c30f1fb3f61013a3e356
 F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
@@ -183,7 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7208c7ac4d1562657ecad27e7bc3e6e81405d460
-R 57be41b45f1f7ff2bec9e18934b17ac2
-U mjanssen
-Z 6ae1bb6aebdbc75d0a80169c9e746a53
+P 6625739eda3e533c36d498bbc8b86a693795e367
+R d815a4bfc9b82d68b32d3b30f69677a1
+U drh
+Z 7cc33725b7d9b957003c7515e07c35a1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHnnVyoxKgR168RlERAv6oAJ9oIg3ieKUGwwuZaVnBNcqYE0+lUwCdFzWs
+xEC1GPPvSaANgXAWzgCQl1o=
+=Oh2l
+-----END PGP SIGNATURE-----

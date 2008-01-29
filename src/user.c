@@ -208,9 +208,9 @@ void user_cmd(void){
     if( g.argc==3 ){
       printf("%s\n", g.zLogin);
     }else if( g.localOpen ){
-      db_lset("default-user", g.zLogin);
+      db_lset("default-user", g.argv[3]);
     }else{
-      db_set("default-user", g.zLogin, 0);
+      db_set("default-user", g.argv[3], 0);
     }
   }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
