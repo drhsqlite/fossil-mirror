@@ -39,6 +39,7 @@ snit::type ::vc::fossil::import::cvs::project::trunk {
     method id      {} { return $myid   }
     method istrunk {} { return 1 }
     method symbol  {} { return $self }
+    method parent  {} { return $self }
 
     method forceid {id} { set myid $id ; return }
 

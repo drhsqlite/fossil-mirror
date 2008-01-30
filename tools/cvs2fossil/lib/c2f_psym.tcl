@@ -43,6 +43,18 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     method name {} { return $myname }
     method id   {} { return $myid   }
 
+    method istrunk {} { return 0 }
+
+    method parent {} {
+	return [$myproject getsymbol [state one {
+	    SELECT S.name
+	    FROM preferedparent P, symbol S
+	    WHERE P.sid = $myid
+	    AND   S.sid = P.pid
+	}]]
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## Symbol type
 

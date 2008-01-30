@@ -86,6 +86,15 @@ snit::type ::vc::fossil::import::cvs::repository {
 	return [$mycmsg keyof $cid]
     }
 
+    typemethod getmeta {mid} {
+	struct::list assign [$mymeta keyof $mid] pid bid aid cid
+	return [list \
+		    $myprojmap($pid) \
+		    [$mysymbol keyof $bid] \
+		    [$myauthor keyof $aid] \
+		    [$mycmsg   keyof $cid]]
+    }
+
     # pass I results
     typemethod printstatistics {} {
 	set prlist [TheProjects]
@@ -259,6 +268,25 @@ snit::type ::vc::fossil::import::cvs::repository {
 		# that everything is 'undefined' at this point anyway.
 
 		# future: $symbol load (blockers, and parents)
+	    }
+
+	    # Beyond the symbols we also load the author, commit log,
+	    # and meta information.
+
+	    foreach {aid aname} [state run {
+		SELECT aid, name FROM author
+	    }] {
+		$myauthor map $aid $aname
+	    }
+	    foreach {cid text} [state run {
+		SELECT cid, text FROM cmessage
+	    }] {
+		$mycmsg map $cid $text
+	    }
+	    foreach {mid pid bid aid cid} [state run {
+		SELECT mid, pid, bid, aid, cid FROM meta
+	    }] {
+		$mymeta map $mid [list $pid $bid $aid $cid]
 	    }
 	}
 	return
@@ -472,5 +500,4 @@ namespace eval ::vc::fossil::import::cvs {
 
 # # ## ### ##### ######## ############# #####################
 ## Ready
-
 return

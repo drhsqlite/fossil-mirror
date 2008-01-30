@@ -391,6 +391,90 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
+    method pushto {sv repository date} {
+	upvar 1 $sv state
+
+	# Generate and import the manifest for this changeset.
+	#
+	# Data needed:
+	# - Commit message               (-- mysrcid -> repository meta)
+	# - User doing the commit        (s.a.)
+	#
+	# - Timestamp of when committed  (command argument)
+	#
+	# - The parent changeset, if any. If there is no parent use
+	#   the empty base revision as parent.
+	#
+	# - List of the file revisions in the changeset.
+
+	struct::list assign [$myproject getmeta $mysrcid] __ branch user message
+	struct::list assign $branch __ lodname
+
+	# The parent is determined via the line-of-development (LOD)
+	# information of each changeset, and the history of
+	# imports. The last changeset committed to the same LOD is
+	# taken as the parent of the current changeset. If the
+	# changeset is the first on that LOD it can be either spawned
+	# from another LOD, or detached. For the first case we
+	# retrieve the parent LOD of the current LOD symbol (*) and
+	# recheck for a committed changeset. The second case is taken
+	# if that lookup fails as well.
+	#
+	# (*) And this parent was found in previous passes when
+	#     determining the prefered parents of all the symbols.
+
+	# NOTE: The above is incomplete and buggy. Vendor-branches and
+	#       the various possibilities of its interaction with the
+	#       trunk are not fully handled.
+
+	if {[info exists state($lodname)]} {
+	    # LOD exists and has already been committed to.
+	    set parent $state($lodname)
+	} else {
+	    # LOD has not been committed to before, this is the first
+	    # time. Determine the name of the parent LOD.
+
+	    set plodname [[[$myproject getsymbol $lodname] parent] name]
+
+	    if {[info exists state($plodname)]} {
+		# The parental LOD has been committed to, take that
+		# last changeset as the spawnpoint for the new LOD.
+		set parent $state($plodname)
+	    } else {
+		# The parental LOD is not defined (yet). This LOD is
+		# detached. We choose as our parent the automatic
+		# empty root baseline of the target repository.
+		set parent {}
+	    }
+	}
+
+	# Perform the import. As part of that convert the list of
+	# items in the changeset into uuids and printable data.
+
+	set theset ('[join $myitems {','}]')
+	set uuid [$repository importrevision [$self str] \
+		      $user $message $date $parent \
+		      [state run [subst -nocommands -nobackslashes {
+			  SELECT U.uuid, F.name, R.rev
+			  FROM   revision R, revuuid U, file F
+			  WHERE  R.rid IN $theset  -- All specified revisions
+			  AND    U.rid = R.rid     -- get fossil uuid of revision
+			  AND    F.fid = R.fid     -- get file of revision
+		      }]]]
+
+	# Remember the imported changeset in the state, under our LOD.
+
+	set state($lodname) $uuid
+
+	# Remember the whole changeset / uuid mapping, for the tags.
+
+	state run {
+	    INSERT INTO csuuid (cid,   uuid)
+	    VALUES             ($myid, $uuid)
+	}
+	return
+    }
+
     typemethod split {cset args} {
 	# As part of the creation of the new changesets specified in
 	# ARGS as sets of items, all subsets of CSET's item set, CSET
@@ -543,6 +627,26 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 				      # the names in the table 'cstype'
 				      # in sync with the names of the
 				      # helper singletons.
+
+    typemethod inorder {projectid} {
+	# Return all revision changesets for the specified project, in
+	# the order given to them by the sort passes. Both the
+	# filtering by project and sorting make use of 'project::rev
+	# rev' impossible.
+
+	set res {}
+	foreach {cid cdate} [state run {
+	    SELECT C.cid, T.date
+	    FROM   changeset C, cstimestamp T
+	    WHERE  C.type = 0          -- limit to revision changesets
+	    AND    C.pid  = $projectid -- limit to changesets in project
+	    AND    T.cid  = C.cid      -- get ordering information
+	    ORDER BY T.date            -- sort into commit order
+	}] {
+	    lappend res $myidmap($cid) $cdate
+	}
+	return $res
+    }
 
     typemethod getcstypes {} {
 	foreach {tid name} [state run {

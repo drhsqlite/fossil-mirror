@@ -47,6 +47,10 @@ snit::type ::vc::fossil::import::cvs::pass::import {
 	state use project
 	state use file
 	state use revision
+	state use meta
+	state use author
+	state use cmessage
+	state use symbol
 
 	# This data is actually transient, confined to this pass. We
 	# use the state storage only to keep the RAM usage low.
@@ -84,17 +88,19 @@ snit::type ::vc::fossil::import::cvs::pass::import {
 	    set fossil [fossil %AUTO%]
 
 	    state transaction {
+		# Layer I: Files and their revisions
 		foreach file [$project files] {
 		    set path [$file path]
 		    log write 2 import {Importing file "$path"}
 		    $file pushto $fossil
 		}
-
-		# TODO: Generate manifests for the changesets in the
-		#       project and import them. This needs
-		#       topological traversal. And the creation of
-		#       empty helper baselines for stuff like the root
-		#       of ntdb and such.
+		# Layer II: Changesets
+		array set rstate {}
+		foreach {revision date} [$project revisionsinorder] {
+		    log write 2 import {Importing revision [$revision str]}
+		    $revision pushto rstate $fossil $date
+		}
+		unset rstate
 	    }
 
 	    # At last copy the temporary repository file to its final

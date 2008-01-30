@@ -19,6 +19,7 @@ package require Tcl 8.4                                 ; # Required runtime.
 package require snit                                    ; # OO system.
 package require vc::fossil::import::cvs::file           ; # CVS archive file.
 package require vc::fossil::import::cvs::state          ; # State storage.
+package require vc::fossil::import::cvs::project::rev   ; # Changesets.
 package require vc::fossil::import::cvs::project::sym   ; # Per project symbols.
 package require vc::fossil::import::cvs::project::trunk ; # Per project trunk, main lod
 package require vc::tools::log                          ; # User feedback
@@ -158,6 +159,12 @@ snit::type ::vc::fossil::import::cvs::project {
 	return
     }
 
+    method revisionsinorder {} {
+	return [rev inorder $myid]
+    }
+
+    delegate method getmeta to myrepository
+
     # # ## ### ##### ######## #############
     ## State
 
@@ -169,7 +176,7 @@ snit::type ::vc::fossil::import::cvs::project {
 				   # their user-visible files.
     variable myfobj           {} ; # File objects for the rcs archives
     variable myfmap    -array {} ; # Map rcs archive to their object.
-    variable myrepository     {} ; # Repository the prject belongs to.
+    variable myrepository     {} ; # Repository the project belongs to.
     variable mysymbol  -array {} ; # Map symbol names to project-level
 				   # symbol objects.
 
@@ -214,6 +221,8 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::fossil::import::cvs::state
 	# Import not required, already a child namespace.
 	# namespace import ::vc::fossil::import::cvs::project::sym
+	# Import not required, already a child namespace.
+	# namespace import ::vc::fossil::import::cvs::project::rev
     }
 }
 
