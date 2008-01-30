@@ -100,33 +100,33 @@ namespace eval ::vc::tools::misc {
 	# use 8.5 features where possible, for clarity.
 
 	if {[package vsatisfies [package present Tcl] 8.5]} {
-	    proc fileexists_ci {path} {
+	    proc fileexists_cs {path} {
 		set dir  [::file dirname $path]
 		set file [::file tail    $path]
 		return [expr {$file in [glob -nocomplain -tail -directory $dir *]}]
 	    }
 
-	    proc fileisdir_ci {path} {
+	    proc fileisdir_cs {path} {
 		set dir  [::file dirname $path]
 		set file [::file tail    $path]
 		return [expr {$file in [glob -nocomplain -types d -tail -directory $dir *]}]
 	    }
 	} else {
-	    proc fileexists_ci {path} {
+	    proc fileexists_cs {path} {
 		set dir  [::file dirname $path]
 		set file [::file tail    $path]
 		return [expr {[lsearch [glob -nocomplain -tail -directory $dir *] $file] >= 0}]
 	    }
 
-	    proc fileisdir_ci {path} {
+	    proc fileisdir_cs {path} {
 		set dir  [::file dirname $path]
 		set file [::file tail    $path]
 		return [expr {[lsearch [glob -nocomplain -types d -tail -directory $dir *] $file] >= 0}]
 	    }
 	}
     } else {
-	proc fileexists_ci {path} { return [file exists      $path] }
-	proc fileisdir_ci  {path} { return [file isdirectory $path] }
+	proc fileexists_cs {path} { return [file exists      $path] }
+	proc fileisdir_cs  {path} { return [file isdirectory $path] }
     }
 
     # # ## ### ##### ######## #############
@@ -134,7 +134,7 @@ namespace eval ::vc::tools::misc {
 
 namespace eval ::vc::tools::misc {
     namespace export sp nsp max min max2 min2 ldelete
-    namespace export striptrailingslash fileexists_ci fileisdir_ci
+    namespace export striptrailingslash fileexists_cs fileisdir_cs
 }
 
 # -----------------------------------------------------------------------------
