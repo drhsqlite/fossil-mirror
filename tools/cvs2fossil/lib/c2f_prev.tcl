@@ -22,6 +22,7 @@ package require struct::set                           ; # Set operations.
 package require vc::tools::misc                       ; # Text formatting
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
+package require vc::fossil::import::cvs::repository   ; # Repository management.
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
 
@@ -551,9 +552,30 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
+    typemethod load {} {
+	set n 0
+	log write 2 csets {Loading the changesets}
+	foreach {id pid cstype srcid} [state run {
+	    SELECT C.cid, C.pid, CS.name, C.src
+	    FROM   changeset C, cstype CS
+	    WHERE  C.type = CS.tid
+	    ORDER BY C.cid
+	}] {
+	    log progress 2 csets $n {}
+	    set r [$type %AUTO% [repository projectof $pid] $cstype $srcid [state run {
+		SELECT C.iid
+		FROM   csitem C
+		WHERE  C.cid = $id
+		ORDER BY C.pos
+	    }] $id]
+	    incr n
+	}
+	return
+    }
+
     typemethod loadcounter {} {
 	# Initialize the counter from the state
-	log write 2 initcsets {Loading changeset counter}
+	log write 2 csets {Loading changeset counter}
 	set mycounter [state one { SELECT MAX(cid) FROM changeset }]
 	return
     }
@@ -1338,6 +1360,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 namespace eval ::vc::fossil::import::cvs::project {
     namespace export rev
     namespace eval rev {
+	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::fossil::import::cvs::integrity
 	namespace import ::vc::tools::misc::*

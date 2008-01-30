@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sthe\snames\sfor\sthe\scase-sensitive\sfile\soperations.
-D 2008-01-30T03:10:57
+C Moved\sthe\scode\sloading\schangesets\sfrom\sstate\sto\sits\sproper\sclass.
+D 2008-01-30T03:23:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -129,8 +129,8 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7383c81d45fc3ee64493b995e53e35206bae9201
 F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df759
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl a9820cd0e44b51ade84f38f88da4a8831cc3e34e
 F tools/cvs2fossil/lib/c2f_pimport.tcl 1601bf3ce0199a486bdaaf3cb569da4c2775c1dc
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 87cc4829ade8aa1f9eae261de7bc0ce7d79774bc
-F tools/cvs2fossil/lib/c2f_prev.tcl 08cfcb070657d93c73f2a33f15d9d726182c3eda
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 0ab46f96ec6f00b4a4f0782c6492dc9693844b74
+F tools/cvs2fossil/lib/c2f_prev.tcl 6bd4e1440552b5a5c0ff803937f4cae21c3a7cc5
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
 F tools/cvs2fossil/lib/c2f_project.tcl 15df8101524f815ebb17242245ecbb9446e3bb44
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl bc1fe01638f0cb36455c225af63bc17f94ba0ac3
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P edc46651c7f9ad0ad3cbd1273ae519e65359536d
-R c6ad4b63973db4349efa04d5222405d6
+P ed13b28b13e139d0438d5ff54ddc4029373ecafb
+R 3702af40ab04d5fe96c83e1525ebd6c6
 U aku
-Z f948c812ad1932583feebab0f48a320b
+Z 41d523f72015331cf8a5c4551e968d14
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHn+rFvonzZ/CRa7gRAhuFAKCwuxTHIapnJj1UaQ17XVh9x7hOfwCfc8ye
-Bl6yz/BqHlNeunuDpjQjVwY=
-=zq/y
+iD8DBQFHn+2avonzZ/CRa7gRAtBMAKCLgyVsvg3O7jiFZCRhcD7042SdIQCgv+Gc
+Et19K6miz4Apf/0ssgwBops=
+=BNWx
 -----END PGP SIGNATURE-----

@@ -112,29 +112,11 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	state use csitem
 	state use cstype
 
-	# Need the types first, the constructor in the loop below uses
-	# them to assert the correctness of type names.
+	# Need the types first, the constructor used inside of the
+	# 'load' below uses them to assert the correctness of type
+	# names.
 	project::rev getcstypes
-
-	# TODO: Move to project::rev
-	set n 0
-	log write 2 initcsets {Loading the changesets}
-	foreach {id pid cstype srcid} [state run {
-	    SELECT C.cid, C.pid, CS.name, C.src
-	    FROM   changeset C, cstype CS
-	    WHERE  C.type = CS.tid
-	    ORDER BY C.cid
-	}] {
-	    log progress 2 initcsets $n {}
-	    set r [project::rev %AUTO% [repository projectof $pid] $cstype $srcid [state run {
-		SELECT C.iid
-		FROM   csitem C
-		WHERE  C.cid = $id
-		ORDER BY C.pos
-	    }] $id]
-	    incr n
-	}
-
+	project::rev load
 	project::rev loadcounter
 	return
     }
