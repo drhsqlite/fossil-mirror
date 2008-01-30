@@ -1,0 +1,6 @@
+* use Tcl and the sqlite3 extensions to provide a CLI to fossil
+* use Tcl sockets and events to prevent having to use non-portable things like fork
+* get fossil on all platforms that support Tcl and SQlite
+* allow easy extensibility using Tcl
+* provide performance critical parts as TEA extensions
+* allow apps to use DVCS by package require fossil
