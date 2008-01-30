@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Added\sbasic\simport\sof\schangesets.\sNote\sthat\sthis\scode\sis\sincomplete\swith\sregard\sto\shandling\sthe\svarious\spossible\sinteractions\sbetween\sa\svendor-branh\sand\strunk.
-D 2008-01-30T08:28:34
+C Branch\screated\stclfossil
+D 2008-01-30T21:53:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -186,14 +183,8 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f9e0d23d97e9bce240ff9ea8b9373304ef63bc6e
+P 348e45b0d66e5f80b89a5a5101036c5e057c83b2
 R d49b34f6731c612736179b93f7e32d69
-U aku
-Z 85753ed31724e0a9165a69741d85ae9a
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
-
-iD8DBQFHoDU2vonzZ/CRa7gRAgYRAJ0UYry0BnnCce8xad/iJLx4WykxBgCeMeNg
-/A0lklfg62GMn9tcZgloUN8=
-=FFZj
------END PGP SIGNATURE-----
+T *tclfossil *
+U mjanssen
+Z 23b8f3135beae8997b6685afb63a29d4
