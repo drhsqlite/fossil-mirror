@@ -22,7 +22,6 @@ package require struct::set                           ; # Set operations.
 package require vc::tools::misc                       ; # Text formatting
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
-package require vc::fossil::import::cvs::repository   ; # Repository management.
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
 
@@ -552,7 +551,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    typemethod load {} {
+    typemethod load {repository} {
 	set n 0
 	log write 2 csets {Loading the changesets}
 	foreach {id pid cstype srcid} [state run {
@@ -562,7 +561,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    ORDER BY C.cid
 	}] {
 	    log progress 2 csets $n {}
-	    set r [$type %AUTO% [repository projectof $pid] $cstype $srcid [state run {
+	    set r [$type %AUTO% [$repository projectof $pid] $cstype $srcid [state run {
 		SELECT C.iid
 		FROM   csitem C
 		WHERE  C.cid = $id
@@ -1360,7 +1359,6 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 namespace eval ::vc::fossil::import::cvs::project {
     namespace export rev
     namespace eval rev {
-	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::fossil::import::cvs::integrity
 	namespace import ::vc::tools::misc::*

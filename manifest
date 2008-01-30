@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Extended\slog\swriting\sto\shandle\smulti-line\slog\smessages.
-D 2008-01-30T08:20:37
+C Broke\spackage\sdependency\scycle\sintroduced\swhen\smoving\sthe\scset\sload\scode\sfrom\sthe\sInitCsets\spass\sto\sthe\scset\sclass.
+D 2008-01-30T08:23:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -129,8 +129,8 @@ F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7383c81d45fc3ee64493b995e53e35206bae9201
 F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df759
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl a9820cd0e44b51ade84f38f88da4a8831cc3e34e
 F tools/cvs2fossil/lib/c2f_pimport.tcl 1601bf3ce0199a486bdaaf3cb569da4c2775c1dc
-F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 0ab46f96ec6f00b4a4f0782c6492dc9693844b74
-F tools/cvs2fossil/lib/c2f_prev.tcl 6bd4e1440552b5a5c0ff803937f4cae21c3a7cc5
+F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 97c1e143407397ab129a61f7412fa03e034475b5
+F tools/cvs2fossil/lib/c2f_prev.tcl 079c4b0014caea9c8dc8d2e62670f4b793dcf841
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
 F tools/cvs2fossil/lib/c2f_project.tcl 15df8101524f815ebb17242245ecbb9446e3bb44
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl bc1fe01638f0cb36455c225af63bc17f94ba0ac3
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 49dd66f64fc236df7de37abbee1888f352aab46d
-R b9bf0e1765735f82ebdf2bfdf7c1d4a1
+P 81a297a66a31822122fe78af60018b39880a4f1d
+R 08c138545e913972fed8bcfd4dce3ca5
 U aku
-Z 2b68634b36bad793e3fb953e49c71498
+Z 17effff803b5bc61be9920c4d2fa6302
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHoDNZvonzZ/CRa7gRAn3bAJ4yJ7k8SP941lz/btCb5uszbDemrwCfZNRH
-vF5YCg36JrYpuCa+yM2vjnM=
-=iAYL
+iD8DBQFHoDQNvonzZ/CRa7gRAsD4AJwMei8HQtA2s2cX6bFTuqkvssRYzwCfd4av
+n+uR6KZth3jZz4Iq9qE+GDE=
+=+wLX
 -----END PGP SIGNATURE-----

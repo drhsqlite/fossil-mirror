@@ -116,7 +116,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# 'load' below uses them to assert the correctness of type
 	# names.
 	project::rev getcstypes
-	project::rev load
+	project::rev load ::vc::fossil::import::cvs::repository
 	project::rev loadcounter
 	return
     }
