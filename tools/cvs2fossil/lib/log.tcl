@@ -138,7 +138,7 @@ snit::type ::vc::tools::log {
     # Write handler. Each message is a line.
 
     proc OUT/write {system text} {
-	puts "$system $text"
+	puts "$system [join [split $text \n] "\n$system "]"
 	return
     }
 

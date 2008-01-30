@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Moved\sthe\scode\sloading\schangesets\sfrom\sstate\sto\sits\sproper\sclass.
-D 2008-01-30T03:23:02
+C Extended\slog\swriting\sto\shandle\smulti-line\slog\smessages.
+D 2008-01-30T08:20:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -141,7 +141,7 @@ F tools/cvs2fossil/lib/c2f_state.tcl b7329274e10ba641178e40789b15c9136281d35d
 F tools/cvs2fossil/lib/cvs2fossil.tcl 5ff9bfc14734487793d3335341f30b0c1a2e37be
 F tools/cvs2fossil/lib/dot.tcl a07b3e3a20b9cf0896f3d585b6350ab367b8c44b
 F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
-F tools/cvs2fossil/lib/log.tcl 875fe25bc72ca017813d7a62fa65a6fbe23e44db
+F tools/cvs2fossil/lib/log.tcl 4031b6876e249733d0894de5f93d7d1e220a961b
 F tools/cvs2fossil/lib/misc.tcl 85ff794a489fee9888b9f3b65b6b3364ca843459
 F tools/cvs2fossil/lib/pkgIndex.tcl bb5f385c20a6dcda261855ed270445a4b4e12ecc
 F tools/cvs2fossil/lib/rcsparser.tcl 6518936d0c3152fb53024c91aa587de15b354262
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ed13b28b13e139d0438d5ff54ddc4029373ecafb
-R 3702af40ab04d5fe96c83e1525ebd6c6
+P 49dd66f64fc236df7de37abbee1888f352aab46d
+R b9bf0e1765735f82ebdf2bfdf7c1d4a1
 U aku
-Z 41d523f72015331cf8a5c4551e968d14
+Z 2b68634b36bad793e3fb953e49c71498
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHn+2avonzZ/CRa7gRAtBMAKCLgyVsvg3O7jiFZCRhcD7042SdIQCgv+Gc
-Et19K6miz4Apf/0ssgwBops=
-=BNWx
+iD8DBQFHoDNZvonzZ/CRa7gRAn3bAJ4yJ7k8SP941lz/btCb5uszbDemrwCfZNRH
+vF5YCg36JrYpuCa+yM2vjnM=
+=iAYL
 -----END PGP SIGNATURE-----
