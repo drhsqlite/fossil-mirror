@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\sdb_get_int()\sroutine\sthat\swas\scausing\sthe\sdefault\svalue\nto\sbe\signored\s-\sresulting\sin\svery\sslow\sclones\sfor\ssystems\swithout\sa\nconfiguration\sdatabase.
-D 2008-01-31T21:31:17
+C The\sclient-side\sof\sa\ssync\suses\san\sadaptive\sapproach\sto\slimit\sthe\snumber\nof\s"gimme"\srequests\son\seach\sHTTP\sround-trip.\s\sThis\sreduces\straffic\non\sa\slarge\sclone.\s\sThe\snumber\sof\s"gimmes"\son\seach\sround-trip\sis\sthe\nlarger\sof\s100\sor\stwice\sthe\snumber\sof\sfiles\sreceived\son\sthe\sprevious\ncycle.
+D 2008-01-31T21:54:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -96,7 +96,7 @@ F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
 F src/wikiformat.c 8bd2fe1f5820aa6043d5841e5434e6bceeb03bac
-F src/xfer.c fe8089aded0fe6cc51c22df98eb5ff17aedf2516
+F src/xfer.c 83f986fb908532185d22af5d969194931ad0eb9e
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e5ae612c8d41412b54e58c523c75df0d50275e8b
-R c0a73f805e082531c683bc5a23badcaa
+P bf1a30c9c06e5b634bf0a9e66bcbff3d3f6f9450
+R 9c241c512ce7b0cce2d62904a3a8fc21
 U drh
-Z 39622bb6b9aee91814b79822de5710b3
+Z 638bc1c63148e16fc0a31011596e282d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHoj4ooxKgR168RlERAqJgAJ9Sr/djbr0AMAErJvpoJE8PkL1GcQCgiM+f
-nk8mX/0BFQTQNZeeciZxPuA=
-=3LMX
+iD8DBQFHokOroxKgR168RlERAl+9AJ4/DD6KTAjG3hu1foEYveLGvprVaACfU8VO
+NSd/ZKh5TKA42zTT7SpTavs=
+=GWIs
 -----END PGP SIGNATURE-----
