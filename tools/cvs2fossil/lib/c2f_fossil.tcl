@@ -98,26 +98,29 @@ snit::type ::vc::fossil::import::cvs::fossil {
     method importrevision {label user message date parent revisions} {
 	# TODO = Write the actual import, and up the log level.
 
-	log write 2 fossil {== $user @ [clock format $date]}
-	log write 2 fossil {-> $parent}
-	log write 2 fossil {%% [join [split $message \n] "\n%% "]}
-
-	set uuids {}
-	foreach {uuid fname revnr} $revisions {
-	    lappend uuids $uuid
-	    log write 2 fossil {** $fname/$revnr = <$uuid>}
-	}
-
 	# Massage the commit message to remember the old user name
 	# which did the commit in CVS.
 
 	set message "By $user:\n$message"
 
-	# run fossil test-command performing the import.
-	#
+	log write 2 fossil {== $user @ [clock format $date]}
+	log write 2 fossil {-> $parent}
+	log write 2 fossil {%% [join [split $message \n] "\n%% "]}
 
-	log write 2 fossil {== $label}
-	return $label ; # FAKE a uuid for the moment
+	lappend cmd Do test-import-manifest $date $message
+	if {$parent ne ""} { lappend cmd --parents $parent }
+	lappend cmd --files
+	foreach {frid fpath flabel} $revisions {
+	    lappend cmd $frid $fpath
+	    log write 2 fossil {** <[format %5d $frid]> = $flabel}
+	}
+
+	# run fossil test-command performing the import.
+	# set uuid [eval $cmd]
+	set uuid $label ; # FAKE an uuid for the moment
+
+	log write 2 fossil {== $uuid}
+	return $uuid
     }
 
     method finalize {destination} {
