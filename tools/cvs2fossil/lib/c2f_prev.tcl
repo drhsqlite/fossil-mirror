@@ -410,6 +410,42 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	struct::list assign [$myproject getmeta $mysrcid] __ branch user message
 	struct::list assign $branch __ lodname
 
+	# Perform the import. As part of that convert the list of
+	# items in the changeset into uuids and printable data.
+
+	set uuid [Updatestate state $lodname \
+		      [$repository importrevision [$self str] \
+			   $user $message $date \
+			   [Getparent state $lodname $myproject] \
+			   [Getrevisioninfo $myitems]]]
+
+	# Remember the whole changeset / uuid mapping, for the tags.
+
+	state run {
+	    INSERT INTO csuuid (cid,   uuid)
+	    VALUES             ($myid, $uuid)
+	}
+	return
+    }
+
+    proc Getrevisioninfo {revisions} {
+	set theset ('[join $revisions {','}]')
+	set revisions {}
+	foreach {uuid fname revnr} [state run [subst -nocommands -nobackslashes {
+	    SELECT U.uuid, F.name, R.rev
+	    FROM   revision R, revuuid U, file F
+	    WHERE  R.rid IN $theset  -- All specified revisions
+	    AND    U.rid = R.rid     -- get fossil uuid of revision
+	    AND    F.fid = R.fid     -- get file of revision
+	}]] {
+	    lappend revisions $uuid $fname $revnr
+	}
+	return $revisions
+    }
+
+    proc Getparent {sv lodname project} {
+	upvar 1 $sv state
+
 	# The parent is determined via the line-of-development (LOD)
 	# information of each changeset, and the history of
 	# imports. The last changeset committed to the same LOD is
@@ -429,50 +465,32 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	if {[info exists state($lodname)]} {
 	    # LOD exists and has already been committed to.
-	    set parent $state($lodname)
-	} else {
-	    # LOD has not been committed to before, this is the first
-	    # time. Determine the name of the parent LOD.
-
-	    set plodname [[[$myproject getsymbol $lodname] parent] name]
-
-	    if {[info exists state($plodname)]} {
-		# The parental LOD has been committed to, take that
-		# last changeset as the spawnpoint for the new LOD.
-		set parent $state($plodname)
-	    } else {
-		# The parental LOD is not defined (yet). This LOD is
-		# detached. We choose as our parent the automatic
-		# empty root baseline of the target repository.
-		set parent {}
-	    }
+	    return $state($lodname)
 	}
 
-	# Perform the import. As part of that convert the list of
-	# items in the changeset into uuids and printable data.
+	# LOD has not been committed to before, this is the first
+	# time. Determine the name of the parent LOD.
 
-	set theset ('[join $myitems {','}]')
-	set uuid [$repository importrevision [$self str] \
-		      $user $message $date $parent \
-		      [state run [subst -nocommands -nobackslashes {
-			  SELECT U.uuid, F.name, R.rev
-			  FROM   revision R, revuuid U, file F
-			  WHERE  R.rid IN $theset  -- All specified revisions
-			  AND    U.rid = R.rid     -- get fossil uuid of revision
-			  AND    F.fid = R.fid     -- get file of revision
-		      }]]]
+	set lodname [[[$project getsymbol $lodname] parent] name]
 
+	if {[info exists state($lodname)]} {
+	    # The parental LOD has been committed to, take that last
+	    # changeset as the spawnpoint for the new LOD.
+	    return $state($lodname)
+	}
+
+	# The parental LOD is not defined (yet). This LOD is
+	# detached. We choose as our parent the automatic empty root
+	# baseline of the target repository.
+	return {}
+    }
+
+    proc Updatestate {sv lodname uuid} {
 	# Remember the imported changeset in the state, under our LOD.
 
+	upvar 1 $sv state
 	set state($lodname) $uuid
-
-	# Remember the whole changeset / uuid mapping, for the tags.
-
-	state run {
-	    INSERT INTO csuuid (cid,   uuid)
-	    VALUES             ($myid, $uuid)
-	}
-	return
+	return $uuid
     }
 
     typemethod split {cset args} {

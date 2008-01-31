@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sbasic\simport\sof\schangesets.\sNote\sthat\sthis\scode\sis\sincomplete\swith\sregard\sto\shandling\sthe\svarious\spossible\sinteractions\sbetween\sa\svendor-branh\sand\strunk.
-D 2008-01-30T08:28:34
+C Moved\sthe\smost\scomplex\sparts\sof\spushto\sinto\stheir\sown\scommands.
+D 2008-01-31T05:39:51
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -130,7 +130,7 @@ F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df75
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl a9820cd0e44b51ade84f38f88da4a8831cc3e34e
 F tools/cvs2fossil/lib/c2f_pimport.tcl 2ae743b09e0f3a779a9da85c700217a393e0233f
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 97c1e143407397ab129a61f7412fa03e034475b5
-F tools/cvs2fossil/lib/c2f_prev.tcl 5b323107c1e4c68d6a856f3fe67b2eef9e819489
+F tools/cvs2fossil/lib/c2f_prev.tcl 696f01d05d62f1bedfaa75cdbf2881fd0886e252
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
 F tools/cvs2fossil/lib/c2f_project.tcl 00dc5b3cacc38b12129babb305ae0a1b430fccb7
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl bc1fe01638f0cb36455c225af63bc17f94ba0ac3
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f9e0d23d97e9bce240ff9ea8b9373304ef63bc6e
-R d49b34f6731c612736179b93f7e32d69
+P 348e45b0d66e5f80b89a5a5101036c5e057c83b2
+R 7346ed1593c48ba2781c82018850aa4c
 U aku
-Z 85753ed31724e0a9165a69741d85ae9a
+Z 57799f6db0decfd847d823ddff26a38d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHoDU2vonzZ/CRa7gRAgYRAJ0UYry0BnnCce8xad/iJLx4WykxBgCeMeNg
-/A0lklfg62GMn9tcZgloUN8=
-=FFZj
+iD8DBQFHoV8svonzZ/CRa7gRAt1MAJkBahJBdj9yv6mSGm48dxjdydq0kQCZAS4e
+2proyY+hqZ5NUteRPhcAB84=
+=L9jn
 -----END PGP SIGNATURE-----
