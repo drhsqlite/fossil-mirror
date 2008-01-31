@@ -466,7 +466,7 @@ void page_xfer(void){
   blob_zero(&xfer.err);
   xfer.pIn = &g.cgiIn;
   xfer.pOut = cgi_output_blob();
-  xfer.mxSend = db_get_int("max-download", 1000000);
+  xfer.mxSend = db_get_int("max-download", 5000000);
 
   db_begin_transaction();
   db_multi_exec(
@@ -938,7 +938,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     if( (nFileRecv>0 || newPhantom) && db_exists("SELECT 1 FROM phantom") ){
       go = 1;
       mxPhantomReq = nFileRecv*2;
-      if( mxPhantomReq<100 ) mxPhantomReq = 100;
+      if( mxPhantomReq<200 ) mxPhantomReq = 200;
     }
     nMsg = 0;
     xfer.nFileRcvd = 0;

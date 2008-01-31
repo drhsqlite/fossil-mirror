@@ -532,6 +532,15 @@ void setup_access(void){
   @ to a year.</p>
 
   @ <hr>
+  entry_attribute("Download packet limit", 10, "max-download", "mxdwn",
+                  "5000000");
+  @ <p>Fossil tries to limit out-bound sync, clone, and pull packets
+  @ to this many bytes, uncompressed.  If the client requires more data
+  @ than this, then the client will issue multiple HTTP requests.
+  @ Values below 1 million are not recommended.  5 million is a 
+  @ reasonable number.</p>
+
+  @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);
