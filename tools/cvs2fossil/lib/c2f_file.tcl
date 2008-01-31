@@ -448,13 +448,25 @@ snit::type ::vc::fossil::import::cvs::file {
 	set lines  [split $delta \n]
 	set nlines [llength $lines]
 
+	log write 11 file {Base  lines = $blen}
+	log write 11 file {Delta lines = $nlines}
+
 	for {set i 0} {$i < $nlines} {} {
+	    log write 11 file {    @ $i = [lindex $lines $i]}
+	    log write 11 file { ooff $ooff}
+
 	    if {![regexp {^([ad])(\d+)\s(\d+)$} [lindex $lines $i] -> cmd sl cn]} {
 		trouble internal "Bad ed command '[lindex $lines $i]'"
 	    }
 
+	    log write 11 file {  cmd $cmd}
+	    log write 11 file {   sl $sl}
+	    log write 11 file {   cn $cn}
+
 	    incr i
 	    set el [expr {$sl + $cn}]
+
+	    log write 11 file {   el $el}
 
 	    switch -exact -- $cmd {
 		d {
