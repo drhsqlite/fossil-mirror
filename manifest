@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\stypo\son\sthe\suser\ssetup\spage.\s\sReported\svia\semail\sby\sBrad\sHarder.
-D 2008-02-01T12:39:40
+C Update\ssqlite\sto\sversion\s3.5.5\splus\spatches.
+D 2008-02-01T15:35:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -77,8 +77,8 @@ F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c 384e115ad09cb7cfa7da6f8770aa19318981482a
 F src/setup.c 093a77e546affb5f4a6177b33c425a34cd0dfd44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/sqlite3.c 81b02daa4d8a20e3ae099207737c8b30f366cfe4
-F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
+F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
+F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/style.c 773050316bf1ec612989f087ded00ff4d4298f41
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P bb3a25e2f0eca8754258c36ce92f71cc3630fb97
-R 667aa5a1bdb74a62119bbf4f23e535ab
+P 5d3783bd61d939ae246bc14272dbaf6c06d82c0b
+R 8c77a72e0dcc22798deedebdb41a3abd
 U drh
-Z 679d69cbc4dbeb3a9d2bc821bd6b3d0e
+Z a3c2bf769961989c8bd6928432417329
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD4DBQFHoxMQoxKgR168RlERAq9dAJj4fJle0Uyn274+5DGH7SwxCBPpAKCHm7EJ
-1snfz93YuYq0Jogo16SjfQ==
-=K0Bz
+iD8DBQFHozw7oxKgR168RlERAvadAJoChPy9jmFJ/jCtzqgHVIL8FrzZ8wCeJQ+v
+4QdEoqAyEThFkyTR7Z/h/30=
+=91di
 -----END PGP SIGNATURE-----
