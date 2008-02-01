@@ -402,16 +402,17 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#
 	# - Timestamp of when committed  (command argument)
 	#
-	# - The parent changeset, if any. If there is no parent use
-	#   the empty base revision as parent.
+	# - The parent changeset, if any. If there is no parent fossil
+	#   will use the empty base revision as parent.
 	#
 	# - List of the file revisions in the changeset.
 
 	struct::list assign [$myproject getmeta $mysrcid] __ branch user message
 	struct::list assign $branch __ lodname
 
-	# Perform the import. As part of that convert the list of
-	# items in the changeset into uuids and printable data.
+	# Perform the import. As part of that we determine the parent
+	# we need, and convert the list of items in the changeset into
+	# uuids and printable data.
 
 	set uuid [Updatestate state $lodname \
 		      [$repository importrevision [$self str] \
@@ -446,50 +447,98 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     proc Getparent {sv lodname project} {
 	upvar 1 $sv state
 
-	# The parent is determined via the line-of-development (LOD)
-	# information of each changeset, and the history of
-	# imports. The last changeset committed to the same LOD is
-	# taken as the parent of the current changeset. If the
-	# changeset is the first on that LOD it can be either spawned
-	# from another LOD, or detached. For the first case we
-	# retrieve the parent LOD of the current LOD symbol (*) and
-	# recheck for a committed changeset. The second case is taken
-	# if that lookup fails as well.
-	#
-	# (*) And this parent was found in previous passes when
-	#     determining the prefered parents of all the symbols.
+	struct::list assign [Getisdefault $myitems] isdefault lastdefaultontrunk
 
-	# NOTE: The above is incomplete and buggy. Vendor-branches and
-	#       the various possibilities of its interaction with the
-	#       trunk are not fully handled.
+	# See (a) below, we have to remember if the changeset is last
+	# on vendor branch also belonging to trunk even if we find a
+	# parent in the state. The caller will later (after import)
+	# make us the first trunk changeset in the state (See (**)).
+
+	if {$lastdefaultontrunk} {
+	    set state(:vendor:last:) .
+	}
+
+	# The state array holds for each line-of-development (LOD) the
+	# last committed changeset belonging to that LOD.
+
+	# (*) Standard handling if in-LOD changesets. If the LOD of
+	#     the current changeset exists in the state (= has been
+	#     committed to) then the stored changeset is the parent we
+	#     are looking for.
 
 	if {[info exists state($lodname)]} {
-	    # LOD exists and has already been committed to.
 	    return $state($lodname)
 	}
 
-	# LOD has not been committed to before, this is the first
-	# time. Determine the name of the parent LOD.
+	# If the LOD is not yet known the current changeset can either
+	# be
+	# (a) the root of a vendor branch,
+	# (b) the root of the trunk LOD, or
+	# (c) the first changeset in a new LOD which was spawned from
+	#     an existing LOD.
+
+	if {$isdefault} {
+	    # In case of (a) the changeset has no parent, signaled by
+	    # the empty string. We do remember if the changeset is
+	    # last on the vendor branch still belonging to trunk, for
+	    # the trunk root.
+	    return {}
+	}
+
+	if {$lodname eq ":trunk:"} {
+	    # This is case (b), and we also can be sure that there is
+	    # no vendor branch changeset which could be our
+	    # parent. That was already dealt with through the
+	    # :vendor:last: signal and code in the caller (setting
+	    # such a changeset up as parent in the state, causing the
+	    # standard LOD handler at (*) to kick in. So, no parent
+	    # here at all.
+	    return {}
+	}
+
+	# Case (c). We find the parent LOD of our LOD and take the
+	# last changeset committed to that as our parent. If that
+	# doesn't exist we have an error on our hands.
 
 	set lodname [[[$project getsymbol $lodname] parent] name]
-
 	if {[info exists state($lodname)]} {
-	    # The parental LOD has been committed to, take that last
-	    # changeset as the spawnpoint for the new LOD.
 	    return $state($lodname)
 	}
 
-	# The parental LOD is not defined (yet). This LOD is
-	# detached. We choose as our parent the automatic empty root
-	# baseline of the target repository.
-	return {}
+	trouble internal {Unable to determine changeset parent}
+	return
+    }
+
+    proc Getisdefault {revisions} {
+	set theset ('[join $revisions {','}]')
+
+	struct::list assign [state run [subst -nocommands -nobackslashes {
+	    SELECT R.isdefault, R.dbchild
+	    FROM   revision R
+	    WHERE  R.rid IN $theset  -- All specified revisions
+	    LIMIT 1
+	}]] def last
+
+	# TODO/CHECK: look for changesets where isdefault/dbchild is
+	# ambigous.
+
+	return [list $def [expr {$last ne ""}]]
     }
 
     proc Updatestate {sv lodname uuid} {
-	# Remember the imported changeset in the state, under our LOD.
-
 	upvar 1 $sv state
+
+	# Remember the imported changeset in the state, under our
+	# LOD. (**) And if the :vendor:last: signal is present then
+	# the revision is also the actual root of the :trunk:, so
+	# remember it as such.
+
 	set state($lodname) $uuid
+	if {[info exists state(:vendor:last:)]} {
+	    unset state(:vendor:last:)
+	    set state(:trunk:) $uuid
+	}
+
 	return $uuid
     }
 
