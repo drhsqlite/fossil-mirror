@@ -416,7 +416,7 @@ void user_edit(void){
   @ so anybody who can read should be able to login as anonymous.
   @ On the other hand, spiders and web-crawlers will typically not
   @ be able to login.  Set the capabilities of the anonymous user
-  @ to things that you want any human to be able to do, but no any
+  @ to things that you want any human to be able to do, but not any
   @ spider.
   @ </p></li>
   @ </form>
