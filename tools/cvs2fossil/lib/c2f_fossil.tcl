@@ -115,8 +115,7 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	}
 
 	# run fossil test-command performing the import.
-	# set uuid [eval $cmd]
-	set uuid $label ; # FAKE an uuid for the moment
+	set uuid [eval $cmd]
 
 	log write 2 fossil {== $uuid}
 	return $uuid
