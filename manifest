@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reworked\sthe\scode\sdetermining\sthe\sparent\sof\sthe\scurrently\scommitted\schangeset.\sIt\sshould\snow\shandle\sthe\stransition\sfrom\svendor\sbranch\sto\strunk\scorrectly.
-D 2008-02-01T05:25:03
+C Made\sremove_from_argv\spublic\sfor\suse\sby\sthe\supcoming\stest-import-manifest\scommand.\sFixed\sdescription\sof\sverify_all_options.\sInitialized\svariable\sto\ssilence\sgcc\swarning.
+D 2008-02-01T05:29:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -57,7 +57,7 @@ F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 21bbd4bc0457b550c1c27a5ed4f5a121ce81e0c9
 F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
-F src/main.c cfe3d68152a6fde6342565bbaf3330a1738a9e85
+F src/main.c fcf22176a5c2c69a2fa77243945e46ba557dc7ce
 F src/main.mk e26748a3239c58edc13aab77e38045925e011c40
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e5ae612c8d41412b54e58c523c75df0d50275e8b
-R 184491f76f82c77f994685b95a981091
+P e8efbc317a008a6c94465099784ac1213a5174eb
+R 59340e283368adb26b49149efcd063bc
 U aku
-Z 765fce2d0e4555d22c0dc0653fec3295
+Z 5ed3b3d4b408888a810ec10d36e8450c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHoq0zvonzZ/CRa7gRAm/yAJ99FYaWMbmQh00Jzer3wRacBBhlVACgt+Ns
-I8fHpJNjRd3rxMWwWtDn9e4=
-=dOk6
+iD8DBQFHoq5UvonzZ/CRa7gRAvDhAJ9frSeSyfJRU/3MDHJvKqmJ0WkVXgCgu91s
+O4O2wPQ2n3sfyvdnqyvPNgM=
+=K5XS
 -----END PGP SIGNATURE-----

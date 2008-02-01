@@ -262,7 +262,7 @@ void usage(const char *zFormat){
 /*
 ** Remove n elements from g.argv beginning with the i-th element.
 */
-static void remove_from_argv(int i, int n){
+void remove_from_argv(int i, int n){
   int j;
   for(j=i+n; j<g.argc; i++, j++){
     g.argv[i] = g.argv[j];
@@ -304,7 +304,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
 }
 
 /*
-** Verify that there are no processed command-line options.  If
+** Verify that there are no unprocessed command-line options.  If
 ** Any remaining command-line argument begins with "-" print
 ** an error message and quit.
 */
@@ -459,7 +459,7 @@ void set_base_url(void){
 */
 static void process_one_web_page(void){
   const char *zPathInfo;
-  char *zPath;
+  char *zPath = NULL;
   int idx;
   int i, j;
 
