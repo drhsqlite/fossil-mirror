@@ -21,7 +21,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to check-out versions of the project
+** This file contains code used to check-in versions of the project
 ** from the local repository.
 */
 #include "config.h"
@@ -561,4 +561,257 @@ void commit_cmd(void){
     printf("Warning: commit caused a fork to occur. Please merge and push\n");
     printf("         your changes as soon as possible.\n");
   }
+}
+
+/*
+** COMMAND: test-import-manifest
+**
+** Usage: %fossil test-import-manifest DATE COMMENT ?-p PARENT_RECORDID?... ?-f (FILE_RECORDID PATH)?...
+**
+** Create a new version containing containing the specified file
+** revisions (if any), and child of the given PARENT version.
+*/
+void import_manifest_cmd(void){
+  const char* zDate;    /* argument - timestamp, as seconds since epoch (int) */
+  const char* zComment; /* argument - manifest comment */
+  char* zDateFmt;       /* timestamp formatted for the manifest */
+  int* zParents;        /* arguments - array of parent references */
+  int zParentCount;     /* number of found parent references */
+  Blob manifest;        /* container for the manifest to be generated */
+  Blob mcksum;          /* Self-checksum on the manifest */
+  Blob cksum, cksum2;   /* Before and after commit checksums */
+  Blob cksum1b;         /* Checksum recorded in the manifest */
+  const char* parent;   /* loop variable when collecting parent references */
+  int i, mid;           /* Another loop index, and id of new manifest */
+  Stmt q;               /* sql statement to query table of files */
+
+#define USAGE ("DATE COMMENT ?-p|-parent PARENT_RID...? ?-f|-file (FILE_RID PATH)...?")
+
+  /*
+  ** Validate and process arguments, collect information.
+  */
+
+  db_must_be_within_tree();
+
+  /* Mandatory arguments */
+  if (g.argc < 4) {
+    usage (USAGE);
+  }
+
+  zDate    = g.argv[2];
+  zComment = g.argv[3];
+
+  remove_from_argv (2,2);
+
+  /* Pull the optional parent arguments
+  **
+  ** Note: In principle it is possible that the loop below extracts
+  ** the wrong arguments, if we ever try to import a file whose path
+  ** starts with -p/-parent. In that case however the removal of two
+  ** arguments will leave the file bereft of an argument and the
+  ** recheck of the number of arguments below should catch that.
+  **
+  ** For a test command this is acceptable, it won't have lots of
+  ** safety nets.
+  */
+
+  zParentCount = 0;
+  zParents = (int*)malloc(sizeof(int)*(1+g.argc));
+  /* 1+, to be ok with the default even if no arguments around */
+
+  while ((parent = find_option("parent","p",1)) != NULL) {
+    /* Check and store ... */
+    zParents [zParentCount] = name_to_rid (parent);
+    zParentCount ++;
+  }
+
+  /*
+  ** Fall back to the root manifest as parent if none were specified
+  ** explicitly.
+  */
+
+  if (!zParentCount) {
+    zParents [zParentCount] = 1; /* HACK: rid 1 is the baseline manifest
+				 ** which was entered when the repository
+				 ** was created via 'new'. It always has
+				 ** rid 1.
+				 */
+    zParentCount ++;
+  }
+
+  /* Pull the file arguments, at least one has to be present. They are
+  ** the only things we can have here, now, and they are triples of
+  ** '-f FID PATH', so use of find_option is out, and we can check the
+  ** number of arguments.
+  **
+  ** Note: We store the data in a temp. table, so that we later can
+  **       pull it sorted, and also easily get the associated hash
+  **       identifiers.
+  **
+  ** Note 2: We expect at least one file, otherwise the manifest won't
+  ** be recognized as a baseline by the manifest parser.
+  */
+
+  if (((g.argc-2) % 3 != 0) || (g.argc < 5)) {
+    usage (USAGE);
+  }
+
+  db_begin_transaction();
+  db_multi_exec ("CREATE TEMP TABLE __im ("
+		 "rid INTEGER PRIMARY KEY,"
+		 "pathname TEXT NOT NULL)" );
+
+  while (g.argc > 2) {
+    /* Check and store ... */
+    if (strcmp("-f",   g.argv[2]) &&
+	strcmp("-file",g.argv[2])) {
+      usage (USAGE);
+    }
+
+    /* DANGER The %s for the path might lead itself to an injection
+    ** attack. For now (i.e. testing) this is ok, but do something
+    ** better in the future.
+    */
+
+    db_multi_exec("INSERT INTO __im VALUES(%d,'%s')",
+		  name_to_rid (g.argv[3]), g.argv[4] );
+    remove_from_argv (2,3);
+  }
+
+  verify_all_options();
+
+  /*
+  ** Determine the user the manifest will belong to, and check that
+  ** this user exists.
+  */
+
+  user_select();
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
+    fossil_fatal("no such user: %s", g.zLogin);
+  }
+
+  /*
+  ** Now generate the manifest in memory.
+  **
+  ** Start with comment and date. The latter is converted to the
+  ** proper format before insertion.
+  */
+
+  blob_zero(&manifest);
+
+  if (!strlen(zComment)) {
+    blob_appendf(&manifest, "C %F\n", "(no comment)");
+  } else {
+    blob_appendf(&manifest, "C %F\n", blob_str(&comment));
+  }
+
+  zDateFmt = db_text(0, "SELECT datetime(%Q,'unixepoch')",zDate);
+  zDateFmt[10] = 'T';
+  blob_appendf(&manifest, "D %s\n", zDateFmt);
+  free(zDateFmt);
+
+  /*
+  ** Follow with all the collected files, properly sorted. Here were
+  ** also compute the checksum over the files (paths, sizes,
+  ** contents), similar to what 'vfile_aggregate_checksum_repository'
+  ** does.
+  */
+
+  md5sum_init();
+  db_prepare(&q,
+	     "SELECT pathname, uuid, __im.rid"
+	     " FROM __im JOIN blob ON __im.rid=blob.rid"
+	     " ORDER BY 1");
+
+  while( db_step(&q)==SQLITE_ROW ){
+    char zBuf[100];
+    Blob file;
+    const char *zName = db_column_text(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    int         zRid  = db_column_int (&q, 2);
+
+    /* Extend the manifest */
+    blob_appendf(&manifest, "F %F %s\n", zName, zUuid);
+
+    /* Update the checksum */
+    md5sum_step_text(zName, -1);
+    blob_zero(&file);
+    content_get(zRid, &file);
+    sprintf(zBuf, " %d\n", blob_size(&file));
+    md5sum_step_text(zBuf, -1);
+    md5sum_step_blob(&file);
+    blob_reset(&file);
+  }
+  db_finalize(&q);
+  md5sum_finish (&cksum);
+
+  /*
+  ** Follow with all the specified parents. We know that there is at
+  ** least one.
+  */
+
+  blob_appendf(&manifest, "P");
+  for (i=0;i<zParentCount;i++) {
+    char* zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", zParents [i]);
+    blob_appendf(&manifest, " %s", zUuid);
+    free(zUuid);
+  }
+  blob_appendf(&manifest, "\n");
+
+  /*
+  ** Complete the manifest with user name and the various checksums
+  */
+
+  blob_appendf(&manifest, "R %b\n", &cksum);
+  blob_appendf(&manifest, "U %F\n", g.zLogin);
+  md5sum_blob(&manifest, &mcksum);
+  blob_appendf(&manifest, "Z %b\n", &mcksum);
+
+  /*
+  ** Now insert the new manifest, try to compress it relative to first
+  ** parent (primary).
+   */
+
+  /*blob_write_to_file (&manifest, "TEST_MANIFEST");*/
+
+  mid = content_put(&manifest, 0, 0);
+  if( mid==0 ){
+    fossil_panic("trouble committing manifest: %s", g.zErrMsg);
+  }
+
+  content_deltify(zParents[0], mid, 0);
+
+  /* Verify that the repository checksum matches the expected checksum
+  ** calculated before the checkin started (and stored as the R record
+  ** of the manifest file).
+  */
+
+  vfile_aggregate_checksum_manifest(mid, &cksum2, &cksum1b);
+  if( blob_compare(&cksum, &cksum1b) ){
+    fossil_panic("manifest checksum does not agree with manifest: "
+                 "%b versus %b", &cksum, &cksum1b);
+  }
+  if( blob_compare(&cksum, &cksum2) ){
+    fossil_panic("tree checksum does not match manifest after commit: "
+                 "%b versus %b", &cksum, &cksum2);
+  }
+
+  /*
+  ** At last commit all changes, after getting rid of the temp
+  ** holder for the files, and release allocated memory.
+  */
+
+  db_multi_exec("DROP TABLE __im");
+  db_end_transaction(0);
+  free(zParents);
+
+  /*
+  ** At the very last inform the caller about the id of the new
+  ** manifest.
+  */
+
+  printf("inserted as record %d\n", mid);
+  return;
+
+#undef USAGE
 }

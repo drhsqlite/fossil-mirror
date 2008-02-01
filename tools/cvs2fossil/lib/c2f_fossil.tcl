@@ -108,11 +108,10 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	log write 2 fossil {%% [join [split $message \n] "\n%% "]}
 
 	lappend cmd Do test-import-manifest $date $message
-	if {$parent ne ""} { lappend cmd --parents $parent }
-	lappend cmd --files
+	if {$parent ne ""} { lappend cmd -p $parent }
 	foreach {frid fpath flabel} $revisions {
-	    lappend cmd $frid $fpath
-	    log write 2 fossil {** <[format %5d $frid]> = $flabel}
+	    lappend cmd -f $frid $fpath
+	    log write 2 fossil {** <[format %5d $frid]> = <$flabel>}
 	}
 
 	# run fossil test-command performing the import.
