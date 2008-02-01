@@ -132,6 +132,12 @@ VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 $(APPNAME):	headers $(OBJ) sqlite3.o
 	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o $(LIB)
 
+# This rule prevents make from using its default rules to try build
+# an executable named "manifest" out of the file named "manifest.c"
+#
+$(SRCDIR)/../manifest:	
+	# noop
+
 clean:	
 	rm -f *.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers}
