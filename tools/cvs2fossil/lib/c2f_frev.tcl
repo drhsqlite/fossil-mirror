@@ -49,12 +49,14 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 
     method hasmeta {} { return [expr {$mymetaid ne ""}] }
     method hastext {} {
-	struct::list assign $mytext s e
-	return [expr {$s <= $e}]
+	return [expr {$mytextstart <= $mytextend}]
     }
 
     method setmeta {meta} { set mymetaid $meta ; return }
-    method settext {text} { set mytext   $text ; return }
+    method settext {text} {
+	struct::list assign $text mytextstart mytextend
+	return
+    }
     method setlod  {lod}  { set mylod    $lod  ; return }
 
     method revnr {} { return $myrevnr }
@@ -352,9 +354,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	set lod [$mylod id]
 	set op  $myopcode($myoperation)
 	set idb $myisondefaultbranch
-
-	struct::list assign $mytext coff end
-	set clen [expr {$end - $coff}]
+	set clen [expr {$mytextend - $mytextstart}]
 
 	lappend map @P@ [expr { ($myparent       eq "") ? "NULL" : [$myparent       id] }]
 	lappend map @C@ [expr { ($mychild        eq "") ? "NULL" : [$mychild        id] }]
@@ -363,8 +363,8 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	lappend map @BP [expr { ($myparentbranch eq "") ? "NULL" : [$myparentbranch id] }]
 
 	set cmd {
-	    INSERT INTO revision ( rid,   fid,  rev,      lod, parent, child,  isdefault, dbparent, dbchild, bparent,  op,  date,    state,    mid,       coff,  clen)
-	    VALUES               ($myid, $fid, $myrevnr, $lod, @P@,    @C@,   $idb,       @DP,      @DC,     @BP    , $op, $mydate, $mystate, $mymetaid, $coff, $clen);
+	    INSERT INTO revision ( rid,   fid,  rev,      lod, parent, child,  isdefault, dbparent, dbchild, bparent,  op,  date,    state,    mid,       coff,        clen)
+	    VALUES               ($myid, $fid, $myrevnr, $lod, @P@,    @C@,   $idb,       @DP,      @DC,     @BP    , $op, $mydate, $mystate, $mymetaid, $mytextstart, $clen);
 	}
 
 	state transaction {
@@ -392,7 +392,7 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     #             mydate              - revision.date
     #             mystate             - revision.state
     #             mymetaid            - revision.mid
-    #             mytext              - revision.{cs,cl}
+    #             mytext{start,end}   - revision.{cs,ce}
     #             myparent            - revision.parent
     #             mychild             - revision.child
     #             myparentbranch      - revision.bparent
@@ -431,7 +431,10 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     variable myorigdate  {} ; # Original unmodified timestamp.
     variable mystate     {} ; # State of the revision.
     variable myfile      {} ; # Ref to the file object the revision belongs to.
-    variable mytext      {} ; # Range of the (delta) text for this revision in the file.
+    variable mytextstart {} ; # Start of the range of the (delta) text
+			      # for this revision in the file.
+    variable mytextend   {} ; # End of the range of the (delta) text
+			      # for this revision in the file.
     variable mymetaid    {} ; # Id of the meta data group the revision
 			      # belongs to. This is later used to put
 			      # the file revisions into preliminary
