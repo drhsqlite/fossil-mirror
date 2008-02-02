@@ -417,7 +417,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set uuid [Updatestate state $lodname \
 		      [$repository importrevision [$self str] \
 			   $user $message $date \
-			   [Getparent state $lodname $myproject] \
+			   [Getparent state $lodname $myproject $myitems] \
 			   [Getrevisioninfo $myitems]]]
 
 	# Remember the whole changeset / uuid mapping, for the tags.
@@ -444,10 +444,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return $revisions
     }
 
-    proc Getparent {sv lodname project} {
+    proc Getparent {sv lodname project items} {
 	upvar 1 $sv state
 
-	struct::list assign [Getisdefault $myitems] isdefault lastdefaultontrunk
+	struct::list assign [Getisdefault $items] isdefault lastdefaultontrunk
 
 	# See (a) below, we have to remember if the changeset is last
 	# on vendor branch also belonging to trunk even if we find a
