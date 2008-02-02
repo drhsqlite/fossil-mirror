@@ -38,6 +38,9 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	Do new [::file nativename $myrepository]
 	$self InWorkspace ; Do open [::file nativename $myrepository]
 	$self RestorePwd
+
+	log write 8 fossil {scratch repository $myrepository}
+	log write 8 fossil {scratch workspace  $myworkspace}
 	return
     }
 
@@ -115,13 +118,27 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	}
 
 	# run fossil test-command performing the import.
-	set uuid [eval $cmd]
+	log write 8 fossil {	[lreplace $cmd 3 3 @@]}
+
+	$self InWorkspace
+	set res [eval $cmd]
+	$self RestorePwd
+
+	integrity assert {
+	    [regexp {^inserted as record \d+$} $res]
+	} {Unable to process unexpected fossil output '$res'}
+	set uuid [lindex $res 3]
 
 	log write 2 fossil {== $uuid}
+	log write 2 fossil { }
+	log write 2 fossil { }
+
 	return $uuid
     }
 
     method finalize {destination} {
+	Do rebuild [::file nativename $myrepository]
+
 	::file rename -force $myrepository $destination
 	::file delete -force $myworkspace
 	$self destroy

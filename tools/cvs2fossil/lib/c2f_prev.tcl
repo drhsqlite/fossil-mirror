@@ -449,6 +449,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	struct::list assign [Getisdefault $items] isdefault lastdefaultontrunk
 
+	log write 8 csets {LOD    '$lodname'}
+	log write 8 csets { def?  $isdefault}
+	log write 8 csets { last? $lastdefaultontrunk}
+
+	foreach k [lsort [array names state]] {
+	    log write 8 csets {    $k = $state($k)}
+	}
+
 	# See (a) below, we have to remember if the changeset is last
 	# on vendor branch also belonging to trunk even if we find a
 	# parent in the state. The caller will later (after import)
@@ -500,9 +508,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# last changeset committed to that as our parent. If that
 	# doesn't exist we have an error on our hands.
 
-	set lodname [[[$project getsymbol $lodname] parent] name]
-	if {[info exists state($lodname)]} {
-	    return $state($lodname)
+	set plodname [[[$project getsymbol $lodname] parent] name]
+
+	log write 8 csets {pLOD   '$plodname'}
+
+	if {[info exists state($plodname)]} {
+	    return $state($plodname)
 	}
 
 	trouble internal {Unable to determine changeset parent}
