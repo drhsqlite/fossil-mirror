@@ -658,8 +658,8 @@ void import_manifest_cmd(void){
 
   db_begin_transaction();
   db_multi_exec ("CREATE TEMP TABLE __im ("
-		 "rid INTEGER PRIMARY KEY,"
-		 "pathname TEXT NOT NULL)" );
+		 "rid      INTEGER NOT NULL,"
+		 "pathname TEXT    NOT NULL)" );
 
   while (g.argc > 2) {
     /* Check and store ... */

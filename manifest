@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\suse\s(scoping)\sof\srevision\sitems\swhen\slooking\sfor\svendor\sbranch\sdata.
-D 2008-02-02T05:07:20
+C Dropped\sprimary\skey\sof\stemp\stable\s__im,\srecord\sids\sare\snot\sunique.\sScenario:\sSeveral\sempty\sfiles.\sAll\shave\sthe\ssame\sid,\sdifferent\spaths.
+D 2008-02-02T06:49:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -38,7 +38,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
 F src/cgi.c 1c055038717de0273b07651aef227c7341d76a5f
-F src/checkin.c 8d57a933e0150b5653e0a1fd132968b469a885e2
+F src/checkin.c 3af7638aedfea692120ff29154ef42941f9cc929
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P bd9703dee6e075fa76e6aa828b5de2c671fb7fd0
-R 9fffbaca04a078641193401a58c3db3e
+P b405f4fc04a48ff8ede5e58e23a0889661ace964
+R b1810154abc4add94b636a6876aeba6e
 U aku
-Z e47f2b09ea1df8e6f0d56fa9fbcdf4d5
+Z 499be8fa7040f6da79ab856e72be4fa0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHo/qLvonzZ/CRa7gRAuzYAKCdwSgZmQwL+mvBageD07R6vc0dewCgpvgS
-ZG8+ZUXl/FW+zBfrMgu3/Xk=
-=WRlf
+iD8DBQFHpBKQvonzZ/CRa7gRAowVAKCQ9NUsJn4GCc7dq4MztafWxhGhZQCbBojJ
+9bza59/BwO8UNYafe/Bt1Qs=
+=zsW2
 -----END PGP SIGNATURE-----
