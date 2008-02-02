@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C added\s/tagview\spage\s-\sa\ssimple\sbrowse-by-tag\sinterface
-D 2008-02-02T21:10:17
+C A\scompletely\snew\sdiff\salgorithm.\s\sIt\sis\snot\sguaranteed\sto\sfind\sthe\nminimum\sdifference\sbetween\sfiles,\sbut\sit\sseems\sto\sdo\sa\sgood\sjob\sand\nruns\smuch\sfaster\son\slarger\sfiles.\s\sBut\scommand-line\sdiff\sis\sstill\nfaster\sfor\sreally\slarge\sfiles.\s\sMore\swork\sneeded.
+D 2008-02-02T23:39:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -50,7 +50,7 @@ F src/db.c a160182dadf8bb7b2d4e4c9a7b710218b86984e2
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c ec5d7996135d53a6c7d5db2e7a22337212ea6c9b
+F src/diff.c 62a5d659040d1c1b9c16398b020114d841396006
 F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -187,14 +187,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 01d3c3387495327ecc4e6322934d2e0819368d1d
-R 4c2f4f8e07918a6bafc9ee2b8f41d781
-U stephan
-Z e94e45f21bf16f1052593a0981e3d5f6
+P 02d1ed6ad2ee015bf1fdd4ae0b90525fa16012a9
+R 140cfdb21f3daafc4a597dc1e3671112
+U drh
+Z 6e3c1ef61fe9c52608a05b6f83d5e150
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpNw7ZWKvbTL0CBgRAvWrAKCDb4KikgtQMMbbrynZdI0/I+d4mwCglTju
-ob2JQkMU6/EXSkd3cVbyiTs=
-=a2BG
+iD8DBQFHpP8uoxKgR168RlERAlOEAJ9qZZpnYWx4PHhgvKWuT5s8LlIqkQCeK/jR
+f2Vz71awKKZPDZPNhjLk7Uo=
+=H+CN
 -----END PGP SIGNATURE-----
