@@ -63,27 +63,28 @@ void tagview_page(void){
   @ <table cellpadding='4px' border='1'><tbody>
   @ <tr><th>Tag name</th><th>Timestamp</th><th>Version</th></tr>
   db_prepare( &st,
-	      "select t.tagname, DATETIME(tx.mtime), b.uuid "
-	      "FROM tag t, tagxref tx, blob b "
-	      "WHERE t.tagid=tx.tagid and tx.rid=b.rid "
-	      "AND tx.tagtype != 0 "
-	      "ORDER BY tx.mtime DESC"
-	      );
-  while( SQLITE_ROW == db_step(&st) )
-  {
-	  char const * tagname = db_column_text( &st, 0 );
-	  char const * tagtime = db_column_text( &st, 1 );
-	  char const * uuid = db_column_text( &st, 2 );
-	  const int offset = 10;
-	  char shortname[offset+1];
-	shortname[offset] = '\0';
-	memcpy( shortname, uuid, offset );
-	  @ <tr>
-	  @ <td><tt>%s(tagname)</tt></td>
-	  @ <td align='center'><tt>%s(tagtime)</tt></td>
-	  @ <td><tt>
-          @ <a href='/vinfo/%s(uuid)'><strong>%s(shortname)</strong>%s(uuid+offset)</a></tt>
-	  @ </td></tr>
+     "SELECT t.tagname, DATETIME(tx.mtime), b.uuid "
+     "  FROM tag t, tagxref tx, blob b"
+     " WHERE t.tagid=tx.tagid and tx.rid=b.rid"
+     "   AND tx.tagtype != 0"
+     /* "   AND t.tagname NOT GLOB 'wiki-*'" // Do we want this?? */
+     " ORDER BY tx.mtime DESC"
+  );
+  while( SQLITE_ROW == db_step(&st) ){
+    char const * tagname = db_column_text( &st, 0 );
+    char const * tagtime = db_column_text( &st, 1 );
+    char const * uuid = db_column_text( &st, 2 );
+    const int offset = 10;
+    char shortname[offset+1];
+    shortname[offset] = '\0';
+    memcpy( shortname, uuid, offset );
+    @ <tr>
+    @ <td><tt>%s(tagname)</tt></td>
+    @ <td align='center'><tt>%s(tagtime)</tt></td>
+    @ <td><tt>
+    @ <a href='/vinfo/%s(uuid)'>
+    @ <strong>%s(shortname)</strong>%s(uuid+offset)</a></tt>
+    @ </td></tr>
   }
   db_finalize( &st );
   @ </tbody></table>
@@ -96,4 +97,3 @@ void tagview_page(void){
   @ </ul>
   style_footer();
 }
-
