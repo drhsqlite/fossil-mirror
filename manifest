@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Changeset\shandling,\sextended\slogging\sof\show\sparent\sis\sdetermined.\nFossil\saccess,\sfixed\simportrev\scall\sto\suse\scorrect\sworkspace/repository.\nFixed\shandling\sof\soutput,\sstripping\sunwanted\stext,\schecking\sof\soutput\ssyntax.\nExtended\slogging.\sAdded\sfinal\s'rebuild'.\nNOTE:\sformation\sof\sthe\schangesets/manifests\sis\sbuggy,\sis\snot\stracking\sunchanged\sfiles\sacross\schangesets.\sFurther\snot\syet\stracking\swhen\sfiles\shave\sbeen\sremoved.
-D 2008-02-02T07:03:39
+C Merged\swith\smainline.
+D 2008-02-02T07:33:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -46,7 +46,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
-F src/db.c dc611498354d21e93c444696f8faf3ee133df502
+F src/db.c a160182dadf8bb7b2d4e4c9a7b710218b86984e2
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -55,13 +55,13 @@ F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
-F src/info.c 21bbd4bc0457b550c1c27a5ed4f5a121ce81e0c9
+F src/info.c abc907adcdf73443bcedb85b1d75470b2d552e45
 F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
 F src/main.c fcf22176a5c2c69a2fa77243945e46ba557dc7ce
-F src/main.mk e26748a3239c58edc13aab77e38045925e011c40
+F src/main.mk a4037f237ed9821153786ab61f57d02fa077b9c4
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 32b8cb3f29aeb9160e9ef67deedb5b12df0d0f2d
+F src/makemake.tcl b80c78c06063fca34d1815f5bfa95a1044eef027
 F src/manifest.c 53c15e41ed45b5d59a34038107c62b8406f393da
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -75,10 +75,10 @@ F src/rebuild.c 5e55de3bcde162781cfac661d3893a1d0db86c9e
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c 384e115ad09cb7cfa7da6f8770aa19318981482a
-F src/setup.c 89b2ca9e018fe41c0da7661d0d028660da693466
+F src/setup.c 093a77e546affb5f4a6177b33c425a34cd0dfd44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/sqlite3.c 81b02daa4d8a20e3ae099207737c8b30f366cfe4
-F src/sqlite3.h 535f235f65b21ca83ff426b755a49e4ca3624dee
+F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
+F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/style.c 773050316bf1ec612989f087ded00ff4d4298f41
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
@@ -96,7 +96,7 @@ F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
 F src/wikiformat.c 8bd2fe1f5820aa6043d5841e5434e6bceeb03bac
-F src/xfer.c fe8089aded0fe6cc51c22df98eb5ff17aedf2516
+F src/xfer.c f7995ea18ab12a071251f22abbe0abe494ba50b3
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P dfb6ee3bac8b573fecf8ea406498521b4b4f95ea
-R 6b28d4a8f033af511a4c72c527707396
+P 9214c1183140fdbfec9a57640ba1f6fa9bf7c415 1b52d1306effbb544cef90c6b5161dacfe97d267
+R d312274f6e1887ef07ede4a87a895af9
 U aku
-Z 50900abf70e765236e3eb9e6859539aa
+Z eaf9e738ac80ca9eb8395d2512cb218e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHpBXPvonzZ/CRa7gRAm1GAJ40G7sceuWUcZXtBvVrmkMOqNuuAwCghYVH
-J/Ap+J+X/npw1Zfl+4HMozQ=
-=IWZH
+iD8DBQFHpByzvonzZ/CRa7gRAk/7AKCZ08qavt3qpr0qe4JyD1qOymrGVACfQAC6
+MbrFBhfFAFoqrjsforRUrF4=
+=Tkf/
 -----END PGP SIGNATURE-----

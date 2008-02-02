@@ -416,7 +416,7 @@ void user_edit(void){
   @ so anybody who can read should be able to login as anonymous.
   @ On the other hand, spiders and web-crawlers will typically not
   @ be able to login.  Set the capabilities of the anonymous user
-  @ to things that you want any human to be able to do, but no any
+  @ to things that you want any human to be able to do, but not any
   @ spider.
   @ </p></li>
   @ </form>
@@ -530,6 +530,15 @@ void setup_access(void){
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
   @ to a year.</p>
+
+  @ <hr>
+  entry_attribute("Download packet limit", 10, "max-download", "mxdwn",
+                  "5000000");
+  @ <p>Fossil tries to limit out-bound sync, clone, and pull packets
+  @ to this many bytes, uncompressed.  If the client requires more data
+  @ than this, then the client will issue multiple HTTP requests.
+  @ Values below 1 million are not recommended.  5 million is a 
+  @ reasonable number.</p>
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>

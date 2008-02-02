@@ -764,8 +764,8 @@ void info_page(void){
      "  UNION ALL"
      "  SELECT 'w', substr(tagname,6) FROM tag"
      "   WHERE tagname='wiki-%q'"
-     "  UNION ALL"
-     "  SELECT 't', tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*';",
+     /*"  UNION ALL"
+     "  SELECT 't', tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*';"*/,
      zName, zName, zName
   );
   cnt = db_int(0, "SELECT count(*) FROM refs");

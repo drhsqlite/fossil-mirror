@@ -931,7 +931,7 @@ int db_is_global(const char *zName){
   }
 }
 int db_get_int(const char *zName, int dflt){
-  int v;
+  int v = dflt;
   int rc;
   if( g.repositoryOpen ){
     Stmt q;

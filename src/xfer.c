@@ -286,13 +286,13 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
 /*
 ** Send a gimme message for every phantom.
 */
-static void request_phantoms(Xfer *pXfer){
+static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
   db_prepare(&q, 
     "SELECT uuid FROM phantom JOIN blob USING(rid)"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE_ROW && maxReq-- > 0 ){
     const char *zUuid = db_column_text(&q, 0);
     blob_appendf(pXfer->pOut, "gimme %s\n", zUuid);
     pXfer->nGimmeSent++;
@@ -466,7 +466,7 @@ void page_xfer(void){
   blob_zero(&xfer.err);
   xfer.pIn = &g.cgiIn;
   xfer.pOut = cgi_output_blob();
-  xfer.mxSend = db_get_int("max-download", 1000000);
+  xfer.mxSend = db_get_int("max-download", 5000000);
 
   db_begin_transaction();
   db_multi_exec(
@@ -647,7 +647,7 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
   }
   if( isPush ){
-    request_phantoms(&xfer);
+    request_phantoms(&xfer, 500);
   }
   if( isPull ){
     create_cluster();
@@ -705,7 +705,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   int nMsg = 0;          /* Number of messages sent or received */
   int nCycle = 0;        /* Number of round trips to the server */
   int nFileSend = 0;
-  const char *zCookie;   /* Server cookie */
+  int nFileRecv;          /* Number of files received */
+  int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
+  const char *zCookie;    /* Server cookie */
   Blob send;        /* Text we are sending to the server */
   Blob recv;        /* Reply we got back from the server */
   Xfer xfer;        /* Transfer data */
@@ -761,7 +763,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     ** for all leaves.
     */
     if( pullFlag || cloneFlag ){
-      request_phantoms(&xfer);
+      request_phantoms(&xfer, mxPhantomReq);
     }
     if( pushFlag ){
       send_unsent(&xfer);
@@ -932,10 +934,11 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     /* If we received one or more files on the previous exchange but
     ** there are still phantoms, then go another round.
     */
-    if( (xfer.nFileRcvd+xfer.nDeltaRcvd+xfer.nDanglingFile>0 || newPhantom)
-         && db_exists("SELECT 1 FROM phantom")
-    ){
+    nFileRecv = xfer.nFileRcvd + xfer.nDeltaRcvd + xfer.nDanglingFile;
+    if( (nFileRecv>0 || newPhantom) && db_exists("SELECT 1 FROM phantom") ){
       go = 1;
+      mxPhantomReq = nFileRecv*2;
+      if( mxPhantomReq<200 ) mxPhantomReq = 200;
     }
     nMsg = 0;
     xfer.nFileRcvd = 0;
