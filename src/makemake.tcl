@@ -47,6 +47,7 @@ set src {
   subscript
   sync
   tag
+  tagview
   timeline
   tkt
   tktconfig

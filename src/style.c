@@ -105,6 +105,7 @@ void style_header(const char *zTitle){
   if( g.okRead ){
     @ <a href="%s(g.zBaseURL)/leaves">Leaves</a>
     @ <a href="%s(g.zBaseURL)/timeline">Timeline</a>
+    @ <a href="%s(g.zBaseURL)/tagview">Tags</a>
   }
   if( g.okRdWiki ){
     @ <a href="%s(g.zBaseURL)/wiki">Wiki</a>
