@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C fixed\sa\sminor\smemleak\sin\supdate.c:revert_cmd()
-D 2008-02-02T18:44:49
+C corrected\stwo\s'var\smay\sbe\sused\suninitialized'\swarnings
+D 2008-02-02T18:51:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -94,7 +94,7 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
 F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c 9e63012182320e2010e36503a3ae6a3900d54877
+F src/wiki.c fb0624012e9c24f47db9eb6be0d90c8c8810e685
 F src/wikiformat.c 8bd2fe1f5820aa6043d5841e5434e6bceeb03bac
 F src/xfer.c f7995ea18ab12a071251f22abbe0abe494ba50b3
 F src/zip.c 359cf5b93118616985aaf18180a195dbc00abcac
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P dbdc16016102dd777b1e19d93dee2b25c08038fb
-R 37854eb918d8c117d347290efd1b54cd
+P 22cc813f8e65b827d5b2ef63f2b1932e0a0bbb1b
+R 5b3003dcf1fbbc4de0e325a052742b71
 U stephan
-Z f7c58859d352992235b0b4d685e8f2ec
+Z b7521fc786744732d8c0d30ec8a320dd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpLokZWKvbTL0CBgRAl02AKCwZUYq4wuo7pvRAWVCCMovgjV3vQCfZH7R
-GlXr3geSW9puDWi0yDjY+XM=
-=6kFr
+iD8DBQFHpLuqZWKvbTL0CBgRAioQAKCRs8RAq517WzxRm8T5sP53shNZ7ACfZTXG
+9gW6VaUxQzFkDmF1jtN6oak=
+=d0Xr
 -----END PGP SIGNATURE-----
