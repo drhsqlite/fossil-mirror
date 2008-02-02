@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\swith\smainline.
-D 2008-02-02T07:33:03
+C fixed\sa\sminor\smemleak\sin\supdate.c:revert_cmd()
+D 2008-02-02T18:44:49
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -89,7 +89,7 @@ F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 676d19419e60b2c5516d86436ad58d06c5c8b2a9
+F src/update.c de06d69ffd0cf80bcba605d4c37a0e9c6e5fe4a9
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
 F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9214c1183140fdbfec9a57640ba1f6fa9bf7c415 1b52d1306effbb544cef90c6b5161dacfe97d267
-R d312274f6e1887ef07ede4a87a895af9
-U aku
-Z eaf9e738ac80ca9eb8395d2512cb218e
+P dbdc16016102dd777b1e19d93dee2b25c08038fb
+R 37854eb918d8c117d347290efd1b54cd
+U stephan
+Z f7c58859d352992235b0b4d685e8f2ec
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpByzvonzZ/CRa7gRAk/7AKCZ08qavt3qpr0qe4JyD1qOymrGVACfQAC6
-MbrFBhfFAFoqrjsforRUrF4=
-=Tkf/
+iD8DBQFHpLokZWKvbTL0CBgRAl02AKCwZUYq4wuo7pvRAWVCCMovgjV3vQCfZH7R
+GlXr3geSW9puDWi0yDjY+XM=
+=6kFr
 -----END PGP SIGNATURE-----

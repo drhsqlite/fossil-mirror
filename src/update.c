@@ -316,6 +316,7 @@ void revert_cmd(void){
                            &fname);
     blob_zero(&ans);
     prompt_user(prompt, &ans);
+    free( prompt );
     if( blob_str(&ans)[0]=='y' ){
       yesRevert = 1;
     }
