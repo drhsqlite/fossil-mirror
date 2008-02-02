@@ -702,7 +702,7 @@ void import_manifest_cmd(void){
   if (!strlen(zComment)) {
     blob_appendf(&manifest, "C %F\n", "(no comment)");
   } else {
-    blob_appendf(&manifest, "C %F\n", blob_str(&comment));
+    blob_appendf(&manifest, "C %F\n", zComment);
   }
 
   zDateFmt = db_text(0, "SELECT datetime(%Q,'unixepoch')",zDate);

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Activated\sinvokation\sof\sthe\sfossil\scommand\simporting\sa\srevision.
-D 2008-02-01T05:33:21
+C Fix\sbad\ssetup\sof\scomment\sfor\smanifest.
+D 2008-02-02T05:05:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -38,7 +38,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
 F src/cgi.c 1c055038717de0273b07651aef227c7341d76a5f
-F src/checkin.c 438d21c31d7d87a01cf33c6c99e9f05b530b5989
+F src/checkin.c 8d57a933e0150b5653e0a1fd132968b469a885e2
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
@@ -186,14 +186,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b7a93530efef9a51b595ad940c1071d3c1ded2c8
-R f5ef9e19741add75dbb26726837343a8
+P 41c9b799282596428a1cd142fe2398f3ea887b9f
+R 64288013d8f81f52cbb967d9e2d42031
 U aku
-Z 79bc2f315f738a52c0fd94f94e61f296
+Z 2a01f5151a4762f1bc40b901615aafcf
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHoq8lvonzZ/CRa7gRAuJjAJ9UYZWjgKq6EQ+7SNEktlPfolX/7wCeNpBp
-H4PcPB2FnYAFG3lrjKmfGos=
-=V7DI
+iD8DBQFHo/oBvonzZ/CRa7gRAjjYAJ9wpBHSCiERUOMPMzsS/k2JmgWKIgCdHyjh
+nqZh+aNc4xGKpalFfeC9GYM=
+=i2iO
 -----END PGP SIGNATURE-----
