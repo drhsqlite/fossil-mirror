@@ -84,6 +84,7 @@ void style_header(const char *zTitle){
   login_check_credentials();
   
   if( pInterp ) return;
+  cgi_destination(CGI_HEADER);
 
   /* Generate the header up through the main menu */
   pInterp = SbS_Create();
@@ -99,7 +100,7 @@ void style_header(const char *zTitle){
   }
   SbS_Render(pInterp, zHeader);
 
-  /* Generate the main menu and the submenu (if any) */
+  /* Generate the main menu */
   @ <div class="mainmenu">
   @ <a href="%s(g.zBaseURL)/home">Home</a>
   if( g.okRead ){
@@ -122,8 +123,25 @@ void style_header(const char *zTitle){
     @ <a href="%s(g.zBaseURL)/login">%s(zLogInOut)</a>
   }
   @ </div>
+  cgi_destination(CGI_BODY);
+  g.cgiPanic = 1;
+}
+
+/*
+** Draw the footer at the bottom of the page.
+*/
+void style_footer(void){
+  const char *zFooter;
+  
+  if( pInterp==0 ) return;
+
+  /* Go back and put the submenu at the top of the page.  We delay the
+  ** creation of the submenu until the end so that we can add elements
+  ** to the submenu while generating page text.
+  */
   if( nSubmenu>0 ){
     int i;
+    cgi_destination(CGI_HEADER);
     @ <div class="submenu">
     qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
     for(i=0; i<nSubmenu; i++){
@@ -135,18 +153,12 @@ void style_header(const char *zTitle){
       }
     }
     @ </div>
+    cgi_destination(CGI_BODY);
   }
-  @ <div class="content">
-  g.cgiPanic = 1;
-}
 
-/*
-** Draw the footer at the bottom of the page.
-*/
-void style_footer(void){
-  const char *zFooter;
-  
-  if( pInterp==0 ) return;
+  /* Put the footer at the bottom of the page.
+  */
+  @ <div class="content">
   zFooter = db_get("footer", (char*)zDefaultFooter);
   @ </div>
   SbS_Render(pInterp, zFooter);

@@ -59,6 +59,13 @@
 #define QP(x)       quotable_string(cgi_parameter((x),0))
 #define QPD(x,y)    quotable_string(cgi_parameter((x),(y)))
 
+
+/*
+** Destinations for output text.
+*/
+#define CGI_HEADER   0
+#define CGI_BODY     1
+
 #endif /* INTERFACE */
 
 /*
@@ -69,36 +76,76 @@
 extern int sqlite3StrICmp(const char*, const char*);
 
 /*
-** The body of the HTTP reply text is stored here.
+** The HTTP reply is generated in two pieces: the header and the body.
+** These pieces are generated separately because they are not necessary
+** produced in order.  Parts of the header might be built after all or
+** part of the body.  The header and body are accumulated in separate
+** Blob structures then output sequentially once everything has been
+** built.
+**
+** The cgi_destination() interface switch between the buffers.
 */
-static Blob cgiContent = BLOB_INITIALIZER;
+static Blob *pContent;
+static Blob cgiContent[2] = { BLOB_INITIALIZER, BLOB_INITIALIZER };
+
+/*
+** Set the destination buffer into which to accumulate CGI content.
+*/
+void cgi_destination(int dest){
+  switch( dest ){
+    case CGI_HEADER: {
+      pContent = &cgiContent[0];
+      break;
+    }
+    case CGI_BODY: {
+      pContent = &cgiContent[1];
+      break;
+    }
+    default: {
+      cgi_panic("bad destination");
+    }
+  }
+}
 
 /*
 ** Append reply content to what already exists.
 */
 void cgi_append_content(const char *zData, int nAmt){
-  blob_append(&cgiContent, zData, nAmt);
+  blob_append(pContent, zData, nAmt);
 }
 
 /*
 ** Reset the HTTP reply text to be an empty string.
 */
 void cgi_reset_content(void){
-  blob_reset(&cgiContent);
+  blob_reset(&cgiContent[0]);
+  blob_reset(&cgiContent[1]);
 }
 
 /*
 ** Return a pointer to the CGI output blob.
 */
 Blob *cgi_output_blob(void){
-  return &cgiContent;
+  return pContent;
+}
+
+/*
+** Combine the header and body of the CGI into a single string.
+*/
+static void cgi_combine_header_and_body(void){
+  int size = blob_size(&cgiContent[1]);
+  if( size>0 ){
+    blob_append(&cgiContent[0], blob_buffer(&cgiContent[1]), size);
+    blob_reset(&cgiContent[1]);
+  }
 }
 
 /*
 ** Return a pointer to the HTTP reply text.
 */
 char *cgi_extract_content(int *pnAmt){
-  return blob_buffer(&cgiContent);
+  cgi_combine_header_and_body();
+  return blob_buffer(&cgiContent[0]);
 }
 
 /*
@@ -121,8 +168,9 @@ void cgi_set_content_type(const char *zType){
 ** Set the reply content to the specified BLOB.
 */
 void cgi_set_content(Blob *pNewContent){
-  blob_reset(&cgiContent);
-  cgiContent = *pNewContent;
+  cgi_reset_content();
+  cgi_destination(CGI_HEADER);
+  cgiContent[0] = *pNewContent;
   blob_zero(pNewContent);
 }
 
@@ -222,6 +270,7 @@ static int check_cache_control(void){
 ** Do a normal HTTP reply
 */
 void cgi_reply(void){
+  int total_size;
   if( iReplyStatus<=0 ){
     iReplyStatus = 200;
     zReplyStatus = "OK";
@@ -275,15 +324,23 @@ void cgi_reply(void){
   printf( "Content-Type: %s; charset=ISO-8859-1\r\n", zContentType);
 #endif
   if( strcmp(zContentType,"application/x-fossil")==0 ){
-    blob_compress(&cgiContent, &cgiContent);
+    cgi_combine_header_and_body();
+    blob_compress(&cgiContent[0], &cgiContent[0]);
   }
 
   if( iReplyStatus != 304 ) {
-    printf( "Content-Length: %d\r\n", blob_size(&cgiContent) );
+    total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
+    printf( "Content-Length: %d\r\n", total_size);
   }
   printf("\r\n");
-  if( blob_size(&cgiContent)>0 && iReplyStatus != 304 ){
-    fwrite(blob_buffer(&cgiContent), 1, blob_size(&cgiContent), stdout);
+  if( total_size>0 && iReplyStatus != 304 ){
+    int i, size;
+    for(i=0; i<2; i++){
+      size = blob_size(&cgiContent[i]);
+      if( size>0 ){
+        fwrite(blob_buffer(&cgiContent[i]), 1, size, stdout);
+      }
+    }
   }
   CGIDEBUG(("DONE\n"));
 }
@@ -613,6 +670,7 @@ void cgi_init(void){
   char *z;
   const char *zType;
   int len;
+  cgi_destination(CGI_BODY);
   z = (char*)P("QUERY_STRING");
   if( z ){
     z = mprintf("%s",z);
@@ -941,7 +999,7 @@ void cgi_v_optionmenu2(
 void cgi_printf(const char *zFormat, ...){
   va_list ap;
   va_start(ap,zFormat);
-  vxprintf(&cgiContent,zFormat,ap);
+  vxprintf(pContent,zFormat,ap);
   va_end(ap);
 }
 
@@ -950,7 +1008,7 @@ void cgi_printf(const char *zFormat, ...){
 ** extra formatting capabilities such as %h and %t.
 */
 void cgi_vprintf(const char *zFormat, va_list ap){
-  vxprintf(&cgiContent,zFormat,ap);
+  vxprintf(pContent,zFormat,ap);
 }
 
 
@@ -978,7 +1036,7 @@ void cgi_panic(const char *zFormat, ...){
     "<plaintext>"
   );
   va_start(ap, zFormat);
-  vxprintf(&cgiContent,zFormat,ap);
+  vxprintf(pContent,zFormat,ap);
   va_end(ap);
   cgi_reply();
   exit(1);

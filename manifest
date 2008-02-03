@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Documentation\supdates.
-D 2008-02-03T02:38:32
+C Merge\sin\ssome\schanges\sto\sthe\sCGI\sreply\sgenerator\sthat\swe\smade\sback\nin\searly\sDecember\sbut\sgot\slost\son\san\sabandoned\sbranch.\s\sDistributed\nversion\scontrol\sis\snice,\sbut\sit\salso\sleaves\sopen\sthe\sreal\sdanger\sof\slosing\nchanges\sthis\sway.\s\sWe\sneed\sto\swork\son\sinterface\sfeatures\sto\sminimize\nthe\srisk\sof\slosing\schanges\slike\sthis,\sand\sto\sidentify\slost\schanges\squickly.
+D 2008-02-03T02:41:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,7 +37,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
-F src/cgi.c 1c055038717de0273b07651aef227c7341d76a5f
+F src/cgi.c a795dc49f1ddae659feef0e7218c756bb71ba41d
 F src/checkin.c 3af7638aedfea692120ff29154ef42941f9cc929
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
@@ -79,7 +79,7 @@ F src/setup.c 093a77e546affb5f4a6177b33c425a34cd0dfd44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
-F src/style.c c26a6ac2463a24e5582d72b2137f518d63cfd51b
+F src/style.c 71b6719cbf536ac43c289b46e7e8fa9c5fef1514
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0523983440b0cd26366d924a3674eab30e93e1f1
-R 2b8ba60e96f42928531884e59291117a
+P c403f9dc403c8900a4dc3d8c174ab02fb8ebb504 6af8fdc230b34ef61f6baab75a370c2647d8e470
+R 8d2898d9618c386bbcbc721de86fbfb7
 U drh
-Z 5a7a38440bf284552ee73a83277cddae
+Z 3d397917a33459ddec314804731641bb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHpSkuoxKgR168RlERAkYgAJ9ugzZnJxB9qhDGlX9FE8UCrjDM5QCdHKyj
-F3kNcYBH8oDu4sQigBDhgcI=
-=ERXb
+iD8DBQFHpSnyoxKgR168RlERAuE8AJ9/VCTGOkt3wVttO6AwKotDW8XVfACfU/Dy
+CFeiiT1g+tTjwoxT3Q6R6Eg=
+=lBaZ
 -----END PGP SIGNATURE-----
