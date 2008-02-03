@@ -1113,3 +1113,95 @@ void setting_cmd(void){
     usage("?PROPERTY? ?VALUE?");
   }
 }
+
+
+
+/**
+* db_generic_query_view():
+*
+* A very primitive helper to run an SQL query and table-ize the
+* results.
+*
+* The sql parameter should be a single, complete SQL statement.
+*
+* The coln parameter is optional (it may be 0). If it is 0 then the
+* column names used in the output will be taken directly from the
+* SQL. If it is not null then it must have as many entries as the SQL
+* result has columns. Each entry is a column name for the SQL result
+* column of the same index. Any given entry may be 0, in which case
+* the column name from the SQL is used.
+*
+* The xform argument is an array of transformation functions (type
+* string_unary_xform_f). The array, or any single entry, may be 0, but
+* if the array is non-0 then it must have at least as many entries as
+* colnames does. Each index corresponds directly to an entry in
+* colnames and the SQL results.  Any given entry may be 0. If it has
+* fewer, undefined behaviour results.  If a column has an entry in
+* xform, then the xform function will be called to transform the
+* column data before rendering it. This function takes care of freeing
+* the strings created by the xform functions.
+*
+* Example:
+*
+*  char const * const colnames[] = {
+*   "Tag ID", "Tag Name", "Something Else", "UUID"
+*  };
+*  string_unary_xform_f xf[] = {
+*    strxform_link_to_tagid,
+*    strxform_link_to_tagname,
+*    0,
+*    strxform_link_to_uuid
+*  };
+*  db_generic_query_view( "select a,b,c,d from foo", colnames, xf );
+*
+*/
+void db_generic_query_view(
+  char const * sql,
+  char const * const * coln,
+  string_unary_xform_f * xform )
+{
+  
+  Stmt st;
+  int i = 0;
+  int rc = db_prepare( &st, sql );
+  /**
+    Achtung: makeheaders apparently can't pull the function
+    name from this:
+   if( SQLITE_OK != db_prepare( &st, sql ) )
+  */
+  if( SQLITE_OK != rc )
+  {
+    @ db_generic_query_view(): Error processing SQL: [%s(sql)]
+    return;
+  }
+  int colc = db_column_count(&st);
+  @ <table cellpadding='4px' border='1'><tbody>
+  @ <tr>
+  for( i = 0; i < colc; ++i ) {
+    if( coln )
+    {
+      @ <th>%s(coln[i] ? coln[i] : db_column_name(&st,i))</th>
+    }
+    else
+    {
+      @ <td>%s(db_column_name(&st,i))</td>
+    }
+  }
+  @ </tr>
+
+  while( SQLITE_ROW == db_step(&st) ){
+    @ <tr>
+      for( i = 0; i < colc; ++i ) {
+        char * xf = 0;
+        char const * xcf = 0;
+        xcf = (xform && xform[i])
+          ? (xf=(xform[i])(db_column_text(&st,i)))
+          : db_column_text(&st,i);
+        @ <td>%s(xcf)</td>
+        if( xf ) free( xf );
+      }
+    @ </tr>
+  }
+  db_finalize( &st );
+  @ </tbody></table>
+}

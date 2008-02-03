@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sa\smemory\sleak\sin\stagview_page_list_tags().\sMinor\sother\srefactorings.
-D 2008-02-03T18:00:27
+C added\sdb_generic_query_view()\sto\ssimplify\s/tabview\sand\s/my\simplementations
+D 2008-02-03T21:50:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -46,7 +46,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
-F src/db.c a160182dadf8bb7b2d4e4c9a7b710218b86984e2
+F src/db.c 2c3e39425923ad0b2d6e9216b7a74666b13de217
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b81e93f576cbddf770771c6835864bfc3e6061c9
-R 79c1de7c43c8056b60754a105ef32d5b
+P 2cb3290e6767e51d190f746abbac4f330ae14517
+R 272801165435bc50c98eaaf3edd34de0
 U stephan
-Z 983c39ad8668da198e155f10e0c4f300
+Z b468bbaf1ca0eefb27871548d22b9f8c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpgFAZWKvbTL0CBgRAizYAKDF43Bf5ChOYS1yiqFi6tnozZ+q6ACfYzUO
-LtdK3rqVElgsKM0fRYLWYcM=
-=Iexv
+iD8DBQFHpjcfZWKvbTL0CBgRAnanAJ9qvdnwrSnMtmoComRfDcYwIO94VQCfTa5V
+VAwwVsTJ7sK6XHis1LD9794=
+=59GA
 -----END PGP SIGNATURE-----
