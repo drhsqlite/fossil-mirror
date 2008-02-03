@@ -1,5 +1,5 @@
-C tclfossil,\sstarting\swith\sdb_\scommands
-D 2008-02-03T16:23:38
+C tclfossil:\sadded\srevlist\scommand
+D 2008-02-03T18:18:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -149,7 +149,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/tclfossil/goals.txt 154263573a8140cf327a7c5754b05695e3d413f3
-F tools/tclfossil/lib/tf_db.tcl 41f18fa39e0199f360ff6ee93bd1aa9e9f436291
+F tools/tclfossil/lib/tf_db.tcl a0e7b78210a1b068c540cfa534ac723bd7ea28ec
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F win32.txt ee38ffb58e908925e8e4161d82e755cbf9d8d63c
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -185,7 +185,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2f165897f6bdce694ccad9398ff2d411948a7bd0
-R a06c01af65137ff2d4572b87f627f0ee
+P 7f9c5ee722d40275542fe0a0c91e5c0479663fbb
+R 19a7706ecff8f4b22cd29f9d1c3e5531
 U mjanssen
-Z a22fd4ca191c48ed797b1ffe0d6cf115
+Z 9d53c59eec71aefb4f9202eb28d2b80c
