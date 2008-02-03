@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C added\sdb_generic_query_view()\sto\ssimplify\s/tabview\sand\s/my\simplementations
-D 2008-02-03T21:50:20
+C refactored\ssome\s/tagview\scode\sinto\smore\sgeneric\sbits.\sAdded\sstring_xform.c.
+D 2008-02-03T21:56:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -58,10 +58,10 @@ F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c e507d3889f95c5ce75e8770798d8b64268608c89
 F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
 F src/main.c fcf22176a5c2c69a2fa77243945e46ba557dc7ce
-F src/main.mk a53aad40d86ec7a9639466e3f95ca37a543e440f
+F src/main.mk 32fb8023fadd3d8d00641b41008859897156db88
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 29dcd8d31ff5c6651f0bf3c4619b7add6802fbff
+F src/makemake.tcl 798660074398402288339521e96b2e7575cc6225
 F src/manifest.c 53c15e41ed45b5d59a34038107c62b8406f393da
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -79,11 +79,12 @@ F src/setup.c 093a77e546affb5f4a6177b33c425a34cd0dfd44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
+F src/string_xform.c 5092b09cf9259c02af3e10ca26325b7587c36cc2
 F src/style.c 71b6719cbf536ac43c289b46e7e8fa9c5fef1514
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
-F src/tagview.c 00e0d408b7eef3699b49fc6fef60b6ef598d7f56
+F src/tagview.c 5d26252ad0d720d9ec02e9ec44c4fabf94472d02
 F src/timeline.c 6f6c62303afeab9c319cc63de0ae84cd1618f18c
 F src/tkt.c 1c6be6341e09c0711fad6e2ca39a7ee6dbd90c73
 F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
@@ -188,14 +189,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2cb3290e6767e51d190f746abbac4f330ae14517
-R 272801165435bc50c98eaaf3edd34de0
+P 74ba41a5104a814128597cf8facbbb250a0c360b
+R 265934ed351256f6b4fa8178e8435dc0
 U stephan
-Z b468bbaf1ca0eefb27871548d22b9f8c
+Z 5b070c123bd0188e445066a581679d57
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpjcfZWKvbTL0CBgRAnanAJ9qvdnwrSnMtmoComRfDcYwIO94VQCfTa5V
-VAwwVsTJ7sK6XHis1LD9794=
-=59GA
+iD8DBQFHpjinZWKvbTL0CBgRArTPAJwIxbIDYyyVQm53BIqv9gy9oTcDYwCeII9n
+fsmJhvw3Vfld/BTL89ZwtJU=
+=txTp
 -----END PGP SIGNATURE-----
