@@ -29,30 +29,157 @@
 #include "config.h"
 #include "tagview.h"
 
+/**
+tagview_strxform_f is a typedef for funcs with
+the following policy:
 
-/*
-** Output a single entry for a menu generated using an HTML table.
-** If zLink is not NULL or an empty string, then it is the page that
-** the menu entry will hyperlink to.  If zLink is NULL or "", then
-** the menu entry has no hyperlink - it is disabled.
+The accept a string which they then transform into
+some other form. They return a transformed copy,
+which the caller is responsible for freeing.
+
+The intention of this is to provide a way for
+a generic query routine to format specific column
+data (e.g. transform an object ID into a link to
+that object).
 */
-void tagview_menu_entry(
-  const char *zTitle,
-  const char *zLink,
-  const char *zDesc
-){
-  @ <tr><td valign="top" align="right">
-  if( zLink && zLink[0] ){
-    @ <a href="%s(g.zBaseURL)/%s(zLink)">%h(zTitle)</a>
-  }else{
-    @ %h(zTitle)
-  }
-  @ </td><td valign="top">%h(zDesc)</td></tr>
+typedef char * (*tagview_strxform_f)( char const * );
+
+#if 0
+/** A no-op transformer which can be used as a placeholder. */
+static char * tagview_xf_copy( char const * uuid )
+{
+  int len = strlen(uuid) + 1;
+  char * ret = (char *) malloc( len );
+  ret[len] = '\0';
+  strncpy( ret, uuid, len-1 );
+  return ret;
+}
+#endif
+
+/** Returns a hyperlink to uuid. */
+static char * tagview_xf_link_to_uuid( char const * uuid )
+{
+    const int offset = 10;
+    char shortname[offset+1];
+    shortname[offset] = '\0';
+    memcpy( shortname, uuid, offset );
+    return mprintf( "<tt><a href='%s/vinfo/%s'><strong>%s</strong>%s</a></tt>",
+      g.zBaseURL, uuid, shortname, uuid+offset );
 }
 
+/** Returns a hyperlink to the given tag. */
+static char * tagview_xf_link_to_tagid( char const * tagid )
+{
+  return mprintf( "<a href='%s/tagview?tagid=%s'>%s</a>",
+        g.zBaseURL, tagid, tagid );
+}
+
+/** Returns a hyperlink to the named tag. */
+static char * tagview_xf_link_to_tagname( char const * tagid )
+{
+  return mprintf( "<a href='%s/tagview/%s'>%s</a>",
+        g.zBaseURL, tagid, tagid );
+}
+
+
+
+/**
+* tagview_run_query():
+*
+* A very primitive helper to run an SQL query and table-ize the
+* results.
+*
+* The sql parameter should be a single, complete SQL statement.
+*
+* The coln parameter is optional (it may be 0). If it is 0 then the
+* column names using in the output will be taken directly from the
+* SQL. If it is not null then it must have as many entries as the SQL
+* result has columns. Each entry is a column name for the SQL result
+* column of the same index. Any given entry may be 0, in which case
+* the column name from the SQL is used.
+*
+* The xform argument is an array of transformation functions (type
+* tagview_strxform_f). The array, or any single entry, may be 0, but
+* if the array is non-0 then it must have at least as many entries as
+* colnames does. Each index corresponds directly to an entry in
+* colnames and the SQL results.  Any given entry may be 0 If it has
+* fewer, undefined behaviour results.  If a column has an entry in
+* xform, then the xform function will be called to transform the
+* column data before rendering it. This function takes care of freeing
+* the strings created by the xform functions.
+*
+* Example:
+*
+*  char const * const colnames[] = {
+*   "Tag ID", "Tag Name", "Something Else", "UUID"
+*  };
+*  tagview_strxform_f xf[] = {
+*    tagview_xf_link_to_tagid,
+*    tagview_xf_link_to_tagname,
+*    0,
+*    tagview_xf_link_to_uuid
+*  };
+*  tagview_run_query( "select a,b,c,d from foo", colnames, xf );
+*
+*/
+static void tagview_run_query(
+  char const * sql,
+  char const * const * coln,
+  tagview_strxform_f * xform )
+{
+  
+  Stmt st;
+  @ <table cellpadding='4px' border='1'><tbody>
+  int i = 0;
+  int rc = db_prepare( &st, sql );
+  /**
+    Achtung: makeheaders apparently can't pull the function
+    name from this:
+   if( SQLITE_OK != db_prepare( &st, sql ) )
+  */
+  if( SQLITE_OK != rc )
+  {
+    @ tagview_run_query(): Error processing SQL: [%s(sql)]
+    return;
+  }
+  int colc = db_column_count(&st);
+  @ <tr>
+  for( i = 0; i < colc; ++i ) {
+    if( coln )
+    {
+      @ <th>%s(coln[i] ? coln[i] : db_column_name(&st,i))</th>
+    }
+    else
+    {
+      @ <td>%s(db_column_name(&st,i))</td>
+    }
+  }
+  @ </tr>
+
+
+  while( SQLITE_ROW == db_step(&st) ){
+    @ <tr>
+      for( i = 0; i < colc; ++i ) {
+        char * xf = 0;
+        char const * xcf = 0;
+        xcf = (xform && xform[i])
+          ? (xf=(xform[i])(db_column_text(&st,i)))
+          : db_column_text(&st,i);
+        @ <td>%s(xcf)</td>
+        if( xf ) free( xf );
+      }
+    @ </tr>
+  }
+  db_finalize( &st );
+  @ </tbody></table>
+}
+
+/**
+  Lists all tags matching the given LIKE clause (which
+may be 0).
+*/
 static void tagview_page_list_tags( char const * like )
 {
-  Stmt st;
   char * likeclause = 0;
   const int limit = 10;
   char * limitstr = 0;
@@ -66,13 +193,6 @@ static void tagview_page_list_tags( char const * like )
     limitstr = mprintf( "LIMIT %d", limit );
     @ <h2>%d(limit) most recent tags:</h2>
   }
-  @ <table cellpadding='4px' border='1'><tbody>
-  @ <tr>
-  @ <th>Tag ID</th>
-  @ <th>Tag name</th>
-  @ <th>Timestamp</th>
-  @ <th>Version</th>
-  @ </tr>
   char * sql = mprintf( 
     "SELECT t.tagid, t.tagname, DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
@@ -82,41 +202,24 @@ static void tagview_page_list_tags( char const * like )
     likeclause ? likeclause : " ",
     limitstr ? limitstr : " "
     );
-  db_prepare( &st, sql );
-  if( likeclause ) free( likeclause );
-  free( sql );
-  while( SQLITE_ROW == db_step(&st) ){
-    int tagid = db_column_int( &st, 0 );
-    char const * tagname = db_column_text( &st, 1 );
-    char const * tagtime = db_column_text( &st, 2 );
-    char const * uuid = db_column_text( &st, 3 );
-    const int offset = 10;
-    char shortname[offset+1];
-    shortname[offset] = '\0';
-    memcpy( shortname, uuid, offset );
-    @ <tr>
-    @ <td><tt>
-    @ <a href='%s(g.zBaseURL)/tagview?tagid=%d(tagid)'>%d(tagid)</a>
-    @ </tt></td>
-    @ <td><tt><a href='%s(g.zBaseURL)/tagview/%q(tagname)'>%s(tagname)</a></tt></td>
-    @ <td align='center'><tt>%s(tagtime)</tt></td>
-    @ <td><tt>
-    @ <a href='%s(g.zBaseURL)/vinfo/%s(uuid)'><strong>%s(shortname)</strong>%s(uuid+offset)</a>
-    @ </tt></td></tr>
-  }
-  db_finalize( &st );
-  @ </tbody></table>
-  @ <hr/>TODOs include:
-  @ <ul>
-  @  <li>Page through long tags lists.</li>
-  @  <li>Refactor the internal report routines to be reusable.</li>
-  @  <li>Allow different sorting.</li>
-  @  <li>Selectively filter out wiki/ticket/baseline</li>
-  @  <li>?</li>
-  @ </ul>
+   /* "   AND t.tagname NOT GLOB 'wiki-*'" // Do we want this?? */
 
+  char const * const colnames[] = {
+    "Tag ID", "Name", "Timestamp", "Version"
+  };
+  tagview_strxform_f xf[] = {
+    tagview_xf_link_to_tagid,
+    tagview_xf_link_to_tagname,
+    0,
+    tagview_xf_link_to_uuid
+  };
+  tagview_run_query( sql, colnames, xf );
+  free( sql );
 }
 
+/**
+A small search form which forwards to ?like=SEARCH_STRING
+*/
 static void tagview_page_search_miniform(void){
   char const * like = P("like");
   @ <div style='font-size:smaller'>
@@ -133,72 +236,52 @@ static void tagview_page_default(void){
   tagview_page_list_tags( 0 );
 }
 
+/**
+  Lists all tags matching the given tagid.
+*/
 static void tagview_page_tag_by_id( int tagid )
 {
-  Stmt st;
+  @ <h2>Tag #%d(tagid):</h2>
   char * sql = mprintf( 
     "SELECT DISTINCT (t.tagname), DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagid=%d) AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
     "ORDER BY tx.mtime DESC",
   tagid);
-  db_prepare( &st, sql );
-  free( sql );
-  @ <h2>Tag ID %d(tagid):</h2>
-  @ <table cellpadding='4px' border='1'><tbody>
-  @ <tr><th>Tag name</th><th>Timestamp</th><th>Version</th></tr>
-  while( SQLITE_ROW == db_step(&st) )
-  {
-    char const * tagname = db_column_text( &st, 0 );
-    char const * tagtime = db_column_text( &st, 1 );
-    char const * uuid = db_column_text( &st, 2 );
-    const int offset = 10;
-    char shortname[offset+1];
-    shortname[offset] = '\0';
-    memcpy( shortname, uuid, offset );
-    @ <tr>
-    @ <td><tt><a href='%s(g.zBaseURL)/tagview/%q(tagname)'>%s(tagname)</a></tt></td>
-    @ <td align='center'><tt>%s(tagtime)</tt></td>
-    @ <td><tt>
-    @ <a href='%s(g.zBaseURL)/vinfo/%s(uuid)'><strong>%s(shortname)</strong>%s(uuid+offset)</a>
-    @ </tt></td></tr>
-  }
-  @ </tbody></table>
-  db_finalize( &st );
+  char const * const colnames[] = {
+      "Tag Name", "Timestamp", "Version"
+    };
+  tagview_strxform_f xf[] = {
+      tagview_xf_link_to_tagname,
+      0,
+      tagview_xf_link_to_uuid
+    };
+  tagview_run_query( sql, colnames, xf );
+  free(sql);
 }
 
+/**
+  Lists all tags matching the given tag name.
+*/
 static void tagview_page_tag_by_name( char const * tagname )
 {
-  Stmt st;
+  @ <h2>Tag '%s(tagname)':</h2>
   char * sql = mprintf( 
     "SELECT DISTINCT t.tagid, DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagname='%q') AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
     "ORDER BY tx.mtime DESC",
     tagname);
-  db_prepare( &st, sql );
+  char const * const colnames[] = {
+      "Tag ID", "Timestamp", "Version"
+  };
+  tagview_strxform_f xf[] = {
+      tagview_xf_link_to_tagid,
+      0,
+      tagview_xf_link_to_uuid
+  };
+  tagview_run_query( sql, colnames, xf );
   free( sql );
-  @ <h2>Tag '%s(tagname)':</h2>
-  @ <table cellpadding='4px' border='1'><tbody>
-  @ <tr><th>Tag ID</th><th>Timestamp</th><th>Version</th></tr>
-  while( SQLITE_ROW == db_step(&st) )
-  {
-    int tagid = db_column_int( &st, 0 );
-    char const * tagtime = db_column_text( &st, 1 );
-    char const * uuid = db_column_text( &st, 2 );
-    const int offset = 10;
-    char shortname[offset+1];
-    shortname[offset] = '\0';
-    memcpy( shortname, uuid, offset );
-    @ <tr>
-    @ <td><tt><a href='%s(g.zBaseURL)/tagview?tagid=%d(tagid)'>%d(tagid)</a></tt></td>
-    @ <td align='center'><tt>%s(tagtime)</tt></td>
-    @ <td><tt>
-    @ <a href='%s(g.zBaseURL)/vinfo/%s(uuid)'><strong>%s(shortname)</strong>%s(uuid+offset)</a>
-    @ </tt></td></tr>
-  }
-  @ </tbody></table>
-  db_finalize( &st );
 }
 
 
