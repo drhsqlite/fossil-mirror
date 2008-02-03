@@ -29,6 +29,14 @@
 #include "config.h"
 #include "tagview.h"
 
+
+#if 1
+#  define TAGVIEW_DEFAULT_FILTER "AND t.tagname NOT GLOB 'wiki-*' "
+#else
+#  define TAGVIEW_DEFAULT_FILTER
+#endif
+
+
 /**
 tagview_strxform_f is a typedef for funcs with the following policy:
 
@@ -61,7 +69,7 @@ static char * tagview_xf_link_to_uuid( char const * uuid )
   char shortname[offset+1];
   shortname[offset] = '\0';
   memcpy( shortname, uuid, offset );
-  return mprintf( "<tt><a href='%s/vinfo/%s'><strong>%s</strong>%s</a></tt>",
+  return mprintf( "<tt><a href='%s/vinfo/%s'><span style='font-size:1.5em'>%s</span>%s</a></tt>",
                   g.zBaseURL, uuid, shortname, uuid+offset );
 }
 
@@ -188,20 +196,20 @@ static void tagview_page_list_tags( char const * like )
   else
   {
     limitstr = mprintf( "LIMIT %d", limit );
-    @ <h2>%d(limit) most recent non-wiki tags:</h2>
+    @ <h2>%d(limit) most recent tags:</h2>
   }
   char * sql = mprintf( 
     "SELECT t.tagid, t.tagname, DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagid=tx.tagid) and (tx.srcid=b.rid) "
     "AND (tx.tagtype != 0) %s "
-    "AND t.tagname NOT GLOB 'wiki-*' "
+    TAGVIEW_DEFAULT_FILTER
     "ORDER BY tx.mtime DESC %s",
     likeclause ? likeclause : " ",
     limitstr ? limitstr : " "
     );
-   /* "   AND t.tagname NOT GLOB 'wiki-*'" // Do we want this?? */
-
+  if( limitstr ) free(limitstr);
+  if( likeclause ) free(likeclause);
   char const * const colnames[] = {
     "Tag ID", "Name", "Timestamp", "Version"
   };
@@ -246,7 +254,7 @@ static void tagview_page_tag_by_id( int tagid )
     "SELECT DISTINCT (t.tagname), DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagid=%d) AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
-    "AND t.tagname NOT GLOB 'wiki-*' "
+    TAGVIEW_DEFAULT_FILTER
     "ORDER BY tx.mtime DESC",
   tagid);
   char const * const colnames[] = {
@@ -271,7 +279,7 @@ static void tagview_page_tag_by_name( char const * tagname )
     "SELECT DISTINCT t.tagid, DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagname='%q') AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
-    "AND t.tagname NOT GLOB 'wiki-*' "
+    TAGVIEW_DEFAULT_FILTER
     "ORDER BY tx.mtime DESC",
     tagname);
   char const * const colnames[] = {
@@ -291,7 +299,6 @@ static void tagview_page_tag_by_name( char const * tagname )
 ** WEBPAGE: /tagview
 */
 void tagview_page(void){
-
   login_check_credentials();
   if( !g.okRdWiki ){
     login_needed();
@@ -318,3 +325,5 @@ void tagview_page(void){
   }
   style_footer();
 }
+
+#undef TAGVIEW_DEFAULT_FILTER
