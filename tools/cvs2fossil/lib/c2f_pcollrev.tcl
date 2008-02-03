@@ -146,6 +146,32 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    UNIQUE (fid, rev) -- The DTN is unique within the revision's file.
 	}
 
+	# Blobs contain the information needed to extract revisions
+	# from rcs archive files. As such each revision has an
+	# associated blob. However we can have blobs without
+	# revisions. This happens if a logically irrelevant revision
+	# is removed. We may however still need its blob to correctly
+	# expand other revisions, both its contents and for the
+	# ordering.
+
+	state extend blob {
+	    bid  INTEGER  NOT NULL  PRIMARY KEY AUTOINCREMENT,
+	    rid  INTEGER            REFERENCES revision,
+	    fid  INTEGER  NOT NULL  REFERENCES file,   -- File owning blob.
+
+	    -- The text content is an (offset,length) pair into the
+	    -- rcs archive. For deltas we additionally refer to the
+	    -- parent blob the delta is made against.
+
+	    coff INTEGER  NOT NULL,
+	    clen INTEGER  NOT NULL,
+	    pid  INTEGER            REFERENCES blob,
+
+	    UNIQUE (rid)
+	} { fid }
+	# Index on owning file to collect all blobs of a file when the
+	# time for its expansion comes.
+
 	state extend optype {
 	    oid   INTEGER  NOT NULL  PRIMARY KEY,
 	    name  TEXT     NOT NULL,

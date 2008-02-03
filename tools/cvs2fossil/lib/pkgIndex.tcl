@@ -4,6 +4,7 @@
 # # ## ### ##### ######## ############# #####################
 if {![package vsatisfies [package require Tcl] 8.4]} return
 package ifneeded vc::fossil::import::cvs                    1.0 [list source [file join $dir cvs2fossil.tcl]]
+package ifneeded vc::fossil::import::cvs::blobstore         1.0 [list source [file join $dir c2f_blobstore.tcl]]
 package ifneeded vc::fossil::import::cvs::file              1.0 [list source [file join $dir c2f_file.tcl]]
 package ifneeded vc::fossil::import::cvs::file::rev         1.0 [list source [file join $dir c2f_frev.tcl]]
 package ifneeded vc::fossil::import::cvs::file::sym         1.0 [list source [file join $dir c2f_fsym.tcl]]

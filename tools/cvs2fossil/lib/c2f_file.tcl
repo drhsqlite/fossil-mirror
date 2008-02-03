@@ -20,6 +20,7 @@ package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require struct::set                         ; # Set operations.
 package require struct::list                        ; # Higher order operations.
+package require vc::fossil::import::cvs::blobstore  ; # Blob storage.
 package require vc::fossil::import::cvs::file::rev  ; # CVS per file revisions.
 package require vc::fossil::import::cvs::file::sym  ; # CVS per file symbols.
 package require vc::fossil::import::cvs::state      ; # State storage.
@@ -43,12 +44,14 @@ snit::type ::vc::fossil::import::cvs::file {
 	set myexecutable $executable
 	set myproject    $project
 	set mytrunk      [$myproject trunk]
+	set myblob       [blobstore ${selfns}::%AUTO% $id]
 	return
     }
 
     method setid {id} {
 	integrity assert {$myid eq ""} {File '$mypath' already has an id, '$myid'}
 	set myid $id
+	$myblob setid $id
 	return
     }
 
@@ -96,6 +99,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	state transaction {
 	    foreach rev $revisions { $rev persist }
 	    foreach sym $symbols   { $sym persist }
+	    $myblob persist
 	}
 	return
     }
@@ -159,6 +163,17 @@ snit::type ::vc::fossil::import::cvs::file {
 	set myaid($revnr) [$myproject defauthor $author]
 	set myrev($revnr) [rev %AUTO% $revnr $date $state $self]
 
+	$myblob add $revnr $myrev($revnr)
+
+	if {$next ne ""} {
+	    # parent revision NEXT is a delta of current.
+	    $myblob delta $next $revnr
+	}
+	foreach b $branches {
+	    # branch child revision B is a delta of current.
+	    $myblob delta $b $revnr
+	}
+
 	$self RecordBasicDependencies $revnr $next
 	return
     }
@@ -213,6 +228,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	$rev setmeta [$myproject defmeta [$lod id] $myaid($revnr) $cmid]
 	$rev settext $textrange
 	$rev setlod  $lod
+
+	$myblob extend $revnr $textrange
 
 	# If this is revision 1.1, we have to determine whether the
 	# file seems to have been created through 'cvs add' instead of
@@ -577,6 +594,10 @@ snit::type ::vc::fossil::import::cvs::file {
 			  # lod's. Object references to revisions and
 			  # branches. The latter can appear when they
 			  # are severed from their parent.
+
+    variable myblob {} ; # Reference to the object managing the blob
+			 # information (textrange of revisions, and
+			 # delta dependencies) of this file.
 
     # # ## ### ##### ######## #############
     ## Internal methods
@@ -1391,6 +1412,7 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
+	namespace import ::vc::fossil::import::cvs::blobstore
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::fossil::import::cvs::integrity
 	namespace import ::vc::fossil::import::cvs::gtcore
