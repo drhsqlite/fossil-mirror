@@ -133,15 +133,12 @@ snit::type ::vc::fossil::import::cvs::pass::collrev {
 	    -- content, and meta data (author, log message, branch,
 	    -- project). The last is encoded as single id, see table
 	    -- 'meta'. The date/time is given in seconds since the
-	    -- epoch, for easy comparison. The text content is an
-	    -- (offset,length) pair into the rcs archive.
+	    -- epoch, for easy comparison.
 
 	    op    INTEGER  NOT NULL  REFERENCES optype,
 	    date  INTEGER  NOT NULL,
 	    state TEXT     NOT NULL,
 	    mid   INTEGER  NOT NULL  REFERENCES meta,
-	    coff  INTEGER  NOT NULL,
-	    clen  INTEGER  NOT NULL,
 
 	    UNIQUE (fid, rev) -- The DTN is unique within the revision's file.
 	}

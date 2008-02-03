@@ -226,6 +226,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	set lod [$self GetLOD $revnr]
 
 	$rev setmeta [$myproject defmeta [$lod id] $myaid($revnr) $cmid]
+	# Note: We keep settext on file::rev for the hastext queries
+	# used by several checks.
 	$rev settext $textrange
 	$rev setlod  $lod
 
@@ -301,8 +303,12 @@ snit::type ::vc::fossil::import::cvs::file {
 
 	close [open $dir/r__empty__ w];# Base for detached roots on branches.
 
-	# Phase I: Pull the revisions from memory and fill the graphs
-	#          with them...
+	# Phase I: Pull blobs and referenced revisions from the state
+	#          and fill the graphs with them...
+
+	# Note: We use the blobs for expansion because we need them
+	#       all, even those without revision, for both proper
+	#       ordering and exact patch application.
 
 	set earcs   {} ; # Arcs for expansion graph
 	set zarcs   {} ; # Arcs for zip graph
@@ -320,6 +326,8 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # recompression graph is revision based.
 
 	    if {$revnr ne ""} {
+		# Blob has revision, extend recompression graph.
+
 		lappend revmap r$revnr $rid
 
 		$zp node insert $rid

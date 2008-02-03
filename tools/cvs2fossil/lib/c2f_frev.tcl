@@ -354,7 +354,6 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	set lod [$mylod id]
 	set op  $myopcode($myoperation)
 	set idb $myisondefaultbranch
-	set clen [expr {$mytextend - $mytextstart}]
 
 	lappend map @P@ [expr { ($myparent       eq "") ? "NULL" : [$myparent       id] }]
 	lappend map @C@ [expr { ($mychild        eq "") ? "NULL" : [$mychild        id] }]
@@ -363,8 +362,8 @@ snit::type ::vc::fossil::import::cvs::file::rev {
 	lappend map @BP [expr { ($myparentbranch eq "") ? "NULL" : [$myparentbranch id] }]
 
 	set cmd {
-	    INSERT INTO revision ( rid,   fid,  rev,      lod, parent, child,  isdefault, dbparent, dbchild, bparent,  op,  date,    state,    mid,       coff,        clen)
-	    VALUES               ($myid, $fid, $myrevnr, $lod, @P@,    @C@,   $idb,       @DP,      @DC,     @BP    , $op, $mydate, $mystate, $mymetaid, $mytextstart, $clen);
+	    INSERT INTO revision ( rid,   fid,  rev,      lod, parent, child,  isdefault, dbparent, dbchild, bparent,  op,  date,    state,    mid)
+	    VALUES               ($myid, $fid, $myrevnr, $lod, @P@,    @C@,   $idb,       @DP,      @DC,     @BP    , $op, $mydate, $mystate, $mymetaid);
 	}
 
 	state transaction {
