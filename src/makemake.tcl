@@ -34,6 +34,7 @@ set src {
   md5
   merge
   merge3
+  my_page
   name
   pivot
   pqueue

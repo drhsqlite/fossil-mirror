@@ -187,7 +187,8 @@ const char zDefaultHeader[] =
 @   </div>
 @   <div class="title">[title html]</div>
 @   <div class="status"><nobr>
-@     [/login exists enable_output]     Logged in as [0 /login get html]
+@     [/login exists enable_output]     Logged in as
+@      <a href='[baseurl puts]/my'>[0 /login get html]</a>
 @     [/login exists not enable_output] Not logged in
 @     [1 enable_output]
 @   </nobr></div>
