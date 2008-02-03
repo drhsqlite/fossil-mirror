@@ -216,6 +216,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 
 	    DELETE FROM revisionbranchchildren WHERE rid  IN excludedrevisions;
 	    DELETE FROM revisionbranchchildren WHERE brid IN excludedrevisions;
+	    DELETE FROM blob                   WHERE rid  IN excludedrevisions;
 
 	    DROP TABLE excludedrevisions;
 	    DROP TABLE excludedsymbols;

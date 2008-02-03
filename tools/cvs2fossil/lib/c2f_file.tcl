@@ -308,43 +308,44 @@ snit::type ::vc::fossil::import::cvs::file {
 	set zarcs   {} ; # Arcs for zip graph
 	set revmap  {} ; # path -> rid map to later merge uuid information
 
-	foreach {rid revnr parent child coff clen} [state run {
-	    SELECT R.rid, R.rev, R.parent, R.child, R.coff, R.clen
-	    FROM   revision R
-	    WHERE  R.fid = $myid
+	foreach {rid revnr parent child coff clen cid cparent} [state run {
+	    SELECT B.rid, R.rev, R.parent, R.child, B.coff, B.clen, B.bid, B.pid
+	    FROM            blob B
+	    LEFT OUTER JOIN revision R
+	    ON              B.rid = R.rid
+	    WHERE  B.fid = $myid
 	}] {
-	    lappend revmap r$revnr $rid
+	    # Main data are blobs, most will have revisions, but not
+	    # all. The expansion graph is blob based, whereas the
+	    # recompression graph is revision based.
 
-	    $zp node insert $rid
-	    $zp node set    $rid revnr $revnr
-	    $zp node set    $rid label <$revnr>
+	    if {$revnr ne ""} {
+		lappend revmap r$revnr $rid
 
-	    if {$child ne ""} {
-		lappend zarcs $child $rid
+		$zp node insert $rid
+		$zp node set    $rid revnr $revnr
+		$zp node set    $rid label <$revnr>
+
+		if {$child ne ""} {
+		    lappend zarcs $child $rid
+		}
+	    } else {
+		# We fake a revnr for the blobs which have no
+		# revision, for use in the expansion graph.
+		set revnr ghost$cid
 	    }
 
-	    $ex node insert $rid
-	    $ex node set    $rid text  [list $coff $clen]
-	    $ex node set    $rid revnr $revnr
-	    $ex node set    $rid label <$revnr>
+	    # Now the expansion graph.
 
-	    if {[rev istrunkrevnr $revnr]} {
-		# On the trunk, this revision is a delta based on the
-		# child. That makes the child our predecessor.
+	    $ex node insert $cid
+	    $ex node set    $cid text  [list $coff $clen]
+	    $ex node set    $cid revnr $revnr
+	    $ex node set    $cid label <$revnr>
 
-		if {$child eq ""} continue
-		lappend earcs $child $rid
-	    } else {
-		# On a branch this revision is a delta based on the
-		# parent. That makes the parent our predecessor.
-
-		if {$parent eq ""} {
-		    # Detached branch root, this is a patch based on
-		    # the empty string.
-		    $ex node set $rid __base__ r__empty__ 
-		    continue
-		}
-		lappend earcs $parent $rid
+	    if {$cparent ne ""} {
+		# The expansion arcs go from baseline to delta
+		# descendant, based on the blob information.
+		lappend earcs $cparent $cid
 	    }
 	}
 
