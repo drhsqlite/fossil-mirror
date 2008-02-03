@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Refactored\sto\suse\sa\sshared\squery-rendering\sroutine.
-D 2008-02-03T16:32:28
+C got\srid\sof\s'...\smight\sbe\sused\sinitialized'\swarnings
+D 2008-02-03T16:35:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,7 +37,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
-F src/cgi.c a795dc49f1ddae659feef0e7218c756bb71ba41d
+F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
 F src/checkin.c 3af7638aedfea692120ff29154ef42941f9cc929
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
@@ -55,7 +55,7 @@ F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
-F src/info.c abc907adcdf73443bcedb85b1d75470b2d552e45
+F src/info.c e507d3889f95c5ce75e8770798d8b64268608c89
 F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
 F src/main.c fcf22176a5c2c69a2fa77243945e46ba557dc7ce
 F src/main.mk a53aad40d86ec7a9639466e3f95ca37a543e440f
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b312f5ff5b0c4ef57eaf21ecb274928a87817ce6
-R b744ed47217bad74b2c45f691c43b018
+P 02a7c850b417e4cee4d7068ca8bff77da6e5ae30
+R 33edff5276262956ecaa01a6d9f17f94
 U stephan
-Z ccfa4641fee3ff2b74432d6ceb2e5789
+Z 28d23a71f2298931312432f0fe94e8ab
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpeygZWKvbTL0CBgRAl7FAJ9KMxPi4h8C0756TzSwcz/qCOVbggCgmnhp
-6ivfrPdqTfh1oQy7TrSvA4c=
-=oizg
+iD8DBQFHpe1EZWKvbTL0CBgRAlc4AJ9BQQihdwIHDbgeUwhfIRuLMrHNcgCgzYNw
+j4OVvTge1DKAt+olCS/HIhc=
+=zZwo
 -----END PGP SIGNATURE-----

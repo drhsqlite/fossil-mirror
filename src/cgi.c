@@ -270,7 +270,7 @@ static int check_cache_control(void){
 ** Do a normal HTTP reply
 */
 void cgi_reply(void){
-  int total_size;
+  int total_size = 0;
   if( iReplyStatus<=0 ){
     iReplyStatus = 200;
     zReplyStatus = "OK";

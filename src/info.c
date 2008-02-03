@@ -748,7 +748,7 @@ void fview_page(void){
 */
 void info_page(void){
   const char *zName;
-  int rc, nName, cnt;
+  int rc = 0, nName, cnt;
   Stmt q;
   
   zName = P("name");
