@@ -30,17 +30,15 @@
 #include "tagview.h"
 
 /**
-tagview_strxform_f is a typedef for funcs with
-the following policy:
+tagview_strxform_f is a typedef for funcs with the following policy:
 
-The accept a string which they then transform into
-some other form. They return a transformed copy,
-which the caller is responsible for freeing.
+They accept a const string which they then transform into some other
+form. They return a transformed copy, which the caller is responsible
+for freeing.
 
-The intention of this is to provide a way for
-a generic query routine to format specific column
-data (e.g. transform an object ID into a link to
-that object).
+The intention of this is to provide a way for a generic query routine
+to format specific column data (e.g. transform an object ID into a
+link to that object).
 */
 typedef char * (*tagview_strxform_f)( char const * );
 
@@ -59,26 +57,26 @@ static char * tagview_xf_copy( char const * uuid )
 /** Returns a hyperlink to uuid. */
 static char * tagview_xf_link_to_uuid( char const * uuid )
 {
-    const int offset = 10;
-    char shortname[offset+1];
-    shortname[offset] = '\0';
-    memcpy( shortname, uuid, offset );
-    return mprintf( "<tt><a href='%s/vinfo/%s'><strong>%s</strong>%s</a></tt>",
-      g.zBaseURL, uuid, shortname, uuid+offset );
+  const int offset = 10;
+  char shortname[offset+1];
+  shortname[offset] = '\0';
+  memcpy( shortname, uuid, offset );
+  return mprintf( "<tt><a href='%s/vinfo/%s'><strong>%s</strong>%s</a></tt>",
+                  g.zBaseURL, uuid, shortname, uuid+offset );
 }
 
 /** Returns a hyperlink to the given tag. */
 static char * tagview_xf_link_to_tagid( char const * tagid )
 {
   return mprintf( "<a href='%s/tagview?tagid=%s'>%s</a>",
-        g.zBaseURL, tagid, tagid );
+                  g.zBaseURL, tagid, tagid );
 }
 
 /** Returns a hyperlink to the named tag. */
 static char * tagview_xf_link_to_tagname( char const * tagid )
 {
   return mprintf( "<a href='%s/tagview/%s'>%s</a>",
-        g.zBaseURL, tagid, tagid );
+                  g.zBaseURL, tagid, tagid );
 }
 
 
@@ -92,7 +90,7 @@ static char * tagview_xf_link_to_tagname( char const * tagid )
 * The sql parameter should be a single, complete SQL statement.
 *
 * The coln parameter is optional (it may be 0). If it is 0 then the
-* column names using in the output will be taken directly from the
+* column names used in the output will be taken directly from the
 * SQL. If it is not null then it must have as many entries as the SQL
 * result has columns. Each entry is a column name for the SQL result
 * column of the same index. Any given entry may be 0, in which case
@@ -102,7 +100,7 @@ static char * tagview_xf_link_to_tagname( char const * tagid )
 * tagview_strxform_f). The array, or any single entry, may be 0, but
 * if the array is non-0 then it must have at least as many entries as
 * colnames does. Each index corresponds directly to an entry in
-* colnames and the SQL results.  Any given entry may be 0 If it has
+* colnames and the SQL results.  Any given entry may be 0. If it has
 * fewer, undefined behaviour results.  If a column has an entry in
 * xform, then the xform function will be called to transform the
 * column data before rendering it. This function takes care of freeing
@@ -156,7 +154,6 @@ static void tagview_run_query(
   }
   @ </tr>
 
-
   while( SQLITE_ROW == db_step(&st) ){
     @ <tr>
       for( i = 0; i < colc; ++i ) {
@@ -191,13 +188,14 @@ static void tagview_page_list_tags( char const * like )
   else
   {
     limitstr = mprintf( "LIMIT %d", limit );
-    @ <h2>%d(limit) most recent tags:</h2>
+    @ <h2>%d(limit) most recent non-wiki tags:</h2>
   }
   char * sql = mprintf( 
     "SELECT t.tagid, t.tagname, DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagid=tx.tagid) and (tx.srcid=b.rid) "
     "AND (tx.tagtype != 0) %s "
+    "AND t.tagname NOT GLOB 'wiki-*' "
     "ORDER BY tx.mtime DESC %s",
     likeclause ? likeclause : " ",
     limitstr ? limitstr : " "
@@ -231,7 +229,9 @@ static void tagview_page_search_miniform(void){
   @ </div>
 }
 
-
+/**
+ tagview_page_default() renders the default page for tagview_page().
+*/
 static void tagview_page_default(void){
   tagview_page_list_tags( 0 );
 }
@@ -246,16 +246,17 @@ static void tagview_page_tag_by_id( int tagid )
     "SELECT DISTINCT (t.tagname), DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagid=%d) AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
+    "AND t.tagname NOT GLOB 'wiki-*' "
     "ORDER BY tx.mtime DESC",
   tagid);
   char const * const colnames[] = {
       "Tag Name", "Timestamp", "Version"
-    };
+  };
   tagview_strxform_f xf[] = {
       tagview_xf_link_to_tagname,
       0,
       tagview_xf_link_to_uuid
-    };
+  };
   tagview_run_query( sql, colnames, xf );
   free(sql);
 }
@@ -270,6 +271,7 @@ static void tagview_page_tag_by_name( char const * tagname )
     "SELECT DISTINCT t.tagid, DATETIME(tx.mtime), b.uuid "
     "FROM tag t, tagxref tx, blob b "
     "WHERE (t.tagname='%q') AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
+    "AND t.tagname NOT GLOB 'wiki-*' "
     "ORDER BY tx.mtime DESC",
     tagname);
   char const * const colnames[] = {
@@ -291,7 +293,7 @@ static void tagview_page_tag_by_name( char const * tagname )
 void tagview_page(void){
 
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.okRdWiki ){
     login_needed();
   }
   style_header("Tags");
