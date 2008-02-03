@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\simporter\sto\smainline.
-D 2008-02-03T01:36:14
+C Documentation\supdates.
+D 2008-02-03T02:38:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -159,7 +159,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/build.html ea6b1e4bf31262805e83791ac0b19d611b39161d
+F www/build.html 0b28339535bf53d193a70c324d5b500b84042152
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.html d4951ef6037a6683579d4928cc8604ce1825771a
@@ -182,20 +182,20 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.html 66d010256941b003ea885472fdd951d8bd8fa3ec
-F www/index.html c49cf389d31138dedb23a39910aaa049667e664e
+F www/index.html 834da7be867a8c8afce557ab2168aa0c19ebb214
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3e76f2a5f067edd1a188a7c804cbc35cca9728bd 2ab3a2f6034c1064d19878001e3359ddf0993c66
-R 817c7bf7947ca97aa6907948f753ec1d
-U aku
-Z cc48236811b785fd533b29c997c0198a
+P 0523983440b0cd26366d924a3674eab30e93e1f1
+R 2b8ba60e96f42928531884e59291117a
+U drh
+Z 5a7a38440bf284552ee73a83277cddae
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHpRqSvonzZ/CRa7gRAjO6AJ9k5asHaNSX9VJnFf1+VuOOQSxM7gCgrWb9
-McGhfdOJWcCw8y0aGe4EYbE=
-=+AwH
+iD8DBQFHpSkuoxKgR168RlERAkYgAJ9ugzZnJxB9qhDGlX9FE8UCrjDM5QCdHKyj
+F3kNcYBH8oDu4sQigBDhgcI=
+=ERXb
 -----END PGP SIGNATURE-----
