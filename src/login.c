@@ -109,7 +109,7 @@ void login_page(void){
       db_multi_exec(
          "UPDATE user SET pw=%Q WHERE uid=%d", zNew1, g.userUid
       );
-      cgi_redirect("index");
+      cgi_redirect(zGoto);
       return;
     }
   }

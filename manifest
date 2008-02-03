@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\srudimentary\s/my\spage.
-D 2008-02-03T22:07:24
+C login_page()\snow\shonors\sthe\s'g'\s(goto)\sparameter\safter\sa\ssuccessful\spassword\supdate
+D 2008-02-03T22:12:34
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -56,7 +56,7 @@ F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c e507d3889f95c5ce75e8770798d8b64268608c89
-F src/login.c 0851edc1ca49cb7683c1e5a8781db98beee086be
+F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c fcf22176a5c2c69a2fa77243945e46ba557dc7ce
 F src/main.mk 12f5c67434b9f5465549f0ec3e2089a53182126e
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -190,14 +190,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9c01af2d22b4f796345e570247ed6d35172b018f
-R a28200f0827e009148581adfd106265f
+P 334f8e6e2f8ef35be5f1c011e4bda73f13ed2165
+R 3976884c07b37af0adacacc29aed0b18
 U stephan
-Z 2e49fc749582f2602bbff92e5b9bd22b
+Z 252ec6b6f19924ae0503c6b5fa574dda
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpjsgZWKvbTL0CBgRAnMjAJ9eknZKxZF+Cz6/b/5Olq+1/Q18PACgpjej
-8ABl75Aq7E7COIw2zJOF4bU=
-=/4wd
+iD8DBQFHpjxVZWKvbTL0CBgRAm/mAJ0fDYdoUDDRIpq+mTDk8f468eKwlwCeNMH/
+G/J+LoVoi1Bs4jd9GwDgkv4=
+=bTCI
 -----END PGP SIGNATURE-----
