@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Stylistic\schanges\sto\sthe\sC\scode\sthat\simplements\sthe\stagview\spage.
-D 2008-02-02T23:48:27
+C Added\sa\sfew\ssearch\sfeatures\s(name/id/name-like).\sChanged\sdefault\sview\sto\sonly\sshow\sthe\s10\s[arbitrarily\schosen\s#]\smost\srecent\stags.\sStill\sneed\sto\ssort\sout\stags\sfor\sdifferent\stypes\sof\sentries\s(wiki/ticket/baseline)
+D 2008-02-03T01:25:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -83,7 +83,7 @@ F src/style.c c26a6ac2463a24e5582d72b2137f518d63cfd51b
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
-F src/tagview.c 7353135aa6df8a9b939a355634f252dd6719348e
+F src/tagview.c 0d0a9751aa5a8dbb07eade0b05e4ffb029e4273f
 F src/timeline.c 6f6c62303afeab9c319cc63de0ae84cd1618f18c
 F src/tkt.c 1c6be6341e09c0711fad6e2ca39a7ee6dbd90c73
 F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
@@ -187,14 +187,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 95c07a503396eeda446351c51c48d7189db141d6
-R c8713a2681f6703779f2614580a66b63
-U drh
-Z 0a8ff25c2d7ee20ab289a46b14a0a902
+P 10437374a7538e8c9864a05bdd52ac57b20475d4
+R a84a2bf0feeb372af4eebcd007983bf0
+U stephan
+Z e3cd523f7cb1bf3c081c87e4f3b4e272
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpQFPoxKgR168RlERAtqrAJ9FwcM5Xy+VTylTmSy5p1flY3VlUwCfcP5s
-wFommTpzj3bcfT5X5IevSUY=
-=Qrtc
+iD8DBQFHpRf2ZWKvbTL0CBgRAu3YAKC/L9F+431olXsulgMZmY325gaxUwCglrmD
+pW2ULvBNfU3ec7mlR18gIEk=
+=LJbW
 -----END PGP SIGNATURE-----
