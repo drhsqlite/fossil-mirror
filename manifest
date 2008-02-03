@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Removed\sthe\snow\sobsolete\stextrange\sinformation\sfrom\sthe\srevision\stable\sand\supdated\sthe\sfile\srevision\scode\sto\snot\sstore\sits\stextrange\sany\slonger.
-D 2008-02-03T01:33:45
+C Merged\simporter\sto\smainline.
+D 2008-02-03T01:36:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -50,7 +50,7 @@ F src/db.c a160182dadf8bb7b2d4e4c9a7b710218b86984e2
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c ec5d7996135d53a6c7d5db2e7a22337212ea6c9b
+F src/diff.c 62a5d659040d1c1b9c16398b020114d841396006
 F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -83,7 +83,7 @@ F src/style.c c26a6ac2463a24e5582d72b2137f518d63cfd51b
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
-F src/tagview.c 475277fbb26e9ca086cd4a8e310c62f96746644a
+F src/tagview.c 0d0a9751aa5a8dbb07eade0b05e4ffb029e4273f
 F src/timeline.c 6f6c62303afeab9c319cc63de0ae84cd1618f18c
 F src/tkt.c 1c6be6341e09c0711fad6e2ca39a7ee6dbd90c73
 F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 83d75a6c230ec25df3ea87fcc92514aea8517c82
-R 827828ddacbf5cdafe60f08aaae563cf
+P 3e76f2a5f067edd1a188a7c804cbc35cca9728bd 2ab3a2f6034c1064d19878001e3359ddf0993c66
+R 817c7bf7947ca97aa6907948f753ec1d
 U aku
-Z cc32c9cad4dc10357df33b4fe678e162
+Z cc48236811b785fd533b29c997c0198a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHpRn/vonzZ/CRa7gRAkJqAJ9G3DJXI7jd9ruektW1Cwl5twLE+QCeLvYh
-tW2ty5nvtnjsHroNUTDwrSU=
-=7yrC
+iD8DBQFHpRqSvonzZ/CRa7gRAjO6AJ9k5asHaNSX9VJnFf1+VuOOQSxM7gCgrWb9
+McGhfdOJWcCw8y0aGe4EYbE=
+=+AwH
 -----END PGP SIGNATURE-----
