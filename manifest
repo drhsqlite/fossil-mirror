@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C login_page()\snow\shonors\sthe\s'g'\s(goto)\sparameter\safter\sa\ssuccessful\spassword\supdate
-D 2008-02-03T22:12:34
+C Honor\sthe\s-f\sflag\son\scommit.\s\s(It\swas\susing\s-r\sin\splace\sof\s-f\sdue\sto\s\na\stypo,\sapparently.)
+D 2008-02-04T00:25:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -38,7 +38,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
-F src/checkin.c 3af7638aedfea692120ff29154ef42941f9cc929
+F src/checkin.c aebfba90e885d5e2c0f0ceb88e822dfa4f28c231
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c b8ecd2533ff3130b5e82914160c6eb41eb2c6cab
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
@@ -190,14 +190,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 334f8e6e2f8ef35be5f1c011e4bda73f13ed2165
-R 3976884c07b37af0adacacc29aed0b18
-U stephan
-Z 252ec6b6f19924ae0503c6b5fa574dda
+P 44811a65f8c736554a4408d7e75a93dc12cb1dd8
+R c0b187750eb24c39097771fc97e658f7
+U drh
+Z f5438d737eb59de5794f4a74c3020064
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpjxVZWKvbTL0CBgRAm/mAJ0fDYdoUDDRIpq+mTDk8f468eKwlwCeNMH/
-G/J+LoVoi1Bs4jd9GwDgkv4=
-=bTCI
+iD8DBQFHpltgoxKgR168RlERAuonAJ0Xy0F1nDVXUwRPusRJjk+B4LAEXwCeMYpE
+i0vePpyrnv32vM2G7dMr/4Q=
+=ddBp
 -----END PGP SIGNATURE-----

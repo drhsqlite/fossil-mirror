@@ -339,7 +339,7 @@ void commit_cmd(void){
  
   noSign = find_option("nosign","",0)!=0;
   zComment = find_option("comment","m",1);
-  forceFlag = find_option("force", "r", 0)!=0;
+  forceFlag = find_option("force", "f", 0)!=0;
   db_must_be_within_tree();
   noSign = db_get_int("omitsign", 0)|noSign;
   verify_all_options();
