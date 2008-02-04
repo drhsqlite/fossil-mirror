@@ -330,6 +330,16 @@ const char zDefaultCSS[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
+@
+@ /* For marking important UI elements which shouldn't be
+@    lightly dismissed. I mainly use it to mark "not yet
+@    implemented" parts of a page. Whether or not to have
+@    a 'border' attribute set is arguable. */
+@ .achtung {
+@   color: #ff0000;
+@   background: #ffff00;
+@   border: 1px solid #ff0000;
+@ }
 ;
 
 /*
