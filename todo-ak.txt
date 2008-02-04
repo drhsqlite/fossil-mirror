@@ -12,6 +12,7 @@ Things to work on:
 * Think about exposure of functionality as libraries, i.e. Tcl
   packages. Foundations like delta, etc. first, work up to
   higher-levels.
+  => Mark Janssen has started on this.
 
 * Document the merge algorithm.
 

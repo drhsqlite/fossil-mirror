@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sa\stypo.
-D 2008-02-04T05:59:54
+C Added\snote\sof\san\sidea\staken\sover\sby\sMark\sJanssen.
+D 2008-02-04T06:00:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -103,7 +103,7 @@ F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
 F test/tester.tcl ba01105cd099ba556e6a9131bad4f90fe88b73c7
-F todo-ak.txt 7f4b3bcffb2e80a3ff0741198e6a08d1b513ffc0
+F todo-ak.txt 25be5322be320ed1ae77759f364687371106fad4
 F todo.txt 5e00e8293a76175ff435937e71c0ba5e5a6ec371
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2cb3290e6767e51d190f746abbac4f330ae14517
-R d2c71f94de015e0a670d5cf3dad180cc
+P 2f70125d48bb1cfda6251d83e12b9e72a814c656
+R 7dde02b19621dda5ebffde039d9658d3
 U aku
-Z 654115cf9c62b0fadebfc44f05e13166
+Z 6a08c40aaef08f018410f51a95c0b142
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHpqnevonzZ/CRa7gRAhVNAKCOW+qTukqj/wn6wfWYR0h+7nx2yACfbo+y
-KEZ7+VesvwaD/Wwicpdm3AA=
-=nS0G
+iD8DBQFHpqoMvonzZ/CRa7gRAtEIAJ4quth47N7O4v6jFx0BHAsUeNWUcgCgwMdd
+aZQucvFbwUn4j+aRsIuBrc4=
+=eroe
 -----END PGP SIGNATURE-----
