@@ -150,6 +150,19 @@ static int et_getdigit(long double *val, int *cnt){
 #define etBUFSIZE 500
 
 /*
+** Find the length of a string as long as that length does not
+** exceed N bytes.  If no zero terminator is seen in the first
+** N bytes then return N.  If N is negative, then this routine
+** is an alias for strlen().
+*/
+static int strnlen(const char *z, int N){
+  int n = 0;
+  while( (N-- != 0) && *(z++)!=0 ){ n++; }
+  return n;
+}
+
+
+/*
 ** The root program.  All variations call this core.
 **
 ** INPUTS:
@@ -549,9 +562,10 @@ int vxprintf(
         break;
       case etPATH: {
         int i;
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *e = va_arg(ap,char*);
         if( e==0 ){e="";}
-        length = strlen(e);
+        length = strnlen(e, limit);
         zExtra = bufpt = malloc(length+1);
         for( i=0; i<length; i++ ){
           if( e[i]=='\\' ){
@@ -564,27 +578,33 @@ int vxprintf(
         break;
       }
       case etSTRING:
-      case etDYNSTRING:
+      case etDYNSTRING: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         bufpt = va_arg(ap,char*);
         if( bufpt==0 ){
           bufpt = "";
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }
-        length = strlen(bufpt);
+        length = strnlen(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
         break;
+      }
       case etBLOB: {
+        int limit = flag_alternateform ? va_arg(ap, int) : -1;
         Blob *pBlob = va_arg(ap, Blob*);
         bufpt = blob_buffer(pBlob);
         length = blob_size(pBlob);
+        if( limit>=0 && limit<length ) length = limit;
         break;
       }
       case etBLOBSQL: {
+        int limit = flag_alternateform ? va_arg(ap, int) : -1;
         Blob *pBlob = va_arg(ap, Blob*);
         char *zOrig = blob_buffer(pBlob);
         int i, j, n, cnt;
         n = blob_size(pBlob);
+        if( limit>=0 && limit<n ) n = limit;
         for(cnt=i=0; i<n; i++){ if( zOrig[i]=='\'' ) cnt++; }
         if( n+cnt+2 > etBUFSIZE ){
           bufpt = zExtra = malloc( n + cnt + 2 );
@@ -605,11 +625,13 @@ int vxprintf(
       case etSQLESCAPE2: {
         int i, j, n, ch, isnull;
         int needQuote;
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *escarg = va_arg(ap,char*);
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
-        for(i=n=0; (ch=escarg[i])!=0; i++){
-          if( ch=='\'' )  n++;
+        if( limit<0 ) limit = strlen(escarg);
+        for(i=n=0; i<limit; i++){
+          if( escarg[i]=='\'' )  n++;
         }
         needQuote = !isnull && xtype==etSQLESCAPE2;
         n += i + 1 + needQuote*2;
@@ -621,8 +643,8 @@ int vxprintf(
         }
         j = 0;
         if( needQuote ) bufpt[j++] = '\'';
-        for(i=0; (ch=escarg[i])!=0; i++){
-          bufpt[j++] = ch;
+        for(i=0; i<limit; i++){
+          bufpt[j++] = ch = escarg[i];
           if( ch=='\'' ) bufpt[j++] = ch;
         }
         if( needQuote ) bufpt[j++] = '\'';
@@ -632,41 +654,46 @@ int vxprintf(
         break;
       }
       case etHTMLIZE: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *zMem = va_arg(ap,char*);
         if( zMem==0 ) zMem = "";
-        zExtra = bufpt = htmlize(zMem, -1);
+        zExtra = bufpt = htmlize(zMem, limit);
         length = strlen(bufpt);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etHTTPIZE: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *zMem = va_arg(ap,char*);
         if( zMem==0 ) zMem = "";
-        zExtra = bufpt = httpize(zMem, -1);
+        zExtra = bufpt = httpize(zMem, limit);
         length = strlen(bufpt);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etURLIZE: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *zMem = va_arg(ap,char*);
         if( zMem==0 ) zMem = "";
-        zExtra = bufpt = urlize(zMem, -1);
+        zExtra = bufpt = urlize(zMem, limit);
         length = strlen(bufpt);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etFOSSILIZE: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *zMem = va_arg(ap,char*);
         if( zMem==0 ) zMem = "";
-        zExtra = bufpt = fossilize(zMem, -1);
+        zExtra = bufpt = fossilize(zMem, limit);
         length = strlen(bufpt);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }
       case etWIKISTR: {
+        int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *zWiki = va_arg(ap, char*);
         Blob wiki;
-        blob_init(&wiki, zWiki, -1);
+        blob_init(&wiki, zWiki, limit);
         wiki_convert(&wiki, pBlob, WIKI_INLINE);
         blob_reset(&wiki);
         length = width = 0;

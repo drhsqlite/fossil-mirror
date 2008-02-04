@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\ssupport\sfor\sannotation\sin\sthe\sweb\sinterface.
-D 2008-02-04T18:28:55
+C On\sthe\sprintf\sextension\sconverters\s(ex:\s%T,\s%w)\sthe\s"alternate\sform\sflag"\s\n(ex:\s%#T,\s%#w)\smeans\sfirst\sread\san\sinteger\sfrom\sthe\sargument\slist\nand\sthen\sonly\sprocess\sthat\snumber\sof\scharacters\sfrom\sthe\sstring\sor\nblob\sthat\sis\sread\snext\sfrom\sthe\sargument\slist.
+D 2008-02-04T19:07:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -72,7 +72,7 @@ F src/my_page.c e52cc4cf428e924f37b4208634a87d0c294bdf80
 F src/name.c 8d07e9c5fdb127818043015d250afe5365f8b8dc
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
-F src/printf.c af38cba6b01c8e55eb695dcebbdbf94c1b8025e4
+F src/printf.c cefba92273da8b36d22682402f45dda2fa2049ce
 F src/rebuild.c 5e55de3bcde162781cfac661d3893a1d0db86c9e
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c8da83ca36c0d9a6805ed03e67dd1e5799954d51
-R a7169617f6ebe935f1d60f311a6ecf41
+P eae7ddfa4e7a5ae90feda01d3c664c1b852d0e3f
+R 57b6ed0b0beeb0b3db5396d3fd52d176
 U drh
-Z 22cc00ad065e9bd5e6e94af32e74e42a
+Z 8994c18f71b1f92d4e1566b15763582b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHp1lqoxKgR168RlERAu2RAJ4ntNdtn+1oPP33fIybK6qTRiZUHwCfVL9l
-rVw62llHrAtgUi8YCoAykYY=
-=iiIA
+iD8DBQFHp2KRoxKgR168RlERAvoXAKCAQ/VtQ7cX5GPfa2ufFC0HiAEvmACdFma+
+JqhTd3uuLAFRjBwjLBdVu68=
+=vmh1
 -----END PGP SIGNATURE-----
