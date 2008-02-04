@@ -706,3 +706,102 @@ void test_annotate_step_cmd(void){
     printf("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
   }
 }
+
+/*
+** Create an annotation string based on the manifest id.
+*/
+static char *annotation_label(int mid, int webLabel){
+  char *z;
+  z = db_text("?",
+    "SELECT"
+    "   substr(blob.uuid,1,10) ||"
+    "   ' ' || date(event.mtime) ||"
+    "   ' (' || substr(event.user || '        ',1,9) || ')'"
+    "  FROM blob, event"
+    " WHERE blob.rid=%d"
+    "   AND event.objid=%d"
+    "   AND event.type='ci'",
+    mid, mid
+  );
+  return z;
+}
+
+/*
+** Compute a complete annotation on a file.  The file is identified
+** by its filename number (filename.fnid) and the baseline in which
+** it was checked in (mlink.mid).
+*/
+static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
+  Blob toAnnotate;     /* Text of the final version of the file */
+  Blob step;           /* Text of previous revision */
+  int rid;
+  int fromid;
+  char *zLabel;
+  int i;
+
+  /* Initialize the annotation */
+  rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
+  if( rid==0 ){
+    fossil_panic("no changes to file #%d in manifest #%d", fnid, mid);
+  }
+  if( !content_get(rid, &toAnnotate) ){
+    fossil_panic("unable to retrieve content of artifact #%d", rid);
+  }
+  annotation_start(p, &toAnnotate);
+  fromid = db_int(0,"SELECT pid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
+  zLabel = annotation_label(mid, webLabel);
+  if( fromid ){
+    content_get(fromid, &step);
+    annotation_step(p, &step, zLabel);
+  }
+
+  /* Step back through the change history */
+  while( fromid>0 ){
+    mid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
+    if( mid==0 ) break;
+    rid = db_int(-1, "SELECT pid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
+    if( rid<0 ) continue;
+    zLabel = annotation_label(mid, webLabel);
+    if( rid==0 ) break;
+    fromid = rid;
+    content_get(fromid, &step);
+    annotation_step(p, &step, zLabel);
+  }
+
+  /* Any unannotated lines are due to the last revision seen.
+  */
+  for(i=0; i<p->nOrig; i++){
+    if( p->aOrig[i].zSrc==0 ) p->aOrig[i].zSrc = zLabel;
+  }
+}
+
+/*
+** WEBPAGE: annotate
+**
+** Query parameters:
+**
+**    mid=NUM      The manifest ID at which to start the annotation
+**    fnid=NUM     The filename ID.
+*/
+void annotation_page(void){
+  int mid = atoi(PD("mid","0"));
+  int fnid = atoi(PD("fnid","0"));
+  int i;
+  Annotator ann;
+
+  login_check_credentials();
+  if( !g.okHistory ){ login_needed(); return; }
+  if( mid==0 || fnid==0 ){ cgi_redirect("index"); }
+  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
+    cgi_redirect("index");
+  }
+  style_header("File Annotation");
+  annotate_file(&ann, fnid, mid, 1);
+  @ <pre>
+  for(i=0; i<ann.nOrig; i++){
+    ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
+    @ %s(ann.aOrig[i].zSrc): %h(ann.aOrig[i].z)
+  }
+  @ </pre>
+  style_footer();
+}

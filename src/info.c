@@ -457,7 +457,7 @@ void finfo_page(void){
     "SELECT a.uuid, substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
     "       coalesce(event.ecomment, event.comment),"
     "       coalesce(event.euser, event.user),"
-    "       mlink.pid, mlink.fid"
+    "       mlink.pid, mlink.fid, mlink.mid, mlink.fnid"
     "  FROM mlink, blob a, blob b, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
     "   AND a.rid=mlink.mid"
@@ -476,6 +476,8 @@ void finfo_page(void){
     const char *zUser = db_column_text(&q, 4);
     int fpid = db_column_int(&q, 5);
     int frid = db_column_int(&q, 6);
+    int mid = db_column_int(&q, 7);
+    int fnid = db_column_int(&q, 8);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -497,6 +499,8 @@ void finfo_page(void){
     if( fpid ){
       @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
     }
+    @ <a href="%s(g.zBaseURL)/annotate?mid=%d(mid)&amp;fnid=%d(fnid)">
+    @ [annotate]</a>
     @ </td>
   }
   db_finalize(&q);

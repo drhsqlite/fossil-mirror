@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Allow\smanifests\swith\szero\sfiles.\s\sThis\sfixes\sa\sproblem\sin\swhich\ssome\nfiles\sdo\snot\sappear\sin\sthe\sfilename\stable.
-D 2008-02-04T17:34:14
+C Add\ssupport\sfor\sannotation\sin\sthe\sweb\sinterface.
+D 2008-02-04T18:28:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -51,12 +51,12 @@ F src/db.c 680de574d8d4c1409cc6bb747274b99f98a16c77
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c f5f8837cf7730be3e11bd8886fa78468a0deaf1b
+F src/diff.c 464a37e277cfc289f5a5b80025975e30ec1f573b
 F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
-F src/info.c e507d3889f95c5ce75e8770798d8b64268608c89
+F src/info.c 4b9151655942d480272272914ddec9cbd71e9f4c
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c fcf22176a5c2c69a2fa77243945e46ba557dc7ce
 F src/main.mk 5098d3f338b9f992f41eb3882daa7ad594a973a7
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P d27a905b1f626dabb5dce2e757e9f7881b01ce58
-R 6e64fbdb867a6094b7ec78b9cee2f832
+P c8da83ca36c0d9a6805ed03e67dd1e5799954d51
+R a7169617f6ebe935f1d60f311a6ecf41
 U drh
-Z 4bf3252d645141da5d1b78d10baf0c07
+Z 22cc00ad065e9bd5e6e94af32e74e42a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHp0yZoxKgR168RlERAtCbAJ9zHlq/OVScfNXMxKBv4h0/AfHk6QCeMivG
-BPs9TweOXcPGI4+Lh5Z0wCU=
-=HBPP
+iD8DBQFHp1lqoxKgR168RlERAu2RAJ4ntNdtn+1oPP33fIybK6qTRiZUHwCfVL9l
+rVw62llHrAtgUi8YCoAykYY=
+=iiIA
 -----END PGP SIGNATURE-----
