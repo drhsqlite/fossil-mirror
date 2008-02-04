@@ -67,6 +67,35 @@ static void pathelementFunc(
   }
 }
 
+/*
+** Given a pathname which is a relative path from the root of
+** the repository to a file or directory, compute a string which
+** is an HTML rendering of that path with hyperlinks on each
+** directory component of the path where the hyperlink redirects
+** to the "dir" page for the directory.
+**
+** There is no hyperlink on the file element of the path.
+**
+** The computed string is appended to the pOut blob.  pOut should
+** have already been initialized.
+*/
+void hyperlinked_path(const char *zPath, Blob *pOut){
+  int i, j;
+  char *zSep = "";
+
+  for(i=0; zPath[i]; i=j){
+    for(j=i; zPath[j] && zPath[j]!='/'; j++){}
+    if( zPath[j] ){
+      blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
+                   zSep, g.zBaseURL, j, zPath, j-i, &zPath[i]);
+    }else{
+      blob_appendf(pOut, "%s%h", zSep, &zPath[i]);
+    }
+    zSep = "/";
+    while( zPath[j]=='/' ){ j++; }
+  }
+}
+
 
 /*
 ** WEBPAGE: dir
@@ -94,31 +123,14 @@ void page_dir(void){
 
   /* Compute the title of the page */  
   if( zD ){
-    int i, j;
-    char *zCopy;
     Blob title;
 
     blob_zero(&title);
-    zCopy = sqlite3_mprintf("%s/", zD);
-    blob_appendf(&title,
-       "Files in directory <a href=\"%s/dir\"><i>root</i></a>",
-       g.zBaseURL
-    );
-    for(i=0; zD[i]; i=j){
-      for(j=i; zD[j] && zD[j]!='/'; j++){}
-      if( zD[j] ){
-        zCopy[j] = 0;
-        blob_appendf(&title, "/<a href=\"%s/dir?name=%T\">%h</a>", 
-                     g.zBaseURL, zCopy, &zCopy[i]);
-        zCopy[j] = '/';
-      }else{
-        blob_appendf(&title, "/%h", &zCopy[i]);
-      }
-      while( zD[j]=='/' ){ j++; }
-    }
+    blob_appendf(&title, "Files in directory ");
+    hyperlinked_path(zD, &title);
     @ <h2>%s(blob_str(&title))</h2>
     blob_reset(&title);
-    zPrefix = zCopy;
+    zPrefix = mprintf("%h/", zD);
   }else{
     @ <h2>Files in the top-level directory</h2>
     zPrefix = "";

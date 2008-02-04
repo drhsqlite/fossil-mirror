@@ -447,6 +447,8 @@ void finfo_page(void){
   Stmt q;
   const char *zFilename;
   char zPrevDate[20];
+  Blob title;
+
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
   style_header("File History");
@@ -466,7 +468,11 @@ void finfo_page(void){
     " ORDER BY event.mtime DESC",
     zFilename
   );
-  @ <h2>History of %h(zFilename)</h2>
+  blob_zero(&title);
+  blob_appendf(&title, "History of ");
+  hyperlinked_path(zFilename, &title);
+  @ <h2>%b(&title)</h2>
+  blob_reset(&title);
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zVers = db_column_text(&q, 0);
