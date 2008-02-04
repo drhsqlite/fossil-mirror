@@ -24,6 +24,7 @@ package require vc::tools::log                            ; # User feedback.
 package require vc::fossil::import::cvs::repository       ; # Repository management.
 package require vc::fossil::import::cvs::state            ; # State storage.
 package require vc::fossil::import::cvs::fossil           ; # Access to fossil repositories.
+package require vc::fossil::import::cvs::ristate          ; # Import state (revisions)
 
 # # ## ### ##### ######## ############# #####################
 ## Register the pass with the management
@@ -86,22 +87,21 @@ snit::type ::vc::fossil::import::cvs::pass::import {
 	    log write 1 import {Importing project "[$project base]"}
 
 	    set fossil [fossil %AUTO%]
+	    set rstate [ristate %AUTO%]
 
 	    state transaction {
 		# Layer I: Files and their revisions
 		foreach file [$project files] {
-		    set path [$file path]
-		    log write 2 import {Importing file "$path"}
 		    $file pushto $fossil
 		}
 		# Layer II: Changesets
-		array set rstate {}
 		foreach {revision date} [$project revisionsinorder] {
-		    log write 2 import {Importing revision [$revision str]}
-		    $revision pushto rstate $fossil $date
+		    $revision pushto $fossil $date $rstate
 		}
 		unset rstate
 	    }
+
+	    $rstate destroy
 
 	    # At last copy the temporary repository file to its final
 	    # destination and release the associated memory.
@@ -142,6 +142,7 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::fossil::import::cvs::repository
 	namespace import ::vc::fossil::import::cvs::state
 	namespace import ::vc::fossil::import::cvs::fossil
+	namespace import ::vc::fossil::import::cvs::ristate
 	namespace import ::vc::tools::log
 	log register import
     }

@@ -277,6 +277,8 @@ snit::type ::vc::fossil::import::cvs::file {
     ## Pass XII (Import).
 
     method pushto {repository} {
+	log write 2 file {Importing file "$mypath"}
+
 	set ws [$repository workspace]
 	struct::list assign [$self Expand $ws] filemap revmap
 	# filemap = dict (path -> uuid)

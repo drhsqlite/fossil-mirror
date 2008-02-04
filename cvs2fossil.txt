@@ -1,0 +1,56 @@
+
+Known problems and areas to work on
+===================================
+
+*	Currently not properly tracking when a file is removed on some
+	branch (detectable by a 'dead' revision (optype)) during the
+	import of changesets.
+
+*	Not yet able to handle the specification of multiple projects
+	for one CVS repository. I.e. I can, for example, import all of
+	tcllib, or a single subproject of tcllib, like tklib, but not
+	multiple sub-projects in one go.
+
+*	An internal error thrown when trying to import tcllib of
+	tcllib shows that I am apparently not properly handling the
+	possibility of more than one symbol used to create a
+	vendor-branch with.
+
+	In tcllib most files (18) have 'tcllib-vendor-branch' as the
+	name of their vendor branch, done in 2000, however two files
+	use the name 'vendor' instead, they were done in 2003. Each
+	set of files corresponds a single changeset.
+
+	This causes the code importing the changesets to flip out when
+	the second changeset tries to create ':trunk:' and finds it
+	already existing (both changesets are the last trunk-changeset
+	on the vendor branch :) )
+
+	Not sure yet if I should try to abort this at the beginning,
+	i.e. CVS integrity failure, force the user to manually edit
+	the RCS archives to bring the symbol used for the vendor
+	branch into sync. Or if I should allow the import to let this
+	slide by, by simply assuming that all such second changesets
+	should not try to create the :trunk: if it exists.
+
+*	An internal error thrown when trying to import bwidget of
+	tcllib shows that there have to be some situation I am not
+	handling correctly in the cycle-breaker and sorting passes.
+
+	It tries to import a changeset on the
+	'scriptics-sc-2-0-beta-branch' line of development (X), which
+	has no commits yet. So it goes to the parent LOD to get the
+	state we are spawning from. This parent is
+	'scriptics-sc-1-1-branch' (Y). And is has no changesets
+	committed to it yet. That should not be possible, the ordering
+	constraints should have put all changesets for Y before the
+	changesets of X, and Y had to have at least one changeset,
+	from which the branch could be spawned.
+
+	This need deep diving into the various linkages to understand
+	what is happening, or not happening, depending.
+
+	Note: The code I had before more fully tracking the workspace
+	      state of the various lods wrongly slid over this problem
+	      without erroring out.
+
