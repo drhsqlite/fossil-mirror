@@ -2,7 +2,7 @@
 
 First experimental codes ...
 
-toosl/import-cvs.tcl
+tools/import-cvs.tcl
 tools/lib/rcsparser.tcl
 
 No actual import, right now only working on getting csets right. The

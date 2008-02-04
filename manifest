@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sa\smemory\sleak\sin\stagview_page_list_tags().\sMinor\sother\srefactorings.
-D 2008-02-03T18:00:27
+C Fixed\sa\stypo.
+D 2008-02-04T05:59:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -29,7 +29,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F ci_cvs.txt 78baac691103d2b30c4ca98bdd531d3ecd52bf6c
+F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
@@ -188,14 +188,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P b81e93f576cbddf770771c6835864bfc3e6061c9
-R 79c1de7c43c8056b60754a105ef32d5b
-U stephan
-Z 983c39ad8668da198e155f10e0c4f300
+P 2cb3290e6767e51d190f746abbac4f330ae14517
+R d2c71f94de015e0a670d5cf3dad180cc
+U aku
+Z 654115cf9c62b0fadebfc44f05e13166
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHpgFAZWKvbTL0CBgRAizYAKDF43Bf5ChOYS1yiqFi6tnozZ+q6ACfYzUO
-LtdK3rqVElgsKM0fRYLWYcM=
-=Iexv
+iD8DBQFHpqnevonzZ/CRa7gRAhVNAKCOW+qTukqj/wn6wfWYR0h+7nx2yACfbo+y
+KEZ7+VesvwaD/Wwicpdm3AA=
+=nS0G
 -----END PGP SIGNATURE-----
