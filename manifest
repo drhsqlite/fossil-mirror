@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Better\serror\smessage\swhen\sattempting\sto\screate\sa\snew\srepository\sin\na\sdirectory\sthat\sdoes\snot\sexist.
-D 2008-02-04T13:14:45
+C Tweaks\sto\sthe\sdiff\salgorithm\sgive\sa\s4x\sperformance\sincrease.\s\sNow\ncomparable\sto\scommand-line\sdiff.
+D 2008-02-04T13:53:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -51,7 +51,7 @@ F src/db.c 680de574d8d4c1409cc6bb747274b99f98a16c77
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c 62a5d659040d1c1b9c16398b020114d841396006
+F src/diff.c 50ab9d9846c4dd8cdcbc08d62f7012b1aeea931f
 F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e487b77b1a5857c02f3c7df282e1ee796bbf461b
-R 03aa2bcdf19415b4b4319adb76ad1ad3
+P 97ff24dec72a2906be60d5203ef70f3495d79f79
+R 019f8fadddce33d6eb09c15d3c86af65
 U drh
-Z 16de57e1dfff6ef73f1796c844d5fe3f
+Z 6d9133bb9bdf868ae75704768b719c2e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpw/IoxKgR168RlERAhu0AJ9UC/9hY4wBgK7DYpcSg2EExSXtdwCfcoya
-6ucLmwydqmxgWiTXqcJoTpI=
-=w3gg
+iD8DBQFHpxj5oxKgR168RlERAq8HAJ4ou5rQYUsyBcWO74vClfH/Pxf14gCfdjPE
+5QpjWeIKUgDwRivMCs5f2BY=
+=mPNM
 -----END PGP SIGNATURE-----

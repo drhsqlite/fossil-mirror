@@ -307,15 +307,20 @@ static void longestCommonSequence(
   int *piSX, int *piEX,
   int *piSY, int *piEY
 ){
-  int bestScore = -1000000000;
-  int i, j;
-  int iSX, iSY, iEX, iEY;
-  int score, skew, dist, mid;
+  double bestScore = -1e30;  /* Best score seen so far */
+  int i, j;                  /* Loop counters */
+  int iSX, iSY, iEX, iEY;    /* Current match */
+  double score;              /* Current score */
+  int skew;                  /* How lopsided is the match */
+  int dist;                  /* Distance of match from center */
+  int mid;                   /* Center of the span */
+  int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
+  int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
 
-  *piSX = iS1;
-  *piEX = iS1;
-  *piSY = iS2;
-  *piEY = iS2;
+  iSXb = iSXp = iS1;
+  iEXb = iEXp = iS1;
+  iSYb = iSYp = iS2;
+  iEYb = iEYp = iS2;
   mid = (iE1 + iS1)/2;
   for(i=iS1; i<iE1; i++){
     int limit = 0;
@@ -330,6 +335,9 @@ static void longestCommonSequence(
       j = p->aTo[j-1].iNext;
     }
     if( j==0 ) continue;
+    assert( i>=iSXb && i>=iSXp );
+    if( i<iEXb && j>=iSYb && j<iEYb ) continue;
+    if( i<iEXp && j>=iSYp && j<iEYp ) continue;
     iSX = i;
     iSY = j-1;
     while( iSX>iS1 && iSY>iS2 && same_dline(&p->aFrom[iSX-1],&p->aTo[iSY-1]) ){
@@ -349,12 +357,21 @@ static void longestCommonSequence(
     score = (iEX - iSX) - 0.05*skew - 0.05*dist;
     if( score>bestScore ){
       bestScore = score;
-      *piSX = iSX;
-      *piSY = iSY;
-      *piEX = iEX;
-      *piEY = iEY;
+      iSXb = iSX;
+      iSYb = iSY;
+      iEXb = iEX;
+      iEYb = iEY;
+    }else{
+      iSXp = iSX;
+      iSYp = iSY;
+      iEXp = iEX;
+      iEYp = iEY;
     }
   }
+  *piSX = iSXb;
+  *piSY = iSYb;
+  *piEX = iEXb;
+  *piEY = iEYb;
   /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n", 
      iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
@@ -395,6 +412,41 @@ static void diff_step(DContext *p, int iS1, int iE1, int iS2, int iE2){
 }
 
 /*
+** Compute the differences between two files already loaded into
+** the DContext structure.
+*/
+static void diff_all(DContext *p){
+  int mnE, iS, iE1, iE2;
+
+  /* Carve off the common header and footer */
+  iE1 = p->nFrom;
+  iE2 = p->nTo;
+  while( iE1>0 && iE2>0 && same_dline(&p->aFrom[iE1-1], &p->aTo[iE2-1]) ){
+    iE1--;
+    iE2--;
+  }
+  mnE = iE1<iE2 ? iE1 : iE2;
+  for(iS=0; iS<mnE && same_dline(&p->aFrom[iS],&p->aTo[iS]); iS++){}
+
+  /* do the difference */
+  if( iS>0 ){
+    appendTriple(p, iS, 0, 0);
+  }
+  diff_step(p, iS, iE1, iS, iE2);
+  if( iE1<p->nFrom ){
+    appendTriple(p, p->nFrom - iE1, 0, 0);
+  }
+
+  /* Terminate the COPY/DELETE/INSERT triples with three zeros */
+  expandEdit(p, p->nEdit+3);
+  if( p->aEdit ){
+    p->aEdit[p->nEdit++] = 0;
+    p->aEdit[p->nEdit++] = 0;
+    p->aEdit[p->nEdit++] = 0;
+  }
+}
+
+/*
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
@@ -415,8 +467,8 @@ int *text_diff(
   int nContext     /* Amount of context to unified diff */
 ){
   DContext c;
-  int mnE, iS, iE1, iE2;
-
+ 
+  /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   c.aFrom = break_into_lines(blob_str(pA_Blob), &c.nFrom);
   c.aTo = break_into_lines(blob_str(pB_Blob), &c.nTo);
@@ -429,31 +481,8 @@ int *text_diff(
     return 0;
   }
 
-  /* Carve off the common header and footer */
-  iE1 = c.nFrom;
-  iE2 = c.nTo;
-  while( iE1>0 && iE2>0 && same_dline(&c.aFrom[iE1-1], &c.aTo[iE2-1]) ){
-    iE1--;
-    iE2--;
-  }
-  mnE = iE1<iE2 ? iE1 : iE2;
-  for(iS=0; iS<mnE && same_dline(&c.aFrom[iS],&c.aTo[iS]); iS++){}
-
-  /* do the difference */
-  if( iS>0 ){
-    appendTriple(&c, iS, 0, 0);
-  }
-  diff_step(&c, iS, iE1, iS, iE2);
-  if( iE1<c.nFrom ){
-    appendTriple(&c, c.nFrom - iE1, 0, 0);
-  }
-
-  expandEdit(&c, c.nEdit+3);
-  if( c.aEdit ){
-    c.aEdit[c.nEdit++] = 0;
-    c.aEdit[c.nEdit++] = 0;
-    c.aEdit[c.nEdit++] = 0;
-  }
+  /* Compute the difference */
+  diff_all(&c);
 
   if( pOut ){
     /* Compute a context diff if requested */
@@ -464,8 +493,7 @@ int *text_diff(
     return 0;
   }else{
     /* If a context diff is not requested, then return the
-    ** array of COPY/DELETE/INSERT triples after terminating the
-    ** array with a triple of all zeros.
+    ** array of COPY/DELETE/INSERT triples.
     */
     free(c.aFrom);
     free(c.aTo);
