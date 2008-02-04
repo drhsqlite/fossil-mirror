@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reworked\sthe\srevision\simport\sto\suse\sthe\snew\sstate\stracking\ssystem\sinstead\sof\sthe\ssimple\sarray.\sMoved\ssome\slog\soutputs.\sAdded\sa\sfile\slisting\sthe\sknown\sproblems\sto\sprevent\sme\sfrom\sforgetting\sstuff\sas\sit\spiles\sup\s:/
-D 2008-02-04T06:05:11
+C Added\ssome\smusings\sto\sone\sof\sthe\ssituations\sto\sdeal\swith.
+D 2008-02-04T06:26:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -31,7 +31,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F cvs2fossil.txt 0a03724c01b813d6b8889dbe06b1b94b55ffb50f
+F cvs2fossil.txt 9547bce2dbcaeffbd39034f48448701871a81b19
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e7138d7f9c4e13ee90a3243f368f3d77b34e367c
-R 568eecb1866fbc159f5e65aef19bfe37
+P e1dbf3186dd40762f79a22957096dfa1a498875a
+R 281a248be4aab4294ffa0f73e0113c60
 U aku
-Z be8f38f40ff6f5ea73f4f41c736a77b9
+Z 7124985557c411b268fcf5242dccef7a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHpqsavonzZ/CRa7gRAvOmAKCjK0Y2mgEdNYY7Fhz2wZ8+pqkPewCaA5T+
-trctVhIsgZCFxGn+K0rR5vk=
-=P3Yi
+iD8DBQFHprArvonzZ/CRa7gRAgtCAJsFY9oP+1rRa9tIcCrl+RyOuAOmagCgl8OM
+bjVFRWqmc8iX6iCCZPG5DE4=
+=8+xB
 -----END PGP SIGNATURE-----

@@ -33,6 +33,35 @@ Known problems and areas to work on
 	slide by, by simply assuming that all such second changesets
 	should not try to create the :trunk: if it exists.
 
+	---
+	Another possibility is to somehow identify such symbols and
+	rewrite the structures on my own, i.e. choose one of the
+	symbols as the canonical vendor branch V and rewrite all
+	revisions using other vendor branch symbols to use V. This
+	would have to happen somewhere in either pass CollateSymbols
+	or in pass FilterSymbols.
+
+	Thinking about it would have to happen before we even start to
+	aggregate the branch/tag/commit counts, so that all of them
+	apply to V later on, instead of spread over several symbols.
+
+	Luckily we have all the relevant information in the state
+	database, in the tables 'revision' and 'symbol'.
+
+	Thinking even more, this type of symbol rewriting, whether by
+	the importer, or directly in the rcs archives before doing the
+	import, will not address the fact that both changesets will
+	have file revisions in them which declare that they are the
+	last trunk changeset on the vendor branch, despite the second
+	changeset added about three years after the previous last
+	trunk changeset on the vendor branch.
+
+	It seems that I will have to rewrite the changeset import to
+	simply allow for this situation and force the second changeset
+	(and any further) to be non-trunk on the vendor-branch,
+	whatever I do after collecting the revision. And if I do that
+	I don't really a good reason to rewrite the symbols.
+
 *	An internal error thrown when trying to import bwidget of
 	tcllib shows that there have to be some situation I am not
 	handling correctly in the cycle-breaker and sorting passes.
