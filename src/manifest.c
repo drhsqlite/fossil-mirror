@@ -643,7 +643,15 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_CONTROL;
   }else{
-    goto manifest_syntax_error;
+    if( p->nCChild>0 ) goto manifest_syntax_error;
+    if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->nField>0 ) goto manifest_syntax_error;
+    if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->nAttach>0 ) goto manifest_syntax_error;
+    if( p->zWiki ) goto manifest_syntax_error;
+    if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->zTicketUuid ) goto manifest_syntax_error;
+    p->type = CFTYPE_MANIFEST;
   }
     
   md5sum_init();
