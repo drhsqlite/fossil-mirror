@@ -1175,8 +1175,8 @@ void db_generic_query_view(
     return;
   }
   int colc = db_column_count(&st);
-  @ <table cellpadding='4px' border='1'><tbody>
-  @ <tr>
+  @ <table class='fossil_db_generic_query_view'><tbody>
+  @ <tr class='header'>
   for( i = 0; i < colc; ++i ) {
     if( coln )
     {
@@ -1189,8 +1189,9 @@ void db_generic_query_view(
   }
   @ </tr>
 
+  int row = 0;
   while( SQLITE_ROW == db_step(&st) ){
-    @ <tr>
+    @ <tr class='%s( (row++%2) ? "odd" : "even")'>
       for( i = 0; i < colc; ++i ) {
         char * xf = 0;
         char const * xcf = 0;

@@ -340,6 +340,27 @@ const char zDefaultCSS[] =
 @   background: #ffff00;
 @   border: 1px solid #ff0000;
 @ }
+@
+@ table.fossil_db_generic_query_view {
+@   border-spacing: 0px;
+@   border: 0px;
+@ }
+@ table.fossil_db_generic_query_view td {
+@   padding: 2px 1em 2px 1em;
+@ }
+@ table.fossil_db_generic_query_view tr {
+@ }
+@ table.fossil_db_generic_query_view tr.even {
+@   background: #ffffff;
+@ }
+@ table.fossil_db_generic_query_view tr.odd {
+@   background: #e5e5e5;
+@ }
+@ table.fossil_db_generic_query_view tr.header {
+@   background: #558195;
+@   font-size: 1.5em;
+@   color: #ffffff;
+@ }
 ;
 
 /*

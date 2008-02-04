@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Hyperlinks\sto\sdirectory\sbrowser\spages\son\sthe\spathname\sin\sthe\stitle\nof\sthe\sfile\shistory\sviewer,\sfinfo.
-D 2008-02-04T19:08:55
+C Added\sstyle\sinfo\sto\sdb_generic_query_view(),\sso\sit\scan\sbe\sstyled\svia\scss
+D 2008-02-04T23:14:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -47,7 +47,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
-F src/db.c 680de574d8d4c1409cc6bb747274b99f98a16c77
+F src/db.c f587a03928d0ea51433ece416874a2806d246663
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -82,7 +82,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/string_xform.c 5092b09cf9259c02af3e10ca26325b7587c36cc2
-F src/style.c 43e5c4a59dac9636014e8404892c9c5cb1f03af0
+F src/style.c baeefb67e1a521875e4a92d15e00906a37a4fb08
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8c3ec00311d4641ac2bb9f9fd537cb4a7dd153f6
-R 9aed738a842845947efdfe0c07ce3901
-U drh
-Z 72b1f8813af0adc29811cf555a2ac68b
+P a20dcb5c26addae8473d1eb93f44f00c7dbe2c37
+R 6554839da0aa1c415c3d54084bc82ab8
+U stephan
+Z 8e75086aced4e855025c79cc77a99444
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHp2LNoxKgR168RlERAqSbAJ9wl7+AZ1l7z3qQ2lo6mTqi0GYIxwCfTuTZ
-2T39/odt9xsmK6dggykQ6ZE=
-=U+of
+iD8DBQFHp5xMZWKvbTL0CBgRAk2pAKCQlA/MDR1uT7I+++eI2KdwB72PlQCeJTfB
+zj2D9C8SXpBD1jpoXuCcIdc=
+=9/uT
 -----END PGP SIGNATURE-----
