@@ -551,3 +551,158 @@ void test_udiff_cmd(void){
   text_diff(&a, &b, &out, 3);
   blob_write_to_file(&out, "-");
 }
+
+/**************************************************************************
+** The basic difference engine is above.  What follows is the annotation
+** engine.  Both are in the same file since they share many components.
+*/
+
+/*
+** The status of an annotation operation is recorded by an instance
+** of the following structure.
+*/
+typedef struct Annotator Annotator;
+struct Annotator {
+  DContext c;       /* The diff-engine context */
+  Blob blobTo;      /* Blob to free at next step */
+  int nOrig;        /* Number of lines in original file */
+  int nNoSrc;       /* Number of uncompleted aOrig[].zSrc entries */
+  struct {          /* Lines of the original files... */
+    const char *z;       /* The text of the line */
+    int n;               /* Number of bytes (omitting trailing space and \n) */
+    const char *zSrc;    /* Tag showing origin of this line */
+  } *aOrig;
+  int *aMap;        /* Map lines for c.aTo into aOrig */
+};
+
+/*
+** Initialize the annotation process by specifying the file that is
+** to be annotated.  The annotator takes control of the input Blob and
+** will release it when it is finished with it.
+*/
+static int annotation_start(Annotator *p, Blob *pInput){
+  int i;
+
+  memset(p, 0, sizeof(*p));
+  p->c.aTo = break_into_lines(blob_str(pInput), &p->c.nTo);
+  if( p->c.aTo==0 ){
+    return 1;
+  }
+  p->aMap = malloc( sizeof(int)*p->c.nTo );
+  if( p->aMap==0 ) fossil_panic("out of memory");
+  for(i=0; i<p->c.nTo; i++) p->aMap[i] = i;
+  p->aOrig = malloc( sizeof(p->aOrig[0])*p->c.nTo );
+  if( p->aOrig==0 ) fossil_panic("out of memory");
+  for(i=0; i<p->c.nTo; i++){
+    p->aOrig[i].z = p->c.aTo[i].z;
+    p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;
+    p->aOrig[i].zSrc = 0;
+  }
+  p->nOrig = p->c.nTo;
+  p->nNoSrc = p->c.nTo;
+  return 0;
+}
+
+/*
+** The input pParent is the next most recent ancestor of the file
+** being annotated.  Do another step of the annotation.  Return true
+** if additional annotation is required.  zPName is the tag to insert
+** on each line of the file being annotated that was contributed by
+** pParent.  Memory to hold zPName is leaked.
+*/
+static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
+  int i, j;
+  int lnTo, lnFrom;
+  int *aFromMap;
+
+  /* Prepare the parent file to be diffed */
+  p->c.aFrom = break_into_lines(blob_str(pParent), &p->c.nFrom);
+  if( p->c.aFrom==0 ){
+    return 1;
+  }
+
+  /* Compute the differences going from pParent to the last file
+  ** processed */
+  diff_all(&p->c);
+
+  /* Where new lines are inserted on this difference, record the
+  ** zPName as the source of the new line.
+  */
+  for(i=lnTo=0; i<p->c.nEdit; i+=3){
+    lnTo += p->c.aEdit[i];
+    for(j=0; j<p->c.aEdit[i+2]; j++, lnTo++){
+      int x = p->aMap[lnTo];
+      if( x>=0 && p->aOrig[x].zSrc==0 ){
+        p->aOrig[x].zSrc = zPName;
+        p->nNoSrc--;
+      }
+    }
+  }
+
+  /* We will be converting aFrom into aTo for the next step.  Compute
+  ** a map from the aFrom into the original file being annotated.
+  */
+  aFromMap = malloc( sizeof(int)*p->c.nFrom );
+  if( aFromMap==0 ){
+    fossil_panic("out of memory");
+  }
+  for(i=lnTo=lnFrom=0; i<p->c.nEdit; i+=3){
+    for(j=0; j<p->c.aEdit[i]; j++){
+      aFromMap[lnFrom++] = p->aMap[lnTo++];
+    }
+    for(j=0; j<p->c.aEdit[i+1]; j++){
+      aFromMap[lnFrom++] = -1;
+    }
+    lnTo += p->c.aEdit[i+2];
+  }
+  assert( lnFrom==p->c.nFrom );
+  free(p->aMap);
+  p->aMap = aFromMap;
+
+  /* Clear out the diff results */
+  free(p->c.aEdit);
+  p->c.aEdit = 0;
+  p->c.nEdit = 0;
+  p->c.nEditAlloc = 0;
+
+  /* Move aFrom over to aTo in preparation for the next step */
+  free(p->c.aTo);    
+  if( blob_buffer(&p->blobTo) ) blob_reset(&p->blobTo);
+  p->blobTo = *pParent;
+  blob_zero(pParent);
+  p->c.aTo = p->c.aFrom;
+  p->c.nTo = p->c.nFrom;
+
+  /* Return no errors */
+  return 0;
+}
+
+
+/*
+** COMMAND: test-annotate-step
+*/
+void test_annotate_step_cmd(void){
+  Blob orig, b;
+  Annotator x;
+  int i;
+
+  if( g.argc<4 ) usage("RID1 RID2 ...");
+  db_must_be_within_tree();
+  blob_zero(&b);
+  content_get(name_to_rid(g.argv[2]), &orig);
+  if( annotation_start(&x, &orig) ){
+    fossil_fatal("binary file");
+  }
+  for(i=3; i<g.argc; i++){
+    blob_zero(&b);
+    content_get(name_to_rid(g.argv[i]), &b);
+    if( annotation_step(&x, &b, g.argv[i-1]) ){
+      fossil_fatal("binary file");
+    }
+  }
+  for(i=0; i<x.nOrig; i++){
+    const char *zSrc = x.aOrig[i].zSrc;
+    if( zSrc==0 ) zSrc = g.argv[g.argc-1];
+    printf("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
+  }
+}
