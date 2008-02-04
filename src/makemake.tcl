@@ -10,6 +10,7 @@ set src {
   bag
   blob
   branch
+  browse
   cgi
   checkin
   checkout

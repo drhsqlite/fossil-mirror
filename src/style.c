@@ -103,6 +103,9 @@ void style_header(const char *zTitle){
   /* Generate the main menu */
   @ <div class="mainmenu">
   @ <a href="%s(g.zBaseURL)/home">Home</a>
+  if( g.okHistory ){
+    @ <a href="%s(g.zBaseURL)/dir">Files</a>
+  }
   if( g.okRead ){
     @ <a href="%s(g.zBaseURL)/leaves">Leaves</a>
     @ <a href="%s(g.zBaseURL)/timeline">Timeline</a>

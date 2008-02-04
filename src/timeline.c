@@ -340,7 +340,7 @@ void page_timeline(void){
   www_print_timeline(&q, &firstEvent, &lastEvent,
                      save_parentage_javascript, &scriptInit);
   db_finalize(&q);
-  @ <p>firstEvent=%d(firstEvent) lastEvent=%d(lastEvent)</p>
+  /* @ <p>firstEvent=%d(firstEvent) lastEvent=%d(lastEvent)</p> */
   if( zStart==0 ){
     zStart = zDate;
   }
