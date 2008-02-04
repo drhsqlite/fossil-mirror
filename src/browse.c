@@ -73,10 +73,10 @@ static void pathelementFunc(
 **
 ** Query parameters:
 **
-**    d=PATH        Directory to display.  Required.
+**    name=PATH        Directory to display.  Required.
 */
 void page_dir(void){
-  const char *zD = P("d");
+  const char *zD = P("name");
   int mxLen;
   int nCol, nRow;
   int cnt, i;
@@ -89,7 +89,7 @@ void page_dir(void){
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
 
-  /* If the d= parameter is an empty string, make it a NULL pointer */
+  /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
 
   /* Compute the title of the page */  
@@ -108,7 +108,7 @@ void page_dir(void){
       for(j=i; zD[j] && zD[j]!='/'; j++){}
       if( zD[j] ){
         zCopy[j] = 0;
-        blob_appendf(&title, "/<a href=\"%s/dir?d=%T\">%h</a>", 
+        blob_appendf(&title, "/<a href=\"%s/dir?name=%T\">%h</a>", 
                      g.zBaseURL, zCopy, &zCopy[i]);
         zCopy[j] = '/';
       }else{
@@ -167,7 +167,7 @@ void page_dir(void){
     zFName = db_column_text(&q, 0);
     if( zFName[0]=='/' ){
       zFName++;
-      @ <li><a href="%s(g.zBaseURL)/dir?d=%T(zPrefix)%T(zFName)">
+      @ <li><a href="%s(g.zBaseURL)/dir?name=%T(zPrefix)%T(zFName)">
       @     %h(zFName)/</a></li>
     }else{
       @ <li><a href="%s(g.zBaseURL)/finfo?name=%T(zPrefix)%T(zFName)">

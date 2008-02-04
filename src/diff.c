@@ -29,36 +29,30 @@
 #include <assert.h>
 
 
-#if 0
-#define DEBUG(X) X
-#else
-#define DEBUG(X)
-#endif
+/*
+** Maximum length of a line in a text file.  (8192)
+*/
+#define LENGTH_MASK_SZ  13
+#define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
 /*
 ** Information about each line of a file being diffed.
 **
-** The lower 20 bits of the hash are the length of the
-** line.  If any line is longer than 1048575 characters,
+** The lower LENGTH_MASK_SZ bits of the hash (DLine.h) are the length
+** of the line.  If any line is longer than LENGTH_MASK characters,
 ** the file is considered binary.
 */
 typedef struct DLine DLine;
 struct DLine {
   const char *z;        /* The text of the line */
   unsigned int h;       /* Hash of the line */
-  unsigned int iNext;   /* Index+1 of next line with same the same hash */
+  unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
 
   /* an array of DLine elements services two purposes.  The fields
   ** above are one per line of input text.  But each entry is also
-  ** a bucket in a hash table. */
-  unsigned int iHash;   /* First entry+1 in the hash array */
+  ** a bucket in a hash table, as follows: */
+  unsigned int iHash;   /* 1+(first entry in the hash chain) */
 };
-
-/*
-** Maximum length of a line in a text file.  (8192)
-*/
-#define LENGTH_MASK_SZ  13
-#define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
 /*
 ** A context for running a diff.
@@ -84,7 +78,7 @@ struct DContext {
 ** Return 0 if the file is binary or contains a line that is
 ** too long.
 */
-static DLine *break_into_lines(char *z, int *pnLine){
+static DLine *break_into_lines(const char *z, int *pnLine){
   int nLine, i, j, k, x;
   unsigned int h, h2;
   DLine *a;
@@ -223,7 +217,7 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
   for(r=0; r<mxr; r += 3*nr){
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
-    DEBUG( printf("r=%d nr=%d\n", r, nr); )
+    /* printf("r=%d nr=%d\n", r, nr); */
 
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed

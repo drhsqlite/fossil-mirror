@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\scomments\son\sthe\sdiff\salgorithm\scode.\s\s\sCompletely\sremove\nthe\solder\sWagner/Myers\salgorithm\swhich\shad\sbeen\scommented\sout.
-D 2008-02-04T14:05:03
+C Additional\scleanup\sin\sthe\sdifferencing\sengine.\s\sThe\snew\s"dir"\swebpage\nnow\suses\sname=\sinstead\sof\sthe\sd=\sfor\sthe\squery\sparameter.
+D 2008-02-04T14:24:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,7 +37,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
-F src/browse.c 726cbbaa6fb280404b146db24ee245f512435afc
+F src/browse.c 6e4217591ad270da6a37b08d222f83da55b47d0a
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
 F src/checkin.c aebfba90e885d5e2c0f0ceb88e822dfa4f28c231
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
@@ -51,7 +51,7 @@ F src/db.c 680de574d8d4c1409cc6bb747274b99f98a16c77
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c 7a0eb099314d63f91e1e02eeec90d030d1ff916a
+F src/diff.c 06ee9b8f1e5d935a45f9348dcadc0a01f6b12160
 F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e8cf0061cc47c87521f9401c42c52fd40e664f25
-R 686bed3339693cc48de911d2a0a1e1b3
+P eeea77f340918d8255ff87c84a9e48699709bf96
+R ad8e90f436a3c8d684057a781b6bfc34
 U drh
-Z 0236391d7bd9dfea544174bf32c103ba
+Z 385e4732e04653edf779df73750247c4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpxuVoxKgR168RlERAhSGAJ9RRCGMQZLlIB48frNOVohaMxt8JwCeP4Ck
-INxMOh2z+SlEY6zWbfYv6lU=
-=dXMm
+iD8DBQFHpyAgoxKgR168RlERArdEAKCM1tng9pcVN/RGmSnUaEsYpSxxpACgikDY
+VGVieh0iyvcmADUxho5N1dw=
+=PrQY
 -----END PGP SIGNATURE-----
