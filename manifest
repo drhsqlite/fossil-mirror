@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sclasses\sto\strack\sthe\sstate\sof\sa\sworkspace,\sand\sof\sthe\swhole\srevision\simport.
-D 2008-02-04T06:01:45
+C Moved\sthe\sreally\slarge\slog\soutput\sduring\srevision\simport\s(log\smessage,\sand\scommand)\sto\svery\shigh\slog\slevels.
+D 2008-02-04T06:02:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -113,7 +113,7 @@ F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
 F tools/cvs2fossil/lib/c2f_blobstore.tcl 725b47dd347102492eb8b47a8b50217810b2fa9a
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
 F tools/cvs2fossil/lib/c2f_file.tcl 8f9fa8b30879609d4025ba7da618c2bacf01879b
-F tools/cvs2fossil/lib/c2f_fossil.tcl ecad76ba99daa42912df28fb8ef53bb32b52579b
+F tools/cvs2fossil/lib/c2f_fossil.tcl 5e81a7b85b1ecae51f2b74373476c20c6fc8c648
 F tools/cvs2fossil/lib/c2f_frev.tcl fa500c1612650002cd9d32f2fc1c1be6a3a1123f
 F tools/cvs2fossil/lib/c2f_fsym.tcl 139ee190b530b01a248101b5b7259190566e24f3
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
@@ -190,14 +190,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4e02d677c24419d10cb4807cd7eb2b5bc1d96602
-R d0854bdca3d6a110e2c00ca0c4fbb9ef
+P d011e0b008825cf251cd50888d9cbcbc8778b261
+R d333234f5ba0aba1127592509ad506dc
 U aku
-Z a05afd57067e8ec1ef7a3a47d56120df
+Z 6069d230ec133a7427ebdfc1ad9a0ac8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHpqpNvonzZ/CRa7gRAs7yAJ9/XAj96M1QE2LGz453x7x78KeOnACglgq0
-LmbXFxJdWuRolBfxKhYORl8=
-=xbB+
+iD8DBQFHpqqVvonzZ/CRa7gRAhCTAJ482K+stEO79+zx7H8WUU6/TeGg2wCggo9Q
+Y4qlJUSi9VTRmaZyxi4ppLo=
+=Rqie
 -----END PGP SIGNATURE-----

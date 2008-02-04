@@ -114,11 +114,11 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	if {$parent ne ""} { lappend cmd -p $parent }
 	foreach {frid fpath flabel} $revisions {
 	    lappend cmd -f $frid $fpath
-	    log write 2 fossil {** <[format %5d $frid]> = <$flabel>}
+	    log write 12 fossil {** <[format %5d $frid]> = <$flabel>}
 	}
 
 	# run fossil test-command performing the import.
-	log write 8 fossil {	[lreplace $cmd 3 3 @@]}
+	log write 12 fossil {	[lreplace $cmd 3 3 @@]}
 
 	$self InWorkspace
 	set res [eval $cmd]
