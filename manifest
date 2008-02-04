@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sfile\sand\sdirectory\sbrowsing\scapabilities\sto\sthe\sweb\sinterface.
-D 2008-02-04T02:45:55
+C Better\serror\smessage\swhen\sattempting\sto\screate\sa\snew\srepository\sin\na\sdirectory\sthat\sdoes\snot\sexist.
+D 2008-02-04T13:14:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -47,7 +47,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
-F src/db.c 2c3e39425923ad0b2d6e9216b7a74666b13de217
+F src/db.c 680de574d8d4c1409cc6bb747274b99f98a16c77
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e0580dfeeea53a641c5ae575fae0b53cd414c66b
-R 3720ca54fc81ce492af9bd434c549872
+P e487b77b1a5857c02f3c7df282e1ee796bbf461b
+R 03aa2bcdf19415b4b4319adb76ad1ad3
 U drh
-Z ce1db274c45a93e3c85a5eee90bdd1f9
+Z 16de57e1dfff6ef73f1796c844d5fe3f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHpnxnoxKgR168RlERAisdAJ9drPpCeRY4wWVsjHQno3BOkIrbVQCfXDks
-W1Q3M2/jsljjngnMPAibWSg=
-=OcgT
+iD8DBQFHpw/IoxKgR168RlERAhu0AJ9UC/9hY4wBgK7DYpcSg2EExSXtdwCfcoya
+6ucLmwydqmxgWiTXqcJoTpI=
+=w3gg
 -----END PGP SIGNATURE-----

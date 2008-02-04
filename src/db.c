@@ -513,18 +513,18 @@ void db_init_database(
 
   rc = sqlite3_open(zFileName, &db);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(g.db));
+    db_err(sqlite3_errmsg(db));
   }
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(g.db));
+    db_err(sqlite3_errmsg(db));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
     rc = sqlite3_exec(db, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err(sqlite3_errmsg(g.db));
+      db_err(sqlite3_errmsg(db));
     }
   }
   va_end(ap);
