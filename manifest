@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Moved\sstring_xform.c\scode\sinto\sencode.c,\ssince\sthat\scode\sserves\sa\ssimilar\spurpose.
-D 2008-02-05T20:48:16
+C Removed\sannoying\syellow/red\splaceholders.\sAdded\slinks\sto\syour\swiki\schanges\sand\syour\s*file*\scommits.
+D 2008-02-05T20:49:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -69,7 +69,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/my_page.c e52cc4cf428e924f37b4208634a87d0c294bdf80
+F src/my_page.c 6c912124baf82317df7bf7ab763f1f96ed5da879
 F src/name.c 8d07e9c5fdb127818043015d250afe5365f8b8dc
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 97db3c0433d1e8e1b13c0c02feff76a797a0d0cf
-R 872b51625aaff4ee001725cf39797c50
+P 91f151d57a6e90b4928793959bcec9e673ce2f22
+R 169a3c6a34f680f41c0bc622a32ef014
 U stephan
-Z 1e97e0e7cd43660d3c85034c890f57d0
+Z e3e409be8ef340a87c4a2e08df5100dc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHqMuTZWKvbTL0CBgRAv+NAJ0YJNRWhLmQFGJb7InRxzycxeEQWgCeIIAk
-cssGImenvYVnVKfB1lE2yKs=
-=mNGJ
+iD8DBQFHqMv0ZWKvbTL0CBgRAjR7AKCCNl2mTKD0ZdS7o3yq31BJV3kY5ACg1prl
+jAJfqQioTsyN08OEbUvhrQc=
+=d1XT
 -----END PGP SIGNATURE-----

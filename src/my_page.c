@@ -92,17 +92,17 @@ static void mypage_page_default()
   @ <h2>Welcome, %s(uname)!</h2>
   @ Your user ID is: %d(uid)<br/>
   @ Your Fossil permissions are: [%s(ucap)]
-  @   <span class='achtung'>[TODO: explain these]</span><br/>
+  @   [TODO: explain these]<br/>
   @ Your additional info: [%s(uinfo)]
-  @   <span class='achtung'>[TODO: make this editable]</span><br/>
+  @   [TODO: make this editable]<br/>
 
   mypage_logout_button();
 
   @ <hr/>
   @ <h2>Your artifacts:</h2>
   @ <ul>
-  @ <li><a href='%s(g.zBaseURL)/timeline?u=%s(uname)'>Your latest commits</a>.</li>
-  @ <li>TODO: your Wiki entries</li>
+  @ <li><a href='%s(g.zBaseURL)/timeline?u=%s(uname)&y=ci'>Your latest commits</a>.</li>
+  @ <li><a href='%s(g.zBaseURL)/timeline?u=%s(uname)&y=w'>Your latest wiki changes</a>.</li>
   @ <li>TODO: your tickets</li>
   @ <li>TODO: etc. etc. etc.</li>
   @ </ul>
