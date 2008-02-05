@@ -430,10 +430,19 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# Remember the imported changeset in the state, under our
 	# LOD. And if it is the last trunk changeset on the vendor
 	# branch then the revision is also the actual root of the
-	# :trunk:, so we remember it as such in the state.
+	# :trunk:, so we remember it as such in the state. However if
+	# the trunk already exists then the changeset cannot be on it
+	# any more. This indicates weirdness in the setup of the
+	# vendor branch, but one we can work around.
 
 	$lws defid $uuid
-	if {$lastdefaultontrunk} { $rstate new :trunk: [$lws name] }
+	if {$lastdefaultontrunk} {
+	    if {[$rstate has :trunk:]} {
+		log write 2 csets {Multiple changesets declared to be the last trunk changeset on the vendor-branch}
+	    } else {
+		$rstate new :trunk: [$lws name]
+	    }
+	}
 
 	# Remember the whole changeset / uuid mapping, for the tags.
 

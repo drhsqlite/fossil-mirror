@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Removed\sbogus\s(early)\sunset.
-D 2008-02-05T06:08:11
+C Accept\sa\slast\strunk-changeset\son\sa\svendor\sbranch\swith\sthe\s:trunk:\salready\sdefined,\sand\swarn.\sForce\schangeset\sto\sbe\svendor-only,\sout\sof\strunk.
+D 2008-02-05T06:09:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -133,7 +133,7 @@ F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df75
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 3f927ba1109bd173ec1f72f31bdc41431e1568b7
 F tools/cvs2fossil/lib/c2f_pimport.tcl 9ece707863ee1817059335e05fad7eb2a1edcf50
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 97c1e143407397ab129a61f7412fa03e034475b5
-F tools/cvs2fossil/lib/c2f_prev.tcl c36a0d49d002128e7a336ba46ca927c6123ebf5d
+F tools/cvs2fossil/lib/c2f_prev.tcl f526a431eea387efbe60220328a06a963e76e7a7
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
 F tools/cvs2fossil/lib/c2f_project.tcl 00dc5b3cacc38b12129babb305ae0a1b430fccb7
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl bc1fe01638f0cb36455c225af63bc17f94ba0ac3
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 812c91bb8da14910a5d9418bcbf1b92b0ebe8505
-R 66ebc50f195e546ddf79ea4caf087023
+P 7caaf7afd5d74bc3fc55326ef3128544a46828ee
+R cbd79dc498093cfb0fbf1fd35a06a190
 U aku
-Z d06be511abdddc0701c5f6de77786b3f
+Z 4c4c6b82433b70b2613a72eb139bd396
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHp/1PvonzZ/CRa7gRArz9AJ9iW4OhFrTP1XYKvQTxeUJ1u8EOcwCeIHVY
-EpkGgQBn4BRop6iHrqHDZ1M=
-=B+0D
+iD8DBQFHp/2bvonzZ/CRa7gRAr/pAJ99t6mRWCCXvA64zPsQxcOgFHshpACghdPX
+cW6Z3t6RX/JiC8HtQ6ssC44=
+=eTDm
 -----END PGP SIGNATURE-----
