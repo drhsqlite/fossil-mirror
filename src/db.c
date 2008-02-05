@@ -1158,7 +1158,7 @@ void setting_cmd(void){
 void db_generic_query_view(
   char const * sql,
   char const * const * coln,
-  string_unary_xform_f * xform )
+  string_unary_xform_f const * xform )
 {
   
   Stmt st;

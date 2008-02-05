@@ -343,7 +343,7 @@ const char zDefaultCSS[] =
 @
 @ table.fossil_db_generic_query_view {
 @   border-spacing: 0px;
-@   border: 0px;
+@   border: 1px solid black;
 @ }
 @ table.fossil_db_generic_query_view td {
 @   padding: 2px 1em 2px 1em;
