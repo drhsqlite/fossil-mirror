@@ -98,7 +98,6 @@ snit::type ::vc::fossil::import::cvs::pass::import {
 		foreach {revision date} [$project revisionsinorder] {
 		    $revision pushto $fossil $date $rstate
 		}
-		unset rstate
 	    }
 
 	    $rstate destroy

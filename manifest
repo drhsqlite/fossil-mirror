@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\ssome\smusings\sto\sone\sof\sthe\ssituations\sto\sdeal\swith.
-D 2008-02-04T06:26:46
+C Removed\sbogus\s(early)\sunset.
+D 2008-02-05T06:08:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -131,7 +131,7 @@ F tools/cvs2fossil/lib/c2f_pcollrev.tcl 264f332a9e2ecb20aa1a5e0feedbf4502e942247
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 7383c81d45fc3ee64493b995e53e35206bae9201
 F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df759
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 3f927ba1109bd173ec1f72f31bdc41431e1568b7
-F tools/cvs2fossil/lib/c2f_pimport.tcl 61842ef2268d219e424e4621a2151c095b551402
+F tools/cvs2fossil/lib/c2f_pimport.tcl 9ece707863ee1817059335e05fad7eb2a1edcf50
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 97c1e143407397ab129a61f7412fa03e034475b5
 F tools/cvs2fossil/lib/c2f_prev.tcl c36a0d49d002128e7a336ba46ca927c6123ebf5d
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e1dbf3186dd40762f79a22957096dfa1a498875a
-R 281a248be4aab4294ffa0f73e0113c60
+P 812c91bb8da14910a5d9418bcbf1b92b0ebe8505
+R 66ebc50f195e546ddf79ea4caf087023
 U aku
-Z 7124985557c411b268fcf5242dccef7a
+Z d06be511abdddc0701c5f6de77786b3f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHprArvonzZ/CRa7gRAgtCAJsFY9oP+1rRa9tIcCrl+RyOuAOmagCgl8OM
-bjVFRWqmc8iX6iCCZPG5DE4=
-=8+xB
+iD8DBQFHp/1PvonzZ/CRa7gRArz9AJ9iW4OhFrTP1XYKvQTxeUJ1u8EOcwCeIHVY
+EpkGgQBn4BRop6iHrqHDZ1M=
+=B+0D
 -----END PGP SIGNATURE-----
