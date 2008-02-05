@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\s/admin/sql\spage.\sAdded\sa\s'const'\sto\sdb_generic_query_view()
-D 2008-02-05T00:01:44
+C Moved\sstring_xform.c\scode\sinto\sencode.c,\ssince\sthat\scode\sserves\sa\ssimilar\spurpose.
+D 2008-02-05T20:47:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -82,7 +82,6 @@ F src/setup.c 093a77e546affb5f4a6177b33c425a34cd0dfd44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
-F src/string_xform.c 5092b09cf9259c02af3e10ca26325b7587c36cc2
 F src/style.c 72a7644b27c2b222d14cfaa5cdfb23da4dca87b1
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
@@ -192,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0095e24ba94fde3c22f77b0b5ae6ad7dc05e75f1
-R b961bad125877b60a8fdb26c0820c90d
+P 6f05b4292a3443f66627d711f3ac726894242a88
+R a25d8d8ab175936f412053f6ce770261
 U stephan
-Z b221f72cd6e92abaabfe04eca2022126
+Z edda8674d6d24164b5beef47e9f01de1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHp6drZWKvbTL0CBgRAjN5AJ9CSsF7Rs8SzjjZMPxJ0G6deW6+kgCeIwSI
-QOSoPZpM0Oj+kCDlG4XycBc=
-=n0JC
+iD8DBQFHqMt8ZWKvbTL0CBgRAuuiAJ9Glbd/Mul1V5te6mMRIkEzmVGdkgCfcaqC
+lNte/g1YRP7l5fmK44lb/2A=
+=M+8Y
 -----END PGP SIGNATURE-----
