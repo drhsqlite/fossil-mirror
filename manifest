@@ -2,7 +2,7 @@
 Hash: SHA1
 
 C Moved\sstring_xform.c\scode\sinto\sencode.c,\ssince\sthat\scode\sserves\sa\ssimilar\spurpose.
-D 2008-02-05T20:47:53
+D 2008-02-05T20:48:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -54,7 +54,7 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c 464a37e277cfc289f5a5b80025975e30ec1f573b
 F src/diffcmd.c a54672e2c88f1c1a50f0f6a9e3cbb3768d8520fd
-F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
+F src/encode.c 4abb9f0b2b95942d0971726387b880987412019a
 F src/file.c be58713833338906b63fbc7ac8008b86e55bd47e
 F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 33d2efae51bf344c5db498e81d24f1ddeda8200e
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6f05b4292a3443f66627d711f3ac726894242a88
-R a25d8d8ab175936f412053f6ce770261
+P 97db3c0433d1e8e1b13c0c02feff76a797a0d0cf
+R 872b51625aaff4ee001725cf39797c50
 U stephan
-Z edda8674d6d24164b5beef47e9f01de1
+Z 1e97e0e7cd43660d3c85034c890f57d0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHqMt8ZWKvbTL0CBgRAuuiAJ9Glbd/Mul1V5te6mMRIkEzmVGdkgCfcaqC
-lNte/g1YRP7l5fmK44lb/2A=
-=M+8Y
+iD8DBQFHqMuTZWKvbTL0CBgRAv+NAJ0YJNRWhLmQFGJb7InRxzycxeEQWgCeIIAk
+cssGImenvYVnVKfB1lE2yKs=
+=mNGJ
 -----END PGP SIGNATURE-----

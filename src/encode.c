@@ -471,3 +471,70 @@ void canonical16(char *z, int n){
     z++;
   }
 }
+
+#if INTERFACE
+/**
+string_unary_xform_f is a typedef for funcs with the following policy:
+
+They accept a const string which they then transform into some other
+form. They return a transformed copy, which the caller is responsible
+for freeing.
+
+The intention of this is to provide a way for a generic query routine
+to format specific column data (e.g. transform an object ID into a
+link to that object).
+*/
+typedef char * (*string_unary_xform_f)( char const * );
+
+#endif // INTERFACE
+
+#if 0
+/** A no-op transformer which can be used as a placeholder.
+
+Conforms to the string_unary_xform_f typedef's policies.
+*/
+char * strxform_copy( char const * uuid )
+{
+  int len = strlen(uuid) + 1;
+  char * ret = (char *) malloc( len );
+  ret[len] = '\0';
+  strncpy( ret, uuid, len-1 );
+  return ret;
+}
+#endif
+
+/**
+Returns a hyperlink to uuid.
+
+Conforms to the string_unary_xform_f typedef's policies.
+*/
+char * strxform_link_to_uuid( char const * uuid )
+{
+  const int offset = 10;
+  char shortname[offset+1];
+  shortname[offset] = '\0';
+  memcpy( shortname, uuid, offset );
+  return mprintf("<tt><a href='%s/vinfo/%s'><span style='font-size:1.5em'>"
+                 "%s</span>%s</a></tt>",
+                 g.zBaseURL, uuid, shortname, uuid+offset );
+}
+
+/** Returns a hyperlink to the given tag.
+
+Conforms to the string_unary_xform_f typedef's policies.
+*/
+char * strxform_link_to_tagid( char const * tagid )
+{
+  return mprintf( "<a href='%s/tagview?tagid=%s'>%s</a>",
+                  g.zBaseURL, tagid, tagid );
+}
+
+/** Returns a hyperlink to the named tag.
+
+Conforms to the string_unary_xform_f typedef's policies.
+*/
+char * strxform_link_to_tagname( char const * tagid )
+{
+  return mprintf( "<a href='%s/tagview/%s'>%s</a>",
+                  g.zBaseURL, tagid, tagid );
+}
