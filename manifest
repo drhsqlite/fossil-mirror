@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Accept\sa\slast\strunk-changeset\son\sa\svendor\sbranch\swith\sthe\s:trunk:\salready\sdefined,\sand\swarn.\sForce\schangeset\sto\sbe\svendor-only,\sout\sof\strunk.
-D 2008-02-05T06:09:27
+C Moved\slog\soutput\sfor\schangeset\slog\smessage\sto\shigher\sverbosity\slevel.
+D 2008-02-05T15:51:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -114,7 +114,7 @@ F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
 F tools/cvs2fossil/lib/c2f_blobstore.tcl 725b47dd347102492eb8b47a8b50217810b2fa9a
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
 F tools/cvs2fossil/lib/c2f_file.tcl 2d5c2ae5ca230a4a1677593bbc1c15e0e16009f5
-F tools/cvs2fossil/lib/c2f_fossil.tcl 5e81a7b85b1ecae51f2b74373476c20c6fc8c648
+F tools/cvs2fossil/lib/c2f_fossil.tcl 71a0ccbeee42a574b9d575de20c5431626e3411a
 F tools/cvs2fossil/lib/c2f_frev.tcl fa500c1612650002cd9d32f2fc1c1be6a3a1123f
 F tools/cvs2fossil/lib/c2f_fsym.tcl 139ee190b530b01a248101b5b7259190566e24f3
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7caaf7afd5d74bc3fc55326ef3128544a46828ee
-R cbd79dc498093cfb0fbf1fd35a06a190
+P a1bbf19d511ca86c5da1ad2cb5b32d4e45d2f308
+R daed834024202f3b4f787a28071b798f
 U aku
-Z 4c4c6b82433b70b2613a72eb139bd396
+Z 58eaca104b51fc35e473f30efd8df4e7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHp/2bvonzZ/CRa7gRAr/pAJ99t6mRWCCXvA64zPsQxcOgFHshpACghdPX
-cW6Z3t6RX/JiC8HtQ6ssC44=
-=eTDm
+iD8DBQFHqIYWvonzZ/CRa7gRAszFAJoCKQK7qGSpEpr989LiW4h2i28MNwCgvZW+
+VXxARe0XzU4MPiMcbciP34w=
+=Kqkp
 -----END PGP SIGNATURE-----

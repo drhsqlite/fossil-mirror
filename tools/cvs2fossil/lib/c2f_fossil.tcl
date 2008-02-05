@@ -108,7 +108,7 @@ snit::type ::vc::fossil::import::cvs::fossil {
 
 	log write 2 fossil {== $user @ [clock format $date]}
 	log write 2 fossil {-> $parent}
-	log write 2 fossil {%% [join [split $message \n] "\n%% "]}
+	log write 9 fossil {%% [join [split $message \n] "\n%% "]}
 
 	lappend cmd Do test-import-manifest $date $message
 	if {$parent ne ""} { lappend cmd -p $parent }
