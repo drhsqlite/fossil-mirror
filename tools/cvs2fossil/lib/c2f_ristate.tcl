@@ -59,8 +59,8 @@ snit::type ::vc::fossil::import::cvs::ristate {
 
 	    set pwss $mystate($parentlod)
 
-	    $wss add   [$pwss get]
-	    $wss defid [$pwss getid]
+	    $wss defstate [$pwss getstate]
+	    $wss defid    [$pwss getid]
 	}
 
 	return $wss

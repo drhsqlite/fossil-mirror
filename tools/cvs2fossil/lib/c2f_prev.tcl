@@ -456,14 +456,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     proc Getrevisioninfo {revisions} {
 	set theset ('[join $revisions {','}]')
 	set revisions {}
-	foreach {frid path fname revnr} [state run [subst -nocommands -nobackslashes {
-	    SELECT U.uuid, F.visible, F.name, R.rev
+	foreach {frid path fname revnr rop} [state run [subst -nocommands -nobackslashes {
+	    SELECT U.uuid, F.visible, F.name, R.rev, R.op
 	    FROM   revision R, revuuid U, file F
 	    WHERE  R.rid IN $theset  -- All specified revisions
 	    AND    U.rid = R.rid     -- get fossil uuid of revision
 	    AND    F.fid = R.fid     -- get file of revision
 	}]] {
-	    lappend revisions $frid $path $fname/$revnr
+	    lappend revisions $frid $path $fname/$revnr $rop
 	}
 	return $revisions
     }

@@ -2,65 +2,10 @@
 Known problems and areas to work on
 ===================================
 
-*	Currently not properly tracking when a file is removed on some
-	branch (detectable by a 'dead' revision (optype)) during the
-	import of changesets.
-
 *	Not yet able to handle the specification of multiple projects
 	for one CVS repository. I.e. I can, for example, import all of
 	tcllib, or a single subproject of tcllib, like tklib, but not
 	multiple sub-projects in one go.
-
-*	An internal error thrown when trying to import tcllib of
-	tcllib shows that I am apparently not properly handling the
-	possibility of more than one symbol used to create a
-	vendor-branch with.
-
-	In tcllib most files (18) have 'tcllib-vendor-branch' as the
-	name of their vendor branch, done in 2000, however two files
-	use the name 'vendor' instead, they were done in 2003. Each
-	set of files corresponds a single changeset.
-
-	This causes the code importing the changesets to flip out when
-	the second changeset tries to create ':trunk:' and finds it
-	already existing (both changesets are the last trunk-changeset
-	on the vendor branch :) )
-
-	Not sure yet if I should try to abort this at the beginning,
-	i.e. CVS integrity failure, force the user to manually edit
-	the RCS archives to bring the symbol used for the vendor
-	branch into sync. Or if I should allow the import to let this
-	slide by, by simply assuming that all such second changesets
-	should not try to create the :trunk: if it exists.
-
-	---
-	Another possibility is to somehow identify such symbols and
-	rewrite the structures on my own, i.e. choose one of the
-	symbols as the canonical vendor branch V and rewrite all
-	revisions using other vendor branch symbols to use V. This
-	would have to happen somewhere in either pass CollateSymbols
-	or in pass FilterSymbols.
-
-	Thinking about it would have to happen before we even start to
-	aggregate the branch/tag/commit counts, so that all of them
-	apply to V later on, instead of spread over several symbols.
-
-	Luckily we have all the relevant information in the state
-	database, in the tables 'revision' and 'symbol'.
-
-	Thinking even more, this type of symbol rewriting, whether by
-	the importer, or directly in the rcs archives before doing the
-	import, will not address the fact that both changesets will
-	have file revisions in them which declare that they are the
-	last trunk changeset on the vendor branch, despite the second
-	changeset added about three years after the previous last
-	trunk changeset on the vendor branch.
-
-	It seems that I will have to rewrite the changeset import to
-	simply allow for this situation and force the second changeset
-	(and any further) to be non-trunk on the vendor-branch,
-	whatever I do after collecting the revision. And if I do that
-	I don't really a good reason to rewrite the symbols.
 
 *	An internal error thrown when trying to import bwidget of
 	tcllib shows that there have to be some situation I am not

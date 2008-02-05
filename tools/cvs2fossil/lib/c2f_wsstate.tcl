@@ -20,6 +20,7 @@
 package require Tcl 8.4                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require struct::list                        ; # List assignment
+package require vc::tools::log                      ; # User feedback.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -36,17 +37,21 @@ snit::type ::vc::fossil::import::cvs::wsstate {
 
     method name {} { return $myname }
 
-    method add {revisioninfo} {
-	# revisioninfo = list (rid path label ...) /triples
+    method add {oprevisioninfo} {
+	# oprevisioninfo = list (rid path label op ...) /quadruples
 
 	# Overwrite all changed files (identified by path) with the
-	# new revisions. This keeps all unchanged files.
+	# new revisions. This keeps all unchanged files. Files marked
+	# as dead are removed.
 
-	# BUG / TODO for FIX: Have to recognize dead files, to remove
-	# them. We need the per-file revision optype for this.
+	foreach {rid path label rop} $oprevisioninfo {
+	    log write 5 wss {$myop($rop) $label}
 
-	foreach {rid path label} $revisioninfo {
-	    set mystate($path) [list $rid $label]
+	    if {$rop < 0} {
+		unset mystate($path)
+	    } else {
+		set mystate($path) [list $rid $label]
+	    }
 	}
 	return
     }
@@ -67,6 +72,9 @@ snit::type ::vc::fossil::import::cvs::wsstate {
 
     method getid {} { return $myid }
 
+    method defstate {s} { array set mystate $s ; return }
+    method getstate {}  { return [array get mystate] }
+
     # # ## ### ##### ######## #############
     ## State
 
@@ -77,6 +85,13 @@ snit::type ::vc::fossil::import::cvs::wsstate {
     variable mystate -array {} ; # Map from paths to the recordid of
 				 # the file revision behind it, and
 				 # the associated label for logging.
+
+    typevariable myop -array {
+	-1 REM
+	0  ---
+	1  ADD
+	2  CHG
+    }
 
     # # ## ### ##### ######## #############
     ## Configuration
@@ -91,6 +106,8 @@ snit::type ::vc::fossil::import::cvs::wsstate {
 namespace eval ::vc::fossil::import::cvs {
     namespace export wsstate
     namespace eval wsstate {
+	namespace import ::vc::tools::log
+	log register wss
     }
 }
 
