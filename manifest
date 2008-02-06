@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Updated\sthe\scopyright\sinformation\sof\sall\sfiles\stouched\sin\sthe\snew\syear.
-D 2008-02-06T05:04:12
+C Remembered\sa\sproblem\sI\shave\sto\sdeal\swith,\sadded\sto\smy\snotes.
+D 2008-02-06T05:06:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -31,7 +31,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F cvs2fossil.txt cf26ce6da41cf1503c08f1f9d93f2166a9fa6372
+F cvs2fossil.txt 4a1e39371f13e6acbd42fa2f8d70f6a64998ab50
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9f297fed37d208ca3ca190043d4a87bf39ff51ff
-R 0bdbf7c4c63e085b9df30a846a0a503e
+P 66235f2430ae24246a57fe4a0decfad85ee0b426
+R f36bbff43807140c2408bd24935a4dac
 U aku
-Z 48a340d96c8ecdda075a38ddb97a0f62
+Z 3bed5ac168ac0687d4106bb1914b9911
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHqT/QvonzZ/CRa7gRAkGkAKCoZmnlmKbohrQ2cT8R01QWg2XlgwCfcmQp
-3EPPCadYvGWUUfxCG4n8jEs=
-=O6AJ
+iD8DBQFHqUBKvonzZ/CRa7gRAvBOAJ4pSSk99S3QUiAsEOF88e51MMCDzwCfVXTK
+QnOXiZYEnwrRgPYqrzQGKQc=
+=OVfJ
 -----END PGP SIGNATURE-----

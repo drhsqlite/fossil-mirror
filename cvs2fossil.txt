@@ -6,3 +6,6 @@ Known problems and areas to work on
 	for one CVS repository. I.e. I can, for example, import all of
 	tcllib, or a single subproject of tcllib, like tklib, but not
 	multiple sub-projects in one go.
+
+*	We have to look into the pass 'InitCsets' and hunt for the
+	cause of the large amount of memory it is gobbling up.
