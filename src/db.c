@@ -1141,6 +1141,8 @@ void setting_cmd(void){
 * column data before rendering it. This function takes care of freeing
 * the strings created by the xform functions.
 *
+* Returns SQLITE_OK on success and any other value on error.
+*
 * Example:
 *
 *  char const * const colnames[] = {
@@ -1155,54 +1157,60 @@ void setting_cmd(void){
 *  db_generic_query_view( "select a,b,c,d from foo", colnames, xf );
 *
 */
-void db_generic_query_view(
+int db_generic_query_view(
   char const * sql,
   char const * const * coln,
   string_unary_xform_f const * xform )
 {
-  
-  Stmt st;
-  int i = 0;
-  int rc = db_prepare( &st, sql );
   /**
-    Achtung: makeheaders apparently can't pull the function
-    name from this:
-   if( SQLITE_OK != db_prepare( &st, sql ) )
-  */
+     Reminder: we use sqlite3_stmt directly, instead
+     of using db_prepare(), so that we can treat SQL
+     errors as non-fatal. We are executing arbitrary
+     SQL here, some of it entered via the browser,
+     and we don't want to kill the app when some of
+     the SQL isn't quite right.
+  */  
+  sqlite3_stmt * st;
+  int rc = sqlite3_prepare(g.db, sql, -1, &st, 0);
   if( SQLITE_OK != rc )
   {
-    @ db_generic_query_view(): Error processing SQL: [%s(sql)]
-    return;
+    @ <span style='color:red'>db_generic_query_view() SQL error:
+    @ %h(sqlite3_errmsg(g.db))</span>
+    return rc;
   }
-  int colc = db_column_count(&st);
+  int colc = sqlite3_column_count(st);
   @ <table class='fossil_db_generic_query_view'><tbody>
   @ <tr class='header'>
+  int i = 0;
   for( i = 0; i < colc; ++i ) {
     if( coln )
     {
-      @ <th>%s(coln[i] ? coln[i] : db_column_name(&st,i))</th>
+      @ <th>%s(coln[i] ? coln[i] : sqlite3_column_name(st,i))</th>
     }
     else
     {
-      @ <td>%s(db_column_name(&st,i))</td>
+      @ <td>%s(sqlite3_column_name(st,i))</td>
     }
   }
   @ </tr>
 
   int row = 0;
-  while( SQLITE_ROW == db_step(&st) ){
+  char const * text = 0;
+  while( SQLITE_ROW == sqlite3_step(st) ){
     @ <tr class='%s( (row++%2) ? "odd" : "even")'>
       for( i = 0; i < colc; ++i ) {
+        text = (char const *) sqlite3_column_text(st,i);
         char * xf = 0;
         char const * xcf = 0;
         xcf = (xform && xform[i])
-          ? (xf=(xform[i])(db_column_text(&st,i)))
-          : db_column_text(&st,i);
+          ? (xf=(xform[i])(text))
+          : text;
         @ <td>%s(xcf)</td>
         if( xf ) free( xf );
       }
     @ </tr>
   }
-  db_finalize( &st );
   @ </tbody></table>
+  sqlite3_finalize(st);
+  return SQLITE_OK;
 }

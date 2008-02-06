@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C added\stokenize_path.c,\scontaining\sa\sconvenient\spath-like-string\stokenizer\sand\srender_linked_path()\sto\sHTML-ize\sa\spath.
-D 2008-02-06T19:02:35
+C refactored\sdb_generic_query_view()\sto\suse\ssqlite3\sAPI\sdirectly\sso\sthat\sit\scan\streat\sSQL\serrors\sas\snon-fatal.
+D 2008-02-06T19:37:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -48,7 +48,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
-F src/db.c c8735d5d4eb99da5f36554c4b369993b3466e02e
+F src/db.c f3a5d97ec87147cb250f295c1d97af0202f8815a
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
@@ -192,14 +192,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 41cf3e7c1d66a3b59f4fdcd1cda8d08a2962460c
-R 5f4a2230d4ba4abe7708fc183e01bc85
+P 7f9226a858489b4fcd5b4cab249a69f418671018
+R 19b8fe26531d71f330dc28b435d60e15
 U stephan
-Z 9793a7d4a28ac8dce4208c54b0c95d0b
+Z 473a47a8ef9a0a00f550474de26206e2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHqgROZWKvbTL0CBgRAniiAJoDyk/M/IDtYibAVmHDZ1EGiFV4KACeMTYf
-Gehv7P6gaKaWuhxckPAkeD0=
-=MvAO
+iD8DBQFHqgxnZWKvbTL0CBgRAh+UAKCt32x8n4NOcE7bNV5OysEY/MNIiQCghsVC
+ocwjHshGwxDvYbk8DuW/HaE=
+=Gr9i
 -----END PGP SIGNATURE-----
