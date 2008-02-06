@@ -6,25 +6,3 @@ Known problems and areas to work on
 	for one CVS repository. I.e. I can, for example, import all of
 	tcllib, or a single subproject of tcllib, like tklib, but not
 	multiple sub-projects in one go.
-
-*	An internal error thrown when trying to import bwidget of
-	tcllib shows that there have to be some situation I am not
-	handling correctly in the cycle-breaker and sorting passes.
-
-	It tries to import a changeset on the
-	'scriptics-sc-2-0-beta-branch' line of development (X), which
-	has no commits yet. So it goes to the parent LOD to get the
-	state we are spawning from. This parent is
-	'scriptics-sc-1-1-branch' (Y). And is has no changesets
-	committed to it yet. That should not be possible, the ordering
-	constraints should have put all changesets for Y before the
-	changesets of X, and Y had to have at least one changeset,
-	from which the branch could be spawned.
-
-	This need deep diving into the various linkages to understand
-	what is happening, or not happening, depending.
-
-	Note: The code I had before more fully tracking the workspace
-	      state of the various lods wrongly slid over this problem
-	      without erroring out.
-

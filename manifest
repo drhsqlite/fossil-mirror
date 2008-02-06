@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\sbug\scomputing\sa\ssymbol's\sparent.\spreferedparent\sis\sthe\svoting\stable,\snot\sthe\shome\sof\sthe\sdefinite\sinformation.\sThe\sbug\scaused\sthe\suse\sof\sthe\swrong\sparent\slod\sduring\sthe\simport\sof\schangesets.\sLuckily\sthe\schosen\sparent\swas\snot\sknown\syet,\scausing\san\sabort.
-D 2008-02-06T04:57:30
+C Updated\smy\snotes\stracking\sthe\sknown\sproblems.
+D 2008-02-06T04:58:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -31,7 +31,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F cvs2fossil.txt 3dae827157dd891da0b886e0824b0317408beee6
+F cvs2fossil.txt cf26ce6da41cf1503c08f1f9d93f2166a9fa6372
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0d13da30180e3eb1353e902ac45ae4f572767ae9
-R 9ade1ea167a1e205af54e50dfab0fc52
+P a5840849d0e3ceb04bf6f5b922d4d1fddc0e82ff
+R 124bb5f66281a0057e50a578abcf382a
 U aku
-Z a948db24e9aa942e9e63f76c98a98950
+Z 6066af58dac2b273e55159c381f3c1d7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHqT5DvonzZ/CRa7gRAteIAJ4p4BpiUKF/Yr8+1GgTbintT3RDJACfa/JX
-2eafrnDVkVnLTWgZOodQzXc=
-=j3iv
+iD4DBQFHqT5wvonzZ/CRa7gRAryhAJixqSLKs+rtUdbBMEMBt5z9TjnqAJ0USOr6
+uphsdpE31pzniuQsWbaVzg==
+=X2s6
 -----END PGP SIGNATURE-----
