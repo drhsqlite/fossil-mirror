@@ -114,7 +114,7 @@ snit::type ::vc::fossil::import::cvs::pass::rtopsort {
 
 	set cid [$cset id]
 
-	log write 4 rtopsort "Changeset @ [format $myatfmt $at]: [format $mycsfmt [$cset str]] <<[FormatTR $graph $cset]>>"
+	log write 4 rtopsort "Changeset @ [format $myatfmt $at]: [format $mycsfmt [$cset str]] '[$cset lod]' <<[FormatTR $graph $cset]>>"
 	state run {
 	    INSERT INTO csorder (cid,  pos)
 	    VALUES              ($cid, $at)

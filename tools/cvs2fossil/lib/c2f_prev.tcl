@@ -78,6 +78,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return $str
     }
 
+    method lod {} {
+	return [$mytypeobj cs_lod $myitems]
+    }
+
     method id    {} { return $myid }
     method items {} { return $mytitems }
     method data  {} { return [list $myproject $mytype $mysrcid] }
@@ -405,8 +409,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#
 	# - List of the file revisions in the changeset.
 
-	struct::list assign [$myproject getmeta $mysrcid] __ branch user message
-	struct::list assign $branch __ lodname
+	struct::list assign [$myproject getmeta $mysrcid] __ __ user message
+
+	# We derive the lod information directly from the revisions of
+	# the changeset, as the branch part of the meta data (s.a.) is
+	# outdated since pass FilterSymbols.
+
+	set lodname [$self lod]
 
 	log write 2 csets {Importing revision [$self str] on $lodname}
 
@@ -1285,6 +1294,21 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
             AND    C.type = 2		   -- which are branch changesets
 	}]]
     }
+
+    # result = symbol name
+    typemethod cs_lod {revisions} {
+	# Determines the name of the symbol which is the line of
+	# development for the revisions in a changeset.
+
+	set theset ('[join $revisions {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    SELECT
+	    DISTINCT L.name
+	    FROM   revision R, symbol L
+	    WHERE  R.rid in $theset        -- Restrict to revisions of interest
+	    AND    L.sid = R.lod           -- Get lod symbol of revision
+	}]]
+    }
 }
 
 # # ## ### ##### ######## ############# #####################
@@ -1338,6 +1362,21 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
     typemethod cs_successors {tags} {
 	# Tags have no successors.
 	return
+    }
+
+    # result = symbol name
+    typemethod cs_lod {tags} {
+	# Determines the name of the symbol which is the line of
+	# development for the tags in a changeset.
+
+	set theset ('[join $tags {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    SELECT
+	    DISTINCT L.name
+	    FROM   tag T, symbol L
+	    WHERE  T.tid in $theset        -- Restrict to tags of interest
+	    AND    L.sid = T.lod           -- Get lod symbol of tag
+	}]]
     }
 }
 
@@ -1471,6 +1510,21 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
             AND    C.type = 1		-- which are tag changesets
 	}]]
 	return
+    }
+
+    # result = symbol name
+    typemethod cs_lod {branches} {
+	# Determines the name of the symbol which is the line of
+	# development for the branches in a changeset.
+
+	set theset ('[join $branches {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    SELECT
+	    DISTINCT L.name
+	    FROM   branch B, symbol L
+	    WHERE  B.bid in $theset        -- Restrict to branches of interest
+	    AND    L.sid = B.lod           -- Get lod symbol of branch
+	}]]
     }
 
     typemethod limits {branches} {
