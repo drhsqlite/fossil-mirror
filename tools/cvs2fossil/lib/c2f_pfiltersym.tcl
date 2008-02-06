@@ -89,6 +89,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    AdjustParents
 	    RefineSymbols
 
+	    PrintSymbolTree
 	    repository printrevstatistics
 
 	    # Strict integrity enforces that all meta entries are in
@@ -101,7 +102,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    # to distinguish and group revisions into changesets. It
 	    # should be noted that we cannot simply switch the meta
 	    # entries over to the trunk either, as that may cause the
-	    # modified entries to violate the unique-ness constrain
+	    # modified entries to violate the unique-ness constraint
 	    # set on that table.
 	    integrity metarelaxed
 	}
@@ -512,6 +513,52 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	    FROM branch B, revision R
 	    WHERE B.root = R.rid
 	    AND   R.op   = 0 -- nothing
+	}
+	return
+    }
+
+    proc maxlen {v str} {
+	upvar 1 $v n
+	set l [string length $str]
+	if {$l <= $n} return
+	set n $l
+	return
+    }
+
+    proc PrintSymbolTree {} {
+	if {![log visible? 9]} return
+
+	array set sym {}
+	set n 0
+	set t 0
+	set c 0
+
+	foreach {s stype cc p ptype} [state run {
+	    SELECT S.name, A.name, S.commit_count, P.name, B.name
+	    FROM   tag T, symbol S, symbol P, symtype A, symtype B
+	    WHERE  S.sid = T.sid
+	    AND    P.sid = T.lod
+	    AND    A.tid = S.type
+	    AND    B.tid = P.type
+	    UNION
+	    SELECT S.name, A.name, S.commit_count, P.name, B.name
+	    FROM   branch B, symbol S, symbol P, symtype A, symtype B
+	    WHERE  S.sid = B.sid
+	    AND    P.sid = B.lod
+	    AND    A.tid = S.type
+	    AND    B.tid = P.type
+	}] {
+	    lappend sym($s) $p $stype $ptype $cc
+	    maxlen n $s
+	    maxlen t $stype
+	    maxlen t $ptype
+	    maxlen c $cc
+	}
+
+	foreach s [lsort -dict [array names sym]] {
+	    struct::list assign $sym($s) p stype ptype cc
+
+	    log write 9 filtersym {Tree: [format %-${t}s $stype] ([format %-${c}d $cc]) [format %-${n}s $s] <-- [format %-${t}s $ptype] $p}
 	}
 	return
     }
