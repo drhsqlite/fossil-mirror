@@ -1,6 +1,6 @@
 ## -*- tcl -*-
 # # ## ### ##### ######## ############# #####################
-## Copyright (c) 2007 Andreas Kupries.
+## Copyright (c) 2007-2008 Andreas Kupries.
 #
 # This software is licensed as described in the file LICENSE, which
 # you should have received as part of this distribution.
