@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\sthe\sline\sof\sdevelopment\sfor\schangesets\sdirectly\sfrom\sthe\sitems\sand\stheir\slod\sreferences.\sThe\sin-memory\sdata\sfrom\sthe\smeta\stable\sis\sout-of-date\ssince\sthe\sadjustment\sof\sparents\sin\spass\s'FilterSymbols'.\sPrint\sthe\sLOD\sinformation\swhen\ssorting\sthe\schangesets.
-D 2008-02-06T04:55:34
+C Fixed\sbug\scomputing\sa\ssymbol's\sparent.\spreferedparent\sis\sthe\svoting\stable,\snot\sthe\shome\sof\sthe\sdefinite\sinformation.\sThe\sbug\scaused\sthe\suse\sof\sthe\swrong\sparent\slod\sduring\sthe\simport\sof\schangesets.\sLuckily\sthe\schosen\sparent\swas\snot\sknown\syet,\scausing\san\sabort.
+D 2008-02-06T04:57:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -137,7 +137,7 @@ F tools/cvs2fossil/lib/c2f_prev.tcl 3b42fd437ed34cffd6791a91aa0894e7a3024aca
 F tools/cvs2fossil/lib/c2f_prevlink.tcl c7d0900794b2be39e003522407571e41c8510f73
 F tools/cvs2fossil/lib/c2f_project.tcl 00dc5b3cacc38b12129babb305ae0a1b430fccb7
 F tools/cvs2fossil/lib/c2f_prtopsort.tcl dbb40b4225992f9ab267571f366724966bf772e6
-F tools/cvs2fossil/lib/c2f_psym.tcl e42d2c8c0129385ba5039e393c3fc826074da13a
+F tools/cvs2fossil/lib/c2f_psym.tcl 2ded920ae505e04a0a4ee36282de10ec1f8aab51
 F tools/cvs2fossil/lib/c2f_ptrunk.tcl 5b8e8a546486473f3f3728e178a1e57797ea6052
 F tools/cvs2fossil/lib/c2f_repository.tcl 620af1dde5a9f1ec577aad8c4d44b83750401001
 F tools/cvs2fossil/lib/c2f_ristate.tcl 9cab4d3dc8a948ffadc9435677a6ddaaea61debd
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 70acbf63ecb0a70eef3091a6a7d88418c2176c26
-R 20a826dc8aec997c1ae6b735a8dcd318
+P 0d13da30180e3eb1353e902ac45ae4f572767ae9
+R 9ade1ea167a1e205af54e50dfab0fc52
 U aku
-Z ff48671833e904e68c5c3b58381acb72
+Z a948db24e9aa942e9e63f76c98a98950
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHqT3KvonzZ/CRa7gRAju9AJ4ui9srWLz2IkyrwboyjMZi97WmJQCgkRPg
-Ij42JUz7A26poWAjuCr6A6c=
-=bT7f
+iD8DBQFHqT5DvonzZ/CRa7gRAteIAJ4p4BpiUKF/Yr8+1GgTbintT3RDJACfa/JX
+2eafrnDVkVnLTWgZOodQzXc=
+=j3iv
 -----END PGP SIGNATURE-----
