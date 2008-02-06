@@ -222,7 +222,9 @@ const char zRepositorySchema2[] =
 @ -- 
 @ -- Wiki pages are tagged with "wiki-NAME" where NAME is the name of
 @ -- the wiki page.  Tickets changes are tagged with "ticket-UUID" where 
-@ -- UUID is the indentifier of the ticket.
+@ -- UUID is the indentifier of the ticket.  Tags used to assign symbolic
+@ -- names to baselines are branches are of the form "sym-NAME" where
+@ -- NAME is the symbolic name.
 @ --
 @ CREATE TABLE tag(
 @   tagid INTEGER PRIMARY KEY,       -- Numeric tag ID

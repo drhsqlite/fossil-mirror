@@ -52,7 +52,7 @@ int name_to_uuid(Blob *pName, int iErrPriority){
     db_prepare(&q,
       "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
       "  FROM tagxref JOIN event ON rid=objid"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%B)"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='sym-'||%B)"
       "   AND tagtype>0"
       "   AND value IS NULL"
       " ORDER BY event.mtime DESC",

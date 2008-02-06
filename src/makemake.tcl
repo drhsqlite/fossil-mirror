@@ -46,7 +46,6 @@ set src {
   schema
   setup
   sha1
-  string_xform
   style
   subscript
   sync
