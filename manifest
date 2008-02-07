@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C typo\sfix
-D 2008-02-07T10:33:45
+C Remove\stokenize_path.c.\s\sIs\snot\sused\sfor\sanything\sand\sdoes\snot\sfollow\sthe\ncoding\sstyle\sof\sthe\srest\sof\sfossil.\s\sThe\s16-line\shyperlinked_path()\nfunction\sin\sbrowse.c\sseems\sto\saccomplish\sthe\ssame\sthing.
+D 2008-02-07T13:33:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -60,10 +60,10 @@ F src/http.c 1a73d6f088834682936509bd899ffce98e4c7d89
 F src/info.c 33d2efae51bf344c5db498e81d24f1ddeda8200e
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c fcf22176a5c2c69a2fa77243945e46ba557dc7ce
-F src/main.mk 5731a155804e44a288fb3f24aa775879f7312512
+F src/main.mk 50f94ba447d3411647e4023c04de568db9c9b6a4
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 8f2aed2564ecb3e73928cb8a80d486f9b6408253
+F src/makemake.tcl 47ddb52873b6a228ae3937083baa0d34305fbf0d
 F src/manifest.c d38866b6bd8a29de76cabfdf6d4305a02c732238
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -91,7 +91,6 @@ F src/timeline.c edd15bb80e24a5aeb3ddbcd7fb6a26b5d32c1208
 F src/tkt.c 1c6be6341e09c0711fad6e2ca39a7ee6dbd90c73
 F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
-F src/tokenize_path.c 97098936a5608049ec59baef7de7525ce18d4f82
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c de06d69ffd0cf80bcba605d4c37a0e9c6e5fe4a9
@@ -192,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 58ee4e6e16976e552436252761731407e0678930
-R c3e998e415ee7a38d9bc624ac33f9589
-U bch
-Z cf4f949b4e091669943d78c879f4b809
+P 66b13f1015e5870f875774bc8cdd6e72d554f4d8
+R 67054eb4d9feb18b6f3148e489605aee
+U drh
+Z 1f8ddbe380dac5812e8cbfdeff0abc87
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (NetBSD)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkeq3ooACgkQe2+hGzQnY0J0ygCeNRT11np42iplEX6ixIBGRLMM
-orsAn3uCUCuQJJDxyMBW8VNC7fYwUn+y
-=PTSt
+iD8DBQFHqwidoxKgR168RlERAp+uAJ0Zg79AsTzSJQbykJeYYMeZAPA9+ACfSfwb
+npDnhyLK94mbl6WEyedwGkQ=
+=TVLl
 -----END PGP SIGNATURE-----

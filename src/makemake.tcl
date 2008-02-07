@@ -55,7 +55,6 @@ set src {
   tkt
   tktconfig
   tktsetup
-  tokenize_path
   undo
   update
   url
