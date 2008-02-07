@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C added\smissing\s#include
-D 2008-02-07T05:31:57
+C typo\sfix
+D 2008-02-07T10:33:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,7 +37,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/admin_sql_page.c 96bce2d7b30c3d03fb5b7b13c345689763d47384
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
-F src/branch.c e4e607578f97135c7e54877e47e8bf3e12e416e7
+F src/branch.c b16668e4cdd32b26e17174413ef305a3af81d480
 F src/browse.c 079928a8a65a993c4a8a3b9caf8a1d74cc890c5b
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
 F src/checkin.c aebfba90e885d5e2c0f0ceb88e822dfa4f28c231
@@ -192,14 +192,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0dc3e7a0d5a1d9886d4880e715916f38b6d6e70f
-R 31ceb0b512026e0e12d4d8047df02502
-U stephan
-Z fb670928df8a17d0d84f50a237d00f0c
+P 58ee4e6e16976e552436252761731407e0678930
+R c3e998e415ee7a38d9bc624ac33f9589
+U bch
+Z cf4f949b4e091669943d78c879f4b809
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.8 (NetBSD)
 
-iD8DBQFHqpfSZWKvbTL0CBgRAogRAJ4q5IaWbupcHanh6GBYC1fCPDRuXQCdEgdY
-e+CYlsaVpHO55Y5zjwy/rgM=
-=o4Qj
+iEYEARECAAYFAkeq3ooACgkQe2+hGzQnY0J0ygCeNRT11np42iplEX6ixIBGRLMM
+orsAn3uCUCuQJJDxyMBW8VNC7fYwUn+y
+=PTSt
 -----END PGP SIGNATURE-----

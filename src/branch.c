@@ -168,7 +168,7 @@ void branch_new(void){
 **
 ** Usage: %fossil branch SUBCOMMAND ... ?-R|--repository FILE?
 **
-** Run various subcommands on the branches of the open repository o
+** Run various subcommands on the branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
 **    %fossil branch new ?-bgcolor COLOR BRANCH-NAME
