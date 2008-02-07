@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include "tokenize_path.h"
 
 /**
 tokenize_path_free() is the only publically-defined way to deallocate
