@@ -70,6 +70,8 @@ static void tagview_page_list_tags(const char *zLike){
   );
   db_generic_query_view(zSql, 1);
   free(zSql);
+  if( strlen(zLikeClause) ) free(zLikeClause);
+  if( strlen(zLimit) ) free(zLimit);
 }
 
 /*
