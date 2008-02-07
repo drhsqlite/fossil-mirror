@@ -1114,103 +1114,155 @@ void setting_cmd(void){
   }
 }
 
-
-
-/**
-* db_generic_query_view():
-*
-* A very primitive helper to run an SQL query and table-ize the
-* results.
-*
-* The sql parameter should be a single, complete SQL statement.
-*
-* The coln parameter is optional (it may be 0). If it is 0 then the
-* column names used in the output will be taken directly from the
-* SQL. If it is not null then it must have as many entries as the SQL
-* result has columns. Each entry is a column name for the SQL result
-* column of the same index. Any given entry may be 0, in which case
-* the column name from the SQL is used.
-*
-* The xform argument is an array of transformation functions (type
-* string_unary_xform_f). The array, or any single entry, may be 0, but
-* if the array is non-0 then it must have at least as many entries as
-* colnames does. Each index corresponds directly to an entry in
-* colnames and the SQL results.  Any given entry may be 0. If it has
-* fewer, undefined behaviour results.  If a column has an entry in
-* xform, then the xform function will be called to transform the
-* column data before rendering it. This function takes care of freeing
-* the strings created by the xform functions.
-*
-* Returns SQLITE_OK on success and any other value on error.
-*
-* Example:
-*
-*  char const * const colnames[] = {
-*   "Tag ID", "Tag Name", "Something Else", "UUID"
-*  };
-*  string_unary_xform_f xf[] = {
-*    strxform_link_to_tagid,
-*    strxform_link_to_tagname,
-*    0,
-*    strxform_link_to_uuid
-*  };
-*  db_generic_query_view( "select a,b,c,d from foo", colnames, xf );
-*
+/*
+** SQL function to render a UUID as a hyperlink to a page describing
+** that UUID.
 */
-int db_generic_query_view(
-  char const * sql,
-  char const * const * coln,
-  string_unary_xform_f const * xform )
-{
-  /**
-     Reminder: we use sqlite3_stmt directly, instead
-     of using db_prepare(), so that we can treat SQL
-     errors as non-fatal. We are executing arbitrary
-     SQL here, some of it entered via the browser,
-     and we don't want to kill the app when some of
-     the SQL isn't quite right.
-  */  
-  sqlite3_stmt * st;
-  int rc = sqlite3_prepare(g.db, sql, -1, &st, 0);
-  if( SQLITE_OK != rc )
-  {
+static void hyperlinkUuidFunc(
+  sqlite3_context *pCxt,     /* function context */
+  int argc,                  /* number of arguments to the function */
+  sqlite3_value **argv       /* values of all function arguments */
+){
+  const char *zUuid;         /* The UUID to render */
+  char *z;                   /* Rendered HTML text */
+
+  zUuid = (const char*)sqlite3_value_text(argv[0]);
+  if( zUuid && strlen(zUuid)>=10 ){
+    z = mprintf("<tt><a href='%s/vinfo/%t'><span style='font-size:1.5em'>"
+                "%#h</span>%h</a></tt>",
+                g.zBaseURL, zUuid, 10, zUuid, &zUuid[10]);
+    sqlite3_result_text(pCxt, z, -1, free);
+  }
+}
+
+/*
+** SQL function to render a TAGID as a hyperlink to a page describing
+** that tag.
+*/
+static void hyperlinkTagidFunc(
+  sqlite3_context *pCxt,     /* function context */
+  int argc,                  /* number of arguments to the function */
+  sqlite3_value **argv       /* values of all function arguments */
+){
+  int tagid;                 /* The tagid to render */
+  char *z;                   /* rendered html text */
+
+  tagid = sqlite3_value_int(argv[0]);
+  z = mprintf("<a href='%s/tagview?tagid=%d'>%d</a>", 
+                g.zBaseURL, tagid, tagid);
+  sqlite3_result_text(pCxt, z, -1, free);
+}
+
+/*
+** SQL function to render a TAGNAME as a hyperlink to a page describing
+** that tag.
+*/
+static void hyperlinkTagnameFunc(
+  sqlite3_context *pCxt,     /* function context */
+  int argc,                  /* number of arguments to the function */
+  sqlite3_value **argv       /* values of all function arguments */
+){
+  const char *zTag;          /* The tag to render */
+  char *z;                   /* rendered html text */
+
+  zTag = (const char*)sqlite3_value_text(argv[0]);
+  z = mprintf("<a href='%s/tagview?name=%T'>%h</a>", 
+                g.zBaseURL, zTag, zTag);
+  sqlite3_result_text(pCxt, z, -1, free);
+}
+
+/*
+** SQL function to escape all characters in a string that have special
+** meaning to HTML.
+*/
+static void htmlizeFunc(
+  sqlite3_context *pCxt,     /* function context */
+  int argc,                  /* number of arguments to the function */
+  sqlite3_value **argv       /* values of all function arguments */
+){
+  const char *zText;         /* Text to be htmlized */
+  char *z;                   /* rendered html text */
+
+  zText = (const char*)sqlite3_value_text(argv[0]);
+  z = htmlize(zText, -1);
+  sqlite3_result_text(pCxt, z, -1, free);
+}
+
+/*
+** This routine is a helper to run an SQL query and table-ize the
+** results.
+**
+** The zSql parameter should be a single, complete SQL statement.
+** Tableized output of the SQL statement is rendered back to the client.
+**
+** The isSafe flag is true if all query results have been processed 
+** by routines such as
+**
+**        linkuuid()
+**        linktagid()
+**        linktagname()
+**        htmlize()
+**
+** and are therefore safe for direct rendering.  If isSafe is false,
+** then all characters in the query result that have special meaning
+** to HTML are escaped.
+**
+** Returns SQLITE_OK on success and any other value on error.
+*/
+int db_generic_query_view(const char *zSql, int isSafe){
+  sqlite3_stmt *pStmt;
+  int rc;
+  int nCol, i;
+  int nRow;
+  const char *zRow;
+  static int once = 1;
+
+  /* Install the special functions on the first call to this routine */
+  if( once ){
+    once = 0;
+    sqlite3_create_function(g.db, "linkuuid", 1, SQLITE_UTF8, 0, 
+                            hyperlinkUuidFunc, 0, 0);
+    sqlite3_create_function(g.db, "linktagid", 1, SQLITE_UTF8, 0, 
+                            hyperlinkTagidFunc, 0, 0);
+    sqlite3_create_function(g.db, "linktagname", 1, SQLITE_UTF8, 0, 
+                            hyperlinkTagnameFunc, 0, 0);
+    sqlite3_create_function(g.db, "htmlize", 1, SQLITE_UTF8, 0, 
+                            htmlizeFunc, 0, 0);
+  }
+
+  /*
+  ** Use sqlite3_stmt directly rather than going through db_prepare(),
+  ** so that we can treat errors a non-fatal.
+  */
+  rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, 0);
+  if( SQLITE_OK != rc ){
     @ <span style='color:red'>db_generic_query_view() SQL error:
     @ %h(sqlite3_errmsg(g.db))</span>
     return rc;
   }
-  int colc = sqlite3_column_count(st);
+  nCol = sqlite3_column_count(pStmt);
   @ <table class='fossil_db_generic_query_view'><tbody>
   @ <tr class='header'>
-  int i = 0;
-  for( i = 0; i < colc; ++i ) {
-    if( coln )
-    {
-      @ <th>%s(coln[i] ? coln[i] : sqlite3_column_name(st,i))</th>
-    }
-    else
-    {
-      @ <td>%s(sqlite3_column_name(st,i))</td>
-    }
+  for(i=0; i<nCol; ++i){
+    @ <td>%h(sqlite3_column_name(pStmt,i))</td>
   }
   @ </tr>
 
-  int row = 0;
-  char const * text = 0;
-  while( SQLITE_ROW == sqlite3_step(st) ){
-    @ <tr class='%s( (row++%2) ? "odd" : "even")'>
-      for( i = 0; i < colc; ++i ) {
-        text = (char const *) sqlite3_column_text(st,i);
-        char * xf = 0;
-        char const * xcf = 0;
-        xcf = (xform && xform[i])
-          ? (xf=(xform[i])(text))
-          : text;
-        @ <td>%s(xcf)</td>
-        if( xf ) free( xf );
+  nRow = 0;
+  while( SQLITE_ROW==sqlite3_step(pStmt) ){
+    const char *azClass[] = { "even", "odd" };
+    @ <tr class='%s(azClass[(nRow++)&1])'>
+      for(i=0; i<nCol; i++){
+        zRow = (char const*)sqlite3_column_text(pStmt,i);
+        if( isSafe ){
+          @ <td>%s(zRow)</td>
+        }else{
+          @ <td>%h(zRow)</td>
+        }
       }
     @ </tr>
   }
   @ </tbody></table>
-  sqlite3_finalize(st);
+  sqlite3_finalize(pStmt);
   return SQLITE_OK;
 }

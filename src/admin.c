@@ -27,44 +27,56 @@
 */
 #include <assert.h>
 #include "config.h"
-#include "admin_sql_page.h"
+#include "admin.h"
 
-
-static void admin_sql_page_form()
-{
-  char const * sql = P("sql");
-  @ <hr/><h2>SQL:</h2>
-  @ <span class='achtung'>You can enter arbitrary SQL here, to execute
-  @ against the repo database.
-  @ With great power comes great responsibility...</span><br/>
-  @ <form action='' method='post'>
-  @ <textarea style='border:2px solid black' name='sql' cols='80' rows='5'>%s(sql?sql:"")</textarea>
-  @ <br/><input type='submit' name='sql_submit'/> <input type='reset'/>
-  @ </form>
+/*
+** This SQLite authorizer callback prevents any SQL other than
+** SELECT statements from running.
+*/
+static int selectOnly(
+  void *NotUsed,           /* Application data - not used */
+  int type,                /* Operation type */
+  const char *zArg1,       /* Arguments.... */
+  const char *zArg2,
+  const char *zArg3,
+  const char *zArg4
+){
+  int rc = SQLITE_DENY;
+  switch( type ){
+    case SQLITE_READ:
+    case SQLITE_SELECT: {
+      rc = SQLITE_OK;
+      break;
+    }
+  }
+  return rc;
 }
+
 
 /*
 ** WEBPAGE: /admin/sql
 */
 void admin_sql_page(void){
-  /**
-     TODOs: refactor db_generic_query_view() to use sqlite3 directly,
-     instead of the db_prepare()/db_step() API, so we can do our own
-     handling. Currently SQL-level failures will cause the page to
-     immediately stop (e.g. page footer won't get a chance to render).
-  */
+  const char *zSql = PD("sql","");
   login_check_credentials();
-  style_header("Admin SQL");
   if( !g.okAdmin ){
-    @ <strong>Access Denied!</strong> You must be an Admin to use this tool.
-    style_footer();
+    login_needed();
     return;
   }
-  admin_sql_page_form();
-  char const * sql = P("sql");
-  if( sql )
-  {
-    db_generic_query_view( sql, 0, 0 );
+  style_header("Admin SQL");
+  @ <hr/><h2>SQL:</h2>
+  @ <span class='achtung'>You can enter arbitrary SQL here, to execute
+  @ against the repo database.
+  @ With great power comes great responsibility...</span><br/>
+  @ <form action='' method='post'>
+  @ <textarea style='border:2px solid black' name='sql'
+  @  cols='80' rows='5'>%h(zSql)</textarea>
+  @ <br/><input type='submit' name='sql_submit'/> <input type='reset'/>
+  @ </form>
+  if( zSql[0] ){
+    sqlite3_set_authorizer(g.db, selectOnly, 0);
+    db_generic_query_view(zSql, 0);
+    sqlite3_set_authorizer(g.db, 0, 0);
   }
   style_footer();
 }

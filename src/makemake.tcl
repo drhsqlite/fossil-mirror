@@ -7,7 +7,7 @@
 #
 set src {
   add
-  admin_sql_page
+  admin
   bag
   blob
   branch

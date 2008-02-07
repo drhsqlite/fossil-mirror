@@ -36,119 +36,102 @@
 #  define TAGVIEW_DEFAULT_FILTER
 #endif
 
-/**
-  Lists all tags matching the given LIKE clause (which
-may be 0).
+/*
+** Lists all tags matching the given LIKE clause (which
+** may be 0).
 */
-static void tagview_page_list_tags( char const * like )
-{
-  char * likeclause = 0;
+static void tagview_page_list_tags(const char *zLike){
+  char *zLikeClause = 0;
   const int limit = 10;
-  char * limitstr = 0;
-  if( like && strlen(like) )
-  {
-    likeclause = mprintf( "AND t.tagname LIKE '%%%%%q%%%%'", like );
-    @ <h2>Tags matching [%s(likeclause)]:</h2>
-  }
-  else
-  {
-    limitstr = mprintf( "LIMIT %d", limit );
+  char *zLimit = 0;
+  char *zSql;
+
+  if( zLike && zLike[0] ){
+    zLikeClause = mprintf( "AND t.tagname LIKE '%%%q%%'", zLike );
+    zLimit = "";
+    @ <h2>Tags matching [%h(zLikeClause)]:</h2>
+  }else{
+    zLimit = mprintf( "LIMIT %d", limit );
+    zLikeClause = "";
     @ <h2>%d(limit) most recent tags:</h2>
   }
-  char * sql = mprintf( 
-    "SELECT t.tagid, t.tagname, DATETIME(tx.mtime), b.uuid "
-    "FROM tag t, tagxref tx, blob b "
-    "WHERE (t.tagid=tx.tagid) and (tx.srcid=b.rid) "
-    "AND (tx.tagtype != 0) %s "
+  zSql = mprintf( 
+    "SELECT "
+    "   linktagid(t.tagid) AS 'Tag ID',"
+    "   linktagname(t.tagname) AS 'Name',"
+    "   DATETIME(tx.mtime) AS 'Timestamp',"
+    "   linkuuid(b.uuid) AS 'Version'"
+    "  FROM tag t, tagxref tx, blob b "
+    " WHERE t.tagid=tx.tagid AND tx.srcid=b.rid"
+    "   AND tx.tagtype!=0 %s "
     TAGVIEW_DEFAULT_FILTER
-    "ORDER BY tx.mtime DESC %s",
-    likeclause ? likeclause : " ",
-    limitstr ? limitstr : " "
-    );
-  if( limitstr ) free(limitstr);
-  if( likeclause ) free(likeclause);
-  char const * const colnames[] = {
-    "Tag ID", "Name", "Timestamp", "Version"
-  };
-  string_unary_xform_f xf[] = {
-    strxform_link_to_tagid,
-    strxform_link_to_tagname,
-    0,
-    strxform_link_to_uuid
-  };
-  db_generic_query_view( sql, colnames, xf );
-  free( sql );
+    " ORDER BY tx.mtime DESC %s",
+    zLikeClause, zLimit
+  );
+  db_generic_query_view(zSql, 1);
+  free(zSql);
 }
 
-/**
-A small search form which forwards to ?like=SEARCH_STRING
+/*
+** A small search form which forwards to ?like=SEARCH_STRING
 */
 static void tagview_page_search_miniform(void){
   char const * like = P("like");
   @ <div style='font-size:smaller'>
   @ <form action='/tagview' method='post'>
   @ Search for tags: 
-  @ <input type='text' name='like' value='%s((like?like:""))' size='10'/>
+  @ <input type='text' name='like' value='%h((like?like:""))' size='10'/>
   @ <input type='submit'/>
   @ </form>
   @ </div>
 }
 
-/**
- tagview_page_default() renders the default page for tagview_page().
+/*
+** tagview_page_default() renders the default page for tagview_page().
 */
 static void tagview_page_default(void){
   tagview_page_list_tags( 0 );
 }
 
-/**
-  Lists all tags matching the given tagid.
+/*
+** Lists all tags matching the given tagid.
 */
-static void tagview_page_tag_by_id( int tagid )
-{
+static void tagview_page_tag_by_id( int tagid ){
+  char *zSql;
   @ <h2>Tag #%d(tagid):</h2>
-  char * sql = mprintf( 
-    "SELECT DISTINCT (t.tagname), DATETIME(tx.mtime), b.uuid "
-    "FROM tag t, tagxref tx, blob b "
-    "WHERE (t.tagid=%d) AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
+  zSql = mprintf( 
+    "SELECT DISTINCT"
+    "       linktagname(t.tagname) AS 'Tag Name',"
+    "       DATETIME(tx.mtime) AS 'Timestamp',"
+    "       linkuuid(b.uuid) AS 'Version'"
+    "  FROM tag t, tagxref tx, blob b"
+    " WHERE t.tagid=%d AND t.tagid=tx.tagid AND tx.srcid=b.rid "
     TAGVIEW_DEFAULT_FILTER
-    "ORDER BY tx.mtime DESC",
-  tagid);
-  char const * const colnames[] = {
-      "Tag Name", "Timestamp", "Version"
-  };
-  string_unary_xform_f xf[] = {
-      strxform_link_to_tagname,
-      0,
-      strxform_link_to_uuid
-  };
-  db_generic_query_view( sql, colnames, xf );
-  free(sql);
+    " ORDER BY tx.mtime DESC",
+    tagid
+  );
+  db_generic_query_view(zSql, 1);
+  free(zSql);
 }
 
-/**
-  Lists all tags matching the given tag name.
+/*
+** Lists all tags matching the given tag name.
 */
-static void tagview_page_tag_by_name( char const * tagname )
-{
+static void tagview_page_tag_by_name( char const * tagname ){
+  char *zSql;
   @ <h2>Tag '%s(tagname)':</h2>
-  char * sql = mprintf( 
-    "SELECT DISTINCT t.tagid, DATETIME(tx.mtime), b.uuid "
-    "FROM tag t, tagxref tx, blob b "
-    "WHERE (t.tagname='%q') AND (t.tagid=tx.tagid) AND (tx.srcid=b.rid) "
+  zSql = mprintf( 
+    "SELECT DISTINCT"
+    "       linktagid(t.tagid) AS 'Tag ID',"
+    "       DATETIME(tx.mtime) AS 'Timestamp',"
+    "       linkuuid(b.uuid) AS 'Version'"
+    "  FROM tag t, tagxref tx, blob b "
+    " WHERE t.tagname='%q' AND t.tagid=tx.tagid AND tx.srcid=b.rid "
     TAGVIEW_DEFAULT_FILTER
-    "ORDER BY tx.mtime DESC",
+    " ORDER BY tx.mtime DESC",
     tagname);
-  char const * const colnames[] = {
-      "Tag ID", "Timestamp", "Version"
-  };
-  string_unary_xform_f xf[] = {
-      strxform_link_to_tagid,
-      0,
-      strxform_link_to_uuid
-  };
-  db_generic_query_view( sql, colnames, xf );
-  free( sql );
+  db_generic_query_view(zSql, 1);
+  free(zSql);
 }
 
 
@@ -164,20 +147,13 @@ void tagview_page(void){
   tagview_page_search_miniform();
   @ <hr/>
   char const * check = 0;
-  if( 0 != (check = P("tagid")) )
-  {
+  if( 0 != (check = P("tagid")) ){
     tagview_page_tag_by_id( atoi(check) );
-  }
-  else if( 0 != (check = P("like")) )
-  {
+  }else if( 0 != (check = P("like")) ){
     tagview_page_list_tags( check );
-  }
-  else if( 0 != (check = P("name")) )
-  {
+  }else if( 0 != (check = P("name")) ){
     tagview_page_tag_by_name( check );
-  }
-  else
-  {
+  }else{
     tagview_page_default();
   }
   style_footer();
