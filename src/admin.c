@@ -65,9 +65,8 @@ void admin_sql_page(void){
   }
   style_header("Admin SQL");
   @ <hr/><h2>SQL:</h2>
-  @ <span class='achtung'>You can enter arbitrary SQL here, to execute
-  @ against the repo database.
-  @ With great power comes great responsibility...</span><br/>
+  @ You can enter only SELECT statements here, and some SQL-side functions
+  @ are also restricted.<br/>
   @ <form action='' method='post'>
   @ <textarea style='border:2px solid black' name='sql'
   @  cols='80' rows='5'>%h(zSql)</textarea>
