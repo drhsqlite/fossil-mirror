@@ -306,19 +306,19 @@ void zip_of_baseline(int rid, Blob *pZip, char const * zSynthDir ){
   */
   if( manifest_parse(&m, &mfile) ){
     zip_set_timedate(m.rDate);
-    snprintf( zHead, bufsize, "manifest" );
+    snprintf( zHead, bufsize-prxLen, "manifest" );
     zip_add_file(aSBuf, &file);
     sha1sum_blob(&file, &hash);
     blob_reset(&file);
     blob_append(&hash, "\n", 1);
-    snprintf( zHead, bufsize, "manifest.uuid" );
+    snprintf( zHead, bufsize-prxLen, "manifest.uuid" );
     zip_add_file(aSBuf, &hash);
     blob_reset(&hash);
     for(i=0; i<m.nFile; i++){
       int fid = uuid_to_rid(m.aFile[i].zUuid, 0);
       if( fid ){
         content_get(fid, &file);
-	snprintf( zHead, bufsize, "%s", m.aFile[i].zName );
+	snprintf( zHead, bufsize-prxLen, "%s", m.aFile[i].zName );
         zip_add_file( aSBuf, &file);
         blob_reset(&file);
       }
