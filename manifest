@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\stwo\sbranches\sthat\swere\screated\swithin\sone\ssecond\sof\sone\sanother.\nThere\sis\sa\srace\scondition\sin\sthe\santi-forking\slogic\sthat\sallowed\sthis\nfork\sto\soccur.
-D 2008-02-08T17:27:16
+C Improvements\sto\sannotated\sdiffs\s-\snow\stakes\sinto\saccount\scontributions\nfrom\sother\sbranches.
+D 2008-02-08T21:23:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -52,7 +52,7 @@ F src/db.c d35f14ef60553cb66cc861360a44b16971c9352d
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
-F src/diff.c fa6ef41ff5491fc70f3c40f8d6138f8dd973c1ce
+F src/diff.c a8aca97812ee5a957125b2a0bc11f2ae8d3c33f4
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d8c82766a01ede830d163c01220c09f11c280e94
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ba433cc4fc2cf67c07fbae0c16c57914445e3f74 138177c30e92cf7a01b3d145c46ac28b4c2c654f
-R 3289b97d8e881a162d2be53973739979
+P 373e42de1d8eea8d95a1b41e106ae8bfab7a1926
+R e7c2e2643d34902cc026fb8907ce2fe2
 U drh
-Z 2de6a50e78b1387a522ec60d4ebf29da
+Z c719631b6565116e78bebcc18774eb60
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHrJD3oxKgR168RlERAqv2AJ0byW/Z3sAMIaoCrjYLWRelFwU62QCfWFlz
-KVoMU1ERrEHSPXLQ6tnEliI=
-=zegD
+iD8DBQFHrMhvoxKgR168RlERAmexAJ44/Bf4I+1oxo0GPfgHlG7yJb/UtwCdGR/1
+99RW7kc52m1LvVSKgiNLsBc=
+=YgYK
 -----END PGP SIGNATURE-----

@@ -564,15 +564,13 @@ void test_udiff_cmd(void){
 typedef struct Annotator Annotator;
 struct Annotator {
   DContext c;       /* The diff-engine context */
-  Blob blobTo;      /* Blob to free at next step */
-  int nOrig;        /* Number of lines in original file */
-  int nNoSrc;       /* Number of uncompleted aOrig[].zSrc entries */
   struct {          /* Lines of the original files... */
     const char *z;       /* The text of the line */
     int n;               /* Number of bytes (omitting trailing space and \n) */
     const char *zSrc;    /* Tag showing origin of this line */
   } *aOrig;
-  int *aMap;        /* Map lines for c.aTo into aOrig */
+  int nOrig;        /* Number of elements in aOrig[] */
+  int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
 };
 
 /*
@@ -588,9 +586,6 @@ static int annotation_start(Annotator *p, Blob *pInput){
   if( p->c.aTo==0 ){
     return 1;
   }
-  p->aMap = malloc( sizeof(int)*p->c.nTo );
-  if( p->aMap==0 ) fossil_panic("out of memory");
-  for(i=0; i<p->c.nTo; i++) p->aMap[i] = i;
   p->aOrig = malloc( sizeof(p->aOrig[0])*p->c.nTo );
   if( p->aOrig==0 ) fossil_panic("out of memory");
   for(i=0; i<p->c.nTo; i++){
@@ -599,7 +594,6 @@ static int annotation_start(Annotator *p, Blob *pInput){
     p->aOrig[i].zSrc = 0;
   }
   p->nOrig = p->c.nTo;
-  p->nNoSrc = p->c.nTo;
   return 0;
 }
 
@@ -612,8 +606,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
 */
 static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   int i, j;
-  int lnTo, lnFrom;
-  int *aFromMap;
+  int lnTo;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), &p->c.nFrom);
@@ -621,43 +614,19 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
     return 1;
   }
 
-  /* Compute the differences going from pParent to the last file
-  ** processed */
+  /* Compute the differences going from pParent to the file being
+  ** annotated. */
   diff_all(&p->c);
 
   /* Where new lines are inserted on this difference, record the
   ** zPName as the source of the new line.
   */
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
-    lnTo += p->c.aEdit[i];
-    for(j=0; j<p->c.aEdit[i+2]; j++, lnTo++){
-      int x = p->aMap[lnTo];
-      if( x>=0 && p->aOrig[x].zSrc==0 ){
-        p->aOrig[x].zSrc = zPName;
-        p->nNoSrc--;
-      }
-    }
-  }
-
-  /* We will be converting aFrom into aTo for the next step.  Compute
-  ** a map from the aFrom into the original file being annotated.
-  */
-  aFromMap = malloc( sizeof(int)*p->c.nFrom );
-  if( aFromMap==0 ){
-    fossil_panic("out of memory");
-  }
-  for(i=lnTo=lnFrom=0; i<p->c.nEdit; i+=3){
-    for(j=0; j<p->c.aEdit[i]; j++){
-      aFromMap[lnFrom++] = p->aMap[lnTo++];
-    }
-    for(j=0; j<p->c.aEdit[i+1]; j++){
-      aFromMap[lnFrom++] = -1;
+    for(j=0; j<p->c.aEdit[i]; j++, lnTo++){
+      p->aOrig[lnTo].zSrc = zPName;
     }
     lnTo += p->c.aEdit[i+2];
   }
-  assert( lnFrom==p->c.nFrom );
-  free(p->aMap);
-  p->aMap = aFromMap;
 
   /* Clear out the diff results */
   free(p->c.aEdit);
@@ -665,13 +634,9 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   p->c.nEdit = 0;
   p->c.nEditAlloc = 0;
 
-  /* Move aFrom over to aTo in preparation for the next step */
-  free(p->c.aTo);    
-  if( blob_buffer(&p->blobTo) ) blob_reset(&p->blobTo);
-  p->blobTo = *pParent;
+  /* Clear out the from file */
+  free(p->c.aFrom);    
   blob_zero(pParent);
-  p->c.aTo = p->c.aFrom;
-  p->c.nTo = p->c.nFrom;
 
   /* Return no errors */
   return 0;
@@ -708,25 +673,6 @@ void test_annotate_step_cmd(void){
 }
 
 /*
-** Create an annotation string based on the manifest id.
-*/
-static char *annotation_label(int mid, int webLabel){
-  char *z;
-  z = db_text("?",
-    "SELECT"
-    "   substr(blob.uuid,1,10) ||"
-    "   ' ' || date(event.mtime) ||"
-    "   ' (' || substr(event.user || '        ',1,9) || ')'"
-    "  FROM blob, event"
-    " WHERE blob.rid=%d"
-    "   AND event.objid=%d"
-    "   AND event.type='ci'",
-    mid, mid
-  );
-  return z;
-}
-
-/*
 ** Compute a complete annotation on a file.  The file is identified
 ** by its filename number (filename.fnid) and the baseline in which
 ** it was checked in (mlink.mid).
@@ -734,45 +680,44 @@ static char *annotation_label(int mid, int webLabel){
 static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
   Blob toAnnotate;     /* Text of the final version of the file */
   Blob step;           /* Text of previous revision */
-  int rid;
-  int fromid;
-  char *zLabel;
-  int i;
+  int rid;             /* Artifact ID of the file being annotated */
+  char *zLabel;        /* Label to apply to a line */
+  Stmt q;              /* Query returning all ancestor versions */
 
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
   if( rid==0 ){
-    fossil_panic("no changes to file #%d in manifest #%d", fnid, mid);
+    fossil_panic("file #%d is unchanged in manifest #%d", fnid, mid);
   }
   if( !content_get(rid, &toAnnotate) ){
     fossil_panic("unable to retrieve content of artifact #%d", rid);
   }
+  db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
+  compute_ancestors(mid, 1000000000);
   annotation_start(p, &toAnnotate);
-  fromid = db_int(0,"SELECT pid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
-  zLabel = annotation_label(mid, webLabel);
-  if( fromid ){
-    content_get(fromid, &step);
-    annotation_step(p, &step, zLabel);
-  }
 
-  /* Step back through the change history */
-  while( fromid>0 ){
-    mid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
-    if( mid==0 ) break;
-    rid = db_int(-1, "SELECT pid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
-    if( rid<0 ) continue;
-    zLabel = annotation_label(mid, webLabel);
-    if( rid==0 ) break;
-    fromid = rid;
-    content_get(fromid, &step);
+  db_prepare(&q, 
+    "SELECT mlink.fid, blob.uuid, date(event.mtime), event.user "
+    "  FROM mlink, blob, event"
+    " WHERE mlink.fnid=%d"
+    "   AND mlink.mid IN ok"
+    "   AND blob.rid=mlink.mid"
+    "   AND event.objid=mlink.mid"
+    " ORDER BY event.mtime DESC",
+    fnid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
+    zLabel = mprintf("<a href='%s/info/%s'>%.10s</a> %s %9.9s", 
+                     g.zBaseURL, zUuid, zUuid, zDate, zUser);
+    content_get(pid, &step);
     annotation_step(p, &step, zLabel);
+    blob_reset(&step);
   }
-
-  /* Any unannotated lines are due to the last revision seen.
-  */
-  for(i=0; i<p->nOrig; i++){
-    if( p->aOrig[i].zSrc==0 ) p->aOrig[i].zSrc = zLabel;
-  }
+  db_finalize(&q);
 }
 
 /*
