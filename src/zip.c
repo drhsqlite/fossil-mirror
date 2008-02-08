@@ -354,16 +354,16 @@ void baseline_zip_cmd(void){
 void baseline_zip_page(void){
   int rid;
   char *zName;
-  int i;
+  int nName;
   Blob zip;
 
   login_check_credentials();
   if( !g.okRead || !g.okHistory ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
-  i = strlen(zName);
-  for(i=strlen(zName)-1; i>5; i--){
-    if( zName[i]=='.' ){
-      zName[i] = 0;
+  nName = strlen(zName);
+  for(nName=strlen(zName)-1; nName>5; nName--){
+    if( zName[nName]=='.' ){
+      zName[nName] = 0;
       break;
     }
   }
@@ -372,6 +372,7 @@ void baseline_zip_page(void){
     @ Not found
     return;
   }
+  if( nName>10 ) zName[10] = 0;
   zip_of_baseline(rid, &zip, zName);
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
