@@ -93,6 +93,9 @@ static void mypage_page_default()
   @ Your user ID is: %d(uid)<br/>
   @ Your Fossil permissions are: [%s(ucap)]
   @   [TODO: explain these]<br/>
+  if( g.okAdmin ){
+    @ You are an <a href='%s(g.zBaseURL)/admin'>admin</a>.<br/>
+  }
   @ Your additional info: [%s(uinfo)]
   @   [TODO: make this editable]<br/>
 

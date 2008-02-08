@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C correction\sto\sthe\s'warning'\stext\sin\sadmin_sql_page()
-D 2008-02-08T16:27:25
+C added\sa\slink\s(for\sadmin\susers\sonly)\sto\sthe\sadmin\spage
+D 2008-02-08T19:54:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -69,7 +69,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/my_page.c 6c912124baf82317df7bf7ab763f1f96ed5da879
+F src/my_page.c 0d6df55ccb6c59994125091ffca360537c52de55
 F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6d67f3c7c71b65b0f0d339487667c13cb5449253
-R cad906976cacc106decac1b732e56b95
+P 138177c30e92cf7a01b3d145c46ac28b4c2c654f
+R d11be2b6801805552f8aa63d62347baf
 U stephan
-Z 7c9847b4fd984eb96a2506fdfce8f409
+Z 87c4ac4e798a1c98f5d620fb3670d75e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHrILvZWKvbTL0CBgRAmFJAJ0dUj1jjqXteP2nvi3GKEJAEvKyOwCfagqH
-n2NS+O11sfW17KIrilwOK5M=
-=ZtRO
+iD8DBQFHrLOkZWKvbTL0CBgRAlh/AKDPw11ugh2rTey7xtEKj/VzUOWZtgCgjmLG
+O1YsT3Iz4BjpCbQfbIZt7LY=
+=B3hP
 -----END PGP SIGNATURE-----
