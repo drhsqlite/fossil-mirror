@@ -266,12 +266,19 @@ void filezip_cmd(void){
 **
 ** If the RID object does not exist in the repository, then
 ** pZip is zeroed.
+**
+** zSynthDir is a "synthetic" subdirectory which all zipped files get
+** added to as part of the zip file. It may be 0 or an empty string,
+** in which case it is ignored. The intention is to create a zip which
+** politely expands into a subdir instead of filling your current dir
+** with source files. For example, pass a UUID or "ProjectName".
+**
 */
-void zip_of_baseline(int rid, Blob *pZip){
+void zip_of_baseline(int rid, Blob *pZip, char const * zSynthDir ){
   int i;
   Blob mfile, file, hash;
   Manifest m;
-
+  char const * zDir = (zSynthDir && zSynthDir[0]) ? zSynthDir : "";
   content_get(rid, &mfile);
   if( blob_size(&mfile)==0 ){
     blob_zero(pZip);
@@ -281,19 +288,38 @@ void zip_of_baseline(int rid, Blob *pZip){
   blob_zero(&hash);
   blob_copy(&file, &mfile);
   zip_open();
+
+  const int dirLen = strlen(zDir);
+  char zPrefix[dirLen+2];
+  memset(zPrefix, 0, sizeof(zPrefix));
+  if( zDir[0] ){
+	  snprintf( zPrefix, sizeof(zPrefix), "%s/", zDir );
+  }
+  const int bufsize = 512;
+  char aSBuf[bufsize];
+  int prxLen = strlen(zPrefix);
+  memcpy(aSBuf, zPrefix, prxLen);
+  char * zHead = aSBuf + prxLen;
+  /* Rather than use a lot of mprintf()s here, we reuse aSBuf as a
+  ** buffer for the prefix + current file name. zHead keeps track
+  ** of where we should write file names to this buffer.
+  */
   if( manifest_parse(&m, &mfile) ){
     zip_set_timedate(m.rDate);
-    zip_add_file("manifest", &file);
+    snprintf( zHead, bufsize, "manifest" );
+    zip_add_file(aSBuf, &file);
     sha1sum_blob(&file, &hash);
     blob_reset(&file);
     blob_append(&hash, "\n", 1);
-    zip_add_file("manifest.uuid", &hash);
+    snprintf( zHead, bufsize, "manifest.uuid" );
+    zip_add_file(aSBuf, &hash);
     blob_reset(&hash);
     for(i=0; i<m.nFile; i++){
       int fid = uuid_to_rid(m.aFile[i].zUuid, 0);
       if( fid ){
         content_get(fid, &file);
-        zip_add_file(m.aFile[i].zName, &file);
+	snprintf( zHead, bufsize, "%s", m.aFile[i].zName );
+        zip_add_file( aSBuf, &file);
         blob_reset(&file);
       }
     }
@@ -318,7 +344,7 @@ void baseline_zip_cmd(void){
   }
   db_must_be_within_tree();
   rid = name_to_rid(g.argv[2]);
-  zip_of_baseline(rid, &zip);
+  zip_of_baseline(rid, &zip, g.argv[2]);
   blob_write_to_file(&zip, g.argv[3]);
 }
 
@@ -350,7 +376,7 @@ void baseline_zip_page(void){
     @ Not found
     return;
   }
-  zip_of_baseline(rid, &zip);
+  zip_of_baseline(rid, &zip, zName);
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
   cgi_reply();
