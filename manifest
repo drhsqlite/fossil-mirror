@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C fixed\sa\s2-string\smemleak\sin\stagview_page_list_tags()
-D 2008-02-07T18:01:50
+C minor\sefficiency\shack\sin\stagview_page_list_tags()
+D 2008-02-08T16:24:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -86,7 +86,7 @@ F src/style.c 72a7644b27c2b222d14cfaa5cdfb23da4dca87b1
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 39558ac8183041e045a7e5cee89955457970df06
 F src/tag.c d36aa255e14bf1d58a1e741f86469d920a30f933
-F src/tagview.c 13bdab07f07c7bd5b8b3566e62e0c9442f56b131
+F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
 F src/timeline.c edd15bb80e24a5aeb3ddbcd7fb6a26b5d32c1208
 F src/tkt.c 1c6be6341e09c0711fad6e2ca39a7ee6dbd90c73
 F src/tktconfig.c c567cf64e81509df66f30bf1c9c5bc674858f119
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 007d1ce44f140bc7f95d844bde70571c63742556
-R 7f5afd2388dce9035b1cea96157f936c
+P 2ae7890060340a40b949dc2854da063fbb2fdc95
+R a4d1bf770345bb2595bfea8e644ed281
 U stephan
-Z c2a366c4a1a85c3c68ec520356b7b777
+Z 3528bffe3e950a72c26f3c5be0b27311
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHq0eTZWKvbTL0CBgRAh6iAJ9sikayfONolUXrLVfL55/fE3WT6gCeMiiN
-FpWA+OaBf2lw6wzrPboMyJU=
-=IGyD
+iD8DBQFHrII8ZWKvbTL0CBgRAv5uAKCChvkockjfDxeaUkJisRB4DIdhFgCgvnH9
+7MEBDvi+wh8IUsvHt1YeQDA=
+=gO9d
 -----END PGP SIGNATURE-----
