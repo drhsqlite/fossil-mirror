@@ -971,8 +971,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     typevariable mychangesets         {} ; # List of all known
 					   # changesets.
-    typevariable mytchangesets -array {} ; # List of all known
-					   # changesets of a type.
+
+    # List of all known changesets of a type.
+    typevariable mytchangesets -array {
+	sym::branch {}
+	sym::tag    {}
+	rev         {}
+    }
+					
     typevariable myitemmap     -array {} ; # Map from items (tagged)
 					   # to the list of changesets
 					   # containing it. Each item
