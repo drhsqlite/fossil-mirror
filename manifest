@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C minor\sbuffer\slength\sfix\sfor\sthe\sprevious\schange
-D 2008-02-08T22:02:54
+C Change\szip\sarchiver\sto\smake\suse\sof\sblob.c\smechanisms\sfor\sadding\sprefixes\nto\sfile\snames.\s\sRemove\sC\sconstructs\sthat\sare\snot\scommonly\ssupported.
+D 2008-02-08T22:31:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -102,7 +102,7 @@ F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c bddf828de5125ecc6b5733bbb17d207ccdc57ac8
 F src/wikiformat.c 8bd2fe1f5820aa6043d5841e5434e6bceeb03bac
 F src/xfer.c f7995ea18ab12a071251f22abbe0abe494ba50b3
-F src/zip.c cbdc2c703aa7e2a0b5a05fa99d66ce62b5b1ef2d
+F src/zip.c d33c17b3129101568cd65f5d92135a67c3bc4944
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -194,14 +194,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6b78df386170d9bc7b06cf9897c6e7ecaa9e88a8
-R eef430317b8cd22726e530521388f1a0
-U stephan
-Z bf9bd732f205e0c6888541784388c0bf
+P 091499ec1a4002f7e2860c5b10fb5628a3f8be39
+R d44802787e01774b2a28013d3d7349ac
+U drh
+Z bd86dda43894c28ea82ec031db0645d3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHrNGRZWKvbTL0CBgRAjXZAJ93KO6juYrYy27oPwhZPWE00dhsoQCZAS7v
-sY9mXeTk4BYJ2BTolHC/Jkc=
-=jeje
+iD8DBQFHrNhLoxKgR168RlERAo3MAJ9r3YUpd4LXUE01w3iveXnef0AxGQCfZjK3
+001t6Ga+d98XEbvxjHiVRVA=
+=QU2p
 -----END PGP SIGNATURE-----

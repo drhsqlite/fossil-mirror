@@ -267,18 +267,20 @@ void filezip_cmd(void){
 ** If the RID object does not exist in the repository, then
 ** pZip is zeroed.
 **
-** zSynthDir is a "synthetic" subdirectory which all zipped files get
+** zDir is a "synthetic" subdirectory which all zipped files get
 ** added to as part of the zip file. It may be 0 or an empty string,
 ** in which case it is ignored. The intention is to create a zip which
 ** politely expands into a subdir instead of filling your current dir
 ** with source files. For example, pass a UUID or "ProjectName".
 **
 */
-void zip_of_baseline(int rid, Blob *pZip, char const * zSynthDir ){
+void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   int i;
   Blob mfile, file, hash;
   Manifest m;
-  char const * zDir = (zSynthDir && zSynthDir[0]) ? zSynthDir : "";
+  Blob filename;
+  int nPrefix;
+  
   content_get(rid, &mfile);
   if( blob_size(&mfile)==0 ){
     blob_zero(pZip);
@@ -287,39 +289,32 @@ void zip_of_baseline(int rid, Blob *pZip, char const * zSynthDir ){
   blob_zero(&file);
   blob_zero(&hash);
   blob_copy(&file, &mfile);
+  blob_zero(&filename);
   zip_open();
 
-  const int dirLen = strlen(zDir);
-  char zPrefix[dirLen+2];
-  memset(zPrefix, 0, sizeof(zPrefix));
-  if( zDir[0] ){
-	  snprintf( zPrefix, sizeof(zPrefix), "%s/", zDir );
+  if( zDir && zDir[0] ){
+    blob_appendf(&filename, "%s/", zDir);
   }
-  const int bufsize = 512;
-  char aSBuf[bufsize];
-  int prxLen = strlen(zPrefix);
-  memcpy(aSBuf, zPrefix, prxLen);
-  char * zHead = aSBuf + prxLen;
-  /* Rather than use a lot of mprintf()s here, we reuse aSBuf as a
-  ** buffer for the prefix + current file name. zHead keeps track
-  ** of where we should write file names to this buffer.
-  */
+  nPrefix = blob_size(&filename);
+
   if( manifest_parse(&m, &mfile) ){
     zip_set_timedate(m.rDate);
-    snprintf( zHead, bufsize-prxLen, "manifest" );
-    zip_add_file(aSBuf, &file);
+    blob_append(&filename, "manifest", -1);
+    zip_add_file(blob_str(&filename), &file);
     sha1sum_blob(&file, &hash);
     blob_reset(&file);
     blob_append(&hash, "\n", 1);
-    snprintf( zHead, bufsize-prxLen, "manifest.uuid" );
-    zip_add_file(aSBuf, &hash);
+    blob_resize(&filename, nPrefix);
+    blob_append(&filename, "manifest.uuid", -1);
+    zip_add_file(blob_str(&filename), &hash);
     blob_reset(&hash);
     for(i=0; i<m.nFile; i++){
       int fid = uuid_to_rid(m.aFile[i].zUuid, 0);
       if( fid ){
         content_get(fid, &file);
-	snprintf( zHead, bufsize-prxLen, "%s", m.aFile[i].zName );
-        zip_add_file( aSBuf, &file);
+        blob_resize(&filename, nPrefix);
+        blob_append(&filename, m.aFile[i].zName, -1);
+        zip_add_file(blob_str(&filename), &file);
         blob_reset(&file);
       }
     }
@@ -328,6 +323,7 @@ void zip_of_baseline(int rid, Blob *pZip, char const * zSynthDir ){
     blob_reset(&mfile);
     blob_reset(&file);
   }
+  blob_reset(&filename);
   zip_close(pZip);
 }
 
