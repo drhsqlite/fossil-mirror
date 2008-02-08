@@ -38,7 +38,7 @@ int is_a_version(int rid){
 /*
 ** COMMAND: update
 **
-** Usage: %fossil update ?VERSION? ?--force? ?--latest?
+** Usage: %fossil update ?VERSION? ?--latest?
 **
 ** The optional argument is a version that should become the current
 ** version.  If the argument is omitted, then use the leaf of the
@@ -48,10 +48,6 @@ int is_a_version(int rid){
 **
 ** This command is different from the "checkout" in that edits are
 ** not overwritten.  Edits are merged into the new version.
-**
-** If there are uncommitted edits and the safemerge option is
-** enabled then no update will occur unless you provide the 
-** --force flag.
 */
 void update_cmd(void){
   int vid;              /* Current version */
@@ -73,9 +69,13 @@ void update_cmd(void){
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
-  if( !forceFlag && db_get_int("safemerge", 0) && unsaved_changes() ){
-    fossil_fatal("there are uncommitted changes and safemerge is enabled");
+#if 0
+  /* Always do the update.  If it does not work out, the user can back out
+  ** the changes using "undo" */
+  if( !forceFlag && unsaved_changes() ){
+    fossil_fatal("uncommitted changes; use -f or --force to override");
   }
+#endif
 
   if( g.argc==3 ){
     tid = name_to_rid(g.argv[2]);

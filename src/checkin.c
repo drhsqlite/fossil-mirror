@@ -395,7 +395,7 @@ void commit_cmd(void){
   vid = db_lget_int("checkout", 0);
   if( db_exists("SELECT 1 FROM plink WHERE pid=%d", vid) ){
     wouldFork=1;
-    if( forceFlag==0 && db_get_int("safemerge", 0)==0 ){
+    if( forceFlag==0 ){
       fossil_fatal("would fork.  use -f or --force");
     }
   }

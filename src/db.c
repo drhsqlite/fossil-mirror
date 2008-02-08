@@ -759,7 +759,6 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
     );
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
-  if( !db_is_global("safemerge") ) db_set_int("safemerge", 0, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   zUser = db_get("default-user", 0);
   if( zUser==0 ){
@@ -1054,7 +1053,7 @@ static void print_setting(const char *zName){
 **                     commit or update and automatically push
 **                     after commit or tag or branch creation.
 **
-**    clearsign        Command used to clear-sign manifests at check-in.
+**    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
 **
 **    editor           Text editor command used for check-in comments.
@@ -1067,24 +1066,19 @@ static void print_setting(const char *zName){
 **    omitsign         When enabled, fossil will not attempt to sign any
 **                     commit with gpg. All commits will be unsigned.
 **
-**    safemerge        If enabled, when commit will cause a fork, the
-**                     commit will not abort with warning. Also update
-**                     will not be allowed if local changes exist.
-**
-**   diff-command      External command to run when performing a diff.
+**    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
 **
-**   gdiff-command     External command to run when performing a graphical
+**    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
 */
 void setting_cmd(void){
   static const char *azName[] = {
     "autosync",
-    "clearsign",
+    "pgp-command",
     "editor",
     "localauth",
     "omitsign",
-    "safemerge",
     "diff-command",
     "gdiff-command",
   };
