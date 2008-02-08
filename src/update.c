@@ -305,9 +305,7 @@ void revert_cmd(void){
   
   zFile = mprintf("%/", g.argv[g.argc-1]);
 
-  if( !file_tree_name(zFile, &fname) ){
-    fossil_panic("unknown file: %s", zFile);
-  }
+  file_tree_name(zFile, &fname);
 
   if( access(zFile, 0) ) yesRevert = 1;  
   if( yesRevert==0 ){

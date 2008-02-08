@@ -598,4 +598,3 @@ void wikirules_page(void){
   @ </ol>
   style_footer();
 }
-

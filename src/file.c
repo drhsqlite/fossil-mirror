@@ -286,8 +286,8 @@ void cmd_test_relative_name(void){
 
 /*
 ** Compute a pathname for a file relative to the root of the local
-** tree.  Return TRUE on success and FALSE if the file is not contained
-** in the local tree.
+** tree.  Return TRUE on success.  On failure, print and error
+** message and quit.
 **
 ** The root of the tree is defined by the g.zLocalRoot variable.
 */
@@ -299,6 +299,7 @@ int file_tree_name(const char *zOrigName, Blob *pOut){
   n = strlen(g.zLocalRoot);
   if( blob_size(&full)<=n || memcmp(g.zLocalRoot, blob_buffer(&full), n) ){
     blob_reset(&full);
+    fossil_fatal("file outside of checkout tree: %s", zOrigName);
     return 0;
   }
   blob_zero(pOut);

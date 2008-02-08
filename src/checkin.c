@@ -292,9 +292,7 @@ void select_commit_files(void){
 
     for(ii=2; ii<g.argc; ii++){
       int iId;
-      if( !file_tree_name(g.argv[ii], &b) ){
-        fossil_fatal("file is not in tree: %s", g.argv[ii]);
-      }
+      file_tree_name(g.argv[ii], &b);
       iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
       if( iId<0 ){
         fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);

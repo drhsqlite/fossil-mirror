@@ -101,9 +101,7 @@ void diff_cmd(void){
     blob_appendf(&cmd, "%s ", zExternalCommand);
   }
   zFile = g.argv[g.argc-1];
-  if( !file_tree_name(zFile, &fname) ){
-    fossil_panic("unknown file: %s", zFile);
-  }
+  file_tree_name(zFile, &fname);
 
   blob_zero(&vname);
   do{
