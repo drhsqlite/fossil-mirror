@@ -46,7 +46,7 @@ void branch_new(void){
   
   /* fossil branch new name */
   if( g.argc<3 ){
-    usage("branch new ?-bgcolor COLOR BRANCH-NAME");
+    usage("branch new ?-bgcolor COLOR? BRANCH-NAME");
   }
   zBranch = g.argv[3];
   if( zBranch==0 || zBranch[0]==0 ){
@@ -86,15 +86,10 @@ void branch_new(void){
   blob_appendf(&manifest, "R %b\n", &cksum1);
   
   if( zColor!=0 ){
-    if( strcmp("bgcolor",zBranch)>=0 ){
-      blob_appendf(&manifest, "T *%F *\n", zBranch);
-      blob_appendf(&manifest, "T *bgcolor * %F\n", zColor);
-    }else{
-      blob_appendf(&manifest, "T *bgcolor * %F\n", zColor);
-      blob_appendf(&manifest, "T *%F *\n", zBranch);
-    }
+    blob_appendf(&manifest, "T *bgcolor * %F\n", zColor);
+    blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
   }else{
-    blob_appendf(&manifest, "T *%F *\n", zBranch);
+    blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
   }
 
   /* Cancel any tags that propagate */
@@ -171,7 +166,7 @@ void branch_new(void){
 ** Run various subcommands on the branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new ?-bgcolor COLOR BRANCH-NAME
+**    %fossil branch new ?-bgcolor COLOR? BRANCH-NAME
 **
 **        Create a new branch BRANCH-NAME. You can optionally give
 **        a commit message and branch color.

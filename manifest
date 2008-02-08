@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Rename\sthe\s'clearsign'\ssetting\sto\s'pgp-command'.\s\sRemove\sthe\s\n'safemerge'\ssetting\s-\ssafemerge\sis\son\sby\sdefault\sand\scannot\sbe\ndisabled.
-D 2008-02-08T21:42:46
+C Fix\sthe\sbranch\ssubcommand\sso\sthat\sthe\sbranch\sname\stags\sit\screates\sbegin\nwith\s"sym-".
+D 2008-02-08T21:50:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,7 +37,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/admin.c 83d1c6c6c3f4b3f168251a12e56dc6492e57ce2a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
-F src/branch.c b16668e4cdd32b26e17174413ef305a3af81d480
+F src/branch.c 40033fd3ad0c1b7c61e3f1c371f87b9178094222
 F src/browse.c 079928a8a65a993c4a8a3b9caf8a1d74cc890c5b
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
 F src/checkin.c 844a72c5ae12be166c3d657fcf0ffa465afd6fa2
@@ -191,14 +191,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 840699ecd967d5ba36ce79f0231989f4f4d6a7f6
-R 506b4f7189a952ab9ae82d5d9331bc1c
+P 5cc845cfeb32e18a3ce82593b0c8c28387f198c8
+R 49a4f62e7458b54d562f34e1f5efa28f
 U drh
-Z 16a4b877af1004c45295a80f73111107
+Z 968fd5e76e6a652ff9e03b3daccede8f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHrMzboxKgR168RlERAqy+AJ9gXaWjn53Q3E5uc34rQSS01iAlEQCdE0h5
-APoudV0vH1edYH9OOqv9jGc=
-=B7Bd
+iD8DBQFHrM6roxKgR168RlERAoOFAJ9Gs8b1e/n5BTbbrXXjW48nV3IA+wCghuiB
+uWRXPxJqxHX71gJtcSdagtw=
+=61lH
 -----END PGP SIGNATURE-----
