@@ -122,7 +122,7 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
 		      [struct::set contains $mysymchangesets $cset] \
 		     message]
 
-	log write 4 atopsort "Changeset @ [format $myatfmt $at]: [format $mycsfmt [$cset str]]$message"
+	log write 4 atopsort "Changeset @ [format $myatfmt $at]: [format $mycsfmt [$cset str]] '[$cset lod]' $message"
 
 	state run {
 	    INSERT INTO cstimestamp (cid,  pos, date)

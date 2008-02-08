@@ -1,6 +1,6 @@
 ## -*- tcl -*-
 # # ## ### ##### ######## ############# #####################
-## Copyright (c) 2007 Andreas Kupries.
+## Copyright (c) 2007-2008 Andreas Kupries.
 #
 # This software is licensed as described in the file LICENSE, which
 # you should have received as part of this distribution.
@@ -108,17 +108,17 @@ snit::type ::vc::fossil::import::cvs::fossil {
 
 	log write 2 fossil {== $user @ [clock format $date]}
 	log write 2 fossil {-> $parent}
-	log write 2 fossil {%% [join [split $message \n] "\n%% "]}
+	log write 9 fossil {%% [join [split $message \n] "\n%% "]}
 
 	lappend cmd Do test-import-manifest $date $message
 	if {$parent ne ""} { lappend cmd -p $parent }
 	foreach {frid fpath flabel} $revisions {
 	    lappend cmd -f $frid $fpath
-	    log write 2 fossil {** <[format %5d $frid]> = <$flabel>}
+	    log write 12 fossil {** <[format %5d $frid]> = <$flabel>}
 	}
 
 	# run fossil test-command performing the import.
-	log write 8 fossil {	[lreplace $cmd 3 3 @@]}
+	log write 12 fossil {	[lreplace $cmd 3 3 @@]}
 
 	$self InWorkspace
 	set res [eval $cmd]

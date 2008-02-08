@@ -1,6 +1,6 @@
 ## -*- tcl -*-
 # # ## ### ##### ######## ############# #####################
-## Copyright (c) 2007 Andreas Kupries.
+## Copyright (c) 2007-2008 Andreas Kupries.
 #
 # This software is licensed as described in the file LICENSE, which
 # you should have received as part of this distribution.
@@ -48,9 +48,14 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     method parent {} {
 	return [$myproject getsymbol [state one {
 	    SELECT S.name
-	    FROM preferedparent P, symbol S
-	    WHERE P.sid = $myid
-	    AND   S.sid = P.pid
+	    FROM tag T, symbol S
+	    WHERE T.sid = $myid
+	    AND   S.sid = T.lod
+	UNION
+	    SELECT S.name
+	    FROM branch B, symbol S
+	    WHERE B.sid = $myid
+	    AND   S.sid = B.lod
 	}]]
 	return
     }

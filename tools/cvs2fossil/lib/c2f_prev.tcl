@@ -1,6 +1,6 @@
 ## -*- tcl -*-
 # # ## ### ##### ######## ############# #####################
-## Copyright (c) 2007 Andreas Kupries.
+## Copyright (c) 2007-2008 Andreas Kupries.
 #
 # This software is licensed as described in the file LICENSE, which
 # you should have received as part of this distribution.
@@ -76,6 +76,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	}
 	append str "$mytype ${myid}${detail}>"
 	return $str
+    }
+
+    method lod {} {
+	return [$mytypeobj cs_lod $myitems]
     }
 
     method id    {} { return $myid }
@@ -391,9 +395,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
-    method pushto {sv repository date} {
-	upvar 1 $sv state
-
+    method pushto {repository date rstate} {
 	# Generate and import the manifest for this changeset.
 	#
 	# Data needed:
@@ -407,18 +409,49 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#
 	# - List of the file revisions in the changeset.
 
-	struct::list assign [$myproject getmeta $mysrcid] __ branch user message
-	struct::list assign $branch __ lodname
+	struct::list assign [$myproject getmeta $mysrcid] __ __ user message
+
+	# We derive the lod information directly from the revisions of
+	# the changeset, as the branch part of the meta data (s.a.) is
+	# outdated since pass FilterSymbols.
+
+	set lodname [$self lod]
+
+	log write 2 csets {Importing revision [$self str] on $lodname}
 
 	# Perform the import. As part of that we determine the parent
 	# we need, and convert the list of items in the changeset into
 	# uuids and printable data.
 
-	set uuid [Updatestate state $lodname \
-		      [$repository importrevision [$self str] \
-			   $user $message $date \
-			   [Getparent state $lodname $myproject $myitems] \
-			   [Getrevisioninfo $myitems]]]
+	struct::list assign [Getisdefault $myitems] isdefault lastdefaultontrunk
+
+	log write 8 csets {LOD    '$lodname'}
+	log write 8 csets { def?  $isdefault}
+	log write 8 csets { last? $lastdefaultontrunk}
+
+	set lws  [Getworkspace    $rstate $lodname $myproject $isdefault]
+	$lws add [Getrevisioninfo $myitems]
+
+	set uuid [$repository importrevision [$self str] \
+		      $user $message $date \
+		      [$lws getid] [$lws get]]
+
+	# Remember the imported changeset in the state, under our
+	# LOD. And if it is the last trunk changeset on the vendor
+	# branch then the revision is also the actual root of the
+	# :trunk:, so we remember it as such in the state. However if
+	# the trunk already exists then the changeset cannot be on it
+	# any more. This indicates weirdness in the setup of the
+	# vendor branch, but one we can work around.
+
+	$lws defid $uuid
+	if {$lastdefaultontrunk} {
+	    if {[$rstate has :trunk:]} {
+		log write 2 csets {Multiple changesets declared to be the last trunk changeset on the vendor-branch}
+	    } else {
+		$rstate new :trunk: [$lws name]
+	    }
+	}
 
 	# Remember the whole changeset / uuid mapping, for the tags.
 
@@ -432,88 +465,66 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     proc Getrevisioninfo {revisions} {
 	set theset ('[join $revisions {','}]')
 	set revisions {}
-	foreach {frid path fname revnr} [state run [subst -nocommands -nobackslashes {
-	    SELECT U.uuid, F.visible, F.name, R.rev
+	foreach {frid path fname revnr rop} [state run [subst -nocommands -nobackslashes {
+	    SELECT U.uuid, F.visible, F.name, R.rev, R.op
 	    FROM   revision R, revuuid U, file F
 	    WHERE  R.rid IN $theset  -- All specified revisions
 	    AND    U.rid = R.rid     -- get fossil uuid of revision
 	    AND    F.fid = R.fid     -- get file of revision
 	}]] {
-	    lappend revisions $frid $path $fname/$revnr
+	    lappend revisions $frid $path $fname/$revnr $rop
 	}
 	return $revisions
     }
 
-    proc Getparent {sv lodname project items} {
-	upvar 1 $sv state
+    proc Getworkspace {rstate lodname project isdefault} {
 
-	struct::list assign [Getisdefault $items] isdefault lastdefaultontrunk
-
-	log write 8 csets {LOD    '$lodname'}
-	log write 8 csets { def?  $isdefault}
-	log write 8 csets { last? $lastdefaultontrunk}
-
-	foreach k [lsort [array names state]] {
-	    log write 8 csets {    $k = $state($k)}
-	}
-
-	# See (a) below, we have to remember if the changeset is last
-	# on vendor branch also belonging to trunk even if we find a
-	# parent in the state. The caller will later (after import)
-	# make us the first trunk changeset in the state (See (**)).
-
-	if {$lastdefaultontrunk} {
-	    set state(:vendor:last:) .
-	}
-
-	# The state array holds for each line-of-development (LOD) the
-	# last committed changeset belonging to that LOD.
+	# The state object holds the workspace state of each known
+	# line-of-development (LOD), up to the last committed
+	# changeset belonging to that LOD.
 
 	# (*) Standard handling if in-LOD changesets. If the LOD of
 	#     the current changeset exists in the state (= has been
-	#     committed to) then the stored changeset is the parent we
-	#     are looking for.
+	#     committed to) then this it has the workspace we are
+	#     looking for.
 
-	if {[info exists state($lodname)]} {
-	    return $state($lodname)
+	if {[$rstate has $lodname]} {
+	    return [$rstate get $lodname]
 	}
 
-	# If the LOD is not yet known the current changeset can either
-	# be
-	# (a) the root of a vendor branch,
-	# (b) the root of the trunk LOD, or
+	# If the LOD is however not yet known, then the current
+	# changeset can be either of
+	# (a) root of a vendor branch,
+	# (b) root of the trunk LOD, or
 	# (c) the first changeset in a new LOD which was spawned from
 	#     an existing LOD.
 
-	if {$isdefault} {
-	    # In case of (a) the changeset has no parent, signaled by
-	    # the empty string. We do remember if the changeset is
-	    # last on the vendor branch still belonging to trunk, for
-	    # the trunk root.
-	    return {}
+	if {$isdefault || ($lodname eq ":trunk:")} {
+	    # For both (a) and (b) we have to create a new workspace
+	    # for the lod, and it doesn't inherit from anything.
+
+	    # Note that case (b) may never occur. See the variable
+	    # 'lastdefaultontrunk' in the caller (method pushto). This
+	    # flag can the generation of the workspace for the :trunk:
+	    # LOD as well, making it inherit the state of the last
+	    # trunk-changeset on the vendor-branch.
+
+	    return [$rstate new $lodname]
 	}
 
-	if {$lodname eq ":trunk:"} {
-	    # This is case (b), and we also can be sure that there is
-	    # no vendor branch changeset which could be our
-	    # parent. That was already dealt with through the
-	    # :vendor:last: signal and code in the caller (setting
-	    # such a changeset up as parent in the state, causing the
-	    # standard LOD handler at (*) to kick in. So, no parent
-	    # here at all.
-	    return {}
-	}
-
-	# Case (c). We find the parent LOD of our LOD and take the
-	# last changeset committed to that as our parent. If that
-	# doesn't exist we have an error on our hands.
+	# Case (c). We find the parent LOD of our LOD and let the new
+	# workspace inherit from the parent's workspace.
 
 	set plodname [[[$project getsymbol $lodname] parent] name]
 
 	log write 8 csets {pLOD   '$plodname'}
 
-	if {[info exists state($plodname)]} {
-	    return $state($plodname)
+	if {[$rstate has $plodname]} {
+	    return [$rstate new $lodname $plodname]
+	}
+
+	foreach k [lsort [$rstate names]] {
+	    log write 8 csets {    $k = [[$rstate get $k] getid]}
 	}
 
 	trouble internal {Unable to determine changeset parent}
@@ -534,23 +545,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# ambigous.
 
 	return [list $def [expr {$last ne ""}]]
-    }
-
-    proc Updatestate {sv lodname uuid} {
-	upvar 1 $sv state
-
-	# Remember the imported changeset in the state, under our
-	# LOD. (**) And if the :vendor:last: signal is present then
-	# the revision is also the actual root of the :trunk:, so
-	# remember it as such.
-
-	set state($lodname) $uuid
-	if {[info exists state(:vendor:last:)]} {
-	    unset state(:vendor:last:)
-	    set state(:trunk:) $uuid
-	}
-
-	return $uuid
     }
 
     typemethod split {cset args} {
@@ -977,8 +971,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     typevariable mychangesets         {} ; # List of all known
 					   # changesets.
-    typevariable mytchangesets -array {} ; # List of all known
-					   # changesets of a type.
+
+    # List of all known changesets of a type.
+    typevariable mytchangesets -array {
+	sym::branch {}
+	sym::tag    {}
+	rev         {}
+    }
+					
     typevariable myitemmap     -array {} ; # Map from items (tagged)
 					   # to the list of changesets
 					   # containing it. Each item
@@ -1300,6 +1300,21 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
             AND    C.type = 2		   -- which are branch changesets
 	}]]
     }
+
+    # result = symbol name
+    typemethod cs_lod {revisions} {
+	# Determines the name of the symbol which is the line of
+	# development for the revisions in a changeset.
+
+	set theset ('[join $revisions {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    SELECT
+	    DISTINCT L.name
+	    FROM   revision R, symbol L
+	    WHERE  R.rid in $theset        -- Restrict to revisions of interest
+	    AND    L.sid = R.lod           -- Get lod symbol of revision
+	}]]
+    }
 }
 
 # # ## ### ##### ######## ############# #####################
@@ -1353,6 +1368,21 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
     typemethod cs_successors {tags} {
 	# Tags have no successors.
 	return
+    }
+
+    # result = symbol name
+    typemethod cs_lod {tags} {
+	# Determines the name of the symbol which is the line of
+	# development for the tags in a changeset.
+
+	set theset ('[join $tags {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    SELECT
+	    DISTINCT L.name
+	    FROM   tag T, symbol L
+	    WHERE  T.tid in $theset        -- Restrict to tags of interest
+	    AND    L.sid = T.lod           -- Get lod symbol of tag
+	}]]
     }
 }
 
@@ -1486,6 +1516,21 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
             AND    C.type = 1		-- which are tag changesets
 	}]]
 	return
+    }
+
+    # result = symbol name
+    typemethod cs_lod {branches} {
+	# Determines the name of the symbol which is the line of
+	# development for the branches in a changeset.
+
+	set theset ('[join $branches {','}]')
+	return [state run [subst -nocommands -nobackslashes {
+	    SELECT
+	    DISTINCT L.name
+	    FROM   branch B, symbol L
+	    WHERE  B.bid in $theset        -- Restrict to branches of interest
+	    AND    L.sid = B.lod           -- Get lod symbol of branch
+	}]]
     }
 
     typemethod limits {branches} {
