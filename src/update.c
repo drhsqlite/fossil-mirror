@@ -94,7 +94,7 @@ void update_cmd(void){
     ** By not giving a specific version, they are asking for the latest, thus
     ** pull to get the latest, then update.
     */
-    autosync(1);
+    autosync(AUTOSYNC_PULL);
   }
   
   if( tid==0 ){

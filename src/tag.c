@@ -295,7 +295,7 @@ static void tag_add_artifact(
   db_end_transaction(0);
   
   /* Do an autosync push if requested */
-  autosync(0);
+  autosync(AUTOSYNC_PUSH);
 }
 
 /*

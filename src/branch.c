@@ -155,7 +155,7 @@ void branch_new(void){
   db_end_transaction(0);
   
   /* Do an autosync push, if requested */
-  autosync(0);
+  autosync(AUTOSYNC_PUSH);
 }
 
 /*

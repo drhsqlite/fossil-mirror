@@ -373,7 +373,7 @@ void http_exchange(Blob *pSend, Blob *pRecv){
     if( http_send_recv(&hdr, &payload, pRecv) ) break;
   }
   if( cnt>=2 ){
-    fossil_panic("connection to server failed");
+    fossil_fatal("connection to server failed");
   }
   blob_reset(&hdr);
   blob_reset(&payload);

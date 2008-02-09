@@ -345,7 +345,7 @@ void commit_cmd(void){
   /*
   ** Autosync if requested.
   */
-  autosync(1);
+  autosync(AUTOSYNC_PULL);
   
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
@@ -547,17 +547,10 @@ void commit_cmd(void){
 
   /* Commit */
   db_end_transaction(0);
-  
-  if( wouldFork==0 ){
-    /* Do an autosync push if requested. If wouldFork == 1, then they either
-    ** forced this commit or safe merge is on, and this commit did indeed
-    ** create a fork. In this case, we want the user to merge before sending
-    ** their new commit back to the rest of the world, so do not auto-push.
-    */
-    autosync(0);
-  }else{
-    printf("Warning: commit caused a fork to occur. Please merge and push\n");
-    printf("         your changes as soon as possible.\n");
+
+  autosync(AUTOSYNC_PUSH);  
+  if( db_exists("SELECT 1 FROM plink WHERE pid=%d AND cid!=%d", vid, nvid) ){
+    printf("**** warning: a fork has occurred *****\n");
   }
 }
 

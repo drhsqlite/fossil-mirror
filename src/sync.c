@@ -27,13 +27,22 @@
 #include "sync.h"
 #include <assert.h>
 
+#if INTERFACE
+/*
+** Flags used to determine which direction(s) an autosync goes in.
+*/
+#define AUTOSYNC_PUSH  1
+#define AUTOSYNC_PULL  2
+
+#endif /* INTERFACE */
+
 /*
 ** If the respository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
 ** if the argument is false.  Return true if the autosync is done
 ** and false if autosync is not requested for the current repository.
 */
-int autosync(int pullFlag){
+int autosync(int flags){
   const char *zUrl;
   if( db_get_boolean("autosync", 0)==0 ){
     return 0;
@@ -51,7 +60,7 @@ int autosync(int pullFlag){
   }else{
     printf("Autosync:  http://%s%s\n", g.urlName, g.urlPath);
   }
-  client_sync(!pullFlag, pullFlag, 0);
+  client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0);
   return 1;
 }
 
