@@ -105,7 +105,13 @@ snit::type ::vc::fossil::import::cvs::pass::import {
 	    # At last copy the temporary repository file to its final
 	    # destination and release the associated memory.
 
-	    $fossil finalize [$project base].fsl
+	    set destination [$project base]
+	    if {$destination eq ""} {
+		set destination [file tail [repository base?]]
+	    }
+	    append destination .fsl
+
+	    $fossil finalize $destination
 	}
 
 	# This does not live beyond the pass. We use the state for the
