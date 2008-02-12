@@ -113,19 +113,9 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 		if {![IsRCSArchive $path]} continue
 
 		set usr [UserPath $rcs isattic]
-		if {[IsSuperceded $base $rcs $usr $isattic]} continue
 
-		# XXX Checkme: not sure if this will still fail in the case where a directory does conflict with a file XXX
-		if {
-		    [fileexists_cs $base/$usr] &&
-		    [fileisdir_cs  $base/$usr]
-		} {
-		    trouble fatal "Directory name conflicts with filename."
-		    trouble fatal "Please remove or rename one of the following:"
-		    trouble fatal "    $base/$usr"
-		    trouble fatal "    $base/$rcs"
-		    continue
-		}
+		if {[CheckForAndReportPathConflicts $base $rcs $usr $isattic]} continue
+		if {[HandleDotFile                  $base $rcs usr  $isattic]} continue
 
 		log write 4 collar "Found   $rcs"
 		$project addfile $rcs $usr [file executable $rcs]
@@ -161,10 +151,21 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	return
     }
 
+    typemethod accept_and_convert_dotfiles {} {
+	set myconvertdot 1
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## Internal methods
 
-    typevariable myignore 0
+    typevariable myignore     0 ; # Flag. When set Attic files
+				  # superceded by regular files
+				  # ignored.
+    typevariable myconvertdot 0 ; # Flag. When set dotfiles do not
+				  # cause rejection, but their names
+				  # are converted to a dotless form
+				  # ('dot-' prefix instead of '.').
 
     proc FilterAtticSubdir {base path} {
 	# This command is used by the traverser to prevent it from
@@ -188,9 +189,14 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
     }
 
     proc IsCVSAdmin {rcs} {
-	if {![string match CVSROOT/* $rcs]} {return 0}
-	log write 4 collar "Ignored $rcs, administrative archive"
-	return 1
+	if {
+	    [string match {CVSROOT/*}              $rcs] ||
+	    [string match {.cvsignore*} [file tail $rcs]]
+	} {
+	    log write 4 collar "Ignored $rcs, administrative archive"
+	    return 1
+	}
+	return 0
     }
 
     proc UserPath {rcs iav} {
@@ -238,6 +244,68 @@ snit::type ::vc::fossil::import::cvs::pass::collar {
 	    trouble warn       "Ignored $rcs, superceded archive"
 	}
 	return 1
+    }
+
+    # In the future we should move the activity below into the fossil
+    # backend, as the exact set of paths requiring translation, and
+    # how to translate them, depends entirely on the limitations
+    # imposed by the destination repository.
+
+    proc HandleDotFile {base rcs usrvar isattic} {
+	::variable myconvertdot
+	upvar 1 $usrvar usr
+
+	set dedot [DeDot $usr]
+	if {$dedot eq $usr} { return 0 }
+
+	# Ok, we now have established that the path has to be
+	# translated. Which as already happened as part of the check
+	# above. Left is to report the action, and to check if the new
+	# path collides with existing files and directories.
+
+	if {!$myconvertdot} {
+	    trouble warn       "Ignored $rcs, is a dot-file"
+	    return 1
+	}
+
+	log write 2 collar "Convert $rcs, is a dot-file"
+	set usr $dedot
+
+	return [CheckForAndReportPathConflicts $base $rcs $usr $isattic]
+    }
+
+    proc DeDot {path} {
+	set res {}
+	foreach segment [file split $path] {
+	    lappend res [expr {
+			       [string match {.*} $segment]
+			       ? "dot-[string range $segment 1 end]"
+			       : $segment
+			   }]
+	}
+	return [eval [linsert $res 0 file join]]
+	#8.5: return [file join {*}$res]
+    }
+
+    proc CheckForAndReportPathConflicts {base rcs usr isattic {intro {}}} {
+	if {[IsSuperceded $base $rcs $usr $isattic]} { return 1 }
+
+	# XXX Checkme: not sure if this will still fail in the case
+	# where a directory does conflict with a file XXX
+	if {
+	    [fileexists_cs $base/$usr] &&
+	    [fileisdir_cs  $base/$usr]
+	} {
+	    if {$intro ne {}} {
+		trouble fatal $intro
+	    }
+	    trouble fatal "Directory name conflicts with filename."
+	    trouble fatal "Please remove or rename one of the following:"
+	    trouble fatal "    $base/$usr"
+	    trouble fatal "    $base/$rcs"
+	    return 1
+	}
+	return 0
     }
 
     # # ## ### ##### ######## #############

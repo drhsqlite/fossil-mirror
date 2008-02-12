@@ -43,6 +43,7 @@ snit::type ::vc::fossil::import::cvs::option {
     # --version
     # -p, --pass, --passes
     # --ignore-conflicting-attics
+    # --convert-dotfiles
     # --project
     # -v, --verbose
     # -q, --quiet
@@ -72,6 +73,7 @@ snit::type ::vc::fossil::import::cvs::option {
 		--pass                      -
 		--passes                    { pass select [Value arguments] }
 		--ignore-conflicting-attics { collar ignore_conflicting_attics }
+		--convert-dotfiles          { collar accept_and_convert_dotfiles }
 		--project                   { repository add [Value arguments] }
 		-v                          -
 		--verbose                   { log verbose }
@@ -129,6 +131,11 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "    --ignore-conflicting-attics"
 	trouble info "                               Prevent abort when conflicting archives"
 	trouble info "                               were found in both regular and Attic."
+	trouble info ""
+	trouble info "    --convert-dotfiles"
+	trouble info "                               Prevent abort when dot-files were found,"
+	trouble info "                               causing their conversion to nondot-form"
+	trouble info "                               instead."
 	trouble info ""
 	trouble info "    --state PATH               Save state to the specified file, and"
 	trouble info "                               load state of previous runs from it too."
