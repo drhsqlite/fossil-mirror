@@ -374,6 +374,7 @@ void baseline_zip_page(void){
   }
   if( nName>10 ) zName[10] = 0;
   zip_of_baseline(rid, &zip, zName);
+  free( zName );
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
   cgi_reply();
