@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Report\sdestination\sfile\sfor\srepository,\sand\sfix\sbug\swith\sthe\snaming\sof\sthe\sdestination\striggered\swhen\simporting\sa\srepository\sin\stoto.
-D 2008-02-12T04:25:34
+C Time\sinformation\sextended\sto\sinclude\sa\stotal\ssummed\sover\sall\spasses.\sOutput\sextended\sto\sinclude\sformatted\stime\sdata\s(hours,\sminutes,\sseconds).
+D 2008-02-12T05:39:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -124,7 +124,7 @@ F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
 F tools/cvs2fossil/lib/c2f_gtcore.tcl 6d553315880f6054c1bf453a26a91732cc1dc504
 F tools/cvs2fossil/lib/c2f_integrity.tcl cc4461a50b88dbe6ea29201a43de17817bbd7964
 F tools/cvs2fossil/lib/c2f_option.tcl be274ee7965f632cdfa642fb28c98726b607aa17
-F tools/cvs2fossil/lib/c2f_pass.tcl 98d1ccdb7b4b2f9c80fcf511382cc57c63fd2bfa
+F tools/cvs2fossil/lib/c2f_pass.tcl d98651431b7344ed481cdddad18890c249395ed4
 F tools/cvs2fossil/lib/c2f_patopsort.tcl df888ac8701ffb87d4bc946c6c2da523c715a190
 F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 3f3d02eb9464a3b590257b442f20a3e9c9a57ad4
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
@@ -194,14 +194,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c1dc8701efc30ab4e4693f7a18de51311e744ea7
-R a0123c563d91544adee89ce3087a46fa
+P 0d02fe6c7a8ed0f08e3eced93cc47a2235792c26
+R 2c0487ec7751ba55bbde7794925ac4fa
 U aku
-Z 43062053bf321899ab8ad4cb5ff56200
+Z ca9fda147aae36fdd5582f8e81806d39
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHsR/CvonzZ/CRa7gRAopIAJoCu0qwhVGbbDDlOC43oN36b1PrYwCfdbp8
-GaKwtxjuDNn5Azx+4n6gtdI=
-=05OY
+iD8DBQFHsTEOvonzZ/CRa7gRAqLzAKC44MRpBpBP1UnZkviHUQxdZR6jTACfYi1t
+PAdLGpAywkhJWI28JSs/QOU=
+=AbTO
 -----END PGP SIGNATURE-----
