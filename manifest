@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Time\sinformation\sextended\sto\sinclude\sa\stotal\ssummed\sover\sall\spasses.\sOutput\sextended\sto\sinclude\sformatted\stime\sdata\s(hours,\sminutes,\sseconds).
-D 2008-02-12T05:39:21
+C Extended\smy\snotes.
+D 2008-02-12T06:23:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -31,7 +31,7 @@ F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
-F cvs2fossil.txt 4a1e39371f13e6acbd42fa2f8d70f6a64998ab50
+F cvs2fossil.txt 127838a9ad804712e9cb66dad2af2d1193b130e4
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
@@ -194,14 +194,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0d02fe6c7a8ed0f08e3eced93cc47a2235792c26
-R 2c0487ec7751ba55bbde7794925ac4fa
+P 7817ff2212d9c201b42d28d55599a2e239662e52
+R 8897ed1e7deaeef786ffb5955011ed77
 U aku
-Z ca9fda147aae36fdd5582f8e81806d39
+Z d04ab6fee06d9511cfdbda510ccbb50b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHsTEOvonzZ/CRa7gRAqLzAKC44MRpBpBP1UnZkviHUQxdZR6jTACfYi1t
-PAdLGpAywkhJWI28JSs/QOU=
-=AbTO
+iD8DBQFHsTt+vonzZ/CRa7gRAgX2AJ9ClmgwMLFTu46H/ugxhzIuxGoXLACfRUOz
+QxaP8x488Qe1l5ZsZnK8X/g=
+=S4mg
 -----END PGP SIGNATURE-----

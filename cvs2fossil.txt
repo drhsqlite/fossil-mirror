@@ -9,3 +9,38 @@ Known problems and areas to work on
 
 *	We have to look into the pass 'InitCsets' and hunt for the
 	cause of the large amount of memory it is gobbling up.
+
+*	Multi vendor branch on different symbol - Remember the first
+	vendor branch so that we can force others on it.
+	ristate -> Allow definition of workspace aliases (:vendor:)
+
+*	Look at the dependencies on external packages and consider
+	which of them can be moved into the importer, either as a
+	simple utility command, or wholesale.
+
+	struct::list
+		assign, map, reverse, filter
+
+		Very few and self-contained commands.
+
+	struct::set
+		size, empty, contains, add, include, exclude,
+		intersect, subsetof
+
+		Most of the core commands.
+
+	fileutil
+		cat, appendToFile, writeFile,
+		tempfile, stripPath, test
+
+	fileutil::traverse
+		In toto
+
+	struct::graph
+		In toto
+
+	snit
+		In toto
+
+	sqlite3
+		In tota
