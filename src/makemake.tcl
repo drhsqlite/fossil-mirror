@@ -52,6 +52,7 @@ set src {
   sync
   tag
   tagview
+  th_main
   timeline
   tkt
   tktconfig

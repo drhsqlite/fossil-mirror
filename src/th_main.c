@@ -1,0 +1,253 @@
+/*
+** Copyright (c) 2008 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU General Public
+** License version 2 as published by the Free Software Foundation.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** General Public License for more details.
+** 
+** You should have received a copy of the GNU General Public
+** License along with this library; if not, write to the
+** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+** Boston, MA  02111-1307, USA.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file contains an interface between the TH scripting language
+** (an independent project) and fossil.
+*/
+#include "config.h"
+#include "th_main.h"
+
+/*
+** Global variable counting the number of outstanding calls to malloc()
+** made by the th1 implementation. This is used to catch memory leaks
+** in the interpreter. Obviously, it also means th1 is not threadsafe.
+*/
+static int nOutstandingMalloc = 0;
+
+/*
+** A pointer to the single TH interpreter used within fossil.
+*/
+static Th_Interp *interp = 0;
+
+
+/*
+** Implementations of malloc() and free() to pass to the interpreter.
+*/
+static void *xMalloc(unsigned int n){
+  void *p = malloc(n);
+  if( p ){
+    nOutstandingMalloc++;
+  }
+  return p;
+}
+static void xFree(void *p){
+  if( p ){
+    nOutstandingMalloc--;
+  }
+  free(p);
+}
+static Th_Vtab vtab = { xMalloc, xFree };
+
+
+/*
+** True if output is enabled.  False if disabled.
+*/
+static int enableOutput = 1;
+
+/*
+** TH command:     enable_output BOOLEAN
+**
+** Enable or disable the puts and hputs commands.
+*/
+static int enableOutputCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "enable_output BOOLEAN");
+  }
+  return Th_ToInt(interp, argv[1], argl[1], &enableOutput);
+}
+
+/*
+** Send text to the appropriate output:  Either to the console
+** or to the CGI reply buffer.
+*/
+static void sendText(const char *z, int n){
+  if( enableOutput && n ){
+    if( n<0 ) n = strlen(z);
+    if( g.cgiPanic ){
+      cgi_append_content(z, n);
+    }else{
+      fwrite(z, 1, n, stdout);
+    }
+  }
+}
+
+/*
+** TH command:     puts STRING
+** TH command:     html STRING
+**
+** Output STRING as HTML (html) or unchanged (puts).  
+*/
+static int putsCmd(
+  Th_Interp *interp, 
+  void *pConvert, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "puts STRING");
+  }
+  if( enableOutput ){
+    int size;
+    char *zOut;
+    if( pConvert ){    
+      zOut = htmlize((char*)argv[1], argl[1]);
+      size = strlen(zOut);
+    }else{
+      zOut = (char*)argv[1];
+      size = argl[1];
+    }
+    sendText(zOut, size);
+    if( pConvert ){
+      free(zOut);
+    }
+  }
+  return TH_OK;
+}
+
+/*
+** TH command:      wiki STRING
+**
+** Render the input string as wiki.
+*/
+static int wikiCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "puts STRING");
+  }
+  if( enableOutput ){
+    Blob src;
+    blob_init(&src, (char*)argv[1], argl[1]);
+    wiki_convert(&src, 0, WIKI_INLINE);
+    blob_reset(&src);
+  }
+  return TH_OK;
+}
+
+/*
+** Make sure the interpreter has been initialized.
+*/
+static void initializeInterp(void){
+  static struct _Command {
+    const char *zName;
+    Th_CommandProc xProc;
+    void *pContext;
+  } aCommand[] = {
+    {"enable_output", enableOutputCmd,      0},
+    {"html",          putsCmd,              0},
+    {"puts",          putsCmd,       (void*)1},
+    {"wiki",          wikiCmd,              0},
+  };
+  if( interp==0 ){
+    int i;
+    interp = Th_CreateInterp(&vtab);
+    th_register_language(interp);       /* Basic scripting commands. */
+    for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+      Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc,
+                       aCommand[i].pContext, 0);
+    }
+  }
+}
+
+/*
+** Return true if the string begins with the TH1 begin-script
+** tag:  <th1>.
+*/
+static int isBeginScriptTag(const char *z){
+  return z[0]=='<'
+      && (z[1]=='t' || z[1]=='T')
+      && (z[2]=='h' || z[2]=='H')
+      && z[3]=='1'
+      && z[4]=='>';
+}
+
+/*
+** Return true if the string begins with the TH1 end-script
+** tag:  </th1>.
+*/
+static int isEndScriptTag(const char *z){
+  return z[0]=='<'
+      && z[1]=='/'
+      && (z[2]=='t' || z[2]=='T')
+      && (z[3]=='h' || z[3]=='H')
+      && z[4]=='1'
+      && z[5]=='>';
+}
+
+/*
+** The z[] input contains text mixed with TH1 scripts.
+** The TH1 scripts are contained within <th1>...</th1>.  This routine
+** processes the template and writes the results on either
+** stdout or into CGI.
+*/
+int Th_Render(const char *z){
+  int i = 0;
+  int rc = TH_OK;
+  initializeInterp();
+  while( z[i] ){
+    if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
+      sendText(z, i);
+      z += i+5;
+      for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
+      rc = Th_Eval(interp, 0, (const uchar*)z, i);
+      if( rc!=SBS_OK ) break;
+      z += i;
+      if( z[0] ){ z += 6; }
+      i = 0;
+    }else{
+      i++;
+    }
+  }
+  if( rc==TH_ERROR ){
+    sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1);
+    /* sendText(SbS_GetErrorMessage(p), -1); */
+    sendText("</b></font></p>", -1);
+  }else{
+    sendText(z, i);
+  }
+  return rc;
+}
+
+/*
+** COMMAND: test-th-render
+*/
+void test_th_render(void){
+  Blob in;
+  if( g.argc<3 ){
+    usage("FILE");
+  }
+  blob_zero(&in);
+  blob_read_from_file(&in, g.argv[2]);
+  Th_Render(blob_str(&in));
+}

@@ -4,9 +4,6 @@
 ** interpreted language and API are both based on Tcl.
 */
 
-#ifndef __TH_H
-#define __TH_H
-
 typedef unsigned char uchar;
 
 /*
@@ -187,6 +184,3 @@ int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg);
 
 typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
 int Th_CallSubCommand(Th_Interp*,void*,int,const uchar**,int*,Th_SubCommand*);
-
-#endif /* ifndef __TH_H */
-
