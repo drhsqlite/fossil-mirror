@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Create\sthe\sinterface\sbetween\sTH1\sand\sthe\srest\sof\sfossil.\nSubscript\sis\sstill\sbeing\sused,\sthough.\s\sThis\sis\sa\spreparatory\nstep\stoward\scutting\sover\sto\sTH1.
-D 2008-02-13T16:21:58
+C Corrected\stagxref.srcid/rid\sconfusion\sin\sthe\squeries.\sLinks\snow\sgo\swhere\si\swant\sthem\sto.
+D 2008-02-13T21:33:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -87,7 +87,7 @@ F src/style.c 72a7644b27c2b222d14cfaa5cdfb23da4dca87b1
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
-F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
+F src/tagview.c c4e63d5fb3d8dc88eb313d325ad3cf10727b4db5
 F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
@@ -198,14 +198,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4ee9e31a2d890bcaf5e36bf300983d9797ab6507
-R 3843258d286ac30f83d042f0dab68826
-U drh
-Z 037116224b296b78df34ce95645db422
+P 13e16c824aaf4f75aea97d5526163095e8c96751
+R 20790c513ae081d5862bbb7efa05a543
+U stephan
+Z b50c8df342f86681d4875c59063b41df
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHsxkqoxKgR168RlERAoGKAJwILHAVG9OyAMfO8GXRotdUj//ZqACdHNX/
-/26zzUPf4eTo9LrtYevW2uc=
-=H2jj
+iD8DBQFHs2JYZWKvbTL0CBgRAj1pAJoDpb7FWMkhy9rhvq2lSzZLx3OOlACeMj34
+APxHjoL+tDNlZNBZn1Jj2LE=
+=LGXm
 -----END PGP SIGNATURE-----
