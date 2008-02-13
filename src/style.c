@@ -80,13 +80,13 @@ void style_header(const char *zTitle){
   cgi_destination(CGI_HEADER);
 
   /* Generate the header up through the main menu */
-  Th_InitVar("project_name", db_get("project-name","Unnamed Fossil Project"));
-  Th_InitVar("title", zTitle);
-  Th_InitVar("baseurl", g.zBaseURL);
-  Th_InitVar("manifest_version", MANIFEST_VERSION);
-  Th_InitVar("manifest_date", MANIFEST_DATE);
+  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_Store("title", zTitle);
+  Th_Store("baseurl", g.zBaseURL);
+  Th_Store("manifest_version", MANIFEST_VERSION);
+  Th_Store("manifest_date", MANIFEST_DATE);
   if( g.zLogin ){
-    Th_InitVar("login", g.zLogin);
+    Th_Store("login", g.zLogin);
   }
   Th_Render(zHeader);
   cgi_destination(CGI_BODY);

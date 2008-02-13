@@ -167,14 +167,7 @@ const char zDefaultTicketConfig[] =
 @   the problem can be reproduced.  Provide as much detail as
 @   possible.
 @   <br>
-@   <th1>
-@      if {![info exists comment]} {
-@        set nline 10
-@      } else {
-@        set nline [linecount $comment]
-@        if {$nline>50} {set nline 50}
-@      }
-@   </th1>
+@   <th1>set nline [linecount $comment 50 10]</th1>
 @   <textarea name="comment" cols="80" rows="$nline"
 @    wrap="virtual" class="wikiedit">$<comment></textarea><br>
 @   <input type="submit" name="preview" value="Preview">
@@ -254,37 +247,33 @@ const char zDefaultTicketConfig[] =
 @   <input type="text" name="foundin" size="50" value="$<foundin>">
 @   </td></tr>
 @   <tr><td colspan="2">
-@
-@   [
-@      0 /eall get /eall set           # eall means "edit all".  default==no
-@      /aonlybtn exists not /eall set  # Edit all if no aonlybtn CGI param
-@      /eallbtn exists /eall set       # Edit all if eallbtn CGI param
-@      /w hascap eall and /eall set    # WrTkt permission needed to edit all
-@   ]
-@ 
-@   [eall enable_output]
+@   <th1>
+@     if {![info exists eall]} {set eall 0}
+@     if {[info exists aonlybtn]} {set eall 0}
+@     if {[info exists eallbtn]} {set eall 1}
+@     if {![hascap w]} {set eall 0}
+@     set nline [linecount $comment 15 10]
+@     enable_output $eall
+@   </th1>
 @     Description And Comments:<br>
-@     <textarea name="comment" cols="80" 
-@      rows="[{} /comment get linecount 15 max 10 min html]"
-@      wrap="virtual" class="wikiedit">[comment html]</textarea><br>
+@     <textarea name="comment" cols="80" rows="$nline"
+@      wrap="virtual" class="wikiedit">$<comment></textarea><br>
 @     <input type="hidden" name="eall" value="1">
 @     <input type="submit" name="aonlybtn" value="Append Remark">
-@   
-@   [eall not enable_output]
+@   <th1>enable_output [expr {!$eall}]</th>
 @     Append Remark from 
-@     <input type="text" name="username" value="[username html]" size="30">:<br>
+@     <input type="text" name="username" value="$<username>" size="30">:<br>
 @     <textarea name="cmappnd" cols="80" rows="15"
-@      wrap="virtual" class="wikiedit">[{} /cmappnd get html]</textarea><br>
-@     [/w hascap eall not and enable_output]
+@      wrap="virtual" class="wikiedit">$<cmappnd></textarea><br>
+@   <th1>enable_output [expr {[hascap w] && !$eall}]</th1>
 @     <input type="submit" name="eallbtn" value="Edit All">
-@
-@   [1 enable_output]
+@   <th1>enable_output 1</th1>
 @   </td></tr>
 @   <tr><td align="right"></td><td>
 @   <input type="submit" name="submit" value="Submit Changes">
 @   </td></tr>
 @   </table>
-@ } /tktedit_template set
+@ }
 @ 
 @ ##########################################################################
 @ # The template for the "view ticket" page

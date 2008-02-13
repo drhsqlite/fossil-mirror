@@ -48,7 +48,6 @@ set src {
   setup
   sha1
   style
-  subscript
   sync
   tag
   tagview

@@ -67,6 +67,7 @@ struct Global {
   char *zErrMsg;          /* Text of an error message */
   Blob cgiIn;             /* Input to an xfer www method */
   int cgiPanic;           /* Write error messages to CGI */
+  Th_Interp *interp;      /* The TH1 interpreter */
 
   int *aCommitFile;
 

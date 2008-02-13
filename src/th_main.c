@@ -35,12 +35,6 @@
 static int nOutstandingMalloc = 0;
 
 /*
-** A pointer to the single TH interpreter used within fossil.
-*/
-static Th_Interp *interp = 0;
-
-
-/*
 ** Implementations of malloc() and free() to pass to the interpreter.
 */
 static void *xMalloc(unsigned int n){
@@ -168,7 +162,7 @@ static int hascapCmd(
 /*
 ** Make sure the interpreter has been initialized.
 */
-static void initializeInterp(void){
+void Th_FossilInit(void){
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
@@ -180,23 +174,38 @@ static void initializeInterp(void){
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
   };
-  if( interp==0 ){
+  if( g.interp==0 ){
     int i;
-    interp = Th_CreateInterp(&vtab);
-    th_register_language(interp);       /* Basic scripting commands. */
+    g.interp = Th_CreateInterp(&vtab);
+    th_register_language(g.interp);       /* Basic scripting commands. */
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
-      Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc,
+      Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
     }
   }
 }
 
 /*
-** Initialize a variable in the interpreter.
+** Store a string value in a variable in the interpreter.
 */
-void Th_InitVar(const char *zName, const char *zValue){
-  initializeInterp();
-  Th_SetVar(interp, (uchar*)zName, -1, (uchar*)zValue, strlen(zValue));
+void Th_Store(const char *zName, const char *zValue){
+  Th_FossilInit();
+  Th_SetVar(g.interp, (uchar*)zName, -1, (uchar*)zValue, strlen(zValue));
+}
+
+/*
+** Retrieve a string value from the interpreter.  If no such
+** variable exists, return NULL.
+*/
+char *Th_Fetch(const char *zName, int *pSize){
+  int rc;
+  Th_FossilInit();
+  rc = Th_GetVar(g.interp, zName, -1);
+  if( rc==TH_OK ){
+    return Th_GetResult(g.interp, pSize);
+  }else{
+    return 0;
+  }
 }
 
 /*
@@ -270,7 +279,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   uchar *zResult;
-  initializeInterp();
+  Th_FossilInit();
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -285,17 +294,17 @@ int Th_Render(const char *z){
         zVar = &z[i+1];
         nVar = n;
       }
-      rc = Th_GetVar(interp, (uchar*)zVar, nVar);
+      rc = Th_GetVar(g.interp, (uchar*)zVar, nVar);
       z += i+1+n;
       i = 0;
-      zResult = (uchar*)Th_GetResult(interp, &n);
+      zResult = (uchar*)Th_GetResult(g.interp, &n);
       sendText((char*)zResult, n, n>nVar);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
-      rc = Th_Eval(interp, 0, (const uchar*)z, i);
-      if( rc!=SBS_OK ) break;
+      rc = Th_Eval(g.interp, 0, (const uchar*)z, i);
+      if( rc!=TH_OK ) break;
       z += i;
       if( z[0] ){ z += 6; }
       i = 0;
@@ -305,7 +314,7 @@ int Th_Render(const char *z){
   }
   if( rc==TH_ERROR ){
     sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1, 0);
-    zResult = (uchar*)Th_GetResult(interp, &n);
+    zResult = (uchar*)Th_GetResult(g.interp, &n);
     sendText((char*)zResult, n, 1);
     sendText("</b></font></p>", -1, 0);
   }else{
