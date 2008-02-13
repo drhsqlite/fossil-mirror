@@ -74,7 +74,6 @@ static int submenuCompare(const void *a, const void *b){
 ** Draw the header.
 */
 void style_header(const char *zTitle){
-  const char *zLogInOut = "Login";
   const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   login_check_credentials();
   
@@ -88,36 +87,8 @@ void style_header(const char *zTitle){
   Th_InitVar("manifest_date", MANIFEST_DATE);
   if( g.zLogin ){
     Th_InitVar("login", g.zLogin);
-    zLogInOut = "Logout";
   }
   Th_Render(zHeader);
-
-  /* Generate the main menu */
-  @ <div class="mainmenu">
-  @ <a href="%s(g.zBaseURL)/home">Home</a>
-  if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/dir">Files</a>
-  }
-  if( g.okRead ){
-    @ <a href="%s(g.zBaseURL)/leaves">Leaves</a>
-    @ <a href="%s(g.zBaseURL)/timeline">Timeline</a>
-    @ <a href="%s(g.zBaseURL)/tagview">Tags</a>
-  }
-  if( g.okRdWiki ){
-    @ <a href="%s(g.zBaseURL)/wiki">Wiki</a>
-  }
-#if 0
-  @ <font color="#888888">Search</font>
-  @ <font color="#888888">Ticket</font>
-  @ <font color="#888888">Reports</font>
-#endif
-  if( g.okSetup ){
-    @ <a href="%s(g.zBaseURL)/setup">Setup</a>
-  }
-  if( !g.noPswd ){
-    @ <a href="%s(g.zBaseURL)/login">%s(zLogInOut)</a>
-  }
-  @ </div>
   cgi_destination(CGI_BODY);
   g.cgiPanic = 1;
 }
@@ -164,7 +135,7 @@ void style_footer(void){
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
-@ <title><th1>puts "$project_name: $title"</th1></title>
+@ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$baseurl/timeline.rss">
 @ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
@@ -174,9 +145,9 @@ const char zDefaultHeader[] =
 @ <div class="header">
 @   <div class="logo">
 @     <!-- <img src="logo.gif" alt="logo"><br></br> -->
-@     <nobr><th1>puts $project_name</th1></nobr>
+@     <nobr>$<project_name></nobr>
 @   </div>
-@   <div class="title"><th1>puts $title</th1></div>
+@   <div class="title">$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        html "Logged in as <a href='$baseurl/my'>$login</a>"
@@ -185,6 +156,28 @@ const char zDefaultHeader[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
+@ <div class="mainmenu"><th1>
+@ html "<a href='$baseurl/home'>Home</a>"
+@ if {[hascap h]} {
+@   html "<a href='$baseurl/dir'>Files</a>"
+@ }
+@ if {[hascap i]} {
+@   html "<a href='$baseurl/leaves'>Leaves</a>"
+@   html "<a href='$baseurl/timeline'>Timeline</a>"
+@   html "<a href='$baseurl/tagview'>Tags</a>"
+@ }
+@ if {[hascap j]} {
+@   html "<a href='$baseurl/wiki'>Wiki</a>"
+@ }
+@ if {[hascap s]} {
+@   html "<a href='$baseurl/setup'>Setup</a>"
+@ }
+@ if {[info exists login]} {
+@   html "<a href='$baseurl/login'>Login</a>"
+@ } else {
+@   html "<a href='$baseurl/login'>Logout</a>"
+@ }
+@ </th1></div>
 ;
 
 /*

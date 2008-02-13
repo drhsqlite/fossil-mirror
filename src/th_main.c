@@ -86,14 +86,19 @@ static int enableOutputCmd(
 ** Send text to the appropriate output:  Either to the console
 ** or to the CGI reply buffer.
 */
-static void sendText(const char *z, int n){
+static void sendText(const char *z, int n, int encode){
   if( enableOutput && n ){
     if( n<0 ) n = strlen(z);
+    if( encode ){
+      z = htmlize(z, n);
+      n = strlen(z);
+    }
     if( g.cgiPanic ){
       cgi_append_content(z, n);
     }else{
       fwrite(z, 1, n, stdout);
     }
+    if( encode ) free((char*)z);
   }
 }
 
@@ -113,21 +118,7 @@ static int putsCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  if( enableOutput ){
-    int size;
-    char *zOut;
-    if( pConvert ){    
-      zOut = htmlize((char*)argv[1], argl[1]);
-      size = strlen(zOut);
-    }else{
-      zOut = (char*)argv[1];
-      size = argl[1];
-    }
-    sendText(zOut, size);
-    if( pConvert ){
-      free(zOut);
-    }
-  }
+  sendText((char*)argv[1], argl[1], pConvert!=0);
   return TH_OK;
 }
 
@@ -144,7 +135,7 @@ static int wikiCmd(
   int *argl
 ){
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "puts STRING");
+    return Th_WrongNumArgs(interp, "wiki STRING");
   }
   if( enableOutput ){
     Blob src;
@@ -152,6 +143,25 @@ static int wikiCmd(
     wiki_convert(&src, 0, WIKI_INLINE);
     blob_reset(&src);
   }
+  return TH_OK;
+}
+
+/*
+** TH command:     hascap STRING
+**
+** Return true if the user has all of the capabilities listed in STRING.
+*/
+static int hascapCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "hascap STRING");
+  }
+  Th_SetResultInt(interp, login_has_capability((char*)argv[1],argl[1]));
   return TH_OK;
 }
 
@@ -165,6 +175,7 @@ static void initializeInterp(void){
     void *pContext;
   } aCommand[] = {
     {"enable_output", enableOutputCmd,      0},
+    {"hascap",        hascapCmd,            0},
     {"html",          putsCmd,              0},
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
@@ -185,7 +196,7 @@ static void initializeInterp(void){
 */
 void Th_InitVar(const char *zName, const char *zValue){
   initializeInterp();
-  Th_SetVar(interp, zName, -1, zValue, strlen(zValue));
+  Th_SetVar(interp, (uchar*)zName, -1, (uchar*)zValue, strlen(zValue));
 }
 
 /*
@@ -219,12 +230,17 @@ static int isEndScriptTag(const char *z){
 */
 static int validVarName(const char *z){
   int i = 0;
+  int inBracket = 0;
+  if( z[0]=='<' ){
+    inBracket = 1;
+    z++;
+  }
   if( z[0]==':' && z[1]==':' && isalpha(z[2]) ){
     z += 3;
-    i = 3;
+    i += 3;
   }else if( isalpha(z[0]) ){
     z ++;
-    i = 1;
+    i += 1;
   }else{
     return 0;
   }
@@ -232,14 +248,22 @@ static int validVarName(const char *z){
     z++;
     i++;
   }
+  if( inBracket ){
+    if( z[0]!='>' ) return 0;
+    i += 2;
+  }
   return i;
 }
 
 /*
 ** The z[] input contains text mixed with TH1 scripts.
-** The TH1 scripts are contained within <th1>...</th1>.  This routine
-** processes the template and writes the results on either
-** stdout or into CGI.
+** The TH1 scripts are contained within <th1>...</th1>. 
+** TH1 variables are $aaa or $<aaa>.  The first form of
+** variable is literal.  The second is run through htmlize
+** before being inserted.
+**
+** This routine processes the template and writes the results
+** on either stdout or into CGI.
 */
 int Th_Render(const char *z){
   int i = 0;
@@ -249,14 +273,25 @@ int Th_Render(const char *z){
   initializeInterp();
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
-      sendText(z, i);
-      rc = Th_GetVar(interp, &z[i+1], n);
+      const char *zVar;
+      int nVar;
+      sendText(z, i, 0);
+      if( z[i+1]=='<' ){
+        /* Variables of the form $<aaa> */
+        zVar = &z[i+2];
+        nVar = n-2;
+      }else{
+        /* Variables of the form $aaa */
+        zVar = &z[i+1];
+        nVar = n;
+      }
+      rc = Th_GetVar(interp, (uchar*)zVar, nVar);
       z += i+1+n;
       i = 0;
-      zResult = Th_GetResult(interp, &n);
-      sendText(zResult, n);
+      zResult = (uchar*)Th_GetResult(interp, &n);
+      sendText((char*)zResult, n, n>nVar);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
-      sendText(z, i);
+      sendText(z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       rc = Th_Eval(interp, 0, (const uchar*)z, i);
@@ -269,12 +304,12 @@ int Th_Render(const char *z){
     }
   }
   if( rc==TH_ERROR ){
-    sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1);
-    zResult = Th_GetResult(interp, &n);
-    sendText(zResult, n);
-    sendText("</b></font></p>", -1);
+    sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1, 0);
+    zResult = (uchar*)Th_GetResult(interp, &n);
+    sendText((char*)zResult, n, 1);
+    sendText("</b></font></p>", -1, 0);
   }else{
-    sendText(z, i);
+    sendText(z, i, 0);
   }
   return rc;
 }
