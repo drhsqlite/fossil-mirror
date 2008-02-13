@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C fixed\sa\sstring\smemleak\sin\sbaseline_zip_page()
-D 2008-02-12T00:31:48
+C Update\shomepage\swith\slinks\sto\scompeting\sprojects.
+D 2008-02-13T12:39:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -187,21 +187,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 66d010256941b003ea885472fdd951d8bd8fa3ec
-F www/index.html 834da7be867a8c8afce557ab2168aa0c19ebb214
+F www/fileformat.html 40a53b49c486316b7029c9b0bf2b10563f2daccf
+F www/index.html 0f4c91fa347e9473935a144279796819511e29e2
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
-F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
+F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c1d9e0f4f81ac38157566a438f255e944d572908
-R 98ff8b3e834dcdb658fa55b8c74eb51d
-U stephan
-Z 0da3c1c499210fd986cc895bfde71ddd
+P 1ce0ac53ef7c7e1f48fa63e4b5869a4f8c057103
+R 454ec25139ad064bb35981373985f4a6
+U drh
+Z 54d94bdf0bb740f3c90ca3c604eba529
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHsOj9ZWKvbTL0CBgRApU4AJsFIzDTsplLeQXxgJj8ko9ysYQkLACfXPT+
-wxk+JvGSo333kj/W92gXH48=
-=YJB0
+iD8DBQFHsuT9oxKgR168RlERAkttAKCGSK+MD+aRbBUA46QBrZ2uYi+HGQCff+e/
+nqiaDE9JqHGjCmhMea11ATU=
+=nfek
 -----END PGP SIGNATURE-----
