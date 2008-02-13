@@ -181,6 +181,14 @@ static void initializeInterp(void){
 }
 
 /*
+** Initialize a variable in the interpreter.
+*/
+void Th_InitVar(const char *zName, const char *zValue){
+  initializeInterp();
+  Th_SetVar(interp, zName, -1, zValue, strlen(zValue));
+}
+
+/*
 ** Return true if the string begins with the TH1 begin-script
 ** tag:  <th1>.
 */
@@ -206,6 +214,28 @@ static int isEndScriptTag(const char *z){
 }
 
 /*
+** If string z[0...] contains a valid variable name, return
+** the number of characters in that name.  Otherwise, return 0.
+*/
+static int validVarName(const char *z){
+  int i = 0;
+  if( z[0]==':' && z[1]==':' && isalpha(z[2]) ){
+    z += 3;
+    i = 3;
+  }else if( isalpha(z[0]) ){
+    z ++;
+    i = 1;
+  }else{
+    return 0;
+  }
+  while( isalnum(z[0]) || z[0]=='_' ){
+    z++;
+    i++;
+  }
+  return i;
+}
+
+/*
 ** The z[] input contains text mixed with TH1 scripts.
 ** The TH1 scripts are contained within <th1>...</th1>.  This routine
 ** processes the template and writes the results on either
@@ -213,10 +243,19 @@ static int isEndScriptTag(const char *z){
 */
 int Th_Render(const char *z){
   int i = 0;
+  int n;
   int rc = TH_OK;
+  uchar *zResult;
   initializeInterp();
   while( z[i] ){
-    if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
+    if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
+      sendText(z, i);
+      rc = Th_GetVar(interp, &z[i+1], n);
+      z += i+1+n;
+      i = 0;
+      zResult = Th_GetResult(interp, &n);
+      sendText(zResult, n);
+    }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(z, i);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
@@ -231,7 +270,8 @@ int Th_Render(const char *z){
   }
   if( rc==TH_ERROR ){
     sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1);
-    /* sendText(SbS_GetErrorMessage(p), -1); */
+    zResult = Th_GetResult(interp, &n);
+    sendText(zResult, n);
     sendText("</b></font></p>", -1);
   }else{
     sendText(z, i);

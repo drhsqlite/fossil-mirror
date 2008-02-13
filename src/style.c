@@ -71,11 +71,6 @@ static int submenuCompare(const void *a, const void *b){
 }
 
 /*
-** The Subscript interpreter used to render header and footer.
-*/
-static struct Subscript *pInterp;
-
-/*
 ** Draw the header.
 */
 void style_header(const char *zTitle){
@@ -83,22 +78,19 @@ void style_header(const char *zTitle){
   const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   login_check_credentials();
   
-  if( pInterp ) return;
   cgi_destination(CGI_HEADER);
 
   /* Generate the header up through the main menu */
-  pInterp = SbS_Create();
-  SbS_Store(pInterp, "project_name",
-                     db_get("project-name","Unnamed Fossil Project"), 0);
-  SbS_Store(pInterp, "title", zTitle, 0);
-  SbS_Store(pInterp, "baseurl", g.zBaseURL, 0);
-  SbS_Store(pInterp, "manifest_version", MANIFEST_VERSION, 0);
-  SbS_Store(pInterp, "manifest_date", MANIFEST_DATE, 0);
+  Th_InitVar("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_InitVar("title", zTitle);
+  Th_InitVar("baseurl", g.zBaseURL);
+  Th_InitVar("manifest_version", MANIFEST_VERSION);
+  Th_InitVar("manifest_date", MANIFEST_DATE);
   if( g.zLogin ){
-    SbS_Store(pInterp, "login", g.zLogin, 0);
+    Th_InitVar("login", g.zLogin);
     zLogInOut = "Logout";
   }
-  SbS_Render(pInterp, zHeader);
+  Th_Render(zHeader);
 
   /* Generate the main menu */
   @ <div class="mainmenu">
@@ -136,8 +128,6 @@ void style_header(const char *zTitle){
 void style_footer(void){
   const char *zFooter;
   
-  if( pInterp==0 ) return;
-
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -164,9 +154,7 @@ void style_footer(void){
   @ <div class="content">
   zFooter = db_get("footer", (char*)zDefaultFooter);
   @ </div>
-  SbS_Render(pInterp, zFooter);
-  SbS_Destroy(pInterp);
-  pInterp = 0;
+  Th_Render(zFooter);
 }
 
 /* @-comment: // */
@@ -176,25 +164,26 @@ void style_footer(void){
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
-@ <title>[project_name html]: [title html]</title>
+@ <title><th1>puts "$project_name: $title"</th1></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="[baseurl puts]/timeline.rss">
-@ <link rel="stylesheet" href="[baseurl puts]/style.css" type="text/css"
+@       href="$baseurl/timeline.rss">
+@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
 @     <!-- <img src="logo.gif" alt="logo"><br></br> -->
-@     <nobr>[project_name html]</nobr>
+@     <nobr><th1>puts $project_name</th1></nobr>
 @   </div>
-@   <div class="title">[title html]</div>
-@   <div class="status"><nobr>
-@     [/login exists enable_output]     Logged in as
-@      <a href='[baseurl puts]/my'>[0 /login get html]</a>
-@     [/login exists not enable_output] Not logged in
-@     [1 enable_output]
-@   </nobr></div>
+@   <div class="title"><th1>puts $title</th1></div>
+@   <div class="status"><nobr><th1>
+@      if {[info exists login]} {
+@        html "Logged in as <a href='$baseurl/my'>$login</a>"
+@      } else {
+@        puts "Not logged in"
+@      }
+@   </th1></nobr></div>
 @ </div>
 ;
 
@@ -203,7 +192,7 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] = 
 @ <div class="footer">
-@ Fossil version [manifest_version puts] [manifest_date puts]
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;
