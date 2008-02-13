@@ -142,6 +142,8 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	::file rename -force $myrepository $destination
 	::file delete -force $myworkspace
 	$self destroy
+
+	log write 2 fossil {destination $destination}
 	return
     }
 

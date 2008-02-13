@@ -71,6 +71,12 @@ snit::type ::vc::fossil::import::cvs::ristate {
 
     method names {} { return [array names mystate] }
 
+    method dup {dst _from_ src} {
+	log write 8 ristate {Duplicate workspace state for LOD "$dst" from "$src"}
+	set mystate($dst) $mystate($src)
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 

@@ -145,14 +145,31 @@ snit::type ::vc::fossil::import::cvs::pass {
 
     proc ShowTimes {} {
 	::variable mytime
+	set total 0
 	foreach {pass seconds} $mytime {
 	    ShowTime $pass $seconds
+	    incr total $seconds
 	}
+	ShowTime Total $total
 	return
     }
 
     proc ShowTime {pass seconds} {
-	log write 0 pass "[format %8d $seconds] sec/$pass"
+	if {$seconds > 3600} {
+	    set hr  [expr {$seconds / 3600}]
+	    set min [expr {$seconds % 3600}]
+	    set sec [expr {$min % 60}]
+	    set min [expr {$min / 60}]
+
+	    log write 0 pass "[format %8d $seconds] sec/$pass ([nsp $hr hour] [nsp $min minute] [nsp $sec second])"
+	} elseif {$seconds > 60} {
+	    set min [expr {$seconds / 60}]
+	    set sec [expr {$seconds % 60}]
+
+	    log write 0 pass "[format %8d $seconds] sec/$pass ([nsp $min minute] [nsp $sec second])"
+	} else {
+	    log write 0 pass "[format %8d $seconds] sec/$pass"
+	}
 	return
     }
 

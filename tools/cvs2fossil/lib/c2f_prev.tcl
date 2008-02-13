@@ -499,16 +499,32 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# (c) the first changeset in a new LOD which was spawned from
 	#     an existing LOD.
 
-	if {$isdefault || ($lodname eq ":trunk:")} {
-	    # For both (a) and (b) we have to create a new workspace
-	    # for the lod, and it doesn't inherit from anything.
+	# For both (a) and (b) we have to create a new workspace for
+	# the lod, and it doesn't inherit from anything.
 
-	    # Note that case (b) may never occur. See the variable
-	    # 'lastdefaultontrunk' in the caller (method pushto). This
-	    # flag can the generation of the workspace for the :trunk:
-	    # LOD as well, making it inherit the state of the last
-	    # trunk-changeset on the vendor-branch.
+	# One exception for (a). If we already have a :vendor: branch
+	# then multiple symbols were used for the vendor branch by
+	# different files. In that case the 'new' branch is made an
+	# alias of the :vendor:, effectively merging the symbols
+	# together.
 
+	# Note that case (b) may never occur. See the variable
+	# 'lastdefaultontrunk' in the caller (method pushto). This
+	# flag can the generation of the workspace for the :trunk: LOD
+	# as well, making it inherit the state of the last
+	# trunk-changeset on the vendor-branch.
+
+	if {$isdefault} {
+	    if {![$rstate has ":vendor:"]} {
+		# Create the vendor branch if not present already.
+		$rstate new :vendor:
+	    }
+	    # Merge the new symbol to the vendor branch
+	    $rstate dup $lodname <-- :vendor:
+	    return [$rstate get $lodname]
+	}
+
+	if {$lodname eq ":trunk:"} {
 	    return [$rstate new $lodname]
 	}
 
