@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Cut\sover\sall\scode\sto\suse\sTH1\sinstead\sof\ssubscript.\s\sCompletely\sremove\nthe\ssubscript\sinterpreter\sfrom\sthe\ssource\stree.
-D 2008-02-13T22:31:59
+C Continuing\swork\son\stickets\s(still\snot\sworking\sright.)\s\sImprovements\sto\nthe\sweb\spages.
+D 2008-02-14T02:49:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -58,7 +58,7 @@ F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d8c82766a01ede830d163c01220c09f11c280e94
 F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
-F src/info.c 33d2efae51bf344c5db498e81d24f1ddeda8200e
+F src/info.c 0cbd863b6dd9f11c4d16710d92769d1dc7876b57
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c e12b36e51ecb9042ce9c25b3b554cb9dd6b00de1
 F src/main.mk b7efa1a7b7e40ba6471f706172bdff09d6fad250
@@ -79,7 +79,7 @@ F src/rebuild.c 5e55de3bcde162781cfac661d3893a1d0db86c9e
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c 07530b805a32c0b62c2f052809807630412f1a6c
-F src/setup.c 093a77e546affb5f4a6177b33c425a34cd0dfd44
+F src/setup.c 94746ae493f8db74beb2a1404a4310118f8b4288
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
@@ -90,10 +90,10 @@ F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
 F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
-F src/th_main.c 43919ec3bf2423aaf9969e8d7edf3d7145e3ba34
+F src/th_main.c 7258c955ba097b1b1819f8b53963fe33a7bf5a9b
 F src/timeline.c d21da06aadcd61a658164b3ada9d84f1edc99423
-F src/tkt.c 1502147d4d4be4156ae8d17507c2c7e212d55ed1
-F src/tktconfig.c ef74b37d75b872de465987ea98138a060bd06637
+F src/tkt.c e7e06add5cc8dada9b15a1459381cf3466cac957
+F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -197,14 +197,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ffe92f1a2f103efe35fa61d108a5ef060a50861e
-R ecccedee5afc04878f55d6ce036822ac
+P fde1d82372afffd5765eff9e8d3172a5c44a7b82
+R d981d6cff4218e1c88726ed2c57a454e
 U drh
-Z 7f5273c9cd053e2b033bdfeddf0883ad
+Z c05cfc004e432c4f6b26c2ba083c1a23
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHs2/joxKgR168RlERAvUtAJ99/kah2PsfSoQuac0LKcXGhvI9bwCeJuIl
-jYEhkNN4ONlIBrEmaY3I/aU=
-=wVKz
+iD8DBQFHs6xIoxKgR168RlERAp/3AJ9jtFhZQ114EVxCcYb8kPlGXzhevACfYiC/
+8lgJWFiwmJivKp80Shpn9Hk=
+=/rcu
 -----END PGP SIGNATURE-----

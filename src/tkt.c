@@ -254,7 +254,7 @@ void ticket_init(void){
   Th_FossilInit();
   zConfig = db_text((char*)zDefaultTicketConfig,
              "SELECT value FROM config WHERE name='ticket-configuration'");
-  Th_Eval(g.interp, 0, zConfig, -1);
+  Th_Eval(g.interp, 0, (const uchar*)zConfig, -1);
 }
 
 /*
@@ -321,8 +321,6 @@ void tktview_page(void){
   style_footer();
 }
 
-
-
 /*
 ** TH command:   append_field FIELD STRING
 **
@@ -344,7 +342,7 @@ static int appendRemarkCmd(
     return Th_WrongNumArgs(interp, "append_field FIELD STRING");
   }
   for(idx=0; idx<nField; idx++){
-    if( strncmp(azField[idx], argv[1], argl[1])==0
+    if( strncmp(azField[idx], (const char*)argv[1], argl[1])==0
         && azField[idx][argl[1]]==0 ){
       break;
     }
@@ -451,6 +449,7 @@ void tktnew_page(void){
   style_header("New Ticket");
   ticket_init();
   getAllTicketFields();
+  initializeVariablesFromDb();
   initializeVariablesFromCGI();
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
   zScript = (char*)Th_Fetch("tktnew_template", &nScript);
@@ -547,9 +546,9 @@ char *ticket_config_check(const char *zConfig){
   };
   
   Th_FossilInit();
-  rc = Th_Eval(g.interp, 0, zConfig, strlen(zConfig));
+  rc = Th_Eval(g.interp, 0, (const uchar*)zConfig, strlen(zConfig));
   if( rc!=TH_OK ){
-    zErr = Th_TakeResult(g.interp, 0);
+    zErr = (char*)Th_TakeResult(g.interp, 0);
     return zErr;
   }
   for(i=0; i<sizeof(azRequired)/sizeof(azRequired[0]); i++){

@@ -160,6 +160,95 @@ static int hascapCmd(
 }
 
 /*
+** TH1 command:  combobox NAME TEXT-LIST NUMLINES
+**
+** Generate an HTML combobox.  NAME is both the name of the
+** CGI parameter and the name of a variable that contains the
+** currently selected value.  TEXT-LIST is a list of possible
+** values for the combobox.  NUMLINES is 1 for a true combobox.
+** If NUMLINES is greater than one then the display is a listbox
+** with the number of lines given.
+*/
+static int comboboxCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "combobox NAME TEXT-LIST NUMLINES");
+  }
+  if( enableOutput ){
+    int height;
+    Blob list, elem, name;
+    int nValue;
+    const char *zValue;
+    char *z, *zH;
+
+    if( Th_ToInt(interp, argv[3], argl[3], &height) ) return TH_ERROR;
+    blob_init(&list, (char*)argv[2], argl[2]);
+    blob_init(&name, (char*)argv[1], argl[1]);
+    zValue = Th_Fetch(blob_str(&name), &nValue);
+    z = mprintf("<select name=\"%z\" size=\"%d\">", 
+                 htmlize(blob_buffer(&name), blob_size(&name)), height);
+    sendText(z, -1, 0);
+    free(z);
+    blob_reset(&name);
+    while( blob_token(&list, &elem) ){
+      zH = htmlize(blob_buffer(&elem), blob_size(&elem));
+      if( zValue && blob_size(&elem)==nValue 
+             && memcmp(zValue, blob_buffer(&elem), nValue)==0 ){
+        z = mprintf("<option value=\"%s\" selected>%s</option>", zH, zH);
+      }else{
+        z = mprintf("<option value=\"%s\">%s</option>", zH, zH);
+      }
+      free(zH);
+      sendText(z, -1, 0);
+      free(z);
+    }
+    sendText("</select>", -1, 0);
+    blob_reset(&list);
+  }
+  return TH_OK;
+}
+
+/*
+** TH1 command:     linecount STRING MAX MIN
+**
+** Return one more than the number of \n characters in STRING.  But
+** never return less than MIN or more than MAX.
+*/
+static int linecntCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  const uchar *z;
+  int size, n, i;
+  int iMin, iMax;
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "linecount STRING MAX MIN");
+  }
+  if( Th_ToInt(interp, argv[2], argl[2], &iMax) ) return TH_ERROR;
+  if( Th_ToInt(interp, argv[3], argl[3], &iMin) ) return TH_ERROR;
+  z = argv[1];
+  size = argl[1];
+  for(n=1, i=0; i<size; i++){
+    if( z[i]=='\n' ){
+      n++;
+      if( n>=iMax ) break;
+    }
+  }
+  if( n<iMin ) n = iMin;
+  if( n>iMax ) n = iMax;
+  Th_SetResultInt(interp, n);
+  return TH_OK;
+}
+
+/*
 ** Make sure the interpreter has been initialized.
 */
 void Th_FossilInit(void){
@@ -168,7 +257,9 @@ void Th_FossilInit(void){
     Th_CommandProc xProc;
     void *pContext;
   } aCommand[] = {
+    {"combobox",      comboboxCmd,          0},
     {"enable_output", enableOutputCmd,      0},
+    {"linecount",     linecntCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"html",          putsCmd,              0},
     {"puts",          putsCmd,       (void*)1},
@@ -200,9 +291,9 @@ void Th_Store(const char *zName, const char *zValue){
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
   Th_FossilInit();
-  rc = Th_GetVar(g.interp, zName, -1);
+  rc = Th_GetVar(g.interp, (uchar*)zName, -1);
   if( rc==TH_OK ){
-    return Th_GetResult(g.interp, pSize);
+    return (char*)Th_GetResult(g.interp, pSize);
   }else{
     return 0;
   }

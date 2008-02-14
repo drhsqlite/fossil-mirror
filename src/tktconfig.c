@@ -63,6 +63,7 @@ const char zDefaultTicketConfig[] =
 @      severity TEXT,
 @      foundin TEXT,
 @      contact TEXT,
+@      resolution TEXT,
 @      title TEXT,
 @      comment TEXT,
 @      -- Do not alter this UNIQUE clause:
@@ -146,7 +147,7 @@ const char zDefaultTicketConfig[] =
 @   
 @   <tr>
 @   <td align="right">Severity:
-@   <th1>comboboxy severity severity_choices 1</th1>
+@   <th1>combobox severity $severity_choices 1</th1>
 @   </td>
 @   <td>How debilitating is the problem?  How badly does the problem
 @   effect the operation of the product?</td>
@@ -252,6 +253,7 @@ const char zDefaultTicketConfig[] =
 @     if {[info exists aonlybtn]} {set eall 0}
 @     if {[info exists eallbtn]} {set eall 1}
 @     if {![hascap w]} {set eall 0}
+@     if {![info exists cmappnd]} {set cmappnd {}}
 @     set nline [linecount $comment 15 10]
 @     enable_output $eall
 @   </th1>
@@ -260,7 +262,7 @@ const char zDefaultTicketConfig[] =
 @      wrap="virtual" class="wikiedit">$<comment></textarea><br>
 @     <input type="hidden" name="eall" value="1">
 @     <input type="submit" name="aonlybtn" value="Append Remark">
-@   <th1>enable_output [expr {!$eall}]</th>
+@   <th1>enable_output [expr {!$eall}]</th1>
 @     Append Remark from 
 @     <input type="text" name="username" value="$<username>" size="30">:<br>
 @     <textarea name="cmappnd" cols="80" rows="15"

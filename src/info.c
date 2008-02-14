@@ -23,7 +23,7 @@
 **
 ** This file contains code to implement the "info" command.  The
 ** "info" command gives command-line access to information about
-** the current tree, or a particular file or version.
+** the current tree, or a particular artifact or baseline.
 */
 #include "config.h"
 #include "info.h"
@@ -108,7 +108,7 @@ void info_cmd(void){
 }
 
 /*
-** Show information about descendents of a version.  Do this recursively
+** Show information about descendents of a baseline.  Do this recursively
 ** to a depth of N.  Return true if descendents are shown and false if not.
 */
 static int showDescendents(int pid, int depth, const char *zTitle){
@@ -160,7 +160,7 @@ static int showDescendents(int pid, int depth, const char *zTitle){
 }
 
 /*
-** Show information about ancestors of a version.  Do this recursively
+** Show information about ancestors of a baseline.  Do this recursively
 ** to a depth of N.  Return true if ancestors are shown and false if not.
 */
 static void showAncestors(int pid, int depth, const char *zTitle){
@@ -205,7 +205,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
 
 
 /*
-** Show information about versions mentioned in the "leaves" table.
+** Show information about baselines mentioned in the "leaves" table.
 */
 static void showLeaves(void){
   Stmt q;
@@ -242,7 +242,7 @@ static void showLeaves(void){
 /*
 ** Show information about all tags on a given node.
 */
-static void showTags(int rid){
+static void showTags(int rid, const char *zNotGlob){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
@@ -250,8 +250,8 @@ static void showTags(int rid){
     "       datetime(tagxref.mtime,'localtime'), tagtype"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
     "       LEFT JOIN blob ON blob.rid=tagxref.srcid"
-    " WHERE tagxref.rid=%d"
-    " ORDER BY tagname", rid
+    " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
+    " ORDER BY tagname", rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
@@ -293,7 +293,7 @@ static void showTags(int rid){
 ** WEBPAGE: vinfo
 ** URL:  /vinfo?name=RID|UUID
 **
-** Return information about a version.
+** Return information about a baseline
 */
 void vinfo_page(void){
   Stmt q;
@@ -319,7 +319,7 @@ void vinfo_page(void){
   );
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
-    char *zTitle = mprintf("Version: [%.10s]", zUuid);
+    char *zTitle = mprintf("Baseline [%.10s]", zUuid);
     style_header(zTitle);
     free(zTitle);
     /*@ <h2>Version %s(zUuid)</h2>*/
@@ -337,15 +337,15 @@ void vinfo_page(void){
     @   <td>
     @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
     @     | <a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a>
-    @     | <a href="%s(g.zBaseURL)/fview/%d(rid)">manifest</a>
+    @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
     @   </td>
     @ </tr>
     @ </table></p>
   }else{
-    style_header("Version Information");
+    style_header("Baseline Information");
   }
   db_finalize(&q);
-  showTags(rid);
+  showTags(rid, "");
   @ <div class="section">Changes</div>
   @ <ul>
   db_prepare(&q, 
@@ -424,16 +424,33 @@ void winfo_page(void){
     @ <tr><th>Commands:</th>
     @   <td>
 /*    @     <a href="%s(g.zBaseURL)/wdiff/%d(rid)">diff</a> | */
-    @     <a href="%s(g.zBaseURL)/whistory?page=%t(zName)">history</a>
-    @     | <a href="%s(g.zBaseURL)/fview/%d(rid)">raw-text</a>
+    @     <a href="%s(g.zBaseURL)/whistory?name=%t(zName)">history</a>
+    @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">raw-text</a>
     @   </td>
     @ </tr>
     @ </table></p>
   }else{
     style_header("Wiki Information");
+    rid = 0;
   }
   db_finalize(&q);
-  showTags(rid);
+  showTags(rid, "wiki-*");
+  if( rid ){
+    Blob content;
+    Manifest m;
+    memset(&m, 0, sizeof(m));
+    blob_zero(&m.content);
+    content_get(rid, &content);
+    manifest_parse(&m, &content);
+    if( m.type==CFTYPE_WIKI ){
+      Blob wiki;
+      blob_init(&wiki, m.zWiki, -1);
+      @ <div class="section">Content</div>
+      wiki_convert(&wiki, 0, 0);
+      blob_reset(&wiki);
+    }
+    manifest_clear(&m);
+  }
   style_footer();
 }
 
@@ -501,7 +518,7 @@ void finfo_page(void){
     hyperlink_to_uuid(zVers);
     @ %h(zCom) (By: %h(zUser))
     @ Id: %s(zUuid)/%d(frid)
-    @ <a href="%s(g.zBaseURL)/fview/%d(frid)">[view]</a>
+    @ <a href="%s(g.zBaseURL)/artifact/%d(frid)">[view]</a>
     if( fpid ){
       @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
     }
@@ -543,7 +560,7 @@ void vdiff_page(void){
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  style_header("Version Diff");
+  style_header("Baseline Diff");
 
   rid = name_to_rid(PD("name",""));
   if( rid==0 ){
@@ -582,7 +599,7 @@ void vdiff_page(void){
 **
 **     * It's uuid
 **     * All its filenames
-**     * The versions it was checked-in on, with times and users
+**     * The baselines it was checked-in on, with times and users
 **
 ** If the object is a manifest, then mention:
 **
@@ -646,7 +663,7 @@ static void object_description(int rid, int linkToView){
   db_finalize(&q);
   if( nWiki==0 ){
     db_prepare(&q,
-      "SELECT datetime(mtime), user, comment, uuid"
+      "SELECT datetime(mtime), user, comment, uuid, type"
       "  FROM event, blob"
       " WHERE event.objid=%d"
       "   AND blob.rid=%d",
@@ -657,7 +674,16 @@ static void object_description(int rid, int linkToView){
       const char *zUuid = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 1);
       const char *zCom = db_column_text(&q, 2);
-      @ Manifest of version
+      const char *zType = db_column_text(&q, 4);
+      if( zType[0]=='w' ){
+        @ Wiki edit
+      }else if( zType[0]=='t' ){
+        @ Ticket change
+      }else if( zType[0]=='c' ){
+        @ Manifest of baseline
+      }else{
+        @ Control file referencing
+      }
       hyperlink_to_uuid(zUuid);
       @ %w(zCom) by %h(zUser) on %s(zDate)
       cnt++;
@@ -668,7 +694,7 @@ static void object_description(int rid, int linkToView){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     @ Control file %s(zUuid).
   }else if( linkToView ){
-    @ <a href="%s(g.zBaseURL)/fview/%d(rid)">[view]</a>
+    @ <a href="%s(g.zBaseURL)/artifact/%d(rid)">[view]</a>
   }
 }
 
@@ -709,13 +735,13 @@ void diff_page(void){
 }
 
 /*
-** WEBPAGE: fview
-** URL: /fview?name=UUID
+** WEBPAGE: artifact
+** URL: /artifact?name=UUID
 ** 
 ** Show the complete content of a file identified by UUID
 ** as preformatted text.
 */
-void fview_page(void){
+void artifact_page(void){
   int rid;
   Blob content;
 
@@ -733,7 +759,7 @@ void fview_page(void){
       return;
     }
   }
-  style_header("File Content");
+  style_header("Artifact Content");
   @ <h2>Content Of:</h2>
   @ <blockquote>
   object_description(rid, 0);
@@ -752,14 +778,13 @@ void fview_page(void){
 ** URL: info/UUID
 **
 ** The argument is a UUID which might be a baseline or a file or
-** a ticket or something else.  It might also be a wiki page name.
-** Figure out what the UUID is an jump to it.  If there is ambiguity,
-** draw a page and let the user select the interpretation.
+** a ticket changes or a wiki editor or something else. 
+**
+** Figure out what the UUID is and jump to it.
 */
 void info_page(void){
   const char *zName;
-  int rc = 0, nName, cnt;
-  Stmt q;
+  int rid, nName;
   
   zName = P("name");
   if( zName==0 ) cgi_redirect("index");
@@ -767,67 +792,20 @@ void info_page(void){
   if( nName<4 || nName>UUID_SIZE || !validate16(zName, nName) ){
     cgi_redirect("index");
   }
-  db_multi_exec(
-     "CREATE TEMP TABLE refs(type,link);"
-     "INSERT INTO refs "
-     "  SELECT 'f', rid FROM blob WHERE uuid GLOB '%s*'"
-     "  UNION ALL"
-     "  SELECT 'w', substr(tagname,6) FROM tag"
-     "   WHERE tagname='wiki-%q'"
-     /*"  UNION ALL"
-     "  SELECT 't', tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*';"*/,
-     zName, zName, zName
-  );
-  cnt = db_int(0, "SELECT count(*) FROM refs");
-  if( cnt==0 ){
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%s*'");
+  if( rid==0 ){
     style_header("Broken Link");
     @ <p>No such object: %h(zName)</p>
     style_footer();
     return;
   }
-  db_prepare(&q, "SELECT type, link FROM refs");
-  db_step(&q);
-  if( cnt==1 ){
-    int type = *db_column_text(&q, 0);
-    int rid = db_column_int(&q, 1);
-    db_finalize(&q);
-    if( type=='w' ){
-      wiki_page();
-    }else if( type=='t' ){
-      tktview_page();
-    }else{
-      cgi_replace_parameter("name", mprintf("%d", rid));
-      if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
-        vinfo_page();
-      }else{
-        finfo_page();
-      }
-    }
-    return;
+  if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
+    vinfo_page();
+  }else
+  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+    finfo_page();
+  }else
+  {
+    artifact_page();
   }
-  /* Multiple objects */
-  style_header("Ambiguous Link");
-  @ <h2>Ambiguous Link: %h(zName)</h2>
-  @ <ul>
-  while( rc==SQLITE_ROW ){
-    int type = *db_column_text(&q, 0);
-    if( type=='f' ){
-      @ <li><p>
-      object_description(db_column_int(&q, 1), 1);
-      @ </p></li>
-    }else if( type=='w' ){
-      @ <li><p>
-      @ Wiki page <a href="%s(g.zBaseURL)/wiki?name=%s(zName)">%s(zName)</a>.
-      @ </li><p>
-    }else if( type=='t' ){
-      const char *zUuid = db_column_text(&q, 1);
-      @ <li><p>
-      @ Ticket <a href="%s(g.zBaseURL)/tktview?name=%s(zUuid)">%s(zUuid)</a>.
-      @ </li><p>
-    }
-    rc = db_step(&q);
-  }
-  @ </ul>
-  style_footer();
-  db_finalize(&q);
 }
