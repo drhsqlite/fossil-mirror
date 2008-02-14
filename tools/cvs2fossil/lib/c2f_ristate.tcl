@@ -37,11 +37,11 @@ snit::type ::vc::fossil::import::cvs::ristate {
     }
 
     method new {lod {parentlod {}}} {
-	# Create the workspace state for a line of development
-	# (LOD). If a parent LOD is specified let the new state
-	# inherit the current state of the parent.
+	# Create a workspace for a line of development (LOD). If a
+	# parent LOD is specified let the new workspace inherit the
+	# current state of the parent.
 
-	log write 8 ristate {Open workspace state for LOD "$lod"}
+	log write 8 ristate {Open workspace for LOD "$lod"}
 
 	integrity assert {
 	    ![info exists mystate($lod)]
@@ -51,7 +51,7 @@ snit::type ::vc::fossil::import::cvs::ristate {
 	set mystate($lod) $wss
 
 	if {$parentlod ne ""} {
-	    log write 8 ristate {Inheriting from workspace state for LOD "$parentlod"}
+	    log write 8 ristate {Inheriting from workspace for LOD "$parentlod"}
 
 	    integrity assert {
 		[info exists mystate($parentlod)]
@@ -72,7 +72,7 @@ snit::type ::vc::fossil::import::cvs::ristate {
     method names {} { return [array names mystate] }
 
     method dup {dst _from_ src} {
-	log write 8 ristate {Duplicate workspace state for LOD "$dst" from "$src"}
+	log write 8 ristate {Duplicate workspace for LOD "$dst" from "$src"}
 	set mystate($dst) $mystate($src)
 	return
     }
@@ -82,7 +82,7 @@ snit::type ::vc::fossil::import::cvs::ristate {
 
     variable mystate -array {} ; # Map from lines of development
 				 # (identified by name) to their
-				 # workspace state.
+				 # workspace.
 
     # # ## ### ##### ######## #############
     ## Configuration
