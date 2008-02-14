@@ -48,7 +48,11 @@ snit::type ::vc::fossil::import::cvs::wsstate {
 	    log write 5 wss {$myop($rop) $label}
 
 	    if {$rop < 0} {
-		unset mystate($path)
+		if {[catch {
+		    unset mystate($path)
+		}]} {
+		    log write 0 wss "Removed path \"$path\" is not known to the workspace"
+		}
 	    } else {
 		set mystate($path) [list $rid $label]
 	    }
