@@ -41,4 +41,5 @@ package ifneeded vc::tools::dot                             1.0 [list source [fi
 package ifneeded vc::tools::id                              1.0 [list source [file join $dir id.tcl]]
 package ifneeded vc::tools::log                             1.0 [list source [file join $dir log.tcl]]
 package ifneeded vc::tools::misc                            1.0 [list source [file join $dir misc.tcl]]
+package ifneeded vc::tools::mem                             1.0 [list source [file join $dir mem.tcl]]
 package ifneeded vc::tools::trouble                         1.0 [list source [file join $dir trouble.tcl]]

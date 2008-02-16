@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bugfix.\sAllow\sfor\sremoval\sof\sa\spath\sfrom\sa\sworkspace\swhich\swas\snot\sadded\sto\sthe\sworkspace\syet.\sIssue\sa\swarning\swhen\sencontering\sthis.
-D 2008-02-14T04:27:42
+C Created\sa\smemory\stracking\ssubsystem\sto\sinvestigate\smemory\sconsumption\sof\sthe\ssystem\sin\sgeneral,\sand\spass\sInitCsets\sin\sparticular.\sgetmemory\sseries\sis\sa\spostprocessor\spulling\sthe\sdata\sout\sof\sthe\slog\sand\sinto\sa\stables\sgnuplot\sis\sable\sto\shandle.
+D 2008-02-16T06:43:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -114,6 +114,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
+F tools/cvs2fossil/getmemoryseries.tcl d3a2537d7a3589138c1774f8b29f8b0074047c0a
 F tools/cvs2fossil/lib/c2f_blobstore.tcl b63bce5767afb8a5e50b6ba5be213a0dea3a88bf
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
 F tools/cvs2fossil/lib/c2f_file.tcl a5aa8fb6dc7bb7c96291143ffec52652af626271
@@ -150,8 +151,9 @@ F tools/cvs2fossil/lib/cvs2fossil.tcl 5ff9bfc14734487793d3335341f30b0c1a2e37be
 F tools/cvs2fossil/lib/dot.tcl a07b3e3a20b9cf0896f3d585b6350ab367b8c44b
 F tools/cvs2fossil/lib/id.tcl ad0171bebe08b12ce2197e444b1237e9dfabf68a
 F tools/cvs2fossil/lib/log.tcl 63d56912abc7c99b386719c8c006e44202c202c6
+F tools/cvs2fossil/lib/mem.tcl 124db2afe9bc2adab4e0ec405998d5df657e82f7
 F tools/cvs2fossil/lib/misc.tcl b4a6c1a89033c497001ff7db53f337921dbea56f
-F tools/cvs2fossil/lib/pkgIndex.tcl 8e64440f57a9c185bc19b7e6746392f3eac3d3a3
+F tools/cvs2fossil/lib/pkgIndex.tcl 73c4287bf52e4849a46c990bf3867a05b3184143
 F tools/cvs2fossil/lib/rcsparser.tcl 6518936d0c3152fb53024c91aa587de15b354262
 F tools/cvs2fossil/lib/trouble.tcl c6cef7555cede649dab283c4a15ea0d2ec71d042
 F tools/cvs2fossil/lodtree eadeb78341c0c59f1dec0f0db0383bf797f5ca8f
@@ -194,14 +196,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 300f31260bf7d0f4dff94a30e3444fba032e0371
-R 9710f5a3ff30bb4ea5884e10fac4db45
+P a25bafb76a56dd2d184212b7570eb923c5bb028a
+R 6496914d7fceed033432bac797c44133
 U aku
-Z b8f8ee20f1db2e3f6fd7e048f65454d3
+Z 2d4097fff163f2999368444aec07a514
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHs8NBvonzZ/CRa7gRAjWAAJ9BTOAtIDZE0Ght5tsgP7rXB1WS5gCffF3X
-YeaBv87te12ViWEZRIS/yc0=
-=8fJO
+iD8DBQFHtoYuvonzZ/CRa7gRAkR3AJwMA0qQlrt/tWgoBwy+grpuShvWkACeLS6i
+zf+kI8ail7TadMTNnqqhfmY=
+=Yy5w
 -----END PGP SIGNATURE-----
