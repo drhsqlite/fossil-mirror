@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Corrected\stagxref.srcid/rid\sconfusion\sin\sthe\squeries.\sLinks\snow\sgo\swhere\si\swant\sthem\sto.
-D 2008-02-13T21:33:48
+C Fixed\smemleaks\sof\sdate-related\sheader\s\sstrings.
+D 2008-02-16T18:49:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -40,7 +37,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
 F src/branch.c c6483e4ed69b0f2cebfe950d6a5ac36e37c3f38e
 F src/browse.c 079928a8a65a993c4a8a3b9caf8a1d74cc890c5b
-F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
+F src/cgi.c 0e9e18ccfe0dfbad65eb8eced7262508b22527ea
 F src/checkin.c 3db074a16daf8f65822eb7a93152be25cd1d1452
 F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -198,14 +195,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 13e16c824aaf4f75aea97d5526163095e8c96751
-R 20790c513ae081d5862bbb7efa05a543
+P 0ff4e918f44a440f34b5e89af0fe61a9f3adceef
+R 8f495979cd427b136c8fe0c6e9ec06b1
 U stephan
-Z b50c8df342f86681d4875c59063b41df
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHs2JYZWKvbTL0CBgRAj1pAJoDpb7FWMkhy9rhvq2lSzZLx3OOlACeMj34
-APxHjoL+tDNlZNBZn1Jj2LE=
-=LGXm
------END PGP SIGNATURE-----
+Z 1fa6191a8f412afcd38e870a4d999fd1
