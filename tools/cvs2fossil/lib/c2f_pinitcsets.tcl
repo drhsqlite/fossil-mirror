@@ -21,6 +21,7 @@ package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
 package require vc::tools::misc                       ; # Text formatting.
 package require vc::tools::log                        ; # User feedback.
+package require vc::tools::mem                        ; # Memory tracking.
 package require vc::fossil::import::cvs::repository   ; # Repository management.
 package require vc::fossil::import::cvs::state        ; # State storage.
 package require vc::fossil::import::cvs::integrity    ; # State integrity checks.
@@ -181,17 +182,25 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	#       on the csets. Doing it like this, late creation, means
 	#       less such calls. None, but the creation itself.
 
+	log write 14 initcsets meta_begin
+	mem::mark
 	foreach {mid rid pid} [state run {
 	    SELECT M.mid, R.rid, M.pid
 	    FROM   revision R, meta M   -- R ==> M, using PK index of M.
 	    WHERE  R.mid = M.mid
 	    ORDER  BY M.mid, R.date
 	}] {
+	    log write 14 initcsets meta_next
+
 	    if {$lastmeta != $mid} {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
+		    log write 14 initcsets meta_cset_begin
+		    mem::mark
 		    project::rev %AUTO% $p rev $lastmeta $revisions
+		    log write 14 initcsets meta_cset_done
+		    mem::mark
 		    set revisions {}
 		}
 		set lastmeta    $mid
@@ -203,8 +212,15 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $revisions]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
+	    log write 14 initcsets meta_cset_begin
+	    mem::mark
 	    project::rev %AUTO% $p rev $lastmeta $revisions
+	    log write 14 initcsets meta_cset_done
+	    mem::mark
 	}
+
+	log write 14 initcsets meta_done
+	mem::mark
 
 	log write 4 initcsets "Created [nsp $n {revision changeset}]"
 	return
@@ -212,6 +228,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 
     proc CreateSymbolChangesets {} {
 	log write 3 initcsets {Create changesets based on symbols}
+	mem::mark
 
 	# Tags and branches induce changesets as well, containing the
 	# revisions they are attached to (tags), or spawned from
@@ -281,6 +298,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	}
 
 	log write 4 initcsets "Created [nsp $n {symbol changeset}]"
+	mem::mark
 	return
     }
 
@@ -294,6 +312,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# dependencies, only external ones.
 
 	log write 3 initcsets {Break internal dependencies}
+	mem::mark
 	set old [llength [project::rev all]]
 
 	foreach cset [project::rev all] {
@@ -303,6 +322,7 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	set n [expr {[llength [project::rev all]] - $old}]
 	log write 4 initcsets "Created [nsp $n {additional revision changeset}]"
 	log write 4 initcsets Ok.
+	mem::mark
 	return
     }
 
@@ -335,6 +355,9 @@ namespace eval ::vc::fossil::import::cvs::pass {
 	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::rev
+	}
+	namespace eval mem {
+	    namespace import ::vc::tools::mem::mark
 	}
 	namespace import ::vc::tools::misc::*
 	namespace import ::vc::tools::log

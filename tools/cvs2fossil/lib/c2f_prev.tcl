@@ -135,7 +135,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     method breakinternaldependencies {} {
-
+	log write 14 csets {[$self str] BID}
+	vc::tools::mem::mark
 	##
 	## NOTE: This method, maybe in conjunction with its caller
 	##       seems to be a memory hog, especially for large
@@ -168,9 +169,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	array set dependencies {}
 	$mytypeobj internalsuccessors dependencies $myitems
-	if {![array size dependencies]} {return 0} ; # Nothing to break.
+	if {![array size dependencies]} {
+	    return 0
+	} ; # Nothing to break.
 
 	log write 5 csets ...[$self str].......................................................
+	vc::tools::mem::mark
 
 	# We have internal dependencies to break. We now iterate over
 	# all positions in the list (which is chronological, at least
@@ -1062,6 +1066,8 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	upvar 1 $dv dependencies
 	set theset ('[join $revisions {','}]')
 
+	log write 14 cset internalsuccessors
+
 	# See 'successors' below for the main explanation of
 	# the various cases. This piece is special in that it
 	# restricts the successors we look for to the same set of
@@ -1123,6 +1129,8 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# changeset, but in turn need the pseudo-dependencies to
 	# handle this.
 
+	log write 14 cset pseudo-internalsuccessors
+
 	array set fids {}
 	foreach {rid fid} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, R.fid
@@ -1143,6 +1151,8 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 		}
 	    }
 	}
+
+	log write 14 cset complete
 	return
     }
 
@@ -1613,14 +1623,17 @@ namespace eval ::vc::fossil::import::cvs::project {
 	namespace eval rev {
 	    namespace import ::vc::fossil::import::cvs::state
 	    namespace import ::vc::fossil::import::cvs::integrity
+	    namespace import ::vc::tools::log
 	}
 	namespace eval sym::tag {
 	    namespace import ::vc::fossil::import::cvs::state
 	    namespace import ::vc::fossil::import::cvs::integrity
+	    namespace import ::vc::tools::log
 	}
 	namespace eval sym::branch {
 	    namespace import ::vc::fossil::import::cvs::state
 	    namespace import ::vc::fossil::import::cvs::integrity
+	    namespace import ::vc::tools::log
 	}
     }
 }
