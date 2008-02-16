@@ -15,8 +15,9 @@
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
-package require Tcl 8.4 ; # Required runtime
-package require snit    ; # OO system.
+package require Tcl 8.4        ; # Required runtime
+package require snit           ; # OO system.
+package require vc::tools::mem ; # Memory tracking.
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -138,7 +139,10 @@ snit::type ::vc::tools::log {
     # Write handler. Each message is a line.
 
     proc OUT/write {system text} {
-	puts "$system [join [split $text \n] "\n$system "]"
+	set m [mlog]
+	regsub -all {[^	]} $m { } b
+	puts "$m$system [join [split $text \n] "\n$b$system "]"
+	mlimit
 	return
     }
 
@@ -167,6 +171,10 @@ snit::type ::vc::tools::log {
 
 namespace eval ::vc::tools {
     namespace export log
+    namespace eval log {
+	namespace import ::vc::tools::mem::mlog
+	namespace import ::vc::tools::mem::mlimit
+    }
 }
 
 # -----------------------------------------------------------------------------

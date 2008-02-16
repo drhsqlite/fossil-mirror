@@ -22,6 +22,7 @@ package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
+package require vc::tools::mem                        ; # Memory tracking.
 package require vc::tools::misc                       ; # Misc. path reformatting.
 package require vc::fossil::import::cvs::fossil       ; # Fossil repository access
 package require vc::fossil::import::cvs::pass         ; # Pass management
@@ -89,6 +90,8 @@ snit::type ::vc::fossil::import::cvs::option {
 		--watch                     { cyclebreaker watch  [Value arguments] }
 		--statesavequeriesto        { state savequeriesto [Value arguments] }
 		--fossil                    { fossil setlocation  [Value arguments] }
+		--memory-limit              { mem::setlimit [Value arguments] }
+		--memory-track              { mem::track }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -250,6 +253,9 @@ namespace eval ::vc::fossil::import::cvs {
 	namespace import ::vc::fossil::import::cvs::integrity
 	namespace eval project {
 	    namespace import ::vc::fossil::import::cvs::project::sym
+	}
+	namespace eval mem {
+	    namespace import ::vc::tools::mem::setlimit
 	}
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
