@@ -127,14 +127,20 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# functionality of the pass.
 
 	state transaction {
-	    CreateRevisionChangesets  ; # Group file revisions into csets.
-	    BreakInternalDependencies ; # Split the csets based on internal conflicts.
-	    CreateSymbolChangesets    ; # Create csets for tags and branches.
-	    PersistTheChangesets
+	    CreateRevisionChangesets  ; # Group file revisions into
+					# preliminary csets and split
+					# them based on internal
+					# conflicts.
+	    CreateSymbolChangesets    ; # Create csets for tags and
+					# branches.
 	}
 
 	repository printcsetstatistics
 	integrity changesets
+
+	# Load the changesets for use by the next passes.
+	project::rev load ::vc::fossil::import::cvs::repository
+	project::rev loadcounter
 	return
     }
 
@@ -170,7 +176,14 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	# later passes (avoids joins later to get at the ordering
 	# info).
 
-	set n 0
+	# The changesets made from these groups are immediately
+	# inspected for internal conflicts and any such are broken by
+	# splitting the problematic changeset into multiple
+	# fragments. The results are changesets which have no internal
+	# dependencies, only external ones.
+
+	set n  0
+	set nx 0
 
 	set lastmeta    {}
 	set lastproject {}
@@ -198,8 +211,11 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		    set  p [repository projectof $lastproject]
 		    log write 14 initcsets meta_cset_begin
 		    mem::mark
-		    project::rev %AUTO% $p rev $lastmeta $revisions
+		    set cset [project::rev %AUTO% $p rev $lastmeta $revisions]
 		    log write 14 initcsets meta_cset_done
+		    $cset breakinternaldependencies nx
+		    $cset persist
+		    $cset destroy
 		    mem::mark
 		    set revisions {}
 		}
@@ -214,15 +230,22 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	    set  p [repository projectof $lastproject]
 	    log write 14 initcsets meta_cset_begin
 	    mem::mark
-	    project::rev %AUTO% $p rev $lastmeta $revisions
+	    set cset [project::rev %AUTO% $p rev $lastmeta $revisions]
 	    log write 14 initcsets meta_cset_done
+	    $cset breakinternaldependencies nx
+	    $cset persist
+	    $cset destroy
 	    mem::mark
 	}
 
 	log write 14 initcsets meta_done
 	mem::mark
 
-	log write 4 initcsets "Created [nsp $n {revision changeset}]"
+	log write 4 initcsets "Created and saved [nsp $n {revision changeset}]"
+	log write 4 initcsets "Created and saved [nsp $nx {additional revision changeset}]"
+
+	mem::mark
+	log write 4 initcsets Ok.
 	return
     }
 
@@ -253,8 +276,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		if {[llength $tags]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    project::rev %AUTO% $p sym::tag $lastsymbol $tags
+		    set cset [project::rev %AUTO% $p sym::tag $lastsymbol $tags]
 		    set tags {}
+		    $cset persist
+		    $cset destroy
 		}
 		set lastsymbol  $sid
 		set lastproject $pid
@@ -265,7 +290,9 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $tags]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    project::rev %AUTO% $p sym::tag $lastsymbol $tags
+	    set cset [project::rev %AUTO% $p sym::tag $lastsymbol $tags]
+	    $cset persist
+	    $cset destroy
 	}
 
 	set lastsymbol {}
@@ -282,8 +309,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		if {[llength $branches]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
-		    project::rev %AUTO% $p sym::branch $lastsymbol $branches
+		    set cset [project::rev %AUTO% $p sym::branch $lastsymbol $branches]
 		    set branches {}
+		    $cset persist
+		    $cset destroy
 		}
 		set lastsymbol  $sid
 		set lastproject $pid
@@ -294,46 +323,13 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	if {[llength $branches]} {
 	    incr n
 	    set  p [repository projectof $lastproject]
-	    project::rev %AUTO% $p sym::branch $lastsymbol $branches
-	}
-
-	log write 4 initcsets "Created [nsp $n {symbol changeset}]"
-	mem::mark
-	return
-    }
-
-    proc BreakInternalDependencies {} {
-	# This code operates on the revision changesets created by
-	# 'CreateRevisionChangesets'. As such it has to follow after
-	# it, before the symbol changesets are made. The changesets
-	# are inspected for internal conflicts and any such are broken
-	# by splitting the problematic changeset into multiple
-	# fragments. The results are changesets which have no internal
-	# dependencies, only external ones.
-
-	log write 3 initcsets {Break internal dependencies}
-	mem::mark
-	set old [llength [project::rev all]]
-
-	foreach cset [project::rev all] {
-	    $cset breakinternaldependencies
-	}
-
-	set n [expr {[llength [project::rev all]] - $old}]
-	log write 4 initcsets "Created [nsp $n {additional revision changeset}]"
-	log write 4 initcsets Ok.
-	mem::mark
-	return
-    }
-
-    proc PersistTheChangesets {} {
-	log write 3 initcsets "Saving [nsp [llength [project::rev all]] {initial changeset}] to the persistent state"
-
-	foreach cset [project::rev all] {
+	    set cset [project::rev %AUTO% $p sym::branch $lastsymbol $branches]
 	    $cset persist
+	    $cset destroy
 	}
 
-	log write 4 initcsets Ok.
+	log write 4 initcsets "Created and saved [nsp $n {symbol changeset}]"
+	mem::mark
 	return
     }
 

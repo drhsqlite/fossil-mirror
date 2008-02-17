@@ -64,6 +64,21 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return
     }
 
+    destructor {
+	# The main thing is to keep track of the itemmap and remove
+	# the object from it. The lists of changesets (mychangesets,
+	# mytchangesets) are not maintained (= reduced), for the
+	# moment. We may be able to get rid of this entirely, at least
+	# for (de)construction and pass InitCSets.
+
+	foreach iid $myitems {
+	    set key [list $mytype $iid]
+	    unset myitemmap($key)
+	    log write 8 csets {MAP- item <$key> $self = [$self str]}
+	}
+	return
+    }
+
     method str {} {
 	set str    "<"
 	set detail ""
@@ -134,7 +149,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	return [array get tmp]
     }
 
-    method breakinternaldependencies {} {
+    method breakinternaldependencies {cv} {
+	upvar 1 $cv counter
 	log write 14 csets {[$self str] BID}
 	vc::tools::mem::mark
 	##
@@ -290,6 +306,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    integrity assert {$laste == ($s - 1)} {Bad fragment border <$laste | $s>, gap or overlap}
 
 	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myitems $s $e]]
+	    incr counter
 
             log write 4 csets "Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)"
 

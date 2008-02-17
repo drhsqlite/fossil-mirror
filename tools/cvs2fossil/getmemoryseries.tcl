@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 package require csv
-foreach {in outbasic outmarker plot} $argv break
+foreach {in outbasic outmarker plot outbasicold} $argv break
 
 set in [open $in        r]
 set ba [open $outbasic  w]
@@ -44,6 +44,15 @@ set    f [open $plot w]
 puts  $f ""
 puts  $f "plot \"$outbasic\" using 1:2 title 'Memory'     with steps, \\"
 puts  $f "     \"$outbasic\" using 1:3 title 'Max Memory' with steps"
+puts  $f "pause -1"
+puts  $f ""
+close $f
+
+# Generate gnuplot control file for comparison of series
+set    f [open ${plot}-compare w]
+puts  $f ""
+puts  $f "plot \"$outbasicold\" using 1:2 title 'Memory Old' with steps, \\"
+puts  $f "     \"$outbasic\"    using 1:2 title 'Memory New' with steps"
 puts  $f "pause -1"
 puts  $f ""
 close $f
