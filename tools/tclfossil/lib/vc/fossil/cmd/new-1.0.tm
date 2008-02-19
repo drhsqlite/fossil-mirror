@@ -10,45 +10,35 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Db commands
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
 package require Tcl 8.5                             ; # Required runtime.
 package require snit                                ; # OO system.
-package require sqlite3
-package require vc::fossil::schema      1.0         ; # Fossil repo schema
+package require vc::fossil::cmd 1.0                 ; # Subcommand management
+package require vc::fossil::db 1.0
+                
+package provide vc::fossil::cmd::new 1.0
+vc::fossil::cmd add new
 
-package provide vc::fossil::db 1.0
+# # ## ### ##### ######## ############# #####################
+## Imports
+
+
 
 # # ## ### ##### ######## ############# #####################
 ##
 
 
-
-namespace eval ::vc::fossil {
-
-    snit::type db {
-	typevariable schemadir [file join [file dirname [info script]] schema]
-        typevariable dbcmd [namespace current]::sqldb
-
-	typemethod create_repository {filename} {
-	    if {[file exists $filename]} {
-		ui panic "file already exists: $filename"
-	    }
-	    db init_database $filename [schema repo1] [schema repo2]
+namespace eval ::vc::fossil::cmd {
+    proc new {args} {
+	if {[ui argc] != 3} {
+	    ui usage "REPOSITORY-NAME"
 	}
-
-	typemethod init_database {filename schema args} {
-	    sqlite3 $dbcmd $filename
-	    $dbcmd transaction {
-		$dbcmd eval $schema
-		foreach schema $args {
-		    $dbcmd eval $schema
-		}
-	    }
-	    $dbcmd close
-	}
+	
+	set filename [file normalize [lindex [ui argv] 2]]
+	db create_repository $filename
+		       
     }
 }

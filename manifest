@@ -1,5 +1,5 @@
-C tclfossil:\sinitial\sdirectory\sstructure\sand\spackage\ssplit\sup
-D 2008-02-19T18:05:51
+C tclfossil:\sadded\sschema\scommand
+D 2008-02-19T21:58:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -153,8 +153,10 @@ F tools/tclfossil/goals.txt 154263573a8140cf327a7c5754b05695e3d413f3
 F tools/tclfossil/lib/vc/fossil/blob-1.0.tm bbd6f28e03313df51bba52ecb6921cf7e1add361
 F tools/tclfossil/lib/vc/fossil/cmd-1.0.tm 0e21eeca2026aaab4b47e8f2bcca1614420334d4
 F tools/tclfossil/lib/vc/fossil/cmd/clone-1.0.tm fdf07a0fb787344f031ef99dcd88153a5db76b86
-F tools/tclfossil/lib/vc/fossil/db-1.0.tm a0e7b78210a1b068c540cfa534ac723bd7ea28ec
-F tools/tclfossil/lib/vc/fossil/ui-1.0.tm ab205caa271f62f7fb5db9f1ad7995b746da5853
+F tools/tclfossil/lib/vc/fossil/cmd/new-1.0.tm 7fc8a4a93558b2951e8aad425e443d18f68c3d61
+F tools/tclfossil/lib/vc/fossil/db-1.0.tm 16c96d774ebb69c435168f56d23df938a76b6caf
+F tools/tclfossil/lib/vc/fossil/schema-1.0.tm b6e0684c32126bf26a53c8c15e720eed363ba325
+F tools/tclfossil/lib/vc/fossil/ui-1.0.tm f35f4d830f534b9447f275aff6f6af406baa437a
 F tools/tclfossil/tf 28a95507a5857992aa9c6e5cbda44d04b9c0f10d
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
 F win32.txt ee38ffb58e908925e8e4161d82e755cbf9d8d63c
@@ -191,7 +193,7 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 60b40f293ade26b87719df3d308074bcc5819ebe
-R 08613423f95f6445b7c792bd0cf507b2
+P 2b9c6df430776725bde3d45e0bdbbcb3c1f29548
+R e3152326f86b38ad7baefaaa34b848d4
 U mjanssen
-Z 1fb306d66f08dd0f99f54c6a1b7c235b
+Z 2f6b52325d3b29ea1bb82ea9a77ab329

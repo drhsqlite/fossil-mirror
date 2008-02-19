@@ -18,6 +18,7 @@
 package require Tcl 8.5                             ; # Required runtime.
 package require snit                                ; # OO system.
 package require vc::fossil::cmd::clone 1.0          ; # Clone command
+package require vc::fossil::cmd::new   1.0          ; # New command
 
 package provide vc::fossil::ui 1.0
 
