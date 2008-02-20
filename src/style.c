@@ -324,6 +324,12 @@ const char zDefaultCSS[] =
 @   color: white;
 @ }
 @
+@ /* Make the links in the footer less ugly... */
+@ div.footer a { color: white; }
+@ div.footer a:link { color: white; }
+@ div.footer a:visited { color: white; }
+@ div.footer a:hover { background-color: white; color: #558195; }
+@
 @ /* The label/value pairs on (for example) the vinfo page */
 @ table.label-value th {
 @   vertical-align: top;

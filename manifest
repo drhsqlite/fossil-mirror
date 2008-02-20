@@ -1,5 +1,5 @@
-C Fixed\smemleaks\sof\sdate-related\sheader\s\sstrings.
-D 2008-02-16T18:49:39
+C made\shyperlinks\sin\sthe\sfooter\sdiv\sless\sugly.
+D 2008-02-20T17:13:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -80,7 +80,7 @@ F src/setup.c 093a77e546affb5f4a6177b33c425a34cd0dfd44
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
-F src/style.c 72a7644b27c2b222d14cfaa5cdfb23da4dca87b1
+F src/style.c bd821bc57b9178fbe3516f6206fb502a314514c5
 F src/subscript.c b76caa035f861c741cde2cd236efc946a27cbded
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
@@ -195,7 +195,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0ff4e918f44a440f34b5e89af0fe61a9f3adceef
-R 8f495979cd427b136c8fe0c6e9ec06b1
+P 88948d582aef0ade4c6b0f6c87b161cafb989c53
+R 5e9a8b2ea174d78d29c85f57d515f7fb
 U stephan
-Z 1fa6191a8f412afcd38e870a4d999fd1
+Z 4a0ce4866b0c2646f9d3add36b6ffca7
