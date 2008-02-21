@@ -205,7 +205,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#       CROSS position in list -> number of dependencies crossing it
 	#       DEPC  dependency       -> positions it crosses
 	# List: RANGE Of the positions itself.
+	# Map:  DELTA position in list -> time delta between its revision
+	#                                 and the next, if any.
 	# A dependency is a single-element map parent -> child
+
+	# InitializeBreakState initializes their contents after
+	# upvar'ing them from this scope. It uses the information in
+	# DEPENDENCIES to do so.
 
 	InitializeBreakState $myitems
 
@@ -801,6 +807,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# First we create a map of positions to make it easier to
 	# determine whether a dependency crosses a particular index.
 
+	log write 14 csets {IBS: #rev [llength $revisions]}
+	log write 14 csets {IBS: pos map, cross counter}
+
 	array set pos   {}
 	array set cross {}
 	array set depc  {}
@@ -812,6 +821,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    set cross($n) 0
 	    incr n
 	}
+
+	log write 14 csets {IBS: pos/[array size pos], cross/[array size cross]}
 
 	# Secondly we count the crossings per position, by iterating
 	# over the recorded internal dependencies.
@@ -825,6 +836,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#         self-dependency due to the uniqueness of positions,
 	#         and that is something we have ruled out already, see
 	#         'rev internalsuccessors'.
+
+	log write 14 csets {IBS: cross counter filling, pos/cross map}
 
 	foreach {rid children} [array get dependencies] {
 	    foreach child $children {
@@ -850,7 +863,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    }
 	}
 
+	log write 14 csets {IBS: pos/[array size pos], cross/[array size cross], depc/[array size depc] (for [llength $revisions])}
+	log write 14 csets {IBS: timestamps, deltas}
+
 	InitializeDeltas $revisions
+
+	log write 14 csets {IBS: delta [array size delta]}
 	return
     }
 
@@ -871,6 +889,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	}]] {
 	    set stamp($rid) $time
 	}
+
+	log write 14 csets {IBS: stamp [array size stamp]}
 
 	set n 0
 	foreach rid [lrange $revisions 0 end-1] rnext [lrange $revisions 1 end] {
@@ -1083,7 +1103,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	upvar 1 $dv dependencies
 	set theset ('[join $revisions {','}]')
 
-	log write 14 cset internalsuccessors
+	log write 14 csets internalsuccessors
 
 	# See 'successors' below for the main explanation of
 	# the various cases. This piece is special in that it
@@ -1146,7 +1166,9 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# changeset, but in turn need the pseudo-dependencies to
 	# handle this.
 
-	log write 14 cset pseudo-internalsuccessors
+	log write 14 csets {internal  [array size dep]}
+	log write 14 csets {collected [array size dependencies]}
+	log write 14 csets pseudo-internalsuccessors
 
 	array set fids {}
 	foreach {rid fid} [state run [subst -nocommands -nobackslashes {
@@ -1155,6 +1177,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
             WHERE  R.rid IN $theset
 	}]] { lappend fids($fid) $rid }
 
+	set groups {}
 	foreach {fid rids} [array get fids] {
 	    if {[llength $rids] < 2} continue
 	    foreach a $rids {
@@ -1167,9 +1190,14 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 		    set dep($b,$a) .
 		}
 	    }
+	    set n [llength $rids]
+	    lappend groups [list $n [expr {($n*$n-$n)/2}]]
 	}
 
-	log write 14 cset complete
+	log write 14 csets {pseudo    [array size fids] ([lsort -index 0 -decreasing -integer $groups])}
+	log write 14 csets {internal  [array size dep]}
+	log write 14 csets {collected [array size dependencies]}
+	log write 14 csets complete
 	return
     }
 
