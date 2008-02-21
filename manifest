@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Record\swhether\sor\snot\sfiles\shave\stheir\sexecute\spermission\sbit\sset.\nSet\sor\sclear\sthe\sexecute\spermission\sbit\supon\scheckout.
-D 2008-02-21T14:27:34
+C fixed\sa\ssmall\scopy/paste\serror\sin\s/setup_ticket
+D 2008-02-21T16:16:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -79,7 +76,7 @@ F src/rebuild.c 5e55de3bcde162781cfac661d3893a1d0db86c9e
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
-F src/setup.c 94746ae493f8db74beb2a1404a4310118f8b4288
+F src/setup.c f8c273bde6a36aa247de1b5c6f3e8050cb01680c
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
@@ -197,14 +194,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 3122fc4c7ef932bf26200859dae8836c33f3ff89
-R ca64c7b8e6fe453b6d7696573da5a78f
-U drh
-Z b5d33bedac516a1e4f752eaaeb6c71d4
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHvYpZoxKgR168RlERAoevAJ9+rw+5AeHPfPRPRhxFVYW6RyYF/QCgjae8
-KJxHRtU38ZMs8fJTorlPACg=
-=rVKo
------END PGP SIGNATURE-----
+P 33c31f73cde7cb812aa1c2320c114f7076ec33dc
+R 45bd546d9a77ac67d435da9f08257272
+U wanderi1
+Z 77a9bc49302b57b7ede467d6e9142264

@@ -739,7 +739,7 @@ void setup_ticket(void){
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default page header:
+  @ Here is the default ticket configuration:
   @ <blockquote><pre>
   @ %h(zDefaultTicketConfig)
   @ </pre></blockquote>
