@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Continuing\swork\son\stickets\s(still\snot\sworking\sright.)\s\sImprovements\sto\nthe\sweb\spages.
-D 2008-02-14T02:49:41
+C Record\swhether\sor\snot\sfiles\shave\stheir\sexecute\spermission\sbit\sset.\nSet\sor\sclear\sthe\sexecute\spermission\sbit\supon\scheckout.
+D 2008-02-21T14:27:34
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -37,12 +37,12 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
-F src/blob.c e355ed75f17284b1afdc7779d8a9a15aebd80035
+F src/blob.c 2269ea66557a267e28249e6a09b3d5b39dbe3818
 F src/branch.c c6483e4ed69b0f2cebfe950d6a5ac36e37c3f38e
 F src/browse.c 079928a8a65a993c4a8a3b9caf8a1d74cc890c5b
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
-F src/checkin.c 3db074a16daf8f65822eb7a93152be25cd1d1452
-F src/checkout.c 226cbdc63b6141aa2034b1a2eec72df93ee6fa00
+F src/checkin.c f5120aa9eebedcb20c94890a8f418b158f43f89a
+F src/checkout.c d83377479991f1773e7fd1b83079168bd9e11d4f
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -56,16 +56,16 @@ F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
 F src/diff.c a8aca97812ee5a957125b2a0bc11f2ae8d3c33f4
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
-F src/file.c d8c82766a01ede830d163c01220c09f11c280e94
+F src/file.c 6f2a64a22272cce6b2e1320dea0083c6498030a5
 F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
-F src/info.c 0cbd863b6dd9f11c4d16710d92769d1dc7876b57
+F src/info.c 97d9ed98da44e09f4c49fe0f7dd938e6b58ff002
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c e12b36e51ecb9042ce9c25b3b554cb9dd6b00de1
 F src/main.mk b7efa1a7b7e40ba6471f706172bdff09d6fad250
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl fd0be2c190f5afd1fbba64e05fa88d3bec4068f9
-F src/manifest.c d38866b6bd8a29de76cabfdf6d4305a02c732238
+F src/manifest.c 64e207831cf07367c865d3a33662d5751c6f5dfa
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -78,7 +78,7 @@ F src/printf.c cefba92273da8b36d22682402f45dda2fa2049ce
 F src/rebuild.c 5e55de3bcde162781cfac661d3893a1d0db86c9e
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c 07530b805a32c0b62c2f052809807630412f1a6c
+F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
 F src/setup.c 94746ae493f8db74beb2a1404a4310118f8b4288
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
@@ -97,7 +97,7 @@ F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 69c9aea1a1f3c2e33de6aa970d174b53594ab62f
+F src/update.c 70dcd36640f421a8326fcadb0e90187059f3b0dd
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
 F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
@@ -197,14 +197,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P fde1d82372afffd5765eff9e8d3172a5c44a7b82
-R d981d6cff4218e1c88726ed2c57a454e
+P 3122fc4c7ef932bf26200859dae8836c33f3ff89
+R ca64c7b8e6fe453b6d7696573da5a78f
 U drh
-Z c05cfc004e432c4f6b26c2ba083c1a23
+Z b5d33bedac516a1e4f752eaaeb6c71d4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHs6xIoxKgR168RlERAp/3AJ9jtFhZQ114EVxCcYb8kPlGXzhevACfYiC/
-8lgJWFiwmJivKp80Shpn9Hk=
-=/rcu
+iD8DBQFHvYpZoxKgR168RlERAoevAJ9+rw+5AeHPfPRPRhxFVYW6RyYF/QCgjae8
+KJxHRtU38ZMs8fJTorlPACg=
+=rVKo
 -----END PGP SIGNATURE-----

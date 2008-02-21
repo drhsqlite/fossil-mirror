@@ -67,6 +67,7 @@ struct Manifest {
   struct { 
     char *zName;           /* Name of a file */
     char *zUuid;           /* UUID of the file */
+    char *zPerm;           /* File permissions */
   } *aFile;
   int nParent;          /* Number of parents */
   int nParentAlloc;     /* Slots allocated in azParent[] */
@@ -157,6 +158,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
 
   blob_zero(&a1);
   blob_zero(&a2);
+  blob_zero(&a3);
   md5sum_init();
   while( blob_line(pContent, &line) ){
     char *z = blob_buffer(&line);
@@ -277,20 +279,21 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     F <filename> <uuid>
+      **     F <filename> <uuid> ?<permissions>?
       **
       ** Identifies a file in a manifest.  Multiple F lines are
       ** allowed in a manifest.  F lines are not allowed in any
       ** other control file.  The filename is fossil-encoded.
       */
       case 'F': {
-        char *zName, *zUuid;
+        char *zName, *zUuid, *zPerm;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
         zUuid = blob_terminate(&a2);
+        blob_token(&line, &a3);
+        zPerm = blob_terminate(&a3);
         if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         defossilize(zName);
@@ -305,6 +308,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         i = p->nFile++;
         p->aFile[i].zName = zName;
         p->aFile[i].zUuid = zUuid;
+        p->aFile[i].zPerm = zPerm;
         if( i>0 && strcmp(p->aFile[i-1].zName, zName)>=0 ){
           goto manifest_syntax_error;
         }

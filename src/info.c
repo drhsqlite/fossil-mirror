@@ -560,7 +560,7 @@ void vdiff_page(void){
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
-  style_header("Baseline Diff");
+  style_header("Baseline Changes");
 
   rid = name_to_rid(PD("name",""));
   if( rid==0 ){
@@ -575,7 +575,7 @@ void vdiff_page(void){
      rid
   );
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  @ <h2>All Changes In Version
+  @ <h2>All Changes In Baseline
   hyperlink_to_uuid(zUuid);
   @ </h2>
   while( db_step(&q)==SQLITE_ROW ){

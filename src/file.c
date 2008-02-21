@@ -67,6 +67,37 @@ int file_isfile(const char *zFilename){
 }
 
 /*
+** Return TRUE if the named file is an executable.  Return false
+** for directories, devices, fifos, symlinks, etc.
+*/
+int file_isexe(const char *zFilename){
+  struct stat buf;
+  if( stat(zFilename, &buf)!=0 ){
+    return 0;
+  }
+  return ((S_IXUSR|S_IXGRP|S_IXOTH)&buf.st_mode)!=0;
+}
+
+/*
+** Set or clear the execute bit on a file.
+*/
+void file_setexe(const char *zFilename, int onoff){
+#ifndef __MINGW32__
+  struct stat buf;
+  if( stat(zFilename, &buf)!=0 ) return;
+  if( onoff ){
+    if( (buf.st_mode & 0111)==0 ){
+      chmod(zFilename, buf.st_mode | 0111);
+    }
+  }else{
+    if( (buf.st_mode & 0111)!=0 ){
+      chmod(zFilename, buf.st_mode & ~0111);
+    }
+  }
+#endif
+}
+
+/*
 ** Return 1 if zFilename is a directory.  Return 0 if zFilename
 ** does not exist.  Return 2 if zFilename exists but is something
 ** other than a directory.
@@ -77,20 +108,6 @@ int file_isdir(const char *zFilename){
     return 0;
   }
   return S_ISDIR(buf.st_mode) ? 1 : 2;
-}
-
-/*
-** Find both the size and modification time of a file.  Return
-** the number of errors.
-*/
-int file_size_and_mtime(const char *zFilename, i64 *size, i64 *mtime){
-  struct stat buf;
-  if( stat(zFilename, &buf)!=0 ){
-    return 1;
-  }
-  *size = buf.st_size;
-  *mtime = buf.st_mtime;
-  return 0;
 }
 
 /*
