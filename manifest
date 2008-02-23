@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\sbugfix\s[b3d61d7829]\sinto\sthe\smain\sbranch\sfor\soptimization\sof\smemory\susage.
-D 2008-02-23T06:40:48
+C Fix\sextraction\sof\smemory\sdata\sfrom\sthe\slog,\spipe\ssymbol\sis\sspecial.
+D 2008-02-23T07:10:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -114,7 +114,7 @@ F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
 F tools/cvs2fossil/doc/README 6d655c3f823db2a177d32af6d904ca0426a74e9b
 F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
-F tools/cvs2fossil/getmemoryseries.tcl 8e7cb192034f602184efab14009bdfe773d04623
+F tools/cvs2fossil/getmemoryseries.tcl a93703a60d1c154bea2a5b8f2a66a46dc9a511d7
 F tools/cvs2fossil/lib/c2f_blobstore.tcl b63bce5767afb8a5e50b6ba5be213a0dea3a88bf
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
 F tools/cvs2fossil/lib/c2f_file.tcl a5aa8fb6dc7bb7c96291143ffec52652af626271
@@ -196,14 +196,14 @@ F www/pop.html be259767d3cdade46dc5e77584af5d9f4e3dc7c9
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c2ad73ed9243ac9497046fa8eae19f904b56bc77 b3d61d78293d38c3bbd4cad27db3c05228d1052b
-R ceb80cd2f24cc7490c6be1c744c814e0
+P efec424a194ee41528af9700549eb4336e21eed4
+R c8d46fee1fcecbf7f58a4968382644d9
 U aku
-Z 51cdabfad9afa00dd34e2e51b059dc59
+Z 38a1ede3414f5861997c929c1111bd55
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.3 (GNU/Linux)
 
-iD8DBQFHv7/wvonzZ/CRa7gRAgTRAKCMVDBEcM8pafcXsclkJrYKkuVGywCcDNNw
-xZhKCJ+/ll6qkGM41sUCBZw=
-=fApg
+iD8DBQFHv8cFvonzZ/CRa7gRAtXsAJ0TK8ENqekOr+671TRYyIFDascnvgCdGnN2
+wrSfTgWGBSxKH9ZpCdayjYI=
+=j//1
 -----END PGP SIGNATURE-----

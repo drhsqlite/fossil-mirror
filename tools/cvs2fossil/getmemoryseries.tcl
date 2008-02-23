@@ -15,11 +15,11 @@ puts $mr "\# Time Memory"
 set k 0
 while {![eof $in]} {
     gets $in line
-    puts -nonewline \r[incr k]
+    #puts -nonewline \r[incr k]
 
     if {[string match *|=|* $line]} {
 	# Basic series
-	regexp {^(.*)|=|} $line -> line
+	regexp {^(.*)\|=\|} $line -> line
 	foreach {x _ cba _ _ _ mba} $line break
 	puts $ba [join [list $x $cba $mba] \t]
 	continue
@@ -27,7 +27,7 @@ while {![eof $in]} {
 
     if {[string match *|@|* $line]} {
 	# Marker series
-	regexp {^(.*)|@|} $line -> line
+	regexp {^(.*)\|@\|} $line -> line
 	foreach {x _ cba} $line break
 	puts $mr [join [list $x $cba] \t]
 	continue
