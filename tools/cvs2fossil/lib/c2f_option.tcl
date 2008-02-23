@@ -256,6 +256,7 @@ namespace eval ::vc::fossil::import::cvs {
 	}
 	namespace eval mem {
 	    namespace import ::vc::tools::mem::setlimit
+	    namespace import ::vc::tools::mem::track
 	}
 	namespace import ::vc::tools::trouble
 	namespace import ::vc::tools::log
