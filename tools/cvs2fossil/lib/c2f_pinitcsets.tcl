@@ -213,9 +213,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		    mem::mark
 		    set cset [project::rev %AUTO% $p rev $lastmeta $revisions]
 		    log write 14 initcsets meta_cset_done
-		    $cset breakinternaldependencies nx
+		    set spawned [$cset breakinternaldependencies nx]
 		    $cset persist
 		    $cset destroy
+		    foreach cset $spawned { $cset persist ; $cset destroy }
 		    mem::mark
 		    set revisions {}
 		}
@@ -232,9 +233,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	    mem::mark
 	    set cset [project::rev %AUTO% $p rev $lastmeta $revisions]
 	    log write 14 initcsets meta_cset_done
-	    $cset breakinternaldependencies nx
+	    set spawned [$cset breakinternaldependencies nx]
 	    $cset persist
 	    $cset destroy
+	    foreach cset $spawned { $cset persist ; $cset destroy }
 	    mem::mark
 	}
 
