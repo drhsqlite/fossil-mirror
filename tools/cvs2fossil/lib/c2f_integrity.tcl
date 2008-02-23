@@ -317,7 +317,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	# changeset.
 	CheckRev \
 	    {All revisions have to be used by least one changeset} \
-	    {is not used by a changeset} {
+	    {is not used by a revision changeset} {
 		-- Unused revisions = All revisions
 		--                  - revisions used by revision changesets.
 		--
@@ -487,7 +487,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	# Find all tags which are not used by at least one changeset.
 	CheckTag \
 	    {All tags have to be used by least one changeset} \
-	    {is not used by a changeset} {
+	    {is not used by a tag symbol changeset} {
 		-- Unused tags = All tags
 		--             - revisions used by tag changesets.
 		--
@@ -649,7 +649,7 @@ snit::type ::vc::fossil::import::cvs::integrity {
 	# changeset.
 	CheckBranch \
 	    {All branches have to be used by least one changeset} \
-	    {is not used by a changeset} {
+	    {is not used by a branch symbol changeset} {
 		-- Unused branches = All branches
 		--                 - branches used by branch changesets.
 		--
