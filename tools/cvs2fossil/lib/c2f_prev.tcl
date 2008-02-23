@@ -55,12 +55,9 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	lappend mychangesets   $self
 	lappend mytchangesets($cstype) $self
 	set     myidmap($myid) $self
-	foreach iid $items {
-	    set key [list $cstype $iid]
-	    set myitemmap($key) $self
-	    lappend mytitems $key
-	    log write 8 csets {MAP+ item <$key> $self = [$self str]}
-	}
+	foreach iid $items { lappend mytitems [list $cstype $iid] }
+
+	MapItems $cstype $items
 	return
     }
 
@@ -71,11 +68,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# moment. We may be able to get rid of this entirely, at least
 	# for (de)construction and pass InitCSets.
 
-	foreach iid $myitems {
-	    set key [list $mytype $iid]
-	    unset myitemmap($key)
-	    log write 8 csets {MAP- item <$key> $self = [$self str]}
-	}
+	UnmapItems $mytype $myitems
 	return
     }
 
@@ -167,13 +160,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# such. Otherwise the changeset is split into a set of
 	# fragments without internal dependencies, transforming the
 	# internal dependencies into external ones. The new changesets
-	# are added to the list of all changesets.
-
-	# We perform all necessary splits in one go, instead of only
-	# one. The previous algorithm, adapted from cvs2svn, computed
-	# a lot of state which was thrown away and then computed again
-	# for each of the fragments. It should be easier to update and
-	# reuse that state.
+	# generated from the fragment information are added to the
+	# list of all changesets.
 
 	# The code checks only successor dependencies, as this
 	# automatically covers the predecessor dependencies as well (A
@@ -183,163 +171,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# Array of dependencies (parent -> child). This is pulled from
 	# the state, and limited to successors within the changeset.
 
-	array set dependencies {}
-	$mytypeobj internalsuccessors dependencies $myitems
-	if {![array size dependencies]} {
-	    return {}
-	} ; # Nothing to break.
-
-	log write 5 csets ...[$self str].......................................................
-	vc::tools::mem::mark
-
-	# We have internal dependencies to break. We now iterate over
-	# all positions in the list (which is chronological, at least
-	# as far as the timestamps are correct and unique) and
-	# determine the best position for the break, by trying to
-	# break as many dependencies as possible in one go. When a
-	# break was found this is redone for the fragments coming and
-	# after, after upding the crossing information.
-
-	# Data structures:
-	# Map:  POS   revision id      -> position in list.
-	#       CROSS position in list -> number of dependencies crossing it
-	#       DEPC  dependency       -> positions it crosses
-	# List: RANGE Of the positions itself.
-	# Map:  DELTA position in list -> time delta between its revision
-	#                                 and the next, if any.
-	# A dependency is a single-element map parent -> child
-
-	# InitializeBreakState initializes their contents after
-	# upvar'ing them from this scope. It uses the information in
-	# DEPENDENCIES to do so.
-
-	InitializeBreakState $myitems
-
-	set fragments {}
-	set new       [list $range]
 	array set breaks {}
 
-	# Instead of one list holding both processed and pending
-	# fragments we use two, one for the framents to process, one
-	# to hold the new fragments, and the latter is copied to the
-	# former when they run out. This keeps the list of pending
-	# fragments short without sacrificing speed by shifting stuff
-	# down. We especially drop the memory of fragments broken
-	# during processing after a short time, instead of letting it
-	# consume memory.
+	set fragments [BreakDirectDependencies $myitems breaks]
 
-	while {[llength $new]} {
+	if {![llength $fragments]} { return {} }
 
-	    set pending $new
-	    set new     {}
-	    set at      0
-
-	    while {$at < [llength $pending]} {
-		set current [lindex $pending $at]
-
-		log write 6 csets {. . .. ... ..... ........ .............}
-		log write 6 csets {Scheduled   [join [PRs [lrange $pending $at end]] { }]}
-		log write 6 csets {Considering [PR $current] \[$at/[llength $pending]\]}
-
-		set best [FindBestBreak $current]
-
-		if {$best < 0} {
-		    # The inspected range has no internal
-		    # dependencies. This is a complete fragment.
-		    lappend fragments $current
-
-		    log write 6 csets "No breaks, final"
-		} else {
-		    # Split the range and schedule the resulting
-		    # fragments for further inspection. Remember the
-		    # number of dependencies cut before we remove them
-		    # from consideration, for documentation later.
-
-		    set breaks($best) $cross($best)
-
-		    log write 6 csets "Best break @ $best, cutting [nsp $cross($best) dependency dependencies]"
-
-		    # Note: The value of best is an abolute location
-		    # in myitems. Use the start of current to make it
-		    # an index absolute to current.
-
-		    set brel [expr {$best - [lindex $current 0]}]
-		    set bnext $brel ; incr bnext
-		    set fragbefore [lrange $current 0 $brel]
-		    set fragafter  [lrange $current $bnext end]
-
-		    log write 6 csets "New pieces  [PR $fragbefore] [PR $fragafter]"
-
-		    integrity assert {[llength $fragbefore]} {Found zero-length fragment at the beginning}
-		    integrity assert {[llength $fragafter]}  {Found zero-length fragment at the end}
-
-		    lappend new $fragbefore $fragafter
-		    CutAt $best
-		}
-
-		incr at
-	    }
-	}
-
-	log write 6 csets ". . .. ... ..... ........ ............."
-
-	# (*) We clear out the associated part of the myitemmap
-	# in-memory index in preparation for new data. A simple unset
-	# is enough, we have no symbol changesets at this time, and
-	# thus never more than one reference in the list.
-
-	foreach iid $myitems {
-	    set key [list $mytype $iid]
-	    unset myitemmap($key)
-	    log write 8 csets {MAP- item <$key> $self = [$self str]}
-	}
-
-	# Create changesets for the fragments, reusing the current one
-	# for the first fragment. We sort them in order to allow
-	# checking for gaps and nice messages.
-
-	set newcsets  {}
-	set fragments [lsort -index 0 -integer $fragments]
-
-	#puts \t.[join [PRs $fragments] .\n\t.].
-
-	Border [lindex $fragments 0] firsts firste
-
-	integrity assert {$firsts == 0} {Bad fragment start @ $firsts, gap, or before beginning of the range}
-
-	set laste $firste
-	foreach fragment [lrange $fragments 1 end] {
-	    Border $fragment s e
-	    integrity assert {$laste == ($s - 1)} {Bad fragment border <$laste | $s>, gap or overlap}
-
-	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myitems $s $e]]
-	    lappend newcsets $new
-	    incr counter
-
-            log write 4 csets "Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)"
-
-	    set laste $e
-	}
-
-	integrity assert {
-	    $laste == ([llength $myitems]-1)
-	} {Bad fragment end @ $laste, gap, or beyond end of the range}
-
-	# Put the first fragment into the current changeset, and
-	# update the in-memory index. We can simply (re)add the items
-	# because we cleared the previously existing information, see
-	# (*) above. Persistence does not matter here, none of the
-	# changesets has been saved to the persistent state yet.
-
-	set myitems  [lrange $myitems  0 $firste]
-	set mytitems [lrange $mytitems 0 $firste]
-	foreach iid $myitems {
-	    set key [list $mytype $iid]
-	    set myitemmap($key) $self
-	    log write 8 csets {MAP+ item <$key> $self = [$self str]}
-	}
-
-	return $newcsets
+	return [$self CreateFromFragments $fragments counter breaks]
     }
 
     method persist {} {
@@ -381,15 +219,13 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		DELETE FROM cssuccessor WHERE cid = $myid;
 	    }
 	}
-	foreach iid $myitems {
-	    set key [list $mytype $iid]
-	    unset myitemmap($key)
-	    log write 8 csets {MAP- item <$key> $self = [$self str]}
-	}
-	set pos          [lsearch -exact $mychangesets $self]
-	set mychangesets [lreplace $mychangesets $pos $pos]
+
+	UnmapItems $mytype $myitems
+
+	set pos                    [lsearch -exact $mychangesets $self]
+	set mychangesets           [lreplace       $mychangesets $pos $pos]
 	set pos                    [lsearch -exact $mytchangesets($mytype) $self]
-	set mytchangesets($mytype) [lreplace $mytchangesets($mytype) $pos $pos]
+	set mytchangesets($mytype) [lreplace       $mytchangesets($mytype) $pos $pos]
 
 	# Return the list of predecessors so that they can be adjusted.
 	return [struct::list map [state run {
@@ -802,6 +638,178 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
     typemethod num {} { return $mycounter }
 
+    # # ## ### ##### ######## #############
+
+    method CreateFromFragments {fragments cv bv} {
+	upvar 1 $cv counter $bv breaks
+	UnmapItems $mytype $myitems
+
+	# Create changesets for the fragments, reusing the current one
+	# for the first fragment. We sort them in order to allow
+	# checking for gaps and nice messages.
+
+	set newcsets  {}
+	set fragments [lsort -index 0 -integer $fragments]
+
+	#puts \t.[join [PRs $fragments] .\n\t.].
+
+	Border [lindex $fragments 0] firsts firste
+
+	integrity assert {$firsts == 0} {Bad fragment start @ $firsts, gap, or before beginning of the range}
+
+	set laste $firste
+	foreach fragment [lrange $fragments 1 end] {
+	    Border $fragment s e
+	    integrity assert {$laste == ($s - 1)} {Bad fragment border <$laste | $s>, gap or overlap}
+
+	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myitems $s $e]]
+	    lappend newcsets $new
+	    incr counter
+
+            log write 4 csets "Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)"
+
+	    set laste $e
+	}
+
+	integrity assert {
+	    $laste == ([llength $myitems]-1)
+	} {Bad fragment end @ $laste, gap, or beyond end of the range}
+
+	# Put the first fragment into the current changeset, and
+	# update the in-memory index. We can simply (re)add the items
+	# because we cleared the previously existing information, see
+	# 'UnmapItems' above. Persistence does not matter here, none
+	# of the changesets has been saved to the persistent state
+	# yet.
+
+	set myitems  [lrange $myitems  0 $firste]
+	set mytitems [lrange $mytitems 0 $firste]
+	MapItems $mytype $myitems
+	return $newcsets
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc BreakDirectDependencies {theitems bv} {
+	upvar 1 mytypeobj mytypeobj self self $bv breaks
+
+	array set dependencies {}
+	$mytypeobj internalsuccessors dependencies $theitems
+	if {![array size dependencies]} {
+	    return {}
+	} ; # Nothing to break.
+
+	log write 5 csets ...[$self str].......................................................
+	vc::tools::mem::mark
+
+	return [BreakerCore $theitems dependencies breaks]
+    }
+
+    proc BreakerCore {theitems dv bv} {
+	# Break a set of revisions into fragments which have no
+	# internal dependencies.
+
+	# We perform all necessary splits in one go, instead of only
+	# one. The previous algorithm, adapted from cvs2svn, computed
+	# a lot of state which was thrown away and then computed again
+	# for each of the fragments. It should be easier to update and
+	# reuse that state.
+
+	upvar 1 $dv dependencies $bv breaks
+
+	# We have internal dependencies to break. We now iterate over
+	# all positions in the list (which is chronological, at least
+	# as far as the timestamps are correct and unique) and
+	# determine the best position for the break, by trying to
+	# break as many dependencies as possible in one go. When a
+	# break was found this is redone for the fragments coming and
+	# after, after upding the crossing information.
+
+	# Data structures:
+	# Map:  POS   revision id      -> position in list.
+	#       CROSS position in list -> number of dependencies crossing it
+	#       DEPC  dependency       -> positions it crosses
+	# List: RANGE Of the positions itself.
+	# Map:  DELTA position in list -> time delta between its revision
+	#                                 and the next, if any.
+	# A dependency is a single-element map parent -> child
+
+	# InitializeBreakState initializes their contents after
+	# upvar'ing them from this scope. It uses the information in
+	# DEPENDENCIES to do so.
+
+	InitializeBreakState $theitems
+
+	set fragments {}
+	set new       [list $range]
+
+	# Instead of one list holding both processed and pending
+	# fragments we use two, one for the framents to process, one
+	# to hold the new fragments, and the latter is copied to the
+	# former when they run out. This keeps the list of pending
+	# fragments short without sacrificing speed by shifting stuff
+	# down. We especially drop the memory of fragments broken
+	# during processing after a short time, instead of letting it
+	# consume memory.
+
+	while {[llength $new]} {
+
+	    set pending $new
+	    set new     {}
+	    set at      0
+
+	    while {$at < [llength $pending]} {
+		set current [lindex $pending $at]
+
+		log write 6 csets {. . .. ... ..... ........ .............}
+		log write 6 csets {Scheduled   [join [PRs [lrange $pending $at end]] { }]}
+		log write 6 csets {Considering [PR $current] \[$at/[llength $pending]\]}
+
+		set best [FindBestBreak $current]
+
+		if {$best < 0} {
+		    # The inspected range has no internal
+		    # dependencies. This is a complete fragment.
+		    lappend fragments $current
+
+		    log write 6 csets "No breaks, final"
+		} else {
+		    # Split the range and schedule the resulting
+		    # fragments for further inspection. Remember the
+		    # number of dependencies cut before we remove them
+		    # from consideration, for documentation later.
+
+		    set breaks($best) $cross($best)
+
+		    log write 6 csets "Best break @ $best, cutting [nsp $cross($best) dependency dependencies]"
+
+		    # Note: The value of best is an abolute location
+		    # in myitems. Use the start of current to make it
+		    # an index absolute to current.
+
+		    set brel [expr {$best - [lindex $current 0]}]
+		    set bnext $brel ; incr bnext
+		    set fragbefore [lrange $current 0 $brel]
+		    set fragafter  [lrange $current $bnext end]
+
+		    log write 6 csets "New pieces  [PR $fragbefore] [PR $fragafter]"
+
+		    integrity assert {[llength $fragbefore]} {Found zero-length fragment at the beginning}
+		    integrity assert {[llength $fragafter]}  {Found zero-length fragment at the end}
+
+		    lappend new $fragbefore $fragafter
+		    CutAt $best
+		}
+
+		incr at
+	    }
+	}
+
+	log write 6 csets ". . .. ... ..... ........ ............."
+
+	return $fragments
+    }
+
     proc InitializeBreakState {revisions} {
 	upvar 1 pos pos cross cross range range depc depc delta delta \
 	    dependencies dependencies
@@ -1023,6 +1031,35 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	upvar 1 $sv s $ev e
 	set s [lindex $range 0]
 	set e [lindex $range end]
+	return
+    }
+
+    # # ## ### ##### ######## #############
+
+    proc UnmapItems {thetype theitems} {
+	# (*) We clear out the associated part of the myitemmap
+	# in-memory index in preparation for new data, or as part of
+	# object destruction. A simple unset is enough, we have no
+	# symbol changesets at this time, and thus never more than one
+	# reference in the list.
+
+	upvar 1 myitemmap myitemmap self self
+	foreach iid $theitems {
+	    set key [list $thetype $iid]
+	    unset myitemmap($key)
+	    log write 8 csets {MAP- item <$key> $self = [$self str]}
+	}
+	return
+    }
+
+    proc MapItems {thetype theitems} {
+	upvar 1 myitemmap myitemmap self self
+
+	foreach iid $theitems {
+	    set key [list $thetype $iid]
+	    set myitemmap($key) $self
+	    log write 8 csets {MAP+ item <$key> $self = [$self str]}
+	}
 	return
     }
 
