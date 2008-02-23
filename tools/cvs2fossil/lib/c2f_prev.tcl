@@ -186,7 +186,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set dependencies {}
 	$mytypeobj internalsuccessors dependencies $myitems
 	if {![array size dependencies]} {
-	    return 0
+	    return {}
 	} ; # Nothing to break.
 
 	log write 5 csets ...[$self str].......................................................
@@ -292,6 +292,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# for the first fragment. We sort them in order to allow
 	# checking for gaps and nice messages.
 
+	set newcsets  {}
 	set fragments [lsort -index 0 -integer $fragments]
 
 	#puts \t.[join [PRs $fragments] .\n\t.].
@@ -306,6 +307,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    integrity assert {$laste == ($s - 1)} {Bad fragment border <$laste | $s>, gap or overlap}
 
 	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myitems $s $e]]
+	    lappend newcsets $new
 	    incr counter
 
             log write 4 csets "Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)"
@@ -331,7 +333,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    log write 8 csets {MAP+ item <$key> $self = [$self str]}
 	}
 
-	return 1
+	return $newcsets
     }
 
     method persist {} {
