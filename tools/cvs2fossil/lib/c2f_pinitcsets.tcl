@@ -197,15 +197,18 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 
 	log write 14 initcsets meta_begin
 	mem::mark
-	foreach {mid rid pid} [state run {
-	    SELECT M.mid, R.rid, M.pid
-	    FROM   revision R, meta M   -- R ==> M, using PK index of M.
+	state foreachrow {
+	    SELECT M.mid AS xmid,
+	           R.rid AS xrid,
+	           M.pid AS xpid
+	    FROM   revision R,
+	           meta     M   -- R ==> M, using PK index of M.
 	    WHERE  R.mid = M.mid
 	    ORDER  BY M.mid, R.date
-	}] {
+	} {
 	    log write 14 initcsets meta_next
 
-	    if {$lastmeta != $mid} {
+	    if {$lastmeta != $xmid} {
 		if {[llength $revisions]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
@@ -220,10 +223,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		    mem::mark
 		    set revisions {}
 		}
-		set lastmeta    $mid
-		set lastproject $pid
+		set lastmeta    $xmid
+		set lastproject $xpid
 	    }
-	    lappend revisions $rid
+	    lappend revisions $xrid
 	}
 
 	if {[llength $revisions]} {
@@ -268,13 +271,16 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	set lastproject {}
 	set tags        {}
 
-	foreach {sid tid pid} [state run {
-	    SELECT S.sid, T.tid, S.pid
-	    FROM  tag T, symbol S     -- T ==> R/S, using PK indices of R, S.
+	state foreachrow {
+	    SELECT S.sid AS xsid,
+	           T.tid AS xtid,
+	           S.pid AS xpid
+	    FROM  tag    T,
+	          symbol S     -- T ==> R/S, using PK indices of R, S.
 	    WHERE T.sid = S.sid
 	    ORDER BY S.sid, T.tid
-	}] {
-	    if {$lastsymbol != $sid} {
+	} {
+	    if {$lastsymbol != $xsid} {
 		if {[llength $tags]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
@@ -283,10 +289,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		    $cset persist
 		    $cset destroy
 		}
-		set lastsymbol  $sid
-		set lastproject $pid
+		set lastsymbol  $xsid
+		set lastproject $xpid
 	    }
-	    lappend tags $tid
+	    lappend tags $xtid
 	}
 
 	if {[llength $tags]} {
@@ -301,13 +307,16 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 	set lasproject {}
 	set branches   {}
 
-	foreach {sid bid pid} [state run {
-	    SELECT S.sid, B.bid, S.pid
-	    FROM  branch B, symbol S  -- B ==> R/S, using PK indices of R, S.
+	state foreachrow {
+	    SELECT S.sid AS xsid,
+	           B.bid AS xbid,
+	           S.pid AS xpid
+	    FROM  branch B,
+	          symbol S  -- B ==> R/S, using PK indices of R, S.
 	    WHERE B.sid  = S.sid
 	    ORDER BY S.sid, B.bid
-	}] {
-	    if {$lastsymbol != $sid} {
+	} {
+	    if {$lastsymbol != $xsid} {
 		if {[llength $branches]} {
 		    incr n
 		    set  p [repository projectof $lastproject]
@@ -316,10 +325,10 @@ snit::type ::vc::fossil::import::cvs::pass::initcsets {
 		    $cset persist
 		    $cset destroy
 		}
-		set lastsymbol  $sid
-		set lastproject $pid
+		set lastsymbol  $xsid
+		set lastproject $xpid
 	    }
-	    lappend branches $bid
+	    lappend branches $xbid
 	}
 
 	if {[llength $branches]} {

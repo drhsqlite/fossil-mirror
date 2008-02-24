@@ -161,6 +161,12 @@ snit::type ::vc::fossil::import::cvs::state {
 	return [uplevel 1 [linsert $args 0 $mystate eval]]
     }
 
+    typemethod foreachrow {sql script} {
+	Save $sql
+	uplevel 1 [list $mystate eval $sql $script]
+	return
+    }
+
     typemethod one {args} {
 	Save $args
 	return [uplevel 1 [linsert $args 0 $mystate onecolumn]]

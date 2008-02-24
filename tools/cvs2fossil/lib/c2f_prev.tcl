@@ -118,6 +118,8 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    DELETE FROM cssuccessor WHERE cid = $myid;
 	}
 	set loop 0
+	# TODO: Check other uses of cs_sucessors.
+	# TODO: Consider merging cs_sucessor's SELECT with the INSERT here.
 	foreach nid [$mytypeobj cs_successors $myitems] {
 	    state run {
 		INSERT INTO cssuccessor (cid,  nid)
@@ -325,6 +327,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     proc Getrevisioninfo {revisions} {
 	set theset ('[join $revisions {','}]')
 	set revisions {}
+	#foreachrow
 	foreach {frid path fname revnr rop} [state run [subst -nocommands -nobackslashes {
 	    SELECT U.uuid, F.visible, F.name, R.rev, R.op
 	    FROM   revision R, revuuid U, file F
@@ -583,6 +586,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# rev' impossible.
 
 	set res {}
+	#foreachrow
 	foreach {cid cdate} [state run {
 	    SELECT C.cid, T.date
 	    FROM   changeset C, cstimestamp T
@@ -597,23 +601,26 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     typemethod getcstypes {} {
-	foreach {tid name} [state run {
+	state foreachrow {
 	    SELECT tid, name FROM cstype;
-	}] { set mycstype($name) $tid }
+	} { set mycstype($name) $tid }
 	return
     }
 
     typemethod load {repository} {
 	set n 0
 	log write 2 csets {Loading the changesets}
-	foreach {id pid cstype srcid} [state run {
-	    SELECT C.cid, C.pid, CS.name, C.src
+	state foreachrow {
+	    SELECT C.cid   AS id,
+	           C.pid   AS xpid,
+                   CS.name AS cstype,
+	           C.src   AS srcid
 	    FROM   changeset C, cstype CS
 	    WHERE  C.type = CS.tid
 	    ORDER BY C.cid
-	}] {
+	} {
 	    log progress 2 csets $n {}
-	    set r [$type %AUTO% [$repository projectof $pid] $cstype $srcid [state run {
+	    set r [$type %AUTO% [$repository projectof $xpid] $cstype $srcid [state run {
 		SELECT C.iid
 		FROM   csitem C
 		WHERE  C.cid = $id
@@ -894,6 +901,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set stamp {}
 
 	set theset ('[join $revisions {','}]')
+	#foreachrow
 	foreach {rid time} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, R.date
 	    FROM revision R
@@ -1164,23 +1172,23 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 
 	array set dep {}
 
-	foreach {rid child} [state run [subst -nocommands -nobackslashes {
+	state foreachrow [subst -nocommands -nobackslashes {
     -- (1) Primary child
-	    SELECT R.rid, R.child
+	    SELECT R.rid AS xrid, R.child AS xchild
 	    FROM   revision R
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.child IS NOT NULL    -- Has primary child
 	    AND    R.child IN $theset     -- Which is also of interest
     UNION
     -- (2) Secondary (branch) children
-	    SELECT R.rid, B.brid
+	    SELECT R.rid AS xrid, B.brid AS xchild
 	    FROM   revision R, revisionbranchchildren B
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.rid = B.rid          -- Select subset of branch children
 	    AND    B.brid IN $theset      -- Which is also of interest
     UNION
     -- (4) Child of trunk root successor of last NTDB on trunk.
-	    SELECT R.rid, RA.child
+	    SELECT R.rid AS xrid, RA.child AS xchild
 	    FROM revision R, revision RA
 	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
 	    AND   R.isdefault             -- Restrict to NTDB
@@ -1188,11 +1196,11 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
 	    AND   RA.child IS NOT NULL    -- Has primary child.
             AND   RA.child IN $theset     -- Which is also of interest
-	}]] {
+	}] {
 	    # Consider moving this to the integrity module.
-	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
-	    lappend dependencies($rid) $child
-	    set dep($rid,$child) .
+	    integrity assert {$xrid != $xchild} {Revision $xrid depends on itself.}
+	    lappend dependencies($xrid) $xchild
+	    set dep($xrid,$xchild) .
 	}
 
 	# The sql statements above looks only for direct dependencies
@@ -1222,11 +1230,11 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	log write 14 csets pseudo-internalsuccessors
 
 	array set fids {}
-	foreach {rid fid} [state run [subst -nocommands -nobackslashes {
-	    SELECT R.rid, R.fid
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT R.rid AS xrid, R.fid AS xfid
             FROM   revision R
             WHERE  R.rid IN $theset
-	}]] { lappend fids($fid) $rid }
+	}] { lappend fids($xfid) $xrid }
 
 	set groups {}
 	foreach {fid rids} [array get fids] {
@@ -1320,6 +1328,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# Note that the branches spawned from the revisions, and the
 	# tags associated with them are successors as well.
 
+	#foreachrow
 	foreach {rid child} [state run [subst -nocommands -nobackslashes {
     -- (1) Primary child
 	    SELECT R.rid, R.child
@@ -1346,6 +1355,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
 	    lappend dependencies([list rev $rid]) [list rev $child]
 	}
+	#foreachrow
 	foreach {rid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, T.tid
 	    FROM   revision R, tag T
@@ -1354,6 +1364,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	}]] {
 	    lappend dependencies([list rev $rid]) [list sym::tag $child]
 	}
+	#foreachrow
 	foreach {rid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT R.rid, B.bid
 	    FROM   revision R, branch B
@@ -1572,6 +1583,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	# successors of a branch.
 
 	set theset ('[join $branches {','}]')
+	#foreachrow
 	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, R.rid
 	    FROM   branch B, revision R
@@ -1580,6 +1592,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list rev $child]
 	}
+	#foreachrow
 	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, BX.bid
 	    FROM   branch B, preferedparent P, branch BX
@@ -1589,6 +1602,7 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	}]] {
 	    lappend dependencies([list sym::branch $bid]) [list sym::branch $child]
 	}
+	#foreachrow
 	foreach {bid child} [state run [subst -nocommands -nobackslashes {
 	    SELECT B.bid, T.tid
 	    FROM   branch B, preferedparent P, tag T
