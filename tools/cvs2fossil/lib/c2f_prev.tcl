@@ -854,17 +854,16 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 		set dkey    [list $rid $child]
 		set start   $pos($rid)
 		set end     $pos($child)
-		set crosses {}
 
 		if {$start > $end} {
+		    set crosses [list $end [expr {$start-1}]]
 		    while {$end < $start} {
-			lappend crosses $end
 			incr cross($end)
 			incr end
 		    }
 		} else {
+		    set crosses [list $start [expr {$end-1}]]
 		    while {$start < $end} {
-			lappend crosses $start
 			incr cross($start)
 			incr start
 		    }
@@ -976,7 +975,14 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	set six [log visible? 6]
 
-	foreach {dep range} [array get depc] {
+	# Note: The loop below could be made faster by keeping a map
+	# from positions to the dependencies crossing. An extension of
+	# CROSS, i.e. list of dependencies, counter is implied. Takes
+	# a lot more memory however, and takes time to update here
+	# (The inner loop is not incr -1, but ldelete).
+
+	foreach dep [array names depc] {
+	    set range $depc($dep)
 	    # Check all dependencies still known, take their range and
 	    # see if the break location falls within.
 
@@ -988,7 +994,10 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    # from the crossings counters, and then also from the set
 	    # of known dependencies, as we are done with it.
 
-	    foreach loc $depc($dep) { incr cross($loc) -1 }
+	    Border $depc($dep) ds de
+	    for {set loc $ds} {$loc <= $de} {incr loc} {
+		incr cross($loc) -1
+	    }
 	    unset depc($dep)
 
 	    if {!$six} continue
