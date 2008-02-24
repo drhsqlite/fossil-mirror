@@ -50,25 +50,29 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	set myitems     $items
 	set mypos       {} ; # Commit location is not known yet.
 
+	foreach iid $items { lappend mytitems [list $cstype $iid] }
+
 	# Keep track of the generated changesets and of the inverse
 	# mapping from items to them.
 	lappend mychangesets   $self
 	lappend mytchangesets($cstype) $self
 	set     myidmap($myid) $self
-	foreach iid $items { lappend mytitems [list $cstype $iid] }
 
 	MapItems $cstype $items
 	return
     }
 
     destructor {
-	# The main thing is to keep track of the itemmap and remove
-	# the object from it. The lists of changesets (mychangesets,
-	# mytchangesets) are not maintained (= reduced), for the
-	# moment. We may be able to get rid of this entirely, at least
-	# for (de)construction and pass InitCSets.
+	# We may be able to get rid of this entirely, at least for
+	# (de)construction and pass InitCSets.
 
 	UnmapItems $mytype $myitems
+	unset myidmap($myid)
+
+	set pos                    [lsearch -exact $mychangesets $self]
+	set mychangesets           [lreplace       $mychangesets $pos $pos]
+	set pos                    [lsearch -exact $mytchangesets($mytype) $self]
+	set mytchangesets($mytype) [lreplace       $mytchangesets($mytype) $pos $pos]
 	return
     }
 
@@ -146,30 +150,20 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	upvar 1 $cv counter
 	log write 14 csets {[$self str] BID}
 	vc::tools::mem::mark
-	##
-	## NOTE: This method, maybe in conjunction with its caller
-	##       seems to be a memory hog, especially for large
-	##       changesets, with 'large' meaning to have a 'long list
-	##       of items, several thousand'. Investigate where the
-	##       memory is spent and then look for ways of rectifying
-	##       the problem.
-	##
 
-	# This method inspects the changesets for internal
-	# dependencies. Nothing is done if there are no
-	# such. Otherwise the changeset is split into a set of
-	# fragments without internal dependencies, transforming the
+	# This method inspects the changeset, looking for internal
+	# dependencies. Nothing is done if there are no such.
+
+	# Otherwise the changeset is split into a set of fragments
+	# which have no internal dependencies, transforming the
 	# internal dependencies into external ones. The new changesets
 	# generated from the fragment information are added to the
-	# list of all changesets.
+	# list of all changesets (by the caller).
 
-	# The code checks only successor dependencies, as this
-	# automatically covers the predecessor dependencies as well (A
+	# The code checks only successor dependencies, as this auto-
+	# matically covers the predecessor dependencies as well (Any
 	# successor dependency a -> b is also a predecessor dependency
 	# b -> a).
-
-	# Array of dependencies (parent -> child). This is pulled from
-	# the state, and limited to successors within the changeset.
 
 	array set breaks {}
 
@@ -221,6 +215,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	}
 
 	UnmapItems $mytype $myitems
+	unset myidmap($myid)
 
 	set pos                    [lsearch -exact $mychangesets $self]
 	set mychangesets           [lreplace       $mychangesets $pos $pos]
@@ -655,18 +650,22 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	Border [lindex $fragments 0] firsts firste
 
-	integrity assert {$firsts == 0} {Bad fragment start @ $firsts, gap, or before beginning of the range}
+	integrity assert {
+	    $firsts == 0
+	} {Bad fragment start @ $firsts, gap, or before beginning of the range}
 
 	set laste $firste
 	foreach fragment [lrange $fragments 1 end] {
 	    Border $fragment s e
-	    integrity assert {$laste == ($s - 1)} {Bad fragment border <$laste | $s>, gap or overlap}
+	    integrity assert {
+		$laste == ($s - 1)
+	    } {Bad fragment border <$laste | $s>, gap or overlap}
 
 	    set new [$type %AUTO% $myproject $mytype $mysrcid [lrange $myitems $s $e]]
 	    lappend newcsets $new
 	    incr counter
 
-            log write 4 csets "Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)"
+            log write 4 csets {Breaking [$self str ] @ $laste, new [$new str], cutting $breaks($laste)}
 
 	    set laste $e
 	}
@@ -693,7 +692,11 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     proc BreakDirectDependencies {theitems bv} {
 	upvar 1 mytypeobj mytypeobj self self $bv breaks
 
+	# Array of dependencies (parent -> child). This is pulled from
+	# the state, and limited to successors within the changeset.
+
 	array set dependencies {}
+
 	$mytypeobj internalsuccessors dependencies $theitems
 	if {![array size dependencies]} {
 	    return {}
