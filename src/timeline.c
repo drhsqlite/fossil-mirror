@@ -253,20 +253,22 @@ const char *timeline_query_for_www(void){
 **    s              show the SQL                       dflt: nil
 */
 void page_timeline(void){
-  Stmt q;
-  Blob sql;
-  char *zSQL;
+  Stmt q;           
+  Blob sql;                    /* text of SQL used to generate timeline */
+  char *zSQL;                  /* Rendered copy of sql */
   Blob scriptInit;
   char zDate[100];
-  const char *zStart = P("d");
-  int nEntry = atoi(PD("n","20"));
-  const char *zUser = P("u");
-  int objid = atoi(PD("e","0"));
-  int relatedEvents = P("r")!=0;
-  int afterFlag = P("a")!=0;
-  const char *zType = P("y");
-  int firstEvent;
-  int lastEvent;
+  const char *zStart = P("d");       /* Starting date */
+  int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
+  const char *zUser = P("u");        /* All entries by this user if not NULL */
+  int objid = atoi(PD("e","0"));     /* Entries related to this event */
+  int relatedEvents = P("r")!=0;     /* Must be directly related to of objid */
+  int afterFlag = P("a")!=0;         /* After objid if true */
+  const char *zType = P("y");        /* Type of events.  All if NULL */
+  int firstEvent;              /* First event displayed */
+  int lastEvent;               /* Last event displayed */
+  Blob desc;                   /* Human readable description of the timeline */
+  const char *zEType;          /* Human readable event type */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -282,12 +284,21 @@ void page_timeline(void){
     @ historical information if you <a href="%s(g.zTop)/login">login</a>.</p>
   }
   blob_zero(&sql);
+  blob_zero(&desc);
   blob_append(&sql, timeline_query_for_www(), -1);
+  zEType = "events";
   if( zType ){
     blob_appendf(&sql, " AND event.type=%Q", zType);
+    if( zType[0]=='c' ){
+      zEType = "checkins";
+    }else if( zType[0]=='w' ){
+      zEType = "wiki edits";
+    }
   }
+  blob_appendf(&desc, "Timeline of up to %d %s", nEntry, zEType);
   if( zUser ){
     blob_appendf(&sql, " AND event.user=%Q", zUser);
+    blob_appendf(&desc, " by user %h", zUser);
   }
   if( objid ){
     char *z = db_text(0, "SELECT datetime(event.mtime, 'localtime') FROM event"
@@ -302,16 +313,27 @@ void page_timeline(void){
       blob_appendf(&sql, 
          " AND event.mtime %s (SELECT julianday(%Q, 'utc'))",
                           afterFlag ? ">=" : "<=", zStart);
+      blob_appendf(&desc, " occurring on or %s %h",
+          afterFlag ? "after": "before",
+          zStart);
     }
   }
   if( relatedEvents && objid ){
+    char *zUuid;
     db_multi_exec(
        "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
+    zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", objid);
     if( afterFlag ){
       compute_descendents(objid, nEntry);
+      blob_appendf(&desc,
+         " and decended from <a href='%s/vinfo/%d'>[%.10s]</a>",
+         g.zBaseURL, objid, zUuid);
     }else{
       compute_ancestors(objid, nEntry);
+      blob_appendf(&desc,
+         " and a ancestor of <a href='%s/vinfo/%d'>[%.10s]</a>",
+         g.zBaseURL, objid, zUuid);
     }
     blob_append(&sql, " AND event.objid IN ok", -1);
   }
@@ -330,6 +352,8 @@ void page_timeline(void){
   if( P("s")!=0 ){
     @ <hr><p>%h(zSQL)</p><hr>
   }
+  @ <h2>%b(&desc)</h2>
+  blob_reset(&desc);
   blob_zero(&sql);
   if( afterFlag ){
     free(zSQL);

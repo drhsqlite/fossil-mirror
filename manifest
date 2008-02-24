@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\sto\s[ed26056bb5].
-D 2008-02-24T18:50:35
+C Add\sa\shuman-readable\sdescription\son\seach\stimeline.\s\sAdd\sthe\s"ancestors"\sand\s"decendents"\slinks\non\sthe\sbaseline\sinformation\spages,\smaking\sit\seasier\sto\sunderstand\sthe\scontext\sof\sa\sbaseline.
+D 2008-02-24T21:51:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -58,7 +58,7 @@ F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 6f2a64a22272cce6b2e1320dea0083c6498030a5
 F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
-F src/info.c 97d9ed98da44e09f4c49fe0f7dd938e6b58ff002
+F src/info.c 7d442c6c2db8b7bdc6cee0ef1949737a780adca4
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c e12b36e51ecb9042ce9c25b3b554cb9dd6b00de1
 F src/main.mk b7efa1a7b7e40ba6471f706172bdff09d6fad250
@@ -91,7 +91,7 @@ F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 7258c955ba097b1b1819f8b53963fe33a7bf5a9b
-F src/timeline.c d21da06aadcd61a658164b3ada9d84f1edc99423
+F src/timeline.c d5cc80fe9bd78c2a4e657cbacb10f0eb990b5b3a
 F src/tkt.c e7e06add5cc8dada9b15a1459381cf3466cac957
 F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
@@ -199,14 +199,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f637d4220695430e25040509f12f050d2f4cd42f ed26056bb5aea7c642f78ff77496424c18b1786e
-R c4104cb0962fc5a7a80925ecf3d87094
-U aku
-Z 9d680a1101911809c80ba7ec31aecc8f
+P 588bb7cd734d4c3a066a715249f8498f425518e3
+R 861fed7a1e9fbeb568fc65dab20f09aa
+U drh
+Z 9fa9f7a6ad5d879d19040073d24c320c
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.3 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHwbx/vonzZ/CRa7gRAhl9AJwKXtVKwiMo95cgUSD0gJTMc/6uEACgv1sg
-zxd0pAQQ+uNAwANhDeSv5vc=
-=YYph
+iD8DBQFHwecIoxKgR168RlERAjt+AJ9ho0rTtJRk8pepQjFEEsuSsSScVwCeJF00
+vBylgkedAkCpIlRGszq69Zk=
+=N9E3
 -----END PGP SIGNATURE-----
