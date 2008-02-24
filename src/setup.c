@@ -647,7 +647,7 @@ void setup_header(void){
   }
   style_header("Edit Page Header");
   @ <form action="%s(g.zBaseURL)/setup_header" method="POST">
-  @ <p>Edit HTML text with embedded subscript that will be used to
+  @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
   textarea_attribute("", 40, 80, "header", "header", zDefaultHeader);
@@ -680,7 +680,7 @@ void setup_footer(void){
   }
   style_header("Edit Page Footer");
   @ <form action="%s(g.zBaseURL)/setup_footer" method="POST">
-  @ <p>Edit HTML text with embedded subscript that will be used to
+  @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the end of every page.</p>
   textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter);
   @ <br />
@@ -731,7 +731,7 @@ void setup_ticket(void){
     }
   }
   @ <form action="%s(g.zBaseURL)/setup_ticket" method="POST">
-  @ <p>Edit the "subscript" script that defines the ticketing
+  @ <p>Edit the TH1 script that defines the ticketing
   @ system setup for this server.</p>
   @ <textarea name="cfg" rows="40" cols="80">%h(zConfig)</textarea>
   @ <br />
@@ -739,7 +739,7 @@ void setup_ticket(void){
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default page header:
+  @ Here is the default ticket configuration:
   @ <blockquote><pre>
   @ %h(zDefaultTicketConfig)
   @ </pre></blockquote>

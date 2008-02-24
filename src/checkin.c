@@ -329,6 +329,8 @@ void commit_cmd(void){
   int isAMerge = 0;      /* True if checking in a merge */
   int forceFlag = 0;     /* Force a fork */
   char *zManifestFile;   /* Name of the manifest file */
+  int nBasename;         /* Length of "g.zLocalRoot/" */
+  Blob filename;         /* complete filename */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
   Blob mcksum;           /* Self-checksum on the manifest */
@@ -449,11 +451,23 @@ void commit_cmd(void){
     "SELECT pathname, uuid FROM vfile JOIN blob ON vfile.mrid=blob.rid"
     " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
+  blob_zero(&filename);
+  blob_appendf(&filename, "%s/", g.zLocalRoot);
+  nBasename = blob_size(&filename);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
-    blob_appendf(&manifest, "F %F %s\n", zName, zUuid);
+    const char *zPerm;
+    blob_append(&filename, zName, -1);
+    if( file_isexe(blob_str(&filename)) ){
+      zPerm = " x";
+    }else{
+      zPerm = "";
+    }
+    blob_resize(&filename, nBasename);
+    blob_appendf(&manifest, "F %F %s%s\n", zName, zUuid, zPerm);
   }
+  blob_reset(&filename);
   db_finalize(&q);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   blob_appendf(&manifest, "P %s", zUuid);

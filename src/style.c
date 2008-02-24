@@ -71,61 +71,24 @@ static int submenuCompare(const void *a, const void *b){
 }
 
 /*
-** The Subscript interpreter used to render header and footer.
-*/
-static struct Subscript *pInterp;
-
-/*
 ** Draw the header.
 */
 void style_header(const char *zTitle){
-  const char *zLogInOut = "Login";
   const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   login_check_credentials();
   
-  if( pInterp ) return;
   cgi_destination(CGI_HEADER);
 
   /* Generate the header up through the main menu */
-  pInterp = SbS_Create();
-  SbS_Store(pInterp, "project_name",
-                     db_get("project-name","Unnamed Fossil Project"), 0);
-  SbS_Store(pInterp, "title", zTitle, 0);
-  SbS_Store(pInterp, "baseurl", g.zBaseURL, 0);
-  SbS_Store(pInterp, "manifest_version", MANIFEST_VERSION, 0);
-  SbS_Store(pInterp, "manifest_date", MANIFEST_DATE, 0);
+  Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
+  Th_Store("title", zTitle);
+  Th_Store("baseurl", g.zBaseURL);
+  Th_Store("manifest_version", MANIFEST_VERSION);
+  Th_Store("manifest_date", MANIFEST_DATE);
   if( g.zLogin ){
-    SbS_Store(pInterp, "login", g.zLogin, 0);
-    zLogInOut = "Logout";
+    Th_Store("login", g.zLogin);
   }
-  SbS_Render(pInterp, zHeader);
-
-  /* Generate the main menu */
-  @ <div class="mainmenu">
-  @ <a href="%s(g.zBaseURL)/home">Home</a>
-  if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/dir">Files</a>
-  }
-  if( g.okRead ){
-    @ <a href="%s(g.zBaseURL)/leaves">Leaves</a>
-    @ <a href="%s(g.zBaseURL)/timeline">Timeline</a>
-    @ <a href="%s(g.zBaseURL)/tagview">Tags</a>
-  }
-  if( g.okRdWiki ){
-    @ <a href="%s(g.zBaseURL)/wiki">Wiki</a>
-  }
-#if 0
-  @ <font color="#888888">Search</font>
-  @ <font color="#888888">Ticket</font>
-  @ <font color="#888888">Reports</font>
-#endif
-  if( g.okSetup ){
-    @ <a href="%s(g.zBaseURL)/setup">Setup</a>
-  }
-  if( !g.noPswd ){
-    @ <a href="%s(g.zBaseURL)/login">%s(zLogInOut)</a>
-  }
-  @ </div>
+  Th_Render(zHeader);
   cgi_destination(CGI_BODY);
   g.cgiPanic = 1;
 }
@@ -136,8 +99,6 @@ void style_header(const char *zTitle){
 void style_footer(void){
   const char *zFooter;
   
-  if( pInterp==0 ) return;
-
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -164,9 +125,7 @@ void style_footer(void){
   @ <div class="content">
   zFooter = db_get("footer", (char*)zDefaultFooter);
   @ </div>
-  SbS_Render(pInterp, zFooter);
-  SbS_Destroy(pInterp);
-  pInterp = 0;
+  Th_Render(zFooter);
 }
 
 /* @-comment: // */
@@ -176,26 +135,49 @@ void style_footer(void){
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
-@ <title>[project_name html]: [title html]</title>
+@ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="[baseurl puts]/timeline.rss">
-@ <link rel="stylesheet" href="[baseurl puts]/style.css" type="text/css"
+@       href="$baseurl/timeline.rss">
+@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
 @     <!-- <img src="logo.gif" alt="logo"><br></br> -->
-@     <nobr>[project_name html]</nobr>
+@     <nobr>$<project_name></nobr>
 @   </div>
-@   <div class="title">[title html]</div>
-@   <div class="status"><nobr>
-@     [/login exists enable_output]     Logged in as
-@      <a href='[baseurl puts]/my'>[0 /login get html]</a>
-@     [/login exists not enable_output] Not logged in
-@     [1 enable_output]
-@   </nobr></div>
+@   <div class="title">$<title></div>
+@   <div class="status"><nobr><th1>
+@      if {[info exists login]} {
+@        html "Logged in as <a href='$baseurl/my'>$login</a>"
+@      } else {
+@        puts "Not logged in"
+@      }
+@   </th1></nobr></div>
 @ </div>
+@ <div class="mainmenu"><th1>
+@ html "<a href='$baseurl/home'>Home</a>"
+@ if {[hascap h]} {
+@   html "<a href='$baseurl/dir'>Files</a>"
+@ }
+@ if {[hascap i]} {
+@   html "<a href='$baseurl/leaves'>Leaves</a>"
+@   html "<a href='$baseurl/timeline'>Timeline</a>"
+@   html "<a href='$baseurl/tagview'>Tags</a>"
+@ }
+@ if {[hascap j]} {
+@   html "<a href='$baseurl/wiki'>Wiki</a>"
+@ }
+@ if {[hascap s]} {
+@   html "<a href='$baseurl/setup'>Setup</a>"
+@ }
+@ if {[info exists login]} {
+@   html "<a href='$baseurl/login'>Login</a>"
+@ } else {
+@   html "<a href='$baseurl/login'>Logout</a>"
+@ }
+@ </th1></div>
 ;
 
 /*
@@ -203,7 +185,7 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] = 
 @ <div class="footer">
-@ Fossil version [manifest_version puts] [manifest_date puts]
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;

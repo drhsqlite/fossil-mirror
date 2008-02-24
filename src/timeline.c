@@ -279,7 +279,7 @@ void page_timeline(void){
                 " WHERE login='anonymous'"
                 "   AND cap LIKE '%%h%%'") ){
     @ <p><b>Note:</b> You will be able to access <u>much</u> more
-    @ historical information if <a href="%s(g.zTop)/login">login</a>.</p>
+    @ historical information if you <a href="%s(g.zTop)/login">login</a>.</p>
   }
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_www(), -1);

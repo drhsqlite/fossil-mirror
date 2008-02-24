@@ -100,6 +100,10 @@ void manifest_to_disk(int vid){
   char *zManFile;
   Blob manifest;
   Blob hash;
+  Blob filename;
+  int baseLen;
+  int i;
+  Manifest m;
 
   blob_zero(&manifest);
   zManFile = mprintf("%smanifest", g.zLocalRoot);
@@ -108,12 +112,24 @@ void manifest_to_disk(int vid){
   free(zManFile);
   blob_zero(&hash);
   sha1sum_blob(&manifest, &hash);
-  blob_reset(&manifest);
   zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
   blob_append(&hash, "\n", 1);
   blob_write_to_file(&hash, zManFile);
   free(zManFile);
   blob_reset(&hash);
+  manifest_parse(&m, &manifest);
+  blob_zero(&filename);
+  blob_appendf(&filename, "%s/", g.zLocalRoot);
+  baseLen = blob_size(&filename);
+  for(i=0; i<m.nFile; i++){ 
+    int isExe;
+    blob_append(&filename, m.aFile[i].zName, -1);
+    isExe = m.aFile[i].zPerm && strstr(m.aFile[i].zPerm, "x");
+    file_setexe(blob_str(&filename), isExe);
+    blob_resize(&filename, baseLen);
+  }
+  blob_reset(&filename);
+  manifest_clear(&m);
 }
 
 /*

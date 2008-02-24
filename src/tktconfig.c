@@ -35,56 +35,8 @@
 ** differently.  Each repository has an instance of a file, like
 ** this one that defines how that repository deals with tickets.
 **
-** This file is in the form of a script in an exceedingly 
-** minimalist scripting language called "subscript".  Here are
-** the rules:
-**
-** SYNTAX
-**
-**     *  The script consists of a sequence of whitespace
-**        separated tokens.  Whitespace is ignored, except
-**        as its role as a token separator.
-**
-**     *  Lines that begin with '#' are considered to be whitespace.
-**
-**     *  Text within matching {...} is consider to be a single "string"
-**        token, even if the text spans multiple lines and includes
-**        embedded whitespace.  The outermost {...} are not part of
-**        the text of the token.
-**
-**     *  A token that begins with "/" is a string token.
-**
-**     *  A token that looks like a number is a string token.
-**
-**     *  Tokens that do not fall under the previous three rules
-**        are "verb" tokens.
-**
-**  PROCESSING:
-**
-**     *  When a script is processed, the engine reads tokens
-**        one by one.
-**
-**     *  String tokens are pushed onto the stack.
-**
-**     *  Verb tokens which correspond to the names of variables
-**        cause the corresponding variable to be pushed onto the
-**        stack.
-**
-**     *  Verb tokens which correspond to procedures cause the
-**        procedures to run.  The procedures might push or pull 
-**        values from the stack.
-**
-** There are just a handful of verbs.  For the purposes of this
-** configuration script, there is only a single verb: "set".  The
-** "set" verb pops two arguments from the stack.  The topmost is
-** the name of a variable.  The second element is the value.  The
-** "set" verb sets the value of the named variable.
-**
-**      VALUE NAME set
-**
-** This configuration file just sets the values of various variables.
-** Some of the variables have special meanings.  The content of some
-** of the variables are additional subscript scripts.
+** This file is in the form of a script in TH1 - a minimalist
+** TCL clone.
 */
 
 /* @-comment: ** */
@@ -97,7 +49,7 @@ const char zDefaultTicketConfig[] =
 @ # define addition columns as necessary.  All columns should be in all
 @ # lower-case letters and should not begin with "tkt".
 @ #
-@ {
+@ set ticket_sql {
 @    CREATE TABLE ticket(
 @      -- Do not change any column that begins with tkt_
 @      tkt_id INTEGER PRIMARY KEY,
@@ -111,28 +63,29 @@ const char zDefaultTicketConfig[] =
 @      severity TEXT,
 @      foundin TEXT,
 @      contact TEXT,
+@      resolution TEXT,
 @      title TEXT,
 @      comment TEXT,
 @      -- Do not alter this UNIQUE clause:
 @      UNIQUE(tkt_uuid, tkt_mtime)
 @    );
 @    -- Add indices as desired
-@ } /ticket_sql set
+@ }
 @ 
 @ ############################################################################
 @ # You can define additional variables here.  These variables will be
 @ # accessible to the page templates when they run.
 @ #
-@ {
+@ set type_choices {
 @    Code_Defect
 @    Build_Problem
 @    Documentation
 @    Feature_Request
 @    Incident
-@ } /type_choices set
-@ {Immediate High Medium Low Zero} /priority_choices set
-@ {Critical Severe Important Minor Cosmetic} /severity_choices set
-@ {
+@ }
+@ set priority_choices {Immediate High Medium Low Zero}
+@ set severity_choices {Critical Severe Important Minor Cosmetic}
+@ set resolution_choices {
 @   Open
 @   Fixed
 @   Rejected
@@ -143,8 +96,8 @@ const char zDefaultTicketConfig[] =
 @   Duplicate
 @   Overcome_By_Events
 @   Drive_By_Patch
-@ } /resolution_choices set
-@ {
+@ }
+@ set status_choices {
 @   Open
 @   Verified
 @   In_Process
@@ -152,8 +105,8 @@ const char zDefaultTicketConfig[] =
 @   Fixed
 @   Tested
 @   Closed
-@ } /status_choices set
-@ {one two three} /subsystem_choices set
+@ }
+@ set subsystem_choices {one two three}
 @ 
 @ ##########################################################################
 @ # The "tktnew_template" variable is set to text which is a template for
@@ -161,38 +114,40 @@ const char zDefaultTicketConfig[] =
 @ # within [...] is subscript.  That subscript runs when the page is
 @ # rendered.
 @ #
-@ {
+@ set tktnew_template {
 @   <!-- load database field names not found in CGI with an empty string -->
 @   <!-- start a form -->
-@   [{
-@      {Open} /status set
-@       submit_ticket
-@   } /submit exists if]
+@   <th1>
+@     if {[info exists submit]} {
+@        set status Open
+@        submit_ticket
+@     }
+@   </th1>
 @   <table cellpadding="5">
 @   <tr>
 @   <td colspan="2">
 @   Enter a one-line summary of the problem:<br>
-@   <input type="text" name="title" size="60" value="[{} /title get html]">
+@   <input type="text" name="title" size="60" value="$<title>">
 @   </td>
 @   </tr>
 @   
 @   <tr>
 @   <td align="right">Type:
-@   [/type type_choices 1 combobox]
+@   <th1>combobox type $type_choices 1</th1>
 @   </td>
 @   <td>What type of ticket is this?</td>
 @   </tr>
 @   
 @   <tr>
 @   <td align="right">Version: 
-@   <input type="text" name="foundin" size="20" value="[{} /foundin get html]">
+@   <input type="text" name="foundin" size="20" value="$<foundin>">
 @   </td>
 @   <td>In what version or build number do you observer the problem?</td>
 @   </tr>
 @   
 @   <tr>
 @   <td align="right">Severity:
-@   [/severity severity_choices 1 combobox]
+@   <th1>combobox severity $severity_choices 1</th1>
 @   </td>
 @   <td>How debilitating is the problem?  How badly does the problem
 @   effect the operation of the product?</td>
@@ -200,7 +155,7 @@ const char zDefaultTicketConfig[] =
 @   
 @   <tr>
 @   <td align="right">EMail:
-@   <input type="text" name="contact" value="[{} /contact get html]" size="30">
+@   <input type="text" name="contact" value="$<contact>" size="30">
 @   </td>
 @   <td>Not publically visible. Used by developers to contact you with
 @   questions.</td>
@@ -213,19 +168,19 @@ const char zDefaultTicketConfig[] =
 @   the problem can be reproduced.  Provide as much detail as
 @   possible.
 @   <br>
-@   <textarea name="comment" cols="80"
-@    rows="[{} /comment get linecount 50 max 10 min html]"
-@    wrap="virtual" class="wikiedit">[{} /comment get html]</textarea><br>
+@   <th1>set nline [linecount $comment 50 10]</th1>
+@   <textarea name="comment" cols="80" rows="$nline"
+@    wrap="virtual" class="wikiedit">$<comment></textarea><br>
 @   <input type="submit" name="preview" value="Preview">
 @   </tr>
 @ 
-@   [/preview exists enable_output]
+@   <th1>enable_output [info exists preview]</th1>
 @   <tr><td colspan="2">
 @   Description Preview:<br><hr>
-@   [{} /comment get wiki]
+@   <th1>wiki $comment</th1>
 @   <hr>
 @   </td></tr>
-@   [1 enable_output]
+@   <th1>enable_output 1</th1>
 @   
 @   <tr>
 @   <td align="right">
@@ -236,7 +191,7 @@ const char zDefaultTicketConfig[] =
 @   </tr>
 @   </table>
 @   <!-- end of form -->
-@ } /tktnew_template set
+@ }
 @ 
 @ ##########################################################################
 @ # The template for the "edit ticket" page
@@ -245,125 +200,121 @@ const char zDefaultTicketConfig[] =
 @ # All CGI parameters are loaded into variables.  All database files are
 @ # loaded into variables if they have not previously been loaded by
 @ # CGI parameters.
-@ {
-@   [
-@     login /username get /username set
-@     {
-@       {
-@         username login eq /samename set
-@         {
-@            "\n\n<hr><i>" login " added on " date ":</i><br>\n"
-@            cmappnd 6 concat /comment append_field
-@         } samename if
-@         {
-@            "\n\n<hr><i>" login " claiming to be " username " added on " date
-@            "</i><br>\n" cmappnd 8 concat /comment append_field
-@         } samename not if
-@       } 0 {} /cmappnd get length lt if
+@ set tktedit_template {
+@   <th1>
+@     if {![info exists username]} {set username $login}
+@     if {[info exists submit]} {
+@       if {[info exists $cmappnd] && [string length $cmappnd]>0} {
+@         set ctxt "\n\n<hr><i>"
+@         if {$username==$login} {
+@           set usr "$ctxt[htmlize $login]"
+@         } else {
+@           set usr "[htmlize $login claimingn to be [htmlize $username]"
+@         }
+@         append_field comment \
+@            "\n\n<hr><i>$usr added on [date]:</i><br>\n$comment"
+@       }
 @       submit_ticket
-@     } /submit exists if
-@   ]
+@     }
+@   </th1>
 @   <table cellpadding="5">
 @   <tr><td align="right">Title:</td><td>
-@   <input type="text" name="title" value="[title html]" size="60">
+@   <input type="text" name="title" value="$<title>" size="60">
 @   </td></tr>
 @   <tr><td align="right">Status:</td><td>
-@   [/status status_choices 1 combobox]
+@   <th1>combobox status $status_choices 1</th1>
 @   </td></tr>
 @   <tr><td align="right">Type:</td><td>
-@   [/type type_choices 1 combobox]
+@   <th1>combobox type $type_choices 1</th1>
 @   </td></tr>
 @   <tr><td align="right">Severity:</td><td>
-@   [/severity severity_choices 1 combobox]
+@   <th1>combobox severity $severity_choices 1</th1>
 @   </td></tr>
 @   <tr><td align="right">Priority:</td><td>
-@   [/priority priority_choices 1 combobox]
+@   <th1>combobox priority $priority_choices 1</th1>
 @   </td></tr>
 @   <tr><td align="right">Resolution:</td><td>
-@   [/resolution resolution_choices 1 combobox]
+@   <th1>combobox resolution $resolution_choices 1</th1>
 @   </td></tr>
 @   <tr><td align="right">Subsystem:</td><td>
-@   [/subsystem subsystem_choices 1 combobox]
+@   <th1>combobox subsystem $subsystem_choices 1</th1>
 @   </td></tr>
-@   [/e hascap enable_output]
+@   <th1>enable_output [hascap e]</th1>
 @     <tr><td align="right">Contact:</td><td>
-@     <input type="text" name="contact" size="40" value="[contact html]">
+@     <input type="text" name="contact" size="40" value="$<contact>">
 @     </td></tr>
-@   [1 enable_output]
+@   <th1>enable_output 1</th1>
 @   <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
-@   <input type="text" name="foundin" size="50" value="[foundin html]">
+@   <input type="text" name="foundin" size="50" value="$<foundin>">
 @   </td></tr>
 @   <tr><td colspan="2">
-@
-@   [
-@      0 /eall get /eall set           # eall means "edit all".  default==no
-@      /aonlybtn exists not /eall set  # Edit all if no aonlybtn CGI param
-@      /eallbtn exists /eall set       # Edit all if eallbtn CGI param
-@      /w hascap eall and /eall set    # WrTkt permission needed to edit all
-@   ]
-@ 
-@   [eall enable_output]
+@   <th1>
+@     if {![info exists eall]} {set eall 0}
+@     if {[info exists aonlybtn]} {set eall 0}
+@     if {[info exists eallbtn]} {set eall 1}
+@     if {![hascap w]} {set eall 0}
+@     if {![info exists cmappnd]} {set cmappnd {}}
+@     set nline [linecount $comment 15 10]
+@     enable_output $eall
+@   </th1>
 @     Description And Comments:<br>
-@     <textarea name="comment" cols="80" 
-@      rows="[{} /comment get linecount 15 max 10 min html]"
-@      wrap="virtual" class="wikiedit">[comment html]</textarea><br>
+@     <textarea name="comment" cols="80" rows="$nline"
+@      wrap="virtual" class="wikiedit">$<comment></textarea><br>
 @     <input type="hidden" name="eall" value="1">
 @     <input type="submit" name="aonlybtn" value="Append Remark">
-@   
-@   [eall not enable_output]
+@   <th1>enable_output [expr {!$eall}]</th1>
 @     Append Remark from 
-@     <input type="text" name="username" value="[username html]" size="30">:<br>
+@     <input type="text" name="username" value="$<username>" size="30">:<br>
 @     <textarea name="cmappnd" cols="80" rows="15"
-@      wrap="virtual" class="wikiedit">[{} /cmappnd get html]</textarea><br>
-@     [/w hascap eall not and enable_output]
+@      wrap="virtual" class="wikiedit">$<cmappnd></textarea><br>
+@   <th1>enable_output [expr {[hascap w] && !$eall}]</th1>
 @     <input type="submit" name="eallbtn" value="Edit All">
-@
-@   [1 enable_output]
+@   <th1>enable_output 1</th1>
 @   </td></tr>
 @   <tr><td align="right"></td><td>
 @   <input type="submit" name="submit" value="Submit Changes">
 @   </td></tr>
 @   </table>
-@ } /tktedit_template set
+@ }
 @ 
 @ ##########################################################################
 @ # The template for the "view ticket" page
-@ {
+@ set tktview_template {
 @   <!-- load database fields automatically loaded into variables -->
 @   <table cellpadding="5">
 @   <tr><td align="right">Title:</td><td>
-@   [title html]
+@   $<title>
 @   </td></tr>
 @   <tr><td align="right">Status:</td><td>
-@   [status html]
+@   $<status>
 @   </td></tr>
 @   <tr><td align="right">Type:</td><td>
-@   [type html]
+@   $<type>
 @   </td></tr>
 @   <tr><td align="right">Severity:</td><td>
-@   [severity html]
+@   $<severity>
 @   </td></tr>
 @   <tr><td align="right">Priority:</td><td>
-@   [priority html]
+@   $<priority>
 @   </td></tr>
 @   <tr><td align="right">Resolution:</td><td>
-@   [priority html]
+@   $<resolution>
 @   </td></tr>
 @   <tr><td align="right">Subsystem:</td><td>
-@   [subsystem html]
+@   $<subsystem>
 @   </td></tr>
-@   [{e} hascap enable_output]
+@   <th1>enable_output [hascap e]</th1>
 @     <tr><td align="right">Contact:</td><td>
-@     [contact html]
+@     $<contact>
 @     </td></tr>
-@   [1 enable_output]
+@   <th1>enable_output 1</th1>
 @   <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
-@   [foundin html]
+@   $<foundin>
 @   </td></tr>
 @   <tr><td colspan="2">
 @   Description And Comments:<br>
-@   [comment wiki]
+@   <th1>wiki $comment</th1>
 @   </td></tr>
 @   </table>
-@ } /tktview_template set
+@ }
 ;

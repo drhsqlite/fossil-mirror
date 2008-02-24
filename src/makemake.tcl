@@ -3,7 +3,8 @@
 # Run this TCL script to generate the "main.mk" makefile.
 #
 
-# Basenames of all source files:
+# Basenames of all source files that get preprocessed using
+# "translate" and "makeheaders"
 #
 set src {
   add
@@ -47,10 +48,10 @@ set src {
   setup
   sha1
   style
-  subscript
   sync
   tag
   tagview
+  th_main
   timeline
   tkt
   tktconfig
@@ -133,8 +134,8 @@ VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 		substr($$2,1,10),substr($$2,12)}' \
 		$(SRCDIR)/../manifest >>VERSION.h
 
-$(APPNAME):	headers $(OBJ) sqlite3.o
-	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o $(LIB)
+$(APPNAME):	headers $(OBJ) sqlite3.o th.o th_lang.o
+	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o th.o th_lang.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -155,7 +156,9 @@ foreach s [lsort $src] {
   append mhargs " ${s}_.c:$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h ./VERSION.h"
+append mhargs " \$(SRCDIR)/sqlite3.h"
+append mhargs " \$(SRCDIR)/th.h"
+append mhargs " ./VERSION.h"
 puts "headers:\tmakeheaders mkindex \$(TRANS_SRC) ./VERSION.h"
 puts "\t./makeheaders $mhargs"
 puts "\t./mkindex \$(TRANS_SRC) >page_index.h"
@@ -177,3 +180,9 @@ set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_PRIVATE=}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 append opt " -DSQLITE_ENABLE_FTS3=1"
 puts "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o sqlite3.o\n"
+
+puts "th.o:\t\$(SRCDIR)/th.c"
+puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o th.o\n"
+
+puts "th_lang.o:\t\$(SRCDIR)/th_lang.c"
+puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o th_lang.o\n"

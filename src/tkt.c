@@ -39,11 +39,6 @@ static char **azValue = 0;    /* Original values */
 static char **azAppend = 0;   /* Value to be appended */
 
 /*
-** A subscript interpreter used for processing Tickets.
-*/
-static struct Subscript *pInterp = 0;
-
-/*
 ** Compare two entries in azField for sorting purposes
 */
 static int nameCmpr(const void *a, const void *b){
@@ -123,8 +118,8 @@ static void initializeVariablesFromDb(void){
           break;
         }
       }
-      if( SbS_Fetch(pInterp, zName, -1, &size)==0 ){
-        SbS_Store(pInterp, db_column_name(&q,i), zVal, 1);
+      if( Th_Fetch(zName, &size)==0 ){
+        Th_Store(db_column_name(&q,i), zVal);
       }
     }
   }else{
@@ -132,8 +127,8 @@ static void initializeVariablesFromDb(void){
     db_prepare(&q, "PRAGMA table_info(ticket)");
     while( db_step(&q)==SQLITE_ROW ){
       const char *zField = db_column_text(&q, 1);
-      if( SbS_Fetch(pInterp, zField, -1, &size)==0 ){
-        SbS_Store(pInterp, zField, "", 0);
+      if( Th_Fetch(zField, &size)==0 ){
+        Th_Store(zField, "");
       }
     }
   }
@@ -148,7 +143,7 @@ static void initializeVariablesFromCGI(void){
   const char *z;
 
   for(i=0; (z = cgi_parameter_name(i))!=0; i++){
-    SbS_Store(pInterp, z, P(z), 0);
+    Th_Store(z, P(z));
   }
 }
 
@@ -256,11 +251,10 @@ void ticket_rebuild_entry(const char *zTktUuid){
 */
 void ticket_init(void){
   char *zConfig;
-  if( pInterp ) return;
-  pInterp = SbS_Create();
+  Th_FossilInit();
   zConfig = db_text((char*)zDefaultTicketConfig,
              "SELECT value FROM config WHERE name='ticket-configuration'");
-  SbS_Eval(pInterp, zConfig, -1);
+  Th_Eval(g.interp, 0, (const uchar*)zConfig, -1);
 }
 
 /*
@@ -272,7 +266,7 @@ void ticket_create_table(int separateConnection){
 
   db_multi_exec("DROP TABLE IF EXISTS ticket;");
   ticket_init();
-  zSql = (char*)SbS_Fetch(pInterp, "ticket_sql", -1, &nSql);
+  zSql = (char*)Th_Fetch("ticket_sql", &nSql);
   if( zSql==0 ){
     fossil_panic("no ticket_sql defined by ticket configuration");
   }
@@ -321,42 +315,44 @@ void tktview_page(void){
   style_header("View Ticket");
   ticket_init();
   initializeVariablesFromDb();
-  zScript = (char*)SbS_Fetch(pInterp, "tktview_template", -1, &nScript);
+  zScript = (char*)Th_Fetch("tktview_template", &nScript);
   zScript = mprintf("%.*s", nScript, zScript);
-  SbS_Render(pInterp, zScript);
+  Th_Render(zScript);
   style_footer();
 }
 
-
-
 /*
-** Subscript command:   STRING FIELD append_field
+** TH command:   append_field FIELD STRING
 **
 ** FIELD is the name of a database column to which we might want
 ** to append text.  STRING is the text to be appended to that
 ** column.  The append does not actually occur until the
-** submit_ticket_change verb is run.
+** submit_ticket command is run.
 */
-static int appendRemarkCmd(struct Subscript *p, void *notUsed){
+static int appendRemarkCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
   int idx;
-  const char *zField, *zValue;
-  int nField, nValue;
 
-  if( SbS_RequireStack(p, 2, "append_field") ) return 1;
-  zField = SbS_StackValue(p, 0, &nField);
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "append_field FIELD STRING");
+  }
   for(idx=0; idx<nField; idx++){
-    if( strncmp(azField[idx], zField, nField)==0 && azField[idx][nField]==0 ){
+    if( strncmp(azField[idx], (const char*)argv[1], argl[1])==0
+        && azField[idx][argl[1]]==0 ){
       break;
     }
   }
   if( idx>=nField ){
-    SbS_SetErrorMessage(p, "no such TICKET column: %.*s", nField, zField);
-    return SBS_ERROR;
+    Th_ErrorMessage(g.interp, "no such TICKET column: ", argv[1], argl[1]);
+    return TH_ERROR;
   }
-  zValue = SbS_StackValue(p, 1, &nValue);
-  azAppend[idx] = mprintf("%.*s", nValue, zValue);
-  SbS_Pop(p, 2);
-  return SBS_OK;
+  azAppend[idx] = mprintf("%.*s", argl[2], argv[2]);
+  return TH_OK;
 }
 
 /*
@@ -364,7 +360,13 @@ static int appendRemarkCmd(struct Subscript *p, void *notUsed){
 **
 ** Construct and submit a new ticket artifact.
 */
-static int submitTicketCmd(struct Subscript *p, void *pUuid){
+static int submitTicketCmd(
+  Th_Interp *interp, 
+  void *pUuid, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
   char *zDate;
   const char *zUuid;
   int i;
@@ -384,7 +386,7 @@ static int submitTicketCmd(struct Subscript *p, void *pUuid){
       blob_appendf(&tktchng, "J +%s %z\n", azField[i],
                    fossilize(azAppend[i], -1));
     }else{
-      zValue = SbS_Fetch(p, azField[i], -1, &nValue);
+      zValue = Th_Fetch(azField[i], &nValue);
       if( zValue ){
         while( nValue>0 && isspace(zValue[nValue-1]) ){ nValue--; }
         if( strncmp(zValue, azValue[i], nValue)
@@ -413,8 +415,7 @@ static int submitTicketCmd(struct Subscript *p, void *pUuid){
     @ %h(blob_str(&tktchng))
     @ </pre><hr>
     blob_zero(&tktchng);
-    SbS_Pop(p, 1);
-    return SBS_OK;
+    return TH_OK;
   }
 
   rid = content_put(&tktchng, 0, 0);
@@ -422,7 +423,7 @@ static int submitTicketCmd(struct Subscript *p, void *pUuid){
     fossil_panic("trouble committing ticket: %s", g.zErrMsg);
   }
   manifest_crosslink(rid, &tktchng);
-  return SBS_RETURN;
+  return TH_RETURN;
 }
 
 
@@ -448,14 +449,16 @@ void tktnew_page(void){
   style_header("New Ticket");
   ticket_init();
   getAllTicketFields();
+  initializeVariablesFromDb();
   initializeVariablesFromCGI();
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
-  zScript = (char*)SbS_Fetch(pInterp, "tktnew_template", -1, &nScript);
+  zScript = (char*)Th_Fetch("tktnew_template", &nScript);
   zScript = mprintf("%.*s", nScript, zScript);
-  SbS_Store(pInterp, "login", g.zLogin, 0);
-  SbS_Store(pInterp, "date", db_text(0, "SELECT datetime('now')"), 2);
-  SbS_AddVerb(pInterp, "submit_ticket", submitTicketCmd, (void*)&zNewUuid);
-  if( SbS_Render(pInterp, zScript)==SBS_RETURN && zNewUuid ){
+  Th_Store("login", g.zLogin);
+  Th_Store("date", db_text(0, "SELECT datetime('now')"));
+  Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
+                   (void*)&zNewUuid, 0);
+  if( Th_Render(zScript)==TH_RETURN && zNewUuid ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zNewUuid));
     return;
   }
@@ -509,13 +512,13 @@ void tktedit_page(void){
   initializeVariablesFromDb();
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
   @ <input type="hidden" name="name" value="%s(zName)">
-  zScript = (char*)SbS_Fetch(pInterp, "tktedit_template", -1, &nScript);
+  zScript = (char*)Th_Fetch("tktedit_template", &nScript);
   zScript = mprintf("%.*s", nScript, zScript);
-  SbS_Store(pInterp, "login", g.zLogin, 0);
-  SbS_Store(pInterp, "date", db_text(0, "SELECT datetime('now')"), 2);
-  SbS_AddVerb(pInterp, "append_field", appendRemarkCmd, 0);
-  SbS_AddVerb(pInterp, "submit_ticket", submitTicketCmd, (void*)&zName);
-  if( SbS_Render(pInterp, zScript)==SBS_RETURN && zName ){
+  Th_Store("login", g.zLogin);
+  Th_Store("date", db_text(0, "SELECT datetime('now')"));
+  Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
+  Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
+  if( Th_Render(zScript)==TH_RETURN && zName ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zName));
     return;
   }
@@ -530,7 +533,6 @@ void tktedit_page(void){
 ** describes the problem.
 */
 char *ticket_config_check(const char *zConfig){
-  struct Subscript *p;
   char *zErr = 0;
   const char *z;
   int n;
@@ -543,25 +545,22 @@ char *ticket_config_check(const char *zConfig){
      "tktedit_template",
   };
   
-  p = SbS_Create();
-  rc = SbS_Eval(p, zConfig, strlen(zConfig));
-  if( rc!=SBS_OK ){
-    zErr = mprintf("%s", SbS_GetErrorMessage(p));
-    SbS_Destroy(p);
+  Th_FossilInit();
+  rc = Th_Eval(g.interp, 0, (const uchar*)zConfig, strlen(zConfig));
+  if( rc!=TH_OK ){
+    zErr = (char*)Th_TakeResult(g.interp, 0);
     return zErr;
   }
   for(i=0; i<sizeof(azRequired)/sizeof(azRequired[0]); i++){
-    z = SbS_Fetch(p, azRequired[i], -1, &n);
+    z = Th_Fetch(azRequired[i], &n);
     if( z==0 ){
       zErr = mprintf("missing definition: %s", azRequired[i]);
-      SbS_Destroy(p);
       return zErr;
     }
   }
-  z = SbS_Fetch(p, "ticket_sql", -1, &n);
+  z = Th_Fetch("ticket_sql", &n);
   if( z==0 ){
     zErr = mprintf("missing definition: ticket_sql");
-    SbS_Destroy(p);
     return zErr;
   }
   rc = sqlite3_open(":memory:", &db);
@@ -570,12 +569,10 @@ char *ticket_config_check(const char *zConfig){
     rc = sqlite3_exec(db, zSql, 0, 0, &zErr);
     if( rc!=SQLITE_OK ){
       sqlite3_close(db);
-      SbS_Destroy(p);
       return zErr;
     }
     /* TODO: verify that the TICKET table exists and has required fields */
     sqlite3_close(db);
   }
-  SbS_Destroy(p);
   return 0;
 }

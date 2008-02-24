@@ -301,7 +301,7 @@ const char zLocalSchema[] =
 @ --
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
-@   vid INTEGER REFERENCES blob,      -- The version this file is part of.
+@   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
 @   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
 @   rid INTEGER,                      -- Originally from this repository record
@@ -322,19 +322,4 @@ const char zLocalSchema[] =
 @   UNIQUE(id, merge)
 @ );
 @   
-;
-
-const char zServerTempSchema[] =
-@ -- A copy of the vfile table schema used by the WWW server
-@ --
-@ CREATE TEMP TABLE vfile(
-@   id INTEGER PRIMARY KEY,           -- ID of the checked out file
-@   vid INTEGER REFERENCES record,    -- The version this file is part of.
-@   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
-@   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
-@   rid INTEGER,                      -- Originally from this repository record
-@   mrid INTEGER,                     -- Based on this record due to a merge
-@   pathname TEXT,                    -- Full pathname
-@   UNIQUE(pathname,vid)
-@ );
 ;

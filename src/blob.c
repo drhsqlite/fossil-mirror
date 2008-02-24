@@ -243,6 +243,7 @@ char *blob_str(Blob *p){
 */
 char *blob_terminate(Blob *p){
   blob_is_init(p);
+  if( p->nUsed==0 ) return "";
   p->aData[p->nUsed] = 0;
   return p->aData;
 }

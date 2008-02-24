@@ -69,13 +69,6 @@ void update_cmd(void){
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
-#if 0
-  /* Always do the update.  If it does not work out, the user can back out
-  ** the changes using "undo" */
-  if( !forceFlag && unsaved_changes() ){
-    fossil_fatal("uncommitted changes; use -f or --force to override");
-  }
-#endif
 
   if( g.argc==3 ){
     tid = name_to_rid(g.argv[2]);
