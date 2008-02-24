@@ -327,14 +327,17 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     proc Getrevisioninfo {revisions} {
 	set theset ('[join $revisions {','}]')
 	set revisions {}
-	#foreachrow
-	foreach {frid path fname revnr rop} [state run [subst -nocommands -nobackslashes {
-	    SELECT U.uuid, F.visible, F.name, R.rev, R.op
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT U.uuid    AS frid,
+	           F.visible AS path,
+	           F.name    AS fname,
+	           R.rev     AS revnr,
+	           R.op      AS rop
 	    FROM   revision R, revuuid U, file F
 	    WHERE  R.rid IN $theset  -- All specified revisions
 	    AND    U.rid = R.rid     -- get fossil uuid of revision
 	    AND    F.fid = R.fid     -- get file of revision
-	}]] {
+	}] {
 	    lappend revisions $frid $path $fname/$revnr $rop
 	}
 	return $revisions
@@ -586,16 +589,15 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	# rev' impossible.
 
 	set res {}
-	#foreachrow
-	foreach {cid cdate} [state run {
-	    SELECT C.cid, T.date
+	state foreachrow {
+	    SELECT C.cid AS xcid, T.date AS cdate
 	    FROM   changeset C, cstimestamp T
 	    WHERE  C.type = 0          -- limit to revision changesets
 	    AND    C.pid  = $projectid -- limit to changesets in project
 	    AND    T.cid  = C.cid      -- get ordering information
 	    ORDER BY T.date            -- sort into commit order
-	}] {
-	    lappend res $myidmap($cid) $cdate
+	} {
+	    lappend res $myidmap($xcid) $cdate
 	}
 	return $res
     }
@@ -901,13 +903,12 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	array set stamp {}
 
 	set theset ('[join $revisions {','}]')
-	#foreachrow
-	foreach {rid time} [state run [subst -nocommands -nobackslashes {
-	    SELECT R.rid, R.date
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT R.rid AS xrid, R.date AS time
 	    FROM revision R
 	    WHERE R.rid IN $theset
-	}]] {
-	    set stamp($rid) $time
+	}] {
+	    set stamp($xrid) $time
 	}
 
 	log write 14 csets {IBS: stamp [array size stamp]}
@@ -1328,50 +1329,47 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
 	# Note that the branches spawned from the revisions, and the
 	# tags associated with them are successors as well.
 
-	#foreachrow
-	foreach {rid child} [state run [subst -nocommands -nobackslashes {
+	state foreachrow [subst -nocommands -nobackslashes {
     -- (1) Primary child
-	    SELECT R.rid, R.child
+	    SELECT R.rid AS xrid, R.child AS xchild
 	    FROM   revision R
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.child IS NOT NULL    -- Has primary child
     UNION
     -- (2) Secondary (branch) children
-	    SELECT R.rid, B.brid
+	    SELECT R.rid AS xrid, B.brid AS xchild
 	    FROM   revision R, revisionbranchchildren B
 	    WHERE  R.rid   IN $theset     -- Restrict to revisions of interest
 	    AND    R.rid = B.rid          -- Select subset of branch children
     UNION
     -- (4) Child of trunk root successor of last NTDB on trunk.
-	    SELECT R.rid, RA.child
+	    SELECT R.rid AS xrid, RA.child AS xchild
 	    FROM revision R, revision RA
 	    WHERE R.rid   IN $theset      -- Restrict to revisions of interest
 	    AND   R.isdefault             -- Restrict to NTDB
 	    AND   R.dbchild IS NOT NULL   -- and last NTDB belonging to trunk
 	    AND   RA.rid = R.dbchild      -- Go directly to trunk root
 	    AND   RA.child IS NOT NULL    -- Has primary child.
-	}]] {
+	}] {
 	    # Consider moving this to the integrity module.
-	    integrity assert {$rid != $child} {Revision $rid depends on itself.}
-	    lappend dependencies([list rev $rid]) [list rev $child]
+	    integrity assert {$xrid != $xchild} {Revision $xrid depends on itself.}
+	    lappend dependencies([list rev $xrid]) [list rev $xchild]
 	}
-	#foreachrow
-	foreach {rid child} [state run [subst -nocommands -nobackslashes {
-	    SELECT R.rid, T.tid
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT R.rid AS xrid, T.tid AS xchild
 	    FROM   revision R, tag T
 	    WHERE  R.rid IN $theset       -- Restrict to revisions of interest
 	    AND    T.rev = R.rid          -- Select tags attached to them
-	}]] {
-	    lappend dependencies([list rev $rid]) [list sym::tag $child]
+	}] {
+	    lappend dependencies([list rev $xrid]) [list sym::tag $xchild]
 	}
-	#foreachrow
-	foreach {rid child} [state run [subst -nocommands -nobackslashes {
-	    SELECT R.rid, B.bid
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT R.rid AS xrid, B.bid AS xchild
 	    FROM   revision R, branch B
 	    WHERE  R.rid IN $theset       -- Restrict to revisions of interest
 	    AND    B.root = R.rid         -- Select branches attached to them
-	}]] {
-	    lappend dependencies([list rev $rid]) [list sym::branch $child]
+	}] {
+	    lappend dependencies([list rev $xrid]) [list sym::branch $xchild]
 	}
 	return
     }
@@ -1583,34 +1581,31 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
 	# successors of a branch.
 
 	set theset ('[join $branches {','}]')
-	#foreachrow
-	foreach {bid child} [state run [subst -nocommands -nobackslashes {
-	    SELECT B.bid, R.rid
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT B.bid AS xbid, R.rid AS xchild
 	    FROM   branch B, revision R
 	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
 	    AND    B.first = R.rid      -- Get first revision on the branch
-	}]] {
-	    lappend dependencies([list sym::branch $bid]) [list rev $child]
+	}] {
+	    lappend dependencies([list sym::branch $xbid]) [list rev $xchild]
 	}
-	#foreachrow
-	foreach {bid child} [state run [subst -nocommands -nobackslashes {
-	    SELECT B.bid, BX.bid
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT B.bid AS xbid, BX.bid AS xchild
 	    FROM   branch B, preferedparent P, branch BX
 	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
 	    AND    B.sid = P.pid        -- Get subordinate branches via the
 	    AND    BX.sid = P.sid       -- prefered parents of their symbols
-	}]] {
-	    lappend dependencies([list sym::branch $bid]) [list sym::branch $child]
+	}] {
+	    lappend dependencies([list sym::branch $xbid]) [list sym::branch $xchild]
 	}
-	#foreachrow
-	foreach {bid child} [state run [subst -nocommands -nobackslashes {
-	    SELECT B.bid, T.tid
+	state foreachrow [subst -nocommands -nobackslashes {
+	    SELECT B.bid AS xbid, T.tid AS xchild
 	    FROM   branch B, preferedparent P, tag T
 	    WHERE  B.bid IN $theset     -- Restrict to branches of interest
 	    AND    B.sid = P.pid        -- Get subordinate tags via the
 	    AND    T.sid = P.sid        -- prefered parents of their symbols
-	}]] {
-	    lappend dependencies([list sym::branch $bid]) [list sym::tag $child]
+	}] {
+	    lappend dependencies([list sym::branch $xbid]) [list sym::tag $xchild]
 	}
 	return
     }

@@ -113,7 +113,9 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 
 	set n 0
 	state transaction {
-	    foreach {cid pos} [state run { SELECT cid, pos FROM csorder }] {
+	    state foreachrow {
+		SELECT cid, pos FROM csorder
+	    } {
 		log progress 2 breakacycle $n {}
 		set cset [project::rev of $cid]
 		$cset setpos $pos

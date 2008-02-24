@@ -251,9 +251,9 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 				     # force to specific types.
 
     typemethod getsymtypes {} {
-	foreach {tid name} [state run {
+	state foreachrow {
 	    SELECT tid, name FROM symtype;
-	}] { set mysymtype($tid) $name }
+	} { set mysymtype($tid) $name }
 	return
     }
 
@@ -301,14 +301,15 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 	set fmt %[string length $mynum]s
 	set all 0
 
-	foreach {stype splural n} [state run {
-	    SELECT T.name, T.plural, COUNT (s.sid)
+	state foreachrow {
+	    SELECT T.name        AS stype,
+	           T.plural      AS splural,
+	           COUNT (s.sid) AS n
 	    FROM symbol S, symtype T
 	    WHERE S.type = T.tid
 	    GROUP BY T.name
 	    ORDER BY T.name
-	    ;
-	}] {
+	} {
 	    log write 2 symbol "* [format $fmt $n] [sp $n $stype $splural]"
 	    incr all $n
 	}
@@ -393,9 +394,8 @@ snit::type ::vc::fossil::import::cvs::project::sym {
 	# This is stored directly into the database.
 	state run {
 	    UPDATE symbol
-	    SET type = $chosen
-	    WHERE sid = $myid
-	    ;
+	    SET    type = $chosen
+	    WHERE  sid  = $myid
 	}
 	return
     }

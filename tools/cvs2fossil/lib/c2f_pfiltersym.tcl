@@ -149,16 +149,18 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	array set ntdb {}
 	array set link {}
 
-	foreach {id parent transfer} [state run {
-	    SELECT R.rid, R.parent, R.dbchild
+	state foreachrow {
+	    SELECT R.rid     AS xid,
+	           R.parent  AS xparent,
+	           R.dbchild AS transfer
 	    FROM  revision R, symbol S
 	    WHERE R.lod = S.sid            -- Get symbol of line-of-development of all revisions
 	    AND   S.sid IN excludedsymbols -- Restrict to the excluded symbols
 	    AND   R.isdefault              -- Restrict to NTDB revisions
-	}] {
-	    set ntdb($id) $parent
+	} {
+	    set ntdb($xid) $xparent
 	    if {$transfer eq ""} continue
-	    set link($id) $transfer
+	    set link($xid) $transfer
 	}
 
 	foreach joint [array names link] {
@@ -310,11 +312,11 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	array set sx [state run { SELECT L.sid, L.name FROM symbol L }]
 	# Files and projects.
 	array set fpn {}
-	foreach {id fn pn} [state run {
-		SELECT F.fid, F.name, P.name
+	state foreachrow {
+		SELECT F.fid AS id, F.name AS fn, P.name AS pn
 		FROM   file F, project P
 		WHERE  F.pid = P.pid
-	}] { set fpn($id) [list $fn $pn] }
+	} { set fpn($id) [list $fn $pn] }
 
 	set tagstoadjust [state run {
 	    SELECT T.tid, T.fid, T.lod, P.pid, S.name, R.rev, R.rid
@@ -533,23 +535,31 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	set t 0
 	set c 0
 
-	foreach {s stype cc p ptype} [state run {
-	    SELECT S.name, A.name, S.commit_count, P.name, B.name
+	state foreachrow {
+	    SELECT S.name         AS xs,
+	           A.name         AS stype,
+	           S.commit_count AS cc,
+	           P.name         AS xp,
+	           B.name         AS ptype
 	    FROM   tag T, symbol S, symbol P, symtype A, symtype B
 	    WHERE  S.sid = T.sid
 	    AND    P.sid = T.lod
 	    AND    A.tid = S.type
 	    AND    B.tid = P.type
 	    UNION
-	    SELECT S.name, A.name, S.commit_count, P.name, B.name
+	    SELECT S.name         AS xs,
+	           A.name         AS stype,
+	           S.commit_count AS cc,
+	           P.name         AS xp,
+	           B.name         AS ptype
 	    FROM   branch B, symbol S, symbol P, symtype A, symtype B
 	    WHERE  S.sid = B.sid
 	    AND    P.sid = B.lod
 	    AND    A.tid = S.type
 	    AND    B.tid = P.type
-	}] {
-	    lappend sym($s) $p $stype $ptype $cc
-	    maxlen n $s
+	} {
+	    lappend sym($xs) $xp $stype $ptype $cc
+	    maxlen n $xs
 	    maxlen t $stype
 	    maxlen t $ptype
 	    maxlen c $cc

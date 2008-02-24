@@ -7,54 +7,32 @@ Known problems and areas to work on
 	tcllib, or a single subproject of tcllib, like tklib, but not
 	multiple sub-projects in one go.
 
-*	We have to look into the pass 'InitCsets' and hunt for the
-	cause of the large amount of memory it is gobbling up.
+*	Consider to rework the breaker- and sort-passes so that they
+        do not need all changesets as objects in memory.
 
-	Results from the first look using the new memory tracking
-	subsystem:
+	Current memory consumption after all changesets are loaded:
 
-	(1) The general architecture, workflow, is a bit wasteful. All
-	    changesets are generated and kept in memory before getting
-	    persisted. This means that allocated memory piles up over
-	    time, with later changesets pushing the boundaries. This
-	    is made worse that some of the preliminary changesets seem
-	    to require a lot of temporary memory as part of getting
-	    broken down into the actual ones. InititializeBreakState
-	    seems to be the culprit here. Its memory usage is possibly
-	    quadratic in the number of items in the changeset.
-
-	(2) A number of small inefficiencies. Like 'state eval' always
-	    pulling the whole result into memory before processing it
-	    with 'foreach'. Here potentially large lists.
-
-	(3) We maintain an in-memory map from tagged items to their
-	    changesets. While this is needed later in the sorting
-	    passes during the creation this is wasted space. And also
-	    wasted time, to maintain it during the creation and
-	    breaking.
-
-	Changes:
-
-	(a) Re-architect to create, break, and persist changesets one
-	    by one, completely releasing all associated in-memory data
-	    before going to the next. Should be low-hanging fruit with
-	    high impact, as we have all the necessary operations
-	    already, just not in that order, and that alone should
-	    already keep the pile from forming, making the spikes of
-	    (2) more manageable.
-
-	(b) Look into the smaller problems described in (2), and
-	    especially (3). These should still be low-hanging fruit,
-	    although of lesser effect than (a). For (3) disable the
-	    map and its maintenace during construction, and put it
-	    into a separate command, to be used when loading the
-	    created changesets at the end.
-
-	(c) With larger effect, but more difficult to achieve, go into
-	    command 'InitializeBreakState' and the preceding
-	    'internalsuccessors', and rearchitect it. Definitely not a
-	    low-hanging fruit. Possibly also something we can skip if
-	    doing (a) had a large enough effect.
+	bwidget		 6971627    6.6
+	cvs-memchan	 4634049    4.4
+	cvs-sqlite	45674501   43.6
+	cvs-trf		 8781289    8.4
+	faqs		 2835116    2.7
+	libtommath	 4405066    4.2
+	mclistbox	 3350190    3.2 
+	newclock	 5020460    4.8
+	oocore		 4064574    3.9
+	sampleextension	 4729932    4.5
+	tclapps		 8482135    8.1
+	tclbench	 4116887    3.9
+	tcl_bignum	 2545192    2.4
+	tclconfig	 4105042    3.9
+	tcllib		31707688   30.2
+	tcltutorial	 3512048    3.3
+	tcl	       109926382  104.8
+	thread		 8953139    8.5
+	tklib		13935220   13.3
+	tk		66149870   63.1
+	widget		 2625609    2.5
 
 *	Look at the dependencies on external packages and consider
 	which of them can be moved into the importer, either as a

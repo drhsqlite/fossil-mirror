@@ -316,13 +316,19 @@ snit::type ::vc::fossil::import::cvs::file {
 	set zarcs   {} ; # Arcs for zip graph
 	set revmap  {} ; # path -> rid map to later merge uuid information
 
-	foreach {rid revnr parent child coff clen cid cparent} [state run {
-	    SELECT B.rid, R.rev, R.parent, R.child, B.coff, B.clen, B.bid, B.pid
+	state foreachrow {
+	    SELECT B.rid    AS xrid,
+	           R.rev    AS revnr,
+	           R.child  AS xchild,
+	           B.coff   AS xcoff,
+	           B.clen   AS xclen,
+	           B.bid    AS cid,
+	           B.pid    AS cparent
 	    FROM            blob B
 	    LEFT OUTER JOIN revision R
 	    ON              B.rid = R.rid
 	    WHERE  B.fid = $myid
-	}] {
+	} {
 	    # Main data are blobs, most will have revisions, but not
 	    # all. The expansion graph is blob based, whereas the
 	    # recompression graph is revision based.
@@ -330,14 +336,14 @@ snit::type ::vc::fossil::import::cvs::file {
 	    if {$revnr ne ""} {
 		# Blob has revision, extend recompression graph.
 
-		lappend revmap r$revnr $rid
+		lappend revmap r$revnr $xrid
 
-		$zp node insert $rid
-		$zp node set    $rid revnr $revnr
-		$zp node set    $rid label <$revnr>
+		$zp node insert $xrid
+		$zp node set    $xrid revnr $revnr
+		$zp node set    $xrid label <$revnr>
 
-		if {$child ne ""} {
-		    lappend zarcs $child $rid
+		if {$xchild ne ""} {
+		    lappend zarcs $xchild $xrid
 		}
 	    } else {
 		# We fake a revnr for the blobs which have no
@@ -348,7 +354,7 @@ snit::type ::vc::fossil::import::cvs::file {
 	    # Now the expansion graph.
 
 	    $ex node insert $cid
-	    $ex node set    $cid text  [list $coff $clen]
+	    $ex node set    $cid text  [list $xcoff $xclen]
 	    $ex node set    $cid revnr $revnr
 	    $ex node set    $cid label <$revnr>
 

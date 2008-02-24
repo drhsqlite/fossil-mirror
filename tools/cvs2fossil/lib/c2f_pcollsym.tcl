@@ -114,7 +114,7 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
     ## Internal methods
 
     ## TODO: Move UnconvertedSymbols, BadSymbolTypes, BlockedIncludes,
-    ##       InvalidTags to the integrity module?
+    ## TODO: InvalidTags to the integrity module?
 
     proc UnconvertedSymbols {} {
 	# Paranoia - Have we left symbols without conversion
@@ -122,12 +122,12 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	set undef [project::sym undef]
 
-	foreach {pname sname} [state run {
-	    SELECT P.name, S.name
+	state foreachrow {
+	    SELECT P.name AS pname, S.name AS sname
 	    FROM   symbol S, project P
 	    WHERE  S.type = $undef  -- Restrict to undefined symbols
 	    AND    P.pid = S.pid    -- Get project for symbol
-	}] {
+	} {
 	    trouble fatal "$pname : The symbol '$sname' was left undefined"
 	}
 	return
@@ -138,12 +138,12 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	# information (type out of the valid range (excluded, branch,
 	# tag)) ?
 
-	foreach {pname sname} [state run {
-	    SELECT P.name, S.name
+	state foreachrow {
+	    SELECT P.name AS pname, S.name AS sname
 	    FROM   symbol S, project P
 	    WHERE  S.type NOT IN (0,1,2) -- Restrict to symbols with bogus type codes
 	    AND    P.pid = S.pid         -- Get project of symbol
-	}] {
+	} {
 	    trouble fatal "$pname : The symbol '$sname' has no proper conversion type"
 	}
 	return
@@ -155,15 +155,15 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	set excl [project::sym excluded]
 
-	foreach {pname sname bname} [state run {
-	    SELECT P.name, S.name, SB.name
+	state foreachrow {
+	    SELECT P.name AS pname, S.name AS sname, SB.name AS bname
 	    FROM   symbol S, blocker B, symbol SB, project P
 	    WHERE  S.type = $excl   -- Restrict to excluded symbols
 	    AND    S.sid = B.sid    -- Get symbols blocking them
 	    AND    B.bid = SB.sid   -- and
 	    AND    SB.type != $excl -- which are not excluded themselves
 	    AND    P.pid = S.pid    -- Get project of symbol
-	}] {
+	} {
 	    trouble fatal "$pname : The symbol '$sname' cannot be excluded as the unexcluded symbol '$bname' depends on it."
 	}
 	return
@@ -181,13 +181,13 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 
 	set tag [project::sym tag]
 
-	foreach {pname sname} [state run {
-	    SELECT P.name, S.name
+	state foreachrow {
+	    SELECT P.name AS pname, S.name AS sname
 	    FROM   project P, symbol S
 	    WHERE  S.type = $tag        -- Restrict to tag symbols
 	    AND    S.commit_count > 0   -- which have revisions committed to them
 	    AND    P.pid = S.pid        -- Get project of symbol
-	}] {
+	} {
 	    trouble fatal "$pname : The symbol '$sname' cannot be forced to be converted as tag because it has commits."
 	}
 	return
@@ -226,8 +226,13 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	#          do not care about their prefered parents and do not
 	#          attempt to compute them.
 
-	foreach {s p sname pname prname votes} [state run {
-	    SELECT   S.sid, P.pid, S.name, SB.name, PR.name, P.n
+	state foreachrow {
+	    SELECT   S.sid   AS xs,
+	             P.pid   AS xp,
+	             S.name  AS sname,
+	             SB.name AS pname,
+	             PR.name AS prname,
+	             P.n     AS votes
 	    FROM     symbol S, parent P, symbol SB, project PR
 	    WHERE    S.type != $excl      -- Restrict to wanted symbols
 	    AND      S.sid = P.sid        -- Get possible parents of symbol
@@ -240,10 +245,10 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	    -- symbol.  This parent will have the max number of votes
 	    -- for its symbol and will be the earliest created branch
 	    -- possible among all with many votes.
-	}] {
+	} {
 	    log write 9 pcollsym "Voting $votes for Parent($sname) = $pname"
 
-	    set prefered($s) [list $p $sname $pname $prname]
+	    set prefered($xs) [list $xp $sname $pname $prname]
 	}
 
 	# Phase II: Write the found preferences back into the table
@@ -264,8 +269,8 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	#            excluded symbols, as we intentionally did not
 	#            compute a prefered parent for them, see phase I.
 
-	foreach {pname sname} [state run {
-	    SELECT PR.name, S.name
+	state foreachrow {
+	    SELECT PR.name AS pname, S.name AS sname
 	    FROM   symbol S LEFT OUTER JOIN preferedparent P
 	    ON     S.sid = P.sid,       -- From symbol to prefered parent
 	           project PR
@@ -273,7 +278,7 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	    AND    S.type != $excl      -- which are not excluded
 	    AND    S.name != ':trunk:'  -- and are not a trunk
 	    AND    S.pid = PR.pid       -- get project of symbol
-	}] {
+	} {
 	    trouble fatal "$pname : '$sname' has no prefered parent."
 	}
 

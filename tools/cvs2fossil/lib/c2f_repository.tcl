@@ -154,9 +154,9 @@ snit::type ::vc::fossil::import::cvs::repository {
 
     typemethod load {} {
 	state transaction {
-	    foreach   {pid  name} [state run {
+	    state foreachrow {
 		SELECT pid, name FROM project ;
-	    }] {
+	    } {
 		set project [project %AUTO% $name $type]
 
 		lappend myprojpaths $name
@@ -164,9 +164,9 @@ snit::type ::vc::fossil::import::cvs::repository {
 		set myprojmap($pid) $project
 		$project setid $pid
 	    }
-	    foreach   {fid  pid  name  visible  exec} [state run {
+	    state foreachrow {
 		SELECT fid, pid, name, visible, exec FROM file ;
-	    }] {
+	    } {
 		$myprojmap($pid) addfile $name $visible $exec $fid
 	    }
 	}
@@ -246,11 +246,10 @@ snit::type ::vc::fossil::import::cvs::repository {
 	    # We load the symbol ids at large to have the mapping
 	    # right from the beginning.
 
-	    foreach {sid pid name tc bc cc} [state run {
-		SELECT sid, pid, name, tag_count, branch_count, commit_count
+	    state foreachrow {
+		SELECT sid, pid, name, tag_count AS tc, branch_count AS bc, commit_count AS cc
 		FROM symbol
-		;
-	    }] {
+	    } {
 		$mysymbol map $sid [list $pid $name]
 		set project $myprojmap($pid)
 
@@ -273,19 +272,19 @@ snit::type ::vc::fossil::import::cvs::repository {
 	    # Beyond the symbols we also load the author, commit log,
 	    # and meta information.
 
-	    foreach {aid aname} [state run {
-		SELECT aid, name FROM author
-	    }] {
+	    state foreachrow {
+		SELECT aid, name AS aname FROM author
+	    } {
 		$myauthor map $aid $aname
 	    }
-	    foreach {cid text} [state run {
+	    state foreachrow {
 		SELECT cid, text FROM cmessage
-	    }] {
+	    } {
 		$mycmsg map $cid $text
 	    }
-	    foreach {mid pid bid aid cid} [state run {
+	    state foreachrow {
 		SELECT mid, pid, bid, aid, cid FROM meta
-	    }] {
+	    } {
 		$mymeta map $mid [list $pid $bid $aid $cid]
 	    }
 	}

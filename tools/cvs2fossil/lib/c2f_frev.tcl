@@ -515,9 +515,9 @@ snit::type ::vc::fossil::import::cvs::file::rev {
     }
 
     typemethod getopcodes {} {
-	foreach {id name} [state run {
+	state foreachrow {
 	    SELECT oid, name FROM optype;
-	}] { set myopcode($name) $id }
+	} { set myopcode($name) $oid }
 	return
     }
 
