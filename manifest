@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"stat"\swebpage\sshowing\srepository\sstatistics.
-D 2008-02-25T02:26:44
+C The\sLogin/Logout\stext\swas\sreversed.\s\sFix\sit.
+D 2008-02-25T14:05:17
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -84,7 +84,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/stat.c 3d9d623f94d87d4f42b0efc8460429ce2c8fec80
-F src/style.c d2af091ad56afdbbbb52ca85efe0d06a7e6abada
+F src/style.c da95e40ef26a9914f224e3e09540f5d7d432f4e4
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
 F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
@@ -200,14 +200,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 16e765bac59e30d61dbbe54d19172e6ca8600a5f
-R bfe5f207375c9d0d65fb92cb685141d1
+P e71e4d3193f91e98b656589713c816f812d0c189
+R e83b499ecc5498ef66f0bbaf4005fb91
 U drh
-Z 0af385da0484a37b8109196f768ceb18
+Z c92d92ca86ee1448ad273fdb7516a646
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHwidooxKgR168RlERAjZOAJ9RTmEHTmtK65i4fbl0cy+pLAdcEwCgiqSf
-eD0U/IKqMGRuHzSMPUDCdfE=
-=28Fp
+iD8DBQFHwsshoxKgR168RlERAor3AJ9NgxMijUZgnyWBCh3Nvw3pkVmubwCfW0Qs
+OnwrcDi0OXR2V5BMi8cfVY4=
+=NN9x
 -----END PGP SIGNATURE-----
