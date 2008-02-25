@@ -796,7 +796,7 @@ void info_page(void){
   if( nName<4 || nName>UUID_SIZE || !validate16(zName, nName) ){
     cgi_redirect("index");
   }
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%s*'");
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%s*'", zName);
   if( rid==0 ){
     style_header("Broken Link");
     @ <p>No such object: %h(zName)</p>
