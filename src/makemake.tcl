@@ -47,6 +47,7 @@ set src {
   schema
   setup
   sha1
+  stat
   style
   sync
   tag

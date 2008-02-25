@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\s"info"\swebpage.
-D 2008-02-25T00:18:30
+C Add\sthe\s"stat"\swebpage\sshowing\srepository\sstatistics.
+D 2008-02-25T02:26:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -61,10 +61,10 @@ F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
 F src/info.c 20d5e8730bdd081df14fa4bd51c6159daf8e6063
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c e12b36e51ecb9042ce9c25b3b554cb9dd6b00de1
-F src/main.mk b7efa1a7b7e40ba6471f706172bdff09d6fad250
+F src/main.mk 5fbe19c2276772574a5e43795b7821e6589d656d
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl fd0be2c190f5afd1fbba64e05fa88d3bec4068f9
+F src/makemake.tcl 46657085bda8394c0d05de79aa5d71f484abcc5b
 F src/manifest.c 64e207831cf07367c865d3a33662d5751c6f5dfa
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -83,6 +83,7 @@ F src/setup.c f8c273bde6a36aa247de1b5c6f3e8050cb01680c
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
+F src/stat.c 3d9d623f94d87d4f42b0efc8460429ce2c8fec80
 F src/style.c d2af091ad56afdbbbb52ca85efe0d06a7e6abada
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
@@ -199,14 +200,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e38c89130f8ee98be86a3a22c60bf65666487477
-R c2448ba5cfe71911913d0d06c6a8f805
+P 16e765bac59e30d61dbbe54d19172e6ca8600a5f
+R bfe5f207375c9d0d65fb92cb685141d1
 U drh
-Z e1a779dc624ea0400e90d11c72a3f65b
+Z 0af385da0484a37b8109196f768ceb18
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFHwglaoxKgR168RlERAkxxAKCD9MkxETzz7LjVfJ0oXbs0rf9rlwCfeowK
-Ban812xIeeQEKhSzC8JdpXE=
-=jGLZ
+iD8DBQFHwidooxKgR168RlERAjZOAJ9RTmEHTmtK65i4fbl0cy+pLAdcEwCgiqSf
+eD0U/IKqMGRuHzSMPUDCdfE=
+=28Fp
 -----END PGP SIGNATURE-----
