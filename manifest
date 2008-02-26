@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\sthe\stext\sdescription\son\sthe\s"ntimeline"\spage.
-D 2008-02-26T17:32:52
+C Cut\sover\sto\sthe\snew\stimeline\scode.\s\sRemove\sthe\solder\stimeline.
+D 2008-02-26T17:57:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -52,13 +52,13 @@ F src/content.c 1ea5bdca20350ae0b0f2ddcef8ec602e0839cfef
 F src/db.c ce0cf6d9211c55b9b6efbbb0e2cdb3662639de5f
 F src/delta.c c73001b47fc28be6380d20a2ff64754d7afb4a24
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendents.c 57da1765de84004cd8f00e0ed680dd6e9e36d397
+F src/descendents.c 27267403dd176df4790ab94146f1e7a78562476b
 F src/diff.c a8aca97812ee5a957125b2a0bc11f2ae8d3c33f4
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 6f2a64a22272cce6b2e1320dea0083c6498030a5
 F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
-F src/info.c 20d5e8730bdd081df14fa4bd51c6159daf8e6063
+F src/info.c 54715d1400aa213da74fcd20c43b530aa06f6b1c
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c e12b36e51ecb9042ce9c25b3b554cb9dd6b00de1
 F src/main.mk 5fbe19c2276772574a5e43795b7821e6589d656d
@@ -92,7 +92,7 @@ F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 7258c955ba097b1b1819f8b53963fe33a7bf5a9b
-F src/timeline.c 98e360ef8dcc9eff0b5d98c7ea562241a183eca7
+F src/timeline.c dea6e9f6b0ce453ed667199937c5c903cfbe145f
 F src/tkt.c e7e06add5cc8dada9b15a1459381cf3466cac957
 F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
@@ -103,7 +103,7 @@ F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
 F src/verify.c 8d633e10bb7f2d2603ed584f52fc3aa5491c1229
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
-F src/wiki.c bddf828de5125ecc6b5733bbb17d207ccdc57ac8
+F src/wiki.c 4fe3239f97350bbf36b0866d99e6a209dd9900a6
 F src/wikiformat.c 8bd2fe1f5820aa6043d5841e5434e6bceeb03bac
 F src/xfer.c f7995ea18ab12a071251f22abbe0abe494ba50b3
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -200,14 +200,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e6aa16120430efe6ac3dc896dd6f9b76aa7a2579
-R 571b8b5722af693755a87abb0307740d
+P 7915bd0665fb2f22c5fd2198750f4708976ab7b9
+R 2c986cce08074c41db133346cd717505
 U drh
-Z eea1439b1d3752a4c7795f33baa053f1
+Z 230cd6d6789a7b026d25ecb6a29d79a7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHxE1WoxKgR168RlERAq4+AJ9s9QgustWL3Yy0U4Fgb8K02iL98ACeLLNH
-n1EU4t3KM1vc5JgyGMBuNyk=
-=0D9/
+iD8DBQFHxFL7oxKgR168RlERAqoAAJ9SDbAjKo7Kev1QJnlYGf3+OLCaKwCfZxfn
+LbZwmu9tozbtmZOHi0TWFbE=
+=eElQ
 -----END PGP SIGNATURE-----

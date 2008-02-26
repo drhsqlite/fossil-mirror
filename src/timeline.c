@@ -91,13 +91,8 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 **    9.  type ("ci", "w")
 */
 void www_print_timeline(
-  Stmt *pQuery,
-  int *pFirstEvent,
-  int *pLastEvent,
-  int (*xCallback)(int, Blob*),
-  Blob *pArg
+  Stmt *pQuery
  ){
-  int cnt = 0;
   int wikiFlags;
   int mxWikiLen;
   Blob comment;
@@ -127,17 +122,7 @@ void www_print_timeline(
     const char *zDate = db_column_text(pQuery, 2);
     const char *zType = db_column_text(pQuery, 9);
     const char *zUser = db_column_text(pQuery, 4);
-    if( cnt==0 && pFirstEvent ){
-      *pFirstEvent = rid;
-    }
-    cnt++;
-    if( pLastEvent ){
-      *pLastEvent = rid;
-    }
     db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
-    if( xCallback ){
-      xCallback(rid, pArg);
-    }
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -185,37 +170,6 @@ void www_print_timeline(
 }
 
 /*
-** Generate javascript code that records the parents and children
-** of the version rid.
-*/
-static int save_parentage_javascript(int rid, Blob *pOut){
-  const char *zSep;
-  Stmt q;
-
-  db_prepare(&q, "SELECT pid FROM plink WHERE cid=%d", rid);
-  zSep = "";
-  blob_appendf(pOut, "parentof[\"m%d\"] = [", rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q, 0);
-    blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
-    zSep = ",";
-  }
-  db_finalize(&q);
-  blob_appendf(pOut, "];\n");
-  db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d", rid);
-  zSep = "";
-  blob_appendf(pOut, "childof[\"m%d\"] = [", rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q, 0);
-    blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
-    zSep = ",";
-  }
-  db_finalize(&q);
-  blob_appendf(pOut, "];\n");
-  return 0;
-}
-
-/*
 ** Create a temporary table suitable for storing timeline data.
 */
 static void timeline_temp_table(void){
@@ -260,7 +214,7 @@ const char *timeline_query_for_www(void){
 }
 
 /*
-** WEBPAGE: ntimeline
+** WEBPAGE: timeline
 **
 ** Query parameters:
 **
@@ -280,7 +234,7 @@ const char *timeline_query_for_www(void){
 **
 ** If n= is missing, the default count is 20.
 */
-void page_ntimeline(void){
+void page_timeline(void){
   Stmt q;                            /* Query used to generate the timeline */
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
@@ -291,7 +245,6 @@ void page_ntimeline(void){
   const char *zType = P("y");        /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
-  Blob scriptInit;
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -351,7 +304,7 @@ void page_ntimeline(void){
     const char *zEType = "event";
     const char *zDate;
     blob_zero(&url);
-    blob_appendf(&url, "%s/ntimeline?n=%d", g.zBaseURL, nEntry);
+    blob_appendf(&url, "%s/timeline?n=%d", g.zBaseURL, nEntry);
     if( zType ){
       blob_appendf(&sql, " AND event.type=%Q", zType);
       blob_appendf(&url, "&y=%T", zType);
@@ -419,14 +372,41 @@ void page_ntimeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
-  blob_zero(&scriptInit);
-  www_print_timeline(&q, 0, 0, save_parentage_javascript, &scriptInit);
+  www_print_timeline(&q);
   db_finalize(&q);
+
   @ <script>
   @ var parentof = new Object();
   @ var childof = new Object();
-  cgi_append_content(blob_buffer(&scriptInit), blob_size(&scriptInit));
-  blob_reset(&scriptInit);
+  db_prepare(&q, "SELECT rid FROM timeline");
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    Stmt q2;
+    const char *zSep;
+    Blob *pOut = cgi_output_blob();
+
+    db_prepare(&q2, "SELECT pid FROM plink WHERE cid=%d", rid);
+    zSep = "";
+    blob_appendf(pOut, "parentof[\"m%d\"] = [", rid);
+    while( db_step(&q2)==SQLITE_ROW ){
+      int pid = db_column_int(&q2, 0);
+      blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
+      zSep = ",";
+    }
+    db_finalize(&q2);
+    blob_appendf(pOut, "];\n");
+    db_prepare(&q2, "SELECT cid FROM plink WHERE pid=%d", rid);
+    zSep = "";
+    blob_appendf(pOut, "childof[\"m%d\"] = [", rid);
+    while( db_step(&q2)==SQLITE_ROW ){
+      int pid = db_column_int(&q2, 0);
+      blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
+      zSep = ",";
+    }
+    db_finalize(&q2);
+    blob_appendf(pOut, "];\n");
+  }
+  db_finalize(&q);
   @ function setall(value){
   @   for(var x in parentof){
   @     setone(x,value);
@@ -487,225 +467,6 @@ void page_ntimeline(void){
   @   }
   @ }
   @ </script>
-  style_footer();
-}
-
-
-/*
-** WEBPAGE: timeline
-**
-** Query parameters:
-**
-**    d=STARTDATE    date in iso8601 notation.          dflt: newest event
-**    n=INTEGER      number of events to show.          dflt: 25
-**    e=INTEGER      starting event id.                 dflt: nil
-**    u=NAME         show only events from user.        dflt: nil
-**    a              show events after and including.   dflt: false
-**    r              show only related events.          dflt: false
-**    y=TYPE         show only TYPE ('ci' or 'w')       dflt: nil
-**    s              show the SQL                       dflt: nil
-*/
-void page_timeline(void){
-  Stmt q;           
-  Blob sql;                    /* text of SQL used to generate timeline */
-  char *zSQL;                  /* Rendered copy of sql */
-  Blob scriptInit;
-  char zDate[100];
-  const char *zStart = P("d");       /* Starting date */
-  int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
-  const char *zUser = P("u");        /* All entries by this user if not NULL */
-  int objid = atoi(PD("e","0"));     /* Entries related to this event */
-  int relatedEvents = P("r")!=0;     /* Must be directly related to of objid */
-  int afterFlag = P("a")!=0;         /* After objid if true */
-  const char *zType = P("y");        /* Type of events.  All if NULL */
-  int firstEvent;              /* First event displayed */
-  int lastEvent;               /* Last event displayed */
-  Blob desc;                   /* Human readable description of the timeline */
-  const char *zEType;          /* Human readable event type */
-
-  /* To view the timeline, must have permission to read project data.
-  */
-  login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
-
-  style_header("Timeline");
-  if( !g.okHistory &&
-      db_exists("SELECT 1 FROM user"
-                " WHERE login='anonymous'"
-                "   AND cap LIKE '%%h%%'") ){
-    @ <p><b>Note:</b> You will be able to access <u>much</u> more
-    @ historical information if you <a href="%s(g.zTop)/login">login</a>.</p>
-  }
-  blob_zero(&sql);
-  blob_zero(&desc);
-  blob_append(&sql, timeline_query_for_www(), -1);
-  zEType = "events";
-  if( zType ){
-    blob_appendf(&sql, " AND event.type=%Q", zType);
-    if( zType[0]=='c' ){
-      zEType = "checkins";
-    }else if( zType[0]=='w' ){
-      zEType = "wiki edits";
-    }
-  }
-  blob_appendf(&desc, "Timeline of up to %d %s", nEntry, zEType);
-  if( zUser ){
-    blob_appendf(&sql, " AND event.user=%Q", zUser);
-    blob_appendf(&desc, " by user %h", zUser);
-  }
-  if( objid ){
-    char *z = db_text(0, "SELECT datetime(event.mtime, 'localtime') FROM event"
-                         " WHERE objid=%d", objid);
-    if( z ){
-      zStart = z;
-    }
-  }
-  if( zStart ){
-    while( isspace(zStart[0]) ){ zStart++; }
-    if( zStart[0] ){
-      blob_appendf(&sql, 
-         " AND event.mtime %s (SELECT julianday(%Q, 'utc'))",
-                          afterFlag ? ">=" : "<=", zStart);
-      blob_appendf(&desc, " occurring on or %s %h",
-          afterFlag ? "after": "before",
-          zStart);
-    }
-  }
-  if( relatedEvents && objid ){
-    char *zUuid;
-    db_multi_exec(
-       "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
-    );
-    zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", objid);
-    if( afterFlag ){
-      compute_descendents(objid, nEntry);
-      blob_appendf(&desc,
-         " and decended from <a href='%s/vinfo/%d'>[%.10s]</a>",
-         g.zBaseURL, objid, zUuid);
-    }else{
-      compute_ancestors(objid, nEntry);
-      blob_appendf(&desc,
-         " and a ancestor of <a href='%s/vinfo/%d'>[%.10s]</a>",
-         g.zBaseURL, objid, zUuid);
-    }
-    blob_append(&sql, " AND event.objid IN ok", -1);
-  }
-  if( afterFlag ){
-    blob_appendf(&sql, " ORDER BY event.mtime ASC LIMIT %d",
-                 nEntry);
-  }else{
-    blob_appendf(&sql, " ORDER BY event.mtime DESC LIMIT %d",
-                 nEntry);
-  }
-  zSQL = blob_str(&sql);
-  if( afterFlag ){
-    zSQL = mprintf("SELECT * FROM (%s) ORDER BY timestamp DESC", zSQL);
-  }
-  db_prepare(&q, zSQL);
-  if( P("s")!=0 ){
-    @ <hr><p>%h(zSQL)</p><hr>
-  }
-  @ <h2>%b(&desc)</h2>
-  blob_reset(&desc);
-  blob_zero(&sql);
-  if( afterFlag ){
-    free(zSQL);
-  }
-  zDate[0] = 0;
-  blob_zero(&scriptInit);
-  zDate[0] = 0;
-  www_print_timeline(&q, &firstEvent, &lastEvent,
-                     save_parentage_javascript, &scriptInit);
-  db_finalize(&q);
-  /* @ <p>firstEvent=%d(firstEvent) lastEvent=%d(lastEvent)</p> */
-  if( zStart==0 ){
-    zStart = zDate;
-  }
-  @ <script>
-  @ var parentof = new Object();
-  @ var childof = new Object();
-  cgi_append_content(blob_buffer(&scriptInit), blob_size(&scriptInit));
-  blob_reset(&scriptInit);
-  @ function setall(value){
-  @   for(var x in parentof){
-  @     setone(x,value);
-  @   }
-  @ }
-  @ setall("#ffffff");
-  @ function setone(id, clr){
-  @   if( parentof[id]==null ) return 0;
-  @   var w = document.getElementById(id);
-  @   if( w.style.color==clr ){
-  @     return 0
-  @   }else{
-  @     w.style.color = clr
-  @     return 1
-  @   }
-  @ }
-  @ function xin(id) {
-  @   setall("#ffffff");
-  @   setone(id,"#ff0000");
-  @   set_children(id, "#b0b0b0");
-  @   set_parents(id, "#b0b0b0");
-  @   for(var x in parentof[id]){
-  @     var pid = parentof[id][x]
-  @     var w = document.getElementById(pid);
-  @     if( w!=null ){
-  @       w.style.color = "#000000";
-  @     }
-  @   }
-  @   for(var x in childof[id]){
-  @     var cid = childof[id][x]
-  @     var w = document.getElementById(cid);
-  @     if( w!=null ){
-  @       w.style.color = "#000000";
-  @     }
-  @   }
-  @ }
-  @ function xout(id) {
-  @   /* setall("#000000"); */
-  @ }
-  @ function set_parents(id, clr){
-  @   var plist = parentof[id];
-  @   if( plist==null ) return;
-  @   for(var x in plist){
-  @     var pid = plist[x];
-  @     if( setone(pid,clr)==1 ){
-  @       set_parents(pid,clr);
-  @     }
-  @   }
-  @ }
-  @ function set_children(id,clr){
-  @   var clist = childof[id];
-  @   if( clist==null ) return;
-  @   for(var x in clist){
-  @     var cid = clist[x];
-  @     if( setone(cid,clr)==1 ){
-  @       set_children(cid,clr);
-  @     }
-  @   }
-  @ }
-  @ </script>
-  @ <hr>
-  @ <form method="GET" action="%s(g.zBaseURL)/timeline">
-  @ Start Date:
-  @ <input type="text" size="30" value="%h(zStart)" name="d">
-  @ Number Of Entries:  
-  @ <input type="text" size="4" value="%d(nEntry)" name="n">
-  @ <br><input type="submit" value="Submit">
-  @ </form>
-  @ <table><tr><td>
-  @ <form method="GET" action="%s(g.zBaseURL)/timeline">
-  @ <input type="hidden" value="%d(lastEvent)" name="e">
-  @ <input type="hidden" value="%d(nEntry)" name="n">
-  @ <input type="submit" value="Next %d(nEntry) Rows">
-  @ </form></td><td>
-  @ <form method="GET" action="%s(g.zBaseURL)/timeline">
-  @ <input type="hidden" value="%d(firstEvent)" name="e">
-  @ <input type="hidden" value="%d(nEntry)" name="n">
-  @ <input type="hidden" value="1" name="a">
-  @ <input type="submit" value="Previous %d(nEntry) Rows">
-  @ </form></td></tr></table>
   style_footer();
 }
 
