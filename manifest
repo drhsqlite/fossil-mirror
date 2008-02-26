@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Merged\swith\s[aa519dbd99].
-D 2008-02-26T04:55:14
+C Added\strailing\snewline\sto\sfile\sb/c\sgcc\scomplains\sabout\sit
+D 2008-02-26T15:07:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -83,7 +80,7 @@ F src/setup.c f8c273bde6a36aa247de1b5c6f3e8050cb01680c
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
-F src/stat.c 3d9d623f94d87d4f42b0efc8460429ce2c8fec80
+F src/stat.c d6479af2a2882beec65739211e67b2597d35a4cc
 F src/style.c da95e40ef26a9914f224e3e09540f5d7d432f4e4
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
@@ -200,14 +197,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8dd5afbc80e13c1c0bcd1f9b0868efae9bf943a3 aa519dbd996b1bcc692932bdff77f5937cc30a69
-R ff81642bbd4462acb7345e63851661d2
-U aku
-Z eb00cfd751f3b9cbe024c9e24f4312e6
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHw5u2vonzZ/CRa7gRAi4aAJ9DgzuGdCao7j1EiGhl3xnCEHm6/ACfZYa1
-3VcAsdkGL3n4a2Q6F+2GaoA=
-=flcq
------END PGP SIGNATURE-----
+P 91fd4205ea3f808edf088c3503cfb484bc8d9199
+R b64eaebea9e0f86f8d04c65fd9a192bf
+U stephan
+Z b511f829d7a5fa67451623153092b516
