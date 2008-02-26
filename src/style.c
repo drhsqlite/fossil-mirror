@@ -173,9 +173,9 @@ const char zDefaultHeader[] =
 @   html "<a href='$baseurl/setup'>Setup</a>"
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$baseurl/login'>Login</a>"
-@ } else {
 @   html "<a href='$baseurl/login'>Logout</a>"
+@ } else {
+@   html "<a href='$baseurl/login'>Login</a>"
 @ }
 @ </th1></div>
 ;
