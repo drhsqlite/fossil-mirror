@@ -216,6 +216,27 @@ static int save_parentage_javascript(int rid, Blob *pOut){
 }
 
 /*
+** Create a temporary table suitable for storing timeline data.
+*/
+static void timeline_temp_table(void){
+  static const char zSql[] = 
+    @ CREATE TEMP TABLE IF NOT EXISTS timeline(
+    @   rid INTEGER PRIMARY KEY,
+    @   uuid TEXT,
+    @   timestamp TEXT,
+    @   comment TEXT,
+    @   user TEXT,
+    @   nchild INTEGER,
+    @   nparent INTEGER,
+    @   isleaf BOOLEAN,
+    @   bgcolor TEXT,
+    @   etype TEXT
+    @ )
+  ;
+  db_multi_exec(zSql);
+}
+
+/*
 ** Return a pointer to a constant string that forms the basis
 ** for a timeline query for the WWW interface.
 */
@@ -237,6 +258,208 @@ const char *timeline_query_for_www(void){
   ;
   return zBaseSql;
 }
+
+/*
+** WEBPAGE: ntimeline
+**
+** Query parameters:
+**
+**    a=TIMESTAMP    after this date
+**    b=TIMESTAMP    before this date.
+**    n=COUNT        number of events in output
+**    p=RID          artifact RID and up to COUNT parents and ancestors
+**    d=RID          artifact RID and up to COUNT descendents
+**    u=USER         only if belonging to this user
+**    y=TYPE         'ci', 'w', 'tkt'
+**
+** p= and d= can appear individually or together.  If either p= or d=
+** appear, then u=, y=, a=, and b= are ignored.
+**
+** If a= and b= appear, only a= is used.  If neither appear, the most
+** recent events are choosen.
+**
+** If n= is missing, the default count is 20.
+*/
+void page_ntimeline(void){
+  Stmt q;                            /* Query used to generate the timeline */
+  Blob sql;                          /* text of SQL used to generate timeline */
+  Blob desc;                         /* Description of the timeline */
+  int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
+  int p_rid = atoi(PD("p","0"));     /* artifact p and its parents */
+  int d_rid = atoi(PD("d","0"));     /* artifact d and its descendents */
+  const char *zUser = P("u");        /* All entries by this user if not NULL */
+  const char *zType = P("y");        /* Type of events.  All if NULL */
+  const char *zAfter = P("a");       /* Events after this time */
+  const char *zBefore = P("b");      /* Events before this time */
+  Blob scriptInit;
+
+  /* To view the timeline, must have permission to read project data.
+  */
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
+  style_header("Timeline");
+  if( !g.okHistory &&
+      db_exists("SELECT 1 FROM user"
+                " WHERE login='anonymous'"
+                "   AND cap LIKE '%%h%%'") ){
+    @ <p><b>Note:</b> You will be able to access <u>much</u> more
+    @ historical information if you <a href="%s(g.zTop)/login">login</a>.</p>
+  }
+  timeline_temp_table();
+  blob_zero(&sql);
+  blob_zero(&desc);
+  blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  if( p_rid || d_rid ){
+    /* If p= or d= is present, ignore all other parameters other than n= */
+    char *zUuid;
+    int np, nd;
+
+    if( p_rid && d_rid && p_rid!=d_rid ) p_rid = d_rid;
+    db_multi_exec(
+       "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
+    );
+    zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d",
+                         p_rid ? p_rid : d_rid);
+    blob_appendf(&sql, " AND event.objid IN ok");
+    nd = 0;
+    if( d_rid ){
+      compute_descendents(d_rid, nEntry);
+      nd = db_int(0, "SELECT count(*)-1 FROM ok");
+      if( nd>0 ){
+        db_multi_exec("%s", blob_str(&sql));
+        blob_appendf(&desc, "%d descendents", nd);
+      }
+      db_multi_exec("DELETE FROM ok");
+    }
+    if( p_rid ){
+      compute_ancestors(p_rid, nEntry);
+      np = db_int(0, "SELECT count(*)-1 FROM ok");
+      if( np>0 ){
+        if( nd>0 ) blob_appendf(&desc, " and ");
+        blob_appendf(&desc, "%d ancestors", np);
+        db_multi_exec("%s", blob_str(&sql));
+      }
+    }
+    blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
+                 g.zBaseURL, zUuid, zUuid);
+    db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
+  }else{
+    const char *zEType = "event";
+    if( zType ){
+      blob_appendf(&sql, " AND event.type=%Q", zType);
+      if( zType[0]=='c' ){
+        zEType = "checkin";
+      }else if( zType[0]=='w' ){
+        zEType = "wiki edit";
+      }else if( zType[0]=='t' ){
+        zEType = "ticket change";
+      }
+    }
+    blob_appendf(&desc, "Timeline of up to %d %s", nEntry, zEType);
+    if( zUser ){
+      blob_appendf(&sql, " AND event.user=%Q", zUser);
+      blob_appendf(&desc, " by user %h", zUser);
+    }
+    if( zAfter ){
+      while( isspace(zAfter[0]) ){ zAfter++; }
+      if( zAfter[0] ){
+        blob_appendf(&sql, 
+           " AND event.mtime>=(SELECT julianday(%Q, 'utc'))"
+           " ORDER BY event.mtime ASC", zAfter);
+        blob_appendf(&desc, " occurring on or after %h", zAfter);
+        zBefore = 0;
+      }
+    }else if( zBefore ){
+      while( isspace(zBefore[0]) ){ zBefore++; }
+      if( zBefore[0] ){
+        blob_appendf(&sql, 
+           " AND event.mtime<=(SELECT julianday(%Q, 'utc'))"
+           " ORDER BY event.mtime DESC", zBefore);
+        blob_appendf(&desc, " occurring on or before %h", zBefore);
+      }
+    }else{
+      blob_appendf(&sql, " ORDER BY event.mtime DESC");
+    }
+    blob_appendf(&sql, " LIMIT %d", nEntry);
+    db_multi_exec("%s", blob_str(&sql));
+  }
+  blob_zero(&sql);
+  db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
+  @ <h2>%b(&desc)</h2>
+  blob_reset(&desc);
+  blob_zero(&scriptInit);
+  www_print_timeline(&q, 0, 0, save_parentage_javascript, &scriptInit);
+  db_finalize(&q);
+  @ <script>
+  @ var parentof = new Object();
+  @ var childof = new Object();
+  cgi_append_content(blob_buffer(&scriptInit), blob_size(&scriptInit));
+  blob_reset(&scriptInit);
+  @ function setall(value){
+  @   for(var x in parentof){
+  @     setone(x,value);
+  @   }
+  @ }
+  @ setall("#ffffff");
+  @ function setone(id, clr){
+  @   if( parentof[id]==null ) return 0;
+  @   var w = document.getElementById(id);
+  @   if( w.style.color==clr ){
+  @     return 0
+  @   }else{
+  @     w.style.color = clr
+  @     return 1
+  @   }
+  @ }
+  @ function xin(id) {
+  @   setall("#ffffff");
+  @   setone(id,"#ff0000");
+  @   set_children(id, "#b0b0b0");
+  @   set_parents(id, "#b0b0b0");
+  @   for(var x in parentof[id]){
+  @     var pid = parentof[id][x]
+  @     var w = document.getElementById(pid);
+  @     if( w!=null ){
+  @       w.style.color = "#000000";
+  @     }
+  @   }
+  @   for(var x in childof[id]){
+  @     var cid = childof[id][x]
+  @     var w = document.getElementById(cid);
+  @     if( w!=null ){
+  @       w.style.color = "#000000";
+  @     }
+  @   }
+  @ }
+  @ function xout(id) {
+  @   /* setall("#000000"); */
+  @ }
+  @ function set_parents(id, clr){
+  @   var plist = parentof[id];
+  @   if( plist==null ) return;
+  @   for(var x in plist){
+  @     var pid = plist[x];
+  @     if( setone(pid,clr)==1 ){
+  @       set_parents(pid,clr);
+  @     }
+  @   }
+  @ }
+  @ function set_children(id,clr){
+  @   var clist = childof[id];
+  @   if( clist==null ) return;
+  @   for(var x in clist){
+  @     var cid = clist[x];
+  @     if( setone(cid,clr)==1 ){
+  @       set_children(cid,clr);
+  @     }
+  @   }
+  @ }
+  @ </script>
+  style_footer();
+}
+
 
 /*
 ** WEBPAGE: timeline

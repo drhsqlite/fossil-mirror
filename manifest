@@ -1,5 +1,8 @@
-C Added\strailing\snewline\sto\sfile\sb/c\sgcc\scomplains\sabout\sit
-D 2008-02-26T15:07:19
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Work\son\sa\snew\stimeline\simplementation.\s\sCurrently\simplemented\sas\s"ntimeline"\nsince\sit\sis\snot\syet\sready\sto\sreplace\sthe\sexisting\stimeline.
+D 2008-02-26T16:48:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -89,7 +92,7 @@ F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 7258c955ba097b1b1819f8b53963fe33a7bf5a9b
-F src/timeline.c d5cc80fe9bd78c2a4e657cbacb10f0eb990b5b3a
+F src/timeline.c 06d966f168563b544921ea9fd9ce140c85d8d83b
 F src/tkt.c e7e06add5cc8dada9b15a1459381cf3466cac957
 F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
@@ -197,7 +200,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 91fd4205ea3f808edf088c3503cfb484bc8d9199
-R b64eaebea9e0f86f8d04c65fd9a192bf
-U stephan
-Z b511f829d7a5fa67451623153092b516
+P 1cde715739e7a87e8fbdda13bf8e041a50c49db3
+R 8528a2ac9904b857dfb821113bb16498
+U drh
+Z 9809ff26f9b86bb1ffb7c7adccefcbe7
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHxELYoxKgR168RlERAiDTAJ9PqCiU7dZSAvBSjc9umNfnRaGi1gCeKiof
+niESy5I0XK5KjDeHjqVFmO0=
+=6u0p
+-----END PGP SIGNATURE-----
