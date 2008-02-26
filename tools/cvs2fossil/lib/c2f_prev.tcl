@@ -216,14 +216,6 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	    }
 	}
 
-	UnmapItems $mytype $myitems
-	unset myidmap($myid)
-
-	set pos                    [lsearch -exact $mychangesets $self]
-	set mychangesets           [lreplace       $mychangesets $pos $pos]
-	set pos                    [lsearch -exact $mytchangesets($mytype) $self]
-	set mytchangesets($mytype) [lreplace       $mytchangesets($mytype) $pos $pos]
-
 	# Return the list of predecessors so that they can be adjusted.
 	return [struct::list map [state run {
 	    SELECT cid
