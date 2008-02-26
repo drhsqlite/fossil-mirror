@@ -346,9 +346,15 @@ void page_ntimeline(void){
                  g.zBaseURL, zUuid, zUuid);
     db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
   }else{
+    int n;
+    Blob url;
     const char *zEType = "event";
+    const char *zDate;
+    blob_zero(&url);
+    blob_appendf(&url, "%s/ntimeline?n=%d", g.zBaseURL, nEntry);
     if( zType ){
       blob_appendf(&sql, " AND event.type=%Q", zType);
+      blob_appendf(&url, "&y=%T", zType);
       if( zType[0]=='c' ){
         zEType = "checkin";
       }else if( zType[0]=='w' ){
@@ -357,10 +363,9 @@ void page_ntimeline(void){
         zEType = "ticket change";
       }
     }
-    blob_appendf(&desc, "Timeline of up to %d %s", nEntry, zEType);
     if( zUser ){
       blob_appendf(&sql, " AND event.user=%Q", zUser);
-      blob_appendf(&desc, " by user %h", zUser);
+      blob_appendf(&url, "&u=%T", zUser);
     }
     if( zAfter ){
       while( isspace(zAfter[0]) ){ zAfter++; }
@@ -368,8 +373,9 @@ void page_ntimeline(void){
         blob_appendf(&sql, 
            " AND event.mtime>=(SELECT julianday(%Q, 'utc'))"
            " ORDER BY event.mtime ASC", zAfter);
-        blob_appendf(&desc, " occurring on or after %h", zAfter);
         zBefore = 0;
+      }else{
+        zAfter = 0;
       }
     }else if( zBefore ){
       while( isspace(zBefore[0]) ){ zBefore++; }
@@ -377,13 +383,37 @@ void page_ntimeline(void){
         blob_appendf(&sql, 
            " AND event.mtime<=(SELECT julianday(%Q, 'utc'))"
            " ORDER BY event.mtime DESC", zBefore);
-        blob_appendf(&desc, " occurring on or before %h", zBefore);
+       }else{
+        zBefore = 0;
       }
     }else{
       blob_appendf(&sql, " ORDER BY event.mtime DESC");
     }
     blob_appendf(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_str(&sql));
+
+    n = db_int(0, "SELECT count(*) FROM timeline");
+    if( zAfter==0 && zBefore==0 ){
+      blob_appendf(&desc, "%d most recent %ss", n, zEType);
+    }else{
+      blob_appendf(&desc, "%d %ss", n, zEType);
+    }
+    if( zUser ){
+      blob_appendf(&desc, " by user %h", zUser);
+    }
+    if( zAfter ){
+      blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
+    }else if( zBefore ){
+      blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
+    }
+    if( zAfter || n==nEntry ){
+      zDate = db_text(0, "SELECT min(timestamp) FROM timeline");
+      blob_appendf(&desc, " <a href='%b&b=%s'>[older]</a>", &url, zDate);
+    }
+    if( zBefore || (zAfter && n==nEntry) ){
+      zDate = db_text(0, "SELECT max(timestamp) FROM timeline");
+      blob_appendf(&desc, " <a href='%b&a=%s'>[more recent]</a>", &url, zDate);
+    }
   }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
