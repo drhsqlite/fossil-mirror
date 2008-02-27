@@ -334,8 +334,9 @@ void vinfo_page(void){
     @ <tr><th>Original&nbsp;Comment:</th><td>%w(db_column_text(&q,3))</td></tr>
     @ </td></tr>
     @ <tr><th>Timelines:</th><td>
-    @    <a href="%s(g.zBaseURL)/timeline?e=%d(rid)&r">ancestors</a>
-    @    | <a href="%s(g.zBaseURL)/timeline?e=%d(rid)&r&a">descendents</a>
+    @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
+    @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendents</a>
+    @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)&p=%d(rid)">both</a>
     @ </td></tr>
     @ <tr><th>Commands:</th>
     @   <td>
