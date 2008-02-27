@@ -20,6 +20,7 @@
 
 package require Tcl 8.4                               ; # Required runtime.
 package require snit                                  ; # OO system.
+package require fileutil                              ; # Setting a tempdir.
 package require vc::tools::trouble                    ; # Error reporting.
 package require vc::tools::log                        ; # User feedback.
 package require vc::tools::mem                        ; # Memory tracking.
@@ -92,6 +93,8 @@ snit::type ::vc::fossil::import::cvs::option {
 		--fossil                    { fossil setlocation  [Value arguments] }
 		--memory-limit              { mem::setlimit [Value arguments] }
 		--memory-track              { mem::track }
+		-t                          -
+		--tempdir                   { fileutil::tempdir [Value arguments] }
 		default {
 		    Usage $badoption$option\n$gethelp
 		}
@@ -165,11 +168,22 @@ snit::type ::vc::fossil::import::cvs::option {
 	trouble info "                               table if cv2fossil could not find it in"
 	trouble info "                               the PATH."
 	trouble info ""
+	trouble info "    --tempdir PATH, -t PATH    Specify the path where temporary files"
+	trouble info "                               and directories shall go."
+	trouble info ""
 	trouble info "  Debug options"
 	trouble info ""
 	trouble info "    --dots PATH                Write the changeset graphs before, after,"
 	trouble info "                               and during breaking the of cycles to the"
-	trouble info "                               direcotry PATH, using GraphViz's dot format"
+	trouble info "                               directory PATH, using GraphViz's dot format"
+	trouble info ""
+	trouble info "    --memory-track             Activate internal tracking of memory usage."
+	trouble info "                               Requires execution of cvs2fossil by a tclsh"
+	trouble info "                               which provides the \[memory\] command."
+	trouble info ""
+	trouble info "    --memory-limit BYTES       Like --memory-track, but additionally imposes"
+	trouble info "                               a limit on the maximual amount of memory the"
+	trouble info "                               application is allowed to use."
 	trouble info ""
 
 	# --project, --cache

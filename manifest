@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\swith\s[aa519dbd99].
-D 2008-02-26T04:55:14
+C Added\soptions\s--tempdir,\s-t\sto\sredirect\sthe\simporter\sto\sa\suser-specified\sdirectory\sfor\stemp\sfiles\sand\sdirectories.
+D 2008-02-27T04:14:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -128,7 +128,7 @@ F tools/cvs2fossil/lib/c2f_fsym.tcl b11a935cc8d103e3ec455b2acf48136b5cafcc83
 F tools/cvs2fossil/lib/c2f_ftrunk.tcl 116792654a5a7ee6745262756b7cd9a028482eb6
 F tools/cvs2fossil/lib/c2f_gtcore.tcl 6d553315880f6054c1bf453a26a91732cc1dc504
 F tools/cvs2fossil/lib/c2f_integrity.tcl cd21bd4aefba1cd07b909cbe338e9ed1c5aed69f
-F tools/cvs2fossil/lib/c2f_option.tcl 807a18308601970f3ff5955433926ded001fdf7b
+F tools/cvs2fossil/lib/c2f_option.tcl 737f972b127681c537c8da03f5703ffc65fb59e4
 F tools/cvs2fossil/lib/c2f_pass.tcl d98651431b7344ed481cdddad18890c249395ed4
 F tools/cvs2fossil/lib/c2f_patopsort.tcl df888ac8701ffb87d4bc946c6c2da523c715a190
 F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 9de68fa960f50394190ff490c3e53d782264f020
@@ -200,14 +200,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8dd5afbc80e13c1c0bcd1f9b0868efae9bf943a3 aa519dbd996b1bcc692932bdff77f5937cc30a69
-R ff81642bbd4462acb7345e63851661d2
+P 91fd4205ea3f808edf088c3503cfb484bc8d9199
+R c6a15a6a01471ecae60f9652f0c96766
 U aku
-Z eb00cfd751f3b9cbe024c9e24f4312e6
+Z 49af786faf1b1a7622785dd0dffb3508
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHw5u2vonzZ/CRa7gRAi4aAJ9DgzuGdCao7j1EiGhl3xnCEHm6/ACfZYa1
-3VcAsdkGL3n4a2Q6F+2GaoA=
-=flcq
+iD8DBQFHxOOgvonzZ/CRa7gRAqVIAKCyBi+vvDjM5pqjrSUPeEkLyTlaNgCdERw8
+KV+uFUkjptWHACCpm5lmcM4=
+=jmD8
 -----END PGP SIGNATURE-----
