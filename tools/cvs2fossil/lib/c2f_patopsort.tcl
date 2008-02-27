@@ -109,6 +109,7 @@ snit::type ::vc::fossil::import::cvs::pass::atopsort {
     proc Changesets {} { project::rev all }
 
     proc LoadSymbolChangesets {} {
+	# Consider use of 'project::rev sym' here.
 	set mysymchangesets [struct::list filter [project::rev all] [myproc IsBySymbol]]
 	return
     }

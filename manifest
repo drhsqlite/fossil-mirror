@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\swith\s[82fc5abb60].
-D 2008-02-27T04:15:47
+C Fix\scomment\stypo,\sand\sadd\scomment\sabout\spossible\ssimplification.
+D 2008-02-27T08:00:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -130,8 +130,8 @@ F tools/cvs2fossil/lib/c2f_gtcore.tcl 6d553315880f6054c1bf453a26a91732cc1dc504
 F tools/cvs2fossil/lib/c2f_integrity.tcl cd21bd4aefba1cd07b909cbe338e9ed1c5aed69f
 F tools/cvs2fossil/lib/c2f_option.tcl 737f972b127681c537c8da03f5703ffc65fb59e4
 F tools/cvs2fossil/lib/c2f_pass.tcl d98651431b7344ed481cdddad18890c249395ed4
-F tools/cvs2fossil/lib/c2f_patopsort.tcl df888ac8701ffb87d4bc946c6c2da523c715a190
-F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 9de68fa960f50394190ff490c3e53d782264f020
+F tools/cvs2fossil/lib/c2f_patopsort.tcl 32dd51eb8ce14ea302c3a9af1cbc3860156b629c
+F tools/cvs2fossil/lib/c2f_pbreakacycle.tcl 6d6903cdcab3809b6f7cf19e1073e754bed592d2
 F tools/cvs2fossil/lib/c2f_pbreakrcycle.tcl 9b0d3d53604c99a5f3339f92232ab45262dea23d
 F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6011d
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 7d94939b63ae5f2e2291d3a6f3d816dad9a12126
@@ -200,14 +200,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c5e9fa8d70dd43b0406ee73bca9bc23be3f510b5 82fc5abb6095a529f852486b9f31b688afa7c2b9
-R 73715dd0af7ea0455a0d8e048956287d
+P 2e84fb3e544008c383c28b49580020d608983ca8
+R 33bf6ee0b9bba0ac9dd68b246f2f66d5
 U aku
-Z b26f7721c3fe90fd42fb379d7fa3bd50
+Z fb02daf76f8115b2f58ea896f6b6de3e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHxOP4vonzZ/CRa7gRAocOAJ9XDm3qVrX/Pm00ue1HXVf6DzNvrwCfSRmX
-4bpgIoml501dZLzdNErhobI=
-=FrE3
+iD8DBQFHxRi6vonzZ/CRa7gRApvuAJwO4R87Fh63XTUtyRX8ZQdnZt4gYwCfWAIw
+/o3sf2utPPj2WpraRBt6hUk=
+=huVi
 -----END PGP SIGNATURE-----

@@ -339,7 +339,7 @@ snit::type ::vc::fossil::import::cvs::pass::breakacycle {
 	# "backwards", hence our breaking of the backward changesets
 	# first, in the pre-hook.
 
-	# Note that tah changesets cannot be backward as they don't
+	# Note that tag changesets cannot be backward as they don't
 	# have successors at all.
 
 	# An interesting thing IMHO, is that after breaking the
