@@ -222,9 +222,9 @@ snit::type ::vc::fossil::import::cvs::pass::collsym {
 	#          prefered parent of each symbol last among all
 	#          candidates, allowing us get the prefered one by
 	#          each candidate overwriting all previous
-	#          selections. Note that we ignore excluded symbol, we
-	#          do not care about their prefered parents and do not
-	#          attempt to compute them.
+	#          selections. Note that we ignore excluded symbols,
+	#          we do not care about their prefered parents and do
+	#          not attempt to compute them.
 
 	state foreachrow {
 	    SELECT   S.sid   AS xs,
