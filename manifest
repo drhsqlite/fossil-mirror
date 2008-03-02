@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixed\stypo\sin\sa\scomment.
-D 2008-03-02T01:06:32
+C Fixed\stypo\sin\sa\scomment,\sand\sextended\sthe\sdescription\sof\sthe\spass\sto\sbe\smore\sclear.
+D 2008-03-02T01:07:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -137,7 +137,7 @@ F tools/cvs2fossil/lib/c2f_pbreakscycle.tcl 9943947d7e001b1c0b42717a06423c0101e6
 F tools/cvs2fossil/lib/c2f_pcollar.tcl 7d94939b63ae5f2e2291d3a6f3d816dad9a12126
 F tools/cvs2fossil/lib/c2f_pcollrev.tcl 643897c97a0558c46ffa98837c3d9f097d0269a6
 F tools/cvs2fossil/lib/c2f_pcollsym.tcl 67107f6d59dba2c74a01e1d34d5199effc4f4829
-F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 5249ff2f884de82f9bed8490119e4e99a01df759
+F tools/cvs2fossil/lib/c2f_pcsetdeps.tcl 627fcc1355eb6c029d49ea28250ff245ffdce592
 F tools/cvs2fossil/lib/c2f_pfiltersym.tcl 810af7f145dcd8302f16a92af0d3c2eb55bf44de
 F tools/cvs2fossil/lib/c2f_pinitcsets.tcl 14fdb6d32b359b01b3edbfe66f0b3f2a069a14f2
 F tools/cvs2fossil/lib/c2f_prev.tcl 2f48609c1ca36897720a05b91269b0d0927ee6f5
@@ -199,14 +199,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 83ecb5b9453bfd6a01c376e70ea319cb4d8f4927
-R 87d9aff8fb9c12e31b8cbcc5dda0d774
+P 479c96c0fc60975d773568e321e53c31c71a6502
+R f9dd700293944710913468fc3f6188ab
 U aku
-Z 73578572a569f485df1efdc70cfe53af
+Z bfd90063ec4df6d25fdfbb86cda5d51e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHyf2dvonzZ/CRa7gRAgLHAJ0cBQNio3mg5KErsAB06sbzGODNRQCeLtAR
-ildkrLarQ+JXCQ83VomkB24=
-=WDrg
+iD8DBQFHyf3jvonzZ/CRa7gRAs1JAKCd5ks2iCIrCI6Z6Y4Oum6GifeYQQCfWVMw
+WbQcqk5BGlgRW9ilGZfLkz4=
+=8peS
 -----END PGP SIGNATURE-----

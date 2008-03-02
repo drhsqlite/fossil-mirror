@@ -10,7 +10,7 @@
 # history and logs, available at http://fossil-scm.hwaci.com/fossil
 # # ## ### ##### ######## ############# #####################
 
-## Pass VI. This pass computes the dependencies between the changeset
+## Pass VI. This pass computes the dependencies between the changesets
 ## from the file level dependencies and stores them in the state for
 ## use by the cycle breaker and topological sorting passes.
 
@@ -29,7 +29,7 @@ package require vc::fossil::import::cvs::project::rev ; # Project level changese
 
 vc::fossil::import::cvs::pass define \
     CsetDeps \
-    {ChangeSet Dependencies} \
+    {Compute and cache ChangeSet Dependencies} \
     ::vc::fossil::import::cvs::pass::csetdeps
 
 # # ## ### ##### ######## ############# #####################
