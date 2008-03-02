@@ -534,6 +534,7 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	set n 0
 	set t 0
 	set c 0
+	set p 0
 
 	state foreachrow {
 	    SELECT S.name         AS xs,
@@ -541,37 +542,29 @@ snit::type ::vc::fossil::import::cvs::pass::filtersym {
 	           S.commit_count AS cc,
 	           P.name         AS xp,
 	           B.name         AS ptype
-	    FROM   tag T, symbol S, symbol P, symtype A, symtype B
-	    WHERE  S.sid = T.sid
-	    AND    P.sid = T.lod
-	    AND    A.tid = S.type
-	    AND    B.tid = P.type
-	    UNION
-	    SELECT S.name         AS xs,
-	           A.name         AS stype,
-	           S.commit_count AS cc,
-	           P.name         AS xp,
-	           B.name         AS ptype
-	    FROM   branch B, symbol S, symbol P, symtype A, symtype B
-	    WHERE  S.sid = B.sid
-	    AND    P.sid = B.lod
-	    AND    A.tid = S.type
-	    AND    B.tid = P.type
+	    FROM symbol S, preferedparent SP, symbol P, symtype A, symtype B
+	    WHERE SP.sid = S.sid
+	    AND   P.sid = SP.pid
+	    AND   A.tid = S.type
+	    AND   B.tid = P.type
 	} {
 	    lappend sym($xs) $xp $stype $ptype $cc
 	    maxlen n $xs
 	    maxlen t $stype
 	    maxlen t $ptype
 	    maxlen c $cc
+	    maxlen p $xp
 	}
 
-	foreach s [lsort -dict [array names sym]] {
-	    struct::list assign $sym($s) p stype ptype cc
-
-	    log write 9 filtersym {Tree: [format %-${t}s $stype] ([format %-${c}d $cc]) [format %-${n}s $s] <-- [format %-${t}s $ptype] $p}
+	foreach xs [lsort -dict [array names sym]] {
+	    struct::list assign $sym($xs) xp stype ptype cc
+	    log write 9 filtersym {Tree: [lj $t $stype] ([dj $c $cc]) [lj $n $xs] <-- [lj $t $ptype] $xp}
 	}
 	return
     }
+
+    proc lj {n s} { ::format %-${n}s $s }
+    proc dj {n s} { ::format %-${n}d $s }
 
     # # ## ### ##### ######## #############
     ## Configuration
