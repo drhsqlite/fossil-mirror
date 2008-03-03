@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Changed\sthe\sprinting\sof\sthe\ssymbol\stree\sto\sbe\sbased\son\stable\s'preferedparent',\sand\sintroduced\stwo\sprocs\sto\sshorten\sthe\sfomratting\scode.
-D 2008-03-02T01:09:16
+C Fix\sa\sprivilege\sproblem\sin\sthe\sdefault\spage\sheader.
+D 2008-03-03T16:50:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -84,7 +84,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/stat.c d6479af2a2882beec65739211e67b2597d35a4cc
-F src/style.c da95e40ef26a9914f224e3e09540f5d7d432f4e4
+F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
 F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
@@ -199,14 +199,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P e3e3d301fce6f8c29eb6ab8699b6b760549037ca
-R 6a6df517b5671eb43b5178b27dead2e6
-U aku
-Z d094e3fcaa49411ca72c8da71cee6c2a
+P ae53becda49638f2f84ea03ecb64f4f9871204a3
+R 76a279752302873da5e75d3f74386cb7
+U drh
+Z 5ab61e7f01abd1248dbc0687d1d2b17b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHyf5AvonzZ/CRa7gRAhDPAJwJnHX2w00U9qONwoqV1BJpPE/qWQCfS0to
-eAyTQZio5KqDl/XLTr2Nrls=
-=29gr
+iD8DBQFHzCxHoxKgR168RlERAlChAJ4s9TQig/IIlhu3+o9BNlfOrLVQOgCfbcT2
+fWjb/j868mUaZkTqFPEQ9eg=
+=O4K3
 -----END PGP SIGNATURE-----
