@@ -509,15 +509,24 @@ snit::type ::vc::fossil::import::cvs::file {
 		    if {$sl < $ooff} { trouble internal {Deletion before last edit} }
 		    if {$sl > $blen} { trouble internal {Deletion past file end} }
 		    if {$el > $blen} { trouble internal {Deletion beyond file end} }
-		    foreach x [lrange $base $ooff $sl] { lappend res $x }
+		    foreach x [lrange $base $ooff [expr {$sl - 1}]] {
+			log write 15 file {.|$x|}
+			lappend res $x
+		    }
 		    set  ooff $el
 		}
 		a {
 		    if {$sl < $ooff} { trouble internal {Insert before last edit} }
 		    if {$sl > $blen} { trouble internal {Insert past file end} }
 
-		    foreach x [lrange $base $ooff $sl]             { lappend res $x }
-		    foreach x [lrange $lines $i [expr {$i + $cn}]] { lappend res $x }
+		    foreach x [lrange $base $ooff [expr {$sl - 1}]] {
+			log write 15 file {.|$x|}
+			lappend res $x
+		    }
+		    foreach x [lrange $lines $i [expr {$i + $cn - 1}]] {
+			log write 15 file {+|$x|}
+			lappend res $x
+		    }
 		    set ooff $sl
 		    incr i $cn
 		}

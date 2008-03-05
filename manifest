@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sto\s[f08599e87b].
-D 2008-03-05T03:44:12
+C cvs2fossil,\sfixed\soff-by-one\serrors\sin\sthe\sapplication\sof\sRCS\spatches.
+D 2008-03-05T05:28:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -121,7 +121,7 @@ F tools/cvs2fossil/filerevtree b6e112463408bbcf51287f58dd997e256f3cd390
 F tools/cvs2fossil/getmemoryseries.tcl a93703a60d1c154bea2a5b8f2a66a46dc9a511d7
 F tools/cvs2fossil/lib/c2f_blobstore.tcl b63bce5767afb8a5e50b6ba5be213a0dea3a88bf
 F tools/cvs2fossil/lib/c2f_cyclebreaker.tcl 59ef48a9b8851e680f238e1243e86c05a81428c8
-F tools/cvs2fossil/lib/c2f_file.tcl 8d01091d5f6cd90ccd649dccfddcecae9a65dcf3
+F tools/cvs2fossil/lib/c2f_file.tcl 43f6a2b4c2c2c71a7eb62dea1168cd3f4f33c75b
 F tools/cvs2fossil/lib/c2f_fossil.tcl 55a6ec9011f9335bac80172c4d49a7989ef2f116
 F tools/cvs2fossil/lib/c2f_frev.tcl 5f8c3fdd03e593a12ac063ba37cc16df5e14ec40
 F tools/cvs2fossil/lib/c2f_fsym.tcl b11a935cc8d103e3ec455b2acf48136b5cafcc83
@@ -202,14 +202,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 31b15fcf3070b5032cb009e251e1418016bde013 f08599e87b3a2e9af7bf2bb1f356596e33a652f0
-R 798f0f0ee4bc290ecc7a0f7631688275
+P f4aa6d09d347af81a644a4952fe8bae8e80f4b4e
+R ec9778908f4a5ec27159bc105dab5eae
 U aku
-Z 65bd233dd97ae555fc64b564c062a44c
+Z 3c9212611e43b4a93fb8b94d89dcebb5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHzhcQvonzZ/CRa7gRAuxHAJ41bFQqlJjK7UBp79oDHQXHyP1HkQCdHJqQ
-S7n1bG9pG7sF99WOVxgbIEw=
-=nwm1
+iD8DBQFHzi90vonzZ/CRa7gRAi90AJ43SxcxT8oxZUn/gzRBur3ZqATUhACfTm7D
+Ud5JZ6lACdZ51Q+dk6sb56o=
+=jBk3
 -----END PGP SIGNATURE-----
