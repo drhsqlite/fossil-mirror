@@ -159,7 +159,7 @@ snit::type ::vc::fossil::import::cvs::project {
 	return
     }
 
-    method revisionsinorder {} {
+    method changesetsinorder {} {
 	return [rev inorder $myid]
     }
 

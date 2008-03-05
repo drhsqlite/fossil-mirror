@@ -91,7 +91,7 @@ snit::type ::vc::fossil::import::cvs::project::rev {
     }
 
     method lod {} {
-	return [$mytypeobj cs_lod $myitems]
+	return [$mytypeobj cs_lod $mysrcid $myitems]
     }
 
     method id    {} { return $myid }
@@ -263,56 +263,144 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 	#
 	# - List of the file revisions in the changeset.
 
-	struct::list assign [$myproject getmeta $mysrcid] __ __ user message
-
 	# We derive the lod information directly from the revisions of
 	# the changeset, as the branch part of the meta data (s.a.) is
-	# outdated since pass FilterSymbols.
+	# outdated since pass FilterSymbols. See the method 'run' in
+	# file "c2f_pfiltersym.tcl" for more commentary on this.
 
 	set lodname [$self lod]
 
-	log write 2 csets {Importing revision [$self str] on $lodname}
+	log write 2 csets {Importing changeset [$self str] on $lodname}
 
-	# Perform the import. As part of that we determine the parent
-	# we need, and convert the list of items in the changeset into
-	# uuids and printable data.
+	if {[$mytypeobj istag]} {
+	    # Handle tags. They appear immediately after the revision
+	    # they are attached to (*). We can assume that the
+	    # workspace for the relevant line of development
+	    # exists. We retrieve it, then the uuid of the last
+	    # revision entered into it, then tag this revision.
 
-	struct::list assign [Getisdefault $myitems] isdefault lastdefaultontrunk
+	    # (*) Immediately in terms of the relevant line of
+	    #     development. Revisions on other lines may come in
+	    #     between, but they do not matter to that.
 
-	log write 8 csets {LOD    '$lodname'}
-	log write 8 csets { def?  $isdefault}
-	log write 8 csets { last? $lastdefaultontrunk}
+	    set lws  [Getworkspace $rstate $lodname $myproject 0]
+	    set uuid [lindex [$lws getid] 1]
 
-	set lws  [Getworkspace    $rstate $lodname $myproject $isdefault]
-	$lws add [Getrevisioninfo $myitems]
+	    $repository tag $uuid [state one {
+		SELECT S.name
+		FROM   symbol S
+		WHERE  S.sid = $mysrcid
+	    }]
 
-	set uuid [$repository importrevision [$self str] \
-		      $user $message $date \
-		      [$lws getid] [$lws get]]
+	} elseif {[$mytypeobj isbranch]} {
 
-	# Remember the imported changeset in the state, under our
-	# LOD. And if it is the last trunk changeset on the vendor
-	# branch then the revision is also the actual root of the
-	# :trunk:, so we remember it as such in the state. However if
-	# the trunk already exists then the changeset cannot be on it
-	# any more. This indicates weirdness in the setup of the
-	# vendor branch, but one we can work around.
+	    # Handle branches. They appear immediately after the
+	    # revision they are spawned from (*). We can assume that
+	    # the workspace for the relevant line of development
+	    # exists.
 
-	$lws defid $uuid
-	if {$lastdefaultontrunk} {
-	    if {[$rstate has :trunk:]} {
-		log write 2 csets {Multiple changesets declared to be the last trunk changeset on the vendor-branch}
+	    # We retrieve it, then the uuid of the last revision
+	    # entered into it. That revision is tagged as the root of
+	    # the branch (**). A new workspace for the branch is
+	    # created as well, for the future revisions of the new
+	    # line of development.
+
+	    # An exception is made of the non-trunk default branch,
+	    # aka vendor branch. This lod has to have a workspace not
+	    # inherited from anything else. It has no root either, so
+	    # tagging is out as well.
+
+	    # (*) Immediately in terms of the relevant line of
+	    #     development. Revisions on other lines may come in
+	    #     between, but they do not matter to that.
+
+	    # (**) Tagging the parent revision of the branch as its
+	    #      root is done to let us know about the existence of
+	    #      the branch even if it has no revisions committed to
+	    #      it, and thus no regular branch tag anywhere else.
+	    #      The name of the tag is the name for the lod, with
+	    #      the suffix '-root' appended to it.
+
+	    # LOD is self symbol of branch, not parent
+	    set lodname [state one {
+		SELECT S.name
+		FROM   symbol S
+		WHERE  S.sid = $mysrcid
+	    }]
+
+	    if {![$rstate has :trunk:]} {
+		# No trunk implies default branch. Just create the
+		# proper workspace.
+		Getworkspace $rstate $lodname $myproject 1
 	    } else {
-		$rstate new :trunk: [$lws name]
+		# Non-default branch. Need workspace, and tag parent
+		# revision.
+
+		set lws [Getworkspace $rstate $lodname $myproject 0]
+		set uuid [lindex [$lws getid] 1]
+
+		$repository tag $uuid ${lodname}-root
+	    }
+	} else {
+	    # Revision changeset.
+
+	    struct::list assign [$myproject getmeta $mysrcid] __ __ user message
+
+	    # Perform the import. As part of that we determine the
+	    # parent we need, and convert the list of items in the
+	    # changeset into uuids and printable data.
+
+	    struct::list assign [Getisdefault $myitems] \
+		isdefault lastdefaultontrunk
+
+	    log write 8 csets {LOD    '$lodname'}
+	    log write 8 csets { def?  $isdefault}
+	    log write 8 csets { last? $lastdefaultontrunk}
+
+	    set lws  [Getworkspace    $rstate $lodname $myproject $isdefault]
+	    $lws add [Getrevisioninfo $myitems]
+
+	    struct::list assign \
+		[$repository importrevision [$self str] \
+		     $user $message $date \
+		     [lindex [$lws getid] 0] [$lws get]] \
+		rid uuid
+
+	    if {[$lws ticks] == 1} {
+		# First commit on this line of development. Set our
+		# own name as a propagating tag. And if the LOD has a
+		# parent we have to prevent the propagation of that
+		# tag into this new line.
+
+		set plws [$lws parent]
+		if {$plws ne ""} {
+		    $repository branchcancel $uuid [$plws name]
+		}
+		$repository branchmark $uuid [$lws name]
+	    }
+
+	    # Remember the imported changeset in the state, under our
+	    # LOD. And if it is the last trunk changeset on the vendor
+	    # branch then the revision is also the actual root of the
+	    # :trunk:, so we remember it as such in the state. However
+	    # if the trunk already exists then the changeset cannot be
+	    # on it any more. This indicates weirdness in the setup of
+	    # the vendor branch, but one we can work around.
+
+	    $lws defid [list $rid $uuid]
+	    if {$lastdefaultontrunk} {
+		log write 2 csets {This cset is the last on the NTDB, set the trunk workspace up}
+
+		if {[$rstate has :trunk:]} {
+		    log write 2 csets {Multiple changesets declared to be the last trunk changeset on the vendor-branch}
+		} else {
+		    $rstate new :trunk: [$lws name]
+		}
 	    }
 	}
 
-	# Remember the whole changeset / uuid mapping, for the tags.
-
-	state run {
-	    INSERT INTO csuuid (cid,   uuid)
-	    VALUES             ($myid, $uuid)
-	}
+	log write 2 csets { }
+	log write 2 csets { }
 	return
     }
 
@@ -374,11 +462,17 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 
 	if {$isdefault} {
 	    if {![$rstate has ":vendor:"]} {
-		# Create the vendor branch if not present already.
-		$rstate new :vendor:
+		# Create the vendor branch if not present already. We
+		# use the actual name for the lod, and additional make
+		# it accessible under an internal name (:vendor:) so
+		# that we can merge to it later, should it become
+		# necessary. See the other branch below.
+		$rstate new $lodname
+		$rstate dup :vendor: <-- $lodname
+	    } else {
+		# Merge the new symbol to the vendor branch
+		$rstate dup $lodname <-- :vendor:
 	    }
-	    # Merge the new symbol to the vendor branch
-	    $rstate dup $lodname <-- :vendor:
 	    return [$rstate get $lodname]
 	}
 
@@ -575,17 +669,17 @@ snit::type ::vc::fossil::import::cvs::project::rev {
 				      # helper singletons.
 
     typemethod inorder {projectid} {
-	# Return all revision changesets for the specified project, in
-	# the order given to them by the sort passes. Both the
-	# filtering by project and sorting make use of 'project::rev
-	# rev' impossible.
+	# Return all changesets (object references) for the specified
+	# project, in the order given to them by the sort passes. Both
+	# the filtering by project and the sorting by time make the
+	# use of 'project::rev rev' impossible.
 
 	set res {}
 	state foreachrow {
-	    SELECT C.cid AS xcid, T.date AS cdate
+	    SELECT C.cid  AS xcid,
+	           T.date AS cdate
 	    FROM   changeset C, cstimestamp T
-	    WHERE  C.type = 0          -- limit to revision changesets
-	    AND    C.pid  = $projectid -- limit to changesets in project
+	    WHERE  C.pid  = $projectid -- limit to changesets in project
 	    AND    T.cid  = C.cid      -- get ordering information
 	    ORDER BY T.date            -- sort into commit order
 	} {
@@ -1422,12 +1516,22 @@ snit::type ::vc::fossil::import::cvs::project::rev::rev {
             AND    C.cid = CI.cid	   -- containing the branches
             AND    C.type = 2		   -- which are branch changesets
 	}]]
+
+	# Regarding rev -> branch|tag, we could consider looking at
+	# the symbol of the branch|tag, its lod-symbol, and the
+	# revisions on that lod, but don't. Because it is not exact
+	# enough, the branch|tag would depend on revisions coming
+	# after its creation on the parental lod.
     }
 
     # result = symbol name
-    typemethod cs_lod {revisions} {
+    typemethod cs_lod {metaid revisions} {
 	# Determines the name of the symbol which is the line of
-	# development for the revisions in a changeset.
+	# development for the revisions in a changeset. The
+	# information in the meta data referenced by the source metaid
+	# is out of date by the time we come here (since pass
+	# FilterSymbols), so it cannot be used. See the method 'run'
+	# in file "c2f_pfiltersym.tcl" for more commentary on this.
 
 	set theset ('[join $revisions {','}]')
 	return [state run [subst -nocommands -nobackslashes {
@@ -1494,18 +1598,18 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::tag {
     }
 
     # result = symbol name
-    typemethod cs_lod {tags} {
+    typemethod cs_lod {sid tags} {
 	# Determines the name of the symbol which is the line of
-	# development for the tags in a changeset.
+	# development for the tags in a changeset. Comes directly from
+	# the symbol which is the changeset's source and its prefered
+	# parent.
 
-	set theset ('[join $tags {','}]')
-	return [state run [subst -nocommands -nobackslashes {
-	    SELECT
-	    DISTINCT L.name
-	    FROM   tag T, symbol L
-	    WHERE  T.tid in $theset        -- Restrict to tags of interest
-	    AND    L.sid = T.lod           -- Get lod symbol of tag
-	}]]
+        return [state run {
+ 	    SELECT P.name
+	    FROM preferedparent SP, symbol P
+	    WHERE SP.sid = $sid
+	    AND   P.sid = SP.pid
+	}]
     }
 }
 
@@ -1642,18 +1746,18 @@ snit::type ::vc::fossil::import::cvs::project::rev::sym::branch {
     }
 
     # result = symbol name
-    typemethod cs_lod {branches} {
+    typemethod cs_lod {sid branches} {
 	# Determines the name of the symbol which is the line of
-	# development for the branches in a changeset.
+	# development for the branches in a changeset. Comes directly
+	# from the symbol which is the changeset's source and its
+	# prefered parent.
 
-	set theset ('[join $branches {','}]')
-	return [state run [subst -nocommands -nobackslashes {
-	    SELECT
-	    DISTINCT L.name
-	    FROM   branch B, symbol L
-	    WHERE  B.bid in $theset        -- Restrict to branches of interest
-	    AND    L.sid = B.lod           -- Get lod symbol of branch
-	}]]
+        return [state run {
+ 	    SELECT P.name
+	    FROM preferedparent SP, symbol P
+	    WHERE SP.sid = $sid
+	    AND   P.sid = SP.pid
+	}]
     }
 
     typemethod limits {branches} {
