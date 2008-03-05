@@ -161,7 +161,7 @@ const char zDefaultHeader[] =
 @ if {[hascap h]} {
 @   html "<a href='$baseurl/dir'>Files</a>"
 @ }
-@ if {[hascap i]} {
+@ if {[hascap o]} {
 @   html "<a href='$baseurl/leaves'>Leaves</a>"
 @   html "<a href='$baseurl/timeline'>Timeline</a>"
 @   html "<a href='$baseurl/tagview'>Tags</a>"
