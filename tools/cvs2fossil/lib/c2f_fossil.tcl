@@ -30,6 +30,10 @@ snit::type ::vc::fossil::import::cvs::fossil {
     ## Public API
 
     constructor {} {
+	return
+    }
+
+    method initialize {} {
 	set myrepository [fileutil::tempfile cvs2fossil_repo_]
 	set myworkspace  [fileutil::tempfile cvs2fossil_wspc_]
 	::file delete $myworkspace
@@ -39,9 +43,22 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	$self InWorkspace ; Do open [::file nativename $myrepository]
 	$self RestorePwd
 
-	log write 8 fossil {scratch repository $myrepository}
-	log write 8 fossil {scratch workspace  $myworkspace}
+	log write 8 fossil {Scratch repository created @ $myrepository}
+	log write 8 fossil {Scratch workspace  created @ $myworkspace }
 	return
+    }
+
+    method load {r w} {
+	set myrepository $r
+	set myworkspace  $w
+
+	log write 8 fossil {Scratch repository found @ $myrepository}
+	log write 8 fossil {Scratch workspace  found @ $myworkspace}
+	return
+    }
+
+    method space {} {
+	return [list $myrepository $myworkspace]
     }
 
     # # ## ### ##### ######## #############
@@ -99,8 +116,6 @@ snit::type ::vc::fossil::import::cvs::fossil {
     }
 
     method importrevision {label user message date parent revisions} {
-	# TODO = Write the actual import, and up the log level.
-
 	# Massage the commit message to remember the old user name
 	# which did the commit in CVS.
 
@@ -125,18 +140,52 @@ snit::type ::vc::fossil::import::cvs::fossil {
 	$self RestorePwd
 
 	integrity assert {
-	    [regexp {^inserted as record \d+$} $res]
+	    [regexp {^inserted as record \d+, [0-9a-fA-F]+$} $res]
 	} {Unable to process unexpected fossil output '$res'}
-	set uuid [lindex $res 3]
+	set rid  [string trim [lindex $res 3] ,]
+	set uuid [lindex $res 4]
 
-	log write 2 fossil {== $uuid}
-	log write 2 fossil { }
-	log write 2 fossil { }
+	log write 2 fossil {== $rid ($uuid)}
 
-	return $uuid
+	return [list $rid $uuid]
+    }
+
+    method tag {uuid name} {
+	log write 2 fossil {Tag '$name' @ $uuid}
+
+	$self InWorkspace
+	Do tag add sym-$name $uuid
+	$self RestorePwd
+	return
+    }
+
+    method branchmark {uuid name} {
+	# We do not mark the trunk
+	if {$name eq ":trunk:"} return
+
+	log write 2 fossil {Begin branch '$name' @ $uuid}
+
+	$self InWorkspace
+	Do tag branch sym-$name $uuid
+	$self RestorePwd
+	return
+    }
+
+    method branchcancel {uuid name} {
+	# The trunk is unmarked, thus cancellation is not needed
+	# either.
+	if {$name eq ":trunk:"} return
+
+	log write 2 fossil {Cancel branch '$name' @ $uuid}
+
+	$self InWorkspace
+	Do tag delete sym-$name $uuid
+	$self RestorePwd
+	return
     }
 
     method finalize {destination} {
+	log write 2 fossil {Finalize, rebuilding repository}
 	Do rebuild [::file nativename $myrepository]
 
 	::file rename -force $myrepository $destination
@@ -192,6 +241,7 @@ snit::type ::vc::fossil::import::cvs::fossil {
 
     proc Do {args} {
 	# 8.5: exec $myfossilcmd {*}$args
+	log write 14 fossil {Doing '$args'}
 	return [eval [linsert $args 0 exec $myfossilcmd]]
     }
 

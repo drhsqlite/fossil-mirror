@@ -589,6 +589,8 @@ void import_manifest_cmd(void){
   const char* parent;   /* loop variable when collecting parent references */
   int i, mid;           /* Another loop index, and id of new manifest */
   Stmt q;               /* sql statement to query table of files */
+  char* zMidUuid;       /* Uuid for the newly generated manifest */
+
 
 #define USAGE ("DATE COMMENT ?-p|-parent PARENT_RID...? ?-f|-file (FILE_RID PATH)...?")
 
@@ -807,15 +809,18 @@ void import_manifest_cmd(void){
   */
 
   db_multi_exec("DROP TABLE __im");
+  zMidUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
   db_end_transaction(0);
   free(zParents);
 
   /*
-  ** At the very last inform the caller about the id of the new
-  ** manifest.
+  ** At the very last inform the caller about the id and uuid of the
+  ** new manifest.
   */
 
-  printf("inserted as record %d\n", mid);
+
+  printf("inserted as record %d, %s\n", mid, zMidUuid);
+  free(zMidUuid);
   return;
 
 #undef USAGE
