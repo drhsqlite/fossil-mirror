@@ -31,11 +31,14 @@ snit::type ::vc::fossil::import::cvs::wsstate {
 
     constructor {lod} {
 	# Start with an empty state
-	set myname $lod
+	set myname   $lod
+	set myticks  0
+	set myparent {}
 	return
     }
 
-    method name {} { return $myname }
+    method name   {} { return $myname }
+    method ticks  {} { return $myticks }
 
     method add {oprevisioninfo} {
 	# oprevisioninfo = list (rid path label op ...) /quadruples
@@ -57,6 +60,8 @@ snit::type ::vc::fossil::import::cvs::wsstate {
 		set mystate($path) [list $rid $label]
 	    }
 	}
+
+	incr myticks
 	return
     }
 
@@ -79,6 +84,12 @@ snit::type ::vc::fossil::import::cvs::wsstate {
     method defstate {s} { array set mystate $s ; return }
     method getstate {}  { return [array get mystate] }
 
+    method parent {} { return $myparent }
+    method defparent {parent} {
+	set myparent $parent
+	return
+    }
+
     # # ## ### ##### ######## #############
     ## State
 
@@ -89,6 +100,9 @@ snit::type ::vc::fossil::import::cvs::wsstate {
     variable mystate -array {} ; # Map from paths to the recordid of
 				 # the file revision behind it, and
 				 # the associated label for logging.
+    variable myticks 0         ; # Number of 'add' operations
+				 # performed on the state.
+    variable myparent {}       ; # Reference to the parent workspace.
 
     typevariable myop -array {
 	-1 REM
