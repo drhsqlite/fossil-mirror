@@ -46,18 +46,12 @@ snit::type ::vc::fossil::import::cvs::project::sym {
     method istrunk {} { return 0 }
 
     method parent {} {
-	return [$myproject getsymbol [state one {
-	    SELECT S.name
-	    FROM tag T, symbol S
-	    WHERE T.sid = $myid
-	    AND   S.sid = T.lod
-	UNION
-	    SELECT S.name
-	    FROM branch B, symbol S
-	    WHERE B.sid = $myid
-	    AND   S.sid = B.lod
+        return [$myproject getsymbol [state run {
+ 	    SELECT S.name
+	    FROM preferedparent P, symbol S
+	    WHERE P.sid = $myid
+	    AND   S.sid = P.pid
 	}]]
-	return
     }
 
     # # ## ### ##### ######## #############
