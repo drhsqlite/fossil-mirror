@@ -34,7 +34,9 @@
 ** Show statistics and global information about the repository.
 */
 void stat_page(void){
-  int n, m, k;
+  i64 t;
+  int n, m;
+  char zBuf[100];
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   style_header("Repository Statistics");
@@ -50,8 +52,9 @@ void stat_page(void){
   @ </td></tr>
   if( n>0 ){
     @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
-    k = db_int(0, "SELECT total(size) FROM blob WHERE size>0");
-    @ %d((int)(((double)k)/(double)n)) bytes average, %d(k) bytes total
+    t = db_int64(0, "SELECT total(size) FROM blob WHERE size>0");
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
+    @ %d((int)(((double)t)/(double)n)) bytes average, %s(zBuf) bytes total
     @ </td></tr>
   }
   @ <tr><th>Number&nbsp;Of&nbsp;Baselines:</th><td>

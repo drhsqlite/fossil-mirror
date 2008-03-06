@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C cvs2fossil,\sfixed\soff-by-one\serrors\sin\sthe\sapplication\sof\sRCS\spatches.
-D 2008-03-05T05:28:16
+C Fix\sproblems\son\sthe\sstat\spage\sthat\sappear\sfor\slarger\srepositories.
+D 2008-03-06T00:26:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -79,11 +79,11 @@ F src/rebuild.c 5e55de3bcde162781cfac661d3893a1d0db86c9e
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
-F src/setup.c f8c273bde6a36aa247de1b5c6f3e8050cb01680c
+F src/setup.c ccb6e89143917769a5df98cce251d116384a34a2
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
-F src/stat.c d6479af2a2882beec65739211e67b2597d35a4cc
+F src/stat.c 43c14b0569b5ca58b4debb8abaf1d0ede953d6fb
 F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
@@ -202,14 +202,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f4aa6d09d347af81a644a4952fe8bae8e80f4b4e
-R ec9778908f4a5ec27159bc105dab5eae
-U aku
-Z 3c9212611e43b4a93fb8b94d89dcebb5
+P 68cf3ecdb70a1157ee98653eea4eda72bf98dd43
+R 7fafc41c492409073377712cfece2b8c
+U drh
+Z d5476e5020d08f137a3318cd4c2e6c25
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFHzi90vonzZ/CRa7gRAi90AJ43SxcxT8oxZUn/gzRBur3ZqATUhACfTm7D
-Ud5JZ6lACdZ51Q+dk6sb56o=
-=jBk3
+iD8DBQFHzzpSoxKgR168RlERAvP0AJ4n4KpTGjN2B3N0nc8rVVqvO2OuJwCeOQaV
+AG4GjcyyOGeNkmEsED6VfVw=
+=OmSw
 -----END PGP SIGNATURE-----
