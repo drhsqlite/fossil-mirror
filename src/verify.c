@@ -75,6 +75,7 @@ static int inFinalVerify = 0;
 */
 static int verify_at_commit(void){
   int rid;
+  content_clear_cache();
   inFinalVerify = 1;
   rid = bag_first(&toVerify);
   while( rid>0 ){

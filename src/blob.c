@@ -208,7 +208,6 @@ void blob_append(Blob *pBlob, const char *aData, int nData){
 */
 void blob_copy(Blob *pTo, Blob *pFrom){
   blob_is_init(pFrom);
-  blob_is_init(pTo);
   blob_zero(pTo);
   blob_append(pTo, blob_buffer(pFrom), blob_size(pFrom));
 }

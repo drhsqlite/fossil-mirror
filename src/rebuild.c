@@ -55,6 +55,83 @@ static const char zSchemaUpdates[] =
 ;
 
 /*
+** Variables used for progress information
+*/
+static int totalSize;       /* Total number of artifacts to process */
+static int processCnt;      /* Number processed so far */
+static int ttyOutput;       /* Do progress output */
+
+/*
+** Called after each artifact is processed
+*/
+static void rebuild_step_done(void){
+  if( ttyOutput ){
+    processCnt++;
+    printf("%d (%d%%)...\r", processCnt, (processCnt*100/totalSize));
+    fflush(stdout);
+  }
+}
+
+/*
+** Rebuild cross-referencing information for the artifact
+** rid with content pBase and all of its descendents.  This
+** routine clears the content buffer before returning.
+*/
+static void rebuild_step(int rid, Blob *pBase){
+  Stmt q1;
+  Bag children;
+  Blob copy;
+  Blob *pUse;
+  int nChild, i, cid;
+
+  /* Find all children of artifact rid */
+  db_prepare(&q1, "SELECT rid FROM delta WHERE srcid=%d", rid);
+  bag_init(&children);
+  while( db_step(&q1)==SQLITE_ROW ){
+    bag_insert(&children, db_column_int(&q1, 0));
+  }
+  nChild = bag_count(&children);
+  db_finalize(&q1);
+
+  /* Crosslink the artifact */
+  if( nChild==0 ){
+    pUse = pBase;
+  }else{
+    blob_copy(&copy, pBase);
+    pUse = &copy;
+  }
+  manifest_crosslink(rid, pUse);
+  blob_reset(pUse);
+
+  /* Call all children recursively */
+  for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
+    Stmt q2;
+    int sz;
+    if( nChild==i ){
+      pUse = pBase;
+    }else{
+      blob_copy(&copy, pBase);
+      pUse = &copy;
+    }
+    db_prepare(&q2, "SELECT content, size FROM blob WHERE rid=%d", cid);
+    if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
+      Blob delta;
+      db_ephemeral_blob(&q2, 0, &delta);
+      blob_uncompress(&delta, &delta);
+      blob_delta_apply(pUse, &delta, pUse);
+      blob_reset(&delta);
+      db_finalize(&q2);
+      rebuild_step(cid, pUse);
+    }else{
+      db_finalize(&q2);
+      blob_reset(pUse);
+    }
+  }
+  bag_clear(&children);
+  rebuild_step_done();
+}
+
+/*
 ** Core function to rebuild the infomration in the derived tables of a
 ** fossil repository from the blobs. This function is shared between
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
@@ -66,12 +143,13 @@ static const char zSchemaUpdates[] =
 ** ability of fossil to accept records in any order and still
 ** construct a sane repository.
 */
-int rebuild_db(int randomize, int ttyOutput){
+int rebuild_db(int randomize, int doOut){
   Stmt s;
   int errCnt = 0;
   char *zTable;
-  int cnt = 0;
 
+  ttyOutput = doOut;
+  processCnt = 0;
   db_multi_exec(zSchemaUpdates);
   for(;;){
     zTable = db_text(0,
@@ -93,26 +171,22 @@ int rebuild_db(int randomize, int ttyOutput){
   db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
+  totalSize = db_int(0, "SELECT count(*) FROM blob");
   db_prepare(&s,
-     "SELECT rid, size FROM blob %s"
-     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)",
-     randomize ? "ORDER BY random()" : ""
+     "SELECT rid, size FROM blob"
+     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+     "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
   );
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
     if( size>=0 ){
       Blob content;
-      if( ttyOutput ){
-        cnt++;
-        printf("%d...\r", cnt);
-        fflush(stdout);
-      }
       content_get(rid, &content);
-      manifest_crosslink(rid, &content);
-      blob_reset(&content);
+      rebuild_step(rid, &content);
     }else{
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
+      rebuild_step_done();
     }
   }
   db_finalize(&s);
@@ -143,6 +217,7 @@ void rebuild_database(void){
   }
   db_open_repository(g.argv[2]);
   db_begin_transaction();
+  ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1);
   if( errCnt && !forceFlag ){
     printf("%d errors. Rolling back changes. Use --force to force a commit.\n",

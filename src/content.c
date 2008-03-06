@@ -28,12 +28,119 @@
 #include <assert.h>
 
 /*
+** Macros for debugging
+*/
+#if 0
+# define CONTENT_TRACE(X)  printf X;
+#else
+# define CONTENT_TRACE(X)
+#endif
+
+/*
+** The artifact retrival cache
+*/
+#define MX_CACHE_CNT  50    /* Maximum number of positive cache entries */
+#define EXPELL_INTERVAL 5   /* How often to expell from a full cache */
+static struct {
+  int n;               /* Current number of positive cache entries */
+  int nextAge;         /* Age counter for implementing LRU */
+  int skipCnt;         /* Used to limit entries expelled from cache */
+  struct {             /* One instance of this for each cache entry */
+    int rid;                  /* Artifact id */
+    int age;                  /* Age.  Newer is larger */
+    Blob content;             /* Content of the artifact */
+  } a[MX_CACHE_CNT];   /* The positive cache */
+
+  /*
+  ** The missing artifact cache.
+  **
+  ** Artifacts whose record ID are in missingCache cannot be retrieved
+  ** either because they are phantoms or because they are a delta that
+  ** depends on a phantom.  Artifacts whose content we are certain is
+  ** available are in availableCache.  If an artifact is in neither cache
+  ** then its current availablity is unknown.
+  */
+  Bag missing;         /* Cache of artifacts that are incomplete */
+  Bag available;       /* Cache of artifacts that are complete */
+} contentCache;
+
+
+/*
+** Clear the content cache.
+*/
+void content_clear_cache(void){
+  int i;
+  for(i=0; i<contentCache.n; i++){
+    blob_reset(&contentCache.a[i].content);
+  }
+  bag_clear(&contentCache.missing);
+  bag_clear(&contentCache.available);
+  contentCache.n = 0;
+}
+
+/*
 ** Return the srcid associated with rid.  Or return 0 if rid is 
 ** original content and not a delta.
 */
 static int findSrcid(int rid){
   int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", rid);
   return srcid;
+}
+
+/*
+** Check to see if content is available for artifact "rid".  Return
+** true if it is.  Return false if rid is a phantom or depends on
+** a phantom.
+*/
+int content_is_available(int rid){
+  int srcid;
+  if( bag_find(&contentCache.missing, rid) ){
+    return 0;
+  }
+  if( bag_find(&contentCache.available, rid) ){
+    return 1;
+  }
+  if( db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+    bag_insert(&contentCache.missing, rid);
+    return 0;
+  }
+  srcid = findSrcid(rid);
+  if( srcid==0 ){
+    bag_insert(&contentCache.available, rid);
+    return 1;
+  }
+  if( content_is_available(srcid) ){
+    bag_insert(&contentCache.available, rid);
+    return 1;
+  }else{
+    bag_insert(&contentCache.missing, rid);
+    return 0;
+  }
+}
+
+/*
+** Mark artifact rid as being available now.  Update the cache to
+** show that everything that was formerly unavailable because rid
+** was missing is now available.
+*/
+static void content_mark_available(int rid){
+  Bag pending;
+  Stmt q;
+  if( bag_find(&contentCache.available, rid) ) return;
+  bag_init(&pending);
+  bag_insert(&pending, rid);
+  while( (rid = bag_first(&pending))!=0 ){
+    bag_remove(&pending, rid);
+    bag_remove(&contentCache.missing, rid);
+    bag_insert(&contentCache.available, rid);
+    db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int nx = db_column_int(&q, 0);
+      bag_insert(&pending, nx);
+    }
+    db_finalize(&q);
+  }
+  bag_clear(&pending);
 }
 
 /*
@@ -46,12 +153,42 @@ int content_get(int rid, Blob *pBlob){
   Blob src;
   int srcid;
   int rc = 0;
+  int i;
   static Bag inProcess;
 
   assert( g.repositoryOpen );
-  srcid = findSrcid(rid);
   blob_zero(pBlob);
+
+  /* Early out if we know the content is not available */
+  if( bag_find(&contentCache.missing, rid) ){
+    CONTENT_TRACE(("%*smiss from cache: %d\n",
+                    bag_count(&inProcess), "", rid))
+    return 0;
+  }
+
+  /* Look for the artifact in the cache first */
+  for(i=0; i<contentCache.n; i++){
+    if( contentCache.a[i].rid==rid ){
+      *pBlob = contentCache.a[i].content;
+      blob_zero(&contentCache.a[i].content);
+      contentCache.n--;
+      if( i<contentCache.n ){
+        contentCache.a[i] = contentCache.a[contentCache.n];
+      }
+      CONTENT_TRACE(("%*shit cache: %d\n", 
+                    bag_count(&inProcess), "", rid))
+      return 1;
+    }
+  }
+
+  /* See if we need to apply a delta to find this artifact */
+  srcid = findSrcid(rid);
+  CONTENT_TRACE(("%*ssearching for %d.  Need %d.\n",
+                 bag_count(&inProcess), "", rid, srcid))
+
+
   if( srcid ){
+    /* Yes, a delta is required */
     if( bag_find(&inProcess, srcid) ){
       db_multi_exec(
         "UPDATE blob SET content=NULL, size=-1 WHERE rid=%d;"
@@ -63,6 +200,7 @@ int content_get(int rid, Blob *pBlob){
       return 0;
     }
     bag_insert(&inProcess, srcid);
+
     if( content_get(srcid, &src) ){
       db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
       if( db_step(&q)==SQLITE_ROW ){
@@ -75,10 +213,39 @@ int content_get(int rid, Blob *pBlob){
         rc = 1;
       }
       db_finalize(&q);
-      blob_reset(&src);
+
+      /* Save the srcid artifact in the cache */
+      if( contentCache.n<MX_CACHE_CNT ){
+        i = contentCache.n++;
+      }else if( ((contentCache.skipCnt++)%EXPELL_INTERVAL)!=0 ){
+        i = -1;
+      }else{
+        int j, best;
+        best = contentCache.nextAge+1;
+        i = -1;
+        for(j=0; j<contentCache.n; j++){
+          if( contentCache.a[j].age<best ){
+            i = j;
+            best = contentCache.a[j].age;
+          }
+        }
+        CONTENT_TRACE(("%*sexpell %d from cache\n",
+                       bag_count(&inProcess), "", contentCache.a[i].rid))
+        blob_reset(&contentCache.a[i].content);
+      }
+      if( i>=0 ){
+        contentCache.a[i].content = src;
+        contentCache.a[i].age = contentCache.nextAge++;
+        contentCache.a[i].rid = srcid;
+        CONTENT_TRACE(("%*sadd %d to cache\n",
+                       bag_count(&inProcess), "", srcid))
+      }else{
+        blob_reset(&src);
+      }
     }
     bag_remove(&inProcess, srcid);
   }else{
+    /* No delta required.  Read content directly from the database */
     db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
     if( db_step(&q)==SQLITE_ROW ){
       db_ephemeral_blob(&q, 0, pBlob);
@@ -87,13 +254,22 @@ int content_get(int rid, Blob *pBlob){
     }
     db_finalize(&q);
   }
+  if( rc==0 ){
+    bag_insert(&contentCache.missing, rid);
+  }else{
+    bag_insert(&contentCache.available, rid);
+  }
   return rc;
 }
 
 /*
-** Get the contents of a file within a given revision.
+** Get the contents of a file within a given baseline.
 */
-int content_get_historical_file(const char *revision, const char *file, Blob *content){
+int content_get_historical_file(
+  const char *revision,    /* Name of the baseline containing the file */
+  const char *file,        /* Name of the file */
+  Blob *content            /* Write file content here */
+){
   Blob mfile;
   Manifest m;
   int i, rid=0;
@@ -196,6 +372,7 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   Blob cmpr;
   Blob hash;
   int markAsUnclustered = 0;
+  int isDephantomize = 0;
   
   assert( g.repositoryOpen );
   if( pBlob && srcId==0 ){
@@ -251,8 +428,9 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
     db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
-    if( srcId==0 || db_int(0, "SELECT size FROM blob WHERE rid=%d", srcId)>0 ){
-      after_dephantomize(rid, 0);
+    if( srcId==0 || content_is_available(srcId) ){
+      isDephantomize = 1;
+      content_mark_available(rid);
     }
   }else{
     /* We are creating a new entry */
@@ -277,6 +455,13 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   */
   if( srcId ){
     db_multi_exec("REPLACE INTO delta(rid,srcid) VALUES(%d,%d)", rid, srcId);
+  }
+  if( !isDephantomize && bag_find(&contentCache.missing, rid) && 
+      (srcId==0 || content_is_available(srcId)) ){
+    content_mark_available(rid);
+  }
+  if( isDephantomize ){
+    after_dephantomize(rid, 0);
   }
   
   /* Add the element to the unclustered table if has never been

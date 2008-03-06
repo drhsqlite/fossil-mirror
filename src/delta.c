@@ -198,20 +198,27 @@ static int digit_count(int v){
 /*
 ** Compute a 32-bit checksum on the N-byte buffer.  Return the result.
 */
-static unsigned int checksum(const char *zIn, int N){
-  const unsigned char *z = (const unsigned char*)zIn;
-  unsigned int sum = 0;
-  while( N>=4 ){
+static unsigned int checksum(const char *zIn, size_t N){
+  const unsigned char *z = (const unsigned char *)zIn;
+  unsigned sum = 0;
+  while(N >= 16){
+    sum += ((unsigned)z[0] + z[4] + z[8] + z[12]) << 24;
+    sum += ((unsigned)z[1] + z[5] + z[9] + z[13]) << 16;
+    sum += ((unsigned)z[2] + z[6] + z[10]+ z[14]) << 8;
+    sum += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
+    z += 16;
+    N -= 16;
+  }
+  while(N >= 4){
     sum += (z[0]<<24) | (z[1]<<16) | (z[2]<<8) | z[3];
     z += 4;
     N -= 4;
   }
-  if( N>0 ){
-    unsigned char zBuf[4];
-    memset(zBuf, 0, sizeof(zBuf));
-    memcpy(zBuf, z, N);
-    z = zBuf;
-    sum += (z[0]<<24) | (z[1]<<16) | (z[2]<<8) | z[3];
+  switch(N){
+    case 3:   sum += (z[2] << 8);
+    case 2:   sum += (z[1] << 16);
+    case 1:   sum += (z[0] << 24);
+    default:  ;
   }
   return sum;
 }
