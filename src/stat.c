@@ -35,15 +35,15 @@
 */
 void stat_page(void){
   i64 t;
-  int n, m;
+  int n, m, fsize;
   char zBuf[100];
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   style_header("Repository Statistics");
   @ <p><table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
-  n = file_size(g.zRepositoryName);
-  @ %d(n) bytes
+  fsize = file_size(g.zRepositoryName);
+  @ %d(fsize) bytes
   @ </td></tr>
   @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
   n = db_int(0, "SELECT count(*) FROM blob");
@@ -51,10 +51,21 @@ void stat_page(void){
   @ %d(n-m) complete, %d(m) deltas, %d(n) total
   @ </td></tr>
   if( n>0 ){
+    int a, b;
     @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
     t = db_int64(0, "SELECT total(size) FROM blob WHERE size>0");
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
     @ %d((int)(((double)t)/(double)n)) bytes average, %s(zBuf) bytes total
+    @ </td></tr>
+    @ <tr><th>Uncompression&nbsp;Ratio:</th><td>
+    if( t/fsize < 5 ){
+      b = 10;
+      fsize /= 10;
+    }else{
+      b = 1;
+    }
+    a = t/fsize;
+    @ %d(a):%d(b)
     @ </td></tr>
   }
   @ <tr><th>Number&nbsp;Of&nbsp;Baselines:</th><td>

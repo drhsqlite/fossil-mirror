@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Work\stoward\smaking\sfossil\swork\sbetter\son\slarge\srepositories.\nThis\sversion\simplements\sa\scache\sin\sthe\scontent\smanager.\s\sIt\sis\snot\nclear\syet\sif\sthis\sis\snecessarily\sa\sgood\sidea\s-\sthis\scheck-in\smight\nend\sup\son\san\sabandoned\sbranch\sat\ssome\spoint.
-D 2008-03-06T22:58:48
+C Add\sthe\s"Compression\sRadio"\sline\sto\sthe\s"stat"\spage.
+D 2008-03-08T13:49:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -83,7 +83,7 @@ F src/setup.c ccb6e89143917769a5df98cce251d116384a34a2
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
-F src/stat.c 43c14b0569b5ca58b4debb8abaf1d0ede953d6fb
+F src/stat.c 7e4cbe6578a4aa9d3ce6e79d1e84677a3459fa48
 F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
 F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
@@ -202,14 +202,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 80dc46d635bc236ca792ac2ad11da02c42d6ceec
-R fd0aee56bec85d182c920a1a381490ce
+P 61ddd63b72f1436c9ad18b6bba9a754276ac50fc
+R f7dac7b6943a7b58efe78091b806200b
 U drh
-Z 0d8a6e407755588c5ca7feb250194c61
+Z b7c3d34ed61bf4ac0abfd2c61c67b246
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFH0HcroxKgR168RlERAjEvAJ9x4x5Z8BWY0+jbYuCLJZWtWDOJqACaA+/r
-RsdO8FlcD2L+sV70/Q6CfTU=
-=S8CG
+iD8DBQFH0pl/oxKgR168RlERAtauAJsHFcqg96XQE5UYLe8hGMrevSZsNwCdHDzB
+DTo6IVfMwR/Oooo7BBf9cUw=
+=4tRx
 -----END PGP SIGNATURE-----
