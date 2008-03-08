@@ -83,7 +83,16 @@ void content_clear_cache(void){
 ** original content and not a delta.
 */
 static int findSrcid(int rid){
-  int srcid = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", rid);
+  static Stmt q;
+  int srcid;
+  db_static_prepare(&q, "SELECT srcid FROM delta WHERE rid=:rid");
+  db_bind_int(&q, ":rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    srcid = db_column_int(&q, 0);
+  }else{
+    srcid = 0;
+  }
+  db_reset(&q);
   return srcid;
 }
 

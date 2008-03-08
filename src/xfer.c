@@ -772,7 +772,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
-    printf("Sent:      %10d bytes, %4d messages, %4d files (%d+%d)\n",
+    printf("Sent:      %10d bytes, %5d messages, %5d files (%d+%d)\n",
             blob_size(&send), nMsg+xfer.nGimmeSent+xfer.nIGotSent,
             nFileSend, xfer.nFileSent, xfer.nDeltaSent);
     nMsg = 0;
@@ -923,7 +923,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
-    printf("\rReceived:  %10d bytes, %4d messages, %4d files (%d+%d+%d)\n",
+    printf("\rReceived:  %10d bytes, %5d messages, %5d files (%d+%d+%d)\n",
             blob_size(&recv), nMsg,
             xfer.nFileRcvd + xfer.nDeltaRcvd + xfer.nDanglingFile,
             xfer.nFileRcvd, xfer.nDeltaRcvd, xfer.nDanglingFile);

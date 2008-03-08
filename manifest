@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C This\sversion\sis\sable\sto\sclone\sthe\sentire\sTCL\srepository\sin\s12.5\sminutes\nand\sto\srebuild\sthe\scloned\sTCL\srepository\sin\s2.5\sminutes.\s\sThere\sis\sstill\na\slot\sof\sperformance\swork\sto\sbe\sdone,\sbut\sthis\sis\sgood\senough\sfor\sthe\ntime\sbeing.
-D 2008-03-08T14:52:56
+C Speed\senhancement\sin\sthe\sfindSrcid()\sroutine\sof\scontent.c.\s\sAllow\s5\ndigit\snumbers\son\scounts\swhile\ssyncing.
+D 2008-03-08T18:59:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -48,7 +48,7 @@ F src/clone.c f6aae5647cdd182b121b4341ed571cb10ce6db46
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
-F src/content.c 6b8e09987a847440a2ebf772e4ddcb62c447306a
+F src/content.c 7cc68e90adfbd1a93723419beda501457d0425db
 F src/db.c ce0cf6d9211c55b9b6efbbb0e2cdb3662639de5f
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -105,7 +105,7 @@ F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 4fe3239f97350bbf36b0866d99e6a209dd9900a6
 F src/wikiformat.c 8bd2fe1f5820aa6043d5841e5434e6bceeb03bac
-F src/xfer.c e66b8e61930aaa0fc6ecb20db6f0eb6c3d5a678f
+F src/xfer.c ac96ad6edd36a0c0a19b80e9a1235b8947ff15b4
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -202,14 +202,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9aaad3e799c79b1891e4e2519a49aceb269d19c5
-R 4d1d46531895fa651ad0e88b9d20cf92
+P 0afb5e8e39c3865cabcd5d4fe09c3c4bc95e6300
+R 4e3f1a9906079818c04e3039109a0fae
 U drh
-Z 67e5d78f9edbecc22271c9a03537be5f
+Z af7e0da9b654890ff47f8379b7281327
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFH0qhXoxKgR168RlERAgSPAJ0WVqnU8AFbSQnifcAGZEZ2t5MW0gCfYdwW
-mqnW08KSsBJHlIQqcDjFOlM=
-=LJOT
+iD8DBQFH0uH6oxKgR168RlERArWHAJ9MbPjzSFW0uIVLrB3eTGr3oVZmpQCfYH2k
+Eqaiw8EBQANuh8NW9QvzDes=
+=sOUE
 -----END PGP SIGNATURE-----
