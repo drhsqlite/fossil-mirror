@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"Compression\sRadio"\sline\sto\sthe\s"stat"\spage.
-D 2008-03-08T13:49:48
+C This\sversion\sis\sable\sto\sclone\sthe\sentire\sTCL\srepository\sin\s12.5\sminutes\nand\sto\srebuild\sthe\scloned\sTCL\srepository\sin\s2.5\sminutes.\s\sThere\sis\sstill\na\slot\sof\sperformance\swork\sto\sbe\sdone,\sbut\sthis\sis\sgood\senough\sfor\sthe\ntime\sbeing.
+D 2008-03-08T14:52:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -44,7 +44,7 @@ F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
 F src/checkin.c b8e054206af17ce0aa1699be4d88e2dc45ac93d7
 F src/checkout.c d83377479991f1773e7fd1b83079168bd9e11d4f
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
-F src/clone.c f1103d57a0ff8e9e996e441cef8874b761a39731
+F src/clone.c f6aae5647cdd182b121b4341ed571cb10ce6db46
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
@@ -65,7 +65,7 @@ F src/main.mk 5fbe19c2276772574a5e43795b7821e6589d656d
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 46657085bda8394c0d05de79aa5d71f484abcc5b
-F src/manifest.c 64e207831cf07367c865d3a33662d5751c6f5dfa
+F src/manifest.c 8e8e54e6bf7fc5e01cbd65f390051eeb4eb7f917
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -101,11 +101,11 @@ F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 70dcd36640f421a8326fcadb0e90187059f3b0dd
 F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
 F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
-F src/verify.c f05153c954f25e71a852e687d8f7eaa6a17df910
+F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
 F src/vfile.c 429ccc29e5023670f9b61cc5c42518e94464fa13
 F src/wiki.c 4fe3239f97350bbf36b0866d99e6a209dd9900a6
 F src/wikiformat.c 8bd2fe1f5820aa6043d5841e5434e6bceeb03bac
-F src/xfer.c f7995ea18ab12a071251f22abbe0abe494ba50b3
+F src/xfer.c e66b8e61930aaa0fc6ecb20db6f0eb6c3d5a678f
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -202,14 +202,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 61ddd63b72f1436c9ad18b6bba9a754276ac50fc
-R f7dac7b6943a7b58efe78091b806200b
+P 9aaad3e799c79b1891e4e2519a49aceb269d19c5
+R 4d1d46531895fa651ad0e88b9d20cf92
 U drh
-Z b7c3d34ed61bf4ac0abfd2c61c67b246
+Z 67e5d78f9edbecc22271c9a03537be5f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFH0pl/oxKgR168RlERAtauAJsHFcqg96XQE5UYLe8hGMrevSZsNwCdHDzB
-DTo6IVfMwR/Oooo7BBf9cUw=
-=4tRx
+iD8DBQFH0qhXoxKgR168RlERAgSPAJ0WVqnU8AFbSQnifcAGZEZ2t5MW0gCfYdwW
+mqnW08KSsBJHlIQqcDjFOlM=
+=LJOT
 -----END PGP SIGNATURE-----

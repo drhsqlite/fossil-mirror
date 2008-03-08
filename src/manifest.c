@@ -55,7 +55,6 @@ struct Manifest {
   int type;             /* Type of file */
   int mode;             /* Access mode */
   char *zComment;       /* Decoded comment */
-  char zUuid[UUID_SIZE+1];  /* Self UUID */
   double rDate;         /* Time in the "D" line */
   char *zUser;          /* Name of the user */
   char *zRepoCksum;     /* MD5 checksum of the baseline content */
@@ -145,14 +144,10 @@ int manifest_parse(Manifest *p, Blob *pContent){
   int seenZ = 0;
   int i, lineNo=0;
   Blob line, token, a1, a2, a3;
-  Blob selfuuid;
   char cPrevType = 0;
 
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
-  sha1sum_blob(&p->content, &selfuuid);
-  memcpy(p->zUuid, blob_buffer(&selfuuid), UUID_SIZE);
-  p->zUuid[UUID_SIZE] = 0;
   blob_zero(pContent);
   pContent = &p->content;
 
@@ -488,7 +483,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( blob_size(&a2)==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
           /* A valid uuid */
         }else if( blob_size(&a2)==1 && zUuid[0]=='*' ){
-          zUuid = p->zUuid;
+          zUuid = 0;
         }else{
           goto manifest_syntax_error;
         }
@@ -825,7 +820,11 @@ int manifest_crosslink(int rid, Blob *pContent){
     for(i=0; i<m.nTag; i++){
       int tid;
       int type;
-      tid = uuid_to_rid(m.aTag[i].zUuid, 1);
+      if( m.aTag[i].zUuid ){
+        tid = uuid_to_rid(m.aTag[i].zUuid, 1);
+      }else{
+        tid = rid;
+      }
       switch( m.aTag[i].zName[0] ){
         case '+':  type = 1; break;
         case '*':  type = 2; break;

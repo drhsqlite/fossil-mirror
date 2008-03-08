@@ -772,13 +772,14 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
-    printf("Send:      %10d bytes, %3d messages, %3d files (%d+%d)\n",
+    printf("Sent:      %10d bytes, %4d messages, %4d files (%d+%d)\n",
             blob_size(&send), nMsg+xfer.nGimmeSent+xfer.nIGotSent,
             nFileSend, xfer.nFileSent, xfer.nDeltaSent);
     nMsg = 0;
     xfer.nFileSent = 0;
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
+    fflush(stdout);
     http_exchange(&send, &recv);
     blob_reset(&send);
 
@@ -800,6 +801,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
+      nMsg++;
+      printf("\r%d", nMsg);
+      fflush(stdout);
 
       /*   file UUID SIZE \n CONTENT
       **   file UUID DELTASRC SIZE \n CONTENT
@@ -820,7 +824,6 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
        && xfer.nToken==2
        && blob_is_uuid(&xfer.aToken[1])
       ){
-        nMsg++;
         if( pushFlag ){
           int rid = rid_from_uuid(&xfer.aToken[1], 0);
           send_file(&xfer, rid, &xfer.aToken[1], 0);
@@ -840,7 +843,6 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
        && blob_is_uuid(&xfer.aToken[1])
       ){
         int rid = 0;
-        nMsg++;
         if( pullFlag || cloneFlag ){
           if( !db_exists("SELECT 1 FROM blob WHERE uuid='%b' AND size>=0",
                 &xfer.aToken[1]) ){
@@ -869,7 +871,6 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         if( blob_eq_str(&xfer.aToken[1], zSCode, -1) ){
           fossil_fatal("server loop");
         }
-        nMsg++;
         if( zPCode==0 ){
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
@@ -922,7 +923,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
-    printf("Received:  %10d bytes, %3d messages, %3d files (%d+%d+%d)\n",
+    printf("\rReceived:  %10d bytes, %4d messages, %4d files (%d+%d+%d)\n",
             blob_size(&recv), nMsg,
             xfer.nFileRcvd + xfer.nDeltaRcvd + xfer.nDanglingFile,
             xfer.nFileRcvd, xfer.nDeltaRcvd, xfer.nDanglingFile);

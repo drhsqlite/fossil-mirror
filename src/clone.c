@@ -76,5 +76,6 @@ void clone_cmd(void){
   }else{
     client_sync(0,0,1);
   }
+  verify_cancel();
   db_end_transaction(0);
 }

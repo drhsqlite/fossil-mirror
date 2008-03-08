@@ -107,6 +107,13 @@ void verify_before_commit(int rid){
 }
 
 /*
+** Cancel all pending verification operations.
+*/
+void verify_cancel(void){
+  bag_clear(&toVerify);
+}
+
+/*
 ** COMMAND: test-verify-all
 **
 ** Verify all records in the repository.
