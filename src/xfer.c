@@ -58,9 +58,19 @@ struct Xfer {
 ** and does less error checking.
 */
 static int rid_from_uuid(Blob *pUuid, int phantomize){
-  int rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%b'", pUuid);
+  static Stmt q;
+  int rid;
+
+  db_static_prepare(&q, "SELECT rid FROM blob WHERE uuid=:uuid");
+  db_bind_str(&q, ":uuid", pUuid);
+  if( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+  }else{
+    rid = 0;
+  }
+  db_reset(&q);
   if( rid==0 && phantomize ){
-    rid = content_put(0, blob_str(pUuid), 0);
+    rid = content_new(blob_str(pUuid));
   }
   return rid;
 }
@@ -842,16 +852,10 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
        && blob_eq(&xfer.aToken[0], "igot")
        && blob_is_uuid(&xfer.aToken[1])
       ){
-        int rid = 0;
-        if( pullFlag || cloneFlag ){
-          if( !db_exists("SELECT 1 FROM blob WHERE uuid='%b' AND size>=0",
-                &xfer.aToken[1]) ){
-            rid = content_put(0, blob_str(&xfer.aToken[1]), 0);
-            newPhantom = 1;
-          }
-        }
-        if( rid==0 ){
-          rid = rid_from_uuid(&xfer.aToken[1], 0);
+        int rid = rid_from_uuid(&xfer.aToken[1], 0);
+        if( rid==0 && (pullFlag || cloneFlag) ){
+          rid = content_new(blob_str(&xfer.aToken[1]));
+          newPhantom = 1;
         }
         remote_has(rid);
       }else

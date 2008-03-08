@@ -366,8 +366,7 @@ void after_dephantomize(int rid, int linkFlag){
 ** If srcId is specified, then pBlob is delta content from
 ** the srcId record.  srcId might be a phantom.
 **
-** A phantom is written if pBlob==0.  If pBlob==0 or if srcId is
-** specified then the UUID is set to zUuid.  Otherwise zUuid is
+** If srcId is specified then the UUID is set to zUuid.  Otherwise zUuid is
 ** ignored.  In the future this might change such that the content
 ** hash is checked against zUuid to make sure it is correct.
 **
@@ -384,16 +383,13 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   int isDephantomize = 0;
   
   assert( g.repositoryOpen );
-  if( pBlob && srcId==0 ){
+  assert( pBlob!=0 );
+  if( srcId==0 ){
     sha1sum_blob(pBlob, &hash);
   }else{
     blob_init(&hash, zUuid, -1);
   }
-  if( pBlob==0 ){
-    size = -1;
-  }else{
-    size = blob_size(pBlob);
-  }
+  size = blob_size(pBlob);
   db_begin_transaction();
 
   /* Check to see if the entry already exists and if it does whether
@@ -417,7 +413,7 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   db_finalize(&s1);
 
   /* Construct a received-from ID if we do not already have one */
-  if( g.rcvid==0 && pBlob!=0 ){
+  if( g.rcvid==0 ){
     db_multi_exec(
        "INSERT INTO rcvfrom(uid, mtime, nonce, ipaddr)"
        "VALUES(%d, julianday('now'), %Q, %Q)",
@@ -426,14 +422,13 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     g.rcvid = db_last_insert_rowid();
   }
 
+  blob_compress(pBlob, &cmpr);
   if( rid>0 ){
     /* We are just adding data to a phantom */
-    assert( pBlob!=0 );
     db_prepare(&s1,
       "UPDATE blob SET rcvid=%d, size=%d, content=:data WHERE rid=%d",
        g.rcvid, size, rid
     );
-    blob_compress(pBlob, &cmpr);
     db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
     db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
@@ -448,16 +443,14 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
       "VALUES(%d,%d,'%b',:data)",
        g.rcvid, size, &hash
     );
-    if( pBlob ){
-      blob_compress(pBlob, &cmpr);
-      db_bind_blob(&s1, ":data", &cmpr);
-    }
+    blob_compress(pBlob, &cmpr);
     db_exec(&s1);
     rid = db_last_insert_rowid();
     if( !pBlob ){
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
   }
+  blob_reset(&cmpr);
 
   /* If the srcId is specified, then the data we just added is
   ** really a delta.  Record this fact in the delta table.
@@ -487,12 +480,36 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
 
   /* Make arrangements to verify that the data can be recovered
   ** before we commit */
-  if( pBlob ){
-    blob_reset(&cmpr);
-    verify_before_commit(rid);
-  }
+  verify_before_commit(rid);
   return rid;
 }
+
+/*
+** Create a new phantom with the given UUID and return its artifact ID.
+*/
+int content_new(const char *zUuid){
+  int rid;
+  static Stmt s1, s2;
+  
+  assert( g.repositoryOpen );
+  db_begin_transaction();
+  db_static_prepare(&s1,
+    "INSERT INTO blob(rcvid,size,uuid,content)"
+    "VALUES(0,-1,:uuid,NULL)"
+  );
+  db_bind_text(&s1, ":uuid", zUuid);
+  db_exec(&s1);
+  rid = db_last_insert_rowid();
+  db_static_prepare(&s2,
+    "INSERT INTO phantom VALUES(:rid)"
+  );
+  db_bind_int(&s2, ":rid", rid);
+  db_exec(&s2);
+  bag_insert(&contentCache.missing, rid);
+  db_end_transaction(0);
+  return rid;
+}
+
 
 /*
 ** COMMAND:  test-content-put

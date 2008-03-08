@@ -41,6 +41,7 @@
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
+  static Stmt q;
   char z[UUID_SIZE+1];
   
   sz = strlen(zUuid);
@@ -49,9 +50,16 @@ int uuid_to_rid(const char *zUuid, int phantomize){
   }
   strcpy(z, zUuid);
   canonical16(z, sz);
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", z);
+  db_static_prepare(&q, "SELECT rid FROM blob WHERE uuid=:uuid");
+  db_bind_text(&q, ":uuid", z);
+  if( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+  }else{
+    rid = 0;
+  }
+  db_reset(&q);
   if( rid==0 && phantomize ){
-    rid = content_put(0, zUuid, 0);
+    rid = content_new(zUuid);
   }
   return rid;
 }
