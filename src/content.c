@@ -443,7 +443,7 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
       "VALUES(%d,%d,'%b',:data)",
        g.rcvid, size, &hash
     );
-    blob_compress(pBlob, &cmpr);
+    db_bind_blob(&s1, ":data", &cmpr);
     db_exec(&s1);
     rid = db_last_insert_rowid();
     if( !pBlob ){
