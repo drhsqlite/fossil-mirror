@@ -75,7 +75,11 @@ int file_isexe(const char *zFilename){
   if( stat(zFilename, &buf)!=0 ){
     return 0;
   }
+#ifdef __MINGW32__
+  return ((S_IXUSR)&buf.st_mode)!=0;
+#else
   return ((S_IXUSR|S_IXGRP|S_IXOTH)&buf.st_mode)!=0;
+#endif
 }
 
 /*

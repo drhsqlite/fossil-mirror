@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\sa\sbug\sintroduced\sby\srecent\soptimization\sefforts.
-D 2008-03-10T16:46:40
+C Fixed\sWin32\sbuild\sbreakage
+D 2008-03-11T19:21:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -56,7 +53,7 @@ F src/descendents.c 27267403dd176df4790ab94146f1e7a78562476b
 F src/diff.c a8aca97812ee5a957125b2a0bc11f2ae8d3c33f4
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
-F src/file.c 6f2a64a22272cce6b2e1320dea0083c6498030a5
+F src/file.c 0ad3dd78cefb882db01538ebb8b26bbd5e3f9786
 F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
 F src/info.c 54715d1400aa213da74fcd20c43b530aa06f6b1c
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
@@ -202,14 +199,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 043d63d4aa79d9558729452b3eba280e756f00fe
-R 3bb0bb34efe856d24b5e78adf756f510
-U drh
-Z a12bc924cb44b6a60e48b44f608c9a80
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFH1WX0oxKgR168RlERAvDxAJ9cqbplm15qSbIobrfHPN9z+DCrEACeMUas
-XS3x8j3weM4ygLC3RrqFo7E=
-=+4m3
------END PGP SIGNATURE-----
+P f763b841982b46ddffc46f3eec9d8b55c9808137
+R d593354a49df4cf73f7dce29f526e459
+U mjanssen
+Z e38b8f702e2371862af3ebc96de8d627
