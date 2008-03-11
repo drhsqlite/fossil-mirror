@@ -220,7 +220,7 @@ mkindex:	$(SRCDIR)/mkindex.c
 # build is done from, i.e. the checkout belongs to. Do not sync/push
 # the repository after running the tests.
 test:	$(APPNAME)
-	$(TCLSH) test/tester.tcl $(APPNAME)
+	$(TCLSH) ${SRCDIR}/../test/tester.tcl $(APPNAME)
 
 VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >VERSION.h

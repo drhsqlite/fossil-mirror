@@ -1,5 +1,5 @@
-C Fixed\sWin32\sbuild\sbreakage
-D 2008-03-11T19:21:57
+C make\stest\sshould\sfind\stest\sscript\srelative\sto\sthe\sSRCDIR\sso\sit\swill\swork\swhen\srun\sfrom\sa\sseparate\sbuild\sdirectory.\sThis\salso\sallows\s'make\stest'\sto\srun\swith\sMakefile.w32
+D 2008-03-11T20:00:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -58,7 +58,7 @@ F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
 F src/info.c 54715d1400aa213da74fcd20c43b530aa06f6b1c
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
 F src/main.c e12b36e51ecb9042ce9c25b3b554cb9dd6b00de1
-F src/main.mk 5fbe19c2276772574a5e43795b7821e6589d656d
+F src/main.mk c57838417db10bd2613b5894c4dfeb889b0d136a
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 46657085bda8394c0d05de79aa5d71f484abcc5b
@@ -199,7 +199,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f763b841982b46ddffc46f3eec9d8b55c9808137
-R d593354a49df4cf73f7dce29f526e459
+P dbb2cee11315443a63540a760d2215bc55d40324
+R 192345695a04c63a47448d4d7a351c14
 U mjanssen
-Z e38b8f702e2371862af3ebc96de8d627
+Z b91c1348d646ff7b008cf2f594cbe0e8
