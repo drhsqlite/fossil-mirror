@@ -1,5 +1,5 @@
-C make\stest\sshould\sfind\stest\sscript\srelative\sto\sthe\sSRCDIR\sso\sit\swill\swork\swhen\srun\sfrom\sa\sseparate\sbuild\sdirectory.\sThis\salso\sallows\s'make\stest'\sto\srun\swith\sMakefile.w32
-D 2008-03-11T20:00:11
+C Initial\sNSIS\sscript\sfor\screating\sinstaller\son\sWin32
+D 2008-03-12T00:30:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -29,6 +29,7 @@ F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
+F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
@@ -199,7 +200,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P dbb2cee11315443a63540a760d2215bc55d40324
-R 192345695a04c63a47448d4d7a351c14
+P 7c0bd3ee08da67da618336a336ec5ca22ce3f7f2
+R c28095531469d056248eef5496e6fe75
 U mjanssen
-Z b91c1348d646ff7b008cf2f594cbe0e8
+Z f4dee7cdab9801078c06a0a74a03fb90
