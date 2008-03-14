@@ -167,6 +167,7 @@ int content_get(int rid, Blob *pBlob){
 
   assert( g.repositoryOpen );
   blob_zero(pBlob);
+  if( rid==0 ) return 0;
 
   /* Early out if we know the content is not available */
   if( bag_find(&contentCache.missing, rid) ){

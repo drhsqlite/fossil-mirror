@@ -1,5 +1,8 @@
-C Initial\sNSIS\sscript\sfor\screating\sinstaller\son\sWin32
-D 2008-03-12T00:30:08
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Fix\san\sassertion\sfault:\sdetect\swhen\s\scontent_get()\sis\scalled\swith\san\sinvalid\nartifact\sid\sand\sreturn\s0.
+D 2008-03-14T12:43:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -46,7 +49,7 @@ F src/clone.c f6aae5647cdd182b121b4341ed571cb10ce6db46
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
-F src/content.c 933b11dafd94c00939791121c8ed618b2e873d78
+F src/content.c 837378bf401381afa0328daa01d80431d5febdec
 F src/db.c ce0cf6d9211c55b9b6efbbb0e2cdb3662639de5f
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -200,7 +203,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7c0bd3ee08da67da618336a336ec5ca22ce3f7f2
-R c28095531469d056248eef5496e6fe75
-U mjanssen
-Z f4dee7cdab9801078c06a0a74a03fb90
+P 76bd88c262cee72de849c47072897eeb616c0910
+R 93f094e451b8f3550fffb4cd49019524
+U drh
+Z 030d1eec2533e021f26e991f6aad7c55
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (Darwin)
+
+iD8DBQFH2nLzoxKgR168RlERAqWuAJ9rGRocQumiZbZhREC+Ds7CQsEXMwCfW2Hi
+Y3ig19E52TIQomrmlQpL20I=
+=x6Vn
+-----END PGP SIGNATURE-----
