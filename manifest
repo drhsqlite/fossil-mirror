@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\swebsite\sto\sinclude\slinks\sto\sthe\sdownload\spage.
-D 2008-03-17T21:21:18
+C Fix\sa\stypo\sin\sthe\smkdownload.tcl\sscript\sused\sto\sgenerate\sthe\sdownload.html\spage.
+D 2008-03-17T23:48:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -199,19 +199,19 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.html 40a53b49c486316b7029c9b0bf2b10563f2daccf
 F www/index.html 263b2dabf4e24c49675f6ccad8ddbc7d2f015064
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
-F www/mkdownload.tcl fc69bc5ebbd48c2130023262b6f793137813bffa
+F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 50e953a8101012616d5c7880f3643a9e4e760c17
-R eaf5e32cc23b2c6d4341a45353e3a341
+P bbbee5fc37216c9e236361e98cd8fe7f4e9c92bf
+R 86aad7e749d53f663a3fe9d43308659a
 U drh
-Z 531147189042cfcc4a0246da1faeadaf
+Z 16d7ae90e29614a773105e9b30cb5389
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFH3uDRoxKgR168RlERAq1zAJ9QpcBb3YsVtDFC6CYrz67zikFMBgCfbQIO
-IIKoEOB2sIkWeI9S71Az6As=
-=GU3R
+iD8DBQFH3wNgoxKgR168RlERAicMAJ9yVO48e2vyRtnsM01ce4tdOukGMQCeKX4F
+5XDR4kNrg0zTl22sQPMv7Kc=
+=wmcm
 -----END PGP SIGNATURE-----

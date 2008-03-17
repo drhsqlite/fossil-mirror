@@ -51,7 +51,7 @@ proc Product {pattern desc} {
 Product fossil-linux-x86-*.gz {
   Prebuilt fossil binary version [VERSION] for Linux on x86
 }
-Product fossil-maxosx-x86-*.gz {
+Product fossil-macosx-x86-*.gz {
   Prebuilt fossil binary version [VERSION] for MacOSX on x86
 }
 Product fossil-w32-*.zip {
