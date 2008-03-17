@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sthe\smkdownload.tcl\sscript\sfor\sgenerating\sthe\sdownload.html\spage.
-D 2008-03-17T21:14:26
+C Update\sthe\swebsite\sto\sinclude\slinks\sto\sthe\sdownload\spage.
+D 2008-03-17T21:21:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -174,7 +174,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/build.html 0b28339535bf53d193a70c324d5b500b84042152
+F www/build.html 9c506f508fbe157b4e22d24388e03a66cd229a30
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.html d4951ef6037a6683579d4928cc8604ce1825771a
@@ -197,21 +197,21 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.html 40a53b49c486316b7029c9b0bf2b10563f2daccf
-F www/index.html 0f4c91fa347e9473935a144279796819511e29e2
+F www/index.html 263b2dabf4e24c49675f6ccad8ddbc7d2f015064
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/mkdownload.tcl fc69bc5ebbd48c2130023262b6f793137813bffa
 F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
-F www/quickstart.html feb3fa22b5ee7358eff6b6751177e77e19b4baa0
+F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4e2bd38577b2c83b7bc502d023a397172f2a1a66
-R 4eb9ecb8925c322d5c10793d1ca04c4a
+P 50e953a8101012616d5c7880f3643a9e4e760c17
+R eaf5e32cc23b2c6d4341a45353e3a341
 U drh
-Z 65aa86bffa4b3c003cf511c89a30ae64
+Z 531147189042cfcc4a0246da1faeadaf
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFH3t81oxKgR168RlERAtv3AJ92CfIZN4vlc/9jRKpysVkbo7JQrACfTH35
-ZSiZqtkmicOoWfRPz/WH2oo=
-=I8zG
+iD8DBQFH3uDRoxKgR168RlERAq1zAJ9QpcBb3YsVtDFC6CYrz67zikFMBgCfbQIO
+IIKoEOB2sIkWeI9S71Az6As=
+=GU3R
 -----END PGP SIGNATURE-----
