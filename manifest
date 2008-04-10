@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\stypo\sin\sthe\smkdownload.tcl\sscript\sused\sto\sgenerate\sthe\sdownload.html\spage.
-D 2008-03-17T23:48:45
+C Fix\sthe\s"tag\sadd"\scommand\sto\sreport\san\serror\sif\sgiven\san\sinvalid\sUUID\nargument.
+D 2008-04-10T12:24:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -87,7 +87,7 @@ F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/stat.c 7e4cbe6578a4aa9d3ce6e79d1e84677a3459fa48
 F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
 F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
-F src/tag.c f79ecb95c04219e282b76cc4f3624c4fc5486803
+F src/tag.c 002d575145b792d1788c5d2ab8e2ea1825eb4bfc
 F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
 F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
@@ -204,14 +204,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P bbbee5fc37216c9e236361e98cd8fe7f4e9c92bf
-R 86aad7e749d53f663a3fe9d43308659a
+P 8dae3bc3209b22e08919ecae8b860a509528ee77
+R 3dcbf7e3550a2c9e254c6c26c5dbc3a2
 U drh
-Z 16d7ae90e29614a773105e9b30cb5389
+Z 79ed1e027f8df0e6378e9be8de3e16b0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFH3wNgoxKgR168RlERAicMAJ9yVO48e2vyRtnsM01ce4tdOukGMQCeKX4F
-5XDR4kNrg0zTl22sQPMv7Kc=
-=wmcm
+iD8DBQFH/gb8oxKgR168RlERAvrlAKCIgZfda4fznSXcHDLpMBaAAPm4nQCcCVFQ
+kBdFJJTaMUhuzVtBGf9MBBM=
+=Xcyp
 -----END PGP SIGNATURE-----

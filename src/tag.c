@@ -268,9 +268,12 @@ static void tag_add_artifact(
 
   assert( tagtype>=0 && tagtype<=2 );
   user_select();
-  rid = name_to_rid(zObjName);
   blob_zero(&uuid);
-  db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  blob_append(&uuid, zObjName, -1);
+  if( name_to_uuid(&uuid, 9) ){
+    return;
+  }
+  rid = name_to_rid(blob_str(&uuid));
   blob_zero(&ctrl);
   
   if( validate16(zTagname, strlen(zTagname)) ){
