@@ -34,7 +34,11 @@ TCC = gcc -g -Os -Wall
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
-LIB = -lz
+LIB = -lz $(LDFLAGS)
+# If you're on OpenSolaris, and probably other Solaris versions,
+# you'll need:
+# LIB += -lsocket
+
 
 #### Tcl shell for use in running the fossil testsuite.
 #

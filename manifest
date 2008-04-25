@@ -1,8 +1,8 @@
-C s/strnlen/strnlen_/g\sfor\sthe\slocal\sstrnlen\simpementation\sbecause\sthe\sname\sfataly\scollides\swith\sa\sfunc\sfrom\sstandard\sheaders\sin\ssome\sgcc\sversions\s(e.g.\sGnuSolaris/Nexenta\sw/\sgcc\s4.0.x).
-D 2008-04-25T21:45:41
+C LIB\sis\snow\s+=\sLDFLAGS\sso\sthat\si\scan\slink\son\sOpenSolaris\s(need\s-lsocket)
+D 2008-04-25T21:49:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
+F Makefile 46d6595aa1d049b57cece3f22df9202865233254
 F Makefile.w32 c6249fceb58da0ae0ec8f03a2ec9c79c006a3569
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -201,7 +201,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0d9abccbb6bb25b01f25c3deb78a016999afb835
-R 1b581246a971ac3078d37ab606bc6bb3
+P 0c78ba2eb48c14b821e5671908ec910d4b3a3dd7
+R af3836f8c2d498506795c4f069b0b06f
 U stephan
-Z ea015f73d160f4e748354106e28c2b0d
+Z a61fd8e79c4e607e4f64a11f8cfb439d
