@@ -1,5 +1,5 @@
-C LIB\sis\snow\s+=\sLDFLAGS\sso\sthat\si\scan\slink\son\sOpenSolaris\s(need\s-lsocket)
-D 2008-04-25T21:49:25
+C initial\scheckin:\squick\shack\sto\sgenerate\sa\s.deb\spackage\sof\sfossil.
+D 2008-04-25T22:31:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -29,6 +29,7 @@ F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
+F debian/makedeb.sh f6874667ddd94de9db3bb55b54e0a4ef3e2412bb x
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
@@ -201,7 +202,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 0c78ba2eb48c14b821e5671908ec910d4b3a3dd7
-R af3836f8c2d498506795c4f069b0b06f
+P 1bceafc4d0c563636bcc079b330fd14be78210b8
+R 18bc840e83e281b742451dcfd8e2f172
 U stephan
-Z a61fd8e79c4e607e4f64a11f8cfb439d
+Z 046acc48aee5ee9606e27fba5c345016
