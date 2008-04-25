@@ -155,7 +155,7 @@ static int et_getdigit(long double *val, int *cnt){
 ** N bytes then return N.  If N is negative, then this routine
 ** is an alias for strlen().
 */
-static int strnlen(const char *z, int N){
+static int strnlen_(const char *z, int N){
   int n = 0;
   while( (N-- != 0) && *(z++)!=0 ){ n++; }
   return n;
@@ -565,7 +565,7 @@ int vxprintf(
         int limit = flag_alternateform ? va_arg(ap,int) : -1;
         char *e = va_arg(ap,char*);
         if( e==0 ){e="";}
-        length = strnlen(e, limit);
+        length = strnlen_(e, limit);
         zExtra = bufpt = malloc(length+1);
         for( i=0; i<length; i++ ){
           if( e[i]=='\\' ){
@@ -586,7 +586,7 @@ int vxprintf(
         }else if( xtype==etDYNSTRING ){
           zExtra = bufpt;
         }
-        length = strnlen(bufpt, limit);
+        length = strnlen_(bufpt, limit);
         if( precision>=0 && precision<length ) length = precision;
         break;
       }

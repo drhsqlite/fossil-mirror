@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\sthe\s"tag\sadd"\scommand\sto\sreport\san\serror\sif\sgiven\san\sinvalid\sUUID\nargument.
-D 2008-04-10T12:24:25
+C s/strnlen/strnlen_/g\sfor\sthe\slocal\sstrnlen\simpementation\sbecause\sthe\sname\sfataly\scollides\swith\sa\sfunc\sfrom\sstandard\sheaders\sin\ssome\sgcc\sversions\s(e.g.\sGnuSolaris/Nexenta\sw/\sgcc\s4.0.x).
+D 2008-04-25T21:45:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 80acf0670d85f6d42cfc7459f462ac0a24b16c80
@@ -75,7 +72,7 @@ F src/my_page.c 0d6df55ccb6c59994125091ffca360537c52de55
 F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
-F src/printf.c cefba92273da8b36d22682402f45dda2fa2049ce
+F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c b5c158aea9e899f43184ce4948aafc709b755fb1
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
@@ -204,14 +201,7 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 8dae3bc3209b22e08919ecae8b860a509528ee77
-R 3dcbf7e3550a2c9e254c6c26c5dbc3a2
-U drh
-Z 79ed1e027f8df0e6378e9be8de3e16b0
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFH/gb8oxKgR168RlERAvrlAKCIgZfda4fznSXcHDLpMBaAAPm4nQCcCVFQ
-kBdFJJTaMUhuzVtBGf9MBBM=
-=Xcyp
------END PGP SIGNATURE-----
+P 0d9abccbb6bb25b01f25c3deb78a016999afb835
+R 1b581246a971ac3078d37ab606bc6bb3
+U stephan
+Z ea015f73d160f4e748354106e28c2b0d
