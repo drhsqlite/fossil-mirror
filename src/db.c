@@ -897,6 +897,26 @@ LOCAL void db_connection_init(void){
 }
 
 /*
+** Return true if the string zVal represents "true" (or "false").
+*/
+int is_truth(const char *zVal){
+  static const char *azOn[] = { "on", "yes", "true", "1" };
+  int i;
+  for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
+    if( strcmp(zVal,azOn[i])==0 ) return 1;
+  }
+  return 0;
+}
+int is_false(const char *zVal){
+  static const char *azOff[] = { "off", "no", "false", "0" };
+  int i;
+  for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
+    if( strcmp(zVal,azOff[i])==0 ) return 1;
+  }
+  return 0;
+}
+
+/*
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
@@ -958,16 +978,9 @@ void db_set_int(const char *zName, int value, int globalFlag){
   db_end_transaction(0);
 }
 int db_get_boolean(const char *zName, int dflt){
-  static const char *azOn[] = { "on", "yes", "true", "1" };
-  static const char *azOff[] = { "off", "no", "false", "0" };
-  int i;
   char *zVal = db_get(zName, dflt ? "on" : "off");
-  for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
-    if( strcmp(zVal,azOn[i])==0 ) return 1;
-  }
-  for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
-    if( strcmp(zVal,azOff[i])==0 ) return 0;
-  }
+  if( is_truth(zVal) ) return 1;
+  if( is_false(zVal) ) return 0;
   return dflt;
 }
 char *db_lget(const char *zName, char *zDefault){
@@ -1066,6 +1079,8 @@ static void print_setting(const char *zName){
 **    omitsign         When enabled, fossil will not attempt to sign any
 **                     commit with gpg. All commits will be unsigned.
 **
+**    proxy            URL of the HTTP proxy to use
+**
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
 **
@@ -1079,6 +1094,7 @@ void setting_cmd(void){
     "editor",
     "localauth",
     "omitsign",
+    "proxy",
     "diff-command",
     "gdiff-command",
   };

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C On\swindows\sbuilds,\sunderstand\sboth\s"C:/"\sand\s"C:\\"\sas\sthe\sbeginning\sof\nan\sabsolute\spathname.
-D 2008-05-01T18:42:26
+C Enable\sproxy\ssupport\susing\sthe\s"fossil\ssetting\sproxy"\scommand.\nThis\scheck-in\sis\smade\susing\sa\sproxy.
+D 2008-05-01T22:49:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -46,12 +46,12 @@ F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
 F src/checkin.c b8e054206af17ce0aa1699be4d88e2dc45ac93d7
 F src/checkout.c d83377479991f1773e7fd1b83079168bd9e11d4f
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
-F src/clone.c f6aae5647cdd182b121b4341ed571cb10ce6db46
+F src/clone.c dbac6244357ab01cb31707a44f4e6f74a15ce88e
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c ce0cf6d9211c55b9b6efbbb0e2cdb3662639de5f
+F src/db.c 79e9e0cedac351d431e96f7f7833af5e3387a4e6
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 27267403dd176df4790ab94146f1e7a78562476b
@@ -87,7 +87,7 @@ F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/stat.c 7e4cbe6578a4aa9d3ce6e79d1e84677a3459fa48
 F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
-F src/sync.c 6d1a08c4d73adae362872568656107388b40852e
+F src/sync.c b1aa8a41a03914b6b0754a1adc5dcd2fbf906182
 F src/tag.c 002d575145b792d1788c5d2ab8e2ea1825eb4bfc
 F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
 F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
@@ -101,7 +101,7 @@ F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 70dcd36640f421a8326fcadb0e90187059f3b0dd
-F src/url.c 6f5bc8946f0938031d783abd1d0f53e2891e0490
+F src/url.c 7c8f0faf01c2ed5adc1a543365f185cc3ea1978b
 F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
 F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P adaa8411d9f4421e1a9dc96e85abec4406e4434d
-R a822af9ffa7ad78e252101f2754d736d
+P becc24e4e9238cd6ccdace0c8047ae7c5fded6e3
+R 72f9e913f71720685afdd1e39cdafd3c
 U drh
-Z f7819b062ab73148c5dcb3aabbbf585e
+Z 6fbbd5deb99b64072e830d29bd2963df
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIGg8WoxKgR168RlERAoJ7AJ92G4NqKs3h/i/JFpsd3O675mpeggCfUC8D
-J/j0SdcAnsLr4EJbFaPE1Hg=
-=vRt1
+iD8DBQFIGkkZoxKgR168RlERApcMAJ9mi2qLI4u0mWOAqv0L3mr6BEimywCeOtAk
+RjMJ+39KkYwdtEKASQrqIH4=
+=3h2V
 -----END PGP SIGNATURE-----

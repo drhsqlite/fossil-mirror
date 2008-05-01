@@ -60,6 +60,7 @@ int autosync(int flags){
   }else{
     printf("Autosync:  http://%s%s\n", g.urlName, g.urlPath);
   }
+  url_enable_proxy("via proxy: ");
   client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0);
   return 1;
 }
@@ -94,6 +95,7 @@ static void process_sync_args(void){
       printf("Server:    http://%s%s\n", g.urlName, g.urlPath);
     }
   }
+  url_enable_proxy("via proxy: ");
 }
 
 /*

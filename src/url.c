@@ -113,7 +113,7 @@ void url_parse(const char *zUrl){
 ** COMMAND: test-urlparser
 */
 void cmd_test_urlparser(void){
-  if( g.argc!=3 ){
+  if( g.argc!=3 && g.argc!=4 ){
     usage("URL");
   }
   url_parse(g.argv[2]);
@@ -124,4 +124,18 @@ void cmd_test_urlparser(void){
   printf("g.urlUser      = %s\n", g.urlUser);
   printf("g.urlPasswd    = %s\n", g.urlPasswd);
   printf("g.urlCanonical = %s\n", g.urlCanonical);
+}
+
+/*
+** If the "proxy" setting is defined, then change the URL to refer
+** to the proxy server.
+*/
+void url_enable_proxy(const char *zMsg){
+  const char *zProxy = db_get("proxy", 0);
+  if( zProxy && zProxy[0] && !is_false(zProxy) ){
+    char *zOriginalUrl = g.urlCanonical;
+    if( zMsg ) printf("%s%s\n", zMsg, zProxy);
+    url_parse(zProxy);
+    g.urlPath = zOriginalUrl;
+  }
 }

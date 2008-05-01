@@ -74,6 +74,7 @@ void clone_cmd(void){
     }
     db_finalize(&q);
   }else{
+    url_enable_proxy(0);
     client_sync(0,0,1);
   }
   verify_cancel();
