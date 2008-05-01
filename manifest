@@ -1,5 +1,8 @@
-C initial\scheckin:\squick\shack\sto\sgenerate\sa\s.deb\spackage\sof\sfossil.
-D 2008-04-25T22:31:11
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C On\swindows\sbuilds,\sunderstand\sboth\s"C:/"\sand\s"C:\\"\sas\sthe\sbeginning\sof\nan\sabsolute\spathname.
+D 2008-05-01T18:42:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -55,7 +58,7 @@ F src/descendents.c 27267403dd176df4790ab94146f1e7a78562476b
 F src/diff.c a8aca97812ee5a957125b2a0bc11f2ae8d3c33f4
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
-F src/file.c 0ad3dd78cefb882db01538ebb8b26bbd5e3f9786
+F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
 F src/info.c 54715d1400aa213da74fcd20c43b530aa06f6b1c
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
@@ -202,7 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 1bceafc4d0c563636bcc079b330fd14be78210b8
-R 18bc840e83e281b742451dcfd8e2f172
-U stephan
-Z 046acc48aee5ee9606e27fba5c345016
+P adaa8411d9f4421e1a9dc96e85abec4406e4434d
+R a822af9ffa7ad78e252101f2754d736d
+U drh
+Z f7819b062ab73148c5dcb3aabbbf585e
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFIGg8WoxKgR168RlERAoJ7AJ92G4NqKs3h/i/JFpsd3O675mpeggCfUC8D
+J/j0SdcAnsLr4EJbFaPE1Hg=
+=vRt1
+-----END PGP SIGNATURE-----
