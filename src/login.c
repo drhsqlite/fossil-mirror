@@ -76,13 +76,15 @@ static char *login_cookie_name(void){
 void login_page(void){
   const char *zUsername, *zPasswd, *zGoto;
   const char *zNew1, *zNew2;
-  const char *zAnonPw;
+  const char *zAnonPw = 0;
+  int anonFlag;
   char *zErrMsg = "";
 
   login_check_credentials();
   zUsername = P("u");
   zPasswd = P("p");
   zGoto = PD("g","index");
+  anonFlag = P("anon")!=0;
   if( P("out")!=0 ){
     const char *zCookieName = login_cookie_name();
     cgi_set_cookie(zCookieName, "", 0, -86400);
@@ -149,17 +151,31 @@ void login_page(void){
   @ %s(zErrMsg)
   @ <form action="login" method="POST">
   if( P("g") ){
-    @ <input type="hidden" name="nxp" value="%h(P("g"))">
+    @ <input type="hidden" name="g" value="%h(P("g"))">
   }
   @ <table align="left" hspace="10">
   @ <tr>
   @   <td align="right">User ID:</td>
-  @   <td><input type="text" name="u" value="" size=30></td>
+  if( anonFlag ){
+    @   <td><input type="text" name="u" value="anonymous" size=30></td>
+  }else{
+    @   <td><input type="text" name="u" value="" size=30></td>
+  }
   @ </tr>
   @ <tr>
   @  <td align="right">Password:</td>
   @   <td><input type="password" name="p" value="" size=30></td>
   @ </tr>
+  if( g.zLogin==0 ){
+    zAnonPw = db_text(0, "SELECT pw FROM user"
+                         " WHERE login='anonymous'"
+                         "   AND cap!=''");
+    if( zAnonPw && anonFlag ){
+      @ <tr><td></td>
+      @ <td>The anonymous password is "<b>%h(zAnonPw)</b>".</td>
+      @ </tr>
+    }
+  }
   @ <tr>
   @   <td></td>
   @   <td><input type="submit" name="in" value="Login"></td>
@@ -176,15 +192,11 @@ void login_page(void){
   @ You must configure your web browser to accept cookies in order for
   @ the login to take.</p>
   if( g.zLogin==0 ){
-    zAnonPw = db_text(0, "SELECT pw FROM user"
-                         " WHERE login='anonymous'"
-                         "   AND cap!=''");
-    if( zAnonPw ){
-      @ <p>If you do not have a user-id, enter "<b>anonymous</b>" with a
-      @ password of "<b>%h(zAnonPw)</b>".</p>
+    if( zAnonPw && !anonFlag ){
+      @ <p>The password for user "anonymous" is "<b>%h(zAnonPw)</b>".</p>
+      @ <p>&nbsp;</p>
     }else{
-      @ <p>A valid user-id and password is required.  Anonymous access
-      @ is not allowed on this installation.</p>
+      @ <p>&nbsp;</p><p>&nbsp;</p>
     }
   }
   if( g.zLogin ){
@@ -383,9 +395,9 @@ void login_anonymous_available(void){
       db_exists("SELECT 1 FROM user"
                 " WHERE login='anonymous'"
                 "   AND cap LIKE '%%h%%'") ){
-    @ <p><b>Note:</b> Many hyperlinks are omitted from this page to discourage
-    @ <a href="http://en.wikipedia.org/wiki/Web_crawler">spiders</a>.
-    @ You will be able to access information more easily if you
-    @ <a href="%s(g.zTop)/login">login</a> as user "anonymous".</p>
+    const char *zUrl = PD("REQUEST_URI", "index");
+    @ <p>Many <font color="red">hyperlinks are disabled.</font><br />
+    @ Use <a href="%s(g.zTop)/login?anon=1&g=%T(zUrl)">anonymous login</a>
+    @ to enable hyperlinks.</p>
   }
 }

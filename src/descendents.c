@@ -191,6 +191,7 @@ void leaves_page(void){
   if( !g.okRead ){ login_needed(); return; }
 
   style_header("Leaves");
+  login_anonymous_available();
   db_prepare(&q,
     "%s"
     "   AND blob.rid IN"

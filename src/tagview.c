@@ -146,6 +146,7 @@ void tagview_page(void){
     login_needed();
   }
   style_header("Tags");
+  login_anonymous_available();
   tagview_page_search_miniform();
   @ <hr/>
   char const * check = 0;

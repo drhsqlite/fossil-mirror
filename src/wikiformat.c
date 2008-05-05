@@ -789,6 +789,24 @@ static int is_valid_uuid(const char *z){
 }
 
 /*
+** Return true if the given hyperlink should be implemented for
+** the current login.
+*/
+static int okToHyperlink(const char *zTarget){
+  if( g.okHistory ) return 1;
+  if( strncmp(zTarget, "http:", 5)==0 
+   || strncmp(zTarget, "https:", 6)==0
+   || strncmp(zTarget, "ftp:", 4)==0 
+   || strncmp(zTarget, "mailto:", 7)==0
+  ){
+    return 1;
+  }
+  if( zTarget[0]=='/' || is_valid_uuid(zTarget) ) return 0;
+  if( wiki_name_is_wellformed(zTarget) ) return 1;
+  return 0;
+}
+
+/*
 ** Resolve a hyperlink.  The argument is the content of the [...]
 ** in the wiki.  Append the URL to the output of the Renderer.
 */
@@ -932,6 +950,7 @@ static void wiki_render(Renderer *p, char *z){
         char *zDisplay = 0;
         int i, j;
         int savedState;
+        int ok;
         startAutoParagraph(p);
         zTarget = &z[1];
         for(i=1; z[i] && z[i]!=']'; i++){
@@ -947,15 +966,18 @@ static void wiki_render(Renderer *p, char *z){
         }else{
           while( isspace(*zDisplay) ) zDisplay++;
         }
-        blob_append(p->pOut, "<a href=\"", -1);
-        resolveHyperlink(zTarget, p);
-        blob_append(p->pOut, "\">", -1);
+        ok = okToHyperlink(zTarget);
+        if( ok ){
+          blob_append(p->pOut, "<a href=\"", -1);
+          resolveHyperlink(zTarget, p);
+          blob_append(p->pOut, "\">", -1);
+        }
         savedState = p->state;
         p->state &= ~ALLOW_WIKI;
         p->state |= FONT_MARKUP_ONLY;
         wiki_render(p, zDisplay);
         p->state = savedState;
-        blob_append(p->pOut, "</a>", 4);
+        if( ok ) blob_append(p->pOut, "</a>", 4);
         break;
       }
       case TOKEN_TEXT: {

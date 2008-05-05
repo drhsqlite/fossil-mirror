@@ -1153,11 +1153,13 @@ static void hyperlinkUuidFunc(
   char *z;                   /* Rendered HTML text */
 
   zUuid = (const char*)sqlite3_value_text(argv[0]);
-  if( zUuid && strlen(zUuid)>=10 ){
+  if( g.okHistory && zUuid && strlen(zUuid)>=10 ){
     z = mprintf("<tt><a href='%s/vinfo/%t'><span style='font-size:1.5em'>"
                 "%#h</span>%h</a></tt>",
                 g.zBaseURL, zUuid, 10, zUuid, &zUuid[10]);
     sqlite3_result_text(pCxt, z, -1, free);
+  }else{
+    sqlite3_result_text(pCxt, zUuid, -1, SQLITE_TRANSIENT);
   }
 }
 
@@ -1174,8 +1176,12 @@ static void hyperlinkTagidFunc(
   char *z;                   /* rendered html text */
 
   tagid = sqlite3_value_int(argv[0]);
-  z = mprintf("<a href='%s/tagview?tagid=%d'>%d</a>", 
-                g.zBaseURL, tagid, tagid);
+  if( g.okHistory ){
+    z = mprintf("<a href='%s/tagview?tagid=%d'>%d</a>", 
+                  g.zBaseURL, tagid, tagid);
+  }else{
+    z = mprintf("%d", tagid);
+  }
   sqlite3_result_text(pCxt, z, -1, free);
 }
 
@@ -1192,8 +1198,12 @@ static void hyperlinkTagnameFunc(
   char *z;                   /* rendered html text */
 
   zTag = (const char*)sqlite3_value_text(argv[0]);
-  z = mprintf("<a href='%s/tagview?name=%T'>%h</a>", 
-                g.zBaseURL, zTag, zTag);
+  if( g.okHistory ){
+    z = mprintf("<a href='%s/tagview?name=%T'>%h</a>", 
+                  g.zBaseURL, zTag, zTag);
+  }else{
+    z = mprintf("%h", zTag);
+  }
   sqlite3_result_text(pCxt, z, -1, free);
 }
 

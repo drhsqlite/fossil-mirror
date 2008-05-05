@@ -85,11 +85,11 @@ void hyperlinked_path(const char *zPath, Blob *pOut){
 
   for(i=0; zPath[i]; i=j){
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
-    if( zPath[j] ){
+    if( zPath[j] && g.okHistory ){
       blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
                    zSep, g.zBaseURL, j, zPath, j-i, &zPath[i]);
     }else{
-      blob_appendf(pOut, "%s%h", zSep, &zPath[i]);
+      blob_appendf(pOut, "%s%#h", zSep, j-i, &zPath[i]);
     }
     zSep = "/";
     while( zPath[j]=='/' ){ j++; }
