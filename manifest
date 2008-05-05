@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\sHOST:\sheader\sto\suse\sthe\soriginal\sURL,\snot\sthe\sproxy\sURL.
-D 2008-05-05T19:08:43
+C Updates\sto\squickstart\sdocument\sto\stalk\sabout\ssetting\sup\sa\sproxy.
+D 2008-05-05T19:33:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -202,17 +202,17 @@ F www/index.html 263b2dabf4e24c49675f6ccad8ddbc7d2f015064
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
-F www/quickstart.html fee246136eaeb3f787647b1b43755abe0b9575a6
+F www/quickstart.html f0a6ad1585f21cfce3526a0f2c60f9a6977f7e2d
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c7438f6dc9bcae492b05fffbe43f573c0892162f
-R 88ee172006e93bb7371bafe74871ea87
+P 1dbf332352efea4a98c0f4570e9d52da0517648b
+R c68a583f98d2e82d9ec4ca067b5ba215
 U drh
-Z 053f1d2f9447e83610d0b8cdc31ab995
+Z 314133721e7b35d6ac9a789f4f0ebce4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIH1s/oxKgR168RlERAnqIAJ9uqZUqYfNrQTPQ9Yb3UvF5GHlsgACdE89e
-kJ6tv4vjp97obuVgoalg8s0=
-=59/N
+iD8DBQFIH2EgoxKgR168RlERAroMAKCM7MrpODcaFBmrDwFEnl7stnhUDwCggUXq
+DNbm5eq1EVT9NATZHEGzHP4=
+=UIoO
 -----END PGP SIGNATURE-----
