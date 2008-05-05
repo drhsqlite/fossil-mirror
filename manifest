@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Honor\sthe\shttp_proxy\senvironment\svariable\sas\sanother\ssource\sfor\sthe\nURL\sof\sthe\sHTTP\sproxy\sif\sthe\s"proxy"\ssetting\sis\sundefined\sor\sis\s"off".
-D 2008-05-05T17:30:12
+C Fix\sthe\sfossil\srepository\sURL\sin\sthe\squickstart.html\sdocument.
+D 2008-05-05T18:39:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -202,17 +202,17 @@ F www/index.html 263b2dabf4e24c49675f6ccad8ddbc7d2f015064
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
-F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
+F www/quickstart.html fee246136eaeb3f787647b1b43755abe0b9575a6
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 4e683ef07b04f5f27ab860c8737fb8b92975ac54
-R 5db965b3a074efdfc9c94b80a70d956a
+P 387cbeda3f269ff686b5a7f08ede95fe85f430e5
+R 4fe361a60cf1871ae56eed12d9fba5e2
 U drh
-Z 8cce6b962ac3bfceddc2e4b16215b278
+Z 90182219596d083a58ee69e37c77a992
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIH0QnoxKgR168RlERAuOzAJwMc4byrQJ26Y4ZFdQR65ObYZjCRwCdGMTL
-+wblgW4vWPm/b/tQ5iVjjR4=
-=Kpif
+iD8DBQFIH1RroxKgR168RlERAuYyAJ9fgen0yQo1SKRM8bS1Wizxmd5HtwCdHJdt
+K5kh25Jk/Q3uxnZRHcPt0Jg=
+=sBJB
 -----END PGP SIGNATURE-----
