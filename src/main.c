@@ -73,6 +73,7 @@ struct Global {
 
   int urlIsFile;          /* True if a "file:" url */
   char *urlName;          /* Hostname for http: or filename for file: */
+  char *urlHostname;      /* The HOST: parameter on http headers */
   int urlPort;            /* TCP port number for http: */
   char *urlPath;          /* Pathname for http: */
   char *urlUser;          /* User id for http: */

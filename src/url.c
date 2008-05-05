@@ -69,8 +69,10 @@ void url_parse(const char *zUrl){
         g.urlPort = g.urlPort*10 + c - '0';
         i++;
       }
+      g.urlHostname = mprintf("%s:%d", g.urlName, g.urlPort);
     }else{
       g.urlPort = 80;
+      g.urlHostname = g.urlName;
     }
     g.urlPath = mprintf(&zUrl[i]);
     dehttpize(g.urlName);
@@ -113,17 +115,25 @@ void url_parse(const char *zUrl){
 ** COMMAND: test-urlparser
 */
 void cmd_test_urlparser(void){
+  int i;
   if( g.argc!=3 && g.argc!=4 ){
     usage("URL");
   }
   url_parse(g.argv[2]);
-  printf("g.urlIsFile    = %d\n", g.urlIsFile);
-  printf("g.urlName      = %s\n", g.urlName);
-  printf("g.urlPort      = %d\n", g.urlPort);
-  printf("g.urlPath      = %s\n", g.urlPath);
-  printf("g.urlUser      = %s\n", g.urlUser);
-  printf("g.urlPasswd    = %s\n", g.urlPasswd);
-  printf("g.urlCanonical = %s\n", g.urlCanonical);
+  for(i=0; i<2; i++){
+    printf("g.urlIsFile    = %d\n", g.urlIsFile);
+    printf("g.urlName      = %s\n", g.urlName);
+    printf("g.urlPort      = %d\n", g.urlPort);
+    printf("g.urlHostname  = %s\n", g.urlHostname);
+    printf("g.urlPath      = %s\n", g.urlPath);
+    printf("g.urlUser      = %s\n", g.urlUser);
+    printf("g.urlPasswd    = %s\n", g.urlPasswd);
+    printf("g.urlCanonical = %s\n", g.urlCanonical);
+    if( i==0 ){
+      printf("********\n");
+      url_enable_proxy("Using proxy: ");
+    }
+  }
 }
 
 /*
@@ -137,8 +147,10 @@ void url_enable_proxy(const char *zMsg){
   }
   if( zProxy && zProxy[0] && !is_false(zProxy) ){
     char *zOriginalUrl = g.urlCanonical;
+    char *zOriginalHost = g.urlHostname;
     if( zMsg ) printf("%s%s\n", zMsg, zProxy);
     url_parse(zProxy);
     g.urlPath = zOriginalUrl;
+    g.urlHostname = zOriginalHost;
   }
 }

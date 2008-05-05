@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\sfossil\srepository\sURL\sin\sthe\squickstart.html\sdocument.
-D 2008-05-05T18:39:36
+C Fix\sthe\sHOST:\sheader\sto\suse\sthe\soriginal\sURL,\snot\sthe\sproxy\sURL.
+D 2008-05-05T19:08:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -59,10 +59,10 @@ F src/diff.c a8aca97812ee5a957125b2a0bc11f2ae8d3c33f4
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
-F src/http.c 19e3e6541808af7dd93c4c82f03bca59e98e127e
+F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 54715d1400aa213da74fcd20c43b530aa06f6b1c
 F src/login.c 619dd243384bd27d5ca62995268cc987dfe88123
-F src/main.c e12b36e51ecb9042ce9c25b3b554cb9dd6b00de1
+F src/main.c 54f94155e2e54f0718c6b5b8c209d2fd02deb064
 F src/main.mk c57838417db10bd2613b5894c4dfeb889b0d136a
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -101,7 +101,7 @@ F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 70dcd36640f421a8326fcadb0e90187059f3b0dd
-F src/url.c 51a49c89b2e93b3264bf6d83824f20708ac59b9c
+F src/url.c 8c4adf49946b0b7cddad0ca0d4e0840ec30ce011
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html fee246136eaeb3f787647b1b43755abe0b9575a6
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 387cbeda3f269ff686b5a7f08ede95fe85f430e5
-R 4fe361a60cf1871ae56eed12d9fba5e2
+P c7438f6dc9bcae492b05fffbe43f573c0892162f
+R 88ee172006e93bb7371bafe74871ea87
 U drh
-Z 90182219596d083a58ee69e37c77a992
+Z 053f1d2f9447e83610d0b8cdc31ab995
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIH1RroxKgR168RlERAuYyAJ9fgen0yQo1SKRM8bS1Wizxmd5HtwCdHJdt
-K5kh25Jk/Q3uxnZRHcPt0Jg=
-=sBJB
+iD8DBQFIH1s/oxKgR168RlERAnqIAJ9uqZUqYfNrQTPQ9Yb3UvF5GHlsgACdE89e
+kJ6tv4vjp97obuVgoalg8s0=
+=59/N
 -----END PGP SIGNATURE-----
