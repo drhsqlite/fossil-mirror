@@ -178,7 +178,7 @@ void branch_new(void){
 */
 void branch_cmd(void){
   int n;
-  db_find_and_open_repository();
+  db_find_and_open_repository(1);
   if( g.argc<3 ){
     usage("new|list ...");
   }

@@ -331,7 +331,7 @@ static void tag_add_artifact(
 */
 void tag_cmd(void){
   int n;
-  db_find_and_open_repository();
+  db_find_and_open_repository(1);
   if( g.argc<3 ){
     goto tag_cmd_usage;
   }

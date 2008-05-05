@@ -90,7 +90,7 @@ void deconstruct_cmd(void){
   if( (g.argc != 3) && (g.argc != 5) ){
     usage ("?-R|--repository REPOSITORY? DESTINATION");
   }
-  db_find_and_open_repository ();
+  db_find_and_open_repository(1);
   zDestination = g.argv[g.argc-1];
   if( !file_isdir (zDestination) ){
     fossil_panic("not a directory: %s", zDestination);

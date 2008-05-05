@@ -590,7 +590,7 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 1 ;       /* 1: before  2:after  3:children  4:parents */
-  db_find_and_open_repository();
+  db_find_and_open_repository(1);
   zCount = find_option("n","count",1);
   if( zCount ){
     n = atoi(zCount);

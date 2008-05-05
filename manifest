@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Enable\sproxy\ssupport\susing\sthe\s"fossil\ssetting\sproxy"\scommand.\nThis\scheck-in\sis\smade\susing\sa\sproxy.
-D 2008-05-01T22:49:57
+C Add\sthe\sability\sto\smodify\sglobal\ssettings\s(such\sas\sthe\sproxy\ssetting)\neven\swhen\sthere\sare\sno\srepositories\sdefined.
+D 2008-05-05T17:24:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -40,7 +40,7 @@ F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
-F src/branch.c c6483e4ed69b0f2cebfe950d6a5ac36e37c3f38e
+F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 079928a8a65a993c4a8a3b9caf8a1d74cc890c5b
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
 F src/checkin.c b8e054206af17ce0aa1699be4d88e2dc45ac93d7
@@ -49,9 +49,9 @@ F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c dbac6244357ab01cb31707a44f4e6f74a15ce88e
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/construct.c e55d0051c56fb74648d85675de2bdb695e80bb52
+F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c 79e9e0cedac351d431e96f7f7833af5e3387a4e6
+F src/db.c 2d2f919945fe4afe02e1c9b5690f8b7a0f951509
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 27267403dd176df4790ab94146f1e7a78562476b
@@ -87,14 +87,14 @@ F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/stat.c 7e4cbe6578a4aa9d3ce6e79d1e84677a3459fa48
 F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
-F src/sync.c b1aa8a41a03914b6b0754a1adc5dcd2fbf906182
-F src/tag.c 002d575145b792d1788c5d2ab8e2ea1825eb4bfc
+F src/sync.c 8dd56b0a12eaf8d88bccdda0d9f9fef72bfbb832
+F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
 F src/tagview.c f0893454d52cd1dc17cffa46e5d2ebde88f8a33c
-F src/th.c a687d76a2d89b46e4c0909580a92472cfc781d72
+F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 7258c955ba097b1b1819f8b53963fe33a7bf5a9b
-F src/timeline.c dea6e9f6b0ce453ed667199937c5c903cfbe145f
+F src/timeline.c b5fdec786b9b448a651830b69d2cad78356bb2b7
 F src/tkt.c e7e06add5cc8dada9b15a1459381cf3466cac957
 F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
@@ -102,7 +102,7 @@ F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 70dcd36640f421a8326fcadb0e90187059f3b0dd
 F src/url.c 7c8f0faf01c2ed5adc1a543365f185cc3ea1978b
-F src/user.c 5fc6aec086f2147a9e236c0bef0b56776d19186c
+F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c 4fe3239f97350bbf36b0866d99e6a209dd9900a6
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P becc24e4e9238cd6ccdace0c8047ae7c5fded6e3
-R 72f9e913f71720685afdd1e39cdafd3c
+P 676fdd088ad1a95ef587a25fe5c64bd3e42787fd
+R 8d11781a696545dbe45faea748660fe0
 U drh
-Z 6fbbd5deb99b64072e830d29bd2963df
+Z 32f64e903a8c20b0d2692c3e53b25616
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIGkkZoxKgR168RlERApcMAJ9mi2qLI4u0mWOAqv0L3mr6BEimywCeOtAk
-RjMJ+39KkYwdtEKASQrqIH4=
-=3h2V
+iD8DBQFIH0LaoxKgR168RlERAloTAJ0XXboss8bc41EETX1TuUeJDqW+xACfWFbH
+Y+OD8nAZ1qYp+VDM/Di5QqQ=
+=edo5
 -----END PGP SIGNATURE-----

@@ -179,7 +179,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 */
 void user_cmd(void){
   int n;
-  db_find_and_open_repository();
+  db_find_and_open_repository(1);
   if( g.argc<3 ){
     usage("capabilities|default|list|new|password ...");
   }

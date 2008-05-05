@@ -2671,4 +2671,3 @@ error_out:
   Th_ErrorMessage(interp, "expected pointer, got: \"", z, n);
   return TH_ERROR;
 }
-

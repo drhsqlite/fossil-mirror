@@ -674,7 +674,7 @@ void db_open_repository(const char *zDbName){
 **
 ** Error out if the repository cannot be opened.
 */
-void db_find_and_open_repository(void){
+void db_find_and_open_repository(int errIfNotFound){
   const char *zRep = find_option("repository", "R", 1);
   if( zRep==0 ){
     if( db_open_local()==0 ){
@@ -690,7 +690,9 @@ void db_find_and_open_repository(void){
     return;
   }
 rep_not_found:
-  fossil_fatal("use --repository or -R to specific the repository database");
+  if( errIfNotFound ){
+    fossil_fatal("use --repository or -R to specific the repository database");
+  }
 }
 
 /*
@@ -1038,12 +1040,19 @@ void cmd_open(void){
 */
 static void print_setting(const char *zName){
   Stmt q;
-  db_prepare(&q,
-     "SELECT '(local)', value FROM config WHERE name=%Q"
-     " UNION ALL "
-     "SELECT '(global)', value FROM global_config WHERE name=%Q",
-     zName, zName
-  );
+  if( g.repositoryOpen ){
+    db_prepare(&q,
+       "SELECT '(local)', value FROM config WHERE name=%Q"
+       " UNION ALL "
+       "SELECT '(global)', value FROM global_config WHERE name=%Q",
+       zName, zName
+    );
+  }else{
+    db_prepare(&q,
+      "SELECT '(global)', value FROM global_config WHERE name=%Q",
+      zName
+    );
+  }
   if( db_step(&q)==SQLITE_ROW ){
     printf("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
         db_column_text(&q, 1));
@@ -1100,7 +1109,11 @@ void setting_cmd(void){
   };
   int i;
   int globalFlag = find_option("global","g",0)!=0;
-  db_find_and_open_repository();
+  db_find_and_open_repository(0);
+  if( !g.repositoryOpen ){
+    db_open_config();
+    globalFlag = 1;
+  }
   if( g.argc==2 ){
     for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
       print_setting(azName[i]);
