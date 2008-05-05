@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sability\sto\smodify\sglobal\ssettings\s(such\sas\sthe\sproxy\ssetting)\neven\swhen\sthere\sare\sno\srepositories\sdefined.
-D 2008-05-05T17:24:38
+C Honor\sthe\shttp_proxy\senvironment\svariable\sas\sanother\ssource\sfor\sthe\nURL\sof\sthe\sHTTP\sproxy\sif\sthe\s"proxy"\ssetting\sis\sundefined\sor\sis\s"off".
+D 2008-05-05T17:30:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c 2d2f919945fe4afe02e1c9b5690f8b7a0f951509
+F src/db.c cbb81a64fdc16aade79355e5df5ff4ed6bf49e63
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 27267403dd176df4790ab94146f1e7a78562476b
@@ -101,7 +101,7 @@ F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 70dcd36640f421a8326fcadb0e90187059f3b0dd
-F src/url.c 7c8f0faf01c2ed5adc1a543365f185cc3ea1978b
+F src/url.c 51a49c89b2e93b3264bf6d83824f20708ac59b9c
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html 93353cd4196d1ff302d035ba7153e926102ca2d3
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 676fdd088ad1a95ef587a25fe5c64bd3e42787fd
-R 8d11781a696545dbe45faea748660fe0
+P 4e683ef07b04f5f27ab860c8737fb8b92975ac54
+R 5db965b3a074efdfc9c94b80a70d956a
 U drh
-Z 32f64e903a8c20b0d2692c3e53b25616
+Z 8cce6b962ac3bfceddc2e4b16215b278
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIH0LaoxKgR168RlERAloTAJ0XXboss8bc41EETX1TuUeJDqW+xACfWFbH
-Y+OD8nAZ1qYp+VDM/Di5QqQ=
-=edo5
+iD8DBQFIH0QnoxKgR168RlERAuOzAJwMc4byrQJ26Y4ZFdQR65ObYZjCRwCdGMTL
++wblgW4vWPm/b/tQ5iVjjR4=
+=Kpif
 -----END PGP SIGNATURE-----

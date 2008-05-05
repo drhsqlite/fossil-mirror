@@ -1088,7 +1088,10 @@ static void print_setting(const char *zName){
 **    omitsign         When enabled, fossil will not attempt to sign any
 **                     commit with gpg. All commits will be unsigned.
 **
-**    proxy            URL of the HTTP proxy to use
+**    proxy            URL of the HTTP proxy.  If undefined or "off" then
+**                     the "http_proxy" environment variable is consulted.
+**                     If the http_proxy environment variable is undefined
+**                     then a direct HTTP connection is used.
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.

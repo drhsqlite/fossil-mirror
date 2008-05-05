@@ -132,6 +132,9 @@ void cmd_test_urlparser(void){
 */
 void url_enable_proxy(const char *zMsg){
   const char *zProxy = db_get("proxy", 0);
+  if( zProxy==0 || zProxy[0] || is_false(zProxy) ){
+    zProxy = getenv("http_proxy");
+  }
   if( zProxy && zProxy[0] && !is_false(zProxy) ){
     char *zOriginalUrl = g.urlCanonical;
     if( zMsg ) printf("%s%s\n", zMsg, zProxy);
