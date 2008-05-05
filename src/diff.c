@@ -711,8 +711,12 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
     const char *zUuid = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
-    zLabel = mprintf("<a href='%s/info/%s'>%.10s</a> %s %9.9s", 
-                     g.zBaseURL, zUuid, zUuid, zDate, zUser);
+    if( g.okHistory ){
+      zLabel = mprintf("<a href='%s/info/%s'>%.10s</a> %s %9.9s", 
+                       g.zBaseURL, zUuid, zUuid, zDate, zUser);
+    }else{
+      zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
+    }
     content_get(pid, &step);
     annotation_step(p, &step, zLabel);
     blob_reset(&step);
@@ -735,7 +739,7 @@ void annotation_page(void){
   Annotator ann;
 
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.okRead ){ login_needed(); return; }
   if( mid==0 || fnid==0 ){ cgi_redirect("index"); }
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     cgi_redirect("index");

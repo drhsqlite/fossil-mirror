@@ -371,3 +371,21 @@ void login_needed(void){
   /* NOTREACHED */
   assert(0);
 }
+
+/*
+** Call this routine if the user lacks okHistory permission.  If
+** the anonymous user has okHistory permission, then paint a mesage
+** to inform the user that much more information is available by
+** logging in as anonymous.
+*/
+void login_anonymous_available(void){
+  if( !g.okHistory &&
+      db_exists("SELECT 1 FROM user"
+                " WHERE login='anonymous'"
+                "   AND cap LIKE '%%h%%'") ){
+    @ <p><b>Note:</b> Many hyperlinks are omitted from this page to discourage
+    @ <a href="http://en.wikipedia.org/wiki/Web_crawler">spiders</a>.
+    @ You will be able to access information more easily if you
+    @ <a href="%s(g.zTop)/login">login</a> as user "anonymous".</p>
+  }
+}

@@ -301,7 +301,7 @@ void vinfo_page(void){
   int isLeaf;
 
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.okRead ){ login_needed(); return; }
   rid = name_to_rid(PD("name","0"));
   if( rid==0 ){
     style_header("Version Information Error");
@@ -321,6 +321,7 @@ void vinfo_page(void){
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Baseline [%.10s]", zUuid);
     style_header(zTitle);
+    login_anonymous_available();
     free(zTitle);
     /*@ <h2>Version %s(zUuid)</h2>*/
     @ <div class="section">Overview</div>
@@ -333,21 +334,24 @@ void vinfo_page(void){
     @ <tr><th>Original&nbsp;User:</th><td>%h(db_column_text(&q, 2))</td></tr>
     @ <tr><th>Original&nbsp;Comment:</th><td>%w(db_column_text(&q,3))</td></tr>
     @ </td></tr>
-    @ <tr><th>Timelines:</th><td>
-    @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
-    @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendents</a>
-    @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)&p=%d(rid)">both</a>
-    @ </td></tr>
-    @ <tr><th>Commands:</th>
-    @   <td>
-    @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
-    @     | <a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a>
-    @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
-    @   </td>
-    @ </tr>
+    if( g.okHistory ){
+      @ <tr><th>Timelines:</th><td>
+      @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
+      @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendents</a>
+      @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)&p=%d(rid)">both</a>
+      @ </td></tr>
+      @ <tr><th>Commands:</th>
+      @   <td>
+      @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
+      @     | <a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a>
+      @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
+      @   </td>
+      @ </tr>
+    }
     @ </table></p>
   }else{
     style_header("Baseline Information");
+    login_anonymous_available();
   }
   db_finalize(&q);
   showTags(rid, "");
@@ -372,7 +376,11 @@ void vinfo_page(void){
     }else{
       @ <b>Deleted:</b>
     }
-    @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></li>
+    if( g.okHistory ){
+      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></li>
+    }else{
+      @ %h(zName)</li>
+    }
   }
   @ </ul>
   compute_leaves(rid);
@@ -393,7 +401,7 @@ void winfo_page(void){
   int rid;
 
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.okRdWiki ){ login_needed(); return; }
   rid = name_to_rid(PD("name","0"));
   if( rid==0 ){
     style_header("Wiki Page Information Error");
@@ -418,6 +426,7 @@ void winfo_page(void){
     char *zTitle = mprintf("Wiki Page %s", zName);
     style_header(zTitle);
     free(zTitle);
+    login_anonymous_available();
     @ <div class="section">Overview</div>
     @ <p><table class="label-value">
     @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
@@ -426,13 +435,15 @@ void winfo_page(void){
       @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
     }
     @ <tr><th>Original&nbsp;User:</th><td>%s(db_column_text(&q, 3))</td></tr>
-    @ <tr><th>Commands:</th>
-    @   <td>
-/*    @     <a href="%s(g.zBaseURL)/wdiff/%d(rid)">diff</a> | */
-    @     <a href="%s(g.zBaseURL)/whistory?name=%t(zName)">history</a>
-    @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">raw-text</a>
-    @   </td>
-    @ </tr>
+    if( g.okHistory ){
+      @ <tr><th>Commands:</th>
+      @   <td>
+      /* @     <a href="%s(g.zBaseURL)/wdiff/%d(rid)">diff</a> | */
+      @     <a href="%s(g.zBaseURL)/whistory?name=%t(zName)">history</a>
+      @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">raw-text</a>
+      @   </td>
+      @ </tr>
+    }
     @ </table></p>
   }else{
     style_header("Wiki Information");
@@ -472,8 +483,9 @@ void finfo_page(void){
   Blob title;
 
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.okRead ){ login_needed(); return; }
   style_header("File History");
+  login_anonymous_available();
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -523,13 +535,15 @@ void finfo_page(void){
     hyperlink_to_uuid(zVers);
     @ %h(zCom) (By: %h(zUser))
     @ Id: %s(zUuid)/%d(frid)
-    @ <a href="%s(g.zBaseURL)/artifact/%d(frid)">[view]</a>
-    if( fpid ){
-      @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
+    if( g.okHistory ){
+      @ <a href="%s(g.zBaseURL)/artifact/%d(frid)">[view]</a>
+      if( fpid ){
+        @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
+      }
+      @ <a href="%s(g.zBaseURL)/annotate?mid=%d(mid)&amp;fnid=%d(fnid)">
+      @ [annotate]</a>
+      @ </td>
     }
-    @ <a href="%s(g.zBaseURL)/annotate?mid=%d(mid)&amp;fnid=%d(fnid)">
-    @ [annotate]</a>
-    @ </td>
   }
   db_finalize(&q);
   @ </table>
@@ -564,8 +578,9 @@ void vdiff_page(void){
   char *zUuid;
 
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.okRead ){ login_needed(); return; }
   style_header("Baseline Changes");
+  login_anonymous_available();
 
   rid = name_to_rid(PD("name",""));
   if( rid==0 ){
@@ -715,7 +730,7 @@ void diff_page(void){
   Blob c1, c2, diff;
 
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.okRead ){ login_needed(); return; }
   style_header("Diff");
   @ <h2>Differences From:</h2>
   @ <blockquote>
@@ -752,7 +767,7 @@ void artifact_page(void){
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.okRead ){ login_needed(); return; }
   if( g.zPath[0]=='i' ){
     if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                   " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){

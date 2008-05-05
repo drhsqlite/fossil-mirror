@@ -252,13 +252,7 @@ void page_timeline(void){
   if( !g.okRead ){ login_needed(); return; }
 
   style_header("Timeline");
-  if( !g.okHistory &&
-      db_exists("SELECT 1 FROM user"
-                " WHERE login='anonymous'"
-                "   AND cap LIKE '%%h%%'") ){
-    @ <p><b>Note:</b> You will be able to access <u>much</u> more
-    @ historical information if you <a href="%s(g.zTop)/login">login</a>.</p>
-  }
+  login_anonymous_available();
   timeline_temp_table();
   blob_zero(&sql);
   blob_zero(&desc);
@@ -295,8 +289,12 @@ void page_timeline(void){
         db_multi_exec("%s", blob_str(&sql));
       }
     }
-    blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
-                 g.zBaseURL, zUuid, zUuid);
+    if( g.okHistory ){
+      blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
+                   g.zBaseURL, zUuid, zUuid);
+    }else{
+      blob_appendf(&desc, " of [%.10s]", zUuid);
+    }
     db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
   }else{
     int n;
@@ -359,13 +357,15 @@ void page_timeline(void){
     }else if( zBefore ){
       blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
     }
-    if( zAfter || n==nEntry ){
-      zDate = db_text(0, "SELECT min(timestamp) FROM timeline");
-      blob_appendf(&desc, " <a href='%b&b=%s'>[older]</a>", &url, zDate);
-    }
-    if( zBefore || (zAfter && n==nEntry) ){
-      zDate = db_text(0, "SELECT max(timestamp) FROM timeline");
-      blob_appendf(&desc, " <a href='%b&a=%s'>[more recent]</a>", &url, zDate);
+    if( g.okHistory ){
+      if( zAfter || n==nEntry ){
+        zDate = db_text(0, "SELECT min(timestamp) FROM timeline");
+        blob_appendf(&desc, " <a href='%b&b=%s'>[older]</a>", &url, zDate);
+      }
+      if( zBefore || (zAfter && n==nEntry) ){
+        zDate = db_text(0, "SELECT max(timestamp) FROM timeline");
+        blob_appendf(&desc, " <a href='%b&a=%s'>[more recent]</a>", &url,zDate);
+      }
     }
   }
   blob_zero(&sql);
