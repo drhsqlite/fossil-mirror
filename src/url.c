@@ -116,6 +116,7 @@ void url_parse(const char *zUrl){
 */
 void cmd_test_urlparser(void){
   int i;
+  url_proxy_options();
   if( g.argc!=3 && g.argc!=4 ){
     usage("URL");
   }
@@ -137,13 +138,32 @@ void cmd_test_urlparser(void){
 }
 
 /*
+** Proxy specified on the command-line.
+*/
+static const char *zProxyOpt = 0;
+
+/*
+** Extra any proxy options from the command-line.
+**
+**    --proxy URL|off
+**
+*/
+void url_proxy_options(void){
+  zProxyOpt = find_option("proxy", 0, 1);
+}
+
+/*
 ** If the "proxy" setting is defined, then change the URL to refer
 ** to the proxy server.
 */
 void url_enable_proxy(const char *zMsg){
-  const char *zProxy = db_get("proxy", 0);
-  if( zProxy==0 || zProxy[0] || is_false(zProxy) ){
-    zProxy = getenv("http_proxy");
+  const char *zProxy;
+  zProxy = zProxyOpt;
+  if( zProxy==0 ){
+    zProxy = db_get("proxy", 0);
+    if( zProxy==0 || zProxy[0] || is_false(zProxy) ){
+      zProxy = getenv("http_proxy");
+    }
   }
   if( zProxy && zProxy[0] && !is_false(zProxy) ){
     char *zOriginalUrl = g.urlCanonical;

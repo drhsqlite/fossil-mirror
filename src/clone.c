@@ -38,6 +38,7 @@
 ** file named FILENAME.  
 */
 void clone_cmd(void){
+  url_proxy_options();
   if( g.argc!=4 ){
     usage("FILE-OR-URL NEW-REPOSITORY");
   }

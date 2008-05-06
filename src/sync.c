@@ -73,6 +73,7 @@ int autosync(int flags){
 */
 static void process_sync_args(void){
   const char *zUrl = 0;
+  url_proxy_options();
   db_find_and_open_repository(1);
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);

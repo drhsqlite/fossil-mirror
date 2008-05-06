@@ -225,7 +225,17 @@ and painlessly.</p>
 
     <p>If you are behind a restrictive firewall that requires you to use
     an HTTP proxy to reach the internet, then you can configure the proxy
-    in one of two ways.  You can tell fossil about your proxy like this:<p>
+    in three different ways.  You can tell fossil about your proxy using
+    a command-line option on commands that use the network,
+    <b>sync</b>, <b>clone</b>, <b>push</b>, and <b>pull</b>.</p>
+
+    <blockquote>
+    <b>fossil clone </b><i>URL</i>  <b>--proxy</b> <i>Proxy-URL</i>
+    </blockquote>
+
+    <p>It is annoying to have to type in the proxy URL every time you
+    sync your project, though, so you can make the proxy configuration
+    persistent using the <b>setting</b> command:</p>
 
     <blockquote>
     <b>fossil setting proxy </b><i>Proxy-URL</i>
@@ -244,7 +254,15 @@ and painlessly.</p>
     </blockquote>
 
     <p>Or unset the environment variable.  The fossil setting for the
-    HTTP proxy takes precedence over the environment variable.</p>   
+    HTTP proxy takes precedence over the environment variable and the
+    command-line option overrides both.  If you have an persistent
+    proxy setting that you want to override for a one-time sync, that
+    is easily done on the command-line.  For example, to sync with
+    a co-workers repository on your LAN, you might type:</p>   
+
+    <blockquote>
+    <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>
+    </blockquote>
 
 </blockquote><h2>More Hints</h2><blockquote>
 
