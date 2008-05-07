@@ -57,7 +57,7 @@ void stat_page(void){
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
     @ %d((int)(((double)t)/(double)n)) bytes average, %s(zBuf) bytes total
     @ </td></tr>
-    @ <tr><th>Uncompression&nbsp;Ratio:</th><td>
+    @ <tr><th>Compression&nbsp;Ratio:</th><td>
     if( t/fsize < 5 ){
       b = 10;
       fsize /= 10;

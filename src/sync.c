@@ -52,7 +52,7 @@ void autosync(int flags){
   }
   url_parse(zUrl);
   if( g.urlIsFile ){
-    return 0;  /* Network sync only */
+    return;  /* Network sync only */
   }
   if( g.urlPort!=80 ){
     printf("Autosync:  http://%s:%d%s\n", g.urlName, g.urlPort, g.urlPath);
