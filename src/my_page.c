@@ -82,12 +82,15 @@ static void mypage_page_default()
   char * sql = mprintf( "SELECT login,cap,info FROM user WHERE uid=%d",
 			uid );
   Stmt st;
+  char const *uname;
+  char const *ucap;
+  char const *uinfo;
   db_prepare( &st, sql );
   free( sql );
   db_step(&st);
-  char const * uname = db_column_text( &st, 0 );
-  char const * ucap = db_column_text( &st, 1 );
-  char const * uinfo = db_column_text( &st, 2 );
+  uname = db_column_text( &st, 0 );
+  ucap = db_column_text( &st, 1 );
+  uinfo = db_column_text( &st, 2 );
 
   @ <h2>Welcome, %s(uname)!</h2>
   @ Your user ID is: %d(uid)<br/>
@@ -127,12 +130,13 @@ static void mypage_page_default()
 ** WEBPAGE: /my
 */
 void mypage_page(void){
+  const char *name;
   login_check_credentials();
   if( !g.okRdWiki ){
     login_needed();
   }
   style_header("Your Home");
-  char const * name = P("name");
+  name = P("name");
   if( name )
   {
     if( 0 == strcmp(name,"tickets") )

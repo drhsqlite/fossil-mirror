@@ -141,6 +141,7 @@ static void tagview_page_tag_by_name( char const * tagname ){
 ** WEBPAGE: /tagview
 */
 void tagview_page(void){
+  char const * check = 0;
   login_check_credentials();
   if( !g.okRdWiki ){
     login_needed();
@@ -149,7 +150,6 @@ void tagview_page(void){
   login_anonymous_available();
   tagview_page_search_miniform();
   @ <hr/>
-  char const * check = 0;
   if( 0 != (check = P("tagid")) ){
     tagview_page_tag_by_id( atoi(check) );
   }else if( 0 != (check = P("like")) ){

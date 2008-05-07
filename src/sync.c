@@ -39,17 +39,16 @@
 /*
 ** If the respository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
-** if the argument is false.  Return true if the autosync is done
-** and false if autosync is not requested for the current repository.
+** if the argument is false.
 */
-int autosync(int flags){
+void autosync(int flags){
   const char *zUrl;
   if( db_get_boolean("autosync", 0)==0 ){
-    return 0;
+    return;
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
-    return 0;  /* No default server */
+    return;  /* No default server */
   }
   url_parse(zUrl);
   if( g.urlIsFile ){
@@ -62,7 +61,6 @@ int autosync(int flags){
   }
   url_enable_proxy("via proxy: ");
   client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0);
-  return 1;
 }
 
 /*

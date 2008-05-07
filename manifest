@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s--proxy\soption\sto\sthe\scommit\sand\supdate\scommands.
-D 2008-05-07T12:15:14
+C Fix\sa\scouple\sof\sC++-isms\sin\smy_page.c\sand\stagview.c.\s\sRemove\sthe\nreturn\svalue\sfrom\sautosync().
+D 2008-05-07T17:38:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -72,7 +72,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/my_page.c 0d6df55ccb6c59994125091ffca360537c52de55
+F src/my_page.c 52bd9eb48f383d419589c66753089e42248139da
 F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
@@ -87,9 +87,9 @@ F src/sqlite3.c 269f370571c4e6b8febc7bc66c146522d76dc2aa
 F src/sqlite3.h 180fe7f3de93df38ebe159aacf14f54b96a6476e
 F src/stat.c 7e4cbe6578a4aa9d3ce6e79d1e84677a3459fa48
 F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
-F src/sync.c f8524fbcd7d176bf287e7486315364cfdb0fd18a
+F src/sync.c 80fd8e15874a5829feb9c495787365a12a8179c0
 F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
-F src/tagview.c 9d79e57b4d9c5d352f049e900bf14c802fd2998e
+F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P f652599003d139cada15dffdbb6c8587db4a1eef
-R c0e50b82fd4668dbc969f587c6c6a5ff
+P b714ab1ea7c6756f4e80e6ca825f857a14311dfe
+R 8f85e0ee993707764e824057862f6eb7
 U drh
-Z 92e7331bdda4835ac2d3b04bd11f7cba
+Z d900361cc27fa32fe088db1d8062f218
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIIZ1VoxKgR168RlERApcvAJ9mcvLa43elZTtBmrAgm/QuVkyrKwCcCGNN
-DpG7oWckM0GT41UDTad2tgU=
-=h21o
+iD8DBQFIIek0oxKgR168RlERApSHAJ9QjmH8ZqkAfJYRwMKl7fFb+RYLlgCffcOE
+VuUfFjJVgFCdr+TBCPsxIrM=
+=OOlS
 -----END PGP SIGNATURE-----
