@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s--proxy\scommand-line\soption\sthat\scan\sbe\sused\sto\senable\sor\ndisable\san\shttp\sproxy\son\sa\scase\sby\scase\sbasis.
-D 2008-05-06T12:24:22
+C Add\sthe\s--proxy\soption\sto\sthe\scommit\sand\supdate\scommands.
+D 2008-05-07T12:15:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -43,7 +43,7 @@ F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
-F src/checkin.c b8e054206af17ce0aa1699be4d88e2dc45ac93d7
+F src/checkin.c a39c0a7df2e488f2e018c23901cd2233dcf26ab0
 F src/checkout.c d83377479991f1773e7fd1b83079168bd9e11d4f
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 0c2a5c8339d40d58c024b7098647be604c6866b8
@@ -100,7 +100,7 @@ F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 70dcd36640f421a8326fcadb0e90187059f3b0dd
+F src/update.c 8e9fd979cf72723c32f56b5acea2fbf971693e29
 F src/url.c 32de843e7cef2dd9e7a2c4c7b4cfcd33111701b7
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P d57de28756ddf7716d08a04ebfe1f5f2fd8c7687
-R 14d430977636e42f8cd2d1fcf782e12b
+P f652599003d139cada15dffdbb6c8587db4a1eef
+R c0e50b82fd4668dbc969f587c6c6a5ff
 U drh
-Z 5c87b46d4a683eb88b4e54789614755e
+Z 92e7331bdda4835ac2d3b04bd11f7cba
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIIE39oxKgR168RlERAqYAAKCAUPkmjBVJDWRDP+38dRe4rznO9gCfa9oI
-ges6pWgI0i/vco8FWssfTSU=
-=l543
+iD8DBQFIIZ1VoxKgR168RlERApcvAJ9mcvLa43elZTtBmrAgm/QuVkyrKwCcCGNN
+DpG7oWckM0GT41UDTad2tgU=
+=h21o
 -----END PGP SIGNATURE-----

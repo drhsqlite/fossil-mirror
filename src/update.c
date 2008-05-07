@@ -56,6 +56,7 @@ void update_cmd(void){
   int latestFlag;       /* Pick the latest version if true */
   int forceFlag;        /* True force the update */
 
+  url_proxy_options();
   latestFlag = find_option("latest",0, 0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   if( g.argc!=3 && g.argc!=2 ){

@@ -337,6 +337,7 @@ void commit_cmd(void){
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
  
+  url_proxy_options();
   noSign = find_option("nosign","",0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
