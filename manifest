@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s--nosync\soption\sto\stemporarily\sdisable\sautosync.\s\sUseful\swhen\noff\snetwork.
-D 2008-05-10T17:09:46
+C Add\sthe\s"unset"\scommand\sfor\sclearing\ssettings.
+D 2008-05-10T17:22:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c 5e79625a72edc1bbc67714dfcfb46106a3258602
+F src/db.c c776b3bd01ba5ee25c6cfb2aeb27cd2d4ee283eb
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c 44bebd8abf97e3fa5f682ae17b376f05d667c784
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P cf84ce2d8c568057b149d9a94d22e6738aa3c727
-R f14f62bf5e0fafaa26fcb5d13bd01042
+P 9ba6e4287ba0db011906809a2d71a5eb2fab7d29
+R 55b00f6e3f36dc9953cfcd7d198880c0
 U drh
-Z da1c93a1fba4d1aa3cf3b3c57d017df6
+Z 5f4c15057cd6c7ddc8d382bfb617ec37
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIJdbfoxKgR168RlERAm5bAJ96slf3xo7rBS58XLXBwKtTnHeCgQCfYsdK
-dsv2B5ctsFDcj4tESd1wB9M=
-=f6iB
+iD8DBQFIJdnCoxKgR168RlERAqRcAJ9jmBHk2AdwYhyJrJq5ZEMUM1WaTgCfeyMV
+ISTrIYahA+lREePM7sgtX38=
+=F9yU
 -----END PGP SIGNATURE-----

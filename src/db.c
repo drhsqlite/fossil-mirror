@@ -944,6 +944,15 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
   }
   db_end_transaction(0);
 }
+void db_unset(const char *zName, int globalFlag){
+  db_begin_transaction();
+  db_multi_exec("DELETE FROM %sconfig WHERE name=%Q",
+                 globalFlag ? "global_" : "", zName);
+  if( globalFlag && g.repositoryOpen ){
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
+  db_end_transaction(0);
+}
 int db_is_global(const char *zName){
   if( g.configOpen ){
     return db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
@@ -1065,11 +1074,15 @@ static void print_setting(const char *zName){
 
 /*
 ** COMMAND: settings
+** COMMAND: unset
 ** %fossil setting ?PROPERTY? ?VALUE? ?-global?
+** %fossil unset PROPERTY ?-global?
 **
-** With no arguments, list all properties and their values.  With just
-** a property name, show the value of that property.  With a value
-** argument, change the property for the current repository.
+** The "setting" command with no arguments lists all properties and their
+** values.  With just a property name it shows the value of that property.
+** With a value argument it changes the property for the current repository.
+**
+** The "unset" command clears a property setting.
 **
 **    autosync         If enabled, automatically pull prior to
 **                     commit or update and automatically push
@@ -1112,10 +1125,14 @@ void setting_cmd(void){
   };
   int i;
   int globalFlag = find_option("global","g",0)!=0;
+  int unsetFlag = g.argv[1][0]=='u';
   db_find_and_open_repository(0);
   if( !g.repositoryOpen ){
     db_open_config();
     globalFlag = 1;
+  }
+  if( unsetFlag && g.argc!=3 ){
+    usage("PROPERTY ?-global?");
   }
   if( g.argc==2 ){
     for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
@@ -1130,7 +1147,9 @@ void setting_cmd(void){
     if( i>=sizeof(azName)/sizeof(azName[0]) ){
       fossil_fatal("no such setting: %s", zName);
     }
-    if( g.argc==4 ){
+    if( unsetFlag ){
+      db_unset(azName[i], globalFlag);
+    }else if( g.argc==4 ){
       db_set(azName[i], g.argv[3], globalFlag);
     }else{
       print_setting(azName[i]);
