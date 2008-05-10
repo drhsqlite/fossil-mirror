@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Help\smessage\scleanup.\s\sAutomatically\sdelete\scloned\sdatabase\sfiles\sif\nthe\sclone\sfails.
-D 2008-05-10T18:01:52
+C Comment\schanges\sto\sthe\spre-commit\sverification\slogic.\s\sNo\schanges\sto\scode.
+D 2008-05-10T18:09:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -103,7 +103,7 @@ F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 8e9fd979cf72723c32f56b5acea2fbf971693e29
 F src/url.c 1e3ccdf6888e82e0b68671c002cfded21ec4cd0d
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
-F src/verify.c 4c09bcd36f1ffd535834f886454723abd3716936
+F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c 4fe3239f97350bbf36b0866d99e6a209dd9900a6
 F src/wikiformat.c 30a93b77785d32ac75c3da0cdb0a24cb6c5fd99d
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 418207989a55779c3226021079c046f8f296919b
-R 3c63c337d0f3d00bc84fc746dba1c1a3
+P 6b85fd173e5c90ad0c24c4146249a28ff8d2ab18
+R 6e473a64f60d6d6262f522c9f85d52af
 U drh
-Z 75e98a4c8638aca1fca686e7b6c13bef
+Z 2108d51b9cc022144294214046b36819
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIJeMUoxKgR168RlERAkx0AJ0REYgSPKEwOrEgjvpabQIQixMnvgCfdk3g
-/33GXXuHjUVhYHXcFLxteGc=
-=kWPg
+iD8DBQFIJeTeoxKgR168RlERAsD/AJ4t+qWdSR4Y+P09EjbSVP1zi1WK3wCeJqPP
+LvpUXdSpHmsYvzXOcyCLmz8=
+=mdSm
 -----END PGP SIGNATURE-----

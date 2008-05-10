@@ -72,6 +72,9 @@ static int inFinalVerify = 0;
 
 /*
 ** This routine is called just prior to each commit operation.  
+**
+** Invoke verify_rid() on every record that has been added or modified
+** in the repository, in order to make sure that the repository is sane.
 */
 static int verify_at_commit(void){
   int rid;
