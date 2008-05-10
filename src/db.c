@@ -1028,6 +1028,7 @@ void cmd_open(void){
   Blob path;
   int vid;
   static char *azNewArgv[] = { 0, "update", "--latest", 0 };
+  url_proxy_options();
   if( g.argc!=3 ){
     usage("REPOSITORY-FILENAME");
   }

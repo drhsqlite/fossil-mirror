@@ -150,7 +150,7 @@ static const char *zProxyOpt = 0;
 */
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
-  g.fNoSync = find_option("nosync", 0, 0)!=0;
+  if( find_option("nosync",0,0) ) g.fNoSync = 1;
 }
 
 /*

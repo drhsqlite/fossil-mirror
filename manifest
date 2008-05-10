@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Comment\schanges\sto\sthe\spre-commit\sverification\slogic.\s\sNo\schanges\sto\scode.
-D 2008-05-10T18:09:31
+C Add\sthe\s-nosync\soption\sto\sthe\s"open"\scommand.\s\sWe\smight\sconsider\smaking\s-nosync\nthe\sdefault\sfor\s"open".
+D 2008-05-10T18:19:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c fdcc320716f9726befee2f3e6eea6571735b4088
+F src/db.c 0644da6326cde50e22230d6565176996960551aa
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendents.c aaa2bf991fb80aa43d32dcef435a135ff7201bcc
@@ -101,7 +101,7 @@ F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c 8e9fd979cf72723c32f56b5acea2fbf971693e29
-F src/url.c 1e3ccdf6888e82e0b68671c002cfded21ec4cd0d
+F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 6b85fd173e5c90ad0c24c4146249a28ff8d2ab18
-R 6e473a64f60d6d6262f522c9f85d52af
+P 2d581c03e53e465f186161bb66eed76807061451
+R fc0ad4fc5b123c59f49fed5178875242
 U drh
-Z 2108d51b9cc022144294214046b36819
+Z 078aabd548fa85c81e9cc91a170d1304
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIJeTeoxKgR168RlERAsD/AJ4t+qWdSR4Y+P09EjbSVP1zi1WK3wCeJqPP
-LvpUXdSpHmsYvzXOcyCLmz8=
-=mdSm
+iD8DBQFIJechoxKgR168RlERAutUAJ96aUPpprEoR86nuVXp9ObHKhHcfACgiawT
+GtTdmptyPxl2sqeHVei1guE=
+=eqfa
 -----END PGP SIGNATURE-----
