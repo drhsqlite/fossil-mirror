@@ -58,6 +58,7 @@ struct Global {
   int fSqlTrace;          /* True if -sqltrace flag is present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
+  int fNoSync;            /* Do not do an autosync even.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */

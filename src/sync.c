@@ -43,6 +43,9 @@
 */
 void autosync(int flags){
   const char *zUrl;
+  if( g.fNoSync ){
+    return;
+  }
   if( db_get_boolean("autosync", 0)==0 ){
     return;
   }
