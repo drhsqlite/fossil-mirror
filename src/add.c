@@ -33,8 +33,9 @@
 ** COMMAND: add
 **
 ** Usage: %fossil add FILE...
-** Add one or more files to the current checkout such that these files
-** will be inserted into the repository at the next commit.
+**
+** Make arrangements to add one or more files to the current checkout 
+** at the next commit.
 */
 void add_cmd(void){
   int i;

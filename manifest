@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"unset"\scommand\sfor\sclearing\ssettings.
-D 2008-05-10T17:22:07
+C Help\smessage\scleanup.\s\sAutomatically\sdelete\scloned\sdatabase\sfiles\sif\nthe\sclone\sfails.
+D 2008-05-10T18:01:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -36,25 +36,25 @@ F debian/makedeb.sh f6874667ddd94de9db3bb55b54e0a4ef3e2412bb x
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c ce8cf09189bee8d9b1b3237d8892a2e60d2f57d1
+F src/add.c 5acaff69fc9f9e69db778d3fd702ac5a4856ff53
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
-F src/checkin.c a39c0a7df2e488f2e018c23901cd2233dcf26ab0
-F src/checkout.c d83377479991f1773e7fd1b83079168bd9e11d4f
+F src/checkin.c e7a974d371d6bf8462db46c1b21c8673a0ab716c
+F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 0c2a5c8339d40d58c024b7098647be604c6866b8
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c c776b3bd01ba5ee25c6cfb2aeb27cd2d4ee283eb
+F src/db.c fdcc320716f9726befee2f3e6eea6571735b4088
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendents.c 44bebd8abf97e3fa5f682ae17b376f05d667c784
+F src/descendents.c aaa2bf991fb80aa43d32dcef435a135ff7201bcc
 F src/diff.c 626c13bd4ede9fd607bdb7e0ea9789c1f78a4a1b
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
@@ -62,7 +62,7 @@ F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 1846288242b375b366e476c1bfea5fe003df7647
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c ee65ecd97aeb0d636b9c70f3a5cc41469040f7c6
+F src/main.c 42f0720d464aee1fc20d3072c9ef09dc5b117a95
 F src/main.mk c57838417db10bd2613b5894c4dfeb889b0d136a
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 9ba6e4287ba0db011906809a2d71a5eb2fab7d29
-R 55b00f6e3f36dc9953cfcd7d198880c0
+P 418207989a55779c3226021079c046f8f296919b
+R 3c63c337d0f3d00bc84fc746dba1c1a3
 U drh
-Z 5f4c15057cd6c7ddc8d382bfb617ec37
+Z 75e98a4c8638aca1fca686e7b6c13bef
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIJdnCoxKgR168RlERAqRcAJ9jmBHk2AdwYhyJrJq5ZEMUM1WaTgCfeyMV
-ISTrIYahA+lREePM7sgtX38=
-=F9yU
+iD8DBQFIJeMUoxKgR168RlERAkx0AJ0REYgSPKEwOrEgjvpabQIQixMnvgCfdk3g
+/33GXXuHjUVhYHXcFLxteGc=
+=kWPg
 -----END PGP SIGNATURE-----

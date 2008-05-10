@@ -77,6 +77,7 @@ static void db_err(const char *zFormat, ...){
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
+static int isNewRepo = 0;   /* True if the repository is newly created */
 static int doRollback = 0;  /* True to force a rollback */
 static int nCommitHook = 0; /* Number of commit hooks */
 static struct sCommitHook {
@@ -126,6 +127,10 @@ void db_end_transaction(int rollbackFlag){
 void db_force_rollback(void){
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
+    if( isNewRepo ){
+      db_close();
+      unlink(g.zRepositoryName);
+    }
   }
   nBegin = 0;
 }
@@ -732,6 +737,7 @@ void db_create_repository(const char *zFilename){
      zRepositorySchema2,
      (char*)0
   );
+  isNewRepo = 1;
 }
 
 /*
@@ -806,6 +812,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
 ** COMMAND: new
 **
 ** Usage: %fossil new FILENAME
+**
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
 ** a copy of an existing project.  This command starts a new project.
@@ -1115,13 +1122,13 @@ static void print_setting(const char *zName){
 void setting_cmd(void){
   static const char *azName[] = {
     "autosync",
-    "pgp-command",
+    "diff-command",
     "editor",
+    "gdiff-command",
     "localauth",
     "omitsign",
+    "pgp-command",
     "proxy",
-    "diff-command",
-    "gdiff-command",
   };
   int i;
   int globalFlag = find_option("global","g",0)!=0;

@@ -77,6 +77,7 @@ static void status_report(Blob *report, const char *zPrefix){
 ** COMMAND: changes
 **
 ** Usage: %fossil changes
+**
 ** Report on the edit status of all files in the current checkout.
 ** See also the "status" and "extra" commands.
 */
@@ -93,7 +94,9 @@ void changes_cmd(void){
 
 /*
 ** COMMAND: status
+**
 ** Usage: %fossil status
+**
 ** Report on the status of the current checkout.
 */
 void status_cmd(void){
@@ -112,7 +115,9 @@ void status_cmd(void){
 
 /*
 ** COMMAND: ls
+**
 ** Usage: %fossil ls
+**
 ** Show the names of all files in the current checkout
 */
 void ls_cmd(void){
@@ -145,6 +150,7 @@ void ls_cmd(void){
 /*
 ** COMMAND: extra
 ** Usage: %fossil extra
+**
 ** Print a list of all files in the source tree that are not part of
 ** the current checkout.  See also the "clean" command.
 */
@@ -168,7 +174,8 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?-all
+** Usage: %fossil clean ?-all?
+**
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
 ** the "extra" command. This operation cannot be undone. 

@@ -366,6 +366,7 @@ void cmd_cmd_list(void){
 ** COMMAND: test-commands
 **
 ** Usage: %fossil test-commands
+**
 ** List all commands used for testing and debugging.
 */
 void cmd_test_cmd_list(void){
@@ -384,6 +385,7 @@ void cmd_test_cmd_list(void){
 ** COMMAND: help
 **
 ** Usage: %fossil help COMMAND
+**
 ** Display information on how to use COMMAND
 */
 void help_cmd(void){

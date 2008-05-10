@@ -133,6 +133,7 @@ void compute_descendents(int rid, int N){
 ** COMMAND:  descendents
 **
 ** Usage: %fossil descendents ?UUID?
+**
 ** Find all leaf descendents of the current version or of the
 ** specified version.
 */
@@ -162,6 +163,7 @@ void descendents_cmd(void){
 ** COMMAND:  leaves
 **
 ** Usage: %fossil leaves
+**
 ** Find leaves of all branches.
 */
 void branches_cmd(void){
