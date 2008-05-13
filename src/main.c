@@ -253,6 +253,18 @@ void fossil_fatal(const char *zFormat, ...){
   db_force_rollback();
   exit(1);
 }
+void fossil_warning(const char *zFormat, ...){
+  char *z;
+  va_list ap;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.cgiPanic ){
+    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+  }else{
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+  }
+}
 
 /*
 ** Print a usage comment and quit

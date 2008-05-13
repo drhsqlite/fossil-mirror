@@ -64,18 +64,22 @@ void add_cmd(void){
     }
     file_tree_name(zName, &pathname);
     zPath = blob_str(&pathname);
-    if( strcmp(zPath, "manifest")==0 || strcmp(zPath, "_FOSSIL_")==0 ){
-      fossil_fatal("cannot add %s", zPath);
-    }
-    if( !file_is_simple_pathname(zPath) ){
-      fossil_fatal("filename contains illegal characters: %s", zPath);
-    }
-    if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
-      db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
+    if( strcmp(zPath, "manifest")==0
+     || strcmp(zPath, "_FOSSIL_")==0
+     || strcmp(zPath, "manifest.uuid")==0
+    ){
+      fossil_warning("cannot add %s", zPath);
     }else{
-      db_multi_exec(
-        "INSERT INTO vfile(vid,deleted,rid,mrid,pathname)"
-        "VALUES(%d,0,0,0,%Q)", vid, zPath);
+      if( !file_is_simple_pathname(zPath) ){
+        fossil_fatal("filename contains illegal characters: %s", zPath);
+      }
+      if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
+        db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
+      }else{
+        db_multi_exec(
+          "INSERT INTO vfile(vid,deleted,rid,mrid,pathname)"
+          "VALUES(%d,0,0,0,%Q)", vid, zPath);
+      }
     }
     blob_reset(&pathname);
     free(zName);

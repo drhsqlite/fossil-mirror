@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Use\sthe\sSCRIPT_NAME\senvironment\svariable\srather\sthan\sREQUEST_URI\sto\nfind\sthe\sbase\sname\sof\sthe\sCGI\sscript.
-D 2008-05-13T00:19:15
+C Make\sattempts\sto\sadd\s_FOSSIL_,\smanifest,\sand\smanifest.uuid\swarnings,\nnot\sfatal\serrors.\s\sThis\sallows\susers\sto\ssay\sthings\slike\n"fossil\sadd\s*"\swhen\sinitially\spopulating\sa\snew\sproject\srepository.
+D 2008-05-13T13:20:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -36,7 +36,7 @@ F debian/makedeb.sh f6874667ddd94de9db3bb55b54e0a4ef3e2412bb x
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c 5acaff69fc9f9e69db778d3fd702ac5a4856ff53
+F src/add.c e817fb01ea56beb5630b6d40042df3b34f7bc6cf
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
@@ -62,7 +62,7 @@ F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 1846288242b375b366e476c1bfea5fe003df7647
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c d82321902f5bf628add51aab64ada844285aa10a
+F src/main.c b6f2004a21e48268f45923ddd367bcfd84b362f2
 F src/main.mk c57838417db10bd2613b5894c4dfeb889b0d136a
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P ec82a32b8010ec0d4f579fc37a57665e612a5ada
-R 4a816bfbfb67e6a883aa0767c4e4ffb6
+P c23469468bc6a8a47bb33bb94e61dcaa5058d3d9
+R 6a61527cb5fd40fce1efbf2357881c58
 U drh
-Z 79340be9228f85ce257ff78839561f27
+Z 68c66069107b1e8a55bbb8ab9d19dd68
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIKN6HoxKgR168RlERAnvCAJ9Z5gOhUyyUBjW5iFPImUfzSvlzfACeP9tx
-D6siNf+RhTqAx33S2Rc5Ovg=
-=6cZk
+iD8DBQFIKZWeoxKgR168RlERAnhcAJ9H0JUjyJTlPGt0isFEoZWWCH8+5gCcCnux
+XmgwqdKADE5dadDBO4dX08Q=
+=Zjqt
 -----END PGP SIGNATURE-----
