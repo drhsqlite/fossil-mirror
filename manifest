@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s-nosync\soption\sto\sthe\s"open"\scommand.\s\sWe\smight\sconsider\smaking\s-nosync\nthe\sdefault\sfor\s"open".
-D 2008-05-10T18:19:03
+C Use\sthe\sSCRIPT_NAME\senvironment\svariable\srather\sthan\sREQUEST_URI\sto\nfind\sthe\sbase\sname\sof\sthe\sCGI\sscript.
+D 2008-05-13T00:19:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 1846288242b375b366e476c1bfea5fe003df7647
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c 42f0720d464aee1fc20d3072c9ef09dc5b117a95
+F src/main.c d82321902f5bf628add51aab64ada844285aa10a
 F src/main.mk c57838417db10bd2613b5894c4dfeb889b0d136a
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 2d581c03e53e465f186161bb66eed76807061451
-R fc0ad4fc5b123c59f49fed5178875242
+P ec82a32b8010ec0d4f579fc37a57665e612a5ada
+R 4a816bfbfb67e6a883aa0767c4e4ffb6
 U drh
-Z 078aabd548fa85c81e9cc91a170d1304
+Z 79340be9228f85ce257ff78839561f27
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIJechoxKgR168RlERAutUAJ96aUPpprEoR86nuVXp9ObHKhHcfACgiawT
-GtTdmptyPxl2sqeHVei1guE=
-=eqfa
+iD8DBQFIKN6HoxKgR168RlERAnvCAJ9Z5gOhUyyUBjW5iFPImUfzSvlzfACeP9tx
+D6siNf+RhTqAx33S2Rc5Ovg=
+=6cZk
 -----END PGP SIGNATURE-----
