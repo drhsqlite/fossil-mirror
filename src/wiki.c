@@ -600,11 +600,6 @@ void wikirules_page(void){
   style_footer();
 }
 
-void dump_blob_to_FILE( Blob * b, FILE * f )
-{
-	fwrite(blob_buffer(b), 1, blob_size(b), stdout);
-}
-
 /*
 ** COMMAND: wiki
 **
@@ -639,121 +634,59 @@ void wiki_cmd(void){
   }
 
   if( strncmp(g.argv[2],"export",n)==0 ){
-    Stmt q;
-    char *wname;
-    Blob buf;
-    int rid;
-    char * sql;
+    char *wname;            /* Name of the wiki page to export */
+    int rid;                /* Artifact ID of the wiki page */
+    int i;                  /* Loop counter */
+    char *zBody = 0;        /* Wiki page content */
+    Manifest m;             /* Parsed wiki page content */
+
     if( g.argc!=4 ){
-      usage("export EntryName");
+      usage("export PAGENAME");
     }
     wname = g.argv[3];
-    rid = -1;
-    sql = mprintf("SELECT x.rid FROM tag t, tagxref x"
+    rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
       " ORDER BY x.mtime DESC LIMIT 1",
-      wname );
-    db_prepare(&q, "%z", sql );
-    if( db_step(&q) == SQLITE_ROW ){
-      rid = db_column_int(&q,0);
-    }
-    db_finalize(&q);
-    if( -1 == rid ){
-      fprintf(stderr,"export error: wiki entry [%s] not found.\n",wname);
-      exit(1);
-    }
-    if( ! content_get(rid,&buf) ){
-      fprintf(stderr,"export error: content_get(%d) returned 0\n", rid );
-      exit(1);
-    }else
-    {
-      /* Unfortunately, the content_get() routine does ALMOST what i want,
-	 but not quite. It is quite complex, so i don't want to fork a
-	 modified copy here. That's what all the skipping-over bits are for...
-
-	 We look for the first line starting with 'W', then expect '
-	 NUMBER\n' immediately after that, followed by NUMBER bytes
-	 of plain blob content.
-      */
-      int len;
-      char * it;
-      Blob numbuf;
-      blob_zero(&numbuf);
-      it = blob_buffer(&buf);
-      while(*it){
-        if( *it != 'W' ){
-          ++it;
-          while( *it ){
-            if( *it == '\n') { ++it; break; }
-            ++it;
-          }
-          continue;
-        }
-        if( ! *it )
-        {
-            fprintf(stderr,
-              "export reached end of input before finding a 'W' card.\n");
-            exit(1);
-        }
-        ++it;
-        while( (*it) && (*it != '\n') ){
-          if( isspace(*it) ) { ++it; continue; }
-          blob_append(&numbuf,it,1);
-          ++it;
-        }
-        if( '\n' == *it ) ++it;
-        if( 0 == blob_size(&numbuf) ){
-          fprintf(stderr,
-          "export error: didn't find \"W NUMBER\" line in input!\n");
-          blob_reset(&buf);
-          blob_reset(&numbuf);
-          exit(1);
-        }
-        len = atoi(blob_buffer(&numbuf));
-        //fprintf(stderr,"Writing %s (%d) bytes...\n",blob_buffer(&numbuf),len);
-        blob_reset(&numbuf);
-        if( ( (it - blob_buffer(&buf)) + len) > blob_size(&buf) ){
-          fprintf(stderr,
-            "export error: manifest data doesn't match actual data size!"
-            " Manifest says [%s (%d)] bytes.\n",
-            blob_buffer(&numbuf), len );
-          blob_reset(&buf);
-          blob_reset(&numbuf);
-          exit(1);
-        }
-        fwrite(it,sizeof(char),len,stdout);
-        blob_reset(&buf);
-        return;
+      wname 
+    );
+    if( rid ){
+      Blob content;
+      content_get(rid, &content);
+      manifest_parse(&m, &content);
+      if( m.type==CFTYPE_WIKI ){
+        zBody = m.zWiki;
       }
     }
-    blob_reset(&buf);
+    if( zBody==0 ){
+      fossil_fatal("wiki page [%s] not found",wname);
+    }
+    for(i=strlen(zBody); i>0 && isspace(zBody[i-1]); i--){}
+    printf("%.*s\n", i, zBody);
     return;
   }else
   if( strncmp(g.argv[2],"commit",n)==0 ){
     char *wname;
     if( g.argc!=4 ){
-      usage("commit EntryName");
+      usage("commit PAGENAME");
     }
     wname = g.argv[3];
-    fprintf(stderr,"commit not yet implemented.\n");
-    exit(1);
+    fossil_fatal("wiki commit not yet implemented.");
   }else
   if( strncmp(g.argv[2],"delete",n)==0 ){
     if( g.argc!=5 ){
-      usage("delete WikiName");
+      usage("delete PAGENAME");
     }
-    fprintf(stderr,"delete not yet implemented.\n");
-    exit(1);
+    fossil_fatal("delete not yet implemented.");
   }else
   if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
     db_prepare(&q, 
-               "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
-               " ORDER BY lower(tagname)"
-               );
+      "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
+      " ORDER BY lower(tagname)"
+    );
     while( db_step(&q)==SQLITE_ROW ){
-        const char *zName = db_column_text(&q, 0);
-        printf( "%s\n",zName);
+      const char *zName = db_column_text(&q, 0);
+      printf( "%s\n",zName);
     }
     db_finalize(&q);
   }else
@@ -763,6 +696,5 @@ void wiki_cmd(void){
   return;
 
 wiki_cmd_usage:
-  usage("delete|export|commit|list [EntryName]");
+  usage("delete|export|commit|list ...");
 }
-
