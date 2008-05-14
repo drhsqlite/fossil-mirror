@@ -614,13 +614,15 @@ void wikirules_page(void){
 **
 **     %fossil wiki list
 **
-**         Lists all wiki entries, one per line.
-**
+**         Lists all wiki entries, one per line, ordered
+**         case-insentively by name.
 **
 ** TODOs:
 **
-**     %fossil export WikiName ?UUID? ?-f outfile?
-**     %fossil commit WikiName ?-f infile?
+**     %fossil export ?UUID? ?-f outfile[=stdout]? WikiName
+**     %fossil delete ?-m MESSAGE? WikiName (can we have a commit message for a wiki page?)
+**     %fossil commit ?-f infile[=stdin]? WikiName
+**     Commit should create a new entry if one doesn't exist.
 */
 void wiki_cmd(void){
   int n;
