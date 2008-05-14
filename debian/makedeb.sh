@@ -12,7 +12,7 @@ if uname -a | grep -i nexenta &>/dev/null; then
     DEB_ARCH_NAME=solaris-i386
     DEB_ARCH_PKGDEPENDS="sunwcsl" # for -lsocket
 else
-    DEB_PLATFORM=${DEB_PLATFORM-ubuntu-feisty}
+    DEB_PLATFORM=${DEB_PLATFORM-ubuntu-gutsy}
     DEB_ARCH_NAME=i386
 fi
 
