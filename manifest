@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C corrected\smy\s*buntu\srelease\sname
-D 2008-05-14T23:02:18
+C corrected\spackage\sdescription
+D 2008-05-14T23:08:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -32,7 +32,7 @@ F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
-F debian/makedeb.sh 4c68bf9857fc3d9f8653f76a905286e41c97595d x
+F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c x
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P cf5bbd92a2f5f0585c118b20fdb2eeb6c160581e
-R 8279a6351715d9ab23b79cfa17d2b526
+P 7c4eee9c9c58730d91e9539b5b4b8acb6d2213ac
+R e5f6b6e0485a21f971d3583d858c0951
 U stephan
-Z c545394fe366b7ba5e3135586a4062d2
+Z 0b46b1c2fc1e6a32277b6b3e407b8d88
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIK296ZWKvbTL0CBgRAt1cAKDOoVjbiYLck4jTaItWLhiLkdF0sACgh6Gg
-ivGeBn+qmhuMkNH1yoxjiw8=
-=e4fz
+iD8DBQFIK3D3ZWKvbTL0CBgRAp5TAJ4lLclgwv5digUhaCFN8UkfYZSF+gCfePN9
+rE+e9FOODdNwhK2btokHH18=
+=UX+d
 -----END PGP SIGNATURE-----

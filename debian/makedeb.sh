@@ -95,11 +95,14 @@ Maintainer: stephan beal <stephan@s11n.net>
 Architecture: ${DEB_ARCH_NAME}
 Depends: libc6-dev ${DEB_ARCH_PKGDEPENDS+, }${DEB_ARCH_PKGDEPENDS}
 Version: ${PACKAGE_DEB_VERSION}
-Description: a powerful, flexible serialization framework for C++.
- This package contains all files needed for development, as well as the s11nconvert tool
- and library documentation. Note that an ODD minor version number (e.g. 1.1 or 1.3)
- indicates a beta/development version, not intended for general client-side use,
- whereas EVEN minor numbers (e.g. 1.2 or 1.4) indicate stable versions.
+Description: Fossil is a unique SCM (Software Configuration Management) system.
+ This package contains the Fossil binary for *buntu/Debian systems.
+ Fossil is a unique SCM program which supports distributed source control
+ management using local repositories, access over HTTP CGI, or using the
+ built-in HTTP server. It has a built-in wiki, file browsing, etc.
+ Fossil home page: http://fossil-scm.org
+ Fossil author: D. Richard Hipp
+ License: GNU GPLv2
 EOF
 
 }
