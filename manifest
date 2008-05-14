@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sthe\sspelling\sof\s"descendant"\sto\suse\sthe\s-ant\ssuffix\severywhere,\nincluding\sin\sthe\sfilename\s"descendant.c".\s\sThe\sadjective\sform\scan\sbe\nspelled\seither\s-ant\sor\s-ent,\sbut\sthe\snoun\sform\srequires\s-ant,\sor\sso\nsays\sAmerican\sHeritage.
-D 2008-05-14T02:03:45
+C Return\sa\sproper\serror\smessage\sif\sthe\sfirst\sline\sof\san\sHTTP\srequested\nhanded\sto\sthe\s"http"\scommand\sis\sblank.
+D 2008-05-14T12:21:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -42,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c 651d100b98c588a5d89725235435d1249ceb60ce
+F src/cgi.c 52f3e41396d013cadf89a89719aa52ab1eb654c8
 F src/checkin.c e7a974d371d6bf8462db46c1b21c8673a0ab716c
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 844718abbfb4b49f05986501161a90d4a530d1a7
-R 915bc9ef57b3fe8f80acf1c7b062a415
+P 6458f020fcb1dc21d7911c98830464e7c668e58e
+R e224858a83754543d250b66e6bd245bb
 U drh
-Z c1eec9ed99ff0a65c52ef59666fc3836
+Z 29284994147c8d497cafeb6e394b9d21
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIKkiFoxKgR168RlERArM5AJ9kEE6a/ZFPHO6rwoH6nzuZ1Uf5FgCfQYRJ
-SZJxD8aX5mOR4PfLJ4GDhV4=
-=iIJ9
+iD8DBQFIKtlGoxKgR168RlERAqg9AJ0fgBUoRgDy8isv6N4PFcuvk1CJ0gCgjaf0
+pol1qcHFEVJ5PMtAd7GGD3Y=
+=11Gc
 -----END PGP SIGNATURE-----

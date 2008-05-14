@@ -85,8 +85,8 @@ extern int sqlite3StrICmp(const char*, const char*);
 **
 ** The cgi_destination() interface switch between the buffers.
 */
-static Blob *pContent;
 static Blob cgiContent[2] = { BLOB_INITIALIZER, BLOB_INITIALIZER };
+static Blob *pContent = &cgiContent[0];
 
 /*
 ** Set the destination buffer into which to accumulate CGI content.
