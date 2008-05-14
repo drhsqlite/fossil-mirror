@@ -603,26 +603,41 @@ void wikirules_page(void){
 /*
 ** COMMAND: wiki
 **
-** Usage: %fossil wiki (export|commit|list) WikiName
+** Usage: %fossil wiki (export|delete|commit|list) WikiName
 **
 ** Run various subcommands to fetch wiki entries.
 **
 **     %fossil wiki export WikiName
 **
-**         Sends the latest version of the WikiName wiki
-**         entry to stdout.
+**        Sends the latest version of the WikiName wiki
+**        entry to stdout.
 **
 **     %fossil wiki list
 **
-**         Lists all wiki entries, one per line, ordered
-**         case-insentively by name.
+**        Lists all wiki entries, one per line, ordered
+**        case-insentively by name.
 **
 ** TODOs:
 **
-**     %fossil export ?UUID? ?-f outfile[=stdout]? WikiName
-**     %fossil delete ?-m MESSAGE? WikiName (can we have a commit message for a wiki page?)
-**     %fossil commit ?-f infile[=stdin]? WikiName
-**     Commit should create a new entry if one doesn't exist.
+**     %fossil wiki export ?UUID? ?-f outfile[=stdout]? WikiName
+**
+**        Outputs the selected version of WikiName to the selected file.
+**
+**     %fossil wiki delete ?-m MESSAGE? WikiName
+**
+**        The same as deleting a file entry, but i don't know if fossil
+**        supports a commit message for Wiki entries.
+**
+**     %fossil wiki ?-u? ?-d? ?-s=[|]? list
+**
+**        Lists the UUID and/or Date of last change for each entry, delimited
+**        by the -s char.
+**
+**     %fossil wiki commit ?-f infile[=stdin]? WikiName
+**
+**        Commit changes to a wiki page from a file or standard input.
+**        It creats a new entry if needed (or is that philosophically
+**        wrong?).
 */
 void wiki_cmd(void){
   int n;
