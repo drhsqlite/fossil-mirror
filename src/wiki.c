@@ -24,6 +24,7 @@
 ** This file contains code to do formatting of wiki text.
 */
 #include <assert.h>
+#include <ctype.h>
 #include "config.h"
 #include "wiki.h"
 
@@ -598,3 +599,148 @@ void wikirules_page(void){
   @ </ol>
   style_footer();
 }
+
+void dump_blob_to_FILE( Blob * b, FILE * f )
+{
+	fwrite(blob_buffer(b), 1, blob_size(b), stdout);
+}
+
+/*
+** COMMAND: wiki
+**
+** Usage: %fossil wiki (export|import) EntryName
+**
+**
+** TODOS:
+**
+** export WikiName ?UUID? ?-f outfile?
+*/
+void wiki_cmd(void){
+  int n;
+  db_find_and_open_repository(1);
+  if( g.argc<3 ){
+    goto wiki_cmd_usage;
+  }
+  n = strlen(g.argv[2]);
+  if( n==0 ){
+    goto wiki_cmd_usage;
+  }
+
+  if( strncmp(g.argv[2],"export",n)==0 ){
+    Stmt q;
+    char *wname;
+    Blob buf;
+    int rid;
+    char * sql;
+    if( g.argc!=4 ){
+      usage("export EntryName");
+    }
+    wname = g.argv[3];
+    //printf("exporting wiki entry %s\n",wname);
+    rid = -1;
+
+    sql = mprintf("select x.rid from tag t, tagxref x "
+          "where x.tagid=t.tagid and t.tagname='wiki-%q' "
+      " order by x.mtime desc limit 1",
+      wname );
+    printf("SQL=%s\n",sql);
+    db_prepare(&q, "%z", sql );
+    while( db_step(&q) == SQLITE_ROW ){
+      rid = db_column_int(&q,0);
+      break;
+    }
+    db_finalize(&q);
+    if( -1 == rid ){
+      fprintf(stderr,"export error: wiki entry [%s] not found.\n",wname);
+      exit(1);
+    }
+    fprintf(stderr,"export rid==%d\n", rid );
+    if( ! content_get(rid,&buf) ){
+      fprintf(stderr,"export error: content_get(%d) returned 0\n", rid );
+      exit(1);
+    }else
+    {
+      /* Unfortunately, the content_get() routine does ALMOST what i want,
+	 but not quite. It is quite complex, so i don't want to fork a
+	 modified copy here. That's what all the skipping-over bits are for...
+
+	 We look for the first line starting with 'W', then expect '
+	 NUMBER\n' immediately after that, followed by NUMBER bytes
+	 of plain blob content.
+      */
+      int len;
+      char * it;
+      Blob numbuf;
+      blob_zero(&numbuf);
+      it = blob_buffer(&buf);
+      while(*it){
+        if( *it != 'W' ){
+          ++it;
+          while( *it ){
+            if( *it == '\n') { ++it; break; }
+            ++it;
+          }
+          continue;
+        }
+        ++it;
+        while( (*it) && (*it != '\n') ){
+          if( isspace(*it) ) { ++it; continue; }
+          blob_append(&numbuf,it,1);
+          ++it;
+        }
+        if( '\n' == *it ) ++it;
+        if( 0 == blob_size(&numbuf) ){
+          fprintf(stderr,
+          "export error: didn't find \"W NUMBER\" line in input!\n");
+          blob_zero(&buf);
+          blob_zero(&numbuf);
+          exit(1);
+        }
+        len = atoi(blob_buffer(&numbuf));
+        //fprintf(stderr,"Writing %d (%s) bytes...\n",len,blob_buffer(&numbuf));
+        blob_zero(&numbuf);
+        fwrite(it,sizeof(char),len,stdout);
+        blob_zero(&buf);
+        return;
+      }
+    }
+    blob_zero(&buf);
+    return;
+  }else
+  if( strncmp(g.argv[2],"import",n)==0 ){
+    char *wname;
+    if( g.argc!=4 ){
+      usage("import EntryName");
+    }
+    wname = g.argv[3];
+    fprintf(stderr,"import not yet implemented.\n");
+    exit(1);
+  }else
+  if( strncmp(g.argv[2],"delete",n)==0 ){
+    if( g.argc!=5 ){
+      usage("delete WikiName");
+    }
+    fprintf(stderr,"delete not yet implemented.\n");
+    exit(1);
+  }else
+  if( strncmp(g.argv[2],"list",n)==0 ){
+    Stmt q;
+    db_prepare(&q, 
+               "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
+               " ORDER BY lower(tagname)"
+               );
+    while( db_step(&q)==SQLITE_ROW ){
+        const char *zName = db_column_text(&q, 0);
+        printf( "%s\n",zName);
+    }
+    db_finalize(&q);
+  }else
+  {
+    goto wiki_cmd_usage;
+  }
+  return;
+
+wiki_cmd_usage:
+  usage("delete|export|import|list [EntryName]");
+}
+
