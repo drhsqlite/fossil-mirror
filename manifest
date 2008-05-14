@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C corrected\spackage\sdescription
-D 2008-05-14T23:08:39
+C fixed\sto\sC++isms\swhich\sAnnotate\saccuses\sme\sof\sadding\son\s2008.2.2\s;)
+D 2008-05-14T23:13:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -105,7 +105,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c ea1fb250d51f6778e8db292a59b344f13678193f
+F src/wiki.c 334a83003717fb1f08f44bac41ca6d3d75f80c4d
 F src/wikiformat.c 30a93b77785d32ac75c3da0cdb0a24cb6c5fd99d
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7c4eee9c9c58730d91e9539b5b4b8acb6d2213ac
-R e5f6b6e0485a21f971d3583d858c0951
+P 3c6067dd07042a7a44fd3e1b36badfb08fca281f
+R bc92abc4fd1ffcffb69e89b48049882a
 U stephan
-Z 0b46b1c2fc1e6a32277b6b3e407b8d88
+Z fcb4a2888da3786516dadf5b6de11f2a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIK3D3ZWKvbTL0CBgRAp5TAJ4lLclgwv5digUhaCFN8UkfYZSF+gCfePN9
-rE+e9FOODdNwhK2btokHH18=
-=UX+d
+iD8DBQFIK3IdZWKvbTL0CBgRAhkaAKCouSDa9ciXtXx7idQrhgTVAuSn1QCgomtb
+qxQyMi4C/aCVKE/21nHQnZM=
+=2qE5
 -----END PGP SIGNATURE-----
