@@ -608,12 +608,24 @@ void dump_blob_to_FILE( Blob * b, FILE * f )
 /*
 ** COMMAND: wiki
 **
-** Usage: %fossil wiki (export|import) EntryName
+** Usage: %fossil wiki (export|import|list) WikiName
+**
+** Run various subcommands to fetch wiki entries.
+**
+**     %fossil wiki export WikiName
+**
+**         Sends the latest version of the WikiName wiki
+**         entry to stdout.
+**
+**     %fossil wiki list
+**
+**         Lists all wiki entries, one per line.
 **
 **
-** TODOS:
+** TODOs:
 **
-** export WikiName ?UUID? ?-f outfile?
+**     %fossil export WikiName ?UUID? ?-f outfile?
+**     %fossil import WikiName ?-f infile?
 */
 void wiki_cmd(void){
   int n;
@@ -643,7 +655,6 @@ void wiki_cmd(void){
           "where x.tagid=t.tagid and t.tagname='wiki-%q' "
       " order by x.mtime desc limit 1",
       wname );
-    printf("SQL=%s\n",sql);
     db_prepare(&q, "%z", sql );
     while( db_step(&q) == SQLITE_ROW ){
       rid = db_column_int(&q,0);
@@ -654,7 +665,6 @@ void wiki_cmd(void){
       fprintf(stderr,"export error: wiki entry [%s] not found.\n",wname);
       exit(1);
     }
-    fprintf(stderr,"export rid==%d\n", rid );
     if( ! content_get(rid,&buf) ){
       fprintf(stderr,"export error: content_get(%d) returned 0\n", rid );
       exit(1);
