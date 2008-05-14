@@ -21,11 +21,11 @@
 **
 *******************************************************************************
 **
-** This file contains code used to find decendents of a version
+** This file contains code used to find decendants of a version
 ** or leaves of a version tree.
 */
 #include "config.h"
-#include "descendents.h"
+#include "descendants.h"
 #include <assert.h>
 
 
@@ -36,8 +36,8 @@
 ** version iBase.
 */
 void compute_leaves(int iBase){
-  Bag seen;       /* Descendents seen */
-  Bag pending;    /* Unpropagated descendents */
+  Bag seen;       /* Descendants seen */
+  Bag pending;    /* Unpropagated descendants */
 
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS leaves("
@@ -102,10 +102,10 @@ void compute_ancestors(int rid, int N){
 }
 
 /*
-** Load the record ID rid and up to N-1 closest descendents into
+** Load the record ID rid and up to N-1 closest descendants into
 ** the "ok" table.
 */
-void compute_descendents(int rid, int N){
+void compute_descendants(int rid, int N){
   Bag seen;
   PQueue queue;
   bag_init(&seen);
@@ -130,14 +130,14 @@ void compute_descendents(int rid, int N){
 }
 
 /*
-** COMMAND:  descendents
+** COMMAND:  descendants
 **
-** Usage: %fossil descendents ?UUID?
+** Usage: %fossil descendants ?UUID?
 **
-** Find all leaf descendents of the current version or of the
+** Find all leaf descendants of the current version or of the
 ** specified version.
 */
-void descendents_cmd(void){
+void descendants_cmd(void){
   Stmt q;
   int base;
 

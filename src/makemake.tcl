@@ -24,7 +24,7 @@ set src {
   db
   delta
   deltacmd
-  descendents
+  descendants
   diff
   diffcmd
   encode

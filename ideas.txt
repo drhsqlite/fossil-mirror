@@ -119,7 +119,7 @@ Markup:
 Random thoughts:
 
   * Plink.isprim changed to record:
-     +  child is the principal descendent of parent. (1)
+     +  child is the principal descendant of parent. (1)
      +  child is a branch from parent (2)
      +  child uses parent as a merge (0)
 
@@ -148,7 +148,7 @@ Random thoughts:
      + Use a small amount of CSS+javascript on timelines so that
        branching structure is displayed on mouseover.  On mouseover
        of a checkin, highlight other checkins that are direct (non-merge)
-       descendents and ancestors of the mouseover checkin.
+       descendants and ancestors of the mouseover checkin.
      + Timeline showing individual branches
      + Timeline shows forks and merges
      + Tags shown on timeline (maybe) and in vinfo (surely).

@@ -102,7 +102,7 @@ void update_cmd(void){
       );
       print_timeline(&q, 100);
       db_finalize(&q);
-      fossil_fatal("Multiple descendents");
+      fossil_fatal("Multiple descendants");
     }
     tid = db_int(0, "SELECT rid FROM leaves, event"
                     " WHERE event.objid=leaves.rid"

@@ -74,7 +74,7 @@ static void rebuild_step_done(void){
 
 /*
 ** Rebuild cross-referencing information for the artifact
-** rid with content pBase and all of its descendents.  This
+** rid with content pBase and all of its descendants.  This
 ** routine clears the content buffer before returning.
 */
 static void rebuild_step(int rid, Blob *pBase){

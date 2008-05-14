@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sattempts\sto\sadd\s_FOSSIL_,\smanifest,\sand\smanifest.uuid\swarnings,\nnot\sfatal\serrors.\s\sThis\sallows\susers\sto\ssay\sthings\slike\n"fossil\sadd\s*"\swhen\sinitially\spopulating\sa\snew\sproject\srepository.
-D 2008-05-13T13:20:27
+C Change\sthe\sspelling\sof\s"descendant"\sto\suse\sthe\s-ant\ssuffix\severywhere,\nincluding\sin\sthe\sfilename\s"descendant.c".\s\sThe\sadjective\sform\scan\sbe\nspelled\seither\s-ant\sor\s-ent,\sbut\sthe\snoun\sform\srequires\s-ant,\sor\sso\nsays\sAmerican\sHeritage.
+D 2008-05-14T02:03:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -34,7 +34,7 @@ F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh f6874667ddd94de9db3bb55b54e0a4ef3e2412bb x
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
-F ideas.txt 8ca41c63e4f06a847a40389d74d0e5caaf68660a
+F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c e817fb01ea56beb5630b6d40042df3b34f7bc6cf
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
@@ -54,19 +54,19 @@ F src/content.c 837378bf401381afa0328daa01d80431d5febdec
 F src/db.c 0644da6326cde50e22230d6565176996960551aa
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendents.c aaa2bf991fb80aa43d32dcef435a135ff7201bcc
+F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
 F src/diff.c 626c13bd4ede9fd607bdb7e0ea9789c1f78a4a1b
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c 1846288242b375b366e476c1bfea5fe003df7647
+F src/info.c 60d6be822b4c7f3c41b275a186ac220803c61242
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
 F src/main.c b6f2004a21e48268f45923ddd367bcfd84b362f2
-F src/main.mk c57838417db10bd2613b5894c4dfeb889b0d136a
+F src/main.mk 2243ce05bfe933676334fe4565eac8b622cb90fd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 46657085bda8394c0d05de79aa5d71f484abcc5b
+F src/makemake.tcl 49df4f8e4481cb1090d87ead5d10445c98f66dfc
 F src/manifest.c 8e8e54e6bf7fc5e01cbd65f390051eeb4eb7f917
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -77,7 +77,7 @@ F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c b5c158aea9e899f43184ce4948aafc709b755fb1
+F src/rebuild.c 048501db148b135a4e8c1bcfe4f31649e9f63096
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
@@ -94,13 +94,13 @@ F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 7258c955ba097b1b1819f8b53963fe33a7bf5a9b
-F src/timeline.c 2c67ece757ac1da5247afc10bdc204b0c8d63b0e
+F src/timeline.c 3666af55b7ffba4a32ae38acd54fd0f513859bbe
 F src/tkt.c e7e06add5cc8dada9b15a1459381cf3466cac957
 F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
-F src/update.c 8e9fd979cf72723c32f56b5acea2fbf971693e29
+F src/update.c cb0a6551aff4c509f8fa95600f89933819b8cdeb
 F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
@@ -170,7 +170,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F wiki_and_ticket_ideas.txt 210e4ddb28eb077b7262ac8c2cdb5d2391410f1e
-F win32.txt ee38ffb58e908925e8e4161d82e755cbf9d8d63c
+F win32.txt 43b176572660b31c7fd8d211d8ecdcc376eeeea6
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
@@ -186,7 +186,7 @@ F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.html 2fdda5715167189835f74038508c3cccddcd1c4d
-F www/delta_format.html db8d44b23e31e469b4fc2ff718eecf858b838182
+F www/delta_format.html 2d08a3a146cd907c91834711d04243bfbc877ad9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -197,22 +197,22 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 40a53b49c486316b7029c9b0bf2b10563f2daccf
+F www/fileformat.html 677a2a9b1991a47a592f8594e093063afb5a669c
 F www/index.html 263b2dabf4e24c49675f6ccad8ddbc7d2f015064
 F www/index.wiki 314475c431784269892809f8882996d9c80fa185
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
-F www/selfcheck.html 82d080c27629e0c2a8eefb2bd3508eb17c787d35
+F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P c23469468bc6a8a47bb33bb94e61dcaa5058d3d9
-R 6a61527cb5fd40fce1efbf2357881c58
+P 844718abbfb4b49f05986501161a90d4a530d1a7
+R 915bc9ef57b3fe8f80acf1c7b062a415
 U drh
-Z 68c66069107b1e8a55bbb8ab9d19dd68
+Z c1eec9ed99ff0a65c52ef59666fc3836
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIKZWeoxKgR168RlERAnhcAJ9H0JUjyJTlPGt0isFEoZWWCH8+5gCcCnux
-XmgwqdKADE5dadDBO4dX08Q=
-=Zjqt
+iD8DBQFIKkiFoxKgR168RlERArM5AJ9kEE6a/ZFPHO6rwoH6nzuZ1Uf5FgCfQYRJ
+SZJxD8aX5mOR4PfLJ4GDhV4=
+=iIJ9
 -----END PGP SIGNATURE-----

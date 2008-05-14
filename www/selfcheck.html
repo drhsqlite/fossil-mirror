@@ -50,7 +50,7 @@ is rolled back and the database is unchanged.
 The content files that comprise the global state of a fossil respository
 are stored in the repository as a tree.  The leaves of the tree are
 stored as zlib-compressed BLOBs.  Interior nodes are deltas from their
-decendents.  A lot of encoding is going on.  There is
+decendants.  A lot of encoding is going on.  There is
 zlib-compression which is relatively well-tested but still might
 cause corruption if used improperly.  And there is the relatively
 new delta-encoding mechanism designed expressly for fossil.  We want

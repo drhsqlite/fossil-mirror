@@ -222,7 +222,7 @@ const char *timeline_query_for_www(void){
 **    b=TIMESTAMP    before this date.
 **    n=COUNT        number of events in output
 **    p=RID          artifact RID and up to COUNT parents and ancestors
-**    d=RID          artifact RID and up to COUNT descendents
+**    d=RID          artifact RID and up to COUNT descendants
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 'tkt'
 **
@@ -240,7 +240,7 @@ void page_timeline(void){
   Blob desc;                         /* Description of the timeline */
   int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
   int p_rid = atoi(PD("p","0"));     /* artifact p and its parents */
-  int d_rid = atoi(PD("d","0"));     /* artifact d and its descendents */
+  int d_rid = atoi(PD("d","0"));     /* artifact d and its descendants */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType = P("y");        /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
@@ -272,11 +272,11 @@ void page_timeline(void){
     blob_appendf(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
-      compute_descendents(d_rid, nEntry);
+      compute_descendants(d_rid, nEntry);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>0 ){
         db_multi_exec("%s", blob_str(&sql));
-        blob_appendf(&desc, "%d descendents", nd);
+        blob_appendf(&desc, "%d descendants", nd);
       }
       db_multi_exec("DELETE FROM ok");
     }
@@ -572,7 +572,7 @@ const char *timeline_query_for_tty(void){
 **
 **     before
 **     after
-**     descendents | children
+**     descendants | children
 **     ancestors | parents
 **
 ** The UUID can be any unique prefix of 4 characters or more.
@@ -603,7 +603,7 @@ void timeline_cmd(void){
       mode = 1;
     }else if( strncmp(g.argv[2],"after",k)==0 && k>1 ){
       mode = 2;
-    }else if( strncmp(g.argv[2],"descendents",k)==0 ){
+    }else if( strncmp(g.argv[2],"descendants",k)==0 ){
       mode = 3;
     }else if( strncmp(g.argv[2],"children",k)==0 ){
       mode = 3;
@@ -625,7 +625,7 @@ void timeline_cmd(void){
   blob_append(&uuid, zOrigin, -1);
   if( strcmp(zOrigin, "now")==0 ){
     if( mode==3 || mode==4 ){
-      fossil_fatal("cannot compute descendents or ancestors of a date");
+      fossil_fatal("cannot compute descendants or ancestors of a date");
     }
     zDate = mprintf("(SELECT datetime('now'))");
   }else if( strncmp(zOrigin, "current", k)==0 ){
@@ -636,7 +636,7 @@ void timeline_cmd(void){
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else{
     if( mode==3 || mode==4 ){
-      fossil_fatal("cannot compute descendents or ancestors of a date");
+      fossil_fatal("cannot compute descendants or ancestors of a date");
     }
     zDate = mprintf("(SELECT julianday(%Q, 'utc'))", zOrigin);
   }
@@ -648,7 +648,7 @@ void timeline_cmd(void){
   if( mode==3 || mode==4 ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     if( mode==3 ){
-      compute_descendents(objid, n);
+      compute_descendants(objid, n);
     }else{
       compute_ancestors(objid, n);
     }

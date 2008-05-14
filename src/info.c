@@ -108,10 +108,10 @@ void info_cmd(void){
 }
 
 /*
-** Show information about descendents of a baseline.  Do this recursively
-** to a depth of N.  Return true if descendents are shown and false if not.
+** Show information about descendants of a baseline.  Do this recursively
+** to a depth of N.  Return true if descendants are shown and false if not.
 */
-static int showDescendents(int pid, int depth, const char *zTitle){
+static int showDescendants(int pid, int depth, const char *zTitle){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
@@ -143,7 +143,7 @@ static int showDescendents(int pid, int depth, const char *zTitle){
     hyperlink_to_uuid(zUuid);
     @ %w(zCom) (by %s(zUser) on %s(zDate))
     if( depth ){
-      n = showDescendents(cid, depth-1, 0);
+      n = showDescendants(cid, depth-1, 0);
     }else{
       n = db_int(0, "SELECT 1 FROM plink WHERE pid=%d", cid);
     }
@@ -337,7 +337,7 @@ void vinfo_page(void){
     if( g.okHistory ){
       @ <tr><th>Timelines:</th><td>
       @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
-      @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendents</a>
+      @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendants</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)&p=%d(rid)">both</a>
       @ </td></tr>
       @ <tr><th>Commands:</th>
@@ -384,7 +384,7 @@ void vinfo_page(void){
   }
   @ </ul>
   compute_leaves(rid);
-  showDescendents(rid, 2, "Descendents");
+  showDescendants(rid, 2, "Descendants");
   showLeaves();
   showAncestors(rid, 2, "Ancestors");
   style_footer();

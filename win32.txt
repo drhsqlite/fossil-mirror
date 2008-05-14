@@ -53,7 +53,7 @@ commit            OK
 config            OK
 deconstruct       OK
 del               OK
-descendents       OK
+descendants       OK
 diff              OK
 extra             OK
 help              OK
