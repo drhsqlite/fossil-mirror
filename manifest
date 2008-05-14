@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C removed\s2\sremaining\sdebug\slines.\sCleaned\sup\shelp\stext.
-D 2008-05-14T20:02:10
+C cleaned\sup\serror\shandling\sa\sbit,\sminor\scode\sstyle\schanges,\ss/import/commit/
+D 2008-05-14T20:26:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -105,7 +105,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c b3b42c9e1346bc9d5629d2aba5c5d1395f5635e5
+F src/wiki.c f90204e0f41955822e8e73c2fe1b9131041b52f1
 F src/wikiformat.c 30a93b77785d32ac75c3da0cdb0a24cb6c5fd99d
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 5fb1152dab8160e5fd690c4d7e234dfacb03d1b7
-R 696a94ae5831b99ae6f730f245930d18
+P 87a1a31d1d1d9c71db2e291c05c6a6b0557dba70
+R 1a41901acfa79d8c5ab77b4c2d821283
 U stephan
-Z ab3eac086c209e8724fe8827b901ae9c
+Z 8757c5f73f2aa725ef4fe9044570411c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIK0VCZWKvbTL0CBgRApKDAKCHQTiqOgWuW/uDU/VOBb89YvlV7wCfambq
-nlOQe/MZOvyIwHlRyKLtZVU=
-=T2mF
+iD8DBQFIK0rlZWKvbTL0CBgRAjMvAKCyRrWUl+gbbsQWxejUFOwk6uKDjwCgkeGN
+6VQs2Vo1HVGPpQCo5vF90+4=
+=+Zg3
 -----END PGP SIGNATURE-----

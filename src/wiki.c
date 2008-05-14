@@ -608,7 +608,7 @@ void dump_blob_to_FILE( Blob * b, FILE * f )
 /*
 ** COMMAND: wiki
 **
-** Usage: %fossil wiki (export|import|list) WikiName
+** Usage: %fossil wiki (export|commit|list) WikiName
 **
 ** Run various subcommands to fetch wiki entries.
 **
@@ -625,7 +625,7 @@ void dump_blob_to_FILE( Blob * b, FILE * f )
 ** TODOs:
 **
 **     %fossil export WikiName ?UUID? ?-f outfile?
-**     %fossil import WikiName ?-f infile?
+**     %fossil commit WikiName ?-f infile?
 */
 void wiki_cmd(void){
   int n;
@@ -648,17 +648,14 @@ void wiki_cmd(void){
       usage("export EntryName");
     }
     wname = g.argv[3];
-    //printf("exporting wiki entry %s\n",wname);
     rid = -1;
-
-    sql = mprintf("select x.rid from tag t, tagxref x "
-          "where x.tagid=t.tagid and t.tagname='wiki-%q' "
-      " order by x.mtime desc limit 1",
+    sql = mprintf("SELECT x.rid FROM tag t, tagxref x"
+      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+      " ORDER BY x.mtime DESC LIMIT 1",
       wname );
     db_prepare(&q, "%z", sql );
-    while( db_step(&q) == SQLITE_ROW ){
+    if( db_step(&q) == SQLITE_ROW ){
       rid = db_column_int(&q,0);
-      break;
     }
     db_finalize(&q);
     if( -1 == rid ){
@@ -692,6 +689,12 @@ void wiki_cmd(void){
           }
           continue;
         }
+        if( ! *it )
+        {
+            fprintf(stderr,
+              "export reached end of input before finding a 'W' card.\n");
+            exit(1);
+        }
         ++it;
         while( (*it) && (*it != '\n') ){
           if( isspace(*it) ) { ++it; continue; }
@@ -702,28 +705,37 @@ void wiki_cmd(void){
         if( 0 == blob_size(&numbuf) ){
           fprintf(stderr,
           "export error: didn't find \"W NUMBER\" line in input!\n");
-          blob_zero(&buf);
-          blob_zero(&numbuf);
+          blob_reset(&buf);
+          blob_reset(&numbuf);
           exit(1);
         }
         len = atoi(blob_buffer(&numbuf));
-        //fprintf(stderr,"Writing %d (%s) bytes...\n",len,blob_buffer(&numbuf));
-        blob_zero(&numbuf);
+        //fprintf(stderr,"Writing %s (%d) bytes...\n",blob_buffer(&numbuf),len);
+        blob_reset(&numbuf);
+        if( ( (it - blob_buffer(&buf)) + len) > blob_size(&buf) ){
+          fprintf(stderr,
+            "export error: manifest data doesn't match actual data size!"
+            " Manifest says [%s (%d)] bytes.\n",
+            blob_buffer(&numbuf), len );
+          blob_reset(&buf);
+          blob_reset(&numbuf);
+          exit(1);
+        }
         fwrite(it,sizeof(char),len,stdout);
-        blob_zero(&buf);
+        blob_reset(&buf);
         return;
       }
     }
-    blob_zero(&buf);
+    blob_reset(&buf);
     return;
   }else
-  if( strncmp(g.argv[2],"import",n)==0 ){
+  if( strncmp(g.argv[2],"commit",n)==0 ){
     char *wname;
     if( g.argc!=4 ){
-      usage("import EntryName");
+      usage("commit EntryName");
     }
     wname = g.argv[3];
-    fprintf(stderr,"import not yet implemented.\n");
+    fprintf(stderr,"commit not yet implemented.\n");
     exit(1);
   }else
   if( strncmp(g.argv[2],"delete",n)==0 ){
@@ -751,6 +763,6 @@ void wiki_cmd(void){
   return;
 
 wiki_cmd_usage:
-  usage("delete|export|import|list [EntryName]");
+  usage("delete|export|commit|list [EntryName]");
 }
 
