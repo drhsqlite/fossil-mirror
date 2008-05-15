@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C minor\srefactorings\sto\sthe\swiki\scommands
-D 2008-05-15T20:26:25
+C removed\sas\spart\sof\sthe\s/doc\sport
+D 2008-05-15T20:28:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -175,11 +175,9 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/build.html 9c506f508fbe157b4e22d24388e03a66cd229a30
 F www/build.wiki d16ea958f54c8adc624cbffd6fb0f56fbf23affa
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html d4951ef6037a6683579d4928cc8604ce1825771a
 F www/concepts.wiki a61e6b72f9b6ea8686f69afc13ec216890f93dac
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
@@ -187,9 +185,7 @@ F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.html 2fdda5715167189835f74038508c3cccddcd1c4d
 F www/delta_encoder_algorithm.wiki 83801262d27a7a792a6dd2ef3b5a982881ea370e
-F www/delta_format.html 2d08a3a146cd907c91834711d04243bfbc877ad9
 F www/delta_format.wiki 03e4eaca4d0a0d00c4f5c15f16e95f21acceec6b
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -201,27 +197,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 677a2a9b1991a47a592f8594e093063afb5a669c
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
-F www/index.html 263b2dabf4e24c49675f6ccad8ddbc7d2f015064
 F www/index.wiki 825ed8a24f7c56c9aa82b1f67dcfeeb81ea64a84
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
-F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
-F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
-F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
-F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P d87ca60c58c949a020ca1be8653079e9ced53e63
-R aac9cef35bde459bedbd505c76ad7817
+P bfb4d414dda55cc41956eefd176eada6bbc3ac75
+R 33ee1efcf55cc4f5ad6876f22c816225
 U stephan
-Z c6b1f76bdd6b2fd23068a0745c6121cb
+Z b9401908620f78c85f15f58934b6f915
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILJxxZWKvbTL0CBgRAhPIAKCg930GRoAEGAv42/qYf7FitzhyCwCcCxc2
-ZNrQ5C1abhIxhZqr3gHAu50=
-=6Isf
+iD8DBQFILJ0CZWKvbTL0CBgRAl+fAJwKOS8koVVwt3TeZjo+zDYQXBVxtACfR0oM
+6pJKB+i4TwDypPqX9+xGf7I=
+=329T
 -----END PGP SIGNATURE-----
