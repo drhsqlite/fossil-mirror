@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"/doc"\smethod\son\sthe\sserver.
-D 2008-05-15T16:58:42
+C Separate\sthe\snew\s/doc\smethod\sout\sinto\sits\sown\ssource\sfile.
+D 2008-05-15T20:18:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -57,16 +57,17 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
 F src/diff.c 626c13bd4ede9fd607bdb7e0ea9789c1f78a4a1b
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
+F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c d6911c08c23cd16acc5dc9ca8f2e8f85a7f70817
+F src/info.c 60d6be822b4c7f3c41b275a186ac220803c61242
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
 F src/main.c b6f2004a21e48268f45923ddd367bcfd84b362f2
-F src/main.mk 2243ce05bfe933676334fe4565eac8b622cb90fd
+F src/main.mk 15e5ae0afc35d37ede22e6b3e8aa7983ac2e39a3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 49df4f8e4481cb1090d87ead5d10445c98f66dfc
+F src/makemake.tcl 69c89366448d87596688cbf6a64d663b3af658d6
 F src/manifest.c 8e8e54e6bf7fc5e01cbd65f390051eeb4eb7f917
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -205,14 +206,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P cde6e7a303b0b19621b35b91628b573b6ed75085
-R a459d1aa453e2252a5ca2baa56e301f6
+P 7351b6346d153f984d38ece87b52c222346ed3be
+R de3bfbda7e376aab1e26e3d96a68ec78
 U drh
-Z a892c29b3a270a00832ca5821abe9287
+Z d250222687da459f04d54044b167c045
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILGvFoxKgR168RlERAiagAJ0f2wSVNFMC4D5LvyzwbvWxfEaHGACgiRzm
-PnCMzrIULW6sclW9RrKCyb4=
-=Vuvb
+iD8DBQFILJqboxKgR168RlERAnJFAJ9fuLf21nJ5TYMljESpuqS9Lhu1GwCeKWwx
+fVsXVJJgv8MGeom8X1B/2xg=
+=z99X
 -----END PGP SIGNATURE-----

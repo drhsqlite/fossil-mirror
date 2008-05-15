@@ -27,6 +27,7 @@ set src {
   descendants
   diff
   diffcmd
+  doc
   encode
   file
   http
