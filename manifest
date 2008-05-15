@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C corrected\sa\sbroken\slink
-D 2008-05-15T21:01:28
+C corrected\slink\sto\sindex.wiki
+D 2008-05-15T22:03:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -60,7 +60,7 @@ F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c d6911c08c23cd16acc5dc9ca8f2e8f85a7f70817
+F src/info.c 50a6980b615d0cc866359eb8bbf5c577df036f6e
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
 F src/main.c b6f2004a21e48268f45923ddd367bcfd84b362f2
 F src/main.mk 2243ce05bfe933676334fe4565eac8b622cb90fd
@@ -204,14 +204,14 @@ F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P fda26ca34457e45c3d92b357cdfa9c0d45dc8e46
-R 6ca344b163f7dfefccb642c8405a604c
+P bfab49ede147b9d272c74fcf69fc6f1f555fc99f
+R c3aa6f84184b02cca0d159a9a84e0819
 U stephan
-Z c685f233543340078392aba176a86650
+Z 17c200a3171603b9a8b3f923cd284e0b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILKSoZWKvbTL0CBgRAoZhAKChZcWemPiHRY+CMH0pwdtGVz61PgCeOq3g
-K454Y+xPjt/xFbmj/4sC0Ik=
-=Kt3K
+iD8DBQFILLM7ZWKvbTL0CBgRAv9aAKCpOAa3Ocz5xF12HFJNrOl9j6WAawCfeSmg
+mKuTqW+Q7uK4reSWpxDw5ww=
+=fIO8
 -----END PGP SIGNATURE-----

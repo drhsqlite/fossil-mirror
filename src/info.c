@@ -856,7 +856,7 @@ void doc_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  zName = PD("name", "tip/index.wiki");
+  zName = PD("name", "tip/www/index.wiki");
   for(i=0; zName[i] && zName[i]!='/'; i++){}
   if( zName[i]==0 || i>UUID_SIZE ){
     goto doc_not_found;
