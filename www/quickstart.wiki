@@ -1,0 +1,275 @@
+<h1 align="center">Fossil Quick Start</h1>
+
+<p>This is a guide to get you started using fossil quickly
+and painlessly.</p>
+
+<h2>Installing</h2><blockquote>
+
+    <p>Fossil is a single self-contained C program.  You need to
+    either download a <a href="download.wiki">FIXME precompiled binary</a>
+    or <a href="build.wiki">build it yourself</a> from sources.
+    Install fossil by putting the fossil binary
+    someplace on your PATH environment variable.</p>
+    
+    </blockquote>
+    <h2>Cloning A Existing Repository</h2>
+    <blockquote>
+    
+    <p>Use this command:</p>
+    
+    <blockquote>
+    <b>fossil clone</b> <i>URL  repository-filename</i>
+    </blockquote>
+    
+    <p>The <i>URL</i> above is the http URL for the fossil repository
+    you want to clone.  You can call the new repository anything you
+    want - there are no naming restrictions.  As an example, you can
+    clone the fossil repository this way:</p>
+    
+    <blockquote>
+    <b>fossil clone http://www.fossil-scm.org/fossil myclone.fsl</b>
+    </blockquote>
+
+    <p>Note: If you are behind a restrictive firewall, you might need
+    to <a href="#proxy">specify an HTTP proxy</a> to use.</p>
+    
+</blockquote><h2>Starting A New Project</h2><blockquote>
+
+    <p>To start a new project with fossil, create a new empty repository
+    this way:</p>
+    
+    <blockquote>
+    <b>fossil new </b><i> repository-filename</i>
+    </blockquote>
+    
+</blockquote><h2>Configuring Your Local Repository</h2><blockquote>
+    
+    <p>When you create a new repository, either by cloning an existing
+    project or create a new project of your own, you usually want to do some
+    local configuration.  This is accomplished using a webbrowser.  First
+    start a fossil webserver like this:</p>
+    
+    <blockquote>
+    <b>fossil server </b><i> repository-filename</i>
+    </blockquote>
+
+    <p>This creates a mini-webserver listening on port 8080.  You can
+    specify a different port using the <b>-port</b> option on the command-line.
+    After the server is running, point your webbrowser at
+    http://localhost:8080/ and start configuring.</p>
+    
+    <p>By default, fossil does not require a login for HTTP connections
+    coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
+    should, change this after you create a few users.</p>
+    
+    <p>When you are finished configuring, just press Control-C or use
+    the <b>kill</b> command to shut down the mini-server.</p>
+
+</blockquote><h2>Checking Out A Local Tree</h2><blockquote>
+
+    <p>To work on a project in fossil, you need to check out a local
+    copy of the source tree.  Create the directory you want to be
+    the root of your tree and cd into that directory.  Then
+    to this:</p>
+    
+    <blockquote>
+    <b>fossil open </b><i> repository-filename</i>
+    </blockquote>
+    
+    <p>This leaves you with the original (empty) version of the tree
+    checked out.  To get to the latest version, also do this:</p>
+    
+    <blockquote>
+    <b>fossil update</b>
+    </blockquote>
+    
+    <p>From anywhere underneath the root of your local tree, you
+    can type commands like the following to find out the status of
+    your local tree:</p>
+
+    <blockquote>
+    <b>fossil info</b><br>
+    <b>fossil status</b><br>
+    <b>fossil changes</b><br>
+    <b>fossil timeline</b><br>
+    <b>fossil leaves</b><br>
+    <b>fossil ls</b><br>
+    <b>fossil branches</b><br>
+    </blockquote>
+
+</blockquote><h2>Making Changes</h2><blockquote>
+
+    <p>To add new files to your project, or remove old files, use these
+    commands:</p>
+
+    <blockquote>
+    <b>fossil add</b> <i>file...</i><br>
+    <b>fossil rm</b> <i>file...</i>
+    </blockquote>
+
+    <p>You can also edit files freely.  Once you are ready to commit
+    your changes, type:</p>
+
+    <blockquote>
+    <b>fossil commit</b>
+    </blockquote>
+
+    <p>You will be prompted for check-in comments using whatever editor
+    is specified by your VISUAL or EDITOR environment variable.  If you
+    have GPG installed, you may be prompted for your GPG passphrase so
+    that the check-in can be signed with your GPG signature.  After
+    this your changes will be checked in.</p>
+
+</blockquote><h2>Sharing Changes</h2><blockquote>
+
+    <p>The changes you <b>commit</b> are only on your local repository.
+    To share those changes with other repositories, do:</p>
+
+    <blockquote>
+    <b>fossil push</b> <i>URL</i>
+    </blockquote>
+
+    <p>Where <i>URL</i> is the http: URL of the server repository you
+    want to share your changes with.  If you omit the <i>URL</i> argument,
+    fossil will use whatever server you most recently synced with.</p>
+
+    <p>The <b>push</b> command only sends your changes to others.  To
+    Receive changes from others, use <b>pull</b>.  Or go both ways at
+    once using <b>sync</b>:</p>
+
+    <blockquote>
+    <b>fossil pull</b> <i>URL</i><br>
+    <b>fossil sync</b> <i>URL</i>
+    </blockquote>
+
+    <p>When you pull in changes from others, they go into your repository,
+    not into your checked-out local tree.  To get the changes into your
+    local tree, use <b>update</b>:</p>
+
+    <blockquote>
+    <b>fossil update</b> <i>UUID</i>
+    </blockquote>
+
+    <p>The <i>UUID</i> is some unique abbreviation to the 40-character
+    version ID.  If you omit the <i>UUID</i> fossil moves you to the
+    leaf version of the branch your are currently on.  If your branch
+    has multiple leaves, you get an error - you'll have to specify the
+    leaf you want using a <i>UUID</i> argument.</p>
+
+</blockquote><h2>Branching And Merging</h2><blockquote>
+
+    <p>You can create branches by doing multiple commits off of the
+    same base version.  To merge to branches back together, first
+    <b>update</b> to the leaf of one branch.  Then do a <b>merge</b>
+    of the leaf of the other branch:</p>
+
+    <blockquote>
+    <b>fossil merge</b> <i>UUID</i>
+    </blockquote>
+
+    <p>Test to make sure your merge didn't mess up the code, then
+    <b>commit</b> and possibly also <b>push</b> your changes.   Remember
+    that nobody else can see your changes until you <b>commit</b> and
+    if other are using a different repository you will also need to
+    <b>push</b>.</p>
+
+<a name="serversetup">
+</blockquote><h2>Setting Up A Server</h2><blockquote>
+
+    <p>The easiest way to set up a server is:</p>
+
+    <blockquote>
+    <b>fossil server</b> <i>repository-filename</i>
+    </blockquote>
+
+    <p>You can omit the <i>repository-filename</i> if you are within
+    a checked-out local tree.  This server uses port 8080 by default
+    but you can specify a different port using the <b>-port</b> command.</p>
+
+    <p>Command-line servers like this are useful when two people want
+    to share a repository on temporary or ad-hoc basis.  For a more
+    permanent installation, you should use either the CGI server or the
+    inetd server.  To use the CGI server, create a CGI script that
+    looks something like this:</p>
+
+    <blockquote><b>
+    #!/usr/local/bin/fossil<br>
+    repository: /home/proj1/repos1.fsl
+    </b></blockquote>
+
+    <p>Adjust the paths in this CGI script to match your installation.
+    Now point clients at the CGI script.  That's all there is to it!</p>
+
+    <p>You can also run fossil off of inetd or xinetd.  For an inetd
+    installation, make an entry in /etc/inetd.conf that looks something
+    like this:</p>
+
+    <blockquote><b>
+    80 stream tcp nowait.1000 root /usr/bin/fossil \<br>
+        /usr/bin/fossil http /home/proj1/repos1.fsl
+    </b></blockquote>
+
+    <p>Adjust the paths to suit your installation, of course.  Notice that
+    fossil runs as root.  This is not required - you can run it as an
+    unprivileged user.  But it is more secure to run fossil as root.
+    When you do run fossil as root, it automatically puts itself in a
+    chroot jail in the same directory as the repository, then drops
+    root privileges prior to reading any information from the request.</p>
+
+</blockquote><a name="proxy"></a><h2>HTTP Proxies</h2><blockquote>
+
+    <p>If you are behind a restrictive firewall that requires you to use
+    an HTTP proxy to reach the internet, then you can configure the proxy
+    in three different ways.  You can tell fossil about your proxy using
+    a command-line option on commands that use the network,
+    <b>sync</b>, <b>clone</b>, <b>push</b>, and <b>pull</b>.</p>
+
+    <blockquote>
+    <b>fossil clone </b><i>URL</i>  <b>--proxy</b> <i>Proxy-URL</i>
+    </blockquote>
+
+    <p>It is annoying to have to type in the proxy URL every time you
+    sync your project, though, so you can make the proxy configuration
+    persistent using the <b>setting</b> command:</p>
+
+    <blockquote>
+    <b>fossil setting proxy </b><i>Proxy-URL</i>
+    </blockquote>
+
+    <p>Or, you can set the "<b>http_proxy</b>" environment variable:</p>
+
+    <blockquote>
+    <b>export http_proxy=</b><i>Proxy-URL</i>
+    </blockquote>
+
+    <p>To stop using the proxy, do:</p>
+
+    <blockquote>
+    <b>fossil setting proxy off</b>
+    </blockquote>
+
+    <p>Or unset the environment variable.  The fossil setting for the
+    HTTP proxy takes precedence over the environment variable and the
+    command-line option overrides both.  If you have an persistent
+    proxy setting that you want to override for a one-time sync, that
+    is easily done on the command-line.  For example, to sync with
+    a co-workers repository on your LAN, you might type:</p>   
+
+    <blockquote>
+    <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>
+    </blockquote>
+
+</blockquote><h2>More Hints</h2><blockquote>
+
+    <p>Try these commands:</p>
+
+    <blockquote><b>
+    fossil help<br>
+    fossil test-commands
+    </b></blockquote>
+
+    <p>Explore and have fun!</p>
+
+
+</blockquote>
+

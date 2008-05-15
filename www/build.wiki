@@ -1,0 +1,73 @@
+<h1>Installing Fossil</h1>
+
+<p>This page describes how to build and install Fossil.  The
+whole process is designed to be very easy.</p>
+
+<h2>0.0 Using A Precompiled Binary</h2>
+
+<p>You can skip steps 1.0 and 2.0 below by downloading
+a <a href="http://www.fossil-scm.org/download.html">FIXME precompiled binary</a>
+appropriate for your platform.  If you use a precompiled binary
+jump immediate to step 3.0.</p>
+
+<h2>1.0 Obtaining The Source Code</h2>
+
+<p>Fossil is self-hosting, so you can obtain a ZIP archive containing
+a snapshot of the latest version directly from fossil's own fossil
+repository.  Follow these steps:</p>
+
+<ol>
+<li><p>Pointer your webbrowser at
+<a href="http://www.fossil-scm.org/fossil/login">
+http://www.fossil-scm.org/fossil/login</a>.</p></li>
+
+<li><p>Log in as anonymous.  The password is shown on screen.
+The reason for requiring this login is to prevent spiders from
+walking the entire website, downloading ZIP archives
+of every historical version, and thereby soaking up all our bandwidth.</p></li>
+
+<li><p>Click on the 
+<a href="http://www.fossil-scm.org/fossil/timeline">Timeline</a> or
+<a href="http://www.fossil-scm.org/fossil/leaves">Leaves</a> link at
+the top of the page.</p></li>
+
+<li><p>Select a version of of fossil you want to download.  Click on its
+link.  Note that you must successfully log in as "anonymous" in step 1
+above in order to see the link to the detailed version information.</p></li>
+
+<li><p>On the version information page, click on the
+"Zip Archive" link.  This link will build a ZIP archive of the 
+complete source code and download it to your browser.</p></li>
+</ol>
+
+<h2>2.0 Compiling</h2>
+
+<p>Follow these steps to compile:</p>
+
+<ol>
+<li value="6">
+<p>Create a directory to hold the source code.  Then unzip the
+ZIP archive you downloaded into that directory.  You should be
+in the top-level folder of that directory</p></li>
+
+<li><p><b>(Optional:)</b>
+Edit the Makefile to set it up like you want.  You probably do not
+need to do anything.  Do not be intimidated:  There are only 5
+variables in the makefile that can be changed.  The whole Makefile
+is only a few dozen lines long and most of those lines are comments.</p>
+
+<li><p>Type "<b>make</b>"
+</ol>
+
+<h2>3.0 Installing</h2>
+
+<ol>
+<li value="9">
+<p>The finished binary is named "fossil".  Put this binary in a 
+directory that is somewhere on your PATH environment variable.
+It does not matter where.</p>
+
+<li>
+<p><b>(Optional:)</b>
+To uninstall, just delete the binary.</p>
+</ol>

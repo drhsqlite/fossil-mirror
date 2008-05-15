@@ -1,0 +1,74 @@
+<h1>Principles Of Operation</h1>
+
+<p>
+This page attempts to define the foundational principals upon
+which Fossil is built.
+</p>
+
+<ul>
+<li><p>A project consists of source files, wiki pages, and 
+trouble tickets, and control files (collectively "artifacts").
+All historical copies of all artifacts
+are saved.  The project maintains an audit
+trail.</p></li>
+
+<li><p>A project resides in one or more repositories.  Each
+repository is administered and operates independently 
+of the others.</p></li>
+
+<li><p>Each repository has both global and local state.  The
+global state is common to all repositories (or at least
+has the potential to be shared in common when the
+repositories are fully synchronized).  The local state
+for each repository is private to that repository.
+The global state represents the content of the project.
+The local state identifies the authorized users and
+access policies for a particular repository.</p></li>
+
+<li><p>The global state of a repository is an unordered
+collection of artifacts.  Each artifact is named by 
+its SHA1 hash encoded in lowercase hexadecimal.
+In many contexts, the name can be
+abbreviated to a unique prefix.  A five- or six-character
+prefix usually suffices to uniquely identify a file.</p></li>
+
+<li><p>Because artifacts are named by their SHA1 hash, all artifacts
+are immutable.  Any change to the content of a artifact also 
+changes the hash that forms the artifacts name, thus
+creating a new artifact.  Both the old original version of the
+artifact and the new change are preserved under different names.</p></li>
+
+<li><p>It is theoretically possible for two artifacts with different
+content to share the same hash.  But finding two such
+artifacts is so incredibly difficult and unlikely that we
+consider it to be an impossibility.</p></li>
+
+<li><p>The signature of an artifact is the SHA1 hash of the 
+artifact itself, exactly as it would appear in a disk file.  No prefix
+or meta-information about the artifact is added before computing
+the hash.  So you can
+always find the SHA1 signature of a file by using the
+"sha1sum" command-line utility.</p></li>
+
+<li><p>The artifacts that comprise the global state of a repository
+are the complete global state of that repository.  The SQLite
+database that holds the repository contains additional information
+about linkages between artifacts, but all of that added information
+can be discarded and reconstructed by rescanning the content
+artifacts.</p></li>
+
+<li><p>Two repositories for the same project can synchronize
+their global states simply by sharing artifacts.  The local
+state of repositories is not normally synchronized or
+shared.</p></li>
+
+<li><p>Every baseline has a special file at the top-level
+named "manifest" which is an index of all other files in
+that baseline.  The manifest is automatically created and
+maintained by the system.</p></li>
+
+<li><p>The <a href="fileformat.html">file formats</a>
+used by Fossil are all very simple so that with access
+to the original content files, one can easily reconstruct
+the content of a baseline without the need for any
+special tools or software.</p></li>
