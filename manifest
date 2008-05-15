@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\s'wiki\scommit'.\sMinor\sstylistic\scleanups.
-D 2008-05-15T15:23:08
+C Add\sthe\s"/doc"\smethod\son\sthe\sserver.
+D 2008-05-15T16:58:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c 0644da6326cde50e22230d6565176996960551aa
+F src/db.c 3bee80077521f9904660ea0b411c111ee69e42ea
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -60,7 +60,7 @@ F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c 60d6be822b4c7f3c41b275a186ac220803c61242
+F src/info.c d6911c08c23cd16acc5dc9ca8f2e8f85a7f70817
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
 F src/main.c b6f2004a21e48268f45923ddd367bcfd84b362f2
 F src/main.mk 2243ce05bfe933676334fe4565eac8b622cb90fd
@@ -106,7 +106,7 @@ F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c 52056439c2d5f8deeee4c7089983685e9601d844
-F src/wikiformat.c 30a93b77785d32ac75c3da0cdb0a24cb6c5fd99d
+F src/wikiformat.c 2f33e8ac293346bbf23576a274e64a8a8b5b1027
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -205,14 +205,14 @@ F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
 F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
 F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
 F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P a85cc7ce8de57cd9df400dc8e253ba9362a7eab4
-R 994c82b02bfca1b429562a32eb528d3c
-U stephan
-Z 8db48a742e6fadbcb2e04eef7a55cc2f
+P cde6e7a303b0b19621b35b91628b573b6ed75085
+R a459d1aa453e2252a5ca2baa56e301f6
+U drh
+Z a892c29b3a270a00832ca5821abe9287
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILFVcZWKvbTL0CBgRAgiBAJ9B9QKelZ+xXfhR7VrrIhSZBnwG0QCaAttY
-KQxuxdwFhxCstSPRrqR6hzQ=
-=15N1
+iD8DBQFILGvFoxKgR168RlERAiagAJ0f2wSVNFMC4D5LvyzwbvWxfEaHGACgiRzm
+PnCMzrIULW6sclW9RrKCyb4=
+=Vuvb
 -----END PGP SIGNATURE-----

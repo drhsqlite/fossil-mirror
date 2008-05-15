@@ -113,6 +113,7 @@ void db_begin_transaction(void){
   nBegin++;
 }
 void db_end_transaction(int rollbackFlag){
+  if( nBegin<=0 ) return;
   if( rollbackFlag ) doRollback = 1;
   nBegin--;
   if( nBegin==0 ){

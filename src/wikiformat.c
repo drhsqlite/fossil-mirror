@@ -153,8 +153,8 @@ static int findAttr(const char *z){
 #define MARKUP_H5               20
 #define MARKUP_H6               21
 #define MARKUP_HR               22
-#define MARKUP_IMG              23
-#define MARKUP_I                24
+#define MARKUP_I                23
+#define MARKUP_IMG              24
 #define MARKUP_KBD              25
 #define MARKUP_LI               26
 #define MARKUP_NOBR             27
@@ -235,10 +235,10 @@ static const struct AllowedMarkup {
  { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         ATTR_ALIGN  },
  { "hr",            MARKUP_HR,           MUTYPE_SINGLE,        
                     ATTR_ALIGN|ATTR_COLOR|ATTR_SIZE|ATTR_WIDTH  },
+ { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,        
                     ATTR_ALIGN|ATTR_ALT|ATTR_BORDER|ATTR_HEIGHT|
                     ATTR_HSPACE|ATTR_SRC|ATTR_VSPACE|ATTR_WIDTH  },
- { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          0  },
  { "li",            MARKUP_LI,           MUTYPE_LI,            
                     ATTR_TYPE|ATTR_VALUE  },
