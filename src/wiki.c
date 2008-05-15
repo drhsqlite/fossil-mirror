@@ -83,7 +83,7 @@ void home_page(void){
   char *zProjName;        /* name of project */
   zProjName = db_get("project-name",0);
   zHomePage = db_get("project-home", zProjName );
-  if( zProjName && zHomePage[0] ){
+  if( zProjName && zProjName[0] ){
     /* beware: this code causes cyclic redirects on a 404 because
        not_found is directed here.
      */
