@@ -192,7 +192,7 @@ void wiki_page(void){
 */
 void wikiedit_page(void){
   char *zTag;
-  int rid;
+  int rid = 0;
   int isSandbox;
   Blob wiki;
   Manifest m;
@@ -333,7 +333,7 @@ static void appendRemark(Blob *p){
 */
 void wikiappend_page(void){
   char *zTag;
-  int rid;
+  int rid = 0;
   int isSandbox;
   const char *zPageName;
   char *zHtmlPageName;
