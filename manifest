@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C removed\sas\spart\sof\sthe\s/doc\sport
-D 2008-05-15T20:28:50
+C corrected\sa\sbroken\slink
+D 2008-05-15T21:01:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -198,20 +198,20 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
-F www/index.wiki 825ed8a24f7c56c9aa82b1f67dcfeeb81ea64a84
+F www/index.wiki c3f0bf922c4123a3b220c36bf2398d45ea200c40
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P bfb4d414dda55cc41956eefd176eada6bbc3ac75
-R 33ee1efcf55cc4f5ad6876f22c816225
+P fda26ca34457e45c3d92b357cdfa9c0d45dc8e46
+R 6ca344b163f7dfefccb642c8405a604c
 U stephan
-Z b9401908620f78c85f15f58934b6f915
+Z c685f233543340078392aba176a86650
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILJ0CZWKvbTL0CBgRAl+fAJwKOS8koVVwt3TeZjo+zDYQXBVxtACfR0oM
-6pJKB+i4TwDypPqX9+xGf7I=
-=329T
+iD8DBQFILKSoZWKvbTL0CBgRAoZhAKChZcWemPiHRY+CMH0pwdtGVz61PgCeOq3g
+K454Y+xPjt/xFbmj/4sC0Ik=
+=Kt3K
 -----END PGP SIGNATURE-----

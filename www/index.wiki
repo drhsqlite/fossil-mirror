@@ -88,7 +88,7 @@ helps insure project integrity.</li>
 file stored in the repository.</li>
 <li>The <a href="delta_format.wiki">format of deltas</a> used to
 efficiently store changes between file revisions.</li>
-<li>The <a href="delta_encoder_algorithm.html">encoder algorithm</a> used to
+<li>The <a href="delta_encoder_algorithm.wiki">encoder algorithm</a> used to
 efficiently generate deltas.</li>
 <li>The <a href="sync.wiki">synchronization protocol</a>.</li>
 <li>There is a <a href="http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users">
