@@ -79,18 +79,38 @@ static int check_name(const char *z){
 ** WEBPAGE: not_found
 */
 void home_page(void){
-  char *zPageName = db_get("project-name",0);
-  if( zPageName ){
-    login_check_credentials();
-    g.zExtra = zPageName;
-    cgi_set_parameter_nocopy("name", g.zExtra);
-    g.okRdWiki = 1;
-    g.okApndWiki = 0;
-    g.okWrWiki = 0;
-    g.okHistory = 0;
-    wiki_page();
+  char *zHomePage;        /* name of home page */
+  char *zProjName;        /* name of project */
+  zProjName = db_get("project-name",0);
+  zHomePage = db_get("project-home", zProjName );
+  if( zProjName && zHomePage[0] ){
+    /* beware: this code causes cyclic redirects on a 404 because
+       not_found is directed here.
+     */
+    int lenP;             /* strncmp() bounder */
+    int lenH;             /* length of zProjName */
+    if(  zHomePage && ! zHomePage[0] ){
+        zHomePage = zProjName;
+    }
+    lenP = strlen(zProjName);
+    lenH = strlen(zHomePage);
+    if( lenP < lenH ) lenP = lenH;
+    if( (zProjName == zHomePage) || (0==strncmp(zProjName,zHomePage,lenP)) ||
+      (0==strncmp(zHomePage,"home",lenP)/*avoid endless loop*/) ){
+        login_check_credentials();
+        g.zExtra = zHomePage;
+        cgi_set_parameter_nocopy("name", g.zExtra);
+        g.okRdWiki = 1;
+        g.okApndWiki = 0;
+        g.okWrWiki = 0;
+        g.okHistory = 0;
+        wiki_page();
+    }else{
+        cgi_redirect( zHomePage );
+    }
     return;
   }
+
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
@@ -632,10 +652,10 @@ int wiki_cmd_commit( char const * zPageName, FILE * in )
   char * zUuid;           /* uuid for rid */
 
   rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-	       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+               " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
 	       " ORDER BY x.mtime DESC LIMIT 1",
-	       zPageName
-	       );
+               zPageName
+               );
   if( ! rid ){
     fossil_fatal("wiki commit NewEntry not yet implemented.");
   }
