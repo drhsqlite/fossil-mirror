@@ -601,9 +601,72 @@ void wikirules_page(void){
 }
 
 /*
+**  wiki_cmd_commit() is the implementation of "wiki commit ...".
+**
+** As arguments it expects:
+**
+** zPageName = the wiki entry's name.
+**
+** rid = record ID for the zPageName entry. This func SHOULD deduce
+** this from zPageName, but the code which calls this func already has
+** the rid, so we pass it along here. If it does not match the entry
+** for zPageName then Undefined Behaviour.
+**
+** in = input file. The file is read until EOF but is not closed
+** by this function (it might be stdin!).
+**
+** Returns 0 on error, non-zero on success.
+**
+** TODOs:
+** - take EITHER zPageName OR rid. We don't need both.
+** - make use of the return value. Add more error checking.
+** - give the uuid back to the caller so it can be shown
+**   in the status output. ("committed version XXXXX of page ...")
+*/
+int wiki_cmd_commit( char const * zPageName, int rid, FILE * in )
+{
+  Blob wiki;              /* Wiki page content */
+  Blob content;           /* read-in content */
+  Blob cksum;             /* wiki checksum */
+  int nrid;               /* not really sure */
+  char * zDate;           /* timestamp */
+  char * zUuid;           /* uuid for rid */
+  blob_read_from_channel( &content, in, -1 );
+  // ^^^ Reminder: we should allow empty (zero-byte) entries, so don't exit
+  // if read returns 0.
+  blob_zero(&wiki);
+  zDate = db_text(0, "SELECT datetime('now')");
+  zDate[10] = 'T';
+  blob_appendf(&wiki, "D %s\n", zDate);
+  free(zDate);
+  blob_appendf(&wiki, "L %F\n", zPageName );
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  blob_appendf(&wiki, "P %s\n", zUuid);
+  free(zUuid);
+  user_select();
+  if( g.zLogin ){
+      blob_appendf(&wiki, "U %F\n", g.zLogin);
+  }
+  blob_appendf( &wiki, "W %d\n%s\n", blob_size(&content),
+                blob_buffer(&content) );
+  blob_reset(&content);
+  md5sum_blob(&wiki, &cksum);
+  blob_appendf(&wiki, "Z %b\n", &cksum);
+  blob_reset(&cksum);
+  db_begin_transaction();
+  nrid = content_put( &wiki, 0, 0 );
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  manifest_crosslink(nrid,&wiki);
+  blob_reset(&wiki);
+  content_deltify(rid,nrid,0);
+  db_end_transaction(0);
+  return 1;
+}
+
+/*
 ** COMMAND: wiki
 **
-** Usage: %fossil wiki (export|delete|commit|list) WikiName
+** Usage: %fossil wiki (export|commit|list) WikiName
 **
 ** Run various subcommands to fetch wiki entries.
 **
@@ -611,6 +674,12 @@ void wikirules_page(void){
 **
 **        Sends the latest version of the WikiName wiki
 **        entry to stdout.
+**
+**     %fossil wiki commit WikiName
+**
+**        Commit changes to a wiki page from standard input.
+**        It cannot currently create a new entry (this is on the
+**        to-fix list).
 **
 **     %fossil wiki list
 **
@@ -638,6 +707,11 @@ void wikirules_page(void){
 **        Commit changes to a wiki page from a file or standard input.
 **        It creats a new entry if needed (or is that philosophically
 **        wrong?).
+**
+**     %fossil wiki diff ?UUID? ?-f infile[=stdin]? EntryName
+**
+**        Diffs the local copy of a page with a given version (defaulting
+**        to the head version).
 */
 void wiki_cmd(void){
   int n;
@@ -651,20 +725,19 @@ void wiki_cmd(void){
   }
 
   if( strncmp(g.argv[2],"export",n)==0 ){
-    char *wname;            /* Name of the wiki page to export */
+    char const *zPageName;            /* Name of the wiki page to export */
     int rid;                /* Artifact ID of the wiki page */
     int i;                  /* Loop counter */
     char *zBody = 0;        /* Wiki page content */
     Manifest m;             /* Parsed wiki page content */
-
     if( g.argc!=4 ){
       usage("export PAGENAME");
     }
-    wname = g.argv[3];
+    zPageName = g.argv[3];
     rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
       " ORDER BY x.mtime DESC LIMIT 1",
-      wname 
+      zPageName 
     );
     if( rid ){
       Blob content;
@@ -675,19 +748,29 @@ void wiki_cmd(void){
       }
     }
     if( zBody==0 ){
-      fossil_fatal("wiki page [%s] not found",wname);
+      fossil_fatal("wiki page [%s] not found",zPageName);
     }
     for(i=strlen(zBody); i>0 && isspace(zBody[i-1]); i--){}
     printf("%.*s\n", i, zBody);
     return;
   }else
   if( strncmp(g.argv[2],"commit",n)==0 ){
-    char *wname;
+    int rid;
+    char *zPageName;
     if( g.argc!=4 ){
       usage("commit PAGENAME");
     }
-    wname = g.argv[3];
-    fossil_fatal("wiki commit not yet implemented.");
+    zPageName = g.argv[3];
+    rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+                 " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+		 " ORDER BY x.mtime DESC LIMIT 1",
+		 zPageName
+		 );
+    if( ! rid ){
+        fossil_fatal("wiki commit NewEntry not yet implemented.");
+    }
+    wiki_cmd_commit( zPageName, rid, stdin );
+    printf("Committed wiki page %s.\n", zPageName);
   }else
   if( strncmp(g.argv[2],"delete",n)==0 ){
     if( g.argc!=5 ){
