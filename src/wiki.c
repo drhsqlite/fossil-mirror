@@ -602,64 +602,51 @@ void wikirules_page(void){
 }
 
 /*
-** wiki_cmd_commit() is the implementation of "wiki commit ...".
+** Add a new wiki page to the respository.  The page name is
+** given by the zPageName parameter.  isNew must be true to create
+** a new page.  If no previous page with the name zPageName exists
+** and isNew is false, then this routine throws an error.
 **
-** As arguments it expects:
-**
-** zPageName = the wiki entry's name.
-**
-** in = input file. The file is read until EOF but is not closed
-** by this function (it might be stdin!).
-**
-** Returns 0 on error, non-zero on success.
-**
-** TODOs:
-** - take EITHER zPageName OR rid. We don't need both.
-** - make use of the return value. Add more error checking.
-** - give the uuid back to the caller so it can be shown
-**   in the status output. ("committed version XXXXX of page ...")
-** - return some status telling the user if there were no diffs
-** (i.e. no commit). How can we find this out?
+** The content of the new page is given by the blob pContent.
 */
-int wiki_cmd_commit( char const * zPageName, FILE * in )
-{
+int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   Blob wiki;              /* Wiki page content */
-  Blob content;           /* read-in content */
   Blob cksum;             /* wiki checksum */
-  int rid;                /* rid of existing entry. */
-  int nrid;               /* not really sure */
-  char * zDate;           /* timestamp */
-  char * zUuid;           /* uuid for rid */
+  int rid;                /* artifact ID of parent page */
+  int nrid;               /* artifact ID of new wiki page */
+  char *zDate;            /* timestamp */
+  char *zUuid;            /* uuid for rid */
 
-  rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-               " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-	       " ORDER BY x.mtime DESC LIMIT 1",
-               zPageName
-               );
-  if( ! rid ){
-    fossil_fatal("wiki commit NewEntry not yet implemented.");
+  rid = db_int(0,
+     "SELECT x.rid FROM tag t, tagxref x"
+     " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+     " ORDER BY x.mtime DESC LIMIT 1",
+     zPageName
+  );
+  if( rid==0 && !isNew ){
+    fossil_fatal("no such wiki page: %s", zPageName);
+  }
+  if( rid!=0 && isNew ){
+    fossil_fatal("wiki page %s already exists", zPageName);
   }
 
-
-  blob_read_from_channel( &content, in, -1 );
-  // ^^^ Reminder: we should allow empty (zero-byte) entries, so don't exit
-  // if read returns 0.
   blob_zero(&wiki);
   zDate = db_text(0, "SELECT datetime('now')");
   zDate[10] = 'T';
   blob_appendf(&wiki, "D %s\n", zDate);
   free(zDate);
   blob_appendf(&wiki, "L %F\n", zPageName );
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  blob_appendf(&wiki, "P %s\n", zUuid);
-  free(zUuid);
+  if( rid ){
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    blob_appendf(&wiki, "P %s\n", zUuid);
+    free(zUuid);
+  }
   user_select();
   if( g.zLogin ){
       blob_appendf(&wiki, "U %F\n", g.zLogin);
   }
-  blob_appendf( &wiki, "W %d\n%s\n", blob_size(&content),
-                blob_buffer(&content) );
-  blob_reset(&content);
+  blob_appendf( &wiki, "W %d\n%s\n", blob_size(pContent),
+                blob_str(pContent) );
   md5sum_blob(&wiki, &cksum);
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
@@ -680,16 +667,19 @@ int wiki_cmd_commit( char const * zPageName, FILE * in )
 **
 ** Run various subcommands to fetch wiki entries.
 **
-**     %fossil wiki export WikiName
+**     %fossil wiki export PAGENAME
 **
-**        Sends the latest version of the WikiName wiki
+**        Sends the latest version of the PAGENAME wiki
 **        entry to stdout.
 **
-**     %fossil wiki commit WikiName
+**     %fossil wiki commit PAGENAME ?FILE?
 **
-**        Commit changes to a wiki page from standard input.
-**        It cannot currently create a new entry (this is on the
-**        to-fix list).
+**        Commit changes to a wiki page from FILE or from standard.
+**
+**     %fossil wiki create PAGENAME ?FILE?
+**
+**        Create a new wiki page with initial content taken from
+**        FILE or from standard input.
 **
 **     %fossil wiki list
 **
@@ -764,14 +754,27 @@ void wiki_cmd(void){
     printf("%.*s\n", i, zBody);
     return;
   }else
-  if( strncmp(g.argv[2],"commit",n)==0 ){
+  if( strncmp(g.argv[2],"commit",n)==0
+      || strncmp(g.argv[2],"create",n)==0 ){
     char *zPageName;
-    if( g.argc!=4 ){
-      usage("commit PAGENAME");
+    Blob content;
+    if( g.argc!=4 && g.argc!=5 ){
+      usage("commit PAGENAME ?FILE?");
     }
     zPageName = g.argv[3];
-    wiki_cmd_commit( zPageName, stdin );
-    printf("Committed wiki page %s.\n", zPageName);
+    if( g.argc==4 ){
+      blob_read_from_channel(&content, stdin, -1);
+    }else{
+      blob_read_from_file(&content, g.argv[4]);
+    }
+    if( g.argv[2][1]=='r' ){
+      wiki_cmd_commit(zPageName, 1, &content);
+      printf("Created new wiki page %s.\n", zPageName);
+    }else{
+      wiki_cmd_commit(zPageName, 0, &content);
+      printf("Updated wiki page %s.\n", zPageName);
+    }
+    blob_reset(&content);
   }else
   if( strncmp(g.argv[2],"delete",n)==0 ){
     if( g.argc!=5 ){
