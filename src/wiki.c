@@ -79,38 +79,18 @@ static int check_name(const char *z){
 ** WEBPAGE: not_found
 */
 void home_page(void){
-  char *zHomePage;        /* name of home page */
-  char *zProjName;        /* name of project */
-  zProjName = db_get("project-name",0);
-  zHomePage = db_get("project-home", zProjName );
-  if( zProjName && zProjName[0] ){
-    /* beware: this code causes cyclic redirects on a 404 because
-       not_found is directed here.
-     */
-    int lenP;             /* strncmp() bounder */
-    int lenH;             /* length of zProjName */
-    if(  zHomePage && ! zHomePage[0] ){
-        zHomePage = zProjName;
-    }
-    lenP = strlen(zProjName);
-    lenH = strlen(zHomePage);
-    if( lenP < lenH ) lenP = lenH;
-    if( (zProjName == zHomePage) || (0==strncmp(zProjName,zHomePage,lenP)) ||
-      (0==strncmp(zHomePage,"home",lenP)/*avoid endless loop*/) ){
-        login_check_credentials();
-        g.zExtra = zHomePage;
-        cgi_set_parameter_nocopy("name", g.zExtra);
-        g.okRdWiki = 1;
-        g.okApndWiki = 0;
-        g.okWrWiki = 0;
-        g.okHistory = 0;
-        wiki_page();
-    }else{
-        cgi_redirect( zHomePage );
-    }
+  char *zPageName = db_get("project-name",0);
+  if( zPageName ){
+    login_check_credentials();
+    g.zExtra = zPageName;
+    cgi_set_parameter_nocopy("name", g.zExtra);
+    g.okRdWiki = 1;
+    g.okApndWiki = 0;
+    g.okWrWiki = 0;
+    g.okHistory = 0;
+    wiki_page();
     return;
   }
-
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to

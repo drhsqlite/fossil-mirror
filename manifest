@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sbugs\sin\sthe\srendering\sof\sHTML\smarkup\swith\smultiple\sattributes.\s\sThis\nclears\sup\sa\sproblem\sin\sdisplaying\sthe\s"concepts.wiki"\sdocumentation\sfile.
-D 2008-05-16T00:56:01
+C Back\sout\sthe\s"Home\sPage"\sconfiguration\soption\sadded\sby\s[29374daa0d]
+D 2008-05-16T01:09:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -82,7 +82,7 @@ F src/rebuild.c 048501db148b135a4e8c1bcfe4f31649e9f63096
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
-F src/setup.c ba002303146e4c49a8b185269f35827e0cd34d43
+F src/setup.c ccb6e89143917769a5df98cce251d116384a34a2
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
@@ -106,7 +106,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c 97d9b1ab7c7342e3ffaa5f19d72a090c5f8c19a8
+F src/wiki.c a9103108887fbe44b05218655e4da68c5a6936aa
 F src/wikiformat.c 43e274f49a92f4606908d4f8990365ee03ea2a99
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -205,14 +205,14 @@ F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P f94f7e5f49b8ca4458cd54d7ae34033a3d478b5b
-R 75af2b68e28cf561c248b8c3994aed2d
+P 1bbc5b7e6cb0e64e632927b2c9803884f3445a58
+R 069fc614ba5aa689455133c5d073962c
 U drh
-Z 43dbe19c4fa17ce595c2b088dad651c5
+Z 77d205c11ae4c97c59ae07854d231479
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFILNukoxKgR168RlERAoy/AJ0ZqREcseZvXkrDxu4wGJgOcLBcawCdFGcE
-dXhZOX2L2P9PImSyLpLF5cQ=
-=5XxE
+iD8DBQFILN64oxKgR168RlERAgJrAJwMku/0CUWAGuESypH7zLg5bUBgkwCeO6yG
+7q2GkVu+jTpPKl2tAZXXvXI=
+=jGdo
 -----END PGP SIGNATURE-----
