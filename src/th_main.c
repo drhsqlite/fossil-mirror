@@ -285,6 +285,15 @@ void Th_Store(const char *zName, const char *zValue){
 }
 
 /*
+** Unset a variable.
+*/
+void Th_Unstore(const char *zName){
+  if( g.interp ){
+    Th_UnsetVar(g.interp, (uchar*)zName, -1);
+  }
+}
+
+/*
 ** Retrieve a string value from the interpreter.  If no such
 ** variable exists, return NULL.
 */

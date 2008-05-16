@@ -300,6 +300,7 @@ void ticket_rebuild(void){
 
 /*
 ** WEBPAGE: tktview
+** URL:  tktview?name=UUID
 **
 ** View a ticket.
 */

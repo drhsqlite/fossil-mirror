@@ -740,9 +740,9 @@ void annotation_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( mid==0 || fnid==0 ){ cgi_redirect("index"); }
+  if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
-    cgi_redirect("index");
+    fossil_redirect_home();
   }
   style_header("File Annotation");
   annotate_file(&ann, fnid, mid, 1);

@@ -90,6 +90,7 @@ void style_header(const char *zTitle){
     Th_Store("login", g.zLogin);
   }
   Th_Render(zHeader);
+  Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
   g.cgiPanic = 1;
 }

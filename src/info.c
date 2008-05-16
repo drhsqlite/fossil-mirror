@@ -99,7 +99,8 @@ void info_cmd(void){
       show_common_info(vid, "checkout:", 1);
     }
   }else{
-    int rid = name_to_rid(g.argv[2]);
+    int rid;
+    rid = name_to_rid(g.argv[2]);
     if( rid==0 ){
       fossil_panic("no such object: %s\n", g.argv[2]);
     }
@@ -584,7 +585,7 @@ void vdiff_page(void){
 
   rid = name_to_rid(PD("name",""));
   if( rid==0 ){
-    cgi_redirect("index");
+    fossil_redirect_home();
   }
   db_prepare(&q,
      "SELECT pid, fid, name"
@@ -807,10 +808,14 @@ void info_page(void){
   int rid, nName;
   
   zName = P("name");
-  if( zName==0 ) cgi_redirect("index");
+  if( zName==0 ) fossil_redirect_home();
   nName = strlen(zName);
   if( nName<4 || nName>UUID_SIZE || !validate16(zName, nName) ){
-    cgi_redirect("index");
+    fossil_redirect_home();
+  }
+  if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%s*'", zName) ){
+    tktview_page();
+    return;
   }
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%s*'", zName);
   if( rid==0 ){

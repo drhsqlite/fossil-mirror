@@ -455,6 +455,13 @@ void set_base_url(void){
 }
 
 /*
+** Send an HTTP redirect back to the designated Index Page.
+*/
+void fossil_redirect_home(void){
+  cgi_redirectf("%s%s", g.zBaseURL, db_get("index-page", "/index"));
+}
+
+/*
 ** Preconditions:
 **
 **    * Environment variables are set up according to the CGI standard.
@@ -476,7 +483,7 @@ static void process_one_web_page(void){
   zPathInfo = P("PATH_INFO");
   if( zPathInfo==0 || zPathInfo[0]==0 
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
-    cgi_redirectf("%s%s", g.zBaseURL, db_get("index-page", "/index"));
+    fossil_redirect_home();
   }else{
     zPath = mprintf("%s", zPathInfo);
   }
