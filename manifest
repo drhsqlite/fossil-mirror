@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Resolve\sbroken\shyperlinks\sand\sother\sminor\scleanup\sin\sthe\sdocumentation.
-D 2008-05-16T15:31:05
+C Tweaks\sto\sthe\shome-page\stext.
+D 2008-05-16T15:44:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -199,20 +199,20 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
-F www/index.wiki c3f0bf922c4123a3b220c36bf2398d45ea200c40
+F www/index.wiki afae3536c0d1fb0b772de96a44dc9f0c813aea23
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P a4d7e9162dc506a3b482514c5cbcb7fd075d6326
-R 932babcb266702b0a96071ded446474c
+P 16094f7ebc5a6bdf91c10e51252dcbe273151a00
+R 23b25ebaa13fc43dda4d570e9ca3506c
 U drh
-Z f9c7fdf63ed991465dd1541671ec3b84
+Z c8bc9e8fd64ad589de7f027e984d99a7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILai9oxKgR168RlERAlz8AJ9eRrFdQhBfjgXy0eCMIH8UdQWyGwCfWijS
-Y52jpIWyqzHwALSQOCEEPIU=
-=e6m6
+iD8DBQFILav6oxKgR168RlERAlDlAJ9wU4GPto8Paf9HQNqp7qs5QZ9j/QCbByTk
+dYulcc1/48ebVnyG8V7L8AU=
+=DiJp
 -----END PGP SIGNATURE-----

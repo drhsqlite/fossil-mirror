@@ -1,9 +1,15 @@
-<h1>Fossil - A Software Configuration Management System</h1>
+<h1>Fossil - Distributed Revision Control, Wiki, And Bug-Tracking</h1>
 
 <p>
-This is a preliminary homepage for a new software configuration
-management system called "Fossil".
-The system is 
+Fossil is a new 
+<a href="http://en.wikipedia.org/wiki/Revision_control">
+distributed software revision control system</a> that includes an integrated
+<a href="http://en.wikipedia.org/wiki/Wiki">Wiki</a> and an integrated
+<a href="http://en.wikipedia.org/wiki/Bugtracker">
+bug-tracking system</a> all into a single easy-to-use stand-alone
+executable.
+(NB: The bug-tracker component is still not completely functional...)
+Fossil is
 <a href="http://www.fossil-scm.org/fossil/timeline">self-hosting</a> on
 <a href="http://www.hwaci.com/cgi-bin/fossil/timeline">two separate servers</a>.
 You can download the lastest sources
@@ -110,4 +116,3 @@ efficiently generate deltas.</li>
      SCM in a single-file executable with a single-file SQLite
      database repository.</li>
 </ul>
-
