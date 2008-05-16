@@ -83,6 +83,7 @@ void style_header(const char *zTitle){
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("index_page", db_get("index-page","/home"));
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   if( g.zLogin ){
@@ -157,7 +158,7 @@ const char zDefaultHeader[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href='$baseurl/home'>Home</a>"
+@ html "<a href='$baseurl$index_page'>Home</a>"
 @ if {[hascap h]} {
 @   html "<a href='$baseurl/dir'>Files</a>"
 @ }

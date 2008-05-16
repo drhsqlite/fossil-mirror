@@ -467,18 +467,16 @@ static void process_one_web_page(void){
   const char *zPathInfo;
   char *zPath = NULL;
   int idx;
-  int i, j;
+  int i;
 
   /* Find the page that the user has requested, construct and deliver that
   ** page.
   */
+  set_base_url();
   zPathInfo = P("PATH_INFO");
-  if( zPathInfo==0 || zPathInfo[0]==0 ){
-    const char *zUri;
-    zUri = PD("REQUEST_URI","/");
-    for(i=0; zUri[i] && zUri[i]!='?' && zUri[i]!='#'; i++){}
-    for(j=i; j>0 && zUri[j-1]!='/'; j--){}
-    cgi_redirectf("%.*s/index", i, zUri);
+  if( zPathInfo==0 || zPathInfo[0]==0 
+      || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
+    cgi_redirectf("%s%s", g.zBaseURL, db_get("index-page", "/index"));
   }else{
     zPath = mprintf("%s", zPathInfo);
   }
@@ -493,7 +491,6 @@ static void process_one_web_page(void){
   }else{
     g.zExtra = 0;
   }
-  set_base_url();
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
     ** will use g.zExtra directly.

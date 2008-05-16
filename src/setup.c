@@ -106,8 +106,8 @@ void setup_ulist(void){
   @ <table border="1" cellpadding="10"><tr><td>
   @ <table cellspacing=0 cellpadding=0 border=0>
   @ <tr>
-  @   <th align="right">User&nbsp;ID</th><th width="15"></td>
-  @   <th>Capabilities</th><th width="15"></td>
+  @   <th align="right">User&nbsp;ID</th><td width="20">&nbsp;</td>
+  @   <th>Capabilities</th><td width="15">&nbsp;</td>
   @   <th>Contact&nbsp;Info</th>
   @ </tr>
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
@@ -121,8 +121,9 @@ void setup_ulist(void){
     if( g.okAdmin ){
       @ </a>
     }
-    @ </td><td></td>
-    @ <td align="center">%s(db_column_text(&s,2))</td><td></td>
+    @ </td><td>&nbsp;&nbsp;&nbsp;</td>
+    @ <td align="center">%s(db_column_text(&s,2))</td>
+    @ <td>&nbsp;&nbsp;&nbsp;</td>
     @ <td align="left">%s(db_column_text(&s,3))</td>
     @ </tr>
   }
@@ -454,9 +455,9 @@ static void onoff_attribute(
     }
   }
   if( iVal ){
-    @ <input type="checkbox" name="%s(zQParm)" checked>%s(zLabel)</input>
+    @ <input type="checkbox" name="%s(zQParm)" checked><b>%s(zLabel)</b></input>
   }else{
-    @ <input type="checkbox" name="%s(zQParm)">%s(zLabel)</input>
+    @ <input type="checkbox" name="%s(zQParm)"><b>%s(zLabel)</b></input>
   }
 }
 
@@ -477,7 +478,7 @@ static void entry_attribute(
     zVal = zQ;
   }
   @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)">
-  @ %s(zLabel)
+  @ <b>%s(zLabel)</b>
 }
 
 /*
@@ -499,7 +500,7 @@ static void textarea_attribute(
   }
   if( rows>0 && cols>0 ){
     @ <textarea name="%s(zQP)" rows="%d(rows)" cols="%d(cols)">%h(z)</textarea>
-    @ %s(zLabel)
+    @ <b>%s(zLabel)</b>
   }
 }
 
@@ -602,6 +603,22 @@ void setup_config(void){
                      "project-description", "pd", "");
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
+  @ <hr />
+  entry_attribute("Index Page", 60, "index-page", "idxpg", "/home");
+  @ <p>Enter the pathname of the page to display when the "Home" menu
+  @ option is selected and when no pathname is
+  @ specified in the URL.  For example, if you visit the url:</p>
+  @
+  @ <blockquote>%h(g.zBaseURL)</blockquote>
+  @
+  @ <p>And you have specified an index page of "/home" the above will
+  @ automatically redirect to:</p>
+  @
+  @ <blockquote>%h(g.zBaseURL)/home</blockquote>
+  @
+  @ <p>The default "/home" page displays a Wiki page with the same name
+  @ as the Project Name specified above.  Some sites prefer to redirect
+  @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>

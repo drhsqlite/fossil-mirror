@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C added\soptional\sFILE\sarg\sto\swiki\sexport
-D 2008-05-16T03:18:23
+C Add\sthe\s"Index\sPage"\ssetup\soption\sto\sallow\seach\ssite\sto\sconfigure\sa\npage\sto\sappear\swhen\sno\sURL\sis\sspecified\sor\swhen\sthe\s"Home"\smenu\soption\nis\sselected.
+D 2008-05-16T13:31:51
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -63,7 +63,7 @@ F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 60d6be822b4c7f3c41b275a186ac220803c61242
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c b6f2004a21e48268f45923ddd367bcfd84b362f2
+F src/main.c 1f3362585e52207093b0270328cb1b584336dc54
 F src/main.mk 15e5ae0afc35d37ede22e6b3e8aa7983ac2e39a3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -82,12 +82,12 @@ F src/rebuild.c 048501db148b135a4e8c1bcfe4f31649e9f63096
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
-F src/setup.c ccb6e89143917769a5df98cce251d116384a34a2
+F src/setup.c b4cd5e8549212fdc1960cb5334cce2a876d65874
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 6490811740a6fe4c7d6d8655debc3d1220887ec9
+F src/style.c 93f13836b2da6bb616029b45f7c9abfe3eb6379b
 F src/sync.c 64b6ad3096caad8cd98b134ea12a5c4596b36757
 F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
@@ -205,14 +205,14 @@ F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P e03d1be55b3056e381dc76be4397cfc9ae82b9f8
-R 53465277e8e2240dce9b215920041dc1
-U stephan
-Z 8320f66a3f0bb31efd190128d981a25d
+P 7adbf773c2377e5289d22bf997314d23a71a6f56
+R 5674b7fb47e4b9b54a68418f38123441
+U drh
+Z 3ef584a35701a815d4848a05994b2ce7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILPz/ZWKvbTL0CBgRAl/tAKCcbjP76S1PWb1n/eM2QqQFpUf7BwCeIf+8
-+q80wLN+JNsTw4zCtZdlHNk=
-=vSOq
+iD8DBQFILYzKoxKgR168RlERArDCAJ4udeFj8pVDvcsVekJw5hM35m3VhACgjbV1
+mCACrjI2B5guG7BTSzWvjO0=
+=Hm5b
 -----END PGP SIGNATURE-----
