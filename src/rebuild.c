@@ -52,6 +52,16 @@ static const char zSchemaUpdates[] =
 @    cols text,               -- A color-key specification
 @    sqlcode text             -- An SQL SELECT statement for this report
 @ );
+@
+@ -- A cache for mapping baseline artifact ID + filename into file
+@ -- artifact ID.  Used by the /doc method.
+@ --
+@ CREATE TABLE IF NOT EXISTS vcache(
+@    vid integer,             -- Baseline artifact ID
+@    fname text,              -- Filename
+@    rid integer,             -- File artifact ID
+@    UNIQUE(vid,fname,rid)
+@ );             
 ;
 
 /*
@@ -77,12 +87,19 @@ static void rebuild_step_done(void){
 ** rid with content pBase and all of its descendants.  This
 ** routine clears the content buffer before returning.
 */
-static void rebuild_step(int rid, Blob *pBase){
+static void rebuild_step(int rid, int size, Blob *pBase){
   Stmt q1;
   Bag children;
   Blob copy;
   Blob *pUse;
   int nChild, i, cid;
+
+  /* Fix up the "blob.size" field if needed. */
+  if( size!=blob_size(pBase) ){
+    db_multi_exec(
+       "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
+    );
+  }
 
   /* Find all children of artifact rid */
   db_prepare(&q1, "SELECT rid FROM delta WHERE srcid=%d", rid);
@@ -121,7 +138,7 @@ static void rebuild_step(int rid, Blob *pBase){
       blob_delta_apply(pUse, &delta, pUse);
       blob_reset(&delta);
       db_finalize(&q2);
-      rebuild_step(cid, pUse);
+      rebuild_step(cid, sz, pUse);
     }else{
       db_finalize(&q2);
       blob_reset(pUse);
@@ -183,7 +200,7 @@ int rebuild_db(int randomize, int doOut){
     if( size>=0 ){
       Blob content;
       content_get(rid, &content);
-      rebuild_step(rid, &content);
+      rebuild_step(rid, size, &content);
     }else{
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
       rebuild_step_done();

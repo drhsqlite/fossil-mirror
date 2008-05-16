@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\sstephan's\sfork.
-D 2008-05-16T16:01:06
+C The\srebuild\scommand\scorrects\sany\serrors\sseen\sin\sthe\sblob.size\sfield.
+D 2008-05-16T17:05:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -78,7 +78,7 @@ F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c 048501db148b135a4e8c1bcfe4f31649e9f63096
+F src/rebuild.c 468a6238475749876cfabe7bd67674ed8c295898
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
@@ -205,14 +205,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P e5aac82dd59bc70095e846f0185283c48229b0d6 bb542b80c70a26286a983fd232fe94fcd1c70419
-R e737aecda5686a107e8ff4f64de71bf5
+P 81eb00def74419c7881cb4296613288ecce2f25e
+R 129185c9b906990c6e7d6b7680f0589a
 U drh
-Z 9d2ecefdcb913cc125004b16c5c60172
+Z 1af296e19ba8709ecf53330c331f61b4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILa/FoxKgR168RlERAp/nAJ99KfiSheWkyfTcvKMZZH0MFXhxgACfcg9W
-sqSOMTptcHoCPxZ80Melfm8=
-=wtmD
+iD8DBQFILb7EoxKgR168RlERAvFgAJ92TufyOSkwqENI7wjWGXRiMfh+uACfVvX7
+N8PiwQQBTxR9EJouTJLyVsw=
+=AK2k
 -----END PGP SIGNATURE-----
