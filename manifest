@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tweaks\sto\sthe\shome-page\stext.
-D 2008-05-16T15:44:55
+C Fix\sa\stypo\son\sthe\sconcepts.wiki\spage.
+D 2008-05-16T15:58:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -179,7 +179,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/build.wiki 61aa0809d1f7d8b4ffe98b619f26f5c5afb6265f
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 076fde5d6b0c387673348c72890bdd763b81f667
+F www/concepts.wiki 93bae4c111fa5a78ca82d7161801710184f98b3d
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -205,14 +205,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 16094f7ebc5a6bdf91c10e51252dcbe273151a00
-R 23b25ebaa13fc43dda4d570e9ca3506c
+P 22005927ad80db724ad47e81a8b089ff0b641306
+R bfc4f3062a993e7dcf0a4f4bcb8b8431
 U drh
-Z c8bc9e8fd64ad589de7f027e984d99a7
+Z 259c0b730ff4904dba6a33faa736476b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILav6oxKgR168RlERAlDlAJ9wU4GPto8Paf9HQNqp7qs5QZ9j/QCbByTk
-dYulcc1/48ebVnyG8V7L8AU=
-=DiJp
+iD8DBQFILa8poxKgR168RlERArkRAJ93eUmYy8JuVDd1GnVPhpeKXz/A8gCfRjWX
+Cwc0+NvlUZ7kkKxiazOPPjk=
+=QZDx
 -----END PGP SIGNATURE-----
