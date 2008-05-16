@@ -1,3 +1,4 @@
+<nowiki>
 <h1 align="center">Fossil Quick Start</h1>
 
 <p>This is a guide to get you started using fossil quickly
@@ -6,7 +7,8 @@ and painlessly.</p>
 <h2>Installing</h2><blockquote>
 
     <p>Fossil is a single self-contained C program.  You need to
-    either download a <a href="download.wiki">FIXME precompiled binary</a>
+    either download a 
+    <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
     or <a href="build.wiki">build it yourself</a> from sources.
     Install fossil by putting the fossil binary
     someplace on your PATH environment variable.</p>
@@ -272,4 +274,3 @@ and painlessly.</p>
 
 
 </blockquote>
-

@@ -1,3 +1,4 @@
+<nowiki>
 <h1 align="center">
 Fossil Repository Integrity Self-Checks
 </h1>
@@ -11,7 +12,8 @@ fossil uses to help prevent file loss due to bugs.
 </p>
 
 <p><i>Follow-up as of 2007-11-24:</i>
-Fossil has been hosting itself and several other projects for
+<i>Reiterated on 2008-05-16:</i>
+Fossil has been hosting itself and many other projects for
 months now.  Many bugs have been encountered.  But, thanks in large
 part to the defensive measures described here, no data has been
 lost.  The integrity checks are doing their job well.</p>
@@ -22,7 +24,7 @@ lost.  The integrity checks are doing their job well.</p>
 The fossil repository is an
 <a href="http://www.sqlite.org/">SQLite version 3</a> database file.  
 SQLite is very mature and stable and has been in wide-spread use for many
-years, so we have little worries that it might cause repository
+years, so we are confident it will not cause repository
 corruption.  SQLite
 databases do not corrupt even if a program or system crash or power
 failure occurs in the middle of the update.  If some kind of crash

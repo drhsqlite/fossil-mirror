@@ -6,7 +6,7 @@ whole process is designed to be very easy.</p>
 <h2>0.0 Using A Precompiled Binary</h2>
 
 <p>You can skip steps 1.0 and 2.0 below by downloading
-a <a href="http://www.fossil-scm.org/download.html">FIXME precompiled binary</a>
+a <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
 appropriate for your platform.  If you use a precompiled binary
 jump immediate to step 3.0.</p>
 

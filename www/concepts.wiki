@@ -209,6 +209,7 @@ token after the name of the fossil executable, as shown above.</p>
 <h2>4.0 Workflow</h2>
 
 <img src="concept2.gif" align="right" hspace="10">
+
 <ol>
 <li><p>
 Establish a local repository using either the <b>new</b> command

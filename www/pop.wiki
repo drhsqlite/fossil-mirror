@@ -67,7 +67,7 @@ named "manifest" which is an index of all other files in
 that baseline.  The manifest is automatically created and
 maintained by the system.</p></li>
 
-<li><p>The <a href="fileformat.html">file formats</a>
+<li><p>The <a href="fileformat.wiki">file formats</a>
 used by Fossil are all very simple so that with access
 to the original content files, one can easily reconstruct
 the content of a baseline without the need for any
