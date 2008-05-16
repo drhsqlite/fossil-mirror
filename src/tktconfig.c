@@ -204,15 +204,15 @@ const char zDefaultTicketConfig[] =
 @   <th1>
 @     if {![info exists username]} {set username $login}
 @     if {[info exists submit]} {
-@       if {[info exists $cmappnd] && [string length $cmappnd]>0} {
-@         set ctxt "\n\n<hr><i>"
-@         if {$username==$login} {
-@           set usr "$ctxt[htmlize $login]"
-@         } else {
-@           set usr "[htmlize $login claimingn to be [htmlize $username]"
+@       if {[info exists cmappnd]} {
+@         if {[string length $cmappnd]>0} {
+@           set ctxt "\n\n<hr><i>[htmlize $login]"
+@           if {$username ne $login} {
+@             set ctxt "$ctxt claiming to be [htmlize $username]"
+@           }
+@           set ctxt "$ctxt added on [date]:</i><br>\n$cmappnd"
+@           append_field comment $ctxt
 @         }
-@         append_field comment \
-@            "\n\n<hr><i>$usr added on [date]:</i><br>\n$comment"
 @       }
 @       submit_ticket
 @     }

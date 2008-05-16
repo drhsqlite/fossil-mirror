@@ -141,6 +141,47 @@ static int wikiCmd(
 }
 
 /*
+** TH command:      htmlize STRING
+**
+** Escape all characters of STRING which have special meaning in HTML.
+** Return a new string result.
+*/
+static int htmlizeCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  char *zOut;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "htmlize STRING");
+  }
+  zOut = htmlize((char*)argv[1], argl[1]);
+  Th_SetResult(interp, (unsigned char*)zOut, -1);
+  free(zOut);
+  return TH_OK;
+}
+
+/*
+** TH command:      date
+**
+** Return a string which is the current time and date.
+*/
+static int dateCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const unsigned char **argv, 
+  int *argl
+){
+  char *zOut = db_text("??", "SELECT datetime('now')");
+  Th_SetResult(interp, (unsigned char*)zOut, -1);
+  free(zOut);
+  return TH_OK;
+}
+
+/*
 ** TH command:     hascap STRING
 **
 ** Return true if the user has all of the capabilities listed in STRING.
@@ -261,6 +302,8 @@ void Th_FossilInit(void){
     {"enable_output", enableOutputCmd,      0},
     {"linecount",     linecntCmd,           0},
     {"hascap",        hascapCmd,            0},
+    {"htmlize",       htmlizeCmd,           0},
+    {"date",          dateCmd,              0},
     {"html",          putsCmd,              0},
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},

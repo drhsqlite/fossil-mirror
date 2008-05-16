@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Progress\stoward\sgetting\sticket\shandling\sto\swork.
-D 2008-05-16T18:11:39
+C Get\srudimentary\sticket\sediting\sworking.
+D 2008-05-16T18:57:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -94,10 +94,10 @@ F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
-F src/th_main.c 6295c8f14146ca187a86e4a59043afbdbbca5f5f
+F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 3666af55b7ffba4a32ae38acd54fd0f513859bbe
 F src/tkt.c 5b74369b2c8aa5368bbabe18e6a6f3faed3efa53
-F src/tktconfig.c 9beffaf0651e4ab3c46ec7e92cc8aab57d512055
+F src/tktconfig.c fc468af27b1420aefa54b56658886e0a4bc49db2
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -205,14 +205,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 5b74febbccab50c65bb9d38a6192834927ebb8f9
-R f814444857f095b3d517f1ba449ce726
+P 68c24b185731fad5e835f816428aaa739552cdd5
+R 4edbe88ce73c4591dc6f98822004ccff
 U drh
-Z bea2771150bc9e1dad75044a94a52b76
+Z 0ffbb1e00b31e2e858add7c378fc5fd6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILc5goxKgR168RlERAl/KAJwMory89gCbmD5Q9zIxOJJwPMgkRwCeKnbe
-Qxj4MAX/RM4V8rvZJ/NyB1Q=
-=TrmO
+iD8DBQFILdk7oxKgR168RlERAnfeAJ4ypAolmJImKadKoGPXpcrTO7DgqQCfSN4z
+2LKWmNkECeEHwJWzawERHWw=
+=UIJb
 -----END PGP SIGNATURE-----
