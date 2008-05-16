@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\snew\s"wiki\screate"\scommand.\s\sCleaned\sup\sthe\s"wiki\scommit"\scode\sand\nadded\san\soption\sfilename\sargument\sto\sboth\s"wiki\scommit"\sand\s"wiki\screate".
-D 2008-05-16T01:43:55
+C added\soptional\sFILE\sarg\sto\swiki\sexport
+D 2008-05-16T03:18:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -106,7 +106,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c fcc5e5e31149854976aa1413b82109d8727d38e3
+F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
 F src/wikiformat.c 43e274f49a92f4606908d4f8990365ee03ea2a99
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -205,14 +205,14 @@ F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P c51dd3058c54e2cd5cdfc57f8f9a77314ec860b9
-R 6159243a0e1ca41b33e3efb6d8b8452d
-U drh
-Z 40a871cd60166d8043ff8b24a28ecd29
+P e03d1be55b3056e381dc76be4397cfc9ae82b9f8
+R 53465277e8e2240dce9b215920041dc1
+U stephan
+Z 8320f66a3f0bb31efd190128d981a25d
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILObfoxKgR168RlERAgmZAJ9uVeZcyiAMp960JXmjQmIPsqrF0QCfTc5n
-n3zGY6MvtIdzk2aEWBCSY4M=
-=r5+Y
+iD8DBQFILPz/ZWKvbTL0CBgRAl/tAKCcbjP76S1PWb1n/eM2QqQFpUf7BwCeIf+8
++q80wLN+JNsTw4zCtZdlHNk=
+=vSOq
 -----END PGP SIGNATURE-----

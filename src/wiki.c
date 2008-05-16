@@ -667,10 +667,10 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 ** Run various subcommands to fetch wiki entries.
 **
-**     %fossil wiki export PAGENAME
+**     %fossil wiki export PAGENAME ?FILE?
 **
 **        Sends the latest version of the PAGENAME wiki
-**        entry to stdout.
+**        entry to the given file or standard output.
 **
 **     %fossil wiki commit PAGENAME ?FILE?
 **
@@ -688,9 +688,9 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 ** TODOs:
 **
-**     %fossil wiki export ?UUID? ?-f outfile[=stdout]? WikiName
+**     %fossil wiki export ?-u UUID? WikiName ?FILE?
 **
-**        Outputs the selected version of WikiName to the selected file.
+**        Outputs the selected version of WikiName.
 **
 **     %fossil wiki delete ?-m MESSAGE? WikiName
 **
@@ -699,14 +699,8 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 **     %fossil wiki ?-u? ?-d? ?-s=[|]? list
 **
-**        Lists the UUID and/or Date of last change for each entry, delimited
-**        by the -s char.
-**
-**     %fossil wiki commit ?-f infile[=stdin]? WikiName
-**
-**        Commit changes to a wiki page from a file or standard input.
-**        It creats a new entry if needed (or is that philosophically
-**        wrong?).
+**        Lists the UUID and/or Date of last change along with each entry
+**        name, delimited by the -s char.
 **
 **     %fossil wiki diff ?UUID? ?-f infile[=stdin]? EntryName
 **
@@ -725,13 +719,14 @@ void wiki_cmd(void){
   }
 
   if( strncmp(g.argv[2],"export",n)==0 ){
-    char const *zPageName;            /* Name of the wiki page to export */
+    char const *zPageName;        /* Name of the wiki page to export */
+    char const *zFile;            /* Name of the output file (0=stdout) */
     int rid;                /* Artifact ID of the wiki page */
     int i;                  /* Loop counter */
     char *zBody = 0;        /* Wiki page content */
     Manifest m;             /* Parsed wiki page content */
-    if( g.argc!=4 ){
-      usage("export PAGENAME");
+    if( (g.argc!=4) && (g.argc!=5) ){
+      usage("export PAGENAME ?FILE?");
     }
     zPageName = g.argv[3];
     rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
@@ -751,7 +746,24 @@ void wiki_cmd(void){
       fossil_fatal("wiki page [%s] not found",zPageName);
     }
     for(i=strlen(zBody); i>0 && isspace(zBody[i-1]); i--){}
-    printf("%.*s\n", i, zBody);
+    zFile  = (g.argc==4) ? 0 : g.argv[4];
+    if( zFile ){
+      FILE * zF;
+      short doClose = 0;
+      if( (1 == strlen(zFile)) && ('-'==zFile[0]) ){
+        zF = stdout;
+      }else{
+        zF = fopen( zFile, "w" );
+        doClose = zF ? 1 : 0;
+      }
+      if( ! zF ){
+        fossil_fatal("wiki export could not open output file for writing.");
+      }
+      fprintf(zF,"%.*s\n", i, zBody);
+      if( doClose ) fclose(zF);
+    }else{
+	printf("%.*s\n", i, zBody);
+    }
     return;
   }else
   if( strncmp(g.argv[2],"commit",n)==0
