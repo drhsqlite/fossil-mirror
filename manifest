@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sverbatim\sPRE\stags\snow\shave\sclass=fossil-verbatim\sto\sallow\scustomization\sof\sthe\sverbatim\slook/feel.
-D 2008-05-16T15:44:18
+C renamed\sfossil-verbatim\sto\sverbatim\sfor\sconsistency\swith\sother\sCSS\selements.\sAdded\sa\sreasonable\sdefault\s.verbatim\sentry.
+D 2008-05-16T15:54:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -87,7 +87,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 93f13836b2da6bb616029b45f7c9abfe3eb6379b
+F src/style.c ba8c800cff70f5768cd5552890e7be9bf1faefcc
 F src/sync.c 64b6ad3096caad8cd98b134ea12a5c4596b36757
 F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
@@ -107,7 +107,7 @@ F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
-F src/wikiformat.c 3a4588a16cc1193535ddc2f2a718a7d079453305
+F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -205,14 +205,14 @@ F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P a4d7e9162dc506a3b482514c5cbcb7fd075d6326
-R e17c5d1c8e2daed782b0b0d6df7c8d52
+P 454515642ce5b64bd2ba9ab139c012aec1af8282
+R 18ac959e79d29da435e35c3ae48d6be6
 U stephan
-Z ec8982b606fa0cb524ac727580c1ec72
+Z d17e7210d6b89f47473046114f4274a6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILavSZWKvbTL0CBgRAl8HAKCGttpCR+ErVcC+F3yy1/POryhQrwCfdhqb
-1OOlBde+d7vxx0ETzDOG0fM=
-=+V5X
+iD8DBQFILa4YZWKvbTL0CBgRAjulAKDRb7cMYDbg2/B7Yvd3fUHg/l+rSwCfVLqV
+q+6H+xf/XtpRuMSvDmYFIeI=
+=ek39
 -----END PGP SIGNATURE-----
