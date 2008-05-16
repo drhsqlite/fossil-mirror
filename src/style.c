@@ -306,6 +306,12 @@ const char zDefaultCSS[] =
 @   background-color: #558195;
 @   color: white;
 @ }
+@ 
+@ /* <verbatim> blocks */
+@ pre.verbatim {
+@    background-color: #f5f5f5;
+@    padding: 0.5em;
+@}
 @
 @ /* The label/value pairs on (for example) the vinfo page */
 @ table.label-value th {
