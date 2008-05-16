@@ -602,6 +602,7 @@ struct ParsedMarkup {
 */
 static void parseMarkup(ParsedMarkup *p, char *z){
   int i, c;
+  int iCode;
   char *zTag, *zValue;
   int seen = 0;
 
@@ -632,7 +633,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     }
     c = z[i];
     z[i] = 0;
-    p->aAttr[p->nAttr].iCode = findAttr(zTag);
+    p->aAttr[p->nAttr].iCode = iCode = findAttr(zTag);
     z[i] = c;
     while( isspace(z[i]) ){ z++; }
     if( z[i]!='=' ){
@@ -655,11 +656,12 @@ static void parseMarkup(ParsedMarkup *p, char *z){
       z[i] = 0;
       i++;
     }
-    if( p->aAttr[p->nAttr].iCode!=0 && (seen & p->aAttr[p->nAttr].iCode)==0 ){
-      seen |= p->aAttr[p->nAttr].iCode;
+    if( iCode!=0 && (seen & aAttribute[iCode].iMask)==0 ){
+      seen |= aAttribute[iCode].iMask;
       p->nAttr++;
     }
     if( c=='>' ) break;
+    while( isspace(z[i]) ){ i++; }
   }
 }
 
