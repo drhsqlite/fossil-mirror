@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"Index\sPage"\ssetup\soption\sto\sallow\seach\ssite\sto\sconfigure\sa\npage\sto\sappear\swhen\sno\sURL\sis\sspecified\sor\swhen\sthe\s"Home"\smenu\soption\nis\sselected.
-D 2008-05-16T13:31:51
+C Preserve\sthe\scase\sof\sunknown\sHTML\smarkup\son\swiki\spages.
+D 2008-05-16T13:55:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -107,7 +107,7 @@ F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
-F src/wikiformat.c 43e274f49a92f4606908d4f8990365ee03ea2a99
+F src/wikiformat.c 1c1385ba0c3dc2c07757d5d0ddf6cfa18da23140
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -205,14 +205,14 @@ F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
 F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
 F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 7adbf773c2377e5289d22bf997314d23a71a6f56
-R 5674b7fb47e4b9b54a68418f38123441
+P c7c81df13855c9fa22ad9a9bc96d46d981961f61
+R e3f2bb5542be2933cdd8406fd5375a29
 U drh
-Z 3ef584a35701a815d4848a05994b2ce7
+Z 91e3db58bc5b7f14b4b8f1c9ab9c84d1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILYzKoxKgR168RlERArDCAJ4udeFj8pVDvcsVekJw5hM35m3VhACgjbV1
-mCACrjI2B5guG7BTSzWvjO0=
-=Hm5b
+iD8DBQFILZI8oxKgR168RlERAkOyAJ0ROl4/BSizd0M2NlOb3RA5TqBtAgCeJ18R
+w45fnQ7zmtMji/OXxHswGuE=
+=dlqe
 -----END PGP SIGNATURE-----

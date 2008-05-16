@@ -601,10 +601,11 @@ struct ParsedMarkup {
 ** to lowercase and by inserting some "\000" characters.
 */
 static void parseMarkup(ParsedMarkup *p, char *z){
-  int i, c;
+  int i, j, c;
   int iCode;
-  char *zTag, *zValue;
+  char *zValue;
   int seen = 0;
+  char zTag[100];
 
   if( z[1]=='/' ){
     p->endTag = 1;
@@ -613,28 +614,24 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     p->endTag = 0;
     i = 1;
   }
-  zTag = &z[i];
+  j = 0;
   while( isalnum(z[i]) ){ 
-    z[i] = tolower(z[i]);
+    if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
     i++;
   }
-  c = z[i];
-  z[i] = 0;
+  zTag[j] = 0;
   p->iCode = findTag(zTag);
   p->iType = aMarkup[p->iCode].iType;
   p->nAttr = 0;
-  z[i] = c;
   while( isspace(z[i]) ){ i++; }
   while( p->nAttr<8 && isalpha(z[i]) ){
-    zTag = &z[i];
+    j = 0;
     while( isalnum(z[i]) ){ 
-      z[i] = tolower(z[i]);
+      if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
       i++;
     }
-    c = z[i];
-    z[i] = 0;
+    zTag[j] = 0;
     p->aAttr[p->nAttr].iCode = iCode = findAttr(zTag);
-    z[i] = c;
     while( isspace(z[i]) ){ z++; }
     if( z[i]!='=' ){
       p->aAttr[p->nAttr].zValue = 0;
@@ -660,8 +657,8 @@ static void parseMarkup(ParsedMarkup *p, char *z){
       seen |= aAttribute[iCode].iMask;
       p->nAttr++;
     }
-    if( c=='>' ) break;
     while( isspace(z[i]) ){ i++; }
+    if( z[i]=='>' || (z[i]=='/' && z[i+1]=='>') ) break;
   }
 }
 
