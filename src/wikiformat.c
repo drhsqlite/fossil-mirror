@@ -1023,7 +1023,7 @@ static void wiki_render(Renderer *p, char *z){
           p->inVerbatim = 1;
           p->preVerbState = p->state;
           p->state &= ~ALLOW_WIKI;
-          blob_append(p->pOut, "<pre>", 5);
+          blob_append(p->pOut, "<pre class='fossil-verbatim'>",-1);
           p->wantAutoParagraph = 0;
         }else if( markup.iType==MUTYPE_LI ){
           if( backupToType(p, MUTYPE_LIST)==0 ){
