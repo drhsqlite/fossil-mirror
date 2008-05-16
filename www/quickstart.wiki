@@ -1,8 +1,3 @@
-<html>
-<title>Fossil - Quick Start</title>
-<body bgcolor="white">
-<p>[ <a href="index.html">Index</a> ]</p>
-<hr>
 <h1 align="center">Fossil Quick Start</h1>
 
 <p>This is a guide to get you started using fossil quickly
@@ -11,8 +6,8 @@ and painlessly.</p>
 <h2>Installing</h2><blockquote>
 
     <p>Fossil is a single self-contained C program.  You need to
-    either download a <a href="download.html">precompiled binary</a>
-    or <a href="build.html">build it yourself</a> from sources.
+    either download a <a href="download.wiki">FIXME precompiled binary</a>
+    or <a href="build.wiki">build it yourself</a> from sources.
     Install fossil by putting the fossil binary
     someplace on your PATH environment variable.</p>
     
@@ -276,4 +271,5 @@ and painlessly.</p>
     <p>Explore and have fun!</p>
 
 
-</blockquote></body></html>
+</blockquote>
+

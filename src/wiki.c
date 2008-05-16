@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2007 D. Richard Hipp
+** Copyright (c) 2008 Stephan Beal
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public
@@ -78,18 +79,38 @@ static int check_name(const char *z){
 ** WEBPAGE: not_found
 */
 void home_page(void){
-  char *zPageName = db_get("project-name",0);
-  if( zPageName ){
-    login_check_credentials();
-    g.zExtra = zPageName;
-    cgi_set_parameter_nocopy("name", g.zExtra);
-    g.okRdWiki = 1;
-    g.okApndWiki = 0;
-    g.okWrWiki = 0;
-    g.okHistory = 0;
-    wiki_page();
+  char *zHomePage;        /* name of home page */
+  char *zProjName;        /* name of project */
+  zProjName = db_get("project-name",0);
+  zHomePage = db_get("project-home", zProjName );
+  if( zProjName && zProjName[0] ){
+    /* beware: this code causes cyclic redirects on a 404 because
+       not_found is directed here.
+     */
+    int lenP;             /* strncmp() bounder */
+    int lenH;             /* length of zProjName */
+    if(  zHomePage && ! zHomePage[0] ){
+        zHomePage = zProjName;
+    }
+    lenP = strlen(zProjName);
+    lenH = strlen(zHomePage);
+    if( lenP < lenH ) lenP = lenH;
+    if( (zProjName == zHomePage) || (0==strncmp(zProjName,zHomePage,lenP)) ||
+      (0==strncmp(zHomePage,"home",lenP)/*avoid endless loop*/) ){
+        login_check_credentials();
+        g.zExtra = zHomePage;
+        cgi_set_parameter_nocopy("name", g.zExtra);
+        g.okRdWiki = 1;
+        g.okApndWiki = 0;
+        g.okWrWiki = 0;
+        g.okHistory = 0;
+        wiki_page();
+    }else{
+        cgi_redirect( zHomePage );
+    }
     return;
   }
+
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
@@ -601,16 +622,11 @@ void wikirules_page(void){
 }
 
 /*
-**  wiki_cmd_commit() is the implementation of "wiki commit ...".
+** wiki_cmd_commit() is the implementation of "wiki commit ...".
 **
 ** As arguments it expects:
 **
 ** zPageName = the wiki entry's name.
-**
-** rid = record ID for the zPageName entry. This func SHOULD deduce
-** this from zPageName, but the code which calls this func already has
-** the rid, so we pass it along here. If it does not match the entry
-** for zPageName then Undefined Behaviour.
 **
 ** in = input file. The file is read until EOF but is not closed
 ** by this function (it might be stdin!).
@@ -622,15 +638,29 @@ void wikirules_page(void){
 ** - make use of the return value. Add more error checking.
 ** - give the uuid back to the caller so it can be shown
 **   in the status output. ("committed version XXXXX of page ...")
+** - return some status telling the user if there were no diffs
+** (i.e. no commit). How can we find this out?
 */
-int wiki_cmd_commit( char const * zPageName, int rid, FILE * in )
+int wiki_cmd_commit( char const * zPageName, FILE * in )
 {
   Blob wiki;              /* Wiki page content */
   Blob content;           /* read-in content */
   Blob cksum;             /* wiki checksum */
+  int rid;                /* rid of existing entry. */
   int nrid;               /* not really sure */
   char * zDate;           /* timestamp */
   char * zUuid;           /* uuid for rid */
+
+  rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+               " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+	       " ORDER BY x.mtime DESC LIMIT 1",
+               zPageName
+               );
+  if( ! rid ){
+    fossil_fatal("wiki commit NewEntry not yet implemented.");
+  }
+
+
   blob_read_from_channel( &content, in, -1 );
   // ^^^ Reminder: we should allow empty (zero-byte) entries, so don't exit
   // if read returns 0.
@@ -755,21 +785,12 @@ void wiki_cmd(void){
     return;
   }else
   if( strncmp(g.argv[2],"commit",n)==0 ){
-    int rid;
     char *zPageName;
     if( g.argc!=4 ){
       usage("commit PAGENAME");
     }
     zPageName = g.argv[3];
-    rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-                 " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-		 " ORDER BY x.mtime DESC LIMIT 1",
-		 zPageName
-		 );
-    if( ! rid ){
-        fossil_fatal("wiki commit NewEntry not yet implemented.");
-    }
-    wiki_cmd_commit( zPageName, rid, stdin );
+    wiki_cmd_commit( zPageName, stdin );
     printf("Committed wiki page %s.\n", zPageName);
   }else
   if( strncmp(g.argv[2],"delete",n)==0 ){
@@ -796,5 +817,5 @@ void wiki_cmd(void){
   return;
 
 wiki_cmd_usage:
-  usage("delete|export|commit|list ...");
+  usage("export|commit|list ...");
 }

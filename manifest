@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Separate\sthe\snew\s/doc\smethod\sout\sinto\sits\sown\ssource\sfile.
-D 2008-05-15T20:18:32
+C Merge\sthe\sfork\sback\stogether.
+D 2008-05-16T00:27:49
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -82,7 +82,7 @@ F src/rebuild.c 048501db148b135a4e8c1bcfe4f31649e9f63096
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
-F src/setup.c ccb6e89143917769a5df98cce251d116384a34a2
+F src/setup.c ba002303146e4c49a8b185269f35827e0cd34d43
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
@@ -106,7 +106,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c 52056439c2d5f8deeee4c7089983685e9601d844
+F src/wiki.c 97d9b1ab7c7342e3ffaa5f19d72a090c5f8c19a8
 F src/wikiformat.c 2f33e8ac293346bbf23576a274e64a8a8b5b1027
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -176,18 +176,18 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/build.html 9c506f508fbe157b4e22d24388e03a66cd229a30
+F www/build.wiki d16ea958f54c8adc624cbffd6fb0f56fbf23affa
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.html d4951ef6037a6683579d4928cc8604ce1825771a
+F www/concepts.wiki a61e6b72f9b6ea8686f69afc13ec216890f93dac
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.html 2fdda5715167189835f74038508c3cccddcd1c4d
-F www/delta_format.html 2d08a3a146cd907c91834711d04243bfbc877ad9
+F www/delta_encoder_algorithm.wiki 83801262d27a7a792a6dd2ef3b5a982881ea370e
+F www/delta_format.wiki 03e4eaca4d0a0d00c4f5c15f16e95f21acceec6b
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -198,22 +198,21 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.html 677a2a9b1991a47a592f8594e093063afb5a669c
-F www/index.html 263b2dabf4e24c49675f6ccad8ddbc7d2f015064
-F www/index.wiki 314475c431784269892809f8882996d9c80fa185
+F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
+F www/index.wiki c3f0bf922c4123a3b220c36bf2398d45ea200c40
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
-F www/pop.html f5f93db90a0856b07674507f1f503cd50377b7ea
-F www/quickstart.html ce3d352b11f8a8f7cb19d638dd57030b75a5d0be
-F www/selfcheck.html 4de2807375002a0483a23064a85fd2556fd312f7
-F www/sync.html 4b7a0c18217f58fb6793f31988683bbd915c5d3f
-P 7351b6346d153f984d38ece87b52c222346ed3be
-R de3bfbda7e376aab1e26e3d96a68ec78
+F www/pop.wiki aaab800d384d0f1232ee6ec15473a9f6d20c48ac
+F www/quickstart.wiki 4381e8a48da1fdc3894a251fde0724b7407035b5
+F www/selfcheck.wiki e5d3578c4bf05ec5f7b8255f411296efb1583389
+F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
+P 5cf1206dfa72a8c3dc79fc2510d5a37125f81160 32c06fd65b8711886923b1915418c1e232cf8248
+R 413ee45d257b58a9cd6b13170d776e7b
 U drh
-Z d250222687da459f04d54044b167c045
+Z 7098491943d17e1ddc938db1b8eff52b
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFILJqboxKgR168RlERAnJFAJ9fuLf21nJ5TYMljESpuqS9Lhu1GwCeKWwx
-fVsXVJJgv8MGeom8X1B/2xg=
-=z99X
+iD8DBQFILNUKoxKgR168RlERAqYMAJ4onNHp/Q3jSqdRjMTkqSDGSlV3mACdEiRc
+uLXkWLTlVmRuXk9d4mdJHa0=
+=KDP9
 -----END PGP SIGNATURE-----

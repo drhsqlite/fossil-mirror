@@ -603,6 +603,18 @@ void setup_config(void){
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
   @ <hr />
+  entry_attribute("Home page", 60, "project-home", "phome", "");
+  @ <p>This sets the content source for the Home page ([/home]).
+  @ Enter a wiki page name (as wiki/PageName) or another URL relative to
+  @ this server's root (%s(g.zBaseURL)/).
+  @ The default is to use wiki/ProjectName. Make sure to use a valid name,
+  @ or your /home link will likely crash! (If that happens, simply come back
+  @ to this page and set it to a good (or empty) value.)
+  @ To use .wiki or .html files in your source tree as content, use a URL
+  @ in the form <tt>doc/VERSION/path/to/doc.wiki</tt>, where VERSION is either
+  @ the UUID of a version of that page or the word 'tip' to get the most recent
+  @ version.</p>
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);

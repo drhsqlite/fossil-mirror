@@ -1,10 +1,3 @@
-<html>
-<head>
-<title>Fossil Delta Encoding Algorithm</title>
-</head>
-<body bgcolor="white">
-<p>[ <a href="index.html">Index</a> ]</p>
-<hr>
 <h1 align="center">
 Fossil Delta Encoding Algorithm
 </h1>
@@ -231,6 +224,3 @@ to be removed. Then adding in <img src="encode9.gif" align="center">
 adds one weight factor to all the other values of Z, and at last adds
 in <img src="encode5.gif" align="center"> with weight 1, also
 generating the correct new sum</p>
-
-</body>
-</html>
