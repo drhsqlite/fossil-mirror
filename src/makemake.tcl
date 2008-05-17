@@ -44,6 +44,7 @@ set src {
   pqueue
   printf
   rebuild
+  report
   rss
   schema
   setup

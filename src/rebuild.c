@@ -173,7 +173,7 @@ int rebuild_db(int randomize, int doOut){
        "SELECT name FROM sqlite_master"
        " WHERE type='table'"
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
-                         "'config','shun','private')"
+                         "'config','shun','private','reportfmt')"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);

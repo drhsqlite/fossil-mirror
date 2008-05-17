@@ -42,6 +42,11 @@
 #define UUID_SIZE 40
 
 /*
+** Maximum number of auxiliary parameters on reports
+*/
+#define MX_AUX  5
+
+/*
 ** All global variables are in this structure.
 */
 struct Global {
@@ -111,6 +116,14 @@ struct Global {
   int okRdAddr;           /* e: read email addresses on tickets */
 
   FILE *fDebug;           /* Write debug information here, if the file exists */
+
+  /* Storage for the aux() and/or option() SQL function arguments */
+  int nAux;                    /* Number of distinct aux() or option() values */
+  const char *azAuxName[MX_AUX]; /* Name of each aux() or option() value */
+  char *azAuxParam[MX_AUX];      /* Param of each aux() or option() value */
+  const char *azAuxVal[MX_AUX];  /* Value of each aux() or option() value */
+  const char **azAuxOpt[MX_AUX]; /* Options of each option() value */
+  int anAuxCols[MX_AUX];         /* Number of columns for option() values */
 };
 
 /*

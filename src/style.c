@@ -73,9 +73,15 @@ static int submenuCompare(const void *a, const void *b){
 /*
 ** Draw the header.
 */
-void style_header(const char *zTitle){
+void style_header(const char *zTitleFormat, ...){
+  va_list ap;
+  char *zTitle;
   const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   login_check_credentials();
+
+  va_start(ap, zTitleFormat);
+  zTitle = vmprintf(zTitleFormat, ap);
+  va_end(ap);
   
   cgi_destination(CGI_HEADER);
 

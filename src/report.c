@@ -65,7 +65,7 @@ void view_list(void){
     @ <li><a href="rptnew">Create a new report format</a></li>
   }
   @ </ol>
-  common_footer();
+  style_footer();
 }
 
 /*
@@ -158,7 +158,7 @@ static int report_query_authorizer(
          "event",
          "tag",
          "tagxref",
-      }
+      };
       int i;
       for(i=0; i<sizeof(azAllowed)/sizeof(azAllowed[0]); i++){
         if( strcasecmp(zArg1, azAllowed[i])==0 ) break;
@@ -185,9 +185,10 @@ static int report_query_authorizer(
 */
 char *verify_sql_statement(char *zSql){
   int i;
-  char *zErr1 = 0;
-  char *zErr2 = 0;
-  char *zTail;
+  char *zErr = 0;
+  const char *zTail;
+  sqlite3_stmt *pStmt;
+  int rc;
 
   /* First make sure the SQL is a single query command by verifying that
   ** the first token is "SELECT" and that there are no unquoted semicolons.
@@ -217,7 +218,6 @@ char *verify_sql_statement(char *zSql){
   sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
   rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, &zTail);
   if( rc!=SQLITE_OK ){
-    free(zErr);
     zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
   }
   if( pStmt ){
@@ -231,11 +231,11 @@ char *verify_sql_statement(char *zSql){
 ** WEBPAGE: /rptsql
 */
 void view_see_sql(void){
-  int rn, rc;
-  char *zTitle;
-  char *zSQL;
-  char *zOwner;
-  char *zClrKey;
+  int rn;
+  const char *zTitle;
+  const char *zSQL;
+  const char *zOwner;
+  const char *zClrKey;
   Stmt q;
 
   login_check_credentials();
@@ -291,7 +291,7 @@ void view_edit(void){
     login_needed();
     return;
   }
-  view_add_functions(0);
+  /*view_add_functions(0);*/
   rn = atoi(PD("rn","0"));
   zTitle = P("t");
   zOwner = PD("w",g.zLogin);
@@ -380,6 +380,7 @@ void view_edit(void){
       @ #c8c8c8 Closed
     ;
   }else{
+    Stmt q;
     db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                      "FROM reportfmt WHERE rn=%d",rn);
     if( db_step(&q)==SQLITE_ROW ){
@@ -388,6 +389,7 @@ void view_edit(void){
       zOwner = db_column_malloc(&q, 2);
       zClrKey = db_column_malloc(&q, 3);
     }
+    db_finalize(&q);
     if( P("copy") ){
       rn = 0;
       zTitle = mprintf("Copy Of %s", zTitle);
@@ -613,23 +615,6 @@ static void report_format_hints(void){
   @
 }
 
-/*********************************************************************/
-static void output_report_field(const char *zData,int rn){
-  const char *zWkey = wiki_key();
-  const char *zTkey = tkt_key();
-  const char *zCkey = chng_key();
-
-  if( !strncmp(zData,zWkey,strlen(zWkey)) ){
-    output_formatted(&zData[strlen(zWkey)],0);
-  }else if( !strncmp(zData,zTkey,strlen(zTkey)) ){
-    output_ticket(atoi(&zData[strlen(zTkey)]),rn);
-  }else if( !strncmp(zData,zCkey,strlen(zCkey)) ){
-    output_chng(atoi(&zData[strlen(zCkey)]));
-  }else{
-    @ %h(zData)
-  }
-}
-
 static void column_header(int rn,const char *zCol, int nCol, int nSorted,
     const char *zDirection, const char *zExtra
 ){
@@ -657,22 +642,24 @@ static void column_header(int rn,const char *zCol, int nCol, int nSorted,
   }
 }
 
-/*********************************************************************/
+/*
+** The state of the report generation.
+*/
 struct GenerateHTML {
-  int rn;
-  int nCount;
+  int rn;        /* Report number */
+  int nCount;    /* Row number */
 };
 
 /*
 ** The callback function for db_query
 */
 static int generate_html(
-  void* pUser,     /* Pointer to output state */
+  void *pUser,     /* Pointer to output state */
   int nArg,        /* Number of columns in this result row */
   char **azArg,    /* Text of data in all columns */
   char **azName    /* Names of the columns */
 ){
-  struct GenerateHTML* pState = (struct GenerateHTML*)pUser;
+  struct GenerateHTML *pState = (struct GenerateHTML*)pUser;
   int i;
   int tn;            /* Ticket number.  (value of column named '#') */
   int rn;            /* Report number */
@@ -716,37 +703,6 @@ static int generate_html(
   /* The first time this routine is called, output a table header
   */
   if( pState->nCount==0 ){
-    char zExtra[2000];
-    int nField = atoi(PD("order_by","0"));
-    const char* zDir = PD("order_dir","");
-    zDir = !strcmp("ASC",zDir) ? "ASC" : "DESC";
-    zExtra[0] = 0;
-
-    if( g.nAux ){
-      @ <tr>
-      @ <td colspan=%d(ncol)><form action="rptview" method="GET">
-      @ <input type="hidden" name="rn" value="%d(rn)">
-      for(i=0; i<g.nAux; i++){
-        const char *zN = g.azAuxName[i];
-        const char *zP = g.azAuxParam[i];
-        if( g.azAuxVal[i] && g.azAuxVal[i][0] ){
-          appendf(zExtra,0,sizeof(zExtra),
-                  "&amp;%t=%t",g.azAuxParam[i],g.azAuxVal[i]);
-        }
-        if( g.azAuxOpt[i] ){
-          @ %h(zN): 
-          if( g.anAuxCols[i]==1 ) {
-            cgi_v_optionmenu( 0, zP, g.azAuxVal[i], g.azAuxOpt[i] );
-          }else if( g.anAuxCols[i]==2 ){
-            cgi_v_optionmenu2( 0, zP, g.azAuxVal[i], g.azAuxOpt[i] );
-          }
-        }else{
-          @ %h(zN): <input type="text" name="%h(zP)" value="%h(g.azAuxVal[i])">
-        }
-      }
-      @ <input type="submit" value="Go">
-      @ </form></td></tr> 
-    }
     @ <tr>
     tn = -1;
     for(i=0; i<nArg; i++){
@@ -763,12 +719,6 @@ static int generate_html(
         if( zName[0]=='#' ){
           tn = i;
         }
-        /*
-        ** This handles any sorting related stuff. Note that we don't
-        ** bother trying to sort on the "wiki format" columns. I don't
-        ** think it makes much sense, visually.
-        */
-        column_header(rn,azName[i],i+1,nField,zDir,zExtra);
       }
     }
     if( g.okWrite && tn>=0 ){
@@ -809,17 +759,16 @@ static int generate_html(
       }
       if( zData[0] ){
         @ </tr><tr bgcolor="%h(zBg)"><td colspan=%d(ncol)>
-        output_formatted(zData, zPage[0] ? zPage : 0);
+        @ %h(zData)
       }
     }else if( azName[i][0]=='#' ){
       tn = atoi(zData);
-      if( tn>0 ) bprintf(zPage, sizeof(zPage), "%d", tn);
       @ <td valign="top"><a href="tktview?tn=%d(tn),%d(rn)">%h(zData)</a></td>
     }else if( zData[0]==0 ){
       @ <td valign="top">&nbsp;</td>
     }else{
       @ <td valign="top">
-      output_report_field(zData,rn);
+      @ %h(zData)
       @ </td>
     }
   }
@@ -936,7 +885,7 @@ void rptview_page(void){
     return;
   }
   tabs = P("tablist")!=0;
-  view_add_functions(tabs);
+  /* view_add_functions(tabs); */
   db_prepare(&q,
     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
   if( db_step(&q)!=SQLITE_ROW ){
@@ -968,12 +917,12 @@ void rptview_page(void){
   if( !tabs ){
     struct GenerateHTML sState;
 
-    db_execute("PRAGMA empty_result_callbacks=ON");
+    db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw", 
-      "rptview?tablist=1&%s", P("QUERY_STRING",""));
+      "rptview?tablist=1&%s", PD("QUERY_STRING",""));
     if( g.okAdmin 
        || (g.okQuery && g.zLogin && zOwner && strcmp(g.zLogin,zOwner)==0) ){
-      style_submentu_element("Edit", "Edit", "rptedit?rn=%d", rn);
+      style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
     }
     style_submenu_element("SQL", "SQL", "rptsql?rn=%d",rn);
     style_header(zTitle);
