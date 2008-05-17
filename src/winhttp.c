@@ -136,7 +136,7 @@ end_request:
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.
 */
-void win32_http_server(int iPort){
+void win32_http_server(int iPort, char *zBrowser){
   WSADATA wd;
   SOCKET s;
   SOCKADDR_IN addr;
@@ -161,6 +161,12 @@ void win32_http_server(int iPort){
     closesocket(s);
     fossil_fatal("unable to listen");
   }
+  printf("Listening for HTTP requests on TCP port %d\n", iPort);
+  if( zBrowser ){
+    printf("Launch webbrowser: %s\n", zBrowser);
+    system(zBrowser);
+  }
+  printf("Type Ctrl-C to stop the HTTP server\n");
   for(;;){
     SOCKET client;
     SOCKADDR_IN client_addr;

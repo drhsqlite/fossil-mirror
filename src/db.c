@@ -1097,10 +1097,13 @@ static void print_setting(const char *zName){
 **                     commit or update and automatically push
 **                     after commit or tag or branch creation.
 **
-**    pgp-command      Command used to clear-sign manifests at check-in.
-**                     The default is "gpg --clearsign -o ".
+**    diff-command     External command to run when performing a diff.
+**                     If undefined, the internal text diff will be used.
 **
 **    editor           Text editor command used for check-in comments.
+**
+**    gdiff-command    External command to run when performing a graphical
+**                     diff. If undefined, text diff will be used.
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
@@ -1110,16 +1113,18 @@ static void print_setting(const char *zName){
 **    omitsign         When enabled, fossil will not attempt to sign any
 **                     commit with gpg. All commits will be unsigned.
 **
+**    pgp-command      Command used to clear-sign manifests at check-in.
+**                     The default is "gpg --clearsign -o ".
+**
 **    proxy            URL of the HTTP proxy.  If undefined or "off" then
 **                     the "http_proxy" environment variable is consulted.
 **                     If the http_proxy environment variable is undefined
 **                     then a direct HTTP connection is used.
 **
-**    diff-command     External command to run when performing a diff.
-**                     If undefined, the internal text diff will be used.
-**
-**    gdiff-command    External command to run when performing a graphical
-**                     diff. If undefined, text diff will be used.
+**    web-browser      A shell command used to launch your preferred
+**                     web browser when given a URL as an argument.
+**                     Defaults to "start" on windows, "open" on Mac,
+**                     and "firefox" on Unix.
 */
 void setting_cmd(void){
   static const char *azName[] = {
@@ -1131,6 +1136,7 @@ void setting_cmd(void){
     "omitsign",
     "pgp-command",
     "proxy",
+    "web-browser",
   };
   int i;
   int globalFlag = find_option("global","g",0)!=0;

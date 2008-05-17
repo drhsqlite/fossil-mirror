@@ -1168,7 +1168,7 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Return 0 to each child as it runs.  If unable to establish a
 ** listening socket, return non-zero.
 */
-int cgi_http_server(int iPort){
+int cgi_http_server(int iPort, char *zBrowser){
 #ifdef __MINGW32__
   fprintf(stderr,"server not yet available in windows version of fossil\n");
   exit(1);
@@ -1200,6 +1200,9 @@ int cgi_http_server(int iPort){
     return 1;
   }
   listen(listener,10);
+  if( zBrowser ){
+    system(zBrowser);
+  }
   while( 1 ){
     if( nchildren>MAX_PARALLEL ){
       /* Slow down if connections are arriving too fast */

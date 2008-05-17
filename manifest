@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\stemporary\sfiles\sare\swell-named\sand\sare\sdeleted\safter\suse\nin\sthe\swin32\sfossil\sserver\scommand.
-D 2008-05-17T17:52:08
+C Add\sthe\s"ui"\scommand\sto\sautomatically\slaunch\sa\sweb\sbrowser\safter\nstarting\sthe\sHTTP\sserver.\s\sThe\sweb\sbrowser\schoice\scan\sbe\sconfigured\nusing\sthe\s"setting"\scommand.
+D 2008-05-17T18:19:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -42,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c db2f7cb7a920014048a0c58b8252caeed9f90fea
+F src/cgi.c 98e61aaa4c5674a2a27e1591323336346c0d01b1
 F src/checkin.c e7a974d371d6bf8462db46c1b21c8673a0ab716c
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 837378bf401381afa0328daa01d80431d5febdec
-F src/db.c 3bee80077521f9904660ea0b411c111ee69e42ea
+F src/db.c d2925f32aeaa441a832285026b9c81ddfe100a6e
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -63,7 +63,7 @@ F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 0c704d219d580fb5fdfa8c66bee4a36c572c3569
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c bf0146efdbf241334c8961f508ba28ccc2fc0d59
+F src/main.c 7b16a4ea5c853a403f5eb2aba1b52624b02a813a
 F src/main.mk 24d064f3b32c1a5a43ecf3b39c99885dac741489
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -108,7 +108,7 @@ F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
-F src/winhttp.c c6afa8f76bacfc6a1804a786d552ed9831113104
+F src/winhttp.c b85fb3a4bbd164077321376316b91633fe815ebd
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -206,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P e2e016c31f8b7ffa96555217212eb134b880e6c4
-R 6f904143e7da24a3ef8ab992ef98a3d1
+P 24f336c9ae5e3ea3fe292ea974a77cbd9f45a0d6
+R 8f0c920c140b5ed277c5de29a8a012c7
 U drh
-Z 758ad8d5ac92bd71cdd655c69cd56a97
+Z 5fab1623bb788bf75376fd651d26ab5c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILxtLoxKgR168RlERAhLnAJ40Kln28wAKFxBZY41LUenpLX8p3wCcCfta
-HqSJlHF/k9oUJXckrVGkuTk=
-=n+yn
+iD8DBQFILyGioxKgR168RlERAnO5AJ9E58gg57P1iEQLzYOm9HiFMHFpBQCeLxlh
+X8PjxrlSMtTnG02+RC1frCk=
+=kzkN
 -----END PGP SIGNATURE-----

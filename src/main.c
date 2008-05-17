@@ -652,18 +652,25 @@ void cmd_test_http(void){
 
 /*
 ** COMMAND: server
+** COMMAND: ui
 **
 ** Usage: %fossil server ?-P|--port TCPPORT? ?REPOSITORY?
+**    Or: %fossil ui ?-P|--port TCPPORT? ?REPOSITORY?
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or
 ** --port option.  The optional argument is the name of the repository.
 ** The repository argument may be omitted if the working directory is
 ** within an open checkout.
+**
+** The "ui" command automatically starts a web browser after initializing
+** the web server.
 */
 void cmd_webserver(void){
   int iPort;
   const char *zPort;
+  char *zBrowser;
+  char *zBrowserCmd = 0;
 
   zPort = find_option("port", "P", 1);
   if( zPort ){
@@ -678,7 +685,15 @@ void cmd_webserver(void){
   }
 #ifndef __MINGW32__
   /* Unix implementation */
-  if( cgi_http_server(iPort) ){
+  if( g.argv[1][0]=='u' ){
+#if !defined(__DARWIN__) && !defined(__APPLE__)
+    zBrowser = db_get("web-browser", "firefox");
+#else
+    zBrowser = db_get("web-browser", "open");
+#endif
+    zBrowserCmd = mprintf("%s http://localhost:%d/ &", zBrowser, iPort);
+  }
+  if( cgi_http_server(iPort, zBrowserCmd) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   g.httpIn = stdin;
@@ -696,6 +711,10 @@ void cmd_webserver(void){
   process_one_web_page();
 #else
   /* Win32 implementation */
-  win32_http_server(iPort);
+  if( g.argv[1][0]=='u' ){
+    zBrowser = db_get("web-browser", "start");
+    zBrowserCmd = mprintf("%s http://127.0.0.1:%d/", zBrowser, iPort);
+  }
+  win32_http_server(iPort, zBrowserCmd);
 #endif
 }
