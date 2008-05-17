@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Documentation\stweaks.
-D 2008-05-17T20:32:50
+C Add\sthe\s"Bugs"\smenu\selement\son\sthe\sdefault\sheader.\s\sProgress\son\nimplementing\sbug\stracking.
+D 2008-05-17T21:15:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -79,7 +79,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 51a3d6cdc61e00535ab2ae52e85ad48a197d5cb5
-F src/report.c 78ac6cf583705aa935f2e58f6e3b5d4f7b1d68c5
+F src/report.c 341078a2b9fc7f4e1cef7d13188f7a9d574c6377
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f7d41345c400bab68c6a848eca539698ef1c35af
 F src/setup.c b4cd5e8549212fdc1960cb5334cce2a876d65874
@@ -87,7 +87,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 33e094d569682e4ea3398405259b98a40e623ad1
+F src/style.c 850e5f952e7bcfc64bc385ed04287b6673fb14c4
 F src/sync.c 64b6ad3096caad8cd98b134ea12a5c4596b36757
 F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
@@ -206,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki e76c743118eed92242f0bcf01377624a38053984
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P b9eec2d2772ec5aba73845c9bcd921211ade0856
-R b4107d6ade1aff4914ec94e275e21900
+P 06689854aee056442322467e836a0686f3ee3ee5
+R a7fe96dd2a63c4f36819feb06b15ed93
 U drh
-Z 9263a2284c6ea71889d36e5fee3774ea
+Z e2c23a65e8c81d21ce08bc3bb5004739
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIL0D1oxKgR168RlERAqd9AJ4zF7UJFrSmu3RCNot++DFzwiQHAgCgigPw
-0Gt6spQ2JgTFo0UYW0KyksU=
-=1v2L
+iD8DBQFIL0rvoxKgR168RlERAmKNAKCJxvHmObFIHw5suYepg3j4z/Yg5gCeO8Dp
+JbsY7vC3Jr4tzkcCnK4XGfY=
+=Vyc2
 -----END PGP SIGNATURE-----

@@ -36,35 +36,48 @@ static void report_format_hints(void);
 */
 void view_list(void){
   Stmt q;
+  int rn = 0;
 
   login_check_credentials();
-  if( !g.okRdTkt ){ login_needed(); return; }
-  style_header("Available Report Formats");
-  db_prepare(&q, "SELECT rn, title, owner FROM reportfmt ORDER BY title");
-  @ <p>Choose a report format from the following list:</p>
-  @ <ol>
-  while( db_step(&q)==SQLITE_ROW ){
-    int rn = db_column_int(&q, 0);
-    const char *zTitle = db_column_text(&q, 1);
-    const char *zOwner = db_column_text(&q, 2);
-    @ <li><a href="rptview?rn=%d(rn)"
-    @        rel="nofollow">%h(zTitle)</a>&nbsp;&nbsp;&nbsp;
-    if( g.okWrite && zOwner && zOwner[0] ){
-      @ (by <i>%h(zOwner)</i>)
-    }
-    if( g.okWrTkt ){
-      @ [<a href="rptedit?rn=%d(rn)&amp;copy=1" rel="nofollow">copy</a>]
-    }
-    if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
-      @ [<a href="rptedit?rn=%d(rn)" rel="nofollow">edit</a>]
-    }
-    @ [<a href="rptsql?rn=%d(rn)" rel="nofollow">sql</a>]
-    @ </li>
+  if( !g.okRdTkt && !g.okNewTkt ){ login_needed(); return; }
+  style_header("Bug Report Main Menu");
+  if( g.okNewTkt ){
+    @ <p>Enter a new bug report:</p>
+    @ <ol><li value="0"><a href="tktnew">New bug report</a></li></ol>
+    @
   }
-  if( g.okWrTkt ){
-    @ <li><a href="rptnew">Create a new report format</a></li>
+  if( !g.okRdTkt ){
+    @ <p>You are not authorized to view existing bug reports.</p>
+  }else{
+    db_prepare(&q, "SELECT rn, title, owner FROM reportfmt ORDER BY title");
+    @ <p>Choose a report format from the following list:</p>
+    @ <ol>
+    while( db_step(&q)==SQLITE_ROW ){
+      rn = db_column_int(&q, 0);
+      const char *zTitle = db_column_text(&q, 1);
+      const char *zOwner = db_column_text(&q, 2);
+      @ <li value="%d(rn)"><a href="rptview?rn=%d(rn)"
+      @        rel="nofollow">%h(zTitle)</a>&nbsp;&nbsp;&nbsp;
+      if( g.okWrite && zOwner && zOwner[0] ){
+        @ (by <i>%h(zOwner)</i>)
+      }
+      if( g.okWrTkt ){
+        @ [<a href="rptedit?rn=%d(rn)&amp;copy=1" rel="nofollow">copy</a>]
+      }
+      if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
+        @ [<a href="rptedit?rn=%d(rn)" rel="nofollow">edit</a>]
+      }
+      @ [<a href="rptsql?rn=%d(rn)" rel="nofollow">sql</a>]
+      @ </li>
+    }
   }
   @ </ol>
+  if( g.okWrTkt ){
+    @ <p>Create a new bug report display format:</p>
+    @ <ol>
+    @ <li value="%d(rn+1)"><a href="rptnew">New report format</a></li>
+    @ </ol>
+  }
   style_footer();
 }
 
@@ -646,8 +659,12 @@ static void column_header(int rn,const char *zCol, int nCol, int nSorted,
 ** The state of the report generation.
 */
 struct GenerateHTML {
-  int rn;        /* Report number */
-  int nCount;    /* Row number */
+  int rn;          /* Report number */
+  int nCount;      /* Row number */
+  int nCol;        /* Number of columns */
+  int isMultirow;  /* True if multiple table rows per query result row */
+  int iNewRow;     /* Index of first column that goes on separate row */
+  int iBg;         /* Index of column that defines background color */
 };
 
 /*
@@ -663,10 +680,6 @@ static int generate_html(
   int i;
   int tn;            /* Ticket number.  (value of column named '#') */
   int rn;            /* Report number */
-  int ncol;          /* Number of columns in the table */
-  int multirow;      /* True if multiple table rows per line of data */
-  int newrowidx;     /* Index of first column that goes on a separate row */
-  int iBg = -1;      /* Index of column that determines background color */
   char *zBg = 0;     /* Use this background color */
   char zPage[30];    /* Text version of the ticket number */
 
@@ -674,50 +687,54 @@ static int generate_html(
   */
   rn = pState->rn;
 
-  /* Figure out the number of columns, the column that determines background
-  ** color, and whether or not this row of data is represented by multiple
-  ** rows in the table.
-  */
-  ncol = 0;
-  multirow = 0;
-  newrowidx = -1;
-  for(i=0; i<nArg; i++){
-    if( azName[i][0]=='b' && strcmp(azName[i],"bgcolor")==0 ){
-      zBg = azArg ? azArg[i] : 0;
-      iBg = i;
-      continue;
-    }
-    if( g.okWrite && azName[i][0]=='#' ){
-      ncol++;
-    }
-    if( !multirow ){
-      if( azName[i][0]=='_' ){
-        multirow = 1;
-        newrowidx = i;
-      }else{
-        ncol++;
-      }
-    }
-  }
-
-  /* The first time this routine is called, output a table header
+  /* Do initialization
   */
   if( pState->nCount==0 ){
+    /* Figure out the number of columns, the column that determines background
+    ** color, and whether or not this row of data is represented by multiple
+    ** rows in the table.
+    */
+    pState->nCol = 0;
+    pState->isMultirow = 0;
+    pState->iNewRow = -1;
+    pState->iBg = -1;
+    for(i=0; i<nArg; i++){
+      if( azName[i][0]=='b' && strcmp(azName[i],"bgcolor")==0 ){
+        pState->iBg = i;
+        continue;
+      }
+      if( g.okWrite && azName[i][0]=='#' ){
+        pState->nCol++;
+      }
+      if( !pState->isMultirow ){
+        if( azName[i][0]=='_' ){
+          pState->isMultirow = 1;
+          pState->iNewRow = i;
+        }else{
+          pState->nCol++;
+        }
+      }
+    }
+
+    /* The first time this routine is called, output a table header
+    */
     @ <tr>
     tn = -1;
     for(i=0; i<nArg; i++){
       char *zName = azName[i];
-      if( i==iBg ) continue;
-      if( newrowidx>=0 && i>=newrowidx ){
+      if( i==pState->iBg ) continue;
+      if( pState->iNewRow>=0 && i>=pState->iNewRow ){
         if( g.okWrite && tn>=0 ){
           @ <th>&nbsp;</th>
           tn = -1;
         }
         if( zName[0]=='_' ) zName++;
-        @ </tr><tr><th colspan=%d(ncol)>%h(zName)</th>
+        @ </tr><tr><th colspan=%d(pState->nCol)>%h(zName)</th>
       }else{
         if( zName[0]=='#' ){
           tn = i;
+        }else{
+          @ <th>%h(zName)</th>
         }
       }
     }
@@ -727,7 +744,7 @@ static int generate_html(
     @ </tr>
   }
   if( azArg==0 ){
-    @ <tr><td colspan="%d(ncol)">
+    @ <tr><td colspan="%d(pState->nCol)">
     @ <i>No records match the report criteria</i>
     @ </td></tr>
     return 0;
@@ -737,28 +754,29 @@ static int generate_html(
   /* Output the separator above each entry in a table which has multiple lines
   ** per database entry.
   */
-  if( newrowidx>=0 ){
-    @ <tr><td colspan=%d(ncol)><font size=1>&nbsp;</font></td></tr>
+  if( pState->iNewRow>=0 ){
+    @ <tr><td colspan=%d(pState->nCol)><font size=1>&nbsp;</font></td></tr>
   }
 
   /* Output the data for this entry from the database
   */
+  zBg = pState->iBg>=0 ? azArg[pState->iBg] : 0;
   if( zBg==0 ) zBg = "white";
   @ <tr bgcolor="%h(zBg)">
   tn = 0;
   zPage[0] = 0;
   for(i=0; i<nArg; i++){
     char *zData;
-    if( i==iBg ) continue;
+    if( i==pState->iBg ) continue;
     zData = azArg[i];
     if( zData==0 ) zData = "";
-    if( newrowidx>=0 && i>=newrowidx ){
+    if( pState->iNewRow>=0 && i>=pState->iNewRow ){
       if( tn>0 && g.okWrite ){
         @ <td valign="top"><a href="tktedit?tn=%d(tn),%d(rn)">edit</a></td>
         tn = 0;
       }
       if( zData[0] ){
-        @ </tr><tr bgcolor="%h(zBg)"><td colspan=%d(ncol)>
+        @ </tr><tr bgcolor="%h(zBg)"><td colspan=%d(pState->nCol)>
         @ %h(zData)
       }
     }else if( azName[i][0]=='#' ){
