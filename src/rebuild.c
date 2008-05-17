@@ -37,10 +37,20 @@ static const char zSchemaUpdates[] =
 @
 @ -- Artifacts that should not be processed are identified in the
 @ -- "shun" table.  Artifacts that are control-file forgeries or
-@ -- spam can be shunned in order to prevent them from contaminating
+@ -- spam or artifacts whose contents violate administrative policy
+@ -- can be shunned in order to prevent them from contaminating
 @ -- the repository.
 @ --
+@ -- Shunned artifacts do not exist in the blob table.  Hence they
+@ -- have not artifact ID (rid) and we thus must store their full
+@ -- UUID.
+@ --
 @ CREATE TABLE IF NOT EXISTS shun(uuid UNIQUE);
+@
+@ -- Artifacts that should not be pushed are stored in the "private"
+@ -- table.  
+@ --
+@ CREATE TABLE IF NOT EXISTS private(rid INTEGER PRIMARY KEY);
 @
 @ -- An entry in this table describes a database query that generates a
 @ -- table of tickets.
@@ -52,16 +62,6 @@ static const char zSchemaUpdates[] =
 @    cols text,               -- A color-key specification
 @    sqlcode text             -- An SQL SELECT statement for this report
 @ );
-@
-@ -- A cache for mapping baseline artifact ID + filename into file
-@ -- artifact ID.  Used by the /doc method.
-@ --
-@ CREATE TABLE IF NOT EXISTS vcache(
-@    vid integer,             -- Baseline artifact ID
-@    fname text,              -- Filename
-@    rid integer,             -- File artifact ID
-@    UNIQUE(vid,fname,rid)
-@ );             
 ;
 
 /*
@@ -172,7 +172,9 @@ int rebuild_db(int randomize, int doOut){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master"
        " WHERE type='table'"
-       " AND name NOT IN ('blob','delta','rcvfrom','user','config','shun')");
+       " AND name NOT IN ('blob','delta','rcvfrom','user',"
+                         "'config','shun','private')"
+    );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
     free(zTable);
@@ -180,7 +182,10 @@ int rebuild_db(int randomize, int doOut){
   db_multi_exec(zRepositorySchema2);
   ticket_create_table(0);
 
-  db_multi_exec("INSERT INTO unclustered SELECT rid FROM blob");
+  db_multi_exec(
+     "INSERT INTO unclustered"
+     " SELECT rid FROM blob EXCEPT SELECT rid FROM private"
+  );
   db_multi_exec(
      "DELETE FROM unclustered"
      " WHERE rid IN (SELECT rid FROM shun JOIN blob USING(uuid))"

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\srudimentary\sticket\sediting\sworking.
-D 2008-05-16T18:57:59
+C Allow\sthe\scheck-in\sof\sfiles\sshow\snames\sbegin\swith\s".".\s\sAdd\sthe\s"private"\ntable\sto\srepository\sschema\sbut\sdo\snot\syet\sdo\sanything\swith\sit.
+D 2008-05-17T08:53:34
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -59,7 +59,7 @@ F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 4f6e43e19fbca8ced797e1b52334999c289f3c78
 F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
-F src/file.c 2d8ec6b3a134b2299da40e7e2be692a75418fc61
+F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 0c704d219d580fb5fdfa8c66bee4a36c572c3569
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
@@ -78,10 +78,10 @@ F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c 468a6238475749876cfabe7bd67674ed8c295898
+F src/rebuild.c c03e63f03ed820dd2959d7f9326d6e39f773afe3
 F src/report.c 15271012d788c088df754658468db43f91900ee1
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c f141028e53df835705fd790070e91d42bd0264a9
+F src/schema.c f7d41345c400bab68c6a848eca539698ef1c35af
 F src/setup.c b4cd5e8549212fdc1960cb5334cce2a876d65874
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
@@ -205,14 +205,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 68c24b185731fad5e835f816428aaa739552cdd5
-R 4edbe88ce73c4591dc6f98822004ccff
+P 46e6a032324baa69275a552deaae8410af8fe663
+R b6d5031381abb1a983aa2373540e490b
 U drh
-Z 0ffbb1e00b31e2e858add7c378fc5fd6
+Z 98e3f9f942dcfdc1d34f2a17e1c3a8cb
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFILdk7oxKgR168RlERAnfeAJ4ypAolmJImKadKoGPXpcrTO7DgqQCfSN4z
-2LKWmNkECeEHwJWzawERHWw=
-=UIJb
+iD8DBQFILp09oxKgR168RlERAs2KAJ41UQWIMkXWvq8OvOyEgKjf7A0kzwCgihB2
+/JWHrhgWaajVxJQiGRs22ro=
+=letY
 -----END PGP SIGNATURE-----

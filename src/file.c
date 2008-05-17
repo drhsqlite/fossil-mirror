@@ -75,6 +75,7 @@ int file_isexe(const char *zFilename){
   if( stat(zFilename, &buf)!=0 ){
     return 0;
   }
+  if( !S_ISREG(buf.st_mode) ) return 0;
 #ifdef __MINGW32__
   return ((S_IXUSR)&buf.st_mode)!=0;
 #else
@@ -90,7 +91,7 @@ void file_setexe(const char *zFilename, int onoff){
   struct stat buf;
   if( stat(zFilename, &buf)!=0 ) return;
   if( onoff ){
-    if( (buf.st_mode & 0111)==0 ){
+    if( (buf.st_mode & 0111)!=0111 ){
       chmod(zFilename, buf.st_mode | 0111);
     }
   }else{
@@ -143,7 +144,7 @@ int file_mkdir(const char *zName, int forceFlag){
 ** following rules:
 **
 **     *  Does not begin with "/"
-**     *  Does not contain any path element that begins with "."
+**     *  Does not contain any path element named "." or ".."
 **     *  Does not contain any of these characters in the path: "\*[]?"
 **     *  Does not end with "/".
 **     *  Does not contain two or more "/" characters in a row.
@@ -151,14 +152,20 @@ int file_mkdir(const char *zName, int forceFlag){
 */
 int file_is_simple_pathname(const char *z){
   int i;
-  if( *z=='.' || *z=='/' || *z==0 ) return 0;
+  if( *z=='/' || *z==0 ) return 0;
+  if( *z=='.' ){
+    if( z[1]=='/' || z[1]==0 ) return 0;
+    if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
+  }
   for(i=0; z[i]; i++){
     if( z[i]=='\\' || z[i]=='*' || z[i]=='[' || z[i]==']' || z[i]=='?' ){
       return 0;
     }
     if( z[i]=='/' ){
-      if( z[i+1]=='/' || z[i+1]=='.' ){
-        return 0;
+      if( z[i+1]=='/' ) return 0;
+      if( z[i+1]=='.' ){
+        if( z[i+2]=='/' || z[i+2]==0 ) return 0;
+        if( z[i+2]=='.' && (z[i+3]=='/' || z[i+3]==0) ) return 0;
       }
     }
   }

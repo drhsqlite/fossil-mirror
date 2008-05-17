@@ -120,10 +120,21 @@ const char zRepositorySchema1[] =
 @
 @ -- Artifacts that should not be processed are identified in the
 @ -- "shun" table.  Artifacts that are control-file forgeries or
-@ -- spam can be shunned in order to prevent them from contaminating
+@ -- spam or artifacts whose contents violate administrative policy
+@ -- can be shunned in order to prevent them from contaminating
 @ -- the repository.
 @ --
+@ -- Shunned artifacts do not exist in the blob table.  Hence they
+@ -- have not artifact ID (rid) and we thus must store their full
+@ -- UUID.
+@ --
 @ CREATE TABLE shun(uuid UNIQUE);
+@
+@ -- Artifacts that should not be pushed are stored in the "private"
+@ -- table.  Private artifacts are omitted from the "unclustered" and
+@ -- "unsent" tables.
+@ --
+@ CREATE TABLE private(rid INTEGER PRIMARY KEY);
 @
 @ -- An entry in this table describes a database query that generates a
 @ -- table of tickets.
