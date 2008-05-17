@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\sthe\s"server"\scommand\srunning\sunder\swindows.
-D 2008-05-17T17:43:22
+C Make\ssure\stemporary\sfiles\sare\swell-named\sand\sare\sdeleted\safter\suse\nin\sthe\swin32\sfossil\sserver\scommand.
+D 2008-05-17T17:52:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -108,7 +108,7 @@ F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
-F src/winhttp.c 8692bfae972399ce62ba847798342fc29debfbf7
+F src/winhttp.c c6afa8f76bacfc6a1804a786d552ed9831113104
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -206,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 55342eb9fb293e6bfe7f5f8c401c23fc6497dc59
-R 5a209115e81c849539396315706e728d
+P e2e016c31f8b7ffa96555217212eb134b880e6c4
+R 6f904143e7da24a3ef8ab992ef98a3d1
 U drh
-Z e6fc0baaa4eca5aa92c8571865149080
+Z 758ad8d5ac92bd71cdd655c69cd56a97
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILxk9oxKgR168RlERAuHjAJwJcTMsGOOHwUuBsO8wY016XMy/ggCfeJei
-cS9eOquKYXWkQ/gbqZ57AvI=
-=gGz5
+iD8DBQFILxtLoxKgR168RlERAhLnAJ40Kln28wAKFxBZY41LUenpLX8p3wCcCfta
+HqSJlHF/k9oUJXckrVGkuTk=
+=n+yn
 -----END PGP SIGNATURE-----

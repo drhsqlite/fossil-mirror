@@ -41,6 +41,11 @@ struct HttpRequest {
 };
 
 /*
+** Prefix for a temporary file.
+*/
+static char *zTempPrefix;
+
+/*
 ** Look at the HTTP header contained in zHdr.  Find the content
 ** length and return it.  Return 0 if there is no Content-Length:
 ** header line.
@@ -72,8 +77,8 @@ void win32_process_one_http_request(void *pAppData){
   char zCmd[2000];          /* Command-line to process the request */
   char zHdr[2000];          /* The HTTP request header */
 
-  sprintf(zRequestFName, "win32_http_in%d.txt", p->id);
-  sprintf(zReplyFName, "win32_http_out%d.txt", p->id);
+  sprintf(zRequestFName, "%s_in%d.txt", zTempPrefix, p->id);
+  sprintf(zReplyFName, "%s_out%d.txt", zTempPrefix, p->id);
   amt = 0;
   while( amt<sizeof(zHdr) ){
     got = recv(p->s, &zHdr[amt], sizeof(zHdr)-1-amt, 0);
@@ -119,11 +124,11 @@ void win32_process_one_http_request(void *pAppData){
   }
 
 end_request:
-  unlink(zRequestFName);
-  unlink(zReplyFName);
   if( out ) fclose(out);
   if( in ) fclose(in);
   closesocket(p->s);
+  unlink(zRequestFName);
+  unlink(zReplyFName);
   free(p);
 }
 
@@ -140,7 +145,7 @@ void win32_http_server(int iPort){
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
-
+  zTempPrefix = mprintf("fossil_server_P%d_", iPort);
   s = socket(AF_INET, SOCK_STREAM, 0);
   if( s==INVALID_SOCKET ){
     fossil_fatal("unable to create a socket");
