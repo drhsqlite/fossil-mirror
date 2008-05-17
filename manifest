@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Allow\sthe\scheck-in\sof\sfiles\sshow\snames\sbegin\swith\s".".\s\sAdd\sthe\s"private"\ntable\sto\srepository\sschema\sbut\sdo\snot\syet\sdo\sanything\swith\sit.
-D 2008-05-17T08:53:34
+C Make\sTh1\svariable\s$current_page\savailable\sto\sthe\sheader\sand\sfooter.
+D 2008-05-17T13:40:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -87,7 +87,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 8d5949ed7faa4ec8e2c46788b892ac01d0ecd3ab
+F src/style.c ede3687f81ec802c05b659b3161d69d442a60c8a
 F src/sync.c 64b6ad3096caad8cd98b134ea12a5c4596b36757
 F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
@@ -205,14 +205,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 46e6a032324baa69275a552deaae8410af8fe663
-R b6d5031381abb1a983aa2373540e490b
+P 525cc35bf3896727c9c6165e183da5f4c0e2d48d
+R 69047bed551facba23c06c0656f925fd
 U drh
-Z 98e3f9f942dcfdc1d34f2a17e1c3a8cb
+Z e8339462e5ca3a4754120202f8585f65
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFILp09oxKgR168RlERAs2KAJ41UQWIMkXWvq8OvOyEgKjf7A0kzwCgihB2
-/JWHrhgWaajVxJQiGRs22ro=
-=letY
+iD8DBQFILuBVoxKgR168RlERAu47AJ0d9NcGKqxAGssKWEOVqaD4MvXyuQCfXKTL
+lUwIjtxAyJTUa+YmuqGyP8s=
+=gBQO
 -----END PGP SIGNATURE-----

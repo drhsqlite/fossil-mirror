@@ -84,6 +84,7 @@ void style_header(const char *zTitle){
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("index_page", db_get("index-page","/home"));
+  Th_Store("current_page", g.zPath);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   if( g.zLogin ){
