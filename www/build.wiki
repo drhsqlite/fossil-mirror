@@ -1,3 +1,4 @@
+<nowiki>
 <h1>Installing Fossil</h1>
 
 <p>This page describes how to build and install Fossil.  The

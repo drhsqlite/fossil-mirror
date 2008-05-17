@@ -52,13 +52,17 @@ and painlessly.</p>
     start a fossil webserver like this:</p>
     
     <blockquote>
-    <b>fossil server </b><i> repository-filename</i>
+    <b>fossil ui </b><i> repository-filename</i>
     </blockquote>
 
     <p>This creates a mini-webserver listening on port 8080.  You can
     specify a different port using the <b>-port</b> option on the command-line.
-    After the server is running, point your webbrowser at
-    http://localhost:8080/ and start configuring.</p>
+    After the server is running, fossil will then attempt to launch your
+    web browser and make it point to this web server.  If your system
+    has an unusual configuration, fossil might not be able to figure out
+    how to start your web browser.  In that case, start the web browser
+    yourself and point it at http://localhost:8080/.  Click on the
+    "Setup" link on the menu bar to start configuring your repository.</p>
     
     <p>By default, fossil does not require a login for HTTP connections
     coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
@@ -78,14 +82,9 @@ and painlessly.</p>
     <b>fossil open </b><i> repository-filename</i>
     </blockquote>
     
-    <p>This leaves you with the original (empty) version of the tree
-    checked out.  To get to the latest version, also do this:</p>
-    
-    <blockquote>
-    <b>fossil update</b>
-    </blockquote>
-    
-    <p>From anywhere underneath the root of your local tree, you
+    <p>This leaves you with the newest version of the tree
+    checked out.    
+    From anywhere underneath the root of your local tree, you
     can type commands like the following to find out the status of
     your local tree:</p>
 
@@ -184,7 +183,16 @@ and painlessly.</p>
     <b>fossil server</b> <i>repository-filename</i>
     </blockquote>
 
-    <p>You can omit the <i>repository-filename</i> if you are within
+    <p>Or</b>
+
+    <blockquote>
+    <b>fossil ui</b> <i>repository-filename</i>
+    </blockquote>
+
+    <p>The difference between these two command is that <b>ui</b>
+    attempts to automatically start your web browser point at the
+    server whereas <b>server</b> does not.
+    You can omit the <i>repository-filename</i> if you are within
     a checked-out local tree.  This server uses port 8080 by default
     but you can specify a different port using the <b>-port</b> command.</p>
 

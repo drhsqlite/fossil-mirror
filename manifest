@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\snew\swin32\sserver\simplementation.
-D 2008-05-17T19:24:52
+C Documentation\stweaks.
+D 2008-05-17T20:32:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -177,7 +177,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/build.wiki 61aa0809d1f7d8b4ffe98b619f26f5c5afb6265f
+F www/build.wiki 75b978c24ac6b92aa888f90d99c8ac64d090d23f
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 93bae4c111fa5a78ca82d7161801710184f98b3d
@@ -200,20 +200,20 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
-F www/index.wiki afae3536c0d1fb0b772de96a44dc9f0c813aea23
+F www/index.wiki 6a1fbd69a997d6bb1cd5e137500d9f26300e87ae
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
+F www/quickstart.wiki e76c743118eed92242f0bcf01377624a38053984
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P dfb68976be2232e5d3f202e041240e165afb978b
-R a852d4108e0ed15bab099c8c016ac361
+P b9eec2d2772ec5aba73845c9bcd921211ade0856
+R b4107d6ade1aff4914ec94e275e21900
 U drh
-Z b55e93ca567c183f2cf6da4b97327800
+Z 9263a2284c6ea71889d36e5fee3774ea
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILzEHoxKgR168RlERAkHaAKCCSfTElxI1iIjztj/GI9rVmYYuyACaAwhl
-+FsWA6m4KC/gK/Gp6ajioHo=
-=n2p7
+iD8DBQFIL0D1oxKgR168RlERAqd9AJ4zF7UJFrSmu3RCNot++DFzwiQHAgCgigPw
+0Gt6spQ2JgTFo0UYW0KyksU=
+=1v2L
 -----END PGP SIGNATURE-----
