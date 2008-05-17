@@ -67,6 +67,7 @@ set src {
   vfile
   wiki
   wikiformat
+  winhttp
   xfer
   zip
 }

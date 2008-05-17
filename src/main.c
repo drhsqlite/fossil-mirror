@@ -74,8 +74,10 @@ struct Global {
   Blob cgiIn;             /* Input to an xfer www method */
   int cgiPanic;           /* Write error messages to CGI */
   Th_Interp *interp;      /* The TH1 interpreter */
+  FILE *httpIn;           /* Accept HTTP input from here */
+  FILE *httpOut;          /* Send HTTP output here */
 
-  int *aCommitFile;
+  int *aCommitFile;       /* Array of files to be committed */
 
   int urlIsFile;          /* True if a "file:" url */
   char *urlName;          /* Hostname for http: or filename for file: */
@@ -602,6 +604,12 @@ void cmd_cgi(void){
 }
 
 /*
+** undocumented format:
+**
+**        fossil http REPOSITORY INFILE OUTFILE IPADDR
+**
+** The argv==6 form is used by the win32 server only.
+**
 ** COMMAND: http
 **
 ** Usage: %fossil http REPOSITORY
@@ -612,16 +620,24 @@ void cmd_cgi(void){
 ** repository.
 */
 void cmd_http(void){
-  if( g.argc!=2 && g.argc!=3 ){
+  const char *zIpAddr = 0;
+  if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     cgi_panic("no repository specified");
   }
   g.cgiPanic = 1;
-  if( g.argc==3 ){
+  g.httpIn = stdin;
+  g.httpOut = stdout;
+  if( g.argc>=3 ){
     db_open_repository(g.argv[2]);
+    if( g.argc==6 ){
+      g.httpIn = fopen(g.argv[3], "rb");
+      g.httpOut = fopen(g.argv[4], "wb");
+      zIpAddr = g.argv[5];
+    }
   }else{
     db_must_be_within_tree();
   }
-  cgi_handle_http_request();
+  cgi_handle_http_request(zIpAddr);
   process_one_web_page();
 }
 
@@ -660,7 +676,13 @@ void cmd_webserver(void){
     db_must_be_within_tree();
     db_close();
   }
-  cgi_http_server(iPort);
+#ifndef __MINGW32__
+  /* Unix implementation */
+  if( cgi_http_server(iPort) ){
+    fossil_fatal("unable to listen on TCP socket %d", iPort);
+  }
+  g.httpIn = stdin;
+  g.httpOut = stdout;
   if( g.fHttpTrace ){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
@@ -670,6 +692,10 @@ void cmd_webserver(void){
   }else{
     db_open_repository(g.argv[2]);
   }
-  cgi_handle_http_request();
+  cgi_handle_http_request(0);
   process_one_web_page();
+#else
+  /* Win32 implementation */
+  win32_http_server(iPort);
+#endif
 }

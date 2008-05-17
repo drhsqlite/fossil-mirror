@@ -288,15 +288,15 @@ void cgi_reply(void){
 #endif
 
   if( fullHttpReply ){
-    printf("HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
-    printf("Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
-    printf("Connection: close\r\n");
+    fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
+    fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
+    fprintf(g.httpOut, "Connection: close\r\n");
   }else{
-    printf("Status: %d %s\r\n", iReplyStatus, zReplyStatus);
+    fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
   }
 
   if( blob_size(&extraHeader)>0 ){
-    printf("%s", blob_buffer(&extraHeader));
+    fprintf(g.httpOut, "%s", blob_buffer(&extraHeader));
   }
 
   if( g.isConst ){
@@ -310,18 +310,20 @@ void cgi_reply(void){
     */
     /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
     time_t expires = time(0) + 604800;
-    printf( "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
+    fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
   }
 
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  printf("Cache-control: private\r\n");
+  fprintf(g.httpOut, "Cache-control: private\r\n");
 
 #if FOSSIL_I18N
-  printf( "Content-Type: %s; charset=%s\r\n", zContentType, nl_langinfo(CODESET));
+  fprintf(g.httpOut,
+     "Content-Type: %s; charset=%s\r\n", zContentType, nl_langinfo(CODESET));
 #else
-  printf( "Content-Type: %s; charset=ISO-8859-1\r\n", zContentType);
+  fprintf(g.httpOut,
+     "Content-Type: %s; charset=ISO-8859-1\r\n", zContentType);
 #endif
   if( strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();
@@ -330,15 +332,15 @@ void cgi_reply(void){
 
   if( iReplyStatus != 304 ) {
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
-    printf( "Content-Length: %d\r\n", total_size);
+    fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
   }
-  printf("\r\n");
+  fprintf(g.httpOut, "\r\n");
   if( total_size>0 && iReplyStatus != 304 ){
     int i, size;
     for(i=0; i<2; i++){
       size = blob_size(&cgiContent[i]);
       if( size>0 ){
-        fwrite(blob_buffer(&cgiContent[i]), 1, size, stdout);
+        fwrite(blob_buffer(&cgiContent[i]), 1, size, g.httpOut);
       }
     }
   }
@@ -685,7 +687,7 @@ void cgi_init(void){
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = malloc( len+1 );
       if( z==0 ) exit(1);
-      len = fread(z, 1, len, stdin);
+      len = fread(z, 1, len, g.httpIn);
       z[len] = 0;
       if( zType[0]=='a' ){
         add_param_list(z, '&');
@@ -693,10 +695,10 @@ void cgi_init(void){
         process_multipart_form_data(z, len);
       }
     }else if( strcmp(zType, "application/x-fossil")==0 ){
-      blob_read_from_channel(&g.cgiIn, stdin, len);
+      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
-      blob_read_from_channel(&g.cgiIn, stdin, len);
+      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
   }
 
@@ -1074,7 +1076,7 @@ static char *extract_token(char *zInput, char **zLeftOver){
 ** the setup.  Once all the setup is finished, this procedure returns
 ** and subsequent code handles the actual generation of the webpage.
 */
-void cgi_handle_http_request(void){
+void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
   struct sockaddr_in remoteName;
@@ -1082,7 +1084,7 @@ void cgi_handle_http_request(void){
   char zLine[2000];     /* A single line of input. */
 
   fullHttpReply = 1;
-  if( fgets(zLine, sizeof(zLine), stdin)==0 ){
+  if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }
   zToken = extract_token(zLine, &z);
@@ -1104,20 +1106,20 @@ void cgi_handle_http_request(void){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( getpeername(fileno(stdin), (struct sockaddr*)&remoteName, (socklen_t*)&size)>=0 ){
-    char *zIpAddr = inet_ntoa(remoteName.sin_addr);
+  if( zIpAddr==0 &&
+        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
+                                (socklen_t*)&size)>=0
+  ){
+    zIpAddr = inet_ntoa(remoteName.sin_addr);
+  }
+  if( zIpAddr ){   
     cgi_setenv("REMOTE_ADDR", zIpAddr);
-
-    /* Set the Global.zIpAddr variable to the server we are talking to.
-    ** This is used to populate the ipaddr column of the rcvfrom table,
-    ** if any files are received from the connected client.
-    */
     g.zIpAddr = mprintf("%s", zIpAddr);
   }
  
   /* Get all the optional fields that follow the first line.
   */
-  while( fgets(zLine,sizeof(zLine),stdin) ){
+  while( fgets(zLine,sizeof(zLine),g.httpIn) ){
     char *zFieldName;
     char *zVal;
 
@@ -1162,8 +1164,11 @@ void cgi_handle_http_request(void){
 ** As new connections arrive, fork a child and let child return
 ** out of this procedure call.  The child will handle the request.
 ** The parent never returns from this procedure.
+**
+** Return 0 to each child as it runs.  If unable to establish a
+** listening socket, return non-zero.
 */
-void cgi_http_server(int iPort){
+int cgi_http_server(int iPort){
 #ifdef __MINGW32__
   fprintf(stderr,"server not yet available in windows version of fossil\n");
   exit(1);
@@ -1184,16 +1189,15 @@ void cgi_http_server(int iPort){
   inaddr.sin_port = htons(iPort);
   listener = socket(AF_INET, SOCK_STREAM, 0);
   if( listener<0 ){
-    fprintf(stderr,"Can't create a socket\n");
-    exit(1);
+    return 1;
   }
 
   /* if we can't terminate nicely, at least allow the socket to be reused */
   setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
 
   if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
-    fprintf(stderr,"Can't bind to port %d\n", iPort);
-    exit(1);
+    close(listener);
+    return 1;
   }
   listen(listener,10);
   while( 1 ){
@@ -1207,7 +1211,8 @@ void cgi_http_server(int iPort){
     FD_SET( listener, &readfds);
     if( select( listener+1, &readfds, 0, 0, &delay) ){
       lenaddr = sizeof(inaddr);
-      connection = accept(listener, (struct sockaddr*)&inaddr, (socklen_t*) &lenaddr);
+      connection = accept(listener, (struct sockaddr*)&inaddr,
+                                    (socklen_t*) &lenaddr);
       if( connection>=0 ){
         child = fork();
         if( child!=0 ){
@@ -1223,7 +1228,7 @@ void cgi_http_server(int iPort){
             dup(connection);
           }
           close(connection);
-          return;
+          return 0;
         }
       }
     }
@@ -1236,6 +1241,7 @@ void cgi_http_server(int iPort){
   exit(1);
 #endif
 }
+
 
 /*
 ** Name of days and months.

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sbug\sreport\sgenerator\scompiles\sbut\sstill\sdoes\snot\swork\sright.
-D 2008-05-17T14:49:49
+C Get\sthe\s"server"\scommand\srunning\sunder\swindows.
+D 2008-05-17T17:43:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -42,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c 52f3e41396d013cadf89a89719aa52ab1eb654c8
+F src/cgi.c db2f7cb7a920014048a0c58b8252caeed9f90fea
 F src/checkin.c e7a974d371d6bf8462db46c1b21c8673a0ab716c
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -63,11 +63,11 @@ F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 0c704d219d580fb5fdfa8c66bee4a36c572c3569
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c d06833697f77fb71be764b58f4a5049b14d9df09
-F src/main.mk 735885bbeebacd6f25d56cf14f0dd734aff5570f
+F src/main.c bf0146efdbf241334c8961f508ba28ccc2fc0d59
+F src/main.mk 24d064f3b32c1a5a43ecf3b39c99885dac741489
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl eb02515e497346d9361a39de7918c350aef803cb
+F src/makemake.tcl 1465cd0ed9d28881c5c9bd6362db2738f067633e
 F src/manifest.c 8e8e54e6bf7fc5e01cbd65f390051eeb4eb7f917
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -108,6 +108,7 @@ F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
+F src/winhttp.c 8692bfae972399ce62ba847798342fc29debfbf7
 F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -205,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 5e0abce227621096a5edd2f8d2e9b67e40e927db
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P a0f18644994ad929a4d527382b2f47836c593a0b
-R e3911ee98b12660d8ea0a4e86dc593db
+P 55342eb9fb293e6bfe7f5f8c401c23fc6497dc59
+R 5a209115e81c849539396315706e728d
 U drh
-Z 668567ee0aff6e0a40f77a16047ef6e9
+Z e6fc0baaa4eca5aa92c8571865149080
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFILvCRoxKgR168RlERAocNAJ9ERHfOt23t6NQbIW4kyTVFew6XewCffn7m
-JbXh+cbINSeS99jy66Fm/8E=
-=aOx6
+iD8DBQFILxk9oxKgR168RlERAuHjAJwJcTMsGOOHwUuBsO8wY016XMy/ggCfeJei
+cS9eOquKYXWkQ/gbqZ57AvI=
+=gGz5
 -----END PGP SIGNATURE-----
