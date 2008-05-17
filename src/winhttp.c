@@ -99,7 +99,7 @@ void win32_process_one_http_request(void *pAppData){
   out = fopen(zRequestFName, "wb");
   if( out==0 ) goto end_request;
   fwrite(zHdr, 1, amt, out);
-  while( wanted ){
+  while( wanted>0 ){
     got = recv(p->s, zHdr, sizeof(zHdr), 0);
     if( got==SOCKET_ERROR ) goto end_request;
     if( got ){
