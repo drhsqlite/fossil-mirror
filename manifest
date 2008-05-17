@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"Bugs"\smenu\selement\son\sthe\sdefault\sheader.\s\sProgress\son\nimplementing\sbug\stracking.
-D 2008-05-17T21:15:24
+C Begin\sadding\scode\sto\sthe\ssync\slogic\sto\stransfer\sconfiguration\soptions\nupon\srequest.
+D 2008-05-17T22:18:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -109,7 +109,7 @@ F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
-F src/xfer.c 15d6dff0f18d8cbac2d7e5f0dbb93089e9688807
+F src/xfer.c be750bc3bcea591fcacff8aa9a49ca45e5338e7c
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -206,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki e76c743118eed92242f0bcf01377624a38053984
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 06689854aee056442322467e836a0686f3ee3ee5
-R a7fe96dd2a63c4f36819feb06b15ed93
+P 86ed68ba348bd71c9b50f57f9ce4116b50ef50af
+R c7bbbc712866cd3770507207b214316e
 U drh
-Z e2c23a65e8c81d21ce08bc3bb5004739
+Z 4554ba12fb9da7a1c28a1ea0e1122d68
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIL0rvoxKgR168RlERAmKNAKCJxvHmObFIHw5suYepg3j4z/Yg5gCeO8Dp
-JbsY7vC3Jr4tzkcCnK4XGfY=
-=Vyc2
+iD8DBQFIL1nIoxKgR168RlERAtJ/AJ9rX7cTxscMYEobBpLva2tUBgQNcgCdEduU
+qeTkC4Y3CPDEBLYK36YSiPk=
+=61nd
 -----END PGP SIGNATURE-----

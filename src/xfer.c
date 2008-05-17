@@ -26,6 +26,35 @@
 #include "config.h"
 #include "xfer.h"
 
+#if INTERFACE
+/*
+** Configuration transfers occur in groups.  These are the allowed
+** groupings:
+*/
+#define CONFIGSET_SKIN   0x000001     /* WWW interface appearance */
+#define CONFIGSET_TKT    0x000002     /* Ticket configuration */
+#define CONFIGSET_PROJ   0x000004     /* Project name */
+
+#endif /* INTERFACE */
+
+/*
+** The following is a list of settings that we are willing to
+** transfer.
+*/
+static struct {
+  const char *zName;   /* Name of the configuration parameter */
+  int groupMask;       /* Which config groups is it part of */
+} aSafeConfig[] = {
+  { "css",                   CONFIGSET_SKIN },
+  { "header",                CONFIGSET_SKIN },
+  { "footer",                CONFIGSET_SKIN },
+  { "project-name",          CONFIGSET_PROJ },
+  { "project-description",   CONFIGSET_PROJ },
+  { "index-page",            CONFIGSET_SKIN },
+  { "timeline-block-markup", CONFIGSET_SKIN },
+  { "timeline-max-comment",  CONFIGSET_SKIN },
+};
+
 /*
 ** This structure holds information about the current state of either
 ** a client or a server that is participating in xfer.
@@ -627,6 +656,18 @@ void page_xfer(void){
       }
     }else
     
+    /*    reqconfig  NAME
+    **
+    ** Request a configuration value
+    */
+    if( blob_eq(&xfer.aToken[0], "reqconfig")
+     && xfer.nToken==2
+    ){
+      /* TBD: Get the configuration name */
+      /* Check to insure the configuration transfer is authorized */
+      /* Construct the "config" message */
+    }else
+    
     /*    cookie TEXT
     **
     ** A cookie contains a arbitrary-length argument that is server-defined.
@@ -748,6 +789,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     pushFlag = 0;
     pullFlag = 0;
     nMsg++;
+    /* TBD: Request all transferable configuration values */
   }else if( pullFlag ){
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
     nMsg++;
@@ -882,6 +924,17 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         blob_appendf(&send, "clone\n");
         nMsg++;
       }else
+      
+      /*   config NAME SIZE \n CONTENT
+      **
+      ** Receive a configuration value from the server.
+      */
+      if( blob_eq(&xfer.aToken[0],"config") ){
+        /* TBD: Extract name and content */
+        /* Check to see if configuration name is authorized */
+        /* Store content in the config table */
+      }else
+
       
       /*    cookie TEXT
       **
