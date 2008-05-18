@@ -76,6 +76,7 @@ struct Global {
   Th_Interp *interp;      /* The TH1 interpreter */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
+  int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
 
   int *aCommitFile;       /* Array of files to be committed */
 

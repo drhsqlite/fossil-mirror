@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Begin\sadding\scode\sto\sthe\ssync\slogic\sto\stransfer\sconfiguration\soptions\nupon\srequest.
-D 2008-05-17T22:18:44
+C Improvements\sto\scloning\sperformance.
+D 2008-05-18T15:51:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -46,11 +46,11 @@ F src/cgi.c 98e61aaa4c5674a2a27e1591323336346c0d01b1
 F src/checkin.c e7a974d371d6bf8462db46c1b21c8673a0ab716c
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
-F src/clone.c 0c2a5c8339d40d58c024b7098647be604c6866b8
+F src/clone.c ebfd80e73527e76d1b83395e3d7737083ca4137b
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
-F src/content.c 837378bf401381afa0328daa01d80431d5febdec
+F src/content.c c3fcdbc5dd02cce86e40bd7e51b434a8bdd98e56
 F src/db.c d2925f32aeaa441a832285026b9c81ddfe100a6e
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -63,12 +63,12 @@ F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 0c704d219d580fb5fdfa8c66bee4a36c572c3569
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c 7b16a4ea5c853a403f5eb2aba1b52624b02a813a
+F src/main.c c15347d3f417a4c6a772a5f1f27794b64f211b7c
 F src/main.mk 24d064f3b32c1a5a43ecf3b39c99885dac741489
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 1465cd0ed9d28881c5c9bd6362db2738f067633e
-F src/manifest.c 8e8e54e6bf7fc5e01cbd65f390051eeb4eb7f917
+F src/manifest.c b08b58d9b857ad4dd7357d9f06b41b6e31981c85
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -81,7 +81,7 @@ F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 51a3d6cdc61e00535ab2ae52e85ad48a197d5cb5
 F src/report.c 341078a2b9fc7f4e1cef7d13188f7a9d574c6377
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c f7d41345c400bab68c6a848eca539698ef1c35af
+F src/schema.c c2d5e134b539daa466068874c45932deb5eea333
 F src/setup.c b4cd5e8549212fdc1960cb5334cce2a876d65874
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
@@ -109,7 +109,7 @@ F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
-F src/xfer.c be750bc3bcea591fcacff8aa9a49ca45e5338e7c
+F src/xfer.c fdac8fe8103bc44db8167ee4ea0daa327dcf3fbc
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -206,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki e76c743118eed92242f0bcf01377624a38053984
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 86ed68ba348bd71c9b50f57f9ce4116b50ef50af
-R c7bbbc712866cd3770507207b214316e
+P a241c8111cd62aeb6a18f8a166d68ed77d97182d
+R abd538067f25bb9699c6f2e0cd38d6a6
 U drh
-Z 4554ba12fb9da7a1c28a1ea0e1122d68
+Z d51be0e45165c87b239b222a3afc0154
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIL1nIoxKgR168RlERAtJ/AJ9rX7cTxscMYEobBpLva2tUBgQNcgCdEduU
-qeTkC4Y3CPDEBLYK36YSiPk=
-=61nd
+iD8DBQFIMFBsoxKgR168RlERAr+RAJ9cZzT8EiBMyW9GUCeOq81uZahUqQCfZFTX
+zs6NCD2ZssxL5cM9vEFt/j8=
+=rraU
 -----END PGP SIGNATURE-----

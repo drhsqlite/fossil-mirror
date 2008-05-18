@@ -67,8 +67,8 @@ struct Xfer {
   Blob aToken[5];     /* Tokenized version of line */
   Blob err;           /* Error message text */
   int nToken;         /* Number of tokens in line */
-  int nIGotSent;      /* Number of "igot" messages sent */
-  int nGimmeSent;     /* Number of gimme messages sent */
+  int nIGotSent;      /* Number of "igot" cards sent */
+  int nGimmeSent;     /* Number of gimme cards sent */
   int nFileSent;      /* Number of files sent */
   int nDeltaSent;     /* Number of deltas sent */
   int nFileRcvd;      /* Number of files received */
@@ -172,11 +172,12 @@ static void xfer_accept_file(Xfer *pXfer){
   if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
     blob_appendf(&pXfer->err, "content does not match sha1 hash");
   }
+  rid = content_put(&content, blob_str(&hash), 0);
   blob_reset(&hash);
-  rid = content_put(&content, 0, 0);
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
   }else{
+    /* db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid); */
     manifest_crosslink(rid, &content);
   }
   remote_has(rid);
@@ -462,7 +463,7 @@ static void create_cluster(void){
 
 /*
 ** Send an igot message for every entry in unclustered table.
-** Return the number of messages sent.
+** Return the number of cards sent.
 */
 static int send_unclustered(Xfer *pXfer){
   Stmt q;
@@ -477,6 +478,18 @@ static int send_unclustered(Xfer *pXfer){
   }
   db_finalize(&q);
   return cnt;
+}
+
+/*
+** Send an igot message for every artifact.
+*/
+static void send_all(Xfer *pXfer){
+  Stmt q;
+  db_prepare(&q, "SELECT uuid FROM blob");
+  while( db_step(&q)==SQLITE_ROW ){
+    blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
 }
 
 /*
@@ -498,6 +511,8 @@ void page_xfer(void){
   int nErr = 0;
   Xfer xfer;
   int deltaFlag = 0;
+  int isClone = 0;
+  int nGimme = 0;
 
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
@@ -543,6 +558,7 @@ void page_xfer(void){
      && xfer.nToken==2
      && blob_is_uuid(&xfer.aToken[1])
     ){
+      nGimme++;
       if( isPull ){
         int rid = rid_from_uuid(&xfer.aToken[1], 0);
         if( rid ){
@@ -636,6 +652,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
+      isClone = 1;
       isPull = 1;
       deltaFlag = 1;
       @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
@@ -700,7 +717,16 @@ void page_xfer(void){
   if( isPush ){
     request_phantoms(&xfer, 500);
   }
-  if( isPull ){
+  if( isClone && nGimme==0 ){
+    /* The initial "clone" message from client to server contains no
+    ** "gimme" cards. On that initial message, send the client an "igot"
+    ** card for every artifact currently in the respository.  This will
+    ** cause the client to create phantoms for all artifacts, which will
+    ** in turn make sure that the entire repository is sent efficiently
+    ** and expeditiously.
+    */
+    send_all(&xfer);
+  }else if( isPull ){
     create_cluster();
     send_unclustered(&xfer);
   }
@@ -740,6 +766,12 @@ void cmd_test_xfer(void){
   printf("%s\n", cgi_extract_content(&notUsed));
 }
 
+/*
+** Format strings for progress reporting.
+*/
+static const char zLabel[] = "%-10s %10s %10s %10s %10s %10s\n";
+static const char zValue[] = "\r%-10s %10d %10d %10d %10d %10d\n";
+
 
 /*
 ** Sync to the host identified in g.urlName and g.urlPath.  This
@@ -753,7 +785,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   int go = 1;        /* Loop until zero */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
-  int nMsg = 0;          /* Number of messages sent or received */
+  int nCard = 0;         /* Number of cards sent or received */
   int nCycle = 0;        /* Number of round trips to the server */
   int nFileSend = 0;
   int nFileRecv;          /* Number of files received */
@@ -788,17 +820,17 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     blob_appendf(&send, "clone\n");
     pushFlag = 0;
     pullFlag = 0;
-    nMsg++;
+    nCard++;
     /* TBD: Request all transferable configuration values */
   }else if( pullFlag ){
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
-    nMsg++;
+    nCard++;
   }
   if( pushFlag ){
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
-    nMsg++;
+    nCard++;
   }
-
+  printf(zLabel, "", "Bytes", "Cards", "Artifacts", "Deltas", "Dangling");
 
   while( go ){
     int newPhantom = 0;
@@ -811,7 +843,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blob_appendf(&send, "cookie %s\n", zCookie);
     }
     
-    /* Generate gimme messages for phantoms and leaf messages
+    /* Generate gimme cards for phantoms and leaf cards
     ** for all leaves.
     */
     if( pullFlag || cloneFlag ){
@@ -819,15 +851,20 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     }
     if( pushFlag ){
       send_unsent(&xfer);
-      nMsg += send_unclustered(&xfer);
+      nCard += send_unclustered(&xfer);
     }
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
-    printf("Sent:      %10d bytes, %5d messages, %5d files (%d+%d)\n",
-            blob_size(&send), nMsg+xfer.nGimmeSent+xfer.nIGotSent,
+    printf(zValue, "Send:",
+            blob_size(&send), nCard+xfer.nGimmeSent+xfer.nIGotSent,
+            xfer.nFileSent, xfer.nDeltaSent, 0);
+#if 0
+    printf("Sent:      %10d bytes, %5d cards, %5d files (%d+%d)\n",
+            blob_size(&send), nCard+xfer.nGimmeSent+xfer.nIGotSent,
             nFileSend, xfer.nFileSent, xfer.nDeltaSent);
-    nMsg = 0;
+#endif
+    nCard = 0;
     xfer.nFileSent = 0;
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
@@ -836,15 +873,15 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     blob_reset(&send);
 
     /* Begin constructing the next message (which might never be
-    ** sent) by beginning with the pull or push messages
+    ** sent) by beginning with the pull or push cards
     */
     if( pullFlag ){
       blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
-      nMsg++;
+      nCard++;
     }
     if( pushFlag ){
       blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
-      nMsg++;
+      nCard++;
     }
 
     /* Process the reply that came back from the server */
@@ -853,8 +890,8 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
-      nMsg++;
-      printf("\r%d", nMsg);
+      nCard++;
+      printf("\r%d", nCard);
       fflush(stdout);
 
       /*   file UUID SIZE \n CONTENT
@@ -922,7 +959,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
           db_set("project-code", zPCode, 0);
         }
         blob_appendf(&send, "clone\n");
-        nMsg++;
+        nCard++;
       }else
       
       /*   config NAME SIZE \n CONTENT
@@ -980,11 +1017,15 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
-    printf("\rReceived:  %10d bytes, %5d messages, %5d files (%d+%d+%d)\n",
-            blob_size(&recv), nMsg,
+    printf(zValue, "Received:",
+            blob_size(&recv), nCard,
+            xfer.nFileRcvd, xfer.nDeltaRcvd, xfer.nDanglingFile);
+#if 0
+    printf("\rReceived:  %10d bytes, %5d cards, %5d files (%d+%d+%d)\n",
+            blob_size(&recv), nCard,
             xfer.nFileRcvd + xfer.nDeltaRcvd + xfer.nDanglingFile,
             xfer.nFileRcvd, xfer.nDeltaRcvd, xfer.nDanglingFile);
-
+#endif
     blob_reset(&recv);
     nCycle++;
     go = 0;
@@ -998,7 +1039,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       mxPhantomReq = nFileRecv*2;
       if( mxPhantomReq<200 ) mxPhantomReq = 200;
     }
-    nMsg = 0;
+    nCard = 0;
     xfer.nFileRcvd = 0;
     xfer.nDeltaRcvd = 0;
     xfer.nDanglingFile = 0;

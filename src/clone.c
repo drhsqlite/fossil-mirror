@@ -76,8 +76,16 @@ void clone_cmd(void){
     db_finalize(&q);
   }else{
     url_enable_proxy(0);
+    g.xlinkClusterOnly = 1;
     client_sync(0,0,1);
+    g.xlinkClusterOnly = 0;
   }
   verify_cancel();
+  db_end_transaction(0);
+  db_close();
+  db_open_repository(g.argv[3]);
+  db_begin_transaction();
+  printf("Rebuilding repository meta-data...\n");
+  rebuild_db(0, 1);
   db_end_transaction(0);
 }

@@ -367,9 +367,9 @@ void after_dephantomize(int rid, int linkFlag){
 ** If srcId is specified, then pBlob is delta content from
 ** the srcId record.  srcId might be a phantom.
 **
-** If srcId is specified then the UUID is set to zUuid.  Otherwise zUuid is
-** ignored.  In the future this might change such that the content
-** hash is checked against zUuid to make sure it is correct.
+** zUuid is the UUID of the artifact, if it is specified.  When srcId is
+** specified then zUuid must always be specified.  If srcId is zero,
+** and zUuid is zero then the correct zUuid is computed from pBlob.
 **
 ** If the record already exists but is a phantom, the pBlob content
 ** is inserted and the phatom becomes a real record.
@@ -385,7 +385,9 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   
   assert( g.repositoryOpen );
   assert( pBlob!=0 );
-  if( srcId==0 ){
+  assert( srcId==0 || zUuid!=0 );
+  if( zUuid==0 ){
+    assert( pBlob!=0 );
     sha1sum_blob(pBlob, &hash);
   }else{
     blob_init(&hash, zUuid, -1);

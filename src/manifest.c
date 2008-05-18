@@ -756,13 +756,26 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 }
 
 /*
-** Scan record rid/pContent to see if it is a manifest.  If
-** it is a manifest, then populate the mlink, plink,
-** filename, and event tables with cross-reference information.
+** Scan artifact rid/pContent to see if it is a control artifact of
+** any key:
 **
-** (Later:) Also check to see if pContent is a cluster.  If it
-** is a cluster then remove all referenced elements from the
-** unclustered table and create phantoms for any unknown elements.
+**      *  Manifest
+**      *  Control
+**      *  Wiki Page
+**      *  Ticket Change
+**      *  Cluster
+**
+** If the input is a control artifact, then make appropriate entries
+** in the auxiliary tables of the database in order to crosslink the
+** artifact.
+**
+** If global variable g.xlinkClusterOnly is true, then ignore all 
+** control artifacts other than clusters.
+**
+** Historical note:  This routine original processed manifests only.
+** Processing for other control artifacts was added later.  The name
+** of the routine, "manifest_crosslink", and the name of this source
+** file, is a legacy of its original use.
 */
 int manifest_crosslink(int rid, Blob *pContent){
   int i;
@@ -771,6 +784,10 @@ int manifest_crosslink(int rid, Blob *pContent){
   int parentid = 0;
 
   if( manifest_parse(&m, pContent)==0 ){
+    return 0;
+  }
+  if( g.xlinkClusterOnly && m.type!=CFTYPE_CLUSTER ){
+    manifest_clear(&m);
     return 0;
   }
   db_begin_transaction();

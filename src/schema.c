@@ -75,8 +75,9 @@ const char zRepositorySchema1[] =
 @   rid INTEGER PRIMARY KEY,        -- Record ID
 @   rcvid INTEGER,                  -- Origin of this record
 @   size INTEGER,                   -- Size of content. -1 for a phantom.
-@   uuid TEXT UNIQUE,               -- SHA1 hash of the content
-@   content BLOB                    -- Compressed content of this record
+@   uuid TEXT UNIQUE NOT NULL,      -- SHA1 hash of the content
+@   content BLOB,                   -- Compressed content of this record
+@   CHECK( length(uuid)==40 AND rid>0 )
 @ );
 @ CREATE TABLE delta(
 @   rid INTEGER PRIMARY KEY,                 -- Record ID
