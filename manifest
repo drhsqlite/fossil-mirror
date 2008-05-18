@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\scloning\sperformance.
-D 2008-05-18T15:51:05
+C Improvements\sto\sclone\sperformance.\s\sSkip\scross-linking\sduring\sthe\sclone\nthe\sautomatically\srebuild\safter\sthe\sclone.\s\sFixes\sto\srebuild\sto\smake\ssure\nall\sartifacts\sare\scrosslinked.
+D 2008-05-18T17:18:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c c3fcdbc5dd02cce86e40bd7e51b434a8bdd98e56
-F src/db.c d2925f32aeaa441a832285026b9c81ddfe100a6e
+F src/db.c b2f4759aa8675339a2889ce04e164d2e96e4209e
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -78,7 +78,7 @@ F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c 51a3d6cdc61e00535ab2ae52e85ad48a197d5cb5
+F src/rebuild.c bcc65378b85ceb35daacd2388b39866eec52012c
 F src/report.c 341078a2b9fc7f4e1cef7d13188f7a9d574c6377
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c c2d5e134b539daa466068874c45932deb5eea333
@@ -206,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki e76c743118eed92242f0bcf01377624a38053984
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P a241c8111cd62aeb6a18f8a166d68ed77d97182d
-R abd538067f25bb9699c6f2e0cd38d6a6
+P 243e02bfbdf5629131d8c6b0709e538ca8a33897
+R 62114a9e0178d4b91ee96415f3d88f3d
 U drh
-Z d51be0e45165c87b239b222a3afc0154
+Z cccbc3faf5c1043bc0641c2dc20eac84
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIMFBsoxKgR168RlERAr+RAJ9cZzT8EiBMyW9GUCeOq81uZahUqQCfZFTX
-zs6NCD2ZssxL5cM9vEFt/j8=
-=rraU
+iD8DBQFIMGT1oxKgR168RlERAjLPAJ0UieASkoyvwaU6/JKGHaVid7iwDACfaQ4/
+mLX/9K6x0fK++nV1G+ShyI8=
+=69af
 -----END PGP SIGNATURE-----

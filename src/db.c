@@ -52,6 +52,7 @@
 struct Stmt {
   Blob sql;               /* The SQL for this statement */
   sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare() */
+  Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
 };
 #endif /* INTERFACE */
 
@@ -84,6 +85,7 @@ static struct sCommitHook {
   int (*xHook)(void);  /* Functions to call at db_end_transaction() */
   int sequence;        /* Call functions in sequence order */
 } aHook[5];
+static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
 
 /*
 ** This routine is called by the SQLite commit-hook mechanism
@@ -166,31 +168,20 @@ void db_commit_hook(int (*x)(void), int sequence){
 }
 
 /*
-** Prepare or reprepare the sqlite3 statement from the raw SQL text.
-*/
-static void reprepare(Stmt *pStmt){
-  sqlite3_stmt *pNew;
-  if( sqlite3_prepare(g.db, blob_buffer(&pStmt->sql), -1, &pNew, 0)!=0 ){
-    db_err("%s\n%s", blob_str(&pStmt->sql), sqlite3_errmsg(g.db));
-  }
-  if( pStmt->pStmt ){
-    sqlite3_transfer_bindings(pStmt->pStmt, pNew);
-    sqlite3_finalize(pStmt->pStmt);
-  }
-  pStmt->pStmt = pNew;
-}
-
-/*
 ** Prepare a Stmt.  Assume that the Stmt is previously uninitialized.
 ** If the input string contains multiple SQL statements, only the first
 ** one is processed.  All statements beyond the first are silently ignored.
 */
 int db_vprepare(Stmt *pStmt, const char *zFormat, va_list ap){
+  char *zSql;
   blob_zero(&pStmt->sql);
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
-  pStmt->pStmt = 0;
-  reprepare(pStmt);
+  zSql = blob_str(&pStmt->sql);
+  if( sqlite3_prepare_v2(g.db, zSql, -1, &pStmt->pStmt, 0)!=0 ){
+    db_err("%s\n%s", zSql, sqlite3_errmsg(g.db));
+  }
+  pStmt->pNext = pStmt->pPrev = 0;
   return 0;
 }
 int db_prepare(Stmt *pStmt, const char *zFormat, ...){
@@ -207,6 +198,10 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
     va_list ap;
     va_start(ap, zFormat);
     rc = db_vprepare(pStmt, zFormat, ap);
+    pStmt->pNext = pAllStmt;
+    pStmt->pPrev = 0;
+    if( pAllStmt ) pAllStmt->pPrev = pStmt;
+    pAllStmt = pStmt;
     va_end(ap);
   }
   return rc;
@@ -260,19 +255,8 @@ int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 ** or SQLITE_OK if the statement finishes successfully.
 */
 int db_step(Stmt *pStmt){
-  int rc = SQLITE_OK;
-  int limit = 3;
-  while( limit-- ){
-    rc = sqlite3_step(pStmt->pStmt);
-    if( rc==SQLITE_ERROR ){
-      rc = sqlite3_reset(pStmt->pStmt);
-    }
-    if( rc==SQLITE_SCHEMA ){
-      reprepare(pStmt);
-    }else{
-      break;
-    }
-  }
+  int rc;
+  rc = sqlite3_step(pStmt->pStmt);
   return rc;
 }
 
@@ -289,6 +273,17 @@ int db_finalize(Stmt *pStmt){
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
   db_check_result(rc);
+  pStmt->pStmt = 0;
+  if( pStmt->pNext ){
+    pStmt->pNext->pPrev = pStmt->pPrev;
+  }
+  if( pStmt->pPrev ){
+    pStmt->pPrev->pNext = pStmt->pNext;
+  }else if( pAllStmt==pStmt ){
+    pAllStmt = pStmt->pNext;
+  }
+  pStmt->pNext = 0;
+  pStmt->pPrev = 0;
   return rc;
 }
 
@@ -716,6 +711,9 @@ void db_must_be_within_tree(void){
 */
 void db_close(void){
   if( g.db==0 ) return;
+  while( pAllStmt ){
+    db_finalize(pAllStmt);
+  }
   g.repositoryOpen = 0;
   g.localOpen = 0;
   g.configOpen = 0;

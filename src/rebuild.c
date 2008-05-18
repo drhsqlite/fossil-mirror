@@ -70,11 +70,14 @@ static const char zSchemaUpdates[] =
 static int totalSize;       /* Total number of artifacts to process */
 static int processCnt;      /* Number processed so far */
 static int ttyOutput;       /* Do progress output */
+static Bag bagDone;         /* Bag of records rebuilt */
 
 /*
 ** Called after each artifact is processed
 */
-static void rebuild_step_done(void){
+static void rebuild_step_done(rid){
+  assert( bag_find(&bagDone, rid)==0 );
+  bag_insert(&bagDone, rid);
   if( ttyOutput ){
     processCnt++;
     printf("%d (%d%%)...\r", processCnt, (processCnt*100/totalSize));
@@ -105,7 +108,10 @@ static void rebuild_step(int rid, int size, Blob *pBase){
   db_prepare(&q1, "SELECT rid FROM delta WHERE srcid=%d", rid);
   bag_init(&children);
   while( db_step(&q1)==SQLITE_ROW ){
-    bag_insert(&children, db_column_int(&q1, 0));
+    int cid = db_column_int(&q1, 0);
+    if( !bag_find(&bagDone, cid) ){
+      bag_insert(&children, cid);
+    }
   }
   nChild = bag_count(&children);
   db_finalize(&q1);
@@ -145,7 +151,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
   }
   bag_clear(&children);
-  rebuild_step_done();
+  rebuild_step_done(rid);
 }
 
 /*
@@ -165,6 +171,7 @@ int rebuild_db(int randomize, int doOut){
   int errCnt = 0;
   char *zTable;
 
+  bag_init(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
   db_multi_exec(zSchemaUpdates);
@@ -206,9 +213,25 @@ int rebuild_db(int randomize, int doOut){
       Blob content;
       content_get(rid, &content);
       rebuild_step(rid, size, &content);
+    }
+  }
+  db_finalize(&s);
+  db_prepare(&s,
+     "SELECT rid, size FROM blob"
+     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+  );
+  while( db_step(&s)==SQLITE_ROW ){
+    int rid = db_column_int(&s, 0);
+    int size = db_column_int(&s, 1);
+    if( size>=0 ){
+      if( !bag_find(&bagDone, rid) ){
+        Blob content;
+        content_get(rid, &content);
+        rebuild_step(rid, size, &content);
+      }
     }else{
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
-      rebuild_step_done();
+      rebuild_step_done(rid);
     }
   }
   db_finalize(&s);
