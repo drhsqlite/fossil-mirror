@@ -188,7 +188,7 @@ void ticket_insert(Manifest *p, int createFlag, int checkTime){
                   "VALUES(%Q, 0)", p->zTicketUuid);
   }
   blob_zero(&sql);
-  blob_appendf(&sql, "UPDATE ticket SET tkt_mtime=:mtime");
+  blob_appendf(&sql, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
   zSep = "SET";
   for(i=0; i<p->nField; i++){
     const char *zName = p->aField[i].zName;

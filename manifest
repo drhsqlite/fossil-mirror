@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\sclone\sperformance.\s\sSkip\scross-linking\sduring\sthe\sclone\nthe\sautomatically\srebuild\safter\sthe\sclone.\s\sFixes\sto\srebuild\sto\smake\ssure\nall\sartifacts\sare\scrosslinked.
-D 2008-05-18T17:18:41
+C Sync\sserver\sresponds\sto\sreqconfig\scards.\s\sAllow\scloning\sof\srepositories\sthat\ncontain\stickets.
+D 2008-05-18T17:29:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -96,7 +96,7 @@ F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 3666af55b7ffba4a32ae38acd54fd0f513859bbe
-F src/tkt.c 5b74369b2c8aa5368bbabe18e6a6f3faed3efa53
+F src/tkt.c b7cd94e9596e9f1e15067b9a4676e11e2a1b31d4
 F src/tktconfig.c fc468af27b1420aefa54b56658886e0a4bc49db2
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -109,7 +109,7 @@ F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
-F src/xfer.c fdac8fe8103bc44db8167ee4ea0daa327dcf3fbc
+F src/xfer.c 0e1aa871caa24d4383b161a9138490195ea3c3c1
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -206,14 +206,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki e76c743118eed92242f0bcf01377624a38053984
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 243e02bfbdf5629131d8c6b0709e538ca8a33897
-R 62114a9e0178d4b91ee96415f3d88f3d
+P 791a513c289ded077964c0c1332e089a0e65587d
+R 4e8765ec847241a6606433f8c152c32b
 U drh
-Z cccbc3faf5c1043bc0641c2dc20eac84
+Z c30ca6d92e856744577081f5b376107e
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIMGT1oxKgR168RlERAjLPAJ0UieASkoyvwaU6/JKGHaVid7iwDACfaQ4/
-mLX/9K6x0fK++nV1G+ShyI8=
-=69af
+iD8DBQFIMGd2oxKgR168RlERAoIJAJ9vvk2OYErxOlmyxsTOfBFIoceXTACfZjhR
+aZ0umz+xOz01/2H8F8GPPKo=
+=YdRS
 -----END PGP SIGNATURE-----

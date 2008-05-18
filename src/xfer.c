@@ -680,9 +680,21 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "reqconfig")
      && xfer.nToken==2
     ){
-      /* TBD: Get the configuration name */
-      /* Check to insure the configuration transfer is authorized */
-      /* Construct the "config" message */
+      if( g.okRead ){
+        char *zName = blob_str(&xfer.aToken[1]);
+        int i;
+        for(i=0; i<count(aSafeConfig); i++){
+          if( strcmp(aSafeConfig[i].zName, zName)==0 ){
+            char *zValue = db_get(zName, 0);
+            if( zValue ){
+              blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName, 
+                           strlen(zValue), zValue);
+              free(zValue);
+            }
+            break;
+          }
+        }
+      }
     }else
     
     /*    cookie TEXT
