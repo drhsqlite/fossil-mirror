@@ -781,8 +781,8 @@ void cmd_test_xfer(void){
 /*
 ** Format strings for progress reporting.
 */
-static const char zLabel[] = "%-10s %10s %10s %10s %10s %10s\n";
-static const char zValue[] = "\r%-10s %10d %10d %10d %10d %10d\n";
+static const char zLabelFormat[] = "%-10s %10s %10s %10s %10s\n";
+static const char zValueFormat[] = "\r%-10s %10d %10d %10d %10d\n";
 
 
 /*
@@ -842,7 +842,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
     nCard++;
   }
-  printf(zLabel, "", "Bytes", "Cards", "Artifacts", "Deltas", "Dangling");
+  printf(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
 
   while( go ){
     int newPhantom = 0;
@@ -868,9 +868,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
-    printf(zValue, "Send:",
+    printf(zValueFormat, "Send:",
             blob_size(&send), nCard+xfer.nGimmeSent+xfer.nIGotSent,
-            xfer.nFileSent, xfer.nDeltaSent, 0);
+            xfer.nFileSent, xfer.nDeltaSent);
 #if 0
     printf("Sent:      %10d bytes, %5d cards, %5d files (%d+%d)\n",
             blob_size(&send), nCard+xfer.nGimmeSent+xfer.nIGotSent,
@@ -1029,15 +1029,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
-    printf(zValue, "Received:",
+    printf(zValueFormat, "Received:",
             blob_size(&recv), nCard,
-            xfer.nFileRcvd, xfer.nDeltaRcvd, xfer.nDanglingFile);
-#if 0
-    printf("\rReceived:  %10d bytes, %5d cards, %5d files (%d+%d+%d)\n",
-            blob_size(&recv), nCard,
-            xfer.nFileRcvd + xfer.nDeltaRcvd + xfer.nDanglingFile,
-            xfer.nFileRcvd, xfer.nDeltaRcvd, xfer.nDanglingFile);
-#endif
+            xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
     blob_reset(&recv);
     nCycle++;
     go = 0;
