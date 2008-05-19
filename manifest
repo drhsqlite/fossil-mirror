@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C explained\sthe\sclone\scommand\sin\sa\sbit\smore\sdetail\s(what\sit\sdoes\sand\swhere\sto\sgo\sfrom\sthere)
-D 2008-05-19T13:08:01
+C Clarifications\sof\sthe\s"quickstart.wiki"\sdocumentation.
+D 2008-05-19T15:08:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -203,17 +203,17 @@ F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
 F www/index.wiki 6a1fbd69a997d6bb1cd5e137500d9f26300e87ae
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/quickstart.wiki 7b2cbf48080965559a1de95f29d5eff2f6ddf510
+F www/quickstart.wiki d68d09590fd77bc1687a0978cf93cd39b0b74f32
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 64c58fd64f5efa972b445e46ebe604543d368518
-R 3f38c594e982dd2989033d818fcf4825
-U stephan
-Z 977db2c606aebdf6e4357c380abc6729
+P 44a4c365a75a1f2906bfacde12690415056dc161
+R 8151b90b4766818570736517b8261aa2
+U drh
+Z 3d42339c4723c26627a2dd7c135ecff3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD4DBQFIMXu0ZWKvbTL0CBgRAhnRAJiInfMU/XwQpmX8xrb+zeIZz7zKAJ4/2fDq
-ySdXa1neXmz2XUwAmQddLg==
-=hDE9
+iD8DBQFIMZf6oxKgR168RlERAi7dAJwNjKeVK8+iO1QhW7Es6xGQYU4ZGwCfSjhF
+viTMQcFNIdRCTl2av7jTU6I=
+=63Li
 -----END PGP SIGNATURE-----
