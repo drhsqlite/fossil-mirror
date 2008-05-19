@@ -1,0 +1,124 @@
+<h1>Managing Project Documentation</h1>
+
+Fossil provides a built-in wiki which can be used to store the
+documentation for a project.  This is sufficient for many projects.
+If your project is well-served by wiki documentation, then you
+need read no further.
+
+But fossil also supports embedding project documentation as
+files in the source tree.  There are several potential advantages
+to this approach:
+
+  1.  The documentation files are versioned together with the
+      source code files so it is always clear what version of
+      the documentation goes with a particular release.
+
+  2.  The documentation files can be edited using your favorite
+      text editor instead of having to use the web-based wiki
+      editor.
+
+  3.  Only people with check-in privileges can modify the documentation.
+      (This might be either an advantage or disadvantage, depending
+      on the nature of your project.)
+
+We will call documentation is included as files in the source tree
+"embedded documentation".
+
+<h2>Fossil Support For Embedded Documentation</h2>
+
+The fossil web interface supports embedded documentation using
+the "/doc" page.  To access embedded documentation, one points
+a web browser to a fossil URL of the following form:
+
+<blockquote>
+<i>&lt;baseurl&gt;</i><big><b>/doc/</b></big><i>&lt;version&gt;</i><big><b>/</b></big><i>&lt;filename&gt;</i>
+</blockquote>
+
+The <i>&lt;baseurl&gt;</i> is the main URL used to access the fossil web server.
+For example, the <i>&lt;baseurl&gt;</i> for the fossil project itself is
+either <b>http://www.fossil-scm.org/fossil</b> or
+<b>http://www.hwaci.com/cgi-bin/fossil</b>.
+If you launch the web server using the "<b>fossil server</b>" command line,
+then the <i>&lt;baseurl&gt;</i> is usually
+<b>http://localhost:8080/</b>.
+
+The <i>&lt;version&gt;</i> is any unique UUID prefix of the baseline 
+for the documentation you want to access.
+Or <i>&lt;version&gt;</i> can be one of the keywords "<b>tip</b>" or
+"<b>ckout</b>".  The "<b>tip</b>" keyword means to use the most recently
+checked-in baseline.  This is useful if you want to see the very latest
+version of the documentation.  The "<b>ckout</b>" keywords means to
+pull the documentation file from the local source tree on disk, not
+from the any versioned baseline.  The "<b>ckout</b>" keyword normally
+only works when you start your server using the "<b>fossil server</b>"
+command line and is intented to show what the documenation you are currently
+editing looks like before you check it in.
+
+Finally, the <i>&lt;filename&gt;</i> element of the URL is the full
+pathname of the documentation file starting from the root of the source
+tree.
+
+The mimetype (and thus the rendering) of documentation files is 
+determined by the file suffix.  Fossil currently understands the
+following file suffixes or embedded documents:
+
+  *  .css
+  *  .gif
+  *  .htm
+  *  .html
+  *  .jpg
+  *  .jpeg
+  *  .png
+  *  .txt
+  *  .wiki
+
+Documentation files whose names end in ".wiki" use the 
+<a href="../wiki_rules">same markup as wiki pages</a> -
+a safe subset of HTML together with some rules for paragraph
+breaks, lists, and hyperlinks.  The ".wiki" and ".txt" pages
+are rendered with the standard fossil header and footer added.
+All other mimetimes are delivered directly to the requesting
+web browser with interpretation, additions, or changes.
+
+The list of allowed suffixes for embedded documents is likely to
+grow and become user-configurable in future releases of fossil.
+
+<h2>Examples</h2>
+
+This file that you are currently reading is an example of
+embedded documentation.  The name of this file in the fossil
+source tree is "<b>www/embeddeddoc.wiki</b>".
+You are perhaps looking at this
+file using the URL:  
+[http://www.fossil-scm.org/index.html/doc/tip/www/embeddeddoc.wiki].
+
+The first part of this path, the "[http://www.fossil-scm.org/index.html]",
+is the base URL.  You might have originally typed:
+[http://www.fossil-scm.org/].  The web server at the www.fossil-scm.org
+site automatically redirects such links by appending "index.html".  The
+"index.html" file on www.fossil-scm.org is really a CGI script
+(do not be mislead by the name) which runs the fossil web service in
+CGI mode.  The "index.html" CGI script looks like this:
+
+<blockquote><pre>
+#!/usr/bin/fossil
+repository: /fossil/fossil.fossil
+</pre></blockquote>
+
+This is one of three ways to set up a 
+<a href="quickstart.wiki#serversetup">fossil web server</a>.
+
+The "<b>/tip/</b>" part of the URL tells fossil to use
+the documentation files from the baseline that was checked in most
+recently.  This file is stored in the fossil source tree under
+the name "<b>www/embeddeddoc.wiki</b>" and so that name forms the
+last part of the URL.
+
+As I sit writing this documentation file, I am testing my work by
+running the "<b>fossil server</b>" command line and viewing
+<b>http://localhost:8080/doc/ckout/www/embeddeddoc.wiki</b> in
+Firefox.  I am doing this even though I have not yet checked in
+the "<b>www/embeddeddoc.wiki</b>" file for the first time.  Using
+the special "<b>ckout</b>" version identifier on the "<b>/doc</b>" page
+it is easy to make multiple changes to multiple files and see how they all
+look together before committing anything to the repository.

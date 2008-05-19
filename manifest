@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Clarifications\sof\sthe\s"quickstart.wiki"\sdocumentation.
-D 2008-05-19T15:08:39
+C Add\sa\spage\sdescribing\show\sto\sdo\sembedded\sdocumentation.
+D 2008-05-19T15:10:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -189,6 +189,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki a5b01a284023285e58986938752e918766cef2f2
 F www/delta_format.wiki 15113b9293a8739fef1841e005347f1fdef2fc3e
+F www/embeddeddoc.wiki 97f93908600bdd2dc3f0b52ecf2f81b80c1b2d4d
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -200,20 +201,20 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
-F www/index.wiki 6a1fbd69a997d6bb1cd5e137500d9f26300e87ae
+F www/index.wiki f4e253731bc529fb6b3ffb84ac0fc81a8d1eb726
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki d68d09590fd77bc1687a0978cf93cd39b0b74f32
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 44a4c365a75a1f2906bfacde12690415056dc161
-R 8151b90b4766818570736517b8261aa2
+P 70dcb9fc8baea109ee504804db921f27dcc06764
+R c5525c1dd15de0a8ff3ecccbbb0a5fb5
 U drh
-Z 3d42339c4723c26627a2dd7c135ecff3
+Z 62a352e42a79edbffe000e05e24052ef
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIMZf6oxKgR168RlERAi7dAJwNjKeVK8+iO1QhW7Es6xGQYU4ZGwCfSjhF
-viTMQcFNIdRCTl2av7jTU6I=
-=63Li
+iD8DBQFIMZiCoxKgR168RlERAqyNAJ9IToWuKQUkUuHsD1ZsIiwI8MzucACdGzWB
+5MsFvYvpAg73bnat2hOuIZU=
+=gmgl
 -----END PGP SIGNATURE-----
