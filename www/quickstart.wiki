@@ -30,9 +30,11 @@ and painlessly.</p>
     </blockquote>
     
     <p>The <i>URL</i> above is the http URL for the fossil repository
-    you want to clone.  You can call the new repository anything you
-    want - there are no naming restrictions.  As an example, you can
-    clone the fossil repository this way:</p>
+    you want to clone, and it may include a "user:password" part, e.g.
+    <tt>http://drh:secret@www.fossil-scm.org/fossil</tt>. You can
+    call the new repository anything you want - there are no naming
+    restrictions.  As an example, you can clone the fossil repository
+    this way:</p>
     
     <blockquote>
     <b>fossil clone http://www.fossil-scm.org/fossil myclone.fossil</b>
@@ -293,3 +295,4 @@ and painlessly.</p>
 
 
 </blockquote>
+</nowiki>
