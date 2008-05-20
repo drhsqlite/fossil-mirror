@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C new\sHOWTO:\ssetting\sup\sa\srepo
-D 2008-05-20T15:45:58
+C fixed\sa\stypo\sin\stktconfig.c
+D 2008-05-20T20:57:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -97,7 +97,7 @@ F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 3666af55b7ffba4a32ae38acd54fd0f513859bbe
 F src/tkt.c b7cd94e9596e9f1e15067b9a4676e11e2a1b31d4
-F src/tktconfig.c fc468af27b1420aefa54b56658886e0a4bc49db2
+F src/tktconfig.c 4ad4640d6cfdc82c513983953079dc05ee631628
 F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -208,14 +208,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P d1477108b03fad5ecee188b67fd70257edbc25f6
-R 806716e9f34b4c2a3f1bf4b56bafaeaa
+P a5f1c79f28b46b249b5316c6d7b66d92741925d5
+R 7b54cdd2dea6ab669b9ae96da0349745
 U stephan
-Z 51dcec0198867d3b2c49d3888783ff4d
+Z 5aa9e867612b4ed4c8ae33f6f1bb1a1c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIMvI2ZWKvbTL0CBgRAsxfAKCuNPqHyxA9mhlXPS9Y65h0QQqNxACgnpbs
-jFxbB7GiWluQDf+pQJum/Q8=
-=tfPH
+iD8DBQFIMztSZWKvbTL0CBgRApBgAJ4jCazKxPAIiOfDTZUqiPkXUzfp7ACfWy4N
+W8eA/b1RaqGj6hEgXwlr6PY=
+=CyBE
 -----END PGP SIGNATURE-----

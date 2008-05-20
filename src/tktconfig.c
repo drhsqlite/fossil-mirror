@@ -142,7 +142,7 @@ const char zDefaultTicketConfig[] =
 @   <td align="right">Version: 
 @   <input type="text" name="foundin" size="20" value="$<foundin>">
 @   </td>
-@   <td>In what version or build number do you observer the problem?</td>
+@   <td>In what version or build number do you observe the problem?</td>
 @   </tr>
 @   
 @   <tr>
