@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C added\stip\sabout\sbeing\sable\sto\spass\slogin\sinfo\sto\sclone\sURL
-D 2008-05-20T14:45:51
+C new\sHOWTO:\ssetting\sup\sa\srepo
+D 2008-05-20T15:45:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -203,18 +203,19 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
 F www/index.wiki f4e253731bc529fb6b3ffb84ac0fc81a8d1eb726
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
+F www/newrepo.wiki 5136040a413ad41c5a3276484f8d55c26b021bd7
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 4b826eed14d9e8dba55ee087d871833a320d3d79
-R 7b0fb79406ba1706782cc141f228820b
+P d1477108b03fad5ecee188b67fd70257edbc25f6
+R 806716e9f34b4c2a3f1bf4b56bafaeaa
 U stephan
-Z 737b3d391953a0792e4aa7c6b0738478
+Z 51dcec0198867d3b2c49d3888783ff4d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIMuQjZWKvbTL0CBgRAkloAKDOAE5gAjBY5vN20UriKrNyiPrL0wCgohCA
-6QhHjZVsdst+5pSeeuxCLEc=
-=/Mn1
+iD8DBQFIMvI2ZWKvbTL0CBgRAsxfAKCuNPqHyxA9mhlXPS9Y65h0QQqNxACgnpbs
+jFxbB7GiWluQDf+pQJum/Q8=
+=tfPH
 -----END PGP SIGNATURE-----
