@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sfossil_panic()\stext\sis\sgiven\sa\sproper\sheader\sin\sCGI\smode.
-D 2008-05-22T12:49:31
+C Begin\sadding\sthe\snew\s"configure"\scommand.
+D 2008-05-22T13:58:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -49,6 +49,7 @@ F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c ebfd80e73527e76d1b83395e3d7737083ca4137b
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
+F src/configure.c bd69dac967ba4066e806cb08220faef24514e598
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c c3fcdbc5dd02cce86e40bd7e51b434a8bdd98e56
 F src/db.c b2f4759aa8675339a2889ce04e164d2e96e4209e
@@ -64,10 +65,10 @@ F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 0c704d219d580fb5fdfa8c66bee4a36c572c3569
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
 F src/main.c 5193badb96e54767f45ec29523bfeac39ee48d28
-F src/main.mk 24d064f3b32c1a5a43ecf3b39c99885dac741489
+F src/main.mk d66a881b84ba21bc690f50a643841daaefb49f7f
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 1465cd0ed9d28881c5c9bd6362db2738f067633e
+F src/makemake.tcl 5f66c678cf80e0941e5cbcb72838c30d4c17fe81
 F src/manifest.c b08b58d9b857ad4dd7357d9f06b41b6e31981c85
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -208,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P b4f9d90ca37ea1dc8fc3670b636f05ade9c78c4f
-R f3b0f176d443b80765f4571e32647dfb
+P dbfe682b925d167012c928a943e5471f0ab43632
+R 1561de866f4b9714fe9c2452ef89b023
 U drh
-Z 8534f2baddd13527eb8d67ee9b8213b6
+Z 51ad6977840f2c7469add6f59506b19d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFINWveoxKgR168RlERAhfFAJ4pydLs2JCMmvoXawPm//AdRR2fSQCeM26q
-rt8x/lbnw/8JPudvsQkoXkU=
-=Sim+
+iD8DBQFINXwwoxKgR168RlERAntzAJ9qRnoeeI1oVuKX9y4ZVcwyK/nKUwCcDLMw
+cSuSufxOBDZpCgCnhVEtB8M=
+=Q7na
 -----END PGP SIGNATURE-----

@@ -19,6 +19,7 @@ set src {
   clearsign
   clone
   comformat
+  configure
   construct
   content
   db
