@@ -238,11 +238,12 @@ int main(int argc, char **argv){
 void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
+  static int once = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiPanic ){
-    g.cgiPanic = 0;
+  if( g.cgiPanic && once ){
+    once = 0;
     cgi_printf("<p><font color=\"red\">%h</font></p>", z);
     style_footer();
     cgi_reply();
