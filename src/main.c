@@ -575,6 +575,8 @@ void cmd_cgi(void){
   }else{
     zFile = g.argv[1];
   }
+  g.httpOut = stdout;
+  g.httpIn = stdin;
   g.cgiPanic = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){

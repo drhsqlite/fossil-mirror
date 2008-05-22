@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C fixed\sa\stypo\sin\stktconfig.c
-D 2008-05-20T20:57:54
+C Fix\sa\ssegfault\son\sthe\s"fossil\scgi"\scommand.
+D 2008-05-22T12:38:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -63,7 +63,7 @@ F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 0c704d219d580fb5fdfa8c66bee4a36c572c3569
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c c15347d3f417a4c6a772a5f1f27794b64f211b7c
+F src/main.c 5d729a0cb8d518dd643dc9f0f6a8d97ef10ada39
 F src/main.mk 24d064f3b32c1a5a43ecf3b39c99885dac741489
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -208,14 +208,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P a5f1c79f28b46b249b5316c6d7b66d92741925d5
-R 7b54cdd2dea6ab669b9ae96da0349745
-U stephan
-Z 5aa9e867612b4ed4c8ae33f6f1bb1a1c
+P 9d4f1b65142197797674c5ea11bc4524431aca6d
+R 94dc34e740546a0af23b6b89248bd941
+U drh
+Z 84d7d988805275ae9565bc588b94761d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIMztSZWKvbTL0CBgRApBgAJ4jCazKxPAIiOfDTZUqiPkXUzfp7ACfWy4N
-W8eA/b1RaqGj6hEgXwlr6PY=
-=CyBE
+iD8DBQFINWlDoxKgR168RlERAtD7AJkBDL35dl9yl7f6LhvgAjMZXIL+gQCeJIQH
+WQTgW2FdsYYITEYarMIhu2w=
+=S/6N
 -----END PGP SIGNATURE-----
