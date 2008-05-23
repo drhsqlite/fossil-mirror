@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Finish\simplementing\sthe\sconfiguration\scommand\sby\sadding\smethod\simplementations\nfor\s"import",\s"reset",\sand\s"pull".
-D 2008-05-23T19:21:03
+C corrected\swiki\scommand\sshort\shelp
+D 2008-05-23T21:41:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -107,7 +107,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c a15e177b1a9ddd248164f57d4701c75839591e87
+F src/wiki.c 09891f13efecd43905151180eb08e2d1e053d0c7
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 5b389cafaa116bfb37c58c4a2c06dd11bddac530
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P ab5ab46206457266274563fd0ca5cf9ef0cc5388
-R 50e693e48db97e52aa1857a21649ca64
-U drh
-Z 740271543970bcd9d0dc0784a04da0ba
+P 28e56282c91556de4dde4860cf2618e5fca42314
+R 825b46a80b6dd24b36a0524ac126635b
+U stephan
+Z e0ef698d69fa10660f42acf8d29e40eb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFINxkioxKgR168RlERAoOdAJ9V3nF7iIUXVPGp2//SzeJ7CuY2lgCcDXg/
-e5hShu4TF55ZAbav9Qxyl50=
-=4VI2
+iD8DBQFINznzZWKvbTL0CBgRAsdmAKCgniLXKxJdmh9uce9PNDBFPMfFSACgtzhT
+xGGyvmxNMeXpQxrQU0cmIdE=
+=V/z9
 -----END PGP SIGNATURE-----

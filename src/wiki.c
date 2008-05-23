@@ -663,7 +663,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 /*
 ** COMMAND: wiki
 **
-** Usage: %fossil wiki (export|commit|list) WikiName
+** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
 ** Run various subcommands to fetch wiki entries.
 **
@@ -812,5 +812,5 @@ void wiki_cmd(void){
   return;
 
 wiki_cmd_usage:
-  usage("export|commit|list ...");
+  usage("export|create|commit|list ...");
 }
