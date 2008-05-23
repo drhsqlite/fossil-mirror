@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Better\serror\smessage\swhen\sa\sCGI\sconfiguration\sspecifies\sa\snon-existant\nor\sunreadable\srepository.
-D 2008-05-22T15:31:38
+C removed\sUSER\sstuff.\sReorganized.\si\swould\shave\sSWORN\sthat\si\schecked\sthis\sin\syesterday.
+D 2008-05-23T12:24:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -204,19 +204,19 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
 F www/index.wiki f4e253731bc529fb6b3ffb84ac0fc81a8d1eb726
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
-F www/newrepo.wiki 5136040a413ad41c5a3276484f8d55c26b021bd7
+F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P e06ae9f6d23a627ed9fd990ef631e72c86083e1a
-R 84679b7ff9f2bf1dc05061d46ed0c0db
-U drh
-Z b3e83d145b18df1f1b3d6801aa10f820
+P 69650f2963ebabb601f7c0f5dbaa114819358e6a
+R ce5674c668f76f555d83d9e4db4d858a
+U stephan
+Z 9d2c62e8bdb409c3871a67fcc921687b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFINZHdoxKgR168RlERAp+fAJ4qQEO9iGM2Hy1dIv975DmwfD2uXgCfaVqZ
-/uGi65CH66THiHOL6UgQQvk=
-=tHY5
+iD8DBQFINreIZWKvbTL0CBgRAnduAKCamZKSXNdhGt0MXaFwRQL3WpQzZwCcD0Ae
+Oe8YPuDBfvuDK4FCCQgR5sw=
+=2NSF
 -----END PGP SIGNATURE-----

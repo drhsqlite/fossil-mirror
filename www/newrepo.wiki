@@ -17,17 +17,37 @@ baseline:   84e81a150535f031722f815d59c0c5e96ab7f122
 </verbatim>
 
 The numbers it spits out are unimportant (they are version
-numbers). It gets the admin-user name from your $USER environment
-variable, so you can override this by setting that variable before
-calling fossil, like so:
-
-<verbatim>
-stephan@ludo:~/fossil$ USER=myAlias fossil new demo.fossil
-</verbatim>
+numbers).
 
 Now we have an empty repository file named <tt>demo.fossil</tt>.
 There is nothing magical about the extension <tt>.fossil</tt> - it's
 just a convention. You may name your files anything you like.
+
+The first thing we normally want to do is to run fossil as a local server so
+that you can configure the access rights to the repo:
+
+<verbatim>
+stephan@ludo:~/fossil$ fossil ui demo.fossil
+</verbatim>
+
+The <tt>ui</tt> command starts up a server (with an optional <tt>-port
+NUMBER</tt> argument) and launches a web browser pointing at the
+fossil server. From there it takes just a few moments to configure the
+repo. Most importantly, go to the Setup menu, then the Users link, and
+set your account name and password, and grant your account all access
+priviledges. (I also like to grant Clone access to the anonymous user,
+but that's personal preference.)
+
+Once you are done, kill the fossil server (with Ctrl-C or equivalent)
+and close the browser window.
+
+<blockquote>
+Tip: it is not strictly required to configure a repository
+this way, but if you are going to share a repo over the net then it
+is highly recommended. If you are only going to work with the repo
+locally, you can skip the configuration step and do it later if
+you decide you want to share your repo.
+</blockquote>
 
 The next thing we need to do is <em>open</em> the repository. To do so
 we create a working directory and then <tt>cd</tt> to it:
@@ -95,25 +115,7 @@ assume you have some web space where you can store your fossil file
 and run a CGI script. If not, then this option is not for you. If
 you do, then here's how...
 
-The first thing you need to do is run fossil as a local server so
-that you can configure the access rights to your repo:
-
-<verbatim>
-stephan@ludo:~/fossil/demo$ fossil ui
-</verbatim>
-
-The <tt>ui</tt> command starts up a server (with an optional <tt>-port
-NUMBER</tt> argument) and launches a web browser pointing at the
-fossil server. From there it takes just a few moments to configure the
-repo. Most importantly, go to the Setup menu, then the Users link, and
-set your password and grant your account all access priviledges. (I
-also like to grant Clone access to the anonymous user, but that's
-personal preference.)
-
-Once you are done, kill the fossil server (with Ctrl-C or equivalent)
-and close the browser window.
-
-Now copy the fossil repository file to your web server (it doesn't
+Copy copy the fossil repository file to your web server (it doesn't
 matter where, really).
 
 In your <tt>cgi-bin</tt> (or equivalent) directory, create a file
@@ -138,12 +140,12 @@ To check out a copy of your remote repository, use the
 <em>clone</em> command:
 
 <verbatim>
-stephan@ludo:~/fossil fossil clone \
+stephan@ludo:~/fossil$ fossil clone \
   http://MyAccountName:MyAccountPassword@my.domain/cgi-bin/myrepo.cgi
 </verbatim>
 
 Note that you should pass your fossil login name and password (as set
-in the local server mode) during the clone - that ensures that fossil
+via local server mode) during the clone - that ensures that fossil
 won't ask you for it on each commit!
 
 A clone is a local copy of a remote repository, and can be opened just
