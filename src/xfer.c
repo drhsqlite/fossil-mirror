@@ -26,35 +26,6 @@
 #include "config.h"
 #include "xfer.h"
 
-#if INTERFACE
-/*
-** Configuration transfers occur in groups.  These are the allowed
-** groupings:
-*/
-#define CONFIGSET_SKIN   0x000001     /* WWW interface appearance */
-#define CONFIGSET_TKT    0x000002     /* Ticket configuration */
-#define CONFIGSET_PROJ   0x000004     /* Project name */
-
-#endif /* INTERFACE */
-
-/*
-** The following is a list of settings that we are willing to
-** transfer.
-*/
-static struct {
-  const char *zName;   /* Name of the configuration parameter */
-  int groupMask;       /* Which config groups is it part of */
-} aSafeConfig[] = {
-  { "css",                   CONFIGSET_SKIN },
-  { "header",                CONFIGSET_SKIN },
-  { "footer",                CONFIGSET_SKIN },
-  { "project-name",          CONFIGSET_PROJ },
-  { "project-description",   CONFIGSET_PROJ },
-  { "index-page",            CONFIGSET_SKIN },
-  { "timeline-block-markup", CONFIGSET_SKIN },
-  { "timeline-max-comment",  CONFIGSET_SKIN },
-};
-
 /*
 ** This structure holds information about the current state of either
 ** a client or a server that is participating in xfer.
@@ -682,16 +653,12 @@ void page_xfer(void){
     ){
       if( g.okRead ){
         char *zName = blob_str(&xfer.aToken[1]);
-        int i;
-        for(i=0; i<count(aSafeConfig); i++){
-          if( strcmp(aSafeConfig[i].zName, zName)==0 ){
-            char *zValue = db_get(zName, 0);
-            if( zValue ){
-              blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName, 
-                           strlen(zValue), zValue);
-              free(zValue);
-            }
-            break;
+        if( configure_is_exportable(zName) ){
+          char *zValue = db_get(zName, 0);
+          if( zValue ){
+            blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName, 
+                         strlen(zValue), zValue);
+            free(zValue);
           }
         }
       }
@@ -793,13 +760,15 @@ static const char zValueFormat[] = "\r%-10s %10d %10d %10d %10d\n";
 ** are pulled if pullFlag is true.  A full sync occurs if both are
 ** true.
 */
-void client_sync(int pushFlag, int pullFlag, int cloneFlag){
+void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
   int go = 1;        /* Loop until zero */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
   int nCard = 0;         /* Number of cards sent or received */
   int nCycle = 0;        /* Number of round trips to the server */
+  int size;               /* Size of a config value */
   int nFileSend = 0;
+  int origConfigMask;     /* Original value of configMask */
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
@@ -812,7 +781,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
 
-  assert( pushFlag || pullFlag || cloneFlag );
+  assert( pushFlag || pullFlag || cloneFlag || configMask );
   assert( !g.urlIsFile );          /* This only works for networking */
 
   db_begin_transaction();
@@ -824,6 +793,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
   blob_zero(&recv);
   blob_zero(&xfer.err);
   blob_zero(&xfer.line);
+  origConfigMask = configMask;
 
   /*
   ** Always begin with a clone, pull, or push message
@@ -864,6 +834,17 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
     if( pushFlag ){
       send_unsent(&xfer);
       nCard += send_unclustered(&xfer);
+    }
+
+    /* Send configuration parameter requests */
+    if( configMask ){
+      const char *zName;
+      zName = configure_first_name(configMask);
+      while( zName ){
+        blob_appendf(&send, "reqconfig %s\n", zName);
+        zName = configure_next_name(configMask);
+      }
+      configMask = 0;
     }
 
     /* Exchange messages with the server */
@@ -978,10 +959,20 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag){
       **
       ** Receive a configuration value from the server.
       */
-      if( blob_eq(&xfer.aToken[0],"config") ){
-        /* TBD: Extract name and content */
-        /* Check to see if configuration name is authorized */
-        /* Store content in the config table */
+      if( blob_eq(&xfer.aToken[0],"config") && xfer.nToken==3
+          && blob_is_int(&xfer.aToken[2], &size) ){
+        const char *zName = blob_str(&xfer.aToken[1]);
+        Blob content;
+        blob_zero(&content);
+        blob_extract(xfer.pIn, size, &content);
+        if( configure_is_exportable(zName) & origConfigMask ){
+          db_multi_exec(
+              "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+              zName, blob_str(&content)
+          );
+        }
+        blob_reset(&content);
+        blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
       }else
 
       

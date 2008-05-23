@@ -63,7 +63,7 @@ static struct {
 static struct {
   const char *zName;   /* Name of the configuration parameter */
   int groupMask;       /* Which config groups is it part of */
-} aSafeConfig[] = {
+} aConfig[] = {
   { "css",                   CONFIGSET_SKIN },
   { "header",                CONFIGSET_SKIN },
   { "footer",                CONFIGSET_SKIN },
@@ -73,6 +73,25 @@ static struct {
   { "timeline-block-markup", CONFIGSET_SKIN },
   { "timeline-max-comment",  CONFIGSET_SKIN },
 };
+static int iConfig = 0;
+
+/*
+** Return name of first configuration property matching the given mask.
+*/
+const char *configure_first_name(int iMask){
+  iConfig = 0;
+  return configure_next_name(iMask);
+}
+const char *configure_next_name(int iMask){
+  while( iConfig<count(aConfig) ){
+    if( aConfig[iConfig].groupMask & iMask ){
+      return aConfig[iConfig++].zName;
+    }else{
+      iConfig++;
+    }
+  }
+  return 0;
+}
 
 /*
 ** Return TRUE if a particular configuration parameter zName is
@@ -80,8 +99,10 @@ static struct {
 */
 int configure_is_exportable(const char *zName){
   int i;
-  for(i=0; i<count(aSafeConfig); i++){
-    if( strcmp(zName, aSafeConfig[i].zName)==0 ) return 1;
+  for(i=0; i<count(aConfig); i++){
+    if( strcmp(zName, aConfig[i].zName)==0 ){
+      return aConfig[i].groupMask;
+    }
   }
   return 0;
 }
@@ -104,35 +125,35 @@ static int find_area(const char *z){
 
 
 /*
-** COMMAND: configure
+** COMMAND: configuration
 **
 ** Usage: %fossil configure METHOD ...
 **
 ** Where METHOD is one of: export import pull reset.  All methods
 ** accept the -R or --repository option to specific a repository.
 **
-**    %fossil config export AREA FILENAME
+**    %fossil configuration export AREA FILENAME
 **
 **         Write to FILENAME exported configuraton information for AREA.
 **         AREA can be one of:  all ticket skin project
 **
-**    %fossil config import FILENAME
+**    %fossil configuration import FILENAME
 **
 **         Read a configuration from FILENAME, overwriting the current
 **         configuration.  Warning:  Do not read a configuration from
 **         an untrusted source since the configuration is not checked
 **         for safety and can introduce security threats.
 **
-**    %fossil config pull AREA URL
+**    %fossil configuration pull AREA URL
 **
 **         Pull and install the configuration from a different server
 **         identified by URL.  AREA is as in "export".
 **
-**    %fossil configure reset AREA
+**    %fossil configuration reset AREA
 **
 **         Restore the configuration to the default.  AREA as above.
 */
-void configure_cmd(void){
+void configuration_cmd(void){
   int n;
   const char *zMethod;
   if( g.argc<3 ){
@@ -160,9 +181,9 @@ void configure_cmd(void){
        "  FROM config WHERE name IN "
     );
     zSep = "(";
-    for(i=0; i<count(aSafeConfig); i++){
-      if( aSafeConfig[i].groupMask & mask ){
-        blob_appendf(&sql, "%s'%s'", zSep, aSafeConfig[i].zName);
+    for(i=0; i<count(aConfig); i++){
+      if( aConfig[i].groupMask & mask ){
+        blob_appendf(&sql, "%s'%s'", zSep, aConfig[i].zName);
         zSep = ",";
       }
     }
@@ -172,7 +193,7 @@ void configure_cmd(void){
     blob_appendf(&out, 
         "-- The \"%s\" configuration exported from\n"
         "-- repository \"%s\"\n"
-        "-- on %s\nBEGIN;\n",
+        "-- on %s\n",
         g.argv[3], g.zRepositoryName,
         db_text(0, "SELECT datetime('now')")
     );
@@ -180,15 +201,39 @@ void configure_cmd(void){
       blob_appendf(&out, "%s\n", db_column_text(&q, 0));
     }
     db_finalize(&q);
-    blob_appendf(&out, "COMMIT;\n");
     blob_write_to_file(&out, g.argv[4]);
     blob_reset(&out);
   }else
   if( strncmp(zMethod, "import", n)==0 ){
+    Blob in;
+    if( g.argc!=4 ) usage("import FILENAME");
+    blob_read_from_file(&in, g.argv[3]);
+    db_begin_transaction();
+    db_multi_exec("%s", blob_str(&in));
+    db_end_transaction(0);
   }else
   if( strncmp(zMethod, "pull", n)==0 ){
+    int mask;
+    url_proxy_options();
+    if( g.argc!=5 ) usage("pull AREA URL");
+    mask = find_area(g.argv[3]);
+    url_parse(g.argv[4]);
+    if( g.urlIsFile ){
+      fossil_fatal("network sync only");
+    }
+    user_select();
+    client_sync(0,0,0,mask);
   }else
   if( strncmp(zMethod, "reset", n)==0 ){
+    int mask, i;
+    if( g.argc!=4 ) usage("reset AREA");
+    mask = find_area(g.argv[3]);
+    db_begin_transaction();
+    for(i=0; i<count(aConfig); i++){
+      if( (aConfig[i].groupMask & mask)==0 ) continue;
+      db_multi_exec("DELETE FROM config WHERE name=%Q", aConfig[i].zName);
+    }
+    db_end_transaction(0);
   }else
   {
     fossil_fatal("METHOD should be one of:  export import pull reset");
