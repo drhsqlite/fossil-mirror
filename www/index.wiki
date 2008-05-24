@@ -1,4 +1,4 @@
-<h1>Fossil - Distributed Revision Control, Wiki, And Bug-Tracking</h1>
+<h1>Fossil: Distributed Revision Control, Wiki, and Bug-Tracking</h1>
 
 <p>
 Fossil is a new 

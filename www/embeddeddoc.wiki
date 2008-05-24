@@ -73,7 +73,7 @@ following file suffixes or embedded documents:
   *  .wiki
 
 Documentation files whose names end in ".wiki" use the 
-<a href="../wiki_rules">same markup as wiki pages</a> -
+[/wiki_rules | same markup as wiki pages] -
 a safe subset of HTML together with some rules for paragraph
 breaks, lists, and hyperlinks.  The ".wiki" and ".txt" pages
 are rendered with the standard fossil header and footer added.
