@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C corrected\swiki\scommand\sshort\shelp
-D 2008-05-23T21:41:07
+C Fix\sthe\s"card\scount"\son\ssync\sto\sinclude\sthe\sconfiguration\scards\ssent\sand\sreceived.
+D 2008-05-24T02:34:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -110,7 +110,7 @@ F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c 09891f13efecd43905151180eb08e2d1e053d0c7
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
-F src/xfer.c 5b389cafaa116bfb37c58c4a2c06dd11bddac530
+F src/xfer.c 8dbdd3ebb34e40b53f9b316edb56d7852ef1150c
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 28e56282c91556de4dde4860cf2618e5fca42314
-R 825b46a80b6dd24b36a0524ac126635b
-U stephan
-Z e0ef698d69fa10660f42acf8d29e40eb
+P 92df4748bdba334c559ce5dc91d650b4dcca2a0a
+R 92f71a22593f2db9ae53c2f97ea49adc
+U drh
+Z 2115e79f33546665c4b414faaa3f5673
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFINznzZWKvbTL0CBgRAsdmAKCgniLXKxJdmh9uce9PNDBFPMfFSACgtzhT
-xGGyvmxNMeXpQxrQU0cmIdE=
-=V/z9
+iD8DBQFIN37OoxKgR168RlERAvtfAJ4xFclBMqd6xwSyU4h2nPdnIo2WGQCfffkG
+XBc9JqsCXNuivNWyoGGpi6w=
+=aqvh
 -----END PGP SIGNATURE-----

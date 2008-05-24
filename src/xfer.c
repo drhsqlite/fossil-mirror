@@ -843,6 +843,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
       while( zName ){
         blob_appendf(&send, "reqconfig %s\n", zName);
         zName = configure_next_name(configMask);
+        nCard++;
       }
       configMask = 0;
     }
@@ -971,6 +972,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
               zName, blob_str(&content)
           );
         }
+        nCard++;
         blob_reset(&content);
         blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
       }else
