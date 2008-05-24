@@ -504,8 +504,9 @@ void wikirules_page(void){
   @ <h2>Formatting Rule Summary</h2>
   @ <ol>
   @ <li> Blank lines are paragraph breaks
-  @ <li> Bullet list items are a "*" at the beginning of the line.
-  @ <li> Enumeration list items are a number at the beginning of a line.
+  @ <li> Bullets are "*" surrounded by two spaces at the beginning of the line.
+  @ <li> Enumeration items a number surrounded by two space
+  @ at the beginning of a line.
   @ <li> Indented pargraphs begin with a tab or two spaces.
   @ <li> Hyperlinks are contained with square brackets:  "[target]"
   @ <li> Most ordinary HTML works.
@@ -520,12 +521,14 @@ void wikirules_page(void){
   @ supported by wiki markup, but you can do these things if you need them
   @ using HTML.</p>
   @ <li> <p><b>Bullet Lists</b>.
-  @ A bullet list item begins with a single "*" character surrounded on
+  @ A bullet list item are lines that begin with a single "*" character
+  @ surrounded on
   @ both sides by two or more spaces or by a tab.  Only a single level
   @ of bullet list is supported by wiki.  For tested lists, use HTML.</p>
   @ <li> <p><b>Enumeration Lists</b>.
-  @ An enumeration list item begins with one or more digits optionally
-  @ followed by a "." surrounded on both sides by two or more spaces or
+  @ An enumeration list items are lines that begin
+  @ with one or more digits optionally
+  @ followed by a "." and surrounded on both sides by two or more spaces or
   @ by a tab.  The number is significant and becomes the number shown
   @ in the rendered enumeration item.  Only a single level of enumeration
   @ list is supported by wiki.  For nested enumerations or for
@@ -592,8 +595,9 @@ void wikirules_page(void){
   @ No other elements are allowed.  All attributes are checked and
   @ only a few benign attributes are allowed on each element.
   @ In particular, any attributes that specify javascript or CSS
-  @ are elided.</p>
-  @ <p>The &lt;verbatim&gt; tag disables all wiki and HTML markup
+  @ are elided.</p></li>
+  @ <li><p><b>Special Markup.</b>
+  @ The &lt;verbatim&gt; tag disables all wiki and HTML markup
   @ up through the next &lt;/verbatim&gt;.  The &lt;nowiki&gt; tag
   @ disables all wiki formatting rules through the matching
   @ &lt;/nowiki&gt; element.

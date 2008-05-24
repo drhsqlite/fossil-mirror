@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C When\sreporting\sdatabase\serrors\sin\sCGI\smode,\smake\ssure\sthe\sCGI\sheader\ncomes\sout\sfirst.
-D 2008-05-24T13:30:36
+C Clarification\sof\swiki\sformatting\srules.
+D 2008-05-24T16:02:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -107,7 +107,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c 09891f13efecd43905151180eb08e2d1e053d0c7
+F src/wiki.c 4931ce9b6563ef7bdcff1188f815f9da526de118
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 8dbdd3ebb34e40b53f9b316edb56d7852ef1150c
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P d53af79c81d3ccf76ae10b457ccbd9071c637373
-R 425a5f211b0f38c2dab1881bd98ffcfd
+P 3dce979214cc309749697d2982c77fac896ebada
+R 662417ff14eb012100644b8f44dce90f
 U drh
-Z 9dd20e633b8349a05dd60eb926a14659
+Z cb5a01e3facb0fc3f530f6024778e83e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIOBiAoxKgR168RlERAt7JAJ41ysK5f5XEotAAf99/MpSWG5Ov4wCbBFAt
-IiaezMj0s8yc9p/SBTdcCtY=
-=l5/v
+iD8DBQFIODwJoxKgR168RlERAuc+AKCBYwx0hrxmTHAcXwHiMo8KXFA5wgCfZBfr
+Gmo//7o4sqbiKx55NjvRmPc=
+=N0qz
 -----END PGP SIGNATURE-----
