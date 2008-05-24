@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"card\scount"\son\ssync\sto\sinclude\sthe\sconfiguration\scards\ssent\sand\sreceived.
-D 2008-05-24T02:34:48
+C When\sreporting\sdatabase\serrors\sin\sCGI\smode,\smake\ssure\sthe\sCGI\sheader\ncomes\sout\sfirst.
+D 2008-05-24T13:30:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c ee8a3cb48e3fffe20b3959b66d56944f598895f7
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c c3fcdbc5dd02cce86e40bd7e51b434a8bdd98e56
-F src/db.c 25b959eccd0e91324024548ec01d147979b6ad2f
+F src/db.c c256ad6ad7d2710cc4c43b8b86cab44f8290c821
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 94c664abc47f1343865296d7f49a39b7ed076bca
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 92df4748bdba334c559ce5dc91d650b4dcca2a0a
-R 92f71a22593f2db9ae53c2f97ea49adc
+P d53af79c81d3ccf76ae10b457ccbd9071c637373
+R 425a5f211b0f38c2dab1881bd98ffcfd
 U drh
-Z 2115e79f33546665c4b414faaa3f5673
+Z 9dd20e633b8349a05dd60eb926a14659
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIN37OoxKgR168RlERAvtfAJ4xFclBMqd6xwSyU4h2nPdnIo2WGQCfffkG
-XBc9JqsCXNuivNWyoGGpi6w=
-=aqvh
+iD8DBQFIOBiAoxKgR168RlERAt7JAJ41ysK5f5XEotAAf99/MpSWG5Ov4wCbBFAt
+IiaezMj0s8yc9p/SBTdcCtY=
+=l5/v
 -----END PGP SIGNATURE-----

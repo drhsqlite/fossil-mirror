@@ -67,8 +67,8 @@ static void db_err(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiPanic ){
     g.cgiPanic = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
-    style_footer();
+    cgi_printf("<h1>Database Error</h1>\n"
+               "<pre>%h</pre>", z);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -179,7 +179,7 @@ int db_vprepare(Stmt *pStmt, const char *zFormat, va_list ap){
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
   if( sqlite3_prepare_v2(g.db, zSql, -1, &pStmt->pStmt, 0)!=0 ){
-    db_err("%s\n%s", zSql, sqlite3_errmsg(g.db));
+    db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
   pStmt->pNext = pStmt->pPrev = 0;
   return 0;
@@ -213,7 +213,7 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
 static int paramIdx(Stmt *pStmt, const char *zParamName){
   int i = sqlite3_bind_parameter_index(pStmt->pStmt, zParamName);
   if( i==0 ){
-    db_err("no such bind parameter: %s\n%b", zParamName, &pStmt->sql);
+    db_err("no such bind parameter: %s\nSQL: %b", zParamName, &pStmt->sql);
   }
   return i;
 }
