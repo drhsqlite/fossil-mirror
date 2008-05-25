@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Allow\scommand-line\soptions\sof\sthe\sform\s\s"--name=value".
-D 2008-05-25T11:50:31
+C Incremental\swork\son\stickets\sand\sespecially\sticket\sconfiguration.
+D 2008-05-25T19:36:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -80,10 +80,10 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c bcc65378b85ceb35daacd2388b39866eec52012c
-F src/report.c 341078a2b9fc7f4e1cef7d13188f7a9d574c6377
+F src/report.c 754ebac1f28419b86168c69c78b02f30f25f46fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c c2d5e134b539daa466068874c45932deb5eea333
-F src/setup.c b4cd5e8549212fdc1960cb5334cce2a876d65874
+F src/setup.c 9b54ba173ac9ef2f5463dfc739a1e9d10085d452
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
@@ -99,7 +99,7 @@ F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 3666af55b7ffba4a32ae38acd54fd0f513859bbe
 F src/tkt.c b7cd94e9596e9f1e15067b9a4676e11e2a1b31d4
 F src/tktconfig.c 4ad4640d6cfdc82c513983953079dc05ee631628
-F src/tktsetup.c eeccd454b73af2c7b1d1636fa771972b819de8c7
+F src/tktsetup.c 3051830ac9f514932b467bc02ac8c545c5b92253
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c cb0a6551aff4c509f8fa95600f89933819b8cdeb
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P e65e6691481ffbbe2510b6fe460747572aeedb3f
-R e92b23ebe6df2ed92e1eb0b597beba28
+P be758137b0189740217bac71db3e77012323f204
+R cc319774b204f410079d07465cf91d90
 U drh
-Z d7ec7c1775312cc81b89b27bb9124aff
+Z 9504cd4eb622b3ba5b83e428b0be6396
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIOVKMoxKgR168RlERAkVVAJ0QuL8oLldQyZWyzh9vq2isyPhwEgCffwKz
-Wuk/YuDyvpLXBqHXQa4VC0s=
-=N6fG
+iD8DBQFIOb/ToxKgR168RlERAndcAJ9m5Tn3gQFcOfdiUgriN/Cx5RVxHgCeK8A3
+hINmIaMZB67Cr46wd/TDMRA=
+=xz9U
 -----END PGP SIGNATURE-----

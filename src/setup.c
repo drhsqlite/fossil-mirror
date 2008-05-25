@@ -68,7 +68,7 @@ void setup_page(void){
     "Configure the WWW components of the repository");
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
-  setup_menu_entry("Tickets", "setup_ticket",
+  setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
   setup_menu_entry("CSS", "setup_editcss",
     "Edit the Cascading Style Sheet used by all pages of this repository");

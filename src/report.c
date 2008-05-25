@@ -678,7 +678,7 @@ static int generate_html(
 ){
   struct GenerateHTML *pState = (struct GenerateHTML*)pUser;
   int i;
-  int tn;            /* Ticket number.  (value of column named '#') */
+  const char *zTid;  /* Ticket UUID.  (value of column named '#') */
   int rn;            /* Report number */
   char *zBg = 0;     /* Use this background color */
   char zPage[30];    /* Text version of the ticket number */
@@ -719,26 +719,25 @@ static int generate_html(
     /* The first time this routine is called, output a table header
     */
     @ <tr>
-    tn = -1;
+    zTid = 0;
     for(i=0; i<nArg; i++){
       char *zName = azName[i];
       if( i==pState->iBg ) continue;
       if( pState->iNewRow>=0 && i>=pState->iNewRow ){
-        if( g.okWrite && tn>=0 ){
+        if( g.okWrite && zTid ){
           @ <th>&nbsp;</th>
-          tn = -1;
+          zTid = 0;
         }
         if( zName[0]=='_' ) zName++;
         @ </tr><tr><th colspan=%d(pState->nCol)>%h(zName)</th>
       }else{
         if( zName[0]=='#' ){
-          tn = i;
-        }else{
-          @ <th>%h(zName)</th>
+          zTid = zName;
         }
+        @ <th>%h(zName)</th>
       }
     }
-    if( g.okWrite && tn>=0 ){
+    if( g.okWrite && zTid ){
       @ <th>&nbsp;</th>
     }
     @ </tr>
@@ -763,7 +762,7 @@ static int generate_html(
   zBg = pState->iBg>=0 ? azArg[pState->iBg] : 0;
   if( zBg==0 ) zBg = "white";
   @ <tr bgcolor="%h(zBg)">
-  tn = 0;
+  zTid = 0;
   zPage[0] = 0;
   for(i=0; i<nArg; i++){
     char *zData;
@@ -771,17 +770,20 @@ static int generate_html(
     zData = azArg[i];
     if( zData==0 ) zData = "";
     if( pState->iNewRow>=0 && i>=pState->iNewRow ){
-      if( tn>0 && g.okWrite ){
-        @ <td valign="top"><a href="tktedit?tn=%d(tn),%d(rn)">edit</a></td>
-        tn = 0;
+      if( zTid && g.okWrite ){
+        @ <td valign="top"><a href="tktedit/%h(zTid)">edit</a></td>
+        zTid = 0;
       }
       if( zData[0] ){
+        Blob content;
         @ </tr><tr bgcolor="%h(zBg)"><td colspan=%d(pState->nCol)>
-        @ %h(zData)
+        blob_init(&content, zData, -1);
+        wiki_convert(&content, 0, 0);
+        blob_reset(&content);
       }
     }else if( azName[i][0]=='#' ){
-      tn = atoi(zData);
-      @ <td valign="top"><a href="tktview?tn=%d(tn),%d(rn)">%h(zData)</a></td>
+      zTid = zData;
+      @ <td valign="top"><a href="tktview?name=%h(zData)">%h(zData)</a></td>
     }else if( zData[0]==0 ){
       @ <td valign="top">&nbsp;</td>
     }else{
@@ -790,8 +792,8 @@ static int generate_html(
       @ </td>
     }
   }
-  if( tn>0 && g.okWrite ){
-    @ <td valign="top"><a href="tktedit?tn=%d(tn),%d(rn)">edit</a></td>
+  if( zTid && g.okWrite ){
+    @ <td valign="top"><a href="tktedit/%h(zTid)">edit</a></td>
   }
   @ </tr>
   return 0;
