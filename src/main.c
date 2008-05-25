@@ -313,8 +313,10 @@ void remove_from_argv(int i, int n){
 */
 const char *find_option(const char *zLong, const char *zShort, int hasArg){
   int i;
+  int nLong;
   const char *zReturn = 0;
   assert( hasArg==0 || hasArg==1 );
+  nLong = strlen(zLong);
   for(i=2; i<g.argc; i++){
     char *z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -326,7 +328,17 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
       }
       z++;
     }
-    if( strcmp(z,zLong)==0 || (zShort!=0 && strcmp(z,zShort)==0) ){
+    if( strncmp(z,zLong,nLong)==0 ){
+      if( hasArg && z[nLong]=='=' ){
+        zReturn = &z[nLong+1];
+        remove_from_argv(i, 1);
+        break;
+      }else if( z[nLong]==0 ){
+        zReturn = g.argv[i+hasArg];
+        remove_from_argv(i, 1+hasArg);
+        break;
+      }
+    }else if( zShort!=0 && strcmp(z,zShort)==0 ){
       zReturn = g.argv[i+hasArg];
       remove_from_argv(i, 1+hasArg);
       break;

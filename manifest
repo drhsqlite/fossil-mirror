@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tweaks\sto\sthe\sembedded\sdocumentation.
-D 2008-05-24T23:54:10
+C Allow\scommand-line\soptions\sof\sthe\sform\s\s"--name=value".
+D 2008-05-25T11:50:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -64,7 +64,7 @@ F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 0c704d219d580fb5fdfa8c66bee4a36c572c3569
 F src/login.c 659c4f23c676266bc5a3310c09b414bca653cfa5
-F src/main.c 5193badb96e54767f45ec29523bfeac39ee48d28
+F src/main.c 8f6eeea4b5fedbc97fa4a5bc7da8e8badecf8cb4
 F src/main.mk d66a881b84ba21bc690f50a643841daaefb49f7f
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P d58ed02bed85c2805a1c5e102568308d4fd9ca93
-R 6e3bf8261959a9c85884fde4cea0579b
+P e65e6691481ffbbe2510b6fe460747572aeedb3f
+R e92b23ebe6df2ed92e1eb0b597beba28
 U drh
-Z aab19c8bc33016a34f6170350ea23a6f
+Z d7ec7c1775312cc81b89b27bb9124aff
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIOKqmoxKgR168RlERAu8AAJ9YnKB7cNtEMUNqX89xMkdYjwN+4wCePhr8
-PoXw3CAWiS1eM/6rvPQ4KGY=
-=oPup
+iD8DBQFIOVKMoxKgR168RlERAkVVAJ0QuL8oLldQyZWyzh9vq2isyPhwEgCffwKz
+Wuk/YuDyvpLXBqHXQa4VC0s=
+=N6fG
 -----END PGP SIGNATURE-----
