@@ -77,6 +77,8 @@ static struct {
   { "ticket-newpage",        CONFIGSET_TKT  },
   { "ticket-viewpage",       CONFIGSET_TKT  },
   { "ticket-editpage",       CONFIGSET_TKT  },
+  { "ticket-report-template", CONFIGSET_TKT },
+  { "ticket-key-template",    CONFIGSET_TKT },
 };
 static int iConfig = 0;
 

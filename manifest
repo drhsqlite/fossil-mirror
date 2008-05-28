@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Continuing\swork\son\sthe\sticketing\ssystem.
-D 2008-05-28T18:48:12
+C More\sticket\sprocessing\srefinements.
+D 2008-05-28T19:24:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -49,7 +49,7 @@ F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/configure.c ebeebd8a01ccc3945857af98118d78b85f68619a
+F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c c3fcdbc5dd02cce86e40bd7e51b434a8bdd98e56
 F src/db.c c256ad6ad7d2710cc4c43b8b86cab44f8290c821
@@ -97,8 +97,8 @@ F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 3666af55b7ffba4a32ae38acd54fd0f513859bbe
-F src/tkt.c 0ee8650d539575e831b543856e3d8e023dabb872
-F src/tktsetup.c 05495fef8d8e9a8b0a2e1b534fbb42133c0942bd
+F src/tkt.c 486a2a67ca4c47d0f8fb66da9b826a676d1c99e8
+F src/tktsetup.c fa060a46663f74e7e337a84053916711a3fc4081
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c cb0a6551aff4c509f8fa95600f89933819b8cdeb
@@ -208,14 +208,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 86db6fa150142d3d7b47503434b86674958d7642
-R 7ce9c3dde9fad7a5d62128a79f30b7e0
+P 49380d500a1259b4dd10230c83d0816264d4e59d
+R ac07a6d2b466790d7b839e61597d96bb
 U drh
-Z a9648eb1ab6291dc4fdcb073cd226156
+Z d3af47345901a5f6cc3a83b852047ca8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIPajwoxKgR168RlERAinhAJ9GGxjoHF4aQSLUIkBsQefOPhvFtwCdH2ZL
-on4MgiSvW8nVmzj4hJl/vpY=
-=rQPu
+iD8DBQFIPbGNoxKgR168RlERAiv/AJ407+jqRU6Q5JhN2RF42NzDews6ewCdHy2m
+vTUyU4nBBlhTCm5DTvGv+Qg=
+=aXF+
 -----END PGP SIGNATURE-----

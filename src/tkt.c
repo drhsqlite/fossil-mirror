@@ -438,6 +438,9 @@ void tktnew_page(void){
 
   login_check_credentials();
   if( !g.okNewTkt ){ login_needed(); return; }
+  if( P("cancel") ){
+    cgi_redirect("home");
+  }
   style_header("New Ticket");
   ticket_init();
   getAllTicketFields();
@@ -476,8 +479,11 @@ void tktedit_page(void){
 
   login_check_credentials();
   if( !g.okApndTkt && !g.okWrTkt ){ login_needed(); return; }
-  style_header("Edit Ticket");
   zName = P("name");
+  if( P("cancel") ){
+    cgi_redirectf("tktview?name=%T", zName);
+  }
+  style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>UUID_SIZE
           || !validate16(zName,nName) ){
     @ <font color="red"><b>Not a valid ticket id: \"%h(zName)\"</b></font>
