@@ -104,8 +104,9 @@ static void initializeVariablesFromDb(void){
   Stmt q;
   int i, n, size, j;
 
-  zName = PD("name","");
-  db_prepare(&q, "SELECT * FROM ticket WHERE tkt_uuid GLOB '%q*'", zName);
+  zName = PD("name","-none-");
+  db_prepare(&q, "SELECT datetime(tkt_mtime) AS tkt_datetime, *"
+                 "  FROM ticket WHERE tkt_uuid GLOB '%q*'", zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
     for(i=0; i<n; i++){

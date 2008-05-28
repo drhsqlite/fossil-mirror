@@ -37,13 +37,14 @@ static void report_format_hints(void);
 void view_list(void){
   Stmt q;
   int rn = 0;
+  int cnt = 1;
 
   login_check_credentials();
   if( !g.okRdTkt && !g.okNewTkt ){ login_needed(); return; }
   style_header("Bug Report Main Menu");
   if( g.okNewTkt ){
     @ <p>Enter a new bug report:</p>
-    @ <ol><li value="0"><a href="tktnew">New bug report</a></li></ol>
+    @ <ol><li value="1"><a href="tktnew">New bug report</a></li></ol>
     @
   }
   if( !g.okRdTkt ){
@@ -56,12 +57,13 @@ void view_list(void){
       rn = db_column_int(&q, 0);
       const char *zTitle = db_column_text(&q, 1);
       const char *zOwner = db_column_text(&q, 2);
-      @ <li value="%d(rn)"><a href="rptview?rn=%d(rn)"
+      cnt++;
+      @ <li value="%d(cnt)"><a href="rptview?rn=%d(rn)"
       @        rel="nofollow">%h(zTitle)</a>&nbsp;&nbsp;&nbsp;
       if( g.okWrite && zOwner && zOwner[0] ){
         @ (by <i>%h(zOwner)</i>)
       }
-      if( g.okWrTkt ){
+      if( g.okTktFmt ){
         @ [<a href="rptedit?rn=%d(rn)&amp;copy=1" rel="nofollow">copy</a>]
       }
       if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
@@ -72,10 +74,10 @@ void view_list(void){
     }
   }
   @ </ol>
-  if( g.okWrTkt ){
+  if( g.okTktFmt ){
     @ <p>Create a new bug report display format:</p>
     @ <ol>
-    @ <li value="%d(rn+1)"><a href="rptnew">New report format</a></li>
+    @ <li value="%d(cnt+1)"><a href="rptnew">New report format</a></li>
     @ </ol>
   }
   style_footer();
@@ -295,7 +297,7 @@ void view_edit(void){
   const char *zTitle;
   const char *z;
   const char *zOwner;
-  char *zClrKey;
+  const char *zClrKey;
   char *zSQL;
   char *zErr = 0;
 
@@ -362,36 +364,8 @@ void view_edit(void){
     }
   }else if( rn==0 ){
     zTitle = "";
-    zSQL = 
-      @ SELECT
-      @   CASE WHEN status IN ('new','active') THEN '#f2dcdc'
-      @        WHEN status='review' THEN '#e8e8bd'
-      @        WHEN status='fixed' THEN '#cfe8bd'
-      @        WHEN status='tested' THEN '#bde5d6'
-      @        WHEN status='defer' THEN '#cacae5'
-      @        ELSE '#c8c8c8' END AS 'bgcolor',
-      @   tn AS '#',
-      @   type AS 'Type',
-      @   status AS 'Status',
-      @   sdate(origtime) AS 'Created',
-      @   owner AS 'By',
-      @   subsystem AS 'Subsys',
-      @   sdate(changetime) AS 'Changed',
-      @   assignedto AS 'Assigned',
-      @   severity AS 'Svr',
-      @   priority AS 'Pri',
-      @   title AS 'Title'
-      @ FROM ticket
-    ;
-    zClrKey = 
-      @ #ffffff Key:
-      @ #f2dcdc Active
-      @ #e8e8e8 Review
-      @ #cfe8bd Fixed
-      @ #bde5d6 Tested
-      @ #cacae5 Deferred
-      @ #c8c8c8 Closed
-    ;
+    zSQL = ticket_report_template();
+    zClrKey = ticket_key_template();
   }else{
     Stmt q;
     db_prepare(&q, "SELECT title, sqlcode, owner, cols "

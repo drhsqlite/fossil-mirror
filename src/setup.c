@@ -150,6 +150,7 @@ void setup_ulist(void){
   @ <li value="17"><b>Query</b>: Create new queries against tickets</li>
   @ <li value="18"><b>Read-Tkt</b>: View tickets</li>
   @ <li value="19"><b>Setup:</b> Setup and configure this website</li>
+  @ <li value="20"><b>Tkt-Report:</b> Create new bug summary reports</li>
   @ <li value="23"><b>Write-Tkt</b>: Edit tickets</li>
   @ </ol>
   @ </p></li>
@@ -173,6 +174,7 @@ void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag, *oae;
+  char *oat;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -207,7 +209,7 @@ void user_edit(void){
   if( doWrite ){
     const char *zPw;
     const char *zLogin;
-    char zCap[30];
+    char zCap[50];
     int i = 0;
     int aa = P("aa")!=0;
     int ad = P("ad")!=0;
@@ -227,6 +229,7 @@ void user_edit(void){
     int am = P("am")!=0;
     int ah = P("ah")!=0;
     int ag = P("ag")!=0;
+    int at = P("at")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
@@ -244,6 +247,7 @@ void user_edit(void){
     if( aq ){ zCap[i++] = 'q'; }
     if( ar ){ zCap[i++] = 'r'; }
     if( as ){ zCap[i++] = 's'; }
+    if( at ){ zCap[i++] = 't'; }
     if( aw ){ zCap[i++] = 'w'; }
 
     zCap[i] = 0;
@@ -278,7 +282,7 @@ void user_edit(void){
   zInfo = "";
   zCap = "";
   oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oaq = oar = oas = oaw = "";
+        oan = oao = oap = oaq = oar = oas = oat = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -300,6 +304,7 @@ void user_edit(void){
     if( strchr(zCap, 'q') ) oaq = " checked";
     if( strchr(zCap, 'r') ) oar = " checked";
     if( strchr(zCap, 's') ) oas = " checked";
+    if( strchr(zCap, 't') ) oat = " checked";
     if( strchr(zCap, 'w') ) oaw = " checked";
   }
 
@@ -352,7 +357,8 @@ void user_edit(void){
   @     <input type="checkbox" name="ar"%s(oar)>Read Tkt</input><br>
   @     <input type="checkbox" name="an"%s(oan)>New Tkt</input><br>
   @     <input type="checkbox" name="ac"%s(oac)>Append Tkt</input><br>
-  @     <input type="checkbox" name="aw"%s(oaw)>Write Tkt</input>
+  @     <input type="checkbox" name="aw"%s(oaw)>Write Tkt</input><br>
+  @     <input type="checkbox" name="at"%s(oat)>Tkt Report</input>
   @   </td>
   @ </tr>
   @ <tr>

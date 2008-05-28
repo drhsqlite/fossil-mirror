@@ -50,8 +50,10 @@ void tktsetup_page(void){
     "HTML with embedded TH1 code for the \"view ticket\" webpage.");
   setup_menu_entry("Edit Ticket Page", "tktsetup_editpage",
     "HTML with embedded TH1 code for the \"edit ticket\" webpage.");
-  setup_menu_entry("Report Format", "tktsetup_drep",
+  setup_menu_entry("Report Template", "tktsetup_rpttplt",
     "The default ticket report format.");
+  setup_menu_entry("Key Template", "tktsetup_keytplt",
+    "The default color key for reports.");
   @ </table>
   style_footer();
 }
@@ -200,7 +202,7 @@ static const char zDefaultTicketCommon[] =
 @ set status_choices {
 @   Open
 @   Verified
-@   In_Process
+@   Review
 @   Deferred
 @   Fixed
 @   Tested
@@ -242,6 +244,7 @@ static const char zDefaultNew[] =
 @      submit_ticket
 @   }
 @ </th1>
+@ <h1 align="center">Enter A New Bug Report</h1>
 @ <table cellpadding="5">
 @ <tr>
 @ <td colspan="2">
@@ -276,7 +279,7 @@ static const char zDefaultNew[] =
 @ <td align="right">EMail:
 @ <input type="text" name="contact" value="$<contact>" size="30">
 @ </td>
-@ <td>Not publically visible. Used by developers to contact you with
+@ <td><u>Not publicly visible</u>. Used by developers to contact you with
 @ questions.</td>
 @ </tr>
 @ 
@@ -339,38 +342,48 @@ void tktsetup_newpage_page(void){
 
 static const char zDefaultView[] =
 @ <table cellpadding="5">
-@ <tr><td align="right">Title:</td><td>
+@ <tr><td align="right">Ticket&nbsp;UUID:</td><td bgcolor="#d0d0d0" colspan="3">
+@ $<tkt_uuid>
+@ </td></tr>
+@ <tr><td align="right">Title:</td>
+@ <td bgcolor="#d0d0d0" colspan="3" valign="top">
 @ $<title>
 @ </td></tr>
-@ <tr><td align="right">Status:</td><td>
+@ <tr><td align="right">Status:</td><td bgcolor="#d0d0d0">
 @ $<status>
-@ </td></tr>
-@ <tr><td align="right">Type:</td><td>
+@ </td>
+@ <td align="right">Type:</td><td bgcolor="#d0d0d0">
 @ $<type>
 @ </td></tr>
-@ <tr><td align="right">Severity:</td><td>
+@ <tr><td align="right">Severity:</td><td bgcolor="#d0d0d0">
 @ $<severity>
-@ </td></tr>
-@ <tr><td align="right">Priority:</td><td>
+@ </td>
+@ <td align="right">Priority:</td><td bgcolor="#d0d0d0">
 @ $<priority>
 @ </td></tr>
-@ <tr><td align="right">Resolution:</td><td>
+@ <tr><td align="right">Subsystem:</td><td bgcolor="#d0d0d0">
+@ $<subsystem>
+@ </td>
+@ <td align="right">Resolution:</td><td bgcolor="#d0d0d0">
 @ $<resolution>
 @ </td></tr>
-@ <tr><td align="right">Subsystem:</td><td>
-@ $<subsystem>
-@ </td></tr>
+@ <tr><td align="right">Last&nbsp;Modified:</td><td bgcolor="#d0d0d0">
+@ $<tkt_datetime>
+@ </td>
 @ <th1>enable_output [hascap e]</th1>
-@   <tr><td align="right">Contact:</td><td>
+@   <td align="right">Contact:</td><td bgcolor="#d0d0d0">
 @   $<contact>
-@   </td></tr>
+@   </td>
 @ <th1>enable_output 1</th1>
-@ <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
+@ </tr>
+@ <tr><td align="right">Version&nbsp;Found&nbsp;In:</td>
+@ <td colspan="3" valign="top" bgcolor="#d0d0d0">
 @ $<foundin>
 @ </td></tr>
-@ <tr><td colspan="2">
+@ <tr><td>Description &amp; Comments:</td></tr>
+@ <tr><td colspan="4" bgcolor="#d0d0d0">
 @ Description And Comments:<br>
-@ <th1>wiki $comment</th1>
+@ <span  bgcolor="#d0d0d0"><th1>wiki $comment</th1></span>
 @ </td></tr>
 @ </table>
 ;
@@ -502,5 +515,95 @@ void tktsetup_editpage_page(void){
     0,
     0,
     40
+  );
+}
+
+/*
+** The default template ticket report format:
+*/
+static char zDefaultReport[] = 
+@ SELECT
+@   CASE WHEN status IN ('Open','Verified') THEN '#f2dcdc'
+@        WHEN status='Review' THEN '#e8e8e8'
+@        WHEN status='Fixed' THEN '#cfe8bd'
+@        WHEN status='Tested' THEN '#bde5d6'
+@        WHEN status='Deferred' THEN '#cacae5'
+@        ELSE '#c8c8c8' END AS 'bgcolor',
+@   substr(tkt_uuid,1,10) AS '#',
+@   datetime(tkt_mtime) AS 'mtime',
+@   type,
+@   status,
+@   subsystem,
+@   title,
+@   comment AS '_comments'
+@ FROM ticket
+;
+
+
+/*
+** Return the template ticket report format:
+*/
+char *ticket_report_template(void){
+  return db_get("ticket-report-template", zDefaultReport);
+}
+
+/*
+** WEBPAGE: tktsetup_rpttplt
+*/
+void tktsetup_rpttplt_page(void){
+  static const char zDesc[] =
+  @ <p>Enter the default ticket report format template.  This is the
+  @ the template report format that initial appears when creating a
+  @ new ticket summary report.</p>
+  ;
+  tktsetup_generic(
+    "Default Report Template",
+    "ticket-report-template",
+    zDefaultReport,
+    zDesc,
+    0,
+    0,
+    20
+  );
+}
+
+/*
+** The default template ticket key:
+*/
+static const char zDefaultKey[] = 
+@ #ffffff Key:
+@ #f2dcdc Active
+@ #e8e8e8 Review
+@ #cfe8bd Fixed
+@ #bde5d6 Tested
+@ #cacae5 Deferred
+@ #c8c8c8 Closed
+;
+
+
+/*
+** Return the template ticket report format:
+*/
+const char *ticket_key_template(void){
+  return db_get("ticket-key-template", (char*)zDefaultKey);
+}
+
+/*
+** WEBPAGE: tktsetup_keytplt
+*/
+void tktsetup_keytplt_page(void){
+  static const char zDesc[] =
+  @ <p>Enter the default ticket report key template.  This is the
+  @ the template report format that initial appears when creating a
+  @ new ticket summary report.</p>
+  ;
+  tktsetup_generic(
+    "Default Report Template",
+    "ticket-report-template",
+    zDefaultReport,
+    zDesc,
+    0,
+    0,
+    20
   );
 }

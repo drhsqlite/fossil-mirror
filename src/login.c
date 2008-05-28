@@ -313,7 +313,8 @@ void login_set_capabilities(const char *zCap){
       case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okQuery =
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
-                              g.okNewTkt = g.okPassword = g.okRdAddr = 1;
+                              g.okNewTkt = g.okPassword = g.okRdAddr =
+                              g.okTktFmt = 1;
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
 
@@ -334,6 +335,7 @@ void login_set_capabilities(const char *zCap){
       case 'w':   g.okWrTkt = g.okRdTkt = g.okNewTkt = 
                   g.okApndTkt = 1;                              break;
       case 'c':   g.okApndTkt = 1;                              break;
+      case 't':   g.okTktFmt = 1;                               break;
     }
   }
 }
@@ -366,6 +368,7 @@ int login_has_capability(const char *zCap, int nCap){
       case 'q':  rc = g.okQuery;     break;
       case 'r':  rc = g.okRdTkt;     break;
       case 's':  rc = g.okSetup;     break;
+      case 't':  rc = g.okTktFmt;    break;
       case 'w':  rc = g.okWrTkt;     break;
       default:   rc = 0;             break;
     }
