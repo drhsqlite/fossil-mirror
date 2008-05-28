@@ -58,7 +58,6 @@ set src {
   th_main
   timeline
   tkt
-  tktconfig
   tktsetup
   undo
   update

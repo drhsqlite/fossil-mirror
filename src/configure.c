@@ -72,6 +72,11 @@ static struct {
   { "index-page",            CONFIGSET_SKIN },
   { "timeline-block-markup", CONFIGSET_SKIN },
   { "timeline-max-comment",  CONFIGSET_SKIN },
+  { "ticket-table",          CONFIGSET_TKT  },
+  { "ticket-common",         CONFIGSET_TKT  },
+  { "ticket-newpage",        CONFIGSET_TKT  },
+  { "ticket-viewpage",       CONFIGSET_TKT  },
+  { "ticket-editpage",       CONFIGSET_TKT  },
 };
 static int iConfig = 0;
 

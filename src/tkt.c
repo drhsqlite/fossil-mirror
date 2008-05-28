@@ -247,13 +247,12 @@ void ticket_rebuild_entry(const char *zTktUuid){
 }
 
 /*
-** Create the subscript interpreter and load the ticket configuration.
+** Create the subscript interpreter and load the "common" code.
 */
 void ticket_init(void){
-  char *zConfig;
+  const char *zConfig;
   Th_FossilInit();
-  zConfig = db_text((char*)zDefaultTicketConfig,
-             "SELECT value FROM config WHERE name='ticket-configuration'");
+  zConfig = ticket_common_code();
   Th_Eval(g.interp, 0, (const uchar*)zConfig, -1);
 }
 
@@ -261,21 +260,14 @@ void ticket_init(void){
 ** Recreate the ticket table.
 */
 void ticket_create_table(int separateConnection){
-  char *zSql;
-  int nSql;
+  const char *zSql;
 
   db_multi_exec("DROP TABLE IF EXISTS ticket;");
-  ticket_init();
-  zSql = (char*)Th_Fetch("ticket_sql", &nSql);
-  if( zSql==0 ){
-    fossil_panic("no ticket_sql defined by ticket configuration");
-  }
+  zSql = ticket_table_schema();
   if( separateConnection ){
-    zSql = mprintf("%.*s", nSql, zSql);
     db_init_database(g.zRepositoryName, zSql, 0);
-    free(zSql);
   }else{
-    db_multi_exec("%.*s", nSql, zSql);
+    db_multi_exec("%s", zSql);
   }
 }
 
@@ -284,6 +276,7 @@ void ticket_create_table(int separateConnection){
 */
 void ticket_rebuild(void){
   Stmt q;
+  ticket_create_table(1);
   db_begin_transaction();
   db_prepare(&q,"SELECT tagname FROM tag WHERE tagname GLOB 'tkt-*'");
   while( db_step(&q)==SQLITE_ROW ){
@@ -305,8 +298,7 @@ void ticket_rebuild(void){
 ** View a ticket.
 */
 void tktview_page(void){
-  char *zScript;
-  int nScript;
+  const char *zScript;
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
   if( g.okWrTkt ){
@@ -316,8 +308,7 @@ void tktview_page(void){
   style_header("View Ticket");
   ticket_init();
   initializeVariablesFromDb();
-  zScript = (char*)Th_Fetch("tktview_template", &nScript);
-  zScript = mprintf("%.*s", nScript, zScript);
+  zScript = ticket_viewpage_code();
   Th_Render(zScript);
   style_footer();
 }
@@ -441,8 +432,7 @@ static int submitTicketCmd(
 ** top of the screen.
 */
 void tktnew_page(void){
-  char *zScript;
-  int nScript;
+  const char *zScript;
   char *zNewUuid = 0;
 
   login_check_credentials();
@@ -453,8 +443,7 @@ void tktnew_page(void){
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
-  zScript = (char*)Th_Fetch("tktnew_template", &nScript);
-  zScript = mprintf("%.*s", nScript, zScript);
+  zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
@@ -479,8 +468,7 @@ void tktnew_page(void){
 ** debugging ticket configurations.
 */
 void tktedit_page(void){
-  char *zScript;
-  int nScript;
+  const char *zScript;
   int nName;
   const char *zName;
   int nRec;
@@ -513,8 +501,7 @@ void tktedit_page(void){
   initializeVariablesFromDb();
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
   @ <input type="hidden" name="name" value="%s(zName)">
-  zScript = (char*)Th_Fetch("tktedit_template", &nScript);
-  zScript = mprintf("%.*s", nScript, zScript);
+  zScript = ticket_editpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
@@ -528,52 +515,30 @@ void tktedit_page(void){
 }
 
 /*
-** Check the ticket configuration in zConfig to see if it appears to
+** Check the ticket table schema in zSchema to see if it appears to
 ** be well-formed.  If everything is OK, return NULL.  If something is
 ** amiss, then return a pointer to a string (obtained from malloc) that
 ** describes the problem.
 */
-char *ticket_config_check(const char *zConfig){
+char *ticket_schema_check(const char *zSchema){
   char *zErr = 0;
-  const char *z;
-  int n;
-  int i;
   int rc;
   sqlite3 *db;
-  static const char *azRequired[] = {
-     "tktnew_template",
-     "tktview_template",
-     "tktedit_template",
-  };
-  
-  Th_FossilInit();
-  rc = Th_Eval(g.interp, 0, (const uchar*)zConfig, strlen(zConfig));
-  if( rc!=TH_OK ){
-    zErr = (char*)Th_TakeResult(g.interp, 0);
-    return zErr;
-  }
-  for(i=0; i<sizeof(azRequired)/sizeof(azRequired[0]); i++){
-    z = Th_Fetch(azRequired[i], &n);
-    if( z==0 ){
-      zErr = mprintf("missing definition: %s", azRequired[i]);
-      return zErr;
-    }
-  }
-  z = Th_Fetch("ticket_sql", &n);
-  if( z==0 ){
-    zErr = mprintf("missing definition: ticket_sql");
-    return zErr;
-  }
   rc = sqlite3_open(":memory:", &db);
   if( rc==SQLITE_OK ){
-    char *zSql = mprintf("%.*s", n, z);
-    rc = sqlite3_exec(db, zSql, 0, 0, &zErr);
+    rc = sqlite3_exec(db, zSchema, 0, 0, &zErr);
     if( rc!=SQLITE_OK ){
       sqlite3_close(db);
       return zErr;
     }
-    /* TODO: verify that the TICKET table exists and has required fields */
+    rc = sqlite3_exec(db, "SELECT tkt_id, tkt_uuid, tkt_mtime FROM ticket",
+                      0, 0, 0);
     sqlite3_close(db);
+    if( rc!=SQLITE_OK ){
+      zErr = mprintf("schema fails to define a valid ticket table "
+                     "containing all required fields");
+      return zErr;
+    }
   }
   return 0;
 }

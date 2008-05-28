@@ -57,7 +57,7 @@ void tktsetup_page(void){
 }
 
 /* @-comment: ** */
-static char zDefaultTab[] =
+static const char zDefaultTicketTable[] =
 @ CREATE TABLE ticket(
 @   -- Do not change any column that begins with tkt_
 @   tkt_id INTEGER PRIMARY KEY,
@@ -80,13 +80,22 @@ static char zDefaultTab[] =
 ;
 
 /*
+** Return the ticket table definition
+*/
+const char *ticket_table_schema(void){
+  return db_get("ticket-table", (char*)zDefaultTicketTable);
+}
+
+/*
 ** Common implementation for the ticket setup editor pages.
 */
 static void tktsetup_generic(
   const char *zTitle,           /* Page title */
   const char *zDbField,         /* Configuration field being edited */
-  char *zDfltValue,             /* Default text value */
+  const char *zDfltValue,       /* Default text value */
   const char *zDesc,            /* Description of this field */
+  char *(*xText)(const char*),  /* Validitity test or NULL */
+  void (*xRebuild)(void),       /* Run after successulf update */
   int height                    /* Height of the edit box */
 ){
   const char *z;
@@ -100,21 +109,27 @@ static void tktsetup_generic(
     cgi_redirect("tktsetup");
   }
   isSubmit = P("submit")!=0;
-  db_begin_transaction();
   z = P("x");
   if( z==0 ){
-    z = db_get(zDbField, zDfltValue);
+    z = db_get(zDbField, (char*)zDfltValue);
   }
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
     db_unset(zDbField, 0);
+    if( xRebuild ) xRebuild();
     z = zDfltValue;
   }else if( isSubmit ){
-    db_set(zDbField, z, 0);
+    char *zErr = 0;
+    if( xText && (zErr = xText(z))!=0 ){
+      @ <p><font color="red"><b>ERROR: %h(zErr)</b></font></p>
+    }else{
+      db_set(zDbField, z, 0);
+      if( xRebuild ) xRebuild();
+    }
   }
   @ <form action="%s(g.zBaseURL)/%s(g.zPath)" method="POST">
   @ %s(zDesc)
-  @ <textarea name="tab" rows="%d(height)" cols="80">%h(z)</textarea>
+  @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes">
   @ <input type="submit" name="clear" value="Revert To Default">
@@ -125,7 +140,6 @@ static void tktsetup_generic(
   @ <blockquote><pre>
   @ %h(zDfltValue)
   @ </pre></blockquote>
-  db_end_transaction(0);
   style_footer();
 }
 
@@ -141,13 +155,15 @@ void tktsetup_tab_page(void){
   tktsetup_generic(
     "Ticket Table Schema",
     "ticket-table",
-    zDefaultTab,
+    zDefaultTicketTable,
     zDesc,
+    ticket_schema_check,
+    ticket_rebuild,
     20
   );
 }
 
-static char zDefaultCom[] =
+static const char zDefaultTicketCommon[] =
 @ set type_choices {
 @    Code_Defect
 @    Build_Problem
@@ -194,6 +210,13 @@ static char zDefaultCom[] =
 ;
 
 /*
+** Return the ticket common code.
+*/
+const char *ticket_common_code(void){
+  return db_get("ticket-common", (char*)zDefaultTicketCommon);
+}
+
+/*
 ** WEBPAGE: tktsetup_com
 */
 void tktsetup_com_page(void){
@@ -204,13 +227,15 @@ void tktsetup_com_page(void){
   tktsetup_generic(
     "Ticket Common Script",
     "ticket-common",
-    zDefaultCom,
+    zDefaultTicketCommon,
     zDesc,
+    0,
+    0,
     30
   );
 }
 
-static char zDefaultNew[] =
+static const char zDefaultNew[] =
 @ <th1>
 @   if {[info exists submit]} {
 @      set status Open
@@ -287,6 +312,13 @@ static char zDefaultNew[] =
 ;
 
 /*
+** Return the code used to generate the new ticket page
+*/
+const char *ticket_newpage_code(void){
+  return db_get("ticket-newpage", (char*)zDefaultNew);
+}
+
+/*
 ** WEBPAGE: tktsetup_newpage
 */
 void tktsetup_newpage_page(void){
@@ -299,11 +331,13 @@ void tktsetup_newpage_page(void){
     "ticket-newpage",
     zDefaultNew,
     zDesc,
+    0,
+    0,
     40
   );
 }
 
-static char zDefaultView[] =
+static const char zDefaultView[] =
 @ <table cellpadding="5">
 @ <tr><td align="right">Title:</td><td>
 @ $<title>
@@ -343,6 +377,13 @@ static char zDefaultView[] =
 
 
 /*
+** Return the code used to generate the view ticket page
+*/
+const char *ticket_viewpage_code(void){
+  return db_get("ticket-viewpage", (char*)zDefaultView);
+}
+
+/*
 ** WEBPAGE: tktsetup_viewpage
 */
 void tktsetup_viewpage_page(void){
@@ -355,11 +396,13 @@ void tktsetup_viewpage_page(void){
     "ticket-viewpage",
     zDefaultView,
     zDesc,
+    0,
+    0,
     40
   );
 }
 
-static char zDefaultEdit[] =
+static const char zDefaultEdit[] =
 @ <th1>
 @   if {![info exists username]} {set username $login}
 @   if {[info exists submit]} {
@@ -437,6 +480,13 @@ static char zDefaultEdit[] =
 ;
 
 /*
+** Return the code used to generate the edit ticket page
+*/
+const char *ticket_editpage_code(void){
+  return db_get("ticket-editpage", (char*)zDefaultEdit);
+}
+
+/*
 ** WEBPAGE: tktsetup_editpage
 */
 void tktsetup_editpage_page(void){
@@ -449,6 +499,8 @@ void tktsetup_editpage_page(void){
     "ticket-editpage",
     zDefaultEdit,
     zDesc,
+    0,
+    0,
     40
   );
 }
