@@ -429,7 +429,7 @@ void cgi_replace_parameter(const char *zName, const char *zValue){
   for(i=0; i<nUsedQP; i++){
     if( strcmp(aParamQP[i].zName,zName)==0 ){
       aParamQP[i].zValue = zValue;
-      return
+      return;
     }
   }
   cgi_set_parameter_nocopy(zName, zValue);

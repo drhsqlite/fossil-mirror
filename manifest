@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C When\sredirecting\sto\s/xfer,\smake\ssure\sthe\sPATH_INFO\sactually\sexists.\nUpdate\sthe\scgi_replace_parameter()\sroutine\sto\smake\ssure\sthe\sparameter\nbeing\sreplaced\salready\sexists.
-D 2008-05-29T14:37:17
+C Add\sa\smissing\ssemicolon\sto\sthe\sprevious\scheckin.
+D 2008-05-29T14:38:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -42,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c 9a68d3734f84020b1a9ead28cd2753d141497dac
+F src/cgi.c 51ee93303583fecd4980842038c47f4496b6ea48
 F src/checkin.c e7a974d371d6bf8462db46c1b21c8673a0ab716c
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 16ec6e558bf28c73cc0eeab87aa1618091474fdf
-R 9c165efb6d5f4caa3811d018d1f7808e
+P e5b72926206b0659157c3c81b471f84ecab10f86
+R 89ecac39e35c68cee41e0bf10bb2fe19
 U drh
-Z 2ad054d39e918df1791093766e8c5ebb
+Z 3945fba8f5fdf6a3d66a91896afee644
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIPr+goxKgR168RlERAnnGAJ46XGahHJt6YSJOwCYOJFmjGmudlgCdG451
-XrXiAyZpR0PD7UVkuCZzK9U=
-=CqA3
+iD8DBQFIPr/XoxKgR168RlERAhAGAJ4mh62k+BKci5eB1u1nnKG8hheiwQCaA9/F
+OhTK+NgOwqtYT3U+l/zvBvM=
+=r8lG
 -----END PGP SIGNATURE-----
