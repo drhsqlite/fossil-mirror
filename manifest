@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Updates\sto\sthe\s"concepts"\sdocument.
-D 2008-05-29T13:05:08
+C Always\sredirect\sincoming\sHTTP\srequests\sto\sthe\s/xfer\smethod\swhen\sthe\ncontent-type\sis\sapplication/x-fossil.
+D 2008-05-29T14:00:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -42,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c 98e61aaa4c5674a2a27e1591323336346c0d01b1
+F src/cgi.c 7e3878f313d9b6ce92fca9699109143172eaef9e
 F src/checkin.c e7a974d371d6bf8462db46c1b21c8673a0ab716c
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -110,7 +110,7 @@ F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c 5cf6903cd9060e2bce1a11846b1a337e64c07c7a
 F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
-F src/xfer.c 77caa45410664c8d5eeffdc3c7090705ff4dd04b
+F src/xfer.c e9c8669cb155e1542e30bcdeaf7e50aefc420ebf
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 1db8656f68f754caa2af00c1f9fe7c3c7d74916f
-R 7fd753af70d3c20678d8723f1d151a2a
+P 26a2b61dbd76b1043b6970dad4dd03472e1d4f4e
+R 77a1fa33a020fd28731445555cdf692d
 U drh
-Z b64760aee030d873afcc39cc83d2eadb
+Z 7222e2fc90f76a01d3fda86959d98dff
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIPqoHoxKgR168RlERAuGcAJ96ia149W+VnXfBbhvl3Q56qL4HXQCeJBtY
-g+OZN9TqTrdL2RsOlpWtRwE=
-=Dkmq
+iD8DBQFIPrb+oxKgR168RlERAhV/AJ983TJpbLFHuUXr2qyx6Nkg+itPVACeObtT
+bVLyP9nXN6SrxCXrIh5cX4c=
+=uGww
 -----END PGP SIGNATURE-----

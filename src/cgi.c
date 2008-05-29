@@ -697,8 +697,16 @@ void cgi_init(void){
     }else if( strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
+      /* If the content type is application/x-fossil, then ignore
+      ** the path in the first line of the HTTP header and always
+      ** use the /xfer method since the /xfer method is the only
+      ** method that understands the application/x-fossil content
+      ** type.
+      */
+      cgi_replace_parameter("PATH_INFO", "/xfer");
     }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+      cgi_replace_parameter("PATH_INFO", "/xfer");  /* See comment above */
     }
   }
 

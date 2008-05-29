@@ -489,6 +489,12 @@ static void send_all(Xfer *pXfer){
 static int disableLogin = 0;
 
 /*
+** The CGI/HTTP preprocessor always redirects requests with a content-type
+** of application/x-fossil or application/x-fossil-debug to this page,
+** regardless of what path was specified in the HTTP header.  This allows
+** clone clients to specify a URL that omits default pathnames, such
+** as "http://fossil-scm.morg/" instead of "http://fossil-scm.org/index.cgi".
+**
 ** WEBPAGE: xfer
 **
 ** This is the transfer handler on the server side.  The transfer
