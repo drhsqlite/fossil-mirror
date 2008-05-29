@@ -8,7 +8,7 @@ distributed software revision control system</a> that includes an integrated
 <a href="http://en.wikipedia.org/wiki/Bugtracker">
 bug-tracking system</a> all in a single easy-to-use stand-alone
 executable.
-(NB: The bug-tracker component is still not completely functional yet, but
+(NB: The bug-tracker component is not yet completely functional, but
 we expect it to be available soon.)
 Fossil is
 <a href="http://www.fossil-scm.org/fossil/timeline">self-hosting</a>
@@ -89,7 +89,7 @@ Fossil attempts to better capture "collective intelligence" and
 <li>The <a href="concepts.wiki">concepts</b> behind fossil</li>
 <li><a href="build.wiki">Building And Installing</a></li>
 <li><a href="quickstart.wiki">Quick Start</a> guide to using fossil
-<li>Fossil support <a href="embeddeddoc.wiki">embedded documentation</a>
+<li>Fossil supports <a href="embeddeddoc.wiki">embedded documentation</a>
     that is versioned along with project source code.</li>
 <li>The <a href="selfcheck.wiki">automatic self-check</a> mechanism
 helps insure project integrity.</li>

@@ -1,6 +1,6 @@
 <h1>Managing Project Documentation</h1>
 
-Fossil provides a built-in wiki which can be used to store the
+Fossil provides a built-in [/wiki | wiki] that can be used to store the
 documentation for a project.  This is sufficient for many projects.
 If your project is well-served by wiki documentation, then you
 need read no further.
@@ -51,7 +51,8 @@ version of the documentation.  The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
 from the any versioned baseline.  The "<b>ckout</b>" keyword normally
 only works when you start your server using the "<b>fossil server</b>"
-command line and is intented to show what the documenation you are currently
+or "<b>fossil ui</b>"
+command line and is intented to show what the documentation you are currently
 editing looks like before you check it in.
 
 Finally, the <i>&lt;filename&gt;</i> element of the URL is the full
