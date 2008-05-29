@@ -246,6 +246,8 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(2, 'comment');         -- TAG_COMMENT
 @ INSERT INTO tag VALUES(3, 'user');            -- TAG_USER
 @ INSERT INTO tag VALUES(4, 'hidden');          -- TAG_HIDDEN
+@ INSERT INTO tag VALUES(5, 'private');         -- TAG_PRIVATE
+@ INSERT INTO tag VALUES(6, 'cluster');         -- TAG_CLUSTER
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -262,16 +264,27 @@ const char zRepositorySchema2[] =
 @   UNIQUE(rid, tagid)
 @ );
 @ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
+@
+@ -- Template for the TICKET table
+@ --
+@ CREATE TABLE ticket(
+@   tkt_id INTEGER PRIMARY KEY,
+@   tkt_uuid TEXT,
+@   tkt_mtime REAL,
+@   UNIQUE(tkt_uuid, tkt_mtime)
+@ );
 ;
 
 /*
 ** Predefined tagid values
 */
 #if INTERFACE
-# define TAG_BGCOLOR    1
-# define TAG_COMMENT    2
-# define TAG_USER       3
-# define TAG_HIDDEN     4
+# define TAG_BGCOLOR    1     /* Set the background color for display */
+# define TAG_COMMENT    2     /* The check-in comment */
+# define TAG_USER       3     /* User who made a checking */
+# define TAG_HIDDEN     4     /* Do not display or sync */
+# define TAG_PRIVATE    5     /* Display but do not sync */
+# define TAG_CLUSTER    6     /* A cluster */
 #endif
 
 /*

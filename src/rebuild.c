@@ -188,6 +188,7 @@ int rebuild_db(int randomize, int doOut){
   }
   db_multi_exec(zRepositorySchema2);
   ticket_create_table(0);
+  shun_artifacts();
 
   db_multi_exec(
      "INSERT INTO unclustered"

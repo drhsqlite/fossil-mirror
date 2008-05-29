@@ -80,7 +80,7 @@ static int rid_from_uuid(Blob *pUuid, int phantomize){
 ** of the file rid.
 */
 static void remote_has(int rid){
-  db_multi_exec("INSERT OR IGNORE INTO onremote VALUES(%d)", rid);
+  if( rid ) db_multi_exec("INSERT OR IGNORE INTO onremote VALUES(%d)", rid);
 }
 
 /*
@@ -119,7 +119,7 @@ static void xfer_accept_file(Xfer *pXfer){
   blob_zero(&content);
   blob_zero(&hash);
   blob_extract(pXfer->pIn, n, &content);
-  if( db_exists("SELECT 1 FROM shun WHERE uuid=%B", &pXfer->aToken[1]) ){
+  if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
     return;
   }
@@ -193,6 +193,8 @@ static int send_delta_parent(
     size = blob_size(&delta);
     if( size>=blob_size(pContent)-50 ){
       size = 0;
+    }else if( uuid_is_shunned(zUuid) ){
+      size = 0;
     }else{
       blob_appendf(pXfer->pOut, "file %b %s %d\n", pUuid, zUuid, size);
       blob_append(pXfer->pOut, blob_buffer(&delta), size);
@@ -222,11 +224,15 @@ static int send_delta_native(
 
   srcId = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", rid);
   if( srcId>0 ){
+    blob_zero(&src);
+    db_blob(&src, "SELECT uuid FROM blob WHERE rid=%d", srcId);
+    if( uuid_is_shunned(blob_str(&src)) ){
+      blob_reset(&src);
+      return 0;
+    }
     blob_zero(&delta);
     db_blob(&delta, "SELECT content FROM blob WHERE rid=%d", rid);
     blob_uncompress(&delta, &delta);
-    blob_zero(&src);
-    db_blob(&src, "SELECT uuid FROM blob WHERE rid=%d", srcId);
     blob_appendf(pXfer->pOut, "file %b %b %d\n",
                 pUuid, &src, blob_size(&delta));
     blob_append(pXfer->pOut, blob_buffer(&delta), blob_size(&delta));
@@ -256,12 +262,21 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
      return;
   }
   blob_zero(&uuid);
-  if( pUuid==0 ){
-    db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d AND size>=0", rid);
-    if( blob_size(&uuid)==0 ){
+  db_blob(&uuid, "SELECT uuid FROM blob WHERE rid=%d AND size>=0", rid);
+  if( blob_size(&uuid)==0 ){
+    return;
+  }
+  if( pUuid ){
+    if( blob_compare(pUuid, &uuid)!=0 ){
+      blob_reset(&uuid);
       return;
     }
+  }else{
     pUuid = &uuid;
+  }
+  if( uuid_is_shunned(blob_str(pUuid)) ){
+    blob_reset(&uuid);
+    return;
   }
   if( pXfer->mxSend<=blob_size(pXfer->pOut) ){
     blob_appendf(pXfer->pOut, "igot %b\n", pUuid);
@@ -419,6 +434,7 @@ static void create_cluster(void){
                  " WHERE NOT EXISTS(SELECT 1 FROM phantom"
                  "                   WHERE rid!=unclustered.rid)"
                  "   AND unclustered.rid=blob.rid"
+                 "   AND NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
                  " ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(&cluster, "M %s\n", db_column_text(&q, 0));
@@ -456,7 +472,10 @@ static int send_unclustered(Xfer *pXfer){
 */
 static void send_all(Xfer *pXfer){
   Stmt q;
-  db_prepare(&q, "SELECT uuid FROM blob");
+  db_prepare(&q, 
+    "SELECT uuid FROM blob "
+    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+  );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
   }
@@ -853,11 +872,6 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
     printf(zValueFormat, "Send:",
             blob_size(&send), nCard+xfer.nGimmeSent+xfer.nIGotSent,
             xfer.nFileSent, xfer.nDeltaSent);
-#if 0
-    printf("Sent:      %10d bytes, %5d cards, %5d files (%d+%d)\n",
-            blob_size(&send), nCard+xfer.nGimmeSent+xfer.nIGotSent,
-            nFileSend, xfer.nFileSent, xfer.nDeltaSent);
-#endif
     nCard = 0;
     xfer.nFileSent = 0;
     xfer.nDeltaSent = 0;
@@ -909,7 +923,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
       ){
         if( pushFlag ){
           int rid = rid_from_uuid(&xfer.aToken[1], 0);
-          send_file(&xfer, rid, &xfer.aToken[1], 0);
+          if( rid ) send_file(&xfer, rid, &xfer.aToken[1], 0);
         }
       }else
   
@@ -928,7 +942,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
         int rid = rid_from_uuid(&xfer.aToken[1], 0);
         if( rid==0 && (pullFlag || cloneFlag) ){
           rid = content_new(blob_str(&xfer.aToken[1]));
-          newPhantom = 1;
+          if( rid ) newPhantom = 1;
         }
         remote_has(rid);
       }else

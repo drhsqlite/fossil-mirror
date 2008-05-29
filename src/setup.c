@@ -76,6 +76,8 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
+  setup_menu_entry("Shunned", "shun",
+    "Show artifacts that are shunned by this repository");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
   @ </table>

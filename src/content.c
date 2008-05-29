@@ -496,6 +496,9 @@ int content_new(const char *zUuid){
   
   assert( g.repositoryOpen );
   db_begin_transaction();
+  if( uuid_is_shunned(zUuid) ){
+    return 0;
+  }
   db_static_prepare(&s1,
     "INSERT INTO blob(rcvid,size,uuid,content)"
     "VALUES(0,-1,:uuid,NULL)"

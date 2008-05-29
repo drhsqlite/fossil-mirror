@@ -825,6 +825,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     }
   }
   if( m.type==CFTYPE_CLUSTER ){
+    tag_insert("cluster", 1, 0, rid, m.rDate, rid);
     for(i=0; i<m.nCChild; i++){
       int mid;
       mid = uuid_to_rid(m.azCChild[i], 1);
@@ -842,16 +843,18 @@ int manifest_crosslink(int rid, Blob *pContent){
       }else{
         tid = rid;
       }
-      switch( m.aTag[i].zName[0] ){
-        case '+':  type = 1; break;
-        case '*':  type = 2; break;
-        case '-':  type = 0; break;
-        default:
-          fossil_fatal("unknown tag type in manifest: %s", m.aTag);
-          return 0;
+      if( tid ){
+        switch( m.aTag[i].zName[0] ){
+          case '+':  type = 1; break;
+          case '*':  type = 2; break;
+          case '-':  type = 0; break;
+          default:
+            fossil_fatal("unknown tag type in manifest: %s", m.aTag);
+            return 0;
+        }
+        tag_insert(&m.aTag[i].zName[1], type, m.aTag[i].zValue, 
+                   rid, m.rDate, tid);
       }
-      tag_insert(&m.aTag[i].zName[1], type, m.aTag[i].zValue, 
-                 rid, m.rDate, tid);
     }
     if( parentid ){
       tag_propagate_all(parentid);
@@ -878,8 +881,8 @@ int manifest_crosslink(int rid, Blob *pContent){
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,brbgcolor,euser,ecomment)"
       "VALUES('w',%.17g,%d,%Q,%Q,"
-      " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
-      "(SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype!=1),"
+      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
+      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype!=1),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
       m.rDate, rid, m.zUser, zComment, 

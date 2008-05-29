@@ -50,6 +50,7 @@ set src {
   schema
   setup
   sha1
+  shun
   stat
   style
   sync

@@ -676,7 +676,7 @@ static void object_description(int rid, int linkToView){
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
     @ Wiki page
-    @ [<a href="%s(g.zBaseURL)/wiki?page=%t(zPagename)">%h(zPagename)</a>]
+    @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
     @ uuid %s(zUuid) by %h(zUser) on %s(zDate)
     nWiki++;
     cnt++;
@@ -769,15 +769,15 @@ void artifact_page(void){
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( g.zPath[0]=='i' ){
-    if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
-                  " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
-      winfo_page();
-      return;
-    }
-    if( db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
-      vinfo_page();
-      return;
+  if( rid==0 ){ cgi_redirect("/home"); }
+  if( g.okAdmin ){
+    const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+            g.zTop, zUuid);
+    }else{
+      style_submenu_element("Shun","Shun", "%s/shun?uuid=%s&add=1",
+            g.zTop, zUuid);
     }
   }
   style_header("Artifact Content");
@@ -829,6 +829,10 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
     finfo_page();
+  }else
+  if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
+                " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
+    winfo_page();
   }else
   {
     artifact_page();
