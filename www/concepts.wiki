@@ -1,3 +1,4 @@
+<nowiki>
 <h1 align="center">
 Fossil Concepts
 </h1>
@@ -183,7 +184,7 @@ is identified by your VISUAL environment variable.  Fossil will also
 use GPG to clearsign your manifests if you happen to have it installed,
 but fossil will skip that step if GPG missing from your system.
 You can optionally set up fossil to use external "diff" programs, 
-though a perfectly functional "diff" algorithm is built it and works
+though SQLite has an excellent built-in "diff" algorithm that works
 fine for most people.</p>
 
 <p>To uninstall fossil, simply delete the executable.</p>
@@ -194,7 +195,7 @@ run a one-time command to restructure your repositories after
 an upgrade.  Check the instructions that come with the upgrade
 for details.</p>
 
-<p>To use fossil, simply type the name of executable in your
+<p>To use fossil, simply type the name of the executable in your
 shell, followed by one of the various built-in commands and
 arguments appropriate for that command.  For example:</p>
 
@@ -209,6 +210,30 @@ token after the name of the fossil executable, as shown above.</p>
 <h2>4.0 Workflow</h2>
 
 <img src="concept2.gif" align="right" hspace="10">
+
+<p>Fossil has two modes of operation: "autosync" and "non-autosync".
+Autosync mode works something like CVS or SVN in that it automatically
+keeps your work in sync with the central server.  Non-autosync is
+more like GIT, or Bitkeeper in that your local repository develops
+independently of your coworkers and you share your changes manually.
+The interesting thing about fossil is that it supports both autosync
+and non-autosync work flows.</p>
+
+<p>The default setting for fossil is to be in autosync mode.  You
+can change the autosync setting or check the current autosync
+setting using commands like:</p>
+
+<blockquote>
+<b>fossil setting autosync on<br>
+fossil setting autosync off<br>
+<b>fossil settings</b>
+</blockquote>
+
+<p>By default, fossil runs with autosync mode turned on.  The
+authors find that projects run more smoothly when autosync is only
+disabled when off-network.</p>
+
+<h3>4.1 Autosync Workflow</h3>
 
 <ol>
 <li><p>
@@ -225,10 +250,76 @@ argument.
 </p></li>
 
 <li><p>
-Use the <b>update</b> command followed by a UUID to cause your
-source tree to change to the baseline identified by that UUID.
-The <b>timeline</b> or <b>leaves</b> commands might help you to
-identify an appropriate baseline.
+The <b>open</b> command in the previous step populates your local source
+tree with a copy of the latest baseline.  Usually this is what you want.
+In the rare cases where it is not, use the <b>update</b> command to
+switch to a new baseline.  Use the <b>timeline</b> or <b>leaves</b> commands
+to identify alternative baselines to switch to.
+</p></li>
+
+<li><p>
+Edit the code.  Add new files to the source tree using the <b>add</b>
+command.  Omit files from future baselines using the <b>rm</b> command.
+(Even when you remove files from future baselines, those files continue
+to exist in historical baselines.)  Test your changes.
+</p></li>
+
+<li><p>
+Create a new baseline using the <b>commit</b> command.  You will be prompted
+for a check-in comment and also for your GPG key if you have GPG installed.
+The commit copies the edits you have made in your local source
+tree into your local repository.  After your commit completes, fossil will
+automatically <b>push</b> your changes back to the server
+you cloned from or whatever server you most recently synced with.
+</p></li>
+
+<li><p>
+When your coworkers make their own changes, you can merge those changes
+into your local local source tree using the <b>update</b> command.  
+In autosync mode, <b>update</b> will first go back to the server you
+cloned from or with which you most recently synced, and pull down all
+recent changes into your local repository.  Then it will merge recent
+changes into your local source tree.  If you do an <b>update</b> and
+find that it messes something up in your source tree (perhaps a co-worker
+checked in incompatible changes) you can use the <b>undo</b> command 
+to back out the changes.
+</p></li>
+
+<li><p>
+Repeat all of the above until you have generated great software.
+</p></li>
+</ol>
+
+<h3>4.2 Non-Autosync Workflow</h3>
+
+<p>When autosync is disabled, the <b>commit</b> command is decoupled from
+<b>push</b> and the <b>update</b> command is decoupled from <b>pull</b>.
+That means you have to do a few extra steps in order to accomplish the
+<b>push</b> and <b>pull</b> tasks manually.</p>
+
+<ol>
+<li><p>
+Establish a local repository using either the <b>new</b> command
+to start a new project, or the <b>clone</b> command to make a clone
+of a repository for an existing project.   The default setting for
+a new repository is with autosync on, so you will need to turn it off
+using the <b>setting autosync off</b> command with a <b>-R</b> option
+to specify the repository.
+</p></li>
+
+<li><p>
+Establish one or more source trees by changing your working directory
+to where you want the root of the source tree to be, then issuing
+the <b>open</b> command with the name of the repository file as its
+argument.
+</p></li>
+
+<li><p>
+The <b>open</b> command in the previous step populates your local source
+tree with a copy of the latest baseline.  Usually this is what you want.
+In the rare cases where it is not, use the <b>update</b> command to
+switch to a new baseline.  Use the <b>timeline</b> or <b>leaves</b> commands
+to identify alternative baselines to switch to.
 </p></li>
 
 <li><p>
@@ -245,67 +336,29 @@ The commit copies the edits you have made in your local source
 tree into your local repository.
 </p></li>
 
-<li><p>
-Share your changes with others using the <b>push</b> command. 
-Push causes the edits you committed into your local repository to be
-pushed out into other repositories.
+<li><p>Use the <b>push</b> command to push your changes out to a server
+where your co-workers can access them.
 </p></li>
 
 <li><p>
-When your coworkers make their own changes, you can pull those changes
-into your local repository using the <b>pull</b> command.   Note that
-the pull command only pulls the changes into your local repository,
-not into your local source tree.
+When co-workers make their own changes, use the <b>pull</b> command
+to pull those changes into your local repository.  Note that <b>pull</b>
+does not move the changes into your local source tree, only into your
+local repository.
 </p></li>
 
 <li><p>
-After the changes of others are in your local repository, you 
-can move them into your local source tree using <b>update</b>.  If 
-you have made parallel
-changes, you can merge your changes together with your coworkers changes
-by do an <b>update</b> to your latest baseline, then doing a
-<b>merge</b> with your coworkers latest baseline.  After your
-verify that the merged code is still functional, you can <b>commit</b>
-a new baseline that contains both yours and your coworkers changes
-and then push the new baseline back to your coworker.
+Once changes are in your local repository, use
+use the <b>update</b> command to merge them to your local source tree.
+If you merge in some changes and find that the changes do not work out
+or are not to your liking, you can back out the changes using the
+<b>undo</b> command.
 </p></li>
 
 <li><p>
 Repeat all of the above until you have generated great software.
 </p></li>
 </ol>
-
-<h3>4.1 Variations</h3>
-
-<p>The <b>settings</b> lets you view and modify various operating
-properties of fossil.  Among the available settings is "autosync"
-mode.  When autosync is enabled, the push and pull of content from
-your local server is largely automated.  Whenever you use the <b>update</b>
-command, fossil first does a <b>pull</b> to see if other users have
-perhaps added new baselines to the central repository.  When you
-<b>commit</b>, fossil also does a <b>pull</b> and issues a warning
-if your check-in would cause a fork.  After a <b>commit</b>, fossil
-automatically does a <b>push</b> to send your changes up to the
-central server.</p>
-
-<p>With autosync enabled, fossil works like
-<a href="http://www.nongnu.org/cvs/">CVS</a> or 
-<a href="http://subversion.tigris.org/">Subversion</a>.
-When autosync disabled, fossil works more like
-<a href="http://monotone.ca/">Monotone</a>, 
-<a href="http://git.or.cz">GIT</a>, or
-<a href="http://www.selenic.com/mercurial/wiki/">Mercurial</a>.
-The fun thing about fossil is that it will work either
-way, depending on your needs of the moment.  You can freely switch
-between these operating modes using commands like:</p>
-
-<blockquote>
-<b>fossil setting autosync off<br />
-fossil setting autosync on</b>
-</blockquote>
-
-<p>For additional information about autosync and other settings
-using the <b>help</b> command.</p>
 
 <h2>5.0 Setting Up A Fossil Server</h2>
 
@@ -370,3 +423,19 @@ Since fossil is a stand-alone program, you do not need to put anything
 in the chroot jail with fossil in order for it to do its job.</p>
 </li>
 </ol>
+
+<h2>6.0 Review Of Key Concepts</h2>
+
+<ul>
+<li>The <b>fossil</b> program is a self-contained stand-alone executable.
+    Just put it somewhere on your PATH to install it.</li>
+<li>Use the <b>clone</b> or <b>new</b> commands to create a new repository.</li>
+<li>Use the <b>open</b> command to create a new source tree.</li>
+<li>Use the <b>add</b> and <b>rm</b> or <b>delete</b> commands to add and
+    remove files from the local source tree.</li>
+<li>Use the <b>commit</b> command to create a new baseline.</li>
+<li>Use the <b>update</b> command to merge in changes from others.</li>
+<li>The <b>push</b> and <b>pull</b> commands can be used to share changes
+    manually, but these things happen automatically in the default
+    autosync mode.</li>
+</ul>
