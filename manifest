@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\smissing\ssemicolon\sto\sthe\sprevious\scheckin.
-D 2008-05-29T14:38:13
+C Fix\san\sassert\sin\sthe\srebuild\scommand.
+D 2008-06-02T09:54:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -79,7 +79,7 @@ F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c 701e9dff448a8485408285e9a6513fa31860e16a
+F src/rebuild.c ec319a870049957ccd63eef8995615e70fe623c7
 F src/report.c 5e81235a0028f1c9877bce59d6752ed84e2fbb90
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f558a43ecd5c39ed4b9a9ff208ae61fafa921280
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P e5b72926206b0659157c3c81b471f84ecab10f86
-R 89ecac39e35c68cee41e0bf10bb2fe19
+P 5b61ad3a4c7c9f2961fe9d4e3b91695b06cb4a4f
+R 75b5f6bf71cdb4db075d1187861b6f20
 U drh
-Z 3945fba8f5fdf6a3d66a91896afee644
+Z 317ce9af1e93bd5aaf6c21178c3792ab
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIPr/XoxKgR168RlERAhAGAJ4mh62k+BKci5eB1u1nnKG8hheiwQCaA9/F
-OhTK+NgOwqtYT3U+l/zvBvM=
-=r8lG
+iD8DBQFIQ8NjoxKgR168RlERAqlHAJ4z06jO90i196e3Mc0po1wqcm+BbQCfX6vD
+d6TuFzD9uezmgDTEZDda18w=
+=RluY
 -----END PGP SIGNATURE-----

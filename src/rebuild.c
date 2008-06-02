@@ -76,7 +76,7 @@ static Bag bagDone;         /* Bag of records rebuilt */
 ** Called after each artifact is processed
 */
 static void rebuild_step_done(rid){
-  assert( bag_find(&bagDone, rid)==0 );
+  /* assert( bag_find(&bagDone, rid)==0 ); */
   bag_insert(&bagDone, rid);
   if( ttyOutput ){
     processCnt++;
