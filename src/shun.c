@@ -111,6 +111,7 @@ void shun_page(void){
   db_finalize(&q);
   @ </blockquote>
   @ <hr>
+  @ <a name="addshun"></a>
   @ <p>To shun an artifact, enter its UUID in the
   @ following box and press the "Shun" button.  This will cause the artifact
   @ to be removed from the repository and will prevent the artifact from being
@@ -125,7 +126,7 @@ void shun_page(void){
   @ 
   @ <blockquote>
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
-  @ <input type="text" name="uuid" size="50">
+  @ <input type="text" name="uuid" value="%h(PD("shun",""))" size="50">
   @ <input type="submit" name="add" value="Shun">
   @ </form>
   @ </blockquote>

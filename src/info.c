@@ -776,7 +776,7 @@ void artifact_page(void){
       style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
-      style_submenu_element("Shun","Shun", "%s/shun?uuid=%s&add=1",
+      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
             g.zTop, zUuid);
     }
   }

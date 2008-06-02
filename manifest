@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\san\sassert\sin\sthe\srebuild\scommand.
-D 2008-06-02T09:54:38
+C Clicking\sthe\s"Shun"\ssubmenu\sdoes\snot\sshun\simmediately,\sbut\sonly\stakes\nyou\sto\sthe\spage\swhere\syou\scan\sclick\sthe\s"shun"\sbutton.
+D 2008-06-02T15:01:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c ba88baf4c2a175d42762d218a7d5d4b24697e45a
+F src/info.c de0ea7fc4aefb3510f7ee734cb8c78f68474ef94
 F src/login.c 43d8acf6c202dab795dd114d949a040be2310cc1
 F src/main.c 96c79d2faae1c45e1e72e6bfe088899c992b16f0
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
@@ -85,7 +85,7 @@ F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f558a43ecd5c39ed4b9a9ff208ae61fafa921280
 F src/setup.c 020ff2a0d62a3d29a1159d92df19b0ca58d56191
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/shun.c 935c21e13e8b974e45c0090190ced4fb76befc48
+F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 5b61ad3a4c7c9f2961fe9d4e3b91695b06cb4a4f
-R 75b5f6bf71cdb4db075d1187861b6f20
+P cfb1341ae3d84744262cfd682be88549db0f3a47
+R 64cb740152e6f8526ff9c18750d29311
 U drh
-Z 317ce9af1e93bd5aaf6c21178c3792ab
+Z e8a5b19bc461647dc913e6e0ff6435cf
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIQ8NjoxKgR168RlERAqlHAJ4z06jO90i196e3Mc0po1wqcm+BbQCfX6vD
-d6TuFzD9uezmgDTEZDda18w=
-=RluY
+iD8DBQFIRAtmoxKgR168RlERAjlbAKCKwu6LTnusaAJbjEWOoEzs15TsFgCdHuhx
+/csGCo9hrLdtcsmh6FU0Nd4=
+=+IPd
 -----END PGP SIGNATURE-----
