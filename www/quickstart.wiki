@@ -37,7 +37,7 @@ and painlessly.</p>
     this way:</p>
     
     <blockquote>
-    <b>fossil clone http://www.fossil-scm.org/fossil myclone.fossil</b>
+    <b>fossil clone http://www.fossil-scm.org/ myclone.fossil</b>
     </blockquote>
 
     <p>The new local copy of the respository is stored in a single file,
@@ -61,14 +61,14 @@ and painlessly.</p>
     
     <p>When you create a new repository, either by cloning an existing
     project or create a new project of your own, you usually want to do some
-    local configuration.  This is accomplished using a webbrowser.  First
-    start a fossil webserver like this:</p>
+    local configuration.  This is easily accomplished using the webserver
+    that is built into fossil.  Start the fossil webserver like this:</p>
     
     <blockquote>
     <b>fossil ui </b><i> repository-filename</i>
     </blockquote>
 
-    <p>This creates a mini-webserver listening on port 8080.  You can
+    <p>This creates starts webserver listening on port 8080.  You can
     specify a different port using the <b>-port</b> option on the command-line.
     After the server is running, fossil will then attempt to launch your
     web browser and make it point to this web server.  If your system

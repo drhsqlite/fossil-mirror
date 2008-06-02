@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Clicking\sthe\s"Shun"\ssubmenu\sdoes\snot\sshun\simmediately,\sbut\sonly\stakes\nyou\sto\sthe\spage\swhere\syou\scan\sclick\sthe\s"shun"\sbutton.
-D 2008-06-02T15:01:53
+C Documentation\stweaks.
+D 2008-06-02T15:18:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -178,7 +178,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/build.wiki 75b978c24ac6b92aa888f90d99c8ac64d090d23f
+F www/build.wiki 5ba110240ed19d8b2b44b12a1e9e65b5b01fd946
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 80e20555614e5567d3a451a890fa89faddf6118e
@@ -202,21 +202,21 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
-F www/index.wiki da0f0aa6135d7d6a8f0ca26bacbf88a0483957b1
+F www/index.wiki 0332519f4d138e21027f06087282932efda07dc4
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/quickstart.wiki ca1d98afc167150c4f5844f6b4424450b9251a0c
+F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P cfb1341ae3d84744262cfd682be88549db0f3a47
-R 64cb740152e6f8526ff9c18750d29311
+P 94a93469c8b7bcac34c7f810e0f26f31bcc3b30f
+R 6d3335c195703337a05325f7706f7e67
 U drh
-Z e8a5b19bc461647dc913e6e0ff6435cf
+Z 6a6be3ffe530fd381e06319f474d77b8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIRAtmoxKgR168RlERAjlbAKCKwu6LTnusaAJbjEWOoEzs15TsFgCdHuhx
-/csGCo9hrLdtcsmh6FU0Nd4=
-=+IPd
+iD8DBQFIRA9UoxKgR168RlERAoOKAJ4okY/QA/O07DqhP+Xgj/F7phn61QCfWMMW
+zqxAuP1TEvgxVh+XRidq+V4=
+=C+eb
 -----END PGP SIGNATURE-----

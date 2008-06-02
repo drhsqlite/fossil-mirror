@@ -14,7 +14,7 @@ Fossil is
 <a href="http://www.fossil-scm.org/fossil/timeline">self-hosting</a>
 since 2007-07-21 on
 <a href="http://www.hwaci.com/cgi-bin/fossil/timeline">two separate servers</a>.
-You can download the lastest sources
+You can download the lastest sources and
 compile it yourself using the instructions below.
 Or you can grab
 <a href="http://www.fossil-scm.org/download.html">precompiled binaries</a>.
@@ -93,9 +93,7 @@ Fossil attempts to better capture "collective intelligence" and
     that is versioned along with project source code.</li>
 <li>The <a href="selfcheck.wiki">automatic self-check</a> mechanism
 helps insure project integrity.</li>
-<li>The <a href="http://www.fossil-scm.org/fossil/wiki">self-hosting
-    fossil wiki</a>, capable of hosting static pages and community-editable wiki
-    content.</li>
+<li>Fossil contains a [/wiki | built-in wiki].</li>
 <li>There is a
     <a href="http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users">
     mailing list</a> available for discussing fossil issues.</li>

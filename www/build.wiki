@@ -18,9 +18,9 @@ a snapshot of the latest version directly from fossil's own fossil
 repository.  Follow these steps:</p>
 
 <ol>
-<li><p>Pointer your webbrowser at
-<a href="http://www.fossil-scm.org/fossil/login">
-http://www.fossil-scm.org/fossil/login</a>.</p></li>
+<li><p>Pointer your web browser at
+<a href="http://www.fossil-scm.org/">
+http://www.fossil-scm.org/</a>.  Click on the "Login" menu button.</p></li>
 
 <li><p>Log in as anonymous.  The password is shown on screen.
 The reason for requiring this login is to prevent spiders from
