@@ -350,6 +350,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
+  if( db_get_boolean("clearsign", 1)==0 ){ noSign = 1; }
   verify_all_options();
 
   /*

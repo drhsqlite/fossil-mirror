@@ -1115,8 +1115,9 @@ static void print_setting(const char *zName){
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
 **
-**    omitsign         When enabled, fossil will not attempt to sign any
-**                     commit with gpg. All commits will be unsigned.
+**    clearsign        When enabled (the default), fossil will attempt to
+**                     sign all commits with gpg.  When disabled, commits will
+**                     be unsigned.
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
@@ -1138,7 +1139,7 @@ void setting_cmd(void){
     "editor",
     "gdiff-command",
     "localauth",
-    "omitsign",
+    "clearsign",
     "pgp-command",
     "proxy",
     "web-browser",

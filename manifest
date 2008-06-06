@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sto\sthe\somitsign\ssetting.
-D 2008-06-06T20:05:06
+C Change\sthe\s"omitsign"\ssetting\sinto\s"clearsign"\sand\sinvert\sits\ssense.
+D 2008-06-06T20:11:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -43,7 +43,7 @@ F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 51ee93303583fecd4980842038c47f4496b6ea48
-F src/checkin.c 34b5cd0ba44e3546c37bd2c54f0fd40c1d077a4e
+F src/checkin.c 2acc611edaa9ee2123b910c9d538341d2d1f1f42
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c c6002c394584e673248eddaae51a4329d607397e
-F src/db.c c256ad6ad7d2710cc4c43b8b86cab44f8290c821
+F src/db.c c9e7ddf532f150045e8f4dd29d474a49bf1f4873
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 42ed55e82fcedfc25d4ddac9649bd9af0c4e41c1
-R 65e82ac75647fa614c8086cfe4494817
+P 417e7662e5232e58af3cabcc81f6294a24239d66
+R 0eb942e42c2e07e5d1450911a658c106
 U drh
-Z b8d5fbb6f3a979ff88924656a552343b
+Z bf11e0bb358fd39fa73b17b2bc690a49
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFISZh3oxKgR168RlERAluwAJ9Ve5kOa1nTPFxjmpE0ORRpecPRwACdHjrt
-LE7Q7VLR86izBtq+psA+W2w=
-=hW/D
+iD8DBQFISZnroxKgR168RlERAplVAJ4jzAE5mN1RnsVkE223aoB7ndX+eQCbBJd3
+Wc3GBbbcyNBxtlZeg6FIlsI=
+=UgDE
 -----END PGP SIGNATURE-----
