@@ -247,6 +247,9 @@ static void prepare_commit_comment(Blob *pComment){
   }
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                    g.zLocalRoot);
+#ifdef __MINGW32__
+  blob_add_cr(&text);
+#endif
   blob_write_to_file(&text, zFile);
   zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
@@ -255,6 +258,7 @@ static void prepare_commit_comment(Blob *pComment){
   }
   blob_reset(&text);
   blob_read_from_file(&text, zFile);
+  blob_remove_cr(&text);
   unlink(zFile);
   free(zFile);
   blob_zero(pComment);

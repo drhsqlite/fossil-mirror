@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bug\sfix\sin\swiki\srendering.\s\sAvoid\sterminating\sthe\soutput\swhen\san\nan\sunrecognized\smarkup\sattribute\sappears\sinside\s&lt;verbatim&gt;.
-D 2008-06-08T16:19:14
+C Use\scr/nl\sinstead\sof\sjust\snl\sat\sthe\send\sof\severy\sline\son\sthe\scheck-in\scomment\ntemplate\sfor\swindows.\s\sStrip\sout\sthe\scr\scharacters\sbefore\scompleting\sthe\ncommit.
+D 2008-06-08T19:31:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -39,11 +39,11 @@ F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c e817fb01ea56beb5630b6d40042df3b34f7bc6cf
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
-F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
+F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 5d10f16d564448bfd4a871f8788fd26a3f92f31b
-F src/checkin.c 2acc611edaa9ee2123b910c9d538341d2d1f1f42
+F src/checkin.c e9356000f02b6d591cc166b1573dc01e40d1b18d
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P dcc48662f838417842f182972517e785e2f3d444
-R 90ff8ac587f6cfd5de9366ad61423739
+P 71104b898d05fe56419b9a600febe0cacca8a570
+R 3350302bd99fd74ec0cbb158a4fb8c53
 U drh
-Z fc376e101692e9d3a29b4604330a29b8
+Z f8b8eee23e384391862453ea650aeec6
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFITAaFoxKgR168RlERApNCAKCLXFKtIDW6Dq8qvQ8xdvpGlzrPLACdEQBq
-TcghE2WoNQ/llWd1zFt77sQ=
-=I9Tl
+iD8DBQFITDOUoxKgR168RlERAmh5AJ439XFAdK0W+ZVtf6Hbc7ESbcKKgACfSEij
+PMu+S/vcl6bbbBPNfSUX4nk=
+=RhfF
 -----END PGP SIGNATURE-----

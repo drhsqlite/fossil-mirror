@@ -837,3 +837,44 @@ void test_cycle_compress(void){
   }
   printf("ok\n");
 }
+
+/*
+** Convert every \n character in the given blob into \r\n.
+*/
+void blob_add_cr(Blob *p){
+  int i, j, n;
+  char *z = p->aData;
+  for(i=n=0; i<p->nUsed; i++){
+    if( z[i]=='\n' ) n++;
+  }
+  if( p->nUsed+n+1>p->nAlloc ){
+    blob_resize(p, p->nUsed+n);
+    z = p->aData;
+  }
+  i = p->nUsed - 1;
+  j = i + n;
+  while( j>i ){
+    z[j--] = z[i];
+    if( z[i]=='\n' ){
+      z[j--] = '\r';
+    }
+    i--;
+  }
+  p->nUsed += n;
+  p->aData[p->nUsed] = 0;
+}
+
+/*
+** Remove every \r character from the given blob.
+*/
+void blob_remove_cr(Blob *p){
+  int i, j;
+  char *z;
+  blob_materialize(p);
+  z = p->aData;
+  for(i=j=0; z[i]; i++){
+    if( z[i]!='\r' ) z[j++] = z[i];
+  }
+  z[j] = 0;
+  p->nUsed = j;
+}
