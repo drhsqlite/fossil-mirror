@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Better\serror\smessages\swhen\strying\sto\srun\s"fossil\sui"\swith\san\sinvalid\nor\sunaccessible\srepository.
-D 2008-06-08T15:45:36
+C Bug\sfix\sin\swiki\srendering.\s\sAvoid\sterminating\sthe\soutput\swhen\san\nan\sunrecognized\smarkup\sattribute\sappears\sinside\s&lt;verbatim&gt;.
+D 2008-06-08T16:19:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -108,7 +108,7 @@ F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
 F src/wiki.c 5cf6903cd9060e2bce1a11846b1a337e64c07c7a
-F src/wikiformat.c 33d82dd4cff9da2903d936a1f2d7a5920c660ba4
+F src/wikiformat.c e49b2821f424dac64a40039b89c6796c548ca317
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c e9c8669cb155e1542e30bcdeaf7e50aefc420ebf
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 9e2d2676a4074cc4aee65892b50bff74e3539ea5
-R b0a836a06d108db5c2802899236c847c
+P dcc48662f838417842f182972517e785e2f3d444
+R 90ff8ac587f6cfd5de9366ad61423739
 U drh
-Z 98298fb024f06db5e68e386853e7fe22
+Z fc376e101692e9d3a29b4604330a29b8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIS/6loxKgR168RlERAvPIAJ9pre9/y+7tT64xMhE5GSS1+WjWVgCghgSI
-78WTzmyA5GrgMNyCG/5TUa0=
-=hizS
+iD8DBQFITAaFoxKgR168RlERApNCAKCLXFKtIDW6Dq8qvQ8xdvpGlzrPLACdEQBq
+TcghE2WoNQ/llWd1zFt77sQ=
+=I9Tl
 -----END PGP SIGNATURE-----

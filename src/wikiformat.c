@@ -625,6 +625,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
   p->nAttr = 0;
   while( isspace(z[i]) ){ i++; }
   while( p->nAttr<8 && isalpha(z[i]) ){
+    int attrOk;    /* True to preserver attribute.  False to ignore it */
     j = 0;
     while( isalnum(z[i]) ){ 
       if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
@@ -632,6 +633,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     }
     zTag[j] = 0;
     p->aAttr[p->nAttr].iCode = iCode = findAttr(zTag);
+    attrOk = iCode!=0 && (seen & aAttribute[iCode].iMask)==0;
     while( isspace(z[i]) ){ z++; }
     if( z[i]!='=' ){
       p->aAttr[p->nAttr].zValue = 0;
@@ -648,12 +650,14 @@ static void parseMarkup(ParsedMarkup *p, char *z){
         zValue = &z[i];
         while( !isspace(z[i]) && z[i]!='>' ){ z++; }
       }
-      p->aAttr[p->nAttr].zValue = zValue;
-      p->aAttr[p->nAttr].cTerm = c = z[i];
-      z[i] = 0;
+      if( attrOk ){
+        p->aAttr[p->nAttr].zValue = zValue;
+        p->aAttr[p->nAttr].cTerm = c = z[i];
+        z[i] = 0;
+      }
       i++;
     }
-    if( iCode!=0 && (seen & aAttribute[iCode].iMask)==0 ){
+    if( attrOk ){
       seen |= aAttribute[iCode].iMask;
       p->nAttr++;
     }
