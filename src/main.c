@@ -73,6 +73,7 @@ struct Global {
   char *zErrMsg;          /* Text of an error message */
   Blob cgiIn;             /* Input to an xfer www method */
   int cgiPanic;           /* Write error messages to CGI */
+  int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
@@ -246,7 +247,6 @@ void fossil_panic(const char *zFormat, ...){
   if( g.cgiPanic && once ){
     once = 0;
     cgi_printf("<p><font color=\"red\">%h</font></p>", z);
-    style_footer();
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -263,7 +263,6 @@ void fossil_fatal(const char *zFormat, ...){
   if( g.cgiPanic ){
     g.cgiPanic = 0;
     cgi_printf("<p><font color=\"red\">%h</font></p>", z);
-    style_footer();
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -637,20 +636,23 @@ void cmd_cgi(void){
 ** repository.
 */
 void cmd_http(void){
-  const char *zIpAddr = 0;
+  const char *zIpAddr;
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     cgi_panic("no repository specified");
   }
   g.cgiPanic = 1;
-  g.httpIn = stdin;
-  g.httpOut = stdout;
+  g.fullHttpReply = 1;
+  if( g.argc==6 ){
+    g.httpIn = fopen(g.argv[3], "rb");
+    g.httpOut = fopen(g.argv[4], "wb");
+    zIpAddr = g.argv[5];
+  }else{
+    g.httpIn = stdin;
+    g.httpOut = stdout;
+    zIpAddr = 0;
+  }
   if( g.argc>=3 ){
     db_open_repository(g.argv[2]);
-    if( g.argc==6 ){
-      g.httpIn = fopen(g.argv[3], "rb");
-      g.httpOut = fopen(g.argv[4], "wb");
-      zIpAddr = g.argv[5];
-    }
   }else{
     db_must_be_within_tree();
   }
@@ -698,8 +700,10 @@ void cmd_webserver(void){
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   if( g.argc==2 ){
     db_must_be_within_tree();
-    db_close();
+  }else{
+    db_open_repository(g.argv[2]);
   }
+  db_close();
 #ifndef __MINGW32__
   /* Unix implementation */
   if( g.argv[1][0]=='u' ){

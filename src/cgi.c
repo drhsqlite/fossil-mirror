@@ -155,7 +155,6 @@ static char *zContentType = "text/html";     /* Content type of the reply */
 static char *zReplyStatus = "OK";            /* Reply status description */
 static int iReplyStatus = 200;               /* Reply status code */
 static Blob extraHeader = BLOB_INITIALIZER;  /* Extra header text */
-static int fullHttpReply = 0;      /* True for a full-blown HTTP header */
 
 /*
 ** Set the reply content type
@@ -287,7 +286,7 @@ void cgi_reply(void){
   }
 #endif
 
-  if( fullHttpReply ){
+  if( g.fullHttpReply ){
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
     fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
     fprintf(g.httpOut, "Connection: close\r\n");
@@ -1093,7 +1092,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   size_t size = sizeof(struct sockaddr_in);
   char zLine[2000];     /* A single line of input. */
 
-  fullHttpReply = 1;
+  g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }

@@ -43,6 +43,12 @@ static struct Submenu {
 static int nSubmenu = 0;
 
 /*
+** Remember that the header has been generated.  The footer is omitted
+** if an error occurs before the header.
+*/
+static int headerHasBeenGenerated = 0;
+
+/*
 ** Add a new element to the submenu
 */
 void style_submenu_element(
@@ -100,6 +106,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
   g.cgiPanic = 1;
+  headerHasBeenGenerated = 1;
 }
 
 /*
@@ -107,6 +114,8 @@ void style_header(const char *zTitleFormat, ...){
 */
 void style_footer(void){
   const char *zFooter;
+
+  if( !headerHasBeenGenerated ) return;
   
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements

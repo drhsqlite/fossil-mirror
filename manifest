@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sC++-ism\sin\sreport.c.
-D 2008-06-08T15:10:20
+C Better\serror\smessages\swhen\strying\sto\srun\s"fossil\sui"\swith\san\sinvalid\nor\sunaccessible\srepository.
+D 2008-06-08T15:45:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -42,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c abc48788edc00fea7965f1a5e57a2c8fe2e27499
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c 51ee93303583fecd4980842038c47f4496b6ea48
+F src/cgi.c 5d10f16d564448bfd4a871f8788fd26a3f92f31b
 F src/checkin.c 2acc611edaa9ee2123b910c9d538341d2d1f1f42
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -64,7 +64,7 @@ F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c de0ea7fc4aefb3510f7ee734cb8c78f68474ef94
 F src/login.c 43d8acf6c202dab795dd114d949a040be2310cc1
-F src/main.c 96c79d2faae1c45e1e72e6bfe088899c992b16f0
+F src/main.c be97bf56d426b1c790aaaf51b0194716209e3dcc
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -89,7 +89,7 @@ F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
 F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 850e5f952e7bcfc64bc385ed04287b6673fb14c4
+F src/style.c d4b64100f2cf2dac2d2bff03c19f26c6b5e26055
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
 F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 3f706b92a55c53ad3a19ffa9a5ba51e0103976de
-R be189c9fb8825ab21d6b50f18ff56b98
+P 9e2d2676a4074cc4aee65892b50bff74e3539ea5
+R b0a836a06d108db5c2802899236c847c
 U drh
-Z b95fe649f078791f410ddc4e45c63c2e
+Z 98298fb024f06db5e68e386853e7fe22
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIS/ZfoxKgR168RlERAnfsAJ9wNV3Jq9CoGvJWlR96qKnuSGW8PwCdF0yn
-5Lo0bhOkFHxiWCSGfUofkXA=
-=sBZg
+iD8DBQFIS/6loxKgR168RlERAvPIAJ9pre9/y+7tT64xMhE5GSS1+WjWVgCghgSI
+78WTzmyA5GrgMNyCG/5TUa0=
+=hizS
 -----END PGP SIGNATURE-----
