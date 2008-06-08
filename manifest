@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sthe\s"omitsign"\ssetting\sinto\s"clearsign"\sand\sinvert\sits\ssense.
-D 2008-06-06T20:11:16
+C Fix\sa\sC++-ism\sin\sreport.c.
+D 2008-06-08T15:10:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -80,7 +80,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c ec319a870049957ccd63eef8995615e70fe623c7
-F src/report.c 5e81235a0028f1c9877bce59d6752ed84e2fbb90
+F src/report.c 6a7885da5389e52c42cab312a40c46ca8af7d1a6
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f558a43ecd5c39ed4b9a9ff208ae61fafa921280
 F src/setup.c 020ff2a0d62a3d29a1159d92df19b0ca58d56191
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 417e7662e5232e58af3cabcc81f6294a24239d66
-R 0eb942e42c2e07e5d1450911a658c106
+P 3f706b92a55c53ad3a19ffa9a5ba51e0103976de
+R be189c9fb8825ab21d6b50f18ff56b98
 U drh
-Z bf11e0bb358fd39fa73b17b2bc690a49
+Z b95fe649f078791f410ddc4e45c63c2e
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFISZnroxKgR168RlERAplVAJ4jzAE5mN1RnsVkE223aoB7ndX+eQCbBJd3
-Wc3GBbbcyNBxtlZeg6FIlsI=
-=UgDE
+iD8DBQFIS/ZfoxKgR168RlERAnfsAJ9wNV3Jq9CoGvJWlR96qKnuSGW8PwCdF0yn
+5Lo0bhOkFHxiWCSGfUofkXA=
+=sBZg
 -----END PGP SIGNATURE-----

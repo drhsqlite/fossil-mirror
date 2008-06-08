@@ -54,9 +54,9 @@ void view_list(void){
     @ <p>Choose a report format from the following list:</p>
     @ <ol>
     while( db_step(&q)==SQLITE_ROW ){
-      rn = db_column_int(&q, 0);
       const char *zTitle = db_column_text(&q, 1);
       const char *zOwner = db_column_text(&q, 2);
+      rn = db_column_int(&q, 0);
       cnt++;
       @ <li value="%d(cnt)"><a href="rptview?rn=%d(rn)"
       @        rel="nofollow">%h(zTitle)</a>&nbsp;&nbsp;&nbsp;
