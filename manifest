@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Use\scr/nl\sinstead\sof\sjust\snl\sat\sthe\send\sof\severy\sline\son\sthe\scheck-in\scomment\ntemplate\sfor\swindows.\s\sStrip\sout\sthe\scr\scharacters\sbefore\scompleting\sthe\ncommit.
-D 2008-06-08T19:31:28
+C Fix\sthe\stimeline\scommand\sso\sthat\sit\swork\swith\s--repository\sand\s-R.
+D 2008-07-13T12:08:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -97,7 +97,7 @@ F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
-F src/timeline.c 3666af55b7ffba4a32ae38acd54fd0f513859bbe
+F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
 F src/tkt.c 486a2a67ca4c47d0f8fb66da9b826a676d1c99e8
 F src/tktsetup.c fa060a46663f74e7e337a84053916711a3fc4081
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 71104b898d05fe56419b9a600febe0cacca8a570
-R 3350302bd99fd74ec0cbb158a4fb8c53
+P e976aa6fcbc4a0eae6fd754b81726e67a297ea7d
+R 16adfe28a8808c4a171991576d1628ef
 U drh
-Z f8b8eee23e384391862453ea650aeec6
+Z 19b315ddb56a494122e506db52110841
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFITDOUoxKgR168RlERAmh5AJ439XFAdK0W+ZVtf6Hbc7ESbcKKgACfSEij
-PMu+S/vcl6bbbBPNfSUX4nk=
-=RhfF
+iD8DBQFIefCAoxKgR168RlERAmJeAJ97qE6mDdykpepsLdtVIaRqAu4rCACfY+lo
+n+wh7YJ2MZecR0Phjo/PJaw=
+=3ix4
 -----END PGP SIGNATURE-----

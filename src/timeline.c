@@ -489,16 +489,11 @@ void print_timeline(Stmt *q, int mxLine){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
-  Stmt currentQ;
-  int rid = db_lget_int("checkout", 0);
   zPrevDate[0] = 0;
 
-  db_prepare(&currentQ,
-    "SELECT uuid"
-    "  FROM blob WHERE rid=%d", rid
-  );
-  if( db_step(&currentQ)==SQLITE_ROW ){
-    zCurrentUuid = db_column_text(&currentQ, 0);
+  if( g.localOpen ){
+    int rid = db_lget_int("checkout", 0);
+    zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
   while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
@@ -529,7 +524,7 @@ void print_timeline(Stmt *q, int mxLine){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
       n = strlen(zPrefix);
     }
-    if( strcmp(zCurrentUuid,zId)==0 ){
+    if( zCurrentUuid && strcmp(zCurrentUuid,zId)==0 ){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }
@@ -537,7 +532,6 @@ void print_timeline(Stmt *q, int mxLine){
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
   }
-  db_finalize(&currentQ);
 }
 
 /*
@@ -629,6 +623,9 @@ void timeline_cmd(void){
     }
     zDate = mprintf("(SELECT datetime('now'))");
   }else if( strncmp(zOrigin, "current", k)==0 ){
+    if( !g.localOpen ){
+      fossil_fatal("must be within a local checkout to use 'current'");
+    }
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else if( name_to_uuid(&uuid, 0)==0 ){
