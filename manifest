@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Additional\sdocumentation\supdates.
-D 2008-07-15T14:33:48
+C Update\sthe\sSQLite\simplementation\sto\sthe\s3.6.0\sprerelease.
+D 2008-07-15T15:34:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -86,8 +86,8 @@ F src/schema.c f558a43ecd5c39ed4b9a9ff208ae61fafa921280
 F src/setup.c 020ff2a0d62a3d29a1159d92df19b0ca58d56191
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
-F src/sqlite3.c 228761cc28bc0e8fc029d5a5d96f9e6d9db0f1d4
-F src/sqlite3.h 2a86e668556946a1b5f4026db7b725135cbee259
+F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
+F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
 F src/style.c d4b64100f2cf2dac2d2bff03c19f26c6b5e26055
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 8d8a41d195b81dccb271777f747c749d49e37a47
-R f3aa80a1ceddebaa9f012a8fc666bd7a
+P adc0b3bfb0daaa7677179c5c48b062d88536fe4d
+R f2c1c0f3bc66362fae98aa23f7c62267
 U drh
-Z 1e2090f0c030db7341faa616f0b03eaf
+Z 97cd991d2e0c1c23768f092c649b7def
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIfLVPoxKgR168RlERAthmAJ4/FvWh+GBrZ8+QUVaE56ZDdwoM7gCdEJ7L
-yiJbB8Ta7pfE5HZuvA6PdTs=
-=ebyv
+iD8DBQFIfMOdoxKgR168RlERAhXhAJ4qxP9GHel6ZFvLmJ6FeU2IlXZZEQCfbHTi
+MlspuRTV6OIPjBL+B79W/y0=
+=FPzd
 -----END PGP SIGNATURE-----
