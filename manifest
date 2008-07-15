@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Documentation\supdates.
-D 2008-07-15T13:46:00
+C Additional\sdocumentation\supdates.
+D 2008-07-15T14:33:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -188,7 +188,7 @@ F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.wiki a5b01a284023285e58986938752e918766cef2f2
+F www/delta_encoder_algorithm.wiki 132f9016a1aa8d144d2f1f8522ef838acc8d48d6
 F www/delta_format.wiki 15113b9293a8739fef1841e005347f1fdef2fc3e
 F www/embeddeddoc.wiki f88b184a333b7171411afbbe66576ac22100389a
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
@@ -201,22 +201,22 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki 346d6f32933d8e57d6b84e17d5c8da0b7bb9e5fb
-F www/index.wiki 0332519f4d138e21027f06087282932efda07dc4
+F www/fileformat.wiki 9be529e4b5440472b58f249c4b7116e66f185b46
+F www/index.wiki a45f7bf59ec3fe5a3a74b4cb7450e7e3b2addb28
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
-F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P 9d232303226f58867cc515fa028cafec9a031464
-R fcd1c1e13bde32fe00f58cf673c3ed7e
+F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
+P 8d8a41d195b81dccb271777f747c749d49e37a47
+R f3aa80a1ceddebaa9f012a8fc666bd7a
 U drh
-Z 210639713c829c657b1a1fd6c8175b05
+Z 1e2090f0c030db7341faa616f0b03eaf
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIfKocoxKgR168RlERAj1YAKCCcs8cLMfMfnfLfsGMTsMG9d3MEwCgiHa9
-jVyNKoU9+rpfqzHNipsDF08=
-=dOlX
+iD8DBQFIfLVPoxKgR168RlERAthmAJ4/FvWh+GBrZ8+QUVaE56ZDdwoM7gCdEJ7L
+yiJbB8Ta7pfE5HZuvA6PdTs=
+=ebyv
 -----END PGP SIGNATURE-----

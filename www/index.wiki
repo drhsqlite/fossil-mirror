@@ -6,7 +6,7 @@ Fossil is a new
 distributed software revision control system</a> that includes an integrated
 <a href="http://en.wikipedia.org/wiki/Wiki">Wiki</a> and an integrated
 <a href="http://en.wikipedia.org/wiki/Bugtracker">
-bug-tracking system</a> all in a single easy-to-use stand-alone
+bug-tracking system</a> all in a single, easy-to-use, stand-alone
 executable.
 (NB: The bug-tracker component is not yet completely functional, but
 we expect it to be available soon.)
@@ -37,15 +37,15 @@ or all three at the same time</li>
 <a href="http://www.cvstrac.org/">CVSTrac</a> and
 <a href="http://www.edgewall.com/trac/">Trac</a>.</li>
 <li>Built-in web interface that supports deep archaeological digs through
-historical source code.</li>
+the project history.</li>
 <li>All network communication via 
 <a href="http://en.wikipedia.org/wiki/HTTP">HTTP</a>
 (so that everything works from behind restrictive firewalls).</li>
-<li>Everything included in a single self-contained executable -
-    trivial to install</li>
+<li>Everything (client, server, and utilities) is included in a 
+single self-contained executable - trivial to install</li>
 <li>Server runs as <a href="http://www.w3.org/CGI/">CGI</a>, using
-<a href="http://en.wikipedia.org/wiki/inetd">inetd</a> or
-<a href="http://www.xinetd.org/">xinetd</a> or using its own built-in,
+<a href="http://en.wikipedia.org/wiki/inetd">inetd</a>/<a
+ href="http://www.xinetd.org/">xinetd</a>, or using its own built-in,
 standalone web server.</li>
 <li>An entire project contained in single disk file (which also
 happens to be an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
@@ -54,8 +54,9 @@ happens to be an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
 <a href="http://en.wikipedia.org/wiki/SHA-1">SHA1</a> signature.</a>
 Any unique prefix is sufficient to identify a file
 or version - usually the first 4 or 5 characters suffice.</li>
-<li>The file format is trival and requires nothing more complex
-than a text editor and the "sha1sum" command-line utility to decode.</li>
+<li>The <a href="fileformat.wiki">file format</a> designed to be enduring.
+It is deliberately kept simple, requiring nothing more complex
+than a text editor and an SHA1 checksum generator to encode or decode.</li>
 <li>Automatic <a href="selfcheck.wiki">self-check</a>
 on repository changes makes it exceedingly
 unlikely that data will ever be lost because of a software bug.</li>
@@ -75,12 +76,11 @@ that provides nothing more than web space and CGI capability.
 Here is <a href="http://www.hwaci.com/cgi-bin/fossil/timeline">a demo</a>.</li>
 <li>Fossil should provide in-depth historical and status information about the
 project through a web interface</li>
-<li>The integration of <a href="http://wiki.org/wiki.cgi?WhatIsWiki">Wiki</a>
-and the ability to safely support anonymous check-in are features sometimes
-described as
-<a href="http://www.oreillynet.com/pub/a/oreilly/tim/news/2005/09/30/what-is-web-20.html">Web 2.0</a>.
-Fossil attempts to better capture "collective intelligence" and 
-"the wisdom of crowds" by opening up write access to the masses.</li>
+<li>Fossil should provide an historical record of a project that endures
+for decades or centuries and across multiple generations of hardward 
+and software.</li>
+<li>Fossil should be easily adaptable to different workflows.  Fossil
+implements mechanism, not policy.</li>
 </ul>
 
 <p>User Links:</p>

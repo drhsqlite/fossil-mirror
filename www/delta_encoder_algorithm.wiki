@@ -17,7 +17,7 @@ companion specification titled "<a href="delta_format.wiki">Fossil
 Delta Format</a>".
 </p>
 
-<p>The entire algorithm is inspired
+<p>The algorithm is inspired
 by <a href="http://samba.anu.edu.au/rsync/">rsync</a>.</p>
 
 <a name="argresparam"></a><h2>1.0 Arguments, Results, and Parameters</h2>

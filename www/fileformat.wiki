@@ -2,13 +2,19 @@
 Fossil File Formats
 </h1>
 
+<p>The state of a fossil repository is kept simple so that it can
+endure in useful form for decades or centuries. 
+A fossil repository is intended to be readable,
+searchable, and extensible by people not yet born.</p>
+
 <p>
 The global state of a fossil repository is determined by an unordered
-set of artifacts.
+set of <i>artifacts</i>.
 An artifact might be a source code file, the text of a wiki page,
 part of a trouble ticket, or one of several special control artifacts
 used to show the relationships between other artifacts within the
-project.  Artifacts can be text or binary.
+project.  Each artifact is normally represented on disk as a separate
+file.  Artifacts can be text or binary.
 </p>
 
 <p>
@@ -169,7 +175,9 @@ consistent.
 <p>
 A cluster is a artifact that declares the existance of other artifacts.
 Clusters are used during repository synchronization to help 
-reduce network traffic.
+reduce network traffic.  As such, clusters are an optimization and
+may be removed from a repository without loss or damage to the
+underlying project code.
 </p>
 
 <p>
