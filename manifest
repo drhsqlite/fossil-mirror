@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\stimeline\scommand\sso\sthat\sit\swork\swith\s--repository\sand\s-R.
-D 2008-07-13T12:08:47
+C Use\sthe\s%/\ssubstitution\sinstead\sof\s%s\swhen\sconstructing\swindows\spathnames.
+D 2008-07-15T02:01:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c c6002c394584e673248eddaae51a4329d607397e
-F src/db.c c9e7ddf532f150045e8f4dd29d474a49bf1f4873
+F src/db.c d924508e763028939a9a78f73f1e74788a0bebe3
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P e976aa6fcbc4a0eae6fd754b81726e67a297ea7d
-R 16adfe28a8808c4a171991576d1628ef
+P c1e85e4da5d2bc81a8ddd533ce3101969750ea03
+R 6696390d25b81c209c16c57dd34d5e50
 U drh
-Z 19b315ddb56a494122e506db52110841
+Z 23bcbe3a5ceab25260c6e69ce966d493
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIefCAoxKgR168RlERAmJeAJ97qE6mDdykpepsLdtVIaRqAu4rCACfY+lo
-n+wh7YJ2MZecR0Phjo/PJaw=
-=3ix4
+iD8DBQFIfATyoxKgR168RlERAiFwAJ4x3GeUVJpeibfZlmvaAGWO7WRAYwCdHHn9
+vYxsIBNgTPTPnjaC048KAZA=
+=9GvD
 -----END PGP SIGNATURE-----

@@ -573,7 +573,7 @@ void db_open_config(void){
   }
 #ifdef __MINGW32__
   /* . filenames give some window systems problems and many apps problems */
-  zDbName = mprintf("%s/_fossil", zHome);
+  zDbName = mprintf("%//_fossil", zHome);
 #else
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
