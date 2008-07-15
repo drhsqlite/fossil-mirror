@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Use\sthe\s%/\ssubstitution\sinstead\sof\s%s\swhen\sconstructing\swindows\spathnames.
-D 2008-07-15T02:01:18
+C Documentation\supdates.
+D 2008-07-15T13:46:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -107,7 +107,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
-F src/wiki.c 5cf6903cd9060e2bce1a11846b1a337e64c07c7a
+F src/wiki.c 627ea9c43a6ac885b76a2077f360f10f82f27aa2
 F src/wikiformat.c e49b2821f424dac64a40039b89c6796c548ca317
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c e9c8669cb155e1542e30bcdeaf7e50aefc420ebf
@@ -190,7 +190,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki a5b01a284023285e58986938752e918766cef2f2
 F www/delta_format.wiki 15113b9293a8739fef1841e005347f1fdef2fc3e
-F www/embeddeddoc.wiki 560048999c3dfd15cb0f0c0910d370ac202d68d5
+F www/embeddeddoc.wiki f88b184a333b7171411afbbe66576ac22100389a
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki 5cff62ccf6569233a0d13b2c89c2c0f86a381eaa
-P c1e85e4da5d2bc81a8ddd533ce3101969750ea03
-R 6696390d25b81c209c16c57dd34d5e50
+P 9d232303226f58867cc515fa028cafec9a031464
+R fcd1c1e13bde32fe00f58cf673c3ed7e
 U drh
-Z 23bcbe3a5ceab25260c6e69ce966d493
+Z 210639713c829c657b1a1fd6c8175b05
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIfATyoxKgR168RlERAiFwAJ4x3GeUVJpeibfZlmvaAGWO7WRAYwCdHHn9
-vYxsIBNgTPTPnjaC048KAZA=
-=9GvD
+iD8DBQFIfKocoxKgR168RlERAj1YAKCCcs8cLMfMfnfLfsGMTsMG9d3MEwCgiHa9
+jVyNKoU9+rpfqzHNipsDF08=
+=dOlX
 -----END PGP SIGNATURE-----

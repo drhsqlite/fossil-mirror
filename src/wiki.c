@@ -505,7 +505,7 @@ void wikirules_page(void){
   @ <ol>
   @ <li> Blank lines are paragraph breaks
   @ <li> Bullets are "*" surrounded by two spaces at the beginning of the line.
-  @ <li> Enumeration items a number surrounded by two space
+  @ <li> Enumeration items are a number surrounded by two space
   @ at the beginning of a line.
   @ <li> Indented pargraphs begin with a tab or two spaces.
   @ <li> Hyperlinks are contained with square brackets:  "[target]"

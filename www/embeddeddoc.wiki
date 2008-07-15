@@ -21,7 +21,7 @@ to this approach:
       (This might be either an advantage or disadvantage, depending
       on the nature of your project.)
 
-We will call documentation is included as files in the source tree
+We will call documentation that is included as files in the source tree
 "embedded documentation".
 
 <h2>Fossil Support For Embedded Documentation</h2>
@@ -78,8 +78,8 @@ Documentation files whose names end in ".wiki" use the
 a safe subset of HTML together with some rules for paragraph
 breaks, lists, and hyperlinks.  The ".wiki" and ".txt" pages
 are rendered with the standard fossil header and footer added.
-All other mimetimes are delivered directly to the requesting
-web browser with interpretation, additions, or changes.
+All other mimetypes are delivered directly to the requesting
+web browser without interpretation, additions, or changes.
 
 The list of allowed suffixes for embedded documents is likely to
 grow and become user-configurable in future releases of fossil.
