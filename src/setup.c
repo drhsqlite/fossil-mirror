@@ -149,7 +149,6 @@ void setup_ulist(void){
   @ <li value="14"><b>New-Tkt</b>: Create new tickets</li>
   @ <li value="15"><b>Check-Out</b>: Check out versions</li>
   @ <li value="16"><b>Password</b>: Change your own password</li>
-  @ <li value="17"><b>Query</b>: Create new queries against tickets</li>
   @ <li value="18"><b>Read-Tkt</b>: View tickets</li>
   @ <li value="19"><b>Setup:</b> Setup and configure this website</li>
   @ <li value="20"><b>Tkt-Report:</b> Create new bug summary reports</li>
@@ -175,7 +174,7 @@ void setup_ulist(void){
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
-  char *oak, *oad, *oaq, *oac, *oaf, *oam, *oah, *oag, *oae;
+  char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
   char *oat;
   int doWrite;
   int uid;
@@ -222,7 +221,6 @@ void user_edit(void){
     int an = P("an")!=0;
     int ao = P("ao")!=0;
     int ap = P("ap")!=0;
-    int aq = P("aq")!=0;
     int ar = P("ar")!=0;
     int as = g.okSetup && P("as")!=0;
     int aw = P("aw")!=0;
@@ -246,7 +244,6 @@ void user_edit(void){
     if( an ){ zCap[i++] = 'n'; }
     if( ao ){ zCap[i++] = 'o'; }
     if( ap ){ zCap[i++] = 'p'; }
-    if( aq ){ zCap[i++] = 'q'; }
     if( ar ){ zCap[i++] = 'r'; }
     if( as ){ zCap[i++] = 's'; }
     if( at ){ zCap[i++] = 't'; }
@@ -284,7 +281,7 @@ void user_edit(void){
   zInfo = "";
   zCap = "";
   oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oaq = oar = oas = oat = oaw = "";
+        oan = oao = oap = oar = oas = oat = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -303,7 +300,6 @@ void user_edit(void){
     if( strchr(zCap, 'n') ) oan = " checked";
     if( strchr(zCap, 'o') ) oao = " checked";
     if( strchr(zCap, 'p') ) oap = " checked";
-    if( strchr(zCap, 'q') ) oaq = " checked";
     if( strchr(zCap, 'r') ) oar = " checked";
     if( strchr(zCap, 's') ) oas = " checked";
     if( strchr(zCap, 't') ) oat = " checked";
@@ -347,7 +343,6 @@ void user_edit(void){
   @     <input type="checkbox" name="ad"%s(oad)>Delete</input><br>
   @     <input type="checkbox" name="ae"%s(oad)>Email</input><br>
   @     <input type="checkbox" name="ap"%s(oap)>Password</input><br>
-  @     <input type="checkbox" name="aq"%s(oaq)>Query</input><br>
   @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
   @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
   @     <input type="checkbox" name="ah"%s(oah)>History</input><br>
@@ -393,12 +388,6 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>Query</b> privilege allows the user to create or edit
-  @ report formats by specifying appropriate SQL.  Users can run
-  @ existing reports without the Query privilege.
-  @ </p></li>
-  @
-  @ <li><p>
   @ An <b>Admin</b> user can add other users, create new ticket report
   @ formats, and change system defaults.  But only the <b>Setup</b> user
   @ is able to change the repository to
@@ -409,6 +398,15 @@ void user_edit(void){
   @ The <b>History</b> privilege allows a user to see a timeline
   @ with hyperlinks to version information, to download ZIP archives
   @ of individual versions.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The <b>Read Wiki</b>, <b>New Wiki</b>, <b>Append Wiki</b>, and
+  @ <b>Write Wiki</b> privileges control access to wiki pages.  The
+  @ <b>Read Tkt</b>, <b>New Tkt</b>, <b>Append Tkt</b>, and
+  @ <b>Write Tkt</b> privileges control access to trouble tickets.
+  @ The <b>Tkt Report</b> privilege allows the user to create or edit
+  @ ticket report formats.
   @ </p></li>
   @
   @ <li><p>

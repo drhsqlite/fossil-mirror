@@ -91,6 +91,7 @@ void home_page(void){
     wiki_page();
     return;
   }
+  login_check_credentials();
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to

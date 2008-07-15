@@ -37,7 +37,7 @@ static void report_format_hints(void);
 void view_list(void){
   Stmt q;
   int rn = 0;
-  int cnt = 1;
+  int cnt = 0;
 
   login_check_credentials();
   if( !g.okRdTkt && !g.okNewTkt ){ login_needed(); return; }
@@ -46,6 +46,7 @@ void view_list(void){
     @ <p>Enter a new bug report:</p>
     @ <ol><li value="1"><a href="tktnew">New bug report</a></li></ol>
     @
+    cnt++;
   }
   if( !g.okRdTkt ){
     @ <p>You are not authorized to view existing bug reports.</p>
@@ -69,7 +70,9 @@ void view_list(void){
       if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
         @ [<a href="rptedit?rn=%d(rn)" rel="nofollow">edit</a>]
       }
-      @ [<a href="rptsql?rn=%d(rn)" rel="nofollow">sql</a>]
+      if( g.okTktFmt ){
+        @ [<a href="rptsql?rn=%d(rn)" rel="nofollow">sql</a>]
+      }
       @ </li>
     }
   }
@@ -254,7 +257,7 @@ void view_see_sql(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okQuery ){
+  if( !g.okTktFmt ){
     login_needed();
     return;
   }
@@ -302,7 +305,7 @@ void view_edit(void){
   char *zErr = 0;
 
   login_check_credentials();
-  if( !g.okQuery ){
+  if( !g.okTktFmt ){
     login_needed();
     return;
   }
@@ -436,6 +439,10 @@ void view_edit(void){
 static void report_format_hints(void){
   char *zSchema;
   zSchema = db_text(0,"SELECT sql FROM sqlite_master WHERE name='ticket'");
+  if( zSchema==0 ){
+    zSchema = db_text(0,"SELECT sql FROM repository.sqlite_master"
+                        " WHERE name='ticket'");
+  }
   @ <hr><h3>TICKET Schema</h3>
   @ <blockquote><pre>
   @ %h(zSchema)
@@ -915,10 +922,12 @@ void rptview_page(void){
     style_submenu_element("Raw", "Raw", 
       "rptview?tablist=1&%s", PD("QUERY_STRING",""));
     if( g.okAdmin 
-       || (g.okQuery && g.zLogin && zOwner && strcmp(g.zLogin,zOwner)==0) ){
+       || (g.okTktFmt && g.zLogin && zOwner && strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
     }
-    style_submenu_element("SQL", "SQL", "rptsql?rn=%d",rn);
+    if( g.okTktFmt ){
+      style_submenu_element("SQL", "SQL", "rptsql?rn=%d",rn);
+    }
     style_header(zTitle);
     output_color_key(zClrKey, 1, 
         "border=0 cellpadding=3 cellspacing=0 class=\"report\"");

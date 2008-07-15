@@ -310,7 +310,7 @@ void login_set_capabilities(const char *zCap){
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
       case 's':   g.okSetup = 1;
-      case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okQuery =
+      case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = 
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
                               g.okNewTkt = g.okPassword = g.okRdAddr =
@@ -322,7 +322,6 @@ void login_set_capabilities(const char *zCap){
       case 'h':   g.okHistory = 1;                              break;
       case 'g':   g.okClone = 1;                                break;
       case 'p':   g.okPassword = 1;                             break;
-      case 'q':   g.okQuery = 1;                                break;
 
       case 'j':   g.okRdWiki = 1;                               break;
       case 'k':   g.okWrWiki = g.okRdWiki = g.okApndWiki =1;    break;
@@ -365,7 +364,6 @@ int login_has_capability(const char *zCap, int nCap){
       case 'n':  rc = g.okNewTkt;    break;
       case 'o':  rc = g.okRead;      break;
       case 'p':  rc = g.okPassword;  break;
-      case 'q':  rc = g.okQuery;     break;
       case 'r':  rc = g.okRdTkt;     break;
       case 's':  rc = g.okSetup;     break;
       case 't':  rc = g.okTktFmt;    break;
