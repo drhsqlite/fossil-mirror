@@ -306,6 +306,10 @@ void tktview_page(void){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
   }
+  if( g.okHistory ){
+    style_submenu_element("History", "History Of This Ticket", 
+        "%s/tkthistory/%T", g.zTop, PD("name",""));
+  }
   style_header("View Ticket");
   ticket_init();
   initializeVariablesFromDb();
@@ -548,4 +552,41 @@ char *ticket_schema_check(const char *zSchema){
     }
   }
   return 0;
+}
+
+/*
+** WEBPAGE: tkthistory
+** URL: /tkthistory?name=TICKETUUID
+**
+** Show the complete change history for a single ticket
+*/
+void tkthistory_page(void){
+  Stmt q;
+  char *zTitle;
+  char *zSQL;
+  const char *zUuid;
+  int tagid;
+
+  login_check_credentials();
+  if( !g.okHistory || !g.okRdTkt ){ login_needed(); return; }
+  zUuid = PD("name","");
+  zTitle = mprintf("History Of Ticket %h", zUuid);
+  style_header(zTitle);
+  free(zTitle);
+
+  tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
+  if( tagid==0 ){
+    @ No such ticket: %h(zUuid)
+    style_footer();
+    return;
+  }
+  zSQL = mprintf("%s AND event.objid IN "
+                 "  (SELECT rid FROM tagxref WHERE tagid=%d) "
+                 "ORDER BY mtime DESC",
+                 timeline_query_for_www(), tagid);
+  db_prepare(&q, zSQL);
+  free(zSQL);
+  www_print_timeline(&q);
+  db_finalize(&q);
+  style_footer();
 }

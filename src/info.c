@@ -795,6 +795,91 @@ void artifact_page(void){
 }
 
 /*
+** Return TRUE if the given BLOB contains a newline character.
+*/
+static int contains_newline(Blob *p){
+  const char *z = blob_str(p);
+  while( *z ){
+    if( *z=='\n' ) return 1;
+    z++;
+  }
+  return 0;
+}
+
+/*
+** WEBPAGE: tinfo
+** URL: /tinfo?name=UUID
+**
+** Show the details of a ticket change control artifact.
+*/
+void tinfo_page(void){
+  int rid;
+  Blob content;
+  char *zDate;
+  int i;
+  const char *zUuid;
+  char zTktName[20];
+  const char *z;
+  Manifest m;
+
+  login_check_credentials();
+  if( !g.okRdTkt ){ login_needed(); return; }
+  rid = name_to_rid(PD("name","0"));
+  if( rid==0 ){ fossil_redirect_home(); }
+  zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( g.okAdmin ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+            g.zTop, zUuid);
+    }else{
+      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
+            g.zTop, zUuid);
+    }
+  }
+  content_get(rid, &content);
+  if( manifest_parse(&m, &content)==0 ){
+    fossil_redirect_home();
+  }
+  if( m.type!=CFTYPE_TICKET ){
+    fossil_redirect_home();
+  }
+  style_header("Ticket Change Details");
+  zDate = db_text(0, "SELECT datetime(%.12f)", m.rDate);
+  memcpy(zTktName, m.zTicketUuid, 10);
+  zTktName[10] = 0;
+  @ <h2>Changes to ticket <a href="%s(m.zTicketUuid)">%s(zTktName)</a></h2>
+  @
+  @ <p>By %h(m.zUser) on %s(zDate).  See also:
+  @ <a href="%s(g.zTop)/artifact/%T(zUuid)">artifact content</a>, and
+  @ <a href="%s(g.zTop)/tkthistory/%s(m.zTicketUuid)">ticket history</a>
+  @ </p>
+  @
+  @ <ol>
+  free(zDate);
+  for(i=0; i<m.nField; i++){
+    Blob val;
+    z = m.aField[i].zName;
+    blob_set(&val, m.aField[i].zValue);
+    if( z[0]=='+' ){
+      @ <li><p>Appended to %h(&z[1]):</p><blockquote>
+      wiki_convert(&val, 0, 0);
+      @ </blockquote></li>
+    }else if( blob_size(&val)<=50 && contains_newline(&val) ){
+      @ <li><p>Change %h(z) to:</p><blockquote>
+      wiki_convert(&val, 0, 0);
+      @ </blockquote></li>
+    }else{
+      @ <li><p>Change %h(z) to "%h(blob_str(&val))"</p></li>
+    }
+    blob_reset(&val);
+  }
+  manifest_clear(&m);
+  @ </ol>
+  style_footer();
+}
+
+
+/*
 ** WEBPAGE: info
 ** URL: info/UUID
 **
@@ -833,6 +918,10 @@ void info_page(void){
   if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                 " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
     winfo_page();
+  }else
+  if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
+                " WHERE rid=%d AND tagname LIKE 'tkt-%%'", rid) ){
+    tinfo_page();
   }else
   {
     artifact_page();

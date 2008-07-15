@@ -895,19 +895,49 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   if( m.type==CFTYPE_TICKET ){
     char *zTag;
-    char *zComment;
+    Blob comment;
+    int i;
 
     ticket_insert(&m, 1, 1);
     zTag = mprintf("tkt-%s", m.zTicketUuid);
     tag_insert(zTag, 1, 0, rid, m.rDate, rid);
     free(zTag);
-    zComment = mprintf("Changes to ticket [%.10s]", m.zTicketUuid);
+    blob_zero(&comment);
+    if( m.nField==1 ){
+      if( m.aField[0].zName[0]=='+' ){
+        blob_appendf(&comment, 
+          "Appended to %h in ticket [%.10s]",
+          &m.aField[0].zName[1], m.zTicketUuid
+        );
+      }else if( strlen(m.aField[0].zValue)<40 ){
+        blob_appendf(&comment,
+          "Changed %h to \"%h\" in ticket [%.10s]",
+          m.aField[0].zName, m.aField[0].zValue, m.zTicketUuid
+        );
+      }else{
+        blob_appendf(&comment,
+          "Changed %h in ticket [%.10s]",
+          m.aField[0].zName, m.zTicketUuid
+        );
+      }
+    }else{
+      const char *z;
+      const char *zSep = " ";
+      blob_appendf(&comment, "%d changes to ticket [%.10s]:",
+                            m.nField, m.zTicketUuid);
+      for(i=0; i<m.nField; i++){
+        z = m.aField[i].zName;
+        if( z[0]=='+' ) z++;
+        blob_appendf(&comment, "%s%h", zSep, z);
+        zSep = ", ";
+      }
+    }
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('t',%.17g,%d,%Q,%Q)",
-      m.rDate, rid, m.zUser, zComment
+      m.rDate, rid, m.zUser, blob_str(&comment)
     );
-    free(zComment);
+    blob_reset(&comment);
   }
   db_end_transaction(0);
   manifest_clear(&m);

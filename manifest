@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Work\stoward\sgetting\sbug-tracking\sworking\swell.
-D 2008-07-15T16:42:48
+C Implement\shistory\sdisplay\sfor\stickets.
+D 2008-07-15T19:03:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,14 +62,14 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c de0ea7fc4aefb3510f7ee734cb8c78f68474ef94
+F src/info.c 737ba1d6c6bb8eb740d20af0193b5ac3a9dded64
 F src/login.c 0aeb2757467f6e620912861735255e9e1f6fa092
 F src/main.c be97bf56d426b1c790aaaf51b0194716209e3dcc
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 2d335c8c4adc17183e936bc2a3d590423447ea14
-F src/manifest.c b69e148aaef1fe49a4ebc49c8ed63ee1686ca67d
+F src/manifest.c 5e755947296c4fdbad4983110721de1d1aa693c9
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -98,7 +98,7 @@ F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
-F src/tkt.c 486a2a67ca4c47d0f8fb66da9b826a676d1c99e8
+F src/tkt.c 6ac9641c6a7b13432c1e0852aac0a84f5a5275ac
 F src/tktsetup.c fa060a46663f74e7e337a84053916711a3fc4081
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P d19a05f2a20de5c6ec2880862627ab0494f449f4
-R 3d66cc9c31b8ff10ae00ac90313a1ae6
+P d3e711fd2fd664e54610498a49b6ad6ee0ad5f8a
+R b03a93c66d0bcac39a4d949c4de0c82e
 U drh
-Z 473eae580ab7684e45bfed1742517724
+Z 4e71211ef8c94d41310a8760f14495c5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIfNOMoxKgR168RlERAmZQAJ0SOI0WzcPF/4EJrI2cujNxSRuTPwCeIEFJ
-oBcCMV4Znda/mRDHQuxhyG8=
-=1A/U
+iD8DBQFIfPSSoxKgR168RlERApjcAJ92EVhgMJXRAtXi902j+fUzTOALfgCfeLmE
+u4BrxfK0D6NSFGbunpX35VE=
+=IfXA
 -----END PGP SIGNATURE-----
