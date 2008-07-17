@@ -130,6 +130,12 @@ void wiki_page(void){
   if( zPageName==0 ){
     style_header("Wiki");
     @ <ul>
+    { char *zHomePageName = db_get("project-name",0);
+      if( zHomePageName ){
+        @ <li> <a href="%s(g.zBaseURL)/wiki?name=%s(zHomePageName)">
+        @      %s(zHomePageName)</a> wiki page.</li>
+      }
+    }
     @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
     @      pages. </li>
     @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
