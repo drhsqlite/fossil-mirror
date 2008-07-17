@@ -157,11 +157,12 @@ void ls_cmd(void){
 void extra_cmd(void){
   Blob path;
   Stmt q;
+  int n;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-  chdir(g.zLocalRoot);
-  blob_zero(&path);
-  vfile_scan(0, &path);
+  n = strlen(g.zLocalRoot);
+  blob_init(&path, g.zLocalRoot, n-1);
+  vfile_scan(0, &path, blob_size(&path));
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
@@ -188,12 +189,13 @@ void clean_cmd(void){
   int allFlag;
   Blob path;
   Stmt q;
+  int n;
   allFlag = find_option("all","a",0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-  chdir(g.zLocalRoot);
-  blob_zero(&path);
-  vfile_scan(0, &path);
+  n = strlen(g.zLocalRoot);
+  blob_init(&path, g.zLocalRoot, n-1);
+  vfile_scan(0, &path, blob_size(&path));
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"

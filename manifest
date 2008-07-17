@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Implement\shistory\sdisplay\sfor\stickets.
-D 2008-07-15T19:03:42
+C Avoid\sthe\suse\sof\schdir()\ssince\sthis\sseems\sto\scause\sproblems\son\swindows.
+D 2008-07-17T01:49:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -43,7 +43,7 @@ F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 5d10f16d564448bfd4a871f8788fd26a3f92f31b
-F src/checkin.c e9356000f02b6d591cc166b1573dc01e40d1b18d
+F src/checkin.c 213d5beae23730b35a4c188b6c35b96835d0cf08
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
@@ -106,7 +106,7 @@ F src/update.c cb0a6551aff4c509f8fa95600f89933819b8cdeb
 F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
-F src/vfile.c 533b7500826db1d6651ac7cd89e6ffc7418cfd2e
+F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 185275fa54ffb2f1f9a215c85d49881a91f45fc1
 F src/wikiformat.c e49b2821f424dac64a40039b89c6796c548ca317
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P d3e711fd2fd664e54610498a49b6ad6ee0ad5f8a
-R b03a93c66d0bcac39a4d949c4de0c82e
+P b3ee50c9463214942d0af7055f4a06e2353f631c
+R fb2c3385026a04f5346687843be2c78e
 U drh
-Z 4e71211ef8c94d41310a8760f14495c5
+Z 85a3eaf871ecea5e3ae04e5fe7132cad
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIfPSSoxKgR168RlERApjcAJ92EVhgMJXRAtXi902j+fUzTOALfgCfeLmE
-u4BrxfK0D6NSFGbunpX35VE=
-=IfXA
+iD8DBQFIfqUfoxKgR168RlERAlxyAJ9uEBR699Q8e4jawbLwSgj4lXgEwwCfa0IJ
+dHbQ2bK5ce6F+UBWsvfSfrI=
+=Ra1/
 -----END PGP SIGNATURE-----

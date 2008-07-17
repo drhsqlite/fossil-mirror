@@ -242,37 +242,33 @@ void vfile_unlink(int vid){
 
 /*
 ** Load into table SFILE the name of every ordinary file in
-** the directory pPath.  Subdirectories are scanned recursively.
+** the directory pPath.   Omit the first nPrefix characters of
+** of pPath when inserting into the SFILE table.
+**
+** Subdirectories are scanned recursively.
 ** Omit files named in VFILE.vid
 */
-void vfile_scan(int vid, Blob *pPath){
+void vfile_scan(int vid, Blob *pPath, int nPrefix){
   DIR *d;
   int origSize;
   const char *zDir;
-  const char *zFormat;
   struct dirent *pEntry;
   static const char *zSql = "SELECT 1 FROM vfile "
-                            " WHERE pathname=%B AND NOT deleted";
+                            " WHERE pathname=%Q AND NOT deleted";
 
   origSize = blob_size(pPath);
   zDir = blob_str(pPath);
-  if( zDir[0]==0 ){
-     zDir = ".";
-     zFormat = "%s";
-  }else{
-     zFormat = "/%s";
-  }
   d = opendir(zDir);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       char *zPath;
       if( pEntry->d_name[0]=='.' ) continue;
-      blob_appendf(pPath, zFormat, pEntry->d_name);
+      blob_appendf(pPath, "/%s", pEntry->d_name);
       zPath = blob_str(pPath);
       if( file_isdir(zPath)==1 ){
-        vfile_scan(vid, pPath);
-      }else if( file_isfile(zPath) && !db_exists(zSql,pPath) ){
-        db_multi_exec("INSERT INTO sfile VALUES(%B)", pPath);
+        vfile_scan(vid, pPath, nPrefix);
+      }else if( file_isfile(zPath) && !db_exists(zSql, &zPath[nPrefix+1]) ){
+        db_multi_exec("INSERT INTO sfile VALUES(%Q)", &zPath[nPrefix+1]);
       }
       blob_resize(pPath, origSize);
     }
