@@ -294,7 +294,7 @@ void wikiedit_page(void){
     if( z[0]=='\n' ) n++;
   }
   if( n<20 ) n = 20;
-  if( n>200 ) n = 200;
+  if( n>40 ) n = 40;
   @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
   @ <input type="hidden" name="name" value="%h(zPageName)">
   @ <textarea name="w" class="wikiedit" cols="80" 
@@ -317,16 +317,19 @@ static void appendRemark(Blob *p){
   char *zDate;
   const char *zUser;
   const char *zRemark;
+  char *zId;
 
   zDate = db_text(0, "SELECT datetime('now')");
-  blob_appendf(p, "\n\n<hr><i>On %s UTC %h", zDate, g.zLogin);
+  zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
+  blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h", 
+    zId, zDate, g.zLogin);
   free(zDate);
   zUser = PD("u",g.zLogin);
   if( zUser[0] && strcmp(zUser,g.zLogin) ){
     blob_appendf(p, " (claiming to be %h)", zUser);
   }
   zRemark = PD("r","");
-  blob_appendf(p, " added:</i><br />\n%s", zRemark);
+  blob_appendf(p, " added:</i><br />\n%s</div id=\"%s\">", zRemark, zId);
 }
 
 /*
@@ -354,7 +357,7 @@ void wikiappend_page(void){
     );
     free(zTag);
     if( !rid ){
-      cgi_redirect("index");
+      fossil_redirect_home();
       return;
     }
   }
@@ -380,7 +383,7 @@ void wikiappend_page(void){
       content_get(rid, &content);
       manifest_parse(&m, &content);
       if( m.type==CFTYPE_WIKI ){
-        blob_appendf(&body, m.zWiki, -1);
+        blob_append(&body, m.zWiki, -1);
       }
       manifest_clear(&m);
       blob_zero(&wiki);
@@ -397,7 +400,6 @@ void wikiappend_page(void){
       if( g.zLogin ){
         blob_appendf(&wiki, "U %F\n", g.zLogin);
       }
-      blob_appendf(&body, "\n<hr>\n");
       appendRemark(&body);
       blob_appendf(&wiki, "W %d\n%s\n", blob_size(&body), blob_str(&body));
       md5sum_blob(&wiki, &cksum);
@@ -557,6 +559,7 @@ void wikirules_page(void){
   @ &lt;code&gt;
   @ &lt;dd&gt;
   @ &lt;dfn&gt;
+  @ &lt;div&gt;
   @ &lt;dl&gt;
   @ &lt;dt&gt;
   @ &lt;em&gt;

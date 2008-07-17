@@ -41,62 +41,87 @@
 /*
 ** These are the only markup attributes allowed.
 */
-#define ATTR_ALIGN              0x0000001
-#define ATTR_ALT                0x0000002
-#define ATTR_BGCOLOR            0x0000004
-#define ATTR_BORDER             0x0000008
-#define ATTR_CELLPADDING        0x0000010
-#define ATTR_CELLSPACING        0x0000020
-#define ATTR_CLEAR              0x0000040
-#define ATTR_COLOR              0x0000080
-#define ATTR_COLSPAN            0x0000100
-#define ATTR_COMPACT            0x0000200
-#define ATTR_FACE               0x0000400
-#define ATTR_HEIGHT             0x0000800
-#define ATTR_HREF               0x0001000
-#define ATTR_HSPACE             0x0002000
-#define ATTR_ID                 0x0004000
-#define ATTR_NAME               0x0008000
-#define ATTR_ROWSPAN            0x0010000
-#define ATTR_SIZE               0x0020000
-#define ATTR_SRC                0x0040000
-#define ATTR_START              0x0080000
-#define ATTR_TYPE               0x0100000
-#define ATTR_VALIGN             0x0200000
-#define ATTR_VALUE              0x0400000
-#define ATTR_VSPACE             0x0800000
-#define ATTR_WIDTH              0x1000000
+#define ATTR_ALIGN              1
+#define ATTR_ALT                2
+#define ATTR_BGCOLOR            3
+#define ATTR_BORDER             4
+#define ATTR_CELLPADDING        5
+#define ATTR_CELLSPACING        6
+#define ATTR_CLEAR              7
+#define ATTR_COLOR              8
+#define ATTR_COLSPAN            9
+#define ATTR_COMPACT            10
+#define ATTR_FACE               11
+#define ATTR_HEIGHT             12
+#define ATTR_HREF               13
+#define ATTR_HSPACE             14
+#define ATTR_ID                 15
+#define ATTR_NAME               16
+#define ATTR_ROWSPAN            17
+#define ATTR_SIZE               18
+#define ATTR_SRC                19
+#define ATTR_START              20
+#define ATTR_TYPE               21
+#define ATTR_VALIGN             22
+#define ATTR_VALUE              23
+#define ATTR_VSPACE             24
+#define ATTR_WIDTH              25
+#define AMSK_ALIGN              0x0000001
+#define AMSK_ALT                0x0000002
+#define AMSK_BGCOLOR            0x0000004
+#define AMSK_BORDER             0x0000008
+#define AMSK_CELLPADDING        0x0000010
+#define AMSK_CELLSPACING        0x0000020
+#define AMSK_CLEAR              0x0000040
+#define AMSK_COLOR              0x0000080
+#define AMSK_COLSPAN            0x0000100
+#define AMSK_COMPACT            0x0000200
+#define AMSK_FACE               0x0000400
+#define AMSK_HEIGHT             0x0000800
+#define AMSK_HREF               0x0001000
+#define AMSK_HSPACE             0x0002000
+#define AMSK_ID                 0x0004000
+#define AMSK_NAME               0x0008000
+#define AMSK_ROWSPAN            0x0010000
+#define AMSK_SIZE               0x0020000
+#define AMSK_SRC                0x0040000
+#define AMSK_START              0x0080000
+#define AMSK_TYPE               0x0100000
+#define AMSK_VALIGN             0x0200000
+#define AMSK_VALUE              0x0400000
+#define AMSK_VSPACE             0x0800000
+#define AMSK_WIDTH              0x1000000
 
 static const struct AllowedAttribute {
   const char *zName;
   unsigned int iMask;
 } aAttribute[] = {
   { 0, 0 },
-  { "align",         ATTR_ALIGN,          },
-  { "alt",           ATTR_ALT,            },
-  { "bgcolor",       ATTR_BGCOLOR,        },
-  { "border",        ATTR_BORDER,         },
-  { "cellpadding",   ATTR_CELLPADDING,    },
-  { "cellspacing",   ATTR_CELLSPACING,    },
-  { "clear",         ATTR_CLEAR,          },
-  { "color",         ATTR_COLOR,          },
-  { "colspan",       ATTR_COLSPAN,        },
-  { "compact",       ATTR_COMPACT,        },
-  { "face",          ATTR_FACE,           },
-  { "height",        ATTR_HEIGHT,         },
-  { "href",          ATTR_HREF,           },
-  { "hspace",        ATTR_HSPACE,         },
-  { "id",            ATTR_ID,             },
-  { "name",          ATTR_NAME,           },
-  { "rowspan",       ATTR_ROWSPAN,        },
-  { "size",          ATTR_SIZE,           },
-  { "src",           ATTR_SRC,            },
-  { "start",         ATTR_START,          },
-  { "type",          ATTR_TYPE,           },
-  { "valign",        ATTR_VALIGN,         },
-  { "value",         ATTR_VALUE,          },
-  { "vspace",        ATTR_VSPACE,         },
-  { "width",         ATTR_WIDTH,          },
+  { "align",         AMSK_ALIGN,          },
+  { "alt",           AMSK_ALT,            },
+  { "bgcolor",       AMSK_BGCOLOR,        },
+  { "border",        AMSK_BORDER,         },
+  { "cellpadding",   AMSK_CELLPADDING,    },
+  { "cellspacing",   AMSK_CELLSPACING,    },
+  { "clear",         AMSK_CLEAR,          },
+  { "color",         AMSK_COLOR,          },
+  { "colspan",       AMSK_COLSPAN,        },
+  { "compact",       AMSK_COMPACT,        },
+  { "face",          AMSK_FACE,           },
+  { "height",        AMSK_HEIGHT,         },
+  { "href",          AMSK_HREF,           },
+  { "hspace",        AMSK_HSPACE,         },
+  { "id",            AMSK_ID,             },
+  { "name",          AMSK_NAME,           },
+  { "rowspan",       AMSK_ROWSPAN,        },
+  { "size",          AMSK_SIZE,           },
+  { "src",           AMSK_SRC,            },
+  { "start",         AMSK_START,          },
+  { "type",          AMSK_TYPE,           },
+  { "valign",        AMSK_VALIGN,         },
+  { "value",         AMSK_VALUE,          },
+  { "vspace",        AMSK_VSPACE,         },
+  { "width",         AMSK_WIDTH,          },
 };
 
 /*
@@ -142,42 +167,43 @@ static int findAttr(const char *z){
 #define MARKUP_CODE              9
 #define MARKUP_DD               10
 #define MARKUP_DFN              11
-#define MARKUP_DL               12
-#define MARKUP_DT               13
-#define MARKUP_EM               14
-#define MARKUP_FONT             15
-#define MARKUP_H1               16
-#define MARKUP_H2               17
-#define MARKUP_H3               18
-#define MARKUP_H4               19
-#define MARKUP_H5               20
-#define MARKUP_H6               21
-#define MARKUP_HR               22
-#define MARKUP_I                23
-#define MARKUP_IMG              24
-#define MARKUP_KBD              25
-#define MARKUP_LI               26
-#define MARKUP_NOBR             27
-#define MARKUP_NOWIKI           28
-#define MARKUP_OL               29
-#define MARKUP_P                30
-#define MARKUP_PRE              31
-#define MARKUP_S                32
-#define MARKUP_SAMP             33
-#define MARKUP_SMALL            34
-#define MARKUP_STRIKE           35
-#define MARKUP_STRONG           36
-#define MARKUP_SUB              37
-#define MARKUP_SUP              38
-#define MARKUP_TABLE            39
-#define MARKUP_TD               40
-#define MARKUP_TH               41
-#define MARKUP_TR               42
-#define MARKUP_TT               43
-#define MARKUP_U                44
-#define MARKUP_UL               45
-#define MARKUP_VAR              46
-#define MARKUP_VERBATIM         47
+#define MARKUP_DIV              12
+#define MARKUP_DL               13
+#define MARKUP_DT               14
+#define MARKUP_EM               15
+#define MARKUP_FONT             16
+#define MARKUP_H1               17
+#define MARKUP_H2               18
+#define MARKUP_H3               19
+#define MARKUP_H4               20
+#define MARKUP_H5               21
+#define MARKUP_H6               22
+#define MARKUP_HR               23
+#define MARKUP_I                24
+#define MARKUP_IMG              25
+#define MARKUP_KBD              26
+#define MARKUP_LI               27
+#define MARKUP_NOBR             28
+#define MARKUP_NOWIKI           29
+#define MARKUP_OL               30
+#define MARKUP_P                31
+#define MARKUP_PRE              32
+#define MARKUP_S                33
+#define MARKUP_SAMP             34
+#define MARKUP_SMALL            35
+#define MARKUP_STRIKE           36
+#define MARKUP_STRONG           37
+#define MARKUP_SUB              38
+#define MARKUP_SUP              39
+#define MARKUP_TABLE            40
+#define MARKUP_TD               41
+#define MARKUP_TH               42
+#define MARKUP_TR               43
+#define MARKUP_TT               44
+#define MARKUP_U                45
+#define MARKUP_UL               46
+#define MARKUP_VAR              47
+#define MARKUP_VERBATIM         48
 
 /*
 ** The various markup is divided into the following types:
@@ -211,42 +237,43 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    ATTR_HREF|ATTR_NAME },
+                    AMSK_HREF|AMSK_NAME },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
  { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
  { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         0  },
- { "br",            MARKUP_BR,           MUTYPE_SINGLE,        ATTR_CLEAR  },
+ { "br",            MARKUP_BR,           MUTYPE_SINGLE,        AMSK_CLEAR  },
  { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         0  },
  { "cite",          MARKUP_CITE,         MUTYPE_FONT,          0  },
  { "code",          MARKUP_CODE,         MUTYPE_FONT,          0  },
  { "dd",            MARKUP_DD,           MUTYPE_LI,            0  },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          0  },
- { "dl",            MARKUP_DL,           MUTYPE_LIST,          ATTR_COMPACT },
+ { "div",           MARKUP_DIV,          MUTYPE_BLOCK,         AMSK_ID      },
+ { "dl",            MARKUP_DL,           MUTYPE_LIST,          AMSK_COMPACT },
  { "dt",            MARKUP_DT,           MUTYPE_LI,            0  },
  { "em",            MARKUP_EM,           MUTYPE_FONT,          0  },
  { "font",          MARKUP_FONT,         MUTYPE_FONT,
-                    ATTR_COLOR|ATTR_FACE|ATTR_SIZE   },
- { "h1",            MARKUP_H1,           MUTYPE_BLOCK,         ATTR_ALIGN  },
- { "h2",            MARKUP_H2,           MUTYPE_BLOCK,         ATTR_ALIGN  },
- { "h3",            MARKUP_H3,           MUTYPE_BLOCK,         ATTR_ALIGN  },
- { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         ATTR_ALIGN  },
- { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         ATTR_ALIGN  },
- { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         ATTR_ALIGN  },
+                    AMSK_COLOR|AMSK_FACE|AMSK_SIZE   },
+ { "h1",            MARKUP_H1,           MUTYPE_BLOCK,         AMSK_ALIGN  },
+ { "h2",            MARKUP_H2,           MUTYPE_BLOCK,         AMSK_ALIGN  },
+ { "h3",            MARKUP_H3,           MUTYPE_BLOCK,         AMSK_ALIGN  },
+ { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         AMSK_ALIGN  },
+ { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         AMSK_ALIGN  },
+ { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "hr",            MARKUP_HR,           MUTYPE_SINGLE,        
-                    ATTR_ALIGN|ATTR_COLOR|ATTR_SIZE|ATTR_WIDTH  },
+                    AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH  },
  { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,        
-                    ATTR_ALIGN|ATTR_ALT|ATTR_BORDER|ATTR_HEIGHT|
-                    ATTR_HSPACE|ATTR_SRC|ATTR_VSPACE|ATTR_WIDTH  },
+                    AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
+                    AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH  },
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          0  },
  { "li",            MARKUP_LI,           MUTYPE_LI,            
-                    ATTR_TYPE|ATTR_VALUE  },
+                    AMSK_TYPE|AMSK_VALUE  },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
  { "ol",            MARKUP_OL,           MUTYPE_LIST,          
-                    ATTR_START|ATTR_TYPE|ATTR_COMPACT  },
- { "p",             MARKUP_P,            MUTYPE_BLOCK,         ATTR_ALIGN  },
+                    AMSK_START|AMSK_TYPE|AMSK_COMPACT  },
+ { "p",             MARKUP_P,            MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
  { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
@@ -256,22 +283,22 @@ static const struct AllowedMarkup {
  { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
  { "sup",           MARKUP_SUP,          MUTYPE_FONT,          0  },
  { "table",         MARKUP_TABLE,        MUTYPE_TABLE,         
-                    ATTR_ALIGN|ATTR_BGCOLOR|ATTR_BORDER|ATTR_CELLPADDING|
-                    ATTR_CELLSPACING|ATTR_HSPACE|ATTR_VSPACE  },
+                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
+                    AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE  },
  { "td",            MARKUP_TD,           MUTYPE_TD,            
-                    ATTR_ALIGN|ATTR_BGCOLOR|ATTR_COLSPAN|
-                    ATTR_ROWSPAN|ATTR_VALIGN  },
+                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
+                    AMSK_ROWSPAN|AMSK_VALIGN  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
-                    ATTR_ALIGN|ATTR_BGCOLOR|ATTR_COLSPAN|
-                    ATTR_ROWSPAN|ATTR_VALIGN  },
+                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
+                    AMSK_ROWSPAN|AMSK_VALIGN  },
  { "tr",            MARKUP_TR,           MUTYPE_TR, 
-                    ATTR_ALIGN|ATTR_BGCOLOR||ATTR_VALIGN  },
+                    AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
  { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,          
-                    ATTR_TYPE|ATTR_COMPACT  },
+                    AMSK_TYPE|AMSK_COMPACT  },
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
- { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       ATTR_ID },
+ { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       AMSK_ID },
 };
 
 /*
@@ -334,7 +361,11 @@ struct Renderer {
   const char *zVerbatimId;    /* The id= attribute of <verbatim> */
   int nStack;                 /* Number of elements on the stack */
   int nAlloc;                 /* Space allocated for aStack */
-  unsigned char *aStack;      /* Open markup stack */
+  struct sStack {
+    short iCode;                 /* Markup code */
+    short allowWiki;             /* ALLOW_WIKI if wiki allowed before tag */
+    const char *zId;             /* ID attribute or NULL */
+  } *aStack;
 };
 
 
@@ -587,7 +618,7 @@ struct ParsedMarkup {
   unsigned char nAttr;    /* Number of attributes */
   unsigned short iType;   /* MUTYPE_* */
   struct {
-    unsigned char iCode;     /* ATTR_* */
+    unsigned char iACode;    /* ATTR_* */
     char *zValue;            /* Argument to this attribute.  Might be NULL */
     char cTerm;              /* Original argument termination character */
   } aAttr[10];
@@ -602,7 +633,7 @@ struct ParsedMarkup {
 */
 static void parseMarkup(ParsedMarkup *p, char *z){
   int i, j, c;
-  int iCode;
+  int iACode;
   char *zValue;
   int seen = 0;
   char zTag[100];
@@ -632,8 +663,8 @@ static void parseMarkup(ParsedMarkup *p, char *z){
       i++;
     }
     zTag[j] = 0;
-    p->aAttr[p->nAttr].iCode = iCode = findAttr(zTag);
-    attrOk = iCode!=0 && (seen & aAttribute[iCode].iMask)==0;
+    p->aAttr[p->nAttr].iACode = iACode = findAttr(zTag);
+    attrOk = iACode!=0 && (seen & aAttribute[iACode].iMask)==0;
     while( isspace(z[i]) ){ z++; }
     if( z[i]!='=' ){
       p->aAttr[p->nAttr].zValue = 0;
@@ -658,7 +689,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
       i++;
     }
     if( attrOk ){
-      seen |= aAttribute[iCode].iMask;
+      seen |= aAttribute[iACode].iMask;
       p->nAttr++;
     }
     while( isspace(z[i]) ){ i++; }
@@ -676,7 +707,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
   }else{
     blob_appendf(pOut, "<%s", aMarkup[p->iCode].zName);
     for(i=0; i<p->nAttr; i++){
-      blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iCode].zName);
+      blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iACode].zName);
       if( p->aAttr[i].zValue ){
         blob_appendf(pOut, "=\"%s\"", p->aAttr[i].zValue);
       }
@@ -701,13 +732,31 @@ static void unparseMarkup(ParsedMarkup *p){
 }
 
 /*
+** Return the ID attribute for markup.  Return NULL if there is no
+** ID attribute.
+*/
+static const char *markupId(ParsedMarkup *p){
+  int i;
+  for(i=0; i<p->nAttr; i++){
+    if( p->aAttr[i].iACode==ATTR_ID ){
+      return p->aAttr[i].zValue;
+    }
+  }
+  return 0;
+}
+
+/*
 ** Pop a single element off of the stack.  As the element is popped,
-** output its end tag.
+** output its end tag if it is not a </div> tag.
 */
 static void popStack(Renderer *p){
   if( p->nStack ){
+    int iCode;
     p->nStack--;
-    blob_appendf(p->pOut, "</%s>", aMarkup[p->aStack[p->nStack]].zName);
+    iCode = p->aStack[p->nStack].iCode;
+    if( iCode!=MARKUP_DIV ){
+      blob_appendf(p->pOut, "</%s>", aMarkup[iCode].zName);
+    }
   }
 }
 
@@ -715,15 +764,21 @@ static void popStack(Renderer *p){
 ** Push a new markup value onto the stack.  Enlarge the stack
 ** if necessary.
 */
-static void pushStack(Renderer *p, int elem){
+static void pushStackWithId(Renderer *p, int elem, const char *zId, int w){
   if( p->nStack>=p->nAlloc ){
     p->nAlloc = p->nAlloc*2 + 100;
-    p->aStack = realloc(p->aStack, p->nAlloc);
+    p->aStack = realloc(p->aStack, p->nAlloc*sizeof(p->aStack[0]));
     if( p->aStack==0 ){
       fossil_panic("out of memory");
     }
   }
-  p->aStack[p->nStack++] = elem;
+  p->aStack[p->nStack].iCode = elem;
+  p->aStack[p->nStack].zId = zId;
+  p->aStack[p->nStack].allowWiki = w;
+  p->nStack++;
+}
+static void pushStack(Renderer *p, int elem){
+  pushStackWithId(p, elem, 0, 0);
 }
 
 /*
@@ -733,11 +788,31 @@ static void pushStack(Renderer *p, int elem){
 */
 static void popStackToTag(Renderer *p, int iTag){
   int i;
-  for(i=p->nStack-1; i>=0 && p->aStack[i]!=iTag; i--){}
+  for(i=p->nStack-1; i>=0; i--){
+    if( p->aStack[i].iCode!=iTag ) continue;
+    if( p->aStack[i].zId ) continue;
+    break;
+  }
   if( i<0 ) return;
   while( p->nStack>i ){
     popStack(p);
   }
+}
+
+/*
+** Attempt to find a find a tag of type iTag with id zId.  Return -1
+** if not found.  If found, return its stack level.  
+*/
+static int findTagWithId(Renderer *p, int iTag, const char *zId){
+  int i;
+  assert( zId!=0 );
+  for(i=p->nStack-1; i>=0; i--){
+    if( p->aStack[i].iCode!=iTag ) continue;
+    if( p->aStack[i].zId==0 ) continue;
+    if( strcmp(zId, p->aStack[i].zId)!=0 ) continue;
+    break;
+  }
+  return i;
 }
 
 /*
@@ -750,13 +825,15 @@ static void popStackToTag(Renderer *p, int iTag){
 */
 static int backupToType(Renderer *p, int iMask){
   int i;
-  for(i=p->nStack-1; i>=0 && (aMarkup[p->aStack[i]].iType&iMask)==0; i--){}
+  for(i=p->nStack-1; i>=0; i--){
+    if( aMarkup[p->aStack[i].iCode].iType & iMask ) break;
+  }
   if( i<0 ) return 0;
   i++;
   while( p->nStack>i ){
     popStack(p);
   }
-  return p->aStack[i-1];
+  return p->aStack[i-1].iCode;
 }
 
 /*
@@ -851,7 +928,7 @@ static int endVerbatim(Renderer *p, ParsedMarkup *pMarkup){
 */
 static int stackTopType(Renderer *p){
   if( p->nStack<=0 ) return 0;
-  return aMarkup[p->aStack[p->nStack-1]].iType;
+  return aMarkup[p->aStack[p->nStack-1].iCode].iType;
 }
 
 /*
@@ -989,7 +1066,37 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_MARKUP: {
+        const char *zId;
+        int iDiv;
         parseMarkup(&markup, z);
+
+        /* Markup of the form </div id=ID> where there is a matching
+        ** ID somewhere on the stack.  Exit the verbatim if were are in
+        ** it.  Pop the stack up to the matching <div>.  Discard the 
+        ** </div>
+        */
+        if( markup.iCode==MARKUP_DIV && markup.endTag &&
+             (zId = markupId(&markup))!=0 &&
+             (iDiv = findTagWithId(p, MARKUP_DIV, zId))>=0
+        ){
+          if( p->inVerbatim ){
+            p->inVerbatim = 0;
+            p->state = p->preVerbState;
+            blob_append(p->pOut, "</pre>", 6);
+          }
+          while( p->nStack>iDiv+1 ) popStack(p);
+          if( p->aStack[iDiv].allowWiki ){
+            p->state |= ALLOW_WIKI;
+          }else{
+            p->state &= ~ALLOW_WIKI;
+          }
+          assert( p->nStack==iDiv+1 );
+          p->nStack--;
+        }else
+
+        /* If within <verbatim id=ID> ignore everything other than
+        ** </verbatim id=ID> and the </dev id=ID2> above.
+        */           
         if( p->inVerbatim ){
           if( endVerbatim(p, &markup) ){
             p->inVerbatim = 0;
@@ -1000,25 +1107,56 @@ static void wiki_render(Renderer *p, char *z){
             blob_append(p->pOut, "&lt;", 4);
             n = 1;
           }
-        }else if( markup.iCode==MARKUP_INVALID ){
+        }else
+
+        /* Render invalid markup literally.  The markup appears in the
+        ** final output as plain text.
+        */
+        if( markup.iCode==MARKUP_INVALID ){
           unparseMarkup(&markup);
           startAutoParagraph(p);
           blob_append(p->pOut, "&lt;", 4);
           n = 1;
-        }else if( (markup.iType&MUTYPE_FONT)==0
-                    && (p->state & FONT_MARKUP_ONLY)!=0 ){
+        }else
+
+        /* If the markup is not font-change markup ignore it if the
+        ** font-change-only flag is set.
+        */
+        if( (markup.iType&MUTYPE_FONT)==0 && (p->state & FONT_MARKUP_ONLY)!=0 ){
           /* Do nothing */
-        }else if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
+        }else
+
+        /* Ignore block markup for in-line rendering.
+        */
+        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
           /* Do nothing */
-        }else if( markup.iCode==MARKUP_NOWIKI ){
+        }else
+
+        if( markup.iCode==MARKUP_NOWIKI ){
           if( markup.endTag ){
             p->state |= ALLOW_WIKI;
           }else{
             p->state &= ~ALLOW_WIKI;
           }
-        }else if( markup.endTag ){
+        }else
+
+        /* Generate end-tags */
+        if( markup.endTag ){
           popStackToTag(p, markup.iCode);
-        }else if( markup.iCode==MARKUP_VERBATIM ){
+        }else
+
+        /* Push <div> markup onto the stack together with the id=ID attribute.
+        */
+        if( markup.iCode==MARKUP_DIV ){
+          pushStackWithId(p, markup.iCode, markupId(&markup),
+                          (p->state & ALLOW_WIKI)!=0);
+        }else
+
+        /* Enter <verbatim> processing.  With verbatim enabled, all other
+        ** markup other than the corresponding end-tag with the same ID is
+        ** ignored. 
+        */
+        if( markup.iCode==MARKUP_VERBATIM ){
           if( markup.nAttr==1 ){
             p->zVerbatimId = markup.aAttr[0].zValue;
           }else{
@@ -1029,19 +1167,22 @@ static void wiki_render(Renderer *p, char *z){
           p->state &= ~ALLOW_WIKI;
           blob_append(p->pOut, "<pre class='verbatim'>",-1);
           p->wantAutoParagraph = 0;
-        }else if( markup.iType==MUTYPE_LI ){
+        }else
+        if( markup.iType==MUTYPE_LI ){
           if( backupToType(p, MUTYPE_LIST)==0 ){
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
           }
           pushStack(p, MARKUP_LI);
           renderMarkup(p->pOut, &markup);
-        }else if( markup.iType==MUTYPE_TR ){
+        }else
+        if( markup.iType==MUTYPE_TR ){
           if( backupToType(p, MUTYPE_TABLE) ){
             pushStack(p, MARKUP_TR);
             renderMarkup(p->pOut, &markup);
           }
-        }else if( markup.iType==MUTYPE_TD ){
+        }else
+        if( markup.iType==MUTYPE_TD ){
           if( backupToType(p, MUTYPE_TABLE|MUTYPE_TR) ){
             if( stackTopType(p)==MUTYPE_TABLE ){
               pushStack(p, MARKUP_TR);
@@ -1050,12 +1191,14 @@ static void wiki_render(Renderer *p, char *z){
             pushStack(p, markup.iCode);
             renderMarkup(p->pOut, &markup);
           }
-        }else if( markup.iType==MUTYPE_HYPERLINK ){
+        }else
+        if( markup.iType==MUTYPE_HYPERLINK ){
           popStackToTag(p, markup.iCode);
           startAutoParagraph(p);
           renderMarkup(p->pOut, &markup);
           pushStack(p, markup.iCode);
-        }else{
+        }else
+        {
           if( markup.iType==MUTYPE_FONT ){
             startAutoParagraph(p);
           }else if( markup.iType==MUTYPE_BLOCK ){

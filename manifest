@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Avoid\sthe\suse\sof\schdir()\ssince\sthis\sseems\sto\scause\sproblems\son\swindows.
-D 2008-07-17T01:49:16
+C Enhance\sthe\swiki\srendering\sto\ssupport\s&lt;div&gt;\smarkup.\s\sThe\sclosing\n&lt;/div&gt;\stag\swith\sand\sid=\sattribute\scan\sclose\soff\s&lt;verbatim&gt;\nand\s&lt;nowiki&gt;.\s\sThe\swiki\sappend\spage\suses\sthis\sto\sprevent\sunclosed\ntags\sfrom\smessing\sup\sthe\srendering\sof\ssubsequent\scomments.
+D 2008-07-17T15:49:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -107,8 +107,8 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
-F src/wiki.c 185275fa54ffb2f1f9a215c85d49881a91f45fc1
-F src/wikiformat.c e49b2821f424dac64a40039b89c6796c548ca317
+F src/wiki.c 26fbd5a93fe121fe86a68fb5a4d99f67c7aad45a
+F src/wikiformat.c 55aa7e0f7eca4d9f6a132cbb70dc78bbbc4fa31a
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c e9c8669cb155e1542e30bcdeaf7e50aefc420ebf
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P b3ee50c9463214942d0af7055f4a06e2353f631c
-R fb2c3385026a04f5346687843be2c78e
+P 849b94c6317f855aed30ed371f75229c13cfe038
+R 1b40fbc93662bb8e9ee1b36792ff2cb2
 U drh
-Z 85a3eaf871ecea5e3ae04e5fe7132cad
+Z 2d2242a425cfba6add5774b788a2fcb1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIfqUfoxKgR168RlERAlxyAJ9uEBR699Q8e4jawbLwSgj4lXgEwwCfa0IJ
-dHbQ2bK5ce6F+UBWsvfSfrI=
-=Ra1/
+iD8DBQFIf2oIoxKgR168RlERAqAOAJ4g2LX+VTb8oPPZ4rec7JGN+ekXSwCfacf8
+03/luaDmuO3xA4BYI2AcOKY=
+=0/o/
 -----END PGP SIGNATURE-----
