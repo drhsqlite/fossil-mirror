@@ -68,7 +68,7 @@ and painlessly.</p>
     <b>fossil ui </b><i> repository-filename</i>
     </blockquote>
 
-    <p>This creates starts webserver listening on port 8080.  You can
+    <p>This starts a webserver listening on port 8080.  You can
     specify a different port using the <b>-port</b> option on the command-line.
     After the server is running, fossil will then attempt to launch your
     web browser and make it point to this web server.  If your system
@@ -89,7 +89,7 @@ and painlessly.</p>
     <p>To work on a project in fossil, you need to check out a local
     copy of the source tree.  Create the directory you want to be
     the root of your tree and cd into that directory.  Then
-    to this:</p>
+    do this:</p>
     
     <blockquote>
     <b>fossil open </b><i> repository-filename</i>

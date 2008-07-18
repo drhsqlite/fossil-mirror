@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Give\s/wiki\sa\slink\sto\sthe\sWiki\spage\swith\sthe\ssame\sname\sas\sthe\sProject\sName.
-D 2008-07-17T20:34:35
+C Fix\stypos\sin\sthe\squick-start\sdocument.
+D 2008-07-18T12:14:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -206,17 +206,17 @@ F www/index.wiki a45f7bf59ec3fe5a3a74b4cb7450e7e3b2addb28
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/quickstart.wiki 29d30ac723fd61a42defd297d3753a270b22608b
+F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P e01aa8cb4b23e512b16f6d0bd05646b578e5531e
-R 684e6394ecb382b1862913143661921b
-U eric
-Z 45c6b334553bf1226a1af6e63b1e7f18
+P 82136b0a5f957c99ab46e3b1c1eca433c23b43de
+R ad3517bcf1679ff2a79b813120788ee6
+U drh
+Z b18172c298137c7fc0e36e8107f97a56
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFIf61Ku+lpsLhDMQkRAjWcAKC5mmtnr/zeM+laqdL68idh32Ul0wCffxrf
-Iy32QUHAHJqLjKiwxp0L4lQ=
-=EV05
+iD8DBQFIgIkzoxKgR168RlERAuzVAJoCrOxlKQegZK0gDGbaMfkoaRlK0QCcCxRo
+OijxOZxhSycHsIDGe7htJCY=
+=08z7
 -----END PGP SIGNATURE-----
