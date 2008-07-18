@@ -121,9 +121,9 @@ void style_footer(void){
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
   */
+  cgi_destination(CGI_HEADER);
   if( nSubmenu>0 ){
     int i;
-    cgi_destination(CGI_HEADER);
     @ <div class="submenu">
     qsort(aSubmenu, nSubmenu, sizeof(aSubmenu[0]), submenuCompare);
     for(i=0; i<nSubmenu; i++){
@@ -135,14 +135,14 @@ void style_footer(void){
       }
     }
     @ </div>
-    cgi_destination(CGI_BODY);
   }
+  @ <div class="content">
+  cgi_destination(CGI_BODY);
 
   /* Put the footer at the bottom of the page.
   */
-  @ <div class="content">
-  zFooter = db_get("footer", (char*)zDefaultFooter);
   @ </div>
+  zFooter = db_get("footer", (char*)zDefaultFooter);
   Th_Render(zFooter);
 }
 

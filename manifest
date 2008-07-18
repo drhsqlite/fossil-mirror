@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\stypos\sin\sthe\squick-start\sdocument.
-D 2008-07-18T12:14:37
+C CSS\sfixes\s-\smake\s<div\sclass="content">\s...\s</div>\sactually\senclose\sthe\scontent.\sAlso\sadd\sa\scouple\sof\smissing\sfooters.
+D 2008-07-18T21:44:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -83,13 +83,13 @@ F src/rebuild.c ec319a870049957ccd63eef8995615e70fe623c7
 F src/report.c 1a3b1f6f038dd273b9afc5352c01cd53ce4a09bd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f558a43ecd5c39ed4b9a9ff208ae61fafa921280
-F src/setup.c 5f5b17c105ae1febc7724354776a0540647ab18c
+F src/setup.c a90d39e174b383cb3bcae8ad0b3e4f032aca8c08
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
 F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 7071fb1a0f9445a80cd45615bdfc3bf5048e5062
+F src/style.c 2c3b74d98084c88694c230b97aa6ee412ec239ed
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
 F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 82136b0a5f957c99ab46e3b1c1eca433c23b43de
-R ad3517bcf1679ff2a79b813120788ee6
-U drh
-Z b18172c298137c7fc0e36e8107f97a56
+P 924554d78b4d68afc7076f3bd2d14b520f7ee1ca
+R 1bc7d8e9973d62464e214cedb86c2ed0
+U eric
+Z 2c06b2d14876aecc5ba3addb2f61b31c
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFIgIkzoxKgR168RlERAuzVAJoCrOxlKQegZK0gDGbaMfkoaRlK0QCcCxRo
-OijxOZxhSycHsIDGe7htJCY=
-=08z7
+iD8DBQFIgQ8Gu+lpsLhDMQkRAiJlAJ40fDuEs2BIurC48XwHdvw2bltpSwCgknZ1
+qq5S3GDZvoHiFSIK5R1CGxg=
+=gzfd
 -----END PGP SIGNATURE-----

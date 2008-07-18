@@ -685,6 +685,7 @@ void setup_header(void){
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
   @ </pre></blockquote>
+  style_footer();
   db_end_transaction(0);
 }
 
@@ -717,5 +718,6 @@ void setup_footer(void){
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
   @ </pre></blockquote>
+  style_footer();
   db_end_transaction(0);
 }
