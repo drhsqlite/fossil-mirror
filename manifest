@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"Key\sTemplate"\ssetup\sbox\sunder\sticket\sconfiguration.
-D 2008-07-19T14:15:16
+C Fix\senforcement\sof\saccess\srestrictions\son\sreports.\s\sDo\snot\sallow\sreports\nto\sshow\sthe\scontent\sof\sfields\swhose\snames\sbegin\swith\s"private_"\sunless\nthe\s"e"\spermission\sis\senabled.
+D 2008-07-19T15:12:34
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -64,7 +64,7 @@ F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
 F src/info.c 737ba1d6c6bb8eb740d20af0193b5ac3a9dded64
 F src/login.c 0aeb2757467f6e620912861735255e9e1f6fa092
-F src/main.c be97bf56d426b1c790aaaf51b0194716209e3dcc
+F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -80,10 +80,10 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c ec319a870049957ccd63eef8995615e70fe623c7
-F src/report.c 1a3b1f6f038dd273b9afc5352c01cd53ce4a09bd
+F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f558a43ecd5c39ed4b9a9ff208ae61fafa921280
-F src/setup.c a90d39e174b383cb3bcae8ad0b3e4f032aca8c08
+F src/setup.c c163109c85455a13f765b5615c309984824ba3bb
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -99,7 +99,7 @@ F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
 F src/tkt.c 6ac9641c6a7b13432c1e0852aac0a84f5a5275ac
-F src/tktsetup.c e7df19c0f4dbb4d5559defc81a21de63bbf295f3
+F src/tktsetup.c af01500203d27a7375c95e0470a114dcbd6bd9d9
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c cb0a6551aff4c509f8fa95600f89933819b8cdeb
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 23ed5e2cd6e89a22c922d9f6ac6f9627d9d442bd
-R e822f78123613be1ba5793b659c334e7
+P b7588eb2f7ede9178b5740d204391fc9632aaa05
+R 797cb3dc756d0fe94afcdc9107240338
 U drh
-Z 0c04f3943d602a64933d87afba726f1e
+Z 7fd8d5173160e2e089adcbba7a063a03
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIgfb3oxKgR168RlERAmtlAJ4+r4LEZmNQ0/veMTMqoge40OV4BwCcCoeO
-y1z1Z2EWCxtTFb+4RHe5IUg=
-=dKPz
+iD8DBQFIggRnoxKgR168RlERAuFjAJ45ueUU9/ZORC3cSA7EVIWnD4T9iQCdGSsk
+5ufeF6aqZRUfHHIA2o0pOTE=
+=dinv
 -----END PGP SIGNATURE-----

@@ -118,7 +118,7 @@ struct Global {
   int okApndTkt;          /* c: append to tickets via the web */
   int okWrTkt;            /* w: make changes to tickets via web */
   int okTktFmt;           /* t: create new ticket report formats */
-  int okRdAddr;           /* e: read email addresses on tickets */
+  int okRdAddr;           /* e: read email addresses or other private data */
 
   FILE *fDebug;           /* Write debug information here, if the file exists */
 

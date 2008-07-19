@@ -156,8 +156,8 @@ static int report_query_authorizer(
   const char *zArg3,
   const char *zArg4
 ){
-  char *zError = *(char**)pError;
-  if( zError ){
+  int rc = SQLITE_OK;
+  if( *(char**)pError ){
     /* We've already seen an error.  No need to continue. */
     return SQLITE_OK;
   }
@@ -182,16 +182,20 @@ static int report_query_authorizer(
         if( strcasecmp(zArg1, azAllowed[i])==0 ) break;
       }
       if( i>=sizeof(azAllowed)/sizeof(azAllowed[0]) ){
-        zError = mprintf("cannot access table %s", zArg1);
+        *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
+        rc = SQLITE_DENY;
+      }else if( !g.okRdAddr && strncmp(zArg2, "private_", 8)==0 ){
+        rc = SQLITE_IGNORE;
       }
       break;
     }
     default: {
-      zError = mprintf("only SELECT statements are allowed");
+      *(char**)pError = mprintf("only SELECT statements are allowed");
+      rc = SQLITE_DENY;
       break;
     }
   }
-  return SQLITE_OK;
+  return rc;
 }
 
 
@@ -877,6 +881,8 @@ void rptview_page(void){
   char *zClrKey;
   int tabs;
   Stmt q;
+  char *zErr1 = 0;
+  char *zErr2 = 0;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
@@ -934,11 +940,20 @@ void rptview_page(void){
     @ <table border=1 cellpadding=2 cellspacing=0 class="report">
     sState.rn = rn;
     sState.nCount = 0;
-    sqlite3_exec(g.db, zSql, generate_html, &sState, 0);
+    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+    sqlite3_exec(g.db, zSql, generate_html, &sState, &zErr2);
+    sqlite3_set_authorizer(g.db, 0, 0);
     @ </table>
+    if( zErr1 ){
+      @ <p><font color="red"><b>Error: %h(zErr1)</b></font></p>
+    }else if( zErr2 ){
+      @ <p><font color="red"><b>Error: %h(zErr2)</b></font></p>
+    }
     style_footer();
   }else{
-    sqlite3_exec(g.db, zSql, output_tab_separated, &count, 0);
+    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+    sqlite3_exec(g.db, zSql, output_tab_separated, &count, &zErr2);
+    sqlite3_set_authorizer(g.db, 0, 0);
     cgi_set_content_type("text/plain");
   }
 }

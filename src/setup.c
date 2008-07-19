@@ -138,7 +138,7 @@ void setup_ulist(void){
   @ <li value="1"><b>Admin</b>: Create and delete users</li>
   @ <li value="3"><b>Append-Tkt</b>: Append to tickets</li>
   @ <li value="4"><b>Delete</b>: Delete wiki and tickets</li>
-  @ <li value="5"><b>Email</b>: View EMail addresses on tickets</li>
+  @ <li value="5"><b>Email</b>: View sensitive data such as EMail addresses</li>
   @ <li value="6"><b>New-Wiki</b>: Create new wiki pages</li>
   @ <li value="7"><b>Clone</b>: Clone the repository</li>
   @ <li value="8"><b>History</b>: View detail repository history</li>

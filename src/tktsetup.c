@@ -58,6 +58,10 @@ void tktsetup_page(void){
   style_footer();
 }
 
+/*
+** NOTE:  When changing the table definition below, also change the
+** equivalent definition found in schema.c.
+*/
 /* @-comment: ** */
 static const char zDefaultTicketTable[] =
 @ CREATE TABLE ticket(
@@ -72,7 +76,7 @@ static const char zDefaultTicketTable[] =
 @   priority TEXT,
 @   severity TEXT,
 @   foundin TEXT,
-@   contact TEXT,
+@   private_contact TEXT,
 @   resolution TEXT,
 @   title TEXT,
 @   comment TEXT,
@@ -127,6 +131,7 @@ static void tktsetup_generic(
     }else{
       db_set(zDbField, z, 0);
       if( xRebuild ) xRebuild();
+      cgi_redirect("tktsetup");
     }
   }
   @ <form action="%s(g.zBaseURL)/%s(g.zPath)" method="POST">
@@ -278,7 +283,7 @@ static const char zDefaultNew[] =
 @ 
 @ <tr>
 @ <td align="right">EMail:
-@ <input type="text" name="contact" value="$<contact>" size="30">
+@ <input type="text" name="private_contact" value="$<private_contact>" size="30">
 @ </td>
 @ <td><u>Not publicly visible</u>. Used by developers to contact you with
 @ questions.</td>
@@ -379,7 +384,7 @@ static const char zDefaultView[] =
 @ </td>
 @ <th1>enable_output [hascap e]</th1>
 @   <td align="right">Contact:</td><td bgcolor="#d0d0d0">
-@   $<contact>
+@   $<private_contact>
 @   </td>
 @ <th1>enable_output 1</th1>
 @ </tr>
@@ -463,7 +468,8 @@ static const char zDefaultEdit[] =
 @ </td></tr>
 @ <th1>enable_output [hascap e]</th1>
 @   <tr><td align="right">Contact:</td><td>
-@   <input type="text" name="contact" size="40" value="$<contact>">
+@   <input type="text" name="private_contact" size="40"
+@    value="$<private_contact>">
 @   </td></tr>
 @ <th1>enable_output 1</th1>
 @ <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
