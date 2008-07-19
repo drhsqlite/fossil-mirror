@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Allow\sAdmin\suser\sto\schanges\suser\sinformation.\s\sAdd\sa\s"User"\slink\son\sthe\nmain\smenu\sfor\sAdmin\susers.
-D 2008-07-19T16:03:02
+C Add\sthe\sability\sto\sedit\scheck-in\scomments\sand\susers\sfrom\sthe\sweb\sinterface.
+D 2008-07-19T18:18:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 33dcca33b9ed3b0a180f06f3f6a74dc0f99bd9c1
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c 737ba1d6c6bb8eb740d20af0193b5ac3a9dded64
+F src/info.c e15b50505ab4bc840df1df1fa76be89e7f8181c4
 F src/login.c 0aeb2757467f6e620912861735255e9e1f6fa092
 F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 92f6d3d7867af3db01b1e44791bbf6646571bcae
-R 2abb9666968d32a744a306528fcca045
+P f8831f447afc6de276525f5f47ff6e0f1ce7ee04
+R 7bd4ff10674df30b7cdc0e6793f9e010
 U drh
-Z f194aa005a3f4c3beb28d585d6930e2a
+Z 2f9e7474b79e45a8bf5598f422d4031c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIghA6oxKgR168RlERAmCvAJ9QMuXlHtzgpdeL2i7/MLSohR8YKQCffmQK
-WKpfca/lcsKszJD4oexxnvI=
-=Jysw
+iD8DBQFIgjAMoxKgR168RlERAn7YAJ9sR7ntNCZHsSYwba8XszgVfPdF5QCdHeDX
+yNmvcd/Ke14858mRozb8BAM=
+=dmLk
 -----END PGP SIGNATURE-----

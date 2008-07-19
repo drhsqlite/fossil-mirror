@@ -305,7 +305,7 @@ void vinfo_page(void){
   if( !g.okRead ){ login_needed(); return; }
   rid = name_to_rid(PD("name","0"));
   if( rid==0 ){
-    style_header("Version Information Error");
+    style_header("Baseline Information Error");
     @ No such object: %h(g.argv[2])
     style_footer();
     return;
@@ -321,19 +321,39 @@ void vinfo_page(void){
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Baseline [%.10s]", zUuid);
+    char *zEUser, *zEComment;
+    const char *zUser;
+    const char *zComment;
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
-    /*@ <h2>Version %s(zUuid)</h2>*/
+    zEUser = db_text(0,
+                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
+                    TAG_USER, rid);
+    zEComment = db_text(0, 
+                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
+                   TAG_COMMENT, rid);
+    zUser = db_column_text(&q, 2);
+    zComment = db_column_text(&q, 3);
     @ <div class="section">Overview</div>
     @ <p><table class="label-value">
-    @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
+    @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)</td></tr>
     @ <tr><th>Date:</th><td>%s(db_column_text(&q, 1))</td></tr>
     if( g.okSetup ){
       @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
     }
-    @ <tr><th>Original&nbsp;User:</th><td>%h(db_column_text(&q, 2))</td></tr>
-    @ <tr><th>Original&nbsp;Comment:</th><td>%w(db_column_text(&q,3))</td></tr>
+    if( zEUser ){
+      @ <tr><th>Edited&nbsp;User:</td><td>%h(zEUser)</td></tr>
+      @ <tr><th>Original&nbsp;User:</th><td>%h(zUser)</td></tr>
+    }else{
+      @ <tr><th>User:</td><td>%h(zUser)</td></tr>
+    }
+    if( zEComment ){
+      @ <tr><th>Edited&nbsp;Comment:</th><td>%w(zEComment)</td></tr>
+      @ <tr><th>Original&nbsp;Comment:</th><td>%w(zComment)</td></tr>
+    }else{
+      @ <tr><th>Comment:</th><td>%w(zComment)</td></tr>
+    }
     @ </td></tr>
     if( g.okHistory ){
       @ <tr><th>Timelines:</th><td>
@@ -346,6 +366,9 @@ void vinfo_page(void){
       @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
       @     | <a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a>
       @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
+      if( g.okWrite ){
+        @     | <a href="%s(g.zBaseURL)/vedit?r=%d(rid)">edit</a>
+      }
       @   </td>
       @ </tr>
     }
@@ -356,7 +379,7 @@ void vinfo_page(void){
   }
   db_finalize(&q);
   showTags(rid, "");
-  @ <div class="section">Changes</div>
+  @ <div class="section">Files Changed</div>
   @ <ul>
   db_prepare(&q, 
      "SELECT name, pid, fid"
@@ -926,4 +949,91 @@ void info_page(void){
   {
     artifact_page();
   }
+}
+
+/*
+** WEBPAGE: vedit
+** URL:  vedit?r=RID&c=NEWCOMMENT&u=NEWUSER
+**
+** Present a dialog for updating properties of a baseline:
+**
+**     *  The check-in user
+**     *  The check-in comment
+**     *  The background color.
+*/
+void vedit_page(void){
+  int rid;
+  const char *zComment;
+  const char *zNewComment;
+  const char *zUser;
+  const char *zNewUser;
+  char *zUuid;
+  Blob comment;
+  
+  login_check_credentials();
+  if( !g.okWrite ){ login_needed(); return; }
+  rid = atoi(PD("r","0"));
+  zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
+                        "  FROM event WHERE objid=%d", rid);
+  if( zComment==0 ) fossil_redirect_home();
+  zNewComment = PD("c",zComment);
+  zUser = db_text(0, "SELECT coalesce(euser,user)"
+                     "  FROM event WHERE objid=%d", rid);
+  if( zUser==0 ) fossil_redirect_home();
+  zNewUser = PD("u",zUser);
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( P("cancel") ){
+    cgi_redirectf("vinfo?name=%d", rid);
+  }
+  if( P("apply") ){
+    Blob ctrl;
+    char *zDate;
+    int nChng = 0;
+
+    blob_zero(&ctrl);
+    zDate = db_text(0, "SELECT datetime('now')");
+    zDate[10] = 'T';
+    blob_appendf(&ctrl, "D %s\n", zDate);
+    if( strcmp(zComment,zNewComment)!=0 ){
+      nChng++;
+      blob_appendf(&ctrl, "T +comment %s %F\n", zUuid, zNewComment);
+    }
+    if( strcmp(zUser,zNewUser)!=0 ){
+      nChng++;
+      blob_appendf(&ctrl, "T +user %s %F\n", zUuid, zNewUser);
+    }
+    if( nChng>0 ){
+      int nrid;
+      Blob cksum;
+      blob_appendf(&ctrl, "U %F\n", g.zLogin);
+      md5sum_blob(&ctrl, &cksum);
+      blob_appendf(&ctrl, "Z %b\n", &cksum);
+      db_begin_transaction();
+      nrid = content_put(&ctrl, 0, 0);
+      manifest_crosslink(nrid, &ctrl);
+      db_end_transaction(0);
+    }
+    cgi_redirectf("vinfo?name=%d", rid);
+  }
+  blob_init(&comment, zNewComment, -1);
+  zUuid[10] = 0;
+  style_header("Edit Baseline [%s]", zUuid);
+  @ <p>Make changes to the User and Comment for baseline 
+  @ [<a href="vinfo?name=%d(rid)">%s(zUuid)</a>] then press the
+  @ "Apply Changes" button.</p>
+  @ <form action="%s(g.zBaseURL)/vedit" method="POST">
+  @ <input type="hidden" name="r" value="%d(rid)">
+  @ <p>
+  @ <b>User:</b> <input type="text" name="u" size="20" value="%h(zNewUser)">
+  @ </p>
+  @ <p><b>Comment:</b></b><br />
+  wiki_convert(&comment, 0, WIKI_INLINE);
+  @ <br /><textarea name="c" rows="10" cols="80">%h(zNewComment)</textarea></p>
+  @ <blockquote>
+  @ <input type="submit" name="preview" value="Preview">
+  @ <input type="submit" name="apply" value="Apply Changes">
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ </blockquote>
+  @ </form>
+  style_footer();
 }
