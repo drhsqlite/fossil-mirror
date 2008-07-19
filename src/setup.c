@@ -380,25 +380,32 @@ void user_edit(void){
   }
   @
   @ <li><p>
+  @ The <b>Setup</b> user can make arbitrary configuration changes.
+  @ An <b>Admin</b> user can add other users and change user privileges
+  @ and reset user passwords.
+  @ Use these two settings with discretion.
+  @ </p></li>
+  @
+  @ <li><p>
   @ The <b>Delete</b> privilege give the user the ability to erase
-  @ wiki, tickets, and atttachments that have been added by anonymous
+  @ wiki, tickets, and attachments that have been added by anonymous
   @ users.  This capability is intended for deletion of spam.  The
   @ delete capability is only in effect for 24 hours after the item
   @ is first posted.  The Setup user can delete anything at any time.
   @ </p></li>
   @
   @ <li><p>
-  @ An <b>Admin</b> user can add other users, create new ticket report
-  @ formats, and change system defaults.  But only the <b>Setup</b> user
-  @ is able to change the repository to
-  @ which this program is linked.
+  @ The <b>History</b> privilege allows a user to see most hyperlinks.
+  @ This is recommended ON for most logged-in users but OFF for
+  @ user "nobody" to avoid problems with spiders trying to walk every
+  @ historical version of every baseline and file.
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>History</b> privilege allows a user to see a timeline
-  @ with hyperlinks to version information, to download ZIP archives
-  @ of individual versions.
-  @ </p></li>
+  @ The <b>Check-in</b> privilege allows remote users to "push".
+  @ The <b>Check-out</b> privilege allows remote users to "pull".
+  @ The <b>Clone</b> privilege allows remote users to "clone".
+  @ </li><p>
   @
   @ <li><p>
   @ The <b>Read Wiki</b>, <b>New Wiki</b>, <b>Append Wiki</b>, and
@@ -407,6 +414,18 @@ void user_edit(void){
   @ <b>Write Tkt</b> privileges control access to trouble tickets.
   @ The <b>Tkt Report</b> privilege allows the user to create or edit
   @ ticket report formats.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ Users with the <b>Password</b> privilege are allowed to change their
+  @ own password.  Recommended ON for most users but OFF for "anonynmous"
+  @ and "nobody".
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The <b>EMail</b> privilege allows the display of sensitive information
+  @ such as the email address of users and contact information on tickets.
+  @ Recommended OFF for "anonymous" and for "nobody".
   @ </p></li>
   @
   @ <li><p>

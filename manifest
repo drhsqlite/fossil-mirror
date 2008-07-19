@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\senforcement\sof\saccess\srestrictions\son\sreports.\s\sDo\snot\sallow\sreports\nto\sshow\sthe\scontent\sof\sfields\swhose\snames\sbegin\swith\s"private_"\sunless\nthe\s"e"\spermission\sis\senabled.
-D 2008-07-19T15:12:34
+C Improved\sexplanation\sof\sprivileges\son\sthe\sUser\sEdit\sscreen.
+D 2008-07-19T15:40:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -83,7 +83,7 @@ F src/rebuild.c ec319a870049957ccd63eef8995615e70fe623c7
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c f558a43ecd5c39ed4b9a9ff208ae61fafa921280
-F src/setup.c c163109c85455a13f765b5615c309984824ba3bb
+F src/setup.c 04a9ec0926a3d2397735d34cd90036683534c7b9
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P b7588eb2f7ede9178b5740d204391fc9632aaa05
-R 797cb3dc756d0fe94afcdc9107240338
+P 21326fb6f7d3e2d175a80c3a603095c1f5b92f1b
+R 1833b8cb81b4348ab85c10523af2d211
 U drh
-Z 7fd8d5173160e2e089adcbba7a063a03
+Z 1c842d03e12815b2a146f7f16a9cbfc9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIggRnoxKgR168RlERAuFjAJ45ueUU9/ZORC3cSA7EVIWnD4T9iQCdGSsk
-5ufeF6aqZRUfHHIA2o0pOTE=
-=dinv
+iD8DBQFIggr0oxKgR168RlERAlb3AJ9qlGCjarQIhWvu4nT9H+i6H/O4/gCggbnH
+mbCAjtWmxP6q9D8rTB6oQd0=
+=iPHw
 -----END PGP SIGNATURE-----
