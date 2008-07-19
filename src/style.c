@@ -192,6 +192,8 @@ const char zDefaultHeader[] =
 @ }
 @ if {[hascap s]} {
 @   html "<a href='$baseurl/setup'>Setup</a>"
+@ } elseif {[hascap a]} {
+@   html "<a href='$baseurl/setup_ulist'>Users</a>"
 @ }
 @ if {[info exists login]} {
 @   html "<a href='$baseurl/login'>Logout</a>"

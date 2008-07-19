@@ -95,7 +95,7 @@ void setup_ulist(void){
   Stmt s;
 
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.okAdmin ){
     login_needed();
     return;
   }
@@ -114,9 +114,11 @@ void setup_ulist(void){
   @ </tr>
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
   while( db_step(&s)==SQLITE_ROW ){
+    const char *zCap = db_column_text(&s, 2);
+    if( strstr(zCap, "s") ) zCap = "s";
     @ <tr>
     @ <td align="right">
-    if( g.okAdmin ){
+    if( g.okAdmin && (zCap[0]!='s' || g.okSetup) ){
       @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
     }
     @ <nobr>%h(db_column_text(&s,1))</nobr>
@@ -124,7 +126,7 @@ void setup_ulist(void){
       @ </a>
     }
     @ </td><td>&nbsp;&nbsp;&nbsp;</td>
-    @ <td align="center">%s(db_column_text(&s,2))</td>
+    @ <td align="center">%s(zCap)</td>
     @ <td>&nbsp;&nbsp;&nbsp;</td>
     @ <td align="left">%s(db_column_text(&s,3))</td>
     @ </tr>
@@ -193,7 +195,7 @@ void user_edit(void){
   uid = atoi(zId);
   if( zId && !g.okSetup && uid>0 ){
     char *zOldCaps;
-    zOldCaps = db_text(0, "SELECT caps FROM user WHERE uid=%d",uid);
+    zOldCaps = db_text(0, "SELECT cap FROM user WHERE uid=%d",uid);
     higherUser = zOldCaps && strchr(zOldCaps,'s');
   }
 
@@ -372,18 +374,18 @@ void user_edit(void){
   @ <p><b>Notes:</b></p>
   @ <ol>
   if( higherUser ){
-    @ <li><p>
-    @ User %h(zId) has Setup privileges and you only have Admin privileges
-    @ so you are not permitted to make changes to %h(zId).
-    @ </p></li>
+    @ <li><p><font color="blue"><b>
+    @ User %h(zLogin) has Setup privileges and you only have Admin privileges
+    @ so you are not permitted to make changes to %h(zLogin).
+    @ </b></font></p></li>
     @
   }
   @
   @ <li><p>
   @ The <b>Setup</b> user can make arbitrary configuration changes.
   @ An <b>Admin</b> user can add other users and change user privileges
-  @ and reset user passwords.
-  @ Use these two settings with discretion.
+  @ and reset user passwords.  Both automatically get all other privileges
+  @ listed below.  Use these two settings with discretion.
   @ </p></li>
   @
   @ <li><p>
