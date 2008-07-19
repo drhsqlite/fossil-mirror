@@ -130,12 +130,13 @@ static void tktsetup_generic(
     }
   }
   @ <form action="%s(g.zBaseURL)/%s(g.zPath)" method="POST">
-  @ %s(zDesc)
+  @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
-  @ <br />
+  @ <blockquote>
   @ <input type="submit" name="submit" value="Apply Changes">
   @ <input type="submit" name="clear" value="Revert To Default">
-  @ <input type="submit" name="setup" value="Ticket Setup Menu">
+  @ <input type="submit" name="setup" value="Cancel">
+  @ </blockquote>
   @ </form>
   @ <hr>
   @ <h2>Default %s(zTitle)</h2>
@@ -560,7 +561,7 @@ char *ticket_report_template(void){
 void tktsetup_rpttplt_page(void){
   static const char zDesc[] =
   @ <p>Enter the default ticket report format template.  This is the
-  @ the template report format that initial appears when creating a
+  @ the template report format that initially appears when creating a
   @ new ticket summary report.</p>
   ;
   tktsetup_generic(
@@ -600,17 +601,17 @@ const char *ticket_key_template(void){
 */
 void tktsetup_keytplt_page(void){
   static const char zDesc[] =
-  @ <p>Enter the default ticket report key template.  This is the
-  @ the template report format that initial appears when creating a
+  @ <p>Enter the default ticket report color-key template.  This is the
+  @ the color-key that initially appears when creating a
   @ new ticket summary report.</p>
   ;
   tktsetup_generic(
-    "Default Report Template",
-    "ticket-report-template",
-    zDefaultReport,
+    "Default Report Color-Key Template",
+    "ticket-key-template",
+    zDefaultKey,
     zDesc,
     0,
     0,
-    20
+    10
   );
 }

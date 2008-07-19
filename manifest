@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C CSS\sfixes\s-\smake\s<div\sclass="content">\s...\s</div>\sactually\senclose\sthe\scontent.\sAlso\sadd\sa\scouple\sof\smissing\sfooters.
-D 2008-07-18T21:44:58
+C Fix\sthe\s"Key\sTemplate"\ssetup\sbox\sunder\sticket\sconfiguration.
+D 2008-07-19T14:15:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -99,7 +99,7 @@ F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
 F src/tkt.c 6ac9641c6a7b13432c1e0852aac0a84f5a5275ac
-F src/tktsetup.c fa060a46663f74e7e337a84053916711a3fc4081
+F src/tktsetup.c e7df19c0f4dbb4d5559defc81a21de63bbf295f3
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e0974f54288126b0fa22998103a0c5f175a93c4e
 F src/update.c cb0a6551aff4c509f8fa95600f89933819b8cdeb
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 924554d78b4d68afc7076f3bd2d14b520f7ee1ca
-R 1bc7d8e9973d62464e214cedb86c2ed0
-U eric
-Z 2c06b2d14876aecc5ba3addb2f61b31c
+P 23ed5e2cd6e89a22c922d9f6ac6f9627d9d442bd
+R e822f78123613be1ba5793b659c334e7
+U drh
+Z 0c04f3943d602a64933d87afba726f1e
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIgQ8Gu+lpsLhDMQkRAiJlAJ40fDuEs2BIurC48XwHdvw2bltpSwCgknZ1
-qq5S3GDZvoHiFSIK5R1CGxg=
-=gzfd
+iD8DBQFIgfb3oxKgR168RlERAmtlAJ4+r4LEZmNQ0/veMTMqoge40OV4BwCcCoeO
+y1z1Z2EWCxtTFb+4RHe5IUg=
+=dKPz
 -----END PGP SIGNATURE-----
