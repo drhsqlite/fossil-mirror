@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sability\sto\sedit\scheck-in\scomments\sand\susers\sfrom\sthe\sweb\sinterface.
-D 2008-07-19T18:18:47
+C Fix\sa\sbug\sthat\sprevents\sthe\s/tktnew\spage\sfrom\sworking\swith\sno\slogin.
+D 2008-07-20T15:30:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -96,7 +96,7 @@ F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
-F src/th_main.c 59821e52860c10be7c57f8ad389dbf2f4475e359
+F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
 F src/tkt.c 6ac9641c6a7b13432c1e0852aac0a84f5a5275ac
 F src/tktsetup.c af01500203d27a7375c95e0470a114dcbd6bd9d9
@@ -209,14 +209,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P f8831f447afc6de276525f5f47ff6e0f1ce7ee04
-R 7bd4ff10674df30b7cdc0e6793f9e010
+P f0474b87b0128227dfd60be6f4f8ddeb5be03ba9
+R 19ec89a9067c0f9e46bbec5157c6fb0c
 U drh
-Z 2f9e7474b79e45a8bf5598f422d4031c
+Z d56712e42e10ae553e47e9dae41f944e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIgjAMoxKgR168RlERAn7YAJ9sR7ntNCZHsSYwba8XszgVfPdF5QCdHeDX
-yNmvcd/Ke14858mRozb8BAM=
-=dmLk
+iD8DBQFIg1ocoxKgR168RlERAnJiAJ46CrM5Fn/J3tUFq34p7M1aZxHOmACdGeUD
+8qY5KtuLbWpT7ZeLYY+KOMQ=
+=TJL9
 -----END PGP SIGNATURE-----

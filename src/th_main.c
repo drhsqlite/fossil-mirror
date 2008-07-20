@@ -324,7 +324,9 @@ void Th_FossilInit(void){
 */
 void Th_Store(const char *zName, const char *zValue){
   Th_FossilInit();
-  Th_SetVar(g.interp, (uchar*)zName, -1, (uchar*)zValue, strlen(zValue));
+  if( zValue ){
+    Th_SetVar(g.interp, (uchar*)zName, -1, (uchar*)zValue, strlen(zValue));
+  }
 }
 
 /*
