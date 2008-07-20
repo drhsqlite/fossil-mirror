@@ -1,0 +1,112 @@
+<h1>Bug-Tracking In <a href="index.wiki">Fossil</a></h1>
+
+A bug-report in fossil is called a "ticket".  Tickets are tracked
+separately from code check-ins (baselines).
+
+Some other distributed bug-tracking systems store tickets as files within
+the source tree and thereby leverage the syncing and merging capabilities
+of the versioning system to sync and merge tickets.  This approach is
+rejected in fossil for three reasons:
+
+  1.  Check-ins (a.k.a. "baselines") in fossil are immutable.  So if
+      tickets were part of the check-in, then there would no way to add
+      new tickets to a check-in as new bugs are discovered.
+
+  2.  Any project of reasonable size and complexity will generate thousands
+      and thousands of tickets, and we do not want all those ticket files
+      cluttering the source tree.
+
+  3.  We want tickets to be managed from the web interface and to have a
+      permission system that is distinct from check-in permissions.
+      In other words, we do not want to restrict the creation and editing
+      of tickets to developers with check-in privileges and an installed
+      copy of the fossil executable.  Casual passers-by on the internet should
+      be permitted to create tickets.
+
+Recall that a fossil repository consists of an
+unordered collection of <i>artifacts</i>.  (See the
+<a href="fileformat.wiki">file format document</a> for details.)
+Some artifacts have a special format, and among those are
+<a href="fileformat.wiki#tktchng">Ticket Change Artifacts</a>.
+One or more ticket change artifacts are associated with each 
+ticket.  A ticket is created by a ticket change artifact.
+Each subsequent modification of the ticket is a separate artifact.
+
+The "push", "pull", and "sync" algorithms shared ticket change artifacts
+between repositories in the same way as every other artifact.  In fact,
+the sync algorithm has no knowledge of the meaning of the artifacts it
+is syncing.  As far as the sync algorithm is concerned, all artifacts are
+alike.  After the sync has occurs, the individual repositories must try
+to make sense of the meaning of the various artifacts for themselves.
+
+<h2>Interpretation Of Ticket Change Artifacts</h2>
+
+Every ticket change artifact contains (among other things)
+
+  *  a timestamp,
+  *  a ticket UUID, and
+  *  one or more name/value pairs.
+
+The current state of a ticket is found by replaying all ticket
+change artifacts with the same ticket UUID in timestamp order.
+For a given ticket, all values are initially NULL.  As each
+ticket change artifact is encountered, values are either replaced
+or appended, according to a flag on the name/value pair.  The current
+values for the fields of a ticket are the values that remain at the
+end of the replay process.
+
+To create a new ticket, on has merely to insert a ticket change
+artifact with a randomly generated ticket UUID.  The ticket UUID
+is a random 40-character lower-case hexadecimal number.  New
+ticket UUIDs should be chosen using good randomness so that two
+ore more users do not accidently cause a conflict by generating
+the same UUID.  The name/value pairs on the initial ticket change
+artifact are the initial values for the fields in the ticket.
+
+Amending a ticket means simply creating a new artifact with the
+same ticket UUID and with name/value pairs for those fields which
+are changing.  Fields of the ticket which are not being modified
+should not appear as name/value pairs in the new artifact.
+
+This approach to storing ticket state means that independently entered
+changes are automatically merged together when artifacts are shared
+between repositories.  Tickets do not branch.  This approach also makes
+it trivial to track the historic progression of changes to a ticket.
+
+In order for this scheme to work, the system clocks on machines that
+add new ticket changes artifacts have to be set close to reality.
+It is OK for a ticket change artifact timestamp to be off by a few
+minutes or even a few hours.  But if a timestamp on a ticket change
+artifact is off by months or years, it can seriously confuse the
+replay algorithm for determining the current ticket state.  There
+are techniques available to cause rogue artifacts to be ignored
+by fossil.  So if a ticket change artifact with a bad timestamp
+does get into a repository, it can be removed by an adminstrator.
+But the best approach is to take steps to insure that timestamps
+are approximately correct in the first place.
+
+<h2>Local Configuration</h2>
+
+The ticket change artifacts are part of the global state for a project.
+The global state is that which is shared between repositories during
+a sync.  Each repository also has local state which is not (normally)
+shared.  The name/value pairs for a ticket are part of global state,
+but the interpretation and display of that information is local state.
+Hence, each repository is free to set up its own ticket display and
+input formats and reporting rules according to its own particular needs.
+
+Each repository defines its own TICKET table in its database.  There is
+one row in the TICKET table for each unique ticket UUID.  The
+names of columns in the TICKET table correspond to the names in
+the name/value pairs of ticket change artifacts.  When running the replay
+algorithm, if a name/value pair is seen which has no corresponding column
+in the TICKET table, then that name/value pair is ignored.
+
+Each repository also defines scripts used to generate web pages for
+creating new tickets, viewing existing tickets, and modifying an
+existing ticket.  These scripts consist of HTML with an embedded
+scripts written an a TCL-like language called "TH1".  Each fossil
+repository is create with default scripts.  There is currently no
+documentation on the TH1 langauage.  Administrators wishing to
+customize their ticket entry, viewing, and editing screens should
+modify the default scripts to suit their needs.

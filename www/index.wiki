@@ -4,23 +4,20 @@
 Fossil is a new 
 <a href="http://en.wikipedia.org/wiki/Revision_control">
 distributed software revision control system</a> that includes an integrated
-<a href="http://en.wikipedia.org/wiki/Wiki">Wiki</a> and an integrated
-<a href="http://en.wikipedia.org/wiki/Bugtracker">
-bug-tracking system</a> all in a single, easy-to-use, stand-alone
-executable.
-(NB: The bug-tracker component is not yet completely functional, but
-we expect it to be available soon.)
+<a href="../../../wiki_rules">wiki</a> and an integrated
+<a href="bugtheory.wiki">bug-tracking system</a> all in a single, 
+easy-to-use, stand-alone executable.
 Fossil is
 <a href="http://www.fossil-scm.org/fossil/timeline">self-hosting</a>
 since 2007-07-21 on
 <a href="http://www.hwaci.com/cgi-bin/fossil/timeline">two separate servers</a>.
-You can download the lastest sources and
-compile it yourself using the instructions below.
+You can download the <a href="../../../timeline">lastest sources</a> and
+<a href="build.wiki">compile it yourself</a>.
 Or you can grab
 <a href="http://www.fossil-scm.org/download.html">precompiled binaries</a>.
 </p>
 
-<p>Design Goals For Fossil:</p>
+<p>Features Of Fossil:</p>
 
 <ul>
 <li>Supports disconnected, distributed development (like
@@ -33,14 +30,17 @@ or client/server operation (like
 <a href="http://subversion.tigris.org/">subversion</a>),
 or operations on local repositories,
 or all three at the same time</li>
-<li>Integrated bug tracking and wiki, along the lines of
+<li>Integrated <a href="bugtheory.wiki">bug tracking</a> and 
+<a href="../../../wiki_rules">wiki</a>, inspired by
 <a href="http://www.cvstrac.org/">CVSTrac</a> and
-<a href="http://www.edgewall.com/trac/">Trac</a>.</li>
+<a href="http://www.edgewall.com/trac/">Trac</a> but enhanced to
+support distributed, disconnected operation.</li>
 <li>Built-in web interface that supports deep archaeological digs through
 the project history.</li>
 <li>All network communication via 
-<a href="http://en.wikipedia.org/wiki/HTTP">HTTP</a>
-(so that everything works from behind restrictive firewalls).</li>
+<a href="http://en.wikipedia.org/wiki/HTTP">HTTP</a> with 
+<a href="quickstart.wiki#proxy">proxy support</a>
+so that everything works from behind restrictive firewalls.</li>
 <li>Everything (client, server, and utilities) is included in a 
 single self-contained executable - trivial to install</li>
 <li>Server runs as <a href="http://www.w3.org/CGI/">CGI</a>, using
@@ -93,7 +93,7 @@ implements mechanism, not policy.</li>
     that is versioned along with project source code.</li>
 <li>The <a href="selfcheck.wiki">automatic self-check</a> mechanism
 helps insure project integrity.</li>
-<li>Fossil contains a [/wiki | built-in wiki].</li>
+<li>Fossil contains a <a href="../../../wiki">built-in wiki</a>.</li>
 <li>There is a
     <a href="http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users">
     mailing list</a> available for discussing fossil issues.</li>
