@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Updated\sdocumentation\sto\sindicate\sthat\sbug-tracking\sis\snow\savailable.\nPreliminary\sdocumentation\son\sbug-tracking.\s\s(Much\smore\sdocumentation\sis\nneeded\s-\salso\sneed\sdocumentation\son\show\sthe\swiki\sworks.)
-D 2008-07-20T17:37:10
+C Fix\sa\stypo\sin\sthe\s"concepts.wiki"\sdocumentation.
+D 2008-07-21T01:37:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -182,7 +179,7 @@ F www/bugtheory.wiki 6a29c06018b431febcc09b5c9b7efb8fbff16d2e
 F www/build.wiki 5ba110240ed19d8b2b44b12a1e9e65b5b01fd946
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 80e20555614e5567d3a451a890fa89faddf6118e
+F www/concepts.wiki c6e467887730776bed6947e3c920e9cb4ce9175e
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -210,14 +207,7 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 449559394a510fcb37bbfc3db7bcf5aef16de8f9
-R 4b610c1d1fe1c466f62f23587372a7a5
+P 6ecc392f1caa77a3fb3665801a62d46e13a24213
+R 11c9f4ff5db3ecaa379b769a7ccd119d
 U drh
-Z 419c7d9d4803762870484c53d2f4fd19
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIg3fJoxKgR168RlERAoySAJ4yYMI3QpTLiiQkS5vjiLeIxl5IsACePzdT
-uMFEmVpLL3lojZMQw5V12Cw=
-=sEex
------END PGP SIGNATURE-----
+Z 8bc727bc08e3b78c95eb8ba96af950b4
