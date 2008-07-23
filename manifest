@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\s"extra"\sand\s"clean"\scommands\signore\sthe\srepository\sfile\sif\sthe\nrepository\shappens\sto\sbe\swithin\sthe\scheck-out.\s\sTicket\s[c7b35be88].
-D 2008-07-23T13:01:23
+C Do\snot\sallow\sthe\scurrent\srepository\sto\sbe\sadded\sto\sthe\sset\sof\sfiles\nfor\sa\srepository.\s\sTicket\s[8e9136e8].
+D 2008-07-23T17:36:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -36,7 +36,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c x
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c ca6c08e1bcbcf72876968f5b275e173a11716a0c
+F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P bad9999d7dc3319e5a4276d15dd6f088e65c62c3
-R 619e9e3772b3ba60dd35db3260b84275
+P 2ecc407d9be8f079f8cd631ddbb2e0884a1254a3
+R 377fb221112a0beee41a406abfd8b882
 U drh
-Z f0800c8058a6c2a3328ac5fb3e7962f2
+Z 821842cf62f800e04e5409aef6fe24d4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIhyunoxKgR168RlERAo3ZAJ9nKqLKhKj39ULKmXDGj6kaARthwwCeL77r
-gc2ehp0AtA+OyQMt0tQnqVg=
-=ZOlY
+iD8DBQFIh2wroxKgR168RlERAr8mAJ4kMDH/2nMqEMQdTPDgI9zdTIy9iQCfbDxr
+YVxywzUKZYHzflw13H45YJs=
+=hpZn
 -----END PGP SIGNATURE-----

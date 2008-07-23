@@ -40,6 +40,7 @@
 void add_cmd(void){
   int i;
   int vid;
+  Blob repo;
 
   db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
@@ -47,6 +48,9 @@ void add_cmd(void){
     fossil_panic("no checkout to add to");
   }
   db_begin_transaction();
+  if( !file_tree_name(g.zRepositoryName, &repo, 0) ){
+    blob_zero(&repo);
+  }
   for(i=2; i<g.argc; i++){
     char *zName;
     char *zPath;
@@ -67,6 +71,7 @@ void add_cmd(void){
     if( strcmp(zPath, "manifest")==0
      || strcmp(zPath, "_FOSSIL_")==0
      || strcmp(zPath, "manifest.uuid")==0
+     || blob_compare(&pathname, &repo)==0
     ){
       fossil_warning("cannot add %s", zPath);
     }else{
