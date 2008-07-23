@@ -217,7 +217,7 @@ void undo_cmd(void){
     for(i=2; i<g.argc; i++){
       const char *zFile = g.argv[i];
       Blob path;
-      file_tree_name(zFile, &path);
+      file_tree_name(zFile, &path, 1);
       undo_one(blob_str(&path), 0);
       blob_reset(&path);
     }
@@ -257,7 +257,7 @@ void redo_cmd(void){
     for(i=2; i<g.argc; i++){
       const char *zFile = g.argv[i];
       Blob path;
-      file_tree_name(zFile, &path);
+      file_tree_name(zFile, &path, 1);
       undo_one(blob_str(&path), 0);
       blob_reset(&path);
     }

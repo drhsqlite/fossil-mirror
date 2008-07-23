@@ -319,11 +319,12 @@ void cmd_test_relative_name(void){
 /*
 ** Compute a pathname for a file relative to the root of the local
 ** tree.  Return TRUE on success.  On failure, print and error
-** message and quit.
+** message and quit if the errFatal flag is true.  If errFatal is
+** false, then simply return 0.
 **
 ** The root of the tree is defined by the g.zLocalRoot variable.
 */
-int file_tree_name(const char *zOrigName, Blob *pOut){
+int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   int n;
   Blob full;
   db_must_be_within_tree();
@@ -331,7 +332,9 @@ int file_tree_name(const char *zOrigName, Blob *pOut){
   n = strlen(g.zLocalRoot);
   if( blob_size(&full)<=n || memcmp(g.zLocalRoot, blob_buffer(&full), n) ){
     blob_reset(&full);
-    fossil_fatal("file outside of checkout tree: %s", zOrigName);
+    if( errFatal ){
+      fossil_fatal("file outside of checkout tree: %s", zOrigName);
+    }
     return 0;
   }
   blob_zero(pOut);
@@ -349,7 +352,7 @@ void cmd_test_tree_name(void){
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    if( file_tree_name(g.argv[i], &x) ){
+    if( file_tree_name(g.argv[i], &x, 1) ){
       printf("%s\n", blob_buffer(&x));
       blob_reset(&x);
     }

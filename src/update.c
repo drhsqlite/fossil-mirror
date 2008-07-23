@@ -299,7 +299,7 @@ void revert_cmd(void){
   
   zFile = mprintf("%/", g.argv[g.argc-1]);
 
-  file_tree_name(zFile, &fname);
+  file_tree_name(zFile, &fname, 1);
 
   if( access(zFile, 0) ) yesRevert = 1;  
   if( yesRevert==0 ){

@@ -101,7 +101,7 @@ void diff_cmd(void){
     blob_appendf(&cmd, "%s ", zExternalCommand);
   }
   zFile = g.argv[g.argc-1];
-  file_tree_name(zFile, &fname);
+  file_tree_name(zFile, &fname, 1);
 
   blob_zero(&vname);
   do{

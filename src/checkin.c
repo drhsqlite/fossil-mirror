@@ -156,6 +156,7 @@ void ls_cmd(void){
 */
 void extra_cmd(void){
   Blob path;
+  Blob repo;
   Stmt q;
   int n;
   db_must_be_within_tree();
@@ -167,6 +168,9 @@ void extra_cmd(void){
       "SELECT x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
       " ORDER BY 1");
+  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
+  }
   while( db_step(&q)==SQLITE_ROW ){
     printf("%s\n", db_column_text(&q, 0));
   }
@@ -187,7 +191,7 @@ void extra_cmd(void){
 */
 void clean_cmd(void){
   int allFlag;
-  Blob path;
+  Blob path, repo;
   Stmt q;
   int n;
   allFlag = find_option("all","a",0)!=0;
@@ -200,6 +204,9 @@ void clean_cmd(void){
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
       " ORDER BY 1", g.zLocalRoot);
+  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
+  }
   while( db_step(&q)==SQLITE_ROW ){
     if( allFlag ){
       unlink(db_column_text(&q, 0));
@@ -305,7 +312,7 @@ void select_commit_files(void){
 
     for(ii=2; ii<g.argc; ii++){
       int iId;
-      file_tree_name(g.argv[ii], &b);
+      file_tree_name(g.argv[ii], &b, 1);
       iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
       if( iId<0 ){
         fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);

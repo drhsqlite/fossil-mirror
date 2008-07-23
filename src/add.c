@@ -62,7 +62,7 @@ void add_cmd(void){
     if( isDir==2 && access(zName, R_OK) ){
       fossil_fatal("cannot open %s", zName);
     }
-    file_tree_name(zName, &pathname);
+    file_tree_name(zName, &pathname, 1);
     zPath = blob_str(&pathname);
     if( strcmp(zPath, "manifest")==0
      || strcmp(zPath, "_FOSSIL_")==0
@@ -111,7 +111,7 @@ void del_cmd(void){
     Blob pathname;
 
     zName = mprintf("%/", g.argv[i]);
-    file_tree_name(zName, &pathname);
+    file_tree_name(zName, &pathname, 1);
     zPath = blob_str(&pathname);
     if( !db_exists(
              "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
