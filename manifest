@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Do\snot\sallow\sthe\scurrent\srepository\sto\sbe\sadded\sto\sthe\sset\sof\sfiles\nfor\sa\srepository.\s\sTicket\s[8e9136e8].
-D 2008-07-23T17:36:39
+C Make\ssure\snew\sartifacts\sare\sentered\sinto\sthe\sunclustered\stable.\nTicket\s[4b72e10dca].
+D 2008-07-23T20:57:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
-F src/content.c c6002c394584e673248eddaae51a4329d607397e
+F src/content.c c2d4ab941a962138593f3a836b47d25fb4f8744c
 F src/db.c d924508e763028939a9a78f73f1e74788a0bebe3
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 2ecc407d9be8f079f8cd631ddbb2e0884a1254a3
-R 377fb221112a0beee41a406abfd8b882
+P 141c31792b66447284b5cc668844fa8b1c85ee4a
+R 912cd461b0bcfc54ef5f73a6284e83ae
 U drh
-Z 821842cf62f800e04e5409aef6fe24d4
+Z b3b5b8519ad22d06401a6d3cf19e84fb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIh2wroxKgR168RlERAr8mAJ4kMDH/2nMqEMQdTPDgI9zdTIy9iQCfbDxr
-YVxywzUKZYHzflw13H45YJs=
-=hpZn
+iD8DBQFIh5tYoxKgR168RlERAu4lAJ9ItGqQ/HW7XOCsNScJxPFBjWNktwCeLB2c
++TEBD8Aa1jTvQXKFEfraGTk=
+=PBrM
 -----END PGP SIGNATURE-----

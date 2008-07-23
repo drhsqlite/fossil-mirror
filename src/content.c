@@ -492,7 +492,7 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
 */
 int content_new(const char *zUuid){
   int rid;
-  static Stmt s1, s2;
+  static Stmt s1, s2, s3;
   
   assert( g.repositoryOpen );
   db_begin_transaction();
@@ -511,6 +511,11 @@ int content_new(const char *zUuid){
   );
   db_bind_int(&s2, ":rid", rid);
   db_exec(&s2);
+  db_static_prepare(&s3,
+    "INSERT INTO unclustered VALUES(:rid)"
+  );
+  db_bind_int(&s3, ":rid", rid);
+  db_exec(&s3);
   bag_insert(&contentCache.missing, rid);
   db_end_transaction(0);
   return rid;
