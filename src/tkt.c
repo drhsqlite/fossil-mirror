@@ -406,10 +406,8 @@ static int submitTicketCmd(
           zValue = db_conceal(zValue, nValue);
           nValue = strlen(zValue);
         }
-        if( strncmp(zValue, azValue[i], nValue)
-                || strlen(azValue[i])!=nValue ){
-          blob_appendf(&tktchng, "J %s %z\n",
-             azField[i], fossilize(zValue,nValue));
+        if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
+          blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
         }
       }
     }

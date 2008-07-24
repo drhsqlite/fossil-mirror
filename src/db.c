@@ -909,8 +909,8 @@ char *db_conceal(const char *zContent, int n){
   strcpy(zHash, blob_str(&out));
   blob_reset(&out);
   db_multi_exec(
-     "INSERT OR IGNORE INTO concealed VALUES(%Q,%Q)",
-     zHash, zContent
+     "INSERT OR IGNORE INTO concealed VALUES(%Q,%#Q)",
+     zHash, n, zContent
   );
   return zHash;
 }
