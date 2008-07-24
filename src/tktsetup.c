@@ -394,7 +394,6 @@ static const char zDefaultView[] =
 @ </td></tr>
 @ <tr><td>Description &amp; Comments:</td></tr>
 @ <tr><td colspan="4" bgcolor="#d0d0d0">
-@ Description And Comments:<br>
 @ <span  bgcolor="#d0d0d0"><th1>wiki $comment</th1></span>
 @ </td></tr>
 @ </table>
