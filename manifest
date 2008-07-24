@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Store\sprivate\sticket\sfields\s(ex:\sthe\soriginators\semail\saddress)\sas\stheir\nSHA1\shash\sso\sthat\smalefactors\scannot\sread\sthem.\s\sAdd\sthe\snew\s"concealed"\ntable\sto\sthe\srepository\sdatabase\sand\sstore\smappings\sfrom\sSHA1\shashes\sback\nto\semail\saddresses\sin\sthat\stable.\s\sTicket\s[a24ec6005f].\s\sNote:\srun\n"rebuild"\son\srepositories\safter\supdating\sto\sthis\sversion\sof\sfossil\sin\sorder\nto\screate\sthe\s"concealed"\stable.\s\sNeed\sto\sadd\sthe\sability\sto\smanage\sthe\nconcealed\stable\sfrom\sthe\sweb\sinterface\sand\sthe\sability\sto\ssync\sconcealed\ncontent\sbetween\strusted\srepositories.
-D 2008-07-24T02:04:36
+C Clarify\sthe\sformatting\srules\sfor\s&lt;verbatim&gt;.\nTicket\s[aee2a1a927f]
+D 2008-07-24T12:29:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -107,7 +107,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
-F src/wiki.c 21130cec42f715996768b7a0b736669a7dc5a6e8
+F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
 F src/wikiformat.c 55aa7e0f7eca4d9f6a132cbb70dc78bbbc4fa31a
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c e9c8669cb155e1542e30bcdeaf7e50aefc420ebf
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 1f8d2501b03cb07adcf7ef01f7ff156997769935
-R e0871cfeffd5759636af7afd3d187cd2
+P f46fe42d6d0703562250d3808de63c73ebb3169e
+R 29414e3870d442995ff88659da9cd56d
 U drh
-Z b42846527d0b12b19b6499d373be0953
+Z 3d3647b6850bb5a35e3ea5370e03ba52
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIh+M5oxKgR168RlERAr0+AJsGAUwL1LAYNXCoDsfJYNM/jSB5DACbBrmY
-xOZDWxogHwhPPzuXCm/TLQ8=
-=42MA
+iD8DBQFIiHWpoxKgR168RlERAv4WAJ442DOmwM3Epdng4E2HRclnUxunawCfbNuw
+oVfRUqlUXBE+QgDhvC/Hwcw=
+=12Rz
 -----END PGP SIGNATURE-----

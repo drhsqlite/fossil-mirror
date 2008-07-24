@@ -607,10 +607,11 @@ void wikirules_page(void){
   @ In particular, any attributes that specify javascript or CSS
   @ are elided.</p></li>
   @ <li><p><b>Special Markup.</b>
-  @ The &lt;verbatim&gt; tag disables all wiki and HTML markup
-  @ up through the next &lt;/verbatim&gt;.  The &lt;nowiki&gt; tag
-  @ disables all wiki formatting rules through the matching
-  @ &lt;/nowiki&gt; element.
+  @ The &lt;nowiki&gt; tag disables all wiki formatting rules
+  @ through the matching &lt;/nowiki&gt; element.
+  @ The &lt;verbatim&gt; tag works like &lt;pre&gt; with the addition
+  @ that it also disables all wiki and HTML markup
+  @ through the matching &lt;/verbatim&gt;.
   @ </ol>
   style_footer();
 }
