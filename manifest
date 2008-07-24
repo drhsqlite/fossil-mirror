@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Clarify\sthe\sformatting\srules\sfor\s&lt;verbatim&gt;.\nTicket\s[aee2a1a927f]
-D 2008-07-24T12:29:25
+C Fix\sa\smissing\send-transaction\sin\sthe\scontent_new()\sprocedure.
+D 2008-07-24T13:31:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -51,7 +51,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
-F src/content.c c2d4ab941a962138593f3a836b47d25fb4f8744c
+F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c 984f70bf7212af97ee827afe36726c76bf64b79e
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P f46fe42d6d0703562250d3808de63c73ebb3169e
-R 29414e3870d442995ff88659da9cd56d
+P 2c3ccaa0487b292edeb6d1889aec12d136f58ab7
+R 2304966a8db9ef207adb669eb95b40bd
 U drh
-Z 3d3647b6850bb5a35e3ea5370e03ba52
+Z 225bb2043a7ace6bcec9724f88f5c205
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIiHWpoxKgR168RlERAv4WAJ442DOmwM3Epdng4E2HRclnUxunawCfbNuw
-oVfRUqlUXBE+QgDhvC/Hwcw=
-=12Rz
+iD8DBQFIiIQaoxKgR168RlERAl3VAJ9dBd52LSZrHk0JckQgF5jV8dTC+ACaA9Dy
+P7mh3LSlG0w+i5cf/IArX3o=
+=ANwT
 -----END PGP SIGNATURE-----

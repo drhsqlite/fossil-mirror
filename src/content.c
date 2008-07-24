@@ -497,6 +497,7 @@ int content_new(const char *zUuid){
   assert( g.repositoryOpen );
   db_begin_transaction();
   if( uuid_is_shunned(zUuid) ){
+    db_end_transaction(0);
     return 0;
   }
   db_static_prepare(&s1,
