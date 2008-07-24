@@ -62,6 +62,19 @@ static const char zSchemaUpdates[] =
 @    cols text,               -- A color-key specification
 @    sqlcode text             -- An SQL SELECT statement for this report
 @ );
+@
+@ -- Some ticket content (such as the originators email address or contact
+@ -- information) needs to be obscured to protect privacy.  This is achieved
+@ -- by storing an SHA1 hash of the content.  For display, the hash is
+@ -- mapped back into the original text using this table.  
+@ --
+@ -- This table contains sensitive information and should not be shared
+@ -- with unauthorized users.
+@ --
+@ CREATE TABLE IF NOT EXISTS concealed(
+@   hash TEXT PRIMARY KEY,
+@   content TEXT
+@ );
 ;
 
 /*
@@ -180,7 +193,8 @@ int rebuild_db(int randomize, int doOut){
        "SELECT name FROM sqlite_master"
        " WHERE type='table'"
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
-                         "'config','shun','private','reportfmt')"
+                         "'config','shun','private','reportfmt',"
+                         "'concealed')"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);

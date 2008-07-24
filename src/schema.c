@@ -147,6 +147,19 @@ const char zRepositorySchema1[] =
 @    cols text,               -- A color-key specification
 @    sqlcode text             -- An SQL SELECT statement for this report
 @ );
+@
+@ -- Some ticket content (such as the originators email address or contact
+@ -- information) needs to be obscured to protect privacy.  This is achieved
+@ -- by storing an SHA1 hash of the content.  For display, the hash is
+@ -- mapped back into the original text using this table.  
+@ --
+@ -- This table contains sensitive information and should not be shared
+@ -- with unauthorized users.
+@ --
+@ CREATE TABLE concealed(
+@   hash TEXT PRIMARY KEY,
+@   content TEXT
+@ );
 ;
 
 const char zRepositorySchema2[] =

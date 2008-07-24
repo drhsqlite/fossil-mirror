@@ -98,6 +98,12 @@ static int fieldId(const char *zField){
 **
 ** Only load those fields which do not already exist as
 ** variables.
+**
+** Fields of the TICKET table that begin with "private_" are
+** expanded using the db_reveal() function.  This function will
+** decode the content so that it is legable if g.okRdAddr is true.
+** Otherwise, db_reveal() is a no-op and the content remains
+** obscured.
 */
 static void initializeVariablesFromDb(void){
   const char *zName;
@@ -112,7 +118,12 @@ static void initializeVariablesFromDb(void){
     for(i=0; i<n; i++){
       const char *zVal = db_column_text(&q, i);
       const char *zName = db_column_name(&q, i);
-      if( zVal==0 ) zVal = "";
+      char *zRevealed = 0;
+      if( zVal==0 ){
+        zVal = "";
+      }else if( strncmp(zName, "private_", 8)==0 ){
+        zVal = zRevealed = db_reveal(zVal);
+      }
       for(j=0; j<nField; j++){
         if( strcmp(azField[j],zName)==0 ){
           azValue[j] = mprintf("%s", zVal);
@@ -120,8 +131,9 @@ static void initializeVariablesFromDb(void){
         }
       }
       if( Th_Fetch(zName, &size)==0 ){
-        Th_Store(db_column_name(&q,i), zVal);
+        Th_Store(zName, zVal);
       }
+      free(zRevealed);
     }
   }else{
     db_finalize(&q);
@@ -355,7 +367,11 @@ static int appendRemarkCmd(
 /*
 ** Subscript command:   submit_ticket
 **
-** Construct and submit a new ticket artifact.
+** Construct and submit a new ticket artifact.  The fields of the artifact
+** are the names of the columns in the TICKET table.  The content is
+** taken from TH variables.  If the content is unchanged, the field is
+** omitted from the artifact.  Fields whose names begin with "private_"
+** are concealed using the db_conceal() function.
 */
 static int submitTicketCmd(
   Th_Interp *interp, 
@@ -386,6 +402,10 @@ static int submitTicketCmd(
       zValue = Th_Fetch(azField[i], &nValue);
       if( zValue ){
         while( nValue>0 && isspace(zValue[nValue-1]) ){ nValue--; }
+        if( strncmp(azField[i], "private_", 8)==0 ){
+          zValue = db_conceal(zValue, nValue);
+          nValue = strlen(zValue);
+        }
         if( strncmp(zValue, azValue[i], nValue)
                 || strlen(azValue[i])!=nValue ){
           blob_appendf(&tktchng, "J %s %z\n",
