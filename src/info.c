@@ -1015,7 +1015,8 @@ void vedit_page(void){
     }
     cgi_redirectf("vinfo?name=%d", rid);
   }
-  blob_init(&comment, zNewComment, -1);
+  blob_zero(&comment);
+  blob_append(&comment, zNewComment, -1);
   zUuid[10] = 0;
   style_header("Edit Baseline [%s]", zUuid);
   @ <p>Make changes to the User and Comment for baseline 

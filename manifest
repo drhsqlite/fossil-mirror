@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Clean\sup\shandling\sof\sconcealed\semail\saddresses.\nThis\smight\sbe\srelated\sto\sticket\s[4b40f574494].
-D 2008-07-24T14:48:52
+C Fix\sa\sbug\sin\sthe\scheck-in\scomment\seditor.\nTicket\s[4b40f57449].
+D 2008-07-24T15:02:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
-F src/info.c e15b50505ab4bc840df1df1fa76be89e7f8181c4
+F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
 F src/login.c 0aeb2757467f6e620912861735255e9e1f6fa092
 F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P dc09f0943283ed70c772bbbc668e5c2325764c9a
-R ac00794176a5a6723927f50c55677d80
+P 3c851ca7600b5cab8f386c28bc450e16948485d6
+R c3f557a7fd921d6ee0d8ab1074569ae4
 U drh
-Z b6d99e63f4c74422cb00937ed3fed81d
+Z 5e734d08f03bdf8b5790ce9d30dd9fb2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIiJZaoxKgR168RlERAjOGAJ9NLbRuK1uTyI78KjCyMRzzxCMudACff9Ac
-dx2M+NWBAAgiDKPMpG9ztIw=
-=s8NE
+iD8DBQFIiJmRoxKgR168RlERAtJjAKCBJHZBKTe9Bs9Bnw21k/cw9GGHoQCgiadq
+m1Mt6zSCURBd9Vowuv6iwnQ=
+=ZPiS
 -----END PGP SIGNATURE-----
