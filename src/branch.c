@@ -159,7 +159,10 @@ void branch_new(void){
 }
 
 /*
-** COMMAND: branch
+** NB: The "branch" command is disabled pending further discussion of its
+** purpose and usefulness....
+**
+** COM MAND: branch
 **
 ** Usage: %fossil branch SUBCOMMAND ... ?-R|--repository FILE?
 **

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sredundant\s"Description\s&amp;\sComments:"\slabel\sfrom\sthe\sticket\sviewer.
-D 2008-07-24T15:08:13
+C Disable\sthe\s"branch"\scommand\spending\sfurther\sdiscussion\sand\sclarification\nof\sits\spurpose\sand\sintent.
+D 2008-07-25T12:30:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -40,7 +40,7 @@ F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
 F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
-F src/branch.c dcb06f995de782717c8778db507047ac7a60be3d
+F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 5d10f16d564448bfd4a871f8788fd26a3f92f31b
 F src/checkin.c b72cce6453eec81ea7043eec495ba6aad8d25309
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 89de100a2de3f6bf0b3dfad52518e82c781a900d
-R 4f1196051333eaab4afa1af7ec8ae9d2
+P 4b56350ecb2c4d327cc1370c40d49ff67acec548
+R 0ff74ee19145e3b95eaecc55ef61854f
 U drh
-Z f32560c2e0de922e395782511f2a7e50
+Z 1aeece9982212f0629d8a467537b5564
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIiJrhoxKgR168RlERAqjKAKCBUE/wbhoNaE+glAD39zmwAj6djgCaAtGL
-4n7JqhSYGwK5OM8d+yNWt8k=
-=ozKq
+iD8DBQFIicdzoxKgR168RlERAt7dAJ0Uzh0M93C3r+QtgvwSj83//OsPKQCcCA8m
+3MrLabVH6E88yUTqzvxl318=
+=0efc
 -----END PGP SIGNATURE-----
