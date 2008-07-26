@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Disable\sthe\s"branch"\scommand\spending\sfurther\sdiscussion\sand\sclarification\nof\sits\spurpose\sand\sintent.
-D 2008-07-25T12:30:37
+C Code\sto\srandomize\smessages\sfrom\sclient\sto\sthe\sserver.
+D 2008-07-26T14:02:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -110,7 +110,7 @@ F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
 F src/wikiformat.c 55aa7e0f7eca4d9f6a132cbb70dc78bbbc4fa31a
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
-F src/xfer.c e9c8669cb155e1542e30bcdeaf7e50aefc420ebf
+F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 4b56350ecb2c4d327cc1370c40d49ff67acec548
-R 0ff74ee19145e3b95eaecc55ef61854f
+P f6d3d89e76a52148206a8ec7e5d26c9dd31d3a03
+R c906b4e8fc29a93cdb33515b82e50f66
 U drh
-Z 1aeece9982212f0629d8a467537b5564
+Z b3ee182634d95c02f4562ad29d00d3b0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIicdzoxKgR168RlERAt7dAJ0Uzh0M93C3r+QtgvwSj83//OsPKQCcCA8m
-3MrLabVH6E88yUTqzvxl318=
-=0efc
+iD8DBQFIiy6AoxKgR168RlERAmIGAJ9trcHWssEPNvFP9cto+JbMMUDriACeJJUz
+g73VcCpsgYw5fPrh+2OKQMA=
+=xtBP
 -----END PGP SIGNATURE-----

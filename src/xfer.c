@@ -523,6 +523,7 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   while( blob_line(xfer.pIn, &xfer.line) ){
+    if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
 
     /*   file UUID SIZE \n CONTENT
@@ -841,6 +842,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
 
   while( go ){
     int newPhantom = 0;
+    char *zRandomness;
 
     /* Send make the most recently received cookie.  Let the server
     ** figure out if this is a cookie that it cares about.
@@ -872,6 +874,13 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
       }
       configMask = 0;
     }
+
+    /* Append randomness to the end of the message */
+#if 0   /* Enable this after all servers have upgraded */
+    zRandomness = db_text(0, "SELECT hex(randomblob(20))");
+    blob_appendf(&send, "# %s\n", zRandomness);
+    free(zRandomness);
+#endif
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
