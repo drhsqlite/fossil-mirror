@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Code\sto\srandomize\smessages\sfrom\sclient\sto\sthe\sserver.
-D 2008-07-26T14:02:33
+C Add\sa\s"User-Agent"\sheader\sto\sthe\sHTTP\straffic\sgenerated\sby\sfossil.\sThe\suser-agent\sstring\sis\s"Fossil/$UUID".
+D 2008-07-26T16:51:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -61,7 +58,7 @@ F src/diffcmd.c bf0ebffd4d9e7872202e6c4d0488c95bc2bd4276
 F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
-F src/http.c 6ef99f841e43c23b2ccbbbd0ea7d52e21be4a5dc
+F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
 F src/login.c 0aeb2757467f6e620912861735255e9e1f6fa092
 F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
@@ -210,14 +207,7 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P f6d3d89e76a52148206a8ec7e5d26c9dd31d3a03
-R c906b4e8fc29a93cdb33515b82e50f66
-U drh
-Z b3ee182634d95c02f4562ad29d00d3b0
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFIiy6AoxKgR168RlERAmIGAJ9trcHWssEPNvFP9cto+JbMMUDriACeJJUz
-g73VcCpsgYw5fPrh+2OKQMA=
-=xtBP
------END PGP SIGNATURE-----
+P 3cb547be2c7db73b523813b42fe5cd0d82f429e4
+R 2601d2a1a0cea158a563ebb1635acb2e
+U dan
+Z ab0a9f92083ee450688417d065e9bb2b

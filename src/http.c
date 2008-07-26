@@ -341,6 +341,7 @@ void http_exchange(Blob *pSend, Blob *pRecv){
   }
   blob_appendf(&hdr, "POST %s%sxfer HTTP/1.1\r\n", g.urlPath, zSep);
   blob_appendf(&hdr, "Host: %s\r\n", g.urlHostname);
+  blob_appendf(&hdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");
   if( g.fHttpTrace ){
     blob_appendf(&hdr, "Content-Type: application/x-fossil-debug\r\n");
   }else{
