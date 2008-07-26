@@ -1,5 +1,8 @@
-C Add\sa\s"User-Agent"\sheader\sto\sthe\sHTTP\straffic\sgenerated\sby\sfossil.\sThe\suser-agent\sstring\sis\s"Fossil/$UUID".
-D 2008-07-26T16:51:46
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Make\sall\susers\sinherit\sthe\scapabilities\sof\s"nobody"\sas\swell\sas\s(optionally)\sof\s"anonymous".
+D 2008-07-26T17:08:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -49,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c dc73ec459b0a8397a49713d3242a66d602ac26a5
+F src/db.c 2755f169fccf78138494be4aa7ce24f162258e85
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -60,7 +63,7 @@ F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
-F src/login.c 0aeb2757467f6e620912861735255e9e1f6fa092
+F src/login.c c686a3eaf43bd85ce0e80e71cf67170cf89e95c4
 F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -80,7 +83,7 @@ F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c d06483adac8c5b1cf41b673f8f10ebe3908a0d2f
-F src/setup.c b37cc86b525cad1bd4a603562f976f450fef96fd
+F src/setup.c 7115d9c0010f4630a71640cc4c605cafd04f4721
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -207,7 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 3cb547be2c7db73b523813b42fe5cd0d82f429e4
-R 2601d2a1a0cea158a563ebb1635acb2e
-U dan
-Z ab0a9f92083ee450688417d065e9bb2b
+P 31824fbf9128ae397c0d7d7f7da813938f63b5c7
+R 572dbc7bc7f89940173769aded9c6177
+U eric
+Z 3210b4400db566721f1c23d941abfb11
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFIi1o2u+lpsLhDMQkRAkr7AKCXp3IF+AXhWQK57cPKeoPPUUjf+gCeLRb/
+Tc93F/o+GOFYONpqGOGT5uk=
+=XtTR
+-----END PGP SIGNATURE-----

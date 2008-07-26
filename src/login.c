@@ -240,6 +240,8 @@ void login_check_credentials(void){
   const char *zCookie;
   const char *zRemoteAddr;
   const char *zCap = 0;
+  const char *zNcap;
+  const char *zAcap;
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
@@ -298,6 +300,14 @@ void login_check_credentials(void){
   g.userUid = uid;
   if( g.zLogin && strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
+  }
+  if( uid>0 ){
+    zNcap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
+    login_set_capabilities(zNcap);
+    if( db_get_int("inherit-anon",0) ){
+      zAcap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
+      login_set_capabilities(zAcap);
+    }
   }
   login_set_capabilities(zCap);
 }

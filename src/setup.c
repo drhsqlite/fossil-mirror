@@ -556,6 +556,12 @@ void setup_access(void){
   @ 127.0.0.1.</p></li>
 
   @ <hr>
+  onoff_attribute("Inherit capabilities from anonymous user",
+     "inherit-anon", "inherit-anon", 0);
+  @ <p>When enabled, all web users inherit capabilities from
+  @ "anonymous", as well as from "nobody".</p></li>
+
+  @ <hr>
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
