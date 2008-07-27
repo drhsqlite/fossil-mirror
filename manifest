@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sall\susers\sinherit\sthe\scapabilities\sof\s"nobody"\sas\swell\sas\s(optionally)\sof\s"anonymous".
-D 2008-07-26T17:08:33
+C Change\sbehavior\sof\sFossil's\stag\shandling.\n\n1.\sAll\ssubcommands\sof\scommand\stag\sprepends\sa\sprefix\s"sym-"\sinfront\sof\severy\n\s\s\stag\sname\spassed\sto\sthem.\sTags\sbeginning\swith\s"sym-"\sare\sspecial\sin\n\s\s\sFossil\sas\sthey\smight\sserve\sas\sreplacement\sof\sa\sUUID\sthey\sare\sattached\sto.\n\n\s\s\sFurther,\s"tag\slist"\swill\sonly\slist\sall\stags\sbeginning\swith\s"sym-"\sbut\n\s\s\swith\sthat\sprefix\sremoved\sduring\sdisplay\sas\sdefault.\n\n\s\s\sAll\ssubcommands\scan\sget\spassed\san\soption\s"--raw",\sthat\sprevent\sthe\n\s\s\sprepending\sof\sthe\sprefix\s"sym-"\sin\sfront\sof\sthe\stag\sname.\s"tag\slist"\n\s\s\swill\sreport\sall\stags\swithout\sremoveing\sany\sprefix\sif\scalled\swith\n\s\s\soption\s"--raw".\n\n2.\sIf\sa\scommand\stakes\sa\stag\sname\sthat\smay\sbe\sconfused\swith\sa\sUUID,\n\s\s\sthe\scommand\sdid\sinterpret\sthat\sparameter\sas\sa\sUUID\sinstead\sas\sa\n\s\s\stag\sname.\sSuch\stags\smight\snow\sbe\sprefixed\swith\sa\s"tag:"\sto\senforce\n\s\s\sthe\scommand\sto\stake\sthem\sas\stag\sname\sinstead\sof\sa\sUUID.\sFor\sexample:\n\n\s\s\s\s\sfossil\stag\sadd\sabcde\s$uuid\n\s\s\s\s\s:\n\s\s\s\s\sfossil\supdate\stag:abcde\n\n\s\s\s\swithout\sthe\sprefix\s"tag:"\sfossil\swould\stry\sto\supdate\sto\sa\sUUID\n\s\s\s\sbeginning\swith\sabcde.\sIf\sno\ssuch\sUUID\swas\sfound,\sfossil\swill\scomplain\n\s\s\s\sand\sexit.
+D 2008-07-27T18:35:06
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -75,7 +75,7 @@ F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/my_page.c 52bd9eb48f383d419589c66753089e42248139da
-F src/name.c ba487d186bbd05812e6e01f47ae53faab89631ce
+F src/name.c 825efda6eadd890a029fa0516d0411267aba4f0d
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
@@ -91,7 +91,7 @@ F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
 F src/style.c 1b159a6ade222dcbcd944b471a81ad1f5e13463c
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
-F src/tag.c 29b50a2f4d1d78180bcb413042b320b45fdd52e4
+F src/tag.c ec276e48522176b4b78c5c05bf69358802b4ce63
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P 31824fbf9128ae397c0d7d7f7da813938f63b5c7
-R 572dbc7bc7f89940173769aded9c6177
-U eric
-Z 3210b4400db566721f1c23d941abfb11
+P eb24a021d641a6a0b67cb7907dbbbddf90bb6f6f
+R 3758731104d67dbc07d3e6562033bbf7
+U cle
+Z e443d36767bed0b593de411a8d952bb0
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.8 (Darwin)
 
-iD8DBQFIi1o2u+lpsLhDMQkRAkr7AKCXp3IF+AXhWQK57cPKeoPPUUjf+gCeLRb/
-Tc93F/o+GOFYONpqGOGT5uk=
-=XtTR
+iEYEARECAAYFAkiMv9sACgkQhcAhAqILb/3iVQCffrOuYHpK16eN2EABVO3fvPVE
+ZgQAn1AYur5fL22vZTWswoclxE2otZQC
+=ydKl
 -----END PGP SIGNATURE-----

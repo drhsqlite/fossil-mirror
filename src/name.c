@@ -48,15 +48,22 @@ int name_to_uuid(Blob *pName, int iErrPriority){
   if( sz>UUID_SIZE || sz<4 || !validate16(blob_buffer(pName), sz) ){
     Stmt q;
     Blob uuid;
+    static const char prefix[] = "tag:";
+    static const int preflen = sizeof(prefix)-1;
+    const char *zName = blob_str(pName);
+
+    if( strncmp(zName, prefix, preflen)==0 ){
+      zName += preflen;
+    }
 
     db_prepare(&q,
       "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
       "  FROM tagxref JOIN event ON rid=objid"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='sym-'||%B)"
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='sym-'||%Q)"
       "   AND tagtype>0"
       "   AND value IS NULL"
       " ORDER BY event.mtime DESC",
-      pName
+      zName
     );
     blob_zero(&uuid);
     if( db_step(&q)==SQLITE_ROW ){
@@ -64,7 +71,7 @@ int name_to_uuid(Blob *pName, int iErrPriority){
     }
     db_finalize(&q);
     if( blob_size(&uuid)==0 ){
-      fossil_error(iErrPriority, "not a valid object name: %b", pName);
+      fossil_error(iErrPriority, "not a valid object name: %s", zName);
       blob_reset(&uuid);
       return 1;
     }else{

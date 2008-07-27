@@ -275,7 +275,7 @@ static void tag_add_artifact(
   }
   rid = name_to_rid(blob_str(&uuid));
   blob_zero(&ctrl);
-  
+
   if( validate16(zTagname, strlen(zTagname)) ){
     fossil_fatal("invalid tag name \"%s\" - might be confused with a UUID",
                  zTagname);
@@ -307,30 +307,56 @@ static void tag_add_artifact(
 **
 ** Run various subcommands to control tags and properties
 **
-**     %fossil tag add TAGNAME UUID ?VALUE?
+**     %fossil tag add ?--raw? TAGNAME UUID ?VALUE?
 **
-**         Add a new tag or property to UUID.
+**         Add a new tag or property to UUID. The tag will
+**         be usable instead of a UUID in commands like
+**         update and the like.
 **
-**     %fossil tag branch TAGNAME UUID ?VALUE?
+**     %fossil tag branch ?--raw? TAGNAME UUID ?VALUE?
 **
 **         Add a new tag or property to UUID and make that
 **         tag propagate to all direct children.
 **
-**     %fossil tag delete TAGNAME UUID
+**     %fossil tag delete ?--raw? TAGNAME UUID
 **
 **         Delete the tag TAGNAME from UUID
 **
-**     %fossil tag find TAGNAME
+**     %fossil tag find ?--raw? TAGNAME
 **
 **         List all baselines that use TAGNAME
 **
-**     %fossil tag list ?UUID?
+**     %fossil tag list ?--raw? ?UUID?
 **
 **         List all tags, or if UUID is supplied, list
 **         all tags and their values for UUID.
+**
+** The option ?--raw? is to expose the internal interface 
+** for tag handling. This option is not necessary for the
+** normal use.
+**
+** If you use a tagname that might be confused with a UUID,
+** you have to explicitly disambiguate it by prefixing it
+** with "tag:". For instance:
+**
+**   fossil update cfcfcfee
+**
+** is not the same as:
+**
+**   fossil update tag:cfcfcfee
+**
+** The first will be taken as UUID and fossil will complain
+** if no such revision was found, and the second one expect
+** "cfcfcfee" to be a tag/branch name!
+**
 */
 void tag_cmd(void){
   int n;
+  int raw = find_option("raw","",0)!=0;
+  const char *prefix = raw ? "" : "sym-";
+  int preflen = strlen(prefix);
+  Blob tagname;
+
   db_find_and_open_repository(1);
   if( g.argc<3 ){
     goto tag_cmd_usage;
@@ -340,13 +366,16 @@ void tag_cmd(void){
     goto tag_cmd_usage;
   }
 
+  blob_set(&tagname, prefix);
+
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
       usage("add TAGNAME UUID ?VALUE?");
     }
+    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(g.argv[3], g.argv[4], zValue, 1);
+    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 1);
   }else
 
   if( strncmp(g.argv[2],"branch",n)==0 ){
@@ -354,15 +383,17 @@ void tag_cmd(void){
     if( g.argc!=5 && g.argc!=6 ){
       usage("branch TAGNAME UUID ?VALUE?");
     }
+    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(g.argv[3], g.argv[4], zValue, 2);
+    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 2);
   }else
 
   if( strncmp(g.argv[2],"delete",n)==0 ){
     if( g.argc!=5 ){
       usage("delete TAGNAME UUID");
     }
-    tag_add_artifact(g.argv[3], g.argv[4], 0, 0);
+    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
+    tag_add_artifact(blob_str(&tagname), g.argv[4], 0, 0);
   }else
 
   if( strncmp(g.argv[2],"find",n)==0 ){
@@ -370,10 +401,11 @@ void tag_cmd(void){
     if( g.argc!=4 ){
       usage("find TAGNAME");
     }
+    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     db_prepare(&q,
       "SELECT blob.uuid FROM tagxref, blob"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-      "   AND blob.rid=tagxref.rid", g.argv[3]
+      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%B)"
+      "   AND blob.rid=tagxref.rid", &tagname
     );
     while( db_step(&q)==SQLITE_ROW ){
       printf("%s\n", db_column_text(&q, 0));
@@ -393,7 +425,10 @@ void tag_cmd(void){
         " ORDER BY tagname"
       );
       while( db_step(&q)==SQLITE_ROW ){
-        printf("%s\n", db_column_text(&q, 0));
+        const char *name = db_column_text(&q, 0);
+        if( raw || strncmp(name, prefix, preflen)==0 ){
+          printf("%s\n", name+preflen);
+        }
       }
       db_finalize(&q);
     }else if( g.argc==4 ){
@@ -410,9 +445,13 @@ void tag_cmd(void){
         const char *zName = db_column_text(&q, 0);
         const char *zValue = db_column_text(&q, 1);
         if( zValue ){
-          printf("%s=%s\n", zName, zValue);
+          if( raw || strncmp(zName, prefix, preflen)==0 ){
+            printf("%s=%s\n", zName+preflen, zValue);
+          }
         }else{
-          printf("%s\n", zName);
+          if( raw || strncmp(zName, prefix, preflen)==0 ){
+            printf("%s\n", zName+preflen);
+          }
         }
       }
       db_finalize(&q);
@@ -423,6 +462,9 @@ void tag_cmd(void){
   {
     goto tag_cmd_usage;
   }
+
+  /* Cleanup */
+  blob_reset(&tagname);
   return;
 
 tag_cmd_usage:
