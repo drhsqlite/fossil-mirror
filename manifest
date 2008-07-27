@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sbehavior\sof\sFossil's\stag\shandling.\n\n1.\sAll\ssubcommands\sof\scommand\stag\sprepends\sa\sprefix\s"sym-"\sinfront\sof\severy\n\s\s\stag\sname\spassed\sto\sthem.\sTags\sbeginning\swith\s"sym-"\sare\sspecial\sin\n\s\s\sFossil\sas\sthey\smight\sserve\sas\sreplacement\sof\sa\sUUID\sthey\sare\sattached\sto.\n\n\s\s\sFurther,\s"tag\slist"\swill\sonly\slist\sall\stags\sbeginning\swith\s"sym-"\sbut\n\s\s\swith\sthat\sprefix\sremoved\sduring\sdisplay\sas\sdefault.\n\n\s\s\sAll\ssubcommands\scan\sget\spassed\san\soption\s"--raw",\sthat\sprevent\sthe\n\s\s\sprepending\sof\sthe\sprefix\s"sym-"\sin\sfront\sof\sthe\stag\sname.\s"tag\slist"\n\s\s\swill\sreport\sall\stags\swithout\sremoveing\sany\sprefix\sif\scalled\swith\n\s\s\soption\s"--raw".\n\n2.\sIf\sa\scommand\stakes\sa\stag\sname\sthat\smay\sbe\sconfused\swith\sa\sUUID,\n\s\s\sthe\scommand\sdid\sinterpret\sthat\sparameter\sas\sa\sUUID\sinstead\sas\sa\n\s\s\stag\sname.\sSuch\stags\smight\snow\sbe\sprefixed\swith\sa\s"tag:"\sto\senforce\n\s\s\sthe\scommand\sto\stake\sthem\sas\stag\sname\sinstead\sof\sa\sUUID.\sFor\sexample:\n\n\s\s\s\s\sfossil\stag\sadd\sabcde\s$uuid\n\s\s\s\s\s:\n\s\s\s\s\sfossil\supdate\stag:abcde\n\n\s\s\s\swithout\sthe\sprefix\s"tag:"\sfossil\swould\stry\sto\supdate\sto\sa\sUUID\n\s\s\s\sbeginning\swith\sabcde.\sIf\sno\ssuch\sUUID\swas\sfound,\sfossil\swill\scomplain\n\s\s\s\sand\sexit.
-D 2008-07-27T18:35:06
+C Reverse\sthe\scheck\son\sinline\sformatting\sfor\sindented\sparagraphs\sin\swikiformat.c
+D 2008-07-27T21:02:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -108,7 +108,7 @@ F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
-F src/wikiformat.c 55aa7e0f7eca4d9f6a132cbb70dc78bbbc4fa31a
+F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
 F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
@@ -210,14 +210,14 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P eb24a021d641a6a0b67cb7907dbbbddf90bb6f6f
-R 3758731104d67dbc07d3e6562033bbf7
-U cle
-Z e443d36767bed0b593de411a8d952bb0
+P d1c993802524c5a47d2e6219f9f1380f6ccff857
+R 449b92d65c70982ec850c0b0e8f522cc
+U eric
+Z 8170e604c0f18cc8f19c5b0bf745ec10
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iEYEARECAAYFAkiMv9sACgkQhcAhAqILb/3iVQCffrOuYHpK16eN2EABVO3fvPVE
-ZgQAn1AYur5fL22vZTWswoclxE2otZQC
-=ydKl
+iD8DBQFIjOJ3u+lpsLhDMQkRAuSCAKCKUn88OrgJPvvpSaBklhp9+EsKgQCgwzKb
+D8ZxTw3uZItQyfTJKq/R+ZY=
+=s08k
 -----END PGP SIGNATURE-----

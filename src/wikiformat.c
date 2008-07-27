@@ -1007,7 +1007,7 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_INDENT: {
-        if( inlineOnly ){
+        if( !inlineOnly ){
           assert( p->wikiList==0 );
           pushStack(p, MARKUP_BLOCKQUOTE);
           blob_append(p->pOut, "<blockquote>", -1);
