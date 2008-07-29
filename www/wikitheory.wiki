@@ -1,0 +1,38 @@
+<h1>Wiki In <a href="index.wiki">Fossil</a></h1>
+
+Fossil uses <a href="../../../wiki_rules">wiki markup</a> for many
+things:
+
+   *  Stand-alone wiki pages.
+   *  Description and comments in <a href="bugtheory.wiki">bug reports</a>.
+   *  Check-in comments.
+   *  <a href="embeddeddoc.wiki">Embedded documentation</a> files whose
+      name ends in "wiki".
+
+The <a href="../../../wiki_rules">formatting rules</a> for fossil wiki
+are designed to be simple and intuitive.  The idea is that wiki provides
+paragaph breaks, numbered and bulletted lists, and hyperlinking for
+simple documents together with a safe subset of HTML for more complex
+formatting tasks.
+
+<h2>Stand-alone Wiki Pages</h2>
+
+Each wiki page has its own revision history which is independent of
+the sequence of baselines (check-ins).  Wiki pages can branch and merge
+just like baselines, though as of this writing (2008-07-29) there is
+no mechanism in the user interface to support branching and merging.
+The currently implementation of the wiki shows the version of the wiki
+pages that has the most recent timestamp.
+
+In other words, if two users make unrelated changes to the same wiki
+page on separate repositories, then those repositories are synced,
+the wiki page will fork.  The web interface will display whichever edit
+was checked in last.  The other edit can be found in the history.  The
+file format will support merging the branches back together, but there
+is no mechanism in the user interface (yet) to perform the merge.
+
+Every change to a wiki page is a separate 
+<a href="fileformat.wiki">control artifact</a> 
+of type <a href="fileformat.wiki#wikichng">"Wiki Page"</a>.
+
+<i>To be continued...</i>

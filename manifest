@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reverse\sthe\scheck\son\sinline\sformatting\sfor\sindented\sparagraphs\sin\swikiformat.c
-D 2008-07-27T21:02:10
+C Documentation\supdates.
+D 2008-07-29T13:07:17
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -178,7 +178,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/bugtheory.wiki 6a29c06018b431febcc09b5c9b7efb8fbff16d2e
+F www/bugtheory.wiki fa1904916942cb9dbb0c720acf62ebe087db7300
 F www/build.wiki 5ba110240ed19d8b2b44b12a1e9e65b5b01fd946
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -202,22 +202,23 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki 3dee4db54116dbd050542b2a07254c39c211bc69
-F www/index.wiki 997d5488afc02e263725a3bbe31a9f8b6689cc23
+F www/fileformat.wiki 51b55c19f01aff2a20f7c7d92ebbe062c1733864
+F www/index.wiki 23a1400897ce3732d9f2b5fa22dbd47041f7cc9f
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-P d1c993802524c5a47d2e6219f9f1380f6ccff857
-R 449b92d65c70982ec850c0b0e8f522cc
-U eric
-Z 8170e604c0f18cc8f19c5b0bf745ec10
+F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
+P 3bc6d0b0c913b5c0cb1cb0e55a0e96a7c12acb16
+R 23099966fd9a413e8c408c21214fdbc0
+U drh
+Z bdc3489e223971618b3ea02890f37624
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIjOJ3u+lpsLhDMQkRAuSCAKCKUn88OrgJPvvpSaBklhp9+EsKgQCgwzKb
-D8ZxTw3uZItQyfTJKq/R+ZY=
-=s08k
+iD8DBQFIjxYIoxKgR168RlERAnTrAJoD4UGKNkidG1QDGVL9lyzbDsrWdgCdGM0d
+iLn7Fon8GzeCpUih6vYRkp0=
+=UYDH
 -----END PGP SIGNATURE-----

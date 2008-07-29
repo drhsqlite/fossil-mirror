@@ -270,6 +270,7 @@ used.</p>
 to a baseline will override the check-in comment of that baseline
 for display purposes.</p>
 
+<a name="wikichng"></a>
 <h2>4.0 Wiki Pages</h2>
 
 <p>A wiki page is an artifact with a format similar to manifests,

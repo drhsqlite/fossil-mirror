@@ -4,7 +4,7 @@
 Fossil is a new 
 <a href="http://en.wikipedia.org/wiki/Revision_control">
 distributed software revision control system</a> that includes an integrated
-<a href="../../../wiki_rules">wiki</a> and an integrated
+<a href="wikitheory.wiki">wiki</a> and an integrated
 <a href="bugtheory.wiki">bug-tracking system</a> all in a single, 
 easy-to-use, stand-alone executable.
 Fossil is
@@ -31,7 +31,7 @@ or client/server operation (like
 or operations on local repositories,
 or all three at the same time</li>
 <li>Integrated <a href="bugtheory.wiki">bug tracking</a> and 
-<a href="../../../wiki_rules">wiki</a>, inspired by
+<a href="wikitheory.wiki">wiki</a>, inspired by
 <a href="http://www.cvstrac.org/">CVSTrac</a> and
 <a href="http://www.edgewall.com/trac/">Trac</a> but enhanced to
 support distributed, disconnected operation.</li>
@@ -93,7 +93,7 @@ implements mechanism, not policy.</li>
     that is versioned along with project source code.</li>
 <li>The <a href="selfcheck.wiki">automatic self-check</a> mechanism
 helps insure project integrity.</li>
-<li>Fossil contains a <a href="../../../wiki">built-in wiki</a>.</li>
+<li>Fossil contains a <a href="wikitheory.wiki">built-in wiki</a>.</li>
 <li>There is a
     <a href="http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users">
     mailing list</a> available for discussing fossil issues.</li>
