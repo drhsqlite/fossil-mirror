@@ -163,7 +163,7 @@ foreach s [lsort $src] {
 }
 append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
-append mhargs " ./VERSION.h"
+append mhargs " VERSION.h"
 puts "headers:\tmakeheaders mkindex \$(TRANS_SRC) ./VERSION.h"
 puts "\t./makeheaders $mhargs"
 puts "\t./mkindex \$(TRANS_SRC) >page_index.h"
