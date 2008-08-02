@@ -301,7 +301,7 @@ void login_check_credentials(void){
   if( g.zLogin && strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
-  if( uid>0 ){
+  if( uid && g.zLogin ){
     zNcap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
     login_set_capabilities(zNcap);
     if( db_get_int("inherit-anon",0) ){

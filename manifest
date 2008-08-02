@@ -1,5 +1,8 @@
-C Allow\sfor\sgenerating\sa\sMakefile\sthat\swill\salso\swork\sfor\sBSD\sMake\s(tested\nunder\sNetBSD\s3.1).
-D 2008-07-30T13:00:22
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Fix\sbug\sfrom\seb24a021d6\swhich\sleft\snobody\swith\stoo\smany\spermissions
+D 2008-08-02T18:32:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -60,7 +63,7 @@ F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
-F src/login.c c686a3eaf43bd85ce0e80e71cf67170cf89e95c4
+F src/login.c 86fb4c3fd8ee7635f6f4adbd03ce03df8db5e7e6
 F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -208,7 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 9d10726d486380ad4ea012db56643291eaa13da1
-R 211f494268dfcdbf61b6aae7620f0032
-U cle
-Z bd99b42efe25247304014083c9875cd0
+P e243a8dfa46e1da3a53862012d1bf91f5a081956
+R 298f73aa3b5e87ab2fee935a56c7d9d4
+U eric
+Z bca3f2a0c09bbebad196fd4f18b57e24
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFIlKhfu+lpsLhDMQkRAqO+AKCbTEjOPclDEWfhDvBaoz2xP0o5jwCfSsGP
+eA5RL97JxgN//fUIy2sOau4=
+=DsvJ
+-----END PGP SIGNATURE-----
