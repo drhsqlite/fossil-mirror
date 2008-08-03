@@ -154,15 +154,17 @@ void setup_ulist(void){
   @ <li value="18"><b>Read-Tkt</b>: View tickets</li>
   @ <li value="19"><b>Setup:</b> Setup and configure this website</li>
   @ <li value="20"><b>Tkt-Report:</b> Create new bug summary reports</li>
+  @ <li value="22"><b>Developer:</b> Inherit privileges of user "developer"</li>
   @ <li value="23"><b>Write-Tkt</b>: Edit tickets</li>
   @ </ol>
   @ </p></li>
   @
   @ <li><p>
-  @ Every user, logged in or not, has the privileges of <b>nobody</b>.
+  @ Every user, logged in or not, inherits the privileges of <b>nobody</b>.
   @ Any human can login as <b>anonymous</b> since the password is
   @ clearly displayed on the login page for them to type.  The purpose
   @ of requiring anonymous to log in is to prevent access by spiders.
+  @ Every logged-in user inherits the privileges of <b>anonymous</b>.
   @ </p></li>
   @
   @ </ol>
@@ -171,13 +173,27 @@ void setup_ulist(void){
 }
 
 /*
+** Return true if zPw is a valid password string.  A valid
+** password string is:
+**
+**  (1)  A zero-length string, or
+**  (2)  a string that contains a character other than '*'.
+*/
+static int isValidPwString(const char *zPw){
+  if( zPw==0 ) return 0;
+  if( zPw[0]==0 ) return 1;
+  while( zPw[0]=='*' ){ zPw++; }
+  return zPw[0]!=0;
+}
+
+/*
 ** WEBPAGE: /setup_uedit
 */
 void user_edit(void){
-  const char *zId, *zLogin, *zInfo, *zCap;
+  const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat;
+  char *oat, *oav;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -210,8 +226,6 @@ void user_edit(void){
   */
   doWrite = cgi_all("login","info","pw") && !higherUser;
   if( doWrite ){
-    const char *zPw;
-    const char *zLogin;
     char zCap[50];
     int i = 0;
     int aa = P("aa")!=0;
@@ -232,6 +246,7 @@ void user_edit(void){
     int ah = P("ah")!=0;
     int ag = P("ag")!=0;
     int at = P("at")!=0;
+    int av = P("av")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
@@ -249,11 +264,12 @@ void user_edit(void){
     if( ar ){ zCap[i++] = 'r'; }
     if( as ){ zCap[i++] = 's'; }
     if( at ){ zCap[i++] = 't'; }
+    if( av ){ zCap[i++] = 'v'; }
     if( aw ){ zCap[i++] = 'w'; }
 
     zCap[i] = 0;
     zPw = P("pw");
-    if( zPw==0 || zPw[0]==0 ){
+    if( !isValidPwString(zPw) ){
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zLogin = P("login");
@@ -282,12 +298,14 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
+  zPw = "";
   oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oaw = "";
+        oan = oao = oap = oar = oas = oat = oav = oaw = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
     zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
+    zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
     if( strchr(zCap, 'a') ) oaa = " checked";
     if( strchr(zCap, 'c') ) oac = " checked";
     if( strchr(zCap, 'd') ) oad = " checked";
@@ -305,6 +323,7 @@ void user_edit(void){
     if( strchr(zCap, 'r') ) oar = " checked";
     if( strchr(zCap, 's') ) oas = " checked";
     if( strchr(zCap, 't') ) oat = " checked";
+    if( strchr(zCap, 'v') ) oav = " checked";
     if( strchr(zCap, 'w') ) oaw = " checked";
   }
 
@@ -348,6 +367,7 @@ void user_edit(void){
   @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
   @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
   @     <input type="checkbox" name="ah"%s(oah)>History</input><br>
+  @     <input type="checkbox" name="av"%s(oav)>Developer</input><br>
   @     <input type="checkbox" name="ag"%s(oag)>Clone</input><br>
   @     <input type="checkbox" name="aj"%s(oaj)>Read Wiki</input><br>
   @     <input type="checkbox" name="af"%s(oaf)>New Wiki</input><br>
@@ -362,7 +382,16 @@ void user_edit(void){
   @ </tr>
   @ <tr>
   @   <td align="right">Password:</td>
-  @   <td><input type="password" name="pw" value=""></td>
+  if( strcmp(zLogin, "anonymous")==0 ){
+    /* User the password for "anonymous" as cleartext */
+    @   <td><input type="text" name="pw" value="%h(zPw)"></td>
+  }else if( zPw[0] ){
+    /* Obscure the password for all other users */
+    @   <td><input type="password" name="pw" value="**********"></td>
+  }else{
+    /* Show an empty password as an empty input field */
+    @   <td><input type="password" name="pw" value=""></td>
+  }
   @ </tr>
   if( !higherUser ){
     @ <tr>
@@ -371,8 +400,8 @@ void user_edit(void){
     @ </tr>
   }
   @ </table></td></tr></table>
-  @ <p><b>Notes:</b></p>
-  @ <ol>
+  @ <h2>Privileges And Capabilities:</h2>
+  @ <ul>
   if( higherUser ){
     @ <li><p><font color="blue"><b>
     @ User %h(zLogin) has Setup privileges and you only have Admin privileges
@@ -404,6 +433,11 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
+  @ The <b>Developer</b> privilege causes all privileges of the user
+  @ named "developer" to be inherited by this user.
+  @ </p></li>
+  @
+  @ <li><p>
   @ The <b>Check-in</b> privilege allows remote users to "push".
   @ The <b>Check-out</b> privilege allows remote users to "pull".
   @ The <b>Clone</b> privilege allows remote users to "clone".
@@ -420,8 +454,8 @@ void user_edit(void){
   @
   @ <li><p>
   @ Users with the <b>Password</b> privilege are allowed to change their
-  @ own password.  Recommended ON for most users but OFF for "anonynmous"
-  @ and "nobody".
+  @ own password.  Recommended ON for most users but OFF for special
+  @ users "developer, "anonynmous", and "nobody".
   @ </p></li>
   @
   @ <li><p>
@@ -431,13 +465,23 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
+  @ Login is prohibited if the password is an empty string.
+  @ </p></li>
+  @ </ul>
+  @
+  @ <h2>Special Logins</h2>
+  @ 
+  @ <ul>
+  @ <li><p>
   @ No login is required for user "<b>nobody</b>".  The capabilities
-  @ of this user are available to anyone without supplying a username or
-  @ password.  To disable nobody access, make sure there is no user
-  @ with an ID of <b>nobody</b> or that the nobody user has no
-  @ capabilities enabled.  The password for nobody is ignore.  To
-  @ avoid problems with spiders overloading the server, it is suggested
-  @ that the 'h' (History) capability be turned off for user nobody.
+  @ of the <b>nobody</b> user are inherited by all users, regardless of
+  @ whether or not they are logged in.  To disable universal access
+  @ to the repository, make sure no user named "<b>nobody</b>" exists or
+  @ that the <b>nobody</b> user has no capabilities enabled.
+  @ The password for <b>nobody</b> is ignore.  To avoid problems with
+  @ spiders overloading the server, it is recommended
+  @ that the 'h' (History) capability be turned off for the <b>nobody</b>
+  @ user.
   @ </p></li>
   @
   @ <li><p>
@@ -447,8 +491,17 @@ void user_edit(void){
   @ On the other hand, spiders and web-crawlers will typically not
   @ be able to login.  Set the capabilities of the anonymous user
   @ to things that you want any human to be able to do, but not any
-  @ spider.
+  @ spider.  Every other logged-in user inherits the privileges of
+  @ <b>anonymous</b>.
   @ </p></li>
+  @
+  @ <li><p>
+  @ The "<b>developer</b>" user is intended as a template for trusted users
+  @ with check-in privileges.  When adding new trusted users, simply
+  @ select the <b>Developer</b> privilege to cause the new user to inherit
+  @ all privileges of the "developer" user.
+  @ </li></p>
+  @ </ul>
   @ </form>
   style_footer();
 }

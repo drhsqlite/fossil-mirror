@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sbug\sfrom\seb24a021d6\swhich\sleft\snobody\swith\stoo\smany\spermissions
-D 2008-08-02T18:32:27
+C Users\sunconditionally\sinherit\scapabilities\sof\s"anonymous".\s\sNew\scapability\n"v"\smeans\sto\sinherit\scapabilities\sof\suser\s"developer".\s\sLogin\sis\sprohibited\nif\sthe\spassword\sis\sempty.
+D 2008-08-03T16:47:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -37,7 +37,7 @@ F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
-F src/admin.c 3d7573884cd23394d9ee1b15062149e4901aa01c
+F src/admin.c 8499f278199c6c7f13c15d1299d9ac6d5db50ae5
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 2755f169fccf78138494be4aa7ce24f162258e85
+F src/db.c 1ccbb50ea2cf35fcad04c01e1a688e46ed1b1f12
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -63,7 +63,7 @@ F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
-F src/login.c 86fb4c3fd8ee7635f6f4adbd03ce03df8db5e7e6
+F src/login.c 0807191c837078538e39dc57c4a492d04f2dbd36
 F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -74,7 +74,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/my_page.c 52bd9eb48f383d419589c66753089e42248139da
+F src/my_page.c 98c94677766c794cf6d1d22bc2a33995de3154de
 F src/name.c 825efda6eadd890a029fa0516d0411267aba4f0d
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
@@ -83,7 +83,7 @@ F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c d06483adac8c5b1cf41b673f8f10ebe3908a0d2f
-F src/setup.c 7115d9c0010f4630a71640cc4c605cafd04f4721
+F src/setup.c 1c7a1834ca6e4d60f1cfce689860a260c4584626
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P e243a8dfa46e1da3a53862012d1bf91f5a081956
-R 298f73aa3b5e87ab2fee935a56c7d9d4
-U eric
-Z bca3f2a0c09bbebad196fd4f18b57e24
+P b46d6092dcc18be65a9bd08ddbc12f93180b262e
+R a192b1f12bb2e309aec659f7bf98cf06
+U drh
+Z 507240ea2c127f14224279fcc01a9cab
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFIlKhfu+lpsLhDMQkRAqO+AKCbTEjOPclDEWfhDvBaoz2xP0o5jwCfSsGP
-eA5RL97JxgN//fUIy2sOau4=
-=DsvJ
+iD8DBQFIleEzoxKgR168RlERAndbAJ99kKVtEQVCunJdeA62fX1+m14TuQCgg2Eo
+zeQ2D/LtiOfflvOdOEzT3B0=
+=LRN2
 -----END PGP SIGNATURE-----
