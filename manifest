@@ -1,5 +1,8 @@
-C Allow\sfor\sgenerating\sa\sMakefile\sthat\swill\salso\swork\sfor\sBSD\sMake\s(tested\nunder\sNetBSD\s3.1).
-D 2008-07-30T13:00:22
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Make\sthe\sinfo\sweb\spage\shandle\ssymbolic\stags\sas\swell\sas\sUUIDs.\sStart\strying\nto\smake\sthe\scurrently-disabled\stagview\spage\smore\suseful.
+D 2008-08-04T20:46:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -59,8 +62,8 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
-F src/login.c c686a3eaf43bd85ce0e80e71cf67170cf89e95c4
+F src/info.c 3ed7c9edba780bd3efb09d195e10fd94d83dda04
+F src/login.c 86fb4c3fd8ee7635f6f4adbd03ce03df8db5e7e6
 F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -72,7 +75,7 @@ F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/my_page.c 52bd9eb48f383d419589c66753089e42248139da
-F src/name.c 825efda6eadd890a029fa0516d0411267aba4f0d
+F src/name.c cf54ee1717908c74c410e2f5d7623bde71b77e18
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
@@ -89,7 +92,7 @@ F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
 F src/style.c 1b159a6ade222dcbcd944b471a81ad1f5e13463c
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
 F src/tag.c ec276e48522176b4b78c5c05bf69358802b4ce63
-F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
+F src/tagview.c 8e6ed27d79586c68d46e4abf2208c071697bef95
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
@@ -208,7 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 9d10726d486380ad4ea012db56643291eaa13da1
-R 211f494268dfcdbf61b6aae7620f0032
-U cle
-Z bd99b42efe25247304014083c9875cd0
+P e243a8dfa46e1da3a53862012d1bf91f5a081956
+R ea9ff0837d800059709c201500f58324
+U eric
+Z 1272de90ab14cdb348c716bb226fb989
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFIl2rnu+lpsLhDMQkRAg70AJ93GszDr50MQ2D3Dw3lIup07Q+6wgCgupFg
+/+iVdE+eaaGoKTwo99QoNQU=
+=wkl7
+-----END PGP SIGNATURE-----
