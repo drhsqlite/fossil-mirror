@@ -540,5 +540,5 @@ void tag_cmd(void){
   return;
 
 tag_cmd_usage:
-  usage("add|branch|delete|find|list ...");
+  usage("add|branch|cancel|find|list ...");
 }
