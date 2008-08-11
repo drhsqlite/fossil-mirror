@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Users\sunconditionally\sinherit\scapabilities\sof\s"anonymous".\s\sNew\scapability\n"v"\smeans\sto\sinherit\scapabilities\sof\suser\s"developer".\s\sLogin\sis\sprohibited\nif\sthe\spassword\sis\sempty.
-D 2008-08-03T16:47:43
+C \s\s*\s\sRename\ssubcommand\s<tt>tag\sdelete</tt>\sto\s<tt>tag\scancel</tt>.\n\s\s*\s\sNew\sbranching\sbehavior.\sNow\sif\ssubcommand\s<tt>tag\sbranch</tt>\sis\sused,\n\s\s\s\s\sa\snew\scopy\sof\smanifest\s<tt>UUID</tt>\swith\sthe\ssame\sparent\swill\sbe\n\s\s\s\s\screated,\sthereby\sforming\sa\sfork.\sA\spropagating\ssymbolic\stag\swith\n\s\s\s\s\s<tt>TAGNAME</tt>\sis\sassigned\sto\sthe\sUUID\sof\sthe\snew\scopy.\s\sFurthermore\n\s\s\s\s\sall\sother\spropagating\ssymbolic\stags\sthat\sthe\sfork\sdid\sinherited\sby\sthe\n\s\s\s\s\soriginal\smanifest,\sare\scancelled.<br><br>However,\sif\sthe\soption\n\s\s\s\s\s<tt>--raw</tt>\swas\sgiven,\sthe\sold\s<tt>tag\sbranch</tt>\sbehavior\sis\sused.\n\s\s\s\s\sThat\smeans,\sno\screation\sof\sa\sfork\sby\scopying\sthe\smanifest\s<tt>UUID</tt>,\n\s\s\s\s\sno\scancelling\sof\sinherited\spropagating\ssymbolic\stags.\sThe\stag\swill\sbe\n\s\s\s\s\sapplied\sto\sthe\sgiven\s<UUID>\sdirectly.<br><br>For\sinstance\n\s\s\s\s\s<verbatim>\n\s\s\s\s\s\s\s\sfossil\stag\sbranch\sfix-12345\scfcfcfee\n\s\s\s\s\s\s\s\sfossil\stag\sbranch\s--raw\sbgcolor\stag:cfcfcfee\syellow\n\s\s\s\s\s\s</verbatim>\swill\screate\sa\sfork\sby\scopiying\smanifest\s<tt>cfcfcfee</tt>,\sapply\n\s\s\s\s\s\sa\stag\s<tt>fix-12345</tt>\sthat\swill\spropagate\sto\sits\schildren\sand\sset\sthe\n\s\s\s\s\s\spropagating\sproperty\s<tt>bgcolor</tt>\stoo.
+D 2008-08-11T04:03:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -91,7 +91,7 @@ F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
 F src/style.c 1b159a6ade222dcbcd944b471a81ad1f5e13463c
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
-F src/tag.c ec276e48522176b4b78c5c05bf69358802b4ce63
+F src/tag.c dda1d54dbb53463d397683f0af164ae45ab61a1b
 F src/tagview.c 73b17a9efb460735e92edf43fff8c9eb5f4043a4
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P b46d6092dcc18be65a9bd08ddbc12f93180b262e
-R a192b1f12bb2e309aec659f7bf98cf06
-U drh
-Z 507240ea2c127f14224279fcc01a9cab
+P 1f1d96529c64ef5e9afda16af7d405aade92cb3d
+R 2870aee3e27130d64f2ac1727d7453b4
+U cle
+Z 981b2e6d7a2e168c6e5f2b520012c1e1
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.8 (Darwin)
 
-iD8DBQFIleEzoxKgR168RlERAndbAJ99kKVtEQVCunJdeA62fX1+m14TuQCgg2Eo
-zeQ2D/LtiOfflvOdOEzT3B0=
-=LRN2
+iEYEARECAAYFAkifuhkACgkQhcAhAqILb/22lwCfWRb7rEqxIvtSHt9o86BP8evf
+KKoAn0Ll4cK8ydCKUM7kzbW70QKEBxdd
+=0A+o
 -----END PGP SIGNATURE-----

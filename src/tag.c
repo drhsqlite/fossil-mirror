@@ -249,6 +249,60 @@ void testtag_cmd(void){
 }
 
 /*
+** Prepare an artifact that describes a fork from a certain UUID.
+** Furthermore a propagating symbolic tag will be inserted and
+** all other propagating symbolic tags will be cancelled.
+**
+** The changes are appended at the Blob pCtrl. However the manifest
+** is not complete at that stage.
+*/
+static void tag_prepare_fork(
+  Blob *pCtrl, 
+  const char *zTagname,
+  int rid
+){
+  Stmt q;
+  Manifest origin;
+  Blob originContent;
+  char *zDate;
+  int i;
+
+  blob_appendf(pCtrl, "C Create\\snamed\\sfork\\s%s\n", zTagname+4);
+  content_get(rid, &originContent);
+  manifest_parse(&origin, &originContent);
+  zDate = db_text(0, "SELECT datetime('now')");
+  zDate[10] = 'T';
+  blob_appendf(pCtrl, "D %s\n", zDate);
+  for(i=0; i<origin.nFile; ++i){
+    blob_appendf(pCtrl, "F %s %s %s\n",
+                 origin.aFile[i].zName,
+                 origin.aFile[i].zUuid,
+                 origin.aFile[i].zPerm);
+  }
+  if( origin.nParent>0 ){
+    blob_appendf(pCtrl, "P %s\n", origin.azParent[0]);
+  }
+  blob_appendf(pCtrl, "R %s\n", origin.zRepoCksum);
+  blob_appendf(pCtrl, "T *%F *", zTagname);
+
+  /* Cancel any sym- tags that propagate */
+  db_prepare(&q,
+      "SELECT tagname FROM tagxref, tag"
+      " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
+      "   AND tagtype>0 AND tagname LIKE 'sym-%%'"
+      " ORDER BY tagname",
+      rid);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTag = db_column_text(&q, 0);
+    blob_appendf(pCtrl, "\nT -%s *", zTag);
+  }
+  db_finalize(&q);
+
+  /* Cleanup */
+  manifest_clear(&origin);
+}
+
+/*
 ** Add a control record to the repository that either creates
 ** or cancels a tag.
 */
@@ -256,7 +310,8 @@ static void tag_add_artifact(
   const char *zTagname,       /* The tag to add or cancel */
   const char *zObjName,       /* Name of object attached to */
   const char *zValue,         /* Value for the tag.  Might be NULL */
-  int tagtype                 /* 0:cancel 1:singleton 2:propagated */
+  int tagtype,                /* 0:cancel 1:singleton 2:propagated */
+  int fork                    /* Should a fork created from zObjName? */
 ){
   int rid;
   int nrid;
@@ -280,10 +335,14 @@ static void tag_add_artifact(
     fossil_fatal("invalid tag name \"%s\" - might be confused with a UUID",
                  zTagname);
   }
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10] = 'T';
-  blob_appendf(&ctrl, "D %s\n", zDate);
-  blob_appendf(&ctrl, "T %c%F %b", zTagtype[tagtype], zTagname, &uuid);
+  if( fork ){
+    tag_prepare_fork(&ctrl, zTagname, rid);
+  }else{
+    zDate = db_text(0, "SELECT datetime('now')");
+    zDate[10] = 'T';
+    blob_appendf(&ctrl, "D %s\n", zDate);
+    blob_appendf(&ctrl, "T %c%F %b", zTagtype[tagtype], zTagname, &uuid);
+  }
   if( tagtype && zValue && zValue[0] ){
     blob_appendf(&ctrl, " %F\n", zValue);
   }else{
@@ -311,16 +370,27 @@ static void tag_add_artifact(
 **
 **         Add a new tag or property to UUID. The tag will
 **         be usable instead of a UUID in commands like
-**         update and the like.
+**         update and such.
 **
 **     %fossil tag branch ?--raw? TAGNAME UUID ?VALUE?
 **
-**         Add a new tag or property to UUID and make that
-**         tag propagate to all direct children.
+**         A fork of UUID will be created. Then the new tag
+**         or property will be added to the fork that
+**         propagate to all direct children.
 **
-**     %fossil tag delete ?--raw? TAGNAME UUID
+**         Additionally all symbolic tags of that fork
+**         inherited from UUID will be cancelled.
 **
-**         Delete the tag TAGNAME from UUID
+**         However, if the option '--raw' was given, no
+**         fork will be created but the tag/property will be
+**         added to UUID directly and no tag will be
+**         canceled.
+**
+**         Please see the description of '--raw' below too.
+**
+**     %fossil tag cancel ?--raw? TAGNAME UUID
+**
+**         Cancel the tag TAGNAME from UUID
 **
 **     %fossil tag find ?--raw? TAGNAME
 **
@@ -371,35 +441,39 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("add TAGNAME UUID ?VALUE?");
+      usage("add ?--raw? TAGNAME UUID ?VALUE?");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 1);
+    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 1, 0);
   }else
 
   if( strncmp(g.argv[2],"branch",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("branch TAGNAME UUID ?VALUE?");
+      usage("branch ?--raw? TAGNAME UUID ?VALUE?");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 2);
+    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 2, raw==0);
+    if( !raw ){
+      const char *zUuid = db_text(0, "SELECT uuid, MAX(rowid) FROM blob");
+      printf("New_Fork \"%s\": %s\n", g.argv[3], zUuid);
+    }
   }else
 
-  if( strncmp(g.argv[2],"delete",n)==0 ){
+  if( strncmp(g.argv[2],"cancel",n)==0 ){
     if( g.argc!=5 ){
-      usage("delete TAGNAME UUID");
+      usage("cancel ?--raw? TAGNAME UUID");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
-    tag_add_artifact(blob_str(&tagname), g.argv[4], 0, 0);
+    tag_add_artifact(blob_str(&tagname), g.argv[4], 0, 0, 0);
   }else
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
     if( g.argc!=4 ){
-      usage("find TAGNAME");
+      usage("find ?--raw? TAGNAME");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     db_prepare(&q,
@@ -417,8 +491,7 @@ void tag_cmd(void){
     Stmt q;
     if( g.argc==3 ){
       db_prepare(&q, 
-        "SELECT tagname"
-        "  FROM tag"
+        "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
         "                 AND tagtype>0)"
@@ -434,8 +507,7 @@ void tag_cmd(void){
     }else if( g.argc==4 ){
       int rid = name_to_rid(g.argv[3]);
       db_prepare(&q,
-        "SELECT tagname, value"
-        "  FROM tagxref, tag"
+        "SELECT tagname, value FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
         "   AND tagtype>0"
         " ORDER BY tagname",
