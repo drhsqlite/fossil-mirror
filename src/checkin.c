@@ -252,7 +252,11 @@ static void prepare_commit_comment(Blob *pComment){
     zEditor = getenv("EDITOR");
   }
   if( zEditor==0 ){
+#ifdef __MINGW32__
+    zEditor = "notepad";
+#else
     zEditor = "ed";
+#endif
   }
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                    g.zLocalRoot);

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sspelling:\sreplace\s'delete'\s->\s'cancel'\sin\susage\sfor\s'tag'.
-D 2008-08-11T05:30:27
+C Make\s"notepad"\sthe\sdefault\stext\seditor\sfor\swindows.
+D 2008-08-11T17:52:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -43,7 +43,7 @@ F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 5d10f16d564448bfd4a871f8788fd26a3f92f31b
-F src/checkin.c b72cce6453eec81ea7043eec495ba6aad8d25309
+F src/checkin.c ef4fb3124809a3aa526581032f9bcff5c784f683
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P ac392fbba614c6ce552e3dc15f01b4101f8188e5
-R 882faf2822b123904882b9980ee684fb
-U hintze
-Z c947c835d598fb62af53cf9e781615e0
+P 91ec6982e9668b4320b49317ed7f6fa4a19544ae
+R f63a3494ff28a4313f7ad094f069b2da
+U drh
+Z 71d3053cb612a58a1cc162cd88e0cc6d
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkifznQACgkQlY4IUbfoq0M1JACfe3PMbKfkhtQ/ahi5IHpPqcfw
-a3AAn0RBDHR8dpX5/QQUi7pTczkLTvDV
-=ES9T
+iD8DBQFIoHxcoxKgR168RlERAoFzAJ0fWr4ILuJA4auYlCvxXFqdzh3AcwCeI7Ry
+uqcoPPqFhQlkYGjZ2Nb+z4s=
+=8n37
 -----END PGP SIGNATURE-----
