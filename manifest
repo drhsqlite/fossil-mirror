@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sspelling:\sreplace\s'delete'\s->\s'cancel'\sin\susage\sfor\s'tag'.
-D 2008-08-11T05:30:27
+C New\s<b>Zip</b>\spermission.\sThis\spermission\sallow\ssomeone\sto\sdownload\sa\nzipped\sartifact\svia\sthe\swiki's\s<tt>/zip</tt>\sURL.\sIt\scan\sgiven\sthe\suser\n<tt>nobody</tt>\sto\sallow\sautomatic\spackage\sbuilder\sto\sdownload\sthe\ssources\nthey\sknow\sfrom\s<tt>fossil-scm.org</tt>\sor\sother\sservers\swithout\sany\nintervening\slogin\snecessary.\n\nAs\sthe\s<tt>/zip</tt>\spage\sdo\snot\sexpose\sanything,\sa\sspider\sshould\shave\sa\nhard\stime\sto\scrawl\sthru\sthe\sproject\susing\sthis\sURL.\nSo\sIMO\sit\sdoes\snot\sopen\sa\sbreak-in\shole\sfor\sspiders.
+D 2008-08-12T03:27:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -63,8 +63,8 @@ F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
-F src/login.c 0807191c837078538e39dc57c4a492d04f2dbd36
-F src/main.c 7cc029d99296d6d6d8d7632dd1592c942e028ef2
+F src/login.c bef38b39f73e07c6caa2828f8770014068ec172d
+F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -83,7 +83,7 @@ F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c d06483adac8c5b1cf41b673f8f10ebe3908a0d2f
-F src/setup.c 1c7a1834ca6e4d60f1cfce689860a260c4584626
+F src/setup.c 8cee80c836a78ffe91511a2c7b58c462a814da28
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -111,7 +111,7 @@ F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
-F src/zip.c 8367a41493912e215d808bbde7b3111834a3e59b
+F src/zip.c 3fb9ffbe5f64dee4c35871808594c9d7815898df
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P ac392fbba614c6ce552e3dc15f01b4101f8188e5
-R 882faf2822b123904882b9980ee684fb
-U hintze
-Z c947c835d598fb62af53cf9e781615e0
+P 91ec6982e9668b4320b49317ed7f6fa4a19544ae
+R 7f3d3576ba95dc6c0c4a4405ad995a5a
+U cle
+Z 3d73e492cbee66c545a12075bae01b21
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkifznQACgkQlY4IUbfoq0M1JACfe3PMbKfkhtQ/ahi5IHpPqcfw
-a3AAn0RBDHR8dpX5/QQUi7pTczkLTvDV
-=ES9T
+iEYEARECAAYFAkihAzoACgkQhcAhAqILb/3njwCfWl4tqI/gilsu/oq4yEBchPo5
+mQMAnRHfwO6fGj/4YuX5mZLP8OwBYNpj
+=JeF9
 -----END PGP SIGNATURE-----

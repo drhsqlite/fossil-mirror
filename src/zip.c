@@ -358,7 +358,7 @@ void baseline_zip_page(void){
   Blob zip;
 
   login_check_credentials();
-  if( !g.okRead || !g.okHistory ){ login_needed(); return; }
+  if( !g.okZip && (!g.okRead || !g.okHistory) ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   for(nName=strlen(zName)-1; nName>5; nName--){

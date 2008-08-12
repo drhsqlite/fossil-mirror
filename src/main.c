@@ -119,6 +119,7 @@ struct Global {
   int okWrTkt;            /* w: make changes to tickets via web */
   int okTktFmt;           /* t: create new ticket report formats */
   int okRdAddr;           /* e: read email addresses or other private data */
+  int okZip;              /* z: download zipped artifact via /zip URL */
 
   FILE *fDebug;           /* Write debug information here, if the file exists */
 

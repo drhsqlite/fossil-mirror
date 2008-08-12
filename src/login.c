@@ -330,6 +330,7 @@ void login_set_capabilities(const char *zCap){
                               g.okTktFmt = 1;
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
+      case 'z':   g.okZip = 1;                                  break;
 
       case 'd':   g.okDelete = 1;                               break;
       case 'h':   g.okHistory = 1;                              break;

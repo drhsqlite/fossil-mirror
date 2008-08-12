@@ -156,6 +156,7 @@ void setup_ulist(void){
   @ <li value="20"><b>Tkt-Report:</b> Create new bug summary reports</li>
   @ <li value="22"><b>Developer:</b> Inherit privileges of user "developer"</li>
   @ <li value="23"><b>Write-Tkt</b>: Edit tickets</li>
+  @ <li value="26"><b>Zip</b>: Download zipped artifacts</li>
   @ </ol>
   @ </p></li>
   @
@@ -193,7 +194,7 @@ void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat, *oav;
+  char *oat, *oav, *oaz;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -247,6 +248,7 @@ void user_edit(void){
     int ag = P("ag")!=0;
     int at = P("at")!=0;
     int av = P("av")!=0;
+    int az = P("az")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
@@ -266,6 +268,7 @@ void user_edit(void){
     if( at ){ zCap[i++] = 't'; }
     if( av ){ zCap[i++] = 'v'; }
     if( aw ){ zCap[i++] = 'w'; }
+    if( az ){ zCap[i++] = 'z'; }
 
     zCap[i] = 0;
     zPw = P("pw");
@@ -300,7 +303,7 @@ void user_edit(void){
   zCap = "";
   zPw = "";
   oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oav = oaw = "";
+        oan = oao = oap = oar = oas = oat = oav = oaw = oaz = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -325,6 +328,7 @@ void user_edit(void){
     if( strchr(zCap, 't') ) oat = " checked";
     if( strchr(zCap, 'v') ) oav = " checked";
     if( strchr(zCap, 'w') ) oaw = " checked";
+    if( strchr(zCap, 'z') ) oaz = " checked";
   }
 
   /* Begin generating the page
@@ -377,7 +381,8 @@ void user_edit(void){
   @     <input type="checkbox" name="an"%s(oan)>New Tkt</input><br>
   @     <input type="checkbox" name="ac"%s(oac)>Append Tkt</input><br>
   @     <input type="checkbox" name="aw"%s(oaw)>Write Tkt</input><br>
-  @     <input type="checkbox" name="at"%s(oat)>Tkt Report</input>
+  @     <input type="checkbox" name="at"%s(oat)>Tkt Report</input><br>
+  @     <input type="checkbox" name="az"%s(oaz)>Download Zip</input>
   @   </td>
   @ </tr>
   @ <tr>
@@ -430,6 +435,15 @@ void user_edit(void){
   @ This is recommended ON for most logged-in users but OFF for
   @ user "nobody" to avoid problems with spiders trying to walk every
   @ historical version of every baseline and file.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The <b>Zip</b> privilege allows a user to see the download as zip hyperlink
+  @ as well as permit access to the <tt>/zip</tt> page. It can be allowed for
+  @ user "nobody" to grant him access to download artifacts he know from the
+  @ server without giving him other rights like <b>Read</b> or <b>History</b>.
+  @ So automatic package dowloaders could be able to obtain the sources without
+  @ going thru the login procedure.
   @ </p></li>
   @
   @ <li><p>
