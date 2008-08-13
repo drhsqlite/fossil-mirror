@@ -356,6 +356,7 @@ void vinfo_page(void){
     }
     @ </td></tr>
     if( g.okHistory ){
+      char *zShortUuid = mprintf("%.10s", zUuid);
       @ <tr><th>Timelines:</th><td>
       @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendants</a>
@@ -364,13 +365,14 @@ void vinfo_page(void){
       @ <tr><th>Commands:</th>
       @   <td>
       @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
-      @     | <a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a>
+      @     | <a href="%s(g.zBaseURL)/zip/fossil-%s(zShortUuid).zip?rid=%s(zUuid)">ZIP archive</a>
       @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
       if( g.okWrite ){
         @     | <a href="%s(g.zBaseURL)/vedit?r=%d(rid)">edit</a>
       }
       @   </td>
       @ </tr>
+      free(zShortUuid);
     }
     @ </table></p>
   }else{

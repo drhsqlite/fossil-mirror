@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Allow\san\salternative\sURL\ssyntax\sfor\sdownloading\sartifacts\svia\sthe\s<tt>/zip</tt>\spage.\nThe\soriginal\sway\sis:\n<verbatim>\n\s\shttp://localhost:8080/zip/fa6e9930177e84ce089b30ad768c454a012364f7.zip\n</verbatim>\nwhich\swill\sstore\sthe\sartifact\sin\sthe\sfile\s<tt>a6e9930177e84ce089b30ad768c454a012364f7.zip</tt>.\nAlternatively\sit\sis\snow\spossible\sto\sdownload\sthe\sartifact\sin\se.g.\sthe\sfile\s<tt>fossil.zip</tt>\svia\sthe\sURL:\n<verbatim>\n\s\shttp://localhost:8080/zip/fossil.zip?rid=fa6e9930177e84ce089b30ad768c454a012364f7\n</verbatim>
-D 2008-08-13T11:57:17
+C Use\snew\salternative\s<tt>/zip</tt>\sURL\ssyntax\sfor\sthe\s<tt>Zip\sarchive</tt>\nlink\sat\sthe\s<tt>/vinfo</tt>\spage.\sWhere\sthe\sold\sfilename\sof\sthe\sZIP\sarchive\swas\n<verbatim>\n\s\s417dd898ab0640f2472ebd248ac80e80f0ec6972.zip\n</verbatim>\nthe\snew\sname\swould\sbe:\n<verbatim>\n\s\sfossil-417dd898ab.zip\n</verbatim>\nThe\sarchive's\scontent\sis\splaced\sinto\sa\sdirectory\snamed\safter\sthe\sZip\sarchive\nfile's\sbasename.
+D 2008-08-13T19:22:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 1b352f5977d2c9c1d0a451a11b4e94b682fb10a0
+F src/info.c 5e63c2eabc9186f370f2ceaeffb5d41f1703cfd2
 F src/login.c bef38b39f73e07c6caa2828f8770014068ec172d
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P fa6e9930177e84ce089b30ad768c454a012364f7
-R 676e8a61413045a5b71067e3b13e3013
-U hintze
-Z bf61108a27ac4b049c00901b40d112b1
+P 417dd898ab0640f2472ebd248ac80e80f0ec6972
+R 66ff3eae19b6ca1362287360d19d8863
+U cle
+Z 8be61b065399a683472758c3a74b480d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkiizB0ACgkQlY4IUbfoq0O/rACfWd8rRnFDOuOxkO3+phzHdBea
-A4cAoIWr/mvduTkLYQmIe3nlfYp8dKm2
-=0Jwk
+iEYEARECAAYFAkijNIsACgkQhcAhAqILb/2HTgCfYFeF8rCgttLa3FU/hS0D209B
+kEoAnA+PWYPnM0JpYozRjMPJLiCDEden
+=rPjv
 -----END PGP SIGNATURE-----
