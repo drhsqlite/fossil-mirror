@@ -353,28 +353,31 @@ void baseline_zip_cmd(void){
 */
 void baseline_zip_page(void){
   int rid;
-  char *zName;
-  int nName;
+  char *zName, *zRid;
+  int nName, nRid;
   Blob zip;
 
   login_check_credentials();
   if( !g.okZip && (!g.okRead || !g.okHistory) ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
+  zRid = mprintf("%s", PD("rid",""));
+  nRid = strlen(zRid);
   for(nName=strlen(zName)-1; nName>5; nName--){
     if( zName[nName]=='.' ){
       zName[nName] = 0;
       break;
     }
   }
-  rid = name_to_rid(zName);
+  rid = name_to_rid(nRid?zRid:zName);
   if( rid==0 ){
     @ Not found
     return;
   }
-  if( nName>10 ) zName[10] = 0;
+  if( nRid==0 && nName>10 ) zName[10] = 0;
   zip_of_baseline(rid, &zip, zName);
   free( zName );
+  free( zRid );
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
   cgi_reply();

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C New\s<b>Zip</b>\spermission.\sThis\spermission\sallow\ssomeone\sto\sdownload\sa\nzipped\sartifact\svia\sthe\swiki's\s<tt>/zip</tt>\sURL.\sIt\scan\sgiven\sthe\suser\n<tt>nobody</tt>\sto\sallow\sautomatic\spackage\sbuilder\sto\sdownload\sthe\ssources\nthey\sknow\sfrom\s<tt>fossil-scm.org</tt>\sor\sother\sservers\swithout\sany\nintervening\slogin\snecessary.\n\nAs\sthe\s<tt>/zip</tt>\spage\sdo\snot\sexpose\sanything,\sa\sspider\sshould\shave\sa\nhard\stime\sto\scrawl\sthru\sthe\sproject\susing\sthis\sURL.\nSo\sIMO\sit\sdoes\snot\sopen\sa\sbreak-in\shole\sfor\sspiders.
-D 2008-08-12T03:27:54
+C Allow\san\salternative\sURL\ssyntax\sfor\sdownloading\sartifacts\svia\sthe\s<tt>/zip</tt>\spage.\nThe\soriginal\sway\sis:\n<verbatim>\n\s\shttp://localhost:8080/zip/fa6e9930177e84ce089b30ad768c454a012364f7.zip\n</verbatim>\nwhich\swill\sstore\sthe\sartifact\sin\sthe\sfile\s<tt>a6e9930177e84ce089b30ad768c454a012364f7.zip</tt>.\nAlternatively\sit\sis\snow\spossible\sto\sdownload\sthe\sartifact\sin\se.g.\sthe\sfile\s<tt>fossil.zip</tt>\svia\sthe\sURL:\n<verbatim>\n\s\shttp://localhost:8080/zip/fossil.zip?rid=fa6e9930177e84ce089b30ad768c454a012364f7\n</verbatim>
+D 2008-08-13T11:57:17
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -111,7 +111,7 @@ F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
-F src/zip.c 3fb9ffbe5f64dee4c35871808594c9d7815898df
+F src/zip.c 7a8370c8cefd700c048d93593bbc58c2c006587e
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 91ec6982e9668b4320b49317ed7f6fa4a19544ae
-R 7f3d3576ba95dc6c0c4a4405ad995a5a
-U cle
-Z 3d73e492cbee66c545a12075bae01b21
+P fa6e9930177e84ce089b30ad768c454a012364f7
+R 676e8a61413045a5b71067e3b13e3013
+U hintze
+Z bf61108a27ac4b049c00901b40d112b1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkihAzoACgkQhcAhAqILb/3njwCfWl4tqI/gilsu/oq4yEBchPo5
-mQMAnRHfwO6fGj/4YuX5mZLP8OwBYNpj
-=JeF9
+iEYEARECAAYFAkiizB0ACgkQlY4IUbfoq0O/rACfWd8rRnFDOuOxkO3+phzHdBea
+A4cAoIWr/mvduTkLYQmIe3nlfYp8dKm2
+=0Jwk
 -----END PGP SIGNATURE-----
