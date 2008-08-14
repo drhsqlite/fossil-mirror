@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Oops...\smerge\stypos\sfix\sw/\s[bdac9f7238],\scommited\sat\snearly\ssame\stime.
-D 2008-08-14T05:05:41
+C Third\stime\slucky?\sCommit\schanges,\swith\smerge\sapplied\sonly\sonce.\s(so\snot\sfilled\swith\sMERGE\sCONFLICT\smessages)
+D 2008-08-14T05:27:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -43,7 +43,7 @@ F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 5d10f16d564448bfd4a871f8788fd26a3f92f31b
-F src/checkin.c ede786a5683342e73934f663122585e22aa5d9ce
+F src/checkin.c 425f4bbcea844e7d97969e6917693020cbc97bf7
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P bdac9f723842a42ccc0353ddd55cef50670a53a6 4c78a18ad213788513ab4a0782cd0747e782684b
-R 84bd1f484f4d46d83c48585dc3e0b76a
+P 48c00d0bd3ade310d798fbaf7a9ed152d2450748
+R 1d4c15a2758c1eea55d223ac4b3157f1
 U bharder
-Z a9eb8eada711505331afe992f13e9a25
+Z 06229e2005d0c9b2d10b707729982ffa
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (NetBSD)
 
-iEYEARECAAYFAkijvSUACgkQad0Kwpwugm9dmgCgpbvTcIvibLGN45agJZ+GgnWx
-VvEAoLUR+tUJ3cwf+wbsm153whJZmeV6
-=i+sw
+iEYEARECAAYFAkijwlAACgkQad0Kwpwugm/i5gCfWVOZV6qDzobq4SgnPO4Z+OrF
+ky4AniIDviaITYJ4h6NTWxrFhtfvmfFm
+=2/x0
 -----END PGP SIGNATURE-----

@@ -253,17 +253,10 @@ static void prepare_commit_comment(Blob *pComment){
   }
   if( zEditor==0 ){
 #ifdef __MINGW32__
->>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
-#ifdef __MINGW32__
-    zEditor = "notepad";
     zEditor = "notepad";
 #else
->>>>>>>>> END MERGE CONFLICT <<<<<<<<<
-    zEditor = "ed";
->>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
     zEditor = "ed";
 #endif
->>>>>>>>> END MERGE CONFLICT <<<<<<<<<
   }
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                    g.zLocalRoot);
@@ -342,10 +335,7 @@ void select_commit_files(void){
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
->>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
-** checkout.  You will be prompted to enter a check-in comment unless
 ** the "-m" option is used to specify a comment line.  You will be
->>>>>>>>> END MERGE CONFLICT <<<<<<<<<
 ** prompted for your GPG passphrase in order to sign the new manifest
 ** unless the "--nosign" options is used.  All files that have
 ** changed will be committed unless some subset of files is specified
@@ -609,10 +599,7 @@ void commit_cmd(void){
 **
 ** Usage: %fossil test-import-manifest DATE COMMENT ?-p PARENT_RECORDID?... ?-f (FILE_RECORDID PATH)?...
 **
->>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
-**
 ** Create a new version containing the specified file
->>>>>>>>> END MERGE CONFLICT <<<<<<<<<
 ** revisions (if any), and child of the given PARENT version.
 */
 void import_manifest_cmd(void){
