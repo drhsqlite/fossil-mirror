@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Third\stime\slucky?\sCommit\schanges,\swith\smerge\sapplied\sonly\sonce.\s(so\snot\sfilled\swith\sMERGE\sCONFLICT\smessages)
-D 2008-08-14T05:27:43
+C Fix\sbug\s[c858c4178b]\s-\sat\sthree\splaces,\sthe\soriginal\scheckin\scomment\nwas\staken\sfrom\sthe\srepository.\sOnly\sif\sthere\swas\sno\soriginal\scheckin\ncomment,\sthe\sedited\scomment\s(<tt>ecomment</tt>)\swas\sfetched.\n\nThat\slogic\sseem\swrong.\sAs\sat\sall\sother\scases,\sfirst\sthe\s<tt>ecommend</tt>\nwas\sfetched\sand\sonly\swhen\sthat\sfailed,\sthe\soriginal\scomment\swas\staken,\nI\scorrected\sthe\sthree\splaces\sin\scode\saccordingly.
+D 2008-08-14T16:15:17
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 20f6da86e608bcb37dbf8fb0fefb0bd1781087ec
+F src/info.c e23983e04c1325fd5fee69edf5f1773e8db5442e
 F src/login.c bef38b39f73e07c6caa2828f8770014068ec172d
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 48c00d0bd3ade310d798fbaf7a9ed152d2450748
-R 1d4c15a2758c1eea55d223ac4b3157f1
-U bharder
-Z 06229e2005d0c9b2d10b707729982ffa
+P 16e308106f96879f9ac2812e592d8596aa9392a6
+R 00c3d30b7f23e02e3eae93d6ebd80a13
+U cle
+Z 275991e5b6aa6b810e08dde28ded8eed
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (NetBSD)
+Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkijwlAACgkQad0Kwpwugm/i5gCfWVOZV6qDzobq4SgnPO4Z+OrF
-ky4AniIDviaITYJ4h6NTWxrFhtfvmfFm
-=2/x0
+iEYEARECAAYFAkikWhYACgkQhcAhAqILb/2AjQCfV07xKz6Nr7hss/mLbzSNVysV
+N+oAnAw5ita6JbAGp9l2K2GKS6eQ8rgF
+=/v6/
 -----END PGP SIGNATURE-----

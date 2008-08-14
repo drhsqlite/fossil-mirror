@@ -118,7 +118,7 @@ static int showDescendants(int pid, int depth, const char *zTitle){
   db_prepare(&q,
     "SELECT plink.cid, blob.uuid, datetime(plink.mtime, 'localtime'),"
     "       coalesce(event.euser,event.user),"
-    "       coalesce(event.comment,event.ecomment)"
+    "       coalesce(event.ecomment,event.comment)"
     "  FROM plink, blob, event"
     " WHERE plink.pid=%d"
     "   AND blob.rid=plink.cid"
@@ -170,7 +170,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
   db_prepare(&q,
     "SELECT plink.pid, blob.uuid, datetime(event.mtime, 'localtime'),"
     "       coalesce(event.euser,event.user),"
-    "       coalesce(event.comment,event.ecomment)"
+    "       coalesce(event.ecomment,event.comment)"
     "  FROM plink, blob, event"
     " WHERE plink.cid=%d"
     "   AND blob.rid=plink.pid"
@@ -661,7 +661,7 @@ static void object_description(int rid, int linkToView){
   int nWiki = 0;
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime), substr(a.uuid,1,10),"
-    "       coalesce(event.comment,event.ecomment),"
+    "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
     "       b.uuid"
     "  FROM mlink, filename, event, blob a, blob b"
