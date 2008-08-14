@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Use\snew\salternative\s<tt>/zip</tt>\sURL\ssyntax\sfor\sthe\s<tt>Zip\sarchive</tt>\nlink\sat\sthe\s<tt>/vinfo</tt>\spage.\sWhere\sthe\sold\sfilename\sof\sthe\sZIP\sarchive\swas\n<verbatim>\n\s\s417dd898ab0640f2472ebd248ac80e80f0ec6972.zip\n</verbatim>\nthe\snew\sname\swould\sbe:\n<verbatim>\n\s\sfossil-417dd898ab.zip\n</verbatim>\nThe\sarchive's\scontent\sis\splaced\sinto\sa\sdirectory\snamed\safter\sthe\sZip\sarchive\nfile's\sbasename.
-D 2008-08-13T19:22:50
+C Fix\sa\sstupid\sbug\sof\smine\sintroduced\sin\s[3c9e5699ce].\sIf\sthe\sZIP\sarchive's\sname\sis\scomposed,\nthe\sactual\sproject's\sname\sshould\sbe\schosen\sinstead\sof\sa\sfix\s<tt>fossil</tt>.
+D 2008-08-14T04:52:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 5e63c2eabc9186f370f2ceaeffb5d41f1703cfd2
+F src/info.c 20f6da86e608bcb37dbf8fb0fefb0bd1781087ec
 F src/login.c bef38b39f73e07c6caa2828f8770014068ec172d
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 417dd898ab0640f2472ebd248ac80e80f0ec6972
-R 66ff3eae19b6ca1362287360d19d8863
-U cle
-Z 8be61b065399a683472758c3a74b480d
+P 3c9e5699ceb881c939c0fc7fa8cddff1329b4ab5
+R 9ec7e7c1a027636ab08f04c93a10d846
+U hintze
+Z dca35e7cf61526ca27ade785172313a5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkijNIsACgkQhcAhAqILb/2HTgCfYFeF8rCgttLa3FU/hS0D209B
-kEoAnA+PWYPnM0JpYozRjMPJLiCDEden
-=rPjv
+iEYEARECAAYFAkijug4ACgkQlY4IUbfoq0MqCgCeOX69aTk2i80Nc03/zRiBiqae
+2KQAnRtOy6IiBxJcnS4g2WuSKEDpBVX6
+=h7Xp
 -----END PGP SIGNATURE-----
