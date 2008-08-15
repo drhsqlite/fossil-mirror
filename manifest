@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\san\sHTML\snesting\serror.
-D 2008-08-15T18:28:05
+C Thanks\sfor\sthe\sfix,\seric.\sDue\sto\sthat,\sI\sdetected\sanother\sHTML\squirk\nI\smade\sands\scorrected\sit\snow.
+D 2008-08-15T18:48:06
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -83,7 +83,7 @@ F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c d06483adac8c5b1cf41b673f8f10ebe3908a0d2f
-F src/setup.c 4867ed47dabb15a1a481e669b00c6d3e4c54bc6c
+F src/setup.c 9a76b5ae3a01fc102a77081f5b00825220279d45
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 091fa4d4b210c732c5fbf80f2dae5cb788c9d5a1
-R f5a9ce1d8901d26bed1cb132c3584349
-U eric
-Z 14c4142c7166cfe714d20c4302e7d6b9
+P 35b2d1645037af315603366b470c484838675377
+R 32682b9492ae9ee495ad843ea7df7b85
+U cle
+Z 1d2f8c2242b875b389afd1a2ecc9be59
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.8 (Darwin)
 
-iD8DBQFIpcriu+lpsLhDMQkRAhqFAJ0a9Hb97OBc9pmMUdw60bYOeIxR2gCgjibS
-gp7t5zmQQ2nppNLgRop/bVc=
-=U96x
+iEYEARECAAYFAkilz2YACgkQhcAhAqILb/1MlACfVFnKzFmZq/lDRj+pWrXCzCsx
+O5gAniJln5Dm9F2wwErIe6GFcfmU0sma
+=Xn2M
 -----END PGP SIGNATURE-----

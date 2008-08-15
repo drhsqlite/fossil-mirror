@@ -159,7 +159,7 @@ void setup_ulist(void){
      @ <tr><td><b>z</b></td><td><i>Zip download:</i> Download a baseline via the
      @ <tt>/zip</tt> URL even without check<b>o</b>ut and <b>h</b>istory permissions</td></tr>
   @ </table>
-  @ </p></li>
+  @ </li>
   @
   @ <li><p>
   @ Every user, logged in or not, inherits the privileges of <b>nobody</b>.
