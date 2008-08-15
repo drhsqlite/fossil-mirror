@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sbug\s[c858c4178b]\s-\sat\sthree\splaces,\sthe\soriginal\scheckin\scomment\nwas\staken\sfrom\sthe\srepository.\sOnly\sif\sthere\swas\sno\soriginal\scheckin\ncomment,\sthe\sedited\scomment\s(<tt>ecomment</tt>)\swas\sfetched.\n\nThat\slogic\sseem\swrong.\sAs\sat\sall\sother\scases,\sfirst\sthe\s<tt>ecommend</tt>\nwas\sfetched\sand\sonly\swhen\sthat\sfailed,\sthe\soriginal\scomment\swas\staken,\nI\scorrected\sthe\sthree\splaces\sin\scode\saccordingly.
-D 2008-08-14T16:15:17
+C Beautify\sthe\spermission\sexplanation\stable\son\sthe\s/setup\spage.
+D 2008-08-15T10:19:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -83,7 +83,7 @@ F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c d06483adac8c5b1cf41b673f8f10ebe3908a0d2f
-F src/setup.c 8cee80c836a78ffe91511a2c7b58c462a814da28
+F src/setup.c 1a5963aecc428b72b02c4f448c7f831eaedd7580
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 16e308106f96879f9ac2812e592d8596aa9392a6
-R 00c3d30b7f23e02e3eae93d6ebd80a13
-U cle
-Z 275991e5b6aa6b810e08dde28ded8eed
+P 589687d783c2e74de42b9969731d7342008ab348
+R 7be1e9df6678735f504e93aee9c4ce8e
+U hintze
+Z bf5b055b79db13f08be76baa0d7e49a9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkikWhYACgkQhcAhAqILb/2AjQCfV07xKz6Nr7hss/mLbzSNVysV
-N+oAnAw5ita6JbAGp9l2K2GKS6eQ8rgF
-=/v6/
+iEYEARECAAYFAkilWCcACgkQlY4IUbfoq0MzAQCfSS89/YjZ7uFGpH1KG/sV09i6
+VtsAoJeeUG8QK0RemTsLsQBabF7Orv4D
+=qFAN
 -----END PGP SIGNATURE-----

@@ -136,27 +136,29 @@ void setup_ulist(void){
   @ <b>Notes:</b>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
-  @ <ol type="a">
-  @ <li value="1"><b>Admin</b>: Create and delete users</li>
-  @ <li value="3"><b>Append-Tkt</b>: Append to tickets</li>
-  @ <li value="4"><b>Delete</b>: Delete wiki and tickets</li>
-  @ <li value="5"><b>Email</b>: View sensitive data such as EMail addresses</li>
-  @ <li value="6"><b>New-Wiki</b>: Create new wiki pages</li>
-  @ <li value="7"><b>Clone</b>: Clone the repository</li>
-  @ <li value="8"><b>History</b>: View detail repository history</li>
-  @ <li value="9"><b>Check-In</b>: Commit new versions in the repository</li>
-  @ <li value="10"><b>Read-Wiki</b>: View wiki pages</li>
-  @ <li value="11"><b>Write-Wiki</b>: Edit wiki pages</li>
-  @ <li value="13"><b>Append-Wiki</b>: Append to wiki pages</li>
-  @ <li value="14"><b>New-Tkt</b>: Create new tickets</li>
-  @ <li value="15"><b>Check-Out</b>: Check out versions</li>
-  @ <li value="16"><b>Password</b>: Change your own password</li>
-  @ <li value="18"><b>Read-Tkt</b>: View tickets</li>
-  @ <li value="19"><b>Setup:</b> Setup and configure this website</li>
-  @ <li value="20"><b>Tkt-Report:</b> Create new bug summary reports</li>
-  @ <li value="22"><b>Developer:</b> Inherit privileges of user "developer"</li>
-  @ <li value="23"><b>Write-Tkt</b>: Edit tickets</li>
-  @ <li value="26"><b>Zip</b>: Download zipped artifacts</li>
+  @ <table>
+     @ <tr><td><b>a</b></td><td><i>Admin:</i> Create and delete users</td></tr>
+     @ <tr><td><b>c</b></td><td><i>Append-Tkt:</i> Append to tickets</td></tr>
+     @ <tr><td><b>d</b></td><td><i>Delete:</i> Delete wiki and tickets</td></tr>
+     @ <tr><td><b>e</b></td><td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
+     @ <tr><td><b>f</b></td><td><i>New-Wiki:</i> Create new wiki pages</td></tr>
+     @ <tr><td><b>g</b></td><td><i>Clone:</i> Clone the repository</td></tr>
+     @ <tr><td><b>h</b></td><td><i>History:</i> View detail repository history</td></tr>
+     @ <tr><td><b>i</b></td><td><i>Check-In:</i> Commit new versions in the repository</td></tr>
+     @ <tr><td><b>j</b></td><td><i>Read-Wiki:</i> View wiki pages</td></tr>
+     @ <tr><td><b>k</b></td><td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
+     @ <tr><td><b>m</b></td><td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
+     @ <tr><td><b>n</b></td><td><i>New-Tkt:</i> Create new tickets</td></tr>
+     @ <tr><td><b>o</b></td><td><i>Check-Out:</i> Check out versions</td></tr>
+     @ <tr><td><b>p</b></td><td><i>Password:</i> Change your own password</td></tr>
+     @ <tr><td><b>r</b></td><td><i>Read-Tkt:</i> View tickets</td></tr>
+     @ <tr><td><b>s</b></td><td><i>Setup:</i> Setup and configure this website</td></tr>
+     @ <tr><td><b>t</b></td><td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
+     @ <tr><td><b>v</b></td><td><i>Developer:</i> Inherit privileges of user <tt>developer</tt></td></tr>
+     @ <tr><td><b>w</b></td><td><i>Write-Tkt:</i> Edit tickets</td></tr>
+     @ <tr><td><b>z</b></td><td><i>Zip download:</i> Download a baseline via the
+         @ <tt>/zip</tt> URL even without check<b>o</b>ut and <b>h</b>istory permissions</td></tr>
+  @ </table>
   @ </ol>
   @ </p></li>
   @
