@@ -157,9 +157,8 @@ void setup_ulist(void){
      @ <tr><td><b>v</b></td><td><i>Developer:</i> Inherit privileges of user <tt>developer</tt></td></tr>
      @ <tr><td><b>w</b></td><td><i>Write-Tkt:</i> Edit tickets</td></tr>
      @ <tr><td><b>z</b></td><td><i>Zip download:</i> Download a baseline via the
-         @ <tt>/zip</tt> URL even without check<b>o</b>ut and <b>h</b>istory permissions</td></tr>
+     @ <tt>/zip</tt> URL even without check<b>o</b>ut and <b>h</b>istory permissions</td></tr>
   @ </table>
-  @ </ol>
   @ </p></li>
   @
   @ <li><p>

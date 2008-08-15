@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Beautify\sthe\spermission\sexplanation\stable\son\sthe\s/setup\spage.
-D 2008-08-15T10:19:19
+C Fix\san\sHTML\snesting\serror.
+D 2008-08-15T18:28:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -83,7 +83,7 @@ F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c d06483adac8c5b1cf41b673f8f10ebe3908a0d2f
-F src/setup.c 1a5963aecc428b72b02c4f448c7f831eaedd7580
+F src/setup.c 4867ed47dabb15a1a481e669b00c6d3e4c54bc6c
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 589687d783c2e74de42b9969731d7342008ab348
-R 7be1e9df6678735f504e93aee9c4ce8e
-U hintze
-Z bf5b055b79db13f08be76baa0d7e49a9
+P 091fa4d4b210c732c5fbf80f2dae5cb788c9d5a1
+R f5a9ce1d8901d26bed1cb132c3584349
+U eric
+Z 14c4142c7166cfe714d20c4302e7d6b9
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iEYEARECAAYFAkilWCcACgkQlY4IUbfoq0MzAQCfSS89/YjZ7uFGpH1KG/sV09i6
-VtsAoJeeUG8QK0RemTsLsQBabF7Orv4D
-=qFAN
+iD8DBQFIpcriu+lpsLhDMQkRAhqFAJ0a9Hb97OBc9pmMUdw60bYOeIxR2gCgjibS
+gp7t5zmQQ2nppNLgRop/bVc=
+=U96x
 -----END PGP SIGNATURE-----
