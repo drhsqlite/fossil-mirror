@@ -84,7 +84,7 @@ void style_header(const char *zTitleFormat, ...){
   char *zTitle;
   const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   login_check_credentials();
-
+  
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
@@ -114,9 +114,9 @@ void style_header(const char *zTitleFormat, ...){
 */
 void style_footer(void){
   const char *zFooter;
-
-  if( !headerHasBeenGenerated ) return;
   
+  if( !headerHasBeenGenerated ) return;
+
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -328,6 +328,12 @@ const char zDefaultCSS[] =
 @   background-color: #558195;
 @   color: white;
 @ }
+@
+@ /* Make the links in the footer less ugly... */
+@ div.footer a { color: white; }
+@ div.footer a:link { color: white; }
+@ div.footer a:visited { color: white; }
+@ div.footer a:hover { background-color: white; color: #558195; }
 @ 
 @ /* <verbatim> blocks */
 @ pre.verbatim {

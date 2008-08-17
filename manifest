@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sthe\sinfo\sweb\spage\shandle\ssymbolic\stags\sas\swell\sas\sUUIDs.\sStart\strying\nto\smake\sthe\scurrently-disabled\stagview\spage\smore\suseful.
-D 2008-08-04T20:46:52
+C Merge\sold\stagview\sbranch\sinto\sthis\sbranch
+D 2008-08-17T20:53:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -42,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c 5d10f16d564448bfd4a871f8788fd26a3f92f31b
+F src/cgi.c cf67a58e94ad3201ef4e002a6a43e0e3a40bb455
 F src/checkin.c b72cce6453eec81ea7043eec495ba6aad8d25309
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -89,10 +89,10 @@ F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
 F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 1b159a6ade222dcbcd944b471a81ad1f5e13463c
+F src/style.c 934dddd1ca2dd4672406c019a84c5bcf0e332f96
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
 F src/tag.c ec276e48522176b4b78c5c05bf69358802b4ce63
-F src/tagview.c 8e6ed27d79586c68d46e4abf2208c071697bef95
+F src/tagview.c b4a9071e7b32d469dd1e600312968968865c3b47
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P e243a8dfa46e1da3a53862012d1bf91f5a081956
-R ea9ff0837d800059709c201500f58324
+P 3984b1b2c117b7b3ea4ab2b844e1b607d03dbf8a 89a2d5e899a57414e00a5f88fdc4eb7853422b23
+R 683521871f808753e15e304af8b8ed85
 U eric
-Z 1272de90ab14cdb348c716bb226fb989
+Z 6c155d96a83eaa7386b97b2045daaccc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFIl2rnu+lpsLhDMQkRAg70AJ93GszDr50MQ2D3Dw3lIup07Q+6wgCgupFg
-/+iVdE+eaaGoKTwo99QoNQU=
-=wkl7
+iD8DBQFIqI/nu+lpsLhDMQkRAgEIAJ9UFHIDmNJEXtz4B4vs/uu2dTtq2wCgyqwS
+sW0OAAEer+dpa6VlWpKE96Q=
+=AE2s
 -----END PGP SIGNATURE-----

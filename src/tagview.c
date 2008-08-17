@@ -62,7 +62,7 @@ static void tagview_page_list_tags(const char *zLike){
     "   DATETIME(tx.mtime) AS 'Timestamp',"
     "   linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b "
-    " WHERE t.tagid=tx.tagid AND tx.srcid=b.rid"
+    " WHERE t.tagid=tx.tagid AND tx.rid=b.rid"
     "   AND tx.tagtype!=0 %s "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC %s",
@@ -107,7 +107,7 @@ static void tagview_page_tag_by_id( int tagid ){
     "       DATETIME(tx.mtime) AS 'Timestamp',"
     "       linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b"
-    " WHERE t.tagid=%d AND t.tagid=tx.tagid AND tx.srcid=b.rid "
+    " WHERE t.tagid=%d AND t.tagid=tx.tagid AND tx.rid=b.rid "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC",
     tagid
@@ -128,7 +128,7 @@ static void tagview_page_tag_by_name( char const * tagname ){
     "       DATETIME(tx.mtime) AS 'Timestamp',"
     "       linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b "
-    " WHERE t.tagname='%q' AND t.tagid=tx.tagid AND tx.srcid=b.rid "
+    " WHERE t.tagname='%q' AND t.tagid=tx.tagid AND tx.rid=b.rid "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC",
     tagname);
