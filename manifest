@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Thanks\sfor\sthe\sfix,\seric.\sDue\sto\sthat,\sI\sdetected\sanother\sHTML\squirk\nI\smade\sands\scorrected\sit\snow.
-D 2008-08-15T18:48:06
+C Change\sCGI\sparameter\sname\s<tt>rid</tt>\sto\s<tt>uuid</tt>\sfor\sthe\s<tt>/zip</tt>\sURL.
+D 2008-08-17T11:37:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -62,7 +62,7 @@ F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c e23983e04c1325fd5fee69edf5f1773e8db5442e
+F src/info.c 25c4dfa44ad305c59fdb0f3d2c9bfcbc2de4b8bf
 F src/login.c bef38b39f73e07c6caa2828f8770014068ec172d
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
@@ -111,7 +111,7 @@ F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
-F src/zip.c 7a8370c8cefd700c048d93593bbc58c2c006587e
+F src/zip.c c82f467b68674e18a3857b32aa1dee95a4fb7790
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 35b2d1645037af315603366b470c484838675377
-R 32682b9492ae9ee495ad843ea7df7b85
+P f85bc24e4d49b6a522ef92076b48bd2948fc34a5
+R 2f0ac028e8ef1fdd171b32d63ce2d037
 U cle
-Z 1d2f8c2242b875b389afd1a2ecc9be59
+Z 0d405e33930f6e4c4858787bb2546e83
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkilz2YACgkQhcAhAqILb/1MlACfVFnKzFmZq/lDRj+pWrXCzCsx
-O5gAniJln5Dm9F2wwErIe6GFcfmU0sma
-=Xn2M
+iEYEARECAAYFAkioDWwACgkQhcAhAqILb/3K2wCfVLLfh025tTdyFSjCR6tNaRSG
+Y7YAnjo2NrXIXgFaKigtqnPb53tbF8pq
+=ZMxf
 -----END PGP SIGNATURE-----

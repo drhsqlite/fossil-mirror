@@ -366,7 +366,7 @@ void vinfo_page(void){
       @ <tr><th>Commands:</th>
       @   <td>
       @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
-      @     | <a href="%s(g.zBaseURL)/zip/%s(zProjName)-%s(zShortUuid).zip?rid=%s(zUuid)">
+      @     | <a href="%s(g.zBaseURL)/zip/%s(zProjName)-%s(zShortUuid).zip?uuid=%s(zUuid)">
       @         ZIP archive</a>
       @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
       if( g.okWrite ){

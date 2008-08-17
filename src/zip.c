@@ -361,7 +361,7 @@ void baseline_zip_page(void){
   if( !g.okZip && (!g.okRead || !g.okHistory) ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
-  zRid = mprintf("%s", PD("rid",""));
+  zRid = mprintf("%s", PD("uuid",""));
   nRid = strlen(zRid);
   for(nName=strlen(zName)-1; nName>5; nName--){
     if( zName[nName]=='.' ){
