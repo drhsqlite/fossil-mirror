@@ -399,7 +399,7 @@ int login_has_capability(const char *zCap, int nCap){
       case 'w':  rc = g.okWrTkt;     break;
       /* case 'x': */
       /* case 'y': */
-      /* case 'z': */
+      case 'z':  rc = g.okZip;       break;
       default:   rc = 0;             break;
     }
   }

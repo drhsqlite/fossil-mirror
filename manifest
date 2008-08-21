@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sCGI\sparameter\sname\s<tt>rid</tt>\sto\s<tt>uuid</tt>\sfor\sthe\s<tt>/zip</tt>\sURL.
-D 2008-08-17T11:37:15
+C Include\s'z'\sin\slogin_has_capability()
+D 2008-08-21T19:57:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -63,7 +63,7 @@ F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 25c4dfa44ad305c59fdb0f3d2c9bfcbc2de4b8bf
-F src/login.c bef38b39f73e07c6caa2828f8770014068ec172d
+F src/login.c d0f9596e5f5673d775f3bf4aff6c3cfb775f05e6
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
 F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P f85bc24e4d49b6a522ef92076b48bd2948fc34a5
-R 2f0ac028e8ef1fdd171b32d63ce2d037
-U cle
-Z 0d405e33930f6e4c4858787bb2546e83
+P 81a96aadf326aa6d15b292569433163322ec74a3
+R 4e26798b8b8c83ebb40abb6366b1b078
+U eric
+Z 9abcf6bb6bacf795be47ef74977d977f
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iEYEARECAAYFAkioDWwACgkQhcAhAqILb/3K2wCfVLLfh025tTdyFSjCR6tNaRSG
-Y7YAnjo2NrXIXgFaKigtqnPb53tbF8pq
-=ZMxf
+iD8DBQFIrcjDu+lpsLhDMQkRAlXUAJ9tgQyFKH6iMmQSfqiLhOOYuyz2YwCeKN7H
+tzGHN5Fk2qIak1B+PRlNEwk=
+=MpFk
 -----END PGP SIGNATURE-----
