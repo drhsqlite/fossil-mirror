@@ -29,8 +29,8 @@
 #include "config.h"
 #include "my_page.h"
 
-/**
-Renders a logout button.
+/*
+** Renders a logout button.
 */
 static void mypage_logout_button()
 {
@@ -45,8 +45,8 @@ static void mypage_logout_button()
   }
 }
 
-/**
-Renders a password changer.
+/*
+** Renders a password changer.
 */
 static void mypage_password_changer()
 {
@@ -73,8 +73,8 @@ static void mypage_password_changer()
 
 }
 
-/**
-Default page rendered for /my.
+/*
+** Default page rendered for /my.
 */
 static void mypage_page_default()
 {

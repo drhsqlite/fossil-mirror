@@ -115,7 +115,7 @@ void login_page(void){
       return;
     }
   }
-  if( zUsername!=0 && zPasswd!=0 ){
+  if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     int uid = db_int(0,
         "SELECT uid FROM user"
         " WHERE login=%Q AND pw=%Q", zUsername, zPasswd);
@@ -302,9 +302,11 @@ void login_check_credentials(void){
     g.zLogin = 0;
   }
   if( uid && g.zLogin ){
+    /* All logged-in users inherit privileges from "nobody" */
     zNcap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
     login_set_capabilities(zNcap);
-    if( db_get_int("inherit-anon",0) ){
+    if( strcmp(g.zLogin, "anonymous")!=0 ){
+      /* All logged-in users inherit privileges from "anonymous" */
       zAcap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
       login_set_capabilities(zAcap);
     }
@@ -316,6 +318,7 @@ void login_check_credentials(void){
 ** Set the global capability flags based on a capability string.
 */
 void login_set_capabilities(const char *zCap){
+  static char *zDev = 0;
   int i;
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
@@ -327,6 +330,7 @@ void login_set_capabilities(const char *zCap){
                               g.okTktFmt = 1;
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
+      case 'z':   g.okZip = 1;                                  break;
 
       case 'd':   g.okDelete = 1;                               break;
       case 'h':   g.okHistory = 1;                              break;
@@ -345,6 +349,16 @@ void login_set_capabilities(const char *zCap){
                   g.okApndTkt = 1;                              break;
       case 'c':   g.okApndTkt = 1;                              break;
       case 't':   g.okTktFmt = 1;                               break;
+
+      /* The "v" privileges is a little different.  It recursively 
+      ** inherits all privileges of the user named "developer" */
+      case 'v': {
+        if( zDev==0 ){
+          zDev = db_text("", "SELECT cap FROM user WHERE login='developer'");
+          login_set_capabilities(zDev);
+        }
+        break;
+      }
     }
   }
 }
@@ -361,6 +375,7 @@ int login_has_capability(const char *zCap, int nCap){
   for(i=0; i<nCap && rc && zCap[i]; i++){
     switch( zCap[i] ){
       case 'a':  rc = g.okAdmin;     break;
+      /* case 'b': */
       case 'c':  rc = g.okApndTkt;   break;
       case 'd':  rc = g.okDelete;    break;
       case 'e':  rc = g.okRdAddr;    break;
@@ -370,14 +385,21 @@ int login_has_capability(const char *zCap, int nCap){
       case 'i':  rc = g.okWrite;     break;
       case 'j':  rc = g.okRdWiki;    break;
       case 'k':  rc = g.okWrWiki;    break;
+      /* case 'l': */
       case 'm':  rc = g.okApndWiki;  break;
       case 'n':  rc = g.okNewTkt;    break;
       case 'o':  rc = g.okRead;      break;
       case 'p':  rc = g.okPassword;  break;
+      /* case 'q': */
       case 'r':  rc = g.okRdTkt;     break;
       case 's':  rc = g.okSetup;     break;
       case 't':  rc = g.okTktFmt;    break;
+      /* case 'u': */
+      /* case 'v': */
       case 'w':  rc = g.okWrTkt;     break;
+      /* case 'x': */
+      /* case 'y': */
+      case 'z':  rc = g.okZip;       break;
       default:   rc = 0;             break;
     }
   }

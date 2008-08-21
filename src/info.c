@@ -118,7 +118,7 @@ static int showDescendants(int pid, int depth, const char *zTitle){
   db_prepare(&q,
     "SELECT plink.cid, blob.uuid, datetime(plink.mtime, 'localtime'),"
     "       coalesce(event.euser,event.user),"
-    "       coalesce(event.comment,event.ecomment)"
+    "       coalesce(event.ecomment,event.comment)"
     "  FROM plink, blob, event"
     " WHERE plink.pid=%d"
     "   AND blob.rid=plink.cid"
@@ -170,7 +170,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
   db_prepare(&q,
     "SELECT plink.pid, blob.uuid, datetime(event.mtime, 'localtime'),"
     "       coalesce(event.euser,event.user),"
-    "       coalesce(event.comment,event.ecomment)"
+    "       coalesce(event.ecomment,event.comment)"
     "  FROM plink, blob, event"
     " WHERE plink.cid=%d"
     "   AND blob.rid=plink.pid"
@@ -356,6 +356,8 @@ void vinfo_page(void){
     }
     @ </td></tr>
     if( g.okHistory ){
+      char *zShortUuid = mprintf("%.10s", zUuid);
+      const char *zProjName = db_get("project-name", "unnamed");
       @ <tr><th>Timelines:</th><td>
       @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendants</a>
@@ -364,13 +366,15 @@ void vinfo_page(void){
       @ <tr><th>Commands:</th>
       @   <td>
       @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
-      @     | <a href="%s(g.zBaseURL)/zip/%s(zUuid).zip">ZIP archive</a>
+      @     | <a href="%s(g.zBaseURL)/zip/%s(zProjName)-%s(zShortUuid).zip?uuid=%s(zUuid)">
+      @         ZIP archive</a>
       @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
       if( g.okWrite ){
         @     | <a href="%s(g.zBaseURL)/vedit?r=%d(rid)">edit</a>
       }
       @   </td>
       @ </tr>
+      free(zShortUuid);
     }
     @ </table></p>
   }else{
@@ -657,7 +661,7 @@ static void object_description(int rid, int linkToView){
   int nWiki = 0;
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime), substr(a.uuid,1,10),"
-    "       coalesce(event.comment,event.ecomment),"
+    "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
     "       b.uuid"
     "  FROM mlink, filename, event, blob a, blob b"

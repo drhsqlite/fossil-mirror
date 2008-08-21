@@ -137,32 +137,6 @@ static void tagview_page_tag_by_name( char const * tagname ){
 }
 
 /*
-** Get the UUIDs for a tag
-*/
-char *tag_query_for_www(const char *pName){
-  static const char zBaseSql[] =
-  @ SELECT
-  @   blob.rid,
-  @   uuid,
-  @   datetime(event.mtime,'localtime') AS timestamp,
-  @   coalesce(ecomment, comment),
-  @   coalesce(euser, user),
-  @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
-  @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
-  @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
-  @   coalesce(bgcolor, brbgcolor),
-  @   event.type
-  @  FROM event JOIN blob JOIN tagxref
-  @ WHERE blob.rid=event.objid
-  @ AND tagxref.rid = event.objid
-  @ AND tagxref.tagid = (SELECT tagid FROM tag
-  @       WHERE tagname = 'sym-'||%Q)
-  @ ORDER BY 3 desc
-  ;
-  return mprintf(zBaseSql,pName);
-}
-
-/*
 ** WEBP AGE: /tagview
 */
 void old_tagview_page(void){
@@ -204,7 +178,27 @@ void tagview_page(void){
     if( sym_tag_to_uuid(zName, &uuid) > 0){
       style_header("Tagged Baselines");
       @ <h2>%s(zName):</h2>
-      zSql = tag_query_for_www(zName);
+      zSql = mprintf("%s AND EXISTS (SELECT 1"
+             " FROM tagxref"
+             "  WHERE tagxref.rid = event.objid"
+             "  AND tagxref.tagid = (SELECT tagid FROM tag"
+             "      WHERE tagname = 'sym-'||%Q))"
+             " ORDER BY 3 desc",
+             timeline_query_for_www(), zName);
+      db_prepare(&q, zSql);
+      free(zSql);
+      www_print_timeline(&q);
+      db_finalize(&q);
+    }else if( tag_to_uuid(zName, &uuid, "") > 0){
+      style_header("Tagged Baselines");
+      @ <h2>%s(zName):</h2>
+      zSql = mprintf("%s AND EXISTS (SELECT 1"
+             " FROM tagxref"
+             "  WHERE tagxref.rid = event.objid"
+             "  AND tagxref.tagid = (SELECT tagid FROM tag"
+             "      WHERE tagname = %Q))"
+             " ORDER BY 3 desc",
+             timeline_query_for_www(), zName);
       db_prepare(&q, zSql);
       free(zSql);
       www_print_timeline(&q);
@@ -219,20 +213,27 @@ void tagview_page(void){
     const char *prefix = "sym-";
     int preflen = strlen(prefix);
     style_header("Tags");
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT tagname"
       "  FROM tag"
       " WHERE EXISTS(SELECT 1 FROM tagxref"
       "               WHERE tagid=tag.tagid"
       "                 AND tagtype>0)"
-      " ORDER BY tagname"
+      " AND tagid > %d"
+      " AND tagname NOT GLOB 'wiki-*'"
+      " AND tagname NOT GLOB 'tkt-*'"
+      " ORDER BY tagname",
+      MAX_INT_TAG
     );
     @ <ul>
     while( db_step(&q)==SQLITE_ROW ){
       const char *name = db_column_text(&q, 0);
       if( strncmp(name, prefix, preflen)==0 ){
         @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name+preflen)>
-        @ %s(name+preflen)</a></li>
+        @ <strong>%s(name+preflen)</strong></a></li>
+      }else{
+        @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name)>
+        @ %s(name)</a></li>
       }
     }
     @ </ul>

@@ -110,7 +110,7 @@ void admin_page(void){
   style_header("Admin");
   @ <h2>Links:</h2>
   @ <ul>
-  @ <li><a href='%s(g.zBaseURL)/admin/setup'>Fossil WWW Setup</a></li>
+  @ <li><a href='%s(g.zBaseURL)/setup'>Fossil WWW Setup</a></li>
   @ <li><a href='%s(g.zBaseURL)/admin/sql'>Run SQL queries</a></li>
   @ </ul>
   style_footer();

@@ -791,9 +791,11 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   );
   db_multi_exec(
      "INSERT INTO user(login,pw,cap,info)"
-     "   VALUES('anonymous','anonymous','hjkorw','Anon');"
+     "   VALUES('anonymous','anonymous','aghknw','Anon');"
      "INSERT INTO user(login,pw,cap,info)"
      "   VALUES('nobody','','jor','Nobody');"
+     "INSERT INTO user(login,pw,cap,info)"
+     "   VALUES('developer','','deipt','Dev');"
   );
   user_select();
 

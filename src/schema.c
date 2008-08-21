@@ -299,6 +299,9 @@ const char zRepositorySchema2[] =
 # define TAG_PRIVATE    5     /* Display but do not sync */
 # define TAG_CLUSTER    6     /* A cluster */
 #endif
+#if EXPORT_INTERFACE
+# define MAX_INT_TAG    6     /* The largest pre-assigned tag id */
+#endif
 
 /*
 ** The schema for the locate FOSSIL database file found at the root

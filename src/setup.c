@@ -136,33 +136,37 @@ void setup_ulist(void){
   @ <b>Notes:</b>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
-  @ <ol type="a">
-  @ <li value="1"><b>Admin</b>: Create and delete users</li>
-  @ <li value="3"><b>Append-Tkt</b>: Append to tickets</li>
-  @ <li value="4"><b>Delete</b>: Delete wiki and tickets</li>
-  @ <li value="5"><b>Email</b>: View sensitive data such as EMail addresses</li>
-  @ <li value="6"><b>New-Wiki</b>: Create new wiki pages</li>
-  @ <li value="7"><b>Clone</b>: Clone the repository</li>
-  @ <li value="8"><b>History</b>: View detail repository history</li>
-  @ <li value="9"><b>Check-In</b>: Commit new versions in the repository</li>
-  @ <li value="10"><b>Read-Wiki</b>: View wiki pages</li>
-  @ <li value="11"><b>Write-Wiki</b>: Edit wiki pages</li>
-  @ <li value="13"><b>Append-Wiki</b>: Append to wiki pages</li>
-  @ <li value="14"><b>New-Tkt</b>: Create new tickets</li>
-  @ <li value="15"><b>Check-Out</b>: Check out versions</li>
-  @ <li value="16"><b>Password</b>: Change your own password</li>
-  @ <li value="18"><b>Read-Tkt</b>: View tickets</li>
-  @ <li value="19"><b>Setup:</b> Setup and configure this website</li>
-  @ <li value="20"><b>Tkt-Report:</b> Create new bug summary reports</li>
-  @ <li value="23"><b>Write-Tkt</b>: Edit tickets</li>
-  @ </ol>
-  @ </p></li>
+  @ <table>
+     @ <tr><td><b>a</b></td><td><i>Admin:</i> Create and delete users</td></tr>
+     @ <tr><td><b>c</b></td><td><i>Append-Tkt:</i> Append to tickets</td></tr>
+     @ <tr><td><b>d</b></td><td><i>Delete:</i> Delete wiki and tickets</td></tr>
+     @ <tr><td><b>e</b></td><td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
+     @ <tr><td><b>f</b></td><td><i>New-Wiki:</i> Create new wiki pages</td></tr>
+     @ <tr><td><b>g</b></td><td><i>Clone:</i> Clone the repository</td></tr>
+     @ <tr><td><b>h</b></td><td><i>History:</i> View detail repository history</td></tr>
+     @ <tr><td><b>i</b></td><td><i>Check-In:</i> Commit new versions in the repository</td></tr>
+     @ <tr><td><b>j</b></td><td><i>Read-Wiki:</i> View wiki pages</td></tr>
+     @ <tr><td><b>k</b></td><td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
+     @ <tr><td><b>m</b></td><td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
+     @ <tr><td><b>n</b></td><td><i>New-Tkt:</i> Create new tickets</td></tr>
+     @ <tr><td><b>o</b></td><td><i>Check-Out:</i> Check out versions</td></tr>
+     @ <tr><td><b>p</b></td><td><i>Password:</i> Change your own password</td></tr>
+     @ <tr><td><b>r</b></td><td><i>Read-Tkt:</i> View tickets</td></tr>
+     @ <tr><td><b>s</b></td><td><i>Setup:</i> Setup and configure this website</td></tr>
+     @ <tr><td><b>t</b></td><td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
+     @ <tr><td><b>v</b></td><td><i>Developer:</i> Inherit privileges of user <tt>developer</tt></td></tr>
+     @ <tr><td><b>w</b></td><td><i>Write-Tkt:</i> Edit tickets</td></tr>
+     @ <tr><td><b>z</b></td><td><i>Zip download:</i> Download a baseline via the
+     @ <tt>/zip</tt> URL even without check<b>o</b>ut and <b>h</b>istory permissions</td></tr>
+  @ </table>
+  @ </li>
   @
   @ <li><p>
-  @ Every user, logged in or not, has the privileges of <b>nobody</b>.
+  @ Every user, logged in or not, inherits the privileges of <b>nobody</b>.
   @ Any human can login as <b>anonymous</b> since the password is
   @ clearly displayed on the login page for them to type.  The purpose
   @ of requiring anonymous to log in is to prevent access by spiders.
+  @ Every logged-in user inherits the privileges of <b>anonymous</b>.
   @ </p></li>
   @
   @ </ol>
@@ -171,13 +175,27 @@ void setup_ulist(void){
 }
 
 /*
+** Return true if zPw is a valid password string.  A valid
+** password string is:
+**
+**  (1)  A zero-length string, or
+**  (2)  a string that contains a character other than '*'.
+*/
+static int isValidPwString(const char *zPw){
+  if( zPw==0 ) return 0;
+  if( zPw[0]==0 ) return 1;
+  while( zPw[0]=='*' ){ zPw++; }
+  return zPw[0]!=0;
+}
+
+/*
 ** WEBPAGE: /setup_uedit
 */
 void user_edit(void){
-  const char *zId, *zLogin, *zInfo, *zCap;
+  const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat;
+  char *oat, *oav, *oaz;
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -210,8 +228,6 @@ void user_edit(void){
   */
   doWrite = cgi_all("login","info","pw") && !higherUser;
   if( doWrite ){
-    const char *zPw;
-    const char *zLogin;
     char zCap[50];
     int i = 0;
     int aa = P("aa")!=0;
@@ -232,6 +248,8 @@ void user_edit(void){
     int ah = P("ah")!=0;
     int ag = P("ag")!=0;
     int at = P("at")!=0;
+    int av = P("av")!=0;
+    int az = P("az")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ac ){ zCap[i++] = 'c'; }
     if( ad ){ zCap[i++] = 'd'; }
@@ -249,11 +267,13 @@ void user_edit(void){
     if( ar ){ zCap[i++] = 'r'; }
     if( as ){ zCap[i++] = 's'; }
     if( at ){ zCap[i++] = 't'; }
+    if( av ){ zCap[i++] = 'v'; }
     if( aw ){ zCap[i++] = 'w'; }
+    if( az ){ zCap[i++] = 'z'; }
 
     zCap[i] = 0;
     zPw = P("pw");
-    if( zPw==0 || zPw[0]==0 ){
+    if( !isValidPwString(zPw) ){
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zLogin = P("login");
@@ -282,12 +302,14 @@ void user_edit(void){
   zLogin = "";
   zInfo = "";
   zCap = "";
+  zPw = "";
   oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oaw = "";
+        oan = oao = oap = oar = oas = oat = oav = oaw = oaz = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
     zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
+    zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
     if( strchr(zCap, 'a') ) oaa = " checked";
     if( strchr(zCap, 'c') ) oac = " checked";
     if( strchr(zCap, 'd') ) oad = " checked";
@@ -305,7 +327,9 @@ void user_edit(void){
     if( strchr(zCap, 'r') ) oar = " checked";
     if( strchr(zCap, 's') ) oas = " checked";
     if( strchr(zCap, 't') ) oat = " checked";
+    if( strchr(zCap, 'v') ) oav = " checked";
     if( strchr(zCap, 'w') ) oaw = " checked";
+    if( strchr(zCap, 'z') ) oaz = " checked";
   }
 
   /* Begin generating the page
@@ -348,6 +372,7 @@ void user_edit(void){
   @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
   @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
   @     <input type="checkbox" name="ah"%s(oah)>History</input><br>
+  @     <input type="checkbox" name="av"%s(oav)>Developer</input><br>
   @     <input type="checkbox" name="ag"%s(oag)>Clone</input><br>
   @     <input type="checkbox" name="aj"%s(oaj)>Read Wiki</input><br>
   @     <input type="checkbox" name="af"%s(oaf)>New Wiki</input><br>
@@ -357,12 +382,22 @@ void user_edit(void){
   @     <input type="checkbox" name="an"%s(oan)>New Tkt</input><br>
   @     <input type="checkbox" name="ac"%s(oac)>Append Tkt</input><br>
   @     <input type="checkbox" name="aw"%s(oaw)>Write Tkt</input><br>
-  @     <input type="checkbox" name="at"%s(oat)>Tkt Report</input>
+  @     <input type="checkbox" name="at"%s(oat)>Tkt Report</input><br>
+  @     <input type="checkbox" name="az"%s(oaz)>Download Zip</input>
   @   </td>
   @ </tr>
   @ <tr>
   @   <td align="right">Password:</td>
-  @   <td><input type="password" name="pw" value=""></td>
+  if( strcmp(zLogin, "anonymous")==0 ){
+    /* User the password for "anonymous" as cleartext */
+    @   <td><input type="text" name="pw" value="%h(zPw)"></td>
+  }else if( zPw[0] ){
+    /* Obscure the password for all other users */
+    @   <td><input type="password" name="pw" value="**********"></td>
+  }else{
+    /* Show an empty password as an empty input field */
+    @   <td><input type="password" name="pw" value=""></td>
+  }
   @ </tr>
   if( !higherUser ){
     @ <tr>
@@ -371,8 +406,8 @@ void user_edit(void){
     @ </tr>
   }
   @ </table></td></tr></table>
-  @ <p><b>Notes:</b></p>
-  @ <ol>
+  @ <h2>Privileges And Capabilities:</h2>
+  @ <ul>
   if( higherUser ){
     @ <li><p><font color="blue"><b>
     @ User %h(zLogin) has Setup privileges and you only have Admin privileges
@@ -404,6 +439,20 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
+  @ The <b>Zip</b> privilege allows a user to see the download as zip hyperlink
+  @ as well as permit access to the <tt>/zip</tt> page. It can be allowed for
+  @ user "nobody" to grant him access to download artifacts he know from the
+  @ server without giving him other rights like <b>Read</b> or <b>History</b>.
+  @ So automatic package dowloaders could be able to obtain the sources without
+  @ going thru the login procedure.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The <b>Developer</b> privilege causes all privileges of the user
+  @ named "developer" to be inherited by this user.
+  @ </p></li>
+  @
+  @ <li><p>
   @ The <b>Check-in</b> privilege allows remote users to "push".
   @ The <b>Check-out</b> privilege allows remote users to "pull".
   @ The <b>Clone</b> privilege allows remote users to "clone".
@@ -420,8 +469,8 @@ void user_edit(void){
   @
   @ <li><p>
   @ Users with the <b>Password</b> privilege are allowed to change their
-  @ own password.  Recommended ON for most users but OFF for "anonynmous"
-  @ and "nobody".
+  @ own password.  Recommended ON for most users but OFF for special
+  @ users "developer, "anonynmous", and "nobody".
   @ </p></li>
   @
   @ <li><p>
@@ -431,13 +480,23 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
+  @ Login is prohibited if the password is an empty string.
+  @ </p></li>
+  @ </ul>
+  @
+  @ <h2>Special Logins</h2>
+  @ 
+  @ <ul>
+  @ <li><p>
   @ No login is required for user "<b>nobody</b>".  The capabilities
-  @ of this user are available to anyone without supplying a username or
-  @ password.  To disable nobody access, make sure there is no user
-  @ with an ID of <b>nobody</b> or that the nobody user has no
-  @ capabilities enabled.  The password for nobody is ignore.  To
-  @ avoid problems with spiders overloading the server, it is suggested
-  @ that the 'h' (History) capability be turned off for user nobody.
+  @ of the <b>nobody</b> user are inherited by all users, regardless of
+  @ whether or not they are logged in.  To disable universal access
+  @ to the repository, make sure no user named "<b>nobody</b>" exists or
+  @ that the <b>nobody</b> user has no capabilities enabled.
+  @ The password for <b>nobody</b> is ignore.  To avoid problems with
+  @ spiders overloading the server, it is recommended
+  @ that the 'h' (History) capability be turned off for the <b>nobody</b>
+  @ user.
   @ </p></li>
   @
   @ <li><p>
@@ -447,8 +506,17 @@ void user_edit(void){
   @ On the other hand, spiders and web-crawlers will typically not
   @ be able to login.  Set the capabilities of the anonymous user
   @ to things that you want any human to be able to do, but not any
-  @ spider.
+  @ spider.  Every other logged-in user inherits the privileges of
+  @ <b>anonymous</b>.
   @ </p></li>
+  @
+  @ <li><p>
+  @ The "<b>developer</b>" user is intended as a template for trusted users
+  @ with check-in privileges.  When adding new trusted users, simply
+  @ select the <b>Developer</b> privilege to cause the new user to inherit
+  @ all privileges of the "developer" user.
+  @ </li></p>
+  @ </ul>
   @ </form>
   style_footer();
 }

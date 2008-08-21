@@ -112,16 +112,17 @@ int name_to_uuid(Blob *pName, int iErrPriority){
 **          propagating tag. The return UUID is the most recent,
 **          which is most likely to be the one wanted.
 */
-int sym_tag_to_uuid(const char *pName, Blob *pUuid){
+int tag_to_uuid(const char *pName, Blob *pUuid,const char *pPrefix){
   Stmt q;
   int count = 0;
   db_prepare(&q,
     "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
     "  FROM tagxref JOIN event ON rid=objid"
-    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='sym-'||%Q)"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q||%Q)"
     "   AND tagtype>0"
     "   AND value IS NULL"
     " ORDER BY event.mtime DESC",
+	pPrefix,
     pName
   );
   blob_zero(pUuid);
@@ -134,6 +135,9 @@ int sym_tag_to_uuid(const char *pName, Blob *pUuid){
   }
   db_finalize(&q);
   return count;
+}
+int sym_tag_to_uuid(const char *pName, Blob *pUuid){
+	return tag_to_uuid(pName,pUuid,"sym-");
 }
 
 /*
