@@ -278,7 +278,7 @@ static const char zDefaultNew[] =
 @ <th1>combobox severity $severity_choices 1</th1>
 @ </td>
 @ <td>How debilitating is the problem?  How badly does the problem
-@ effect the operation of the product?</td>
+@ affect the operation of the product?</td>
 @ </tr>
 @ 
 @ <tr>

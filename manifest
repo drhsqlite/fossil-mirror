@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Include\s'z'\sin\slogin_has_capability()
-D 2008-08-21T19:57:18
+C Spelling\serror.
+D 2008-08-24T06:40:29
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -99,7 +99,7 @@ F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
 F src/tkt.c 4222b4dfef769eaf21588343a7067b0c29eabebd
-F src/tktsetup.c 1244b8737f3e2c982476d5ac437ae5b545f9913d
+F src/tktsetup.c a85601ed8aaab18595363d76928c70b330db649d
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 81a96aadf326aa6d15b292569433163322ec74a3
-R 4e26798b8b8c83ebb40abb6366b1b078
-U eric
-Z 9abcf6bb6bacf795be47ef74977d977f
+P 018b6050aff6531e5b60517f2f0e77a23d95afca
+R a064177b2a13e5ad5ce417d6b0bbdde7
+U bharder
+Z 5fffc83736fe0acea81e5f9e9124aa43
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFIrcjDu+lpsLhDMQkRAlXUAJ9tgQyFKH6iMmQSfqiLhOOYuyz2YwCeKN7H
-tzGHN5Fk2qIak1B+PRlNEwk=
-=MpFk
+iEYEARECAAYFAkixAl0ACgkQad0Kwpwugm+/fQCfS8cRrgqVI0oCpFYUxymBWyK6
+s9YAnj1/asx1iipkVfhlsRx7KRIbzq9u
+=E6zI
 -----END PGP SIGNATURE-----
