@@ -122,7 +122,7 @@ int tag_to_uuid(const char *pName, Blob *pUuid,const char *pPrefix){
     "   AND tagtype>0"
     "   AND value IS NULL"
     " ORDER BY event.mtime DESC",
-	pPrefix,
+    pPrefix,
     pName
   );
   blob_zero(pUuid);
@@ -137,7 +137,7 @@ int tag_to_uuid(const char *pName, Blob *pUuid,const char *pPrefix){
   return count;
 }
 int sym_tag_to_uuid(const char *pName, Blob *pUuid){
-	return tag_to_uuid(pName,pUuid,"sym-");
+    return tag_to_uuid(pName,pUuid,"sym-");
 }
 
 /*

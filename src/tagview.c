@@ -161,6 +161,27 @@ void old_tagview_page(void){
   style_footer();
 }
 
+#undef TAGVIEW_DEFAULT_FILTER
+
+/*
+** Generate a timeline for the chosen tag
+*/
+void tagview_print_timeline(char const *pName, char const *pPrefix){
+  char *zSql;
+  Stmt q;
+  zSql = mprintf("%s AND EXISTS (SELECT 1"
+         " FROM tagxref"
+         "  WHERE tagxref.rid = event.objid"
+         "  AND tagxref.tagid = (SELECT tagid FROM tag"
+         "      WHERE tagname = %Q||%Q))"
+         " ORDER BY 3 desc",
+         timeline_query_for_www(), pPrefix, pName);
+  db_prepare(&q, zSql);
+  free(zSql);
+  www_print_timeline(&q);
+  db_finalize(&q);
+}
+
 /*
 ** WEBPAGE: /tagview
 */
@@ -173,39 +194,13 @@ void tagview_page(void){
   login_anonymous_available();
   if( 0 != (zName = P("name")) ){
     Blob uuid;
-    char *zSql;
-    Stmt q;
+    style_header("Tagged Baselines");
+    @ <h2>%s(zName):</h2>
     if( sym_tag_to_uuid(zName, &uuid) > 0){
-      style_header("Tagged Baselines");
-      @ <h2>%s(zName):</h2>
-      zSql = mprintf("%s AND EXISTS (SELECT 1"
-             " FROM tagxref"
-             "  WHERE tagxref.rid = event.objid"
-             "  AND tagxref.tagid = (SELECT tagid FROM tag"
-             "      WHERE tagname = 'sym-'||%Q))"
-             " ORDER BY 3 desc",
-             timeline_query_for_www(), zName);
-      db_prepare(&q, zSql);
-      free(zSql);
-      www_print_timeline(&q);
-      db_finalize(&q);
+      tagview_print_timeline(zName, "sym-");
     }else if( tag_to_uuid(zName, &uuid, "") > 0){
-      style_header("Tagged Baselines");
-      @ <h2>%s(zName):</h2>
-      zSql = mprintf("%s AND EXISTS (SELECT 1"
-             " FROM tagxref"
-             "  WHERE tagxref.rid = event.objid"
-             "  AND tagxref.tagid = (SELECT tagid FROM tag"
-             "      WHERE tagname = %Q))"
-             " ORDER BY 3 desc",
-             timeline_query_for_www(), zName);
-      db_prepare(&q, zSql);
-      free(zSql);
-      www_print_timeline(&q);
-      db_finalize(&q);
+      tagview_print_timeline(zName, "");
     }else{
-      style_header("TaggedBaselines");
-      @ <h2>%s(zName):</h2>
       @ There is no artifact with this tag.
     }
   }else{
@@ -241,5 +236,3 @@ void tagview_page(void){
   }
   style_footer();
 }
-
-#undef TAGVIEW_DEFAULT_FILTER
