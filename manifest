@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Spelling\serror.
-D 2008-08-24T06:40:29
+C Add\sa\smuch\slarger\sand\smore\scomplete\sfile-suffix\sto\smimetype\stranslation\ntable\sto\sthe\s"doc"\smethod.
+D 2008-08-30T13:20:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -58,7 +58,7 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c bf0ebffd4d9e7872202e6c4d0488c95bc2bd4276
-F src/doc.c c2074c13ca27fc1a7284a00fe548df977af1b3cf
+F src/doc.c 6b0c93f6b9f548da740155346e068d389d8cc662
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 018b6050aff6531e5b60517f2f0e77a23d95afca
-R a064177b2a13e5ad5ce417d6b0bbdde7
-U bharder
-Z 5fffc83736fe0acea81e5f9e9124aa43
+P f3ce1c9fed1931e9aaf4f62bc37a6a3757e9abaa
+R 351144edd98e7991658a7d41ab25a288
+U drh
+Z c6631d9395a106ae04ee7adae70bbaa5
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (NetBSD)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkixAl0ACgkQad0Kwpwugm+/fQCfS8cRrgqVI0oCpFYUxymBWyK6
-s9YAnj1/asx1iipkVfhlsRx7KRIbzq9u
-=E6zI
+iD8DBQFIuUk+oxKgR168RlERAujuAJ9aeO19VqPQ5oRQqC+AyZ/60lW/ygCdF3W+
+WD+ZeBXPFf2Ex0GXiRwOaxE=
+=8h4X
 -----END PGP SIGNATURE-----
