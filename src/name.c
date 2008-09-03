@@ -101,9 +101,9 @@ int name_to_uuid(Blob *pName, int iErrPriority){
 }
 
 /*
-** This routine takes a name which might be a symbolic tag and
-** attempts to produce a UUID. The UUID (if any) is returned in the
-** blob pointed to by the second argument.
+** This routine takes a name which might be a tag and attempts to
+** produce a UUID. The UUID (if any) is returned in the blob pointed
+** to by the second argument.
 **
 ** Return as follows:
 **      0   Name is not a tag
@@ -136,6 +136,11 @@ int tag_to_uuid(const char *pName, Blob *pUuid,const char *pPrefix){
   db_finalize(&q);
   return count;
 }
+
+/*
+** This routine takes a name which might be a symbolic tag and
+** attempts to produce a UUID. See tag_to_uuid.
+*/
 int sym_tag_to_uuid(const char *pName, Blob *pUuid){
     return tag_to_uuid(pName,pUuid,"sym-");
 }

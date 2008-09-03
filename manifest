@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tidy\sup\stagview\scode.
-D 2008-08-24T20:16:43
+C Clarify\ssome\scomments\sin\sname.c
+D 2008-09-03T18:52:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -75,7 +75,7 @@ F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/my_page.c 98c94677766c794cf6d1d22bc2a33995de3154de
-F src/name.c 8550ff74c54e31fda1e6ecbf4f774ec1af1a33c6
+F src/name.c 68dd0b644f488d7d9fadd24683b8f2e8f0052b52
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 5fb14b9a0fa04a788de384897e65458a9d8f8eaa
-R fb4cfc6ee4bc07a097fc26dae2480084
+P 0e924820bffe17d305c7f64c05a4f6eed65f169e
+R 79ecd0d1c517a00422c6a028efe68e18
 U eric
-Z 851e40b40011dae6680836619885f014
+Z a8b61f22eec067ae748af30ec4c0c2f3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFIscHru+lpsLhDMQkRAu0mAJ0TdfdABQpyGeMHl5OJycFXtJEt4wCfZbRf
-F++1l1+0O3TS4m7U8J421Z4=
-=APcZ
+iD8DBQFIvt0iu+lpsLhDMQkRAogBAJ41xwn91MWIz7pJY2uwRNkc6tiIVgCg08e4
+sJjGY6ui3ZdfcS2//db17VA=
+=+4gU
 -----END PGP SIGNATURE-----
