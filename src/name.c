@@ -46,7 +46,6 @@ int name_to_uuid(Blob *pName, int iErrPriority){
   int sz;
   sz = blob_size(pName);
   if( sz>UUID_SIZE || sz<4 || !validate16(blob_buffer(pName), sz) ){
-    Stmt q;
     Blob uuid;
     static const char prefix[] = "tag:";
     static const int preflen = sizeof(prefix)-1;
@@ -56,20 +55,7 @@ int name_to_uuid(Blob *pName, int iErrPriority){
       zName += preflen;
     }
 
-    db_prepare(&q,
-      "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
-      "  FROM tagxref JOIN event ON rid=objid"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='sym-'||%Q)"
-      "   AND tagtype>0"
-      "   AND value IS NULL"
-      " ORDER BY event.mtime DESC",
-      zName
-    );
-    blob_zero(&uuid);
-    if( db_step(&q)==SQLITE_ROW ){
-      db_column_blob(&q, 0, &uuid);
-    }
-    db_finalize(&q);
+    sym_tag_to_uuid(zName, &uuid);
     if( blob_size(&uuid)==0 ){
       fossil_error(iErrPriority, "not a valid object name: %s", zName);
       blob_reset(&uuid);
@@ -112,6 +98,51 @@ int name_to_uuid(Blob *pName, int iErrPriority){
     rc = 0;
   }
   return rc;
+}
+
+/*
+** This routine takes a name which might be a tag and attempts to
+** produce a UUID. The UUID (if any) is returned in the blob pointed
+** to by the second argument.
+**
+** Return as follows:
+**      0   Name is not a tag
+**      1   A single UUID was found
+**      2   More than one UUID was found, so this is presumably a
+**          propagating tag. The return UUID is the most recent,
+**          which is most likely to be the one wanted.
+*/
+int tag_to_uuid(const char *pName, Blob *pUuid,const char *pPrefix){
+  Stmt q;
+  int count = 0;
+  db_prepare(&q,
+    "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
+    "  FROM tagxref JOIN event ON rid=objid"
+    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q||%Q)"
+    "   AND tagtype>0"
+    "   AND value IS NULL"
+    " ORDER BY event.mtime DESC",
+    pPrefix,
+    pName
+  );
+  blob_zero(pUuid);
+  while( db_step(&q)==SQLITE_ROW ){
+    count++;
+    if(count>1){
+      break;
+    }
+    db_column_blob(&q, 0, pUuid);
+  }
+  db_finalize(&q);
+  return count;
+}
+
+/*
+** This routine takes a name which might be a symbolic tag and
+** attempts to produce a UUID. See tag_to_uuid.
+*/
+int sym_tag_to_uuid(const char *pName, Blob *pUuid){
+    return tag_to_uuid(pName,pUuid,"sym-");
 }
 
 /*

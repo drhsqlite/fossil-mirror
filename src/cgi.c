@@ -202,9 +202,11 @@ void cgi_set_cookie(
   if( zPath==0 ) zPath = g.zTop;
   if( lifetime>0 ){
     lifetime += (int)time(0);
+    char * zDate = cgi_rfc822_datestamp(lifetime);
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; expires=%s; Version=1\r\n",
-        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime));
+       "Set-Cookie: %s=%t; Path=%s; expires=%z; Version=1\r\n",
+        zName, zValue, zPath, zDate);
+    if( zDate[0] ) free( zDate );
   }else{
     blob_appendf(&extraHeader,
        "Set-Cookie: %s=%t; Path=%s; Version=1\r\n",
@@ -288,7 +290,9 @@ void cgi_reply(void){
 
   if( g.fullHttpReply ){
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
-    fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
+    char * zDate = cgi_rfc822_datestamp(time(0));
+    fprintf(g.httpOut, "Date: %s\r\n", zDate );
+    if( zDate[0] ) free( zDate );
     fprintf(g.httpOut, "Connection: close\r\n");
   }else{
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
@@ -309,7 +313,9 @@ void cgi_reply(void){
     */
     /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
     time_t expires = time(0) + 604800;
-    fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
+    char * zDate = cgi_rfc822_datestamp(expires);
+    fprintf(g.httpOut, "Expires: %s\r\n", zDate );
+    if( zDate[0] ) free( zDate );
   }
 
   /* Content intended for logged in users should only be cached in
@@ -1269,6 +1275,8 @@ static const char *azMonths[] =
 ** Returns an RFC822-formatted time string suitable for HTTP headers, among
 ** other things.
 ** Returned timezone is always GMT as required by HTTP/1.1 specification.
+** The returned string is allocated with malloc() and must be freed
+** with free().
 **
 ** See http://www.faqs.org/rfcs/rfc822.html, section 5
 ** and http://www.faqs.org/rfcs/rfc2616.html, section 3.3.

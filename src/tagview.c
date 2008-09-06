@@ -62,7 +62,7 @@ static void tagview_page_list_tags(const char *zLike){
     "   DATETIME(tx.mtime) AS 'Timestamp',"
     "   linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b "
-    " WHERE t.tagid=tx.tagid AND tx.srcid=b.rid"
+    " WHERE t.tagid=tx.tagid AND tx.rid=b.rid"
     "   AND tx.tagtype!=0 %s "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC %s",
@@ -80,7 +80,7 @@ static void tagview_page_list_tags(const char *zLike){
 static void tagview_page_search_miniform(void){
   char const * like = P("like");
   @ <div style='font-size:smaller'>
-  @ <form action='/tagview' method='post'>
+  @ <form action='tagview' method='post'>
   @ Search for tags: 
   @ <input type='text' name='like' value='%h((like?like:""))' size='10'/>
   @ <input type='submit'/>
@@ -107,7 +107,7 @@ static void tagview_page_tag_by_id( int tagid ){
     "       DATETIME(tx.mtime) AS 'Timestamp',"
     "       linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b"
-    " WHERE t.tagid=%d AND t.tagid=tx.tagid AND tx.srcid=b.rid "
+    " WHERE t.tagid=%d AND t.tagid=tx.tagid AND tx.rid=b.rid "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC",
     tagid
@@ -128,7 +128,7 @@ static void tagview_page_tag_by_name( char const * tagname ){
     "       DATETIME(tx.mtime) AS 'Timestamp',"
     "       linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b "
-    " WHERE t.tagname='%q' AND t.tagid=tx.tagid AND tx.srcid=b.rid "
+    " WHERE t.tagname='%q' AND t.tagid=tx.tagid AND tx.rid=b.rid "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC",
     tagname);
@@ -136,11 +136,10 @@ static void tagview_page_tag_by_name( char const * tagname ){
   free(zSql);
 }
 
-
 /*
-** WEBPAGE: /tagview
+** WEBP AGE: /tagview
 */
-void tagview_page(void){
+void old_tagview_page(void){
   char const * check = 0;
   login_check_credentials();
   if( !g.okRdWiki ){
@@ -163,3 +162,106 @@ void tagview_page(void){
 }
 
 #undef TAGVIEW_DEFAULT_FILTER
+
+/*
+** Generate a timeline for the chosen tag
+*/
+void tagview_print_timeline(char const *pName, char const *pPrefix){
+  char *zSql;
+  Stmt q;
+  zSql = mprintf("%s AND EXISTS (SELECT 1"
+         " FROM tagxref"
+         "  WHERE tagxref.rid = event.objid"
+         "  AND tagxref.tagid = (SELECT tagid FROM tag"
+         "      WHERE tagname = %Q||%Q))"
+         " ORDER BY 3 desc",
+         timeline_query_for_www(), pPrefix, pName);
+  db_prepare(&q, zSql);
+  free(zSql);
+  www_print_timeline(&q);
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE: /tagview
+*/
+void tagview_page(void){
+  char const *zName = 0;
+  int zTcount = 0;
+  login_check_credentials();
+  if( !g.okRead ){
+    login_needed();
+  }
+  login_anonymous_available();
+  if( 0 != (zName = P("name")) ){
+    Blob uuid;
+    style_header("Tagged Baselines");
+    @ <h2>%s(zName):</h2>
+    if( sym_tag_to_uuid(zName, &uuid) > 0){
+      tagview_print_timeline(zName, "sym-");
+    }else if( tag_to_uuid(zName, &uuid, "") > 0){
+      tagview_print_timeline(zName, "");
+    }else{
+      @ There is no artifact with this tag.
+    }
+  }else{
+    Stmt q;
+    const char *prefix = "sym-";
+    int preflen = strlen(prefix);
+    style_header("Tags");
+    db_prepare(&q,
+      "SELECT tagname"
+      "  FROM tag"
+      " WHERE EXISTS(SELECT 1 FROM tagxref"
+      "               WHERE tagid=tag.tagid"
+      "                 AND tagtype>0)"
+      " AND tagid > %d"
+      " AND tagname NOT GLOB 'wiki-*'"
+      " AND tagname NOT GLOB 'tkt-*'"
+      " ORDER BY tagname",
+      MAX_INT_TAG
+    );
+    @ <ul>
+    while( db_step(&q)==SQLITE_ROW ){
+      zTcount++;
+      const char *name = db_column_text(&q, 0);
+      if( g.okHistory ){
+        if( strncmp(name, prefix, preflen)==0 ){
+          @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name+preflen)>
+          @ %s(name+preflen)</a>
+        }else{
+          @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name)>
+          @ %s(name)</a>
+        }
+      }else{
+        if( strncmp(name, prefix, preflen)==0 ){
+          @ <li><strong>%s(name+preflen)</strong>
+        }else{
+          @ <li><strong>%s(name)</strong>
+        }
+      }
+      if( strncmp(name, prefix, preflen)==0 ){
+        @ (symbolic label)
+      }
+      @ </li>
+    }
+    @ </ul>
+    if( zTcount == 0) {
+      @ There are no relevant tags.
+    }
+    db_finalize(&q);
+  }
+  /*
+   * Put in dummy functions since www_print_timeline has generated calls to
+   * them. Some browsers don't seem to care, but better to be safe.
+   * Actually, it would be nice to use the functions on this page, but at
+   * the moment it looks to be too difficult.
+   */
+  @ <script>
+  @ function xin(id){
+  @ }
+  @ function xout(id){
+  @ }
+  @ </script>
+  style_footer();
+}

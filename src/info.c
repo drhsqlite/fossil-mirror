@@ -917,13 +917,30 @@ void tinfo_page(void){
 */
 void info_page(void){
   const char *zName;
+  Blob uuid;
   int rid, nName;
   
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
   nName = strlen(zName);
   if( nName<4 || nName>UUID_SIZE || !validate16(zName, nName) ){
-    fossil_redirect_home();
+    switch( sym_tag_to_uuid(zName, &uuid) ){
+      case 1: {
+        /* got one UUID, use it */
+        zName = blob_str(&uuid);
+        break;
+      }
+      case 2: {
+        /* go somewhere to show the multiple UUIDs */
+        tagview_page();
+        return;
+        break;
+      }
+      default: {
+        fossil_redirect_home();
+        break;
+      }
+    }
   }
   if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%s*'", zName) ){
     tktview_page();
