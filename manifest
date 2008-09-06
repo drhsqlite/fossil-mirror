@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Clarify\ssome\scomments\sin\sname.c
-D 2008-09-03T18:52:48
+C Disable\stag\sURLs\swithout\ssufficient\spermission,\sdisplay\sa\smessage\nwhen\sthere\sare\sno\stags,\sprovide\sdummy\sJavascript\sfunctions\sfor\sthe\ntag\stimeline.
+D 2008-09-06T13:09:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -89,10 +89,10 @@ F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
 F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
-F src/style.c 89fb0defc597413d74cce8b45e2ad95e02f8c1fa
+F src/style.c 0d33291611a0aa3667218eaabf3c6d59d23a07b2
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
 F src/tag.c 842caf6a79a13b14fe50a3e73532cdd29f49020c
-F src/tagview.c 0c21590de1b888c16eac6c9ac4fa667ea820d589
+F src/tagview.c 6eeaea74ec95d494f17a46aebac027ef36895f3e
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 0e924820bffe17d305c7f64c05a4f6eed65f169e
-R 79ecd0d1c517a00422c6a028efe68e18
+P 5113ab5981bf88cfe2e734a3557b04fb339a4fe2
+R 0ad5ab6ae46e839ec5f0ca3ce7e6edf1
 U eric
-Z a8b61f22eec067ae748af30ec4c0c2f3
+Z 02735dd056c5f4c389f4f4b8949a41b9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFIvt0iu+lpsLhDMQkRAogBAJ41xwn91MWIz7pJY2uwRNkc6tiIVgCg08e4
-sJjGY6ui3ZdfcS2//db17VA=
-=+4gU
+iD8DBQFIwoE9u+lpsLhDMQkRAvjmAJ0evjeuqaY+AgJ4hN5abEfjXLQx5gCfa01Z
+S+6lV8d2XhT8twLlkLtM8aQ=
+=ZxHn
 -----END PGP SIGNATURE-----

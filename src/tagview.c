@@ -187,6 +187,7 @@ void tagview_print_timeline(char const *pName, char const *pPrefix){
 */
 void tagview_page(void){
   char const *zName = 0;
+  int zTcount = 0;
   login_check_credentials();
   if( !g.okRead ){
     login_needed();
@@ -222,17 +223,45 @@ void tagview_page(void){
     );
     @ <ul>
     while( db_step(&q)==SQLITE_ROW ){
+      zTcount++;
       const char *name = db_column_text(&q, 0);
-      if( strncmp(name, prefix, preflen)==0 ){
-        @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name+preflen)>
-        @ <strong>%s(name+preflen)</strong></a></li>
+      if( g.okHistory ){
+        if( strncmp(name, prefix, preflen)==0 ){
+          @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name+preflen)>
+          @ %s(name+preflen)</a>
+        }else{
+          @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name)>
+          @ %s(name)</a>
+        }
       }else{
-        @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name)>
-        @ %s(name)</a></li>
+        if( strncmp(name, prefix, preflen)==0 ){
+          @ <li><strong>%s(name+preflen)</strong>
+        }else{
+          @ <li><strong>%s(name)</strong>
+        }
       }
+      if( strncmp(name, prefix, preflen)==0 ){
+        @ (symbolic label)
+      }
+      @ </li>
     }
     @ </ul>
+    if( zTcount == 0) {
+      @ There are no relevant tags.
+    }
     db_finalize(&q);
   }
+  /*
+   * Put in dummy functions since www_print_timeline has generated calls to
+   * them. Some browsers don't seem to care, but better to be safe.
+   * Actually, it would be nice to use the functions on this page, but at
+   * the moment it looks to be too difficult.
+   */
+  @ <script>
+  @ function xin(id){
+  @ }
+  @ function xout(id){
+  @ }
+  @ </script>
   style_footer();
 }
