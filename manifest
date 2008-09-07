@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Merge\stagview\sbranch\sinto\smainline
-D 2008-09-06T13:29:29
+C Remove\ssmall\sglitch\sthat\sprevent\sfossil\sto\sbe\sbuilt\swith\sBSD\smake.
+D 2008-09-07T08:32:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -65,10 +62,10 @@ F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 33a76dcbd4fcb6b8340e72a0e64063b85b1c698a
 F src/login.c d0f9596e5f5673d775f3bf4aff6c3cfb775f05e6
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
-F src/main.mk 0d06051e004996250e60fb47b977209bbd07b7bb
+F src/main.mk 2afc5bcbf78b9e65c366700fe7d94226b496b4bc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 0fdd459ebda26a4623dbc619e71f32d29cafce7e
+F src/makemake.tcl 9a17b2de42a1e80fda80779d28e004a69dcc5593
 F src/manifest.c 5e755947296c4fdbad4983110721de1d1aa693c9
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -211,14 +208,7 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 8e66784522937c6a9525dbd633ffb562d410a8db a55a0a49a336d0ea3686d1609ed709fb800d08f8
-R 024a8d26f0849ad6839092fe79cc132b
-U eric
-Z 9ffd147e7fade5a1df65423a7ee92d64
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFIwoXdu+lpsLhDMQkRAp/wAJ98wGHcu+ocUNW96oZLL0ATgBuryQCgt43I
-KQmA+WJC2bFu/nQEbY0itCM=
-=ZFKb
------END PGP SIGNATURE-----
+P 8745d0d579e1b95e8fb766be7ef69eb7ed361744
+R a9b5c60ab8072fac5eebc3c600a23324
+U cle
+Z 1568e31b37989365ad574c183c57b454
