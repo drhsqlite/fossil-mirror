@@ -204,7 +204,7 @@ void cgi_set_cookie(
     lifetime += (int)time(0);
     char * zDate = cgi_rfc822_datestamp(lifetime);
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; expires=%z; Version=1\r\n",
+       "Set-Cookie: %s=%t; Path=%s; expires=%s; Version=1\r\n",
         zName, zValue, zPath, zDate);
     if( zDate[0] ) free( zDate );
   }else{

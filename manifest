@@ -1,5 +1,8 @@
-C Remove\ssmall\sglitch\sthat\sprevent\sfossil\sto\sbe\sbuilt\swith\sBSD\smake.
-D 2008-09-07T08:32:40
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Fix\sa\smemory\sdouble-free'd\sproblem.\n\nIn\sfunction\s<tt>cgi_set_cookie</tt>\sthe\s<tt>zDate</tt>\swas\sallocated\nvia\susage\sof\s<tt>cgi_rfc822_datestamp</tt>.\sBut\sas\sit\swas\sappended\nto\sthe\sblob\s<tt>extraHeader</tt>\svia\sthe\sformat\sspecifier\s<tt>%z</tt>\nthe\smemory\swas\sfree'd\sby\s<tt>blob_appendf</tt>.\sAs\s<tt>cgi_rfc822_datestamp</tt>\nmight\sreturn\sboth\sa\sdynamic\sallocated\sempty\sstring\sas\swell\sas\sa\sdynamic\nallocated\sstring\scontaining\sthe\stime\sstamp,\s<tt>blob_appendf</tt>\sshould\snot\ntry\sto\sfree\sthe\s<tt>zDate</tt>.\sSo\snow\sthe\sformat\sspecifier\sis\schanged\sto\n<tt>%s</tt>\sto\slet\sus\sdecide,\sif\swe\swant\sto\sfree\sthe\smemory\sor\snot.
+D 2008-09-11T17:12:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 46d6595aa1d049b57cece3f22df9202865233254
@@ -39,7 +42,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c cf67a58e94ad3201ef4e002a6a43e0e3a40bb455
+F src/cgi.c 48957219a226838c7bb509fc89f4317ad7013d52
 F src/checkin.c 425f4bbcea844e7d97969e6917693020cbc97bf7
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
@@ -208,7 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 8745d0d579e1b95e8fb766be7ef69eb7ed361744
-R a9b5c60ab8072fac5eebc3c600a23324
+P f3fb059eb66288b6f3e08f840868f9df4c7ac9fa
+R 78cd048e8a0a14db1e3e986e7cfca91f
 U cle
-Z 1568e31b37989365ad574c183c57b454
+Z 537b60bd7bb773448f0edc4cba541b0a
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (Darwin)
+
+iEYEARECAAYFAkjJUWwACgkQhcAhAqILb/3dPQCbB/Wmo/IR9d0BBPrP1Hs8NyTn
+CB4An24Yw5XIRUlqVk6yLyM2FKqhixk8
+=sGIY
+-----END PGP SIGNATURE-----
