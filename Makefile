@@ -35,9 +35,11 @@ TCC = gcc -g -Os -Wall
 #    chroot jail.
 #
 LIB = -lz $(LDFLAGS)
-# If you're on OpenSolaris, and probably other Solaris versions,
-# you'll need:
-# LIB += -lsocket
+# If you're on OpenSolaris:
+# LIB += lsocket
+# Solaris 10 needs:
+# LIB += -lsocket -lnsl
+# My assumption is that the Sol10 flags will work for Sol8/9 and possibly 11.
 
 
 #### Tcl shell for use in running the fossil testsuite.

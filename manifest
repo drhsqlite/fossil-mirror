@@ -1,11 +1,11 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\smemory\sdouble-free'd\sproblem.\n\nIn\sfunction\s<tt>cgi_set_cookie</tt>\sthe\s<tt>zDate</tt>\swas\sallocated\nvia\susage\sof\s<tt>cgi_rfc822_datestamp</tt>.\sBut\sas\sit\swas\sappended\nto\sthe\sblob\s<tt>extraHeader</tt>\svia\sthe\sformat\sspecifier\s<tt>%z</tt>\nthe\smemory\swas\sfree'd\sby\s<tt>blob_appendf</tt>.\sAs\s<tt>cgi_rfc822_datestamp</tt>\nmight\sreturn\sboth\sa\sdynamic\sallocated\sempty\sstring\sas\swell\sas\sa\sdynamic\nallocated\sstring\scontaining\sthe\stime\sstamp,\s<tt>blob_appendf</tt>\sshould\snot\ntry\sto\sfree\sthe\s<tt>zDate</tt>.\sSo\snow\sthe\sformat\sspecifier\sis\schanged\sto\n<tt>%s</tt>\sto\slet\sus\sdecide,\sif\swe\swant\sto\sfree\sthe\smemory\sor\snot.
-D 2008-09-11T17:12:11
+C added\scomments\sabout\snecessary\slink\sflags\sfor\sSolaris\s10\s+\sOpenSolaris
+D 2008-09-18T11:21:29
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile 46d6595aa1d049b57cece3f22df9202865233254
+F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
 F Makefile.w32 c6249fceb58da0ae0ec8f03a2ec9c79c006a3569
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P f3fb059eb66288b6f3e08f840868f9df4c7ac9fa
-R 78cd048e8a0a14db1e3e986e7cfca91f
-U cle
-Z 537b60bd7bb773448f0edc4cba541b0a
+P aeeba751c4d8b704d3fe774eb4074e9b578f9955
+R 0349a60c0a70a4035a8c6489b3fecc86
+U stephan
+Z d3f2609b503c11dc9c4d5d517afcdd59
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkjJUWwACgkQhcAhAqILb/3dPQCbB/Wmo/IR9d0BBPrP1Hs8NyTn
-CB4An24Yw5XIRUlqVk6yLyM2FKqhixk8
-=sGIY
+iD8DBQFI0jm8ZWKvbTL0CBgRAi8gAJ9S6U3bnjLnhlwErjU7KhcunuKJ4QCfTO2W
+KtZoAJLUBQPTzvD7Hw7Qx6k=
+=+EoI
 -----END PGP SIGNATURE-----
