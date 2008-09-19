@@ -164,10 +164,13 @@ foreach s [lsort $src] {
 append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
 append mhargs " VERSION.h"
-puts "headers:\tmakeheaders mkindex \$(TRANS_SRC) VERSION.h"
+puts "page_index.h: mkindex"
+puts "\t./mkindex \$(TRANS_SRC) >$@"
+puts "headers:\tpage_index.h makeheaders \$(TRANS_SRC) VERSION.h"
 puts "\t./makeheaders $mhargs"
-puts "\t./mkindex \$(TRANS_SRC) >page_index.h"
-puts "\ttouch headers\n"
+puts "\ttouch headers"
+puts "headers: Makefile"
+puts "Makefile:"
 set extra_h(main) page_index.h
 
 foreach s [lsort $src] {
@@ -175,8 +178,9 @@ foreach s [lsort $src] {
   puts "\t./translate \$(SRCDIR)/$s.c | sed -f \$(SRCDIR)/VERSION >${s}_.c\n"
   puts "$s.o:\t${s}_.c $s.h $extra_h($s) \$(SRCDIR)/config.h"
   puts "\t\$(XTCC) -o $s.o -c ${s}_.c\n"
-  puts "$s.h:\tmakeheaders"
-  puts "\t./makeheaders $mhargs\n\ttouch headers\n"
+  puts "$s.h:\theaders"
+#  puts "\t./makeheaders $mhargs\n\ttouch headers\n"
+#  puts "\t./makeheaders ${s}_.c:${s}.h\n"
 }
 
 
@@ -191,3 +195,4 @@ puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o th.o\n"
 
 puts "th_lang.o:\t\$(SRCDIR)/th_lang.c"
 puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o th_lang.o\n"
+

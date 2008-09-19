@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C fixed\san\s'integer\soverflow'\swarning\sfrom\sthe\sSun\scompiler.\sThank\sto\sKevin\sfor\sthe\stip.
-D 2008-09-19T11:11:01
+C fixed\sMakefile\sdependency\sorderings\sso\sparallel\scompilation\s(e.g.\smake\s-j2)\scan\swork\s(cuts\smy\sbuild\stimes\sin\shalf)
+D 2008-09-19T15:36:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,10 +65,10 @@ F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 33a76dcbd4fcb6b8340e72a0e64063b85b1c698a
 F src/login.c d0f9596e5f5673d775f3bf4aff6c3cfb775f05e6
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
-F src/main.mk 2afc5bcbf78b9e65c366700fe7d94226b496b4bc
+F src/main.mk 41d683bd1d09bb752b69bf47894af82318b593d4
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 9a17b2de42a1e80fda80779d28e004a69dcc5593
+F src/makemake.tcl e470f9d8540a6ed61220bd1e0ee88cc9ab24acb5
 F src/manifest.c 5e755947296c4fdbad4983110721de1d1aa693c9
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 7dddab2fbe365927fbb6af30cc6edeb3a2204420
-R 6fa3b8a7d14e43ab150d71d32f9b1e99
+P 7ae01ee47bcab95358afba335502a35df3250294
+R 83017560a0d99839606ff4ec454aef75
 U stephan
-Z fa0873e40d1e0669b9c71526c441b52b
+Z 993be2650776f5ef781c1951fe86fa57
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI04jIZWKvbTL0CBgRAjoSAJ9o2JuDtMsjcXVYiK+hf1BqzArRWQCdGcTy
-q7v0c+U2BnsrMI6pVxDOvb0=
-=jc7r
+iD8DBQFI08cZZWKvbTL0CBgRAl8nAKC9NOMws7XgkdTG3hvNpvAhXAArfQCghvNF
+a+R0TvEboOQ0goWzNYC236Y=
+=kFCF
 -----END PGP SIGNATURE-----
