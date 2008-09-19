@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C added\scomments\sabout\snecessary\slink\sflags\sfor\sSolaris\s10\s+\sOpenSolaris
-D 2008-09-18T11:21:29
+C fixed\san\s'integer\soverflow'\swarning\sfrom\sthe\sSun\scompiler.\sThank\sto\sKevin\sfor\sthe\stip.
+D 2008-09-19T11:11:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -111,7 +111,7 @@ F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
-F src/zip.c c82f467b68674e18a3857b32aa1dee95a4fb7790
+F src/zip.c df3f3d2e3919faa5e5fcf62e99de9534d19f1d07
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P aeeba751c4d8b704d3fe774eb4074e9b578f9955
-R 0349a60c0a70a4035a8c6489b3fecc86
+P 7dddab2fbe365927fbb6af30cc6edeb3a2204420
+R 6fa3b8a7d14e43ab150d71d32f9b1e99
 U stephan
-Z d3f2609b503c11dc9c4d5d517afcdd59
+Z fa0873e40d1e0669b9c71526c441b52b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI0jm8ZWKvbTL0CBgRAi8gAJ9S6U3bnjLnhlwErjU7KhcunuKJ4QCfTO2W
-KtZoAJLUBQPTzvD7Hw7Qx6k=
-=+EoI
+iD8DBQFI04jIZWKvbTL0CBgRAjoSAJ9o2JuDtMsjcXVYiK+hf1BqzArRWQCdGcTy
+q7v0c+U2BnsrMI6pVxDOvb0=
+=jc7r
 -----END PGP SIGNATURE-----
