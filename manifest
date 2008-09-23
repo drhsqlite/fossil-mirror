@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C fixed\sdeps\sproblem\screated\sby\smy\slast\scheckin.\sNow\sbuilds\sproperly\sin\snon-parallel\smode
-D 2008-09-21T19:00:11
+C Fix\sa\sbug\sin\sthe\smime-type\sdecoder\sfor\sthe\s/doc\smethod.
+D 2008-09-23T20:53:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -58,7 +58,7 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c bf0ebffd4d9e7872202e6c4d0488c95bc2bd4276
-F src/doc.c 6b0c93f6b9f548da740155346e068d389d8cc662
+F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P c699c491df35a88e41b785e4df03e18aaa6d69f0
-R a42c16fd263ac2026c70fa59f8574b13
-U stephan
-Z d6fd96d80fabbee49084b880d6df7b97
+P d2ae873e9e341d16eef9d33e6ad362dc5bfbdbea
+R 3415a6efe164935db8abb93da6133d69
+U drh
+Z b566f5a3e5997ca3db9d0332fd63de91
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI1pm+ZWKvbTL0CBgRAu8YAKCUjUSp+dS1H6CHxOsKRo1IhunWZgCdHY7z
-IgL0fTt7AF96g0iYBpR0nWQ=
-=yyEe
+iD8DBQFI2VcyoxKgR168RlERAhuuAJ4+ezs0JRO8I4Lxepzd+6QI3DDvlgCcCwBv
+rU1j5I16G1Xl2vlvykzkCYM=
+=6B9b
 -----END PGP SIGNATURE-----
