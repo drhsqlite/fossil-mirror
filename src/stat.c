@@ -85,7 +85,7 @@ void stat_page(void){
   @ %d(n)
   @ </td></tr>
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
-  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)");
+  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event) + 0.99");
   @ %d(n) days
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>

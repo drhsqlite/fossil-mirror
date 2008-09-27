@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\smime-type\sdecoder\sfor\sthe\s/doc\smethod.
-D 2008-09-23T20:53:03
+C corrected\s'Duration\sof\sProject'\sto\sround\sup,\sso\sa\s2-day-old\sproject\sdoesn't\sshow\sup\sas\s1\sday\sold
+D 2008-09-27T18:52:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -88,7 +88,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
 F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
-F src/stat.c 0523d46255501dad8ee2aea70ddb105732bf339c
+F src/stat.c b7851e999cde8dd526f4814bb1e885feb82a1aa2
 F src/style.c 89fb0defc597413d74cce8b45e2ad95e02f8c1fa
 F src/sync.c 4404bbdd39a1fdcc65f5ac8e88dc9218184ace32
 F src/tag.c 842caf6a79a13b14fe50a3e73532cdd29f49020c
@@ -211,14 +211,14 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P d2ae873e9e341d16eef9d33e6ad362dc5bfbdbea
-R 3415a6efe164935db8abb93da6133d69
-U drh
-Z b566f5a3e5997ca3db9d0332fd63de91
+P fa1c7d598f21ac665bd739bb7fd88df02a67ece0
+R 7c15c2eddd954fc8ff88abc02710bc2c
+U stephan
+Z 3b2319e6ab83f99b5caa351981af2bc7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI2VcyoxKgR168RlERAhuuAJ4+ezs0JRO8I4Lxepzd+6QI3DDvlgCcCwBv
-rU1j5I16G1Xl2vlvykzkCYM=
-=6B9b
+iD8DBQFI3oD1ZWKvbTL0CBgRAmSEAJ9pUz3jKYbLEYOOj1xXYcSmS7GOdgCeKcUH
+SnGKeIt5rItfhvfOJPT4XoQ=
+=Dm+i
 -----END PGP SIGNATURE-----
