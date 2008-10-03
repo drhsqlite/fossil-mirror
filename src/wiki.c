@@ -533,7 +533,7 @@ void wikirules_page(void){
   @ A bullet list item are lines that begin with a single "*" character
   @ surrounded on
   @ both sides by two or more spaces or by a tab.  Only a single level
-  @ of bullet list is supported by wiki.  For tested lists, use HTML.</p>
+  @ of bullet list is supported by wiki.  For nested lists, use HTML.</p>
   @ <li> <p><b>Enumeration Lists</b>.
   @ An enumeration list items are lines that begin
   @ with one or more digits optionally

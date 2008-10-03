@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C corrected\s'Duration\sof\sProject'\sto\sround\sup,\sso\sa\s2-day-old\sproject\sdoesn't\sshow\sup\sas\s1\sday\sold
-D 2008-09-27T18:52:37
+C Fix\sa\stypo:\s\s"tested"\sbecomes\s"nested".\s\sTicket\s[74814a6682].
+D 2008-10-03T19:45:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -107,7 +104,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
-F src/wiki.c 4e55bd749b83468ed97b7610f1fb98bae7ec13ec
+F src/wiki.c d3d0dbee3586357aad86b95b43bba31acba9e4aa
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
@@ -211,14 +208,7 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P fa1c7d598f21ac665bd739bb7fd88df02a67ece0
-R 7c15c2eddd954fc8ff88abc02710bc2c
-U stephan
-Z 3b2319e6ab83f99b5caa351981af2bc7
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFI3oD1ZWKvbTL0CBgRAmSEAJ9pUz3jKYbLEYOOj1xXYcSmS7GOdgCeKcUH
-SnGKeIt5rItfhvfOJPT4XoQ=
-=Dm+i
------END PGP SIGNATURE-----
+P dab84c22ee6d299d00bf2658a1c340ff25c613db
+R 06dec55c44e14c6fdb537aaabde36792
+U drh
+Z 53c1b146c64105fcd1bce202a851b56e
