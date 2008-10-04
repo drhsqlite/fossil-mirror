@@ -680,11 +680,20 @@ void page_xfer(void){
       if( g.okRead ){
         char *zName = blob_str(&xfer.aToken[1]);
         if( configure_is_exportable(zName) ){
-          char *zValue = db_get(zName, 0);
-          if( zValue ){
-            blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName, 
-                         strlen(zValue), zValue);
-            free(zValue);
+          if( zName[0]!='@' ){
+            char *zValue = db_get(zName, 0);
+            if( zValue ){
+              blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName, 
+                           strlen(zValue), zValue);
+              free(zValue);
+            }
+          }else{
+            Blob content;
+            blob_zero(&content);
+            configure_render_special_name(zName, &content);
+            blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName,
+               blob_size(&content), blob_str(&content));
+            blob_reset(&content);
           }
         }
       }
@@ -872,6 +881,9 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
         zName = configure_next_name(configMask);
         nCard++;
       }
+      if( configMask & (CONFIGSET_USER|CONFIGSET_TKT) ){
+        configure_prepare_to_receive(0);
+      }
       configMask = 0;
     }
 
@@ -996,10 +1008,14 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
         if( configure_is_exportable(zName) & origConfigMask ){
-          db_multi_exec(
-              "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-              zName, blob_str(&content)
-          );
+          if( zName[0]!='@' ){
+            db_multi_exec(
+                "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+                zName, blob_str(&content)
+            );
+          }else{
+            db_multi_exec("%s", blob_str(&content));
+          }
         }
         nCard++;
         blob_reset(&content);
@@ -1051,6 +1067,10 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
+    if( origConfigMask & (CONFIGSET_TKT|CONFIGSET_USER) ){
+      configure_finalize_receive();
+    }
+    origConfigMask = 0;
     printf(zValueFormat, "Received:",
             blob_size(&recv), nCard,
             xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);

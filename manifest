@@ -1,5 +1,5 @@
-C Fix\sa\stypo:\s\s"tested"\sbecomes\s"nested".\s\sTicket\s[74814a6682].
-D 2008-10-03T19:45:50
+C The\s"configuration"\scommand\swill\snow\ssync\sticket\sreport\sformats,\sshunned\s\nUUIDs,\sand\suser\sinformation\s(but\snot\suser\spasswords).\s\sAdded\sthe\n"config\smerge"\smethod.\s\sFix\san\sinitialization\sbug\sthat\swas\sgiven\sAdmin\nprivilege\sto\sanonymous\sby\sdefault.
+D 2008-10-04T20:40:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -46,10 +46,10 @@ F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/configure.c fa0c2531fc157a0b351a207737702ab859f1d8b2
+F src/configure.c b4f6a922b2dc663216e49e8df9604db680d0b8a7
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 1ccbb50ea2cf35fcad04c01e1a688e46ed1b1f12
+F src/db.c b821ea8fc707817becb11469a45356664abc9dcd
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -107,7 +107,7 @@ F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c d3d0dbee3586357aad86b95b43bba31acba9e4aa
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
-F src/xfer.c 0e2cb48261dc9fd1f9a8735ead105100a762c95a
+F src/xfer.c 4b3dcbe795893b7156aed17a20c5991fb7bd58ec
 F src/zip.c df3f3d2e3919faa5e5fcf62e99de9534d19f1d07
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -208,7 +208,7 @@ F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
 F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P dab84c22ee6d299d00bf2658a1c340ff25c613db
-R 06dec55c44e14c6fdb537aaabde36792
+P 20a0fbdf64126f375a6189a6063e504310751892
+R 50bfb26d3fe45f28441ca4f7de8f1a6f
 U drh
-Z 53c1b146c64105fcd1bce202a851b56e
+Z 878b66bce5a8a72bcbd40d0ba7d7dfb6

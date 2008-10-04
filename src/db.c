@@ -747,33 +747,10 @@ void db_create_repository(const char *zFilename){
 }
 
 /*
-** Fill an empty repository database with the basic information for a
-** repository. This function is shared between 'create_repository_cmd'
-** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
-** new repositories.
-**
-** The makeInitialVersion flag determines whether or not an initial
-** manifest is created.  The makeServerCodes flag determines whether or
-** not server and project codes are invented for this repository.
+** Create the default user accounts in the USER table.
 */
-void db_initial_setup (int makeInitialVersion, int makeServerCodes){
-  char *zDate;
+void db_create_default_users(void){
   const char *zUser;
-  Blob hash;
-  Blob manifest;
-
-  db_set("content-schema", CONTENT_SCHEMA, 0);
-  db_set("aux-schema", AUX_SCHEMA, 0);
-  if( makeServerCodes ){
-    db_multi_exec(
-      "INSERT INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
-      "INSERT INTO config(name,value)"
-      " VALUES('project-code', lower(hex(randomblob(20))));"
-    );
-  }
-  if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
-  if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   zUser = db_get("default-user", 0);
   if( zUser==0 ){
 #ifdef __MINGW32__
@@ -791,12 +768,42 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   );
   db_multi_exec(
      "INSERT INTO user(login,pw,cap,info)"
-     "   VALUES('anonymous','anonymous','aghknw','Anon');"
+     "   VALUES('anonymous','anonymous','ghknw','Anon');"
      "INSERT INTO user(login,pw,cap,info)"
      "   VALUES('nobody','','jor','Nobody');"
      "INSERT INTO user(login,pw,cap,info)"
      "   VALUES('developer','','deipt','Dev');"
   );
+}
+
+/*
+** Fill an empty repository database with the basic information for a
+** repository. This function is shared between 'create_repository_cmd'
+** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
+** new repositories.
+**
+** The makeInitialVersion flag determines whether or not an initial
+** manifest is created.  The makeServerCodes flag determines whether or
+** not server and project codes are invented for this repository.
+*/
+void db_initial_setup (int makeInitialVersion, int makeServerCodes){
+  char *zDate;
+  Blob hash;
+  Blob manifest;
+
+  db_set("content-schema", CONTENT_SCHEMA, 0);
+  db_set("aux-schema", AUX_SCHEMA, 0);
+  if( makeServerCodes ){
+    db_multi_exec(
+      "INSERT INTO config(name,value)"
+      " VALUES('server-code', lower(hex(randomblob(20))));"
+      "INSERT INTO config(name,value)"
+      " VALUES('project-code', lower(hex(randomblob(20))));"
+    );
+  }
+  if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
+  if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
+  db_create_default_users();
   user_select();
 
   if (makeInitialVersion){
