@@ -280,11 +280,25 @@ const char zRepositorySchema2[] =
 @
 @ -- Template for the TICKET table
 @ --
+@ -- NB: when changing the schema of the TICKET table here, also make the
+@ -- same change in tktsetup.c.
+@ --
 @ CREATE TABLE ticket(
+@   -- Do not change any column that begins with tkt_
 @   tkt_id INTEGER PRIMARY KEY,
-@   tkt_uuid TEXT,
-@   tkt_mtime REAL,
-@   UNIQUE(tkt_uuid, tkt_mtime)
+@   tkt_uuid TEXT UNIQUE,
+@   tkt_mtime DATE,
+@   -- Add as many field as required below this line
+@   type TEXT,
+@   status TEXT,
+@   subsystem TEXT,
+@   priority TEXT,
+@   severity TEXT,
+@   foundin TEXT,
+@   private_contact TEXT,
+@   resolution TEXT,
+@   title TEXT,
+@   comment TEXT
 @ );
 ;
 

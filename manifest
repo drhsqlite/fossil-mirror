@@ -1,5 +1,5 @@
-C Get\scloning\sworking\sfor\slocal\sfiles\swithout\sthe\suse\sof\snetwork\sI/O.\nTicket\s[b3482d580e].
-D 2008-10-05T12:34:14
+C The\sUNIQUE\sconstraint\son\sthe\sdefault\sTICKET\stable\swas\swrong.\s\sThe\stkt_uuid\ncolumn\sshould\sbe\sunique\sunto\sitself,\snot\sin\scombination\swith\stkt_time.\nExisting\sservers\swill\sneed\sto\sfix\stheir\sTICKET\simplementations\susing\sthe\nsetup\smenu.\s\sThis\scheck-in\schanges\sthe\sdefault.
+D 2008-10-05T13:13:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -79,7 +79,7 @@ F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c 73d36a924e9b860341382681fb99588509262388
+F src/schema.c cf525ce8edb5d958b4443d92704f5a1b54e29eab
 F src/setup.c 9a76b5ae3a01fc102a77081f5b00825220279d45
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
@@ -96,7 +96,7 @@ F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
 F src/tkt.c 4222b4dfef769eaf21588343a7067b0c29eabebd
-F src/tktsetup.c a85601ed8aaab18595363d76928c70b330db649d
+F src/tktsetup.c 5326eea0e1562e9e348e895f72be895f6dd4ac7e
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
@@ -208,7 +208,7 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki fdc4b0a8942bcc239a6c11931767b5bae3b9fcfa
-P c8893c69ac8ffda38d4891e9b13c4d6eef22f4fb
-R 8263b9c0a83706ba944059d5ac4695fd
+P 9236f0c086010e7c7704fccdc5845e7c86f80406
+R 4e851f5b31c80f092dcec05e63db968d
 U drh
-Z bcfc3639a56267e1643a8a3d10af61a5
+Z 0e80249ea53deea25c72f7bd72867db8

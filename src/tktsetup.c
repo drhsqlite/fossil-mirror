@@ -67,7 +67,7 @@ static const char zDefaultTicketTable[] =
 @ CREATE TABLE ticket(
 @   -- Do not change any column that begins with tkt_
 @   tkt_id INTEGER PRIMARY KEY,
-@   tkt_uuid TEXT,
+@   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
 @   -- Add as many field as required below this line
 @   type TEXT,
@@ -79,9 +79,7 @@ static const char zDefaultTicketTable[] =
 @   private_contact TEXT,
 @   resolution TEXT,
 @   title TEXT,
-@   comment TEXT,
-@   -- Do not alter this UNIQUE clause:
-@   UNIQUE(tkt_uuid, tkt_mtime)
+@   comment TEXT
 @ );
 ;
 
