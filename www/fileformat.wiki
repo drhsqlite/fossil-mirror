@@ -38,6 +38,16 @@ meaning to fossil.  Fossil recognizes:</p>
 
 <p>These five artifact types are described in the sequel.</p>
 
+<p>In the current implementation (as of 2008-10-04) the artifacts that
+make up a fossil repository are stored in in as delta- and zlib-compressed
+blobs in an <a href="http://www.sqlite.org/">SQLite</a> database.  This
+is an implementation detail and might change in a future release.  For
+the purpose of this article "file format" means the format of the artifacts,
+not how the artifacts are stored on disk.  It is the artifact format that
+is intended to be enduring.  The specifics of how artifacts are stored on
+disk, though stable, is not intended to have as long a lifespan as the
+artifact format.</p>
+
 <h2>1.0 The Manifest</h2>
 
 <p>A manifest defines a baseline or version of the project

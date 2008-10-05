@@ -12,7 +12,7 @@ fossil uses to help prevent file loss due to bugs.
 </p>
 
 <p><i>Follow-up as of 2007-11-24:</i>
-<i>Reiterated on 2008-05-16:</i>
+<i>Reiterated on 2008-05-16 and again on 2008-10-04:</i>
 Fossil has been hosting itself and many other projects for
 months now.  Many bugs have been encountered.  But, thanks in large
 part to the defensive measures described here, no data has been

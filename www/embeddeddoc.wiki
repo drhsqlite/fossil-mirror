@@ -1,6 +1,7 @@
 <h1>Managing Project Documentation</h1>
 
-Fossil provides a built-in [/wiki | wiki] that can be used to store the
+Fossil provides a built-in <a href="wikitheory.wiki">wiki</a>
+that can be used to store the
 documentation for a project.  This is sufficient for many projects.
 If your project is well-served by wiki documentation, then you
 need read no further.
@@ -60,18 +61,9 @@ pathname of the documentation file starting from the root of the source
 tree.
 
 The mimetype (and thus the rendering) of documentation files is 
-determined by the file suffix.  Fossil currently understands the
-following file suffixes or embedded documents:
-
-  *  .css
-  *  .gif
-  *  .htm
-  *  .html
-  *  .jpg
-  *  .jpeg
-  *  .png
-  *  .txt
-  *  .wiki
+determined by the file suffix.  Fossil currently understands 192
+different file suffixes, including all the popular ones such as
+".css", ".gif", ".htm", ".html", ".jpg", ".jpeg", ".png", and ".txt".
 
 Documentation files whose names end in ".wiki" use the 
 [/wiki_rules | same markup as wiki pages] -
@@ -81,17 +73,15 @@ are rendered with the standard fossil header and footer added.
 All other mimetypes are delivered directly to the requesting
 web browser without interpretation, additions, or changes.
 
-The list of allowed suffixes for embedded documents is likely to
-grow and become user-configurable in future releases of fossil.
-
 <h2>Examples</h2>
 
 This file that you are currently reading is an example of
 embedded documentation.  The name of this file in the fossil
 source tree is "<b>www/embeddeddoc.wiki</b>".
 You are perhaps looking at this
-file using the URL:  
-[http://www.fossil-scm.org/index.html/doc/tip/www/embeddeddoc.wiki].
+file using the URL:
+
+   [http://www.fossil-scm.org/index.html/doc/tip/www/embeddeddoc.wiki].
 
 The first part of this path, the "[http://www.fossil-scm.org/index.html]",
 is the base URL.  You might have originally typed:

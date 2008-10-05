@@ -545,7 +545,8 @@ void wikirules_page(void){
   @ <li> <p><b>Indented Paragraphs</b>.
   @ Any paragraph that begins with two or more spaces or a tab and
   @ which is not a bullet or enumeration list item is rendered 
-  @ indented.  Only a single level of indentation is supported by</p>
+  @ indented.  Only a single level of indentation is supported by wiki; use
+  @ HTML for deeper indentation.</p>
   @ <li> <p><b>Hyperlinks</b>.
   @ Text within square brackets ("[...]") becomes a hyperlink.  The
   @ target can be a wiki page name, the UUID of a check-in or ticket,

@@ -212,7 +212,9 @@ and painlessly.</p>
     <p>Command-line servers like this are useful when two people want
     to share a repository on temporary or ad-hoc basis.  For a more
     permanent installation, you should use either the CGI server or the
-    inetd server.  To use the CGI server, create a CGI script that
+    inetd server.
+    <a name="cgiserver"></a>
+    To use the CGI server, create a CGI script that
     looks something like this:</p>
 
     <blockquote><b>
@@ -225,6 +227,7 @@ and painlessly.</p>
     are both readable and writable by the user that CGI scripts run as.
     Then point clients at the CGI script.  That's all there is to it!</p>
 
+    <a name="inetdserver"></a>
     <p>You can also run fossil off of inetd or xinetd.  For an inetd
     installation, make an entry in /etc/inetd.conf that looks something
     like this:</p>

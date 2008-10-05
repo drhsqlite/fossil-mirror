@@ -1,7 +1,7 @@
 <h1>Fossil: Distributed Revision Control, Wiki, and Bug-Tracking</h1>
 
 <p>
-Fossil is a new 
+Fossil is a
 <a href="http://en.wikipedia.org/wiki/Revision_control">
 distributed software revision control system</a> that includes an integrated
 <a href="wikitheory.wiki">wiki</a> and an integrated
@@ -17,24 +17,22 @@ Or you can grab
 <a href="http://www.fossil-scm.org/download.html">precompiled binaries</a>.
 </p>
 
-<p>Features Of Fossil:</p>
+<p>Feature Summary:</p>
 
 <ul>
-<li>Supports disconnected, distributed development (like
-<a href="http://kerneltrap.org/node/4982">git</a>,
-<a href="http://www.monotone.ca/">monotone</a>,
-<a href="http://www.selenic.com/mercurial/wiki/index.cgi">mercurial</a>, or
-<a href="http://www.bitkeeper.com/">bitkeeper</a>)
-or client/server operation (like 
-<a href="http://www.nongnu.org/cvs/">CVS</a> or
-<a href="http://subversion.tigris.org/">subversion</a>),
-or operations on local repositories,
-or all three at the same time</li>
-<li>Integrated <a href="bugtheory.wiki">bug tracking</a> and 
-<a href="wikitheory.wiki">wiki</a>, inspired by
-<a href="http://www.cvstrac.org/">CVSTrac</a> and
-<a href="http://www.edgewall.com/trac/">Trac</a> but enhanced to
-support distributed, disconnected operation.</li>
+<li>Flexible workflow:<ul>
+    <li>Disconnected, distributed development like
+      <a href="http://kerneltrap.org/node/4982">git</a>,
+      <a href="http://www.monotone.ca/">monotone</a>,
+      <a href="http://www.selenic.com/mercurial/wiki/index.cgi">mercurial</a>,
+      and <a href="http://www.bitkeeper.com/">bitkeeper</a>
+    <li>Or, client/server operation like 
+      <a href="http://www.nongnu.org/cvs/">CVS</a> and
+      <a href="http://subversion.tigris.org/">subversion</a>,
+    <li>Or, operations on local repositories,
+    <li>Or, all of the above at the same time</ul></li>
+<li>Integrated, distributed <a href="bugtheory.wiki">bug tracking</a> and 
+<a href="wikitheory.wiki">wiki</a>.</li>
 <li>Built-in web interface that supports deep archaeological digs through
 the project history.</li>
 <li>All network communication via 
@@ -43,44 +41,20 @@ the project history.</li>
 so that everything works from behind restrictive firewalls.</li>
 <li>Everything (client, server, and utilities) is included in a 
 single self-contained executable - trivial to install</li>
-<li>Server runs as <a href="http://www.w3.org/CGI/">CGI</a>, using
-<a href="http://en.wikipedia.org/wiki/inetd">inetd</a>/<a
- href="http://www.xinetd.org/">xinetd</a>, or using its own built-in,
-standalone web server.</li>
-<li>An entire project contained in single disk file (which also
-happens to be an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
-<li>Trivial to setup and administer</li>
-<li>Files and versions are identified by their
-<a href="http://en.wikipedia.org/wiki/SHA-1">SHA1</a> signature.</a>
-Any unique prefix is sufficient to identify a file
-or version - usually the first 4 or 5 characters suffice.</li>
-<li>The <a href="fileformat.wiki">file format</a> designed to be enduring.
-It is deliberately kept simple, requiring nothing more complex
-than a text editor and an SHA1 checksum generator to encode or decode.</li>
+<li>Server runs as <a href="quickstart.wiki#cgiserver">CGI</a>, using
+<a href="quickstart.wiki#inetdserver">inetd/xinetd</a>
+or using its own 
+<a href="quickstart.wiki#serversetup">built-in, standalone web server</a>.</li>
+<li>An entire project contained in single disk file
+(an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
+<li>Uses an <a href="fileformat.wiki">enduring file format</a> that is 
+designed to be readable, searchable, and extensible by people not yet born.</li>
 <li>Automatic <a href="selfcheck.wiki">self-check</a>
 on repository changes makes it exceedingly
 unlikely that data will ever be lost because of a software bug.</li>
-</ul>
-
-<p>Objectives Of Fossil:</p>
-
-<ul>
-<li>Fossil should be ridiculously easy to 
+<li>Ridiculously easy to 
 <a href="build.wiki">install</a> and 
 <a href="quickstart.wiki">operate</a>.</li>
-<li>With fossil, it should be possible (and 
-<a href="quickstart.wiki#serversetup">easy</a>) to set up a project
-on an inexpensive shared-hosting ISP
-(example: <a href="http://www.he.net/hosting.html">Hurricane Electric</a>)
-that provides nothing more than web space and CGI capability.
-Here is <a href="http://www.hwaci.com/cgi-bin/fossil/timeline">a demo</a>.</li>
-<li>Fossil should provide in-depth historical and status information about the
-project through a web interface</li>
-<li>Fossil should provide an historical record of a project that endures
-for decades or centuries and across multiple generations of hardward 
-and software.</li>
-<li>Fossil should be easily adaptable to different workflows.  Fossil
-implements mechanism, not policy.</li>
 </ul>
 
 <p>User Links:</p>

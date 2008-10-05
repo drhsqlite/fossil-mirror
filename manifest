@@ -1,5 +1,5 @@
-C The\s"configuration"\scommand\swill\snow\ssync\sticket\sreport\sformats,\sshunned\s\nUUIDs,\sand\suser\sinformation\s(but\snot\suser\spasswords).\s\sAdded\sthe\n"config\smerge"\smethod.\s\sFix\san\sinitialization\sbug\sthat\swas\sgiven\sAdmin\nprivilege\sto\sanonymous\sby\sdefault.
-D 2008-10-04T20:40:27
+C Documentation\supdates.
+D 2008-10-05T01:03:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -104,7 +104,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
-F src/wiki.c d3d0dbee3586357aad86b95b43bba31acba9e4aa
+F src/wiki.c 618667e0b1743e868970ac2985570586bae21169
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 4b3dcbe795893b7156aed17a20c5991fb7bd58ec
@@ -188,7 +188,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 132f9016a1aa8d144d2f1f8522ef838acc8d48d6
 F www/delta_format.wiki 15113b9293a8739fef1841e005347f1fdef2fc3e
-F www/embeddeddoc.wiki f88b184a333b7171411afbbe66576ac22100389a
+F www/embeddeddoc.wiki 3547f7c3824377d7eab0d0aa06fa6cea0f45ba1d
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -199,16 +199,16 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki 51b55c19f01aff2a20f7c7d92ebbe062c1733864
-F www/index.wiki 23a1400897ce3732d9f2b5fa22dbd47041f7cc9f
+F www/fileformat.wiki fff56efd8bb12d07e65153ad30ed820dbce8b1bd
+F www/index.wiki 0905cbc81cf7bfc59b91eb72451b2cd9bf1cd935
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/quickstart.wiki 70e3f3be1959e89186aba6fd93abadd8a89efa21
-F www/selfcheck.wiki 61460bdeef3b73412df106bf50672f5bb99a4d5f
+F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
+F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-F www/wikitheory.wiki 5fbe6f333586e88e25bbe53a0e5c49e642cb6a24
-P 20a0fbdf64126f375a6189a6063e504310751892
-R 50bfb26d3fe45f28441ca4f7de8f1a6f
+F www/wikitheory.wiki fdc4b0a8942bcc239a6c11931767b5bae3b9fcfa
+P bf75ea9852c061e3cbe1372025711682e0e00a5f
+R 99609910f89ea09c0325f671da9ec61d
 U drh
-Z 878b66bce5a8a72bcbd40d0ba7d7dfb6
+Z 9bf1a92a0b4b8175b6005b5196969594
