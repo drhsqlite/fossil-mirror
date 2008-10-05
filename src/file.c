@@ -55,6 +55,24 @@ i64 file_mtime(const char *zFilename){
 }
 
 /*
+** Copy the content of a file from one place to another.
+*/
+void file_copy(const char *zFrom, const char *zTo){
+  FILE *in, *out;
+  int got;
+  char zBuf[8192];
+  in = fopen(zFrom, "rb");
+  if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
+  out = fopen(zTo, "wb");
+  if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
+  while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
+    fwrite(zBuf, 1, got, out);
+  }
+  fclose(in);
+  fclose(out);
+}
+
+/*
 ** Return TRUE if the named file is an ordinary file.  Return false
 ** for directories, devices, fifos, symlinks, etc.
 */

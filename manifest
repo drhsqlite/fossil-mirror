@@ -1,5 +1,5 @@
-C Documentation\supdates.
-D 2008-10-05T01:03:25
+C Get\scloning\sworking\sfor\slocal\sfiles\swithout\sthe\suse\sof\snetwork\sI/O.\nTicket\s[b3482d580e].
+D 2008-10-05T12:34:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -43,7 +43,7 @@ F src/cgi.c 48957219a226838c7bb509fc89f4317ad7013d52
 F src/checkin.c 425f4bbcea844e7d97969e6917693020cbc97bf7
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
-F src/clone.c 06872ed5c0b80f1fae9e097e5b4c746e67061420
+F src/clone.c effa624f67b1f08b6db54946dcaa97f8b2201098
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c b4f6a922b2dc663216e49e8df9604db680d0b8a7
@@ -57,7 +57,7 @@ F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c bf0ebffd4d9e7872202e6c4d0488c95bc2bd4276
 F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
-F src/file.c 4b43b0dc2974cef494c235803a181931211808b0
+F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 33a76dcbd4fcb6b8340e72a0e64063b85b1c698a
 F src/login.c d0f9596e5f5673d775f3bf4aff6c3cfb775f05e6
@@ -208,7 +208,7 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki fdc4b0a8942bcc239a6c11931767b5bae3b9fcfa
-P bf75ea9852c061e3cbe1372025711682e0e00a5f
-R 99609910f89ea09c0325f671da9ec61d
+P c8893c69ac8ffda38d4891e9b13c4d6eef22f4fb
+R 8263b9c0a83706ba944059d5ac4695fd
 U drh
-Z 9bf1a92a0b4b8175b6005b5196969594
+Z bcfc3639a56267e1643a8a3d10af61a5

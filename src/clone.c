@@ -47,43 +47,37 @@ void clone_cmd(void){
     fossil_panic("file already exists: %s", g.argv[3]);
   }
   url_parse(g.argv[2]);
-  db_create_repository(g.argv[3]);
-  db_open_repository(g.argv[3]);
-  db_begin_transaction();
-  db_initial_setup(0, 0);
-  user_select();
-  db_set("content-schema", CONTENT_SCHEMA, 0);
-  db_set("aux-schema", AUX_SCHEMA, 0);
-  if( !g.urlIsFile ){
-    db_set("last-sync-url", g.argv[2], 0);
-  }
-  db_multi_exec(
-    "INSERT INTO config(name,value)"
-    " VALUES('server-code', lower(hex(randomblob(20))));"
-  );
   if( g.urlIsFile ){
-    Stmt q;
-    db_multi_exec("ATTACH DATABASE %Q AS orig", g.urlName);
-    db_prepare(&q, 
-      "SELECT name FROM orig.sqlite_master"
-      " WHERE type='table'"
+    file_copy(g.urlName, g.argv[3]);
+    db_close();
+    db_open_repository(g.argv[3]);
+    db_multi_exec(
+      "REPLACE INTO config(name,value)"
+      " VALUES('server-code', lower(hex(randomblob(20))));"
     );
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zTab = db_column_text(&q, 0);
-      db_multi_exec("INSERT OR IGNORE INTO %Q SELECT * FROM orig.%Q",
-                    zTab, zTab);
-    }
-    db_finalize(&q);
+    printf("Repository cloned into %s\n", g.argv[3]);
   }else{
+    db_create_repository(g.argv[3]);
+    db_open_repository(g.argv[3]);
+    db_begin_transaction();
+    db_initial_setup(0, 0);
+    user_select();
+    db_set("content-schema", CONTENT_SCHEMA, 0);
+    db_set("aux-schema", AUX_SCHEMA, 0);
+    db_set("last-sync-url", g.argv[2], 0);
+    db_multi_exec(
+      "REPLACE INTO config(name,value)"
+      " VALUES('server-code', lower(hex(randomblob(20))));"
+    );
     url_enable_proxy(0);
     g.xlinkClusterOnly = 1;
     client_sync(0,0,1,CONFIGSET_ALL);
     g.xlinkClusterOnly = 0;
+    verify_cancel();
+    db_end_transaction(0);
+    db_close();
+    db_open_repository(g.argv[3]);
   }
-  verify_cancel();
-  db_end_transaction(0);
-  db_close();
-  db_open_repository(g.argv[3]);
   db_begin_transaction();
   printf("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1);
