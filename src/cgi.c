@@ -201,8 +201,9 @@ void cgi_set_cookie(
 ){
   if( zPath==0 ) zPath = g.zTop;
   if( lifetime>0 ){
+    char *zDate;
     lifetime += (int)time(0);
-    char * zDate = cgi_rfc822_datestamp(lifetime);
+    zDate = cgi_rfc822_datestamp(lifetime);
     blob_appendf(&extraHeader,
        "Set-Cookie: %s=%t; Path=%s; expires=%s; Version=1\r\n",
         zName, zValue, zPath, zDate);
@@ -289,8 +290,8 @@ void cgi_reply(void){
 #endif
 
   if( g.fullHttpReply ){
+    char *zDate = cgi_rfc822_datestamp(time(0));
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
-    char * zDate = cgi_rfc822_datestamp(time(0));
     fprintf(g.httpOut, "Date: %s\r\n", zDate );
     if( zDate[0] ) free( zDate );
     fprintf(g.httpOut, "Connection: close\r\n");

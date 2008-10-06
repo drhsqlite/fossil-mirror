@@ -187,7 +187,7 @@ void tagview_print_timeline(char const *pName, char const *pPrefix){
 */
 void tagview_page(void){
   char const *zName = 0;
-  int zTcount = 0;
+  int nTag = 0;
   login_check_credentials();
   if( !g.okRead ){
     login_needed();
@@ -223,8 +223,8 @@ void tagview_page(void){
     );
     @ <ul>
     while( db_step(&q)==SQLITE_ROW ){
-      zTcount++;
       const char *name = db_column_text(&q, 0);
+      nTag++;
       if( g.okHistory ){
         if( strncmp(name, prefix, preflen)==0 ){
           @ <li><a href=%s(g.zBaseURL)/tagview?name=%s(name+preflen)>
@@ -246,7 +246,7 @@ void tagview_page(void){
       @ </li>
     }
     @ </ul>
-    if( zTcount == 0) {
+    if( nTag == 0) {
       @ There are no relevant tags.
     }
     db_finalize(&q);
