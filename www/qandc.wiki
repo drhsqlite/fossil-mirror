@@ -1,0 +1,129 @@
+<nowiki>
+<h1 align="center">Questions And Criticisms</h1>
+
+<p>This page is a collection of real questions and criticisms that have been
+raised against fossil together with responses from the program's author.</p>
+
+<b>Fossil sounds like a lot of reinvention of the wheel.
+Why create your own DVCS when you could have reused mercurial?</b>
+
+<blockquote>
+  I wrote it because none of the
+  other available DVCSes met my needs.  If the other DVCSes do
+  meet your needs, then you probably do not need fossil.  But they
+  don't meet mine, and so fossil is necessary for me.
+
+  Feature provided by fossil that one does not get with other
+  DVCSes:
+
+  <ol>
+  <li> Integrated <a href="wikitheory.wiki">wiki</a>. </li>
+  <li> Integrated <a href="bugtheory.wiki">bug tracking</a> </li>
+  <li> Immutable artifacts </li>
+  <li> self-contained, stand-alone executable </li>
+  <li> simple, well-defined, 
+       <a href="fileformat.wiki">enduring file format</a> </li>
+  </ol>
+</blockquote>
+
+<b>Why should I use this rather than Trac?</b>
+
+<blockquote>
+  <ol>
+  <li> Fossil is distributed.  You can view and/or edit tickets, wiki, and
+       code while off network, then sync your changes later.  With Trac, you
+       can only view and edit tickets and wiki while you are connected to
+       the server. </li>
+  <li> Fossil is lightweight and fully self-contained.  It is very easy 
+       to setup on a low-resource machine. Fossil does not require an
+       administator.</li>
+  <li> Fossil integrates code versioning into the same repository with
+       wiki and tickets.  There is nothing extra to add or install.
+       Fossil is an all-in-one turnkey solution. </li>
+  </ol>
+</blockquote>
+
+<b>Love the concept here. Anyone using this for real work yet?</b>
+
+<blockquote>
+Fossil is <a href="http://www.fossil-scm.org/">self-hosting</a>. 
+In fact, this page was probably delivered
+to your web-browser via a working fossil instance.  The same virtual
+machine that hosts http://www.fossil-scm.org/
+(a <a href="http://www.linode.com/">Linode 720</a>)
+also hosts 24 other fossil repositories for various small projects.
+The documentation files for 
+<a href="http://www.sqlite.org/">SQLite</a> are hosted in a
+fossil repository <a href="http://www.sqlite.org/docsrc/">here</a>,
+for example.
+Other projects are also adopting fossil.  But fossil does not yet have
+the massive user base of git or mecurial.
+</blockquote>
+
+<b>Fossil looks like the bug tracker that would be in your 
+Linksys Router's administration screen.</p>
+
+<blockquote>
+<p>I take a pragmatic approach to software: form follows functions.
+To me, it is more important to have a highly reliable, fast, efficient,
+enduring, and simple DVCS than one that looks pretty.</p>
+
+<p>On the other hand, if you have patches that improve the apparance
+of Fossil without seriously compromising its reliablity, performance,
+an maintainability, I will be happy to accept them.  Fossil is
+self-hosting.  Write to the maintainers for a password that will let
+you push to the main fossil repository.</p>
+</blockquote>
+
+<b>It would be useful to have a separate application that
+keeps the bug-tracking database in a versioned filed. That file can
+then be pushed and pulled along with the rest repository.</b>
+
+<blockquote>
+<p>This addressed in the opening paragraphs of
+the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.
+</blockquote>
+
+<b>Fossil is already the name of a plan9 versioned 
+append-only filesystem.</b>
+
+<blockquote>
+I did not know that.  Perhaps they choose the name for the same reason that
+I did: because a repository with immutable artifacts preserves
+and excellent fossil record of a long-running project.
+</blockquote>
+
+<b>The idea of storing a repository in a binary blob like an
+SQLite database terrifies me.</b>
+
+<blockquote>
+The use of SQLite to store the database is likely more stable and secure
+than any other approach, due to the fact that SQLite is transactional.
+Fossil also implements several internal
+<a href="selfcheck.wiki">self-checks</a> to insure that no information
+is every lost.  And, indeed, in over a year of operation, there have been
+no reports of data loss due to a Fossil malfunction.
+</blockquote>
+
+
+<b>I am dubious of the benefits of including wikis and bug trackers
+directly in the VCS - either they are under-featured compared to full
+software like Trac, or the VCS is massively bloated compared to
+Subversion or Bazaar.</b>
+
+<blockquote>
+<p>I have no doubt that Trac has many features that fossil lacks.  But that
+is not the point.  Fossil has several key features that Trac lacks and that
+the primary fossil author cannot live without:  most notably the fact that 
+fossil supports disconnected operation.</p>
+
+<p>As for bloat:  Fossil is a single fully self-contained executable.
+You do not need any external packages in order to run fossil.  You do not
+need diff, patch, merge, cvs, svn, rcs, python, perl, tcl, sqlite, or anything
+else in order to run fossil.  Fossil runs just fine in a chroot jail all
+by itself.  And the self-contained executable is much less than 1MB in size.
+Fossil is the very opposite of bloat.</p>
+</blockquote>
+
+
+</nowiki>

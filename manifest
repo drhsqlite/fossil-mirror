@@ -1,5 +1,8 @@
-C The\sUNIQUE\sconstraint\son\sthe\sdefault\sTICKET\stable\swas\swrong.\s\sThe\stkt_uuid\ncolumn\sshould\sbe\sunique\sunto\sitself,\snot\sin\scombination\swith\stkt_time.\nExisting\sservers\swill\sneed\sto\sfix\stheir\sTICKET\simplementations\susing\sthe\nsetup\smenu.\s\sThis\scheck-in\schanges\sthe\sdefault.
-D 2008-10-05T13:13:13
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Documentation\supdate:\s\sAdd\sthe\s"Questions\sand\sCriticisms"\sdocument\sin\nresponse\sto\srecent\scomments\son\sreddit.com.
+D 2008-10-06T00:31:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -200,15 +203,23 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki fff56efd8bb12d07e65153ad30ed820dbce8b1bd
-F www/index.wiki 0905cbc81cf7bfc59b91eb72451b2cd9bf1cd935
+F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
+F www/qandc.wiki bd20a9934c56da1f3990edb0eddb606f11caf3e2
 F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki fdc4b0a8942bcc239a6c11931767b5bae3b9fcfa
-P 9236f0c086010e7c7704fccdc5845e7c86f80406
-R 4e851f5b31c80f092dcec05e63db968d
+P fb8dc7d07f8e9ac0dda84ee16a1d7b0a5b973f1a
+R d45185d320aebbd7f7936fc59b0a8162
 U drh
-Z 0e80249ea53deea25c72f7bd72867db8
+Z 4d73a9247e1916ee9845952e85c2c5a6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFI6VxeoxKgR168RlERAodcAJsEKb9EoJz33OcMIqNV2vb3HDb0dQCfey31
+jTObgb61MVmvCcO1E36L7xY=
+=WGpS
+-----END PGP SIGNATURE-----
