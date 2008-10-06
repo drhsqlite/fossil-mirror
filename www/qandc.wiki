@@ -8,13 +8,13 @@ raised against fossil together with responses from the program's author.</p>
 Why create your own DVCS when you could have reused mercurial?</b>
 
 <blockquote>
-  I wrote it because none of the
+  <p>I wrote fossil because none of the
   other available DVCSes met my needs.  If the other DVCSes do
-  meet your needs, then you probably do not need fossil.  But they
-  don't meet mine, and so fossil is necessary for me.
+  meet your needs, then you might not need fossil.  But they
+  don't meet mine, and so fossil is necessary for me.</p>
 
-  Feature provided by fossil that one does not get with other
-  DVCSes:
+  <p>Feature provided by fossil that one does not get with other
+  DVCSes include:</p>
 
   <ol>
   <li> Integrated <a href="wikitheory.wiki">wiki</a>. </li>
@@ -71,7 +71,7 @@ enduring, and simple DVCS than one that looks pretty.</p>
 <p>On the other hand, if you have patches that improve the apparance
 of Fossil without seriously compromising its reliablity, performance,
 an maintainability, I will be happy to accept them.  Fossil is
-self-hosting.  Write to the maintainers for a password that will let
+self-hosting.  Send me email to request a password that will let
 you push to the main fossil repository.</p>
 </blockquote>
 
@@ -88,7 +88,7 @@ the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.
 append-only filesystem.</b>
 
 <blockquote>
-I did not know that.  Perhaps they choose the name for the same reason that
+I did not know that.  Perhaps they selected the name for the same reason that
 I did: because a repository with immutable artifacts preserves
 and excellent fossil record of a long-running project.
 </blockquote>
@@ -114,14 +114,16 @@ Subversion or Bazaar.</b>
 <blockquote>
 <p>I have no doubt that Trac has many features that fossil lacks.  But that
 is not the point.  Fossil has several key features that Trac lacks and that
-the primary fossil author cannot live without:  most notably the fact that 
+I cannot live without:  most notably the fact that 
 fossil supports disconnected operation.</p>
 
-<p>As for bloat:  Fossil is a single fully self-contained executable.
-You do not need any external packages in order to run fossil.  You do not
-need diff, patch, merge, cvs, svn, rcs, python, perl, tcl, sqlite, or anything
-else in order to run fossil.  Fossil runs just fine in a chroot jail all
-by itself.  And the self-contained executable is much less than 1MB in size.
+<p>As for bloat:  Fossil is a single self-contained executable.
+You do not need any other packages 
+(diff, patch, merge, cvs, svn, rcs, git, python, perl, tcl, apache,
+sqlite, and so forth)
+in order to run fossil.  Fossil runs just fine in a chroot jail all
+by itself.  And the self-contained fossil
+executable is much less than 1MB in size.
 Fossil is the very opposite of bloat.</p>
 </blockquote>
 

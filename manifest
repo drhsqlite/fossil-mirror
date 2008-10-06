@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Documentation\supdate:\s\sAdd\sthe\s"Questions\sand\sCriticisms"\sdocument\sin\nresponse\sto\srecent\scomments\son\sreddit.com.
-D 2008-10-06T00:31:23
+C Minor\sedits\sto\sthe\sQuestions\sand\sCriticisms\sdocument.
+D 2008-10-06T11:28:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -207,19 +207,19 @@ F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/qandc.wiki bd20a9934c56da1f3990edb0eddb606f11caf3e2
+F www/qandc.wiki 75989d6590d4abf1dbfc56936e431a8d8cd840b2
 F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki fdc4b0a8942bcc239a6c11931767b5bae3b9fcfa
-P fb8dc7d07f8e9ac0dda84ee16a1d7b0a5b973f1a
-R d45185d320aebbd7f7936fc59b0a8162
+P cbc8983685d6ebb1b8abc6743112bfc42abbbd95
+R 53d02ea39a5718c9567d0b8aa902ec86
 U drh
-Z 4d73a9247e1916ee9845952e85c2c5a6
+Z f1f76c693e5ca158c0e291ee819a0b2f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI6VxeoxKgR168RlERAodcAJsEKb9EoJz33OcMIqNV2vb3HDb0dQCfey31
-jTObgb61MVmvCcO1E36L7xY=
-=WGpS
+iD8DBQFI6fZjoxKgR168RlERAu11AJ4yANgXuNmDjG6BDj7J+ALaf6C+LACfQXGZ
+XuZelwGuKTwHuUlFwzhceq4=
+=fUto
 -----END PGP SIGNATURE-----
