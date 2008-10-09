@@ -13,15 +13,15 @@ Why create your own DVCS when you could have reused mercurial?</b>
   meet your needs, then you might not need fossil.  But they
   don't meet mine, and so fossil is necessary for me.</p>
 
-  <p>Feature provided by fossil that one does not get with other
+  <p>Features provided by fossil that one does not get with other
   DVCSes include:</p>
 
   <ol>
   <li> Integrated <a href="wikitheory.wiki">wiki</a>. </li>
   <li> Integrated <a href="bugtheory.wiki">bug tracking</a> </li>
   <li> Immutable artifacts </li>
-  <li> self-contained, stand-alone executable </li>
-  <li> simple, well-defined, 
+  <li> Self-contained, stand-alone executable </li>
+  <li> Simple, well-defined, 
        <a href="fileformat.wiki">enduring file format</a> </li>
   </ol>
 </blockquote>
@@ -57,7 +57,7 @@ The documentation files for
 fossil repository <a href="http://www.sqlite.org/docsrc/">here</a>,
 for example.
 Other projects are also adopting fossil.  But fossil does not yet have
-the massive user base of git or mecurial.
+the massive user base of git or mercurial.
 </blockquote>
 
 <b>Fossil looks like the bug tracker that would be in your 
@@ -76,11 +76,11 @@ you push to the main fossil repository.</p>
 </blockquote>
 
 <b>It would be useful to have a separate application that
-keeps the bug-tracking database in a versioned filed. That file can
+keeps the bug-tracking database in a versioned file. That file can
 then be pushed and pulled along with the rest repository.</b>
 
 <blockquote>
-<p>This addressed in the opening paragraphs of
+<p>This is addressed in the opening paragraphs of
 the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.
 </blockquote>
 
@@ -90,7 +90,7 @@ append-only filesystem.</b>
 <blockquote>
 I did not know that.  Perhaps they selected the name for the same reason that
 I did: because a repository with immutable artifacts preserves
-and excellent fossil record of a long-running project.
+an excellent fossil record of a long-running project.
 </blockquote>
 
 <b>The idea of storing a repository in a binary blob like an
@@ -101,7 +101,7 @@ The use of SQLite to store the database is likely more stable and secure
 than any other approach, due to the fact that SQLite is transactional.
 Fossil also implements several internal
 <a href="selfcheck.wiki">self-checks</a> to insure that no information
-is every lost.  And, indeed, in over a year of operation, there have been
+is ever lost.  And, indeed, in over a year of operation, there have been
 no reports of data loss due to a Fossil malfunction.
 </blockquote>
 

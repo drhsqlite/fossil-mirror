@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\sa\sfew\sC99-isms\sin\sthe\scode\sso\sthat\sthe\scode\swill\sbuild\son\solder\sC\ncompilers.
-D 2008-10-06T11:33:23
+C Fixed\sa\snumber\sof\ssmall\stypos.
+D 2008-10-09T18:09:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -207,19 +204,12 @@ F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/qandc.wiki 75989d6590d4abf1dbfc56936e431a8d8cd840b2
+F www/qandc.wiki 1cfcbbb4e10d0ee9a9c80cde832f59a0329877a6
 F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki fdc4b0a8942bcc239a6c11931767b5bae3b9fcfa
-P 5cbfe0cde22ca9dc41cb0a3fa05d20b8e79d3f7e
-R 25278c5da5832f942f4c34ceb08a6f39
-U drh
-Z 86206d5fee9ca57557cba5bf9aa88cb1
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFI6feGoxKgR168RlERAmk4AJ43ba8UF9MCahKpo9H/rZ1zQdI4NACeNd9J
-n2G8vTz148FH0dldW60+xTU=
-=TAt0
------END PGP SIGNATURE-----
+P 3d62a9fb39579b5b941dd22a27ebbc2007977638
+R 888c9b4eeef5e545fabce4d8792951f8
+U aku
+Z 0acde9c0991643a46dd244d560c289ea
