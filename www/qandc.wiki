@@ -64,14 +64,14 @@ the massive user base of git or mercurial.
 Linksys Router's administration screen.</p>
 
 <blockquote>
-<p>I take a pragmatic approach to software: form follows functions.
-To me, it is more important to have a highly reliable, fast, efficient,
+<p>I take a pragmatic approach to software: form follows function.
+To me, it is more important to have a reliable, fast, efficient,
 enduring, and simple DVCS than one that looks pretty.</p>
 
 <p>On the other hand, if you have patches that improve the apparance
 of Fossil without seriously compromising its reliablity, performance,
-an maintainability, I will be happy to accept them.  Fossil is
-self-hosting.  Send me email to request a password that will let
+and/or maintainability, I will be happy to accept them.  Fossil is
+self-hosting.  Send email to request a password that will let
 you push to the main fossil repository.</p>
 </blockquote>
 
@@ -101,8 +101,7 @@ The use of SQLite to store the database is likely more stable and secure
 than any other approach, due to the fact that SQLite is transactional.
 Fossil also implements several internal
 <a href="selfcheck.wiki">self-checks</a> to insure that no information
-is ever lost.  And, indeed, in over a year of operation, there have been
-no reports of data loss due to a Fossil malfunction.
+is ever lost.
 </blockquote>
 
 
@@ -114,7 +113,7 @@ Subversion or Bazaar.</b>
 <blockquote>
 <p>I have no doubt that Trac has many features that fossil lacks.  But that
 is not the point.  Fossil has several key features that Trac lacks and that
-I cannot live without:  most notably the fact that 
+I need:  most notably the fact that 
 fossil supports disconnected operation.</p>
 
 <p>As for bloat:  Fossil is a single self-contained executable.

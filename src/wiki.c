@@ -530,14 +530,14 @@ void wikirules_page(void){
   @ supported by wiki markup, but you can do these things if you need them
   @ using HTML.</p>
   @ <li> <p><b>Bullet Lists</b>.
-  @ A bullet list item are lines that begin with a single "*" character
+  @ A bullet list item is a line that begins with a single "*" character
   @ surrounded on
   @ both sides by two or more spaces or by a tab.  Only a single level
   @ of bullet list is supported by wiki.  For nested lists, use HTML.</p>
   @ <li> <p><b>Enumeration Lists</b>.
-  @ An enumeration list items are lines that begin
+  @ An enumeration list item is a line that begins
   @ with one or more digits optionally
-  @ followed by a "." and surrounded on both sides by two or more spaces or
+  @ followed by a "." and is surrounded on both sides by two or more spaces or
   @ by a tab.  The number is significant and becomes the number shown
   @ in the rendered enumeration item.  Only a single level of enumeration
   @ list is supported by wiki.  For nested enumerations or for

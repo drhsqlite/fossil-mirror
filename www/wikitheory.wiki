@@ -22,7 +22,7 @@ the sequence of baselines (check-ins).  Wiki pages can branch and merge
 just like baselines, though as of this writing (2008-07-29) there is
 no mechanism in the user interface to support branching and merging.
 The current implementation of the wiki shows the version of the wiki
-pages that has the most recent timestamp.
+page that has the most recent timestamp.
 
 In other words, if two users make unrelated changes to the same wiki
 page on separate repositories, then those repositories are synced,

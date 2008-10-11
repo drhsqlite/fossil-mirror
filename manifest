@@ -1,5 +1,8 @@
-C Fixed\sa\snumber\sof\ssmall\stypos.
-D 2008-10-09T18:09:37
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Fix\sa\sfew\stypos\sin\sdocumentation.
+D 2008-10-11T15:11:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -104,7 +107,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
-F src/wiki.c 618667e0b1743e868970ac2985570586bae21169
+F src/wiki.c 6fc1aec89bc497d36b1c222542d4b58aa2e66c1a
 F src/wikiformat.c 850d2b880ebdff298422593688811aa2a67efcf6
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 4b3dcbe795893b7156aed17a20c5991fb7bd58ec
@@ -204,12 +207,19 @@ F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/qandc.wiki 1cfcbbb4e10d0ee9a9c80cde832f59a0329877a6
+F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
 F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
-F www/wikitheory.wiki fdc4b0a8942bcc239a6c11931767b5bae3b9fcfa
-P 3d62a9fb39579b5b941dd22a27ebbc2007977638
-R 888c9b4eeef5e545fabce4d8792951f8
-U aku
-Z 0acde9c0991643a46dd244d560c289ea
+F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
+P d0e8e88d546eda1fcc18f9401a3f3bc8f4e80777
+R 36a2a254d64ef2c954c81906d48d23bc
+U drh
+Z 779f519f1f3daa9323852bcbba3824a7
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFI8MInoxKgR168RlERAhKqAJ9KMqmWd8vteh+xEs2G7twJ9OMyWwCfVItj
+28Y8l8O3hp8TTJf1tuGmHXw=
+=TDa4
+-----END PGP SIGNATURE-----
