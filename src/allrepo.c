@@ -132,7 +132,7 @@ void all_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFilename = db_column_text(&q, 0);
       if( access(zFilename, 0) ){
-        const char *zRepo = mprintf("repo:%s", zFilename);
+        char *zRepo = mprintf("repo:%s", zFilename);
         db_unset(zRepo, 1);
         free(zRepo);
       }

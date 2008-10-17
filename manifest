@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sthe\s"all"\scommand\sfor\sthings\slike\s"fossil\sall\ssync".\s\sI\sam\snot\ssure\n"all"\sis\squite\sthe\sright\sname\sfor\sthis\scommand,\sso\sI\smay\syet\schange\sit.
-D 2008-10-17T00:20:21
+C Fix\sa\sminor\sproblem\sin\sthe\sprevious\scheck-in.
+D 2008-10-17T00:21:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -38,7 +38,7 @@ F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
 F src/admin.c 8499f278199c6c7f13c15d1299d9ac6d5db50ae5
-F src/allrepo.c 044b20327742c525fb8cac3bda4cef68240e9c99
+F src/allrepo.c d823b159bc1fc1d688f84d08718b94bebf67e8a0
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
@@ -213,14 +213,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 4ef19b554a19b7423f8cd3f30e23db1099efba30
-R b186dc572cac3303f1f2a4da05b5ee3c
+P 9346f2290c84084f4641a48a5e0fc813d1587251
+R 25813e610a8cb0fd8b6a7ac9276c1d65
 U drh
-Z 208b201401daa0c86dd27f665a647cde
+Z fdec4de0f2430cc12cb849a8178b7450
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkj32kUACgkQoxKgR168RlHLMQCfeLJ8RDRu+9gv18CNGpyvMgMk
-+fsAnRwfKcaxDfE5hzqcaSzk29IDROQu
-=YviQ
+iEYEARECAAYFAkj32oEACgkQoxKgR168RlE8ZgCfZfGITD96a3t+sdus8FlFZnKF
+tawAn2Ajux8XoKp8Hcj0u00UWg9qFhEI
+=USbX
 -----END PGP SIGNATURE-----
