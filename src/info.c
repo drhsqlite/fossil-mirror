@@ -74,15 +74,27 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
 /*
 ** COMMAND: info
 **
-** Usage: %fossil info ?UUID?
+** Usage: %fossil info ?UUID|FILENAME?
 **
 ** With no arguments, provide information about the current tree.
 ** If an argument is given, provide information about the record
-** that the argument refers to.
+** in the respository of the current tree that the argument refers
+** to.  Or if the argument is the name of a repository, show
+** information about that repository.
 */
 void info_cmd(void){
+  i64 fsize;
   if( g.argc!=2 && g.argc!=3 ){
-    usage("?FILEID|UUID?");
+    usage("?FILENAME|UUID?");
+  }
+  if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
+    db_open_config();
+    db_record_repository_filename(g.argv[2]);
+    db_open_repository(g.argv[2]);
+    printf("project-code: %s\n", db_get("project-code", "<none>"));
+    printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    printf("server-code:  %s\n", db_get("server-code", "<none>"));
+    return;
   }
   db_must_be_within_tree();
   if( g.argc==2 ){

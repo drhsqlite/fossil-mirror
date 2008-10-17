@@ -51,6 +51,7 @@ void clone_cmd(void){
     file_copy(g.urlName, g.argv[3]);
     db_close();
     db_open_repository(g.argv[3]);
+    db_open_config();
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
       "REPLACE INTO config(name,value)"

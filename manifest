@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"all\srebuild"\ssubcommand.\s\sBe\smore\saggressive\sabout\sadding\nrepositories\sto\sthe\srepository\slist.
-D 2008-10-17T12:31:26
+C Update\sthe\s"info"\scommand\sso\sthat\sit\scan\stake\sthe\sname\sof\sa\srepository\nas\sits\sargument\sand\sthen\sreport\sinformation\sabout\sthat\srepository.
+D 2008-10-17T13:30:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -47,7 +47,7 @@ F src/cgi.c ec3c5c426770d11abcc88c588f379fb5b0643c55
 F src/checkin.c 4a866358e30844ec8501e980dbe2d87f02c34406
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
-F src/clone.c 2daa17c5f0d7b9e2f5c191b5822ba4c4799eeaad
+F src/clone.c ac6a2f8b2bb16bdb829c2a27cb61d8d88a7da2de
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c b4f6a922b2dc663216e49e8df9604db680d0b8a7
@@ -63,7 +63,7 @@ F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 93f0a4da211abde7fbaeb9ddf7be33731626d047
+F src/info.c 26d96b828e3b2e219d29364e1ac660f8846ae741
 F src/login.c d0f9596e5f5673d775f3bf4aff6c3cfb775f05e6
 F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
@@ -213,14 +213,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 02eabf94e5b727592fcc44698fdd69cab1aee09d
-R 7ce24478d089be46ff4b6b0b1a9ceb5e
+P 2bd0690fe8d58ec4a0cbca48f76c1e1f6fc9e9d9
+R e0e51a86d4ae7d551ba0a9759adffef4
 U drh
-Z 2566c6ba7f42ba4747072c579ae83170
+Z c7535cb545400b3e4668e77356f7dc30
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI+IWioxKgR168RlERAt+5AJ4qd93RLmdeTZQVLFbbsxZaamWaegCeO4k0
-tgYpifdbaqg6kkh6A1yRQ7E=
-=wFoq
+iD8DBQFI+JOJoxKgR168RlERApHHAJ9SpCMPxKYEbfUdIPK6/AhUhBVUmwCePYFC
+gah05ChZPoHVuC/0HavlqV0=
+=cX9n
 -----END PGP SIGNATURE-----
