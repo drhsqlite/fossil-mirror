@@ -74,6 +74,7 @@ void autosync(int flags){
 */
 void process_sync_args(void){
   const char *zUrl = 0;
+  int urlOptional = find_option("autourl",0,0)!=0;
   url_proxy_options();
   db_find_and_open_repository(1);
   if( g.argc==2 ){
@@ -82,6 +83,7 @@ void process_sync_args(void){
     zUrl = g.argv[2];
   }
   if( zUrl==0 ){
+    if( urlOptional ) exit(0);
     usage("URL");
   }
   url_parse(zUrl);

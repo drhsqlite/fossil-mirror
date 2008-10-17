@@ -48,7 +48,9 @@ static void status_report(Blob *report, const char *zPrefix){
     int isNew = db_column_int(&q,3)==0;
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
-    if( access(zFullName, 0) ){
+    if( isDeleted ){
+      blob_appendf(report, "DELETED  %s\n", zPathname);
+    }else if( access(zFullName, 0) ){
       blob_appendf(report, "MISSING  %s\n", zPathname);
     }else if( isNew ){
       blob_appendf(report, "ADDED    %s\n", zPathname);
@@ -400,6 +402,7 @@ void commit_cmd(void){
   }
   
   db_begin_transaction();
+  db_record_repository_filename(0);
   rc = unsaved_changes();
   if( rc==0 && !isAMerge && !forceFlag ){
     fossil_panic("nothing has changed");

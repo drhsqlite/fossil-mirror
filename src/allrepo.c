@@ -1,0 +1,143 @@
+/*
+** Copyright (c) 2008 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU General Public
+** License version 2 as published by the Free Software Foundation.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** General Public License for more details.
+** 
+** You should have received a copy of the GNU General Public
+** License along with this library; if not, write to the
+** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+** Boston, MA  02111-1307, USA.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file contains code to implement the "all" command-line method.
+*/
+#include "config.h"
+#include "allrepo.h"
+#include <assert.h>
+
+/*
+** The input string is a filename.  Return a new copy of this
+** filename if the filename requires quoting due to special characters
+** such as spaces in the name.
+**
+** If the filename cannot be safely quoted, return a NULL pointer.
+**
+** Space to hold the returned string is obtained from malloc.  A new
+** string is returned even if no quoting is needed.
+*/
+static char *quoteFilename(const char *zFilename){
+  int i, c;
+  int needQuote = 0;
+  for(i=0; (c = zFilename[i])!=0; i++){
+    if( c=='"' ) return 0;
+    if( isspace(c) ) needQuote = 1;
+    if( c=='\\' && zFilename[i+1]==0 ) return 0;
+    if( c=='$' ) return 0;
+  }
+  if( needQuote ){
+    return mprintf("\"%s\"", zFilename);
+  }else{
+    return mprintf("%s", zFilename);
+  }
+}
+
+
+/*
+** COMMAND: all
+**
+** Usage: %fossil add (list|pull|push|sync)
+**
+** The ~/.fossil file records the location of all repositories for a
+** user.  This command performs certain operations on all repositories
+** that can be useful before or after a period of disconnection operation.
+** Available operations are:
+**
+**    list     Display the location of all repositories
+**
+**    pull     Run a "pull" operation on all repositories
+**
+**    push     Run a "push" on all repositories
+**
+**    sync     Run a "sync" on all repositories
+*/
+void all_cmd(void){
+  int n;
+  Stmt q;
+  const char *zCmd;
+  char *zSyscmd;
+  char *zFossil;
+  char *zQFilename;
+  int nMissing;
+  
+  if( g.argc<3 ){
+    usage("list|pull|push|sync");
+  }
+  n = strlen(g.argv[2]);
+  db_open_config();
+  db_prepare(&q, "SELECT substr(name, 6) FROM global_config"
+                 " WHERE substr(name, 1, 5)=='repo:' ORDER BY 1");
+  zCmd = g.argv[2];
+  if( strncmp(zCmd, "list", n)==0 ){
+    zCmd = "list";
+  }else if( strncmp(zCmd, "push", n)==0 ){
+    zCmd = "push";
+  }else if( strncmp(zCmd, "pull", n)==0 ){
+    zCmd = "pull";
+  }else if( strncmp(zCmd, "sync", n)==0 ){
+    zCmd = "sync";
+  }else{
+    fossil_fatal("\"all\" subcommand should be one of: "
+                 "list push pull sync");
+  }
+  zFossil = quoteFilename(g.argv[0]);
+  nMissing = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFilename = db_column_text(&q, 0);
+    if( access(zFilename, 0) ){
+      nMissing++;
+      continue;
+    }
+    if( zCmd[0]=='l' ){
+      printf("%s\n", zFilename);
+      continue;
+    }
+    zQFilename = quoteFilename(zFilename);
+    zSyscmd = mprintf("%s %s -R %s -autourl",
+       zFossil, zCmd, zQFilename);
+    printf("%s\n", zSyscmd);
+    fflush(stdout);
+    system(zSyscmd);
+    free(zSyscmd);
+    free(zQFilename);
+  }
+  
+  /* If any repositories hows names appear in the ~/.fossil file could not
+  ** be found, remove those names from the ~/.fossil file.
+  */
+  if( nMissing ){
+    db_begin_transaction();
+    db_reset(&q);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zFilename = db_column_text(&q, 0);
+      if( access(zFilename, 0) ){
+        const char *zRepo = mprintf("repo:%s", zFilename);
+        db_unset(zRepo, 1);
+        free(zRepo);
+      }
+    }
+    db_finalize(&q);
+    db_end_transaction(0);
+  }
+}

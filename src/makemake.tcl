@@ -9,6 +9,7 @@
 set src {
   add
   admin
+  allrepo
   bag
   blob
   branch

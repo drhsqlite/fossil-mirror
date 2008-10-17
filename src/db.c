@@ -557,6 +557,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 void db_open_config(void){
   char *zDbName;
   const char *zHome;
+  if( g.configOpen ) return;
 #ifdef __MINGW32__
   zHome = getenv("LOCALAPPDATA");
   if( zHome==0 ){
@@ -577,7 +578,6 @@ void db_open_config(void){
 #else
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
-  if( g.configOpen ) return;
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
@@ -1122,6 +1122,27 @@ void db_lset_int(const char *zName, int value){
 }
 
 /*
+** Record the name of a local repository in the global_config() database.
+** The repostiroy filename %s is recorded as an entry with a "name" field
+** of the following form:
+**
+**       repo:%s
+**
+** The value field is set to 1.
+*/
+void db_record_repository_filename(const char *zName){
+  if( zName==0 ){
+    if( !g.localOpen ) return;
+    zName = db_lget("repository", 0);
+  }
+  db_multi_exec(
+     "INSERT OR IGNORE INTO global_config(name,value)"
+     "VALUES('repo:%q',1)",
+     zName
+  );
+}
+
+/*
 ** COMMAND: open
 **
 ** Usage: open FILENAME
@@ -1146,6 +1167,7 @@ void cmd_open(void){
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
   db_open_local();
   db_lset("repository", blob_str(&path));
+  db_record_repository_filename(blob_str(&path));
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
   if( vid==0 ){
