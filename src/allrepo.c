@@ -64,13 +64,19 @@ static char *quoteFilename(const char *zFilename){
 ** that can be useful before or after a period of disconnection operation.
 ** Available operations are:
 **
-**    list     Display the location of all repositories
+**    list       Display the location of all repositories
 **
-**    pull     Run a "pull" operation on all repositories
+**    pull       Run a "pull" operation on all repositories
 **
-**    push     Run a "push" on all repositories
+**    push       Run a "push" on all repositories
 **
-**    sync     Run a "sync" on all repositories
+**    rebuild    Rebuild on all repositories
+**
+**    sync       Run a "sync" on all repositories
+**
+** Respositories are automatically added to the set of known repositories
+** when one of the following commands against the repository: clone, info,
+** pull, push, or sync
 */
 void all_cmd(void){
   int n;
@@ -82,27 +88,29 @@ void all_cmd(void){
   int nMissing;
   
   if( g.argc<3 ){
-    usage("list|pull|push|sync");
+    usage("list|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config();
-  db_prepare(&q, "SELECT substr(name, 6) FROM global_config"
-                 " WHERE substr(name, 1, 5)=='repo:' ORDER BY 1");
   zCmd = g.argv[2];
   if( strncmp(zCmd, "list", n)==0 ){
     zCmd = "list";
   }else if( strncmp(zCmd, "push", n)==0 ){
-    zCmd = "push";
+    zCmd = "push -autourl -R";
   }else if( strncmp(zCmd, "pull", n)==0 ){
-    zCmd = "pull";
+    zCmd = "pull -autourl -R";
+  }else if( strncmp(zCmd, "rebuild", n)==0 ){
+    zCmd = "rebuild";
   }else if( strncmp(zCmd, "sync", n)==0 ){
-    zCmd = "sync";
+    zCmd = "sync -autourl -R";
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
                  "list push pull sync");
   }
   zFossil = quoteFilename(g.argv[0]);
   nMissing = 0;
+  db_prepare(&q, "SELECT substr(name, 6) FROM global_config"
+                 " WHERE substr(name, 1, 5)=='repo:' ORDER BY 1");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
     if( access(zFilename, 0) ){
@@ -114,8 +122,7 @@ void all_cmd(void){
       continue;
     }
     zQFilename = quoteFilename(zFilename);
-    zSyscmd = mprintf("%s %s -R %s -autourl",
-       zFossil, zCmd, zQFilename);
+    zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
     printf("%s\n", zSyscmd);
     fflush(stdout);
     system(zSyscmd);
@@ -137,7 +144,8 @@ void all_cmd(void){
         free(zRepo);
       }
     }
-    db_finalize(&q);
+    db_reset(&q);
     db_end_transaction(0);
   }
+  db_finalize(&q);
 }

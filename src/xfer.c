@@ -820,9 +820,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
   assert( !g.urlIsFile );          /* This only works for networking */
 
   db_begin_transaction();
-  if( pullFlag || cloneFlag ){
-    db_record_repository_filename(0);
-  }
+  db_record_repository_filename(0);
   db_multi_exec(
     "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );

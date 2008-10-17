@@ -88,6 +88,7 @@ void info_cmd(void){
   if( g.argc==2 ){
     int vid;
          /* 012345678901234 */
+    db_record_repository_filename(0);
     printf("repository:   %s\n", db_lget("repository", ""));
     printf("local-root:   %s\n", g.zLocalRoot);
     printf("project-code: %s\n", db_get("project-code", ""));

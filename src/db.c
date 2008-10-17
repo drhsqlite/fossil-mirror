@@ -1131,15 +1131,18 @@ void db_lset_int(const char *zName, int value){
 ** The value field is set to 1.
 */
 void db_record_repository_filename(const char *zName){
+  Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
     zName = db_lget("repository", 0);
   }
+  file_canonical_name(zName, &full);
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
      "VALUES('repo:%q',1)",
-     zName
+     blob_str(&full)
   );
+  blob_reset(&full);
 }
 
 /*

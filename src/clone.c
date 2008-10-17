@@ -51,6 +51,7 @@ void clone_cmd(void){
     file_copy(g.urlName, g.argv[3]);
     db_close();
     db_open_repository(g.argv[3]);
+    db_record_repository_filename(g.argv[3]);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('server-code', lower(hex(randomblob(20))));"
@@ -60,6 +61,7 @@ void clone_cmd(void){
     db_create_repository(g.argv[3]);
     db_open_repository(g.argv[3]);
     db_begin_transaction();
+    db_record_repository_filename(g.argv[3]);
     db_initial_setup(0, 0);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
