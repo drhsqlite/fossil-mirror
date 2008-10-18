@@ -1,0 +1,198 @@
+From: "Ralf S. Engelschall"
+Date: October 18, 2008 1:40:53 PM EDT
+To: drh@hwaci.com
+Subject: Some Fossil Feedback
+
+I've today looked at your Fossil project (latest version from your
+repository). That's a _really_ interesting and very promising DVCS.
+While I looked around and tested it, I stumbled over some issues I want
+to share with you:
+
+o No tarball
+
+ You currently still do not provide any tarballs of the Fossil sources.
+ Sure, you are still hacking wild on the code and one can on-the-fly
+ fetch a ZIP archive, but that's a manual process. For packagers (like
+ me in the OpenPKG project) this is very nasty and just means that
+ Fossil will usually still not be packaged. As a result it will be not
+ spreaded as much as possible and this way you still do not get as much
+ as possible feedback. Hence, I recommend that you let daily snapshot
+ tarballs (or ZIP files) be rolled. This would be great.
+
+o UUID
+
+ Under http://www.fossil-scm.org/index.html/doc/tip/www/concepts.wiki
+ you describe the concepts and you clearly name the artifact ID a
+ "UUID" and even say that this is a "Universally Unique Identifier".
+ Unfortunately, a UUID is a 128-bit entity standardized by the ISO
+ (under ISO/IEC 11578:1996) and IETF (under RFC-4122) and hence it is
+ *VERY MUCH* confusing and unclean that your 160-bit SHA1-based ID is
+ called "UUID" in Fossil.
+
+ I *STRONGLY* recommend you to either use real UUIDs (128-bit
+ entities, where a UUID of version 5 even is SHA1-based!) or you name
+ your 160-bit SHA1 entities differently (perhaps AID for "Artifact
+ Identifier"?).
+
+o "fossil cgi <script>"
+
+ Currently we have only "fossil cgi <script>" where <script> contains
+ "repository: <file>". This is a neat idea and should be kept. But
+ this way one cannot easily host multiple repositories over this
+ CGI interface without creating such a script for every individual
+ repository.
+
+ Perhaps a "fossil cgi --repository <file>" would help here, as this
+ way one can use a generic CGI script which first figures out the
+ name <name> of the individual project and then runs "fossil cgi
+ --repository /path/to/repositories/<name>.db". But perhaps I'm just
+ overlooking something and this is already possible...
+
+o "fossil db <operation>"
+
+ In Monotone DVCS we have a "mtn db" command for the low-level SQLite
+ database manipulations. For instance a "mtn --db=<monotone-repository>
+ db dump" is more or less equal to a "sqlite3 <monotone-repository>
+ .dump". A "mtn --db=<monotone-repository> db exec '<SQL>'" is equal
+ "echo '<SQL>' | sqlite3 <monotone-repository>", etc. The point is
+ that the DVCS user usually has no SQLite CLI at hand but as the DVCS
+ already contains more or less the complete SQLite it is very useful to
+ also include the SQLite CLI functionality and wire it into the DVCS
+ CLI via a "db" command.
+
+o "fossil version"
+
+ Mostly all VCS I know if either support a command "version" or a
+ command-line option "--version" or most of the time even both. Please
+ output the "This is fossil version [9e80dc66cf] 2008-10-18 13:03:36"
+ there (at least additionally) instead of at the end of "fossil help".
+
+o "--port" vs. "-port"
+
+ In the "fossil help server" there is "--port" while under
+ http://www.fossil-scm.org/index.html/doc/tip/www/quickstart.wiki there
+ is "-port". I personally like GNU-long-style options "--xxxx" more
+ than the CC-style options "-xxx". But anyway, independent which one is
+ correct (well, perhaps both even work) only one should be documented
+ to avoid confusion.
+
+o User creation on the CLI
+
+ There is "fossil user new ?USERNAME?" which interactively prompts
+ for the capabilities and the password -- even from the TTY and not
+ from STDIN. One needs "fossil user new ?USERNAME? ?CAPABILITIES?
+ ?PASSWORD?" to be able to create a repository in batch without having
+ to hack the user into the "user" table via the SQLite CLI. Similar:
+ the "fossil user password USERNAME" should be actually "fossil user
+ password USERNAME ?PASSWORD?", please.
+
+o "-R <repository"
+
+ There is the "-R" option for specifiying the repository. But it is
+ a sub-command option and not a global option. And on "fossil ui" or
+ "fossil server" it even is an argument and not an option. This is
+ confusing. Every time one has to figure out how to set the repository
+ on the CLI. Monotone simply uses a *global* option "--db" and that's
+ it. So, I recommend that Fossil also uses a single global option
+ "--repository"/"-R" instead of a command-specific option. Sure, not
+ all commands might require a repository, but IMHO it is better to
+ ignore the global option there than having to figure out every time
+ how the repository has to be specified.
+
+o Setup pages
+
+ When hitting "Apply changes" on any setup page, one keeps staying on
+ this page. Sure, that's what an "apply" button usually is about. But
+ I at least would have liked to see a button (either instead of the
+ "apply changes" or at least in addition) which applies the changes and
+ goes back to the setup main page (from where one usually come).
+
+o _FOSSIL_
+
+  Very nice idea to use another SQLite database for the _FOSSIL_
+  control file. BUT: Why "_FOSSIL_"? CVS's "CVS" directory was ugly for
+  decades. Today we have ".svn", ".git", ".hg" and "_MTN"/".mtn" to get
+  rid of those ugly control files or directories of the DVCS! Sure,
+  dot-files are disliked by Windows people. But that's no problem, one
+  can accept "_XXX" in addition to ".XXX" easily, of course.
+
+  So, I really would like to see the file "_FOSSIL_" to be renamed
+  to ".fossil" under Unix and "_fossil" under Windows or (if the
+  upper-case is important to you) ".FOSSIL" and "_FOSSIL". But to see
+  an ugly "_FOSSIL_" at the top of every source tree is really rather
+  boring for Unix people!
+
+o "fossil open", "fossil checkout", "fossil update".
+
+ I'm personally confused that "fossil open" is what "checkout" does in
+ other DVCS and that "checkout" is just a variant of "update". Hmmm...
+ for me it looks at least one should be eleminated to reduce confusion.
+ The difference between checkout and update could become an option of
+ a single option. And the remaining to perhaps better should be either
+ "open" + "update" or "checkout" + "update". Well, perhaps I'm still
+ not understanding Fossil enough. But I can only tell that I got rather
+ confused.
+
+o "fossil commit"
+
+ There is "fossil commit" but no short-hand "fossil ci". But there
+ is "fossil status" and even just "fossil st" which clearly shows
+ that Fossil allows abbreviations or at least prefix-matching on the
+ commands. Sure, "ci" is not a prefix of "commit" but mostly all VCS
+ support the good old RCS/CVS "ci" and similar aliases. So I recommend
+ that Fossil does not only alias matching, but also provides aliases:
+ "ci" for "commit", "co" for "checkout", "log" for "timeline", etc.
+ Sorry, having to type the long "fossil commit" every time is too long
+ for us Unix hackers ;-)
+
+ Additionally, Fossil seems to use GnuPG when installed and --nosign is
+ not specified. Hmm... two questions arise here for me: 1. should the
+ use of a cryptographically strong signature really be just _optional_
+ (Monotone for instance RSA signs every commit) and 2. is GnuPG here
+ really the right tool (Monotone does a plain RSA signing and is even
+ able to leverage a running SSH agent for the operation -- something
+ which is very cool both under Unix with "ssh-agent" and under Windows
+ with "pagent"). OTOH, GnuPG 2.x supports a gpg-agent, so this might be
+ no longer a big issue. But Fossil should document this a little bit
+ futher: how to create the necessary GnuPG key, how to setup gpg-agent,
+ etc.
+
+o "fossil diff"
+
+ There is "Usage: fossil diff|gdiff ?-i? ?-r REVISION? FILE...". Two
+ questions arise: Why do I have to specify a "FILE"? I would expect
+ that a simple "fossil diff" recursively shows a "diff" of all changed
+ files in the source tree. Additionally, how does one do a diff between
+ two particular revisions (one seems to be not able to specifiy "-r"
+ twice).
+
+o "manifest" / "manifest.uuid"
+
+ Above I was already bothered by the _FOSSIL_ file, but now that I
+ played with Fossil I see that "manifest" and "manifest.uuid" files
+ showed up in my source tree. Why is this not implicitly in the
+ database and instead externally represented in the source tree.
+ Hmmm... then I recommend that you use a .fossil *DIRECTORY*, place
+ the control file into .fossil/control (or whatever) and the manifest
+ stuff into .fossil/manifest and .fossil/manifest.uuid. But please do
+ not clutter the top-level of the source three with control data of the
+ DVCS.
+
+o "fossil mv"
+
+ There is "fossil add" and "fossil rm", but no "fossil mv". Hopefully
+ this doesn't mean a file move is an "add" and a "remove" bundle, as
+ this way Fossil would have trouble to know that the file was renamed
+ and hence the full history tracking of a file seems to be broken.
+
+o "fossil changes" vs. "fossil status"
+
+ Finally, I got confused by the "fossil changes" and "fossil status"
+ commands. "fossil status" seems to be a super-set of "fossil changes".
+ Looks a little bit less orthogonal than necessary. I would remove
+ "fossil changes" or at least do not show the file details on "fossil
+ status".
+
+Yours,
+                                      Ralf S. Engelschall
+
