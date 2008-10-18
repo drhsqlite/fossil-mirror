@@ -275,7 +275,7 @@ void login_check_credentials(void){
     }else if( zCookie[0]=='a' ){
       uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
     }
-    snprintf(g.zCsrfToken, sizeof(g.zCsrfToken), "%.10s", zCookie);
+    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zCookie);
   }
 
   if( uid==0 ){

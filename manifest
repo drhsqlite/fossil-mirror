@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sdefenses\sagainst\s[http://en.wikipedia.org/wiki/Cross-site_request_forgery\s|\scross-site\srequest\sforgery]\sattacks.
-D 2008-10-18T12:55:44
+C Use\ssqlite3_snprintf()\sinstead\sof\ssnprintf()\ssince\sthe\slatter\sis\snot\savailable\non\sall\splatforms.
+D 2008-10-18T13:03:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -64,7 +64,7 @@ F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c e9965b66672ce64f5e97e3adc112cdba055e6d3e
-F src/login.c debcf9a389b5cacd869ff9d3a9e8ba2af93fe5ae
+F src/login.c 1a6cb22669588b71d21282708989ebe28d2de3d3
 F src/main.c bc031c08b30de1ab06a2a55a769cfb3d56669db0
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -213,14 +213,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P ac3f1f2ba755061a7a205bc8a91c9adc757791ee
-R 832e72d4e25218c3f0891c3ecf3e5e4d
+P 0be54823ba2b5afe0b058e77376feaa1ff47751a
+R 2bc6b9833d046b81cf3a1f177b23f42f
 U drh
-Z dcc4cd84fecc330c0e517747adb9c8c3
+Z 750904b77bbbaa930512209e098e7598
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI+dzUoxKgR168RlERAuDxAJ44pG6mmhl+vx0ntDQnR2J1v/D47wCfVJw4
-IHzwFfY4PGhEQoWZlNBIarc=
-=4h8K
+iD8DBQFI+d6roxKgR168RlERAplzAJ91PSfA8lu3RMbMGrtCs6qwteyp1gCdFQ2M
+1wvTurmROHcvwq0Z3ZiGB3I=
+=MVNx
 -----END PGP SIGNATURE-----
