@@ -121,6 +121,10 @@ struct Global {
   int okRdAddr;           /* e: read email addresses or other private data */
   int okZip;              /* z: download zipped artifact via /zip URL */
 
+  /* For defense against Cross-site Request Forgery attacks */
+  char zCsrfToken[12];    /* Value of the anti-CSRF token */
+  int okCsrf;             /* Anti-CSRF token is present and valid */
+
   FILE *fDebug;           /* Write debug information here, if the file exists */
 
   /* Storage for the aux() and/or option() SQL function arguments */

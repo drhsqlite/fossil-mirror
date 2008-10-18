@@ -253,6 +253,7 @@ void wikiedit_page(void){
     if( isSandbox ){
       db_set("sandbox",zBody,0);
     }else{
+      login_verify_csrf_secret();
       zDate = db_text(0, "SELECT datetime('now')");
       zDate[10] = 'T';
       blob_appendf(&wiki, "D %s\n", zDate);
@@ -302,6 +303,7 @@ void wikiedit_page(void){
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
   @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
+  login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
   @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
@@ -386,6 +388,7 @@ void wikiappend_page(void){
       appendRemark(&body);
       db_set("sandbox", blob_str(&body), 0);
     }else{
+      login_verify_csrf_secret();
       content_get(rid, &content);
       manifest_parse(&m, &content);
       if( m.type==CFTYPE_WIKI ){
@@ -437,6 +440,7 @@ void wikiappend_page(void){
   }
   zUser = PD("u", g.zLogin);
   @ <form method="POST" action="%s(g.zBaseURL)/wikiappend">
+  login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
   @ Your Name:
   @ <input type="text" name="u" size="20" value="%h(zUser)"><br>

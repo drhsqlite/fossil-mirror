@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\show\sticket\schanges\sare\sdisplayed\sin\sthe\sUI.\s\sThe\nhyperlink\sis\sshow\swith\sstrick-through\sif\sthe\sticket\sis\sclosed.\s\sThe\ntitle\sis\sshown\safter\sthe\sticket\shyperlink.\s\sSQL\sto\sdetermine\nthe\sclosed\scondition\sand\sthe\stitle\scan\sbe\sset\sin\sthe\sticket\nsetup\sscreens.
-D 2008-10-18T02:27:13
+C Add\sdefenses\sagainst\s[http://en.wikipedia.org/wiki/Cross-site_request_forgery\s|\scross-site\srequest\sforgery]\sattacks.
+D 2008-10-18T12:55:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -37,7 +37,7 @@ F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
-F src/admin.c 8499f278199c6c7f13c15d1299d9ac6d5db50ae5
+F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 1ebb23105f75884da973aca704383393351b38db
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
@@ -63,9 +63,9 @@ F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 26d96b828e3b2e219d29364e1ac660f8846ae741
-F src/login.c d0f9596e5f5673d775f3bf4aff6c3cfb775f05e6
-F src/main.c e3e3bcd32f0bae239aa8611e9e0c2c1419e4eac7
+F src/info.c e9965b66672ce64f5e97e3adc112cdba055e6d3e
+F src/login.c debcf9a389b5cacd869ff9d3a9e8ba2af93fe5ae
+F src/main.c bc031c08b30de1ab06a2a55a769cfb3d56669db0
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -81,12 +81,12 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
-F src/report.c fee58e3fd745747eacb8e9a7a8fbef92e9a664ec
+F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c cf525ce8edb5d958b4443d92704f5a1b54e29eab
-F src/setup.c 1f3b727596055591d7906b8ae07c42e8608a9e33
+F src/setup.c 5836f2e874635554b4136b6ac306db493ddb06d7
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/shun.c e38b6e743d2eb3b9da3b035886ac0cc8c311d29d
+F src/shun.c 5ce55378d67f55956debb8a9cad8df56186ec61a
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
 F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c b7851e999cde8dd526f4814bb1e885feb82a1aa2
@@ -99,8 +99,8 @@ F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
-F src/tkt.c 4222b4dfef769eaf21588343a7067b0c29eabebd
-F src/tktsetup.c cc6def603d5e3cc450840ce429bd87acb42497d6
+F src/tkt.c e980babe0a1028b211782d97f2f13ce584833cbb
+F src/tktsetup.c c8d31b703ffb97ea74edd68b6d9d1fe534f72679
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
@@ -108,7 +108,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
-F src/wiki.c 6fc1aec89bc497d36b1c222542d4b58aa2e66c1a
+F src/wiki.c 5bb1f010935738997e7e102aaf75f6d7325b56c7
 F src/wikiformat.c ef5196ba6ca0c3cda889dc815dab4e4b6b1f7116
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 35dc0c6452068309f69643a72ca015cabf31be16
@@ -213,14 +213,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 974f025c6e83ab55215a676afd1df83f402e6cc7
-R a59eab03b8aac9042f35b9ba91cff646
+P ac3f1f2ba755061a7a205bc8a91c9adc757791ee
+R 832e72d4e25218c3f0891c3ecf3e5e4d
 U drh
-Z b33b006a4cb871acfa522bba31ab3edb
+Z dcc4cd84fecc330c0e517747adb9c8c3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFI+UmJoxKgR168RlERAonCAJ9ikFLsCJ0TiCyMiy6OeXukF2fDMgCfXrjf
-sd11Nz1HH2K9KSlzp1X/r2E=
-=3qxg
+iD8DBQFI+dzUoxKgR168RlERAuDxAJ44pG6mmhl+vx0ntDQnR2J1v/D47wCfVJw4
+IHzwFfY4PGhEQoWZlNBIarc=
+=4h8K
 -----END PGP SIGNATURE-----

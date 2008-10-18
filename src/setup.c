@@ -288,6 +288,7 @@ void user_edit(void){
       style_footer();
       return;
     }
+    login_verify_csrf_secret();
     db_multi_exec(
        "REPLACE INTO user(uid,login,info,pw,cap) "
        "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s')",
@@ -342,6 +343,7 @@ void user_edit(void){
   }
   @ <table align="left" hspace="20" vspace="10"><tr><td>
   @ <form action="%s(g.zPath)" method="POST">
+  login_insert_csrf_secret();
   @ <table>
   @ <tr>
   @   <td align="right"><nobr>User ID:</nobr></td>
@@ -545,6 +547,7 @@ static void onoff_attribute(
   if( zQ ){
     int iQ = strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
+      login_verify_csrf_secret();
       db_set(zVar, iQ ? "1" : "0", 0);
       iVal = iQ;
     }
@@ -569,6 +572,7 @@ void entry_attribute(
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
   if( zQ && strcmp(zQ,zVal)!=0 ){
+    login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     zVal = zQ;
   }
@@ -590,6 +594,7 @@ static void textarea_attribute(
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
   if( zQ && strcmp(zQ,z)!=0 ){
+    login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     z = zQ;
   }
@@ -612,7 +617,7 @@ void setup_access(void){
   style_header("Access Control Settings");
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/setup_access" method="POST">
-
+  login_insert_csrf_secret();
   @ <hr>
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 1);
@@ -663,6 +668,7 @@ void setup_timeline(void){
   style_header("Timeline Display Preferences");
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/setup_timeline" method="POST">
+  login_insert_csrf_secret();
 
   @ <hr>
   onoff_attribute("Block markup in timeline",
@@ -695,6 +701,7 @@ void setup_config(void){
   style_header("WWW Configuration");
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/setup_config" method="POST">
+  login_insert_csrf_secret();
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "");
   @ <p>Give your project a name so visitors know what this site is about.
@@ -737,6 +744,7 @@ void setup_editcss(void){
   }
   style_header("Edit CSS");
   @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
+  login_insert_csrf_secret();
   @ Edit the CSS:<br />
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
   @ <br />
@@ -767,6 +775,7 @@ void setup_header(void){
   }
   style_header("Edit Page Header");
   @ <form action="%s(g.zBaseURL)/setup_header" method="POST">
+  login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
@@ -801,6 +810,7 @@ void setup_footer(void){
   }
   style_header("Edit Page Footer");
   @ <form action="%s(g.zBaseURL)/setup_footer" method="POST">
+  login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the end of every page.</p>
   textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter);

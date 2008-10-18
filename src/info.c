@@ -1024,6 +1024,7 @@ void vedit_page(void){
     char *zDate;
     int nChng = 0;
 
+    login_verify_csrf_secret();
     blob_zero(&ctrl);
     zDate = db_text(0, "SELECT datetime('now')");
     zDate[10] = 'T';
@@ -1057,6 +1058,7 @@ void vedit_page(void){
   @ [<a href="vinfo?name=%d(rid)">%s(zUuid)</a>] then press the
   @ "Apply Changes" button.</p>
   @ <form action="%s(g.zBaseURL)/vedit" method="POST">
+  login_insert_csrf_secret();
   @ <input type="hidden" name="r" value="%d(rid)">
   @ <p>
   @ <b>User:</b> <input type="text" name="u" size="20" value="%h(zNewUser)">

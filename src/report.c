@@ -321,6 +321,7 @@ void view_edit(void){
   zSQL = z ? trim_string(z) : 0;
   zClrKey = trim_string(PD("k",""));
   if( rn>0 && P("del2") ){
+    login_verify_csrf_secret();
     db_multi_exec("DELETE FROM reportfmt WHERE rn=%d", rn);
     cgi_redirect("reportlist");
     return;
@@ -337,6 +338,7 @@ void view_edit(void){
     @ related to this report will be removed and cannot be recovered.</p>
     @
     @ <input type="hidden" name="rn" value="%d(rn)">
+    login_insert_csrf_secret();
     @ <input type="submit" name="del2" value="Delete The Report">
     @ <input type="submit" name="can" value="Cancel">
     @ </form>
@@ -356,6 +358,7 @@ void view_edit(void){
       zErr = verify_sql_statement(zSQL);
     }
     if( zErr==0 ){
+      login_verify_csrf_secret();
       if( rn>0 ){
         db_multi_exec("UPDATE reportfmt SET title=%Q, sqlcode=%Q,"
                       " owner=%Q, cols=%Q WHERE rn=%d",
@@ -406,6 +409,7 @@ void view_edit(void){
   @ <p>Enter a complete SQL query statement against the "TICKET" table:<br>
   @ <textarea name="s" rows="20" cols="80">%h(zSQL)</textarea>
   @ </p>
+  login_insert_csrf_secret();
   if( g.okAdmin ){
     @ <p>Report owner:
     @ <input type="text" name="w" size="20" value="%h(zOwner)">

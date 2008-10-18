@@ -121,11 +121,13 @@ static void tktsetup_generic(
   }
   style_header("Edit %s", zTitle);
   if( P("clear")!=0 ){
+    login_verify_csrf_secret();
     db_unset(zDbField, 0);
     if( xRebuild ) xRebuild();
     z = zDfltValue;
   }else if( isSubmit ){
     char *zErr = 0;
+    login_verify_csrf_secret();
     if( xText && (zErr = xText(z))!=0 ){
       @ <p><font color="red"><b>ERROR: %h(zErr)</b></font></p>
     }else{
@@ -135,6 +137,7 @@ static void tktsetup_generic(
     }
   }
   @ <form action="%s(g.zBaseURL)/%s(g.zPath)" method="POST">
+  login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
   @ <blockquote>
@@ -636,6 +639,7 @@ void tktsetup_timeline_page(void){
   style_header("Ticket Display On Timelines");
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/tktsetup_timeline" method="POST">
+  login_insert_csrf_secret();
 
   @ <hr>
   entry_attribute("Ticket Title", 40, "ticket-title-expr", "t", "title");

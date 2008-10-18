@@ -236,12 +236,12 @@ void login_page(void){
 **
 */
 void login_check_credentials(void){
-  int uid = 0;
-  const char *zCookie;
-  const char *zRemoteAddr;
-  const char *zCap = 0;
-  const char *zNcap;
-  const char *zAcap;
+  int uid = 0;                  /* User id */
+  const char *zCookie;          /* Text of the login cookie */
+  const char *zRemoteAddr;      /* IP address of the requestor */
+  const char *zCap = 0;         /* Capability string */
+  const char *zNcap;            /* Capabilities of user "nobody" */
+  const char *zAcap;            /* Capabllities of user "anonymous" */
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
@@ -257,6 +257,7 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "s";
     g.noPswd = 1;
+    strcpy(g.zCsrfToken, "localhost");
   }
 
   /* Check the login cookie to see if it matches a known valid user.
@@ -274,6 +275,7 @@ void login_check_credentials(void){
     }else if( zCookie[0]=='a' ){
       uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
     }
+    snprintf(g.zCsrfToken, sizeof(g.zCsrfToken), "%.10s", zCookie);
   }
 
   if( uid==0 ){
@@ -282,6 +284,7 @@ void login_check_credentials(void){
       uid = -1;
       zCap = "";
     }
+    strcpy(g.zCsrfToken, "none");
   }
   if( zCap==0 ){
     if( uid ){
@@ -433,4 +436,28 @@ void login_anonymous_available(void){
     @ Use <a href="%s(g.zTop)/login?anon=1&g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
+}
+
+/*
+** While rendering a form, call this routine to add the Anti-CSRF token
+** as a hidden element of the form.
+*/
+void login_insert_csrf_secret(void){
+  @ <input type="hidden" name="csrf" value="%s(g.zCsrfToken)">
+}
+
+/*
+** Before using the results of a form, first call this routine to verify
+** that ths Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+** is missing or is incorrect, then this emits and error message and never
+** returns.
+*/
+void login_verify_csrf_secret(void){
+  const char *zCsrf;            /* The CSRF secret */
+  if( g.okCsrf ) return;
+  if( (zCsrf = P("csrf"))!=0 && strcmp(zCsrf, g.zCsrfToken)==0 ){
+    g.okCsrf = 1;
+    return;
+  }
+  fossil_fatal("Cross-site request forgery attempt");
 }

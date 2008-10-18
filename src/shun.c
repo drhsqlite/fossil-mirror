@@ -67,6 +67,7 @@ void shun_page(void){
   }
   style_header("Shunned Artifacts");
   if( zUuid && P("sub") ){
+    login_verify_csrf_secret();
     db_multi_exec("DELETE FROM shun WHERE uuid='%s'", zUuid);
     if( db_exists("SELECT 1 FROM blob WHERE uuid='%s'", zUuid) ){
       @ <p><font color="blue">Artifact 
@@ -81,6 +82,7 @@ void shun_page(void){
     }
   }
   if( zUuid && P("add") ){
+    login_verify_csrf_secret();
     db_multi_exec("INSERT OR IGNORE INTO shun VALUES('%s')", zUuid);
     @ <p><font color="blue">Artifact
     @ <a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a> has been
@@ -126,6 +128,7 @@ void shun_page(void){
   @ 
   @ <blockquote>
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  login_insert_csrf_secret();
   @ <input type="text" name="uuid" value="%h(PD("shun",""))" size="50">
   @ <input type="submit" name="add" value="Shun">
   @ </form>
@@ -139,6 +142,7 @@ void shun_page(void){
   @
   @ <blockquote>
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  login_insert_csrf_secret();
   @ <input type="text" name="uuid" size="50">
   @ <input type="submit" name="sub" value="Accept">
   @ </form>

@@ -386,6 +386,7 @@ static int submitTicketCmd(
   int rid;
   Blob tktchng, cksum;
 
+  login_verify_csrf_secret();
   zUuid = (const char *)pUuid;
   blob_zero(&tktchng);
   zDate = db_text(0, "SELECT datetime('now')");
@@ -469,6 +470,7 @@ void tktnew_page(void){
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  login_insert_csrf_secret();
   zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
@@ -530,6 +532,7 @@ void tktedit_page(void){
   initializeVariablesFromDb();
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
   @ <input type="hidden" name="name" value="%s(zName)">
+  login_insert_csrf_secret();
   zScript = ticket_editpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));

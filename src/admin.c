@@ -78,11 +78,13 @@ void admin_sql_page(void){
   @ You can enter only SELECT statements here, and some SQL-side functions
   @ are also restricted.<br/>
   @ <form action='' method='post'>
+  login_insert_csrf_secret();
   @ <textarea style='border:2px solid black' name='sql'
   @  cols='80' rows='5'>%h(zSql)</textarea>
   @ <br/><input type='submit' name='sql_submit'/> <input type='reset'/>
   @ </form>
   if( zSql[0] ){
+    login_verify_csrf_secret();
     sqlite3_set_authorizer(g.db, selectOnly, 0);
     db_generic_query_view(zSql, 0);
     sqlite3_set_authorizer(g.db, 0, 0);
