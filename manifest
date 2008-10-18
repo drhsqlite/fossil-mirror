@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\snotes\sfrom\sRalf\sEngelshall\sas\sa\stext\sfile:\s\srse-notes.txt.
-D 2008-10-18T19:42:04
+C Add\sthe\s"version"\scommand\sto\sprint\sout\sthe\ssource-code\sversion\snumber\sfor\sthe\s\nfossil\sexecutable.
+D 2008-10-18T20:29:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c e9965b66672ce64f5e97e3adc112cdba055e6d3e
 F src/login.c 1a6cb22669588b71d21282708989ebe28d2de3d3
-F src/main.c bc031c08b30de1ab06a2a55a769cfb3d56669db0
+F src/main.c c1173878a4f567d2002b419acac54cf7112f419c
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -214,14 +214,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 9e80dc66cf7e6781419db0a60b01964c76a31bae
-R 295c20c486aaa1165b0dc90bb2749a31
+P f7a410eca92ce63f90aeb959c9670a5fea993fe2
+R 1ee89de73897438e9b10a7b843a37b5d
 U drh
-Z 13fbcb1ef82d48fd61ea78eec1f173d7
+Z cc6a27a80d89693fee2decdea1b496b4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFI+jwRoxKgR168RlERAqCLAJ9hs3wkfdGshO+3Q0CXpLG8xS+3DwCdH9jw
-+MHx/wHallP5sAGNwX7DwKs=
-=NFON
+iD8DBQFI+kcwoxKgR168RlERAk4+AJ9s7gDT2OnOACdxqeRfIwwOIecuxQCeIOKy
+tYG1W9lA3TyGZw2m5Fp+kLo=
+=lArw
 -----END PGP SIGNATURE-----

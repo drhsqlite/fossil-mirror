@@ -428,6 +428,18 @@ void cmd_test_cmd_list(void){
 
 
 /*
+** COMMAND: version
+**
+** Usage:  %fossil version
+**
+** Print the source code version number for the fossil executable.
+*/
+void version_cmd(void){
+  printf("This is fossil version " MANIFEST_VERSION " " MANIFEST_DATE "\n");
+}
+
+
+/*
 ** COMMAND: help
 **
 ** Usage: %fossil help COMMAND
@@ -440,7 +452,7 @@ void help_cmd(void){
   if( g.argc!=3 ){
     printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n", g.argv[0]);
     cmd_cmd_list();
-    printf("This is fossil version " MANIFEST_VERSION " " MANIFEST_DATE "\n");
+    version_cmd();
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
