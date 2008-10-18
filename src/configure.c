@@ -88,6 +88,8 @@ static struct {
   { "ticket-editpage",        CONFIGSET_TKT  },
   { "ticket-report-template", CONFIGSET_TKT  },
   { "ticket-key-template",    CONFIGSET_TKT  },
+  { "ticket-title-expr",      CONFIGSET_TKT  },
+  { "ticket-closed-expr",     CONFIGSET_TKT  },
   { "@reportfmt",             CONFIGSET_TKT  },
   { "@user",                  CONFIGSET_USER },
   { "@shun",                  CONFIGSET_SHUN },

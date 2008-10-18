@@ -896,7 +896,6 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( m.type==CFTYPE_TICKET ){
     char *zTag;
     Blob comment;
-    int i;
 
     ticket_insert(&m, 1, 1);
     zTag = mprintf("tkt-%s", m.zTicketUuid);
@@ -921,6 +920,8 @@ int manifest_crosslink(int rid, Blob *pContent){
         );
       }
     }else{
+#if 0
+      int i;
       const char *z;
       const char *zSep = " ";
       blob_appendf(&comment, "%d changes to ticket [%.10s]:",
@@ -931,6 +932,8 @@ int manifest_crosslink(int rid, Blob *pContent){
         blob_appendf(&comment, "%s%h", zSep, z);
         zSep = ", ";
       }
+#endif
+      blob_appendf(&comment, "Edits to ticket [%.10s]", m.zTicketUuid);
     }
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"

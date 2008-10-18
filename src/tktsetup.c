@@ -42,6 +42,8 @@ void tktsetup_page(void){
   @ <table border="0" cellspacing="20">
   setup_menu_entry("Table", "tktsetup_tab",
     "Specify the schema of the  \"ticket\" table in the database.");
+  setup_menu_entry("Timeline", "tktsetup_timeline",
+    "How to display ticket status in the timeline");
   setup_menu_entry("Common", "tktsetup_com",
     "Common TH1 code run before all ticket processing.");
   setup_menu_entry("New Ticket Page", "tktsetup_newpage",
@@ -617,4 +619,43 @@ void tktsetup_keytplt_page(void){
     0,
     10
   );
+}
+
+/*
+** WEBPAGE: tktsetup_timeline
+*/
+void tktsetup_timeline_page(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+
+  if( P("setup") ){
+    cgi_redirect("tktsetup");
+  }
+  style_header("Ticket Display On Timelines");
+  db_begin_transaction();
+  @ <form action="%s(g.zBaseURL)/tktsetup_timeline" method="POST">
+
+  @ <hr>
+  entry_attribute("Ticket Title", 40, "ticket-title-expr", "t", "title");
+  @ <p>An SQL expression in a query against the TICKET table that will
+  @ return the title of the ticket for display purposes after hyperlinks to
+  @ that ticket</p>
+
+  @ <hr>
+  entry_attribute("Ticket Closed", 40, "ticket-closed-expr", "c",
+                  "status='Closed'");
+  @ <p>An SQL expression that evaluates to true in a TICKET table query if
+  @ the ticket is closed.</p>
+
+  @ <hr>
+  @ <p>
+  @ <input type="submit"  name="submit" value="Apply Changes">
+  @ <input type="submit" name="setup" value="Cancel">
+  @ </p>
+  @ </form>
+  db_end_transaction(0);
+  style_footer();
+  
 }

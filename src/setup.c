@@ -559,7 +559,7 @@ static void onoff_attribute(
 /*
 ** Generate an entry box for an attribute.
 */
-static void entry_attribute(
+void entry_attribute(
   const char *zLabel,   /* The text label on the entry box */
   int width,            /* Width of the entry box */
   const char *zVar,     /* The corresponding row in the VAR table */

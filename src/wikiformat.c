@@ -869,43 +869,126 @@ static int is_valid_uuid(const char *z){
 }
 
 /*
-** Return true if the given hyperlink should be implemented for
-** the current login.
+** zTarget is guaranteed to be a UUID.  It might be the UUID of a ticket.
+** If it is, fill zDisplay[0..nDisplay-1] with the title of the ticket
+** (or a prefix if the title is too long) and return true.  If zTarget
+** is not the UUID of a ticket, return false.
 */
-static int okToHyperlink(const char *zTarget){
-  if( g.okHistory ) return 1;
-  if( strncmp(zTarget, "http:", 5)==0 
-   || strncmp(zTarget, "https:", 6)==0
-   || strncmp(zTarget, "ftp:", 4)==0 
-   || strncmp(zTarget, "mailto:", 7)==0
-  ){
-    return 1;
+static int is_ticket(
+  const char *zTarget,    /* Ticket UUID */
+  char *zDisplay,         /* Space in which to write ticket title */
+  int nDisplay,           /* Bytes available in zDisplay[] */
+  int *pClosed            /* True if the ticket is closed */
+){
+  static Stmt q;
+  static int once = 1;
+  int n;
+  int rc;
+  char zLower[UUID_SIZE+1];
+  char zUpper[UUID_SIZE+1];
+  n = strlen(zTarget);
+  memcpy(zLower, zTarget, n+1);
+  canonical16(zLower, n+1);
+  memcpy(zUpper, zLower, n+1);
+  zUpper[n-1]++;
+  if( once ){
+    const char *zTitleExpr = db_get("ticket-title-expr", "title");
+    const char *zClosedExpr = db_get("ticket-closed-expr", "status='Closed'");
+    db_static_prepare(&q, 
+      "SELECT %s, %s FROM ticket "
+      " WHERE tkt_uuid>=:lwr AND tkt_uuid<:upr",
+      zTitleExpr, zClosedExpr
+    );
   }
-  if( zTarget[0]=='/' || is_valid_uuid(zTarget) ) return 0;
-  if( wiki_name_is_wellformed(zTarget) ) return 1;
-  return 0;
+  db_bind_text(&q, ":lwr", zLower);
+  db_bind_text(&q, ":upr", zUpper);
+  if( db_step(&q)==SQLITE_ROW ){
+    n = db_column_bytes(&q,0);
+    if( n>nDisplay-1 ) n = nDisplay - 1;
+    memcpy(zDisplay, db_column_text(&q, 0), n);
+    zDisplay[n] = 0;
+    rc = 1;
+    *pClosed = db_column_int(&q, 1);
+  }else{
+    rc = 0;
+  }
+  db_reset(&q);
+  return rc;
 }
 
 /*
-** Resolve a hyperlink.  The argument is the content of the [...]
-** in the wiki.  Append the URL to the output of the Renderer.
+** Resolve a hyperlink.  The zTarget argument is the content of the [...]
+** in the wiki.  Append an <a> markup to the output of the Renderer.
+**
+** Actually, this routine might or might not append the hyperlink, depending
+** on current rendering rules: specifically does the current user have
+** "History" permission.  If this routine does append the <a> and thus needs
+** a </a> to follow, it returns true.  If the <a> is suppressed, then return
+** false.
+**
+** If nDisplay>0 then optionally write up to nDisplay bytes of 
+** alternative display text into zDisplay.  The text must be zero
+** terminated.  The final zero is included in the nDisplay byte count
+** limit.
 */
-static void resolveHyperlink(const char *zTarget, Renderer *p){
+static int resolveHyperlink(
+  Renderer *p,            /* Rendering context */
+  const char *zTarget,    /* Hyperlink traget; text within [...] */
+  char *zDisplay,         /* Space in which to write alternative display */
+  int nDisplay            /* Bytes available in zDisplay[] */
+){
+  int rc = 0;
   if( strncmp(zTarget, "http:", 5)==0 
    || strncmp(zTarget, "https:", 6)==0
    || strncmp(zTarget, "ftp:", 4)==0 
    || strncmp(zTarget, "mailto:", 7)==0
   ){
-    blob_appendf(p->pOut, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
+    rc = 1;
   }else if( zTarget[0]=='/' ){
-    blob_appendf(p->pOut, "%s%h", g.zBaseURL, zTarget);
+    if( g.okHistory ){
+      blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zBaseURL, zTarget);
+      rc = 1;
+    }
   }else if( is_valid_uuid(zTarget) ){
-    blob_appendf(p->pOut, "%s/info/%s", g.zBaseURL, zTarget);
+    int isClosed;
+    if( nDisplay && is_ticket(zTarget, zDisplay, nDisplay, &isClosed) ){
+      /* Special display processing for tickets.  Display the hyperlink
+      ** as crossed out if the ticket is closed.  Add the title after the
+      ** hyperlink.
+      */
+      if( isClosed ){
+        if( g.okHistory ){
+          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">[<s>%s</s>]</a>: %s",
+              g.zBaseURL, zTarget, zTarget, zDisplay
+          );
+        }else{
+          blob_appendf(p->pOut,"[<s>%s</s>]: %s", zTarget, zDisplay);
+        }
+      }else{
+        if( g.okHistory ){
+          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">[%s]</a>: %s",
+              g.zBaseURL, zTarget, zTarget, zDisplay
+          );
+        }else{
+          blob_appendf(p->pOut,"[%s]: %s", zTarget, zDisplay);
+        }
+      }
+      zDisplay[0] = ' ';
+      zDisplay[1] = 0;
+      rc = 0;
+    }else if( g.okHistory ){
+      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zBaseURL, zTarget);
+      rc = 1;
+    }
   }else if( wiki_name_is_wellformed(zTarget) ){
-    blob_appendf(p->pOut, "%s/wiki?name=%T", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
+    rc = 1;
   }else{
-    blob_appendf(p->pOut, "error");
+    blob_appendf(p->pOut, "[bad-link: %h]", zTarget);
+    rc = 0;
   }
+  return rc;
 }
 
 /*
@@ -1030,7 +1113,10 @@ static void wiki_render(Renderer *p, char *z){
         char *zDisplay = 0;
         int i, j;
         int savedState;
-        int ok;
+        int needCloseA;
+        int altSize;
+        char zAltDisplay[100];
+
         startAutoParagraph(p);
         zTarget = &z[1];
         for(i=1; z[i] && z[i]!=']'; i++){
@@ -1043,21 +1129,23 @@ static void wiki_render(Renderer *p, char *z){
         z[i] = 0;
         if( zDisplay==0 ){
           zDisplay = zTarget;
+          altSize = sizeof(zAltDisplay);
         }else{
           while( isspace(*zDisplay) ) zDisplay++;
+          altSize = 0;
         }
-        ok = okToHyperlink(zTarget);
-        if( ok ){
-          blob_append(p->pOut, "<a href=\"", -1);
-          resolveHyperlink(zTarget, p);
-          blob_append(p->pOut, "\">", -1);
-        }
+        zAltDisplay[0] = 0;
+        needCloseA = resolveHyperlink(p, zTarget, zAltDisplay, altSize);
         savedState = p->state;
         p->state &= ~ALLOW_WIKI;
         p->state |= FONT_MARKUP_ONLY;
-        wiki_render(p, zDisplay);
+        if( zAltDisplay[0] ){
+          wiki_render(p, zAltDisplay);
+        }else{
+          wiki_render(p, zDisplay);
+        }
         p->state = savedState;
-        if( ok ) blob_append(p->pOut, "</a>", 4);
+        if( needCloseA ) blob_append(p->pOut, "</a>", 4);
         break;
       }
       case TOKEN_TEXT: {
