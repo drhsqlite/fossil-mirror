@@ -835,18 +835,6 @@ void artifact_page(void){
 }
 
 /*
-** Return TRUE if the given BLOB contains a newline character.
-*/
-static int contains_newline(Blob *p){
-  const char *z = blob_str(p);
-  while( *z ){
-    if( *z=='\n' ) return 1;
-    z++;
-  }
-  return 0;
-}
-
-/*
 ** WEBPAGE: tinfo
 ** URL: /tinfo?name=UUID
 **
@@ -856,10 +844,8 @@ void tinfo_page(void){
   int rid;
   Blob content;
   char *zDate;
-  int i;
   const char *zUuid;
   char zTktName[20];
-  const char *z;
   Manifest m;
 
   login_check_credentials();
@@ -896,25 +882,8 @@ void tinfo_page(void){
   @
   @ <ol>
   free(zDate);
-  for(i=0; i<m.nField; i++){
-    Blob val;
-    z = m.aField[i].zName;
-    blob_set(&val, m.aField[i].zValue);
-    if( z[0]=='+' ){
-      @ <li><p>Appended to %h(&z[1]):</p><blockquote>
-      wiki_convert(&val, 0, 0);
-      @ </blockquote></li>
-    }else if( blob_size(&val)<=50 && contains_newline(&val) ){
-      @ <li><p>Change %h(z) to:</p><blockquote>
-      wiki_convert(&val, 0, 0);
-      @ </blockquote></li>
-    }else{
-      @ <li><p>Change %h(z) to "%h(blob_str(&val))"</p></li>
-    }
-    blob_reset(&val);
-  }
+  ticket_output_change_artifact(&m);
   manifest_clear(&m);
-  @ </ol>
   style_footer();
 }
 

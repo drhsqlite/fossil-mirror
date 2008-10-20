@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C More\simprovements\sto\sthe\stimeline\sdisplay\sof\sticket\schanges.
-D 2008-10-20T06:41:12
+C Improvements\sin\sthe\sdisplay\sof\sticket\shistory.
+D 2008-10-20T16:05:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -64,7 +64,7 @@ F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c e9965b66672ce64f5e97e3adc112cdba055e6d3e
+F src/info.c 219a4e589a857b003195a90de894e8b24601f7a8
 F src/login.c 1a6cb22669588b71d21282708989ebe28d2de3d3
 F src/main.c c1173878a4f567d2002b419acac54cf7112f419c
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
@@ -100,7 +100,7 @@ F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
-F src/tkt.c e278b1f557ab0e8cafbf7a71b5d5c3c617a58643
+F src/tkt.c 06773a209f626b7ec1a7720472dcbe0bedbe8632
 F src/tktsetup.c 953c7e0a99fa1b607852806ec97854638a35f92c
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -214,14 +214,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P a1f727be9d0ffa2c3f373ce66154a41d17dec767
-R 356e4f85f545d08c5b593bcf0488684f
+P f0c8693845d31d6592eafd35e4243f2e800cfba5
+R 8c3ce8282c12a49fc086d8d108a555cc
 U drh
-Z 50740153c0cfa1a328dbe41a4b7e6830
+Z 2e15b1a1bc2acf24075fa00d2645ced5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkj8KAgACgkQoxKgR168RlGqGQCdEN6x1uPzgYon4K0f/DoW9Etx
-uMMAn2TcierVRwGQ36TLFW5WHHNkDj2l
-=zpTM
+iEYEARECAAYFAkj8rDAACgkQoxKgR168RlHBjgCeMhmizQ9ukpanjIPQqO4zh1Dh
+h30Anj7AefaTuEXrpIGwo6MPuztoZiko
+=gpls
 -----END PGP SIGNATURE-----

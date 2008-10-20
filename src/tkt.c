@@ -325,8 +325,11 @@ void tktview_page(void){
         g.zTop, PD("name",""));
   }
   if( g.okHistory ){
+    const char *zUuid = PD("name","");
     style_submenu_element("History", "History Of This Ticket", 
-        "%s/tkthistory/%T", g.zTop, PD("name",""));
+        "%s/tkthistory/%T", g.zTop, zUuid);
+    style_submenu_element("Timeline", "Timeline Of This Ticket", 
+        "%s/tkttimeline/%T", g.zTop, zUuid);
   }
   style_header("View Ticket");
   ticket_init();
@@ -582,12 +585,12 @@ char *ticket_schema_check(const char *zSchema){
 }
 
 /*
-** WEBPAGE: tkthistory
-** URL: /tkthistory?name=TICKETUUID
+** WEBPAGE: tkttimeline
+** URL: /tkttimeline?name=TICKETUUID
 **
-** Show the complete change history for a single ticket
+** Show the change history for a single ticket in timeline format.
 */
-void tkthistory_page(void){
+void tkttimeline_page(void){
   Stmt q;
   char *zTitle;
   char *zSQL;
@@ -597,7 +600,11 @@ void tkthistory_page(void){
   login_check_credentials();
   if( !g.okHistory || !g.okRdTkt ){ login_needed(); return; }
   zUuid = PD("name","");
-  zTitle = mprintf("History Of Ticket %h", zUuid);
+  style_submenu_element("History", "History",
+    "%s/tkthistory/%s", g.zTop, zUuid);
+  style_submenu_element("Status", "Status",
+    "%s/info/%s", g.zTop, zUuid);
+  zTitle = mprintf("Timeline Of Ticket %h", zUuid);
   style_header(zTitle);
   free(zTitle);
 
@@ -616,4 +623,105 @@ void tkthistory_page(void){
   www_print_timeline(&q);
   db_finalize(&q);
   style_footer();
+}
+
+/*
+** WEBPAGE: tkthistory
+** URL: /tkthistory?name=TICKETUUID
+**
+** Show the complete change history for a single ticket
+*/
+void tkthistory_page(void){
+  Stmt q;
+  char *zTitle;
+  const char *zUuid;
+  int tagid;
+
+  login_check_credentials();
+  if( !g.okHistory || !g.okRdTkt ){ login_needed(); return; }
+  zUuid = PD("name","");
+  zTitle = mprintf("History Of Ticket %h", zUuid);
+  style_submenu_element("Status", "Status",
+    "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("Timeline", "Timeline",
+    "%s/tkttimeline?name=%s", g.zTop, zUuid);
+  style_header(zTitle);
+  free(zTitle);
+
+  tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
+  if( tagid==0 ){
+    @ No such ticket: %h(zUuid)
+    style_footer();
+    return;
+  }
+  db_prepare(&q,
+    "SELECT objid, uuid FROM event, blob"
+    " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
+    "   AND blob.rid=event.objid"
+    " ORDER BY mtime DESC",
+    tagid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    Blob content;
+    Manifest m;
+    int rid = db_column_int(&q, 0);
+    const char *zChngUuid = db_column_text(&q, 1);
+    content_get(rid, &content);
+    if( manifest_parse(&m, &content) && m.type==CFTYPE_TICKET ){
+      char *zDate = db_text(0, "SELECT datetime(%.12f)", m.rDate);
+      char zUuid[12];
+      memcpy(zUuid, zChngUuid, 10);
+      zUuid[10] = 0;
+      @
+      @ <p>%s(zDate)
+      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zUuid)</a>]</a>
+      @ by %h(m.zUser):</p>
+      @
+      free(zDate);
+      ticket_output_change_artifact(&m);
+    }
+    manifest_clear(&m);
+  }
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
+** Return TRUE if the given BLOB contains a newline character.
+*/
+static int contains_newline(Blob *p){
+  const char *z = blob_str(p);
+  while( *z ){
+    if( *z=='\n' ) return 1;
+    z++;
+  }
+  return 0;
+}
+
+/*
+** The pTkt object is a ticket change artifact.  Output a detailed
+** description of this object.
+*/
+void ticket_output_change_artifact(Manifest *pTkt){
+  int i;
+  @ <ol>
+  for(i=0; i<pTkt->nField; i++){
+    Blob val;
+    const char *z;
+    z = pTkt->aField[i].zName;
+    blob_set(&val, pTkt->aField[i].zValue);
+    if( z[0]=='+' ){
+      @ <li>Appended to %h(&z[1]):<blockquote>
+      wiki_convert(&val, 0, 0);
+      @ </blockquote></li>
+    }else if( blob_size(&val)<=50 && contains_newline(&val) ){
+      @ <li>Change %h(z) to:<blockquote>
+      wiki_convert(&val, 0, 0);
+      @ </blockquote></li>
+    }else{
+      @ <li>Change %h(z) to "%h(blob_str(&val))"</li>
+    }
+    blob_reset(&val);
+  }
+  @ </ol>
 }
