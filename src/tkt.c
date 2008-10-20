@@ -188,17 +188,22 @@ static int ticket_rebuild_at_commit(void){
 ** TICKET table entry if createFlag is true.  If createFlag is false,
 ** that means we already know the entry exists and so we can save the
 ** work of trying to create it.
+**
+** Return TRUE if a new TICKET entry was created and FALSE if an
+** existing entry was revised.
 */
-void ticket_insert(Manifest *p, int createFlag, int checkTime){
+int ticket_insert(Manifest *p, int createFlag, int checkTime){
   Blob sql;
   Stmt q;
   int i;
   const char *zSep;
+  int rc = 0;
 
   getAllTicketFields();
   if( createFlag ){  
     db_multi_exec("INSERT OR IGNORE INTO ticket(tkt_uuid, tkt_mtime) "
                   "VALUES(%Q, 0)", p->zTicketUuid);
+    rc = db_changes();
   }
   blob_zero(&sql);
   blob_appendf(&sql, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
@@ -231,6 +236,7 @@ void ticket_insert(Manifest *p, int createFlag, int checkTime){
                   "VALUES(%Q)", p->zTicketUuid);
   }
   blob_reset(&sql);
+  return rc;
 }
 
 /*

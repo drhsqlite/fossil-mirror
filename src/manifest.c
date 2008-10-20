@@ -894,14 +894,22 @@ int manifest_crosslink(int rid, Blob *pContent){
     free(zComment);
   }
   if( m.type==CFTYPE_TICKET ){
+    int i;
+    char *zTitle;
     char *zTag;
     Blob comment;
+    char *zNewStatus = 0;
+    static char *zTitleExpr = 0;
+    static char *zStatusColumn = 0;
+    static int once = 1;
+    int isNew;
 
-    ticket_insert(&m, 1, 1);
+    isNew = ticket_insert(&m, 1, 1);
     zTag = mprintf("tkt-%s", m.zTicketUuid);
     tag_insert(zTag, 1, 0, rid, m.rDate, rid);
     free(zTag);
     blob_zero(&comment);
+#if 0
     if( m.nField==1 ){
       if( m.aField[0].zName[0]=='+' ){
         blob_appendf(&comment, 
@@ -920,7 +928,6 @@ int manifest_crosslink(int rid, Blob *pContent){
         );
       }
     }else{
-#if 0
       int i;
       const char *z;
       const char *zSep = " ";
@@ -932,9 +939,58 @@ int manifest_crosslink(int rid, Blob *pContent){
         blob_appendf(&comment, "%s%h", zSep, z);
         zSep = ", ";
       }
-#endif
+      int i;
+      const char *zStatus = 0;
+      const char *zTitle;
+      for(i=0; i<m.nField; i++){
+        z = m.aField[i].zName;
+        if( strcmp(z, "status") ) zStatus = m.aField[i].zValue;
+      }
+      if( zField
       blob_appendf(&comment, "Edits to ticket [%.10s]", m.zTicketUuid);
     }
+#endif
+    if( once ){
+      once = 0;
+      zTitleExpr = db_get("ticket-title-expr", "title");
+      zStatusColumn = db_get("ticket-status-column", "status");
+    }
+    zTitle = db_text("unknown", 
+      "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+      zTitleExpr, m.zTicketUuid
+    );
+    if( !isNew ){
+      for(i=0; i<m.nField; i++){
+        if( strcmp(m.aField[i].zName, zStatusColumn)==0 ){
+          zNewStatus = m.aField[i].zValue;
+        }
+      }
+      if( zNewStatus ){
+        blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
+           zNewStatus, m.zTicketUuid, zTitle
+        );
+        if( m.nField>1 ){
+          blob_appendf(&comment, " plus %d other change%s",
+            m.nField-1, m.nField==2 ? "" : "s");
+        }
+      }else{
+        zNewStatus = db_text("unknown", 
+           "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+           zStatusColumn, m.zTicketUuid
+        );
+        blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
+             "%d other change%s",
+             m.zTicketUuid, zTitle, zNewStatus, m.nField,
+             m.nField==1 ? "" : "s"
+        );
+        free(zNewStatus);
+      }
+    }else{
+      blob_appendf(&comment, "New ticket [%.10s] <i>%h</i>.",
+        m.zTicketUuid, zTitle
+      );
+    }
+    free(zTitle);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('t',%.17g,%d,%Q,%Q)",

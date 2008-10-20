@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"version"\scommand\sto\sprint\sout\sthe\ssource-code\sversion\snumber\sfor\sthe\s\nfossil\sexecutable.
-D 2008-10-18T20:29:33
+C More\simprovements\sto\sthe\stimeline\sdisplay\sof\sticket\schanges.
+D 2008-10-20T06:41:12
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -71,7 +71,7 @@ F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl a62edbeae5b2ded245aeee3c0e030b9200f5925c
-F src/manifest.c 053fee443ee2842dfb75b9f89ff3f8fa23fb6c3b
+F src/manifest.c 3d201247f1942187ba085a0b1bb1e654df07ff22
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -100,8 +100,8 @@ F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
 F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
-F src/tkt.c e980babe0a1028b211782d97f2f13ce584833cbb
-F src/tktsetup.c c8d31b703ffb97ea74edd68b6d9d1fe534f72679
+F src/tkt.c e278b1f557ab0e8cafbf7a71b5d5c3c617a58643
+F src/tktsetup.c 953c7e0a99fa1b607852806ec97854638a35f92c
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
@@ -110,7 +110,7 @@ F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 5bb1f010935738997e7e102aaf75f6d7325b56c7
-F src/wikiformat.c ef5196ba6ca0c3cda889dc815dab4e4b6b1f7116
+F src/wikiformat.c ad6f4b4c3143980066b3b683cfba98d6f49be0be
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 35dc0c6452068309f69643a72ca015cabf31be16
 F src/zip.c df3f3d2e3919faa5e5fcf62e99de9534d19f1d07
@@ -214,14 +214,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P f7a410eca92ce63f90aeb959c9670a5fea993fe2
-R 1ee89de73897438e9b10a7b843a37b5d
+P a1f727be9d0ffa2c3f373ce66154a41d17dec767
+R 356e4f85f545d08c5b593bcf0488684f
 U drh
-Z cc6a27a80d89693fee2decdea1b496b4
+Z 50740153c0cfa1a328dbe41a4b7e6830
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.8 (Darwin)
 
-iD8DBQFI+kcwoxKgR168RlERAk4+AJ9s7gDT2OnOACdxqeRfIwwOIecuxQCeIOKy
-tYG1W9lA3TyGZw2m5Fp+kLo=
-=lArw
+iEYEARECAAYFAkj8KAgACgkQoxKgR168RlGqGQCdEN6x1uPzgYon4K0f/DoW9Etx
+uMMAn2TcierVRwGQ36TLFW5WHHNkDj2l
+=zpTM
 -----END PGP SIGNATURE-----
