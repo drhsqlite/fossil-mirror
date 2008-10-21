@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\s"ci"\sas\san\salias\sfor\s"commit".\s\sMake\sprovisions\sfor\sa\sfuture\s"fossil\smv"\ncommand.
-D 2008-10-21T06:10:33
+C The\s"diff"\scommand\swith\sno\sarguments\snow\sdoes\sa\sdiff\son\sall\sfiles\sin\sthe\ncheckout\swhich\shave\sbeen\sedited.
+D 2008-10-21T06:52:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -59,7 +59,7 @@ F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
-F src/diffcmd.c bf0ebffd4d9e7872202e6c4d0488c95bc2bd4276
+F src/diffcmd.c 74bdae74dde0af7eebc0366840130f6dc1495f99
 F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
@@ -214,14 +214,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P c8a78004ce272d700f44890e7ce715a38afeac04
-R 9becbe1359109f72f9a3beb113db2f30
+P 2bde9f9b3d97781ea981f8ac6a0c37b6771e9fae
+R 97e43cfba13294f33f02a5536b99bb4b
 U drh
-Z 674bf00529b68024f0432274bcad77bd
+Z 7d64523530fc0a09265ce868be244aca
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkj9clkACgkQoxKgR168RlEuiwCfRwnED/voq5ZEFgJmBLXouwaQ
-OSMAmgLaXZ7dQTkWOQJJWB0lnX1zHDPE
-=8C+J
+iEYEARECAAYFAkj9fCcACgkQoxKgR168RlFe2ACgiBRXhfbE4//sptmf3C3dV9Ln
+JC0An2V8YCm7q/lHLvDheizsWYwCjKFJ
+=GRMe
 -----END PGP SIGNATURE-----

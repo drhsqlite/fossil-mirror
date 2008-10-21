@@ -33,13 +33,76 @@
 static void shell_escape(Blob *pBlob, const char *zIn){
   int n = blob_size(pBlob);
   int k = strlen(zIn);
-  int i;
+  int i, c;
   char *z;
-  blob_appendf(pBlob, "\"%s\"", zIn);
-  z = blob_buffer(pBlob);
-  for(i=n+1; i<=n+k; i++){
-    if( z[i]=='"' ) z[i] = '_';
+  for(i=0; (c = zIn[i])!=0; i++){
+    if( isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
+      blob_appendf(pBlob, "\"%s\"", zIn);
+      z = blob_buffer(pBlob);
+      for(i=n+1; i<=n+k; i++){
+        if( z[i]=='"' ) z[i] = '_';
+      }
+      return;
+    }
   }
+  blob_append(pBlob, zIn, -1);
+}
+
+/*
+** Run the fossil diff command separately for every file in the current
+** checkout that has changed.
+*/
+static void diff_all(int internalDiff,  const char *zRevision){
+  Stmt q;
+  Blob cmd;
+  int nCmdBase;
+  int vid;
+  
+  vid = db_lget_int("checkout", 0);
+  vfile_check_signature(vid);
+  blob_zero(&cmd);
+  shell_escape(&cmd, g.argv[0]);
+  blob_append(&cmd, " diff ", -1);
+  if( internalDiff ){
+    blob_append(&cmd, "-i ", -1);
+  }
+  if( zRevision ){
+    blob_append(&cmd, "-r ", -1);
+    shell_escape(&cmd, zRevision);
+    blob_append(&cmd, " ", 1);
+  }
+  nCmdBase = blob_size(&cmd);
+  db_prepare(&q, 
+    "SELECT pathname, deleted, chnged, rid FROM vfile "
+    "WHERE chnged OR deleted OR rid=0 ORDER BY 1"
+  );
+
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zPathname = db_column_text(&q,0);
+    int isDeleted = db_column_int(&q, 1);
+    int isChnged = db_column_int(&q,2);
+    int isNew = db_column_int(&q,3)==0;
+    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+    cmd.nUsed = nCmdBase;
+    if( isDeleted ){
+      printf("DELETED  %s\n", zPathname);
+    }else if( access(zFullName, 0) ){
+      printf("MISSING  %s\n", zPathname);
+    }else if( isNew ){
+      printf("ADDED    %s\n", zPathname);
+    }else if( isDeleted ){
+      printf("DELETED  %s\n", zPathname);
+    }else if( isChnged==3 ){
+      printf("ADDED_BY_MERGE %s\n", zPathname);
+    }else{
+      shell_escape(&cmd, zFullName);
+      printf("%s\n", blob_str(&cmd));
+      fflush(stdout);
+      system(blob_str(&cmd));
+    }
+    free(zFullName);
+  }
+  db_finalize(&q);
 }
 
 /*
@@ -71,6 +134,7 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 **   %fossil setting gdiff-command kdiff3
 */
 void diff_cmd(void){
+  int isGDiff = g.argv[1][0]=='g';
   const char *zFile, *zRevision;
   Blob cmd;
   Blob fname;
@@ -81,15 +145,19 @@ void diff_cmd(void){
   internalDiff = find_option("internal","i",0)!=0;
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
+  db_must_be_within_tree();
 
+  if( !isGDiff && g.argc==2 ){
+    diff_all(internalDiff, zRevision);
+    return;
+  }
   if( g.argc<3 ){
     usage("?OPTIONS? FILE");
   }
-  db_must_be_within_tree();
 
   if( internalDiff==0 ){
     const char *zExternalCommand;
-    if( strcmp(g.argv[1], "diff")==0 ){
+    if( !isGDiff ){
       zExternalCommand = db_get("diff-command", 0);
     }else{
       zExternalCommand = db_get("gdiff-command", 0);
@@ -116,9 +184,9 @@ void diff_cmd(void){
     }
     content_get(rid, &record);
   }else{
-    historical_version_of_file(zRevision, zFile, &record);
+    historical_version_of_file(zRevision, blob_str(&fname), &record);
   }
-  if( internalDiff==1 ){
+  if( internalDiff ){
     Blob out;
     Blob current;
     blob_zero(&current);
