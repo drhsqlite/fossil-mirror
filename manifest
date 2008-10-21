@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sin\sthe\sdisplay\sof\sticket\shistory.
-D 2008-10-20T16:05:03
+C Add\s"ci"\sas\san\salias\sfor\s"commit".\s\sMake\sprovisions\sfor\sa\sfuture\s"fossil\smv"\ncommand.
+D 2008-10-21T06:10:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -45,7 +45,7 @@ F src/blob.c ea84a9c14c54f976e13d3761ec4f20ffbff843ca
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c ec3c5c426770d11abcc88c588f379fb5b0643c55
-F src/checkin.c 4a866358e30844ec8501e980dbe2d87f02c34406
+F src/checkin.c efd09b5c80b958aac7397045101b47f8799143d0
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c ac6a2f8b2bb16bdb829c2a27cb61d8d88a7da2de
@@ -71,7 +71,7 @@ F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl a62edbeae5b2ded245aeee3c0e030b9200f5925c
-F src/manifest.c 3d201247f1942187ba085a0b1bb1e654df07ff22
+F src/manifest.c c90f25b147c9dd54f20a96e2198fbf1a50021dc6
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -204,7 +204,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki fff56efd8bb12d07e65153ad30ed820dbce8b1bd
+F www/fileformat.wiki 3e2ac76c49327ffea2eeb3f790f3a1b50452b393
 F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
@@ -214,14 +214,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P f0c8693845d31d6592eafd35e4243f2e800cfba5
-R 8c3ce8282c12a49fc086d8d108a555cc
+P c8a78004ce272d700f44890e7ce715a38afeac04
+R 9becbe1359109f72f9a3beb113db2f30
 U drh
-Z 2e15b1a1bc2acf24075fa00d2645ced5
+Z 674bf00529b68024f0432274bcad77bd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkj8rDAACgkQoxKgR168RlHBjgCeMhmizQ9ukpanjIPQqO4zh1Dh
-h30Anj7AefaTuEXrpIGwo6MPuztoZiko
-=gpls
+iEYEARECAAYFAkj9clkACgkQoxKgR168RlEuiwCfRwnED/voq5ZEFgJmBLXouwaQ
+OSMAmgLaXZ7dQTkWOQJJWB0lnX1zHDPE
+=8C+J
 -----END PGP SIGNATURE-----

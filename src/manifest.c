@@ -143,7 +143,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   int seenHeader = 0;
   int seenZ = 0;
   int i, lineNo=0;
-  Blob line, token, a1, a2, a3;
+  Blob line, token, a1, a2, a3, a4;
   char cPrevType = 0;
 
   memset(p, 0, sizeof(*p));
@@ -274,14 +274,14 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     F <filename> <uuid> ?<permissions>?
+      **     F <filename> <uuid> ?<permissions>? ?<old-name>?
       **
       ** Identifies a file in a manifest.  Multiple F lines are
       ** allowed in a manifest.  F lines are not allowed in any
-      ** other control file.  The filename is fossil-encoded.
+      ** other control file.  The filename and old-name are fossil-encoded.
       */
       case 'F': {
-        char *zName, *zUuid, *zPerm;
+        char *zName, *zUuid, *zPerm, *zPriorName;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
@@ -294,6 +294,14 @@ int manifest_parse(Manifest *p, Blob *pContent){
         defossilize(zName);
         if( !file_is_simple_pathname(zName) ){
           goto manifest_syntax_error;
+        }
+        blob_token(&line, &a4);
+        zPriorName = blob_terminate(&a4);
+        if( zPriorName[0] ){
+          defossilize(zPriorName);
+          if( !file_is_simple_pathname(zPriorName) ){
+            goto manifest_syntax_error;
+          }
         }
         if( p->nFile>=p->nFileAlloc ){
           p->nFileAlloc = p->nFileAlloc*2 + 10;

@@ -331,6 +331,7 @@ void select_commit_files(void){
 }
 
 /*
+** COMMAND: ci
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?-m COMMENT? ?--nosign? ?FILE...?
