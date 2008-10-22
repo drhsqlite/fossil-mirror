@@ -259,7 +259,8 @@ void testtag_cmd(void){
 static void tag_prepare_fork(
   Blob *pCtrl, 
   const char *zTagname,
-  int rid
+  int rid,
+  int preflen                 /* Tag prefix length to adjust name if reqd */
 ){
   Stmt q;
   Manifest origin;
@@ -267,7 +268,7 @@ static void tag_prepare_fork(
   char *zDate;
   int i;
 
-  blob_appendf(pCtrl, "C Create\\snamed\\sfork\\s%s\n", zTagname+4);
+  blob_appendf(pCtrl, "C Create\\snamed\\sfork\\s%s\n", zTagname+preflen);
   content_get(rid, &originContent);
   manifest_parse(&origin, &originContent);
   zDate = db_text(0, "SELECT datetime('now')");
@@ -311,7 +312,8 @@ static void tag_add_artifact(
   const char *zObjName,       /* Name of object attached to */
   const char *zValue,         /* Value for the tag.  Might be NULL */
   int tagtype,                /* 0:cancel 1:singleton 2:propagated */
-  int fork                    /* Should a fork created from zObjName? */
+  int fork,                   /* Should a fork created from zObjName? */
+  int preflen                 /* Tag prefix length to adjust name if reqd */
 ){
   int rid;
   int nrid;
@@ -336,7 +338,7 @@ static void tag_add_artifact(
                  zTagname);
   }
   if( fork ){
-    tag_prepare_fork(&ctrl, zTagname, rid);
+    tag_prepare_fork(&ctrl, zTagname, rid, preflen);
   }else{
     zDate = db_text(0, "SELECT datetime('now')");
     zDate[10] = 'T';
@@ -369,28 +371,27 @@ static void tag_add_artifact(
 **     %fossil tag add ?--raw? TAGNAME UUID ?VALUE?
 **
 **         Add a new tag or property to UUID. The tag will
-**         be usable instead of a UUID in commands like
-**         update and such.
+**         be usable instead of a UUID in commands such as
+**         update and merge.
 **
-**     %fossil tag branch ?--raw? TAGNAME UUID ?VALUE?
+**     %fossil tag branch ?--raw? ?--nofork? TAGNAME UUID ?VALUE?
 **
-**         A fork of UUID will be created. Then the new tag
-**         or property will be added to the fork that
-**         propagate to all direct children.
+**         A fork will be created so that the new checkin
+**         is a sibling of UUID and identical to it except
+**         for a generated comment. Then the new tag will
+**         be added to the new checkin and propagated to
+**         all direct children.  Additionally all symbolic
+**         tags of that checkin inherited from UUID will
+**         be cancelled.
 **
-**         Additionally all symbolic tags of that fork
-**         inherited from UUID will be cancelled.
-**
-**         However, if the option '--raw' was given, no
-**         fork will be created but the tag/property will be
-**         added to UUID directly and no tag will be
-**         canceled.
-**
-**         Please see the description of '--raw' below too.
+**         However, if the option --nofork is given, no
+**         fork will be created and the tag/property will be
+**         added to UUID directly. No tags will be canceled.
 **
 **     %fossil tag cancel ?--raw? TAGNAME UUID
 **
-**         Cancel the tag TAGNAME from UUID
+**         Remove the tag TAGNAME from UUID, and also remove
+**         the propagation of the tag to any descendants.
 **
 **     %fossil tag find ?--raw? TAGNAME
 **
@@ -401,28 +402,29 @@ static void tag_add_artifact(
 **         List all tags, or if UUID is supplied, list
 **         all tags and their values for UUID.
 **
-** The option ?--raw? is to expose the internal interface 
-** for tag handling. This option is not necessary for the
-** normal use.
+** The option --raw allows the manipulation of all types of
+** tags used for various internal purposes in fossil. You
+** should not use this option to make changes unless you are
+** sure what you are doing.
 **
-** If you use a tagname that might be confused with a UUID,
-** you have to explicitly disambiguate it by prefixing it
-** with "tag:". For instance:
+** If you need to use a tagname that might be confused with
+** a UUID, you can explicitly disambiguate it by prefixing
+** it with "tag:". For instance:
 **
-**   fossil update cfcfcfee
+**   fossil update decaf
 **
-** is not the same as:
+** will be taken as a UUID and fossil will probably complain
+** that no such revision was found. However
 **
 **   fossil update tag:cfcfcfee
 **
-** The first will be taken as UUID and fossil will complain
-** if no such revision was found, and the second one expect
-** "cfcfcfee" to be a tag/branch name!
+** will assume that "decaf" is a tag/branch name.
 **
 */
 void tag_cmd(void){
   int n;
   int raw = find_option("raw","",0)!=0;
+  int fork = find_option("nofork","",0)==0;
   const char *prefix = raw ? "" : "sym-";
   int preflen = strlen(prefix);
   Blob tagname;
@@ -445,18 +447,19 @@ void tag_cmd(void){
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 1, 0);
+    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 1, 0, 0);
   }else
 
   if( strncmp(g.argv[2],"branch",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("branch ?--raw? TAGNAME UUID ?VALUE?");
+      usage("branch ?--raw? ?--nofork? TAGNAME UUID ?VALUE?");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 2, raw==0);
-    if( !raw ){
+    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 2, fork!=0,
+                                                      preflen);
+    if( fork ){
       const char *zUuid = db_text(0, "SELECT uuid, MAX(rowid) FROM blob");
       printf("New_Fork \"%s\": %s\n", g.argv[3], zUuid);
     }
@@ -467,7 +470,7 @@ void tag_cmd(void){
       usage("cancel ?--raw? TAGNAME UUID");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
-    tag_add_artifact(blob_str(&tagname), g.argv[4], 0, 0, 0);
+    tag_add_artifact(blob_str(&tagname), g.argv[4], 0, 0, 0, 0);
   }else
 
   if( strncmp(g.argv[2],"find",n)==0 ){
