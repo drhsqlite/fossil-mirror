@@ -416,7 +416,7 @@ static void tag_add_artifact(
 ** will be taken as a UUID and fossil will probably complain
 ** that no such revision was found. However
 **
-**   fossil update tag:cfcfcfee
+**   fossil update tag:decaf
 **
 ** will assume that "decaf" is a tag/branch name.
 **

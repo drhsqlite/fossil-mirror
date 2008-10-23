@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Add\sa\s--nofork\soption\sto\s"tag\sbranch"\sso\sthat\s--raw\sis\snot\sbeing\sused\nfor\stwo\sdifferent\spurposes.\sModify\sand\stidy\sup\sthe\scorresponding\shelp\stext.
-D 2008-10-22T19:35:08
+C Fix\sa\sspelling\sin\shelp\stext\sof\s'tag\sbranch'.
+D 2008-10-23T03:21:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -93,7 +90,7 @@ F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c b7851e999cde8dd526f4814bb1e885feb82a1aa2
 F src/style.c 89fb0defc597413d74cce8b45e2ad95e02f8c1fa
 F src/sync.c c4538ea75a0de47f722148472361f8e7d69b9b26
-F src/tag.c 7a59c3269f6c2cb5286fb8533f7f702f9b41fca9
+F src/tag.c e1515e30e4efc5c7e13c7638ebd3cf7e7d5cba00
 F src/tagview.c ea43e4dea1834dd5be650c299e7be1394a204b1b
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
@@ -214,14 +211,7 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P c863ec1a98c424f6c1518a2f9fb72409dec32ff2
-R c2bb971a4752157f409bf77a6753a539
-U eric
-Z ec360bbb1cb87f12761f4177de031bb5
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFI/4Ccu+lpsLhDMQkRAvW7AJ4l1cfuqaSpqbqcioJk+URZh9MDowCfR/xE
-pry7keCYYB/rHmDshCE+89E=
-=GA4/
------END PGP SIGNATURE-----
+P c887b2b66e643ef09989ecfda62733f9b274066a
+R 09d68c46866c27e6164d8071b9a95517
+U cle
+Z affc7478de109ec5a73ab0d275b6d2fd
