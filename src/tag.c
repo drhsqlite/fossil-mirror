@@ -213,7 +213,7 @@ void tag_insert(
 
 /*
 ** COMMAND: test-tag
-** %fossil test-tag (+|*|-)TAGNAME UUID ?VALUE?
+** %fossil test-tag (+|*|-)TAGNAME ARTIFACT-ID ?VALUE?
 **
 ** Add a tag or anti-tag to the rebuildable tables of the local repository.
 ** No tag artifact is created so the new tag is erased the next
@@ -227,7 +227,7 @@ void testtag_cmd(void){
   int tagtype;
   db_must_be_within_tree();
   if( g.argc!=4 && g.argc!=5 ){
-    usage("TAGNAME UUID ?VALUE?");
+    usage("TAGNAME ARTIFACT-ID ?VALUE?");
   }
   zTag = g.argv[2];
   switch( zTag[0] ){
@@ -249,7 +249,7 @@ void testtag_cmd(void){
 }
 
 /*
-** Prepare an artifact that describes a fork from a certain UUID.
+** Prepare an artifact that describes a fork from a certain baseline.
 ** Furthermore a propagating symbolic tag will be inserted and
 ** all other propagating symbolic tags will be cancelled.
 **
@@ -334,8 +334,11 @@ static void tag_add_artifact(
   blob_zero(&ctrl);
 
   if( validate16(zTagname, strlen(zTagname)) ){
-    fossil_fatal("invalid tag name \"%s\" - might be confused with a UUID",
-                 zTagname);
+    fossil_fatal(
+       "invalid tag name \"%s\" - might be confused with"
+       " a hexadecimal artifact ID",
+       zTagname
+    );
   }
   if( fork ){
     tag_prepare_fork(&ctrl, zTagname, rid, preflen);
@@ -368,39 +371,39 @@ static void tag_add_artifact(
 **
 ** Run various subcommands to control tags and properties
 **
-**     %fossil tag add ?--raw? TAGNAME UUID ?VALUE?
+**     %fossil tag add ?--raw? TAGNAME BASELINE ?VALUE?
 **
-**         Add a new tag or property to UUID. The tag will
-**         be usable instead of a UUID in commands such as
+**         Add a new tag or property to BASELINE. The tag will
+**         be usable instead of a BASELINE in commands such as
 **         update and merge.
 **
-**     %fossil tag branch ?--raw? ?--nofork? TAGNAME UUID ?VALUE?
+**     %fossil tag branch ?--raw? ?--nofork? TAGNAME BASELINE ?VALUE?
 **
 **         A fork will be created so that the new checkin
-**         is a sibling of UUID and identical to it except
+**         is a sibling of BASELINE and identical to it except
 **         for a generated comment. Then the new tag will
 **         be added to the new checkin and propagated to
 **         all direct children.  Additionally all symbolic
-**         tags of that checkin inherited from UUID will
+**         tags of that checkin inherited from BASELINE will
 **         be cancelled.
 **
 **         However, if the option --nofork is given, no
 **         fork will be created and the tag/property will be
-**         added to UUID directly. No tags will be canceled.
+**         added to BASELINE directly. No tags will be canceled.
 **
-**     %fossil tag cancel ?--raw? TAGNAME UUID
+**     %fossil tag cancel ?--raw? TAGNAME BASELINE
 **
-**         Remove the tag TAGNAME from UUID, and also remove
+**         Remove the tag TAGNAME from BASELINE, and also remove
 **         the propagation of the tag to any descendants.
 **
 **     %fossil tag find ?--raw? TAGNAME
 **
 **         List all baselines that use TAGNAME
 **
-**     %fossil tag list ?--raw? ?UUID?
+**     %fossil tag list ?--raw? ?BASELINE?
 **
-**         List all tags, or if UUID is supplied, list
-**         all tags and their values for UUID.
+**         List all tags, or if BASELINE is supplied, list
+**         all tags and their values for BASELINE.
 **
 ** The option --raw allows the manipulation of all types of
 ** tags used for various internal purposes in fossil. You
@@ -408,13 +411,13 @@ static void tag_add_artifact(
 ** sure what you are doing.
 **
 ** If you need to use a tagname that might be confused with
-** a UUID, you can explicitly disambiguate it by prefixing
-** it with "tag:". For instance:
+** a hexadecimal baseline or artifact ID, you can explicitly
+** disambiguate it by prefixing it with "tag:". For instance:
 **
 **   fossil update decaf
 **
-** will be taken as a UUID and fossil will probably complain
-** that no such revision was found. However
+** will be taken as an artifact or baseline ID and fossil will
+** probably complain that no such revision was found. However
 **
 **   fossil update tag:decaf
 **
@@ -443,7 +446,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("add ?--raw? TAGNAME UUID ?VALUE?");
+      usage("add ?--raw? TAGNAME BASELINE ?VALUE?");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
@@ -453,7 +456,7 @@ void tag_cmd(void){
   if( strncmp(g.argv[2],"branch",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("branch ?--raw? ?--nofork? TAGNAME UUID ?VALUE?");
+      usage("branch ?--raw? ?--nofork? TAGNAME BASELINE ?VALUE?");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
@@ -467,7 +470,7 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"cancel",n)==0 ){
     if( g.argc!=5 ){
-      usage("cancel ?--raw? TAGNAME UUID");
+      usage("cancel ?--raw? TAGNAME BASELINE");
     }
     blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     tag_add_artifact(blob_str(&tagname), g.argv[4], 0, 0, 0, 0);
@@ -531,7 +534,7 @@ void tag_cmd(void){
       }
       db_finalize(&q);
     }else{
-      usage("tag list ?UUID?");
+      usage("tag list ?BASELINE?");
     }
   }else
   {

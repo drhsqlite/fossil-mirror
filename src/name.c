@@ -146,11 +146,11 @@ int sym_tag_to_uuid(const char *pName, Blob *pUuid){
 }
 
 /*
-** COMMAND:  test-name-to-uuid
+** COMMAND:  test-name-to-id
 **
-** Convert a name to a full UUID.
+** Convert a name to a full artifact ID.
 */
-void test_name_to_uuid(void){
+void test_name_to_id(void){
   int i;
   Blob name;
   db_must_be_within_tree();

@@ -74,10 +74,10 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
 /*
 ** COMMAND: info
 **
-** Usage: %fossil info ?UUID|FILENAME?
+** Usage: %fossil info ?ARTIFACT-ID|FILENAME?
 **
 ** With no arguments, provide information about the current tree.
-** If an argument is given, provide information about the record
+** If an argument is specified, provide information about the object
 ** in the respository of the current tree that the argument refers
 ** to.  Or if the argument is the name of a repository, show
 ** information about that repository.
@@ -85,7 +85,7 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
 void info_cmd(void){
   i64 fsize;
   if( g.argc!=2 && g.argc!=3 ){
-    usage("?FILENAME|UUID?");
+    usage("?FILENAME|ARTIFACT-ID?");
   }
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config();
@@ -305,7 +305,7 @@ static void showTags(int rid, const char *zNotGlob){
 
 /*
 ** WEBPAGE: vinfo
-** URL:  /vinfo?name=RID|UUID
+** URL:  /vinfo?name=RID|ARTIFACTID
 **
 ** Return information about a baseline
 */
@@ -797,9 +797,9 @@ void diff_page(void){
 
 /*
 ** WEBPAGE: artifact
-** URL: /artifact?name=UUID
+** URL: /artifact?name=ARTIFACTID
 ** 
-** Show the complete content of a file identified by UUID
+** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
 */
 void artifact_page(void){
@@ -836,7 +836,7 @@ void artifact_page(void){
 
 /*
 ** WEBPAGE: tinfo
-** URL: /tinfo?name=UUID
+** URL: /tinfo?name=ARTIFACTID
 **
 ** Show the details of a ticket change control artifact.
 */
@@ -890,12 +890,12 @@ void tinfo_page(void){
 
 /*
 ** WEBPAGE: info
-** URL: info/UUID
+** URL: info/ARTIFACTID
 **
-** The argument is a UUID which might be a baseline or a file or
+** The argument is a artifact ID which might be a baseline or a file or
 ** a ticket changes or a wiki editor or something else. 
 **
-** Figure out what the UUID is and jump to it.
+** Figure out what the artifact ID is and jump to it.
 */
 void info_page(void){
   const char *zName;

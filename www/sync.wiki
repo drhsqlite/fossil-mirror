@@ -10,7 +10,8 @@ repositories.</p>
 <h2>1.0 Overview</h2>
 
 <p>The global state of a fossil repository consists of an unordered
-collection of artifacts.  Each artifact is identified by its SHA1 hash.
+collection of artifacts.  Each artifact is identified by its SHA1 hash
+expressed as a 40-character lower-case hexadecimal string.
 Synchronization is simply the process of sharing artifacts between
 servers so that all servers have copies of all artifacts.  Because
 artifacts are unordered, the order in which artifacts are received
@@ -152,32 +153,33 @@ privileges of each individual login.</p>
 
 <h3>3.3 File Cards</h3>
 
-<p>Repository content records or files are transferred using
-a "file" card.  File cards come in two different formats depending
-on whether the file is sent directly or as a delta from some
-other file.</p>
+<p>Artifacts are transferred using "file" cards.  (The name "file"
+card comes from the fact that most artifacts correspond to files.)
+File cards come in two different formats depending
+on whether the artifact is sent directly or as a delta from some
+other artifact.</p>
 
 <blockquote>
-<b>file</b> <i>uuid size</i> <b>\n</b> <i>content</i><br>
-<b>file</b> <i>uuid delta-uuid size</i> <b>\n</b> <i>content</i>
+<b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i><br>
+<b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
 </blockquote>
 
 <p>File cards are different from all other cards in that they
-followed by in-line "payload" data.  The content of the file
-or the file delta consists of the first <i>size</i> bytes of the
+followed by in-line "payload" data.  The content of the artifact
+or the artifact delta consists of the first <i>size</i> bytes of the
 x-fossil content that immediately follow the newline that
 terminates the file card.  No other cards have this characteristic.
 </p>
 
-<p>The first argument of a file card is the UUID of the file that
-is being transferred.  The UUID is the lower-case hexadecimal
-representation of the SHA1 hash of the entire file content.
+<p>The first argument of a file card is the ID of the artifact that
+is being transferred.  The artifact ID is the lower-case hexadecimal
+representation of the SHA1 hash of the artifact.
 The last argument of the file card is the number of bytes of
 payload that immediately follow the file card.  If the file
 card has only two arguments, that means the payload is the
-complete content of the file.  If the file card has three
+complete content of the artifact.  If the file card has three
 arguments, then the payload is a delta and second argument is
-the UUID of another file that is the source of the delta.</p>
+the ID of another artifact that is the source of the delta.</p>
 
 <p>File cards are sent in both directions: client to server and
 server to client.  A delta might be sent before the source of
@@ -228,29 +230,29 @@ this project.</p>
 
 <p>An igot card can be sent from either client to server or from
 server to client in order to indicate that the sender holds a copy
-of a particular file.  The format is:</p>
+of a particular artifact.  The format is:</p>
 
 <blockquote>
-<b>igot</b> <i>uuid</i>
+<b>igot</b> <i>artifact-id</i>
 </blockquote>
 
-<p>The argument of the igot card is the UUID of the file that
+<p>The argument of the igot card is the ID of the artifact that
 the sender possesses.
 The receiver of an igot card will typically check to see if
-it also holds the same file and if not it will request the file
+it also holds the same artifact and if not it will request the artifact
 using a gimme card in either the reply or in the next message.</p>
 
 <h3>3.7 Gimme Cards</h3>
 
 <p>A gimme card is sent from either client to server or from server
 to client.  The gimme card asks the receiver to send a particular
-file back to the sender.  The format of a gimme card is this:</p>
+artifact back to the sender.  The format of a gimme card is this:</p>
 
 <blockquote>
-<b>gimme</b> <i>uuid</i>
+<b>gimme</b> <i>artifact-id</i>
 </blockquote>
 
-<p>The argument to the gimme card is the UUID of the file that
+<p>The argument to the gimme card is the ID of the artifact that
 the sender wants.  The receiver will typically respond to a
 gimme card by sending a file card in its reply or in the next
 message.</p>
@@ -302,20 +304,20 @@ described above, then it generates an error and aborts.</p>
 
 <h2>4.0 Phantoms And Clusters</h2>
 
-<p>When a repository knows that a file exists and knows the UUID of
-that file, but it does not know the file content, then it stores that
-file as a "phantom".  A repository will typically create a phantom when
-it receives an igot card for a file that it does not hold or when it
+<p>When a repository knows that a artifact exists and knows the ID of
+that artifact, but it does not know the artifact content, then it stores that
+artifact as a "phantom".  A repository will typically create a phantom when
+it receives an igot card for a artifact that it does not hold or when it
 receives a file card that references a delta source that it does not
 hold.  When a server is generating its reply or when a client is
 generating a new request, it will usually send gimme cards for every
 phantom that it holds.</p>
 
-<p>A cluster is a special file that tells of the existence of other
-files.  Any file in the repository that follows the syntactic rules
+<p>A cluster is a special artifact that tells of the existence of other
+artifacts.  Any artifact in the repository that follows the syntactic rules
 of a cluster is considered a cluster.</p>
 
-<p>A cluster is a line oriented file.  Each line of a cluster
+<p>A cluster is line oriented.  Each line of a cluster
 is a card.  The cards are separated by the newline ("\n") character.
 Each card consists of a single character card type, a space, and a
 single argument.  No extra whitespace and no trailing or leading
@@ -323,28 +325,28 @@ whitespace is allowed.  All cards in the cluster must occur in
 strict lexicographical order.</p>
 
 <p>A cluster consists of one or more "M" cards followed by a single
-"Z" card.  Each M card holds an argument which is a UUID for a file
-in the repository.  The Z card has a single argument which is the
+"Z" card.  Each M card holds an argument which is a artifact ID for an
+artifact in the repository.  The Z card has a single argument which is the
 lower-case hexadecimal representation of the MD5 checksum of all
 preceding M cards up to and included the newline character that
 occurred just before the Z that starts the Z card.</p>
 
-<p>Any file that does not match the specifications of a cluster
+<p>Any artifact that does not match the specifications of a cluster
 exactly is not a cluster.  There must be no extra whitespace in
-the file.  There must be one or more M cards.  There must be a
+the artifact.  There must be one or more M cards.  There must be a
 single Z card with a correct MD5 checksum.  And all cards must
 be in strict lexicographical order.</p>
 
 <h3>4.1 The Unclustered Table</h3>
 
 <p>Every repository maintains a table named "<b>unclustered</b>"
-which records the identity of every file and phantom it holds that is not
+which records the identity of every artifact and phantom it holds that is not
 mentioned in a cluster.  The entries in the unclustered table can
-be thought of as leaves on a tree of files.  Some of the unclustered
-files will be clusters.  Those clusters may contain other clusters,
+be thought of as leaves on a tree of artifacts.  Some of the unclustered
+artifacts will be other clusters.  Those clusters may contain other clusters,
 which might contain still more clusters, and so forth.  Beginning
-with the files in the unclustered table, one can follow the chain
-of clusters to find every file in the repository.</p>
+with the artifacts in the unclustered table, one can follow the chain
+of clusters to find every artifact in the repository.</p>
 
 <h2>5.0 Synchronization Strategies</h2>
 
@@ -362,18 +364,18 @@ a pull is captured in the following steps:</p>
 <li>The server checks the login password and rejects the session if
 the user does not have permission to pull.
 <li>If the number entries in the unclustered table on the server is
-greater than 100, then the server constructs a new cluster file to
+greater than 100, then the server constructs a new cluster artifact to
 cover all those unclustered entries.
 <li>The server sends file cards for every gimme card it received
 from the client.
-<li>The server sends ihave cards for every file in its unclustered
+<li>The server sends ihave cards for every artifact in its unclustered
 table that is not a phantom.
 <hr>
 <li>The client adds the content of file cards to its repository.
 <li>The client creates a phantom for every ihave card in the server reply
-that mentions a file that the client does not possess.
+that mentions an artifact that the client does not possess.
 <li>The client creates a phantom for the delta source of file cards when
-the delta source is a file that the client does not possess.
+the delta source is an artifact that the client does not possess.
 </ol>
 
 <p>These ten steps represent a single HTTP round-trip request.
@@ -384,7 +386,7 @@ reply.  And the last three steps are the processing that the
 client does to interpret the reply.</p>
 
 <p>During a pull, the client will keep sending HTTP requests
-until it holds all files that exist on the server.</p>
+until it holds all artifacts that exist on the server.</p>
 
 <p>Note that the server tries
 to limit the size of its reply message to something reasonable
@@ -407,20 +409,20 @@ with a pull, the actual implementation may vary slightly.</p>
 
 <ol>
 <li>The client sends login and push cards.
-<li>The client sends file cards for any files that it holds that have
-never before been pushed - files that come from local check-ins.
+<li>The client sends file cards for any artifacts that it holds that have
+never before been pushed - artifacts that come from local check-ins.
 <li>If this is the second or later cycle in a push, then the
 client sends file cards for any gimme cards that the server sent
 in the previous cycle.
-<li>The client sends igot cards for every file in its unclustered table
+<li>The client sends igot cards for every artifact in its unclustered table
 that is not a phantom.
 <hr>
 <li>The server checks the login and push cards and issues an error if
 anything is amiss.
-<li>The server accepts file cards from the client and adds those files
+<li>The server accepts file cards from the client and adds those artifacts
 to its repository.
-<li>The server creates phantoms for igot cards that mention files it
-does not possess or for file cards that mention delta source files that
+<li>The server creates phantoms for igot cards that mention artifacts it
+does not possess or for file cards that mention delta source artifacts that
 it does not possess.
 <li>The server issues gimme cards for all phantoms.
 <hr>
@@ -429,7 +431,7 @@ can generate file cards in reply on the next cycle.
 </ol>
 
 <p>As with a pull, the steps of a push operation repeat until the
-server knows all files that exist on the client.  Also, as with
+server knows all artifacts that exist on the client.  Also, as with
 pull, the client attempts to keep the size of the request from
 growing too large by suppressing file cards once the
 size of the request reaches 1MB.</p>
@@ -458,18 +460,18 @@ are combined with step (9) of a push.</p>
     <li> <b>push</b> <i>servercode projectcode</i>
     <li> <b>pull</b> <i>servercode projectcode</i>
     <li> <b>clone</b>
-    <li> <b>file</b> <i>uuid size</i> <b>\n</b> <i>content</i>
-    <li> <b>file</b> <i>uuid delta-uuid size</i> <b>\n</b> <i>content</i>
-    <li> <b>igot</b> <i>uuid</i>
-    <li> <b>gimme</b> <i>uuid</i>
+    <li> <b>file</b> <i>artifact-id size</i> <b>\n</b> <i>content</i>
+    <li> <b>file</b> <i>artifact-id delta-artifact-id size</i> <b>\n</b> <i>content</i>
+    <li> <b>igot</b> <i>artifact-id</i>
+    <li> <b>gimme</b> <i>artifact-id</i>
     <li> <b>cookie</b>  <i>cookie-text</i>
     <li> <b>error</b> <i>error-message</i>
     </ul>
-<li>Phantoms are files that a repository knows exist but does not possess.
-<li>Clusters are files that contain the UUIDs of other files.
+<li>Phantoms are artifacts that a repository knows exist but does not possess.
+<li>Clusters are artifacts that contain IDs of other artifacts.
 <li>Clusters are created automatically on the server during a pull.
-<li>Repositories keep track of all files that are not named in any
-cluster and send igot messages for those files.
+<li>Repositories keep track of all artifacts that are not named in any
+cluster and send igot messages for those artifacts.
 <li>Repositories keep track of all the phantoms they hold and send
-gimme messages for those files.
+gimme messages for those artifacts.
 </ol>

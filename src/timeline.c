@@ -556,7 +556,7 @@ const char *timeline_query_for_tty(void){
 /*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?UUID|DATETIME? ?-n|--count N?
+** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n|--count N?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
@@ -569,7 +569,7 @@ const char *timeline_query_for_tty(void){
 **     descendants | children
 **     ancestors | parents
 **
-** The UUID can be any unique prefix of 4 characters or more.
+** The BASELINE can be any unique prefix of 4 characters or more.
 ** The DATETIME should be in the ISO8601 format.  For
 ** examples: "2007-08-18 07:21:21".  You can also say "current"
 ** for the current version or "now" for the current time.
@@ -606,7 +606,7 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else{
-      usage("?WHEN? ?UUID|DATETIME?");
+      usage("?WHEN? ?BASELINE|DATETIME?");
     }
     zOrigin = g.argv[3];
   }else if( g.argc==3 ){

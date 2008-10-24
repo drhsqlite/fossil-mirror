@@ -116,7 +116,7 @@ static int is_sandbox(const char *zPagename){
 */
 void wiki_page(void){
   char *zTag;
-  int rid;
+  int rid = 0;
   int isSandbox;
   Blob wiki;
   Manifest m;
@@ -553,7 +553,7 @@ void wikirules_page(void){
   @ HTML for deeper indentation.</p>
   @ <li> <p><b>Hyperlinks</b>.
   @ Text within square brackets ("[...]") becomes a hyperlink.  The
-  @ target can be a wiki page name, the UUID of a check-in or ticket,
+  @ target can be a wiki page name, the artifact ID of a check-in or ticket,
   @ the name of an image, or a URL.  By default, the target is displayed
   @ as the text of the hyperlink.  But you can specify alternative text
   @ after the target name separated by a "|" character.</p>
@@ -709,7 +709,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 ** TODOs:
 **
-**     %fossil wiki export ?-u UUID? WikiName ?FILE?
+**     %fossil wiki export ?-u ARTIFACT? WikiName ?FILE?
 **
 **        Outputs the selected version of WikiName.
 **
@@ -720,10 +720,10 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 **     %fossil wiki ?-u? ?-d? ?-s=[|]? list
 **
-**        Lists the UUID and/or Date of last change along with each entry
-**        name, delimited by the -s char.
+**        Lists the artifact ID and/or Date of last change along with
+**        each entry name, delimited by the -s char.
 **
-**     %fossil wiki diff ?UUID? ?-f infile[=stdin]? EntryName
+**     %fossil wiki diff ?ARTIFACT? ?-f infile[=stdin]? EntryName
 **
 **        Diffs the local copy of a page with a given version (defaulting
 **        to the head version).

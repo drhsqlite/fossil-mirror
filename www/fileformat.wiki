@@ -227,13 +227,13 @@ Allowed cards in the cluster are as follows:
 </p>
 
 <blockquote>
-<b>M</b> <i>uuid</i><br />
+<b>M</b> <i>artifact-id</i><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
 
 <p>
 A cluster contains one or more "M" cards followed by a single "Z"
-line.  Each M card has a single argument which is the UUID of 
+line.  Each M card has a single argument which is the artifact ID of 
 another artifact in the repository.  The Z card work exactly like
 the Z card of a manifest.  The argument to the Z card is the
 lower-case hexadecimal representation of the MD5 checksum of all
@@ -260,7 +260,7 @@ Allowed cards in a control artifact are as follows:
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  uuid  ?value?</i><br />
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  artifact-id  ?value?</i><br />
 <b>Z</b> <i>checksum</i><br />
 </blockquote>
 
@@ -275,7 +275,7 @@ as in a manifest.</p>
 
 <p>The T card represents a "tag" or property that is applied to
 some other artifact.  The T card has two or three values.  The
-second argument is the 40 character lowercase UUID of the artifact
+second argument is the 40 character lowercase artifact ID of the artifact
 to which the tag is to be applied. The
 first value is the tag name.  The first character of the tag
 is either "+", "-", or "*".  A "+" means the tag should be added
@@ -307,7 +307,7 @@ the following card types:</p>
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>L</b> <i>wiki-title</i><br />
-<b>P</b> <i>parent-uuid</i>+<br />
+<b>P</b> <i>parent-artifact-id</i>+<br />
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
@@ -334,7 +334,7 @@ The following cards are allowed on a ticket change artifact:</p>
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>J</b> ?<b>+</b>?<i>name value</i><br />
-<b>K</b> <i>ticket-uuid</i><br />
+<b>K</b> <i>ticket-id</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
@@ -346,7 +346,7 @@ programmer who entered this change.  The Z card is the checksum over
 the entire artifact.</p>
 
 <p>
-Every ticket has a UUID.  The ticket to which this change is applied
+Every ticket has a unique ID.  The ticket to which this change is applied
 is specified by the K card.  A ticket exists if it contains one or
 more changes.  The first "change" to a ticket is what brings the
 ticket into existance.</p>

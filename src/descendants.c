@@ -132,10 +132,10 @@ void compute_descendants(int rid, int N){
 /*
 ** COMMAND:  descendants
 **
-** Usage: %fossil descendants ?UUID?
+** Usage: %fossil descendants ?BASELINE-ID?
 **
-** Find all leaf descendants of the current version or of the
-** specified version.
+** Find all leaf descendants of the baseline specified or if the argument
+** is omitted, of the baseline currently checked out.
 */
 void descendants_cmd(void){
   Stmt q;

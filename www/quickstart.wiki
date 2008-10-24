@@ -161,14 +161,15 @@ and painlessly.</p>
     local tree, use <b>update</b>:</p>
 
     <blockquote>
-    <b>fossil update</b> <i>UUID</i>
+    <b>fossil update</b> <i>AID</i>
     </blockquote>
 
-    <p>The <i>UUID</i> is some unique abbreviation to the 40-character
-    version ID.  If you omit the <i>UUID</i> fossil moves you to the
+    <p>The <i>AID</i> is some unique abbreviation to the 40-character
+    artifact identifier (AID) for a particular baseline.  If you omit
+    the <i>AID</i> fossil moves you to the
     leaf version of the branch your are currently on.  If your branch
     has multiple leaves, you get an error - you'll have to specify the
-    leaf you want using a <i>UUID</i> argument.</p>
+    leaf you want using a <i>AID</i> argument.</p>
 
 </blockquote><h2>Branching And Merging</h2><blockquote>
 
@@ -178,7 +179,7 @@ and painlessly.</p>
     of the leaf of the other branch:</p>
 
     <blockquote>
-    <b>fossil merge</b> <i>UUID</i>
+    <b>fossil merge</b> <i>AID</i>
     </blockquote>
 
     <p>Test to make sure your merge didn't mess up the code, then

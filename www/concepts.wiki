@@ -85,15 +85,15 @@ information about the project.</p>
 Each artifact has a universally unique name which is the
 <a href="http://en.wikipedia.org/wiki/SHA">SHA1</a> hash of the content
 of that file expressed as 40 characters of lower-case hexadecimal.  Such
-a hash is referred to as the Universally Unique Identifier or UUID
+a hash is referred to as the Artifact Identifier or Artifact ID
 for the artifact.  The SHA1 algorithm is created with the purpose of
 providing a highly forgery-resistent identifier for a file.  Given any
-file it is simple to find the UUID for that file.  But given a
-UUID it is computationally intractable to generate a file that will
-have that UUID.</p>
+file it is simple to find the artifact ID for that file.  But given a
+artifact ID it is computationally intractable to generate a file that will
+have that Artifact ID.</p>
 
 
-<p>UUIDs look something like this:</p>
+<p>Artifact IDs look something like this:</p>
 
 <blockquote><b>
 6089f0b563a9db0a6d90682fe47fd7161ff867c8<br>
@@ -104,13 +104,13 @@ b4104959a67175f02d6b415480be22a239f1f077<br>
 </b></blockquote>
 
 <p>When referring to an artifact using fossil, you can use a unique
-prefix of the UUID that is four characters or longer.  This saves
-a lot of typing.  When displaying UUIDs, fossil will usually only
+prefix of the artifact ID that is four characters or longer.  This saves
+a lot of typing.  When displaying artifact IDs, fossil will usually only
 show the first 10 digits since that is normally enough to uniquely
 identify a file.</p>
 
 <p>Changing (or adding or removing) a single byte in a file results
-in a completely different UUID.  And since the UUID is the name of
+in a completely different artifact ID.  And since the artifact ID is the name of
 the artifact, making any change to a file results in a new artifact.
 In this way, artifacts are immutable.</p>
 
@@ -126,12 +126,12 @@ a software project.</p>
 
 <p>At the root of a source tree is a special file called the
 "manifest".  The manifest is a listing of all other files in
-that source tree.  The manifest contains the (complete) UUID 
+that source tree.  The manifest contains the (complete) artifact ID 
 of the file and the name of the file as it appears on disk,
-and thus serves as a mapping from UUID to disk name.  The UUID
-of the manifest is the UUID that identifies a baseline.  When
-you look at a "timeline" of changes in fossil, the UUID associated
-with each check-in or commit is really just the UUID of the
+and thus serves as a mapping from artifact ID to disk name.  The artifact ID
+of the manifest is the identifier for the entire baseline.  When
+you look at a "timeline" of changes in fossil, the ID associated
+with each check-in or commit is really just the artifact ID of the
 manifest for that baseline.</p>
 
 <p>Fossil automatically generates a manifest whenever you "commit" 
@@ -159,11 +159,11 @@ be PGP clearsigned.</p>
 <li>Repositories share their changes using <b>push</b>, <b>pull</b>,
     <b>sync</b>, and <b>clone</b>.</li>
 <li>A particular version of a particular file is an <b>artifact</b>
-    that is identified by a <b>UUID</b>.</li>
+    that is identified by an <b>artifact ID</b>.</li>
 <li>Artifacts tracked by fossil are inherently immutable.</li>
 <li>Fossil automatically generates a <b>manifest</b> file that identifies
     every artifact in a baseline.</li>
-<li>The UUID of the manifest is the UUID of the baseline.</li>
+<li>The artifact ID of the manifest is the identifier of the baseline.</li>
 </ul>
 
 <h2>3.0 Fossil - The Program</h2>

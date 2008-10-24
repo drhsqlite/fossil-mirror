@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Allow\sthe\s"_FOSSIL_"\sfile\sat\sthe\sroot\sof\seach\scheck-out\sto\sbe\srenamed\s".fos".\nAt\ssome\spoint\swe\smight\smake\s.fos\sthe\sdefault,\sbut\sfor\snow\s_FOSSIL_\sis\sthe\s\ndefault.\s\sThe\sfile\scan\sbe\sfreely\schanged\sbetween\sthese\stwo\snames.
-D 2008-10-24T11:14:57
+C Change\sall\smentions\sof\sUUID\sin\sthe\sdocumentation\sand\shelp\sscreens\sinto\neither\s"artifact\sID"\sor\s"baseline\sID"\sor\s"ticket\sID"\sas\sappropriate.\s\sUUID\nhas\sa\swidely\srecognized\smeaning\sthat\sis\sdifferent\sfrom\sits\smeaning\sin\nfossil.
+D 2008-10-24T13:27:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -57,14 +57,14 @@ F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c 398830aef3f7044ce2de957bb1372c5a04e8054b
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
+F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 219a4e589a857b003195a90de894e8b24601f7a8
+F src/info.c a90375841a30743d1c5fb1744580701aee12ed99
 F src/login.c 1a6cb22669588b71d21282708989ebe28d2de3d3
 F src/main.c c1173878a4f567d2002b419acac54cf7112f419c
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
@@ -77,7 +77,7 @@ F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/my_page.c 98c94677766c794cf6d1d22bc2a33995de3154de
-F src/name.c 68dd0b644f488d7d9fadd24683b8f2e8f0052b52
+F src/name.c 94609061795ec922b92e861ca07c0f1124c3231a
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
@@ -93,13 +93,13 @@ F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c b7851e999cde8dd526f4814bb1e885feb82a1aa2
 F src/style.c 89fb0defc597413d74cce8b45e2ad95e02f8c1fa
 F src/sync.c c4538ea75a0de47f722148472361f8e7d69b9b26
-F src/tag.c e1515e30e4efc5c7e13c7638ebd3cf7e7d5cba00
+F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
 F src/tagview.c ea43e4dea1834dd5be650c299e7be1394a204b1b
 F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
 F src/th.h 7d3866629ed44664a781663b12301c5965976deb
 F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
 F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
-F src/timeline.c 1f648196fc34717c22168f3f4e36b108b7cde59e
+F src/timeline.c 2200a0fc341c36757bf0b06acd5a0899a480856c
 F src/tkt.c 06773a209f626b7ec1a7720472dcbe0bedbe8632
 F src/tktsetup.c 953c7e0a99fa1b607852806ec97854638a35f92c
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -109,7 +109,7 @@ F src/url.c 228859a2f1afd6126c76c41c352786826ee91ec5
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
-F src/wiki.c 5bb1f010935738997e7e102aaf75f6d7325b56c7
+F src/wiki.c 76e56d7038b7e1ec6ee0786c1ffd16e611cfec8f
 F src/wikiformat.c ad6f4b4c3143980066b3b683cfba98d6f49be0be
 F src/winhttp.c 572742e69b144a34a75acce1e276bbd3309a2c68
 F src/xfer.c 35dc0c6452068309f69643a72ca015cabf31be16
@@ -180,11 +180,11 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/bugtheory.wiki fa1904916942cb9dbb0c720acf62ebe087db7300
+F www/bugtheory.wiki 74c6e6ad6e9de17aea46d3b3fe23b89217c5dea7
 F www/build.wiki 5ba110240ed19d8b2b44b12a1e9e65b5b01fd946
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki c6e467887730776bed6947e3c920e9cb4ce9175e
+F www/concepts.wiki 63fffbe88353a4964a91339c7055ce0757aa056a
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -193,7 +193,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 132f9016a1aa8d144d2f1f8522ef838acc8d48d6
 F www/delta_format.wiki 15113b9293a8739fef1841e005347f1fdef2fc3e
-F www/embeddeddoc.wiki 3547f7c3824377d7eab0d0aa06fa6cea0f45ba1d
+F www/embeddeddoc.wiki 6bdcd72fd65372774a682d39738ec4143c2bb8d9
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -204,24 +204,24 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki 3e2ac76c49327ffea2eeb3f790f3a1b50452b393
+F www/fileformat.wiki e95af362bcfa2f431251f3ae5f440db7caf50fa9
 F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
-F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
+F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
-F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
+F www/sync.wiki 63112b27621d0b2cba4f3a25e7394b41a9eee228
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 85670cfcc852fdf5ca15a761185dadf9f02310d2
-R fe1ea7f1b04ef509acb24f85b6185539
+P 8bdea95c586383393fc27d89b075a67e38c6c4df
+R 1b78c7774f803c2f912ce8b869daaea4
 U drh
-Z 279b655360950e87223bde647b7e873d
+Z d82a07b4e02b6241f03ca86a75d4ffb7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkkBrjEACgkQoxKgR168RlEFzACdGxjy/ae4b9gZIhGdanmadK5y
-VHkAn0Q9Eqa6LiYiC7xjtA3RcbfGtPG3
-=drjd
+iEYEARECAAYFAkkBzVkACgkQoxKgR168RlGFMgCgjORlneb8OT5it7MPg3XcsGv/
+72YAoIgFoYA/sZZ36WvDuXf2Bv8owYuV
+=xIse
 -----END PGP SIGNATURE-----
