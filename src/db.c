@@ -30,8 +30,8 @@
 **
 **    (2)  The "repository" database
 **
-**    (3)  A local checkout database named "FOSSIL" and located at the
-**         root of the local copy of the source tree.
+**    (3)  A local checkout database named "_FOSSIL_" or ".fos"
+**         and located at the root of the local copy of the source tree.
 **
 */
 #include "config.h"
@@ -603,22 +603,24 @@ static int isValidLocalDb(const char *zDbName){
 
 /*
 ** Locate the root directory of the local repository tree.  The root
-** directory is found by searching for a file named "FOSSIL" that contains
-** a valid repository database.
+** directory is found by searching for a file named "_FOSSIL_" or ".fos"
+** that contains a valid repository database.
 **
-** If no valid FOSSIL file is found, we move up one level and try again.
-** Once the file is found, the g.zLocalRoot variable is set to the root of
-** the repository tree and this routine returns 1.  If no database is
-** found, then this routine return 0.
+** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
+** try again. Once the file is found, the g.zLocalRoot variable is set
+** to the root of the repository tree and this routine returns 1.  If
+** no database is found, then this routine return 0.
 **
 ** This routine always opens the user database regardless of whether or
-** not the repository database is found.  If the FOSSIL file is found,
-** it is attached to the open database connection too.
+** not the repository database is found.  If the _FOSSIL_ or .fos file
+** is found, it is attached to the open database connection too.
 */
 int db_open_local(void){
-  int n;
+  int i, n;
   char zPwd[2000];
   char *zPwdConv;
+  static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
+  
   if( g.localOpen) return 1;
   if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
     db_err("pwd too big: max %d", sizeof(zPwd)-20);
@@ -629,12 +631,14 @@ int db_open_local(void){
   free(zPwdConv);
   while( n>0 ){
     if( access(zPwd, W_OK) ) break;
-    strcpy(&zPwd[n], "/_FOSSIL_");
-    if( isValidLocalDb(zPwd) ){
-      /* Found a valid _FOSSIL_ file */
-      zPwd[n] = 0;
-      g.zLocalRoot = mprintf("%s/", zPwd);
-      return 1;
+    for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
+      strcpy(&zPwd[n], aDbName[i]);
+      if( isValidLocalDb(zPwd) ){
+        /* Found a valid checkout database file */
+        zPwd[n] = 0;
+        g.zLocalRoot = mprintf("%s/", zPwd);
+        return 1;
+      }
     }
     n--;
     while( n>0 && zPwd[n]!='/' ){ n--; }
@@ -642,7 +646,7 @@ int db_open_local(void){
     zPwd[n] = 0;
   }
 
-  /* A _FOSSIL_ file could not be found */
+  /* A checkout database file could not be found */
   return 0;
 }
 

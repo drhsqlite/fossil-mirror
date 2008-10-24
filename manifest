@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\sthe\soutput\sof\sthe\s"diff"\scommand\sso\sthat\sit\sis\scloser\sto\nstandards.
-D 2008-10-24T10:56:19
+C Allow\sthe\s"_FOSSIL_"\sfile\sat\sthe\sroot\sof\seach\scheck-out\sto\sbe\srenamed\s".fos".\nAt\ssome\spoint\swe\smight\smake\s.fos\sthe\sdefault,\sbut\sfor\snow\s_FOSSIL_\sis\sthe\s\ndefault.\s\sThe\sfile\scan\sbe\sfreely\schanged\sbetween\sthese\stwo\snames.
+D 2008-10-24T11:14:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c 2cb2adc7b455d394719197fc483a03cdaa249a84
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c ba60d648a54eddb2c51a77c979fbe9f0810cfaa1
+F src/db.c 398830aef3f7044ce2de957bb1372c5a04e8054b
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
@@ -214,14 +214,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 56177cfe12dec52a02a8fb399c82287a86216992
-R 8cc45e8fe8705e236be3cc1015730730
+P 85670cfcc852fdf5ca15a761185dadf9f02310d2
+R fe1ea7f1b04ef509acb24f85b6185539
 U drh
-Z ee2e93e89dd462252a6573c319eb0646
+Z 279b655360950e87223bde647b7e873d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkkBqdMACgkQoxKgR168RlEsdACdEL+fKI3nRtrOqExU/4GSfR0Y
-JD0An2H5fN/hjZDUrkpJH09ioHkINNwT
-=1AI/
+iEYEARECAAYFAkkBrjEACgkQoxKgR168RlEFzACdGxjy/ae4b9gZIhGdanmadK5y
+VHkAn0Q9Eqa6LiYiC7xjtA3RcbfGtPG3
+=drjd
 -----END PGP SIGNATURE-----
