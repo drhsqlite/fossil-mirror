@@ -90,6 +90,8 @@ void style_header(const char *zTitleFormat, ...){
   va_end(ap);
   
   cgi_destination(CGI_HEADER);
+  
+  if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
@@ -102,7 +104,9 @@ void style_header(const char *zTitleFormat, ...){
   if( g.zLogin ){
     Th_Store("login", g.zLogin);
   }
+  if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
   Th_Render(zHeader);
+  if( g.thTrace ) Th_Trace("END_HEADER<br />\n", -1);
   Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
   g.cgiPanic = 1;
@@ -143,7 +147,16 @@ void style_footer(void){
   */
   @ </div>
   zFooter = db_get("footer", (char*)zDefaultFooter);
+  if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
+  if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
+  
+  /* Render trace log if TH1 tracing is enabled. */
+  if( g.thTrace ){
+    cgi_append_content("<font color=\"red\"><hr>\n", -1);
+    cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
+    cgi_append_content("</font>\n", -1);
+  }
 }
 
 /* @-comment: // */

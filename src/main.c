@@ -126,6 +126,8 @@ struct Global {
   int okCsrf;             /* Anti-CSRF token is present and valid */
 
   FILE *fDebug;           /* Write debug information here, if the file exists */
+  int thTrace;            /* True to enable TH1 debugging output */
+  Blob thLog;             /* Text of the TH1 debugging output */
 
   /* Storage for the aux() and/or option() SQL function arguments */
   int nAux;                    /* Number of distinct aux() or option() values */
@@ -708,6 +710,10 @@ void cmd_webserver(void){
   char *zBrowser;
   char *zBrowserCmd = 0;
 
+  g.thTrace = find_option("th_trace", 0, 0)!=0;
+  if( g.thTrace ){
+    blob_zero(&g.thLog);
+  }
   zPort = find_option("port", "P", 1);
   if( zPort ){
     iPort = atoi(zPort);

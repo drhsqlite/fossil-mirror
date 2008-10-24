@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Modify\sthe\sTH1\sscript\sinterperter\sto\suse\snative\scharacters\srather\sthan\nunsigned\scharacters.\s\sFix\sa\sbug\sin\sthe\scombobox\sextension\scommand\sof\sTH1.
-D 2008-10-24T16:36:34
+C Begin\sadding\sa\sTH1\sscript\strace\smechanism\sactived\sby\sthe\s--th_trace\soption\non\sthe\s"server"\sand\s"ui"\scommands.\s\sThe\simplementation\sis\sincomplete,\sbut\nthe\splane\sis\slanding....
+D 2008-10-24T18:23:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c a90375841a30743d1c5fb1744580701aee12ed99
 F src/login.c 1a6cb22669588b71d21282708989ebe28d2de3d3
-F src/main.c c1173878a4f567d2002b419acac54cf7112f419c
+F src/main.c 99156e48f686b4ad1879e3b965f6c926c0b7c84e
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -91,16 +91,16 @@ F src/shun.c 5ce55378d67f55956debb8a9cad8df56186ec61a
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
 F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
 F src/stat.c b7851e999cde8dd526f4814bb1e885feb82a1aa2
-F src/style.c 89fb0defc597413d74cce8b45e2ad95e02f8c1fa
+F src/style.c 41b3e7ff54fc592a4262b1cd409cfd408be59112
 F src/sync.c c4538ea75a0de47f722148472361f8e7d69b9b26
 F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
 F src/tagview.c ea43e4dea1834dd5be650c299e7be1394a204b1b
 F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
-F src/th_main.c a10cec9ea619a22b3a8f14b089af536692190f3f
+F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
 F src/timeline.c 2200a0fc341c36757bf0b06acd5a0899a480856c
-F src/tkt.c 4d8a2f78f17194499a185ade2165b2dd2f5c71e7
+F src/tkt.c ba64402245e93cb197a872e055944956c2f52d60
 F src/tktsetup.c 953c7e0a99fa1b607852806ec97854638a35f92c
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 63112b27621d0b2cba4f3a25e7394b41a9eee228
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 2c3b20efffa2058a5811118c53c191003277cd49
-R a02c5aa03e5a5044629c75bc3f02caa5
+P 0c99a1554a22b74a881b2d6360c4ddd769aeaf23
+R c6b8be54f434d616ab7e72fe5c5be8f9
 U drh
-Z f4be42b0088fbe6eb3abbf19ce3bb24d
+Z ac298e31df27d552fb081d4c76807317
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkkB+ZIACgkQoxKgR168RlGy+wCfXIpJ93sQeUYffnQdZj9l31wE
-xBEAn2F2Ed7rMzDq7mTJFQ4NyCSQHNHJ
-=KXgu
+iEYEARECAAYFAkkCEpsACgkQoxKgR168RlF7OwCgi6E48gC8+ibjqNsu0rk+MwI4
+MNIAn2EI5ZFo/SR2a86GhNapFYklfZ+L
+=3X5A
 -----END PGP SIGNATURE-----

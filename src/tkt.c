@@ -332,10 +332,13 @@ void tktview_page(void){
         "%s/tkttimeline/%T", g.zTop, zUuid);
   }
   style_header("View Ticket");
+  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
   initializeVariablesFromDb();
   zScript = ticket_viewpage_code();
+  if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
   Th_Render(zScript);
+  if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
 }
 
@@ -351,7 +354,7 @@ static int appendRemarkCmd(
   Th_Interp *interp, 
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   int idx;
@@ -359,8 +362,12 @@ static int appendRemarkCmd(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "append_field FIELD STRING");
   }
+  if( g.thTrace ){
+    Th_Trace("append_field %#h {%#h}<br />\n",
+              argl[1], argv[1], argl[2], argv[2]);
+  }
   for(idx=0; idx<nField; idx++){
-    if( strncmp(azField[idx], (const char*)argv[1], argl[1])==0
+    if( strncmp(azField[idx], argv[1], argl[1])==0
         && azField[idx][argl[1]]==0 ){
       break;
     }
@@ -386,7 +393,7 @@ static int submitTicketCmd(
   Th_Interp *interp, 
   void *pUuid, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   char *zDate;
@@ -434,20 +441,17 @@ static int submitTicketCmd(
   blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
   md5sum_blob(&tktchng, &cksum);
   blob_appendf(&tktchng, "Z %b\n", &cksum);
-
-  if( strncmp(g.zPath,"debug_",6)==0 ){
-    @ <hr><pre>
-    @ %h(blob_str(&tktchng))
-    @ </pre><hr>
-    blob_zero(&tktchng);
-    return TH_OK;
+  if( g.thTrace ){
+    Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
+             "}<br />\n",
+       blob_str(&tktchng));
+  }else{
+    rid = content_put(&tktchng, 0, 0);
+    if( rid==0 ){
+      fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+    }
+    manifest_crosslink(rid, &tktchng);
   }
-
-  rid = content_put(&tktchng, 0, 0);
-  if( rid==0 ){
-    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-  }
-  manifest_crosslink(rid, &tktchng);
   return TH_RETURN;
 }
 
@@ -474,6 +478,7 @@ void tktnew_page(void){
     cgi_redirect("home");
   }
   style_header("New Ticket");
+  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
   ticket_init();
   getAllTicketFields();
   initializeVariablesFromDb();
@@ -485,11 +490,13 @@ void tktnew_page(void){
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
-  if( Th_Render(zScript)==TH_RETURN && zNewUuid ){
+  if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
+  if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zNewUuid));
     return;
   }
   @ </form>
+  if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
 }
 
@@ -535,6 +542,7 @@ void tktedit_page(void){
     style_footer();
     return;
   }
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   ticket_init();
   getAllTicketFields();
   initializeVariablesFromCGI();
@@ -547,11 +555,13 @@ void tktedit_page(void){
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
-  if( Th_Render(zScript)==TH_RETURN && zName ){
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
+  if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zName));
     return;
   }
   @ </form>
+  if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
 }
 

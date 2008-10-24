@@ -52,6 +52,16 @@ static void xFree(void *p){
 }
 static Th_Vtab vtab = { xMalloc, xFree };
 
+/*
+** Generate a TH1 trace message if debugging is enabled.
+*/
+void Th_Trace(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap, zFormat);
+  blob_vappendf(&g.thLog, zFormat, ap);
+  va_end(ap);
+}
+
 
 /*
 ** True if output is enabled.  False if disabled.
@@ -193,8 +203,13 @@ static int hascapCmd(
   const char **argv, 
   int *argl
 ){
+  int rc;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "hascap STRING");
+  }
+  rc = login_has_capability((char*)argv[1],argl[1]);
+  if( g.thTrace ){
+    Th_Trace("[hascap %.*h] => %d<br />\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, login_has_capability((char*)argv[1],argl[1]));
   return TH_OK;
@@ -294,7 +309,10 @@ static int linecntCmd(
 }
 
 /*
-** Make sure the interpreter has been initialized.
+** Make sure the interpreter has been initialized.  Initialize it if
+** it has not been already.
+**
+** The interpreter is stored in the g.interp global variable.
 */
 void Th_FossilInit(void){
   static struct _Command {
@@ -329,7 +347,10 @@ void Th_FossilInit(void){
 void Th_Store(const char *zName, const char *zValue){
   Th_FossilInit();
   if( zValue ){
-    Th_SetVar(g.interp, (char*)zName, -1, (char*)zValue, strlen(zValue));
+    if( g.thTrace ){
+      Th_Trace("set %h {%h}<br />\n", zName, zValue);
+    }
+    Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
   }
 }
 
