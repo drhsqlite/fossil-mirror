@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sthe\s"settings"\scommand\swork\swith\sthe\s-R\soption.\nFix\sfor\sticket\s[5162d999af].
-D 2008-10-24T14:05:03
+C Modify\sthe\sTH1\sscript\sinterperter\sto\suse\snative\scharacters\srather\sthan\nunsigned\scharacters.\s\sFix\sa\sbug\sin\sthe\scombobox\sextension\scommand\sof\sTH1.
+D 2008-10-24T16:36:34
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -95,12 +95,12 @@ F src/style.c 89fb0defc597413d74cce8b45e2ad95e02f8c1fa
 F src/sync.c c4538ea75a0de47f722148472361f8e7d69b9b26
 F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
 F src/tagview.c ea43e4dea1834dd5be650c299e7be1394a204b1b
-F src/th.c 7781ea6ed252d7b18c48935a79ebdf5302316275
-F src/th.h 7d3866629ed44664a781663b12301c5965976deb
-F src/th_lang.c 1db6c88ca5442344795ba6227a7e4f68dfeca8ec
-F src/th_main.c c828d14f02cef5eeae4191f8c29b49e6e3e6b912
+F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
+F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
+F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
+F src/th_main.c a10cec9ea619a22b3a8f14b089af536692190f3f
 F src/timeline.c 2200a0fc341c36757bf0b06acd5a0899a480856c
-F src/tkt.c 06773a209f626b7ec1a7720472dcbe0bedbe8632
+F src/tkt.c 4d8a2f78f17194499a185ade2165b2dd2f5c71e7
 F src/tktsetup.c 953c7e0a99fa1b607852806ec97854638a35f92c
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 63112b27621d0b2cba4f3a25e7394b41a9eee228
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 9a482dd7011db01220b6889573f6646ead5db593
-R 51d19ef58cd2ad147226645d8ced4719
+P 2c3b20efffa2058a5811118c53c191003277cd49
+R a02c5aa03e5a5044629c75bc3f02caa5
 U drh
-Z 55e062c714a23a557477db9eeb34ce2e
+Z f4be42b0088fbe6eb3abbf19ce3bb24d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkkB1g8ACgkQoxKgR168RlGBBACcCMVbgZKAQUUiVSoMU0kWZkFd
-wN0AnRvP5IwxQoJ4cLIji7sgkbogH0KB
-=xJKi
+iEYEARECAAYFAkkB+ZIACgkQoxKgR168RlGy+wCfXIpJ93sQeUYffnQdZj9l31wE
+xBEAn2F2Ed7rMzDq7mTJFQ4NyCSQHNHJ
+=KXgu
 -----END PGP SIGNATURE-----

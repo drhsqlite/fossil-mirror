@@ -67,7 +67,7 @@ static int enableOutputCmd(
   Th_Interp *interp, 
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=2 ){
@@ -106,7 +106,7 @@ static int putsCmd(
   Th_Interp *interp, 
   void *pConvert, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=2 ){
@@ -125,7 +125,7 @@ static int wikiCmd(
   Th_Interp *interp, 
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=2 ){
@@ -150,7 +150,7 @@ static int htmlizeCmd(
   Th_Interp *interp, 
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   char *zOut;
@@ -158,7 +158,7 @@ static int htmlizeCmd(
     return Th_WrongNumArgs(interp, "htmlize STRING");
   }
   zOut = htmlize((char*)argv[1], argl[1]);
-  Th_SetResult(interp, (unsigned char*)zOut, -1);
+  Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
 }
@@ -172,11 +172,11 @@ static int dateCmd(
   Th_Interp *interp, 
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   char *zOut = db_text("??", "SELECT datetime('now')");
-  Th_SetResult(interp, (unsigned char*)zOut, -1);
+  Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;
 }
@@ -190,7 +190,7 @@ static int hascapCmd(
   Th_Interp *interp, 
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=2 ){
@@ -214,7 +214,7 @@ static int comboboxCmd(
   Th_Interp *interp,
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=4 ){
@@ -222,13 +222,17 @@ static int comboboxCmd(
   }
   if( enableOutput ){
     int height;
-    Blob list, elem, name;
+    Blob name;
     int nValue;
     const char *zValue;
     char *z, *zH;
+    int nElem;
+    int *aszElem;
+    char **azElem;
+    int i;
 
     if( Th_ToInt(interp, argv[3], argl[3], &height) ) return TH_ERROR;
-    blob_init(&list, (char*)argv[2], argl[2]);
+    Th_SplitList(interp, argv[2], argl[2], &azElem, &aszElem, &nElem);
     blob_init(&name, (char*)argv[1], argl[1]);
     zValue = Th_Fetch(blob_str(&name), &nValue);
     z = mprintf("<select name=\"%z\" size=\"%d\">", 
@@ -236,10 +240,10 @@ static int comboboxCmd(
     sendText(z, -1, 0);
     free(z);
     blob_reset(&name);
-    while( blob_token(&list, &elem) ){
-      zH = htmlize(blob_buffer(&elem), blob_size(&elem));
-      if( zValue && blob_size(&elem)==nValue 
-             && memcmp(zValue, blob_buffer(&elem), nValue)==0 ){
+    for(i=0; i<nElem; i++){
+      zH = htmlize((char*)azElem[i], aszElem[i]);
+      if( zValue && aszElem[i]==nValue 
+             && memcmp(zValue, azElem[i], nValue)==0 ){
         z = mprintf("<option value=\"%s\" selected>%s</option>", zH, zH);
       }else{
         z = mprintf("<option value=\"%s\">%s</option>", zH, zH);
@@ -249,7 +253,7 @@ static int comboboxCmd(
       free(z);
     }
     sendText("</select>", -1, 0);
-    blob_reset(&list);
+    Th_Free(interp, azElem);
   }
   return TH_OK;
 }
@@ -264,10 +268,10 @@ static int linecntCmd(
   Th_Interp *interp,
   void *p, 
   int argc, 
-  const unsigned char **argv, 
+  const char **argv, 
   int *argl
 ){
-  const uchar *z;
+  const char *z;
   int size, n, i;
   int iMin, iMax;
   if( argc!=4 ){
@@ -325,7 +329,7 @@ void Th_FossilInit(void){
 void Th_Store(const char *zName, const char *zValue){
   Th_FossilInit();
   if( zValue ){
-    Th_SetVar(g.interp, (uchar*)zName, -1, (uchar*)zValue, strlen(zValue));
+    Th_SetVar(g.interp, (char*)zName, -1, (char*)zValue, strlen(zValue));
   }
 }
 
@@ -334,7 +338,7 @@ void Th_Store(const char *zName, const char *zValue){
 */
 void Th_Unstore(const char *zName){
   if( g.interp ){
-    Th_UnsetVar(g.interp, (uchar*)zName, -1);
+    Th_UnsetVar(g.interp, (char*)zName, -1);
   }
 }
 
@@ -345,7 +349,7 @@ void Th_Unstore(const char *zName){
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
   Th_FossilInit();
-  rc = Th_GetVar(g.interp, (uchar*)zName, -1);
+  rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
   }else{
@@ -423,7 +427,7 @@ int Th_Render(const char *z){
   int i = 0;
   int n;
   int rc = TH_OK;
-  uchar *zResult;
+  char *zResult;
   Th_FossilInit();
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
@@ -439,16 +443,16 @@ int Th_Render(const char *z){
         zVar = &z[i+1];
         nVar = n;
       }
-      rc = Th_GetVar(g.interp, (uchar*)zVar, nVar);
+      rc = Th_GetVar(g.interp, (char*)zVar, nVar);
       z += i+1+n;
       i = 0;
-      zResult = (uchar*)Th_GetResult(g.interp, &n);
+      zResult = (char*)Th_GetResult(g.interp, &n);
       sendText((char*)zResult, n, n>nVar);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
-      rc = Th_Eval(g.interp, 0, (const uchar*)z, i);
+      rc = Th_Eval(g.interp, 0, (const char*)z, i);
       if( rc!=TH_OK ) break;
       z += i;
       if( z[0] ){ z += 6; }
@@ -459,7 +463,7 @@ int Th_Render(const char *z){
   }
   if( rc==TH_ERROR ){
     sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1, 0);
-    zResult = (uchar*)Th_GetResult(g.interp, &n);
+    zResult = (char*)Th_GetResult(g.interp, &n);
     sendText((char*)zResult, n, 1);
     sendText("</b></font></p>", -1, 0);
   }else{

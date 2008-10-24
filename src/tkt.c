@@ -272,7 +272,7 @@ void ticket_init(void){
   const char *zConfig;
   Th_FossilInit();
   zConfig = ticket_common_code();
-  Th_Eval(g.interp, 0, (const uchar*)zConfig, -1);
+  Th_Eval(g.interp, 0, zConfig, -1);
 }
 
 /*

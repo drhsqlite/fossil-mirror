@@ -17,7 +17,7 @@ typedef struct Th_Variable  Th_Variable;
 */
 struct Th_Interp {
   Th_Vtab *pVtab;     /* Copy of the argument passed to Th_CreateInterp() */
-  uchar *zResult;     /* Current interpreter result (Th_Malloc()ed) */
+  char *zResult;     /* Current interpreter result (Th_Malloc()ed) */
   int nResult;        /* number of bytes in zResult */
   Th_Hash *paCmd;     /* Table of registered commands */
   Th_Frame *pFrame;   /* Current execution frame */
@@ -30,7 +30,7 @@ struct Th_Interp {
 ** hash-table.
 */
 struct Th_Command {
-  int (*xProc)(Th_Interp *, void *, int, const uchar **, int *);
+  int (*xProc)(Th_Interp *, void *, int, const char **, int *);
   void *pContext;
   void (*xDel)(Th_Interp *, void *);
 };
@@ -85,7 +85,7 @@ struct Th_Frame {
 struct Th_Variable {
   int nRef;                   /* Number of references to this structure */
   int nData;                  /* Number of bytes at Th_Variable.zData */
-  uchar *zData;               /* Data for scalar variables */
+  char *zData;               /* Data for scalar variables */
   Th_Hash *pHash;             /* Data for array variables */
 };
 
@@ -97,11 +97,11 @@ struct Th_Hash {
   Th_HashEntry *a[TH_HASHSIZE];
 };
 
-static int thEvalLocal(Th_Interp *, const uchar *, int);
-static int thSplitList(Th_Interp*, const uchar*, int, uchar***, int **, int*);
+static int thEvalLocal(Th_Interp *, const char *, int);
+static int thSplitList(Th_Interp*, const char*, int, char***, int **, int*);
 
-static int thHexdigit(uchar c);
-static int thEndOfLine(const uchar *, int);
+static int thHexdigit(char c);
+static int thEndOfLine(const char *, int);
 
 static int  thPushFrame(Th_Interp*, Th_Frame*);
 static void thPopFrame(Th_Interp*);
@@ -125,11 +125,11 @@ static void thFreeCommand(Th_HashEntry*, void*);
 **
 ** results in nByte being set to 2.
 */
-static int thNextCommand(Th_Interp*, const uchar *z, int n, int *pN);
-static int thNextEscape (Th_Interp*, const uchar *z, int n, int *pN);
-static int thNextVarname(Th_Interp*, const uchar *z, int n, int *pN);
-static int thNextNumber (Th_Interp*, const uchar *z, int n, int *pN);
-static int thNextSpace  (Th_Interp*, const uchar *z, int n, int *pN);
+static int thNextCommand(Th_Interp*, const char *z, int n, int *pN);
+static int thNextEscape (Th_Interp*, const char *z, int n, int *pN);
+static int thNextVarname(Th_Interp*, const char *z, int n, int *pN);
+static int thNextNumber (Th_Interp*, const char *z, int n, int *pN);
+static int thNextSpace  (Th_Interp*, const char *z, int n, int *pN);
 
 /*
 ** Given that the input string (z, n) contains a language construct of
@@ -138,9 +138,9 @@ static int thNextSpace  (Th_Interp*, const uchar *z, int n, int *pN);
 ** substitution on the string and store the resulting string in
 ** the interpreter result.
 */
-static int thSubstCommand(Th_Interp*, const uchar *z, int n);
-static int thSubstEscape (Th_Interp*, const uchar *z, int n);
-static int thSubstVarname(Th_Interp*, const uchar *z, int n);
+static int thSubstCommand(Th_Interp*, const char *z, int n);
+static int thSubstEscape (Th_Interp*, const char *z, int n);
+static int thSubstVarname(Th_Interp*, const char *z, int n);
 
 /*
 ** Given that there is a th1 word located at the start of the input 
@@ -149,25 +149,25 @@ static int thSubstVarname(Th_Interp*, const uchar *z, int n);
 ** located inside of a block or quoted string is considered to mark 
 ** the end of the word.
 */
-static int thNextWord(Th_Interp*, const uchar *z, int n, int *pN, int isCmd);
+static int thNextWord(Th_Interp*, const char *z, int n, int *pN, int isCmd);
 
 /*
 ** Perform substitution on the word contained in the input string (z, n).
 ** Store the resulting string in the interpreter result.
 */
-static int thSubstWord(Th_Interp*, const uchar *z, int n);
+static int thSubstWord(Th_Interp*, const char *z, int n);
 
 /*
 ** The Buffer structure and the thBufferXXX() functions are used to make
 ** memory allocation easier when building up a result.
 */
 struct Buffer {
-  uchar *zBuf;
+  char *zBuf;
   int nBuf;
   int nBufAlloc;
 };
 typedef struct Buffer Buffer;
-static int  thBufferWrite(Th_Interp *interp, Buffer *, const uchar *, int);
+static int  thBufferWrite(Th_Interp *interp, Buffer *, const char *, int);
 static void thBufferInit(Buffer *);
 static void thBufferFree(Th_Interp *interp, Buffer *);
 
@@ -179,7 +179,7 @@ static void thBufferFree(Th_Interp *interp, Buffer *);
 static int thBufferWrite(
   Th_Interp *interp, 
   Buffer *pBuffer, 
-  const uchar *zAdd, 
+  const char *zAdd, 
   int nAdd
 ){
   int nReq;
@@ -190,11 +190,11 @@ static int thBufferWrite(
   nReq = pBuffer->nBuf+nAdd+1;
 
   if( nReq>pBuffer->nBufAlloc ){
-    uchar *zNew;
+    char *zNew;
     int nNew;
 
     nNew = nReq*2;
-    zNew = (uchar *)Th_Malloc(interp, nNew);
+    zNew = (char *)Th_Malloc(interp, nNew);
     memcpy(zNew, pBuffer->zBuf, pBuffer->nBuf);
     Th_Free(interp, pBuffer->zBuf);
     pBuffer->nBufAlloc = nNew;
@@ -207,7 +207,7 @@ static int thBufferWrite(
 
   return TH_OK;
 }
-#define thBufferWrite(a,b,c,d) thBufferWrite(a,b,(const uchar *)c,d)
+#define thBufferWrite(a,b,c,d) thBufferWrite(a,b,(const char *)c,d)
 
 /*
 ** Initialize the Buffer structure pointed to by pBuffer.
@@ -230,7 +230,7 @@ static void thBufferFree(Th_Interp *interp, Buffer *pBuffer){
 ** return the corresponding value of that digit. If c is not
 ** a hexadecimal digit character, -1 is returned.
 */
-static int thHexdigit(uchar c){
+static int thHexdigit(char c){
   switch (c) {
     case '0': return 0;
     case '1': return 1;
@@ -319,7 +319,7 @@ static void thPopFrame(Th_Interp *interp){
 */
 static int thNextEscape(
   Th_Interp *interp,
-  const uchar *zInput, 
+  const char *zInput, 
   int nInput, 
   int *pnEscape
 ){
@@ -351,7 +351,7 @@ static int thNextEscape(
 */
 int thNextVarname(
   Th_Interp *interp,
-  const uchar *zInput, 
+  const char *zInput, 
   int nInput, 
   int *pnVarname
 ){
@@ -409,7 +409,7 @@ int thNextVarname(
 */
 int thNextCommand(
   Th_Interp *interp,
-  const uchar *zInput, 
+  const char *zInput, 
   int nInput, 
   int *pnCommand
 ){
@@ -444,7 +444,7 @@ int thNextCommand(
 */
 int thNextSpace(
   Th_Interp *interp,
-  const uchar *zInput, 
+  const char *zInput, 
   int nInput, 
   int *pnSpace
 ){
@@ -467,7 +467,7 @@ int thNextSpace(
 */
 static int thNextWord(
   Th_Interp *interp,
-  const uchar *zInput, 
+  const char *zInput, 
   int nInput, 
   int *pnWord,
   int isCmd
@@ -522,7 +522,7 @@ static int thNextWord(
 */
 static int thSubstCommand(
   Th_Interp *interp,
-  const uchar *zWord,
+  const char *zWord,
   int nWord
 ){
   assert(nWord>=2);
@@ -538,7 +538,7 @@ static int thSubstCommand(
 */
 static int thSubstVarname(
   Th_Interp *interp,
-  const uchar *zWord,
+  const char *zWord,
   int nWord
 ){
   assert(nWord>=1);
@@ -553,7 +553,7 @@ static int thSubstVarname(
     if( i<nWord ){
       Buffer varname;
       int nInner;
-      const uchar *zInner;
+      const char *zInner;
 
       int rc = thSubstWord(interp, &zWord[i+1], nWord-i-2);
       if( rc!=TH_OK ) return rc;
@@ -578,10 +578,10 @@ static int thSubstVarname(
 */
 static int thSubstEscape(
   Th_Interp *interp,
-  const uchar *zWord,
+  const char *zWord,
   int nWord
 ){
-  uchar c;
+  char c;
 
   assert(nWord>=2);
   assert(zWord[0]=='\\');
@@ -614,7 +614,7 @@ static int thSubstEscape(
 */
 static int thSubstWord(
   Th_Interp *interp,
-  const uchar *zWord,
+  const char *zWord,
   int nWord
 ){
   int rc = TH_OK;
@@ -636,8 +636,8 @@ static int thSubstWord(
     for(i=0; rc==TH_OK && i<nWord; i++){
       int nGet;
 
-      int (*xGet)(Th_Interp *, const uchar*, int, int *) = 0;
-      int (*xSubst)(Th_Interp *, const uchar*, int) = 0;
+      int (*xGet)(Th_Interp *, const char*, int, int *) = 0;
+      int (*xSubst)(Th_Interp *, const char*, int) = 0;
 
       switch( zWord[i] ){
         case '\\':
@@ -664,7 +664,7 @@ static int thSubstWord(
         rc = xSubst(interp, &zWord[i], nGet);
       }
       if( rc==TH_OK ){
-        const uchar *zRes;
+        const char *zRes;
         int nRes;
         zRes = Th_GetResult(interp, &nRes);
         rc = thBufferWrite(interp, &output, zRes, nRes);
@@ -691,7 +691,7 @@ static int thSubstWord(
 **
 ** Otherwise return false.
 */
-static int thEndOfLine(const uchar *zInput, int nInput){
+static int thEndOfLine(const char *zInput, int nInput){
   int i;
   for(i=0; i<nInput && zInput[i]!='\n' && th_isspace(zInput[i]); i++);
   return ((i==nInput || zInput[i]=='\n')?1:0);
@@ -712,7 +712,7 @@ static int thEndOfLine(const uchar *zInput, int nInput){
 ** pointer written to (*pazElem) using Th_Free(). This releases memory
 ** allocated for both the (*pazElem) and (*panElem) arrays. Example:
 **
-**     uchar **argv;
+**     char **argv;
 **     int *argl;
 **     int argc;
 **
@@ -729,9 +729,9 @@ static int thEndOfLine(const uchar *zInput, int nInput){
 */ 
 static int thSplitList(
   Th_Interp *interp,      /* Interpreter context */
-  const uchar *zList,     /* Pointer to buffer containing input list */
+  const char *zList,     /* Pointer to buffer containing input list */
   int nList,              /* Size of buffer pointed to by zList */
-  uchar ***pazElem,       /* OUT: Array of list elements */
+  char ***pazElem,       /* OUT: Array of list elements */
   int **panElem,          /* OUT: Lengths of each list element */
   int *pnCount            /* OUT: Number of list elements */
 ){
@@ -741,14 +741,14 @@ static int thSplitList(
   Buffer lenbuf;
   int nCount = 0;
 
-  const uchar *zInput = zList;
+  const char *zInput = zList;
   int nInput = nList;
 
   thBufferInit(&strbuf);
   thBufferInit(&lenbuf);
 
   while( nInput>0 ){
-    const uchar *zWord;
+    const char *zWord;
     int nWord;
 
     thNextSpace(interp, zInput, nInput, &nWord);
@@ -775,15 +775,15 @@ static int thSplitList(
   assert((pazElem && panElem) || (!pazElem && !panElem));
   if( pazElem && rc==TH_OK ){
     int i;
-    uchar *zElem; 
+    char *zElem; 
     int *anElem;
-    uchar **azElem = Th_Malloc(interp,
-      sizeof(uchar*) * nCount +      /* azElem */
+    char **azElem = Th_Malloc(interp,
+      sizeof(char*) * nCount +      /* azElem */
       sizeof(int) * nCount +         /* anElem */
       strbuf.nBuf                    /* space for list element strings */
     );
     anElem = (int *)&azElem[nCount];
-    zElem = (uchar *)&anElem[nCount];
+    zElem = (char *)&anElem[nCount];
     memcpy(anElem, lenbuf.zBuf, lenbuf.nBuf);
     memcpy(zElem, strbuf.zBuf, strbuf.nBuf);
     for(i=0; i<nCount;i++){
@@ -807,17 +807,17 @@ static int thSplitList(
 ** Evaluate the th1 script contained in the string (zProgram, nProgram)
 ** in the current stack frame.
 */
-static int thEvalLocal(Th_Interp *interp, const uchar *zProgram, int nProgram){
+static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
   int rc = TH_OK;
-  const uchar *zInput = zProgram;
+  const char *zInput = zProgram;
   int nInput = nProgram;
 
   while( rc==TH_OK && nInput ){
     Th_HashEntry *pEntry;
     int nSpace;
-    const uchar *zFirst;
+    const char *zFirst;
 
-    uchar **argv;
+    char **argv;
     int *argl;
     int argc;
 
@@ -874,23 +874,23 @@ static int thEvalLocal(Th_Interp *interp, const uchar *zProgram, int nProgram){
       /* Call the command procedure. */
       if( rc==TH_OK ){
         Th_Command *p = (Th_Command *)(pEntry->pData);
-        const uchar **azArg = (const uchar **)argv;
+        const char **azArg = (const char **)argv;
         rc = p->xProc(interp, p->pContext, argc, azArg, argl);
       }
   
       /* If an error occured, add this command to the stack trace report. */
       if( rc==TH_ERROR ){
-        uchar *zRes;
+        char *zRes;
         int nRes;
-        uchar *zStack = 0;
+        char *zStack = 0;
         int nStack = 0;
   
         zRes = Th_TakeResult(interp, &nRes);
-        if( TH_OK==Th_GetVar(interp, (uchar *)"::th_stack_trace", -1) ){
+        if( TH_OK==Th_GetVar(interp, (char *)"::th_stack_trace", -1) ){
           zStack = Th_TakeResult(interp, &nStack);
         }
         Th_ListAppend(interp, &zStack, &nStack, zFirst, zInput-zFirst);
-        Th_SetVar(interp, (uchar *)"::th_stack_trace", -1, zStack, nStack);
+        Th_SetVar(interp, (char *)"::th_stack_trace", -1, zStack, nStack);
         Th_SetResult(interp, zRes, nRes);
         Th_Free(interp, zRes);
         Th_Free(interp, zStack);
@@ -935,7 +935,7 @@ static Th_Frame *getFrame(Th_Interp *interp, int iFrame){
   }
 
   if( !p ){
-    uchar *zFrame;
+    char *zFrame;
     int nFrame;
     Th_SetResultInt(interp, iFrame);
     zFrame = Th_TakeResult(interp, &nFrame);
@@ -952,7 +952,7 @@ static Th_Frame *getFrame(Th_Interp *interp, int iFrame){
 ** interpreter result and return a th1 error code (TH_OK, TH_ERROR, 
 ** TH_RETURN, TH_CONTINUE or TH_BREAK).
 */
-int Th_Eval(Th_Interp *interp, int iFrame, const uchar *zProgram, int nProgram){
+int Th_Eval(Th_Interp *interp, int iFrame, const char *zProgram, int nProgram){
   int rc = TH_OK;
   Th_Frame *pSavedFrame = interp->pFrame;
 
@@ -994,17 +994,17 @@ int Th_Eval(Th_Interp *interp, int iFrame, const uchar *zProgram, int nProgram){
 ** array key name.
 */
 static int thAnalyseVarname(
-  const uchar *zVarname,
+  const char *zVarname,
   int nVarname,
-  const uchar **pzOuter,     /* OUT: Pointer to scalar/array name */
+  const char **pzOuter,     /* OUT: Pointer to scalar/array name */
   int *pnOuter,              /* OUT: Number of bytes at *pzOuter */
-  const uchar **pzInner,     /* OUT: Pointer to array key (or null) */
+  const char **pzInner,     /* OUT: Pointer to array key (or null) */
   int *pnInner,              /* OUT: Number of bytes at *pzInner */
   int *pisGlobal             /* OUT: Set to true if this is a global ref */
 ){
-  const uchar *zOuter = zVarname;
+  const char *zOuter = zVarname;
   int nOuter;
-  const uchar *zInner = 0;
+  const char *zInner = 0;
   int nInner = 0;
   int isGlobal = 0;
   int i;
@@ -1058,14 +1058,14 @@ static int thAnalyseVarname(
 */
 static Th_Variable *thFindValue(
   Th_Interp *interp,
-  const uchar *zVar,     /* Pointer to variable name */
+  const char *zVar,     /* Pointer to variable name */
   int nVar,              /* Number of bytes at nVar */
   int create,            /* If true, create the variable if not found */
   int arrayok            /* If true, an array is Ok. Othewise array==error */
 ){
-  const uchar *zOuter;
+  const char *zOuter;
   int nOuter;
-  const uchar *zInner;
+  const char *zInner;
   int nInner;
   int isGlobal;
 
@@ -1136,7 +1136,7 @@ no_such_var:
 ** If the named variable does not exist, return TH_ERROR and leave
 ** an error message in the interpreter result.
 */
-int Th_GetVar(Th_Interp *interp, const uchar *zVar, int nVar){
+int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
   pValue = thFindValue(interp, zVar, nVar, 0, 0);
@@ -1161,9 +1161,9 @@ int Th_GetVar(Th_Interp *interp, const uchar *zVar, int nVar){
 */
 int Th_SetVar(
   Th_Interp *interp, 
-  const uchar *zVar, 
+  const char *zVar, 
   int nVar,
-  const uchar *zValue,
+  const char *zValue,
   int nValue
 ){
   Th_Variable *pValue;
@@ -1196,9 +1196,9 @@ int Th_SetVar(
 */
 int Th_LinkVar(
   Th_Interp *interp,                 /* Interpreter */
-  const uchar *zLocal, int nLocal,   /* Local varname */
+  const char *zLocal, int nLocal,   /* Local varname */
   int iFrame,                        /* Stack frame of linked var */
-  const uchar *zLink, int nLink      /* Linked varname */
+  const char *zLink, int nLink      /* Linked varname */
 ){
   Th_Frame *pSavedFrame = interp->pFrame;
   Th_Frame *pFrame;
@@ -1231,7 +1231,7 @@ int Th_LinkVar(
 ** is deleted and TH_OK returned. Otherwise, an error message is left
 ** in the interpreter result and TH_ERROR is returned.
 */
-int Th_UnsetVar(Th_Interp *interp, const uchar *zVar, int nVar){
+int Th_UnsetVar(Th_Interp *interp, const char *zVar, int nVar){
   Th_Variable *pValue;
 
   pValue = thFindValue(interp, zVar, nVar, 1, 1);
@@ -1254,8 +1254,8 @@ int Th_UnsetVar(Th_Interp *interp, const uchar *zVar, int nVar){
 ** caller is responsible for eventually calling Th_Free() to free
 ** the returned buffer.
 */
-uchar *th_strdup(Th_Interp *interp, const uchar *z, int n){
-  uchar *zRes;
+char *th_strdup(Th_Interp *interp, const char *z, int n){
+  char *zRes;
   if( n<0 ){
     n = th_strlen(z);
   }
@@ -1279,20 +1279,19 @@ uchar *th_strdup(Th_Interp *interp, const uchar *z, int n){
 **     Th_ErrorMessage(interp, "no such variable:", zVarname, nVarname);
 **
 */
-int Th_ErrorMessage(Th_Interp *interp, const char *zPre, const uchar *z, int n){
+int Th_ErrorMessage(Th_Interp *interp, const char *zPre, const char *z, int n){
   if( interp ){
-    uchar *zRes = 0;
+    char *zRes = 0;
     int nRes = 0;
-    int nPre = th_strlen(zPre);
 
-    Th_SetVar(interp, (uchar *)"::th_stack_trace", -1, 0, 0);
+    Th_SetVar(interp, (char *)"::th_stack_trace", -1, 0, 0);
   
     Th_StringAppend(interp, &zRes, &nRes, zPre, -1);
     if( zRes[nRes-1]=='"' ){
       Th_StringAppend(interp, &zRes, &nRes, z, n);
-      Th_StringAppend(interp, &zRes, &nRes, (const uchar *)"\"", 1);
+      Th_StringAppend(interp, &zRes, &nRes, (const char *)"\"", 1);
     }else{
-      Th_StringAppend(interp, &zRes, &nRes, (const uchar *)" ", 1);
+      Th_StringAppend(interp, &zRes, &nRes, (const char *)" ", 1);
       Th_StringAppend(interp, &zRes, &nRes, z, n);
     }
 
@@ -1307,7 +1306,7 @@ int Th_ErrorMessage(Th_Interp *interp, const char *zPre, const uchar *z, int n){
 ** Set the current interpreter result by taking a copy of the buffer
 ** pointed to by z, size n bytes. TH_OK is always returned.
 */
-int Th_SetResult(Th_Interp *pInterp, const uchar *z, int n){
+int Th_SetResult(Th_Interp *pInterp, const char *z, int n){
 
   /* Free the current result */
   Th_Free(pInterp, pInterp->zResult);
@@ -1319,7 +1318,7 @@ int Th_SetResult(Th_Interp *pInterp, const uchar *z, int n){
   }
 
   if( z && n>0 ){
-    uchar *zResult;
+    char *zResult;
     zResult = Th_Malloc(pInterp, n+1);
     memcpy(zResult, z, n);
     zResult[n] = '\0';
@@ -1335,12 +1334,12 @@ int Th_SetResult(Th_Interp *pInterp, const uchar *z, int n){
 ** result. If pN is not NULL, set *pN to the size of the returned
 ** buffer.
 */
-const uchar *Th_GetResult(Th_Interp *pInterp, int *pN){
+const char *Th_GetResult(Th_Interp *pInterp, int *pN){
   assert(pInterp->zResult || pInterp->nResult==0);
   if( pN ){
     *pN = pInterp->nResult;
   }
-  return (pInterp->zResult ? pInterp->zResult : (const uchar *)"");
+  return (pInterp->zResult ? pInterp->zResult : (const char *)"");
 }
 
 /*
@@ -1353,17 +1352,17 @@ const uchar *Th_GetResult(Th_Interp *pInterp, int *pN){
 ** returned buffer. The internal interpreter result is cleared
 ** after this function is called.
 */
-uchar *Th_TakeResult(Th_Interp *pInterp, int *pN){
+char *Th_TakeResult(Th_Interp *pInterp, int *pN){
   if( pN ){
     *pN = pInterp->nResult;
   }
   if( pInterp->zResult ){
-    uchar *zResult = pInterp->zResult;
+    char *zResult = pInterp->zResult;
     pInterp->zResult = 0;
     pInterp->nResult = 0;
     return zResult;
   }else{
-    return (uchar *)Th_Malloc(pInterp, 1);
+    return (char *)Th_Malloc(pInterp, 1);
   }
 }
 
@@ -1399,7 +1398,7 @@ int Th_CreateCommand(
   Th_HashEntry *pEntry;
   Th_Command *pCommand;
 
-  pEntry = Th_HashFind(interp, interp->paCmd, (const uchar *)zName, -1, 1);
+  pEntry = Th_HashFind(interp, interp->paCmd, (const char *)zName, -1, 1);
   if( pEntry->pData ){
     pCommand = pEntry->pData;
     if( pCommand->xDel ){
@@ -1426,9 +1425,9 @@ int Th_CreateCommand(
 */
 int Th_RenameCommand(
   Th_Interp *interp, 
-  const uchar *zName,            /* Existing command name */
+  const char *zName,            /* Existing command name */
   int nName,                     /* Number of bytes at zName */
-  const uchar *zNew,             /* New command name */
+  const char *zNew,             /* New command name */
   int nNew                       /* Number of bytes at zNew */
 ){
   Th_HashEntry *pEntry;
@@ -1497,13 +1496,13 @@ int Th_InFrame(Th_Interp *interp,
 **
 **     int nElem;
 **     int *anElem;
-**     uchar **azElem;
+**     char **azElem;
 **     int i;
 **
 **     Th_SplitList(interp, zList, nList, &azElem, &anElem, &nElem);
 **     for(i=0; i<nElem; i++){
 **       int nData = anElem[i];
-**       uchar *zData = azElem[i];
+**       char *zData = azElem[i];
 **       ...
 **     }
 **
@@ -1512,9 +1511,9 @@ int Th_InFrame(Th_Interp *interp,
 */
 int Th_SplitList(
   Th_Interp *interp,
-  const uchar *zList,             /* Pointer to buffer containing list */
+  const char *zList,             /* Pointer to buffer containing list */
   int nList,                      /* Number of bytes at zList */
-  uchar ***pazElem,               /* OUT: Array of pointers to element data */
+  char ***pazElem,               /* OUT: Array of pointers to element data */
   int **panElem,                  /* OUT: Array of element data lengths */
   int *pnCount                    /* OUT: Number of elements in list */
 ){
@@ -1543,10 +1542,10 @@ int Th_SplitList(
 **
 ** Example:
 **
-**     uchar *zList = 0;
+**     char *zList = 0;
 **     int nList = 0;
 **     for (...) {
-**       uchar *zElem = <some expression>;
+**       char *zElem = <some expression>;
 **       Th_ListAppend(interp, &zList, &nList, zElem, -1);
 **     }
 **     Th_SetResult(interp, zList, nList);
@@ -1555,9 +1554,9 @@ int Th_SplitList(
 */
 int Th_ListAppend(
   Th_Interp *interp,           /* Interpreter context */
-  uchar **pzList,              /* IN/OUT: Ptr to ptr to list */
+  char **pzList,              /* IN/OUT: Ptr to ptr to list */
   int *pnList,                 /* IN/OUT: Current length of *pzList */
-  const uchar *zElem,          /* Data to append */
+  const char *zElem,          /* Data to append */
   int nElem                    /* Length of nElem */
 ){
   Buffer output;
@@ -1579,7 +1578,7 @@ int Th_ListAppend(
   }
 
   for(i=0; i<nElem; i++){
-    uchar c = zElem[i];
+    char c = zElem[i];
     if( th_isspecial(c) ) hasSpecialChar = 1;
     if( c=='\\' ) hasEscapeChar = 1;
     if( c=='{' ) nBrace++;
@@ -1592,7 +1591,7 @@ int Th_ListAppend(
     thBufferWrite(interp, &output, "}", 1);
   }else{
     for(i=0; i<nElem; i++){
-      uchar c = zElem[i];
+      char c = zElem[i];
       if( th_isspecial(c) ) thBufferWrite(interp, &output, "\\", 1);
       thBufferWrite(interp, &output, &c, 1);
     }
@@ -1610,12 +1609,12 @@ int Th_ListAppend(
 */
 int Th_StringAppend(
   Th_Interp *interp,           /* Interpreter context */
-  uchar **pzStr,               /* IN/OUT: Ptr to ptr to list */
+  char **pzStr,               /* IN/OUT: Ptr to ptr to list */
   int *pnStr,                  /* IN/OUT: Current length of *pzStr */
-  const uchar *zElem,          /* Data to append */
+  const char *zElem,          /* Data to append */
   int nElem                    /* Length of nElem */
 ){
-  uchar *zNew;
+  char *zNew;
   int nNew;
 
   if( nElem<0 ){
@@ -1689,7 +1688,7 @@ struct Expr {
   Expr *pLeft;
   Expr *pRight;
 
-  uchar *zValue;     /* Pointer to literal value */
+  char *zValue;     /* Pointer to literal value */
   int nValue;        /* Length of literal value buffer */
 };
 
@@ -1780,14 +1779,14 @@ static Operator aOperator[] = {
 */
 static int thNextNumber(
   Th_Interp *interp, 
-  const uchar *zInput, 
+  const char *zInput, 
   int nInput, 
   int *pnLiteral
 ){
   int i;
   int seenDot = 0;
   for(i=0; i<nInput; i++){
-    uchar c = zInput[i];
+    char c = zInput[i];
     if( (seenDot || c!='.') && !th_isdigit(c) ) break;
     if( c=='.' ) seenDot = 1;
   }
@@ -1826,8 +1825,8 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     double fRight;
 
     /* Left and right arguments as strings */
-    uchar *zLeft = 0; int nLeft;
-    uchar *zRight = 0; int nRight;
+    char *zLeft = 0; int nLeft;
+    char *zRight = 0; int nRight;
 
     /* Evaluate left and right arguments, if they exist. */
     if( pExpr->pLeft ){
@@ -2016,7 +2015,7 @@ int exprMakeTree(Th_Interp *interp, Expr **apToken, int nToken){
 */
 static int exprParse(
   Th_Interp *interp,        /* Interpreter to leave error message in */
-  const uchar *zExpr,       /* Pointer to input string */
+  const char *zExpr,       /* Pointer to input string */
   int nExpr,                /* Number of bytes at zExpr */
   Expr ***papToken,         /* OUT: Array of tokens. */
   int *pnToken              /* OUT: Size of token array */
@@ -2028,12 +2027,12 @@ static int exprParse(
   Expr **apToken = 0;
 
   for(i=0; rc==TH_OK && i<nExpr; ){
-    uchar c = zExpr[i];
+    char c = zExpr[i];
     if( th_isspace(c) ){                                /* White-space     */
       i++;
     }else{
       Expr *pNew = (Expr *)Th_Malloc(interp, sizeof(Expr));
-      const uchar *z = &zExpr[i];
+      const char *z = &zExpr[i];
 
       switch (c) {
         case '0': case '1': case '2': case '3': case '4':
@@ -2071,7 +2070,7 @@ static int exprParse(
                 continue;
               }
             }
-            nOp = th_strlen((const uchar *)aOperator[j].zOp);
+            nOp = th_strlen((const char *)aOperator[j].zOp);
             if( (nExpr-i)>=nOp && 0==memcmp(aOperator[j].zOp, &zExpr[i], nOp) ){
               pNew->pOp = &aOperator[j];
               i += nOp;
@@ -2117,7 +2116,7 @@ static int exprParse(
 ** successful. If an error occurs, store an error message in
 ** the interpreter result and return an error code.
 */ 
-int Th_Expr(Th_Interp *interp, const uchar *zExpr, int nExpr){
+int Th_Expr(Th_Interp *interp, const char *zExpr, int nExpr){
   int rc;                           /* Return Code */
   int i;                            /* Loop counter */
 
@@ -2224,7 +2223,7 @@ void Th_HashDelete(Th_Interp *interp, Th_Hash *pHash){
 Th_HashEntry *Th_HashFind(
   Th_Interp *interp, 
   Th_Hash *pHash,
-  const uchar *zKey,
+  const char *zKey,
   int nKey,
   int op                      /* -ve = delete, 0 = find, +ve = insert */
 ){
@@ -2256,7 +2255,7 @@ Th_HashEntry *Th_HashFind(
 
   if( op>0 && !pRet ){
     pRet = (Th_HashEntry *)Th_Malloc(interp, sizeof(Th_HashEntry) + nKey);
-    pRet->zKey = (uchar *)&pRet[1];
+    pRet->zKey = (char *)&pRet[1];
     pRet->nKey = nKey;
     memcpy(pRet->zKey, zKey, nKey);
     pRet->pNext = pHash->a[iKey];
@@ -2271,7 +2270,7 @@ Th_HashEntry *Th_HashFind(
 ** that it returns 0 (instead of being undefined) if the argument is
 ** a null pointer.
 */
-int th_strlen(const unsigned char *zStr){
+int th_strlen(const char *zStr){
   int n = 0;
   if( zStr ){
     while( zStr[n] ) n++;
@@ -2322,23 +2321,23 @@ static unsigned char aCharProp[256] = {
 /*
 ** Clone of the standard isspace() and isdigit function/macros.
 */
-int th_isspace(unsigned char c){
-  return (aCharProp[c] & 0x01);
+int th_isspace(char c){
+  return (aCharProp[(unsigned char)c] & 0x01);
 }
-int th_isdigit(unsigned char c){
-  return (aCharProp[c] & 0x02);
+int th_isdigit(char c){
+  return (aCharProp[(unsigned char)c] & 0x02);
 }
-int th_isspecial(unsigned char c){
-  return (aCharProp[c] & 0x11);
+int th_isspecial(char c){
+  return (aCharProp[(unsigned char)c] & 0x11);
 }
-int th_isalnum(unsigned char c){
-  return (aCharProp[c] & 0x0A);
+int th_isalnum(char c){
+  return (aCharProp[(unsigned char)c] & 0x0A);
 }
 
 #ifndef LONGDOUBLE_TYPE
 # define LONGDOUBLE_TYPE long double
 #endif
-typedef uchar u8;
+typedef char u8;
 
 
 /*
@@ -2448,7 +2447,7 @@ static int sqlite3AtoF(const char *z, double *pResult){
 ** If the interp argument is not NULL, leave an error message in the 
 ** interpreter result too.
 */
-int Th_ToInt(Th_Interp *interp, const uchar *z, int n, int *piOut){
+int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
   int i = 0;
   int iOut = 0;
 
@@ -2485,7 +2484,7 @@ int Th_ToInt(Th_Interp *interp, const uchar *z, int n, int *piOut){
 */
 int Th_ToDouble(
   Th_Interp *interp, 
-  const uchar *z, 
+  const char *z, 
   int n, 
   double *pfOut
 ){
@@ -2504,17 +2503,17 @@ int Th_ToDouble(
 */
 int Th_SetResultInt(Th_Interp *interp, int iVal){
   int isNegative = 0;
-  uchar zBuf[32];
-  uchar *z = &zBuf[32];
+  char zBuf[32];
+  char *z = &zBuf[32];
 
   if( iVal<0 ){
     isNegative = 1;
     iVal = iVal * -1;
   }
   *(--z) = '\0';
-  *(--z) = (uchar)(48+(iVal%10));
+  *(--z) = (char)(48+(iVal%10));
   while( (iVal = (iVal/10))>0 ){
-    *(--z) = (uchar)(48+(iVal%10));
+    *(--z) = (char)(48+(iVal%10));
     assert(z>zBuf);
   }
   if( isNegative ){
@@ -2531,11 +2530,11 @@ int Th_SetResultInt(Th_Interp *interp, int iVal){
 int Th_SetResultDouble(Th_Interp *interp, double fVal){
   int i;                /* Iterator variable */
   double v = fVal;      /* Input value */
-  uchar zBuf[128];      /* Output buffer */
-  uchar *z = zBuf;      /* Output cursor */
+  char zBuf[128];      /* Output buffer */
+  char *z = zBuf;      /* Output cursor */
   int iDot = 0;         /* Digit after which to place decimal point */
   int iExp = 0;         /* Exponent (NN in eNN) */
-  const uchar *zExp;    /* String representation of iExp */
+  const char *zExp;    /* String representation of iExp */
 
   /* Precision: */
   #define INSIGNIFICANT 0.000000000001
@@ -2585,7 +2584,7 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
    * where (if at all) the decimal point is placed.
    */
   for(i=0; i<=(iDot+1) || v>=insignificant; i++){
-    *z++ = (uchar)(48 + (int)v);
+    *z++ = (char)(48 + (int)v);
     v = (v - ((double)(int)v)) * 10.0;
     insignificant *= 10.0;
     if( iDot==i ){
@@ -2607,67 +2606,4 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
 
   *z = '\0';
   return Th_SetResult(interp, zBuf, -1);
-}
-
-/*
-** Set the result of the interpreter to the th1 representation of
-** the pointer p and return TH_OK. The th1 representation can be
-** converted back to a pointer using Th_ToPtr().
-*/
-int Th_SetResultPtr(Th_Interp *interp, void *p){
-  char zBuf[32];
-  char *z;
-  int i;
-  unsigned int v = (unsigned int)p;
-
-  const char zHex[16] = "0123456789ABCDEF";
-
-  assert( sizeof(unsigned int)==sizeof(void *) );
-
-  zBuf[31] = '\0';
-  z = &zBuf[30];
-
-  for(i=0; i<(sizeof(unsigned int)*2); i++){
-    *z-- = zHex[(v&0x0000000F)];
-    v = v>>4;
-  }
-
-  *z-- = 'x';
-  *z = '0';
-
-  return Th_SetResult(interp, (uchar *)z, -1);
-}
-
-/*
-** Convert input string (z, n) to a generic pointer. If the conversion
-** is successful, store the result in *pp and return TH_OK.
-**
-** If the string cannot be converted to a pointer, return TH_ERROR. 
-** If the interp argument is not NULL, leave an error message in the 
-** interpreter result too.
-*/
-int Th_ToPtr(Th_Interp *interp, const uchar *z, int n, void **pp){
-  unsigned int iPtr;
-  int i;
-  assert(sizeof(unsigned int)==sizeof(void *));
-
-  if( n<3 || z[0]!='0' || z[1]!='x' ){
-    goto error_out;
-  }
-
-  iPtr = 0;
-  for(i=2; i<n; i++){
-    int digit = thHexdigit(z[i]);
-    if( digit<0 ){
-      goto error_out;
-    }
-    iPtr = (iPtr<<4) + digit;
-  }
-
-  *pp = (void *)iPtr;
-  return TH_OK;
-
-error_out:
-  Th_ErrorMessage(interp, "expected pointer, got: \"", z, n);
-  return TH_ERROR;
 }

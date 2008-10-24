@@ -14,9 +14,7 @@
 #include <assert.h>
 
 int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg){
-  Th_ErrorMessage(interp, 
-      "wrong # args: should be \"", (const uchar*)zMsg, -1
-  );
+  Th_ErrorMessage(interp, "wrong # args: should be \"", zMsg, -1);
   return TH_ERROR;
 }
 
@@ -29,7 +27,7 @@ static int catch_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int rc;
@@ -41,7 +39,7 @@ static int catch_command(
   rc = Th_Eval(interp, 0, argv[1], -1);
   if( argc==3 ){
     int nResult;
-    const uchar *zResult = Th_GetResult(interp, &nResult);
+    const char *zResult = Th_GetResult(interp, &nResult);
     Th_SetVar(interp, argv[2], argl[2], zResult, nResult);
   }
 
@@ -58,7 +56,7 @@ static int if_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int rc = TH_OK;
@@ -66,7 +64,7 @@ static int if_command(
   int iCond;           /* Result of evaluating expression */
   int i;
 
-  const uchar *zResult;
+  const char *zResult;
   int nResult;
 
   if( argc<3 ){
@@ -105,7 +103,7 @@ static int expr_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=2 ){
@@ -120,7 +118,7 @@ static int expr_command(
 ** Return the result of the evaluation, except if the result
 ** is TH_CONTINUE, return TH_OK instead.
 */
-static int eval_loopbody(Th_Interp *interp, const uchar *zBody, int nBody){
+static int eval_loopbody(Th_Interp *interp, const char *zBody, int nBody){
   int rc = Th_Eval(interp, 0, zBody, nBody);
   if( rc==TH_CONTINUE ){
     rc = TH_OK;
@@ -137,7 +135,7 @@ static int for_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int rc;
@@ -172,10 +170,10 @@ static int list_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
-  uchar *zList = 0;
+  char *zList = 0;
   int nList = 0;
   int i;
 
@@ -198,13 +196,13 @@ static int lindex_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int iElem;
   int rc;
 
-  uchar **azElem;
+  char **azElem;
   int *anElem;
   int nCount;
 
@@ -238,7 +236,7 @@ static int llength_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int nElem;
@@ -265,7 +263,7 @@ static int set_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=2 && argc!=3 ){
@@ -287,14 +285,14 @@ static int set_command(
 typedef struct ProcDefn ProcDefn;
 struct ProcDefn {
   int nParam;                /* Number of formal (non "args") parameters */
-  uchar **azParam;           /* Parameter names */
+  char **azParam;           /* Parameter names */
   int *anParam;              /* Lengths of parameter names */
-  uchar **azDefault;         /* Default values */
+  char **azDefault;         /* Default values */
   int *anDefault;            /* Lengths of default values */
   int hasArgs;               /* True if there is an "args" parameter */
-  uchar *zProgram;           /* Body of proc */
+  char *zProgram;           /* Body of proc */
   int nProgram;              /* Number of bytes at zProgram */
-  uchar *zUsage;             /* Usage message */
+  char *zUsage;             /* Usage message */
   int nUsage;                /* Number of bytes at zUsage */
 };
 
@@ -305,7 +303,7 @@ struct ProcDefn {
 typedef struct ProcArgs ProcArgs;
 struct ProcArgs {
   int argc;
-  const uchar **argv;
+  const char **argv;
   int *argl;
 };
 
@@ -329,11 +327,11 @@ static int proc_call2(Th_Interp *interp, void *pContext1, void *pContext2){
   if( (pArgs->argc>(p->nParam+1) && !p->hasArgs) 
    || (pArgs->argc<=(p->nParam) && !p->azDefault[pArgs->argc-1])
   ){
-    uchar *zUsage = 0;
+    char *zUsage = 0;
     int nUsage = 0;
     Th_StringAppend(interp, &zUsage, &nUsage, pArgs->argv[0], pArgs->argl[0]);
     Th_StringAppend(interp, &zUsage, &nUsage, p->zUsage, p->nUsage);
-    Th_StringAppend(interp, &zUsage, &nUsage, (const uchar *)"", 1);
+    Th_StringAppend(interp, &zUsage, &nUsage, (const char *)"", 1);
     Th_WrongNumArgs(interp, zUsage);
     Th_Free(interp, zUsage);
     return TH_ERROR;
@@ -341,7 +339,7 @@ static int proc_call2(Th_Interp *interp, void *pContext1, void *pContext2){
 
   /* Populate the formal proc parameters. */
   for(i=0; i<p->nParam; i++){
-    const uchar *zVal;
+    const char *zVal;
     int nVal;
     if( pArgs->argc>(i+1) ){
       zVal = pArgs->argv[i+1];
@@ -355,12 +353,12 @@ static int proc_call2(Th_Interp *interp, void *pContext1, void *pContext2){
 
   /* Populate the "args" parameter, if it exists */
   if( p->hasArgs ){
-    uchar *zArgs = 0;
+    char *zArgs = 0;
     int nArgs = 0;
     for(i=p->nParam+1; i<pArgs->argc; i++){
       Th_ListAppend(interp, &zArgs, &nArgs, pArgs->argv[i], pArgs->argl[i]);
     }
-    Th_SetVar(interp, (const uchar *)"args", -1, zArgs, nArgs);
+    Th_SetVar(interp, (const char *)"args", -1, zArgs, nArgs);
   }
 
   Th_SetResult(interp, 0, 0);
@@ -376,7 +374,7 @@ static int proc_call1(
   Th_Interp *interp,
   void *pContext, 
   int argc, 
-  const uchar **argv,
+  const char **argv,
   int *argl
 ){
   int rc;
@@ -421,7 +419,7 @@ static int proc_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc,
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int rc;
@@ -430,13 +428,13 @@ static int proc_command(
   ProcDefn *p;
   int nByte;
   int i;
-  uchar *zSpace;
+  char *zSpace;
 
-  uchar **azParam;
+  char **azParam;
   int *anParam;
   int nParam;
 
-  uchar *zUsage = 0;               /* Build up a usage message here */
+  char *zUsage = 0;               /* Build up a usage message here */
   int nUsage = 0;                  /* Number of bytes at zUsage */
 
   if( argc!=4 ){
@@ -448,8 +446,8 @@ static int proc_command(
 
   /* Allocate the new ProcDefn structure. */
   nByte = sizeof(ProcDefn) +                        /* ProcDefn structure */
-      (sizeof(uchar *) + sizeof(int)) * nParam +    /* azParam, anParam */
-      (sizeof(uchar *) + sizeof(int)) * nParam +    /* azDefault, anDefault */
+      (sizeof(char *) + sizeof(int)) * nParam +    /* azParam, anParam */
+      (sizeof(char *) + sizeof(int)) * nParam +    /* azDefault, anDefault */
       argl[3] +                                     /* zProgram */
       argl[2];     /* Space for copies of parameter names and default values */
   p = (ProcDefn *)Th_Malloc(interp, nByte);
@@ -464,17 +462,17 @@ static int proc_command(
   }
 
   p->nParam    = nParam;
-  p->azParam   = (uchar **)&p[1];
+  p->azParam   = (char **)&p[1];
   p->anParam   = (int *)&p->azParam[nParam];
-  p->azDefault = (uchar **)&p->anParam[nParam];
+  p->azDefault = (char **)&p->anParam[nParam];
   p->anDefault = (int *)&p->azDefault[nParam];
-  p->zProgram = (uchar *)&p->anDefault[nParam];
+  p->zProgram = (char *)&p->anDefault[nParam];
   memcpy(p->zProgram, argv[3], argl[3]);
   p->nProgram = argl[3];
   zSpace = &p->zProgram[p->nProgram];
   
   for(i=0; i<nParam; i++){
-    uchar **az;
+    char **az;
     int *an;
     int n;
     if( Th_SplitList(interp, azParam[i], anParam[i], &az, &an, &n) ){
@@ -497,25 +495,25 @@ static int proc_command(
       zSpace += an[1];
     }
 
-    Th_StringAppend(interp, &zUsage, &nUsage, (const uchar *)" ", 1);
+    Th_StringAppend(interp, &zUsage, &nUsage, (const char *)" ", 1);
     if( n==2 ){
-      Th_StringAppend(interp, &zUsage, &nUsage, (const uchar *)"?", 1);
+      Th_StringAppend(interp, &zUsage, &nUsage, (const char *)"?", 1);
       Th_StringAppend(interp, &zUsage, &nUsage, az[0], an[0]);
-      Th_StringAppend(interp, &zUsage, &nUsage, (const uchar *)"?", 1);
+      Th_StringAppend(interp, &zUsage, &nUsage, (const char *)"?", 1);
     }else{
       Th_StringAppend(interp, &zUsage, &nUsage, az[0], an[0]);
     }
 
     Th_Free(interp, az);
   }
-  assert( zSpace-(uchar *)p<=nByte );
+  assert( zSpace-(char *)p<=nByte );
 
   /* If there is an "args" parameter, append it to the end of the usage
   ** message. Set ProcDefn.zUsage to point at the usage message. It will
   ** be freed along with the rest of the proc-definition by proc_del().
   */
   if( p->hasArgs ){
-    Th_StringAppend(interp, &zUsage, &nUsage, (const uchar *)" ?args...?", -1);
+    Th_StringAppend(interp, &zUsage, &nUsage, (const char *)" ?args...?", -1);
   }
   p->zUsage = zUsage;
   p->nUsage = nUsage;
@@ -545,7 +543,7 @@ static int rename_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc,
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=3 ){
@@ -566,7 +564,7 @@ static int simple_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   if( argc!=1 && argc!=2 ){
@@ -587,7 +585,7 @@ static int return_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int iCode = TH_RETURN;
@@ -612,10 +610,10 @@ static int return_command(
 **   string compare STRING1 STRING2
 */
 static int string_compare_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  const uchar *zRight; int nRight;
-  const uchar *zLeft; int nLeft;
+  const char *zRight; int nRight;
+  const char *zLeft; int nLeft;
 
   int i;
   int iRes = 0;
@@ -648,11 +646,11 @@ static int string_compare_command(
 **   string first NEEDLE HAYSTACK
 */
 static int string_first_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  const uchar *zNeedle;
+  const char *zNeedle;
   int nNeedle;
-  const uchar *zHaystack;
+  const char *zHaystack;
   int nHaystack;
   int i;
   int iRes;
@@ -682,7 +680,7 @@ static int string_first_command(
 **   string is CLASS STRING
 */
 static int string_is_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
   int i;
   int iRes = 1;
@@ -709,11 +707,11 @@ static int string_is_command(
 **   string last NEEDLE HAYSTACK
 */
 static int string_last_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
-  const uchar *zNeedle;
+  const char *zNeedle;
   int nNeedle;
-  const uchar *zHaystack;
+  const char *zHaystack;
   int nHaystack;
   int i;
   int iRes;
@@ -743,7 +741,7 @@ static int string_last_command(
 **   string length STRING
 */
 static int string_length_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "string length string");
@@ -757,7 +755,7 @@ static int string_length_command(
 **   string range STRING FIRST LAST
 */
 static int string_range_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
   int iStart;
   int iEnd;
@@ -790,12 +788,12 @@ static int string_range_command(
 **   string repeat STRING COUNT
 */
 static int string_repeat_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
   int n;
   int i;
   int nByte;
-  uchar *zByte;
+  char *zByte;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string repeat string n");
@@ -821,7 +819,7 @@ static int string_repeat_command(
 **   info exists VAR
 */
 static int info_exists_command(
-  Th_Interp *interp, void *ctx, int argc, const uchar **argv, int *argl
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
 ){
   int rc;
 
@@ -842,7 +840,7 @@ static int unset_command(
   Th_Interp *interp, 
   void *ctx,
   int argc,
-  const uchar **argv,
+  const char **argv,
   int *argl
 ){
   if( argc!=2 ){
@@ -855,13 +853,13 @@ int Th_CallSubCommand(
   Th_Interp *interp, 
   void *ctx,
   int argc,
-  const uchar **argv,
+  const char **argv,
   int *argl,
   Th_SubCommand *aSub
 ){
   int i;
   for(i=0; aSub[i].zName; i++){
-    uchar *zName = (uchar *)aSub[i].zName;
+    char *zName = (char *)aSub[i].zName;
     if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
       return aSub[i].xProc(interp, ctx, argc, argv, argl);
     }
@@ -886,7 +884,7 @@ static int string_command(
   Th_Interp *interp, 
   void *ctx,
   int argc,
-  const uchar **argv,
+  const char **argv,
   int *argl
 ){
   Th_SubCommand aSub[] = {
@@ -911,7 +909,7 @@ static int info_command(
   Th_Interp *interp, 
   void *ctx,
   int argc,
-  const uchar **argv,
+  const char **argv,
   int *argl
 ){
   Th_SubCommand aSub[] = {
@@ -930,7 +928,7 @@ static int info_command(
 */
 static int thToFrame(
   Th_Interp *interp, 
-  const uchar *zFrame, 
+  const char *zFrame, 
   int nFrame, 
   int *piFrame
 ){
@@ -959,7 +957,7 @@ static int uplevel_command(
   Th_Interp *interp, 
   void *ctx,
   int argc,
-  const uchar **argv,
+  const char **argv,
   int *argl
 ){
   int iFrame = -1;
@@ -982,7 +980,7 @@ static int upvar_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int iVar = 1;
@@ -1015,7 +1013,7 @@ static int breakpoint_command(
   Th_Interp *interp, 
   void *ctx, 
   int argc, 
-  const uchar **argv, 
+  const char **argv, 
   int *argl
 ){
   int cnt = 0;
