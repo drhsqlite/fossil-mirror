@@ -95,6 +95,10 @@ static void diff_all(int internalDiff,  const char *zRevision){
     }else if( isChnged==3 ){
       printf("ADDED_BY_MERGE %s\n", zPathname);
     }else{
+      printf("Index: %s\n======================================="
+             "============================\n",
+             zPathname
+      );
       shell_escape(&cmd, zFullName);
       printf("%s\n", blob_str(&cmd));
       fflush(stdout);
@@ -134,14 +138,17 @@ static void diff_all(int internalDiff,  const char *zRevision){
 **   %fossil setting gdiff-command kdiff3
 */
 void diff_cmd(void){
-  int isGDiff = g.argv[1][0]=='g';
-  const char *zFile, *zRevision;
-  Blob cmd;
-  Blob fname;
+  int isGDiff;               /* True for gdiff.  False for normal diff */
+  const char *zFile;         /* Name of file to diff */
+  const char *zRevision;     /* Version of file to diff against current */
+  Blob cmd;                  /* The diff command-line for external diff */
+  Blob fname;                /* */
   Blob vname;
   Blob record;
-  int cnt=0,internalDiff;
+  int cnt=0;
+  int internalDiff;          /* True to use the internal diff engine */
 
+  isGDiff = g.argv[1][0]=='g';
   internalDiff = find_option("internal","i",0)!=0;
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
@@ -180,7 +187,7 @@ void diff_cmd(void){
   if( zRevision==0 ){
     int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
     if( rid==0 ){
-      fossil_panic("no history for file: %b", &fname);
+      fossil_fatal("no history for file: %b", &fname);
     }
     content_get(rid, &record);
   }else{
@@ -193,6 +200,7 @@ void diff_cmd(void){
     blob_read_from_file(&current, zFile);
     blob_zero(&out);
     text_diff(&record, &current, &out, 5);
+    printf("--- %s\n+++ %s\n", blob_str(&fname), blob_str(&fname));
     printf("%s\n", blob_str(&out));
     blob_reset(&current);
     blob_reset(&out);

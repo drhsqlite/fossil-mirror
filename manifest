@@ -1,5 +1,8 @@
-C Fix\sa\sspelling\sin\shelp\stext\sof\s'tag\sbranch'.
-D 2008-10-23T03:21:33
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Improvements\sto\sthe\soutput\sof\sthe\s"diff"\scommand\sso\sthat\sit\sis\scloser\sto\nstandards.
+D 2008-10-24T10:56:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -56,7 +59,7 @@ F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c c213fbef9a040c1ba9a0a8f782db22ff7fdf5bb8
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
-F src/diffcmd.c 74bdae74dde0af7eebc0366840130f6dc1495f99
+F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c e65fd74ba69b47a19c9112bbdf16955d7ad3ada6
 F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
@@ -211,7 +214,14 @@ F www/quickstart.wiki f589ecb4845d7647008165645cbb5c32718ecbf1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki e3ece24fa595702c627e5a3dd595f744f340de2d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P c887b2b66e643ef09989ecfda62733f9b274066a
-R 09d68c46866c27e6164d8071b9a95517
-U cle
-Z affc7478de109ec5a73ab0d275b6d2fd
+P 56177cfe12dec52a02a8fb399c82287a86216992
+R 8cc45e8fe8705e236be3cc1015730730
+U drh
+Z ee2e93e89dd462252a6573c319eb0646
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (Darwin)
+
+iEYEARECAAYFAkkBqdMACgkQoxKgR168RlEsdACdEL+fKI3nRtrOqExU/4GSfR0Y
+JD0An2H5fN/hjZDUrkpJH09ioHkINNwT
+=1AI/
+-----END PGP SIGNATURE-----
