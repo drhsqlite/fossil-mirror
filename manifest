@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\scontrol\scharacters\sfrom\srse-notes.txt.
-D 2008-10-24T14:03:17
+C Make\sthe\s"settings"\scommand\swork\swith\sthe\s-R\soption.\nFix\sfor\sticket\s[5162d999af].
+D 2008-10-24T14:05:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c 2cb2adc7b455d394719197fc483a03cdaa249a84
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 398830aef3f7044ce2de957bb1372c5a04e8054b
+F src/db.c 5a3c0d4818766a13f3b1fb7194e98ac9ed79bd83
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 63112b27621d0b2cba4f3a25e7394b41a9eee228
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P e8c4f69c50ecbe4388aa28e489050e7ca6be2ed8
-R 36aab594b9416e459294d8bad07814ec
+P 9a482dd7011db01220b6889573f6646ead5db593
+R 51d19ef58cd2ad147226645d8ced4719
 U drh
-Z 85efee1335a3c750562a24e4a8ffe070
+Z 55e062c714a23a557477db9eeb34ce2e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkkB1aUACgkQoxKgR168RlEjugCfa/JPRIU0D8IELi79LOTvr3m/
-t38Anjdk4Dt7OGNxDailyY+LOspz0RKV
-=xPvJ
+iEYEARECAAYFAkkB1g8ACgkQoxKgR168RlGBBACcCMVbgZKAQUUiVSoMU0kWZkFd
+wN0AnRvP5IwxQoJ4cLIji7sgkbogH0KB
+=xJKi
 -----END PGP SIGNATURE-----

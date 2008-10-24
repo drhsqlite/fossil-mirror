@@ -1282,9 +1282,9 @@ void setting_cmd(void){
   int unsetFlag = g.argv[1][0]=='u';
   db_find_and_open_repository(0);
   if( !g.repositoryOpen ){
-    db_open_config();
     globalFlag = 1;
   }
+  db_open_config();
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }
