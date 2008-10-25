@@ -162,7 +162,7 @@ void url_enable_proxy(const char *zMsg){
   zProxy = zProxyOpt;
   if( zProxy==0 ){
     zProxy = db_get("proxy", 0);
-    if( zProxy==0 || zProxy[0] || is_false(zProxy) ){
+    if( zProxy==0 || zProxy[0] || !is_false(zProxy) ){
       zProxy = getenv("http_proxy");
     }
   }
