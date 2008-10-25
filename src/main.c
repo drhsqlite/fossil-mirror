@@ -710,7 +710,7 @@ void cmd_webserver(void){
   char *zBrowser;
   char *zBrowserCmd = 0;
 
-  g.thTrace = find_option("th_trace", 0, 0)!=0;
+  g.thTrace = find_option("th-trace", 0, 0)!=0;
   if( g.thTrace ){
     blob_zero(&g.thLog);
   }

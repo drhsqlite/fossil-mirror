@@ -319,17 +319,18 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     J '+'?<name> <value>
+      **     J <name> ?<value>?
       **
       ** Specifies a name value pair for ticket.  If the first character
-      ** of <name> is "+" then the value is appended to any preexisting
-      ** value.
+      ** of <name> is "+" then the <value> is appended to any preexisting
+      ** value.  If <value> is omitted then it is understood to be an
+      ** empty string.
       */
       case 'J': {
         char *zName, *zValue;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        blob_token(&line, &a2);
         if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
         zValue = blob_terminate(&a2);

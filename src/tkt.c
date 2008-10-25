@@ -100,8 +100,9 @@ static int fieldId(const char *zField){
 ** variables.
 **
 ** Fields of the TICKET table that begin with "private_" are
-** expanded using the db_reveal() function.  This function will
-** decode the content so that it is legable if g.okRdAddr is true.
+** expanded using the db_reveal() function.  If g.okRdAddr is
+** true, then the db_reveal() function will decode the content
+** using the CONCEALED table so that the content legable.
 ** Otherwise, db_reveal() is a no-op and the content remains
 ** obscured.
 */
@@ -419,12 +420,13 @@ static int submitTicketCmd(
       zValue = Th_Fetch(azField[i], &nValue);
       if( zValue ){
         while( nValue>0 && isspace(zValue[nValue-1]) ){ nValue--; }
-        if( strncmp(azField[i], "private_", 8)==0 ){
-          zValue = db_conceal(zValue, nValue);
-          nValue = strlen(zValue);
-        }
         if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
-          blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
+          if( strncmp(azField[i], "private_", 8)==0 ){
+            zValue = db_conceal(zValue, nValue);
+            blob_appendf(&tktchng, "J %s %s\n", azField[i], zValue);
+          }else{
+            blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
+          }
         }
       }
     }

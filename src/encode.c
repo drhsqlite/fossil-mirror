@@ -293,7 +293,7 @@ void defossilize(char *z){
     }
     z[j++] = c;
   }
-  z[j] = 0;
+  if( z[j] ) z[j] = 0;
 }
 
 

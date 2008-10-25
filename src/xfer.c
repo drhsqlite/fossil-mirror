@@ -392,7 +392,7 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       g.zNonce = mprintf("%b", pNonce);
     }
   }
-  db_reset(&q);
+  db_finalize(&q);
 }
 
 /*
@@ -722,7 +722,7 @@ void page_xfer(void){
       blob_extract(xfer.pIn, size, &content);
       if( !g.okAdmin ){
         cgi_reset_content();
-        @ error not\sauthorized\sto\spush\sconfiguration\data
+        @ error not\sauthorized\sto\spush\sconfiguration
         nErr++;
         break;
       }
@@ -1079,6 +1079,7 @@ void client_sync(
         Blob content;
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
+        g.okAdmin = g.okRdAddr = 1;
         if( configure_is_exportable(zName) & origConfigRcvMask ){
           if( zName[0]!='@' ){
             db_multi_exec(
