@@ -483,6 +483,28 @@ static void send_all(Xfer *pXfer){
 }
 
 /*
+** Send a single config card for configuration item zName
+*/
+static void send_config_card(Xfer *pXfer, const char *zName){
+  if( zName[0]!='@' ){
+    char *zValue = db_get(zName, 0);
+    if( zValue ){
+      blob_appendf(pXfer->pOut, "config %s %d\n%s\n",
+                   zName, strlen(zValue), zValue);
+      free(zValue);
+    }
+  }else{
+    Blob content;
+    blob_zero(&content);
+    configure_render_special_name(zName, &content);
+    blob_appendf(pXfer->pOut, "config %s %d\n%s\n", zName,
+                 blob_size(&content), blob_str(&content));
+    blob_reset(&content);
+  }
+}
+
+
+/*
 ** If this variable is set, disable login checks.  Used for debugging
 ** only.
 */
@@ -509,6 +531,8 @@ void page_xfer(void){
   int deltaFlag = 0;
   int isClone = 0;
   int nGimme = 0;
+  int size;
+  int recvConfig = 0;
 
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
@@ -680,25 +704,51 @@ void page_xfer(void){
       if( g.okRead ){
         char *zName = blob_str(&xfer.aToken[1]);
         if( configure_is_exportable(zName) ){
-          if( zName[0]!='@' ){
-            char *zValue = db_get(zName, 0);
-            if( zValue ){
-              blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName, 
-                           strlen(zValue), zValue);
-              free(zValue);
-            }
-          }else{
-            Blob content;
-            blob_zero(&content);
-            configure_render_special_name(zName, &content);
-            blob_appendf(xfer.pOut, "config %s %d\n%s\n", zName,
-               blob_size(&content), blob_str(&content));
-            blob_reset(&content);
-          }
+          send_config_card(&xfer, zName);
         }
       }
     }else
     
+    /*   config NAME SIZE \n CONTENT
+    **
+    ** Receive a configuration value from the client.  This is only
+    ** permitted for high-privilege users.
+    */
+    if( blob_eq(&xfer.aToken[0],"config") && xfer.nToken==3
+        && blob_is_int(&xfer.aToken[2], &size) ){
+      const char *zName = blob_str(&xfer.aToken[1]);
+      Blob content;
+      blob_zero(&content);
+      blob_extract(xfer.pIn, size, &content);
+      if( !g.okAdmin ){
+        cgi_reset_content();
+        @ error not\sauthorized\sto\spush\sconfiguration\data
+        nErr++;
+        break;
+      }
+      if( zName[0]!='@' ){
+        if( !recvConfig ){
+          configure_prepare_to_receive(0);
+          recvConfig = 1;
+        }
+        db_multi_exec(
+            "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+            zName, blob_str(&content)
+        );
+      }else{
+        /* Notice that we are evaluating arbitrary SQL received from the
+        ** client.  But this can only happen if the client has authenticated
+        ** as an administrator, so presumably we trust the client at this
+        ** point.
+        */
+        db_multi_exec("%s", blob_str(&content));
+      }
+      blob_reset(&content);
+      blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
+    }else
+
+      
+
     /*    cookie TEXT
     **
     ** A cookie contains a arbitrary-length argument that is server-defined.
@@ -743,6 +793,9 @@ void page_xfer(void){
   }else if( isPull ){
     create_cluster();
     send_unclustered(&xfer);
+  }
+  if( recvConfig ){
+    configure_finalize_receive();
   }
   db_end_transaction(0);
 }
@@ -795,7 +848,13 @@ static const char zValueFormat[] = "\r%-10s %10d %10d %10d %10d\n";
 ** are pulled if pullFlag is true.  A full sync occurs if both are
 ** true.
 */
-void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
+void client_sync(
+  int pushFlag,          /* True to do a push (or a sync) */
+  int pullFlag,          /* True to do a pull (or a sync) */
+  int cloneFlag,         /* True if this is a clone */
+  int configRcvMask,     /* Receive these configuration items */
+  int configSendMask     /* Send these configuration items */
+){
   int go = 1;        /* Loop until zero */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
@@ -803,7 +862,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
   int nCycle = 0;        /* Number of round trips to the server */
   int size;               /* Size of a config value */
   int nFileSend = 0;
-  int origConfigMask;     /* Original value of configMask */
+  int origConfigRcvMask;  /* Original value of configRcvMask */
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
@@ -816,7 +875,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
 
-  assert( pushFlag || pullFlag || cloneFlag || configMask );
+  assert( pushFlag | pullFlag | cloneFlag | configRcvMask | configSendMask );
   assert( !g.urlIsFile );          /* This only works for networking */
 
   db_begin_transaction();
@@ -829,7 +888,7 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
   blob_zero(&recv);
   blob_zero(&xfer.err);
   blob_zero(&xfer.line);
-  origConfigMask = configMask;
+  origConfigRcvMask = configRcvMask;
 
   /*
   ** Always begin with a clone, pull, or push message
@@ -874,18 +933,30 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
     }
 
     /* Send configuration parameter requests */
-    if( configMask ){
+    if( configRcvMask ){
       const char *zName;
-      zName = configure_first_name(configMask);
+      zName = configure_first_name(configRcvMask);
       while( zName ){
         blob_appendf(&send, "reqconfig %s\n", zName);
-        zName = configure_next_name(configMask);
+        zName = configure_next_name(configRcvMask);
         nCard++;
       }
-      if( configMask & (CONFIGSET_USER|CONFIGSET_TKT) ){
+      if( configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT) ){
         configure_prepare_to_receive(0);
       }
-      configMask = 0;
+      configRcvMask = 0;
+    }
+
+    /* Send configuration parameters being pushed */
+    if( configSendMask ){
+      const char *zName;
+      zName = configure_first_name(configSendMask);
+      while( zName ){
+        send_config_card(&xfer, zName);
+        zName = configure_next_name(configSendMask);
+        nCard++;
+      }
+      configSendMask = 0;
     }
 
     /* Append randomness to the end of the message */
@@ -1008,13 +1079,18 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
         Blob content;
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
-        if( configure_is_exportable(zName) & origConfigMask ){
+        if( configure_is_exportable(zName) & origConfigRcvMask ){
           if( zName[0]!='@' ){
             db_multi_exec(
                 "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
                 zName, blob_str(&content)
             );
           }else{
+            /* Notice that we are evaluating arbitrary SQL received from the
+            ** server.  But this can only happen if we have specifically
+            ** requested configuration information from the server, so
+            ** presumably the operator trusts the server.
+            */
             db_multi_exec("%s", blob_str(&content));
           }
         }
@@ -1068,10 +1144,10 @@ void client_sync(int pushFlag, int pullFlag, int cloneFlag, int configMask){
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
-    if( origConfigMask & (CONFIGSET_TKT|CONFIGSET_USER) ){
+    if( origConfigRcvMask & (CONFIGSET_TKT|CONFIGSET_USER) ){
       configure_finalize_receive();
     }
-    origConfigMask = 0;
+    origConfigRcvMask = 0;
     printf(zValueFormat, "Received:",
             blob_size(&recv), nCard,
             xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);

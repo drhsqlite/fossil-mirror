@@ -63,7 +63,7 @@ void autosync(int flags){
     printf("Autosync:  http://%s%s\n", g.urlName, g.urlPath);
   }
   url_enable_proxy("via proxy: ");
-  client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0);
+  client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, 0);
 }
 
 /*
@@ -126,7 +126,7 @@ void process_sync_args(void){
 */
 void pull_cmd(void){
   process_sync_args();
-  client_sync(0,1,0,0);
+  client_sync(0,1,0,0,0);
 }
 
 /*
@@ -139,7 +139,7 @@ void pull_cmd(void){
 */
 void push_cmd(void){
   process_sync_args();
-  client_sync(1,0,0,0);
+  client_sync(1,0,0,0,0);
 }
 
 
@@ -154,5 +154,5 @@ void push_cmd(void){
 */
 void sync_cmd(void){
   process_sync_args();
-  client_sync(1,1,0,0);
+  client_sync(1,1,0,0,0);
 }

@@ -39,6 +39,7 @@
 #define CONFIGSET_PROJ   0x000004     /* Project name */
 #define CONFIGSET_SHUN   0x000008     /* Shun settings */
 #define CONFIGSET_USER   0x000010     /* The USER table */
+#define CONFIGSET_ADDR   0x000020     /* The CONCEALED table */
 
 #define CONFIGSET_ALL    0xffffff     /* Everything */
 
@@ -52,12 +53,13 @@ static struct {
   int groupMask;       /* Mask for that configuration set */
   const char *zHelp;   /* What it does */
 } aGroupName[] = {
-  { "skin",         CONFIGSET_SKIN,  "Web interface apparance settings" },
-  { "ticket",       CONFIGSET_TKT,   "Ticket setup",                    },
-  { "project",      CONFIGSET_PROJ,  "Project name and description"     },
-  { "shun",         CONFIGSET_SHUN,  "List of shunned artifacts"        },
-  { "user",         CONFIGSET_USER,  "Users and privilege settings"     },
-  { "all",          CONFIGSET_ALL,   "All of the above"                 },
+  { "email",        CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
+  { "project",      CONFIGSET_PROJ,  "Project name and description"         },
+  { "skin",         CONFIGSET_SKIN,  "Web interface apparance settings"     },
+  { "shun",         CONFIGSET_SHUN,  "List of shunned artifacts"            },
+  { "ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
+  { "user",         CONFIGSET_USER,  "Users and privilege settings"         },
+  { "all",          CONFIGSET_ALL,   "All of the above"                     },
 };
 
 
@@ -92,6 +94,7 @@ static struct {
   { "ticket-closed-expr",     CONFIGSET_TKT  },
   { "@reportfmt",             CONFIGSET_TKT  },
   { "@user",                  CONFIGSET_USER },
+  { "@concealed",             CONFIGSET_ADDR },
   { "@shun",                  CONFIGSET_SHUN },
 };
 static int iConfig = 0;
@@ -126,6 +129,9 @@ int configure_is_exportable(const char *zName){
       if( !g.okAdmin ){
         m &= ~CONFIGSET_USER;
       }
+      if( !g.okRdAddr ){
+        m &= ~CONFIGSET_ADDR;
+      }
       return m;
     }
   }
@@ -151,7 +157,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
   }else if( strcmp(zName, "@reportfmt")==0 ){
     db_prepare(&q, "SELECT title, cols, sqlcode FROM reportfmt");
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode) "
+      blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode)"
                          " VALUES(%Q,%Q,%Q);\n", 
         db_column_text(&q, 0),
         db_column_text(&q, 1),
@@ -162,12 +168,22 @@ void configure_render_special_name(const char *zName, Blob *pOut){
   }else if( strcmp(zName, "@user")==0 ){
     db_prepare(&q, "SELECT login, cap, info, quote(photo) FROM user");
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_user(login,cap,info,photo) "
+      blob_appendf(pOut, "INSERT INTO _xfer_user(login,cap,info,photo)"
                          " VALUES(%Q,%Q,%Q,%s);\n",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2),
         db_column_text(&q, 3)
+      );
+    }
+    db_finalize(&q);
+  }else if( strcmp(zName, "@concealed")==0 ){
+    db_prepare(&q, "SELECT hash, content FROM concealed");
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(pOut, "INSERT OR IGNORE INTO concealed(hash,content)"
+                         " VALUES(%Q,%Q);\n",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1)
       );
     }
     db_finalize(&q);
@@ -355,7 +371,7 @@ static void export_config(
 **
 ** Usage: %fossil configure METHOD ...
 **
-** Where METHOD is one of: export import merge pull reset.  All methods
+** Where METHOD is one of: export import merge pull push reset.  All methods
 ** accept the -R or --repository option to specific a repository.
 **
 **    %fossil configuration export AREA FILENAME
@@ -378,7 +394,13 @@ static void export_config(
 **
 **         Pull and install the configuration from a different server
 **         identified by URL.  If no URL is specified, then the default
-**         server is used.
+**         server is used. 
+**
+**    %fossil configuration push AREA ?URL?
+**
+**         Push the local configuration into the remote server identified
+**         by URL.  Admin privilege is required on the remote server for
+**         this to work.
 **
 **    %fossil configuration reset AREA
 **
@@ -416,7 +438,7 @@ void configuration_cmd(void){
     configure_finalize_receive();
     db_end_transaction(0);
   }else
-  if( strncmp(zMethod, "pull", n)==0 ){
+  if( strncmp(zMethod, "pull", n)==0 || strncmp(zMethod, "push", n)==0 ){
     int mask;
     const char *zServer;
     url_proxy_options();
@@ -437,7 +459,11 @@ void configuration_cmd(void){
       fossil_fatal("network sync only");
     }
     user_select();
-    client_sync(0,0,0,mask);
+    if( strncmp(zMethod, "push", n)==0 ){
+      client_sync(0,0,0,0,mask);
+    }else{
+      client_sync(0,0,0,mask,0);
+    }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){
     int mask, i;
@@ -456,6 +482,10 @@ void configuration_cmd(void){
       }else if( strcmp(zName,"@user")==0 ){
         db_multi_exec("DELETE FROM user");
         db_create_default_users();
+      }else if( strcmp(zName,"@concealed")==0 ){
+        db_multi_exec("DELETE FROM concealed");
+      }else if( strcmp(zName,"@shun")==0 ){
+        db_multi_exec("DELETE FROM shun");
       }else if( strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
       }
@@ -466,6 +496,7 @@ void configuration_cmd(void){
             g.argv[0], g.argv[1], zBackup);
   }else
   {
-    fossil_fatal("METHOD should be one of:  export import merge pull reset");
+    fossil_fatal("METHOD should be one of:"
+                 " export import merge pull push reset");
   }
 }

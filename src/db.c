@@ -913,18 +913,31 @@ static void file_is_selected(
 **
 ** The value returned is stored in static space and will be overwritten
 ** on subsequent calls.
+**
+** If zContent is already a well-formed SHA1 hash, then return a copy
+** of that hash, not a hash of the hash.
+**
+** The CONCEALED table is meant to obscure email addresses.  Every valid
+** email address will contain a "@" character and "@" is not valid within
+** an SHA1 hash so there is no chance that a valid email address will go
+** unconcealed.
 */
 char *db_conceal(const char *zContent, int n){
   static char zHash[42];
   Blob out;
-  sha1sum_step_text(zContent, n);
-  sha1sum_finish(&out);
-  strcpy(zHash, blob_str(&out));
-  blob_reset(&out);
-  db_multi_exec(
-     "INSERT OR IGNORE INTO concealed VALUES(%Q,%#Q)",
-     zHash, n, zContent
-  );
+  if( n==40 && validate16(zContent, n) ){
+    memcpy(zHash, zContent, n);
+    zHash[n] = 0;
+  }else{
+    sha1sum_step_text(zContent, n);
+    sha1sum_finish(&out);
+    strcpy(zHash, blob_str(&out));
+    blob_reset(&out);
+    db_multi_exec(
+       "INSERT OR IGNORE INTO concealed VALUES(%Q,%#Q)",
+       zHash, n, zContent
+    );
+  }
   return zHash;
 }
 
@@ -932,7 +945,7 @@ char *db_conceal(const char *zContent, int n){
 ** Attempt to look up the input in the CONCEALED table.  If found,
 ** and if the okRdAddr permission is enabled then return the
 ** original value for which the input is a hash.  If okRdAddr is
-** false or if the lookup fails, return the original input.
+** false or if the lookup fails, return the original string content.
 **
 ** In either case, the string returned is stored in space obtained
 ** from malloc and should be freed by the calling function.
@@ -951,47 +964,6 @@ char *db_reveal(const char *zKey){
 }
 
 /*
-** The conceal() SQL function.  Compute an SHA1 hash of the argument
-** and return that hash as a 40-character lower-case hex number.
-*/
-static void sha1_function(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  const char *zIn;
-  int nIn;
-  char *zOut;
-  assert(argc==1);
-  
-  zIn = (const char*)sqlite3_value_text(argv[0]);
-  if( zIn ){
-    nIn = sqlite3_value_bytes(argv[0]);
-    zOut = db_conceal(zIn, nIn);
-    sqlite3_result_text(context, zOut, -1, SQLITE_TRANSIENT);
-  }
-}
-
-/*
-** The reveal() SQL function invokes the db_reveal() function.
-*/
-static void reveal_function(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  const char *zIn;
-  char *zOut;
-  assert(argc==1);
-  
-  zIn = (const char*)sqlite3_value_text(argv[0]);
-  if( zIn ){
-    zOut = db_reveal(zIn);
-    sqlite3_result_text(context, zOut, -1, free);
-  }
-}
-
-/*
 ** This function registers auxiliary functions when the SQLite
 ** database connection is first established.
 */
@@ -1001,12 +973,6 @@ LOCAL void db_connection_init(void){
     sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
     sqlite3_create_function(
       g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
-    );
-    sqlite3_create_function(
-      g.db, "conceal", 1, SQLITE_UTF8, 0, sha1_function,0,0
-    );
-    sqlite3_create_function(
-      g.db, "reveal", 1, SQLITE_UTF8, 0, reveal_function,0,0
     );
     if( g.fSqlTrace ){
       sqlite3_trace(g.db, db_sql_trace, 0);
