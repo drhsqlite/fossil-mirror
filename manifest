@@ -1,5 +1,8 @@
-C Fix\san\sissue\sthat\ssets\sproxy\s=\sgetenv(http_proxy)\seven\swhen\sglobal\sproxy\soption\sis\sdisabled
-D 2008-10-25T14:29:44
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Update\sconditions\swhen\sto\slook\sfor\sproxy\sURL\sin\senvironment.
+D 2008-10-25T17:19:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -102,7 +105,7 @@ F src/tktsetup.c 953c7e0a99fa1b607852806ec97854638a35f92c
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
-F src/url.c e9070b5fce7c91e8aa76fd2fe4883cbac13abde1
+F src/url.c ab868aa83218f9901f3b054bdd4d501ac5a44ef0
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
@@ -211,7 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 63112b27621d0b2cba4f3a25e7394b41a9eee228
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P f55c6a1b62ccda5987d8273290443ce329edd958
-R 890fa5dd762fa79029fe145762a762c8
+P d8bf3113362d4b8baada2b029966dada998a1314
+R 4247b9230fcf862ee3c05e553376c726
 U a0756885
-Z 2aa810da2ab4f174727ffd4fe3411b73
+Z 234d7bd9e956a46c3bc33ba2bb020487
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+
+iD8DBQFJA1URLFRxlYRNEhARAk+vAKCY/w+2pfIkwOybNTP0KX2ZLe5TsACfZuMn
+PhHSyA8Bnmoguf3QdX+ZDZM=
+=SHeo
+-----END PGP SIGNATURE-----
