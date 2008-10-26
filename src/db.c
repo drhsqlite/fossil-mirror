@@ -1205,9 +1205,6 @@ static void print_setting(const char *zName){
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
 **
-**    inherit-anon     If enabled, any web user inherits capabilities from
-**                     anonymous as well as nobody.
-**
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
 **                     false, all HTTP requests from localhost have
@@ -1236,7 +1233,6 @@ void setting_cmd(void){
     "diff-command",
     "editor",
     "gdiff-command",
-    "inherit-anon",
     "localauth",
     "clearsign",
     "pgp-command",

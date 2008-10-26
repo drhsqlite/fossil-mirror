@@ -68,13 +68,26 @@ static char *login_cookie_name(void){
 }
 
 /*
+** Redirect to the page specified by the "g" query parameter.
+** Or if there is no "g" query parameter, redirect to the homepage.
+*/
+static void redirect_to_g(void){
+  const char *zGoto = P("g");
+  if( zGoto ){
+    cgi_redirect(zGoto);
+  }else{
+    fossil_redirect_home();
+  }
+}
+
+/*
 ** WEBPAGE: /login
 ** WEBPAGE: /logout
 **
 ** Generate the login page
 */
 void login_page(void){
-  const char *zUsername, *zPasswd, *zGoto;
+  const char *zUsername, *zPasswd;
   const char *zNew1, *zNew2;
   const char *zAnonPw = 0;
   int anonFlag;
@@ -83,12 +96,11 @@ void login_page(void){
   login_check_credentials();
   zUsername = P("u");
   zPasswd = P("p");
-  zGoto = PD("g","index");
   anonFlag = P("anon")!=0;
   if( P("out")!=0 ){
     const char *zCookieName = login_cookie_name();
     cgi_set_cookie(zCookieName, "", 0, -86400);
-    cgi_redirect(zGoto);
+    redirect_to_g();
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
     if( db_int(1, "SELECT 0 FROM user"
@@ -111,7 +123,7 @@ void login_page(void){
       db_multi_exec(
          "UPDATE user SET pw=%Q WHERE uid=%d", zNew1, g.userUid
       );
-      cgi_redirect(zGoto);
+      redirect_to_g();
       return;
     }
   }
@@ -144,7 +156,7 @@ void login_page(void){
           zCookie, zIpAddr, expires, uid
         );
       }
-      cgi_redirect(zGoto);
+      redirect_to_g();
     }
   }
   style_header("Login/Logout");
@@ -325,12 +337,12 @@ void login_set_capabilities(const char *zCap){
   int i;
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
-      case 's':   g.okSetup = 1;
+      case 's':   g.okSetup = 1;  /* Fall thru into Admin */
       case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = 
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
                               g.okNewTkt = g.okPassword = g.okRdAddr =
-                              g.okTktFmt = 1;
+                              g.okTktFmt = 1;  /* Fall thru into Read/Write */
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
       case 'z':   g.okZip = 1;                                  break;

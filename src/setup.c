@@ -620,19 +620,13 @@ void setup_access(void){
   login_insert_csrf_secret();
   @ <hr>
   onoff_attribute("Require password for local access",
-     "localauth", "localauth", 1);
+     "localauth", "localauth", 0);
   @ <p>When enabled, the password sign-in is required for
   @ web access coming from 127.0.0.1.  When disabled, web access
   @ from 127.0.0.1 is allows without any login - the user id is selected
   @ from the ~/.fossil database. Password login is always required
   @ for incoming web connections on internet addresses other than
   @ 127.0.0.1.</p></li>
-
-  @ <hr>
-  onoff_attribute("Inherit capabilities from anonymous user",
-     "inherit-anon", "inherit-anon", 0);
-  @ <p>When enabled, all web users inherit capabilities from
-  @ "anonymous", as well as from "nobody".</p></li>
 
   @ <hr>
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");

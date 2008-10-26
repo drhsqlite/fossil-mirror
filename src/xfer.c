@@ -727,10 +727,6 @@ void page_xfer(void){
         break;
       }
       if( zName[0]!='@' ){
-        if( !recvConfig ){
-          configure_prepare_to_receive(0);
-          recvConfig = 1;
-        }
         db_multi_exec(
             "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
             zName, blob_str(&content)
@@ -741,6 +737,10 @@ void page_xfer(void){
         ** as an administrator, so presumably we trust the client at this
         ** point.
         */
+        if( !recvConfig ){
+          configure_prepare_to_receive(0);
+          recvConfig = 1;
+        }
         db_multi_exec("%s", blob_str(&content));
       }
       blob_reset(&content);
