@@ -71,29 +71,36 @@ int name_to_uuid(Blob *pName, int iErrPriority){
   if( sz==UUID_SIZE ){
     rc = db_int(1, "SELECT 0 FROM blob WHERE uuid=%B", pName);
     if( rc ){
-      fossil_error(iErrPriority, "unknown object: %b", pName);
+      fossil_error(iErrPriority, "no such artifact: %b", pName);
       blob_reset(pName);
     }
   }else if( sz<UUID_SIZE && sz>=4 ){
+    Stmt q;
     char zOrig[UUID_SIZE+1];
     memcpy(zOrig, blob_buffer(pName), sz);
     zOrig[sz] = 0;
     blob_reset(pName);
-    db_blob(pName, "SELECT uuid FROM blob WHERE uuid>='%s'", zOrig);
-    if( blob_size(pName)!=UUID_SIZE ){
-      fossil_error(iErrPriority, "no match: %s", zOrig);
-      rc = 1;
-    }else{
-      zOrig[sz-1]++;
-      if( db_exists("SELECT 1 FROM blob WHERE uuid>%B AND uuid<'%s'",
-                    pName, zOrig) ){
-         zOrig[sz-1]--;
-         fossil_error(iErrPriority, "non-unique name prefix: %s", zOrig);
-         rc = 1;
-      }else{
-         rc = 0;
-      }
+    db_prepare(&q, "SELECT uuid FROM blob"
+                   " WHERE uuid>='%s'"
+                   "   AND substr(uuid,1,%d)='%s'",
+                   zOrig, sz, zOrig);
+    if( db_step(&q)!=SQLITE_ROW ){
+      db_finalize(&q);
+      fossil_error(iErrPriority, "no artifacts match the prefix \"%s\"", zOrig);
+      return 1;
     }
+    blob_append(pName, db_column_text(&q, 0), db_column_bytes(&q, 0));
+    if( db_step(&q)==SQLITE_ROW ){
+      fossil_error(iErrPriority, 
+         "multiple artifacts match the prefix \"%s\"",
+         zOrig
+      );
+      blob_reset(pName);
+      db_finalize(&q);
+      return 1;
+    }
+    db_finalize(&q);
+    rc = 0;
   }else{
     rc = 0;
   }

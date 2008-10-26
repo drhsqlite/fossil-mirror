@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"number\sof\stickets"\scounter\son\sthe\s"stats"\swebpage.
-D 2008-10-26T02:35:04
+C Correctly\sdetect\swhen\san\sartifact\sprefix\sdoes\snot\smatch\sany\sartifact.\nProvide\sbetter\serror\smessages\sfor\snon-matching\sand\sambiguous\nartifact\sprefixes.\s\sFix\sfor\sticket\s[d0a7fc67e9].
+D 2008-10-26T15:59:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -77,7 +77,7 @@ F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/my_page.c 98c94677766c794cf6d1d22bc2a33995de3154de
-F src/name.c 94609061795ec922b92e861ca07c0f1124c3231a
+F src/name.c 040558eaa37918bc314befd66841bf667d6ca8bb
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P e44d7a4b5af0b66bf493ae55f0c8b71dc6ad46ed
-R ad455e1eaa379f593b583df9d26a6697
+P 1e82c4aa850e1b39add61dd40e99d2383404e153
+R 057d80ac357c2129e2279a538186ab74
 U drh
-Z 0c69c0c304aa1f4690557c86719c2138
+Z f5ca6786341de7d6534232cf9160fbc9
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.1 (Darwin)
 
-iEYEARECAAYFAkkD11gACgkQoxKgR168RlGS+gCdEWPN9C+JJ88yIytKK5msAMpv
-wTcAn3uVr4hck1pGWoGD9r1VAZ+45Yk6
-=eeLq
+iD8DBQFJBJPxoxKgR168RlERAgh+AJ44axEBz1N6tKsHOI70gKwzRumbYwCfT+/N
+q1hKpC9pn6JuoBpgZuKnflc=
+=11wu
 -----END PGP SIGNATURE-----
