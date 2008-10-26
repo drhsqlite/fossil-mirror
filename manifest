@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Prevent\sbuffer\soverrun\swhen\sadding\s\\r\scharacters\sto\sthe\scheck-in\ndescriptions\sfor\swin32.\s\sTicket\s[41bb23e650].
-D 2008-10-26T02:29:22
+C Fix\sthe\s"number\sof\stickets"\scounter\son\sthe\s"stats"\swebpage.
+D 2008-10-26T02:35:04
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -90,7 +90,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c 5ce55378d67f55956debb8a9cad8df56186ec61a
 F src/sqlite3.c 2f3945b67012dffb578516304697229d0133d8cb
 F src/sqlite3.h 5d2ec559ff89ac6d0a457c87c3088efb30001e19
-F src/stat.c b7851e999cde8dd526f4814bb1e885feb82a1aa2
+F src/stat.c 3af9e4ec2bf792ba0cd7f35248ecf0fdcaeef741
 F src/style.c 41b3e7ff54fc592a4262b1cd409cfd408be59112
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
 F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P efb759a07da0ea5c540e2b73ae63d8c636bf8673
-R 86b4a970ef0f4fae53a997aa7a9dde3e
+P e44d7a4b5af0b66bf493ae55f0c8b71dc6ad46ed
+R ad455e1eaa379f593b583df9d26a6697
 U drh
-Z 239f46d5987c63eb6180551fe4780163
+Z 0c69c0c304aa1f4690557c86719c2138
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkkD1gIACgkQoxKgR168RlHUbgCcCvKT3Re/eZi46t1hHNpvnk8l
-eYUAnim7ViuXztePd69FFdgEoL0DPnep
-=/pyR
+iEYEARECAAYFAkkD11gACgkQoxKgR168RlGS+gCdEWPN9C+JJ88yIytKK5msAMpv
+wTcAn3uVr4hck1pGWoGD9r1VAZ+45Yk6
+=eeLq
 -----END PGP SIGNATURE-----

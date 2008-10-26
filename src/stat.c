@@ -81,7 +81,7 @@ void stat_page(void){
   @ %d(n)
   @ </td></tr>
   @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
-  n = db_int(0, "SELECT count(*) FROM tag WHERE +tagname GLOB 'ticket-*'");
+  n = db_int(0, "SELECT count(*) FROM tag WHERE +tagname GLOB 'tkt-*'");
   @ %d(n)
   @ </td></tr>
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
