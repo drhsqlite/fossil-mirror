@@ -2,19 +2,34 @@
 Fossil File Formats
 </h1>
 
-<p>The state of a fossil repository is kept simple so that it can
+<p>The global state of a fossil repository is kept simple so that it can
 endure in useful form for decades or centuries. 
 A fossil repository is intended to be readable,
 searchable, and extensible by people not yet born.</p>
 
 <p>
-The global state of a fossil repository is determined by an unordered
+The global state of a fossil repository is an unordered
 set of <i>artifacts</i>.
 An artifact might be a source code file, the text of a wiki page,
 part of a trouble ticket, or one of several special control artifacts
 used to show the relationships between other artifacts within the
 project.  Each artifact is normally represented on disk as a separate
 file.  Artifacts can be text or binary.
+</p>
+
+<p>
+In addition to the global state, 
+each fossil repository also contains local state.
+The local state consists of web-page formatting
+preferences, authorized users, ticket display and reporting formats,
+and so forth.  The global state is shared in common among all
+repositories for the same project, whereas the local state is often
+different in separate repositories.
+The local state is not versioned and is not synchronized
+with the global state.
+The local state is not composed of artifacts and is not intended to be enduring.
+This document is concerned with global state only.  Local state is only
+mentioned here in order to distinguish it from global state.
 </p>
 
 <p>
@@ -333,7 +348,7 @@ The following cards are allowed on a ticket change artifact:</p>
 
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
-<b>J</b> ?<b>+</b>?<i>name value</i><br />
+<b>J</b> ?<b>+</b>?<i>name</i> ?<i>value</i>?<br />
 <b>K</b> <i>ticket-id</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
@@ -352,11 +367,15 @@ more changes.  The first "change" to a ticket is what brings the
 ticket into existance.</p>
 
 <p>
-J cards specify changes to "fields" of the ticket.  Each fossil
-server has a ticket configuration which specifies the fields its
-understands.  This is not a limit on the fields that can appear
-on the J cards, however.  If a J card specifies a field that a
-particular fossil server does not recognize, then that J card
+J cards specify changes to the "value" of "fields" in the ticket.
+If the <i>value</i> parameter of the J card is omitted, then the
+field is set to an empty string.
+Each fossil server has a ticket configuration which specifies the fields its
+understands.  The ticket configuration is part of the local state for
+the repository and thus can vary from one repository to another.
+Hencd a J card might specify a <i>field</i> that do not exist in the 
+local ticket configuration.  If a J card specifies a <i>field</i> that
+is not in the local configuration, then that J card
 is simply ignored.</p>
 
 <p>

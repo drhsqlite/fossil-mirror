@@ -217,7 +217,8 @@ static const char zDefaultTicketCommon[] =
 @   Tested
 @   Closed
 @ }
-@ set subsystem_choices {one two three}
+@ set subsystem_choices {
+@ }
 ;
 
 /*

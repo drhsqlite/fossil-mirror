@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\s"configuration\spush"\sworking.\s\sFix\sbugs\sin\sconcealed-field\sprocessing\nof\stickets.
-D 2008-10-25T20:43:28
+C Change\sthe\sdefault\ssubsystem\slist\sfor\stickets\sto\san\sempty\sset.\nUpdate\sdocumentation\sto\sbegin\smaking\sa\sclearer\sdistinction\sbetween\nlocal\sstate\sand\sglobal\sstate.
+D 2008-10-26T02:16:51
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -101,7 +101,7 @@ F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
 F src/timeline.c 2200a0fc341c36757bf0b06acd5a0899a480856c
 F src/tkt.c fe34796f856fb4c918b80aee3372194076a41f45
-F src/tktsetup.c 953c7e0a99fa1b607852806ec97854638a35f92c
+F src/tktsetup.c 866d7baa7c7747b62604dcf45594875a16e5bf95
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
@@ -204,7 +204,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki e95af362bcfa2f431251f3ae5f440db7caf50fa9
+F www/fileformat.wiki 49c16eb396df1bc6ad8daeea68c57b4f24e28601
 F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
@@ -212,16 +212,16 @@ F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
-F www/sync.wiki 63112b27621d0b2cba4f3a25e7394b41a9eee228
+F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 6b0b57a924b66439b52629bda6f6306f12fcdd96
-R 5df95fe0d035b43cfa850901cb1b683e
+P 31e94c0a04f2a50007ca6d4dc771cbb532fb4bf1
+R 20e965d727927000fc6315e1bac23131
 U drh
-Z 41239ff3bfa032d2b6bfd7e4ef582725
+Z 5b85c71954047492d9e37b601a82b95d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkkDhPAACgkQoxKgR168RlG11wCaA97xMwpsK56B4xu517MA+iBW
-UyIAnjnJrxMbNmguUIk8OUIlojw2J+e2
-=NAF8
+iEYEARECAAYFAkkD0xMACgkQoxKgR168RlFr2QCfUGXSm0+w+zxiBvMFcZGkTZ+3
+VgQAn3J4X6JQXytgmP+BfvKWEaGsWCos
+=n069
 -----END PGP SIGNATURE-----
