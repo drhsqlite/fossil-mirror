@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sthe\sunused\sinherit-anon\sconfiguration\sattribute.\s\sFix\sthe\sautomatic\nredirect\sthat\sfollows\sa\slogin\soperation.\s\sFix\s"config\spush\suser"\son\sthe\nserver\sside.
-D 2008-10-26T21:30:23
+C Fix\sthe\sweb-browser\suser\ssetting\sso\sthat\sit\sactually\sworks.
+D 2008-10-27T15:34:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c a90375841a30743d1c5fb1744580701aee12ed99
 F src/login.c e06e3ddfdaffb9ace808742e09fcaf0d676d448e
-F src/main.c 1a6ab5a7eb2e8b7c95892f9a276ad4dcea38ffeb
+F src/main.c 1d28ae7236cb9de3a88004ac7d13ac173f2935a1
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 9acf0bcdbe76cae81152a3485e47e4be1cf938ae
-R 2bdc27bc1d83bd697939ef15a299c976
+P 0600b278c0f105dc1aafaf7ee2decb84d3801607
+R f945e0e47e724a7220ee6dadec9511d4
 U drh
-Z 4cf70c47ec57dc7feb9f9dfba13ff2df
+Z 128569b21ad032fb6d14e77b7ddab274
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkkE4W8ACgkQoxKgR168RlG5XwCeOYateq8IeMuOyRS7rlqCiil1
-CPQAn0Bk80BQdoHJS5AjjQ0EA4nVN1sE
-=nC8d
+iD8DBQFJBd+AoxKgR168RlERAptlAJ9xtH1a5iFWOav9jPjETxAH+YPqsQCggxx5
+5IngMDrM2m0TrnI4iWf0fuw=
+=0k5D
 -----END PGP SIGNATURE-----

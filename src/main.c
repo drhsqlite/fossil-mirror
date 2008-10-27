@@ -726,7 +726,6 @@ void cmd_webserver(void){
   }else{
     db_open_repository(g.argv[2]);
   }
-  db_close();
 #ifndef __MINGW32__
   /* Unix implementation */
   if( g.argv[1][0]=='u' ){
@@ -737,6 +736,7 @@ void cmd_webserver(void){
 #endif
     zBrowserCmd = mprintf("%s http://localhost:%d/ &", zBrowser, iPort);
   }
+  db_close();
   if( cgi_http_server(iPort, zBrowserCmd) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
@@ -759,6 +759,7 @@ void cmd_webserver(void){
     zBrowser = db_get("web-browser", "start");
     zBrowserCmd = mprintf("%s http://127.0.0.1:%d/", zBrowser, iPort);
   }
+  db_close();
   win32_http_server(iPort, zBrowserCmd);
 #endif
 }
