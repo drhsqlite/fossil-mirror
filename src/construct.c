@@ -78,8 +78,8 @@ static int import_origin(const char* zOrigin){
 ** Usage %fossil deconstruct ?-R|--repository REPOSITORY? DESTINATION
 **
 ** Populates the indicated DESTINATION directory with copies of all
-** files contained within the repository.  Files are named AA/bbbbb
-** where AA is the first 2 characters of the uuid and bbbbb is the
+** artifcats contained within the repository.  Artifacts are named AA/bbbbb
+** where AA is the first 2 characters of the artifact ID and bbbbb is the
 ** remaining 38 characters.
 */
 
@@ -117,7 +117,7 @@ void deconstruct_cmd(void){
 ** COMMAND: reconstruct 
 ** Usage %fossil reconstruct REPOSITORY ORIGIN
 **
-** Creates the REPOSITORY and populates it with the files in the
+** Creates the REPOSITORY and populates it with the artifacts in the
 ** indicated ORIGIN directory.
 */
 

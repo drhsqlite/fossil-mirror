@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Take\scare\sthat\sthe\sroot\sdirectory\sname\sdoes\snot\shave\sextra\s"/"\scharacters.\nTicket\s[9c378ed139].
-D 2008-10-31T13:33:36
+C Change\sa\scouple\sof\sinstances\sof\s"file"\sto\sthe\smore\scorrect\s"artifact".\nMake\sit\sclear\sthat\sthe\sbuild\stime\sis\sexpressed\sin\sUTC.
+D 2008-10-31T13:36:33
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -52,7 +52,7 @@ F src/clone.c 58d2271cc81c238e3cad8fe1f351f3d4e0367a3a
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c 2a0972b75de46384001367f1429ada2e2c49a1a3
-F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
+F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c ed660119788881f2a842a76abe96257647c436f9
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
@@ -66,7 +66,7 @@ F src/file.c d20fa8930e090a45aaba2e4ab5af66f041f31a51
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c a90375841a30743d1c5fb1744580701aee12ed99
 F src/login.c e06e3ddfdaffb9ace808742e09fcaf0d676d448e
-F src/main.c 1d28ae7236cb9de3a88004ac7d13ac173f2935a1
+F src/main.c 89f5fcc95eaee14890222b54bef446f586683989
 F src/main.mk 4242635d97ca8e48f22369d246fa543eb7b92120
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 3f5ef308feee511345c4dbbcf1713858e3c68e7a
-R aca5fcee6d57d6b3925f6328f32b6c33
+P 1d280a85aab918292429ab053191aea8c5a3cd1a
+R bb3ad120256c659b389b94bfc9177ca1
 U drh
-Z 2bafe3612bd9707aa4bbc19b9c4498fb
+Z cee7d2897b606b5e29394551a69c1a3b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJCwk0oxKgR168RlERAoWhAJ906Kej5HOgQAcxFuNX2gtqt7AsnACdGHoX
-BeG+/X7wrgaZiYBjS2u7HG4=
-=aAzs
+iD8DBQFJCwnkoxKgR168RlERAlwhAJ96jyhs31uotqAQyCgahSQSKTJxnwCfblSK
+tFC3ZDmDD5uX6E8ld9MtEBk=
+=m1Yc
 -----END PGP SIGNATURE-----

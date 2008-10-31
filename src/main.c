@@ -437,7 +437,7 @@ void cmd_test_cmd_list(void){
 ** Print the source code version number for the fossil executable.
 */
 void version_cmd(void){
-  printf("This is fossil version " MANIFEST_VERSION " " MANIFEST_DATE "\n");
+  printf("This is fossil version " MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
 }
 
 
