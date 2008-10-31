@@ -136,8 +136,11 @@ void ls_cmd(void){
     int isDeleted = db_column_int(&q, 1);
     int isNew = db_column_int(&q,2)==0;
     int chnged = db_column_int(&q,3);
+    char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     if( isNew ){
       printf("ADDED     %s\n", zPathname);
+    }else if( access(zFullName, 0) ){
+      printf("MISSING   %s\n", zPathname);
     }else if( isDeleted ){
       printf("DELETED   %s\n", zPathname);
     }else if( chnged ){
@@ -145,6 +148,7 @@ void ls_cmd(void){
     }else{
       printf("UNCHANGED %s\n", zPathname);
     }
+    free(zFullName);
   }
   db_finalize(&q);
 }

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sa\scouple\sof\sinstances\sof\s"file"\sto\sthe\smore\scorrect\s"artifact".\nMake\sit\sclear\sthat\sthe\sbuild\stime\sis\sexpressed\sin\sUTC.
-D 2008-10-31T13:36:33
+C Make\sthe\s"ls"\scommand\sreport\sMISSING\sinstead\sof\sEDITED\sfor\sfiles\sthat\sdo\nnot\sexist\sin\sthe\stree.\s\sTicket\s[ce458c35ca].
+D 2008-10-31T14:01:16
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -45,7 +45,7 @@ F src/blob.c 2492695b876fa0193b4ca9a58f80650de725e6d8
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c ec3c5c426770d11abcc88c588f379fb5b0643c55
-F src/checkin.c efd09b5c80b958aac7397045101b47f8799143d0
+F src/checkin.c ad8e78b43e86052a3596b1d3a02229bbb3bd7d77
 F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 58d2271cc81c238e3cad8fe1f351f3d4e0367a3a
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 1d280a85aab918292429ab053191aea8c5a3cd1a
-R bb3ad120256c659b389b94bfc9177ca1
+P d5cd3251fa4b864aedfa034dee7e0523f87a1d5b
+R c3ad79bdc25ad9b0b8276f7cb8e4c915
 U drh
-Z cee7d2897b606b5e29394551a69c1a3b
+Z 5e99bde16c26684fc1d1b584fef113f0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJCwnkoxKgR168RlERAlwhAJ96jyhs31uotqAQyCgahSQSKTJxnwCfblSK
-tFC3ZDmDD5uX6E8ld9MtEBk=
-=m1Yc
+iD8DBQFJCw+xoxKgR168RlERAgedAJ9pD38rOTqfqn/79fwSdmTCB1jCQgCfcYF9
+l15QEXc3YG7TZWFE/X0cE3s=
+=+kds
 -----END PGP SIGNATURE-----
