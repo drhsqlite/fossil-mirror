@@ -636,6 +636,10 @@ int db_open_local(void){
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
+        while( n>1 && zPwd[n-1]=='/' ){
+          n--;
+          zPwd[n] = 0;
+        }
         g.zLocalRoot = mprintf("%s/", zPwd);
         return 1;
       }

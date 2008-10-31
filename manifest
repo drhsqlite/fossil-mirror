@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\sweb-browser\suser\ssetting\sso\sthat\sit\sactually\sworks.
-D 2008-10-27T15:34:20
+C Take\scare\sthat\sthe\sroot\sdirectory\sname\sdoes\snot\shave\sextra\s"/"\scharacters.\nTicket\s[9c378ed139].
+D 2008-10-31T13:33:36
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c 2a0972b75de46384001367f1429ada2e2c49a1a3
 F src/construct.c a5be93c8e9a03f4b9b95d8ae54f78f52c2ba2430
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 594da7eeb043f3b978ded830efa762ead97496f6
+F src/db.c ed660119788881f2a842a76abe96257647c436f9
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 0600b278c0f105dc1aafaf7ee2decb84d3801607
-R f945e0e47e724a7220ee6dadec9511d4
+P 3f5ef308feee511345c4dbbcf1713858e3c68e7a
+R aca5fcee6d57d6b3925f6328f32b6c33
 U drh
-Z 128569b21ad032fb6d14e77b7ddab274
+Z 2bafe3612bd9707aa4bbc19b9c4498fb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJBd+AoxKgR168RlERAptlAJ9xtH1a5iFWOav9jPjETxAH+YPqsQCggxx5
-5IngMDrM2m0TrnI4iWf0fuw=
-=0k5D
+iD8DBQFJCwk0oxKgR168RlERAoWhAJ906Kej5HOgQAcxFuNX2gtqt7AsnACdGHoX
+BeG+/X7wrgaZiYBjS2u7HG4=
+=aAzs
 -----END PGP SIGNATURE-----
