@@ -672,7 +672,7 @@ void setup_timeline(void){
 
   @ <hr>
   onoff_attribute("Use Universal Coordinated Time (UTC)",
-                  "timeline-utc", "utc", 0);
+                  "timeline-utc", "utc", 1);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.</p>
 

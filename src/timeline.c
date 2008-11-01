@@ -669,13 +669,14 @@ void timeline_cmd(void){
 ** can get all localtimes to be displayed at UTC time.
 */
 struct tm *fossil_localtime(const time_t *clock){
-  static int once = 1;
-  static int useUtc = 0;
-  if( once ){
-    useUtc = db_get_int("timeline-utc", 0);
-    once = 0;
+  if( g.fTimeFormat==0 ){
+    if( db_get_int("timeline-utc", 1) ){
+      g.fTimeFormat = 1;
+    }else{
+      g.fTimeFormat = 2;
+    }
   }
-  if( useUtc ){
+  if( g.fTimeFormat==1 ){
     return gmtime(clock);
   }else{
     return localtime(clock);
