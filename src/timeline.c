@@ -25,6 +25,7 @@
 **
 */
 #include <string.h>
+#include <time.h>
 #include "config.h"
 #include "timeline.h"
 
@@ -655,4 +656,28 @@ void timeline_cmd(void){
   db_prepare(&q, zSQL);
   print_timeline(&q, n);
   db_finalize(&q);
+}
+
+/*
+** This is a version of the "localtime()" function from the standard
+** C library.  It converts a unix timestamp (seconds since 1970) into
+** a broken-out local time structure.
+**
+** This modified version of localtime() works like the library localtime()
+** by default.  Except if the timeline-utc property is set, this routine
+** uses gmttime() instead.  Thus by setting the timeline-utc property, we
+** can get all localtimes to be displayed at UTC time.
+*/
+struct tm *fossil_localtime(const time_t *clock){
+  static int once = 1;
+  static int useUtc = 0;
+  if( once ){
+    useUtc = db_get_int("timeline-utc", 0);
+    once = 0;
+  }
+  if( useUtc ){
+    return gmtime(clock);
+  }else{
+    return localtime(clock);
+  }
 }

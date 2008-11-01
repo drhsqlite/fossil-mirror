@@ -665,10 +665,16 @@ void setup_timeline(void){
   login_insert_csrf_secret();
 
   @ <hr>
-  onoff_attribute("Block markup in timeline",
+  onoff_attribute("Allow block-markup in timeline",
                   "timeline-block-markup", "tbm", 0);
   @ <p>In timeline displays, check-in comments can be displayed with or
   @ without block markup (paragraphs, tables, etc.)</p>
+
+  @ <hr>
+  onoff_attribute("Use Universal Coordinated Time (UTC)",
+                  "timeline-utc", "utc", 0);
+  @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
+  @ Zulu) instead of in local time.</p>
 
   @ <hr>
   entry_attribute("Max timeline comment length", 6, 
