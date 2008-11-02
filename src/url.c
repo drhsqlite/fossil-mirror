@@ -175,3 +175,75 @@ void url_enable_proxy(const char *zMsg){
     g.urlHostname = zOriginalHost;
   }
 }
+
+#if INTERFACE
+/*
+** An instance of this object is used to build a URL with query parameters.
+*/
+struct HQuery {
+  Blob url;                  /* The URL */
+  const char *zBase;         /* The base URL */
+  int nParam;                /* Number of parameters.  Max 10 */
+  const char *azName[10];    /* Parameter names */
+  const char *azValue[10];   /* Parameter values */
+};
+#endif
+
+/*
+** Initialize the URL object.
+*/
+void url_initialize(HQuery *p, const char *zBase){
+  blob_zero(&p->url);
+  p->zBase = zBase;
+  p->nParam = 0;
+}
+
+/*
+** Add a fixed parameter to an HQuery.
+*/
+void url_add_parameter(HQuery *p, const char *zName, const char *zValue){
+  assert( p->nParam < count(p->azName) );
+  assert( p->nParam < count(p->azValue) );
+  p->azName[p->nParam] = zName;
+  p->azValue[p->nParam] = zValue;
+  p->nParam++;
+}
+
+/*
+** Render the URL with a parameter override.
+*/
+char *url_render(
+  HQuery *p,              /* Base URL */
+  const char *zName1,     /* First override */
+  const char *zValue1,    /* First override value */
+  const char *zName2,     /* Second override */
+  const char *zValue2     /* Second override value */
+){
+  const char *zSep = "?";
+  int i;
+  
+  blob_reset(&p->url);
+  blob_appendf(&p->url, "%s/%s", g.zBaseURL, p->zBase);
+  for(i=0; i<p->nParam; i++){
+    const char *z = p->azValue[i];
+    if( zName1 && strcmp(zName1,p->azName[i])==0 ){
+      zName1 = 0;
+      z = zValue1;
+      if( z==0 ) continue;
+    }
+    if( zName2 && strcmp(zName2,p->azName[i])==0 ){
+      zName2 = 0;
+      z = zValue2;
+      if( z==0 ) continue;
+    }
+    blob_appendf(&p->url, "%s%s=%T", zSep, p->azName[i], z);
+    zSep = "&";
+  }
+  if( zName1 && zValue1 ){
+    blob_appendf(&p->url, "%s%s=%T", zSep, zName1, zValue1);
+  }
+  if( zName2 && zValue2 ){
+    blob_appendf(&p->url, "%s%s=%T", zSep, zName2, zValue2);
+  }
+  return blob_str(&p->url);
+}

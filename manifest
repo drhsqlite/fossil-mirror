@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sUTC\stime\sdisplay\sthe\sdefault.\s\sYou\scan\sstill\sset\sup\sa\sserver\sto\sshow\nlocaltime\sbut\sthat\srequires\schanging\sa\ssetting\sunder\ssetup/timeline.
-D 2008-11-01T20:56:59
+C Add\ssubmenu\sentries\son\stimeline\spages\sfor\sselecting\soptions\ssuch\sas\s"tickets\sonly"\sand\s"200\sentries\nper\spage"\sand\sso\sforth.
+D 2008-11-02T18:22:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -99,13 +99,13 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 08490786af436af887d6cdcd29af568ed0bda115
+F src/timeline.c 16b352a347ebdf09a80ad19dcfe2661d378b138e
 F src/tkt.c fe34796f856fb4c918b80aee3372194076a41f45
 F src/tktsetup.c 866d7baa7c7747b62604dcf45594875a16e5bf95
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
-F src/url.c ab868aa83218f9901f3b054bdd4d501ac5a44ef0
+F src/url.c 8b85115038ddf3350b245236c566f3822be21456
 F src/user.c 1f03854c878582df966735f77ba40da14a42a518
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P d23b8ba62ba9044b7a2efd7c08ae75749a6c3fbe
-R e7088e772a7847d490114f4cb998f225
+P 0b36f02f158e46419a0d693dfcbb42773f2e27d0
+R 4b4d02dbb51a1bd5155c9e80d45f393e
 U drh
-Z a733bfa793b4a8bc3cb1c0b4ca398be7
+Z 386cebef1a8e5d13db628d28e4b28eb7
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.1 (Darwin)
 
-iEYEARECAAYFAkkMwpsACgkQoxKgR168RlEymACeKcNK5m/do+DXhvVWjJRIacLK
-RFEAnjUyZBd3l27UiBQs2e7wVj1VP/oy
-=yl2M
+iD8DBQFJDe/roxKgR168RlERAvgyAJ4pI/0SiZXg9wnBcKChDYvjk6XBWgCfYiU1
+kBgulKMjFh1Gl3NMrH18wnY=
+=4Qrh
 -----END PGP SIGNATURE-----

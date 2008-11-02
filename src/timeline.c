@@ -215,6 +215,20 @@ const char *timeline_query_for_www(void){
 }
 
 /*
+** Generate a submenu element with a single parameter change.
+*/
+static void timeline_submenu(
+  HQuery *pUrl,            /* Base URL */
+  const char *zMenuName,   /* Submenu name */
+  const char *zParam,      /* Parameter value to add or change */
+  const char *zValue,      /* Value of the new parameter */
+  const char *zRemove      /* Parameter to omit */
+){
+  style_submenu_element(zMenuName, zMenuName, "%s",
+                        url_render(pUrl, zParam, zValue, zRemove, 0));
+}
+
+/*
 ** WEBPAGE: timeline
 **
 ** Query parameters:
@@ -225,7 +239,7 @@ const char *timeline_query_for_www(void){
 **    p=RID          artifact RID and up to COUNT parents and ancestors
 **    d=RID          artifact RID and up to COUNT descendants
 **    u=USER         only if belonging to this user
-**    y=TYPE         'ci', 'w', 'tkt'
+**    y=TYPE         'ci', 'w', 't'
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -243,9 +257,10 @@ void page_timeline(void){
   int p_rid = atoi(PD("p","0"));     /* artifact p and its parents */
   int d_rid = atoi(PD("d","0"));     /* artifact d and its descendants */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
-  const char *zType = P("y");        /* Type of events.  All if NULL */
+  const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
+  HQuery url;                        /* URL for various branch links */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -299,14 +314,14 @@ void page_timeline(void){
     db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
   }else{
     int n;
-    Blob url;
     const char *zEType = "event";
-    const char *zDate;
-    blob_zero(&url);
-    blob_appendf(&url, "%s/timeline?n=%d", g.zBaseURL, nEntry);
-    if( zType ){
+    char *zDate;
+    char *zNEntry = mprintf("%d", nEntry);
+    url_initialize(&url, "timeline");
+    url_add_parameter(&url, "n", zNEntry);
+    if( zType[0]!='a' ){
       blob_appendf(&sql, " AND event.type=%Q", zType);
-      blob_appendf(&url, "&y=%T", zType);
+      url_add_parameter(&url, "y", zType);
       if( zType[0]=='c' ){
         zEType = "checkin";
       }else if( zType[0]=='w' ){
@@ -317,7 +332,7 @@ void page_timeline(void){
     }
     if( zUser ){
       blob_appendf(&sql, " AND event.user=%Q", zUser);
-      blob_appendf(&url, "&u=%T", zUser);
+      url_add_parameter(&url, "u", zUser);
     }
     if( zAfter ){
       while( isspace(zAfter[0]) ){ zAfter++; }
@@ -325,6 +340,7 @@ void page_timeline(void){
         blob_appendf(&sql, 
            " AND event.mtime>=(SELECT julianday(%Q, 'utc'))"
            " ORDER BY event.mtime ASC", zAfter);
+        url_add_parameter(&url, "a", zAfter);
         zBefore = 0;
       }else{
         zAfter = 0;
@@ -335,6 +351,7 @@ void page_timeline(void){
         blob_appendf(&sql, 
            " AND event.mtime<=(SELECT julianday(%Q, 'utc'))"
            " ORDER BY event.mtime DESC", zBefore);
+        url_add_parameter(&url, "b", zBefore);
        }else{
         zBefore = 0;
       }
@@ -345,6 +362,9 @@ void page_timeline(void){
     db_multi_exec("%s", blob_str(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline");
+    if( n<nEntry && zAfter ){
+      cgi_redirect(url_render(&url, "a", 0, "b", 0));
+    }
     if( zAfter==0 && zBefore==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
@@ -361,11 +381,32 @@ void page_timeline(void){
     if( g.okHistory ){
       if( zAfter || n==nEntry ){
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline");
-        blob_appendf(&desc, " <a href='%b&b=%s'>[older]</a>", &url, zDate);
+        timeline_submenu(&url, "Older", "b", zDate, "a");
+        free(zDate);
       }
       if( zBefore || (zAfter && n==nEntry) ){
         zDate = db_text(0, "SELECT max(timestamp) FROM timeline");
-        blob_appendf(&desc, " <a href='%b&a=%s'>[more recent]</a>", &url,zDate);
+        timeline_submenu(&url, "Newer", "a", zDate, "b");
+        free(zDate);
+      }else{
+        if( zType[0]!='a' ){
+          timeline_submenu(&url, "All Types", "y", "all", 0);
+        }
+        if( zType[0]!='w' ){
+          timeline_submenu(&url, "Wiki Only", "y", "w", 0);
+        }
+        if( zType[0]!='c' ){
+          timeline_submenu(&url, "Checkins Only", "y", "ci", 0);
+        }
+        if( zType[0]!='t' ){
+          timeline_submenu(&url, "Tickets Only", "y", "t", 0);
+        }
+      }
+      if( nEntry>20 ){
+        timeline_submenu(&url, "20 Events", "n", "20", 0);
+      }
+      if( nEntry<200 ){
+        timeline_submenu(&url, "200 Events", "n", "200", 0);
       }
     }
   }
