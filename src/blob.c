@@ -77,6 +77,15 @@ struct Blob {
 #endif
 
 /*
+** We find that the built-in isspace() function does not work for
+** some international character sets.  So here is a substitute.
+*/
+static int blob_isspace(char c){
+  return c==' '  || c=='\n' || c=='\t' ||
+         c=='\r' || c=='\f' || c=='\v';
+}
+
+/*
 ** This routine is called if a blob operation fails because we
 ** have run out of memory.
 */
@@ -413,7 +422,7 @@ int blob_line(Blob *pFrom, Blob *pTo){
 int blob_trim(Blob *p){
   char *z = p->aData;
   int n = p->nUsed;
-  while( n>0 && isspace(z[n-1]) ){ n--; }
+  while( n>0 && blob_isspace(z[n-1]) ){ n--; }
   p->nUsed = n;
   return n;
 }
@@ -436,11 +445,11 @@ int blob_token(Blob *pFrom, Blob *pTo){
   char *aData = pFrom->aData;
   int n = pFrom->nUsed;
   int i = pFrom->iCursor;
-  while( i<n && isspace(aData[i]) ){ i++; }
+  while( i<n && blob_isspace(aData[i]) ){ i++; }
   pFrom->iCursor = i;
-  while( i<n && !isspace(aData[i]) ){ i++; }
+  while( i<n && !blob_isspace(aData[i]) ){ i++; }
   blob_extract(pFrom, i-pFrom->iCursor, pTo);
-  while( i<n && isspace(aData[i]) ){ i++; }
+  while( i<n && blob_isspace(aData[i]) ){ i++; }
   pFrom->iCursor = i;
   return pTo->nUsed;
 }

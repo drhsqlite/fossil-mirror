@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C No\schanges\sfrom\s[c9cd128c2c].\s\sThis\scheckin\smerely\sestablishes\sthe\s"official"\nbranch\sas\sdistinct\sfrom\sthe\sincompatible\sMYCFG\sbranch.\s\s<b>Use\sthis\sbranch.</b>
-D 2008-11-03T13:40:59
+C Use\sour\sown\sisspace()\sfunction\ssince\sthe\sstandard-library\sisspace()\s\nsometimes\sgives\sincorrect\sresults\sfor\snon-ASCII\scharacters.
+D 2008-11-03T21:56:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -41,7 +41,7 @@ F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 1ebb23105f75884da973aca704383393351b38db
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
-F src/blob.c 2492695b876fa0193b4ca9a58f80650de725e6d8
+F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c ec3c5c426770d11abcc88c588f379fb5b0643c55
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P c9cd128c2c2749739e6423fd668a5682395f7e76
-R 4b4d02dbb51a1bd5155c9e80d45f393e
+P db31a1a51afe011a55059899847aecbaf9411c49
+R 66812da09af9aa1b869eee165fcc5c78
 U drh
-Z 3a9d22fb59b2f64ba183454b11197bd6
+Z bda8a00859e8ad922318d680bfbb4924
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJDv9uoxKgR168RlERAoUJAJ9T4I/Qvj/dt7zi3CS5TFo4xZXJkQCfV/J2
-ATXn3b4xcd3Big/Dm7AVGaU=
-=ZLow
+iD8DBQFJD3N8oxKgR168RlERAvrRAKCMSPfwfVksSJQ0sGwJyRxBzodt7gCfVWLs
+gvuspyNyEShPZWP3QGTfyNg=
+=oIFo
 -----END PGP SIGNATURE-----
