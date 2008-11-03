@@ -213,7 +213,7 @@ OBJ = \
   xfer.o \
   zip.o
 
-APPNAME = fossil$(E)
+APPNAME = mycfg$(E)
 
 
 

@@ -205,6 +205,6 @@ void close_cmd(void){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   db_close();
-  unlink(mprintf("%s_FOSSIL_", g.zLocalRoot));
-  unlink(mprintf("%s_FOSSIL_-journal", g.zLocalRoot));
+  unlink(mprintf("%s_MYCFG_", g.zLocalRoot));
+  unlink(mprintf("%s_MYCFG_-journal", g.zLocalRoot));
 }

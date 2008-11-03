@@ -30,7 +30,7 @@
 **
 **    (2)  The "repository" database
 **
-**    (3)  A local checkout database named "_FOSSIL_" or ".fos"
+**    (3)  A local checkout database named "_MYCFG_" or ".fos"
 **         and located at the root of the local copy of the source tree.
 **
 */
@@ -603,23 +603,23 @@ static int isValidLocalDb(const char *zDbName){
 
 /*
 ** Locate the root directory of the local repository tree.  The root
-** directory is found by searching for a file named "_FOSSIL_" or ".fos"
+** directory is found by searching for a file named "_MYCFG_" or ".fos"
 ** that contains a valid repository database.
 **
-** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
+** If no valid _MYCFG_ or .fos file is found, we move up one level and 
 ** try again. Once the file is found, the g.zLocalRoot variable is set
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
 **
 ** This routine always opens the user database regardless of whether or
-** not the repository database is found.  If the _FOSSIL_ or .fos file
+** not the repository database is found.  If the _MYCFG_ or .fos file
 ** is found, it is attached to the open database connection too.
 */
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
   char *zPwdConv;
-  static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
+  static const char *aDbName[] = { "/_MYCFG_", "/.fos" };
   
   if( g.localOpen) return 1;
   if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
@@ -1141,7 +1141,7 @@ void cmd_open(void){
   }
   file_canonical_name(g.argv[2], &path);
   db_open_repository(blob_str(&path));
-  db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
+  db_init_database("./_MYCFG_", zLocalSchema, (char*)0);
   db_open_local();
   db_lset("repository", blob_str(&path));
   db_record_repository_filename(blob_str(&path));

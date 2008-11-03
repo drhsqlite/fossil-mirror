@@ -172,7 +172,7 @@ void extra_cmd(void){
   vfile_scan(0, &path, blob_size(&path));
   db_prepare(&q, 
       "SELECT x FROM sfile"
-      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
+      " WHERE x NOT IN ('manifest','manifest.uuid','_MYCFG_')"
       " ORDER BY 1");
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
@@ -200,6 +200,7 @@ void clean_cmd(void){
   Blob path, repo;
   Stmt q;
   int n;
+  printf ("This feature is disabled.\n"); return;
   allFlag = find_option("all","a",0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
@@ -208,7 +209,7 @@ void clean_cmd(void){
   vfile_scan(0, &path, blob_size(&path));
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
+      " WHERE x NOT IN ('manifest','manifest.uuid','_MYCFG_')"
       " ORDER BY 1", g.zLocalRoot);
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);

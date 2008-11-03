@@ -1,12 +1,9 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Add\ssubmenu\sentries\son\stimeline\spages\sfor\sselecting\soptions\ssuch\sas\s"tickets\sonly"\sand\s"200\sentries\nper\spage"\sand\sso\sforth.
-D 2008-11-02T18:22:30
+C Update\sfor\smaking\smycfg.exe
+D 2008-11-03T09:55:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
-F Makefile.w32 c6249fceb58da0ae0ec8f03a2ec9c79c006a3569
+F Makefile.w32 01afc2365c963d2bbb5dd5d3b144a3fe717c2811
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -37,7 +34,7 @@ F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
+F src/add.c c98911056e3af63c29d9648dda8c420cff63918f
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 1ebb23105f75884da973aca704383393351b38db
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -45,8 +42,8 @@ F src/blob.c 2492695b876fa0193b4ca9a58f80650de725e6d8
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c ec3c5c426770d11abcc88c588f379fb5b0643c55
-F src/checkin.c ad8e78b43e86052a3596b1d3a02229bbb3bd7d77
-F src/checkout.c b372b89d4e5a598d048ef3407835ef49f279fbda
+F src/checkin.c dddffe343760d0ad8c406ad21195b7e9c7f4082e
+F src/checkout.c 5e3a8c7588558747111a743163806f460dcd9b8a
 F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
 F src/clone.c 58d2271cc81c238e3cad8fe1f351f3d4e0367a3a
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -54,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c 2a0972b75de46384001367f1429ada2e2c49a1a3
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c ed660119788881f2a842a76abe96257647c436f9
+F src/db.c 7fa037b9942e4ce1900ffa622b88ff7931bc270d
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -67,7 +64,7 @@ F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c a90375841a30743d1c5fb1744580701aee12ed99
 F src/login.c e06e3ddfdaffb9ace808742e09fcaf0d676d448e
 F src/main.c a407a1b98e71ad610070ee58e2053a641ff6bad0
-F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
+F src/main.mk d432505c6f9ff004fdd34ca0f0216b1b511dd6c1
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 04f9771b041dba1a1c29d225683bf701afc0a5ee
@@ -214,14 +211,7 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 0b36f02f158e46419a0d693dfcbb42773f2e27d0
-R 4b4d02dbb51a1bd5155c9e80d45f393e
-U drh
-Z 386cebef1a8e5d13db628d28e4b28eb7
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
-
-iD8DBQFJDe/roxKgR168RlERAvgyAJ4pI/0SiZXg9wnBcKChDYvjk6XBWgCfYiU1
-kBgulKMjFh1Gl3NMrH18wnY=
-=4Qrh
------END PGP SIGNATURE-----
+P c9cd128c2c2749739e6423fd668a5682395f7e76
+R 8e7a73d7db2fe0b175dcf60b188a6c54
+U urmil
+Z 68bb52986d7ac58b1b34e6f71f6924a9

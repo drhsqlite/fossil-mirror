@@ -69,7 +69,7 @@ void add_cmd(void){
     file_tree_name(zName, &pathname, 1);
     zPath = blob_str(&pathname);
     if( strcmp(zPath, "manifest")==0
-     || strcmp(zPath, "_FOSSIL_")==0
+     || strcmp(zPath, "_MYCFG_")==0
      || strcmp(zPath, "manifest.uuid")==0
      || blob_compare(&pathname, &repo)==0
     ){
