@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Use\sour\sown\sisspace()\sfunction\ssince\sthe\sstandard-library\sisspace()\s\nsometimes\sgives\sincorrect\sresults\sfor\snon-ASCII\scharacters.
-D 2008-11-03T21:56:09
+C Fixed\sticket[30f7206b2b]:sqlite3\sfunctions\srequires\sUTF-8\sencoded\spath
+D 2008-11-03T22:50:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c 2a0972b75de46384001367f1429ada2e2c49a1a3
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c ed660119788881f2a842a76abe96257647c436f9
+F src/db.c bb2296ea5e2209119a49d2d7d847df8767ba4106
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P db31a1a51afe011a55059899847aecbaf9411c49
-R 66812da09af9aa1b869eee165fcc5c78
-U drh
-Z bda8a00859e8ad922318d680bfbb4924
+P 054dd31b715829b7dd0c75f03e0f2c837f3db1c8
+R 0513779c1f6668f2693333dbb0856fbc
+U petr
+Z 21af1b02f6280f3a5646743ffc227b23
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (MingW32)
 
-iD8DBQFJD3N8oxKgR168RlERAvrRAKCMSPfwfVksSJQ0sGwJyRxBzodt7gCfVWLs
-gvuspyNyEShPZWP3QGTfyNg=
-=oIFo
+iEYEARECAAYFAkkPgDQACgkQLyir3fyovJTVUgCgiFlv2E+bn7/tAMLP9jtTjqWY
+hxsAnAl514tqVHZnzGCSBo+I/9REQVmx
+=htW7
 -----END PGP SIGNATURE-----
