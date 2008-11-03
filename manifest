@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\ssubmenu\sentries\son\stimeline\spages\sfor\sselecting\soptions\ssuch\sas\s"tickets\sonly"\sand\s"200\sentries\nper\spage"\sand\sso\sforth.
-D 2008-11-02T18:22:30
+C No\schanges\sfrom\s[c9cd128c2c].\s\sThis\scheckin\smerely\sestablishes\sthe\s"official"\nbranch\sas\sdistinct\sfrom\sthe\sincompatible\sMYCFG\sbranch.\s\s<b>Use\sthis\sbranch.</b>
+D 2008-11-03T13:40:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 0b36f02f158e46419a0d693dfcbb42773f2e27d0
+P c9cd128c2c2749739e6423fd668a5682395f7e76
 R 4b4d02dbb51a1bd5155c9e80d45f393e
 U drh
-Z 386cebef1a8e5d13db628d28e4b28eb7
+Z 3a9d22fb59b2f64ba183454b11197bd6
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJDe/roxKgR168RlERAvgyAJ4pI/0SiZXg9wnBcKChDYvjk6XBWgCfYiU1
-kBgulKMjFh1Gl3NMrH18wnY=
-=4Qrh
+iD8DBQFJDv9uoxKgR168RlERAoUJAJ9T4I/Qvj/dt7zi3CS5TFo4xZXJkQCfV/J2
+ATXn3b4xcd3Big/Dm7AVGaU=
+=ZLow
 -----END PGP SIGNATURE-----
