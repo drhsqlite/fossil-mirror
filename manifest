@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Undo\sall\schanges\sassociated\swith\s[b54de50ac5]\sand\smerge\sthat\sbranch\sinto\nthe\strunk.\s\sWe\sdo\snot\swant\sto\shave\san\sopen\sbranch\sin\sthe\sofficial\srepository\nthat\syield\sa\sfundamentally\sincompatible\sversion\sof\sthe\sprogram.
-D 2008-11-03T22:52:24
+C Convert\sthe\schanges\sthat\ssupport\smicrosoft\scharacter\ssets\sso\sthat\sthey\nwork\s(so\sthat\sthey\sare\s#ifdef-ed\sout)\son\sother\splatforms.
+D 2008-11-04T12:13:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c 2a0972b75de46384001367f1429ada2e2c49a1a3
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c ed660119788881f2a842a76abe96257647c436f9
+F src/db.c 3dffe034aa0b730d0a86a9d29cd20af0cff9022c
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 054dd31b715829b7dd0c75f03e0f2c837f3db1c8 b54de50ac5e4c6b796163685c82fccabdb0fc829
-R 66812da09af9aa1b869eee165fcc5c78
+P 8b16c47cbcd4d3a6b8a7e2a98d825002b4128d5e dad7731f0ec79596fd90b986c0fe2e647c4b909a
+R 69b33479cca1033666464e6f93789261
 U drh
-Z 5f3030626fb73f8845139b555bb0848c
+Z 0e5ae3fc70361dbd6d31780004200602
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJD4CsoxKgR168RlERAkClAJ9yIgKj0MUXL9L9dDA0MVMefYv32wCfeomU
-e9LK0h6CgLyeMRpaaBDnAFc=
-=DI3p
+iD8DBQFJEDxYoxKgR168RlERAhxGAJ0UIlnGzaS2lZisdFFT1LukA/ukUwCeNsJq
+zoKXWwGTR1KLm1HTiVGJj4E=
+=goXZ
 -----END PGP SIGNATURE-----

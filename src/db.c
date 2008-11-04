@@ -38,6 +38,9 @@
 #ifndef __MINGW32__
 #  include <pwd.h>
 #endif
+#ifdef __MINGW32__
+#  include <windows.h>
+#endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -498,6 +501,82 @@ char *db_text(char *zDefault, const char *zSql, ...){
   return z;
 }
 
+#ifdef __MINGW32__
+/*
+** These routines (copied out of the os_win.c driver for SQLite) convert
+** character strings in various microsoft multi-byte character formats
+** into UTF-8.  Fossil and SQLite always use only UTF-8 internally.  These
+** routines are needed in order to convert from the default character set
+** currently in use by windows into UTF-8 when strings are imported from
+** the outside world.
+*/
+/*
+** Convert microsoft unicode to UTF-8.  Space to hold the returned string is
+** obtained from malloc().
+** Copied from sqlite3.c as is (petr)
+*/
+static char *unicodeToUtf8(const WCHAR *zWideFilename){
+  int nByte;
+  char *zFilename;
+
+  nByte = WideCharToMultiByte(CP_UTF8, 0, zWideFilename, -1, 0, 0, 0, 0);
+  zFilename = malloc( nByte );
+  if( zFilename==0 ){
+    return 0;
+  }
+  nByte = WideCharToMultiByte(CP_UTF8, 0, zWideFilename, -1, zFilename, nByte,
+                              0, 0);
+  if( nByte == 0 ){
+    free(zFilename);
+    zFilename = 0;
+  }
+  return zFilename;
+}
+/*
+** Convert an ansi string to microsoft unicode, based on the
+** current codepage settings for file apis.
+** 
+** Space to hold the returned string is obtained
+** from malloc.
+*/
+static WCHAR *mbcsToUnicode(const char *zFilename){
+  int nByte;
+  WCHAR *zMbcsFilename;
+  int codepage = CP_ACP;
+
+  nByte = MultiByteToWideChar(codepage, 0, zFilename, -1, NULL,0)*sizeof(WCHAR);
+  zMbcsFilename = malloc( nByte*sizeof(zMbcsFilename[0]) );
+  if( zMbcsFilename==0 ){
+    return 0;
+  }
+
+  nByte = MultiByteToWideChar(codepage, 0, zFilename, -1, zMbcsFilename, nByte);
+  if( nByte==0 ){
+    free(zMbcsFilename);
+    zMbcsFilename = 0;
+  }
+  return zMbcsFilename;
+}
+/*
+** Convert multibyte character string to UTF-8.  Space to hold the
+** returned string is obtained from malloc().
+*/
+static char *mbcsToUtf8(const char *zFilename){
+  char *zFilenameUtf8;
+  WCHAR *zTmpWide;
+
+  zTmpWide = mbcsToUnicode(zFilename);
+  if( zTmpWide==0 ){
+    return 0;
+  }
+  
+  zFilenameUtf8 = unicodeToUtf8(zTmpWide);
+  free(zTmpWide);
+  return zFilenameUtf8;
+}
+#endif /* __MINGW32__ */
+
+
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
@@ -512,6 +591,9 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
+#ifdef __MINGW32__
+  zFileName = mbcsToUtf8(zFileName);
+#endif
   rc = sqlite3_open(zFileName, &db);
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
@@ -539,6 +621,9 @@ void db_init_database(
 ** already open, then attach zDbName using the name zLabel.
 */
 void db_open_or_attach(const char *zDbName, const char *zLabel){
+#ifdef __MINGW32__
+  zDbName = mbcsToUtf8(zDbName);
+#endif
   if( !g.db ){
     int rc = sqlite3_open(zDbName, &g.db);
     if( rc!=SQLITE_OK ){
