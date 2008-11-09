@@ -167,13 +167,13 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **
 **        List all users known to the repository
 **
-**    %fossil user new ?USERNAME?
+**    %fossil user new ?USERNAME? ?CONTACT-INFO? ?PASSWORD?
 **
 **        Create a new user in the repository.  Users can never be
 **        deleted.  They can be denied all access but they must continue
 **        to exist in the database.
 **
-**    %fossil user password USERNAME
+**    %fossil user password USERNAME ?PASSWORD?
 **
 **        Change the web access password for a user.
 */
@@ -188,19 +188,26 @@ void user_cmd(void){
     Blob passwd, login, contact;
 
     if( g.argc>=4 ){
-      blob_zero(&login);
-      blob_append(&login, g.argv[3], -1);
+      blob_init(&login, g.argv[3], -1);
     }else{
       prompt_user("login: ", &login);
     }
     if( db_exists("SELECT 1 FROM user WHERE login=%B", &login) ){
       fossil_fatal("user %b already exists", &login);
     }
-    prompt_user("contact-info: ", &contact);
-    prompt_for_password("password: ", &passwd, 1);
+    if( g.argc>=5 ){
+      blob_init(&contact, g.argv[4], -1);
+    }else{
+      prompt_user("contact-info: ", &contact);
+    }
+    if( g.argc>=6 ){
+      blob_init(&passwd, g.argv[5], -1);
+    }else{
+      prompt_for_password("password: ", &passwd, 1);
+    }
     db_multi_exec(
       "INSERT INTO user(login,pw,cap,info)"
-      "VALUES(%B,%B,'jnor',%B)",
+      "VALUES(%B,%B,'v',%B)",
       &login, &passwd, &contact
     );
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
@@ -228,13 +235,17 @@ void user_cmd(void){
     char *zPrompt;
     int uid;
     Blob pw;
-    if( g.argc!=4 ) usage("password USERNAME");
+    if( g.argc!=4 && g.argc!=5 ) usage("password USERNAME ?NEW-PASSWORD?");
     uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", g.argv[3]);
     if( uid==0 ){
       fossil_fatal("no such user: %s", g.argv[3]);
     }
-    zPrompt = mprintf("new passwd for %s: ", g.argv[3]);
-    prompt_for_password(zPrompt, &pw, 1);
+    if( g.argc==5 ){
+      blob_init(&pw, g.argv[4], -1);
+    }else{
+      zPrompt = mprintf("new passwd for %s: ", g.argv[3]);
+      prompt_for_password(zPrompt, &pw, 1);
+    }
     if( blob_size(&pw)==0 ){
       printf("password unchanged\n");
     }else{

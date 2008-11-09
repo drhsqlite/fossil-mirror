@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"mv"\sand\s"rename"\scommands\s(aliases\sfor\sthe\ssame\sthing).
-D 2008-11-09T19:22:06
+C Optional\sextra\sarguments\sto\sthe\s"user"\scommand\sallow\sone\sto\sspecify\sthe\nnew\spassword\sor\scontact\sinformation\son\sthe\scommand-line\swithout\swaiting\nfor\sa\sprompt.\s\sThis\smakes\sthe\s"user"\scommand\susable\sfrom\sshell-scripts.
+D 2008-11-09T19:30:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -106,7 +106,7 @@ F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
 F src/url.c 8b85115038ddf3350b245236c566f3822be21456
-F src/user.c 1f03854c878582df966735f77ba40da14a42a518
+F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 76e56d7038b7e1ec6ee0786c1ffd16e611cfec8f
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 02f09cdd6c1bbea61002c82628bdf05629211207
-R c1af4563fc8667f73e04cf3402779d5f
+P e146d800ac37390cfec72c43ddbb88f583970c89
+R 757ae00631996eca6ada3853383be816
 U drh
-Z c2453877d9dffdb7642bb862e2b79473
+Z 9bd67f809daa609409dadf1cb6f36e36
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJFzhhoxKgR168RlERAn9GAJ4wmravbbDt7aBdqybUC/Gs7YkkWACfWc7U
-ctU4AET5ZxBELSfb3ngjMpc=
-=SlHn
+iD8DBQFJFzpdoxKgR168RlERAlWQAJ9AN30an5nKZ850Ov8/v+9j1LMnLgCeIPpF
+ArLM/DrMsQ3aD3LSBSKTZrg=
+=wdd8
 -----END PGP SIGNATURE-----
