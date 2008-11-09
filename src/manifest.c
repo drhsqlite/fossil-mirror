@@ -520,18 +520,22 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     U <login>
+      **     U ?<login>?
       **
       ** Identify the user who created this control file by their
       ** login.  Only one U line is allowed.  Prohibited in clusters.
+      ** If the user name is omitted, take that to be "anonymous".
       */
       case 'U': {
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zUser!=0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ){
+          p->zUser = "anonymous";
+        }else{
+          p->zUser = blob_terminate(&a1);
+          defossilize(p->zUser);
+        }
         if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        p->zUser = blob_terminate(&a1);
-        defossilize(p->zUser);
         break;
       }
 

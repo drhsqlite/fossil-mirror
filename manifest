@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sthe\stkt_uuid\sand\stkt_datetime\sTH1\svariables\sare\sinitialized\son\na\sticket\sdisplay,\seven\sif\sno\smatching\sticket\sis\sfound.
-D 2008-11-09T13:22:41
+C All\sthe\sU\scard\sof\sa\sticket\schange\sartifact\sto\shave\sno\sargument.\s\sWhen\sthat\nhappens,\sthe\suser\sis\sassumed\sto\sbe\s"anonymous".
+D 2008-11-09T13:41:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -71,7 +71,7 @@ F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 04f9771b041dba1a1c29d225683bf701afc0a5ee
-F src/manifest.c b6902558fffcfa45aa9919e15b144b3f68c3c98a
+F src/manifest.c 608b98745d528d9e8a047bc30106a3acf3e3c9f5
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 55fc643edab6cbe5638fe2458bd07e46328c85ab
-R 17fbc294fbff6d25bdca99214c44986a
+P 2664476fbc2dfd37ebda0a82e6ba19a4a557551b
+R 89b03f9a1e32b3594dbceaed61462f49
 U drh
-Z 13fc981909bc210a658aa60a333a274f
+Z fe97564b6cf43fecb103606116f0534a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFJFuQloxKgR168RlERAqMVAJwIg5v/V1OceT7AYqz/lle2MO2fHQCgiJjk
-EEyrOy40yCRIsd65waoSBP0=
-=QxuU
+iD8DBQFJFuiXoxKgR168RlERAoTiAJ4xHPOI5MwERywgCVWYjonzTAuktACfULtO
+G97TXv2GZvAkco7NUIfMAPQ=
+=re2k
 -----END PGP SIGNATURE-----
