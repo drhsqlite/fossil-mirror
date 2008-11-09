@@ -716,16 +716,16 @@ void cmd_webserver(void){
     blob_zero(&g.thLog);
   }
   zPort = find_option("port", "P", 1);
-  if( zPort ){
-    iPort = atoi(zPort);
-  }else{
-    iPort = 8080;
-  }
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   if( g.argc==2 ){
     db_must_be_within_tree();
   }else{
     db_open_repository(g.argv[2]);
+  }
+  if( zPort ){
+    iPort = atoi(zPort);
+  }else{
+    iPort = db_get_int("http-port", 8080);
   }
 #ifndef __MINGW32__
   /* Unix implementation */

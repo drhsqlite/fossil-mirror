@@ -1291,6 +1291,9 @@ static void print_setting(const char *zName){
 **
 **    editor           Text editor command used for check-in comments.
 **
+**    http-port        The TCP/IP port number to use by the "server"
+**                     and "ui" commands.  Default: 8080
+**
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
 **
@@ -1322,6 +1325,7 @@ void setting_cmd(void){
     "diff-command",
     "editor",
     "gdiff-command",
+    "http-port",
     "localauth",
     "clearsign",
     "pgp-command",
