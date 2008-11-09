@@ -673,6 +673,25 @@ manifest_syntax_error:
 }
 
 /*
+** COMMAND: test-parse-manifest
+**
+** Usage: %fossil test-parse-manifest FILENAME
+**
+** Parse the manifest and discarded.  Use for testing only.
+*/
+void manifest_test_parse_cmd(void){
+  Manifest m;
+  Blob b;
+  if( g.argc!=3 ){
+    usage("FILENAME");
+  }
+  db_must_be_within_tree();
+  blob_read_from_file(&b, g.argv[2]);
+  manifest_parse(&m, &b);
+  manifest_clear(&m);
+}
+
+/*
 ** Add a single entry to the mlink table.  Also add the filename to
 ** the filename table if it is not there already.
 */
@@ -918,47 +937,6 @@ int manifest_crosslink(int rid, Blob *pContent){
     tag_insert(zTag, 1, 0, rid, m.rDate, rid);
     free(zTag);
     blob_zero(&comment);
-#if 0
-    if( m.nField==1 ){
-      if( m.aField[0].zName[0]=='+' ){
-        blob_appendf(&comment, 
-          "Appended to %h in ticket [%.10s]",
-          &m.aField[0].zName[1], m.zTicketUuid
-        );
-      }else if( strlen(m.aField[0].zValue)<40 ){
-        blob_appendf(&comment,
-          "Changed %h to \"%h\" in ticket [%.10s]",
-          m.aField[0].zName, m.aField[0].zValue, m.zTicketUuid
-        );
-      }else{
-        blob_appendf(&comment,
-          "Changed %h in ticket [%.10s]",
-          m.aField[0].zName, m.zTicketUuid
-        );
-      }
-    }else{
-      int i;
-      const char *z;
-      const char *zSep = " ";
-      blob_appendf(&comment, "%d changes to ticket [%.10s]:",
-                            m.nField, m.zTicketUuid);
-      for(i=0; i<m.nField; i++){
-        z = m.aField[i].zName;
-        if( z[0]=='+' ) z++;
-        blob_appendf(&comment, "%s%h", zSep, z);
-        zSep = ", ";
-      }
-      int i;
-      const char *zStatus = 0;
-      const char *zTitle;
-      for(i=0; i<m.nField; i++){
-        z = m.aField[i].zName;
-        if( strcmp(z, "status") ) zStatus = m.aField[i].zValue;
-      }
-      if( zField
-      blob_appendf(&comment, "Edits to ticket [%.10s]", m.zTicketUuid);
-    }
-#endif
     if( once ){
       once = 0;
       zTitleExpr = db_get("ticket-title-expr", "title");
