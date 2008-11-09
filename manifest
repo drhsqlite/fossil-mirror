@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C On\sthe\sindex\spage,\slinks\sto\sthe\s"two\sseparate\sservers"\sgo\sto\sthe\sindex\spages\non\sthose\sservers,\snot\sto\sthe\stimeline.
-D 2008-11-09T22:50:41
+C Tweaks\sto\sthe\sformatting\sof\sthe\s"stat"\swebpage.
+D 2008-11-09T22:59:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -90,7 +90,7 @@ F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c 5ce55378d67f55956debb8a9cad8df56186ec61a
 F src/sqlite3.c 5248707330d6fcac6ef793ae7322df47819bb14b
 F src/sqlite3.h b814bc0c36e721e64c80ddd0d0e89ef2857c722d
-F src/stat.c 3af9e4ec2bf792ba0cd7f35248ecf0fdcaeef741
+F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 41b3e7ff54fc592a4262b1cd409cfd408be59112
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
 F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 9fd80090073cc5e781c07d5debab7a3a030503cd
-R 0f79e3b8b62d9d1cef113cbcce384d76
+P ec53d7a73899c13a5b5da701b3252d7bc672f74b
+R fdb3851c6ead289c811fe0d2c1c7bfab
 U drh
-Z 29743f5ea112b20c1552fffcd2aa3c26
+Z 471f2e001880702ef8e44dd2f864c550
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJF2lEoxKgR168RlERAq6XAJ987CnvR0Q62vE6c6bWyrkancTtqACfTHN3
-+zY8qDtXPdrPwlj0UfDpZyY=
-=Pak6
+iD8DBQFJF2tJoxKgR168RlERAsb9AJ9Bh6B28hBrPZp6DW09hV3me6fOngCeJEjT
+aSeul/4xXNGEcc7PhOr+vWo=
+=6n2n
 -----END PGP SIGNATURE-----

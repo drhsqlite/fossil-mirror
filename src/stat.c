@@ -48,7 +48,7 @@ void stat_page(void){
   @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
   n = db_int(0, "SELECT count(*) FROM blob");
   m = db_int(0, "SELECT count(*) FROM delta");
-  @ %d(n-m) complete, %d(m) deltas, %d(n) total
+  @ %d(n) (stored as %d(n-m) full text and %d(m) delta blobs)
   @ </td></tr>
   if( n>0 ){
     int a, b;
@@ -68,7 +68,7 @@ void stat_page(void){
     @ %d(a):%d(b)
     @ </td></tr>
   }
-  @ <tr><th>Number&nbsp;Of&nbsp;Baselines:</th><td>
+  @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
   n = db_int(0, "SELECT count(distinct mid) FROM mlink");
   @ %d(n)
   @ </td></tr>
