@@ -8,9 +8,9 @@ distributed software revision control system</a> that includes an integrated
 <a href="bugtheory.wiki">bug-tracking system</a> all in a single, 
 easy-to-use, stand-alone executable.
 Fossil is
-<a href="http://www.fossil-scm.org/fossil/timeline">self-hosting</a>
+<a href="http://www.fossil-scm.org/">self-hosting</a>
 since 2007-07-21 on
-<a href="http://www.hwaci.com/cgi-bin/fossil/timeline">two separate servers</a>.
+<a href="http://www.hwaci.com/cgi-bin/fossil">two separate servers</a>.
 You can download the <a href="../../../timeline">lastest sources</a> and
 <a href="build.wiki">compile it yourself</a>.
 Or you can grab

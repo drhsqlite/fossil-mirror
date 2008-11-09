@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Bug\sfix\sin\sthe\s"mv"\scommand.\s\sAdd\sfilename\schange\stracking\sto\sthe\s\ncheck-in\sinformation\sscreens.\s\s<b>You\smust\srun\s<i>rebuild</i>\son\nexisting\srespositories\swhen\supgrading\sto\sthis\sversion\sof\sfossil.</b>
-D 2008-11-09T22:43:04
+C On\sthe\sindex\spage,\slinks\sto\sthe\s"two\sseparate\sservers"\sgo\sto\sthe\sindex\spages\non\sthose\sservers,\snot\sto\sthe\stimeline.
+D 2008-11-09T22:50:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -205,7 +205,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 49c16eb396df1bc6ad8daeea68c57b4f24e28601
-F www/index.wiki fa56c2b6e25d4ae7024f3a70440765659663e08b
+F www/index.wiki 94d4379a8357846b45247c225759f0660c9958dc
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P f6c0201af702efa125900c7da6c575ec5a73e6ed
-R 2d641bcffd814095d3b9c1d5be3b84d6
+P 9fd80090073cc5e781c07d5debab7a3a030503cd
+R 0f79e3b8b62d9d1cef113cbcce384d76
 U drh
-Z d8673a1be60ea193061f3b601ecaae2b
+Z 29743f5ea112b20c1552fffcd2aa3c26
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJF2d8oxKgR168RlERAr15AKCJ+r5huGgyfMBnOrfmu3Gq/3DJaACfTg8J
-Zw3LfY8TyiBgSPs0Gqd92N4=
-=F2wq
+iD8DBQFJF2lEoxKgR168RlERAq6XAJ987CnvR0Q62vE6c6bWyrkancTtqACfTHN3
++zY8qDtXPdrPwlj0UfDpZyY=
+=Pak6
 -----END PGP SIGNATURE-----
