@@ -139,11 +139,17 @@ static void initializeVariablesFromDb(void){
   }else{
     db_finalize(&q);
     db_prepare(&q, "PRAGMA table_info(ticket)");
+    if( Th_Fetch("tkt_uuid",&size)==0 ){
+      Th_Store("tkt_uuid",zName);
+    }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zField = db_column_text(&q, 1);
       if( Th_Fetch(zField, &size)==0 ){
         Th_Store(zField, "");
       }
+    }
+    if( Th_Fetch("tkt_datetime",&size)==0 ){
+      Th_Store("tkt_datetime","");
     }
   }
   db_finalize(&q);
