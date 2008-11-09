@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C All\sthe\sU\scard\sof\sa\sticket\schange\sartifact\sto\shave\sno\sargument.\s\sWhen\sthat\nhappens,\sthe\suser\sis\sassumed\sto\sbe\s"anonymous".
-D 2008-11-09T13:41:39
+C Fix\sthe\s"help"\stext\sfor\sthe\s"all"\scommand.
+D 2008-11-09T16:15:15
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -39,7 +39,7 @@ F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c 8c54ff6ce9dbdc4271a9d53b33f0c921f4a0ffea
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
-F src/allrepo.c 1ebb23105f75884da973aca704383393351b38db
+F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 2664476fbc2dfd37ebda0a82e6ba19a4a557551b
-R 89b03f9a1e32b3594dbceaed61462f49
+P 6eddf50cfee715099d3eebe3c313e96d939cf2c1
+R ee9a3f853d3a7bb6d838679d4578ed96
 U drh
-Z fe97564b6cf43fecb103606116f0534a
+Z 2f7b0f87b7e4ddfcdb7b55e35d5273f8
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJFuiXoxKgR168RlERAoTiAJ4xHPOI5MwERywgCVWYjonzTAuktACfULtO
-G97TXv2GZvAkco7NUIfMAPQ=
-=re2k
+iD8DBQFJFwyWoxKgR168RlERAh6uAJ0XX1TTYRgy7U9xl/Qejf6I3sjvogCfZUu8
+sVyGaOT6BtKtN369x5irJNI=
+=hn/r
 -----END PGP SIGNATURE-----

@@ -57,7 +57,7 @@ static char *quoteFilename(const char *zFilename){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil add (list|pull|push|sync)
+** Usage: %fossil all (list|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
