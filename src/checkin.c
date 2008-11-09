@@ -38,14 +38,17 @@ static void status_report(Blob *report, const char *zPrefix){
   Stmt q;
   int nPrefix = strlen(zPrefix);
   db_prepare(&q, 
-    "SELECT pathname, deleted, chnged, rid FROM vfile "
-    "WHERE file_is_selected(id) AND (chnged OR deleted OR rid=0) ORDER BY 1"
+    "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
+    "  FROM vfile "
+    " WHERE file_is_selected(id)"
+    "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
+    int isRenamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
@@ -60,8 +63,10 @@ static void status_report(Blob *report, const char *zPrefix){
       blob_appendf(report, "UPDATED_BY_MERGE %s\n", zPathname);
     }else if( isChnged==3 ){
       blob_appendf(report, "ADDED_BY_MERGE %s\n", zPathname);
-    }else{
+    }else if( isChnged==1 ){
       blob_appendf(report, "EDITED   %s\n", zPathname);
+    }else if( isRenamed ){
+      blob_appendf(report, "RENAMED  %s\n", zPathname);
     }
     free(zFullName);
   }
@@ -129,13 +134,17 @@ void ls_cmd(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid);
-  db_prepare(&q, "SELECT pathname, deleted, rid, chnged FROM vfile"
-                 " ORDER BY 1");
+  db_prepare(&q,
+     "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
+     "  FROM vfile"
+     " ORDER BY 1"
+  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
     int isNew = db_column_int(&q,2)==0;
     int chnged = db_column_int(&q,3);
+    int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     if( isNew ){
       printf("ADDED     %s\n", zPathname);
@@ -145,6 +154,8 @@ void ls_cmd(void){
       printf("DELETED   %s\n", zPathname);
     }else if( chnged ){
       printf("EDITED    %s\n", zPathname);
+    }else if( renamed ){
+      printf("RENAMED   %s\n", zPathname);
     }else{
       printf("UNCHANGED %s\n", zPathname);
     }
@@ -482,7 +493,8 @@ void commit_cmd(void){
   zDate[10] = 'T';
   blob_appendf(&manifest, "D %s\n", zDate);
   db_prepare(&q,
-    "SELECT pathname, uuid FROM vfile JOIN blob ON vfile.mrid=blob.rid"
+    "SELECT pathname, uuid, origname"
+    "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
     " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
   blob_zero(&filename);
@@ -491,6 +503,7 @@ void commit_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
+    const char *zOrig = db_column_text(&q, 2);
     const char *zPerm;
     blob_append(&filename, zName, -1);
     if( file_isexe(blob_str(&filename)) ){
@@ -499,7 +512,12 @@ void commit_cmd(void){
       zPerm = "";
     }
     blob_resize(&filename, nBasename);
-    blob_appendf(&manifest, "F %F %s%s\n", zName, zUuid, zPerm);
+    if( zOrig==0 || strcmp(zOrig,zName)==0 ){
+      blob_appendf(&manifest, "F %F %s%s\n", zName, zUuid, zPerm);
+    }else{
+      if( zPerm[0]==0 ){ zPerm = " w"; }
+      blob_appendf(&manifest, "F %F %s%s %F\n", zName, zUuid, zPerm, zOrig);
+    }
   }
   blob_reset(&filename);
   db_finalize(&q);
@@ -559,7 +577,8 @@ void commit_cmd(void){
     "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND file_is_selected(id);"
     "DELETE FROM vmerge WHERE file_is_selected(id) OR id=0;"
     "UPDATE vfile SET vid=%d;"
-    "UPDATE vfile SET rid=mrid, chnged=0, deleted=0 WHERE file_is_selected(id);"
+    "UPDATE vfile SET rid=mrid, chnged=0, deleted=0, origname=NULL"
+    " WHERE file_is_selected(id);"
     , vid, nvid
   );
   db_lset_int("checkout", nvid);
@@ -793,7 +812,7 @@ void import_manifest_cmd(void){
 
   blob_appendf(&manifest, "P");
   for (i=0;i<zParentCount;i++) {
-    char* zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", zParents [i]);
+    char* zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", zParents[i]);
     blob_appendf(&manifest, " %s", zUuid);
     free(zUuid);
   }

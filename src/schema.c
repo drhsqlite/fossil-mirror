@@ -339,8 +339,8 @@ const char zLocalSchema[] =
 @   CHECK( typeof(name)='text' AND length(name)>=1 )
 @ );
 @
-@ -- Each entry in the vfile table represents a single file or folder
-@ -- that is part of a version.
+@ -- Each entry in the vfile table represents a single file in the
+@ -- current checkout.
 @ --
 @ -- The file.rid field is 0 for files or folders that have been
 @ -- added but not yet committed.
@@ -361,7 +361,8 @@ const char zLocalSchema[] =
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
-@   pathname TEXT,                    -- Full pathname
+@   pathname TEXT,                    -- Full pathname relative to root
+@   origname TEXT                     -- Original pathname. NULL if unchanged
 @   UNIQUE(pathname,vid)
 @ );
 @

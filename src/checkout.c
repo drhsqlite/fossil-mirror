@@ -42,7 +42,8 @@ int unsaved_changes(void){
   vid = db_lget_int("checkout",0);
   if( vid==0 ) return 2;
   vfile_check_signature(vid);
-  return db_exists("SELECT 1 FROM vfile WHERE chnged");
+  return db_exists("SELECT 1 FROM vfile WHERE chnged"
+                   " OR coalesce(origname!=pathname,0)");
 }
 
 /*

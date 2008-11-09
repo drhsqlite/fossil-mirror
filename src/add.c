@@ -98,7 +98,12 @@ void add_cmd(void){
 **
 ** Usage: %fossil rm FILE...
 **    or: %fossil del FILE...
+**
 ** Remove one or more files from the tree.
+**
+** This command does not remove the files from disk.  It just marks the
+** files as no longer being part of the project.  In other words, future
+** changes to the named files will not be versioned.
 */
 void del_cmd(void){
   int i;
@@ -128,5 +133,106 @@ void del_cmd(void){
     free(zName);
   }
   db_multi_exec("DELETE FROM vfile WHERE deleted AND rid=0");
+  db_end_transaction(0);
+}
+
+/*
+** Rename a single file.  
+**
+** The original name of the file is zOrig.  The new filename is zNew.
+*/
+static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+  printf("RENAME %s %s\n", zOrig, zNew);
+  db_multi_exec(
+    "UPDATE vfile SET pathname='%s' WHERE pathname='%s' AND vid=%d",
+    zNew, zOrig, vid
+  );
+}
+
+/*
+** COMMAND: mv
+** COMMAND: rename
+**
+** Usage: %fossil mv|rename OLDNAME NEWNAME
+**    or: %fossil mv|rename OLDNAME... DIR
+**
+** Move or rename one or more files within the tree
+**
+** This command does rename the files on disk.  All this command does is
+** record the fact that filenames have changed so that appropriate notations
+** can be made at the next commit/checkin.
+*/
+void mv_cmd(void){
+  int i;
+  int vid;
+  char *zDest;
+  Blob dest;
+  Stmt q;
+
+  db_must_be_within_tree();
+  vid = db_lget_int("checkout", 0);
+  if( vid==0 ){
+    fossil_panic("no checkout rename files in");
+  }
+  if( g.argc<4 ){
+    usage("OLDNAME NEWNAME");
+  }
+  zDest = g.argv[g.argc-1];
+  db_begin_transaction();
+  file_tree_name(zDest, &dest, 1);
+  db_multi_exec(
+    "UPDATE vfile SET origname=pathname WHERE origname IS NULL;"
+  );
+  db_multi_exec(
+    "CREATE TEMP TABLE mv(f TEXT UNIQUE ON CONFLICT IGNORE, t TEXT);"
+  );
+  if( file_isdir(zDest)!=1 ){
+    Blob orig;
+    if( g.argc!=4 ){
+      usage("OLDNAME NEWNAME");
+    }
+    file_tree_name(g.argv[2], &orig, 1);
+    db_multi_exec(
+      "INSERT INTO mv VALUES(%B,%B)", &orig, &dest
+    );
+  }else{
+    for(i=2; i<g.argc-1; i++){
+      Blob orig;
+      char *zOrig;
+      int nOrig;
+      file_tree_name(g.argv[i], &orig, 1);
+      zOrig = blob_str(&orig);
+      nOrig = blob_size(&orig);
+      db_prepare(&q,
+         "SELECT pathname FROM vfile"
+         " WHERE vid=%d"
+         "   AND (pathname='%s' OR pathname GLOB '%s/*')"
+         " ORDER BY 1",
+         vid, zOrig, zOrig
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        const char *zPath = db_column_text(&q, 0);
+        int nPath = db_column_bytes(&q, 0);
+        const char *zTail;
+        if( nPath==nOrig ){
+          zTail = file_tail(zPath);
+        }else{
+          zTail = &zPath[nOrig+1];
+        }
+        db_multi_exec(
+          "INSERT INTO mv VALUES('%s','%s/%s')",
+          zPath, blob_str(&dest), zTail
+        );
+      }
+      db_finalize(&q);
+    }
+  }
+  db_prepare(&q, "SELECT f, t FROM mv ORDER BY f");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFrom = db_column_text(&q, 0);
+    const char *zTo = db_column_text(&q, 1);
+    mv_one_file(vid, zFrom, zTo);
+  }
+  db_finalize(&q);
   db_end_transaction(0);
 }

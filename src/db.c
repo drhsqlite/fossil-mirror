@@ -676,6 +676,9 @@ void db_open_config(void){
 */
 static int isValidLocalDb(const char *zDbName){
   i64 lsize;
+  int rc;
+  sqlite3_stmt *pStmt;
+
   if( access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
@@ -683,6 +686,14 @@ static int isValidLocalDb(const char *zDbName){
   g.localOpen = 1;
   db_open_config();
   db_open_repository(0);
+
+  /* If the "origname" column is missing from the vfile table, then
+  ** add it now. */
+  rc = sqlite3_prepare(g.db, "SELECT origname FROM vfile", -1, &pStmt, 0);
+  if( rc==SQLITE_ERROR ){
+    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN origname TEXT", 0, 0, 0);
+  }
+
   return 1;
 }
 

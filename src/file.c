@@ -55,6 +55,19 @@ i64 file_mtime(const char *zFilename){
 }
 
 /*
+** Return the tail of a file pathname.  The tail is the last component
+** of the path.  For example, the tail of "/a/b/c.d" is "c.d".
+*/
+const char *file_tail(const char *z){
+  const char *zTail = z;
+  while( z[0] ){
+    if( z[0]=='/' ) zTail = &z[1];
+    z++;
+  }
+  return zTail;
+}
+
+/*
 ** Copy the content of a file from one place to another.
 */
 void file_copy(const char *zFrom, const char *zTo){
