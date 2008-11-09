@@ -396,12 +396,33 @@ void vinfo_page(void){
   }
   db_finalize(&q);
   showTags(rid, "");
-  @ <div class="section">Files Changed</div>
+  @ <div class="section">File Changes</div>
   @ <ul>
   db_prepare(&q, 
-     "SELECT name, pid, fid"
+     "SELECT a.name, b.name"
+     "  FROM mlink, filename AS a, filename AS b"
+     " WHERE mid=%d"
+     "   AND a.fnid=mlink.fnid"
+     "   AND b.fnid=mlink.pfnid",
+     rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zPrior = db_column_text(&q, 1);
+    @ <li><b>Renamed:</b>
+    if( g.okHistory ){
+      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zPrior)</a> to
+      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></li>
+    }else{
+      @ %h(zPrior) to %h(zName)</li>
+    }
+  }
+  db_finalize(&q);
+  db_prepare(&q, 
+     "SELECT name, pid, fid "
      "  FROM mlink, filename"
      " WHERE mid=%d"
+     "   AND fid!=pid"
      "   AND filename.fnid=mlink.fnid",
      rid
   );
@@ -409,13 +430,12 @@ void vinfo_page(void){
     const char *zName = db_column_text(&q, 0);
     int pid = db_column_int(&q, 1);
     int fid = db_column_int(&q, 2);
-    @ <li>
     if( pid && fid ){
-      @ <b>Modified:</b>
+      @ <li><b>Modified:</b>
     }else if( fid ){
-      @ <b>Added:</b>
-    }else{
-      @ <b>Deleted:</b>
+      @ <li><b>Added:</b>
+    }else if( pid ){
+      @ <li><b>Deleted:</b>
     }
     if( g.okHistory ){
       @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></li>

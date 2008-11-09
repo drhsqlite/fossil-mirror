@@ -67,6 +67,8 @@ struct Manifest {
     char *zName;           /* Name of a file */
     char *zUuid;           /* UUID of the file */
     char *zPerm;           /* File permissions */
+    char *zPrior;          /* Prior name if the name was changed */
+    int iRename;           /* index of renamed name in prior/next manifest */
   } *aFile;
   int nParent;          /* Number of parents */
   int nParentAlloc;     /* Slots allocated in azParent[] */
@@ -302,6 +304,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
           if( !file_is_simple_pathname(zPriorName) ){
             goto manifest_syntax_error;
           }
+        }else{
+          zPriorName = 0;
         }
         if( p->nFile>=p->nFileAlloc ){
           p->nFileAlloc = p->nFileAlloc*2 + 10;
@@ -312,6 +316,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
         p->aFile[i].zName = zName;
         p->aFile[i].zUuid = zUuid;
         p->aFile[i].zPerm = zPerm;
+        p->aFile[i].zPrior = zPriorName;
+        p->aFile[i].iRename = -1;
         if( i>0 && strcmp(p->aFile[i-1].zName, zName)>=0 ){
           goto manifest_syntax_error;
         }
@@ -703,14 +709,24 @@ static void add_one_mlink(
   int mid,                  /* The record ID of the manifest */
   const char *zFromUuid,    /* UUID for the mlink.pid field */
   const char *zToUuid,      /* UUID for the mlink.fid field */
-  const char *zFilename     /* Filename */
+  const char *zFilename,    /* Filename */
+  const char *zPrior        /* Previous filename.  NULL if unchanged */
 ){
-  int fnid, pid, fid;
+  int fnid, pfnid, pid, fid;
 
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
   if( fnid==0 ){
     db_multi_exec("INSERT INTO filename(name) VALUES(%Q)", zFilename);
     fnid = db_last_insert_rowid();
+  }
+  if( zPrior==0 ){
+    pfnid = 0;
+  }else{
+    pfnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zPrior);
+    if( pfnid==0 ){
+      db_multi_exec("INSERT INTO filename(name) VALUES(%Q)", zPrior);
+      pfnid = db_last_insert_rowid();
+    }
   }
   if( zFromUuid==0 ){
     pid = 0;
@@ -723,8 +739,8 @@ static void add_one_mlink(
     fid = uuid_to_rid(zToUuid, 1);
   }
   db_multi_exec(
-    "INSERT INTO mlink(mid,pid,fid,fnid)"
-    "VALUES(%d,%d,%d,%d)", mid, pid, fid, fnid
+    "INSERT INTO mlink(mid,pid,fid,fnid,pfnid)"
+    "VALUES(%d,%d,%d,%d,%d)", mid, pid, fid, fnid, pfnid
   );
   if( pid && fid ){
     content_deltify(pid, fid, 0);
@@ -732,9 +748,37 @@ static void add_one_mlink(
 }
 
 /*
-** Add mlink table entries associated with manifest cid.
-** There is an mlink entry for every file that changed going
-** from pid to cid.
+** Locate a file named zName in the aFile[] array of the given
+** manifest.  We assume that filenames are in sorted order.
+** Use a binary search.  Return turn the index of the matching
+** entry.  Or return -1 if not found.
+*/
+static int find_file_in_manifest(Manifest *p, const char *zName){
+  int lwr, upr;
+  int c;
+  int i;
+  lwr = 0;
+  upr = p->nFile - 1;
+  while( lwr<=upr ){
+    i = (lwr+upr)/2;
+    c = strcmp(p->aFile[i].zName, zName);
+    if( c<0 ){
+      lwr = i+1;
+    }else if( c>0 ){
+      upr = i-1;
+    }else{
+      return i;
+    }
+  }
+  return -1;
+}
+
+/*
+** Add mlink table entries associated with manifest cid.  The
+** parent manifest is pid.
+**
+** A single mlink entry is added for every file that changed content
+** and/or name going from pid to cid.
 **
 ** Deleted files have mlink.fid=0.
 ** Added files have mlink.pid=0.
@@ -759,29 +803,60 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   if( blob_size(&otherContent)==0 ) return;
   if( manifest_parse(&other, &otherContent)==0 ) return;
   content_deltify(pid, cid, 0);
+
+  /* Use the iRename fields to find the cross-linkage between
+  ** renamed files.  */
+  for(j=0; j<pChild->nFile; j++){
+    const char *zPrior = pChild->aFile[j].zPrior;
+    if( zPrior && zPrior[0] ){
+      i = find_file_in_manifest(pParent, zPrior);
+      if( i>=0 ){
+        pChild->aFile[j].iRename = i;
+        pParent->aFile[i].iRename = j;
+      }
+    }
+  }
+
+  /* Construct the mlink entries */
   for(i=j=0; i<pParent->nFile && j<pChild->nFile; ){
-    int c = strcmp(pParent->aFile[i].zName, pChild->aFile[j].zName);
-    if( c<0 ){
-      add_one_mlink(cid, pParent->aFile[i].zUuid, 0, pParent->aFile[i].zName);
+    int c;
+    if( pParent->aFile[i].iRename>=0 ){
+      i++;
+    }else if( (c = strcmp(pParent->aFile[i].zName, pChild->aFile[j].zName))<0 ){
+      add_one_mlink(cid, pParent->aFile[i].zUuid,0,pParent->aFile[i].zName,0);
       i++;
     }else if( c>0 ){
-      add_one_mlink(cid, 0, pChild->aFile[j].zUuid, pChild->aFile[j].zName);
+      int rn = pChild->aFile[j].iRename;
+      if( rn>=0 ){
+        add_one_mlink(cid, pParent->aFile[rn].zUuid, pChild->aFile[j].zUuid, 
+                      pChild->aFile[j].zName, pParent->aFile[rn].zName);
+      }else{
+        add_one_mlink(cid, 0, pChild->aFile[j].zUuid, pChild->aFile[j].zName,0);
+      }
       j++;
     }else{
       if( strcmp(pParent->aFile[i].zUuid, pChild->aFile[j].zUuid)!=0 ){
-      add_one_mlink(cid, pParent->aFile[i].zUuid, pChild->aFile[j].zUuid, 
-                    pChild->aFile[j].zName);
+        add_one_mlink(cid, pParent->aFile[i].zUuid, pChild->aFile[j].zUuid, 
+                      pChild->aFile[j].zName, 0);
       }
       i++;
       j++;
     }
   }
   while( i<pParent->nFile ){
-    add_one_mlink(cid, pParent->aFile[i].zUuid, 0, pParent->aFile[i].zName);
+    if( pParent->aFile[i].iRename<0 ){
+      add_one_mlink(cid, pParent->aFile[i].zUuid, 0, pParent->aFile[i].zName,0);
+    }
     i++;
   }
   while( j<pChild->nFile ){
-    add_one_mlink(cid, 0, pChild->aFile[j].zUuid, pChild->aFile[j].zName);
+    int rn = pChild->aFile[j].iRename;
+    if( rn>=0 ){
+      add_one_mlink(cid, pParent->aFile[rn].zUuid, pChild->aFile[j].zUuid, 
+                    pChild->aFile[j].zName, pParent->aFile[rn].zName);
+    }else{
+      add_one_mlink(cid, 0, pChild->aFile[j].zUuid, pChild->aFile[j].zName,0);
+    }
     j++;
   }
   manifest_clear(&other);

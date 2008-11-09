@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Optional\sextra\sarguments\sto\sthe\s"user"\scommand\sallow\sone\sto\sspecify\sthe\nnew\spassword\sor\scontact\sinformation\son\sthe\scommand-line\swithout\swaiting\nfor\sa\sprompt.\s\sThis\smakes\sthe\s"user"\scommand\susable\sfrom\sshell-scripts.
-D 2008-11-09T19:30:31
+C Bug\sfix\sin\sthe\s"mv"\scommand.\s\sAdd\sfilename\schange\stracking\sto\sthe\s\ncheck-in\sinformation\sscreens.\s\s<b>You\smust\srun\s<i>rebuild</i>\son\nexisting\srespositories\swhen\supgrading\sto\sthis\sversion\sof\sfossil.</b>
+D 2008-11-09T22:43:04
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -37,7 +37,7 @@ F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c 905321226ff7d206be6c714acacfa852a41a9a0e
+F src/add.c 6a50b3b72ea874fe82a9d3779b0c3533a825c744
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -64,14 +64,14 @@ F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 3bd9bc50a5813c07c835cde1313b3dc60dfd4382
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c a90375841a30743d1c5fb1744580701aee12ed99
+F src/info.c 97b0bae4012f876c939ce21592b9945fc901251b
 F src/login.c e06e3ddfdaffb9ace808742e09fcaf0d676d448e
 F src/main.c 7ce5037b834f79954ba1972ea43fb221cb0326d5
 F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 04f9771b041dba1a1c29d225683bf701afc0a5ee
-F src/manifest.c 608b98745d528d9e8a047bc30106a3acf3e3c9f5
+F src/manifest.c 5a2927ef5ad2aaf6db92837d3048db2e7e7ff821
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -84,7 +84,7 @@ F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c 353a2ed8b8632c5b08f4b07bdcf096efa0b5fd5e
+F src/schema.c d2ac05bf98f11fe3d027b8434f5e5bd647485e34
 F src/setup.c 6880ca8defdab5a434f7285f44ac2d5017af330d
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c 5ce55378d67f55956debb8a9cad8df56186ec61a
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P e146d800ac37390cfec72c43ddbb88f583970c89
-R 757ae00631996eca6ada3853383be816
+P f6c0201af702efa125900c7da6c575ec5a73e6ed
+R 2d641bcffd814095d3b9c1d5be3b84d6
 U drh
-Z 9bd67f809daa609409dadf1cb6f36e36
+Z d8673a1be60ea193061f3b601ecaae2b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJFzpdoxKgR168RlERAlWQAJ9AN30an5nKZ850Ov8/v+9j1LMnLgCeIPpF
-ArLM/DrMsQ3aD3LSBSKTZrg=
-=wdd8
+iD8DBQFJF2d8oxKgR168RlERAr15AKCJ+r5huGgyfMBnOrfmu3Gq/3DJaACfTg8J
+Zw3LfY8TyiBgSPs0Gqd92N4=
+=F2wq
 -----END PGP SIGNATURE-----

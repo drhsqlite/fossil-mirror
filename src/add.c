@@ -196,6 +196,11 @@ void mv_cmd(void){
       "INSERT INTO mv VALUES(%B,%B)", &orig, &dest
     );
   }else{
+    if( blob_eq(&dest, ".") ){
+      blob_reset(&dest);
+    }else{
+      blob_append(&dest, "/", 1);
+    }
     for(i=2; i<g.argc-1; i++){
       Blob orig;
       char *zOrig;
@@ -220,7 +225,7 @@ void mv_cmd(void){
           zTail = &zPath[nOrig+1];
         }
         db_multi_exec(
-          "INSERT INTO mv VALUES('%s','%s/%s')",
+          "INSERT INTO mv VALUES('%s','%s%s')",
           zPath, blob_str(&dest), zTail
         );
       }

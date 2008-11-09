@@ -180,7 +180,8 @@ const char zRepositorySchema2[] =
 @   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
 @   pid INTEGER REFERENCES blob,        -- File ID in parent manifest
 @   fid INTEGER REFERENCES blob,        -- Changed file ID in this manifest
-@   fnid INTEGER REFERENCES filename    -- Name of the file
+@   fnid INTEGER REFERENCES filename,   -- Name of the file
+@   pfnid INTEGER REFERENCES filename   -- Previous name. 0 if unchanged
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);
