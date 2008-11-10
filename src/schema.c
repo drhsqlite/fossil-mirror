@@ -363,7 +363,7 @@ const char zLocalSchema[] =
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
 @   pathname TEXT,                    -- Full pathname relative to root
-@   origname TEXT                     -- Original pathname. NULL if unchanged
+@   origname TEXT,                    -- Original pathname. NULL if unchanged
 @   UNIQUE(pathname,vid)
 @ );
 @
