@@ -55,6 +55,11 @@ void shun_page(void){
   if( !g.okAdmin ){
     login_needed();
   }
+  if( P("rebuild") ){
+    db_begin_transaction();
+    rebuild_db(0,0);
+    db_end_transaction(0);
+  }
   if( zUuid ){
     nUuid = strlen(zUuid);
     if( nUuid!=40 || !validate16(zUuid, nUuid) ){
@@ -147,6 +152,17 @@ void shun_page(void){
   @ <input type="submit" name="sub" value="Accept">
   @ </form>
   @ </blockquote>
+  @
+  @ <p>Press the button below to rebuild the respository.  The rebuild
+  @ may take several seconds, so be patient after pressing the button.</p>
+  @
+  @ <blockquote>
+  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  login_insert_csrf_secret();
+  @ <input type="submit" name="rebuild" value="Rebuild">
+  @ </form>
+  @ </blockquote>
+  @  
   style_footer();
 }
 

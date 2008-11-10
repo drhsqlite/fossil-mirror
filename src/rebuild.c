@@ -287,3 +287,24 @@ void rebuild_database(void){
     db_end_transaction(0);
   }
 }
+
+/*
+** COMMAND:  test-detach
+**
+** Change the project-code and make other changes in order to prevent
+** the repository from ever again pushing or pulling to other
+** repositories.  Used to create a "test" repository for development
+** testing by cloning a working project repository.
+*/
+void test_detach_cmd(void){
+  db_find_and_open_repository(1);
+  db_begin_transaction();
+  db_multi_exec(
+    "DELETE FROM config WHERE name='last-sync-url';"
+    "UPDATE config SET value=lower(hex(randomblob(20)))"
+    " WHERE name='project-code';"
+    "UPDATE config SET value='detached-' || value"
+    " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
+  );
+  db_end_transaction(0);
+}

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tweaks\sto\sthe\sformatting\sof\sthe\s"stat"\swebpage.
-D 2008-11-09T22:59:18
+C Update\sto\sthe\slatest\sSQLite.\s\sAdd\sa\sRebuild\sbutton\son\sthe\sShun\swebpage.\nAdd\sthe\stest-detach\sCLI\smethod.
+D 2008-11-10T00:40:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -81,15 +81,15 @@ F src/name.c 040558eaa37918bc314befd66841bf667d6ca8bb
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c 0d4b32896720454e19bd7ad7babdf1fcd13c031f
+F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c d2ac05bf98f11fe3d027b8434f5e5bd647485e34
 F src/setup.c 6880ca8defdab5a434f7285f44ac2d5017af330d
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/shun.c 5ce55378d67f55956debb8a9cad8df56186ec61a
-F src/sqlite3.c 5248707330d6fcac6ef793ae7322df47819bb14b
-F src/sqlite3.h b814bc0c36e721e64c80ddd0d0e89ef2857c722d
+F src/shun.c f707294883077a4915a91289d25f43c54ff45966
+F src/sqlite3.c 3edcc9b8ccf62b49dd0910129a1cba3ea827761f
+F src/sqlite3.h a39c4b8a36526482b938f5543777910b00216880
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 41b3e7ff54fc592a4262b1cd409cfd408be59112
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
@@ -214,14 +214,14 @@ F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P ec53d7a73899c13a5b5da701b3252d7bc672f74b
-R fdb3851c6ead289c811fe0d2c1c7bfab
+P caa9544f93a8c3c3d62a981b731d2797292b3e94
+R 9ae7d9cfff834fa2896d7f14f3839df0
 U drh
-Z 471f2e001880702ef8e44dd2f864c550
+Z 585f302b528b208d8728363e827ddb3c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJF2tJoxKgR168RlERAsb9AJ9Bh6B28hBrPZp6DW09hV3me6fOngCeJEjT
-aSeul/4xXNGEcc7PhOr+vWo=
-=6n2n
+iD8DBQFJF4LuoxKgR168RlERAsneAJ42cwQjnDjh/ktoIoLhxFbUxK9fwQCfTy3n
+YUwtLDij2vflWkHyKm049no=
+=7jPb
 -----END PGP SIGNATURE-----

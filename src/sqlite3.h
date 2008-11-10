@@ -30,7 +30,7 @@
 ** the version number) and changes its name to "sqlite3.h" as
 ** part of the build process.
 **
-** @(#) $Id: sqlite.h.in,v 1.406 2008/10/30 15:03:16 drh Exp $
+** @(#) $Id: sqlite.h.in,v 1.409 2008/11/07 00:06:18 drh Exp $
 */
 #ifndef _SQLITE3_H_
 #define _SQLITE3_H_
@@ -682,6 +682,12 @@ struct sqlite3_file {
 ** way around.  The SQLITE_IOCAP_SEQUENTIAL property means that
 ** information is written to disk in the same order as calls
 ** to xWrite().
+**
+** If xRead() returns SQLITE_IOERR_SHORT_READ it must also fill
+** in the unread portions of the buffer with zeros.  A VFS that
+** fails to zero-fill short reads might seem to work.  However,
+** failure to zero-fill short reads will eventually lead to
+** database corruption.
 */
 typedef struct sqlite3_io_methods sqlite3_io_methods;
 struct sqlite3_io_methods {
@@ -2671,6 +2677,16 @@ int sqlite3_open_v2(
 ** The application does not need to worry about freeing the result.
 ** However, the error string might be overwritten or deallocated by
 ** subsequent calls to other SQLite interface functions.
+**
+** When the serialized [threading mode] is in use, it might be the
+** case that a second error occurs on a separate thread in between
+** the time of the first error and the call to these interfaces.
+** When that happens, the second error will be reported since these
+** interfaces always report the most recent result.  To avoid
+** this, each thread can obtain exclusive use of the [database connection] D
+** by invoking [sqlite3_mutex_enter]([sqlite3_db_mutex](D)) before beginning
+** to use D and invoking [sqlite3_mutex_leave]([sqlite3_db_mutex](D)) after
+** all calls to the interfaces listed here are completed.
 **
 ** If an interface fails with SQLITE_MISUSE, that means the interface
 ** was invoked incorrectly by the application.  In that case, the
@@ -6258,6 +6274,17 @@ int sqlite3_mutex_notheld(sqlite3_mutex*);
 #define SQLITE_MUTEX_STATIC_PRNG      5  /* sqlite3_random() */
 #define SQLITE_MUTEX_STATIC_LRU       6  /* lru page list */
 #define SQLITE_MUTEX_STATIC_LRU2      7  /* lru page list */
+
+/*
+** CAPI3REF: Retrieve the mutex for a database connection {H17002} <H17000>
+**
+** This interface returns a pointer the [sqlite3_mutex] object that 
+** serializes access to the [database connection] given in the argument
+** when the [threading mode] is Serialized.
+** If the [threading mode] is Single-thread or Multi-thread then this
+** routine returns a NULL pointer.
+*/
+sqlite3_mutex *sqlite3_db_mutex(sqlite3*);
 
 /*
 ** CAPI3REF: Low-Level Control Of Database Files {H11300} <S30800>
