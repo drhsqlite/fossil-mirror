@@ -706,7 +706,7 @@ void cmd_test_http(void){
 ** the web server.
 */
 void cmd_webserver(void){
-  int iPort;
+  int iPort, mxPort;
   const char *zPort;
   char *zBrowser;
   char *zBrowserCmd = 0;
@@ -723,9 +723,10 @@ void cmd_webserver(void){
     db_open_repository(g.argv[2]);
   }
   if( zPort ){
-    iPort = atoi(zPort);
+    iPort = mxPort = atoi(zPort);
   }else{
     iPort = db_get_int("http-port", 8080);
+    mxPort = iPort+100;
   }
 #ifndef __MINGW32__
   /* Unix implementation */
@@ -735,10 +736,10 @@ void cmd_webserver(void){
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
-    zBrowserCmd = mprintf("%s http://localhost:%d/ &", zBrowser, iPort);
+    zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
   }
   db_close();
-  if( cgi_http_server(iPort, zBrowserCmd) ){
+  if( cgi_http_server(iPort, mxPort, zBrowserCmd) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   g.httpIn = stdin;
@@ -758,9 +759,9 @@ void cmd_webserver(void){
   /* Win32 implementation */
   if( g.argv[1][0]=='u' ){
     zBrowser = db_get("web-browser", "start");
-    zBrowserCmd = mprintf("%s http://127.0.0.1:%d/", zBrowser, iPort);
+    zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close();
-  win32_http_server(iPort, zBrowserCmd);
+  win32_http_server(iPort, mxPort, zBrowserCmd);
 #endif
 }

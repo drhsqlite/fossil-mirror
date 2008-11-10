@@ -1184,9 +1184,9 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Return 0 to each child as it runs.  If unable to establish a
 ** listening socket, return non-zero.
 */
-int cgi_http_server(int iPort, char *zBrowser){
+int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
 #ifdef __MINGW32__
-  fprintf(stderr,"server not yet available in windows version of fossil\n");
+  /* Use win32_http_server() instead */
   exit(1);
 #else
   int listener;                /* The server socket */
@@ -1198,25 +1198,45 @@ int cgi_http_server(int iPort, char *zBrowser){
   struct timeval delay;        /* How long to wait inside select() */
   struct sockaddr_in inaddr;   /* The socket address */
   int opt = 1;                 /* setsockopt flag */
+  int iPort = mnPort;
 
-  memset(&inaddr, 0, sizeof(inaddr));
-  inaddr.sin_family = AF_INET;
-  inaddr.sin_addr.s_addr = INADDR_ANY;
-  inaddr.sin_port = htons(iPort);
-  listener = socket(AF_INET, SOCK_STREAM, 0);
-  if( listener<0 ){
-    return 1;
+  while( iPort<mxPort ){
+    memset(&inaddr, 0, sizeof(inaddr));
+    inaddr.sin_family = AF_INET;
+    inaddr.sin_addr.s_addr = INADDR_ANY;
+    inaddr.sin_port = htons(iPort);
+    listener = socket(AF_INET, SOCK_STREAM, 0);
+    if( listener<0 ){
+      iPort++;
+      continue;
+    }
+
+    /* if we can't terminate nicely, at least allow the socket to be reused */
+    setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+
+    if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
+      close(listener);
+      iPort++;
+      continue;
+    }
+    break;
   }
-
-  /* if we can't terminate nicely, at least allow the socket to be reused */
-  setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
-
-  if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
-    close(listener);
-    return 1;
+  if( iPort>mxPort ){
+    if( mnPort==mxPort ){
+      fossil_fatal("unable to open listening socket on ports %d", mnPort);
+    }else{
+      fossil_fatal("unable to open listening socket on any"
+                   " ports %d..%d", mnPort, mxPort);
+    }
   }
+  if( iPort>mxPort ) return 1;
   listen(listener,10);
+  if( iPort>mnPort ){
+    printf("Listening for HTTP requests on TCP port %d\n", iPort);
+    fflush(stdout);
+  }
   if( zBrowser ){
+    zBrowser = mprintf(zBrowser, iPort);
     system(zBrowser);
   }
   while( 1 ){

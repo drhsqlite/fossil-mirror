@@ -136,33 +136,48 @@ end_request:
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.
 */
-void win32_http_server(int iPort, char *zBrowser){
+void win32_http_server(int mnPort, int mxPort, char *zBrowser){
   WSADATA wd;
   SOCKET s;
   SOCKADDR_IN addr;
   int idCnt = 0;
+  int iPort = mnPort;
 
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
+  while( iPort<mxPort ){
+    s = socket(AF_INET, SOCK_STREAM, 0);
+    if( s==INVALID_SOCKET ){
+      fossil_fatal("unable to create a socket");
+    }
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(iPort);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if( bind(s, (struct sockaddr*)&addr, sizeof(addr))==SOCKET_ERROR ){
+      closesocket(s);
+      iPort++;
+      continue;
+    }
+    if( listen(s, SOMAXCONN)==SOCKET_ERROR ){
+      closesocket(s);
+      iPort++;
+      continue;
+    }
+    break;
+  }
+  if( iPort>mxPort ){
+    if( mnPort==mxPort ){
+      fossil_fatal("unable to open listening socket on ports %d", mnPort);
+    }else{
+      fossil_fatal("unable to open listening socket on any"
+                   " ports %d..%d", mnPort, mxPort);
+    }
+  }
   zTempPrefix = mprintf("fossil_server_P%d_", iPort);
-  s = socket(AF_INET, SOCK_STREAM, 0);
-  if( s==INVALID_SOCKET ){
-    fossil_fatal("unable to create a socket");
-  }
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(iPort);
-  addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  if( bind(s, (struct sockaddr*)&addr, sizeof(addr))==SOCKET_ERROR ){
-    closesocket(s);
-    fossil_fatal("unable to bind");
-  }
-  if( listen(s, SOMAXCONN)==SOCKET_ERROR ){
-    closesocket(s);
-    fossil_fatal("unable to listen");
-  }
   printf("Listening for HTTP requests on TCP port %d\n", iPort);
   if( zBrowser ){
+    zBrowser = mprintf(zBrowser, iPort);
     printf("Launch webbrowser: %s\n", zBrowser);
     system(zBrowser);
   }
