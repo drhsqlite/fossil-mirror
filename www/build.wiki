@@ -4,11 +4,11 @@
 <p>This page describes how to build and install Fossil.  The
 whole process is designed to be very easy.</p>
 
-<h2>0.0 Using A Precompiled Binary</h2>
+<h2>0.0 Using A Pre-compiled Binary</h2>
 
 <p>You can skip steps 1.0 and 2.0 below by downloading
-a <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
-appropriate for your platform.  If you use a precompiled binary
+a <a href="http://www.fossil-scm.org/download.html">pre-compiled binary</a>
+appropriate for your platform.  If you use a pre-compiled binary
 jump immediate to step 3.0.</p>
 
 <h2>1.0 Obtaining The Source Code</h2>

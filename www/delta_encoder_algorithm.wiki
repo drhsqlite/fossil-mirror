@@ -81,7 +81,7 @@ ignored.
 <li>The <a href="#rollhash">rolling hash</a> of each chunk is
 computed.
 </li>
-<li>A hashtable is filled, mapping from the hashes of the chunks to
+<li>A hash table is filled, mapping from the hashes of the chunks to
 the list of chunk locations having this hash.
 </li>
 </ol>
@@ -114,7 +114,7 @@ to <a href="delta_format.wiki#copyrange">copy a range</a>, or
 <p>To make this decision the encoder first computes the hash value for
 the NHASH bytes in the window and then looks at all the locations in
 the "origin" which have the same signature. This part uses the hash
-table created by the pre-processing step to effiently find these
+table created by the pre-processing step to efficiently find these
 locations.</p>
 
 <p>For each of the possible candidates the encoder finds the maximal

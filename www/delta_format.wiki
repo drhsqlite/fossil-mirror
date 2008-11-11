@@ -180,8 +180,8 @@ bluepeak:(761) ~/Projects/Tcl/Fossil/Devel/devel > diff -u ../DELTA/old ../DELTA
   *  Additional information displayed for the "vinfo" page:
  
       +  All leaves of this version that are not included in the
--        decendant list.  With date, user, comment, and hyperlink.
--        Leaves in the decendant table should be marked as such.
+-        descendant list.  With date, user, comment, and hyperlink.
+-        Leaves in the descendant table should be marked as such.
 +        descendant list.  With date, user, comment, and hyperlink.
 +        Leaves in the descendant table should be marked as such.
          See the compute_leaves() function to see how to find all

@@ -53,7 +53,7 @@ pull the documentation file from the local source tree on disk, not
 from the any versioned baseline.  The "<b>ckout</b>" keyword normally
 only works when you start your server using the "<b>fossil server</b>"
 or "<b>fossil ui</b>"
-command line and is intented to show what the documentation you are currently
+command line and is indented to show what the documentation you are currently
 editing looks like before you check it in.
 
 Finally, the <i>&lt;filename&gt;</i> element of the URL is the full

@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Add\smissing\scomma\sin\sCREATE\sTABLE\svfile\s...
-D 2008-11-10T19:54:53
+C doc\schanges\s--\sspelling\scorrections\sand\sembedded\sref\spages.
+D 2008-11-11T03:50:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -180,20 +177,22 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/bugtheory.wiki 74c6e6ad6e9de17aea46d3b3fe23b89217c5dea7
-F www/build.wiki 5ba110240ed19d8b2b44b12a1e9e65b5b01fd946
+F www/bugtheory.wiki 5344c6eedfb9f5a74a261d6ab7512dd77b8e991e
+F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
+F www/cmd_extra.wiki f5fbdc276ee75a142b76e2c20ee1ba0ced54019d
+F www/cmd_ls.wiki bef4c3f038076ff3179df57818bc25ba5c2dc406
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 63fffbe88353a4964a91339c7055ce0757aa056a
+F www/concepts.wiki 5c8eb11ca89f16708c4a74c65f5db8af22570cc4
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.wiki 132f9016a1aa8d144d2f1f8522ef838acc8d48d6
-F www/delta_format.wiki 15113b9293a8739fef1841e005347f1fdef2fc3e
-F www/embeddeddoc.wiki 6bdcd72fd65372774a682d39738ec4143c2bb8d9
+F www/delta_encoder_algorithm.wiki 4cdc9058d2a3b4d42d3d312adc355c597326400c
+F www/delta_format.wiki 4f786152399dc855fe8b32930fc3c2690465d3d3
+F www/embeddeddoc.wiki e767b80ae018454cc493d24c84537edab26fda0a
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -204,24 +203,18 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki 49c16eb396df1bc6ad8daeea68c57b4f24e28601
-F www/index.wiki 94d4379a8357846b45247c225759f0660c9958dc
+F www/fileformat.wiki d69c059dc89de73b1fb1c030870f94c7b03fff46
+F www/index.wiki ce68f6c37b55341e5a17db620c7f708d0345cddb
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
+F www/reference.wiki 1a26d9dbd204d5f9790059662a4fedf39cb770d1
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P d8ceb4ad476342bedd30559eb679a7118a8833a2
-R f6a3f2c6629bbeb435b98202de4543d8
-U eric
-Z 8ce7c382eaf8e29c23d6b94fc01c00a1
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFJGJGxu+lpsLhDMQkRAqnkAJ95oWNgApuyfYdkTkpK8I3OGEB6HQCgpgXH
-vzRhOAlpXO31x9qfh2soxUQ=
-=Q+dY
------END PGP SIGNATURE-----
+P c66ffba6da9ed22a0ca20ff57b677a8b84365b59
+R 804ed611df58a1c461259419ed210ae9
+U kejoki
+Z 3e947a3b288ebfc7edf11f185106a0c1

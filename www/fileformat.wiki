@@ -141,7 +141,7 @@ The format is:
 A manifest has zero or more F-cards.  Each F-card defines a file
 (other than the manifest itself) which is part of the baseline that
 the manifest defines.  There are two, three, or three arguments.
-The first argment
+The first argument
 is the pathname of the file in the baseline relative to the root
 of the project file hierarchy.  No ".." or "." directories are allowed
 within the filename.  Space characters are escaped as in C-card
@@ -205,7 +205,7 @@ check-in comment argument to the C-card.
 A manifest has an option Z-card as its last line.  The argument
 to the Z-card is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline 
-character that immediately preceeds the "Z".  The Z-card is just
+character that immediately precedes the "Z".  The Z-card is just
 a sanity check to prove that the manifest is well-formed and
 consistent.
 </p>
@@ -213,7 +213,7 @@ consistent.
 <h2>2.0 Clusters</h2>
 
 <p>
-A cluster is a artifact that declares the existance of other artifacts.
+A cluster is a artifact that declares the existence of other artifacts.
 Clusters are used during repository synchronization to help 
 reduce network traffic.  As such, clusters are an optimization and
 may be removed from a repository without loss or damage to the
@@ -230,7 +230,7 @@ and from the card-type character by a single space
 character.  There is no surplus white space between arguments
 and no leading or trailing whitespace except for the newline 
 character that acts as the card separator.
-All cards of a cluter occur in strict sorted lexicographical order.
+All cards of a cluster occur in strict sorted lexicographical order.
 No card may be duplicated.
 The cluster may not contain additional text or data beyond 
 what is described here.
@@ -296,8 +296,8 @@ first value is the tag name.  The first character of the tag
 is either "+", "-", or "*".  A "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
-and all direct decendants (but not branches) of the artifact down
-to but not including the first decendant that contains a 
+and all direct descendants (but not branches) of the artifact down
+to but not including the first descendant that contains a 
 more recent "-" tag with the same name.
 The optional third argument is the value of the tag.  A tag
 without a value is a boolean.</p>
@@ -364,7 +364,7 @@ the entire artifact.</p>
 Every ticket has a unique ID.  The ticket to which this change is applied
 is specified by the K card.  A ticket exists if it contains one or
 more changes.  The first "change" to a ticket is what brings the
-ticket into existance.</p>
+ticket into existence.</p>
 
 <p>
 J cards specify changes to the "value" of "fields" in the ticket.
@@ -373,7 +373,7 @@ field is set to an empty string.
 Each fossil server has a ticket configuration which specifies the fields its
 understands.  The ticket configuration is part of the local state for
 the repository and thus can vary from one repository to another.
-Hencd a J card might specify a <i>field</i> that do not exist in the 
+Hence a J card might specify a <i>field</i> that do not exist in the 
 local ticket configuration.  If a J card specifies a <i>field</i> that
 is not in the local configuration, then that J card
 is simply ignored.</p>

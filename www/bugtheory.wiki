@@ -81,7 +81,7 @@ artifact is off by months or years, it can seriously confuse the
 replay algorithm for determining the current ticket state.  There
 are techniques available to cause rogue artifacts to be ignored
 by fossil.  So if a ticket change artifact with a bad timestamp
-does get into a repository, it can be removed by an adminstrator.
+does get into a repository, it can be removed by an administrator.
 But the best approach is to take steps to insure that timestamps
 are approximately correct in the first place.
 
@@ -104,15 +104,15 @@ in the TICKET table, then that name/value pair is ignored.  Columns can
 be added or removed from the TICKET table at any time.  Whenever the
 TICKET table is modified, the replay algorithm automatically reruns
 to repopulate the table using the new column names.  Note that the TICKET
-table schema and content is part of the local state of a respository
+table schema and content is part of the local state of a repository
 and is not shared with other repositories during a sync, push, or pull.
 
 Each repository also defines scripts used to generate web pages for
 creating new tickets, viewing existing tickets, and modifying an
 existing ticket.  These scripts consist of HTML with an embedded
-scripts written an a TCL-like language called "TH1".  Every new fossil
+scripts written an a Tcl-like language called "TH1".  Every new fossil
 repository is created with default scripts.  There is currently no
-documentation on the TH1 langauage.  Administrators wishing to
+documentation on the TH1 language.  Administrators wishing to
 customize their ticket entry, viewing, and editing screens should
 modify the default scripts to suit their needs.  These screen generator
 scripts are part of the local state of a repository and are not shared
