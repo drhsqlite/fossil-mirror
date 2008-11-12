@@ -24,7 +24,7 @@ a shell script that only affects project files and leaves everything
 else alone.  ;)
 
 The <code>extra</code> command is almost, but not quite entirely, the exact
-opposite of the <a href="doc/tip/www/cmd_ls.wiki><code>ls</code></a> command.
+opposite of the <a href="cmd_ls.wiki><code>ls</code></a> command.
 
-See also: <a href="doc/tip/www/cmd_clean.wiki">fossil clean</a>, <a href="doc/tip/www/cmd_ls.wiki">fossil ls</a>, <a href="doc/tip/www/reference.wiki">
+See also: <a href="cmd_clean.wiki">fossil clean</a>, <a href="cmd_ls.wiki">fossil ls</a>, <a href="reference.wiki">
 Reference</a>

@@ -1,5 +1,5 @@
-C Change\sthe\sreference\sdocs\sto\sembedded\s(still\sneed\sto\sremove\swiki\nversions);\sadd\sthe\smv|rename\scommand.
-D 2008-11-12T03:46:34
+C Changed\sURLs\sfor\sembedded\sdocs,\schanged\scomment\sin\sadd.c:mv_cmd\sto\sread\s"does\snot\srename"\sinstead\sof\s"does\srename"
+D 2008-11-12T04:09:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -34,7 +34,7 @@ F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c 6a50b3b72ea874fe82a9d3779b0c3533a825c744
+F src/add.c b8ff9cb3e4b0c2003d8bef199766037ff317c120
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -179,8 +179,8 @@ F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/bugtheory.wiki 5344c6eedfb9f5a74a261d6ab7512dd77b8e991e
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
-F www/cmd_extra.wiki 1f2aed88d1b481c7fa8019c5cfd25a55b3407555
-F www/cmd_ls.wiki 54b8a61928bb31f1082d03d5935b229d495874ab
+F www/cmd_extra.wiki 064fbbac2ec4efa3d8300a75b42da20a8c11fdd1
+F www/cmd_ls.wiki e857a7c526a167f28826caaad842e7c2f65fd86e
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 5c8eb11ca89f16708c4a74c65f5db8af22570cc4
@@ -210,11 +210,11 @@ F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki 50d223cbbcfc5e431639e9623b2d0b7b54b90abc
+F www/reference.wiki d732d8e38a2e0b555420cbe8fe3410b96d2ede39
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 9eb6ea75c1aebbf2c25aaa5f58afac47d2a8b8df
-R d84a499e969ad4243576e76622a5904d
+P f15298fd4e3bc4404a2916867b601d7a72a7b995
+R b40fc665f68fc680f18bdc4ca3979547
 U kejoki
-Z 9835f8f5ee650692517a535f37f379c3
+Z 1f019222f1571b5c017ad1317c1c119e
