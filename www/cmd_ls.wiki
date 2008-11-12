@@ -47,4 +47,8 @@ opposite of the
   *  If you come from the <b>Windows</b> world, it will help to know that 'ls' is the usual <b>unix</b> command for listing a directory.
   *  There are more states for a file to be in than those listed, including MISSING, EDITED, RENAMED and a couple of others.
 
-See also: [fossil add], [fossil rm], [fossil extra], [fossil commit], <a href="doc/tip/www/concepts.wiki">Fossil concepts</a>, [Reference]
+See also: <a href="doc/tip/www/cmd_add.wiki">fossil add</a>, <a href="doc/tip/www/rm.wiki">
+fossil rm</a>, <a href="doc/tip/www/cmd_extra.wiki">fossil extra</a>, 
+<a href="doc/tip/www/cmd_commit.wiki">fossil commit</a>, 
+<a href="doc/tip/www/concepts.wiki">Fossil concepts</a>, 
+<a href="doc/tip/www/reference.wiki">Reference</a>

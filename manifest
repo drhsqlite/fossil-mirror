@@ -1,5 +1,5 @@
-C doc\schanges\s--\sspelling\scorrections\sand\sembedded\sref\spages.
-D 2008-11-11T03:50:39
+C Change\sthe\sreference\sdocs\sto\sembedded\s(still\sneed\sto\sremove\swiki\nversions);\sadd\sthe\smv|rename\scommand.
+D 2008-11-12T03:46:34
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -179,8 +179,8 @@ F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/bugtheory.wiki 5344c6eedfb9f5a74a261d6ab7512dd77b8e991e
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
-F www/cmd_extra.wiki f5fbdc276ee75a142b76e2c20ee1ba0ced54019d
-F www/cmd_ls.wiki bef4c3f038076ff3179df57818bc25ba5c2dc406
+F www/cmd_extra.wiki 1f2aed88d1b481c7fa8019c5cfd25a55b3407555
+F www/cmd_ls.wiki 54b8a61928bb31f1082d03d5935b229d495874ab
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 5c8eb11ca89f16708c4a74c65f5db8af22570cc4
@@ -210,11 +210,11 @@ F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki 1a26d9dbd204d5f9790059662a4fedf39cb770d1
+F www/reference.wiki 50d223cbbcfc5e431639e9623b2d0b7b54b90abc
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P c66ffba6da9ed22a0ca20ff57b677a8b84365b59
-R 804ed611df58a1c461259419ed210ae9
+P 9eb6ea75c1aebbf2c25aaa5f58afac47d2a8b8df
+R d84a499e969ad4243576e76622a5904d
 U kejoki
-Z 3e947a3b288ebfc7edf11f185106a0c1
+Z 9835f8f5ee650692517a535f37f379c3

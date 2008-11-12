@@ -14,16 +14,17 @@ tell you what will be removed if you <code>clean</code> the project.
 
 Suppose, for example, you have a "noodle.src" file as a scratch pad for source
 code, and you don't want to include your latest hare-brained ideas in the
-repository?  You don't <code>add</code> it to the repository, of course&#8212;though there are ways you might add it unintentionally.  If your
-project is big, and you want to find noodle.src, and anything else that isn't
-under source control within the project directories, then 
-<code>fossil&nbsp;extra</code> will give you a list.
+repository?  You don't <code>add</code> it to the repository, of course&#8212;though
+there are ways you might add it unintentionally.  If your project is big, and you want to
+find noodle.src, and anything else that isn't under source control within the project
+directories, then<code> fossil&nbsp;extra </code> will give you a list.
 
 If you don't think this is all that useful, then you've never had to write
 a shell script that only affects project files and leaves everything
 else alone.  ;)
 
 The <code>extra</code> command is almost, but not quite entirely, the exact
-opposite of the <a href="wiki?name=fossil+ls"><code>ls</code></a> command.
+opposite of the <a href="doc/tip/www/cmd_ls.wiki><code>ls</code></a> command.
 
-See also: [fossil clean], [fossil ls], [Reference]
+See also: <a href="doc/tip/www/cmd_clean.wiki">fossil clean</a>, <a href="doc/tip/www/cmd_ls.wiki">fossil ls</a>, <a href="doc/tip/www/reference.wiki">
+Reference</a>
