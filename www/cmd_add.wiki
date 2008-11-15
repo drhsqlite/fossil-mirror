@@ -1,0 +1,42 @@
+<h2>add</h2>
+
+The often used <code>add</code> command is how you tell <b>fossil</b> to
+include a (usually new) file in the repository.
+
+<b>fossil</b> is designed to manage artifacts whose role is being
+"source" for something, most probably software program code or other
+text.  One can imagine all kinds of ways to let fossil know just what
+constitutes a source; the simplest and most direct way it
+<i>actually</i> finds out is when you give it the
+<code> fossil add <i>file</i> </code> command.
+
+It's reasonable to think of
+the <a href="cmd_import.wiki"><code>import</code></a>
+and <a href="cmd_clone.wiki"><code>clone</code></a>
+commands as very high-powered versions of the <code>add</code>
+command that are combined with system level file movement and
+networking functions.  Not particularly accurate, but reasonable.
+
+Typing <code>fossil add myfile</code> causes fossil to put
+<i>myfile</i> into the repository at the next
+<code>commit</code>&#8212;provided you issue it from within the source
+tree, of course.
+
+Note that the repository is <u>not</u> changed by the <code>add</code>
+command, but by the <code>commit</code> command.  <code>add</code>
+<i>myfile</i> tells <b>fossil</b> to "mark" <i>myfile</i> as part of
+the repository.  Only commands which actually manipulate the content
+of the "source" artifacts can physically put the file into (or remove
+it from) the repository.
+
+Just to keep things confused, there are also commands that can
+manipulate the repository without affecting the checked-out sources
+(see <a href="cmd_pull.wiki">fossil pull</a>, for instance.)
+
+See also: <a href="cmd_rm.wiki">fossil rm</a>,
+<a href="cmd_import.wiki">fossil import</a>,
+<a href="cmd_clone.wiki">fossil clone</a>,
+<a href="cmd_commit.wiki">fossil commit</a>,
+<a href="cmd_pull.wiki">fossil pull</a>,
+<a href="cmd_settings.wiki">fossil setting</a> (async),
+<a href="reference.wiki">Reference</a>

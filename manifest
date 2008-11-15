@@ -1,5 +1,5 @@
-C Changed\sURLs\sfor\sembedded\sdocs,\schanged\scomment\sin\sadd.c:mv_cmd\sto\sread\s"does\snot\srename"\sinstead\sof\s"does\srename"
-D 2008-11-12T04:09:42
+C Updated\sthe\smain\spage,\sadded\sadd...
+D 2008-11-15T04:08:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -179,6 +179,8 @@ F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/bugtheory.wiki 5344c6eedfb9f5a74a261d6ab7512dd77b8e991e
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
+F www/cmd_.wiki-template 575b5c55cd38a4258e307586fb9415cafe88b658
+F www/cmd_add.wiki 90059388b2ab852657b079c24331503820b8877a
 F www/cmd_extra.wiki 064fbbac2ec4efa3d8300a75b42da20a8c11fdd1
 F www/cmd_ls.wiki e857a7c526a167f28826caaad842e7c2f65fd86e
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
@@ -204,17 +206,17 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki d69c059dc89de73b1fb1c030870f94c7b03fff46
-F www/index.wiki ce68f6c37b55341e5a17db620c7f708d0345cddb
+F www/index.wiki 752815768977c3449c5a70bea110f3614bab188b
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki d732d8e38a2e0b555420cbe8fe3410b96d2ede39
+F www/reference.wiki de3ee24beacf14a576d432bb879f8ba245c137b7
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P f15298fd4e3bc4404a2916867b601d7a72a7b995
-R b40fc665f68fc680f18bdc4ca3979547
+P 67f44bb301f598566551683bdeb1b9ac6f208613
+R e245eb454cfec021c4ebd008e3e2886a
 U kejoki
-Z 1f019222f1571b5c017ad1317c1c119e
+Z 524a232e02f2219c2b1ed3024e629cc6

@@ -72,6 +72,8 @@ helps insure project integrity.</li>
     <a href="http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users">
     mailing list</a> available for discussing fossil issues.</li>
 <li><a href="qandc.wiki">Questions &amp; Criticisms</a> directed at fossil.</li>
+<li>Some (unfinished but expanding) extended
+    <a href="reference.wiki">reference documentation</a> for the fossil command line.
 </ul>
 
 <p>Developer Links: </p>
