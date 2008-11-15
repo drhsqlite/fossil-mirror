@@ -133,7 +133,7 @@ void wiki_page(void){
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
         @ <li> <a href="%s(g.zBaseURL)/wiki?name=%s(zHomePageName)">
-        @      %s(zHomePageName)</a> wiki page.</li>
+        @      %s(zHomePageName)</a> wiki home page.</li>
       }
     }
     @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki

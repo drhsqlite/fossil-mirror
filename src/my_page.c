@@ -109,7 +109,7 @@ static void mypage_page_default()
   @ <ul>
   @ <li><a href='%s(g.zBaseURL)/timeline?u=%s(uname)&y=ci'>Your latest commits</a>.</li>
   @ <li><a href='%s(g.zBaseURL)/timeline?u=%s(uname)&y=w'>Your latest wiki changes</a>.</li>
-  @ <li>TODO: your tickets</li>
+  @ <li><a href='%s(g.zBaseURL)/timeline?u=%s(uname)&y=t'>Your latest ticket changes</a>.</li>
   @ <li>TODO: etc. etc. etc.</li>
   @ </ul>
   mypage_password_changer();

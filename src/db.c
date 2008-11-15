@@ -1218,7 +1218,7 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: open FILENAME
+** Usage: %fossil open FILENAME
 **
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.

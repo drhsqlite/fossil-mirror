@@ -433,7 +433,7 @@ void cmd_test_cmd_list(void){
 /*
 ** COMMAND: version
 **
-** Usage:  %fossil version
+** Usage: %fossil version
 **
 ** Print the source code version number for the fossil executable.
 */
