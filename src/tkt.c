@@ -327,7 +327,7 @@ void tktview_page(void){
   const char *zScript;
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
-  if( g.okWrTkt ){
+  if( g.okWrTkt || g.okApndTkt ){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
   }

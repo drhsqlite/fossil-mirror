@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Miscellaneous\scosmetic\schanges
-D 2008-11-15T14:18:09
+C Enable\sthe\s"Edit"\ssubmenu\slink\son\sthe\sTicket\sView\spage\swhen\sthe\suser\nhas\sticket\sappend\sprivilege.\s\sFix\sfor\spart\sof\sticket\s[7b9be0b127].
+D 2008-11-15T21:17:31
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -100,7 +100,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
 F src/timeline.c 16b352a347ebdf09a80ad19dcfe2661d378b138e
-F src/tkt.c d23217d9bb4153367c721faed9083e2d9cbe1942
+F src/tkt.c 06fa0eeb8481f129e5c641b4e98398aae2660c4b
 F src/tktsetup.c 866d7baa7c7747b62604dcf45594875a16e5bf95
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -219,14 +219,14 @@ F www/reference.wiki de3ee24beacf14a576d432bb879f8ba245c137b7
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 9436bb75c3c61d2a36fe82d188278aa8c630ecb0
-R 3d2804b731d4b7f8391c92dd736aa543
-U eric
-Z c39695f224d1de183ade8e6d08e76f10
+P 9de6abab2aab2631afe39af3b84a9e302700e1c1
+R 2f2914d123f1b25a7a7eeb565bf1a424
+U drh
+Z 63eaaf71fb7f229560c479e0c116e48a
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.8 (Darwin)
 
-iD8DBQFJHtpLu+lpsLhDMQkRAuDhAJ4gW8kEp4cfXsjo8lwXFjD2Vs3yxACgz6h9
-1ARYlwIgGdadqmVFH9vehZA=
-=v1hy
+iEYEARECAAYFAkkfPGsACgkQoxKgR168RlFUwwCfcvYEUw20ff5z6GNKOFbVXdkK
+oGIAn13+2qoN7jCPUyVBDlxXgKI3imEs
+=b89C
 -----END PGP SIGNATURE-----
