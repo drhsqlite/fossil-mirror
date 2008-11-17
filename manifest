@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\sobject\sdescription\son\san\sartifact\sdisplay.
-D 2008-11-17T19:17:21
+C Setting\sthe\s"pgp-clearsign"\scommand\sto\s"off"\sdisables\sclearsigning.
+D 2008-11-17T19:21:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -47,7 +47,7 @@ F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 40d3404d8cdb09cf8c1f4c440ee7a69984d80c57
 F src/checkin.c 0b6152b93ce8f880f34a10b18d14d5161e73601b
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
-F src/clearsign.c 3868e827c126da73161bc47a499baf86a08d5dd4
+F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c 58d2271cc81c238e3cad8fe1f351f3d4e0367a3a
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
@@ -220,14 +220,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 7303bfeb129c55fe9ad55a48050f6b4c7bd8ab9f
-R 228337b6f08d0c8a4552f639fb6b0a46
+P 5452b32a9fcb23cfbcce5ad667088e6e50f7cb60
+R d60db99bd09131f04acd110a4abc35d2
 U drh
-Z 84114eec60d226b9e85071ac92af3126
+Z 2fa320d3f58ec142d0fe8f7cef48ab6b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJIcNEoxKgR168RlERAoUqAJ4+lUrDRHrJ2Gs8AO7XAsGSs7IfZQCfUKDx
-pbp+3STdZwCsUp3Iln82md4=
-=nHMx
+iD8DBQFJIcQqoxKgR168RlERAktKAKCCzkYsWU/rOqTjDMjuXMREWr21kQCffdFx
+gtny2ez8dCb5PRG40IY++Zg=
+=r3Eh
 -----END PGP SIGNATURE-----

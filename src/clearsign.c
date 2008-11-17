@@ -39,6 +39,9 @@ int clearsign(Blob *pIn, Blob *pOut){
   char *zBase = db_get("pgp-command", "gpg --clearsign -o ");
   char *zCmd;
   int rc;
+  if( is_false(zBase) ){
+    return 0;
+  }
   zRand = db_text(0, "SELECT hex(randomblob(10))");
   zOut = mprintf("out-%s", zRand);
   zIn = mprintf("in-%z", zRand);
