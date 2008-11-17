@@ -8,23 +8,31 @@ the repository.
 
 The <code>fossil extra</code> command will get you a list of these files.
 
-This is convenient for figuring out if you've <code>add</code>ed every file
-that needs to be in the repository before you do a commit.  It will also
-tell you what will be removed if you <code>clean</code> the project.
+This is convenient for figuring out if you've <code>
+<a href="cmd_add.wiki">add</a></code>ed every file that needs to be
 
-Suppose, for example, you have a "noodle.src" file as a scratch pad for source
-code, and you don't want to include your latest hare-brained ideas in the
-repository?  You don't <code>add</code> it to the repository, of course&#8212;though
-there are ways you might add it unintentionally.  If your project is big, and you want to
-find noodle.src, and anything else that isn't under source control within the project
-directories, then<code> fossil&nbsp;extra </code> will give you a list.
+in the repository before you do a commit.  It will also tell you what
+will be removed if you <code><a href="cmd_clean.wiki">clean</a></code>
+the project.
+
+Suppose, for example, you have a "noodle.src" file as a scratch pad
+for source code, and you don't want to include your latest
+hare-brained ideas in the repository?  You don't <code>add</code> it
+to the repository, of course&#8212;though there are ways you might add
+it unintentionally.  If your project is big, and you want to find
+noodle.src, and anything else that isn't under source control within
+the project directories, then<code> fossil&nbsp;extra </code> will
+give you a list.
 
 If you don't think this is all that useful, then you've never had to write
 a shell script that only affects project files and leaves everything
 else alone.  ;)
 
 The <code>extra</code> command is almost, but not quite entirely, the exact
-opposite of the <a href="cmd_ls.wiki><code>ls</code></a> command.
+opposite of the <code><a href="cmd_ls.wiki">ls</a></code> command.
 
-See also: <a href="cmd_clean.wiki">fossil clean</a>, <a href="cmd_ls.wiki">fossil ls</a>, <a href="reference.wiki">
-Reference</a>
+See also: <a href="cmd_status.wiki">fossil status</a>,
+<a href="cmd_ls.wiki">fossil ls</a>,
+<a href="cmd_changes.wiki">fossil changes</a>,
+<a href="cmd_clean.wiki">fossil clean</a>,
+<a href="reference.wiki">Reference</a>
