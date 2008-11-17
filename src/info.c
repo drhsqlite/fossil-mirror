@@ -715,12 +715,16 @@ static void object_description(
     const char *zCom = db_column_text(&q, 3);
     const char *zUser = db_column_text(&q, 4);
     const char *zVers = db_column_text(&q, 5);
-    @ File <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+    if( cnt>0 ){
+      @ Also file
+    }else{
+      @ File
+    }
+    @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
     @ uuid %s(zFuuid) part of check-in
     hyperlink_to_uuid(zVers);
-    @ %w(zCom) by %h(zUser) on %s(zDate)
+    @ %w(zCom) by %h(zUser) on %s(zDate).
     cnt++;
-    break;
   }
   db_finalize(&q);
   db_prepare(&q, 
@@ -739,9 +743,13 @@ static void object_description(
     const char *zDate = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
-    @ Wiki page
+    if( cnt>0 ){
+      @ Also wiki page
+    }else{
+      @ Wiki page
+    }
     @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
-    @ uuid %s(zUuid) by %h(zUser) on %s(zDate)
+    @ uuid %s(zUuid) by %h(zUser) on %s(zDate).
     nWiki++;
     cnt++;
   }
@@ -760,6 +768,9 @@ static void object_description(
       const char *zUser = db_column_text(&q, 1);
       const char *zCom = db_column_text(&q, 2);
       const char *zType = db_column_text(&q, 4);
+      if( cnt>0 ){
+        @ Also
+      }
       if( zType[0]=='w' ){
         @ Wiki edit
       }else if( zType[0]=='t' ){
@@ -770,7 +781,7 @@ static void object_description(
         @ Control file referencing
       }
       hyperlink_to_uuid(zUuid);
-      @ %w(zCom) by %h(zUser) on %s(zDate)
+      @ %w(zCom) by %h(zUser) on %s(zDate).
       cnt++;
     }
     db_finalize(&q);
