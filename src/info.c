@@ -688,10 +688,14 @@ void vdiff_page(void){
 **     * date of check-in
 **     * Comment & user
 */
-static void object_description(int rid, int linkToView){
+static const char *object_description(
+  int rid,                 /* The artifact ID */
+  int linkToView           /* Add viewer link if true */
+){
   Stmt q;
   int cnt = 0;
   int nWiki = 0;
+  const char *zMime = 0;
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime), substr(a.uuid,1,10),"
     "       coalesce(event.ecomment,event.comment),"
@@ -716,6 +720,7 @@ static void object_description(int rid, int linkToView){
     @ uuid %s(zFuuid) part of check-in
     hyperlink_to_uuid(zVers);
     @ %w(zCom) by %h(zUser) on %s(zDate)
+    zMime = mimetype_from_name(zName);
     cnt++;
   }
   db_finalize(&q);
@@ -740,6 +745,7 @@ static void object_description(int rid, int linkToView){
     @ uuid %s(zUuid) by %h(zUser) on %s(zDate)
     nWiki++;
     cnt++;
+    zMime = 0;
   }
   db_finalize(&q);
   if( nWiki==0 ){
@@ -777,6 +783,7 @@ static void object_description(int rid, int linkToView){
   }else if( linkToView ){
     @ <a href="%s(g.zBaseURL)/artifact/%d(rid)">[view]</a>
   }
+  return zMime;
 }
 
 /*
@@ -816,6 +823,28 @@ void diff_page(void){
 }
 
 /*
+** WEBPAGE: raw
+** URL: /raw?name=ARTIFACTID&m=TYPE
+** 
+** Return the uninterpreted content of an artifact.  Used primarily
+** to view artifacts that are images.
+*/
+void rawartifact_page(void){
+  int rid;
+  const char *zMime;
+  Blob content;
+
+  rid = name_to_rid(PD("name","0"));
+  zMime = PD("m","application/x-fossil-artifact");
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+  if( rid==0 ){ cgi_redirect("/home"); }
+  content_get(rid, &content);
+  cgi_set_content_type(zMime);
+  cgi_set_content(&content);
+}
+
+/*
 ** WEBPAGE: artifact
 ** URL: /artifact?name=ARTIFACTID
 ** 
@@ -825,6 +854,7 @@ void diff_page(void){
 void artifact_page(void){
   int rid;
   Blob content;
+  const char *zMime;
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
@@ -843,14 +873,18 @@ void artifact_page(void){
   style_header("Artifact Content");
   @ <h2>Content Of:</h2>
   @ <blockquote>
-  object_description(rid, 0);
+  zMime = object_description(rid, 0);
   @ </blockquote>
   @ <hr>
-  @ <blockquote><pre>
-  content_get(rid, &content);
-  @ %h(blob_str(&content))
-  @ </pre></blockquote>
-  blob_reset(&content);
+  if( zMime && strncmp(zMime, "image/", 6)==0 ){
+    @ <img src="%s(g.zBaseURL)/raw?name=%d(rid)&m=%s(zMime)"></img>
+  }else{
+    @ <blockquote><pre>
+    content_get(rid, &content);
+    @ %h(blob_str(&content))
+    @ </pre></blockquote>
+    blob_reset(&content);
+  }
   style_footer();
 }
 

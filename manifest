@@ -1,5 +1,8 @@
-C reference\sdocs\s--\sadded\s'all',\sminor\sedits\sto\sothers.
-D 2008-11-17T02:07:14
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C The\s"artifact"\swebpage\sshows\simages\sas\simages,\srather\sthan\strying\sto\nrender\stheir\sbinary\scontent\sas\stext.
+D 2008-11-17T17:14:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -61,7 +64,7 @@ F src/doc.c 2b833a11d76a90bdd8111312a6c845ec724e5d1e
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 3bd9bc50a5813c07c835cde1313b3dc60dfd4382
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
-F src/info.c 97b0bae4012f876c939ce21592b9945fc901251b
+F src/info.c 17472b8889e69547d033b93c1c83f4b346172f04
 F src/login.c e06e3ddfdaffb9ace808742e09fcaf0d676d448e
 F src/main.c ce8e26c45d963c4a4bfde3f5429daac16aaf2c36
 F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
@@ -217,7 +220,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P ed5179db1fb92ca486587210043844e1cef7922e
-R f61a0a803957c80d66d28f7248ae1a5e
-U kejoki
-Z 14ffd39a565443ad12b01a2d4140f04b
+P 44b3fc6b5b35597a9461359a1a369386d9ce2320
+R 2b9eeb81752b352dd937cb830b2023e0
+U drh
+Z 86a0db543a60312c670bd1765ff69c7f
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFJIaaAoxKgR168RlERApC8AKCKE7wA20AsLG+ho3i3MfjbxCx9XACfaYU1
+Hd7g4atQlKJ4CMlytsV3vvQ=
+=WgwG
+-----END PGP SIGNATURE-----
