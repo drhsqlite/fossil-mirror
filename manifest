@@ -1,5 +1,8 @@
-C reference\sdocs\s--\sadded\s'all',\sminor\sedits\sto\sothers.
-D 2008-11-17T02:07:14
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Initial\sdoc\sfor\supdate.
+D 2008-11-17T17:11:29
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -184,6 +187,7 @@ F www/cmd_add.wiki 90059388b2ab852657b079c24331503820b8877a
 F www/cmd_all.wiki 7f2e0211184c9d78e65f6c51b2472b601edc6d7d
 F www/cmd_extra.wiki 2878d797602d9dfa271f31015fcf428f10c509b6
 F www/cmd_ls.wiki e857a7c526a167f28826caaad842e7c2f65fd86e
+F www/cmd_update.wiki dcedcc0debc79fe803c03b822de68cd7aee8932e
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 5c8eb11ca89f16708c4a74c65f5db8af22570cc4
@@ -217,7 +221,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P ed5179db1fb92ca486587210043844e1cef7922e
-R f61a0a803957c80d66d28f7248ae1a5e
+P 44b3fc6b5b35597a9461359a1a369386d9ce2320
+R 1c9508dbda6c6e83a4b89d0c06a6881e
 U kejoki
-Z 14ffd39a565443ad12b01a2d4140f04b
+Z 497bcd1fd222cfe7139fed83dc50756f
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFJIaXK6EFGj+X1mh4RAsZvAKDKEBBfjasGMqyWe+hG+qkctZUkMgCeMn7g
+b+GmJ7aiy8igSAWkWou/nz4=
+=UJrA
+-----END PGP SIGNATURE-----
