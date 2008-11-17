@@ -29,6 +29,58 @@
 #include <assert.h>
 
 /*
+** Try to guess the mimetype from content.
+**
+** If the content is pure text, return NULL.
+**
+** For image types, attempt to return an appropriate mimetype
+** name like "image/gif" or "image/jpeg".  
+**
+** For any other binary type, return "unknown/unknown".
+*/
+const char *mimetype_from_content(Blob *pBlob){
+  int i;
+  int n;
+  const unsigned char *x;
+
+  static const char isBinary[] = {
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 1,  0, 0, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 1, 0,  1, 1, 1, 1,
+  };
+
+  /* A table of mimetypes based on file content prefixes
+  */
+  static const struct {
+    const char *zPrefix;       /* The file prefix */
+    int size;                  /* Length of the prefix */
+    const char *zMimetype;     /* The corresponding mimetype */
+  } aMime[] = {
+    { "GIF87a",                  6, "image/gif"  },
+    { "GIF89a",                  6, "image/gif"  },
+    { "\211PNG\r\n\032\r",       8, "image/png"  },
+    { "\377\332\377",            3, "image/jpeg" },
+  };
+
+  x = (const unsigned char*)blob_buffer(pBlob);
+  n = blob_size(pBlob);
+  for(i=0; i<n; i++){
+    unsigned char c = x[i];
+    if( c<=0x1f && isBinary[c] ){
+      break;
+    }
+  }
+  if( i>=n ){
+    return 0;   /* Plain text */
+  }
+  for(i=0; i<sizeof(aMime)/sizeof(aMime[0]); i++){
+    if( n>=aMime[i].size && memcmp(x, aMime[i].zPrefix, aMime[i].size)==0 ){
+      return aMime[i].zMimetype;
+    }
+  }
+  return "unknown/unknown";
+}
+
+/*
 ** Guess the mime-type of a document based on its name.
 */
 const char *mimetype_from_name(const char *zName){
