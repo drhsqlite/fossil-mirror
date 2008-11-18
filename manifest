@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Setting\sthe\s"pgp-clearsign"\scommand\sto\s"off"\sdisables\sclearsigning.
-D 2008-11-17T19:21:09
+C Omit\sthe\sContent-Length\sheader\sline\sfrom\sthe\sCGI\sresponse\sunder\swindows\nbecause\ssubsequent\s\\n\sto\s\\r\\n\stranslations\sby\sApache\swill\schange\sthe\ncontent\slength.\s\sBut\skeep\sthe\sContent-Length\sheader\sline\sfor\sthe\nbuilt-in\sservers\sand\sunder\sunix.\s\sTicket\s[c62fac40af0].
+D 2008-11-18T02:21:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -44,7 +44,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c 40d3404d8cdb09cf8c1f4c440ee7a69984d80c57
+F src/cgi.c e524bac0094300ef99c47324442ec6dc0d579c5b
 F src/checkin.c 0b6152b93ce8f880f34a10b18d14d5161e73601b
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
@@ -220,14 +220,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 5452b32a9fcb23cfbcce5ad667088e6e50f7cb60
-R d60db99bd09131f04acd110a4abc35d2
+P 86cee3d082af0a19a48c1bc5412d672ba20791ef
+R c431eeae570d74007727edd036b8fa47
 U drh
-Z 2fa320d3f58ec142d0fe8f7cef48ab6b
+Z a76d6619df2127c5c6f5f4570fc01346
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJIcQqoxKgR168RlERAktKAKCCzkYsWU/rOqTjDMjuXMREWr21kQCffdFx
-gtny2ez8dCb5PRG40IY++Zg=
-=r3Eh
+iD8DBQFJIiaPoxKgR168RlERAsaXAKCKJHuPb5I3Yybkz0pK15FVrqxDnwCfTX6F
+IvGOOJb9W2Oo6P+uNZiKb1I=
+=dA5w
 -----END PGP SIGNATURE-----
