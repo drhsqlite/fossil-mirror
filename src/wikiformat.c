@@ -941,6 +941,12 @@ static void openHyperlink(
     }else{
       zTerm = "";
     }
+  }else if( zTarget[0]=='.' ){
+    if( g.okHistory ){
+      blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
+    }else{
+      zTerm = "";
+    }
   }else if( is_valid_uuid(zTarget) ){
     int isClosed;
     if( is_ticket(zTarget, &isClosed) ){

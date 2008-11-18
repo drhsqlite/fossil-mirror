@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Show\sthe\s"Files"\smenu\soption\son\sthe\s"home"\spage\swhen\sthe\s"h"\sprivilege\nis\senabled.
-D 2008-11-18T12:19:55
+C In\swiki,\shyperlinks\sor\sthe\sform\s<nowiki>[./filename]</wiki>\s(hyperlinks\nthat\sbegin\swith\scharacter\s".")\swork\scorrectly.\s\sNeed\sto\sadd\smore\sdocs\non\show\sthe\s<nowiki>[...]</nowiki>\swiki\smarkup\sreally\sworks.
+D 2008-11-18T15:33:25
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -110,7 +110,7 @@ F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 8673214ab7da9589b9dcada352c5072cf888d29e
-F src/wikiformat.c ad6f4b4c3143980066b3b683cfba98d6f49be0be
+F src/wikiformat.c 51759e15ab984c8ce6d1bf7801454e2919abdfc9
 F src/winhttp.c dafbf1595e2c439780e025554b47cfabda54ba11
 F src/xfer.c 7e978b3ecc08102ce9378c6b9fe45c872b5b1903
 F src/zip.c df3f3d2e3919faa5e5fcf62e99de9534d19f1d07
@@ -220,14 +220,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P f6a071cef15eef95fb2d8a896989a39ec46d8024
-R 9168f8372b914badc5ea471064be59f3
+P bdde7ddcc8ad6d7b576a7e3d891a35de4fe98de1
+R f3f2bd70d47bcb981189477a77c1ce1f
 U drh
-Z d35247e2a7a5a4747bd7804a5c9b10b6
+Z a90b4f3e37a026b5842b214600b25000
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJIrLuoxKgR168RlERAsapAJ9CtKJKYtaxneNmyUSo9K0DV7nY3ACfZZZf
-Bnrkcx0zTbP5lKWpXEqP2iM=
-=o7IC
+iD8DBQFJIuBJoxKgR168RlERArgwAJoDJBJRwzUOD37PPupcbUA2B+GaiwCeJQk4
+alLL2rSMbXKHn0kY+ycQ0X4=
+=oq8G
 -----END PGP SIGNATURE-----
