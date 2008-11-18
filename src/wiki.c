@@ -85,9 +85,7 @@ void home_page(void){
     g.zExtra = zPageName;
     cgi_set_parameter_nocopy("name", g.zExtra);
     g.okRdWiki = 1;
-    g.okApndWiki = 0;
-    g.okWrWiki = 0;
-    g.okHistory = 0;
+    g.argv[1] = "home";
     wiki_page();
     return;
   }
@@ -123,6 +121,7 @@ void wiki_page(void){
   const char *zPageName;
   char *zHtmlPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
+  int isHome = g.argv[1][0]=='h';
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
@@ -171,17 +170,19 @@ void wiki_page(void){
       }
     }
   }
-  if( isSandbox || (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
-    style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
-         g.zTop, zPageName);
-  }
-  if( isSandbox || (rid && g.okApndWiki) ){
-    style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
-         g.zTop, zPageName);
-  }
-  if( !isSandbox && g.okHistory ){
-    style_submenu_element("History", "History", "%s/whistory?name=%T",
-         g.zTop, zPageName);
+  if( !isHome ){
+    if( isSandbox || (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+      style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
+           g.zTop, zPageName);
+    }
+    if( isSandbox || (rid && g.okApndWiki) ){
+      style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
+           g.zTop, zPageName);
+    }
+    if( !isSandbox && g.okHistory ){
+      style_submenu_element("History", "History", "%s/whistory?name=%T",
+           g.zTop, zPageName);
+    }
   }
   zHtmlPageName = mprintf("%h", zPageName);
   style_header(zHtmlPageName);
