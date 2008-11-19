@@ -146,7 +146,7 @@ void win32_http_server(int mnPort, int mxPort, char *zBrowser){
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
-  while( iPort<mxPort ){
+  while( iPort<=mxPort ){
     s = socket(AF_INET, SOCK_STREAM, 0);
     if( s==INVALID_SOCKET ){
       fossil_fatal("unable to create a socket");
@@ -171,7 +171,7 @@ void win32_http_server(int mnPort, int mxPort, char *zBrowser){
       fossil_fatal("unable to open listening socket on ports %d", mnPort);
     }else{
       fossil_fatal("unable to open listening socket on any"
-                   " ports %d..%d", mnPort, mxPort);
+                   " port in the range %d..%d", mnPort, mxPort);
     }
   }
   zTempPrefix = mprintf("fossil_server_P%d_", iPort);

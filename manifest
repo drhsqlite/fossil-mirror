@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\scluster\screater.\s\sThe\sbug\sprevents\sclusters\sfrom\sbeing\ncreated\scorrectly\swhen\sthere\sare\sphantom\sartifacts.
-D 2008-11-19T22:44:23
+C Make\ssure\sthe\ssocket\sof\sthe\s"ui"\sand\s"server"\scommands\sis\sbound\sto\sthe\nspecified\sport\swhen\sthe\s-P\sor\s--port\soption\sis\sused.\nTicket\s[7ef970e4a2]
+D 2008-11-19T23:33:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -44,7 +44,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c e524bac0094300ef99c47324442ec6dc0d579c5b
+F src/cgi.c ab524199ae1e0596a542a260d2e93056c15cdaf7
 F src/checkin.c 0b6152b93ce8f880f34a10b18d14d5161e73601b
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
@@ -111,7 +111,7 @@ F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 8673214ab7da9589b9dcada352c5072cf888d29e
 F src/wikiformat.c 51759e15ab984c8ce6d1bf7801454e2919abdfc9
-F src/winhttp.c dafbf1595e2c439780e025554b47cfabda54ba11
+F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
 F src/xfer.c 9bceefbd60db271feb049b2747e532249b771b29
 F src/zip.c df3f3d2e3919faa5e5fcf62e99de9534d19f1d07
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
@@ -221,14 +221,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P d14adf1032924428f6eda72570fa81b68fe69621
-R f65802c34a598640b747c184479c7929
+P 72959c415eded017568be2cd0dced392dc23e1df
+R 892368c03fdc26922a26b71f83b38890
 U drh
-Z 0ddcd515655524a28a1ca7d1683d6213
+Z 5ee313f5782284b4feda49e243dece10
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJJJbKoxKgR168RlERAoYzAJ9NeecNuTTIzQ1ObGIpkvSINEy2HgCfco6o
-8UDBUN4bhfD2djs4WpTe5uM=
-=0mHJ
+iD8DBQFJJKJfoxKgR168RlERAq6TAJ9WBmyB7OdskLhMY3T8Xt4SOKxz9QCgi12j
+T5GARKRIG7bPhCWpekIh1gI=
+=Udmc
 -----END PGP SIGNATURE-----

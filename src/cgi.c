@@ -1216,7 +1216,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
   int opt = 1;                 /* setsockopt flag */
   int iPort = mnPort;
 
-  while( iPort<mxPort ){
+  while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
     inaddr.sin_family = AF_INET;
     inaddr.sin_addr.s_addr = INADDR_ANY;
@@ -1242,7 +1242,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
       fossil_fatal("unable to open listening socket on ports %d", mnPort);
     }else{
       fossil_fatal("unable to open listening socket on any"
-                   " ports %d..%d", mnPort, mxPort);
+                   " port in the range %d..%d", mnPort, mxPort);
     }
   }
   if( iPort>mxPort ) return 1;
