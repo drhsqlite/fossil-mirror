@@ -432,7 +432,7 @@ static void create_cluster(void){
   blob_zero(&cluster);
   db_prepare(&q, "SELECT uuid FROM unclustered, blob"
                  " WHERE NOT EXISTS(SELECT 1 FROM phantom"
-                 "                   WHERE rid!=unclustered.rid)"
+                 "                   WHERE rid=unclustered.rid)"
                  "   AND unclustered.rid=blob.rid"
                  "   AND NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
                  " ORDER BY 1");

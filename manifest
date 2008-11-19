@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\ssrc\s&\sdoc\sleaves\sback.
-D 2008-11-19T16:55:14
+C Fix\sa\sbug\sin\sthe\scluster\screater.\s\sThe\sbug\sprevents\sclusters\sfrom\sbeing\ncreated\scorrectly\swhen\sthere\sare\sphantom\sartifacts.
+D 2008-11-19T22:44:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -112,7 +112,7 @@ F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
 F src/wiki.c 8673214ab7da9589b9dcada352c5072cf888d29e
 F src/wikiformat.c 51759e15ab984c8ce6d1bf7801454e2919abdfc9
 F src/winhttp.c dafbf1595e2c439780e025554b47cfabda54ba11
-F src/xfer.c 7e978b3ecc08102ce9378c6b9fe45c872b5b1903
+F src/xfer.c 9bceefbd60db271feb049b2747e532249b771b29
 F src/zip.c df3f3d2e3919faa5e5fcf62e99de9534d19f1d07
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -221,14 +221,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 6d6959b47dc85cee87e2b9003ad06350a2a942f9 63886daad813bebdd526449c3fa20b3ef2ea054c
-R 108ea0324a5788fb4315c7fb298f4046
-U kejoki
-Z c9486f98594e740db2f8119aac887d26
+P d14adf1032924428f6eda72570fa81b68fe69621
+R f65802c34a598640b747c184479c7929
+U drh
+Z 0ddcd515655524a28a1ca7d1683d6213
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJJET66EFGj+X1mh4RAmj2AJ9wCE80w8pfl0WdRP9TYWOOeO775gCggTgW
-W/sjmFnLk02kZR2jGGgBdaI=
-=KkfR
+iD8DBQFJJJbKoxKgR168RlERAoYzAJ9NeecNuTTIzQ1ObGIpkvSINEy2HgCfco6o
+8UDBUN4bhfD2djs4WpTe5uM=
+=0mHJ
 -----END PGP SIGNATURE-----
