@@ -688,7 +688,10 @@ void vdiff_page(void){
 **     * date of check-in
 **     * Comment & user
 */
-static void object_description(int rid, int linkToView){
+static void object_description(
+  int rid,                 /* The artifact ID */
+  int linkToView           /* Add viewer link if true */
+){
   Stmt q;
   int cnt = 0;
   int nWiki = 0;
@@ -712,10 +715,15 @@ static void object_description(int rid, int linkToView){
     const char *zCom = db_column_text(&q, 3);
     const char *zUser = db_column_text(&q, 4);
     const char *zVers = db_column_text(&q, 5);
-    @ File <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+    if( cnt>0 ){
+      @ Also file
+    }else{
+      @ File
+    }
+    @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
     @ uuid %s(zFuuid) part of check-in
     hyperlink_to_uuid(zVers);
-    @ %w(zCom) by %h(zUser) on %s(zDate)
+    @ %w(zCom) by %h(zUser) on %s(zDate).
     cnt++;
   }
   db_finalize(&q);
@@ -735,9 +743,13 @@ static void object_description(int rid, int linkToView){
     const char *zDate = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
-    @ Wiki page
+    if( cnt>0 ){
+      @ Also wiki page
+    }else{
+      @ Wiki page
+    }
     @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
-    @ uuid %s(zUuid) by %h(zUser) on %s(zDate)
+    @ uuid %s(zUuid) by %h(zUser) on %s(zDate).
     nWiki++;
     cnt++;
   }
@@ -756,6 +768,9 @@ static void object_description(int rid, int linkToView){
       const char *zUser = db_column_text(&q, 1);
       const char *zCom = db_column_text(&q, 2);
       const char *zType = db_column_text(&q, 4);
+      if( cnt>0 ){
+        @ Also
+      }
       if( zType[0]=='w' ){
         @ Wiki edit
       }else if( zType[0]=='t' ){
@@ -766,7 +781,7 @@ static void object_description(int rid, int linkToView){
         @ Control file referencing
       }
       hyperlink_to_uuid(zUuid);
-      @ %w(zCom) by %h(zUser) on %s(zDate)
+      @ %w(zCom) by %h(zUser) on %s(zDate).
       cnt++;
     }
     db_finalize(&q);
@@ -816,6 +831,117 @@ void diff_page(void){
 }
 
 /*
+** WEBPAGE: raw
+** URL: /raw?name=ARTIFACTID&m=TYPE
+** 
+** Return the uninterpreted content of an artifact.  Used primarily
+** to view artifacts that are images.
+*/
+void rawartifact_page(void){
+  int rid;
+  const char *zMime;
+  Blob content;
+
+  rid = name_to_rid(PD("name","0"));
+  zMime = PD("m","application/x-fossil-artifact");
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+  if( rid==0 ){ cgi_redirect("/home"); }
+  content_get(rid, &content);
+  cgi_set_content_type(zMime);
+  cgi_set_content(&content);
+}
+
+/*
+** Render a hex dump of a file.
+*/
+static void hexdump(Blob *pBlob){
+  const unsigned char *x;
+  int n, i, j, k;
+  char zLine[100];
+  static const char zHex[] = "0123456789abcdef";
+
+  x = (const unsigned char*)blob_buffer(pBlob);
+  n = blob_size(pBlob);
+  for(i=0; i<n; i+=16){
+    j = 0;
+    zLine[0] = zHex[(i>>24)&0xf];
+    zLine[1] = zHex[(i>>16)&0xf];
+    zLine[2] = zHex[(i>>8)&0xf];
+    zLine[3] = zHex[i&0xf];
+    zLine[4] = ':';
+    sprintf(zLine, "%04x: ", i);
+    for(j=0; j<16; j++){
+      k = 5+j*3;
+      zLine[k] = ' ';
+      if( i+j<n ){
+        unsigned char c = x[i+j];
+        zLine[k+1] = zHex[c>>4];
+        zLine[k+2] = zHex[c&0xf];
+      }else{
+        zLine[k+1] = ' ';
+        zLine[k+2] = ' ';
+      }
+    }
+    zLine[53] = ' ';
+    zLine[54] = ' ';
+    for(j=0; j<16; j++){
+      k = j+55;
+      if( i+j<n ){
+        unsigned char c = x[i+j];
+        if( c>=0x20 && c<=0x7e ){
+          zLine[k] = c;
+        }else{
+          zLine[k] = '.';
+        }
+      }else{
+        zLine[k] = 0;
+      }
+    }
+    zLine[71] = 0;
+    @ %h(zLine)
+  }
+}
+
+/*
+** WEBPAGE: hexdump
+** URL: /hexdump?name=ARTIFACTID
+** 
+** Show the complete content of a file identified by ARTIFACTID
+** as preformatted text.
+*/
+void hexdump_page(void){
+  int rid;
+  Blob content;
+
+  rid = name_to_rid(PD("name","0"));
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+  if( rid==0 ){ cgi_redirect("/home"); }
+  if( g.okAdmin ){
+    const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+            g.zTop, zUuid);
+    }else{
+      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
+            g.zTop, zUuid);
+    }
+  }
+  style_header("Hex Artifact Content");
+  @ <h2>Hexadecimal Content Of:</h2>
+  @ <blockquote>
+  object_description(rid, 0);
+  @ </blockquote>
+  @ <hr>
+  content_get(rid, &content);
+  @ <blockquote><pre>
+  hexdump(&content);
+  @ </pre></blockquote>
+  style_footer();
+}
+
+/*
 ** WEBPAGE: artifact
 ** URL: /artifact?name=ARTIFACTID
 ** 
@@ -825,6 +951,7 @@ void diff_page(void){
 void artifact_page(void){
   int rid;
   Blob content;
+  const char *zMime;
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
@@ -846,11 +973,23 @@ void artifact_page(void){
   object_description(rid, 0);
   @ </blockquote>
   @ <hr>
-  @ <blockquote><pre>
+  @ <blockquote>
   content_get(rid, &content);
-  @ %h(blob_str(&content))
-  @ </pre></blockquote>
-  blob_reset(&content);
+  zMime = mimetype_from_content(&content);
+  if( zMime==0 ){
+    @ <pre>
+    @ %h(blob_str(&content))
+    @ </pre>
+    style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
+  }else if( strncmp(zMime, "image/", 6)==0 ){
+    @ <img src="%s(g.zBaseURL)/raw?name=%d(rid)&m=%s(zMime)"></img>
+    style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
+  }else{
+    @ <pre>
+    hexdump(&content);
+    @ </pre>
+  }
+  @ </blockquote>
   style_footer();
 }
 
