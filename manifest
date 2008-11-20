@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sthe\smarkup\sin\sthe\sindex.wiki\spage\sfrom\sHTML\sto\swiki.\s\sExtend\sthe\nwikitheory.wiki\spage.\s\sOther\sdocumentation\stweaks.
-D 2008-11-20T03:14:22
+C added\sdocumentation\splan,\sjust\sso\sI\scan\sask\smyself\s"What\swas\sI\sthinking?"\slater.
+D 2008-11-20T17:24:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -35,6 +35,7 @@ F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
+F kktodo.wiki 7b627a64906deaa649173e6fd622b85161b648bd
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c b8ff9cb3e4b0c2003d8bef199766037ff317c120
@@ -221,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 0c6ea0d93f036473074a5dd93870ad1b51b92cd8
-R 29e82100df08af4b320da24b2a370754
-U drh
-Z d325f64c13538b54f4972745737b3936
+P 7083eb1a1c7a32206a0960e354899d2c2058554c
+R dcea87cbcb89c720bba864eee0e1dfa7
+U kejoki
+Z 3f742e368726836b86e62ba41e97ceb0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJJNYRoxKgR168RlERAv3UAJ9LlDy5/GTIsloabGii6lTsjKkagwCfZnlL
-TZL70XlJpsGP0JimoVe1NlI=
-=GbCw
+iD8DBQFJJZ1R6EFGj+X1mh4RAmAQAKCZ/5WKAtdqXWcLpnwhtJ01+xLXRwCfUo3M
+2ZxeSZFC1v73PPXpvmxSrYE=
+=JQ9W
 -----END PGP SIGNATURE-----
