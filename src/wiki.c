@@ -80,16 +80,18 @@ static int check_name(const char *z){
 */
 void home_page(void){
   char *zPageName = db_get("project-name",0);
+  login_check_credentials();
+  if( !g.okRdWiki ){
+    cgi_redirect("/login?g=/home");
+  }
   if( zPageName ){
     login_check_credentials();
     g.zExtra = zPageName;
     cgi_set_parameter_nocopy("name", g.zExtra);
-    g.okRdWiki = 1;
     g.argv[1] = "home";
     wiki_page();
     return;
   }
-  login_check_credentials();
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
