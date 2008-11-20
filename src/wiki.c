@@ -82,7 +82,7 @@ void home_page(void){
   char *zPageName = db_get("project-name",0);
   login_check_credentials();
   if( !g.okRdWiki ){
-    cgi_redirectf("%s/login?g=/home", g.zBaseURL);
+    cgi_redirectf("%s/login?g=%s/home", g.zBaseURL, g.zBaseURL);
   }
   if( zPageName ){
     login_check_credentials();
