@@ -9,7 +9,7 @@ of the versioning system to sync and merge tickets.  This approach is
 rejected in fossil for three reasons:
 
   1.  Check-ins (a.k.a. "baselines") in fossil are immutable.  So if
-      tickets were part of the check-in, then there would no way to add
+      tickets were part of the check-in, then there would be no way to add
       new tickets to a check-in as new bugs are discovered.
 
   2.  Any project of reasonable size and complexity will generate thousands

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C When\screating\sa\snew\srepository\sor\scloning\sa\srepository,\sprint\sthe\ninitial\sadministrator\spassword\son\sstandard\soutput.\s\sThis\sis\sintended\nto\shelp\snew\susers\sfigure\sout\show\sto\slog\sin.\s\sTicket\s[ca08d51f19]
-D 2008-11-20T01:07:10
+C Change\sthe\smarkup\sin\sthe\sindex.wiki\spage\sfrom\sHTML\sto\swiki.\s\sExtend\sthe\nwikitheory.wiki\spage.\s\sOther\sdocumentation\stweaks.
+D 2008-11-20T03:14:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -180,7 +180,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/bugtheory.wiki 5344c6eedfb9f5a74a261d6ab7512dd77b8e991e
+F www/bugtheory.wiki 5f6ed2b26bd0a1680ba70da8b04c78eafc40b272
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
 F www/cmd_.wiki-template 575b5c55cd38a4258e307586fb9415cafe88b658
 F www/cmd_add.wiki 90059388b2ab852657b079c24331503820b8877a
@@ -211,24 +211,24 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki d69c059dc89de73b1fb1c030870f94c7b03fff46
-F www/index.wiki 752815768977c3449c5a70bea110f3614bab188b
+F www/index.wiki 635e17dfd60bce7d767d43cf6368aa2e6b751333
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
-F www/qandc.wiki 11bd9cb67ae4034e9950bc037fe32efe0eba92b7
+F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
 F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
-F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 22cb1e1be2d1636a8e4dc106d081a5100610fe79
-R 250462608b94e79434e74fdea5b332b9
+F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
+P 0c6ea0d93f036473074a5dd93870ad1b51b92cd8
+R 29e82100df08af4b320da24b2a370754
 U drh
-Z e9fe4b5c6ee1c4d97eb822129c6047e4
+Z d325f64c13538b54f4972745737b3936
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJJLhEoxKgR168RlERAkahAJ4jcT4HI3m5eu/C+UWGnMov3vkx4gCcDjp6
-zVWRqR3VNFYODOFOtTGaJJM=
-=ta9S
+iD8DBQFJJNYRoxKgR168RlERAv3UAJ9LlDy5/GTIsloabGii6lTsjKkagwCfZnlL
+TZL70XlJpsGP0JimoVe1NlI=
+=GbCw
 -----END PGP SIGNATURE-----

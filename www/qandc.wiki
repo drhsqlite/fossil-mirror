@@ -20,7 +20,8 @@ Why create your own DVCS when you could have reused mercurial?</b>
   <li> Integrated <a href="wikitheory.wiki">wiki</a>. </li>
   <li> Integrated <a href="bugtheory.wiki">bug tracking</a> </li>
   <li> Immutable artifacts </li>
-  <li> Self-contained, stand-alone executable </li>
+  <li> Self-contained, stand-alone executable that can be run in
+       a <a href="http://en.wikipedia.org/wiki/Chroot">chroot jail</a> </li>
   <li> Simple, well-defined, 
        <a href="fileformat.wiki">enduring file format</a> </li>
   </ol>
@@ -80,8 +81,30 @@ keeps the bug-tracking database in a versioned file. That file can
 then be pushed and pulled along with the rest repository.</b>
 
 <blockquote>
-<p>This is addressed in the opening paragraphs of
-the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.
+<p>Fossil already <u>does</u> push and pull bugs along with the files
+in your repository.  
+But fossil does <u>not</u> track bugs as files in the source tree.
+That approach to bug tracking was rejected for three reasons:</p>
+
+<ol>
+<li>  Check-ins in fossil are immutable.  So if
+      tickets were part of the check-in, then there would be no way to add
+      new tickets to a check-in as new bugs are discovered.
+
+<li>  Any project of reasonable size and complexity will generate thousands
+      and thousands of tickets, and we do not want all those ticket files
+      cluttering the source tree.
+
+<li>  We want tickets to be managed from the web interface and to have a
+      permission system that is distinct from check-in permissions.
+      In other words, we do not want to restrict the creation and editing
+      of tickets to developers with check-in privileges and an installed
+      copy of the fossil executable.  Casual passers-by on the internet should
+      be permitted to create tickets.
+</ol>
+
+<p>These points are reiterated in the opening paragraphs of
+the <a href="bugtheory.wiki">Bug-Tracking In Fossil</a> document.</p>
 </blockquote>
 
 <b>Fossil is already the name of a plan9 versioned 

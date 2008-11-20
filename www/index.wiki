@@ -1,26 +1,23 @@
 <h1>Fossil: Distributed Revision Control, Wiki, and Bug-Tracking</h1>
 
-<p>
 Fossil is a
-<a href="http://en.wikipedia.org/wiki/Revision_control">
-distributed software revision control system</a> that includes an integrated
-<a href="wikitheory.wiki">wiki</a> and an integrated
-<a href="bugtheory.wiki">bug-tracking system</a> all in a single, 
+[http://en.wikipedia.org/wiki/Revision_control | distributed software version control system]
+that includes an integrated
+[./wikitheory.wiki | distributed wiki] and an integrated
+[./bugtheory.wiki | distributed bug-tracking system] all in a single, 
 easy-to-use, stand-alone executable.
-Fossil is
-<a href="http://www.fossil-scm.org/">self-hosting</a>
+Fossil is [http://www.fossil-scm.org/ | self-hosting]
 since 2007-07-21 on
-<a href="http://www.hwaci.com/cgi-bin/fossil">two separate servers</a>.
-You can download the <a href="../../../timeline">latest sources</a> and
-<a href="build.wiki">compile it yourself</a>.
+[http://www.hwaci.com/cgi-bin/fossil | two separate servers].
+You can download the [/timeline?y=ci | latest sources] and
+[./build.wiki | compile it yourself].
 Or you can grab
-<a href="http://www.fossil-scm.org/download.html">pre-compiled binaries</a>.
-</p>
+[http://www.fossil-scm.org/download.html | pre-compiled binaries].
 
-<p>Feature Summary:</p>
 
-<ul>
-<li>Flexible workflow:<ul>
+Feature Summary:
+
+  *  Flexible workflow:<ul>
     <li>Disconnected, distributed development like
       <a href="http://kerneltrap.org/node/4982">git</a>,
       <a href="http://www.monotone.ca/">monotone</a>,
@@ -30,74 +27,66 @@ Or you can grab
       <a href="http://www.nongnu.org/cvs/">CVS</a> and
       <a href="http://subversion.tigris.org/">subversion</a>,
     <li>Or, operations on local repositories,
-    <li>Or, all of the above at the same time</ul></li>
-<li>Integrated, distributed <a href="bugtheory.wiki">bug tracking</a> and 
-<a href="wikitheory.wiki">wiki</a>.</li>
-<li>Built-in web interface that supports deep archaeological digs through
-the project history.</li>
-<li>All network communication via 
-<a href="http://en.wikipedia.org/wiki/HTTP">HTTP</a> with 
-<a href="quickstart.wiki#proxy">proxy support</a>
-so that everything works from behind restrictive firewalls.</li>
-<li>Everything (client, server, and utilities) is included in a 
-single self-contained executable - trivial to install</li>
-<li>Server runs as <a href="quickstart.wiki#cgiserver">CGI</a>, using
-<a href="quickstart.wiki#inetdserver">inetd/xinetd</a>
-or using its own 
-<a href="quickstart.wiki#serversetup">built-in, stand alone web server</a>.</li>
-<li>An entire project contained in single disk file
-(an <a href="http://www.sqlite.org/">SQLite</a> database.)</li>
-<li>Uses an <a href="fileformat.wiki">enduring file format</a> that is 
-designed to be readable, searchable, and extensible by people not yet born.</li>
-<li>Automatic <a href="selfcheck.wiki">self-check</a>
-on repository changes makes it exceedingly
-unlikely that data will ever be lost because of a software bug.</li>
-<li>Ridiculously easy to 
-<a href="build.wiki">install</a> and 
-<a href="quickstart.wiki">operate</a>.</li>
-</ul>
+    <li>Or, all of the above at the same time</ul>
+  *  Integrated, [./bugtheory.wiki | distributed bug tracking] and 
+     [./wikitheory.wiki | distributed wiki].
+  *  Built-in web interface that supports deep archaeological digs through
+     the project history.
+  *  All network communication via 
+     [http://en.wikipedia.org/wiki/HTTP | HTTP] with 
+     [./quickstart.wiki#proxy | proxy support]
+     so that everything works from behind restrictive firewalls.
+  *  Everything (client, server, and utilities) is included in a 
+     single self-contained executable - trivial to install
+  *  Server runs as [./quickstart.wiki#cgiserver | CGI], using
+     [./quickstart.wiki#inetdserver | inetd/xinetd]
+     or using its own 
+     [./quickstart.wiki#serversetup | built-in, stand alone web server].
+  *  An entire project contained in single disk file
+     (an [http://www.sqlite.org/ | SQLite] database.)
+  *  Uses an [./fileformat.wiki | enduring file format] that is 
+     designed to be readable, searchable, and extensible by people
+     not yet born.
+  *  Automatic [./selfcheck.wiki | self-check]
+     on repository changes makes it exceedingly
+     unlikely that data will ever be lost because of a software bug.
+  *  Ridiculously easy to [./build.wiki | install] and 
+     [./quickstart.wiki | operate].
 
-<p>User Links:</p>
+User Links:
 
-<ul>
-<li>The <a href="concepts.wiki">concepts</b> behind fossil</li>
-<li><a href="build.wiki">Building And Installing</a></li>
-<li><a href="quickstart.wiki">Quick Start</a> guide to using fossil
-<li>Fossil supports <a href="embeddeddoc.wiki">embedded documentation</a>
-    that is versioned along with project source code.</li>
-<li>The <a href="selfcheck.wiki">automatic self-check</a> mechanism
-helps insure project integrity.</li>
-<li>Fossil contains a <a href="wikitheory.wiki">built-in wiki</a>.</li>
-<li>There is a
-    <a href="http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users">
-    mailing list</a> available for discussing fossil issues.</li>
-<li><a href="qandc.wiki">Questions &amp; Criticisms</a> directed at fossil.</li>
-<li>Some (unfinished but expanding) extended
-    <a href="reference.wiki">reference documentation</a> for the fossil command line.
-</ul>
+  *  The [./concepts.wiki | concepts] behind fossil
+  *  [./build.wiki | Building And Installing]
+  *  [./quickstart.wiki | Quick Start] guide to using fossil
+  *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
+     that is versioned along with project source code.
+  *  The [./selfcheck.wiki | automatic self-check] mechanism
+     helps insure project integrity.
+  *  Fossil contains a [./wikitheory.wiki | built-in wiki].
+  *  There is a
+    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
+     available for discussing fossil issues.
+  *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
+  *  Some (unfinished but expanding) extended
+      [./reference.wiki | reference documentation] for the fossil command line.
 
-<p>Developer Links: </p>
+Developer Links:
 
-<ul>
-<li><a href="pop.wiki">Principles Of Operation</a></li>
-<li>The <a href="fileformat.wiki">file format</a> used by every content
-file stored in the repository.</li>
-<li>The <a href="delta_format.wiki">format of deltas</a> used to
-efficiently store changes between file revisions.</li>
-<li>The <a href="delta_encoder_algorithm.wiki">encoder algorithm</a> used to
-efficiently generate deltas.</li>
-<li>The <a href="sync.wiki">synchronization protocol</a>.</li>
-</ul>
+  *  [./pop.wiki | Principles Of Operation]
+  *  The [./fileformat.wiki | file format] used by every content
+     file stored in the repository.
+  *  The [./delta_format.wiki | format of deltas] used to
+     efficiently store changes between file revisions.
+  *  The [./delta_encoder_algorithm.wiki | encoder algorithm] used to
+     efficiently generate deltas.
+  *  The [./sync.wiki | synchronization protocol].
 
-<p>Competing Projects:</p>
+Competing Projects:
 
-<ul>
-<li><a href="http://www.ditrack.org/">DITrace</a>
-     - A Distributed Issue  Tracker</li>
-<li><a href="http://www.distract.wellquite.org/">DisTract</a>
+  *  [http://www.ditrack.org/ | DITrace] - A Distributed Issue Tracker
+  *  [http://www.distract.wellquite.org/ | DisTract]
      - Another distributed issue tracker based on 
-     <a href="http://www.monotone.ca/">monotone</a>.</li>
-<li><a href="http://www.monotone.ca/">Monotone</a> - distributed
+     [http://www.monotone.ca/ | monotone].
+  *  [http://www.monotone.ca/ | Monotone] - distributed
      SCM in a single-file executable with a single-file SQLite
-     database repository.</li>
-</ul>
+     database repository.

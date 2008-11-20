@@ -1,19 +1,36 @@
-<h1>Wiki In <a href="index.wiki">Fossil</a></h1>
+<h1>Wiki In [./index.wiki  | Fossil]</h1>
 
-Fossil uses <a href="../../../wiki_rules">wiki markup</a> for many
-things:
+Fossil uses [/wiki_rules | wiki markup] for many things:
 
    *  Stand-alone wiki pages.
-   *  Description and comments in <a href="bugtheory.wiki">bug reports</a>.
+   *  Description and comments in [./bugtheory.wiki | bug reports].
    *  Check-in comments.
-   *  <a href="embeddeddoc.wiki">Embedded documentation</a> files whose
+   *  [./embeddeddoc.wiki | Embedded documentation] files whose
       name ends in "wiki".
 
-The <a href="../../../wiki_rules">formatting rules</a> for fossil wiki
+The [/wiki_rules | formatting rules] for fossil wiki
 are designed to be simple and intuitive.  The idea is that wiki provides
 paragaph breaks, numbered and bulletted lists, and hyperlinking for
 simple documents together with a safe subset of HTML for more complex
 formatting tasks.
+
+Some commentators feel that the use of HTML is a mistake and that
+fossil should use the markup language of the
+<i>fill-in-your-favorite</i> wiki engine instead.  That approach
+was considered but was rejected for the following reasons:
+
+  1.  There is no standard wiki markup language.  Every wiki engine does
+      it a little differently.
+
+  2.  The wiki markup used by fossil, though limited, is common to most
+      other wiki engines, is intuitive, and is sufficient for 90% of
+      all formatting tasks.
+
+  3.  Where the fossil wiki markup language is insufficient, HTML is
+      used.  HTML is a standard language familiar to most programmers so
+      there is nothing new to learn.  And, though cumbersome, the HTML
+      does not need to be used very often so need not be a burden.
+
 
 <h2>Stand-alone Wiki Pages</h2>
 
@@ -32,7 +49,27 @@ file format will support merging the branches back together, but there
 is no mechanism in the user interface (yet) to perform the merge.
 
 Every change to a wiki page is a separate 
-<a href="fileformat.wiki">control artifact</a> 
-of type <a href="fileformat.wiki#wikichng">"Wiki Page"</a>.
+[./fileformat.wiki | control artifact]
+of type [./fileformat.wiki#wikichng | "Wiki Page"].
 
-<i>To be continued...</i>
+<h2>Embedded Documentation</h2>
+
+Files in the source tree that use the ".wiki" suffix can be accessed
+and displayed using special URLs to the fossil server.  This allows
+project documentation to be stored in the source tree and accessed 
+online.  (Details are descripted [./embeddeddoc.wiki | separately].)
+
+Some project prefer to store their documentation in wiki.  There is nothing
+wrong with that.  But other projects prefer to keep documentation as part
+of the source tree, so that it is versioned along with the source tree and
+so that only developers with check-in privileges can change it.  
+Embedded documentation serves this latter purpose.  Both forms of documentation
+use the exact same wiki markup language.  Some projects may choose to
+use both forms of documentation at the same time.
+
+<h2>Bug-reports and check-in comments</h2>
+
+The comments on check-ins and the text in the descriptions of bug reports
+both use wiki formatting.  Exactly the same set of formatting rules apply.
+There is never a need to learn one formatting language for documentation
+and a different markup for bugs or for check-in comments.
