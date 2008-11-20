@@ -853,7 +853,7 @@ void db_create_repository(const char *zFilename){
 /*
 ** Create the default user accounts in the USER table.
 */
-void db_create_default_users(void){
+void db_create_default_users(int setupUserOnly){
   const char *zUser;
   zUser = db_get("default-user", 0);
   if( zUser==0 ){
@@ -868,16 +868,18 @@ void db_create_default_users(void){
   }
   db_multi_exec(
      "INSERT INTO user(login, pw, cap, info)"
-     "VALUES(%Q,'','s','')", zUser
+     "VALUES(%Q,lower(hex(randomblob(3))),'s','')", zUser
   );
-  db_multi_exec(
-     "INSERT INTO user(login,pw,cap,info)"
-     "   VALUES('anonymous','anonymous','ghknw','Anon');"
-     "INSERT INTO user(login,pw,cap,info)"
-     "   VALUES('nobody','','jor','Nobody');"
-     "INSERT INTO user(login,pw,cap,info)"
-     "   VALUES('developer','','deipt','Dev');"
-  );
+  if( !setupUserOnly ){
+    db_multi_exec(
+       "INSERT INTO user(login,pw,cap,info)"
+       "   VALUES('anonymous','anonymous','ghknw','Anon');"
+       "INSERT INTO user(login,pw,cap,info)"
+       "   VALUES('nobody','','jor','Nobody');"
+       "INSERT INTO user(login,pw,cap,info)"
+       "   VALUES('developer','','deipt','Dev');"
+    );
+  }
 }
 
 /*
@@ -907,7 +909,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
-  db_create_default_users();
+  db_create_default_users(0);
   user_select();
 
   if (makeInitialVersion){
@@ -937,6 +939,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
 ** a copy of an existing project.  This command starts a new project.
 */
 void create_repository_cmd(void){
+  char *zPassword;
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
@@ -948,7 +951,8 @@ void create_repository_cmd(void){
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
-  printf("admin-user: %s (no password set yet!)\n", g.zLogin);
+  zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+  printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
   printf("baseline:   %s\n", db_text(0, "SELECT uuid FROM blob"));
 }
 

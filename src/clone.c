@@ -38,6 +38,7 @@
 ** file named FILENAME.  
 */
 void clone_cmd(void){
+  char *zPassword;
   url_proxy_options();
   if( g.argc!=4 ){
     usage("FILE-OR-URL NEW-REPOSITORY");
@@ -57,6 +58,10 @@ void clone_cmd(void){
       "REPLACE INTO config(name,value)"
       " VALUES('server-code', lower(hex(randomblob(20))));"
     );
+    g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
+    if( g.zLogin==0 ){
+      db_create_default_users(1);
+    }
     printf("Repository cloned into %s\n", g.argv[3]);
   }else{
     db_create_repository(g.argv[3]);
@@ -84,5 +89,9 @@ void clone_cmd(void){
   db_begin_transaction();
   printf("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1);
+  printf("project-id: %s\n", db_get("project-code", 0));
+  printf("server-id:  %s\n", db_get("server-code", 0));
+  zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+  printf("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   db_end_transaction(0);
 }

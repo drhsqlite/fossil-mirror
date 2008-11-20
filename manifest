@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Here\sis\sa\sbetter\sfix\sfor\sticket\s[c62fac40af]\ssuggested\sby\sKees\sNuyt.
-D 2008-11-20T00:35:23
+C When\screating\sa\snew\srepository\sor\scloning\sa\srepository,\sprint\sthe\ninitial\sadministrator\spassword\son\sstandard\soutput.\s\sThis\sis\sintended\nto\shelp\snew\susers\sfigure\sout\show\sto\slog\sin.\s\sTicket\s[ca08d51f19]
+D 2008-11-20T01:07:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -48,13 +48,13 @@ F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
 F src/checkin.c 0b6152b93ce8f880f34a10b18d14d5161e73601b
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
-F src/clone.c 58d2271cc81c238e3cad8fe1f351f3d4e0367a3a
+F src/clone.c bf4ca8abfdd8b2560d3712eb209d27cf9a908821
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/configure.c 2a0972b75de46384001367f1429ada2e2c49a1a3
+F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c cb3d7d66503ec2ada8e0060aa230f7f32d03bbf1
+F src/db.c 63d9c57b0987bfca1a39cbaef34be10331739b2a
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -221,14 +221,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 53db94cd41f9eeaf5e9de68621e327f436d02159
-R f9ffbb6fc6393c2b226376956768c770
+P 22cb1e1be2d1636a8e4dc106d081a5100610fe79
+R 250462608b94e79434e74fdea5b332b9
 U drh
-Z 0d19c21f0b1b449c117f7605f7c0d0a2
+Z e9fe4b5c6ee1c4d97eb822129c6047e4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJJLDWoxKgR168RlERAst1AJ40LvnlHpp9LTKuROGDyheu86q8NgCaAu7X
-x8ODcp+iq2W3qni4RwbBaiY=
-=ZprR
+iD8DBQFJJLhEoxKgR168RlERAkahAJ4jcT4HI3m5eu/C+UWGnMov3vkx4gCcDjp6
+zVWRqR3VNFYODOFOtTGaJJM=
+=ta9S
 -----END PGP SIGNATURE-----
