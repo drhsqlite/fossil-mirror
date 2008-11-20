@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sthe\ssocket\sof\sthe\s"ui"\sand\s"server"\scommands\sis\sbound\sto\sthe\nspecified\sport\swhen\sthe\s-P\sor\s--port\soption\sis\sused.\nTicket\s[7ef970e4a2]
-D 2008-11-19T23:33:47
+C Here\sis\sa\sbetter\sfix\sfor\sticket\s[c62fac40af]\ssuggested\sby\sKees\sNuyt.
+D 2008-11-20T00:35:23
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -44,7 +44,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c ff6e350782569817de13c73d928e8c80206b5982
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
-F src/cgi.c ab524199ae1e0596a542a260d2e93056c15cdaf7
+F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
 F src/checkin.c 0b6152b93ce8f880f34a10b18d14d5161e73601b
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
@@ -66,7 +66,7 @@ F src/file.c 3bd9bc50a5813c07c835cde1313b3dc60dfd4382
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 594a3689d127c8cf08baa243250f3d393fc1721c
 F src/login.c e06e3ddfdaffb9ace808742e09fcaf0d676d448e
-F src/main.c ce8e26c45d963c4a4bfde3f5429daac16aaf2c36
+F src/main.c 815f70292e0d98cd8a4f5a9b57f91494ccb8ef46
 F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -221,14 +221,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki 9523b0d860f9efadd337ed289c49ba2d1492cd82
-P 72959c415eded017568be2cd0dced392dc23e1df
-R 892368c03fdc26922a26b71f83b38890
+P 53db94cd41f9eeaf5e9de68621e327f436d02159
+R f9ffbb6fc6393c2b226376956768c770
 U drh
-Z 5ee313f5782284b4feda49e243dece10
+Z 0d19c21f0b1b449c117f7605f7c0d0a2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJJKJfoxKgR168RlERAq6TAJ9WBmyB7OdskLhMY3T8Xt4SOKxz9QCgi12j
-T5GARKRIG7bPhCWpekIh1gI=
-=Udmc
+iD8DBQFJJLDWoxKgR168RlERAst1AJ40LvnlHpp9LTKuROGDyheu86q8NgCaAu7X
+x8ODcp+iq2W3qni4RwbBaiY=
+=ZprR
 -----END PGP SIGNATURE-----

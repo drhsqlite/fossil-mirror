@@ -28,6 +28,7 @@
 #include "main.h"
 #include <string.h>
 #include <time.h>
+#include <fcntl.h>
 
 #if INTERFACE
 
@@ -610,6 +611,12 @@ void cmd_cgi(void){
   }
   g.httpOut = stdout;
   g.httpIn = stdin;
+#ifdef __MINGW32__
+  /* Set binary mode on windows to avoid undesired translations
+  ** between \n and \r\n. */
+  setmode(_fileno(g.httpOut), _O_BINARY);
+  setmode(_fileno(g.httpIn), _O_BINARY);
+#endif
   g.cgiPanic = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){

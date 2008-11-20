@@ -338,23 +338,7 @@ void cgi_reply(void){
 
   if( iReplyStatus != 304 ) {
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
-#ifdef __MINGW32__
-    /* In windows versions of Apache, extra \r characters get added to the
-    ** response, which mess up the Content-Length.  So let apache figure
-    ** out the content length for itself if we are using CGI.  If this
-    ** is a complete stand-alone webserver, on the other hand, we still
-    ** need the Content-Length.
-    */
-    if( g.fullHttpReply ){
-      fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
-    }
-#else
-    /* On unix, \n to \r\n translation is never a problem.  We know the
-    ** content length, so we might as well go ahead and tell the webserver
-    ** what it is in all cases.
-    */
     fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
-#endif
   }
   fprintf(g.httpOut, "\r\n");
   if( total_size>0 && iReplyStatus != 304 ){
