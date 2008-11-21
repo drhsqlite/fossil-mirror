@@ -209,7 +209,7 @@ int file_is_simple_pathname(const char *z){
 **
 **  * removing any trailing and duplicate /
 **  * removing /./
-**  * removing /A/./
+**  * removing /A/../
 **
 ** Changes are made in-place.  Return the new name length.
 */
@@ -225,7 +225,8 @@ int file_simplify_name(char *z, int n){
       }
       if( z[i+1]=='.' && i+3<n && z[i+2]=='.' && z[i+3]=='/' ){
         while( j>0 && z[j-1]!='/' ){ j--; }
-        i += 3;
+        if( j>0 ){ j--; }
+        i += 2;
         continue;
       }
     }
