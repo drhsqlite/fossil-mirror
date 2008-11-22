@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\s"Notes"\sto\sthe\sright\sof\sthe\suser\ssetup\sscreen.
-D 2008-11-22T17:09:53
+C Use\scolored\sbullets\sto\sindicate\sthe\sprivileges\sof\s"nobody",\s"anonymous",\s\nand\s"developer"\son\sthe\suser\sedit\spage.
+D 2008-11-22T18:16:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -86,7 +86,7 @@ F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c 243248b6c01b8111cc62aea4d10fc8d4e942f723
-F src/setup.c a19953c05fd48c668cca2faf99c8f5c4821b3fe5
+F src/setup.c 22cb07cc7a818793c5ac66eab8a81009f494ea7e
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c f707294883077a4915a91289d25f43c54ff45966
 F src/sqlite3.c 6575b1e5b3ee39b9b00a467d31b28300998d820e
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P dec2c22d9d0e1d9a7114000f4c5599e2824298c8
-R 3b3d8f7d8b91c12f94c503d9031facfa
+P 3eac8bc0f925c190168b1509cbecd56acbd29e04
+R 6ac66479d57f2a8283906264bda90a9e
 U drh
-Z 5eaff2e99c8a7a395327645233bd19f8
+Z cc8dce65f24f931b24a2b68ab2f12a0b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJKDzkoxKgR168RlERArRFAJ9AXjGWOcNlFzkQPyjxgZxr/TWFggCfemXB
-U8C3zFHY+nU68tyY9k/+N1E=
-=yCi4
+iD8DBQFJKEydoxKgR168RlERAh3SAJ9nGbMVYrUc1BzlDEMxiWzQ8vD9AwCgghSj
+BOHhxJS7qX5LZh6BUHUUXxw=
+=Gwb+
 -----END PGP SIGNATURE-----

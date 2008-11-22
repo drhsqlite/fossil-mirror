@@ -202,10 +202,6 @@ void setup_ulist(void){
   @ <b>developer</b>, <b>anonymous</b>, and <b>nobody</b>.
   @ </p></li>
   @
-  @ <li><p>
-  @ A blank password disables login for a user.
-  @ </p></li>
-  @
   @ </ol>
   @ </td></tr></table>
   style_footer();
@@ -233,6 +229,7 @@ void user_edit(void){
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
   char *oat, *oav, *oaz;
+  const char *inherit[128];
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -370,6 +367,33 @@ void user_edit(void){
     if( strchr(zCap, 'z') ) oaz = " checked";
   }
 
+  /* figure out inherited permissions */
+  memset(inherit, 0, sizeof(inherit));
+  if( strcmp(zLogin, "developer") ){
+    char *z1, *z2;
+    z1 = z2 = db_text("","SELECT cap FROM user WHERE login='developer'");
+    while( *z1 ){
+      inherit[0x7f & *(z1++)] = "<font color=\"red\">&#149;</font>";
+    }
+    free(z2);
+  }
+  if( strcmp(zLogin, "anonymous") ){
+    char *z1, *z2;
+    z1 = z2 = db_text("","SELECT cap FROM user WHERE login='anonymous'");
+    while( *z1 ){
+      inherit[0x7f & *(z1++)] = "<font color=\"blue\">&#149;</font>";
+    }
+    free(z2);
+  }
+  if( strcmp(zLogin, "nobody") ){
+    char *z1, *z2;
+    z1 = z2 = db_text("","SELECT cap FROM user WHERE login='nobody'");
+    while( *z1 ){
+      inherit[0x7f & *(z1++)] = "<font color=\"green\">&#149;</font>";
+    }
+    free(z2);
+  }
+
   /* Begin generating the page
   */
   style_submenu_element("Cancel", "Cancel", "setup_ulist");
@@ -401,28 +425,29 @@ void user_edit(void){
   @ <tr>
   @   <td align="right" valign="top">Capabilities:</td>
   @   <td>
+#define B(x) inherit[x]
   if( g.okSetup ){
-    @     <input type="checkbox" name="as"%s(oas)>Setup</input><br>
+    @    <input type="checkbox" name="as"%s(oas)>%s(B('s'))Setup</input><br>
   }
-  @     <input type="checkbox" name="aa"%s(oaa)>Admin</input><br>
-  @     <input type="checkbox" name="ad"%s(oad)>Delete</input><br>
-  @     <input type="checkbox" name="ae"%s(oad)>Email</input><br>
-  @     <input type="checkbox" name="ap"%s(oap)>Password</input><br>
-  @     <input type="checkbox" name="ai"%s(oai)>Check-In</input><br>
-  @     <input type="checkbox" name="ao"%s(oao)>Check-Out</input><br>
-  @     <input type="checkbox" name="ah"%s(oah)>History</input><br>
-  @     <input type="checkbox" name="av"%s(oav)>Developer</input><br>
-  @     <input type="checkbox" name="ag"%s(oag)>Clone</input><br>
-  @     <input type="checkbox" name="aj"%s(oaj)>Read Wiki</input><br>
-  @     <input type="checkbox" name="af"%s(oaf)>New Wiki</input><br>
-  @     <input type="checkbox" name="am"%s(oam)>Append Wiki</input><br>
-  @     <input type="checkbox" name="ak"%s(oak)>Write Wiki</input><br>
-  @     <input type="checkbox" name="ar"%s(oar)>Read Tkt</input><br>
-  @     <input type="checkbox" name="an"%s(oan)>New Tkt</input><br>
-  @     <input type="checkbox" name="ac"%s(oac)>Append Tkt</input><br>
-  @     <input type="checkbox" name="aw"%s(oaw)>Write Tkt</input><br>
-  @     <input type="checkbox" name="at"%s(oat)>Tkt Report</input><br>
-  @     <input type="checkbox" name="az"%s(oaz)>Download Zip</input>
+  @    <input type="checkbox" name="aa"%s(oaa)>%s(B('a'))Admin</input><br>
+  @    <input type="checkbox" name="ad"%s(oad)>%s(B('d'))Delete</input><br>
+  @    <input type="checkbox" name="ae"%s(oae)>%s(B('e'))Email</input><br>
+  @    <input type="checkbox" name="ap"%s(oap)>%s(B('p'))Password</input><br>
+  @    <input type="checkbox" name="ai"%s(oai)>%s(B('i'))Check-In</input><br>
+  @    <input type="checkbox" name="ao"%s(oao)>%s(B('o'))Check-Out</input><br>
+  @    <input type="checkbox" name="ah"%s(oah)>%s(B('h'))History</input><br>
+  @    <input type="checkbox" name="av"%s(oav)>%s(B('v'))Developer</input><br>
+  @    <input type="checkbox" name="ag"%s(oag)>%s(B('g'))Clone</input><br>
+  @    <input type="checkbox" name="aj"%s(oaj)>%s(B('j'))Read Wiki</input><br>
+  @    <input type="checkbox" name="af"%s(oaf)>%s(B('f'))New Wiki</input><br>
+  @    <input type="checkbox" name="am"%s(oam)>%s(B('m'))Append Wiki</input><br>
+  @    <input type="checkbox" name="ak"%s(oak)>%s(B('k'))Write Wiki</input><br>
+  @    <input type="checkbox" name="ar"%s(oar)>%s(B('r'))Read Tkt</input><br>
+  @    <input type="checkbox" name="an"%s(oan)>%s(B('n'))New Tkt</input><br>
+  @    <input type="checkbox" name="ac"%s(oac)>%s(B('c'))Append Tkt</input><br>
+  @    <input type="checkbox" name="aw"%s(oaw)>%s(B('w'))Write Tkt</input><br>
+  @    <input type="checkbox" name="at"%s(oat)>%s(B('t'))Tkt Report</input><br>
+  @    <input type="checkbox" name="az"%s(oaz)>%s(B('z'))Download Zip</input>
   @   </td>
   @ </tr>
   @ <tr>
@@ -454,12 +479,28 @@ void user_edit(void){
     @ </b></font></p></li>
     @
   }
-  @
   @ <li><p>
   @ The <b>Setup</b> user can make arbitrary configuration changes.
   @ An <b>Admin</b> user can add other users and change user privileges
   @ and reset user passwords.  Both automatically get all other privileges
   @ listed below.  Use these two settings with discretion.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The "<font color="green"><big>&#149;</big></font>" mark indicates
+  @ the privileges of "nobody" that are available to all users
+  @ regardless of whether or not they are logged in.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The "<font color="blue"><big>&#149;</big></font>" mark indicates
+  @ the privileges of "anonymous" that are inherited by all logged-in users.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The "<font color="red"><big>&#149;</big></font>" mark indicates
+  @ the privileges of "developer" that are inherited by all users with
+  @ the <b>Developer</b> privilege.
   @ </p></li>
   @
   @ <li><p>
@@ -478,17 +519,12 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>Zip</b> privilege allows a user to see the download as zip hyperlink
-  @ as well as permit access to the <tt>/zip</tt> page. It can be allowed for
-  @ user "nobody" to grant him access to download artifacts he know from the
-  @ server without giving him other rights like <b>Read</b> or <b>History</b>.
-  @ So automatic package dowloaders could be able to obtain the sources without
-  @ going thru the login procedure.
-  @ </p></li>
-  @
-  @ <li><p>
-  @ The <b>Developer</b> privilege causes all privileges of the user
-  @ named "developer" to be inherited by this user.
+  @ The <b>Zip</b> privilege allows a user to see the "download as ZIP"
+  @ hyperlink and permits access to the <tt>/zip</tt> page.  This allows
+  @ users to download ZIP archives without granting other rights like
+  @ <b>Read</b> or <b>History</b>.  This privilege is recommended for
+  @ user <b>nobody</b> so that automatic package downloaders can obtain
+  @ the sources without going through the login procedure.
   @ </p></li>
   @
   @ <li><p>
@@ -515,7 +551,8 @@ void user_edit(void){
   @ <li><p>
   @ The <b>EMail</b> privilege allows the display of sensitive information
   @ such as the email address of users and contact information on tickets.
-  @ Recommended OFF for "anonymous" and for "nobody".
+  @ Recommended OFF for "anonymous" and for "nobody" but ON for
+  @ "developer".
   @ </p></li>
   @
   @ <li><p>
