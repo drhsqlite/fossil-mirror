@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\sto\sthe\spathname\ssimplifer\slogic.
-D 2008-11-21T22:16:08
+C Added\ssome\stext\sto\sindex.wiki\spointing\snew\susers\sat\sanonymous\slogin\nto\ssee\slinks.
+D 2008-11-22T10:12:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -212,7 +209,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki d69c059dc89de73b1fb1c030870f94c7b03fff46
-F www/index.wiki 635e17dfd60bce7d767d43cf6368aa2e6b751333
+F www/index.wiki 89ed44202be703289fe2b7a51b941fa5c8a01138
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
@@ -222,14 +219,7 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 0a523be389f9efe9b281b1c3dca2340455777bcc
-R 9b682901ff6420b9cf319ccc7486ee92
-U drh
-Z 900cba173d3f55950b0bd8e222752a80
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFJJzMroxKgR168RlERAoO6AJ96Sh6Q977hkjSfFRD83tGP73H+/gCbBCzu
-tqhJbKp3AzlvIG6nhIOtG3Y=
-=uq+D
------END PGP SIGNATURE-----
+P d31c0f9c29b27aa9deaae9adde86a94cebc2e43d
+R 6050e43567d0e7aa6961a0d14050d9b3
+U kejoki
+Z 02f2c1b0292ff8ae9924ec3f5ed2ca33

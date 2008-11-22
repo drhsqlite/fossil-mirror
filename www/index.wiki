@@ -53,7 +53,7 @@ Feature Summary:
   *  Ridiculously easy to [./build.wiki | install] and 
      [./quickstart.wiki | operate].
 
-User Links:
+User Links: <sup><a href="#nolinks">?</a>
 
   *  The [./concepts.wiki | concepts] behind fossil
   *  [./build.wiki | Building And Installing]
@@ -90,3 +90,12 @@ Competing Projects:
   *  [http://www.monotone.ca/ | Monotone] - distributed
      SCM in a single-file executable with a single-file SQLite
      database repository.
+
+<a name="nolinks">?</a> If you don't see the links, you aren't logged
+in.  Please [./login | log in] as "anonymous" to see the links.
+
+The fossil sites are so self hosting that what you're seeing is
+<b>fossil</b> in action.  Requiring a log in prevents <b>bots</b>
+which don't respect <code>robots.txt</code> from putting half-finished
+or incorrect versions of &lt;<i>your fossil-hosted project
+here</i>&gt; all over the net.
