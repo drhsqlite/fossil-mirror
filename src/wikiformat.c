@@ -936,13 +936,13 @@ static void openHyperlink(
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
   }else if( zTarget[0]=='/' ){
-    if( g.okHistory ){
+    if( 1 /* g.okHistory */ ){
       blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zBaseURL, zTarget);
     }else{
       zTerm = "";
     }
   }else if( zTarget[0]=='.' ){
-    if( g.okHistory ){
+    if( 1 /* g.okHistory */ ){
       blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
     }else{
       zTerm = "";
