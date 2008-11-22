@@ -137,36 +137,73 @@ void setup_ulist(void){
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
-     @ <tr><td><b>a</b></td><td><i>Admin:</i> Create and delete users</td></tr>
-     @ <tr><td><b>c</b></td><td><i>Append-Tkt:</i> Append to tickets</td></tr>
-     @ <tr><td><b>d</b></td><td><i>Delete:</i> Delete wiki and tickets</td></tr>
-     @ <tr><td><b>e</b></td><td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
-     @ <tr><td><b>f</b></td><td><i>New-Wiki:</i> Create new wiki pages</td></tr>
-     @ <tr><td><b>g</b></td><td><i>Clone:</i> Clone the repository</td></tr>
-     @ <tr><td><b>h</b></td><td><i>History:</i> View detail repository history</td></tr>
-     @ <tr><td><b>i</b></td><td><i>Check-In:</i> Commit new versions in the repository</td></tr>
-     @ <tr><td><b>j</b></td><td><i>Read-Wiki:</i> View wiki pages</td></tr>
-     @ <tr><td><b>k</b></td><td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
-     @ <tr><td><b>m</b></td><td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
-     @ <tr><td><b>n</b></td><td><i>New-Tkt:</i> Create new tickets</td></tr>
-     @ <tr><td><b>o</b></td><td><i>Check-Out:</i> Check out versions</td></tr>
-     @ <tr><td><b>p</b></td><td><i>Password:</i> Change your own password</td></tr>
-     @ <tr><td><b>r</b></td><td><i>Read-Tkt:</i> View tickets</td></tr>
-     @ <tr><td><b>s</b></td><td><i>Setup:</i> Setup and configure this website</td></tr>
-     @ <tr><td><b>t</b></td><td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
-     @ <tr><td><b>v</b></td><td><i>Developer:</i> Inherit privileges of user <tt>developer</tt></td></tr>
-     @ <tr><td><b>w</b></td><td><i>Write-Tkt:</i> Edit tickets</td></tr>
-     @ <tr><td><b>z</b></td><td><i>Zip download:</i> Download a baseline via the
-     @ <tt>/zip</tt> URL even without check<b>o</b>ut and <b>h</b>istory permissions</td></tr>
+     @ <tr><td valign="top"><b>a</b></td>
+     @   <td><i>Admin:</i> Create and delete users</td></tr>
+     @ <tr><td valign="top"><b>c</b></td>
+     @   <td><i>Append-Tkt:</i> Append to tickets</td></tr>
+     @ <tr><td valign="top"><b>d</b></td>
+     @   <td><i>Delete:</i> Delete wiki and tickets</td></tr>
+     @ <tr><td valign="top"><b>e</b></td>
+     @   <td><i>Email:</i> View sensitive data such as EMail addresses</td></tr>
+     @ <tr><td valign="top"><b>f</b></td>
+     @   <td><i>New-Wiki:</i> Create new wiki pages</td></tr>
+     @ <tr><td valign="top"><b>g</b></td>
+     @   <td><i>Clone:</i> Clone the repository</td></tr>
+     @ <tr><td valign="top"><b>h</b></td>
+     @   <td><i>Hyperlinks:</i> Show hyperlinks to detailed
+     @   repository history</td></tr>
+     @ <tr><td valign="top"><b>i</b></td>
+     @   <td><i>Check-In:</i> Commit new versions in the repository</td></tr>
+     @ <tr><td valign="top"><b>j</b></td>
+     @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
+     @ <tr><td valign="top"><b>k</b></td>
+     @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
+     @ <tr><td valign="top"><b>m</b></td>
+     @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
+     @ <tr><td valign="top"><b>n</b></td>
+     @   <td><i>New-Tkt:</i> Create new tickets</td></tr>
+     @ <tr><td valign="top"><b>o</b></td>
+     @   <td><i>Check-Out:</i> Check out versions</td></tr>
+     @ <tr><td valign="top"><b>p</b></td>
+     @   <td><i>Password:</i> Change your own password</td></tr>
+     @ <tr><td valign="top"><b>r</b></td>
+     @   <td><i>Read-Tkt:</i> View tickets</td></tr>
+     @ <tr><td valign="top"><b>s</b></td>
+     @   <td><i>Setup/Super-user:</i> Setup and configure this website</td></tr>
+     @ <tr><td valign="top"><b>t</b></td>
+     @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
+     @ <tr><td valign="top"><b>v</b></td>
+     @   <td><i>Developer:</i> Inherit privileges of 
+     @   user <tt>developer</tt></td></tr>
+     @ <tr><td valign="top"><b>w</b></td>
+     @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
+     @ <tr><td valign="top"><b>z</b></td>
+     @   <td><i>Zip download:</i> Download a baseline via the
+     @   <tt>/zip</tt> URL even without check<b>o</b>ut
+     @    and <b>h</b>istory permissions</td></tr>
   @ </table>
   @ </li>
   @
   @ <li><p>
   @ Every user, logged in or not, inherits the privileges of <b>nobody</b>.
+  @ </p></li>
+  @
+  @ <li><p>
   @ Any human can login as <b>anonymous</b> since the password is
   @ clearly displayed on the login page for them to type.  The purpose
   @ of requiring anonymous to log in is to prevent access by spiders.
-  @ Every logged-in user inherits the privileges of <b>anonymous</b>.
+  @ Every logged-in user inherits the combined privileges of
+  @ <b>anonymous</b> and
+  @ <b>nobody</b>.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ Users with privilege <b>v</b> inherit the combined privileges of
+  @ <b>developer</b>, <b>anonymous</b>, and <b>nobody</b>.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ A blank password disables login for a user.
   @ </p></li>
   @
   @ </ol>
