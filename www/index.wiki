@@ -92,10 +92,6 @@ Competing Projects:
      database repository.
 
 <a name="nolinks">?</a> If you don't see the links, you aren't logged
-in.  Please [./login | log in] as "anonymous" to see the links.
-
-The fossil sites are so self hosting that what you're seeing is
-<b>fossil</b> in action.  Requiring a log in prevents <b>bots</b>
-which don't respect <code>robots.txt</code> from putting half-finished
-or incorrect versions of &lt;<i>your fossil-hosted project
-here</i>&gt; all over the net.
+in.  Please
+<a href="../../../login">log in</a>
+as "anonymous" to see them.
