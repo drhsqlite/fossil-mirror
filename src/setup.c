@@ -371,24 +371,24 @@ void user_edit(void){
   memset(inherit, 0, sizeof(inherit));
   if( strcmp(zLogin, "developer") ){
     char *z1, *z2;
-    z1 = z2 = db_text("","SELECT cap FROM user WHERE login='developer'");
-    while( *z1 ){
+    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
+    while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] = "<font color=\"red\">&#149;</font>";
     }
     free(z2);
   }
   if( strcmp(zLogin, "anonymous") ){
     char *z1, *z2;
-    z1 = z2 = db_text("","SELECT cap FROM user WHERE login='anonymous'");
-    while( *z1 ){
+    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
+    while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] = "<font color=\"blue\">&#149;</font>";
     }
     free(z2);
   }
   if( strcmp(zLogin, "nobody") ){
     char *z1, *z2;
-    z1 = z2 = db_text("","SELECT cap FROM user WHERE login='nobody'");
-    while( *z1 ){
+    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
+    while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] = "<font color=\"green\">&#149;</font>";
     }
     free(z2);
