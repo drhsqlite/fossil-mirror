@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sexplicit\slinks\sin\swiki\svisible\sregardless\sof\swhether\sor\snot\nthe\s"h"\spermission\sis\sturned\son.
-D 2008-11-22T19:32:44
+C "forward\sout"\sthe\s"log\sin\sto\ssee\slinks"\smessage\sin\sindex.wiki
+D 2008-11-24T16:20:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -212,7 +212,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki d69c059dc89de73b1fb1c030870f94c7b03fff46
-F www/index.wiki b800f0fa20119e4bbafca726832842a95d1c3c1a
+F www/index.wiki 635e17dfd60bce7d767d43cf6368aa2e6b751333
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 21cecd209f7201f17e8a784c0d8f735603d440ae
-R 5f8503422b30d26ade3d7ecb59e1bb27
-U drh
-Z 100f1e535871ed4d36f960b2540b18c7
+P a8c3a7ea9249281e0a1fb55fb31d2ad57844f848
+R 68feb90ee316f0c3141854f408c0a635
+U kejoki
+Z dd1b96aa30d61566742d3877af4b69dc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJKF5goxKgR168RlERArSRAKCDfbLiBvM3aSlgFyTxXlbmX5gOkwCeMlW+
-Anwo5iqaHr60P6LvmFm2E34=
-=ynZK
+iD4DBQFJKtRi6EFGj+X1mh4RAiAiAJ9f7ZlsQ9Q9+ghh/ITF+EGqqEYCtACUC+EZ
+Dd7T0bdVwh2qZfqOqeddfA==
+=3kkg
 -----END PGP SIGNATURE-----

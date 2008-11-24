@@ -53,7 +53,7 @@ Feature Summary:
   *  Ridiculously easy to [./build.wiki | install] and 
      [./quickstart.wiki | operate].
 
-User Links: <sup><a href="#nolinks">?</a>
+User Links:
 
   *  The [./concepts.wiki | concepts] behind fossil
   *  [./build.wiki | Building And Installing]
@@ -90,8 +90,3 @@ Competing Projects:
   *  [http://www.monotone.ca/ | Monotone] - distributed
      SCM in a single-file executable with a single-file SQLite
      database repository.
-
-<a name="nolinks">?</a> If you don't see the links, you aren't logged
-in.  Please
-<a href="../../../login">log in</a>
-as "anonymous" to see them.
