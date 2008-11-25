@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C "forward\sout"\sthe\s"log\sin\sto\ssee\slinks"\smessage\sin\sindex.wiki
-D 2008-11-24T16:20:42
+C Reinstate\s"Tags"\son\sthe\smain\smenu.\sAllow\sthe\snew\stagview\spage\sto\shand\nover\sto\sthe\sold\s(but\sno\suser\sinterface\sfor\sthis\syet).
+D 2008-11-25T21:56:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -92,10 +92,10 @@ F src/shun.c f707294883077a4915a91289d25f43c54ff45966
 F src/sqlite3.c 6575b1e5b3ee39b9b00a467d31b28300998d820e
 F src/sqlite3.h 823f16ac93a817427016bfec510d89010bba4be3
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c 41b3e7ff54fc592a4262b1cd409cfd408be59112
+F src/style.c f8159149defae5c77e8857955ec43b1ce4bd99bf
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
 F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
-F src/tagview.c ea43e4dea1834dd5be650c299e7be1394a204b1b
+F src/tagview.c ea26ba8f0d1d6b11a9f27e201c52d875f9cb05b2
 F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P a8c3a7ea9249281e0a1fb55fb31d2ad57844f848
-R 68feb90ee316f0c3141854f408c0a635
-U kejoki
-Z dd1b96aa30d61566742d3877af4b69dc
+P f0720ef5f1b2901d8f1ff0b56bab2d6040a1aa5e
+R 6b97f5ea6355cbd1638f950c3ffaab48
+U eric
+Z 000f9c38ebf30d2d7df113d595e7fdf7
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD4DBQFJKtRi6EFGj+X1mh4RAiAiAJ9f7ZlsQ9Q9+ghh/ITF+EGqqEYCtACUC+EZ
-Dd7T0bdVwh2qZfqOqeddfA==
-=3kkg
+iD8DBQFJLHTAu+lpsLhDMQkRAl7+AKCgEHwJtPQnhZp9hWpqhI3dGuUmugCePAyh
+xcoip76HazZUfhDQKOK4yts=
+=JioR
 -----END PGP SIGNATURE-----

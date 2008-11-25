@@ -30,7 +30,7 @@
 #include "tagview.h"
 
 
-#if 1
+#if 0
 #  define TAGVIEW_DEFAULT_FILTER "AND t.tagname NOT GLOB 'wiki-*' "
 #else
 #  define TAGVIEW_DEFAULT_FILTER
@@ -84,6 +84,7 @@ static void tagview_page_search_miniform(void){
   @ Search for tags: 
   @ <input type='text' name='like' value='%h((like?like:""))' size='10'/>
   @ <input type='submit'/>
+  @ <input type='hidden' name='raw' value='y'/>
   @ </form>
   @ </div>
 }
@@ -137,12 +138,13 @@ static void tagview_page_tag_by_name( char const * tagname ){
 }
 
 /*
-** WEBP AGE: /tagview
+** Internal view of tags
 */
-void old_tagview_page(void){
+void raw_tagview_page(void){
   char const * check = 0;
   login_check_credentials();
-  if( !g.okRdWiki ){
+  /* if( !g.okRdWiki ){ */
+  if( !g.okAdmin ){
     login_needed();
   }
   style_header("Tags");
@@ -192,10 +194,14 @@ void tagview_page(void){
   if( !g.okRead ){
     login_needed();
   }
+  if ( P("tagid") || P("like") || P("raw") ) {
+    raw_tagview_page();
+    return;
+  }
   login_anonymous_available();
   if( 0 != (zName = P("name")) ){
     Blob uuid;
-    style_header("Tagged Baselines");
+    style_header("Tagged Artifacts");
     @ <h2>%s(zName):</h2>
     if( sym_tag_to_uuid(zName, &uuid) > 0){
       tagview_print_timeline(zName, "sym-");
