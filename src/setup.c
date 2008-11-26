@@ -816,6 +816,13 @@ void setup_editcss(void){
   if( !g.okSetup ){
     login_needed();
   }
+  db_begin_transaction();
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name='css'");
+    cgi_replace_parameter("css", zDefaultCSS);
+  }else{
+    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS);
+  }
   style_header("Edit CSS");
   @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
   login_insert_csrf_secret();
@@ -823,6 +830,7 @@ void setup_editcss(void){
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes">
+  @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
   @ Here is the default CSS:
@@ -830,6 +838,7 @@ void setup_editcss(void){
   @ %h(zDefaultCSS)
   @ </pre></blockquote>
   style_footer();
+  db_end_transaction(0);
 }
 
 /*

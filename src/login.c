@@ -196,7 +196,7 @@ void login_page(void){
   if( g.zLogin==0 ){
     @ <p>To login
   }else{
-    @ <p>You are current logged in as <b>%h(g.zLogin)</b></p>
+    @ <p>You are currently logged in as <b>%h(g.zLogin)</b></p>
     @ <p>To change your login to a different user
   }
   @ enter the user-id and password at the left and press the

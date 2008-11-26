@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tidy\sup\sthe\sraw\stags\sweb\spage,\sand\sprovide\sa\sway\sto\sget\sthere,\sfor\sadmins\sonly
-D 2008-11-26T21:59:42
+C Provide\sa\s"Revert\sto\sDefault"\sbutton\sfor\sediting\sCSS.\sGrammar\sfix\son\slogin\spage.
+D 2008-11-26T22:24:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 5e3422939d589e23dcafb325f4e24924e47602b0
 F src/http.c 68bb1e0b0001a1d789c43d38f00238796535e6f4
 F src/info.c 594a3689d127c8cf08baa243250f3d393fc1721c
-F src/login.c e06e3ddfdaffb9ace808742e09fcaf0d676d448e
+F src/login.c fe758dc0b5f65fc16fe91ffde92ce8c61d9f2355
 F src/main.c 815f70292e0d98cd8a4f5a9b57f91494ccb8ef46
 F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -86,7 +86,7 @@ F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c fa8ac9641b5e6ea7d3c2591af636f21f1b613e9d
-F src/setup.c 0829a1a6e111af3b2611d113415195100b665cdf
+F src/setup.c 37e2870ec6154f50bf3ebecafcbafef3ecf1e975
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c f707294883077a4915a91289d25f43c54ff45966
 F src/sqlite3.c 6575b1e5b3ee39b9b00a467d31b28300998d820e
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 6f0a9f730bfdd476f89d52bbe15ead50baebf385
-R d9b7e59a8ba923fd801a4f0ca916e80f
+P 8d529a7ae9b00d3cb39d4e7b56bfa1e089a18795
+R fe783fa9f15451d18159b77a595dfe44
 U eric
-Z 996766546a7c39939dbfe804cb7ef6f1
+Z f7bafe41d03c85bedbc209cc5f6e826b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFJLccfu+lpsLhDMQkRAnkuAJ9jvOEdCW28FUUqQjdfJ+wQLFAY6ACgmzuH
-bnouW2qPKAK2efZrFUlApRA=
-=J0Nz
+iD8DBQFJLczVu+lpsLhDMQkRAus3AJ94j1jlpGtUeB6E3zkp+e4JF0i8rACgt8g2
+KtrwEW+I8S//S/vUGEmofiU=
+=06W0
 -----END PGP SIGNATURE-----
