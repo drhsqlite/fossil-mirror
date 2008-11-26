@@ -79,7 +79,7 @@ static void tagview_page_list_tags(const char *zLike){
 */
 static void tagview_page_search_miniform(void){
   char const * like = P("like");
-  @ <div style='font-size:smaller'>
+  @ <div class='miniform'>
   @ <form action='tagview' method='post'>
   @ Search for tags: 
   @ <input type='text' name='like' value='%h((like?like:""))' size='10'/>
@@ -126,13 +126,15 @@ static void tagview_page_tag_by_name( char const * tagname ){
   zSql = mprintf( 
     "SELECT DISTINCT"
     "       linktagid(t.tagid) AS 'Tag ID',"
+    "       linktagname(t.tagname) AS 'Name',"
     "       DATETIME(tx.mtime) AS 'Timestamp',"
     "       linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b "
-    " WHERE t.tagname='%q' AND t.tagid=tx.tagid AND tx.rid=b.rid "
+    " WHERE ( t.tagname='%q' OR  t.tagname='sym-%q') "
+    "   AND t.tagid=tx.tagid AND tx.rid=b.rid "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC",
-    tagname);
+    tagname,tagname);
   db_generic_query_view(zSql, 1);
   free(zSql);
 }
@@ -147,7 +149,7 @@ void raw_tagview_page(void){
   if( !g.okAdmin ){
     login_needed();
   }
-  style_header("Tags");
+  style_header("Raw Tags");
   login_anonymous_available();
   tagview_page_search_miniform();
   @ <hr/>
@@ -189,6 +191,7 @@ void tagview_print_timeline(char const *pName, char const *pPrefix){
 */
 void tagview_page(void){
   char const *zName = 0;
+  char const *zTitle = 0;
   int nTag = 0;
   login_check_credentials();
   if( !g.okRead ){
@@ -201,7 +204,11 @@ void tagview_page(void){
   login_anonymous_available();
   if( 0 != (zName = P("name")) ){
     Blob uuid;
-    style_header("Tagged Artifacts");
+    if( g.okAdmin ){
+      style_submenu_element("RawTags", "Internal Ticket View",
+        "%s/tagview?name=%s&raw=y", g.zTop, zName);
+    }
+    zTitle = "Tagged Artifacts";
     @ <h2>%s(zName):</h2>
     if( sym_tag_to_uuid(zName, &uuid) > 0){
       tagview_print_timeline(zName, "sym-");
@@ -214,7 +221,11 @@ void tagview_page(void){
     Stmt q;
     const char *prefix = "sym-";
     int preflen = strlen(prefix);
-    style_header("Tags");
+    if( g.okAdmin ){
+      style_submenu_element("RawTags", "Internal Ticket View",
+        "%s/tagview?raw=y", g.zTop);
+    }
+    zTitle = "Tags";
     db_prepare(&q,
       "SELECT tagname"
       "  FROM tag"
@@ -257,6 +268,7 @@ void tagview_page(void){
     }
     db_finalize(&q);
   }
+  style_header(zTitle);
   /*
    * Put in dummy functions since www_print_timeline has generated calls to
    * them. Some browsers don't seem to care, but better to be safe.
@@ -269,5 +281,6 @@ void tagview_page(void){
   @ function xout(id){
   @ }
   @ </script>
+
   style_footer();
 }

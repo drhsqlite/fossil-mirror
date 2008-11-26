@@ -371,6 +371,11 @@ const char zDefaultCSS[] =
 @   border: 1px solid #ff0000;
 @ }
 @
+@ div.miniform {
+@     font-size: smaller;
+@     margin: 8px;
+@ } 
+@
 @ table.fossil_db_generic_query_view {
 @   border-spacing: 0px;
 @   border: 1px solid black;

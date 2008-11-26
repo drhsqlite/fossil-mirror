@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Mention\sthat\scheck-in\scomments\sfollow\swiki\sformatting\srules.\s\sIf\sthe\ncheck-in\scomment\sis\sblank,\sprompt\sthe\suser\sto\sabort\sthe\scheck-in.
-D 2008-11-26T03:26:56
+C Tidy\sup\sthe\sraw\stags\sweb\spage,\sand\sprovide\sa\sway\sto\sget\sthere,\sfor\sadmins\sonly
+D 2008-11-26T21:59:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -55,7 +55,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 63d9c57b0987bfca1a39cbaef34be10331739b2a
+F src/db.c 9592bb6541a764e1034c2d107c8e7668446ce32c
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -92,10 +92,10 @@ F src/shun.c f707294883077a4915a91289d25f43c54ff45966
 F src/sqlite3.c 6575b1e5b3ee39b9b00a467d31b28300998d820e
 F src/sqlite3.h 823f16ac93a817427016bfec510d89010bba4be3
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c f8159149defae5c77e8857955ec43b1ce4bd99bf
+F src/style.c ce8ef4ed6f4bd49a1e30673b29f77bf7f32bfa8a
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
 F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
-F src/tagview.c ea26ba8f0d1d6b11a9f27e201c52d875f9cb05b2
+F src/tagview.c cf215193b7425ba912744cc1fa13c29f9475aacf
 F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 6bcff72d23a42482562a2b4e46e0059ff276ece3
-R 65bcb6d8beaf0c6d9c8a03d3994a4ec2
-U drh
-Z 668b80ab2ab578c98ed047b5fb5555cb
+P 6f0a9f730bfdd476f89d52bbe15ead50baebf385
+R d9b7e59a8ba923fd801a4f0ca916e80f
+U eric
+Z 996766546a7c39939dbfe804cb7ef6f1
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFJLMIDoxKgR168RlERAmJ4AJ9JCl7B8omwItv3E9NjnImssBHtYQCdHTKV
-k6Bq+yo+IdWqgZR/JrN4A8Y=
-=Y1Q7
+iD8DBQFJLccfu+lpsLhDMQkRAnkuAJ9jvOEdCW28FUUqQjdfJ+wQLFAY6ACgmzuH
+bnouW2qPKAK2efZrFUlApRA=
+=J0Nz
 -----END PGP SIGNATURE-----
