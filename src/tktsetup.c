@@ -493,6 +493,7 @@ static const char zDefaultEdit[] =
 @    wrap="virtual" class="wikiedit">$<comment></textarea><br>
 @   <input type="hidden" name="eall" value="1">
 @   <input type="submit" name="aonlybtn" value="Append Remark">
+@   <input type="submit" name="preview1btn" value="Preview">
 @ <th1>enable_output [expr {!$eall}]</th1>
 @   Append Remark from 
 @   <input type="text" name="username" value="$<username>" size="30">:<br>
@@ -500,8 +501,25 @@ static const char zDefaultEdit[] =
 @    wrap="virtual" class="wikiedit">$<cmappnd></textarea><br>
 @ <th1>enable_output [expr {[hascap w] && !$eall}]</th1>
 @   <input type="submit" name="eallbtn" value="Edit All">
+@ <th1>enable_output [expr {!$eall}]</th1>
+@   <input type="submit" name="preview2btn" value="Preview">
 @ <th1>enable_output 1</th1>
 @ </td></tr>
+@
+@ <th1>enable_output [info exists preview1btn]</th1>
+@ <tr><td colspan="2">
+@ Description Preview:<br><hr>
+@ <th1>wiki $comment</th1>
+@ <hr>
+@ </td></tr>
+@ <th1>enable_output [info exists preview2btn]</th1>
+@ <tr><td colspan="2">
+@ Description Preview:<br><hr>
+@ <th1>wiki $cmappnd</th1>
+@ <hr>
+@ </td></tr>
+@ <th1>enable_output 1</th1>
+@
 @ <tr><td align="right"></td><td>
 @ <input type="submit" name="submit" value="Submit Changes">
 @ <input type="submit" name="cancel" value="Cancel">

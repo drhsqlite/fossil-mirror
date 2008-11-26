@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Provide\sa\sdefault\sticket\sreport\sformat:\s"All\sTickets".\nTicket\s[86eb5f92f5]
-D 2008-11-26T02:03:44
+C Add\sa\s"Preview"\sbutton\sto\sthe\sdefault\sEdit\sTicket\sscreen\sconfiguration.
+D 2008-11-26T02:36:17
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -102,7 +102,7 @@ F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
 F src/timeline.c 16b352a347ebdf09a80ad19dcfe2661d378b138e
 F src/tkt.c 06fa0eeb8481f129e5c641b4e98398aae2660c4b
-F src/tktsetup.c 866d7baa7c7747b62604dcf45594875a16e5bf95
+F src/tktsetup.c 893b046bc634a3f3bfab66e1248c1a4c02e300d4
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 10df4ff6037b80a1d712e9306a9fb3ca15eeb774
-R 1605ad37101357b309078c8cdb9eb7b1
+P 024859fff29ad089bfda3293037bdbe30cecf73d
+R ab08bef8ce39f5d7da487c26cce2b049
 U drh
-Z acdb68b6d2a8d6bd6d5ac31623945568
+Z 4a2c6188b0fdbf4dd8bde19e874ec554
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJLK6FoxKgR168RlERAjqVAJwOdBpgCEHn8odlkS1J9qWEJ3lCAACeN/xd
-CZK97o5aMfFpM7PUPQAMPw0=
-=M5vf
+iD8DBQFJLLYkoxKgR168RlERAlRlAJ9jlnD9MihvfpVFsJ8V1FfI+FdYyACdG5q8
+69i0SMdyvHOAIb4EyEzThBA=
+=QQDC
 -----END PGP SIGNATURE-----
