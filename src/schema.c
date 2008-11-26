@@ -147,6 +147,26 @@ const char zRepositorySchema1[] =
 @    cols text,               -- A color-key specification
 @    sqlcode text             -- An SQL SELECT statement for this report
 @ );
+@ INSERT INTO reportfmt(title,cols,sqlcode) VALUES('All Tickets','#ffffff Key:
+@ #f2dcdc Active
+@ #e8e8e8 Review
+@ #cfe8bd Fixed
+@ #bde5d6 Tested
+@ #cacae5 Deferred
+@ #c8c8c8 Closed','SELECT
+@   CASE WHEN status IN (''Open'',''Verified'') THEN ''#f2dcdc''
+@        WHEN status=''Review'' THEN ''#e8e8e8''
+@        WHEN status=''Fixed'' THEN ''#cfe8bd''
+@        WHEN status=''Tested'' THEN ''#bde5d6''
+@        WHEN status=''Deferred'' THEN ''#cacae5''
+@        ELSE ''#c8c8c8'' END AS ''bgcolor'',
+@   substr(tkt_uuid,1,10) AS ''#'',
+@   datetime(tkt_mtime) AS ''mtime'',
+@   type,
+@   status,
+@   subsystem,
+@   title
+@ FROM ticket');
 @
 @ -- Some ticket content (such as the originators email address or contact
 @ -- information) needs to be obscured to protect privacy.  This is achieved

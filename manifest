@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reinstate\s"Tags"\son\sthe\smain\smenu.\sAllow\sthe\snew\stagview\spage\sto\shand\nover\sto\sthe\sold\s(but\sno\suser\sinterface\sfor\sthis\syet).
-D 2008-11-25T21:56:42
+C Provide\sa\sdefault\sticket\sreport\sformat:\s"All\sTickets".\nTicket\s[86eb5f92f5]
+D 2008-11-26T02:03:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -85,7 +85,7 @@ F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c 243248b6c01b8111cc62aea4d10fc8d4e942f723
+F src/schema.c fa8ac9641b5e6ea7d3c2591af636f21f1b613e9d
 F src/setup.c 0829a1a6e111af3b2611d113415195100b665cdf
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c f707294883077a4915a91289d25f43c54ff45966
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P f0720ef5f1b2901d8f1ff0b56bab2d6040a1aa5e
-R 6b97f5ea6355cbd1638f950c3ffaab48
-U eric
-Z 000f9c38ebf30d2d7df113d595e7fdf7
+P 10df4ff6037b80a1d712e9306a9fb3ca15eeb774
+R 1605ad37101357b309078c8cdb9eb7b1
+U drh
+Z acdb68b6d2a8d6bd6d5ac31623945568
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJLHTAu+lpsLhDMQkRAl7+AKCgEHwJtPQnhZp9hWpqhI3dGuUmugCePAyh
-xcoip76HazZUfhDQKOK4yts=
-=JioR
+iD8DBQFJLK6FoxKgR168RlERAjqVAJwOdBpgCEHn8odlkS1J9qWEJ3lCAACeN/xd
+CZK97o5aMfFpM7PUPQAMPw0=
+=M5vf
 -----END PGP SIGNATURE-----
