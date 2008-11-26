@@ -257,7 +257,9 @@ static void prepare_commit_comment(Blob *pComment){
   char *zComment;
   int i;
   blob_set(&text,
-    "\n# Enter comments on this commit.  Lines beginning with # are ignored\n"
+    "\n"
+    "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
+    "# The check-in comment follows wiki formatting rules.\n"
     "#\n"
   );
   status_report(&text, "# ");
@@ -452,6 +454,15 @@ void commit_cmd(void){
     blob_append(&comment, zComment, -1);
   }else{
     prepare_commit_comment(&comment);
+    if( blob_size(&comment)==0 ){
+      Blob ans;
+      blob_zero(&ans);
+      prompt_user("empty check-in comment.  continue [y/N]? ", &ans);
+      if( blob_str(&ans)[0]!='y' ){
+        db_end_transaction(1);
+        exit(1);
+      }
+    }
   }
 
   /* Step 1: Insert records for all modified files into the blob 
