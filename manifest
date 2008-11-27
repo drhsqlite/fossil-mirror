@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C On\swindows,\sa\srecv()\scall\sfails\sif\sthe\sreturn\svalue\sis\sless\sthan\sor\sequal\nto\szero.\s\sTicket\s[66cbcd56a229f33af6b9a6329a7]
-D 2008-11-27T13:50:41
+C Fix\sthe\sSetup->Shunned->Rebuild\sbutton\sso\sthat\sit\sworks\swhen\sthe\n"fossil\sui"\scommand\sis\srun\sfrom\swithin\sa\scheck-out\sand\swithout\sspecifying\nthe\srepository\sfilename.
+D 2008-11-27T22:58:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -88,7 +88,7 @@ F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
 F src/schema.c fa8ac9641b5e6ea7d3c2591af636f21f1b613e9d
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/shun.c f707294883077a4915a91289d25f43c54ff45966
+F src/shun.c ffc8251555af50947b4244716263fc66217ce32e
 F src/sqlite3.c 1faea08cabbaf30fad6396d4125b274ebaf479ac
 F src/sqlite3.h 43e639b1caccd56dc2b748c5990aa2e246455181
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 72e9eb6a0d4c6e77787839525ad9e83446c655b9
-R 1fcc67ecc11d82c76039f06d355fac13
+P c12e5b102ee6079715da0fa4eff7fb502b68b111
+R 5c7df9721e32fd0362c18a53ac3e5a33
 U drh
-Z 5755e4569ed810f4f9477beb49f38a55
+Z 4d37c056b1e405f19f7bb04bfaca3e66
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.8 (Darwin)
 
-iD8DBQFJLqW1oxKgR168RlERAoQTAKCMfZJp1yml/YAN/59kfm61DBRwMQCeKt3I
-qqpFXvGWhmwKKonJ0b0pShs=
-=qfXZ
+iEYEARECAAYFAkkvJi0ACgkQoxKgR168RlEffACfSproN+3JVMDBC5yc7+dCCfZi
+lOUAnRtYGWor/Jrumr3tCV0OBNjgbMzQ
+=lCyV
 -----END PGP SIGNATURE-----
