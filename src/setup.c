@@ -373,7 +373,7 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<font color=\"red\">&#149;</font>";
+      inherit[0x7f & *(z1++)] = "<font color=\"red\">&bull;</font>";
     }
     free(z2);
   }
@@ -381,7 +381,7 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<font color=\"blue\">&#149;</font>";
+      inherit[0x7f & *(z1++)] = "<font color=\"blue\">&bull;</font>";
     }
     free(z2);
   }
@@ -389,7 +389,7 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<font color=\"green\">&#149;</font>";
+      inherit[0x7f & *(z1++)] = "<font color=\"green\">&bull;</font>";
     }
     free(z2);
   }
@@ -487,18 +487,18 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The "<font color="green"><big>&#149;</big></font>" mark indicates
+  @ The "<font color="green"><big>&bull;</big></font>" mark indicates
   @ the privileges of "nobody" that are available to all users
   @ regardless of whether or not they are logged in.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<font color="blue"><big>&#149;</big></font>" mark indicates
+  @ The "<font color="blue"><big>&bull;</big></font>" mark indicates
   @ the privileges of "anonymous" that are inherited by all logged-in users.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<font color="red"><big>&#149;</big></font>" mark indicates
+  @ The "<font color="red"><big>&bull;</big></font>" mark indicates
   @ the privileges of "developer" that are inherited by all users with
   @ the <b>Developer</b> privilege.
   @ </p></li>

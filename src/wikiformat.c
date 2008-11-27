@@ -1047,7 +1047,7 @@ static void wiki_render(Renderer *p, char *z){
       }
       case TOKEN_BULLET: {
         if( inlineOnly ){
-          blob_append(p->pOut, " &#149; ", -1);
+          blob_append(p->pOut, " &bull; ", -1);
         }else{
           if( p->wikiList!=MARKUP_UL ){
             if( p->wikiList ){
