@@ -154,7 +154,7 @@ static int socket_recv_line(int pSockId, char* pOut, int pOutSize){
 **
 ** The function was placed here in http.c due to it's socket
 ** nature and we did not want to introduce socket headers into
-** the socket netural blob.c file.
+** the socket neutral blob.c file.
 */
 int socket_read_blob(Blob *pBlob, int pSockId, int nToRead){
   int i=0,read=0;
@@ -163,7 +163,7 @@ int socket_read_blob(Blob *pBlob, int pSockId, int nToRead){
   while ( i<nToRead ){
     read = recv(pSockId, rbuf, 50, 0);
     i += read;
-    if( read<0 ){
+    if( read<=0 ){
       return 0;
     }
     blob_append(pBlob, rbuf, read);
