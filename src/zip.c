@@ -75,7 +75,7 @@ void zip_set_timedate_from_str(const char *zDate){
   H = atoi(&zDate[11]);
   M = atoi(&zDate[14]);
   S = atoi(&zDate[17]);
-  dosTime = (H<<11) + (M<<5) + S;
+  dosTime = (H<<11) + (M<<5) + (S>>1);
   dosDate = ((y-1980)<<9) + (m<<5) + d;
 }
 
@@ -380,5 +380,4 @@ void baseline_zip_page(void){
   free( zRid );
   cgi_set_content(&zip);
   cgi_set_content_type("application/zip");
-  cgi_reply();
 }

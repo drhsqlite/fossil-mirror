@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sversion\sof\sSQLite\sused\sto\s3.6.6.2.
-D 2008-11-27T02:30:29
+C Fix\stwo\sproblems\sin\sthe\sZIP\sdownloader,\sas\sreported\sby\nticket\s[e28adcd72503a].
+D 2008-11-27T13:25:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -114,7 +114,7 @@ F src/wiki.c 175d2ccd39cd4d34134e96a4d683ab776a2fbad5
 F src/wikiformat.c 0a6e50b755f568b7d8bb270173b7185d8de191ec
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
 F src/xfer.c 9bceefbd60db271feb049b2747e532249b771b29
-F src/zip.c df3f3d2e3919faa5e5fcf62e99de9534d19f1d07
+F src/zip.c f641ace2a3550df20ed48108d287cabbf2051d44
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P adefb6c8dba43644c5fce844f4afbb19e4f4268f
-R a966489447cc1ecb744da54c1db3193a
+P f84bfc31bfa09aa7d4dcec01bddefe531b693549
+R fc1f28ebe34430fb8f37b3e381e484aa
 U drh
-Z ffa71e0a390d58ec9c3e421afcb68dfe
+Z 95f5a7a1874fa0ec5213e4582e623f1d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJLgZLoxKgR168RlERAuI5AJwPcXSGhxk0+AFVfBNPzidovk44GACfWzOM
-ZbJzOYcgnFnFB5E+yCiCQic=
-=fv+x
+iD8DBQFJLp/qoxKgR168RlERAhW1AJwKRi/2adsWwN+ZN+Hn0FIe/3cgWgCcCMje
+0kT1Mw8evkzzBuUjqIrcAsQ=
+=xLqO
 -----END PGP SIGNATURE-----
