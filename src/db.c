@@ -598,6 +598,7 @@ void db_init_database(
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
   }
+  sqlite3_busy_timeout(db, 5000);
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
@@ -629,6 +630,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
     if( rc!=SQLITE_OK ){
       db_err(sqlite3_errmsg(g.db));
     }
+    sqlite3_busy_timeout(g.db, 5000);
     db_connection_init();
   }else{
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
