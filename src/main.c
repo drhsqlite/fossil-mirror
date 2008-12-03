@@ -131,6 +131,8 @@ struct Global {
   int thTrace;            /* True to enable TH1 debugging output */
   Blob thLog;             /* Text of the TH1 debugging output */
 
+  int isHome;             /* True if rendering the "home" page */
+
   /* Storage for the aux() and/or option() SQL function arguments */
   int nAux;                    /* Number of distinct aux() or option() values */
   const char *azAuxName[MX_AUX]; /* Name of each aux() or option() value */

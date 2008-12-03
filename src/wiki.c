@@ -88,7 +88,7 @@ void home_page(void){
     login_check_credentials();
     g.zExtra = zPageName;
     cgi_set_parameter_nocopy("name", g.zExtra);
-    g.argv[1] = "home";
+    g.isHome = 1;
     wiki_page();
     return;
   }
@@ -123,7 +123,6 @@ void wiki_page(void){
   const char *zPageName;
   char *zHtmlPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
-  int isHome = g.argv[1][0]=='h';
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
@@ -172,7 +171,7 @@ void wiki_page(void){
       }
     }
   }
-  if( !isHome ){
+  if( !g.isHome ){
     if( isSandbox || (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
       style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
            g.zTop, zPageName);
