@@ -382,6 +382,7 @@ const char zLocalSchema[] =
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
+@   mtime INTEGER,                    -- Modification time of file on disk
 @   pathname TEXT,                    -- Full pathname relative to root
 @   origname TEXT,                    -- Original pathname. NULL if unchanged
 @   UNIQUE(pathname,vid)

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\s5\ssecond\sbusy\stimeout\son\sthe\sdatabase\sconnection.
-D 2008-12-03T14:22:00
+C Add\sthe\sability\sto\sdetect\sfile\schanges\susing\sonly\sthe\smtime.\s\sThis\sis\sturned\non\susing\sthe\s"fossil\ssetting\smtime-changes\sON"\scommand.\s\sIt\sis\soff\sby\sdefault,\nbut\sit\sdoes\smake\smany\soperations\sgo\smuch\sfaster,\sespecially\son\slarge\nrepositories,\sso\swe\smight\swant\sto\sstart\sturning\sit\son\sby\sdefault.
+D 2008-12-06T18:02:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -55,7 +55,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 87e3dcf41497741f39ee67aa539534cf423abe83
+F src/db.c 339157982571135214867359963c9ae1972c254b
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -85,7 +85,7 @@ F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
-F src/schema.c fa8ac9641b5e6ea7d3c2591af636f21f1b613e9d
+F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c ffc8251555af50947b4244716263fc66217ce32e
@@ -109,7 +109,7 @@ F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
 F src/url.c 8b85115038ddf3350b245236c566f3822be21456
 F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
-F src/vfile.c a6f67aae7d9cd22c96b02860f6d9bcbe46d68ee7
+F src/vfile.c 0b0beebd0945dd2a550bf52fa8b16472f45b7927
 F src/wiki.c 738d038bd73e1477489ab5e88f50c3dece513f72
 F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 426a3ba49ebb066c192e29e62b07a65854e840c7
-R 1cca48b199d6dc5e62ead111420a774e
+P 892c460b8e3794ad969550d28312c21873b31992
+R 3f120e913f6ce887c49d7e273d819878
 U drh
-Z aad8325d0f7e194824330cd9cb373386
+Z ded9a6952b0fe438051d74f700cbd4fa
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJNpYNoxKgR168RlERAuADAJ9kRFSdXKnNVV6909TLyQNcb4Fg6gCeNJ8s
-pcyqmyEa8nL/0kXeYzX1/iI=
-=7j5m
+iD8DBQFJOr4woxKgR168RlERApBjAJ4/pJktAX+ARLoHYkJPiqhc3SYi/gCggKEq
+/QKPP8o+bXRahJtBJpM6PaE=
+=xlVI
 -----END PGP SIGNATURE-----

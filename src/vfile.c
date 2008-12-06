@@ -147,10 +147,11 @@ void vfile_build(int vid, Blob *p){
 void vfile_check_signature(int vid){
   Stmt q;
   Blob fileCksum, origCksum;
+  int checkMtime = db_get_boolean("mtime-changes", 0);
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
-                 "       vfile.mrid, deleted, chnged, uuid"
+                 "       vfile.mrid, deleted, chnged, uuid, mtime"
                  "  FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid"
                  " WHERE vid=%d ", g.zLocalRoot, vid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -158,24 +159,33 @@ void vfile_check_signature(int vid){
     const char *zName;
     int chnged = 0;
     int oldChnged;
+    i64 oldMtime;
+    i64 currentMtime;
 
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     isDeleted = db_column_int(&q, 3);
     oldChnged = db_column_int(&q, 4);
+    oldMtime = db_column_int64(&q, 6);
     if( oldChnged>=2 ){
       chnged = oldChnged;
     }else if( isDeleted || rid==0 ){
       chnged = 1;
     }
     if( chnged!=1 ){
+      currentMtime = file_mtime(zName);
+    }
+    if( chnged!=1 && (checkMtime==0 || currentMtime!=oldMtime) ){
       db_ephemeral_blob(&q, 5, &origCksum);
       if( sha1sum_file(zName, &fileCksum) ){
         blob_zero(&fileCksum);
       }
       if( blob_compare(&fileCksum, &origCksum) ){
         chnged = 1;
+      }else if( currentMtime!=oldMtime ){
+        db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
+                      currentMtime, id);
       }
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
@@ -219,6 +229,8 @@ void vfile_to_disk(int vid, int id, int verbose){
     content_get(rid, &content);
     if( verbose ) printf("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
+    db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
+                  file_mtime(zName), id);
   }
   db_finalize(&q);
 }
@@ -238,6 +250,7 @@ void vfile_unlink(int vid){
     unlink(zName);
   }
   db_finalize(&q);
+  db_multi_exec("UPDATE vfile SET mtime=NULL HERE vid=%d AND mrid>0", vid);
 }
 
 /*

@@ -689,9 +689,22 @@ static int isValidLocalDb(const char *zDbName){
   db_open_config();
   db_open_repository(0);
 
+  /* If the "mtime" column is missing from the vfile table, then
+  ** add it now.   This code added on 2008-12-06.  After all users have
+  ** upgraded, this code can be safely deleted. 
+  */
+  rc = sqlite3_prepare(g.db, "SELECT mtime FROM vfile", -1, &pStmt, 0);
+  sqlite3_finalize(pStmt);
+  if( rc==SQLITE_ERROR ){
+    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN mtime INTEGER", 0, 0, 0);
+  }
+
   /* If the "origname" column is missing from the vfile table, then
-  ** add it now. */
+  ** add it now.   This code added on 2008-11-09.  After all users have
+  ** upgraded, this code can be safely deleted. 
+  */
   rc = sqlite3_prepare(g.db, "SELECT origname FROM vfile", -1, &pStmt, 0);
+  sqlite3_finalize(pStmt);
   if( rc==SQLITE_ERROR ){
     sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN origname TEXT", 0, 0, 0);
   }
@@ -1326,6 +1339,9 @@ static void print_setting(const char *zName){
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
 **
+**    mtime-changes    Use file modification times (mtimes) to detect when
+**                     files have been modified.  
+**
 **    proxy            URL of the HTTP proxy.  If undefined or "off" then
 **                     the "http_proxy" environment variable is consulted.
 **                     If the http_proxy environment variable is undefined
@@ -1346,6 +1362,7 @@ void setting_cmd(void){
     "localauth",
     "clearsign",
     "pgp-command",
+    "mtime-changes",
     "proxy",
     "web-browser",
   };
