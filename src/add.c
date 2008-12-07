@@ -27,7 +27,85 @@
 #include "config.h"
 #include "add.h"
 #include <assert.h>
+#include <dirent.h>
 
+    
+/*
+** Add a single file
+*/
+static void add_one_file(const char *zName, int vid, Blob *pOmit){
+  Blob pathname;
+  const char *zPath;
+      
+  file_tree_name(zName, &pathname, 1);
+  zPath = blob_str(&pathname);
+  if( strcmp(zPath, "manifest")==0
+   || strcmp(zPath, "_FOSSIL_")==0
+   || strcmp(zPath, "manifest.uuid")==0
+   || blob_compare(&pathname, pOmit)==0
+  ){
+    fossil_warning("cannot add %s", zPath);
+  }else{
+    if( !file_is_simple_pathname(zPath) ){
+      fossil_fatal("filename contains illegal characters: %s", zPath);
+    }
+    if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
+      db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
+    }else{
+      db_multi_exec(
+        "INSERT INTO vfile(vid,deleted,rid,mrid,pathname)"
+        "VALUES(%d,0,0,0,%Q)", vid, zPath);
+    }
+    printf("ADDED  %s\n", zPath);
+  }
+  blob_reset(&pathname);
+}
+
+/*
+** All content of the zDir directory to the SFILE table.
+*/
+void add_directory_content(const char *zDir){
+  DIR *d;
+  int origSize;
+  struct dirent *pEntry;
+  Blob path;
+
+  blob_zero(&path);
+  blob_append(&path, zDir, -1);
+  origSize = blob_size(&path);
+  d = opendir(zDir);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      char *zPath;
+      if( pEntry->d_name[0]=='.' ) continue;
+      blob_appendf(&path, "/%s", pEntry->d_name);
+      zPath = blob_str(&path);
+      if( file_isdir(zPath)==1 ){
+        add_directory_content(zPath);
+      }else if( file_isfile(zPath) ){
+        db_multi_exec("INSERT INTO sfile VALUES(%Q)", zPath);
+      }
+      blob_resize(&path, origSize);
+    }
+  }
+  closedir(d);
+  blob_reset(&path);
+}
+
+/*
+** Add all content of a directory.
+*/
+void add_directory(const char *zDir, int vid, Blob *pOmit){
+  Stmt q;
+  add_directory_content(zDir);
+  db_prepare(&q, "SELECT x FROM sfile ORDER BY x");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    add_one_file(zName, vid, pOmit);
+  }
+  db_finalize(&q);
+  db_multi_exec("DELETE FROM sfile");
+}
 
 /*
 ** COMMAND: add
@@ -51,42 +129,22 @@ void add_cmd(void){
   if( !file_tree_name(g.zRepositoryName, &repo, 0) ){
     blob_zero(&repo);
   }
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   for(i=2; i<g.argc; i++){
     char *zName;
-    char *zPath;
-    Blob pathname;
     int isDir;
 
     zName = mprintf("%/", g.argv[i]);
     isDir = file_isdir(zName);
-    if( isDir==1 ) continue;
-    if( isDir==0 ){
+    if( isDir==1 ){
+      add_directory(zName, vid, &repo);
+    }else if( isDir==0 ){
       fossil_fatal("not found: %s", zName);
-    }
-    if( isDir==2 && access(zName, R_OK) ){
+    }else if( access(zName, R_OK) ){
       fossil_fatal("cannot open %s", zName);
-    }
-    file_tree_name(zName, &pathname, 1);
-    zPath = blob_str(&pathname);
-    if( strcmp(zPath, "manifest")==0
-     || strcmp(zPath, "_FOSSIL_")==0
-     || strcmp(zPath, "manifest.uuid")==0
-     || blob_compare(&pathname, &repo)==0
-    ){
-      fossil_warning("cannot add %s", zPath);
     }else{
-      if( !file_is_simple_pathname(zPath) ){
-        fossil_fatal("filename contains illegal characters: %s", zPath);
-      }
-      if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
-        db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
-      }else{
-        db_multi_exec(
-          "INSERT INTO vfile(vid,deleted,rid,mrid,pathname)"
-          "VALUES(%d,0,0,0,%Q)", vid, zPath);
-      }
+      add_one_file(zName, vid, &repo);
     }
-    blob_reset(&pathname);
     free(zName);
   }
   db_end_transaction(0);

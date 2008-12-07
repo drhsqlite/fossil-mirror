@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sability\sto\sdetect\sfile\schanges\susing\sonly\sthe\smtime.\s\sThis\sis\sturned\non\susing\sthe\s"fossil\ssetting\smtime-changes\sON"\scommand.\s\sIt\sis\soff\sby\sdefault,\nbut\sit\sdoes\smake\smany\soperations\sgo\smuch\sfaster,\sespecially\son\slarge\nrepositories,\sso\swe\smight\swant\sto\sstart\sturning\sit\son\sby\sdefault.
-D 2008-12-06T18:02:21
+C Enhance\sthe\s"fossil\sadd"\scommand\sso\sthat\swhen\sa\sdirectory\sis\snamed,\sall\ncontents\sof\sthat\sdirectory\sare\sadded\srecursively.\nTicket\s[e02ffabcdaaaf606099ac09227833ba282fdaace]
+D 2008-12-07T18:11:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -38,7 +38,7 @@ F ideas.txt b3e2a2903947bac9af49456ca380265ac2fd9768
 F kktodo.wiki 7b627a64906deaa649173e6fd622b85161b648bd
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
-F src/add.c b8ff9cb3e4b0c2003d8bef199766037ff317c120
+F src/add.c c6fe5d6e2032da8df5c6974a4868a6dd986eca11
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 892c460b8e3794ad969550d28312c21873b31992
-R 3f120e913f6ce887c49d7e273d819878
+P 2dffce041d44564bb95515e0f9d344c4a4ba80f7
+R 092bdac8ad43c3d7ef0e175a26325a92
 U drh
-Z ded9a6952b0fe438051d74f700cbd4fa
+Z 8359de91874a9c95b13f0029cdbf121c
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.8 (Darwin)
 
-iD8DBQFJOr4woxKgR168RlERApBjAJ4/pJktAX+ARLoHYkJPiqhc3SYi/gCggKEq
-/QKPP8o+bXRahJtBJpM6PaE=
-=xlVI
+iEYEARECAAYFAkk8Eb0ACgkQoxKgR168RlGfqwCfXZ65iXnU05SWL4QlSdjwPH5+
+R2IAmQGraPT1SbKXq40qzBqMJd7qteWG
+=UE0n
 -----END PGP SIGNATURE-----
