@@ -68,6 +68,11 @@ static void db_err(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+  if( g.xferPanic ){
+    cgi_reset_content();
+    @ error Database\serror:\s%F(z)
+    cgi_reply();
+  }
   if( g.cgiPanic ){
     g.cgiPanic = 0;
     cgi_printf("<h1>Database Error</h1>\n"

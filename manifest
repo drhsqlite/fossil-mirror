@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Enhance\sthe\s"fossil\sadd"\scommand\sso\sthat\swhen\sa\sdirectory\sis\snamed,\sall\ncontents\sof\sthat\sdirectory\sare\sadded\srecursively.\nTicket\s[e02ffabcdaaaf606099ac09227833ba282fdaace]
-D 2008-12-07T18:11:09
+C The\sserver\snow\sissues\serror\smessages\sin\sthe\ssynchronization\nprotocol\swhen\sa\sdatabase\serror\soccurs\sduring\ssync.\nTicket\s[39f3294e213111a51e93d02fef6faa0062979619]
+D 2008-12-07T18:48:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -55,7 +55,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 339157982571135214867359963c9ae1972c254b
+F src/db.c d80fba43ab74e78cbd690ddde04428a9463fe9d0
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c a11699aaf422bdad8c4d6822d02e4825e8966421
@@ -67,7 +67,7 @@ F src/file.c 5e3422939d589e23dcafb325f4e24924e47602b0
 F src/http.c 79044c34de344c235b776a58e5b2b908183f00c1
 F src/info.c 594a3689d127c8cf08baa243250f3d393fc1721c
 F src/login.c fe758dc0b5f65fc16fe91ffde92ce8c61d9f2355
-F src/main.c 3a813bc47a85bfa00f9099559d7fcc970faf3c82
+F src/main.c ae77223909cf862c09033b75ca4316f8150e98aa
 F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -113,7 +113,7 @@ F src/vfile.c 0b0beebd0945dd2a550bf52fa8b16472f45b7927
 F src/wiki.c 738d038bd73e1477489ab5e88f50c3dece513f72
 F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
-F src/xfer.c 9bceefbd60db271feb049b2747e532249b771b29
+F src/xfer.c bf89ac3d22a8737122dc41c4a203af8648e40550
 F src/zip.c f641ace2a3550df20ed48108d287cabbf2051d44
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 2dffce041d44564bb95515e0f9d344c4a4ba80f7
-R 092bdac8ad43c3d7ef0e175a26325a92
+P 8c4e72e22320d3de04ffcd9fe63b63b98d946db8
+R 64d5a5041332b6cda732a754ec0149b3
 U drh
-Z 8359de91874a9c95b13f0029cdbf121c
+Z 865101e97cbe7301c5cf0669673546a1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkk8Eb0ACgkQoxKgR168RlGfqwCfXZ65iXnU05SWL4QlSdjwPH5+
-R2IAmQGraPT1SbKXq40qzBqMJd7qteWG
-=UE0n
+iEYEARECAAYFAkk8GmkACgkQoxKgR168RlGqVwCbBQviUFz850cfZlUB1m+L75GB
+VCMAn3K/pTKhlWyygtDx4+1gkUk6Y9AX
+=9yqF
 -----END PGP SIGNATURE-----

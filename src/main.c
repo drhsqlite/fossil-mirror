@@ -74,6 +74,7 @@ struct Global {
   char *zErrMsg;          /* Text of an error message */
   Blob cgiIn;             /* Input to an xfer www method */
   int cgiPanic;           /* Write error messages to CGI */
+  int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */
   FILE *httpIn;           /* Accept HTTP input from here */
