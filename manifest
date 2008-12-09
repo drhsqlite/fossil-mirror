@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sserver\snow\sissues\serror\smessages\sin\sthe\ssynchronization\nprotocol\swhen\sa\sdatabase\serror\soccurs\sduring\ssync.\nTicket\s[39f3294e213111a51e93d02fef6faa0062979619]
-D 2008-12-07T18:48:09
+C Change\sthe\sadd\scommand\sCLI\sdoc\s\sto\sreflect\srecursive\sadd\sof\sdirectories.
+D 2008-12-09T20:25:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -184,7 +184,7 @@ F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/bugtheory.wiki 5f6ed2b26bd0a1680ba70da8b04c78eafc40b272
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
 F www/cmd_.wiki-template 575b5c55cd38a4258e307586fb9415cafe88b658
-F www/cmd_add.wiki 90059388b2ab852657b079c24331503820b8877a
+F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki 7f2e0211184c9d78e65f6c51b2472b601edc6d7d
 F www/cmd_extra.wiki 2878d797602d9dfa271f31015fcf428f10c509b6
 F www/cmd_ls.wiki e857a7c526a167f28826caaad842e7c2f65fd86e
@@ -222,14 +222,14 @@ F www/reference.wiki 28024751b1be5669447557f98a22913f60e8b92e
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 8c4e72e22320d3de04ffcd9fe63b63b98d946db8
-R 64d5a5041332b6cda732a754ec0149b3
-U drh
-Z 865101e97cbe7301c5cf0669673546a1
+P 2be82dcc2aba6fdcb5fed4ca4eebaf216403eb64
+R 3d3ec34be502252fda2dd409454565cd
+U kejoki
+Z 6d4f9eaefc47b72e338b5f60ca867133
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkk8GmkACgkQoxKgR168RlGqVwCbBQviUFz850cfZlUB1m+L75GB
-VCMAn3K/pTKhlWyygtDx4+1gkUk6Y9AX
-=9yqF
+iD8DBQFJPtRN6EFGj+X1mh4RAtZnAJ0QI9G4ns6FG1KapZ/xGVqICENT/QCePIMf
+7+riodeGWtPlksUVPePhRCA=
+=T+wp
 -----END PGP SIGNATURE-----
