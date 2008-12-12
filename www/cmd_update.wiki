@@ -3,11 +3,11 @@
 What do you do if you have changes out on a repository and
 you want them merged with your checkout?
 
-You use the <code>update</code> command, that's what.
+You use the <code>update</code> command.
 
-<b>fossil</b> can <a href="about_checkout.wiki">overwrite</a> any
+<b>fossil</b> can [./about_checkout.wiki | overwrite] any
 changes you've made to your checkout, or it can
-<a href="about_merge.wiki">merge</a> whatever changes have occurred
+[./about_merge.wiki | merge] whatever changes have occurred
 in the repo into your checkout.
 
 Update <em>merges</em> changes from the repository into your checkout.
@@ -15,19 +15,19 @@ Update <em>merges</em> changes from the repository into your checkout.
 <b>fossil</b> uses a simple conflict resolution strategy for merges:
 the latest change wins.
 
-Local intranet <code><a href="cmd_commit.wiki">commit</a></code>s
+Local intranet <code>[./cmd_commit.wiki | commit]</code>s
 (by someone else)
-or Net <code><a href="cmd_pull.wiki">pull</a></code>s from a server
+or Net <code>[./cmd_pull.wiki | pull]</code>s from a server
 will usually require a <code>fossil&nbsp;update</code> afterward.
 
 Local commits are likely to be made with
-<a href="cmd_settings.wiki#autosync">automatic syncing</a>
+[./cmd_settings.wiki#autosync | automatic syncing]
 set to "on", however, so if you don't use <b>fossil</b> for Net-wide
 projects you may never have to use <code>update</code>.
 
-See also: <a href="cmd_pull.wiki">fossil pull</a>,
-<a href="cmd_commit.wiki">fossil commit</a>,
-<a href="cmd_settings.wiki#autosync">fossil setting</a> (autosync),
-<i><a href="about_checkout.wiki">checkouts</a></i>,
-<i><a href="about_merge.wiki">merging</a></i>,
-<a href="reference.wiki">Reference</a>
+See also: [./cmd_pull.wiki | fossil pull],
+[./cmd_commit.wiki | fossil commit],
+[./cmd_settings.wiki#autosync | fossil setting] (autosync),
+[./about_checkout.wiki | <i>checkouts</i>],
+[./about_merge.wiki | <i>merging</i>],
+[./reference.wiki | Reference]

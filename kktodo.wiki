@@ -4,7 +4,7 @@
 
   1.  Command line interface reference docs
      <ul>
-         <li> Finish initial pages.</li>
+         <li> <font color="#bb4466">Finish initial pages.</font></li>
 	 <li> Start on tech-spec (serious, not "chatty") reference pages.</li>
 	 <li> Edit, edit, edit.</li>
      </ul>
@@ -27,19 +27,29 @@
 	     <li>Hmmm.  Experimenting.</li>
 	     <ul>
 	         <li>The road less travelled, or where'd that
-		 fork come from?</l>
+		 fork come from?</li>
 	     </ul>
 	     <li>Oops!  Going back in time.</li>
+	     <ul>
+	         <li>Versions</li>
+		 <ul>
+		     <li>What <i>is</i> a version?</li>
+		     <li>Is it a "version" or a "tag"?</li>
+		     <li>DSCM redux: Revisionist versioning.</li>
+		 </ul>
+	     </ul>
 	 </ul>
 	 </li>
          <li>Basic explanation of <i>merge</i>.
 	 <ol>
-	     <li>Leaves, branches and baselines.</li>
+	     <li>Leaves, branches and baselines: We want a shrubbery!</li>
 	     <li><i>update</i> merges vs. <i>merge</i> merges.
 	     All merges are equal, but some are more equal than others.</li>
 	 </ol>
 	 </li>
      </ul>
+
+  3.  Configuration
 
   42.  General
      <ul>

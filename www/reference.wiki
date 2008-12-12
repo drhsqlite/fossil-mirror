@@ -22,7 +22,7 @@
   enough to make the intent&#8212;the 'clone' command&#8212;unambiguous.
 
   You should probably start interacting with fossil at the command line
-  by asking it what it can do:&nbsp;&nbsp;&nbsp;&nbsp;<a name="tof">&#7547;</a>
+  by asking it what it can do:&nbsp;&nbsp;&nbsp;&nbsp;<a name="tof">&#710;</a>
 
   <code>$ fossil help</code><nowiki><pre>
 Usage: fossil help COMMAND.
@@ -95,7 +95,7 @@ Available COMMANDs:</pre><table width="80%" style="font-family: fixed, courier, 
 	<td><a href="#timeline">timeline</a></td>
       </tr>
     </table><nowiki><pre>
-This is fossil version [c66ffba6da] 2008-11-10 19:54:53 UTC
+This is fossil version [2be82dcc2a] 2008-12-07 18:48:09 UTC
 </pre>
 <b>What follows</b> is a survey of what you get if you type<code>
 fossil&nbsp;help&nbsp;<i>command</i> </code>for all of the
@@ -103,15 +103,13 @@ commands listed above.  There are links to individual pages for each
 of them; pages with content (not all of them are done) go into the command
 in a bit more depth than the program help.
 <pre>
-
-    <a name="add">Usage: </a><code><a href="cmd_add.wiki">fossil add</a></code> FILE...    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="add">Usage: </a><code><a href="cmd_add.wiki">fossil add</a></code> FILE...
     Make arrangements to add one or more files to the current checkout
     at the next commit.
 
-
-    <a name="all">Usage: </a><code><a href="cmd_all.wiki">fossil all</a></code> (list|pull|push|rebuild|sync)    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="all">Usage: </a><code><a href="cmd_all.wiki">fossil all</a></code> (list|pull|push|rebuild|sync)
     The ~/.fossil file records the location of all repositories for a
     user.  This command performs certain operations on all repositories
     that can be useful before or after a period of disconnection operation.
@@ -131,9 +129,8 @@ in a bit more depth than the program help.
     when one of the following commands against the repository: clone, info,
     pull, push, or sync
 
-
-    <a name="cgi">Usage: </a><a href="cmd_cgi">fossil cgi</a> SCRIPT    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="cgi">Usage: </a><a href="cmd_cgi">fossil cgi</a> SCRIPT
     The SCRIPT argument is the name of a file that is the CGI script
     that is being run.  The command name, "cgi", may be omitted if
     the GATEWAY_INTERFACE environment variable is set to "CGI" (which
@@ -147,24 +144,21 @@ in a bit more depth than the program help.
     the repository, fossil will generate a webpage on stdout based on
     the values of standard CGI environment variables.
 
-
-    <a name="changes">Usage: </a><a href="cmd_changes">fossil changes</a>    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="changes">Usage: </a><a href="cmd_changes">fossil changes</a>
     Report on the edit status of all files in the current checkout.
     See also the "status" and "extra" commands.
 
-
-    <a name="checkout">Usage: </a><a href="checkout">fossil checkout</a> VERSION ?-f|--force?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="checkout">Usage: </a><a href="checkout">fossil checkout</a> VERSION ?-f|--force?
     Check out a version specified on the command-line.  This command
     will not overwrite edited files in the current checkout unless
     the --force option appears on the command-line.
 
     See also the "update" command.
 
-
-    <a name="commit">Usage: </a><a href="cmd_commit.wiki">fossil commit</a> ?-m COMMENT? ?--nosign? ?FILE...?    <a href="#tof">&#7547;</a>
-    fossil ci  ...  (as above)
+<hr><a href="#tof">&#710;</a>
+    <a name="commit">Usage: </a><a href="cmd_commit.wiki">fossil commit</a> ?-m COMMENT? ?--nosign? ?FILE...?    fossil ci  ...  (as above)
 
     Create a new version containing all of the changes in the current
     checkout.  You will be prompted to enter a check-in comment unless
@@ -174,9 +168,8 @@ in a bit more depth than the program help.
     changed will be committed unless some subset of files is specified
     on the command line.
 
-
-    <a name="clean">Usage: </a><a href="cmd_clean.wiki">fossil clean</a> ?-all?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="clean">Usage: </a><a href="cmd_clean.wiki">fossil clean</a> ?-all?
     Delete all "extra" files in the source tree.  "Extra" files are
     files that are not officially part of the checkout.  See also
     the "extra" command. This operation cannot be undone.
@@ -185,22 +178,19 @@ in a bit more depth than the program help.
     sure you wish to remove all "extra" files you can specify the
     optional -all flag.
 
-
-    <a name="clone">Usage: </a><a href="cmd_clone.wiki">fossil clone</a> URL FILENAME    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="clone">Usage: </a><a href="cmd_clone.wiki">fossil clone</a> URL FILENAME
     Make a clone of a repository specified by URL in the local
     file named FILENAME.
 
-
-    <a name="close">Usage: </a><a href="cmd_close.wiki">fossil close</a> ?-f|--force?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="close">Usage: </a><a href="cmd_close.wiki">fossil close</a> ?-f|--force?
     The opposite of "open".  Close the current database connection.
     Require a -f or --force flag if there are unsaved changed in the
     current check-out.
 
-
-    <a name="configure">Usage: </a><a href="cmd_configure.wiki">fossil configure</a> METHOD ...    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="configure">Usage: </a><a href="cmd_configure.wiki">fossil configure</a> METHOD ...
     Where METHOD is one of: export import merge pull push reset.  All methods
     accept the -R or --repository option to specific a repository.
 
@@ -224,8 +214,7 @@ in a bit more depth than the program help.
 
     Pull and install the configuration from a different server
     identified by URL.  If no URL is specified, then the default
-    server is used. 
-
+    server is used.
     fossil configuration push AREA ?URL?
 
     Push the local configuration into the remote server identified
@@ -240,29 +229,25 @@ in a bit more depth than the program help.
     source.  The inbound configuration is not checked for safety and can
     introduce security vulnerabilities.
 
-
-    COMMAND: deconstruct 
-    <a name="deconstruct">Usage: </a><a href="cmd_deconstruct.wiki">fossil deconstruct</a> ?-R|--repository REPOSITORY? DESTINATION    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    COMMAND: deconstruct
+    <a name="deconstruct">Usage: </a><a href="cmd_deconstruct.wiki">fossil deconstruct</a> ?-R|--repository REPOSITORY? DESTINATION
     Populates the indicated DESTINATION directory with copies of all
     artifcats contained within the repository.  Artifacts are named AA/bbbbb
     where AA is the first 2 characters of the artifact ID and bbbbb is the
     remaining 38 characters.
 
-
-    <a name="rm">Usage: </a><a href="cmd_rm.wiki">fossil rm</a> FILE...    <a href="#tof">&#7547;</a>
-    or: fossil del FILE...
+<hr><a href="#tof">&#710;</a>
+    <a name="rm">Usage: </a><a href="cmd_rm.wiki">fossil rm</a> FILE...    or: fossil del FILE...
     Remove one or more files from the tree.
 
-
-    <a name="descendants">Usage: </a><a href="cmd_descendants.wiki">fossil descendants</a> ?BASELINE-ID?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="descendants">Usage: </a><a href="cmd_descendants.wiki">fossil descendants</a> ?BASELINE-ID?
     Find all leaf descendants of the baseline specified or if the argument
     is omitted, of the baseline currently checked out.
 
-
-    <a name="diff">Usage: </a><a href="cmd_diff.wiki">fossil diff</a>|gdiff ?-i? ?-r REVISION? FILE...    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="diff">Usage: </a><a href="cmd_diff.wiki">fossil diff</a>|gdiff ?-i? ?-r REVISION? FILE...
     Show the difference between the current version of a file (as it
     exists on disk) and that same file as it was checked out.
 
@@ -285,80 +270,68 @@ in a bit more depth than the program help.
     fossil setting gdiff-command xxdiff
     fossil setting gdiff-command kdiff3
 
-
-    <a name="extra">Usage: </a><a href="cmd_extra.wiki">fossil extra</a>    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="extra">Usage: </a><a href="cmd_extra.wiki">fossil extra</a>
     Print a list of all files in the source tree that are not part of
     the current checkout.  See also the "clean" command.
 
-
-    <a name="help">Usage: </a><a href="cmd_help.wiki">fossil help</a> COMMAND    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="help">Usage: </a><a href="cmd_help.wiki">fossil help</a> COMMAND
     Display information on how to use COMMAND
 
-
-    <a name="http">Usage: </a><a href="cmd_http.wiki">fossil http</a> REPOSITORY    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="http">Usage: </a><a href="cmd_http.wiki">fossil http</a> REPOSITORY
     Handle a single HTTP request appearing on stdin.  The resulting webpage
     is delivered on stdout.  This method is used to launch an HTTP request
-    handler from inetd, for example.  The argument is the name of the 
-    repository.
+    handler from inetd, for example.  The argument is the name of the    repository.
 
-
-    <a name="info">Usage: </a><a href="cmd_info.wiki">fossil info</a> ?ARTIFACT-ID|FILENAME?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="info">Usage: </a><a href="cmd_info.wiki">fossil info</a> ?ARTIFACT-ID|FILENAME?
     With no arguments, provide information about the current tree.
     If an argument is specified, provide information about the object
     in the respository of the current tree that the argument refers
     to.  Or if the argument is the name of a repository, show
     information about that repository.
 
-
-    <a name="leaves">Usage: </a><a href="cmd_leaves.wiki">fossil leaves</a>    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="leaves">Usage: </a><a href="cmd_leaves.wiki">fossil leaves</a>
     Find leaves of all branches.
 
-
-    <a name="ls">Usage: </a><a href="cmd_ls.wiki">fossil ls</a>    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="ls">Usage: </a><a href="cmd_ls.wiki">fossil ls</a>
     Show the names of all files in the current checkout
 
-
-    <a name="merge">Usage: </a><a href="cmd_merge.wiki">fossil merge</a> VERSION    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="merge">Usage: </a><a href="cmd_merge.wiki">fossil merge</a> VERSION
     The argument is a version that should be merged into the current
-    checkout. 
-
+    checkout.
     Only file content is merged.  The result continues to use the
     file and directory names from the current check-out even if those
     names might have been changed in the branch being merged in.
 
-
-    <a name="mv">Usage: </a><a href="cmd_mv.wiki">fossil mv|rename</a> OLDNAME NEWNAME    <a href="#tof">&#7547;</a>
-       or: fossil mv|rename OLDNAME... DIR
+<hr><a href="#tof">&#710;</a>
+    <a name="mv">Usage: </a><a href="cmd_mv.wiki">fossil mv|rename</a> OLDNAME NEWNAME       or: fossil mv|rename OLDNAME... DIR
 
     Move or rename one or more files within the tree
 
     This command does not rename the files on disk.  All this command does is
     record the fact that filenames have changed so that appropriate notations
     can be made at the next commit/checkin.
-
+<hr><a href="#tof">&#710;</a>
     <a name="new">Usage: </a><a href="cmd_new.wiki">fossil new</a> FILENAME
 
     Create a repository for a new project in the file named FILENAME.
     This command is distinct from "clone".  The "clone" command makes
     a copy of an existing project.  This command starts a new project.
 
-
-    <a name="open">Usage: </a><a href="cmd_open.wiki">fossil open</a> FILENAME    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="open">Usage: </a><a href="cmd_open.wiki">fossil open</a> FILENAME
     Open a connection to the local repository in FILENAME.  A checkout
     for the repository is created with its root at the working directory.
     See also the "close" command.
 
-
-    <a name="pull">Usage: </a><a href="cmd_pull.wiki">fossil pull</a> ?URL? ?-R|--respository REPOSITORY?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="pull">Usage: </a><a href="cmd_pull.wiki">fossil pull</a> ?URL? ?-R|--respository REPOSITORY?
     Pull changes in a remote repository into the local repository.
     The repository is identified by the -R or --repository option.
     If there is no such option then the open repository is used.
@@ -376,28 +349,24 @@ in a bit more depth than the program help.
     specifies the TCP port of the server.  The default port is
     80.
 
-
-    <a name="push">Usage: </a><a href="cmd_push.wiki">fossil push</a> ?URL? ?-R|--repository REPOSITORY?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="push">Usage: </a><a href="cmd_push.wiki">fossil push</a> ?URL? ?-R|--repository REPOSITORY?
     Push changes in the local repository over into a remote repository.
     See the "pull" command for additional information.
-
-    <a name="rebuild">Usage: </a><a href="cmd_rebuild.wiki">fossil rebuild</a> REPOSITORY    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="rebuild">Usage: </a><a href="cmd_rebuild.wiki">fossil rebuild</a> REPOSITORY
     Reconstruct the named repository database from the core
     records.  Run this command after updating the fossil
     executable in a way that changes the database schema.
 
-
-    COMMAND: reconstruct 
-    <a name="reconstruct">Usage: </a><a href="cmd_reconstruct.wiki">fossil reconstruct</a> REPOSITORY ORIGIN    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    COMMAND: reconstruct
+    <a name="reconstruct">Usage: </a><a href="cmd_reconstruct.wiki">fossil reconstruct</a> REPOSITORY ORIGIN
     Creates the REPOSITORY and populates it with the artifacts in the
     indicated ORIGIN directory.
 
-
-    <a name="redo">Usage: </a><a href="cmd_redo.wiki">fossil redo</a> ?FILENAME...?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="redo">Usage: </a><a href="cmd_redo.wiki">fossil redo</a> ?FILENAME...?
     Redo the an update or merge operation that has been undone by the
     undo command.  If FILENAME is specified then restore the changes
     associated with the named file(s) but otherwise leave the update
@@ -406,17 +375,15 @@ in a bit more depth than the program help.
     A single level of undo/redo is supported.  The undo/redo stack
     is cleared by the commit and checkout commands.
 
-
-    <a name="revert">Usage: </a><a href="cmd_revert.wiki">fossil revert</a> ?--yes? ?-r REVISION? FILE    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="revert">Usage: </a><a href="cmd_revert.wiki">fossil revert</a> ?--yes? ?-r REVISION? FILE
     Revert to the current repository version of FILE, or to
     the version associated with baseline REVISION if the -r flag
     appears.  This command will confirm your operation unless the
     file is missing or the --yes option is used.
 
-
-    <a name="server">Usage: </a><a href="cmd_server.wiki">fossil server</a> ?-P|--port TCPPORT? ?REPOSITORY?    <a href="#tof">&#7547;</a>
-    Or: fossil ui ?-P|--port TCPPORT? ?REPOSITORY?
+<hr><a href="#tof">&#710;</a>
+    <a name="server">Usage: </a><a href="cmd_server.wiki">fossil server</a> ?-P|--port TCPPORT? ?REPOSITORY?    Or: fossil ui ?-P|--port TCPPORT? ?REPOSITORY?
 
     Open a socket and begin listening and responding to HTTP requests on
     TCP port 8080, or on any other TCP port defined by the -P or
@@ -427,11 +394,10 @@ in a bit more depth than the program help.
     The "ui" command automatically starts a web browser after initializing
     the web server.
 
-
+<hr><a href="#tof">&#710;</a>
     COMMAND: settings
     COMMAND: unset
-    <a name="setting">Usage: </a><a href="cmd_setting.wiki">fossil setting</a> ?PROPERTY? ?VALUE? ?-global?    <a href="#tof">&#7547;</a>
-    fossil unset PROPERTY ?-global?
+    <a name="setting">Usage: </a><a href="cmd_setting.wiki">fossil setting</a> ?PROPERTY? ?VALUE? ?-global?    fossil unset PROPERTY ?-global?
 
     The "setting" command with no arguments lists all properties and their
     values.  With just a property name it shows the value of that property.
@@ -473,21 +439,18 @@ in a bit more depth than the program help.
     Defaults to "start" on windows, "open" on Mac,
     and "firefox" on Unix.
 
-
-    <a name="status">Usage: </a><a href="cmd_status.wiki">fossil status</a>    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="status">Usage: </a><a href="cmd_status.wiki">fossil status</a>
     Report on the status of the current checkout.
 
-
-    <a name="sync">Usage: </a><a href="cmd_sync.wiki">fossil sync</a> ?URL? ?-R|--repository REPOSITORY?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="sync">Usage: </a><a href="cmd_sync.wiki">fossil sync</a> ?URL? ?-R|--repository REPOSITORY?
     Synchronize the local repository with a remote repository.  This is
     the equivalent of running both "push" and "pull" at the same time.
     See the "pull" command for additional information.
 
-
-    <a name="tag">Usage: </a><a href="cmd_tag.wiki">fossil tag</a> SUBCOMMAND ...    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="tag">Usage: </a><a href="cmd_tag.wiki">fossil tag</a> SUBCOMMAND ...
     Run various subcommands to control tags and properties
 
     fossil tag add ?--raw? TAGNAME BASELINE ?VALUE?
@@ -542,9 +505,8 @@ in a bit more depth than the program help.
 
     will assume that "decaf" is a tag/branch name.
 
-
-    <a name="timeline">Usage: </a><a href="cmd_timeline.wiki">fossil timeline</a> ?WHEN? ?BASELINE|DATETIME? ?-n|--count N?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="timeline">Usage: </a><a href="cmd_timeline.wiki">fossil timeline</a> ?WHEN? ?BASELINE|DATETIME? ?-n|--count N?
     Print a summary of activity going backwards in date and time
     specified or from the current date and time if no arguments
     are given.  Show as many as N (default 20) check-ins.  The
@@ -561,9 +523,8 @@ in a bit more depth than the program help.
     examples: "2007-08-18 07:21:21".  You can also say "current"
     for the current version or "now" for the current time.
 
-
-    <a name="undo">Usage: </a><a href="cmd_undo.wiki">fossil undo</a> ?FILENAME...?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="undo">Usage: </a><a href="cmd_undo.wiki">fossil undo</a> ?FILENAME...?
     Undo the most recent update or merge operation.  If FILENAME is
     specified then restore the content of the named file(s) but otherwise
     leave the update or merge in effect.
@@ -571,21 +532,18 @@ in a bit more depth than the program help.
     A single level of undo/redo is supported.  The undo/redo stack
     is cleared by the commit and checkout commands.
 
-
-    <a name="update">Usage: </a><a href="cmd_update.wiki">fossil update</a> ?VERSION? ?--latest?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="update">Usage: </a><a href="cmd_update.wiki">fossil update</a> ?VERSION? ?--latest?
     The optional argument is a version that should become the current
     version.  If the argument is omitted, then use the leaf of the
-    tree that begins with the current version, if there is only a 
-    single leaf.  If there are a multiple leaves, the latest is used
+    tree that begins with the current version, if there is only a    single leaf.  If there are a multiple leaves, the latest is used
     if the --latest flag is present.
 
     This command is different from the "checkout" in that edits are
     not overwritten.  Edits are merged into the new version.
 
-
-    <a name="user">Usage: </a><a href="cmd_user.wiki">fossil user</a> SUBCOMMAND ...  ?-R|--repository FILE?    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="user">Usage: </a><a href="cmd_user.wiki">fossil user</a> SUBCOMMAND ...  ?-R|--repository FILE?
     Run various subcommands on users of the open repository or of
     the repository identified by the -R or --repository option.
 
@@ -612,14 +570,12 @@ in a bit more depth than the program help.
 
     Change the web access password for a user.
 
-
-    <a name="version">Usage: </a><a href="cmd_version.wiki">fossil version</a>    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="version">Usage: </a><a href="cmd_version.wiki">fossil version</a>
     Print the source code version number for the fossil executable.
 
-
-    <a name="wiki">Usage: </a><a href="cmd_wiki.wiki">fossil wiki</a> (export|create|commit|list) WikiName    <a href="#tof">&#7547;</a>
-
+<hr><a href="#tof">&#710;</a>
+    <a name="wiki">Usage: </a><a href="cmd_wiki.wiki">fossil wiki</a> (export|create|commit|list) WikiName
     Run various subcommands to fetch wiki entries.
 
     fossil wiki export PAGENAME ?FILE?
@@ -664,7 +620,7 @@ in a bit more depth than the program help.
 
   </pre></nowiki>
 
-  <hr>
+  <hr><a href="#tof">&#710;</a>
 
     <h3>Caveats</h3>
     This is not actually a reference, it's the start of a reference.
@@ -678,4 +634,3 @@ in a bit more depth than the program help.
     grammatical mistakes are somebody elses fault.<code>  void * </code>
     prohibited where<code> __C_PLUS_PLUS__ </code>. Title and taxes extra.
     Not valid in Hooptigonia.
-<a href="#tof">&#7547;</a>

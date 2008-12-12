@@ -3,7 +3,7 @@
 The <code>ls</code><a href="#notes">*</a> command is informational, it doesn't do anything to
 a checked-out project, but it tells you something about it.
 
-A project consists of a "source tree" of "artifacts" (see <a href="concepts.wiki">Fossil concepts</a>.)
+A project consists of a "source tree" of "artifacts" (see [./concepts.wiki | Fossil concepts].)
 From a practical standpoint this is a set of files and directories rooted
 at a main project directory.  The files that are under source control aren't
 particularly distinguishable from those that aren't.  The <code>ls</code> and
@@ -20,7 +20,7 @@ filesystem status.  If you're new to source-management/version-control
 systems, you'll probably get bit by this concept-bug at least once.
 
 To really see the difference, issue an <code>ls</code> before and after doing
-a <a href="cmd_commit.wiki"><code>commit</code></a>.  Before, the status of files may be any of the three,
+a [./cmd_commit.wiki | <code>commit</code>].  Before, the status of files may be any of the three,
 but after <code>commit</code>ting changes the status will be UNCHANGED "across
 the board."
 
@@ -41,14 +41,15 @@ But if I do a simple ls, what I get is
 
 The <code>ls</code> command is almost, but not quite entirely, the exact
 opposite of the
-<a href="cmd_extra.wiki"><code>extra</code> command</a>.
+[./cmd_extra.wiki | <code>extra</code> command].
 
 <a name="notes">Notes:</a>
   *  If you come from the <b>Windows</b> world, it will help to know that 'ls' is the usual <b>unix</b> command for listing a directory.
   *  There are more states for a file to be in than those listed, including MISSING, EDITED, RENAMED and a couple of others.
 
-See also: <a href="cmd_add.wiki">fossil add</a>, <a href="rm.wiki">
-fossil rm</a>, <a href="cmd_extra.wiki">fossil extra</a>, 
-<a href="cmd_commit.wiki">fossil commit</a>, 
-<a href="concepts.wiki">Fossil concepts</a>, 
-<a href="reference.wiki">Reference</a>
+See also: [./cmd_add.wiki | fossil add],
+[./rm.wiki | fossil rm],
+[./cmd_extra.wiki | fossil extra],
+[./cmd_commit.wiki | fossil commit],
+[./concepts.wiki | Fossil concepts],
+[./reference.wiki | Reference]

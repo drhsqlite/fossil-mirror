@@ -9,10 +9,10 @@ the repository.
 The <code>fossil extra</code> command will get you a list of these files.
 
 This is convenient for figuring out if you've <code>
-<a href="cmd_add.wiki">add</a></code>ed every file that needs to be
+[./cmd_add.wiki | add]</code>ed every file that needs to be
 
 in the repository before you do a commit.  It will also tell you what
-will be removed if you <code><a href="cmd_clean.wiki">clean</a></code>
+will be removed if you [./cmd_clean.wiki | <code>clean</code>]
 the project.
 
 Suppose, for example, you have a "noodle.src" file as a scratch pad
@@ -29,10 +29,10 @@ a shell script that only affects project files and leaves everything
 else alone.  ;)
 
 The <code>extra</code> command is almost, but not quite entirely, the exact
-opposite of the <code><a href="cmd_ls.wiki">ls</a></code> command.
+opposite of the [./cmd_ls.wiki | <code>ls</code>] command.
 
-See also: <a href="cmd_status.wiki">fossil status</a>,
-<a href="cmd_ls.wiki">fossil ls</a>,
-<a href="cmd_changes.wiki">fossil changes</a>,
-<a href="cmd_clean.wiki">fossil clean</a>,
-<a href="reference.wiki">Reference</a>
+See also: [./cmd_status.wiki | fossil status],
+[./cmd_ls.wiki | fossil ls],
+[./cmd_changes.wiki | fossil changes],
+[./cmd_clean.wiki | fossil clean],
+[./reference.wiki | Reference]

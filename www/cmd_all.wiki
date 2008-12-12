@@ -6,11 +6,11 @@ of your repositories as well.
 
 There are some commands you might especially want to perform on every
 repository you've got, once in a while.  <code> fossil&nbsp;all
-</code> includes four of the most likely as sub-commands: 
-<code><a href="cmd_pull.wiki">pull</a></code>,
-<code><a href="cmd_push.wiki">push</a></code>,
-<code><a href="cmd_rebuild.wiki">rebuild</a></code> and 
-<code><a href="cmd_sync.wiki">sync</a></code>.
+</code> includes four of the most likely as sub-commands:
+[./cmd_pull.wiki | <code>pull</code>],
+[./cmd_push.wiki | <code>push</code>],
+[./cmd_rebuild.wiki | <code>rebuild</code>] and
+[./cmd_sync.wiki | <code>sync</code>].
 
 Follow the links to find out what each of those do, and then a moment
 of thought will tell you why you might want to have them available for
@@ -45,15 +45,15 @@ inside of a checkout won't work correctly.  The <i>.fossil</i> file is
 an <b>sqlite</b> db file which fossil uses to keeping track of
 repository locations. Advice: if you move your repositories around,
 let fossil know you did;
-<code><a href="cmd_close.wiki">close</a></code> them before you move
-them, and then <code><a href="cmd_open.wiki">open</a></code> them from
+[./cmd_close.wiki | <code>close</code>] them before you move
+them, and then [./cmd_open.wiki | <code>open</code>] them from
 their new locations.
 
-See also: <a href="cmd_pull.wiki">fossil pull</a>,
-<a href="cmd_push.wiki">fossil push</a>,
-<a href="cmd_rebuild.wiki">fossil rebuild</a>,
-<a href="cmd_sync.wiki">fossil sync</a>,
-<a href="cmd_open.wiki">fossil open</a>,
-<a href="cmd_close.wiki">fossil close</a>,
-<a href="reference.wiki">Reference</a>,
-<b><a href="http://www.sqlite.org">sqlite</a></b>
+See also: [./cmd_pull.wiki | fossil pull],
+[./cmd_push.wiki | fossil push],
+[./cmd_rebuild.wiki | fossil rebuild],
+[./cmd_sync.wiki | fossil sync],
+[./cmd_open.wiki | fossil open],
+[./cmd_close.wiki | fossil close],
+[./reference.wiki | Reference],
+[http://www.sqlite.org | <b>SQLite</b>]
