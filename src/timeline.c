@@ -596,9 +596,30 @@ const char *timeline_query_for_tty(void){
 }
 
 /*
+** Equivalent to timeline_query_for_tty(), except that:
+**
+** a) accepts a the -type=XX flag to set the event type to filter on.
+**    The values of XX are the same as supported by the /timeline page.
+**
+** b) The returned string must be freed using free().
+*/
+char * timeline_query_for_tty_m(void){
+  Blob bl;
+  char const * zType = 0;
+  blob_zero(&bl);
+  blob_append( &bl, timeline_query_for_tty(), -1 );
+  zType = find_option( "type", "t", 1 );
+  if( zType && *zType )
+  {
+      blob_appendf( &bl, " AND event.type=%Q", zType );
+  }
+  return blob_buffer(&bl);
+}
+
+/*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n|--count N?
+** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t|--type TYPE?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
@@ -615,11 +636,19 @@ const char *timeline_query_for_tty(void){
 ** The DATETIME should be in the ISO8601 format.  For
 ** examples: "2007-08-18 07:21:21".  You can also say "current"
 ** for the current version or "now" for the current time.
+**
+** The optional TYPE argument may any types supported by the /timeline
+** page. For example:
+**
+**     w  = wiki commits only
+**     ci = file commits only
+**     t  = tickets only
 */
 void timeline_cmd(void){
   Stmt q;
   int n, k;
   const char *zCount;
+  const char *zType;
   char *zOrigin;
   char *zDate;
   char *zSQL;
@@ -627,13 +656,14 @@ void timeline_cmd(void){
   Blob uuid;
   int mode = 1 ;       /* 1: before  2:after  3:children  4:parents */
   db_find_and_open_repository(1);
-  zCount = find_option("n","count",1);
+  zCount = find_option("count","n",1);
+  zType = find_option("type","t",1);
   if( zCount ){
     n = atoi(zCount);
   }else{
     n = 20;
   }
-  if( g.argc==4 ){
+  if( g.argc>=4 ){
     k = strlen(g.argv[2]);
     if( strncmp(g.argv[2],"before",k)==0 ){
       mode = 1;
@@ -647,10 +677,14 @@ void timeline_cmd(void){
       mode = 4;
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
-    }else{
-      usage("?WHEN? ?BASELINE|DATETIME?");
+    }else if(!zType && !zCount){
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t TYPE?");
     }
-    zOrigin = g.argv[3];
+    if( '-' != *g.argv[3] ){
+	zOrigin = g.argv[3];
+    }else{
+	zOrigin = "now";
+    }
   }else if( g.argc==3 ){
     zOrigin = g.argv[2];
   }else{
@@ -679,8 +713,8 @@ void timeline_cmd(void){
     }
     zDate = mprintf("(SELECT julianday(%Q, 'utc'))", zOrigin);
   }
-  zSQL = mprintf("%s AND event.mtime %s %s",
-     timeline_query_for_tty(),
+  zSQL = mprintf("%z AND event.mtime %s %s",
+     timeline_query_for_tty_m(),
      (mode==1 || mode==4) ? "<=" : ">=",
      zDate
   );
@@ -693,8 +727,13 @@ void timeline_cmd(void){
     }
     zSQL = mprintf("%z AND blob.rid IN ok", zSQL);
   }
+  if( zType && (zType[0]!='a') ){
+      zSQL = mprintf( "%z AND event.type=%Q ", zSQL, zType);
+  }
+
   zSQL = mprintf("%z ORDER BY event.mtime DESC", zSQL);
   db_prepare(&q, zSQL);
+  free( zSQL );
   print_timeline(&q, n);
   db_finalize(&q);
 }

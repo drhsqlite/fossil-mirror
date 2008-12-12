@@ -1,5 +1,5 @@
-C /timeline.rss\snow\saccepts\sthe\ssame\sfilter\sparameters\sas\s/timeline\s(e.g.\sy=ci\sfor\scommits\sand\sy=w\sfor\swiki)
-D 2008-12-12T22:19:13
+C timeline\scommand\snow\ssupports\sa\s?-t|--type\sTYPE?\soption\sto\sfilter\son\sspecific\sevent\stypes.\sFixed\sa\smemleak\sin\sthe\stimeline\scommand.
+D 2008-12-12T23:17:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -97,7 +97,7 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 16b352a347ebdf09a80ad19dcfe2661d378b138e
+F src/timeline.c e064b02f3d6e61f4584645c10010ce7a91065577
 F src/tkt.c 06fa0eeb8481f129e5c641b4e98398aae2660c4b
 F src/tktsetup.c 893b046bc634a3f3bfab66e1248c1a4c02e300d4
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -220,7 +220,7 @@ F www/reference.wiki b19cc2dd49f9fa4c7401f889365209d689ece72c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 1eb067d45626121fb666d111b654eaf47943c351
-R 1b8cb55bfa64325358f6745a1c8fd65c
+P 90adbd84430549a9877ef3ec20171c42ac37afa5
+R 1e6d623de2ed1966a890ccdc86471f6f
 U stephan
-Z 6ec19e5d9e62c81c582d3755ab4b56fa
+Z 76292767cdc070c25eb62e22a6f289f7
