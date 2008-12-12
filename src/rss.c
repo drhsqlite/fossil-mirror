@@ -49,7 +49,10 @@ void page_timeline_rss(void){
   Stmt q;
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
-  const char zSQL[] =
+  Blob bSQL;
+  const char *zType = PD("y","all"); /* Type of events.  All if NULL */
+  blob_zero(&bSQL);
+  const char zSQL1[] =
     @ SELECT
     @   blob.rid,
     @   uuid,
@@ -60,8 +63,14 @@ void page_timeline_rss(void){
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
-    @ ORDER BY event.mtime DESC
   ;
+  blob_append( &bSQL, zSQL1, -1 );
+  
+  if( zType[0]!='a' ){
+      blob_appendf(&bSQL, " AND event.type=%Q", zType);
+  }
+
+  blob_append( &bSQL, " ORDER BY event.mtime DESC", -1 );
 
   cgi_set_content_type("application/rss+xml");
 
@@ -85,7 +94,8 @@ void page_timeline_rss(void){
   @     <description>%s(zProjectDescr)</description>
   @     <pubDate>%s(zPubDate)</pubDate>
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
-  db_prepare(&q, zSQL);
+  db_prepare(&q, blob_buffer(&bSQL));
+  blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<=20 ){
     const char *zId = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);

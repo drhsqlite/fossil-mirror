@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Adjust\ssome\swikilinks,\sclean\sup\smain\sref\spage,\sadd\s"new"\scommand.
-D 2008-12-12T21:55:46
+C /timeline.rss\snow\saccepts\sthe\ssame\sfilter\sparameters\sas\s/timeline\s(e.g.\sy=ci\sfor\scommits\sand\sy=w\sfor\swiki)
+D 2008-12-12T22:19:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -84,7 +81,7 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
-F src/rss.c 05e7ced61b1a86e60f2cdb9e236755902493b62f
+F src/rss.c 07391be6042117a90aa16dc782965ec28cdf0e0d
 F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
@@ -223,14 +220,7 @@ F www/reference.wiki b19cc2dd49f9fa4c7401f889365209d689ece72c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 83447b7bf1a632ed320b46bdfd2a836edadb91ce
-R 3217b72388923d533d69dee6bfc2eaa2
-U kejoki
-Z 645fa70710c103a1e7a3997b97d0ce6e
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFJQt3r6EFGj+X1mh4RAltJAJ9lhlicMQLgDXLIpoTEwxba+mwV2gCfd8oa
-XXBs91uGHU/JiGhgEXUu4Wc=
-=gNXi
------END PGP SIGNATURE-----
+P 1eb067d45626121fb666d111b654eaf47943c351
+R 1b8cb55bfa64325358f6745a1c8fd65c
+U stephan
+Z 6ec19e5d9e62c81c582d3755ab4b56fa
