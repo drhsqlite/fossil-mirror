@@ -37,12 +37,12 @@ lot of temporary space in the filesystem to hold all unique revisions
 of all files in their expanded form.
 
 It might be worthwhile to consider an extension of 'reconstruct' which
-is able to incrementally add a set of files to an exiting fossil
+is able to incrementally add a set of files to an existing fossil
 repository already containing revisions. In that case the import tool
 can be changed to incrementally generate the collection for a
 particular revision, import it, and iterate over all revisions in the
 origin repository. This is of course also dependent on the origin
-repository itself, how good it supports such incremental export.
+repository itself, how well it supports such incremental export.
 
 This also leads to a possible method for performing the import using
 only existing functionality ('reconstruct' has not been implemented

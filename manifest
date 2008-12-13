@@ -1,5 +1,5 @@
-C timeline\scommand\snow\ssupports\sa\s?-t|--type\sTYPE?\soption\sto\sfilter\son\sspecific\sevent\stypes.\sFixed\sa\smemleak\sin\sthe\stimeline\scommand.
-D 2008-12-12T23:17:18
+C added\sspecification,\ssubsystems\sto\sticket\schoices,\szorro-ed\sa\sspelling\serror
+D 2008-12-13T13:40:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -27,7 +27,7 @@ F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
-F ci_fossil.txt 2064b7fe7f2f347b5b56603d4fdcb06979cf6736
+F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
@@ -220,7 +220,7 @@ F www/reference.wiki b19cc2dd49f9fa4c7401f889365209d689ece72c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 90adbd84430549a9877ef3ec20171c42ac37afa5
-R 1e6d623de2ed1966a890ccdc86471f6f
-U stephan
-Z 76292767cdc070c25eb62e22a6f289f7
+P bab8363876617441f52ea6ebeb955f95d2277aa8
+R cb47c9b73fd506ee6858c79e0a712d59
+U kejoki
+Z 3a39d96d95dee6995cd91afebd37eefa
