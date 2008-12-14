@@ -1,5 +1,5 @@
-C added\sspecification,\ssubsystems\sto\sticket\schoices,\szorro-ed\sa\sspelling\serror
-D 2008-12-13T13:40:44
+C Moved\snew\stcksetup.c\sinto\scheckout\sdir\sbefore\scommit,\sadded\srstats\ncommand\sto\sget\sstat\spage\sinfo\sfrom\scommand\sline.
+D 2008-12-14T22:54:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,10 +65,10 @@ F src/http.c 79044c34de344c235b776a58e5b2b908183f00c1
 F src/info.c 594a3689d127c8cf08baa243250f3d393fc1721c
 F src/login.c fe758dc0b5f65fc16fe91ffde92ce8c61d9f2355
 F src/main.c ae77223909cf862c09033b75ca4316f8150e98aa
-F src/main.mk 7596d8f2f4b1018a0d0d8611acaac68aceb18126
+F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 04f9771b041dba1a1c29d225683bf701afc0a5ee
+F src/makemake.tcl aa8817088ac8c35df2cb250010b88a01d19fd48e
 F src/manifest.c 5a2927ef5ad2aaf6db92837d3048db2e7e7ff821
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -82,6 +82,7 @@ F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 07391be6042117a90aa16dc782965ec28cdf0e0d
+F src/rstats.c c966630d30d0bb2379affaf16582ff13177472a7
 F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
@@ -99,7 +100,7 @@ F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
 F src/timeline.c e064b02f3d6e61f4584645c10010ce7a91065577
 F src/tkt.c 06fa0eeb8481f129e5c641b4e98398aae2660c4b
-F src/tktsetup.c 893b046bc634a3f3bfab66e1248c1a4c02e300d4
+F src/tktsetup.c 80638298360f2b0611d3f6070f0b1dede1341a39
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
@@ -220,7 +221,7 @@ F www/reference.wiki b19cc2dd49f9fa4c7401f889365209d689ece72c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P bab8363876617441f52ea6ebeb955f95d2277aa8
-R cb47c9b73fd506ee6858c79e0a712d59
+P 9d704470c336fd97967914c44c63d38b6ce688c7
+R ef84164fe6d2eb7f8da42f0a7dcdb5d6
 U kejoki
-Z 3a39d96d95dee6995cd91afebd37eefa
+Z c2f48f2dcab11d20bc14619fa66dbf9d

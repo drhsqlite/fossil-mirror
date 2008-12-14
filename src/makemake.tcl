@@ -48,6 +48,7 @@ set src {
   rebuild
   report
   rss
+  rstats
   schema
   setup
   sha1

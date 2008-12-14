@@ -200,6 +200,7 @@ static const char zDefaultTicketCommon[] =
 @   Open
 @   Fixed
 @   Rejected
+@   Workaround
 @   Unable_To_Reproduce
 @   Works_As_Designed
 @   External_Bug
@@ -207,6 +208,7 @@ static const char zDefaultTicketCommon[] =
 @   Duplicate
 @   Overcome_By_Events
 @   Drive_By_Patch
+@   Misconfiguration
 @ }
 @ set status_choices {
 @   Open
