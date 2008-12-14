@@ -1,5 +1,5 @@
-C Moved\snew\stcksetup.c\sinto\scheckout\sdir\sbefore\scommit,\sadded\srstats\ncommand\sto\sget\sstat\spage\sinfo\sfrom\scommand\sline.
-D 2008-12-14T22:54:52
+C minor\sbug\sfix.
+D 2008-12-14T23:07:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -82,7 +82,7 @@ F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
 F src/rss.c 07391be6042117a90aa16dc782965ec28cdf0e0d
-F src/rstats.c c966630d30d0bb2379affaf16582ff13177472a7
+F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
@@ -221,7 +221,7 @@ F www/reference.wiki b19cc2dd49f9fa4c7401f889365209d689ece72c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 9d704470c336fd97967914c44c63d38b6ce688c7
-R ef84164fe6d2eb7f8da42f0a7dcdb5d6
+P cdbc3ab2488b6eecffb398642f07dd50149a2ef3
+R 9689283c7840ddd540c90e1c417032f4
 U kejoki
-Z c2f48f2dcab11d20bc14619fa66dbf9d
+Z c9ba6e1575f74a96223eb0feda13f07f

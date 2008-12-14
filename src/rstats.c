@@ -29,7 +29,7 @@
 */
 #include <string.h>
 #include "config.h"
-#include "metrics.h"
+#include "rstats.h"
 
 /*
 ** COMMAND: rstats
