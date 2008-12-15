@@ -150,7 +150,7 @@ in a bit more depth than the program help.
     See also the "status" and "extra" commands.
 
 <hr><a href="#tof">&#710;</a>
-    <a name="checkout">Usage: </a><a href="checkout">fossil checkout</a> VERSION ?-f|--force?
+    <a name="checkout">Usage: </a><a href="cmd_checkout.wiki">fossil checkout</a> VERSION ?-f|--force?
     Check out a version specified on the command-line.  This command
     will not overwrite edited files in the current checkout unless
     the --force option appears on the command-line.

@@ -1,5 +1,5 @@
-C minor\sbug\sfix.
-D 2008-12-14T23:07:03
+C added\squite\sa\sfew\sdocs\sto\sreplace\sthe\smistakenly\sadded\ssilly\stemplates.
+D 2008-12-15T08:44:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -217,11 +217,11 @@ F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki b19cc2dd49f9fa4c7401f889365209d689ece72c
+F www/reference.wiki 4b497e1cf19c32911c8ed7076b8e313c9b2512d4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P cdbc3ab2488b6eecffb398642f07dd50149a2ef3
-R 9689283c7840ddd540c90e1c417032f4
+P 24db9cd12bfe4a3e2afe5880092985247a37d381
+R ecd919ba3bb5b73b89627639db572a39
 U kejoki
-Z c9ba6e1575f74a96223eb0feda13f07f
+Z dfbab50f078eaae077d75f4d593be0f4
