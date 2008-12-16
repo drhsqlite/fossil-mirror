@@ -1,5 +1,8 @@
-C docs
-D 2008-12-16T05:16:57
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Upgrade\sSQLite\sto\sversion\s3.6.7.
+D 2008-12-16T18:37:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -87,8 +90,8 @@ F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c ffc8251555af50947b4244716263fc66217ce32e
-F src/sqlite3.c 1faea08cabbaf30fad6396d4125b274ebaf479ac
-F src/sqlite3.h 43e639b1caccd56dc2b748c5990aa2e246455181
+F src/sqlite3.c 25a6dd7971d888ba7614ffab2eefb38bc684054d
+F src/sqlite3.h cd3a7a652cfbae8f381070bb2be5eeccd601c981
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c ce8ef4ed6f4bd49a1e30673b29f77bf7f32bfa8a
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
@@ -226,7 +229,14 @@ F www/reference.wiki 9241bac071bcd2971b1f94ff72b2647bef075991
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P fb185f0a65c881193d0469a2052b887ed8d56bab
-R d7d8d99e8c2d5ed992f44d11944cf502
-U kejoki
-Z 812c891836f94b76e42c0dda7705d091
+P a9dcbf3ede5a7431659aad4956155b6846fa42d3
+R ceb4bb8555f07da47d554fc1395cacb7
+U drh
+Z 1789108cda4b8e0bffaba61919c86fb2
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFJR/WJoxKgR168RlERAlDKAJ9dV0bRMYXgDnGriuigFGXf1zfEBQCfVWtZ
+xNt41dpDyU3phTNgaPsLvG8=
+=nAec
+-----END PGP SIGNATURE-----
