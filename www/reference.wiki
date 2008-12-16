@@ -130,7 +130,7 @@ in a bit more depth than the program help.
     pull, push, or sync
 
 <hr><a href="#tof">&#710;</a>
-    <a name="cgi">Usage: </a><a href="cmd_cgi">fossil cgi</a> SCRIPT
+    <a name="cgi">Usage: </a><a href="cmd_cgi.wiki">fossil cgi</a> SCRIPT
     The SCRIPT argument is the name of a file that is the CGI script
     that is being run.  The command name, "cgi", may be omitted if
     the GATEWAY_INTERFACE environment variable is set to "CGI" (which
@@ -145,7 +145,7 @@ in a bit more depth than the program help.
     the values of standard CGI environment variables.
 
 <hr><a href="#tof">&#710;</a>
-    <a name="changes">Usage: </a><a href="cmd_changes">fossil changes</a>
+    <a name="changes">Usage: </a><a href="cmd_changes.wiki">fossil changes</a>
     Report on the edit status of all files in the current checkout.
     See also the "status" and "extra" commands.
 

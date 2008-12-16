@@ -26,7 +26,8 @@ gets a project going:
 But you can't do all that until you create a repository file with
 <code>new</code>.
 
-See also: [./cmd_open.wiki | fossil open],
+See also:
+[./cmd_open.wiki | fossil open],
 [./cmd_add.wiki | fossil add],
 [./cmd_server.wiki | fossil ui],
 [./reference.wiki | Reference]
