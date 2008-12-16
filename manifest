@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Upgrade\sSQLite\sto\sversion\s3.6.7.
-D 2008-12-16T18:37:58
+C Add\srandomness\sin\sthe\sform\sof\sa\scomment\sto\seach\ssync\sprotocol\srequest.\nThis\swill\sbreak\solder\sservers\swhich\sdo\snot\sunderstand\scomments.\s\sBut\scomments\nhave\sbeen\sunderstood\sby\sservers\sfor\smonths\snow,\sso\shopefully\severybody\shas\nupgraded.
+D 2008-12-16T18:39:29
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -114,7 +114,7 @@ F src/vfile.c 0b0beebd0945dd2a550bf52fa8b16472f45b7927
 F src/wiki.c 738d038bd73e1477489ab5e88f50c3dece513f72
 F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
-F src/xfer.c bf89ac3d22a8737122dc41c4a203af8648e40550
+F src/xfer.c cc749b7254e32e52f34eefc965e900c5f526e1ef
 F src/zip.c f641ace2a3550df20ed48108d287cabbf2051d44
 F test/delta1.test 08d7071c425e560715a6c8d2916369ec5679fa2e
 F test/merge1.test eed9903dc285d13b922cdf080fe8a55a72ab2c82
@@ -229,14 +229,14 @@ F www/reference.wiki 9241bac071bcd2971b1f94ff72b2647bef075991
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P a9dcbf3ede5a7431659aad4956155b6846fa42d3
-R ceb4bb8555f07da47d554fc1395cacb7
+P 458331b99ef28be78b3c1b3dc168aa295c991e4a
+R b28b19d5d61e8da9308dc66d0d19f32e
 U drh
-Z 1789108cda4b8e0bffaba61919c86fb2
+Z a5e297c0606ee013dfa104a5dbd01fa0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJR/WJoxKgR168RlERAlDKAJ9dV0bRMYXgDnGriuigFGXf1zfEBQCfVWtZ
-xNt41dpDyU3phTNgaPsLvG8=
-=nAec
+iD8DBQFJR/XkoxKgR168RlERAnryAJ9cXh607EdHfUYTPGTtrswFKF817gCfckfR
+YtIyfeSui8tPih4GED/LKQ0=
+=VriG
 -----END PGP SIGNATURE-----

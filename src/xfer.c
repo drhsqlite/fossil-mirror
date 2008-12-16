@@ -961,7 +961,7 @@ void client_sync(
     }
 
     /* Append randomness to the end of the message */
-#if 0   /* Enable this after all servers have upgraded */
+#if 1   /* Enable this after all servers have upgraded */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
