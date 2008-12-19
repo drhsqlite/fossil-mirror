@@ -16,6 +16,12 @@
   invoke and feed a command to, including any options, and it will make
   more sense.
 
+  *  A <u>version</u> in <b>fossil</b> is 40 character hexadecimal string.
+  <b>fossil</b> will be able to figure out which version you want with any
+  prefix of that string that is distinct from all others.  <em>Commands
+  which require a version are looking for that string, the unique prefix,
+  or a <code>tag</code>.</em>
+
   *  Any fossil command is acceptable once enough of it has been
   entered to make the intent unambiguous.  'clo' is a proper prefix of
   both the 'clone' and 'close' commands, for instance, but 'clon' is
@@ -28,80 +34,81 @@
 Usage: fossil help COMMAND.
 Available COMMANDs:</pre><table width="80%" style="font-family: fixed, courier, monospace; ">
       <tr>
-	<td><a href="#add">add</a></td>
+	<td><a href="#add">add</a>*</td>
 	<td><a href="#configure">configuration</a></td>
 	<td><a href="#leaves">leaves</a></td>
 	<td><a href="#redo">redo</a></td>
-	<td><a href="#server">ui</a></td>
+	<td><a href="#timeline">timeline</a></td>
       </tr>
       <tr>
-	<td><a href="#all">all</a></td>
+	<td><a href="#all">all</a>*</td>
 	<td><a href="#deconstruct">deconstruct</a></td>
-	<td><a href="#ls">ls</a></td>
+	<td><a href="#ls">ls</a>*</td>
 	<td><a href="#mv">rename</a></td>
-	<td><a href="#undo">undo</a></td>
+	<td><a href="#server">ui</a></td>
       </tr>
       <tr>
 	<td><a href="#cgi">cgi</a></td>
 	<td><a href="#rm">del</a></td>
 	<td><a href="#merge">merge</a></td>
 	<td><a href="#revert">revert</a></td>
-	<td><a href="#setting">unset</a></td>
+	<td><a href="#undo">undo</a></td>
       </tr>
       <tr>
-	<td><a href="#changes">changes</a></td>
+	<td><a href="#changes">changes</a>*</td>
         <td><a href="#descendants">descendants</a></td>
 	<td><a href="#mv">mv</a></td>
 	<td><a href="#rm">rm</a></td>
-	<td><a href="#update">update</a></td>
+	<td><a href="#setting">unset</a></td>
       </tr>
       <tr>
-	<td><a href="#checkout">checkout</a></td>
+	<td><a href="#checkout">checkout</a>*</td>
 	<td><a href="#diff">diff</a></td>
-	<td><a href="#new">new</a></td>
-	<td><a href="#server">server</a></td>
-	<td><a href="#user">user</a></td>
+	<td><a href="#new">new</a>*</td>
+	<td><a href="#rstats">rstats</a></td>
+	<td><a href="#update">update</a>*</td>
       </tr>
       <tr>
 	<td><a href="#commit">ci</a></td>
-	<td><a href="#extra">extra</a></td>
+	<td><a href="#extra">extra</a>*</td>
 	<td><a href="#open">open</a></td>
-	<td><a href="#setting">settings</a></td>
-	<td><a href="#version">version</a></td>
+	<td><a href="#server">server</a></td>
+	<td><a href="#user">user</a></td>
       </tr>
       <tr>
 	<td><a href="#clean">clean</a></td>
 	<td><a href="#diff">gdiff</a></td>
 	<td><a href="#pull">pull</a></td>
-	<td><a href="#status">status</a></td>
-	<td><a href="#wiki">wiki</a></td>
+	<td><a href="#setting">settings</a></td>
+	<td><a href="#version">version</a>*</td>
       </tr>
       <tr>
 	<td><a href="#clone">clone</a></td>
 	<td><a href="#help">help</a></td>
 	<td><a href="#push">push</a></td>
-	<td><a href="#sync">sync</a></td>
+	<td><a href="#status">status</a>*</td>
+	<td><a href="#wiki">wiki</a></td>
       </tr>
       <tr>
 	<td><a href="#close">close</a></td>
 	<td><a href="#http">http</a></td>
 	<td><a href="#rebuild">rebuild</a></td>
-        <td><a href="#tag">tag</a></td>
+	<td><a href="#sync">sync</a>*</td>
       </tr>
       <tr>
 	<td><a href="#commit">commit</a></td>
 	<td><a href="#info">info</a></td>
 	<td><a href="#reconstruct">reconstruct</a></td>
-	<td><a href="#timeline">timeline</a></td>
+        <td><a href="#tag">tag</a></td>
       </tr>
     </table><nowiki><pre>
-This is fossil version [2be82dcc2a] 2008-12-07 18:48:09 UTC
+This is fossil version [ba837fd294] 2008-12-16 18:39:29 UTC
 </pre>
 <b>What follows</b> is a survey of what you get if you type<code>
 fossil&nbsp;help&nbsp;<i>command</i> </code>for all of the
 commands listed above.  There are links to individual pages for each
-of them; pages with content (not all of them are done) go into the command
-in a bit more depth than the program help.
+of them; pages with content (commands marked with a '*' are done) go
+into the reason for a command in a bit more depth than the program help.
 <pre>
 <hr><a href="#tof">&#710;</a>
     <a name="add">Usage: </a><code><a href="cmd_add.wiki">fossil add</a></code> FILE...
@@ -317,6 +324,7 @@ in a bit more depth than the program help.
     This command does not rename the files on disk.  All this command does is
     record the fact that filenames have changed so that appropriate notations
     can be made at the next commit/checkin.
+
 <hr><a href="#tof">&#710;</a>
     <a name="new">Usage: </a><a href="cmd_new.wiki">fossil new</a> FILENAME
 
@@ -329,6 +337,12 @@ in a bit more depth than the program help.
     Open a connection to the local repository in FILENAME.  A checkout
     for the repository is created with its root at the working directory.
     See also the "close" command.
+
+<hr><a href="#tof">&#710;</a>
+    <a name="rstats">Usage: </a><a href="cmd_rstats.wiki">fossil rstats</a>
+
+    Deliver a report of the repository statistics for the
+    current checkout.
 
 <hr><a href="#tof">&#710;</a>
     <a name="pull">Usage: </a><a href="cmd_pull.wiki">fossil pull</a> ?URL? ?-R|--respository REPOSITORY?
@@ -353,6 +367,7 @@ in a bit more depth than the program help.
     <a name="push">Usage: </a><a href="cmd_push.wiki">fossil push</a> ?URL? ?-R|--repository REPOSITORY?
     Push changes in the local repository over into a remote repository.
     See the "pull" command for additional information.
+
 <hr><a href="#tof">&#710;</a>
     <a name="rebuild">Usage: </a><a href="cmd_rebuild.wiki">fossil rebuild</a> REPOSITORY
     Reconstruct the named repository database from the core

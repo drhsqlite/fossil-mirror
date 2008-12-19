@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\srandomness\sin\sthe\sform\sof\sa\scomment\sto\seach\ssync\sprotocol\srequest.\nThis\swill\sbreak\solder\sservers\swhich\sdo\snot\sunderstand\scomments.\s\sBut\scomments\nhave\sbeen\sunderstood\sby\sservers\sfor\smonths\snow,\sso\shopefully\severybody\shas\nupgraded.
-D 2008-12-16T18:39:29
+C update\sref\spage
+D 2008-12-19T23:09:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -225,18 +225,18 @@ F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki 9241bac071bcd2971b1f94ff72b2647bef075991
+F www/reference.wiki bbef581c9320f68b671df6db969d52c5381ecb1c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 458331b99ef28be78b3c1b3dc168aa295c991e4a
-R b28b19d5d61e8da9308dc66d0d19f32e
-U drh
-Z a5e297c0606ee013dfa104a5dbd01fa0
+P ba837fd29499a4e740c1c749401f88980fcfdcdb
+R bcbff84e415241f8b74f3509132c044c
+U kejoki
+Z b16cd5dc6736e5e4e6d3564666a41b10
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJR/XkoxKgR168RlERAnryAJ9cXh607EdHfUYTPGTtrswFKF817gCfckfR
-YtIyfeSui8tPih4GED/LKQ0=
-=VriG
+iD8DBQFJTCmv6EFGj+X1mh4RAj9VAJ9Q/i/s5aF0EzSTs9NmqVX1fKD/fgCgmsEV
+QXQosdy5U0RdpfL5HLHZlBE=
+=VV/9
 -----END PGP SIGNATURE-----
