@@ -250,7 +250,7 @@ void vfile_unlink(int vid){
     unlink(zName);
   }
   db_finalize(&q);
-  db_multi_exec("UPDATE vfile SET mtime=NULL HERE vid=%d AND mrid>0", vid);
+  db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);
 }
 
 /*

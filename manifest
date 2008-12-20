@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C update\sref\spage
-D 2008-12-19T23:09:26
+C Fix\san\sSQL\ssyntax\serror.\s\sTicket\s[62c84f3e604a06f9b8f3f4ca39f774d6909115aa].
+D 2008-12-20T02:23:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -110,7 +110,7 @@ F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
 F src/url.c 8b85115038ddf3350b245236c566f3822be21456
 F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
-F src/vfile.c 0b0beebd0945dd2a550bf52fa8b16472f45b7927
+F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c 738d038bd73e1477489ab5e88f50c3dece513f72
 F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
@@ -229,14 +229,14 @@ F www/reference.wiki bbef581c9320f68b671df6db969d52c5381ecb1c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P ba837fd29499a4e740c1c749401f88980fcfdcdb
-R bcbff84e415241f8b74f3509132c044c
-U kejoki
-Z b16cd5dc6736e5e4e6d3564666a41b10
+P 10db583adc08da54f9119de70160f2f2f656e8fb
+R 45b8426b9b46ad3e714cfa5f125f823f
+U drh
+Z d508fcd4f904c1e12b029e516952be06
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJTCmv6EFGj+X1mh4RAj9VAJ9Q/i/s5aF0EzSTs9NmqVX1fKD/fgCgmsEV
-QXQosdy5U0RdpfL5HLHZlBE=
-=VV/9
+iD8DBQFJTFcboxKgR168RlERAhRWAJ9No84EN4nSJo02Ujc4kIqIqa9/XgCffQkU
+XUx+S2CQ/FoyRgCnyaIqsTA=
+=syHr
 -----END PGP SIGNATURE-----
