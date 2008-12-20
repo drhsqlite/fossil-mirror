@@ -63,7 +63,7 @@ static void tagview_page_list_tags(const char *zLike){
     "   linkuuid(b.uuid) AS 'Version'"
     "  FROM tag t, tagxref tx, blob b "
     " WHERE t.tagid=tx.tagid AND tx.rid=b.rid"
-    "   AND tx.tagtype!=0 %s "
+    " %s "
     TAGVIEW_DEFAULT_FILTER
     " ORDER BY tx.mtime DESC %s",
     zLikeClause, zLimit
@@ -176,6 +176,7 @@ void tagview_print_timeline(char const *pName, char const *pPrefix){
   zSql = mprintf("%s AND EXISTS (SELECT 1"
          " FROM tagxref"
          "  WHERE tagxref.rid = event.objid"
+         "  AND tagxref.tagtype > 0"
          "  AND tagxref.tagid = (SELECT tagid FROM tag"
          "      WHERE tagname = %Q||%Q))"
          " ORDER BY 3 desc",

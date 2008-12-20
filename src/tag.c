@@ -405,10 +405,11 @@ static void tag_add_artifact(
 **         List all tags, or if BASELINE is supplied, list
 **         all tags and their values for BASELINE.
 **
-** The option --raw allows the manipulation of all types of
-** tags used for various internal purposes in fossil. You
-** should not use this option to make changes unless you are
-** sure what you are doing.
+** The option --raw allows the manipulation of all types of tags
+** used for various internal purposes in fossil. It also shows
+** "cancel" tags for the "find" and "list" subcommands. You should
+** not use this option to make changes unless you are sure what
+** you are doing.
 **
 ** If you need to use a tagname that might be confused with
 ** a hexadecimal baseline or artifact ID, you can explicitly
@@ -485,7 +486,8 @@ void tag_cmd(void){
     db_prepare(&q,
       "SELECT blob.uuid FROM tagxref, blob"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%B)"
-      "   AND blob.rid=tagxref.rid", &tagname
+      "   AND tagxref.tagtype > %d"
+      "   AND blob.rid=tagxref.rid", &tagname, raw ? -1 : 0
     );
     while( db_step(&q)==SQLITE_ROW ){
       printf("%s\n", db_column_text(&q, 0));
@@ -500,8 +502,9 @@ void tag_cmd(void){
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
-        "                 AND tagtype>0)"
-        " ORDER BY tagname"
+        "                 AND tagtype>%d)"
+        " ORDER BY tagname",
+        raw ? -1 : 0
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *name = db_column_text(&q, 0);
@@ -515,9 +518,10 @@ void tag_cmd(void){
       db_prepare(&q,
         "SELECT tagname, value FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-        "   AND tagtype>0"
+        "   AND tagtype>%d"
         " ORDER BY tagname",
-        rid
+        rid,
+        raw ? -1 : 0
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);

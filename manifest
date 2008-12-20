@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\san\sSQL\ssyntax\serror.\s\sTicket\s[62c84f3e604a06f9b8f3f4ca39f774d6909115aa].
-D 2008-12-20T02:23:18
+C Prevent\stag\scancellations\sfrom\sshowing\sin\s"fossil\stag\slist"\sand\n"fossil\stag\sfind",\sand\salso\son\sthe\stagview\sweb\spage,\sbut\smake\sthem\nvisible\swith\s"--raw"\sor\son\sthe\sRawTags\swebpage\s(admin\sonly).\sFixes\nticket\s[f273b440c38eb8478822812e0730f0fc2c8b4c36].
+D 2008-12-20T11:36:20
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -95,8 +95,8 @@ F src/sqlite3.h cd3a7a652cfbae8f381070bb2be5eeccd601c981
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c ce8ef4ed6f4bd49a1e30673b29f77bf7f32bfa8a
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
-F src/tag.c 54ace316a934e67f6fd3ed5f0ad4c5a6c7c17b4f
-F src/tagview.c cf215193b7425ba912744cc1fa13c29f9475aacf
+F src/tag.c 56669f6f8737e4926466fb3aaa9763b359842fab
+F src/tagview.c 748f6b35d4e7824cbb54e6598da51a7ca87cd100
 F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
@@ -229,14 +229,14 @@ F www/reference.wiki bbef581c9320f68b671df6db969d52c5381ecb1c
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 10db583adc08da54f9119de70160f2f2f656e8fb
-R 45b8426b9b46ad3e714cfa5f125f823f
-U drh
-Z d508fcd4f904c1e12b029e516952be06
+P 491b2c69ec500c643df1d82e5bd59e3eefaa2f28
+R ded6cc0582a41ff916f4db6f1012b679
+U eric
+Z afc0fd5a20354ac7432c82cd41624fae
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFJTFcboxKgR168RlERAhRWAJ9No84EN4nSJo02Ujc4kIqIqa9/XgCffQkU
-XUx+S2CQ/FoyRgCnyaIqsTA=
-=syHr
+iD8DBQFJTNjku+lpsLhDMQkRAmQhAKCH/VKUELzeX5oC3bNHrRaFaOLiQwCfV/2S
+Neyu7toTKFtOcrpJxv7fRG0=
+=f20n
 -----END PGP SIGNATURE-----
