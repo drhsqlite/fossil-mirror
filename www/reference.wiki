@@ -16,16 +16,16 @@
   invoke and feed a command to, including any options, and it will make
   more sense.
 
+  *  Any fossil command is acceptable once enough of it has been
+  entered to make the intent unambiguous.  'clo' is a proper prefix of
+  both the 'clone' and 'close' commands, for instance, but 'clon' is
+  enough to make the intent&#8212;the 'clone' command&#8212;unambiguous.
+
   *  A <u>version</u> in <b>fossil</b> is 40 character hexadecimal string.
   <b>fossil</b> will be able to figure out which version you want with any
   prefix of that string that is distinct from all others.  <em>Commands
   which require a version are looking for that string, the unique prefix,
   or a <code>tag</code>.</em>
-
-  *  Any fossil command is acceptable once enough of it has been
-  entered to make the intent unambiguous.  'clo' is a proper prefix of
-  both the 'clone' and 'close' commands, for instance, but 'clon' is
-  enough to make the intent&#8212;the 'clone' command&#8212;unambiguous.
 
   You should probably start interacting with fossil at the command line
   by asking it what it can do:&nbsp;&nbsp;&nbsp;&nbsp;<a name="tof">&#710;</a>
@@ -44,12 +44,12 @@ Available COMMANDs:</pre><table width="80%" style="font-family: fixed, courier, 
 	<td><a href="#all">all</a>*</td>
 	<td><a href="#deconstruct">deconstruct</a></td>
 	<td><a href="#ls">ls</a>*</td>
-	<td><a href="#mv">rename</a></td>
+	<td><a href="#mv">rename</a>*</td>
 	<td><a href="#server">ui</a></td>
       </tr>
       <tr>
-	<td><a href="#cgi">cgi</a></td>
-	<td><a href="#rm">del</a></td>
+	<td><a href="#cgi">cgi</a>*</td>
+	<td><a href="#rm">del</a>*</td>
 	<td><a href="#merge">merge</a></td>
 	<td><a href="#revert">revert</a></td>
 	<td><a href="#undo">undo</a></td>
@@ -57,8 +57,8 @@ Available COMMANDs:</pre><table width="80%" style="font-family: fixed, courier, 
       <tr>
 	<td><a href="#changes">changes</a>*</td>
         <td><a href="#descendants">descendants</a></td>
-	<td><a href="#mv">mv</a></td>
-	<td><a href="#rm">rm</a></td>
+	<td><a href="#mv">mv</a>*</td>
+	<td><a href="#rm">rm</a>*</td>
 	<td><a href="#setting">unset</a></td>
       </tr>
       <tr>

@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Prevent\stag\scancellations\sfrom\sshowing\sin\s"fossil\stag\slist"\sand\n"fossil\stag\sfind",\sand\salso\son\sthe\stagview\sweb\spage,\sbut\smake\sthem\nvisible\swith\s"--raw"\sor\son\sthe\sRawTags\swebpage\s(admin\sonly).\sFixes\nticket\s[f273b440c38eb8478822812e0730f0fc2c8b4c36].
-D 2008-12-20T11:36:20
+C cli\sdocs
+D 2008-12-21T16:36:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -184,21 +181,24 @@ F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
 F www/bugtheory.wiki 5f6ed2b26bd0a1680ba70da8b04c78eafc40b272
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
-F www/cmd_.wiki-template 575b5c55cd38a4258e307586fb9415cafe88b658
+F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
+F www/cmd_cgi.wiki 89c3b9cdc5fdeef0560f63fecf6f8e3115487ec3
 F www/cmd_changes.wiki 86458abed3ae282b89305c872e88c3a9078d88a6
 F www/cmd_checkout.wiki 3f2d8a2849ac44bb5f6a87caa50aa8de61e4c668
 F www/cmd_extra.wiki ffbd0d5ce685c6ab7df2fd129b5b651cfb32ebc2
 F www/cmd_ls.wiki 421096bb587e540c44f08991990bf52e06f48415
+F www/cmd_mv.wiki 9e4a34eb8c37279fe0792a05d008e04a634b9864
 F www/cmd_new.wiki ba37188db8f11b51f3901506b4d673f94141c7d8
+F www/cmd_rm.wiki b96ff20fcfe6d9f7ba72d9d546f95fae5dfa5969
 F www/cmd_status.wiki ef339202a88c02fa3f2dcc4c59f13ffc2964112b
 F www/cmd_sync.wiki 81c0b88996c8f62e3e810ee733275a85ff36ed4f
 F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 5c8eb11ca89f16708c4a74c65f5db8af22570cc4
+F www/concepts.wiki 4200d131408301454cbe82312094fec8bee5a3f4
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -225,18 +225,11 @@ F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki bbef581c9320f68b671df6db969d52c5381ecb1c
+F www/reference.wiki 5d24ccb3364c554db91d0c8a58d33bbc9d26d466
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 491b2c69ec500c643df1d82e5bd59e3eefaa2f28
-R ded6cc0582a41ff916f4db6f1012b679
-U eric
-Z afc0fd5a20354ac7432c82cd41624fae
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFJTNjku+lpsLhDMQkRAmQhAKCH/VKUELzeX5oC3bNHrRaFaOLiQwCfV/2S
-Neyu7toTKFtOcrpJxv7fRG0=
-=f20n
------END PGP SIGNATURE-----
+P 7c281b629ac5c6a91b2b8143fe48a5714f54e0df
+R a006f1958ddb56a70b266e05710a8377
+U kejoki
+Z 0541377b33e79b428139ab3d3a5da335

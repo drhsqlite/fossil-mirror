@@ -368,7 +368,7 @@ knowledge.  Fossil is designed to avoid this frustration.  Setting up
 a server with fossil is ridiculously easy.  You have three options:</p>
 
 <ol>
-<li><p><b>Setting up a stand-alone server</b></p>
+<li><p><b><a name="saserv">S</a>etting up a stand-alone server</b></p>
 
 <p>From within your source tree just use the <b>server</b> command and
 fossil will start listening for incoming requests on TCP port 8080.
