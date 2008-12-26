@@ -172,15 +172,15 @@ void wiki_page(void){
     }
   }
   if( !g.isHome ){
-    if( isSandbox || (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+    if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
       style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
            g.zTop, zPageName);
     }
-    if( isSandbox || (rid && g.okApndWiki) ){
+    if( rid && g.okApndWiki ){
       style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
            g.zTop, zPageName);
     }
-    if( !isSandbox && g.okHistory ){
+    if( g.okHistory ){
       style_submenu_element("History", "History", "%s/whistory?name=%T",
            g.zTop, zPageName);
     }
