@@ -1,5 +1,8 @@
-C cli\sdocs
-D 2008-12-21T16:36:43
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Require\swiki\sedit\sprivilege\sin\sorder\sto\sedit\sthe\sSandbox\swiki\spage,\sjust\nlike\sany\sother\swiki\spage.
+D 2008-12-26T17:36:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -108,7 +111,7 @@ F src/url.c 8b85115038ddf3350b245236c566f3822be21456
 F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
-F src/wiki.c 738d038bd73e1477489ab5e88f50c3dece513f72
+F src/wiki.c fc21315561931c1349eeb3e023d2eb8a31b3965b
 F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
 F src/xfer.c cc749b7254e32e52f34eefc965e900c5f526e1ef
@@ -229,7 +232,14 @@ F www/reference.wiki 5d24ccb3364c554db91d0c8a58d33bbc9d26d466
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 7c281b629ac5c6a91b2b8143fe48a5714f54e0df
-R a006f1958ddb56a70b266e05710a8377
-U kejoki
-Z 0541377b33e79b428139ab3d3a5da335
+P aef81bf344e688a620af8db143e54cff1bbbf017
+R 4a47db126aae83dd1abbec03f6ff179d
+U drh
+Z a659019978398fac9836c6fa1315308f
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFJVRYLoxKgR168RlERAljeAJ9CSNYefhACE/+OT3bbdyQXrvQHQwCbBUpZ
+LJUQi1hEQC0suwfmoBF0JHY=
+=kJLO
+-----END PGP SIGNATURE-----

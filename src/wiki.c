@@ -220,6 +220,10 @@ void wikiedit_page(void){
   if( check_name(zPageName) ) return;
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
+    if( !g.okWrWiki ){
+      login_needed();
+      return;
+    }
     if( zBody==0 ){
       zBody = db_get("sandbox","");
     }
