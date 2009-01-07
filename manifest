@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Omit\sthe\shyperlinks\sto\sthe\swiki\sedit\sfor\sthe\sSandbox\sif\sediting\sis\snot\nallowed.
-D 2008-12-26T17:41:09
+C adjust\sreference.wiki\s&c.
+D 2009-01-07T22:45:17
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -189,7 +189,7 @@ F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
 F www/cmd_cgi.wiki 89c3b9cdc5fdeef0560f63fecf6f8e3115487ec3
 F www/cmd_changes.wiki 86458abed3ae282b89305c872e88c3a9078d88a6
-F www/cmd_checkout.wiki 3f2d8a2849ac44bb5f6a87caa50aa8de61e4c668
+F www/cmd_checkout.wiki 879d69a87c4db6e220f3d0e0afe18e48f15e143d
 F www/cmd_extra.wiki ffbd0d5ce685c6ab7df2fd129b5b651cfb32ebc2
 F www/cmd_ls.wiki 421096bb587e540c44f08991990bf52e06f48415
 F www/cmd_mv.wiki 9e4a34eb8c37279fe0792a05d008e04a634b9864
@@ -228,18 +228,18 @@ F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
 F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
 F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
 F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki 5d24ccb3364c554db91d0c8a58d33bbc9d26d466
+F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 2a3e85f2d5d34b20a5663990e3ee156aa7d90fb4
-R b3474d330be60d6c6810c1242502a21b
-U drh
-Z 999df6db8a1e632e69bc86cfd87861f1
+P b12a0315572ec541cbc130375b4b84b39469e12d
+R 9938a542d66d68817227722113e6874d
+U kejoki
+Z 0970d82d94a937b67b122565b5c94ba1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJVRc5oxKgR168RlERAo2VAJ9xbKEpLDeGnHGYUD+q/e9tSlar0QCfaX9G
-dmGuDH2Js8eayY0lJPaDhyE=
-=fvZa
+iD8DBQFJZTCF6EFGj+X1mh4RAv+QAKCHmdI3PEFetI8x0YloSpZgS9mwnQCgjvZ2
+0Z8eZadL2DsEIvQ47C12/Zw=
+=29h7
 -----END PGP SIGNATURE-----

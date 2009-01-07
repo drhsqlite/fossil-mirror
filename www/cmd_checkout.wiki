@@ -43,4 +43,8 @@ See also [./cmd_tag.wiki | fossil tag],
 [./cmd_update.wiki | fossil update],
 [./cmd_push.wiki | fossil push],
 [./cmd_pull.wiki | fossil pull],
+[./cmd_clone.wiki | fossil clone],
+[./cmd_open.wiki | fossil open],
+[./cmd_close.wiki | fossil close],
+[./cmd_new.wiki | fossil new],
 [./reference.wiki | Reference]
