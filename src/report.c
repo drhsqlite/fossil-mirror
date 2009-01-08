@@ -679,6 +679,11 @@ static int generate_html(
   /* Do initialization
   */
   if( pState->nCount==0 ){
+    /* Turn off the authorizer.  It is no longer doing anything since the
+    ** query has already been prepared.
+    */
+    sqlite3_set_authorizer(g.db, 0, 0);
+
     /* Figure out the number of columns, the column that determines background
     ** color, and whether or not this row of data is represented by multiple
     ** rows in the table.

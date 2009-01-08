@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C adjust\sreference.wiki\s&c.
-D 2009-01-07T22:45:17
+C Disable\sSQL\srestrictions\sas\ssoon\sas\sthe\suser-supplied\sreport-generator\sSQL\nhas\sbeen\sparsed,\sso\sthat\sother\squeries\sthat\srun\sduring\sreport\srendering\nand\srun\sunimpeded.\s\sTicket\s[c666e737cb028bcec2d55659d79ce8521355d2bf]
+D 2009-01-08T14:05:50
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -83,7 +83,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
-F src/report.c e35bb33ea9a1f7d7b24f7ea00e54c47edf5236fd
+F src/report.c dc93483c8358f5f2a85190270ff12cee8d7e1087
 F src/rss.c 07391be6042117a90aa16dc782965ec28cdf0e0d
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P b12a0315572ec541cbc130375b4b84b39469e12d
-R 9938a542d66d68817227722113e6874d
-U kejoki
-Z 0970d82d94a937b67b122565b5c94ba1
+P c8b86eae78bba296401f5153c8c34462b280fe5e
+R ae87f1bb4988bc4cb6b53e282a2ca34d
+U drh
+Z c1a436e008c074ef7a3f0f4c24463d95
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJZTCF6EFGj+X1mh4RAv+QAKCHmdI3PEFetI8x0YloSpZgS9mwnQCgjvZ2
-0Z8eZadL2DsEIvQ47C12/Zw=
-=29h7
+iD8DBQFJZghFoxKgR168RlERAscYAJ41fPYEBc1z9K2/1RAtuJg1PhT17QCfUYQQ
+6RpF3WY/Spz0NlFaC6cMleY=
+=VyXm
 -----END PGP SIGNATURE-----
