@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Disable\sSQL\srestrictions\sas\ssoon\sas\sthe\suser-supplied\sreport-generator\sSQL\nhas\sbeen\sparsed,\sso\sthat\sother\squeries\sthat\srun\sduring\sreport\srendering\nand\srun\sunimpeded.\s\sTicket\s[c666e737cb028bcec2d55659d79ce8521355d2bf]
-D 2009-01-08T14:05:50
+C Update\sSQLite\sto\sthe\slatest\scode\s(just\sprior\sto\s3.6.8).
+D 2009-01-10T13:16:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -90,8 +87,8 @@ F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c ffc8251555af50947b4244716263fc66217ce32e
-F src/sqlite3.c 25a6dd7971d888ba7614ffab2eefb38bc684054d
-F src/sqlite3.h cd3a7a652cfbae8f381070bb2be5eeccd601c981
+F src/sqlite3.c cc39a28670e85ac22b9198391a2ff550387f62bb
+F src/sqlite3.h 2d6e1a0adc2fa4343b3b91b3e9cb6e455d3321fa
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c ce8ef4ed6f4bd49a1e30673b29f77bf7f32bfa8a
 F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
@@ -232,14 +229,7 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P c8b86eae78bba296401f5153c8c34462b280fe5e
-R ae87f1bb4988bc4cb6b53e282a2ca34d
+P 58f15e92aecf31289734e73815006d1b965a2a57
+R 4939e882a3698088a3bb6c98c967de3e
 U drh
-Z c1a436e008c074ef7a3f0f4c24463d95
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFJZghFoxKgR168RlERAscYAJ41fPYEBc1z9K2/1RAtuJg1PhT17QCfUYQQ
-6RpF3WY/Spz0NlFaC6cMleY=
-=VyXm
------END PGP SIGNATURE-----
+Z f20bbe4eda0183dca6f8ec943eb37bec
