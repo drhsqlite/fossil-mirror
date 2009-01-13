@@ -260,11 +260,15 @@ void login_check_credentials(void){
 
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
-  ** local login is disabled, then there is no need to check
-  ** user credentials.
+  ** local login is disabled and if we are using HTTP and not HTTPS, 
+  ** then there is no need to check user credentials.
+  **
   */
   zRemoteAddr = PD("REMOTE_ADDR","nil");
-  if( strcmp(zRemoteAddr, "127.0.0.1")==0 && db_get_int("localauth",0)==0 ){
+  if( strcmp(zRemoteAddr, "127.0.0.1")==0
+   && db_get_int("localauth",0)==0
+   && P("HTTPS")==0
+  ){
     uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "s";
