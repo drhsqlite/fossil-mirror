@@ -45,12 +45,24 @@
 void url_parse(const char *zUrl){
   int i, j, c;
   char *zFile = 0;
-  if( strncmp(zUrl, "http:", 5)==0 ){
+  if( strncmp(zUrl, "http://", 7)==0 || strncmp(zUrl, "https://", 8)==0 ){
+    int iStart;
     g.urlIsFile = 0;
-    for(i=7; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
+    if( zUrl[4]=='s' ){
+      g.urlIsHttps = 1;
+      g.urlProtocol = "https";
+      g.urlDfltPort = 443;
+      iStart = 8;
+    }else{
+      g.urlIsHttps = 0;
+      g.urlProtocol = "http";
+      g.urlDfltPort = 80;
+      iStart = 7;
+    }
+    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
     if( c=='@' ){
-      for(j=7; j<i && zUrl[j]!=':'; j++){}
-      g.urlUser = mprintf("%.*s", j-7, &zUrl[7]);
+      for(j=iStart; j<i && zUrl[j]!=':'; j++){}
+      g.urlUser = mprintf("%.*s", j-iStart, &zUrl[iStart]);
       if( j<i ){
         g.urlPasswd = mprintf("%.*s", i-j-1, &zUrl[j+1]);
       }
@@ -58,8 +70,8 @@ void url_parse(const char *zUrl){
       g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
     }else{
-      for(i=7; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
-      g.urlName = mprintf("%.*s", i-7, &zUrl[7]);
+      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
+      g.urlName = mprintf("%.*s", i-iStart, &zUrl[iStart]);
     }
     for(j=0; g.urlName[j]; j++){ g.urlName[j] = tolower(g.urlName[j]); }
     if( c==':' ){
@@ -71,13 +83,14 @@ void url_parse(const char *zUrl){
       }
       g.urlHostname = mprintf("%s:%d", g.urlName, g.urlPort);
     }else{
-      g.urlPort = 80;
+      g.urlPort = g.urlDfltPort;
       g.urlHostname = g.urlName;
     }
     g.urlPath = mprintf(&zUrl[i]);
     dehttpize(g.urlName);
     dehttpize(g.urlPath);
-    g.urlCanonical = mprintf("http://%T:%d%T", g.urlName, g.urlPort, g.urlPath);
+    g.urlCanonical = mprintf("%s://%T:%d%T",
+         g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
     if( zUrl[5]=='/' && zUrl[6]=='/' ){
@@ -123,8 +136,11 @@ void cmd_test_urlparser(void){
   url_parse(g.argv[2]);
   for(i=0; i<2; i++){
     printf("g.urlIsFile    = %d\n", g.urlIsFile);
+    printf("g.urlIsHttps   = %d\n", g.urlIsHttps);
+    printf("g.urlProtocol  = %s\n", g.urlProtocol);
     printf("g.urlName      = %s\n", g.urlName);
     printf("g.urlPort      = %d\n", g.urlPort);
+    printf("g.urlDfltPort  = %d\n", g.urlDfltPort);
     printf("g.urlHostname  = %s\n", g.urlHostname);
     printf("g.urlPath      = %s\n", g.urlPath);
     printf("g.urlUser      = %s\n", g.urlUser);
@@ -156,6 +172,10 @@ void url_proxy_options(void){
 /*
 ** If the "proxy" setting is defined, then change the URL to refer
 ** to the proxy server.
+**
+** If the protocol is "https://" then start stunnel to handle the SSL
+** and make the url setting refer to stunnel rather than the original
+** destination.
 */
 void url_enable_proxy(const char *zMsg){
   const char *zProxy;

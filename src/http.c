@@ -80,10 +80,11 @@ static int http_open_socket(void){
   static int addrIsInit = 0;       /* True once addr is initialized */
   int s;
 
+  if( g.urlIsHttps ){
+    fossil_fatal("SSL/TLS is not yet implemented.");
+  }
   ws_init();
-  
   if( !addrIsInit ){
-
     addr.sin_family = AF_INET;
     addr.sin_port = htons(g.urlPort);
     *(int*)&addr.sin_addr = inet_addr(g.urlName);

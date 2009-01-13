@@ -57,10 +57,11 @@ void autosync(int flags){
   if( g.urlIsFile ){
     return;  /* Network sync only */
   }
-  if( g.urlPort!=80 ){
-    printf("Autosync:  http://%s:%d%s\n", g.urlName, g.urlPort, g.urlPath);
+  if( g.urlPort!=g.urlDfltPort ){
+    printf("Autosync:  %s://%s:%d%s\n", 
+            g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
   }else{
-    printf("Autosync:  http://%s%s\n", g.urlName, g.urlPath);
+    printf("Autosync:  %s://%s%s\n", g.urlProtocol, g.urlName, g.urlPath);
   }
   url_enable_proxy("via proxy: ");
   client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, 0);
@@ -93,10 +94,11 @@ void process_sync_args(void){
   db_set("last-sync-url", zUrl, 0);
   user_select();
   if( g.argc==2 ){
-    if( g.urlPort!=80 ){
-      printf("Server:    http://%s:%d%s\n", g.urlName, g.urlPort, g.urlPath);
+    if( g.urlPort!=g.urlDfltPort ){
+      printf("Server:    %s://%s:%d%s\n",
+              g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
     }else{
-      printf("Server:    http://%s%s\n", g.urlName, g.urlPath);
+      printf("Server:    %s://%s%s\n", g.urlProtocol, g.urlName, g.urlPath);
     }
   }
   url_enable_proxy("via proxy: ");

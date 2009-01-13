@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Do\snot\sdo\sthe\slogin-bypass\sif\sthe\sHTTPS\senv\svar\sis\sON.\s\sThis\smight\sindicate\nthat\sa\sremote\sHTTPS\sconnection\sis\sbeing\sconverted\sto\sHTTP\slocally\susing\nstunnel\s(or\sthe\sequivalent).
-D 2009-01-13T18:06:04
+C Add\scode\sto\sunderstand\sthe\s"https://"\sprefix\son\sserver\sURLs.\s\sAny\sattempt\sto\nuse\shttps\sgives\san\serror\sat\sthis\spoint,\showever.\s\sThis\sis\sa\swork\sin\sprogress.
+D 2009-01-13T18:43:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -63,11 +63,11 @@ F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
-F src/file.c 5e3422939d589e23dcafb325f4e24924e47602b0
-F src/http.c 79044c34de344c235b776a58e5b2b908183f00c1
+F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
+F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
 F src/info.c 594a3689d127c8cf08baa243250f3d393fc1721c
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
-F src/main.c ae77223909cf862c09033b75ca4316f8150e98aa
+F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -94,7 +94,7 @@ F src/sqlite3.c cc39a28670e85ac22b9198391a2ff550387f62bb
 F src/sqlite3.h 2d6e1a0adc2fa4343b3b91b3e9cb6e455d3321fa
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c ce8ef4ed6f4bd49a1e30673b29f77bf7f32bfa8a
-F src/sync.c 9adfc725096a9e5dfdf79f2e737782a1224ad4fa
+F src/sync.c 5bf564823db36120bb1bfbe9a53182949fd3fb1a
 F src/tag.c 56669f6f8737e4926466fb3aaa9763b359842fab
 F src/tagview.c 748f6b35d4e7824cbb54e6598da51a7ca87cd100
 F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
@@ -107,7 +107,7 @@ F src/tktsetup.c 80638298360f2b0611d3f6070f0b1dede1341a39
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 60966120347b7c76abd31c5ec594c9c943487b7b
-F src/url.c 8b85115038ddf3350b245236c566f3822be21456
+F src/url.c c65f870f23f32c4ea7f6cdf3c760b690c4ea3fd8
 F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P ed28f6e76d46cb8503f050e71d8e8c44b5468ac3
-R 6ff083c7700a7d68a159a1a0e8364b27
+P 3da8a12f488b343706c868b45f395100074cedd9
+R ddd8a02e0504f1948ba37752e6974e75
 U drh
-Z accc98486e4777ea1cf5b792714ac272
+Z 89647247ae7ad522207bf57d799ac3f1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJbNgPoxKgR168RlERAv0pAJ45sYQN1/F8S3MnJiplKJaZOrxYngCfY8nm
-6rC8EcOSQ8+Ip68+G07eRd4=
-=5vl6
+iD8DBQFJbODmoxKgR168RlERAtwgAJ0X4YeYNWwS2m1ZENs0uPbqV/agIgCdEWaO
+nYNyfwPOE8GVweJdesqQxls=
+=J08s
 -----END PGP SIGNATURE-----

@@ -85,9 +85,12 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
 
   int urlIsFile;          /* True if a "file:" url */
+  int urlIsHttps;         /* True if a "https:" url */
   char *urlName;          /* Hostname for http: or filename for file: */
   char *urlHostname;      /* The HOST: parameter on http headers */
-  int urlPort;            /* TCP port number for http: */
+  char *urlProtocol;      /* "http" or "https" */
+  int urlPort;            /* TCP port number for http: or https: */
+  int urlDfltPort;        /* The default port for the given protocol */
   char *urlPath;          /* Pathname for http: */
   char *urlUser;          /* User id for http: */
   char *urlPasswd;        /* Password for http: */

@@ -431,3 +431,48 @@ void file_parse_uri(
     blob_set(pPath, "/");
   }
 }
+
+/*
+** Construct a random temporary filename into zBuf[].
+*/
+void file_tempname(int nBuf, char *zBuf){
+  static const char *azDirs[] = {
+     "/var/tmp",
+     "/usr/tmp",
+     "/tmp",
+     "/temp",
+     ".",
+  };
+  static const unsigned char zChars[] =
+    "abcdefghijklmnopqrstuvwxyz"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "0123456789";
+  unsigned int i, j;
+  struct stat buf;
+  const char *zDir = ".";
+  
+  for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
+    if( stat(azDirs[i], &buf) ) continue;
+    if( !S_ISDIR(buf.st_mode) ) continue;
+    if( access(azDirs[i], 07) ) continue;
+    zDir = azDirs[i];
+    break;
+  }
+
+  /* Check that the output buffer is large enough for the temporary file 
+  ** name. If it is not, return SQLITE_ERROR.
+  */
+  if( (strlen(zDir) + 17) >= (size_t)nBuf ){
+    fossil_fatal("insufficient space for temporary filename");
+  }
+
+  do{
+    sqlite3_snprintf(nBuf-17, zBuf, "%s/", zDir);
+    j = (int)strlen(zBuf);
+    sqlite3_randomness(15, &zBuf[j]);
+    for(i=0; i<15; i++, j++){
+      zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
+    }
+    zBuf[j] = 0;
+  }while( access(zBuf,0)==0 );
+}
