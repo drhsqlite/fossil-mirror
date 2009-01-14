@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\scode\sto\sunderstand\sthe\s"https://"\sprefix\son\sserver\sURLs.\s\sAny\sattempt\sto\nuse\shttps\sgives\san\serror\sat\sthis\spoint,\showever.\s\sThis\sis\sa\swork\sin\sprogress.
-D 2009-01-13T18:43:47
+C Update\sSQLite\sto\sfix\sthe\sOR-clause\squery\soptimizer\sbug.\s\sThat\sbug\sis\sprobably\nharmless\sto\sSQLite,\sbut\sit\sdoesn't\shurt\sto\scheck\sin\sthe\sfix.
+D 2009-01-14T01:09:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -90,7 +90,7 @@ F src/schema.c 89e594d6c0dd9dc04f368aaaed983688c6cd8313
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c ffc8251555af50947b4244716263fc66217ce32e
-F src/sqlite3.c cc39a28670e85ac22b9198391a2ff550387f62bb
+F src/sqlite3.c 10da79eb4d370c214ee91fbf204230e3352cfdb4
 F src/sqlite3.h 2d6e1a0adc2fa4343b3b91b3e9cb6e455d3321fa
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c ce8ef4ed6f4bd49a1e30673b29f77bf7f32bfa8a
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 3da8a12f488b343706c868b45f395100074cedd9
-R ddd8a02e0504f1948ba37752e6974e75
+P 797d680ef52b7f88390b82f106275fa6ec55af32
+R fd8f4d8c272ba753e702dd46ef080dd0
 U drh
-Z 89647247ae7ad522207bf57d799ac3f1
+Z cb0f9e174461cb5764d1f9d8b757ce11
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJbODmoxKgR168RlERAtwgAJ0X4YeYNWwS2m1ZENs0uPbqV/agIgCdEWaO
-nYNyfwPOE8GVweJdesqQxls=
-=J08s
+iD8DBQFJbTtloxKgR168RlERAjU/AJ9s7L4nQUfEckSdWzlIRQT3bpkKiwCgiDN9
+2+rBLEd3l+p8ElzdZ+DqARM=
+=xzMy
 -----END PGP SIGNATURE-----

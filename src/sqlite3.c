@@ -17,7 +17,7 @@
 ** is also in a separate file.  This file contains only code for the core
 ** SQLite library.
 **
-** This amalgamation was generated on 2009-01-10 13:14:08 UTC.
+** This amalgamation was generated on 2009-01-14 00:59:32 UTC.
 */
 #define SQLITE_CORE 1
 #define SQLITE_AMALGAMATION 1
@@ -41,7 +41,7 @@
 *************************************************************************
 ** Internal interface definitions for SQLite.
 **
-** @(#) $Id: sqliteInt.h,v 1.821 2009/01/09 14:11:05 drh Exp $
+** @(#) $Id: sqliteInt.h,v 1.823 2009/01/10 16:15:22 drh Exp $
 */
 #ifndef _SQLITEINT_H_
 #define _SQLITEINT_H_
@@ -70,7 +70,7 @@
 ** 
 ** This file defines various limits of what SQLite can process.
 **
-** @(#) $Id: sqliteLimit.h,v 1.9 2009/01/07 16:15:43 danielk1977 Exp $
+** @(#) $Id: sqliteLimit.h,v 1.10 2009/01/10 16:15:09 danielk1977 Exp $
 */
 
 /*
@@ -188,6 +188,13 @@
 /* Maximum page size.  The upper bound on this value is 32768.  This a limit
 ** imposed by the necessity of storing the value in a 2-byte unsigned integer
 ** and the fact that the page size must be a power of 2.
+**
+** If this limit is changed, then the compiled library is technically
+** incompatible with an SQLite library compiled with a different limit. If
+** a process operating on a database with a page-size of 65536 bytes 
+** crashes, then an instance of SQLite compiled with the default page-size 
+** limit will not be able to rollback the aborted transaction. This could
+** lead to database corruption.
 */
 #ifndef SQLITE_MAX_PAGE_SIZE
 # define SQLITE_MAX_PAGE_SIZE 32768
@@ -265,57 +272,6 @@
 #endif
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
-#endif
-
-/*
-** A macro used to aid in coverage testing.  When doing coverage
-** testing, the condition inside the argument must be evaluated 
-** both true and false in order to get full branch coverage.
-** This macro can be inserted to ensure adequate test coverage
-** in places where simple condition/decision coverage is inadequate.
-*/
-#ifdef SQLITE_COVERAGE_TEST
-SQLITE_PRIVATE   void sqlite3Coverage(int);
-# define testcase(X)  if( X ){ sqlite3Coverage(__LINE__); }
-# define TESTONLY(X)  X
-#else
-# define testcase(X)
-# define TESTONLY(X)
-#endif
-
-/*
-** The ALWAYS and NEVER macros surround boolean expressions which 
-** are intended to always be true or false, respectively.  Such
-** expressions could be omitted from the code completely.  But they
-** are included in a few cases in order to enhance the resilience
-** of SQLite to unexpected behavior - to make the code "self-healing"
-** or "ductile" rather than being "brittle" and crashing at the first
-** hint of unplanned behavior.
-**
-** When doing coverage testing ALWAYS and NEVER are hard-coded to
-** be true and false so that the unreachable code then specify will
-** not be counted as untested code.
-*/
-#ifdef SQLITE_COVERAGE_TEST
-# define ALWAYS(X)      (1)
-# define NEVER(X)       (0)
-#else
-# define ALWAYS(X)      (X)
-# define NEVER(X)       (X)
-#endif
-
-/*
-** The macro unlikely() is a hint that surrounds a boolean
-** expression that is usually false.  Macro likely() surrounds
-** a boolean expression that is usually true.  GCC is able to
-** use these hints to generate better code, sometimes.
-*/
-#if defined(__GNUC__) && 0
-# define likely(X)    __builtin_expect((X),1)
-# define unlikely(X)  __builtin_expect((X),0)
-#else
-# define likely(X)    !!(X)
-# define unlikely(X)  !!(X)
 #endif
 
 /*
@@ -453,6 +409,73 @@ SQLITE_PRIVATE   void sqlite3Coverage(int);
 */
 #if !defined(NDEBUG) && !defined(SQLITE_DEBUG) 
 # define NDEBUG 1
+#endif
+
+/*
+** The testcase() macro is used to aid in coverage testing.  When 
+** doing coverage testing, the condition inside the argument to
+** testcase() must be evaluated both true and false in order to
+** get full branch coverage.  The testcase() macro is inserted
+** to help ensure adequate test coverage in places where simple
+** condition/decision coverage is inadequate.  For example, testcase()
+** can be used to make sure boundary values are tested.  For
+** bitmask tests, testcase() can be used to make sure each bit
+** is significant and used at least once.  On switch statements
+** where multiple cases go to the same block of code, testcase()
+** can insure that all cases are evaluated.
+**
+** The TESTONLY macro is used to enclose variable declarations or
+** other bits of code that are needed to support the arguments
+** within testcase() macros.
+*/
+#ifdef SQLITE_COVERAGE_TEST
+SQLITE_PRIVATE   void sqlite3Coverage(int);
+# define testcase(X)  if( X ){ sqlite3Coverage(__LINE__); }
+# define TESTONLY(X)  X
+#else
+# define testcase(X)
+# define TESTONLY(X)
+#endif
+
+/*
+** The ALWAYS and NEVER macros surround boolean expressions which 
+** are intended to always be true or false, respectively.  Such
+** expressions could be omitted from the code completely.  But they
+** are included in a few cases in order to enhance the resilience
+** of SQLite to unexpected behavior - to make the code "self-healing"
+** or "ductile" rather than being "brittle" and crashing at the first
+** hint of unplanned behavior.
+**
+** In other words, ALWAYS and NEVER are added for defensive code.
+**
+** When doing coverage testing ALWAYS and NEVER are hard-coded to
+** be true and false so that the unreachable code then specify will
+** not be counted as untested code.
+*/
+#if defined(SQLITE_COVERAGE_TEST)
+# define ALWAYS(X)      (1)
+# define NEVER(X)       (0)
+#elif !defined(NDEBUG)
+SQLITE_PRIVATE   int sqlite3Assert(void);
+# define ALWAYS(X)      ((X)?1:sqlite3Assert())
+# define NEVER(X)       ((X)?sqlite3Assert():0)
+#else
+# define ALWAYS(X)      (X)
+# define NEVER(X)       (X)
+#endif
+
+/*
+** The macro unlikely() is a hint that surrounds a boolean
+** expression that is usually false.  Macro likely() surrounds
+** a boolean expression that is usually true.  GCC is able to
+** use these hints to generate better code, sometimes.
+*/
+#if defined(__GNUC__) && 0
+# define likely(X)    __builtin_expect((X),1)
+# define unlikely(X)  __builtin_expect((X),0)
+#else
+# define likely(X)    !!(X)
+# define unlikely(X)  !!(X)
 #endif
 
 /*
@@ -8146,142 +8169,142 @@ typedef struct VdbeOpList VdbeOpList;
 /************** Begin file opcodes.h *****************************************/
 /* Automatically generated.  Do not edit */
 /* See the mkopcodeh.awk script for details */
-#define OP_VCreate                              1
-#define OP_MemMax                               2
-#define OP_LoadAnalysis                         3
-#define OP_RowData                              4
-#define OP_CreateIndex                          5
-#define OP_Variable                             6
-#define OP_SeekGt                               7
-#define OP_SeekLe                               8
-#define OP_IfNeg                                9
-#define OP_Clear                               10
-#define OP_Last                                11
-#define OP_Add                                 81   /* same as TK_PLUS     */
-#define OP_Savepoint                           12
-#define OP_Sequence                            13
-#define OP_Int64                               14
-#define OP_VBegin                              15
-#define OP_RowKey                              16
-#define OP_Divide                              84   /* same as TK_SLASH    */
-#define OP_SCopy                               17
-#define OP_ResetCount                          18
-#define OP_Delete                              20
-#define OP_Trace                               21
-#define OP_Rowid                               22
-#define OP_OpenRead                            23
-#define OP_Sort                                24
-#define OP_VerifyCookie                        25
-#define OP_VColumn                             26
-#define OP_Next                                27
-#define OP_Insert                              28
-#define OP_Prev                                29
-#define OP_IdxGE                               30
-#define OP_Not                                 19   /* same as TK_NOT      */
-#define OP_Ge                                  75   /* same as TK_GE       */
-#define OP_VRename                             31
-#define OP_DropTable                           32
-#define OP_MakeRecord                          33
-#define OP_Null                                34
-#define OP_IdxInsert                           35
-#define OP_SeekLt                              36
-#define OP_ReadCookie                          37
-#define OP_VDestroy                            38
-#define OP_DropIndex                           39
-#define OP_IsNull                              68   /* same as TK_ISNULL   */
-#define OP_MustBeInt                           40
-#define OP_IntegrityCk                         41
-#define OP_CollSeq                             42
-#define OP_ResultRow                           43
-#define OP_Yield                               44
-#define OP_OpenEphemeral                       45
-#define OP_VNext                               46
-#define OP_Seek                                47
-#define OP_Eq                                  71   /* same as TK_EQ       */
-#define OP_String8                             91   /* same as TK_STRING   */
-#define OP_Found                               48
-#define OP_If                                  49
-#define OP_ToBlob                             142   /* same as TK_TO_BLOB  */
-#define OP_Multiply                            83   /* same as TK_STAR     */
-#define OP_IfZero                              50
-#define OP_ShiftRight                          80   /* same as TK_RSHIFT   */
-#define OP_Goto                                51
-#define OP_Function                            52
-#define OP_Copy                                53
-#define OP_Jump                                54
-#define OP_Blob                                55
-#define OP_BitNot                              90   /* same as TK_BITNOT   */
-#define OP_Gt                                  72   /* same as TK_GT       */
-#define OP_Le                                  73   /* same as TK_LE       */
-#define OP_NullRow                             56
-#define OP_Transaction                         57
-#define OP_VUpdate                             58
-#define OP_TableLock                           59
-#define OP_IdxRowid                            60
-#define OP_SetCookie                           61
-#define OP_And                                 64   /* same as TK_AND      */
-#define OP_ToNumeric                          143   /* same as TK_TO_NUMERIC*/
-#define OP_ToText                             141   /* same as TK_TO_TEXT  */
-#define OP_ContextPush                         62
-#define OP_DropTrigger                         65
-#define OP_AutoCommit                          66
-#define OP_Column                              67
-#define OP_AddImm                              76
-#define OP_Remainder                           85   /* same as TK_REM      */
-#define OP_ContextPop                          87
-#define OP_IdxDelete                           88
-#define OP_Ne                                  70   /* same as TK_NE       */
-#define OP_ToInt                              144   /* same as TK_TO_INT   */
-#define OP_IncrVacuum                          89
-#define OP_AggFinal                            92
-#define OP_RealAffinity                        93
-#define OP_Concat                              86   /* same as TK_CONCAT   */
-#define OP_Return                              94
-#define OP_Expire                              95
-#define OP_Rewind                              96
-#define OP_Statement                           97
-#define OP_BitOr                               78   /* same as TK_BITOR    */
-#define OP_Integer                             98
-#define OP_Compare                             99
-#define OP_Destroy                            100
-#define OP_IdxLT                              101
-#define OP_Affinity                           102
-#define OP_Lt                                  74   /* same as TK_LT       */
-#define OP_Subtract                            82   /* same as TK_MINUS    */
-#define OP_Vacuum                             103
-#define OP_IfNot                              104
-#define OP_Move                               105
-#define OP_Explain                            106
-#define OP_ParseSchema                        107
-#define OP_NewRowid                           108
-#define OP_SetNumColumns                      109
-#define OP_BitAnd                              77   /* same as TK_BITAND   */
-#define OP_String                             110
-#define OP_AggStep                            111
-#define OP_VRowid                             112
-#define OP_VOpen                              113
-#define OP_NotExists                          114
-#define OP_Close                              115
-#define OP_Halt                               116
-#define OP_Noop                               117
-#define OP_SeekGe                             118
-#define OP_VFilter                            119
-#define OP_OpenPseudo                         120
-#define OP_Or                                  63   /* same as TK_OR       */
-#define OP_ShiftLeft                           79   /* same as TK_LSHIFT   */
-#define OP_ToReal                             145   /* same as TK_TO_REAL  */
-#define OP_RowSetRead                         121
-#define OP_RowSetAdd                          122
-#define OP_IsUnique                           123
-#define OP_OpenWrite                          124
-#define OP_Permutation                        125
-#define OP_Gosub                              126
-#define OP_IfPos                              127
+#define OP_VNext                                1
+#define OP_Affinity                             2
+#define OP_Column                               3
+#define OP_SetCookie                            4
+#define OP_Seek                                 5
 #define OP_Real                               129   /* same as TK_FLOAT    */
+#define OP_Sequence                             6
+#define OP_Savepoint                            7
+#define OP_Ge                                  75   /* same as TK_GE       */
+#define OP_RowKey                               8
+#define OP_SCopy                                9
+#define OP_Eq                                  71   /* same as TK_EQ       */
+#define OP_OpenWrite                           10
 #define OP_NotNull                             69   /* same as TK_NOTNULL  */
-#define OP_Pagecount                          128
-#define OP_NotFound                           130
-#define OP_CreateTable                        131
+#define OP_If                                  11
+#define OP_ToInt                              144   /* same as TK_TO_INT   */
+#define OP_String8                             91   /* same as TK_STRING   */
+#define OP_VRowid                              12
+#define OP_CollSeq                             13
+#define OP_OpenRead                            14
+#define OP_Expire                              15
+#define OP_AutoCommit                          16
+#define OP_Gt                                  72   /* same as TK_GT       */
+#define OP_Pagecount                           17
+#define OP_IntegrityCk                         18
+#define OP_Sort                                20
+#define OP_Copy                                21
+#define OP_Trace                               22
+#define OP_Function                            23
+#define OP_IfNeg                               24
+#define OP_And                                 64   /* same as TK_AND      */
+#define OP_Subtract                            82   /* same as TK_MINUS    */
+#define OP_Noop                                25
+#define OP_Return                              26
+#define OP_Remainder                           85   /* same as TK_REM      */
+#define OP_NewRowid                            27
+#define OP_Multiply                            83   /* same as TK_STAR     */
+#define OP_Variable                            28
+#define OP_String                              29
+#define OP_RealAffinity                        30
+#define OP_VRename                             31
+#define OP_ParseSchema                         32
+#define OP_VOpen                               33
+#define OP_Close                               34
+#define OP_CreateIndex                         35
+#define OP_IsUnique                            36
+#define OP_NotFound                            37
+#define OP_Int64                               38
+#define OP_MustBeInt                           39
+#define OP_Halt                                40
+#define OP_Rowid                               41
+#define OP_IdxLT                               42
+#define OP_AddImm                              43
+#define OP_Statement                           44
+#define OP_RowData                             45
+#define OP_MemMax                              46
+#define OP_Or                                  63   /* same as TK_OR       */
+#define OP_NotExists                           47
+#define OP_Gosub                               48
+#define OP_Divide                              84   /* same as TK_SLASH    */
+#define OP_Integer                             49
+#define OP_ToNumeric                          143   /* same as TK_TO_NUMERIC*/
+#define OP_Prev                                50
+#define OP_RowSetRead                          51
+#define OP_Concat                              86   /* same as TK_CONCAT   */
+#define OP_RowSetAdd                           52
+#define OP_BitAnd                              77   /* same as TK_BITAND   */
+#define OP_VColumn                             53
+#define OP_CreateTable                         54
+#define OP_Last                                55
+#define OP_SeekLe                              56
+#define OP_IsNull                              68   /* same as TK_ISNULL   */
+#define OP_IncrVacuum                          57
+#define OP_IdxRowid                            58
+#define OP_ShiftRight                          80   /* same as TK_RSHIFT   */
+#define OP_ResetCount                          59
+#define OP_ContextPush                         60
+#define OP_Yield                               61
+#define OP_DropTrigger                         62
+#define OP_DropIndex                           65
+#define OP_IdxGE                               66
+#define OP_IdxDelete                           67
+#define OP_Vacuum                              76
+#define OP_IfNot                               87
+#define OP_DropTable                           88
+#define OP_SeekLt                              89
+#define OP_MakeRecord                          92
+#define OP_ToBlob                             142   /* same as TK_TO_BLOB  */
+#define OP_ResultRow                           93
+#define OP_Delete                              94
+#define OP_AggFinal                            95
+#define OP_Compare                             96
+#define OP_ShiftLeft                           79   /* same as TK_LSHIFT   */
+#define OP_Goto                                97
+#define OP_TableLock                           98
+#define OP_Clear                               99
+#define OP_Le                                  73   /* same as TK_LE       */
+#define OP_VerifyCookie                       100
+#define OP_AggStep                            101
+#define OP_ToText                             141   /* same as TK_TO_TEXT  */
+#define OP_Not                                 19   /* same as TK_NOT      */
+#define OP_ToReal                             145   /* same as TK_TO_REAL  */
+#define OP_SetNumColumns                      102
+#define OP_Transaction                        103
+#define OP_VFilter                            104
+#define OP_Ne                                  70   /* same as TK_NE       */
+#define OP_VDestroy                           105
+#define OP_ContextPop                         106
+#define OP_BitOr                               78   /* same as TK_BITOR    */
+#define OP_Next                               107
+#define OP_IdxInsert                          108
+#define OP_Lt                                  74   /* same as TK_LT       */
+#define OP_SeekGe                             109
+#define OP_Insert                             110
+#define OP_Destroy                            111
+#define OP_ReadCookie                         112
+#define OP_LoadAnalysis                       113
+#define OP_Explain                            114
+#define OP_OpenPseudo                         115
+#define OP_OpenEphemeral                      116
+#define OP_Null                               117
+#define OP_Move                               118
+#define OP_Blob                               119
+#define OP_Add                                 81   /* same as TK_PLUS     */
+#define OP_Rewind                             120
+#define OP_SeekGt                             121
+#define OP_VBegin                             122
+#define OP_VUpdate                            123
+#define OP_IfZero                             124
+#define OP_BitNot                              90   /* same as TK_BITNOT   */
+#define OP_VCreate                            125
+#define OP_Found                              126
+#define OP_IfPos                              127
+#define OP_NullRow                            128
+#define OP_Jump                               130
+#define OP_Permutation                        131
 
 /* The following opcode values are never used */
 #define OP_NotUsed_132                        132
@@ -8306,23 +8329,23 @@ typedef struct VdbeOpList VdbeOpList;
 #define OPFLG_IN3             0x0010  /* in3:   P3 is an input */
 #define OPFLG_OUT3            0x0020  /* out3:  P3 is an output */
 #define OPFLG_INITIALIZER {\
-/*   0 */ 0x00, 0x00, 0x0c, 0x00, 0x00, 0x02, 0x02, 0x11,\
-/*   8 */ 0x11, 0x05, 0x00, 0x01, 0x00, 0x02, 0x02, 0x00,\
-/*  16 */ 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00,\
-/*  24 */ 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x11, 0x00,\
-/*  32 */ 0x00, 0x00, 0x02, 0x08, 0x11, 0x02, 0x00, 0x00,\
-/*  40 */ 0x05, 0x00, 0x00, 0x00, 0x04, 0x00, 0x01, 0x08,\
-/*  48 */ 0x11, 0x05, 0x05, 0x01, 0x00, 0x04, 0x01, 0x02,\
-/*  56 */ 0x00, 0x00, 0x00, 0x00, 0x02, 0x10, 0x00, 0x2c,\
-/*  64 */ 0x2c, 0x00, 0x00, 0x00, 0x05, 0x05, 0x15, 0x15,\
-/*  72 */ 0x15, 0x15, 0x15, 0x15, 0x04, 0x2c, 0x2c, 0x2c,\
-/*  80 */ 0x2c, 0x2c, 0x2c, 0x2c, 0x2c, 0x2c, 0x2c, 0x00,\
-/*  88 */ 0x00, 0x01, 0x04, 0x02, 0x00, 0x04, 0x04, 0x00,\
-/*  96 */ 0x01, 0x00, 0x02, 0x00, 0x02, 0x11, 0x00, 0x00,\
-/* 104 */ 0x05, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00,\
-/* 112 */ 0x02, 0x00, 0x11, 0x00, 0x00, 0x00, 0x11, 0x01,\
-/* 120 */ 0x00, 0x21, 0x08, 0x11, 0x00, 0x00, 0x01, 0x05,\
-/* 128 */ 0x02, 0x02, 0x11, 0x02, 0x00, 0x00, 0x00, 0x00,\
+/*   0 */ 0x00, 0x01, 0x00, 0x00, 0x10, 0x08, 0x02, 0x00,\
+/*   8 */ 0x00, 0x04, 0x00, 0x05, 0x02, 0x00, 0x00, 0x00,\
+/*  16 */ 0x00, 0x02, 0x00, 0x04, 0x01, 0x04, 0x00, 0x00,\
+/*  24 */ 0x05, 0x00, 0x04, 0x02, 0x02, 0x02, 0x04, 0x00,\
+/*  32 */ 0x00, 0x00, 0x00, 0x02, 0x11, 0x11, 0x02, 0x05,\
+/*  40 */ 0x00, 0x02, 0x11, 0x04, 0x00, 0x00, 0x0c, 0x11,\
+/*  48 */ 0x01, 0x02, 0x01, 0x21, 0x08, 0x00, 0x02, 0x01,\
+/*  56 */ 0x11, 0x01, 0x02, 0x00, 0x00, 0x04, 0x00, 0x2c,\
+/*  64 */ 0x2c, 0x00, 0x11, 0x00, 0x05, 0x05, 0x15, 0x15,\
+/*  72 */ 0x15, 0x15, 0x15, 0x15, 0x00, 0x2c, 0x2c, 0x2c,\
+/*  80 */ 0x2c, 0x2c, 0x2c, 0x2c, 0x2c, 0x2c, 0x2c, 0x05,\
+/*  88 */ 0x00, 0x11, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00,\
+/*  96 */ 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
+/* 104 */ 0x01, 0x00, 0x00, 0x01, 0x08, 0x11, 0x00, 0x02,\
+/* 112 */ 0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02,\
+/* 120 */ 0x01, 0x11, 0x00, 0x00, 0x05, 0x00, 0x11, 0x05,\
+/* 128 */ 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,\
 /* 136 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x04, 0x04,\
 /* 144 */ 0x04, 0x04,}
 
@@ -9359,6 +9382,7 @@ struct FuncDef {
 #define SQLITE_FUNC_CASE     0x02 /* Case-sensitive LIKE-type function */
 #define SQLITE_FUNC_EPHEM    0x04 /* Ephemeral.  Delete with VDBE */
 #define SQLITE_FUNC_NEEDCOLL 0x08 /* sqlite3GetFuncCollSeq() might be called */
+#define SQLITE_FUNC_PRIVATE  0x10 /* Allowed for internal use only */
 
 /*
 ** The following three macros, FUNCTION(), LIKEFUNC() and AGGREGATE() are
@@ -10784,7 +10808,7 @@ SQLITE_PRIVATE void sqlite3ExprCodeMove(Parse*, int, int, int);
 SQLITE_PRIVATE void sqlite3ExprCodeCopy(Parse*, int, int, int);
 SQLITE_PRIVATE void sqlite3ExprClearColumnCache(Parse*, int);
 SQLITE_PRIVATE void sqlite3ExprCacheAffinityChange(Parse*, int, int);
-SQLITE_PRIVATE int sqlite3ExprWritableRegister(Parse*,int,int);
+SQLITE_PRIVATE void sqlite3ExprWritableRegister(Parse*,int);
 SQLITE_PRIVATE void sqlite3ExprHardCopy(Parse*,int,int);
 SQLITE_PRIVATE int sqlite3ExprCode(Parse*, Expr*, int);
 SQLITE_PRIVATE int sqlite3ExprCodeTemp(Parse*, Expr*, int*);
@@ -18714,9 +18738,40 @@ SQLITE_PRIVATE void sqlite3UtfSelfTest(void){
 ** This file contains functions for allocating memory, comparing
 ** strings, and stuff like that.
 **
-** $Id: util.c,v 1.245 2008/12/10 22:15:00 drh Exp $
+** $Id: util.c,v 1.246 2009/01/10 16:15:22 drh Exp $
 */
 
+
+/*
+** Routine needed to support the testcase() macro.
+*/
+#ifdef SQLITE_COVERAGE_TEST
+SQLITE_PRIVATE void sqlite3Coverage(int x){
+  static int dummy = 0;
+  dummy += x;
+}
+#endif
+
+/*
+** Routine needed to support the ALWAYS() and NEVER() macros.
+**
+** The argument to ALWAYS() should always be true and the argument
+** to NEVER() should always be false.  If either is not the case
+** then this routine is called in order to throw an error.
+**
+** This routine only exists if assert() is operational.  It always
+** throws an assert on its first invocation.  The variable has a long
+** name to help the assert() message be more readable.  The variable
+** is used to prevent a too-clever optimizer from optimizing out the
+** entire call.
+*/
+#ifndef NDEBUG
+SQLITE_PRIVATE int sqlite3Assert(void){
+  static volatile int ALWAYS_was_false_or_NEVER_was_true = 0;
+  assert( ALWAYS_was_false_or_NEVER_was_true );      /* Always fails */
+  return ALWAYS_was_false_or_NEVER_was_true++;       /* Not Reached */
+}
+#endif
 
 /*
 ** Return true if the floating point value is Not a Number (NaN).
@@ -19969,73 +20024,73 @@ SQLITE_PRIVATE void *sqlite3HashInsert(Hash *pH, const void *pKey, int nKey, voi
 #if !defined(SQLITE_OMIT_EXPLAIN) || !defined(NDEBUG) || defined(VDBE_PROFILE) || defined(SQLITE_DEBUG)
 SQLITE_PRIVATE const char *sqlite3OpcodeName(int i){
  static const char *const azName[] = { "?",
-     /*   1 */ "VCreate",
-     /*   2 */ "MemMax",
-     /*   3 */ "LoadAnalysis",
-     /*   4 */ "RowData",
-     /*   5 */ "CreateIndex",
-     /*   6 */ "Variable",
-     /*   7 */ "SeekGt",
-     /*   8 */ "SeekLe",
-     /*   9 */ "IfNeg",
-     /*  10 */ "Clear",
-     /*  11 */ "Last",
-     /*  12 */ "Savepoint",
-     /*  13 */ "Sequence",
-     /*  14 */ "Int64",
-     /*  15 */ "VBegin",
-     /*  16 */ "RowKey",
-     /*  17 */ "SCopy",
-     /*  18 */ "ResetCount",
+     /*   1 */ "VNext",
+     /*   2 */ "Affinity",
+     /*   3 */ "Column",
+     /*   4 */ "SetCookie",
+     /*   5 */ "Seek",
+     /*   6 */ "Sequence",
+     /*   7 */ "Savepoint",
+     /*   8 */ "RowKey",
+     /*   9 */ "SCopy",
+     /*  10 */ "OpenWrite",
+     /*  11 */ "If",
+     /*  12 */ "VRowid",
+     /*  13 */ "CollSeq",
+     /*  14 */ "OpenRead",
+     /*  15 */ "Expire",
+     /*  16 */ "AutoCommit",
+     /*  17 */ "Pagecount",
+     /*  18 */ "IntegrityCk",
      /*  19 */ "Not",
-     /*  20 */ "Delete",
-     /*  21 */ "Trace",
-     /*  22 */ "Rowid",
-     /*  23 */ "OpenRead",
-     /*  24 */ "Sort",
-     /*  25 */ "VerifyCookie",
-     /*  26 */ "VColumn",
-     /*  27 */ "Next",
-     /*  28 */ "Insert",
-     /*  29 */ "Prev",
-     /*  30 */ "IdxGE",
+     /*  20 */ "Sort",
+     /*  21 */ "Copy",
+     /*  22 */ "Trace",
+     /*  23 */ "Function",
+     /*  24 */ "IfNeg",
+     /*  25 */ "Noop",
+     /*  26 */ "Return",
+     /*  27 */ "NewRowid",
+     /*  28 */ "Variable",
+     /*  29 */ "String",
+     /*  30 */ "RealAffinity",
      /*  31 */ "VRename",
-     /*  32 */ "DropTable",
-     /*  33 */ "MakeRecord",
-     /*  34 */ "Null",
-     /*  35 */ "IdxInsert",
-     /*  36 */ "SeekLt",
-     /*  37 */ "ReadCookie",
-     /*  38 */ "VDestroy",
-     /*  39 */ "DropIndex",
-     /*  40 */ "MustBeInt",
-     /*  41 */ "IntegrityCk",
-     /*  42 */ "CollSeq",
-     /*  43 */ "ResultRow",
-     /*  44 */ "Yield",
-     /*  45 */ "OpenEphemeral",
-     /*  46 */ "VNext",
-     /*  47 */ "Seek",
-     /*  48 */ "Found",
-     /*  49 */ "If",
-     /*  50 */ "IfZero",
-     /*  51 */ "Goto",
-     /*  52 */ "Function",
-     /*  53 */ "Copy",
-     /*  54 */ "Jump",
-     /*  55 */ "Blob",
-     /*  56 */ "NullRow",
-     /*  57 */ "Transaction",
-     /*  58 */ "VUpdate",
-     /*  59 */ "TableLock",
-     /*  60 */ "IdxRowid",
-     /*  61 */ "SetCookie",
-     /*  62 */ "ContextPush",
+     /*  32 */ "ParseSchema",
+     /*  33 */ "VOpen",
+     /*  34 */ "Close",
+     /*  35 */ "CreateIndex",
+     /*  36 */ "IsUnique",
+     /*  37 */ "NotFound",
+     /*  38 */ "Int64",
+     /*  39 */ "MustBeInt",
+     /*  40 */ "Halt",
+     /*  41 */ "Rowid",
+     /*  42 */ "IdxLT",
+     /*  43 */ "AddImm",
+     /*  44 */ "Statement",
+     /*  45 */ "RowData",
+     /*  46 */ "MemMax",
+     /*  47 */ "NotExists",
+     /*  48 */ "Gosub",
+     /*  49 */ "Integer",
+     /*  50 */ "Prev",
+     /*  51 */ "RowSetRead",
+     /*  52 */ "RowSetAdd",
+     /*  53 */ "VColumn",
+     /*  54 */ "CreateTable",
+     /*  55 */ "Last",
+     /*  56 */ "SeekLe",
+     /*  57 */ "IncrVacuum",
+     /*  58 */ "IdxRowid",
+     /*  59 */ "ResetCount",
+     /*  60 */ "ContextPush",
+     /*  61 */ "Yield",
+     /*  62 */ "DropTrigger",
      /*  63 */ "Or",
      /*  64 */ "And",
-     /*  65 */ "DropTrigger",
-     /*  66 */ "AutoCommit",
-     /*  67 */ "Column",
+     /*  65 */ "DropIndex",
+     /*  66 */ "IdxGE",
+     /*  67 */ "IdxDelete",
      /*  68 */ "IsNull",
      /*  69 */ "NotNull",
      /*  70 */ "Ne",
@@ -20044,7 +20099,7 @@ SQLITE_PRIVATE const char *sqlite3OpcodeName(int i){
      /*  73 */ "Le",
      /*  74 */ "Lt",
      /*  75 */ "Ge",
-     /*  76 */ "AddImm",
+     /*  76 */ "Vacuum",
      /*  77 */ "BitAnd",
      /*  78 */ "BitOr",
      /*  79 */ "ShiftLeft",
@@ -20055,51 +20110,51 @@ SQLITE_PRIVATE const char *sqlite3OpcodeName(int i){
      /*  84 */ "Divide",
      /*  85 */ "Remainder",
      /*  86 */ "Concat",
-     /*  87 */ "ContextPop",
-     /*  88 */ "IdxDelete",
-     /*  89 */ "IncrVacuum",
+     /*  87 */ "IfNot",
+     /*  88 */ "DropTable",
+     /*  89 */ "SeekLt",
      /*  90 */ "BitNot",
      /*  91 */ "String8",
-     /*  92 */ "AggFinal",
-     /*  93 */ "RealAffinity",
-     /*  94 */ "Return",
-     /*  95 */ "Expire",
-     /*  96 */ "Rewind",
-     /*  97 */ "Statement",
-     /*  98 */ "Integer",
-     /*  99 */ "Compare",
-     /* 100 */ "Destroy",
-     /* 101 */ "IdxLT",
-     /* 102 */ "Affinity",
-     /* 103 */ "Vacuum",
-     /* 104 */ "IfNot",
-     /* 105 */ "Move",
-     /* 106 */ "Explain",
-     /* 107 */ "ParseSchema",
-     /* 108 */ "NewRowid",
-     /* 109 */ "SetNumColumns",
-     /* 110 */ "String",
-     /* 111 */ "AggStep",
-     /* 112 */ "VRowid",
-     /* 113 */ "VOpen",
-     /* 114 */ "NotExists",
-     /* 115 */ "Close",
-     /* 116 */ "Halt",
-     /* 117 */ "Noop",
-     /* 118 */ "SeekGe",
-     /* 119 */ "VFilter",
-     /* 120 */ "OpenPseudo",
-     /* 121 */ "RowSetRead",
-     /* 122 */ "RowSetAdd",
-     /* 123 */ "IsUnique",
-     /* 124 */ "OpenWrite",
-     /* 125 */ "Permutation",
-     /* 126 */ "Gosub",
+     /*  92 */ "MakeRecord",
+     /*  93 */ "ResultRow",
+     /*  94 */ "Delete",
+     /*  95 */ "AggFinal",
+     /*  96 */ "Compare",
+     /*  97 */ "Goto",
+     /*  98 */ "TableLock",
+     /*  99 */ "Clear",
+     /* 100 */ "VerifyCookie",
+     /* 101 */ "AggStep",
+     /* 102 */ "SetNumColumns",
+     /* 103 */ "Transaction",
+     /* 104 */ "VFilter",
+     /* 105 */ "VDestroy",
+     /* 106 */ "ContextPop",
+     /* 107 */ "Next",
+     /* 108 */ "IdxInsert",
+     /* 109 */ "SeekGe",
+     /* 110 */ "Insert",
+     /* 111 */ "Destroy",
+     /* 112 */ "ReadCookie",
+     /* 113 */ "LoadAnalysis",
+     /* 114 */ "Explain",
+     /* 115 */ "OpenPseudo",
+     /* 116 */ "OpenEphemeral",
+     /* 117 */ "Null",
+     /* 118 */ "Move",
+     /* 119 */ "Blob",
+     /* 120 */ "Rewind",
+     /* 121 */ "SeekGt",
+     /* 122 */ "VBegin",
+     /* 123 */ "VUpdate",
+     /* 124 */ "IfZero",
+     /* 125 */ "VCreate",
+     /* 126 */ "Found",
      /* 127 */ "IfPos",
-     /* 128 */ "Pagecount",
+     /* 128 */ "NullRow",
      /* 129 */ "Real",
-     /* 130 */ "NotFound",
-     /* 131 */ "CreateTable",
+     /* 130 */ "Jump",
+     /* 131 */ "Permutation",
      /* 132 */ "NotUsed_132",
      /* 133 */ "NotUsed_133",
      /* 134 */ "NotUsed_134",
@@ -30392,6 +30447,8 @@ SQLITE_PRIVATE void sqlite3PcacheStats(
 **
 ** Big chunks of rowid/next-ptr pairs are allocated at a time, to
 ** reduce the malloc overhead.
+**
+** $Id: rowset.c,v 1.3 2009/01/13 20:14:16 drh Exp $
 */
 
 /*
@@ -30624,7 +30681,7 @@ SQLITE_PRIVATE int sqlite3RowSetNext(RowSet *p, i64 *pRowid){
 ** file simultaneously, or one process from reading the database while
 ** another is writing.
 **
-** @(#) $Id: pager.c,v 1.544 2009/01/09 17:11:05 danielk1977 Exp $
+** @(#) $Id: pager.c,v 1.549 2009/01/13 16:03:44 danielk1977 Exp $
 */
 #ifndef SQLITE_OMIT_DISKIO
 
@@ -30722,6 +30779,14 @@ int sqlite3PagerTrace=1;  /* True to enable tracing */
 #endif
 
 /*
+** The maximum allowed sector size. 16MB. If the xSectorsize() method 
+** returns a value larger than this, then MAX_SECTOR_SIZE is used instead.
+** This could conceivably cause corruption following a power failure on
+** such a system. This is currently an undocumented limit.
+*/
+#define MAX_SECTOR_SIZE 0x0100000
+
+/*
 ** An instance of the following structure is allocated for each active
 ** savepoint and statement transaction in the system. All such structures
 ** are stored in the Pager.aSavepoint[] array, which is allocated and
@@ -30780,7 +30845,6 @@ struct Pager {
   u8 readOnly;                /* True for a read-only database */
   u8 needSync;                /* True if an fsync() is needed on the journal */
   u8 dirtyCache;              /* True if cached pages have changed */
-  u8 alwaysRollback;          /* Disable DontRollback() for all pages */
   u8 memDb;                   /* True to inhibit all file I/O */
   u8 setMaster;               /* True if a m-j name has been written to jrnl */
   u8 doNotSync;               /* Boolean. While true, do not spill the cache */
@@ -31006,7 +31070,7 @@ static int jrnlBufferSize(Pager *pPager){
 
   if( fd->pMethods ){
     dc = sqlite3OsDeviceCharacteristics(fd);
-    nSector = sqlite3OsSectorSize(fd);
+    nSector = pPager->sectorSize;
     szPage = pPager->pageSize;
   }
 
@@ -31365,7 +31429,8 @@ static int readJournalHdr(
   int rc;
   unsigned char aMagic[8]; /* A buffer to hold the magic header */
   i64 jrnlOff;
-  int iPageSize;
+  u32 iPageSize;
+  u32 iSectorSize;
 
   seekJournalHdr(pPager);
   if( pPager->journalOff+JOURNAL_HDR_SZ(pPager) > journalSize ){
@@ -31390,28 +31455,41 @@ static int readJournalHdr(
   rc = read32bits(pPager->jfd, jrnlOff+8, pDbSize);
   if( rc ) return rc;
 
-  rc = read32bits(pPager->jfd, jrnlOff+16, (u32 *)&iPageSize);
-  if( rc==SQLITE_OK 
-   && iPageSize>=512 
-   && iPageSize<=SQLITE_MAX_PAGE_SIZE 
-   && ((iPageSize-1)&iPageSize)==0 
-  ){
-    u16 pagesize = (u16)iPageSize;
-    rc = sqlite3PagerSetPagesize(pPager, &pagesize);
-  }
-  if( rc ) return rc;
+  if( pPager->journalOff==0 ){
+    rc = read32bits(pPager->jfd, jrnlOff+16, &iPageSize);
+    if( rc ) return rc;
 
-  /* Update the assumed sector-size to match the value used by 
-  ** the process that created this journal. If this journal was
-  ** created by a process other than this one, then this routine
-  ** is being called from within pager_playback(). The local value
-  ** of Pager.sectorSize is restored at the end of that routine.
-  */
-  rc = read32bits(pPager->jfd, jrnlOff+12, &pPager->sectorSize);
-  if( rc ) return rc;
-  if( (pPager->sectorSize & (pPager->sectorSize-1))!=0
-         || pPager->sectorSize>0x1000000 ){
-    return SQLITE_DONE;
+    if( iPageSize<512 
+     || iPageSize>SQLITE_MAX_PAGE_SIZE 
+     || ((iPageSize-1)&iPageSize)!=0 
+    ){
+      /* If the page-size in the journal-header is invalid, then the process
+      ** that wrote the journal-header must have crashed before the header
+      ** was synced. In this case stop reading the journal file here.
+      */
+      rc = SQLITE_DONE;
+    }else{
+      u16 pagesize = (u16)iPageSize;
+      rc = sqlite3PagerSetPagesize(pPager, &pagesize);
+      assert( rc!=SQLITE_OK || pagesize==(u16)iPageSize );
+    }
+    if( rc ) return rc;
+  
+    /* Update the assumed sector-size to match the value used by 
+    ** the process that created this journal. If this journal was
+    ** created by a process other than this one, then this routine
+    ** is being called from within pager_playback(). The local value
+    ** of Pager.sectorSize is restored at the end of that routine.
+    */
+    rc = read32bits(pPager->jfd, jrnlOff+12, &iSectorSize);
+    if( rc ) return rc;
+    if( (iSectorSize&(iSectorSize-1))
+      || iSectorSize<512
+      || iSectorSize>MAX_SECTOR_SIZE
+    ){
+      return SQLITE_DONE;
+    }
+    pPager->sectorSize = iSectorSize;
   }
 
   pPager->journalOff += JOURNAL_HDR_SZ(pPager);
@@ -31569,10 +31647,7 @@ static int addToSavepointBitvecs(Pager *pPager, Pgno pgno){
 */
 static void pager_unlock(Pager *pPager){
   if( !pPager->exclusiveMode ){
-    int rc = osUnlock(pPager->fd, NO_LOCK);
-    if( rc ) pPager->errCode = rc;
-    pPager->dbSizeValid = 0;
-    IOTRACE(("UNLOCK %p\n", pPager))
+    int rc;
 
     /* Always close the journal file when dropping the database lock.
     ** Otherwise, another connection with journal_mode=delete might
@@ -31586,6 +31661,11 @@ static void pager_unlock(Pager *pPager){
       sqlite3BitvecDestroy(pPager->pAlwaysRollback);
       pPager->pAlwaysRollback = 0;
     }
+
+    rc = osUnlock(pPager->fd, NO_LOCK);
+    if( rc ) pPager->errCode = rc;
+    pPager->dbSizeValid = 0;
+    IOTRACE(("UNLOCK %p\n", pPager))
 
     /* If Pager.errCode is set, the contents of the pager cache cannot be
     ** trusted. Now that the pager file is unlocked, the contents of the
@@ -32108,7 +32188,7 @@ static int pager_truncate(Pager *pPager, Pgno nPage){
 ** Set the sectorSize for the given pager.
 **
 ** The sector size is at least as big as the sector size reported
-** by sqlite3OsSectorSize().  The minimum sector size is 512.
+** by sqlite3OsSectorSize(). The minimum sector size is 512.
 */
 static void setSectorSize(Pager *pPager){
   assert(pPager->fd->pMethods||pPager->tempFile);
@@ -32121,6 +32201,9 @@ static void setSectorSize(Pager *pPager){
   }
   if( pPager->sectorSize<512 ){
     pPager->sectorSize = 512;
+  }
+  if( pPager->sectorSize>MAX_SECTOR_SIZE ){
+    pPager->sectorSize = MAX_SECTOR_SIZE;
   }
 }
 
@@ -32627,9 +32710,9 @@ SQLITE_PRIVATE int sqlite3PagerOpen(
       **    + The largest page size that can be written atomically.
       */
       if( rc==SQLITE_OK && !readOnly ){
-        int iSectorSize = sqlite3OsSectorSize(pPager->fd);
-        if( szPageDflt<iSectorSize ){
-          szPageDflt = iSectorSize;
+        setSectorSize(pPager);
+        if( szPageDflt<pPager->sectorSize ){
+          szPageDflt = pPager->sectorSize;
         }
 #ifdef SQLITE_ENABLE_ATOMIC_WRITE
         {
@@ -34217,19 +34300,12 @@ SQLITE_PRIVATE int sqlite3PagerWrite(DbPage *pDbPage){
     ** writing to any of these nPage pages may damage the others, the
     ** journal file must contain sync()ed copies of all of them
     ** before any of them can be written out to the database file.
-    **
-    ** 2009-01-07:  This block of code appears to be a no-op.  I do not
-    ** believe it is possible for any page on the sector to not have
-    ** the PGHDR_NEED_SYNC flag set.  The "pPage->flags |= PGHDR_NEED_SYNC"
-    ** line below does nothing, I think.  But it does no harm to leave
-    ** this code in place until we can definitively prove this is the case.
     */
     if( needSync ){
       assert( !MEMDB && pPager->noSync==0 );
       for(ii=0; ii<nPage && needSync; ii++){
         PgHdr *pPage = pager_lookup(pPager, pg1+ii);
         if( pPage ){
-          assert( pPage->flags & PGHDR_NEED_SYNC ); /* 2009-01-07 conjecture */
           pPage->flags |= PGHDR_NEED_SYNC;
           sqlite3PagerUnref(pPage);
         }
@@ -34271,16 +34347,16 @@ SQLITE_PRIVATE int sqlite3PagerIswriteable(DbPage *pPg){
 ** sqlite3PagerDontRollback() below, more than double the speed
 ** of large INSERT operations and quadruple the speed of large DELETEs.
 **
-** When this routine is called, set the alwaysRollback flag to true.
-** Subsequent calls to sqlite3PagerDontRollback() for the same page
-** will thereafter be ignored.  This is necessary to avoid a problem
-** where a page with data is added to the freelist during one part of
-** a transaction then removed from the freelist during a later part
-** of the same transaction and reused for some other purpose.  When it
-** is first added to the freelist, this routine is called.  When reused,
-** the sqlite3PagerDontRollback() routine is called.  But because the
-** page contains critical data, we still need to be sure it gets
-** rolled back in spite of the sqlite3PagerDontRollback() call.
+** When this routine is called, set the bit corresponding to pDbPage in
+** the Pager.pAlwaysRollback bitvec.  Subsequent calls to
+** sqlite3PagerDontRollback() for the same page will thereafter be ignored.
+** This is necessary to avoid a problem where a page with data is added to
+** the freelist during one part of a transaction then removed from the
+** freelist during a later part of the same transaction and reused for some
+** other purpose.  When it is first added to the freelist, this routine is
+** called.  When reused, the sqlite3PagerDontRollback() routine is called.
+** But because the page contains critical data, we still need to be sure it
+** gets rolled back in spite of the sqlite3PagerDontRollback() call.
 */
 SQLITE_PRIVATE int sqlite3PagerDontWrite(DbPage *pDbPage){
   PgHdr *pPg = pDbPage;
@@ -34340,7 +34416,7 @@ SQLITE_PRIVATE void sqlite3PagerDontRollback(DbPage *pPg){
   assert( pPager->state>=PAGER_RESERVED );
 
   /* If the journal file is not open, or DontWrite() has been called on
-  ** this page (DontWrite() sets the alwaysRollback flag), then this
+  ** this page (DontWrite() sets the Pager.pAlwaysRollback bit), then this
   ** function is a no-op.
   */
   if( pPager->journalOpen==0 
@@ -34756,8 +34832,10 @@ SQLITE_PRIVATE int sqlite3PagerOpenSavepoint(Pager *pPager, int nSavepoint){
     int ii;
     PagerSavepoint *aNew;
 
-    /* Either the sub-journal is open or there are no active savepoints. */
-    assert( pPager->nSavepoint==0 || pPager->sjfd->pMethods );
+    /* Either there is no active journal or the sub-journal is open or 
+    ** the journal is always stored in memory */
+    assert( pPager->nSavepoint==0 || pPager->sjfd->pMethods ||
+            pPager->journalMode==PAGER_JOURNALMODE_MEMORY );
 
     /* Grow the Pager.aSavepoint array using realloc(). Return SQLITE_NOMEM
     ** if the allocation fails. Otherwise, zero the new portion in case a 
@@ -36080,7 +36158,7 @@ SQLITE_PRIVATE void sqlite3BtreeMutexArrayLeave(BtreeMutexArray *pArray){
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** $Id: btree.c,v 1.557 2009/01/09 14:11:05 drh Exp $
+** $Id: btree.c,v 1.558 2009/01/10 16:15:21 drh Exp $
 **
 ** This file implements a external (disk-based) database using BTrees.
 ** See the header comment on "btreeInt.h" for additional information.
@@ -43416,7 +43494,6 @@ SQLITE_PRIVATE int sqlite3BtreeIsInTrans(Btree *p){
 */
 SQLITE_PRIVATE int sqlite3BtreeIsInStmt(Btree *p){
   assert( sqlite3BtreeHoldsMutex(p) );
-  assert( p->pBt );
   return ALWAYS(p->pBt) && p->pBt->inStmt;
 }
 
@@ -48546,7 +48623,7 @@ SQLITE_API int sqlite3_stmt_status(sqlite3_stmt *pStmt, int op, int resetFlag){
 ** in this file for details.  If in doubt, do not deviate from existing
 ** commenting and indentation practices when changing or adding code.
 **
-** $Id: vdbe.c,v 1.810 2009/01/05 22:30:39 drh Exp $
+** $Id: vdbe.c,v 1.811 2009/01/14 00:55:10 drh Exp $
 */
 
 /*
@@ -52499,6 +52576,7 @@ case OP_Last: {        /* jump */
   rc = sqlite3BtreeLast(pCrsr, &res);
   pC->nullRow = (u8)res;
   pC->deferredMoveto = 0;
+  pC->rowidIsValid = 0;
   pC->cacheStatus = CACHE_STALE;
   if( res && pOp->p2>0 ){
     pc = pOp->p2 - 1;
@@ -52549,6 +52627,7 @@ case OP_Rewind: {        /* jump */
     pC->atFirst = res==0 ?1:0;
     pC->deferredMoveto = 0;
     pC->cacheStatus = CACHE_STALE;
+    pC->rowidIsValid = 0;
   }else{
     res = 1;
   }
@@ -56082,7 +56161,7 @@ SQLITE_PRIVATE void sqlite3ResolveSelectNames(
 ** This file contains routines used for analyzing expressions and
 ** for generating VDBE code that evaluates expressions in SQLite.
 **
-** $Id: expr.c,v 1.408 2008/12/15 15:27:52 drh Exp $
+** $Id: expr.c,v 1.409 2009/01/10 13:24:51 drh Exp $
 */
 
 /*
@@ -56988,7 +57067,6 @@ static int exprNodeIsConstant(Walker *pWalker, Expr *pExpr){
       /* Fall through */
     case TK_ID:
     case TK_COLUMN:
-    case TK_DOT:
     case TK_AGG_FUNCTION:
     case TK_AGG_COLUMN:
 #ifndef SQLITE_OMIT_SUBQUERY
@@ -56999,7 +57077,6 @@ static int exprNodeIsConstant(Walker *pWalker, Expr *pExpr){
 #endif
       testcase( pExpr->op==TK_ID );
       testcase( pExpr->op==TK_COLUMN );
-      testcase( pExpr->op==TK_DOT );
       testcase( pExpr->op==TK_AGG_FUNCTION );
       testcase( pExpr->op==TK_AGG_COLUMN );
       pWalker->u.i = 0;
@@ -57106,12 +57183,6 @@ SQLITE_PRIVATE int sqlite3IsRowid(const char *z){
   return 0;
 }
 
-#ifdef SQLITE_TEST
-  int sqlite3_enable_in_opt = 1;
-#else
-  #define sqlite3_enable_in_opt 1
-#endif
-
 /*
 ** Return true if the IN operator optimization is enabled and
 ** the SELECT statement p exists and is of the
@@ -57127,7 +57198,6 @@ static int isCandidateForInOpt(Select *p){
   SrcList *pSrc;
   ExprList *pEList;
   Table *pTab;
-  if( !sqlite3_enable_in_opt ) return 0; /* IN optimization must be enabled */
   if( p==0 ) return 0;                   /* right-hand side of IN is SELECT */
   if( p->pPrior ) return 0;              /* Not a compound SELECT */
   if( p->selFlags & (SF_Distinct|SF_Aggregate) ){
@@ -57138,8 +57208,8 @@ static int isCandidateForInOpt(Select *p){
   if( p->pOffset ) return 0;
   if( p->pWhere ) return 0;              /* Has no WHERE clause */
   pSrc = p->pSrc;
-  if( pSrc==0 ) return 0;                /* A single table in the FROM clause */
-  if( pSrc->nSrc!=1 ) return 0;
+  assert( pSrc!=0 );
+  if( pSrc->nSrc!=1 ) return 0;          /* Single term in FROM clause */
   if( pSrc->a[0].pSelect ) return 0;     /* FROM clause is not a subquery */
   pTab = pSrc->a[0].pTab;
   if( pTab==0 ) return 0;
@@ -57726,33 +57796,22 @@ static int usedAsColumnCache(Parse *pParse, int iFrom, int iTo){
 }
 
 /*
-** Theres is a value in register iCurrent.  We ultimately want
-** the value to be in register iTarget.  It might be that
-** iCurrent and iTarget are the same register.
+** There is a value in register iReg.
 **
 ** We are going to modify the value, so we need to make sure it
-** is not a cached register.  If iCurrent is a cached register,
-** then try to move the value over to iTarget.  If iTarget is a
-** cached register, then clear the corresponding cache line.
-**
-** Return the register that the value ends up in.
+** is not a cached register.  If iReg is a cached register,
+** then clear the corresponding cache line.
 */
-SQLITE_PRIVATE int sqlite3ExprWritableRegister(Parse *pParse, int iCurrent, int iTarget){
+SQLITE_PRIVATE void sqlite3ExprWritableRegister(Parse *pParse, int iReg){
   int i;
-  assert( pParse->pVdbe!=0 );
-  if( !usedAsColumnCache(pParse, iCurrent, iCurrent) ){
-    return iCurrent;
-  }
-  if( iCurrent!=iTarget ){
-    sqlite3VdbeAddOp2(pParse->pVdbe, OP_SCopy, iCurrent, iTarget);
-  }
-  for(i=0; i<pParse->nColCache; i++){
-    if( pParse->aColCache[i].iReg==iTarget ){
-      pParse->aColCache[i] = pParse->aColCache[--pParse->nColCache];
-      pParse->iColCache = pParse->nColCache;
+  if( usedAsColumnCache(pParse, iReg, iReg) ){
+    for(i=0; i<pParse->nColCache; i++){
+      if( pParse->aColCache[i].iReg==iReg ){
+        pParse->aColCache[i] = pParse->aColCache[--pParse->nColCache];
+        pParse->iColCache = pParse->nColCache;
+      }
     }
   }
-  return iTarget;
 }
 
 /*
@@ -59145,7 +59204,7 @@ SQLITE_PRIVATE int sqlite3GetTempReg(Parse *pParse){
 }
 SQLITE_PRIVATE void sqlite3ReleaseTempReg(Parse *pParse, int iReg){
   if( iReg && pParse->nTempReg<ArraySize(pParse->aTempReg) ){
-    sqlite3ExprWritableRegister(pParse, iReg, iReg);
+    sqlite3ExprWritableRegister(pParse, iReg);
     pParse->aTempReg[pParse->nTempReg++] = iReg;
   }
 }
@@ -69987,7 +70046,7 @@ SQLITE_PRIVATE int sqlite3AutoLoadExtensions(sqlite3 *db){
 *************************************************************************
 ** This file contains code used to implement the PRAGMA command.
 **
-** $Id: pragma.c,v 1.200 2009/01/09 21:41:17 drh Exp $
+** $Id: pragma.c,v 1.201 2009/01/13 20:14:16 drh Exp $
 */
 
 /* Ignore this whole file if pragmas are disabled
@@ -70499,7 +70558,7 @@ SQLITE_PRIVATE void sqlite3Pragma(
   **  PRAGMA [database.]journal_size_limit
   **  PRAGMA [database.]journal_size_limit=N
   **
-  ** Get or set the (boolean) value of the database 'auto-vacuum' parameter.
+  ** Get or set the size limit on rollback journal files.
   */
   if( sqlite3StrICmp(zLeft,"journal_size_limit")==0 ){
     Pager *pPager = sqlite3BtreePager(pDb->pBt);
@@ -70521,7 +70580,8 @@ SQLITE_PRIVATE void sqlite3Pragma(
   **  PRAGMA [database.]auto_vacuum
   **  PRAGMA [database.]auto_vacuum=N
   **
-  ** Get or set the (boolean) value of the database 'auto-vacuum' parameter.
+  ** Get or set the value of the database 'auto-vacuum' parameter.
+  ** The value is one of:  0 NONE 1 FULL 2 INCREMENTAL
   */
 #ifndef SQLITE_OMIT_AUTOVACUUM
   if( sqlite3StrICmp(zLeft,"auto_vacuum")==0 ){
@@ -79315,7 +79375,7 @@ SQLITE_PRIVATE void sqlite3VtabMakeWritable(Parse *pParse, Table *pTab){
 ** so is applicable.  Because this module is responsible for selecting
 ** indices, you might also think of this module as the "query optimizer".
 **
-** $Id: where.c,v 1.362 2009/01/09 02:49:32 drh Exp $
+** $Id: where.c,v 1.364 2009/01/14 00:55:10 drh Exp $
 */
 
 /*
@@ -80142,10 +80202,12 @@ static void exprAnalyzeOrTerm(
         whereSplit(pAndWC, pOrTerm->pExpr, TK_AND);
         exprAnalyzeAll(pSrc, pAndWC);
         testcase( db->mallocFailed );
-        for(j=0, pAndTerm=pAndWC->a; j<pAndWC->nTerm; j++, pAndTerm++){
-          assert( pAndTerm->pExpr );
-          if( allowedOp(pAndTerm->pExpr->op) ){
-            b |= getMask(pMaskSet, pAndTerm->leftCursor);
+        if( !db->mallocFailed ){
+          for(j=0, pAndTerm=pAndWC->a; j<pAndWC->nTerm; j++, pAndTerm++){
+            assert( pAndTerm->pExpr );
+            if( allowedOp(pAndTerm->pExpr->op) ){
+              b |= getMask(pMaskSet, pAndTerm->leftCursor);
+            }
           }
         }
         indexable &= b;
@@ -81142,6 +81204,7 @@ static void bestIndex(
       WhereClause *pOrWC = &pTerm->u.pOrInfo->wc;
       WhereTerm *pOrTerm;
       int j;
+      int sortable = 0;
       double rTotal = 0;
       nRow = 0;
       for(j=0, pOrTerm=pOrWC->a; j<pOrWC->nTerm; j++, pOrTerm++){
@@ -81161,6 +81224,14 @@ static void bestIndex(
         nRow += sTermCost.nRow;
         if( rTotal>=pCost->rCost ) break;
       }
+      if( pOrderBy!=0 ){
+        if( sortableByRowid(iCur, pOrderBy, pWC->pMaskSet, &rev) && !rev ){
+          sortable = 1;
+        }else{
+          rTotal += nRow*estLog(nRow);
+          WHERETRACE(("... sorting increases OR cost to %.9g\n", rTotal));
+        }
+      }
       WHERETRACE(("... multi-index OR cost=%.9g nrow=%.9g\n",
                   rTotal, nRow));
       if( rTotal<pCost->rCost ){
@@ -81168,10 +81239,7 @@ static void bestIndex(
         pCost->nRow = nRow;
         pCost->plan.wsFlags = WHERE_MULTI_OR;
         pCost->plan.u.pTerm = pTerm;
-        if( pOrderBy!=0
-         && sortableByRowid(iCur, pOrderBy, pWC->pMaskSet, &rev)
-         && !rev
-        ){
+        if( sortable ){
           pCost->plan.wsFlags = WHERE_ORDERBY|WHERE_MULTI_OR;
         }
       }
@@ -87026,7 +87094,7 @@ SQLITE_API int sqlite3_complete16(const void *zSql){
 ** other files are for internal use by SQLite and should not be
 ** accessed by users of the library.
 **
-** $Id: main.c,v 1.520 2008/12/17 17:30:26 danielk1977 Exp $
+** $Id: main.c,v 1.521 2009/01/10 16:15:22 drh Exp $
 */
 
 #ifdef SQLITE_ENABLE_FTS3
@@ -87551,16 +87619,6 @@ SQLITE_API int sqlite3_db_config(sqlite3 *db, int op, ...){
   va_end(ap);
   return rc;
 }
-
-/*
-** Routine needed to support the testcase() macro.
-*/
-#ifdef SQLITE_COVERAGE_TEST
-SQLITE_PRIVATE void sqlite3Coverage(int x){
-  static int dummy = 0;
-  dummy += x;
-}
-#endif
 
 
 /*
