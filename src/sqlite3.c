@@ -1,6 +1,6 @@
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from SQLite
-** version 3.6.8.  By combining all the individual C code files into this 
+** version 3.6.10.  By combining all the individual C code files into this 
 ** single large file, the entire code can be compiled as a one translation
 ** unit.  This allows many compilers to do optimizations that would not be
 ** possible if the files were compiled separately.  Performance improvements
@@ -17,7 +17,7 @@
 ** is also in a separate file.  This file contains only code for the core
 ** SQLite library.
 **
-** This amalgamation was generated on 2009-01-14 00:59:32 UTC.
+** This amalgamation was generated on 2009-01-15 16:00:39 UTC.
 */
 #define SQLITE_CORE 1
 #define SQLITE_AMALGAMATION 1
@@ -41,7 +41,7 @@
 *************************************************************************
 ** Internal interface definitions for SQLite.
 **
-** @(#) $Id: sqliteInt.h,v 1.823 2009/01/10 16:15:22 drh Exp $
+** @(#) $Id: sqliteInt.h,v 1.824 2009/01/14 23:03:41 drh Exp $
 */
 #ifndef _SQLITEINT_H_
 #define _SQLITEINT_H_
@@ -424,16 +424,22 @@
 ** where multiple cases go to the same block of code, testcase()
 ** can insure that all cases are evaluated.
 **
-** The TESTONLY macro is used to enclose variable declarations or
-** other bits of code that are needed to support the arguments
-** within testcase() macros.
 */
 #ifdef SQLITE_COVERAGE_TEST
 SQLITE_PRIVATE   void sqlite3Coverage(int);
 # define testcase(X)  if( X ){ sqlite3Coverage(__LINE__); }
-# define TESTONLY(X)  X
 #else
 # define testcase(X)
+#endif
+
+/*
+** The TESTONLY macro is used to enclose variable declarations or
+** other bits of code that are needed to support the arguments
+** within testcase() and assert() macros.
+*/
+#if !defined(NDEBUG) || defined(SQLITE_COVERAGE_TEST)
+# define TESTONLY(X)  X
+#else
 # define TESTONLY(X)
 #endif
 
@@ -603,8 +609,8 @@ extern "C" {
 **          with the value (X*1000000 + Y*1000 + Z) where X, Y, and Z
 **          are the major version, minor version, and release number.
 */
-#define SQLITE_VERSION         "3.6.8"
-#define SQLITE_VERSION_NUMBER  3006008
+#define SQLITE_VERSION         "3.6.10"
+#define SQLITE_VERSION_NUMBER  3006010
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -8748,7 +8754,7 @@ SQLITE_PRIVATE void sqlite3PCacheSetDefault(void);
 ** This header file is #include-ed by sqliteInt.h and thus ends up
 ** being included by every source file.
 **
-** $Id: os.h,v 1.106 2008/12/08 18:19:18 drh Exp $
+** $Id: os.h,v 1.107 2009/01/14 23:03:41 drh Exp $
 */
 #ifndef _SQLITE_OS_H_
 #define _SQLITE_OS_H_
@@ -8976,6 +8982,7 @@ SQLITE_PRIVATE int sqlite3OsLock(sqlite3_file*, int);
 SQLITE_PRIVATE int sqlite3OsUnlock(sqlite3_file*, int);
 SQLITE_PRIVATE int sqlite3OsCheckReservedLock(sqlite3_file *id, int *pResOut);
 SQLITE_PRIVATE int sqlite3OsFileControl(sqlite3_file*,int,void*);
+#define SQLITE_FCNTL_DB_UNCHANGED 0xca093fa0
 SQLITE_PRIVATE int sqlite3OsSectorSize(sqlite3_file *id);
 SQLITE_PRIVATE int sqlite3OsDeviceCharacteristics(sqlite3_file *id);
 
@@ -21582,7 +21589,7 @@ SQLITE_API int sqlite3_os_end(void){
 **   *  Definitions of sqlite3_vfs objects for all locking methods
 **      plus implementations of sqlite3_os_init() and sqlite3_os_end().
 **
-** $Id: os_unix.c,v 1.235 2009/01/09 21:41:17 drh Exp $
+** $Id: os_unix.c,v 1.237 2009/01/15 04:30:03 drh Exp $
 */
 #if SQLITE_OS_UNIX              /* This file is used on unix only */
 
@@ -21726,6 +21733,18 @@ struct unixFile {
 #if OS_VXWORKS
   int isDelete;                    /* Delete on close if true */
   struct vxworksFileId *pId;       /* Unique file ID */
+#endif
+#ifndef NDEBUG
+  /* The next group of variables are used to track whether or not the
+  ** transaction counter in bytes 24-27 of database files are updated
+  ** whenever any part of the database changes.  An assertion fault will
+  ** occur if a file is updated without also updating the transaction
+  ** counter.  This test is made to avoid new problems similar to the
+  ** one described by ticket #3584. 
+  */
+  unsigned char transCntrChng;   /* True if the transaction counter changed */
+  unsigned char dbUpdate;        /* True if any part of database file changed */
+  unsigned char inNormalWrite;   /* True if in a normal write operation */
 #endif
 #ifdef SQLITE_TEST
   /* In test mode, increase the size of this structure a bit so that 
@@ -23086,6 +23105,24 @@ static int unixLock(sqlite3_file *id, int locktype){
     }
   }
   
+
+#ifndef NDEBUG
+  /* Set up the transaction-counter change checking flags when
+  ** transitioning from a SHARED to a RESERVED lock.  The change
+  ** from SHARED to RESERVED marks the beginning of a normal
+  ** write operation (not a hot journal rollback).
+  */
+  if( rc==SQLITE_OK
+   && pFile->locktype<=SHARED_LOCK
+   && locktype==RESERVED_LOCK
+  ){
+    pFile->transCntrChng = 0;
+    pFile->dbUpdate = 0;
+    pFile->inNormalWrite = 1;
+  }
+#endif
+
+
   if( rc==SQLITE_OK ){
     pFile->locktype = locktype;
     pLock->locktype = locktype;
@@ -23135,6 +23172,23 @@ static int unixUnlock(sqlite3_file *id, int locktype){
     SimulateIOErrorBenign(1);
     SimulateIOError( h=(-1) )
     SimulateIOErrorBenign(0);
+
+#ifndef NDEBUG
+    /* When reducing a lock such that other processes can start
+    ** reading the database file again, make sure that the
+    ** transaction counter was updated if any part of the database
+    ** file changed.  If the transaction counter is not updated,
+    ** other connections to the same file might not realize that
+    ** the file has changed and hence might not know to flush their
+    ** cache.  The use of a stale cache can lead to database corruption.
+    */
+    assert( pFile->inNormalWrite==0
+         || pFile->dbUpdate==0
+         || pFile->transCntrChng==1 );
+    pFile->inNormalWrite = 0;
+#endif
+
+
     if( locktype==SHARED_LOCK ){
       lock.l_type = F_RDLCK;
       lock.l_whence = SEEK_SET;
@@ -24467,6 +24521,29 @@ static int unixWrite(
   int wrote = 0;
   assert( id );
   assert( amt>0 );
+
+#ifndef NDEBUG
+  /* If we are doing a normal write to a database file (as opposed to
+  ** doing a hot-journal rollback or a write to some file other than a
+  ** normal database file) then record the fact that the database
+  ** has changed.  If the transaction counter is modified, record that
+  ** fact too.
+  */
+  if( ((unixFile*)id)->inNormalWrite ){
+    unixFile *pFile = (unixFile*)id;
+    pFile->dbUpdate = 1;  /* The database has been modified */
+    if( offset<=24 && offset+amt>=27 ){
+      char oldCntr[4];
+      SimulateIOErrorBenign(1);
+      seekAndRead(pFile, 24, oldCntr, 4);
+      SimulateIOErrorBenign(0);
+      if( memcmp(oldCntr, &((char*)pBuf)[24-offset], 4)!=0 ){
+        pFile->transCntrChng = 1;  /* The transaction counter has changed */
+      }
+    }
+  }
+#endif
+
   while( amt>0 && (wrote = seekAndWrite((unixFile*)id, offset, pBuf, amt))>0 ){
     amt -= wrote;
     offset += wrote;
@@ -24576,9 +24653,11 @@ static int full_fsync(int fd, int fullSync, int dataOnly){
 #else 
   if( dataOnly ){
     rc = fdatasync(fd);
-    if( OS_VXWORKS && rc==-1 && errno==ENOTSUP ){
+#if OS_VXWORKS
+    if( rc==-1 && errno==ENOTSUP ){
       rc = fsync(fd);
     }
+#endif
   }else{
     rc = fsync(fd);
   }
@@ -24726,6 +24805,17 @@ static int unixFileControl(sqlite3_file *id, int op, void *pArg){
       *(int*)pArg = ((unixFile*)id)->lastErrno;
       return SQLITE_OK;
     }
+#ifndef NDEBUG
+    /* The pager calls this method to signal that it has done
+    ** a rollback and that the database is therefore unchanged and
+    ** it hence it is OK for the transaction change counter to be
+    ** unchanged.
+    */
+    case SQLITE_FCNTL_DB_UNCHANGED: {
+      ((unixFile*)id)->dbUpdate = 0;
+      return SQLITE_OK;
+    }
+#endif
 #if SQLITE_ENABLE_LOCKING_STYLE && defined(__APPLE__)
     case SQLITE_SET_LOCKPROXYFILE:
     case SQLITE_GET_LOCKPROXYFILE: {
@@ -30681,7 +30771,7 @@ SQLITE_PRIVATE int sqlite3RowSetNext(RowSet *p, i64 *pRowid){
 ** file simultaneously, or one process from reading the database while
 ** another is writing.
 **
-** @(#) $Id: pager.c,v 1.549 2009/01/13 16:03:44 danielk1977 Exp $
+** @(#) $Id: pager.c,v 1.551 2009/01/14 23:03:41 drh Exp $
 */
 #ifndef SQLITE_OMIT_DISKIO
 
@@ -31767,6 +31857,7 @@ static int pager_end_transaction(Pager *pPager, int hasMaster){
   if( !pPager->exclusiveMode ){
     rc2 = osUnlock(pPager->fd, SHARED_LOCK);
     pPager->state = PAGER_SHARED;
+    pPager->changeCountDone = 0;
   }else if( pPager->state==PAGER_SYNCED ){
     pPager->state = PAGER_EXCLUSIVE;
   }
@@ -32384,6 +32475,16 @@ static int pager_playback(Pager *pPager, int isHot){
   assert( 0 );
 
 end_playback:
+  /* Following a rollback, the database file should be back in its original
+  ** state prior to the start of the transaction, so invoke the
+  ** SQLITE_FCNTL_DB_UNCHANGED file-control method to disable the
+  ** assertion that the transaction counter was modified.
+  */
+  assert(
+    pPager->fd->pMethods==0 ||
+    sqlite3OsFileControl(pPager->fd,SQLITE_FCNTL_DB_UNCHANGED,0)>=SQLITE_OK
+  );
+
   if( rc==SQLITE_OK ){
     zMaster = pPager->pTmpSpace;
     rc = readMasterJournal(pPager->jfd, zMaster, pPager->pVfs->mxPathname+1);
@@ -89511,8 +89612,8 @@ SQLITE_API int sqlite3_test_control(int op, ...){
 **
 **
 **** Segment merging ****
-** To amortize update costs, segments are groups into levels and
-** merged in matches.  Each increase in level represents exponentially
+** To amortize update costs, segments are grouped into levels and
+** merged in batches.  Each increase in level represents exponentially
 ** more documents.
 **
 ** New documents (actually, document updates) are tokenized and
