@@ -1108,6 +1108,9 @@ void info_page(void){
                 " WHERE rid=%d AND tagname LIKE 'tkt-%%'", rid) ){
     tinfo_page();
   }else
+  if( db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
+    vinfo_page();
+  }else
   {
     artifact_page();
   }
@@ -1147,6 +1150,7 @@ void vedit_page(void){
      { "#ffc0d0", "#ffc0d0" },
      { "#fff0c0", "#fff0c0" },
      { "#f0ffc0", "#f0ffc0" },
+     { "#c0c0c0", "#c0c0c0" },
   };
   int i;
   

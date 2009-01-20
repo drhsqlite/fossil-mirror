@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Require\sthat\sthe\s"branch\snew"\scommand\sspecify\sa\sbasis.\s\sDo\snot\slet\sit\suse\nthe\scurrent\scheck-out.\s\sOtherwise\sit\sgets\sconfusing\sto\susers.
-D 2009-01-20T22:38:56
+C Add\sa\sgray\scolor\soption\son\sthe\scolor\schanger.\s\sHelp\sthe\s"info"\swebpage\nto\sfigure\sout\sthat\san\sartifact\sis\sa\scheck-ins\swhen\sthe\scheck-in\schanges\s\nno\sfiles\srelative\sto\sits\sparent\s(when\sthe\scheck-in\sonly\screates\sa\snew\sbranch.)
+D 2009-01-20T22:53:09
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,7 +65,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c 3249a68164766ee40525e23d9d6d1184ac48eea4
+F src/info.c a275e2aa9876806dbdde4b8e40c6171b4cafa9d5
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P b7f32a71ab78f3e9813e685fda37c0fc5937b05a
-R 80ccc0821b29717ead7add793c0f0d89
+P 4d39bbac10c92e41eb737bb434d64d7959607f2e
+R 1ebce494fd5345f7461a676a90fb1797
 U drh
-Z 8d8efc439b2d4d88ede55cb7b4ce09c1
+Z 9d5e626acb51bd7b09a54a03d52072e2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdlKEoxKgR168RlERAh+UAJ9E4Z+ZCe/guejC6tDTbsu6BGEi0wCfZCXx
-oFPzKg4V43lCxiTWp6OXfek=
-=3NuD
+iD8DBQFJdlXaoxKgR168RlERApF0AJ9V4VzmCtYSD49N79hXHFxHXyQn1gCgiSJj
+fycNXjQ1BavpnwtcofKpWVc=
+=vwA4
 -----END PGP SIGNATURE-----
