@@ -179,7 +179,7 @@ void tagview_print_timeline(char const *zName, char const *zPrefix){
          " FROM tagxref"
          "  WHERE tagxref.rid = event.objid"
          "  AND tagxref.tagtype > 0"
-         "  AND tagxref.tagid = %d"
+         "  AND tagxref.tagid = %d)"
          " ORDER BY 3 desc",
          timeline_query_for_www(), tagid
   );

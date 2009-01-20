@@ -318,7 +318,7 @@ void vinfo_page(void){
   if( !g.okRead ){ login_needed(); return; }
   rid = name_to_rid(PD("name","0"));
   if( rid==0 ){
-    style_header("Baseline Information Error");
+    style_header("Check-in Information Error");
     @ No such object: %h(g.argv[2])
     style_footer();
     return;
@@ -333,7 +333,7 @@ void vinfo_page(void){
   );
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
-    char *zTitle = mprintf("Baseline [%.10s]", zUuid);
+    char *zTitle = mprintf("Check-in [%.10s]", zUuid);
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
