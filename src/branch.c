@@ -50,8 +50,8 @@ void branch_new(void){
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
   verify_all_options();
-  if( g.argc<3 ){
-    usage("branch new BRANCH-NAME ?ROOT-CHECK-IN? ?-bgcolor COLOR?");
+  if( g.argc<5 ){
+    usage("branch new BRANCH-NAME BASE-CHECK-IN ?-bgcolor COLOR?");
   }
   db_find_and_open_repository(1);  
   noSign = db_get_int("omitsign", 0)|noSign;
@@ -71,14 +71,7 @@ void branch_new(void){
 
   user_select();
   db_begin_transaction();
-  if( g.argc<5 ){
-    if( unsaved_changes() ){
-      fossil_fatal("there are uncommitted changes. please commit first");
-    }
-    rootid = db_lget_int("checkout", 0);
-  }else{
-    rootid = name_to_rid(g.argv[4]);
-  }
+  rootid = name_to_rid(g.argv[4]);
   if( rootid==0 ){
     fossil_fatal("unable to locate check-in off of which to branch");
   }
@@ -186,10 +179,10 @@ void branch_new(void){
 ** Run various subcommands on the branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new BRANCH-NAME ?ROOT-CHECK-IN? ?-bgcolor COLOR? 
+**    %fossil branch new BRANCH-NAME BASIS ?-bgcolor COLOR? 
 **
-**        Create a new branch BRANCH-NAME. You can optionally give
-**        a commit message and branch color.
+**        Create a new branch BRANCH-NAME off of check-in BASIS.
+**        You can optionally give the branch a default color.
 **
 **    %fossil branch list
 **

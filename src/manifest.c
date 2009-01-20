@@ -924,7 +924,6 @@ int manifest_crosslink(int rid, Blob *pContent){
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
         m.rDate, rid, m.zUser, m.zComment, 
         TAG_BGCOLOR, rid,
-        TAG_BRBGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid
       );

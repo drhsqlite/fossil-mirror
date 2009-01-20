@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sweb-based\sbranch\scolor\schanger.\s\sAdd\sthe\s"branch\slist"\scommand.\nSimplifications\sto\scolor\spropagation\slogic.
-D 2009-01-20T22:21:24
+C Require\sthat\sthe\s"branch\snew"\scommand\sspecify\sa\sbasis.\s\sDo\snot\slet\sit\suse\nthe\scurrent\scheck-out.\s\sOtherwise\sit\sgets\sconfusing\sto\susers.
+D 2009-01-20T22:38:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -43,7 +43,7 @@ F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
-F src/branch.c 6b0cfa07affc918819b29391f9f645a14d761e96
+F src/branch.c a8d6e457d2f2126d6f7fe8dafd04f3faacccced0
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
 F src/checkin.c 58cd8b89db4c44f40986ce9f1b563f1895632549
@@ -72,7 +72,7 @@ F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl aa8817088ac8c35df2cb250010b88a01d19fd48e
-F src/manifest.c 632069e321e2b12a300d8243bf4b46eb9dddb9ca
+F src/manifest.c b133eff8a1acd50fe5fb6cc0c14233279b8451ef
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
@@ -86,7 +86,7 @@ F src/rebuild.c 9a9c00a3c96287d08d7d6c786318a8c1ed8a231d
 F src/report.c dc93483c8358f5f2a85190270ff12cee8d7e1087
 F src/rss.c 07391be6042117a90aa16dc782965ec28cdf0e0d
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
-F src/schema.c 8049a3c05c0756964f6a5c87e404a0cf3bfdaf47
+F src/schema.c aa74a1f6fa6e6b746515166843c80d92d2d7df36
 F src/setup.c fca5464418e7fe9139ea79a128453829df3f92ab
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c ffc8251555af50947b4244716263fc66217ce32e
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P b6e22e62cf26115617822c7940cec5d0dc687184
-R 952fe1a4b5d18c7d1109e28eb734424d
+P b7f32a71ab78f3e9813e685fda37c0fc5937b05a
+R 80ccc0821b29717ead7add793c0f0d89
 U drh
-Z f63845c9229db3c9d09a3348f9ed4ffc
+Z 8d8efc439b2d4d88ede55cb7b4ce09c1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdk5noxKgR168RlERAn30AKCIbnTsOl/TZXZ2qnRc1jCNeBeG+ACdHb5Q
-CUhqsrd4fFqtNEVrU48eDRU=
-=Mcwd
+iD8DBQFJdlKEoxKgR168RlERAh+UAJ9E4Z+ZCe/guejC6tDTbsu6BGEi0wCfZCXx
+oFPzKg4V43lCxiTWp6OXfek=
+=3NuD
 -----END PGP SIGNATURE-----

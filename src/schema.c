@@ -329,17 +329,16 @@ const char zRepositorySchema2[] =
 */
 #if INTERFACE
 # define TAG_BGCOLOR    1     /* Set the background color for display */
-# define TAG_BRBGCOLOR  2     /* Background color for branches */
-# define TAG_COMMENT    3     /* The check-in comment */
-# define TAG_USER       4     /* User who made a checking */
-# define TAG_HIDDEN     5     /* Do not display or sync */
-# define TAG_PRIVATE    6     /* Display but do not sync */
-# define TAG_CLUSTER    7     /* A cluster */
-# define TAG_NEWBRANCH  8     /* First check-in of a new named branch */
-# define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
+# define TAG_COMMENT    2     /* The check-in comment */
+# define TAG_USER       3     /* User who made a checking */
+# define TAG_HIDDEN     4     /* Do not display or sync */
+# define TAG_PRIVATE    5     /* Display but do not sync */
+# define TAG_CLUSTER    6     /* A cluster */
+# define TAG_NEWBRANCH  7     /* First check-in of a new named branch */
+# define TAG_CLOSED     8     /* Do not display this check-in as a leaf */
 #endif
 #if EXPORT_INTERFACE
-# define MAX_INT_TAG    9     /* The largest pre-assigned tag id */
+# define MAX_INT_TAG    8     /* The largest pre-assigned tag id */
 #endif
 
 /*
