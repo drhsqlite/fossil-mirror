@@ -214,3 +214,33 @@ void branch_cmd(void){
                  "new list");
   }
 }
+
+/*
+** WEBPAGE: brlist
+**
+** Show a timeline of all branches
+*/
+void brlist_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
+  style_header("Branches");
+  login_anonymous_available();
+  db_prepare(&q,
+    "%s AND blob.rid IN (SELECT rid FROM tagxref WHERE tagtype>0 AND tagid=%d)"
+    " ORDER BY event.mtime DESC",
+    timeline_query_for_www(), TAG_NEWBRANCH
+  );
+  www_print_timeline(&q);
+  db_finalize(&q);
+  @ <br clear="both">
+  @ <script>
+  @ function xin(id){
+  @ }
+  @ function xout(id){
+  @ }
+  @ </script>
+  style_footer();
+}

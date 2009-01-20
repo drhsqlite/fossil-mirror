@@ -272,6 +272,7 @@ static void timeline_submenu(
 **    n=COUNT        number of events in output
 **    p=RID          artifact RID and up to COUNT parents and ancestors
 **    d=RID          artifact RID and up to COUNT descendants
+**    t=TAGID        show only check-ins with the given tagid
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 't'
 **
@@ -290,6 +291,7 @@ void page_timeline(void){
   int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
   int p_rid = atoi(PD("p","0"));     /* artifact p and its parents */
   int d_rid = atoi(PD("d","0"));     /* artifact d and its descendants */
+  int tagid = atoi(PD("t","0"));     /* Show checkins of a given tag */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
@@ -345,7 +347,18 @@ void page_timeline(void){
     }else{
       blob_appendf(&desc, " of [%.10s]", zUuid);
     }
-    db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
+  }else if( tagid>0 ){
+    /* If t= is present, ignore all other parameters.  Show everything
+    ** with that tag. */
+    blob_appendf(&sql, " AND event.type='ci'");
+    blob_appendf(&sql, " AND EXISTS (SELECT 1 FROM tagxref WHERE tagid=%d"
+                                      " AND tagtype>0 AND rid=blob.rid)",
+                 tagid);
+    db_multi_exec("%s", blob_str(&sql));
+    blob_appendf(&desc, "All check-ins tagged with \"%h\"",
+       db_text("??", "SELECT substr(tagname,5) FROM tag WHERE tagid=%d",
+               tagid)
+    );
   }else{
     int n;
     const char *zEType = "event";

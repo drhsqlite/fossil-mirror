@@ -371,10 +371,21 @@ void vinfo_page(void){
     if( g.okHistory ){
       char *zShortUuid = mprintf("%.10s", zUuid);
       const char *zProjName = db_get("project-name", "unnamed");
+      Stmt q;
       @ <tr><th>Timelines:</th><td>
       @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendants</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)&p=%d(rid)">both</a>
+      db_prepare(&q, "SELECT tag.tagid, tag.tagname FROM tagxref, tag "
+                     " WHERE rid=%d AND tagtype>0 "
+                     "   AND tag.tagid=tagxref.tagid "
+                     "   AND +tag.tagname GLOB 'sym-*'", rid);
+      while( db_step(&q)==SQLITE_ROW ){
+        int tagid = db_column_int(&q, 0);
+        const char *zTagName = db_column_text(&q, 1);
+        @  | <a href="%s(g.zBaseURL)/timeline?t=%d(tagid)">%h(&zTagName[4])</a>
+      }
+      db_finalize(&q);
       @ </td></tr>
       @ <tr><th>Commands:</th>
       @   <td>
