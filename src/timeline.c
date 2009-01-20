@@ -113,7 +113,7 @@ int count_nonbranch_children(int pid){
 **   10.  list of symbolic tags.
 */
 void www_print_timeline(
-  Stmt *pQuery
+  Stmt *pQuery          /* Query to implement the timeline */
 ){
   int wikiFlags;
   int mxWikiLen;
@@ -237,7 +237,7 @@ const char *timeline_query_for_www(void){
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
     @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
-    @   coalesce(bgcolor, brbgcolor),
+    @   bgcolor,
     @   event.type,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid

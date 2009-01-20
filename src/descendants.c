@@ -275,6 +275,17 @@ void leaves_page(void){
   style_header("Leaves");
   login_anonymous_available();
   compute_leaves(0, showAll ? 0 : showClosed ? 2 : 1);
+  @ <table width="33%%" align="right" border="1">
+  @ <tr><td>
+  @ <b>Nomenclature:</b>
+  @ <ol>
+  @ <li> A <b>leaf</b> is a check-in with no descendants.</li>
+  @ <li> An <b>open leaf</b> is a leaf that does not have a "closed" tag
+  @ and is thus assumed to still be in use.</li>
+  @ <li> A <b>closed leaf</b> has a "closed" tag and is thus assumed to
+  @ be historical and no longer in active use.</li>
+  @ </ol>
+  @ </td></tr></table>
   if( showAll ){
     @ <h1>All leaves, both open and closed</h1>
   }else if( showClosed ){
@@ -290,6 +301,7 @@ void leaves_page(void){
   );
   www_print_timeline(&q);
   db_finalize(&q);
+  @ <br clear="both">
   @ <script>
   @ function xin(id){
   @ }

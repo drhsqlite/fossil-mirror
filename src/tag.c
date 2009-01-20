@@ -73,7 +73,7 @@ void tag_propagate(
   }
   if( tagid==TAG_BGCOLOR ){
     db_prepare(&eventupdate,
-      "UPDATE event SET brbgcolor=%Q WHERE objid=:rid", zValue
+      "UPDATE event SET bgcolor=%Q WHERE objid=:rid", zValue
     );
   }
   while( (pid = pqueue_extract(&queue))!=0 ){
@@ -186,11 +186,7 @@ void tag_insert(
   zCol = 0;
   switch( tagid ){
     case TAG_BGCOLOR: {
-      if( tagtype==1 ){
-        zCol = "bgcolor";
-      }else{
-        zCol = "brbgcolor";
-      }
+      zCol = "bgcolor";
       break;
     }
     case TAG_COMMENT: {

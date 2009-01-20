@@ -348,12 +348,12 @@ void select_commit_files(void){
 }
 
 /*
-** Return true if the check-in with RID=rid has one or more child
+** Return true if the check-in with RID=rid has no child
 ** check-ins which are not tagged with "newbranch".  In other words,
-** return true if the check-in is not a leaf.
+** return true if the check-in is a leaf.
 */
-int is_not_a_leaf(int rid){
-  return db_exists(
+int is_a_leaf(int rid){
+  return !db_exists(
     "SELECT 1 FROM plink"
     " WHERE pid=%d"
       " AND NOT EXIST("
@@ -461,7 +461,7 @@ void commit_cmd(void){
   }
 
   vid = db_lget_int("checkout", 0);
-  if( is_not_a_leaf(vid) ){
+  if( !is_a_leaf(vid) ){
     wouldFork=1;
     if( forceFlag==0 ){
       fossil_fatal("would fork.  \"update\" first or use -f or --force.");

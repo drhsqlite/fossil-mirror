@@ -1129,8 +1129,26 @@ void vedit_page(void){
   const char *zNewComment;
   const char *zUser;
   const char *zNewUser;
+  const char *zColor;
+  const char *zNewColor;
+  int fPropagateColor;
   char *zUuid;
   Blob comment;
+  static const struct SampleColors {
+     const char *zCName;
+     const char *zColor;
+  } aColor[] = {
+     { "(none)",  "" },
+     { "#c0ffc0", "#c0ffc0" },
+     { "#c0fff0", "#c0fff0" },
+     { "#c0f0ff", "#c0f0ff" },
+     { "#d0c0ff", "#d0c0ff" },
+     { "#ffc0ff", "#ffc0ff" },
+     { "#ffc0d0", "#ffc0d0" },
+     { "#fff0c0", "#fff0c0" },
+     { "#f0ffc0", "#f0ffc0" },
+  };
+  int i;
   
   login_check_credentials();
   if( !g.okWrite ){ login_needed(); return; }
@@ -1143,6 +1161,10 @@ void vedit_page(void){
                      "  FROM event WHERE objid=%d", rid);
   if( zUser==0 ) fossil_redirect_home();
   zNewUser = PD("u",zUser);
+  zColor = db_text("", "SELECT bgcolor"
+                        "  FROM event WHERE objid=%d", rid);
+  zNewColor = PD("clr",zColor);
+  fPropagateColor = P("pclr")!=0;
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( P("cancel") ){
     cgi_redirectf("vinfo?name=%d", rid);
@@ -1157,6 +1179,14 @@ void vedit_page(void){
     zDate = db_text(0, "SELECT datetime('now')");
     zDate[10] = 'T';
     blob_appendf(&ctrl, "D %s\n", zDate);
+    if( zNewColor[0] && strcmp(zColor,zNewColor)!=0 ){
+      nChng++;
+      if( fPropagateColor ){
+        blob_appendf(&ctrl, "T *bgcolor %s %F\n", zUuid, zNewColor);
+      }else{
+        blob_appendf(&ctrl, "T +bgcolor %s %F\n", zUuid, zNewColor);
+      }
+    }
     if( strcmp(zComment,zNewComment)!=0 ){
       nChng++;
       blob_appendf(&ctrl, "T +comment %s %F\n", zUuid, zNewComment);
@@ -1164,6 +1194,10 @@ void vedit_page(void){
     if( strcmp(zUser,zNewUser)!=0 ){
       nChng++;
       blob_appendf(&ctrl, "T +user %s %F\n", zUuid, zNewUser);
+    }
+    if( zNewColor[0]==0 && zColor[0]!=0 ){
+      nChng++;
+      blob_appendf(&ctrl, "T -bgcolor %s\n", zUuid);
     }
     if( nChng>0 ){
       int nrid;
@@ -1182,23 +1216,71 @@ void vedit_page(void){
   blob_append(&comment, zNewComment, -1);
   zUuid[10] = 0;
   style_header("Edit Baseline [%s]", zUuid);
-  @ <p>Make changes to the User and Comment for baseline 
-  @ [<a href="vinfo?name=%d(rid)">%s(zUuid)</a>] then press the
-  @ "Apply Changes" button.</p>
+  if( P("preview") ){
+    @ <b>Preview:</b>
+    @ <blockquote>
+    @ <table border=0>
+    if( zNewColor && zNewColor[0] ){
+      @ <tr><td bgcolor="%h(zNewColor)">
+    }else{
+      @ <tr><td>
+    }
+    wiki_convert(&comment, 0, WIKI_INLINE);
+    @ (user: %h(zNewUser))
+    @ </td></tr></table>
+    @ </blockquote>
+    @ <hr>
+  }
+  @ <p>Make changes to attributes of check-in
+  @ [<a href="vinfo?name=%d(rid)">%s(zUuid)</a>]:</p>
   @ <form action="%s(g.zBaseURL)/vedit" method="POST">
   login_insert_csrf_secret();
   @ <input type="hidden" name="r" value="%d(rid)">
-  @ <p>
-  @ <b>User:</b> <input type="text" name="u" size="20" value="%h(zNewUser)">
-  @ </p>
-  @ <p><b>Comment:</b></b><br />
-  wiki_convert(&comment, 0, WIKI_INLINE);
-  @ <br /><textarea name="c" rows="10" cols="80">%h(zNewComment)</textarea></p>
-  @ <blockquote>
+  @ <table border="0" cellspacing="10">
+
+  @ <tr><td align="right" valign="top"><b>User:</b></td>
+  @ <td valign="top">
+  @   <input type="text" name="u" size="20" value="%h(zNewUser)">
+  @ </td></tr>
+
+  @ <tr><td align="right" valign="top"><b>Comment:</b></td>
+  @ <td valign="top">
+  @ <textarea name="c" rows="10" cols="80">%h(zNewComment)</textarea>
+  @ </td></tr>
+
+  @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
+  @ <td valign="top">
+  @ <table border=0 cellpadding=0 cellspacing=1>
+  @ <tr>
+  for(i=0; i<sizeof(aColor)/sizeof(aColor[0]); i++){
+    if( aColor[i].zColor[0] ){
+      @ <td bgcolor="%h(aColor[i].zColor)">
+    }else{
+      @ <td>
+    }
+    if( strcmp(zNewColor, aColor[i].zColor)==0 ){
+      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)" checked>
+    }else{
+      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)">
+    }
+    @ %h(aColor[i].zCName)</input></td>
+  }
+  @ </tr><tr><td colspan="9" align="left">
+  if( fPropagateColor ){
+    @ <input type="checkbox" name="pclr" checked>
+  }else{
+    @ <input type="checkbox" name="pclr">
+  }
+  @ Propagate color to descendants</input></td></tr>
+  @ </table>
+  @ </td></tr>
+
+  @ <tr><td colspan="2">
   @ <input type="submit" name="preview" value="Preview">
   @ <input type="submit" name="apply" value="Apply Changes">
   @ <input type="submit" name="cancel" value="Cancel">
-  @ </blockquote>
+  @ </td></tr>
+  @ </table>
   @ </form>
   style_footer();
 }

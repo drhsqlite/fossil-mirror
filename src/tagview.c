@@ -170,17 +170,19 @@ void raw_tagview_page(void){
 /*
 ** Generate a timeline for the chosen tag
 */
-void tagview_print_timeline(char const *pName, char const *pPrefix){
+void tagview_print_timeline(char const *zName, char const *zPrefix){
   char *zSql;
   Stmt q;
+  int tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='%q%q'",
+                        zPrefix, zName);
   zSql = mprintf("%s AND EXISTS (SELECT 1"
          " FROM tagxref"
          "  WHERE tagxref.rid = event.objid"
          "  AND tagxref.tagtype > 0"
-         "  AND tagxref.tagid = (SELECT tagid FROM tag"
-         "      WHERE tagname = %Q||%Q))"
+         "  AND tagxref.tagid = %d"
          " ORDER BY 3 desc",
-         timeline_query_for_www(), pPrefix, pName);
+         timeline_query_for_www(), tagid
+  );
   db_prepare(&q, zSql);
   free(zSql);
   www_print_timeline(&q);

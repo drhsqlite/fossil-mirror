@@ -917,15 +917,14 @@ int manifest_crosslink(int rid, Blob *pContent){
       db_finalize(&q);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
-        "                  bgcolor,brbgcolor,euser,ecomment)"
+        "                  bgcolor,euser,ecomment)"
         "VALUES('ci',%.17g,%d,%Q,%Q,"
-        " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
-        "(SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype!=1),"
+        " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
         m.rDate, rid, m.zUser, m.zComment, 
         TAG_BGCOLOR, rid,
-        TAG_BGCOLOR, rid,
+        TAG_BRBGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid
       );
@@ -986,10 +985,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
-      "                  bgcolor,brbgcolor,euser,ecomment)"
+      "                  bgcolor,euser,ecomment)"
       "VALUES('w',%.17g,%d,%Q,%Q,"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype=1),"
-      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype!=1),"
+      "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
       m.rDate, rid, m.zUser, zComment, 

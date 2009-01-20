@@ -206,7 +206,16 @@ void branch_cmd(void){
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     branch_new();
   }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
-    fossil_panic("branch list is not yet completed");
+    Stmt q;
+    db_prepare(&q,
+      "%s"
+      "   AND blob.rid IN (SELECT rid FROM tagxref"
+      "                     WHERE tagid=%d AND tagtype==1)"
+      " ORDER BY event.mtime DESC",
+      timeline_query_for_tty(), TAG_NEWBRANCH
+    );
+    print_timeline(&q, 2000);
+    db_finalize(&q);
   }else{
     fossil_panic("branch subcommand should be one of: "
                  "new list");
