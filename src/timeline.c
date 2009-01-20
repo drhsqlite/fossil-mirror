@@ -90,10 +90,11 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 **    7.  True if is a leaf
 **    8.  background color
 **    9.  type ("ci", "w")
+**   10.  list of symbolic tags.
 */
 void www_print_timeline(
   Stmt *pQuery
- ){
+){
   int wikiFlags;
   int mxWikiLen;
   Blob comment;
@@ -123,6 +124,7 @@ void www_print_timeline(
     const char *zDate = db_column_text(pQuery, 2);
     const char *zType = db_column_text(pQuery, 9);
     const char *zUser = db_column_text(pQuery, 4);
+    const char *zTagList = db_column_text(pQuery, 10);
     db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
@@ -165,7 +167,11 @@ void www_print_timeline(
       wiki_convert(&comment, 0, wikiFlags);
     }
     blob_reset(&comment);
-    @ (by %h(zUser))</td></tr>
+    if( zTagList && zTagList[0] ){
+      @ (user: %h(zUser), tags: %h(zTagList))</td></tr>
+    }else{
+      @ (user: %h(zUser))</td></tr>
+    }
   }
   @ </table>
 }
@@ -185,7 +191,8 @@ static void timeline_temp_table(void){
     @   nparent INTEGER,
     @   isleaf BOOLEAN,
     @   bgcolor TEXT,
-    @   etype TEXT
+    @   etype TEXT,
+    @   taglist TEXT
     @ )
   ;
   db_multi_exec(zSql);
@@ -207,7 +214,10 @@ const char *timeline_query_for_www(void){
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
     @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
     @   coalesce(bgcolor, brbgcolor),
-    @   event.type
+    @   event.type,
+    @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
+    @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0)
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -586,7 +596,14 @@ const char *timeline_query_for_tty(void){
     @   blob.rid,
     @   uuid,
     @   datetime(event.mtime,'localtime'),
-    @   coalesce(ecomment,comment) || ' (by ' || coalesce(euser,user,'?') ||')',
+    @   coalesce(ecomment,comment)
+    @     || ' (user: ' || coalesce(euser,user,'?')
+    @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
+    @           FROM (SELECT group_concat(substr(tagname,5), ', ') AS x
+    @                   FROM tag, tagxref
+    @                  WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
+    @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
+    @     || ')',
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
     @ FROM event, blob
