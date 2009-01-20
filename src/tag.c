@@ -249,71 +249,15 @@ void testtag_cmd(void){
 }
 
 /*
-** Prepare an artifact that describes a fork from a certain baseline.
-** Furthermore a propagating symbolic tag will be inserted and
-** all other propagating symbolic tags will be cancelled.
-**
-** The changes are appended at the Blob pCtrl. However the manifest
-** is not complete at that stage.
-*/
-static void tag_prepare_fork(
-  Blob *pCtrl, 
-  const char *zTagname,
-  int rid,
-  int preflen                 /* Tag prefix length to adjust name if reqd */
-){
-  Stmt q;
-  Manifest origin;
-  Blob originContent;
-  char *zDate;
-  int i;
-
-  blob_appendf(pCtrl, "C Create\\snamed\\sfork\\s%s\n", zTagname+preflen);
-  content_get(rid, &originContent);
-  manifest_parse(&origin, &originContent);
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10] = 'T';
-  blob_appendf(pCtrl, "D %s\n", zDate);
-  for(i=0; i<origin.nFile; ++i){
-    blob_appendf(pCtrl, "F %s %s %s\n",
-                 origin.aFile[i].zName,
-                 origin.aFile[i].zUuid,
-                 origin.aFile[i].zPerm);
-  }
-  if( origin.nParent>0 ){
-    blob_appendf(pCtrl, "P %s\n", origin.azParent[0]);
-  }
-  blob_appendf(pCtrl, "R %s\n", origin.zRepoCksum);
-  blob_appendf(pCtrl, "T *%F *", zTagname);
-
-  /* Cancel any sym- tags that propagate */
-  db_prepare(&q,
-      "SELECT tagname FROM tagxref, tag"
-      " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-      "   AND tagtype>0 AND tagname LIKE 'sym-%%'"
-      " ORDER BY tagname",
-      rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zTag = db_column_text(&q, 0);
-    blob_appendf(pCtrl, "\nT -%s *", zTag);
-  }
-  db_finalize(&q);
-
-  /* Cleanup */
-  manifest_clear(&origin);
-}
-
-/*
 ** Add a control record to the repository that either creates
 ** or cancels a tag.
 */
 static void tag_add_artifact(
+  const char *zPrefix,        /* Prefix to prepend to tag name */
   const char *zTagname,       /* The tag to add or cancel */
   const char *zObjName,       /* Name of object attached to */
   const char *zValue,         /* Value for the tag.  Might be NULL */
-  int tagtype,                /* 0:cancel 1:singleton 2:propagated */
-  int fork,                   /* Should a fork created from zObjName? */
-  int preflen                 /* Tag prefix length to adjust name if reqd */
+  int tagtype                 /* 0:cancel 1:singleton 2:propagated */
 ){
   int rid;
   int nrid;
@@ -333,6 +277,7 @@ static void tag_add_artifact(
   rid = name_to_rid(blob_str(&uuid));
   blob_zero(&ctrl);
 
+#if 0
   if( validate16(zTagname, strlen(zTagname)) ){
     fossil_fatal(
        "invalid tag name \"%s\" - might be confused with"
@@ -340,15 +285,13 @@ static void tag_add_artifact(
        zTagname
     );
   }
-  if( fork ){
-    tag_prepare_fork(&ctrl, zTagname, rid, preflen);
-  }else{
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
-    blob_appendf(&ctrl, "D %s\n", zDate);
-    blob_appendf(&ctrl, "T %c%F %b", zTagtype[tagtype], zTagname, &uuid);
-  }
-  if( tagtype && zValue && zValue[0] ){
+#endif
+  zDate = db_text(0, "SELECT datetime('now')");
+  zDate[10] = 'T';
+  blob_appendf(&ctrl, "D %s\n", zDate);
+  blob_appendf(&ctrl, "T %c%s%F %b",
+               zTagtype[tagtype], zPrefix, zTagname, &uuid);
+  if( tagtype>0 && zValue && zValue[0] ){
     blob_appendf(&ctrl, " %F\n", zValue);
   }else{
     blob_appendf(&ctrl, "\n");
@@ -371,39 +314,26 @@ static void tag_add_artifact(
 **
 ** Run various subcommands to control tags and properties
 **
-**     %fossil tag add ?--raw? TAGNAME BASELINE ?VALUE?
+**     %fossil tag add ?--raw? ?--propagate? TAGNAME CHECK-IN ?VALUE?
 **
-**         Add a new tag or property to BASELINE. The tag will
-**         be usable instead of a BASELINE in commands such as
-**         update and merge.
+**         Add a new tag or property to CHECK-IN. The tag will
+**         be usable instead of a CHECK-IN in commands such as
+**         update and merge.  If the --propagate flag is present,
+**         the tag value propages to all descendants of CHECK-IN
 **
-**     %fossil tag branch ?--raw? ?--nofork? TAGNAME BASELINE ?VALUE?
+**     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
 **
-**         A fork will be created so that the new checkin
-**         is a sibling of BASELINE and identical to it except
-**         for a generated comment. Then the new tag will
-**         be added to the new checkin and propagated to
-**         all direct children.  Additionally all symbolic
-**         tags of that checkin inherited from BASELINE will
-**         be cancelled.
-**
-**         However, if the option --nofork is given, no
-**         fork will be created and the tag/property will be
-**         added to BASELINE directly. No tags will be canceled.
-**
-**     %fossil tag cancel ?--raw? TAGNAME BASELINE
-**
-**         Remove the tag TAGNAME from BASELINE, and also remove
+**         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.
 **
 **     %fossil tag find ?--raw? TAGNAME
 **
-**         List all baselines that use TAGNAME
+**         List all check-ins that use TAGNAME
 **
-**     %fossil tag list ?--raw? ?BASELINE?
+**     %fossil tag list ?--raw? ?CHECK-IN?
 **
-**         List all tags, or if BASELINE is supplied, list
-**         all tags and their values for BASELINE.
+**         List all tags, or if CHECK-IN is supplied, list
+**         all tags and their values for CHECK-IN.
 **
 ** The option --raw allows the manipulation of all types of tags
 ** used for various internal purposes in fossil. It also shows
@@ -427,11 +357,9 @@ static void tag_add_artifact(
 */
 void tag_cmd(void){
   int n;
-  int raw = find_option("raw","",0)!=0;
-  int fork = find_option("nofork","",0)==0;
-  const char *prefix = raw ? "" : "sym-";
-  int preflen = strlen(prefix);
-  Blob tagname;
+  int fRaw = find_option("raw","",0)!=0;
+  int fPropagate = find_option("propagate","",0)!=0;
+  const char *zPrefix = fRaw ? "" : "sym-";
 
   db_find_and_open_repository(1);
   if( g.argc<3 ){
@@ -442,39 +370,25 @@ void tag_cmd(void){
     goto tag_cmd_usage;
   }
 
-  blob_set(&tagname, prefix);
-
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
     if( g.argc!=5 && g.argc!=6 ){
-      usage("add ?--raw? TAGNAME BASELINE ?VALUE?");
+      usage("add ?--raw? ?--propagate? TAGNAME CHECK-IN ?VALUE?");
     }
-    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
     zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 1, 0, 0);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue, 1+fPropagate);
   }else
 
   if( strncmp(g.argv[2],"branch",n)==0 ){
-    char *zValue;
-    if( g.argc!=5 && g.argc!=6 ){
-      usage("branch ?--raw? ?--nofork? TAGNAME BASELINE ?VALUE?");
-    }
-    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
-    zValue = g.argc==6 ? g.argv[5] : 0;
-    tag_add_artifact(blob_str(&tagname), g.argv[4], zValue, 2, fork!=0,
-                                                      preflen);
-    if( fork ){
-      const char *zUuid = db_text(0, "SELECT uuid, MAX(rowid) FROM blob");
-      printf("New_Fork \"%s\": %s\n", g.argv[3], zUuid);
-    }
+    fossil_fatal("the \"fossil tag branch\" command is discontinued\n"
+                 "Use the \"fossil branch new\" command instead.");
   }else
 
   if( strncmp(g.argv[2],"cancel",n)==0 ){
     if( g.argc!=5 ){
-      usage("cancel ?--raw? TAGNAME BASELINE");
+      usage("cancel ?--raw? TAGNAME CHECK-IN");
     }
-    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
-    tag_add_artifact(blob_str(&tagname), g.argv[4], 0, 0, 0, 0);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, 0);
   }else
 
   if( strncmp(g.argv[2],"find",n)==0 ){
@@ -482,17 +396,35 @@ void tag_cmd(void){
     if( g.argc!=4 ){
       usage("find ?--raw? TAGNAME");
     }
-    blob_append(&tagname, g.argv[3], strlen(g.argv[3]));
-    db_prepare(&q,
-      "SELECT blob.uuid FROM tagxref, blob"
-      " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%B)"
-      "   AND tagxref.tagtype > %d"
-      "   AND blob.rid=tagxref.rid", &tagname, raw ? -1 : 0
-    );
-    while( db_step(&q)==SQLITE_ROW ){
-      printf("%s\n", db_column_text(&q, 0));
+    if( fRaw ){
+      db_prepare(&q,
+        "SELECT blob.uuid FROM tagxref, blob"
+        " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+        "   AND tagxref.tagtype>0"
+        "   AND blob.rid=tagxref.rid",
+        g.argv[3]
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        printf("%s\n", db_column_text(&q, 0));
+      }
+      db_finalize(&q);
+    }else{
+      int tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
+                         g.argv[3]);
+      if( tagid>0 ){
+        db_prepare(&q,
+          "%s"
+          "  AND blob.rid IN ("
+                    " SELECT rid FROM tagxref"
+                    "  WHERE tagtype>0 AND tagid=%d"
+                    ")"
+          " ORDER BY event.mtime DESC",
+          timeline_query_for_tty(), tagid
+        );
+        print_timeline(&q, 2000);
+        db_finalize(&q);
+      }
     }
-    db_finalize(&q);
   }else
 
   if( strncmp(g.argv[2],"list",n)==0 ){
@@ -502,14 +434,15 @@ void tag_cmd(void){
         "SELECT tagname FROM tag"
         " WHERE EXISTS(SELECT 1 FROM tagxref"
         "               WHERE tagid=tag.tagid"
-        "                 AND tagtype>%d)"
-        " ORDER BY tagname",
-        raw ? -1 : 0
+        "                 AND tagtype>0)"
+        " ORDER BY tagname"
       );
       while( db_step(&q)==SQLITE_ROW ){
-        const char *name = db_column_text(&q, 0);
-        if( raw || strncmp(name, prefix, preflen)==0 ){
-          printf("%s\n", name+preflen);
+        const char *zName = db_column_text(&q, 0);
+        if( fRaw ){
+          printf("%s\n", zName);
+        }else if( strncmp(zName, "sym-", 4)==0 ){
+          printf("%s\n", &zName[4]);
         }
       }
       db_finalize(&q);
@@ -521,24 +454,24 @@ void tag_cmd(void){
         "   AND tagtype>%d"
         " ORDER BY tagname",
         rid,
-        raw ? -1 : 0
+        fRaw ? -1 : 0
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
         const char *zValue = db_column_text(&q, 1);
-        if( zValue ){
-          if( raw || strncmp(zName, prefix, preflen)==0 ){
-            printf("%s=%s\n", zName+preflen, zValue);
-          }
+        if( fRaw==0 ){
+          if( strncmp(zName, "sym-", 4)!=0 ) continue;
+          zName += 4;
+        }
+        if( zValue && zValue[0] ){
+          printf("%s=%s\n", zName, zValue);
         }else{
-          if( raw || strncmp(zName, prefix, preflen)==0 ){
-            printf("%s\n", zName+preflen);
-          }
+          printf("%s\n", zName);
         }
       }
       db_finalize(&q);
     }else{
-      usage("tag list ?BASELINE?");
+      usage("tag list ?CHECK-IN?");
     }
   }else
   {
@@ -546,9 +479,8 @@ void tag_cmd(void){
   }
 
   /* Cleanup */
-  blob_reset(&tagname);
   return;
 
 tag_cmd_usage:
-  usage("add|branch|cancel|find|list ...");
+  usage("add|cancel|find|list ...");
 }

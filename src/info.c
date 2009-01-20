@@ -444,7 +444,7 @@ void vinfo_page(void){
     }
   }
   @ </ul>
-  compute_leaves(rid);
+  compute_leaves(rid, 0);
   showDescendants(rid, 2, "Descendants");
   showLeaves();
   showAncestors(rid, 2, "Ancestors");

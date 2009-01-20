@@ -77,6 +77,26 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 }
 
 /*
+** Count the number of non-branch children for the given check-in.
+** A non-branch child is a child that omits the "newbranch" tag.
+*/
+int count_nonbranch_children(int pid){
+  int nNonBranch;
+
+  nNonBranch = db_int(0,  
+    "SELECT count(*) FROM plink"
+    " WHERE pid=%d"
+    "   AND NOT EXISTS(SELECT 1 FROM tagxref"
+                    "   WHERE tagid=%d"
+                    "     AND rid=cid"
+                    "     AND tagtype>0"
+                    " )",
+    pid, TAG_NEWBRANCH
+  );
+  return nNonBranch;
+}
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -147,7 +167,11 @@ void www_print_timeline(
         @ <b>Merge</b> 
       }
       if( nPChild>1 ){
-        @ <b>Fork</b>
+        if( count_nonbranch_children(rid)>1 ){
+          @ <b>Fork</b>
+        }else{
+          @ <b>Branch</b>
+        }
       }
       if( isLeaf ){
         @ <b>Leaf</b>
@@ -549,6 +573,7 @@ void print_timeline(Stmt *q, int mxLine){
   }
 
   while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
+    int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
     const char *zCom = db_column_text(q, 3);
@@ -573,7 +598,13 @@ void print_timeline(Stmt *q, int mxLine){
       n = strlen(zPrefix);
     }
     if( nChild>1 ){
-      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*FORK* ");
+      const char *zBrType;
+      if( count_nonbranch_children(rid)>1 ){
+        zBrType = "*FORK* ";
+      }else{
+        zBrType = "*BRANCH* ";
+      }
+      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], zBrType);
       n = strlen(zPrefix);
     }
     if( zCurrentUuid && strcmp(zCurrentUuid,zId)==0 ){

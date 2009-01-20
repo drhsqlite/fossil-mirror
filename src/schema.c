@@ -282,6 +282,8 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(4, 'hidden');          -- TAG_HIDDEN
 @ INSERT INTO tag VALUES(5, 'private');         -- TAG_PRIVATE
 @ INSERT INTO tag VALUES(6, 'cluster');         -- TAG_CLUSTER
+@ INSERT INTO tag VALUES(7, 'newbranch');       -- TAG_NEWBRANCH
+@ INSERT INTO tag VALUES(8, 'closed');          -- TAG_CLOSED
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -333,9 +335,11 @@ const char zRepositorySchema2[] =
 # define TAG_HIDDEN     4     /* Do not display or sync */
 # define TAG_PRIVATE    5     /* Display but do not sync */
 # define TAG_CLUSTER    6     /* A cluster */
+# define TAG_NEWBRANCH  7     /* First check-in of a new named branch */
+# define TAG_CLOSED     8     /* Do not display this check-in as a leaf */
 #endif
 #if EXPORT_INTERFACE
-# define MAX_INT_TAG    6     /* The largest pre-assigned tag id */
+# define MAX_INT_TAG    8     /* The largest pre-assigned tag id */
 #endif
 
 /*

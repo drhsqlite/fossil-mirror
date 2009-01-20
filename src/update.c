@@ -92,7 +92,7 @@ void update_cmd(void){
   }
   
   if( tid==0 ){
-    compute_leaves(vid);
+    compute_leaves(vid, 1);
     if( !latestFlag && db_int(0, "SELECT count(*) FROM leaves")>1 ){
       db_prepare(&q, 
         "%s "

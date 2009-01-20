@@ -348,6 +348,25 @@ void select_commit_files(void){
 }
 
 /*
+** Return true if the check-in with RID=rid has one or more child
+** check-ins which are not tagged with "newbranch".  In other words,
+** return true if the check-in is not a leaf.
+*/
+int is_not_a_leaf(int rid){
+  return db_exists(
+    "SELECT 1 FROM plink"
+    " WHERE pid=%d"
+      " AND NOT EXIST("
+                     "SELECT 1 FROM tagxref"
+                     " WHERE tagxref.rid=plink.cid"
+                     "   AND tagxref.tagid=%d"
+                     "   AND tagxref.tagtype=1"
+               ")",
+    rid, TAG_NEWBRANCH
+  );
+}
+
+/*
 ** COMMAND: ci
 ** COMMAND: commit
 **
@@ -442,10 +461,10 @@ void commit_cmd(void){
   }
 
   vid = db_lget_int("checkout", 0);
-  if( db_exists("SELECT 1 FROM plink WHERE pid=%d", vid) ){
+  if( is_not_a_leaf(vid) ){
     wouldFork=1;
     if( forceFlag==0 ){
-      fossil_fatal("would fork.  use -f or --force");
+      fossil_fatal("would fork.  \"update\" first or use -f or --force.");
     }
   }
   vfile_aggregate_checksum_disk(vid, &cksum1);

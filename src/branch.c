@@ -27,86 +27,118 @@
 #include "branch.h"
 #include <assert.h>
 
+/*
+**  fossil branch new    BRANCH-NAME ?ORIGIN-CHECK-IN? ?-bgcolor COLOR?
+**  argv0  argv1  argv2  argv3       argv4
+*/
 void branch_new(void){
-  int vid, nvid, noSign;
-  Stmt q;
-  char *zBranch, *zUuid, *zDate, *zComment;
-  const char *zColor;
-  Blob manifest;
+  int rootid;            /* RID of the root check-in - what we branch off of */
+  int brid;              /* RID of the branch check-in */
+  int noSign;            /* True if the branch is unsigned */
+  int i;                 /* Loop counter */
+  char *zUuid;           /* Artifact ID of origin */
+  Stmt q;                /* Generic query */
+  const char *zBranch;   /* Name of the new branch */
+  char *zDate;           /* Date that branch was created */
+  char *zComment;        /* Check-in comment for the new branch */
+  const char *zColor;    /* Color of the new branch */
+  Blob branch;           /* manifest for the new branch */
+  Blob parent;           /* root check-in manifest */
+  Manifest mParent;      /* Parsed parent manifest */
   Blob mcksum;           /* Self-checksum on the manifest */
-  Blob cksum1, cksum2;   /* Before and after commit checksums */
-  Blob cksum1b;          /* Checksum recorded in the manifest */
  
   noSign = find_option("nosign","",0)!=0;
-  db_must_be_within_tree();
-  noSign = db_get_int("omitsign", 0)|noSign;
   zColor = find_option("bgcolor","c",1);
-  
   verify_all_options();
+  if( g.argc<3 ){
+    usage("branch new BRANCH-NAME ?ROOT-CHECK-IN? ?-bgcolor COLOR?");
+  }
+  db_find_and_open_repository(1);  
+  noSign = db_get_int("omitsign", 0)|noSign;
   
   /* fossil branch new name */
-  if( g.argc<3 ){
-    usage("branch new ?-bgcolor COLOR? BRANCH-NAME");
-  }
   zBranch = g.argv[3];
   if( zBranch==0 || zBranch[0]==0 ){
     fossil_panic("branch name cannot be empty");
   }
+  if( db_exists(
+        "SELECT 1 FROM tagxref"
+        " WHERE tagtype>0"
+        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%s')",
+        zBranch)!=0 ){
+    fossil_fatal("branch \"%s\" already exists", zBranch);
+  }
 
   user_select();
   db_begin_transaction();
-  if( unsaved_changes() ){
-    fossil_panic("there are uncommitted changes. please commit first");
+  if( g.argc<5 ){
+    if( unsaved_changes() ){
+      fossil_fatal("there are uncommitted changes. please commit first");
+    }
+    rootid = db_lget_int("checkout", 0);
+  }else{
+    rootid = name_to_rid(g.argv[4]);
+  }
+  if( rootid==0 ){
+    fossil_fatal("unable to locate check-in off of which to branch");
   }
 
-  vid = db_lget_int("checkout", 0);
-  vfile_aggregate_checksum_disk(vid, &cksum1);
-  
-  /* Create our new manifest */
-  blob_zero(&manifest);
-  zComment = mprintf("Branch created %s", zBranch);
-  blob_appendf(&manifest, "C %F\n", zComment);
+  /* Create a manifest for the new branch */
+  blob_zero(&branch);
+  zComment = mprintf("Create new branch named \"%h\"", zBranch);
+  blob_appendf(&branch, "C %F\n", zComment);
   zDate = db_text(0, "SELECT datetime('now')");
   zDate[10] = 'T';
-  blob_appendf(&manifest, "D %s\n", zDate);
+  blob_appendf(&branch, "D %s\n", zDate);
 
-  db_prepare(&q,
-    "SELECT pathname, uuid FROM vfile JOIN blob ON vfile.mrid=blob.rid"
-    " WHERE NOT deleted AND vfile.vid=%d"
-    " ORDER BY 1", vid);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    blob_appendf(&manifest, "F %F %s\n", zName, zUuid);
+  /* Copy all of the content from the parent into the branch */
+  content_get(rootid, &parent);
+  manifest_parse(&mParent, &parent);
+  if( mParent.type!=CFTYPE_MANIFEST ){
+    fossil_fatal("%s is not a valid check-in", g.argv[4]);
   }
-  db_finalize(&q);
-  
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
-  blob_appendf(&manifest, "P %s\n", zUuid);
-  blob_appendf(&manifest, "R %b\n", &cksum1);
-  
+  for(i=0; i<mParent.nFile; ++i){
+    if( mParent.aFile[i].zPerm[0] ){
+      blob_appendf(&branch, "F %F %s %s\n",
+                   mParent.aFile[i].zName,
+                   mParent.aFile[i].zUuid,
+                   mParent.aFile[i].zPerm);
+    }else{
+      blob_appendf(&branch, "F %F %s\n",
+                   mParent.aFile[i].zName,
+                   mParent.aFile[i].zUuid);
+    }
+  }
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rootid);
+  blob_appendf(&branch, "P %s\n", zUuid);
+  blob_appendf(&branch, "R %s\n", mParent.zRepoCksum);
+  manifest_clear(&mParent);
+
+  /* Add the symbolic branch name and the "newbranch" tag to identify
+  ** this as a new branch */
   if( zColor!=0 ){
-    blob_appendf(&manifest, "T *bgcolor * %F\n", zColor);
-    blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-  }else{
-    blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
+    blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
+  blob_appendf(&branch, "T *sym-%F *\n", zBranch);
+  blob_appendf(&branch, "T +newbranch *\n");
 
-  /* Cancel any tags that propagate */
-  db_prepare(&q, 
-      "SELECT tagname"
-      "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
-      " WHERE rid=%d AND tagtype=2", vid);
+  /* Cancel all other symbolic tags */
+  db_prepare(&q,
+      "SELECT tagname FROM tagxref, tag"
+      " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
+      "   AND tagtype>0 AND tagname GLOB 'sym-*'"
+      " ORDER BY tagname",
+      rootid);
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zTagname = db_column_text(&q, 0);
-    blob_appendf(&manifest, "T -%s *\n", zTagname);
+    const char *zTag = db_column_text(&q, 0);
+    blob_appendf(&branch, "T -%s *\n", zTag);
   }
   db_finalize(&q);
   
-  blob_appendf(&manifest, "U %F\n", g.zLogin);
-  md5sum_blob(&manifest, &mcksum);
-  blob_appendf(&manifest, "Z %b\n", &mcksum);
-  if( !noSign && clearsign(&manifest, &manifest) ){
+  blob_appendf(&branch, "U %F\n", g.zLogin);
+  md5sum_blob(&branch, &mcksum);
+  blob_appendf(&branch, "Z %b\n", &mcksum);
+  if( !noSign && clearsign(&branch, &branch) ){
     Blob ans;
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue [y/N]? ", &ans);
@@ -115,41 +147,29 @@ void branch_new(void){
       exit(1);
     }
   }
-  
-  /*blob_write_to_file(&manifest, "manifest.new");*/
 
-  nvid = content_put(&manifest, 0, 0);
-  if( nvid==0 ){
+  brid = content_put(&branch, 0, 0);
+  if( brid==0 ){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
-  manifest_crosslink(nvid, &manifest);
-  content_deltify(vid, nvid, 0);
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
-  printf("Branch Version: %s\n", zUuid);
-  printf("\n");
-  printf("Notice: working copy not updated to the new branch. If\n");
-  printf("        you wish to work on the new branch, update to\n");
-  printf("        that branch first:\n");
-  printf("\n");
-  printf("        fossil update %s\n", zBranch);
-
-  /* Verify that the manifest checksum matches the expected checksum */
-  vfile_aggregate_checksum_repository(nvid, &cksum2);
-  vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
-  if( blob_compare(&cksum1, &cksum1b) ){
-    fossil_panic("manifest checksum does not agree with manifest: "
-                 "%b versus %b", &cksum1, &cksum1b);
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
+  if( manifest_crosslink(brid, &branch)==0 ){
+    fossil_panic("unable to install new manifest");
   }
-  
-  /* Verify that the commit did not modify any disk images. */
-  vfile_aggregate_checksum_disk(vid, &cksum2);
-  if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksums before and after commit do not match");
+  content_deltify(rootid, brid, 0);
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
+  printf("New branch: %s\n", zUuid);
+  if( g.argc==3 ){
+    printf(
+      "\n"
+      "Note: the local check-out has not been updated to the new\n"
+      "      branch.  To begin working on the new branch, do this:\n"
+      "\n"
+      "      %s update %s\n",
+      g.argv[0], zBranch
+    );
   }
 
-  /* Clear the undo/redo stack */
-  undo_reset();
 
   /* Commit */
   db_end_transaction(0);
@@ -159,17 +179,14 @@ void branch_new(void){
 }
 
 /*
-** NB: The "branch" command is disabled pending further discussion of its
-** purpose and usefulness....
-**
-** COM MAND: branch
+** COMMAND: branch
 **
 ** Usage: %fossil branch SUBCOMMAND ... ?-R|--repository FILE?
 **
 ** Run various subcommands on the branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new ?-bgcolor COLOR? BRANCH-NAME
+**    %fossil branch new BRANCH-NAME ?ROOT-CHECK-IN? ?-bgcolor COLOR? 
 **
 **        Create a new branch BRANCH-NAME. You can optionally give
 **        a commit message and branch color.

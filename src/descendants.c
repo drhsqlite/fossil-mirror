@@ -32,12 +32,40 @@
 /*
 ** Create a temporary table named "leaves" if it does not
 ** already exist.  Load this table with the RID of all
-** versions that are leaves which are decended from
-** version iBase.
+** check-ins that are leaves which are decended from
+** check-in iBase.
+**
+** A "leaf" is a check-in that has no children.  For the purpose
+** of finding leaves, children marked with the "newbranch" tag are
+** not counted as children.  For example:
+**
+**
+**    A -> B -> C -> D
+**          `-> E
+**
+** D and E are clearly leaves since they have no children.  If
+** D has the "newbranch" tag, then C is also a leaf since its only
+** child is marked as a newbranch.
+**
+** The closeMode flag determines behavior associated with the "closed"
+** tag:
+**
+**    closeMode==0       Show all leaves regardless of the "closed" tag.
+**
+**    closeMode==1       Show only leaves without the "closed" tag.
+**
+**    closeMode==2       Show only leaves with the "closed" tag.
+**
+** The default behavior is to ignore closed leaves (closeMode==0).  To
+** Show all leaves, use closeMode==1.  To show only closed leaves, use
+** closeMode==2.
 */
-void compute_leaves(int iBase){
+void compute_leaves(int iBase, int closeMode){
   Bag seen;       /* Descendants seen */
   Bag pending;    /* Unpropagated descendants */
+  Stmt q;         /* Query to find children of a check-in */
+  Stmt isBr;      /* Query to check to see if a check-in starts a new branch */
+  Stmt ins;       /* INSERT statement for a new record */
 
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS leaves("
@@ -47,27 +75,64 @@ void compute_leaves(int iBase){
   );
   bag_init(&seen);
   bag_init(&pending);
+  if( iBase<=0 ){
+    iBase = db_int(0, "SELECT objid FROM event WHERE type='ci'"
+                      " ORDER BY mtime LIMIT 1");
+  }
   bag_insert(&pending, iBase);
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
+  db_prepare(&isBr, 
+     "SELECT 1 FROM tagxref WHERE rid=:rid AND tagid=%d AND tagtype=1",
+     TAG_NEWBRANCH
+  );
+  db_prepare(&ins, "INSERT OR IGNORE INTO leaves VALUES(:rid)");
   while( bag_count(&pending) ){
     int rid = bag_first(&pending);
     int cnt = 0;
-    Stmt q;
     bag_remove(&pending, rid);
-    db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d", rid);
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int cid = db_column_int(&q, 0);
       if( bag_insert(&seen, cid) ){
         bag_insert(&pending, cid);
       }
-      cnt++;
+      db_bind_int(&isBr, ":rid", cid);
+      if( db_step(&isBr)==SQLITE_DONE ){
+        cnt++;
+      }
+      db_reset(&isBr);
     }
-    db_finalize(&q);
+    db_reset(&q);
     if( cnt==0 ){
-      db_multi_exec("INSERT INTO leaves VALUES(%d)", rid);
+      db_bind_int(&ins, ":rid", rid);
+      db_step(&ins);
+      db_reset(&ins);
     }
   }
+  db_finalize(&ins);
+  db_finalize(&isBr);
+  db_finalize(&q);
   bag_clear(&pending);
   bag_clear(&seen);
+  if( closeMode==1 ){
+    db_multi_exec(
+      "DELETE FROM leaves WHERE rid IN"
+      "  (SELECT leaves.rid FROM leaves, tagxref"
+      "    WHERE tagxref.rid=leaves.rid "
+      "      AND tagxref.tagid=%d"
+      "      AND tagxref.tagtype>0)",
+      TAG_CLOSED
+    );
+  }else if( closeMode==2 ){
+    db_multi_exec(
+      "DELETE FROM leaves WHERE rid NOT IN"
+      "  (SELECT leaves.rid FROM leaves, tagxref"
+      "    WHERE tagxref.rid=leaves.rid "
+      "      AND tagxref.tagid=%d"
+      "      AND tagxref.tagtype>0)",
+      TAG_CLOSED
+    );
+  }
 }
 
 /*
@@ -148,7 +213,7 @@ void descendants_cmd(void){
     base = name_to_rid(g.argv[2]);
   }
   if( base==0 ) return;
-  compute_leaves(base);
+  compute_leaves(base, 0);
   db_prepare(&q,
     "%s"
     "   AND event.objid IN (SELECT rid FROM leaves)"
@@ -162,18 +227,22 @@ void descendants_cmd(void){
 /*
 ** COMMAND:  leaves
 **
-** Usage: %fossil leaves
+** Usage: %fossil leaves ?--all? ?--closed?
 **
-** Find leaves of all branches.
+** Find leaves of all branches.  By default show only open leaves.
+** The --all flag causes all leaves (closed and open) to be shown.
+** The --closed flag shows only closed leaves.
 */
-void branches_cmd(void){
+void leaves_cmd(void){
   Stmt q;
+  int showAll = find_option("all", 0, 0)!=0;
+  int showClosed = find_option("closed", 0, 0)!=0;
 
   db_must_be_within_tree();
+  compute_leaves(0, showAll ? 0 : showClosed ? 2 : 1);
   db_prepare(&q,
     "%s"
-    "   AND blob.rid IN"
-    "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
+    "   AND blob.rid IN leaves"
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
@@ -188,16 +257,34 @@ void branches_cmd(void){
 */
 void leaves_page(void){
   Stmt q;
+  int showAll = P("all")!=0;
+  int showClosed = P("closed")!=0;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
 
+  if( !showAll ){
+    style_submenu_element("All", "All", "leaves?all");
+  }
+  if( !showClosed ){
+    style_submenu_element("Closed", "Closed", "leaves?closed");
+  }
+  if( showClosed || showAll ){
+    style_submenu_element("Open", "Open", "leaves");
+  }
   style_header("Leaves");
   login_anonymous_available();
+  compute_leaves(0, showAll ? 0 : showClosed ? 2 : 1);
+  if( showAll ){
+    @ <h1>All leaves, both open and closed</h1>
+  }else if( showClosed ){
+    @ <h1>Closed leaves only</h1>
+  }else{
+    @ <h1>All open leaves</h1>
+  }
   db_prepare(&q,
     "%s"
-    "   AND blob.rid IN"
-    "       (SELECT cid FROM plink EXCEPT SELECT pid FROM plink)"
+    "   AND blob.rid IN leaves"
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
