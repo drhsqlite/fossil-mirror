@@ -252,6 +252,15 @@ void leaves_cmd(void){
 }
 
 /*
+** This routine is called while for each check-in that is rendered by
+** the "leaves" page.  Add some additional hyperlink to show the 
+** ancestors of the leaf.
+*/
+static void leaves_extra(int rid){
+  @ <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">[timeline]</a>
+}
+
+/*
 ** WEBPAGE:  leaves
 **
 ** Find leaves of all branches.
@@ -300,7 +309,7 @@ void leaves_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, 0, 0);
+  www_print_timeline(&q, TIMELINE_LEAFONLY, leaves_extra);
   db_finalize(&q);
   @ <br clear="both">
   @ <script>

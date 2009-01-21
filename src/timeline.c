@@ -100,7 +100,8 @@ int count_nonbranch_children(int pid){
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
-#define TIMELINE_ARTID  0x0001   /* Show artifact IDs on non-check-in lines */
+#define TIMELINE_ARTID    0x0001  /* Show artifact IDs on non-check-in lines */
+#define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
 #endif
 
 /*
@@ -172,14 +173,16 @@ void www_print_timeline(
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
-      if( nParent>1 ){
-        @ <b>Merge</b> 
-      }
-      if( nPChild>1 ){
-        if( count_nonbranch_children(rid)>1 ){
-          @ <b>Fork</b>
-        }else{
-          @ <b>Branch</b>
+      if( (tmFlags & TIMELINE_LEAFONLY)==0 ){
+        if( nParent>1 ){
+          @ <b>Merge</b> 
+        }
+        if( nPChild>1 ){
+          if( count_nonbranch_children(rid)>1 ){
+            @ <b>Fork</b>
+          }else{
+            @ <b>Branch</b>
+          }
         }
       }
       if( isLeaf ){

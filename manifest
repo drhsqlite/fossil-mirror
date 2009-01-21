@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\sthe\stimeline\swhen\sdisplaying\scheck-ins\swith\sa\sgiven\stag.
-D 2009-01-21T18:42:19
+C Add\stimeline\slinks\son\sthe\sleaves\spage.\s\sAlso\son\sthe\sleaves\spage,\sdo\snot\nshow\sMerge\slabels\son\scheck-ins.\s\sThe\ssecond\spart\sis\sthe\sfix\sfor\nticket\s[d6bb26f436d8299f95d63f45fa51c92acdc91c5a].
+D 2009-01-21T18:59:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -43,7 +43,7 @@ F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
-F src/branch.c dc15e48baad15dd0caefedf2b59d290992f41365
+F src/branch.c df727f7105ccf7f976840c96125ae6dd31476b2b
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
 F src/checkin.c daf07ead77e99758a97fe69f1fddf4d0dec7da20
@@ -58,7 +58,7 @@ F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c 47c06ea3d7cdb60cc21043266f0665a100eb2d1f
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendants.c 97b96f70b0f6bd588c9ab349aafc721e3884b97d
+F src/descendants.c 20b63066bd8acc28aa07eee29aecdbed31e5c406
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
@@ -101,7 +101,7 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c fed5b9a0d2d2d6ec802740e49315fc39ee5be999
+F src/timeline.c 59fa308491dda88ac02e4c107f49e6df56d47e3b
 F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
 F src/tktsetup.c 80638298360f2b0611d3f6070f0b1dede1341a39
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 54e7410c2ad6a2e2f7a74cc4e7eb7542d48d9859
-R 28819e000e6b9e57c121721d3486b7c0
+P e631d8af6d653275aa8c99b82daf783aae426f01
+R 7ac4573c081ab9c4153f055fce046e94
 U drh
-Z cb01c471b51354e18cf96b250ee4c7b4
+Z 086864ed77ddd15830948cf4f6d58a5a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJd2yOoxKgR168RlERAkGYAJ9/fJU9NMcJX/XlYLKFlDJYWW+BAgCeMuOM
-kdV0GnbrThGCQJ/rXjm9gJc=
-=2mfB
+iD8DBQFJd3CDoxKgR168RlERAgz4AJ9+8py+ri61BTaLhhsRBeI27wkGKgCffnuU
+jvQzXtTrjfpymnS2Jmpc3H0=
+=2m3h
 -----END PGP SIGNATURE-----

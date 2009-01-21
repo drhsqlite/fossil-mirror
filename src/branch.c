@@ -232,7 +232,7 @@ static void brlist_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ [<a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">%h(zTagName)</a>]
+    @ <a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">[timeline]</a>
   }
   db_finalize(&q);
 }
