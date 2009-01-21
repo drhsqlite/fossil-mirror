@@ -201,10 +201,14 @@ void www_print_timeline(
     }
     blob_reset(&comment);
     if( zTagList && zTagList[0] ){
-      @ (user: %h(zUser), tags: %h(zTagList))</td></tr>
+      @ (user: %h(zUser), tags: %h(zTagList))
     }else{
-      @ (user: %h(zUser))</td></tr>
+      @ (user: %h(zUser))
     }
+    if( xExtra ){
+      xExtra(rid);
+    }
+    @ </td></tr>
   }
   @ </table>
 }

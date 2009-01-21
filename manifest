@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Throw\san\serror\swhen\sthe\s"fossil\stag\sadd"\scommand\sspecifies\sa\sCHECK-IN\sthat\ndoes\snot\sexist.
-D 2009-01-21T03:21:30
+C After\seach\sitem\sof\sthe\sbranch\slist,\sgive\sa\shyperlink\sto\sthe\stimeline\sthat\nshows\sall\scheck-ins\swith\sthe\sbranch\stag.
+D 2009-01-21T03:34:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -43,7 +43,7 @@ F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
-F src/branch.c dc5b99a3215e377aaabcd71f9ee264eac4f05502
+F src/branch.c ccb39ffef0d2a44d52b2656c6aeff39b815e6149
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
 F src/checkin.c daf07ead77e99758a97fe69f1fddf4d0dec7da20
@@ -101,7 +101,7 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 300c2cb82480cf131e3180f98ab1ba80e9ffb2fd
+F src/timeline.c a47960c40ee46b9b8a264e040c2934dc3a6046cf
 F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
 F src/tktsetup.c 80638298360f2b0611d3f6070f0b1dede1341a39
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 8d5ab7913e4d06e074a6769079b6d16a343eef07
-R 4b48a120bda9445c7df8e7c4b57336c5
+P 8b2dd0573449e9d108d64d56203b713a575f2498
+R 4f25528d4e6d0664b85c04323e330fb8
 U drh
-Z 79a2476d03c76b75fa1d7650a7c44ab6
+Z 9e180cf30b0fead618391e30b1a0c6ce
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdpS9oxKgR168RlERAgMvAJ9CJvmL4nOmLVF0AjPhcMaHsLAo9wCfUVi3
-SbbydUvu+3lQcKhSm5JC8tg=
-=DDXU
+iD8DBQFJdpfRoxKgR168RlERAoVNAJ97Z0xw0CKz1iUrjdzz0DtHW8jqBACgjItS
+vy9EN/CP7krgThH4H9cxIN4=
+=uI9F
 -----END PGP SIGNATURE-----

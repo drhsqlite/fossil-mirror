@@ -216,6 +216,29 @@ void branch_cmd(void){
 }
 
 /*
+** This routine is called while for each check-in that is rendered by
+** the timeline of a "brlist" page.  Add some additional hyperlinks
+** to the end of the line.
+*/
+static void brlist_extra(int rid){
+  Stmt q;
+  db_prepare(&q, 
+    "SELECT tagname, tagxref.tagid FROM tagxref, tag"
+    " WHERE tagxref.rid=%d"
+    "   AND tagxref.tagid=tag.tagid"
+    "   AND tagxref.tagtype>0"
+    "   AND tag.tagname GLOB 'sym-*'",
+    rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTagName = db_column_text(&q, 0);
+    int tagid = db_column_int(&q, 1);
+    @ [<a href="%s(g.zBaseURL)/timeline?t=%d(tagid)">%h(&zTagName[4])</a>]
+  }
+  db_finalize(&q);
+}
+
+/*
 ** WEBPAGE: brlist
 **
 ** Show a timeline of all branches
@@ -228,12 +251,13 @@ void brlist_page(void){
 
   style_header("Branches");
   login_anonymous_available();
+  @ <h2>The initial check-in for each branch:</h2>
   db_prepare(&q,
     "%s AND blob.rid IN (SELECT rid FROM tagxref WHERE tagtype>0 AND tagid=%d)"
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_NEWBRANCH
   );
-  www_print_timeline(&q, 0, 0);
+  www_print_timeline(&q, 0, brlist_extra);
   db_finalize(&q);
   @ <br clear="both">
   @ <script>
