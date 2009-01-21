@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\san\sSQL\ssyntax\serror\sin\sthe\scommit\slogic\sintroduced\sby\ncheck-in\s[b6e22e62cf26115617822c7940cec5d0dc687184].
-D 2009-01-21T00:05:35
+C The\stimeline\scorrectly\sshows\sas\sa\sleaf\sa\scheck-in\swhose\sonly\schildren\nare\sseparate\sbranches.
+D 2009-01-21T01:06:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -101,7 +101,7 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 73a9d3ab6c55d38eebb9c8ef34b4b4350fa0c25c
+F src/timeline.c 9af5050c9a575206e040bbd195fe79eff48feb4b
 F src/tkt.c 06fa0eeb8481f129e5c641b4e98398aae2660c4b
 F src/tktsetup.c 80638298360f2b0611d3f6070f0b1dede1341a39
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P bf7ca1a4d8ce33c852164c9105fa35c3e8c81339
-R fe14d61edd498f00afc61156f01c45df
+P f6d507179ef14a961cb161803f26509199e28a8d
+R 2dd3843d8b30a06fa2fb4ee4f46408e4
 U drh
-Z d2b3af10e38fedc8dcdfdbd4868bb993
+Z 81aec4ac5736a90709ede25e1bcc8f92
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdmbSoxKgR168RlERAr79AJ9nR/QKH/uVybxwHMgV/DRX8x7AAwCgirQE
-6NTl8bGvyWSlcfKL14WcOAc=
-=dkse
+iD8DBQFJdnUboxKgR168RlERArUJAJ0TIBRFfWJWXedjsHNcSOt84t5zVACfWwSt
+njgAcfnVMKe6DGaiTlmvv+c=
+=8H7B
 -----END PGP SIGNATURE-----

@@ -236,7 +236,11 @@ const char *timeline_query_for_www(void){
     @   coalesce(euser, user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
-    @   NOT EXISTS (SELECT 1 FROM plink WHERE pid=blob.rid),
+    @   0==(SELECT count(*) FROM plink
+    @     WHERE pid=blob.rid AND NOT EXISTS(
+    @       SELECT 1 FROM tagxref
+    @        WHERE tagid=(SELECT tagid FROM tag WHERE tagname='newbranch')
+    @          AND rid=plink.cid AND tagtype>0)),
     @   bgcolor,
     @   event.type,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
