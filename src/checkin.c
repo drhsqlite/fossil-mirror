@@ -646,7 +646,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   autosync(AUTOSYNC_PUSH);  
-  if( db_exists("SELECT 1 FROM plink WHERE pid=%d AND cid!=%d", vid, nvid) ){
+  if( count_nonbranch_children(vid)>1 ){
     printf("**** warning: a fork has occurred *****\n");
   }
 }

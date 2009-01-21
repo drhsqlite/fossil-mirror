@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C In\sthe\stimeline,\scontinue\sto\sshow\sthe\sof\sa\sbranch\sas\sa\s"Leaf"\seven\safter\nthe\sbranch\shas\sbeen\smerged\sinto\ssome\sother\sline.
-D 2009-01-21T03:04:10
+C Do\snot\sprint\sa\swarning\sabout\s"a\sfork\shas\soccurred"\swhen\schecking\sin\sto\na\sleaf\sthat\sis\salso\sthe\sbasis\sof\sa\sbranch.
+D 2009-01-21T03:12:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -46,7 +46,7 @@ F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c dc5b99a3215e377aaabcd71f9ee264eac4f05502
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
-F src/checkin.c e3023f8a1f02a977f73de2e611b6265249d83924
+F src/checkin.c daf07ead77e99758a97fe69f1fddf4d0dec7da20
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c bf4ca8abfdd8b2560d3712eb209d27cf9a908821
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 2521a0a9a704b41543f204e92e6837314cf622aa
-R 0f0791df4286a81236cf3e71e9a8976e
+P ba6687f2423d5388b9de8638408347309b30810e
+R ba2d7c10d4bf8efea650592a6afcc985
 U drh
-Z 88999b5c828806c1dffeb299787a0590
+Z e4ca89373519c28ce9016dfbb37fa0d8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdpCtoxKgR168RlERArjIAJ9wg4xc/q7mGudmLMVJVBrkESApmwCfTd4i
-FlhkMQhb8/q6/im6ZK7gVYY=
-=BREF
+iD8DBQFJdpKRoxKgR168RlERAg77AJ9sFkvfzjLuo0F2sEkLukX2VZh+rQCfYHjQ
+rmdHCE1rVQU9KEGeYuEWcDM=
+=LYpn
 -----END PGP SIGNATURE-----
