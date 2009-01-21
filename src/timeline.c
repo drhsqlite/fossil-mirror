@@ -308,17 +308,23 @@ void page_timeline(void){
   int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
   int p_rid = atoi(PD("p","0"));     /* artifact p and its parents */
   int d_rid = atoi(PD("d","0"));     /* artifact d and its descendants */
-  int tagid = atoi(PD("t","0"));     /* Show checkins of a given tag */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
+  const char *zTagName = P("t");     /* Show events with this tag */
   HQuery url;                        /* URL for various branch links */
+  int tagid;                         /* Tag ID */
 
   /* To view the timeline, must have permission to read project data.
   */
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
+  if( zTagName ){
+    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
+  }else{
+    tagid = 0;
+  }
 
   style_header("Timeline");
   login_anonymous_available();
@@ -364,18 +370,6 @@ void page_timeline(void){
     }else{
       blob_appendf(&desc, " of [%.10s]", zUuid);
     }
-  }else if( tagid>0 ){
-    /* If t= is present, ignore all other parameters.  Show everything
-    ** with that tag. */
-    blob_appendf(&sql, " AND event.type='ci'");
-    blob_appendf(&sql, " AND EXISTS (SELECT 1 FROM tagxref WHERE tagid=%d"
-                                      " AND tagtype>0 AND rid=blob.rid)",
-                 tagid);
-    db_multi_exec("%s", blob_str(&sql));
-    blob_appendf(&desc, "All check-ins tagged with \"%h\"",
-       db_text("??", "SELECT substr(tagname,5) FROM tag WHERE tagid=%d",
-               tagid)
-    );
   }else{
     int n;
     const char *zEType = "event";
@@ -383,6 +377,13 @@ void page_timeline(void){
     char *zNEntry = mprintf("%d", nEntry);
     url_initialize(&url, "timeline");
     url_add_parameter(&url, "n", zNEntry);
+    if( tagid>0 ){
+      zType = "ci";
+      url_add_parameter(&url, "t", zTagName);
+      blob_appendf(&sql, " AND EXISTS (SELECT 1 FROM tagxref WHERE tagid=%d"
+                                        " AND tagtype>0 AND rid=blob.rid)",
+                   tagid);
+    }    
     if( zType[0]!='a' ){
       blob_appendf(&sql, " AND event.type=%Q", zType);
       url_add_parameter(&url, "y", zType);
@@ -437,6 +438,9 @@ void page_timeline(void){
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
     }
+    if( tagid>0 ){
+      blob_appendf(&desc, " tagged with \"%h\"", zTagName);
+    }
     if( zAfter ){
       blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
     }else if( zBefore ){
@@ -452,7 +456,7 @@ void page_timeline(void){
         zDate = db_text(0, "SELECT max(timestamp) FROM timeline");
         timeline_submenu(&url, "Newer", "a", zDate, "b");
         free(zDate);
-      }else{
+      }else if( tagid==0 ){
         if( zType[0]!='a' ){
           timeline_submenu(&url, "All Types", "y", "all", 0);
         }

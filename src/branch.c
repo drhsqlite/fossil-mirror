@@ -223,7 +223,7 @@ void branch_cmd(void){
 static void brlist_extra(int rid){
   Stmt q;
   db_prepare(&q, 
-    "SELECT tagname, tagxref.tagid FROM tagxref, tag"
+    "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
     "   AND tagxref.tagid=tag.tagid"
     "   AND tagxref.tagtype>0"
@@ -232,8 +232,7 @@ static void brlist_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    int tagid = db_column_int(&q, 1);
-    @ [<a href="%s(g.zBaseURL)/timeline?t=%d(tagid)">%h(&zTagName[4])</a>]
+    @ [<a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">%h(zTagName)</a>]
   }
   db_finalize(&q);
 }

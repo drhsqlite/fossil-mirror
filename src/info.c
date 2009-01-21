@@ -387,14 +387,13 @@ void vinfo_page(void){
       @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendants</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)&p=%d(rid)">both</a>
-      db_prepare(&q, "SELECT tag.tagid, tag.tagname FROM tagxref, tag "
+      db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
       while( db_step(&q)==SQLITE_ROW ){
-        int tagid = db_column_int(&q, 0);
-        const char *zTagName = db_column_text(&q, 1);
-        @  | <a href="%s(g.zBaseURL)/timeline?t=%d(tagid)">%h(&zTagName[4])</a>
+        const char *zTagName = db_column_text(&q, 0);
+        @  | <a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">%h(zTagName)</a>
       }
       db_finalize(&q);
       @ </td></tr>
