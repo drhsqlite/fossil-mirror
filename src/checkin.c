@@ -356,7 +356,7 @@ int is_a_leaf(int rid){
   return !db_exists(
     "SELECT 1 FROM plink"
     " WHERE pid=%d"
-      " AND NOT EXIST("
+      " AND NOT EXISTS("
                      "SELECT 1 FROM tagxref"
                      " WHERE tagxref.rid=plink.cid"
                      "   AND tagxref.tagid=%d"

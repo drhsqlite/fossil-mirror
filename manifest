@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sthe\spage\sheader\sfrom\sBaseline\sto\sCheck-in\son\sthe\s"vinfo"\spage.\nFix\sa\sbug\sintroduced\sinto\stagview\s\n(ticket\s[309c57b3d27219fa6ad601c0021dc067a7cb992d]).
-D 2009-01-20T23:47:47
+C Fix\san\sSQL\ssyntax\serror\sin\sthe\scommit\slogic\sintroduced\sby\ncheck-in\s[b6e22e62cf26115617822c7940cec5d0dc687184].
+D 2009-01-21T00:05:35
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -46,7 +46,7 @@ F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 124ac5fc7f9dbb2482207247c212010ba1bc74e8
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
-F src/checkin.c 58cd8b89db4c44f40986ce9f1b563f1895632549
+F src/checkin.c e3023f8a1f02a977f73de2e611b6265249d83924
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c bf4ca8abfdd8b2560d3712eb209d27cf9a908821
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P fecb3e5cc90bf751160b0c6140da725a48f2a802
-R 6bbeb4d0430ab8203398baa7a0b40430
+P bf7ca1a4d8ce33c852164c9105fa35c3e8c81339
+R fe14d61edd498f00afc61156f01c45df
 U drh
-Z c3f9f3a59a8df4e1493ceb9a646f6699
+Z d2b3af10e38fedc8dcdfdbd4868bb993
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD4DBQFJdmKmoxKgR168RlERAutuAJ9rJvXtyFuPnFqg7F6/UCOgZf8MUACXa/t8
-lInk7oNY6+MTrRy8fd7qYA==
-=MY11
+iD8DBQFJdmbSoxKgR168RlERAr79AJ9nR/QKH/uVybxwHMgV/DRX8x7AAwCgirQE
+6NTl8bGvyWSlcfKL14WcOAc=
+=dkse
 -----END PGP SIGNATURE-----
