@@ -185,7 +185,7 @@ void tagview_print_timeline(char const *zName, char const *zPrefix){
   );
   db_prepare(&q, zSql);
   free(zSql);
-  www_print_timeline(&q);
+  www_print_timeline(&q, 0, 0);
   db_finalize(&q);
 }
 

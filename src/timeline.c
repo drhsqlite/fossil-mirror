@@ -97,6 +97,13 @@ int count_nonbranch_children(int pid){
 }
 
 /*
+** Allowed flags for the tmFlags argument to www_print_timeline
+*/
+#if INTERFACE
+#define TIMELINE_ARTID  0x0001   /* Show artifact IDs on non-check-in lines */
+#endif
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -113,7 +120,9 @@ int count_nonbranch_children(int pid){
 **   10.  list of symbolic tags.
 */
 void www_print_timeline(
-  Stmt *pQuery          /* Query to implement the timeline */
+  Stmt *pQuery,          /* Query to implement the timeline */
+  int tmFlags,           /* Flags controlling display behavior */
+  void (*xExtra)(int)    /* Routine to call on each line of display */
 ){
   int wikiFlags;
   int mxWikiLen;
@@ -176,7 +185,7 @@ void www_print_timeline(
       if( isLeaf ){
         @ <b>Leaf</b>
       }
-    }else{
+    }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }
     db_column_blob(pQuery, 3, &comment);
@@ -465,7 +474,7 @@ void page_timeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
-  www_print_timeline(&q);
+  www_print_timeline(&q, 0, 0);
   db_finalize(&q);
 
   @ <script>

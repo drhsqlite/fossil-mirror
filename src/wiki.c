@@ -486,7 +486,7 @@ void whistory_page(void){
                  timeline_query_for_www(), zPageName);
   db_prepare(&q, zSQL);
   free(zSQL);
-  www_print_timeline(&q);
+  www_print_timeline(&q, TIMELINE_ARTID, 0);
   db_finalize(&q);
   style_footer();
 }
