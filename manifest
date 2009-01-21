@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\ssym-trunk\sand\snewbranch\stags\sto\sthe\sroot\scheck-in\swhen\srebuilding.\nAlso\sadd\sthe\snewbranch\stag\sto\sthe\sroot\scheck-in\swhen\screating\sa\snew\nrepository.
-D 2009-01-21T02:47:42
+C The\s"fossil\sinfo"\scommand\snow\sshows\stags\sassociated\swith\sthe\scurrent\scheck-out.
+D 2009-01-21T02:54:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,7 +65,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c 34fba006b8c75cbf0e81bf4401e2172daff3d7df
+F src/info.c 0a7e3b6c335bdd1b8390e344c2a45bee156281ce
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 0139767b9a9a865e9b3ee0fe7c1b6b9b1f998627
-R a53230e4746ac2b7f381176840fbf91b
+P 7c7edde1169340698ada867fcd31df6b11ad4d55
+R a4fecc3661811a36a900b03f4a4f2d27
 U drh
-Z 4a5d83a7b826a638c4abfb07af083835
+Z b74594d1a2306c99dc56d2abace54170
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdozRoxKgR168RlERAo5xAKCJhvkwddzZjONH4/ZufhOuYDwhpgCggd6Z
-AwHoUld2L77DKTA0vvfXUBY=
-=EJpv
+iD8DBQFJdo5NoxKgR168RlERAsGnAJ0fMqyKWaVBLQqWvnWlVPqtKTAf1ACfYT4W
+Y8EsaQfHPl1nHEsX0b6wYxM=
+=f28g
 -----END PGP SIGNATURE-----

@@ -41,6 +41,7 @@
 void show_common_info(int rid, const char *zUuidName, int showComment){
   Stmt q;
   char *zComment = 0;
+  char *zTags;
   db_prepare(&q,
     "SELECT uuid"
     "  FROM blob WHERE rid=%d", rid
@@ -64,6 +65,16 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
     printf("child:        %s\n", zUuid);
   }
   db_finalize(&q);
+  zTags = db_text(0, "SELECT group_concat(substr(tagname, 5), ', ')"
+                     "  FROM tagxref, tag"
+                     " WHERE tagxref.rid=%d AND tagxref.tagtype>0"
+                     "   AND tag.tagid=tagxref.tagid"
+                     "   AND tag.tagname GLOB 'sym-*'",
+                     rid);
+  if( zTags && zTags[0] ){
+    printf("tags:         %s\n", zTags);
+  }
+  free(zTags);
   if( zComment ){
     printf("comment:\n%s\n", zComment);
     free(zComment);
