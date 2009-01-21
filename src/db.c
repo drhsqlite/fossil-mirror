@@ -942,6 +942,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
     md5sum_init();
     blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
     blob_appendf(&manifest, "T *sym-trunk *\n");
+    blob_appendf(&manifest, "T +newbranch *\n");
     blob_appendf(&manifest, "U %F\n", g.zLogin);
     md5sum_blob(&manifest, &hash);
     blob_appendf(&manifest, "Z %b\n", &hash);

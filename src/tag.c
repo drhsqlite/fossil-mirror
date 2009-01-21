@@ -248,7 +248,7 @@ void testtag_cmd(void){
 ** Add a control record to the repository that either creates
 ** or cancels a tag.
 */
-static void tag_add_artifact(
+void tag_add_artifact(
   const char *zPrefix,        /* Prefix to prepend to tag name */
   const char *zTagname,       /* The tag to add or cancel */
   const char *zObjName,       /* Name of object attached to */
@@ -295,13 +295,8 @@ static void tag_add_artifact(
   blob_appendf(&ctrl, "U %F\n", g.zLogin);
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
-  db_begin_transaction();
   nrid = content_put(&ctrl, 0, 0);
   manifest_crosslink(nrid, &ctrl);
-  db_end_transaction(0);
-  
-  /* Do an autosync push if requested */
-  autosync(AUTOSYNC_PUSH);
 }
 
 /*
@@ -372,7 +367,9 @@ void tag_cmd(void){
       usage("add ?--raw? ?--propagate? TAGNAME CHECK-IN ?VALUE?");
     }
     zValue = g.argc==6 ? g.argv[5] : 0;
+    db_begin_transaction();
     tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue, 1+fPropagate);
+    db_end_transaction(0);
   }else
 
   if( strncmp(g.argv[2],"branch",n)==0 ){
@@ -384,7 +381,9 @@ void tag_cmd(void){
     if( g.argc!=5 ){
       usage("cancel ?--raw? TAGNAME CHECK-IN");
     }
+    db_begin_transaction();
     tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, 0);
+    db_end_transaction(0);
   }else
 
   if( strncmp(g.argv[2],"find",n)==0 ){

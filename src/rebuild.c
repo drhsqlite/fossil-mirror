@@ -168,6 +168,38 @@ static void rebuild_step(int rid, int size, Blob *pBase){
 }
 
 /*
+** Check to see if the the "sym-trunk" tag exists.  If not, create it
+** and attach it to the very first check-in.
+*/
+static void rebuild_tag_trunk(void){
+  int tagid = db_int(0, "SELECT 1 FROM tag WHERE tagname='sym-trunk'");
+  int rid;
+  char *zUuid;
+  Stmt q;
+
+  if( tagid>0 ) return;
+  rid = db_int(0, "SELECT pid FROM plink AS x WHERE NOT EXISTS("
+                  "  SELECT 1 FROM plink WHERE cid=x.pid)");
+  if( rid==0 ) return;
+  db_prepare(&q, "SELECT uuid FROM tagxref, blob"
+                 " WHERE tagid=%d AND tagtype>0 AND blob.rid=tagxref.rid",
+                 TAG_NEWBRANCH);
+
+  /* Block the trunk tag at all branches */
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *z = db_column_text(&q, 0);
+    tag_add_artifact("sym-", "trunk", z, 0, 0);
+  }
+  db_finalize(&q);
+
+  /* Add the trunk tag to the root of the whole tree */
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( zUuid==0 ) return;
+  tag_add_artifact("sym-", "trunk", zUuid, 0, 2);
+  tag_add_artifact("", "newbranch", zUuid, 0, 1);
+}
+
+/*
 ** Core function to rebuild the infomration in the derived tables of a
 ** fossil repository from the blobs. This function is shared between
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
@@ -250,6 +282,7 @@ int rebuild_db(int randomize, int doOut){
     }
   }
   db_finalize(&s);
+  rebuild_tag_trunk();
   if( ttyOutput ){
     printf("\n");
   }
