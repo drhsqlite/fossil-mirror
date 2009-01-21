@@ -271,20 +271,21 @@ static void showTags(int rid, const char *zNotGlob){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
-    "SELECT tag.tagid, tagname, srcid, blob.uuid, value,"
-    "       datetime(tagxref.mtime,'localtime'), tagtype"
+    "SELECT tag.tagid, tagname, "
+    "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
+    "       value, datetime(tagxref.mtime,'localtime'), tagtype,"
+    "       (SELECT uuid FROM blob WHERE rid=tagxref.origid)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
-    "       LEFT JOIN blob ON blob.rid=tagxref.srcid"
     " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
-    " ORDER BY tagname", rid, zNotGlob
+    " ORDER BY tagname", rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
-    int srcid = db_column_int(&q, 2);
-    const char *zUuid = db_column_text(&q, 3);
-    const char *zValue = db_column_text(&q, 4);
-    const char *zDate = db_column_text(&q, 5);
-    int tagtype = db_column_int(&q, 6);
+    const char *zSrcUuid = db_column_text(&q, 2);
+    const char *zValue = db_column_text(&q, 3);
+    const char *zDate = db_column_text(&q, 4);
+    int tagtype = db_column_int(&q, 5);
+    const char *zOrigUuid = db_column_text(&q, 6);
     cnt++;
     if( cnt==1 ){
       @ <div class="section">Tags And Properties</div>
@@ -292,20 +293,27 @@ static void showTags(int rid, const char *zNotGlob){
     }
     @ <li>
     @ <b>%h(zTagname)</b>
-    if( zValue ){
+    if( tagtype==0 ){
+      @ <i>cancelled.
+    }else if( zValue ){
       @ = %h(zValue)<i>
-    }else if( tagtype==0 ){
-      @ <i>Cancelled
-    }else{
+    }else {
       @ <i>
     }
-    if( srcid==0 ){
-      @ Inherited
-    }else if( zUuid ){
-      @ From
-      hyperlink_to_uuid(zUuid);
+    if( tagtype==2 ){
+      if( zOrigUuid && zOrigUuid[0] ){
+        @ inherited from
+        hyperlink_to_uuid(zOrigUuid);
+      }else{
+        @ propagates to descendants
+      }
     }
-    @ on %s(zDate)</i>
+    if( zSrcUuid && zSrcUuid[0] ){
+      @ added by
+      hyperlink_to_uuid(zSrcUuid);
+      @ on %s(zDate)
+    }
+    @ </i>
   }
   db_finalize(&q);
   if( cnt ){

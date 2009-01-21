@@ -41,6 +41,7 @@ void tag_propagate(
   int pid,             /* Propagate the tag to children of this node */
   int tagid,           /* Tag to propagate */
   int tagType,         /* 2 for a propagating tag.  0 for an antitag */
+  int origId,          /* Artifact of tag, when tagType==2 */
   const char *zValue,  /* Value of the tag.  Might be NULL */
   double mtime         /* Timestamp on the tag */
 ){
@@ -60,9 +61,9 @@ void tag_propagate(
   db_bind_double(&s, ":mtime", mtime);
   if( tagType==2 ){
     db_prepare(&ins,
-       "REPLACE INTO tagxref(tagid, tagtype, srcid, value, mtime, rid)"
-       "VALUES(%d,2,0,%Q,:mtime,:rid)",
-       tagid, zValue
+       "REPLACE INTO tagxref(tagid, tagtype, srcid, origid, value, mtime, rid)"
+       "VALUES(%d,2,0,%d,%Q,:mtime,:rid)",
+       tagid, origId, zValue
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
@@ -110,7 +111,7 @@ void tag_propagate(
 void tag_propagate_all(int pid){
   Stmt q;
   db_prepare(&q,
-     "SELECT tagid, tagtype, mtime, value FROM tagxref"
+     "SELECT tagid, tagtype, mtime, value, origid FROM tagxref"
      " WHERE rid=%d"
      "   AND (tagtype=0 OR tagtype=2)",
      pid
@@ -120,7 +121,8 @@ void tag_propagate_all(int pid){
     int tagtype = db_column_int(&q, 1);
     double mtime = db_column_double(&q, 2);
     const char *zValue = db_column_text(&q, 3);
-    tag_propagate(pid, tagid, tagtype, zValue, mtime);
+    int origid = db_column_int(&q, 4);
+    tag_propagate(pid, tagid, tagtype, origid, zValue, mtime);
   }
   db_finalize(&q);
 }
@@ -144,7 +146,7 @@ int tag_findid(const char *zTag, int createFlag){
 */
 void tag_insert(
   const char *zTag,        /* Name of the tag (w/o the "+" or "-" prefix */
-  int tagtype,             /* 0:cancel  1:singleton  2:propagated -1:erase */
+  int tagtype,             /* 0:cancel  1:singleton  2:propagated */
   const char *zValue,      /* Value if the tag is really a property */
   int srcId,               /* Artifact that contains this tag */
   double mtime,            /* Timestamp.  Use default if <=0.0 */
@@ -171,10 +173,6 @@ void tag_insert(
   if( rc==SQLITE_ROW ){
     /* Another entry that is more recent already exists.  Do nothing */
     return;
-  }
-  if( tagtype<0 ){
-    return;
-    /* TBD: erase tags */
   }
   db_prepare(&s, 
     "REPLACE INTO tagxref(tagid,tagtype,srcId,value,mtime,rid)"
@@ -206,7 +204,7 @@ void tag_insert(
     db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
   }
   if( tagtype==0 || tagtype==2 ){
-    tag_propagate(rid, tagid, tagtype, zValue, mtime);
+    tag_propagate(rid, tagid, tagtype, rid, zValue, mtime);
   }
 }
 

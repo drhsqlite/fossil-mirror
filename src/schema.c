@@ -292,10 +292,11 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE tagxref(
 @   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
 @   tagtype INTEGER,                -- 0:cancel  1:single  2:branch
-@   srcid INTEGER REFERENCES blob,  -- Origin of the tag. 0 for propagated tags
+@   srcid INTEGER REFERENCES blob,  -- Artifact of tag. 0 for propagated tags
+@   origid INTEGER REFERENCES blob, -- check-in holding propagated tag
 @   value TEXT,                     -- Value of the tag.  Might be NULL.
 @   mtime TIMESTAMP,                -- Time of addition or removal
-@   rid INTEGER REFERENCE blob,     -- Baseline that tag added/removed from
+@   rid INTEGER REFERENCE blob,     -- Artifact tag is applied to
 @   UNIQUE(rid, tagid)
 @ );
 @ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);

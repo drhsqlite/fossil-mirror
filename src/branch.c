@@ -267,3 +267,37 @@ void brlist_page(void){
   @ </script>
   style_footer();
 }
+
+/*
+** WEBPAGE: symtaglist
+**
+** Show a timeline of all check-ins that have a primary symbolic tag.
+*/
+void symtaglist_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
+  style_header("Tagged Check-ins");
+  login_anonymous_available();
+  @ <h2>Check-ins that have one or more primary symbolic tags</h2>
+  db_prepare(&q,
+    "%s AND blob.rid IN (SELECT rid FROM tagxref"
+    "                     WHERE tagtype>1 AND srcid>0"
+    "                       AND tagid IN (SELECT tagid FROM tag "
+    "                                      WHERE tagname GLOB 'sym-*'))"
+    " ORDER BY event.mtime DESC",
+    timeline_query_for_www(), TAG_NEWBRANCH
+  );
+  www_print_timeline(&q, 0, 0);
+  db_finalize(&q);
+  @ <br clear="both">
+  @ <script>
+  @ function xin(id){
+  @ }
+  @ function xout(id){
+  @ }
+  @ </script>
+  style_footer();
+}
