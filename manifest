@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sthe\s"leaves"\spage\swhen\sthe\srepository\sis\sempty.\nBegin\sadding\ssupport\sfor\sthe\sability\sto\serase\stags.
-D 2009-01-21T13:50:11
+C New\scolor\schoices\son\sthe\sbackground\scolor\seditor.
+D 2009-01-21T17:52:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,7 +65,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c 0a7e3b6c335bdd1b8390e344c2a45bee156281ce
+F src/info.c f65e70f125c43b40131b7c9521a5a791c3c5fd1a
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P bdcac6293748bd3fe9458e653d51d6affd3595ae
-R a083c4c7179017749ffa719b3694f623
+P 432d4391b9b64e3cc556832db60d5c51fc24e98b
+R 26d15a4dece14136bc5249dab6e1e9f8
 U drh
-Z 85c92a64dfdfe4494c46cbfcc81c2612
+Z f6d415c7f86d57caacf298cb96c2dfa9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdyggoxKgR168RlERAl4oAJ43NHjvMA0PvXBrOFU6LvSYEfQv/wCfQKSF
-PZt0C0AkQY76OoM4bJE5xZQ=
-=gr3i
+iD8DBQFJd2DGoxKgR168RlERAoGkAJ0UKjVROYGG4w+bXe01au8h2OV8vACfR5+g
+9IDauwggm9bRnckHJ80DDVo=
+=kXmT
 -----END PGP SIGNATURE-----

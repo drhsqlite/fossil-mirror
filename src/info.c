@@ -1164,6 +1164,9 @@ void vedit_page(void){
      const char *zColor;
   } aColor[] = {
      { "(none)",  "" },
+     { "#f2dcdc", "#f2dcdc" },
+     { "#f0ffc0", "#f0ffc0" },
+     { "#bde5d6", "#bde5d6" },
      { "#c0ffc0", "#c0ffc0" },
      { "#c0fff0", "#c0fff0" },
      { "#c0f0ff", "#c0f0ff" },
@@ -1171,7 +1174,6 @@ void vedit_page(void){
      { "#ffc0ff", "#ffc0ff" },
      { "#ffc0d0", "#ffc0d0" },
      { "#fff0c0", "#fff0c0" },
-     { "#f0ffc0", "#f0ffc0" },
      { "#c0c0c0", "#c0c0c0" },
   };
   int i;
