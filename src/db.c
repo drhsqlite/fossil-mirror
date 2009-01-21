@@ -933,6 +933,7 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   user_select();
 
   if (makeInitialVersion){
+    int rid;
     blob_zero(&manifest);
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
     zDate = db_text(0, "SELECT datetime('now')");
@@ -947,7 +948,8 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
     md5sum_blob(&manifest, &hash);
     blob_appendf(&manifest, "Z %b\n", &hash);
     blob_reset(&hash);
-    content_put(&manifest, 0, 0);
+    rid = content_put(&manifest, 0, 0);
+    manifest_crosslink(rid, &manifest);
   }
 }
 

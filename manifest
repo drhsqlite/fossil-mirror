@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C New\scolor\schoices\son\sthe\sbackground\scolor\seditor.
-D 2009-01-21T17:52:02
+C Make\ssure\sthe\sinitial\sempty\scheck-in\sshows\sup\sin\sthe\stimeline\sand\sbranch\nlists\sof\snewly\screated\srepositories.
+D 2009-01-21T18:12:11
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -55,7 +55,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 7c76208342489537f2ff0a3ef856ac45b3991939
+F src/db.c 47c06ea3d7cdb60cc21043266f0665a100eb2d1f
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 97b96f70b0f6bd588c9ab349aafc721e3884b97d
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 432d4391b9b64e3cc556832db60d5c51fc24e98b
-R 26d15a4dece14136bc5249dab6e1e9f8
+P 9c256a46b7b5533aec58b700de548df65066e2f0
+R a0bf3a6645fcf0b556f66c749c1e8026
 U drh
-Z f6d415c7f86d57caacf298cb96c2dfa9
+Z 4784fac794967447eff2b0ba10e31b3a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJd2DGoxKgR168RlERAoGkAJ0UKjVROYGG4w+bXe01au8h2OV8vACfR5+g
-9IDauwggm9bRnckHJ80DDVo=
-=kXmT
+iD8DBQFJd2V/oxKgR168RlERAhQ4AJ0SonwZ+n0zQwi0VgjZyF6uMNInuACgiBTS
+kSUg9VspApYt7ACfvQFCYWE=
+=PBG0
 -----END PGP SIGNATURE-----
