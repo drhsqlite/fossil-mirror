@@ -503,7 +503,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
           goto manifest_syntax_error;
         }
         defossilize(zName);
-        if( zName[0]!='-' && zName[0]!='+' && zName[0]!='*' ){
+        if( zName[0]!='-' && zName[0]!='+' && zName[0]!='*' && zName[0]!='0' ){
           goto manifest_syntax_error;
         }
         if( validate16(&zName[1], strlen(&zName[1])) ){
@@ -950,9 +950,10 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       if( tid ){
         switch( m.aTag[i].zName[0] ){
-          case '+':  type = 1; break;
-          case '*':  type = 2; break;
-          case '-':  type = 0; break;
+          case '+':  type = 1;  break;
+          case '*':  type = 2;  break;
+          case '-':  type = 0;  break;
+          case '0':  type = -1; break;
           default:
             fossil_fatal("unknown tag type in manifest: %s", m.aTag);
             return 0;

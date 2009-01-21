@@ -144,7 +144,7 @@ int tag_findid(const char *zTag, int createFlag){
 */
 void tag_insert(
   const char *zTag,        /* Name of the tag (w/o the "+" or "-" prefix */
-  int tagtype,             /* 0:cancel  1:singleton  2:propagated */
+  int tagtype,             /* 0:cancel  1:singleton  2:propagated -1:erase */
   const char *zValue,      /* Value if the tag is really a property */
   int srcId,               /* Artifact that contains this tag */
   double mtime,            /* Timestamp.  Use default if <=0.0 */
@@ -169,8 +169,12 @@ void tag_insert(
   rc = db_step(&s);
   db_finalize(&s);
   if( rc==SQLITE_ROW ){
-    /* Another entry this is more recent already exists.  Do nothing */
+    /* Another entry that is more recent already exists.  Do nothing */
     return;
+  }
+  if( tagtype<0 ){
+    return;
+    /* TBD: erase tags */
   }
   db_prepare(&s, 
     "REPLACE INTO tagxref(tagid,tagtype,srcId,value,mtime,rid)"

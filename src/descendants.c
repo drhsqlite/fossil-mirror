@@ -78,6 +78,7 @@ void compute_leaves(int iBase, int closeMode){
   if( iBase<=0 ){
     iBase = db_int(0, "SELECT objid FROM event WHERE type='ci'"
                       " ORDER BY mtime LIMIT 1");
+    if( iBase==0 ) return;
   }
   bag_insert(&pending, iBase);
   db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
