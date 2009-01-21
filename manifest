@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\s"fossil\sinfo"\scommand\snow\sshows\stags\sassociated\swith\sthe\scurrent\scheck-out.
-D 2009-01-21T02:54:02
+C In\sthe\stimeline,\scontinue\sto\sshow\sthe\sof\sa\sbranch\sas\sa\s"Leaf"\seven\safter\nthe\sbranch\shas\sbeen\smerged\sinto\ssome\sother\sline.
+D 2009-01-21T03:04:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -101,7 +101,7 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 7e388fb12792b16afd1ce9929845aa4756eed78f
+F src/timeline.c 300c2cb82480cf131e3180f98ab1ba80e9ffb2fd
 F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
 F src/tktsetup.c 80638298360f2b0611d3f6070f0b1dede1341a39
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 7c7edde1169340698ada867fcd31df6b11ad4d55
-R a4fecc3661811a36a900b03f4a4f2d27
+P 2521a0a9a704b41543f204e92e6837314cf622aa
+R 0f0791df4286a81236cf3e71e9a8976e
 U drh
-Z b74594d1a2306c99dc56d2abace54170
+Z 88999b5c828806c1dffeb299787a0590
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJdo5NoxKgR168RlERAsGnAJ0fMqyKWaVBLQqWvnWlVPqtKTAf1ACfYT4W
-Y8EsaQfHPl1nHEsX0b6wYxM=
-=f28g
+iD8DBQFJdpCtoxKgR168RlERArjIAJ9wg4xc/q7mGudmLMVJVBrkESApmwCfTd4i
+FlhkMQhb8/q6/im6ZK7gVYY=
+=BREF
 -----END PGP SIGNATURE-----

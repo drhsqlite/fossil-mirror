@@ -85,7 +85,7 @@ int count_nonbranch_children(int pid){
 
   nNonBranch = db_int(0,  
     "SELECT count(*) FROM plink"
-    " WHERE pid=%d"
+    " WHERE pid=%d AND isprim"
     "   AND NOT EXISTS(SELECT 1 FROM tagxref"
                     "   WHERE tagid=%d"
                     "     AND rid=cid"
@@ -246,7 +246,7 @@ const char *timeline_query_for_www(void){
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
     @   0==(SELECT count(*) FROM plink
-    @     WHERE pid=blob.rid AND NOT EXISTS(
+    @     WHERE pid=blob.rid AND isprim AND NOT EXISTS(
     @       SELECT 1 FROM tagxref
     @        WHERE tagid=(SELECT tagid FROM tag WHERE tagname='newbranch')
     @          AND rid=plink.cid AND tagtype>0)),
