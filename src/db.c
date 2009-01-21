@@ -934,13 +934,14 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
 
   if (makeInitialVersion){
     blob_zero(&manifest);
-    blob_appendf(&manifest, "C initial\\sempty\\sbaseline\n");
+    blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
     zDate = db_text(0, "SELECT datetime('now')");
     zDate[10]='T';
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "P\n");
     md5sum_init();
     blob_appendf(&manifest, "R %s\n", md5sum_finish(0));
+    blob_appendf(&manifest, "T *sym-trunk *\n");
     blob_appendf(&manifest, "U %F\n", g.zLogin);
     md5sum_blob(&manifest, &hash);
     blob_appendf(&manifest, "Z %b\n", &hash);

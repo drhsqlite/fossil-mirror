@@ -605,7 +605,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   }
   if( !seenHeader ) goto manifest_syntax_error;
 
-  if( p->nFile>0 ){
+  if( p->nFile>0 || p->zRepoCksum!=0 ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->rDate==0.0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
