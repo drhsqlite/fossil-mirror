@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Track\sthe\sorigin\sof\stags\sand\sdisplay\sthat\sorigin\sin\sthe\stag\sand\sproperities\ninformation\sfield\sof\sthe\s"vinfo"\spage.\s\sMust\s"fossil\srebuild"\safter\sthis\nchange.
-D 2009-01-21T23:40:17
+C Improved\smessages\sin\sthe\s"tags\sand\sproperties"\ssection\sof\sthe\svinfo\spage.\nDistinguish\sbetween\sa\smerge\sbetween\sforks\sand\sa\smerge\sbetween\sbranches.\nA\smerge\sfrom\sforks,\scloses\sthe\sfork,\sbut\snot\sa\smerge\sfrom\sa\sbranch.
+D 2009-01-22T01:10:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -58,14 +58,14 @@ F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c 47c06ea3d7cdb60cc21043266f0665a100eb2d1f
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendants.c 20b63066bd8acc28aa07eee29aecdbed31e5c406
+F src/descendants.c cba21fd744d09806e4b61d023f6c5a70768ca187
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c b49f2b60289e156a743292c562a4509a9651e427
+F src/info.c e618e31047201bb6749d208f16e710bee90ad129
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -95,7 +95,7 @@ F src/sqlite3.h 619eeecfbe25dc6e5af6bbcbdf53ec3542ff49b6
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 2f4e685f52ced42d901afb937968681b1c545008
 F src/sync.c 5bf564823db36120bb1bfbe9a53182949fd3fb1a
-F src/tag.c fb6da1128f491a419524b908da53a1548193ac14
+F src/tag.c abb9a54f9e3c9b8bbbf16c2b2db39d3c2a911d0a
 F src/tagview.c 0e640840d13c3a546444b4b62b4892791e09a85e
 F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 2fa4df1e47f17f1c10a79d024a817f13a7d0bf6f
-R 31058f555241d02800057d7ed6a7f4f4
+P 08db9e11cb6f86f943893cc154bc86c6285ec7ab
+R 064bd0890cab227dd1a896ab946d9614
 U drh
-Z a40951bf6d3a23fcb735594f5d6b4652
+Z ce386ccf190b6bea8f92c5dce9c92c5d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJd7JkoxKgR168RlERAqE6AJ4kxuIqutmovT66C3oOx7fBK6O4HgCeLVW3
-n6aJAZtWD28z4zkWaaz3vpY=
-=gSnf
+iD8DBQFJd8eVoxKgR168RlERApWYAJ9wECiF8guvdZ3ZiY6GDoVNpWycwgCeM3wS
+gKLmYQWsl3LSNoPYzCQzHxU=
+=Nvth
 -----END PGP SIGNATURE-----

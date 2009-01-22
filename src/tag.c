@@ -175,9 +175,9 @@ void tag_insert(
     return;
   }
   db_prepare(&s, 
-    "REPLACE INTO tagxref(tagid,tagtype,srcId,value,mtime,rid)"
-    " VALUES(%d,%d,%d,%Q,:mtime,%d)",
-    tagid, tagtype, srcId, zValue, rid
+    "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid)"
+    " VALUES(%d,%d,%d,%d,%Q,:mtime,%d)",
+    tagid, tagtype, srcId, rid, zValue, rid
   );
   db_bind_double(&s, ":mtime", mtime);
   db_step(&s);

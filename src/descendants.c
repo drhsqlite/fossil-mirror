@@ -63,37 +63,80 @@
 void compute_leaves(int iBase, int closeMode){
   Bag seen;       /* Descendants seen */
   Bag pending;    /* Unpropagated descendants */
-  Stmt q;         /* Query to find children of a check-in */
+  Stmt q1;        /* Query to find children of a check-in */
+  Stmt q2;        /* Query to detect if a merge is across branches */
   Stmt isBr;      /* Query to check to see if a check-in starts a new branch */
   Stmt ins;       /* INSERT statement for a new record */
 
+  /* Create the LEAVES table if it does not already exist.  Make sure
+  ** it is empty.
+  */
   db_multi_exec(
     "CREATE TEMP TABLE IF NOT EXISTS leaves("
     "  rid INTEGER PRIMARY KEY"
     ");"
     "DELETE FROM leaves;"
   );
-  bag_init(&seen);
-  bag_init(&pending);
+
+  /* We are checking all descendants of iBase.  If iBase==0, then
+  ** change iBase to be the root of the entire check-in hierarchy.
+  */
   if( iBase<=0 ){
     iBase = db_int(0, "SELECT objid FROM event WHERE type='ci'"
                       " ORDER BY mtime LIMIT 1");
     if( iBase==0 ) return;
   }
+
+  /* Initialize the bags. */
+  bag_init(&seen);
+  bag_init(&pending);
   bag_insert(&pending, iBase);
-  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
+
+  /* This query returns all non-merge children of check-in :rid */
+  db_prepare(&q1, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
+
+  /* This query returns all merge children of check-in :rid where
+  ** the child and parent are on same branch.  The child and
+  ** parent are assumed to be on same branch if they have
+  ** the same set of propagated symbolic tags.
+  */
+  db_prepare(&q2,
+     "SELECT cid FROM plink"
+     " WHERE pid=:rid AND NOT isprim"
+     "   AND (SELECT group_concat(x) FROM ("
+     "          SELECT tag.tagid AS x FROM tagxref, tag"
+     "           WHERE tagxref.rid=:rid AND tagxref.tagtype=2"
+     "             AND tag.tagid=tagxref.tagid AND tagxref.srcid=0"
+     "             AND tag.tagname GLOB 'sym-*'"
+     "           ORDER BY 1))"
+     "    == (SELECT group_concat(x) FROM ("
+     "          SELECT tag.tagid AS x FROM tagxref, tag"
+     "           WHERE tagxref.rid=plink.cid AND tagxref.tagtype=2"
+     "             AND tag.tagid=tagxref.tagid AND tagxref.srcid=0"
+     "             AND tag.tagname GLOB 'sym-*'"
+     "           ORDER BY 1))"
+  );
+
+  /* This query returns a single row if check-in :rid is the first
+  ** check-in of a new branch.  In other words, it returns a row if
+  ** check-in :rid has the 'newbranch' tag.
+  */
   db_prepare(&isBr, 
      "SELECT 1 FROM tagxref WHERE rid=:rid AND tagid=%d AND tagtype=1",
      TAG_NEWBRANCH
   );
+
+  /* This statement inserts check-in :rid into the LEAVES table.
+  */
   db_prepare(&ins, "INSERT OR IGNORE INTO leaves VALUES(:rid)");
+
   while( bag_count(&pending) ){
     int rid = bag_first(&pending);
     int cnt = 0;
     bag_remove(&pending, rid);
-    db_bind_int(&q, ":rid", rid);
-    while( db_step(&q)==SQLITE_ROW ){
-      int cid = db_column_int(&q, 0);
+    db_bind_int(&q1, ":rid", rid);
+    while( db_step(&q1)==SQLITE_ROW ){
+      int cid = db_column_int(&q1, 0);
       if( bag_insert(&seen, cid) ){
         bag_insert(&pending, cid);
       }
@@ -103,7 +146,14 @@ void compute_leaves(int iBase, int closeMode){
       }
       db_reset(&isBr);
     }
-    db_reset(&q);
+    db_reset(&q1);
+    if( cnt==0 ){
+      db_bind_int(&q2, ":rid", rid);
+      if( db_step(&q2)==SQLITE_ROW ){
+        cnt++;
+      }
+      db_reset(&q2);
+    }
     if( cnt==0 ){
       db_bind_int(&ins, ":rid", rid);
       db_step(&ins);
@@ -112,7 +162,8 @@ void compute_leaves(int iBase, int closeMode){
   }
   db_finalize(&ins);
   db_finalize(&isBr);
-  db_finalize(&q);
+  db_finalize(&q2);
+  db_finalize(&q1);
   bag_clear(&pending);
   bag_clear(&seen);
   if( closeMode==1 ){

@@ -274,10 +274,10 @@ static void showTags(int rid, const char *zNotGlob){
     "SELECT tag.tagid, tagname, "
     "       (SELECT uuid FROM blob WHERE rid=tagxref.srcid AND rid!=%d),"
     "       value, datetime(tagxref.mtime,'localtime'), tagtype,"
-    "       (SELECT uuid FROM blob WHERE rid=tagxref.origid)"
+    "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
     " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
-    " ORDER BY tagname", rid, rid, zNotGlob
+    " ORDER BY tagname", rid, rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
@@ -294,7 +294,7 @@ static void showTags(int rid, const char *zNotGlob){
     @ <li>
     @ <b>%h(zTagname)</b>
     if( tagtype==0 ){
-      @ <i>cancelled.
+      @ <i>cancelled
     }else if( zValue ){
       @ = %h(zValue)<i>
     }else {
@@ -309,7 +309,11 @@ static void showTags(int rid, const char *zNotGlob){
       }
     }
     if( zSrcUuid && zSrcUuid[0] ){
-      @ added by
+      if( tagtype==0 ){
+        @ by
+      }else{
+        @ added by
+      }
       hyperlink_to_uuid(zSrcUuid);
       @ on %s(zDate)
     }
