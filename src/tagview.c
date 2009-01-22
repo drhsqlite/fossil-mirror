@@ -29,6 +29,7 @@
 #include "config.h"
 #include "tagview.h"
 
+#if 0  /* DISABLED */
 
 #if 0
 #  define TAGVIEW_DEFAULT_FILTER "AND t.tagname NOT GLOB 'wiki-*' "
@@ -190,7 +191,7 @@ void tagview_print_timeline(char const *zName, char const *zPrefix){
 }
 
 /*
-** WEBPAGE: /tagview
+** WEB PAGE: /tagview
 */
 void tagview_page(void){
   char const *zName = 0;
@@ -287,3 +288,5 @@ void tagview_page(void){
 
   style_footer();
 }
+
+#endif /* DISABLED */

@@ -216,12 +216,55 @@ void branch_cmd(void){
 }
 
 /*
+** WEBPAGE: brlist
+**
+** Show a timeline of all branches
+*/
+void brlist_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
+  style_header("Branches");
+  style_submenu_element("Timeline", "Timeline", "brtimeline");
+  login_anonymous_available();
+  @ <h2>Branches:</h2>
+  @ <ul>
+  db_prepare(&q,
+    "SELECT DISTINCT value FROM tagxref"
+    " WHERE tagid=%d AND srcid!=0 AND value NOT NULL"
+    " ORDER BY value",
+    TAG_BRANCH
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zBr = db_column_text(&q, 0);
+    if( g.okHistory ){
+      @ <li><a href="%s(g.zBaseURL)/timeline?t=%T(zBr)">%h(zBr)</a></li>
+    }else{
+      @ <li><b>%h(zBr)</b></li>
+    }
+  }
+  db_finalize(&q);
+  @ </ul>
+  @ <br clear="both">
+  @ <script>
+  @ function xin(id){
+  @ }
+  @ function xout(id){
+  @ }
+  @ </script>
+  style_footer();
+}
+
+/*
 ** This routine is called while for each check-in that is rendered by
 ** the timeline of a "brlist" page.  Add some additional hyperlinks
 ** to the end of the line.
 */
-static void brlist_extra(int rid){
+static void brtimeline_extra(int rid){
   Stmt q;
+  if( !g.okHistory ) return;
   db_prepare(&q, 
     "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
@@ -238,17 +281,18 @@ static void brlist_extra(int rid){
 }
 
 /*
-** WEBPAGE: brlist
+** WEBPAGE: brtimeline
 **
 ** Show a timeline of all branches
 */
-void brlist_page(void){
+void brtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
 
   style_header("Branches");
+  style_submenu_element("List", "List", "brlist");
   login_anonymous_available();
   @ <h2>The initial check-in for each branch:</h2>
   db_prepare(&q,
@@ -257,41 +301,7 @@ void brlist_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_BRANCH
   );
-  www_print_timeline(&q, 0, brlist_extra);
-  db_finalize(&q);
-  @ <br clear="both">
-  @ <script>
-  @ function xin(id){
-  @ }
-  @ function xout(id){
-  @ }
-  @ </script>
-  style_footer();
-}
-
-/*
-** WEBPAGE: symtaglist
-**
-** Show a timeline of all check-ins that have a primary symbolic tag.
-*/
-void symtaglist_page(void){
-  Stmt q;
-
-  login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
-
-  style_header("Tagged Check-ins");
-  login_anonymous_available();
-  @ <h2>Check-ins that have one or more primary symbolic tags</h2>
-  db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype>1 AND srcid>0"
-    "                       AND tagid IN (SELECT tagid FROM tag "
-    "                                      WHERE tagname GLOB 'sym-*'))"
-    " ORDER BY event.mtime DESC",
-    timeline_query_for_www()
-  );
-  www_print_timeline(&q, 0, 0);
+  www_print_timeline(&q, 0, brtimeline_extra);
   db_finalize(&q);
   @ <br clear="both">
   @ <script>

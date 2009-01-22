@@ -482,3 +482,98 @@ void tag_cmd(void){
 tag_cmd_usage:
   usage("add|cancel|find|list ...");
 }
+
+/*
+** WEBPAGE: /taglist
+*/
+void taglist_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead ){
+    login_needed();
+  }
+  style_header("Tags");
+  style_submenu_element("Timeline", "Timeline", "tagtimeline");
+  @ <h2>Tags used by one or more check-ins:</h2>
+  db_prepare(&q,
+    "SELECT substr(tagname,5)"
+    "  FROM tag"
+    " WHERE EXISTS(SELECT 1 FROM tagxref"
+    "               WHERE tagid=tag.tagid"
+    "                 AND tagtype>0)"
+    " AND tagname GLOB 'sym-*'"
+    " ORDER BY tagname"
+  );
+  @ <ul>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    if( g.okHistory ){
+      @ <li><a href=%s(g.zBaseURL)/timeline?t=%T(zName)>%h(zName)</a></li>
+    }else{
+      @ <li><strong>%h(zName)</strong></li>
+    }
+  }
+  @ </ul>
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
+** Draw the names of all tags added to check-in rid.  Only tags
+** that are directly applied to rid are named.  Propagated tags
+** are omitted.
+*/
+static void tagtimeline_extra(int rid){
+  Stmt q;
+  db_prepare(&q, 
+    "SELECT substr(tagname,5) FROM tagxref, tag"
+    " WHERE tagxref.rid=%d"
+    "   AND tagxref.tagid=tag.tagid"
+    "   AND tagxref.tagtype>0 AND tagxref.srcid>0"
+    "   AND tag.tagname GLOB 'sym-*'",
+    rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTagName = db_column_text(&q, 0);
+    if( g.okHistory ){
+      @ <a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">[%h(zTagName)]</a>
+    }else{
+      @ <b>[%h(zTagName)]</b>
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE: /tagtimeline
+*/
+void tagtimeline_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+
+  style_header("Tagged Check-ins");
+  style_submenu_element("List", "List", "taglist");
+  login_anonymous_available();
+  @ <h2>Initial check-ins for each tag:</t2>
+  db_prepare(&q,
+    "%s AND blob.rid IN (SELECT rid FROM tagxref"
+    "                     WHERE tagtype>0 AND srcid>0"
+    "                       AND tagid IN (SELECT tagid FROM tag "
+    "                                      WHERE tagname GLOB 'sym-*'))"
+    " ORDER BY event.mtime DESC",
+    timeline_query_for_www()
+  );
+  www_print_timeline(&q, 0, tagtimeline_extra);
+  db_finalize(&q);
+  @ <br clear="both">
+  @ <script>
+  @ function xin(id){
+  @ }
+  @ function xout(id){
+  @ }
+  @ </script>
+  style_footer();
+}

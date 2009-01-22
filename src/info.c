@@ -1107,7 +1107,6 @@ void info_page(void){
       }
       case 2: {
         /* go somewhere to show the multiple UUIDs */
-        tagview_page();
         return;
         break;
       }
