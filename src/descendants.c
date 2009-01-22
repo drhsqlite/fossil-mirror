@@ -64,7 +64,6 @@ void compute_leaves(int iBase, int closeMode){
   Bag seen;       /* Descendants seen */
   Bag pending;    /* Unpropagated descendants */
   Stmt q1;        /* Query to find children of a check-in */
-  Stmt q2;        /* Query to detect if a merge is across branches */
   Stmt isBr;      /* Query to check to see if a check-in starts a new branch */
   Stmt ins;       /* INSERT statement for a new record */
 
@@ -94,28 +93,6 @@ void compute_leaves(int iBase, int closeMode){
 
   /* This query returns all non-merge children of check-in :rid */
   db_prepare(&q1, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
-
-  /* This query returns all merge children of check-in :rid where
-  ** the child and parent are on same branch.  The child and
-  ** parent are assumed to be on same branch if they have
-  ** the same set of propagated symbolic tags.
-  */
-  db_prepare(&q2,
-     "SELECT cid FROM plink"
-     " WHERE pid=:rid AND NOT isprim"
-     "   AND (SELECT group_concat(x) FROM ("
-     "          SELECT tag.tagid AS x FROM tagxref, tag"
-     "           WHERE tagxref.rid=:rid AND tagxref.tagtype=2"
-     "             AND tag.tagid=tagxref.tagid AND tagxref.srcid=0"
-     "             AND tag.tagname GLOB 'sym-*'"
-     "           ORDER BY 1))"
-     "    == (SELECT group_concat(x) FROM ("
-     "          SELECT tag.tagid AS x FROM tagxref, tag"
-     "           WHERE tagxref.rid=plink.cid AND tagxref.tagtype=2"
-     "             AND tag.tagid=tagxref.tagid AND tagxref.srcid=0"
-     "             AND tag.tagname GLOB 'sym-*'"
-     "           ORDER BY 1))"
-  );
 
   /* This query returns a single row if check-in :rid is the first
   ** check-in of a new branch.  In other words, it returns a row if
@@ -147,12 +124,8 @@ void compute_leaves(int iBase, int closeMode){
       db_reset(&isBr);
     }
     db_reset(&q1);
-    if( cnt==0 ){
-      db_bind_int(&q2, ":rid", rid);
-      if( db_step(&q2)==SQLITE_ROW ){
-        cnt++;
-      }
-      db_reset(&q2);
+    if( cnt==0 && !is_a_leaf(rid) ){
+      cnt++;
     }
     if( cnt==0 ){
       db_bind_int(&ins, ":rid", rid);
@@ -162,7 +135,6 @@ void compute_leaves(int iBase, int closeMode){
   }
   db_finalize(&ins);
   db_finalize(&isBr);
-  db_finalize(&q2);
   db_finalize(&q1);
   bag_clear(&pending);
   bag_clear(&seen);
