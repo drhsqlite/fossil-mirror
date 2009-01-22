@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Reenable\sthe\s"Tags"\smenu\sitem,\sbut\smake\sit\sgo\sto\sthe\snew\s"taglist"\spage.\nAlso\sadd\sseparate\s"tagtimeline"\spage\sand\sseparate\s"brlist"\sinto\s"brlist"\nand\s"brtimeline".
-D 2009-01-22T13:08:42
+C Add\sthe\sability\sto\scancel\sexisting\stags\sfrom\sthe\sweb\sinterface,\son\sthe\n"vedit"\spage.\s\sDisable\sthe\sdisplay\sof\s"Leaf"\son\sthe\stimeline\sfor\nclosed\sleaves.
+D 2009-01-22T13:52:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,7 +65,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c 5f178b6ba93aaf914182c130589a34dbc90be428
+F src/info.c e59b0728c70625009bb33181bd87913aba783027
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -101,7 +101,7 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 4c13ae2995fdc8515e1f2880a750d9782eeeb748
+F src/timeline.c 16fff7bd26d294067b382593666bf4523f83191b
 F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
 F src/tktsetup.c 80638298360f2b0611d3f6070f0b1dede1341a39
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 42c2a18e736b0cc75a93daa63a7afb6cec0d7856
-R dbbb16cf522961ac9a8095a8511b08b4
+P a12cb216b74d859beb0e1e1b4de10e87694b4769
+R 0fa59f4abdefa6ef983bec2c11603278
 U drh
-Z 9fc27b08fec237d5faccde32d55a8589
+Z 9ff1819f7aae263d416e119ce2ac616f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJeG/doxKgR168RlERAgUPAKCI/8q0KHCX/oAc3NVV+z8w0zZWeACffLGD
-qLBtwiZXdldfISRTCfZxPT0=
-=rREQ
+iD8DBQFJeHofoxKgR168RlERAkdBAJ9nnkdyzOOdkpA/RofXV8jj7p+zkACfQKio
+iWMINTdiVYCncVmaCJz/eSA=
+=zoo4
 -----END PGP SIGNATURE-----

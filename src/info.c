@@ -1167,8 +1167,11 @@ void vedit_page(void){
   const char *zNewUser;
   const char *zColor;
   const char *zNewColor;
+  const char *zNewTagFlag;
   const char *zNewTag;
+  const char *zNewBrFlag;
   const char *zNewBranch;
+  const char *zCloseFlag;
   int fPropagateColor;
   char *zUuid;
   Blob comment;
@@ -1190,6 +1193,7 @@ void vedit_page(void){
      { "#fff0c0", "#fff0c0" },
      { "#c0c0c0", "#c0c0c0" },
   };
+  int nColor = sizeof(aColor)/sizeof(aColor[0]);
   int i;
   
   login_check_credentials();
@@ -1211,10 +1215,11 @@ void vedit_page(void){
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PD("clr",zColor);
   fPropagateColor = P("pclr")!=0;
-  zNewTag = P("newtag")!=0 ? P("tagname") : 0;
-  if( zNewTag && zNewTag[0]==0 ) zNewTag = 0;
-  zNewBranch = P("newbr")!=0 ? P("brname") : 0;
-  if( zNewBranch && zNewBranch[0]==0 ) zNewBranch = 0;
+  zNewTagFlag = P("newtag") ? " checked" : "";
+  zNewTag = PD("tagname","");
+  zNewBrFlag = P("newbr") ? " checked" : "";
+  zNewBranch = PD("brname","");
+  zCloseFlag = P("close") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
     char *zDate;
@@ -1244,10 +1249,28 @@ void vedit_page(void){
     if( strcmp(zUser,zNewUser)!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('user','+',%Q)", zNewUser);
     }
-    if( zNewTag ){
+    db_prepare(&q,
+       "SELECT tag.tagid, tagname FROM tagxref, tag"
+       " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid",
+       rid
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      int tagid = db_column_int(&q, 0);
+      const char *zTag = db_column_text(&q, 1);
+      char zLabel[30];
+      sprintf(zLabel, "c%d", tagid);
+      if( P(zLabel) ){
+        db_multi_exec("REPLACE INTO newtags VALUES(%Q,'-',NULL)", zTag);
+      }
+    }
+    db_finalize(&q);
+    if( zCloseFlag[0] ){
+      db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
+    }
+    if( zNewTagFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
     }
-    if( zNewBranch ){
+    if( zNewBrFlag[0] ){
       db_multi_exec(
         "REPLACE INTO newtags "
         " SELECT tagname, '-', NULL FROM tagxref, tag"
@@ -1346,8 +1369,15 @@ void vedit_page(void){
   @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
   @ <td valign="top">
   @ <table border=0 cellpadding=0 cellspacing=1>
+  @ <tr><td colspan="6" align="left">
+  if( fPropagateColor ){
+    @ <input type="checkbox" name="pclr" checked>
+  }else{
+    @ <input type="checkbox" name="pclr">
+  }
+  @ Propagate color to descendants</input></td></tr>
   @ <tr>
-  for(i=0; i<sizeof(aColor)/sizeof(aColor[0]); i++){
+  for(i=0; i<nColor; i++){
     if( aColor[i].zColor[0] ){
       @ <td bgcolor="%h(aColor[i].zColor)">
     }else{
@@ -1359,38 +1389,63 @@ void vedit_page(void){
       @ <input type="radio" name="clr" value="%h(aColor[i].zColor)">
     }
     @ %h(aColor[i].zCName)</input></td>
+    if( (i%6)==5 && i+1<nColor ){
+      @ </tr><tr>
+    }
   }
-  @ </tr><tr><td colspan="9" align="left">
-  if( fPropagateColor ){
-    @ <input type="checkbox" name="pclr" checked>
-  }else{
-    @ <input type="checkbox" name="pclr">
-  }
-  @ Propagate color to descendants</input></td></tr>
+  @ </tr>
   @ </table>
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
   @ <td valign="top">
-  @ <input type="checkbox" name="newtag">
+  @ <input type="checkbox" name="newtag"%s(zNewTagFlag)>
   @ Add the following new tag name to this check-in:
-  @ <input type="text" width="15" name="tagname">
+  @ <input type="text" width="15" name="tagname" value="%h(zNewTag)">
+  db_prepare(&q,
+     "SELECT tag.tagid, tagname FROM tagxref, tag"
+     " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
+     " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
+     "               ELSE tagname END",
+     rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int tagid = db_column_int(&q, 0);
+    const char *zTagName = db_column_text(&q, 1);
+    char zLabel[30];
+    sprintf(zLabel, "c%d", tagid);
+    if( P(zLabel) ){
+      @ <br><input type="checkbox" name="c%d(tagid)" checked>
+    }else{
+      @ <br><input type="checkbox" name="c%d(tagid)">
+    }
+    if( strncmp(zTagName, "sym-", 4)==0 ){
+      @ Cancel tag <b>%h(&zTagName[4])</b>
+    }else{
+      @ Cancel special tag <b>%h(zTagName)</b>
+    }
+  }
+  db_finalize(&q);
   @ </td></tr>
 
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d AND srcid>0",
                 rid, TAG_BRANCH)==0 ){
     @ <tr><td align="right" valign="top"><b>Branching:</b></td>
     @ <td valign="top">
-    @ <input type="checkbox" name="newbr">
+    @ <input type="checkbox" name="newbr"%s(zNewBrFlag)>
     @ Make this check-in the start of a new branch named:
-    @ <input type="text" width="15" name="brname">
+    @ <input type="text" width="15" name="brname" value="%h(zNewBranch)">
     @ </td></tr>
   }
 
-  if( is_a_leaf(rid) ){
+  if( is_a_leaf(rid)
+   && !db_exists("SELECT 1 FROM tagxref "
+                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                 TAG_CLOSED, rid)
+  ){
     @ <tr><td align="right" valign="top"><b>Leaf Closure:</b></td>
     @ <td valign="top">
-    @ <input type="checkbox" name="close">
+    @ <input type="checkbox" name="close"%s(zCloseFlag)>
     @ Mark this leaf as "closed" so that it no longer appears on the
     @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".
     @ </td></tr>

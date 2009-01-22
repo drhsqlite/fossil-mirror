@@ -255,6 +255,9 @@ const char *timeline_query_for_www(void){
     @   coalesce(euser, user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
+    @   NOT EXISTS(SELECT 1 FROM tagxref
+    @               WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)
+    @   AND
     @   NOT EXISTS(SELECT 1 FROM plink
     @               WHERE pid=blob.rid
     @                AND coalesce((SELECT value FROM tagxref
@@ -270,7 +273,7 @@ const char *timeline_query_for_www(void){
     @ WHERE blob.rid=event.objid
   ;
   if( zBase==0 ){
-    zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);
+    zBase = mprintf(zBaseSql, TAG_CLOSED, TAG_BRANCH, TAG_BRANCH);
   }
   return zBase;
 }
