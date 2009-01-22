@@ -107,13 +107,13 @@ void branch_new(void){
   blob_appendf(&branch, "R %s\n", mParent.zRepoCksum);
   manifest_clear(&mParent);
 
-  /* Add the symbolic branch name and the "newbranch" tag to identify
+  /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
+  blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
-  blob_appendf(&branch, "T +newbranch *\n");
 
   /* Cancel all other symbolic tags */
   db_prepare(&q,
@@ -203,9 +203,9 @@ void branch_cmd(void){
     db_prepare(&q,
       "%s"
       "   AND blob.rid IN (SELECT rid FROM tagxref"
-      "                     WHERE tagid=%d AND tagtype==1)"
+      "                     WHERE tagid=%d AND tagtype==2 AND srcid!=0)"
       " ORDER BY event.mtime DESC",
-      timeline_query_for_tty(), TAG_NEWBRANCH
+      timeline_query_for_tty(), TAG_BRANCH
     );
     print_timeline(&q, 2000);
     db_finalize(&q);
@@ -252,9 +252,10 @@ void brlist_page(void){
   login_anonymous_available();
   @ <h2>The initial check-in for each branch:</h2>
   db_prepare(&q,
-    "%s AND blob.rid IN (SELECT rid FROM tagxref WHERE tagtype>0 AND tagid=%d)"
+    "%s AND blob.rid IN (SELECT rid FROM tagxref"
+    "                     WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
     " ORDER BY event.mtime DESC",
-    timeline_query_for_www(), TAG_NEWBRANCH
+    timeline_query_for_www(), TAG_BRANCH
   );
   www_print_timeline(&q, 0, brlist_extra);
   db_finalize(&q);
@@ -288,7 +289,7 @@ void symtaglist_page(void){
     "                       AND tagid IN (SELECT tagid FROM tag "
     "                                      WHERE tagname GLOB 'sym-*'))"
     " ORDER BY event.mtime DESC",
-    timeline_query_for_www(), TAG_NEWBRANCH
+    timeline_query_for_www()
   );
   www_print_timeline(&q, 0, 0);
   db_finalize(&q);

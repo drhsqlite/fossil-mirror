@@ -35,17 +35,7 @@
 ** check-ins that are leaves which are decended from
 ** check-in iBase.
 **
-** A "leaf" is a check-in that has no children.  For the purpose
-** of finding leaves, children marked with the "newbranch" tag are
-** not counted as children.  For example:
-**
-**
-**    A -> B -> C -> D
-**          `-> E
-**
-** D and E are clearly leaves since they have no children.  If
-** D has the "newbranch" tag, then C is also a leaf since its only
-** child is marked as a newbranch.
+** A "leaf" is a check-in that has no children in the same branch.
 **
 ** The closeMode flag determines behavior associated with the "closed"
 ** tag:
@@ -95,12 +85,13 @@ void compute_leaves(int iBase, int closeMode){
   db_prepare(&q1, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
 
   /* This query returns a single row if check-in :rid is the first
-  ** check-in of a new branch.  In other words, it returns a row if
-  ** check-in :rid has the 'newbranch' tag.
+  ** check-in of a new branch.
   */
   db_prepare(&isBr, 
-     "SELECT 1 FROM tagxref WHERE rid=:rid AND tagid=%d AND tagtype=1",
-     TAG_NEWBRANCH
+     "SELECT 1 FROM tagxref"
+     " WHERE rid=:rid AND tagid=%d AND tagtype=2"
+     "   AND srcid>0",
+     TAG_BRANCH
   );
 
   /* This statement inserts check-in :rid into the LEAVES table.

@@ -349,40 +349,20 @@ void select_commit_files(void){
 
 /*
 ** Return true if the check-in with RID=rid is a leaf.
-**
-** A leaf has no children in the same branch.  For the purposes of
-** this definition, a two check-ins are in same branch they have the
-** same set of propagated symbolic tags.
+** A leaf has no children in the same branch. 
 */
 int is_a_leaf(int rid){
-
-  /* This query selects all children in the same branch as rid */
+  int rc;
   static const char zSql[] = 
-    @ SELECT cid FROM plink
-    @  WHERE pid=:rid
-    @    AND (SELECT group_concat(x) FROM (
-    @           SELECT tag.tagid AS x FROM tagxref, tag
-    @            WHERE tagxref.rid=:rid AND tagxref.tagtype=2
-    @              AND tag.tagid=tagxref.tagid AND tagxref.srcid=0
-    @              AND tag.tagname GLOB 'sym-*'
-    @            ORDER BY 1)
-    @        ) ==
-    @        (SELECT group_concat(x) FROM (
-    @           SELECT tag.tagid AS x FROM tagxref, tag
-    @            WHERE tagxref.rid=plink.cid AND tagxref.tagtype=2
-    @              AND tag.tagid=tagxref.tagid
-    @              AND tag.tagname GLOB 'sym-*'
-    @            ORDER BY 1)
-    @        )
+    @ SELECT 1 FROM plink
+    @  WHERE pid=%d
+    @    AND coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
+    @       =coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
   ;
-  Stmt q;    /* The prepared statement */
-  int rc;    /* Return code from stepping the prepared statement */
-
-  db_prepare(&q, zSql);
-  db_bind_int(&q, ":rid", rid);
-  rc = db_step(&q);
-  db_finalize(&q);
-  return rc==SQLITE_DONE;
+  rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
+  return rc==0;
 }
 
 /*

@@ -77,22 +77,24 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 }
 
 /*
-** Count the number of non-branch children for the given check-in.
-** A non-branch child is a child that omits the "newbranch" tag.
+** Count the number of primary non-branch children for the given check-in.
+**
+** A primary child is one where the parent is the primary parent, not
+** a merge parent.
+**
+** A non-branch child is one which is on the same branch as the parent.
 */
 int count_nonbranch_children(int pid){
   int nNonBranch;
-
-  nNonBranch = db_int(0,  
-    "SELECT count(*) FROM plink"
-    " WHERE pid=%d AND isprim"
-    "   AND NOT EXISTS(SELECT 1 FROM tagxref"
-                    "   WHERE tagid=%d"
-                    "     AND rid=cid"
-                    "     AND tagtype>0"
-                    " )",
-    pid, TAG_NEWBRANCH
-  );
+  static const char zSql[] = 
+    @ SELECT count(*) FROM plink
+    @  WHERE pid=%d AND isprim
+    @    AND coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
+    @       =coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
+  ;
+  nNonBranch = db_int(0, zSql, pid, TAG_BRANCH, TAG_BRANCH);
   return nNonBranch;
 }
 
@@ -243,6 +245,7 @@ static void timeline_temp_table(void){
 ** for a timeline query for the WWW interface.
 */
 const char *timeline_query_for_www(void){
+  static char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
     @   blob.rid,
@@ -252,11 +255,12 @@ const char *timeline_query_for_www(void){
     @   coalesce(euser, user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
-    @   0==(SELECT count(*) FROM plink
-    @     WHERE pid=blob.rid AND isprim AND NOT EXISTS(
-    @       SELECT 1 FROM tagxref
-    @        WHERE tagid=(SELECT tagid FROM tag WHERE tagname='newbranch')
-    @          AND rid=plink.cid AND tagtype>0)),
+    @   NOT EXISTS(SELECT 1 FROM plink
+    @               WHERE pid=blob.rid
+    @                AND coalesce((SELECT value FROM tagxref
+    @                              WHERE tagid=%d AND rid=plink.pid), 'trunk')
+    @                  = coalesce((SELECT value FROM tagxref
+    @                              WHERE tagid=%d AND rid=plink.cid), 'trunk')),
     @   bgcolor,
     @   event.type,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
@@ -265,7 +269,10 @@ const char *timeline_query_for_www(void){
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
-  return zBaseSql;
+  if( zBase==0 ){
+    zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);
+  }
+  return zBase;
 }
 
 /*

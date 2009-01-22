@@ -232,7 +232,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
 /*
 ** Show information about baselines mentioned in the "leaves" table.
 */
-static void showLeaves(void){
+static void showLeaves(int rid){
   Stmt q;
   int cnt = 0;
   db_prepare(&q,
@@ -240,9 +240,10 @@ static void showLeaves(void){
     "       coalesce(event.euser, event.user),"
     "       coalesce(event.ecomment,event.comment)"
     "  FROM leaves, blob, event"
-    " WHERE blob.rid=leaves.rid"
+    " WHERE blob.rid=leaves.rid AND blob.rid!=%d"
     "   AND event.objid=leaves.rid"
-    " ORDER BY event.mtime DESC"
+    " ORDER BY event.mtime DESC",
+    rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
@@ -479,7 +480,7 @@ void vinfo_page(void){
   @ </ul>
   compute_leaves(rid, 0);
   showDescendants(rid, 2, "Descendants");
-  showLeaves();
+  showLeaves(rid);
   showAncestors(rid, 2, "Ancestors");
   style_footer();
 }
@@ -1167,9 +1168,12 @@ void vedit_page(void){
   const char *zNewUser;
   const char *zColor;
   const char *zNewColor;
+  const char *zNewTag;
+  const char *zNewBranch;
   int fPropagateColor;
   char *zUuid;
   Blob comment;
+  Stmt q;
   static const struct SampleColors {
      const char *zCName;
      const char *zColor;
@@ -1192,9 +1196,13 @@ void vedit_page(void){
   login_check_credentials();
   if( !g.okWrite ){ login_needed(); return; }
   rid = atoi(PD("r","0"));
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
                         "  FROM event WHERE objid=%d", rid);
   if( zComment==0 ) fossil_redirect_home();
+  if( P("cancel") ){
+    cgi_redirectf("vinfo?name=%d", rid);
+  }
   zNewComment = PD("c",zComment);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
                      "  FROM event WHERE objid=%d", rid);
@@ -1204,10 +1212,10 @@ void vedit_page(void){
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PD("clr",zColor);
   fPropagateColor = P("pclr")!=0;
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( P("cancel") ){
-    cgi_redirectf("vinfo?name=%d", rid);
-  }
+  zNewTag = P("newtag")!=0 ? P("tagname") : 0;
+  if( zNewTag && zNewTag[0]==0 ) zNewTag = 0;
+  zNewBranch = P("newbr")!=0 ? P("brname") : 0;
+  if( zNewBranch && zNewBranch[0]==0 ) zNewBranch = 0;
   if( P("apply") ){
     Blob ctrl;
     char *zDate;
@@ -1218,26 +1226,55 @@ void vedit_page(void){
     zDate = db_text(0, "SELECT datetime('now')");
     zDate[10] = 'T';
     blob_appendf(&ctrl, "D %s\n", zDate);
+    db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0] && strcmp(zColor,zNewColor)!=0 ){
-      nChng++;
+      char *zPrefix = "+";
       if( fPropagateColor ){
-        blob_appendf(&ctrl, "T *bgcolor %s %F\n", zUuid, zNewColor);
-      }else{
-        blob_appendf(&ctrl, "T +bgcolor %s %F\n", zUuid, zNewColor);
+        zPrefix = "*";
       }
-    }
-    if( strcmp(zComment,zNewComment)!=0 ){
-      nChng++;
-      blob_appendf(&ctrl, "T +comment %s %F\n", zUuid, zNewComment);
-    }
-    if( strcmp(zUser,zNewUser)!=0 ){
-      nChng++;
-      blob_appendf(&ctrl, "T +user %s %F\n", zUuid, zNewUser);
+      db_multi_exec("REPLACE INTO newtags VALUES('bgcolor',%Q,%Q)",
+                    zPrefix, zNewColor);
     }
     if( zNewColor[0]==0 && zColor[0]!=0 ){
-      nChng++;
-      blob_appendf(&ctrl, "T -bgcolor %s\n", zUuid);
+      db_multi_exec("REPLACE INTO newtags VALUES('bgcolor','-',NULL)");
     }
+    if( strcmp(zComment,zNewComment)!=0 ){
+      db_multi_exec("REPLACE INTO newtags VALUES('comment','+',%Q)",
+                    zNewComment);
+    }
+    if( strcmp(zUser,zNewUser)!=0 ){
+      db_multi_exec("REPLACE INTO newtags VALUES('user','+',%Q)", zNewUser);
+    }
+    if( zNewTag ){
+      db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
+    }
+    if( zNewBranch ){
+      db_multi_exec(
+        "REPLACE INTO newtags "
+        " SELECT tagname, '-', NULL FROM tagxref, tag"
+        "  WHERE tagxref.rid=%d AND tagtype==2"
+        "    AND tagname GLOB 'sym-*'"
+        "    AND tag.tagid=tagxref.tagid",
+        rid
+      );
+      db_multi_exec("REPLACE INTO newtags VALUES('branch','*',%Q)", zNewBranch);
+      db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','*',NULL)",
+                    zNewBranch);
+    }
+    db_prepare(&q, "SELECT tag, prefix, value FROM newtags"
+                   " ORDER BY prefix || tag");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zTag = db_column_text(&q, 0);
+      const char *zPrefix = db_column_text(&q, 1);
+      const char *zValue = db_column_text(&q, 2);
+      nChng++;
+      if( zValue ){
+        blob_appendf(&ctrl, "T %s%F %s %F\n", zPrefix, zTag, zUuid, zValue);
+      }else{
+        blob_appendf(&ctrl, "T %s%F %s\n", zPrefix, zTag, zUuid);
+      }
+    }
+    db_finalize(&q);
     if( nChng>0 ){
       int nrid;
       Blob cksum;
@@ -1256,6 +1293,8 @@ void vedit_page(void){
   zUuid[10] = 0;
   style_header("Edit Baseline [%s]", zUuid);
   if( P("preview") ){
+    Blob suffix;
+    int nTag = 0;
     @ <b>Preview:</b>
     @ <blockquote>
     @ <table border=0>
@@ -1265,10 +1304,28 @@ void vedit_page(void){
       @ <tr><td>
     }
     wiki_convert(&comment, 0, WIKI_INLINE);
-    @ (user: %h(zNewUser))
+    blob_zero(&suffix);
+    blob_appendf(&suffix, "(user: %h", zNewUser);
+    db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"
+                   " WHERE tagname GLOB 'sym-*' AND tagxref.rid=%d"
+                   "   AND tagtype>1 AND tag.tagid=tagxref.tagid",
+                   rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zTag = db_column_text(&q, 0);
+      if( nTag==0 ){
+        blob_appendf(&suffix, ", tags: %h", zTag);
+      }else{
+        blob_appendf(&suffix, ", %h", zTag);
+      }
+      nTag++;
+    }
+    db_finalize(&q);
+    blob_appendf(&suffix, ")");
+    @ %s(blob_str(&suffix))
     @ </td></tr></table>
     @ </blockquote>
     @ <hr>
+    blob_reset(&suffix);
   }
   @ <p>Make changes to attributes of check-in
   @ [<a href="vinfo?name=%d(rid)">%s(zUuid)</a>]:</p>
@@ -1313,6 +1370,33 @@ void vedit_page(void){
   @ Propagate color to descendants</input></td></tr>
   @ </table>
   @ </td></tr>
+
+  @ <tr><td align="right" valign="top"><b>Tags:</b></td>
+  @ <td valign="top">
+  @ <input type="checkbox" name="newtag">
+  @ Add the following new tag name to this check-in:
+  @ <input type="text" width="15" name="tagname">
+  @ </td></tr>
+
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d AND srcid>0",
+                rid, TAG_BRANCH)==0 ){
+    @ <tr><td align="right" valign="top"><b>Branching:</b></td>
+    @ <td valign="top">
+    @ <input type="checkbox" name="newbr">
+    @ Make this check-in the start of a new branch named:
+    @ <input type="text" width="15" name="brname">
+    @ </td></tr>
+  }
+
+  if( is_a_leaf(rid) ){
+    @ <tr><td align="right" valign="top"><b>Leaf Closure:</b></td>
+    @ <td valign="top">
+    @ <input type="checkbox" name="close">
+    @ Mark this leaf as "closed" so that it no longer appears on the
+    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".
+    @ </td></tr>
+  }
+
 
   @ <tr><td colspan="2">
   @ <input type="submit" name="preview" value="Preview">
