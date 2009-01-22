@@ -425,7 +425,7 @@ void vinfo_page(void){
     }
     @ </table></p>
   }else{
-    style_header("Baseline Information");
+    style_header("Check-in Information");
     login_anonymous_available();
   }
   db_finalize(&q);
@@ -674,7 +674,7 @@ void vdiff_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  style_header("Baseline Changes");
+  style_header("Check-in Changes");
   login_anonymous_available();
 
   rid = name_to_rid(PD("name",""));
@@ -690,7 +690,7 @@ void vdiff_page(void){
      rid
   );
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  @ <h2>All Changes In Baseline
+  @ <h2>All Changes In Check-in
   hyperlink_to_uuid(zUuid);
   @ </h2>
   while( db_step(&q)==SQLITE_ROW ){
@@ -1313,7 +1313,7 @@ void vedit_page(void){
   blob_zero(&comment);
   blob_append(&comment, zNewComment, -1);
   zUuid[10] = 0;
-  style_header("Edit Baseline [%s]", zUuid);
+  style_header("Edit Check-in [%s]", zUuid);
   if( P("preview") ){
     Blob suffix;
     int nTag = 0;

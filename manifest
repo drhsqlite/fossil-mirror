@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sability\sto\scancel\sexisting\stags\sfrom\sthe\sweb\sinterface,\son\sthe\n"vedit"\spage.\s\sDisable\sthe\sdisplay\sof\s"Leaf"\son\sthe\stimeline\sfor\nclosed\sleaves.
-D 2009-01-22T13:52:27
+C Changes\ssome\s"Baseline"\slabels\sto\s"Check-in".
+D 2009-01-22T14:04:35
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,7 +65,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c e59b0728c70625009bb33181bd87913aba783027
+F src/info.c b888c0d48529660a2b3b51e2af85e1acd747cd54
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -232,14 +232,14 @@ F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
 F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P a12cb216b74d859beb0e1e1b4de10e87694b4769
-R 0fa59f4abdefa6ef983bec2c11603278
+P 73c23a4279b97ad3198f907770eb4efeadc3d104
+R 3e2ccf485ce08028067dc5f285c542a3
 U drh
-Z 9ff1819f7aae263d416e119ce2ac616f
+Z ec3ae8fea70d9ab0ca02901d9e34e664
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJeHofoxKgR168RlERAkdBAJ9nnkdyzOOdkpA/RofXV8jj7p+zkACfQKio
-iWMINTdiVYCncVmaCJz/eSA=
-=zoo4
+iD8DBQFJeHz2oxKgR168RlERAoTEAJ4nHRfIC3gV5Alr4cHz78uoeskSCwCdH66t
+yMUrAnp7EeaB/cWvIQOvd/k=
+=7UbY
 -----END PGP SIGNATURE-----
