@@ -255,9 +255,9 @@ into the reason for a command in a bit more depth than the program help.
     Remove one or more files from the tree.
 
 <hr><a href="#tof">&#710;</a>
-    <a name="descendants">Usage: </a><a href="cmd_descendants.wiki">fossil descendants</a> ?BASELINE-ID?
-    Find all leaf descendants of the baseline specified or if the argument
-    is omitted, of the baseline currently checked out.
+    <a name="descendants">Usage: </a><a href="cmd_descendants.wiki">fossil descendants</a> ?CHECKIN-ID?
+    Find all leaf descendants of the check-in specified or if the argument
+    is omitted, of the check-in currently checked out.
 
 <hr><a href="#tof">&#710;</a>
     <a name="diff">Usage: </a><a href="cmd_diff.wiki">fossil diff</a>|gdiff ?-i? ?-r REVISION? FILE...
@@ -397,9 +397,9 @@ into the reason for a command in a bit more depth than the program help.
     is cleared by the commit and checkout commands.
 
 <hr><a href="#tof">&#710;</a>
-    <a name="revert">Usage: </a><a href="cmd_revert.wiki">fossil revert</a> ?--yes? ?-r REVISION? FILE
+    <a name="revert">Usage: </a><a href="cmd_revert.wiki">fossil revert</a> ?--yes? ?-r CHECKIN? FILE
     Revert to the current repository version of FILE, or to
-    the version associated with baseline REVISION if the -r flag
+    the version associated with check-in CHECKIN if the -r flag
     appears.  This command will confirm your operation unless the
     file is missing or the --yes option is used.
 
@@ -481,39 +481,39 @@ into the reason for a command in a bit more depth than the program help.
     <a name="tag">Usage: </a><a href="cmd_tag.wiki">fossil tag</a> SUBCOMMAND ...
     Run various subcommands to control tags and properties
 
-    fossil tag add ?--raw? TAGNAME BASELINE ?VALUE?
+    fossil tag add ?--raw? TAGNAME CHECK-IN ?VALUE?
 
-    Add a new tag or property to BASELINE. The tag will
-    be usable instead of a BASELINE in commands such as
+    Add a new tag or property to CHECK-IN. The tag will
+    be usable instead of a CHECK-IN in commands such as
     update and merge.
 
-    fossil tag branch ?--raw? ?--nofork? TAGNAME BASELINE ?VALUE?
+    fossil tag branch ?--raw? ?--nofork? TAGNAME CHECK-IN ?VALUE?
 
     A fork will be created so that the new checkin
-    is a sibling of BASELINE and identical to it except
+    is a sibling of CHECK-IN and identical to it except
     for a generated comment. Then the new tag will
     be added to the new checkin and propagated to
     all direct children.  Additionally all symbolic
-    tags of that checkin inherited from BASELINE will
+    tags of that checkin inherited from CHECK-IN will
     be cancelled.
 
     However, if the option --nofork is given, no
     fork will be created and the tag/property will be
-    added to BASELINE directly. No tags will be canceled.
+    added to CHECK-IN directly. No tags will be canceled.
 
-    fossil tag cancel ?--raw? TAGNAME BASELINE
+    fossil tag cancel ?--raw? TAGNAME CHECK-IN
 
-    Remove the tag TAGNAME from BASELINE, and also remove
+    Remove the tag TAGNAME from CHECK-IN, and also remove
     the propagation of the tag to any descendants.
 
     fossil tag find ?--raw? TAGNAME
 
-    List all baselines that use TAGNAME
+    List all check-ins that use TAGNAME
 
-    fossil tag list ?--raw? ?BASELINE?
+    fossil tag list ?--raw? ?CHECK-IN?
 
-    List all tags, or if BASELINE is supplied, list
-    all tags and their values for BASELINE.
+    List all tags, or if CHECK-IN is supplied, list
+    all tags and their values for CHECK-IN.
 
     The option --raw allows the manipulation of all types of
     tags used for various internal purposes in fossil. You
@@ -521,12 +521,12 @@ into the reason for a command in a bit more depth than the program help.
     sure what you are doing.
 
     If you need to use a tagname that might be confused with
-    a hexadecimal baseline or artifact ID, you can explicitly
+    a hexadecimal check-in or artifact ID, you can explicitly
     disambiguate it by prefixing it with "tag:". For instance:
 
     fossil update decaf
 
-    will be taken as an artifact or baseline ID and fossil will
+    will be taken as an artifact or check-in ID and fossil will
     probably complain that no such revision was found. However
 
     fossil update tag:decaf
@@ -534,7 +534,7 @@ into the reason for a command in a bit more depth than the program help.
     will assume that "decaf" is a tag/branch name.
 
 <hr><a href="#tof">&#710;</a>
-    <a name="timeline">Usage: </a><a href="cmd_timeline.wiki">fossil timeline</a> ?WHEN? ?BASELINE|DATETIME? ?-n|--count N?
+    <a name="timeline">Usage: </a><a href="cmd_timeline.wiki">fossil timeline</a> ?WHEN? ?CHECK-IN|DATETIME? ?-n|--count N?
     Print a summary of activity going backwards in date and time
     specified or from the current date and time if no arguments
     are given.  Show as many as N (default 20) check-ins.  The
@@ -546,7 +546,7 @@ into the reason for a command in a bit more depth than the program help.
     descendants | children
     ancestors | parents
 
-    The BASELINE can be any unique prefix of 4 characters or more.
+    The CHECK-IN can be any unique prefix of 4 characters or more.
     The DATETIME should be in the ISO8601 format.  For
     examples: "2007-08-18 07:21:21".  You can also say "current"
     for the current version or "now" for the current time.

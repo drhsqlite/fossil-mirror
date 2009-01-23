@@ -1,14 +1,14 @@
 <h1>Bug-Tracking In <a href="index.wiki">Fossil</a></h1>
 
 A bug-report in fossil is called a "ticket".  Tickets are tracked
-separately from code check-ins (baselines).
+separately from code check-ins.
 
 Some other distributed bug-tracking systems store tickets as files within
 the source tree and thereby leverage the syncing and merging capabilities
 of the versioning system to sync and merge tickets.  This approach is
 rejected in fossil for three reasons:
 
-  1.  Check-ins (a.k.a. "baselines") in fossil are immutable.  So if
+  1.  Check-ins in fossil are immutable.  So if
       tickets were part of the check-in, then there would be no way to add
       new tickets to a check-in as new bugs are discovered.
 

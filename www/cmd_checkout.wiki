@@ -34,7 +34,7 @@ Since a version is required, and <b>fossil</b>'s artifact IDs are
 fairly long, there are two good ways to refer to the version.  You can
 use a unique proper prefix of the version (six or eight characters is
 more than enough in most cases) <em>or</em> you can [./cmd_tag.wiki |
-tag] your baselines and use the tags for checkouts, reverting,
+tag] your check-ins and use the tags for checkouts, reverting,
 branching (tags are the best way to branch) and so forth.  Both
 methods work throughout fossil.
 

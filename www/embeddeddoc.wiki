@@ -43,14 +43,14 @@ If you launch the web server using the "<b>fossil server</b>" command line,
 then the <i>&lt;baseurl&gt;</i> is usually
 <b>http://localhost:8080/</b>.
 
-The <i>&lt;version&gt;</i> is any unique prefix of the baseline ID for 
-the baseline containing the documentation you want to access.
+The <i>&lt;version&gt;</i> is any unique prefix of the check-in ID for 
+the check-in containing the documentation you want to access.
 Or <i>&lt;version&gt;</i> can be one of the keywords "<b>tip</b>" or
 "<b>ckout</b>".  The "<b>tip</b>" keyword means to use the most recently
-checked-in baseline.  This is useful if you want to see the very latest
+checked-in.  This is useful if you want to see the very latest
 version of the documentation.  The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
-from the any versioned baseline.  The "<b>ckout</b>" keyword normally
+from the any check-in.  The "<b>ckout</b>" keyword normally
 only works when you start your server using the "<b>fossil server</b>"
 or "<b>fossil ui</b>"
 command line and is indented to show what the documentation you are currently
@@ -100,7 +100,7 @@ This is one of three ways to set up a
 <a href="quickstart.wiki#serversetup">fossil web server</a>.
 
 The "<b>/tip/</b>" part of the URL tells fossil to use
-the documentation files from the baseline that was checked in most
+the documentation files from the check-in that was checked in most
 recently.  This file is stored in the fossil source tree under
 the name "<b>www/embeddeddoc.wiki</b>" and so that name forms the
 last part of the URL.

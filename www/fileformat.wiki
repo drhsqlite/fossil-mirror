@@ -65,13 +65,13 @@ artifact format.</p>
 
 <h2>1.0 The Manifest</h2>
 
-<p>A manifest defines a baseline or version of the project
+<p>A manifest defines a check-in or version of the project
 source tree.  The manifest contains a list of artifacts for
 each file in the project and the corresponding filenames, as
-well as information such as parent baselines, the name of the
-programmer who created the baseline, the date and time when
-the baseline was created, and any check-in comments associated
-with the baseline.</p>
+well as information such as parent check-ins, the name of the
+programmer who created the check-in, the date and time when
+the check-in was created, and any check-in comments associated
+with the check-in.</p>
 
 <p>
 Any artifact in the repository that follows the syntactic rules
@@ -139,10 +139,10 @@ The format is:
 
 <p>
 A manifest has zero or more F-cards.  Each F-card defines a file
-(other than the manifest itself) which is part of the baseline that
+(other than the manifest itself) which is part of the check-in that
 the manifest defines.  There are two, three, or three arguments.
 The first argument
-is the pathname of the file in the baseline relative to the root
+is the pathname of the file in the check-in relative to the root
 of the project file hierarchy.  No ".." or "." directories are allowed
 within the filename.  Space characters are escaped as in C-card
 comment text.  Backslash characters and newlines are not allowed
@@ -155,15 +155,15 @@ defined is "x" which means that the file is executable.  All files are
 always readable and writable.  This can be expressed by "w" permission
 if desired but is optional.
 The optional 4th argument is the name of the same file as it existed in
-the parent baseline.  If the name of the file is unchanged from its
+the parent check-in.  If the name of the file is unchanged from its
 parent, then the 4th argument is omitted.
 </p>
 
 <p>
 A manifest has zero or more N-cards.  Each N card records a name changes
 to one of the files in the manifest.  The first argument to the N code is
-the name of the file in the parent baseline.  The second argument is the
-name of the file in the baseline defined by the manifest.
+the name of the file in the parent check-in.  The second argument is the
+name of the file in the check-in defined by the manifest.
 </p>
 
 <p>
@@ -183,9 +183,9 @@ project has no ancestors and thus has no P-card.
 <p>
 A manifest may optionally have a single R-card.  The R-card has
 a single argument which is the MD5 checksum of all files in 
-the baseline except the manifest itself.  The checksum is expressed
+the check-in except the manifest itself.  The checksum is expressed
 as 32-characters of lowercase hexadecimal.   The checksum is
-computed as follows:  For each file in the baseline (except for
+computed as follows:  For each file in the check-in (except for
 the manifest itself) in strict sorted lexicographical order, 
 take the pathname of the file relative to the root of the
 repository, append a single space (ASCII 0x20), the
@@ -307,7 +307,7 @@ same artifact, the tag with the latest (most recent) date is
 used.</p>
 
 <p>Some tags have special meaning.  The "comment" tag when applied
-to a baseline will override the check-in comment of that baseline
+to a check-in will override the check-in comment of that check-in
 for display purposes.</p>
 
 <a name="wikichng"></a>

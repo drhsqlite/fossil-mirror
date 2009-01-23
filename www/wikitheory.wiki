@@ -35,8 +35,8 @@ was considered but was rejected for the following reasons:
 <h2>Stand-alone Wiki Pages</h2>
 
 Each wiki page has its own revision history which is independent of
-the sequence of baselines (check-ins).  Wiki pages can branch and merge
-just like baselines, though as of this writing (2008-07-29) there is
+the sequence of check-ins (check-ins).  Wiki pages can branch and merge
+just like check-ins, though as of this writing (2008-07-29) there is
 no mechanism in the user interface to support branching and merging.
 The current implementation of the wiki shows the version of the wiki
 page that has the most recent timestamp.

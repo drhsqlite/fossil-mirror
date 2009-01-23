@@ -977,7 +977,6 @@ void create_repository_cmd(void){
   printf("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
-  printf("baseline:   %s\n", db_text(0, "SELECT uuid FROM blob"));
 }
 
 /*

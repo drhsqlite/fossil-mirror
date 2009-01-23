@@ -27,13 +27,13 @@ the end product.  The source tree changes over time as the
 software grows and expands and as features are added and bugs
 are fixed.  A snapshot of the source tree at any point in time
 is called a "version" or "revision" or a "baseline" of the product.
-In fossil, we use the name "baseline".</p>
+In fossil, we use the name "check-in".</p>
 
 <p>A "repository" is a database that contains copies of all historical
-versions or baselines for a project.  Baselines are normally stored in the
+check-ins for a project.  Check-ins are normally stored in the
 repository in a highly space-efficient compressed format (delta encoding).
 But that is an implementation detail that you the user need not worry over.
-Think of the repository as a safe place where all your old baselines are
+Think of the repository as a safe place where all your old check-ins are
 securely stored away and available for retrieval whenever you need
 them.</p>
 
@@ -129,41 +129,41 @@ a software project.</p>
 that source tree.  The manifest contains the (complete) artifact ID 
 of the file and the name of the file as it appears on disk,
 and thus serves as a mapping from artifact ID to disk name.  The artifact ID
-of the manifest is the identifier for the entire baseline.  When
+of the manifest is the identifier for the entire check-in.  When
 you look at a "timeline" of changes in fossil, the ID associated
 with each check-in or commit is really just the artifact ID of the
-manifest for that baseline.</p>
+manifest for that check-in.</p>
 
 <p>Fossil automatically generates a manifest whenever you "commit" 
-a new baseline.  So this is not something that you, the developer,
+a new check-in.  So this is not something that you, the developer,
 need to worry with.  The format of a manifest is intentionally
 designed to be simple to parse, so that if
 you want to read and interpret a manifest, either by hand or
 with a script, that is easy to do.  But you will probably never
 need to do so.</p>
 
-<p>In addition to identifying all files in the baseline, a
+<p>In addition to identifying all files in the check-in, a
 manifest also contains a check-in comment, the date and time
-when the baseline was established, who created the baseline,
-and links to other baselines from which the current baseline
+when the check-in was established, who created the check-in,
+and links to other check-ins from which the current check-in
 is derived.  There is also a couple of checksums used to verify
-the integrity of the baseline.  And the whole manifest might
+the integrity of the check-in.  And the whole manifest might
 be PGP clearsigned.</p>
 
 <h3>2.3 Key concepts</h3>
 
 <ul>
-<li>A <b>baseline</b> is a set of files arranged
+<li>A <b>check-in</b> is a set of files arranged
     in a hierarchy.</li>
-<li>A <b>repository</b> keeps a record of historical baselines.</li>
+<li>A <b>repository</b> keeps a record of historical check-ins.</li>
 <li>Repositories share their changes using <b>push</b>, <b>pull</b>,
     <b>sync</b>, and <b>clone</b>.</li>
 <li>A particular version of a particular file is an <b>artifact</b>
     that is identified by an <b>artifact ID</b>.</li>
 <li>Artifacts tracked by fossil are inherently immutable.</li>
 <li>Fossil automatically generates a <b>manifest</b> file that identifies
-    every artifact in a baseline.</li>
-<li>The artifact ID of the manifest is the identifier of the baseline.</li>
+    every artifact in a check-in.</li>
+<li>The artifact ID of the manifest is the identifier of the check-in.</li>
 </ul>
 
 <h2>3.0 Fossil - The Program</h2>
@@ -251,21 +251,21 @@ argument.
 
 <li><p>
 The <b>open</b> command in the previous step populates your local source
-tree with a copy of the latest baseline.  Usually this is what you want.
+tree with a copy of the latest check-in.  Usually this is what you want.
 In the rare cases where it is not, use the <b>update</b> command to
-switch to a new baseline.  Use the <b>timeline</b> or <b>leaves</b> commands
-to identify alternative baselines to switch to.
+switch to a new check-in.  Use the <b>timeline</b> or <b>leaves</b> commands
+to identify alternative check-ins to switch to.
 </p></li>
 
 <li><p>
 Edit the code.  Add new files to the source tree using the <b>add</b>
-command.  Omit files from future baselines using the <b>rm</b> command.
-(Even when you remove files from future baselines, those files continue
-to exist in historical baselines.)  Test your changes.
+command.  Omit files from future check-ins using the <b>rm</b> command.
+(Even when you remove files from future check-ins, those files continue
+to exist in historical check-ins.)  Test your changes.
 </p></li>
 
 <li><p>
-Create a new baseline using the <b>commit</b> command.  You will be prompted
+Create a new check-in using the <b>commit</b> command.  You will be prompted
 for a check-in comment and also for your GPG key if you have GPG installed.
 The commit copies the edits you have made in your local source
 tree into your local repository.  After your commit completes, fossil will
@@ -316,21 +316,21 @@ argument.
 
 <li><p>
 The <b>open</b> command in the previous step populates your local source
-tree with a copy of the latest baseline.  Usually this is what you want.
+tree with a copy of the latest check-in.  Usually this is what you want.
 In the rare cases where it is not, use the <b>update</b> command to
-switch to a new baseline.  Use the <b>timeline</b> or <b>leaves</b> commands
-to identify alternative baselines to switch to.
+switch to a new check-in.  Use the <b>timeline</b> or <b>leaves</b> commands
+to identify alternative check-ins to switch to.
 </p></li>
 
 <li><p>
 Edit the code.  Add new files to the source tree using the <b>add</b>
-command.  Omit files from future baselines using the <b>rm</b> command.
-(Even when you remove files from future baselines, those files continue
-to exist in historical baselines.)  Test your changes.
+command.  Omit files from future check-ins using the <b>rm</b> command.
+(Even when you remove files from future check-ins, those files continue
+to exist in historical check-ins.)  Test your changes.
 </p></li>
 
 <li><p>
-Create a new baseline using the <b>commit</b> command.  You will be prompted
+Create a new check-in using the <b>commit</b> command.  You will be prompted
 for a check-in comment and also for your GPG key if you have GPG installed.
 The commit copies the edits you have made in your local source
 tree into your local repository.
@@ -433,7 +433,7 @@ in the chroot jail with fossil in order for it to do its job.</p>
 <li>Use the <b>open</b> command to create a new source tree.</li>
 <li>Use the <b>add</b> and <b>rm</b> or <b>delete</b> commands to add and
     remove files from the local source tree.</li>
-<li>Use the <b>commit</b> command to create a new baseline.</li>
+<li>Use the <b>commit</b> command to create a new check-in.</li>
 <li>Use the <b>update</b> command to merge in changes from others.</li>
 <li>The <b>push</b> and <b>pull</b> commands can be used to share changes
     manually, but these things happen automatically in the default

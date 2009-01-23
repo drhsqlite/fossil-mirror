@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Changes\ssome\s"Baseline"\slabels\sto\s"Check-in".
-D 2009-01-22T14:04:35
+C Change\s"baseline"\sto\s"check-in"\sin\sthe\son-line\sdocumentation.
+D 2009-01-23T00:16:26
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -55,7 +55,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c c34a03c3db3e0a56816fb9abf098278d44b1ff60
+F src/db.c 48df0d0f90a8d238f2cbae54d341ea2acd9c2a77
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 8b62b08925399d0d363e970a966a56617e26c435
@@ -182,14 +182,14 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
-F www/bugtheory.wiki 5f6ed2b26bd0a1680ba70da8b04c78eafc40b272
+F www/bugtheory.wiki 062a9acd52bbd4fe9a6ae3ab5d56ab943f54ca98
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
 F www/cmd_cgi.wiki 89c3b9cdc5fdeef0560f63fecf6f8e3115487ec3
 F www/cmd_changes.wiki 86458abed3ae282b89305c872e88c3a9078d88a6
-F www/cmd_checkout.wiki 879d69a87c4db6e220f3d0e0afe18e48f15e143d
+F www/cmd_checkout.wiki 4f48d3f620856ae6c035dea65ebcae1a29e39018
 F www/cmd_extra.wiki ffbd0d5ce685c6ab7df2fd129b5b651cfb32ebc2
 F www/cmd_ls.wiki 421096bb587e540c44f08991990bf52e06f48415
 F www/cmd_mv.wiki 9e4a34eb8c37279fe0792a05d008e04a634b9864
@@ -201,7 +201,7 @@ F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 4200d131408301454cbe82312094fec8bee5a3f4
+F www/concepts.wiki 414be747ce735b08155b3ebde8115ee1e713b142
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -210,7 +210,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 4cdc9058d2a3b4d42d3d312adc355c597326400c
 F www/delta_format.wiki 4f786152399dc855fe8b32930fc3c2690465d3d3
-F www/embeddeddoc.wiki e767b80ae018454cc493d24c84537edab26fda0a
+F www/embeddeddoc.wiki b0c6d5968194fa9b13c2bc7028106154dbfa4309
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -221,25 +221,25 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki d69c059dc89de73b1fb1c030870f94c7b03fff46
+F www/fileformat.wiki 745e72bdc4d7d33b9257e62da3420f4e18a205f9
 F www/index.wiki 635e17dfd60bce7d767d43cf6368aa2e6b751333
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
-F www/newrepo.wiki 863d886ba5253b374058623c18825a763523efd0
-F www/pop.wiki f15d98d5e1ff991a8e5a79f3a3ce42ab3a69dda6
+F www/newrepo.wiki 6e108d436be156ba84f1260923ce5ca678041f66
+F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
-F www/quickstart.wiki 74902a36b2fa82e91cfc92b94bd570a846075b82
-F www/reference.wiki 7d4a75f8fe0a5d090d8a38c908d55e87ce4617f4
-F www/selfcheck.wiki 19e8a2e348d8264b00f028a5a9eb8ef43031350e
+F www/quickstart.wiki c0029b88f00ce163971d045113a1784eac00a117
+F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
+F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
-F www/wikitheory.wiki fa58861fa76aded6438677be388a3fd9ce6435b1
-P 73c23a4279b97ad3198f907770eb4efeadc3d104
-R 3e2ccf485ce08028067dc5f285c542a3
+F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
+P e8d3e327f1432a02779e49fb33b8edd00e5b807c
+R 3a63ce78b1c0318b052d35ace0756f67
 U drh
-Z ec3ae8fea70d9ab0ca02901d9e34e664
+Z f3487c940ceb53d6b8292d71197c3afd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJeHz2oxKgR168RlERAoTEAJ4nHRfIC3gV5Alr4cHz78uoeskSCwCdH66t
-yMUrAnp7EeaB/cWvIQOvd/k=
-=7UbY
+iD8DBQFJeQxdoxKgR168RlERAhCMAJ9WFDvJ8zWjXVel1puK8DWpqdYv0QCePzNO
+XcGLxZgWwTq0/ryJZfs95FU=
+=yrt0
 -----END PGP SIGNATURE-----

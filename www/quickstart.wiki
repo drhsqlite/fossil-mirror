@@ -165,7 +165,7 @@ and painlessly.</p>
     </blockquote>
 
     <p>The <i>AID</i> is some unique abbreviation to the 40-character
-    artifact identifier (AID) for a particular baseline.  If you omit
+    artifact identifier (AID) for a particular check-in.  If you omit
     the <i>AID</i> fossil moves you to the
     leaf version of the branch your are currently on.  If your branch
     has multiple leaves, you get an error - you'll have to specify the

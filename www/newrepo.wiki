@@ -12,8 +12,7 @@ The first thing we need to do is create a fossil repository file:
 stephan@ludo:~/fossil$ fossil new demo.fossil
 project-id: 9d8ccff5671796ee04e60af6932aa7788f0a990a
 server-id:  145fe7d71e3b513ac37ac283979d73e12ca04bfe
-admin-user: stephan (no password set yet!)
-baseline:   84e81a150535f031722f815d59c0c5e96ab7f122
+admin-user: stephan (initial password is ******)
 </verbatim>
 
 The numbers it spits out are unimportant (they are version
