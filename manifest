@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C First\sdraft\sof\sthe\s"branching"\sdocument.
-D 2009-01-23T21:24:00
+C Updates\sto\sthe\sbranching\sdocument.
+D 2009-01-23T22:05:37
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -188,7 +188,7 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki 55dd24e8cf08f7cf689b2e2726535ca98afbc4bb
+F www/branching.wiki 867e5fd1b3bdcf8a643d067e1026d12a6f0ca4c7
 F www/bugtheory.wiki 062a9acd52bbd4fe9a6ae3ab5d56ab943f54ca98
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -239,14 +239,14 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P cf9ee7d67e086669d4a548c802eecc764c9f42d2
-R 7027626fd20f753e40ceb7d426806885
+P 2e275c14202446fca2bb8a48a8d15ed82d9bbc33
+R f081de1ea534457d72c22489b89937f4
 U drh
-Z a8a20b61ca69e8af995550f43e7e13d1
+Z 0a01683558946d389326f1007710a183
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJejVzoxKgR168RlERAh1GAJ46BL2eSIU6A9LgeBoSGPGtNcGwQQCgg/IM
-zMgbBigzDyhMcu4zwJ9ZIE4=
-=ouPf
+iD8DBQFJej80oxKgR168RlERAnMLAJ94i8nxAahoYQ/1ZvajhvMTLawrkgCdGC2p
+5gqZV9ONyd398DA/VYzfIgE=
+=zVcs
 -----END PGP SIGNATURE-----

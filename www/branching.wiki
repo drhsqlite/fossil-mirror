@@ -7,7 +7,7 @@ linearly, as shown in figure 1.
 
 <center><table border=1 cellpadding=10 hspace=10 vspace=10>
 <tr><td align="center">
-<img src="branch01.gif"><br>
+<img src="branch01.gif" width=280 height=68><br>
 Figure 1
 </td></tr></table></center>
 
@@ -29,7 +29,8 @@ and 2 are both <i>ancestors</i> of 3.
 
 We call the graph of check-ins a <i>tree</i>.  Check-in 1 is the <i>root</i>
 since it has no ancestors.  Check-in 4 is a <i>leaf</i> of the tree since
-it has no descendants.  
+it has no descendants.  (We will give a more precise in the definition of
+"leaf" later.)
 
 Alas, reality often interferes with the simple linear development of a
 project.  Suppose two programmers make independent modifications to check-in 2.
@@ -38,7 +39,7 @@ like figure 2:
 
 <center><table border=1 cellpadding=10 hspace=10 vspace=10>
 <tr><td align="center">
-<img src="branch02.gif"><br>
+<img src="branch02.gif" width=210 height=140><br>
 Figure 2
 </td></tr></table></center>
 
@@ -59,7 +60,7 @@ works in "autosync" mode.
 
 But it might be that Bob is off-network when he does his commit, so he
 has no way of knowing that Alice has already committed her changes.
-Or, it could be that Bob has turned of "autosync" mode in SQLite.  Or,
+Or, it could be that Bob has turned off "autosync" mode in SQLite.  Or,
 maybe Bob just doesn't want to merge in Alices changes before he has
 saved his own, so he forces the commit to occur using the "--force" option
 to the fossil <b>commit</b> command.  For whatever reason, two commits against
@@ -71,13 +72,13 @@ one leaf in the graph, you don't really know.  So we like to have
 graphs with a single leaf.
 
 To resolve this situation, Alice can use the fossil <b>merge</b> command
-to me merge in Bob's changes in here local copy of check-in 3.  Then she
+to merge in Bob's changes in her local copy of check-in 3.  Then she
 can commit the results as check-in 5.  This results in a tree as shown
 in figure 3.
 
 <center><table border=1 cellpadding=10 hspace=10 vspace=10>
 <tr><td align="center">
-<img src="branch03.gif"><br>
+<img src="branch03.gif" width=282 height=152><br>
 Figure 3
 </td></tr></table></center>
 
@@ -98,14 +99,14 @@ Hold your hand over the check-in 4 circle of figure 3 and then figure
 number, but that is just a notational difference - the two check-ins have
 exactly the same content).  In other words, figure 3 is really a superset
 of figure 1.  The check-in 4 of figure 3 captures addition state which
-is omitted from figure 1.  In check-in 4 of figure 3 is a copy
-of Bob's local checkout before he merged in Alices changes.  That snapshot
+is omitted from figure 1.  Check-in 4 of figure 3 holds a copy
+of Bob's local checkout before he merged in Alice's changes.  That snapshot
 of Bob's changes independent of Alice's changes is omitted from figure 1.
 Some people say that the approach taken in figure 3 is better because it
 preserves this extra intermediate state.  Others say that the approach
 taken in figure 1 is better because it is much easier to visualize a
 linear line of development and because the the merging happens automatically
-instead of as a separate manual step.  We will not take sides in this
+instead of as a separate manual step.  We will not take sides in that
 debate.  We will simply point out that fossil enables you to do it either way.
 
 <h2>Forking Versus Branching</h2>
@@ -124,7 +125,7 @@ for development work and another for testing.
 
 <center><table border=1 cellpadding=10 hspace=10 vspace=10>
 <tr><td align="center">
-<img src="branch04.gif"><br>
+<img src="branch04.gif" width=426 height=123><br>
 Figure 4
 </td></tr></table></center>
 
@@ -137,7 +138,8 @@ presentation we will say that the project is ready after check-in 2.
 The project then splits into two branches that are used by separate
 teams.  The testing team, using the blue branch, finds and fixes a few
 bugs.  This is shown by check-ins 6 and 9.  Meanwhile the development
-team, working on the red branch, is busy adding features for the second
+team, working on the top uncolored branch, 
+is busy adding features for the second
 release.  Of course, the development team would like to take advantage of
 the bug fixes implemented by the testing team.  So periodically, the
 changes in the test branch are merged into the dev branch.  This is
@@ -151,7 +153,7 @@ concerned, there is no difference.  The distinction is in the intent.
 In figure 2, the fact that check-in 2 has multiple children is an
 accident that stems from concurrent development.  In figure 4, giving
 check-in 2 multiple children is a deliberate act.  So, to a good
-approximating, we define forking to be by accident and branching to
+approximation, we define forking to be by accident and branching to
 be by intent.  Apart from that, they are the same.
 
 <h2>Tags And Properties</h2>
@@ -162,7 +164,7 @@ same scenario as figure 4 but with tags and properties added:
 
 <center><table border=1 cellpadding=10 hspace=10 vspace=10>
 <tr><td align="center">
-<img src="branch05.gif"><br>
+<img src="branch05.gif" width=485 height=177><br>
 Figure 5
 </td></tr></table></center>
 
@@ -173,7 +175,7 @@ are much the same thing, and henceforth we will use the word "tag"
 to mean either a tag or a property. 
 
 A tag can be either a one-time tag or an propagating tag or a cancellation. 
-A one-time tag only applies to the check-in to which it is attached.  An
+A one-time tag only applies to the check-in to which it is attached.  A
 propagating tag applies to the check-in to which it is attached and also
 to all direct descendants of that check-in.  A <i>direct descendant</i>
 is a descendant through direct children.  Tags propagation does not
@@ -221,7 +223,7 @@ not make a graphical distinction between one-time and propagating tags.)
 The <b>sym-release-1.0</b> tag means that check-in 9 can be referred to
 using the more meaningful name "release-1.0".  The <b>closed</b> tag means
 that check-in 9 is a "closed leaf".  A closed leaf is a leaf that intended
-to never have any childred.
+to never have any direct children.
 
 <h2>Review Of Terminology</h2>
 
