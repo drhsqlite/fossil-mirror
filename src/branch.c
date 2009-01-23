@@ -222,6 +222,7 @@ void branch_cmd(void){
 */
 void brlist_page(void){
   Stmt q;
+  int cnt;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
@@ -229,21 +230,58 @@ void brlist_page(void){
   style_header("Branches");
   style_submenu_element("Timeline", "Timeline", "brtimeline");
   login_anonymous_available();
-  @ <h2>Branches:</h2>
-  @ <ul>
+  compute_leaves(0, 1);
   db_prepare(&q,
     "SELECT DISTINCT value FROM tagxref"
-    " WHERE tagid=%d AND srcid!=0 AND value NOT NULL"
+    " WHERE tagid=%d AND value NOT NULL"
+    "   AND rid IN leaves"
     " ORDER BY value",
     TAG_BRANCH
   );
+  cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
+    if( cnt==0 ){
+      @ <h2>Open Branches:</h2>
+      @ <ul>
+      cnt++;
+    }
     if( g.okHistory ){
       @ <li><a href="%s(g.zBaseURL)/timeline?t=%T(zBr)">%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
     }
+  }
+  db_finalize(&q);
+  if( cnt ){
+    @ </ul>
+  }
+  cnt = 0;
+  db_prepare(&q,
+    "SELECT value FROM tagxref"
+    " WHERE tagid=%d AND value NOT NULL"
+    " EXCEPT "
+    "SELECT value FROM tagxref"
+    " WHERE tagid=%d AND value NOT NULL"
+    "   AND rid IN leaves"
+    " ORDER BY value",
+    TAG_BRANCH, TAG_BRANCH
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zBr = db_column_text(&q, 0);
+    if( cnt==0 ){
+      @ <h2>Closed Branches:</h2>
+      @ <ul>
+      cnt++;     
+    }
+    if( g.okHistory ){
+      @ <li><a href="%s(g.zBaseURL)/timeline?t=%T(zBr)">%h(zBr)</a></li>
+    }else{
+      @ <li><b>%h(zBr)</b></li>
+    }
+  }
+  if( cnt ){
+    @ </ul>
   }
   db_finalize(&q);
   @ </ul>
