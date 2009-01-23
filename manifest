@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Updates\sto\sthe\sbranching\sdocument.
-D 2009-01-23T22:05:37
+C Update\sthe\stimeline\sso\sthat\sit's\suse\sof\s"Leaf"\sconforms\sto\sthe\sdefinition\ngiven\sin\sthe\sdocumentation.
+D 2009-01-23T22:20:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -102,7 +102,7 @@ F src/th.c 05228f97bf1c2b9fbb97da401a15390b12672818
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 8af8d7380ecbbca2f1d11252d49c1d189c909e91
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 16fff7bd26d294067b382593666bf4523f83191b
+F src/timeline.c 467593ff4ac399ab2cd2555c4c5fd45a955a0559
 F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -239,14 +239,14 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 2e275c14202446fca2bb8a48a8d15ed82d9bbc33
-R f081de1ea534457d72c22489b89937f4
+P dc1a5cf739b0b1e83c273d5f68805a5c86d935af
+R 5828092349ad092e1ea428d5ed882504
 U drh
-Z 0a01683558946d389326f1007710a183
+Z 26797bbe4868d382161b8128d9766a61
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJej80oxKgR168RlERAnMLAJ94i8nxAahoYQ/1ZvajhvMTLawrkgCdGC2p
-5gqZV9ONyd398DA/VYzfIgE=
-=zVcs
+iD8DBQFJekKUoxKgR168RlERAofLAJ45ho3gu9QT4DPc9rG3tpB4XcEpzwCeLswF
+0RS/0nVc7OSThBY3zvlYl5s=
+=Nard
 -----END PGP SIGNATURE-----

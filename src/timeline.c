@@ -174,21 +174,35 @@ void www_print_timeline(
       @ <td valign="top" align="left">
     }
     if( zType[0]=='c' ){
+      const char *azTag[5];
+      int nTag = 0;
       hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
       if( (tmFlags & TIMELINE_LEAFONLY)==0 ){
         if( nParent>1 ){
-          @ <b>Merge</b> 
+          azTag[nTag++] = "Merge";
         }
         if( nPChild>1 ){
           if( count_nonbranch_children(rid)>1 ){
-            @ <b>Fork</b>
+            azTag[nTag++] = "Fork";
           }else{
-            @ <b>Branch</b>
+            azTag[nTag++] = "Branch-Point";
           }
         }
       }
       if( isLeaf ){
-        @ <b>Leaf</b>
+        if( db_exists("SELECT 1 FROM tagxref"
+                      " WHERE rid=%d AND tagid=%d AND tagtype>0",
+                      rid, TAG_CLOSED) ){
+          azTag[nTag++] = "Closed-Leaf";
+        }else{
+          azTag[nTag++] = "Leaf";
+        }
+      }
+      if( nTag>0 ){
+        int i;
+        for(i=0; i<nTag; i++){
+          @ <b>%s(azTag[i])%s(i==nTag-1?"":",")</b>
+        }
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
@@ -255,9 +269,6 @@ const char *timeline_query_for_www(void){
     @   coalesce(euser, user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
-    @   NOT EXISTS(SELECT 1 FROM tagxref
-    @               WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)
-    @   AND
     @   NOT EXISTS(SELECT 1 FROM plink
     @               WHERE pid=blob.rid
     @                AND coalesce((SELECT value FROM tagxref
@@ -273,7 +284,7 @@ const char *timeline_query_for_www(void){
     @ WHERE blob.rid=event.objid
   ;
   if( zBase==0 ){
-    zBase = mprintf(zBaseSql, TAG_CLOSED, TAG_BRANCH, TAG_BRANCH);
+    zBase = mprintf(zBaseSql, TAG_BRANCH, TAG_BRANCH);
   }
   return zBase;
 }
