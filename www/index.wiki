@@ -60,6 +60,8 @@ User Links:
   *  [./quickstart.wiki | Quick Start] guide to using fossil
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
+  *  A tutorial on [./branching.wiki | branching], what it means and how
+     to do it using fossil.
   *  The [./selfcheck.wiki | automatic self-check] mechanism
      helps insure project integrity.
   *  Fossil contains a [./wikitheory.wiki | built-in wiki].

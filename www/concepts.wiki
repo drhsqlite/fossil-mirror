@@ -214,9 +214,9 @@ token after the name of the fossil executable, as shown above.</p>
 <p>Fossil has two modes of operation: "autosync" and "non-autosync".
 Autosync mode works something like CVS or SVN in that it automatically
 keeps your work in sync with the central server.  Non-autosync is
-more like GIT, or Bitkeeper in that your local repository develops
+more like GIT or Bitkeeper in that your local repository develops
 independently of your coworkers and you share your changes manually.
-The interesting thing about fossil is that it supports both autosync
+An interesting feature of fossil is that it supports both autosync
 and non-autosync work flows.</p>
 
 <p>The default setting for fossil is to be in autosync mode.  You
@@ -384,6 +384,12 @@ between coworkers for doing quick pushes or pulls.  But you can also
 set up a permanent stand-alone server if you prefer.  Just make
 arrangements for fossil to be launched with appropriate arguments
 after every reboot.</p>
+
+<p>If you just want a server to browse the built-in fossil website
+locally, use the <b>ui</b> command in place of <b>server</b>.  The
+<b>ui</b> command starts up a local server too, but it also takes
+the additional step of automatically launching your webbrowser and
+pointing at the new server.</p>
 </li>
 
 <li><p><b>Setting up a CGI server</b></p>

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Nomenclature\schanage:\s"bug\sreport"\sbecomes\s"ticket"
-D 2009-01-23T01:01:37
+C First\sdraft\sof\sthe\s"branching"\sdocument.
+D 2009-01-23T21:24:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -11,6 +11,7 @@ F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
 F art/CollRev4.dia be6e84c213b52cad03e3192fe8ba941709564fd4
+F art/branching.odp 2b21dbbc284413ed7e9a915c6c716e42f6831b1a
 F art/concept1.dia 84f4b61b5f22eb62752c4aa04a955d424f9d2a00
 F art/concept2.dia 45f46122096e5d29536c7670ec214e9ac478ef43
 F art/delta1.dia 1e1461fa6f5d7e5a3d9207d0da8091e85ea3c62d
@@ -182,6 +183,12 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
+F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
+F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
+F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
+F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
+F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
+F www/branching.wiki 55dd24e8cf08f7cf689b2e2726535ca98afbc4bb
 F www/bugtheory.wiki 062a9acd52bbd4fe9a6ae3ab5d56ab943f54ca98
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -201,7 +208,7 @@ F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 414be747ce735b08155b3ebde8115ee1e713b142
+F www/concepts.wiki e17c6aa709794f173c798b06e56cc926f4c61bf0
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -222,7 +229,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/fileformat.wiki 745e72bdc4d7d33b9257e62da3420f4e18a205f9
-F www/index.wiki 635e17dfd60bce7d767d43cf6368aa2e6b751333
+F www/index.wiki b5ddee628e02fff307202d7c46849b2b136855bd
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 6e108d436be156ba84f1260923ce5ca678041f66
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -232,14 +239,14 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 904ee40b938df48e574959815b2f331bb99acbbb
-R fca9265b36f9d233d2a6df9de8e65b98
+P cf9ee7d67e086669d4a548c802eecc764c9f42d2
+R 7027626fd20f753e40ceb7d426806885
 U drh
-Z 9f6e5768c7f60563966d1f349d5f03d7
+Z a8a20b61ca69e8af995550f43e7e13d1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJeRb1oxKgR168RlERAmGlAJ9eo5SKCiWynReIeNTQ+bJvW+JJnACfe9MY
-5ypert4xL+3KbV2iJgGMHyY=
-=kXo2
+iD8DBQFJejVzoxKgR168RlERAh1GAJ46BL2eSIU6A9LgeBoSGPGtNcGwQQCgg/IM
+zMgbBigzDyhMcu4zwJ9ZIE4=
+=ouPf
 -----END PGP SIGNATURE-----
