@@ -22,7 +22,7 @@
 **
 *******************************************************************************
 **  
-** Code to generate the bug report listings
+** Code to generate the ticket listings
 */
 #include "config.h"
 #include "report.h"
@@ -41,15 +41,15 @@ void view_list(void){
 
   login_check_credentials();
   if( !g.okRdTkt && !g.okNewTkt ){ login_needed(); return; }
-  style_header("Bug Report Main Menu");
+  style_header("Ticket Main Menu");
   if( g.okNewTkt ){
-    @ <p>Enter a new bug report:</p>
-    @ <ol><li value="1"><a href="tktnew">New bug report</a></li></ol>
+    @ <p>Enter a new ticket:</p>
+    @ <ol><li value="1"><a href="tktnew">New ticket</a></li></ol>
     @
     cnt++;
   }
   if( !g.okRdTkt ){
-    @ <p>You are not authorized to view existing bug reports.</p>
+    @ <p>You are not authorized to view existing tickets.</p>
   }else{
     db_prepare(&q, "SELECT rn, title, owner FROM reportfmt ORDER BY title");
     @ <p>Choose a report format from the following list:</p>
@@ -78,7 +78,7 @@ void view_list(void){
   }
   @ </ol>
   if( g.okTktFmt ){
-    @ <p>Create a new bug report display format:</p>
+    @ <p>Create a new ticket display format:</p>
     @ <ol>
     @ <li value="%d(cnt+1)"><a href="rptnew">New report format</a></li>
     @ </ol>

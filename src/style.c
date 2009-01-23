@@ -199,7 +199,7 @@ const char zDefaultHeader[] =
 @   html "<a href='$baseurl/taglist'>Tags</a>"
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$baseurl/reportlist'>Bugs</a>"
+@   html "<a href='$baseurl/reportlist'>Tickets</a>"
 @ }
 @ if {[hascap j]} {
 @   html "<a href='$baseurl/wiki'>Wiki</a>"

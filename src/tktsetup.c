@@ -256,7 +256,7 @@ static const char zDefaultNew[] =
 @      submit_ticket
 @   }
 @ </th1>
-@ <h1 align="center">Enter A New Bug Report</h1>
+@ <h1 align="center">Enter A New Ticket</h1>
 @ <table cellpadding="5">
 @ <tr>
 @ <td colspan="2">
@@ -327,7 +327,7 @@ static const char zDefaultNew[] =
 @ <td align="right">
 @ <input type="submit" name="cancel" value="Cancel">
 @ </td>
-@ <td>Abandon and forget this bug report</td>
+@ <td>Abandon and forget this ticket</td>
 @ </tr>
 @ </table>
 ;
