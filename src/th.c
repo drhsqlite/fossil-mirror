@@ -1816,7 +1816,7 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     /* A literal */
     rc = thSubstWord(interp, pExpr->zValue, pExpr->nValue);
   }else{
-    int eArgType;           /* Actual type of arguments */
+    int eArgType = 0;           /* Actual type of arguments */
 
     /* Argument values */
     int iLeft;
@@ -1866,7 +1866,7 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     }
 
     if( rc==TH_OK && eArgType==ARG_INTEGER ){
-      int iRes;
+      int iRes = 0;
       switch( pExpr->pOp->eOp ) {
         case OP_MULTIPLY:     iRes = iLeft*iRight;  break;
         case OP_DIVIDE:       iRes = iLeft/iRight;  break;

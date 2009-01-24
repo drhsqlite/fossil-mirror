@@ -617,6 +617,7 @@ static void report_format_hints(void){
   @
 }
 
+#if 0 /* NOT USED */
 static void column_header(int rn,const char *zCol, int nCol, int nSorted,
     const char *zDirection, const char *zExtra
 ){
@@ -643,6 +644,7 @@ static void column_header(int rn,const char *zCol, int nCol, int nSorted,
     @ %s(zExtra)">%h(zCol)</a></th>
   }
 }
+#endif
 
 /*
 ** The state of the report generation.

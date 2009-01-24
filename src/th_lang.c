@@ -653,7 +653,7 @@ static int string_first_command(
   const char *zHaystack;
   int nHaystack;
   int i;
-  int iRes;
+  int iRes = -1;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string first needle haystack");
@@ -714,7 +714,7 @@ static int string_last_command(
   const char *zHaystack;
   int nHaystack;
   int i;
-  int iRes;
+  int iRes = -1;
 
   if( argc!=4 ){
     return Th_WrongNumArgs(interp, "string first needle haystack");

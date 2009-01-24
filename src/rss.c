@@ -51,7 +51,6 @@ void page_timeline_rss(void){
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   Blob bSQL;
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
-  blob_zero(&bSQL);
   const char zSQL1[] =
     @ SELECT
     @   blob.rid,
@@ -64,6 +63,7 @@ void page_timeline_rss(void){
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
+  blob_zero(&bSQL);
   blob_append( &bSQL, zSQL1, -1 );
   
   if( zType[0]!='a' ){

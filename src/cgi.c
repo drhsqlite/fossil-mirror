@@ -1189,7 +1189,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
   /* Use win32_http_server() instead */
   exit(1);
 #else
-  int listener;                /* The server socket */
+  int listener = -1;           /* The server socket */
   int connection;              /* A socket for each individual connection */
   fd_set readfds;              /* Set of file descriptors for select() */
   size_t lenaddr;              /* Length of the inaddr structure */
