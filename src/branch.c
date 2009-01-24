@@ -231,6 +231,19 @@ void brlist_page(void){
   style_submenu_element("Timeline", "Timeline", "brtimeline");
   login_anonymous_available();
   compute_leaves(0, 1);
+  style_sidebox_begin("Nomenclature:", "33%");
+  @ <ol>
+  @ <li> An <b>open branch</b> is a branch that has one or
+  @ more <a href="leaves">open leaves.</a>
+  @ The presence of open leaves presumably means
+  @ that the branch is still being extended with new check-ins.</li>
+  @ <li> A <b>closed branch</b> is a branch with only
+  @ <a href="leaves?closed">closed leaves</a>.
+  @ Closed branches are fixed and do not change (unless they are first
+  @ reopened)</li>
+  @ </ol>
+  style_sidebox_end();
+
   db_prepare(&q,
     "SELECT DISTINCT value FROM tagxref"
     " WHERE tagid=%d AND value NOT NULL"

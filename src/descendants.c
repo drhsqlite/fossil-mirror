@@ -299,9 +299,7 @@ void leaves_page(void){
   style_header("Leaves");
   login_anonymous_available();
   compute_leaves(0, showAll ? 0 : showClosed ? 2 : 1);
-  @ <table width="33%%" align="right" border="1">
-  @ <tr><td>
-  @ <b>Nomenclature:</b>
+  style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> A <b>leaf</b> is a check-in with no descendants.</li>
   @ <li> An <b>open leaf</b> is a leaf that does not have a "closed" tag
@@ -309,13 +307,14 @@ void leaves_page(void){
   @ <li> A <b>closed leaf</b> has a "closed" tag and is thus assumed to
   @ be historical and no longer in active use.</li>
   @ </ol>
-  @ </td></tr></table>
+  style_sidebox_end();
+
   if( showAll ){
-    @ <h1>All leaves, both open and closed</h1>
+    @ <h1>All leaves, both open and closed:</h1>
   }else if( showClosed ){
-    @ <h1>Closed leaves only</h1>
+    @ <h1>Closed leaves:</h1>
   }else{
-    @ <h1>All open leaves</h1>
+    @ <h1>Open leaves:</h1>
   }
   db_prepare(&q,
     "%s"

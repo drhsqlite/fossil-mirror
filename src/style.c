@@ -159,6 +159,24 @@ void style_footer(void){
   }
 }
 
+/*
+** Begin a side-box on the right-hand side of a page.  The title and
+** the width of the box are given as arguments.  The width is usually
+** a percentage of total screen width.
+*/
+void style_sidebox_begin(const char *zTitle, const char *zWidth){
+  @ <table width="%s(zWidth)" align="right" border="1" cellpadding=5
+  @  vspace=5 hspace=5>
+  @ <tr><td>
+  @ <b>%h(zTitle)</b>
+}
+
+/* End the side-box
+*/
+void style_sidebox_end(void){
+  @ </td></tr></table>
+}
+
 /* @-comment: // */
 /*
 ** The default page header.

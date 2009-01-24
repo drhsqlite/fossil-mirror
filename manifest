@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sthe\sdistinction\sbetween\sopen\sand\sclosed\sbranches.\s\sAn\sopen\sbranch\nis\sa\sbranch\swith\sone\sor\smore\sopen\sleaves.\s\sShow\sopen\sand\sclosed\sbranches\nseparately\son\sthe\s"Branches"\swebpage.
-D 2009-01-23T23:57:11
+C Add\sa\s"nomenclature"\ssidebox\sfor\sthe\sBranches\spage,\sexplaining\sthe\sdifference\nbetween\san\sopen\sand\sa\sclosed\sbranch.
+D 2009-01-24T00:11:44
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -44,7 +44,7 @@ F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
-F src/branch.c f230ea602ba29065dfd3d311263f7c802a6737eb
+F src/branch.c 76b93505ebeceec45968445ce0f01ede51af4eae
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c 9bee6fb4efa45f8cbb4c9f8a8b7d25e29b1fe7a5
 F src/checkin.c b2094588478f865bc460463c5b0bf6e1831380c5
@@ -59,7 +59,7 @@ F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c 48df0d0f90a8d238f2cbae54d341ea2acd9c2a77
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendants.c 8b62b08925399d0d363e970a966a56617e26c435
+F src/descendants.c 9007c3f73bc34768455a8438bcbfd0f0c79e3285
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
@@ -94,7 +94,7 @@ F src/shun.c ffc8251555af50947b4244716263fc66217ce32e
 F src/sqlite3.c ba35fa988d8a096e5774c5e05e3cb5a2332f5813
 F src/sqlite3.h 619eeecfbe25dc6e5af6bbcbdf53ec3542ff49b6
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c 08207a3a32fa42bac6248e03f15cc0c43af5f05d
+F src/style.c 3c8c1ba9292016cd3a36257faa52f249d1239f72
 F src/sync.c 5bf564823db36120bb1bfbe9a53182949fd3fb1a
 F src/tag.c deb9d688fd96495147e14843cbd1bdf83ce70fbd
 F src/tagview.c c5f7f1444b05d43c49c583124304d4106f1bab7c
@@ -239,14 +239,14 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P cb31e908681bce686566953fc0745cca15555c02
-R 1ff25a83243ef84c02033decd180067f
+P 9659ed66f83f895246b4f128e1dca1c6d5736cc0
+R 414a0e61575851ebd40f09fceac9b153
 U drh
-Z 7b1823354460fae509e41756de0654d1
+Z 888c656fbc34ed9d2e44e34ed8915ad3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJellaoxKgR168RlERAq0CAJ9vJnaScCZY64VpYCDkRjhO+HDteQCff8t/
-SsaNnTRhhQuTae8mT9r9wv8=
-=xoCM
+iD8DBQFJelzDoxKgR168RlERAhpAAJ4oyH9nmVsTekr8oPHSW4nnjSI8vwCfZJVI
+COhjitpZHCdQ7IuD19evq0w=
+=rE0C
 -----END PGP SIGNATURE-----
