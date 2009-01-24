@@ -51,7 +51,7 @@ void branch_new(void){
   zColor = find_option("bgcolor","c",1);
   verify_all_options();
   if( g.argc<5 ){
-    usage("branch new BRANCH-NAME BASE-CHECK-IN ?-bgcolor COLOR?");
+    usage("new BRANCH-NAME BASE-CHECK-IN ?-bgcolor COLOR?");
   }
   db_find_and_open_repository(1);  
   noSign = db_get_int("omitsign", 0)|noSign;
