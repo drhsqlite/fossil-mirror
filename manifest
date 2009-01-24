@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\ssome\scompiler\swarnings.
-D 2009-01-24T10:44:43
+C Prevent\scheck-ins\sagainst\sa\sclosed\sleaf.\s\sAdd\sthe\s--branch\sand\s--bgcolor\noptions\sto\sthe\s"ci"\sand\s"commit"\scommands.
+D 2009-01-24T15:47:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -47,7 +47,7 @@ F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 76b93505ebeceec45968445ce0f01ede51af4eae
 F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
 F src/cgi.c ebad09218e26ed9fde26e6706c4d9261b8772e54
-F src/checkin.c b2094588478f865bc460463c5b0bf6e1831380c5
+F src/checkin.c c26c845ac6e640961e5665a992c6984bdace1ba5
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c bf4ca8abfdd8b2560d3712eb209d27cf9a908821
@@ -239,14 +239,14 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 83ac468aae28ad6903ebfa051c10ee68d92da512
-R 77f8dddb6e7664e2c13665f677b8c117
+P cd965de68208d3314fa31b24441f475abd3d4216
+R 972bf48e2c271eca53e6f7eabfa831fe
 U drh
-Z 6068ca78794abac1501f9b889a86f9b8
+Z fd6a9cb55032edc9ce550250e70dc1c5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJevEfoxKgR168RlERAlTQAJ4oE2mdd0Rc8FtrbSToc/b+7jBI8gCbBpyp
-dNE1lep6rdXsR359jzfTKvE=
-=9Dpo
+iD8DBQFJezgxoxKgR168RlERAvpZAKCHjEqi5EvddBR7IcC8nOO9QCa+KwCfWtoQ
+0lNzxnya5hJye98s1p/Hbt4=
+=9UGI
 -----END PGP SIGNATURE-----

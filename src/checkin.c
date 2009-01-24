@@ -369,7 +369,7 @@ int is_a_leaf(int rid){
 ** COMMAND: ci
 ** COMMAND: commit
 **
-** Usage: %fossil commit ?-m COMMENT? ?--nosign? ?FILE...?
+** Usage: %fossil commit ?OPTIONS? ?FILE...?
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
@@ -378,10 +378,27 @@ int is_a_leaf(int rid){
 ** unless the "--nosign" options is used.  All files that have
 ** changed will be committed unless some subset of files is specified
 ** on the command line.
+**
+** The --branch option followed by a branch name cases the new check-in
+** to be placed in the named branch.  The --bgcolor option can be followed
+** by a color name (ex:  '#ffc0c0') to specify the background color of
+** entries in the new branch when shown in the web timeline interface.
+**
+** A check-in is not permitted to fork unless the --force or -f
+** option appears.  A check-in is not allowed against a closed check-in.
+**
+** Options:
+**
+**    --comment|-m COMMENT-TEXT
+**    --branch NEW-BRANCH-NAME
+**    --bgcolor COLOR
+**    --nosign
+**    --force|-f
+**    
 */
 void commit_cmd(void){
   int rc;
-  int vid, nrid, nvid, wouldFork=0;
+  int vid, nrid, nvid;
   Blob comment;
   const char *zComment;
   Stmt q;
@@ -392,6 +409,8 @@ void commit_cmd(void){
   int forceFlag = 0;     /* Force a fork */
   char *zManifestFile;   /* Name of the manifest file */
   int nBasename;         /* Length of "g.zLocalRoot/" */
+  const char *zBranch;   /* Create a new branch with this name */
+  const char *zBgColor;  /* Set background color when branching */
   Blob filename;         /* complete filename */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -400,9 +419,11 @@ void commit_cmd(void){
   Blob cksum1b;          /* Checksum recorded in the manifest */
  
   url_proxy_options();
-  noSign = find_option("nosign","",0)!=0;
+  noSign = find_option("nosign",0,0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
+  zBranch = find_option("branch","b",1);
+  zBgColor = find_option("bgcolor",0,1);
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 1)==0 ){ noSign = 1; }
@@ -412,7 +433,7 @@ void commit_cmd(void){
   ** Autosync if requested.
   */
   autosync(AUTOSYNC_PULL);
-  
+
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
   ** in the checked out directory are committed. If one or more arguments
@@ -460,12 +481,24 @@ void commit_cmd(void){
   }
 
   vid = db_lget_int("checkout", 0);
-  if( !is_a_leaf(vid) ){
-    wouldFork=1;
-    if( forceFlag==0 ){
-      fossil_fatal("would fork.  \"update\" first or use -f or --force.");
-    }
+
+  /*
+  ** Do not allow a commit that will cause a fork unless the --force flag
+  ** is used.
+  */
+  if( zBranch==0 && forceFlag==0 && !is_a_leaf(vid) ){
+    fossil_fatal("would fork.  \"update\" first or use -f or --force.");
   }
+
+  /*
+  ** Do not allow a commit against a closed leaf 
+  */
+  if( db_exists("SELECT 1 FROM tagxref"
+                " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                TAG_CLOSED, vid) ){
+    fossil_fatal("cannot commit against a closed leaf");
+  }
+
   vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
@@ -567,6 +600,28 @@ void commit_cmd(void){
 
   blob_appendf(&manifest, "\n");
   blob_appendf(&manifest, "R %b\n", &cksum1);
+  if( zBranch && zBranch[0] ){
+    Stmt q;
+    if( zBgColor && zBgColor[0] ){
+      blob_appendf(&manifest, "T *bgcolor * %F\n", zBgColor);
+    }
+    blob_appendf(&manifest, "T *branch * %F\n", zBranch);
+    blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
+
+    /* Cancel all other symbolic tags */
+    db_prepare(&q,
+        "SELECT tagname FROM tagxref, tag"
+        " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
+        "   AND tagtype>0 AND tagname GLOB 'sym-*'"
+        "   AND tagname!='sym-'||%Q"
+        " ORDER BY tagname",
+        vid, zBranch);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zTag = db_column_text(&q, 0);
+      blob_appendf(&manifest, "T -%s *\n", zTag);
+    }
+    db_finalize(&q);
+  }  
   blob_appendf(&manifest, "U %F\n", g.zLogin);
   md5sum_blob(&manifest, &mcksum);
   blob_appendf(&manifest, "Z %b\n", &mcksum);
