@@ -326,12 +326,12 @@ static void showTags(int rid, const char *zNotGlob){
 
 
 /*
-** WEBPAGE: vinfo
-** URL:  /vinfo?name=RID|ARTIFACTID
+** WEBPAGE: ci
+** URL:  /ci?name=RID|ARTIFACTID
 **
 ** Return information about a baseline
 */
-void vinfo_page(void){
+void ci_page(void){
   Stmt q;
   int rid;
   int isLeaf;
@@ -431,7 +431,7 @@ void vinfo_page(void){
       @         ZIP archive</a>
       @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
       if( g.okWrite ){
-        @     | <a href="%s(g.zBaseURL)/vedit?r=%d(rid)">edit</a>
+        @     | <a href="%s(g.zBaseURL)/ci_edit?r=%d(rid)">edit</a>
       }
       @   </td>
       @ </tr>
@@ -1142,7 +1142,7 @@ void info_page(void){
     return;
   }
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
-    vinfo_page();
+    ci_page();
   }else
   if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                 " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
@@ -1153,10 +1153,10 @@ void info_page(void){
     tinfo_page();
   }else
   if( db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
-    vinfo_page();
+    ci_page();
   }else
   if( db_exists("SELECT 1 FROM plink WHERE pid=%d", rid) ){
-    vinfo_page();
+    ci_page();
   }else
   {
     artifact_page();
@@ -1164,8 +1164,8 @@ void info_page(void){
 }
 
 /*
-** WEBPAGE: vedit
-** URL:  vedit?r=RID&c=NEWCOMMENT&u=NEWUSER
+** WEBPAGE: ci_edit
+** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
 ** Present a dialog for updating properties of a baseline:
 **
@@ -1173,7 +1173,7 @@ void info_page(void){
 **     *  The check-in comment
 **     *  The background color.
 */
-void vedit_page(void){
+void ci_edit_page(void){
   int rid;
   const char *zComment;
   const char *zNewComment;
@@ -1218,7 +1218,7 @@ void vedit_page(void){
                         "  FROM event WHERE objid=%d", rid);
   if( zComment==0 ) fossil_redirect_home();
   if( P("cancel") ){
-    cgi_redirectf("vinfo?name=%d", rid);
+    cgi_redirectf("ci?name=%d", rid);
   }
   zNewComment = PD("c",zComment);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
@@ -1322,7 +1322,7 @@ void vedit_page(void){
       manifest_crosslink(nrid, &ctrl);
       db_end_transaction(0);
     }
-    cgi_redirectf("vinfo?name=%d", rid);
+    cgi_redirectf("ci?name=%d", rid);
   }
   blob_zero(&comment);
   blob_append(&comment, zNewComment, -1);
@@ -1364,8 +1364,8 @@ void vedit_page(void){
     blob_reset(&suffix);
   }
   @ <p>Make changes to attributes of check-in
-  @ [<a href="vinfo?name=%d(rid)">%s(zUuid)</a>]:</p>
-  @ <form action="%s(g.zBaseURL)/vedit" method="POST">
+  @ [<a href="ci?name=%d(rid)">%s(zUuid)</a>]:</p>
+  @ <form action="%s(g.zBaseURL)/ci_edit" method="POST">
   login_insert_csrf_secret();
   @ <input type="hidden" name="r" value="%d(rid)">
   @ <table border="0" cellspacing="10">

@@ -373,7 +373,7 @@ const char zDefaultCSS[] =
 @    padding: 0.5em;
 @}
 @
-@ /* The label/value pairs on (for example) the vinfo page */
+@ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
 @   text-align: right;
