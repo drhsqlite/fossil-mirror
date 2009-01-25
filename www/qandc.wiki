@@ -4,6 +4,8 @@
 <p>This page is a collection of real questions and criticisms that have been
 raised against fossil together with responses from the program's author.</p>
 
+<p>Note: See also the <a href="faq.wiki">Frequently Asked Questions</a>.</p>
+
 <b>Fossil sounds like a lot of reinvention of the wheel.
 Why create your own DVCS when you could have reused mercurial?</b>
 

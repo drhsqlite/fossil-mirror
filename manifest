@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Rename\sthe\s"vinfo"\spage\sto\s"ci"\sand\sthe\s"vedit"\spage\sto\s"ci_edit".
-D 2009-01-25T20:13:46
+C Documentation\supdates:\s\sAdded\sFAQ\sand\stestimonials.
+D 2009-01-25T21:16:55
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -228,25 +228,28 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
+F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
+F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
 F www/fileformat.wiki e6fabaf4cd609390faaa92b631e3c0c2712adad5
-F www/index.wiki b5ddee628e02fff307202d7c46849b2b136855bd
+F www/index.wiki 2046c07523d772d5ddef40c74e97183b0f3affe0
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
-F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
+F www/qandc.wiki 36405b750ae19b986a3e5e82cef9d62a5b39d40f
 F www/quickstart.wiki 6b03b1426c9f094d56e9bb895215b79ac2ce1ea1
 F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
+F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P eb8223e16458140ab7911a271545d492b23fc6fc
-R 36deafa6298b683b29f6cf63516dfef1
+P 9be1b00392a940fcb4401a298e9393b82174301f
+R 1a75b6502b433b2744cd2a9ee47b202a
 U drh
-Z 08fbbc1dab167ce63310c81b0a59a741
+Z 9748ba5c4c88ef21e657a0952eb3eaee
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJfMf9oxKgR168RlERAoL/AJ90Mz2bY9xKswmTNOdIWlgeo8j4RwCfSjiB
-BdEI69Ub7fvFNJSuf0A55j4=
-=emTc
+iD8DBQFJfNbLoxKgR168RlERAujQAJ4we6UyW1zO0NjwMauC1C9LGcmxpACfdhtI
+lcMrvCZjxsSzSJth7SqsVyI=
+=Irv1
 -----END PGP SIGNATURE-----

@@ -15,7 +15,7 @@ Or you can grab
 [http://www.fossil-scm.org/download.html | pre-compiled binaries].
 
 
-Feature Summary:
+<b>Feature Summary:</b>
 
   *  Flexible workflow:<ul>
     <li>Disconnected, distributed development like
@@ -53,8 +53,9 @@ Feature Summary:
   *  Ridiculously easy to [./build.wiki | install] and 
      [./quickstart.wiki | operate].
 
-User Links:
+<b>User Links:</b>
 
+  *  [./faq.wiki | FAQ]
   *  The [./concepts.wiki | concepts] behind fossil
   *  [./build.wiki | Building And Installing]
   *  [./quickstart.wiki | Quick Start] guide to using fossil
@@ -69,10 +70,11 @@ User Links:
     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
      available for discussing fossil issues.
   *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
+  *  [./reviews.wiki | Testimonials] from fossil users.
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
 
-Developer Links:
+<b>Developer Links:</b>
 
   *  [./pop.wiki | Principles Of Operation]
   *  The [./fileformat.wiki | file format] used by every content
@@ -83,7 +85,7 @@ Developer Links:
      efficiently generate deltas.
   *  The [./sync.wiki | synchronization protocol].
 
-Competing Projects:
+<b>Competing Projects:</b>
 
   *  [http://www.ditrack.org/ | DITrace] - A Distributed Issue Tracker
   *  [http://www.distract.wellquite.org/ | DisTract]
