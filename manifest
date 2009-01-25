@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Documentation\supdates:\s\sAdded\sFAQ\sand\stestimonials.
-D 2009-01-25T21:16:55
+C Add\sdocumentation\s(advocacy-type\sdocumentation)\son\sthe\sfossil\sweb\sinterface.\nCreated\slinks\sfrom\sthe\shomepage.
+D 2009-01-25T23:30:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -217,7 +217,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 4cdc9058d2a3b4d42d3d312adc355c597326400c
 F www/delta_format.wiki 4f786152399dc855fe8b32930fc3c2690465d3d3
-F www/embeddeddoc.wiki b0c6d5968194fa9b13c2bc7028106154dbfa4309
+F www/embeddeddoc.wiki f65cddb5e8dd51abc57f90e88132cb3c55338a55
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -231,7 +231,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
 F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
 F www/fileformat.wiki e6fabaf4cd609390faaa92b631e3c0c2712adad5
-F www/index.wiki 2046c07523d772d5ddef40c74e97183b0f3affe0
+F www/index.wiki 786913c0b467367fbda671466457bbe51253eee6
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -241,15 +241,16 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
+F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 9be1b00392a940fcb4401a298e9393b82174301f
-R 1a75b6502b433b2744cd2a9ee47b202a
+P 627de3bf16b0552bbed7b62496d2f82ac4f14b7d
+R 5dfcc73a8ec0c1c60ec005b3f5b416c7
 U drh
-Z 9748ba5c4c88ef21e657a0952eb3eaee
+Z cd449b93261c668054a67b716d0b81bc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJfNbLoxKgR168RlERAujQAJ4we6UyW1zO0NjwMauC1C9LGcmxpACfdhtI
-lcMrvCZjxsSzSJth7SqsVyI=
-=Irv1
+iD8DBQFJfPYCoxKgR168RlERAuRwAJwI6wYe03p6WI5iK0whzxmteO7KlwCcCsQ5
+jdAC9JhpXKrSomgx1Kk5/DY=
+=OIoR
 -----END PGP SIGNATURE-----

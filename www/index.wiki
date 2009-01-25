@@ -30,10 +30,9 @@ Or you can grab
     <li>Or, all of the above at the same time</ul>
   *  Integrated, [./bugtheory.wiki | distributed bug tracking] and 
      [./wikitheory.wiki | distributed wiki].
-  *  Built-in web interface that supports deep archaeological digs through
-     the project history.
-  *  All network communication via 
-     [http://en.wikipedia.org/wiki/HTTP | HTTP] with 
+  *  Built-in [./webui.wiki | web interface] that supports deep
+     archaeological digs through the project history.
+  *  All network communication via HTTP with 
      [./quickstart.wiki#proxy | proxy support]
      so that everything works from behind restrictive firewalls.
   *  Everything (client, server, and utilities) is included in a 
@@ -57,8 +56,10 @@ Or you can grab
 
   *  [./faq.wiki | FAQ]
   *  The [./concepts.wiki | concepts] behind fossil
-  *  [./build.wiki | Building And Installing]
   *  [./quickstart.wiki | Quick Start] guide to using fossil
+  *  [./reviews.wiki | Testimonials] from fossil users.
+  *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
+  *  [./build.wiki | Building And Installing]
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
   *  A tutorial on [./branching.wiki | branching], what it means and how
@@ -69,8 +70,6 @@ Or you can grab
   *  There is a
     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
      available for discussing fossil issues.
-  *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
-  *  [./reviews.wiki | Testimonials] from fossil users.
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
 

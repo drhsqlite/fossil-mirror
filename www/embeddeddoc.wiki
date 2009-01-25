@@ -1,4 +1,4 @@
-<h1>Managing Project Documentation</h1>
+<h1 align="center">Managing Project Documentation</h1>
 
 Fossil provides a built-in <a href="wikitheory.wiki">wiki</a>
 that can be used to store the
@@ -101,9 +101,21 @@ This is one of three ways to set up a
 
 The "<b>/tip/</b>" part of the URL tells fossil to use
 the documentation files from the check-in that was checked in most
-recently.  This file is stored in the fossil source tree under
+recently.  If you wanted to see an historical version of this document,
+you could substitute the name of a check-in for "<b>/tip/</b>".
+For example, to see the version of this document associated with
+check-in [9be1b00392], simply replace the "<b>/tip/</b>" with
+"<b>/9be1b00392/</b>".  You can also substitute the symbolic name
+for a particular version or branch.  For example, you might
+replace "<b>/tip/</b>" with "<b>/trunk/</b>" to get the latest
+version of this document in the "trunk" branch.  (As of this writing,
+the self-hosting fossil repository only has a single branch "trunk" and
+so "trunk" and "tip" amount to the same thing, but they would be different
+in a project with multiple branches.)
+
+The file that encodes this document is stored in the fossil source tree under
 the name "<b>www/embeddeddoc.wiki</b>" and so that name forms the
-last part of the URL.
+last part of the URL for this document.
 
 As I sit writing this documentation file, I am testing my work by
 running the "<b>fossil server</b>" command line and viewing

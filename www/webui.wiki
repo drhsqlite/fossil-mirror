@@ -1,0 +1,165 @@
+<h1 align="center">The Fossil Web Interface</h1>
+
+One of the innovative features of fossil is its built-in web interface.
+This web interface provides everything you need to run a software
+development project:
+
+  *  [./bugtheory.wiki | Ticketing and bug tracking]
+  *  [./wikitheory.wiki | Wiki]
+  *  [./embeddeddoc.wiki | On-line documentation]
+  *  Status information
+  *  Timelines
+  *  File and version lists and differences
+  *  Historical change data
+  *  Links to download historical versions as ZIP archives
+
+You get all of this, and more, for free when you use fossil. 
+There are no extra programs to install or setup.
+Everything you need is already pre-configured and built into the
+self-contained, stand-alone fossil executable.
+
+As an example of how useful this web interface can be,
+the entire [./index.wiki | fossil website] (except for the
+[http://www.fossil-scm.org/download.html | precompiled binary download page]),
+including the document you are now reading,
+is rendered using the stock fossil web interface, with no enhancements,
+and little customization.
+
+Note also that because fossil is a distribute system, you can run
+the web interface on your local machine while off network (for example,
+while on an airplane) including
+making changes to wiki pages and/or trouble ticket, then synchronize with your
+co-workers after you reconnect.
+
+<h2>Drop-Dead Simple Startup</h2>
+
+To start using the built-in fossil web interface on an existing fossil
+repository, simply type this:
+
+   <b>fossil ui existing-repository.fossil</b>
+
+Substitute the name of your repository, of course.
+The "ui" command will start a webserver running (it figures out an
+available TCP port to use on its own) and then automatically launches 
+your web browser to point at that server.  If you run the "ui" command
+from within an open check-out, you can omit the repository name:
+
+  <b>fossil ui</b>
+
+The latter case is a very useful short-cut when you are working on a
+fossil project and what to quickly do some work with the interface.
+Notice that fossil automatically finds an unused TCP port to run the
+server own and automatically points your web browser to the correct
+URL.  So there is never any fumbling around trying to find an open
+port or to type arcane strings into your browser URL entry box.
+The interface just pops right up, ready to run.
+
+The fossil web interface is also very easy to setup and run on a
+network server, as either a CGI program or from inetd.  Details on how
+to do that are described further below.
+
+<h2>Things To Do Using The Web Interface</h2>
+
+You can view <b>timelines</b> of changes to the project.  The default
+"Timeline" link on the menu bar takes you to a page that shows the 20
+most recent check-ins, wiki page edits, and ticket/bug-report changes.
+This gives a very useful snapshot of what has been happening lately on the
+project.  You can click to go further back in time, if needed.  Or
+follow hyperlinks to see details, including diffs and annotated diffs,
+of individual check-ins, wiki page edits, or ticket changes.
+
+You can view and edit <b>tickets and bug reports</b> by following the
+"Tickets" link on the menu bar.
+Fossil is backed by an SQL database, so users with appropriate permissions
+can write new ticket report formats based on SQL query statements.
+Fossil is careful to prevent ticket report formats from doing any mischief
+on the database (it only allows SELECT statements to run) and it restricts
+access to sensitive data such as user passwords.  So it is actually safe
+to let anonymous users on the internet write their own ticket formats if
+you like.  In addition to viewing and/or creating report formats, you can
+also create new tickets or look at summaries or complete histories of
+existing tickets.  Any changes you make will automatically merge with
+changes from your co-workers the next time your repository is synchronized.
+
+You can view and edit <b>wiki</b> by following the "Wiki" link on the
+menu bar.  Fossil uses simple and easy-to-remember
+[/wiki_rules | wiki formatting rules] so you won't have to spend a lot
+of time learning a new markup language.  And, as with tickets, all of
+your edits will automatically merge with those of your co-workers when
+your repository synchronizes.
+
+You can view summary reports of <b>leaves and branches</b> in the
+check-in graph by visiting the "Leaves" or "Branches" links on the
+menu bar.  From those pages you can follow hyperlinks to get additional
+details.  These screens allow you to easily keep track of what is going
+on with separate subteams within your project team.
+
+The "Files" link on the menu allows you to browse though the <b>file
+hierarchy</b> of the project and to view complete changes histories on
+individual files, with hyperlinks to the check-ins that made those
+changes, and with diffs and annotated diffs between versions.
+
+The web interface supports [./embeddeddoc.wiki | embedded documentation].
+Embedded documentation is documentation files (usually in wiki format)
+that are checked into project as part of the source tree.  Such files
+can be viewed as if they were ordinary web pages.  This document that
+you are now reading is an example of embedded documentation.
+
+<h2>Customizing The Web Interface Appearance</h2>
+
+Users with appropriate permissions can customize the look and feel of
+the web interface using the "Admin" link on the main menu of the web
+interface.  Templates
+for the header and footer of each page can be edited, as can the CSS
+for the entire page.  You can even change around the main menu.
+Timeline display preferences can be edited.  The page that is brought
+up as the "Home" page can be changed.  It is often useful to set the
+"Home" page to be a wiki page or an embedded document.
+
+<h2>Installing On A Network Server</h2>
+
+When you create a new fossil project and after you have configured it
+like you want it using the web interface, you can make the project
+available to a distributed team by simply copying the single
+repository file up to a web server that supports CGI.  Just put the
+<b>sample-project.fossil</b> file in a directory where CGI scripts
+have both read and write permission on the file and the directory that
+contains the file, then add a CGI script that looks something like this:
+
+  <verbatim>
+  #!/usr/local/bin/fossil
+  repository: /home/www/sample-project.fossil
+  </verbatim>
+
+Adjust the script above so that the paths are correct for your system,
+of course, and also make sure the fossil binary is installed on the server.
+But that is <u>all</u> you have to do.  You now have everything you need to host
+a distributed software development project in less than five minutes using a 
+two-line CGI script.
+
+You don't have a CGI-capable web server running on your server machine?
+Not a problem.  The fossil interface can also be launched via inetd or
+xinetd.  An inetd configuration line sufficient to launch the fossil
+web interface looks like this:
+
+  <verbatim>
+  80 stream tcp nowait.1000 root /usr/local/bin/fossil \
+  /usr/local/bin/fossil http /home/www/sample-project.fossil 
+  </verbatim>
+
+As always, you'll want to adjust the pathnames to whatever is appropriate
+for your system.  The xinetd setup uses a different syntax but follows
+the same idea.
+
+Once you have your new repository running on the network server, delete
+the original repository from your local machine, then clone the repository
+off of the server:
+
+  <b>fossil clone http://user:password@myserver.org/cgi-bin/my-project</b>
+
+(As always, adjust the URL as appropriate for your installation.)
+After copying a repository, it is important to reclone it onto new machines.
+Each repository has a random "repository ID" and repositories will not
+sync with another repository having the same ID (to avoid sync loops).
+Cloning the repository will give you a new repository ID in your local
+copy and allow you to sync with the server.
