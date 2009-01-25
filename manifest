@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sexplanatory\stext\sto\sthe\stop\sof\sthe\srcvfromlist\swebpage.\nThe\sinfo\spage\sfor\sthe\sroot\scheck-in\snow\sknows\show\sto\sredirect\sto\svinfo.
-D 2009-01-25T19:47:38
+C Revised\sformatting\sof\sthe\s"Tags\sand\sProperties"\sdivision\sof\sthe\scheck-in\ninformation\sscreen.
+D 2009-01-25T20:10:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c a4c9127cb560938f73dd632fb3fb5b0bac465fb5
+F src/info.c 8f7bead3fd6949c3a3a310ac8755bb04a1512add
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -239,14 +239,14 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 766bec08cebeb858a874df71c4d6e3961e3a33e8
-R b0b609c16ca7f7a098c266c51179681a
+P 9c89b0e0f1ce9294a814915ef5359ef068bb9ee0
+R e637729ad976d7f2fa2802ab80851c76
 U drh
-Z b9743bfc78c5d2c7ff708a1e14f14f9a
+Z 1c40430e0a7a162c2980002de9705170
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJfMHdoxKgR168RlERAn90AKCM9U0b3XpIjaRpHxGJpuchNIpVbgCfRe6p
-k/0QMAoj61nFysnrPNXvQEk=
-=abkB
+iD8DBQFJfMdQoxKgR168RlERAsBcAJ9Hh4WfjEGdnxBJdcbL8S5B+kkkDwCfYA+Y
+TW89bsN1QpL7a00Xlpl4pNA=
+=TvDl
 -----END PGP SIGNATURE-----

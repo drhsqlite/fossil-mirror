@@ -293,13 +293,12 @@ static void showTags(int rid, const char *zNotGlob){
       @ <ul>
     }
     @ <li>
-    @ <b>%h(zTagname)</b>
     if( tagtype==0 ){
-      @ <i>cancelled
+      @ <b><s>%h(zTagname)</s></b> cancelled
     }else if( zValue ){
-      @ = %h(zValue)<i>
+      @ <b>%h(zTagname)=%h(zValue)</b>
     }else {
-      @ <i>
+      @ <b>%h(zTagname)</b>
     }
     if( tagtype==2 ){
       if( zOrigUuid && zOrigUuid[0] ){
@@ -318,7 +317,6 @@ static void showTags(int rid, const char *zNotGlob){
       hyperlink_to_uuid(zSrcUuid);
       @ on %s(zDate)
     }
-    @ </i>
   }
   db_finalize(&q);
   if( cnt ){
