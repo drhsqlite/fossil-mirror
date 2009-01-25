@@ -53,14 +53,14 @@ meaning to fossil.  Fossil recognizes:</p>
 
 <p>These five artifact types are described in the sequel.</p>
 
-<p>In the current implementation (as of 2008-10-04) the artifacts that
+<p>In the current implementation (as of 2009-01-25) the artifacts that
 make up a fossil repository are stored in in as delta- and zlib-compressed
 blobs in an <a href="http://www.sqlite.org/">SQLite</a> database.  This
 is an implementation detail and might change in a future release.  For
 the purpose of this article "file format" means the format of the artifacts,
 not how the artifacts are stored on disk.  It is the artifact format that
 is intended to be enduring.  The specifics of how artifacts are stored on
-disk, though stable, is not intended to have as long a lifespan as the
+disk, though stable, is not intended to live as long as the
 artifact format.</p>
 
 <h2>1.0 The Manifest</h2>
@@ -109,6 +109,7 @@ Allowed cards in the manifest are as follows:
 <b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
 <b>P</b> <i>SHA1-hash</i>+<br>
 <b>R</b> <i>repository-checksum</i><br>
+<b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  <b>*</b> ?value?</i><br>
 <b>U</b> <i>user-login</i><br>
 <b>Z</b> <i>manifest-checksum</i>
 </blockquote>
@@ -192,6 +193,20 @@ repository, append a single space (ASCII 0x20), the
 size of the file in ASCII decimal, a single newline
 character (ASCII 0x0A), and the complete text of the file.
 Compute the MD5 checksum of the the result.
+</p>
+
+<p>
+A manifest might contain one or more T-cards used to set tags or
+properties on the check-in.  The format of the T-card is the same as
+described in <i>Control Artifacts</i> section below, except that the
+second argument is the single characcter "<b>*</b>" instead of an
+artifact ID.  The <b>*</b> in place of the artifact ID indicates that
+the tag or property applies to the current artifact.  It is not
+possible to encode the current artifact ID as part of an artifact,
+since the act of inserting the artifact ID would change the artifact ID,
+hence a <b>*</b> is used to represent "self".  T-cards are typically
+added to manifests in order to set the <b>branch</b> property and a
+symbolic name when the check-in is intended to start a new branch.
 </p>
 
 <p>

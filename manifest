@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C correct\s'branch'\ssubcommand\susage\sstring
-D 2009-01-24T23:40:41
+C Update\sthe\sfile\sformat\sdocumentation.
+D 2009-01-25T16:00:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -228,7 +228,7 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/fileformat.wiki 745e72bdc4d7d33b9257e62da3420f4e18a205f9
+F www/fileformat.wiki e6fabaf4cd609390faaa92b631e3c0c2712adad5
 F www/index.wiki b5ddee628e02fff307202d7c46849b2b136855bd
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 6e108d436be156ba84f1260923ce5ca678041f66
@@ -239,14 +239,14 @@ F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 4ac75b9107e129c7393f8c8608d9abb58f903d5c
-R 5e3ae7fe84a2c552281107914bb5884f
-U bch
-Z ff1d2c35b83fef4c0fcfed4efbda4c08
+P 8b6cf431fb80c456f0ecdb8624513731408dd11e
+R dc820389dc05fded6d89b1eaea898e87
+U drh
+Z 76db8b57911642be2d82566a5921860f
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (NetBSD)
+Version: GnuPG v1.4.1 (Darwin)
 
-iEYEARECAAYFAkl7pvkACgkQad0Kwpwugm8G8gCgzjrQPNYKfzoLd4B1TX4ZufiR
-4MUAoNWMa5M5C8ijK+SyC1vOkMraZf5m
-=j+rj
+iD8DBQFJfIyboxKgR168RlERAuAqAJ4s/R8GjblqCL7VjkqvnX1120CsTACfeKtw
+sqYccsUFm54ewqtPh6sK8XY=
+=+2MF
 -----END PGP SIGNATURE-----
