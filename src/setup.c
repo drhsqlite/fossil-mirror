@@ -58,7 +58,7 @@ void setup_page(void){
     login_needed();
   }
 
-  style_header("Setup");
+  style_header("Server Administration");
   @ <table border="0" cellspacing="20">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
@@ -78,6 +78,8 @@ void setup_page(void){
     "Edit HTML text inserted at the bottom of every page");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
+  setup_menu_entry("Log", "rcvfromlist",
+    "A record of received artifacts and their sources");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
   @ </table>

@@ -82,9 +82,9 @@ in figure 3.
 Figure 3
 </td></tr></table></center>
 
-Check-in 5 is a direct child of check-in 3 because it was created by editing
+Check-in 5 is a child of check-in 3 because it was created by editing
 check-in 3.  But check-in 5 also inherits the changes from check-in 4 by
-virtual of the merge.  So we say that check-in 5 is a <i>merge child</i>
+virtue of the merge.  So we say that check-in 5 is a <i>merge child</i>
 of check-in 4 and that it is a <i>direct child</i> of check-in 3.  
 The graph is now back to a single leaf (check-in 5).
 
@@ -111,9 +111,9 @@ debate.  We will simply point out that fossil enables you to do it either way.
 
 <h2>Forking Versus Branching</h2>
 
-Forking and having more than one leaf in the check-in tree is usually
-considered undesirable, and so forks are usually quickly resolved as 
-shown in figure 3 above.
+Having more than one leaf in the check-in tree is usually
+considered undesirable, and so forks are usually either avoided entirely,
+as in figure 1, or else quickly resolved as shown in figure 3.
 But sometimes, one does want to have multiple leaves.  For example, a project
 might have one leaf that is the latest version of the project under
 development and another leaf that is the latest version that has been
@@ -148,7 +148,7 @@ check-ins 9 and 10.
 
 In both figures 2 and 4, check-in 2 has two children.  In figure 2,
 we called this a "fork".  In diagram 4, we call it a "branch".  What is
-the difference?  As far as the internal fossil data structure are
+the difference?  As far as the internal fossil data structures are
 concerned, there is no difference.  The distinction is in the intent.
 In figure 2, the fact that check-in 2 has multiple children is an
 accident that stems from concurrent development.  In figure 4, giving
@@ -174,7 +174,7 @@ tags as properties with a NULL value.  So, tags and properties really
 are much the same thing, and henceforth we will use the word "tag"
 to mean either a tag or a property. 
 
-A tag can be either a one-time tag or an propagating tag or a cancellation. 
+A tag can be either a one-time tag or an propagating tag or a cancellation tag. 
 A one-time tag only applies to the check-in to which it is attached.  A
 propagating tag applies to the check-in to which it is attached and also
 to all direct descendants of that check-in.  A <i>direct descendant</i>
@@ -182,7 +182,8 @@ is a descendant through direct children.  Tags propagation does not
 cross merges.  Tag propagation also stops as soon
 as it encounters another check-in with the same tag.  A cancellation tag
 is attached to a single check-in in order to either override a one-time
-tag that was placed on that same check-in, or to block tag propagation.
+tag that was previously placed on that same check-in, or to block
+tag propagation from an ancestor.
 
 Every repository is created with a single empty check-in that has two
 propagating tags.  In figure 5, that initial empty check-in is check-in 1.
@@ -216,7 +217,7 @@ check-ins on the trunk go by the symbolic name of "trunk" and check-ins
 that are on the test branch go by the symbolic name "test".
 
 The <b>bgcolor=blue</b> tag on check-in 4 causes the background color
-of timelines to be blue for check-in 4 and its descendants.
+of timelines to be blue for check-in 4 and its direct descendants.
 
 Figure 5 also shows two one-time tags on check-in 9.  (The diagram does
 not make a graphical distinction between one-time and propagating tags.)
@@ -233,6 +234,7 @@ Here is a list of definitions of key terms:
 <blockquote><dl>
 <dt><b>Branch</b></dt>
 <dd><p>A branch is a set of check-ins that have the same value for their
+branch property.</p></dd>
 <dt><b>Leaf</b></dt>
 <dd><p>A leaf is a check-in that has no children in the same branch.</p></dd>
 <dt><b>Closed Leaf</b></dt>

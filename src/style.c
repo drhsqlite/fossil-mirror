@@ -223,7 +223,7 @@ const char zDefaultHeader[] =
 @   html "<a href='$baseurl/wiki'>Wiki</a>"
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$baseurl/setup'>Setup</a>"
+@   html "<a href='$baseurl/setup'>Admin</a>"
 @ } elseif {[hascap a]} {
 @   html "<a href='$baseurl/setup_ulist'>Users</a>"
 @ }

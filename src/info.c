@@ -392,10 +392,26 @@ void vinfo_page(void){
       @ <tr><th>Comment:</th><td>%w(zComment)</td></tr>
     }
     @ </td></tr>
+    if( g.okAdmin ){
+      db_prepare(&q, 
+         "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
+         "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
+         " WHERE blob.rid=%d",
+         rid
+      );
+      if( db_step(&q)==SQLITE_ROW ){
+        const char *zIpAddr = db_column_text(&q, 0);
+        const char *zUser = db_column_text(&q, 1);
+        const char *zDate = db_column_text(&q, 2);
+        if( zUser==0 || zUser[0]==0 ) zUser = "unknown";
+        @ <tr><th>Received&nbsp;From:</th>
+        @ <td>%h(zUser) @ %h(zIpAddr) on %s(zDate)</td></tr>
+      }
+      db_finalize(&q);
+    }
     if( g.okHistory ){
       char *zShortUuid = mprintf("%.10s", zUuid);
       const char *zProjName = db_get("project-name", "unnamed");
-      Stmt q;
       @ <tr><th>Timelines:</th><td>
       @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendants</a>
@@ -1129,9 +1145,6 @@ void info_page(void){
   }
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
     vinfo_page();
-  }else
-  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
-    finfo_page();
   }else
   if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                 " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){

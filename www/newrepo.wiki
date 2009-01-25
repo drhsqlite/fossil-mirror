@@ -32,7 +32,7 @@ stephan@ludo:~/fossil$ fossil ui demo.fossil
 The <tt>ui</tt> command starts up a server (with an optional <tt>-port
 NUMBER</tt> argument) and launches a web browser pointing at the
 fossil server. From there it takes just a few moments to configure the
-repo. Most importantly, go to the Setup menu, then the Users link, and
+repo. Most importantly, go to the Admin menu, then the Users link, and
 set your account name and password, and grant your account all access
 priviledges. (I also like to grant Clone access to the anonymous user,
 but that's personal preference.)
@@ -156,7 +156,7 @@ happens automatically, otherwise you will need to use the
 <em>pull</em> command to get remote changes and the <em>push</em>
 command to push your local commits to the remote repository. You must
 of course have authorization to commit changes (access is configured
-via the Setup/Users page mentioned above).
+via the Admin/Users page mentioned above).
 
 You may always use the <em>server</em> or <em>ui</em> commands to
 browse a cloned repository. You can even edit create or wiki entries,

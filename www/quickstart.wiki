@@ -75,7 +75,7 @@ and painlessly.</p>
     has an unusual configuration, fossil might not be able to figure out
     how to start your web browser.  In that case, start the web browser
     yourself and point it at http://localhost:8080/.  Click on the
-    "Setup" link on the menu bar to start configuring your repository.</p>
+    "Admin" link on the menu bar to start configuring your repository.</p>
     
     <p>By default, fossil does not require a login for HTTP connections
     coming in from the IP loopback address 127.0.0.1.  You can, and perhaps

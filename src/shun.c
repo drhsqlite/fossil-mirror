@@ -28,7 +28,7 @@
 #include <assert.h>
 
 /*
-** Return true if the given UUID should be shunned.
+** Return true if the given artifact ID should be shunned.
 */
 int uuid_is_shunned(const char *zUuid){
   static Stmt q;
@@ -121,10 +121,14 @@ void shun_page(void){
   @ </blockquote>
   @ <hr>
   @ <a name="addshun"></a>
-  @ <p>To shun an artifact, enter its UUID in the
+  @ <p>To shun an artifact, enter its artifact ID (the 40-character SHA1
+  @ hash of the artifact) in the
   @ following box and press the "Shun" button.  This will cause the artifact
   @ to be removed from the repository and will prevent the artifact from being
   @ readded to the repository by subsequent sync operation.</p>
+  @
+  @ <p>Note that you must enter the full 40-character artifact ID, not
+  @ an abbreviation or a symbolic tag.</p>
   @
   @ <p>Warning:  Shunning should only be used to remove inappropriate content
   @ from the repository.  Inappropriate content includes such things as
@@ -155,6 +159,7 @@ void shun_page(void){
   @ </form>
   @ </blockquote>
   @
+  @ <hr>
   @ <p>Press the button below to rebuild the respository.  The rebuild
   @ may take several seconds, so be patient after pressing the button.</p>
   @
@@ -190,4 +195,108 @@ void shun_artifacts(void){
      "DELETE FROM blob WHERE rid IN toshun;"
      "DROP TABLE toshun;"
   );
+}
+
+/*
+** WEBPAGE: rcvfromlist
+**
+** Show a listing of RCVFROM table entries.
+*/
+void rcvfromlist_page(void){
+  int ofst = atoi(PD("ofst","0"));
+  int cnt;
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okAdmin ){
+    login_needed();
+  }
+  style_header("Content Sources");
+  if( ofst>0 ){
+    style_submenu_element("Later", "Later", "rcvfromlist?ofst=%d",
+                           ofst>30 ? ofst-30 : 0);
+  }
+  db_prepare(&q, 
+    "SELECT rcvid, login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+    "  FROM rcvfrom LEFT JOIN user USING(uid)"
+    " ORDER BY rcvid DESC LIMIT 31 OFFSET %d",
+    ofst
+  );
+  @ <table cellpadding=0 cellspacing=0 border=0>
+  @ <tr><th>rcvid</th><th width=15>
+  @     <th>Date</th><th width=15><th>User</th>
+  @     <th width=15><th>IP&nbsp;Address</th></tr>
+  cnt = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    int rcvid = db_column_int(&q, 0);
+    const char *zUser = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zIpAddr = db_column_text(&q, 3);
+    if( cnt==30 ){
+      style_submenu_element("Earlier", "Earlier",
+         "rcvfromlist?ofst=%d", ofst+30);
+    }else{
+      cnt++;
+      @ <tr>
+      @ <td><a href="rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a></td><td>
+      @ <td>%s(zDate)</td><td>
+      @ <td>%h(zUser)</td><td>
+      @ <td>&nbsp;%s(zIpAddr)&nbsp</td>
+      @ </tr>
+    }
+  }
+  db_finalize(&q);
+  @ </table>
+  style_footer();
+}
+
+/*
+** WEBPAGE: rcvfrom
+**
+** Show a single RCVFROM table entry.
+*/
+void rcvfrom_page(void){
+  int rcvid = atoi(PD("rcvid","0"));
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okAdmin ){
+    login_needed();
+  }
+  style_header("Content Source %d", rcvid);
+  db_prepare(&q, 
+    "SELECT login, datetime(rcvfrom.mtime), rcvfrom.ipaddr"
+    "  FROM rcvfrom LEFT JOIN user USING(uid)"
+    " WHERE rcvid=%d",
+    rcvid
+  );
+  @ <table cellspacing=15 cellpadding=0 border=0>
+  @ <tr><td valign="top" align="right">rcvid:</td>
+  @ <td valign="top">%d(rcvid)</td></tr>
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zUser = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zIpAddr = db_column_text(&q, 2);
+    @ <tr><td valign="top" align="right">User:</td>
+    @ <td valign="top">%s(zUser)</td></tr>
+    @ <tr><td valign="top" align="right">Date:</td>
+    @ <td valign="top">%s(zDate)</td></tr>
+    @ <tr><td valign="top" align="right">IP&nbspAddress:</td>
+    @ <td valign="top">%s(zIpAddr)</td></tr>
+  }
+  db_finalize(&q);
+  db_prepare(&q,
+    "SELECT rid, uuid, size FROM blob WHERE rcvid=%d", rcvid
+  );
+  @ <tr><td valign="top" align="right">Artifacts:</td>
+  @ <td valign="top">
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    int size = db_column_int(&q, 2);
+    @ <a href="%s(g.zBaseURL)/info/%s(zUuid)">%s(zUuid)</a>
+    @ (rid: %d(rid), size: %d(size))<br>
+  }
+  @ </td></tr>
+  @ </table>
 }
