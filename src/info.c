@@ -1157,6 +1157,9 @@ void info_page(void){
   if( db_exists("SELECT 1 FROM plink WHERE cid=%d", rid) ){
     vinfo_page();
   }else
+  if( db_exists("SELECT 1 FROM plink WHERE pid=%d", rid) ){
+    vinfo_page();
+  }else
   {
     artifact_page();
   }

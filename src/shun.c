@@ -222,6 +222,16 @@ void rcvfromlist_page(void){
     " ORDER BY rcvid DESC LIMIT 31 OFFSET %d",
     ofst
   );
+  @ <p>Whenever new artifacts are added to the repository, either by
+  @ push or using the web interface, an entry is made in the RCVFROM table
+  @ to record the source of that artifact.  This log facilitates
+  @ finding and fixing attempts to inject illicit content into the
+  @ repository.</p>
+  @
+  @ <p>Click on the "rcvid" to show a list of specific artifacts received
+  @ by a transaction.  After identifying illicit artifacts, remove them
+  @ using the "Shun" feature.</p>
+  @
   @ <table cellpadding=0 cellspacing=0 border=0>
   @ <tr><th>rcvid</th><th width=15>
   @     <th>Date</th><th width=15><th>User</th>
@@ -271,24 +281,24 @@ void rcvfrom_page(void){
     rcvid
   );
   @ <table cellspacing=15 cellpadding=0 border=0>
-  @ <tr><td valign="top" align="right">rcvid:</td>
+  @ <tr><td valign="top" align="right"><b>rcvid:</b></td>
   @ <td valign="top">%d(rcvid)</td></tr>
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUser = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zIpAddr = db_column_text(&q, 2);
-    @ <tr><td valign="top" align="right">User:</td>
+    @ <tr><td valign="top" align="right"><b>User:</b></td>
     @ <td valign="top">%s(zUser)</td></tr>
-    @ <tr><td valign="top" align="right">Date:</td>
+    @ <tr><td valign="top" align="right"><b>Date:</b></td>
     @ <td valign="top">%s(zDate)</td></tr>
-    @ <tr><td valign="top" align="right">IP&nbspAddress:</td>
+    @ <tr><td valign="top" align="right"><b>IP&nbsp;Address:</b></td>
     @ <td valign="top">%s(zIpAddr)</td></tr>
   }
   db_finalize(&q);
   db_prepare(&q,
     "SELECT rid, uuid, size FROM blob WHERE rcvid=%d", rcvid
   );
-  @ <tr><td valign="top" align="right">Artifacts:</td>
+  @ <tr><td valign="top" align="right"><b>Artifacts:</b></td>
   @ <td valign="top">
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
