@@ -201,14 +201,14 @@ Thus the two tags on check-in once cause all decendents to be in the
 Check-in 4 has a <b>branch</b> tag which changes the name of the branch
 to "test".  The branch tag on check-in 4 propagates to check-ins 6 and 9.
 But because tag propagation does not follow merge links, the <b>branch=test</b>
-tag does not propagate to check-ins 7, 8, or 9.  Note also that the
+tag does not propagate to check-ins 7, 8, or 10.  Note also that the
 <b>branch</b> tag on check-in 4 blocks the propagation of <b>branch=trunk</b>
 so that it cannot reach check-ins 6 or 9.  This causes check-ins 4, 6, and
 9 to be in the "test" branch and all others to be in the "trunk" branch.
 
 Check-in 4 also has a <b>sym-test</b> tag, which gives the symbolic name
 "test" to check-ins 4, 6, and 9.  Because tags do not propagate across
-merges, check-ins 7, 8, and 9 do not inherit the <b>sym-test</b> tag and
+merges, check-ins 7, 8, and 10 do not inherit the <b>sym-test</b> tag and
 are hence not known by the name "test".
 To prevent the <b>sym-trunk</b> tag from propagating from check-in 1 
 into check-ins 4, 6, and 9, there is a cancellation tag for 
