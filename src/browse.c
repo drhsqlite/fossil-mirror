@@ -103,6 +103,7 @@ void hyperlinked_path(const char *zPath, Blob *pOut){
 ** Query parameters:
 **
 **    name=PATH        Directory to display.  Required.
+**    ci=LABEL         Show only files in this check-in.  Optional.
 */
 void page_dir(void){
   const char *zD = P("name");
@@ -111,6 +112,11 @@ void page_dir(void){
   int cnt, i;
   char *zPrefix;
   Stmt q;
+  const char *zCI = P("ci");
+  int rid = 0;
+  Blob content;
+  Manifest m;
+  const char *zSubdirLink;
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
@@ -121,6 +127,13 @@ void page_dir(void){
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
 
+  /* If a specific check-in is requested, fetch and parse it. */
+  if( zCI && (rid = name_to_rid(zCI))!=0 && content_get(rid, &content) ){
+    if( !manifest_parse(&m, &content) || m.type!=CFTYPE_MANIFEST ){
+      zCI = 0;
+    }
+  }
+
   /* Compute the title of the page */  
   if( zD ){
     Blob title;
@@ -128,12 +141,26 @@ void page_dir(void){
     blob_zero(&title);
     blob_appendf(&title, "Files in directory ");
     hyperlinked_path(zD, &title);
-    @ <h2>%s(blob_str(&title))</h2>
+    @ <h2>%s(blob_str(&title))
     blob_reset(&title);
     zPrefix = mprintf("%h/", zD);
   }else{
-    @ <h2>Files in the top-level directory</h2>
+    @ <h2>Files in the top-level directory
     zPrefix = "";
+  }
+  if( zCI ){
+    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    char zShort[20];
+    memcpy(zShort, zUuid, 10);
+    zShort[10] = 0;
+    @ of check-in [<a href="vinfo?name=%T(zUuid)">%s(zShort)</a>]</h2>
+    zSubdirLink = mprintf("%s/dir?ci=%s&name=%T", g.zBaseURL, zUuid, zPrefix);
+    if( zD ){
+      style_submenu_element("Top", "Top", "%s/dir?ci=%s", g.zBaseURL, zUuid);
+    }
+  }else{
+    @ </h2>
+    zSubdirLink = mprintf("%s/dir?name=%T", g.zBaseURL, zPrefix);
   }
 
   /* Compute the temporary table "localfiles" containing the names
@@ -143,19 +170,37 @@ void page_dir(void){
   ** first and it also gives us an easy way to distinguish files
   ** from directories in the loop that follows.
   */
+  db_multi_exec(
+     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
+     "CREATE TEMP TABLE allfiles(x UNIQUE NOT NULL, u);"
+  );
+  if( zCI ){
+    Stmt ins;
+    int i;
+    db_prepare(&ins, "INSERT INTO allfiles VALUES(:x, :u)");
+    for(i=0; i<m.nFile; i++){
+      db_bind_text(&ins, ":x", m.aFile[i].zName);
+      db_bind_text(&ins, ":u", m.aFile[i].zUuid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+    db_finalize(&ins);
+  }else{
+    db_multi_exec(
+      "INSERT INTO allfiles SELECT name, NULL FROM filename"
+    );
+  }
   if( zD ){
     db_multi_exec(
-       "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL);"
        "INSERT OR IGNORE INTO localfiles "
-       "  SELECT pathelement(name,%d) FROM filename"
-       "   WHERE +name GLOB '%q/*'",
+       "  SELECT pathelement(x,%d), u FROM allfiles"
+       "   WHERE x GLOB '%q/*'",
        strlen(zD)+1, zD
     );
   }else{
     db_multi_exec(
-       "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL);"
        "INSERT OR IGNORE INTO localfiles "
-       "  SELECT pathelement(name,0) FROM filename"
+       "  SELECT pathelement(x,0), u FROM allfiles"
     );
   }
 
@@ -166,7 +211,7 @@ void page_dir(void){
   cnt = db_int(0, "SELECT count(*) FROM localfiles");
   nCol = 4;
   nRow = (cnt+nCol-1)/nCol;
-  db_prepare(&q, "SELECT x FROM localfiles ORDER BY x");
+  db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x");
   @ <table border="0" width="100%%"><tr><td valign="top" width="25%%">
   i = 0;
   while( db_step(&q)==SQLITE_ROW ){
@@ -179,8 +224,11 @@ void page_dir(void){
     zFName = db_column_text(&q, 0);
     if( zFName[0]=='/' ){
       zFName++;
-      @ <li><a href="%s(g.zBaseURL)/dir?name=%T(zPrefix)%T(zFName)">
+      @ <li><a href="%s(zSubdirLink)%T(zFName)">
       @     %h(zFName)/</a></li>
+    }else if( zCI ){
+      const char *zUuid = db_column_text(&q, 1);
+      @ <li><a href="%s(g.zBaseURL)/artifact?name=%s(zUuid)">%h(zFName)</a>
     }else{
       @ <li><a href="%s(g.zBaseURL)/finfo?name=%T(zPrefix)%T(zFName)">
       @     %h(zFName)</a></li>

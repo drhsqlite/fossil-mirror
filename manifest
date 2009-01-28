@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sincorrect\scheck-in\snumbers\s(referring\sto\sFigure\s5)\sin\sthe\sbranching\stutorial
-D 2009-01-26T19:41:49
+C Add\sthe\sci=LABEL\sparameter\sto\sthe\s"dir"\swebpage\sin\sorder\sto\slook\sat\sjust\nfiles\swithin\sa\ssingle\scheck-in.\s\sAdd\sa\sDownload\slink\son\sthe\sartifact\sand\nhexdump\sviewers.
+D 2009-01-28T21:41:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -45,7 +45,7 @@ F src/allrepo.c 74c46da757e7978af25d93f4c6f91c74fc9ac041
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c e6d1392f9d7e47dcbf3228a856e8d39ef5a4be0e
-F src/browse.c 9050864c16dda3b1234deae0d7f669aabbac7896
+F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c ebad09218e26ed9fde26e6706c4d9261b8772e54
 F src/checkin.c c26c845ac6e640961e5665a992c6984bdace1ba5
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
@@ -66,7 +66,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c b42d745af6eb5adaef009bab74eff7ce8e2077b6
+F src/info.c 8b65dc436fb0bf73ffb3dff38f130fc14547c592
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 5c65487c5f5cfc8970a4fdd8ad6b2d400faefe7c
-R 792a58c3beb73c327113f736b5f206ca
-U eric
-Z 4dffd09bdd7a13a1423e25f94dac323b
+P 5e4b1632bc0d803d04e200bd29c37085ad16bc39
+R fa9039bc072bdbd8ca00f84f3c941074
+U drh
+Z d26a4f463bc09714f09b78a4a79db9ed
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJfhIlu+lpsLhDMQkRAicGAJ4rZvcv3R8HAXui8ip2+dawFv8qAACfVKkX
-bEYFOTLA4hqpK6T5mTUYlM4=
-=ciYM
+iD8DBQFJgNEYoxKgR168RlERAnuIAKCH1SYQtXVX2deh9LivKWcRMC7qiACfRmp2
+OqtaUudBlFN/NUuYZi7SGug=
+=dYUh
 -----END PGP SIGNATURE-----

@@ -326,6 +326,7 @@ static void showTags(int rid, const char *zNotGlob){
 
 
 /*
+** WEBPAGE: vinfo
 ** WEBPAGE: ci
 ** URL:  /ci?name=RID|ARTIFACTID
 **
@@ -427,6 +428,7 @@ void ci_page(void){
       @ <tr><th>Commands:</th>
       @   <td>
       @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
+      @     | <a href="%s(g.zBaseURL)/dir?ci=%s(zShortUuid)">files</a>
       @     | <a href="%s(g.zBaseURL)/zip/%s(zProjName)-%s(zShortUuid).zip?uuid=%s(zUuid)">
       @         ZIP archive</a>
       @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
@@ -738,7 +740,8 @@ void vdiff_page(void){
 */
 static void object_description(
   int rid,                 /* The artifact ID */
-  int linkToView           /* Add viewer link if true */
+  int linkToView,          /* Add viewer link if true */
+  Blob *pDownloadName      /* Fill with an appropriate download name */
 ){
   Stmt q;
   int cnt = 0;
@@ -773,6 +776,9 @@ static void object_description(
     hyperlink_to_uuid(zVers);
     @ %w(zCom) by %h(zUser) on %s(zDate).
     cnt++;
+    if( pDownloadName && blob_size(pDownloadName)==0 ){
+      blob_append(pDownloadName, zName, -1);
+    }
   }
   db_finalize(&q);
   db_prepare(&q, 
@@ -800,6 +806,9 @@ static void object_description(
     @ uuid %s(zUuid) by %h(zUser) on %s(zDate).
     nWiki++;
     cnt++;
+    if( pDownloadName && blob_size(pDownloadName)==0 ){
+      blob_append(pDownloadName, zPagename, -1);
+    }
   }
   db_finalize(&q);
   if( nWiki==0 ){
@@ -830,6 +839,9 @@ static void object_description(
       }
       hyperlink_to_uuid(zUuid);
       @ %w(zCom) by %h(zUser) on %s(zDate).
+      if( pDownloadName && blob_size(pDownloadName)==0 ){
+        blob_append(pDownloadName, zUuid, -1);
+      }
       cnt++;
     }
     db_finalize(&q);
@@ -837,6 +849,9 @@ static void object_description(
   if( cnt==0 ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     @ Control file %s(zUuid).
+    if( pDownloadName && blob_size(pDownloadName)==0 ){
+      blob_append(pDownloadName, zUuid, -1);
+    }
   }else if( linkToView ){
     @ <a href="%s(g.zBaseURL)/artifact/%d(rid)">[view]</a>
   }
@@ -858,11 +873,11 @@ void diff_page(void){
   style_header("Diff");
   @ <h2>Differences From:</h2>
   @ <blockquote>
-  object_description(v1, 1);
+  object_description(v1, 1, 0);
   @ </blockquote>
   @ <h2>To:</h2>
   @ <blockquote>
-  object_description(v2, 1);
+  object_description(v2, 1, 0);
   @ </blockquote>
   @ <hr>
   @ <blockquote><pre>
@@ -961,6 +976,7 @@ static void hexdump(Blob *pBlob){
 void hexdump_page(void){
   int rid;
   Blob content;
+  Blob downloadName;
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
@@ -979,7 +995,10 @@ void hexdump_page(void){
   style_header("Hex Artifact Content");
   @ <h2>Hexadecimal Content Of:</h2>
   @ <blockquote>
-  object_description(rid, 0);
+  blob_zero(&downloadName);
+  object_description(rid, 0, &downloadName);
+  style_submenu_element("Download", "Download", 
+        "%s/raw/%T?name=%d", g.zBaseURL, blob_str(&downloadName), rid);
   @ </blockquote>
   @ <hr>
   content_get(rid, &content);
@@ -1000,6 +1019,7 @@ void artifact_page(void){
   int rid;
   Blob content;
   const char *zMime;
+  Blob downloadName;
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
@@ -1018,7 +1038,10 @@ void artifact_page(void){
   style_header("Artifact Content");
   @ <h2>Content Of:</h2>
   @ <blockquote>
-  object_description(rid, 0);
+  blob_zero(&downloadName);
+  object_description(rid, 0, &downloadName);
+  style_submenu_element("Download", "Download", 
+          "%s/raw/%T?name=%d", g.zTop, blob_str(&downloadName), rid);
   @ </blockquote>
   @ <hr>
   @ <blockquote>
