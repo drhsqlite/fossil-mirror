@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C A\sa\s"View"\ssubmenu\soption\sfor\sthe\scontent\sviewer\swhen\sthe\sfile\sis\sHTML.
-D 2009-01-28T22:23:02
+C Add\sa\s"View"\ssubmenu\sitem\son\sthe\sartifact\sviewer\sfor\sfiles\swith\swiki\nmimetype.
+D 2009-01-28T22:56:59
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c 3cb6b66184121e34065005bebfb61c58ed7b6483
+F src/info.c ee344959f34cbf031e6cbce9ad6ce098ff2b9c35
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 923d644b89211895883a8442883afed8ee02a6e9
-R e7d122210bf805bdb187816020c0020f
+P d4fedbb4ad3cb50eac684c1a09fb5bbb7904b0d8
+R c9a2e17cb76e3bd8589d8cbf39045023
 U drh
-Z c7676a0f9d1ad7f9310f7e50f694f90a
+Z e272e6474713c699430ea4d62bb0b821
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgNrJoxKgR168RlERArwMAJ4ucpVjqC9NWXoISgxxK3Ml5jh3EgCdEiIX
-O+iFf9IRYgzTRJ+VifjphbE=
-=t20f
+iD8DBQFJgOK/oxKgR168RlERAkR6AKCBIIut1ezVWNvuu89TyhdRAKCYXACeO5M3
+4NlKFgbX4CwfcX/MVATBVlA=
+=VT7f
 -----END PGP SIGNATURE-----

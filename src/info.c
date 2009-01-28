@@ -1043,9 +1043,27 @@ void artifact_page(void){
   style_submenu_element("Download", "Download", 
           "%s/raw/%T?name=%d", g.zTop, blob_str(&downloadName), rid);
   zMime = mimetype_from_name(blob_str(&downloadName));
-  if( zMime && strcmp(zMime, "text/html")==0 ){
-    style_submenu_element("View", "View",
-          "%s/raw?name=%d&m=text/html", g.zTop, rid);
+  if( zMime ){
+    if( strcmp(zMime, "text/html")==0 ){
+      style_submenu_element("View", "View",
+            "%s/raw?name=%d&m=text/html", g.zTop, rid);
+    }else if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
+      Stmt q;
+      db_prepare(&q, 
+         "SELECT blob.uuid || '/' || filename.name"
+         "  FROM mlink, filename, blob"
+         " WHERE mlink.fid=%d"
+         "   AND filename.fnid=mlink.fnid"
+         "   AND filename.name GLOB '*.wiki'"
+         "   AND blob.rid=mlink.mid",
+         rid
+      );
+      if( db_step(&q)==SQLITE_ROW ){
+        const char *zCI = db_column_text(&q, 0);
+        style_submenu_element("View", "View", "%s/doc/%s", g.zTop, zCI);
+      }
+      db_finalize(&q);
+    }
   }
   @ </blockquote>
   @ <hr>
