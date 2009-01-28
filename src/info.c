@@ -1042,6 +1042,11 @@ void artifact_page(void){
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download", 
           "%s/raw/%T?name=%d", g.zTop, blob_str(&downloadName), rid);
+  zMime = mimetype_from_name(blob_str(&downloadName));
+  if( zMime && strcmp(zMime, "text/html")==0 ){
+    style_submenu_element("View", "View",
+          "%s/raw?name=%d&m=text/html", g.zTop, rid);
+  }
   @ </blockquote>
   @ <hr>
   @ <blockquote>

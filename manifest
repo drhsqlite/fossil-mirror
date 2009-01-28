@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sci=LABEL\sparameter\sto\sthe\s"dir"\swebpage\sin\sorder\sto\slook\sat\sjust\nfiles\swithin\sa\ssingle\scheck-in.\s\sAdd\sa\sDownload\slink\son\sthe\sartifact\sand\nhexdump\sviewers.
-D 2009-01-28T21:41:41
+C A\sa\s"View"\ssubmenu\soption\sfor\sthe\scontent\sviewer\swhen\sthe\sfile\sis\sHTML.
+D 2009-01-28T22:23:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
-F src/info.c 8b65dc436fb0bf73ffb3dff38f130fc14547c592
+F src/info.c 3cb6b66184121e34065005bebfb61c58ed7b6483
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 5e4b1632bc0d803d04e200bd29c37085ad16bc39
-R fa9039bc072bdbd8ca00f84f3c941074
+P 923d644b89211895883a8442883afed8ee02a6e9
+R e7d122210bf805bdb187816020c0020f
 U drh
-Z d26a4f463bc09714f09b78a4a79db9ed
+Z c7676a0f9d1ad7f9310f7e50f694f90a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgNEYoxKgR168RlERAnuIAKCH1SYQtXVX2deh9LivKWcRMC7qiACfRmp2
-OqtaUudBlFN/NUuYZi7SGug=
-=dYUh
+iD8DBQFJgNrJoxKgR168RlERArwMAJ4ucpVjqC9NWXoISgxxK3Ml5jh3EgCdEiIX
+O+iFf9IRYgzTRJ+VifjphbE=
+=t20f
 -----END PGP SIGNATURE-----
