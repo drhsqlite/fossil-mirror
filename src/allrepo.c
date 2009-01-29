@@ -105,7 +105,7 @@ void all_cmd(void){
     zCmd = "sync -autourl -R";
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "list push pull sync");
+                 "list push pull rebuild sync");
   }
   zFossil = quoteFilename(g.argv[0]);
   nMissing = 0;
