@@ -493,6 +493,7 @@ void taglist_page(void){
   if( !g.okRead ){
     login_needed();
   }
+  login_anonymous_available();
   style_header("Tags");
   style_submenu_element("Timeline", "Timeline", "tagtimeline");
   @ <h2>Non-propagating tags:</h2>

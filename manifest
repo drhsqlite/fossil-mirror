@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\smissing\s'rebuild'\ssubcommand\ssuggestion\sfor\scommand\s'fossil\sall'\ssubcommands.
-D 2009-01-29T02:57:37
+C Add\sthe\s"hyperlinks\sare\sdisabled"\swarning\sto\sthe\staglist\spage.\nDisable\shyperlinks\son\sthe\sleaves\spage\swhen\shyperlinks\sare\ssuppose\sto\nbe\sdisabled.
+D 2009-01-29T03:04:38
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -59,7 +59,7 @@ F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c 48df0d0f90a8d238f2cbae54d341ea2acd9c2a77
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendants.c 9007c3f73bc34768455a8438bcbfd0f0c79e3285
+F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
@@ -96,7 +96,7 @@ F src/sqlite3.h 619eeecfbe25dc6e5af6bbcbdf53ec3542ff49b6
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c d90354f0ea442713fd41af02ff4be3ea04acf962
 F src/sync.c 5bf564823db36120bb1bfbe9a53182949fd3fb1a
-F src/tag.c ddf9f91f87f814b1307499590bf18e0e1b00d389
+F src/tag.c 3c286a5a057d45eb14a9ec570a4906f46119d540
 F src/tagview.c c5f7f1444b05d43c49c583124304d4106f1bab7c
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 8636eef6e28f8e45217c32e399efe19151f75080
-R 1af1c07ab8fb3d29bcee1fefba4210ec
-U bharder
-Z 97436c29ac971d0ef90b4f7aeb35e313
+P 4f0f9922456318391ee2f19c2ae79da37711d79e
+R 5a8d807e8e5561b2cb522b1c5dad4679
+U drh
+Z a5759d2372015496a33ddcbba098a5b9
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (NetBSD)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkmBGyEACgkQad0Kwpwugm/t0ACgjul5wOfFm8CzD1lYIdQSNsGw
-VwQAoMZzB/oA3JSDuAmFI+VJMg1I9Vwr
-=Nkdk
+iD8DBQFJgRzJoxKgR168RlERAl5+AJ98ntN29UUIt9d8l9g7EBVBl2R/sQCfZvaW
+FFCRKhQqtUDwuXc9lBf/s2I=
+=8tWD
 -----END PGP SIGNATURE-----
