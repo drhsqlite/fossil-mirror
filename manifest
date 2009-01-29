@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\s"artifact"\swebpage\srenders\swiki\sas\swiki\sand\shtml\sas\shtml\sbut\sgives\s\nsubmenu\sitems\sto\sconvert\sthe\srendering\sback\sto\splain\stext\s(and\shexdump).
-D 2009-01-29T02:42:11
+C On\sthe\staglist\sand\stagtimeline\spages,\sonly\sshow\snon-propagating\stags.\nOmit\sthe\sbranch\stags.
+D 2009-01-29T02:48:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -96,7 +96,7 @@ F src/sqlite3.h 619eeecfbe25dc6e5af6bbcbdf53ec3542ff49b6
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c d90354f0ea442713fd41af02ff4be3ea04acf962
 F src/sync.c 5bf564823db36120bb1bfbe9a53182949fd3fb1a
-F src/tag.c deb9d688fd96495147e14843cbd1bdf83ce70fbd
+F src/tag.c ddf9f91f87f814b1307499590bf18e0e1b00d389
 F src/tagview.c c5f7f1444b05d43c49c583124304d4106f1bab7c
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 0a2a1b4dde3783d17d7421af6646d93e806d5510
-R 07f80c514a7e0b256edc94c63dc9d3b8
+P c7fe01fe8ee4e2323157a26da0c3c6522113a21e
+R 020b6e11d2194075b089b452261b15d9
 U drh
-Z f8200438c29b0829cfa3157ee98961e7
+Z 862a20c51c93e1d5c9e24585e00a7ed7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgReHoxKgR168RlERApt0AJ0eJsO635Cdx7DXnoEwlLqTnbtdEACcC2kS
-zyMRGbl0vnSUXqH6h53ohEU=
-=74z1
+iD8DBQFJgRkGoxKgR168RlERAm6mAJ4kYTaM3emVgGHHux2d86U5dyYYCQCfdBbg
+HHOkQsoBqpMQkzVPj4Yhhx8=
+=mn2h
 -----END PGP SIGNATURE-----

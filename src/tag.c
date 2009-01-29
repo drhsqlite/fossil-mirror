@@ -495,13 +495,13 @@ void taglist_page(void){
   }
   style_header("Tags");
   style_submenu_element("Timeline", "Timeline", "tagtimeline");
-  @ <h2>Tags used by one or more check-ins:</h2>
+  @ <h2>Non-propagating tags:</h2>
   db_prepare(&q,
     "SELECT substr(tagname,5)"
     "  FROM tag"
     " WHERE EXISTS(SELECT 1 FROM tagxref"
     "               WHERE tagid=tag.tagid"
-    "                 AND tagtype>0)"
+    "                 AND tagtype=1)"
     " AND tagname GLOB 'sym-*'"
     " ORDER BY tagname"
   );
@@ -557,10 +557,10 @@ void tagtimeline_page(void){
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");
   login_anonymous_available();
-  @ <h2>Initial check-ins for each tag:</t2>
+  @ <h2>Check-ins with non-propagating tags:</t2>
   db_prepare(&q,
     "%s AND blob.rid IN (SELECT rid FROM tagxref"
-    "                     WHERE tagtype>0 AND srcid>0"
+    "                     WHERE tagtype=1 AND srcid>0"
     "                       AND tagid IN (SELECT tagid FROM tag "
     "                                      WHERE tagname GLOB 'sym-*'))"
     " ORDER BY event.mtime DESC",
