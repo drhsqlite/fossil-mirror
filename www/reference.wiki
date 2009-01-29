@@ -23,13 +23,18 @@
   enough to make the intent&#8212;the 'clone'
   command&#8212;unambiguous.
 
-  * Pragmatically, a <u>version</u> in <b>fossil</b> is a
+  * Pragmatically, a [ | <u>version</u>] in <b>fossil</b> is a
   40-character long string of hexadecimal.  <b>fossil</b> will be
   able to figure out which version you want with any
   <i>distinct</i> prefix of that string which is at least four
   characters long.  <em>Commands which require a version are
   looking for the string, a distinct prefix of the string, or a
   <code>tag</code>.</em>
+
+  * SCM in a distributed environment can be a bit confusing with
+  regard to branching, merging, and versions in general.  See the
+  [./branching.wiki | explanation of branching] and it will all make
+  much more sense.
 
   You should probably start interacting with fossil at the command
   line by asking it what it can
@@ -41,7 +46,7 @@ Available COMMANDs:</pre><table width="80%"
                           style="font-family: fixed, courier, monospace;">
       <tr>
 	<td><a href="#add">add</a>*</td>
-	<td><a href="#configure">configuration</a></td>
+	<td><a href="#configuration">configuration</a></td>
 	<td><a href="#leaves">leaves</a></td>
 	<td><a href="#redo">redo</a></td>
 	<td><a href="#timeline">timeline</a></td>
@@ -203,7 +208,7 @@ into the reason for a command in a bit more depth than the program help.
     current check-out.
 
 <hr><a href="#tof">&#710;</a>
-    <a name="configure">Usage: </a><a href="cmd_configure.wiki">fossil configure</a> METHOD ...
+    <a name="configuration">Usage: </a><a href="cmd_configure.wiki">fossil configuration</a> METHOD ...
     Where METHOD is one of: export import merge pull push reset.  All methods
     accept the -R or --repository option to specific a repository.
 

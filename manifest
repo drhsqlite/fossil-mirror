@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Print\sthe\scurrent\sstatus\s(including\sthe\scurrent\sbranch)\safter\smoving\nto\sthe\send\sbranch\sin\sthe\s"open"\scommand.
-D 2009-01-29T03:36:00
+C Merge\sin\skkinnell's\sdocumentation\supdates.
+D 2009-01-29T23:04:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -237,20 +237,20 @@ F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki 36405b750ae19b986a3e5e82cef9d62a5b39d40f
 F www/quickstart.wiki 6b03b1426c9f094d56e9bb895215b79ac2ce1ea1
-F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
+F www/reference.wiki 1c1a126ca1fadb00ea8738d3969ad7f64a0a792c
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 0c72d85fbe1e54312842980f07a0d273363874e7
-R df0b3d431c54a07eb5726685650ea00e
+P 29900f98f61043b76eb46aadf3686fcb77e5bfb3 f8f8baf945fb4187cefc19ecc3f68a0aaa0b1912
+R 0654c75f1d3bb515702dbe8fe7b6ff07
 U drh
-Z 079b31b614d606b5e87a503ee69843c1
+Z cac89d68097745e7d133e28fd08047af
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgSQkoxKgR168RlERAp8LAJ4m/2mfUKu0lYmvntuVod9jliXX8wCfQFmF
-v4TPwBV3p8c/Yrp8nWMIiqI=
-=w7Ut
+iD8DBQFJgjYToxKgR168RlERAoqFAJ9MVbbZPJEVcHcz24xhyVWGgxWSbACdGjdN
+y5kqo7n9diGFfVqBFzHlOSw=
+=+Di4
 -----END PGP SIGNATURE-----
