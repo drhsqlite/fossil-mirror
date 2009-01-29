@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"hyperlinks\sare\sdisabled"\swarning\sto\sthe\staglist\spage.\nDisable\shyperlinks\son\sthe\sleaves\spage\swhen\shyperlinks\sare\ssuppose\sto\nbe\sdisabled.
-D 2009-01-29T03:04:38
+C Mention\sthat\sfossil\sis\sGPL\son\sthe\shomepage.
+D 2009-01-29T03:28:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -231,7 +231,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
 F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
 F www/fileformat.wiki e6fabaf4cd609390faaa92b631e3c0c2712adad5
-F www/index.wiki 786913c0b467367fbda671466457bbe51253eee6
+F www/index.wiki 7ee83e7ec9d521c13ac4a5e94c6e983ce12ca575
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 4f0f9922456318391ee2f19c2ae79da37711d79e
-R 5a8d807e8e5561b2cb522b1c5dad4679
+P 472f9411eec4b5fc763662f6c1441601054bca88
+R b5c0f2c64230ba54227cce5eb511b759
 U drh
-Z a5759d2372015496a33ddcbba098a5b9
+Z 138167de74d01668365845dd1cf8a81a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgRzJoxKgR168RlERAl5+AJ98ntN29UUIt9d8l9g7EBVBl2R/sQCfZvaW
-FFCRKhQqtUDwuXc9lBf/s2I=
-=8tWD
+iD8DBQFJgSJEoxKgR168RlERAje0AJ0VNYGYkXYYr53cEtz6RobAtKLOHACfZ714
+bIp9YY0AS2C2Nt6DhKmhl78=
+=mrKu
 -----END PGP SIGNATURE-----

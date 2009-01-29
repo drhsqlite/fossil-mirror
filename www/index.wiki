@@ -51,6 +51,7 @@ Or you can grab
      unlikely that data will ever be lost because of a software bug.
   *  Ridiculously easy to [./build.wiki | install] and 
      [./quickstart.wiki | operate].
+  *  License: [../COPYRIGHT-GPL2.txt | GPL]
 
 <b>User Links:</b>
 
