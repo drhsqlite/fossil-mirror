@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C First\sdraft\sof\sthe\s"branching"\sdocument.
-D 2009-01-23T21:24:00
+C Add\slink\sto\sbranching\spage.
+D 2009-01-29T19:11:52
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -235,18 +235,18 @@ F www/newrepo.wiki 6e108d436be156ba84f1260923ce5ca678041f66
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
 F www/quickstart.wiki c0029b88f00ce163971d045113a1784eac00a117
-F www/reference.wiki d59782964d998dbec5f5b6af398735ab403eed83
+F www/reference.wiki 1c1a126ca1fadb00ea8738d3969ad7f64a0a792c
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P cf9ee7d67e086669d4a548c802eecc764c9f42d2
-R 7027626fd20f753e40ceb7d426806885
-U drh
-Z a8a20b61ca69e8af995550f43e7e13d1
+P 2e275c14202446fca2bb8a48a8d15ed82d9bbc33
+R 0def801dc5127bba37c98f00c5a89c95
+U kejoki
+Z bb8a4f320307906b5fad0e1f8136fc30
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJejVzoxKgR168RlERAh1GAJ46BL2eSIU6A9LgeBoSGPGtNcGwQQCgg/IM
-zMgbBigzDyhMcu4zwJ9ZIE4=
-=ouPf
+iD8DBQFJgf9+6EFGj+X1mh4RAqQ/AKCIkp+4MCUT9PKYFeuqPH3AHp3PZwCgmxil
+jRMA+JZAqFxOAMNBKLf1YZo=
+=DZR9
 -----END PGP SIGNATURE-----
