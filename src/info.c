@@ -601,13 +601,12 @@ void finfo_page(void){
   zPrevDate[0] = 0;
   zFilename = PD("name","");
   db_prepare(&q,
-    "SELECT a.uuid, substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
+    "SELECT substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
     "       coalesce(event.ecomment, event.comment),"
     "       coalesce(event.euser, event.user),"
     "       mlink.pid, mlink.fid, mlink.mid, mlink.fnid"
-    "  FROM mlink, blob a, blob b, event"
+    "  FROM mlink, blob b, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND a.rid=mlink.mid"
     "   AND b.rid=mlink.fid"
     "   AND event.objid=mlink.mid"
     " ORDER BY event.mtime DESC",
@@ -620,15 +619,15 @@ void finfo_page(void){
   blob_reset(&title);
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zVers = db_column_text(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zCom = db_column_text(&q, 3);
-    const char *zUser = db_column_text(&q, 4);
-    int fpid = db_column_int(&q, 5);
-    int frid = db_column_int(&q, 6);
-    int mid = db_column_int(&q, 7);
-    int fnid = db_column_int(&q, 8);
+    const char *zUuid = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zCom = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
+    int fpid = db_column_int(&q, 4);
+    int frid = db_column_int(&q, 5);
+    int mid = db_column_int(&q, 6);
+    int fnid = db_column_int(&q, 7);
+    char zShort[20];
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -643,11 +642,14 @@ void finfo_page(void){
     @ <tr><td valign="top">%s(&zDate[11])</td>
     @ <td width="20"></td>
     @ <td valign="top" align="left">
-    hyperlink_to_uuid(zVers);
-    @ %h(zCom) (By: %h(zUser))
-    @ Id: %s(zUuid)/%d(frid)
+    sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     if( g.okHistory ){
-      @ <a href="%s(g.zBaseURL)/artifact/%d(frid)">[view]</a>
+      @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%s(zShort)]</a>
+    }else{
+      @ [%s(zShort)]
+    }
+    @ %h(zCom) (By: %h(zUser))
+    if( g.okHistory ){
       if( fpid ){
         @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
       }
@@ -728,13 +730,13 @@ void vdiff_page(void){
 **
 ** If the object is a file then mention:
 **
-**     * It's uuid
+**     * It's artifact ID
 **     * All its filenames
 **     * The baselines it was checked-in on, with times and users
 **
 ** If the object is a manifest, then mention:
 **
-**     * It's uuid
+**     * It's artifact ID
 **     * date of check-in
 **     * Comment & user
 */
@@ -772,9 +774,9 @@ static void object_description(
       @ File
     }
     @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-    @ uuid %s(zFuuid) part of check-in
+    @ artifact %s(zFuuid) part of check-in
     hyperlink_to_uuid(zVers);
-    @ %w(zCom) by %h(zUser) on %s(zDate).
+    @ - %w(zCom) by %h(zUser) on %s(zDate).
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zName, -1);
@@ -803,7 +805,7 @@ static void object_description(
       @ Wiki page
     }
     @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
-    @ uuid %s(zUuid) by %h(zUser) on %s(zDate).
+    @ artifact %s(zUuid) by %h(zUser) on %s(zDate).
     nWiki++;
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -838,7 +840,7 @@ static void object_description(
         @ Control file referencing
       }
       hyperlink_to_uuid(zUuid);
-      @ %w(zCom) by %h(zUser) on %s(zDate).
+      @ - %w(zCom) by %h(zUser) on %s(zDate).
       if( pDownloadName && blob_size(pDownloadName)==0 ){
         blob_append(pDownloadName, zUuid, -1);
       }
@@ -1020,6 +1022,8 @@ void artifact_page(void){
   Blob content;
   const char *zMime;
   Blob downloadName;
+  int renderAsWiki = 0;
+  int renderAsHtml = 0;
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
@@ -1045,47 +1049,54 @@ void artifact_page(void){
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
     if( strcmp(zMime, "text/html")==0 ){
-      style_submenu_element("View", "View",
-            "%s/raw?name=%d&m=text/html", g.zTop, rid);
-    }else if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
-      Stmt q;
-      db_prepare(&q, 
-         "SELECT blob.uuid || '/' || filename.name"
-         "  FROM mlink, filename, blob"
-         " WHERE mlink.fid=%d"
-         "   AND filename.fnid=mlink.fnid"
-         "   AND filename.name GLOB '*.wiki'"
-         "   AND blob.rid=mlink.mid",
-         rid
-      );
-      if( db_step(&q)==SQLITE_ROW ){
-        const char *zCI = db_column_text(&q, 0);
-        style_submenu_element("View", "View", "%s/doc/%s", g.zTop, zCI);
+      if( P("txt") ){
+        style_submenu_element("Html", "Html",
+                              "%s/artifact?name=%d", g.zTop, rid);
+      }else{
+        renderAsHtml = 1;
+        style_submenu_element("Text", "Text",
+                              "%s/artifact?name=%d&txt=1", g.zTop, rid);
       }
-      db_finalize(&q);
+    }else if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
+      if( P("txt") ){
+        style_submenu_element("Wiki", "Wiki",
+                              "%s/artifact?name=%d", g.zTop, rid);
+      }else{
+        renderAsWiki = 1;
+        style_submenu_element("Text", "Text",
+                              "%s/artifact?name=%d&txt=1", g.zTop, rid);
+      }
     }
   }
   @ </blockquote>
   @ <hr>
-  @ <blockquote>
   content_get(rid, &content);
-  zMime = mimetype_from_content(&content);
-  if( zMime==0 ){
-    @ <pre>
-    @ %h(blob_str(&content))
-    @ </pre>
-    style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
-  }else if( strncmp(zMime, "image/", 6)==0 ){
-    @ <img src="%s(g.zBaseURL)/raw?name=%d(rid)&m=%s(zMime)"></img>
-    style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
+  if( renderAsWiki ){
+    wiki_convert(&content, 0, 0);
+  }else if( renderAsHtml ){
+    @ <div>
+    cgi_append_content(blob_buffer(&content), blob_size(&content));
+    @ </div>
   }else{
-    @ <pre>
-    hexdump(&content);
-    @ </pre>
+    zMime = mimetype_from_content(&content);
+    @ <blockquote>
+    if( zMime==0 ){
+      @ <pre>
+      @ %h(blob_str(&content))
+      @ </pre>
+      style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
+    }else if( strncmp(zMime, "image/", 6)==0 ){
+      @ <img src="%s(g.zBaseURL)/raw?name=%d(rid)&m=%s(zMime)"></img>
+      style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
+    }else{
+      @ <pre>
+      hexdump(&content);
+      @ </pre>
+    }
+    @ </blockquote>
   }
-  @ </blockquote>
   style_footer();
-}
+}  
 
 /*
 ** WEBPAGE: tinfo
