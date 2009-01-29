@@ -1277,6 +1277,8 @@ void cmd_open(void){
     g.argv = azNewArgv;
     g.argc = 3;
     update_cmd();
+    g.argc = 2;
+    info_cmd();
   }
 }
 

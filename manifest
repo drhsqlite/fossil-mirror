@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Mention\sthat\sfossil\sis\sGPL\son\sthe\shomepage.
-D 2009-01-29T03:28:01
+C Print\sthe\scurrent\sstatus\s(including\sthe\scurrent\sbranch)\safter\smoving\nto\sthe\send\sbranch\sin\sthe\s"open"\scommand.
+D 2009-01-29T03:36:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -56,7 +56,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 48df0d0f90a8d238f2cbae54d341ea2acd9c2a77
+F src/db.c 6f78bab6b57abf49517717f651033256ee849d37
 F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 472f9411eec4b5fc763662f6c1441601054bca88
-R b5c0f2c64230ba54227cce5eb511b759
+P 0c72d85fbe1e54312842980f07a0d273363874e7
+R df0b3d431c54a07eb5726685650ea00e
 U drh
-Z 138167de74d01668365845dd1cf8a81a
+Z 079b31b614d606b5e87a503ee69843c1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgSJEoxKgR168RlERAje0AJ0VNYGYkXYYr53cEtz6RobAtKLOHACfZ714
-bIp9YY0AS2C2Nt6DhKmhl78=
-=mrKu
+iD8DBQFJgSQkoxKgR168RlERAp8LAJ4m/2mfUKu0lYmvntuVod9jliXX8wCfQFmF
+v4TPwBV3p8c/Yrp8nWMIiqI=
+=w7Ut
 -----END PGP SIGNATURE-----
