@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\skkinnell's\sdocumentation\supdates.
-D 2009-01-29T23:04:47
+C Fix\serrors\sin\sthe\smimetype-generator\stable\sfor\sdocumentation\sfiles.
+D 2009-01-30T02:26:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -62,7 +62,7 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
-F src/doc.c a23503395b9833c9754b495badca8c0bd62b07b3
+F src/doc.c b634a7084a8fec255106a0f88612c71f5dbc1596
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 29900f98f61043b76eb46aadf3686fcb77e5bfb3 f8f8baf945fb4187cefc19ecc3f68a0aaa0b1912
-R 0654c75f1d3bb515702dbe8fe7b6ff07
+P 24c045f37374f7a1b3ca6595a5ec53605e6293a5
+R fe85527aefae2931ee1c749fe2fff1ff
 U drh
-Z cac89d68097745e7d133e28fd08047af
+Z 5a503ead4780b23df249188fc88fade4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgjYToxKgR168RlERAoqFAJ9MVbbZPJEVcHcz24xhyVWGgxWSbACdGjdN
-y5kqo7n9diGFfVqBFzHlOSw=
-=+Di4
+iD8DBQFJgmV0oxKgR168RlERAmSqAJsFcHN8dFu3Rx66P7cJtsRAPq07cgCfRzPa
+oFipT+sM0BRnGTEpaUTLv7I=
+=GrHW
 -----END PGP SIGNATURE-----
