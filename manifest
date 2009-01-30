@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\slink\sto\sbranching\spage.
-D 2009-01-29T19:11:52
+C Changed\supdate\sdocs,\s**\sADDED\sA\s_SPECIAL_\s(but\sMUTYPE_BLOCK)\swikitag\s<annotation>\sto\sput\shtml\scomments\sin\swikimarkup
+D 2009-01-30T21:18:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -113,7 +113,7 @@ F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c ad80e6740561fa2741aae6f7a101a0438ed4ad1e
-F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
+F src/wikiformat.c 772f3f723fa76496e00572090f74b8733f619e25
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
 F src/xfer.c cc749b7254e32e52f34eefc965e900c5f526e1ef
 F src/zip.c f641ace2a3550df20ed48108d287cabbf2051d44
@@ -203,8 +203,8 @@ F www/cmd_mv.wiki 9e4a34eb8c37279fe0792a05d008e04a634b9864
 F www/cmd_new.wiki ba37188db8f11b51f3901506b4d673f94141c7d8
 F www/cmd_rm.wiki b96ff20fcfe6d9f7ba72d9d546f95fae5dfa5969
 F www/cmd_status.wiki ef339202a88c02fa3f2dcc4c59f13ffc2964112b
-F www/cmd_sync.wiki 81c0b88996c8f62e3e810ee733275a85ff36ed4f
-F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
+F www/cmd_sync.wiki 111bb821006042fe5430ffcfc5d05afdd8d675ed
+F www/cmd_update.wiki 89c914e396d6fa1fb5db5b43c794e5d407d64345
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
@@ -235,18 +235,18 @@ F www/newrepo.wiki 6e108d436be156ba84f1260923ce5ca678041f66
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki 61ff0d83645dc259f9e4bff0a4819097e74b7d82
 F www/quickstart.wiki c0029b88f00ce163971d045113a1784eac00a117
-F www/reference.wiki 1c1a126ca1fadb00ea8738d3969ad7f64a0a792c
+F www/reference.wiki d0276f42ef2f3bc9ff0db603e1820f03f82563ec
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 2e275c14202446fca2bb8a48a8d15ed82d9bbc33
-R 0def801dc5127bba37c98f00c5a89c95
+P f8f8baf945fb4187cefc19ecc3f68a0aaa0b1912
+R 83c1b4f0776327771ddc520fc34ae6c2
 U kejoki
-Z bb8a4f320307906b5fad0e1f8136fc30
+Z 5037ffac35db7407df678fd096780b50
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJgf9+6EFGj+X1mh4RAqQ/AKCIkp+4MCUT9PKYFeuqPH3AHp3PZwCgmxil
-jRMA+JZAqFxOAMNBKLf1YZo=
-=DZR9
+iD8DBQFJg26b6EFGj+X1mh4RAtOWAKCs+koM4uVaewW0Xa8tOn3TKXYX4QCfTdpx
+0ggEUerLcuinRteTQ3kre7g=
+=ae9S
 -----END PGP SIGNATURE-----

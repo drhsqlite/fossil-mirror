@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright (c) 2007, 2009 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public
@@ -158,52 +158,53 @@ static int findAttr(const char *z){
 #define MARKUP_INVALID           0
 #define MARKUP_A                 1
 #define MARKUP_ADDRESS           2
-#define MARKUP_B                 3
-#define MARKUP_BIG               4
-#define MARKUP_BLOCKQUOTE        5
-#define MARKUP_BR                6
-#define MARKUP_CENTER            7
-#define MARKUP_CITE              8
-#define MARKUP_CODE              9
-#define MARKUP_DD               10
-#define MARKUP_DFN              11
-#define MARKUP_DIV              12
-#define MARKUP_DL               13
-#define MARKUP_DT               14
-#define MARKUP_EM               15
-#define MARKUP_FONT             16
-#define MARKUP_H1               17
-#define MARKUP_H2               18
-#define MARKUP_H3               19
-#define MARKUP_H4               20
-#define MARKUP_H5               21
-#define MARKUP_H6               22
-#define MARKUP_HR               23
-#define MARKUP_I                24
-#define MARKUP_IMG              25
-#define MARKUP_KBD              26
-#define MARKUP_LI               27
-#define MARKUP_NOBR             28
-#define MARKUP_NOWIKI           29
-#define MARKUP_OL               30
-#define MARKUP_P                31
-#define MARKUP_PRE              32
-#define MARKUP_S                33
-#define MARKUP_SAMP             34
-#define MARKUP_SMALL            35
-#define MARKUP_STRIKE           36
-#define MARKUP_STRONG           37
-#define MARKUP_SUB              38
-#define MARKUP_SUP              39
-#define MARKUP_TABLE            40
-#define MARKUP_TD               41
-#define MARKUP_TH               42
-#define MARKUP_TR               43
-#define MARKUP_TT               44
-#define MARKUP_U                45
-#define MARKUP_UL               46
-#define MARKUP_VAR              47
-#define MARKUP_VERBATIM         48
+#define MARKUP_ANNOTATION        3
+#define MARKUP_B                 4
+#define MARKUP_BIG               5
+#define MARKUP_BLOCKQUOTE        6
+#define MARKUP_BR                7
+#define MARKUP_CENTER            8
+#define MARKUP_CITE              9
+#define MARKUP_CODE             10
+#define MARKUP_DD               11
+#define MARKUP_DFN              12
+#define MARKUP_DIV              13
+#define MARKUP_DL               14
+#define MARKUP_DT               15
+#define MARKUP_EM               16
+#define MARKUP_FONT             17
+#define MARKUP_H1               18
+#define MARKUP_H2               19
+#define MARKUP_H3               20
+#define MARKUP_H4               21
+#define MARKUP_H5               22
+#define MARKUP_H6               23
+#define MARKUP_HR               24
+#define MARKUP_I                25
+#define MARKUP_IMG              26
+#define MARKUP_KBD              27
+#define MARKUP_LI               28
+#define MARKUP_NOBR             29
+#define MARKUP_NOWIKI           30
+#define MARKUP_OL               31
+#define MARKUP_P                32
+#define MARKUP_PRE              33
+#define MARKUP_S                34
+#define MARKUP_SAMP             35
+#define MARKUP_SMALL            36
+#define MARKUP_STRIKE           37
+#define MARKUP_STRONG           38
+#define MARKUP_SUB              39
+#define MARKUP_SUP              40
+#define MARKUP_TABLE            41
+#define MARKUP_TD               42
+#define MARKUP_TH               43
+#define MARKUP_TR               44
+#define MARKUP_TT               45
+#define MARKUP_U                46
+#define MARKUP_UL               47
+#define MARKUP_VAR              48
+#define MARKUP_VERBATIM         49
 
 /*
 ** The various markup is divided into the following types:
@@ -216,7 +217,7 @@ static int findAttr(const char *z){
 #define MUTYPE_TABLE       0x0040   /* <table> */
 #define MUTYPE_TR          0x0080   /* <tr> */
 #define MUTYPE_TD          0x0100   /* <td> or <th> */
-#define MUTYPE_SPECIAL     0x0200   /* <nowiki> or <verbatim> */
+#define MUTYPE_SPECIAL     0x0200   /* <annotation>, <nowiki> or <verbatim> */
 #define MUTYPE_HYPERLINK   0x0400   /* <a> */
 
 /*
@@ -239,6 +240,7 @@ static const struct AllowedMarkup {
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
                     AMSK_HREF|AMSK_NAME },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
+ { "annotation",    MARKUP_ANNOTATION,   MUTYPE_BLOCK,         0  },
  { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
  { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         0  },
@@ -1143,6 +1145,12 @@ static void wiki_render(Renderer *p, char *z){
         int iDiv;
         parseMarkup(&markup, z);
 
+        /* Annotation markup turns into HTML comment */
+        if( markup.iCode==MARKUP_ANNOTATION && markup.endTag ){
+	  blob_append(p->pOut, "-->", 3);
+	  break;
+	}
+
         /* Markup of the form </div id=ID> where there is a matching
         ** ID somewhere on the stack.  Exit the verbatim if were are in
         ** it.  Pop the stack up to the matching <div>.  Discard the 
@@ -1168,7 +1176,7 @@ static void wiki_render(Renderer *p, char *z){
         }else
 
         /* If within <verbatim id=ID> ignore everything other than
-        ** </verbatim id=ID> and the </dev id=ID2> above.
+        ** </verbatim id=ID> and the </div id=ID2> above.
         */           
         if( p->inVerbatim ){
           if( endVerbatim(p, &markup) ){
@@ -1241,6 +1249,13 @@ static void wiki_render(Renderer *p, char *z){
           blob_append(p->pOut, "<pre class='verbatim'>",-1);
           p->wantAutoParagraph = 0;
         }else
+
+	/* Annotation markup starts an HTML comment */
+	if( markup.iCode==MARKUP_ANNOTATION ){
+	  p->wantAutoParagraph = 0;
+	  blob_append(p->pOut, "<!-- ", 5);
+	}else
+
         if( markup.iType==MUTYPE_LI ){
           if( backupToType(p, MUTYPE_LIST)==0 ){
             pushStack(p, MARKUP_UL);

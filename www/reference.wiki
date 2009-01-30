@@ -113,7 +113,7 @@ Available COMMANDs:</pre><table width="80%"
         <td><a href="#tag">tag</a></td>
       </tr>
     </table><nowiki><pre>
-This is fossil version [b12a031557] 2008-12-26 17:41:09 UTC
+This is fossil version [f8f8baf945] 2009-01-29 19:11:52 UTC
 </pre>
 <b>What follows</b> is a survey of what you get if you type<code>
 fossil&nbsp;help&nbsp;<i>command</i> </code>for all of the

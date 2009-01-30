@@ -19,4 +19,5 @@ version <em>unless</em> you customize your configuration.
 See also: [./cmd_pull.wiki | fossil pull],
 [./cmd_push.wiki | fossil push],
 [./cmd_setting.wiki | fossil setting],
+[./branching.wiki | <i>branching, merging, forking and tagging</i>],
 [./reference.wiki | Reference]
