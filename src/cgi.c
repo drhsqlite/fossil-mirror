@@ -323,14 +323,7 @@ void cgi_reply(void){
   ** the browser, not some shared location.
   */
   fprintf(g.httpOut, "Cache-control: private\r\n");
-
-#if FOSSIL_I18N
-  fprintf(g.httpOut,
-     "Content-Type: %s; charset=%s\r\n", zContentType, nl_langinfo(CODESET));
-#else
-  fprintf(g.httpOut,
-     "Content-Type: %s; charset=ISO-8859-1\r\n", zContentType);
-#endif
+  fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
   if( strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();
     blob_compress(&cgiContent[0], &cgiContent[0]);

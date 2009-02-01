@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\serrors\sin\sthe\smimetype-generator\stable\sfor\sdocumentation\sfiles.
-D 2009-01-30T02:26:57
+C Always\sreport\sthe\scontent-type\scharset\sas\sutf-8.\nTicket\s[cc6557cfc5763fa80bb04eecea7f713b0751efc4]
+D 2009-02-01T12:23:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -46,7 +46,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c e6d1392f9d7e47dcbf3228a856e8d39ef5a4be0e
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
-F src/cgi.c ebad09218e26ed9fde26e6706c4d9261b8772e54
+F src/cgi.c 489612419416b1fe4348a6be36d3bfb745a792d1
 F src/checkin.c c26c845ac6e640961e5665a992c6984bdace1ba5
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 24c045f37374f7a1b3ca6595a5ec53605e6293a5
-R fe85527aefae2931ee1c749fe2fff1ff
+P 23e96cf795d6586e995bab8409a6e261d34208ce
+R 7d6924f1afe29a88433ecacfda7fcab6
 U drh
-Z 5a503ead4780b23df249188fc88fade4
+Z 51d5523046cf74727afd59d7b1fd633a
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFJgmV0oxKgR168RlERAmSqAJsFcHN8dFu3Rx66P7cJtsRAPq07cgCfRzPa
-oFipT+sM0BRnGTEpaUTLv7I=
-=GrHW
+iD8DBQFJhZReoxKgR168RlERAt9IAJ9WQg0jlrUpE5Dhe5sJpaCQKpUpsQCfeJZR
+k1BVz7Su3X0bfKYvU+sVujg=
+=OgBB
 -----END PGP SIGNATURE-----
