@@ -333,6 +333,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   assert( hasArg==0 || hasArg==1 );
   nLong = strlen(zLong);
   for(i=2; i<g.argc; i++){
+    if (i+hasArg >= g.argc) break;
     char *z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
@@ -371,7 +372,7 @@ void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
     if( g.argv[i][0]=='-' ){
-      fossil_fatal("unrecognized command-line option: %s", g.argv[i]);
+      fossil_fatal("unrecognized command-line option, or missing argument: %s", g.argv[i]);
     }
   }
 }

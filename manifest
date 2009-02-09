@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C 'fossil'\sencode\stagnames\sfor\smanifest\s(for\sticket\s15f49be6b2b1e)
-D 2009-02-09T04:41:08
+C fix\soption/argument\sparsing\sfor\sthe\scase\swhere\san\soption\sis\smissing\sa\srequired\sargument.
+D 2009-02-09T18:09:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -68,7 +68,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
 F src/info.c 012036faaa13fe32c96e741261f6ae4ad689500e
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
-F src/main.c ea151948ee17292003e462dfb56e9f61285aa7cc
+F src/main.c c2e4729e317a7acb1b2a8e85d6972c9742b60c74
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P daacc139a50e09a6191085e364f6c8e61228eece
-R 1b887285256ca24c0d2e5fd123bc4495
+P 8be6204607fd78760ebcc8f455cd6707d62e358e
+R ff6c66369b7b14f07b1bbe30ca29e6ea
 U bharder
-Z 9b209de4a1c0e8dfab7e896e3169fde1
+Z 219ed235ed434208b963ad108d1835d9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (NetBSD)
 
-iEYEARECAAYFAkmPs+QACgkQad0Kwpwugm/m6QCfcikw5CCp9YfLA4DIA33Rp1cL
-8J8AoMGpsRiB5DzjMu6eEwubgJIW8Bnr
-=QXxy
+iEYEARECAAYFAkmQcT8ACgkQad0Kwpwugm/bdQCdGocxhIMHbp1+Dl1iBIORlUnY
+u4IAoJ7MMEabZmIM+5q7DurXsWswhyb2
+=8uc0
 -----END PGP SIGNATURE-----
