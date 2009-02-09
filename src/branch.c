@@ -124,7 +124,7 @@ void branch_new(void){
       rootid);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTag = db_column_text(&q, 0);
-    blob_appendf(&branch, "T -%s *\n", zTag);
+    blob_appendf(&branch, "T -%F *\n", zTag);
   }
   db_finalize(&q);
   

@@ -618,7 +618,7 @@ void commit_cmd(void){
         vid, zBranch);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zTag = db_column_text(&q, 0);
-      blob_appendf(&manifest, "T -%s *\n", zTag);
+      blob_appendf(&manifest, "T -%F *\n", zTag);
     }
     db_finalize(&q);
   }  

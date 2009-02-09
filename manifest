@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Always\sreport\sthe\scontent-type\scharset\sas\sutf-8.\nTicket\s[cc6557cfc5763fa80bb04eecea7f713b0751efc4]
-D 2009-02-01T12:23:53
+C 'fossil'\sencode\stagnames\sfor\smanifest\s(for\sticket\s15f49be6b2b1e)
+D 2009-02-09T04:41:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -44,10 +44,10 @@ F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
 F src/allrepo.c cc52a38ad8e2d4d07bff56c5c3530004216c7b5f
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
-F src/branch.c e6d1392f9d7e47dcbf3228a856e8d39ef5a4be0e
+F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c 489612419416b1fe4348a6be36d3bfb745a792d1
-F src/checkin.c c26c845ac6e640961e5665a992c6984bdace1ba5
+F src/checkin.c a36b0dbf8a6c627a136fdde421ceded3d504a6cc
 F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c bf4ca8abfdd8b2560d3712eb209d27cf9a908821
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 23e96cf795d6586e995bab8409a6e261d34208ce
-R 7d6924f1afe29a88433ecacfda7fcab6
-U drh
-Z 51d5523046cf74727afd59d7b1fd633a
+P daacc139a50e09a6191085e364f6c8e61228eece
+R 1b887285256ca24c0d2e5fd123bc4495
+U bharder
+Z 9b209de4a1c0e8dfab7e896e3169fde1
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFJhZReoxKgR168RlERAt9IAJ9WQg0jlrUpE5Dhe5sJpaCQKpUpsQCfeJZR
-k1BVz7Su3X0bfKYvU+sVujg=
-=OgBB
+iEYEARECAAYFAkmPs+QACgkQad0Kwpwugm/m6QCfcikw5CCp9YfLA4DIA33Rp1cL
+8J8AoMGpsRiB5DzjMu6eEwubgJIW8Bnr
+=QXxy
 -----END PGP SIGNATURE-----
