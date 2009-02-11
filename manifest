@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C fix\soption/argument\sparsing\sfor\sthe\scase\swhere\san\soption\sis\smissing\sa\srequired\sargument.
-D 2009-02-09T18:09:03
+C Make\scommand-alias\sfor\s'checkout':\sco.\s\sThis\scommand\scould\s-not-\shave\sbeen\sused\spreviously\sas\sa\sshortcut,\sas\sit\swould\sbe\sambiguous\sbecuase\sof\s'commit'\sand\s'configuration'
+D 2009-02-11T05:00:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -48,7 +48,7 @@ F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c 489612419416b1fe4348a6be36d3bfb745a792d1
 F src/checkin.c a36b0dbf8a6c627a136fdde421ceded3d504a6cc
-F src/checkout.c 01a97dfc51bfa07ec4ab423a74efcf28c825899e
+F src/checkout.c 24593c59e38fce4d7b62e05794152bc638603cb4
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c bf4ca8abfdd8b2560d3712eb209d27cf9a908821
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P 8be6204607fd78760ebcc8f455cd6707d62e358e
-R ff6c66369b7b14f07b1bbe30ca29e6ea
+P f80303ac73628dbfe30abd5964792ae99e638dca
+R da6ac38167b0c85b0657c934ef2050a0
 U bharder
-Z 219ed235ed434208b963ad108d1835d9
+Z 199fd7b16cc0b61967ee40e99d7868f4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (NetBSD)
 
-iEYEARECAAYFAkmQcT8ACgkQad0Kwpwugm/bdQCdGocxhIMHbp1+Dl1iBIORlUnY
-u4IAoJ7MMEabZmIM+5q7DurXsWswhyb2
-=8uc0
+iEYEARECAAYFAkmSW1IACgkQad0Kwpwugm/JNACghJmhNfsxkuXRV6KcUcTzf8Bj
+bGEAoKESwIr5VOg7diLCe6KTosWaTPMF
+=B06D
 -----END PGP SIGNATURE-----
