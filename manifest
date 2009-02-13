@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\scommand-alias\sfor\s'checkout':\sco.\s\sThis\scommand\scould\s-not-\shave\sbeen\sused\spreviously\sas\sa\sshortcut,\sas\sit\swould\sbe\sambiguous\sbecuase\sof\s'commit'\sand\s'configuration'
-D 2009-02-11T05:00:02
+C Doc\supdate\sfor\sbranch\sand\sco.
+D 2009-02-13T20:30:30
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -208,7 +208,7 @@ F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki e17c6aa709794f173c798b06e56cc926f4c61bf0
+F www/concepts.wiki 37b66fe58e9a3d50e6eea03c34606f58615efd38
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -236,21 +236,21 @@ F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki 36405b750ae19b986a3e5e82cef9d62a5b39d40f
-F www/quickstart.wiki 6b03b1426c9f094d56e9bb895215b79ac2ce1ea1
-F www/reference.wiki 1c1a126ca1fadb00ea8738d3969ad7f64a0a792c
+F www/quickstart.wiki a7f1c75cf3a119a77a14bc4a605495711a6817aa
+F www/reference.wiki 65e06e553886c5c549ec9b51715c8b60dfb0df9b
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
 F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P f80303ac73628dbfe30abd5964792ae99e638dca
-R da6ac38167b0c85b0657c934ef2050a0
-U bharder
-Z 199fd7b16cc0b61967ee40e99d7868f4
+P a89b436bc9f4365fcef863b044e96c73b9e242ef
+R 603fefe20c4fa0acb0e908e6552db935
+U kejoki
+Z 82f0dadb052da6aa4b8b8c8ff2408150
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (NetBSD)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkmSW1IACgkQad0Kwpwugm/JNACghJmhNfsxkuXRV6KcUcTzf8Bj
-bGEAoKESwIr5VOg7diLCe6KTosWaTPMF
-=B06D
+iD8DBQFJldhy6EFGj+X1mh4RArU5AJ40JyXflIleFm3diOpLq52k1YpFNACfX0J2
+H3sRlNmnYp6DRHUIBGL58hk=
+=kzOv
 -----END PGP SIGNATURE-----

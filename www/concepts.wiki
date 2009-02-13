@@ -150,7 +150,7 @@ is derived.  There is also a couple of checksums used to verify
 the integrity of the check-in.  And the whole manifest might
 be PGP clearsigned.</p>
 
-<h3>2.3 Key concepts</h3>
+<h3><a name="keyconc">2.3</a> Key concepts</h3>
 
 <ul>
 <li>A <b>check-in</b> is a set of files arranged
@@ -158,7 +158,7 @@ be PGP clearsigned.</p>
 <li>A <b>repository</b> keeps a record of historical check-ins.</li>
 <li>Repositories share their changes using <b>push</b>, <b>pull</b>,
     <b>sync</b>, and <b>clone</b>.</li>
-<li>A particular version of a particular file is an <b>artifact</b>
+<li>A particular <u>version</u> of a particular file is an <b>artifact</b>
     that is identified by an <b>artifact ID</b>.</li>
 <li>Artifacts tracked by fossil are inherently immutable.</li>
 <li>Fossil automatically generates a <b>manifest</b> file that identifies

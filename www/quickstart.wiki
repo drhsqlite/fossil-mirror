@@ -14,7 +14,7 @@ and painlessly.</p>
     someplace on your PATH environment variable.</p>
     
     </blockquote>
-    <h2>Cloning A Existing Repository</h2>
+    <a name="#fslclone"><h2>Cloning An Existing Repository</h2></a>
     <blockquote>
 
     <p>Most fossil operations interact with a repository that is on the
