@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C typo\sfix
-D 2009-02-21T18:52:26
+C Undo\sinadvertant\shacking\schanges\sin\sprevious\sci\s(should\shave\sbeen\sdocumentation\sonly)
+D 2009-02-21T18:59:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -47,7 +47,7 @@ F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c 489612419416b1fe4348a6be36d3bfb745a792d1
-F src/checkin.c 9773d1413645f85ee525648f5b270994a432a393
+F src/checkin.c a36b0dbf8a6c627a136fdde421ceded3d504a6cc
 F src/checkout.c 24593c59e38fce4d7b62e05794152bc638603cb4
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c bf4ca8abfdd8b2560d3712eb209d27cf9a908821
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6ba52ae7619f9ea57fb295db7fb626c051a1b841
-R 49668c211d9462957a9b9bff4e8d20b0
+P 5b29f6f65f5313140b5a9f06ddb945936586a0f3
+R 15e3dd49075a3fac320c78a71dbd1421
 U bharder
-Z f72cbc1d2e7dba3223282960b5651bc2
+Z 7093771c944cb6a13d04611e765b63a8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (NetBSD)
 
-iEYEARECAAYFAkmgTWoACgkQad0Kwpwugm+5zgCg5DC+EyKbQH4ZtWrf7iCnRERa
-qjQAn0eOTgciK/O9aRfxDI0yE7r9V56I
-=ynEQ
+iEYEARECAAYFAkmgTyIACgkQad0Kwpwugm8cagCeNlFcxgYFZd82uutcmsRUyO5s
+Ce8An3jbgNf1qJDdJrsLPiulJTopXEnG
+=RmPB
 -----END PGP SIGNATURE-----

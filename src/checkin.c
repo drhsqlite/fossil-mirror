@@ -335,18 +335,8 @@ void select_commit_files(void){
 
     for(ii=2; ii<g.argc; ii++){
       int iId;
-      int isDir; /* -bch */
-      char *zName; /* -bch */
       file_tree_name(g.argv[ii], &b, 1);
-      /* -bch start*/
-      zName=mprintf("%/",g.argv[ii]);
-      isDir=file_isdir(zName);
-      if (1==isDir) {
-	commit_directory_content(zPath);
-      }else {
-	/* -bch end */
-	iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
-      } /* -bch */
+      iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
       if( iId<0 ){
         fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);
       }
@@ -356,44 +346,6 @@ void select_commit_files(void){
     g.aCommitFile[ii-2] = 0;
   }
 }
-
-/*
-** commit directory 
-*/
-
-void commit_directory_content(const char *zDir){
-  DIR *d;
-  int origSize;
-  struct dirent *pEntry;
-  Blob path;
-
-  blob_zero(&path);
-  blob_append(&path, zDir, -1);
-  origSize = blob_size(&path);
-  d = opendir(zDir);
-  if( d ){
-    while( (pEntry=readdir(d))!=0 ){
-      char *zPath;
-      if( pEntry->d_name[0]=='.' ) continue;
-      blob_appendf(&path, "/%s", pEntry->d_name);
-      zPath = blob_str(&path);
-      if( file_isdir(zPath)==1 ){
-        commit_directory_content(zPath);
-      }else if( file_isfile(zPath) ){
-	file_tree_name(g.argv[ii], &b, 1); /* -bch */
-	iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", zPath); /* -bch */
-	if( iId<0 ){
-	  fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);
-	}
-	//        db_multi_exec("INSERT INTO sfile VALUES(%Q)", zPath);
-      }
-      blob_resize(&path, origSize);
-    }
-  }
-  closedir(d);
-  blob_reset(&path);
-}
-
 
 /*
 ** Return true if the check-in with RID=rid is a leaf.
