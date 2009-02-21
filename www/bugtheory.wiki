@@ -41,6 +41,9 @@ make sense of the meaning of the various artifacts for themselves.
 
 <h2>Interpretation Of Ticket Change Artifacts</h2>
 
+<i>Note: The following is implementation detail which can be safely ignored by
+casual users of fossil.</i>
+
 Every ticket change artifact contains (among other things)
 
   *  a timestamp,

@@ -26,6 +26,7 @@ Why create your own DVCS when you could have reused mercurial?</b>
        a <a href="http://en.wikipedia.org/wiki/Chroot">chroot jail</a> </li>
   <li> Simple, well-defined, 
        <a href="fileformat.wiki">enduring file format</a> </li>
+  <li> Integrated <a href="webui.wiki">web interface</a> </li>
   </ol>
 </blockquote>
 

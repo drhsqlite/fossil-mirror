@@ -45,6 +45,9 @@ then the <i>&lt;baseurl&gt;</i> is usually
 
 The <i>&lt;version&gt;</i> is any unique prefix of the check-in ID for 
 the check-in containing the documentation you want to access.
+Or <i>&lt;version&gt;</i> can be the name of a 
+[./branching.wiki | branch] in order to show
+the documentation for the latest version of that branch.
 Or <i>&lt;version&gt;</i> can be one of the keywords "<b>tip</b>" or
 "<b>ckout</b>".  The "<b>tip</b>" keyword means to use the most recently
 checked-in.  This is useful if you want to see the very latest
@@ -53,7 +56,7 @@ pull the documentation file from the local source tree on disk, not
 from the any check-in.  The "<b>ckout</b>" keyword normally
 only works when you start your server using the "<b>fossil server</b>"
 or "<b>fossil ui</b>"
-command line and is indented to show what the documentation you are currently
+command line and is intended to show what the documentation you are currently
 editing looks like before you check it in.
 
 Finally, the <i>&lt;filename&gt;</i> element of the URL is the full

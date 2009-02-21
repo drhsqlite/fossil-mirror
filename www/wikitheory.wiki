@@ -29,7 +29,7 @@ was considered but was rejected for the following reasons:
   3.  Where the fossil wiki markup language is insufficient, HTML is
       used.  HTML is a standard language familiar to most programmers so
       there is nothing new to learn.  And, though cumbersome, the HTML
-      does not need to be used very often so need not be a burden.
+      does not need to be used very often so is not a burden.
 
 
 <h2>Stand-alone Wiki Pages</h2>
@@ -42,7 +42,7 @@ The current implementation of the wiki shows the version of the wiki
 page that has the most recent timestamp.
 
 In other words, if two users make unrelated changes to the same wiki
-page on separate repositories, then those repositories are synced,
+page on separate repositories and those repositories are synced,
 the wiki page will fork.  The web interface will display whichever edit
 was checked in last.  The other edit can be found in the history.  The
 file format will support merging the branches back together, but there
@@ -65,7 +65,9 @@ of the source tree, so that it is versioned along with the source tree and
 so that only developers with check-in privileges can change it.  
 Embedded documentation serves this latter purpose.  Both forms of documentation
 use the exact same wiki markup language.  Some projects may choose to
-use both forms of documentation at the same time.
+use both forms of documentation at the same time.  Because the same
+format is used, it is trival to move file from wiki to embedded documentation
+or back again as the project evolves.
 
 <h2>Bug-reports and check-in comments</h2>
 

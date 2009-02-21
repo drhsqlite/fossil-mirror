@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Doc\supdate\sfor\sbranch\sand\sco.
-D 2009-02-13T20:30:30
+C Documentation\stweaks.\s\sNo\schanges\sto\scode.
+D 2009-02-21T13:09:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -189,7 +189,7 @@ F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
 F www/branching.wiki fb37090eee982e9c64850beae7d33c5a4bd2d7aa
-F www/bugtheory.wiki 062a9acd52bbd4fe9a6ae3ab5d56ab943f54ca98
+F www/bugtheory.wiki d140a990b11b1ca9481c4ccd1b8704bd1b4d58ac
 F www/build.wiki bd5f08e8f59270382739e84247f7541cd0997671
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
@@ -217,7 +217,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 4cdc9058d2a3b4d42d3d312adc355c597326400c
 F www/delta_format.wiki 4f786152399dc855fe8b32930fc3c2690465d3d3
-F www/embeddeddoc.wiki f65cddb5e8dd51abc57f90e88132cb3c55338a55
+F www/embeddeddoc.wiki 43544f75664ab7da49ad350073fc35dce6c8ddb5
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -235,22 +235,22 @@ F www/index.wiki 7ee83e7ec9d521c13ac4a5e94c6e983ce12ca575
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
-F www/qandc.wiki 36405b750ae19b986a3e5e82cef9d62a5b39d40f
+F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
 F www/quickstart.wiki a7f1c75cf3a119a77a14bc4a605495711a6817aa
 F www/reference.wiki 65e06e553886c5c549ec9b51715c8b60dfb0df9b
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
-F www/webui.wiki 5308e376e1860b54e68b6cd8c3d634ade370b283
-F www/wikitheory.wiki d324ca81337b53e9acbf2e96cda4c5054e60c178
-P a89b436bc9f4365fcef863b044e96c73b9e242ef
-R 603fefe20c4fa0acb0e908e6552db935
-U kejoki
-Z 82f0dadb052da6aa4b8b8c8ff2408150
+F www/webui.wiki d42ebb3c0137dc24b950e6a8fc749a805b68e57e
+F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
+P bc857ecd923b8a6ff5951d7d5ad21d6988974fa5
+R dd1cfe11884401fd3b7f98f09b28e58f
+U drh
+Z fe745ad99b53bd4788e8d4beba838d55
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJldhy6EFGj+X1mh4RArU5AJ40JyXflIleFm3diOpLq52k1YpFNACfX0J2
-H3sRlNmnYp6DRHUIBGL58hk=
-=kzOv
+iD8DBQFJoAYRoxKgR168RlERAgE/AJ961umB4eyKedQbxzrywPrQugHrwgCgg4GR
+81at12wfGg2oa4wa7sT4zd0=
+=R5Ww
 -----END PGP SIGNATURE-----
