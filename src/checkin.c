@@ -411,6 +411,7 @@ void commit_cmd(void){
   int nBasename;         /* Length of "g.zLocalRoot/" */
   const char *zBranch;   /* Create a new branch with this name */
   const char *zBgColor;  /* Set background color when branching */
+  const char *zDateOvrd; /* Override date string */
   Blob filename;         /* complete filename */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -424,6 +425,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   zBranch = find_option("branch","b",1);
   zBgColor = find_option("bgcolor",0,1);
+  zDateOvrd = find_option("date-override",0,1);
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 1)==0 ){ noSign = 1; }
@@ -537,6 +539,7 @@ void commit_cmd(void){
     blob_zero(&content);
     blob_read_from_file(&content, zFullname);
     nrid = content_put(&content, 0, 0);
+    blob_reset(&content);
     if( rid>0 ){
       content_deltify(rid, nrid, 0);
     }
@@ -551,7 +554,7 @@ void commit_cmd(void){
     blob_append(&comment, "(no comment)", -1);
   }
   blob_appendf(&manifest, "C %F\n", blob_str(&comment));
-  zDate = db_text(0, "SELECT datetime('now')");
+  zDate = db_text(0, "SELECT datetime('%q')", zDateOvrd ? zDateOvrd : "now");
   zDate[10] = 'T';
   blob_appendf(&manifest, "D %s\n", zDate);
   db_prepare(&q,
