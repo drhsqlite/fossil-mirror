@@ -26,7 +26,7 @@
 #include "config.h"
 #include "merge3.h"
 
-#if 1
+#if 0
 #define DEBUG(X)  X
 #define ISDEBUG 1
 #else
