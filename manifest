@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\smemory\sleak\sthat\swas\spreventing\smassive\scheck-ins.
-D 2009-02-26T01:21:04
+C Improve\smerge\sconflict\smarkings.
+D 2009-03-20T01:23:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -76,7 +76,7 @@ F src/makemake.tcl aa8817088ac8c35df2cb250010b88a01d19fd48e
 F src/manifest.c a82cc38cad5c6e60eb3ebd88b370fd1595f84b70
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
-F src/merge3.c e01dd37d11fbb0bb9d5bc3957f07c98c8f9c92a6
+F src/merge3.c b978e84c9525d00a9c61e460bc52e72e395e0a60
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/my_page.c 57fa8e406f4fcab10e6fc18e89d4e647b5719e30
 F src/name.c 040558eaa37918bc314befd66841bf667d6ca8bb
@@ -243,14 +243,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P c5f4ec0ed5ac56febb63563d5907a6084998aeea
-R 121cc8aaf57239ce9a6d91a562614da3
+P f6790b7c3cc237fac3d0cc064cb262d50fa12265
+R 1932b6833f0832e10109933083eede20
 U drh
-Z 9f4fdc7e74503dbd1ff8ffa779889830
+Z 6a02227c63f23f1463b9bbe0a41e5921
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJpe6EoxKgR168RlERAg6XAJ4iJMbDMRrJGQN+tqM1CRyoBv4gbQCfUdhX
-iZs+rjKUWFXhJtj8tKjodA8=
-=kJde
+iD8DBQFJwvAsoxKgR168RlERAliHAJ4gKWPl3U0PTMocm1yt2bzevTRG0wCeO1zF
+Z7Xcbni9nBAbp5tPp3YyTeM=
+=1xNa
 -----END PGP SIGNATURE-----
