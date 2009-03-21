@@ -112,7 +112,7 @@ static int output_one_side(
 ){
   while( sz>0 ){
     if( aC[i]==0 && aC[i+1]==0 && aC[i+2]==0 ) break;
-    if( aC[i]>sz ){
+    if( aC[i]>=sz ){
       blob_copy_lines(pOut, pSrc, sz);
       aC[i] -= sz;
       break;
@@ -194,7 +194,7 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       aC1[i1] -= nCpy;
       aC2[i2] -= nCpy;
     }else
-    if( aC1[i1] >= aC2[i2+1] && aC2[i2+1]+aC2[i2+2]>0 ){
+    if( aC1[i1] >= aC2[i2+1] && aC1[i1]>0 && aC2[i2+1]+aC2[i2+2]>0 ){
       nDel = aC2[i2+1];
       nIns = aC2[i2+2];
       DEBUG( printf("EDIT -%d+%d left\n", nDel, nIns); )
@@ -204,7 +204,7 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       aC1[i1] -= nDel;
       i2 += 3;
     }else
-    if( aC2[i2] >= aC1[i1+1] && aC1[i1+1]+aC1[i1+2]>0 ){
+    if( aC2[i2] >= aC1[i1+1] && aC2[i2]>0 && aC1[i1+1]+aC1[i1+2]>0 ){
       nDel = aC1[i1+1];
       nIns = aC1[i1+2];
       DEBUG( printf("EDIT -%d+%d right\n", nDel, nIns); )

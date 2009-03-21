@@ -21,7 +21,7 @@
 #
 ############################################################################
 #
-# Tests of the delta mechanism.
+# Tests of the 3-way merge
 #
 
 write_file_indented t1 {
@@ -79,20 +79,22 @@ write_file_indented t3 {
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t23 {
-  >>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
+  >>>>>>> BEGIN MERGE CONFLICT
   111 - This is line ONE of the demo program - 1111
+  ============================
   111 - This is line one OF the demo program - 1111
-  >>>>>>>>> END MERGE CONFLICT <<<<<<<<<
+  <<<<<<< END MERGE CONFLICT
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t32 {
-  >>>>>>>> BEGIN MERGE CONFLICT <<<<<<<<
+  >>>>>>> BEGIN MERGE CONFLICT
   111 - This is line one OF the demo program - 1111
+  ============================
   111 - This is line ONE of the demo program - 1111
-  >>>>>>>>> END MERGE CONFLICT <<<<<<<<<
+  <<<<<<< END MERGE CONFLICT
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
@@ -158,14 +160,22 @@ write_file_indented t3 {
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t32 {
+  >>>>>>> BEGIN MERGE CONFLICT
+  ============================
   000 - Zero lines added to the beginning of - 0000
+  111 - This is line one of the demo program - 1111
+  <<<<<<< END MERGE CONFLICT
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t23 {
+  >>>>>>> BEGIN MERGE CONFLICT
   000 - Zero lines added to the beginning of - 0000
+  111 - This is line one of the demo program - 1111
+  ============================
+  <<<<<<< END MERGE CONFLICT
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
@@ -237,3 +247,134 @@ fossil test-3 t1 t3 t2 a32
 test merge1-6.1 {[same_file t32 a32]}
 fossil test-3 t1 t2 t3 a23
 test merge1-6.2 {[same_file t32 a23]}
+
+write_file_indented t1 {
+  abcd
+  efgh
+  ijkl
+  mnop
+  qrst
+  uvwx
+  yzAB
+  CDEF
+  GHIJ
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+}
+write_file_indented t2 {
+  abcd
+  efgh 2
+  ijkl 2
+  mnop 2
+  qrst
+  uvwx
+  yzAB 2
+  CDEF 2
+  GHIJ 2
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+}
+write_file_indented t3 {
+  abcd
+  efgh
+  ijkl
+  mnop 3
+  qrst 3
+  uvwx 3
+  yzAB 3
+  CDEF
+  GHIJ
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+}
+write_file_indented t23 {
+  abcd
+  >>>>>>> BEGIN MERGE CONFLICT
+  efgh 2
+  ijkl 2
+  mnop 2
+  qrst
+  uvwx
+  yzAB 2
+  CDEF 2
+  GHIJ 2
+  ============================
+  efgh
+  ijkl
+  mnop 3
+  qrst 3
+  uvwx 3
+  yzAB 3
+  CDEF
+  GHIJ
+  <<<<<<< END MERGE CONFLICT
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+}
+fossil test-3 t1 t2 t3 a23
+test merge1-7.1 {[same_file t23 a23]}
+
+write_file_indented t2 {
+  abcd
+  efgh 2
+  ijkl 2
+  mnop 
+  qrst
+  uvwx
+  yzAB 2
+  CDEF 2
+  GHIJ 2
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+}
+write_file_indented t3 {
+  abcd
+  efgh
+  ijkl
+  mnop 3
+  qrst 3
+  uvwx 3
+  yzAB 3
+  CDEF
+  GHIJ
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+}
+write_file_indented t23 {
+  abcd
+  efgh 2
+  ijkl 2
+  >>>>>>> BEGIN MERGE CONFLICT
+  mnop
+  qrst
+  uvwx
+  yzAB 2
+  CDEF 2
+  GHIJ 2
+  ============================
+  mnop 3
+  qrst 3
+  uvwx 3
+  yzAB 3
+  CDEF
+  GHIJ
+  <<<<<<< END MERGE CONFLICT
+  KLMN
+  OPQR
+  STUV
+  XYZ.
+}
+fossil test-3 t1 t2 t3 a23
+test merge1-7.2 {[same_file t23 a23]}
