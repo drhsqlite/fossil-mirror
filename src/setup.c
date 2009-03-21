@@ -547,7 +547,7 @@ void user_edit(void){
   @ <li><p>
   @ Users with the <b>Password</b> privilege are allowed to change their
   @ own password.  Recommended ON for most users but OFF for special
-  @ users "developer, "anonynmous", and "nobody".
+  @ users "developer, "anonymous", and "nobody".
   @ </p></li>
   @
   @ <li><p>
