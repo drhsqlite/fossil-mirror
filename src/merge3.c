@@ -34,40 +34,98 @@
 #define ISDEBUG 0
 #endif
 
-/*
-** Opcodes.
-**
-** Values are important here.  The text_diff() function returns an array
-** of triples of integers where within each triple, the 0 element is
-** the number of lines to copy, the 1 element is the number of lines to
-** delete and the 2 element is the number of lines to insert.  The CPY,
-** DEL, and INS opcodes must correspond to these indices.
-*/
-#define CPY 0
-#define DEL 1
-#define INS 2
-#define END 3
-#define UNK 4
+/* The minimum of two integers */
+#define min(A,B)  (A<B?A:B)
 
 /*
-** Compare a single line of text from pV1 and pV2.  If the lines
+** Compare N lines of text from pV1 and pV2.  If the lines
 ** are the same, return true.  Return false if they are different.
 **
 ** The cursor on both pV1 and pV2 is unchanged.
 */
-static int sameLine(Blob *pV1, Blob *pV2){
+static int sameLines(Blob *pV1, Blob *pV2, int N){
   char *z1, *z2;
   int i;
 
+  if( N==0 ) return 1;
   z1 = &blob_buffer(pV1)[blob_tell(pV1)];
   z2 = &blob_buffer(pV2)[blob_tell(pV2)];
-  for(i=0; z1[i]!='\n' && z1[i]==z2[i]; i++){}
-  return z2[i]=='\n' || (z2[i]=='\r' && z2[i+1]=='\n')
-          || (z1[i]=='\r' && z2[i]=='\n' && z1[i+1]=='\n');
+  for(i=0; z1[i]==z2[i]; i++){
+    if( z1[i]=='\n' ){
+      N--;
+      if( N==0 ) return 1;
+    }
+  }
+  return 0;
 }
 
-/* The minimum of two integers */
-#define min(A,B)  (A<B?A:B)
+/*
+** Look at the next edit triple in both aC1 and aC2.  If they describe
+** an identical edit, then return 1.  If the edits are different,
+** return 0.
+*/
+static int sameEdit(int *aC1, int *aC2, Blob *pV1, Blob *pV2){
+  if( aC1[0]!=aC2[0] ) return 0;
+  if( aC1[1]!=aC2[1] ) return 0;
+  if( aC1[2]!=aC2[2] ) return 0;
+  if( sameLines(pV1, pV2, aC1[2]) ) return 1;
+  return 0;
+}
+
+/*
+** The aC[] array contains triples of integers.  Within each triple, the
+** elements are:
+**
+**   (0)  The number of lines to copy
+**   (1)  The number of lines to delete
+**   (2)  The number of liens to insert
+**
+** Suppose we want to advance over sz lines of the pivot.  This routine
+** returns true if that advance would land us on a copy operation.  It
+** returns false if the advance would end on a delete.
+*/
+static int ends_at_CPY(int *aC, int sz){
+  while( sz>0 && (aC[0]>0 || aC[1]>0 || aC[2]>0) ){
+    if( aC[0]>=sz ) return 1;
+    sz -= aC[0];
+    if( aC[1]>sz ) return 0;
+    sz -= aC[1];
+    aC += 3;
+  }
+  return 1;
+}
+
+/*
+** pSrc contains an edited file where aC[] describes the edit.  Part of
+** pSrc has already been output.  This routine outputs additional lines
+** of pSrc - lines that correspond to the next sz lines of the original
+** unedited file.
+**
+** The aC[] array is updated and the new index into aC[] is returned.
+*/
+static int output_one_side(
+  Blob *pOut,     /* Write to this blob */
+  Blob *pSrc,     /* The edited file that is to be copied to pOut */
+  int *aC,        /* Array of integer triples describing the edit */
+  int i,          /* Index in aC[] of current location in pSrc */
+  int sz          /* Number of lines in unedited source to output */
+){
+  while( sz>0 ){
+    if( aC[i]==0 && aC[i+1]==0 && aC[i+2]==0 ) break;
+    if( aC[i]>sz ){
+      blob_copy_lines(pOut, pSrc, sz);
+      aC[i] -= sz;
+      break;
+    }
+    blob_copy_lines(pOut, pSrc, aC[i]);
+    blob_copy_lines(pOut, pSrc, aC[i+2]);
+    sz -= aC[i] + aC[i+1];
+    i += 3;
+  }
+  return i;
+}
+
+
 
 /*
 ** Do a three-way merge.  Initialize pOut to contain the result.
@@ -85,18 +143,12 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int *aC1;              /* Changes from pPivot to pV1 */
   int *aC2;              /* Changes from pPivot to pV2 */
   int i1, i2;            /* Index into aC1[] and aC2[] */
-  int op1, op2;          /* Opcode for aC1[] and aC2[] */
-  int n1, n2;            /* Counts for op1 and op2 */
-  int mn;                /* Minimum count of op1 and op2 */
+  int nCpy, nDel, nIns;  /* Number of lines to copy, delete, or insert */
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
   static const char zBegin[] = ">>>>>>> BEGIN MERGE CONFLICT\n";
   static const char zMid[]   = "============================\n";
   static const char zEnd[]   = "<<<<<<< END MERGE CONFLICT\n";
-
-#if ISDEBUG
-  static const char *zOp[] = { "CPY", "DEL", "INS", "END", "UNK" };
-#endif
 
   /* Compute the edits that occur from pPivot => pV1 and pPivot => pV2 */
   aC1 = text_diff(pPivot, pV1, 0, 0);
@@ -127,133 +179,78 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     }
   )
 
-  op1 = op2 = UNK;
-  i1 = i2 = -1;
-  n1 = n2 = 0;
-  while(1){
-    if( op1==UNK ){
-      if( n1 ){
-        op1 = i1 % 3;
-      }else{
-        i1++;
-        while( i1<limit1 && aC1[i1]==0 ){ i1++; }
-        if( i1>=limit1 ){
-          op1 = END;
-        }else{
-          op1 = i1 % 3;
-          n1 = aC1[i1];
-        }
-      }
-    }
-    if( op2==UNK ){
-      if( n2 ){
-        op2 = i2 % 3;
-      }else{
-        i2++;
-        while( i2<limit2 && aC2[i2]==0 ){ i2++; }
-        if( i2>=limit2 ){
-          op2 = END;
-        }else{
-          op2 = i2 % 3;
-          n2 = aC2[i2];
-        }
-      }
-    }
-    DEBUG( printf("op1=%s(%d) op2=%s(%d)\n", zOp[op1], n1, zOp[op2], n2); )
-    if( op1==END ){
-      if( op2==INS ){
-        DEBUG( printf("INSERT %d FROM 2\n", n2); )
-        blob_copy_lines(pOut, pV2, n2);
-      }
-      break;
-    }else if( op2==END ){
-      if( op1==INS ){
-        DEBUG( printf("INSERT %d FROM 1\n", n1); )
-        blob_copy_lines(pOut, pV1, n1);
-      }
-      break;
-    }else if( op1==CPY && op2==CPY ){
-      mn = min(n1,n2);
-      DEBUG( printf("COPY %d\n", mn); )
-      blob_copy_lines(pOut, pPivot, mn);
-      blob_copy_lines(0, pV1, mn);
-      blob_copy_lines(0, pV2, mn);
-      n1 -= mn;
-      n2 -= mn;
-      op1 = op2 = UNK;
-    }else if( op1==DEL && op2==DEL ){
-      mn = min(n1,n2);
-      DEBUG( printf("SKIP %d both\n", mn); )
-      blob_copy_lines(0, pPivot, mn);
-      n1 -= mn;
-      n2 -= mn;
-      op1 = op2 = UNK;
-    }else if( op1==INS && op2==INS && sameLine(pV1, pV2) ){
-      DEBUG( printf("DUPLICATE INSERT\n"); )
-      blob_copy_lines(pOut, pV2, 1);
-      blob_copy_lines(0, pV1, 1);
-      n1--;
-      n2--;
-      op1 = op2 = UNK;
-    }else if( op1==CPY && op2==DEL ){
-      mn = min(n1,n2);
-      DEBUG( printf("SKIP %d two\n", mn); )
-      blob_copy_lines(0, pPivot, mn);
-      blob_copy_lines(0, pV1, mn);
-      n1 -= mn;
-      n2 -= mn;
-      op1 = op2 = UNK;
-    }else if( op2==CPY && op1==DEL ){
-      mn = min(n1,n2);
-      DEBUG( printf("SKIP %d one\n", mn); )
-      blob_copy_lines(0, pPivot, mn);
-      blob_copy_lines(0, pV2, mn);
-      n2 -= mn;
-      n1 -= mn;
-      op1 = op2 = UNK;
-    }else if( op1==CPY && op2==INS ){
-      DEBUG( printf("INSERT %d two\n", n2); )
-      blob_copy_lines(pOut, pV2, n2);
-      n2 = 0;
-      op2 = UNK;
-    }else if( op2==CPY && op1==INS ){
-      DEBUG( printf("INSERT %d one\n", n1); )
-      blob_copy_lines(pOut, pV1, n1);
-      n1 = 0;
-      op1 = UNK;
-    }else{
-      int toSkip = 0;
+  i1 = i2 = 0;
+  while( i1<limit1 && i2<limit2 ){
+    DEBUG( printf("%d: %2d %2d %2d   %d: %2d %2d %2d\n",
+           i1/3, aC1[i1], aC1[i1+1], aC1[i1+2],
+           i2/3, aC2[i2], aC2[i2+1], aC2[i2+2]); )
+
+    if( aC1[i1]>0 && aC2[i2]>0 ){
+      nCpy = min(aC1[i1], aC2[i2]);
+      DEBUG( printf("COPY %d\n", nCpy); )
+      blob_copy_lines(pOut, pPivot, nCpy);
+      blob_copy_lines(0, pV1, nCpy);
+      blob_copy_lines(0, pV2, nCpy);
+      aC1[i1] -= nCpy;
+      aC2[i2] -= nCpy;
+    }else
+    if( aC1[i1] >= aC2[i2+1] && aC2[i2+1]+aC2[i2+2]>0 ){
+      nDel = aC2[i2+1];
+      nIns = aC2[i2+2];
+      DEBUG( printf("EDIT -%d+%d left\n", nDel, nIns); )
+      blob_copy_lines(0, pPivot, nDel);
+      blob_copy_lines(0, pV1, nDel);
+      blob_copy_lines(pOut, pV2, nIns);
+      aC1[i1] -= nDel;
+      i2 += 3;
+    }else
+    if( aC2[i2] >= aC1[i1+1] && aC1[i1+1]+aC1[i1+2]>0 ){
+      nDel = aC1[i1+1];
+      nIns = aC1[i1+2];
+      DEBUG( printf("EDIT -%d+%d right\n", nDel, nIns); )
+      blob_copy_lines(0, pPivot, nDel);
+      blob_copy_lines(0, pV2, nDel);
+      blob_copy_lines(pOut, pV1, nIns);
+      aC2[i2] -= nDel;
+      i1 += 3;
+    }else
+    if( sameEdit(&aC1[i1], &aC2[i2], pV1, pV2) ){
+      assert( aC1[i1]==0 );
+      nDel = aC1[i1+1];
+      nIns = aC1[i1+2];
+      DEBUG( printf("EDIT -%d+%d both\n", nDel, nIns); )
+      blob_copy_lines(0, pPivot, nDel);
+      blob_copy_lines(pOut, pV1, nIns);
+      blob_copy_lines(0, pV2, nIns);
+      i1 += 3;
+      i2 += 3;
+    }else
+    {
+      int sz = 1;    /* Size of the conflict in lines */
       nConflict++;
-      DEBUG( printf("CONFLICT\n"); )
+      while( !ends_at_CPY(&aC1[i1], sz) || !ends_at_CPY(&aC2[i2], sz) ){
+        sz++;
+      }
+      DEBUG( printf("CONFLICT %d\n", sz); )
       blob_appendf(pOut, zBegin);
-      if( op1==DEL ){
-        toSkip = n1;
-        i1++;
-        if( aC1[i1] ){
-          blob_copy_lines(pOut, pV1, aC1[i1]);
-        }
-      }else{
-        blob_copy_lines(pOut, pV1, n1);
-      }
-      n1 = 0;
-      op1 = UNK;
+      i1 = output_one_side(pOut, pV1, aC1, i1, sz);
       blob_appendf(pOut, zMid);
-      if( op2==DEL ){
-        blob_copy_lines(0, pPivot, n2);
-        i2++;
-        if( aC2[i2] ){
-          blob_copy_lines(pOut, pV2, aC2[i2]);
-        }
-      }else{
-        blob_copy_lines(pOut, pV2, n2);
-      }
-      if( toSkip ){
-        blob_copy_lines(0, pPivot, toSkip);
-      }
-      n2 = 0;
-      op2 = UNK;
+      i2 = output_one_side(pOut, pV2, aC2, i2, sz);
       blob_appendf(pOut, zEnd);
+      blob_copy_lines(0, pPivot, sz);
     }
+    if( i1<limit1 && aC1[i1]==0 && aC1[i1+1]==0 && aC1[i1+2]==0 ) i1+=3;
+    if( i2<limit2 && aC2[i2]==0 && aC2[i2+1]==0 && aC2[i2+2]==0 ) i2+=3;
+  }
+  DEBUG( printf("%d: %2d %2d %2d   %d: %2d %2d %2d\n",
+         i1/3, aC1[i1], aC1[i1+1], aC1[i1+2],
+         i2/3, aC2[i2], aC2[i2+1], aC2[i2+2]); )
+  if( i1<limit1 && aC1[i1+2]>0 ){
+    DEBUG( printf("INSERT +%d left\n", aC1[i1+2]); )
+    blob_copy_lines(pOut, pV1, aC1[i1+2]);
+  }else if( i2<limit2 && aC2[i2+2]>0 ){
+    DEBUG( printf("INSERT +%d right\n", aC2[i2+2]); )
+    blob_copy_lines(pOut, pV2, aC2[i2+2]);
   }
 
   free(aC1);
