@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C More\simprovements\sto\sthe\s3-way\smerge.\s\sAdditional\stest\scases\sadded.
-D 2009-03-21T19:18:22
+C Additional\s3-way-merge\stest\scases.
+D 2009-03-21T19:44:41
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -120,6 +120,7 @@ F src/zip.c f641ace2a3550df20ed48108d287cabbf2051d44
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
+F test/merge3.test f3315ba4375819a173c0feb6b7232b0c0683ca07
 F test/tester.tcl ba01105cd099ba556e6a9131bad4f90fe88b73c7
 F todo-ak.txt 25be5322be320ed1ae77759f364687371106fad4
 F todo.txt 5e00e8293a76175ff435937e71c0ba5e5a6ec371
@@ -243,14 +244,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5ab6f985b94ab9a732d9b2b35627801e2f780231
-R b76973639a0ecfab31d0e23eae654b27
+P 81122988ba271d135ce26071eb584f0d8bbe1caf
+R 8b41c7921513bc84a97477a27273e13a
 U drh
-Z b77a5bc5ea02153c4ef99465bf0fe934
+Z 074ce4e9de7693b863143bd56d127e64
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJxT2BoxKgR168RlERAkqfAJ9TZt0zcaYgr/a90NglFmdozxQSfwCfSGmM
-dI/rU84q0hEm8SydcT8u9ZU=
-=uphl
+iD8DBQFJxUOsoxKgR168RlERAqO8AJ9xCQdtUV+juYiHYnhKBo3AL4P3tgCfZoBx
+jAez4at7kCmfWZobBZ4yhGc=
+=UJxm
 -----END PGP SIGNATURE-----
