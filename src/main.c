@@ -333,8 +333,9 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   assert( hasArg==0 || hasArg==1 );
   nLong = strlen(zLong);
   for(i=2; i<g.argc; i++){
+    char *z;
     if (i+hasArg >= g.argc) break;
-    char *z = g.argv[i];
+    z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
     if( z[0]=='-' ){

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\smany\snew\stest\scases\sfor\s3-way\smerge.\s\sNo\snew\sproblems\sfound.
-D 2009-03-22T13:18:10
+C Fix\sa\sC89\sviolation\sin\smain.c.
+D 2009-03-22T13:44:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -68,7 +68,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
 F src/info.c 012036faaa13fe32c96e741261f6ae4ad689500e
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
-F src/main.c c2e4729e317a7acb1b2a8e85d6972c9742b60c74
+F src/main.c 828c799fea95c33fd4da1a68e38c669bbcea8ca6
 F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -245,14 +245,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 3e89b0c52648512790ae4c02101e2a25c520a502
-R 1b3ad2e2dc31e6bddad1444471a1a5eb
+P 92638367d8421bba4b8ed904eb33daa396b8093f
+R 2a07c05113f07633013c058fc461fbf6
 U drh
-Z 956b72c713a1f2520c82ba33b3ffd5e6
+Z b72dadb885c0cd1585ccbfa28628aff3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJxjqVoxKgR168RlERAscvAJ0fPwU6t3Y1Oo/LSvLGFPQkXgA/NQCgiUHg
-beru+sdtKsvdKiKSre9GiZg=
-=hWk2
+iD8DBQFJxkDPoxKgR168RlERApZyAKCIbNPL6MPz6CWToRtplU3ijGp4nwCdHQL/
+3QTasjiw7iVMbFd0YPKNYX0=
+=c+UJ
 -----END PGP SIGNATURE-----
