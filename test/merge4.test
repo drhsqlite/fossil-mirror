@@ -1,0 +1,103 @@
+#
+# Copyright (c) 2009 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public
+# License version 2 as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public
+# License along with this library; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA  02111-1307, USA.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Tests of the 3-way merge
+#
+
+proc merge-test {testid basis v1 v2 result1 result2} {
+  write_file t1 [join [string trim $basis] \n]\n
+  write_file t2 [join [string trim $v1] \n]\n
+  write_file t3 [join [string trim $v2] \n]\n
+  fossil test-3-way-merge t1 t2 t3 t4
+  fossil test-3-way-merge t1 t3 t2 t5
+  set x [read_file t4]
+  regsub -all {>>>>>>> BEGIN MERGE CONFLICT} $x {>} x
+  regsub -all {============================} $x {=} x
+  regsub -all {<<<<<<< END MERGE CONFLICT} $x {<} x
+  set x [split [string trim $x] \n]
+  set y [read_file t5]
+  regsub -all {>>>>>>> BEGIN MERGE CONFLICT} $y {>} y
+  regsub -all {============================} $y {=} y
+  regsub -all {<<<<<<< END MERGE CONFLICT} $y {<} y
+  set y [split [string trim $y] \n]
+  set result1 [string trim $result1]
+  if {$x!=$result1} {
+    puts "  Expected \[$result1\]"
+    puts "       Got \[$x\]"
+    test merge3-$testid 0
+  } else {
+    set result2 [string trim $result2]
+    if {$y!=$result2} {
+      puts "  Expected \[$result2\]"
+      puts "       Got \[$y\]"
+      test merge3-$testid 0
+    } else {
+      test merge3-$testid 1
+    }
+  }
+}
+
+merge-test 1000 {
+  1 2 3 4 5 6 7 8 9
+} {
+  1 2b 3b 4b 5 6b 7b 8b 9
+} {
+  1 2 3 4c 5c 6c 7 8 9
+} {
+  1 > 2b 3b 4b 5 6b 7b 8b = 2 3 4c 5c 6c 7 8 < 9
+} {
+  1 > 2 3 4c 5c 6c 7 8 = 2b 3b 4b 5 6b 7b 8b < 9
+}
+merge-test 1001 {
+  1 2 3 4 5 6 7 8 9
+} {
+  1 2b 3b 4 5 6 7b 8b 9
+} {
+  1 2 3 4c 5c 6c 7 8 9
+} {
+  1 2b 3b 4c 5c 6c 7b 8b 9
+} {
+  1 2b 3b 4c 5c 6c 7b 8b 9
+}
+merge-test 1002 {
+  2 3 4 5 6 7 8
+} {
+  2b 3b 4b 5 6b 7b 8b
+} {
+  2 3 4c 5c 6c 7 8
+} {
+  > 2b 3b 4b 5 6b 7b 8b = 2 3 4c 5c 6c 7 8 <
+} {
+  > 2 3 4c 5c 6c 7 8 = 2b 3b 4b 5 6b 7b 8b <
+}
+merge-test 1003 {
+  2 3 4 5 6 7 8
+} {
+  2b 3b 4 5 6 7b 8b
+} {
+  2 3 4c 5c 6c 7 8
+} {
+  2b 3b 4c 5c 6c 7b 8b
+} {
+  2b 3b 4c 5c 6c 7b 8b
+}
