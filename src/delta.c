@@ -224,11 +224,6 @@ static unsigned int checksum(const char *zIn, size_t N){
 }
 
 /*
-** Maximum number of landmarks to set in the source file.
-*/
-#define MX_LANDMARK (1024*128)
-
-/*
 ** Create a new delta.
 **
 ** The delta is written into a preallocated buffer, zDelta, which 
@@ -299,9 +294,10 @@ int delta_create(
   int i, base;
   char *zOrigDelta = zDelta;
   hash h;
-  int *collide;
+  int nHash;                 /* Number of hash table entries */
+  int *landmark;             /* Primary hash table */
+  int *collide;              /* Collision chain */
   int lastRead = -1;         /* Last byte of zSrc read by a COPY command */
-  int landmark[MX_LANDMARK];
 
   /* Add the target file size to the beginning of the delta
   */
@@ -325,14 +321,16 @@ int delta_create(
   /* Compute the hash table used to locate matching sections in the
   ** source file.
   */
-  collide = malloc( lenSrc*sizeof(int)/NHASH );
+  nHash = lenSrc/NHASH;
+  collide = malloc( nHash*2*sizeof(int) );
   if( collide==0 ) return -1;
-  memset(landmark, -1, sizeof(landmark));
-  memset(collide, -1, lenSrc*sizeof(int)/NHASH );
+  landmark = &collide[nHash];
+  memset(landmark, -1, nHash*sizeof(int));
+  memset(collide, -1, nHash*sizeof(int));
   for(i=0; i<lenSrc-NHASH; i+=NHASH){
     int hv;
     hash_init(&h, &zSrc[i]);
-    hv = hash_32bit(&h) & (MX_LANDMARK-1);
+    hv = hash_32bit(&h) % nHash;
     collide[i/NHASH] = landmark[hv];
     landmark[hv] = i/NHASH;
   }
@@ -351,7 +349,7 @@ int delta_create(
       int hv;
       int limit = 250;
 
-      hv = hash_32bit(&h) & (MX_LANDMARK-1);
+      hv = hash_32bit(&h) % nHash;
       DEBUG2( printf("LOOKING: %4d [%s]\n", base+i, print16(&zOut[base+i])); )
       iBlock = landmark[hv];
       while( iBlock>=0 && (limit--)>0 ){

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sC89\sviolation\sin\smain.c.
-D 2009-03-22T13:44:43
+C Improvements\sto\sthe\sdelta\sgenerator\salgorthm\sso\sthat\sit\sruns\smuch\sfaster\son\nlarge\sfiles\swith\svery\sfew\ssimilarities.\s\sThere\sis\sno\schange\sto\sthe\sdelta\nformat\sgenerated,\sso\sthis\sis\sfully\sbackwards\sand\sforwards\scompatible.
+D 2009-03-24T22:03:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -57,7 +57,7 @@ F src/configure.c a5fbc772d16167481b4c49d2acfbb588b33f2946
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c 6f78bab6b57abf49517717f651033256ee849d37
-F src/delta.c abb4c0444e036bc0e9d47c2fe50ae047819b0189
+F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
@@ -245,14 +245,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 92638367d8421bba4b8ed904eb33daa396b8093f
-R 2a07c05113f07633013c058fc461fbf6
+P d63f87c0030a10945c4614a2c007de433a67b5ca
+R 37799713238fbee92f5e7781258a285f
 U drh
-Z b72dadb885c0cd1585ccbfa28628aff3
+Z b3e1679fcfe01ca0eb7624a9f21d954c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJxkDPoxKgR168RlERApZyAKCIbNPL6MPz6CWToRtplU3ijGp4nwCdHQL/
-3QTasjiw7iVMbFd0YPKNYX0=
-=c+UJ
+iD8DBQFJyVjQoxKgR168RlERAhfpAJ9J66MJ6yuV+Wp/xZXoaAMAOLfA+gCfX3jd
+5qP8LVgHs5IHwwunSzvx1AE=
+=tAK4
 -----END PGP SIGNATURE-----
