@@ -322,7 +322,7 @@ void cgi_reply(void){
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  fprintf(g.httpOut, "Cache-control: private\r\n");
+  fprintf(g.httpOut, "Cache-control: no-store\r\n");
   fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
   if( strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();
