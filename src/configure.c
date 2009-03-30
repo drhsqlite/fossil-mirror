@@ -455,9 +455,6 @@ void configuration_cmd(void){
       }
     }
     url_parse(zServer);
-    if( g.urlIsFile ){
-      fossil_fatal("network sync only");
-    }
     user_select();
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,0,0,mask);

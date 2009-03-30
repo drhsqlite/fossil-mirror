@@ -54,9 +54,6 @@ void autosync(int flags){
     return;  /* No default server */
   }
   url_parse(zUrl);
-  if( g.urlIsFile ){
-    return;  /* Network sync only */
-  }
   if( g.urlPort!=g.urlDfltPort ){
     printf("Autosync:  %s://%s:%d%s\n", 
             g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
@@ -88,9 +85,6 @@ void process_sync_args(void){
     usage("URL");
   }
   url_parse(zUrl);
-  if( g.urlIsFile ){
-    fossil_fatal("network sync only");
-  }
   db_set("last-sync-url", zUrl, 0);
   user_select();
   if( g.argc==2 ){

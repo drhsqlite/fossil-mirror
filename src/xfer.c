@@ -878,8 +878,6 @@ void client_sync(
   xfer.mxSend = db_get_int("max-upload", 250000);
 
   assert( pushFlag | pullFlag | cloneFlag | configRcvMask | configSendMask );
-  assert( !g.urlIsFile );          /* This only works for networking */
-
   db_begin_transaction();
   db_record_repository_filename(0);
   db_multi_exec(

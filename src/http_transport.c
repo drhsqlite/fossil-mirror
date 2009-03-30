@@ -39,7 +39,7 @@ static struct {
   int nUsed ;     /* Space of transportBuf[] used */
   int iCursor;    /* Next unread by in transportBuf[] */
 } transport = {
-  0, 0, 0, 0
+  0, 0, 0, 0, 0
 };
 
 /*
@@ -61,12 +61,17 @@ const char *transport_errmsg(void){
 */
 int transport_open(void){
   int rc = 0;
-  if( g.urlIsHttps ){
-    socket_set_errmsg("TLS is not yet implemented");
-    rc = 1;
-  }else{
-    rc = socket_open();
-    if( rc==0 ) transport.isOpen = 1;
+  if( transport.isOpen==0 ){
+    if( g.urlIsHttps ){
+      socket_set_errmsg("HTTPS: is not yet implemented");
+      rc = 1;
+    }else if( g.urlIsFile ){
+      socket_set_errmsg("FILE: is not yet implemented");
+      rc = 1;
+    }else{
+      rc = socket_open();
+      if( rc==0 ) transport.isOpen = 1;
+    }
   }
   return rc;
 }
@@ -76,12 +81,19 @@ int transport_open(void){
 */
 void transport_close(void){
   if( transport.isOpen ){
-    socket_close();
     free(transport.pBuf);
     transport.pBuf = 0;
     transport.nAlloc = 0;
     transport.nUsed = 0;
     transport.iCursor = 0;
+    if( g.urlIsHttps ){
+      /* TBD */
+    }else if( g.urlIsFile ){
+      /* TBD */
+    }else{
+      socket_close();
+    }
+    transport.isOpen = 0;
   }
 }
 
@@ -89,13 +101,19 @@ void transport_close(void){
 ** Send content over the wire.
 */
 void transport_send(Blob *toSend){
-  char *z = blob_buffer(toSend);
-  int n = blob_size(toSend);
-  int sent;
-  while( n>0 ){
-    sent = socket_send(0, z, n);
-    if( sent<=0 ) break;
-    n -= sent;
+  if( g.urlIsHttps ){
+    /* TBD */
+  }else if( g.urlIsFile ){
+    /* TBD */
+  }else{
+    char *z = blob_buffer(toSend);
+    int n = blob_size(toSend);
+    int sent;
+    while( n>0 ){
+      sent = socket_send(0, z, n);
+      if( sent<=0 ) break;
+      n -= sent;
+    }
   }
 }
 
@@ -122,7 +140,16 @@ int transport_receive(char *zBuf, int N){
     nByte += toMove;
   }
   if( N>0 ){
-    int got = socket_receive(0, zBuf, N);
+    int got;
+    if( g.urlIsHttps ){
+      /* TBD */
+      got = 0;
+    }else if( g.urlIsFile ){
+      /* TBD */
+      got = 0;
+    }else{
+      got = socket_receive(0, zBuf, N);
+    }
     if( got>0 ){
       nByte += got; 
     }
