@@ -169,6 +169,7 @@ void http_exchange(Blob *pSend, Blob *pReply){
   transport_send(&payload);
   blob_reset(&hdr);
   blob_reset(&payload);
+  transport_flip();
   
   /*
   ** Read and interpret the server reply
@@ -218,6 +219,8 @@ void http_exchange(Blob *pSend, Blob *pReply){
   */
   if( closeConnection ){
     transport_close();
+  }else{
+    transport_rewind();
   }
   return;
 

@@ -118,6 +118,26 @@ void transport_send(Blob *toSend){
 }
 
 /*
+** This routine is called when the outbound message is complete and
+** it is time to being recieving a reply.
+*/
+void transport_flip(void){
+  if( g.urlIsFile ){
+    /* run "fossil http" to process the outbound message */
+  }
+}
+
+/*
+** This routine is called when the inbound message has been received
+** and it is time to start sending again.
+*/
+void transport_rewind(void){
+  if( g.urlIsFile ){
+    transport_close();
+  }
+}
+
+/*
 ** Read N bytes of content from the wire and store in the supplied buffer.
 ** Return the number of bytes actually received.
 */
