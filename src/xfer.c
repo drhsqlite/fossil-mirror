@@ -850,27 +850,28 @@ static const char zValueFormat[] = "\r%-10s %10d %10d %10d %10d\n";
 ** true.
 */
 void client_sync(
-  int pushFlag,          /* True to do a push (or a sync) */
-  int pullFlag,          /* True to do a pull (or a sync) */
-  int cloneFlag,         /* True if this is a clone */
-  int configRcvMask,     /* Receive these configuration items */
-  int configSendMask     /* Send these configuration items */
+  int pushFlag,           /* True to do a push (or a sync) */
+  int pullFlag,           /* True to do a pull (or a sync) */
+  int cloneFlag,          /* True if this is a clone */
+  int configRcvMask,      /* Receive these configuration items */
+  int configSendMask      /* Send these configuration items */
 ){
-  int go = 1;        /* Loop until zero */
-  const char *zSCode = db_get("server-code", "x");
-  const char *zPCode = db_get("project-code", 0);
-  int nCard = 0;         /* Number of cards sent or received */
-  int nCycle = 0;        /* Number of round trips to the server */
+  int go = 1;             /* Loop until zero */
+  int nCard = 0;          /* Number of cards sent or received */
+  int nCycle = 0;         /* Number of round trips to the server */
   int size;               /* Size of a config value */
   int nFileSend = 0;
   int origConfigRcvMask;  /* Original value of configRcvMask */
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
-  Blob send;        /* Text we are sending to the server */
-  Blob recv;        /* Reply we got back from the server */
-  Xfer xfer;        /* Transfer data */
+  Blob send;              /* Text we are sending to the server */
+  Blob recv;              /* Reply we got back from the server */
+  Xfer xfer;              /* Transfer data */
+  const char *zSCode = db_get("server-code", "x");
+  const char *zPCode = db_get("project-code", 0);
 
+  socket_global_init();
   memset(&xfer, 0, sizeof(xfer));
   xfer.pIn = &recv;
   xfer.pOut = &send;
@@ -1178,7 +1179,8 @@ void client_sync(
       go = 1;
     }
   };
-  http_close();
+  transport_close();
+  socket_global_shutdown();
   db_multi_exec("DROP TABLE onremote");
   db_end_transaction(0);
 }

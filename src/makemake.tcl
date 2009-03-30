@@ -33,6 +33,8 @@ set src {
   encode
   file
   http
+  http_socket
+  http_transport
   info
   login
   main
@@ -197,4 +199,3 @@ puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o th.o\n"
 
 puts "th_lang.o:\t\$(SRCDIR)/th_lang.c"
 puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o th_lang.o\n"
-

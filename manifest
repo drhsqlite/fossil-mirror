@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Use\s"no-store"\sin\splace\sof\s"private"\sas\sthe\scache-control\smode.\nTicket\s[b465b3bc2ceef4446b2ae770242ed0968e4dbc68].
-D 2009-03-29T22:24:57
+C Refactor\sthe\sHTTP\sclient\slogic\sto\smake\sit\smuch\seasier\sto\sadd\ssupport\sfor\n"file:"\sand\s"https:"\sURLs\son\spush,\spull,\ssync,\sand\sclone.
+D 2009-03-30T00:31:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,14 +65,16 @@ F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c b634a7084a8fec255106a0f88612c71f5dbc1596
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
-F src/http.c 099ac83ebe0d18c54ca017e398e18fcf860cd19a
+F src/http.c de0b4f29e08371154d09382900e3ed1091e7b096
+F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
+F src/http_transport.c e1a8cc2e758d1223f360a9dc71e96dd0659b86ce
 F src/info.c 012036faaa13fe32c96e741261f6ae4ad689500e
 F src/login.c cfdc7a0c2e49c84ce2713d1c291e4670ae9d8833
 F src/main.c 828c799fea95c33fd4da1a68e38c669bbcea8ca6
-F src/main.mk 1e02eecb11e78c6e71394842119c951c0061f62e
+F src/main.mk 9bd0c8cb9771bda42bd76628c811bb8baeeaa294
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl aa8817088ac8c35df2cb250010b88a01d19fd48e
+F src/makemake.tcl 263645557b303818d39c662d6b8682a40b46f425
 F src/manifest.c a82cc38cad5c6e60eb3ebd88b370fd1595f84b70
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -115,7 +117,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c ad80e6740561fa2741aae6f7a101a0438ed4ad1e
 F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
-F src/xfer.c cc749b7254e32e52f34eefc965e900c5f526e1ef
+F src/xfer.c 0e2cdc621fcedf0fc824abc0a367277232ff4f6f
 F src/zip.c f641ace2a3550df20ed48108d287cabbf2051d44
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -245,14 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 522104c2cd244485f6a952641c05777864f888f8
-R 84e613de0ebea37aba9751872004f756
+P 5ffc720194fc76a3c913339af5228c692b666791
+R ae2177aa87550af209c852a2df63a555
 U drh
-Z 6602a3881e69de528baeaa4c30e8181c
+Z 204508cc42bcb515294a2fce953eda1b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJz/U7oxKgR168RlERAi5aAJ0V5zEkiSWm9oibOpGXnLH/oEdNUACgjHQ5
-HdA9clZ5cwHinepMCCFVaNY=
-=RgP+
+iD8DBQFJ0BMAoxKgR168RlERAkLRAJ4xvIhXWJfcu1JYL9bIqjNyMsFQZQCdE2uz
+u5z8T3PKf5ds7pfVFO7gIJQ=
+=U3FT
 -----END PGP SIGNATURE-----

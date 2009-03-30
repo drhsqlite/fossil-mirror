@@ -25,287 +25,35 @@
 */
 #include "config.h"
 #include "http.h"
-#ifdef __MINGW32__
-#  include <windows.h>
-#  include <winsock2.h>
-#else
-#  include <arpa/inet.h>
-#  include <sys/socket.h>
-#  include <netdb.h>
-#  include <netinet/in.h>
-#endif
 #include <assert.h>
-#include <sys/types.h>
-#include <signal.h>
 
 /*
-** Persistent information about the HTTP connection.
-*/
-
-#ifdef __MINGW32__
-static WSADATA ws_info;
-static int pSocket = 0;     /* The socket on which we talk to the server on */
-#else
-static FILE *pSocket = 0;   /* The socket filehandle on which we talk to the server */
-#endif
-
-/*
-** Winsock must be initialize before use.  This helper method allows us to
-** always call ws_init in our code regardless of platform but only actually
-** initialize winsock on the windows platform.
-*/
-static void ws_init(){
-#ifdef __MINGW32__
-  if (WSAStartup(MAKEWORD(2,0), &ws_info) != 0){
-    fossil_panic("can't initialize winsock");
-  }
-#endif
-}
-
-/*
-** Like ws_init, winsock must also be cleaned up after.
-*/
-static void ws_cleanup(){
-#ifdef __MINGW32__
-  WSACleanup();
-#endif
-}
-
-/*
-** Open a socket connection to the server.  Return 0 on success and
-** non-zero if an error occurs.
-*/
-static int http_open_socket(void){
-  static struct sockaddr_in addr;  /* The server address */
-  static int addrIsInit = 0;       /* True once addr is initialized */
-  int s;
-
-  if( g.urlIsHttps ){
-    fossil_fatal("SSL/TLS is not yet implemented.");
-  }
-  ws_init();
-  if( !addrIsInit ){
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(g.urlPort);
-    *(int*)&addr.sin_addr = inet_addr(g.urlName);
-    if( -1 == *(int*)&addr.sin_addr ){
-#ifndef FOSSIL_STATIC_LINK
-      struct hostent *pHost;
-      pHost = gethostbyname(g.urlName);
-      if( pHost!=0 ){
-        memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
-      }else
-#endif
-      {
-        fossil_panic("can't resolve host name: %s\n", g.urlName);
-      }
-    }
-    addrIsInit = 1;
-
-    /* Set the Global.zIpAddr variable to the server we are talking to.
-    ** This is used to populate the ipaddr column of the rcvfrom table,
-    ** if any files are received from the server.
-    */
-    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
-  }
-  s = socket(AF_INET,SOCK_STREAM,0);
-  if( s<0 ){
-    fossil_panic("cannot create a socket");
-  }
-  if( connect(s,(struct sockaddr*)&addr,sizeof(addr))<0 ){
-    fossil_panic("cannot connect to host %s:%d", g.urlName, g.urlPort);
-  }
-#ifdef __MINGW32__
-  pSocket = s;
-#else
-  pSocket = fdopen(s,"r+");
-  signal(SIGPIPE, SIG_IGN);
-#endif
-  return 0;
-}
-
-#ifdef __MINGW32__
-/*
-** Read the socket until a newline '\n' is found.  Return the number
-** of characters read. pSockId contains the socket handel.  pOut
-** contains a pointer to the buffer to write to.  pOutSize contains
-** the maximum size of the line that pOut can handle.
-*/
-static int socket_recv_line(int pSockId, char* pOut, int pOutSize){
-  int received=0;
-  char letter;
-  memset(pOut,0,pOutSize);
-  for(; received<pOutSize-1;received++){
-    if( recv(pSockId,(char*)&letter,1,0)>0 ){
-      pOut[received]=letter;
-      if( letter=='\n' ){
-        break;
-      }
-    }else{
-      break;
-    }
-  }
-  return received;
-}
-
-/*
-** Initialize a blob to the data on an input socket.  return
-** the number of bytes read into the blob.  Any prior content
-** of the blob is discarded, not freed.
+** Construct the "login" card with the client credentials.
 **
-** The function was placed here in http.c due to it's socket
-** nature and we did not want to introduce socket headers into
-** the socket neutral blob.c file.
-*/
-int socket_read_blob(Blob *pBlob, int pSockId, int nToRead){
-  int i=0,read=0;
-  char rbuf[50];
-  blob_zero(pBlob);
-  while ( i<nToRead ){
-    read = recv(pSockId, rbuf, 50, 0);
-    i += read;
-    if( read<=0 ){
-      return 0;
-    }
-    blob_append(pBlob, rbuf, read);
-  }
-  return blob_size(pBlob);
-}
-#endif
-
-/*
-** Make a single attempt to talk to the server.  Return TRUE on success
-** and FALSE on a failure.
+**       login LOGIN NONCE SIGNATURE
 **
-** pHeader contains the HTTP header.  pPayload contains the content.
-** The content of the reply is written into pReply.  pReply is assumed
-** to be uninitialized prior to this call.
+** The LOGIN is the user id of the client.  NONCE is the sha1 checksum
+** of all payload that follows the login card.  SIGNATURE is the sha1
+** checksum of the nonce followed by the user password.
 **
-** If an error occurs, this routine return false, resets pReply and
-** closes the persistent connection, if any.
+** Write the constructed login card into pLogin.  pLogin is initialized
+** by this routine.
 */
-static int http_send_recv(Blob *pHeader, Blob *pPayload, Blob *pReply){
-  int closeConnection=1;   /* default to closing the connection */
-  int rc;
-  int iLength;
-  int iHttpVersion;
-  int i;
-  int nRead;
-  char zLine[2000];
-
-  if( pSocket==0 && http_open_socket() ){
-    return 0;
-  }
-  iLength = -1;
-#ifdef __MINGW32__
-  /*
-  ** Use recv/send on the windows platform as winsock does not allow
-  ** sockets to be used as FILE handles, thus fdopen, fwrite, fgets
-  ** does not function on windows for sockets.
-  */
-  rc = send(pSocket, blob_buffer(pHeader), blob_size(pHeader), 0);
-  if( rc!=blob_size(pHeader) ) goto write_err;
-  rc = send(pSocket, blob_buffer(pPayload), blob_size(pPayload), 0);
-  if( rc!=blob_size(pPayload) ) goto write_err;
-  
-  /* Read the response */
-  while( socket_recv_line(pSocket, zLine, 2000) ){
-    for( i=0; zLine[i] && zLine[i]!='\n' && zLine[i]!='\r'; i++ ){}
-    if( i==0 ) break;
-    zLine[i] = 0;
-    if( strncasecmp(zLine, "http/1.", 7)==0 ){
-      if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
-      if( rc!=200 ) goto write_err;
-      if( iHttpVersion==0 ){
-        closeConnection = 1;
-      }else{
-        closeConnection = 0;
-      }
-    } else if( strncasecmp(zLine, "content-length:", 15)==0 ){
-      iLength = atoi(&zLine[16]);
-    }else if( strncasecmp(zLine, "connection:", 11)==0 ){
-      for(i=12; isspace(zLine[i]); i++){}
-      if( zLine[i]=='c' || zLine[i]=='C' ){
-        closeConnection = 1;
-      }else if( zLine[i]=='k' || zLine[i]=='K' ){
-        closeConnection = 0;
-      }
-    }
-  }
-  if( iLength<0 ) goto write_err;
-  nRead = socket_read_blob(pReply, pSocket, iLength);
-#else
-  rc = fwrite(blob_buffer(pHeader), 1, blob_size(pHeader), pSocket);
-  if( rc!=blob_size(pHeader) ) goto write_err;
-  rc = fwrite(blob_buffer(pPayload), 1, blob_size(pPayload), pSocket);
-  if( rc!=blob_size(pPayload) ) goto write_err;
-  if( fflush(pSocket) ) goto write_err;
-  if( fgets(zLine, sizeof(zLine), pSocket)==0 ) goto write_err;
-  if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
-  if( rc!=200 ) goto write_err;
-  if( iHttpVersion==0 ){
-    closeConnection = 1;   /* Connection: close */
-  }else{
-    closeConnection = 0;   /* Connection: keep-alive */
-  }
-  while( fgets(zLine, sizeof(zLine), pSocket) ){
-    for(i=0; zLine[i] && zLine[i]!='\n' && zLine[i]!='\r'; i++){}
-    if( i==0 ) break;
-    zLine[i] = 0;
-    if( strncasecmp(zLine,"content-length:",15)==0 ){
-      iLength = atoi(&zLine[16]);
-    }else if( strncasecmp(zLine, "connection:", 11)==0 ){
-      for(i=12; isspace(zLine[i]); i++){}
-      if( zLine[i]=='c' || zLine[i]=='C' ){
-        closeConnection = 1;   /* Connection: close */
-      }else if( zLine[i]=='k' || zLine[i]=='K' ){
-        closeConnection = 0;   /* Connection: keep-alive */
-      }
-    }
-  }
-  if( iLength<0 ) goto write_err;
-  nRead = blob_read_from_channel(pReply, pSocket, iLength);
-#endif
-  if( nRead!=iLength ){
-    blob_reset(pReply);
-    goto write_err;
-  }
-  if( closeConnection ){
-    http_close();
-  }
-  return 1;  
-
-write_err:
-  http_close();
-  return 0;
-}
-
-/*
-** Sign the content in pSend, compress it, and send it to the server
-** via HTTP.  Get a reply, uncompress the reply, and store the reply
-** in pRecv.  pRecv is assumed to be uninitialized when
-** this routine is called - this routine will initialize it.
-**
-** The server address is contain in the "g" global structure.  The
-** url_parse() routine should have been called prior to this routine
-** in order to fill this structure appropriately.
-*/
-void http_exchange(Blob *pSend, Blob *pRecv){
-  Blob login, nonce, sig, pw, payload, hdr;
-  const char *zSep;
-  int i;
-  int cnt = 0;
+static void http_build_login_card(Blob *pPayload, Blob *pLogin){
+  Blob nonce;    /* The nonce */
+  Blob pw;       /* The user password */
+  Blob sig;      /* The signature field */
 
   blob_zero(&nonce);
   blob_zero(&pw);
-  sha1sum_blob(pSend, &nonce);
+  sha1sum_blob(pPayload, &nonce);
   blob_copy(&pw, &nonce);
-  blob_zero(&login);
+  blob_zero(pLogin);
   if( g.urlUser==0 ){
     user_select();
     db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
     sha1sum_blob(&pw, &sig);
-    blob_appendf(&login, "login %s %b %b\n", g.zLogin, &nonce, &sig);
+    blob_appendf(pLogin, "login %s %b %b\n", g.zLogin, &nonce, &sig);
   }else{
     if( g.urlPasswd==0 ){
       if( strcmp(g.urlUser,"anonymous")!=0 ){
@@ -319,13 +67,68 @@ void http_exchange(Blob *pSend, Blob *pRecv){
       }
     }
     blob_append(&pw, g.urlPasswd, -1);
-    /* printf("presig=[%s]\n", blob_str(&pw)); */
     sha1sum_blob(&pw, &sig);
-    blob_appendf(&login, "login %s %b %b\n", g.urlUser, &nonce, &sig);
+    blob_appendf(pLogin, "login %s %b %b\n", g.urlUser, &nonce, &sig);
   }        
   blob_reset(&nonce);
   blob_reset(&pw);
   blob_reset(&sig);
+}
+
+/*
+** Construct an appropriate HTTP request header.  Write the header
+** into pHdr.  This routine initializes the pHdr blob.  pPayload is
+** the complete payload (including the login card) already compressed.
+*/
+static void http_build_header(Blob *pPayload, Blob *pHdr){
+  int i;
+  const char *zSep;
+
+  blob_zero(pHdr);
+  i = strlen(g.urlPath);
+  if( i>0 && g.urlPath[i-1]=='/' ){
+    zSep = "";
+  }else{
+    zSep = "/";
+  }
+  blob_appendf(pHdr, "POST %s%sxfer HTTP/1.1\r\n", g.urlPath, zSep);
+  blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
+  blob_appendf(pHdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");
+  if( g.fHttpTrace ){
+    blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
+  }else{
+    blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
+  }
+  blob_appendf(pHdr, "Content-Length: %d\r\n\r\n", blob_size(pPayload));
+}
+
+/*
+** Sign the content in pSend, compress it, and send it to the server
+** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
+** in pRecv.  pRecv is assumed to be uninitialized when
+** this routine is called - this routine will initialize it.
+**
+** The server address is contain in the "g" global structure.  The
+** url_parse() routine should have been called prior to this routine
+** in order to fill this structure appropriately.
+*/
+void http_exchange(Blob *pSend, Blob *pReply){
+  Blob login;           /* The login card */
+  Blob payload;         /* The complete payload including login card */
+  Blob hdr;             /* The HTTP request header */
+  int closeConnection;  /* True to close the connection when done */
+  int iLength;          /* Length of the reply payload */
+  int rc;               /* Result code */
+  int iHttpVersion;     /* Which version of HTTP protocol server uses */
+  char *zLine;          /* A single line of the reply header */
+  int i;                /* Loop counter */
+
+  if( transport_open() ){
+    fossil_fatal(transport_errmsg());
+  }
+
+  /* Construct the login card and prepare the complete payload */
+  http_build_login_card(pSend, &login);
   if( g.fHttpTrace ){
     payload = login;
     blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
@@ -333,30 +136,17 @@ void http_exchange(Blob *pSend, Blob *pRecv){
     blob_compress2(&login, pSend, &payload);
     blob_reset(&login);
   }
-  blob_zero(&hdr);
-  i = strlen(g.urlPath);
-  if( i>0 && g.urlPath[i-1]=='/' ){
-    zSep = "";
-  }else{
-    zSep = "/";
-  }
-  blob_appendf(&hdr, "POST %s%sxfer HTTP/1.1\r\n", g.urlPath, zSep);
-  blob_appendf(&hdr, "Host: %s\r\n", g.urlHostname);
-  blob_appendf(&hdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");
-  if( g.fHttpTrace ){
-    blob_appendf(&hdr, "Content-Type: application/x-fossil-debug\r\n");
-  }else{
-    blob_appendf(&hdr, "Content-Type: application/x-fossil\r\n");
-  }
-  blob_appendf(&hdr, "Content-Length: %d\r\n\r\n", blob_size(&payload));
 
+  /* Construct the HTTP request header */
+  http_build_header(&payload, &hdr);
+
+  /* When tracing, write the transmitted HTTP message both to standard
+  ** output and into a file.  The file can then be used to drive the
+  ** server-side like this:
+  **
+  **      ./fossil http <http-trace-1.txt
+  */
   if( g.fHttpTrace ){
-    /* When tracing, write the transmitted HTTP message both to standard
-    ** output and into a file.  The file can then be used to drive the
-    ** server-side like this:
-    **
-    **      ./fossil http <http-trace-1.txt
-    */
     static int traceCnt = 0;
     char *zOutFile;
     FILE *out;
@@ -371,40 +161,70 @@ void http_exchange(Blob *pSend, Blob *pRecv){
       fclose(out);
     }
   }
-  for(cnt=0; cnt<2; cnt++){
-    if( http_send_recv(&hdr, &payload, pRecv) ) break;
-  }
-  if( cnt>=2 ){
-    fossil_fatal("connection to server failed");
-  }
+
+  /*
+  ** Send the request to the server.
+  */
+  transport_send(&hdr);
+  transport_send(&payload);
   blob_reset(&hdr);
   blob_reset(&payload);
-  if( g.fHttpTrace ){
-    printf("HTTP RECEIVE:\n%s\n=======================\n", blob_str(pRecv));
-  }else{
-    blob_uncompress(pRecv, pRecv);
-  }
-}
-
-
-/*
-** Make sure the socket to the HTTP server is closed 
-*/
-void http_close(void){
-  if( pSocket ){
-#ifdef __MINGW32__
-    closesocket(pSocket);
-#else
-    fclose(pSocket);
-#endif
-    pSocket = 0;
-  }
+  
   /*
-  ** This is counter productive. Each time we open a connection we initialize
-  ** winsock and then when closing we cleanup. It would be better to
-  ** initialize winsock once at application start when we know we are going to
-  ** use the socket interface and then cleanup once at application exit when
-  ** we are all done with all socket operations.
+  ** Read and interpret the server reply
   */
-  ws_cleanup();
+  closeConnection = 1;
+  iLength = -1;
+  while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
+    if( strncasecmp(zLine, "http/1.", 7)==0 ){
+      if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
+      if( rc!=200 ) goto write_err;
+      if( iHttpVersion==0 ){
+        closeConnection = 1;
+      }else{
+        closeConnection = 0;
+      }
+    } else if( strncasecmp(zLine, "content-length:", 15)==0 ){
+      for(i=15; isspace(zLine[i]); i++){}
+      iLength = atoi(&zLine[i]);
+    }else if( strncasecmp(zLine, "connection:", 11)==0 ){
+      char c;
+      for(i=11; isspace(zLine[i]); i++){}
+      c = zLine[i];
+      if( c=='c' || c=='C' ){
+        closeConnection = 1;
+      }else if( c=='k' || c=='K' ){
+        closeConnection = 0;
+      }
+    }
+  }
+
+  /*
+  ** Extract the reply payload that follows the header
+  */
+  if( iLength<0 ) goto write_err;
+  blob_zero(pReply);
+  blob_resize(pReply, iLength);
+  iLength = transport_receive(blob_buffer(pReply), iLength);
+  blob_resize(pReply, iLength);
+  if( g.fHttpTrace ){
+    printf("HTTP RECEIVE:\n%s\n=======================\n", blob_str(pReply));
+  }else{
+    blob_uncompress(pReply, pReply);
+  }
+
+  /*
+  ** Close the connection to the server if appropriate.
+  */
+  if( closeConnection ){
+    transport_close();
+  }
+  return;
+
+  /* 
+  ** Jump to here if an error is seen.
+  */
+write_err:
+  transport_close();
+  return;  
 }
