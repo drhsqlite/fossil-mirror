@@ -174,6 +174,9 @@ void setup_ulist(void){
      @   <td><i>Setup/Super-user:</i> Setup and configure this website</td></tr>
      @ <tr><td valign="top"><b>t</b></td>
      @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
+     @ <tr><td valign="top"><b>u</b></td>
+     @   <td><i>Developer:</i> Inherit privileges of 
+     @   user <tt>reader</tt></td></tr>
      @ <tr><td valign="top"><b>v</b></td>
      @   <td><i>Developer:</i> Inherit privileges of 
      @   user <tt>developer</tt></td></tr>
@@ -230,7 +233,7 @@ void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat, *oav, *oaz;
+  char *oat, *oau, *oav, *oaz;
   const char *inherit[128];
   int doWrite;
   int uid;
@@ -284,6 +287,7 @@ void user_edit(void){
     int ah = P("ah")!=0;
     int ag = P("ag")!=0;
     int at = P("at")!=0;
+    int au = P("au")!=0;
     int av = P("av")!=0;
     int az = P("az")!=0;
     if( aa ){ zCap[i++] = 'a'; }
@@ -303,6 +307,7 @@ void user_edit(void){
     if( ar ){ zCap[i++] = 'r'; }
     if( as ){ zCap[i++] = 's'; }
     if( at ){ zCap[i++] = 't'; }
+    if( au ){ zCap[i++] = 'u'; }
     if( av ){ zCap[i++] = 'v'; }
     if( aw ){ zCap[i++] = 'w'; }
     if( az ){ zCap[i++] = 'z'; }
@@ -341,7 +346,7 @@ void user_edit(void){
   zCap = "";
   zPw = "";
   oaa = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oav = oaw = oaz = "";
+        oan = oao = oap = oar = oas = oat = oau = oav = oaw = oaz = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -364,6 +369,7 @@ void user_edit(void){
     if( strchr(zCap, 'r') ) oar = " checked";
     if( strchr(zCap, 's') ) oas = " checked";
     if( strchr(zCap, 't') ) oat = " checked";
+    if( strchr(zCap, 'u') ) oau = " checked";
     if( strchr(zCap, 'v') ) oav = " checked";
     if( strchr(zCap, 'w') ) oaw = " checked";
     if( strchr(zCap, 'z') ) oaz = " checked";
@@ -376,6 +382,14 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] = "<font color=\"red\">&bull;</font>";
+    }
+    free(z2);
+  }
+  if( strcmp(zLogin, "reader") ){
+    char *z1, *z2;
+    z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
+    while( z1 && *z1 ){
+      inherit[0x7f & *(z1++)] = "<font color=\"black\">&bull;</font>";
     }
     free(z2);
   }
@@ -438,6 +452,7 @@ void user_edit(void){
   @    <input type="checkbox" name="ai"%s(oai)>%s(B('i'))Check-In</input><br>
   @    <input type="checkbox" name="ao"%s(oao)>%s(B('o'))Check-Out</input><br>
   @    <input type="checkbox" name="ah"%s(oah)>%s(B('h'))History</input><br>
+  @    <input type="checkbox" name="au"%s(oau)>%s(B('u'))Reader</input><br>
   @    <input type="checkbox" name="av"%s(oav)>%s(B('v'))Developer</input><br>
   @    <input type="checkbox" name="ag"%s(oag)>%s(B('g'))Clone</input><br>
   @    <input type="checkbox" name="aj"%s(oaj)>%s(B('j'))Read Wiki</input><br>
@@ -503,6 +518,12 @@ void user_edit(void){
   @ The "<font color="red"><big>&bull;</big></font>" mark indicates
   @ the privileges of "developer" that are inherited by all users with
   @ the <b>Developer</b> privilege.
+  @ </p></li>
+  @
+  @ <li><p>
+  @ The "<font color="black"><big>&bull;</big></font>" mark indicates
+  @ the privileges of "reader" that are inherited by all users with
+  @ the <b>Reader</b> privilege.
   @ </p></li>
   @
   @ <li><p>
@@ -592,7 +613,9 @@ void user_edit(void){
   @ The "<b>developer</b>" user is intended as a template for trusted users
   @ with check-in privileges.  When adding new trusted users, simply
   @ select the <b>Developer</b> privilege to cause the new user to inherit
-  @ all privileges of the "developer" user.
+  @ all privileges of the "developer" user.  Similarly, the "<b>reader</b>"
+  @ user is a template for users who are allowed more access than anonymous,
+  @ but less than a developer.
   @ </li></p>
   @ </ul>
   @ </form>

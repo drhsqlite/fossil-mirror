@@ -338,6 +338,7 @@ void login_check_credentials(void){
 */
 void login_set_capabilities(const char *zCap){
   static char *zDev = 0;
+  static char *zUser = 0;
   int i;
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
@@ -368,6 +369,16 @@ void login_set_capabilities(const char *zCap){
                   g.okApndTkt = 1;                              break;
       case 'c':   g.okApndTkt = 1;                              break;
       case 't':   g.okTktFmt = 1;                               break;
+
+      /* The "u" privileges is a little different.  It recursively 
+      ** inherits all privileges of the user named "reader" */
+      case 'u': {
+        if( zUser==0 ){
+          zUser = db_text("", "SELECT cap FROM user WHERE login='reader'");
+          login_set_capabilities(zUser);
+        }
+        break;
+      }
 
       /* The "v" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "developer" */
@@ -413,8 +424,8 @@ int login_has_capability(const char *zCap, int nCap){
       case 'r':  rc = g.okRdTkt;     break;
       case 's':  rc = g.okSetup;     break;
       case 't':  rc = g.okTktFmt;    break;
-      /* case 'u': */
-      /* case 'v': */
+      /* case 'u': READER    */
+      /* case 'v': DEVELOPER */
       case 'w':  rc = g.okWrTkt;     break;
       /* case 'x': */
       /* case 'y': */
