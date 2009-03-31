@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\snew\s"reader"\srole,\sanalogous\sto\s"developer".
-D 2009-03-31T16:47:41
+C Add\scache-control:\sno-cache\sto\sthe\sserver\sreply\sheader.\nTicket\s[b465b3bc2ceef4446b2ae770242ed0968e4dbc68]
+D 2009-03-31T17:33:05
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -46,7 +46,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
-F src/cgi.c 0db8ef42027c375c600f53f45670d3c8189d3f81
+F src/cgi.c 8c16621a506b2c75fe4015474086a89292aa3641
 F src/checkin.c 54d694aac36e5974f51ff550184543e8ce01cd70
 F src/checkout.c 24593c59e38fce4d7b62e05794152bc638603cb4
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
@@ -247,14 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 0baf4be679ea8d5e09610504d84a24e70f12bd1b
-R be811e645690e192e9f8803205abd8e6
+P 355ee475554304a88afe5f11c4ad74a3d12aa9e9
+R 7c128388f55b217ae48759d67d9e26be
 U drh
-Z 02ddedc2ab554c35ac0d05773685c7a7
+Z c2ebd80980a6678aaf7502ceaa681b8a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD4DBQFJ0kkwoxKgR168RlERArMBAJY8pr47oWLqDs/pwahnN0mLgi5pAJ4wSvc+
-x9N613ANfUm2Eo2Va+VkbA==
-=Se2r
+iD8DBQFJ0lPUoxKgR168RlERAhuZAJ4vESVLwYqlPq0jdWJS8dyKE402YgCfY56Z
+IBnbTWEmibh4/oM59wzXq/E=
+=uWMs
 -----END PGP SIGNATURE-----
