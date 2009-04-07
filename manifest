@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\scache-control:\sno-cache\sto\sthe\sserver\sreply\sheader.\nTicket\s[b465b3bc2ceef4446b2ae770242ed0968e4dbc68]
-D 2009-03-31T17:33:05
+C typo
+D 2009-04-07T04:04:19
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -234,7 +234,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
 F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
-F www/fileformat.wiki e6fabaf4cd609390faaa92b631e3c0c2712adad5
+F www/fileformat.wiki f082b96f9b4613a680065b761c27b03e54ada9bb
 F www/index.wiki 7ee83e7ec9d521c13ac4a5e94c6e983ce12ca575
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
@@ -247,14 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 355ee475554304a88afe5f11c4ad74a3d12aa9e9
-R 7c128388f55b217ae48759d67d9e26be
-U drh
-Z c2ebd80980a6678aaf7502ceaa681b8a
+P c3a30a6b80e2157db5f3ae526db989367f412117
+R 3d8e1b65268f6413f5b312ac726d85ca
+U bch
+Z e4c6e34bc3d87fbd9b1d81c06d37e7aa
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFJ0lPUoxKgR168RlERAhuZAJ4vESVLwYqlPq0jdWJS8dyKE402YgCfY56Z
-IBnbTWEmibh4/oM59wzXq/E=
-=uWMs
+iEYEARECAAYFAkna0MMACgkQad0Kwpwugm97rACgkbV7l3GBX/msgK/KX3+S4N8m
+eTQAn3lIleZjlG4CGuW6YIt00JKUxEbl
+=iYV6
 -----END PGP SIGNATURE-----
