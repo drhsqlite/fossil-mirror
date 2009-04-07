@@ -296,7 +296,7 @@ Allowed cards in a control artifact are as follows:
 
 <p>
 A control artifact must have one D card and one Z card and
-one or more or more T cards.  No other cards or other text is
+one or more T cards.  No other cards or other text is
 allowed in a control artifact.  Control artifacts might be PGP
 clearsigned.</p>
 
