@@ -106,8 +106,8 @@ void transport_close(void){
         transport.pFile = 0;
       }
       unlink(transport.zInFile);
-      free(transport.zInFile);
       unlink(transport.zOutFile);
+      free(transport.zInFile);
       free(transport.zOutFile);
     }else{
       socket_close();
@@ -145,7 +145,7 @@ void transport_flip(void){
     char *zCmd;
     fclose(transport.pFile);
     zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
-       g.argv[0], g.zRepositoryName, transport.zOutFile, transport.zInFile
+       g.argv[0], g.urlName, transport.zOutFile, transport.zInFile
     );
     system(zCmd);
     free(zCmd);
@@ -191,7 +191,7 @@ int transport_receive(char *zBuf, int N){
       /* TBD */
       got = 0;
     }else if( g.urlIsFile ){
-      got = fread(zBuf, 0, N, transport.pFile);
+      got = fread(zBuf, 1, N, transport.pFile);
     }else{
       got = socket_receive(0, zBuf, N);
     }

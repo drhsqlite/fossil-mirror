@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sin\swiki\stypo\sfixes.
-D 2009-04-11T12:53:00
+C Actually\sget\sthe\s"file:"\stransport\sworking\sthis\stime.
+D 2009-04-11T13:07:01
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -67,7 +67,7 @@ F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 14fbdbab260741bc65d0c4164b944f54d7babe6b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_transport.c 4dcbc27ce8c0c04627669e4998aa673b93eaf4e3
+F src/http_transport.c 7621af4b1465eed3425ff86826266fcf174be413
 F src/info.c 012036faaa13fe32c96e741261f6ae4ad689500e
 F src/login.c f3badebb6bd43138c8ee5543321413596daaa581
 F src/main.c 828c799fea95c33fd4da1a68e38c669bbcea8ca6
@@ -247,14 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 945ecd1a8bcb94e1def1f34809a7da7980d11517 6fe981ec56c6cfc96646765f44ec33091d99cb9d
-R d50c8a7efa0a4f9b85588510f919547d
+P ece2c766a26a7081eadcccf8492daaa8f91096b6
+R bd617e27f430f9b6b3bfb049ca19460e
 U drh
-Z 50794809b583b435be88282d79dd30c2
+Z ea90a14d8f5bb33d172193b67dd603b6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJ4JKvoxKgR168RlERAkkZAJ9JOl/UlrnQwwp6i5Ay+tfrH2hkDgCfbPYl
-dWGCi8dppJ/GoPlDX41WyfY=
-=GbIE
+iD8DBQFJ4JX4oxKgR168RlERAuMNAJ4lip8yCgLitklfAw0MQTJH24n95QCdHZ4M
+QLg/uXPXKIuIqAVMKnejq28=
+=XXfN
 -----END PGP SIGNATURE-----
