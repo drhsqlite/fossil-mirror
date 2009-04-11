@@ -57,6 +57,9 @@ void clone_cmd(void){
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('server-code', lower(hex(randomblob(20))));"
+      "REPLACE INTO config(name,value)"
+      " VALUES('last-sync-url', 'file://%q');",
+      g.urlName
     );
     g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     if( g.zLogin==0 ){

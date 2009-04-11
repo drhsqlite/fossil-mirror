@@ -118,6 +118,8 @@ void url_parse(const char *zUrl){
     dehttpize(zFile);  
     file_canonical_name(zFile, &cfile);
     free(zFile);
+    g.urlProtocol = "file";
+    g.urlPath = "";
     g.urlName = mprintf("%b", &cfile);
     g.urlCanonical = mprintf("file://%T", g.urlName);
     blob_reset(&cfile);

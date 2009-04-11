@@ -33,11 +33,14 @@
 ** State information
 */
 static struct {
-  int isOpen;     /* True when the transport layer is open */
-  char *pBuf;     /* Buffer used to hold the reply */
-  int nAlloc;     /* Space allocated for transportBuf[] */
-  int nUsed ;     /* Space of transportBuf[] used */
-  int iCursor;    /* Next unread by in transportBuf[] */
+  int isOpen;             /* True when the transport layer is open */
+  char *pBuf;             /* Buffer used to hold the reply */
+  int nAlloc;             /* Space allocated for transportBuf[] */
+  int nUsed ;             /* Space of transportBuf[] used */
+  int iCursor;            /* Next unread by in transportBuf[] */
+  FILE *pFile;            /* File I/O for FILE: */
+  char *zOutFile;         /* Name of outbound file for FILE: */
+  char *zInFile;          /* Name of inbound file for FILE: */
 } transport = {
   0, 0, 0, 0, 0
 };
@@ -66,8 +69,17 @@ int transport_open(void){
       socket_set_errmsg("HTTPS: is not yet implemented");
       rc = 1;
     }else if( g.urlIsFile ){
-      socket_set_errmsg("FILE: is not yet implemented");
-      rc = 1;
+      sqlite3_uint64 iRandId;
+      sqlite3_randomness(sizeof(iRandId), &iRandId);
+      transport.zOutFile = mprintf("%s-%llu-out.http", 
+                                       g.zRepositoryName, iRandId);
+      transport.zInFile = mprintf("%s-%llu-in.http", 
+                                       g.zRepositoryName, iRandId);
+      transport.pFile = fopen(transport.zOutFile, "wb");
+      if( transport.pFile==0 ){
+        fossil_fatal("cannot output temporary file: %s", transport.zOutFile);
+      }
+      transport.isOpen = 1;
     }else{
       rc = socket_open();
       if( rc==0 ) transport.isOpen = 1;
@@ -89,7 +101,14 @@ void transport_close(void){
     if( g.urlIsHttps ){
       /* TBD */
     }else if( g.urlIsFile ){
-      /* TBD */
+      if( transport.pFile ){ 
+        fclose(transport.pFile);
+        transport.pFile = 0;
+      }
+      unlink(transport.zInFile);
+      free(transport.zInFile);
+      unlink(transport.zOutFile);
+      free(transport.zOutFile);
     }else{
       socket_close();
     }
@@ -101,13 +120,13 @@ void transport_close(void){
 ** Send content over the wire.
 */
 void transport_send(Blob *toSend){
+  char *z = blob_buffer(toSend);
+  int n = blob_size(toSend);
   if( g.urlIsHttps ){
     /* TBD */
   }else if( g.urlIsFile ){
-    /* TBD */
+    fwrite(z, 1, n, transport.pFile);
   }else{
-    char *z = blob_buffer(toSend);
-    int n = blob_size(toSend);
     int sent;
     while( n>0 ){
       sent = socket_send(0, z, n);
@@ -123,7 +142,14 @@ void transport_send(Blob *toSend){
 */
 void transport_flip(void){
   if( g.urlIsFile ){
-    /* run "fossil http" to process the outbound message */
+    char *zCmd;
+    fclose(transport.pFile);
+    zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
+       g.argv[0], g.zRepositoryName, transport.zOutFile, transport.zInFile
+    );
+    system(zCmd);
+    free(zCmd);
+    transport.pFile = fopen(transport.zInFile, "rb");
   }
 }
 
@@ -165,8 +191,7 @@ int transport_receive(char *zBuf, int N){
       /* TBD */
       got = 0;
     }else if( g.urlIsFile ){
-      /* TBD */
-      got = 0;
+      got = fread(zBuf, 0, N, transport.pFile);
     }else{
       got = socket_receive(0, zBuf, N);
     }
