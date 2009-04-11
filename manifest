@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\ssupport\sfor\s"file:"\sURLs\son\spush,\spull,\sand\ssync.
-D 2009-04-11T12:51:44
+C Merge\sin\swiki\stypo\sfixes.
+D 2009-04-11T12:53:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -234,7 +234,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
 F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
-F www/fileformat.wiki e6fabaf4cd609390faaa92b631e3c0c2712adad5
+F www/fileformat.wiki 9924363ba6277701b9665475b2bfeb8ae1d90d24
 F www/index.wiki 7ee83e7ec9d521c13ac4a5e94c6e983ce12ca575
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
@@ -247,14 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P c3a30a6b80e2157db5f3ae526db989367f412117
-R a6cb2165a29e9f8be2f6b57ee26d7633
+P 945ecd1a8bcb94e1def1f34809a7da7980d11517 6fe981ec56c6cfc96646765f44ec33091d99cb9d
+R d50c8a7efa0a4f9b85588510f919547d
 U drh
-Z 326142a831de573826a78915b1821f03
+Z 50794809b583b435be88282d79dd30c2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJ4JJjoxKgR168RlERAvOYAJ9t8rFTzTgPCWTI3267kMspeNlZqgCfTZeR
-MgVx/t8qTPwYtNt+SaSxav4=
-=uMNG
+iD8DBQFJ4JKvoxKgR168RlERAkkZAJ9JOl/UlrnQwwp6i5Ay+tfrH2hkDgCfbPYl
+dWGCi8dppJ/GoPlDX41WyfY=
+=GbIE
 -----END PGP SIGNATURE-----

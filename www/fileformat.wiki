@@ -141,7 +141,7 @@ The format is:
 <p>
 A manifest has zero or more F-cards.  Each F-card defines a file
 (other than the manifest itself) which is part of the check-in that
-the manifest defines.  There are two, three, or three arguments.
+the manifest defines.  There are two, three, or four arguments.
 The first argument
 is the pathname of the file in the check-in relative to the root
 of the project file hierarchy.  No ".." or "." directories are allowed
@@ -296,7 +296,7 @@ Allowed cards in a control artifact are as follows:
 
 <p>
 A control artifact must have one D card and one Z card and
-one or more or more T cards.  No other cards or other text is
+one or more T cards.  No other cards or other text is
 allowed in a control artifact.  Control artifacts might be PGP
 clearsigned.</p>
 
