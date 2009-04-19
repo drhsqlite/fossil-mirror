@@ -47,6 +47,36 @@ int unsaved_changes(void){
 }
 
 /*
+** Check to see if the requested co is in fact "checkout-able"
+** Return values:
+**   0: Not checkout-able (does not exist, or is not an on-disk artifact)
+**   1: Is checkout-able.
+*/
+int checkoutable(const char *zName){
+  int rc=1; /* assuming is checkout-able */
+  Blob uuid;
+  const char *rid=(char *)NULL;
+  Stmt q; // db query
+  char *zSQL; //build-up sql
+
+  //  zSQL = mprintf();
+
+  // [create sql statement]
+  // db_prepare(&q,sqlstmt);
+
+  blob_init(&uuid, zName, -1);
+  if( name_to_uuid(&uuid, 1) ){
+    fossil_panic(g.zErrMsg);
+  }
+
+  /*  nParent=db_text(0,"select rid from blob where uuid=%s",uuid.nameofobj); */
+
+  /*  int nParent = db_column_int(q, somenum); */
+  return rc;
+}
+
+
+/*
 ** Undo the current check-out.  Unlink all files from the disk.
 ** Clear the VFILE table.
 */
@@ -158,6 +188,9 @@ void checkout_cmd(void){
   if( g.argc!=3 ) usage("?--force? VERSION");
   if( !forceFlag && unsaved_changes()==1 ){
     fossil_fatal("there are unsaved changes in the current checkout");
+  }
+  if(!checkoutable()){
+    fossil_fatal("the VERSION you requested is not a checkout-able artifact");
   }
   if( forceFlag ){
     db_multi_exec("DELETE FROM vfile");
