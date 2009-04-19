@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C branch,\sstart\scommitting\shacking\sthat\swill\shopefully\syield\sfix\sto\sthis\sproblem:\sone\sis\sallowed\sto\scheckout\s"artifacts"\sthat\sshould\snot\sbe\scheckout-able\s(ie:\schanges\sto\stickets);\strying\sto\scheck\sthis\sout\sis\spermitted,\sbut\sresults\sin\sa\ssegfault
-D 2009-04-19T05:48:45
+C fix\sfor\sticket\s[8832434e32],\swrong\sargs\sfor\scheckoutable()
+D 2009-04-19T06:14:53
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -48,7 +48,7 @@ F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c 8c16621a506b2c75fe4015474086a89292aa3641
 F src/checkin.c 54d694aac36e5974f51ff550184543e8ce01cd70
-F src/checkout.c bf8e9beb0108a306ca7c9496f9d004494cab5ca5
+F src/checkout.c 0c75447b9be29570ec2cdd856af47484b4bb1318
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c f5925839e55d76f78b6b6a2cf2dc66023cf574e6
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -247,18 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 879e8c5f32be016d3c9cd7fb3f98e787aa823424
-R 79282724aeb523b1a0a955559a835bb2
-T *bgcolor * #ffaa22
-T *branch * fix\sartifact\scheckout
-T *sym-fix\sartifact\scheckout *
-T -sym-trunk *
+P 4fff36610997f7f3b222d981b30d9ae99f177e5d
+R 3dc92f38165d352bb3d58e3d35d6e9b2
 U bch
-Z dc88a47894d9abe700b77816081d94d6
+Z c749d6e594de272a575e0c7a731b1594
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (NetBSD)
 
-iEYEARECAAYFAknquz0ACgkQad0Kwpwugm9r1wCggvMbZ7aGUR6kuOgLzif3Fadh
-0mYAn1U/4/HcJeG0drna6WOTwQ0Y39jb
-=1hxn
+iEYEARECAAYFAknqwV0ACgkQad0Kwpwugm8e1gCeNETq3JSUtbt92FoNJK20dRWF
+AFYAoMilhG+qOwpBVTNPGgj6Tn4LFZxq
+=bC39
 -----END PGP SIGNATURE-----

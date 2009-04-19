@@ -189,7 +189,7 @@ void checkout_cmd(void){
   if( !forceFlag && unsaved_changes()==1 ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
-  if(!checkoutable()){
+  if(!checkoutable(g.argv[2])){
     fossil_fatal("the VERSION you requested is not a checkout-able artifact");
   }
   if( forceFlag ){
