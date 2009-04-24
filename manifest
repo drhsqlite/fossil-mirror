@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sto\sversion\sSQLite\s3.6.13
-D 2009-04-13T09:50:42
+C There\sis\ssome\sbug\sin\sthe\snew\sHTTP\stransport\slayer.\s\sThe\seasiest\ssolution\nis\sto\sclose\sthe\sTCP\sconnection\safter\seach\sround\strip,\swhich\sis\swhat\sthis\ncheck-in\sdoes.
+D 2009-04-24T18:40:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -65,9 +65,9 @@ F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c b634a7084a8fec255106a0f88612c71f5dbc1596
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
-F src/http.c 14fbdbab260741bc65d0c4164b944f54d7babe6b
+F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_transport.c 7621af4b1465eed3425ff86826266fcf174be413
+F src/http_transport.c cbbda92e40b1be4218a7b71d11484c3dd9575e9c
 F src/info.c 012036faaa13fe32c96e741261f6ae4ad689500e
 F src/login.c f3badebb6bd43138c8ee5543321413596daaa581
 F src/main.c 828c799fea95c33fd4da1a68e38c669bbcea8ca6
@@ -247,14 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a742cfa29254d810f9119a065e391d4b74fb1b93
-R 68ecb1ec2049fb91b448b6df6511812b
+P 879e8c5f32be016d3c9cd7fb3f98e787aa823424
+R cf31b18df11d9a2588aae351d79d124c
 U drh
-Z 066fcb39f9eff946e1dc0da72aae543d
+Z 633aaa6bf10b08615b55ea2a18c13276
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFJ4wr1oxKgR168RlERAkcKAJ466K5GIsaKb7utHioJ9CeJT3tHwwCfYi32
-doET1d0zUcxlEeRKd4nOwSw=
-=Q1Q3
+iD8DBQFJ8geHoxKgR168RlERAgXgAKCC6FQyArpbXsWfkIYMp1G/V0ilYACgiJ2N
+zGZcpmR68aybAt/5GrX8b00=
+=7vFo
 -----END PGP SIGNATURE-----

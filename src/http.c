@@ -216,7 +216,12 @@ void http_exchange(Blob *pSend, Blob *pReply){
 
   /*
   ** Close the connection to the server if appropriate.
+  **
+  ** FIXME:  There is some bug in the lower layers that prevents the
+  ** connection from remaining open.  The easiest fix for now is to
+  ** simply close and restart the connection for each round-trip.
   */
+  closeConnection = 1; /* FIX ME */
   if( closeConnection ){
     transport_close();
   }else{

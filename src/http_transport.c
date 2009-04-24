@@ -130,6 +130,7 @@ void transport_send(Blob *toSend){
     int sent;
     while( n>0 ){
       sent = socket_send(0, z, n);
+      /* printf("Sent %d of %d bytes\n", sent, n); fflush(stdout); */
       if( sent<=0 ) break;
       n -= sent;
     }
@@ -175,6 +176,7 @@ int transport_receive(char *zBuf, int N){
   if( onHand>0 ){
     int toMove = onHand;
     if( toMove>N ) toMove = N;
+    /* printf("bytes on hand: %d of %d\n", toMove, N); fflush(stdout); */
     memcpy(zBuf, &transport.pBuf[transport.iCursor], toMove);
     transport.iCursor += toMove;
     if( transport.iCursor>=transport.nUsed ){
@@ -194,6 +196,7 @@ int transport_receive(char *zBuf, int N){
       got = fread(zBuf, 1, N, transport.pFile);
     }else{
       got = socket_receive(0, zBuf, N);
+      /* printf("received %d of %d bytes\n", got, N); fflush(stdout); */
     }
     if( got>0 ){
       nByte += got; 
@@ -272,5 +275,6 @@ char *transport_receive_line(void){
     }
     i++;
   }
+  /* printf("Got line: [%s]\n", &transport.pBuf[iStart]); */
   return &transport.pBuf[iStart];
 }
