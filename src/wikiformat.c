@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -152,7 +152,7 @@ static int findAttr(const char *z){
 **
 ** Except for MARKUP_INVALID, this must all be in alphabetical order
 ** and in numerical sequence.  The first markup type must be zero.
-** The value for MARKUP_XYZ must correspond to the <xyz> entry 
+** The value for MARKUP_XYZ must correspond to the <xyz> entry
 ** in aAllowedMarkup[].
 */
 #define MARKUP_INVALID           0
@@ -191,19 +191,20 @@ static int findAttr(const char *z){
 #define MARKUP_S                33
 #define MARKUP_SAMP             34
 #define MARKUP_SMALL            35
-#define MARKUP_STRIKE           36
-#define MARKUP_STRONG           37
-#define MARKUP_SUB              38
-#define MARKUP_SUP              39
-#define MARKUP_TABLE            40
-#define MARKUP_TD               41
-#define MARKUP_TH               42
-#define MARKUP_TR               43
-#define MARKUP_TT               44
-#define MARKUP_U                45
-#define MARKUP_UL               46
-#define MARKUP_VAR              47
-#define MARKUP_VERBATIM         48
+#define MARKUP_SPAN             36
+#define MARKUP_STRIKE           37
+#define MARKUP_STRONG           38
+#define MARKUP_SUB              39
+#define MARKUP_SUP              40
+#define MARKUP_TABLE            41
+#define MARKUP_TD               42
+#define MARKUP_TH               43
+#define MARKUP_TR               44
+#define MARKUP_TT               45
+#define MARKUP_U                46
+#define MARKUP_UL               47
+#define MARKUP_VAR              48
+#define MARKUP_VERBATIM         49
 
 /*
 ** The various markup is divided into the following types:
@@ -260,42 +261,43 @@ static const struct AllowedMarkup {
  { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         AMSK_ALIGN  },
- { "hr",            MARKUP_HR,           MUTYPE_SINGLE,        
+ { "hr",            MARKUP_HR,           MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH  },
  { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
- { "img",           MARKUP_IMG,          MUTYPE_SINGLE,        
+ { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
                     AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH  },
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          0  },
- { "li",            MARKUP_LI,           MUTYPE_LI,            
+ { "li",            MARKUP_LI,           MUTYPE_LI,
                     AMSK_TYPE|AMSK_VALUE  },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
- { "ol",            MARKUP_OL,           MUTYPE_LIST,          
+ { "ol",            MARKUP_OL,           MUTYPE_LIST,
                     AMSK_START|AMSK_TYPE|AMSK_COMPACT  },
  { "p",             MARKUP_P,            MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
  { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
  { "small",         MARKUP_SMALL,        MUTYPE_FONT,          0  },
+ { "span",          MARKUP_SPAN,         MUTYPE_FONT,          0  },
  { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          0  },
  { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          0  },
  { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
  { "sup",           MARKUP_SUP,          MUTYPE_FONT,          0  },
- { "table",         MARKUP_TABLE,        MUTYPE_TABLE,         
+ { "table",         MARKUP_TABLE,        MUTYPE_TABLE,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
                     AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE  },
- { "td",            MARKUP_TD,           MUTYPE_TD,            
+ { "td",            MARKUP_TD,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
                     AMSK_ROWSPAN|AMSK_VALIGN  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
                     AMSK_ROWSPAN|AMSK_VALIGN  },
- { "tr",            MARKUP_TR,           MUTYPE_TR, 
+ { "tr",            MARKUP_TR,           MUTYPE_TR,
                     AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
  { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
- { "ul",            MARKUP_UL,           MUTYPE_LIST,          
+ { "ul",            MARKUP_UL,           MUTYPE_LIST,
                     AMSK_TYPE|AMSK_COMPACT  },
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       AMSK_ID },
@@ -334,7 +336,8 @@ static int findTag(const char *z){
 #define TOKEN_BULLET        6    /*  "  *  " */
 #define TOKEN_ENUM          7    /*  "  \(?\d+[.)]?  " */
 #define TOKEN_INDENT        8    /*  "   " */
-#define TOKEN_TEXT          9    /* None of the above */
+#define TOKEN_COMMENT       9    /* <!-- --> */
+#define TOKEN_TEXT         10    /* None of the above */
 
 /*
 ** State flags
@@ -378,6 +381,24 @@ struct Renderer {
 static int markupLength(const char *z){
   int n = 1;
   int inparen = 0;
+
+  // is a comment - if valid return n else return 0
+  if( z[n]=='!' ){
+    n++;
+    if (z[n]!='-') return 0;
+    n++;
+    if (z[n]!='-') return 0;
+    n++;
+    while (z[n]){
+      while (z[n] && z[n]!='>') n++;
+      if (!z[n]) return 0;
+      n++;
+      if(n>3 && z[n-3]=='-' && z[n-2]=='-')
+        return (n>7) ? n : 0;
+    }
+    return 0;
+  }
+
   if( z[n]=='/' ){ n++; }
   if( !isalpha(z[n]) ) return 0;
   while( isalnum(z[n]) ){ n++; }
@@ -435,7 +456,7 @@ static int textLength(const char *z, int useWiki){
     n++;
     z++;
   }
-  return n; 
+  return n;
 }
 
 /*
@@ -556,9 +577,15 @@ static int nextToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
     n = markupLength(z);
-    if( n>0 ){
-      *pTokenType = TOKEN_MARKUP;
-      return n;
+
+    if( n>1 ){
+      if (z[1]=='!'){
+        *pTokenType = TOKEN_COMMENT;
+        return n;
+      } else {
+        *pTokenType = TOKEN_MARKUP;
+        return n;
+      }
     }else{
       *pTokenType = TOKEN_CHARACTER;
       return 1;
@@ -628,7 +655,7 @@ struct ParsedMarkup {
 ** z[] is an HTML markup element - something that begins with '<'.
 ** Parse this element into the p structure.
 **
-** The content of z[] might be modified by converting characters 
+** The content of z[] might be modified by converting characters
 ** to lowercase and by inserting some "\000" characters.
 */
 static void parseMarkup(ParsedMarkup *p, char *z){
@@ -646,7 +673,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     i = 1;
   }
   j = 0;
-  while( isalnum(z[i]) ){ 
+  while( isalnum(z[i]) ){
     if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
     i++;
   }
@@ -658,7 +685,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
   while( p->nAttr<8 && isalpha(z[i]) ){
     int attrOk;    /* True to preserver attribute.  False to ignore it */
     j = 0;
-    while( isalnum(z[i]) ){ 
+    while( isalnum(z[i]) ){
       if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
       i++;
     }
@@ -801,7 +828,7 @@ static void popStackToTag(Renderer *p, int iTag){
 
 /*
 ** Attempt to find a find a tag of type iTag with id zId.  Return -1
-** if not found.  If found, return its stack level.  
+** if not found.  If found, return its stack level.
 */
 static int findTagWithId(Renderer *p, int iTag, const char *zId){
   int i;
@@ -891,7 +918,7 @@ static int is_ticket(
   zUpper[n-1]++;
   if( once ){
     const char *zClosedExpr = db_get("ticket-closed-expr", "status='Closed'");
-    db_static_prepare(&q, 
+    db_static_prepare(&q,
       "SELECT %s FROM ticket "
       " WHERE tkt_uuid>=:lwr AND tkt_uuid<:upr",
       zClosedExpr
@@ -929,9 +956,9 @@ static void openHyperlink(
   const char *zTerm = "</a>";
   assert( nClose>10 );
 
-  if( strncmp(zTarget, "http:", 5)==0 
+  if( strncmp(zTarget, "http:", 5)==0
    || strncmp(zTarget, "https:", 6)==0
-   || strncmp(zTarget, "ftp:", 4)==0 
+   || strncmp(zTarget, "ftp:", 4)==0
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
@@ -1024,6 +1051,15 @@ static void wiki_render(Renderer *p, char *z){
     n = nextToken(z, p, &tokenType);
     p->state &= ~(AT_NEWLINE|AT_PARAGRAPH);
     switch( tokenType ){
+
+      case TOKEN_COMMENT: {
+        if (p->inVerbatim){
+          blob_append(p->pOut, htmlize(z, n), -1);
+        } else {
+          blob_append(p->pOut, z, n);
+        }
+        break;
+      }
       case TOKEN_PARAGRAPH: {
         if( inlineOnly ){
           /* blob_append(p->pOut, " &para; ", -1); */
@@ -1145,7 +1181,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* Markup of the form </div id=ID> where there is a matching
         ** ID somewhere on the stack.  Exit the verbatim if were are in
-        ** it.  Pop the stack up to the matching <div>.  Discard the 
+        ** it.  Pop the stack up to the matching <div>.  Discard the
         ** </div>
         */
         if( markup.iCode==MARKUP_DIV && markup.endTag &&
@@ -1169,7 +1205,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* If within <verbatim id=ID> ignore everything other than
         ** </verbatim id=ID> and the </dev id=ID2> above.
-        */           
+        */
         if( p->inVerbatim ){
           if( endVerbatim(p, &markup) ){
             p->inVerbatim = 0;
@@ -1227,7 +1263,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* Enter <verbatim> processing.  With verbatim enabled, all other
         ** markup other than the corresponding end-tag with the same ID is
-        ** ignored. 
+        ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
           if( markup.nAttr==1 ){
@@ -1300,7 +1336,7 @@ static void wiki_render(Renderer *p, char *z){
 void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   char *z;
   Renderer renderer;
-  
+
   memset(&renderer, 0, sizeof(renderer));
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
   if( flags & WIKI_NOBLOCK ){
