@@ -46,6 +46,49 @@ int unsaved_changes(void){
                    " OR coalesce(origname!=pathname,0)");
 }
 
+
+/*
+** zTarget is guaranteed to be a UUID.  It might be the UUID of a ticket.
+** If it is, store in *pClosed a true or false depending on whether or not
+** the ticket is closed and return true. If zTarget
+** is not the UUID of a ticket, return false.
+*/
+static int is_ticket(
+  const char *zTarget,    /* Ticket UUID */
+  int *pClosed            /* True if the ticket is closed */
+){
+  static Stmt q;
+  static int once = 1;
+  int n;
+  int rc;
+  char zLower[UUID_SIZE+1];
+  char zUpper[UUID_SIZE+1];
+  n = strlen(zTarget);
+  memcpy(zLower, zTarget, n+1);
+  canonical16(zLower, n+1);
+  memcpy(zUpper, zLower, n+1);
+  zUpper[n-1]++;
+  if( once ){
+    const char *zClosedExpr = db_get("ticket-closed-expr", "status='Closed'");
+    db_static_prepare(&q, 
+      "SELECT %s FROM ticket "
+      " WHERE tkt_uuid>=:lwr AND tkt_uuid<:upr",
+      zClosedExpr
+    );
+    once = 0;
+  }
+  db_bind_text(&q, ":lwr", zLower);
+  db_bind_text(&q, ":upr", zUpper);
+  if( db_step(&q)==SQLITE_ROW ){
+    rc = 1;
+    *pClosed = db_column_int(&q, 0);
+  }else{
+    rc = 0;
+  }
+  db_reset(&q);
+  return rc;
+}
+
 /*
 ** Check to see if the requested co is in fact "checkout-able"
 ** Return values:
@@ -53,7 +96,12 @@ int unsaved_changes(void){
 **   1: Is checkout-able.
 */
 int checkoutable(const char *zName){
-  int rc=1; /* assuming is checkout-able */
+  int rc; /* return code */
+  int throwaway;
+
+  rc = !is_ticket(zName, &throwaway);
+  return(rc);
+
   Blob uuid;
   const char *rid=(char *)NULL;
   Stmt q; // db query
