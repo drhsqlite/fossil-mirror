@@ -57,6 +57,8 @@ static int is_ticket(
   const char *zTarget,    /* Ticket UUID */
   int *pClosed            /* True if the ticket is closed */
 ){
+  fprintf(stderr,"I'm in is_ticket\n");
+
   static Stmt q;
   static int once = 1;
   int n;
@@ -100,6 +102,7 @@ int checkoutable(const char *zName){
   int throwaway;
 
   rc = !is_ticket(zName, &throwaway);
+  fprintf(stderr,"rc is: %d\n", rc);
   return(rc);
 
   Blob uuid;
