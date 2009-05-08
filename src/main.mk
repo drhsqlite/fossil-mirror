@@ -29,6 +29,7 @@ SRC = \
   $(SRCDIR)/configure.c \
   $(SRCDIR)/construct.c \
   $(SRCDIR)/content.c \
+  $(SRCDIR)/creoleparser.c \
   $(SRCDIR)/db.c \
   $(SRCDIR)/delta.c \
   $(SRCDIR)/deltacmd.c \
@@ -99,6 +100,7 @@ TRANS_SRC = \
   configure_.c \
   construct_.c \
   content_.c \
+  creoleparser_.c \
   db_.c \
   delta_.c \
   deltacmd_.c \
@@ -169,6 +171,7 @@ OBJ = \
   configure.o \
   construct.o \
   content.o \
+  creoleparser.o \
   db.o \
   delta.o \
   deltacmd.o \
@@ -257,18 +260,18 @@ $(APPNAME):	headers $(OBJ) sqlite3.o th.o th_lang.o
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:	
+$(SRCDIR)/../manifest:
 	# noop
 
-clean:	
+clean:
 	rm -f *.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers
-	rm -f add.h admin.h allrepo.h bag.h blob.h branch.h browse.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h construct.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h http.h http_socket.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h my_page.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h rstats.h schema.h setup.h sha1.h shun.h stat.h style.h sync.h tag.h tagview.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
+	rm -f add.h admin.h allrepo.h bag.h blob.h branch.h browse.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h construct.h content.h creoleparser.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h http.h http_socket.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h my_page.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h rstats.h schema.h setup.h sha1.h shun.h stat.h style.h sync.h tag.h tagview.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
 
 page_index.h: $(TRANS_SRC) mkindex
 	./mkindex $(TRANS_SRC) >$@
 headers:	page_index.h makeheaders VERSION.h
-	./makeheaders  add_.c:add.h admin_.c:admin.h allrepo_.c:allrepo.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h http_.c:http.h http_socket_.c:http_socket.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h my_page_.c:my_page.h name_.c:name.h pivot_.c:pivot.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h rstats_.c:rstats.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h tagview_.c:tagview.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h VERSION.h
+	./makeheaders  add_.c:add.h admin_.c:admin.h allrepo_.c:allrepo.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h construct_.c:construct.h content_.c:content.h creoleparser_.c:creoleparser.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h http_.c:http.h http_socket_.c:http_socket.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h my_page_.c:my_page.h name_.c:name.h pivot_.c:pivot.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h rstats_.c:rstats.h schema_.c:schema.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h tagview_.c:tagview.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h VERSION.h
 	touch headers
 headers: Makefile
 Makefile:
@@ -384,6 +387,13 @@ content.o:	content_.c content.h  $(SRCDIR)/config.h
 	$(XTCC) -o content.o -c content_.c
 
 content.h:	headers
+creoleparser_.c:	$(SRCDIR)/creoleparser.c $(SRCDIR)/VERSION translate
+	./translate $(SRCDIR)/creoleparser.c | sed -f $(SRCDIR)/VERSION >creoleparser_.c
+
+creoleparser.o:	creoleparser_.c creoleparser.h  $(SRCDIR)/config.h
+	$(XTCC) -o creoleparser.o -c creoleparser_.c
+
+creoleparser.h:	headers
 db_.c:	$(SRCDIR)/db.c $(SRCDIR)/VERSION translate
 	./translate $(SRCDIR)/db.c | sed -f $(SRCDIR)/VERSION >db_.c
 

@@ -23,6 +23,7 @@ set src {
   configure
   construct
   content
+  creoleparser
   db
   delta
   deltacmd
@@ -149,10 +150,10 @@ $(APPNAME):	headers $(OBJ) sqlite3.o th.o th_lang.o
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:	
+$(SRCDIR)/../manifest:
 	# noop
 
-clean:	
+clean:
 	rm -f *.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers}
 

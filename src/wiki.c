@@ -10,7 +10,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -138,7 +138,7 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
     @      pages. </li>
-    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
+    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for
     @      wiki.</li>
     @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
     @      to experiment.</li>
@@ -154,7 +154,7 @@ void wiki_page(void){
     zBody = db_get("sandbox",zBody);
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -229,7 +229,7 @@ void wikiedit_page(void){
     }
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -311,7 +311,7 @@ void wikiedit_page(void){
   @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
-  @ <textarea name="w" class="wikiedit" cols="80" 
+  @ <textarea name="w" class="wikiedit" cols="80"
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ <br>
   @ <input type="submit" name="preview" value="Preview Your Changes">
@@ -335,7 +335,8 @@ static void appendRemark(Blob *p){
 
   zDate = db_text(0, "SELECT datetime('now')");
   zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-  blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h", 
+  blob_append(p, "\n<<fossil>>\n", -1);
+  blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
     zId, zDate, g.zLogin);
   free(zDate);
   zUser = PD("u",g.zLogin);
@@ -343,7 +344,7 @@ static void appendRemark(Blob *p){
     blob_appendf(p, " (claiming to be %h)", zUser);
   }
   zRemark = PD("r","");
-  blob_appendf(p, " added:</i><br />\n%s</div id=\"%s\">", zRemark, zId);
+  blob_appendf(p, " added:</i><br />\n%s\n<<fossil>>\n</div id=\"%s\">", zRemark, zId);
 }
 
 /*
@@ -364,7 +365,7 @@ void wikiappend_page(void){
   isSandbox = is_sandbox(zPageName);
   if( !isSandbox ){
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -451,7 +452,7 @@ void wikiappend_page(void){
   @ Your Name:
   @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
   @ Comment to append:<br>
-  @ <textarea name="r" class="wikiedit" cols="80" 
+  @ <textarea name="r" class="wikiedit" cols="80"
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
   @ <br>
   @ <input type="submit" name="preview" value="Preview Your Comment">
@@ -502,7 +503,7 @@ void wcontent_page(void){
   if( !g.okRdWiki ){ login_needed(); return; }
   style_header("Available Wiki Pages");
   @ <ul>
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
     " ORDER BY lower(tagname)"
   );
@@ -554,7 +555,7 @@ void wikirules_page(void){
   @ enumerations that count using letters or roman numerials, use HTML.</p>
   @ <li> <p><b>Indented Paragraphs</b>.
   @ Any paragraph that begins with two or more spaces or a tab and
-  @ which is not a bullet or enumeration list item is rendered 
+  @ which is not a bullet or enumeration list item is rendered
   @ indented.  Only a single level of indentation is supported by wiki; use
   @ HTML for deeper indentation.</p>
   @ <li> <p><b>Hyperlinks</b>.
@@ -683,7 +684,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_reset(&wiki);
   content_deltify(rid,nrid,0);
   db_end_transaction(0);
-  autosync(AUTOSYNC_PUSH);  
+  autosync(AUTOSYNC_PUSH);
   return 1;
 }
 
@@ -759,7 +760,7 @@ void wiki_cmd(void){
     rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
       " ORDER BY x.mtime DESC LIMIT 1",
-      zPageName 
+      zPageName
     );
     if( rid ){
       Blob content;
@@ -823,7 +824,7 @@ void wiki_cmd(void){
   }else
   if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
       " ORDER BY lower(tagname)"
     );
