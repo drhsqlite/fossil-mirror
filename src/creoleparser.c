@@ -38,30 +38,33 @@
 
 #define POOL_CHUNK_SIZE 100
 
-#define 	KIND_ROOT            0x0000001
-#define 	KIND_HORIZONTAL_RULE 0x0000002
-#define 	KIND_HEADING         0x0000004
-#define 	KIND_ORDERED_LIST    0x0000008
+//{{{ KIND
+#define KIND_ROOT            0x0000001
+#define KIND_HORIZONTAL_RULE 0x0000002
+#define KIND_HEADING         0x0000004
+#define KIND_ORDERED_LIST    0x0000008
 
-#define 	KIND_UNORDERED_LIST  0x0000010
-#define 	KIND_PARAGRAPH       0x0000020
-#define 	KIND_TABLE           0x0000040
-#define 	KIND_NO_WIKI_BLOCK   0x0000080
+#define KIND_UNORDERED_LIST  0x0000010
+#define KIND_PARAGRAPH       0x0000020
+#define KIND_TABLE           0x0000040
+#define KIND_NO_WIKI_BLOCK   0x0000080
 
-#define 	KIND_PARA_BREAK      0x0000100
-#define 	KIND_END_WIKI_MARKER 0x0000200
+#define KIND_PARA_BREAK      0x0000100
+#define KIND_END_WIKI_MARKER 0x0000200
 
-#define KIND_BOLD						0x0000400
-#define KIND_ITALIC						0x0000800
-#define KIND_SUPERSCRIPT			0x0001000
-#define KIND_SUBSCRIPT				0x0002000
-#define KIND_MONOSPACED				0x0004000
-#define KIND_BREAK						0x0008000
+#define KIND_BOLD            0x0000400
+#define KIND_ITALIC          0x0000800
+#define KIND_SUPERSCRIPT     0x0001000
+#define KIND_SUBSCRIPT       0x0002000
+#define KIND_MONOSPACED      0x0004000
+#define KIND_BREAK           0x0008000
 
-#define KIND_TABLE_ROW				0x0010000
-
-#define KIND_MARKER
-
+#define KIND_TABLE_ROW       0x0010000
+//}}}
+//{{{ FLAG
+// keep first four bits free
+#define FLAG_CENTER	 0x0000100
+//}}}
 struct Node {//{{{
 
 	char *start;
@@ -69,6 +72,7 @@ struct Node {//{{{
 
 	int kind;
 	int level;
+	int flags;
 
 	Node *parent;
 	Node *next;
@@ -113,8 +117,6 @@ struct Parser {//{{{
 
 
 };
-//}}}
-
 //}}}
 
 #endif
@@ -362,7 +364,7 @@ static int cr_iNoWiki(Parser *p){//{{{
 	int count = p->iend - p->icursor - 6;
 	while (count--){
 		if (s[0]=='}' && s[1]=='}' && s[2]=='}' && s[3]!='}'){
-			blob_appendf(p->iblob, "<tt style='background:yellow'>%s</tt>", htmlize(p->icursor + 3, s - p->icursor-3));
+			blob_appendf(p->iblob, "<tt style='background:oldlace'>%s</tt>", htmlize(p->icursor + 3, s - p->icursor-3));
 			p->icursor = s + 3;
 			return 1;
 		}
@@ -374,27 +376,48 @@ static int cr_iNoWiki(Parser *p){//{{{
 //}}}
 static int cr_iImage(Parser *p){//{{{
 
-	if ((p->iend - p->icursor)<4) return 0;
+	if (p->inLink) return 0;
+	if ((p->iend - p->icursor)<3) return 0;
 
-	if (p->icursor[1]!='{')
-		return 0;
+	if (p->icursor[1]!='{') return 0;
 
 	char *s = p->icursor + 2;
+	char *bar = NULL;
 
 	int count = p->iend - p->icursor - 4;
 	while (count--){
 		if (s[0]=='}' && s[1]=='}'){
-			blob_appendf(p->iblob, "<span style='color:blue;'>%s</span>", htmlize(p->icursor+2, s - p->icursor-2));
+			if (!bar) bar = p->icursor + 2;
+			blob_appendf(p->iblob, "<span style='color:green;border:1px solid green;'>%s</span>", htmlize(bar, s - bar ));
 			p->icursor = s + 2;
 			return 1;
 		}
+		if (!bar && s[0]=='|') bar=s+1;
 		s++;
 	}
 	return 0;
 }
 //}}}
 static int cr_iMacro(Parser *p){//{{{
+
+	if (p->inLink) return 0;
+	if ((p->iend - p->icursor)<3) return 0;
+
+	if (p->icursor[1]!='<') return 0;
+
+	char *s = p->icursor + 2;
+
+	int count = p->iend - p->icursor - 4;
+	while (count--){
+		if (s[0]=='>' && s[1]=='>'){
+			blob_appendf(p->iblob, "<span style='color:red;border:1px solid red;'>%s</span>", htmlize(p->icursor, s - p->icursor + 2));
+			p->icursor = s + 2;
+			return 1;
+		}
+		s++;
+	}
 	return 0;
+
 }
 //}}}
 
@@ -584,6 +607,8 @@ LOCAL char *cr_parseInline(Parser *p, char *s, char *e){//{{{
 //}}}
 //}}}
 
+//{{{ BLOCK PARSER
+
 static void cr_renderListItem(Parser *p, Node *n){//{{{
 
 
@@ -608,8 +633,8 @@ static void cr_renderListItem(Parser *p, Node *n){//{{{
 	}
 	blob_append(p->iblob, "</li>", 5);
 }
-
-static void cr_renderList(Parser *p){
+//}}}
+static void cr_renderList(Parser *p){//{{{
 
 	Node *n = p->list;
 
@@ -660,7 +685,6 @@ static void cr_renderTableRow(Parser *p, Node *row){//{{{
 	blob_append(p->iblob, "</tr>", 5);
 }
 //}}}
-
 static void cr_renderTable(Parser *p, Node *n){//{{{
 
 	Node *row = n->children;
@@ -679,7 +703,6 @@ static void cr_renderTable(Parser *p, Node *n){//{{{
 }
 //}}}
 
-
 static void cr_render(Parser *p, Node *node){//{{{
 
 	if (node->kind & KIND_PARAGRAPH){
@@ -689,13 +712,13 @@ static void cr_render(Parser *p, Node *node){//{{{
 	}
 
 	if (node->kind & KIND_HEADING){
-
 		blob_appendf(p->iblob,
-				"\n<h%d>%s</h%d>\n",
+				"\n<h%d %s>",
 				node->level,
-				htmlize(node->start, node->end - node->start),
-				node->level
+				(node->flags & FLAG_CENTER) ? " style='text-align:center;'" : ""
 		);
+		cr_parseInline(p, node->start, node->end);
+		blob_appendf(p->iblob, "</h%d>\n", node->level	);
 		return;
 	}
 
@@ -724,7 +747,6 @@ static void cr_render(Parser *p, Node *node){//{{{
 }
 //}}}
 
-
 static char *cr_findEndOfBlock(Parser *p, char *s, char c){//{{{
 
 	char *end;
@@ -745,7 +767,6 @@ static char *cr_findEndOfBlock(Parser *p, char *s, char c){//{{{
 	return 0;
 }
 //}}}
-
 static int cr_addListItem(Parser *p, Node *n){//{{{
 
 	n->parent = n;
@@ -784,7 +805,6 @@ static int cr_addListItem(Parser *p, Node *n){//{{{
 
 }
 //}}}
-
 
 static int isEndWikiMarker(Parser *p){//{{{
 
@@ -834,10 +854,17 @@ static int isHeading(Parser *p){//{{{
 
 	char *s = cr_skipBlanks(p, p->cursor);
 
+	int flags = 0;
 	int level = cr_countChars(p, s, '=');
 	if (!level) return 0;
 
-	s = cr_skipBlanks(p, s + level);
+	s += level;
+
+	if (s[0] == '<' && s[1] == '>') {
+		flags |= FLAG_CENTER;
+		s += 2;
+	}
+	s = cr_skipBlanks(p, s);
 
 	p->this->start = s;
 
@@ -852,6 +879,7 @@ static int isHeading(Parser *p){//{{{
 		p->this->kind = KIND_HEADING;
 		p->this->end = s;
 		p->this->level = level;
+		p->this->flags |= flags;
 		return 1;
 	}
 	return 0;
@@ -1009,6 +1037,8 @@ static void cr_parse(Parser *p, char* z){//{{{
 
 	}
 }
+//}}}
+
 //}}}
 
 char *wiki_render_creole(Renderer *r, char *z){//{{{

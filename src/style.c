@@ -82,15 +82,15 @@ static int submenuCompare(const void *a, const void *b){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);  
+  const char *zHeader = db_get("header", (char*)zDefaultHeader);
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
-  
+
   cgi_destination(CGI_HEADER);
-  
+
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
@@ -120,7 +120,7 @@ void style_footer(void){
   const char *zFooter;
 
   if( !headerHasBeenGenerated ) return;
-  
+
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -150,7 +150,7 @@ void style_footer(void){
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
-  
+
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
     cgi_append_content("<font color=\"red\"><hr>\n", -1);
@@ -181,7 +181,7 @@ void style_sidebox_end(void){
 /*
 ** The default page header.
 */
-const char zDefaultHeader[] = 
+const char zDefaultHeader[] =
 @ <html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
@@ -238,7 +238,7 @@ const char zDefaultHeader[] =
 /*
 ** The default page footer
 */
-const char zDefaultFooter[] = 
+const char zDefaultFooter[] =
 @ <div class="footer">
 @ Fossil version $manifest_version $manifest_date
 @ </div>
@@ -248,7 +248,7 @@ const char zDefaultFooter[] =
 /*
 ** The default Cascading Style Sheet.
 */
-const char zDefaultCSS[] = 
+const char zDefaultCSS[] =
 @ /* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
@@ -366,7 +366,7 @@ const char zDefaultCSS[] =
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* <verbatim> blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
@@ -393,7 +393,7 @@ const char zDefaultCSS[] =
 @ div.miniform {
 @     font-size: smaller;
 @     margin: 8px;
-@ } 
+@ }
 @
 @ table.fossil_db_generic_query_view {
 @   border-spacing: 0px;
@@ -414,6 +414,27 @@ const char zDefaultCSS[] =
 @   background: #558195;
 @   font-size: 1.5em;
 @   color: #ffffff;
+@ }
+@ .creoletable {
+@   border: 1px solid #666666;
+@   border-spacing: 0;
+@   margin: 1.5em 2em 1.8em 2em;
+@ }
+@ .creoletable * tr th {
+@   font-size: 100%;
+@   padding: .5em .7em .5em .7em;
+@   border-left: 1px solid #666666;
+@   background-color: #558195;
+@   vertical-align: bottom;
+@   color: white;
+@   empty-cells: show;
+@ }
+@ .creoletable * tr td {
+@   padding: .4em .7em .45em .7em;
+@   border-left: 1px solid #D9D9D9;
+@   border-top: 1px solid #D9D9D9;
+@   vertical-align: center;
+@   empty-cells: show;
 @ }
 ;
 
