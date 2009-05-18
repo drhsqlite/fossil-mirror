@@ -1,6 +1,6 @@
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from SQLite
-** version 3.6.14.  By combining all the individual C code files into this 
+** version 3.6.14.1.  By combining all the individual C code files into this 
 ** single large file, the entire code can be compiled as a one translation
 ** unit.  This allows many compilers to do optimizations that would not be
 ** possible if the files were compiled separately.  Performance improvements
@@ -17,7 +17,7 @@
 ** is also in a separate file.  This file contains only code for the core
 ** SQLite library.
 **
-** This amalgamation was generated on 2009-05-07 00:36:11 UTC.
+** This amalgamation was generated on 2009-05-18 17:12:46 UTC.
 */
 #define SQLITE_CORE 1
 #define SQLITE_AMALGAMATION 1
@@ -601,7 +601,7 @@ extern "C" {
 **
 ** Requirements: [H10011] [H10014]
 */
-#define SQLITE_VERSION         "3.6.14"
+#define SQLITE_VERSION         "3.6.14.1"
 #define SQLITE_VERSION_NUMBER  3006014
 
 /*
@@ -29093,7 +29093,7 @@ SQLITE_PRIVATE void sqlite3PcacheIterateDirty(PCache *pCache, void (*xIter)(PgHd
 ** If the default page cache implementation is overriden, then neither of
 ** these two features are available.
 **
-** @(#) $Id: pcache1.c,v 1.11 2009/04/14 18:44:39 aswift Exp $
+** @(#) $Id: pcache1.c,v 1.11.2.1 2009/05/18 16:14:25 drh Exp $
 */
 
 
@@ -29436,6 +29436,7 @@ static void pcache1TruncateUnsafe(
   PCache1 *pCache, 
   unsigned int iLimit 
 ){
+  TESTONLY( int nPage = 0; )      /* Used to assert pCache->nPage is correct */
   unsigned int h;
   assert( sqlite3_mutex_held(pcache1.mutex) );
   for(h=0; h<pCache->nHash; h++){
@@ -29443,14 +29444,17 @@ static void pcache1TruncateUnsafe(
     PgHdr1 *pPage;
     while( (pPage = *pp)!=0 ){
       if( pPage->iKey>=iLimit ){
-        pcache1PinPage(pPage);
+        pCache->nPage--;
         *pp = pPage->pNext;
+        pcache1PinPage(pPage);
         pcache1FreePage(pPage);
       }else{
         pp = &pPage->pNext;
+        TESTONLY( nPage++ );
       }
     }
   }
+  assert( pCache->nPage==nPage );
 }
 
 /******************************************************************************/
@@ -30275,7 +30279,7 @@ SQLITE_PRIVATE int sqlite3RowSetTest(RowSet *pRowSet, u8 iBatch, sqlite3_int64 i
 ** file simultaneously, or one process from reading the database while
 ** another is writing.
 **
-** @(#) $Id: pager.c,v 1.586 2009/05/06 18:57:10 shane Exp $
+** @(#) $Id: pager.c,v 1.586.2.1 2009/05/18 17:11:31 drh Exp $
 */
 #ifndef SQLITE_OMIT_DISKIO
 
@@ -33878,7 +33882,7 @@ static int pagerSharedLock(Pager *pPager){
       );
     }
 
-    if( sqlite3PcachePagecount(pPager->pPCache)>0 ){
+    if( pPager->pBackup || sqlite3PcachePagecount(pPager->pPCache)>0 ){
       /* The shared-lock has just been acquired on the database file
       ** and there are already pages in the cache (from a previous
       ** read or write transaction).  Check to see if the database
@@ -44240,7 +44244,7 @@ SQLITE_PRIVATE void sqlite3BtreeCacheOverflow(BtCursor *pCur){
 ** This file contains the implementation of the sqlite3_backup_XXX() 
 ** API functions and the related features.
 **
-** $Id: backup.c,v 1.13 2009/03/16 13:19:36 danielk1977 Exp $
+** $Id: backup.c,v 1.13.2.1 2009/05/18 17:11:31 drh Exp $
 */
 
 /* Macro to find the minimum of two numeric values.
@@ -44270,6 +44274,7 @@ struct sqlite3_backup {
   Pgno nRemaining;         /* Number of pages left to copy */
   Pgno nPagecount;         /* Total number of pages to copy */
 
+  int isAttached;          /* True once backup has been registered with pager */
   sqlite3_backup *pNext;   /* Next backup associated with source pager */
 };
 
@@ -44383,6 +44388,7 @@ SQLITE_API sqlite3_backup *sqlite3_backup_init(
     p->pDestDb = pDestDb;
     p->pSrcDb = pSrcDb;
     p->iNext = 1;
+    p->isAttached = 0;
 
     if( 0==p->pSrc || 0==p->pDest ){
       /* One (or both) of the named databases did not exist. An error has
@@ -44393,18 +44399,7 @@ SQLITE_API sqlite3_backup *sqlite3_backup_init(
       p = 0;
     }
   }
-
-  /* If everything has gone as planned, attach the backup object to the
-  ** source pager. The source pager calls BackupUpdate() and BackupRestart()
-  ** to notify this module if the source file is modified mid-backup.
-  */
   if( p ){
-    sqlite3_backup **pp;             /* Pointer to head of pagers backup list */
-    sqlite3BtreeEnter(p->pSrc);
-    pp = sqlite3PagerBackupPtr(sqlite3BtreePager(p->pSrc));
-    p->pNext = *pp;
-    *pp = p;
-    sqlite3BtreeLeave(p->pSrc);
     p->pSrc->nBackup++;
   }
 
@@ -44498,6 +44493,19 @@ static int backupTruncateFile(sqlite3_file *pFile, i64 iSize){
 }
 
 /*
+** Register this backup object with the associated source pager for
+** callbacks when pages are changed or the cache invalidated.
+*/
+static void attachBackupObject(sqlite3_backup *p){
+  sqlite3_backup **pp;
+  assert( sqlite3BtreeHoldsMutex(p->pSrc) );
+  pp = sqlite3PagerBackupPtr(sqlite3BtreePager(p->pSrc));
+  p->pNext = *pp;
+  *pp = p;
+  p->isAttached = 1;
+}
+
+/*
 ** Copy nPage pages from the source b-tree to the destination.
 */
 SQLITE_API int sqlite3_backup_step(sqlite3_backup *p, int nPage){
@@ -44566,6 +44574,8 @@ SQLITE_API int sqlite3_backup_step(sqlite3_backup *p, int nPage){
       p->nRemaining = nSrcPage+1-p->iNext;
       if( p->iNext>(Pgno)nSrcPage ){
         rc = SQLITE_DONE;
+      }else if( !p->isAttached ){
+        attachBackupObject(p);
       }
     }
   
@@ -44698,12 +44708,14 @@ SQLITE_API int sqlite3_backup_finish(sqlite3_backup *p){
 
   /* Detach this backup from the source pager. */
   if( p->pDestDb ){
+    p->pSrc->nBackup--;
+  }
+  if( p->isAttached ){
     pp = sqlite3PagerBackupPtr(sqlite3BtreePager(p->pSrc));
     while( *pp!=p ){
       pp = &(*pp)->pNext;
     }
     *pp = p->pNext;
-    p->pSrc->nBackup--;
   }
 
   /* If a transaction is still open on the Btree, roll it back. */
@@ -49986,7 +49998,7 @@ SQLITE_API int sqlite3_stmt_status(sqlite3_stmt *pStmt, int op, int resetFlag){
 ** in this file for details.  If in doubt, do not deviate from existing
 ** commenting and indentation practices when changing or adding code.
 **
-** $Id: vdbe.c,v 1.842 2009/05/06 18:57:10 shane Exp $
+** $Id: vdbe.c,v 1.842.2.1 2009/05/18 16:14:25 drh Exp $
 */
 
 /*
@@ -50708,6 +50720,7 @@ SQLITE_PRIVATE int sqlite3VdbeExec(
       pOut = &p->aMem[pOp->p2];
       sqlite3VdbeMemReleaseExternal(pOut);
       pOut->flags = MEM_Null;
+      pOut->n = 0;
     }else
  
     /* Do common setup for opcodes marked with one of the following
