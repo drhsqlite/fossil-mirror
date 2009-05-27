@@ -799,7 +799,7 @@ void setup_behavior(void){
     login_needed();
   }
 
-  style_header("Fossil SCM behavior");
+  style_header("Fossil SCM Behavior");
   db_begin_transaction();
   @ <form action="%s(g.zBaseURL)/setup_behavior" method="POST">
   login_insert_csrf_secret();

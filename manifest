@@ -1,5 +1,5 @@
-C added\sthe\sbehavior\ssection\sto\sthe\sadmin\spage.\s\sIt\sallows\sthe\suser\sto\senter\sfossil\ssettings\svia\sthe\sweb\sui
-D 2009-05-27T02:38:06
+C changed\stitle\sof\sadmin/behavior\spage\sto\sbe\sconsistent\swith\sthe\sother\spages
+D 2009-05-27T02:45:00
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -87,7 +87,7 @@ F src/report.c 79992110fa62d645771d3b4ae60cdd1d7feea4dd
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 216bff41ba071b363561dd030cc4467a6a6e78e4
-F src/setup.c 0bf13d020b30b69fc975bd9520e84fc7f48ea211
+F src/setup.c 5fa474d999f6ed27b59ca848c0931dd7dbd515a6
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c 42fc2023fe5c5dcc90e8265571b12ef4426ac480
 F src/sqlite3.c 116d407316de66fc6b8e7383a78c44c05dc16f71
@@ -244,7 +244,7 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d21b90e365b5eb98b9c78b07bf5bba4f250bbe4d
-R 06469008b0304a421510d8ef4b0b6aad
+P 92e85dc68e519db94683f8868f3f17d774a92fd0
+R fbd4880ec058e182e9cda9a52b11156f
 U erik
-Z 52491d27820309e7f460679b5eeb1881
+Z 1b07e8c6a6ad9eb5f98f08564501d9de
