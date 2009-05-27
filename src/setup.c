@@ -66,6 +66,8 @@ void setup_page(void){
     "Control access settings.");
   setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
+  setup_menu_entry("Behavior", "setup_behavior",
+    "Configure the SCM behavior of the repository");
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
   setup_menu_entry("Tickets", "tktsetup",
@@ -780,6 +782,87 @@ void setup_timeline(void){
                   "timeline-max-comment", "tmc", "0");
   @ <p>The maximum length of a comment to be displayed in a timeline.
   @ "0" there is no length limit.</p>
+
+  @ <hr>
+  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
+  @ </form>
+  db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_behavior
+*/
+void setup_behavior(void){
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+
+  style_header("Fossil SCM behavior");
+  db_begin_transaction();
+  @ <form action="%s(g.zBaseURL)/setup_behavior" method="POST">
+  login_insert_csrf_secret();
+
+  @ <hr>
+  onoff_attribute("Automatically synchronize with repository",
+                  "autosync", "autosync", 0);
+  @ <p>Automatically keeps your work in sync with a centralized server.</p>
+
+  @ <hr>
+  onoff_attribute("Sign all commits with gpg",
+                  "clearsign", "clearsign", 0);
+  @ <p>When enabled (the default), fossil will attempt to
+  @     sign all commits with gpg.  When disabled, commits will
+  @    be unsigned.</p>  
+  
+  @ <hr>
+  onoff_attribute("Require local authentication",
+                  "localauth", "localauth", 0);
+  @ <p>If enabled, require that HTTP connections from
+  @         127.0.0.1 be authenticated by password.  If
+  @        false, all HTTP requests from localhost have
+  @        unrestricted access to the repository.</p>  
+  
+  @ <hr>
+  onoff_attribute("Modification times used to detect changes",
+                  "mtime-changes", "mtime-changes", 0);
+  @ <p>Use file modification times (mtimes) to detect when files have been modified.</p>  
+  
+  @ <hr>
+  entry_attribute("Diff Command", 16, 
+                  "diff-command", "diff-command", "diff");
+  @ <p>External command used to generate a textual diff</p>  
+  
+  @ <hr>
+  entry_attribute("Gdiff Command", 16, 
+                  "gdiff-command", "gdiff-command", "gdiff");
+  @ <p>External command to run when performing a graphical diff. If undefined, text diff will be used.</p>  
+    
+  @ <hr>
+  entry_attribute("Editor", 16, 
+                  "editor", "editor", "");
+  @ <p>Text editor command used for check-in comments.</p>  
+  
+  @ <hr>
+  entry_attribute("HTTP port", 16, 
+                  "http-port", "http-port", "8080");
+  @ <p>The TCP/IP port number to use by the "server" and "ui" commands.  Default: 8080</p>  
+
+  @ <hr>
+  entry_attribute("PGP Command", 32, 
+                  "pgp-command", "pgp-command", "gpg --clearsign -o ");
+  @ <p>Command used to clear-sign manifests at check-in.The default is "gpg --clearsign -o ".</p>  
+  
+  @ <hr>
+  entry_attribute("Proxy", 32, 
+                  "proxy", "proxy", "off");
+  @ <p>URL of the HTTP proxy.</p>  
+  
+  @ <hr>
+  entry_attribute("Web browser", 32, 
+                  "web-browser", "web-browser", "");
+  @ <p>Default web browser for "fossil ui".</p>  
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
