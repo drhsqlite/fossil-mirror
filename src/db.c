@@ -1245,19 +1245,25 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME
+** Usage: %fossil open FILENAME ?VERSION? ?--keep?
 **
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
+** If VERSION is specified then that version is checked out.  Otherwise
+** the latest version is checked out.  No files other than "manifest"
+** and "manifest.uuid" are modified if the --keep option is present.
+**
 ** See also the "close" command.
 */
 void cmd_open(void){
   Blob path;
   int vid;
-  static char *azNewArgv[] = { 0, "update", "--latest", 0 };
+  int keepFlag;
+  static char *azNewArgv[] = { 0, "checkout", "--latest", 0, 0, 0 };
   url_proxy_options();
-  if( g.argc!=3 ){
-    usage("REPOSITORY-FILENAME");
+  keepFlag = find_option("keep",0,0)!=0;
+  if( g.argc!=3 && g.argc!=4 ){
+    usage("REPOSITORY-FILENAME ?VERSION?");
   }
   if( db_open_local() ){
     fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
@@ -1273,10 +1279,19 @@ void cmd_open(void){
   if( vid==0 ){
     db_lset_int("checkout", 1);
   }else{
+    char **oldArgv = g.argv;
+    int oldArgc = g.argc;
     db_lset_int("checkout", vid);
+    azNewArgv[0] = g.argv[0];
     g.argv = azNewArgv;
     g.argc = 3;
-    update_cmd();
+    if( oldArgc==4 ){
+      azNewArgv[g.argc-1] = oldArgv[3];
+    }
+    if( keepFlag ){
+      azNewArgv[g.argc++] = "--keep";
+    }
+    checkout_cmd();
     g.argc = 2;
     info_cmd();
   }

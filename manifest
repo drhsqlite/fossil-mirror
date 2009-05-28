@@ -1,5 +1,8 @@
-C changed\stitle\sof\sadmin/behavior\spage\sto\sbe\sconsistent\swith\sthe\sother\spages
-D 2009-05-27T02:45:00
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Add\sthe\s--keep\soption\sto\sthe\s"open"\sand\s"checkout"\scommands.\s\sAdded\sthe\n--latest\soption\sto\s"checkout".\s\sThese\schanges\sallow\sone\sto\sshift\sthe\nbaseline\sversion\sand\srepository\sof\sa\scheckout\swithout\schanging\sany\sfiles\nin\sthe\scheckout.
+D 2009-05-28T02:44:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -45,7 +48,7 @@ F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c 8c16621a506b2c75fe4015474086a89292aa3641
 F src/checkin.c 54d694aac36e5974f51ff550184543e8ce01cd70
-F src/checkout.c 24593c59e38fce4d7b62e05794152bc638603cb4
+F src/checkout.c 31cde9d18f62388cd9960b012aaadcc23d6a1805
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c f5925839e55d76f78b6b6a2cf2dc66023cf574e6
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -53,7 +56,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 6f78bab6b57abf49517717f651033256ee849d37
+F src/db.c a1f15c6b0bfedb4d4f379b3e9268dbe8abc31ffa
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
@@ -244,7 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 92e85dc68e519db94683f8868f3f17d774a92fd0
-R fbd4880ec058e182e9cda9a52b11156f
-U erik
-Z 1b07e8c6a6ad9eb5f98f08564501d9de
+P 7b32e45bd76555172d8813821c423297d22698d8
+R 698dc080393097fa231dd23dbfd5539e
+U drh
+Z 05b7cd6cd73830e0ce549e841d235e91
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFKHfqaoxKgR168RlERAvbWAJ0d1g3W0kUjLzHOSf4umI4ii0FlmgCcDCMh
+9LycMzw8MFpgZjRuQLie/So=
+=VU1J
+-----END PGP SIGNATURE-----
