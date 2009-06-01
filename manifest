@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Add\sthe\s--keep\soption\sto\sthe\s"open"\sand\s"checkout"\scommands.\s\sAdded\sthe\n--latest\soption\sto\s"checkout".\s\sThese\schanges\sallow\sone\sto\sshift\sthe\nbaseline\sversion\sand\srepository\sof\sa\scheckout\swithout\schanging\sany\sfiles\nin\sthe\scheckout.
-D 2009-05-28T02:44:39
+C minor\shelp\stext\scorrection\sfor\s'wiki'\scommand
+D 2009-06-01T16:13:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -114,7 +111,7 @@ F src/url.c 6c8a641bd107efbf902e96132a1c5e6521f1b482
 F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
-F src/wiki.c ad80e6740561fa2741aae6f7a101a0438ed4ad1e
+F src/wiki.c c1cfc24309b618d0ba8ad27739fc552b1e3aed41
 F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
 F src/xfer.c 0df98a4b538d48d23427505280c0be11bbd9a032
@@ -247,14 +244,7 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7b32e45bd76555172d8813821c423297d22698d8
-R 698dc080393097fa231dd23dbfd5539e
-U drh
-Z 05b7cd6cd73830e0ce549e841d235e91
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFKHfqaoxKgR168RlERAvbWAJ0d1g3W0kUjLzHOSf4umI4ii0FlmgCcDCMh
-9LycMzw8MFpgZjRuQLie/So=
-=VU1J
------END PGP SIGNATURE-----
+P 915bfd99fec69f978f199412bdb2c3da54a24156
+R 67852aa78445cd8d13879bd586fd28e9
+U stephan
+Z 6399419bacd0be8bcd995130d455097c

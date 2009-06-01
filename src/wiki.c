@@ -692,7 +692,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 ** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
-** Run various subcommands to fetch wiki entries.
+** Run various subcommands to work with wiki entries.
 **
 **     %fossil wiki export PAGENAME ?FILE?
 **
@@ -701,7 +701,8 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 **     %fossil wiki commit PAGENAME ?FILE?
 **
-**        Commit changes to a wiki page from FILE or from standard.
+**        Commit changes to a wiki page from FILE or from standard
+**        input.
 **
 **     %fossil wiki create PAGENAME ?FILE?
 **
