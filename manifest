@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sSQLite\simplementation\sto\sthe\slatest\sas\sof\sthe\stime\sof\sthis\ncomment\s(SQLite\sCVS\sversion\s6726).\s\sThis\sfixes\san\salignment\sproblem.\nTicket\s[95ab8f02c3].
-D 2009-06-07T17:05:14
+C If\sembedded\swiki\sdocumentation\sbegins\swith\s&lt;title&gt;...&lt;/title&gt;\sthen\nuse\sthe\stext\swithin\sthe\smarkup\sas\sthe\stitle\sof\sthe\sdocument.
+D 2009-06-07T17:27:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -62,7 +62,7 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
-F src/doc.c b634a7084a8fec255106a0f88612c71f5dbc1596
+F src/doc.c 682899f6dc7d2b5c72bc1e11d20aed8823cf2970
 F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
@@ -115,7 +115,7 @@ F src/user.c d521e5caee99ddacff8cc215f0ab96019a03d37a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c c1cfc24309b618d0ba8ad27739fc552b1e3aed41
-F src/wikiformat.c 0350f3f94699d3a457402ce960c65d6428e78310
+F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
 F src/xfer.c 0df98a4b538d48d23427505280c0be11bbd9a032
 F src/zip.c f641ace2a3550df20ed48108d287cabbf2051d44
@@ -235,7 +235,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
 F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
 F www/fileformat.wiki 9924363ba6277701b9665475b2bfeb8ae1d90d24
-F www/index.wiki 7ee83e7ec9d521c13ac4a5e94c6e983ce12ca575
+F www/index.wiki b8d2de2cae95e699811b5cb5523dbd28a2d67dc6
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -247,14 +247,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5e8fb35db198b36ca7161c29786eff168d5b0aef
-R 6684f9a4d503cf286643af62979bde80
+P e1917f2ceefbc3219094d65183155ee2c02fd001
+R 17fb56980d35b9e567b4f66e71e590a4
 U drh
-Z 3957841e28cb2d106ea3e54f6e49c286
+Z 7b7ca135704e222bbd666cb778bcfdac
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKK/NOoxKgR168RlERAmPCAJ9g2lGEDOOZ5JrpPNtJX0ww1we+/gCfdsb0
-wObr/qCYe9F5Jfc+xuw8tr0=
-=1qqL
+iD8DBQFKK/iVoxKgR168RlERAv7zAJ4mDBkwrJUQlz+a/bAKK2wqTHvlcQCfToEO
++eVLRSzCEPFEjPkRPMiLjrY=
+=xcQn
 -----END PGP SIGNATURE-----

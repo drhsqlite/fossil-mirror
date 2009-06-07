@@ -439,8 +439,14 @@ void doc_page(void){
   */
   zMime = mimetype_from_name(zName);
   if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
-    style_header("Documentation");
-    wiki_convert(&filebody, 0, 0);
+    Blob title, tail;
+    if( wiki_find_title(&filebody, &title, &tail) ){
+      style_header(blob_str(&title));
+      wiki_convert(&tail, 0, 0);
+    }else{
+      style_header("Documentation");
+      wiki_convert(&filebody, 0, 0);
+    }
     style_footer();
   }else if( strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");

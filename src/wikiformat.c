@@ -1338,3 +1338,29 @@ void test_wiki_render(void){
   wiki_convert(&in, &out, 0);
   blob_write_to_file(&out, "-");
 }
+
+/*
+** Search for a <title>...</title> at the beginning of a wiki page.
+** Return true (nonzero) if a title is found.  Return zero if there is
+** not title.
+** 
+** If a title is found, initialize the pTitle blob to be the content
+** of the title and initialize pTail to be the text that follows the
+** title.
+*/
+int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
+  char *z;
+  int i;
+  int iStart;
+  z = blob_str(pIn);
+  for(i=0; isspace(z[i]); i++){}
+  if( z[i]!='<' ) return 0;
+  i++;
+  if( strncmp(&z[i],"title>", 6)!=0 ) return 0;
+  iStart = i+6;
+  for(i=iStart; z[i] && (z[i]!='<' || strncmp(&z[i],"</title>",8)!=0); i++){}
+  if( z[i]!='<' ) return 0;
+  blob_init(pTitle, &z[iStart], i-iStart);
+  blob_init(pTail, &z[i+8], -1);
+  return 1;
+}

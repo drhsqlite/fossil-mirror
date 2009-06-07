@@ -1,3 +1,4 @@
+<title>Fossil Home Page</title>
 <h1>Fossil: Distributed Revision Control, Wiki, and Bug-Tracking</h1>
 
 Fossil is a
