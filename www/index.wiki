@@ -17,6 +17,7 @@ Or you can grab
 
 
 <b>Feature Summary:</b>
+<img src="fossil.gif" align="right">
 
   *  Flexible workflow:<ul>
     <li>Disconnected, distributed development like
