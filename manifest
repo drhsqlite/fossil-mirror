@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\slogo\sto\sthe\srepository.\s\sMake\sthe\slogo\sappear\son\sthe\shomepage.
-D 2009-06-07T17:45:43
+C Fix\stypo\sin\s"finding\shome\sdir"\serror\serror\smessage.
+D 2009-06-14T15:09:13
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -56,7 +56,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c a1f15c6b0bfedb4d4f379b3e9268dbe8abc31ffa
+F src/db.c 974757dd25d97464f3c26c6317eada6b77c21d8b
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
@@ -249,14 +249,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P f88e2e7a131d4aa0bf20ced6597b326f08000b7f
-R fd1ebe623820c0078600bbccf2cb2868
-U drh
-Z b928b13ef1ae3ed34df94b7077e94283
+P 5882d9749508f5035e67e5cbabe73f57e972f679
+R 6c1c16da99a4a42b9d05a5fb83b01c85
+U bch
+Z 5557c09c41e36c018eb19bd2744e8261
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFKK/zLoxKgR168RlERAifBAJ47yLzKeEE7ViVk/7MeujNrLsVOBQCdHjgS
-Nq5oOqQHsND5lFLmflqMGe0=
-=uWBR
+iEYEARECAAYFAko1EpkACgkQad0Kwpwugm/ZPQCgv7t5DMOaSnmuHAdTgp4GyHGY
+enkAn27ihiaZK/D4B/oKqfjOpwAZyIjM
+=y7+a
 -----END PGP SIGNATURE-----

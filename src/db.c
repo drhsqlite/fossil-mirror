@@ -662,7 +662,7 @@ void db_open_config(void){
   zHome = getenv("HOME");
 #endif
   if( zHome==0 ){
-    db_err("cannot local home directory");
+    db_err("cannot locate home directory");
   }
 #ifdef __MINGW32__
   /* . filenames give some window systems problems and many apps problems */
