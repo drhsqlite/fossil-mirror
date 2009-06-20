@@ -194,7 +194,7 @@ void zip_add_file(const char *zName, const Blob *pFile){
   put16(&zBuf[28], nameLen);
   put16(&zBuf[30], 0);
   put16(&zBuf[32], 0);
-  put16(&zBuf[34], 1);
+  put16(&zBuf[34], 0);
   put16(&zBuf[36], 0);
   put32(&zBuf[38], ((unsigned)(0100000 | 0644))<<16);
   put32(&zBuf[42], iStart);
