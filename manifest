@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\stypo\sin\s"finding\shome\sdir"\serror\serror\smessage.
-D 2009-06-14T15:09:13
+C Fix\sa\sbug\sthat\sprevented\sthe\sIP\saddress\sof\swebsite\susers\sfrom\sbeing\nrecorded\sin\sthe\sadministator\slogs.
+D 2009-06-20T13:06:47
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -46,7 +46,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
-F src/cgi.c 8c16621a506b2c75fe4015474086a89292aa3641
+F src/cgi.c 1b01c427a457522f71c0e4294cff34bb9a33fc37
 F src/checkin.c 54d694aac36e5974f51ff550184543e8ce01cd70
 F src/checkout.c 31cde9d18f62388cd9960b012aaadcc23d6a1805
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
@@ -249,14 +249,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5882d9749508f5035e67e5cbabe73f57e972f679
-R 6c1c16da99a4a42b9d05a5fb83b01c85
-U bch
-Z 5557c09c41e36c018eb19bd2744e8261
+P 16eae22891ad25fc768ad6c4b13ebba1dc2b54b6
+R 8d972164fc06a5e0db617b98c4ca2a04
+U drh
+Z b7ad42124bd0cba35e0a1b15ac66b206
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (NetBSD)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAko1EpkACgkQad0Kwpwugm/ZPQCgv7t5DMOaSnmuHAdTgp4GyHGY
-enkAn27ihiaZK/D4B/oKqfjOpwAZyIjM
-=y7+a
+iD8DBQFKPN7qoxKgR168RlERAl27AJ9ze4PIX0dIPIkvg3KrCIJkMaOfQACeKfUk
+eqUhbrV+BurgSOd5dq+8f9s=
+=uD5j
 -----END PGP SIGNATURE-----

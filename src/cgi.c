@@ -680,6 +680,9 @@ void cgi_init(void){
     add_param_list(z, '&');
   }
 
+  z = P("REMOTE_ADDR");
+  if( z ) g.zIpAddr = mprintf("%s", z);
+
   len = atoi(PD("CONTENT_LENGTH", "0"));
   g.zContentType = zType = P("CONTENT_TYPE");
   if( len>0 && zType ){
