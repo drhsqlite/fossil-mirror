@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sthe\sdisk\snumber\sstart\sfrom\s1\sto\s0\sin\sgenerated\sZIP\sarchives.\nTicket\s[04cba6a00145ab597dabc48ad5ee688496a57650]
-D 2009-06-20T23:05:55
+C Potential\sfix\sfor\s[40df1ced7e].
+D 2009-06-25T12:26:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -67,7 +67,7 @@ F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_transport.c cbbda92e40b1be4218a7b71d11484c3dd9575e9c
+F src/http_transport.c 4a0b5a79aa7ca48a2968d5d81fe23b8f4cdaf629
 F src/info.c 012036faaa13fe32c96e741261f6ae4ad689500e
 F src/login.c f3badebb6bd43138c8ee5543321413596daaa581
 F src/main.c 828c799fea95c33fd4da1a68e38c669bbcea8ca6
@@ -249,14 +249,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 266b6127f64cedd005a12116ed61645c1e519afd
-R 9c9e765be61d4121565c455a3a7ab104
+P deb6f2af4fa9302f2ace7db76be68446eafdf571
+R ea0065cdb4e50b104d5a2e41f3314b3c
 U drh
-Z bff777fc17a07962654e0adb9842cac9
+Z b00b0b136a5aa202f73dac0f705f3d2d
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKPWtXoxKgR168RlERAvhZAJ9Na6RNfaeo5b1k7a26MLK+la/BXgCgjh7O
-htit5ziu5RsGXoy9rV10AnQ=
-=gl9T
+iD8DBQFKQ2z6oxKgR168RlERAgTCAJ9NQ+bwCCoD/77+XmaQ3WMAEWlTvwCeJxLF
+6+zWDgj7PQSnwBP0F6B/7TY=
+=8wkp
 -----END PGP SIGNATURE-----
