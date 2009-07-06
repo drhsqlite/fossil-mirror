@@ -99,8 +99,8 @@ extern "C" {
 **
 ** Requirements: [H10011] [H10014]
 */
-#define SQLITE_VERSION         "3.6.15"
-#define SQLITE_VERSION_NUMBER  3006015
+#define SQLITE_VERSION         "3.6.16"
+#define SQLITE_VERSION_NUMBER  3006016
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>

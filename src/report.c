@@ -47,6 +47,12 @@ void view_list(void){
     @ <ol><li value="1"><a href="tktnew">New ticket</a></li></ol>
     @
     cnt++;
+  }else if( db_exists(
+      "SELECT 1 FROM user"
+      " WHERE login='anonymous' AND cap GLOB '*n*'")
+  ){
+    @ <p><a href="login?anon=1&g=tktnew">Login as "anonymous"</a>
+    @ to enter a new ticket.</p>
   }
   if( !g.okRdTkt ){
     @ <p>You are not authorized to view existing tickets.</p>

@@ -177,7 +177,7 @@ void setup_ulist(void){
      @ <tr><td valign="top"><b>t</b></td>
      @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
      @ <tr><td valign="top"><b>u</b></td>
-     @   <td><i>Developer:</i> Inherit privileges of 
+     @   <td><i>Reader:</i> Inherit privileges of 
      @   user <tt>reader</tt></td></tr>
      @ <tr><td valign="top"><b>v</b></td>
      @   <td><i>Developer:</i> Inherit privileges of 
