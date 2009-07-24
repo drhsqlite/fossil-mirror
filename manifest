@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"update"\scommand\sso\sthat\sis\sdoes\snot\sreport\sconflicts\son\sfiles\sthat\nhave\sbeen\sadded\sto\sthe\scurrent\scheck-out\sbut\snot\syet\scommitted.\s\sThe\sadded\nfiles\sare\ssimply\scarried\sforward\sinto\sthe\supdated\sversion.
-D 2009-07-07T14:53:58
+C correct\stypo\sin\serror\smsg
+D 2009-07-24T03:57:40
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -56,7 +56,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c f365dd4ce99006281aa6c1fb2c85db021f12ed55
+F src/db.c def90d2d54c4283fe0b30ee58edfc16144a91bae
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
@@ -251,14 +251,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 623a9129c8fdaa6820a51cc4e16a93ea358c4456
-R 8dc9ba82eb5a2cf18b658eab463b9fc8
-U drh
-Z 4801514c87b9a491bfc1ee3c6964c248
+P e124881a7080b648e943a01991569325e137c2da
+R b9ee0d9c03ec77dbe7b92e266bcbe0a3
+U bch
+Z f26884a76b9478b210e717b9963db2e8
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFKU2GJoxKgR168RlERAgaPAJ4uANVkD2FqtjP8SEhXLlIxoerKAACfb4Kg
-GXpR4JC0o17B3PC6tE73AAI=
-=4+e2
+iEYEARECAAYFAkppMTQACgkQad0Kwpwugm8nhACcCXtC6FcoJbeDTSazRxFtevzp
+iH0AoKIGV1tbL+RlD9nshqr8YfFYcuc7
+=l5Da
 -----END PGP SIGNATURE-----

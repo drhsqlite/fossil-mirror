@@ -786,7 +786,7 @@ void db_open_repository(const char *zDbName){
   }
   if( access(zDbName, R_OK) || file_size(zDbName)<1024 ){
     if( access(zDbName, 0) ){
-      fossil_panic("repository does not exists or"
+      fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( access(zDbName, R_OK) ){
       fossil_panic("read permission denied for repository %s", zDbName);
