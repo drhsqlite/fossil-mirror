@@ -704,6 +704,30 @@ void cmd_test_http(void){
   cmd_http();
 }
 
+
+#if !defined(__DARWIN__) && !defined(__APPLE__)
+/*
+** Search for an executable on the PATH environment variable.
+** Return true (1) if found and false (0) if not found.
+*/
+static int binaryOnPath(const char *zBinary){
+  const char *zPath = getenv("PATH");
+  char *zFull;
+  int i;
+  int bExists;
+  while( zPath && zPath[0] ){
+    while( zPath[0]==':' ) zPath++;
+    for(i=0; zPath[i] && zPath[i]!=':'; i++){}
+    zFull = mprintf("%.*s/%s", i, zPath, zBinary);
+    bExists = access(zFull, X_OK);
+    free(zFull);
+    if( bExists==0 ) return 1;
+    zPath += i;
+  }
+  return 0;
+}
+#endif
+
 /*
 ** COMMAND: server
 ** COMMAND: ui
@@ -747,7 +771,18 @@ void cmd_webserver(void){
   /* Unix implementation */
   if( g.argv[1][0]=='u' ){
 #if !defined(__DARWIN__) && !defined(__APPLE__)
-    zBrowser = db_get("web-browser", "firefox");
+    zBrowser = db_get("web-browser", 0);
+    if( zBrowser==0 ){
+      static char *azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
+      int i;
+      zBrowser = "echo";
+      for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){
+        if( binaryOnPath(azBrowserProg[i]) ){
+          zBrowser = azBrowserProg[i];
+          break;
+        }
+      }
+    }
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
