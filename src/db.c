@@ -658,12 +658,17 @@ void db_open_config(void){
       zHome = getenv("HOMEPATH");
     }
   }
+  if( zHome==0 ){
+    db_err("cannot locate home directory - "
+           "please set the HOMEPATH environment variable");
+  }
 #else
   zHome = getenv("HOME");
-#endif
   if( zHome==0 ){
-    db_err("cannot locate home directory");
+    db_err("cannot locate home directory - "
+           "please set the HOME environment variable");
   }
+#endif
 #ifdef __MINGW32__
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);

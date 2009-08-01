@@ -181,7 +181,7 @@ void checkout_cmd(void){
                        " WHERE event.objid=leaves.rid AND blob.rid=leaves.rid"
                        " ORDER BY event.mtime DESC");
     if( zVers==0 ){
-      fossil_fatal("cannot local \"latest\" checkout");
+      fossil_fatal("cannot locate \"latest\" checkout");
     }
   }else{
     zVers = g.argv[2];
