@@ -152,3 +152,37 @@ void sync_cmd(void){
   process_sync_args();
   client_sync(1,1,0,0,0);
 }
+
+/*
+** COMMAND: remote-url
+**
+** Usage: %fossil remote-url ?URL|off?
+**
+** Query and optional change the default server named used for syncing
+** the current check-out.
+**
+** WARNING: If the username and password are part of the URL then the 
+** username and password will be displayed by this command.  The user
+** name and password are normally suppressed when echoing the remote-url
+** during an auto-sync.  
+**
+** The remote-url is set automatically by a "clone" command or by any
+** "sync", "push", or "pull" command that specifies an explicit URL.
+** The default remote-url is used by auto-syncing and by "sync", "push",
+** "pull" that omit the server URL.
+*/
+void remote_url_cmd(void){
+  db_must_be_within_tree();
+  if( g.argc!=2 && g.argc!=3 ){
+    usage("remote-url ?URL|off?");
+  }
+  if( g.argc==3 ){
+    if( strcmp(g.argv[2],"off")==0 ){
+      db_unset("last-sync-url", 0);
+    }else{
+      url_parse(g.argv[2]);
+      db_set("last-sync-url", g.urlCanonical, 0);
+    }
+  }
+  printf("%s\n", db_get("last-sync-url", "off"));
+}

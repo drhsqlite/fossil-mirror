@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C When\sthe\ssync\sprotocol\sreceives\san\sHTML\serror\smessage,\sprint\sthe\sentire\ntext\sof\sthe\smessage\sverbatim.\nFix\sfor\sticket\s[8a7a49c47d7f200126402c10803e40dbad595c52].
-D 2009-08-01T13:42:22
+C Add\sthe\snew\sremote-url\scommand\sfor\smanaging\sthe\sdefault\sserver\sURL.\nTicket\s[c24e486b05].
+D 2009-08-01T14:23:57
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -97,7 +97,7 @@ F src/sqlite3.c d64992e3f22f4a229f8ae0fe10d2c32ec7dab36a
 F src/sqlite3.h b23301f25a5e7192d27bc2afe469ed6d1cf70455
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c d90354f0ea442713fd41af02ff4be3ea04acf962
-F src/sync.c d4cc7e5a3d789baa28b573406ff81a4290a43ef8
+F src/sync.c 5c954ccd144e8691c55683fe53883c32b36d339c
 F src/tag.c 3c286a5a057d45eb14a9ec570a4906f46119d540
 F src/tagview.c c5f7f1444b05d43c49c583124304d4106f1bab7c
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
@@ -251,14 +251,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 47d8fc4944c2f2bf535a89f069d6f9ce0df5b257
-R 9ca899de2185b13eea7a0afd7be4b3ba
+P 80457ec79be10b32f372c69e0093c8fea7f0471b
+R 3895fd9dbc9a37021a28c9ecf40d809d
 U drh
-Z 55ffefae7e7e7d4b78c2678dcd2ec607
+Z 81f1422373029419ad3da9d17768ff1c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKdEZBoxKgR168RlERAo67AJ0SkPR7agnouCDJmYq0flvoitxBVwCePC3I
-g2Sz8bBYUDhvkOrZVnKKNHI=
-=H2j7
+iD8DBQFKdFABoxKgR168RlERAlfIAJ9CxbNc+cXeBMKymBY/yrxbVEKPowCghe3g
+aeg4vDsaP2DZ5pruOn3PqY0=
+=DhvG
 -----END PGP SIGNATURE-----
