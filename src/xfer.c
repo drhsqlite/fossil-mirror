@@ -1136,6 +1136,12 @@ void client_sync(
 
       /* Unknown message */
       {
+        if( blob_str(&xfer.aToken[0])[0]=='<' ){
+          fossil_fatal(
+            "server replies with HTML instead of fossil sync protocol:\n%b",
+            &recv
+          );
+        }
         blob_appendf(&xfer.err, "unknown command: %b", &xfer.aToken[0]);
       }
 

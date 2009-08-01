@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Always\sstore\sg.urlCanonical\sas\sthe\slast-sync-url\svalue.\nFix\sfor\sticket\s[045f23be750d93c0bd91f179f39c5c829ed01bc6].
-D 2009-08-01T12:59:38
+C When\sthe\ssync\sprotocol\sreceives\san\sHTML\serror\smessage,\sprint\sthe\sentire\ntext\sof\sthe\smessage\sverbatim.\nFix\sfor\sticket\s[8a7a49c47d7f200126402c10803e40dbad595c52].
+D 2009-08-01T13:42:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -117,7 +117,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c c1cfc24309b618d0ba8ad27739fc552b1e3aed41
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
-F src/xfer.c 0df98a4b538d48d23427505280c0be11bbd9a032
+F src/xfer.c 9688d1b60b660669a986ad9240c849c0a9055283
 F src/zip.c 2b9f0b11bf6d604134e711be27330f404b38b4c4
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -251,14 +251,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 3a7e3e427d19e9b1ab1c4d8017d53c5a58122091
-R 076d24a1c2f7fbb3e53e59a6ec31193a
+P 47d8fc4944c2f2bf535a89f069d6f9ce0df5b257
+R 9ca899de2185b13eea7a0afd7be4b3ba
 U drh
-Z c304dcd34fb239a2c9b9a9bfc86da908
+Z 55ffefae7e7e7d4b78c2678dcd2ec607
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKdDw+oxKgR168RlERAuZ7AJ4yCw3fQqwrd2PGLwfcQwdLa4A6LACfYfww
-2GARlfvCXKAxe9HOL3iM6L4=
-=wW1K
+iD8DBQFKdEZBoxKgR168RlERAo67AJ0SkPR7agnouCDJmYq0flvoitxBVwCePC3I
+g2Sz8bBYUDhvkOrZVnKKNHI=
+=H2j7
 -----END PGP SIGNATURE-----
