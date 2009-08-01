@@ -85,7 +85,7 @@ void process_sync_args(void){
     usage("URL");
   }
   url_parse(zUrl);
-  db_set("last-sync-url", zUrl, 0);
+  db_set("last-sync-url", g.urlIsFile ? g.urlCanonical : zUrl, 0);
   user_select();
   if( g.argc==2 ){
     if( g.urlPort!=g.urlDfltPort ){

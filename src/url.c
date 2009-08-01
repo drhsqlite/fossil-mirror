@@ -89,8 +89,13 @@ void url_parse(const char *zUrl){
     g.urlPath = mprintf(&zUrl[i]);
     dehttpize(g.urlName);
     dehttpize(g.urlPath);
-    g.urlCanonical = mprintf("%s://%T:%d%T",
-         g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
+    if( g.urlDfltPort==g.urlPort ){
+      g.urlCanonical = mprintf("%s://%T%T",
+                               g.urlProtocol, g.urlName, g.urlPath);
+    }else{
+      g.urlCanonical = mprintf("%s://%T:%d%T",
+                               g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
+    }
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
     if( zUrl[5]=='/' && zUrl[6]=='/' ){
