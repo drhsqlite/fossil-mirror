@@ -915,11 +915,12 @@ void db_create_default_users(int setupUserOnly){
 ** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
 ** new repositories.
 **
-** The makeInitialVersion flag determines whether or not an initial
-** manifest is created.  The makeServerCodes flag determines whether or
+** The zInitialDate parameter determines the date of the initial check-in
+** that is automatically created.  If zInitialDate is 0 then no initial
+** check-in is created. The makeServerCodes flag determines whether or
 ** not server and project codes are invented for this repository.
 */
-void db_initial_setup (int makeInitialVersion, int makeServerCodes){
+void db_initial_setup (const char *zInitialDate, int makeServerCodes){
   char *zDate;
   Blob hash;
   Blob manifest;
@@ -939,11 +940,11 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   db_create_default_users(0);
   user_select();
 
-  if (makeInitialVersion){
+  if( zInitialDate ){
     int rid;
     blob_zero(&manifest);
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
-    zDate = db_text(0, "SELECT datetime('now')");
+    zDate = db_text(0, "SELECT datetime(%Q)", zInitialDate);
     zDate[10]='T';
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "P\n");
@@ -971,6 +972,10 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
 */
 void create_repository_cmd(void){
   char *zPassword;
+  const char *zDate;          /* Date of the initial check-in */
+
+  zDate = find_option("date-override",0,1);
+  if( zDate==0 ) zDate = "now";
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
@@ -978,7 +983,7 @@ void create_repository_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config();
   db_begin_transaction();
-  db_initial_setup(1, 1);
+  db_initial_setup(zDate, 1);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));

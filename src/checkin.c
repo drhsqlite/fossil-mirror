@@ -412,6 +412,7 @@ void commit_cmd(void){
   const char *zBranch;   /* Create a new branch with this name */
   const char *zBgColor;  /* Set background color when branching */
   const char *zDateOvrd; /* Override date string */
+  const char *zUserOvrd; /* Override user name */
   Blob filename;         /* complete filename */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -426,6 +427,7 @@ void commit_cmd(void){
   zBranch = find_option("branch","b",1);
   zBgColor = find_option("bgcolor",0,1);
   zDateOvrd = find_option("date-override",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 1)==0 ){ noSign = 1; }
@@ -625,7 +627,7 @@ void commit_cmd(void){
     }
     db_finalize(&q);
   }  
-  blob_appendf(&manifest, "U %F\n", g.zLogin);
+  blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&manifest, &mcksum);
   blob_appendf(&manifest, "Z %b\n", &mcksum);
   zManifestFile = mprintf("%smanifest", g.zLocalRoot);

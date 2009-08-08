@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvement\sto\sthe\serror\smessage\sissued\swhen\sthe\sHOME\senvironment\nvariable\sis\smissing.\s\sTicket\s[e3c34af10dd28]
-D 2009-08-01T14:34:24
+C Provide\s--user-override\soption\son\sthe\sci\scommand\sand\sthe\s--date-override\noption\son\sthe\snew\scommand.\s\sMake\sa\scorrection\sto\sthe\sfile\sformat\sdocument.
+D 2009-08-08T22:40:28
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -47,7 +47,7 @@ F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c 1b01c427a457522f71c0e4294cff34bb9a33fc37
-F src/checkin.c 54d694aac36e5974f51ff550184543e8ce01cd70
+F src/checkin.c d9477045cd4f8cb76d040c47cc19c8263ca3068c
 F src/checkout.c 9058612e329c957ba94ff93ccbae31acf6008597
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c 89ab820dce5388478f622d6cab555e62c5b3ef38
@@ -56,7 +56,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
 F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c cef5f878646fa8139b4acd5c9de636ed43f98de9
+F src/db.c fa4171154997820226192cb05e166b6727ed0385
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
@@ -234,7 +234,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
 F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
-F www/fileformat.wiki 9924363ba6277701b9665475b2bfeb8ae1d90d24
+F www/fileformat.wiki ab44da6d91082d27a614084f869728cae322abbf
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -251,14 +251,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a2cbedcb1fee87decc21be2f74e65fa887a66e87
-R 2c3b8de960cc975c0c84745fdb123249
+P e00a5de0f143bb7dad565e11f646f87bb1ae66b9
+R 8b5c51f86b30aeca8b6f12b089d89f42
 U drh
-Z 1abc2d6d536ac0562ddbff7ce70ea62a
+Z 250b87f6dfba10dd5d952e4976024392
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKdFJzoxKgR168RlERAhrtAJ4kI1r7nsB/6+sk8N90A29MT8QNRwCeKjoF
-XjONJttkal2EKypGEK7OUCM=
-=wgAa
+iD8DBQFKff7foxKgR168RlERAjrUAJ0aGkXzA85HPPsgQcVpHZPwh6RoAgCcCbNc
+fdDYjPrwSHcu3U94PXnfuvo=
+=INzj
 -----END PGP SIGNATURE-----

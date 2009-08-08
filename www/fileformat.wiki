@@ -161,13 +161,6 @@ parent, then the 4th argument is omitted.
 </p>
 
 <p>
-A manifest has zero or more N-cards.  Each N card records a name changes
-to one of the files in the manifest.  The first argument to the N code is
-the name of the file in the parent check-in.  The second argument is the
-name of the file in the check-in defined by the manifest.
-</p>
-
-<p>
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
 defines other manifests from which the current manifest
