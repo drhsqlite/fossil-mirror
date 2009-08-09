@@ -631,7 +631,15 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
   zDbName = mbcsToUtf8(zDbName);
 #endif
   if( !g.db ){
-    int rc = sqlite3_open(zDbName, &g.db);
+    int rc;
+    const char *zVfs;
+
+    zVfs = getenv("FOSSIL_VFS");
+    rc = sqlite3_open_v2(
+         zDbName, &g.db,
+         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+         zVfs
+    );
     if( rc!=SQLITE_OK ){
       db_err(sqlite3_errmsg(g.db));
     }
