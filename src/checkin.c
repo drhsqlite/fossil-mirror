@@ -165,8 +165,8 @@ void ls_cmd(void){
 }
 
 /*
-** COMMAND: extra
-** Usage: %fossil extra
+** COMMAND: extras
+** Usage: %fossil extras
 **
 ** Print a list of all files in the source tree that are not part of
 ** the current checkout.  See also the "clean" command.

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sFOSSIL_VFS\senvironment\svariable,\sif\sit\sexists,\sdetermines\swhich\sSQLite\sVFS\nis\sused.\s\sUse\s"export\sFOSSIL_VFS=unix-none"\sor\s"export\sFOSSIL_VFS=unix-dotfile"\nto\swork-around\snon-posix\sfilesystems\ssuch\sas\sAFS\son\sunix\ssystems.
-D 2009-08-09T17:29:25
+C adjust\s"extra"\scommand\sto\s"extras"\s(i.e.\s"Show\sme\sthe\sextras")
+D 2009-08-09T21:32:46
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -47,7 +47,7 @@ F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/cgi.c 1b01c427a457522f71c0e4294cff34bb9a33fc37
-F src/checkin.c d9477045cd4f8cb76d040c47cc19c8263ca3068c
+F src/checkin.c e04164b91d4ed7a05f599feb6be872426509c00e
 F src/checkout.c 9058612e329c957ba94ff93ccbae31acf6008597
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
 F src/clone.c 89ab820dce5388478f622d6cab555e62c5b3ef38
@@ -251,14 +251,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 8b630bb57a21912ca2b925fb8cabaa0d66d0654c
-R 6db433770d6df9458bb11d197e717e92
-U drh
-Z 9af8da0d9a953b85a402181c76d2fd7b
+P 6b0196aeb874fe5f5d2f0dd5dcbb24e82b1f0cc7
+R bdb1be9e4d4b8d1a940ac0a74161ee57
+U bch
+Z 1cae53d50c2e335afce7a29c5c56bbd7
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFKfwd5oxKgR168RlERAik4AJ90UnqhdhVELcfmMr9ET6Q193NiFACfRb75
-pS4TGNzNk1kSKFxtO3hHJcM=
-=lTcn
+iEYEARECAAYFAkp/QH4ACgkQad0Kwpwugm+2ewCgjtNp/EKGgAY3eloxKOWY1jy9
+Ky4AoOnDOJ4v5SgDk782Mc2HnhkO9iRJ
+=QFwf
 -----END PGP SIGNATURE-----
