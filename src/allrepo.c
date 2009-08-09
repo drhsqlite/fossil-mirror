@@ -57,14 +57,14 @@ static char *quoteFilename(const char *zFilename){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (list|pull|push|rebuild|sync)
+** Usage: %fossil all (list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
 ** that can be useful before or after a period of disconnection operation.
 ** Available operations are:
 **
-**    list       Display the location of all repositories
+**    list|ls       Display the location of all repositories
 **
 **    pull       Run a "pull" operation on all repositories
 **
@@ -88,12 +88,14 @@ void all_cmd(void){
   int nMissing;
   
   if( g.argc<3 ){
-    usage("list|pull|push|rebuild|sync");
+    usage("list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
   db_open_config();
   zCmd = g.argv[2];
   if( strncmp(zCmd, "list", n)==0 ){
+    zCmd = "list";
+  }else if( strncmp(zCmd, "ls", n)==0 ){ /* alias for "list" above */
     zCmd = "list";
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";

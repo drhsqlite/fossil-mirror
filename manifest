@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C adjust\s"extra"\scommand\sto\s"extras"\s(i.e.\s"Show\sme\sthe\sextras")
-D 2009-08-09T21:32:46
+C make\s"ls"\san\salias\sfor\s"list"\sin\s"fossil\sall\s[x]"\scommand.\si.e.:\sfossil\sall\sls\s==\sfossil\sall\slist.
+D 2009-08-09T21:39:42
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -41,7 +41,7 @@ F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c c6fe5d6e2032da8df5c6974a4868a6dd986eca11
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
-F src/allrepo.c cc52a38ad8e2d4d07bff56c5c3530004216c7b5f
+F src/allrepo.c c9f89e211d7a4a8fdd9d8d24b7e55d1efb40bd40
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
@@ -251,14 +251,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6b0196aeb874fe5f5d2f0dd5dcbb24e82b1f0cc7
-R bdb1be9e4d4b8d1a940ac0a74161ee57
+P 554d896209e5be88bfeee34a85c523c8307596e1
+R 169d91de56ce77694b308a1bb8472223
 U bch
-Z 1cae53d50c2e335afce7a29c5c56bbd7
+Z b4b7f0e896d31a2bca6bca57a05b65f8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (NetBSD)
 
-iEYEARECAAYFAkp/QH4ACgkQad0Kwpwugm+2ewCgjtNp/EKGgAY3eloxKOWY1jy9
-Ky4AoOnDOJ4v5SgDk782Mc2HnhkO9iRJ
-=QFwf
+iEYEARECAAYFAkp/Qh4ACgkQad0Kwpwugm/iPgCg4y5JdJAw2vzAOD2WxY2wTa3d
+yqUAnRcNfxihOJ+op2wrw+L52kOUqUxr
+=NMtJ
 -----END PGP SIGNATURE-----
