@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\san\sascii-art\scaptcha\sfor\sanonymous\slogin.
-D 2009-08-10T02:29:14
+C Add\sa\snew\smore\slegible\sascii-art\sfont\sto\sthe\sanonymous\slogin\scaptcha.
+D 2009-08-10T02:52:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -46,7 +46,7 @@ F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
-F src/captcha.c 0fc3d0dfef40f691cb4511a881c513b9a29a380c
+F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 1b01c427a457522f71c0e4294cff34bb9a33fc37
 F src/checkin.c e04164b91d4ed7a05f599feb6be872426509c00e
 F src/checkout.c 9058612e329c957ba94ff93ccbae31acf6008597
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P f438092f883512e35499d6767af9fbc028dd8ba4
-R 226ac1abe0f5d2fbe8c93171e73861cd
+P b4a29fac93a027384bf30d0a9acb851dae03a367
+R 53893af23cdb8571d738c5fa11639f30
 U drh
-Z a59c81ea6f5f79d2c9daa0d457f9a14a
+Z 052362d1a75a7757a938035c73a1e4ee
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKf4X9oxKgR168RlERAsVoAJ0SaZTLOg9ZjitYaNz+dAZTUqIqzwCfVljp
-6WMj21LNWEYu4beXw9gjm7Q=
-=YOXm
+iD8DBQFKf4tuoxKgR168RlERAqFrAJ9sWXErm3AlIKjW/NMV4wH3kUyjngCeI/0z
+LFhU56Xw4OufbXHLW1BljQs=
+=OgB7
 -----END PGP SIGNATURE-----

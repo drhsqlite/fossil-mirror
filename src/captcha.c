@@ -30,7 +30,7 @@
 #include "captcha.h"
 
 #if INTERFACE
-#define CAPTCHA 2  /* Which captcha rendering to use */
+#define CAPTCHA 3  /* Which captcha rendering to use */
 #endif
 
 /*
@@ -72,7 +72,7 @@ static const unsigned int aFont1[] = {
 };
 
 /*
-** Render a 32-bit unsigned integer as an 8-digit ascii-art hex number.
+** Render an 8-character hexadecimal string as ascii art.
 ** Space to hold the result is obtained from malloc() and should be freed
 ** by the caller.
 */
@@ -205,7 +205,7 @@ static const char *azFont2[] = {
 };
 
 /*
-** Render a 32-bit unsigned integer as an 8-digit ascii-art hex number.
+** Render an 8-digit hexadecimal string as ascii arg.
 ** Space to hold the result is obtained from malloc() and should be freed
 ** by the caller.
 */
@@ -229,6 +229,163 @@ char *captcha_render(const char *zPw){
   return z;     
 }
 #endif /* CAPTCHA==2 */
+
+#if CAPTCHA==3
+static const char *azFont3[] = {
+  /* 0 */
+  "  ___  ",
+  " / _ \\ ",
+  "| | | |",
+  "| | | |",
+  "| |_| |",
+  " \\___/ ",
+                                                                                                               
+  /* 1 */
+  " __ ",
+  "/_ |",
+  " | |",
+  " | |",
+  " | |",
+  " |_|",
+                                                                                                               
+  /* 2 */
+  " ___  ",
+  "|__ \\ ",
+  "   ) |",
+  "  / / ",
+  " / /_ ",
+  "|____|",
+                                                                                                               
+  /* 3 */
+  " ____  ",
+  "|___ \\ ",
+  "  __) |",
+  " |__ < ",
+  " ___) |",
+  "|____/ ",
+                                                                                                               
+  /* 4 */
+  " _  _   ",
+  "| || |  ",
+  "| || |_ ",
+  "|__   _|",
+  "   | |  ",
+  "   |_|  ",
+                                                                                                               
+  /* 5 */
+  " _____ ",
+  "| ____|",
+  "| |__  ",
+  "|___ \\ ",
+  " ___) |",
+  "|____/ ",
+                                                                                                               
+  /* 6 */
+  "   __  ",
+  "  / /  ",
+  " / /_  ",
+  "| '_ \\ ",
+  "| (_) |",
+  " \\___/ ",
+                                                                                                               
+  /* 7 */
+  " ______ ",
+  "|____  |",
+  "    / / ",
+  "   / /  ",
+  "  / /   ",
+  " /_/    ",
+                                                                                                               
+  /* 8 */
+  "  ___  ",
+  " / _ \\ ",
+  "| (_) |",
+  " > _ < ",
+  "| (_) |",
+  " \\___/ ",
+                                                                                                               
+  /* 9 */
+  "  ___  ",
+  " / _ \\ ",
+  "| (_) |",
+  " \\__, |",
+  "   / / ",
+  "  /_/  ",
+                                                                                                               
+  /* A */
+  "          ",
+  "    /\\    ",
+  "   /  \\   ",
+  "  / /\\ \\  ",
+  " / ____ \\ ",
+  "/_/    \\_\\",
+                                                                                                               
+  /* B */
+  " ____  ",
+  "|  _ \\ ",
+  "| |_) |",
+  "|  _ < ",
+  "| |_) |",
+  "|____/ ",
+                                                                                                               
+  /* C */
+  "  _____ ",
+  " / ____|",
+  "| |     ",
+  "| |     ",
+  "| |____ ",
+  " \\_____|",
+                                                                                                               
+  /* D */
+  " _____  ",
+  "|  __ \\ ",
+  "| |  | |",
+  "| |  | |",
+  "| |__| |",
+  "|_____/ ",
+                                                                                                               
+  /* E */
+  " ______ ",
+  "|  ____|",
+  "| |__   ",
+  "|  __|  ",
+  "| |____ ",
+  "|______|",
+                                                                                                               
+  /* F */
+  " ______ ",
+  "|  ____|",
+  "| |__   ",
+  "|  __|  ",
+  "| |     ",
+  "|_|     ",
+};
+
+/*
+** Render an 8-digit hexadecimal string as ascii arg.
+** Space to hold the result is obtained from malloc() and should be freed
+** by the caller.
+*/
+char *captcha_render(const char *zPw){
+  char *z = malloc( 600 );
+  int i, j, k, m;
+  const char *zChar;
+
+  k = 0;
+  for(i=0; i<6; i++){
+    for(j=0; j<8; j++){
+      unsigned char v = hexValue(zPw[j]);
+      zChar = azFont3[6*v + i];
+      for(m=0; zChar[m]; m++){
+        z[k++] = zChar[m];
+      }
+    }
+    z[k++] = '\n';
+  }
+  z[k] = 0;
+  return z;     
+}
+#endif /* CAPTCHA==3 */
 
 /*
 ** COMMAND: test-captcha
