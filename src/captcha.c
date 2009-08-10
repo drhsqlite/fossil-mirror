@@ -1,0 +1,289 @@
+/*
+** Copyright (c) 2009 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU General Public
+** License version 2 as published by the Free Software Foundation.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** General Public License for more details.
+** 
+** You should have received a copy of the GNU General Public
+** License along with this library; if not, write to the
+** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+** Boston, MA  02111-1307, USA.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file contains code to a simple text-based CAPTCHA.  Though eaily
+** defeated by a sophisticated attacker, this CAPTCHA does at least make
+** scripting attacks more difficult.
+*/
+#include <assert.h>
+#include "config.h"
+#include "captcha.h"
+
+#if INTERFACE
+#define CAPTCHA 2  /* Which captcha rendering to use */
+#endif
+
+/*
+** Convert a hex digit into a value between 0 and 15
+*/
+static int hexValue(char c){
+  if( c>='0' && c<='9' ){
+    return c - '0';
+  }else if( c>='a' && c<='f' ){
+    return c - 'a' + 10;
+  }else if( c>='A' && c<='F' ){
+    return c - 'A' + 10;
+  }else{
+    return 0;
+  }
+}
+
+#if CAPTCHA==1
+/*
+** A 4x6 pixel bitmap font for hexadecimal digits
+*/
+static const unsigned int aFont1[] = {
+  0x699996,
+  0x262227,
+  0x69124f,
+  0xf16196,
+  0x26af22,
+  0xf8e196,
+  0x68e996,
+  0xf12244,
+  0x696996,
+  0x699716,
+  0x699f99,
+  0xe9e99e,
+  0x698896,
+  0xe9999e,
+  0xf8e88f,
+  0xf8e888,
+};
+
+/*
+** Render a 32-bit unsigned integer as an 8-digit ascii-art hex number.
+** Space to hold the result is obtained from malloc() and should be freed
+** by the caller.
+*/
+char *captcha_render(const char *zPw){
+  char *z = malloc( 500 );
+  int i, j, k, m;
+
+  k = 0;
+  for(i=0; i<6; i++){
+    for(j=0; j<8; j++){
+      unsigned char v = hexValue(zPw[j]);
+      v = (aFont1[v] >> ((5-i)*4)) & 0xf;
+      for(m=8; m>=1; m = m>>1){
+        if( v & m ){
+          z[k++] = 'X';
+          z[k++] = 'X';
+        }else{
+          z[k++] = ' ';
+          z[k++] = ' ';
+        }
+      }
+      z[k++] = ' ';
+      z[k++] = ' ';
+    }
+    z[k++] = '\n';
+  }
+  z[k] = 0;
+  return z;     
+}
+#endif /* CAPTCHA==1 */
+
+
+#if CAPTCHA==2
+static const char *azFont2[] = {
+ /* 0 */
+ "  __  ",
+ " /  \\ ",
+ "| () |",
+ " \\__/ ",
+
+ /* 1 */
+ " _ ",
+ "/ |",
+ "| |",
+ "|_|",
+
+ /* 2 */
+ " ___ ",
+ "|_  )",
+ " / / ",
+ "/___|",
+
+ /* 3 */
+ " ____",
+ "|__ /",
+ " |_ \\",
+ "|___/",
+
+ /* 4 */
+ " _ _  ",
+ "| | | ",
+ "|_  _|",
+ "  |_| ",
+
+ /* 5 */
+ " ___ ",
+ "| __|",
+ "|__ \\",
+ "|___/",
+
+ /* 6 */
+ "  __ ",
+ " / / ",
+ "/ _ \\",
+ "\\___/",
+
+ /* 7 */
+ " ____ ",
+ "|__  |",
+ "  / / ",
+ " /_/  ",
+
+ /* 8 */
+ " ___ ", 
+ "( _ )",
+ "/ _ \\",
+ "\\___/",
+
+ /* 9 */
+ " ___ ",
+ "/ _ \\",
+ "\\_, /",
+ " /_/ ",
+
+ /* A */
+ "      ",
+ "  /\\  ",
+ " /  \\ ",
+ "/_/\\_\\",
+
+ /* B */
+ " ___ ",
+ "| _ )",
+ "| _ \\",
+ "|___/",
+
+ /* C */
+ "  ___ ",
+ " / __|",
+ "| (__ ",
+ " \\___|",
+
+ /* D */
+ " ___  ",
+ "|   \\ ",
+ "| |) |",
+ "|___/ ",
+
+ /* E */
+ " ___ ",
+ "| __|",
+ "| _| ",
+ "|___|",
+
+ /* F */
+ " ___ ",
+ "| __|",
+ "| _| ",
+ "|_|  ",
+};
+
+/*
+** Render a 32-bit unsigned integer as an 8-digit ascii-art hex number.
+** Space to hold the result is obtained from malloc() and should be freed
+** by the caller.
+*/
+char *captcha_render(const char *zPw){
+  char *z = malloc( 300 );
+  int i, j, k, m;
+  const char *zChar;
+
+  k = 0;
+  for(i=0; i<4; i++){
+    for(j=0; j<8; j++){
+      unsigned char v = hexValue(zPw[j]);
+      zChar = azFont2[4*v + i];
+      for(m=0; zChar[m]; m++){
+        z[k++] = zChar[m];
+      }
+    }
+    z[k++] = '\n';
+  }
+  z[k] = 0;
+  return z;     
+}
+#endif /* CAPTCHA==2 */
+
+/*
+** COMMAND: test-captcha
+*/
+void test_captcha(void){
+  int i;
+  unsigned int v;
+  char *z;
+
+  for(i=2; i<g.argc; i++){
+    char zHex[30];
+    v = (unsigned int)atoi(g.argv[i]);
+    sprintf(zHex, "%x", v);
+    z = captcha_render(zHex);
+    printf("%s:\n%s", zHex, z);
+    free(z);
+  }
+}
+
+/*
+** Compute a seed value for a captcha.  The seed is public and is sent
+** has a hidden parameter with the page that contains the captcha.  Knowledge
+** of the seed is insufficient for determining the captcha without additional
+** information held only on the server and never revealed.
+*/
+unsigned int captcha_seed(void){
+  unsigned int x;
+  sqlite3_randomness(sizeof(x), &x);
+  x &= 0x7fffffff;
+  return x;
+}
+
+/*
+** Translate a captcha seed value into the captcha password string.
+*/
+char *captcha_decode(unsigned int seed){
+  const char *zSecret;
+  const char *z;
+  Blob b;
+  static char zRes[20];
+
+  zSecret = db_get("captcha-secret", 0);
+  if( zSecret==0 ){
+    db_multi_exec(
+      "REPLACE INTO config(name,value)"
+      " VALUES('captcha-secret', lower(hex(randomblob(20))));"
+    );
+    zSecret = db_get("captcha-secret", 0);
+    assert( zSecret!=0 );
+  }
+  blob_init(&b, 0, 0);
+  blob_appendf(&b, "%s-%x", zSecret, seed);
+  sha1sum_blob(&b, &b);
+  z = blob_buffer(&b);
+  memcpy(zRes, z, 8);
+  zRes[8] = 0;
+  return zRes;
+}

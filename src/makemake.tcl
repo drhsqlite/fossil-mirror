@@ -14,6 +14,7 @@ set src {
   blob
   branch
   browse
+  captcha
   cgi
   checkin
   checkout
