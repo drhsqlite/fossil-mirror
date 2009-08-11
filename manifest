@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sto\sthe\slatest\sversion\sof\sSQLite.\s\sTurn\soff\sFTS3\sin\sthe\sSQLite\sbuild\nsince\sit\sis\snot\scurrently\sbeing\sused.
-D 2009-08-10T11:12:01
+C Change\sthe\sdate\smarkers\sin\sfile\sinfo\spages\sto\suse\sthe\ssame\sCSS\stags\sas\nthe\stimeline.
+D 2009-08-11T15:14:22
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -69,7 +69,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 4a0b5a79aa7ca48a2968d5d81fe23b8f4cdaf629
-F src/info.c 012036faaa13fe32c96e741261f6ae4ad689500e
+F src/info.c cb5129afc51109f13cbafd4721e39e8ce5431b12
 F src/login.c 5c89b898ce1012b44adc0a859f7a32761085b0c6
 F src/main.c 9b1a2a10f7b90525d4a824c1a0291c994792b60a
 F src/main.mk 24f7686dbbd176101b3c4ce3e2af33f29a519ee3
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P b189acfd7b9209ac251e8c22060ce4453c2f41e7
-R 7b14cbd47bf099f912c4dbfce8369da1
+P 1b0c251575f07d551a06ffa3ce003c92ab1e8a5f
+R 983987e680a0c99a65a97a3d11c8a2b2
 U drh
-Z 490b24da1497a8b1546eb0b6e6477e27
+Z 05721469a13ca9255adb5ce275d25a27
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKgACEoxKgR168RlERArCoAJ9N3g9wTb7KtgdcQtuYODzAKkx5dwCeLxPv
-8LC7Hw7FzPznrSLjkaQ+Ya0=
-=pDji
+iD8DBQFKgYrUoxKgR168RlERAo/0AJ0XNP0zKtkL9/RNYeM9eqP5u9M0DwCfZskv
+bnZaR9F745bqbe7yOrUJYrM=
+=qOEj
 -----END PGP SIGNATURE-----

@@ -631,12 +631,7 @@ void finfo_page(void){
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
-      @ <table cellpadding=2 border=0>
-      @ <tr><td bgcolor="#a0b5f4" class="border1">
-      @ <table cellpadding=2 cellspacing=0 border=0><tr>
-      @ <td bgcolor="#d0d9f4" class="bkgnd1">%s(zPrevDate)</td>
-      @ </tr></table>
-      @ </td></tr></table>
+      @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
     }
     @ <tr><td valign="top">%s(&zDate[11])</td>
