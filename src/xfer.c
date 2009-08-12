@@ -864,12 +864,14 @@ void client_sync(
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
+  int nSent, nRcvd;       /* Bytes sent and received (after compression) */
   Blob send;              /* Text we are sending to the server */
   Blob recv;              /* Reply we got back from the server */
   Xfer xfer;              /* Transfer data */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
 
+  transport_stats(0, 0, 1);
   socket_global_init();
   memset(&xfer, 0, sizeof(xfer));
   xfer.pIn = &recv;
@@ -959,11 +961,9 @@ void client_sync(
     }
 
     /* Append randomness to the end of the message */
-#if 1   /* Enable this after all servers have upgraded */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
-#endif
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
@@ -1182,6 +1182,9 @@ void client_sync(
       go = 1;
     }
   };
+  transport_stats(&nSent, &nRcvd, 1);
+  printf("Total network traffic: %d bytes sent, %d bytes received\n",
+         nSent, nRcvd);
   transport_close();
   socket_global_shutdown();
   db_multi_exec("DROP TABLE onremote");

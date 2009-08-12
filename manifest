@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\san\sissue\swith\s"clone"\son\sthe\sclient\sside:\s\sthe\sclient\swas\srequesting\nmultiple\scopies\sof\sartifacts\sfor\swhich\sit\sheld\sa\sdelta\swith\sa\sphantom\ssource.
-D 2009-08-12T14:27:24
+C Keep\strack\sof\stotal\snetwork\straffic\sfor\sa\ssync\sand\sreport\sthe\stotals\sat\sthe\nend\sof\sthe\ssync.
+D 2009-08-12T14:41:32
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -68,7 +68,7 @@ F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_transport.c 4a0b5a79aa7ca48a2968d5d81fe23b8f4cdaf629
+F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
 F src/info.c cb5129afc51109f13cbafd4721e39e8ce5431b12
 F src/login.c 5c89b898ce1012b44adc0a859f7a32761085b0c6
 F src/main.c 9b1a2a10f7b90525d4a824c1a0291c994792b60a
@@ -118,7 +118,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c c1cfc24309b618d0ba8ad27739fc552b1e3aed41
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
-F src/xfer.c 463e575108bc0dfedabfc50ce66ae4a033c04690
+F src/xfer.c bb547deab3c2bcd233c75fad477770c183bbef5e
 F src/zip.c 2b9f0b11bf6d604134e711be27330f404b38b4c4
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 53f04b180c9b8142c925227a320067092e5fe6f1
-R 7a5b9545f56d104ead057026b78d5ca9
+P 7646ee13e34f6aad3dec3787968b1c29d87ea6e5
+R 0cf9abb866d2a784fb57e21cde15e8b9
 U drh
-Z ce96b75742643f674111758846b6d29a
+Z 5be25e9c3583a0fb6b526e64aa5fde49
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkqC0UwACgkQoxKgR168RlGKNACdEo8iwLXGhXWYa2OPm5yVgyBE
-mZ4AoIaxnoffECiSQzn0SdMBk7r4RXzo
-=4aUP
+iEYEARECAAYFAkqC1JwACgkQoxKgR168RlE/0ACeKwmXmiomoys2rnt5fIeRW9C3
+xZ4AmwV54AqQLeaydGKUqoYaqR2xfcIP
+=ZESt
 -----END PGP SIGNATURE-----
