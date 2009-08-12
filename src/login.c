@@ -230,12 +230,12 @@ void login_page(void){
   @ </tr>
   @ </table>
   if( g.zLogin==0 ){
-    @ <p>To login
+    @ <p>Enter
   }else{
     @ <p>You are currently logged in as <b>%h(g.zLogin)</b></p>
-    @ <p>To change your login to a different user
+    @ <p>To change your login to a different user, enter
   }
-  @ enter the user-id and password at the left and press the
+  @ your user-id and password at the left and press the
   @ "Login" button.  Your user name will be stored in a browser cookie.
   @ You must configure your web browser to accept cookies in order for
   @ the login to take.</p>
@@ -244,8 +244,8 @@ void login_page(void){
     char *zCaptcha = captcha_render(captcha_decode(uSeed));
 
     @ <input type="hidden" name="cs" value="%u(uSeed)">
-    @ <p>To login as user <b>anonymous</b> use the following 
-    @ 8-character hexadecimal password:</p>
+    @ <p>Visitors may enter <b>anonymous</b> as the user-ID with
+    @ the 8-character hexadecimal password shown below:</p>
     @ <center><table border="1" cellpadding="10"><tr><td><pre>
     @ %s(zCaptcha)
     @ </pre></td></tr></table></center>

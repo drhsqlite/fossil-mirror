@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Keep\strack\sof\stotal\snetwork\straffic\sfor\sa\ssync\sand\sreport\sthe\stotals\sat\sthe\nend\sof\sthe\ssync.
-D 2009-08-12T14:41:32
+C Rephrasing\sthe\stext\sof\sthe\sLogin\spage.
+D 2009-08-12T17:35:02
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -70,7 +70,7 @@ F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
 F src/info.c cb5129afc51109f13cbafd4721e39e8ce5431b12
-F src/login.c 5c89b898ce1012b44adc0a859f7a32761085b0c6
+F src/login.c 4d8ed5462e81f92a0a71ee8e7ce5385c6b0bb2ed
 F src/main.c 9b1a2a10f7b90525d4a824c1a0291c994792b60a
 F src/main.mk 24f7686dbbd176101b3c4ce3e2af33f29a519ee3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7646ee13e34f6aad3dec3787968b1c29d87ea6e5
-R 0cf9abb866d2a784fb57e21cde15e8b9
+P 79be9028ebdac88a1184179704d1a7549162aed4
+R a5ac89ba1fb0ec4c115f7cdf73c340df
 U drh
-Z 5be25e9c3583a0fb6b526e64aa5fde49
+Z 5e46b6363a9e490a6218b8d9b89cb123
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (Darwin)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAkqC1JwACgkQoxKgR168RlE/0ACeKwmXmiomoys2rnt5fIeRW9C3
-xZ4AmwV54AqQLeaydGKUqoYaqR2xfcIP
-=ZESt
+iD8DBQFKgv1JoxKgR168RlERAuI3AJ4m4vO6n/8qA3c1mY7P5sY0CKrMUQCfQjLN
+GrQKM1Kw0p01LUUeXpe9s4M=
+=6Wrh
 -----END PGP SIGNATURE-----
