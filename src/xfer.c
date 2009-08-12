@@ -127,10 +127,9 @@ static void xfer_accept_file(Xfer *pXfer){
     Blob src;
     srcid = rid_from_uuid(&pXfer->aToken[2], 1);
     if( content_get(srcid, &src)==0 ){
-      content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
-      blob_appendf(pXfer->pOut, "gimme %b\n", &pXfer->aToken[2]);
-      pXfer->nGimmeSent++;
+      rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
       pXfer->nDanglingFile++;
+      db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       return;
     }
     pXfer->nDeltaRcvd++;
