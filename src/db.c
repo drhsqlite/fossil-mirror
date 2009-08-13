@@ -622,6 +622,29 @@ void db_init_database(
 }
 
 /*
+** Open a database file.  Return a pointer to the new database
+** connection.  An error results in process abort.
+*/
+static sqlite3 *openDatabase(const char *zDbName){
+  int rc;
+  const char *zVfs;
+  sqlite3 *db;
+
+  zVfs = getenv("FOSSIL_VFS");
+  rc = sqlite3_open_v2(
+       zDbName, &db,
+       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+       zVfs
+  );
+  if( rc!=SQLITE_OK ){
+    db_err(sqlite3_errmsg(db));
+  }
+  sqlite3_busy_timeout(db, 5000);
+  return db;
+}
+
+
+/*
 ** zDbName is the name of a database file.  If no other database
 ** file is open, then open this one.  If another database file is
 ** already open, then attach zDbName using the name zLabel.
@@ -631,19 +654,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
   zDbName = mbcsToUtf8(zDbName);
 #endif
   if( !g.db ){
-    int rc;
-    const char *zVfs;
-
-    zVfs = getenv("FOSSIL_VFS");
-    rc = sqlite3_open_v2(
-         zDbName, &g.db,
-         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-         zVfs
-    );
-    if( rc!=SQLITE_OK ){
-      db_err(sqlite3_errmsg(g.db));
-    }
-    sqlite3_busy_timeout(g.db, 5000);
+    g.db = openDatabase(zDbName);
     db_connection_init();
   }else{
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
@@ -653,8 +664,16 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 /*
 ** Open the user database in "~/.fossil".  Create the database anew if
 ** it does not already exist.
+**
+** If the useAttach flag is 0 (the usual case) then the user database is
+** opened on a separate database connection g.dbConfig.  This prevents
+** the ~/.fossil database from becoming locked on long check-in or sync
+** operations which hold an exclusive transaction.  In a few cases, though,
+** it is convenient for the ~/.fossil to be attached to the main database
+** connection so that we can join between the various databases.  In that
+** case, invoke this routine with useAttach as 1.
 */
-void db_open_config(void){
+void db_open_config(int useAttach){
   char *zDbName;
   const char *zHome;
   if( g.configOpen ) return;
@@ -686,7 +705,13 @@ void db_open_config(void){
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
-  db_open_or_attach(zDbName, "configdb");
+  g.useAttach = useAttach;
+  if( useAttach ){
+    db_open_or_attach(zDbName, "configdb");
+    g.dbConfig = 0;
+  }else{
+    g.dbConfig = openDatabase(zDbName);
+  }
   g.configOpen = 1;
 }
 
@@ -704,7 +729,7 @@ static int isValidLocalDb(const char *zDbName){
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
   g.localOpen = 1;
-  db_open_config();
+  db_open_config(0);
   db_open_repository(0);
 
   /* If the "mtime" column is missing from the vfile table, then
@@ -989,7 +1014,7 @@ void create_repository_cmd(void){
   }
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
-  db_open_config();
+  db_open_config(0);
   db_begin_transaction();
   db_initial_setup(zDate, 1);
   db_end_transaction(0);
@@ -1149,6 +1174,23 @@ int is_false(const char *zVal){
 }
 
 /*
+** Swap the g.db and g.dbConfig connections so that the various db_* routines
+** work on the ~/.fossil database instead of on the repository database.
+** Be sure to swap them back after doing the operation.
+**
+** If g.useAttach that means the ~/.fossil database was opened with
+** the useAttach flag set to 1.  In that case no connection swap is required
+** so this routine is a no-op.
+*/
+void db_swap_connections(void){
+  if( !g.useAttach ){
+    sqlite3 *dbTemp = g.db;
+    g.db = g.dbConfig;
+    g.dbConfig = dbTemp;
+  }
+}
+
+/*
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
@@ -1158,7 +1200,9 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
   if( z==0 && g.configOpen ){
+    db_swap_connections();
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
   }
   if( z==0 ){
     z = zDefault;
@@ -1167,8 +1211,15 @@ char *db_get(const char *zName, char *zDefault){
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
   db_begin_transaction();
-  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%Q)",
-                 globalFlag ? "global_" : "", zName, zValue);
+  if( globalFlag ){
+    db_swap_connections();
+    db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%Q)",
+                   zName, zValue);
+    db_swap_connections();
+  }else{
+    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+                   zName, zValue);
+  }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
@@ -1176,19 +1227,26 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
 }
 void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
-  db_multi_exec("DELETE FROM %sconfig WHERE name=%Q",
-                 globalFlag ? "global_" : "", zName);
+  if( globalFlag ){
+    db_swap_connections();
+    db_multi_exec("DELETE INTO global_config WHERE name=%Q", zName);
+    db_swap_connections();
+  }else{
+    db_multi_exec("DELETE INTO config WHERE name=%Q", zName);
+  }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
   db_end_transaction(0);
 }
 int db_is_global(const char *zName){
+  int rc = 0;
   if( g.configOpen ){
-    return db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
-  }else{
-    return 0;
+    db_swap_connections();
+    rc = db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
   }
+  return rc;
 }
 int db_get_int(const char *zName, int dflt){
   int v = dflt;
@@ -1205,18 +1263,25 @@ int db_get_int(const char *zName, int dflt){
     rc = SQLITE_DONE;
   }
   if( rc==SQLITE_DONE && g.configOpen ){
+    db_swap_connections();
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
   }
   return v;
 }
 void db_set_int(const char *zName, int value, int globalFlag){
-  db_begin_transaction();
-  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%d)",
-                globalFlag ? "global_" : "", zName, value);
+  if( globalFlag ){
+    db_swap_connections();
+    db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%d)",
+                  zName, value);
+    db_swap_connections();
+  }else{
+    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%d)",
+                  zName, value);
+  }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
-  db_end_transaction(0);
 }
 int db_get_boolean(const char *zName, int dflt){
   char *zVal = db_get(zName, dflt ? "on" : "off");
@@ -1254,11 +1319,13 @@ void db_record_repository_filename(const char *zName){
     zName = db_lget("repository", 0);
   }
   file_canonical_name(zName, &full);
+  db_swap_connections();
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
      "VALUES('repo:%q',1)",
      blob_str(&full)
   );
+  db_swap_connections();
   blob_reset(&full);
 }
 
@@ -1414,11 +1481,11 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
+  db_open_config(1);
   db_find_and_open_repository(0);
   if( !g.repositoryOpen ){
     globalFlag = 1;
   }
-  db_open_config();
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }

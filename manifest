@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Rephrasing\sthe\stext\sof\sthe\sLogin\spage.
-D 2009-08-12T17:35:02
+C Disconnect\sthe\sglobal\sconfiguration\sdatabase\sin\s~/.fossil\sfrom\sthe\s\nrespository\sdatabase\sin\smost\scases.\s\sThis\sallows\smultiple\s"sync"\sor\n"commit"\soperations\sto\sbe\srunning\son\sdifferent\srepositories\sat\sthe\ssame\stime.
+D 2009-08-13T14:27:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -41,23 +41,23 @@ F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c c6fe5d6e2032da8df5c6974a4868a6dd986eca11
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
-F src/allrepo.c 24723f7edafb8f7009496f64bee275cbfbbf7d45
+F src/allrepo.c d3d32a93318f9c957c89903565dd06b4d5417ec7
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
-F src/cgi.c 1b01c427a457522f71c0e4294cff34bb9a33fc37
+F src/cgi.c 8b6978d8ea01ced78cba4f60a45fa9e02434ef79
 F src/checkin.c e04164b91d4ed7a05f599feb6be872426509c00e
 F src/checkout.c 9058612e329c957ba94ff93ccbae31acf6008597
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
-F src/clone.c 89ab820dce5388478f622d6cab555e62c5b3ef38
+F src/clone.c f0402d199ec0e7075a3ad1a56d3378d81d22f5ec
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
-F src/construct.c bf4879b0053c6c1c83d134da16ff654a96c7a021
+F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 503381e0cab1fee8ea297d74a3c456a7524da330
+F src/db.c b0740e5748f70b970e9a8e16f907c784f8ab0f28
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
@@ -69,9 +69,9 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c cb5129afc51109f13cbafd4721e39e8ce5431b12
+F src/info.c ce7fc1bbb9bc92f0f724b391fe5bd3d5a4f226b3
 F src/login.c 4d8ed5462e81f92a0a71ee8e7ce5385c6b0bb2ed
-F src/main.c 9b1a2a10f7b90525d4a824c1a0291c994792b60a
+F src/main.c 0dbd180aa04829a964557ca6175ac63cd950253e
 F src/main.mk 24f7686dbbd176101b3c4ce3e2af33f29a519ee3
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 79be9028ebdac88a1184179704d1a7549162aed4
-R a5ac89ba1fb0ec4c115f7cdf73c340df
+P c15ec20d5a8fb716d1d5cb2d2f96de01c25c7001
+R 81a66a33a0a396bf778861a674c0b57e
 U drh
-Z 5e46b6363a9e490a6218b8d9b89cb123
+Z 66828473d954626fd86caf2b33a5839f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKgv1JoxKgR168RlERAuI3AJ4m4vO6n/8qA3c1mY7P5sY0CKrMUQCfQjLN
-GrQKM1Kw0p01LUUeXpe9s4M=
-=6Wrh
+iD8DBQFKhCLPoxKgR168RlERAicXAJ4x/s3CwPY37DIkby0iPFOAk2YDRgCfZUz9
+I/H1GppU980lXFi8QK9jVxI=
+=AmoH
 -----END PGP SIGNATURE-----

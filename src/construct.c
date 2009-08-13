@@ -139,7 +139,7 @@ void reconstruct_cmd(void){
   /* Create the foundation */
   db_create_repository(zRepository);
   db_open_repository(zRepository);
-  db_open_config();
+  db_open_config(0);
   db_begin_transaction();
 
   db_initial_setup(0, 1);

@@ -91,7 +91,7 @@ void all_cmd(void){
     usage("list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
-  db_open_config();
+  db_open_config(1);
   zCmd = g.argv[2];
   if( strncmp(zCmd, "list", n)==0 ){
     zCmd = "list";

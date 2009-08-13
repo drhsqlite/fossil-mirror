@@ -43,7 +43,7 @@ void clone_cmd(void){
   if( g.argc!=4 ){
     usage("FILE-OR-URL NEW-REPOSITORY");
   }
-  db_open_config();
+  db_open_config(0);
   if( file_size(g.argv[3])>0 ){
     fossil_panic("file already exists: %s", g.argv[3]);
   }
@@ -52,7 +52,6 @@ void clone_cmd(void){
     file_copy(g.urlName, g.argv[3]);
     db_close();
     db_open_repository(g.argv[3]);
-    db_open_config();
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
       "REPLACE INTO config(name,value)"

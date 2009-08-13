@@ -99,7 +99,7 @@ void info_cmd(void){
     usage("?FILENAME|ARTIFACT-ID?");
   }
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
-    db_open_config();
+    db_open_config(0);
     db_record_repository_filename(g.argv[2]);
     db_open_repository(g.argv[2]);
     printf("project-code: %s\n", db_get("project-code", "<none>"));

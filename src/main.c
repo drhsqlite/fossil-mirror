@@ -54,6 +54,8 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   int isConst;            /* True if the output is unchanging */
   sqlite3 *db;            /* The connection to the databases */
+  sqlite3 *dbConfig;      /* Separate connection for global_config table */
+  int useAttach;          /* True if global_config is attached to repository */
   int configOpen;         /* True if the config database is open */
   long long int now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
