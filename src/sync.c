@@ -156,15 +156,13 @@ void sync_cmd(void){
 /*
 ** COMMAND: remote-url
 **
-** Usage: %fossil remote-url ?URL|off?
+** Usage: %fossil remote-url ?URL|off? --show-pw
 **
 ** Query and optional change the default server named used for syncing
 ** the current check-out.
 **
-** WARNING: If the username and password are part of the URL then the 
-** username and password will be displayed by this command.  The user
-** name and password are normally suppressed when echoing the remote-url
-** during an auto-sync.  
+** The userid and password are stripped from the URL and are not printed
+** unless the --show-pw option is used on the command-line.
 **
 ** The remote-url is set automatically by a "clone" command or by any
 ** "sync", "push", or "pull" command that specifies an explicit URL.
@@ -172,6 +170,8 @@ void sync_cmd(void){
 ** "pull" that omit the server URL.
 */
 void remote_url_cmd(void){
+  char *zUrl;
+  int showPw = find_option("show-pw",0,0)!=0;
   db_must_be_within_tree();
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
@@ -184,5 +184,14 @@ void remote_url_cmd(void){
       db_set("last-sync-url", g.urlCanonical, 0);
     }
   }
-  printf("%s\n", db_get("last-sync-url", "off"));
+  zUrl = db_get("last-sync-url", 0);
+  if( zUrl==0 ){
+    printf("off\n");
+    return;
+  }else if( showPw ){
+    g.urlCanonical = zUrl;
+  }else{
+    url_parse(zUrl);
+  }
+  printf("%s\n", g.urlCanonical);
 }
