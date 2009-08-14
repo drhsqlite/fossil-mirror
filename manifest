@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\sthe\sway\sthe\supdate\starget\sis\scomputed\swhen\ssaying\n"fossil\supdate"\swithout\sspecifying\swhat\sto\supdate\sto.\s\sAvoid\sthe\n"bad\sobject\sid:\s0"\serror.
-D 2009-08-14T14:00:10
+C Fix\sthe\sheader\scomment\s(and\shence\sthe\s"help"\smessage)\sfor\sthe\s"fossil\sall"\ncommand.
+D 2009-08-14T14:03:14
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -41,7 +41,7 @@ F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/VERSION 24bbb3aad63325ff33c56d777007d7cd63dc19ea
 F src/add.c c6fe5d6e2032da8df5c6974a4868a6dd986eca11
 F src/admin.c bf62e8d4f5d7314ea6b0847878f0926a1da8a362
-F src/allrepo.c d3d32a93318f9c957c89903565dd06b4d5417ec7
+F src/allrepo.c 8f62ffa7a26de589a17babc6d01fa9d986bcc89a
 F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 9cbef7a104e5d6168895a1ab99ad0a68484be369
-R 063108fb572d56d8328ffb286477e007
+P 7847b418bb514bd8f63784aeddcb1647693ef045
+R 68f15719b98f747d2d4df050fcea151c
 U drh
-Z 3464475aee52928d1c070b75a3c6e13c
+Z a80d8a49ebaa6ef50019eefcd0ce25a1
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKhW3toxKgR168RlERAlKkAJkBSR3Ybracx3Mu1bd962KzUtHulACfTbE2
-Ui/XZ/DYV+oygx7eGtdR6Fc=
-=UExe
+iD8DBQFKhW6loxKgR168RlERAo63AKCG0EvWjOSo/i6msr0leexXdhdBzgCdHcBB
+M8lMTDNgRHIS+RR/z0anDpI=
+=FS2Q
 -----END PGP SIGNATURE-----

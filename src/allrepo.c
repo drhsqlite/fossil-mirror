@@ -64,7 +64,9 @@ static char *quoteFilename(const char *zFilename){
 ** that can be useful before or after a period of disconnection operation.
 ** Available operations are:
 **
-**    list|ls       Display the location of all repositories
+**    list       Display the location of all repositories
+**
+**    ls         An alias for "list"
 **
 **    pull       Run a "pull" operation on all repositories
 **
