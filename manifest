@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C In\sthe\s"remote-url"\scommand,\somit\sthe\suserid\sand\spassword\sfrom\sthe\sURL\sunless\nthe\s"--show-pw"\scommand-line\soption\sis\sused.
-D 2009-08-13T14:36:54
+C Improvements\sto\sthe\sway\sthe\supdate\starget\sis\scomputed\swhen\ssaying\n"fossil\supdate"\swithout\sspecifying\swhat\sto\supdate\sto.\s\sAvoid\sthe\n"bad\sobject\sid:\s0"\serror.
+D 2009-08-14T14:00:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -60,7 +60,7 @@ F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
 F src/db.c b0740e5748f70b970e9a8e16f907c784f8ab0f28
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
-F src/descendants.c fabaf35b08e5c1dc70f9e9ae9757c473748ad465
+F src/descendants.c b32d7948173c91b357f4f0ce0083d42ce506c529
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c 682899f6dc7d2b5c72bc1e11d20aed8823cf2970
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 00ac7945a9ead7200d6ad4404ca432c683b9c4c7
-R d0811554e934f5401734431aaca6f07d
+P 9cbef7a104e5d6168895a1ab99ad0a68484be369
+R 063108fb572d56d8328ffb286477e007
 U drh
-Z 6a765509e12356ca61c0a0b26202e630
+Z 3464475aee52928d1c070b75a3c6e13c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKhCUJoxKgR168RlERAiERAJsHKuMDuUA9IAUfPVBFiayBjfPLPQCghjz/
-XqZFWi6+NwhU1VIBlsNVXDs=
-=Kfct
+iD8DBQFKhW3toxKgR168RlERAlKkAJkBSR3Ybracx3Mu1bd962KzUtHulACfTbE2
+Ui/XZ/DYV+oygx7eGtdR6Fc=
+=UExe
 -----END PGP SIGNATURE-----

@@ -81,8 +81,21 @@ void compute_leaves(int iBase, int closeMode){
   bag_init(&pending);
   bag_insert(&pending, iBase);
 
-  /* This query returns all non-merge children of check-in :rid */
-  db_prepare(&q1, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
+  /* This query returns all non-branch-merge children of check-in :rid.
+  **
+  ** If a a child is a merge of a fork within the same branch, it is 
+  ** returned.  Only merge children in different branches are excluded.
+  */
+  db_prepare(&q1,
+    "SELECT cid FROM plink"
+    " WHERE pid=:rid"
+    "   AND (isprim"
+    "        OR coalesce((SELECT value FROM tagxref"
+                      "   WHERE tagid=%d AND rid=plink.pid), 'trunk')"
+               "=coalesce((SELECT value FROM tagxref"
+                      "   WHERE tagid=%d AND rid=plink.cid), 'trunk'))",
+    TAG_BRANCH, TAG_BRANCH
+  );
 
   /* This query returns a single row if check-in :rid is the first
   ** check-in of a new branch.
