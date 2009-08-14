@@ -29,6 +29,11 @@
 #include <assert.h>
 #include <dirent.h>
 
+/*
+** Set to true if files whose names begin with "." should be
+** included when processing a recursive "add" command.
+*/
+static int includeDotFiles = 0;
     
 /*
 ** Add a single file
@@ -77,7 +82,11 @@ void add_directory_content(const char *zDir){
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       char *zPath;
-      if( pEntry->d_name[0]=='.' ) continue;
+      if( pEntry->d_name[0]=='.' ){
+        if( !includeDotFiles ) continue;
+        if( pEntry->d_name[1]==0 ) continue;
+        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
+      }
       blob_appendf(&path, "/%s", pEntry->d_name);
       zPath = blob_str(&path);
       if( file_isdir(zPath)==1 ){
@@ -114,12 +123,17 @@ void add_directory(const char *zDir, int vid, Blob *pOmit){
 **
 ** Make arrangements to add one or more files to the current checkout 
 ** at the next commit.
+**
+** When adding files recursively, filenames that begin with "." are
+** excluded by default.  To include such files, add the "--dotfiles"
+** option to the command-line.
 */
 void add_cmd(void){
   int i;
   int vid;
   Blob repo;
 
+  includeDotFiles = find_option("dotfiles",0,0)!=0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
   if( vid==0 ){
