@@ -1229,10 +1229,10 @@ void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
   if( globalFlag ){
     db_swap_connections();
-    db_multi_exec("DELETE INTO global_config WHERE name=%Q", zName);
+    db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }else{
-    db_multi_exec("DELETE INTO config WHERE name=%Q", zName);
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
