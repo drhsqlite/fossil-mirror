@@ -427,7 +427,7 @@ void ci_page(void){
       @ </td></tr>
       @ <tr><th>Commands:</th>
       @   <td>
-      @     <a href="%s(g.zBaseURL)/vdiff/%d(rid)">diff</a>
+      @     <a href="%s(g.zBaseURL)/vdiff/%s(zShortUuid)">diff</a>
       @     | <a href="%s(g.zBaseURL)/dir?ci=%s(zShortUuid)">files</a>
       @     | <a href="%s(g.zBaseURL)/zip/%s(zProjName)-%s(zShortUuid).zip?uuid=%s(zUuid)">
       @         ZIP archive</a>
@@ -674,6 +674,7 @@ static void append_diff(int fromid, int toid){
   blob_reset(&out);  
 }
 
+
 /*
 ** WEBPAGE: vdiff
 ** URL: /vdiff?name=RID
@@ -687,13 +688,32 @@ void vdiff_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  style_header("Check-in Changes");
   login_anonymous_available();
 
   rid = name_to_rid(PD("name",""));
   if( rid==0 ){
     fossil_redirect_home();
   }
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  style_header("Check-in [%.10s]", zUuid);
+  db_prepare(&q,
+    "SELECT datetime(mtime), "
+    "       coalesce(event.ecomment,event.comment),"
+    "       coalesce(event.euser,event.user)"
+    "  FROM event WHERE type='ci' AND objid=%d",
+    rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zUser = db_column_text(&q, 2);
+    const char *zComment = db_column_text(&q, 1);
+    @ <h2>Check-in %s(zUuid)</h2>
+    @ <p>Made by %h(zUser) on 
+    link_to_date(zDate, ":");
+    @ %w(zComment). <a href="%s(g.zBaseURL)/ci/%s(zUuid)">[details]</a></p>
+    @ <hr>
+  }
+  db_finalize(&q);
   db_prepare(&q,
      "SELECT pid, fid, name"
      "  FROM mlink, filename"
@@ -702,10 +722,6 @@ void vdiff_page(void){
      " ORDER BY name",
      rid
   );
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  @ <h2>All Changes In Check-in
-  hyperlink_to_uuid(zUuid);
-  @ </h2>
   while( db_step(&q)==SQLITE_ROW ){
     int pid = db_column_int(&q,0);
     int fid = db_column_int(&q,1);
@@ -718,7 +734,6 @@ void vdiff_page(void){
   db_finalize(&q);
   style_footer();
 }
-
 
 /*
 ** Write a description of an object to the www reply.
@@ -853,6 +868,7 @@ static void object_description(
     @ <a href="%s(g.zBaseURL)/artifact/%d(rid)">[view]</a>
   }
 }
+
 
 /*
 ** WEBPAGE: fdiff
@@ -1194,7 +1210,7 @@ void info_page(void){
     return;
   }
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
-    ci_page();
+    vdiff_page();
   }else
   if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                 " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){

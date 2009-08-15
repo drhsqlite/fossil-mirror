@@ -56,7 +56,7 @@ void hyperlink_to_uuid_with_mouseover(
   sprintf(zShortUuid, "%.10s", zUuid);
   if( g.okHistory ){
     @ <a onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'
-    @    href="%s(g.zBaseURL)/ci/%s(zUuid)">[%s(zShortUuid)]</a>
+    @    href="%s(g.zBaseURL)/vdiff/%s(zUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'>
     @ [%s(zShortUuid)]</b>
@@ -310,6 +310,7 @@ static void timeline_submenu(
 **
 **    a=TIMESTAMP    after this date
 **    b=TIMESTAMP    before this date.
+**    c=TIMESTAMP    "circa" this date.
 **    n=COUNT        number of events in output
 **    p=RID          artifact RID and up to COUNT parents and ancestors
 **    d=RID          artifact RID and up to COUNT descendants
@@ -336,6 +337,7 @@ void page_timeline(void){
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
+  const char *zCirca = P("c");       /* Events near this time */
   const char *zTagName = P("t");     /* Show events with this tag */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
@@ -444,6 +446,27 @@ void page_timeline(void){
        }else{
         zBefore = 0;
       }
+    }else if( zCirca ){
+      while( isspace(zCirca[0]) ){ zCirca++; }
+      if( zCirca[0] ){
+        double rCirca = db_double(0.0, "SELECT julianday(%Q, 'utc')", zCirca);
+        Blob sql2;
+        blob_init(&sql2, blob_str(&sql), -1);
+        blob_appendf(&sql2,
+            " AND event.mtime<=%f ORDER BY event.mtime DESC LIMIT %d",
+            rCirca, (nEntry+1)/2
+        );
+        db_multi_exec("%s", blob_str(&sql2));
+        blob_reset(&sql2);
+        blob_appendf(&sql,
+            " AND event.mtime>=%f ORDER BY event.mtime ASC",
+            rCirca
+        );
+        nEntry -= (nEntry+1)/2;
+        url_add_parameter(&url, "c", zCirca);
+      }else{
+        zCirca = 0;
+      }
     }else{
       blob_appendf(&sql, " ORDER BY event.mtime DESC");
     }
@@ -454,7 +477,7 @@ void page_timeline(void){
     if( n<nEntry && zAfter ){
       cgi_redirect(url_render(&url, "a", 0, "b", 0));
     }
-    if( zAfter==0 && zBefore==0 ){
+    if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
@@ -469,6 +492,8 @@ void page_timeline(void){
       blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
     }else if( zBefore ){
       blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
+    }else if( zCirca ){
+      blob_appendf(&desc, " occurring around %h.<br>", zCirca);
     }
     if( g.okHistory ){
       if( zAfter || n==nEntry ){
@@ -602,6 +627,13 @@ void page_timeline(void){
   @ }
   @ </script>
   style_footer();
+}
+
+/*
+** Render the date string given as a hyperlink to a "circa" timeline.
+*/
+void link_to_date(const char *zDate, const char *zSuffix){
+  @ <a href="%s(g.zBaseURL)/timeline?c=%t(zDate)">%h(zDate)</a>%s(zSuffix)
 }
 
 /*
