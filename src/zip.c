@@ -50,6 +50,9 @@ static Blob toc;     /* The table of contents */
 static int nEntry;   /* Number of files */
 static int dosTime;  /* DOS-format time */
 static int dosDate;  /* DOS-format date */
+static int unixTime; /* Seconds since 1970 */
+static int nDir;     /* Number of entries in azDir[] */
+static char **azDir; /* Directory names already added to the archive */
 
 /*
 ** Initialize a new ZIP archive.
@@ -60,6 +63,7 @@ void zip_open(void){
   nEntry = 0;
   dosTime = 0;
   dosDate = 0;
+  unixTime = 0;
 }
 
 /*
@@ -86,6 +90,33 @@ void zip_set_timedate(double rDate){
   char *zDate = db_text(0, "SELECT datetime(%.17g)", rDate);
   zip_set_timedate_from_str(zDate);
   free(zDate);
+  unixTime = (rDate - 2440587.5)*86400.0;
+}
+
+/*
+** If the given filename includes one or more directory entries, make
+** sure the directories are already in the archive.  If they are not
+** in the archive, add them.
+*/
+void zip_add_folders(char *zName){
+  int i, c;
+  int j;
+  for(i=0; zName[i]; i++){
+    if( zName[i]=='/' ){
+      c = zName[i+1];
+      zName[i+1] = 0;
+      for(j=0; j<nDir; j++){
+        if( strcmp(zName, azDir[j])==0 ) break;
+      }
+      if( j>=nDir ){
+        nDir++;
+        azDir = realloc(azDir, nDir);
+        azDir[j] = sqlite3_mprintf("%s", zName);
+        zip_add_file(zName, 0);
+      }
+      zName[i+1] = c;
+    }
+  }
 }
 
 /*
@@ -100,106 +131,131 @@ void zip_add_file(const char *zName, const Blob *pFile){
   int skip;
   int toOut;
   int iStart;
-  int iCRC;
-  int nByte;
-  int nByteCompr;
+  int iCRC = 0;
+  int nByte = 0;
+  int nByteCompr = 0;
+  int nBlob;                 /* Size of the blob */
+  int iMethod;               /* Compression method. */
+  int iMode = 0644;          /* Access permissions */
   char *z;
   char zHdr[30];
+  char zExTime[13];
   char zBuf[100];
   char zOutBuf[100000];
 
   /* Fill in as much of the header as we know.
   */
+  nBlob = pFile ? blob_size(pFile) : 0;
+  if( nBlob>0 ){
+    iMethod = 8;
+    iMode = 0100644;
+  }else{
+    iMethod = 0;
+    iMode = 040755;
+  }
   nameLen = strlen(zName);
+  memset(zHdr, 0, sizeof(zHdr));
   put32(&zHdr[0], 0x04034b50);
-  put16(&zHdr[4], 0x0014);
+  put16(&zHdr[4], 0x000a);
   put16(&zHdr[6], 0);
-  put16(&zHdr[8], 8);
+  put16(&zHdr[8], iMethod);
   put16(&zHdr[10], dosTime);
   put16(&zHdr[12], dosDate);
   put16(&zHdr[26], nameLen);
-  put16(&zHdr[28], 0);
+  put16(&zHdr[28], 13);
+  
+  put16(&zExTime[0], 0x5455);
+  put16(&zExTime[2], 9);
+  zExTime[4] = 3;
+  put32(&zExTime[5], unixTime);
+  put32(&zExTime[9], unixTime);
+  
 
   /* Write the header and filename.
   */
   iStart = blob_size(&body);
   blob_append(&body, zHdr, 30);
   blob_append(&body, zName, nameLen);
+  blob_append(&body, zExTime, 13);
 
-  /* The first two bytes that come out of the deflate compressor are
-  ** some kind of header that ZIP does not use.  So skip the first two
-  ** output bytes.
-  */
-  skip = 2;
-
-  /* Write the compressed file.  Compute the CRC as we progress.
-  */
-  stream.zalloc = (alloc_func)0;
-  stream.zfree = (free_func)0;
-  stream.opaque = 0;
-  stream.avail_in = blob_size(pFile);
-  stream.next_in = (unsigned char*)blob_buffer(pFile);
-  stream.avail_out = sizeof(zOutBuf);
-  stream.next_out = (unsigned char*)zOutBuf;
-  deflateInit(&stream, 9);
-  iCRC = crc32(0, stream.next_in, stream.avail_in);
-  while( stream.avail_in>0 ){
-    deflate(&stream, 0);
-    toOut = sizeof(zOutBuf) - stream.avail_out;
-    if( toOut>skip ){
-      blob_append(&body, &zOutBuf[skip], toOut - skip);
-      skip = 0;
-    }else{
-      skip -= toOut;
-    }
+  if( nBlob>0 ){
+    /* The first two bytes that come out of the deflate compressor are
+    ** some kind of header that ZIP does not use.  So skip the first two
+    ** output bytes.
+    */
+    skip = 2;
+  
+    /* Write the compressed file.  Compute the CRC as we progress.
+    */
+    stream.zalloc = (alloc_func)0;
+    stream.zfree = (free_func)0;
+    stream.opaque = 0;
+    stream.avail_in = blob_size(pFile);
+    stream.next_in = (unsigned char*)blob_buffer(pFile);
     stream.avail_out = sizeof(zOutBuf);
     stream.next_out = (unsigned char*)zOutBuf;
+    deflateInit(&stream, 9);
+    iCRC = crc32(0, stream.next_in, stream.avail_in);
+    while( stream.avail_in>0 ){
+      deflate(&stream, 0);
+      toOut = sizeof(zOutBuf) - stream.avail_out;
+      if( toOut>skip ){
+        blob_append(&body, &zOutBuf[skip], toOut - skip);
+        skip = 0;
+      }else{
+        skip -= toOut;
+      }
+      stream.avail_out = sizeof(zOutBuf);
+      stream.next_out = (unsigned char*)zOutBuf;
+    }
+    do{
+      stream.avail_out = sizeof(zOutBuf);
+      stream.next_out = (unsigned char*)zOutBuf;
+      deflate(&stream, Z_FINISH);
+      toOut = sizeof(zOutBuf) - stream.avail_out;
+      if( toOut>skip ){
+        blob_append(&body, &zOutBuf[skip], toOut - skip);
+        skip = 0;
+      }else{
+        skip -= toOut;
+      }
+    }while( stream.avail_out==0 );
+    nByte = stream.total_in;
+    nByteCompr = stream.total_out - 2;
+    deflateEnd(&stream);
+  
+    /* Go back and write the header, now that we know the compressed file size.
+    */
+    z = &blob_buffer(&body)[iStart];
+    put32(&z[14], iCRC);
+    put32(&z[18], nByteCompr);
+    put32(&z[22], nByte);
   }
-  do{
-    stream.avail_out = sizeof(zOutBuf);
-    stream.next_out = (unsigned char*)zOutBuf;
-    deflate(&stream, Z_FINISH);
-    toOut = sizeof(zOutBuf) - stream.avail_out;
-    if( toOut>skip ){
-      blob_append(&body, &zOutBuf[skip], toOut - skip);
-      skip = 0;
-    }else{
-      skip -= toOut;
-    }
-  }while( stream.avail_out==0 );
-  nByte = stream.total_in;
-  nByteCompr = stream.total_out - 2;
-  deflateEnd(&stream);
-
-  /* Go back and write the header, now that we know the compressed file size.
-  */
-  z = &blob_buffer(&body)[iStart];
-  put32(&z[14], iCRC);
-  put32(&z[18], nByteCompr);
-  put32(&z[22], nByte);
-
+  
   /* Make an entry in the tables of contents
   */
   memset(zBuf, 0, sizeof(zBuf));
   put32(&zBuf[0], 0x02014b50);
   put16(&zBuf[4], 0x0317);
-  put16(&zBuf[6], 0x0014);
+  put16(&zBuf[6], 0x000a);
   put16(&zBuf[8], 0);
-  put16(&zBuf[10], 0x0008);
+  put16(&zBuf[10], iMethod);
   put16(&zBuf[12], dosTime);
   put16(&zBuf[14], dosDate);
   put32(&zBuf[16], iCRC);
   put32(&zBuf[20], nByteCompr);
   put32(&zBuf[24], nByte);
   put16(&zBuf[28], nameLen);
-  put16(&zBuf[30], 0);
+  put16(&zBuf[30], 9);
   put16(&zBuf[32], 0);
   put16(&zBuf[34], 0);
   put16(&zBuf[36], 0);
-  put32(&zBuf[38], ((unsigned)(0100000 | 0644))<<16);
+  put32(&zBuf[38], ((unsigned)iMode)<<16);
   put32(&zBuf[42], iStart);
   blob_append(&toc, zBuf, 46);
   blob_append(&toc, zName, nameLen);
+  put16(&zExTime[2], 5);
+  blob_append(&toc, zExTime, 9);
   nEntry++;
 }
 
@@ -210,6 +266,7 @@ void zip_add_file(const char *zName, const Blob *pFile){
 void zip_close(Blob *pZip){
   int iTocStart;
   int iTocEnd;
+  int i;
   char zBuf[30];
 
   iTocStart = blob_size(&body);
@@ -230,6 +287,12 @@ void zip_close(Blob *pZip){
   *pZip = body;
   blob_zero(&body);
   nEntry = 0;
+  for(i=0; i<nDir; i++){
+    sqlite3_free(azDir[i]);
+  }
+  free(azDir);
+  nDir = 0;
+  azDir = 0;
 }
 
 /*
@@ -298,15 +361,19 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   nPrefix = blob_size(&filename);
 
   if( manifest_parse(&m, &mfile) ){
+    char *zName;
     zip_set_timedate(m.rDate);
     blob_append(&filename, "manifest", -1);
-    zip_add_file(blob_str(&filename), &file);
+    zName = blob_str(&filename);
+    zip_add_folders(zName);
+    zip_add_file(zName, &file);
     sha1sum_blob(&file, &hash);
     blob_reset(&file);
     blob_append(&hash, "\n", 1);
     blob_resize(&filename, nPrefix);
     blob_append(&filename, "manifest.uuid", -1);
-    zip_add_file(blob_str(&filename), &hash);
+    zName = blob_str(&filename);
+    zip_add_file(zName, &hash);
     blob_reset(&hash);
     for(i=0; i<m.nFile; i++){
       int fid = uuid_to_rid(m.aFile[i].zUuid, 0);
@@ -314,7 +381,9 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
         content_get(fid, &file);
         blob_resize(&filename, nPrefix);
         blob_append(&filename, m.aFile[i].zName, -1);
-        zip_add_file(blob_str(&filename), &file);
+        zName = blob_str(&filename);
+        zip_add_folders(zName);
+        zip_add_file(zName, &file);
         blob_reset(&file);
       }
     }

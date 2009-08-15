@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s--dotfiles\soption\sto\sthe\s"add"\scommand\sto\scause\sfossil\sto\sinclude\nfiles\swhose\sname\sbegins\swith\s"."\swhich\srecursively\sadding\sfiles.\nTicket\s[2e924cf9b74e].
-D 2009-08-14T16:19:53
+C Add\san\s"extended\stimestamp"\sfield\sto\sgenerated\sZIP\sarchives.\s\sThe\sextended\ntimestamp\sis\sin\sUTC\sso\sit\sdoes\snot\smangle\sthe\stime\swhen\sthe\sserver\sand\nclient\sare\sin\sdifferent\stimezones.\nTicket\s[28044ab5a42b75]
+D 2009-08-15T02:17:27
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -119,7 +119,7 @@ F src/wiki.c c1cfc24309b618d0ba8ad27739fc552b1e3aed41
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
 F src/xfer.c bb547deab3c2bcd233c75fad477770c183bbef5e
-F src/zip.c 2b9f0b11bf6d604134e711be27330f404b38b4c4
+F src/zip.c dd5cb8b3ef02d69632c75c49ea17c8da1b0b825b
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -252,14 +252,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 0b49e4afbaa1462540ca4267b270d20c731ea895
-R b8613504ca287c3a354020704dbaf9f6
+P 5bc5e88c86130400c184ba93b2470e7009f909c5
+R 7503c64cff6946a885651565b89feba4
 U drh
-Z 69fd9b98928188789581e436f6fdf1f8
+Z a37a11e93c25a6a2325333c6f053a8e3
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFKhY6toxKgR168RlERAhWbAJ9I3OEyXrWxz9c1RvWri+ECtPxQ9QCgg1/B
-9NSjXcFwfckAJcGd2pHaJQo=
-=6jwn
+iD8DBQFKhhq+oxKgR168RlERAtw7AJ9AVpyhCvzW0NV6zKuD8eWn4K7+aACeIjqh
+53qAhpFeKZZwYfJlSQmowwc=
+=woO7
 -----END PGP SIGNATURE-----
