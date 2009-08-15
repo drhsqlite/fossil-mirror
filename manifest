@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sobsolete\s"todo"\sfiles.\s\sRemove\sthe\sobsolete\ssrc/VERSION\sfile\sand\nreferences\sto\sthat\sfile\sin\sthe\smakefiles.
-D 2009-08-15T17:45:28
+C Be\ssure\sto\scall\smbcsToUtf8()\swhen\sopening\sthe\sglobal\sconfiguration\sdatabase.\nTicket\s[c7c36ef52edab]
+D 2009-08-15T21:38:24
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -55,7 +55,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
-F src/db.c 301ed91596ac1b87f1f45bfdba74770cf722bad0
+F src/db.c e7592f21b53b337b4422a17992c750050cf0bc5d
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c b32d7948173c91b357f4f0ce0083d42ce506c529
@@ -248,14 +248,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 74f7f6e6ad30a59a508d65db1045e6b8581177c0
-R ed13f9ae88dfb2540324fc38fbf17c0d
+P 137bff82945b8b5c8d93807a03a1539bad55765f
+R 00084418c59ef6624d7cfbfa251b21e7
 U drh
-Z 0dc9cdd3e5a7372f6e74efd0189d4e90
+Z ecfff24b8ebf6ab4bf207ddf00b721bd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKhvQ7oxKgR168RlERAlBCAJ9gKIbEV0KyfD9kxJ34JXDG/F+TCgCeJIiv
-me/rIlD3QrGTCVLbzuXJcU0=
-=py5k
+iD8DBQFKhyrUoxKgR168RlERAmXuAJ0aDF8YGtyZQB044ZfWy5HJAT03rwCeOfN5
+s18XrhX4irf0FSCZNFNvIno=
+=gGEI
 -----END PGP SIGNATURE-----

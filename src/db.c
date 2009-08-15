@@ -631,6 +631,9 @@ static sqlite3 *openDatabase(const char *zDbName){
   sqlite3 *db;
 
   zVfs = getenv("FOSSIL_VFS");
+#ifdef __MINGW32__
+  zDbName = mbcsToUtf8(zDbName);
+#endif
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -650,13 +653,13 @@ static sqlite3 *openDatabase(const char *zDbName){
 ** already open, then attach zDbName using the name zLabel.
 */
 void db_open_or_attach(const char *zDbName, const char *zLabel){
-#ifdef __MINGW32__
-  zDbName = mbcsToUtf8(zDbName);
-#endif
   if( !g.db ){
     g.db = openDatabase(zDbName);
     db_connection_init();
   }else{
+#ifdef __MINGW32__
+    zDbName = mbcsToUtf8(zDbName);
+#endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
   }
 }
