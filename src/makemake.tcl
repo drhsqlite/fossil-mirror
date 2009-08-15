@@ -179,8 +179,8 @@ puts "Makefile:"
 set extra_h(main) page_index.h
 
 foreach s [lsort $src] {
-  puts "${s}_.c:\t\$(SRCDIR)/$s.c \$(SRCDIR)/VERSION translate"
-  puts "\t./translate \$(SRCDIR)/$s.c | sed -f \$(SRCDIR)/VERSION >${s}_.c\n"
+  puts "${s}_.c:\t\$(SRCDIR)/$s.c translate"
+  puts "\t./translate \$(SRCDIR)/$s.c >${s}_.c\n"
   puts "$s.o:\t${s}_.c $s.h $extra_h($s) \$(SRCDIR)/config.h"
   puts "\t\$(XTCC) -o $s.o -c ${s}_.c\n"
   puts "$s.h:\theaders"

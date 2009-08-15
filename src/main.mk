@@ -275,484 +275,484 @@ headers:	page_index.h makeheaders VERSION.h
 	touch headers
 headers: Makefile
 Makefile:
-add_.c:	$(SRCDIR)/add.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/add.c | sed -f $(SRCDIR)/VERSION >add_.c
+add_.c:	$(SRCDIR)/add.c translate
+	./translate $(SRCDIR)/add.c >add_.c
 
 add.o:	add_.c add.h  $(SRCDIR)/config.h
 	$(XTCC) -o add.o -c add_.c
 
 add.h:	headers
-admin_.c:	$(SRCDIR)/admin.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/admin.c | sed -f $(SRCDIR)/VERSION >admin_.c
+admin_.c:	$(SRCDIR)/admin.c translate
+	./translate $(SRCDIR)/admin.c >admin_.c
 
 admin.o:	admin_.c admin.h  $(SRCDIR)/config.h
 	$(XTCC) -o admin.o -c admin_.c
 
 admin.h:	headers
-allrepo_.c:	$(SRCDIR)/allrepo.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/allrepo.c | sed -f $(SRCDIR)/VERSION >allrepo_.c
+allrepo_.c:	$(SRCDIR)/allrepo.c translate
+	./translate $(SRCDIR)/allrepo.c >allrepo_.c
 
 allrepo.o:	allrepo_.c allrepo.h  $(SRCDIR)/config.h
 	$(XTCC) -o allrepo.o -c allrepo_.c
 
 allrepo.h:	headers
-bag_.c:	$(SRCDIR)/bag.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/bag.c | sed -f $(SRCDIR)/VERSION >bag_.c
+bag_.c:	$(SRCDIR)/bag.c translate
+	./translate $(SRCDIR)/bag.c >bag_.c
 
 bag.o:	bag_.c bag.h  $(SRCDIR)/config.h
 	$(XTCC) -o bag.o -c bag_.c
 
 bag.h:	headers
-blob_.c:	$(SRCDIR)/blob.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/blob.c | sed -f $(SRCDIR)/VERSION >blob_.c
+blob_.c:	$(SRCDIR)/blob.c translate
+	./translate $(SRCDIR)/blob.c >blob_.c
 
 blob.o:	blob_.c blob.h  $(SRCDIR)/config.h
 	$(XTCC) -o blob.o -c blob_.c
 
 blob.h:	headers
-branch_.c:	$(SRCDIR)/branch.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/branch.c | sed -f $(SRCDIR)/VERSION >branch_.c
+branch_.c:	$(SRCDIR)/branch.c translate
+	./translate $(SRCDIR)/branch.c >branch_.c
 
 branch.o:	branch_.c branch.h  $(SRCDIR)/config.h
 	$(XTCC) -o branch.o -c branch_.c
 
 branch.h:	headers
-browse_.c:	$(SRCDIR)/browse.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/browse.c | sed -f $(SRCDIR)/VERSION >browse_.c
+browse_.c:	$(SRCDIR)/browse.c translate
+	./translate $(SRCDIR)/browse.c >browse_.c
 
 browse.o:	browse_.c browse.h  $(SRCDIR)/config.h
 	$(XTCC) -o browse.o -c browse_.c
 
 browse.h:	headers
-captcha_.c:	$(SRCDIR)/captcha.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/captcha.c | sed -f $(SRCDIR)/VERSION >captcha_.c
+captcha_.c:	$(SRCDIR)/captcha.c translate
+	./translate $(SRCDIR)/captcha.c >captcha_.c
 
 captcha.o:	captcha_.c captcha.h  $(SRCDIR)/config.h
 	$(XTCC) -o captcha.o -c captcha_.c
 
 captcha.h:	headers
-cgi_.c:	$(SRCDIR)/cgi.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/cgi.c | sed -f $(SRCDIR)/VERSION >cgi_.c
+cgi_.c:	$(SRCDIR)/cgi.c translate
+	./translate $(SRCDIR)/cgi.c >cgi_.c
 
 cgi.o:	cgi_.c cgi.h  $(SRCDIR)/config.h
 	$(XTCC) -o cgi.o -c cgi_.c
 
 cgi.h:	headers
-checkin_.c:	$(SRCDIR)/checkin.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/checkin.c | sed -f $(SRCDIR)/VERSION >checkin_.c
+checkin_.c:	$(SRCDIR)/checkin.c translate
+	./translate $(SRCDIR)/checkin.c >checkin_.c
 
 checkin.o:	checkin_.c checkin.h  $(SRCDIR)/config.h
 	$(XTCC) -o checkin.o -c checkin_.c
 
 checkin.h:	headers
-checkout_.c:	$(SRCDIR)/checkout.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/checkout.c | sed -f $(SRCDIR)/VERSION >checkout_.c
+checkout_.c:	$(SRCDIR)/checkout.c translate
+	./translate $(SRCDIR)/checkout.c >checkout_.c
 
 checkout.o:	checkout_.c checkout.h  $(SRCDIR)/config.h
 	$(XTCC) -o checkout.o -c checkout_.c
 
 checkout.h:	headers
-clearsign_.c:	$(SRCDIR)/clearsign.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/clearsign.c | sed -f $(SRCDIR)/VERSION >clearsign_.c
+clearsign_.c:	$(SRCDIR)/clearsign.c translate
+	./translate $(SRCDIR)/clearsign.c >clearsign_.c
 
 clearsign.o:	clearsign_.c clearsign.h  $(SRCDIR)/config.h
 	$(XTCC) -o clearsign.o -c clearsign_.c
 
 clearsign.h:	headers
-clone_.c:	$(SRCDIR)/clone.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/clone.c | sed -f $(SRCDIR)/VERSION >clone_.c
+clone_.c:	$(SRCDIR)/clone.c translate
+	./translate $(SRCDIR)/clone.c >clone_.c
 
 clone.o:	clone_.c clone.h  $(SRCDIR)/config.h
 	$(XTCC) -o clone.o -c clone_.c
 
 clone.h:	headers
-comformat_.c:	$(SRCDIR)/comformat.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/comformat.c | sed -f $(SRCDIR)/VERSION >comformat_.c
+comformat_.c:	$(SRCDIR)/comformat.c translate
+	./translate $(SRCDIR)/comformat.c >comformat_.c
 
 comformat.o:	comformat_.c comformat.h  $(SRCDIR)/config.h
 	$(XTCC) -o comformat.o -c comformat_.c
 
 comformat.h:	headers
-configure_.c:	$(SRCDIR)/configure.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/configure.c | sed -f $(SRCDIR)/VERSION >configure_.c
+configure_.c:	$(SRCDIR)/configure.c translate
+	./translate $(SRCDIR)/configure.c >configure_.c
 
 configure.o:	configure_.c configure.h  $(SRCDIR)/config.h
 	$(XTCC) -o configure.o -c configure_.c
 
 configure.h:	headers
-construct_.c:	$(SRCDIR)/construct.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/construct.c | sed -f $(SRCDIR)/VERSION >construct_.c
+construct_.c:	$(SRCDIR)/construct.c translate
+	./translate $(SRCDIR)/construct.c >construct_.c
 
 construct.o:	construct_.c construct.h  $(SRCDIR)/config.h
 	$(XTCC) -o construct.o -c construct_.c
 
 construct.h:	headers
-content_.c:	$(SRCDIR)/content.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/content.c | sed -f $(SRCDIR)/VERSION >content_.c
+content_.c:	$(SRCDIR)/content.c translate
+	./translate $(SRCDIR)/content.c >content_.c
 
 content.o:	content_.c content.h  $(SRCDIR)/config.h
 	$(XTCC) -o content.o -c content_.c
 
 content.h:	headers
-db_.c:	$(SRCDIR)/db.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/db.c | sed -f $(SRCDIR)/VERSION >db_.c
+db_.c:	$(SRCDIR)/db.c translate
+	./translate $(SRCDIR)/db.c >db_.c
 
 db.o:	db_.c db.h  $(SRCDIR)/config.h
 	$(XTCC) -o db.o -c db_.c
 
 db.h:	headers
-delta_.c:	$(SRCDIR)/delta.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/delta.c | sed -f $(SRCDIR)/VERSION >delta_.c
+delta_.c:	$(SRCDIR)/delta.c translate
+	./translate $(SRCDIR)/delta.c >delta_.c
 
 delta.o:	delta_.c delta.h  $(SRCDIR)/config.h
 	$(XTCC) -o delta.o -c delta_.c
 
 delta.h:	headers
-deltacmd_.c:	$(SRCDIR)/deltacmd.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/deltacmd.c | sed -f $(SRCDIR)/VERSION >deltacmd_.c
+deltacmd_.c:	$(SRCDIR)/deltacmd.c translate
+	./translate $(SRCDIR)/deltacmd.c >deltacmd_.c
 
 deltacmd.o:	deltacmd_.c deltacmd.h  $(SRCDIR)/config.h
 	$(XTCC) -o deltacmd.o -c deltacmd_.c
 
 deltacmd.h:	headers
-descendants_.c:	$(SRCDIR)/descendants.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/descendants.c | sed -f $(SRCDIR)/VERSION >descendants_.c
+descendants_.c:	$(SRCDIR)/descendants.c translate
+	./translate $(SRCDIR)/descendants.c >descendants_.c
 
 descendants.o:	descendants_.c descendants.h  $(SRCDIR)/config.h
 	$(XTCC) -o descendants.o -c descendants_.c
 
 descendants.h:	headers
-diff_.c:	$(SRCDIR)/diff.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/diff.c | sed -f $(SRCDIR)/VERSION >diff_.c
+diff_.c:	$(SRCDIR)/diff.c translate
+	./translate $(SRCDIR)/diff.c >diff_.c
 
 diff.o:	diff_.c diff.h  $(SRCDIR)/config.h
 	$(XTCC) -o diff.o -c diff_.c
 
 diff.h:	headers
-diffcmd_.c:	$(SRCDIR)/diffcmd.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/diffcmd.c | sed -f $(SRCDIR)/VERSION >diffcmd_.c
+diffcmd_.c:	$(SRCDIR)/diffcmd.c translate
+	./translate $(SRCDIR)/diffcmd.c >diffcmd_.c
 
 diffcmd.o:	diffcmd_.c diffcmd.h  $(SRCDIR)/config.h
 	$(XTCC) -o diffcmd.o -c diffcmd_.c
 
 diffcmd.h:	headers
-doc_.c:	$(SRCDIR)/doc.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/doc.c | sed -f $(SRCDIR)/VERSION >doc_.c
+doc_.c:	$(SRCDIR)/doc.c translate
+	./translate $(SRCDIR)/doc.c >doc_.c
 
 doc.o:	doc_.c doc.h  $(SRCDIR)/config.h
 	$(XTCC) -o doc.o -c doc_.c
 
 doc.h:	headers
-encode_.c:	$(SRCDIR)/encode.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/encode.c | sed -f $(SRCDIR)/VERSION >encode_.c
+encode_.c:	$(SRCDIR)/encode.c translate
+	./translate $(SRCDIR)/encode.c >encode_.c
 
 encode.o:	encode_.c encode.h  $(SRCDIR)/config.h
 	$(XTCC) -o encode.o -c encode_.c
 
 encode.h:	headers
-file_.c:	$(SRCDIR)/file.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/file.c | sed -f $(SRCDIR)/VERSION >file_.c
+file_.c:	$(SRCDIR)/file.c translate
+	./translate $(SRCDIR)/file.c >file_.c
 
 file.o:	file_.c file.h  $(SRCDIR)/config.h
 	$(XTCC) -o file.o -c file_.c
 
 file.h:	headers
-http_.c:	$(SRCDIR)/http.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/http.c | sed -f $(SRCDIR)/VERSION >http_.c
+http_.c:	$(SRCDIR)/http.c translate
+	./translate $(SRCDIR)/http.c >http_.c
 
 http.o:	http_.c http.h  $(SRCDIR)/config.h
 	$(XTCC) -o http.o -c http_.c
 
 http.h:	headers
-http_socket_.c:	$(SRCDIR)/http_socket.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/http_socket.c | sed -f $(SRCDIR)/VERSION >http_socket_.c
+http_socket_.c:	$(SRCDIR)/http_socket.c translate
+	./translate $(SRCDIR)/http_socket.c >http_socket_.c
 
 http_socket.o:	http_socket_.c http_socket.h  $(SRCDIR)/config.h
 	$(XTCC) -o http_socket.o -c http_socket_.c
 
 http_socket.h:	headers
-http_transport_.c:	$(SRCDIR)/http_transport.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/http_transport.c | sed -f $(SRCDIR)/VERSION >http_transport_.c
+http_transport_.c:	$(SRCDIR)/http_transport.c translate
+	./translate $(SRCDIR)/http_transport.c >http_transport_.c
 
 http_transport.o:	http_transport_.c http_transport.h  $(SRCDIR)/config.h
 	$(XTCC) -o http_transport.o -c http_transport_.c
 
 http_transport.h:	headers
-info_.c:	$(SRCDIR)/info.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/info.c | sed -f $(SRCDIR)/VERSION >info_.c
+info_.c:	$(SRCDIR)/info.c translate
+	./translate $(SRCDIR)/info.c >info_.c
 
 info.o:	info_.c info.h  $(SRCDIR)/config.h
 	$(XTCC) -o info.o -c info_.c
 
 info.h:	headers
-login_.c:	$(SRCDIR)/login.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/login.c | sed -f $(SRCDIR)/VERSION >login_.c
+login_.c:	$(SRCDIR)/login.c translate
+	./translate $(SRCDIR)/login.c >login_.c
 
 login.o:	login_.c login.h  $(SRCDIR)/config.h
 	$(XTCC) -o login.o -c login_.c
 
 login.h:	headers
-main_.c:	$(SRCDIR)/main.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/main.c | sed -f $(SRCDIR)/VERSION >main_.c
+main_.c:	$(SRCDIR)/main.c translate
+	./translate $(SRCDIR)/main.c >main_.c
 
 main.o:	main_.c main.h page_index.h $(SRCDIR)/config.h
 	$(XTCC) -o main.o -c main_.c
 
 main.h:	headers
-manifest_.c:	$(SRCDIR)/manifest.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/manifest.c | sed -f $(SRCDIR)/VERSION >manifest_.c
+manifest_.c:	$(SRCDIR)/manifest.c translate
+	./translate $(SRCDIR)/manifest.c >manifest_.c
 
 manifest.o:	manifest_.c manifest.h  $(SRCDIR)/config.h
 	$(XTCC) -o manifest.o -c manifest_.c
 
 manifest.h:	headers
-md5_.c:	$(SRCDIR)/md5.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/md5.c | sed -f $(SRCDIR)/VERSION >md5_.c
+md5_.c:	$(SRCDIR)/md5.c translate
+	./translate $(SRCDIR)/md5.c >md5_.c
 
 md5.o:	md5_.c md5.h  $(SRCDIR)/config.h
 	$(XTCC) -o md5.o -c md5_.c
 
 md5.h:	headers
-merge_.c:	$(SRCDIR)/merge.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/merge.c | sed -f $(SRCDIR)/VERSION >merge_.c
+merge_.c:	$(SRCDIR)/merge.c translate
+	./translate $(SRCDIR)/merge.c >merge_.c
 
 merge.o:	merge_.c merge.h  $(SRCDIR)/config.h
 	$(XTCC) -o merge.o -c merge_.c
 
 merge.h:	headers
-merge3_.c:	$(SRCDIR)/merge3.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/merge3.c | sed -f $(SRCDIR)/VERSION >merge3_.c
+merge3_.c:	$(SRCDIR)/merge3.c translate
+	./translate $(SRCDIR)/merge3.c >merge3_.c
 
 merge3.o:	merge3_.c merge3.h  $(SRCDIR)/config.h
 	$(XTCC) -o merge3.o -c merge3_.c
 
 merge3.h:	headers
-my_page_.c:	$(SRCDIR)/my_page.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/my_page.c | sed -f $(SRCDIR)/VERSION >my_page_.c
+my_page_.c:	$(SRCDIR)/my_page.c translate
+	./translate $(SRCDIR)/my_page.c >my_page_.c
 
 my_page.o:	my_page_.c my_page.h  $(SRCDIR)/config.h
 	$(XTCC) -o my_page.o -c my_page_.c
 
 my_page.h:	headers
-name_.c:	$(SRCDIR)/name.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/name.c | sed -f $(SRCDIR)/VERSION >name_.c
+name_.c:	$(SRCDIR)/name.c translate
+	./translate $(SRCDIR)/name.c >name_.c
 
 name.o:	name_.c name.h  $(SRCDIR)/config.h
 	$(XTCC) -o name.o -c name_.c
 
 name.h:	headers
-pivot_.c:	$(SRCDIR)/pivot.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/pivot.c | sed -f $(SRCDIR)/VERSION >pivot_.c
+pivot_.c:	$(SRCDIR)/pivot.c translate
+	./translate $(SRCDIR)/pivot.c >pivot_.c
 
 pivot.o:	pivot_.c pivot.h  $(SRCDIR)/config.h
 	$(XTCC) -o pivot.o -c pivot_.c
 
 pivot.h:	headers
-pqueue_.c:	$(SRCDIR)/pqueue.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/pqueue.c | sed -f $(SRCDIR)/VERSION >pqueue_.c
+pqueue_.c:	$(SRCDIR)/pqueue.c translate
+	./translate $(SRCDIR)/pqueue.c >pqueue_.c
 
 pqueue.o:	pqueue_.c pqueue.h  $(SRCDIR)/config.h
 	$(XTCC) -o pqueue.o -c pqueue_.c
 
 pqueue.h:	headers
-printf_.c:	$(SRCDIR)/printf.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/printf.c | sed -f $(SRCDIR)/VERSION >printf_.c
+printf_.c:	$(SRCDIR)/printf.c translate
+	./translate $(SRCDIR)/printf.c >printf_.c
 
 printf.o:	printf_.c printf.h  $(SRCDIR)/config.h
 	$(XTCC) -o printf.o -c printf_.c
 
 printf.h:	headers
-rebuild_.c:	$(SRCDIR)/rebuild.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/rebuild.c | sed -f $(SRCDIR)/VERSION >rebuild_.c
+rebuild_.c:	$(SRCDIR)/rebuild.c translate
+	./translate $(SRCDIR)/rebuild.c >rebuild_.c
 
 rebuild.o:	rebuild_.c rebuild.h  $(SRCDIR)/config.h
 	$(XTCC) -o rebuild.o -c rebuild_.c
 
 rebuild.h:	headers
-report_.c:	$(SRCDIR)/report.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/report.c | sed -f $(SRCDIR)/VERSION >report_.c
+report_.c:	$(SRCDIR)/report.c translate
+	./translate $(SRCDIR)/report.c >report_.c
 
 report.o:	report_.c report.h  $(SRCDIR)/config.h
 	$(XTCC) -o report.o -c report_.c
 
 report.h:	headers
-rss_.c:	$(SRCDIR)/rss.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/rss.c | sed -f $(SRCDIR)/VERSION >rss_.c
+rss_.c:	$(SRCDIR)/rss.c translate
+	./translate $(SRCDIR)/rss.c >rss_.c
 
 rss.o:	rss_.c rss.h  $(SRCDIR)/config.h
 	$(XTCC) -o rss.o -c rss_.c
 
 rss.h:	headers
-rstats_.c:	$(SRCDIR)/rstats.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/rstats.c | sed -f $(SRCDIR)/VERSION >rstats_.c
+rstats_.c:	$(SRCDIR)/rstats.c translate
+	./translate $(SRCDIR)/rstats.c >rstats_.c
 
 rstats.o:	rstats_.c rstats.h  $(SRCDIR)/config.h
 	$(XTCC) -o rstats.o -c rstats_.c
 
 rstats.h:	headers
-schema_.c:	$(SRCDIR)/schema.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/schema.c | sed -f $(SRCDIR)/VERSION >schema_.c
+schema_.c:	$(SRCDIR)/schema.c translate
+	./translate $(SRCDIR)/schema.c >schema_.c
 
 schema.o:	schema_.c schema.h  $(SRCDIR)/config.h
 	$(XTCC) -o schema.o -c schema_.c
 
 schema.h:	headers
-setup_.c:	$(SRCDIR)/setup.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/setup.c | sed -f $(SRCDIR)/VERSION >setup_.c
+setup_.c:	$(SRCDIR)/setup.c translate
+	./translate $(SRCDIR)/setup.c >setup_.c
 
 setup.o:	setup_.c setup.h  $(SRCDIR)/config.h
 	$(XTCC) -o setup.o -c setup_.c
 
 setup.h:	headers
-sha1_.c:	$(SRCDIR)/sha1.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/sha1.c | sed -f $(SRCDIR)/VERSION >sha1_.c
+sha1_.c:	$(SRCDIR)/sha1.c translate
+	./translate $(SRCDIR)/sha1.c >sha1_.c
 
 sha1.o:	sha1_.c sha1.h  $(SRCDIR)/config.h
 	$(XTCC) -o sha1.o -c sha1_.c
 
 sha1.h:	headers
-shun_.c:	$(SRCDIR)/shun.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/shun.c | sed -f $(SRCDIR)/VERSION >shun_.c
+shun_.c:	$(SRCDIR)/shun.c translate
+	./translate $(SRCDIR)/shun.c >shun_.c
 
 shun.o:	shun_.c shun.h  $(SRCDIR)/config.h
 	$(XTCC) -o shun.o -c shun_.c
 
 shun.h:	headers
-stat_.c:	$(SRCDIR)/stat.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/stat.c | sed -f $(SRCDIR)/VERSION >stat_.c
+stat_.c:	$(SRCDIR)/stat.c translate
+	./translate $(SRCDIR)/stat.c >stat_.c
 
 stat.o:	stat_.c stat.h  $(SRCDIR)/config.h
 	$(XTCC) -o stat.o -c stat_.c
 
 stat.h:	headers
-style_.c:	$(SRCDIR)/style.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/style.c | sed -f $(SRCDIR)/VERSION >style_.c
+style_.c:	$(SRCDIR)/style.c translate
+	./translate $(SRCDIR)/style.c >style_.c
 
 style.o:	style_.c style.h  $(SRCDIR)/config.h
 	$(XTCC) -o style.o -c style_.c
 
 style.h:	headers
-sync_.c:	$(SRCDIR)/sync.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/sync.c | sed -f $(SRCDIR)/VERSION >sync_.c
+sync_.c:	$(SRCDIR)/sync.c translate
+	./translate $(SRCDIR)/sync.c >sync_.c
 
 sync.o:	sync_.c sync.h  $(SRCDIR)/config.h
 	$(XTCC) -o sync.o -c sync_.c
 
 sync.h:	headers
-tag_.c:	$(SRCDIR)/tag.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/tag.c | sed -f $(SRCDIR)/VERSION >tag_.c
+tag_.c:	$(SRCDIR)/tag.c translate
+	./translate $(SRCDIR)/tag.c >tag_.c
 
 tag.o:	tag_.c tag.h  $(SRCDIR)/config.h
 	$(XTCC) -o tag.o -c tag_.c
 
 tag.h:	headers
-tagview_.c:	$(SRCDIR)/tagview.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/tagview.c | sed -f $(SRCDIR)/VERSION >tagview_.c
+tagview_.c:	$(SRCDIR)/tagview.c translate
+	./translate $(SRCDIR)/tagview.c >tagview_.c
 
 tagview.o:	tagview_.c tagview.h  $(SRCDIR)/config.h
 	$(XTCC) -o tagview.o -c tagview_.c
 
 tagview.h:	headers
-th_main_.c:	$(SRCDIR)/th_main.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/th_main.c | sed -f $(SRCDIR)/VERSION >th_main_.c
+th_main_.c:	$(SRCDIR)/th_main.c translate
+	./translate $(SRCDIR)/th_main.c >th_main_.c
 
 th_main.o:	th_main_.c th_main.h  $(SRCDIR)/config.h
 	$(XTCC) -o th_main.o -c th_main_.c
 
 th_main.h:	headers
-timeline_.c:	$(SRCDIR)/timeline.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/timeline.c | sed -f $(SRCDIR)/VERSION >timeline_.c
+timeline_.c:	$(SRCDIR)/timeline.c translate
+	./translate $(SRCDIR)/timeline.c >timeline_.c
 
 timeline.o:	timeline_.c timeline.h  $(SRCDIR)/config.h
 	$(XTCC) -o timeline.o -c timeline_.c
 
 timeline.h:	headers
-tkt_.c:	$(SRCDIR)/tkt.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/tkt.c | sed -f $(SRCDIR)/VERSION >tkt_.c
+tkt_.c:	$(SRCDIR)/tkt.c translate
+	./translate $(SRCDIR)/tkt.c >tkt_.c
 
 tkt.o:	tkt_.c tkt.h  $(SRCDIR)/config.h
 	$(XTCC) -o tkt.o -c tkt_.c
 
 tkt.h:	headers
-tktsetup_.c:	$(SRCDIR)/tktsetup.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/tktsetup.c | sed -f $(SRCDIR)/VERSION >tktsetup_.c
+tktsetup_.c:	$(SRCDIR)/tktsetup.c translate
+	./translate $(SRCDIR)/tktsetup.c >tktsetup_.c
 
 tktsetup.o:	tktsetup_.c tktsetup.h  $(SRCDIR)/config.h
 	$(XTCC) -o tktsetup.o -c tktsetup_.c
 
 tktsetup.h:	headers
-undo_.c:	$(SRCDIR)/undo.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/undo.c | sed -f $(SRCDIR)/VERSION >undo_.c
+undo_.c:	$(SRCDIR)/undo.c translate
+	./translate $(SRCDIR)/undo.c >undo_.c
 
 undo.o:	undo_.c undo.h  $(SRCDIR)/config.h
 	$(XTCC) -o undo.o -c undo_.c
 
 undo.h:	headers
-update_.c:	$(SRCDIR)/update.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/update.c | sed -f $(SRCDIR)/VERSION >update_.c
+update_.c:	$(SRCDIR)/update.c translate
+	./translate $(SRCDIR)/update.c >update_.c
 
 update.o:	update_.c update.h  $(SRCDIR)/config.h
 	$(XTCC) -o update.o -c update_.c
 
 update.h:	headers
-url_.c:	$(SRCDIR)/url.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/url.c | sed -f $(SRCDIR)/VERSION >url_.c
+url_.c:	$(SRCDIR)/url.c translate
+	./translate $(SRCDIR)/url.c >url_.c
 
 url.o:	url_.c url.h  $(SRCDIR)/config.h
 	$(XTCC) -o url.o -c url_.c
 
 url.h:	headers
-user_.c:	$(SRCDIR)/user.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/user.c | sed -f $(SRCDIR)/VERSION >user_.c
+user_.c:	$(SRCDIR)/user.c translate
+	./translate $(SRCDIR)/user.c >user_.c
 
 user.o:	user_.c user.h  $(SRCDIR)/config.h
 	$(XTCC) -o user.o -c user_.c
 
 user.h:	headers
-verify_.c:	$(SRCDIR)/verify.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/verify.c | sed -f $(SRCDIR)/VERSION >verify_.c
+verify_.c:	$(SRCDIR)/verify.c translate
+	./translate $(SRCDIR)/verify.c >verify_.c
 
 verify.o:	verify_.c verify.h  $(SRCDIR)/config.h
 	$(XTCC) -o verify.o -c verify_.c
 
 verify.h:	headers
-vfile_.c:	$(SRCDIR)/vfile.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/vfile.c | sed -f $(SRCDIR)/VERSION >vfile_.c
+vfile_.c:	$(SRCDIR)/vfile.c translate
+	./translate $(SRCDIR)/vfile.c >vfile_.c
 
 vfile.o:	vfile_.c vfile.h  $(SRCDIR)/config.h
 	$(XTCC) -o vfile.o -c vfile_.c
 
 vfile.h:	headers
-wiki_.c:	$(SRCDIR)/wiki.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/wiki.c | sed -f $(SRCDIR)/VERSION >wiki_.c
+wiki_.c:	$(SRCDIR)/wiki.c translate
+	./translate $(SRCDIR)/wiki.c >wiki_.c
 
 wiki.o:	wiki_.c wiki.h  $(SRCDIR)/config.h
 	$(XTCC) -o wiki.o -c wiki_.c
 
 wiki.h:	headers
-wikiformat_.c:	$(SRCDIR)/wikiformat.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/wikiformat.c | sed -f $(SRCDIR)/VERSION >wikiformat_.c
+wikiformat_.c:	$(SRCDIR)/wikiformat.c translate
+	./translate $(SRCDIR)/wikiformat.c >wikiformat_.c
 
 wikiformat.o:	wikiformat_.c wikiformat.h  $(SRCDIR)/config.h
 	$(XTCC) -o wikiformat.o -c wikiformat_.c
 
 wikiformat.h:	headers
-winhttp_.c:	$(SRCDIR)/winhttp.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/winhttp.c | sed -f $(SRCDIR)/VERSION >winhttp_.c
+winhttp_.c:	$(SRCDIR)/winhttp.c translate
+	./translate $(SRCDIR)/winhttp.c >winhttp_.c
 
 winhttp.o:	winhttp_.c winhttp.h  $(SRCDIR)/config.h
 	$(XTCC) -o winhttp.o -c winhttp_.c
 
 winhttp.h:	headers
-xfer_.c:	$(SRCDIR)/xfer.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/xfer.c | sed -f $(SRCDIR)/VERSION >xfer_.c
+xfer_.c:	$(SRCDIR)/xfer.c translate
+	./translate $(SRCDIR)/xfer.c >xfer_.c
 
 xfer.o:	xfer_.c xfer.h  $(SRCDIR)/config.h
 	$(XTCC) -o xfer.o -c xfer_.c
 
 xfer.h:	headers
-zip_.c:	$(SRCDIR)/zip.c $(SRCDIR)/VERSION translate
-	./translate $(SRCDIR)/zip.c | sed -f $(SRCDIR)/VERSION >zip_.c
+zip_.c:	$(SRCDIR)/zip.c translate
+	./translate $(SRCDIR)/zip.c >zip_.c
 
 zip.o:	zip_.c zip.h  $(SRCDIR)/config.h
 	$(XTCC) -o zip.o -c zip_.c
