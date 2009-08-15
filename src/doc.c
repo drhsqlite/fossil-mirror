@@ -351,6 +351,9 @@ void doc_page(void){
   if( !file_is_simple_pathname(zName) ){
     goto doc_not_found;
   }
+  if( strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
+    strcpy(zBaseline,"tip");
+  }
   if( strcmp(zBaseline,"ckout")==0 ){
     /* Read from the local checkout */
     char *zFullpath;
