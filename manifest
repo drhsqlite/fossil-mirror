@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Add\san\s"extended\stimestamp"\sfield\sto\sgenerated\sZIP\sarchives.\s\sThe\sextended\ntimestamp\sis\sin\sUTC\sso\sit\sdoes\snot\smangle\sthe\stime\swhen\sthe\sserver\sand\nclient\sare\sin\sdifferent\stimezones.\nTicket\s[28044ab5a42b75]
-D 2009-08-15T02:17:27
+C www/reference.wikiUpdate\sdocumentation\sof\s'proxy'\sconfiguration
+D 2009-08-15T08:17:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -246,20 +243,13 @@ F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
 F www/quickstart.wiki a7f1c75cf3a119a77a14bc4a605495711a6817aa
-F www/reference.wiki 65e06e553886c5c549ec9b51715c8b60dfb0df9b
+F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5bc5e88c86130400c184ba93b2470e7009f909c5
-R 7503c64cff6946a885651565b89feba4
-U drh
-Z a37a11e93c25a6a2325333c6f053a8e3
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (Darwin)
-
-iD8DBQFKhhq+oxKgR168RlERAtw7AJ9AVpyhCvzW0NV6zKuD8eWn4K7+aACeIjqh
-53qAhpFeKZZwYfJlSQmowwc=
-=woO7
------END PGP SIGNATURE-----
+P 90048e0b30f12377b33110b279f19299643fe830
+R 30e2ee49aa1190ad5962bd2e534c03ff
+U a0756885
+Z 07925e3136656ff6d095391bcadbe133

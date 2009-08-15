@@ -491,7 +491,7 @@ of the repository identified by the -R or --repository option.
        mtime-changes    Use file modification times (mtimes) to detect when
 		        files have been modified.
 
-       proxy            URL of the HTTP proxy.  If undefined or "off" then
+       proxy            URL of the HTTP proxy.  If undefined or "on" then
 		        the "http_proxy" environment variable is consulted.
 		        If the http_proxy environment variable is undefined
 		        then a direct HTTP connection is used.
