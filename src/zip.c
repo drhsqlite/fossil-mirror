@@ -110,8 +110,8 @@ void zip_add_folders(char *zName){
       }
       if( j>=nDir ){
         nDir++;
-        azDir = realloc(azDir, nDir);
-        azDir[j] = sqlite3_mprintf("%s", zName);
+        azDir = realloc(azDir, sizeof(azDir[0])*nDir);
+        azDir[j] = mprintf("%s", zName);
         zip_add_file(zName, 0);
       }
       zName[i+1] = c;
@@ -288,7 +288,7 @@ void zip_close(Blob *pZip){
   blob_zero(&body);
   nEntry = 0;
   for(i=0; i<nDir; i++){
-    sqlite3_free(azDir[i]);
+    free(azDir[i]);
   }
   free(azDir);
   nDir = 0;
