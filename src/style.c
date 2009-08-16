@@ -199,7 +199,7 @@ const char zDefaultHeader[] =
 @   <div class="title">$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
-@        html "Logged in as <a href='$baseurl/my'>$login</a>"
+@        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
@@ -394,27 +394,6 @@ const char zDefaultCSS[] =
 @     font-size: smaller;
 @     margin: 8px;
 @ } 
-@
-@ table.fossil_db_generic_query_view {
-@   border-spacing: 0px;
-@   border: 1px solid black;
-@ }
-@ table.fossil_db_generic_query_view td {
-@   padding: 2px 1em 2px 1em;
-@ }
-@ table.fossil_db_generic_query_view tr {
-@ }
-@ table.fossil_db_generic_query_view tr.even {
-@   background: #ffffff;
-@ }
-@ table.fossil_db_generic_query_view tr.odd {
-@   background: #e5e5e5;
-@ }
-@ table.fossil_db_generic_query_view tr.header {
-@   background: #558195;
-@   font-size: 1.5em;
-@   color: #ffffff;
-@ }
 ;
 
 /*

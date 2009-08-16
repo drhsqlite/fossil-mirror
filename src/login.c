@@ -105,10 +105,16 @@ static int isValidAnonymousLogin(
 }
 
 /*
-** WEBPAGE: /login
-** WEBPAGE: /logout
+** WEBPAGE: login
+** WEBPAGE: logout
+** WEBPAGE: my
 **
-** Generate the login page
+** Generate the login page.
+**
+** There used to be a page named "my" that was designed to show information
+** about a specific user.  The "my" page was linked from the "Logged in as USER"
+** line on the title bar.  The "my" page was never completed so it is now
+** removed.  Use this page as a placeholder in older installations.
 */
 void login_page(void){
   const char *zUsername, *zPasswd;

@@ -8,7 +8,6 @@
 #
 set src {
   add
-  admin
   allrepo
   bag
   blob
@@ -43,7 +42,6 @@ set src {
   md5
   merge
   merge3
-  my_page
   name
   pivot
   pqueue
@@ -60,7 +58,6 @@ set src {
   style
   sync
   tag
-  tagview
   th_main
   timeline
   tkt
