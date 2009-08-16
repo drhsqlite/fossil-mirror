@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sunsupported\sand\sincomplete\swebpage\sfunctionality:\s\sThe\sadmin_sql\spage\nand\sthe\s"my"\spage.
-D 2009-08-16T21:34:30
+C Add\sa\ssmall\scolored\srendering\sof\sthe\slogo\simage.
+D 2009-08-16T22:04:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -233,6 +233,7 @@ F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
 F www/fossil2.gif f64284050bf93f1b74fd05ed00de9984b79193b3
+F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/index.wiki cf25e96d4b35e95f586d1628fda0a6d1823f3104
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
@@ -245,14 +246,14 @@ F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ef432c201469375de3aa9eb3e81ef384f42cf65c
-R 458f7d11c09a1b2a4d150b95c6f32d14
+P 07f6780c981a2a69fadac09d51dff77c7d11ec43
+R 9b46921b67e9cacf7121a9a5741b1d36
 U drh
-Z 7ec33177414264bad74d56bad68c4fe2
+Z db982494f2ca040177dd34fe15a39958
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKiHtpoxKgR168RlERAlBlAJ9uuaJUJ0ECkWAu+gtVNHIHv957kwCfZUK1
-F1yec5ACAnLG8HG0B86LENg=
-=NpCt
+iD8DBQFKiIKMoxKgR168RlERAum9AJ9WfNkNzhW130hyHDStDNgeHHbSLACeLkyS
+12vWDFlnmZLcsJckQvUsl0M=
+=vy2N
 -----END PGP SIGNATURE-----
