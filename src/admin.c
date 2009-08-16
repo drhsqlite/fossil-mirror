@@ -43,7 +43,15 @@ static int selectOnly(
 ){
   int rc = SQLITE_DENY;
   switch( type ){
-    case SQLITE_READ:
+    case SQLITE_READ: {
+      if( strcmp(zArg2,"pw")==0 ){
+        rc = SQLITE_IGNORE;
+      }else{
+        rc = SQLITE_OK;
+      }
+      break;
+    }
+    case SQLITE_FUNCTION:
     case SQLITE_SELECT: {
       rc = SQLITE_OK;
       break;
@@ -52,18 +60,8 @@ static int selectOnly(
   return rc;
 }
 
-
-void admin_prepare_submenu(){
-  if( g.okAdmin ){
-    style_submenu_element("Main", "Main admin page", "%s/admin", g.zTop );
-    style_submenu_element("SQL", "SQL page", "%s/admin/sql", g.zTop );
-    style_submenu_element("Setup", "Setup page", "%s/setup", g.zTop );
-  }
-}
-
-
 /*
-** WEBPAGE: /admin/sql
+** WEBPAGE: admin_sql
 */
 void admin_sql_page(void){
   const char *zSql = PD("sql","");
@@ -72,7 +70,6 @@ void admin_sql_page(void){
     login_needed();
     return;
   }
-  admin_prepare_submenu();
   style_header("Admin SQL");
   @ <h2>SQL:</h2>
   @ You can enter only SELECT statements here, and some SQL-side functions
@@ -89,31 +86,5 @@ void admin_sql_page(void){
     db_generic_query_view(zSql, 0);
     sqlite3_set_authorizer(g.db, 0, 0);
   }
-  style_footer();
-}
-
-/*
-** WEBPAGE: /admin
-*/
-void admin_page(void){
-  login_check_credentials();
-  if( !g.okAdmin ){
-    login_needed();
-    return;
-  }
-  if( g.zExtra && g.zExtra[0] ){
-    if(g.zExtra == strstr(g.zExtra,"sql")) admin_sql_page();
-    /* FIXME: ^^^ this ^^^ is an awful lot of work, especially once
-    ** the paths deepen. Figure out a way to simplify dispatching.
-    */
-    return;
-  }
-  admin_prepare_submenu();
-  style_header("Admin");
-  @ <h2>Links:</h2>
-  @ <ul>
-  @ <li><a href='%s(g.zBaseURL)/setup'>Fossil WWW Setup</a></li>
-  @ <li><a href='%s(g.zBaseURL)/admin/sql'>Run SQL queries</a></li>
-  @ </ul>
   style_footer();
 }
