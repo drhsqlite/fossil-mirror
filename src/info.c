@@ -1243,11 +1243,13 @@ void info_page(void){
 */
 void ci_edit_page(void){
   int rid;
-  const char *zComment;
-  const char *zNewComment;
-  const char *zUser;
-  const char *zNewUser;
-  const char *zColor;
+  const char *zComment;         /* Current comment on the check-in */
+  const char *zNewComment;      /* Revised check-in comment */
+  const char *zUser;            /* Current user for the check-in */
+  const char *zNewUser;         /* Revised user */
+  const char *zDate;            /* Current date of the check-in */
+  const char *zNewDate;         /* Revised check-in date */
+  const char *zColor;       
   const char *zNewColor;
   const char *zNewTagFlag;
   const char *zNewTag;
@@ -1293,6 +1295,10 @@ void ci_edit_page(void){
                      "  FROM event WHERE objid=%d", rid);
   if( zUser==0 ) fossil_redirect_home();
   zNewUser = PD("u",zUser);
+  zDate = db_text(0, "SELECT datetime(mtime)"
+                     "  FROM event WHERE objid=%d", rid);
+  if( zDate==0 ) fossil_redirect_home();
+  zNewDate = PD("dt",zDate);
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PD("clr",zColor);
@@ -1327,6 +1333,10 @@ void ci_edit_page(void){
     if( strcmp(zComment,zNewComment)!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('comment','+',%Q)",
                     zNewComment);
+    }
+    if( strcmp(zDate,zNewDate)!=0 ){
+      db_multi_exec("REPLACE INTO newtags VALUES('date','+',%Q)",
+                    zNewDate);
     }
     if( strcmp(zUser,zNewUser)!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('user','+',%Q)", zNewUser);
@@ -1446,6 +1456,11 @@ void ci_edit_page(void){
   @ <tr><td align="right" valign="top"><b>Comment:</b></td>
   @ <td valign="top">
   @ <textarea name="c" rows="10" cols="80">%h(zNewComment)</textarea>
+  @ </td></tr>
+
+  @ <tr><td align="right" valign="top"><b>Check-in Time:</b></td>
+  @ <td valign="top">
+  @   <input type="text" name="dt" size="20" value="%h(zNewDate)">
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Background Color:</b></td>

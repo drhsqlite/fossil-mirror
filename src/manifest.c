@@ -917,12 +917,18 @@ int manifest_crosslink(int rid, Blob *pContent){
       db_finalize(&q);
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
-        "                  bgcolor,euser,ecomment)"
-        "VALUES('ci',%.17g,%d,%Q,%Q,"
-        " (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
+                           "bgcolor,euser,ecomment)"
+        "VALUES('ci',"
+        "  coalesce("
+        "    (SELECT julianday(value) FROM tagxref WHERE tagid=%d AND rid=%d),"
+        "    %.17g"
+        "  ),"
+        "  %d,%Q,%Q,"
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-        m.rDate, rid, m.zUser, m.zComment, 
+        TAG_DATE, rid, m.rDate,
+        rid, m.zUser, m.zComment, 
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid

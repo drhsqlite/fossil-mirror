@@ -278,11 +278,12 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(1, 'bgcolor');         -- TAG_BGCOLOR
 @ INSERT INTO tag VALUES(2, 'comment');         -- TAG_COMMENT
 @ INSERT INTO tag VALUES(3, 'user');            -- TAG_USER
-@ INSERT INTO tag VALUES(4, 'hidden');          -- TAG_HIDDEN
-@ INSERT INTO tag VALUES(5, 'private');         -- TAG_PRIVATE
-@ INSERT INTO tag VALUES(6, 'cluster');         -- TAG_CLUSTER
-@ INSERT INTO tag VALUES(7, 'branch');          -- TAG_BRANCH
-@ INSERT INTO tag VALUES(8, 'closed');          -- TAG_CLOSED
+@ INSERT INTO tag VALUES(4, 'date');            -- TAG_DATE
+@ INSERT INTO tag VALUES(5, 'hidden');          -- TAG_HIDDEN
+@ INSERT INTO tag VALUES(6, 'private');         -- TAG_PRIVATE
+@ INSERT INTO tag VALUES(7, 'cluster');         -- TAG_CLUSTER
+@ INSERT INTO tag VALUES(8, 'branch');          -- TAG_BRANCH
+@ INSERT INTO tag VALUES(9, 'closed');          -- TAG_CLOSED
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
@@ -332,14 +333,15 @@ const char zRepositorySchema2[] =
 # define TAG_BGCOLOR    1     /* Set the background color for display */
 # define TAG_COMMENT    2     /* The check-in comment */
 # define TAG_USER       3     /* User who made a checking */
-# define TAG_HIDDEN     4     /* Do not display or sync */
-# define TAG_PRIVATE    5     /* Display but do not sync */
-# define TAG_CLUSTER    6     /* A cluster */
-# define TAG_BRANCH     7     /* Value is name of the current branch */
-# define TAG_CLOSED     8     /* Do not display this check-in as a leaf */
+# define TAG_DATE       4     /* The date of a check-in */
+# define TAG_HIDDEN     5     /* Do not display or sync */
+# define TAG_PRIVATE    6     /* Display but do not sync */
+# define TAG_CLUSTER    7     /* A cluster */
+# define TAG_BRANCH     8     /* Value is name of the current branch */
+# define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
 #endif
 #if EXPORT_INTERFACE
-# define MAX_INT_TAG    8     /* The largest pre-assigned tag id */
+# define MAX_INT_TAG    9     /* The largest pre-assigned tag id */
 #endif
 
 /*

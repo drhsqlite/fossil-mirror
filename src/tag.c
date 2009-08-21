@@ -203,6 +203,10 @@ void tag_insert(
   if( zCol ){
     db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
   }
+  if( tagid==TAG_DATE ){
+    db_multi_exec("UPDATE event SET mtime=julianday(%Q) WHERE objid=%d",
+                  zValue, rid);
+  }
   if( tagtype==0 || tagtype==2 ){
     tag_propagate(rid, tagid, tagtype, rid, zValue, mtime);
   }
