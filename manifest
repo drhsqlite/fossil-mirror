@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\sthe\s-R\soption\sworking\son\sthe\sremote-url\scommand.
-D 2009-08-22T19:15:49
+C Fix\sthe\s"rebuild"\scommand\sso\sthat\sit\sworks\sin\san\sopen\scheck-out\swithout\s\nhaving\sto\sspecify\sthe\srepository\sand\sso\sthat\sit\saccepts\sthe\s-R\soption.
+D 2009-08-22T19:27:56
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -82,7 +82,7 @@ F src/name.c 040558eaa37918bc314befd66841bf667d6ca8bb
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c 485e8e6098a31625f6655ff18082fbf93a02cd2c
+F src/rebuild.c 523d3c93a0e47915d737cd2ebb785d3334ce3259
 F src/report.c dff9f62bfba44534242fe588ffef5229fb1aa1e6
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
@@ -247,14 +247,14 @@ F www/stats.wiki 659b9f92a84d4bb5b7bb065f4f7e26e5439a3cc5
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 2cc95180a0a430447a11a5b181708a37a2de8efe
-R 091d6e9236746ca20096186e4a01883e
+P 614519b46cb7cbf465ce9938294ef145a51d6296
+R 25a899900bb0547b16c340c046561b19
 U drh
-Z b972f646a000f21fe6430023a763ebd7
+Z 9225f11cebd29e7b1e332c614326dcf6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKkEPooxKgR168RlERAulZAKCKzOjfqe9gypVfSLECPWAGG2dT1gCeLG89
-SfyDfQuvOeojOopdSxMkhLg=
-=P+nw
+iD8DBQFKkEa/oxKgR168RlERAlTEAJ43P7+KlydCChebnuKZJXZT4982cgCePsIP
+S8/uBLuFDl9pUv5gj/1myXQ=
+=BGjF
 -----END PGP SIGNATURE-----

@@ -281,7 +281,7 @@ int rebuild_db(int randomize, int doOut){
 /*
 ** COMMAND:  rebuild
 **
-** Usage: %fossil rebuild REPOSITORY
+** Usage: %fossil rebuild ?REPOSITORY?
 **
 ** Reconstruct the named repository database from the core
 ** records.  Run this command after updating the fossil
@@ -294,10 +294,16 @@ void rebuild_database(void){
 
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
-  if( g.argc!=3 ){
-    usage("REPOSITORY-FILENAME");
+  if( g.argc==3 ){
+    db_open_repository(g.argv[2]);
+  }else{
+    db_find_and_open_repository(1);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close();
+    db_open_repository(g.zRepositoryName);
   }
-  db_open_repository(g.argv[2]);
   db_begin_transaction();
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1);
