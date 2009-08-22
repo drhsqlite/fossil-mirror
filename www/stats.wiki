@@ -1,0 +1,164 @@
+<h1 align="center">Performance Statistics</h1>
+
+The questions will inevitably arise:  How does Fossil perform? 
+Does it use a lot of disk space or bandwidth?  Is it scalable?
+
+In an attempt to answers these questions, this report looks at five
+projects that use fossil for configuration management and examines how
+well they are working.  The following table is a summary of the results.
+Explanation and analysis follows the table.
+
+<table border=1>
+<tr>
+<th>Project</th>
+<th>Number Of Artifacts</th>
+<th>Number Of Check-ins</th>
+<th>Project&nbsp;Duration<br>(as of 2009-08-23)</th>
+<th>Average Check-ins Per Day</th>
+<th>Uncompressed Size</th>
+<th>Repository Size</th>
+<th>Compression Ratio</th>
+<th>Clone Bandwidth</th>
+</tr>
+
+<tr align="center">
+<td>SQLite
+<td>28643
+<td>6755
+<td>3373&nbsp;days<br>9.24&nbsp;yrs
+<td>2.00
+<td>1.27&nbsp;GB
+<td>35.4&nbsp;MB
+<td>35:1
+<td>982&nbsp;KB&nbsp;up<br>12.4&nbsp;MB&nbsp;down
+</tr>
+
+<tr align="center">
+<td>Fossil
+<td>4981
+<td>1272
+<td>764&nbsp;days<br>2.1&nbsp;yrs
+<td>1.66
+<td>144&nbsp;MB
+<td>8.74&nbsp;MB
+<td>16:1
+<td>128&nbsp;KB&nbsp;up<br>4.49&nbsp;MB&nbsp;down
+</tr>
+
+<tr align="center">
+<td>SLT
+<td>2062
+<td>67
+<td>266&nbsp;days
+<td>0.25
+<td>1.76&nbsp;GB
+<td>147&nbsp;MB
+<td>11:1
+<td>1.1&nbsp;MB&nbsp;up<br>141&nbsp;MB&nbsp;down
+</tr>
+
+<tr align="center">
+<td>TH3
+<td>1999
+<td>429
+<td>331&nbsp;days
+<td>1.30
+<td>70.5&nbsp;MB
+<td>6.3&nbsp;MB
+<td>11:1
+<td>55&nbsp;KB&nbsp;up<br>4.66&nbsp;MB&nbsp;down
+</tr>
+
+<tr align="center">
+<td>SQLite Docs
+<td>1787
+<td>444
+<td>650&nbsp;days<br>1.78&nbsp;yrs
+<td>0.68
+<td>43&nbsp;MB
+<td>4.9&nbsp;MB
+<td>8:1
+<td>46&nbsp;KB&nbsp;up<br>3.35&nbsp;MB&nbsp;down
+</tr>
+
+</table>
+
+<h2>The Five Projects</h2>
+
+The five projects listed above were chosen because they have been in
+existance for a long time (relative to the age of fossil) or because
+they have larges amounts of content.  The most important project using
+fossil is SQLite.  Fossil itself
+is built on top of SQLite and so obviously SQLite has to predate fossil.
+SQLite was originally versioned using CVS, but recently the entire 9-year
+and 320-MB CVS history of SQLite was converted over to Fossil.  This is
+an important database because it demonstrates fossil's ability to manage
+a significant and long-running project.
+The next-longest running fossil project is fossil itself, at 2.1 years.
+The documentation for SQLite
+(identified above as "SQLite Docs") was split off of the main SQLite 
+source tree and into its own fossil repository about 1.75 years ago.
+The "SQL Logic Test" or "SLT" project is a massive
+collection of SQL statements and their output used to compare the 
+processing of SQLite against MySQL, PostgreSQL, Microsoft SQL Server,
+and Oracle.  
+Finally "TH3" is a proprietary set of test cases for SQLite used to give
+100% branch test coverage of SQLite on embedded platforms.  All projects
+except for TH3 are open-source.
+
+<h2>Measured Attributes</h2>
+
+In fossil, every version of every file, every wiki page, every change to
+every ticket, and every check-in is a separate "artifact".  One way to
+think of a fossil project is as a bag of artifacts.  Of course, there is
+a lot more than this going on in fossil.  Many of the artifacts have meaning
+and are related to other artifacts.  But at a low level (for example when
+synchronizing two instances of the same project) the only thing that matters
+is the unordered collection of artifacts.  In fact, one of the key 
+characteristics of fossil is that the entire project history can be
+reconstructed simply by scanning the artifacts in an arbitrary order.
+
+The number of check-ins is the number of times that the "commit" command
+has been run.  A single check-in might change a 3 or 4 files, or it might
+changes several dozen different files.  Regardless of the number of files
+changed, it still only counts as one check-in.
+
+The "Uncompressed Size" is the total size of all the artifacts within
+the fossil repository assuming they were all uncompressed and stored 
+separately on the disk.  Fossil makes use of delta compress between related
+versions of the same file, and then using zlib compression on the resulting
+deltas.  The total resulting repository size is shown after the uncompressed
+size.  
+
+On the right end of the table, we show the "Clone Bandwidth".  This is the
+total number of bytes sent from client to server ("uplink") and from server
+back to client ("downlink") in order to clone a repository.  These byte counts
+include all of the HTTP protocol overhead.
+
+In the table and throughout this article,
+"GB" means gigabytes (10<sup><small>9</small></sup> bytes)
+not <a href="http://en.wikipedia.org/wiki/Gibibyte">gibibytes</a>
+(2<sup><small>30</small></sup> bytes).  Similarly, "MB" and "KB"
+means megabytes and kilobytes, not mebibytes and kibibytes.
+
+<h2>Analysis And Supplimental Data</h2>
+
+Perhaps the two most interesting datapoints in the above table are SQLite
+and SLT.  SQLite is a long-running project with long revision chains.
+Some of the files in SQLite have been edited close to a thousand times.
+Each of these edits is stored as a delta, and hence the SQLite project
+gets excellent 35:1 compression.  SLT, on the other hand, consists of
+many large (megabyte-sized) SQL scripts that have one or maybe two
+versions.  There is very little delta compression occurring and so the
+overall repository compression ratio is much lower.  Note also that
+quite a bit more bandwidth is required to clone SLT than SQLite.
+
+For the first nine years of its development, SQLite was versioned by CVS.
+The resulting CVS repository measured over 320MB in size.  So, the
+developers were
+pleasently surprised to see that this entire project could be cloned in
+fossil using only about 13MB of network traffic.  The "sync" protocol
+used by fossil has turned out to be surprisingly efficient.  A typical
+check-in on SQLite might use 3 or 4KB of network bandwidth total.  Hardly
+worth measuring.  The sync protocol is efficient enough that, once cloned,
+fossil could easily be used over a dial-up connection.

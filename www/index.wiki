@@ -37,13 +37,15 @@ Or you can grab
   *  All network communication via HTTP with 
      [./quickstart.wiki#proxy | proxy support]
      so that everything works from behind restrictive firewalls.
+     Communication is [./stats.wiki | bandwidth-efficient].
   *  Everything (client, server, and utilities) is included in a 
      single self-contained executable - trivial to install
   *  Server runs as [./quickstart.wiki#cgiserver | CGI], using
      [./quickstart.wiki#inetdserver | inetd/xinetd]
      or using its own 
      [./quickstart.wiki#serversetup | built-in, stand alone web server].
-  *  An entire project contained in single disk file
+  *  An entire project contained in single 
+     [./stats.wiki | compact] disk file
      (an [http://www.sqlite.org/ | SQLite] database.)
   *  Uses an [./fileformat.wiki | enduring file format] that is 
      designed to be readable, searchable, and extensible by people
@@ -73,6 +75,8 @@ Or you can grab
   *  There is a
     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
      available for discussing fossil issues.
+  *  [./stats.wiki | Performance statistics] taken from real-world projects
+     hosted on fossil.
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
 
