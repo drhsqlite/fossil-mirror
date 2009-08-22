@@ -172,7 +172,7 @@ void sync_cmd(void){
 void remote_url_cmd(void){
   char *zUrl;
   int showPw = find_option("show-pw",0,0)!=0;
-  db_must_be_within_tree();
+  db_find_and_open_repository(1);
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
   }

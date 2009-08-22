@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Added\sthe\s"Performance\sStatistics"\spage\sto\sthe\sembedded\sdocumentation.
-D 2009-08-22T17:40:58
+C Get\sthe\s-R\soption\sworking\son\sthe\sremote-url\scommand.
+D 2009-08-22T19:15:49
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -94,7 +94,7 @@ F src/sqlite3.c 7d5967468ec504919dc0b78d39b87b322b33173e
 F src/sqlite3.h d6123af55047d459b2305d48fcc9f945ea760e1d
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 4ab2cc74bfc74dd61e22a149eec72a6e569edab8
-F src/sync.c 5eb1f32d91ac61ef8a2e56c363e61673c825ab7c
+F src/sync.c 83eeccbf313cf603237e8ea2109c397b24be4970
 F src/tag.c 48169c968eac72559b4d195b7b2207ff86c4ec20
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -247,14 +247,14 @@ F www/stats.wiki 659b9f92a84d4bb5b7bb065f4f7e26e5439a3cc5
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ac03d433483d337b47fb5115e970b760e21f6b26
-R 02cb6107c5704f69f753627aca8f9614
+P 2cc95180a0a430447a11a5b181708a37a2de8efe
+R 091d6e9236746ca20096186e4a01883e
 U drh
-Z 59363eba7225cb971206be1207af2e0f
+Z b972f646a000f21fe6430023a763ebd7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKkC2toxKgR168RlERAhNhAJ4vrAB8WHMnsGuNSFiiQQk5M4eZ8ACcCsFI
-LaiCSXSREE7UBeJNX+T0ABY=
-=pvsH
+iD8DBQFKkEPooxKgR168RlERAulZAKCKzOjfqe9gypVfSLECPWAGG2dT1gCeLG89
+SfyDfQuvOeojOopdSxMkhLg=
+=P+nw
 -----END PGP SIGNATURE-----
