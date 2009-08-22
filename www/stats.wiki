@@ -92,7 +92,7 @@ fossil is SQLite.  Fossil itself
 is built on top of SQLite and so obviously SQLite has to predate fossil.
 SQLite was originally versioned using CVS, but recently the entire 9-year
 and 320-MB CVS history of SQLite was converted over to Fossil.  This is
-an important database because it demonstrates fossil's ability to manage
+an important datapoint because it demonstrates fossil's ability to manage
 a significant and long-running project.
 The next-longest running fossil project is fossil itself, at 2.1 years.
 The documentation for SQLite
