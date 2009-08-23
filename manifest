@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\stypo\sin\sthe\snew\sstats.wiki\sdocument.
-D 2009-08-22T20:48:17
+C typo
+D 2009-08-23T21:23:54
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -243,18 +243,18 @@ F www/quickstart.wiki a7f1c75cf3a119a77a14bc4a605495711a6817aa
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
-F www/stats.wiki ef566cc15ca9441af5bc41c69636ec4687bbb546
+F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d0fc1ad062658a4c5048eb513168678b3e81e87f
-R c68289753580c20f1d58f6a7413152f4
-U drh
-Z 9f8317a198052a09b78a12dbe30e1fb3
+P 45dbaa0c94051eb2844414171ee0265bef260018
+R c33a592ff92dd25a8c84a64db4adf8b3
+U bch
+Z 91910e9296e613103f409401b98af094
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFKkFmUoxKgR168RlERAoBQAJsGGEjbT9J6mwGrTFuudJRIux1nwgCfa2zy
-S25fRnPukGyRQ2Y66Sn8uNE=
-=5ZT1
+iEYEARECAAYFAkqRs2oACgkQad0Kwpwugm+DlgCg09kmEVsHmhqRkstu06IFepQa
+EXIAn2kpKCvjrgp2w2r0I4+vPLd0sjuw
+=tILH
 -----END PGP SIGNATURE-----

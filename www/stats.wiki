@@ -120,7 +120,7 @@ reconstructed simply by scanning the artifacts in an arbitrary order.
 
 The number of check-ins is the number of times that the "commit" command
 has been run.  A single check-in might change a 3 or 4 files, or it might
-changes several dozen different files.  Regardless of the number of files
+change several dozen different files.  Regardless of the number of files
 changed, it still only counts as one check-in.
 
 The "Uncompressed Size" is the total size of all the artifacts within
