@@ -1,3 +1,4 @@
+<title>Fossil Quick Start Guide</title>
 <nowiki>
 <h1 align="center">Fossil Quick Start</h1>
 

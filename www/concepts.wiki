@@ -1,7 +1,6 @@
+<title>Fossil Concepts</title>
 <nowiki>
-<h1 align="center">
-Fossil Concepts
-</h1>
+<h1 align="center">Fossil Concepts</h1>
 
 <h2>1.0 Introduction</h2>
 <p>

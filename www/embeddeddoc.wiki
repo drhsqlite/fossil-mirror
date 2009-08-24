@@ -1,3 +1,4 @@
+<title>Managing Project Documentation</title>
 <h1 align="center">Managing Project Documentation</h1>
 
 Fossil provides a built-in <a href="wikitheory.wiki">wiki</a>

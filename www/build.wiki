@@ -1,3 +1,4 @@
+<title>Fossil Documentation</title>
 <nowiki>
 <h1>Installing Fossil</h1>
 
