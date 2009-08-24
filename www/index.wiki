@@ -7,9 +7,8 @@ that includes an integrated
 [./wikitheory.wiki | distributed wiki] and an integrated
 [./bugtheory.wiki | distributed bug-tracking system] all in a single, 
 easy-to-use, stand-alone executable.
-Fossil is [http://www.fossil-scm.org/ | self-hosting]
-since 2007-07-21 on
-[http://www.hwaci.com/cgi-bin/fossil | two separate servers].
+Fossil has been [./selfhost.wiki | self-hosting]
+since 2007-07-21.
 You can download the [/timeline?y=ci | latest sources] and
 [./build.wiki | compile it yourself].
 Or you can grab
