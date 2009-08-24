@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\s&lt;title&gt;\smarkup\sto\sseveral\sof\sthe\sembedded\sdocumentation\spages.
-D 2009-08-24T17:54:24
+C Typos\sin\sthe\snew\sselfhost.wiki\sdocument.
+D 2009-08-24T18:02:18
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -243,19 +243,19 @@ F www/quickstart.wiki 8acad3016140af23ab4e972810144be8c89e1ecb
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
-F www/selfhost.wiki 1b51c5e697808bcd319af553d1d278929fae7bb7
+F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
 F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P b79994adcb536c646c01657fec224f3820901613
-R 1549adc54f6f3d4ef74806b12c5f8083
+P 5523218023af70f0f307547b5c39146fe3b866f7
+R a336e02ced3acd64bb06963462c6c51a
 U drh
-Z b531c7410f19d4a0260608e6febc7313
+Z d3b0126c3640c9b7e6fe1c4db330eb9d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKktPToxKgR168RlERAlFMAKCJk+9aQ1Vt08vYoNXiPAPTpCZfugCeISEE
-6NnJs2QPH8tHwpyxkS/Xx7U=
-=6Wjs
+iD8DBQFKktWvoxKgR168RlERAhagAJoDxprATHoHPQjmP9hapfJDHY72GACdH+KI
+9zORRfIBV+igixKlq0SebQM=
+=fEYm
 -----END PGP SIGNATURE-----

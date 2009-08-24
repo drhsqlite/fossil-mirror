@@ -2,7 +2,7 @@
 <h1 align="center">Fossil Self-Hosting Repositories</h1>
 
 Fossil has self-hosted since 2007-07-21.  As of this writing (2009-08-24)
-there are three publicly accessible repositories for he Fossil source code:
+there are three publicly accessible repositories for the Fossil source code:
 
   1.  [http://www.fossil-scm.org/]
   2.  [http://www.hwaci.com/cgi-bin/fossil]
@@ -11,8 +11,8 @@ there are three publicly accessible repositories for he Fossil source code:
 
 The canonical repository is (1).  Repositories (2) and (3) automatically
 stay in synchronization with (1) via a 
-<a href="http://en.wikipedia.org/wiki/Cron">cron</a> job that invokes
-"fossil sync" on a daily basis.  
+<a href="http://en.wikipedia.org/wiki/Cron">cron job</a> that invokes
+"fossil sync" at regular intervals.
 
 Note that the two secondary repositories are more than just read-only mirrors.
 All three servers support full read/write capabilities.
@@ -22,11 +22,11 @@ other two servers.
 
 Server (1) runs as a CGI script on a
 <a href="http://www.linode.com/">Linode 720</a> located in Dallas, TX
-- on the same virtual
-machine hosts <a href="http://www.sqlite.org/">SQLite</a> and over a
+- on the same virtual machine that 
+hosts <a href="http://www.sqlite.org/">SQLite</a> and over a
 dozen other smaller projects.  This demonstrates that Fossil does not
 require much server power.
-Multiple fossil-based projects an easily be hosted on the same machine,
+Multiple fossil-based projects can easily be hosted on the same machine,
 even if that machine is itself one of several dozen virtual machines on
 single physical box.  The CGI script that runs the canonical Fossil
 self-hosting repository is as follows:
@@ -36,7 +36,7 @@ self-hosting repository is as follows:
 repository: /fossil/fossil.fossil
 </pre></blockquote>
 
-Server (2) run as a CGI script on a shared hosting account at
+Server (2) runs as a CGI script on a shared hosting account at
 <a href="http://www.he.net/">Hurricane Electric</a> in San Jose and
 Fremont, CA.  This server demonstrates the ability of
 Fossil to run on an economical shared-host web account with no
