@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s--private\soption\sto\sthe\s"fossil\scommit"\scommand.\s\sThis\soption\screates\na\sprivate\sbranch\swhich\sis\snever\spushed.
-D 2009-08-26T18:25:48
+C Update\sthe\sFAQ\sto\sdescribe\sthe\snew\s--private\soption\son\sthe\scommit\scommand.
+D 2009-08-26T18:40:07
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -227,7 +227,7 @@ F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
-F www/faq.wiki 4f2f594a410ce3976071a008a4d6cd0e41f16968
+F www/faq.wiki 7adf59141fce671984785fc705d703707b26552b
 F www/fileformat.wiki ab44da6d91082d27a614084f869728cae322abbf
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -248,14 +248,14 @@ F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 93d0646830d85089ef9e23ebaac1438caf206b2e
-R 9f450cae175e318d93037d2d618bebd0
+P 02a584f7f5e58808cc8260b2914345d8a72ed430
+R 7e62e43387828448c81a85afe4286c95
 U drh
-Z 46ea2d39e3218a4ca25dec88a7851dce
+Z e23ece5a69d2a1ede44ab6c1dd8a1139
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKlX4woxKgR168RlERAt3GAJ9AUk61TGkx3fNJqMTLSXeCXGyAggCfWK0O
-U7t/wfkH/n8BfDeJ1ar6ww0=
-=z9T5
+iD8DBQFKlYGKoxKgR168RlERAmOTAJ4rqtBCXm7iB3tJlEVXz86aEAW47ACcD1gM
+3RPbVuKraujoP/SRt7N/neI=
+=1VqX
 -----END PGP SIGNATURE-----
