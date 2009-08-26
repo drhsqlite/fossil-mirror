@@ -68,12 +68,30 @@ faq {
   How do I create a private branch that won't get pushed back to the
   main repository.
 } {
-  You cannot.  All branches in fossil are public in the sense that
-  are all pushed and pulled together.  There is no way to tell fossil
-  to only push or pull a subset of branches.
+  Use the <b>--private</b> command-line option on the 
+  <b>commit</b> command.  The result will be a check-in which exists on
+  your local repository only and is never pushed to other repositories.  
+  All descendents of a private check-in are also private.
+  
+  Unless you specify something different using the <b>--branch</b> and/or
+  <b>--bgcolor</b> options, the new private check-in will be put on a branch
+  named "private" with an orange background color.
+  
+  You can merge from the trunk into your private branch in order to keep
+  your private branch in sync with the latest changes on the trunk.  Once
+  you have everything in your private branch the way you want it, you can
+  then merge your private branch back into the trunk and push.  Only the
+  final merge operation will appear in other repositories.  It will seem
+  as if all the changes that occurred on your private branch occurred in
+  a single check-in.
+  Of course, you can also keep your branch private forever simply
+  by not merging the changes in the private branch back into the trunk.
+}
 
-  Of course, as long as you never push, you can make as many private
-  changes as you want.
+faq {
+  How can I delete inappropriate content from my fossil repository?
+} {
+  See the article on [./shunning.wiki | "shunning"] for details.
 }
 
 

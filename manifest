@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sFAQ\sto\sdescribe\sthe\snew\s--private\soption\son\sthe\scommit\scommand.
-D 2009-08-26T18:40:07
+C More\sFAQ\supdates.\s\sAdd\sthe\sdocument\son\s"shunning".
+D 2009-08-26T19:50:21
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -226,15 +226,15 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/faq.tcl b78897700272926d4b4a6d82e75dda59b89c2fba
-F www/faq.wiki 7adf59141fce671984785fc705d703707b26552b
+F www/faq.tcl 8ff9488a6cdea02ac946e831d7bbda40dc011a62
+F www/faq.wiki 05996cbdabef3808923f024a8fd6c55223cd2a75
 F www/fileformat.wiki ab44da6d91082d27a614084f869728cae322abbf
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
 F www/fossil2.gif f64284050bf93f1b74fd05ed00de9984b79193b3
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
-F www/index.wiki ee31c52eb6dc12309cb62250d74d0d36d94d8d13
+F www/index.wiki 72859af2194f813f21e55fae8745b3a817dbcb84
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -244,18 +244,19 @@ F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
 F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
+F www/shunning.wiki 7b6d5703dc0d63a1ce7fc77c34985237c2d97f04
 F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 02a584f7f5e58808cc8260b2914345d8a72ed430
-R 7e62e43387828448c81a85afe4286c95
+P 85c6542a1614069f5c2f1279b07a65fb0c4f1fb1
+R 7f62dc619057677a1ac8c7014f793701
 U drh
-Z e23ece5a69d2a1ede44ab6c1dd8a1139
+Z 391e8c76dde48964366c36781ed88d67
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKlYGKoxKgR168RlERAmOTAJ4rqtBCXm7iB3tJlEVXz86aEAW47ACcD1gM
-3RPbVuKraujoP/SRt7N/neI=
-=1VqX
+iD8DBQFKlZIAoxKgR168RlERAlEfAJ4gyEd2BCW8gcN4d8kM1aaSOSr0zQCdEKgP
+AafGPyrOJyE6do4GbdpB0NY=
+=pQ/G
 -----END PGP SIGNATURE-----

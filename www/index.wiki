@@ -80,6 +80,7 @@ Simple, high-reliability, distributed software configuration management
      available for discussing fossil issues.
   *  [./stats.wiki | Performance statistics] taken from real-world projects
      hosted on fossil.
+  *  How to [./shunning.wiki | delete content] from a fossil repository.
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
 
