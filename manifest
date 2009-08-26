@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C More\sFAQ\supdates.\s\sAdd\sthe\sdocument\son\s"shunning".
-D 2009-08-26T19:50:21
+C Layout\schanges\sto\sthe\s"shun"\scontrol\spage.
+D 2009-08-26T20:24:58
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -89,7 +89,7 @@ F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c db3fd09f7a989b26be82b24af9e9e93927a0bcc9
 F src/setup.c ddfa4b243d48aae45d3715c6a47d4a7cfe8eb268
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/shun.c 95475202fe161657e4a6e54fd8ded2b422682f02
+F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
 F src/sqlite3.c 7d5967468ec504919dc0b78d39b87b322b33173e
 F src/sqlite3.h d6123af55047d459b2305d48fcc9f945ea760e1d
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
@@ -249,14 +249,14 @@ F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 85c6542a1614069f5c2f1279b07a65fb0c4f1fb1
-R 7f62dc619057677a1ac8c7014f793701
+P d6b8b5ba7370b3946b29d1ec0cc7ed1780e0893e
+R a300258f0b214429013a3570e3dc0e27
 U drh
-Z 391e8c76dde48964366c36781ed88d67
+Z a44a52f40b9a4d9f6019356cc8e4f4b7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKlZIAoxKgR168RlERAlEfAJ4gyEd2BCW8gcN4d8kM1aaSOSr0zQCdEKgP
-AafGPyrOJyE6do4GbdpB0NY=
-=pQ/G
+iD8DBQFKlZodoxKgR168RlERAjVlAJ9yOPv91lj3eOrkzpqgYWnChzA2qQCfdjbq
+dHFusnO3GVVYOKArQIa8UxQ=
+=xEWD
 -----END PGP SIGNATURE-----
