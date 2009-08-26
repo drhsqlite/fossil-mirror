@@ -194,6 +194,8 @@ void shun_artifacts(void){
      "DELETE FROM delta WHERE rid IN toshun;"
      "DELETE FROM blob WHERE rid IN toshun;"
      "DROP TABLE toshun;"
+     "DELETE FROM private "
+     " WHERE NOT EXISTS (SELECT 1 FROM blob WHERE rid=private.rid);"
   );
 }
 

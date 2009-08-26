@@ -244,6 +244,7 @@ void testtag_cmd(void){
   if( rid==0 ){
     fossil_fatal("no such object: %s", g.argv[3]);
   }
+  g.markPrivate = content_is_private(rid);
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
   tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
@@ -278,6 +279,7 @@ void tag_add_artifact(
     return;
   }
   rid = name_to_rid(blob_str(&uuid));
+  g.markPrivate = content_is_private(rid);
   blob_zero(&ctrl);
 
 #if 0

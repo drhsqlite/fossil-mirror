@@ -452,6 +452,10 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     if( !pBlob ){
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
+    if( g.markPrivate ){
+      db_multi_exec("INSERT INTO private VALUES(%d)", rid);
+      markAsUnclustered = 0;
+    }
   }
   blob_reset(&cmpr);
 
@@ -512,11 +516,15 @@ int content_new(const char *zUuid){
   );
   db_bind_int(&s2, ":rid", rid);
   db_exec(&s2);
-  db_static_prepare(&s3,
-    "INSERT INTO unclustered VALUES(:rid)"
-  );
-  db_bind_int(&s3, ":rid", rid);
-  db_exec(&s3);
+  if( g.markPrivate ){
+    db_multi_exec("INSERT INTO private VALUES(%d)", rid);
+  }else{
+    db_static_prepare(&s3,
+      "INSERT INTO unclustered VALUES(:rid)"
+    );
+    db_bind_int(&s3, ":rid", rid);
+    db_exec(&s3);
+  }
   bag_insert(&contentCache.missing, rid);
   db_end_transaction(0);
   return rid;
@@ -574,10 +582,43 @@ void test_content_undelta_cmd(void){
 }
 
 /*
+** Return true if the given RID is marked as PRIVATE.
+*/
+int content_is_private(int rid){
+  static Stmt s1;
+  int rc;
+  db_static_prepare(&s1,
+    "SELECT 1 FROM private WHERE rid=:rid"
+  );
+  db_bind_int(&s1, ":rid", rid);
+  rc = db_step(&s1);
+  db_reset(&s1);
+  return rc==SQLITE_ROW;  
+}
+
+/*
+** Make sure an artifact is public.  
+*/
+void content_make_public(int rid){
+  static Stmt s1;
+  db_static_prepare(&s1,
+    "DELETE FROM private WHERE rid=:rid"
+  );
+  db_bind_int(&s1, ":rid", rid);
+  db_exec(&s1);
+}
+
+/*
 ** Change the storage of rid so that it is a delta of srcid.
 **
 ** If rid is already a delta from some other place then no
 ** conversion occurs and this is a no-op unless force==1.
+**
+** Never generate a delta that carries a private artifact into a public
+** artifact.  Otherwise, when we go to send the public artifact on a
+** sync operation, the other end of the sync will never be able to receive
+** the source of the delta.  It is OK to delta private->private and
+** public->private and public->public.  Just no private->public delta.
 **
 ** If srcid is a delta that depends on rid, then srcid is
 ** converted to undeltaed text.
@@ -585,11 +626,6 @@ void test_content_undelta_cmd(void){
 ** If either rid or srcid contain less than 50 bytes, or if the
 ** resulting delta does not achieve a compression of at least 25% on
 ** its own the rid is left untouched.
-**
-** NOTE: IMHO the creation of the delta should be defered until after
-** the blob sizes have been checked. Doing it before the check as is
-** done now the code will generate a delta just to immediately throw
-** it away, wasting space and time.
 */
 void content_deltify(int rid, int srcid, int force){
   int s;
@@ -597,6 +633,9 @@ void content_deltify(int rid, int srcid, int force){
   Stmt s1, s2;
   if( srcid==rid ) return;
   if( !force && findSrcid(rid)>0 ) return;
+  if( content_is_private(srcid) && !content_is_private(rid) ){
+    return;
+  }
   s = srcid;
   while( (s = findSrcid(s))>0 ){
     if( s==rid ){
@@ -605,10 +644,18 @@ void content_deltify(int rid, int srcid, int force){
     }
   }
   content_get(srcid, &src);
+  if( blob_size(&src)<50 ){
+    blob_reset(&src);
+    return;
+  }
   content_get(rid, &data);
+  if( blob_size(&data)<50 ){
+    blob_reset(&src);
+    blob_reset(&data);
+    return;
+  }
   blob_delta_create(&src, &data, &delta);
-  if( blob_size(&src)>=50 && blob_size(&data)>=50 &&
-           blob_size(&delta) < blob_size(&data)*0.75 ){
+  if( blob_size(&delta) < blob_size(&data)*0.75 ){
     blob_compress(&delta, &delta);
     db_prepare(&s1, "UPDATE blob SET content=:data WHERE rid=%d", rid);
     db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, srcid);

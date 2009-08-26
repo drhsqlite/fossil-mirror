@@ -60,6 +60,12 @@ void clone_cmd(void){
       " VALUES('last-sync-url', '%q');",
       g.urlCanonical
     );
+    db_multi_exec(
+       "DELETE FROM blob WHERE rid IN private;"
+       "DELETE FROM delta wHERE rid IN private;"
+       "DELETE FROM private;"
+    );
+    shun_artifacts();
     g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     if( g.zLogin==0 ){
       db_create_default_users(1);

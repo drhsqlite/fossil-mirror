@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Typos\sin\sthe\snew\sselfhost.wiki\sdocument.
-D 2009-08-24T18:02:18
+C Add\sthe\s--private\soption\sto\sthe\s"fossil\scommit"\scommand.\s\sThis\soption\screates\na\sprivate\sbranch\swhich\sis\snever\spushed.
+D 2009-08-26T18:25:48
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -45,15 +45,15 @@ F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 8b6978d8ea01ced78cba4f60a45fa9e02434ef79
-F src/checkin.c e04164b91d4ed7a05f599feb6be872426509c00e
+F src/checkin.c 8b03f30dd73df684660a44c404665f205883d70e
 F src/checkout.c 9058612e329c957ba94ff93ccbae31acf6008597
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
-F src/clone.c f0402d199ec0e7075a3ad1a56d3378d81d22f5ec
+F src/clone.c 70ab216ac262485d0dd5c9c1299100cb40f0ea80
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
-F src/content.c 6508de111827efb86d0f722fca3159368d9d84dd
+F src/content.c ebd984372a2339b73a5e383f4d4f09b6687dab05
 F src/db.c 63926039f3174ae08107c9a54017419eb4752158
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -66,9 +66,9 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c 4d0388b1d85534ee386d0530fc54c89db9c635db
+F src/info.c 10f41cb27f97dcff27d708cefbf351345699c256
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
-F src/main.c 0dbd180aa04829a964557ca6175ac63cd950253e
+F src/main.c 38aa437f8cab1ed4c9106124b9d1d0a4807451e0
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -89,13 +89,13 @@ F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c db3fd09f7a989b26be82b24af9e9e93927a0bcc9
 F src/setup.c ddfa4b243d48aae45d3715c6a47d4a7cfe8eb268
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
-F src/shun.c 42fc2023fe5c5dcc90e8265571b12ef4426ac480
+F src/shun.c 95475202fe161657e4a6e54fd8ded2b422682f02
 F src/sqlite3.c 7d5967468ec504919dc0b78d39b87b322b33173e
 F src/sqlite3.h d6123af55047d459b2305d48fcc9f945ea760e1d
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 4ab2cc74bfc74dd61e22a149eec72a6e569edab8
 F src/sync.c 83eeccbf313cf603237e8ea2109c397b24be4970
-F src/tag.c 48169c968eac72559b4d195b7b2207ff86c4ec20
+F src/tag.c 11a50e87e6aa9792943135caed6c4054419cb6f2
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
@@ -113,7 +113,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c c1cfc24309b618d0ba8ad27739fc552b1e3aed41
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
-F src/xfer.c bb547deab3c2bcd233c75fad477770c183bbef5e
+F src/xfer.c e2586d1f321c459ee437fcb958e8230fce4f5ea8
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -248,14 +248,14 @@ F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5523218023af70f0f307547b5c39146fe3b866f7
-R a336e02ced3acd64bb06963462c6c51a
+P 93d0646830d85089ef9e23ebaac1438caf206b2e
+R 9f450cae175e318d93037d2d618bebd0
 U drh
-Z d3b0126c3640c9b7e6fe1c4db330eb9d
+Z 46ea2d39e3218a4ca25dec88a7851dce
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKktWvoxKgR168RlERAhagAJoDxprATHoHPQjmP9hapfJDHY72GACdH+KI
-9zORRfIBV+igixKlq0SebQM=
-=fEYm
+iD8DBQFKlX4woxKgR168RlERAt3GAJ9AUk61TGkx3fNJqMTLSXeCXGyAggCfWK0O
+U7t/wfkH/n8BfDeJ1ar6ww0=
+=z9T5
 -----END PGP SIGNATURE-----
