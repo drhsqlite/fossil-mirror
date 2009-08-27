@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Performance\simprovements\son\sthe\scompute_leavs()\sroutine.\s\sThere\sis\s\nopportunity\sfor\sfurther\simprovement\sin\sthis\sarea.
-D 2009-08-27T15:00:33
+C Various\ssmall\sperformance\senhancements.
+D 2009-08-27T18:33:43
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -40,7 +40,7 @@ F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c c094792c50f04881b59aa5fa6bbe9c164a4b1f0e
 F src/allrepo.c 8f62ffa7a26de589a17babc6d01fa9d986bcc89a
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
-F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
+F src/blob.c 80cddafe2a13ae44bed095aeb87df87cc48d7fc8
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
@@ -53,7 +53,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c d749a9aa698761537457f567224cace5da42ef33
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
-F src/content.c ebd984372a2339b73a5e383f4d4f09b6687dab05
+F src/content.c 79f280c4e28eeaf2c88a87b6bc25eed1fcce7a30
 F src/db.c 63926039f3174ae08107c9a54017419eb4752158
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -61,7 +61,7 @@ F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92
-F src/encode.c 1fff362c9db69310376bc26ba0a8b1703c512c9a
+F src/encode.c 7772615572a47c72b07da6891b1c9ee7447ca2d4
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
@@ -82,7 +82,7 @@ F src/name.c 040558eaa37918bc314befd66841bf667d6ca8bb
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c 523d3c93a0e47915d737cd2ebb785d3334ce3259
+F src/rebuild.c fd43a695c4fb9966b863055de361e068f492cc22
 F src/report.c dff9f62bfba44534242fe588ffef5229fb1aa1e6
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
@@ -249,14 +249,14 @@ F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 1409fbe38c764e93ca606a195b572dfd70aec1b4
-R e43c9c693f06dc7432ab47a871bc03a8
+P 6953ca813cce7f2275dde00ff6ebac44230607c8
+R ef43493f4ecfb16beaaefe7202c9e0f0
 U drh
-Z 2b3ac6dee8e782bb127446c2d72f021f
+Z c73cbe8679b39cec865632f05e9b97e7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKlp+XoxKgR168RlERAkmGAJ9nbg64VnrKpVfPRaDhBa+3fnPnbQCfQGcj
-+ZUGUva4I9jx7F6xUgWyEPQ=
-=ImGv
+iD8DBQFKltGKoxKgR168RlERAg2gAJ4iuM6BbbFF7xM6ia9OZdBSegTyWwCdF4w3
+lsdIafdjU7K1h2I/M3+71eQ=
+=FCxE
 -----END PGP SIGNATURE-----

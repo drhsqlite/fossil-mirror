@@ -153,12 +153,30 @@ static void content_mark_available(int rid){
 }
 
 /*
+** Get the blob.content value for blob.rid=rid.  Return 1 on success or
+** 0 on failure.
+*/
+static int content_of_blob(int rid, Blob *pBlob){
+  static Stmt q;
+  int rc = 0;
+  db_static_prepare(&q, "SELECT content FROM blob WHERE rid=:rid AND size>=0");
+  db_bind_int(&q, ":rid", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    db_ephemeral_blob(&q, 0, pBlob);
+    blob_uncompress(pBlob, pBlob);
+    rc = 1;
+  }
+  db_reset(&q);
+  return rc;
+}
+
+
+/*
 ** Extract the content for ID rid and put it into the
 ** uninitialized blob.  Return 1 on success.  If the record
 ** is a phantom, zero pBlob and return 0.
 */
 int content_get(int rid, Blob *pBlob){
-  Stmt q;
   Blob src;
   int srcid;
   int rc = 0;
@@ -185,7 +203,7 @@ int content_get(int rid, Blob *pBlob){
       if( i<contentCache.n ){
         contentCache.a[i] = contentCache.a[contentCache.n];
       }
-      CONTENT_TRACE(("%*shit cache: %d\n", 
+      CONTENT_TRACE(("%*scache: %d\n", 
                     bag_count(&inProcess), "", rid))
       return 1;
     }
@@ -212,17 +230,13 @@ int content_get(int rid, Blob *pBlob){
     bag_insert(&inProcess, srcid);
 
     if( content_get(srcid, &src) ){
-      db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
-      if( db_step(&q)==SQLITE_ROW ){
-        Blob delta;
-        db_ephemeral_blob(&q, 0, &delta);
-        blob_uncompress(&delta, &delta);
+      Blob delta;
+      if( content_of_blob(rid, &delta) ){
         blob_init(pBlob,0,0);
         blob_delta_apply(&src, &delta, pBlob);
         blob_reset(&delta);
         rc = 1;
       }
-      db_finalize(&q);
 
       /* Save the srcid artifact in the cache */
       if( contentCache.n<MX_CACHE_CNT ){
@@ -256,13 +270,9 @@ int content_get(int rid, Blob *pBlob){
     bag_remove(&inProcess, srcid);
   }else{
     /* No delta required.  Read content directly from the database */
-    db_prepare(&q, "SELECT content FROM blob WHERE rid=%d AND size>=0", rid);
-    if( db_step(&q)==SQLITE_ROW ){
-      db_ephemeral_blob(&q, 0, pBlob);
-      blob_uncompress(pBlob, pBlob);
+    if( content_of_blob(rid, pBlob) ){
       rc = 1;
     }
-    db_finalize(&q);
   }
   if( rc==0 ){
     bag_insert(&contentCache.missing, rid);

@@ -81,8 +81,23 @@ struct Blob {
 ** some international character sets.  So here is a substitute.
 */
 static int blob_isspace(char c){
-  return c==' '  || c=='\n' || c=='\t' ||
-         c=='\r' || c=='\f' || c=='\v';
+  return c==' ' || (c<='\r' && c>='\t');
+}
+
+/*
+** COMMAND: test-isspace
+*/
+void isspace_cmd(void){
+  int i;
+  for(i=0; i<=255; i++){
+    if( i==' ' || i=='\n' || i=='\t' || i=='\v'
+        || i=='\f' || i=='\r' ){
+      assert( blob_isspace((char)i) );
+    }else{
+      assert( !blob_isspace((char)i) );
+    }
+  }
+  printf("All 256 characters OK\n");
 }
 
 /*

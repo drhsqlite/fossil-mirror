@@ -208,6 +208,7 @@ int rebuild_db(int randomize, int doOut){
   bag_init(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
+  printf("0 (0%%)...\r"); fflush(stdout);
   db_multi_exec(zSchemaUpdates);
   for(;;){
     zTable = db_text(0,
