@@ -462,6 +462,19 @@ void wikiappend_page(void){
 }
 
 /*
+** Name of the wiki history page being generated
+*/
+static const char *zWikiPageName;
+
+/*
+** Function called to output extra text at the end of each line in
+** a wiki history listing.
+*/
+static void wiki_history_extra(int rid){
+  @ <a href="%s(g.zTop)/wdiff?name=%h(zWikiPageName)&a=%d(rid)">[diff]</a>
+}
+
+/*
 ** WEBPAGE: whistory
 ** URL: /whistory?name=PAGENAME
 **
@@ -486,8 +499,62 @@ void whistory_page(void){
                  timeline_query_for_www(), zPageName);
   db_prepare(&q, zSQL);
   free(zSQL);
-  www_print_timeline(&q, TIMELINE_ARTID, 0);
+  zWikiPageName = zPageName;
+  www_print_timeline(&q, TIMELINE_ARTID, wiki_history_extra);
   db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: wdiff
+** URL: /whistory?name=PAGENAME&a=RID1&b=RID2
+**
+** Show the difference between two wiki pages.
+*/
+void wdiff_page(void){
+  char *zTitle;
+  int rid1, rid2;
+  const char *zPageName;
+  Blob content1, content2;
+  Manifest m1, m2;
+  Blob w1, w2, d;
+
+  login_check_credentials();
+  rid1 = atoi(PD("a","0"));
+  if( !g.okHistory ){ login_needed(); return; }
+  if( rid1==0 ) fossil_redirect_home();
+  rid2 = atoi(PD("b","0"));
+  zPageName = PD("name","");
+  zTitle = mprintf("Changes To %h", zPageName);
+  style_header(zTitle);
+  free(zTitle);
+
+  if( rid2==0 ){
+    rid2 = db_int(0,
+      "SELECT objid FROM event JOIN tagxref ON objid=rid AND tagid="
+                        "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
+      " WHERE event.mtime<(SELECT mtime FROM event WHERE objid=%d)"
+      " ORDER BY event.mtime DESC LIMIT 1",
+      zPageName, rid1
+    );
+  }
+  content_get(rid1, &content1);
+  manifest_parse(&m1, &content1);
+  if( m1.type!=CFTYPE_WIKI ) fossil_redirect_home();
+  blob_init(&w1, m1.zWiki, -1);
+  blob_zero(&w2);
+  if( rid2 ){
+    content_get(rid2, &content2);
+    manifest_parse(&m2, &content2);
+    if( m2.type==CFTYPE_WIKI ){
+      blob_init(&w2, m2.zWiki, -1);
+    }
+  }
+  blob_zero(&d);
+  text_diff(&w2, &w1, &d, 5);
+  @ <pre>
+  @ %h(blob_str(&d))
+  @ </pre>
   style_footer();
 }
 
