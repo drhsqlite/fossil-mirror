@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Layout\schanges\sto\sthe\s"shun"\scontrol\spage.
-D 2009-08-26T20:24:58
+C Performance\simprovements\sto\sthe\s"bag"\sobject.
+D 2009-08-27T14:04:39
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -39,7 +39,7 @@ F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c c094792c50f04881b59aa5fa6bbe9c164a4b1f0e
 F src/allrepo.c 8f62ffa7a26de589a17babc6d01fa9d986bcc89a
-F src/bag.c c1c41296e0eaea11f16f1490d5a46be138e6baf5
+F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c 199885625673bbe2238093ce30f311c6bd2544b1
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
@@ -249,14 +249,14 @@ F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d6b8b5ba7370b3946b29d1ec0cc7ed1780e0893e
-R a300258f0b214429013a3570e3dc0e27
+P 50ab5c33e77781f1a600e4a59cd462c3c27975e3
+R 26ae5313a338a6e3cc2e570153c12ae5
 U drh
-Z a44a52f40b9a4d9f6019356cc8e4f4b7
+Z 0e16e3318c9a20c31edc6a684b43c5f2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKlZodoxKgR168RlERAjVlAJ9yOPv91lj3eOrkzpqgYWnChzA2qQCfdjbq
-dHFusnO3GVVYOKArQIa8UxQ=
-=xEWD
+iD8DBQFKlpJ7oxKgR168RlERAk0LAKCKkQt8O4Mw2N5KfolkUTbq0O+VDgCffCwR
+detvsdQVqt8/632lixUozOs=
+=88TA
 -----END PGP SIGNATURE-----
