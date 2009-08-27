@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Various\ssmall\sperformance\senhancements.
-D 2009-08-27T18:33:43
+C Still\smore\sspeed\simprovements\sto\sthe\s"rebuild"\scommand.
+D 2009-08-27T18:56:08
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -73,7 +73,7 @@ F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl e1d07386b2d66dfef09d5712378a87bb268a591e
-F src/manifest.c 065d6850c35797abd2325b69dcae6557b9af68be
+F src/manifest.c 9476d92cd1f9980ab0c7a67fa6aca727692108c6
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c 61efa8a3332cc4df4b9fec485e9affc6b244f851
@@ -249,14 +249,14 @@ F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6953ca813cce7f2275dde00ff6ebac44230607c8
-R ef43493f4ecfb16beaaefe7202c9e0f0
+P 4c37130fde6b2e84f367343afa2f9ae4ae103c2e
+R d9233db3023ded9fa7548c7421e86551
 U drh
-Z c73cbe8679b39cec865632f05e9b97e7
+Z 22bb67f8a59a456ab59f95cc5ba90b22
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKltGKoxKgR168RlERAg2gAJ4iuM6BbbFF7xM6ia9OZdBSegTyWwCdF4w3
-lsdIafdjU7K1h2I/M3+71eQ=
-=FCxE
+iD8DBQFKltbMoxKgR168RlERAiWoAJwMCKvNqjH+m5/d4YXFgxZuaXGKKwCgij7U
+kRSJjkOA64QkjKtyUOy7C7E=
+=vREa
 -----END PGP SIGNATURE-----

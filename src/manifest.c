@@ -702,6 +702,29 @@ void manifest_test_parse_cmd(void){
 }
 
 /*
+** Translate a filename into a filename-id (fnid).  Create a new fnid
+** if no previously exists.
+*/
+static int filename_to_fnid(const char *zFilename){
+  static Stmt q1, s1;
+  int fnid;
+  db_static_prepare(&q1, "SELECT fnid FROM filename WHERE name=:fn");
+  db_bind_text(&q1, ":fn", zFilename);
+  fnid = 0;
+  if( db_step(&q1)==SQLITE_ROW ){
+    fnid = db_column_int(&q1, 0);
+  }
+  db_reset(&q1);
+  if( fnid==0 ){
+    db_static_prepare(&s1, "INSERT INTO filename(name) VALUES(:fn)");
+    db_bind_text(&s1, ":fn", zFilename);
+    db_exec(&s1);
+    fnid = db_last_insert_rowid();
+  }
+  return fnid;
+}
+
+/*
 ** Add a single entry to the mlink table.  Also add the filename to
 ** the filename table if it is not there already.
 */
@@ -713,20 +736,13 @@ static void add_one_mlink(
   const char *zPrior        /* Previous filename.  NULL if unchanged */
 ){
   int fnid, pfnid, pid, fid;
+  static Stmt s1;
 
-  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
-  if( fnid==0 ){
-    db_multi_exec("INSERT INTO filename(name) VALUES(%Q)", zFilename);
-    fnid = db_last_insert_rowid();
-  }
+  fnid = filename_to_fnid(zFilename);
   if( zPrior==0 ){
     pfnid = 0;
   }else{
-    pfnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zPrior);
-    if( pfnid==0 ){
-      db_multi_exec("INSERT INTO filename(name) VALUES(%Q)", zPrior);
-      pfnid = db_last_insert_rowid();
-    }
+    pfnid = filename_to_fnid(zPrior);
   }
   if( zFromUuid==0 ){
     pid = 0;
@@ -738,10 +754,16 @@ static void add_one_mlink(
   }else{
     fid = uuid_to_rid(zToUuid, 1);
   }
-  db_multi_exec(
+  db_static_prepare(&s1,
     "INSERT INTO mlink(mid,pid,fid,fnid,pfnid)"
-    "VALUES(%d,%d,%d,%d,%d)", mid, pid, fid, fnid, pfnid
+    "VALUES(:m,:p,:f,:n,:pfn)"
   );
+  db_bind_int(&s1, ":m", mid);
+  db_bind_int(&s1, ":p", pid);
+  db_bind_int(&s1, ":f", fid);
+  db_bind_int(&s1, ":n", fnid);
+  db_bind_int(&s1, ":pfn", pfnid);
+  db_exec(&s1);
   if( pid && fid ){
     content_deltify(pid, fid, 0);
   }
