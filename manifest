@@ -1,9 +1,9 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sFAQ\sto\sdescribe\show\sto\smake\sa\sclone\sof\sthe\sself-hosting\nfossil\srepository.
-D 2009-08-28T21:36:58
-F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
+C Deleted\ssome\sobsolete\s"todo"\sfiles.\s\sUpdated\sthe\sFAQ.\s\sModified\sthe\sthe\n"vinfo"\spage\sto\sshow\scheck-in\sdifferences\sand\smade\s"vinfo"\sthe\sdefault\s\ndisplay\sfor\scheck-ins\sinstead\sof\s"vdiff".
+D 2009-08-28T22:59:27
+F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
 F Makefile.w32 c6249fceb58da0ae0ec8f03a2ec9c79c006a3569
@@ -58,7 +58,7 @@ F src/db.c 63926039f3174ae08107c9a54017419eb4752158
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
-F src/diff.c cebb8ba99c201bad653a7cf48080276e6ff8dd96
+F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
 F src/diffcmd.c 38b20f87753f900dfe383af2169262353645277f
 F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92
 F src/encode.c 7772615572a47c72b07da6891b1c9ee7447ca2d4
@@ -66,7 +66,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c 11d48dcc33273aa3961026e472dd5020f9bcd0d0
+F src/info.c 781d76a85f757331d580c2af41d40634ccd64f2d
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
 F src/main.c 38aa437f8cab1ed4c9106124b9d1d0a4807451e0
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
@@ -100,7 +100,7 @@ F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 56d2a510561c6d3629a057ed1e82ab727e75fc68
+F src/timeline.c c172ebcb91e7c29da5783b68baac514a76d7712d
 F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -224,8 +224,8 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/faq.tcl fcdedc015f6508b4bb380d03f7b002c3cce3682c
-F www/faq.wiki 0b78f4031f52679de6f4f1a84c06f6b7e9a26a12
+F www/faq.tcl 032c2fe5ed544c7ce328a107360125bbe71f7bf3
+F www/faq.wiki 26afb3550c9bf0d0054076e925949f30010c9432
 F www/fileformat.wiki ab44da6d91082d27a614084f869728cae322abbf
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 76630dd9f3883c942874d3e1f902a00341bdb15a
-R f28a481fbea3239f0908a77f40353ceb
+P 68b73eb9b9db6028b83b576cd426fb5184a481ec
+R 9687b7ccecde3014148fcf1ab2d441b1
 U drh
-Z 8088d36c5f4fe7622dc85ff2ec96854a
+Z a7c11426c7aba2261fb77660635e53ae
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmE39oxKgR168RlERAvNHAJkBmWhlLhj6dkwZPVtTKsC+CXzOvgCbBGz+
-mwKkgNb6ZcVA4rFT9OdxkN8=
-=++LB
+iD8DBQFKmGFToxKgR168RlERAgkyAJ9/rATEB22XT38+emKKiWagI/Vt/QCdGKsH
+D3T+jcH30jGRgpnnNDWAQ4U=
+=GfOr
 -----END PGP SIGNATURE-----

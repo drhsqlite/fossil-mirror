@@ -106,16 +106,14 @@ faq {
   Once you have the repository cloned, you can open a local check-out
   as follows:
   <blockquote><pre>
-  mkdir fossil; cd fossil; fossil open ../fossil.fossil
+  mkdir src; cd src; fossil open ../fossil.fossil
   </pre></blockquote>
   Thereafter you should be able to keep your local check-out up to date
-  with the latest code in the public repository simply by typing:
+  with the latest code in the public repository by typing:
   <blockquote><pre>
   fossil update
   </pre></blockquote>
 }
-
-
 
 #############################################################################
 # Code to actually generate the FAQ

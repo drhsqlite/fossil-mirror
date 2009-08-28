@@ -243,6 +243,7 @@ static void showAncestors(int pid, int depth, const char *zTitle){
 }
 
 
+#if 0 /* NOT USED */
 /*
 ** Show information about baselines mentioned in the "leaves" table.
 */
@@ -278,6 +279,7 @@ static void showLeaves(int rid){
     @ </ul>
   }
 }
+#endif
 
 /*
 ** Show information about all tags on a given node.
@@ -340,11 +342,27 @@ static void showTags(int rid, const char *zNotGlob){
 
 
 /*
+** Append the difference between two RIDs to the output
+*/
+static void append_diff(int fromid, int toid){
+  Blob from, to, out;
+  content_get(fromid, &from);
+  content_get(toid, &to);
+  blob_zero(&out);
+  text_diff(&from, &to, &out, 5);
+  @ %h(blob_str(&out))
+  blob_reset(&from);
+  blob_reset(&to);
+  blob_reset(&out);  
+}
+
+
+/*
 ** WEBPAGE: vinfo
 ** WEBPAGE: ci
 ** URL:  /ci?name=RID|ARTIFACTID
 **
-** Return information about a baseline
+** Display information about a particular check-in.
 */
 void ci_page(void){
   Stmt q;
@@ -387,11 +405,12 @@ void ci_page(void){
     zComment = db_column_text(&q, 3);
     @ <div class="section">Overview</div>
     @ <p><table class="label-value">
-    @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)</td></tr>
-    @ <tr><th>Date:</th><td>%s(db_column_text(&q, 1))</td></tr>
+    @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
     if( g.okSetup ){
-      @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
+      @ (Record ID: %d(rid))
     }
+    @ </td></tr>
+    @ <tr><th>Date:</th><td>%s(db_column_text(&q, 1))</td></tr>
     if( zEUser ){
       @ <tr><th>Edited&nbsp;User:</td><td>%h(zEUser)</td></tr>
       @ <tr><th>Original&nbsp;User:</th><td>%h(zUser)</td></tr>
@@ -439,10 +458,9 @@ void ci_page(void){
       }
       db_finalize(&q);
       @ </td></tr>
-      @ <tr><th>Commands:</th>
+      @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @     <a href="%s(g.zBaseURL)/vdiff/%s(zShortUuid)">diff</a>
-      @     | <a href="%s(g.zBaseURL)/dir?ci=%s(zShortUuid)">files</a>
+      @     <a href="%s(g.zBaseURL)/dir?ci=%s(zShortUuid)">files</a>
       @     | <a href="%s(g.zBaseURL)/zip/%s(zProjName)-%s(zShortUuid).zip?uuid=%s(zUuid)">
       @         ZIP archive</a>
       @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
@@ -460,7 +478,41 @@ void ci_page(void){
   }
   db_finalize(&q);
   showTags(rid, "");
-  @ <div class="section">File Changes</div>
+  @ <div class="section">Changes</div>
+  db_prepare(&q,
+     "SELECT pid, fid, name, substr(a.uuid,1,10), substr(b.uuid,1,10)"
+     "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
+     "         LEFT JOIN blob a ON a.rid=pid"
+     "         LEFT JOIN blob b ON b.rid=fid"
+     " WHERE mlink.mid=%d"
+     " ORDER BY name",
+     rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int pid = db_column_int(&q,0);
+    int fid = db_column_int(&q,1);
+    const char *zName = db_column_text(&q,2);
+    const char *zOld = db_column_text(&q,3);
+    const char *zNew = db_column_text(&q,4);
+    if( zOld && zNew ){
+      @ <p>Modified <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+      @ from <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a>
+      @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
+    }else if( zOld ){
+      @ <p>Deleted <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a></p>
+      continue;
+    }else{
+      @ <p>Added <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
+    }
+    @ <blockquote><pre>
+    append_diff(pid, fid);
+    @ </pre></blockquote>
+  }
+  db_finalize(&q);
+
+#if 0
   @ <ul>
   db_prepare(&q, 
      "SELECT a.name, b.name"
@@ -512,6 +564,8 @@ void ci_page(void){
   showDescendants(rid, 2, "Descendants");
   showLeaves(rid);
   showAncestors(rid, 2, "Ancestors");
+#endif
+
   style_footer();
 }
 
@@ -670,22 +724,6 @@ void finfo_page(void){
   db_finalize(&q);
   @ </table>
   style_footer();
-}
-
-
-/*
-** Append the difference between two RIDs to the output
-*/
-static void append_diff(int fromid, int toid){
-  Blob from, to, out;
-  content_get(fromid, &from);
-  content_get(toid, &to);
-  blob_zero(&out);
-  text_diff(&from, &to, &out, 5);
-  @ %h(blob_str(&out))
-  blob_reset(&from);
-  blob_reset(&to);
-  blob_reset(&out);  
 }
 
 
@@ -1224,7 +1262,7 @@ void info_page(void){
     return;
   }
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
-    vdiff_page();
+    ci_page();
   }else
   if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                 " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
