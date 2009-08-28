@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Tweaks\sto\sthe\shomepage.
-D 2009-08-28T17:27:56
+C Show\sthe\sdate\sand\stime\son\scheckouts\sin\sthe\s"info"\scommand.
+D 2009-08-28T17:58:10
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c 10f41cb27f97dcff27d708cefbf351345699c256
+F src/info.c 11d48dcc33273aa3961026e472dd5020f9bcd0d0
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
 F src/main.c 38aa437f8cab1ed4c9106124b9d1d0a4807451e0
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
@@ -252,14 +252,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 1cbae4e7f272750861b8e95bfdc0bff0fc2889cb
-R f54088f7c4b219af7e9a4cf5334c6c31
+P 9aa91e549e663a4e8570efcce5aa8bc7a77fbb0a
+R 755e794d419ec002afdc4783dfba48d3
 U drh
-Z 7198755a58845576b91d2d564894b12d
+Z 7a68d917d9573332c4fecac3eae458cf
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmBOfoxKgR168RlERAvBwAJ9yuLBF85OdPRiT1Cla7j3sk018eACfT5/t
-zfgw95yr9OlryG8bqZQa+VI=
-=9usz
+iD8DBQFKmBq1oxKgR168RlERAkxcAJsGiWn07zzQmi0bl8jqdW8/90SECACfUJ1m
+1Zc5tPk/0v0otsRRedBVPl8=
+=wLUB
 -----END PGP SIGNATURE-----

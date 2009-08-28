@@ -42,27 +42,41 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
   Stmt q;
   char *zComment = 0;
   char *zTags;
-  db_prepare(&q,
-    "SELECT uuid"
-    "  FROM blob WHERE rid=%d", rid
-  );
-  if( db_step(&q)==SQLITE_ROW ){
+  char *zDate;
+  char *zUuid;
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  if( zUuid ){
+    zDate = db_text("", 
+      "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
+      rid
+    );
          /* 01234567890123 */
-    printf("%-13s %s\n", zUuidName, db_column_text(&q, 0));
+    printf("%-13s %s %s\n", zUuidName, zUuid, zDate);
+    free(zUuid);
+    free(zDate);
   }
-  db_finalize(&q);
-  db_prepare(&q, "SELECT uuid FROM plink JOIN blob ON pid=rid "
+  db_prepare(&q, "SELECT uuid, pid FROM plink JOIN blob ON pid=rid "
                  " WHERE cid=%d", rid);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
-    printf("parent:       %s\n", zUuid);
+    zDate = db_text("", 
+      "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
+      db_column_int(&q, 1)
+    );
+    printf("parent:       %s %s\n", zUuid, zDate);
+    free(zDate);
   }
   db_finalize(&q);
-  db_prepare(&q, "SELECT uuid FROM plink JOIN blob ON cid=rid "
+  db_prepare(&q, "SELECT uuid, cid FROM plink JOIN blob ON cid=rid "
                  " WHERE pid=%d", rid);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
-    printf("child:        %s\n", zUuid);
+    zDate = db_text("", 
+      "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
+      db_column_int(&q, 1)
+    );
+    printf("child:        %s %s\n", zUuid, zDate);
+    free(zDate);
   }
   db_finalize(&q);
   zTags = db_text(0, "SELECT group_concat(substr(tagname, 5), ', ')"
