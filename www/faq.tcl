@@ -94,6 +94,27 @@ faq {
   See the article on [./shunning.wiki | "shunning"] for details.
 }
 
+faq {
+  How do I make a clone of the fossil self-hosting repository?
+} {
+  Any of the following commands should work:
+  <blockquote><pre>
+  fossil  clone  http://www.fossil-scm.org/  fossil.fossil<br>
+  fossil  clone  http://www2.fossil-scm.org/  fossil.fossil<br>
+  fossil  clone  http://www.hwaci.com/cgi-bin/fossil  fossil.fossil
+  </pre></blockquote>
+  Once you have the repository cloned, you can open a local check-out
+  as follows:
+  <blockquote><pre>
+  mkdir fossil; cd fossil; fossil open ../fossil.fossil
+  </pre></blockquote>
+  Thereafter you should be able to keep your local check-out up to date
+  with the latest code in the public repository simply by typing:
+  <blockquote><pre>
+  fossil update
+  </pre></blockquote>
+}
+
 
 
 #############################################################################
