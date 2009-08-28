@@ -1,8 +1,21 @@
 <title>Fossil Home Page</title>
 
-<table border="1" align="right" cellpadding="10">
+
+<p align="center">
+<font size="5">
+<b>Fossil:</b>
+<i>Simple, high-reliability, distributed software configuration management</i>
+</font>
+</p>
+
+
+<h3>Why Use Fossil?</h3>
+
+<table border="0" cellpadding="1" bgcolor="#558195" align="right" hspace="10">
 <tr><td>
-<h2>Quick Links</h2>
+<table border="0" cellpadding="10" bgcolor="white">
+<tr><td>
+<h3>Quick Links</h3>
 <ul>
 <li> [./quickstart.wiki | Quick Start]
 <li> [http://www.fossil-scm.org/download.html | Download]
@@ -11,18 +24,12 @@
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
 </ul>
-<center><img src="fossil.gif"></center>
+</td></tr>
+<tr><td>
+<center><img src="fossil3.gif"></center>
 </td></tr>
 </table>
-
-
-<center>
-<font size=5><b>Fossil:</b><i>
-Simple, high-reliability, distributed software configuration management
-</i></font>
-</center>
-
-<h3>Why Use Fossil?</h3>
+</table>
 
 There are plenty of open-source version control systems available on the
 internet these days. What makes Fossil worthy of attention?
