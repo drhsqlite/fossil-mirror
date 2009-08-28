@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Documentation\supdates,\sincluding\sa\sbig\srework\sof\sthe\shomepage.
-D 2009-08-28T16:05:03
+C Add\sthree\snew\svariations\son\sthe\slogo\sGIF.
+D 2009-08-28T17:19:45
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -233,7 +233,10 @@ F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
 F www/fossil2.gif f64284050bf93f1b74fd05ed00de9984b79193b3
+F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
+F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
+F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 8f90568023f5a76a7d505af590618ebbdc07f99e
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
@@ -249,14 +252,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 8e3b7fab9f76ffc44eac1ea2bd1f6d7d7f6785c3
-R 71bf2990f846e8fb30bef76235650549
+P 522824b26a27a5985f77be163368fc75d2ff06eb
+R 644b42d7dd3dd59bb4230f976512a5a1
 U drh
-Z 3726911f61969eeeacd3544193a6e1d9
+Z f633179b0c2d1b6bbc85996b2394aac5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmAAyoxKgR168RlERAnAoAJ4ysnh1wAd4rh18Fvez7qtFUxoexwCfV/a8
-a/g0vd9HKu19SKR1CXpJ8EE=
-=j9iA
+iD8DBQFKmBG0oxKgR168RlERAhbmAJ4o2upsZztcKNooMCS2kTdMfcMd6wCfSMl6
+CmUWST8qf3rDkkMJmDGCEV0=
+=Cner
 -----END PGP SIGNATURE-----
