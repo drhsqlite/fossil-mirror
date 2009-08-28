@@ -1,6 +1,5 @@
-<title>Fossil Documentation</title>
+<title>Building and Installing Fossil</title>
 <nowiki>
-<h1>Installing Fossil</h1>
 
 <p>This page describes how to build and install Fossil.  The
 whole process is designed to be very easy.</p>

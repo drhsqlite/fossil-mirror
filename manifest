@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sability\sto\sview\sdiffs\sof\swiki\schanges.
-D 2009-08-27T20:14:13
+C Documentation\supdates,\sincluding\sa\sbig\srework\sof\sthe\shomepage.
+D 2009-08-28T16:05:03
 F BUILD.txt e7fed9d5b647337f8e7abf45981d10cdcc1555e2
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -188,7 +188,7 @@ F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
 F www/branching.wiki 73c9169a7e9982aa2f04eebc00867dcd70acbff5
 F www/bugtheory.wiki 953206fd821606e2cf1cfc8d7226732712162406
-F www/build.wiki e0f10c3d2d6b753527fbd498ce56aab836bf2712
+F www/build.wiki a81964674be15b5291386d1904697a3c83872668
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
@@ -206,7 +206,7 @@ F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 1b75142362e4519142552abf11bc355b34041e27
+F www/concepts.wiki bf268d18d16be07cd4a32476bc6eb3026d7dfea1
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -226,15 +226,15 @@ F www/encode6.gif ca683ebcfa2a32946c9d7f613ab1ceb50cb450ff
 F www/encode7.gif 5bb9e59f86d8dc85bb08398441081864b73405f9
 F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
-F www/faq.tcl 8ff9488a6cdea02ac946e831d7bbda40dc011a62
-F www/faq.wiki 05996cbdabef3808923f024a8fd6c55223cd2a75
+F www/faq.tcl 6d752b949a9cc5be580a4b86986e704f097e6093
+F www/faq.wiki 241e9b02bc19af5e58c69b39d802c577ef9cd686
 F www/fileformat.wiki ab44da6d91082d27a614084f869728cae322abbf
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
 F www/fossil2.gif f64284050bf93f1b74fd05ed00de9984b79193b3
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
-F www/index.wiki 72859af2194f813f21e55fae8745b3a817dbcb84
+F www/index.wiki 8f90568023f5a76a7d505af590618ebbdc07f99e
 F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -242,21 +242,21 @@ F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
 F www/quickstart.wiki 8acad3016140af23ab4e972810144be8c89e1ecb
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
-F www/selfcheck.wiki 4eea53cd1b86b719f7d4ab0740ad336f831ba61e
+F www/selfcheck.wiki 87d27f0d707889c1a1d8d681ef324bb836b9b99f
 F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
 F www/shunning.wiki 7b6d5703dc0d63a1ce7fc77c34985237c2d97f04
-F www/stats.wiki 21c91e21e64840990ea68df141f3d2efd76e9585
+F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a9a27f8aaab2a7ab118a6cf92fdb3b5ebd8df7c4
-R c757dc216056cf71a21244d725086a81
+P 8e3b7fab9f76ffc44eac1ea2bd1f6d7d7f6785c3
+R 71bf2990f846e8fb30bef76235650549
 U drh
-Z 0658d1b5b23f5279021df3299cc4491d
+Z 3726911f61969eeeacd3544193a6e1d9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKlukZoxKgR168RlERAtyOAJ9sE6GzCuY7md9rN0fR2kb1CIvyTgCgi0/1
-RDkXD5hiOX9OIfpS7FY41sc=
-=L/4j
+iD8DBQFKmAAyoxKgR168RlERAnAoAJ4ysnh1wAd4rh18Fvez7qtFUxoexwCfV/a8
+a/g0vd9HKu19SKR1CXpJ8EE=
+=j9iA
 -----END PGP SIGNATURE-----

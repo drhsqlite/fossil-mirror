@@ -7,6 +7,7 @@
 <li> [./quickstart.wiki | Quick Start]
 <li> [http://www.fossil-scm.org/download.html | Download]
 <li> [./build.wiki | Install]
+<li> [../COPYRIGHT-GPL2.txt | License]
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
 </ul>
@@ -21,55 +22,79 @@ Simple, high-reliability, distributed software configuration management
 </i></font>
 </center>
 
-<h3>Feature Summary:</h3>
-  *  [./concepts.wiki | Distributed version control]
-  *  Integrated, [./bugtheory.wiki | distributed bug tracking] and 
-     [./wikitheory.wiki | distributed wiki].
-  *  Built-in [./webui.wiki | web interface] that supports deep
-     archaeological digs through the project history.
-  *  All network communication via HTTP with 
-     [./quickstart.wiki#proxy | proxy support]
-     so that everything works from behind restrictive firewalls.
-     Communication is [./stats.wiki | bandwidth-efficient].
-  *  Everything (client, server, and utilities) is included in a 
-     single self-contained executable - [./build.wiki | trivial to install].
-  *  Server runs as [./quickstart.wiki#cgiserver | CGI], using
-     [./quickstart.wiki#inetdserver | inetd/xinetd]
-     or using its own 
-     [./quickstart.wiki#serversetup | built-in, stand alone web server].
-  *  Flexible workflow:<ul>
-    <li>Disconnected, distributed development like
-      <a href="http://kerneltrap.org/node/4982">git</a>,
-      <a href="http://www.monotone.ca/">monotone</a>,
-      <a href="http://www.selenic.com/mercurial/wiki/index.cgi">mercurial</a>,
-      and <a href="http://www.bitkeeper.com/">bitkeeper</a>
-    <li>Or, client/server operation like 
-      <a href="http://www.nongnu.org/cvs/">CVS</a> and
-      <a href="http://subversion.tigris.org/">subversion</a>,
-    <li>Or, operations on local repositories,
-    <li>Or, all of the above at the same time</ul>
-  *  [./selfhost.wiki | Self-hosting] since 2007-07-21.
-  *  An entire project contained in single 
-     [./stats.wiki | compact] disk file
-     (an [http://www.sqlite.org/ | SQLite] database.)
-  *  Uses an [./fileformat.wiki | enduring file format] that is 
-     designed to be readable, searchable, and extensible by people
-     not yet born.
-  *  Automatic [./selfcheck.wiki | self-check]
-     on repository changes makes it exceedingly
-     unlikely that data will ever be lost because of a software bug.
-  *  License: [../COPYRIGHT-GPL2.txt | GPL]
+<h3>Why Use Fossil?</h3>
 
-<h3>User Links:</h3>
+There are plenty of open-source version control systems available on the
+internet these days. What makes Fossil worthy of attention?
 
+  1.  <b>Bug Tracking And Wiki</b> -
+      In addition to doing [./concepts.wiki | distributed version control]
+      like Git and Mercurial,
+      Fossil also supports [./bugtheory.wiki | distributed bug tracking] and
+      [./wikitheory.wiki | distributed wiki] all in a single
+      integrated package.
+
+  2.  <b>Web Interface</b> - 
+      Fossil has a built-in and easy-to-use [./webui.wiki | web interface]
+      that simplifies project tracking and promotes situational awareness.
+      Simply type "fossil&nbsp;ui" from within any check-out and Fossil
+      automatically opens your web browser in a page that gives detailed
+      history and status information on that project.
+
+  3.  <b>Autosync</b> -
+      Fossil supports [./concepts.wiki#workflow | "autosync" mode]
+      which helps to keep projects moving
+      forward by reducing the amount of needless 
+      [./branching.wiki | forking and merging] often
+      associated distributed projects.
+
+  4.  <b>Self-Contained</b> -
+      Fossil is a single stand-alone executable that contains everything
+      needed to do configuration management.
+      Installation is trivial: simply download a 
+      <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
+      for Linux, Mac, or Windows and put it on your $PATH.
+      [./build.wiki | Easy-to-compile source code] is available for
+      users on other platforms.  Fossil sources are also mostly self-contained,
+      requiring only the "zlib" library and the standard C library to build.
+
+  5.  <b>Simple Networking</b> -
+      Fossil uses plain old HTTP (with
+      [./quickstart.wiki#proxy | proxy support])
+      for all network communications, meaning that it works fine from behind
+      restrictive firewalls.  The protocol is
+      [./stats.wiki | bandwidth efficient] to the point that Fossil can be
+      used comfortably over a dial-up internet connection.
+
+  6.  <b>CGI Enabled</b> -
+      No server is required to use fossil.  But a
+      server does make collaboration easier.  Fossil supports three different
+      yet simple [./quickstart.wiki#serversetup | server configurations].
+      The most popular is a 2-line CGI script.  This is the approach
+      used by the [./selfhost.wiki | self-hosting fossil repositories].
+
+  7.  <b>Robust &amp; Reliable</b> -
+      Fossil stores content in an SQLite database so that transactions are
+      atomic even if interrupted by a power loss or system crash.  Furthermore,
+      automatic [./selfcheck.wiki | self-checks] verify that all aspects of
+      the repository are consistent prior to each commit.  In over two years
+      of operation, no work has ever been lost after having been committed to
+      a Fossil repository.
+
+<hr>
+<h3>Links For Fossil Users:</h3>
+
+  *  [./reviews.wiki | Testimonials] from satisfied fossil users.
   *  [./faq.wiki | FAQ]
   *  The [./concepts.wiki | concepts] behind fossil
   *  [./quickstart.wiki | Quick Start] guide to using fossil
-  *  [./reviews.wiki | Testimonials] from fossil users.
   *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
   *  [./build.wiki | Building And Installing]
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
+  *  Fossil uses an [./fileformat.wiki | enduring file format] that is 
+     designed to be readable, searchable, and extensible by people
+     not yet born.
   *  A tutorial on [./branching.wiki | branching], what it means and how
      to do it using fossil.
   *  The [./selfcheck.wiki | automatic self-check] mechanism
@@ -84,7 +109,7 @@ Simple, high-reliability, distributed software configuration management
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
 
-<h3>Developer Links:</h3>
+<h3>Links For Fossil Developer:</h3>
 
   *  [./pop.wiki | Principles Of Operation]
   *  The [./fileformat.wiki | file format] used by every content

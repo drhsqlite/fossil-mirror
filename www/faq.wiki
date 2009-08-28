@@ -1,3 +1,4 @@
+<title>Fossil FAQ</title>
 <h1 align="center">Frequently Asked Questions</h1>
 
 <p>Note: See also <a href="qandc.wiki">Questions and Criticisms</a>.

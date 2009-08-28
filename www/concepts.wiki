@@ -1,55 +1,53 @@
 <title>Fossil Concepts</title>
-<nowiki>
 <h1 align="center">Fossil Concepts</h1>
 
 <h2>1.0 Introduction</h2>
-<p>
-<a href="index.html">Fossil</a> is a
-<a href="http://en.wikipedia.org/wiki/Software_configuration_management">
-software configuration management</a> system.
+
+[./index.wiki | Fossil] is a
+[http://en.wikipedia.org/wiki/Software_configuration_management | software configuration management] system.
 Fossil is software that is designed to control and track the
 development of a software project and to record the history
 of the project.
 There are many such systems in use today.  Fossil strives to
 distinguish itself from the others by being extremely simple
-to setup and operate.</p>
+to setup and operate.
 
-<p>This document is intended as a quick introduction to the concepts
-behind fossil.</p>
+This document is intended as a quick introduction to the concepts
+behind fossil.
 
 <h2>2.0 Composition Of A Project</h2>
 <img src="concept1.gif" align="right" hspace="10">
 
-<p>A software project normally consists of a "source tree".
+A software project normally consists of a "source tree".
 A source tree is a hierarchy of files that are used to generate
 the end product.  The source tree changes over time as the
 software grows and expands and as features are added and bugs
 are fixed.  A snapshot of the source tree at any point in time
 is called a "version" or "revision" or a "baseline" of the product.
-In fossil, we use the name "check-in".</p>
+In fossil, we use the name "check-in".
 
-<p>A "repository" is a database that contains copies of all historical
+A "repository" is a database that contains copies of all historical
 check-ins for a project.  Check-ins are normally stored in the
 repository in a highly space-efficient compressed format (delta encoding).
 But that is an implementation detail that you the user need not worry over.
 Think of the repository as a safe place where all your old check-ins are
 securely stored away and available for retrieval whenever you need
-them.</p>
+them.
 
-<p>A repository in fossil is a single file on your disk.  This file
+A repository in fossil is a single file on your disk.  This file
 might be rather large (dozens or hundreds of megabytes for a large
 or long running project) but it is nevertheless just a file.  You
 can move it around, rename it, write it out to a memory stick, or
-do anything else you normally do with files.</p>
+do anything else you normally do with files.
 
-<p>Each source tree that is controlled by fossil is associated with
+Each source tree that is controlled by fossil is associated with
 a single repository on the local disk drive.  You can tie two or more
 source trees to a single repository if you want (though one
 tree per repository is the most common configuration.)  So a
 single repository can be associated with many source trees, but
-each source tree is associated with only one repository.</p>
+each source tree is associated with only one repository.
 
-<p>Fossil source trees may not overlap.  A fossil source tree is identified
+Fossil source trees may not overlap.  A fossil source tree is identified
 by a file named "_FOSSIL_" in the root directory of the source tree.  Every
 file that is a sibling of _FOSSIL_ and every file in every subfolder is
 considered potentially a part of the source tree.  The _FOSSIL_ file
@@ -58,9 +56,9 @@ the source tree is associated.  On the other hand, the repository has
 no record of its source trees.  So you are free to delete a source tree
 or move it around without consequence.  But if you move or rename or
 delete a repository, then any source trees associated with that repository
-will no longer be able to locate their repository and will stop working.</p>
+will no longer be able to locate their repository and will stop working.
 
-<p>When multiple developers are working on the same project, each
+When multiple developers are working on the same project, each
 developer typically has his or her own local repository and an associated
 source tree in which to work.  Developers share their work by
 "syncing" the content of their local repositories either directly
@@ -71,16 +69,16 @@ which is a shortcut for doing both a push and a pull at the same time.
 Fossil also has the concept of "cloning".  A "clone" is like a "pull",
 except that instead of beginning with an existing local repository,
 a clone begins with nothing and creates a new local repository that
-is a duplicate of a remote repository.</p>
+is a duplicate of a remote repository.
 
-<p>Communication between repositories is via HTTP.  Remote
+Communication between repositories is via HTTP.  Remote
 repositories are identified by URL.  You can also point a web browser
 at a repository and get human-readable status, history, and tracking
-information about the project.</p>
+information about the project.
 
 <h3>2.1 Identification Of Artifacts</h3>
 
-<p>A particular version of a particular file is called an "artifact".
+A particular version of a particular file is called an "artifact".
 Each artifact has a universally unique name which is the
 <a href="http://en.wikipedia.org/wiki/SHA">SHA1</a> hash of the content
 of that file expressed as 40 characters of lower-case hexadecimal.  Such
@@ -89,10 +87,9 @@ for the artifact.  The SHA1 algorithm is created with the purpose of
 providing a highly forgery-resistant identifier for a file.  Given any
 file it is simple to find the artifact ID for that file.  But given a
 artifact ID it is computationally intractable to generate a file that will
-have that Artifact ID.</p>
+have that Artifact ID.
 
-
-<p>Artifact IDs look something like this:</p>
+Artifact IDs look something like this:
 
 <blockquote><b>
 6089f0b563a9db0a6d90682fe47fd7161ff867c8<br>
@@ -102,28 +99,32 @@ b4104959a67175f02d6b415480be22a239f1f077<br>
 997c9d6ae03ad114b2b57f04e9eeef17dcb82788
 </b></blockquote>
 
-<p>When referring to an artifact using fossil, you can use a unique
+When referring to an artifact using fossil, you can use a unique
 prefix of the artifact ID that is four characters or longer.  This saves
 a lot of typing.  When displaying artifact IDs, fossil will usually only
 show the first 10 digits since that is normally enough to uniquely
-identify a file.</p>
+identify a file.
 
-<p>Changing (or adding or removing) a single byte in a file results
+Changing (or adding or removing) a single byte in a file results
 in a completely different artifact ID.  And since the artifact ID is the name of
 the artifact, making any change to a file results in a new artifact.
-In this way, artifacts are immutable.</p>
+In this way, artifacts are immutable.
 
-<p>A repository is really just an unordered collection of
+A repository is really just an unordered collection of
 artifacts.  New artifacts can be added to the repository, but
-existing artifacts can never be removed.  Fossil is designed in
+existing artifacts can never be removed.  (Well, almost never. There
+is a [./shunning.wiki | "shunning"] mechanism that allows spam or other
+inappropriate content to be removed if absolutely necessary, but such
+removal is discouraged.)
+Fossil is designed in
 such a way that it can be handed a set of artifacts in any
 order and it can figure out the relationship between those
 artifacts and reconstruct the complete development history of
-a software project.</p>
+a software project.
 
 <h3>2.2 Manifests</h3>
 
-<p>At the root of a source tree is a special file called the
+At the root of a source tree is a special file called the
 "manifest".  The manifest is a listing of all other files in
 that source tree.  The manifest contains the (complete) artifact ID 
 of the file and the name of the file as it appears on disk,
@@ -131,7 +132,7 @@ and thus serves as a mapping from artifact ID to disk name.  The artifact ID
 of the manifest is the identifier for the entire check-in.  When
 you look at a "timeline" of changes in fossil, the ID associated
 with each check-in or commit is really just the artifact ID of the
-manifest for that check-in.</p>
+manifest for that check-in.
 
 <p>Fossil automatically generates a manifest whenever you "commit" 
 a new check-in.  So this is not something that you, the developer,
@@ -167,13 +168,13 @@ be PGP clearsigned.</p>
 
 <h2>3.0 Fossil - The Program</h2>
 
-<p>Fossil is software.  The implementation of fossil is in the form
+Fossil is software.  The implementation of fossil is in the form
 of a single executable named "fossil".  To install fossil on your system,
 all you have to do is obtain a copy of this one executable file (either
 by downloading a pre-compiled version or compiling it yourself) and then
-putting that file somewhere on your PATH.</p>
+putting that file somewhere on your PATH.
 
-<p>Fossil is completely self-contained.  It is not necessary to
+Fossil is completely self-contained.  It is not necessary to
 install any other software in order to use fossil.  You do <u>not</u> need
 CVS, gzip, diff, rsync, Python, Perl, Tcl, Java, apache, PostgreSQL, MySQL,
 SQLite, patch, or any similar software on your system in order to use
@@ -184,43 +185,46 @@ use GPG to clearsign your manifests if you happen to have it installed,
 but fossil will skip that step if GPG missing from your system.
 You can optionally set up fossil to use external "diff" programs, 
 though fossil has an excellent built-in "diff" algorithm that works
-fine for most people.</p>
+fine for most people.
 
-<p>To uninstall fossil, simply delete the executable.</p>
+To uninstall fossil, simply delete the executable.
 
-<p>To upgrade an older version of fossil to a newer version, just
+To upgrade an older version of fossil to a newer version, just
 replace the old executable with the new one.  You might need to 
-run a one-time command to restructure your repositories after
-an upgrade.  Check the instructions that come with the upgrade
-for details.</p>
+run "<b>fossil all rebuild</b>" to restructure your repositories after
+an upgrade.  Running "all rebuild" never hurts, so when upgrading it
+is a good policy to run it even if it is not strictly necessary.
 
-<p>To use fossil, simply type the name of the executable in your
+To use fossil, simply type the name of the executable in your
 shell, followed by one of the various built-in commands and
-arguments appropriate for that command.  For example:</p>
+arguments appropriate for that command.  For example:
 
 <blockquote><b>
 fossil help
 </b></blockquote>
 
-<p>In the next section, when we say things like "use the <b>help</b>
+In the next section, when we say things like "use the <b>help</b>
 command" we mean to use the command name "help" as the first
-token after the name of the fossil executable, as shown above.</p>
+token after the name of the fossil executable, as shown above.
 
+<a name="workflow">
 <h2>4.0 Workflow</h2>
 
 <img src="concept2.gif" align="right" hspace="10">
 
-<p>Fossil has two modes of operation: "autosync" and "non-autosync".
-Autosync mode works something like CVS or SVN in that it automatically
-keeps your work in sync with the central server.  Non-autosync is
-more like GIT or Bitkeeper in that your local repository develops
-independently of your coworkers and you share your changes manually.
+Fossil has two modes of operation: <i>"autosync"</i> and
+<i>"manual-merge"</i>
+Autosync mode is reminiscent of CVS or SVN in that it automatically
+keeps your changes in synchronization with your co-workers through
+the use of a central server.  The manual-merge mode is the standard workflow
+for GIT or Mercurial in that your local repository develops
+independently of your coworkers and you share and merge your changes manually.
 An interesting feature of fossil is that it supports both autosync
-and non-autosync work flows.</p>
+and manual-merge work flows.
 
-<p>The default setting for fossil is to be in autosync mode.  You
+The default setting for fossil is to be in autosync mode.  You
 can change the autosync setting or check the current autosync
-setting using commands like:</p>
+setting using commands like:
 
 <blockquote>
 <b>fossil setting autosync on<br>
@@ -228,51 +232,54 @@ fossil setting autosync off<br>
 <b>fossil settings</b>
 </blockquote>
 
-<p>By default, fossil runs with autosync mode turned on.  The
-authors find that projects run more smoothly when autosync is only
-disabled when off-network.</p>
+By default, fossil runs with autosync mode turned on.  The
+authors finds that projects run more smoothly in autosync mode since
+autosync helps to prevent pointless forking and merge and helps keeps
+all collaborators working on exactly the same code rather than on their
+own personal forks of the code.  In the author's view, manual-merge mode
+should be reserved for disconnected operation.
 
 <h3>4.1 Autosync Workflow</h3>
 
 <ol>
-<li><p>
+<li>
 Establish a local repository using either the <b>new</b> command
 to start a new project, or the <b>clone</b> command to make a clone
 of a repository for an existing project. 
-</p></li>
+</li>
 
-<li><p>
+<li>
 Establish one or more source trees by changing your working directory
 to where you want the root of the source tree to be, then issuing
 the <b>open</b> command with the name of the repository file as its
 argument.
-</p></li>
+</li>
 
-<li><p>
+<li>
 The <b>open</b> command in the previous step populates your local source
 tree with a copy of the latest check-in.  Usually this is what you want.
 In the rare cases where it is not, use the <b>update</b> command to
 switch to a new check-in.  Use the <b>timeline</b> or <b>leaves</b> commands
 to identify alternative check-ins to switch to.
-</p></li>
+</li>
 
-<li><p>
+<li>
 Edit the code.  Add new files to the source tree using the <b>add</b>
 command.  Omit files from future check-ins using the <b>rm</b> command.
 (Even when you remove files from future check-ins, those files continue
 to exist in historical check-ins.)  Test your changes.
-</p></li>
+</li>
 
-<li><p>
+<li>
 Create a new check-in using the <b>commit</b> command.  You will be prompted
 for a check-in comment and also for your GPG key if you have GPG installed.
 The commit copies the edits you have made in your local source
 tree into your local repository.  After your commit completes, fossil will
 automatically <b>push</b> your changes back to the server
 you cloned from or whatever server you most recently synced with.
-</p></li>
+</li>
 
-<li><p>
+<li>
 When your coworkers make their own changes, you can merge those changes
 into your local local source tree using the <b>update</b> command.  
 In autosync mode, <b>update</b> will first go back to the server you
@@ -282,142 +289,150 @@ changes into your local source tree.  If you do an <b>update</b> and
 find that it messes something up in your source tree (perhaps a co-worker
 checked in incompatible changes) you can use the <b>undo</b> command 
 to back out the changes.
-</p></li>
+</li>
 
-<li><p>
+<li>
 Repeat all of the above until you have generated great software.
-</p></li>
+</li>
 </ol>
 
-<h3>4.2 Non-Autosync Workflow</h3>
+<h3>4.2 Manual-Merge Workflow</h3>
 
-<p>When autosync is disabled, the <b>commit</b> command is decoupled from
+When autosync is disabled, the <b>commit</b> command is decoupled from
 <b>push</b> and the <b>update</b> command is decoupled from <b>pull</b>.
 That means you have to do a few extra steps in order to accomplish the
-<b>push</b> and <b>pull</b> tasks manually.</p>
+<b>push</b> and <b>pull</b> tasks manually.
 
 <ol>
-<li><p>
+<li>
 Establish a local repository using either the <b>new</b> command
 to start a new project, or the <b>clone</b> command to make a clone
 of a repository for an existing project.   The default setting for
 a new repository is with autosync on, so you will need to turn it off
 using the <b>setting autosync off</b> command with a <b>-R</b> option
 to specify the repository.
-</p></li>
+</li>
 
-<li><p>
+<li>
 Establish one or more source trees by changing your working directory
 to where you want the root of the source tree to be, then issuing
 the <b>open</b> command with the name of the repository file as its
 argument.
-</p></li>
+</li>
 
-<li><p>
+<li>
 The <b>open</b> command in the previous step populates your local source
 tree with a copy of the latest check-in.  Usually this is what you want.
 In the rare cases where it is not, use the <b>update</b> command to
 switch to a new check-in.  Use the <b>timeline</b> or <b>leaves</b> commands
 to identify alternative check-ins to switch to.
-</p></li>
+</li>
 
-<li><p>
+<li>
 Edit the code.  Add new files to the source tree using the <b>add</b>
 command.  Omit files from future check-ins using the <b>rm</b> command.
 (Even when you remove files from future check-ins, those files continue
 to exist in historical check-ins.)  Test your changes.
-</p></li>
+</li>
 
-<li><p>
+<li>
 Create a new check-in using the <b>commit</b> command.  You will be prompted
 for a check-in comment and also for your GPG key if you have GPG installed.
 The commit copies the edits you have made in your local source
 tree into your local repository.
-</p></li>
+</li>
 
-<li><p>Use the <b>push</b> command to push your changes out to a server
+<li>
+Use the <b>push</b> command to push your changes out to a server
 where your co-workers can access them.
-</p></li>
+</li>
 
-<li><p>
+<li>
 When co-workers make their own changes, use the <b>pull</b> command
 to pull those changes into your local repository.  Note that <b>pull</b>
 does not move the changes into your local source tree, only into your
 local repository.
-</p></li>
+</li>
 
-<li><p>
+<li>
 Once changes are in your local repository, use
 use the <b>update</b> command to merge them to your local source tree.
 If you merge in some changes and find that the changes do not work out
 or are not to your liking, you can back out the changes using the
 <b>undo</b> command.
-</p></li>
+</li>
 
-<li><p>
+<li>
+If two or more people ran "commit" against the same baseline, this will
+result in a [./branching.wiki | fork] which you may want to resolve by
+running <b>merge</b> followed by another <b>commit</b>.
+</li>
+
+<li>
 Repeat all of the above until you have generated great software.
-</p></li>
+</li>
 </ol>
 
 <h2>5.0 Setting Up A Fossil Server</h2>
 
-<p>With other configuration management software, setting up a server is
+With other configuration management software, setting up a server is
 a lot of work and normally takes time, patience, and a lot of system
 knowledge.  Fossil is designed to avoid this frustration.  Setting up
 a server with fossil is ridiculously easy.  You have three options:</p>
 
 <ol>
-<li><p><b><a name="saserv">S</a>etting up a stand-alone server</b></p>
+<li><b><a name="saserv">S</a>etting up a stand-alone server</b>
 
-<p>From within your source tree just use the <b>server</b> command and
+From within your source tree just use the <b>server</b> command and
 fossil will start listening for incoming requests on TCP port 8080.
 You can point your web browser at <a href="http://localhost:8080/">
 http://localhost:8080/</a> and begin exploring.  Or your coworkers
 can do pushes or pulls against your server.  Use the <b>--port</b>
 option to the server command to specify a different TCP port.  If
 you do not have a local source tree, use the <b>-R</b> command-line
-option to specify the repository file.</p>
+option to specify the repository file.
 
-<p>A stand-alone server is a great way to set of transient connections
+A stand-alone server is a great way to set of transient connections
 between coworkers for doing quick pushes or pulls.  But you can also
 set up a permanent stand-alone server if you prefer.  Just make
 arrangements for fossil to be launched with appropriate arguments
-after every reboot.</p>
+after every reboot.
 
-<p>If you just want a server to browse the built-in fossil website
+If you just want a server to browse the built-in fossil website
 locally, use the <b>ui</b> command in place of <b>server</b>.  The
 <b>ui</b> command starts up a local server too, but it also takes
 the additional step of automatically launching your webbrowser and
-pointing at the new server.</p>
+pointing at the new server.
 </li>
 
-<li><p><b>Setting up a CGI server</b></p>
+<li><b>Setting up a CGI server</b>
 
-<p>If you have a webserver running on your machine already, you can
+If you have a web-server running on your machine already, you can
 set up fossil to be run from CGI.  Simply create an executable script
-that looks something like this:</p>
+that looks something like this:
 
 <blockquote><pre>
 #!/usr/local/bin/fossil
 repository: /home/me/bigproject.fossil
 </pre></blockquote>
 
-<p>Edit this script to use whatever pathnames are appropriate for
+Edit this script to use whatever pathnames are appropriate for
 your project.  Then point your web browser at the script and off you
-go.</p></li>
+go.  The [./selfhost.wiki | self-hosting fossil repositories] are
+all set up this way.</li>
 
-<li><p><b>Setting up an inetd server</b></p>
+<li><b>Setting up an inetd server</b>
 
-<p>If you have inetd or xinetd running on your system, you can set
+If you have inetd or xinetd running on your system, you can set
 those services up to launch fossil to deal with inbound TCP/IP connections
 on whatever port you want.  Set up inetd or xinetd to launch fossil
-like this:</p>
+like this:
 
 <blockquote><pre>
 /usr/local/bin/fossil http /home/me/bigproject.fossil
 </pre></blockquote>
 
-<p>As before, change the filenames to whatever is appropriate for
+As before, change the filenames to whatever is appropriate for
 your system.  You can have fossil run as any user that has write
 permission on the repository and on the directory that contains the
 repository.  But it is safer to run fossil as root.  When fossil
@@ -425,7 +440,7 @@ sees that it is running as root, it automatically puts itself into
 a <a href="http://en.wikipedia.org/wiki/Chroot">chroot jail</a> and
 drops all privileges prior to reading any information from the client.
 Since fossil is a stand-alone program, you do not need to put anything
-in the chroot jail with fossil in order for it to do its job.</p>
+in the chroot jail with fossil in order for it to do its job.
 </li>
 </ol>
 

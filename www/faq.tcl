@@ -99,6 +99,7 @@ faq {
 #############################################################################
 # Code to actually generate the FAQ
 #
+puts "<title>Fossil FAQ</title>"
 puts "<h1 align=\"center\">Frequently Asked Questions</h1>\n"
 puts "<p>Note: See also <a href=\"qandc.wiki\">Questions and Criticisms</a>.\n"
 

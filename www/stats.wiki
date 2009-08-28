@@ -1,3 +1,4 @@
+<title>Fossil Performance</title>
 <h1 align="center">Performance Statistics</h1>
 
 The questions will inevitably arise:  How does Fossil perform? 
