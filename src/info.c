@@ -420,17 +420,21 @@ void winfo_page(void){
     const char *zName = db_column_text(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     char *zTitle = mprintf("Wiki Page %s", zName);
+    const char *zDate = db_column_text(&q,2);
+    const char *zUser = db_column_text(&q,3);
     style_header(zTitle);
     free(zTitle);
     login_anonymous_available();
     @ <div class="section">Overview</div>
     @ <p><table class="label-value">
     @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
-    @ <tr><th>Date:</th><td>%s(db_column_text(&q, 2))</td></tr>
+    @ <tr><th>Date:</th><td>
+    hyperlink_to_date(zDate, "</td></tr>");
     if( g.okSetup ){
       @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
     }
-    @ <tr><th>Original&nbsp;User:</th><td>%s(db_column_text(&q, 3))</td></tr>
+    @ <tr><th>Original&nbsp;User:</th><td>
+    hyperlink_to_user(zUser, zDate, "</td></tr>");
     if( g.okHistory ){
       @ <tr><th>Commands:</th>
       @   <td>
@@ -528,7 +532,9 @@ void finfo_page(void){
     }else{
       @ [%s(zShort)]
     }
-    @ %h(zCom) (By: %h(zUser))
+    @ %h(zCom) (By: 
+    hyperlink_to_user(zUser, zDate, " on");
+    hyperlink_to_date(zDate, ")");
     if( g.okHistory ){
       if( fpid ){
         @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>

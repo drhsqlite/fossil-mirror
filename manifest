@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\stogether\sthe\sfork\screated\sby\s[a0247159ea]
-D 2009-08-29T20:12:44
+C Add\smore\shyperlinks\son\sdates\sand\suserids.
+D 2009-08-29T22:39:44
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c 3f3e3d13b13df17f9f9faeb991ac85bbb2cef17c
+F src/info.c 9956b9b09c2471401e69780dc0a179213d2706c8
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
 F src/main.c 65c875517e9fa008ac9c6a2a5bc8c2d0611aa730
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
@@ -100,8 +100,8 @@ F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 03b554d5e6f63603ed6abe3d467440dd607a1a5e
-F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
+F src/timeline.c 0ecd2849ac0b653e9994b18dc42b447289397146
+F src/tkt.c 53e4b94cc89c1a35ba70dc1b3f27f20fee591eb7
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ee544f4843b0d176492a689d839cb79860495517 a0247159ea74c0fb24a06d3ce767b39468042baa
-R 41b103986e16e60b7a23c8c994cf4147
+P 579cba4a1aededa4ce698da93024ece7f42356c4
+R abb1530513ff423c599f9e7c435b0242
 U drh
-Z 5538e1fec91e201cf3b67b92b4061678
+Z 827374561f59ac6f110c27c657fd97a0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmYu/oxKgR168RlERAnwLAJ9XFINAqhvfR0e2jvVyZnx06D26iwCbB43e
-EmdmZj5I/6lS0i950315IGE=
-=6jT9
+iD8DBQFKma4zoxKgR168RlERAiTIAJ9A4IQ0Lk3apZojVuZ9wu9f/2AWUwCfdiQg
+1qy8PdXyvtP/cItGk+2Lxhk=
+=8MM4
 -----END PGP SIGNATURE-----

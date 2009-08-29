@@ -691,10 +691,10 @@ void tkthistory_page(void){
       memcpy(zUuid, zChngUuid, 10);
       zUuid[10] = 0;
       @
-      @ <p>%s(zDate)
-      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zUuid)</a>]</a>
-      @ by %h(m.zUser):</p>
-      @
+      @ Ticket change
+      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zUuid)</a>]</a> by
+      hyperlink_to_user(m.zUser,zDate," on");
+      hyperlink_to_date(zDate, ":");
       free(zDate);
       ticket_output_change_artifact(&m);
     }

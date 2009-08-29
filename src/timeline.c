@@ -498,9 +498,14 @@ void page_timeline(void){
         );
         nEntry -= (nEntry+1)/2;
         db_multi_exec(
-          "INSERT OR IGNORE INTO timeline(timestamp,etype)"
-          "VALUES(datetime(%f,'localtime'),'div')",
-          rCirca
+          "INSERT INTO timeline(rid,timestamp,etype)"
+          "VALUES(-1,datetime(%Q,'-1 second') || '.9','div')",
+          zCirca
+        );
+        db_multi_exec(
+          "INSERT INTO timeline(rid,timestamp,etype)"
+          "VALUES(-2,datetime(%Q) || '.1','div')",
+          zCirca
         );
         url_add_parameter(&url, "c", zCirca);
       }else{
