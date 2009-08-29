@@ -629,7 +629,7 @@ static void object_description(
   int cnt = 0;
   int nWiki = 0;
   db_prepare(&q,
-    "SELECT filename.name, datetime(event.mtime), substr(a.uuid,1,10),"
+    "SELECT filename.name, datetime(event.mtime),"
     "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
     "       b.uuid"
@@ -644,17 +644,16 @@ static void object_description(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
-    const char *zFuuid = db_column_text(&q, 2);
-    const char *zCom = db_column_text(&q, 3);
-    const char *zUser = db_column_text(&q, 4);
-    const char *zVers = db_column_text(&q, 5);
+    const char *zCom = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
+    const char *zVers = db_column_text(&q, 4);
     if( cnt>0 ){
       @ Also file
     }else{
       @ File
     }
     @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-    @ artifact %s(zFuuid) part of check-in
+    @ part of check-in
     hyperlink_to_uuid(zVers);
     @ - %w(zCom) by 
     hyperlink_to_user(zUser,zDate," on");
@@ -667,27 +666,25 @@ static void object_description(
   db_finalize(&q);
   db_prepare(&q, 
     "SELECT substr(tagname, 6, 10000), datetime(event.mtime),"
-    "       coalesce(event.euser, event.user), uuid"
-    "  FROM tagxref, tag, event, blob"
+    "       coalesce(event.euser, event.user)"
+    "  FROM tagxref, tag, event"
     " WHERE tagxref.rid=%d"
     "   AND tag.tagid=tagxref.tagid" 
     "   AND tag.tagname LIKE 'wiki-%%'"
-    "   AND event.objid=tagxref.rid"
-    "   AND blob.rid=tagxref.rid",
+    "   AND event.objid=tagxref.rid",
     rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPagename = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
-    const char *zUuid = db_column_text(&q, 3);
     if( cnt>0 ){
       @ Also wiki page
     }else{
       @ Wiki page
     }
     @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
-    @ artifact %s(zUuid) by
+    @ by
     hyperlink_to_user(zUser,zDate," on");
     hyperlink_to_date(zDate,".");
     nWiki++;
@@ -699,7 +696,7 @@ static void object_description(
   db_finalize(&q);
   if( nWiki==0 ){
     db_prepare(&q,
-      "SELECT datetime(mtime), user, comment, uuid, type"
+      "SELECT datetime(mtime), user, comment, type, uuid"
       "  FROM event, blob"
       " WHERE event.objid=%d"
       "   AND blob.rid=%d",
@@ -707,10 +704,10 @@ static void object_description(
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zDate = db_column_text(&q, 0);
-      const char *zUuid = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 1);
       const char *zCom = db_column_text(&q, 2);
-      const char *zType = db_column_text(&q, 4);
+      const char *zType = db_column_text(&q, 3);
+      const char *zUuid = db_column_text(&q, 4);
       if( cnt>0 ){
         @ Also
       }
@@ -736,7 +733,7 @@ static void object_description(
   }
   if( cnt==0 ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-    @ Control file %s(zUuid).
+    @ Control artifact.
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zUuid, -1);
     }
@@ -866,6 +863,7 @@ void hexdump_page(void){
   int rid;
   Blob content;
   Blob downloadName;
+  char *zUuid;
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
@@ -882,7 +880,8 @@ void hexdump_page(void){
     }
   }
   style_header("Hex Artifact Content");
-  @ <h2>Hexadecimal Content Of:</h2>
+  zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
+  @ <h2>Artifact %s(zUuid):</h2>
   @ <blockquote>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
@@ -911,6 +910,7 @@ void artifact_page(void){
   Blob downloadName;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
+  const char *zUuid;
 
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
@@ -927,7 +927,8 @@ void artifact_page(void){
     }
   }
   style_header("Artifact Content");
-  @ <h2>Content Of:</h2>
+  zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
+  @ <h2>Artifact %s(zUuid)</h2>
   @ <blockquote>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
