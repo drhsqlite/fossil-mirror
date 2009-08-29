@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Deleted\ssome\sobsolete\s"todo"\sfiles.\s\sUpdated\sthe\sFAQ.\s\sModified\sthe\sthe\n"vinfo"\spage\sto\sshow\scheck-in\sdifferences\sand\smade\s"vinfo"\sthe\sdefault\s\ndisplay\sfor\scheck-ins\sinstead\sof\s"vdiff".
-D 2009-08-28T22:59:27
+C Add\sadditional\shyperlinking\sof\sdates\sand\suserids.\s\sFor\sa\s"circa"\stimeline,\nshow\sthe\s"circa"\spoint\sin\sthe\stimeline\slisting.
+D 2009-08-29T16:45:30
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c 781d76a85f757331d580c2af41d40634ccd64f2d
+F src/info.c 3701ba08d072d3468d268c307595a94ee7ff54bf
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
 F src/main.c 38aa437f8cab1ed4c9106124b9d1d0a4807451e0
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
@@ -100,7 +100,7 @@ F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c c172ebcb91e7c29da5783b68baac514a76d7712d
+F src/timeline.c 03b554d5e6f63603ed6abe3d467440dd607a1a5e
 F src/tkt.c a24e654e392eca7e147d28dc1dbfff07b07c069e
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 68b73eb9b9db6028b83b576cd426fb5184a481ec
-R 9687b7ccecde3014148fcf1ab2d441b1
+P 713b8be852b99fee6d3f538707fe4c384c212cad
+R 8e3fd88e7893b1a6b68856e13279906d
 U drh
-Z a7c11426c7aba2261fb77660635e53ae
+Z 22303474919fa89d2819d95f1e4d0fa5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmGFToxKgR168RlERAgkyAJ9/rATEB22XT38+emKKiWagI/Vt/QCdGKsH
-D3T+jcH30jGRgpnnNDWAQ4U=
-=GfOr
+iD8DBQFKmVsuoxKgR168RlERAprHAJ92+OA0+N+z2sMqCkOOJKeAabMRpwCfR4Qs
+EJ1yX/KpyqtgT1btD97muGM=
+=3HZZ
 -----END PGP SIGNATURE-----

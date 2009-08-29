@@ -23,7 +23,7 @@
 **
 ** This file contains code to implement the "info" command.  The
 ** "info" command gives command-line access to information about
-** the current tree, or a particular artifact or baseline.
+** the current tree, or a particular artifact or check-in.
 */
 #include "config.h"
 #include "info.h"
@@ -147,141 +147,6 @@ void info_cmd(void){
 }
 
 /*
-** Show information about descendants of a baseline.  Do this recursively
-** to a depth of N.  Return true if descendants are shown and false if not.
-*/
-static int showDescendants(int pid, int depth, const char *zTitle){
-  Stmt q;
-  int cnt = 0;
-  db_prepare(&q,
-    "SELECT plink.cid, blob.uuid, datetime(plink.mtime, 'localtime'),"
-    "       coalesce(event.euser,event.user),"
-    "       coalesce(event.ecomment,event.comment)"
-    "  FROM plink, blob, event"
-    " WHERE plink.pid=%d"
-    "   AND blob.rid=plink.cid"
-    "   AND event.objid=plink.cid"
-    " ORDER BY plink.mtime ASC",
-    pid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int n;
-    int cid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
-    const char *zCom = db_column_text(&q, 4);
-    cnt++;
-    if( cnt==1 ){
-      if( zTitle ){
-        @ <div class="section">%s(zTitle)</div>
-      }
-      @ <ul>
-    }
-    @ <li>
-    hyperlink_to_uuid(zUuid);
-    @ %w(zCom) (by %s(zUser) on %s(zDate))
-    if( depth ){
-      n = showDescendants(cid, depth-1, 0);
-    }else{
-      n = db_int(0, "SELECT 1 FROM plink WHERE pid=%d", cid);
-    }
-    if( n==0 ){
-      db_multi_exec("DELETE FROM leaves WHERE rid=%d", cid);
-      @ <b>leaf</b>
-    }
-  }
-  db_finalize(&q);
-  if( cnt ){
-    @ </ul>
-  }
-  return cnt;
-}
-
-/*
-** Show information about ancestors of a baseline.  Do this recursively
-** to a depth of N.  Return true if ancestors are shown and false if not.
-*/
-static void showAncestors(int pid, int depth, const char *zTitle){
-  Stmt q;
-  int cnt = 0;
-  db_prepare(&q,
-    "SELECT plink.pid, blob.uuid, datetime(event.mtime, 'localtime'),"
-    "       coalesce(event.euser,event.user),"
-    "       coalesce(event.ecomment,event.comment)"
-    "  FROM plink, blob, event"
-    " WHERE plink.cid=%d"
-    "   AND blob.rid=plink.pid"
-    "   AND event.objid=plink.pid"
-    " ORDER BY event.mtime DESC",
-    pid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int cid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
-    const char *zCom = db_column_text(&q, 4);
-    cnt++;
-    if( cnt==1 ){
-      if( zTitle ){
-        @ <div class="section">%s(zTitle)</div>
-      }
-      @ <ul>
-    }
-    @ <li>
-    hyperlink_to_uuid(zUuid);
-    @ %w(zCom) (by %s(zUser) on %s(zDate))
-    if( depth ){
-      showAncestors(cid, depth-1, 0);
-    }
-  }
-  db_finalize(&q);
-  if( cnt ){
-    @ </ul>
-  }
-}
-
-
-#if 0 /* NOT USED */
-/*
-** Show information about baselines mentioned in the "leaves" table.
-*/
-static void showLeaves(int rid){
-  Stmt q;
-  int cnt = 0;
-  db_prepare(&q,
-    "SELECT blob.uuid, datetime(event.mtime, 'localtime'),"
-    "       coalesce(event.euser, event.user),"
-    "       coalesce(event.ecomment,event.comment)"
-    "  FROM leaves, blob, event"
-    " WHERE blob.rid=leaves.rid AND blob.rid!=%d"
-    "   AND event.objid=leaves.rid"
-    " ORDER BY event.mtime DESC",
-    rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    const char *zCom = db_column_text(&q, 3);
-    cnt++;
-    if( cnt==1 ){
-      @ <div class="section">Leaves</div>
-      @ <ul>
-    }
-    @ <li>
-    hyperlink_to_uuid(zUuid);
-    @ %w(zCom) (by %s(zUser) on %s(zDate))
-  }
-  db_finalize(&q);
-  if( cnt ){
-    @ </ul>
-  }
-}
-#endif
-
-/*
 ** Show information about all tags on a given node.
 */
 static void showTags(int rid, const char *zNotGlob){
@@ -331,7 +196,8 @@ static void showTags(int rid, const char *zNotGlob){
         @ added by
       }
       hyperlink_to_uuid(zSrcUuid);
-      @ on %s(zDate)
+      @ on
+      hyperlink_to_date(zDate,0);
     }
   }
   db_finalize(&q);
@@ -392,6 +258,7 @@ void ci_page(void){
     char *zEUser, *zEComment;
     const char *zUser;
     const char *zComment;
+    const char *zDate;
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
@@ -403,6 +270,7 @@ void ci_page(void){
                    TAG_COMMENT, rid);
     zUser = db_column_text(&q, 2);
     zComment = db_column_text(&q, 3);
+    zDate = db_column_text(&q,1);
     @ <div class="section">Overview</div>
     @ <p><table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -410,12 +278,16 @@ void ci_page(void){
       @ (Record ID: %d(rid))
     }
     @ </td></tr>
-    @ <tr><th>Date:</th><td>%s(db_column_text(&q, 1))</td></tr>
+    @ <tr><th>Date:</th><td>
+    hyperlink_to_date(zDate, "</td></tr>");
     if( zEUser ){
-      @ <tr><th>Edited&nbsp;User:</td><td>%h(zEUser)</td></tr>
-      @ <tr><th>Original&nbsp;User:</th><td>%h(zUser)</td></tr>
+      @ <tr><th>Edited&nbsp;User:</td><td>
+      hyperlink_to_user(zEUser,zDate,"</td></tr>");
+      @ <tr><th>Original&nbsp;User:</th><td>
+      hyperlink_to_user(zUser,zDate,"</td></tr>");
     }else{
-      @ <tr><th>User:</td><td>%h(zUser)</td></tr>
+      @ <tr><th>User:</td><td>
+      hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
       @ <tr><th>Edited&nbsp;Comment:</th><td>%w(zEComment)</td></tr>
@@ -511,61 +383,6 @@ void ci_page(void){
     @ </pre></blockquote>
   }
   db_finalize(&q);
-
-#if 0
-  @ <ul>
-  db_prepare(&q, 
-     "SELECT a.name, b.name"
-     "  FROM mlink, filename AS a, filename AS b"
-     " WHERE mid=%d"
-     "   AND a.fnid=mlink.fnid"
-     "   AND b.fnid=mlink.pfnid",
-     rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    const char *zPrior = db_column_text(&q, 1);
-    @ <li><b>Renamed:</b>
-    if( g.okHistory ){
-      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zPrior)</a> to
-      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></li>
-    }else{
-      @ %h(zPrior) to %h(zName)</li>
-    }
-  }
-  db_finalize(&q);
-  db_prepare(&q, 
-     "SELECT name, pid, fid "
-     "  FROM mlink, filename"
-     " WHERE mid=%d"
-     "   AND fid!=pid"
-     "   AND filename.fnid=mlink.fnid",
-     rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    int pid = db_column_int(&q, 1);
-    int fid = db_column_int(&q, 2);
-    if( pid && fid ){
-      @ <li><b>Modified:</b>
-    }else if( fid ){
-      @ <li><b>Added:</b>
-    }else if( pid ){
-      @ <li><b>Deleted:</b>
-    }
-    if( g.okHistory ){
-      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></li>
-    }else{
-      @ %h(zName)</li>
-    }
-  }
-  @ </ul>
-  compute_leaves(rid, 0);
-  showDescendants(rid, 2, "Descendants");
-  showLeaves(rid);
-  showAncestors(rid, 2, "Ancestors");
-#endif
-
   style_footer();
 }
 
@@ -760,8 +577,9 @@ void vdiff_page(void){
     const char *zUser = db_column_text(&q, 2);
     const char *zComment = db_column_text(&q, 1);
     @ <h2>Check-in %s(zUuid)</h2>
-    @ <p>Made by %h(zUser) on 
-    link_to_date(zDate, ":");
+    @ <p>Made by
+    hyperlink_to_user(zUser,zDate," on");
+    hyperlink_to_date(zDate, ":");
     @ %w(zComment). <a href="%s(g.zBaseURL)/ci/%s(zUuid)">[details]</a></p>
     @ <hr>
   }
@@ -794,7 +612,7 @@ void vdiff_page(void){
 **
 **     * It's artifact ID
 **     * All its filenames
-**     * The baselines it was checked-in on, with times and users
+**     * The check-in it was part of, with times and users
 **
 ** If the object is a manifest, then mention:
 **
@@ -838,7 +656,9 @@ static void object_description(
     @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
     @ artifact %s(zFuuid) part of check-in
     hyperlink_to_uuid(zVers);
-    @ - %w(zCom) by %h(zUser) on %s(zDate).
+    @ - %w(zCom) by 
+    hyperlink_to_user(zUser,zDate," on");
+    hyperlink_to_date(zDate,".");
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zName, -1);
@@ -867,7 +687,9 @@ static void object_description(
       @ Wiki page
     }
     @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
-    @ artifact %s(zUuid) by %h(zUser) on %s(zDate).
+    @ artifact %s(zUuid) by
+    hyperlink_to_user(zUser,zDate," on");
+    hyperlink_to_date(zDate,".");
     nWiki++;
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -897,12 +719,14 @@ static void object_description(
       }else if( zType[0]=='t' ){
         @ Ticket change
       }else if( zType[0]=='c' ){
-        @ Manifest of baseline
+        @ Manifest of check-in
       }else{
         @ Control file referencing
       }
       hyperlink_to_uuid(zUuid);
-      @ - %w(zCom) by %h(zUser) on %s(zDate).
+      @ - %w(zCom) by
+      hyperlink_to_user(zUser,zDate," on");
+      hyperlink_to_date(zDate, ".");
       if( pDownloadName && blob_size(pDownloadName)==0 ){
         blob_append(pDownloadName, zUuid, -1);
       }

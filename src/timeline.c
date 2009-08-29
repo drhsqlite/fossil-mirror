@@ -77,6 +77,36 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 }
 
 /*
+** Generate a hyperlink to a date & time.
+*/
+void hyperlink_to_date(const char *zDate, const char *zSuffix){
+  if( zSuffix==0 ) zSuffix = "";
+  if( g.okHistory ){
+    @ <a href="%s(g.zTop)/timeline?c=%T(zDate)">%s(zDate)</a>%s(zSuffix)
+  }else{
+    @ %s(zDate)%s(zSuffix)
+  }
+}
+
+/*
+** Generate a hyperlink to a user.  This will link to a timeline showing
+** events by that user.  If the date+time is specified, then the timeline
+** is centered on that date+time.
+*/
+void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
+  if( zSuf==0 ) zSuf = "";
+  if( g.okHistory ){
+    if( zD && zD[0] ){
+      @ <a href="%s(g.zTop)/timeline?c=%T(zD)&u=%T(zU)">%h(zU)</a>%s(zSuf)
+    }else{
+      @ <a href="%s(g.zTop)/timeline?u=%T(zU)">%h(zU)</a>%s(zSuf)
+    }
+  }else{
+    @ %s(zU)
+  }
+}
+
+/*
 ** Count the number of primary non-branch children for the given check-in.
 **
 ** A primary child is one where the parent is the primary parent, not
@@ -157,6 +187,10 @@ void www_print_timeline(
     const char *zType = db_column_text(pQuery, 9);
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 10);
+    if( strcmp(zType,"div")==0 ){
+      @ <tr><td colspan=3><hr></td></tr>
+      continue;
+    }
     db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
@@ -463,6 +497,11 @@ void page_timeline(void){
             rCirca
         );
         nEntry -= (nEntry+1)/2;
+        db_multi_exec(
+          "INSERT OR IGNORE INTO timeline(timestamp,etype)"
+          "VALUES(datetime(%f,'localtime'),'div')",
+          rCirca
+        );
         url_add_parameter(&url, "c", zCirca);
       }else{
         zCirca = 0;
@@ -627,13 +666,6 @@ void page_timeline(void){
   @ }
   @ </script>
   style_footer();
-}
-
-/*
-** Render the date string given as a hyperlink to a "circa" timeline.
-*/
-void link_to_date(const char *zDate, const char *zSuffix){
-  @ <a href="%s(g.zBaseURL)/timeline?c=%t(zDate)">%h(zDate)</a>%s(zSuffix)
 }
 
 /*
