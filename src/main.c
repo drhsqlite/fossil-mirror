@@ -627,6 +627,11 @@ void cmd_cgi(void){
   setmode(_fileno(g.httpOut), _O_BINARY);
   setmode(_fileno(g.httpIn), _O_BINARY);
 #endif
+#ifdef __EMX__
+  /* Similar hack for OS/2 */
+  setmode(fileno(g.httpOut), O_BINARY);
+  setmode(fileno(g.httpIn), O_BINARY);
+#endif
   g.cgiPanic = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){

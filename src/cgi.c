@@ -42,6 +42,9 @@
 #  include <sys/wait.h>
 #  include <sys/select.h>
 #endif
+#ifdef __EMX__
+   typedef int socklen_t;
+#endif
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
