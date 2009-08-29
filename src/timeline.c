@@ -337,6 +337,26 @@ static void timeline_submenu(
                         url_render(pUrl, zParam, zValue, zRemove, 0));
 }
 
+
+/*
+** zDate is a localtime date.  Insert records into the
+** "timeline" table to cause <hr> to be inserted before and after
+** entries of that date.
+*/
+static void timeline_add_dividers(const char *zDate){
+  db_multi_exec(
+    "INSERT INTO timeline(rid,timestamp,etype)"
+    "VALUES(-1,datetime(%Q,'-1 second') || '.9','div')",
+    zDate
+  );
+  db_multi_exec(
+    "INSERT INTO timeline(rid,timestamp,etype)"
+    "VALUES(-2,datetime(%Q) || '.1','div')",
+     zDate
+  );
+}
+
+
 /*
 ** WEBPAGE: timeline
 **
@@ -398,7 +418,10 @@ void page_timeline(void){
     char *zUuid;
     int np, nd;
 
-    if( p_rid && d_rid && p_rid!=d_rid ) p_rid = d_rid;
+    if( p_rid && d_rid ){
+      if( p_rid!=d_rid ) p_rid = d_rid;
+      if( P("n")==0 ) nEntry = 10;
+    }
     db_multi_exec(
        "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
@@ -407,28 +430,38 @@ void page_timeline(void){
     blob_appendf(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
-      compute_descendants(d_rid, nEntry);
+      compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>0 ){
         db_multi_exec("%s", blob_str(&sql));
         blob_appendf(&desc, "%d descendants", nd);
       }
+      timeline_add_dividers(  
+        db_text("1","SELECT datetime(mtime,'localtime') FROM event"
+                    " WHERE objid=%d", d_rid)
+      );
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
-      compute_ancestors(p_rid, nEntry);
+      compute_ancestors(p_rid, nEntry+1);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
         blob_appendf(&desc, "%d ancestors", np);
         db_multi_exec("%s", blob_str(&sql));
       }
+      if( d_rid==0 ){
+        timeline_add_dividers(  
+          db_text("1","SELECT datetime(mtime,'localtime') FROM event"
+                      " WHERE objid=%d", p_rid)
+        );
+      }
     }
     if( g.okHistory ){
       blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
                    g.zBaseURL, zUuid, zUuid);
     }else{
-      blob_appendf(&desc, " of [%.10s]", zUuid);
+      blob_appendf(&desc, " of check-in [%.10s]", zUuid);
     }
   }else{
     int n;
@@ -497,16 +530,7 @@ void page_timeline(void){
             rCirca
         );
         nEntry -= (nEntry+1)/2;
-        db_multi_exec(
-          "INSERT INTO timeline(rid,timestamp,etype)"
-          "VALUES(-1,datetime(%Q,'-1 second') || '.9','div')",
-          zCirca
-        );
-        db_multi_exec(
-          "INSERT INTO timeline(rid,timestamp,etype)"
-          "VALUES(-2,datetime(%Q) || '.1','div')",
-          zCirca
-        );
+        timeline_add_dividers(zCirca);
         url_add_parameter(&url, "c", zCirca);
       }else{
         zCirca = 0;

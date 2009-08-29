@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\smore\shyperlinks\son\sdates\sand\suserids.
-D 2009-08-29T22:39:44
+C Put\sthe\sdivider\smarks\saround\sthe\sbase\scheck-in\son\sancestor\sand\sdescendent\ntimelines.
+D 2009-08-29T22:54:18
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -100,7 +100,7 @@ F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 0ecd2849ac0b653e9994b18dc42b447289397146
+F src/timeline.c 846d5cea62424edb33d1179cd21b1135cff1109b
 F src/tkt.c 53e4b94cc89c1a35ba70dc1b3f27f20fee591eb7
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 579cba4a1aededa4ce698da93024ece7f42356c4
-R abb1530513ff423c599f9e7c435b0242
+P 58903a0fec89e085dfefad82466d8e9fcd8b5b25
+R 43e56fa2b16d487757ce0a9af13a31cc
 U drh
-Z 827374561f59ac6f110c27c657fd97a0
+Z 60279fd7d08c0280f00e96f16bc0c2b6
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKma4zoxKgR168RlERAiTIAJ9A4IQ0Lk3apZojVuZ9wu9f/2AWUwCfdiQg
-1qy8PdXyvtP/cItGk+2Lxhk=
-=8MM4
+iD8DBQFKmbGdoxKgR168RlERAvekAJ44740WK2YTcaNi6uFXWH+JJTN4ogCeKJN+
+1OQ33rZWgTp51eQUBuf2QEY=
+=RHCA
 -----END PGP SIGNATURE-----
