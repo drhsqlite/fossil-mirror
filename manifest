@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Put\sthe\sdivider\smarks\saround\sthe\sbase\scheck-in\son\sancestor\sand\sdescendent\ntimelines.
-D 2009-08-29T22:54:18
+C Disable\sadditional\shyperlinks\swhen\s"history"\sprivilege\sis\sdisabled\n(by\sdefault\swhen\sthe\suser\shas\snot\ssigned\sin\sas\s"anonymous"\sor\sother\sknown\nuser.)\s\sHelp\sprevent\sspiders\sfor\ssoaking\sup\sbandwidth.
+D 2009-08-30T01:22:15
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c 9956b9b09c2471401e69780dc0a179213d2706c8
+F src/info.c 7cbe41c03caf12fce4c02e35a81234a8259d8e6f
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
 F src/main.c 65c875517e9fa008ac9c6a2a5bc8c2d0611aa730
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
@@ -83,7 +83,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c fd43a695c4fb9966b863055de361e068f492cc22
-F src/report.c dff9f62bfba44534242fe588ffef5229fb1aa1e6
+F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c db3fd09f7a989b26be82b24af9e9e93927a0bcc9
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 58903a0fec89e085dfefad82466d8e9fcd8b5b25
-R 43e56fa2b16d487757ce0a9af13a31cc
+P d42adc11c8473e0d00efe377a1da8e8e3ffdea76
+R b8ca528a27eaf63963fd373f77dec43b
 U drh
-Z 60279fd7d08c0280f00e96f16bc0c2b6
+Z 31730f3e4aecf42e6134d905f252ced0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmbGdoxKgR168RlERAvekAJ44740WK2YTcaNi6uFXWH+JJTN4ogCeKJN+
-1OQ33rZWgTp51eQUBuf2QEY=
-=RHCA
+iD8DBQFKmdRKoxKgR168RlERAsJoAJ9QPvQWv/xOgXxvgvLO0XiV02qO7QCeNRLT
+65QAHNtrwkum/OUc+xmsUHo=
+=Ooku
 -----END PGP SIGNATURE-----

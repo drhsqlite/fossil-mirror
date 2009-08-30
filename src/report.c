@@ -785,7 +785,11 @@ static int generate_html(
       }
     }else if( azName[i][0]=='#' ){
       zTid = zData;
-      @ <td valign="top"><a href="tktview?name=%h(zData)">%h(zData)</a></td>
+      if( g.okHistory ){
+        @ <td valign="top"><a href="tktview?name=%h(zData)">%h(zData)</a></td>
+      }else{
+        @ <td valign="top">%h(zData)</td>
+      }
     }else if( zData[0]==0 ){
       @ <td valign="top">&nbsp;</td>
     }else{

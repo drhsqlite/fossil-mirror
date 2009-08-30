@@ -366,7 +366,14 @@ void ci_page(void){
     const char *zName = db_column_text(&q,2);
     const char *zOld = db_column_text(&q,3);
     const char *zNew = db_column_text(&q,4);
-    if( zOld && zNew ){
+    if( !g.okHistory ){
+      if( zNew==0 ){
+        @ <p>Deleted %h(zName)</p>
+        continue;
+      }else{
+        @ <p>Changes to %h(zName)</p>
+      }
+    }else if( zOld && zNew ){
       @ <p>Modified <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
       @ from <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a>
       @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
@@ -586,8 +593,11 @@ void vdiff_page(void){
     @ <p>Made by
     hyperlink_to_user(zUser,zDate," on");
     hyperlink_to_date(zDate, ":");
-    @ %w(zComment). <a href="%s(g.zBaseURL)/ci/%s(zUuid)">[details]</a></p>
-    @ <hr>
+    @ %w(zComment). 
+    if( g.okHistory ){
+      @ <a href="%s(g.zBaseURL)/ci/%s(zUuid)">[details]</a>
+    }
+    @ </p><hr>
   }
   db_finalize(&q);
   db_prepare(&q,
@@ -602,7 +612,11 @@ void vdiff_page(void){
     int pid = db_column_int(&q,0);
     int fid = db_column_int(&q,1);
     const char *zName = db_column_text(&q,2);
-    @ <p><a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></p>
+    if( g.okHistory ){
+      @ <p><a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></p>
+    }else{
+      @ <p>%h(zName)</p>
+    }
     @ <blockquote><pre>
     append_diff(pid, fid);
     @ </pre></blockquote>
@@ -658,7 +672,11 @@ static void object_description(
     }else{
       @ File
     }
-    @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+    if( g.okHistory ){
+      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+    }else{
+      @ %h(zName)
+    }
     @ part of check-in
     hyperlink_to_uuid(zVers);
     @ - %w(zCom) by 
@@ -689,7 +707,11 @@ static void object_description(
     }else{
       @ Wiki page
     }
-    @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
+    if( g.okHistory ){
+      @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
+    }else{
+      @ [%h(zPagename)]
+    }
     @ by
     hyperlink_to_user(zUser,zDate," on");
     hyperlink_to_date(zDate,".");
@@ -743,7 +765,7 @@ static void object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zUuid, -1);
     }
-  }else if( linkToView ){
+  }else if( linkToView && g.okHistory ){
     @ <a href="%s(g.zBaseURL)/artifact/%d(rid)">[view]</a>
   }
 }
@@ -1031,12 +1053,19 @@ void tinfo_page(void){
   zDate = db_text(0, "SELECT datetime(%.12f)", m.rDate);
   memcpy(zTktName, m.zTicketUuid, 10);
   zTktName[10] = 0;
-  @ <h2>Changes to ticket <a href="%s(m.zTicketUuid)">%s(zTktName)</a></h2>
-  @
-  @ <p>By %h(m.zUser) on %s(zDate).  See also:
-  @ <a href="%s(g.zTop)/artifact/%T(zUuid)">artifact content</a>, and
-  @ <a href="%s(g.zTop)/tkthistory/%s(m.zTicketUuid)">ticket history</a>
-  @ </p>
+  if( g.okHistory ){
+    @ <h2>Changes to ticket <a href="%s(m.zTicketUuid)">%s(zTktName)</a></h2>
+    @
+    @ <p>By %h(m.zUser) on %s(zDate).  See also:
+    @ <a href="%s(g.zTop)/artifact/%T(zUuid)">artifact content</a>, and
+    @ <a href="%s(g.zTop)/tkthistory/%s(m.zTicketUuid)">ticket history</a>
+    @ </p>
+  }else{
+    @ <h2>Changes to ticket %s(zTktName)</h2>
+    @
+    @ <p>By %h(m.zUser) on %s(zDate).
+    @ </p>
+  }
   @
   @ <ol>
   free(zDate);
