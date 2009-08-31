@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C When\slisting\sthe\shistory\sof\sa\sfile,\sshow\sthe\scheck-in\sassociated\swith\seach\nnew\sversion\sof\sthat\sfile.
-D 2009-08-31T00:09:16
+C When\sthe\s"http"\scommand\sis\srun\sas\sroot,\sautomatically\sset\sup\sa\schroot\njail\sand\sdrop\sroot\sprivileges\sprior\sto\sreading\sany\sinput.
+D 2009-08-31T00:48:44
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -68,7 +68,7 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
 F src/info.c eec9dcd76aa74a6c8cd446fff15ba291373bf726
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
-F src/main.c 65c875517e9fa008ac9c6a2a5bc8c2d0611aa730
+F src/main.c 97f8036e59539cac6399252af13d28b161b675a4
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -93,7 +93,7 @@ F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
 F src/sqlite3.c 7d5967468ec504919dc0b78d39b87b322b33173e
 F src/sqlite3.h d6123af55047d459b2305d48fcc9f945ea760e1d
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c 4ab2cc74bfc74dd61e22a149eec72a6e569edab8
+F src/style.c 29d8d356cda955e9156ddf8aa855d1a5755523fa
 F src/sync.c 83eeccbf313cf603237e8ea2109c397b24be4970
 F src/tag.c 11a50e87e6aa9792943135caed6c4054419cb6f2
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5fe3aee8394b13baf8e71aef12228abce54aa2c6
-R ba50978e12664cbcfa1ccca515e3db56
+P 96c1043c61aa57728b0b87c04e29b372c32baf27
+R 09b5dcaa982953bac701705a921efb6f
 U drh
-Z dd0792258f35c9937c050d720dbfd8f0
+Z fd94fd3401f20d58d7d18b8f34cefd70
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmxSwoxKgR168RlERAivMAJ94+MQ23KuMzl91DlIzM6GLqXW8dwCgig/3
-H8ohOgngGtsVpMbz4NG2Wa4=
-=gdvc
+iD8DBQFKmx3voxKgR168RlERAhiAAJ9yzpyCMhZsrsn7ondtSVSPGo2LuQCdHIQj
+Q/Gd6enl5uTXq7bjfYvOnLk=
+=y3rm
 -----END PGP SIGNATURE-----

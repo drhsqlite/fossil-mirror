@@ -412,6 +412,9 @@ void page_style_css(void){
 */
 void page_test_env(void){
   style_header("Environment Test");
+#if !defined(__MINGW32__)
+  @ uid=%d(getuid()), gid=%d(getgid())<br>
+#endif
   @ g.zBaseURL = %h(g.zBaseURL)<br>
   @ g.zTop = %h(g.zTop)<br>
   cgi_print_all();

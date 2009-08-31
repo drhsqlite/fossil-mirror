@@ -29,6 +29,9 @@
 #include <string.h>
 #include <time.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 #if INTERFACE
 
@@ -682,6 +685,25 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     cgi_panic("no repository specified");
   }
+#if !defined(__MINGW32__)
+  if( g.argc==3 && getuid()==0 ){
+    int i;
+    char *zRepo = g.argv[2];
+    struct stat sStat;
+    for(i=strlen(zRepo)-1; i>0 && zRepo[i]!='/'; i--){}
+    if( zRepo[i]=='/' ){
+      zRepo[i] = 0;
+      chdir(g.argv[2]);
+      chroot(g.argv[2]);
+      g.argv[2] = &zRepo[i+1];
+    }
+    if( stat(g.argv[2], &sStat)!=0 ){
+      fossil_fatal("cannot stat() repository: %s", g.argv[2]);
+    }
+    setgid(sStat.st_gid);
+    setuid(sStat.st_uid);
+  }
+#endif
   g.cgiPanic = 1;
   g.fullHttpReply = 1;
   if( g.argc==6 ){
