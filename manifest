@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Disable\sadditional\shyperlinks\swhen\s"history"\sprivilege\sis\sdisabled\n(by\sdefault\swhen\sthe\suser\shas\snot\ssigned\sin\sas\s"anonymous"\sor\sother\sknown\nuser.)\s\sHelp\sprevent\sspiders\sfor\ssoaking\sup\sbandwidth.
-D 2009-08-30T01:22:15
+C When\slisting\sthe\shistory\sof\sa\sfile,\sshow\sthe\scheck-in\sassociated\swith\seach\nnew\sversion\sof\sthat\sfile.
+D 2009-08-31T00:09:16
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -66,7 +66,7 @@ F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 15b4647138f91d0d73f01ece74cb32470d3d571a
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
-F src/info.c 7cbe41c03caf12fce4c02e35a81234a8259d8e6f
+F src/info.c eec9dcd76aa74a6c8cd446fff15ba291373bf726
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
 F src/main.c 65c875517e9fa008ac9c6a2a5bc8c2d0611aa730
 F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d42adc11c8473e0d00efe377a1da8e8e3ffdea76
-R b8ca528a27eaf63963fd373f77dec43b
+P 5fe3aee8394b13baf8e71aef12228abce54aa2c6
+R ba50978e12664cbcfa1ccca515e3db56
 U drh
-Z 31730f3e4aecf42e6134d905f252ced0
+Z dd0792258f35c9937c050d720dbfd8f0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKmdRKoxKgR168RlERAsJoAJ9QPvQWv/xOgXxvgvLO0XiV02qO7QCeNRLT
-65QAHNtrwkum/OUc+xmsUHo=
-=Ooku
+iD8DBQFKmxSwoxKgR168RlERAivMAJ94+MQ23KuMzl91DlIzM6GLqXW8dwCgig/3
+H8ohOgngGtsVpMbz4NG2Wa4=
+=gdvc
 -----END PGP SIGNATURE-----

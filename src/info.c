@@ -500,11 +500,12 @@ void finfo_page(void){
     "SELECT substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
     "       coalesce(event.ecomment, event.comment),"
     "       coalesce(event.euser, event.user),"
-    "       mlink.pid, mlink.fid, mlink.mid, mlink.fnid"
-    "  FROM mlink, blob b, event"
+    "       mlink.pid, mlink.fid, mlink.mid, mlink.fnid, ci.uuid"
+    "  FROM mlink, blob b, event, blob ci"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
     "   AND b.rid=mlink.fid"
     "   AND event.objid=mlink.mid"
+    "   AND event.objid=ci.rid"
     " ORDER BY event.mtime DESC",
     zFilename
   );
@@ -523,7 +524,9 @@ void finfo_page(void){
     int frid = db_column_int(&q, 5);
     int mid = db_column_int(&q, 6);
     int fnid = db_column_int(&q, 7);
+    const char *zCkin = db_column_text(&q,8);
     char zShort[20];
+    char zShortCkin[20];
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td colspan=3>
@@ -534,11 +537,14 @@ void finfo_page(void){
     @ <td width="20"></td>
     @ <td valign="top" align="left">
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
+    sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( g.okHistory ){
       @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%s(zShort)]</a>
     }else{
       @ [%s(zShort)]
     }
+    @ part of check-in
+    hyperlink_to_uuid(zShortCkin);
     @ %h(zCom) (By: 
     hyperlink_to_user(zUser, zDate, " on");
     hyperlink_to_date(zDate, ")");
