@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C When\sthe\s"http"\scommand\sis\srun\sas\sroot,\sautomatically\sset\sup\sa\schroot\njail\sand\sdrop\sroot\sprivileges\sprior\sto\sreading\sany\sinput.
-D 2009-08-31T00:48:44
+C Make\sheadings\slook\sprettier\swhen\susing\stext-based\swww\sclients\slike\s"elinks".
+D 2009-09-02T03:14:58
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -93,7 +93,7 @@ F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
 F src/sqlite3.c 7d5967468ec504919dc0b78d39b87b322b33173e
 F src/sqlite3.h d6123af55047d459b2305d48fcc9f945ea760e1d
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c 29d8d356cda955e9156ddf8aa855d1a5755523fa
+F src/style.c 47b34cf93170a9edd66d360cff7fbff12ea5de85
 F src/sync.c 83eeccbf313cf603237e8ea2109c397b24be4970
 F src/tag.c 11a50e87e6aa9792943135caed6c4054419cb6f2
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
@@ -250,14 +250,14 @@ F www/stats.wiki e172dfa50fe58e59e1ee71792d732baefcb3d8f4
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 96c1043c61aa57728b0b87c04e29b372c32baf27
-R 09b5dcaa982953bac701705a921efb6f
-U drh
-Z fd94fd3401f20d58d7d18b8f34cefd70
+P 7ba10f1a6ae0d828af9250e257e162a6c5ffc4c4
+R 83c1081646c7c5cbe50e7afc0995996d
+U bch
+Z 7853f9aa85762ce4c9e61bec37aa415f
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (NetBSD)
 
-iD8DBQFKmx3voxKgR168RlERAhiAAJ9yzpyCMhZsrsn7ondtSVSPGo2LuQCdHIQj
-Q/Gd6enl5uTXq7bjfYvOnLk=
-=y3rm
+iEYEARECAAYFAkqd4zMACgkQad0Kwpwugm8v0gCg05rf2b6BEQoAarosBJ29K0jz
++XYAoKYQqcBa/lmcAn6G2XJbqHHQpemv
+=K5dP
 -----END PGP SIGNATURE-----

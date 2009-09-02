@@ -206,31 +206,31 @@ const char zDefaultHeader[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href='$baseurl$index_page'>Home</a>"
+@ html "<a href='$baseurl$index_page'>Home</a> "
 @ if {[hascap h]} {
-@   html "<a href='$baseurl/dir'>Files</a>"
+@   html "<a href='$baseurl/dir'>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href='$baseurl/leaves'>Leaves</a>"
-@   html "<a href='$baseurl/timeline'>Timeline</a>"
-@   html "<a href='$baseurl/brlist'>Branches</a>"
-@   html "<a href='$baseurl/taglist'>Tags</a>"
+@   html "<a href='$baseurl/leaves'>Leaves</a> "
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@   html "<a href='$baseurl/brlist'>Branches</a> "
+@   html "<a href='$baseurl/taglist'>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$baseurl/reportlist'>Tickets</a>"
+@   html "<a href='$baseurl/reportlist'>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href='$baseurl/wiki'>Wiki</a>"
+@   html "<a href='$baseurl/wiki'>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$baseurl/setup'>Admin</a>"
+@   html "<a href='$baseurl/setup'>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href='$baseurl/setup_ulist'>Users</a>"
+@   html "<a href='$baseurl/setup_ulist'>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$baseurl/login'>Logout</a>"
+@   html "<a href='$baseurl/login'>Logout</a> "
 @ } else {
-@   html "<a href='$baseurl/login'>Login</a>"
+@   html "<a href='$baseurl/login'>Login</a> "
 @ }
 @ </th1></div>
 ;
