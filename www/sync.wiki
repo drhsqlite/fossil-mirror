@@ -386,16 +386,16 @@ a pull is captured in the following steps:</p>
 <hr>
 <li>The server checks the login password and rejects the session if
 the user does not have permission to pull.
-<li>If the number entries in the unclustered table on the server is
+<li>If the number of entries in the unclustered table on the server is
 greater than 100, then the server constructs a new cluster artifact to
 cover all those unclustered entries.
 <li>The server sends file cards for every gimme card it received
 from the client.
-<li>The server sends ihave cards for every artifact in its unclustered
+<li>The server sends igot cards for every artifact in its unclustered
 table that is not a phantom.
 <hr>
 <li>The client adds the content of file cards to its repository.
-<li>The client creates a phantom for every ihave card in the server reply
+<li>The client creates a phantom for every igot card in the server reply
 that mentions an artifact that the client does not possess.
 <li>The client creates a phantom for the delta source of file cards when
 the delta source is an artifact that the client does not possess.
