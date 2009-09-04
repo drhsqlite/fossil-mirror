@@ -1434,6 +1434,9 @@ static void print_setting(const char *zName){
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
 **
+**    dont-push        Prevent this repository from pushing from client to
+**                     server.  Useful when setting up a private branch.
+**
 **    editor           Text editor command used for check-in comments.
 **
 **    http-port        The TCP/IP port number to use by the "server"
@@ -1471,6 +1474,7 @@ void setting_cmd(void){
   static const char *azName[] = {
     "autosync",
     "diff-command",
+    "dont-push",
     "editor",
     "gdiff-command",
     "http-port",
