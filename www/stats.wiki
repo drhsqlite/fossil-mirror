@@ -126,15 +126,15 @@ changed, it still only counts as one check-in.
 
 The "Uncompressed Size" is the total size of all the artifacts within
 the fossil repository assuming they were all uncompressed and stored 
-separately on the disk.  Fossil makes use of delta compress between related
-versions of the same file, and then using zlib compression on the resulting
+separately on the disk.  Fossil makes use of delta compression between related
+versions of the same file, and then uses zlib compression on the resulting
 deltas.  The total resulting repository size is shown after the uncompressed
 size.  
 
 On the right end of the table, we show the "Clone Bandwidth".  This is the
 total number of bytes sent from client to server ("uplink") and from server
 back to client ("downlink") in order to clone a repository.  These byte counts
-include all of the HTTP protocol overhead.
+include HTTP protocol overhead.
 
 In the table and throughout this article,
 "GB" means gigabytes (10<sup><small>9</small></sup> bytes)

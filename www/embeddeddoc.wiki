@@ -50,7 +50,7 @@ Or <i>&lt;version&gt;</i> can be the name of a
 [./branching.wiki | branch] in order to show
 the documentation for the latest version of that branch.
 Or <i>&lt;version&gt;</i> can be one of the keywords "<b>tip</b>" or
-"<b>ckout</b>".  The "<b>tip</b>" keyword means to use the most recently
+"<b>ckout</b>".  The "<b>tip</b>" keyword means to use the most recent
 checked-in.  This is useful if you want to see the very latest
 version of the documentation.  The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
@@ -71,7 +71,7 @@ different file suffixes, including all the popular ones such as
 
 Documentation files whose names end in ".wiki" use the 
 [/wiki_rules | same markup as wiki pages] -
-a safe subset of HTML together with some rules for paragraph
+a safe subset of HTML together with some wiki rules for paragraph
 breaks, lists, and hyperlinks.  The ".wiki" and ".txt" pages
 are rendered with the standard fossil header and footer added.
 All other mimetypes are delivered directly to the requesting
