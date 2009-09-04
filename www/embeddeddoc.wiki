@@ -51,7 +51,7 @@ Or <i>&lt;version&gt;</i> can be the name of a
 the documentation for the latest version of that branch.
 Or <i>&lt;version&gt;</i> can be one of the keywords "<b>tip</b>" or
 "<b>ckout</b>".  The "<b>tip</b>" keyword means to use the most recent
-checked-in.  This is useful if you want to see the very latest
+check-in.  This is useful if you want to see the very latest
 version of the documentation.  The "<b>ckout</b>" keywords means to
 pull the documentation file from the local source tree on disk, not
 from the any check-in.  The "<b>ckout</b>" keyword normally

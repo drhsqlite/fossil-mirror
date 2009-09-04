@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\stypos\sin\sdocumentation.
-D 2009-09-04T12:20:39
+C typos\sin\sdocumentation
+D 2009-09-04T16:20:26
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -213,7 +213,7 @@ F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
 F www/delta_encoder_algorithm.wiki 4cdc9058d2a3b4d42d3d312adc355c597326400c
 F www/delta_format.wiki 4f786152399dc855fe8b32930fc3c2690465d3d3
-F www/embeddeddoc.wiki 7d3b426042d8245fc79908bd33939746dcae6477
+F www/embeddeddoc.wiki 989355d07bf440b9a6533c5886be5c04e3b2758f
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
 F www/encode2.gif e2b657c112227549b9424508cc0753bf2f82b03e
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki 7118e0761e54f63d69cb3938ac42adbaefb9322d
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 449094a8ffcdb7dd44f08dcceb3343a80857cf26
-R c7100a46aab8a3151ff81dff27d2f2d8
-U drh
-Z 2a34ae3cbd80a90cb86c976f43b8b589
+P 5150b9de8380b79c239fb8b1502cfe2bb07fe14f
+R fa74b13997f3934e78358b53b153df70
+U x118876
+Z 734af6edeec4c5476142f26aa80644a1
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.9 (Cygwin)
 
-iD8DBQFKoQYaoxKgR168RlERAhGAAJ4i2w4wynEY8UMh8jm2n7oxMFZjOACdGqF5
-0jRL3hMTWVCYW5gQlQHbDU4=
-=8rLB
+iEYEARECAAYFAkqhPksACgkQJXwFf/AKZGHglgCgpDZa89y3pBcKToWE4V9Wotn8
+1H0AniMVyfnVl2NF2n2ky0WA6gJNnaV0
+=UlIa
 -----END PGP SIGNATURE-----
