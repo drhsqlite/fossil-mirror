@@ -103,22 +103,12 @@ void process_sync_args(void){
 **
 ** Usage: %fossil pull ?URL? ?-R|--respository REPOSITORY?
 **
-** Pull changes in a remote repository into the local repository.
-** The repository is identified by the -R or --repository option.
-** If there is no such option then the open repository is used.
-** The URL of the remote server is specified on the command line
-** If no URL is specified then the URL used by the most recent
-** "pull", "push", or "sync" command is used.
+** Pull changes from a remote repository into the local repository.
 **
-** The URL is of the following form:
+** If the URL is not specified, then the URL from the most recent
+** clone, push, pull, remote-url, or sync command is used.
 **
-**      http://USER@HOST:PORT/PATH
-**
-** The "USER@" and ":PORT" substrings are optional.
-** The "USER" substring specifies the login user.  You will be
-** prompted for the password on the command-line.  The PORT
-** specifies the TCP port of the server.  The default port is
-** 80.
+** See also: clone, push, sync, remote-url
 */
 void pull_cmd(void){
   process_sync_args();
@@ -131,7 +121,11 @@ void pull_cmd(void){
 ** Usage: %fossil push ?URL? ?-R|--repository REPOSITORY?
 **
 ** Push changes in the local repository over into a remote repository.
-** See the "pull" command for additional information.
+**
+** If the URL is not specified, then the URL from the most recent
+** clone, push, pull, remote-url, or sync command is used.
+**
+** See also: clone, pull, sync, remote-url
 */
 void push_cmd(void){
   process_sync_args();
@@ -146,7 +140,15 @@ void push_cmd(void){
 **
 ** Synchronize the local repository with a remote repository.  This is
 ** the equivalent of running both "push" and "pull" at the same time.
-** See the "pull" command for additional information.
+**
+** If a user-id and password are required, specify them as follows:
+**
+**     http://userid:password@www.domain.com:1234/path
+**
+** If the URL is not specified, then the URL from the most recent successful
+** clone, push, pull, remote-url, or sync command is used.
+**
+** See also:  clone, push, pull, remote-url
 */
 void sync_cmd(void){
   process_sync_args();
@@ -158,16 +160,18 @@ void sync_cmd(void){
 **
 ** Usage: %fossil remote-url ?URL|off? --show-pw
 **
-** Query and optional change the default server named used for syncing
-** the current check-out.
+** Query and/or change the default server URL used by the "pull", "push",
+** and "sync" commands.
 **
-** The userid and password are stripped from the URL and are not printed
-** unless the --show-pw option is used on the command-line.
+** The userid and password are of the URL are not printed unless
+** the --show-pw option is used on the command-line.
 **
 ** The remote-url is set automatically by a "clone" command or by any
 ** "sync", "push", or "pull" command that specifies an explicit URL.
 ** The default remote-url is used by auto-syncing and by "sync", "push",
 ** "pull" that omit the server URL.
+**
+** See also: clone, push, pull, sync
 */
 void remote_url_cmd(void){
   char *zUrl;
