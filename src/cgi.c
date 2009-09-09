@@ -72,13 +72,6 @@
 #endif /* INTERFACE */
 
 /*
-** Provide a reliable implementation of a caseless string comparison
-** function.
-*/
-#define stricmp sqlite3StrICmp
-extern int sqlite3StrICmp(const char*, const char*);
-
-/*
 ** The HTTP reply is generated in two pieces: the header and the body.
 ** These pieces are generated separately because they are not necessary
 ** produced in order.  Parts of the header might be built after all or
@@ -646,17 +639,18 @@ static void process_multipart_form_data(char *z, int len){
       nArg = tokenize_line(zLine, sizeof(azArg)/sizeof(azArg[0]), azArg);
       for(i=0; i<nArg; i++){
         int c = tolower(azArg[i][0]);
-        if( c=='c' && stricmp(azArg[i],"content-disposition:")==0 ){
+        int n = strlen(azArg[i]);
+        if( c=='c' && sqlite3_strnicmp(azArg[i],"content-disposition:",n)==0 ){
           i++;
-        }else if( c=='n' && stricmp(azArg[i],"name=")==0 ){
+        }else if( c=='n' && sqlite3_strnicmp(azArg[i],"name=",n)==0 ){
           zName = azArg[++i];
-        }else if( c=='f' && stricmp(azArg[i],"filename=")==0 ){
+        }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
           if( zName && z && islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z);
           }
           showBytes = 1;
-        }else if( c=='c' && stricmp(azArg[i],"content-type:")==0 ){
+        }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
           if( zName && z && islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z);

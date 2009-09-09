@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\s"help"\scomments\sfor\sclone,\spush,\spull,\ssync,\sand\sremote-url\scommands.
-D 2009-09-04T20:19:00
+C Update\sto\sthe\slatest\sversion\sof\sSQLite.\s\sMake\suse\sof\sthe\snew\s\nsqlite3_strnicmp()\sinterface.
+D 2009-09-09T16:14:08
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -44,7 +44,7 @@ F src/blob.c 80cddafe2a13ae44bed095aeb87df87cc48d7fc8
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
-F src/cgi.c 00c26fc3497e6a83bc1b163db5e6bd25b0d30590
+F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
 F src/checkin.c 8b03f30dd73df684660a44c404665f205883d70e
 F src/checkout.c 9058612e329c957ba94ff93ccbae31acf6008597
 F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
@@ -69,10 +69,10 @@ F src/http_transport.c 409df8860fdd5793b0e45c8d2ff2e904c35759ba
 F src/info.c eec9dcd76aa74a6c8cd446fff15ba291373bf726
 F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
 F src/main.c 97f8036e59539cac6399252af13d28b161b675a4
-F src/main.mk eae24a1861a66cdf9f73551f210e9f9da2d0bf66
+F src/main.mk 1c7633a14e94f41a1d362ce3e17f608125ac3bdc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl e1d07386b2d66dfef09d5712378a87bb268a591e
+F src/makemake.tcl 63b9b997e577ceb50b40b2e39548d87c70c13759
 F src/manifest.c 9476d92cd1f9980ab0c7a67fa6aca727692108c6
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
@@ -90,8 +90,8 @@ F src/schema.c db3fd09f7a989b26be82b24af9e9e93927a0bcc9
 F src/setup.c ddfa4b243d48aae45d3715c6a47d4a7cfe8eb268
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/sqlite3.c 7d5967468ec504919dc0b78d39b87b322b33173e
-F src/sqlite3.h d6123af55047d459b2305d48fcc9f945ea760e1d
+F src/sqlite3.c 6af451108a874c070e07e2da9320d53b5c9ef44e
+F src/sqlite3.h ea0493c46cc47af7553d64ae0a8e888b6dbac6ac
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 47b34cf93170a9edd66d360cff7fbff12ea5de85
 F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d1b948b0c73f24c143b0cc2f395754fcb3ffd695
-R 70e5769867d3272111e6672648f49f58
+P 6a407335312c1350144d6231caedb271d93cd145
+R 3d7dc30f8e74a28ad870db7b10a4c68b
 U drh
-Z 38fa86f36c366ec1c55bd982aa2c9988
+Z be4b7d5f48964b6d7aaa751dfe775137
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKoXY3oxKgR168RlERAn6oAJ9HoSdUocIuZ8wkehyN0zEvVE+V6ACdEmdf
-0oE8+0Iprjz70I8lHncaTco=
-=YNue
+iD8DBQFKp9RToxKgR168RlERAixWAJ9gNZt0oUNBtBm1lK6XlaXbpfRGhgCfeTvu
+OyvOmglPWAmSFswX6NPpK5o=
+=FKMY
 -----END PGP SIGNATURE-----

@@ -187,7 +187,7 @@ foreach s [lsort $src] {
 
 
 puts "sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_PRIVATE=}
+set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 #append opt " -DSQLITE_ENABLE_FTS3=1"
 append opt " -Dlocaltime=fossil_localtime"
