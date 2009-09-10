@@ -17,7 +17,7 @@
 ** language. The code for the "sqlite3" command-line shell is also in a
 ** separate file. This file contains only code for the core SQLite library.
 **
-** This amalgamation was generated on 2009-09-09 16:11:06 UTC.
+** This amalgamation was generated on 2009-09-10 22:23:14 UTC.
 */
 #define SQLITE_CORE 1
 #define SQLITE_AMALGAMATION 1
@@ -277,7 +277,11 @@
 ** Maximum depth of recursion for triggers.
 */
 #ifndef SQLITE_MAX_TRIGGER_DEPTH
+#if defined(SQLITE_SMALL_STACK)
+# define SQLITE_MAX_TRIGGER_DEPTH 10
+#else
 # define SQLITE_MAX_TRIGGER_DEPTH 1000
+#endif
 #endif
 
 /************** End of sqliteLimit.h *****************************************/
@@ -645,7 +649,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.18"
 #define SQLITE_VERSION_NUMBER 3006018
-#define SQLITE_SOURCE_ID      "2009-09-09 16:10:51 f0c72a53c5d57d7487b48a06a40816153f47aaac"
+#define SQLITE_SOURCE_ID      "2009-09-10 20:23:30 f42ec993ac9d42ca31305f26b09924108c36d9f4"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -7508,7 +7512,7 @@ SQLITE_PRIVATE int sqlite3VdbeFinalize(Vdbe*);
 SQLITE_PRIVATE void sqlite3VdbeResolveLabel(Vdbe*, int);
 SQLITE_PRIVATE int sqlite3VdbeCurrentAddr(Vdbe*);
 #ifdef SQLITE_DEBUG
-SQLITE_PRIVATE   int sqlite3VdbeMayAbort(Vdbe*);
+SQLITE_PRIVATE   int sqlite3VdbeAssertMayAbort(Vdbe *, int);
 SQLITE_PRIVATE   void sqlite3VdbeTrace(Vdbe*,FILE*);
 #endif
 SQLITE_PRIVATE void sqlite3VdbeResetStepResult(Vdbe*);
@@ -11375,7 +11379,7 @@ static sqlite3_int64 localtimeOffset(DateTime *p){
   x.tz = 0;
   x.validJD = 0;
   computeJD(&x);
-  t = x.iJD/1000 - 21086676*(i64)10000;
+  t = (time_t)(x.iJD/1000 - 21086676*(i64)10000);
 #ifdef HAVE_LOCALTIME_R
   {
     struct tm sLocal;
@@ -14371,6 +14375,16 @@ SQLITE_PRIVATE const sqlite3_mem_methods *sqlite3MemGetMemsys5(void){
 ** $Id: mutex.c,v 1.31 2009/07/16 18:21:18 drh Exp $
 */
 
+#if defined(SQLITE_DEBUG) && !defined(SQLITE_MUTEX_OMIT)
+/*
+** For debugging purposes, record when the mutex subsystem is initialized
+** and uninitialized so that we can assert() if there is an attempt to
+** allocate a mutex while the system is uninitialized.
+*/
+static SQLITE_WSD int mutexIsInit = 0;
+#endif /* SQLITE_DEBUG */
+
+
 #ifndef SQLITE_MUTEX_OMIT
 /*
 ** Initialize the mutex system.
@@ -14395,6 +14409,10 @@ SQLITE_PRIVATE int sqlite3MutexInit(void){
     rc = sqlite3GlobalConfig.mutex.xMutexInit();
   }
 
+#ifdef SQLITE_DEBUG
+  GLOBAL(int, mutexIsInit) = 1;
+#endif
+
   return rc;
 }
 
@@ -14407,6 +14425,11 @@ SQLITE_PRIVATE int sqlite3MutexEnd(void){
   if( sqlite3GlobalConfig.mutex.xMutexEnd ){
     rc = sqlite3GlobalConfig.mutex.xMutexEnd();
   }
+
+#ifdef SQLITE_DEBUG
+  GLOBAL(int, mutexIsInit) = 0;
+#endif
+
   return rc;
 }
 
@@ -14424,6 +14447,7 @@ SQLITE_PRIVATE sqlite3_mutex *sqlite3MutexAlloc(int id){
   if( !sqlite3GlobalConfig.bCoreMutex ){
     return 0;
   }
+  assert( GLOBAL(int, mutexIsInit) );
   return sqlite3GlobalConfig.mutex.xMutexAlloc(id);
 }
 
@@ -22405,7 +22429,17 @@ static void releaseOpenCnt(struct unixOpenCnt *pOpen){
         assert( pOpen->pNext->pPrev==pOpen );
         pOpen->pNext->pPrev = pOpen->pPrev;
       }
-      assert( !pOpen->pUnused );
+#if SQLITE_THREADSAFE && defined(__linux__)
+      assert( !pOpen->pUnused || threadsOverrideEachOthersLocks==0 );
+#endif
+
+      /* If pOpen->pUnused is not null, then memory and file-descriptors
+      ** are leaked.
+      **
+      ** This will only happen if, under Linuxthreads, the user has opened
+      ** a transaction in one thread, then attempts to close the database
+      ** handle from another thread (without first unlocking the db file).
+      ** This is a misuse.  */
       sqlite3_free(pOpen);
     }
   }
@@ -27557,8 +27591,8 @@ static BOOL winceLockFile(
   winceMutexAcquire(pFile->hMutex);
 
   /* Wanting an exclusive lock? */
-  if (dwFileOffsetLow == SHARED_FIRST
-       && nNumberOfBytesToLockLow == SHARED_SIZE){
+  if (dwFileOffsetLow == (DWORD)SHARED_FIRST
+       && nNumberOfBytesToLockLow == (DWORD)SHARED_SIZE){
     if (pFile->shared->nReaders == 0 && pFile->shared->bExclusive == 0){
        pFile->shared->bExclusive = TRUE;
        pFile->local.bExclusive = TRUE;
@@ -27567,7 +27601,7 @@ static BOOL winceLockFile(
   }
 
   /* Want a read-only lock? */
-  else if (dwFileOffsetLow == SHARED_FIRST &&
+  else if (dwFileOffsetLow == (DWORD)SHARED_FIRST &&
            nNumberOfBytesToLockLow == 1){
     if (pFile->shared->bExclusive == 0){
       pFile->local.nReaders ++;
@@ -27579,7 +27613,7 @@ static BOOL winceLockFile(
   }
 
   /* Want a pending lock? */
-  else if (dwFileOffsetLow == PENDING_BYTE && nNumberOfBytesToLockLow == 1){
+  else if (dwFileOffsetLow == (DWORD)PENDING_BYTE && nNumberOfBytesToLockLow == 1){
     /* If no pending lock has been acquired, then acquire it */
     if (pFile->shared->bPending == 0) {
       pFile->shared->bPending = TRUE;
@@ -27589,7 +27623,7 @@ static BOOL winceLockFile(
   }
 
   /* Want a reserved lock? */
-  else if (dwFileOffsetLow == RESERVED_BYTE && nNumberOfBytesToLockLow == 1){
+  else if (dwFileOffsetLow == (DWORD)RESERVED_BYTE && nNumberOfBytesToLockLow == 1){
     if (pFile->shared->bReserved == 0) {
       pFile->shared->bReserved = TRUE;
       pFile->local.bReserved = TRUE;
@@ -27621,10 +27655,10 @@ static BOOL winceUnlockFile(
   winceMutexAcquire(pFile->hMutex);
 
   /* Releasing a reader lock or an exclusive lock */
-  if (dwFileOffsetLow == SHARED_FIRST){
+  if (dwFileOffsetLow == (DWORD)SHARED_FIRST){
     /* Did we have an exclusive lock? */
     if (pFile->local.bExclusive){
-      assert(nNumberOfBytesToUnlockLow == SHARED_SIZE);
+      assert(nNumberOfBytesToUnlockLow == (DWORD)SHARED_SIZE);
       pFile->local.bExclusive = FALSE;
       pFile->shared->bExclusive = FALSE;
       bReturn = TRUE;
@@ -27632,7 +27666,7 @@ static BOOL winceUnlockFile(
 
     /* Did we just have a reader lock? */
     else if (pFile->local.nReaders){
-      assert(nNumberOfBytesToUnlockLow == 1);
+      assert(nNumberOfBytesToUnlockLow == (DWORD)SHARED_SIZE || nNumberOfBytesToUnlockLow == 1);
       pFile->local.nReaders --;
       if (pFile->local.nReaders == 0)
       {
@@ -27643,7 +27677,7 @@ static BOOL winceUnlockFile(
   }
 
   /* Releasing a pending lock */
-  else if (dwFileOffsetLow == PENDING_BYTE && nNumberOfBytesToUnlockLow == 1){
+  else if (dwFileOffsetLow == (DWORD)PENDING_BYTE && nNumberOfBytesToUnlockLow == 1){
     if (pFile->local.bPending){
       pFile->local.bPending = FALSE;
       pFile->shared->bPending = FALSE;
@@ -27651,7 +27685,7 @@ static BOOL winceUnlockFile(
     }
   }
   /* Releasing a reserved lock */
-  else if (dwFileOffsetLow == RESERVED_BYTE && nNumberOfBytesToUnlockLow == 1){
+  else if (dwFileOffsetLow == (DWORD)RESERVED_BYTE && nNumberOfBytesToUnlockLow == 1){
     if (pFile->local.bReserved) {
       pFile->local.bReserved = FALSE;
       pFile->shared->bReserved = FALSE;
@@ -27679,9 +27713,9 @@ static BOOL winceLockFileEx(
 
   /* If the caller wants a shared read lock, forward this call
   ** to winceLockFile */
-  if (lpOverlapped->Offset == SHARED_FIRST &&
+  if (lpOverlapped->Offset == (DWORD)SHARED_FIRST &&
       dwFlags == 1 &&
-      nNumberOfBytesToLockLow == SHARED_SIZE){
+      nNumberOfBytesToLockLow == (DWORD)SHARED_SIZE){
     return winceLockFile(phFile, SHARED_FIRST, 0, 1, 0);
   }
   return FALSE;
@@ -47375,7 +47409,7 @@ static Op *opIterNext(VdbeOpIter *p){
 }
 
 /*
-** Return true if the program stored in the VM passed as an argument may
+** Check if the program stored in the VM associated with pParse may
 ** throw an ABORT exception (causing the statement, but not transaction
 ** to be rolled back). This condition is true if the main program or any
 ** sub-programs contains any of the following:
@@ -47386,10 +47420,15 @@ static Op *opIterNext(VdbeOpIter *p){
 **   *  OP_VUpdate
 **   *  OP_VRename
 **
-** This function is only used as part of an assert() statement. 
+** Then check that the value of Parse.mayAbort is true if an
+** ABORT may be thrown, or false otherwise. Return true if it does
+** match, or false otherwise. This function is intended to be used as
+** part of an assert statement in the compiler. Similar to:
+**
+**   assert( sqlite3VdbeAssertMayAbort(pParse->pVdbe, pParse->mayAbort) );
 */
-SQLITE_PRIVATE int sqlite3VdbeMayAbort(Vdbe *v){
-  int mayAbort = 0;
+SQLITE_PRIVATE int sqlite3VdbeAssertMayAbort(Vdbe *v, int mayAbort){
+  int hasAbort = 0;
   Op *pOp;
   VdbeOpIter sIter;
   memset(&sIter, 0, sizeof(sIter));
@@ -47401,13 +47440,18 @@ SQLITE_PRIVATE int sqlite3VdbeMayAbort(Vdbe *v){
      || ((opcode==OP_Halt || opcode==OP_HaltIfNull) 
       && (pOp->p1==SQLITE_CONSTRAINT && pOp->p2==OE_Abort))
     ){
-      mayAbort = 1;
+      hasAbort = 1;
       break;
     }
   }
-
   sqlite3DbFree(v->db, sIter.apSub);
-  return mayAbort;
+
+  /* Return true if hasAbort==mayAbort. Or if a malloc failure occured.
+  ** If malloc failed, then the while() loop above may not have iterated
+  ** through all opcodes and hasAbort may be set incorrectly. Return
+  ** true for this case to prevent the assert() in the callers frame
+  ** from failing.  */
+  return ( v->db->mallocFailed || hasAbort==mayAbort );
 }
 #endif
 
@@ -48367,7 +48411,7 @@ SQLITE_PRIVATE void sqlite3VdbeMakeReady(
   int nCursor,                   /* Number of cursors to allocate */
   int nArg,                      /* Maximum number of args in SubPrograms */
   int isExplain,                 /* True if the EXPLAIN keywords is present */
-  int usesStmtJournal             /* True to set Vdbe.usesStmtJournal */
+  int usesStmtJournal            /* True to set Vdbe.usesStmtJournal */
 ){
   int n;
   sqlite3 *db = p->db;
@@ -48403,7 +48447,7 @@ SQLITE_PRIVATE void sqlite3VdbeMakeReady(
     u8 *zEnd = (u8 *)&p->aOp[p->nOpAlloc];
     int nByte;
     resolveP2Values(p, &nArg);
-    p->usesStmtJournal = usesStmtJournal;
+    p->usesStmtJournal = (u8)usesStmtJournal;
     if( isExplain && nMem<10 ){
       nMem = 10;
     }
@@ -55384,14 +55428,18 @@ case OP_NewRowid: {           /* out2-prerelease */
 
 #ifndef SQLITE_OMIT_AUTOINCREMENT
       if( pOp->p3 ){
+        /* Assert that P3 is a valid memory cell. */
+        assert( pOp->p3>0 );
         if( p->pFrame ){
           for(u.be.pFrame=p->pFrame; u.be.pFrame->pParent; u.be.pFrame=u.be.pFrame->pParent);
+          /* Assert that P3 is a valid memory cell. */
+          assert( pOp->p3<=u.be.pFrame->nMem );
           u.be.pMem = &u.be.pFrame->aMem[pOp->p3];
         }else{
+          /* Assert that P3 is a valid memory cell. */
+          assert( pOp->p3<=p->nMem );
           u.be.pMem = &p->aMem[pOp->p3];
         }
-        /* Assert that P3 is a valid memory cell. */
-        assert( pOp->p3>0 && pOp->p3<=(p->pFrame ? u.be.pFrame->nMem : p->nMem) );
 
         REGISTER_TRACE(pOp->p3, u.be.pMem);
         sqlite3VdbeMemIntegerify(u.be.pMem);
@@ -65443,7 +65491,8 @@ SQLITE_PRIVATE void sqlite3FinishCoding(Parse *pParse){
   ** vdbe program
   */
   v = sqlite3GetVdbe(pParse);
-  assert( pParse->isMultiWrite==0 || sqlite3VdbeMayAbort(v)==pParse->mayAbort );
+  assert( !pParse->isMultiWrite 
+       || sqlite3VdbeAssertMayAbort(v, pParse->mayAbort));
   if( v ){
     sqlite3VdbeAddOp0(v, OP_Halt);
 
@@ -77660,7 +77709,7 @@ static const char *columnType(
       int iCol = pExpr->iColumn;  /* Index of column in pTab */
       testcase( pExpr->op==TK_AGG_COLUMN );
       testcase( pExpr->op==TK_COLUMN );
-      while( ALWAYS(pNC) && !pTab ){
+      while( pNC && !pTab ){
         SrcList *pTabList = pNC->pSrcList;
         for(j=0;j<pTabList->nSrc && pTabList->a[j].iCursor!=pExpr->iTable;j++);
         if( j<pTabList->nSrc ){
@@ -77671,18 +77720,28 @@ static const char *columnType(
         }
       }
 
-      if( NEVER(pTab==0) ){
+      if( pTab==0 ){
         /* At one time, code such as "SELECT new.x" within a trigger would
         ** cause this condition to run.  Since then, we have restructured how
         ** trigger code is generated and so this condition is no longer 
-        ** possible.  But it seems prudent to keep the test in place in
-        ** case something else changes.
-        */
-        zType = "TEXT";
+        ** possible. However, it can still be true for statements like
+        ** the following:
+        **
+        **   CREATE TABLE t1(col INTEGER);
+        **   SELECT (SELECT t1.col) FROM FROM t1;
+        **
+        ** when columnType() is called on the expression "t1.col" in the 
+        ** sub-select. In this case, set the column type to NULL, even
+        ** though it should really be "INTEGER".
+        **
+        ** This is not a problem, as the column type of "t1.col" is never
+        ** used. When columnType() is called on the expression 
+        ** "(SELECT t1.col)", the correct type is returned (see the TK_SELECT
+        ** branch below.  */
         break;
       }
 
-      assert( pTab );
+      assert( pTab && pExpr->pTab==pTab );
       if( pS ){
         /* The "table" is actually a sub-select or a view in the FROM clause
         ** of the SELECT statement. Return the declaration type and origin
@@ -77696,7 +77755,7 @@ static const char *columnType(
           NameContext sNC;
           Expr *p = pS->pEList->a[iCol].pExpr;
           sNC.pSrcList = pS->pSrc;
-          sNC.pNext = 0;
+          sNC.pNext = pNC;
           sNC.pParse = pNC->pParse;
           zType = columnType(&sNC, p, &zOriginDb, &zOriginTab, &zOriginCol); 
         }

@@ -164,11 +164,7 @@ void transport_flip(void){
     zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
        g.argv[0], g.urlName, transport.zOutFile, transport.zInFile
     );
-#ifdef __MINGW32__
-    /* Quote the entire command to work around goofiness in system() on
-    ** on windows. Ticket [40df1ced7e] */
-    zCmd = mprintf("\"%z\"", zCmd);
-#endif
+    portable_system(zCmd);
     system(zCmd);
     free(zCmd);
     transport.pFile = fopen(transport.zInFile, "rb");

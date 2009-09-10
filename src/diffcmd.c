@@ -173,7 +173,8 @@ void diff_cmd(void){
       internalDiff=1;
     }
     blob_zero(&cmd);
-    blob_appendf(&cmd, "%s ", zExternalCommand);
+    shell_escape(&cmd, zExternalCommand);
+    blob_append(&cmd, " ", 1);
   }
   zFile = g.argv[g.argc-1];
   file_tree_name(zFile, &fname, 1);
@@ -210,10 +211,28 @@ void diff_cmd(void){
     shell_escape(&cmd, blob_str(&vname));
     blob_appendf(&cmd, " ");
     shell_escape(&cmd, zFile);
-    system(blob_str(&cmd));
+    portable_system(blob_str(&cmd));
     unlink(blob_str(&vname));
     blob_reset(&vname);
     blob_reset(&cmd);
   }
   blob_reset(&fname);
+}
+
+/*
+** This function implements a cross-platform "system()" interface.
+*/
+void portable_system(char *zOrigCmd){
+#ifdef __MINGW32__
+  /* On windows, we have to put double-quotes around the entire command.
+  ** Who knows why - this is just the way windows works.
+  */
+  char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
+  system(zNewCmd);
+  free(zNewCmd);
+#else
+  /* On unix, evaluate the command directly.
+  */
+  system(zOrigCmd);
+#endif  
 }
