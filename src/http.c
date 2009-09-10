@@ -53,7 +53,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     user_select();
     db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
     sha1sum_blob(&pw, &sig);
-    blob_appendf(pLogin, "login %s %b %b\n", g.zLogin, &nonce, &sig);
+    blob_appendf(pLogin, "login %F %b %b\n", g.zLogin, &nonce, &sig);
   }else{
     if( g.urlPasswd==0 ){
       if( strcmp(g.urlUser,"anonymous")!=0 ){
@@ -68,7 +68,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     }
     blob_append(&pw, g.urlPasswd, -1);
     sha1sum_blob(&pw, &sig);
-    blob_appendf(pLogin, "login %s %b %b\n", g.urlUser, &nonce, &sig);
+    blob_appendf(pLogin, "login %F %b %b\n", g.urlUser, &nonce, &sig);
   }        
   blob_reset(&nonce);
   blob_reset(&pw);
