@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Always\sprint\sthe\s"project-name"\susing\sthe\scommand-line\s"info"\scommand.\nAvoid\san\sextra\s"/"\scharacter\swhen\sconstructing\sfiles\sfor\scheck-in.
-D 2009-09-11T18:27:55
+C Fix\sthe\s"ui"/"server"\scommand\sfor\swin32\sso\sthat\sit\sworks\seven\sif\srun\nfrom\scygwin\sin\sa\sdirectory\sthat\scontains\sa\sspace\sin\sits\sname.
+D 2009-09-11T21:05:51
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -112,7 +112,7 @@ F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c 4e98ad4b0c1280807dc41d01e27472d26afd9ced
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
-F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
+F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
 F src/xfer.c 9487497f9240161f5751087ea6e2a64481791fa9
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 129edda98e4b96263793ce2859ce59f4b43d0fda
-R c58281adb3324764a7fc4be0e87da364
+P bbd758ecc30352dd3d50936c6dfda1d82a155748
+R 8901f17e6ed290e793a6832b40266532
 U drh
-Z 2af0b90c48d6ce18ab57ae65ec9dd5a1
+Z f7d4f223b97fb712956a2c9a0653f12d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKqpatoxKgR168RlERAhtsAJ4xNStTnMjUOCYHiGNUUwrdNxGuYwCeP2oJ
-nkVfRl0Ah40vJCyeSHFoT6U=
-=GShy
+iD8DBQFKqru0oxKgR168RlERArxXAJ9VEejXoPnuDmzMNPWfEiz1nEzPCwCdFLfU
+cGvLgTQlGIQq73UcXfOw+08=
+=SE9S
 -----END PGP SIGNATURE-----
