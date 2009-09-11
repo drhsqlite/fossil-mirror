@@ -171,10 +171,11 @@ void diff_cmd(void){
     }
     if( zExternalCommand==0 ){
       internalDiff=1;
+    }else{
+      blob_zero(&cmd);
+      shell_escape(&cmd, zExternalCommand);
+      blob_append(&cmd, " ", 1);
     }
-    blob_zero(&cmd);
-    shell_escape(&cmd, zExternalCommand);
-    blob_append(&cmd, " ", 1);
   }
   zFile = g.argv[g.argc-1];
   file_tree_name(zFile, &fname, 1);

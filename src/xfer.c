@@ -898,7 +898,8 @@ void client_sync(
   const char *zPCode = db_get("project-code", 0);
 
   if( db_get_boolean("dont-push", 0) ) pushFlag = 0;
-  if( pushFlag + pullFlag + cloneFlag == 0 ) return;
+  if( pushFlag + pullFlag + cloneFlag == 0 
+     && configRcvMask==0 && configSendMask==0 ) return;
 
   transport_stats(0, 0, 1);
   socket_global_init();

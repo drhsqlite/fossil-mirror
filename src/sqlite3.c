@@ -17,7 +17,7 @@
 ** language. The code for the "sqlite3" command-line shell is also in a
 ** separate file. This file contains only code for the core SQLite library.
 **
-** This amalgamation was generated on 2009-09-10 22:23:14 UTC.
+** This amalgamation was generated on 2009-09-11 14:16:13 UTC.
 */
 #define SQLITE_CORE 1
 #define SQLITE_AMALGAMATION 1
@@ -649,7 +649,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.18"
 #define SQLITE_VERSION_NUMBER 3006018
-#define SQLITE_SOURCE_ID      "2009-09-10 20:23:30 f42ec993ac9d42ca31305f26b09924108c36d9f4"
+#define SQLITE_SOURCE_ID      "2009-09-11 14:05:07 b084828a771ec40be85f07c590ca99de4f6c24ee"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -65699,8 +65699,9 @@ SQLITE_PRIVATE Index *sqlite3FindIndex(sqlite3 *db, const char *zName, const cha
 */
 static void freeIndex(Index *p){
   sqlite3 *db = p->pTable->dbMem;
-  /* testcase( db==0 ); */
+#ifndef SQLITE_OMIT_ANALYZE
   sqlite3DeleteIndexSamples(p);
+#endif
   sqlite3DbFree(db, p->zColAff);
   sqlite3DbFree(db, p);
 }

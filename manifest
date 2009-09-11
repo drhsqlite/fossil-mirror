@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sextra\squoted\sto\ssystem()\scalls\son\swindows.\s\sTicket\s[8d073be8808b].\nAlso\supdate\sto\sthe\slatest\sSQLite.
-D 2009-09-10T23:00:22
+C Update\sto\sthe\slatest\sSQLite.\s\sFix\sa\sbug\sin\sthe\s"diff"\sand\s"gdiff"\scommands.\nFix\sa\sbug\sthat\sprevented\s"fossil\sconfig\spull"\sfrom\sworking.
+D 2009-09-11T15:06:34
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -59,7 +59,7 @@ F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
-F src/diffcmd.c 5229e8f3234168082ae079fc6c66f07d89c3d01a
+F src/diffcmd.c d11c5b07074557fad95091b112882e861ee46189
 F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92
 F src/encode.c 7772615572a47c72b07da6891b1c9ee7447ca2d4
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
@@ -90,8 +90,8 @@ F src/schema.c db3fd09f7a989b26be82b24af9e9e93927a0bcc9
 F src/setup.c ddfa4b243d48aae45d3715c6a47d4a7cfe8eb268
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/sqlite3.c 323d3b7b26e2990d483e2eb6e1b8e5d9905d7e3f
-F src/sqlite3.h 34a15ec9916825a9b18f7e8b00628a9903d90423
+F src/sqlite3.c 6a71c71db87ffeeb93828591c7c1cc668af67096
+F src/sqlite3.h 67b66f4eca3e7f007a785b2f75fe8abcc2da4eb0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 47b34cf93170a9edd66d360cff7fbff12ea5de85
 F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b
@@ -113,7 +113,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c 4e98ad4b0c1280807dc41d01e27472d26afd9ced
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c 2ef98f5c311a4f01ef1693e6c2f940f139ae2628
-F src/xfer.c 299a9163c29ac012ca34732af4b6de252392932b
+F src/xfer.c 9487497f9240161f5751087ea6e2a64481791fa9
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ee47021f51fa7b81bd002c4f524752706a4c3502
-R 43caaaf28d0461f4861b9ccff54bfeec
+P aeaee1f38512181e15be7520ab7d629eb63d2422
+R ba9f1ac2e944874f1512a0336dc89fc8
 U drh
-Z 2f15d735dc1d81a01f12648f653fd501
+Z c30d5ab9bd0ee70e80be0cc9f3c303b4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKqYUKoxKgR168RlERAjiZAJ4jRBZZtofoZyI5Jfy9NAOOKfDWqgCfTJhR
-5nghDvWq2r/3IFcsb2nmj7s=
-=rleh
+iD8DBQFKqmd8oxKgR168RlERAr7hAJkBDr92JKAJ1DwSLxcpJUaMU/QlhwCfaBOY
+TytxrilQsWD/VwHKOAvqHzk=
+=opBu
 -----END PGP SIGNATURE-----
