@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"ui"/"server"\scommand\sfor\swin32\sso\sthat\sit\sworks\seven\sif\srun\nfrom\scygwin\sin\sa\sdirectory\sthat\scontains\sa\sspace\sin\sits\sname.
-D 2009-09-11T21:05:51
+C Make\ssure\sthat\s"nobody"\sand\s"anonymous"\sprivileges\sby\susers\swho\sattempt\sto\nsync\swith\shigher\sprivileges.
+D 2009-09-11T23:04:50
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -67,7 +67,7 @@ F src/http.c 3ced5594d2e984d4cf3c7176ad0a0f54a8307cfd
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c bc6bc305c4bad460995ca124180a89427ed3d538
 F src/info.c bdf1a77d153c91bec14d423db2ebe1ca91c9e383
-F src/login.c 97ffb4096eab591255d88263878b2acf074e1bea
+F src/login.c 1773187215c7dfa4bbb173b962b0d7b95b3d93fb
 F src/main.c 97f8036e59539cac6399252af13d28b161b675a4
 F src/main.mk 1c7633a14e94f41a1d362ce3e17f608125ac3bdc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -113,7 +113,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c 4e98ad4b0c1280807dc41d01e27472d26afd9ced
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
-F src/xfer.c 9487497f9240161f5751087ea6e2a64481791fa9
+F src/xfer.c 5dff3de1aef6b73b1215cb0af2b77b7be9fb98df
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P bbd758ecc30352dd3d50936c6dfda1d82a155748
-R 8901f17e6ed290e793a6832b40266532
+P 7343126617842a3b677085b2de78901978147460
+R 21e47c2102d5bb8f3a9db0be5cbd646b
 U drh
-Z f7d4f223b97fb712956a2c9a0653f12d
+Z 2cc5cd1f2da7eeacc97888a2216082d7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKqru0oxKgR168RlERArxXAJ9VEejXoPnuDmzMNPWfEiz1nEzPCwCdFLfU
-cGvLgTQlGIQq73UcXfOw+08=
-=SE9S
+iD8DBQFKqteVoxKgR168RlERAvSWAJ469QnAX0h/Rxf4Cgfav+4pAscuAgCfcQ+b
+1wBfMNSB5DplMcvYFsyDtfE=
+=T/Nc
 -----END PGP SIGNATURE-----

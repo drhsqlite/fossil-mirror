@@ -298,8 +298,6 @@ void login_check_credentials(void){
   const char *zCookie;          /* Text of the login cookie */
   const char *zRemoteAddr;      /* IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
-  const char *zNcap;            /* Capabilities of user "nobody" */
-  const char *zAcap;            /* Capabllities of user "anonymous" */
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
@@ -364,43 +362,65 @@ void login_check_credentials(void){
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zCookie);
   }
 
+  /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
     if( uid==0 ){
+      /* If there is no user "nobody", then make one up - with no privileges */
       uid = -1;
       zCap = "";
     }
     strcpy(g.zCsrfToken, "none");
   }
+
+  /* At this point, we know that uid!=0.  Find the privileges associated
+  ** with user uid.
+  */
+  assert( uid!=0 );
   if( zCap==0 ){
-    if( uid ){
-      Stmt s;
-      db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
-      if( db_step(&s)==SQLITE_ROW ){
-        g.zLogin = db_column_malloc(&s, 0);
-        zCap = db_column_malloc(&s, 1);
-      }
-      db_finalize(&s);
+    Stmt s;
+    db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
+    if( db_step(&s)==SQLITE_ROW ){
+      g.zLogin = db_column_malloc(&s, 0);
+      zCap = db_column_malloc(&s, 1);
     }
+    db_finalize(&s);
     if( zCap==0 ){
       zCap = "";
     }
   }
+
+  /* Set the global variables recording the userid and login.  The
+  ** "nobody" user is a special case in that g.zLogin==0.
+  */
   g.userUid = uid;
   if( g.zLogin && strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
-  if( uid && g.zLogin ){
+
+  /* Set the capabilities */
+  login_set_capabilities(zCap);
+  login_set_anon_nobody_capabilities();
+}
+
+/*
+** Add the default privileges of users "nobody" and "anonymous" as appropriate
+** for the user g.zLogin.
+*/
+void login_set_anon_nobody_capabilities(void){
+  static int once = 1;
+  if( g.zLogin && once ){
+    const char *zCap;
     /* All logged-in users inherit privileges from "nobody" */
-    zNcap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
-    login_set_capabilities(zNcap);
+    zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
+    login_set_capabilities(zCap);
     if( strcmp(g.zLogin, "anonymous")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
-      zAcap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
-      login_set_capabilities(zAcap);
+      zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
+      login_set_capabilities(zCap);
     }
+    once = 0;
   }
-  login_set_capabilities(zCap);
 }
 
 /*

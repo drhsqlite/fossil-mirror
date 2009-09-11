@@ -384,9 +384,14 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 */
 void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   Stmt q;
-  int rc;
+  int rc = -1;
 
-  db_prepare(&q, "SELECT pw, cap, uid FROM user WHERE login=%B", pLogin);
+  db_prepare(&q,
+     "SELECT pw, cap, uid FROM user"
+     " WHERE login=%B"
+     "   AND length(pw)>0",
+     pLogin
+  );
   if( db_step(&q)==SQLITE_ROW ){
     Blob pw, combined, hash;
     blob_zero(&pw);
@@ -409,6 +414,11 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     }
   }
   db_finalize(&q);
+
+  if( rc==0 ){
+    /* If the login was successful. */
+    login_set_anon_nobody_capabilities();
+  }
 }
 
 /*
