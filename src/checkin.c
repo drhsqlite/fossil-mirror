@@ -587,7 +587,7 @@ void commit_cmd(void){
     " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
   blob_zero(&filename);
-  blob_appendf(&filename, "%s/", g.zLocalRoot);
+  blob_appendf(&filename, "%s", g.zLocalRoot);
   nBasename = blob_size(&filename);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);

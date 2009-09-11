@@ -116,8 +116,8 @@ void info_cmd(void){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);
     db_open_repository(g.argv[2]);
-    printf("project-code: %s\n", db_get("project-code", "<none>"));
     printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    printf("project-code: %s\n", db_get("project-code", "<none>"));
     printf("server-code:  %s\n", db_get("server-code", "<none>"));
     return;
   }
@@ -126,6 +126,7 @@ void info_cmd(void){
     int vid;
          /* 012345678901234 */
     db_record_repository_filename(0);
+    printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
     printf("repository:   %s\n", db_lget("repository", ""));
     printf("local-root:   %s\n", g.zLocalRoot);
     printf("project-code: %s\n", db_get("project-code", ""));
