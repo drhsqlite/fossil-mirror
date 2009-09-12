@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Make\ssure\sthat\s"nobody"\sand\s"anonymous"\sprivileges\sby\susers\swho\sattempt\sto\nsync\swith\shigher\sprivileges.
-D 2009-09-11T23:04:50
+C fixed\sdocumentation\sfor\sthe\s'fossil\sbranch\slist'\scommand
+D 2009-09-12T03:45:28
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -240,7 +237,7 @@ F www/mkdownload.tcl 10dc1e9e7848fd5c070d47600dd0d1125668a5f3
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
-F www/quickstart.wiki 8acad3016140af23ab4e972810144be8c89e1ecb
+F www/quickstart.wiki eba6ba13a6797b02e9a0c2e9ac39762bfa46b166
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 87d27f0d707889c1a1d8d681ef324bb836b9b99f
@@ -250,14 +247,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7343126617842a3b677085b2de78901978147460
-R 21e47c2102d5bb8f3a9db0be5cbd646b
-U drh
-Z 2cc5cd1f2da7eeacc97888a2216082d7
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFKqteVoxKgR168RlERAvSWAJ469QnAX0h/Rxf4Cgfav+4pAscuAgCfcQ+b
-1wBfMNSB5DplMcvYFsyDtfE=
-=T/Nc
------END PGP SIGNATURE-----
+P 60212796377638c9444935d8e80a9cdac819a0ed
+R a1dd6e786b80d840a2069b026afb167b
+U rwilson
+Z 5ce47281f52e67a3954d8d11d74e9ffe
