@@ -14,9 +14,7 @@ and painlessly.</p>
     Install fossil by putting the fossil binary
     someplace on your PATH environment variable.</p>
     
-    </blockquote>
-    <a name="#fslclone"><h2>Cloning An Existing Repository</h2></a>
-    <blockquote>
+</blockquote><h2>Cloning An Existing Repository</h2><blockquote>
 
     <p>Most fossil operations interact with a repository that is on the
     local disk drive, not on a remote system.  Hence, before accessing
