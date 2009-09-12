@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Documentation\supdates.\s\sAdd\sa\snice\sheader\sto\sthe\s"Download"\spage.
-D 2009-09-12T17:21:12
+C More\sdocumentation\supdates.
+D 2009-09-12T17:45:00
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -204,7 +204,7 @@ F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki bf268d18d16be07cd4a32476bc6eb3026d7dfea1
+F www/concepts.wiki 44bd9b89f686b0eaf076bd677555cdce599f6158
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -240,7 +240,7 @@ F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
-F www/quickstart.wiki c14ac831a6d851e722419211e986bf3cff8ed122
+F www/quickstart.wiki 641af43c5fcb0fcb892715588c4f19db72d66f66
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 87d27f0d707889c1a1d8d681ef324bb836b9b99f
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P da4363308c15896890dca771eab2c8fc359652ef
-R e4e4d9ac443786cba7a81c22af956c47
+P db70c415ab35086afc4acae0add6b20e356c5aa3
+R a0812bd16c64e1c00f3fe7707ea96478
 U drh
-Z f36c5ad389381fd4546a51723ec7210d
+Z e5de8eea8ece5f2ff3ed59474a25dde0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKq9iMoxKgR168RlERAp8FAJ4sM0UqDpwT4mOTy/8OBEbVnJ8wVACcC3mu
-eId4oOmBBZlUgYZUbWLzE8g=
-=0zef
+iD8DBQFKq94foxKgR168RlERAo/kAKCIZ370VTRWXxhnpLkKDo2weu56gQCgjRqt
+8SVRJdy+FVNGW7I8tyHha10=
+=n8o/
 -----END PGP SIGNATURE-----

@@ -150,7 +150,8 @@ is derived.  There is also a couple of checksums used to verify
 the integrity of the check-in.  And the whole manifest might
 be PGP clearsigned.</p>
 
-<h3><a name="keyconc">2.3</a> Key concepts</h3>
+<a name="keyconc"></a>
+<h3>2.3 Key concepts</h3>
 
 <ul>
 <li>A <b>check-in</b> is a set of files arranged
@@ -169,9 +170,12 @@ be PGP clearsigned.</p>
 <h2>3.0 Fossil - The Program</h2>
 
 Fossil is software.  The implementation of fossil is in the form
-of a single executable named "fossil".  To install fossil on your system,
+of a single executable named "fossil" (or "fossil.exe" on windows).
+To install fossil on your system,
 all you have to do is obtain a copy of this one executable file (either
-by downloading a pre-compiled version or compiling it yourself) and then
+by downloading a
+<a href="http://www.fossil-scm.org/download.html">pre-compiled version</a>
+or [./build.wiki | compiling it yourself]) and then
 putting that file somewhere on your PATH.
 
 Fossil is completely self-contained.  It is not necessary to
@@ -207,7 +211,7 @@ In the next section, when we say things like "use the <b>help</b>
 command" we mean to use the command name "help" as the first
 token after the name of the fossil executable, as shown above.
 
-<a name="workflow">
+<a name="workflow"></a>
 <h2>4.0 Workflow</h2>
 
 <img src="concept2.gif" align="right" hspace="10">
@@ -381,7 +385,7 @@ knowledge.  Fossil is designed to avoid this frustration.  Setting up
 a server with fossil is ridiculously easy.  You have three options:</p>
 
 <ol>
-<li><b><a name="saserv">S</a>etting up a stand-alone server</b>
+<li><b><a name="saserv"></a>Setting up a stand-alone server</b>
 
 From within your source tree just use the <b>server</b> command and
 fossil will start listening for incoming requests on TCP port 8080.
