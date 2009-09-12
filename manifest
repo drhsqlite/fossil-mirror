@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C More\sdocumentation\supdates.
-D 2009-09-12T17:45:00
+C More\sdocumentation\sclarifications.
+D 2009-09-12T20:42:01
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -204,7 +204,7 @@ F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
-F www/concepts.wiki 44bd9b89f686b0eaf076bd677555cdce599f6158
+F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P db70c415ab35086afc4acae0add6b20e356c5aa3
-R a0812bd16c64e1c00f3fe7707ea96478
+P 3c1234c0f25af3aa3447a0f728c82d90f44229b1
+R c54781567866ffcd23b8e74084871bc0
 U drh
-Z e5de8eea8ece5f2ff3ed59474a25dde0
+Z c1dcc3b48853d178dfbbaa2370beea8b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKq94foxKgR168RlERAo/kAKCIZ370VTRWXxhnpLkKDo2weu56gQCgjRqt
-8SVRJdy+FVNGW7I8tyHha10=
-=n8o/
+iD8DBQFKrAecoxKgR168RlERAvccAJ9Ijd0vNxNh4Ng8MAiWstM+yzQi/QCaAgih
+EHW5FjkoIULIGN7w9sH94J8=
+=Gn1k
 -----END PGP SIGNATURE-----

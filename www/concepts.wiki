@@ -253,8 +253,7 @@ of a repository for an existing project.
 </li>
 
 <li>
-Establish one or more source trees by changing your working directory
-to where you want the root of the source tree to be, then issuing
+Establish one or more source trees using
 the <b>open</b> command with the name of the repository file as its
 argument.
 </li>
@@ -263,7 +262,8 @@ argument.
 The <b>open</b> command in the previous step populates your local source
 tree with a copy of the latest check-in.  Usually this is what you want.
 In the rare cases where it is not, use the <b>update</b> command to
-switch to a new check-in.  Use the <b>timeline</b> or <b>leaves</b> commands
+switch to a different check-in.  
+Use the <b>timeline</b> or <b>leaves</b> commands
 to identify alternative check-ins to switch to.
 </li>
 
@@ -328,7 +328,8 @@ argument.
 The <b>open</b> command in the previous step populates your local source
 tree with a copy of the latest check-in.  Usually this is what you want.
 In the rare cases where it is not, use the <b>update</b> command to
-switch to a new check-in.  Use the <b>timeline</b> or <b>leaves</b> commands
+switch to a different check-in.
+Use the <b>timeline</b> or <b>leaves</b> commands
 to identify alternative check-ins to switch to.
 </li>
 
@@ -367,7 +368,7 @@ or are not to your liking, you can back out the changes using the
 </li>
 
 <li>
-If two or more people ran "commit" against the same baseline, this will
+If two or more people ran "commit" against the same check-in, this will
 result in a [./branching.wiki | fork] which you may want to resolve by
 running <b>merge</b> followed by another <b>commit</b>.
 </li>
