@@ -29,13 +29,17 @@
 /*
 ** Parse the given URL.  Populate variables in the global "g" structure.
 **
-**      g.urlIsFile      True if this is a file URL
-**      g.urlName        Hostname for HTTP:.  Filename for FILE:
-**      g.urlPort        Port name for HTTP.
-**      g.urlPath        Path name for HTTP.
+**      g.urlIsFile      True if FILE:
+**      g.urlIsHttps     True if HTTPS: 
+**      g.urlProtocol    "http" or "https" or "file"
+**      g.urlName        Hostname for HTTP: or HTTPS:.  Filename for FILE:
+**      g.urlPort        TCP port number for HTTP or HTTPS.
+**      g.urlDfltPort    Default TCP port number (80 or 443).
+**      g.urlPath        Path name for HTTP or HTTPS.
 **      g.urlUser        Userid.
 **      g.urlPasswd      Password.
-**      g.urlCanonical   The URL in canonical form
+**      g.urlHostname    HOST:PORT or just HOST if port is the default.
+**      g.urlCanonical   The URL in canonical form, omitting userid/password
 **
 ** HTTP url format is:
 **
@@ -161,15 +165,20 @@ void cmd_test_urlparser(void){
 }
 
 /*
-** Proxy specified on the command-line.
+** Proxy specified on the command-line using the --proxy option.
+** If there is no --proxy option on the command-line then this
+** variable holds a NULL pointer.
 */
 static const char *zProxyOpt = 0;
 
 /*
-** Extra any proxy options from the command-line.
+** Extract any proxy options from the command-line.
 **
 **    --proxy URL|off
 **
+** This also happens to be a convenient function to use to look for
+** the --nosync option that will temporarily disable the "autosync"
+** feature.
 */
 void url_proxy_options(void){
   zProxyOpt = find_option("proxy", 0, 1);
@@ -177,12 +186,13 @@ void url_proxy_options(void){
 }
 
 /*
-** If the "proxy" setting is defined, then change the URL to refer
-** to the proxy server.
+** If the "proxy" setting is defined, then change the URL settings
+** (initialized by a prior call to url_parse()) so that the HTTP
+** header will be appropriate for the proxy and so that the TCP/IP
+** connection will be opened to the proxy rather than to the server.
 **
-** If the protocol is "https://" then start stunnel to handle the SSL
-** and make the url setting refer to stunnel rather than the original
-** destination.
+** If zMsg is not NULL and a proxy is used, then print zMsg followed
+** by the canonical name of the proxy (with userid and password suppressed).
 */
 void url_enable_proxy(const char *zMsg){
   const char *zProxy;
@@ -196,10 +206,22 @@ void url_enable_proxy(const char *zMsg){
   if( zProxy && zProxy[0] && !is_false(zProxy) ){
     char *zOriginalUrl = g.urlCanonical;
     char *zOriginalHost = g.urlHostname;
-    if( zMsg ) printf("%s%s\n", zMsg, zProxy);
+    char *zOriginalUser = g.urlUser;
+    char *zOriginalPasswd = g.urlPasswd;
+    g.urlUser = 0;
+    g.urlPasswd = "";
     url_parse(zProxy);
+    if( zMsg ) printf("%s%s\n", zMsg, g.urlCanonical);
     g.urlPath = zOriginalUrl;
     g.urlHostname = zOriginalHost;
+    if( g.urlUser ){
+      char *zCredentials1 = mprintf("%s:%s", g.urlUser, g.urlPasswd);
+      char *zCredentials2 = encode64(zCredentials1, -1);
+      g.urlProxyAuth = mprintf("Basic %z", zCredentials2);
+      free(zCredentials1);
+    }
+    g.urlUser = zOriginalUser;
+    g.urlPasswd = zOriginalPasswd;
   }
 }
 

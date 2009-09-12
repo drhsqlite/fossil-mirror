@@ -92,6 +92,9 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
     zSep = "/";
   }
   blob_appendf(pHdr, "POST %s%sxfer HTTP/1.1\r\n", g.urlPath, zSep);
+  if( g.urlProxyAuth ){
+    blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
+  }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
   blob_appendf(pHdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");
   if( g.fHttpTrace ){

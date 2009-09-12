@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sbase-64\sencoder/decoder\sto\sconform\sto\sRFC\s1421.\s\sAdd\stest\scommands\nto\sverify\sboth\sthe\sendoder\sand\sthe\sdecoder.
-D 2009-09-12T21:03:03
+C Update\sthe\sproxy\shandler\sso\sthat\sit\ssupports\sbasic\sauthorization.
+D 2009-09-12T21:53:24
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -63,12 +63,12 @@ F src/diffcmd.c d11c5b07074557fad95091b112882e861ee46189
 F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
-F src/http.c 3ced5594d2e984d4cf3c7176ad0a0f54a8307cfd
+F src/http.c 2787a16cdc1e35ed6f36dfc8bf4fb42f2964daa4
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c bc6bc305c4bad460995ca124180a89427ed3d538
 F src/info.c bdf1a77d153c91bec14d423db2ebe1ca91c9e383
 F src/login.c 1773187215c7dfa4bbb173b962b0d7b95b3d93fb
-F src/main.c 97f8036e59539cac6399252af13d28b161b675a4
+F src/main.c e990b4f28da6affcea8649f95887d17e2fa5bbda
 F src/main.mk 1c7633a14e94f41a1d362ce3e17f608125ac3bdc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -106,7 +106,7 @@ F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
 F src/update.c 053193c6c1fa2273ecfd4c80242e387c37c1df93
-F src/url.c 17c0d4bc8ab3231cf9b8f330da9f90a9b9e8fc73
+F src/url.c c5cf8d9b2a7edbd62b83e20c783e73a6a2157404
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7879c250fb79c6c383751b7ac68cbe672afa09ab
-R 96467f6ada4a023aefe863c376de054d
+P c198613ae13c8ae2a4af91f6b71ff111eb5dfeac
+R fb3c728209dc7c7ed50a22304eb42308
 U drh
-Z 00b8a715199fe70124139e73b7f13bdc
+Z 5234161244ebf639dd835c12fb75323e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKrAyLoxKgR168RlERAjfDAJ4yTmLEMQ2sCVk7C/s7Q8GekbkHwwCfb57c
-2xrVPUtYvXzMG+Ph730FYsE=
-=o44g
+iD8DBQFKrBhYoxKgR168RlERArqhAJwORnWJCITPWWRpS543nN4Ic4HkmgCeP+d1
+V6nE4MDQrs5SWI8GXYsTnu0=
+=Kla6
 -----END PGP SIGNATURE-----
