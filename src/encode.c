@@ -301,7 +301,7 @@ void defossilize(char *z){
 ** The characters used for HTTP base64 encoding.
 */
 static unsigned char zBase[] = 
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~";
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
 ** Encode a string using a base-64 encoding.
@@ -316,7 +316,7 @@ char *encode64(const char *zData, int nData){
   if( nData<=0 ){
     nData = strlen(zData);
   }
-  z64 = malloc( (nData*4)/3 + 6 );
+  z64 = malloc( (nData*4)/3 + 8 );
   for(i=n=0; i+2<nData; i+=3){
     z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
     z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
@@ -327,13 +327,31 @@ char *encode64(const char *zData, int nData){
     z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
     z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
     z64[n++] = zBase[ ((zData[i+1]<<2) & 0x3c) ];
+    z64[n++] = '=';
   }else if( i<nData ){
     z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
     z64[n++] = zBase[ ((zData[i]<<4) & 0x30) ];
+    z64[n++] = '=';
+    z64[n++] = '=';
   }
   z64[n] = 0;
   return z64;
 }
+
+/*
+** COMMAND: test-encode64 
+** Usage: %fossil test-encode64 STRING
+*/
+void test_encode64_cmd(void){
+  char *z;
+  int i;
+  for(i=2; i<g.argc; i++){
+    z = encode64(g.argv[i], -1);
+    printf("%s\n", z);
+    free(z);
+  }
+}
+
 
 /*
 ** This function treats its input as a base-64 string and returns the
@@ -383,6 +401,20 @@ char *decode64(const char *z64, int *pnByte){
   zData[j] = 0;
   *pnByte = j;
   return zData;
+}
+
+/*
+** COMMAND: test-decode64 
+** Usage: %fossil test-decode64 STRING
+*/
+void test_decode64_cmd(void){
+  char *z;
+  int i, n;
+  for(i=2; i<g.argc; i++){
+    z = decode64(g.argv[i], &n);
+    printf("%d: %s\n", n, z);
+    free(z);
+  }
 }
 
 /*

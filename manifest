@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C More\sdocumentation\sclarifications.
-D 2009-09-12T20:42:01
+C Update\sthe\sbase-64\sencoder/decoder\sto\sconform\sto\sRFC\s1421.\s\sAdd\stest\scommands\nto\sverify\sboth\sthe\sendoder\sand\sthe\sdecoder.
+D 2009-09-12T21:03:03
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -61,7 +61,7 @@ F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
 F src/diffcmd.c d11c5b07074557fad95091b112882e861ee46189
 F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92
-F src/encode.c 7772615572a47c72b07da6891b1c9ee7447ca2d4
+F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
 F src/http.c 3ced5594d2e984d4cf3c7176ad0a0f54a8307cfd
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 3c1234c0f25af3aa3447a0f728c82d90f44229b1
-R c54781567866ffcd23b8e74084871bc0
+P 7879c250fb79c6c383751b7ac68cbe672afa09ab
+R 96467f6ada4a023aefe863c376de054d
 U drh
-Z c1dcc3b48853d178dfbbaa2370beea8b
+Z 00b8a715199fe70124139e73b7f13bdc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKrAecoxKgR168RlERAvccAJ9Ijd0vNxNh4Ng8MAiWstM+yzQi/QCaAgih
-EHW5FjkoIULIGN7w9sH94J8=
-=Gn1k
+iD8DBQFKrAyLoxKgR168RlERAjfDAJ4yTmLEMQ2sCVk7C/s7Q8GekbkHwwCfb57c
+2xrVPUtYvXzMG+Ph730FYsE=
+=o44g
 -----END PGP SIGNATURE-----
