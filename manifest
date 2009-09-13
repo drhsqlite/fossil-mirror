@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sproxy\shandler\sso\sthat\sit\ssupports\sbasic\sauthorization.
-D 2009-09-12T21:53:24
+C On\swindows,\sif\sthe\sfirst\scharacter\sof\sa\spathname\sis\s'\\'\sthen\sassume\sthat\sis\na\sfull\spathname,\snot\sa\srelative\spathname.\s\sTicket\s[cdd360438de].
+D 2009-09-13T16:19:43
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -62,7 +62,7 @@ F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
 F src/diffcmd.c d11c5b07074557fad95091b112882e861ee46189
 F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
-F src/file.c 72175270552718578a76b63c30cbd13e6ba3ae95
+F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
 F src/http.c 2787a16cdc1e35ed6f36dfc8bf4fb42f2964daa4
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c bc6bc305c4bad460995ca124180a89427ed3d538
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P c198613ae13c8ae2a4af91f6b71ff111eb5dfeac
-R fb3c728209dc7c7ed50a22304eb42308
+P 9e274a2e7bc97635edb085425cd8548a8b72df45
+R 02245c4122bb9b7f23c84249bab477f2
 U drh
-Z 5234161244ebf639dd835c12fb75323e
+Z f29a96dd4c14110e5b67a903349e5d6d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKrBhYoxKgR168RlERArqhAJwORnWJCITPWWRpS543nN4Ic4HkmgCeP+d1
-V6nE4MDQrs5SWI8GXYsTnu0=
-=Kla6
+iD8DBQFKrRuloxKgR168RlERAn0wAJwPk4JHaXWpvdycdJ3tqBO66KXzGQCfejgn
+NPnIk/OXhSMtrXCNvwasjbY=
+=39wn
 -----END PGP SIGNATURE-----
