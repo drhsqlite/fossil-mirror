@@ -125,7 +125,7 @@ int tag_to_uuid(const char *pName, Blob *pUuid,const char *pPrefix){
   db_prepare(&q,
     "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
     "  FROM tagxref JOIN event ON rid=objid"
-    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q||%Q)"
+    " WHERE tagxref.tagid=(SELECT tagid FROM tag WHERE tagname=%Q||%Q)"
     "   AND tagtype>0"
     "   AND value IS NULL"
     " ORDER BY event.mtime DESC",
