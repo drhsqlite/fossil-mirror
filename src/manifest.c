@@ -913,6 +913,7 @@ void manifest_crosslink_end(void){
     ticket_rebuild_entry(zUuid);
   }
   db_finalize(&q);
+  db_multi_exec("DROP TABLE pending_tkt");
   db_end_transaction(0);
   manifest_crosslink_busy = 0;
 }

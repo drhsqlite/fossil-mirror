@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Construct\sevent\srecords\sfor\stickets\scorrectly\seven\swhen\sthe\sticket\schange\nartifacts\sarrive\sout\sof\sorder.
-D 2009-09-14T14:08:35
+C Make\ssure\sthe\smanifest_crosslink_begin/end\spair\scan\sbe\scalled\smultiple\stimes.
+D 2009-09-14T14:10:49
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -73,7 +73,7 @@ F src/main.mk 1c7633a14e94f41a1d362ce3e17f608125ac3bdc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 63b9b997e577ceb50b40b2e39548d87c70c13759
-F src/manifest.c 3ac47cd0a774ddde96487d37197c1c5380741712
+F src/manifest.c 2a86daa0231150be75d63fcc8ab42867dbc3563c
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c 61efa8a3332cc4df4b9fec485e9affc6b244f851
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 42bf80978d9740dbac8c762033348fbb1da9b0de
-R b8aca3a8f99c5f096401b0cea7b34262
+P 95f5520a09efb7698179f5123fbca8e3f33fbb39
+R 332dc5f8f4876cb4f7af99d00c8a547d
 U drh
-Z 2d4779be57b7218c15c5d03124ca2dbc
+Z dbaf134d42dacd301c2242a61d85ea38
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKrk5moxKgR168RlERAvoMAJ9NWgj3RRVnVb3qInAJnaWGO1n73ACbBa4Z
-zt/0/OIDlPJQ9Sgv6iNAmSY=
-=aZDZ
+iD8DBQFKrk7soxKgR168RlERAsBHAJ9r13LPPW7IxD4fudOMUFyAHIa56ACghRGU
+yxQk4fnin6AcA+vR8VUtciU=
+=ekOt
 -----END PGP SIGNATURE-----
