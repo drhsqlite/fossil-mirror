@@ -199,7 +199,7 @@ static int ticket_rebuild_at_commit(void){
 ** Return TRUE if a new TICKET entry was created and FALSE if an
 ** existing entry was revised.
 */
-int ticket_insert(Manifest *p, int createFlag, int checkTime){
+int ticket_insert(const Manifest *p, int createFlag, int checkTime){
   Blob sql;
   Stmt q;
   int i;
@@ -266,6 +266,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
     content_get(rid, &content);
     manifest_parse(&manifest, &content);
     ticket_insert(&manifest, createFlag, 0);
+    manifest_ticket_event(rid, &manifest, createFlag);
     manifest_clear(&manifest);
     createFlag = 0;
   }
@@ -458,7 +459,9 @@ static int submitTicketCmd(
     if( rid==0 ){
       fossil_panic("trouble committing ticket: %s", g.zErrMsg);
     }
+    manifest_crosslink_begin();
     manifest_crosslink(rid, &tktchng);
+    manifest_crosslink_end();
   }
   return TH_RETURN;
 }
@@ -692,7 +695,8 @@ void tkthistory_page(void){
       zUuid[10] = 0;
       @
       @ Ticket change
-      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zUuid)</a>]</a> by
+      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zUuid)</a>]</a>
+      @ (rid %d(rid)) by
       hyperlink_to_user(m.zUser,zDate," on");
       hyperlink_to_date(zDate, ":");
       free(zDate);

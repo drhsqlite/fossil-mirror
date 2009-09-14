@@ -144,7 +144,7 @@ int tag_findid(const char *zTag, int createFlag){
 /*
 ** Insert a tag into the database.
 */
-void tag_insert(
+int tag_insert(
   const char *zTag,        /* Name of the tag (w/o the "+" or "-" prefix */
   int tagtype,             /* 0:cancel  1:singleton  2:propagated */
   const char *zValue,      /* Value if the tag is really a property */
@@ -172,7 +172,7 @@ void tag_insert(
   db_finalize(&s);
   if( rc==SQLITE_ROW ){
     /* Another entry that is more recent already exists.  Do nothing */
-    return;
+    return tagid;
   }
   db_prepare(&s, 
     "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid)"
@@ -210,6 +210,7 @@ void tag_insert(
   if( tagtype==0 || tagtype==2 ){
     tag_propagate(rid, tagid, tagtype, rid, zValue, mtime);
   }
+  return tagid;
 }
 
 

@@ -582,6 +582,7 @@ void page_xfer(void){
   db_multi_exec(
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
+  manifest_crosslink_begin();
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
@@ -833,6 +834,7 @@ void page_xfer(void){
   if( recvConfig ){
     configure_finalize_receive();
   }
+  manifest_crosslink_end();
   db_end_transaction(0);
 }
 
@@ -948,6 +950,7 @@ void client_sync(
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
     nCard++;
   }
+  manifest_crosslink_begin();
   printf(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
 
   while( go ){
@@ -1230,5 +1233,6 @@ void client_sync(
   transport_close();
   socket_global_shutdown();
   db_multi_exec("DROP TABLE onremote");
+  manifest_crosslink_end();
   db_end_transaction(0);
 }

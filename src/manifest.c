@@ -885,6 +885,105 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 }
 
 /*
+** True if manifest_crosslink_begin() has been called but
+** manifest_crosslink_end() is still pending.
+*/
+static int manifest_crosslink_busy = 0;
+
+/*
+** Setup to do multiple manifest_crosslink() calls.
+** This is only required if processing ticket changes.
+*/
+void manifest_crosslink_begin(void){
+  assert( manifest_crosslink_busy==0 );
+  manifest_crosslink_busy = 1;
+  db_begin_transaction();
+  db_multi_exec("CREATE TEMP TABLE pending_tkt(uuid TEXT UNIQUE)");
+}
+
+/*
+** Finish up a sequence of manifest_crosslink calls.
+*/
+void manifest_crosslink_end(void){
+  Stmt q;
+  assert( manifest_crosslink_busy==1 );
+  db_prepare(&q, "SELECT uuid FROM pending_tkt");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    ticket_rebuild_entry(zUuid);
+  }
+  db_finalize(&q);
+  db_end_transaction(0);
+  manifest_crosslink_busy = 0;
+}
+
+/*
+** Make an entry in the event table for a ticket change artifact.
+*/
+void manifest_ticket_event(
+  int rid,                    /* Artifact ID of the change ticket artifact */
+  const Manifest *pManifest,  /* Parsed content of the artifact */
+  int isNew                   /* True if this is the first event */
+){
+  int i;
+  char *zTitle;
+  Blob comment;
+  char *zNewStatus = 0;
+  static char *zTitleExpr = 0;
+  static char *zStatusColumn = 0;
+  static int once = 1;
+
+  blob_zero(&comment);
+  if( once ){
+    once = 0;
+    zTitleExpr = db_get("ticket-title-expr", "title");
+    zStatusColumn = db_get("ticket-status-column", "status");
+  }
+  zTitle = db_text("unknown", 
+    "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+    zTitleExpr, pManifest->zTicketUuid
+  );
+  if( !isNew ){
+    for(i=0; i<pManifest->nField; i++){
+      if( strcmp(pManifest->aField[i].zName, zStatusColumn)==0 ){
+        zNewStatus = pManifest->aField[i].zValue;
+      }
+    }
+    if( zNewStatus ){
+      blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
+         zNewStatus, pManifest->zTicketUuid, zTitle
+      );
+      if( pManifest->nField>1 ){
+        blob_appendf(&comment, " plus %d other change%s",
+          pManifest->nField-1, pManifest->nField==2 ? "" : "s");
+      }
+    }else{
+      zNewStatus = db_text("unknown", 
+         "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
+         zStatusColumn, pManifest->zTicketUuid
+      );
+      blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
+           "%d other change%s",
+           pManifest->zTicketUuid, zTitle, zNewStatus, pManifest->nField,
+           pManifest->nField==1 ? "" : "s"
+      );
+      free(zNewStatus);
+    }
+  }else{
+    blob_appendf(&comment, "New ticket [%.10s] <i>%h</i>.",
+      pManifest->zTicketUuid, zTitle
+    );
+  }
+  free(zTitle);
+  db_multi_exec(
+    "REPLACE INTO event(type,mtime,objid,user,comment)"
+    "VALUES('t',%.17g,%d,%Q,%Q)",
+    pManifest->rDate, rid, pManifest->zUser, blob_str(&comment)
+  );
+  blob_reset(&comment);
+}
+
+/*
 ** Scan artifact rid/pContent to see if it is a control artifact of
 ** any key:
 **
@@ -1026,68 +1125,14 @@ int manifest_crosslink(int rid, Blob *pContent){
     free(zComment);
   }
   if( m.type==CFTYPE_TICKET ){
-    int i;
-    char *zTitle;
     char *zTag;
-    Blob comment;
-    char *zNewStatus = 0;
-    static char *zTitleExpr = 0;
-    static char *zStatusColumn = 0;
-    static int once = 1;
-    int isNew;
 
-    isNew = ticket_insert(&m, 1, 1);
+    assert( manifest_crosslink_busy==1 );
     zTag = mprintf("tkt-%s", m.zTicketUuid);
     tag_insert(zTag, 1, 0, rid, m.rDate, rid);
     free(zTag);
-    blob_zero(&comment);
-    if( once ){
-      once = 0;
-      zTitleExpr = db_get("ticket-title-expr", "title");
-      zStatusColumn = db_get("ticket-status-column", "status");
-    }
-    zTitle = db_text("unknown", 
-      "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
-      zTitleExpr, m.zTicketUuid
-    );
-    if( !isNew ){
-      for(i=0; i<m.nField; i++){
-        if( strcmp(m.aField[i].zName, zStatusColumn)==0 ){
-          zNewStatus = m.aField[i].zValue;
-        }
-      }
-      if( zNewStatus ){
-        blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
-           zNewStatus, m.zTicketUuid, zTitle
-        );
-        if( m.nField>1 ){
-          blob_appendf(&comment, " plus %d other change%s",
-            m.nField-1, m.nField==2 ? "" : "s");
-        }
-      }else{
-        zNewStatus = db_text("unknown", 
-           "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
-           zStatusColumn, m.zTicketUuid
-        );
-        blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
-             "%d other change%s",
-             m.zTicketUuid, zTitle, zNewStatus, m.nField,
-             m.nField==1 ? "" : "s"
-        );
-        free(zNewStatus);
-      }
-    }else{
-      blob_appendf(&comment, "New ticket [%.10s] <i>%h</i>.",
-        m.zTicketUuid, zTitle
-      );
-    }
-    free(zTitle);
-    db_multi_exec(
-      "REPLACE INTO event(type,mtime,objid,user,comment)"
-      "VALUES('t',%.17g,%d,%Q,%Q)",
-      m.rDate, rid, m.zUser, blob_str(&comment)
-    );
-    blob_reset(&comment);
+    db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
+                  m.zTicketUuid);
   }
   db_end_transaction(0);
   manifest_clear(&m);

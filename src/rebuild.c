@@ -243,6 +243,7 @@ int rebuild_db(int randomize, int doOut){
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
   );
+  manifest_crosslink_begin();
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
@@ -272,6 +273,7 @@ int rebuild_db(int randomize, int doOut){
     }
   }
   db_finalize(&s);
+  manifest_crosslink_end();
   rebuild_tag_trunk();
   if( ttyOutput ){
     printf("\n");

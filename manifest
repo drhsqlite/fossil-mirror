@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C On\swindows,\sif\sthe\sfirst\scharacter\sof\sa\spathname\sis\s'\\'\sthen\sassume\sthat\sis\na\sfull\spathname,\snot\sa\srelative\spathname.\s\sTicket\s[cdd360438de].
-D 2009-09-13T16:19:43
+C Construct\sevent\srecords\sfor\stickets\scorrectly\seven\swhen\sthe\sticket\schange\nartifacts\sarrive\sout\sof\sorder.
+D 2009-09-14T14:08:35
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -73,7 +73,7 @@ F src/main.mk 1c7633a14e94f41a1d362ce3e17f608125ac3bdc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 63b9b997e577ceb50b40b2e39548d87c70c13759
-F src/manifest.c 9476d92cd1f9980ab0c7a67fa6aca727692108c6
+F src/manifest.c 3ac47cd0a774ddde96487d37197c1c5380741712
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c 61efa8a3332cc4df4b9fec485e9affc6b244f851
@@ -82,7 +82,7 @@ F src/name.c 040558eaa37918bc314befd66841bf667d6ca8bb
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c fd43a695c4fb9966b863055de361e068f492cc22
+F src/rebuild.c cd57d5ccbc3354d9dab64b17dd696f228f8ff1fd
 F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
@@ -95,13 +95,13 @@ F src/sqlite3.h 67b66f4eca3e7f007a785b2f75fe8abcc2da4eb0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 47b34cf93170a9edd66d360cff7fbff12ea5de85
 F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b
-F src/tag.c 11a50e87e6aa9792943135caed6c4054419cb6f2
+F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
 F src/timeline.c 846d5cea62424edb33d1179cd21b1135cff1109b
-F src/tkt.c 53e4b94cc89c1a35ba70dc1b3f27f20fee591eb7
+F src/tkt.c bc233f791c238a170adf7bf9c11b3aa7bab16ba0
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -113,7 +113,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c 4e98ad4b0c1280807dc41d01e27472d26afd9ced
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
-F src/xfer.c 5dff3de1aef6b73b1215cb0af2b77b7be9fb98df
+F src/xfer.c 5bb8ce2dae17a0525006942ac3841a13fc3dd637
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 9e274a2e7bc97635edb085425cd8548a8b72df45
-R 02245c4122bb9b7f23c84249bab477f2
+P 42bf80978d9740dbac8c762033348fbb1da9b0de
+R b8aca3a8f99c5f096401b0cea7b34262
 U drh
-Z f29a96dd4c14110e5b67a903349e5d6d
+Z 2d4779be57b7218c15c5d03124ca2dbc
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKrRuloxKgR168RlERAn0wAJwPk4JHaXWpvdycdJ3tqBO66KXzGQCfejgn
-NPnIk/OXhSMtrXCNvwasjbY=
-=39wn
+iD8DBQFKrk5moxKgR168RlERAvoMAJ9NWgj3RRVnVb3qInAJnaWGO1n73ACbBa4Z
+zt/0/OIDlPJQ9Sgv6iNAmSY=
+=aZDZ
 -----END PGP SIGNATURE-----
