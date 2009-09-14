@@ -163,11 +163,11 @@ void www_print_timeline(
   int wikiFlags;
   int mxWikiLen;
   Blob comment;
-  char zPrevDate[20];
-  zPrevDate[0] = 0;
   int prevTagid = 0;
   int suppressCnt = 0;
+  char zPrevDate[20];
 
+  zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( db_get_boolean("timeline-block-markup", 0) ){
     wikiFlags = WIKI_INLINE;
