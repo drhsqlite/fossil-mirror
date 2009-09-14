@@ -207,8 +207,8 @@ void www_print_timeline(
     prevTagid = tagid;
     if( suppressCnt ){
       @ <tr><td><td><td>
-      @ ... preceded by %d(suppressCnt) other
-      @ similar event%s(suppressCnt>1?"s":"").</tr>
+      @ <small><i>... %d(suppressCnt) similar
+      @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
       suppressCnt = 0;
     }
     if( strcmp(zType,"div")==0 ){
