@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sthe\smanifest_crosslink_begin/end\spair\scan\sbe\scalled\smultiple\stimes.
-D 2009-09-14T14:10:49
+C Changes\sto\sthe\sevent\smechanism\sto\sabbreviate\sa\ssequence\sof\sedits\sto\sthe\nsame\sticket.\s\sUpdates\sthrough\sthis\scheck-in\srequire\sa\s"rebuild".
+D 2009-09-14T15:14:32
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -73,7 +73,7 @@ F src/main.mk 1c7633a14e94f41a1d362ce3e17f608125ac3bdc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 63b9b997e577ceb50b40b2e39548d87c70c13759
-F src/manifest.c 2a86daa0231150be75d63fcc8ab42867dbc3563c
+F src/manifest.c 5e32c12dce3bb57466d0af063535e82dbbeca912
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000
 F src/merge3.c 61efa8a3332cc4df4b9fec485e9affc6b244f851
@@ -86,7 +86,7 @@ F src/rebuild.c cd57d5ccbc3354d9dab64b17dd696f228f8ff1fd
 F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
-F src/schema.c db3fd09f7a989b26be82b24af9e9e93927a0bcc9
+F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
 F src/setup.c ddfa4b243d48aae45d3715c6a47d4a7cfe8eb268
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
@@ -100,8 +100,8 @@ F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 846d5cea62424edb33d1179cd21b1135cff1109b
-F src/tkt.c bc233f791c238a170adf7bf9c11b3aa7bab16ba0
+F src/timeline.c cfb7f2bb6431f11c5dd11bfc19094ee34c766eaa
+F src/tkt.c c30fd6165c0efd2c112dca0df323e9e380443d86
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 95f5520a09efb7698179f5123fbca8e3f33fbb39
-R 332dc5f8f4876cb4f7af99d00c8a547d
+P 2a069086e9caf2df7384b756a1dbb334f3d13e24
+R c5c29bd41f6608a08e742bf3efecf177
 U drh
-Z dbaf134d42dacd301c2242a61d85ea38
+Z 6b4d3ddddaf9d0b7ef2e2be3fe7e8d0f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKrk7soxKgR168RlERAsBHAJ9r13LPPW7IxD4fudOMUFyAHIa56ACghRGU
-yxQk4fnin6AcA+vR8VUtciU=
-=ekOt
+iD8DBQFKrl3boxKgR168RlERAmpVAKCBxWdKcW5b0m6PLpMQWfGfr9PSJwCeK6Pm
+oHaH9N1UJNscaMZlV7oCq3g=
+=VYOO
 -----END PGP SIGNATURE-----

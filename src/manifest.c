@@ -924,17 +924,20 @@ void manifest_crosslink_end(void){
 void manifest_ticket_event(
   int rid,                    /* Artifact ID of the change ticket artifact */
   const Manifest *pManifest,  /* Parsed content of the artifact */
-  int isNew                   /* True if this is the first event */
+  int isNew,                  /* True if this is the first event */
+  int tktTagId                /* Ticket tag ID */
 ){
   int i;
   char *zTitle;
   Blob comment;
+  Blob brief;
   char *zNewStatus = 0;
   static char *zTitleExpr = 0;
   static char *zStatusColumn = 0;
   static int once = 1;
 
   blob_zero(&comment);
+  blob_zero(&brief);
   if( once ){
     once = 0;
     zTitleExpr = db_get("ticket-title-expr", "title");
@@ -958,6 +961,8 @@ void manifest_ticket_event(
         blob_appendf(&comment, " plus %d other change%s",
           pManifest->nField-1, pManifest->nField==2 ? "" : "s");
       }
+      blob_appendf(&brief, "%h ticket [%.10s].",
+                   zNewStatus, pManifest->zTicketUuid);
     }else{
       zNewStatus = db_text("unknown", 
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
@@ -969,19 +974,26 @@ void manifest_ticket_event(
            pManifest->nField==1 ? "" : "s"
       );
       free(zNewStatus);
+      blob_appendf(&brief, "Ticket [%.10s]: %d change%s",
+           pManifest->zTicketUuid, pManifest->nField,
+           pManifest->nField==1 ? "" : "s"
+      );
     }
   }else{
     blob_appendf(&comment, "New ticket [%.10s] <i>%h</i>.",
       pManifest->zTicketUuid, zTitle
     );
+    blob_appendf(&brief, "New ticket [%.10s].", pManifest->zTicketUuid);
   }
   free(zTitle);
   db_multi_exec(
-    "REPLACE INTO event(type,mtime,objid,user,comment)"
-    "VALUES('t',%.17g,%d,%Q,%Q)",
-    pManifest->rDate, rid, pManifest->zUser, blob_str(&comment)
+    "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
+    "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
+    tktTagId, pManifest->rDate, rid, pManifest->zUser,
+    blob_str(&comment), blob_str(&brief)
   );
   blob_reset(&comment);
+  blob_reset(&brief);
 }
 
 /*

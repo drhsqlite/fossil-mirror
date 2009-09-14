@@ -225,12 +225,14 @@ const char zRepositorySchema2[] =
 @   type TEXT,                      -- Type of event
 @   mtime DATETIME,                 -- Date and time when the event occurs
 @   objid INTEGER PRIMARY KEY,      -- Associated record ID
+@   tagid INTEGER,                  -- Associated ticket or wiki name tag
 @   uid INTEGER REFERENCES user,    -- User who caused the event
 @   bgcolor TEXT,                   -- Color set by 'bgcolor' property
 @   euser TEXT,                     -- User set by 'user' property
 @   user TEXT,                      -- Name of the user
 @   ecomment TEXT,                  -- Comment set by 'comment' property
-@   comment TEXT                    -- Comment describing the event
+@   comment TEXT,                   -- Comment describing the event
+@   brief TEXT                      -- Short comment when tagid already seen
 @ );
 @ CREATE INDEX event_i1 ON event(mtime);
 @

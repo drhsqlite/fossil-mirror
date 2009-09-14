@@ -266,7 +266,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
     content_get(rid, &content);
     manifest_parse(&manifest, &content);
     ticket_insert(&manifest, createFlag, 0);
-    manifest_ticket_event(rid, &manifest, createFlag);
+    manifest_ticket_event(rid, &manifest, createFlag, tagid);
     manifest_clear(&manifest);
     createFlag = 0;
   }

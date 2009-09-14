@@ -134,6 +134,7 @@ int count_nonbranch_children(int pid){
 #if INTERFACE
 #define TIMELINE_ARTID    0x0001  /* Show artifact IDs on non-check-in lines */
 #define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
+#define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
 #endif
 
 /*
@@ -149,8 +150,10 @@ int count_nonbranch_children(int pid){
 **    6.  Number of parents
 **    7.  True if is a leaf
 **    8.  background color
-**    9.  type ("ci", "w")
+**    9.  type ("ci", "w", "t")
 **   10.  list of symbolic tags.
+**   11.  tagid for ticket or wiki
+**   12.  Short comment to user for repeated tickets and wiki
 */
 void www_print_timeline(
   Stmt *pQuery,          /* Query to implement the timeline */
@@ -162,6 +165,8 @@ void www_print_timeline(
   Blob comment;
   char zPrevDate[20];
   zPrevDate[0] = 0;
+  int prevTagid = 0;
+  int suppressCnt = 0;
 
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( db_get_boolean("timeline-block-markup", 0) ){
@@ -187,6 +192,25 @@ void www_print_timeline(
     const char *zType = db_column_text(pQuery, 9);
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 10);
+    int tagid = db_column_int(pQuery, 11);
+    int commentColumn = 3;    /* Column containing comment text */
+    if( tagid ){
+      if( tagid==prevTagid ){
+        if( tmFlags & TIMELINE_BRIEF ){
+          suppressCnt++;
+          continue;
+        }else{
+          commentColumn = 12;
+        }
+      }
+    }
+    prevTagid = tagid;
+    if( suppressCnt ){
+      @ <tr><td><td><td>
+      @ ... preceded by %d(suppressCnt) other
+      @ similar event%s(suppressCnt>1?"s":"").</tr>
+      suppressCnt = 0;
+    }
     if( strcmp(zType,"div")==0 ){
       @ <tr><td colspan=3><hr></td></tr>
       continue;
@@ -241,7 +265,7 @@ void www_print_timeline(
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }
-    db_column_blob(pQuery, 3, &comment);
+    db_column_blob(pQuery, commentColumn, &comment);
     if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
       Blob truncated;
       blob_zero(&truncated);
@@ -282,7 +306,9 @@ static void timeline_temp_table(void){
     @   isleaf BOOLEAN,
     @   bgcolor TEXT,
     @   etype TEXT,
-    @   taglist TEXT
+    @   taglist TEXT,
+    @   tagid INTEGER,
+    @   short TEXT
     @ )
   ;
   db_multi_exec(zSql);
@@ -313,7 +339,9 @@ const char *timeline_query_for_www(void){
     @   event.type,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
-    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0)
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
+    @   tagid,
+    @   brief
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -395,6 +423,7 @@ void page_timeline(void){
   const char *zTagName = P("t");     /* Show events with this tag */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
+  int tmFlags;                       /* Timeline flags */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -404,6 +433,11 @@ void page_timeline(void){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
   }else{
     tagid = 0;
+  }
+  if( zType[0]=='a' ){
+    tmFlags = TIMELINE_BRIEF;
+  }else{
+    tmFlags = 0;
   }
 
   style_header("Timeline");
@@ -599,7 +633,7 @@ void page_timeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
-  www_print_timeline(&q, 0, 0);
+  www_print_timeline(&q, tmFlags, 0);
   db_finalize(&q);
 
   @ <script>
