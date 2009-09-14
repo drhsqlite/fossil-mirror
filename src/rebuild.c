@@ -339,3 +339,64 @@ void test_detach_cmd(void){
   );
   db_end_transaction(0);
 }
+
+/*
+** COMMAND: scrub
+** %fossil scrub [--verily] [--force] [REPOSITORY]
+**
+** The command removes sensitive information (such as passwords) from a
+** repository so that the respository can be sent to an untrusted reader.
+**
+** By default, only passwords are removed.  However, if the --verily option
+** is added, then private branches, concealed email addresses, IP
+** addresses of correspondents, and similar privacy-sensitive fields
+** are also purged.
+**
+** This command permanently deletes the scrubbed information.  The effects
+** of this command are irreversible.  Use with caution.
+**
+** The user is prompted to confirm the scrub unless the --force option
+** is used.
+*/
+void scrub_cmd(void){
+  int bVerily = find_option("verily",0,0)!=0;
+  int bForce = find_option("force", "f", 0)!=0;
+  int bNeedRebuild = 0;
+  if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
+  if( g.argc==2 ){
+    db_must_be_within_tree();
+  }else{
+    db_open_repository(g.argv[2]);
+  }
+  if( !bForce ){
+    Blob ans;
+    blob_zero(&ans);
+    prompt_user("Scrubbing the repository will permanently remove user\n"
+                "passwords and other information. Changes cannot be undone.\n"
+                "Continue [y/N]? ", &ans);
+    if( blob_str(&ans)[0]!='y' ){
+      exit(1);
+    }
+  }
+  db_begin_transaction();
+  db_multi_exec(
+    "UPDATE user SET pw='';"
+    "DELETE FROM config WHERE name='last-sync-url';"
+  );
+  if( bVerily ){
+    bNeedRebuild = db_exists("SELECT 1 FROM private");
+    db_multi_exec(
+      "DELETE FROM concealed;"
+      "UPDATE rcvfrom SET ipaddr='unknown';"
+      "UPDATE user SET photo=NULL, info='';"
+      "INSERT INTO shun SELECT uuid FROM blob WHERE rid IN private;"
+    );
+  }
+  if( !bNeedRebuild ){
+    db_end_transaction(0);
+    db_multi_exec("VACUUM;");
+  }else{
+    rebuild_db(0, 1);
+    db_end_transaction(0);
+  }
+}

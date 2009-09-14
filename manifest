@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sC++-ism\sin\stimeline.c.
-D 2009-09-14T16:56:29
+C Add\sthe\s"scrub"\scommand\sto\sremove\spasswords\sand\sother\ssensitive\sinformation\nfrom\sa\srepository.\s\sTicket\s[e5232878345].
+D 2009-09-14T19:16:44
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -82,7 +82,7 @@ F src/name.c 1511a64c2c509481d9f19ac6683fe6a28e6cb7ea
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c cd57d5ccbc3354d9dab64b17dd696f228f8ff1fd
+F src/rebuild.c fa901199b74bdb505cb05c37d7f5c778c94d8587
 F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 8cf8ed785e19c5458121da35ce687007e2d1dc95
-R b6b64b446f1c36964721dddc1f21d67e
+P eb1db585a5b625063d50c08702cb9f9f0bb0e750
+R 1ff3e68987dffdb3243239ade5693a04
 U drh
-Z d0b1678ebda0313475db8982e1def529
+Z ba7d54392625a5e6bfe402bc2d7dc09e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD4DBQFKrnXAoxKgR168RlERAnqAAJijsBV658yqGSXh+3sjrAGWs9L+AJ0cMv7I
-yyhRqn5nnvG7/3N53PhmXQ==
-=qm+N
+iD8DBQFKrpafoxKgR168RlERArLQAJ9lgBnuoo9axywOkZHj8C03M8PoswCcDIuM
+scQkJb8OYYrpVIo3FcwXMcs=
+=ZK6b
 -----END PGP SIGNATURE-----
