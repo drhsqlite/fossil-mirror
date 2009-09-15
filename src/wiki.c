@@ -121,7 +121,6 @@ void wiki_page(void){
   Blob wiki;
   Manifest m;
   const char *zPageName;
-  char *zHtmlPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
 
   login_check_credentials();
@@ -132,8 +131,8 @@ void wiki_page(void){
     @ <ul>
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
-        @ <li> <a href="%s(g.zBaseURL)/wiki?name=%s(zHomePageName)">
-        @      %s(zHomePageName)</a> wiki home page.</li>
+        @ <li> <a href="%s(g.zBaseURL)/wiki?name=%t(zHomePageName)">
+        @      %h(zHomePageName)</a> wiki home page.</li>
       }
     }
     @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
@@ -185,8 +184,7 @@ void wiki_page(void){
            g.zTop, zPageName);
     }
   }
-  zHtmlPageName = mprintf("%h", zPageName);
-  style_header(zHtmlPageName);
+  style_header(zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
@@ -293,7 +291,7 @@ void wikiedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Empty Page</i>");
   }
-  zHtmlPageName = mprintf("Edit: %h", zPageName);
+  zHtmlPageName = mprintf("Edit: %s", zPageName);
   style_header(zHtmlPageName);
   if( P("preview")!=0 ){
     blob_zero(&wiki);
@@ -488,7 +486,7 @@ void whistory_page(void){
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
   zPageName = PD("name","");
-  zTitle = mprintf("History Of %h", zPageName);
+  zTitle = mprintf("History Of %s", zPageName);
   style_header(zTitle);
   free(zTitle);
 
@@ -525,13 +523,13 @@ void wdiff_page(void){
   if( rid1==0 ) fossil_redirect_home();
   rid2 = atoi(PD("b","0"));
   zPageName = PD("name","");
-  zTitle = mprintf("Changes To %h", zPageName);
+  zTitle = mprintf("Changes To %s", zPageName);
   style_header(zTitle);
   free(zTitle);
 
   if( rid2==0 ){
     rid2 = db_int(0,
-      "SELECT objid FROM event JOIN tagxref ON objid=rid AND tagid="
+      "SELECT objid FROM event JOIN tagxref ON objid=rid AND tagxref.tagid="
                         "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
       " WHERE event.mtime<(SELECT mtime FROM event WHERE objid=%d)"
       " ORDER BY event.mtime DESC LIMIT 1",
