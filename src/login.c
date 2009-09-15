@@ -181,8 +181,12 @@ void login_page(void){
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     uid = db_int(0,
         "SELECT uid FROM user"
-        " WHERE login=%Q AND pw=%Q", zUsername, zPasswd);
-    if( uid<=0 || strcmp(zUsername,"nobody")==0 ){
+        " WHERE login=%Q"
+        "   AND login NOT IN ('anonymous','nobody','developer','reader')"
+        "   AND pw=%Q",
+        zUsername, zPasswd
+    );
+    if( uid<=0 ){
       sleep(1);
       zErrMsg = 
          @ <p><font color="red">

@@ -389,6 +389,7 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   db_prepare(&q,
      "SELECT pw, cap, uid FROM user"
      " WHERE login=%B"
+     "   AND login NOT IN ('anonymous','nobody','developer','reader')"
      "   AND length(pw)>0",
      pLogin
   );

@@ -934,7 +934,7 @@ void db_create_default_users(int setupUserOnly){
   if( !setupUserOnly ){
     db_multi_exec(
        "INSERT INTO user(login,pw,cap,info)"
-       "   VALUES('anonymous','anonymous','ghmncz','Anon');"
+       "   VALUES('anonymous',hex(randomblob(8)),'ghmncz','Anon');"
        "INSERT INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','jor','Nobody');"
        "INSERT INTO user(login,pw,cap,info)"
