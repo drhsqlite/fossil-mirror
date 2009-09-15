@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sover-quoting\sof\swiki\snames.\s\sTicket\s[e4a31ae35cd521b]
-D 2009-09-15T00:58:58
+C Add\sa\sscreen\sto\sprompt\sthe\suser\sfor\sthe\sname\sof\sa\snew\swiki\spage.
+D 2009-09-15T12:04:31
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -110,7 +110,7 @@ F src/url.c c5cf8d9b2a7edbd62b83e20c783e73a6a2157404
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
-F src/wiki.c 64f66c970f36d3dc8a01cbc5b5ed0f79adb93584
+F src/wiki.c c28c68f6a88996bbf49745d7dfb4906f7d39a00f
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
 F src/xfer.c 5bb8ce2dae17a0525006942ac3841a13fc3dd637
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6c6a978a537be7efa48b32d52bb282611c54a8bb
-R 9aeea1d6b21a7120a6299269832d3533
+P dec4685720199ad6eb20f4824d8ae9452be10aa4
+R 99692e1660a64da92ff149ecc8906284
 U drh
-Z e5d1e68c51d20e5be9c25160d56045ad
+Z 8bf0815ee0bf0fa9414d19527ea4c51d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKrubVoxKgR168RlERAmggAJ0Zeyt3NH4+NxLpwanNQbZvi6DlYQCfYC31
-TzxOlFa7tyvir7HnLfhNGp0=
-=OjEB
+iD8DBQFKr4LSoxKgR168RlERAt8kAJ9y/fgI9XcRO2FM4ZJ2nkNDWZod7wCgg1ru
+2R9JDox5O3TJinTHHAR11/g=
+=7lI0
 -----END PGP SIGNATURE-----

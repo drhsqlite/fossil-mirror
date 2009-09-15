@@ -52,6 +52,19 @@ int wiki_name_is_wellformed(const char *z){
 }
 
 /*
+** Output rules for well-formed wiki pages
+*/
+static void well_formed_wiki_name_rules(void){
+  @ <ul>
+  @ <li> Must not begin or end with a space.
+  @ <li> Must not contain any control characters, including tab or
+  @      newline.
+  @ <li> Must not have two or more spaces in a row internally.
+  @ <li> Must be between 3 and 100 characters in length.
+  @ </ul>
+}
+
+/*
 ** Check a wiki name.  If it is not well-formed, then issue an error
 ** and return true.  If it is well-formed, return false.
 */
@@ -60,13 +73,7 @@ static int check_name(const char *z){
     style_header("Wiki Page Name Error");
     @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
     @ wiki page names:
-    @ <ul>
-    @ <li> Must not begin or end with a space.
-    @ <li> Must not contain any control characters, including tab or
-    @      newline.
-    @ <li> Must not have two or more spaces in a row internally.
-    @ <li> Must be between 3 and 100 characters in length.
-    @ </ul>
+    well_formed_wiki_name_rules();
     style_footer();
     return 1;
   }
@@ -141,6 +148,9 @@ void wiki_page(void){
     @      wiki.</li>
     @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
     @      to experiment.</li>
+    if( g.okNewWiki ){
+      @ <li>  Create a <a href="%s(g.zBaseURL)/wikinew">new wiki page</a>.</li>
+    }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
     @ </ul>
@@ -323,6 +333,41 @@ void wikiedit_page(void){
 }
 
 /*
+** WEBPAGE: wikinew
+** URL /wikinew
+**
+** Prompt the user to enter the name of a new wiki page.  Then redirect
+** to the wikiedit screen for that new page.
+*/
+void wikinew_page(void){
+  const char *zName;
+  login_check_credentials();
+  if( !g.okNewWiki ){
+    login_needed();
+    return;
+  }  
+  zName = PD("name","");
+  if( zName[0] && wiki_name_is_wellformed(zName) ){
+    cgi_redirectf("wikiedit?name=%T", zName);
+  }
+  style_header("Create A New Wiki Page");
+  @ <p>Rules for wiki page names:
+  well_formed_wiki_name_rules();
+  @ </p>
+  @ <form method="POST" action="%s(g.zBaseURL)/wikinew">
+  @ <p>Name of new wiki page:
+  @ <input type="text" width="35" name="name" value="%h(zName)">
+  @ <input type="submit" value="Create">
+  @ </p></form>
+  if( zName[0] ){
+    @ <p><b><font color="red">
+    @ "%h(zName)" is not a valid wiki page name!</font></b></p>
+  }
+  style_footer();
+}
+
+
+/*
 ** Append the wiki text for an remark to the end of the given BLOB.
 */
 static void appendRemark(Blob *p){
@@ -431,7 +476,7 @@ void wikiappend_page(void){
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
-  zHtmlPageName = mprintf("Append Comment To: %h", zPageName);
+  zHtmlPageName = mprintf("Append Comment To: %s", zPageName);
   style_header(zHtmlPageName);
   if( P("preview")!=0 ){
     Blob preview;
@@ -469,7 +514,7 @@ static const char *zWikiPageName;
 ** a wiki history listing.
 */
 static void wiki_history_extra(int rid){
-  @ <a href="%s(g.zTop)/wdiff?name=%h(zWikiPageName)&a=%d(rid)">[diff]</a>
+  @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
 }
 
 /*
