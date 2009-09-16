@@ -292,7 +292,7 @@ static void prepare_commit_comment(Blob *pComment){
   blob_write_to_file(&text, zFile);
   zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
-  if( system(zCmd) ){
+  if( portable_system(zCmd) ){
     fossil_panic("editor aborted");
   }
   blob_reset(&text);

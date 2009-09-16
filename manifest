@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sthat\sbringing\sup\sthe\s"/xfer"\sURL\sin\sa\sweb-browser\sdoes\ssomething\nsensible\s(it\sredirects\sto\sthe\shomepage.)\nTicket\s[1d7bbe30aad51].
-D 2009-09-16T14:50:24
+C Change\smore\ssystem()\scalls\sinto\sportable_system()\sin\san\seffort\sto\sfix\npath\squoting\sproblems\son\swindows.
+D 2009-09-16T21:29:18
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -38,16 +38,16 @@ F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c c094792c50f04881b59aa5fa6bbe9c164a4b1f0e
-F src/allrepo.c 8f62ffa7a26de589a17babc6d01fa9d986bcc89a
+F src/allrepo.c 22228def7617c6f7c3023e89026fb1091a3f5c37
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c 80cddafe2a13ae44bed095aeb87df87cc48d7fc8
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
-F src/checkin.c 80178835f0312b159f627ae430dce3183f0a8d15
+F src/checkin.c 6bbed2063dd84bfc064d3d51d73fa6d5ffda65c4
 F src/checkout.c 9058612e329c957ba94ff93ccbae31acf6008597
-F src/clearsign.c 3e61358e2b1b721cb64c687f9a3ce49e90f36ccb
+F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 70ab216ac262485d0dd5c9c1299100cb40f0ea80
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
@@ -59,13 +59,13 @@ F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
-F src/diffcmd.c d11c5b07074557fad95091b112882e861ee46189
+F src/diffcmd.c 4832395b8a7e7cad6e870423fa48013da2ce92a3
 F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
 F src/http.c 2787a16cdc1e35ed6f36dfc8bf4fb42f2964daa4
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_transport.c bc6bc305c4bad460995ca124180a89427ed3d538
+F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c bdf1a77d153c91bec14d423db2ebe1ca91c9e383
 F src/login.c 24e3ed3b1319b2d3687510dbd022ab9dba51356a
 F src/main.c e990b4f28da6affcea8649f95887d17e2fa5bbda
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P bbb8ae7ebf745fa28b7a280e70bc60e2c2670cab
-R a2dafe21501d13b6c8affca127baada6
+P 39a144eb5cdde5bced1dce3aefa57272b80afbd3
+R bb61ea1e769e81c4ccd98d1a44e0b847
 U drh
-Z c435fecc95929ce0cc10b6b587849380
+Z d5a6c131db4ba1dca7744b4c80213aee
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKsPs0oxKgR168RlERAiX/AJ9Gl2raGGlzBxw9TVN7oK8NBaXUrgCcCLLp
-Hy21n2KolpIfDzga+xIT5dU=
-=4dw0
+iD8DBQFKsVixoxKgR168RlERApCjAJ4g4AVpbDeGwThUOn7RKdehMD3HuQCcCFA/
+TuBdbQjSq000eh9qj2dXhxs=
+=I3sb
 -----END PGP SIGNATURE-----

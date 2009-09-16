@@ -102,7 +102,7 @@ static void diff_all(int internalDiff,  const char *zRevision){
       shell_escape(&cmd, zFullName);
       printf("%s\n", blob_str(&cmd));
       fflush(stdout);
-      system(blob_str(&cmd));
+      portable_system(blob_str(&cmd));
     }
     free(zFullName);
   }
@@ -223,17 +223,19 @@ void diff_cmd(void){
 /*
 ** This function implements a cross-platform "system()" interface.
 */
-void portable_system(char *zOrigCmd){
+int portable_system(char *zOrigCmd){
+  int rc;
 #ifdef __MINGW32__
   /* On windows, we have to put double-quotes around the entire command.
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  system(zNewCmd);
+  rc = system(zNewCmd);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
   */
-  system(zOrigCmd);
-#endif  
+  rc = system(zOrigCmd);
+#endif 
+  return rc; 
 }

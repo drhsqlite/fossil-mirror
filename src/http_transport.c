@@ -165,7 +165,6 @@ void transport_flip(void){
        g.argv[0], g.urlName, transport.zOutFile, transport.zInFile
     );
     portable_system(zCmd);
-    system(zCmd);
     free(zCmd);
     transport.pFile = fopen(transport.zInFile, "rb");
   }
