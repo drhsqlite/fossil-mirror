@@ -570,6 +570,9 @@ void page_xfer(void){
   int size;
   int recvConfig = 0;
 
+  if( strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
+     fossil_redirect_home();
+  }
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);

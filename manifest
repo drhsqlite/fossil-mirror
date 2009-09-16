@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sit\sharder\sto\smisconfigure\sthe\suser\saccounts\sin\sa\sway\sthat\smight\sgive\npeople\sgreater\saccess\sthan\sintended.
-D 2009-09-15T18:44:51
+C Make\ssure\sthat\sbringing\sup\sthe\s"/xfer"\sURL\sin\sa\sweb-browser\sdoes\ssomething\nsensible\s(it\sredirects\sto\sthe\shomepage.)\nTicket\s[1d7bbe30aad51].
+D 2009-09-16T14:50:24
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -113,7 +113,7 @@ F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
 F src/wiki.c c28c68f6a88996bbf49745d7dfb4906f7d39a00f
 F src/wikiformat.c fc0e3fb84eb0d25c83c381c9800bd55557454532
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
-F src/xfer.c d0ba2feaa9baad6532f065a591feb22972764121
+F src/xfer.c 0008bf784240fac918a80afa08333905fd202a60
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P aa573547364950615afd709d834882c5ee558adc
-R cb323bf12a4960b9c26b63f769075e73
+P bbb8ae7ebf745fa28b7a280e70bc60e2c2670cab
+R a2dafe21501d13b6c8affca127baada6
 U drh
-Z 6da1f575481196331f60aaa9a84dae3f
+Z c435fecc95929ce0cc10b6b587849380
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKr+CmoxKgR168RlERAtlkAJsGVYM6gkgPupKOga9yN3en2CF+1gCff83b
-VuxupRtWHmRzWBWDO/+vxJY=
-=lZTc
+iD8DBQFKsPs0oxKgR168RlERAiX/AJ9Gl2raGGlzBxw9TVN7oK8NBaXUrgCcCLLp
+Hy21n2KolpIfDzga+xIT5dU=
+=4dw0
 -----END PGP SIGNATURE-----
