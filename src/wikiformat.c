@@ -963,7 +963,7 @@ static void openHyperlink(
       zTerm = "";
     }
   }else if( is_valid_uuid(zTarget) ){
-    int isClosed;
+    int isClosed = 0;
     if( is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
