@@ -109,7 +109,7 @@ and painlessly.</p>
     <b>fossil timeline</b><br>
     <b>fossil leaves</b><br>
     <b>fossil ls</b><br>
-    <b>fossil branches</b><br>
+    <b>fossil branch list</b><br>
     </blockquote>
 
 </blockquote><h2>Making Changes</h2><blockquote>
