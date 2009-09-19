@@ -919,6 +919,21 @@ static int is_ticket(
 ** Actually, this routine might or might not append the hyperlink, depending
 ** on current rendering rules: specifically does the current user have
 ** "History" permission.
+**
+**    [http://www.fossil-scm.org/]
+**    [https://www.fossil-scm.org/]
+**    [ftp://www.fossil-scm.org/]
+**    [mailto:fossil-users@lists.fossil-scm.org]
+**
+**    [/path]
+**
+**    [./relpath]
+**
+**    [WikiPageName]
+**
+**    [0123456789abcdef]
+**
+**    [#fragment]
 */
 static void openHyperlink(
   Renderer *p,            /* Rendering context */
@@ -941,7 +956,7 @@ static void openHyperlink(
     }else{
       zTerm = "";
     }
-  }else if( zTarget[0]=='.' ){
+  }else if( zTarget[0]=='.' || zTarget[0]=='#' ){
     if( 1 /* g.okHistory */ ){
       blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
     }else{
