@@ -166,21 +166,25 @@ void ls_cmd(void){
 
 /*
 ** COMMAND: extras
-** Usage: %fossil extras
+** Usage: %fossil extras ?--dotfiles?
 **
 ** Print a list of all files in the source tree that are not part of
 ** the current checkout.  See also the "clean" command.
+**
+** Files and subdirectories whose names begin with "." are normally
+** ignored but can be included by adding the --dotfiles option.
 */
 void extra_cmd(void){
   Blob path;
   Blob repo;
   Stmt q;
   int n;
+  int allFlag = find_option("dotfiles",0,0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path));
+  vfile_scan(0, &path, blob_size(&path), allFlag);
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
@@ -196,7 +200,7 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?-all?
+** Usage: %fossil clean ?--force? ?--dotfiles?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
@@ -204,19 +208,25 @@ void extra_cmd(void){
 **
 ** You will be prompted before removing each file. If you are
 ** sure you wish to remove all "extra" files you can specify the
-** optional -all flag.
+** optional --force flag and no prmpts will be issued.
+**
+** Files and subdirectories whose names begin with "." are
+** normally ignored.  They are included if the "--dotfiles" option
+** is used.
 */
 void clean_cmd(void){
   int allFlag;
+  int dotfilesFlag;
   Blob path, repo;
   Stmt q;
   int n;
   allFlag = find_option("all","a",0)!=0;
+  dotfilesFlag = find_option("dotfiles",0,0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path));
+  vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"

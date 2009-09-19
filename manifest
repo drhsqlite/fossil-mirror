@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\s(harmless)\scompiler\swarning\sin\swikiformat.c.
-D 2009-09-19T15:20:59
+C Add\sthe\s--dotfiles\soption\sto\sthe\s"extra"\sand\s"clean"\scommands.\nTicket\s[4de876322f066].
+D 2009-09-19T15:32:14
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -45,7 +45,7 @@ F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
-F src/checkin.c 6bbed2063dd84bfc064d3d51d73fa6d5ffda65c4
+F src/checkin.c 2e4a6e1c0f68fac6d8bc0ae4d6d170149a93ec6c
 F src/checkout.c 975bc66779641337e39f284e171b9410b2bc21e4
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 70ab216ac262485d0dd5c9c1299100cb40f0ea80
@@ -109,7 +109,7 @@ F src/update.c 053193c6c1fa2273ecfd4c80242e387c37c1df93
 F src/url.c c5cf8d9b2a7edbd62b83e20c783e73a6a2157404
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
-F src/vfile.c eb6d72e4f49995eda3502a6334dba21d4f2a8552
+F src/vfile.c 5504b327f7f2194c07bf850934e50aec1a24f229
 F src/wiki.c c28c68f6a88996bbf49745d7dfb4906f7d39a00f
 F src/wikiformat.c 0e593fe2f29cfba2d5cdea3dcf3a5363c2d99333
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 3a4c7f60a27f32db9bc7ee7ab5d3ab23a52e45d5
-R 3030b5370353d4e8e59318c79b6fe129
+P e0131b1a661b6b2818fe36653034aef01ea44b1d
+R c12e29318408c7ec4573dd5643cf6356
 U drh
-Z 0419da94aa7c29830575841688586ab1
+Z 1414f36610a6599c7c4f8a6a2c1dcaa0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkq09tsACgkQoxKgR168RlFyfwCfZWVZb7GyDuoj12VQsX7V7jVj
-kTkAoI32IpnFz+xiMdiyjtSJptg06B1S
-=803y
+iEYEARECAAYFAkq0+X4ACgkQoxKgR168RlH2yQCffwpMSLFfddEylasC9QG5Kh47
+mDQAmQFd4uIyJexENS+2Bce7cS+7hv2F
+=WPPD
 -----END PGP SIGNATURE-----
