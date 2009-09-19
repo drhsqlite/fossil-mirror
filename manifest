@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C On\sthe\s"checkout"\scommand,\smake\ssure\sthe\sargument\sspecifies\sa\scheck-in\nand\snot\ssome\sother\sobject.\s\sTicket\s[867f23ff79].
-D 2009-09-18T20:58:06
+C Treat\sNULL\sticket\sfields\sas\sempty\sstrings\swhen\sappending\snew\stext.\nTicket\s[f6747f854ba62b3]
+D 2009-09-19T14:33:04
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -101,7 +101,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
 F src/timeline.c f95beac6574094afc1919e3b11b7eb140549ed8c
-F src/tkt.c c30fd6165c0efd2c112dca0df323e9e380443d86
+F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 0eb08b860c5b851c074113fd459d1cd0671f4805
-R fe9575f71fd6b0d5ac9bd6b518242457
+P c774e298c3f213f7487fb0ba638edfa3f1b89edf
+R 8b781351b0a363ab29c7299e3519009f
 U drh
-Z 42bf7868018290776d0cd4723339638e
+Z e697bf8c8d1e740fce630d71cf40a520
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkqz9F4ACgkQoxKgR168RlF7CgCfe2bkNcBKKGFwSFzh84mPWEcg
-F1QAniG2Sc8kuDM7/f/UD3wTAlwPmHXv
-=lZh9
+iEYEARECAAYFAkq066EACgkQoxKgR168RlHV/QCcCnv924izaFRnPBDujlhWoQiR
+f3MAnRhcKjDjs+tK1/KYqk1W7WuphpjR
+=VjPe
 -----END PGP SIGNATURE-----

@@ -220,7 +220,8 @@ int ticket_insert(const Manifest *p, int createFlag, int checkTime){
     if( zName[0]=='+' ){
       zName++;
       if( fieldId(zName)<0 ) continue;
-      blob_appendf(&sql,", %s=%s || %Q", zName, zName, p->aField[i].zValue);
+      blob_appendf(&sql,", %s=coalesce(%s,'') || %Q",
+                   zName, zName, p->aField[i].zValue);
     }else{
       if( fieldId(zName)<0 ) continue;
       blob_appendf(&sql,", %s=%Q", zName, p->aField[i].zValue);
