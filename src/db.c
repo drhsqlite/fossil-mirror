@@ -642,7 +642,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
   }
-  sqlite3_busy_timeout(db, 5000);
+  sqlite3_busy_timeout(db, 5000); 
   return db;
 }
 
@@ -1145,6 +1145,7 @@ char *db_reveal(const char *zKey){
 LOCAL void db_connection_init(void){
   static int once = 1;
   if( once ){
+    sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
     sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
     sqlite3_create_function(
       g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
