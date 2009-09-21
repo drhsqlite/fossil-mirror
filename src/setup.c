@@ -1058,7 +1058,7 @@ void setup_logo(void){
   style_header("Edit Project Logo");
   @ <p>The current project logo has a MIME-Type of <b>%h(zMime)</b> and looks
   @ like this:</p>
-  @ <blockquote><img src="/logo" alt="logo"></blockquote>
+  @ <blockquote><img src="%s(g.zTop)/logo" alt="logo"></blockquote>
   @ 
   @ <form action="%s(g.zBaseURL)/setup_logo" method="POST"
   @  enctype="multipart/form-data">
