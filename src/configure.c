@@ -78,6 +78,8 @@ static struct {
   { "css",                    CONFIGSET_SKIN },
   { "header",                 CONFIGSET_SKIN },
   { "footer",                 CONFIGSET_SKIN },
+  { "logo-mimetype",          CONFIGSET_SKIN },
+  { "logo-image",             CONFIGSET_SKIN },
   { "project-name",           CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
   { "index-page",             CONFIGSET_SKIN },

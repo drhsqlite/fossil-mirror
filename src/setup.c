@@ -78,6 +78,8 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
+  setup_menu_entry("Logo", "setup_logo",
+    "Change the logo image for the server");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
   setup_menu_entry("Log", "rcvfromlist",
@@ -1014,6 +1016,62 @@ void setup_footer(void){
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
   @ </pre></blockquote>
+  style_footer();
+  db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_logo
+*/
+void setup_logo(void){
+  const char *zMime = "image/gif";
+  const char *aImg = P("im");
+  int szImg = atoi(PD("im:bytes","0"));
+  if( szImg>0 ){
+    zMime = PD("im:mimetype","image/gif");
+  }
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  if( P("set")!=0 && zMime && zMime[0] && szImg>0 ){
+    Blob img;
+    Stmt ins;
+    blob_init(&img, aImg, szImg);
+    db_prepare(&ins, 
+        "REPLACE INTO config(name, value)"
+        " VALUES('logo-image',:bytes)"
+    );
+    db_bind_blob(&ins, ":bytes", &img);
+    db_step(&ins);
+    db_finalize(&ins);
+    db_multi_exec(
+       "REPLACE INTO config(name, value) VALUES('logo-mimetype',%Q)",
+       zMime
+    );
+  }else if( P("clr")!=0 ){
+    db_multi_exec(
+       "DELETE FROM config WHERE name GLOB 'logo-*'"
+    );
+  }
+  style_header("Edit Project Logo");
+  @ <p>The current project logo has a MIME-Type of <b>%h(zMime)</b> and looks
+  @ like this:</p>
+  @ <blockquote><img src="/logo" alt="logo"></blockquote>
+  @ 
+  @ <form action="%s(g.zBaseURL)/setup_logo" method="POST"
+  @  enctype="multipart/form-data">
+  @ <p>The logo is accessible to all users at this URL:
+  @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
+  @ To set a new logo image, select a file to use as the logo using
+  @ the entry box below and then press the "Change Logo" button.</p>
+  login_insert_csrf_secret();
+  @ Logo Image file:
+  @ <input type="file" name="im" size="60" accepts="image/*"><br>
+  @ <input type="submit" name="set" value="Change Logo">
+  @ <input type="submit" name="clr" value="Revert To Default">
+  @ </form>
   style_footer();
   db_end_transaction(0);
 }

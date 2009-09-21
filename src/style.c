@@ -193,8 +193,8 @@ const char zDefaultHeader[] =
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <!-- <img src="logo.gif" alt="logo"><br></br> -->
-@     <nobr>$<project_name></nobr>
+@     <img src="/logo" alt="logo">
+@     <br><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
 @   <div class="status"><nobr><th1>
@@ -271,7 +271,8 @@ const char zDefaultCSS[] =
 @   display: table-cell;
 @   font-size: 2em;
 @   font-weight: bold;
-@   text-align: center;
+@   text-align: left;
+@   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
 @   width: 100%;

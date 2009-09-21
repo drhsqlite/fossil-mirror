@@ -525,11 +525,14 @@ static void send_all(Xfer *pXfer){
 */
 static void send_config_card(Xfer *pXfer, const char *zName){
   if( zName[0]!='@' ){
-    char *zValue = db_get(zName, 0);
-    if( zValue ){
-      blob_appendf(pXfer->pOut, "config %s %d\n%s\n",
-                   zName, strlen(zValue), zValue);
-      free(zValue);
+    Blob val;
+    blob_zero(&val);
+    db_blob(&val, "SELECT value FROM config WHERE name=%Q", zName);
+    if( blob_size(&val)>0 ){
+      blob_appendf(pXfer->pOut, "config %s %d\n", zName, blob_size(&val));
+      blob_append(pXfer->pOut, blob_buffer(&val), blob_size(&val));
+      blob_reset(&val);
+      blob_append(pXfer->pOut, "\n", 1);
     }
   }else{
     Blob content;
@@ -770,10 +773,21 @@ void page_xfer(void){
         break;
       }
       if( zName[0]!='@' ){
-        db_multi_exec(
-            "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-            zName, blob_str(&content)
-        );
+        if( strcmp(zName, "logo-image")==0 ){
+          Stmt ins;
+          db_prepare(&ins,
+            "REPLACE INTO config(name, value) VALUES(:name, :value)"
+          );
+          db_bind_text(&ins, ":name", zName);
+          db_bind_blob(&ins, ":value", &content);
+          db_step(&ins);
+          db_finalize(&ins);
+        }else{
+          db_multi_exec(
+              "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+              zName, blob_str(&content)
+          );
+        }
       }else{
         /* Notice that we are evaluating arbitrary SQL received from the
         ** client.  But this can only happen if the client has authenticated
@@ -1132,10 +1146,21 @@ void client_sync(
         g.okAdmin = g.okRdAddr = 1;
         if( configure_is_exportable(zName) & origConfigRcvMask ){
           if( zName[0]!='@' ){
-            db_multi_exec(
-                "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-                zName, blob_str(&content)
-            );
+            if( strcmp(zName, "logo-image")==0 ){
+              Stmt ins;
+              db_prepare(&ins,
+                "REPLACE INTO config(name, value) VALUES(:name, :value)"
+              );
+              db_bind_text(&ins, ":name", zName);
+              db_bind_blob(&ins, ":value", &content);
+              db_step(&ins);
+              db_finalize(&ins);
+            }else{
+              db_multi_exec(
+                  "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+                  zName, blob_str(&content)
+              );
+            }
           }else{
             /* Notice that we are evaluating arbitrary SQL received from the
             ** server.  But this can only happen if we have specifically
