@@ -385,13 +385,15 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   Stmt q;
   int rc = -1;
+  char *zLogin = blob_terminate(pLogin);
+  defossilize(zLogin);
 
   db_prepare(&q,
      "SELECT pw, cap, uid FROM user"
-     " WHERE login=%B"
+     " WHERE login=%Q"
      "   AND login NOT IN ('anonymous','nobody','developer','reader')"
      "   AND length(pw)>0",
-     pLogin
+     zLogin
   );
   if( db_step(&q)==SQLITE_ROW ){
     Blob pw, combined, hash;

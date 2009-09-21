@@ -67,8 +67,10 @@ void url_parse(const char *zUrl){
     if( c=='@' ){
       for(j=iStart; j<i && zUrl[j]!=':'; j++){}
       g.urlUser = mprintf("%.*s", j-iStart, &zUrl[iStart]);
+      dehttpize(g.urlUser);
       if( j<i ){
         g.urlPasswd = mprintf("%.*s", i-j-1, &zUrl[j+1]);
+        dehttpize(g.urlPasswd);
       }
       for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
       g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
