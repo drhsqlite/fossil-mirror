@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\s&lt;br\sclear="both"&gt;\sbefore\sthe\sfooter\son\severy\spage.
-D 2009-09-21T20:40:24
+C Add\sthe\soptional\smimetype=\squery\sparameter\sto\sthe\s/doc\sURI.
+D 2009-09-22T11:15:17
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -60,7 +60,7 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
 F src/diffcmd.c 4832395b8a7e7cad6e870423fa48013da2ce92a3
-F src/doc.c 4e90952b0076e23697c5d823327f9c738c980e3f
+F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
 F src/http.c 2787a16cdc1e35ed6f36dfc8bf4fb42f2964daa4
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 37f295c310cd0e89f49432a38e6d0f108c0a57c4
-R 40f544e39b0df394530335a538871b5d
+P 249f1beaece5c6e8961909cf94a5a0e6a5912662
+R 77ab77d2764c61f705da03cc78dd9664
 U drh
-Z b34845e48ca0cc0b724d5002dda1adf9
+Z bd8534f20effe57d9162ade54c8cc0e3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKt+S7oxKgR168RlERAtyuAJ0e46cpVPHgySuz1vFy4/oV1GGV5ACfWwlW
-Y/OqlyVsRA/hyqdf/d9lLdk=
-=KvI0
+iD8DBQFKuLHJoxKgR168RlERAhbQAJ9TNwCr8uk5B1qHMv+2nkhSexWDQgCdEhsU
+w1iocQf3Od+CKqWqbMmie0k=
+=XRsz
 -----END PGP SIGNATURE-----

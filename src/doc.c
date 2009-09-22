@@ -318,6 +318,7 @@ const char *mimetype_from_name(const char *zName){
 /*
 ** WEBPAGE: doc
 ** URL: /doc?name=BASELINE/PATH
+** URL: /doc/BASELINE/PATH
 **
 ** BASELINE can be either a baseline uuid prefix or magic words "tip"
 ** to me the most recently checked in baseline or "ckout" to mean the
@@ -440,7 +441,10 @@ void doc_page(void){
   /* The file is now contained in the filebody blob.  Deliver the
   ** file to the user 
   */
-  zMime = mimetype_from_name(zName);
+  zMime = P("mimetype");
+  if( zMime==0 ){
+    zMime = mimetype_from_name(zName);
+  }
   if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
