@@ -1,3 +1,4 @@
+<title>Fossil Documentation</title>
 <h1 align="center">
 Branching, Forking, Merging, and Tagging
 </h1>

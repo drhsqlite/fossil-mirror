@@ -10,7 +10,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-**
+** 
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -52,6 +52,19 @@ int wiki_name_is_wellformed(const char *z){
 }
 
 /*
+** Output rules for well-formed wiki pages
+*/
+static void well_formed_wiki_name_rules(void){
+  @ <ul>
+  @ <li> Must not begin or end with a space.
+  @ <li> Must not contain any control characters, including tab or
+  @      newline.
+  @ <li> Must not have two or more spaces in a row internally.
+  @ <li> Must be between 3 and 100 characters in length.
+  @ </ul>
+}
+
+/*
 ** Check a wiki name.  If it is not well-formed, then issue an error
 ** and return true.  If it is well-formed, return false.
 */
@@ -60,13 +73,7 @@ static int check_name(const char *z){
     style_header("Wiki Page Name Error");
     @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
     @ wiki page names:
-    @ <ul>
-    @ <li> Must not begin or end with a space.
-    @ <li> Must not contain any control characters, including tab or
-    @      newline.
-    @ <li> Must not have two or more spaces in a row internally.
-    @ <li> Must be between 3 and 100 characters in length.
-    @ </ul>
+    well_formed_wiki_name_rules();
     style_footer();
     return 1;
   }
@@ -121,7 +128,6 @@ void wiki_page(void){
   Blob wiki;
   Manifest m;
   const char *zPageName;
-  char *zHtmlPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
 
   login_check_credentials();
@@ -132,16 +138,19 @@ void wiki_page(void){
     @ <ul>
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
-        @ <li> <a href="%s(g.zBaseURL)/wiki?name=%s(zHomePageName)">
-        @      %s(zHomePageName)</a> wiki home page.</li>
+        @ <li> <a href="%s(g.zBaseURL)/wiki?name=%t(zHomePageName)">
+        @      %h(zHomePageName)</a> wiki home page.</li>
       }
     }
     @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
     @      pages. </li>
-    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for
+    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
     @      wiki.</li>
     @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
     @      to experiment.</li>
+    if( g.okNewWiki ){
+      @ <li>  Create a <a href="%s(g.zBaseURL)/wikinew">new wiki page</a>.</li>
+    }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
     @ </ul>
@@ -154,7 +163,7 @@ void wiki_page(void){
     zBody = db_get("sandbox",zBody);
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0,
+    rid = db_int(0, 
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -185,8 +194,7 @@ void wiki_page(void){
            g.zTop, zPageName);
     }
   }
-  zHtmlPageName = mprintf("%h", zPageName);
-  style_header(zHtmlPageName);
+  style_header(zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
@@ -229,7 +237,7 @@ void wikiedit_page(void){
     }
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0,
+    rid = db_int(0, 
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -293,7 +301,7 @@ void wikiedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Empty Page</i>");
   }
-  zHtmlPageName = mprintf("Edit: %h", zPageName);
+  zHtmlPageName = mprintf("Edit: %s", zPageName);
   style_header(zHtmlPageName);
   if( P("preview")!=0 ){
     blob_zero(&wiki);
@@ -311,7 +319,7 @@ void wikiedit_page(void){
   @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
-  @ <textarea name="w" class="wikiedit" cols="80"
+  @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ <br>
   @ <input type="submit" name="preview" value="Preview Your Changes">
@@ -325,6 +333,41 @@ void wikiedit_page(void){
 }
 
 /*
+** WEBPAGE: wikinew
+** URL /wikinew
+**
+** Prompt the user to enter the name of a new wiki page.  Then redirect
+** to the wikiedit screen for that new page.
+*/
+void wikinew_page(void){
+  const char *zName;
+  login_check_credentials();
+  if( !g.okNewWiki ){
+    login_needed();
+    return;
+  }  
+  zName = PD("name","");
+  if( zName[0] && wiki_name_is_wellformed(zName) ){
+    cgi_redirectf("wikiedit?name=%T", zName);
+  }
+  style_header("Create A New Wiki Page");
+  @ <p>Rules for wiki page names:
+  well_formed_wiki_name_rules();
+  @ </p>
+  @ <form method="POST" action="%s(g.zBaseURL)/wikinew">
+  @ <p>Name of new wiki page:
+  @ <input type="text" width="35" name="name" value="%h(zName)">
+  @ <input type="submit" value="Create">
+  @ </p></form>
+  if( zName[0] ){
+    @ <p><b><font color="red">
+    @ "%h(zName)" is not a valid wiki page name!</font></b></p>
+  }
+  style_footer();
+}
+
+
+/*
 ** Append the wiki text for an remark to the end of the given BLOB.
 */
 static void appendRemark(Blob *p){
@@ -336,7 +379,7 @@ static void appendRemark(Blob *p){
   zDate = db_text(0, "SELECT datetime('now')");
   zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
   blob_append(p, "\n<<fossil>>\n", -1);
-  blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
+  blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h", 
     zId, zDate, g.zLogin);
   free(zDate);
   zUser = PD("u",g.zLogin);
@@ -365,7 +408,7 @@ void wikiappend_page(void){
   isSandbox = is_sandbox(zPageName);
   if( !isSandbox ){
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0,
+    rid = db_int(0, 
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -434,7 +477,7 @@ void wikiappend_page(void){
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
-  zHtmlPageName = mprintf("Append Comment To: %h", zPageName);
+  zHtmlPageName = mprintf("Append Comment To: %s", zPageName);
   style_header(zHtmlPageName);
   if( P("preview")!=0 ){
     Blob preview;
@@ -452,7 +495,7 @@ void wikiappend_page(void){
   @ Your Name:
   @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
   @ Comment to append:<br>
-  @ <textarea name="r" class="wikiedit" cols="80"
+  @ <textarea name="r" class="wikiedit" cols="80" 
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
   @ <br>
   @ <input type="submit" name="preview" value="Preview Your Comment">
@@ -460,6 +503,19 @@ void wikiappend_page(void){
   @ <input type="submit" name="cancel" value="Cancel">
   @ </form>
   style_footer();
+}
+
+/*
+** Name of the wiki history page being generated
+*/
+static const char *zWikiPageName;
+
+/*
+** Function called to output extra text at the end of each line in
+** a wiki history listing.
+*/
+static void wiki_history_extra(int rid){
+  @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
 }
 
 /*
@@ -476,7 +532,7 @@ void whistory_page(void){
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
   zPageName = PD("name","");
-  zTitle = mprintf("History Of %h", zPageName);
+  zTitle = mprintf("History Of %s", zPageName);
   style_header(zTitle);
   free(zTitle);
 
@@ -487,8 +543,62 @@ void whistory_page(void){
                  timeline_query_for_www(), zPageName);
   db_prepare(&q, zSQL);
   free(zSQL);
-  www_print_timeline(&q, TIMELINE_ARTID, 0);
+  zWikiPageName = zPageName;
+  www_print_timeline(&q, TIMELINE_ARTID, wiki_history_extra);
   db_finalize(&q);
+  style_footer();
+}
+
+/*
+** WEBPAGE: wdiff
+** URL: /whistory?name=PAGENAME&a=RID1&b=RID2
+**
+** Show the difference between two wiki pages.
+*/
+void wdiff_page(void){
+  char *zTitle;
+  int rid1, rid2;
+  const char *zPageName;
+  Blob content1, content2;
+  Manifest m1, m2;
+  Blob w1, w2, d;
+
+  login_check_credentials();
+  rid1 = atoi(PD("a","0"));
+  if( !g.okHistory ){ login_needed(); return; }
+  if( rid1==0 ) fossil_redirect_home();
+  rid2 = atoi(PD("b","0"));
+  zPageName = PD("name","");
+  zTitle = mprintf("Changes To %s", zPageName);
+  style_header(zTitle);
+  free(zTitle);
+
+  if( rid2==0 ){
+    rid2 = db_int(0,
+      "SELECT objid FROM event JOIN tagxref ON objid=rid AND tagxref.tagid="
+                        "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
+      " WHERE event.mtime<(SELECT mtime FROM event WHERE objid=%d)"
+      " ORDER BY event.mtime DESC LIMIT 1",
+      zPageName, rid1
+    );
+  }
+  content_get(rid1, &content1);
+  manifest_parse(&m1, &content1);
+  if( m1.type!=CFTYPE_WIKI ) fossil_redirect_home();
+  blob_init(&w1, m1.zWiki, -1);
+  blob_zero(&w2);
+  if( rid2 ){
+    content_get(rid2, &content2);
+    manifest_parse(&m2, &content2);
+    if( m2.type==CFTYPE_WIKI ){
+      blob_init(&w2, m2.zWiki, -1);
+    }
+  }
+  blob_zero(&d);
+  text_diff(&w2, &w1, &d, 5);
+  @ <pre>
+  @ %h(blob_str(&d))
+  @ </pre>
   style_footer();
 }
 
@@ -503,7 +613,7 @@ void wcontent_page(void){
   if( !g.okRdWiki ){ login_needed(); return; }
   style_header("Available Wiki Pages");
   @ <ul>
-  db_prepare(&q,
+  db_prepare(&q, 
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
     " ORDER BY lower(tagname)"
   );
@@ -555,7 +665,7 @@ void wikirules_page(void){
   @ enumerations that count using letters or roman numerials, use HTML.</p>
   @ <li> <p><b>Indented Paragraphs</b>.
   @ Any paragraph that begins with two or more spaces or a tab and
-  @ which is not a bullet or enumeration list item is rendered
+  @ which is not a bullet or enumeration list item is rendered 
   @ indented.  Only a single level of indentation is supported by wiki; use
   @ HTML for deeper indentation.</p>
   @ <li> <p><b>Hyperlinks</b>.
@@ -684,7 +794,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_reset(&wiki);
   content_deltify(rid,nrid,0);
   db_end_transaction(0);
-  autosync(AUTOSYNC_PUSH);
+  autosync(AUTOSYNC_PUSH);  
   return 1;
 }
 
@@ -693,7 +803,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 ** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
-** Run various subcommands to fetch wiki entries.
+** Run various subcommands to work with wiki entries.
 **
 **     %fossil wiki export PAGENAME ?FILE?
 **
@@ -702,7 +812,8 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 **     %fossil wiki commit PAGENAME ?FILE?
 **
-**        Commit changes to a wiki page from FILE or from standard.
+**        Commit changes to a wiki page from FILE or from standard
+**        input.
 **
 **     %fossil wiki create PAGENAME ?FILE?
 **
@@ -760,7 +871,7 @@ void wiki_cmd(void){
     rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
       " ORDER BY x.mtime DESC LIMIT 1",
-      zPageName
+      zPageName 
     );
     if( rid ){
       Blob content;
@@ -824,7 +935,7 @@ void wiki_cmd(void){
   }else
   if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
-    db_prepare(&q,
+    db_prepare(&q, 
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
       " ORDER BY lower(tagname)"
     );

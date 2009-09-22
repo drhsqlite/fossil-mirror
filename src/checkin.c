@@ -165,22 +165,26 @@ void ls_cmd(void){
 }
 
 /*
-** COMMAND: extra
-** Usage: %fossil extra
+** COMMAND: extras
+** Usage: %fossil extras ?--dotfiles?
 **
 ** Print a list of all files in the source tree that are not part of
 ** the current checkout.  See also the "clean" command.
+**
+** Files and subdirectories whose names begin with "." are normally
+** ignored but can be included by adding the --dotfiles option.
 */
 void extra_cmd(void){
   Blob path;
   Blob repo;
   Stmt q;
   int n;
+  int allFlag = find_option("dotfiles",0,0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path));
+  vfile_scan(0, &path, blob_size(&path), allFlag);
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
@@ -196,7 +200,7 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?-all?
+** Usage: %fossil clean ?--force? ?--dotfiles?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
@@ -204,19 +208,25 @@ void extra_cmd(void){
 **
 ** You will be prompted before removing each file. If you are
 ** sure you wish to remove all "extra" files you can specify the
-** optional -all flag.
+** optional --force flag and no prmpts will be issued.
+**
+** Files and subdirectories whose names begin with "." are
+** normally ignored.  They are included if the "--dotfiles" option
+** is used.
 */
 void clean_cmd(void){
   int allFlag;
+  int dotfilesFlag;
   Blob path, repo;
   Stmt q;
   int n;
   allFlag = find_option("all","a",0)!=0;
+  dotfilesFlag = find_option("dotfiles",0,0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path));
+  vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
@@ -262,6 +272,13 @@ static void prepare_commit_comment(Blob *pComment){
     "# The check-in comment follows wiki formatting rules.\n"
     "#\n"
   );
+  if( g.markPrivate ){
+    blob_append(&text,
+      "# PRIVATE BRANCH: This check-in will be private and will not sync to\n"
+      "# repositories.\n"
+      "#\n", -1
+    );
+  }
   status_report(&text, "# ");
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
@@ -285,7 +302,7 @@ static void prepare_commit_comment(Blob *pComment){
   blob_write_to_file(&text, zFile);
   zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
-  if( system(zCmd) ){
+  if( portable_system(zCmd) ){
     fossil_panic("editor aborted");
   }
   blob_reset(&text);
@@ -387,6 +404,9 @@ int is_a_leaf(int rid){
 ** A check-in is not permitted to fork unless the --force or -f
 ** option appears.  A check-in is not allowed against a closed check-in.
 **
+** The --private option creates a private check-in that is never synced.
+** Children of private check-ins are automatically private.
+**
 ** Options:
 **
 **    --comment|-m COMMENT-TEXT
@@ -394,6 +414,7 @@ int is_a_leaf(int rid){
 **    --bgcolor COLOR
 **    --nosign
 **    --force|-f
+**    --private
 **    
 */
 void commit_cmd(void){
@@ -412,6 +433,7 @@ void commit_cmd(void){
   const char *zBranch;   /* Create a new branch with this name */
   const char *zBgColor;  /* Set background color when branching */
   const char *zDateOvrd; /* Override date string */
+  const char *zUserOvrd; /* Override user name */
   Blob filename;         /* complete filename */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -425,16 +447,30 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   zBranch = find_option("branch","b",1);
   zBgColor = find_option("bgcolor",0,1);
+  if( find_option("private",0,0) ){
+    g.markPrivate = 1;
+    if( zBranch==0 ) zBranch = "private";
+    if( zBgColor==0 ) zBgColor = "#fec084";  /* Orange */
+  }
   zDateOvrd = find_option("date-override",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 1)==0 ){ noSign = 1; }
   verify_all_options();
 
+  /* Get the ID of the parent manifest artifact */
+  vid = db_lget_int("checkout", 0);
+  if( content_is_private(vid) ){
+    g.markPrivate = 1;
+  }
+
   /*
-  ** Autosync if requested.
+  ** Autosync if autosync is enabled and this is not a private check-in.
   */
-  autosync(AUTOSYNC_PULL);
+  if( !g.markPrivate ){
+    autosync(AUTOSYNC_PULL);
+  }
 
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
@@ -482,13 +518,11 @@ void commit_cmd(void){
     }
   }
 
-  vid = db_lget_int("checkout", 0);
-
   /*
   ** Do not allow a commit that will cause a fork unless the --force flag
-  ** is used.
+  ** is used or unless this is a private check-in.
   */
-  if( zBranch==0 && forceFlag==0 && !is_a_leaf(vid) ){
+  if( zBranch==0 && forceFlag==0 && g.markPrivate==0 && !is_a_leaf(vid) ){
     fossil_fatal("would fork.  \"update\" first or use -f or --force.");
   }
 
@@ -558,17 +592,18 @@ void commit_cmd(void){
   zDate[10] = 'T';
   blob_appendf(&manifest, "D %s\n", zDate);
   db_prepare(&q,
-    "SELECT pathname, uuid, origname"
+    "SELECT pathname, uuid, origname, blob.rid"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
     " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
   blob_zero(&filename);
-  blob_appendf(&filename, "%s/", g.zLocalRoot);
+  blob_appendf(&filename, "%s", g.zLocalRoot);
   nBasename = blob_size(&filename);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zOrig = db_column_text(&q, 2);
+    int frid = db_column_int(&q, 3);
     const char *zPerm;
     blob_append(&filename, zName, -1);
     if( file_isexe(blob_str(&filename)) ){
@@ -583,6 +618,7 @@ void commit_cmd(void){
       if( zPerm[0]==0 ){ zPerm = " w"; }
       blob_appendf(&manifest, "F %F %s%s %F\n", zName, zUuid, zPerm, zOrig);
     }
+    if( !g.markPrivate ) content_make_public(frid);
   }
   blob_reset(&filename);
   db_finalize(&q);
@@ -593,6 +629,7 @@ void commit_cmd(void){
   db_bind_int(&q2, ":id", 0);
   while( db_step(&q2)==SQLITE_ROW ){
     int mid = db_column_int(&q2, 0);
+    if( !g.markPrivate && content_is_private(mid) ) continue;
     zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zUuid ){
       blob_appendf(&manifest, " %s", zUuid);
@@ -625,11 +662,11 @@ void commit_cmd(void){
     }
     db_finalize(&q);
   }  
-  blob_appendf(&manifest, "U %F\n", g.zLogin);
+  blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&manifest, &mcksum);
   blob_appendf(&manifest, "Z %b\n", &mcksum);
   zManifestFile = mprintf("%smanifest", g.zLocalRoot);
-  if( !noSign && clearsign(&manifest, &manifest) ){
+  if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
     Blob ans;
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue [y/N]? ", &ans);
@@ -702,7 +739,9 @@ void commit_cmd(void){
   /* Commit */
   db_end_transaction(0);
 
-  autosync(AUTOSYNC_PUSH);  
+  if( !g.markPrivate ){
+    autosync(AUTOSYNC_PUSH);  
+  }
   if( count_nonbranch_children(vid)>1 ){
     printf("**** warning: a fork has occurred *****\n");
   }

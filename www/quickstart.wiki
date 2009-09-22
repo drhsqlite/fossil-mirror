@@ -1,3 +1,4 @@
+<title>Fossil Quick Start Guide</title>
 <nowiki>
 <h1 align="center">Fossil Quick Start</h1>
 
@@ -13,9 +14,9 @@ and painlessly.</p>
     Install fossil by putting the fossil binary
     someplace on your PATH environment variable.</p>
     
-    </blockquote>
-    <a name="#fslclone"><h2>Cloning An Existing Repository</h2></a>
-    <blockquote>
+</blockquote>
+<a name="fslclone"></a>
+<h2>Cloning An Existing Repository</h2><blockquote>
 
     <p>Most fossil operations interact with a repository that is on the
     local disk drive, not on a remote system.  Hence, before accessing
@@ -108,7 +109,7 @@ and painlessly.</p>
     <b>fossil timeline</b><br>
     <b>fossil leaves</b><br>
     <b>fossil ls</b><br>
-    <b>fossil branches</b><br>
+    <b>fossil branch list</b><br>
     </blockquote>
 
 </blockquote><h2>Making Changes</h2><blockquote>

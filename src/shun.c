@@ -97,29 +97,11 @@ void shun_page(void){
     @ It will be removed from the repository the next time the respository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</font></p>
   }
-  @ <p>The artifacts listed below have been shunned by this repository.
-  @ This means that the artifacts will not be transmitted on a push nor
-  @ recieved on a pull.  These artifacts are banned from the respository.</p>
-  @ <blockquote>
-  db_prepare(&q, 
-     "SELECT uuid, EXISTS(SELECT 1 FROM blob WHERE blob.uuid=shun.uuid)"
-     "  FROM shun ORDER BY uuid");
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    int stillExists = db_column_int(&q, 1);
-    cnt++;
-    if( stillExists ){
-      @ <b><a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a></b><br>
-    }else{
-      @ <b>%s(zUuid)</b><br>
-    }
-  }
-  if( cnt==0 ){
-    @ <i>no artifacts are shunned on this server</i>
-  }
-  db_finalize(&q);
-  @ </blockquote>
-  @ <hr>
+  @ <p>A shunned artifact will not be pushed nor accepted in a pull and the
+  @ artifact content will be purged from the repository the next time the
+  @ repository is rebuilt.  A list of shunned artifacts can be seen at the
+  @ bottom of this page.</p>
+  @ 
   @ <a name="addshun"></a>
   @ <p>To shun an artifact, enter its artifact ID (the 40-character SHA1
   @ hash of the artifact) in the
@@ -159,9 +141,10 @@ void shun_page(void){
   @ </form>
   @ </blockquote>
   @
-  @ <hr>
-  @ <p>Press the button below to rebuild the respository.  The rebuild
-  @ may take several seconds, so be patient after pressing the button.</p>
+  @ <p>Press the Rebuild button below to rebuild the respository.  The
+  @ content of newly shunned artifacts is not purged until the repository
+  @ is rebuilt.  On larger repositories, the rebuild may take minute or
+  @ two, so be patient after pressing the button.</p>
   @
   @ <blockquote>
   @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
@@ -169,7 +152,27 @@ void shun_page(void){
   @ <input type="submit" name="rebuild" value="Rebuild">
   @ </form>
   @ </blockquote>
-  @  
+  @ 
+  @ <hr><p>Shunned Artifacts:</p>
+  @ <blockquote>
+  db_prepare(&q, 
+     "SELECT uuid, EXISTS(SELECT 1 FROM blob WHERE blob.uuid=shun.uuid)"
+     "  FROM shun ORDER BY uuid");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    int stillExists = db_column_int(&q, 1);
+    cnt++;
+    if( stillExists ){
+      @ <b><a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a></b><br>
+    }else{
+      @ <b>%s(zUuid)</b><br>
+    }
+  }
+  if( cnt==0 ){
+    @ <i>no artifacts are shunned on this server</i>
+  }
+  db_finalize(&q);
+  @ </blockquote>
   style_footer();
 }
 
@@ -194,6 +197,8 @@ void shun_artifacts(void){
      "DELETE FROM delta WHERE rid IN toshun;"
      "DELETE FROM blob WHERE rid IN toshun;"
      "DROP TABLE toshun;"
+     "DELETE FROM private "
+     " WHERE NOT EXISTS (SELECT 1 FROM blob WHERE rid=private.rid);"
   );
 }
 

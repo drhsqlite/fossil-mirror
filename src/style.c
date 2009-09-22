@@ -82,15 +82,15 @@ static int submenuCompare(const void *a, const void *b){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);
+  const char *zHeader = db_get("header", (char*)zDefaultHeader);  
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
-
+  
   cgi_destination(CGI_HEADER);
-
+  
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
@@ -120,7 +120,7 @@ void style_footer(void){
   const char *zFooter;
 
   if( !headerHasBeenGenerated ) return;
-
+  
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -150,7 +150,7 @@ void style_footer(void){
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
-
+  
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
     cgi_append_content("<font color=\"red\"><hr>\n", -1);
@@ -181,7 +181,7 @@ void style_sidebox_end(void){
 /*
 ** The default page header.
 */
-const char zDefaultHeader[] =
+const char zDefaultHeader[] = 
 @ <html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
@@ -199,38 +199,38 @@ const char zDefaultHeader[] =
 @   <div class="title">$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
-@        html "Logged in as <a href='$baseurl/my'>$login</a>"
+@        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href='$baseurl$index_page'>Home</a>"
+@ html "<a href='$baseurl$index_page'>Home</a> "
 @ if {[hascap h]} {
-@   html "<a href='$baseurl/dir'>Files</a>"
+@   html "<a href='$baseurl/dir'>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href='$baseurl/leaves'>Leaves</a>"
-@   html "<a href='$baseurl/timeline'>Timeline</a>"
-@   html "<a href='$baseurl/brlist'>Branches</a>"
-@   html "<a href='$baseurl/taglist'>Tags</a>"
+@   html "<a href='$baseurl/leaves'>Leaves</a> "
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@   html "<a href='$baseurl/brlist'>Branches</a> "
+@   html "<a href='$baseurl/taglist'>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$baseurl/reportlist'>Tickets</a>"
+@   html "<a href='$baseurl/reportlist'>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href='$baseurl/wiki'>Wiki</a>"
+@   html "<a href='$baseurl/wiki'>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$baseurl/setup'>Admin</a>"
+@   html "<a href='$baseurl/setup'>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href='$baseurl/setup_ulist'>Users</a>"
+@   html "<a href='$baseurl/setup_ulist'>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$baseurl/login'>Logout</a>"
+@   html "<a href='$baseurl/login'>Logout</a> "
 @ } else {
-@   html "<a href='$baseurl/login'>Login</a>"
+@   html "<a href='$baseurl/login'>Login</a> "
 @ }
 @ </th1></div>
 ;
@@ -238,7 +238,7 @@ const char zDefaultHeader[] =
 /*
 ** The default page footer
 */
-const char zDefaultFooter[] =
+const char zDefaultFooter[] = 
 @ <div class="footer">
 @ Fossil version $manifest_version $manifest_date
 @ </div>
@@ -248,7 +248,7 @@ const char zDefaultFooter[] =
 /*
 ** The default Cascading Style Sheet.
 */
-const char zDefaultCSS[] =
+const char zDefaultCSS[] = 
 @ /* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
@@ -366,7 +366,7 @@ const char zDefaultCSS[] =
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@
+@ 
 @ /* <verbatim> blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
@@ -393,8 +393,7 @@ const char zDefaultCSS[] =
 @ div.miniform {
 @     font-size: smaller;
 @     margin: 8px;
-@ }
-@
+@ } 
 @ table.fossil_db_generic_query_view {
 @   border-spacing: 0px;
 @   border: 1px solid black;
@@ -415,6 +414,9 @@ const char zDefaultCSS[] =
 @   font-size: 1.5em;
 @   color: #ffffff;
 @ }
+@ 
+@ /* addeitions to support creole parser */
+@
 @ .creoletable {
 @   border: 1px solid #666666;
 @   border-spacing: 0;
@@ -454,6 +456,9 @@ void page_style_css(void){
 */
 void page_test_env(void){
   style_header("Environment Test");
+#if !defined(__MINGW32__)
+  @ uid=%d(getuid()), gid=%d(getgid())<br>
+#endif
   @ g.zBaseURL = %h(g.zBaseURL)<br>
   @ g.zTop = %h(g.zTop)<br>
   cgi_print_all();

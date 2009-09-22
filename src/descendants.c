@@ -33,7 +33,8 @@
 ** Create a temporary table named "leaves" if it does not
 ** already exist.  Load this table with the RID of all
 ** check-ins that are leaves which are decended from
-** check-in iBase.
+** check-in iBase.  If iBase==0, find all leaves within the
+** entire check-in hierarchy.
 **
 ** A "leaf" is a check-in that has no children in the same branch.
 **
@@ -51,11 +52,6 @@
 ** closeMode==2.
 */
 void compute_leaves(int iBase, int closeMode){
-  Bag seen;       /* Descendants seen */
-  Bag pending;    /* Unpropagated descendants */
-  Stmt q1;        /* Query to find children of a check-in */
-  Stmt isBr;      /* Query to check to see if a check-in starts a new branch */
-  Stmt ins;       /* INSERT statement for a new record */
 
   /* Create the LEAVES table if it does not already exist.  Make sure
   ** it is empty.
@@ -68,67 +64,94 @@ void compute_leaves(int iBase, int closeMode){
   );
 
   /* We are checking all descendants of iBase.  If iBase==0, then
-  ** change iBase to be the root of the entire check-in hierarchy.
+  ** use a short-cut to find all leaves anywhere in the hierarchy.
   */
   if( iBase<=0 ){
-    iBase = db_int(0, "SELECT objid FROM event WHERE type='ci'"
-                      " ORDER BY mtime LIMIT 1");
-    if( iBase==0 ) return;
-  }
+    db_multi_exec(
+      "INSERT OR IGNORE INTO leaves"
+      "  SELECT cid FROM plink"
+      "  EXCEPT"
+      "  SELECT pid FROM plink"
+      "   WHERE coalesce((SELECT value FROM tagxref"
+                         " WHERE tagid=%d AND rid=plink.pid),'trunk')"
+           " == coalesce((SELECT value FROM tagxref"
+                         " WHERE tagid=%d AND rid=plink.cid),'trunk');",
+      TAG_BRANCH, TAG_BRANCH
+    );
+  }else{
+    Bag seen;     /* Descendants seen */
+    Bag pending;  /* Unpropagated descendants */
+    Stmt q1;      /* Query to find children of a check-in */
+    Stmt isBr;    /* Query to check to see if a check-in starts a new branch */
+    Stmt ins;     /* INSERT statement for a new record */
 
-  /* Initialize the bags. */
-  bag_init(&seen);
-  bag_init(&pending);
-  bag_insert(&pending, iBase);
+    /* Initialize the bags. */
+    bag_init(&seen);
+    bag_init(&pending);
+    bag_insert(&pending, iBase);
 
-  /* This query returns all non-merge children of check-in :rid */
-  db_prepare(&q1, "SELECT cid FROM plink WHERE pid=:rid AND isprim");
-
-  /* This query returns a single row if check-in :rid is the first
-  ** check-in of a new branch.
-  */
-  db_prepare(&isBr, 
-     "SELECT 1 FROM tagxref"
-     " WHERE rid=:rid AND tagid=%d AND tagtype=2"
-     "   AND srcid>0",
-     TAG_BRANCH
-  );
-
-  /* This statement inserts check-in :rid into the LEAVES table.
-  */
-  db_prepare(&ins, "INSERT OR IGNORE INTO leaves VALUES(:rid)");
-
-  while( bag_count(&pending) ){
-    int rid = bag_first(&pending);
-    int cnt = 0;
-    bag_remove(&pending, rid);
-    db_bind_int(&q1, ":rid", rid);
-    while( db_step(&q1)==SQLITE_ROW ){
-      int cid = db_column_int(&q1, 0);
-      if( bag_insert(&seen, cid) ){
-        bag_insert(&pending, cid);
+    /* This query returns all non-branch-merge children of check-in :rid.
+    **
+    ** If a a child is a merge of a fork within the same branch, it is 
+    ** returned.  Only merge children in different branches are excluded.
+    */
+    db_prepare(&q1,
+      "SELECT cid FROM plink"
+      " WHERE pid=:rid"
+      "   AND (isprim"
+      "        OR coalesce((SELECT value FROM tagxref"
+                        "   WHERE tagid=%d AND rid=plink.pid), 'trunk')"
+                 "=coalesce((SELECT value FROM tagxref"
+                        "   WHERE tagid=%d AND rid=plink.cid), 'trunk'))",
+      TAG_BRANCH, TAG_BRANCH
+    );
+  
+    /* This query returns a single row if check-in :rid is the first
+    ** check-in of a new branch.
+    */
+    db_prepare(&isBr, 
+       "SELECT 1 FROM tagxref"
+       " WHERE rid=:rid AND tagid=%d AND tagtype=2"
+       "   AND srcid>0",
+       TAG_BRANCH
+    );
+  
+    /* This statement inserts check-in :rid into the LEAVES table.
+    */
+    db_prepare(&ins, "INSERT OR IGNORE INTO leaves VALUES(:rid)");
+  
+    while( bag_count(&pending) ){
+      int rid = bag_first(&pending);
+      int cnt = 0;
+      bag_remove(&pending, rid);
+      db_bind_int(&q1, ":rid", rid);
+      while( db_step(&q1)==SQLITE_ROW ){
+        int cid = db_column_int(&q1, 0);
+        if( bag_insert(&seen, cid) ){
+          bag_insert(&pending, cid);
+        }
+        db_bind_int(&isBr, ":rid", cid);
+        if( db_step(&isBr)==SQLITE_DONE ){
+          cnt++;
+        }
+        db_reset(&isBr);
       }
-      db_bind_int(&isBr, ":rid", cid);
-      if( db_step(&isBr)==SQLITE_DONE ){
+      db_reset(&q1);
+      if( cnt==0 && !is_a_leaf(rid) ){
         cnt++;
       }
-      db_reset(&isBr);
+      if( cnt==0 ){
+        db_bind_int(&ins, ":rid", rid);
+        db_step(&ins);
+        db_reset(&ins);
+      }
     }
-    db_reset(&q1);
-    if( cnt==0 && !is_a_leaf(rid) ){
-      cnt++;
-    }
-    if( cnt==0 ){
-      db_bind_int(&ins, ":rid", rid);
-      db_step(&ins);
-      db_reset(&ins);
-    }
+    db_finalize(&ins);
+    db_finalize(&isBr);
+    db_finalize(&q1);
+    bag_clear(&pending);
+    bag_clear(&seen);
   }
-  db_finalize(&ins);
-  db_finalize(&isBr);
-  db_finalize(&q1);
-  bag_clear(&pending);
-  bag_clear(&seen);
   if( closeMode==1 ){
     db_multi_exec(
       "DELETE FROM leaves WHERE rid IN"

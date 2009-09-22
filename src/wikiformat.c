@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-**
+** 
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -152,7 +152,7 @@ static int findAttr(const char *z){
 **
 ** Except for MARKUP_INVALID, this must all be in alphabetical order
 ** and in numerical sequence.  The first markup type must be zero.
-** The value for MARKUP_XYZ must correspond to the <xyz> entry
+** The value for MARKUP_XYZ must correspond to the <xyz> entry 
 ** in aAllowedMarkup[].
 */
 #define MARKUP_INVALID           0
@@ -260,18 +260,18 @@ static const struct AllowedMarkup {
  { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         AMSK_ALIGN  },
- { "hr",            MARKUP_HR,           MUTYPE_SINGLE,
+ { "hr",            MARKUP_HR,           MUTYPE_SINGLE,        
                     AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH  },
  { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
- { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
+ { "img",           MARKUP_IMG,          MUTYPE_SINGLE,        
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
                     AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH  },
  { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          0  },
- { "li",            MARKUP_LI,           MUTYPE_LI,
+ { "li",            MARKUP_LI,           MUTYPE_LI,            
                     AMSK_TYPE|AMSK_VALUE  },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
- { "ol",            MARKUP_OL,           MUTYPE_LIST,
+ { "ol",            MARKUP_OL,           MUTYPE_LIST,          
                     AMSK_START|AMSK_TYPE|AMSK_COMPACT  },
  { "p",             MARKUP_P,            MUTYPE_BLOCK,         AMSK_ALIGN  },
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
@@ -282,20 +282,20 @@ static const struct AllowedMarkup {
  { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          0  },
  { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
  { "sup",           MARKUP_SUP,          MUTYPE_FONT,          0  },
- { "table",         MARKUP_TABLE,        MUTYPE_TABLE,
+ { "table",         MARKUP_TABLE,        MUTYPE_TABLE,         
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
                     AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE  },
- { "td",            MARKUP_TD,           MUTYPE_TD,
+ { "td",            MARKUP_TD,           MUTYPE_TD,            
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
                     AMSK_ROWSPAN|AMSK_VALIGN  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
                     AMSK_ROWSPAN|AMSK_VALIGN  },
- { "tr",            MARKUP_TR,           MUTYPE_TR,
+ { "tr",            MARKUP_TR,           MUTYPE_TR, 
                     AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
  { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
- { "ul",            MARKUP_UL,           MUTYPE_LIST,
+ { "ul",            MARKUP_UL,           MUTYPE_LIST,          
                     AMSK_TYPE|AMSK_COMPACT  },
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       AMSK_ID },
@@ -436,7 +436,7 @@ static int textLength(const char *z, int useWiki){
     n++;
     z++;
   }
-  return n;
+  return n; 
 }
 
 /*
@@ -629,7 +629,7 @@ struct ParsedMarkup {
 ** z[] is an HTML markup element - something that begins with '<'.
 ** Parse this element into the p structure.
 **
-** The content of z[] might be modified by converting characters
+** The content of z[] might be modified by converting characters 
 ** to lowercase and by inserting some "\000" characters.
 */
 static void parseMarkup(ParsedMarkup *p, char *z){
@@ -647,7 +647,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     i = 1;
   }
   j = 0;
-  while( isalnum(z[i]) ){
+  while( isalnum(z[i]) ){ 
     if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
     i++;
   }
@@ -659,7 +659,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
   while( p->nAttr<8 && isalpha(z[i]) ){
     int attrOk;    /* True to preserver attribute.  False to ignore it */
     j = 0;
-    while( isalnum(z[i]) ){
+    while( isalnum(z[i]) ){ 
       if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
       i++;
     }
@@ -802,7 +802,7 @@ static void popStackToTag(Renderer *p, int iTag){
 
 /*
 ** Attempt to find a find a tag of type iTag with id zId.  Return -1
-** if not found.  If found, return its stack level.
+** if not found.  If found, return its stack level.  
 */
 static int findTagWithId(Renderer *p, int iTag, const char *zId){
   int i;
@@ -892,7 +892,7 @@ static int is_ticket(
   zUpper[n-1]++;
   if( once ){
     const char *zClosedExpr = db_get("ticket-closed-expr", "status='Closed'");
-    db_static_prepare(&q,
+    db_static_prepare(&q, 
       "SELECT %s FROM ticket "
       " WHERE tkt_uuid>=:lwr AND tkt_uuid<:upr",
       zClosedExpr
@@ -920,6 +920,21 @@ static int is_ticket(
 ** Actually, this routine might or might not append the hyperlink, depending
 ** on current rendering rules: specifically does the current user have
 ** "History" permission.
+**
+**    [http://www.fossil-scm.org/]
+**    [https://www.fossil-scm.org/]
+**    [ftp://www.fossil-scm.org/]
+**    [mailto:fossil-users@lists.fossil-scm.org]
+**
+**    [/path]
+**
+**    [./relpath]
+**
+**    [WikiPageName]
+**
+**    [0123456789abcdef]
+**
+**    [#fragment]
 */
 static void openHyperlink(
   Renderer *p,            /* Rendering context */
@@ -930,9 +945,9 @@ static void openHyperlink(
   const char *zTerm = "</a>";
   assert( nClose>10 );
 
-  if( strncmp(zTarget, "http:", 5)==0
+  if( strncmp(zTarget, "http:", 5)==0 
    || strncmp(zTarget, "https:", 6)==0
-   || strncmp(zTarget, "ftp:", 4)==0
+   || strncmp(zTarget, "ftp:", 4)==0 
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
@@ -942,14 +957,14 @@ static void openHyperlink(
     }else{
       zTerm = "";
     }
-  }else if( zTarget[0]=='.' ){
+  }else if( zTarget[0]=='.' || zTarget[0]=='#' ){
     if( 1 /* g.okHistory */ ){
       blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
     }else{
       zTerm = "";
     }
   }else if( is_valid_uuid(zTarget) ){
-    int isClosed;
+    int isClosed = 0;
     if( is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
@@ -1160,7 +1175,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* Markup of the form </div id=ID> where there is a matching
         ** ID somewhere on the stack.  Exit the verbatim if were are in
-        ** it.  Pop the stack up to the matching <div>.  Discard the
+        ** it.  Pop the stack up to the matching <div>.  Discard the 
         ** </div>
         */
         if( markup.iCode==MARKUP_DIV && markup.endTag &&
@@ -1184,7 +1199,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* If within <verbatim id=ID> ignore everything other than
         ** </verbatim id=ID> and the </dev id=ID2> above.
-        */
+        */           
         if( p->inVerbatim ){
           if( endVerbatim(p, &markup) ){
             p->inVerbatim = 0;
@@ -1242,7 +1257,7 @@ static void wiki_render(Renderer *p, char *z){
 
         /* Enter <verbatim> processing.  With verbatim enabled, all other
         ** markup other than the corresponding end-tag with the same ID is
-        ** ignored.
+        ** ignored. 
         */
         if( markup.iCode==MARKUP_VERBATIM ){
           if( markup.nAttr==1 ){
@@ -1315,7 +1330,7 @@ static void wiki_render(Renderer *p, char *z){
 void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   char *z;
   Renderer renderer;
-
+  
   memset(&renderer, 0, sizeof(renderer));
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
   if( flags & WIKI_NOBLOCK ){
@@ -1353,6 +1368,32 @@ void test_wiki_render(void){
   blob_read_from_file(&in, g.argv[2]);
   wiki_convert(&in, &out, 0);
   blob_write_to_file(&out, "-");
+}
+
+/*
+** Search for a <title>...</title> at the beginning of a wiki page.
+** Return true (nonzero) if a title is found.  Return zero if there is
+** not title.
+** 
+** If a title is found, initialize the pTitle blob to be the content
+** of the title and initialize pTail to be the text that follows the
+** title.
+*/
+int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
+  char *z;
+  int i;
+  int iStart;
+  z = blob_str(pIn);
+  for(i=0; isspace(z[i]); i++){}
+  if( z[i]!='<' ) return 0;
+  i++;
+  if( strncmp(&z[i],"title>", 6)!=0 ) return 0;
+  iStart = i+6;
+  for(i=iStart; z[i] && (z[i]!='<' || strncmp(&z[i],"</title>",8)!=0); i++){}
+  if( z[i]!='<' ) return 0;
+  blob_init(pTitle, &z[iStart], i-iStart);
+  blob_init(pTail, &z[i+8], -1);
+  return 1;
 }
 
 

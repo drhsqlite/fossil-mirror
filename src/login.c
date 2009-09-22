@@ -81,10 +81,40 @@ static void redirect_to_g(void){
 }
 
 /*
-** WEBPAGE: /login
-** WEBPAGE: /logout
+** Check to see if the anonymous login is valid.  If it is valid, return
+** the userid of the anonymous user.
+*/
+static int isValidAnonymousLogin(
+  const char *zUsername,  /* The username.  Must be "anonymous" */
+  const char *zPassword   /* The supplied password */
+){
+  const char *zCS;        /* The captcha seed value */
+  const char *zPw;        /* The correct password shown in the captcha */
+  int uid;                /* The user ID of anonymous */
+
+  if( zUsername==0 ) return 0;
+  if( zPassword==0 ) return 0;
+  if( strcmp(zUsername,"anonymous")!=0 ) return 0;
+  zCS = P("cs");   /* The "cs" parameter is the "captcha seed" */
+  if( zCS==0 ) return 0;
+  zPw = captcha_decode((unsigned int)atoi(zCS));
+  if( strcasecmp(zPw, zPassword)!=0 ) return 0;
+  uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
+                  " AND length(pw)>0 AND length(cap)>0");
+  return uid;
+}
+
+/*
+** WEBPAGE: login
+** WEBPAGE: logout
+** WEBPAGE: my
 **
-** Generate the login page
+** Generate the login page.
+**
+** There used to be a page named "my" that was designed to show information
+** about a specific user.  The "my" page was linked from the "Logged in as USER"
+** line on the title bar.  The "my" page was never completed so it is now
+** removed.  Use this page as a placeholder in older installations.
 */
 void login_page(void){
   const char *zUsername, *zPasswd;
@@ -92,6 +122,7 @@ void login_page(void){
   const char *zAnonPw = 0;
   int anonFlag;
   char *zErrMsg = "";
+  int uid;                     /* User id loged in user */
 
   login_check_credentials();
   zUsername = P("u");
@@ -127,11 +158,35 @@ void login_page(void){
       return;
     }
   }
+  uid = isValidAnonymousLogin(zUsername, zPasswd);
+  if( uid>0 ){
+    char *zNow;                  /* Current time (julian day number) */
+    const char *zIpAddr;         /* IP address of requestor */
+    char *zCookie;               /* The login cookie */
+    const char *zCookieName;     /* Name of the login cookie */
+    Blob b;                      /* Blob used during cookie construction */
+
+    zIpAddr = PD("REMOTE_ADDR","nil");
+    zCookieName = login_cookie_name();
+    zNow = db_text("0", "SELECT julianday('now')");
+    blob_init(&b, zNow, -1);
+    blob_appendf(&b, "/%s/%s", zIpAddr, db_get("captcha-secret",""));
+    sha1sum_blob(&b, &b);
+    zCookie = sqlite3_mprintf("anon/%s/%s", zNow, blob_buffer(&b));
+    blob_reset(&b);
+    free(zNow);
+    cgi_set_cookie(zCookieName, zCookie, 0, 6*3600);
+    redirect_to_g();
+  }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
-    int uid = db_int(0,
+    uid = db_int(0,
         "SELECT uid FROM user"
-        " WHERE login=%Q AND pw=%Q", zUsername, zPasswd);
-    if( uid<=0 || strcmp(zUsername,"nobody")==0 ){
+        " WHERE login=%Q"
+        "   AND login NOT IN ('anonymous','nobody','developer','reader')"
+        "   AND pw=%Q",
+        zUsername, zPasswd
+    );
+    if( uid<=0 ){
       sleep(1);
       zErrMsg = 
          @ <p><font color="red">
@@ -145,17 +200,13 @@ void login_page(void){
       int expires = atoi(zExpire)*3600;
       const char *zIpAddr = PD("REMOTE_ADDR","nil");
  
-      if( strcmp(zUsername, "anonymous")==0 ){
-        cgi_set_cookie(zCookieName, "anonymous", 0, expires);
-      }else{
-        zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
-        cgi_set_cookie(zCookieName, zCookie, 0, expires);
-        db_multi_exec(
-          "UPDATE user SET cookie=%Q, ipaddr=%Q, "
-          "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-          zCookie, zIpAddr, expires, uid
-        );
-      }
+      zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
+      cgi_set_cookie(zCookieName, zCookie, 0, expires);
+      db_multi_exec(
+        "UPDATE user SET cookie=%Q, ipaddr=%Q, "
+        "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
+        zCookie, zIpAddr, expires, uid
+      );
       redirect_to_g();
     }
   }
@@ -182,11 +233,6 @@ void login_page(void){
     zAnonPw = db_text(0, "SELECT pw FROM user"
                          " WHERE login='anonymous'"
                          "   AND cap!=''");
-    if( zAnonPw && anonFlag ){
-      @ <tr><td></td>
-      @ <td>The anonymous password is "<b>%h(zAnonPw)</b>".</td>
-      @ </tr>
-    }
   }
   @ <tr>
   @   <td></td>
@@ -194,22 +240,26 @@ void login_page(void){
   @ </tr>
   @ </table>
   if( g.zLogin==0 ){
-    @ <p>To login
+    @ <p>Enter
   }else{
     @ <p>You are currently logged in as <b>%h(g.zLogin)</b></p>
-    @ <p>To change your login to a different user
+    @ <p>To change your login to a different user, enter
   }
-  @ enter the user-id and password at the left and press the
+  @ your user-id and password at the left and press the
   @ "Login" button.  Your user name will be stored in a browser cookie.
   @ You must configure your web browser to accept cookies in order for
   @ the login to take.</p>
-  if( g.zLogin==0 ){
-    if( zAnonPw && !anonFlag ){
-      @ <p>The password for user "anonymous" is "<b>%h(zAnonPw)</b>".</p>
-      @ <p>&nbsp;</p>
-    }else{
-      @ <p>&nbsp;</p><p>&nbsp;</p>
-    }
+  if( zAnonPw ){
+    unsigned int uSeed = captcha_seed();
+    char *zCaptcha = captcha_render(captcha_decode(uSeed));
+
+    @ <input type="hidden" name="cs" value="%u(uSeed)">
+    @ <p>Visitors may enter <b>anonymous</b> as the user-ID with
+    @ the 8-character hexadecimal password shown below:</p>
+    @ <center><table border="1" cellpadding="10"><tr><td><pre>
+    @ %s(zCaptcha)
+    @ </pre></td></tr></table></center>
+    free(zCaptcha);
   }
   if( g.zLogin ){
     @ <br clear="both"><hr>
@@ -252,8 +302,6 @@ void login_check_credentials(void){
   const char *zCookie;          /* Text of the login cookie */
   const char *zRemoteAddr;      /* IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
-  const char *zNcap;            /* Capabilities of user "nobody" */
-  const char *zAcap;            /* Capabllities of user "anonymous" */
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
@@ -280,6 +328,8 @@ void login_check_credentials(void){
   */
   if( uid==0 && (zCookie = P(login_cookie_name()))!=0 ){
     if( isdigit(zCookie[0]) ){
+      /* Cookies of the form "uid/randomness".  There must be a
+      ** corresponding entry in the user table. */
       uid = db_int(0, 
             "SELECT uid FROM user"
             " WHERE uid=%d"
@@ -288,49 +338,93 @@ void login_check_credentials(void){
             "   AND cexpire>julianday('now')",
             atoi(zCookie), zCookie, zRemoteAddr
          );
-    }else if( zCookie[0]=='a' ){
-      uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'");
+    }else if( memcmp(zCookie,"anon/",5)==0 ){
+      /* Cookies of the form "anon/TIME/HASH".  The TIME must not be
+      ** too old and the sha1 hash of TIME+IPADDR+SECRET must match HASH.
+      ** SECRET is the "captcha-secret" value in the repository.
+      */
+      double rTime;
+      int i;
+      Blob b;
+      rTime = atof(&zCookie[5]);
+      for(i=5; zCookie[i] && zCookie[i]!='/'; i++){}
+      blob_init(&b, &zCookie[5], i-5);
+      if( zCookie[i]=='/' ){ i++; }
+      blob_append(&b, "/", 1);
+      blob_appendf(&b, "%s/%s", zRemoteAddr, db_get("captcha-secret",""));
+      sha1sum_blob(&b, &b);
+      uid = db_int(0, 
+          "SELECT uid FROM user WHERE login='anonymous'"
+          " AND length(cap)>0"
+          " AND length(pw)>0"
+          " AND %f+0.25>julianday('now')"
+          " AND %Q=%Q",
+          rTime, &zCookie[i], blob_buffer(&b)
+      );
+      blob_reset(&b);
     }
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zCookie);
   }
 
+  /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
     if( uid==0 ){
+      /* If there is no user "nobody", then make one up - with no privileges */
       uid = -1;
       zCap = "";
     }
     strcpy(g.zCsrfToken, "none");
   }
+
+  /* At this point, we know that uid!=0.  Find the privileges associated
+  ** with user uid.
+  */
+  assert( uid!=0 );
   if( zCap==0 ){
-    if( uid ){
-      Stmt s;
-      db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
-      if( db_step(&s)==SQLITE_ROW ){
-        g.zLogin = db_column_malloc(&s, 0);
-        zCap = db_column_malloc(&s, 1);
-      }
-      db_finalize(&s);
+    Stmt s;
+    db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
+    if( db_step(&s)==SQLITE_ROW ){
+      g.zLogin = db_column_malloc(&s, 0);
+      zCap = db_column_malloc(&s, 1);
     }
+    db_finalize(&s);
     if( zCap==0 ){
       zCap = "";
     }
   }
+
+  /* Set the global variables recording the userid and login.  The
+  ** "nobody" user is a special case in that g.zLogin==0.
+  */
   g.userUid = uid;
   if( g.zLogin && strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
-  if( uid && g.zLogin ){
+
+  /* Set the capabilities */
+  login_set_capabilities(zCap);
+  login_set_anon_nobody_capabilities();
+}
+
+/*
+** Add the default privileges of users "nobody" and "anonymous" as appropriate
+** for the user g.zLogin.
+*/
+void login_set_anon_nobody_capabilities(void){
+  static int once = 1;
+  if( g.zLogin && once ){
+    const char *zCap;
     /* All logged-in users inherit privileges from "nobody" */
-    zNcap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
-    login_set_capabilities(zNcap);
+    zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
+    login_set_capabilities(zCap);
     if( strcmp(g.zLogin, "anonymous")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
-      zAcap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
-      login_set_capabilities(zAcap);
+      zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
+      login_set_capabilities(zCap);
     }
+    once = 0;
   }
-  login_set_capabilities(zCap);
 }
 
 /*
@@ -476,8 +570,8 @@ void login_insert_csrf_secret(void){
 /*
 ** Before using the results of a form, first call this routine to verify
 ** that ths Anti-CSRF token is present and is valid.  If the Anti-CSRF token
-** is missing or is incorrect, then this emits and error message and never
-** returns.
+** is missing or is incorrect, that indicates a cross-site scripting attach
+** so emits an error message and abort.
 */
 void login_verify_csrf_secret(void){
   const char *zCsrf;            /* The CSRF secret */

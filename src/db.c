@@ -622,22 +622,44 @@ void db_init_database(
 }
 
 /*
+** Open a database file.  Return a pointer to the new database
+** connection.  An error results in process abort.
+*/
+static sqlite3 *openDatabase(const char *zDbName){
+  int rc;
+  const char *zVfs;
+  sqlite3 *db;
+
+  zVfs = getenv("FOSSIL_VFS");
+#ifdef __MINGW32__
+  zDbName = mbcsToUtf8(zDbName);
+#endif
+  rc = sqlite3_open_v2(
+       zDbName, &db,
+       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+       zVfs
+  );
+  if( rc!=SQLITE_OK ){
+    db_err(sqlite3_errmsg(db));
+  }
+  sqlite3_busy_timeout(db, 5000); 
+  return db;
+}
+
+
+/*
 ** zDbName is the name of a database file.  If no other database
 ** file is open, then open this one.  If another database file is
 ** already open, then attach zDbName using the name zLabel.
 */
 void db_open_or_attach(const char *zDbName, const char *zLabel){
-#ifdef __MINGW32__
-  zDbName = mbcsToUtf8(zDbName);
-#endif
   if( !g.db ){
-    int rc = sqlite3_open(zDbName, &g.db);
-    if( rc!=SQLITE_OK ){
-      db_err(sqlite3_errmsg(g.db));
-    }
-    sqlite3_busy_timeout(g.db, 5000);
+    g.db = openDatabase(zDbName);
     db_connection_init();
   }else{
+#ifdef __MINGW32__
+    zDbName = mbcsToUtf8(zDbName);
+#endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
   }
 }
@@ -645,8 +667,16 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 /*
 ** Open the user database in "~/.fossil".  Create the database anew if
 ** it does not already exist.
+**
+** If the useAttach flag is 0 (the usual case) then the user database is
+** opened on a separate database connection g.dbConfig.  This prevents
+** the ~/.fossil database from becoming locked on long check-in or sync
+** operations which hold an exclusive transaction.  In a few cases, though,
+** it is convenient for the ~/.fossil to be attached to the main database
+** connection so that we can join between the various databases.  In that
+** case, invoke this routine with useAttach as 1.
 */
-void db_open_config(void){
+void db_open_config(int useAttach){
   char *zDbName;
   const char *zHome;
   if( g.configOpen ) return;
@@ -658,12 +688,17 @@ void db_open_config(void){
       zHome = getenv("HOMEPATH");
     }
   }
+  if( zHome==0 ){
+    db_err("cannot locate home directory - "
+           "please set the HOMEPATH environment variable");
+  }
 #else
   zHome = getenv("HOME");
-#endif
   if( zHome==0 ){
-    db_err("cannot local home directory");
+    db_err("cannot locate home directory - "
+           "please set the HOME environment variable");
   }
+#endif
 #ifdef __MINGW32__
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
@@ -673,7 +708,13 @@ void db_open_config(void){
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
-  db_open_or_attach(zDbName, "configdb");
+  g.useAttach = useAttach;
+  if( useAttach ){
+    db_open_or_attach(zDbName, "configdb");
+    g.dbConfig = 0;
+  }else{
+    g.dbConfig = openDatabase(zDbName);
+  }
   g.configOpen = 1;
 }
 
@@ -691,7 +732,7 @@ static int isValidLocalDb(const char *zDbName){
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
   g.localOpen = 1;
-  db_open_config();
+  db_open_config(0);
   db_open_repository(0);
 
   /* If the "mtime" column is missing from the vfile table, then
@@ -786,7 +827,7 @@ void db_open_repository(const char *zDbName){
   }
   if( access(zDbName, R_OK) || file_size(zDbName)<1024 ){
     if( access(zDbName, 0) ){
-      fossil_panic("repository does not exists or"
+      fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( access(zDbName, R_OK) ){
       fossil_panic("read permission denied for repository %s", zDbName);
@@ -893,11 +934,13 @@ void db_create_default_users(int setupUserOnly){
   if( !setupUserOnly ){
     db_multi_exec(
        "INSERT INTO user(login,pw,cap,info)"
-       "   VALUES('anonymous','anonymous','ghknw','Anon');"
+       "   VALUES('anonymous',hex(randomblob(8)),'ghmncz','Anon');"
        "INSERT INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','jor','Nobody');"
        "INSERT INTO user(login,pw,cap,info)"
-       "   VALUES('developer','','deipt','Dev');"
+       "   VALUES('developer','','dei','Dev');"
+       "INSERT INTO user(login,pw,cap,info)"
+       "   VALUES('reader','','kptw','Reader');"
     );
   }
 }
@@ -908,11 +951,12 @@ void db_create_default_users(int setupUserOnly){
 ** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
 ** new repositories.
 **
-** The makeInitialVersion flag determines whether or not an initial
-** manifest is created.  The makeServerCodes flag determines whether or
+** The zInitialDate parameter determines the date of the initial check-in
+** that is automatically created.  If zInitialDate is 0 then no initial
+** check-in is created. The makeServerCodes flag determines whether or
 ** not server and project codes are invented for this repository.
 */
-void db_initial_setup (int makeInitialVersion, int makeServerCodes){
+void db_initial_setup (const char *zInitialDate, int makeServerCodes){
   char *zDate;
   Blob hash;
   Blob manifest;
@@ -932,11 +976,11 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
   db_create_default_users(0);
   user_select();
 
-  if (makeInitialVersion){
+  if( zInitialDate ){
     int rid;
     blob_zero(&manifest);
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
-    zDate = db_text(0, "SELECT datetime('now')");
+    zDate = db_text(0, "SELECT datetime(%Q)", zInitialDate);
     zDate[10]='T';
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "P\n");
@@ -964,14 +1008,18 @@ void db_initial_setup (int makeInitialVersion, int makeServerCodes){
 */
 void create_repository_cmd(void){
   char *zPassword;
+  const char *zDate;          /* Date of the initial check-in */
+
+  zDate = find_option("date-override",0,1);
+  if( zDate==0 ) zDate = "now";
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
   }
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
-  db_open_config();
+  db_open_config(0);
   db_begin_transaction();
-  db_initial_setup(1, 1);
+  db_initial_setup(zDate, 1);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
@@ -1097,6 +1145,7 @@ char *db_reveal(const char *zKey){
 LOCAL void db_connection_init(void){
   static int once = 1;
   if( once ){
+    sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
     sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
     sqlite3_create_function(
       g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
@@ -1129,6 +1178,23 @@ int is_false(const char *zVal){
 }
 
 /*
+** Swap the g.db and g.dbConfig connections so that the various db_* routines
+** work on the ~/.fossil database instead of on the repository database.
+** Be sure to swap them back after doing the operation.
+**
+** If g.useAttach that means the ~/.fossil database was opened with
+** the useAttach flag set to 1.  In that case no connection swap is required
+** so this routine is a no-op.
+*/
+void db_swap_connections(void){
+  if( !g.useAttach ){
+    sqlite3 *dbTemp = g.db;
+    g.db = g.dbConfig;
+    g.dbConfig = dbTemp;
+  }
+}
+
+/*
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
@@ -1138,7 +1204,9 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
   if( z==0 && g.configOpen ){
+    db_swap_connections();
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
   }
   if( z==0 ){
     z = zDefault;
@@ -1147,8 +1215,15 @@ char *db_get(const char *zName, char *zDefault){
 }
 void db_set(const char *zName, const char *zValue, int globalFlag){
   db_begin_transaction();
-  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%Q)",
-                 globalFlag ? "global_" : "", zName, zValue);
+  if( globalFlag ){
+    db_swap_connections();
+    db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%Q)",
+                   zName, zValue);
+    db_swap_connections();
+  }else{
+    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+                   zName, zValue);
+  }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
@@ -1156,19 +1231,26 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
 }
 void db_unset(const char *zName, int globalFlag){
   db_begin_transaction();
-  db_multi_exec("DELETE FROM %sconfig WHERE name=%Q",
-                 globalFlag ? "global_" : "", zName);
+  if( globalFlag ){
+    db_swap_connections();
+    db_multi_exec("DELETE FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
+  }else{
+    db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
+  }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
   db_end_transaction(0);
 }
 int db_is_global(const char *zName){
+  int rc = 0;
   if( g.configOpen ){
-    return db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
-  }else{
-    return 0;
+    db_swap_connections();
+    rc = db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
   }
+  return rc;
 }
 int db_get_int(const char *zName, int dflt){
   int v = dflt;
@@ -1185,18 +1267,25 @@ int db_get_int(const char *zName, int dflt){
     rc = SQLITE_DONE;
   }
   if( rc==SQLITE_DONE && g.configOpen ){
+    db_swap_connections();
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
+    db_swap_connections();
   }
   return v;
 }
 void db_set_int(const char *zName, int value, int globalFlag){
-  db_begin_transaction();
-  db_multi_exec("REPLACE INTO %sconfig(name,value) VALUES(%Q,%d)",
-                globalFlag ? "global_" : "", zName, value);
+  if( globalFlag ){
+    db_swap_connections();
+    db_multi_exec("REPLACE INTO global_config(name,value) VALUES(%Q,%d)",
+                  zName, value);
+    db_swap_connections();
+  }else{
+    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%d)",
+                  zName, value);
+  }
   if( globalFlag && g.repositoryOpen ){
     db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
   }
-  db_end_transaction(0);
 }
 int db_get_boolean(const char *zName, int dflt){
   char *zVal = db_get(zName, dflt ? "on" : "off");
@@ -1234,30 +1323,38 @@ void db_record_repository_filename(const char *zName){
     zName = db_lget("repository", 0);
   }
   file_canonical_name(zName, &full);
+  db_swap_connections();
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
      "VALUES('repo:%q',1)",
      blob_str(&full)
   );
+  db_swap_connections();
   blob_reset(&full);
 }
 
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME
+** Usage: %fossil open FILENAME ?VERSION? ?--keep?
 **
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
+** If VERSION is specified then that version is checked out.  Otherwise
+** the latest version is checked out.  No files other than "manifest"
+** and "manifest.uuid" are modified if the --keep option is present.
+**
 ** See also the "close" command.
 */
 void cmd_open(void){
   Blob path;
   int vid;
-  static char *azNewArgv[] = { 0, "update", "--latest", 0 };
+  int keepFlag;
+  static char *azNewArgv[] = { 0, "checkout", "--latest", 0, 0, 0 };
   url_proxy_options();
-  if( g.argc!=3 ){
-    usage("REPOSITORY-FILENAME");
+  keepFlag = find_option("keep",0,0)!=0;
+  if( g.argc!=3 && g.argc!=4 ){
+    usage("REPOSITORY-FILENAME ?VERSION?");
   }
   if( db_open_local() ){
     fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
@@ -1273,10 +1370,19 @@ void cmd_open(void){
   if( vid==0 ){
     db_lset_int("checkout", 1);
   }else{
+    char **oldArgv = g.argv;
+    int oldArgc = g.argc;
     db_lset_int("checkout", vid);
+    azNewArgv[0] = g.argv[0];
     g.argv = azNewArgv;
     g.argc = 3;
-    update_cmd();
+    if( oldArgc==4 ){
+      azNewArgv[g.argc-1] = oldArgv[3];
+    }
+    if( keepFlag ){
+      azNewArgv[g.argc++] = "--keep";
+    }
+    checkout_cmd();
     g.argc = 2;
     info_cmd();
   }
@@ -1329,6 +1435,9 @@ static void print_setting(const char *zName){
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
 **
+**    dont-push        Prevent this repository from pushing from client to
+**                     server.  Useful when setting up a private branch.
+**
 **    editor           Text editor command used for check-in comments.
 **
 **    http-port        The TCP/IP port number to use by the "server"
@@ -1366,6 +1475,7 @@ void setting_cmd(void){
   static const char *azName[] = {
     "autosync",
     "diff-command",
+    "dont-push",
     "editor",
     "gdiff-command",
     "http-port",
@@ -1379,11 +1489,11 @@ void setting_cmd(void){
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
+  db_open_config(1);
   db_find_and_open_repository(0);
   if( !g.repositoryOpen ){
     globalFlag = 1;
   }
-  db_open_config();
   if( unsetFlag && g.argc!=3 ){
     usage("PROPERTY ?-global?");
   }
@@ -1410,167 +1520,4 @@ void setting_cmd(void){
   }else{
     usage("?PROPERTY? ?VALUE?");
   }
-}
-
-/*
-** SQL function to render a UUID as a hyperlink to a page describing
-** that UUID.
-*/
-static void hyperlinkUuidFunc(
-  sqlite3_context *pCxt,     /* function context */
-  int argc,                  /* number of arguments to the function */
-  sqlite3_value **argv       /* values of all function arguments */
-){
-  const char *zUuid;         /* The UUID to render */
-  char *z;                   /* Rendered HTML text */
-
-  zUuid = (const char*)sqlite3_value_text(argv[0]);
-  if( g.okHistory && zUuid && strlen(zUuid)>=10 ){
-    z = mprintf("<tt><a href='%s/info/%t'><span style='font-size:1.5em'>"
-                "%#h</span>%h</a></tt>",
-                g.zBaseURL, zUuid, 10, zUuid, &zUuid[10]);
-    sqlite3_result_text(pCxt, z, -1, free);
-  }else{
-    sqlite3_result_text(pCxt, zUuid, -1, SQLITE_TRANSIENT);
-  }
-}
-
-/*
-** SQL function to render a TAGID as a hyperlink to a page describing
-** that tag.
-*/
-static void hyperlinkTagidFunc(
-  sqlite3_context *pCxt,     /* function context */
-  int argc,                  /* number of arguments to the function */
-  sqlite3_value **argv       /* values of all function arguments */
-){
-  int tagid;                 /* The tagid to render */
-  char *z;                   /* rendered html text */
-
-  tagid = sqlite3_value_int(argv[0]);
-  if( g.okHistory ){
-    z = mprintf("<a href='%s/tagview?tagid=%d'>%d</a>", 
-                  g.zBaseURL, tagid, tagid);
-  }else{
-    z = mprintf("%d", tagid);
-  }
-  sqlite3_result_text(pCxt, z, -1, free);
-}
-
-/*
-** SQL function to render a TAGNAME as a hyperlink to a page describing
-** that tag.
-*/
-static void hyperlinkTagnameFunc(
-  sqlite3_context *pCxt,     /* function context */
-  int argc,                  /* number of arguments to the function */
-  sqlite3_value **argv       /* values of all function arguments */
-){
-  const char *zTag;          /* The tag to render */
-  char *z;                   /* rendered html text */
-
-  zTag = (const char*)sqlite3_value_text(argv[0]);
-  if( g.okHistory ){
-    z = mprintf("<a href='%s/tagview?name=%T&raw=y'>%h</a>", 
-                  g.zBaseURL, zTag, zTag);
-  }else{
-    z = mprintf("%h", zTag);
-  }
-  sqlite3_result_text(pCxt, z, -1, free);
-}
-
-/*
-** SQL function to escape all characters in a string that have special
-** meaning to HTML.
-*/
-static void htmlizeFunc(
-  sqlite3_context *pCxt,     /* function context */
-  int argc,                  /* number of arguments to the function */
-  sqlite3_value **argv       /* values of all function arguments */
-){
-  const char *zText;         /* Text to be htmlized */
-  char *z;                   /* rendered html text */
-
-  zText = (const char*)sqlite3_value_text(argv[0]);
-  z = htmlize(zText, -1);
-  sqlite3_result_text(pCxt, z, -1, free);
-}
-
-/*
-** This routine is a helper to run an SQL query and table-ize the
-** results.
-**
-** The zSql parameter should be a single, complete SQL statement.
-** Tableized output of the SQL statement is rendered back to the client.
-**
-** The isSafe flag is true if all query results have been processed 
-** by routines such as
-**
-**        linkuuid()
-**        linktagid()
-**        linktagname()
-**        htmlize()
-**
-** and are therefore safe for direct rendering.  If isSafe is false,
-** then all characters in the query result that have special meaning
-** to HTML are escaped.
-**
-** Returns SQLITE_OK on success and any other value on error.
-*/
-int db_generic_query_view(const char *zSql, int isSafe){
-  sqlite3_stmt *pStmt;
-  int rc;
-  int nCol, i;
-  int nRow;
-  const char *zRow;
-  static int once = 1;
-
-  /* Install the special functions on the first call to this routine */
-  if( once ){
-    once = 0;
-    sqlite3_create_function(g.db, "linkuuid", 1, SQLITE_UTF8, 0, 
-                            hyperlinkUuidFunc, 0, 0);
-    sqlite3_create_function(g.db, "linktagid", 1, SQLITE_UTF8, 0, 
-                            hyperlinkTagidFunc, 0, 0);
-    sqlite3_create_function(g.db, "linktagname", 1, SQLITE_UTF8, 0, 
-                            hyperlinkTagnameFunc, 0, 0);
-    sqlite3_create_function(g.db, "htmlize", 1, SQLITE_UTF8, 0, 
-                            htmlizeFunc, 0, 0);
-  }
-
-  /*
-  ** Use sqlite3_stmt directly rather than going through db_prepare(),
-  ** so that we can treat errors a non-fatal.
-  */
-  rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, 0);
-  if( SQLITE_OK != rc ){
-    @ <span style='color:red'>db_generic_query_view() SQL error:
-    @ %h(sqlite3_errmsg(g.db))</span>
-    return rc;
-  }
-  nCol = sqlite3_column_count(pStmt);
-  @ <table class='fossil_db_generic_query_view'><tbody>
-  @ <tr class='header'>
-  for(i=0; i<nCol; ++i){
-    @ <td>%h(sqlite3_column_name(pStmt,i))</td>
-  }
-  @ </tr>
-
-  nRow = 0;
-  while( SQLITE_ROW==sqlite3_step(pStmt) ){
-    const char *azClass[] = { "even", "odd" };
-    @ <tr class='%s(azClass[(nRow++)&1])'>
-      for(i=0; i<nCol; i++){
-        zRow = (char const*)sqlite3_column_text(pStmt,i);
-        if( isSafe ){
-          @ <td>%s(zRow)</td>
-        }else{
-          @ <td>%h(zRow)</td>
-        }
-      }
-    @ </tr>
-  }
-  @ </tbody></table>
-  sqlite3_finalize(pStmt);
-  return SQLITE_OK;
 }

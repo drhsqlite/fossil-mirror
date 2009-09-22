@@ -1,0 +1,80 @@
+<title>Deleting Content From Fossil</title>
+<h1 align="center">Deleting Content From Fossil</h1>
+
+Fossil is designed to keep all historical content forever.  Users
+of Fossil are discouraged from "deleting" content simply because it
+has become obsolete.  Old content is part of the historical record
+(part of the "fossil record") and should be maintained indefinitely.  
+Such is the design intent of Fossil.
+
+Nevertheless, there may occasionally arise legitimate reasons for
+deleting content.  Such reasons might include:
+
+  *  Spammers have inserted inappropriate content into a wiki page
+     or ticket that needs to be removed.
+
+  *  A file that contains trade secrets or that is under copyright
+     may have been accidentally committed and needs to be backed
+     out.
+
+  *  A malformed control artifact may have been inserted and is
+     disrupting the operation of Fossil.
+
+<h2>Shunning</h2>
+
+Fossil provides a mechanism called "shunning" for removing content from
+a repository.  
+
+Every Fossil repository maintains a list of the SHA1 hash names of
+"shunned" artifacts.
+Fossil will refuse to push or pull any shunned artifact.  
+Furthermore, all shunned artifacts (but not the shunning list
+itself) are removed from the
+repository whenever the repository is reconstructed using the
+"rebuild" command.
+
+<h3>Shunning lists are local state</h3>
+
+The shunning list is part of the local state of a Fossil repository.
+In other words, shunning does not propagate using the normal "sync"
+mechanism.  An artifact can be
+shunned from one repository but be allowed to exist in another.  The fact that
+the shunning list does not propagate is a security feature.  If the
+shunning list propagated then a malecious user (or
+a bug in the fossil code) might introduce a shun record that would
+propagate through all respositories in a network and permanently 
+destroy vital information.  By refusing to propagate the shunning list,
+Fossil insures that no remote user will ever be able to remove 
+information from your personal repositories without your permission.
+
+The shunning list does not propagate by the normal "sync" mechanism,
+but it is still possible to copy shuns from one repository to another
+using the "configuration" command:
+
+    <b>fossil configuration pull shun</b> <i>remote-url</i><br>
+    <b>fossil configuration push shun</b> <i>remote-url</i>
+
+The two command above will pull or push shunning lists from or to
+the <i>remote-url</i> indicated and merge the lists on the receiving
+end.  "Admin" privilege on the remote server is required in order to
+push a shun list.  
+
+Note that the shunning list remains in the respository even after the
+shunned artifact has been removed.  This is to prevent the artifact
+from being reintroduced into the repository the next time it syncs with
+another repository that has not shunned the artifact.
+
+<h3>Managing the shunning list</h3>
+
+The complete shunning list for a repository can be viewed by a user
+with "admin" privilege on the "/shunned" URL of the web interface to Fossil.  
+That URL is accessible under the "Admin" button on the default menu
+bar.  Items can be added to or removed from the shunning list.  "Sync"
+operations are inhibited as soon as the artifact is added to the
+shunning list, but the content of the artifact is not actually removed
+from the responstory until the next time the repository is rebuilt.
+
+When viewing individual artifacts with the web interface, "admin"
+users will usually see a "Shun" option in the submenu that will take
+them directly to the shunning page and enable that artifact to be
+shunned with a single additional mouse click.

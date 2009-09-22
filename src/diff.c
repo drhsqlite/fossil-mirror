@@ -78,7 +78,7 @@ struct DContext {
 ** Return 0 if the file is binary or contains a line that is
 ** too long.
 */
-static DLine *break_into_lines(const char *z, int *pnLine){
+static DLine *break_into_lines(const char *z, int n, int *pnLine){
   int nLine, i, j, k, x;
   unsigned int h, h2;
   DLine *a;
@@ -86,7 +86,7 @@ static DLine *break_into_lines(const char *z, int *pnLine){
   /* Count the number of lines.  Allocate space to hold
   ** the returned array.
   */
-  for(i=j=0, nLine=1; z[i]; i++, j++){
+  for(i=j=0, nLine=1; i<n; i++, j++){
     int c = z[i];
     if( c==0 ){
       return 0;
@@ -486,8 +486,8 @@ int *text_diff(
  
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
-  c.aFrom = break_into_lines(blob_str(pA_Blob), &c.nFrom);
-  c.aTo = break_into_lines(blob_str(pB_Blob), &c.nTo);
+  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob), &c.nFrom);
+  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob), &c.nTo);
   if( c.aFrom==0 || c.aTo==0 ){
     free(c.aFrom);
     free(c.aTo);
@@ -582,7 +582,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   int i;
 
   memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), &p->c.nTo);
+  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput), &p->c.nTo);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -609,7 +609,8 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   int lnTo;
 
   /* Prepare the parent file to be diffed */
-  p->c.aFrom = break_into_lines(blob_str(pParent), &p->c.nFrom);
+  p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
+                                &p->c.nFrom);
   if( p->c.aFrom==0 ){
     return 1;
   }

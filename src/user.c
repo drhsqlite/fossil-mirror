@@ -318,8 +318,10 @@ void user_select(void){
 
   if( attempt_user(getenv("USER")) ) return;
 
-  db_prepare(&s, "SELECT uid, login FROM user"
-                 " WHERE login NOT IN ('anonymous','nobody')");
+  db_prepare(&s,
+    "SELECT uid, login FROM user"
+    " WHERE login NOT IN ('anonymous','nobody','reader','developer')"
+  );
   if( db_step(&s)==SQLITE_ROW ){
     g.userUid = db_column_int(&s, 0);
     g.zLogin = mprintf("%s", db_column_text(&s, 1));

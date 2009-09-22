@@ -189,7 +189,11 @@ void update_cmd(void){
       undo_save(zName);
       vfile_to_disk(0, idt, 0);
     }else if( idt==0 && idv>0 ){
-      if( chnged ){
+      if( ridv==0 ){
+        /* Added in current checkout.  Continue to hold the file as
+        ** as an addition */
+        db_multi_exec("UPDATE vfile SET vid=%d WHERE id=%d", tid, idv);
+      }else if( chnged ){
         printf("CONFLICT %s\n", zName);
       }else{
         char *zFullPath;

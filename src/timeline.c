@@ -56,7 +56,7 @@ void hyperlink_to_uuid_with_mouseover(
   sprintf(zShortUuid, "%.10s", zUuid);
   if( g.okHistory ){
     @ <a onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'
-    @    href="%s(g.zBaseURL)/ci/%s(zUuid)">[%s(zShortUuid)]</a>
+    @    href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'>
     @ [%s(zShortUuid)]</b>
@@ -73,6 +73,36 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
     }else{
       @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&v2=%s(zV2)">[diff]</a>
     }
+  }
+}
+
+/*
+** Generate a hyperlink to a date & time.
+*/
+void hyperlink_to_date(const char *zDate, const char *zSuffix){
+  if( zSuffix==0 ) zSuffix = "";
+  if( g.okHistory ){
+    @ <a href="%s(g.zTop)/timeline?c=%T(zDate)">%s(zDate)</a>%s(zSuffix)
+  }else{
+    @ %s(zDate)%s(zSuffix)
+  }
+}
+
+/*
+** Generate a hyperlink to a user.  This will link to a timeline showing
+** events by that user.  If the date+time is specified, then the timeline
+** is centered on that date+time.
+*/
+void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
+  if( zSuf==0 ) zSuf = "";
+  if( g.okHistory ){
+    if( zD && zD[0] ){
+      @ <a href="%s(g.zTop)/timeline?c=%T(zD)&u=%T(zU)">%h(zU)</a>%s(zSuf)
+    }else{
+      @ <a href="%s(g.zTop)/timeline?u=%T(zU)">%h(zU)</a>%s(zSuf)
+    }
+  }else{
+    @ %s(zU)
   }
 }
 
@@ -104,6 +134,7 @@ int count_nonbranch_children(int pid){
 #if INTERFACE
 #define TIMELINE_ARTID    0x0001  /* Show artifact IDs on non-check-in lines */
 #define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
+#define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
 #endif
 
 /*
@@ -119,8 +150,10 @@ int count_nonbranch_children(int pid){
 **    6.  Number of parents
 **    7.  True if is a leaf
 **    8.  background color
-**    9.  type ("ci", "w")
+**    9.  type ("ci", "w", "t")
 **   10.  list of symbolic tags.
+**   11.  tagid for ticket or wiki
+**   12.  Short comment to user for repeated tickets and wiki
 */
 void www_print_timeline(
   Stmt *pQuery,          /* Query to implement the timeline */
@@ -130,9 +163,11 @@ void www_print_timeline(
   int wikiFlags;
   int mxWikiLen;
   Blob comment;
+  int prevTagid = 0;
+  int suppressCnt = 0;
   char zPrevDate[20];
-  zPrevDate[0] = 0;
 
+  zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( db_get_boolean("timeline-block-markup", 0) ){
     wikiFlags = WIKI_INLINE;
@@ -157,6 +192,29 @@ void www_print_timeline(
     const char *zType = db_column_text(pQuery, 9);
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 10);
+    int tagid = db_column_int(pQuery, 11);
+    int commentColumn = 3;    /* Column containing comment text */
+    if( tagid ){
+      if( tagid==prevTagid ){
+        if( tmFlags & TIMELINE_BRIEF ){
+          suppressCnt++;
+          continue;
+        }else{
+          commentColumn = 12;
+        }
+      }
+    }
+    prevTagid = tagid;
+    if( suppressCnt ){
+      @ <tr><td><td><td>
+      @ <small><i>... %d(suppressCnt) similar
+      @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+      suppressCnt = 0;
+    }
+    if( strcmp(zType,"div")==0 ){
+      @ <tr><td colspan=3><hr></td></tr>
+      continue;
+    }
     db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
@@ -207,7 +265,7 @@ void www_print_timeline(
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }
-    db_column_blob(pQuery, 3, &comment);
+    db_column_blob(pQuery, commentColumn, &comment);
     if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
       Blob truncated;
       blob_zero(&truncated);
@@ -248,7 +306,9 @@ static void timeline_temp_table(void){
     @   isleaf BOOLEAN,
     @   bgcolor TEXT,
     @   etype TEXT,
-    @   taglist TEXT
+    @   taglist TEXT,
+    @   tagid INTEGER,
+    @   short TEXT
     @ )
   ;
   db_multi_exec(zSql);
@@ -279,7 +339,9 @@ const char *timeline_query_for_www(void){
     @   event.type,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
-    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0)
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
+    @   tagid,
+    @   brief
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -303,6 +365,26 @@ static void timeline_submenu(
                         url_render(pUrl, zParam, zValue, zRemove, 0));
 }
 
+
+/*
+** zDate is a localtime date.  Insert records into the
+** "timeline" table to cause <hr> to be inserted before and after
+** entries of that date.
+*/
+static void timeline_add_dividers(const char *zDate){
+  db_multi_exec(
+    "INSERT INTO timeline(rid,timestamp,etype)"
+    "VALUES(-1,datetime(%Q,'-1 second') || '.9','div')",
+    zDate
+  );
+  db_multi_exec(
+    "INSERT INTO timeline(rid,timestamp,etype)"
+    "VALUES(-2,datetime(%Q) || '.1','div')",
+     zDate
+  );
+}
+
+
 /*
 ** WEBPAGE: timeline
 **
@@ -310,6 +392,7 @@ static void timeline_submenu(
 **
 **    a=TIMESTAMP    after this date
 **    b=TIMESTAMP    before this date.
+**    c=TIMESTAMP    "circa" this date.
 **    n=COUNT        number of events in output
 **    p=RID          artifact RID and up to COUNT parents and ancestors
 **    d=RID          artifact RID and up to COUNT descendants
@@ -336,9 +419,11 @@ void page_timeline(void){
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
   const char *zBefore = P("b");      /* Events before this time */
+  const char *zCirca = P("c");       /* Events near this time */
   const char *zTagName = P("t");     /* Show events with this tag */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
+  int tmFlags;                       /* Timeline flags */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -348,6 +433,11 @@ void page_timeline(void){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
   }else{
     tagid = 0;
+  }
+  if( zType[0]=='a' ){
+    tmFlags = TIMELINE_BRIEF;
+  }else{
+    tmFlags = 0;
   }
 
   style_header("Timeline");
@@ -362,7 +452,10 @@ void page_timeline(void){
     char *zUuid;
     int np, nd;
 
-    if( p_rid && d_rid && p_rid!=d_rid ) p_rid = d_rid;
+    if( p_rid && d_rid ){
+      if( p_rid!=d_rid ) p_rid = d_rid;
+      if( P("n")==0 ) nEntry = 10;
+    }
     db_multi_exec(
        "CREATE TEMP TABLE IF NOT EXISTS ok(rid INTEGER PRIMARY KEY)"
     );
@@ -371,28 +464,38 @@ void page_timeline(void){
     blob_appendf(&sql, " AND event.objid IN ok");
     nd = 0;
     if( d_rid ){
-      compute_descendants(d_rid, nEntry);
+      compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
       if( nd>0 ){
         db_multi_exec("%s", blob_str(&sql));
         blob_appendf(&desc, "%d descendants", nd);
       }
+      timeline_add_dividers(  
+        db_text("1","SELECT datetime(mtime,'localtime') FROM event"
+                    " WHERE objid=%d", d_rid)
+      );
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
-      compute_ancestors(p_rid, nEntry);
+      compute_ancestors(p_rid, nEntry+1);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
         blob_appendf(&desc, "%d ancestors", np);
         db_multi_exec("%s", blob_str(&sql));
       }
+      if( d_rid==0 ){
+        timeline_add_dividers(  
+          db_text("1","SELECT datetime(mtime,'localtime') FROM event"
+                      " WHERE objid=%d", p_rid)
+        );
+      }
     }
     if( g.okHistory ){
       blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
                    g.zBaseURL, zUuid, zUuid);
     }else{
-      blob_appendf(&desc, " of [%.10s]", zUuid);
+      blob_appendf(&desc, " of check-in [%.10s]", zUuid);
     }
   }else{
     int n;
@@ -444,6 +547,28 @@ void page_timeline(void){
        }else{
         zBefore = 0;
       }
+    }else if( zCirca ){
+      while( isspace(zCirca[0]) ){ zCirca++; }
+      if( zCirca[0] ){
+        double rCirca = db_double(0.0, "SELECT julianday(%Q, 'utc')", zCirca);
+        Blob sql2;
+        blob_init(&sql2, blob_str(&sql), -1);
+        blob_appendf(&sql2,
+            " AND event.mtime<=%f ORDER BY event.mtime DESC LIMIT %d",
+            rCirca, (nEntry+1)/2
+        );
+        db_multi_exec("%s", blob_str(&sql2));
+        blob_reset(&sql2);
+        blob_appendf(&sql,
+            " AND event.mtime>=%f ORDER BY event.mtime ASC",
+            rCirca
+        );
+        nEntry -= (nEntry+1)/2;
+        timeline_add_dividers(zCirca);
+        url_add_parameter(&url, "c", zCirca);
+      }else{
+        zCirca = 0;
+      }
     }else{
       blob_appendf(&sql, " ORDER BY event.mtime DESC");
     }
@@ -454,7 +579,7 @@ void page_timeline(void){
     if( n<nEntry && zAfter ){
       cgi_redirect(url_render(&url, "a", 0, "b", 0));
     }
-    if( zAfter==0 && zBefore==0 ){
+    if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
@@ -469,6 +594,8 @@ void page_timeline(void){
       blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
     }else if( zBefore ){
       blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
+    }else if( zCirca ){
+      blob_appendf(&desc, " occurring around %h.<br>", zCirca);
     }
     if( g.okHistory ){
       if( zAfter || n==nEntry ){
@@ -506,7 +633,7 @@ void page_timeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
-  www_print_timeline(&q, 0, 0);
+  www_print_timeline(&q, tmFlags, 0);
   db_finalize(&q);
 
   @ <script>

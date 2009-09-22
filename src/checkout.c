@@ -73,7 +73,10 @@ int load_vfile(const char *zName){
   }
   vid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
   if( vid==0 ){
-    fossil_panic("no such version: %s", g.argv[2]);
+    fossil_fatal("no such check-in: %s", g.argv[2]);
+  }
+  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", vid) ){
+    fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
   }
   load_vfile_from_rid(vid);
   return vid;
@@ -137,25 +140,35 @@ void manifest_to_disk(int vid){
 ** COMMAND: checkout
 ** COMMAND: co
 **
-** Usage: %fossil checkout VERSION ?-f|--force?
+** Usage: %fossil checkout VERSION ?-f|--force? ?--keep?
 **
 ** Check out a version specified on the command-line.  This command
-** will not overwrite edited files in the current checkout unless
-** the --force option appears on the command-line.
+** will abort if there are edited files in the current checkout unless
+** the --force option appears on the command-line.  The --keep option
+** leaves files on disk unchanged, except the manifest and manifest.uuid
+** files.
+**
+** The --latest flag can be used in place of VERSION to checkout the
+** latest version in the repository.
 **
 ** See also the "update" command.
 */
 void checkout_cmd(void){
-  int forceFlag;
-  int noWrite;
+  int forceFlag;                 /* Force checkout even if edits exist */
+  int keepFlag;                  /* Do not change any files on disk */
+  int latestFlag;                /* Checkout the latest version */
+  char *zVers;                   /* Version to checkout */
   int vid, prior;
   Blob cksum1, cksum1b, cksum2;
   
   db_must_be_within_tree();
   db_begin_transaction();
   forceFlag = find_option("force","f",0)!=0;
-  noWrite = find_option("dontwrite",0,0)!=0;
-  if( g.argc!=3 ) usage("?--force? VERSION");
+  keepFlag = find_option("keep",0,0)!=0;
+  latestFlag = find_option("latest",0,0)!=0;
+  if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
+     usage("VERSION|--latest ?--force? ?--keep?");
+  }
   if( !forceFlag && unsaved_changes()==1 ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
@@ -165,30 +178,61 @@ void checkout_cmd(void){
   }else{
     prior = db_lget_int("checkout",0);
   }
-  vid = load_vfile(g.argv[2]);
+  if( latestFlag ){
+    compute_leaves(db_lget_int("checkout",0), 1);
+    zVers = db_text(0, "SELECT uuid FROM leaves, event, blob"
+                       " WHERE event.objid=leaves.rid AND blob.rid=leaves.rid"
+                       " ORDER BY event.mtime DESC");
+    if( zVers==0 ){
+      fossil_fatal("cannot locate \"latest\" checkout");
+    }
+  }else{
+    zVers = g.argv[2];
+  }
+  vid = load_vfile(zVers);
   if( prior==vid ){
     return;
   }
-  if( !noWrite ){
+  if( !keepFlag ){
     uncheckout(prior);
   }
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
-  if( !noWrite ){
+  if( !keepFlag ){
     vfile_to_disk(vid, 0, 1);
-    manifest_to_disk(vid);
-    db_lset_int("checkout", vid);
-    undo_reset();
   }
+  manifest_to_disk(vid);
+  db_lset_int("checkout", vid);
+  undo_reset();
   db_multi_exec("DELETE FROM vmerge");
-  vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);
-  vfile_aggregate_checksum_disk(vid, &cksum2);
-  if( blob_compare(&cksum1, &cksum2) ){
-    printf("WARNING: manifest checksum does not agree with disk\n");
-  }
-  if( blob_compare(&cksum1, &cksum1b) ){
-    printf("WARNING: manifest checksum does not agree with manifest\n");
+  if( !keepFlag ){
+    vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);
+    vfile_aggregate_checksum_disk(vid, &cksum2);
+    if( blob_compare(&cksum1, &cksum2) ){
+      printf("WARNING: manifest checksum does not agree with disk\n");
+    }
+    if( blob_compare(&cksum1, &cksum1b) ){
+      printf("WARNING: manifest checksum does not agree with manifest\n");
+    }
   }
   db_end_transaction(0);
+}
+
+/*
+** Unlink the local database file
+*/
+void unlink_local_database(void){
+  static const char *azFile[] = {
+     "%s_FOSSIL_",
+     "%s_FOSSIL_-journal",
+     "%s.fos",
+     "%s.fos-journal",
+  };
+  int i;
+  for(i=0; i<sizeof(azFile)/sizeof(azFile[0]); i++){
+    char *z = mprintf(azFile[i], g.zLocalRoot);
+    unlink(z);
+    free(z);
+  }
 }
 
 /*
@@ -207,6 +251,5 @@ void close_cmd(void){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   db_close();
-  unlink(mprintf("%s_FOSSIL_", g.zLocalRoot));
-  unlink(mprintf("%s_FOSSIL_-journal", g.zLocalRoot));
+  unlink_local_database();
 }

@@ -208,6 +208,7 @@ int rebuild_db(int randomize, int doOut){
   bag_init(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
+  printf("0 (0%%)...\r"); fflush(stdout);
   db_multi_exec(zSchemaUpdates);
   for(;;){
     zTable = db_text(0,
@@ -242,6 +243,7 @@ int rebuild_db(int randomize, int doOut){
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
   );
+  manifest_crosslink_begin();
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
@@ -271,6 +273,7 @@ int rebuild_db(int randomize, int doOut){
     }
   }
   db_finalize(&s);
+  manifest_crosslink_end();
   rebuild_tag_trunk();
   if( ttyOutput ){
     printf("\n");
@@ -281,7 +284,7 @@ int rebuild_db(int randomize, int doOut){
 /*
 ** COMMAND:  rebuild
 **
-** Usage: %fossil rebuild REPOSITORY
+** Usage: %fossil rebuild ?REPOSITORY?
 **
 ** Reconstruct the named repository database from the core
 ** records.  Run this command after updating the fossil
@@ -294,10 +297,16 @@ void rebuild_database(void){
 
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
-  if( g.argc!=3 ){
-    usage("REPOSITORY-FILENAME");
+  if( g.argc==3 ){
+    db_open_repository(g.argv[2]);
+  }else{
+    db_find_and_open_repository(1);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close();
+    db_open_repository(g.zRepositoryName);
   }
-  db_open_repository(g.argv[2]);
   db_begin_transaction();
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1);
@@ -329,4 +338,65 @@ void test_detach_cmd(void){
     " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
   );
   db_end_transaction(0);
+}
+
+/*
+** COMMAND: scrub
+** %fossil scrub [--verily] [--force] [REPOSITORY]
+**
+** The command removes sensitive information (such as passwords) from a
+** repository so that the respository can be sent to an untrusted reader.
+**
+** By default, only passwords are removed.  However, if the --verily option
+** is added, then private branches, concealed email addresses, IP
+** addresses of correspondents, and similar privacy-sensitive fields
+** are also purged.
+**
+** This command permanently deletes the scrubbed information.  The effects
+** of this command are irreversible.  Use with caution.
+**
+** The user is prompted to confirm the scrub unless the --force option
+** is used.
+*/
+void scrub_cmd(void){
+  int bVerily = find_option("verily",0,0)!=0;
+  int bForce = find_option("force", "f", 0)!=0;
+  int bNeedRebuild = 0;
+  if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
+  if( g.argc==2 ){
+    db_must_be_within_tree();
+  }else{
+    db_open_repository(g.argv[2]);
+  }
+  if( !bForce ){
+    Blob ans;
+    blob_zero(&ans);
+    prompt_user("Scrubbing the repository will permanently remove user\n"
+                "passwords and other information. Changes cannot be undone.\n"
+                "Continue [y/N]? ", &ans);
+    if( blob_str(&ans)[0]!='y' ){
+      exit(1);
+    }
+  }
+  db_begin_transaction();
+  db_multi_exec(
+    "UPDATE user SET pw='';"
+    "DELETE FROM config WHERE name='last-sync-url';"
+  );
+  if( bVerily ){
+    bNeedRebuild = db_exists("SELECT 1 FROM private");
+    db_multi_exec(
+      "DELETE FROM concealed;"
+      "UPDATE rcvfrom SET ipaddr='unknown';"
+      "UPDATE user SET photo=NULL, info='';"
+      "INSERT INTO shun SELECT uuid FROM blob WHERE rid IN private;"
+    );
+  }
+  if( !bNeedRebuild ){
+    db_end_transaction(0);
+    db_multi_exec("VACUUM;");
+  }else{
+    rebuild_db(0, 1);
+    db_end_transaction(0);
+  }
 }

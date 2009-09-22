@@ -8,12 +8,12 @@
 #
 set src {
   add
-  admin
   allrepo
   bag
   blob
   branch
   browse
+  captcha
   cgi
   checkin
   checkout
@@ -43,7 +43,6 @@ set src {
   md5
   merge
   merge3
-  my_page
   name
   pivot
   pqueue
@@ -60,7 +59,6 @@ set src {
   style
   sync
   tag
-  tagview
   th_main
   timeline
   tkt
@@ -150,10 +148,10 @@ $(APPNAME):	headers $(OBJ) sqlite3.o th.o th_lang.o
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:
+$(SRCDIR)/../manifest:	
 	# noop
 
-clean:
+clean:	
 	rm -f *.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers}
 
@@ -179,8 +177,8 @@ puts "Makefile:"
 set extra_h(main) page_index.h
 
 foreach s [lsort $src] {
-  puts "${s}_.c:\t\$(SRCDIR)/$s.c \$(SRCDIR)/VERSION translate"
-  puts "\t./translate \$(SRCDIR)/$s.c | sed -f \$(SRCDIR)/VERSION >${s}_.c\n"
+  puts "${s}_.c:\t\$(SRCDIR)/$s.c translate"
+  puts "\t./translate \$(SRCDIR)/$s.c >${s}_.c\n"
   puts "$s.o:\t${s}_.c $s.h $extra_h($s) \$(SRCDIR)/config.h"
   puts "\t\$(XTCC) -o $s.o -c ${s}_.c\n"
   puts "$s.h:\theaders"
@@ -190,9 +188,10 @@ foreach s [lsort $src] {
 
 
 puts "sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
-set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_PRIVATE=}
+set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
-append opt " -DSQLITE_ENABLE_FTS3=1 -Dlocaltime=fossil_localtime"
+#append opt " -DSQLITE_ENABLE_FTS3=1"
+append opt " -Dlocaltime=fossil_localtime"
 puts "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o sqlite3.o\n"
 
 puts "th.o:\t\$(SRCDIR)/th.c"

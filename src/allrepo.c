@@ -57,7 +57,7 @@ static char *quoteFilename(const char *zFilename){
 /*
 ** COMMAND: all
 **
-** Usage: %fossil all (list|pull|push|rebuild|sync)
+** Usage: %fossil all (list|ls|pull|push|rebuild|sync)
 **
 ** The ~/.fossil file records the location of all repositories for a
 ** user.  This command performs certain operations on all repositories
@@ -65,6 +65,8 @@ static char *quoteFilename(const char *zFilename){
 ** Available operations are:
 **
 **    list       Display the location of all repositories
+**
+**    ls         An alias for "list"
 **
 **    pull       Run a "pull" operation on all repositories
 **
@@ -88,12 +90,14 @@ void all_cmd(void){
   int nMissing;
   
   if( g.argc<3 ){
-    usage("list|pull|push|rebuild|sync");
+    usage("list|ls|pull|push|rebuild|sync");
   }
   n = strlen(g.argv[2]);
-  db_open_config();
+  db_open_config(1);
   zCmd = g.argv[2];
   if( strncmp(zCmd, "list", n)==0 ){
+    zCmd = "list";
+  }else if( strncmp(zCmd, "ls", n)==0 ){ /* alias for "list" above */
     zCmd = "list";
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
@@ -105,7 +109,7 @@ void all_cmd(void){
     zCmd = "sync -autourl -R";
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "list push pull rebuild sync");
+                 "list ls push pull rebuild sync");
   }
   zFossil = quoteFilename(g.argv[0]);
   nMissing = 0;
@@ -125,7 +129,7 @@ void all_cmd(void){
     zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
     printf("%s\n", zSyscmd);
     fflush(stdout);
-    system(zSyscmd);
+    portable_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
   }

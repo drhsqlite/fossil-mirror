@@ -47,7 +47,7 @@ int clearsign(Blob *pIn, Blob *pOut){
   zIn = mprintf("in-%z", zRand);
   blob_write_to_file(pIn, zOut);
   zCmd = mprintf("%s %s %s", zBase, zIn, zOut);
-  rc = system(zCmd);
+  rc = portable_system(zCmd);
   free(zCmd);
   if( rc==0 ){
     if( pOut==pIn ){

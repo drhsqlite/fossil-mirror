@@ -99,6 +99,9 @@ static void remote_has(int rid){
 **
 ** If any error occurs, write a message into pErr which has already
 ** be initialized to an empty string.
+**
+** Any artifact successfully received by this routine is considered to
+** be public and is therefore removed from the "private" table.
 */
 static void xfer_accept_file(Xfer *pXfer){
   int n;
@@ -127,10 +130,10 @@ static void xfer_accept_file(Xfer *pXfer){
     Blob src;
     srcid = rid_from_uuid(&pXfer->aToken[2], 1);
     if( content_get(srcid, &src)==0 ){
-      content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
-      blob_appendf(pXfer->pOut, "gimme %b\n", &pXfer->aToken[2]);
-      pXfer->nGimmeSent++;
+      rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
       pXfer->nDanglingFile++;
+      db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
+      content_make_public(rid);
       return;
     }
     pXfer->nDeltaRcvd++;
@@ -148,7 +151,7 @@ static void xfer_accept_file(Xfer *pXfer){
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
   }else{
-    /* db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid); */
+    content_make_public(rid);
     manifest_crosslink(rid, &content);
   }
   remote_has(rid);
@@ -159,6 +162,8 @@ static void xfer_accept_file(Xfer *pXfer){
 ** If successful, return the number of bytes in the delta.
 ** If we cannot generate an appropriate delta, then send
 ** nothing and return zero.
+**
+** Never send a delta against a private artifact.
 */
 static int send_delta_parent(
   Xfer *pXfer,            /* The transfer context */
@@ -187,7 +192,7 @@ static int send_delta_parent(
   for(i=0; srcId==0 && i<count(azQuery); i++){
     srcId = db_int(0, azQuery[i], rid);
   }
-  if( srcId>0 && content_get(srcId, &src) ){
+  if( srcId>0 && !content_is_private(srcId) && content_get(srcId, &src) ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", srcId);
     blob_delta_create(&src, pContent, &delta);
     size = blob_size(&delta);
@@ -212,6 +217,8 @@ static int send_delta_parent(
 ** If successful, return the number of bytes in the delta.
 ** If we cannot generate an appropriate delta, then send
 ** nothing and return zero.
+**
+** Never send a delta against a private artifact.
 */
 static int send_delta_native(
   Xfer *pXfer,            /* The transfer context */
@@ -223,7 +230,7 @@ static int send_delta_native(
   int srcId;
 
   srcId = db_int(0, "SELECT srcid FROM delta WHERE rid=%d", rid);
-  if( srcId>0 ){
+  if( srcId>0 && !content_is_private(srcId) ){
     blob_zero(&src);
     db_blob(&src, "SELECT uuid FROM blob WHERE rid=%d", srcId);
     if( uuid_is_shunned(blob_str(&src)) ){
@@ -253,11 +260,16 @@ static int send_delta_native(
 **
 ** Try to send the file as a native delta if nativeDelta is true, or
 ** as a parent delta if nativeDelta is false.
+**
+** It should never be the case that rid is a private artifact.  But
+** as a precaution, this routine does check on rid and if it is private
+** this routine becomes a no-op.
 */
 static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   Blob content, uuid;
   int size = 0;
 
+  if( content_is_private(rid) ) return;
   if( db_exists("SELECT 1 FROM onremote WHERE rid=%d", rid) ){
      return;
   }
@@ -311,12 +323,16 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
 
 /*
 ** Send a gimme message for every phantom.
+**
+** It should not be possible to have a private phantom.  But just to be
+** sure, take care not to send any "gimme" messagse on private artifacts.
 */
 static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
   db_prepare(&q, 
     "SELECT uuid FROM phantom JOIN blob USING(rid)"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
   );
   while( db_step(&q)==SQLITE_ROW && maxReq-- > 0 ){
     const char *zUuid = db_column_text(&q, 0);
@@ -368,9 +384,15 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 */
 void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   Stmt q;
-  int rc;
+  int rc = -1;
 
-  db_prepare(&q, "SELECT pw, cap, uid FROM user WHERE login=%B", pLogin);
+  db_prepare(&q,
+     "SELECT pw, cap, uid FROM user"
+     " WHERE login=%B"
+     "   AND login NOT IN ('anonymous','nobody','developer','reader')"
+     "   AND length(pw)>0",
+     pLogin
+  );
   if( db_step(&q)==SQLITE_ROW ){
     Blob pw, combined, hash;
     blob_zero(&pw);
@@ -393,6 +415,11 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     }
   }
   db_finalize(&q);
+
+  if( rc==0 ){
+    /* If the login was successful. */
+    login_set_anon_nobody_capabilities();
+  }
 }
 
 /*
@@ -404,7 +431,7 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
 */
 static void send_unsent(Xfer *pXfer){
   Stmt q;
-  db_prepare(&q, "SELECT rid FROM unsent");
+  db_prepare(&q, "SELECT rid FROM unsent EXCEPT SELECT rid FROM private");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     send_file(pXfer, rid, 0, 0);
@@ -423,6 +450,13 @@ static void create_cluster(void){
   Blob cluster, cksum;
   Stmt q;
   int nUncl;
+
+  /* We should not ever get any private artifacts in the unclustered table.
+  ** But if we do (because of a bug) now is a good time to delete them. */
+  db_multi_exec(
+    "DELETE FROM unclustered WHERE rid IN (SELECT rid FROM private)"
+  );
+
   nUncl = db_int(0, "SELECT count(*) FROM unclustered"
                     " WHERE NOT EXISTS(SELECT 1 FROM phantom"
                                       " WHERE rid=unclustered.rid)");
@@ -458,6 +492,7 @@ static int send_unclustered(Xfer *pXfer){
   db_prepare(&q, 
     "SELECT uuid FROM unclustered JOIN blob USING(rid)"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
@@ -475,6 +510,7 @@ static void send_all(Xfer *pXfer){
   db_prepare(&q, 
     "SELECT uuid FROM blob "
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
@@ -534,6 +570,9 @@ void page_xfer(void){
   int size;
   int recvConfig = 0;
 
+  if( strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
+     fossil_redirect_home();
+  }
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);
@@ -547,6 +586,7 @@ void page_xfer(void){
   db_multi_exec(
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
+  manifest_crosslink_begin();
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
@@ -798,6 +838,7 @@ void page_xfer(void){
   if( recvConfig ){
     configure_finalize_receive();
   }
+  manifest_crosslink_end();
   db_end_transaction(0);
 }
 
@@ -865,12 +906,18 @@ void client_sync(
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
+  int nSent, nRcvd;       /* Bytes sent and received (after compression) */
   Blob send;              /* Text we are sending to the server */
   Blob recv;              /* Reply we got back from the server */
   Xfer xfer;              /* Transfer data */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
 
+  if( db_get_boolean("dont-push", 0) ) pushFlag = 0;
+  if( pushFlag + pullFlag + cloneFlag == 0 
+     && configRcvMask==0 && configSendMask==0 ) return;
+
+  transport_stats(0, 0, 1);
   socket_global_init();
   memset(&xfer, 0, sizeof(xfer));
   xfer.pIn = &recv;
@@ -907,6 +954,7 @@ void client_sync(
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
     nCard++;
   }
+  manifest_crosslink_begin();
   printf(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
 
   while( go ){
@@ -960,11 +1008,9 @@ void client_sync(
     }
 
     /* Append randomness to the end of the message */
-#if 1   /* Enable this after all servers have upgraded */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
-#endif
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
@@ -1039,7 +1085,9 @@ void client_sync(
        && blob_is_uuid(&xfer.aToken[1])
       ){
         int rid = rid_from_uuid(&xfer.aToken[1], 0);
-        if( rid==0 && (pullFlag || cloneFlag) ){
+        if( rid>0 ){
+          content_make_public(rid);
+        }else if( pullFlag || cloneFlag ){
           rid = content_new(blob_str(&xfer.aToken[1]));
           if( rid ) newPhantom = 1;
         }
@@ -1136,6 +1184,12 @@ void client_sync(
 
       /* Unknown message */
       {
+        if( blob_str(&xfer.aToken[0])[0]=='<' ){
+          fossil_fatal(
+            "server replies with HTML instead of fossil sync protocol:\n%b",
+            &recv
+          );
+        }
         blob_appendf(&xfer.err, "unknown command: %b", &xfer.aToken[0]);
       }
 
@@ -1177,8 +1231,12 @@ void client_sync(
       go = 1;
     }
   };
+  transport_stats(&nSent, &nRcvd, 1);
+  printf("Total network traffic: %d bytes sent, %d bytes received\n",
+         nSent, nRcvd);
   transport_close();
   socket_global_shutdown();
   db_multi_exec("DROP TABLE onremote");
+  manifest_crosslink_end();
   db_end_transaction(0);
 }

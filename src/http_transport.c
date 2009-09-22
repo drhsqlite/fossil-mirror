@@ -38,11 +38,13 @@ static struct {
   int nAlloc;             /* Space allocated for transportBuf[] */
   int nUsed ;             /* Space of transportBuf[] used */
   int iCursor;            /* Next unread by in transportBuf[] */
+  int nSent;              /* Number of bytes sent */
+  int nRcvd;              /* Number of bytes received */
   FILE *pFile;            /* File I/O for FILE: */
   char *zOutFile;         /* Name of outbound file for FILE: */
   char *zInFile;          /* Name of inbound file for FILE: */
 } transport = {
-  0, 0, 0, 0, 0
+  0, 0, 0, 0, 0, 0, 0
 };
 
 /*
@@ -50,6 +52,19 @@ static struct {
 */
 const char *transport_errmsg(void){
   return socket_errmsg();
+}
+
+/*
+** Retrieve send/receive counts from the transport layer.  If "resetFlag"
+** is true, then reset the counts.
+*/
+void transport_stats(int *pnSent, int *pnRcvd, int resetFlag){
+  if( pnSent ) *pnSent = transport.nSent;
+  if( pnRcvd ) *pnRcvd = transport.nRcvd;
+  if( resetFlag ){
+    transport.nSent = 0;
+    transport.nRcvd = 0;
+  }
 }
 
 /*
@@ -122,6 +137,7 @@ void transport_close(void){
 void transport_send(Blob *toSend){
   char *z = blob_buffer(toSend);
   int n = blob_size(toSend);
+  transport.nSent += n;
   if( g.urlIsHttps ){
     /* TBD */
   }else if( g.urlIsFile ){
@@ -148,7 +164,7 @@ void transport_flip(void){
     zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
        g.argv[0], g.urlName, transport.zOutFile, transport.zInFile
     );
-    system(zCmd);
+    portable_system(zCmd);
     free(zCmd);
     transport.pFile = fopen(transport.zInFile, "rb");
   }
@@ -199,7 +215,8 @@ int transport_receive(char *zBuf, int N){
       /* printf("received %d of %d bytes\n", got, N); fflush(stdout); */
     }
     if( got>0 ){
-      nByte += got; 
+      nByte += got;
+      transport.nRcvd += got;
     }
   }
   return nByte;

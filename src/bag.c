@@ -34,6 +34,21 @@
 /*
 ** An integer can appear in the bag at most once.
 ** Integers must be positive.
+**
+** On a hash collision, search continues to the next slot in the array,
+** looping back to the beginning of the array when we reach the end.
+** The search stops when a match is found or upon encountering a 0 entry.
+**
+** When an entry is deleted, its value is changed to -1.
+**
+** Bag.cnt is the number of live entries in the table.  Bag.used is
+** the number of live entries plus the number of deleted entries.  So
+** Bag.used>=Bag.cnt.  We want to keep Bag.used-Bag.cnt as small as
+** possible.
+**
+** The length of a search increases as the hash table fills up.  So
+** the table is enlarged whenever Bag.used reaches half of Bag.sz.  That
+** way, the expected collision length never exceeds 2.
 */
 struct Bag {
   int cnt;   /* Number of integers in the bag */
@@ -66,10 +81,16 @@ void bag_clear(Bag *p){
 /*
 ** Change the size of the hash table on a bag so that
 ** it contains N slots
+**
+** Completely reconstruct the hash table from scratch.  Deleted
+** entries (indicated by a -1) are removed.  When finished, it 
+** should be the case that p->cnt==p->used.
 */
 static void bag_resize(Bag *p, int newSize){
   int i;
   Bag old;
+  int nDel = 0;   /* Number of deleted entries */
+  int nLive = 0;  /* Number of live entries */
 
   old = *p;
   assert( newSize>old.cnt );
@@ -85,8 +106,13 @@ static void bag_resize(Bag *p, int newSize){
         if( h==newSize ) h = 0;
       }
       p->a[h] = e;
+      nLive++;
+    }else if( e<0 ){
+      nDel++;
     }
   }
+  assert( p->cnt == nLive );
+  assert( p->used == nLive+nDel );
   p->used = p->cnt;
   bag_clear(&old);
 }
@@ -101,16 +127,17 @@ int bag_insert(Bag *p, int e){
   int rc = 0;
   assert( e>0 );
   if( p->used+1 >= p->sz/2 ){
-    bag_resize(p,  p->cnt*2 + 20 );
+    int n = p->sz*2;
+    bag_resize(p,  n + 20 );
   }
   h = bag_hash(e)%p->sz;
-  while( p->a[h] && p->a[h]!=e ){
+  while( p->a[h]>0 && p->a[h]!=e ){
     h++;
     if( h>=p->sz ) h = 0;
   }
-  if( p->a[h]==0 ){
+  if( p->a[h]<=0 ){
+    if( p->a[h]==0 ) p->used++;
     p->a[h] = e;
-    p->used++;
     p->cnt++;
     rc = 1;
   }
@@ -148,9 +175,19 @@ void bag_remove(Bag *p, int e){
     if( h>=p->sz ) h = 0;
   }
   if( p->a[h] ){
-    p->a[h] = -1;
+    int nx = h+1;
+    if( nx>=p->sz ) nx = 0;
+    if( p->a[nx]==0 ){
+      p->a[h] = 0;
+      p->used--;
+    }else{
+      p->a[h] = -1;
+    }
     p->cnt--;
-    if( p->sz>20 && p->cnt<p->sz/8 ){
+    if( p->cnt==0 ){
+      memset(p->a, 0, p->sz*sizeof(p->a[0]));
+      p->used = 0;
+    }else if( p->sz>40 && p->cnt<p->sz/8 ){
       bag_resize(p, p->sz/2);
     }
   }

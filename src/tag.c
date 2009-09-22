@@ -144,7 +144,7 @@ int tag_findid(const char *zTag, int createFlag){
 /*
 ** Insert a tag into the database.
 */
-void tag_insert(
+int tag_insert(
   const char *zTag,        /* Name of the tag (w/o the "+" or "-" prefix */
   int tagtype,             /* 0:cancel  1:singleton  2:propagated */
   const char *zValue,      /* Value if the tag is really a property */
@@ -172,7 +172,7 @@ void tag_insert(
   db_finalize(&s);
   if( rc==SQLITE_ROW ){
     /* Another entry that is more recent already exists.  Do nothing */
-    return;
+    return tagid;
   }
   db_prepare(&s, 
     "REPLACE INTO tagxref(tagid,tagtype,srcId,origid,value,mtime,rid)"
@@ -203,9 +203,14 @@ void tag_insert(
   if( zCol ){
     db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
   }
+  if( tagid==TAG_DATE ){
+    db_multi_exec("UPDATE event SET mtime=julianday(%Q) WHERE objid=%d",
+                  zValue, rid);
+  }
   if( tagtype==0 || tagtype==2 ){
     tag_propagate(rid, tagid, tagtype, rid, zValue, mtime);
   }
+  return tagid;
 }
 
 
@@ -240,6 +245,7 @@ void testtag_cmd(void){
   if( rid==0 ){
     fossil_fatal("no such object: %s", g.argv[3]);
   }
+  g.markPrivate = content_is_private(rid);
   zValue = g.argc==5 ? g.argv[4] : 0;
   db_begin_transaction();
   tag_insert(zTag, tagtype, zValue, -1, 0.0, rid);
@@ -274,6 +280,7 @@ void tag_add_artifact(
     return;
   }
   rid = name_to_rid(blob_str(&uuid));
+  g.markPrivate = content_is_private(rid);
   blob_zero(&ctrl);
 
 #if 0

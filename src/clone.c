@@ -43,7 +43,7 @@ void clone_cmd(void){
   if( g.argc!=4 ){
     usage("FILE-OR-URL NEW-REPOSITORY");
   }
-  db_open_config();
+  db_open_config(0);
   if( file_size(g.argv[3])>0 ){
     fossil_panic("file already exists: %s", g.argv[3]);
   }
@@ -52,15 +52,20 @@ void clone_cmd(void){
     file_copy(g.urlName, g.argv[3]);
     db_close();
     db_open_repository(g.argv[3]);
-    db_open_config();
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('server-code', lower(hex(randomblob(20))));"
       "REPLACE INTO config(name,value)"
-      " VALUES('last-sync-url', 'file://%q');",
-      g.urlName
+      " VALUES('last-sync-url', '%q');",
+      g.urlCanonical
     );
+    db_multi_exec(
+       "DELETE FROM blob WHERE rid IN private;"
+       "DELETE FROM delta wHERE rid IN private;"
+       "DELETE FROM private;"
+    );
+    shun_artifacts();
     g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     if( g.zLogin==0 ){
       db_create_default_users(1);
@@ -75,7 +80,7 @@ void clone_cmd(void){
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
-    db_set("last-sync-url", g.argv[2], 0);
+    db_set("last-sync-url", g.urlCanonical, 0);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('server-code', lower(hex(randomblob(20))));"

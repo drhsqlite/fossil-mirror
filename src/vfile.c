@@ -261,7 +261,7 @@ void vfile_unlink(int vid){
 ** Subdirectories are scanned recursively.
 ** Omit files named in VFILE.vid
 */
-void vfile_scan(int vid, Blob *pPath, int nPrefix){
+void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
   DIR *d;
   int origSize;
   const char *zDir;
@@ -275,11 +275,15 @@ void vfile_scan(int vid, Blob *pPath, int nPrefix){
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       char *zPath;
-      if( pEntry->d_name[0]=='.' ) continue;
+      if( pEntry->d_name[0]=='.' ){
+        if( !allFlag ) continue;
+        if( pEntry->d_name[1]==0 ) continue;
+        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
+      }
       blob_appendf(pPath, "/%s", pEntry->d_name);
       zPath = blob_str(pPath);
       if( file_isdir(zPath)==1 ){
-        vfile_scan(vid, pPath, nPrefix);
+        vfile_scan(vid, pPath, nPrefix, allFlag);
       }else if( file_isfile(zPath) && !db_exists(zSql, &zPath[nPrefix+1]) ){
         db_multi_exec("INSERT INTO sfile VALUES(%Q)", &zPath[nPrefix+1]);
       }

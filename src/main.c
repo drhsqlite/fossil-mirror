@@ -29,6 +29,9 @@
 #include <string.h>
 #include <time.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 #if INTERFACE
 
@@ -54,6 +57,8 @@ struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   int isConst;            /* True if the output is unchanging */
   sqlite3 *db;            /* The connection to the databases */
+  sqlite3 *dbConfig;      /* Separate connection for global_config table */
+  int useAttach;          /* True if global_config is attached to repository */
   int configOpen;         /* True if the config database is open */
   long long int now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
@@ -81,8 +86,8 @@ struct Global {
   FILE *httpOut;          /* Send HTTP output here */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
-
   int *aCommitFile;       /* Array of files to be committed */
+  int markPrivate;        /* All new artifacts are private if true */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
@@ -95,6 +100,7 @@ struct Global {
   char *urlUser;          /* User id for http: */
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
+  char *urlProxyAuth;     /* Proxy-Authorizer: string */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
@@ -625,6 +631,11 @@ void cmd_cgi(void){
   setmode(_fileno(g.httpOut), _O_BINARY);
   setmode(_fileno(g.httpIn), _O_BINARY);
 #endif
+#ifdef __EMX__
+  /* Similar hack for OS/2 */
+  setmode(fileno(g.httpOut), O_BINARY);
+  setmode(fileno(g.httpIn), O_BINARY);
+#endif
   g.cgiPanic = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){
@@ -675,6 +686,25 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     cgi_panic("no repository specified");
   }
+#if !defined(__MINGW32__)
+  if( g.argc==3 && getuid()==0 ){
+    int i;
+    char *zRepo = g.argv[2];
+    struct stat sStat;
+    for(i=strlen(zRepo)-1; i>0 && zRepo[i]!='/'; i--){}
+    if( zRepo[i]=='/' ){
+      zRepo[i] = 0;
+      chdir(g.argv[2]);
+      chroot(g.argv[2]);
+      g.argv[2] = &zRepo[i+1];
+    }
+    if( stat(g.argv[2], &sStat)!=0 ){
+      fossil_fatal("cannot stat() repository: %s", g.argv[2]);
+    }
+    setgid(sStat.st_gid);
+    setuid(sStat.st_uid);
+  }
+#endif
   g.cgiPanic = 1;
   g.fullHttpReply = 1;
   if( g.argc==6 ){
@@ -703,6 +733,30 @@ void cmd_test_http(void){
   login_set_capabilities("s");
   cmd_http();
 }
+
+
+#if !defined(__DARWIN__) && !defined(__APPLE__)
+/*
+** Search for an executable on the PATH environment variable.
+** Return true (1) if found and false (0) if not found.
+*/
+static int binaryOnPath(const char *zBinary){
+  const char *zPath = getenv("PATH");
+  char *zFull;
+  int i;
+  int bExists;
+  while( zPath && zPath[0] ){
+    while( zPath[0]==':' ) zPath++;
+    for(i=0; zPath[i] && zPath[i]!=':'; i++){}
+    zFull = mprintf("%.*s/%s", i, zPath, zBinary);
+    bExists = access(zFull, X_OK);
+    free(zFull);
+    if( bExists==0 ) return 1;
+    zPath += i;
+  }
+  return 0;
+}
+#endif
 
 /*
 ** COMMAND: server
@@ -747,7 +801,18 @@ void cmd_webserver(void){
   /* Unix implementation */
   if( g.argv[1][0]=='u' ){
 #if !defined(__DARWIN__) && !defined(__APPLE__)
-    zBrowser = db_get("web-browser", "firefox");
+    zBrowser = db_get("web-browser", 0);
+    if( zBrowser==0 ){
+      static char *azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
+      int i;
+      zBrowser = "echo";
+      for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){
+        if( binaryOnPath(azBrowserProg[i]) ){
+          zBrowser = azBrowserProg[i];
+          break;
+        }
+      }
+    }
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
