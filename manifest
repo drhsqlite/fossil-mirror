@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Change\sdefault\sticket\sviewer\sformat\sto\sdisplay\sticket\stitle\sas\swiki.\nShow\sevent\ssummaries\sas\swiki\son\sthe\stimeline.\s\sAllow\s&lt;nowiki&gt;\smarkup\nin\s"NOBLOCK"\swiki\srenderings.\nTicket\s[218153bb7c3].
-D 2009-09-23T13:08:33
+C place\sthe\scursor\sin\sthe\susername\stext\sbox\son\sthe\slogin\sscreen.
+D 2009-09-23T16:54:54
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -67,7 +64,7 @@ F src/http.c 2787a16cdc1e35ed6f36dfc8bf4fb42f2964daa4
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c bdf1a77d153c91bec14d423db2ebe1ca91c9e383
-F src/login.c 24e3ed3b1319b2d3687510dbd022ab9dba51356a
+F src/login.c 3b52c138dbc74bbc46d0d023b58241865cd2d06c
 F src/main.c e990b4f28da6affcea8649f95887d17e2fa5bbda
 F src/main.mk 1c7633a14e94f41a1d362ce3e17f608125ac3bdc
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -250,14 +247,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P f969b6cddeb051079343396dc0a39c35786c1acf
-R 5d67831c6bbfc2a337103cbbaafd61ef
-U drh
-Z 84bfcd4abd3efbddf1ce2c61e1d000b3
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFKuh3UoxKgR168RlERAsxUAJ0Q0+YflUKX2XVXXEQyXOEuW4kiWgCgivim
-8E5Lkdu786MjHIFUaK0pq7I=
-=yueG
------END PGP SIGNATURE-----
+P d6bfe8d9a8ea9c417b1594c968f37f0af2ab9de8
+R 7509b5c9c228c28fc8e2f087b85a9cc0
+U rwilso20
+Z ff341bc877613ab7603809c2fd4b56ed
