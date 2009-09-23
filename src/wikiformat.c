@@ -1214,18 +1214,18 @@ static void wiki_render(Renderer *p, char *z){
           /* Do nothing */
         }else
 
-        /* Ignore block markup for in-line rendering.
-        */
-        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
-          /* Do nothing */
-        }else
-
         if( markup.iCode==MARKUP_NOWIKI ){
           if( markup.endTag ){
             p->state |= ALLOW_WIKI;
           }else{
             p->state &= ~ALLOW_WIKI;
           }
+        }else
+
+        /* Ignore block markup for in-line rendering.
+        */
+        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
+          /* Do nothing */
         }else
 
         /* Generate end-tags */
