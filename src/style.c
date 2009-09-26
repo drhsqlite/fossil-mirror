@@ -418,13 +418,15 @@ const char zDefaultCSS[] =
 @   vertical-align: center;
 @   empty-cells: show;
 @ }
-@ .creole-nowiki {
+@ .creole-block-nowiki {
 @   background: oldlace;
+@   margin: 2em;
+@   overflow: auto;
 @ }
 @ .creole-inline-nowiki {
 @   background: oldlace;
 @ }
-@ .creole-image {
+@ .creole-noimage {
 @   color:green;
 @   border:1px solid green;
 @ }

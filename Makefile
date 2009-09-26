@@ -26,7 +26,7 @@ E =
 #
 #TCC = gcc -O6
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
-TCC = gcc -g -Os -Wall
+TCC = gcc  -Os 
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no

@@ -1,8 +1,8 @@
-C Clean\sup\sand\smerge\supdates\sfrom\strunk
-D 2009-09-26T08:17:33
+C Minor\sfixes\sto\screole
+D 2009-09-26T14:33:22
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
+F Makefile 21ab1c0c9c89d275bc9f78881b7f46280649a73a
 F Makefile.w32 8092d934098833d3b9c63653e47e72e7e1aa5844
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -51,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00 x
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885 x
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9 x
 F src/content.c 79f280c4e28eeaf2c88a87b6bc25eed1fcce7a30 x
-F src/creoleparser.c f8a37ab2ca7a01bf571791fa61c48f7f1d004728 x
+F src/creoleparser.c e5d7a584f027d6b59b9b56ce020547b22eac038b x
 F src/db.c 16bc22dd3c53f9ab5810925612e138c34ce25451 x
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a x
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2 x
@@ -91,7 +91,7 @@ F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3 x
 F src/sqlite3.c 6a71c71db87ffeeb93828591c7c1cc668af67096 x
 F src/sqlite3.h 67b66f4eca3e7f007a785b2f75fe8abcc2da4eb0 x
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966 x
-F src/style.c 6ac00aef9bdbc996ff1a8de2dafe9d4937c92dfb x
+F src/style.c 4b7d601cb9d884c041b9a8347e20eda7875d2696 x
 F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b x
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7 x
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b x
@@ -248,7 +248,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7a2c37063a65a141cc925976444c01508dba1d17 ca08c1d1b3f9931e96a01bdbfe6ffa17ed0b8d77
-R f67f674a676dc4df6cec38ab1bf6bbfb
+P 7a39dde24bbc2436e41d32085410b76f4aa4ed55
+R 618ba8693bd5f44c92c8801e80845ec0
 U robert
-Z 3100f89cfb3e5a025ef5e9a377374935
+Z 9810e4178ae0e505ebfa14ad5ff4fa0b

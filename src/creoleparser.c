@@ -364,7 +364,7 @@ static int cr_iNoWiki(Parser *p){//{{{
   int count = p->iend - p->icursor - 6;
   while (count--){
     if (s[0]=='}' && s[1]=='}' && s[2]=='}' && s[3]!='}'){
-      blob_appendf(p->iblob, "<tt style='background:oldlace'>%s</tt>", htmlize(p->icursor + 3, s - p->icursor-3));
+      blob_appendf(p->iblob, "<tt class='creole-inline-nowiki'>%s</tt>", htmlize(p->icursor + 3, s - p->icursor-3));
       p->icursor = s + 3;
       return 1;
     }
@@ -388,7 +388,7 @@ static int cr_iImage(Parser *p){//{{{
   while (count--){
     if (s[0]=='}' && s[1]=='}'){
       if (!bar) bar = p->icursor + 2;
-      blob_appendf(p->iblob, "<span style='color:green;border:1px solid green;'>%s</span>", htmlize(bar, s - bar ));
+      blob_appendf(p->iblob, "<span class='creole-noimage'>%s</span>", htmlize(bar, s - bar ));
       p->icursor = s + 2;
       return 1;
     }
@@ -409,9 +409,8 @@ static int cr_iMacro(Parser *p){//{{{
 
   int count = p->iend - p->icursor - 3;
   while (count--){
-    blob_appendf(p->iblob, "|~%s|", s,2 );
-    if (s[0]=='>' && s[1]=='>'){
-      blob_appendf(p->iblob, "<span style='color:red;border:1px solid red;'>%s</span>", htmlize(p->icursor, s - p->icursor + 2));
+   if (s[0]=='>' && s[1]=='>'){
+      blob_appendf(p->iblob, "<span class='creole-nomacro'>%s</span>", htmlize(p->icursor, s - p->icursor + 2));
       p->icursor = s + 2;
       return 1;
     }
@@ -741,7 +740,7 @@ static void cr_render(Parser *p, Node *node){//{{{
 
   if (node->kind & KIND_NO_WIKI_BLOCK){
     blob_appendf(p->iblob,
-      "\n<blockquote style='background:oldlace'><pre>%s</pre></blockquote>\n",
+      "\n<pre class='creole-block-nowiki'>%s</pre>\n",
         htmlize( node->start, node->end - node->start)
     );
   }
