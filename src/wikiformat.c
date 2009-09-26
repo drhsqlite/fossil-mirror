@@ -1024,7 +1024,6 @@ static int stackTopType(Renderer *p){
   return aMarkup[p->aStack[p->nStack-1].iCode].iType;
 }
 
-
 /*
 ** Convert the wiki in z[] into html in the renderer p.  The
 ** renderer has already been initialized.
@@ -1040,20 +1039,18 @@ static void wiki_render(Renderer *p, char *z){
   while( z[0] ){
 
      /*
-     ** Additions to support creole parser
+     ** Additions to support macro extensions
      */
 
     if (!p->inVerbatim && z[0]=='<' && z[1] == '<') {
       z = wiki_render_macro(p, z, &tokenType);
       if (tokenType) continue;
     }
-    //
+    /* end additions */
 
     n = nextToken(z, p, &tokenType);
     p->state &= ~(AT_NEWLINE|AT_PARAGRAPH);
-
     switch( tokenType ){
-
       case TOKEN_PARAGRAPH: {
         if( inlineOnly ){
           /* blob_append(p->pOut, " &para; ", -1); */
@@ -1229,18 +1226,18 @@ static void wiki_render(Renderer *p, char *z){
           /* Do nothing */
         }else
 
-        /* Ignore block markup for in-line rendering.
-        */
-        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
-          /* Do nothing */
-        }else
-
         if( markup.iCode==MARKUP_NOWIKI ){
           if( markup.endTag ){
             p->state |= ALLOW_WIKI;
           }else{
             p->state &= ~ALLOW_WIKI;
           }
+        }else
+
+        /* Ignore block markup for in-line rendering.
+        */
+        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
+          /* Do nothing */
         }else
 
         /* Generate end-tags */
@@ -1357,7 +1354,6 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   free(renderer.aStack);
 }
 
-
 /*
 ** COMMAND: test-wiki-render
 */
@@ -1396,17 +1392,31 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   return 1;
 }
 
-
 /*
-** Additions to support creole parser
+** Additions to support macro extensions
+**
+** This only allows block level macros, not inline macros
+**
+** All macros must recognize '<<fossil>>' in the input
+** stream and return control to fossil.
 */
 
-#ifndef HAVE_MACRO_EXTENSIONS
-char *wiki_render_macro(Renderer *p, char *z, int *tokenType) {
+char *wiki_render_macro(Renderer *p, char *z, int *tokenType){
+  if (!memcmp(z, "<<fossil>>", 10)){
+    *tokenType = 1;
+    return z + 10;
+  }
+
+#ifdef HAVE_CREOLE_MACRO
+  if (!memcmp(z, "<<creole>>", 10)) {
+    *tokenType = 1;
+    return wiki_render_creole(p, z+10);
+  }
+#endif
+
   *tokenType = 0;
   return z;
 }
-#endif
 
 int wf_linkLength(const char *z){
   return linkLength(z);
@@ -1419,5 +1429,4 @@ void wf_openHyperlink(
 ){
   return openHyperlink(p, zTarget, zClose, nClose);
 }
-
-
+/* end additions */

@@ -365,7 +365,7 @@ static const char zDefaultView[] =
 @ </td></tr>
 @ <tr><td align="right">Title:</td>
 @ <td bgcolor="#d0d0d0" colspan="3" valign="top">
-@ $<title>
+@ <th1>wiki $title</th1>
 @ </td></tr>
 @ <tr><td align="right">Status:</td><td bgcolor="#d0d0d0">
 @ $<status>

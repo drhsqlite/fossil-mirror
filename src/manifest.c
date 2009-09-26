@@ -954,7 +954,7 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
+      blob_appendf(&comment, "%h ticket [%.10s]: <i>%s</i>",
          zNewStatus, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
@@ -968,7 +968,7 @@ void manifest_ticket_event(
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%.10s] <i>%s</i> status still %h with "
            "%d other change%s",
            pManifest->zTicketUuid, zTitle, zNewStatus, pManifest->nField,
            pManifest->nField==1 ? "" : "s"

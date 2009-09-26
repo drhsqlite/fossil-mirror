@@ -220,9 +220,9 @@ void login_page(void){
   @ <tr>
   @   <td align="right">User ID:</td>
   if( anonFlag ){
-    @   <td><input type="text" name="u" value="anonymous" size=30></td>
+    @   <td><input type="text" id="u" name="u" value="anonymous" size=30></td>
   }else{
-    @   <td><input type="text" name="u" value="" size=30></td>
+    @   <td><input type="text" id="u" name="u" value="" size=30></td>
   }
   @ </tr>
   @ <tr>
@@ -239,6 +239,7 @@ void login_page(void){
   @   <td><input type="submit" name="in" value="Login"></td>
   @ </tr>
   @ </table>
+  @ <script>document.getElementById('u').focus()</script>
   if( g.zLogin==0 ){
     @ <p>Enter
   }else{

@@ -1,5 +1,5 @@
-C merge\strunk\sinto\screole\sbranch
-D 2009-09-22T07:49:39
+C Clean\sup\sand\smerge\supdates\sfrom\strunk
+D 2009-09-26T08:17:33
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -48,30 +48,30 @@ F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625 x
 F src/clone.c 70ab216ac262485d0dd5c9c1299100cb40f0ea80 x
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1 x
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00 x
-F src/configure.c d749a9aa698761537457f567224cace5da42ef33 x
+F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885 x
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9 x
 F src/content.c 79f280c4e28eeaf2c88a87b6bc25eed1fcce7a30 x
-F src/creoleparser.c 803615829f509613a0c28b2c6be183212e867068 x
+F src/creoleparser.c f8a37ab2ca7a01bf571791fa61c48f7f1d004728 x
 F src/db.c 16bc22dd3c53f9ab5810925612e138c34ce25451 x
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a x
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2 x
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8 x
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342 x
 F src/diffcmd.c 4832395b8a7e7cad6e870423fa48013da2ce92a3 x
-F src/doc.c a9193f6c29167a1a6c07a95d0a14c8fa30d53d92 x
+F src/doc.c cb0906ed170001259597044f771003759dcb0b3d x
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c x
 F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d x
 F src/http.c 2787a16cdc1e35ed6f36dfc8bf4fb42f2964daa4 x
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2 x
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d x
 F src/info.c bdf1a77d153c91bec14d423db2ebe1ca91c9e383 x
-F src/login.c 24e3ed3b1319b2d3687510dbd022ab9dba51356a x
+F src/login.c 3b52c138dbc74bbc46d0d023b58241865cd2d06c x
 F src/main.c e990b4f28da6affcea8649f95887d17e2fa5bbda x
 F src/main.mk e1989b91645d0f5f9e704a295e952029cf22414b x
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3 x
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4 x
 F src/makemake.tcl f6304e19c85ae82f360ecf9a297fd9d5c830b544 x
-F src/manifest.c 5e32c12dce3bb57466d0af063535e82dbbeca912 x
+F src/manifest.c daaac5b0650723a2324a60d98dcb4cb9e4ce8d52 x
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d x
 F src/merge.c 5979683d08945c596e6cd81781ac8c39a0321000 x
 F src/merge3.c 61efa8a3332cc4df4b9fec485e9affc6b244f851 x
@@ -85,13 +85,13 @@ F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e x
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487 x
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07 x
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af x
-F src/setup.c ddfa4b243d48aae45d3715c6a47d4a7cfe8eb268 x
+F src/setup.c 95f147ca17a4576fd83b7c3db78205b39bfdad22 x
 F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820 x
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3 x
 F src/sqlite3.c 6a71c71db87ffeeb93828591c7c1cc668af67096 x
 F src/sqlite3.h 67b66f4eca3e7f007a785b2f75fe8abcc2da4eb0 x
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966 x
-F src/style.c 64c82161eead780c575859bcde47840bd318d844 x
+F src/style.c 6ac00aef9bdbc996ff1a8de2dafe9d4937c92dfb x
 F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b x
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7 x
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b x
@@ -100,18 +100,18 @@ F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718 x
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100 x
 F src/timeline.c f95beac6574094afc1919e3b11b7eb140549ed8c x
 F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f x
-F src/tktsetup.c 831f07a38a36c9c95066ef9e6bb6d03282d4fefa x
+F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f x
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16 x
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a x
 F src/update.c 053193c6c1fa2273ecfd4c80242e387c37c1df93 x
-F src/url.c c5cf8d9b2a7edbd62b83e20c783e73a6a2157404 x
+F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083 x
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88 x
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d x
 F src/vfile.c 5504b327f7f2194c07bf850934e50aec1a24f229 x
 F src/wiki.c 8af938a182d671123ef6cf5d4fc35445d60d1cc5 x
-F src/wikiformat.c 3654a443f2dbf60245dfeb7c45fc0d9af4dde21e x
+F src/wikiformat.c c4abfd0c8ed56c9543dcc620fd1204ebcd9077c5 x
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41 x
-F src/xfer.c 0008bf784240fac918a80afa08333905fd202a60 x
+F src/xfer.c 2973354cfc4a3898d18bd725e8f819f5b241973c x
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb x
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -183,7 +183,7 @@ F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
 F www/branching.wiki 73c9169a7e9982aa2f04eebc00867dcd70acbff5
-F www/bugtheory.wiki 953206fd821606e2cf1cfc8d7226732712162406
+F www/bugtheory.wiki b809c20d72cf39859dea9f23009b576799d1b806
 F www/build.wiki a81964674be15b5291386d1904697a3c83872668
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
@@ -233,7 +233,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 5f5f3d2cbfd8dbbf9a4bf29897e2190e6deee7ff
+F www/index.wiki 3bb8082d9a59536bb26fab3bbd9f188090fe258e
 F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -248,9 +248,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 26af399a5c96dc30fa494a3b69c2ad643537b642 fe57da72abef9d9003ac93f68699f74032fbe9bc
-R 907a41b7e70ee65c9b8351b439d28c0b
-T *branch * creole
-T *sym-creole *
-U bob
-Z 02e12c1ae95b5a719b9e906ab51d991d
+P 7a2c37063a65a141cc925976444c01508dba1d17 ca08c1d1b3f9931e96a01bdbfe6ffa17ed0b8d77
+R f67f674a676dc4df6cec38ab1bf6bbfb
+U robert
+Z 3100f89cfb3e5a025ef5e9a377374935

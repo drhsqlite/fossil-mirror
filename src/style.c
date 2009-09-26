@@ -145,7 +145,7 @@ void style_footer(void){
 
   /* Put the footer at the bottom of the page.
   */
-  @ </div>
+  @ </div><br clear="both"></br>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -193,8 +193,8 @@ const char zDefaultHeader[] =
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <!-- <img src="logo.gif" alt="logo"><br></br> -->
-@     <nobr>$<project_name></nobr>
+@     <img src="/logo" alt="logo">
+@     <br><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
 @   <div class="status"><nobr><th1>
@@ -271,7 +271,8 @@ const char zDefaultCSS[] =
 @   display: table-cell;
 @   font-size: 2em;
 @   font-weight: bold;
-@   text-align: center;
+@   text-align: left;
+@   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
 @   width: 100%;
@@ -394,28 +395,7 @@ const char zDefaultCSS[] =
 @     font-size: smaller;
 @     margin: 8px;
 @ } 
-@ table.fossil_db_generic_query_view {
-@   border-spacing: 0px;
-@   border: 1px solid black;
-@ }
-@ table.fossil_db_generic_query_view td {
-@   padding: 2px 1em 2px 1em;
-@ }
-@ table.fossil_db_generic_query_view tr {
-@ }
-@ table.fossil_db_generic_query_view tr.even {
-@   background: #ffffff;
-@ }
-@ table.fossil_db_generic_query_view tr.odd {
-@   background: #e5e5e5;
-@ }
-@ table.fossil_db_generic_query_view tr.header {
-@   background: #558195;
-@   font-size: 1.5em;
-@   color: #ffffff;
-@ }
-@ 
-@ /* addeitions to support creole parser */
+@ /* additions to support creole parser */
 @
 @ .creoletable {
 @   border: 1px solid #666666;
@@ -437,6 +417,20 @@ const char zDefaultCSS[] =
 @   border-top: 1px solid #D9D9D9;
 @   vertical-align: center;
 @   empty-cells: show;
+@ }
+@ .creole-nowiki {
+@   background: oldlace;
+@ }
+@ .creole-inline-nowiki {
+@   background: oldlace;
+@ }
+@ .creole-image {
+@   color:green;
+@   border:1px solid green;
+@ }
+@ .creole-nomacro {
+@   color:red;
+@   border:1px solid red;
 @ }
 ;
 

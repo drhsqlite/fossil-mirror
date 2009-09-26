@@ -23,6 +23,11 @@
 <li> [../COPYRIGHT-GPL2.txt | License]
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
+<li> Mailing list
+     <ul>
+     <li> [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | sign-up]
+     <li> [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
+     <ul>
 </ul>
 </td></tr>
 <tr><td>
@@ -108,13 +113,17 @@ internet these days. What makes Fossil worthy of attention?
      helps insure project integrity.
   *  Fossil contains a [./wikitheory.wiki | built-in wiki].
   *  There is a
-    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
+    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publically readable
+     [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      available for discussing fossil issues.
   *  [./stats.wiki | Performance statistics] taken from real-world projects
      hosted on fossil.
   *  How to [./shunning.wiki | delete content] from a fossil repository.
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
+  *  Documentation on the
+     [http://www.sqliteconcepts.org/THManual.pdf | TH1 Script Language] used
+     to configure the ticketing subsystem.
 
 <h3>Links For Fossil Developer:</h3>
 
