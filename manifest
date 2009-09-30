@@ -1,5 +1,8 @@
-C place\sthe\scursor\sin\sthe\susername\stext\sbox\son\sthe\slogin\sscreen.
-D 2009-09-23T16:54:54
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Promote\sthe\s"sha1sum"\scommand\sto\sa\sfirst-class\sfully\sdocumented\scommand.
+D 2009-09-30T23:24:06
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -85,7 +88,7 @@ F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
 F src/setup.c 95f147ca17a4576fd83b7c3db78205b39bfdad22
-F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820
+F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
 F src/sqlite3.c 6a71c71db87ffeeb93828591c7c1cc668af67096
 F src/sqlite3.h 67b66f4eca3e7f007a785b2f75fe8abcc2da4eb0
@@ -247,7 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d6bfe8d9a8ea9c417b1594c968f37f0af2ab9de8
-R 7509b5c9c228c28fc8e2f087b85a9cc0
-U rwilso20
-Z ff341bc877613ab7603809c2fd4b56ed
+P ca08c1d1b3f9931e96a01bdbfe6ffa17ed0b8d77
+R cc9fc0fa88c4dd57dce4b2d327acaba2
+U drh
+Z df7976fd12ab1476afcd61e9b8cceb43
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (Darwin)
+
+iEYEARECAAYFAkrD6JYACgkQoxKgR168RlE2CwCdHjZ2oRdGVug5OpIA97qO2lUQ
+xoIAn2MdNsCwdTbx8P+ptzm9p4eJGp8y
+=XqFB
+-----END PGP SIGNATURE-----

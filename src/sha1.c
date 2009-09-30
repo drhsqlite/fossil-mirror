@@ -538,7 +538,8 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
 
 
 /*
-** COMMAND: test-sha1sum
+** COMMAND: sha1sum
+** %fossil sha1sum FILE...
 **
 ** Compute an SHA1 checksum of all files named on the command-line.
 ** If an file is named "-" then take its content from standard input.
