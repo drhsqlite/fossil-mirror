@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\smissing\s$baseurl\sto\sthe\sdefault\sheader.
-D 2009-10-01T14:54:57
+C Fix\sthe\s"gdiff"\scommand\sso\sthat\sit\saccepts\scommands\swith\sarguments.\s\sThis\nwill\srequire\susers\sto\sput\sdouble-quotes\saround\sprogram\spathnames\sthat\ncontain\sspaces.
+D 2009-10-01T17:22:46
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -59,7 +59,7 @@ F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
-F src/diffcmd.c 4832395b8a7e7cad6e870423fa48013da2ce92a3
+F src/diffcmd.c a53a1db3ef20be5367d8b58f291cc2b73d8e7b67
 F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 469efd6a7ce8ba441b7c7a558f15e3f7ab5847e4
-R 0adafe4edb898837ce7b984cef755749
+P 631c52bc96367bd0f95aa29875a3907189f2a18a
+R bcb3f033c08aa83b55b3a6433b0082e1
 U drh
-Z 8dca3efa10973291ec8122d69dd78dd8
+Z 392a19e3876e7c062d667a81da4836e8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkrEwsEACgkQoxKgR168RlGGtACfSZpAzf+YqY6B3GwBNU1Q9GO5
-67EAniZTgfY9duRX8lHeUm+Q2aC10Afp
-=+KcK
+iEYEARECAAYFAkrE5WYACgkQoxKgR168RlFENQCeIZvSJrWJP4gVBbzCPkKJSVE1
+wywAnRgw0Et8PWJ59y9jraR9HEGWnBkm
+=xw97
 -----END PGP SIGNATURE-----

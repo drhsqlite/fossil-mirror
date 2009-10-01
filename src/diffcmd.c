@@ -173,8 +173,7 @@ void diff_cmd(void){
       internalDiff=1;
     }else{
       blob_zero(&cmd);
-      shell_escape(&cmd, zExternalCommand);
-      blob_append(&cmd, " ", 1);
+      blob_appendf(&cmd,"%s ",zExternalCommand);
     }
   }
   zFile = g.argv[g.argc-1];
@@ -209,8 +208,7 @@ void diff_cmd(void){
   }else{
     blob_write_to_file(&record, blob_str(&vname));
     blob_reset(&record);
-    shell_escape(&cmd, blob_str(&vname));
-    blob_appendf(&cmd, " ");
+    blob_appendf(&cmd, "%s ", blob_str(&vname));
     shell_escape(&cmd, zFile);
     portable_system(blob_str(&cmd));
     unlink(blob_str(&vname));
