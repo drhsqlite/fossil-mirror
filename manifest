@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Promote\sthe\s"sha1sum"\scommand\sto\sa\sfirst-class\sfully\sdocumented\scommand.
-D 2009-09-30T23:24:06
+C Disable\sthe\scheck\sof\sthe\s"server-code"\son\sa\ssync.\s\sThis\smeans\sthat\stwo\s\nrepositories\swith\sthe\ssame\s"server-code"\scan\ssync\swith\seach\sother,\swhich\nallows\sa\srepository\sto\sbe\scopied\susing\san\sordinary\sfile\scopy,\sand\swithout\nhaving\sto\srun\sclone.
+D 2009-10-01T14:47:54
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -113,7 +113,7 @@ F src/vfile.c 5504b327f7f2194c07bf850934e50aec1a24f229
 F src/wiki.c c28c68f6a88996bbf49745d7dfb4906f7d39a00f
 F src/wikiformat.c eea8f89fd5c63b9ba62c4efe9750e146479b4166
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
-F src/xfer.c 2973354cfc4a3898d18bd725e8f819f5b241973c
+F src/xfer.c b02eb5519cbcdf339bf5058826b272506c1f575d
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ca08c1d1b3f9931e96a01bdbfe6ffa17ed0b8d77
-R cc9fc0fa88c4dd57dce4b2d327acaba2
+P c83c1110f696bedb5f8d291d956f8995530594b4
+R beb27deb18016031f7f52d82ce29d9a4
 U drh
-Z df7976fd12ab1476afcd61e9b8cceb43
+Z a4743758b671c0d96a48c23cdd0a3f85
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkrD6JYACgkQoxKgR168RlE2CwCdHjZ2oRdGVug5OpIA97qO2lUQ
-xoIAn2MdNsCwdTbx8P+ptzm9p4eJGp8y
-=XqFB
+iEYEARECAAYFAkrEwRoACgkQoxKgR168RlETBwCeMQ3rrLrRS0ZRPuHJGCZIHfl1
+sXoAn3m4xVVtoQmgDwRgn9LfyCPa8aWR
+=wxVR
 -----END PGP SIGNATURE-----
