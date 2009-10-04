@@ -80,7 +80,7 @@ void clone_cmd(void){
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
-    db_set("last-sync-url", g.urlCanonical, 0);
+    db_set("last-sync-url", g.argv[2], 0);
     db_multi_exec(
       "REPLACE INTO config(name,value)"
       " VALUES('server-code', lower(hex(randomblob(20))));"
