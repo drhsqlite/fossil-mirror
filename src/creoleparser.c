@@ -60,10 +60,17 @@
 #define KIND_BREAK           0x0008000
 
 #define KIND_TABLE_ROW       0x0010000
+#define KIND_MACRO           0X0020000
+//}}}
+//{{{ MACRO
+#define MACRO_NONE           0X0000000
+#define MACRO_FOSSIL         0x0000001
+#define MACRO_WIKI_CONTENTS  0X0000002
 //}}}
 //{{{ FLAG
-// keep first four bits free
-#define FLAG_CENTER   0x0000100
+// keep first four bits free (why?:)
+#define FLAG_CENTER      0x0000100
+#define FLAG_MACRO_BLOCK 0X0000200
 //}}}
 struct Node {//{{{
 
@@ -112,9 +119,6 @@ struct Parser {//{{{
   int iesc;
 
   Blob *iblob;
-
-
-
 
 };
 //}}}
@@ -201,7 +205,7 @@ static char *cr_nextLine(Parser *p, char *z){//{{{
         z[0] = '\n';
         return z + 1;
 
-      case'\n':
+      case '\n':
         return z + 1;
 
       case '\t':
@@ -224,6 +228,7 @@ static char *cr_nextLine(Parser *p, char *z){//{{{
 }
 //}}}
 //}}}
+
 
 //{{{ INLINE PARSER
 
@@ -361,7 +366,7 @@ static int cr_iNoWiki(Parser *p){//{{{
 
   char *s = p->icursor + 3;
 
-  int count = p->iend - p->icursor - 6;
+  int count = p->iend - p->icursor - 3;
   while (count--){
     if (s[0]=='}' && s[1]=='}' && s[2]=='}' && s[3]!='}'){
       blob_appendf(p->iblob, "<tt class='creole-inline-nowiki'>%s</tt>", htmlize(p->icursor + 3, s - p->icursor-3));
@@ -703,6 +708,19 @@ static void cr_renderTable(Parser *p, Node *n){//{{{
 }
 //}}}
 
+static void cr_renderMacro(Parser *p, Node *n){//{{{
+
+  switch (n->level){
+
+    case MACRO_WIKI_CONTENTS:
+      do_macro_wiki_contents(p, n);
+      break;
+
+  }
+
+}
+//}}}
+
 static void cr_render(Parser *p, Node *node){//{{{
 
   if (node->kind & KIND_PARAGRAPH){
@@ -719,6 +737,11 @@ static void cr_render(Parser *p, Node *node){//{{{
     );
     cr_parseInline(p, node->start, node->end);
     blob_appendf(p->iblob, "</h%d>\n", node->level  );
+    return;
+  }
+
+  if (node->kind & KIND_MACRO){
+    cr_renderMacro(p, node);
     return;
   }
 
@@ -815,7 +838,7 @@ static int isEndWikiMarker(Parser *p){//{{{
   p->cursor += 10;
   return 1;
 }
-///}}}
+//}}}
 static int isNoWikiBlock(Parser *p){//{{{
 
   char *s = p->cursor;
@@ -847,6 +870,35 @@ static int isParaBreak(Parser *p){//{{{
 
   p->cursor = s;
   p->this->kind = KIND_PARA_BREAK;
+  return 1;
+}
+//}}}
+static int isMacro(Parser *p){//{{{
+
+  char *s = p->cursor;
+  int macroId;
+  int matchLength;
+
+  if (s[0]!='<') return 0; s++;
+  if (s[0]!='<') return 0; s++;
+  if (s[0]=='<') return 0;
+
+  matchLength = cr_has_macro(s, &macroId);
+  if (!matchLength) return 0;
+
+  s += matchLength;
+  p->this->start = s;
+
+  if (s[-1]!='>'){
+    while (s[0] && s[1] && s[0]!='\n' && !(s[0]=='>' && s[1]=='>')) s++;
+    if (!(s[0] == '>' && s[1] == '>')) return 0;
+    s +=2;
+  }
+  p->cursor = s;
+  p->this->kind = KIND_MACRO;
+  p->this->level = macroId;
+  p->this->flags &= FLAG_MACRO_BLOCK;
+  p->this->end = s-2;
   return 1;
 }
 //}}}
@@ -979,6 +1031,7 @@ static int isParagraph(Parser *p){//{{{
 
 }
 //}}}
+
 static void cr_parse(Parser *p, char* z){//{{{
 
   p->previous = pool_new(p);
@@ -1003,6 +1056,7 @@ static void cr_parse(Parser *p, char* z){//{{{
       if (isParaBreak(p))   break;
 
       // order not important
+      if (isMacro(p)) break;
       if (isHeading(p)) break;
       if (isHorizontalRule(p)) break;
       if (isListItem(p)) break;
@@ -1039,6 +1093,46 @@ static void cr_parse(Parser *p, char* z){//{{{
 }
 //}}}
 
+//}}}
+
+//{{{ MACROS
+LOCAL void do_macro_wiki_contents(Parser *p, Node *n){//{{{
+
+  Stmt q;
+
+  blob_append(p->iblob, "<ul>", 4);
+
+  db_prepare(&q,
+    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
+    " ORDER BY lower(tagname)"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    blob_appendf(p->iblob, "<li><a href=\"%s/wiki?name=%T\">%h</a></li>", g.zBaseURL, zName, zName);
+  }
+  db_finalize(&q);
+  blob_append(p->iblob, "</ul>", 5);
+}//}}}
+
+
+static int cr_match(char *z1, char *z2, int *len){
+  *len = strlen(z2);
+  return !memcmp(z1, z2 ,*len);
+}
+
+int cr_has_macro(char *z, int *tokenType){
+
+  int len;
+
+  if (cr_match(z, "wiki-contents>>", &len)) {
+    *tokenType = MACRO_WIKI_CONTENTS;
+    return len;
+  }
+
+  tokenType = MACRO_NONE;
+  return 0;
+
+}
 //}}}
 
 char *wiki_render_creole(Renderer *r, char *z){

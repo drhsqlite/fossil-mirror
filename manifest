@@ -1,5 +1,5 @@
-C merge\s\strunk\sinto\screole
-D 2009-10-05T10:08:05
+C add\swiki-contents\smacro\sto\screole\sparser,\splus\sminor\sbug\sfix
+D 2009-10-05T20:05:22
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -51,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00 x
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885 x
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9 x
 F src/content.c 79f280c4e28eeaf2c88a87b6bc25eed1fcce7a30 x
-F src/creoleparser.c e5d7a584f027d6b59b9b56ce020547b22eac038b x
+F src/creoleparser.c 54d077bd42a9a78b3bac43cf17f88a6715ea5ddf x
 F src/db.c 16bc22dd3c53f9ab5810925612e138c34ce25451 x
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a x
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2 x
@@ -248,7 +248,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P cacb8db398981c501f4624967b9a1094c2a38db5 4dbc8a6dcb4b7b787b72ce78189da8e789231b9d
-R 5e707e33a66d14077804b614a463e483
+P 651c75c5b77a8fbeeb2c483dc9ec2741922592a4
+R 0c5200dd7edc0ba791bf6925c730b619
 U robert
-Z 0e13d14c8bfc008d865abe234ab3645b
+Z 5caf784279cd5f285d6286f5a5e1428e
