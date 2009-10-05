@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remember\sthe\suserid\sand\spassword\sused\sto\sclone\sso\sthat\ssubsequent\ssyncs\nwork\scorrectly.
-D 2009-10-04T18:29:47
+C Sync\sclient\suses\sonly\sHTTP/1.0\sin\sorder\sto\savoid\shaving\sto\ssupport\nchunked\sencoding.
+D 2009-10-05T14:29:51
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -63,7 +63,7 @@ F src/diffcmd.c a53a1db3ef20be5367d8b58f291cc2b73d8e7b67
 F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
-F src/http.c 2787a16cdc1e35ed6f36dfc8bf4fb42f2964daa4
+F src/http.c 488f99c0c0b4ff9d546b69baef16b035bf9bf554
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c bdf1a77d153c91bec14d423db2ebe1ca91c9e383
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P b2fdf4fe143516126091186adb69c564ed7ced43
-R ad991b4151e849ed7b6817d5bd051b5a
+P 4dbc8a6dcb4b7b787b72ce78189da8e789231b9d
+R d46ff164e001d78d38520ae1c5f4daef
 U drh
-Z b830221aa345119f20437a54dbdfa1d1
+Z 887d0caa837f2e432efb05bcc69019e9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFKyOmeoxKgR168RlERAt7MAJ0fjWHh2oRlZparpqzZjgok6E1H0wCeInAE
-fHz5NbtYagZSCiiBLSL1tFo=
-=02MI
+iD8DBQFKygLioxKgR168RlERAjQsAJ9+U5Bj/CnnP0ZU2zc6qKWVs/qlpgCZAVNj
+GwkPTU/PZkqBdZy1SgreFyA=
+=xVrQ
 -----END PGP SIGNATURE-----
