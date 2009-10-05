@@ -1,8 +1,8 @@
-C Minor\sfixes\sto\screole
-D 2009-09-26T14:33:22
+C merge\s\strunk\sinto\screole
+D 2009-10-05T10:08:05
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile 21ab1c0c9c89d275bc9f78881b7f46280649a73a
+F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
 F Makefile.w32 8092d934098833d3b9c63653e47e72e7e1aa5844
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -45,7 +45,7 @@ F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874 x
 F src/checkin.c 2e4a6e1c0f68fac6d8bc0ae4d6d170149a93ec6c x
 F src/checkout.c 975bc66779641337e39f284e171b9410b2bc21e4 x
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625 x
-F src/clone.c 70ab216ac262485d0dd5c9c1299100cb40f0ea80 x
+F src/clone.c 42fdc2e08e7b46c615816625dd5e0979a5db3b43 x
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1 x
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00 x
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885 x
@@ -57,7 +57,7 @@ F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a x
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2 x
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8 x
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342 x
-F src/diffcmd.c 4832395b8a7e7cad6e870423fa48013da2ce92a3 x
+F src/diffcmd.c a53a1db3ef20be5367d8b58f291cc2b73d8e7b67 x
 F src/doc.c cb0906ed170001259597044f771003759dcb0b3d x
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c x
 F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d x
@@ -86,12 +86,12 @@ F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487 x
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07 x
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af x
 F src/setup.c 95f147ca17a4576fd83b7c3db78205b39bfdad22 x
-F src/sha1.c 7f2336da5a35db54553d39d532b8d44017c47820 x
+F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642 x
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3 x
 F src/sqlite3.c 6a71c71db87ffeeb93828591c7c1cc668af67096 x
 F src/sqlite3.h 67b66f4eca3e7f007a785b2f75fe8abcc2da4eb0 x
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966 x
-F src/style.c 4b7d601cb9d884c041b9a8347e20eda7875d2696 x
+F src/style.c b4778ab3256bb543462432161de92de030a9ca74 x
 F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b x
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7 x
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b x
@@ -111,7 +111,7 @@ F src/vfile.c 5504b327f7f2194c07bf850934e50aec1a24f229 x
 F src/wiki.c 8af938a182d671123ef6cf5d4fc35445d60d1cc5 x
 F src/wikiformat.c c4abfd0c8ed56c9543dcc620fd1204ebcd9077c5 x
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41 x
-F src/xfer.c 2973354cfc4a3898d18bd725e8f819f5b241973c x
+F src/xfer.c b02eb5519cbcdf339bf5058826b272506c1f575d x
 F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb x
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -248,7 +248,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7a39dde24bbc2436e41d32085410b76f4aa4ed55
-R 618ba8693bd5f44c92c8801e80845ec0
+P cacb8db398981c501f4624967b9a1094c2a38db5 4dbc8a6dcb4b7b787b72ce78189da8e789231b9d
+R 5e707e33a66d14077804b614a463e483
 U robert
-Z 9810e4178ae0e505ebfa14ad5ff4fa0b
+Z 0e13d14c8bfc008d865abe234ab3645b

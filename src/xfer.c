@@ -660,9 +660,17 @@ void page_xfer(void){
      && blob_is_uuid(&xfer.aToken[1])
      && blob_is_uuid(&xfer.aToken[2])
     ){
-      const char *zSCode;
       const char *zPCode;
 
+#if 0
+      /* This block checks to see if a server is trying to sync with itself.
+      ** This used to be disallowed, but I cannot think of any significant
+      ** harm, so I have disabled the check.
+      **
+      ** With this check disabled, it is sufficient to copy the repository
+      ** database.  No need to run clone.
+      */
+      const char *zSCode;
       zSCode = db_get("server-code", 0);
       if( zSCode==0 ){
         fossil_panic("missing server code");
@@ -673,6 +681,8 @@ void page_xfer(void){
         nErr++;
         break;
       }
+#endif
+
       zPCode = db_get("project-code", 0);
       if( zPCode==0 ){
         fossil_panic("missing project code");
