@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Sync\sclient\suses\sonly\sHTTP/1.0\sin\sorder\sto\savoid\shaving\sto\ssupport\nchunked\sencoding.
-D 2009-10-05T14:29:51
+C Fix\sto\sthe\s"font-family"\sCSS\sline\sin\sthe\sdefault\sCSS.\nTicket\s[aba72eaa589].
+D 2009-10-11T19:47:53
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -93,7 +93,7 @@ F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
 F src/sqlite3.c 6a71c71db87ffeeb93828591c7c1cc668af67096
 F src/sqlite3.h 67b66f4eca3e7f007a785b2f75fe8abcc2da4eb0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c e4a69231c5c4ab874678c715623a9b4a92ac7034
+F src/style.c 3c29836aa304f1d8413a6a6614dea026c6c85706
 F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 4dbc8a6dcb4b7b787b72ce78189da8e789231b9d
-R d46ff164e001d78d38520ae1c5f4daef
+P 6842999f824d0cd482a9e366dc544f58c41a81ac
+R 6d56b4ab5ac4106898b57fe1b11175da
 U drh
-Z 887d0caa837f2e432efb05bcc69019e9
+Z af5e04d250dc2ab3c821a0160929c5dd
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFKygLioxKgR168RlERAjQsAJ9+U5Bj/CnnP0ZU2zc6qKWVs/qlpgCZAVNj
-GwkPTU/PZkqBdZy1SgreFyA=
-=xVrQ
+iD8DBQFK0jZvoxKgR168RlERAgMzAJ4uzFGT8pUkAKAA7zGtBDoHZxloeQCferSK
+cKTR6pBWiLqpGmOuzflDvXs=
+=9UPX
 -----END PGP SIGNATURE-----

@@ -254,7 +254,7 @@ const char zDefaultCSS[] =
 @   margin: 0ex 1ex;
 @   padding: 0px;
 @   background-color: white;
-@   font-family: "sans serif";
+@   font-family: sans-serif;
 @ }
 @
 @ /* The project logo in the upper left-hand corner of each page */
