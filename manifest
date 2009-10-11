@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sto\sthe\s"font-family"\sCSS\sline\sin\sthe\sdefault\sCSS.\nTicket\s[aba72eaa589].
-D 2009-10-11T19:47:53
+C Fix\sthe\s"clean"\scommand\sto\suse\s--force\sinstead\sof\s--all.\nTicket\s[c3d668ad52]
+D 2009-10-11T19:52:21
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -45,7 +45,7 @@ F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
-F src/checkin.c 2e4a6e1c0f68fac6d8bc0ae4d6d170149a93ec6c
+F src/checkin.c b32786b578b66f59cbcdb75c45ddcac9c5b5bca9
 F src/checkout.c 975bc66779641337e39f284e171b9410b2bc21e4
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 42fdc2e08e7b46c615816625dd5e0979a5db3b43
@@ -250,14 +250,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6842999f824d0cd482a9e366dc544f58c41a81ac
-R 6d56b4ab5ac4106898b57fe1b11175da
+P adb155b6d490a9ee3f97201cfa5911bbe8908801
+R 4fb0c2f362db34ea4237239950a12198
 U drh
-Z af5e04d250dc2ab3c821a0160929c5dd
+Z 3a07a5521d14a8365da7a4800307b5e9
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (Darwin)
 
-iD8DBQFK0jZvoxKgR168RlERAgMzAJ4uzFGT8pUkAKAA7zGtBDoHZxloeQCferSK
-cKTR6pBWiLqpGmOuzflDvXs=
-=9UPX
+iD8DBQFK0jd5oxKgR168RlERAoiLAJ9uKQlyyX7okMUEQiugxc4ModCrOACeJhff
+BPzu14V4lxRdgMuNcCCLrvM=
+=/cNf
 -----END PGP SIGNATURE-----

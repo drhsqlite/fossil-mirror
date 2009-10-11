@@ -208,7 +208,7 @@ void extra_cmd(void){
 **
 ** You will be prompted before removing each file. If you are
 ** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prmpts will be issued.
+** optional --force flag and no prompts will be issued.
 **
 ** Files and subdirectories whose names begin with "." are
 ** normally ignored.  They are included if the "--dotfiles" option
@@ -220,7 +220,7 @@ void clean_cmd(void){
   Blob path, repo;
   Stmt q;
   int n;
-  allFlag = find_option("all","a",0)!=0;
+  allFlag = find_option("force","f",0)!=0;
   dotfilesFlag = find_option("dotfiles",0,0)!=0;
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
