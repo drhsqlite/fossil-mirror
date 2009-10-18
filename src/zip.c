@@ -128,8 +128,7 @@ void zip_add_folders(char *zName){
 void zip_add_file(const char *zName, const Blob *pFile){
   z_stream stream;
   int nameLen;
-  int skip;
-  int toOut;
+  int toOut = 0;
   int iStart;
   int iCRC = 0;
   int nByte = 0;
@@ -179,12 +178,6 @@ void zip_add_file(const char *zName, const Blob *pFile){
   blob_append(&body, zExTime, 13);
 
   if( nBlob>0 ){
-    /* The first two bytes that come out of the deflate compressor are
-    ** some kind of header that ZIP does not use.  So skip the first two
-    ** output bytes.
-    */
-    skip = 2;
-  
     /* Write the compressed file.  Compute the CRC as we progress.
     */
     stream.zalloc = (alloc_func)0;
@@ -194,17 +187,12 @@ void zip_add_file(const char *zName, const Blob *pFile){
     stream.next_in = (unsigned char*)blob_buffer(pFile);
     stream.avail_out = sizeof(zOutBuf);
     stream.next_out = (unsigned char*)zOutBuf;
-    deflateInit(&stream, 9);
+    deflateInit2(&stream, 9, Z_DEFLATED, -MAX_WBITS, 8, Z_DEFAULT_STRATEGY);
     iCRC = crc32(0, stream.next_in, stream.avail_in);
     while( stream.avail_in>0 ){
       deflate(&stream, 0);
       toOut = sizeof(zOutBuf) - stream.avail_out;
-      if( toOut>skip ){
-        blob_append(&body, &zOutBuf[skip], toOut - skip);
-        skip = 0;
-      }else{
-        skip -= toOut;
-      }
+      blob_append(&body, zOutBuf, toOut);
       stream.avail_out = sizeof(zOutBuf);
       stream.next_out = (unsigned char*)zOutBuf;
     }
@@ -213,15 +201,10 @@ void zip_add_file(const char *zName, const Blob *pFile){
       stream.next_out = (unsigned char*)zOutBuf;
       deflate(&stream, Z_FINISH);
       toOut = sizeof(zOutBuf) - stream.avail_out;
-      if( toOut>skip ){
-        blob_append(&body, &zOutBuf[skip], toOut - skip);
-        skip = 0;
-      }else{
-        skip -= toOut;
-      }
+      blob_append(&body, zOutBuf, toOut);
     }while( stream.avail_out==0 );
     nByte = stream.total_in;
-    nByteCompr = stream.total_out - 2;
+    nByteCompr = stream.total_out;
     deflateEnd(&stream);
   
     /* Go back and write the header, now that we know the compressed file size.

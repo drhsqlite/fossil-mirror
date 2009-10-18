@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Begin\sadding\sa\ssearch\scapability;\sthe\scode\sis\snot\syet\sconnected\sup.\nAlso\supdate\sto\sthe\slatest\sversion\sof\sSQLite.
-D 2009-10-18T18:21:37
+C Fix\sthe\sZIP\sarchive\sgenerator\sso\sthat\sit\sworks\scorrectly\swith\sthe\nOS\sX\sArchive\sTool.\s\sTicket\s[923a912309].
+D 2009-10-18T18:30:56
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -115,7 +115,7 @@ F src/wiki.c c28c68f6a88996bbf49745d7dfb4906f7d39a00f
 F src/wikiformat.c eea8f89fd5c63b9ba62c4efe9750e146479b4166
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
 F src/xfer.c b02eb5519cbcdf339bf5058826b272506c1f575d
-F src/zip.c 8c1776ca5d0addc13d2f9a926d55310bed59cafb
+F src/zip.c 43608365d59dc34c11cc6e2d6f36c36a88c32410
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -251,14 +251,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 076f7adff24d807321e9ae5c2adff6575ec64f9b
-R 7b0ef8c1d1032618b8bb2e04da2d03f0
+P 232d10b7365e2d0775972d351b8eb0b1ce93a236
+R ae2cfb9ed226e3a7d627de5484e03338
 U drh
-Z fe4ec43f2383788ef38b588a5a4ee1c5
+Z 09bc9c59567a13f25f3460e4d18ed3d2
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK21y1oxKgR168RlERAqxiAJ4+tSme0r/DRqvXICPZ8J20/q/4AQCdGDP2
-kXm1/hXaoaqXt3V74Izh9MU=
-=uMhg
+iD8DBQFK217koxKgR168RlERAgfSAJ99ISvVH0FtRJT5egB0tyJgUGUGDgCgid2j
+kNR8MDA6k5jDQ+Wzw0LD4MU=
+=ryPN
 -----END PGP SIGNATURE-----
