@@ -17,7 +17,7 @@
 ** language. The code for the "sqlite3" command-line shell is also in a
 ** separate file. This file contains only code for the core SQLite library.
 **
-** This amalgamation was generated on 2009-10-13 16:22:00 UTC.
+** This amalgamation was generated on 2009-10-14 11:34:12 UTC.
 */
 #define SQLITE_CORE 1
 #define SQLITE_AMALGAMATION 1
@@ -653,7 +653,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.19"
 #define SQLITE_VERSION_NUMBER 3006019
-#define SQLITE_SOURCE_ID      "2009-10-13 15:42:49 f894ebf86d6bafcd1461f104f5f677b3b6a3aa1a"
+#define SQLITE_SOURCE_ID      "2009-10-14 11:33:55 c1d499afc50d54b376945b4efb65c56c787a073d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -8618,7 +8618,7 @@ struct FuncDef {
 */
 struct Savepoint {
   char *zName;                        /* Savepoint name (nul-terminated) */
-  int nDeferredCons;                  /* Number of deferred fk violations */
+  i64 nDeferredCons;                  /* Number of deferred fk violations */
   Savepoint *pNext;                   /* Parent savepoint (if any) */
 };
 
@@ -83929,7 +83929,7 @@ SQLITE_PRIVATE void sqlite3CodeRowTriggerDirect(
     ** invocation is disallowed if (a) the sub-program is really a trigger,
     ** not a foreign key action, and (b) the flag to enable recursive triggers
     ** is clear.  */
-    sqlite3VdbeChangeP5(v, p->zName && !(pParse->db->flags&SQLITE_RecTriggers));
+    sqlite3VdbeChangeP5(v, (u8)(p->zName && !(pParse->db->flags&SQLITE_RecTriggers)));
   }
 }
 

@@ -51,6 +51,7 @@ set src {
   rss
   rstats
   schema
+  search
   setup
   sha1
   shun
