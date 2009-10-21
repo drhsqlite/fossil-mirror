@@ -16,7 +16,7 @@ BCC = gcc -g -O2
 #### The suffix to add to executable files.  ".exe" for windows.
 #    Nothing for unix.
 #
-E =
+E = .exe
 
 #### C Compile and options for use in building executables that 
 #    will run on the target platform.  This is usually the same
@@ -27,7 +27,8 @@ E =
 #TCC = gcc -O6
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
 #TCC = gcc -g -Os -Wall
-TCC = gcc -g -Os -Wall -DFOSSIL_I18N=0 -L/usr/local/lib -I/usr/local/include
+#TCC = gcc -g -Os -Wall -DFOSSIL_I18N=0 -L/usr/local/lib -I/usr/local/include
+TCC = gcc -Os -Wall -DFOSSIL_I18N=0 -L/mingw/lib -I/mingw/include
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no
@@ -36,8 +37,8 @@ TCC = gcc -g -Os -Wall -DFOSSIL_I18N=0 -L/usr/local/lib -I/usr/local/include
 #    chroot jail.
 #
 #LIB = -lz
-LIB = -lz -lws2_32
-
+#LIB = -lz -lws2_32
+LIB = -lmingwex -lz -lws2_32
 
 #### Tcl shell for use in running the fossil testsuite.
 #

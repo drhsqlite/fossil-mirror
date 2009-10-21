@@ -1,12 +1,9 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\sthe\sZIP\sarchive\sgenerator\sso\sthat\sit\sworks\scorrectly\swith\sthe\nOS\sX\sArchive\sTool.\s\sTicket\s[923a912309].
-D 2009-10-18T18:30:56
+C update\smakefile\sfor\swin32
+D 2009-10-21T15:43:23
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
-F Makefile.w32 8092d934098833d3b9c63653e47e72e7e1aa5844
+F Makefile.w32 900e3545621d84facefdc62bc71ce38fcdabb8d7
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -251,14 +248,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 232d10b7365e2d0775972d351b8eb0b1ce93a236
-R ae2cfb9ed226e3a7d627de5484e03338
-U drh
-Z 09bc9c59567a13f25f3460e4d18ed3d2
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFK217koxKgR168RlERAgfSAJ99ISvVH0FtRJT5egB0tyJgUGUGDgCgid2j
-kNR8MDA6k5jDQ+Wzw0LD4MU=
-=ryPN
------END PGP SIGNATURE-----
+P d78835d2ffb6672e214f470af6caeb9cccd9d8c0
+R 60399d26affe19f2d7fb8682e9f84673
+U rwilson
+Z 79fb84bdce4e047221e5941dfa53d5e3
