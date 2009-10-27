@@ -1,5 +1,8 @@
-C update\smakefile\sfor\swin32
-D 2009-10-21T15:43:23
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Make\s"revert"\scomplain\sabout\sexcess\sarguments.\sTicket\s[36d5fbf9a4].
+D 2009-10-27T20:15:30
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -103,7 +106,7 @@ F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
-F src/update.c 053193c6c1fa2273ecfd4c80242e387c37c1df93
+F src/update.c 6e48a711267d2bffce4f6a45d09b13e6bf2b4130
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
@@ -248,7 +251,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d78835d2ffb6672e214f470af6caeb9cccd9d8c0
-R 60399d26affe19f2d7fb8682e9f84673
-U rwilson
-Z 79fb84bdce4e047221e5941dfa53d5e3
+P 3275d9c63ce62cb1e21f20a0a8c8be5ca1aa19a8
+R 9575b4956f420e1773a50f5ebe3e1498
+U eric
+Z 9854db2eecbb77c8687e241c95700766
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFK51UIu+lpsLhDMQkRApTWAJ0V8wNwPneJsp2nocNc45JvDufCVwCeObW1
+JFbjSj4RPJOzaJBSDrqAjRo=
+=05CR
+-----END PGP SIGNATURE-----

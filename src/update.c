@@ -296,7 +296,7 @@ void revert_cmd(void){
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
   
-  if( g.argc<3 ){
+  if( g.argc!=3 ){
     usage("?OPTIONS FILE");
   }
   db_must_be_within_tree();
