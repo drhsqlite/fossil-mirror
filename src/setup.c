@@ -636,14 +636,8 @@ static void onoff_attribute(
   const char *zQParm,   /* The query parameter */
   int dfltVal           /* Default value if VAR table entry does not exist */
 ){
-  const char *zVal = db_get(zVar, 0);
   const char *zQ = P(zQParm);
-  int iVal;
-  if( zVal ){
-    iVal = atoi(zVal);
-  }else{
-    iVal = dfltVal;
-  }
+  int iVal = db_get_boolean(zVar, dfltVal);
   if( zQ==0 && P("submit") ){
     zQ = "off";
   }
@@ -808,14 +802,14 @@ void setup_behavior(void){
 
   @ <hr>
   onoff_attribute("Automatically synchronize with repository",
-                  "autosync", "autosync", 0);
+                  "autosync", "autosync", 1);
   @ <p>Automatically keeps your work in sync with a centralized server.</p>
 
   @ <hr>
-  onoff_attribute("Sign all commits with gpg",
-                  "clearsign", "clearsign", 0);
+  onoff_attribute("Sign all commits with GPG",
+                  "clearsign", "clearsign", 1);
   @ <p>When enabled (the default), fossil will attempt to
-  @     sign all commits with gpg.  When disabled, commits will
+  @     sign all commits with GPG.  When disabled, commits will
   @    be unsigned.</p>  
   
   @ <hr>
