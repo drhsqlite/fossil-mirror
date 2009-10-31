@@ -75,7 +75,7 @@ int load_vfile(const char *zName){
   if( vid==0 ){
     fossil_fatal("no such check-in: %s", g.argv[2]);
   }
-  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", vid) ){
+  if( !is_a_version(vid) ){
     fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
   }
   load_vfile_from_rid(vid);
