@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\s"Behavior"\ssetup\spage\sso\sthat\sit\shas\sthe\scorrect\sdefault\svalues\nfor\sunspecified\sattributes.\s\sTicket\s[0101a97fefd5ca91d]
-D 2009-10-31T13:50:08
+C Fix\sthe\s"remote-url"\scommand\sso\sthat\sit\spreserves\sthe\suserid\sand\spassword.\nTicket\s[68c7f7bee951302].
+D 2009-10-31T14:03:49
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -95,7 +95,7 @@ F src/sqlite3.c 1222ebdab05a92ef0b726cfef1abf88fa666ad2c
 F src/sqlite3.h 29f824bc4ca3f85a1f36381f277edcbb352e4668
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 3c29836aa304f1d8413a6a6614dea026c6c85706
-F src/sync.c 312506edea616e84307a9372bda6db4132f21f5b
+F src/sync.c 693322f66290f3c8121b76eac2b7c6c755d09b06
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c ca17d876879bf67d055bef3e773897712874be2b
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -251,14 +251,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 4165033b4030ce9dc3dd4a71ed0acc870a32fb13
-R ed30c883b29112bce74c585ab64304d0
+P 671e7c34e9a78bd49212e149760c51625fbb9a82
+R 72c27ac84ab93c680cd61b68e0751672
 U drh
-Z 7df907e5d5cca786ad315339395da2c1
+Z 04d88c269e4d67524f7a378df080f65d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK7ECUoxKgR168RlERAqt4AJ0degA4MCIoXE7Afk6SW+/9X9gDxgCeMBTo
-CJUT45JDa22Aa+msQvsOMBU=
-=Jp24
+iD8DBQFK7EPIoxKgR168RlERAvg0AJ46zBCiO5qtBv/+6Ndjf+wkWqasYACeOjAB
+poHVZQnwcc/URLrjWWxhWKg=
+=mRf5
 -----END PGP SIGNATURE-----

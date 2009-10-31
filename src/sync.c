@@ -185,7 +185,7 @@ void remote_url_cmd(void){
       db_unset("last-sync-url", 0);
     }else{
       url_parse(g.argv[2]);
-      db_set("last-sync-url", g.urlCanonical, 0);
+      db_set("last-sync-url", g.urlIsFile ? g.urlCanonical : g.argv[2], 0);
     }
   }
   zUrl = db_get("last-sync-url", 0);
