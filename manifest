@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\suse\sof\sthe\sis_a_version()\sfunction\sto\scheck\sfor\svalid\sversion\sIDs\nin\sthe\scheckout\scommand.\s\sTicket\s[2de4ae605844fe3f].
-D 2009-10-31T13:11:35
+C Remove\sthe\sextra\sspace\scharacter\sbefore\sfilenames\sin\sweb\sdirectory\nlistings.\s\sTicket\s[28d861eb5799a60]
+D 2009-10-31T13:23:28
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -42,7 +42,7 @@ F src/allrepo.c 22228def7617c6f7c3023e89026fb1091a3f5c37
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c 80cddafe2a13ae44bed095aeb87df87cc48d7fc8
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
-F src/browse.c b26f9d5a293ec713a4a5065528cfe31ff50e2b82
+F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
 F src/checkin.c b32786b578b66f59cbcdb75c45ddcac9c5b5bca9
@@ -251,14 +251,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 107f38dd014ae469dcac1f3e1c4fb230ffdc7d71
-R 3aa238bcba5139a4da98732c17052f42
+P 999b1779e71ed659e7b962ae96905bd9a6a5dcc6
+R a9d05c1e3d231ae39af4051afffbbdc4
 U drh
-Z f165e497e777cf497396f10b087ca0bf
+Z 8d79c139ee9062e7f6f4196fdabd7b70
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK7DeOoxKgR168RlERAt6vAKCFIUkTkJSqhYBjXm66OlfOsj3vrACfa74R
-fQGI6HEnFxnTiwz4//w3X7E=
-=At9m
+iD8DBQFK7DpWoxKgR168RlERAkCnAJ4mYhZUAKOcVd7A4EunTnBBKjViSQCePUiW
+bJQajyAS1Ww/cJ4qfjYGUVU=
+=+XmK
 -----END PGP SIGNATURE-----

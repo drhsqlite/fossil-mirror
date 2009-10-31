@@ -215,23 +215,21 @@ void page_dir(void){
   @ <table border="0" width="100%%"><tr><td valign="top" width="25%%">
   i = 0;
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zFName;
+    const char *zFN;
     if( i==nRow ){
       @ </td><td valign="top" width="25%%">
       i = 0;
     }
     i++;
-    zFName = db_column_text(&q, 0);
-    if( zFName[0]=='/' ){
-      zFName++;
-      @ <li><a href="%s(zSubdirLink)%T(zFName)">
-      @     %h(zFName)/</a></li>
+    zFN = db_column_text(&q, 0);
+    if( zFN[0]=='/' ){
+      zFN++;
+      @ <li><a href="%s(zSubdirLink)%T(zFN)">%h(zFN)/</a></li>
     }else if( zCI ){
       const char *zUuid = db_column_text(&q, 1);
-      @ <li><a href="%s(g.zBaseURL)/artifact?name=%s(zUuid)">%h(zFName)</a>
+      @ <li><a href="%s(g.zBaseURL)/artifact?name=%s(zUuid)">%h(zFN)</a>
     }else{
-      @ <li><a href="%s(g.zBaseURL)/finfo?name=%T(zPrefix)%T(zFName)">
-      @     %h(zFName)</a></li>
+      @ <li><a href="%s(g.zBaseURL)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)</a>
     }
   }
   db_finalize(&q);
