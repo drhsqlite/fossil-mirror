@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\san\s"finfo"\scommand\sto\sgive\sfile\shistory.
-D 2009-10-31T15:07:45
+C Add\sthe\s"artifact"\scommand\sfor\sextracting\sthe\scontent\sof\sindividual\sartifacts.\nThe\snew\s"artifact"\scommand\sis\sreally\sjust\sa\srenaming\sof\s"test-content-get".
+D 2009-10-31T17:01:35
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -53,7 +53,7 @@ F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
-F src/content.c 79f280c4e28eeaf2c88a87b6bc25eed1fcce7a30
+F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
 F src/db.c 16bc22dd3c53f9ab5810925612e138c34ce25451
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 11ecd5c0b512fdea2565a133e9dec19c4ba81e27
-R 45c6a9fd6d1aba86c56f123e7c8f2f28
+P 8c8f8616a64ad4868e93e07c4d230f72a3965bcd
+R 6b97cea4b167c72421df55a836e890bb
 U drh
-Z 166dca0d93238a35c9db746bffa9930e
+Z abb2ddbdb6bf534462a3ed4031d1af7d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK7FLEoxKgR168RlERAgZeAJ4g98gOJIT04HEp8jho7GDYle8LUgCeINvL
-3FCnLjDZddN1eTDXF0BAC6A=
-=pfJq
+iD8DBQFK7G1yoxKgR168RlERAhq0AKCKD0kGcxZdhLn5rHum1+NbPdtQNgCdGjae
+IPD0QxdEX8dpLJy+1BdnsqU=
+=wPAY
 -----END PGP SIGNATURE-----
