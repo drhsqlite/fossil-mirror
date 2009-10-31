@@ -32,6 +32,7 @@ set src {
   doc
   encode
   file
+  finfo
   http
   http_socket
   http_transport
