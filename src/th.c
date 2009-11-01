@@ -1825,8 +1825,8 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     double fRight;
 
     /* Left and right arguments as strings */
-    char *zLeft = 0; int nLeft;
-    char *zRight = 0; int nRight;
+    char *zLeft = 0; int nLeft = 0;
+    char *zRight = 0; int nRight = 0;
 
     /* Evaluate left and right arguments, if they exist. */
     if( pExpr->pLeft ){
