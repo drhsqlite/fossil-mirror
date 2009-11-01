@@ -942,7 +942,7 @@ static void openHyperlink(
   int nClose              /* Bytes available in zClose[] */
 ){
   const char *zTerm = "</a>";
-  assert( nClose>10 );
+  assert( nClose>=20 );
 
   if( strncmp(zTarget, "http:", 5)==0 
    || strncmp(zTarget, "https:", 6)==0
@@ -950,6 +950,7 @@ static void openHyperlink(
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
+    zTerm = "&#x27FE;</a>";
   }else if( zTarget[0]=='/' ){
     if( 1 /* g.okHistory */ ){
       blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zBaseURL, zTarget);
