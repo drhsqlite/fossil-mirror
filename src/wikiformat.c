@@ -950,7 +950,7 @@ static void openHyperlink(
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
-    zTerm = "&#x27FE;</a>";
+    /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
     if( 1 /* g.okHistory */ ){
       blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zBaseURL, zTarget);
