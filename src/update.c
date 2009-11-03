@@ -80,16 +80,7 @@ void update_cmd(void){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
   }
-
-  if( tid==0 ){
-    /* 
-    ** Do an autosync pull prior to the update, if autosync is on and they
-    ** did not want a specific version (i.e. another branch, a past revision).
-    ** By not giving a specific version, they are asking for the latest, thus
-    ** pull to get the latest, then update.
-    */
-    autosync(AUTOSYNC_PULL);
-  }
+  autosync(AUTOSYNC_PULL);
   
   if( tid==0 ){
     compute_leaves(vid, 1);

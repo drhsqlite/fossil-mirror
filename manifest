@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Disable\sthe\sexternal\slink\smarking\sas\sit\sdoes\snot\swork\son\swindows.
-D 2009-11-02T13:19:44
+C Alway\srun\sautosync\sprior\sto\san\s"update"\seven\swhen\sspecifying\sa\sspecific\ncheck-in\sto\supdate\sto.
+D 2009-11-03T19:43:36
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -107,7 +107,7 @@ F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
-F src/update.c 6e48a711267d2bffce4f6a45d09b13e6bf2b4130
+F src/update.c 1958612a85033af5c17e19557b58fe900930805b
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 0039b7813ee728d25509c20d4f9f3df287719945
-R bbb532fca5c6cb6bc9f100a6ff8dfa14
+P 980b160bd07a746750ab8e7cdbe4bc9bf5f0836e
+R 57d8b982a840023c456f633093b3ef6c
 U drh
-Z 6979953ed3b2d49bac5cce7a94946b0a
+Z 3cbab6eb23aeaf5a2fdc092f16b0e579
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK7tx0oxKgR168RlERAjPrAJ95QNZ3lHES9t+wOvF5TGlTHAS8WwCghNJG
-zWVDY0z7+W4M6qmrDWUe/rU=
-=V3gs
+iD8DBQFK8IfsoxKgR168RlERAiyDAJ450yylJZEBJ2x2vO9ctqXWMo5ktgCfcFrG
+j2ERfPKsCiMl/9S6I6Tval4=
+=1TKQ
 -----END PGP SIGNATURE-----
