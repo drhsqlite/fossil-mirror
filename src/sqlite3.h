@@ -121,7 +121,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.20"
 #define SQLITE_VERSION_NUMBER 3006020
-#define SQLITE_SOURCE_ID      "2009-10-30 14:27:15 612952743da28e651512547fc0d3925f4c698eb4"
+#define SQLITE_SOURCE_ID      "2009-11-04 13:30:02 eb7a544fe49d1626bacecfe53ddc03fe082e3243"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -2289,7 +2289,7 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 
 /*
 ** CAPI3REF: Run-Time Limit Categories {H12790} <H12760>
-** KEYWORDS: {limit category} {limit categories}
+** KEYWORDS: {limit category} {*limit categories}
 **
 ** These constants define various performance limits
 ** that can be lowered at run-time using [sqlite3_limit()].

@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Alway\srun\sautosync\sprior\sto\san\s"update"\seven\swhen\sspecifying\sa\sspecific\ncheck-in\sto\supdate\sto.
-D 2009-11-03T19:43:36
+C Update\sto\sthe\slatest\sSQLite
+D 2009-11-04T13:32:50
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -92,8 +89,8 @@ F src/search.c b8713502ffdcf144fa908edcdfe750173465a542
 F src/setup.c 41b6907a338e5b25886459d75af705c7cce21041
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/sqlite3.c eb3a6cb924e37c28bb50051322345ef5393bdb41
-F src/sqlite3.h fd655d726475a3b97852ab7b00762a3f9e918e41
+F src/sqlite3.c 860d465dafb346112d53cefee7cfc2448a24cf7c
+F src/sqlite3.h b3791b0c763bc68510153788205f58b6b48035e0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 3c29836aa304f1d8413a6a6614dea026c6c85706
 F src/sync.c 693322f66290f3c8121b76eac2b7c6c755d09b06
@@ -252,14 +249,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 980b160bd07a746750ab8e7cdbe4bc9bf5f0836e
-R 57d8b982a840023c456f633093b3ef6c
+P f57990b65abcacd7b7fb0465ae36dc8b92122267
+R 467eddba1d8a45fc5fcfc5f8b4c8a4a5
 U drh
-Z 3cbab6eb23aeaf5a2fdc092f16b0e579
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFK8IfsoxKgR168RlERAiyDAJ450yylJZEBJ2x2vO9ctqXWMo5ktgCfcFrG
-j2ERfPKsCiMl/9S6I6Tval4=
-=1TKQ
------END PGP SIGNATURE-----
+Z 5e70e3ae673b76813082e6a109b2850c
