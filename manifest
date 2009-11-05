@@ -1,5 +1,8 @@
-C Update\sto\sthe\slatest\sSQLite
-D 2009-11-04T13:32:50
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Check-in\sthe\sfix\sfor\sthe\si16/i64\smixup\swith\sthe\synVar\stype\sin\sSQLite.
+D 2009-11-05T00:07:53
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -89,8 +92,8 @@ F src/search.c b8713502ffdcf144fa908edcdfe750173465a542
 F src/setup.c 41b6907a338e5b25886459d75af705c7cce21041
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/sqlite3.c 860d465dafb346112d53cefee7cfc2448a24cf7c
-F src/sqlite3.h b3791b0c763bc68510153788205f58b6b48035e0
+F src/sqlite3.c 56de1fb10ae44833ed8ef02c53504712e0c79625
+F src/sqlite3.h da93a40cb32d0cc29dcdb2c8079d0e76ea675fd3
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 3c29836aa304f1d8413a6a6614dea026c6c85706
 F src/sync.c 693322f66290f3c8121b76eac2b7c6c755d09b06
@@ -249,7 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P f57990b65abcacd7b7fb0465ae36dc8b92122267
-R 467eddba1d8a45fc5fcfc5f8b4c8a4a5
+P 355e34ba9d175082edfb43b1b4ec0ddfd4fc1fae
+R 024cc3ce24fbd6dfd5d90f90aef7de46
 U drh
-Z 5e70e3ae673b76813082e6a109b2850c
+Z b156239125a97b64f7071d012d26f0d8
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFK8hdboxKgR168RlERAkNQAJ9whHdnh41rOOJV6hz8iy5VLwxDZQCghSNQ
+tpfQDtuCEIkaXfSwNzcmiS8=
+=e5cK
+-----END PGP SIGNATURE-----
