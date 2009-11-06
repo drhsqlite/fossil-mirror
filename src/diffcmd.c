@@ -168,7 +168,7 @@ static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
       "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.rid"
       "  FROM vfile v1, vfile v2 "
       " WHERE v1.pathname=v2.pathname AND v1.vid=%d AND v2.vid=%d"
-      "   AND (v2.deleted OR v2.chnged OR v2.rid==0)"
+      "   AND (v2.deleted OR v2.chnged OR v1.rid!=v2.rid)"
       "UNION "
       "SELECT pathname, 1, 0, 0, 0"
       "  FROM vfile v1"
@@ -269,10 +269,10 @@ void diff_cmd(void){
 
   if( zTo==0 ){
     db_must_be_within_tree();
-    if( !isInternDiff ){
+    verify_all_options();
+    if( !isInternDiff && g.argc==3 ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
-    verify_all_options();
     if( g.argc==3 ){
       diff_one_against_disk(zFrom, zDiffCmd);
     }else{
@@ -282,10 +282,10 @@ void diff_cmd(void){
     fossil_fatal("must use --from if --to is present");
   }else{
     db_find_and_open_repository(1);
-    if( !isInternDiff ){
+    verify_all_options();
+    if( !isInternDiff && g.argc==3 ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
-    verify_all_options();
     fossil_fatal("--to not yet implemented");
 #if 0
     if( g.argc==3 ){
