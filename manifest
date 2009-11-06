@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\sability\sto\sdiff\sto\sarbitrary\sversions\sof\sa\ssingle\sfile.
-D 2009-11-06T14:00:38
+C Add\sthe\s--once\scommand-line\soption\sto\spush,\spull,\sand\ssync.\nTicket\s[2aaa8042caec]
+D 2009-11-06T14:15:17
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -96,7 +96,7 @@ F src/sqlite3.c 56de1fb10ae44833ed8ef02c53504712e0c79625
 F src/sqlite3.h da93a40cb32d0cc29dcdb2c8079d0e76ea675fd3
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 3c29836aa304f1d8413a6a6614dea026c6c85706
-F src/sync.c 693322f66290f3c8121b76eac2b7c6c755d09b06
+F src/sync.c ed149c3f445a9635997ceabf37a81a875bf28070
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 149945beea2774a0c7e8744392612e97da3e9b6f
-R 6d6248a021dc1b59a9d88bad875266af
+P fe8bb01d38d17c447c3ebc82ac9ae43e7c9e5446
+R 78653bcbebb9ff1d159865db1547c079
 U drh
-Z 1040d90f21f6787a03e88f74bf43cd4c
+Z 3044f2c44f01879ed9a2e56a179c4db3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK9CwJoxKgR168RlERAlxmAJ96v4/sY5T7gkoBLrn/c3GsLdhEDwCcC5D7
-ZS2Xio7yYE6Dv6adq/tUY1Y=
-=nyRI
+iD8DBQFK9C95oxKgR168RlERAlOdAJ4zni+/8HaUxHZnczpIzbXAEMgwDQCfZeZN
+5mnuyYGLO2TXTSXjIbDtmRc=
+=eijP
 -----END PGP SIGNATURE-----

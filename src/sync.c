@@ -73,6 +73,7 @@ void autosync(int flags){
 void process_sync_args(void){
   const char *zUrl = 0;
   int urlOptional = find_option("autourl",0,0)!=0;
+  int dontKeepUrl = find_option("once",0,0)!=0;
   url_proxy_options();
   db_find_and_open_repository(1);
   if( g.argc==2 ){
@@ -85,7 +86,9 @@ void process_sync_args(void){
     usage("URL");
   }
   url_parse(zUrl);
-  db_set("last-sync-url", g.urlIsFile ? g.urlCanonical : zUrl, 0);
+  if( !dontKeepUrl ){
+    db_set("last-sync-url", g.urlIsFile ? g.urlCanonical : zUrl, 0);
+  }
   user_select();
   if( g.argc==2 ){
     if( g.urlPort!=g.urlDfltPort ){
@@ -101,12 +104,19 @@ void process_sync_args(void){
 /*
 ** COMMAND: pull
 **
-** Usage: %fossil pull ?URL? ?-R|--respository REPOSITORY?
+** Usage: %fossil pull ?URL? ?options?
 **
 ** Pull changes from a remote repository into the local repository.
+** Use the "-R REPO" or "--repository REPO" command-line options
+** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
 ** clone, push, pull, remote-url, or sync command is used.
+**
+** The URL specified normally becomes the new "remote-url" used for
+** subsequent push, pull, and sync operations.  However, the "--once"
+** command-line option makes the URL a one-time-use URL that is not
+** saved.
 **
 ** See also: clone, push, sync, remote-url
 */
@@ -118,12 +128,19 @@ void pull_cmd(void){
 /*
 ** COMMAND: push
 **
-** Usage: %fossil push ?URL? ?-R|--repository REPOSITORY?
+** Usage: %fossil push ?URL? ?options?
 **
 ** Push changes in the local repository over into a remote repository.
+** Use the "-R REPO" or "--repository REPO" command-line options
+** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
 ** clone, push, pull, remote-url, or sync command is used.
+**
+** The URL specified normally becomes the new "remote-url" used for
+** subsequent push, pull, and sync operations.  However, the "--once"
+** command-line option makes the URL a one-time-use URL that is not
+** saved.
 **
 ** See also: clone, pull, sync, remote-url
 */
@@ -136,10 +153,12 @@ void push_cmd(void){
 /*
 ** COMMAND: sync
 **
-** Usage: %fossil sync ?URL? ?-R|--repository REPOSITORY?
+** Usage: %fossil sync ?URL? ?options?
 **
 ** Synchronize the local repository with a remote repository.  This is
 ** the equivalent of running both "push" and "pull" at the same time.
+** Use the "-R REPO" or "--repository REPO" command-line options
+** to specify an alternative repository file.
 **
 ** If a user-id and password are required, specify them as follows:
 **
@@ -147,6 +166,11 @@ void push_cmd(void){
 **
 ** If the URL is not specified, then the URL from the most recent successful
 ** clone, push, pull, remote-url, or sync command is used.
+**
+** The URL specified normally becomes the new "remote-url" used for
+** subsequent push, pull, and sync operations.  However, the "--once"
+** command-line option makes the URL a one-time-use URL that is not
+** saved.
 **
 ** See also:  clone, push, pull, remote-url
 */
