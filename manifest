@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Continuing\swork\son\sthe\s"diff"\scommand.
-D 2009-11-06T02:47:30
+C After\sany\skind\sof\sdatabase\serror,\sinclude\sin\sthe\serror\smessage\sa\swarning\nto\sthe\suser\sthat\sit\smight\sbe\swise\sto\srun\s"fossil\sall\srebuild".
+D 2009-11-06T03:10:32
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 16bc22dd3c53f9ab5810925612e138c34ce25451
+F src/db.c 1d7cecfa322d12cde5024727abcbc42e6e58835e
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a51808c0a514480020084bb848abdb869a41aab8
-R 5b5c9ee605064f2cb02619a543b83fb3
+P db608ee72f27666be6645c6151f9e791d512ea71
+R b8d6834dd0cf393e83834fe0b3d2d4a3
 U drh
-Z 920c9c7c156f4fe8afa18f8172e93c89
+Z 7e07c38ad51c5e62c1f007be27972bac
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK845FoxKgR168RlERAuwcAJ96BrtE7BjG+qstUjDlNgDsNY/1fgCfefMh
-rsOE9rSL+yZNFcT6YZmn0eA=
-=N/53
+iD8DBQFK85OroxKgR168RlERAnSQAJ0cFzuSyLxobPiJ4mRa8Pf6LgzIcgCdGIG9
+GOI/DogrWusv3npEn2dEHVM=
+=9c6B
 -----END PGP SIGNATURE-----
