@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Because\sthe\s"vfile"\ssignatures\sare\snow\sused\sby\s"diff",\sbe\ssure\sto\nrecompute\sthem\sbefore\srunning\sthe\sdiff.
-D 2009-11-06T04:05:13
+C Add\sthe\sability\sto\sdiff\sto\sarbitrary\sversions\sof\sa\ssingle\sfile.
+D 2009-11-06T14:00:38
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -59,7 +59,7 @@ F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
-F src/diffcmd.c 5083153aeebaca0a66ee6e1dd67b66461cec2639
+F src/diffcmd.c 20363d7b427f5bf53b08dcaa552ca255cddde101
 F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 397fa9bf785aec6dfbcdfb812d9ae2a3848cbaf9
-R a4d1c501ad2ace8b3acdceb731caeb75
+P 149945beea2774a0c7e8744392612e97da3e9b6f
+R 6d6248a021dc1b59a9d88bad875266af
 U drh
-Z 08338e2b1978119890846815532720a3
+Z 1040d90f21f6787a03e88f74bf43cd4c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK86B8oxKgR168RlERAlEGAJsGJNbh7vdhxP7mL/lYpcthUKMl8gCeLtKF
-grVovhiDLQ45KfAwHrHU/Hs=
-=piG5
+iD8DBQFK9CwJoxKgR168RlERAlxmAJ96v4/sY5T7gkoBLrn/c3GsLdhEDwCcC5D7
+ZS2Xio7yYE6Dv6adq/tUY1Y=
+=nyRI
 -----END PGP SIGNATURE-----

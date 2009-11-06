@@ -132,6 +132,59 @@ static void diff_file(
 }
 
 /*
+** Show the difference between two files, both in memory.
+**
+** The difference is the set of edits needed to transform pFile1 into
+** pFile2.
+**
+** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
+** command zDiffCmd to do the diffing.
+*/
+static void diff_file_mem(
+  Blob *pFile1,             /* In memory content to compare from */
+  Blob *pFile2,             /* In memory content to compare to */
+  const char *zName,        /* Display name of the file */
+  const char *zDiffCmd      /* Command for comparison */
+){
+  if( zDiffCmd==0 ){
+    Blob out;      /* Diff output text */
+
+    blob_zero(&out);
+    text_diff(pFile1, pFile2, &out, 5);
+    printf("--- %s\n+++ %s\n", zName, zName);
+    printf("%s\n", blob_str(&out));
+
+    /* Release memory resources */
+    blob_reset(&out);
+  }else{
+    Blob cmd;
+    char zTemp1[300];
+    char zTemp2[300];
+
+    /* Construct a temporary file names */
+    file_tempname(sizeof(zTemp1), zTemp1);
+    file_tempname(sizeof(zTemp2), zTemp2);
+    blob_write_to_file(pFile1, zTemp1);
+    blob_write_to_file(pFile2, zTemp2);
+
+    /* Construct the external diff command */
+    blob_zero(&cmd);
+    blob_appendf(&cmd, "%s ", zDiffCmd);
+    shell_escape(&cmd, zTemp1);
+    blob_append(&cmd, " ", 1);
+    shell_escape(&cmd, zTemp2);
+
+    /* Run the external diff command */
+    portable_system(blob_str(&cmd));
+
+    /* Delete the temporary file and clean up memory used */
+    unlink(zTemp1);
+    unlink(zTemp2);
+    blob_reset(&cmd);
+  }
+}
+
+/*
 ** Do a diff against a single file named in g.argv[2] from version zFrom
 ** against the same file on disk.
 */
@@ -229,7 +282,38 @@ static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
   db_end_transaction(1);
 }
 
+/*
+** Output the differences between two versions of a single file.
+** zFrom and zTo are the check-ins containing the two file versions.
+** The filename is contained in g.argv[2].
+*/
+static void diff_one_two_versions(
+  const char *zFrom,
+  const char *zTo,
+  const char *zDiffCmd
+){
+  char *zName;
+  Blob fname;
+  Blob v1, v2;
+  file_tree_name(g.argv[2], &fname, 1);
+  zName = blob_str(&fname);
+  historical_version_of_file(zFrom, zName, &v1);
+  historical_version_of_file(zTo, zName, &v2);
+  diff_file_mem(&v1, &v2, zName, zDiffCmd);
+  blob_reset(&v1);
+  blob_reset(&v2);
+  blob_reset(&fname);
+}
 
+/*
+** Output the differences between two check-ins.
+*/
+static void diff_all_two_versions(
+  const char *zFrom,
+  const char *zTo,
+  const char *zDiffCmd
+){
+}
 
 /*
 ** COMMAND: diff
@@ -287,13 +371,11 @@ void diff_cmd(void){
     if( !isInternDiff && g.argc==3 ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
-    fossil_fatal("--to not yet implemented");
-#if 0
     if( g.argc==3 ){
       diff_one_two_versions(zFrom, zTo, zDiffCmd);
     }else{
+      fossil_fatal("--to on complete check-ins not yet implemented");
       diff_all_two_versions(zFrom, zTo, zDiffCmd);
     }
-#endif
   }
 }
