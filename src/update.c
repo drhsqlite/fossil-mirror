@@ -247,7 +247,14 @@ int historical_version_of_file(
   Manifest m;
   int i, rid=0;
   
-  rid = name_to_rid(revision);
+  if( revision ){
+    rid = name_to_rid(revision);
+  }else{
+    rid = db_lget_int("checkout", 0);
+  }
+  if( !is_a_version(rid) ){
+    fossil_fatal("no such check-out: %s", revision);
+  }
   content_get(rid, &mfile);
   
   if( manifest_parse(&m, &mfile) ){

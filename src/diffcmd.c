@@ -49,176 +49,6 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 }
 
 /*
-** Run the fossil diff command separately for every file in the current
-** checkout that has changed.
-*/
-static void diff_all(int internalDiff,  const char *zRevision){
-  Stmt q;
-  Blob cmd;
-  int nCmdBase;
-  int vid;
-  
-  vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid);
-  blob_zero(&cmd);
-  shell_escape(&cmd, g.argv[0]);
-  blob_append(&cmd, " diff ", -1);
-  if( internalDiff ){
-    blob_append(&cmd, "-i ", -1);
-  }
-  if( zRevision ){
-    blob_append(&cmd, "-r ", -1);
-    shell_escape(&cmd, zRevision);
-    blob_append(&cmd, " ", 1);
-  }
-  nCmdBase = blob_size(&cmd);
-  db_prepare(&q, 
-    "SELECT pathname, deleted, chnged, rid FROM vfile "
-    "WHERE chnged OR deleted OR rid=0 ORDER BY 1"
-  );
-
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zPathname = db_column_text(&q,0);
-    int isDeleted = db_column_int(&q, 1);
-    int isChnged = db_column_int(&q,2);
-    int isNew = db_column_int(&q,3)==0;
-    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    cmd.nUsed = nCmdBase;
-    if( isDeleted ){
-      printf("DELETED  %s\n", zPathname);
-    }else if( access(zFullName, 0) ){
-      printf("MISSING  %s\n", zPathname);
-    }else if( isNew ){
-      printf("ADDED    %s\n", zPathname);
-    }else if( isDeleted ){
-      printf("DELETED  %s\n", zPathname);
-    }else if( isChnged==3 ){
-      printf("ADDED_BY_MERGE %s\n", zPathname);
-    }else{
-      printf("Index: %s\n======================================="
-             "============================\n",
-             zPathname
-      );
-      shell_escape(&cmd, zFullName);
-      printf("%s\n", blob_str(&cmd));
-      fflush(stdout);
-      portable_system(blob_str(&cmd));
-    }
-    free(zFullName);
-  }
-  db_finalize(&q);
-}
-
-/*
-** COMMAND: diff
-** COMMAND: gdiff
-**
-** Usage: %fossil diff|gdiff ?-i? ?-r REVISION? FILE...
-**
-** Show the difference between the current version of a file (as it
-** exists on disk) and that same file as it was checked out.
-**
-** diff will show a textual diff while gdiff will attempt to run a
-** graphical diff command that you have setup. If the choosen command
-** is not yet configured, the internal textual diff command will be
-** used.
-**
-** If -i is supplied for either diff or gdiff, the internal textual
-** diff command will be executed.
-**
-** Here are a few external diff command settings, for example:
-**
-**   %fossil setting diff-command diff
-**
-**   %fossil setting gdiff-command tkdiff
-**   %fossil setting gdiff-command eskill22
-**   %fossil setting gdiff-command tortoisemerge
-**   %fossil setting gdiff-command meld
-**   %fossil setting gdiff-command xxdiff
-**   %fossil setting gdiff-command kdiff3
-*/
-void diff_cmd(void){
-  int isGDiff;               /* True for gdiff.  False for normal diff */
-  const char *zFile;         /* Name of file to diff */
-  const char *zRevision;     /* Version of file to diff against current */
-  Blob cmd;                  /* The diff command-line for external diff */
-  Blob fname;                /* */
-  Blob vname;
-  Blob record;
-  int cnt=0;
-  int internalDiff;          /* True to use the internal diff engine */
-
-  isGDiff = g.argv[1][0]=='g';
-  internalDiff = find_option("internal","i",0)!=0;
-  zRevision = find_option("revision", "r", 1);
-  verify_all_options();
-  db_must_be_within_tree();
-
-  if( !isGDiff && g.argc==2 ){
-    diff_all(internalDiff, zRevision);
-    return;
-  }
-  if( g.argc<3 ){
-    usage("?OPTIONS? FILE");
-  }
-
-  if( internalDiff==0 ){
-    const char *zExternalCommand;
-    if( !isGDiff ){
-      zExternalCommand = db_get("diff-command", 0);
-    }else{
-      zExternalCommand = db_get("gdiff-command", 0);
-    }
-    if( zExternalCommand==0 ){
-      internalDiff=1;
-    }else{
-      blob_zero(&cmd);
-      blob_appendf(&cmd,"%s ",zExternalCommand);
-    }
-  }
-  zFile = g.argv[g.argc-1];
-  file_tree_name(zFile, &fname, 1);
-
-  blob_zero(&vname);
-  do{
-    blob_reset(&vname);
-    blob_appendf(&vname, "%s~%d", zFile, cnt++);
-  }while( access(blob_str(&vname),0)==0 );
-
-  if( zRevision==0 ){
-    int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
-    if( rid==0 ){
-      fossil_fatal("no history for file: %b", &fname);
-    }
-    content_get(rid, &record);
-  }else{
-    historical_version_of_file(zRevision, blob_str(&fname), &record);
-  }
-  if( internalDiff ){
-    Blob out;
-    Blob current;
-    blob_zero(&current);
-    blob_read_from_file(&current, zFile);
-    blob_zero(&out);
-    text_diff(&record, &current, &out, 5);
-    printf("--- %s\n+++ %s\n", blob_str(&fname), blob_str(&fname));
-    printf("%s\n", blob_str(&out));
-    blob_reset(&current);
-    blob_reset(&out);
-  }else{
-    blob_write_to_file(&record, blob_str(&vname));
-    blob_reset(&record);
-    blob_appendf(&cmd, "%s ", blob_str(&vname));
-    shell_escape(&cmd, zFile);
-    portable_system(blob_str(&cmd));
-    unlink(blob_str(&vname));
-    blob_reset(&vname);
-    blob_reset(&cmd);
-  }
-  blob_reset(&fname);
-}
-
-/*
 ** This function implements a cross-platform "system()" interface.
 */
 int portable_system(char *zOrigCmd){
@@ -236,4 +66,233 @@ int portable_system(char *zOrigCmd){
   rc = system(zOrigCmd);
 #endif 
   return rc; 
+}
+
+/*
+** Show the difference between two files, one in memory and one on disk.
+**
+** The difference is the set of edits needed to transform pFile1 into
+** zFile2.  The content of pFile1 is in memory.  zFile2 exists on disk.
+**
+** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
+** command zDiffCmd to do the diffing.
+*/
+static void diff_file(
+  Blob *pFile1,             /* In memory content to compare from */
+  const char *zFile2,       /* On disk content to compare to */
+  const char *zName,        /* Display name of the file */
+  const char *zDiffCmd      /* Command for comparison */
+){
+  if( zDiffCmd==0 ){
+    Blob out;      /* Diff output text */
+    Blob file2;    /* Content of zFile2 */
+
+    /* Read content of zFile2 into memory */
+    blob_zero(&file2);
+    blob_read_from_file(&file2, zFile2);
+
+    /* Compute and output the differences */
+    blob_zero(&out);
+    text_diff(pFile1, &file2, &out, 5);
+    printf("--- %s\n+++ %s\n", zName, zName);
+    printf("%s\n", blob_str(&out));
+
+    /* Release memory resources */
+    blob_reset(&file2);
+    blob_reset(&out);
+  }else{
+    int cnt = 0;
+    Blob nameFile1;    /* Name of temporary file to old pFile1 content */
+    Blob cmd;          /* Text of command to run */
+
+    /* Construct a temporary file to hold pFile1 based on the name of
+    ** zFile2 */
+    blob_zero(&nameFile1);
+    do{
+      blob_reset(&nameFile1);
+      blob_appendf(&nameFile1, "%s~%d", zFile2, cnt++);
+    }while( access(blob_str(&nameFile1),0)==0 );
+    blob_write_to_file(pFile1, blob_str(&nameFile1));
+
+    /* Construct the external diff command */
+    blob_zero(&cmd);
+    blob_appendf(&cmd, "%s ", zDiffCmd);
+    shell_escape(&cmd, blob_str(&nameFile1));
+    blob_append(&cmd, " ", 1);
+    shell_escape(&cmd, zFile2);
+
+    /* Run the external diff command */
+    portable_system(blob_str(&cmd));
+
+    /* Delete the temporary file and clean up memory used */
+    unlink(blob_str(&nameFile1));
+    blob_reset(&nameFile1);
+    blob_reset(&cmd);
+  }
+}
+
+/*
+** Do a diff against a single file named in g.argv[2] from version zFrom
+** against the same file on disk.
+*/
+static void diff_one_against_disk(const char *zFrom, const char *zDiffCmd){
+  Blob fname;
+  Blob content;
+  file_tree_name(g.argv[2], &fname, 1);
+  historical_version_of_file(zFrom, blob_str(&fname), &content);
+  diff_file(&content, g.argv[2], g.argv[2], zDiffCmd);
+  blob_reset(&content);
+  blob_reset(&fname);
+}
+
+/*
+** Run a diff between the version zFrom and files on disk.  zFrom might
+** be NULL which means to simply show the difference between the edited
+** files on disk and the check-out on which they are based.
+*/
+static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
+  int vid;
+  Blob sql;
+  Stmt q;
+
+  vid = db_lget_int("checkout", 0);
+  blob_zero(&sql);
+  db_begin_transaction();
+  if( zFrom ){
+    int rid = name_to_rid(zFrom);
+    if( !is_a_version(rid) ){
+      fossil_fatal("no such check-in: %s", zFrom);
+    }
+    load_vfile_from_rid(rid);
+    blob_appendf(&sql,
+      "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.rid"
+      "  FROM vfile v1, vfile v2 "
+      " WHERE v1.pathname=v2.pathname AND v1.vid=%d AND v2.vid=%d"
+      "   AND (v2.deleted OR v2.chnged OR v2.rid==0)"
+      "UNION "
+      "SELECT pathname, 1, 0, 0, 0"
+      "  FROM vfile v1"
+      " WHERE v1.vid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM vfile v2"
+                        " WHERE v2.vid=%d AND v2.pathname=v1.pathname)"
+      "UNION "
+      "SELECT pathname, 0, 0, 1, 0"
+      "  FROM vfile v2"
+      " WHERE v2.vid=%d"
+      "   AND NOT EXISTS(SELECT 1 FROM vfile v1"
+                        " WHERE v1.vid=%d AND v1.pathname=v2.pathname)"
+      " ORDER BY 1",
+      rid, vid, rid, vid, vid, rid
+    );
+  }else{
+    blob_appendf(&sql,
+      "SELECT pathname, deleted, chnged , rid==0, rid"
+      "  FROM vfile"
+      " WHERE vid=%d"
+      "   AND (deleted OR chnged OR rid==0)"
+      " ORDER BY pathname",
+      vid
+    );
+  }
+  db_prepare(&q, blob_str(&sql));
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zPathname = db_column_text(&q,0);
+    int isDeleted = db_column_int(&q, 1);
+    int isChnged = db_column_int(&q,2);
+    int isNew = db_column_int(&q,3);
+    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+    if( isDeleted ){
+      printf("DELETED  %s\n", zPathname);
+    }else if( access(zFullName, 0) ){
+      printf("MISSING  %s\n", zPathname);
+    }else if( isNew ){
+      printf("ADDED    %s\n", zPathname);
+    }else if( isDeleted ){
+      printf("DELETED  %s\n", zPathname);
+    }else if( isChnged==3 ){
+      printf("ADDED_BY_MERGE %s\n", zPathname);
+    }else{
+      int srcid = db_column_int(&q, 4);
+      Blob content;
+      content_get(srcid, &content);
+      printf("Index: %s\n======================================="
+             "============================\n",
+             zPathname
+      );
+      diff_file(&content, zFullName, zPathname, zDiffCmd);
+      blob_reset(&content);
+    }
+    free(zFullName);
+  }
+  db_finalize(&q);
+  db_end_transaction(1);
+}
+
+
+
+/*
+** COMMAND: diff
+** COMMAND: gdiff
+**
+** Usage: %fossil diff|gdiff ?options? ?FILE?
+**
+** Show the difference between the current version of FILE (as it
+** exists on disk) and that same file as it was checked out.  Or
+** if the FILE argument is omitted, show the unsaved changed currently
+** in the working check-out.
+**
+** If the "--from VERSION" or "-r VERSION" option is used it specifies
+** the source check-in for the diff operation.  If not specified, the 
+** source check-in is the base check-in for the current check-out.
+**
+** If the "--to VERSION" option appears, it specifies the check-in from
+** which the second version of the file or files is taken.  If there is
+** no "--to" option then the (possibly edited) files in the current check-out
+** are used.
+**
+** The "-i" command-line option forces the use of the internal diff logic
+** rather than any external diff program that might be configured using
+** the "setting" command.  If no external diff program is configured, then
+** the "-i" option is a no-op.  The "-i" option converts "gdiff" into "diff".
+*/
+void diff_cmd(void){
+  int isGDiff;               /* True for gdiff.  False for normal diff */
+  int isInternDiff;          /* True for internal diff */
+  const char *zFrom;         /* Source version number */
+  const char *zTo;           /* Target version number */
+  const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
+
+  isGDiff = g.argv[1][0]=='g';
+  isInternDiff = find_option("internal","i",0)!=0;
+  zFrom = find_option("from", "r", 1);
+  zTo = find_option("to", 0, 1);
+
+  if( zTo==0 ){
+    db_must_be_within_tree();
+    if( !isInternDiff ){
+      zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
+    }
+    verify_all_options();
+    if( g.argc==3 ){
+      diff_one_against_disk(zFrom, zDiffCmd);
+    }else{
+      diff_all_against_disk(zFrom, zDiffCmd);
+    }
+  }else if( zFrom==0 ){
+    fossil_fatal("must use --from if --to is present");
+  }else{
+    db_find_and_open_repository(1);
+    if( !isInternDiff ){
+      zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
+    }
+    verify_all_options();
+    fossil_fatal("--to not yet implemented");
+#if 0
+    if( g.argc==3 ){
+      diff_one_two_versions(zFrom, zTo, zDiffCmd);
+    }else{
+      diff_all_two_versions(zFrom, zTo, zDiffCmd);
+    }
+#endif
+  }
 }
