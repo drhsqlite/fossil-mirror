@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s--once\scommand-line\soption\sto\spush,\spull,\sand\ssync.\nTicket\s[2aaa8042caec]
-D 2009-11-06T14:15:17
+C Add\sthe\s"search"\scommand\sto\sthe\scommand-line\sinterface.\s\sThis\scommand\sis\nstill\sexperimental.\s\sCurrently\sit\sonly\ssearch\sthe\stimeline.
+D 2009-11-08T21:41:09
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -88,7 +88,7 @@ F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
 F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
-F src/search.c b8713502ffdcf144fa908edcdfe750173465a542
+F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
 F src/setup.c 41b6907a338e5b25886459d75af705c7cce21041
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P fe8bb01d38d17c447c3ebc82ac9ae43e7c9e5446
-R 78653bcbebb9ff1d159865db1547c079
+P 5153d618937eb274b06a5cb2ae93fa0832157575
+R 86b7dadd8c403fda9d17ddf769346570
 U drh
-Z 3044f2c44f01879ed9a2e56a179c4db3
+Z c43b079131f02c077555715a55a4c44e
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK9C95oxKgR168RlERAlOdAJ4zni+/8HaUxHZnczpIzbXAEMgwDQCfZeZN
-5mnuyYGLO2TXTSXjIbDtmRc=
-=eijP
+iD8DBQFK9zr4oxKgR168RlERAtt6AKCCjDon0873Pro+TzhePDrTRIfwuQCfa+u0
+v1AsKbU8FMpjwDVMoB2fPpE=
+=fE2X
 -----END PGP SIGNATURE-----

@@ -174,16 +174,17 @@ void search_sql_setup(Search *p){
 /*
 ** Testing the search function.
 **
-** COMMAND: test-search
-** %fossil test-search pattern...
+** COMMAND: search
+** %fossil search pattern...
 **
-** search for check-ins matching the pattern.
+** Search for timeline entrys matching the pattern.
 */
-void search_test(void){
+void search_cmd(void){
   Search *p;
   Blob pattern;
   int i;
   Stmt q;
+  int iBest;
 
   db_must_be_within_tree();
   if( g.argc<2 ) return;
@@ -196,19 +197,21 @@ void search_test(void){
   search_sql_setup(p);
 
   db_multi_exec(
-     "CREATE TEMP TABLE srch(x,text);"
-     "INSERT INTO srch(text) SELECT coalesce(ecomment,comment) FROM event;"
-     "UPDATE srch SET x=score(text);"
+     "CREATE TEMP TABLE srch(rid,uuid,date,comment,x);"
+     "CREATE INDEX srch_idx1 ON srch(x);"
+     "INSERT INTO srch(rid,uuid,date,comment,x)"
+     "   SELECT blob.rid, uuid, datetime(event.mtime, 'localtime'),"
+     "          coalesce(ecomment,comment),"
+     "          score(coalesce(ecomment,comment)) AS y"
+     "     FROM event, blob"
+     "    WHERE blob.rid=event.objid AND y>0;"
   );
-  db_prepare(&q, "SELECT x, text FROM srch WHERE x>0 ORDER BY x DESC");
-  while( db_step(&q)==SQLITE_ROW ){
-    int score = db_column_int(&q, 0);
-    const char *z = db_column_text(&q, 1);
-
-    score = search_score(p, z);
-    if( score ){
-      printf("%5d: %s\n", score, z);
-    }
-  }
+  iBest = db_int(0, "SELECT max(x) FROM srch");
+  db_prepare(&q, 
+    "SELECT rid, uuid, date, comment, 0, 0 FROM srch"
+    " WHERE x>%d ORDER BY x DESC, date DESC",
+    iBest/3
+  );
+  print_timeline(&q, 1000);
   db_finalize(&q);
 }
