@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s"search"\scommand\sto\sthe\scommand-line\sinterface.\s\sThis\scommand\sis\nstill\sexperimental.\s\sCurrently\sit\sonly\ssearch\sthe\stimeline.
-D 2009-11-08T21:41:09
+C On\sthe\s"timeline"\scommand,\sif\sa\sYYYY-MM-DD\sdate\sstring\sis\sentered\swithout\sthe\n"before"\skeyword,\sthen\sshow\sall\schanges\son\sthe\sdate\sgiven.
+D 2009-11-09T00:58:05
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -102,7 +102,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c f95beac6574094afc1919e3b11b7eb140549ed8c
+F src/timeline.c 0dbb20dfeb5c29bded92902f6a05d9b24ddabfaf
 F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5153d618937eb274b06a5cb2ae93fa0832157575
-R 86b7dadd8c403fda9d17ddf769346570
+P 20600107f137736581fa9a54d8bb973130503d0e
+R 047a60b3dd517155a985965fab09d748
 U drh
-Z c43b079131f02c077555715a55a4c44e
+Z 14c3c5f8fbb4d6eae2b3e00eb414c7b8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK9zr4oxKgR168RlERAtt6AKCCjDon0873Pro+TzhePDrTRIfwuQCfa+u0
-v1AsKbU8FMpjwDVMoB2fPpE=
-=fE2X
+iD8DBQFK92kgoxKgR168RlERAqHyAJ9LW7DnwwubhMKpeGxYSoZrTHgM0gCfe0sH
+BO6vh1WuQ83bgD87Kj+QJLE=
+=kxqO
 -----END PGP SIGNATURE-----
