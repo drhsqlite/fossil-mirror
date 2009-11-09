@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C On\sthe\s"timeline"\scommand,\sif\sa\sYYYY-MM-DD\sdate\sstring\sis\sentered\swithout\sthe\n"before"\skeyword,\sthen\sshow\sall\schanges\son\sthe\sdate\sgiven.
-D 2009-11-09T00:58:05
+C Create\snew\sbranch\snamed\s"ssl"
+D 2009-11-09T15:24:59
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -252,14 +249,10 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 20600107f137736581fa9a54d8bb973130503d0e
+P 0239325f58a4a0c99463582852ba86f95875e25c
 R 047a60b3dd517155a985965fab09d748
-U drh
-Z 14c3c5f8fbb4d6eae2b3e00eb414c7b8
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFK92kgoxKgR168RlERAqHyAJ9LW7DnwwubhMKpeGxYSoZrTHgM0gCfe0sH
-BO6vh1WuQ83bgD87Kj+QJLE=
-=kxqO
------END PGP SIGNATURE-----
+T *branch * ssl
+T *sym-ssl *
+T -sym-trunk *
+U dmitry
+Z 971cb932ebc6378ee642ed93f79e0662
