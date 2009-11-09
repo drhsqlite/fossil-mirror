@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C On\sthe\s"timeline"\scommand,\sif\sa\sYYYY-MM-DD\sdate\sstring\sis\sentered\swithout\sthe\n"before"\skeyword,\sthen\sshow\sall\schanges\son\sthe\sdate\sgiven.
-D 2009-11-09T00:58:05
+C Fix\san\sissue\swith\sthe\scommand-line\stimeline.\s\sFix\stypos\sin\sdocumentation.
+D 2009-11-09T21:32:36
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -102,7 +102,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c 0dbb20dfeb5c29bded92902f6a05d9b24ddabfaf
+F src/timeline.c f76d6fc0d68e7607e1b970b5b744a98daa4c6f64
 F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -188,7 +188,7 @@ F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
 F www/branching.wiki 73c9169a7e9982aa2f04eebc00867dcd70acbff5
 F www/bugtheory.wiki b809c20d72cf39859dea9f23009b576799d1b806
-F www/build.wiki a81964674be15b5291386d1904697a3c83872668
+F www/build.wiki ef08562a8f21037fbb8f23e28210696ed0810942
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
@@ -242,7 +242,7 @@ F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
-F www/quickstart.wiki 9f4eaca26285339ab232f410a521e6d0e03a6533
+F www/quickstart.wiki 83b4c8b851596b0679f0c32641d89cd1049e6b42
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 87d27f0d707889c1a1d8d681ef324bb836b9b99f
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 20600107f137736581fa9a54d8bb973130503d0e
-R 047a60b3dd517155a985965fab09d748
+P 0239325f58a4a0c99463582852ba86f95875e25c
+R b2822f9b2ceb6762a76eea78bccee8d8
 U drh
-Z 14c3c5f8fbb4d6eae2b3e00eb414c7b8
+Z d887cb9758ed7d1f9ddee11cac31790d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK92kgoxKgR168RlERAqHyAJ9LW7DnwwubhMKpeGxYSoZrTHgM0gCfe0sH
-BO6vh1WuQ83bgD87Kj+QJLE=
-=kxqO
+iD8DBQFK+Ip3oxKgR168RlERAp3NAJ4n17hG3Ne1ktCxyTTevR4BzifGEACfVMk/
+1lsbZIHKBAQ7SteEynGO7Tc=
+=GnSo
 -----END PGP SIGNATURE-----

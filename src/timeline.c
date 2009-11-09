@@ -953,15 +953,16 @@ void timeline_cmd(void){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else{
+    const char *zShift = "";
     if( mode==3 || mode==4 ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
     if( mode==0 ){
-      mode = 1;
-      if( isIsoDate(zOrigin) ) zOrigin[9]++;
+      if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
-    zDate = mprintf("(SELECT julianday(%Q, 'utc'))", zOrigin);
+    zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
   }
+  if( mode==0 ) mode = 1;
   zSQL = mprintf("%z AND event.mtime %s %s",
      timeline_query_for_tty_m(),
      (mode==1 || mode==4) ? "<=" : ">=",
