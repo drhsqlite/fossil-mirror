@@ -1,5 +1,5 @@
-C Add\sSSL\ssupport.
-D 2009-11-09T15:32:32
+C Reformat\ssome\scode\sin\shttp_ssl.c
+D 2009-11-09T21:22:32
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c4d30a7b4e3907f4a21680a15dc23b918d660337
@@ -63,7 +63,7 @@ F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 488f99c0c0b4ff9d546b69baef16b035bf9bf554
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_ssl.c 77d02aa7e4338b8cbee00c1a7b072d47a79bfd38
+F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
 F src/http_transport.c bc7f5938fff800f1a67dd88b1f2c076afd009e47
 F src/info.c 07a09dc02996a6600fdea59af1993171c89579ee
 F src/login.c 3b52c138dbc74bbc46d0d023b58241865cd2d06c
@@ -250,7 +250,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P bd2fa6aa2b5ca05e822a299bd5b5dee288d7e790
-R 25aaaed74c27e9563cd01850ae23e17d
+P 16f6fd904a0c88f7e1312704ee84675899181ee1
+R 4afd96d689583abe2ca1d9dee5e053e3
 U dmitry
-Z 42926c575799a0575217f5233730663e
+Z 675dcbe890f78145b34d439701eded2d

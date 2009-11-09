@@ -137,7 +137,7 @@ int ssl_open(void){
    * (if we have it in config) add it to certificate store.
    */
   cert = ssl_get_certificate();
-  if ( cert != NULL ){
+  if ( cert!=NULL ){
     X509_STORE_add_cert(SSL_CTX_get_cert_store(sslCtx), cert);
     X509_free(cert);
     hasSavedCertificate = 1;
@@ -172,7 +172,7 @@ int ssl_open(void){
   /* Check if certificate is valid */
   cert = SSL_get_peer_certificate(ssl);
 
-  if ( cert == NULL ){
+  if ( cert==NULL ){
     ssl_set_errmsg("No SSL certificate was presented by the peer");
     ssl_close();
     return 1;
@@ -201,7 +201,7 @@ int ssl_open(void){
     Blob ans;
     blob_zero(&ans);
     prompt_user(prompt, &ans);
-    free( prompt );
+    free(prompt);
     if( blob_str(&ans)[0]!='y' && blob_str(&ans)[0]!='a' ) {
       X509_free(cert);
       ssl_set_errmsg("SSL certificate declined");
@@ -219,8 +219,7 @@ int ssl_open(void){
 /*
 ** Save certificate to global config.
 */
-void ssl_save_certificate(X509 *cert)
-{
+void ssl_save_certificate(X509 *cert){
   BIO *mem;
   char *zCert, *zHost;
 
@@ -238,8 +237,7 @@ void ssl_save_certificate(X509 *cert)
 ** Get certificate for g.urlName from global config.
 ** Return NULL if no certificate found.
 */
-X509 *ssl_get_certificate()
-{
+X509 *ssl_get_certificate(void){
   char *zHost, *zCert;
   BIO *mem;
   X509 *cert;
