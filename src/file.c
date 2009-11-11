@@ -215,6 +215,11 @@ int file_is_simple_pathname(const char *z){
 */
 int file_simplify_name(char *z, int n){
   int i, j;
+#ifdef __MINGW32__
+  for(i=0; i<n; i++){
+    if( z[i]=='\\' ) z[i] = '/';
+  }
+#endif
   while( n>1 && z[n-1]=='/' ){ n--; }
   for(i=j=0; i<n; i++){
     if( z[i]=='/' ){
@@ -279,6 +284,32 @@ void cmd_test_canonical_name(void){
     printf("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }
+}
+
+/*
+** Return TRUE if the given filename is canonical.
+**
+** Canonical names are full pathnames using "/" not "\" and which
+** contain no "/./" or "/../" terms.
+*/
+int file_is_canonical(const char *z){
+  int i;
+  if( z[0]!='/'
+#ifdef __MINGW32__
+    && (z[0]==0 || z[1]!=':' || z[2]!='/')
+#endif
+  ) return 0;
+
+  for(i=0; z[i]; i++){
+    if( z[i]=='\\' ) return 0;
+    if( z[i]=='/' ){
+      if( z[i+1]=='.' ){
+        if( z[i+2]=='/' || z[i+2]==0 ) return 0;
+        if( z[i+2]=='.' && (z[i+3]=='/' || z[i+3]==0) ) return 0;
+      }
+    }
+  }
+  return 1;
 }
 
 /*

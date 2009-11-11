@@ -129,6 +129,11 @@ void info_cmd(void){
     printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
     printf("repository:   %s\n", db_lget("repository", ""));
     printf("local-root:   %s\n", g.zLocalRoot);
+#ifdef __MINGW32__
+    if( g.zHome ){
+      printf("user-home:  : %s\n", g.zHome);
+    }
+#endif
     printf("project-code: %s\n", db_get("project-code", ""));
     printf("server-code:  %s\n", db_get("server-code", ""));
     vid = db_lget_int("checkout", 0);

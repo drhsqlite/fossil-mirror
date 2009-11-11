@@ -703,6 +703,7 @@ void db_open_config(int useAttach){
            "please set the HOME environment variable");
   }
 #endif
+  g.zHome = mprintf("%/", zHome);
 #ifdef __MINGW32__
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);

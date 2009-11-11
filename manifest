@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Better\serror\smessages\swhen\s"sync"\sfails\sdue\sto\sserver\sproblems.\nTicket\s[bfb8427cdd5]
-D 2009-11-11T14:59:09
+C Deal\swith\swindows\sfilename\saliasing\sin\sthe\s"all"\scommand.\nTicket\s[974618fe5a8].\s\sAlso\sdisplay\sthe\shome\sdirectory\sfor\swindows\nusers\swith\sthe\s"info"\scommand\ssince\sthe\shome\sdirectory\sis\snon-obvious\nin\swindows.
+D 2009-11-11T16:21:19
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -38,7 +38,7 @@ F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c c094792c50f04881b59aa5fa6bbe9c164a4b1f0e
-F src/allrepo.c 22228def7617c6f7c3023e89026fb1091a3f5c37
+F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c 80cddafe2a13ae44bed095aeb87df87cc48d7fc8
 F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 1d7cecfa322d12cde5024727abcbc42e6e58835e
+F src/db.c 39a38ca81b092aa8cf6003cd992cc7c73b30be61
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -62,14 +62,14 @@ F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
 F src/diffcmd.c 20363d7b427f5bf53b08dcaa552ca255cddde101
 F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
-F src/file.c 146394c81abc2145edc8c2129f32df0de6f8454d
+F src/file.c 7be765ce11a81a0e8f291aaa79101d4ee6467bc4
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 2e97d8ac83c0f40d6545f56c80cc5405a157f25d
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
-F src/info.c 07a09dc02996a6600fdea59af1993171c89579ee
+F src/info.c dd6de258e10c1c22b175d2ee17ede01443f52e64
 F src/login.c 3b52c138dbc74bbc46d0d023b58241865cd2d06c
-F src/main.c e990b4f28da6affcea8649f95887d17e2fa5bbda
+F src/main.c 0e2e1d04fd07777bbb3f770478b4ddcf6f277f03
 F src/main.mk 08be0ee0cadb817e19e211d760e2f705ec659b15
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P e2431b17df0b3865fde767b35937e8cd726d76b8
-R 2fb3646927cdc9a4eda71b847943498c
+P 0690aa18a4aa3dfb6f055d486d278590f715a2cc
+R 2be2346e812f5598722ce0de58869451
 U drh
-Z 51e076826ab7b8940ae9974d403c63d1
+Z d71c4995545f6f321836edf1c854c2f5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK+tFAoxKgR168RlERAlQ/AJ9gXA0Qa3fGv0zw0GU0Cz+yGpD/LQCeKysc
-A/gIEqvjgITRMtS5zDqafiI=
-=NNbC
+iD8DBQFK+uSDoxKgR168RlERAsaMAJ9vYaHzAIDQXQVtZeSTzaUEuOGJkACcDjvL
+3nDt+6sMVvMoxgdXmElOAa4=
+=8mDC
 -----END PGP SIGNATURE-----
