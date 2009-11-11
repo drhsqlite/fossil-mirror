@@ -182,7 +182,12 @@ void http_exchange(Blob *pSend, Blob *pReply){
   while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
     if( strncasecmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
-      if( rc!=200 ) goto write_err;
+      if( rc!=200 ){
+        int ii;
+        for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
+        printf("ERROR. server says: %s\n", &zLine[ii]);
+        goto write_err;
+      }
       if( iHttpVersion==0 ){
         closeConnection = 1;
       }else{
@@ -206,7 +211,10 @@ void http_exchange(Blob *pSend, Blob *pReply){
   /*
   ** Extract the reply payload that follows the header
   */
-  if( iLength<0 ) goto write_err;
+  if( iLength<0 ){
+    printf("ERROR.  Server did not reply\n");
+    goto write_err;
+  }
   blob_zero(pReply);
   blob_resize(pReply, iLength);
   iLength = transport_receive(blob_buffer(pReply), iLength);

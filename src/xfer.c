@@ -924,7 +924,8 @@ void client_sync(
   int configSendMask      /* Send these configuration items */
 ){
   int go = 1;             /* Loop until zero */
-  int nCard = 0;          /* Number of cards sent or received */
+  int nCardSent = 0;      /* Number of cards sent */
+  int nCardRcvd = 0;      /* Number of cards received */
   int nCycle = 0;         /* Number of round trips to the server */
   int size;               /* Size of a config value */
   int nFileSend = 0;
@@ -970,15 +971,15 @@ void client_sync(
     blob_appendf(&send, "clone\n");
     pushFlag = 0;
     pullFlag = 0;
-    nCard++;
+    nCardSent++;
     /* TBD: Request all transferable configuration values */
   }else if( pullFlag ){
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
-    nCard++;
+    nCardSent++;
   }
   if( pushFlag ){
     blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
-    nCard++;
+    nCardSent++;
   }
   manifest_crosslink_begin();
   printf(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
@@ -1003,7 +1004,7 @@ void client_sync(
     }
     if( pushFlag ){
       send_unsent(&xfer);
-      nCard += send_unclustered(&xfer);
+      nCardSent += send_unclustered(&xfer);
     }
 
     /* Send configuration parameter requests */
@@ -1013,7 +1014,7 @@ void client_sync(
       while( zName ){
         blob_appendf(&send, "reqconfig %s\n", zName);
         zName = configure_next_name(configRcvMask);
-        nCard++;
+        nCardSent++;
       }
       if( configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT) ){
         configure_prepare_to_receive(0);
@@ -1028,7 +1029,7 @@ void client_sync(
       while( zName ){
         send_config_card(&xfer, zName);
         zName = configure_next_name(configSendMask);
-        nCard++;
+        nCardSent++;
       }
       configSendMask = 0;
     }
@@ -1041,9 +1042,10 @@ void client_sync(
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
     printf(zValueFormat, "Send:",
-            blob_size(&send), nCard+xfer.nGimmeSent+xfer.nIGotSent,
+            blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
             xfer.nFileSent, xfer.nDeltaSent);
-    nCard = 0;
+    nCardSent = 0;
+    nCardRcvd = 0;
     xfer.nFileSent = 0;
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
@@ -1056,11 +1058,11 @@ void client_sync(
     */
     if( pullFlag ){
       blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
-      nCard++;
+      nCardSent++;
     }
     if( pushFlag ){
       blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
-      nCard++;
+      nCardSent++;
     }
 
     /* Process the reply that came back from the server */
@@ -1069,8 +1071,8 @@ void client_sync(
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
-      nCard++;
-      printf("\r%d", nCard);
+      nCardRcvd++;
+      printf("\r%d", nCardRcvd);
       fflush(stdout);
 
       /*   file UUID SIZE \n CONTENT
@@ -1140,7 +1142,7 @@ void client_sync(
           db_set("project-code", zPCode, 0);
         }
         blob_appendf(&send, "clone\n");
-        nCard++;
+        nCardSent++;
       }else
       
       /*   config NAME SIZE \n CONTENT
@@ -1180,7 +1182,7 @@ void client_sync(
             db_multi_exec("%s", blob_str(&content));
           }
         }
-        nCard++;
+        nCardSent++;
         blob_reset(&content);
         blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
       }else
@@ -1206,7 +1208,7 @@ void client_sync(
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        printf("Server says: %s\n", zMsg);
+        printf("\rServer says: %s\n", zMsg);
       }else
 
       /*   error MESSAGE
@@ -1217,6 +1219,7 @@ void client_sync(
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
         blob_appendf(&xfer.err, "server says: %s", zMsg);
+        printf("Server Error: %s\n", zMsg);
       }else
 
       /* Unknown message */
@@ -1240,9 +1243,11 @@ void client_sync(
       configure_finalize_receive();
     }
     origConfigRcvMask = 0;
-    printf(zValueFormat, "Received:",
-            blob_size(&recv), nCard,
-            xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
+    if( nCardRcvd>0 ){
+      printf(zValueFormat, "Received:",
+              blob_size(&recv), nCardRcvd,
+              xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
+    }
     blob_reset(&recv);
     nCycle++;
     go = 0;
@@ -1256,7 +1261,7 @@ void client_sync(
       mxPhantomReq = nFileRecv*2;
       if( mxPhantomReq<200 ) mxPhantomReq = 200;
     }
-    nCard = 0;
+    nCardRcvd = 0;
     xfer.nFileRcvd = 0;
     xfer.nDeltaRcvd = 0;
     xfer.nDanglingFile = 0;
