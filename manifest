@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Deal\swith\swindows\sfilename\saliasing\sin\sthe\s"all"\scommand.\nTicket\s[974618fe5a8].\s\sAlso\sdisplay\sthe\shome\sdirectory\sfor\swindows\nusers\swith\sthe\s"info"\scommand\ssince\sthe\shome\sdirectory\sis\snon-obvious\nin\swindows.
-D 2009-11-11T16:21:19
+C In\sthe\sfile_isdir()\sroutine,\smake\ssure\sthe\sfilename\sis\ssimplified\s(has\sno\n"/../"\sor\s"/./"\scomponents\sand\sdoes\snot\send\swith\s"/")\sin\sorder\sto\swork\naround\sbugs\sin\smingw.
+D 2009-11-14T14:38:10
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -62,7 +62,7 @@ F src/diff.c 423e7bd7db1078eb33c89566182e93d6b589e342
 F src/diffcmd.c 20363d7b427f5bf53b08dcaa552ca255cddde101
 F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
-F src/file.c 7be765ce11a81a0e8f291aaa79101d4ee6467bc4
+F src/file.c 8138522279c00ab205b9c9a722f74283d421c437
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 2e97d8ac83c0f40d6545f56c80cc5405a157f25d
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 0690aa18a4aa3dfb6f055d486d278590f715a2cc
-R 2be2346e812f5598722ce0de58869451
+P d5695157d0caade4fc251dcfbeb1ac8e8602f672
+R d9382c2a040a5768e17647478da225c8
 U drh
-Z d71c4995545f6f321836edf1c854c2f5
+Z 6c56b45778760a5ab03f12e880f8a35a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFK+uSDoxKgR168RlERAsaMAJ9vYaHzAIDQXQVtZeSTzaUEuOGJkACcDjvL
-3nDt+6sMVvMoxgdXmElOAa4=
-=8mDC
+iD8DBQFK/sDYoxKgR168RlERArsxAJsFTb+QO9NMG6CrWA72qZ14QuYC2gCfWsyW
+X22KsQ6YoiiKZHjYUTKWlkQ=
+=TE4T
 -----END PGP SIGNATURE-----

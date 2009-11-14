@@ -140,10 +140,14 @@ void file_setexe(const char *zFilename, int onoff){
 */
 int file_isdir(const char *zFilename){
   struct stat buf;
-  if( stat(zFilename, &buf)!=0 ){
-    return 0;
-  }
-  return S_ISDIR(buf.st_mode) ? 1 : 2;
+  int rc;
+  char *zFN;
+
+  zFN = mprintf("%s", zFilename);
+  file_simplify_name(zFN, strlen(zFN));
+  rc = stat(zFN, &buf);
+  free(zFN);
+  return rc!=0 ? 0 : (S_ISDIR(buf.st_mode) ? 1 : 2);
 }
 
 /*
@@ -224,11 +228,11 @@ int file_simplify_name(char *z, int n){
   for(i=j=0; i<n; i++){
     if( z[i]=='/' ){
       if( z[i+1]=='/' ) continue;
-      if( z[i+1]=='.' && i+2<n && z[i+2]=='/' ){
+      if( z[i+1]=='.' && (i+2==n || z[i+2]=='/') ){
         i += 1;
         continue;
       }
-      if( z[i+1]=='.' && i+3<n && z[i+2]=='.' && z[i+3]=='/' ){
+      if( z[i+1]=='.' && i+2<n && z[i+2]=='.' && (i+3==n || z[i+3]=='/') ){
         while( j>0 && z[j-1]!='/' ){ j--; }
         if( j>0 ){ j--; }
         i += 2;
