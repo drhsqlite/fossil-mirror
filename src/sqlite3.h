@@ -119,9 +119,9 @@ extern "C" {
 **
 ** Requirements: [H10011] [H10014]
 */
-#define SQLITE_VERSION        "3.6.20"
-#define SQLITE_VERSION_NUMBER 3006020
-#define SQLITE_SOURCE_ID      "2009-11-04 23:02:52 f1c09acaca3e205acf5b077c9b2d0fe35f035c1e"
+#define SQLITE_VERSION        "3.6.21"
+#define SQLITE_VERSION_NUMBER 3006021
+#define SQLITE_SOURCE_ID      "2009-11-23 13:17:27 39214aee6553db76309851e7aa74fcc02d4f59b7"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
