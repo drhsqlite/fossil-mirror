@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sSQLite\sused\sinternally\sto\sthe\sfirst\s3.6.21\srelease\scandidate.
-D 2009-11-23T13:21:26
+C Update\sto\sthe\slatest\sversion\sof\sSQLite\swith\simproved\ssqlite3_trace()\ssupport.\nThis\smakes\sthe\soutput\sof\s--sqltrace\smuch\smore\shelpful.
+D 2009-11-25T22:14:11
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 39a38ca81b092aa8cf6003cd992cc7c73b30be61
+F src/db.c 295793e5a50e0dfa86b5912d39f6cacee46afb1a
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -92,8 +92,8 @@ F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
 F src/setup.c 41b6907a338e5b25886459d75af705c7cce21041
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/sqlite3.c bb900ede4533282725f88ae33b57b8872b91ece5
-F src/sqlite3.h d1070060b5ce13fe38c06651f1c503cfb79a5242
+F src/sqlite3.c 9b458b28f30cdaae7b2f4cc7215fb95ca66400d2
+F src/sqlite3.h 260f444797532900ceb8b03af70bb97913652a02
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 3c29836aa304f1d8413a6a6614dea026c6c85706
 F src/sync.c ed149c3f445a9635997ceabf37a81a875bf28070
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a7822bcc001e9fce21a6f97803a02ae221f0cea8
-R 04ed85b86f6c8c36d6e021dbb7644a1c
+P f3d4a2db535a12c11b4ab28eba94421ce1880d7c
+R fe28c6dd52035446510347d1f84341b8
 U drh
-Z 66095b621f204ce9cbdd94ab4cc7506a
+Z 372c4825aeaf4ac3ad3db7c6f99dfd6d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLCoxaoxKgR168RlERAnCMAJwOA2CY7EjsCvoeC0yJ7AgcCjQJBwCdGGyA
-fc2Kj6rXbqXcZ5D0OVHYkvo=
-=WrWJ
+iD8DBQFLDaw6oxKgR168RlERAqQjAKCKvK/dFAz64mQJ0/oRqsTsKDBo/QCfX4WR
+Hivb22ziUJ8CGrkEhD6x5pw=
+=E3R9
 -----END PGP SIGNATURE-----

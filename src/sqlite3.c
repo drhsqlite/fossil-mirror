@@ -645,7 +645,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.21"
 #define SQLITE_VERSION_NUMBER 3006021
-#define SQLITE_SOURCE_ID      "2009-11-23 13:17:27 39214aee6553db76309851e7aa74fcc02d4f59b7"
+#define SQLITE_SOURCE_ID      "2009-11-25 21:05:09 5086bf8e838c824accda531afeb56a51dd40d795"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -7536,6 +7536,9 @@ SQLITE_PRIVATE VdbeOp *sqlite3VdbeTakeOpArray(Vdbe*, int*, int*);
 SQLITE_PRIVATE void sqlite3VdbeProgramDelete(sqlite3 *, SubProgram *, int);
 SQLITE_PRIVATE sqlite3_value *sqlite3VdbeGetValue(Vdbe*, int, u8);
 SQLITE_PRIVATE void sqlite3VdbeSetVarmask(Vdbe*, int);
+#ifndef SQLITE_OMIT_TRACE
+SQLITE_PRIVATE   char *sqlite3VdbeExpandSql(Vdbe*, const char*);
+#endif
 
 SQLITE_PRIVATE UnpackedRecord *sqlite3VdbeRecordUnpack(KeyInfo*,int,const void*,char*,int);
 SQLITE_PRIVATE void sqlite3VdbeDeleteUnpackedRecord(UnpackedRecord*);
@@ -10119,6 +10122,9 @@ SQLITE_PRIVATE void sqlite3StatusSet(int, int);
 SQLITE_PRIVATE int sqlite3IsNaN(double);
 
 SQLITE_PRIVATE void sqlite3VXPrintf(StrAccum*, int, const char*, va_list);
+#ifndef SQLITE_OMIT_TRACE
+SQLITE_PRIVATE void sqlite3XPrintf(StrAccum*, const char*, ...);
+#endif
 SQLITE_PRIVATE char *sqlite3MPrintf(sqlite3*,const char*, ...);
 SQLITE_PRIVATE char *sqlite3VMPrintf(sqlite3*,const char*, va_list);
 SQLITE_PRIVATE char *sqlite3MAppendf(sqlite3*,char*,const char*,...);
@@ -10146,7 +10152,6 @@ SQLITE_PRIVATE Expr *sqlite3PExpr(Parse*, int, Expr*, Expr*, const Token*);
 SQLITE_PRIVATE Expr *sqlite3ExprAnd(sqlite3*,Expr*, Expr*);
 SQLITE_PRIVATE Expr *sqlite3ExprFunction(Parse*,ExprList*, Token*);
 SQLITE_PRIVATE void sqlite3ExprAssignVarNumber(Parse*, Expr*);
-SQLITE_PRIVATE void sqlite3ExprClear(sqlite3*, Expr*);
 SQLITE_PRIVATE void sqlite3ExprDelete(sqlite3*, Expr*);
 SQLITE_PRIVATE ExprList *sqlite3ExprListAppend(Parse*,ExprList*,Expr*);
 SQLITE_PRIVATE void sqlite3ExprListSetName(Parse*,ExprList*,Token*,int);
@@ -16995,14 +17000,15 @@ SQLITE_PRIVATE void sqlite3VXPrintf(
       case etSQLESCAPE:
       case etSQLESCAPE2:
       case etSQLESCAPE3: {
-        int i, j, n, isnull;
+        int i, j, k, n, isnull;
         int needQuote;
         char ch;
         char q = ((xtype==etSQLESCAPE3)?'"':'\'');   /* Quote character */
         char *escarg = va_arg(ap,char*);
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
-        for(i=n=0; (ch=escarg[i])!=0; i++){
+        k = precision;
+        for(i=n=0; (ch=escarg[i])!=0 && k!=0; i++, k--){
           if( ch==q )  n++;
         }
         needQuote = !isnull && xtype==etSQLESCAPE2;
@@ -17018,15 +17024,17 @@ SQLITE_PRIVATE void sqlite3VXPrintf(
         }
         j = 0;
         if( needQuote ) bufpt[j++] = q;
-        for(i=0; (ch=escarg[i])!=0; i++){
-          bufpt[j++] = ch;
+        k = i;
+        for(i=0; i<k; i++){
+          bufpt[j++] = ch = escarg[i];
           if( ch==q ) bufpt[j++] = ch;
         }
         if( needQuote ) bufpt[j++] = q;
         bufpt[j] = 0;
         length = j;
-        /* The precision is ignored on %q and %Q */
-        /* if( precision>=0 && precision<length ) length = precision; */
+        /* The precision in %q and %Q means how many input characters to
+        ** consume, not the length of the output...
+        ** if( precision>=0 && precision<length ) length = precision; */
         break;
       }
       case etTOKEN: {
@@ -17302,6 +17310,18 @@ SQLITE_PRIVATE void sqlite3DebugPrintf(const char *zFormat, ...){
   sqlite3StrAccumFinish(&acc);
   fprintf(stdout,"%s", zBuf);
   fflush(stdout);
+}
+#endif
+
+#ifndef SQLITE_OMIT_TRACE
+/*
+** variable-argument wrapper around sqlite3VXPrintf().
+*/
+SQLITE_PRIVATE void sqlite3XPrintf(StrAccum *p, const char *zFormat, ...){
+  va_list ap;
+  va_start(ap,zFormat);
+  sqlite3VXPrintf(p, 1, zFormat, ap);
+  va_end(ap);
 }
 #endif
 
@@ -35103,7 +35123,7 @@ SQLITE_PRIVATE int sqlite3PagerAcquire(
       goto pager_acquire_err;
     }
 
-    if( nMax<(int)pgno || MEMDB || noContent ){
+    if( MEMDB || nMax<(int)pgno || noContent ){
       if( pgno>pPager->mxPgno ){
 	rc = SQLITE_FULL;
 	goto pager_acquire_err;
@@ -39077,7 +39097,9 @@ static void zeroPage(MemPage *pPage, int flags){
   assert( sqlite3PagerGetData(pPage->pDbPage) == data );
   assert( sqlite3PagerIswriteable(pPage->pDbPage) );
   assert( sqlite3_mutex_held(pBt->mutex) );
-  /*memset(&data[hdr], 0, pBt->usableSize - hdr);*/
+#ifdef SQLITE_SECURE_DELETE
+  memset(&data[hdr], 0, pBt->usableSize - hdr);
+#endif
   data[hdr] = (char)flags;
   first = hdr + 8 + 4*((flags&PTF_LEAF)==0 ?1:0);
   memset(&data[hdr+1], 0, 4);
@@ -44457,9 +44479,9 @@ SQLITE_PRIVATE int sqlite3BtreeCreateTable(Btree *p, int *piTable, int flags){
 */
 static int clearDatabasePage(
   BtShared *pBt,           /* The BTree that contains the table */
-  Pgno pgno,            /* Page number to clear */
-  int freePageFlag,     /* Deallocate page if true */
-  int *pnChange
+  Pgno pgno,               /* Page number to clear */
+  int freePageFlag,        /* Deallocate page if true */
+  int *pnChange            /* Add number of Cells freed to this counter */
 ){
   MemPage *pPage;
   int rc;
@@ -51464,6 +51486,158 @@ SQLITE_API int sqlite3_stmt_status(sqlite3_stmt *pStmt, int op, int resetFlag){
 }
 
 /************** End of vdbeapi.c *********************************************/
+/************** Begin file vdbetrace.c ***************************************/
+/*
+** 2009 November 25
+**
+** The author disclaims copyright to this source code.  In place of
+** a legal notice, here is a blessing:
+**
+**    May you do good and not evil.
+**    May you find forgiveness for yourself and forgive others.
+**    May you share freely, never taking more than you give.
+**
+*************************************************************************
+**
+** This file contains code used to insert the values of host parameters
+** (aka "wildcards") into the SQL text output by sqlite3_trace().
+*/
+
+#ifndef SQLITE_OMIT_TRACE
+
+/*
+** zSql is a zero-terminated string of UTF-8 SQL text.  Return the number of
+** bytes in this text up to but excluding the first character in
+** a host parameter.  If the text contains no host parameters, return
+** the total number of bytes in the text.
+*/
+static int findNextHostParameter(const char *zSql){
+  int tokenType;
+  int nTotal = 0;
+  int n;
+
+  while( zSql[0] ){
+    n = sqlite3GetToken((u8*)zSql, &tokenType);
+    assert( n>0 && tokenType!=TK_ILLEGAL );
+    if( tokenType==TK_VARIABLE ) break;
+    nTotal += n;
+    zSql += n;
+  }
+  return nTotal;
+}
+
+/*
+** Return a pointer to a string in memory obtained form sqlite3Malloc() which
+** holds a copy of zRawSql but with host parameters expanded to their
+** current values.
+**
+** The calling function is responsible for making sure the memory returned
+** is eventually freed.
+**
+** ALGORITHM:  Scan the input string looking for host parameters in any of
+** these forms:  ?, ?N, $A, @A, :A.  Take care to avoid text within
+** string literals, quoted identifier names, and comments.  For text forms,
+** the host parameter index is found by scanning the perpared
+** statement for the corresponding OP_Variable opcode.  Once the host
+** parameter index is known, locate the value in p->aVar[].  Then render
+** the value as a literal in place of the host parameter name.
+*/
+SQLITE_PRIVATE char *sqlite3VdbeExpandSql(
+  Vdbe *p,                 /* The prepared statement being evaluated */
+  const char *zRawSql      /* Raw text of the SQL statement */
+){
+  sqlite3 *db;             /* The database connection */
+  int idx;                 /* Index of a host parameter */
+  int nextIndex = 1;       /* Index of next ? host parameter */
+  int n;                   /* Length of a token prefix */
+  int i;                   /* Loop counter */
+  int dummy;               /* For holding a unused return value */
+  Mem *pVar;               /* Value of a host parameter */
+  VdbeOp *pOp;             /* For looping over opcodes */
+  StrAccum out;            /* Accumulate the output here */
+  char zBase[100];         /* Initial working space */
+
+  db = p->db;
+  sqlite3StrAccumInit(&out, zBase, sizeof(zBase), 
+                      db->aLimit[SQLITE_LIMIT_LENGTH]);
+  out.db = db;
+  while( zRawSql[0] ){
+    n = findNextHostParameter(zRawSql);
+    assert( n>0 );
+    sqlite3StrAccumAppend(&out, zRawSql, n);
+    zRawSql += n;
+    if( zRawSql[0]==0 ) break;
+    if( zRawSql[0]=='?' ){
+      zRawSql++;
+      if( sqlite3Isdigit(zRawSql[0]) ){
+        idx = 0;
+        while( sqlite3Isdigit(zRawSql[0]) ){
+          idx = idx*10 + zRawSql[0] - '0';
+          zRawSql++;
+        }
+      }else{
+        idx = nextIndex;
+      }
+    }else{
+      assert( zRawSql[0]==':' || zRawSql[0]=='$' || zRawSql[0]=='@' );
+      testcase( zRawSql[0]==':' );
+      testcase( zRawSql[0]=='$' );
+      testcase( zRawSql[0]=='@' );
+      n = sqlite3GetToken((u8*)zRawSql, &dummy);
+      idx = 0;
+      for(i=0, pOp=p->aOp; ALWAYS(i<p->nOp); i++, pOp++){
+        if( pOp->opcode!=OP_Variable ) continue;
+        if( pOp->p3>1 ) continue;
+        if( pOp->p4.z==0 ) continue;
+        if( memcmp(pOp->p4.z, zRawSql, n)==0 && pOp->p4.z[n]==0 ){
+          idx = pOp->p1;
+          break;
+        }
+      }
+      assert( idx>0 );
+      zRawSql += n;
+    }
+    nextIndex = idx + 1;
+    assert( idx>0 && idx<=p->nVar );
+    pVar = &p->aVar[idx-1];
+    if( pVar->flags & MEM_Null ){
+      sqlite3StrAccumAppend(&out, "NULL", 4);
+    }else if( pVar->flags & MEM_Int ){
+      sqlite3XPrintf(&out, "%lld", pVar->u.i);
+    }else if( pVar->flags & MEM_Real ){
+      sqlite3XPrintf(&out, "%!.15g", pVar->r);
+    }else if( pVar->flags & MEM_Str ){
+#ifndef SQLITE_OMIT_UTF16
+      if( ENC(db)!=SQLITE_UTF8 ){
+        Mem utf8;
+        memset(&utf8, 0, sizeof(utf8));
+        utf8.db = db;
+        sqlite3VdbeMemSetStr(&utf8, pVar->z, pVar->n, ENC(db), SQLITE_STATIC);
+        sqlite3VdbeChangeEncoding(&utf8, SQLITE_UTF8);
+        sqlite3XPrintf(&out, "'%.*q'", utf8.n, utf8.z);
+        sqlite3VdbeMemRelease(&utf8);
+      }else
+#endif
+      {
+        sqlite3XPrintf(&out, "'%.*q'", pVar->n, pVar->z);
+      }
+    }else if( pVar->flags & MEM_Zero ){
+      sqlite3XPrintf(&out, "zeroblob(%d)", pVar->u.nZero);
+    }else{
+      assert( pVar->flags & MEM_Blob );
+      sqlite3StrAccumAppend(&out, "x'", 2);
+      for(i=0; i<pVar->n; i++){
+        sqlite3XPrintf(&out, "%02x", pVar->z[i]&0xff);
+      }
+      sqlite3StrAccumAppend(&out, "'", 1);
+    }
+  }
+  return sqlite3StrAccumFinish(&out);
+}
+
+#endif /* #ifndef SQLITE_OMIT_TRACE */
+
+/************** End of vdbetrace.c *******************************************/
 /************** Begin file vdbe.c ********************************************/
 /*
 ** 2001 September 15
@@ -57518,8 +57692,8 @@ case OP_VColumn: {
   ** dynamic allocation in u.ch.sContext.s (a Mem struct) is  released.
   */
   sqlite3VdbeChangeEncoding(&u.ch.sContext.s, encoding);
-  REGISTER_TRACE(pOp->p3, u.ch.pDest);
   sqlite3VdbeMemMove(u.ch.pDest, &u.ch.sContext.s);
+  REGISTER_TRACE(pOp->p3, u.ch.pDest);
   UPDATE_MAX_BLOBSIZE(u.ch.pDest);
 
   if( sqlite3SafetyOn(db) ){
@@ -57714,7 +57888,9 @@ case OP_Trace: {
   u.cm.zTrace = (pOp->p4.z ? pOp->p4.z : p->zSql);
   if( u.cm.zTrace ){
     if( db->xTrace ){
-      db->xTrace(db->pTraceArg, u.cm.zTrace);
+      char *z = sqlite3VdbeExpandSql(p, u.cm.zTrace);
+      db->xTrace(db->pTraceArg, z);
+      sqlite3DbFree(db, z);
     }
 #ifdef SQLITE_DEBUG
     if( (db->flags & SQLITE_SqlTrace)!=0 ){
@@ -58958,7 +59134,13 @@ static void resolveAlias(
     pDup->pColl = pExpr->pColl;
     pDup->flags |= EP_ExpCollate;
   }
-  sqlite3ExprClear(db, pExpr);
+
+  /* Before calling sqlite3ExprDelete(), set the EP_Static flag. This 
+  ** prevents ExprDelete() from deleting the Expr structure itself,
+  ** allowing it to be repopulated by the memcpy() on the following line.
+  */
+  ExprSetProperty(pExpr, EP_Static);
+  sqlite3ExprDelete(db, pExpr);
   memcpy(pExpr, pDup, sizeof(*pExpr));
   sqlite3DbFree(db, pDup);
 }
@@ -60687,11 +60869,10 @@ SQLITE_PRIVATE void sqlite3ExprAssignVarNumber(Parse *pParse, Expr *pExpr){
 }
 
 /*
-** Clear an expression structure without deleting the structure itself.
-** Substructure is deleted.
+** Recursively delete an expression tree.
 */
-SQLITE_PRIVATE void sqlite3ExprClear(sqlite3 *db, Expr *p){
-  assert( p!=0 );
+SQLITE_PRIVATE void sqlite3ExprDelete(sqlite3 *db, Expr *p){
+  if( p==0 ) return;
   if( !ExprHasAnyProperty(p, EP_TokenOnly) ){
     sqlite3ExprDelete(db, p->pLeft);
     sqlite3ExprDelete(db, p->pRight);
@@ -60704,14 +60885,6 @@ SQLITE_PRIVATE void sqlite3ExprClear(sqlite3 *db, Expr *p){
       sqlite3ExprListDelete(db, p->x.pList);
     }
   }
-}
-
-/*
-** Recursively delete an expression tree.
-*/
-SQLITE_PRIVATE void sqlite3ExprDelete(sqlite3 *db, Expr *p){
-  if( p==0 ) return;
-  sqlite3ExprClear(db, p);
   if( !ExprHasProperty(p, EP_Static) ){
     sqlite3DbFree(db, p);
   }
@@ -89111,6 +89284,7 @@ static Bitmask codeOneLoopStart(
     const struct sqlite3_index_constraint *aConstraint =
                                                 pVtabIdx->aConstraint;
 
+    sqlite3ExprCachePush(pParse);
     iReg = sqlite3GetTempRange(pParse, nConstraint+2);
     for(j=1; j<=nConstraint; j++){
       for(k=0; k<nConstraint; k++){
@@ -89137,6 +89311,7 @@ static Bitmask codeOneLoopStart(
     pLevel->p1 = iCur;
     pLevel->p2 = sqlite3VdbeCurrentAddr(v);
     sqlite3ReleaseTempRange(pParse, iReg, nConstraint+2);
+    sqlite3ExprCachePop(pParse, 1);
   }else
 #endif /* SQLITE_OMIT_VIRTUALTABLE */
 

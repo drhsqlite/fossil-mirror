@@ -1052,7 +1052,8 @@ static void db_sql_print(
   }
 }
 static void db_sql_trace(void *notUsed, const char *zSql){
-  printf("%s\n", zSql);
+  int n = strlen(zSql);
+  fprintf(stderr, "%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
 }
 
 /*
