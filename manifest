@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sto\sthe\slatest\sversion\sof\sSQLite\swith\simproved\ssqlite3_trace()\ssupport.\nThis\smakes\sthe\soutput\sof\s--sqltrace\smuch\smore\shelpful.
-D 2009-11-25T22:14:11
+C Update\sSQLite\sto\sthe\sfirst\srelease\scandidate\sfor\s3.6.21.
+D 2009-12-04T15:23:41
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -92,8 +92,8 @@ F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
 F src/setup.c 41b6907a338e5b25886459d75af705c7cce21041
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/sqlite3.c 9b458b28f30cdaae7b2f4cc7215fb95ca66400d2
-F src/sqlite3.h 260f444797532900ceb8b03af70bb97913652a02
+F src/sqlite3.c d909879b1700d553fb6926ee828aa3ebfb4e4104
+F src/sqlite3.h 01d7fc5733ed17f151e6a3c43e851e40ff636d56
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 3c29836aa304f1d8413a6a6614dea026c6c85706
 F src/sync.c ed149c3f445a9635997ceabf37a81a875bf28070
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P f3d4a2db535a12c11b4ab28eba94421ce1880d7c
-R fe28c6dd52035446510347d1f84341b8
+P 732d7c406e3f7644e1ee6356bee406d20153e980
+R 201119a93028a0fbf837f5a99da3a474
 U drh
-Z 372c4825aeaf4ac3ad3db7c6f99dfd6d
+Z f2e41cf16f3f639287b0ea26fd226968
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLDaw6oxKgR168RlERAqQjAKCKvK/dFAz64mQJ0/oRqsTsKDBo/QCfX4WR
-Hivb22ziUJ8CGrkEhD6x5pw=
-=E3R9
+iD8DBQFLGSmAoxKgR168RlERAhYSAJ9ZV0sv4q2sgKeH4HaJ9XgbI0zvIgCfXBnm
+/TKWNWRIZL/dSxRkA7SDoyI=
+=ivxK
 -----END PGP SIGNATURE-----

@@ -121,7 +121,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.21"
 #define SQLITE_VERSION_NUMBER 3006021
-#define SQLITE_SOURCE_ID      "2009-11-25 21:05:09 5086bf8e838c824accda531afeb56a51dd40d795"
+#define SQLITE_SOURCE_ID      "2009-12-04 14:25:19 082b8da005128f47f63e95b6b702bf4517221b2a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -1295,6 +1295,9 @@ SQLITE_API int sqlite3_extended_result_codes(sqlite3*, int onoff);
 ** For the purposes of this routine, an [INSERT] is considered to
 ** be successful even if it is subsequently rolled back.
 **
+** This function is accessible to SQL statements via the
+** [last_insert_rowid() SQL function].
+**
 ** Requirements:
 ** [H12221] [H12223]
 **
@@ -1352,8 +1355,8 @@ SQLITE_API sqlite3_int64 sqlite3_last_insert_rowid(sqlite3*);
 ** However, the number returned does not include changes
 ** caused by subtriggers since those have their own context.
 **
-** See also the [sqlite3_total_changes()] interface and the
-** [count_changes pragma].
+** See also the [sqlite3_total_changes()] interface, the
+** [count_changes pragma], and the [changes() SQL function].
 **
 ** Requirements:
 ** [H12241] [H12243]
@@ -1380,8 +1383,8 @@ SQLITE_API int sqlite3_changes(sqlite3*);
 ** completed (when the statement handle is passed to [sqlite3_reset()] or
 ** [sqlite3_finalize()]).
 **
-** See also the [sqlite3_changes()] interface and the
-** [count_changes pragma].
+** See also the [sqlite3_changes()] interface, the
+** [count_changes pragma], and the [total_changes() SQL function].
 **
 ** Requirements:
 ** [H12261] [H12263]
@@ -4142,6 +4145,8 @@ SQLITE_API int sqlite3_table_column_metadata(
 ** {H12606} Extension loading must be enabled using
 **          [sqlite3_enable_load_extension()] prior to calling this API,
 **          otherwise an error will be returned.
+**
+** See also the [load_extension() SQL function].
 */
 SQLITE_API int sqlite3_load_extension(
   sqlite3 *db,          /* Load the extension into this database connection */
