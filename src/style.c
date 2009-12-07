@@ -145,7 +145,7 @@ void style_footer(void){
 
   /* Put the footer at the bottom of the page.
   */
-  @ </div><br clear="both"></br>
+  @ </div><br clear="both"/>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
