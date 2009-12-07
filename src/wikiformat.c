@@ -840,7 +840,7 @@ static int backupToType(Renderer *p, int iMask){
 ** Begin a new paragraph if that something that is needed.
 */
 static void startAutoParagraph(Renderer *p){
-  if( p->wantAutoParagraph==0 ) return;
+  if( p->wantAutoParagraph==0 || p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
   blob_appendf(p->pOut, "<p>", -1);
   pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
