@@ -1,5 +1,5 @@
-C added\ssecond\shalf\sof\sfix\sin\s#6f0df6c741
-D 2009-12-07T22:29:33
+C Added\snew\sconfig\soption\swith\sthe\srather\sunwieldy\sname\s'anon-login-enable-captcha-filler'
+D 2009-12-07T22:42:42
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -51,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 295793e5a50e0dfa86b5912d39f6cacee46afb1a
+F src/db.c a46411d47cd0eb8903ae01d51a9a0977aa08dff6
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -65,7 +65,7 @@ F src/http.c 2e97d8ac83c0f40d6545f56c80cc5405a157f25d
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c dd6de258e10c1c22b175d2ee17ede01443f52e64
-F src/login.c 3b52c138dbc74bbc46d0d023b58241865cd2d06c
+F src/login.c 646f690c52a1a04497e17a6b9908a1a00cd99601
 F src/main.c 0e2e1d04fd07777bbb3f770478b4ddcf6f277f03
 F src/main.mk 08be0ee0cadb817e19e211d760e2f705ec659b15
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -86,7 +86,7 @@ F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
 F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
-F src/setup.c 56d1a9a08f78c7ee9d1c23003ebab6ccd819358a
+F src/setup.c 800f3104a61be4100bcccc9a24f43da57920bebd
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
 F src/sqlite3.c bc27f16f3675657951da9271386877a199b77e4a
@@ -249,7 +249,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 50a372c1e5e42a7a1a7cfe38fa91150dd7987119
-R f6473df590e03f9cafafd4c765f0df74
+P 239139a90722ca542b53bdf39cca96d0b5969d3a
+R b92f6a386af363cec58298a2add2dca5
 U stephan
-Z 6938606cf6ccdc3e675b9603f5649ebc
+Z 9fded539c88a1baab5b540583b3d1b12

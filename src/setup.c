@@ -271,6 +271,7 @@ void user_edit(void){
   */
   doWrite = cgi_all("login","info","pw") && !higherUser;
   if( doWrite ){
+    char const * anonLoginCheckedbox = PD("anonymousEnableAutofill",0);
     char zCap[50];
     int i = 0;
     int aa = P("aa")!=0;
@@ -339,6 +340,12 @@ void user_edit(void){
        "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s')",
       uid, P("login"), P("info"), zPw, zCap
     );
+    if( anonLoginCheckedbox && (*anonLoginCheckedbox) ){
+      db_set( "anon-login-enable-captcha-filler", "on", 0 );
+    }
+    else{
+      db_set( "anon-login-enable-captcha-filler", "off", 0 );
+    }
     cgi_redirect("setup_ulist");
     return;
   }
@@ -447,35 +454,39 @@ void user_edit(void){
   @   <td>
 #define B(x) inherit[x]
   if( g.okSetup ){
-    @    <input type="checkbox" name="as"%s(oas)>%s(B('s'))Setup</input><br>
+    @    <input type="checkbox" name="as"%s(oas)/>%s(B('s'))Setup<br>
   }
-  @    <input type="checkbox" name="aa"%s(oaa)>%s(B('a'))Admin</input><br>
-  @    <input type="checkbox" name="ad"%s(oad)>%s(B('d'))Delete</input><br>
-  @    <input type="checkbox" name="ae"%s(oae)>%s(B('e'))Email</input><br>
-  @    <input type="checkbox" name="ap"%s(oap)>%s(B('p'))Password</input><br>
-  @    <input type="checkbox" name="ai"%s(oai)>%s(B('i'))Check-In</input><br>
-  @    <input type="checkbox" name="ao"%s(oao)>%s(B('o'))Check-Out</input><br>
-  @    <input type="checkbox" name="ah"%s(oah)>%s(B('h'))History</input><br>
-  @    <input type="checkbox" name="au"%s(oau)>%s(B('u'))Reader</input><br>
-  @    <input type="checkbox" name="av"%s(oav)>%s(B('v'))Developer</input><br>
-  @    <input type="checkbox" name="ag"%s(oag)>%s(B('g'))Clone</input><br>
-  @    <input type="checkbox" name="aj"%s(oaj)>%s(B('j'))Read Wiki</input><br>
-  @    <input type="checkbox" name="af"%s(oaf)>%s(B('f'))New Wiki</input><br>
-  @    <input type="checkbox" name="am"%s(oam)>%s(B('m'))Append Wiki</input><br>
-  @    <input type="checkbox" name="ak"%s(oak)>%s(B('k'))Write Wiki</input><br>
-  @    <input type="checkbox" name="ar"%s(oar)>%s(B('r'))Read Tkt</input><br>
-  @    <input type="checkbox" name="an"%s(oan)>%s(B('n'))New Tkt</input><br>
-  @    <input type="checkbox" name="ac"%s(oac)>%s(B('c'))Append Tkt</input><br>
-  @    <input type="checkbox" name="aw"%s(oaw)>%s(B('w'))Write Tkt</input><br>
-  @    <input type="checkbox" name="at"%s(oat)>%s(B('t'))Tkt Report</input><br>
-  @    <input type="checkbox" name="az"%s(oaz)>%s(B('z'))Download Zip</input>
+  @    <input type="checkbox" name="aa"%s(oaa)/>%s(B('a'))Admin<br>
+  @    <input type="checkbox" name="ad"%s(oad)/>%s(B('d'))Delete<br>
+  @    <input type="checkbox" name="ae"%s(oae)/>%s(B('e'))Email<br>
+  @    <input type="checkbox" name="ap"%s(oap)/>%s(B('p'))Password<br>
+  @    <input type="checkbox" name="ai"%s(oai)/>%s(B('i'))Check-In<br>
+  @    <input type="checkbox" name="ao"%s(oao)/>%s(B('o'))Check-Out<br>
+  @    <input type="checkbox" name="ah"%s(oah)/>%s(B('h'))History<br>
+  @    <input type="checkbox" name="au"%s(oau)/>%s(B('u'))Reader<br>
+  @    <input type="checkbox" name="av"%s(oav)/>%s(B('v'))Developer<br>
+  @    <input type="checkbox" name="ag"%s(oag)/>%s(B('g'))Clone<br>
+  @    <input type="checkbox" name="aj"%s(oaj)/>%s(B('j'))Read Wiki<br>
+  @    <input type="checkbox" name="af"%s(oaf)/>%s(B('f'))New Wiki<br>
+  @    <input type="checkbox" name="am"%s(oam)/>%s(B('m'))Append Wiki<br>
+  @    <input type="checkbox" name="ak"%s(oak)/>%s(B('k'))Write Wiki<br>
+  @    <input type="checkbox" name="ar"%s(oar)/>%s(B('r'))Read Tkt<br>
+  @    <input type="checkbox" name="an"%s(oan)/>%s(B('n'))New Tkt<br>
+  @    <input type="checkbox" name="ac"%s(oac)/>%s(B('c'))Append Tkt<br>
+  @    <input type="checkbox" name="aw"%s(oaw)/>%s(B('w'))Write Tkt<br>
+  @    <input type="checkbox" name="at"%s(oat)/>%s(B('t'))Tkt Report<br>
+  @    <input type="checkbox" name="az"%s(oaz)/>%s(B('z'))Download Zip
   @   </td>
   @ </tr>
   @ <tr>
   @   <td align="right">Password:</td>
   if( strcmp(zLogin, "anonymous")==0 ){
+    int enabled = db_get_boolean( "anon-login-enable-captcha-filler", 0 );
+    char const * checked = enabled ? "checked=\"checked\"" : "";
     /* User the password for "anonymous" as cleartext */
-    @   <td><input type="text" name="pw" value="%h(zPw)"></td>
+    @   <td><input type="text" name="pw" value="%h(zPw)"/>
+    @   <br/>Enable password-filler button for anonymous login? <input type="checkbox" name="anonymousEnableAutofill" %s(checked)/><br/>
+    @   </td>
   }else if( zPw[0] ){
     /* Obscure the password for all other users */
     @   <td><input type="password" name="pw" value="**********"></td>
@@ -620,7 +631,7 @@ void user_edit(void){
   @ all privileges of the "developer" user.  Similarly, the "<b>reader</b>"
   @ user is a template for users who are allowed more access than anonymous,
   @ but less than a developer.
-  @ </li></p>
+  @ </p></li>
   @ </ul>
   @ </form>
   style_footer();

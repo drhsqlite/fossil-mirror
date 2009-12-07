@@ -227,7 +227,7 @@ void login_page(void){
   @ </tr>
   @ <tr>
   @  <td align="right">Password:</td>
-  @   <td><input type="password" name="p" value="" size=30></td>
+  @   <td><input type="password" id="p" name="p" value="" size=30></td>
   @ </tr>
   if( g.zLogin==0 ){
     zAnonPw = db_text(0, "SELECT pw FROM user"
@@ -252,14 +252,20 @@ void login_page(void){
   @ the login to take.</p>
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
-    char *zCaptcha = captcha_render(captcha_decode(uSeed));
+    char const * zDecoded = captcha_decode(uSeed);
+    int iAllowPasswordFill = db_get_boolean( "anon-login-enable-captcha-filler", 0 );
+    char *zCaptcha = captcha_render(zDecoded);
 
-    @ <input type="hidden" name="cs" value="%u(uSeed)">
+    @ <input type="hidden" name="cs" value="%u(uSeed)"/>
     @ <p>Visitors may enter <b>anonymous</b> as the user-ID with
     @ the 8-character hexadecimal password shown below:</p>
     @ <center><table border="1" cellpadding="10"><tr><td><pre>
     @ %s(zCaptcha)
-    @ </pre></td></tr></table></center>
+    @ </pre></td></tr></table>
+    if( iAllowPasswordFill ) {
+        @ <input type="button" value="Fill out captcha" onclick="document.getElementById('u').value='anonymous'; document.getElementById('p').value='%s(zDecoded)';"/>
+    }
+    @ </center>
     free(zCaptcha);
   }
   if( g.zLogin ){
