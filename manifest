@@ -1,5 +1,8 @@
-C Fixed\s<p>\sinside\sof\s<ul>\sand\s<ol>\selements\swhen\sautoparagraph\sis\son.\sBug\swas\sreported\son\sthe\sfossil\smailing\slist\sby\sStephan\sBeal.
-D 2009-12-07T20:20:22
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Update\sSQLite\sto\sversion\s3.6.21\sfinal.
+D 2009-12-07T20:23:03
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -89,8 +92,8 @@ F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
 F src/setup.c 41b6907a338e5b25886459d75af705c7cce21041
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/sqlite3.c d909879b1700d553fb6926ee828aa3ebfb4e4104
-F src/sqlite3.h 01d7fc5733ed17f151e6a3c43e851e40ff636d56
+F src/sqlite3.c bc27f16f3675657951da9271386877a199b77e4a
+F src/sqlite3.h 99a4282d9b6aa73a10382aea4bbd893f8ae9a554
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c c7fc56d7742aa4c520d212c1c881f2d8cc88457c
 F src/sync.c ed149c3f445a9635997ceabf37a81a875bf28070
@@ -249,7 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6009ff325f020e4d8017ae4e584bcf4d654b224a
-R 0d1ec5b4a80d54892d681f9f85310a28
-U jeremy_c
-Z 0cdcfcd0b6008c8bbc61a3e2b2e3f84f
+P 6f0df6c741887ef251d89224bc7c14894d489aed
+R b77ff84166d140e6454faad4e0c6bf68
+U drh
+Z 6ededa316383b580b565ac569bec80d9
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFLHWQqoxKgR168RlERAkN/AJ9CwAvPOV3tVmJm+FlNMzgxveuxmQCfXM7O
+Ggu4Bfg+zpeiNRnnvj7N1qI=
+=S7Bw
+-----END PGP SIGNATURE-----

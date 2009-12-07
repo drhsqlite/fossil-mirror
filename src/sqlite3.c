@@ -645,7 +645,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.21"
 #define SQLITE_VERSION_NUMBER 3006021
-#define SQLITE_SOURCE_ID      "2009-12-04 14:25:19 082b8da005128f47f63e95b6b702bf4517221b2a"
+#define SQLITE_SOURCE_ID      "2009-12-07 16:39:13 1ed88e9d01e9eda5cbc622e7614277f29bcc551c"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers {H10020} <S60100>
@@ -6757,9 +6757,19 @@ SQLITE_PRIVATE const int sqlite3one;
 #define ROUNDDOWN8(x) ((x)&~7)
 
 /*
-** Assert that the pointer X is aligned to an 8-byte boundary.
+** Assert that the pointer X is aligned to an 8-byte boundary.  This
+** macro is used only within assert() to verify that the code gets
+** all alignment restrictions correct.
+**
+** Except, if SQLITE_4_BYTE_ALIGNED_MALLOC is defined, then the
+** underlying malloc() implemention might return us 4-byte aligned
+** pointers.  In that case, only verify 4-byte alignment.
 */
-#define EIGHT_BYTE_ALIGNMENT(X)   ((((char*)(X) - (char*)0)&7)==0)
+#ifdef SQLITE_4_BYTE_ALIGNED_MALLOC
+# define EIGHT_BYTE_ALIGNMENT(X)   ((((char*)(X) - (char*)0)&3)==0)
+#else
+# define EIGHT_BYTE_ALIGNMENT(X)   ((((char*)(X) - (char*)0)&7)==0)
+#endif
 
 
 /*
@@ -38777,6 +38787,7 @@ static int allocateSpace(MemPage *pPage, int nByte, int *pIdx){
   int top;                             /* First byte of cell content area */
   int gap;        /* First byte of gap between cell pointers and cell content */
   int rc;         /* Integer return code */
+  int usableSize; /* Usable size of the page */
   
   assert( sqlite3PagerIswriteable(pPage->pDbPage) );
   assert( pPage->pBt );
@@ -38784,7 +38795,8 @@ static int allocateSpace(MemPage *pPage, int nByte, int *pIdx){
   assert( nByte>=0 );  /* Minimum cell size is 4 */
   assert( pPage->nFree>=nByte );
   assert( pPage->nOverflow==0 );
-  assert( nByte<pPage->pBt->usableSize-8 );
+  usableSize = pPage->pBt->usableSize;
+  assert( nByte < usableSize-8 );
 
   nFrag = data[hdr+7];
   assert( pPage->cellOffset == hdr + 12 - 4*pPage->leaf );
@@ -38807,7 +38819,11 @@ static int allocateSpace(MemPage *pPage, int nByte, int *pIdx){
     */
     int pc, addr;
     for(addr=hdr+1; (pc = get2byte(&data[addr]))>0; addr=pc){
-      int size = get2byte(&data[pc+2]);     /* Size of free slot */
+      int size;            /* Size of the free slot */
+      if( pc>usableSize-4 || pc<addr+4 ){
+        return SQLITE_CORRUPT_BKPT;
+      }
+      size = get2byte(&data[pc+2]);
       if( size>=nByte ){
         int x = size - nByte;
         testcase( x==4 );
@@ -38817,6 +38833,8 @@ static int allocateSpace(MemPage *pPage, int nByte, int *pIdx){
           ** fragmented bytes within the page. */
           memcpy(&data[addr], &data[pc], 2);
           data[hdr+7] = (u8)(nFrag + x);
+        }else if( size+pc > usableSize ){
+          return SQLITE_CORRUPT_BKPT;
         }else{
           /* The slot remains on the free-list. Reduce its size to account
           ** for the portion used by the new allocation. */
@@ -39240,7 +39258,6 @@ static int getAndInitPage(
 */
 static void releasePage(MemPage *pPage){
   if( pPage ){
-    assert( pPage->nOverflow==0 || sqlite3PagerPageRefcount(pPage->pDbPage)>1 );
     assert( pPage->aData );
     assert( pPage->pBt );
     assert( sqlite3PagerGetExtra(pPage->pDbPage) == (void*)pPage );
@@ -43214,7 +43231,7 @@ static void copyNodeContent(MemPage *pFrom, MemPage *pTo, int *pRC){
     u8 * const aTo = pTo->aData;
     int const iFromHdr = pFrom->hdrOffset;
     int const iToHdr = ((pTo->pgno==1) ? 100 : 0);
-    TESTONLY(int rc;)
+    int rc;
     int iData;
   
   
@@ -43228,11 +43245,16 @@ static void copyNodeContent(MemPage *pFrom, MemPage *pTo, int *pRC){
     memcpy(&aTo[iToHdr], &aFrom[iFromHdr], pFrom->cellOffset + 2*pFrom->nCell);
   
     /* Reinitialize page pTo so that the contents of the MemPage structure
-    ** match the new data. The initialization of pTo "cannot" fail, as the
-    ** data copied from pFrom is known to be valid.  */
+    ** match the new data. The initialization of pTo can actually fail under
+    ** fairly obscure circumstances, even though it is a copy of initialized 
+    ** page pFrom.
+    */
     pTo->isInit = 0;
-    TESTONLY(rc = ) btreeInitPage(pTo);
-    assert( rc==SQLITE_OK );
+    rc = btreeInitPage(pTo);
+    if( rc!=SQLITE_OK ){
+      *pRC = rc;
+      return;
+    }
   
     /* If this is an auto-vacuum database, update the pointer-map entries
     ** for any b-tree or overflow pages that pTo now contains the pointers to.
@@ -98920,16 +98942,16 @@ int fts3InitVtab(
   int nDb;
   int nName;
 
+  const char *zTokenizer = 0;               /* Name of tokenizer to use */
+  sqlite3_tokenizer *pTokenizer = 0;        /* Tokenizer for this table */
+
 #ifdef SQLITE_TEST
-  char *zTestParam = 0;
+  const char *zTestParam = 0;
   if( strncmp(argv[argc-1], "test:", 5)==0 ){
     zTestParam = argv[argc-1];
     argc--;
   }
 #endif
-
-  const char *zTokenizer = 0;               /* Name of tokenizer to use */
-  sqlite3_tokenizer *pTokenizer = 0;        /* Tokenizer for this table */
 
   nDb = (int)strlen(argv[1]) + 1;
   nName = (int)strlen(argv[2]) + 1;
@@ -99326,6 +99348,8 @@ static void fts3PoslistCopy(char **pp, char **ppPoslist){
 static void fts3ColumnlistCopy(char **pp, char **ppPoslist){
   char *pEnd = *ppPoslist;
   char c = 0;
+
+  /* A column-list is terminated by either a 0x01 or 0x00. */
   while( 0xFE & (*pEnd | c) ) c = *pEnd++ & 0x80;
   if( pp ){
     int n = (int)(pEnd - *ppPoslist);
@@ -99335,6 +99359,54 @@ static void fts3ColumnlistCopy(char **pp, char **ppPoslist){
     *pp = p;
   }
   *ppPoslist = pEnd;
+}
+
+/*
+** Value used to signify the end of an offset-list. This is safe because
+** it is not possible to have a document with 2^31 terms.
+*/
+#define OFFSET_LIST_END 0x7fffffff
+
+/*
+** This function is used to help parse offset-lists. When this function is
+** called, *pp may point to the start of the next varint in the offset-list
+** being parsed, or it may point to 1 byte past the end of the offset-list
+** (in which case **pp will be 0x00 or 0x01).
+**
+** If *pp points past the end of the current offset list, set *pi to 
+** OFFSET_LIST_END and return. Otherwise, read the next varint from *pp,
+** increment the current value of *pi by the value read, and set *pp to
+** point to the next value before returning.
+*/
+static void fts3ReadNextPos(
+  char **pp,                      /* IN/OUT: Pointer into offset-list buffer */
+  sqlite3_int64 *pi               /* IN/OUT: Value read from offset-list */
+){
+  if( **pp&0xFE ){
+    fts3GetDeltaVarint(pp, pi);
+    *pi -= 2;
+  }else{
+    *pi = OFFSET_LIST_END;
+  }
+}
+
+/*
+** If parameter iCol is not 0, write an 0x01 byte followed by the value of
+** iCol encoded as a varint to *pp. 
+**
+** Set *pp to point to the byte just after the last byte written before 
+** returning (do not modify it if iCol==0). Return the total number of bytes
+** written (0 if iCol==0).
+*/
+static int fts3PutColNumber(char **pp, int iCol){
+  int n = 0;                      /* Number of bytes written */
+  if( iCol ){
+    char *p = *pp;                /* Output pointer */
+    n = 1 + sqlite3Fts3PutVarint(&p[1], iCol);
+    *p = 0x01;
+    *pp = &p[n];
+  }
+  return n;
 }
 
 /*
@@ -99349,40 +99421,53 @@ static void fts3PoslistMerge(
   char *p1 = *pp1;
   char *p2 = *pp2;
 
-  while( *p1 && *p2 ){
-    int iCol1 = 0;
-    int iCol2 = 0;
+  while( *p1 || *p2 ){
+    int iCol1;
+    int iCol2;
+
     if( *p1==0x01 ) sqlite3Fts3GetVarint32(&p1[1], &iCol1);
+    else if( *p1==0x00 ) iCol1 = OFFSET_LIST_END;
+    else iCol1 = 0;
+
     if( *p2==0x01 ) sqlite3Fts3GetVarint32(&p2[1], &iCol2);
+    else if( *p2==0x00 ) iCol2 = OFFSET_LIST_END;
+    else iCol2 = 0;
 
     if( iCol1==iCol2 ){
       sqlite3_int64 i1 = 0;
       sqlite3_int64 i2 = 0;
       sqlite3_int64 iPrev = 0;
-      if( iCol1!=0 ){
-        int n;
-        *p++ = 0x01;
-        n = sqlite3Fts3PutVarint(p, iCol1);
-        p += n;
-        p1 += 1 + n;
-        p2 += 1 + n;
-      }
-      while( (*p1&0xFE) || (*p2&0xFE) ){
+      int n = fts3PutColNumber(&p, iCol1);
+      p1 += n;
+      p2 += n;
+
+      /* At this point, both p1 and p2 point to the start of offset-lists.
+      ** An offset-list is a list of non-negative delta-encoded varints, each 
+      ** incremented by 2 before being stored. Each list is terminated by a 0 
+      ** or 1 value (0x00 or 0x01). The following block merges the two lists
+      ** and writes the results to buffer p. p is left pointing to the byte
+      ** after the list written. No terminator (0x00 or 0x01) is written to
+      ** the output.
+      */
+      fts3GetDeltaVarint(&p1, &i1);
+      fts3GetDeltaVarint(&p2, &i2);
+      do {
+        fts3PutDeltaVarint(&p, &iPrev, (i1<i2) ? i1 : i2); 
+        iPrev -= 2;
         if( i1==i2 ){
-          fts3GetDeltaVarint(&p1, &i1); i1 -= 2;
-          fts3GetDeltaVarint(&p2, &i2); i2 -= 2;
+          fts3ReadNextPos(&p1, &i1);
+          fts3ReadNextPos(&p2, &i2);
         }else if( i1<i2 ){
-          fts3GetDeltaVarint(&p1, &i1); i1 -= 2;
+          fts3ReadNextPos(&p1, &i1);
         }else{
-          fts3GetDeltaVarint(&p2, &i2); i2 -= 2;
+          fts3ReadNextPos(&p2, &i2);
         }
-        fts3PutDeltaVarint(&p, &iPrev, (i1<i2 ? i1 : i2) + 2); iPrev -= 2;
-        if( 0==(*p1&0xFE) ) i1 = 0x7FFFFFFF;
-        if( 0==(*p2&0xFE) ) i2 = 0x7FFFFFFF;
-      }
+      }while( i1!=OFFSET_LIST_END || i2!=OFFSET_LIST_END );
     }else if( iCol1<iCol2 ){
+      p1 += fts3PutColNumber(&p, iCol1);
       fts3ColumnlistCopy(&p, &p1);
     }else{
+      p2 += fts3PutColNumber(&p, iCol2);
       fts3ColumnlistCopy(&p, &p2);
     }
   }
@@ -99449,13 +99534,14 @@ static int fts3PoslistPhraseMerge(
           fts3PutDeltaVarint(&p, &iPrev, iSave+2); iPrev -= 2;
           pSave = 0;
         }
-        if( iPos2<=iPos1 ){
+        if( (!isSaveLeft && iPos2<=(iPos1+nToken)) || iPos2<=iPos1 ){
           if( (*p2&0xFE)==0 ) break;
           fts3GetDeltaVarint(&p2, &iPos2); iPos2 -= 2;
         }else{
           if( (*p1&0xFE)==0 ) break;
           fts3GetDeltaVarint(&p1, &iPos1); iPos1 -= 2;
         }
+
       }
       if( pSave && pp ){
         p = pSave;
@@ -99502,13 +99588,16 @@ static int fts3PoslistPhraseMerge(
   return 1;
 }
 
+/*
+** Merge two position-lists as required by the NEAR operator.
+*/
 static int fts3PoslistNearMerge(
   char **pp,                      /* Output buffer */
   char *aTmp,                     /* Temporary buffer space */
   int nRight,                     /* Maximum difference in token positions */
   int nLeft,                      /* Maximum difference in token positions */
-  char **pp1,                     /* Left input list */
-  char **pp2                      /* Right input list */
+  char **pp1,                     /* IN/OUT: Left input list */
+  char **pp2                      /* IN/OUT: Right input list */
 ){
   char *p1 = *pp1;
   char *p2 = *pp2;
@@ -99595,6 +99684,10 @@ static int fts3DoclistMerge(
   if( !aBuffer ){
     return SQLITE_NOMEM;
   }
+  if( n1==0 && n2==0 ){
+    *pnBuffer = 0;
+    return SQLITE_OK;
+  }
 
   /* Read the first docid from each doclist */
   fts3GetDeltaVarint2(&p1, pEnd1, &i1);
@@ -99674,8 +99767,7 @@ static int fts3DoclistMerge(
       break;
     }
 
-    case MERGE_POS_NEAR:
-    case MERGE_NEAR: {
+    default: assert( mergetype==MERGE_POS_NEAR || mergetype==MERGE_NEAR ); {
       char *aTmp = 0;
       char **ppPos = 0;
       if( mergetype==MERGE_POS_NEAR ){
@@ -99710,9 +99802,6 @@ static int fts3DoclistMerge(
       sqlite3_free(aTmp);
       break;
     }
-
-    default:
-      assert(!"Invalid mergetype value passed to fts3DoclistMerge()");
   }
 
   *pnBuffer = (int)(p-aBuffer);
@@ -100289,7 +100378,7 @@ static int fts3FunctionArg(
 ){
   Fts3Cursor *pRet;
   if( sqlite3_value_type(pVal)!=SQLITE_BLOB 
-   && sqlite3_value_bytes(pVal)!=sizeof(Fts3Cursor *)
+   || sqlite3_value_bytes(pVal)!=sizeof(Fts3Cursor *)
   ){
     char *zErr = sqlite3_mprintf("illegal first argument to %s", zFunc);
     sqlite3_result_error(pContext, zErr, -1);
@@ -100305,22 +100394,31 @@ static int fts3FunctionArg(
 ** Implementation of the snippet() function for FTS3
 */
 static void fts3SnippetFunc(
-  sqlite3_context *pContext,
-  int argc,
-  sqlite3_value **argv
+  sqlite3_context *pContext,      /* SQLite function call context */
+  int nVal,                       /* Size of apVal[] array */
+  sqlite3_value **apVal           /* Array of arguments */
 ){
   Fts3Cursor *pCsr;               /* Cursor handle passed through apVal[0] */
   const char *zStart = "<b>";
   const char *zEnd = "</b>";
   const char *zEllipsis = "<b>...</b>";
 
-  if( argc<1 || argc>4 ) return;
-  if( fts3FunctionArg(pContext, "snippet", argv[0], &pCsr) ) return;
+  /* There must be at least one argument passed to this function (otherwise
+  ** the non-overloaded version would have been called instead of this one).
+  */
+  assert( nVal>=1 );
 
-  switch( argc ){
-    case 4: zEllipsis = (const char*)sqlite3_value_text(argv[3]);
-    case 3: zEnd = (const char*)sqlite3_value_text(argv[2]);
-    case 2: zStart = (const char*)sqlite3_value_text(argv[1]);
+  if( nVal>4 ){
+    sqlite3_result_error(pContext, 
+        "wrong number of arguments to function snippet()", -1);
+    return;
+  }
+  if( fts3FunctionArg(pContext, "snippet", apVal[0], &pCsr) ) return;
+
+  switch( nVal ){
+    case 4: zEllipsis = (const char*)sqlite3_value_text(apVal[3]);
+    case 3: zEnd = (const char*)sqlite3_value_text(apVal[2]);
+    case 2: zStart = (const char*)sqlite3_value_text(apVal[1]);
   }
 
   sqlite3Fts3Snippet(pContext, pCsr, zStart, zEnd, zEllipsis);
@@ -102671,7 +102769,6 @@ SQLITE_PRIVATE int sqlite3Fts3InitTokenizer(
   if( !z ){
     zCopy = sqlite3_mprintf("simple");
   }else{
-    while( (*z&0x80) && isspace(*z) ) z++;
     if( sqlite3_strnicmp(z, "tokenize", 8) || fts3IsIdChar(z[8])){
       return SQLITE_OK;
     }
