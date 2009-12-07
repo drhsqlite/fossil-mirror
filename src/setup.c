@@ -329,7 +329,7 @@ void user_edit(void){
       @ <font color="red">Login "%h(zLogin)" is already used by a different
       @ user.</font>
       @
-      @ <p><a href="setup_uedit?id=%d(uid))>[Bummer]</a></p>
+      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
       style_footer();
       return;
     }
@@ -572,7 +572,7 @@ void user_edit(void){
   @ <li><p>
   @ Users with the <b>Password</b> privilege are allowed to change their
   @ own password.  Recommended ON for most users but OFF for special
-  @ users "developer, "anonymous", and "nobody".
+  @ users "developer", "anonymous", and "nobody".
   @ </p></li>
   @
   @ <li><p>
