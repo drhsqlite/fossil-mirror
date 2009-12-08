@@ -851,7 +851,7 @@ static void startAutoParagraph(Renderer *p){
 ** End a paragraph if we are in one.
 */
 static void endAutoParagraph(Renderer *p){
-  if( p->inAutoParagraph && !(p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL)){
+  if( p->inAutoParagraph ){
     popStackToTag(p, MARKUP_P);
     p->inAutoParagraph = 0;
   }
