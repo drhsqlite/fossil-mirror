@@ -28,23 +28,9 @@
 #include <assert.h>
 #include <time.h>
 
-time_t rss_datetime_to_time_t(const char *dt){
-  struct tm the_tm;
-
-  the_tm.tm_year = atoi(dt)-1900;
-  the_tm.tm_mon  = atoi(&dt[5])-1;
-  the_tm.tm_mday = atoi(&dt[8]);
-  the_tm.tm_hour = atoi(&dt[11]);
-  the_tm.tm_min  = atoi(&dt[14]);
-  the_tm.tm_sec  = atoi(&dt[17]);
-
-  return mktime(&the_tm);
-}
-
 /*
 ** WEBPAGE: timeline.rss
 */
-
 void page_timeline_rss(void){
   Stmt q;
   int nLine=0;
@@ -55,7 +41,7 @@ void page_timeline_rss(void){
     @ SELECT
     @   blob.rid,
     @   uuid,
-    @   datetime(event.mtime),
+    @   event.mtime,
     @   coalesce(ecomment,comment),
     @   coalesce(euser,user),
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
@@ -98,14 +84,16 @@ void page_timeline_rss(void){
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<=20 ){
     const char *zId = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
     const char *zCom = db_column_text(&q, 3);
     const char *zAuthor = db_column_text(&q, 4);
     char *zPrefix = "";
+    char *zDate;
     int nChild = db_column_int(&q, 5);
     int nParent = db_column_int(&q, 6);
+    time_t ts;
 
-    zDate = cgi_rfc822_datestamp(rss_datetime_to_time_t(zDate));
+    ts = (time_t)((db_column_double(&q,2) - 2440587.5)*86400.0);
+    zDate = cgi_rfc822_datestamp(ts);
 
     if( nParent>1 && nChild>1 ){
       zPrefix = "*MERGE/FORK* ";
@@ -123,6 +111,7 @@ void page_timeline_rss(void){
     @       <author>%s(zAuthor)</author>
     @       <guid>%s(g.zBaseURL)/ci/%s(zId)</guid>
     @     </item>
+    free(zDate);
     nLine++;
   }
 

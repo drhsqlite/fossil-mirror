@@ -1,5 +1,8 @@
-C rolled\sback\smy\slast\scommit\sfor\sstripping\sP\stags\saround\sUL/OL,\swhich\shad\sbroken\slogic.
-D 2009-12-08T10:10:04
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Clean\sup\sthe\sRSS\scode\sslightly.
+D 2009-12-08T18:43:51
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -82,7 +85,7 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c fa901199b74bdb505cb05c37d7f5c778c94d8587
 F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
-F src/rss.c 945efe289e6984e523a77bab956cdc6255af6487
+F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
 F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
@@ -249,7 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 00b778bd585d92646741bca9755cbe6fa7cf4567
-R 50a2ab63a6a1983e16be2429202d1705
-U stephan
-Z a76695fca08f94fe9709522cb7832691
+P 083cad82ff9cdfebf1f8c09525496a57cfca087e
+R 7ebf347f381d59d9792295688ea8a00a
+U drh
+Z 434eb2d922cf3f4f65dfd207ada83830
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFLHp5qoxKgR168RlERAgvDAJ9tLkTu0WNQnaiw9DccF3Rc+5DOaACfaXeM
+aj5gommJPGZfKswNPsQZoto=
+=EvyU
+-----END PGP SIGNATURE-----
