@@ -200,6 +200,7 @@ void del_cmd(void){
       fossil_fatal("not in the repository: %s", zName);
     }else{
       db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
+      printf("DELETED  %s\n", zPath);
     }
     blob_reset(&pathname);
     free(zName);

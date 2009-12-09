@@ -1,5 +1,5 @@
-C \s\s*\s\sAdded\senumeration\slist\ssupport\svia\sthe\s#\scharacter\s(identical\sto\s*).\s\n\s\s*\s\sUpdated\sthe\swiki\srules\sweb\spage\sto\sreflect\snew\senumeration\slist\srules\sand\sterminated\sbegining\s<li>\stags\swith\s</li>.
-D 2009-12-09T14:39:20
+C Added\sa\sDELETED\sabc.xyz\smessage\swhen\susing\sfossil\srm.\sThis\sis\sthe\ssame\sas\sfossil\sadd's\sADDED\sabc.xyz\smessage.\sAlso,\sthe\sword\sDELETED\swas\schoosen\sover\sREMOVED\sbecause\sfossil\sstatus\sreports\sthe\sfile\sas\sDELETED.
+D 2009-12-09T15:34:39
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -34,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c c094792c50f04881b59aa5fa6bbe9c164a4b1f0e
+F src/add.c d5685d9fd3dffe6f26f6627951fff45573f5b9c5
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c 80cddafe2a13ae44bed095aeb87df87cc48d7fc8
@@ -249,7 +249,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 484c8f9f860a0e1f9bf5feedbdb682dfb7a37d2c
-R c6d9cc3768032cbc079840778088048e
+P 2bb1d6469f96de4575aff0410a59d64f8fe0ee18
+R f18265709746a7c8bdba534718d59f7e
 U jeremy_c
-Z 6f5feb8221d785386f3173da099e9e28
+Z c9d8b17c732855ca8956ad23f90fd506
