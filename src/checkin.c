@@ -259,18 +259,19 @@ void clean_cmd(void){
 ** Store the final commit comment in pComment.  pComment is assumed
 ** to be uninitialized - any prior content is overwritten.
 */
-static void prepare_commit_comment(Blob *pComment){
+static void prepare_commit_comment(Blob *pComment, char *zInit){
   const char *zEditor;
   char *zCmd;
   char *zFile;
   Blob text, line;
   char *zComment;
   int i;
-  blob_set(&text,
+  blob_init(&text, zInit, -1);
+  blob_append(&text,
     "\n"
     "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
     "# The check-in comment follows wiki formatting rules.\n"
-    "#\n"
+    "#\n", -1
   );
   if( g.markPrivate ){
     blob_append(&text,
@@ -540,7 +541,9 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
   }else{
-    prepare_commit_comment(&comment);
+    char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
+    prepare_commit_comment(&comment, zInit);
+    free(zInit);
     if( blob_size(&comment)==0 ){
       Blob ans;
       blob_zero(&ans);
@@ -549,6 +552,10 @@ void commit_cmd(void){
         db_end_transaction(1);
         exit(1);
       }
+    }else{
+      db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+      db_end_transaction(0);
+      db_begin_transaction();
     }
   }
 
@@ -737,6 +744,7 @@ void commit_cmd(void){
   undo_reset();
 
   /* Commit */
+  db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
   db_end_transaction(0);
 
   if( !g.markPrivate ){

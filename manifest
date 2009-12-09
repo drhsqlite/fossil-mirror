@@ -1,5 +1,8 @@
-C Make\sit\seasier\sto\sdo\sout\sof\ssource\sbuilds\sby\soptionally\sincluding\sconfig.mak\sor\sconfig.w32.
-D 2009-12-09T22:05:46
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C When\sa\scommit\saborts,\sthe\scheck-in\scomment\sis\ssaved\sand\sused\sto\sreinitialize\nthe\scheck-in\scomment\stemplate\son\sthe\snext\scommit\sattempt.
+D 2009-12-09T23:35:18
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -42,7 +45,7 @@ F src/branch.c 3ef4b504fa9b065c58272e28b2fbbe153b1444f7
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
-F src/checkin.c b32786b578b66f59cbcdb75c45ddcac9c5b5bca9
+F src/checkin.c 895c64f8eab9a9cab9a29fa36d087686914f1c96
 F src/checkout.c 093dea6b92965feb3abbbe902984eaec900a0a6b
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 42fdc2e08e7b46c615816625dd5e0979a5db3b43
@@ -249,7 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 49ed1961b18f1121e0b0ca8f8f3a0c0f71724914
-R cea31cf8e9f618027ed38d3df2dd9421
-U Jeremy
-Z f1378c82906b21a956c24befcdc96137
+P fb1fa7f1a6af4a4fe5fbe62edf83da74f10a16a6
+R b11c8f419dbbc1e413cf11d941aabb77
+U drh
+Z edce3a93e336f23ca963cfc6f76e584c
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFLIDQ5oxKgR168RlERAlXcAJ41xgNV3Js9xvjwGcplBepB5TT+lQCfRSQY
+ccppULtHz9ZySgieJt3HdeM=
+=t1WC
+-----END PGP SIGNATURE-----
