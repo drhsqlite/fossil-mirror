@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Clean\sup\sthe\sRSS\scode\sslightly.
-D 2009-12-08T18:43:51
+C \s\s*\s\sAdded\senumeration\slist\ssupport\svia\sthe\s#\scharacter\s(identical\sto\s*).\s\n\s\s*\s\sUpdated\sthe\swiki\srules\sweb\spage\sto\sreflect\snew\senumeration\slist\srules\sand\sterminated\sbegining\s<li>\stags\swith\s</li>.
+D 2009-12-09T14:39:20
 F BUILD.txt 334b80c5755c91dfe56874bfe07ec5d0fe276f4c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile c357142045efc3e63f16b51c724a50ef411a08a0
@@ -112,8 +109,8 @@ F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 5504b327f7f2194c07bf850934e50aec1a24f229
-F src/wiki.c c28c68f6a88996bbf49745d7dfb4906f7d39a00f
-F src/wikiformat.c b5af4fe5ac8970f94d75b253a151fe04ae8ec13f
+F src/wiki.c 362c97b880e526d4749017134e7b01222186a197
+F src/wikiformat.c b1603948aafd9307e0d01afb9fe6e9daa4f9f865
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
 F src/xfer.c 002c45119361f8a9007af5c52bc895083584386a
 F src/zip.c 43608365d59dc34c11cc6e2d6f36c36a88c32410
@@ -252,14 +249,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 083cad82ff9cdfebf1f8c09525496a57cfca087e
-R 7ebf347f381d59d9792295688ea8a00a
-U drh
-Z 434eb2d922cf3f4f65dfd207ada83830
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLHp5qoxKgR168RlERAgvDAJ9tLkTu0WNQnaiw9DccF3Rc+5DOaACfaXeM
-aj5gommJPGZfKswNPsQZoto=
-=EvyU
------END PGP SIGNATURE-----
+P 484c8f9f860a0e1f9bf5feedbdb682dfb7a37d2c
+R c6d9cc3768032cbc079840778088048e
+U jeremy_c
+Z 6f5feb8221d785386f3173da099e9e28

@@ -632,14 +632,16 @@ void wikirules_page(void){
   style_header("Wiki Formatting Rules");
   @ <h2>Formatting Rule Summary</h2>
   @ <ol>
-  @ <li> Blank lines are paragraph breaks
-  @ <li> Bullets are "*" surrounded by two spaces at the beginning of the line.
-  @ <li> Enumeration items are a number surrounded by two space
-  @ at the beginning of a line.
-  @ <li> Indented pargraphs begin with a tab or two spaces.
-  @ <li> Hyperlinks are contained with square brackets:  "[target]"
-  @ <li> Most ordinary HTML works.
-  @ <li> &lt;verbatim&gt; and &lt;nowiki&gt;.
+  @ <li>Blank lines are paragraph breaks</li>
+  @ <li>Bullets are "*" surrounded by two spaces at the beginning of the
+  @ line.</li>
+  @ <li>Enumeration items are "#" surrounded by two spaces at the beginning of
+  @ a line.</li>
+  @ <li>Indented pargraphs begin with a tab or two spaces.</li>
+  @ <li>Hyperlinks are contained with square brackets:  "[target]" or
+  @ "[target|name]".</li>
+  @ <li>Most ordinary HTML works.</li>
+  @ <li>&lt;verbatim&gt; and &lt;nowiki&gt;.</li>
   @ </ol>
   @ <p>We call the first five rules above "wiki" formatting rules.  The
   @ last two rules are the HTML formatting rule.</p>
@@ -655,12 +657,9 @@ void wikirules_page(void){
   @ both sides by two or more spaces or by a tab.  Only a single level
   @ of bullet list is supported by wiki.  For nested lists, use HTML.</p>
   @ <li> <p><b>Enumeration Lists</b>.
-  @ An enumeration list item is a line that begins
-  @ with one or more digits optionally
-  @ followed by a "." and is surrounded on both sides by two or more spaces or
-  @ by a tab.  The number is significant and becomes the number shown
-  @ in the rendered enumeration item.  Only a single level of enumeration
-  @ list is supported by wiki.  For nested enumerations or for
+  @ An enumeration list item is a line that begins with a single "#" character
+  @ surrounded on both sides by two or more spaces or by a tab.  Only a single
+  @ level of enumeration list is supported by wiki.  For nested lists or for
   @ enumerations that count using letters or roman numerials, use HTML.</p>
   @ <li> <p><b>Indented Paragraphs</b>.
   @ Any paragraph that begins with two or more spaces or a tab and

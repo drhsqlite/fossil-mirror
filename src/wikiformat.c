@@ -331,10 +331,11 @@ static int findTag(const char *z){
 #define TOKEN_LINK          3    /* [...] */
 #define TOKEN_PARAGRAPH     4    /* blank lines */
 #define TOKEN_NEWLINE       5    /* A single "\n" */
-#define TOKEN_BULLET        6    /*  "  *  " */
-#define TOKEN_ENUM          7    /*  "  \(?\d+[.)]?  " */
-#define TOKEN_INDENT        8    /*  "   " */
-#define TOKEN_TEXT          9    /* None of the above */
+#define TOKEN_BUL_LI        6    /*  "  *  " */
+#define TOKEN_NUM_LI        7    /*  "  #  " */
+#define TOKEN_ENUM          8    /*  "  \(?\d+[.)]?  " */
+#define TOKEN_INDENT        9    /*  "   " */
+#define TOKEN_TEXT          10   /* None of the above */
 
 /*
 ** State flags
@@ -454,10 +455,10 @@ static int isElement(const char *z){
 }
 
 /*
-** Check to see if the z[] string is the beginning of a wiki bullet.
+** Check to see if the z[] string is the beginning of a wiki list item.
 ** If it is, return the length of the bullet text.  Otherwise return 0.
 */
-static int bulletLength(const char *z){
+static int listItemLength(const char *z, const char listChar){
   int i, n;
   n = 0;
   i = 0;
@@ -466,7 +467,7 @@ static int bulletLength(const char *z){
     i++;
     n++;
   }
-  if( i<2 || z[n]!='*' ) return 0;
+  if( i<2 || z[n]!=listChar ) return 0;
   n++;
   i = 0;
   while( z[n]==' ' || z[n]=='\t' ){
@@ -580,9 +581,14 @@ static int nextToken(const char *z, Renderer *p, int *pTokenType){
       }
     }
     if( (p->state & AT_NEWLINE)!=0 && isspace(z[0]) ){
-      n = bulletLength(z);
+      n = listItemLength(z, '*');
       if( n>0 ){
-        *pTokenType = TOKEN_BULLET;
+        *pTokenType = TOKEN_BUL_LI;
+        return n;
+      }
+      n = listItemLength(z, '#');
+      if( n>0 ){
+        *pTokenType = TOKEN_NUM_LI;
         return n;
       }
       n = enumLength(z);
@@ -1061,7 +1067,7 @@ static void wiki_render(Renderer *p, char *z){
         p->state |= AT_NEWLINE;
         break;
       }
-      case TOKEN_BULLET: {
+      case TOKEN_BUL_LI: {
         if( inlineOnly ){
           blob_append(p->pOut, " &bull; ", -1);
         }else{
@@ -1072,6 +1078,25 @@ static void wiki_render(Renderer *p, char *z){
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
             p->wikiList = MARKUP_UL;
+          }
+          popStackToTag(p, MARKUP_LI);
+          startAutoParagraph(p);
+          pushStack(p, MARKUP_LI);
+          blob_append(p->pOut, "<li>", 4);
+        }
+        break;
+      }
+      case TOKEN_NUM_LI: {
+        if( inlineOnly ){
+          blob_append(p->pOut, " # ", -1);
+        }else{
+          if( p->wikiList!=MARKUP_OL ){
+            if( p->wikiList ){
+              popStackToTag(p, p->wikiList);
+            }
+            pushStack(p, MARKUP_OL);
+            blob_append(p->pOut, "<ol>", 4);
+            p->wikiList = MARKUP_OL;
           }
           popStackToTag(p, MARKUP_LI);
           startAutoParagraph(p);
