@@ -306,7 +306,7 @@ void revert_cmd(void){
   if( access(zFile, 0) ) yesRevert = 1;  
   if( yesRevert==0 ){
     char *prompt = mprintf("revert file %B? this will"
-                           " destroy local changes [y/N]? ",
+                           " destroy local changes (y/N)? ",
                            &fname);
     blob_zero(&ans);
     prompt_user(prompt, &ans);

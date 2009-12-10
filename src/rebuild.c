@@ -373,7 +373,7 @@ void scrub_cmd(void){
     blob_zero(&ans);
     prompt_user("Scrubbing the repository will permanently remove user\n"
                 "passwords and other information. Changes cannot be undone.\n"
-                "Continue [y/N]? ", &ans);
+                "Continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       exit(1);
     }

@@ -239,7 +239,7 @@ void clean_cmd(void){
       unlink(db_column_text(&q, 0));
     }else{
       Blob ans;
-      char *prompt = mprintf("remove unmanaged file \"%s\" [y/N]? ",
+      char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
@@ -547,7 +547,7 @@ void commit_cmd(void){
     if( blob_size(&comment)==0 ){
       Blob ans;
       blob_zero(&ans);
-      prompt_user("empty check-in comment.  continue [y/N]? ", &ans);
+      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
       if( blob_str(&ans)[0]!='y' ){
         db_end_transaction(1);
         exit(1);
@@ -676,7 +676,7 @@ void commit_cmd(void){
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("unable to sign manifest.  continue [y/N]? ", &ans);
+    prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       db_end_transaction(1);
       exit(1);
