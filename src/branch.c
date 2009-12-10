@@ -134,7 +134,7 @@ void branch_new(void){
   if( !noSign && clearsign(&branch, &branch) ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("unable to sign manifest.  continue [y/N]? ", &ans);
+    prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       db_end_transaction(1);
       exit(1);
