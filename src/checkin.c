@@ -551,8 +551,8 @@ void commit_cmd(void){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
   }else if( zCommentFile ){
-      blob_zero(&comment);
-      blob_read_from_file(&comment, zCommentFile);
+    blob_zero(&comment);
+    blob_read_from_file(&comment, zCommentFile);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit);
@@ -566,10 +566,12 @@ void commit_cmd(void){
       db_end_transaction(1);
       exit(1);
     }
+  }else{
+    db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+    db_end_transaction(0);
+    db_begin_transaction();
   }
-  db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
-  db_end_transaction(0);
-  db_begin_transaction();
+
   /* Step 1: Insert records for all modified files into the blob 
   ** table. If there were arguments passed to this command, only
   ** the identified fils are inserted (if they have been modified).
