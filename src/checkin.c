@@ -391,11 +391,18 @@ int is_a_leaf(int rid){
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the "-m" option is used to specify a comment line.  You will be
-** prompted for your GPG passphrase in order to sign the new manifest
-** unless the "--nosign" options is used.  All files that have
-** changed will be committed unless some subset of files is specified
-** on the command line.
+** one of the "-m" or "-M" options are used to specify a comment.
+** "-m" takes a single string for the commit message and "-M" requires
+** a filename from which to read the commit message. If neither "-m"
+** nor "-M" are specified then the editor defined in the "editor"
+** fossil option (see %fossil help set) will be used, or from the
+** "VISUAL" or "EDITOR" environment variables (in that order) if no
+** editor is set.
+**
+** You will be prompted for your GPG passphrase in order to sign the
+** new manifest unless the "--nosign" options is used.  All files that
+** have changed will be committed unless some subset of files is
+** specified on the command line.
 **
 ** The --branch option followed by a branch name cases the new check-in
 ** to be placed in the named branch.  The --bgcolor option can be followed
@@ -416,6 +423,7 @@ int is_a_leaf(int rid){
 **    --nosign
 **    --force|-f
 **    --private
+**    --message-file|-M COMMENT-FILE
 **    
 */
 void commit_cmd(void){
@@ -435,6 +443,7 @@ void commit_cmd(void){
   const char *zBgColor;  /* Set background color when branching */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
+  const char *zCommentFile; /* Read commit message from this file */
   Blob filename;         /* complete filename */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -448,6 +457,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   zBranch = find_option("branch","b",1);
   zBgColor = find_option("bgcolor",0,1);
+  zCommentFile = find_option("message-file", "M", 1);
   if( find_option("private",0,0) ){
     g.markPrivate = 1;
     if( zBranch==0 ) zBranch = "private";
@@ -540,18 +550,21 @@ void commit_cmd(void){
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
+  }else if( zCommentFile ){
+      blob_zero(&comment);
+      blob_read_from_file(&comment, zCommentFile);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit);
     free(zInit);
-    if( blob_size(&comment)==0 ){
-      Blob ans;
-      blob_zero(&ans);
-      prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-      if( blob_str(&ans)[0]!='y' ){
-        db_end_transaction(1);
-        exit(1);
-      }
+  }
+  if( blob_size(&comment)==0 ){
+    Blob ans;
+    blob_zero(&ans);
+    prompt_user("empty check-in comment.  continue [y/N]? ", &ans);
+    if( blob_str(&ans)[0]!='y' ){
+      db_end_transaction(1);
+      exit(1);
     }else{
       db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
       db_end_transaction(0);
