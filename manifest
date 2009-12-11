@@ -1,5 +1,5 @@
-C added\s-M/--message-file\sFILENAME\sargument\sfor\scommit.
-D 2009-12-11T15:49:41
+C corrected\ssome\smis-placed\scode\sfrom\scommit\s#9517cc7486\n
+D 2009-12-11T16:14:55
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -42,7 +42,7 @@ F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
-F src/checkin.c 3310877301b487d08d16e2e1dff48c7c876cf8b8
+F src/checkin.c 756aa687239ec72c8ebaaaa835ebe32695c2aa0c
 F src/checkout.c 093dea6b92965feb3abbbe902984eaec900a0a6b
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 42fdc2e08e7b46c615816625dd5e0979a5db3b43
@@ -249,7 +249,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5bccc5a526d4927c9d79f139f8bd02cb5a78498a
-R da86036571882adae7bdec49b7020a8b
+P 9517cc7486cb68df5de66ae7000337ea2d718574
+R 6ceb8aa73de049be6bebb47282b10f32
 U stephan
-Z 80365e2149e80edc306e30e652834485
+Z 4cfaba2e68fc5ef3d613937c07062360

@@ -565,13 +565,11 @@ void commit_cmd(void){
     if( blob_str(&ans)[0]!='y' ){
       db_end_transaction(1);
       exit(1);
-    }else{
-      db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
-      db_end_transaction(0);
-      db_begin_transaction();
     }
   }
-
+  db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+  db_end_transaction(0);
+  db_begin_transaction();
   /* Step 1: Insert records for all modified files into the blob 
   ** table. If there were arguments passed to this command, only
   ** the identified fils are inserted (if they have been modified).
