@@ -69,6 +69,7 @@ struct Global {
   int minPrefix;          /* Number of digits needed for a distinct UUID */
   int fSqlTrace;          /* True if -sqltrace flag is present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
+  int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fNoSync;            /* Do not do an autosync even.  --nosync */
   char *zPath;            /* Name of webpage being served */
@@ -234,6 +235,7 @@ int main(int argc, char **argv){
     fprintf(stderr, "Usage: %s COMMAND ...\n", argv[0]);
     exit(1);
   }else{
+    g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;

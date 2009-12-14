@@ -1072,8 +1072,10 @@ void client_sync(
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
       nCardRcvd++;
-      printf("\r%d", nCardRcvd);
-      fflush(stdout);
+      if (!g.fQuiet) {
+        printf("\r%d", nCardRcvd);
+        fflush(stdout);
+      }
 
       /*   file UUID SIZE \n CONTENT
       **   file UUID DELTASRC SIZE \n CONTENT
