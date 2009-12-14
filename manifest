@@ -1,5 +1,5 @@
-C Added\sa\sglobal\scommand\sline\sargument\snamed\s-quiet.\s\nThis\swill\ssuppress\ssome\soutput\s(currently\sduring\ssync)\sfor\sthose\sinterfacing\sfossil\swith\svarious\sdevelopment\stools.\s\nIt\sdoes\snot\smake\seliminate\sall\soutput,\sonly\sthe\soutput\sthat\sis\smeant\sfor\sfancy\sdisplay\sto\sthe\suser\son\sa\sconsole.\sYou\ncan\snow\suse\sthis\snew\sflag\sanywhere\sby\sreferencing\sif\s(!g.fQuiet)\s{...}
-D 2009-12-14T23:18:54
+C Found\stwo\smore\splaces\sthat\sfQuiet\sshould\shave\sbeen\schecked.
+D 2009-12-14T23:26:03
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -80,7 +80,7 @@ F src/name.c 1511a64c2c509481d9f19ac6683fe6a28e6cb7ea
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
-F src/rebuild.c ab6ed5de1ab120a697e02036ed1dd46771cdfc3e
+F src/rebuild.c 0c81bac41f49ececdd0b68676c501dc897128e9c
 F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
 F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
@@ -249,7 +249,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 70656d00f6a6f293d7644b436ea885ad42a173e4
-R b1f2871f74983b84a57ba92f17f704e6
+P dccd27c6da34c08eda2040e38c8d1226e07bec85
+R 99eed39bdd04ab2a3e07d283c93875a8
 U Jeremy
-Z 91e4d775204dbc1d946c68179eb505ba
+Z 03fc900aa3c2b1ccbd85272006c46258
