@@ -374,7 +374,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   char zBuf[100];
 
   db_must_be_within_tree();
-  
+ 
   db_prepare(&q, "SELECT pathname, rid FROM vfile"
                  " WHERE NOT deleted AND rid>0 AND vid=%d"
                  " ORDER BY pathname",
@@ -398,8 +398,10 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 /*
 ** Compute an aggregate MD5 checksum over the repository image of every
 ** file in manifest vid.  The file names are part of the checksum.
-**
 ** Return the resulting checksum in blob pOut.
+**
+** If pManOut is not NULL then fill it with the checksum found in the
+** "R" card near the end of the manifest.  
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int i, fid;
