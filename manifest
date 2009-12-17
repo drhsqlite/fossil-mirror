@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improvements\sto\ssome\scomments\sin\svfile.c.
-D 2009-12-16T02:02:54
+C Change\sthe\s"revert"\scommand\sso\sthat\sit\swill\stake\smultiple\sfile\sarguments\nand\srevert\seach\sone.
+D 2009-12-17T14:21:58
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -107,7 +107,7 @@ F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
-F src/update.c 74a2862e7df627aa1bbd7020220bb1befb72e9af
+F src/update.c dcbce47915b79fae5f404fd34edc07bedaf72615
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 137d653a065d0d6adb6d96e6141a8a17635cc8d7
-R 180af0102bea54068afa36434fbc81df
+P 2f15cd805e037885140957e922d6e8421af24d5d
+R 78e0025c928275c2f948b34a43ac14e4
 U drh
-Z cc45eb7e836be465f9afb564e519abd6
+Z cb4f8e8119c15e407114b409d7bb5f53
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLKD/RoxKgR168RlERAmybAKCGbzPVlIxjMxOyYK9h7Ktva93I/ACfQmLU
-WCbMHSl1uXE+19U0stXTWgs=
-=wrJ+
+iD8DBQFLKj6KoxKgR168RlERAsvlAJ9f41SYdbfv2Fbq9fNHcW+uMGKQhACeJzJP
+fBiA2j3iieoQngepdeCnvCk=
+=AjdO
 -----END PGP SIGNATURE-----

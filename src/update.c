@@ -275,7 +275,7 @@ int historical_version_of_file(
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?--yes? ?-r REVISION? FILE
+** Usage: %fossil revert ?--yes? ?-r REVISION? FILE ...
 **
 ** Revert to the current repository version of FILE, or to
 ** the version associated with baseline REVISION if the -r flag
@@ -283,55 +283,58 @@ int historical_version_of_file(
 ** file is missing or the --yes option is used.
 **/
 void revert_cmd(void){
-  const char *zFile;
+  char *zFile;
   const char *zRevision;
   Blob fname;
   Blob record;
   Blob ans;
+  int i;
   int rid = 0, yesRevert;
   
   yesRevert = find_option("yes", "y", 0)!=0;
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
   
-  if( g.argc!=3 ){
-    usage("?OPTIONS FILE");
+  if( g.argc<3 ){
+    usage("?OPTIONS FILE ...");
   }
   db_must_be_within_tree();
-  
-  zFile = mprintf("%/", g.argv[g.argc-1]);
 
-  file_tree_name(zFile, &fname, 1);
-
-  if( access(zFile, 0) ) yesRevert = 1;  
-  if( yesRevert==0 ){
-    char *prompt = mprintf("revert file %B? this will"
-                           " destroy local changes (y/N)? ",
-                           &fname);
-    blob_zero(&ans);
-    prompt_user(prompt, &ans);
-    free( prompt );
-    if( blob_str(&ans)[0]=='y' ){
-      yesRevert = 1;
+  for(i=2; i<g.argc; i++){  
+    zFile = mprintf("%/", g.argv[i]);
+    file_tree_name(zFile, &fname, 1);
+    if( access(zFile, 0) ) yesRevert = 1;  
+    if( yesRevert==0 ){
+      char *prompt = mprintf("revert file %B? this will"
+                             " destroy local changes (y/N)? ",
+                             &fname);
+      blob_zero(&ans);
+      prompt_user(prompt, &ans);
+      free( prompt );
+      if( blob_str(&ans)[0]=='y' ){
+        yesRevert = 1;
+      }
+      blob_reset(&ans);
     }
-  }
 
-  if( yesRevert==1 && zRevision!=0 ){
-    historical_version_of_file(zRevision, zFile, &record);
-  }else if( yesRevert==1 ){
-    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
-    if( rid==0 ){
-      fossil_panic("no history for file: %b", &fname);
+    if( yesRevert==1 && zRevision!=0 ){
+      historical_version_of_file(zRevision, zFile, &record);
+    }else if( yesRevert==1 ){
+      rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+      if( rid==0 ){
+        fossil_panic("no history for file: %b", &fname);
+      }
+      content_get(rid, &record);
     }
-    content_get(rid, &record);
-  }
   
-  if( yesRevert==1 ){
-    blob_write_to_file(&record, zFile);
-    printf("%s reverted\n", zFile);
-    blob_reset(&record);
-    blob_reset(&fname);
-  }else{
-    printf("revert canceled\n");
+    if( yesRevert==1 ){
+      blob_write_to_file(&record, zFile);
+      printf("%s reverted\n", zFile);
+      blob_reset(&record);
+      blob_reset(&fname);
+    }else{
+      printf("revert canceled\n");
+    }
+    free(zFile);
   }
 }
