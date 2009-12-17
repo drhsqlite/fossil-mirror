@@ -145,6 +145,7 @@ void vfile_build(int vid, Blob *p){
 ** the file has changed without having the check the on-disk image.
 */
 void vfile_check_signature(int vid){
+  int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
   int checkMtime = db_get_boolean("mtime-changes", 0);
@@ -168,6 +169,11 @@ void vfile_check_signature(int vid){
     isDeleted = db_column_int(&q, 3);
     oldChnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 6);
+    if( !file_isfile(zName) && file_size(zName)>=0 ){
+      fossil_warning("not a ordinary file: %s", zName);
+      nErr++;
+      continue;
+    }
     if( oldChnged>=2 ){
       chnged = oldChnged;
     }else if( isDeleted || rid==0 ){
@@ -195,6 +201,7 @@ void vfile_check_signature(int vid){
     }
   }
   db_finalize(&q);
+  if( nErr ) fossil_fatal("abort due to prior errors");
   db_end_transaction(0);
 }
 

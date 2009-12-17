@@ -166,12 +166,12 @@ void update_cmd(void){
     "SELECT fn, idv, ridv, idt, ridt, chnged FROM fv ORDER BY 1"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    int idv = db_column_int(&q, 1);
-    int ridv = db_column_int(&q, 2);
-    int idt = db_column_int(&q, 3);
-    int ridt = db_column_int(&q, 4);
-    int chnged = db_column_int(&q, 5);
+    const char *zName = db_column_text(&q, 0);  /* The filename */
+    int idv = db_column_int(&q, 1);             /* VFILE entry for current */
+    int ridv = db_column_int(&q, 2);            /* RecordID for current */
+    int idt = db_column_int(&q, 3);             /* VFILE entry for target */
+    int ridt = db_column_int(&q, 4);            /* RecordID for target */
+    int chnged = db_column_int(&q, 5);          /* Current is edited */
 
     if( idv>0 && ridv==0 && idt>0 ){
       /* Conflict.  This file has been added to the current checkout
@@ -303,9 +303,11 @@ void revert_cmd(void){
   Blob record;
   Blob ans;
   int i;
-  int rid = 0, yesRevert;
+  int rid = 0;
+  int yesFlag;
+  int yesRevert;
   
-  yesRevert = find_option("yes", "y", 0)!=0;
+  yesFlag = find_option("yes", "y", 0)!=0;
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
   
@@ -314,10 +316,11 @@ void revert_cmd(void){
   }
   db_must_be_within_tree();
 
-  for(i=2; i<g.argc; i++){  
+  for(i=2; i<g.argc; i++){
     zFile = mprintf("%/", g.argv[i]);
     file_tree_name(zFile, &fname, 1);
-    if( access(zFile, 0) ) yesRevert = 1;  
+    yesRevert = yesFlag;
+    if( !yesRevert && access(zFile, 0) ) yesRevert = 1;  
     if( yesRevert==0 ){
       char *prompt = mprintf("revert file %B? this will"
                              " destroy local changes (y/N)? ",

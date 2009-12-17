@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\s--nochanges\sand\s--verbose\soptions\sto\sthe\s"update"\scommand.\nTickets\s[4d6b7d4e1]\sand\s[7a27e10f1fe].
-D 2009-12-17T16:17:11
+C If\sa\sfile\sin\sthe\scheck-out\sis\schanged\sto\ssomething\sother\sthan\sa\sfile\n(like\sa\sdirectory)\sthen\sraise\san\serror\swhen\schecking\sfile\ssignatures.\nAlso\sfix\sa\sproblem\swith\sthe\snew\smulti-file\s"revert"\scommand\sand\sadd\nsome\scomments\sto\s"update".
+D 2009-12-17T18:47:14
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -107,11 +107,11 @@ F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c e141d7b88ff12422152f9c45a12ab2216183e06a
-F src/update.c af63100f92031a7f56f42f5d6db4e508f32196b0
+F src/update.c b8775abaa92f011e83989d1d7b6fb94a66712501
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
-F src/vfile.c 47f667e7514507ad73bbadb0ecb195e7199f5328
+F src/vfile.c 976e15ff22f40ea08f1f948c61c6912262d6f893
 F src/wiki.c 362c97b880e526d4749017134e7b01222186a197
 F src/wikiformat.c b1603948aafd9307e0d01afb9fe6e9daa4f9f865
 F src/winhttp.c f308305b21096eedd6b2877c6d26553d8d4d9e41
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 4b0d2fbefbd5955b6769a8bd8b4c941b078b27af
-R 0b6fc6483de1acc4a17ee01f036b1df8
+P 1d9ebd9e4a5a05ba85279792deb8771d94b84450
+R 1cc609c679bd89b62ab92cb2d18811b4
 U drh
-Z c27754f85dd7095e001e74e231d2eb20
+Z 9559b7898a0a8c49ca9e4b8936ee5275
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLKlmNoxKgR168RlERAoHpAJ41sx6et9bp0stn94ZXXMThKPdodwCgjV60
-qdrmpQ/alFTdiaKELHA9E00=
-=7fwC
+iD8DBQFLKny1oxKgR168RlERAvIdAJ9KvDphgHZS04HK84VrT3Mj35+ApwCdHeEy
+XeAixswh/Tt0lRrn8gDDo1Y=
+=o2HS
 -----END PGP SIGNATURE-----
