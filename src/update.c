@@ -38,27 +38,36 @@ int is_a_version(int rid){
 /*
 ** COMMAND: update
 **
-** Usage: %fossil update ?VERSION? ?--latest?
+** Usage: %fossil update ?VERSION? ?OPTIONS?
 **
-** The optional argument is a version that should become the current
-** version.  If the argument is omitted, then use the leaf of the
-** tree that begins with the current version, if there is only a 
-** single leaf.  If there are a multiple leaves, the latest is used
-** if the --latest flag is present.
+** Change the version of the current checkout to VERSION.  Any uncommitted
+** changes are retained and applied to the new checkout.
 **
-** This command is different from the "checkout" in that edits are
-** not overwritten.  Edits are merged into the new version.
+** The VERSION argument can be a specific version or tag or branch name.
+** If the VERSION argument is omitted, then the leaf of the the subtree
+** that begins at the current version is used, if there is only a single
+** leaf.  Instead of specifying VERSION, use the --latest option to update
+** to the most recent check-in.
+**
+** The -n or --nochange option causes this command to do a "dry run".  It
+** prints out what would have happened but does not actually make any
+** changes to the current checkout or the repository.
+**
+** The -v or --verbose option prints status information about unchanged
+** files in addition to those file that actually do change.
 */
 void update_cmd(void){
   int vid;              /* Current version */
   int tid=0;            /* Target version - version we are changing to */
   Stmt q;
-  int latestFlag;       /* Pick the latest version if true */
-  int forceFlag;        /* True force the update */
+  int latestFlag;       /* --latest.  Pick the latest version if true */
+  int nochangeFlag;     /* -n or --nochange.  Do a dry run */
+  int verboseFlag;      /* -v or --verbose.  Output extra information */
 
   url_proxy_options();
   latestFlag = find_option("latest",0, 0)!=0;
-  forceFlag = find_option("force","f",0)!=0;
+  nochangeFlag = find_option("nochange","n",0)!=0;
+  verboseFlag = find_option("verbose","v",0)!=0;
   if( g.argc!=3 && g.argc!=2 ){
     usage("?VERSION?");
   }
@@ -80,7 +89,7 @@ void update_cmd(void){
       fossil_fatal("not a version: %s", g.argv[2]);
     }
   }
-  autosync(AUTOSYNC_PULL);
+  if( !nochangeFlag ) autosync(AUTOSYNC_PULL);
   
   if( tid==0 ){
     compute_leaves(vid, 1);
@@ -173,12 +182,12 @@ void update_cmd(void){
       /* File added in the target. */
       printf("ADD %s\n", zName);
       undo_save(zName);
-      vfile_to_disk(0, idt, 0);
+      if( !nochangeFlag ) vfile_to_disk(0, idt, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
       /* The file is unedited.  Change it to the target version */
       printf("UPDATE %s\n", zName);
       undo_save(zName);
-      vfile_to_disk(0, idt, 0);
+      if( !nochangeFlag ) vfile_to_disk(0, idt, 0);
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
         /* Added in current checkout.  Continue to hold the file as
@@ -191,7 +200,7 @@ void update_cmd(void){
         printf("REMOVE %s\n", zName);
         undo_save(zName);
         zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
-        unlink(zFullPath);
+        if( !nochangeFlag ) unlink(zFullPath);
         free(zFullPath);
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
@@ -208,7 +217,7 @@ void update_cmd(void){
       blob_read_from_file(&e, zFullPath);
       rc = blob_merge(&v, &e, &t, &r);
       if( rc>=0 ){
-        blob_write_to_file(&r, zFullPath);
+        if( !nochangeFlag ) blob_write_to_file(&r, zFullPath);
         if( rc>0 ){
           printf("***** %d merge conflicts in %s\n", rc, zName);
         }
@@ -220,7 +229,8 @@ void update_cmd(void){
       blob_reset(&e);
       blob_reset(&t);
       blob_reset(&r);
-      
+    }else if( verboseFlag ){
+      printf("UNCHANGED %s\n", zName);
     }
   }
   db_finalize(&q);
@@ -228,10 +238,14 @@ void update_cmd(void){
   /*
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
-  db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
-  manifest_to_disk(tid);
-  db_lset_int("checkout", tid);
-  db_end_transaction(0);
+  if( nochangeFlag ){
+    db_end_transaction(1);  /* With --nochange, rollback changes */
+  }else{
+    db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
+    manifest_to_disk(tid);
+    db_lset_int("checkout", tid);
+    db_end_transaction(0);
+  }
 }
 
 
