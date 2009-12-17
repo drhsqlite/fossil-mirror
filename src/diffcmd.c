@@ -192,7 +192,7 @@ static void diff_one_against_disk(const char *zFrom, const char *zDiffCmd){
   Blob fname;
   Blob content;
   file_tree_name(g.argv[2], &fname, 1);
-  historical_version_of_file(zFrom, blob_str(&fname), &content);
+  historical_version_of_file(zFrom, blob_str(&fname), &content, 0);
   diff_file(&content, g.argv[2], g.argv[2], zDiffCmd);
   blob_reset(&content);
   blob_reset(&fname);
@@ -297,8 +297,8 @@ static void diff_one_two_versions(
   Blob v1, v2;
   file_tree_name(g.argv[2], &fname, 1);
   zName = blob_str(&fname);
-  historical_version_of_file(zFrom, zName, &v1);
-  historical_version_of_file(zTo, zName, &v2);
+  historical_version_of_file(zFrom, zName, &v1, 0);
+  historical_version_of_file(zTo, zName, &v2, 0);
   diff_file_mem(&v1, &v2, zName, zDiffCmd);
   blob_reset(&v1);
   blob_reset(&v2);

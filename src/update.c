@@ -255,7 +255,8 @@ void update_cmd(void){
 int historical_version_of_file(
   const char *revision,    /* The baseline name containing the file */
   const char *file,        /* Full treename of the file */
-  Blob *content            /* Put the content here */
+  Blob *content,           /* Put the content here */
+  int errCode              /* Error code if file not found.  Panic if 0. */
 ){
   Blob mfile;
   Manifest m;
@@ -267,6 +268,7 @@ int historical_version_of_file(
     rid = db_lget_int("checkout", 0);
   }
   if( !is_a_version(rid) ){
+    if( errCode>0 ) return errCode;
     fossil_fatal("no such check-out: %s", revision);
   }
   content_get(rid, &mfile);
@@ -278,80 +280,74 @@ int historical_version_of_file(
         return content_get(rid, content);
       }
     }
-    fossil_fatal("file %s does not exist in baseline: %s", file, revision);
-  }else{
+    if( errCode<=0 ){
+      fossil_fatal("file %s does not exist in baseline: %s", file, revision);
+    }
+  }else if( errCode<=0 ){
     fossil_panic("could not parse manifest for baseline: %s", revision);
   }
-  return 0;
+  return errCode;
 }
 
 
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?--yes? ?-r REVISION? FILE ...
+** Usage: %fossil revert ?-r REVISION? FILE ...
 **
 ** Revert to the current repository version of FILE, or to
 ** the version associated with baseline REVISION if the -r flag
-** appears.  This command will confirm your operation unless the
-** file is missing or the --yes option is used.
-**/
+** appears.
+**
+** If a file is reverted accidently, it can be restored using
+** the "fossil undo" command.
+*/
 void revert_cmd(void){
   char *zFile;
   const char *zRevision;
   Blob fname;
   Blob record;
-  Blob ans;
   int i;
+  int errCode;
   int rid = 0;
-  int yesFlag;
-  int yesRevert;
   
-  yesFlag = find_option("yes", "y", 0)!=0;
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
   
   if( g.argc<3 ){
-    usage("?OPTIONS FILE ...");
+    usage("?OPTIONS? FILE ...");
   }
   db_must_be_within_tree();
+  db_begin_transaction();
+  undo_begin();
 
   for(i=2; i<g.argc; i++){
     zFile = mprintf("%/", g.argv[i]);
     file_tree_name(zFile, &fname, 1);
-    yesRevert = yesFlag;
-    if( !yesRevert && access(zFile, 0) ) yesRevert = 1;  
-    if( yesRevert==0 ){
-      char *prompt = mprintf("revert file %B? this will"
-                             " destroy local changes (y/N)? ",
-                             &fname);
-      blob_zero(&ans);
-      prompt_user(prompt, &ans);
-      free( prompt );
-      if( blob_str(&ans)[0]=='y' ){
-        yesRevert = 1;
-      }
-      blob_reset(&ans);
-    }
 
-    if( yesRevert==1 && zRevision!=0 ){
-      historical_version_of_file(zRevision, zFile, &record);
-    }else if( yesRevert==1 ){
+    if( zRevision!=0 ){
+      errCode = historical_version_of_file(zRevision, blob_str(&fname),
+                                           &record, 2);
+    }else{
       rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
       if( rid==0 ){
-        fossil_panic("no history for file: %b", &fname);
+        errCode = 2;
+      }else{
+        content_get(rid, &record);
+        errCode = 0;
       }
-      content_get(rid, &record);
     }
-  
-    if( yesRevert==1 ){
+
+    if( errCode==2 ){
+      fossil_warning("file not in repository: %s", zFile);
+    }else{
+      undo_save(blob_str(&fname));
       blob_write_to_file(&record, zFile);
       printf("%s reverted\n", zFile);
-      blob_reset(&record);
-      blob_reset(&fname);
-    }else{
-      printf("revert canceled\n");
     }
+    blob_reset(&record);
+    blob_reset(&fname);
     free(zFile);
   }
+  db_end_transaction(0);
 }

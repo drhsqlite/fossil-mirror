@@ -191,9 +191,9 @@ void undo_save(const char *zPathname){
 **
 ** Usage: %fossil undo ?FILENAME...?
 **
-** Undo the most recent update or merge operation.  If FILENAME is
+** Undo the most recent update or merge or revert operation.  If FILENAME is
 ** specified then restore the content of the named file(s) but otherwise
-** leave the update or merge in effect.
+** leave the update or merge or revert in effect.
 **
 ** A single level of undo/redo is supported.  The undo/redo stack
 ** is cleared by the commit and checkout commands.
@@ -230,8 +230,8 @@ void undo_cmd(void){
 **
 ** Usage: %fossil redo ?FILENAME...?
 **
-** Redo the an update or merge operation that has been undone by the
-** undo command.  If FILENAME is specified then restore the changes
+** Redo the an update or merge or revert operation that has been undone
+** by the undo command.  If FILENAME is specified then restore the changes
 ** associated with the named file(s) but otherwise leave the update
 ** or merge undone.
 **
