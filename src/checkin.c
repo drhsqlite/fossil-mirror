@@ -263,8 +263,22 @@ void clean_cmd(void){
 **
 ** Store the final commit comment in pComment.  pComment is assumed
 ** to be uninitialized - any prior content is overwritten.
+**
+** zInit is the text of the most recent failed attempt to check in
+** this same change.  Use zInit to reinitialize the check-in comment
+** so that the user does not have to retype.
+**
+** zBranch is the name of a new branch that this check-in is forced into.
+** zBranch might be NULL or an empty string if no forcing occurs.
+**
+** parent_rid is the recordid of the parent check-in.
 */
-static void prepare_commit_comment(Blob *pComment, char *zInit){
+static void prepare_commit_comment(
+  Blob *pComment,
+  char *zInit,
+  const char *zBranch,
+  int parent_rid
+){
   const char *zEditor;
   char *zCmd;
   char *zFile;
@@ -278,6 +292,12 @@ static void prepare_commit_comment(Blob *pComment, char *zInit){
     "# The check-in comment follows wiki formatting rules.\n"
     "#\n", -1
   );
+  if( zBranch && zBranch[0] ){
+    blob_appendf(&text, "# tags: %s\n#\n", zBranch);
+  }else{
+    char *zTags = info_tags_of_checkin(parent_rid);
+    if( zTags )  blob_appendf(&text, "# tags: %z\n#\n", zTags);
+  }
   if( g.markPrivate ){
     blob_append(&text,
       "# PRIVATE BRANCH: This check-in will be private and will not sync to\n"
@@ -560,7 +580,7 @@ void commit_cmd(void){
     blob_read_from_file(&comment, zCommentFile);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
-    prepare_commit_comment(&comment, zInit);
+    prepare_commit_comment(&comment, zInit, zBranch, vid);
     free(zInit);
   }
   if( blob_size(&comment)==0 ){

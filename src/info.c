@@ -29,6 +29,24 @@
 #include "info.h"
 #include <assert.h>
 
+/*
+** Return a string (in memory obtained from malloc) holding a 
+** comma-separated list of tags that apply to check-in with 
+** record-id rid.
+**
+** Return NULL if there are no such tags.
+*/
+char *info_tags_of_checkin(int rid){
+  char *zTags;
+  zTags = db_text(0, "SELECT group_concat(substr(tagname, 5), ', ')"
+                     "  FROM tagxref, tag"
+                     " WHERE tagxref.rid=%d AND tagxref.tagtype>0"
+                     "   AND tag.tagid=tagxref.tagid"
+                     "   AND tag.tagname GLOB 'sym-*'",
+                     rid);
+  return zTags;
+}
+
 
 /*
 ** Print common information about a particular record.
@@ -79,12 +97,7 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
     free(zDate);
   }
   db_finalize(&q);
-  zTags = db_text(0, "SELECT group_concat(substr(tagname, 5), ', ')"
-                     "  FROM tagxref, tag"
-                     " WHERE tagxref.rid=%d AND tagxref.tagtype>0"
-                     "   AND tag.tagid=tagxref.tagid"
-                     "   AND tag.tagname GLOB 'sym-*'",
-                     rid);
+  zTags = info_tags_of_checkin(rid);
   if( zTags && zTags[0] ){
     printf("tags:         %s\n", zTags);
   }
