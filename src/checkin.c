@@ -123,14 +123,17 @@ void status_cmd(void){
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls
+** Usage: %fossil ls [-l]
 **
-** Show the names of all files in the current checkout
+** Show the names of all files in the current checkout.  The -l provides
+** extra information about each file.
 */
 void ls_cmd(void){
   int vid;
   Stmt q;
+  int isBrief;
 
+  isBrief = find_option("l","l", 0)==0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid);
@@ -146,7 +149,9 @@ void ls_cmd(void){
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
-    if( isNew ){
+    if( isBrief ){
+      printf("%s\n", zPathname);
+    }else if( isNew ){
       printf("ADDED     %s\n", zPathname);
     }else if( access(zFullName, 0) ){
       printf("MISSING   %s\n", zPathname);

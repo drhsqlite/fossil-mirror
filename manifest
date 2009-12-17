@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Change\sthe\s"revert"\scommand\sso\sthat\sit\swill\stake\smultiple\sfile\sarguments\nand\srevert\seach\sone.
-D 2009-12-17T14:21:58
+C Change\sthe\s"ls"\scommand\sso\sthat\sit\sonly\sshows\sthe\sfilenames\sby\sdefault.\nTo\ssee\sthe\sextra\sinformation\sabout\sthe\sstatus\sof\seach\sfile,\sadd\sthe\s-l\noption.\s\sEx:\s\s"fossil\sls\s-l"
+D 2009-12-17T14:27:06
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -45,7 +45,7 @@ F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 0a66f5aa4afb08bc140be9dd1816afa09c648874
-F src/checkin.c c1819242e84872434b254b69e3fb77167ad584d2
+F src/checkin.c ef3cc1bd3e35eafbe0c084ad9552c92d0c1af0e5
 F src/checkout.c 093dea6b92965feb3abbbe902984eaec900a0a6b
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 42fdc2e08e7b46c615816625dd5e0979a5db3b43
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 2f15cd805e037885140957e922d6e8421af24d5d
-R 78e0025c928275c2f948b34a43ac14e4
+P 353297a149b49964445783d5e9e3bbb6b01f1b69
+R 099ba0da4f1993b4de87c316f7941718
 U drh
-Z cb4f8e8119c15e407114b409d7bb5f53
+Z 01e3e71f851c0b3d33b61ee29e92e31b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLKj6KoxKgR168RlERAsvlAJ9f41SYdbfv2Fbq9fNHcW+uMGKQhACeJzJP
-fBiA2j3iieoQngepdeCnvCk=
-=AjdO
+iD8DBQFLKj+9oxKgR168RlERAttyAJ9lyclANijh6hOK81tkt45z39CBVgCdGgI/
+y7x8bdYpQySCvkyoB774G7E=
+=fz7A
 -----END PGP SIGNATURE-----
