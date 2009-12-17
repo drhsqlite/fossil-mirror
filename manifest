@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\s"checkin"\scommand\sso\sthat\sthe\stemplate\scheck-in\smessage\scontains\na\scomment\sthat\sshows\sthe\sbranch\stags\sthat\swill\sbe\sassociated\swith\sthe\snew\ncheck-in.
-D 2009-12-17T14:51:24
+C Remove\sfrom\sthe\s"New\sReport\sFormat"\stext\sobsolete\sinstructions\sthat\shad\nbeen\scopied\sout\sof\sCVSTrac.\s\sTicket\s[66de5264986].
+D 2009-12-17T15:23:19
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -84,7 +84,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
 F src/rebuild.c 0c81bac41f49ececdd0b68676c501dc897128e9c
-F src/report.c 911a1c587a23d93838fb5f36001561a4834a535e
+F src/report.c e3258afe0691a01e77a5ec4b3997ca23a0a38a62
 F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 9c06ea312083459c5f73298a0eb457d8f8ee3d00
-R c272b276ff75c65aed00944bfb535cb4
+P 6df39e37f2094628ecdda8f3575deabfa63c5fa9
+R ddd9d91640fa3699b0c4193634f3b17d
 U drh
-Z 72588904d856ea5da245e52ea641b073
+Z 5d884aff7bdb468d0294c29b0f823720
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLKkVvoxKgR168RlERAiAfAJ9M1XlKF9meQ6++XZTh++Ktjqcc9ACfR0No
-eDmy2pGNpiZZAfXdS6PO2u8=
-=+90J
+iD8DBQFLKkzqoxKgR168RlERAud8AJ9NNUuUKOthkuTxBIQ3Kjex0KrT2QCeJGLW
+030QTPXE1JcyzJy55Hmyz5U=
+=XC8c
 -----END PGP SIGNATURE-----

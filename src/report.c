@@ -472,41 +472,10 @@ static void report_format_hints(void){
   @ <li><p>If a column of the result set is named "bgcolor" then the content
   @ of that column determines the background color of the row.</p></li>
   @
-  @ <li><p>The <b>user()</b> SQL function returns a string
-  @ which is the login of the current user.</p></li>
-  @
   @ <li><p>The first column whose name begins with underscore ("_") and all
   @ subsequent columns are shown on their own rows in the table.  This might
   @ be useful for displaying the description of tickets.
   @ </p></li>
-  @
-  @ <li><p>The <b>aux()</b> SQL function takes a parameter name as an argument
-  @ and returns the value that the user enters in the resulting HTML form. A
-  @ second optional parameter provides a default value for the field.</p></li>
-  @
-  @ <li><p>The <b>option()</b> SQL function takes a parameter name
-  @ and a quoted SELECT statement as parameters. The query results are
-  @ presented as an HTML dropdown menu and the function returns
-  @ the currently selected value. Results may be a single value column or
-  @ two <b>value,description</b> columns. The first row is the default.</p></li>
-  @
-  @ <li><p>The <b>cgi()</b> SQL function takes a parameter name as an argument
-  @ and returns the value of a corresponding CGI query value. If the CGI
-  @ parameter doesn't exist, an optional second argument will be returned
-  @ instead.</p></li>
-  @
-  @ <li><p>If a column is wrapped by the <b>wiki()</b> SQL function, it will
-  @ be rendered as wiki formatted content.</p></li>
-  @
-  @ <li><p>If a column is wrapped by the <b>tkt()</b> SQL function, it will
-  @ be shown as a ticket id with a link to the appropriate page</p></li>
-  @
-  @ <li><p>If a column is wrapped by the <b>chng()</b> SQL function, it will
-  @ be shown as a baseline id with a link to the appropriate page.</p></li>
-  @
-  @ <li><p>The <b>search()</b> SQL function takes a keyword pattern and
-  @ a search text. The function returns an integer score which is
-  @ higher depending on how well the search went.</p></li>
   @
   @ <li><p>The query can join other tables in the database besides TICKET.
   @ </p></li>
