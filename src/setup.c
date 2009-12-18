@@ -773,6 +773,14 @@ void setup_timeline(void){
   @ Zulu) instead of in local time.</p>
 
   @ <hr>
+  onoff_attribute("Show version differences by default",
+                  "show-version-diffs", "vdiff", 0);
+  @ <p>On the version-information pages linked from the timeline can either
+  @ show complete diffs of all file changes, or can just list the names of
+  @ the files that have changed.  Users can get to either page by
+  @ clicking.  This setting selects the default.</p>
+
+  @ <hr>
   entry_attribute("Max timeline comment length", 6, 
                   "timeline-max-comment", "tmc", "0");
   @ <p>The maximum length of a comment to be displayed in a timeline.
@@ -806,7 +814,7 @@ void setup_behavior(void){
 
   @ <hr>
   onoff_attribute("Show javascript button to fill in CAPTCHA",
-                  "auto-captcha", "auto-captcha", 0);
+                  "auto-captcha", "autocaptcha", 0);
   @ <p>When enabled, a button appears on the login screen for user
   @ "anonymous" that will automatically fill in the CAPTCHA password.
   @ This is less secure that forcing the user to do it manually, but is

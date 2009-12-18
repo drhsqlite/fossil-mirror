@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sdead\scode\sfrom\stimeline.c.\s\sMake\ssure\sall\sshortened\sUUIDs\shave\sat\nleast\sone\shexadecimal\sdigit\sgreater\sthan\s'9'\sto\savoid\sconfusing\sthem\swith\ndecimal\snumbers.
-D 2009-12-18T23:09:36
+C For\sthe\s"version\sinformation"\sweb\spages,\schange\sthe\sdefault\sbehavior\sto\nonly\sshow\sthe\slist\sof\sfiles\sthat\schanged,\snot\sthe\sdiffs.\s\sBut\sthere\sis\sa\nlink\sto\sget\sdiffs\sof\sall\sfiles\sor\sof\sindividual\sfiles.\s\sThe\sdefault\sbehavior\ncan\sbe\schanged\susing\sa\sSetup/Timeline\sconfiguration\soption\sto\sshow\sdiffs\nby\sdefault.
+D 2009-12-18T23:54:24
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -67,7 +67,7 @@ F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 2e97d8ac83c0f40d6545f56c80cc5405a157f25d
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
-F src/info.c f5284fa22d21268162932476351e43daf4537eb9
+F src/info.c 806a78d8025cf297593147d108a4cc04980b50c0
 F src/login.c dc8655318bed86b8c4a3f934bc5c0f008a6c8a03
 F src/main.c 09a4698442b3d1228b405edcfc2f2da6995642b2
 F src/main.mk 08be0ee0cadb817e19e211d760e2f705ec659b15
@@ -89,7 +89,7 @@ F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
 F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
-F src/setup.c 9651fece26a99b3ada200353e4e11c321f87c446
+F src/setup.c d61571ef3793d747c13dcbfd0eafab0c70f9d4d1
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
 F src/sqlite3.c bc27f16f3675657951da9271386877a199b77e4a
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 02920e92b50bdafc72937ee38277829f98ab2c43
-R 839594bd6ec9a58e4c2715b5354524ce
+P 74534cc91ecf73f73efa8f6809478042daf71d4a
+R abafd5875269c077ca62deafb4f86f65
 U drh
-Z 74dfff20cffa501f5fe5efb115fb1c7c
+Z 90aa216de700ca407d45f854b9d57a2a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLLAuzoxKgR168RlERAr5GAKCI7NcLQyXyVxZRrcSByznpfRCaUACffTt+
-rVSNwAjnZOpZcNvRpK4OSrQ=
-=WbAy
+iD8DBQFLLBY0oxKgR168RlERAiPDAJ99FopEb4TGdc6zWF5wGMaJTIsxiQCdFuhK
+wm+e2Z+/EWDadcCyeCTyIJY=
+=krW8
 -----END PGP SIGNATURE-----

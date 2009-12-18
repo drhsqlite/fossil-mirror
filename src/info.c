@@ -247,16 +247,27 @@ static void append_diff(int fromid, int toid){
 ** WEBPAGE: ci
 ** URL:  /ci?name=RID|ARTIFACTID
 **
-** Display information about a particular check-in.
+** Display information about a particular check-in. 
+**
+** We also jump here from /info if the name is a version.
+**
+** If the /ci page is used (instead of /vinfo or /info) then the
+** default behavior is to show unified diffs of all file changes.
+** With /vinfo and /info, only a list of the changed files are
+** shown, without diffs.  This behavior is inverted if the
+** "show-version-diffs" setting is turned on.
 */
 void ci_page(void){
   Stmt q;
   int rid;
   int isLeaf;
+  int showDiff;
+  const char *zName;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  rid = name_to_rid(PD("name","0"));
+  zName = PD("name","0");
+  rid = name_to_rid(zName);
   if( rid==0 ){
     style_header("Check-in Information Error");
     @ No such object: %h(g.argv[2])
@@ -370,6 +381,21 @@ void ci_page(void){
   db_finalize(&q);
   showTags(rid, "");
   @ <div class="section">Changes</div>
+  showDiff = g.zPath[0]!='c';
+  if( db_get_boolean("show-version-diffs", 0)==0 ){
+    showDiff = !showDiff;
+    if( showDiff ){
+      @ <a href="%s(g.zBaseURL)/vinfo/%T(zName)">[hide&nbsp;diffs]</a><br/>
+    }else{
+      @ <a href="%s(g.zBaseURL)/ci/%T(zName)">[show&nbsp;diffs]</a><br/>
+    }
+  }else{
+    if( showDiff ){
+      @ <a href="%s(g.zBaseURL)/ci/%T(zName)">[hide&nbsp;diffs]</a><br/>
+    }else{
+      @ <a href="%s(g.zBaseURL)/vinfo/%T(zName)">[show&nbsp;diffs]</a><br/>
+    }
+  }
   db_prepare(&q,
      "SELECT pid, fid, name, substr(a.uuid,1,10), substr(b.uuid,1,10)"
      "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
@@ -395,7 +421,11 @@ void ci_page(void){
     }else if( zOld && zNew ){
       @ <p>Modified <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
       @ from <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a>
-      @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
+      @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)].</a>
+      if( !showDiff ){
+        @ &nbsp;&nbsp;
+        @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(pid)&v2=%d(fid)">[diff]</a>
+      }
     }else if( zOld ){
       @ <p>Deleted <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
       @ version <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a></p>
@@ -404,9 +434,11 @@ void ci_page(void){
       @ <p>Added <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
       @ version <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
     }
-    @ <blockquote><pre>
-    append_diff(pid, fid);
-    @ </pre></blockquote>
+    if( showDiff ){
+      @ <blockquote><pre>
+      append_diff(pid, fid);
+      @ </pre></blockquote>
+    }
   }
   db_finalize(&q);
   style_footer();
