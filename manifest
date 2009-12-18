@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\san\s"annotate"\scommand\sto\sthe\scommand-line\sto\ssuppliment\sthe\s"annotate"\nweb\spage.
-D 2009-12-18T20:15:45
+C Change\sthe\sname\sof\sthe\sstrnlen_()\sfunction\sin\sprintf.c\sto\sStrNLen32().
+D 2009-12-18T21:38:19
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -82,7 +82,7 @@ F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c 1511a64c2c509481d9f19ac6683fe6a28e6cb7ea
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
-F src/printf.c e955d821659b64aa3796339246f54e4544b2da0b
+F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
 F src/rebuild.c 0c81bac41f49ececdd0b68676c501dc897128e9c
 F src/report.c e3258afe0691a01e77a5ec4b3997ca23a0a38a62
 F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
@@ -252,14 +252,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 76f169fca6c040496b14bd37a9e2c5e00f0a797b
-R 2d3ec22c0a7147237681efce57dd8950
+P 73b7faa58b4b457b2c4179863dea9ebfbdac17df
+R c1a25a98df4c05db9d3548590bcb16c1
 U drh
-Z 2814ff39ba753debd70f08e3cde75bff
+Z 7df99b7f3110869b905ff3c422fb15df
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLK+L0oxKgR168RlERApd2AJ0UEpx2SwzRhC72PC8RjgeSB7PFNwCfZRMw
-Gjtafti/x50vDCcojzISofI=
-=6wJS
+iD8DBQFLK/ZRoxKgR168RlERAoUUAJ9RKtRgRYPpAU1z7ACzHU12fk02rgCfeqhi
+o+/lkto4N4Y9iJEPpSIjDkk=
+=qHgC
 -----END PGP SIGNATURE-----
