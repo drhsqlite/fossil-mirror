@@ -474,12 +474,7 @@ void user_edit(void){
   @ <tr>
   @   <td align="right">Password:</td>
   if( strcmp(zLogin, "anonymous")==0 ){
-    int enabled = db_get_boolean( "anon-login-enable-captcha-filler", 0 );
-    char const * checked = enabled ? "checked=\"checked\"" : "";
-    /* User the password for "anonymous" as cleartext */
-    @   <td><input type="text" name="pw" value="%h(zPw)"/>
-    @   <br/>Enable password-filler button for anonymous login? <input type="checkbox" name="anonymousEnableAutofill" %s(checked)/><br/>
-    @   </td>
+    @   <td><input type="text" name="pw" value="%h(zPw)"></td>
   }else if( zPw[0] ){
     /* Obscure the password for all other users */
     @   <td><input type="password" name="pw" value="**********"></td>
