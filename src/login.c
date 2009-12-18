@@ -252,8 +252,8 @@ void login_page(void){
   @ the login to take.</p>
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
-    char const * zDecoded = captcha_decode(uSeed);
-    int iAllowPasswordFill = db_get_boolean( "anon-login-enable-captcha-filler", 0 );
+    char const *zDecoded = captcha_decode(uSeed);
+    int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
     char *zCaptcha = captcha_render(zDecoded);
 
     @ <input type="hidden" name="cs" value="%u(uSeed)"/>
@@ -262,8 +262,10 @@ void login_page(void){
     @ <center><table border="1" cellpadding="10"><tr><td><pre>
     @ %s(zCaptcha)
     @ </pre></td></tr></table>
-    if( iAllowPasswordFill ) {
-        @ <input type="button" value="Fill out captcha" onclick="document.getElementById('u').value='anonymous'; document.getElementById('p').value='%s(zDecoded)';"/>
+    if( bAutoCaptcha ) {
+        @ <input type="button" value="Fill out captcha"
+        @  onclick="document.getElementById('u').value='anonymous';
+        @           document.getElementById('p').value='%s(zDecoded)';"/>
     }
     @ </center>
     free(zCaptcha);

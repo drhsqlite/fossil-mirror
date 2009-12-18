@@ -271,7 +271,6 @@ void user_edit(void){
   */
   doWrite = cgi_all("login","info","pw") && !higherUser;
   if( doWrite ){
-    char const * anonLoginCheckedbox = PD("anonymousEnableAutofill",0);
     char zCap[50];
     int i = 0;
     int aa = P("aa")!=0;
@@ -340,12 +339,6 @@ void user_edit(void){
        "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s')",
       uid, P("login"), P("info"), zPw, zCap
     );
-    if( anonLoginCheckedbox && (*anonLoginCheckedbox) ){
-      db_set( "anon-login-enable-captcha-filler", "on", 0 );
-    }
-    else{
-      db_set( "anon-login-enable-captcha-filler", "off", 0 );
-    }
     cgi_redirect("setup_ulist");
     return;
   }
@@ -815,6 +808,14 @@ void setup_behavior(void){
   onoff_attribute("Automatically synchronize with repository",
                   "autosync", "autosync", 1);
   @ <p>Automatically keeps your work in sync with a centralized server.</p>
+
+  @ <hr>
+  onoff_attribute("Show javascript button to fill in CAPTCHA",
+                  "auto-captcha", "auto-captcha", 0);
+  @ <p>When enabled, a button appears on the login screen for user
+  @ "anonymous" that will automatically fill in the CAPTCHA password.
+  @ This is less secure that forcing the user to do it manually, but is
+  @ usually secure enough.</p>
 
   @ <hr>
   onoff_attribute("Sign all commits with GPG",
