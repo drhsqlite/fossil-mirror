@@ -120,7 +120,7 @@ void update_cmd(void){
   }
 
   db_begin_transaction();
-  vfile_check_signature(vid);
+  vfile_check_signature(vid, 1);
   undo_begin();
   load_vfile_from_rid(tid);
 

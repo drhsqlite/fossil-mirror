@@ -209,7 +209,7 @@ static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
   Stmt q;
 
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid);
+  vfile_check_signature(vid, 1);
   blob_zero(&sql);
   db_begin_transaction();
   if( zFrom ){

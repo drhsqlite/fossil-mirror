@@ -144,7 +144,7 @@ void vfile_build(int vid, Blob *p){
 ** If VFILE.DELETED is null or if VFILE.RID is zero, then we can assume
 ** the file has changed without having the check the on-disk image.
 */
-void vfile_check_signature(int vid){
+void vfile_check_signature(int vid, int notFileIsFatal){
   int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
@@ -170,11 +170,12 @@ void vfile_check_signature(int vid){
     oldChnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 6);
     if( !file_isfile(zName) && file_size(zName)>=0 ){
-      fossil_warning("not a ordinary file: %s", zName);
-      nErr++;
-      continue;
-    }
-    if( oldChnged>=2 ){
+      if( notFileIsFatal ){
+        fossil_warning("not a ordinary file: %s", zName);
+        nErr++;
+      }
+      chnged = 1;
+    }else if( oldChnged>=2 ){
       chnged = oldChnged;
     }else if( isDeleted || rid==0 ){
       chnged = 1;

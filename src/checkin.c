@@ -33,10 +33,18 @@
 ** of output.
 **
 ** We assume that vfile_check_signature has been run.
+**
+** If missingIsFatal is true, then any files that are missing or which
+** are not true files results in a fatal error.
 */
-static void status_report(Blob *report, const char *zPrefix){
+static void status_report(
+  Blob *report,          /* Append the status report here */
+  const char *zPrefix,   /* Prefix on each line of the report */
+  int missingIsFatal     /* MISSING and NOT_A_FILE are fatal errors */
+){
   Stmt q;
   int nPrefix = strlen(zPrefix);
+  int nErr = 0;
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
@@ -52,21 +60,33 @@ static void status_report(Blob *report, const char *zPrefix){
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED  %s\n", zPathname);
-    }else if( access(zFullName, 0) ){
-      blob_appendf(report, "MISSING  %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zPathname);
+    }else if( !file_isfile(zFullName) ){
+      if( access(zFullName, 0)==0 ){
+        blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
+        if( missingIsFatal ){
+          fossil_warning("not a file: %s", zPathname);
+          nErr++;
+        }
+      }else{
+        blob_appendf(report, "MISSING    %s\n", zPathname);
+        if( missingIsFatal ){
+          fossil_warning("missing file: %s", zPathname);
+          nErr++;
+        }
+      }
     }else if( isNew ){
-      blob_appendf(report, "ADDED    %s\n", zPathname);
+      blob_appendf(report, "ADDED      %s\n", zPathname);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED  %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zPathname);
     }else if( isChnged==2 ){
       blob_appendf(report, "UPDATED_BY_MERGE %s\n", zPathname);
     }else if( isChnged==3 ){
       blob_appendf(report, "ADDED_BY_MERGE %s\n", zPathname);
     }else if( isChnged==1 ){
-      blob_appendf(report, "EDITED   %s\n", zPathname);
+      blob_appendf(report, "EDITED     %s\n", zPathname);
     }else if( isRenamed ){
-      blob_appendf(report, "RENAMED  %s\n", zPathname);
+      blob_appendf(report, "RENAMED    %s\n", zPathname);
     }
     free(zFullName);
   }
@@ -78,6 +98,9 @@ static void status_report(Blob *report, const char *zPrefix){
     blob_appendf(report, "MERGED_WITH %s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
+  if( nErr ){
+    fossil_fatal("aborting due to prior errors");
+  }
 }
 
 /*
@@ -94,8 +117,8 @@ void changes_cmd(void){
   db_must_be_within_tree();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid);
-  status_report(&report, "");
+  vfile_check_signature(vid, 0);
+  status_report(&report, "", 0);
   blob_write_to_file(&report, "-");
 }
 
@@ -136,7 +159,7 @@ void ls_cmd(void){
   isBrief = find_option("l","l", 0)==0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid);
+  vfile_check_signature(vid, 0);
   db_prepare(&q,
      "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
      "  FROM vfile"
@@ -152,17 +175,21 @@ void ls_cmd(void){
     if( isBrief ){
       printf("%s\n", zPathname);
     }else if( isNew ){
-      printf("ADDED     %s\n", zPathname);
-    }else if( access(zFullName, 0) ){
-      printf("MISSING   %s\n", zPathname);
+      printf("ADDED      %s\n", zPathname);
+    }else if( !file_isfile(zFullName) ){
+      if( access(zFullName, 0)==0 ){
+        printf("NOT_A_FILE %s\n", zPathname);
+      }else{
+        printf("MISSING    %s\n", zPathname);
+      }
     }else if( isDeleted ){
-      printf("DELETED   %s\n", zPathname);
+      printf("DELETED    %s\n", zPathname);
     }else if( chnged ){
-      printf("EDITED    %s\n", zPathname);
+      printf("EDITED     %s\n", zPathname);
     }else if( renamed ){
-      printf("RENAMED   %s\n", zPathname);
+      printf("RENAMED    %s\n", zPathname);
     }else{
-      printf("UNCHANGED %s\n", zPathname);
+      printf("UNCHANGED  %s\n", zPathname);
     }
     free(zFullName);
   }
@@ -305,7 +332,7 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
-  status_report(&text, "# ");
+  status_report(&text, "# ", 1);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
     zEditor = getenv("VISUAL");
