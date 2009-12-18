@@ -896,7 +896,7 @@ void timeline_cmd(void){
   const char *zType;
   char *zOrigin;
   char *zDate;
-  char *zSQL;
+  Blob sql;
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
@@ -963,11 +963,13 @@ void timeline_cmd(void){
     zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
   }
   if( mode==0 ) mode = 1;
-  zSQL = mprintf("%z AND event.mtime %s %s",
-     timeline_query_for_tty_m(),
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_tty(), -1);
+  blob_appendf(&sql, "  AND event.mtime %s %s",
      (mode==1 || mode==4) ? "<=" : ">=",
      zDate
   );
+
   if( mode==3 || mode==4 ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     if( mode==3 ){
@@ -975,15 +977,15 @@ void timeline_cmd(void){
     }else{
       compute_ancestors(objid, n);
     }
-    zSQL = mprintf("%z AND blob.rid IN ok", zSQL);
+    blob_appendf(&sql, " AND blob.rid IN ok");
   }
   if( zType && (zType[0]!='a') ){
-      zSQL = mprintf( "%z AND event.type=%Q ", zSQL, zType);
+    blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
 
-  zSQL = mprintf("%z ORDER BY event.mtime DESC", zSQL);
-  db_prepare(&q, zSQL);
-  free( zSQL );
+  blob_appendf(&sql, " ORDER BY event.mtime DESC");
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
   print_timeline(&q, n);
   db_finalize(&q);
 }
