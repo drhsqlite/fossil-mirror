@@ -72,6 +72,8 @@ void setup_page(void){
     "Timeline display preferences");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("Skins", "setup_skin",
+    "Select from a menu of prepackaged \"skins\" for the web interface");
   setup_menu_entry("CSS", "setup_editcss",
     "Edit the Cascading Style Sheet used by all pages of this repository");
   setup_menu_entry("Header", "setup_header",
@@ -725,6 +727,15 @@ void setup_access(void){
   @ 127.0.0.1.</p></li>
 
   @ <hr>
+  onoff_attribute("Show javascript button to fill in CAPTCHA",
+                  "auto-captcha", "autocaptcha", 0);
+  @ <p>When enabled, a button appears on the login screen for user
+  @ "anonymous" that will automatically fill in the CAPTCHA password.
+  @ This is less secure that forcing the user to do it manually, but is
+  @ probably secure enough and it is certainly more convenient for
+  @ anonymous users.</p>
+
+  @ <hr>
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
@@ -818,7 +829,8 @@ void setup_behavior(void){
   @ <p>When enabled, a button appears on the login screen for user
   @ "anonymous" that will automatically fill in the CAPTCHA password.
   @ This is less secure that forcing the user to do it manually, but is
-  @ usually secure enough.</p>
+  @ probably secure enough and it is certainly more convenient for
+  @ anonymous users.</p>
 
   @ <hr>
   onoff_attribute("Sign all commits with GPG",
@@ -945,14 +957,15 @@ void setup_editcss(void){
   style_header("Edit CSS");
   @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
   login_insert_csrf_secret();
-  @ Edit the CSS:<br />
+  @ Edit the CSS below:<br />
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes">
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default CSS:
+  @ The default CSS is shown below for reference.  Other examples
+  @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
   @ </pre></blockquote>
@@ -987,7 +1000,8 @@ void setup_header(void){
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default page header:
+  @ The default header is shown below for reference.  Other examples
+  @ of headers can be seen on the <a href="setup_skin">skins page</a>.
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
   @ </pre></blockquote>
@@ -1021,7 +1035,8 @@ void setup_footer(void){
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default page footer:
+  @ The default footer is shown below for reference.  Other examples
+  @ of footers can be seen on the <a href="setup_skin">skins page</a>.
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
   @ </pre></blockquote>
@@ -1069,11 +1084,15 @@ void setup_logo(void){
   @ like this:</p>
   @ <blockquote><img src="%s(g.zTop)/logo" alt="logo"></blockquote>
   @ 
-  @ <form action="%s(g.zBaseURL)/setup_logo" method="POST"
-  @  enctype="multipart/form-data">
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
-  @ To set a new logo image, select a file to use as the logo using
+  @ The logo may or may not appear on each
+  @ page depending on the <a href="setup_editcss">CSS</a> and
+  @ <a href="setup_header">header setup</a>.</p>
+  @
+  @ <form action="%s(g.zBaseURL)/setup_logo" method="POST"
+  @  enctype="multipart/form-data">
+  @ <p>To set a new logo image, select a file to use as the logo using
   @ the entry box below and then press the "Change Logo" button.</p>
   login_insert_csrf_secret();
   @ Logo Image file:
