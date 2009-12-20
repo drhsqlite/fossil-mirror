@@ -362,7 +362,7 @@ const char zDefaultCSS[] =
 @   color: white;
 @ }
 @
-@ /* Hyperlink colors */
+@ /* Hyperlink colors in the footer */
 @ div.footer a { color: white; }
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }

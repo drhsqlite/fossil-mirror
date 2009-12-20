@@ -373,7 +373,7 @@ static const char zBuiltinSkin2[] =
 @ <div class="header">
 @   <div class="title">$<title></div>
 @   <div class="status">
-@     <div class="logo">$<project_name></div><br/>
+@     <div class="logo"><nobr>$<project_name></nobr></div><br/>
 @     <nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
@@ -419,15 +419,250 @@ static const char zBuiltinSkin2[] =
 ;
 
 /*
+** Black letters on a white or cream background with the main menu
+** stuck on the left-hand side.
+*/
+static const char zBuiltinSkin3[] = 
+@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ body {
+@     margin:0px 0px 0px 0px;
+@     padding:0px;
+@     font-family:verdana, arial, helvetica, "sans serif";
+@     color:#333;
+@     background-color:white;
+@ }
+@ 
+@ /* consistent colours */
+@ h2 {
+@   color: #333;
+@ }
+@ h3 {
+@   color: #333;
+@ }
+@ 
+@ /* The project logo in the upper left-hand corner of each page */
+@ div.logo {
+@   display: table-cell;
+@   text-align: left;
+@   vertical-align: bottom;
+@   font-weight: bold;
+@   color: #333;
+@ }
+@ 
+@ /* The page title centered at the top of each page */
+@ div.title {
+@   display: table-cell;
+@   font-size: 2em;
+@   font-weight: bold;
+@   text-align: center;
+@   color: #333;
+@   vertical-align: bottom;
+@   width: 100%;
+@ }
+@ 
+@ /* The login status message in the top right-hand corner */
+@ div.status {
+@   display: table-cell;
+@   padding-right: 10px;
+@   text-align: right;
+@   vertical-align: bottom;
+@   padding-bottom: 5px;
+@   color: #333;
+@   font-size: 0.8em;
+@   font-weight: bold;
+@ }
+@ 
+@ /* The header across the top of the page */
+@ div.header {
+@     margin:10px 0px 10px 0px;
+@     padding:1px 0px 0px 20px;
+@     border-style:solid;
+@     border-color:black;
+@     border-width:1px 0px;
+@     background-color:#eee;
+@ }
+@ 
+@ /* The main menu bar that appears at the top left of the page beneath
+@ ** the header. Width must be co-ordinated with the container below */
+@ div.mainmenu {
+@   float: left;
+@   margin-left: 10px;
+@   margin-right: 10px;
+@   font-size: 0.9em;
+@   font-weight: bold;
+@   padding:5px;
+@   background-color:#eee;
+@   border:1px solid #999;
+@   width:8em;
+@ }
+@ 
+@ /* Main menu is now a list */
+@ div.mainmenu ul {
+@   padding: 0;
+@   list-style:none;
+@ }
+@ div.mainmenu a, div.mainmenu a:visited{
+@   padding: 1px 10px 1px 10px;
+@   color: #333;
+@   text-decoration: none;
+@ }
+@ div.mainmenu a:hover {
+@   color: #eee;
+@   background-color: #333;
+@ }
+@ 
+@ /* Container for the sub-menu and content so they don''t spread
+@ ** out underneath the main menu */
+@ #container {
+@   padding-left: 9em;
+@ }
+@ 
+@ /* The submenu bar that *sometimes* appears below the main menu */
+@ div.submenu {
+@   padding: 3px 10px 3px 10px;
+@   font-size: 0.9em;
+@   text-align: center;
+@   border:1px solid #999;
+@   border-width:1px 0px;
+@   background-color: #eee;
+@   color: #333;
+@ }
+@ div.submenu a, div.submenu a:visited {
+@   padding: 3px 10px 3px 10px;
+@   color: #333;
+@   text-decoration: none;
+@ }
+@ div.submenu a:hover {
+@   color: #eee;
+@   background-color: #333;
+@ }
+@ 
+@ /* All page content from the bottom of the menu or submenu down to
+@ ** the footer */
+@ div.content {
+@   float right;
+@   padding: 2ex 1ex 0ex 2ex;
+@ }
+@ 
+@ /* Some pages have section dividers */
+@ div.section {
+@   margin-bottom: 0px;
+@   margin-top: 1em;
+@   padding: 1px 1px 1px 1px;
+@   font-size: 1.2em;
+@   font-weight: bold;
+@   border-style:solid;
+@   border-color:#999;
+@   border-width:1px 0px;
+@   background-color: #eee;
+@   color: #333;
+@ }
+@ 
+@ /* The "Date" that occurs on the left hand side of timelines */
+@ div.divider {
+@   background: #eee;
+@   border: 2px #999 solid;
+@   font-size: 1em; font-weight: normal;
+@   padding: .25em;
+@   margin: .2em 0 .2em 0;
+@   float: left;
+@   clear: left;
+@   color: #333
+@ }
+@ 
+@ /* The footer at the very bottom of the page */
+@ div.footer {
+@   font-size: 0.8em;
+@   margin-top: 12px;
+@   padding: 5px 10px 5px 10px;
+@   text-align: right;
+@   background-color: #eee;
+@   color: #555;
+@ }
+@ 
+@ /* <verbatim> blocks */
+@ pre.verbatim {
+@    background-color: #f5f5f5;
+@    padding: 0.5em;
+@ }
+@ 
+@ /* The label/value pairs on (for example) the ci page */
+@ table.label-value th {
+@   vertical-align: top;
+@   text-align: right;
+@   padding: 0.2ex 2ex;
+@ }');
+@ REPLACE INTO config VALUES('header','<html>
+@ <head>
+@ <title>$<project_name>: $<title></title>
+@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+@       href="$baseurl/timeline.rss">
+@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
+@       media="screen">
+@ </head>
+@ <body>
+@ <div class="header">
+@   <div class="logo">
+@     <!-- <img src="$baseurl/logo" alt="logo"> -->
+@     <br><nobr>$<project_name></nobr>
+@   </div>
+@   <div class="title">$<title></div>
+@   <div class="status"><nobr><th1>
+@      if {[info exists login]} {
+@        puts "Logged in as $login"
+@      } else {
+@        puts "Not logged in"
+@      }
+@   </th1></nobr></div>
+@ </div>
+@ <div class="mainmenu"><ul><th1>
+@ html "<li><a href=''$baseurl$index_page''>Home</a></li>"
+@ if {[hascap h]} {
+@   html "<li><a href=''$baseurl/dir''>Files</a></li>"
+@ }
+@ if {[hascap o]} {
+@   html "<li><a href=''$baseurl/leaves''>Leaves</a></li>"
+@   html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
+@   html "<li><a href=''$baseurl/brlist''>Branches</a></li>"
+@   html "<li><a href=''$baseurl/taglist''>Tags</a></li>"
+@ }
+@ if {[hascap r]} {
+@   html "<li><a href=''$baseurl/reportlist''>Tickets</a></li>"
+@ }
+@ if {[hascap j]} {
+@   html "<li><a href=''$baseurl/wiki''>Wiki</a></li>"
+@ }
+@ if {[hascap s]} {
+@   html "<li><a href=''$baseurl/setup''>Admin</a></li>"
+@ } elseif {[hascap a]} {
+@   html "<li><a href=''$baseurl/setup_ulist''>Users</a></li>"
+@ }
+@ if {[info exists login]} {
+@   html "<li><a href=''$baseurl/login''>Logout</a></li>"
+@ } else {
+@   html "<li><a href=''$baseurl/login''>Login</a></li>"
+@ }
+@ </th1></ul></div>
+@ <div id="container">
+@ ');
+@ REPLACE INTO config VALUES('footer','</div>
+@ <div class="footer">
+@ Fossil version $manifest_version $manifest_date
+@ </div>
+@ </body></html>
+@ ');
+;
+/*
 ** An array of available built-in skins.
 */
 static struct BuiltinSkin {
   const char *zName;
   const char *zValue;
 } aBuiltinSkin[] = {
-  { "Default",              0 /* Filled in at runtime */ },
-  { "Plain Gray, No Logo",  zBuiltinSkin1                },
-  { "Khaki, No Logo",       zBuiltinSkin2                },
+  { "Default",                     0 /* Filled in at runtime */ },
+  { "Plain Gray, No Logo",         zBuiltinSkin1                },
+  { "Khaki, No Logo",              zBuiltinSkin2                },
+  { "Black & White, Menu on Left", zBuiltinSkin3                },
 };
 
 /*
