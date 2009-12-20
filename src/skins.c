@@ -28,6 +28,7 @@
 #include "config.h"
 #include "skins.h"
 
+/* @-comment: // */
 /*
 ** A black-and-white theme with the project title in a bar across the top
 ** and no logo image.

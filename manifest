@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\sblack\s&amp;\swhite\sskin\swith\sthe\smain\smenu\sdown\sthe\sleft\smargin.
-D 2009-12-20T17:53:20
+C Fix\sa\scomment\sformatting\serror\sin\sthe\srecent\sskins.c\schanges.
+D 2009-12-20T21:34:51
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -92,7 +92,7 @@ F src/search.c 669b17b1770de404dd1c67593e4a7fd1ba1980b6
 F src/setup.c e3fd99aa04a8eb30628c760e0c36b7e8d93bb8a2
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c 5eec8953fc0adc08cfa0cedd0910360c591615f3
-F src/skins.c b884f12004632182e40e721406648ae746850652
+F src/skins.c 61096f713efa213373c4d8ae6544903cd6a7b670
 F src/sqlite3.c bc27f16f3675657951da9271386877a199b77e4a
 F src/sqlite3.h 99a4282d9b6aa73a10382aea4bbd893f8ae9a554
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
@@ -253,14 +253,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 2255e4e3ba2ecbc64f20e10baa0666b92987d1d4
-R d13aade1c1ceec4fbfd330d419c84a22
+P 5a5d7e1f90518ad2a831f621ec9573b8f3fece1e
+R 7605f279c7dbaa6bef74c530a90b3156
 U drh
-Z e6302a6b5d533a1578f3627dd1961017
+Z 44058fb22d634b990caa5ad3c51e35eb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLLmSUoxKgR168RlERAsTPAJsGxHM0ZRkhgc87o3xxcoQq2UK7PwCgjl87
-k6br9hQ0Ix4XtFf31n2TCmU=
-=8S/1
+iD8DBQFLLph+oxKgR168RlERAuqPAJ0QIvWZv9al5iHFX2OC/KzZR49IiwCgjK7T
+zb0fxRUv/Bazd4eWPrxPvQc=
+=rPA9
 -----END PGP SIGNATURE-----
