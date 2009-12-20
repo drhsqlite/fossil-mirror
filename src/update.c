@@ -367,6 +367,7 @@ void revert_cmd(void){
   db_begin_transaction();
   undo_begin();
 
+  blob_zero(&record);
   for(i=2; i<g.argc; i++){
     zFile = mprintf("%/", g.argv[i]);
     file_tree_name(zFile, &fname, 1);
