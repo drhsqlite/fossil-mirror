@@ -219,6 +219,206 @@ static const char zBuiltinSkin1[] =
 ;
 
 /*
+** A tan theme with the project title above the user identification
+** and no logo image.
+*/
+static const char zBuiltinSkin2[] = 
+@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ body {
+@   margin: 0ex 0ex;
+@   padding: 0px;
+@   background-color: #fef3bc;
+@   font-family: sans-serif;
+@ }
+@ 
+@ /* The project logo in the upper left-hand corner of each page */
+@ div.logo {
+@   display: inline;
+@   text-align: center;
+@   vertical-align: bottom;
+@   font-weight: bold;
+@   font-size: 2.5em;
+@   color: #a09048;
+@ }
+@ 
+@ /* The page title centered at the top of each page */
+@ div.title {
+@   display: table-cell;
+@   font-size: 2em;
+@   font-weight: bold;
+@   text-align: left;
+@   padding: 0 0 0 5px;
+@   color: #a09048;
+@   vertical-align: bottom;
+@   width: 100%;
+@ }
+@ 
+@ /* The login status message in the top right-hand corner */
+@ div.status {
+@   display: table-cell;
+@   text-align: right;
+@   vertical-align: bottom;
+@   color: #a09048;
+@   padding: 5px 5px 0 0;
+@   font-size: 0.8em;
+@   font-weight: bold;
+@ }
+@ 
+@ /* The header across the top of the page */
+@ div.header {
+@   display: table;
+@   width: 100%;
+@ }
+@ 
+@ /* The main menu bar that appears at the top of the page beneath
+@ ** the header */
+@ div.mainmenu {
+@   padding: 5px 10px 5px 10px;
+@   font-size: 0.9em;
+@   font-weight: bold;
+@   text-align: center;
+@   letter-spacing: 1px;
+@   background-color: #a09048;
+@   color: black;
+@ }
+@ 
+@ /* The submenu bar that *sometimes* appears below the main menu */
+@ div.submenu {
+@   padding: 3px 10px 3px 0px;
+@   font-size: 0.9em;
+@   text-align: center;
+@   background-color: #c0af58;
+@   color: white;
+@ }
+@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited {
+@   padding: 3px 10px 3px 10px;
+@   color: white;
+@   text-decoration: none;
+@ }
+@ div.mainmenu a:hover, div.submenu a:hover {
+@   color: #a09048;
+@   background-color: white;
+@ }
+@ 
+@ /* All page content from the bottom of the menu or submenu down to
+@ ** the footer */
+@ div.content {
+@   padding: 1ex 5px;
+@ }
+@ div.content a { color: #706532; }
+@ div.content a:link { color: #706532; }
+@ div.content a:visited { color: #704032; }
+@ div.content a:hover { background-color: white; color: #706532; }
+@ 
+@ /* Some pages have section dividers */
+@ div.section {
+@   margin-bottom: 0px;
+@   margin-top: 1em;
+@   padding: 3px 3px 0 3px;
+@   font-size: 1.2em;
+@   font-weight: bold;
+@   background-color: #a09048;
+@   color: white;
+@ }
+@ 
+@ /* The "Date" that occurs on the left hand side of timelines */
+@ div.divider {
+@   background: #e1d498;
+@   border: 2px #a09048 solid;
+@   font-size: 1em; font-weight: normal;
+@   padding: .25em;
+@   margin: .2em 0 .2em 0;
+@   float: left;
+@   clear: left;
+@ }
+@ 
+@ /* The footer at the very bottom of the page */
+@ div.footer {
+@   font-size: 0.8em;
+@   margin-top: 12px;
+@   padding: 5px 10px 5px 10px;
+@   text-align: right;
+@   background-color: #a09048;
+@   color: white;
+@ }
+@ 
+@ /* Hyperlink colors */
+@ div.footer a { color: white; }
+@ div.footer a:link { color: white; }
+@ div.footer a:visited { color: white; }
+@ div.footer a:hover { background-color: white; color: #558195; }
+@ 
+@ /* <verbatim> blocks */
+@ pre.verbatim {
+@    background-color: #f5f5f5;
+@    padding: 0.5em;
+@ }
+@ 
+@ /* The label/value pairs on (for example) the ci page */
+@ table.label-value th {
+@   vertical-align: top;
+@   text-align: right;
+@   padding: 0.2ex 2ex;
+@ }
+@ ');
+@ REPLACE INTO config VALUES('header','<html>
+@ <head>
+@ <title>$<project_name>: $<title></title>
+@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+@       href="$baseurl/timeline.rss">
+@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
+@       media="screen">
+@ </head>
+@ <body>
+@ <div class="header">
+@   <div class="title">$<title></div>
+@   <div class="status">
+@     <div class="logo">$<project_name></div><br/>
+@     <nobr><th1>
+@      if {[info exists login]} {
+@        puts "Logged in as $login"
+@      } else {
+@        puts "Not logged in"
+@      }
+@   </th1></nobr></div>
+@ </div>
+@ <div class="mainmenu"><th1>
+@ html "<a href=''$baseurl$index_page''>Home</a> "
+@ if {[hascap h]} {
+@   html "<a href=''$baseurl/dir''>Files</a> "
+@ }
+@ if {[hascap o]} {
+@   html "<a href=''$baseurl/leaves''>Leaves</a> "
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
+@   html "<a href=''$baseurl/brlist''>Branches</a> "
+@   html "<a href=''$baseurl/taglist''>Tags</a> "
+@ }
+@ if {[hascap r]} {
+@   html "<a href=''$baseurl/reportlist''>Tickets</a> "
+@ }
+@ if {[hascap j]} {
+@   html "<a href=''$baseurl/wiki''>Wiki</a> "
+@ }
+@ if {[hascap s]} {
+@   html "<a href=''$baseurl/setup''>Admin</a> "
+@ } elseif {[hascap a]} {
+@   html "<a href=''$baseurl/setup_ulist''>Users</a> "
+@ }
+@ if {[info exists login]} {
+@   html "<a href=''$baseurl/login''>Logout</a> "
+@ } else {
+@   html "<a href=''$baseurl/login''>Login</a> "
+@ }
+@ </th1></div>
+@ ');
+@ REPLACE INTO config VALUES('footer','<div class="footer">
+@ Fossil version $manifest_version $manifest_date
+@ </div>
+@ </body></html>
+@ ');
+;
+
+/*
 ** An array of available built-in skins.
 */
 static struct BuiltinSkin {
@@ -227,6 +427,7 @@ static struct BuiltinSkin {
 } aBuiltinSkin[] = {
   { "Default",              0 /* Filled in at runtime */ },
   { "Plain Gray, No Logo",  zBuiltinSkin1                },
+  { "Khaki, No Logo",       zBuiltinSkin2                },
 };
 
 /*
@@ -393,7 +594,7 @@ void setup_skin(void){
     const char *zN = db_column_text(&q, 0);
     const char *zV = db_column_text(&q, 1);
     if( strcmp(zV, zCurrent)==0 ){
-      @ <li><p>%h(zN) <b>Currently In Use</b></p>
+      @ <li><p>%h(zN).&nbsp;&nbsp;  <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zBaseURL)/setup_skin" method="POST">
       @ %h(zN).&nbsp;&nbsp; 

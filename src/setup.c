@@ -966,6 +966,8 @@ void setup_editcss(void){
   @ <hr>
   @ The default CSS is shown below for reference.  Other examples
   @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
+  @ See also the <a href="setup_header">header</a> and 
+  @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
   @ </pre></blockquote>
@@ -1002,6 +1004,8 @@ void setup_header(void){
   @ <hr>
   @ The default header is shown below for reference.  Other examples
   @ of headers can be seen on the <a href="setup_skin">skins page</a>.
+  @ See also the <a href="setup_editcss">CSS</a> and
+  @ <a href="setup_footer">footer</a> editing screeens.
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
   @ </pre></blockquote>
@@ -1037,6 +1041,8 @@ void setup_footer(void){
   @ <hr>
   @ The default footer is shown below for reference.  Other examples
   @ of footers can be seen on the <a href="setup_skin">skins page</a>.
+  @ See also the <a href="setup_editcss">CSS</a> and
+  @ <a href="setup_header">header</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
   @ </pre></blockquote>
