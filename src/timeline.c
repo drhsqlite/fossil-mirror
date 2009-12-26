@@ -486,11 +486,11 @@ void page_timeline(void){
     if( d_rid ){
       compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>0 ){
+      if( nd>=0 ){
         db_multi_exec("%s", blob_str(&sql));
-        blob_appendf(&desc, "%d descendants", nd);
+        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       }
-      timeline_add_dividers(  
+      timeline_add_dividers(
         db_text("1","SELECT datetime(mtime,'localtime') FROM event"
                     " WHERE objid=%d", d_rid)
       );

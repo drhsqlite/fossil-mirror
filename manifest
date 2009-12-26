@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\sa\scomment\sformatting\serror\sin\sthe\srecent\sskins.c\schanges.
-D 2009-12-20T21:34:51
+C timeline\sdescendants\sview\snow\sproperly\sbehaves\swhen\sthere\sare\sno\sdescendents,\sand\sit\salso\ssigularizes\sthe\sword\s'descendents'\swhen\sthere\sis\sonly\sone.
+D 2009-12-26T13:43:34
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -103,7 +100,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 7b39ee91da48b1c623db86edc26b4d42053a6100
-F src/timeline.c d9475b1de801ccc43e6ce3cc9bf794ba5a630f27
+F src/timeline.c b36ed4e6480582c67ece700a7b91e2f416acc8a6
 F src/tkt.c 98960a5cdcbfe35e3a27719a526eeb6c61ac0d6f
 F src/tktsetup.c 57c97126a809055566669d9217f65d474297909f
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -253,14 +250,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5a5d7e1f90518ad2a831f621ec9573b8f3fece1e
-R 7605f279c7dbaa6bef74c530a90b3156
-U drh
-Z 44058fb22d634b990caa5ad3c51e35eb
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLLph+oxKgR168RlERAuqPAJ0QIvWZv9al5iHFX2OC/KzZR49IiwCgjK7T
-zb0fxRUv/Bazd4eWPrxPvQc=
-=rPA9
------END PGP SIGNATURE-----
+P 4f24addea90ae08183c153b06f2fc72d4ebdd873
+R 1ea557c681f9a925247ded6f17a20f86
+U stephan
+Z 6a537229c4934f3519ec62f617b59750
