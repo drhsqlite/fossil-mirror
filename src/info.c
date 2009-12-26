@@ -311,12 +311,12 @@ void ci_page(void){
     @ <tr><th>Date:</th><td>
     hyperlink_to_date(zDate, "</td></tr>");
     if( zEUser ){
-      @ <tr><th>Edited&nbsp;User:</td><td>
+      @ <tr><th>Edited&nbsp;User:</th><td>
       hyperlink_to_user(zEUser,zDate,"</td></tr>");
       @ <tr><th>Original&nbsp;User:</th><td>
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }else{
-      @ <tr><th>User:</td><td>
+      @ <tr><th>User:</th><td>
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
@@ -325,7 +325,6 @@ void ci_page(void){
     }else{
       @ <tr><th>Comment:</th><td>%w(zComment)</td></tr>
     }
-    @ </td></tr>
     if( g.okAdmin ){
       db_prepare(&q, 
          "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"

@@ -1,5 +1,5 @@
-C timeline\sdescendants\sview\snow\sproperly\sbehaves\swhen\sthere\sare\sno\sdescendents,\sand\sit\salso\ssigularizes\sthe\sword\s'descendents'\swhen\sthere\sis\sonly\sone.
-D 2009-12-26T13:43:34
+C removed\san\sextraneous\spair\sof\srow/cell\sclosing\stags.\sFixed\sTH\stags\swhich\swere\sclosed\swith\sTD\sinstead\sof\sTH.
+D 2009-12-26T15:30:48
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -64,7 +64,7 @@ F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 2e97d8ac83c0f40d6545f56c80cc5405a157f25d
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
-F src/info.c 806a78d8025cf297593147d108a4cc04980b50c0
+F src/info.c 01ca65285352310a0a2ce7c8de75438aa80952ad
 F src/login.c dc8655318bed86b8c4a3f934bc5c0f008a6c8a03
 F src/main.c 09a4698442b3d1228b405edcfc2f2da6995642b2
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
@@ -250,7 +250,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 4f24addea90ae08183c153b06f2fc72d4ebdd873
-R 1ea557c681f9a925247ded6f17a20f86
+P a388e9da2e292647f5de9a681013630c57dd74bd
+R f3287df0d62ae46bd091d32c2dbce959
 U stephan
-Z 6a537229c4934f3519ec62f617b59750
+Z bfe59e24c18980100e79fc54d7c6b070
