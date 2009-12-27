@@ -64,12 +64,12 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
   char *zUuid;
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid ){
-    zDate = db_text("", 
+    zDate = db_text(0, 
       "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
       rid
     );
          /* 01234567890123 */
-    printf("%-13s %s %s\n", zUuidName, zUuid, zDate);
+    printf("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zUuid);
     free(zDate);
   }
