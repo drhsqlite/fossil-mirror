@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\san\sinvalid\sfree()\scall\sthat\scould\soccur\swhen\sthe\s"info"\scommand\swas\nused\swith\san\sinvalid\sartifact\sID.\s\sTicket\s[aa8ba0fffa].
-D 2009-12-27T18:19:38
+C Only\srecord\sthe\sfirst\s16\sbits\sof\sthe\s32-bit\sIP\saddress\sas\spart\sof\sthe\nanonymous\slogin\scookie.
+D 2009-12-29T00:11:21
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -68,7 +68,7 @@ F src/http.c 2e97d8ac83c0f40d6545f56c80cc5405a157f25d
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c 461c233b78fba8ca76b1909ff1c730568c0a29f4
-F src/login.c dc8655318bed86b8c4a3f934bc5c0f008a6c8a03
+F src/login.c c5e94568c7facf22a4d3757371760c245da234b7
 F src/main.c 09a4698442b3d1228b405edcfc2f2da6995642b2
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -253,14 +253,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 06b964a0cf6d988bca832df85e878bbac440aacf
-R 2ae8429966e7b8a9d7f4bb755c6849fe
+P 9d3fe01ae333adcea94acb637f8a8a5f40acb280
+R 51045908be973ed882fd93a529bffdd6
 U drh
-Z 7382b7c7b0cc1b14689bdca1a9edb0ca
+Z a393c48df1c7cdc76a4b9d23b3c83e43
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAks3pToACgkQoxKgR168RlFP/QCcDlmUz2sonGaSJbcK2aPvyz32
-3UsAmgLE5cXS1/Xy7UgydMVWCpTqehLn
-=e8o8
+iEYEARECAAYFAks5SSkACgkQoxKgR168RlFl/QCcCqvDZmgtDQFU7chq9F/S/PSf
+yAUAnivmJuEnJ8CQkoEOixjLIoLZkH2/
+=ajaH
 -----END PGP SIGNATURE-----

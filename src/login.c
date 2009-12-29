@@ -81,6 +81,25 @@ static void redirect_to_g(void){
 }
 
 /*
+** The IP address of the client is stored as part of the anonymous
+** login cookie for additional security.  But some clients are behind
+** firewalls that shift the IP address with each HTTP request.  To
+** allow such (broken) clients to log in, extract just a prefix of the
+** IP address.  
+*/
+static char *ipPrefix(const char *zIP){
+  int i, j; 
+  for(i=j=0; zIP[i]; i++){
+    if( zIP[i]=='.' ){
+      j++;
+      if( j==2 ) break;
+    }
+  }
+  return mprintf("%.*s", j, zIP);
+}
+        
+
+/*
 ** Check to see if the anonymous login is valid.  If it is valid, return
 ** the userid of the anonymous user.
 */
@@ -170,7 +189,7 @@ void login_page(void){
     zCookieName = login_cookie_name();
     zNow = db_text("0", "SELECT julianday('now')");
     blob_init(&b, zNow, -1);
-    blob_appendf(&b, "/%s/%s", zIpAddr, db_get("captcha-secret",""));
+    blob_appendf(&b, "/%z/%s", ipPrefix(zIpAddr), db_get("captcha-secret",""));
     sha1sum_blob(&b, &b);
     zCookie = sqlite3_mprintf("anon/%s/%s", zNow, blob_buffer(&b));
     blob_reset(&b);
@@ -360,7 +379,8 @@ void login_check_credentials(void){
       blob_init(&b, &zCookie[5], i-5);
       if( zCookie[i]=='/' ){ i++; }
       blob_append(&b, "/", 1);
-      blob_appendf(&b, "%s/%s", zRemoteAddr, db_get("captcha-secret",""));
+      blob_appendf(&b, "%z/%s", ipPrefix(zRemoteAddr),
+                   db_get("captcha-secret",""));
       sha1sum_blob(&b, &b);
       uid = db_int(0, 
           "SELECT uid FROM user WHERE login='anonymous'"
