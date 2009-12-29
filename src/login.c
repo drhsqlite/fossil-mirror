@@ -95,7 +95,7 @@ static char *ipPrefix(const char *zIP){
       if( j==2 ) break;
     }
   }
-  return mprintf("%.*s", j, zIP);
+  return mprintf("%.*s", i, zIP);
 }
         
 
