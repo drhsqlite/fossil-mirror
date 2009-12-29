@@ -138,7 +138,7 @@ end_request:
 */
 void win32_http_server(int mnPort, int mxPort, char *zBrowser){
   WSADATA wd;
-  SOCKET s;
+  SOCKET s = INVALID_SOCKET;
   SOCKADDR_IN addr;
   int idCnt = 0;
   int iPort = mnPort;

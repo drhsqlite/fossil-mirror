@@ -737,7 +737,7 @@ void cmd_test_http(void){
   cmd_http();
 }
 
-
+#ifndef __MINGW32__
 #if !defined(__DARWIN__) && !defined(__APPLE__)
 /*
 ** Search for an executable on the PATH environment variable.
@@ -759,6 +759,7 @@ static int binaryOnPath(const char *zBinary){
   }
   return 0;
 }
+#endif
 #endif
 
 /*
