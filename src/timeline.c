@@ -419,6 +419,7 @@ static void timeline_add_dividers(const char *zDate){
 **    t=TAGID        show only check-ins with the given tagid
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 't'
+**    s=TEXT         string search (comment and brief)
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -441,6 +442,7 @@ void page_timeline(void){
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
   const char *zTagName = P("t");     /* Show events with this tag */
+  const char *zString = P("s");      /* String text search of comment and brief */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
@@ -545,6 +547,11 @@ void page_timeline(void){
     if( zUser ){
       blob_appendf(&sql, " AND event.user=%Q", zUser);
       url_add_parameter(&url, "u", zUser);
+    }
+    if ( zString ){
+      blob_appendf(&sql, " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
+        zString, zString);
+      url_add_parameter(&url, "s", zString);
     }
     if( zAfter ){
       while( isspace(zAfter[0]) ){ zAfter++; }
