@@ -1057,6 +1057,20 @@ static void db_sql_trace(void *notUsed, const char *zSql){
 }
 
 /*
+** Implement the user() SQL function.  user() takes no arguments and
+** returns the user ID of the current user.
+*/
+static void db_sql_user(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.zLogin!=0 ){
+    sqlite3_result_text(context, g.zLogin, -1, SQLITE_STATIC);
+  }
+}
+
+/*
 ** This is used by the [commit] command.
 **
 ** Return true if either:
@@ -1152,6 +1166,7 @@ LOCAL void db_connection_init(void){
   static int once = 1;
   if( once ){
     sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+    sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
     sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
     sqlite3_create_function(
       g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0

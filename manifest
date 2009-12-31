@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Alternative\simplementation\sof\stimeline\ssecurity\schanges\s-\sthis\simplementation\nalways\sshows\sthe\stimeline\slink\sif\sit\sis\sapplicable,\seven\sif\sthe\shistory\ncapability\sis\sdisabled.
-D 2009-12-31T19:10:34
+C Added\sSQL\sfunction\suser()\simplemented\sby\sBrian
+D 2009-12-31T22:30:40
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -54,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c ac12a5f70a6c9dc3c1f2b0e1737a3c387304f885
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 2ee5db4d826e047ac6d2e61b1964027b9c411fc8
+F src/db.c 5cd551230a9a87cb979069860b6d7fffcb45b62c
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -253,14 +250,7 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P dddc5140535ceacb577998904f0350de614629cc
-R a3d654a474a17bbcd28e1001d5f6b777
-U drh
-Z a5adb91e21624a850f873b2a119cea6f
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLPPctoxKgR168RlERAsX5AJ4nqlxqxs30CJ5F+GGpvwte+TcG5gCfbilV
-0MuDAUI+dxTPID9xaFuWClE=
-=VPLH
------END PGP SIGNATURE-----
+P 9b70675778479f712b0f084b0d9fad9888bf3367
+R ce520db9afeeea4dd367bce12c167457
+U jeremy_c
+Z f1aac8e7288ad4c11318efe5065a344f
