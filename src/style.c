@@ -207,12 +207,14 @@ const char zDefaultHeader[] =
 @ </div>
 @ <div class="mainmenu"><th1>
 @ html "<a href='$baseurl$index_page'>Home</a> "
-@ if {[hascap h]} {
+@ if {[anycap jor]} {
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@ }
+@ if {[hascap oh]} {
 @   html "<a href='$baseurl/dir'>Files</a> "
 @ }
 @ if {[hascap o]} {
 @   html "<a href='$baseurl/leaves'>Leaves</a> "
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
 @   html "<a href='$baseurl/brlist'>Branches</a> "
 @   html "<a href='$baseurl/taglist'>Tags</a> "
 @ }

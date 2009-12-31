@@ -211,7 +211,34 @@ static int hascapCmd(
   if( g.thTrace ){
     Th_Trace("[hascap %.*h] => %d<br />\n", argl[1], argv[1], rc);
   }
-  Th_SetResultInt(interp, login_has_capability((char*)argv[1],argl[1]));
+  Th_SetResultInt(interp, rc);
+  return TH_OK;
+}
+
+/*
+** TH command:     anycap STRING
+**
+** Return true if the user has any one of the capabilities listed in STRING.
+*/
+static int anycapCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  int rc = 0;
+  int i;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "anycap STRING");
+  }
+  for(i=0; rc==0 && i<argl[1]; i++){
+    rc = login_has_capability((char*)&argv[1][i],1);
+  }
+  if( g.thTrace ){
+    Th_Trace("[hascap %.*h] => %d<br />\n", argl[1], argv[1], rc);
+  }
+  Th_SetResultInt(interp, rc);
   return TH_OK;
 }
 
@@ -320,6 +347,7 @@ void Th_FossilInit(void){
     Th_CommandProc xProc;
     void *pContext;
   } aCommand[] = {
+    {"anycap",        anycapCmd,            0},
     {"combobox",      comboboxCmd,          0},
     {"enable_output", enableOutputCmd,      0},
     {"linecount",     linecntCmd,           0},

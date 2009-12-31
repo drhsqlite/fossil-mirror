@@ -185,12 +185,14 @@ static const char zBuiltinSkin1[] =
 @ </div>
 @ <div class="mainmenu"><th1>
 @ html "<a href=''$baseurl$index_page''>Home</a> "
-@ if {[hascap h]} {
+@ if {[anycap jor]} {
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@ }
+@ if {[hascap oh]} {
 @   html "<a href=''$baseurl/dir''>Files</a> "
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$baseurl/leaves''>Leaves</a> "
-@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @   html "<a href=''$baseurl/brlist''>Branches</a> "
 @   html "<a href=''$baseurl/taglist''>Tags</a> "
 @ }
@@ -385,12 +387,14 @@ static const char zBuiltinSkin2[] =
 @ </div>
 @ <div class="mainmenu"><th1>
 @ html "<a href=''$baseurl$index_page''>Home</a> "
-@ if {[hascap h]} {
+@ if {[anycap jor]} {
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@ }
+@ if {[hascap oh]} {
 @   html "<a href=''$baseurl/dir''>Files</a> "
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$baseurl/leaves''>Leaves</a> "
-@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @   html "<a href=''$baseurl/brlist''>Branches</a> "
 @   html "<a href=''$baseurl/taglist''>Tags</a> "
 @ }
@@ -618,12 +622,14 @@ static const char zBuiltinSkin3[] =
 @ </div>
 @ <div class="mainmenu"><ul><th1>
 @ html "<li><a href=''$baseurl$index_page''>Home</a></li>"
-@ if {[hascap h]} {
+@ if {[anycap jor]} {
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@ }
+@ if {[hascap oh]} {
 @   html "<li><a href=''$baseurl/dir''>Files</a></li>"
 @ }
 @ if {[hascap o]} {
 @   html "<li><a href=''$baseurl/leaves''>Leaves</a></li>"
-@   html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
 @   html "<li><a href=''$baseurl/brlist''>Branches</a></li>"
 @   html "<li><a href=''$baseurl/taglist''>Tags</a></li>"
 @ }
