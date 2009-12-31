@@ -672,6 +672,9 @@ void wikirules_page(void){
   @ the name of an image, or a URL.  By default, the target is displayed
   @ as the text of the hyperlink.  But you can specify alternative text
   @ after the target name separated by a "|" character.</p>
+  @ <p>You can also link to internal anchor names using [#anchor-name], providing
+  @ you have added the necessary "&lt;a name="anchor-name"&gt;&lt;/a&gt;"
+  @ tag to your wiki page.</p>
   @ <li> <p><b>HTML</b>.
   @ The following standard HTML elements may be used:
   @ &lt;a&gt;
