@@ -447,10 +447,16 @@ void page_timeline(void){
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
 
-  /* To view the timeline, must have permission to read project data.
-  */
+  /* To view the timeline, must have permission to project history.*/
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.okHistory ){ login_needed(); return; }
+  
+  /* Prevent them from getting an empty list due to security constraints */
+  if( (p_rid || d_rid) && !g.okRead ){ login_needed(); return; }
+  if( zType[0]=='c' && zType[1]=='i' && !g.okRead){ login_needed(); return; }
+  if( zType[0]=='t' && !g.okRdTkt){ login_needed(); return; }
+  if( zType[0]=='w' && !g.okRdWiki){ login_needed(); return; }
+  
   if( zTagName ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
   }else{
@@ -469,6 +475,16 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
+  /* limit the types of objects found in history */
+  if( !g.okRead ){
+    blob_appendf(&sql, " AND event.type<>'ci'");
+  }
+  if( !g.okRdTkt ){
+    blob_appendf(&sql, " AND event.type<>'t'");
+  }
+  if( !g.okRdWiki ){
+    blob_appendf(&sql, " AND event.type<>'w'");
+  }
   if( p_rid || d_rid ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -638,13 +654,13 @@ void page_timeline(void){
         if( zType[0]!='a' ){
           timeline_submenu(&url, "All Types", "y", "all", 0);
         }
-        if( zType[0]!='w' ){
+        if( zType[0]!='w' && g.okRdWiki ){
           timeline_submenu(&url, "Wiki Only", "y", "w", 0);
         }
-        if( zType[0]!='c' ){
+        if( zType[0]!='c' && g.okRead ){
           timeline_submenu(&url, "Checkins Only", "y", "ci", 0);
         }
-        if( zType[0]!='t' ){
+        if( zType[0]!='t' && g.okRdTkt ){
           timeline_submenu(&url, "Tickets Only", "y", "t", 0);
         }
       }

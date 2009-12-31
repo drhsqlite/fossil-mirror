@@ -212,9 +212,11 @@ const char zDefaultHeader[] =
 @ }
 @ if {[hascap o]} {
 @   html "<a href='$baseurl/leaves'>Leaves</a> "
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
 @   html "<a href='$baseurl/brlist'>Branches</a> "
 @   html "<a href='$baseurl/taglist'>Tags</a> "
+@ }
+@ if {[hascap h]} {
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
 @ }
 @ if {[hascap r]} {
 @   html "<a href='$baseurl/reportlist'>Tickets</a> "

@@ -190,9 +190,11 @@ static const char zBuiltinSkin1[] =
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$baseurl/leaves''>Leaves</a> "
-@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @   html "<a href=''$baseurl/brlist''>Branches</a> "
 @   html "<a href=''$baseurl/taglist''>Tags</a> "
+@ }
+@ if {[hascap h]} {
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @ }
 @ if {[hascap r]} {
 @   html "<a href=''$baseurl/reportlist''>Tickets</a> "
@@ -390,9 +392,11 @@ static const char zBuiltinSkin2[] =
 @ }
 @ if {[hascap o]} {
 @   html "<a href=''$baseurl/leaves''>Leaves</a> "
-@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @   html "<a href=''$baseurl/brlist''>Branches</a> "
 @   html "<a href=''$baseurl/taglist''>Tags</a> "
+@ }
+@ if {[hascap h]} {
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @ }
 @ if {[hascap r]} {
 @   html "<a href=''$baseurl/reportlist''>Tickets</a> "
@@ -623,9 +627,11 @@ static const char zBuiltinSkin3[] =
 @ }
 @ if {[hascap o]} {
 @   html "<li><a href=''$baseurl/leaves''>Leaves</a></li>"
-@   html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
 @   html "<li><a href=''$baseurl/brlist''>Branches</a></li>"
 @   html "<li><a href=''$baseurl/taglist''>Tags</a></li>"
+@ }
+@ if {[hascap h]} {
+@   html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
 @ }
 @ if {[hascap r]} {
 @   html "<li><a href=''$baseurl/reportlist''>Tickets</a></li>"
