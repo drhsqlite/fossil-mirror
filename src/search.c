@@ -177,7 +177,7 @@ void search_sql_setup(Search *p){
 ** COMMAND: search
 ** %fossil search pattern...
 **
-** Search for timeline entrys matching the pattern.
+** Search for timeline entries matching the pattern.
 */
 void search_cmd(void){
   Search *p;
