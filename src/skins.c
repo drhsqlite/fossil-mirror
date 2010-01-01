@@ -186,7 +186,7 @@ static const char zBuiltinSkin1[] =
 @ <div class="mainmenu"><th1>
 @ html "<a href=''$baseurl$index_page''>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
 @   html "<a href=''$baseurl/dir''>Files</a> "
@@ -388,7 +388,7 @@ static const char zBuiltinSkin2[] =
 @ <div class="mainmenu"><th1>
 @ html "<a href=''$baseurl$index_page''>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
 @   html "<a href=''$baseurl/dir''>Files</a> "
@@ -623,7 +623,7 @@ static const char zBuiltinSkin3[] =
 @ <div class="mainmenu"><ul><th1>
 @ html "<li><a href=''$baseurl$index_page''>Home</a></li>"
 @ if {[anycap jor]} {
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
 @   html "<li><a href=''$baseurl/dir''>Files</a></li>"
