@@ -307,6 +307,12 @@ void www_print_timeline(
     }
     @ </td></tr>
   }
+  if( suppressCnt ){
+    @ <tr><td><td><td>
+    @ <small><i>... %d(suppressCnt) similar
+    @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+    suppressCnt = 0;
+  }
   @ </table>
 }
 
