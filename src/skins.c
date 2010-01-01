@@ -623,7 +623,7 @@ static const char zBuiltinSkin3[] =
 @ <div class="mainmenu"><ul><th1>
 @ html "<li><a href=''$baseurl$index_page''>Home</a></li>"
 @ if {[anycap jor]} {
-@   html "<a href=''$baseurl/timeline''>Timeline</a> "
+@   html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
 @ }
 @ if {[hascap oh]} {
 @   html "<li><a href=''$baseurl/dir''>Files</a></li>"
