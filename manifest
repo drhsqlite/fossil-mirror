@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.6.22\sRC\s1.
-D 2010-01-04T13:16:10
+C Add\sa\scopyright\srelease\sform\stemplate.
+D 2010-01-04T13:53:32
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -208,6 +208,7 @@ F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
+F www/copyright-release.html c9aacab2be16008ecc98b6d489d9b252c1dcf715
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -253,14 +254,14 @@ F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5efb82a71a469e9e737e0d341b5711cb2cf06d07
-R 1f36ea81b69d66d83d4b8c4083218cd3
+P 57225017b09f9cd620963a0a0b35fc8f488afca5
+R 6bb3e79c3306597857a3ea637bbca722
 U drh
-Z 0156ab00aa1e922f95702340caac883d
+Z b14a8597317cba317463833760a456c4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLQeodoxKgR168RlERAhG8AJkBIEhyiV+MJ0sBAJqrr0ewQm289ACdHnTp
-cHxG3B+XlHtn8M9amKejxvg=
-=e8Fx
+iD8DBQFLQfLfoxKgR168RlERAoboAJsFP2UnHIlXZE21o+rrxfY9EGNJVACggIjo
+/Xzc9p4JUXtI37SpqOtogsw=
+=jaHG
 -----END PGP SIGNATURE-----
