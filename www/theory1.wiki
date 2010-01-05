@@ -1,0 +1,142 @@
+<title>Thoughts On The Design Of The Fossil DVCS</title>
+<h1 align="center">Thoughts On The Design Of The Fossil DVCS</h1>
+
+Two questions (or criticisms) that arise frequently regarding Fossil
+can be summarized as follows:
+
+  1.  Why is Fossil based on SQLite instead of a distributed NoSQL database?
+
+  2.  Why is Fossil written in C instead of a modern high-level language?
+
+Neither question can be answered directly because they are both
+based on false assumptions.  We claim that Fossil is not based on SQLite
+at all and that Fossil is not based on a distributed NoSQL database
+because Fossil is a distributed NoSQL database.  And, Fossil does use
+a modern high-level language for its implementation, namely SQL.
+
+<h2>Fossil Is A NoSQL Database</h2>
+
+We begin with the first question:  Fossil is not based on a distributed
+NoSQL database because Fossil <u><i>is</i></u> a distributed NoSQL database.
+Fossil is <u>not</u> based on SQLite. 
+The current implementation of Fossil uses
+SQLite as a local store for the content of the distributed database and as
+a cache for meta-information about the distributed database that is precomputed
+for quick and easy presentation.  But the use of SQLite in this role is an
+implementation detail and is not fundamental to the design.  Some future
+version of Fossil might do away with SQLite and substitute a pile-of-files or
+a key/value database in place of SQLite.  
+(Actually, that is very unlikely
+to happen since SQLite works amazingly well in its current role, but the point
+is that omitting SQLite from Fossil is a theoretical possibility.)
+
+The underlying database that Fossil implements has nothing to do with
+SQLite, or SQL, or even relational database theory.  The underlying
+database is very simple:  it is an unordered collection of "artifacts".
+An artifact is a list of bytes - a "file" in the usual manner of thinking.
+Many artifacts are simply the content of source files that have
+been checked into the Fossil repository.  Call these "content artifacts".
+Other artifacts, known as
+"control artifacts", contain ASCII text in a particular format that
+defines relationships between other artifacts, such as which
+content artifacts that go together to form a particular version of the
+project.  Each artifact is named by its SHA1 hash and is thus immutable.
+Artifacts can be added to the database but not removed (if we ignore
+the exceptional case of [./shunning.wiki | shunning].)  Repositories
+synchronize by computing the union of their artifact sets.  SQL and
+relation theory play no role in any of this.
+
+SQL enters the picture only in the implementation details.  The current
+implementation of Fossil stores each artifact as a BLOB in an SQLite
+database.
+The current implementation also parses up each control artifact as it
+arrives and stores the information discovered from that parse in various
+other SQLite tables to facilitate rapid generation of reports such as
+timelines, file histories, file lists, branch lists, and so forth.  Note
+that all of this additional information is derived from the artifacts.
+The artifacts are canonical.  The relational tables serve only as a cache.
+Everything in the relational tables can be recomputed
+from the artifacts, and in fact that is exactly what happens when one runs
+the "fossil rebuild" command on a repository.
+
+So really, Fossil works with two separate databases.  There is the
+bag-of-artifacts database which is non-relational and distributed (like
+a NoSQL database) and there is the local relational database.  The
+bag-of-artifacts database has a fixed format and is what defines a Fossil
+repository.  Fossil will never modify the file format of the bag-of-artifacts
+database in an incompatible way because to do so would be to make something
+that is no longer "Fossil".  The local relational database, on the other hand,
+is a cache that contains information derived from the bag-of-artifacts.  
+The schema of the local relational database changes from time to time as
+the Fossil implementation is enhanced, and the content is recomputed from
+the unchanging bag of artifacts.  The local relational database is an
+implementation detail which currently happens to use SQLite.
+
+Another way to think of the relational tables in a Fossil repository is
+as an index for the artifacts.  Without the relational tables,
+to generate a report like a timeline would require scanning every artifact -
+the equivalent of a full table scan.  The relational tables hold pointers
+the the relevant artifacts in presorted order so that generating a timeline
+is much more efficient.  So like an index in a relational database, the
+relational tables in an Fossil repository do not add any new information,
+they merely make the information in the artifacts faster and easier to
+look up.
+
+Fossil is not "based" on SQLite.  Fossil simply exploits SQLite as
+a powerful tool to make the implementation easier.
+And Fossil doesn't use a distributed
+NoSQL database because Fossil is a distributed NoSQL database.  That answers
+the first question.
+
+<h2>SQL Is A High-Level Scripting Language</h2>
+
+The second concern states that Fossil does not use a high-level scripting
+language.  But that is not true.  Fossil uses SQL (as implemented by SQLite) 
+as its scripting langauge.
+
+This misunderstanding likely arises because people fail
+to appreciate that SQL is a programming language.  People are taught that SQL
+is a "query langauge" as if that were somehow different from a
+"programming language".  But they really are two different favors of the
+same thing.  I find that people do better with SQL if they think of
+SQL as a programming language and each statement
+of SQL is a separate program.  SQL is a percular programming language
+in that one uses SQL to specify <i>what</i> to computer whereas in
+most other programming languages one specifies <i>how</i>
+to carry out the computation.
+This difference means that SQL
+is an extraordinary high-level programming language, but it is still
+just a programming language.
+
+For certain types of problems, SQL has a huge advantage over other
+programming languages because it is so high level and because it allows
+programmers to focuse more on the <i>what</i> and less of the <i>how</i>
+of a computation.  In other words,
+programmers tend to think about problems at a much higher level when
+using SQL, can this can result in better applications.
+SQL is also very dense.
+In practice, this often means that a few
+lines of SQL can often replace hundreds or thousands of lines of
+procedural code, with a corresponding decrease in programming effort
+and opportunities to introduce bugs.
+Fossil happens to be one of those problems for which SQL is well suited.
+
+Much of the "heavy lifting" within the Fossil implementation is carried
+out using SQL statements.  It is true that these SQL statements are glued
+together with C code, but it turns out that C works surprisingly well in
+that role.  Several early prototypes of Fossil were written in a scripting
+language (TCL).  We normally find that TCL programs are shorter than the
+equivalent C code by a factor of 10 or more.  But in the case of Fossil,
+the use of TCL was actually making the code longer and more difficult to 
+understand.
+And so in the final design, we switched from TCL to C in order to make
+the code easier to implement and debug.
+
+Without the advantages of having SQLite built in, the design might well
+have followed a different path.  Most reports generated by Fossil involve
+a complex set of queries against the relational tables of the repository
+database.  These queries are normally implemented in only a few dozen
+lines of SQL code.  But if those queries had been implemented procedurally
+using a key/value or pile-of-files database, it
+may have well been the case that a high-level scripting language such as
+Tcl, Python, or Ruby may have worked out better than C.

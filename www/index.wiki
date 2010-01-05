@@ -127,6 +127,7 @@ internet these days. What makes Fossil worthy of attention?
 
 <h3>Links For Fossil Developer:</h3>
 
+  *  [./theory1.wiki | Thoughts On The Design Of Fossil].
   *  [./pop.wiki | Principles Of Operation]
   *  The [./fileformat.wiki | file format] used by every content
      file stored in the repository.

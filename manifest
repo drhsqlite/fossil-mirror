@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\spotential\ssegfault\sin\sthe\sURL\sshortener\sof\sthe\sWWW\stimeline\slogic.
-D 2010-01-05T15:01:34
+C Added\sthe\s"Thoughts\sOn\sThe\sDesign\sOf\sFossil"\sdocument\sin\sanswer\sto\srecent\ncriticisms\sand\scritiques.
+D 2010-01-05T21:28:42
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -239,7 +239,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 3bb8082d9a59536bb26fab3bbd9f188090fe258e
+F www/index.wiki 3a7f4e44dcada23d0c6493a2b370a8a7192ed1d8
 F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -252,16 +252,17 @@ F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
 F www/shunning.wiki 7b6d5703dc0d63a1ce7fc77c34985237c2d97f04
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
+F www/theory1.wiki 583e7131b49f7bf77c9feccfd26b73a898f4aa9c
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d2bec5a1d4f7175ee1927b8268c79b6eda7e3c54
-R 0ce4872a98d437ef45014c781089833b
+P d66718f2e88698a4d5e524fa9ca3cc2aef779829
+R b6406f9401a6062b7df0a9f179822905
 U drh
-Z 0e1eb059b70dc3100dff14de9cc74c87
+Z 59b15f87cdf7591d6902be3784e48238
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLQ1RRoxKgR168RlERAvrzAJ9W/BG9EWJo2QiJRCYzC9fHxLEKgwCaAlOn
-+ySVheD81Kr291J7j20bPO0=
-=EhY3
+iD8DBQFLQ68NoxKgR168RlERAk8jAJ9Vxz/mTH34DfGn5CNbagpjmPi00ACdGrY6
+UizknVlweSDZ5kk8sIBGbkg=
+=U0B8
 -----END PGP SIGNATURE-----
