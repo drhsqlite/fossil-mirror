@@ -37,7 +37,7 @@ static void shorten_uuid(char *zDest, const char *zSrc){
   int i;
   for(i=0; i<10 && zSrc[i]<='9'; i++){}
   memcpy(zDest, zSrc, 10);
-  if( i==10 ){
+  if( i==10 && zSrc[i] ){
     do{
       zDest[i] = zSrc[i];
       i++;
