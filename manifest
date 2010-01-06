@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\stypos\sin\sthe\s"Thoughs\sOn\sThe\sDesign\sOf\sFossil"\sdocument.\nTicket\s[e77e876caf3]
-D 2010-01-06T14:19:42
+C Fix\stypos\sin\sthe\scopyright\srelease\stemplate.\nTicket\s[ffec860709]
+D 2010-01-06T14:23:04
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -208,7 +208,7 @@ F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
-F www/copyright-release.html c9aacab2be16008ecc98b6d489d9b252c1dcf715
+F www/copyright-release.html 14100368011239bed3e6908f9f92e6ea3f712084
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -255,14 +255,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 69bf4a0c24c2b183cbc8c903dc3c1ee8e525953f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 4943c0e50485b3b8fe33a8646db97d2396082659
-R 2c1b572e58b435045493ed30b0034314
+P ce6b68ca6458ebd0a6da4c6b5c2db265a9d652c0
+R 9b0bc92e6f28c1e9e81f400010f19d8f
 U drh
-Z 5fbad2730fe36167063f0f5282845124
+Z 91e97946e5dac07adcf58393b2f4866a
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLRJwBoxKgR168RlERAqNlAJ4wVxbTk0e1ncfWdZUNadQrKu8RRwCfUyWb
-h08P748neKYnZjf2u/WOGTw=
-=bvSm
+iD8DBQFLRJzLoxKgR168RlERAhu3AJ0d2pfhXNs7Ui5br/NYiM1VXlRcSwCeMj6I
+nIilobP8CfApAaIRhaqF30U=
+=AKds
 -----END PGP SIGNATURE-----
