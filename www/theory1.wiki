@@ -92,11 +92,11 @@ the first question.
 
 The second concern states that Fossil does not use a high-level scripting
 language.  But that is not true.  Fossil uses SQL (as implemented by SQLite) 
-as its scripting langauge.
+as its scripting language.
 
 This misunderstanding likely arises because people fail
 to appreciate that SQL is a programming language.  People are taught that SQL
-is a "query langauge" as if that were somehow different from a
+is a "query language" as if that were somehow different from a
 "programming language".  But they really are two different favors of the
 same thing.  I find that people do better with SQL if they think of
 SQL as a programming language and each statement
@@ -110,7 +110,7 @@ just a programming language.
 
 For certain types of problems, SQL has a huge advantage over other
 programming languages because it is so high level and because it allows
-programmers to focuse more on the <i>what</i> and less of the <i>how</i>
+programmers to focus more on the <i>what</i> and less of the <i>how</i>
 of a computation.  In other words,
 programmers tend to think about problems at a much higher level when
 using SQL, can this can result in better applications.

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Only\sshow\spropagating\stags\s(not\ssingle-checkin\stags)\sin\sthe\scheck-in\scomment\nentry\stemplate.
-D 2010-01-06T13:48:11
+C Fix\stypos\sin\sthe\s"Thoughs\sOn\sThe\sDesign\sOf\sFossil"\sdocument.\nTicket\s[e77e876caf3]
+D 2010-01-06T14:19:42
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -252,17 +252,17 @@ F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
 F www/shunning.wiki 7b6d5703dc0d63a1ce7fc77c34985237c2d97f04
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
-F www/theory1.wiki 583e7131b49f7bf77c9feccfd26b73a898f4aa9c
+F www/theory1.wiki 69bf4a0c24c2b183cbc8c903dc3c1ee8e525953f
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a6303982b01929b5c23b38379a7a156774a54ced
-R 49de979e858fc0f770711fa04e40bbc7
+P 4943c0e50485b3b8fe33a8646db97d2396082659
+R 2c1b572e58b435045493ed30b0034314
 U drh
-Z 37d0aa6e95917cb4cf351574b279e937
+Z 5fbad2730fe36167063f0f5282845124
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLRJSfoxKgR168RlERArnHAJ41ZwiK6+YFczFwnqp/g+WOEQzJHgCeN4sT
-9NVWKcyGlQtQP1FE9iHQUco=
-=5hR2
+iD8DBQFLRJwBoxKgR168RlERAqNlAJ4wVxbTk0e1ncfWdZUNadQrKu8RRwCfUyWb
+h08P748neKYnZjf2u/WOGTw=
+=bvSm
 -----END PGP SIGNATURE-----
