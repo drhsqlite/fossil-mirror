@@ -32,18 +32,19 @@
 /*
 ** Return a string (in memory obtained from malloc) holding a 
 ** comma-separated list of tags that apply to check-in with 
-** record-id rid.
+** record-id rid.  If the "propagatingOnly" flag is true, then only
+** show branch tags (tags that propagate to children).
 **
 ** Return NULL if there are no such tags.
 */
-char *info_tags_of_checkin(int rid){
+char *info_tags_of_checkin(int rid, int propagatingOnly){
   char *zTags;
   zTags = db_text(0, "SELECT group_concat(substr(tagname, 5), ', ')"
                      "  FROM tagxref, tag"
-                     " WHERE tagxref.rid=%d AND tagxref.tagtype>0"
+                     " WHERE tagxref.rid=%d AND tagxref.tagtype>%d"
                      "   AND tag.tagid=tagxref.tagid"
                      "   AND tag.tagname GLOB 'sym-*'",
-                     rid);
+                     rid, propagatingOnly!=0);
   return zTags;
 }
 
@@ -97,7 +98,7 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
     free(zDate);
   }
   db_finalize(&q);
-  zTags = info_tags_of_checkin(rid);
+  zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
     printf("tags:         %s\n", zTags);
   }

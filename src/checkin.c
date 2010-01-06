@@ -322,7 +322,7 @@ static void prepare_commit_comment(
   if( zBranch && zBranch[0] ){
     blob_appendf(&text, "# tags: %s\n#\n", zBranch);
   }else{
-    char *zTags = info_tags_of_checkin(parent_rid);
+    char *zTags = info_tags_of_checkin(parent_rid, 1);
     if( zTags )  blob_appendf(&text, "# tags: %z\n#\n", zTags);
   }
   if( g.markPrivate ){
