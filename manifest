@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\stypos\sin\sthe\scopyright\srelease\stemplate.\nTicket\s[ffec860709]
-D 2010-01-06T14:23:04
+C Fix\sminor\stypo\sin\swww/theory1.wiki\s.
+D 2010-01-08T18:49:40
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -252,17 +252,17 @@ F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
 F www/shunning.wiki 7b6d5703dc0d63a1ce7fc77c34985237c2d97f04
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
-F www/theory1.wiki 69bf4a0c24c2b183cbc8c903dc3c1ee8e525953f
+F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ce6b68ca6458ebd0a6da4c6b5c2db265a9d652c0
-R 9b0bc92e6f28c1e9e81f400010f19d8f
-U drh
-Z 91e97946e5dac07adcf58393b2f4866a
+P cd2697835747837cd72ecae8b58b98306db5843d
+R 41c00190b7b073b61c22b3fb4aee87a8
+U eric
+Z eba1a7d593291c3f4c7de0b8f705eac3
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFLRJzLoxKgR168RlERAhu3AJ0d2pfhXNs7Ui5br/NYiM1VXlRcSwCeMj6I
-nIilobP8CfApAaIRhaqF30U=
-=AKds
+iD8DBQFLR37Eu+lpsLhDMQkRArg/AJ4gzvaS0Dwoj2Sn5jFQwPRutGNQkQCfQMCD
+gdYvgfWTG4ylE+Njf2SSJTk=
+=5vym
 -----END PGP SIGNATURE-----

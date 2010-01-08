@@ -1,4 +1,4 @@
-<title>Thoughts On The Design Of The Fossil DVCS</title>
+﻿<title>Thoughts On The Design Of The Fossil DVCS</title>
 <h1 align="center">Thoughts On The Design Of The Fossil DVCS</h1>
 
 Two questions (or criticisms) that arise frequently regarding Fossil
@@ -101,7 +101,7 @@ is a "query language" as if that were somehow different from a
 same thing.  I find that people do better with SQL if they think of
 SQL as a programming language and each statement
 of SQL is a separate program.  SQL is a percular programming language
-in that one uses SQL to specify <i>what</i> to computer whereas in
+in that one uses SQL to specify <i>what</i> to compute whereas in
 most other programming languages one specifies <i>how</i>
 to carry out the computation.
 This difference means that SQL
