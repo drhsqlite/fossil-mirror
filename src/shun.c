@@ -218,7 +218,7 @@ void rcvfromlist_page(void){
   }
   style_header("Content Sources");
   if( ofst>0 ){
-    style_submenu_element("Later", "Later", "rcvfromlist?ofst=%d",
+    style_submenu_element("Newer", "Newer", "rcvfromlist?ofst=%d",
                            ofst>30 ? ofst-30 : 0);
   }
   db_prepare(&q, 
@@ -248,7 +248,7 @@ void rcvfromlist_page(void){
     const char *zDate = db_column_text(&q, 2);
     const char *zIpAddr = db_column_text(&q, 3);
     if( cnt==30 ){
-      style_submenu_element("Earlier", "Earlier",
+      style_submenu_element("Older", "Older",
          "rcvfromlist?ofst=%d", ofst+30);
     }else{
       cnt++;
