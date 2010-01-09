@@ -35,6 +35,8 @@ static void report_format_hints(void);
 ** WEBPAGE: /reportlist
 */
 void view_list(void){
+  const char *zScript;
+  Blob ril;   /* Report Item List */
   Stmt q;
   int rn = 0;
   int cnt = 0;
@@ -42,62 +44,50 @@ void view_list(void){
   login_check_credentials();
   if( !g.okRdTkt && !g.okNewTkt ){ login_needed(); return; }
   style_header("Ticket Main Menu");
-  if( g.okNewTkt ){
-    @ <p>Enter a new ticket:</p>
-    @ <ol><li value="1"><a href="tktnew">New ticket</a></li></ol>
-    @
-    cnt++;
-  }else if( db_exists(
-      "SELECT 1 FROM user"
-      " WHERE login='anonymous' AND cap GLOB '*n*'")
-  ){
-    @ <p><a href="login?anon=1&g=tktnew">Login as "anonymous"</a>
-    @ to enter a new ticket.</p>
-  }
-  if( !g.okRdTkt ){
-    @ <p>You are not authorized to view existing tickets.</p>
-  }else{
-    db_prepare(&q, "SELECT rn, title, owner FROM reportfmt ORDER BY title");
-    @ <p>Choose a report format from the following list:</p>
-    @ <ol>
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zTitle = db_column_text(&q, 1);
-      const char *zOwner = db_column_text(&q, 2);
-      if( zTitle[0] =='_' && !g.okTktFmt ){
-        continue;
-      }
-      rn = db_column_int(&q, 0);
-      cnt++;
-      @ <li value="%d(cnt)">
-      if( zTitle[0] == '_' ){
-        @%h(zTitle)
-      } else {
-        @<a href="rptview?rn=%d(rn)"
-        @        rel="nofollow">%h(zTitle)</a>        
-      }
-      @&nbsp;&nbsp;&nbsp;
-      if( g.okWrite && zOwner && zOwner[0] ){
-        @ (by <i>%h(zOwner)</i>)
-      }
-      if( g.okTktFmt ){
-        @ [<a href="rptedit?rn=%d(rn)&amp;copy=1" rel="nofollow">copy</a>]
-      }
-      if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
-        @ [<a href="rptedit?rn=%d(rn)" rel="nofollow">edit</a>]
-      }
-      if( g.okTktFmt ){
-        @ [<a href="rptsql?rn=%d(rn)" rel="nofollow">sql</a>]
-      }
-      @ </li>
+  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST<br />\n", -1);
+  zScript = ticket_reportlist_code();
+  if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br />\n", -1);
+  
+  blob_zero(&ril);
+
+  db_prepare(&q, "SELECT rn, title, owner FROM reportfmt ORDER BY title");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTitle = db_column_text(&q, 1);
+    const char *zOwner = db_column_text(&q, 2);
+    if( zTitle[0] =='_' && !g.okTktFmt ){
+      continue;
     }
+    rn = db_column_int(&q, 0);
+    cnt++;
+    blob_appendf(&ril, "<li>");
+    if( zTitle[0] == '_' ){
+      blob_appendf(&ril, "%s", zTitle);
+    } else {
+      blob_appendf(&ril, "<a href=\"rptview?rn=%d\" rel=\"nofollow\">%h</a>", rn, zTitle);
+    }
+    blob_appendf(&ril, "&nbsp;&nbsp;&nbsp;");
+    if( g.okWrite && zOwner && zOwner[0] ){
+      blob_appendf(&ril, "(by <i>%h</i></i>) ", zOwner);
+    }
+    if( g.okTktFmt ){
+      blob_appendf(&ril, "[<a href=\"rptedit?rn=%d&amp;copy=1\" rel=\"nofollow\">copy</a>] ", rn);
+    }
+    if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
+      blob_appendf(&ril, "[<a href=\"rptedit?rn=%d\" rel=\"nofollow\">edit</a>] ", rn);
+    }
+    if( g.okTktFmt ){
+      blob_appendf(&ril, "[<a href=\"rptsql?rn=%d\" rel=\"nofollow\">sql</a>] ", rn);
+    }
+    blob_appendf(&ril, "</li>\n");
   }
-  @ </ol>
-  if( g.okTktFmt ){
-    @ <p>Create a new ticket display format:</p>
-    @ <ol>
-    @ <li value="%d(cnt+1)"><a href="rptnew">New report format</a></li>
-    @ </ol>
-  }
+
+  Th_Store("report_items", blob_str(&ril));
+  
+  Th_Render(zScript);
+  
+  blob_reset(&ril);
+  if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
+
   style_footer();
 }
 

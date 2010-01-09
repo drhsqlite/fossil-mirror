@@ -52,6 +52,8 @@ void tktsetup_page(void){
     "HTML with embedded TH1 code for the \"view ticket\" webpage.");
   setup_menu_entry("Edit Ticket Page", "tktsetup_editpage",
     "HTML with embedded TH1 code for the \"edit ticket\" webpage.");
+  setup_menu_entry("Report List Page", "tktsetup_reportlist",
+    "HTML with embedded TH1 code for the \"report list\" webpage.");
   setup_menu_entry("Report Template", "tktsetup_rpttplt",
     "The default ticket report format.");
   setup_menu_entry("Key Template", "tktsetup_keytplt",
@@ -548,6 +550,56 @@ void tktsetup_editpage_page(void){
     "HTML For Editing Tickets",
     "ticket-editpage",
     zDefaultEdit,
+    zDesc,
+    0,
+    0,
+    40
+  );
+}
+
+/*
+** The default report list page
+*/
+static const char zDefaultReportList[] =
+@ <th1>
+@ if {[hascap n]} {
+@   html "<p>Enter a new ticket:</p>"
+@   html "<ul><li><a href='tktnew'>New ticket</a></li></ul>"
+@ }
+@ </th1>
+@ 
+@ <p>Choose a report format from the following list:</p>
+@ <ol>
+@ <th1>html $report_items</th1>
+@ </ol>
+@ 
+@ <th1>
+@ if {[hascap t]} {
+@   html "<p>Create a new ticket display format:</p>"
+@   html "<ul><li><a href='rptnew'>New report format</a></li></ul>"
+@ }
+@ </th1>
+;
+
+/*
+** Return the code used to generate the report list
+*/
+const char *ticket_reportlist_code(void){
+  return db_get("ticket-reportlist", (char*)zDefaultEdit);
+}
+
+/*
+** WEBPAGE: tktsetup_reportlist
+*/
+void tktsetup_reportlist(void){
+  static const char zDesc[] =
+  @ <p>Enter HTML with embedded TH1 script that will render the "report list"
+  @ page</p>
+  ;
+  tktsetup_generic(
+    "HTML For Report List",
+    "ticket-reportlist",
+    zDefaultReportList,
     zDesc,
     0,
     0,
