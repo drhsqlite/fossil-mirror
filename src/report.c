@@ -49,6 +49,7 @@ void view_list(void){
   if( g.thTrace ) Th_Trace("BEGIN_REPORTLIST_SCRIPT<br />\n", -1);
   
   blob_zero(&ril);
+  ticket_init();
 
   db_prepare(&q, "SELECT rn, title, owner FROM reportfmt ORDER BY title");
   while( db_step(&q)==SQLITE_ROW ){

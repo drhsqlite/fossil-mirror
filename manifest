@@ -1,5 +1,5 @@
-C Added\sa\suser\sconfigurable\sTH1\stemplate\sfor\sthe\sticket\sreport\slist.\r\n
-D 2010-01-09T18:32:28
+C Call\sticket_init()\sfrom\sthe\sreport\sview\sso\susers\scan\shave\saccess\sto\sall\sthe\scommon\sticket\scode
+D 2010-01-09T18:43:34
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -81,7 +81,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
 F src/rebuild.c 0c81bac41f49ececdd0b68676c501dc897128e9c
-F src/report.c 6b2f62f721f99500b07e8e7f14770befa3a95112
+F src/report.c 32747b4d902283266869f0b1d27c45e143430813
 F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
@@ -252,7 +252,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6069602aba14bf74b8f48bd94f7b7e033ca752da
-R 938092271ddc1e0d35fde7156e8b04c0
+P 14253e9b3336a629243248dbb4c96da27705304e
+R dd5e6e3664cc002a3983938ec58fd197
 U jeremy_c
-Z 5c4c5c9437e83969212c47504b2801ee
+Z 8dbe77538198402293ab47b7f792734c
