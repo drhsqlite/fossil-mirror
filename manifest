@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Store\spasswords\sin\sUSER.PW\sas\seither\scleartext\s(as\sis\sdone\sin\slegacy)\sor\sas\nthe\sSHA1\shash\sof\sthe\spassword.\s\sWhen\schanging\sa\spassword\sor\sadding\sa\snew\suser,\nalways\suse\sthe\sSHA1\shash\spassword.
-D 2010-01-09T22:03:21
+C Remove\ssome\sdebug/test\sprintfs\sthat\swere\smistakenly\sleft\sin\sthe\sprevious\ncommit.
+D 2010-01-09T22:34:15
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -116,7 +116,7 @@ F src/vfile.c 882972137d800a25c13d2ba8488edd0bc9da3a1a
 F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c b1603948aafd9307e0d01afb9fe6e9daa4f9f865
 F src/winhttp.c 4bf909b551b44d78bc9ae42def5b25b32063f592
-F src/xfer.c 16f3bf7e35adb01486234617cc8acd79dca39ee1
+F src/xfer.c 1714f06ff410e7e92b11d5aae59f6d8ed2b7cfc1
 F src/zip.c 43608365d59dc34c11cc6e2d6f36c36a88c32410
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -255,14 +255,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6d0b76d01f85150e99c2c326b11276571c885584
-R ab1541fb2da824566ac813e57194b688
+P cfe33dcf9204b0ea2f6aebbdd2a66407cff5d2b9
+R e31ff9d82bbd2663de3ecba0e5a2d552
 U drh
-Z 0edcf1ed09272009aadfde1308627de9
+Z a97ee3dadf4049388c99677cd75e55a0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLSP0toxKgR168RlERAlGMAJ95h3TaqMUM7Db9Z+g3CGiqfSZLbACbBfG5
-tlQCGsn41STq0ytozFupqtY=
-=TTgR
+iD8DBQFLSQRroxKgR168RlERAjhYAJ9sk130fnGibLgu3/z47IK5CVQ3wwCcDlpN
+hmiIEj0uFBIVNxvldSGM0pI=
+=AkPn
 -----END PGP SIGNATURE-----

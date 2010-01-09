@@ -406,7 +406,6 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     sha1sum_blob(&combined, &hash);
     assert( blob_size(&hash)==40 );
     rc = blob_compare(&hash, pSig);
-fprintf(stderr,"login card %s for %s with szpw=%d\n",rc?"miss":"hit",zLogin,szPw);
     blob_reset(&hash);
     blob_reset(&combined);
     if( rc!=0 && szPw!=40 ){
@@ -423,7 +422,6 @@ fprintf(stderr,"login card %s for %s with szpw=%d\n",rc?"miss":"hit",zLogin,szPw
       blob_reset(&pw);
       sha1sum_blob(&combined, &hash);
       rc = blob_compare(&hash, pSig);
-fprintf(stderr,"login card %s for %s after pw hashing\n",rc?"miss":"hit",zLogin);
       blob_reset(&hash);
       blob_reset(&combined);
     }
