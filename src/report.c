@@ -63,10 +63,19 @@ void view_list(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zTitle = db_column_text(&q, 1);
       const char *zOwner = db_column_text(&q, 2);
+      if( zTitle[0] =='_' && !g.okTktFmt ){
+        continue;
+      }
       rn = db_column_int(&q, 0);
       cnt++;
-      @ <li value="%d(cnt)"><a href="rptview?rn=%d(rn)"
-      @        rel="nofollow">%h(zTitle)</a>&nbsp;&nbsp;&nbsp;
+      @ <li value="%d(cnt)">
+      if( zTitle[0] == '_' ){
+        @%h(zTitle)
+      } else {
+        @<a href="rptview?rn=%d(rn)"
+        @        rel="nofollow">%h(zTitle)</a>        
+      }
+      @&nbsp;&nbsp;&nbsp;
       if( g.okWrite && zOwner && zOwner[0] ){
         @ (by <i>%h(zOwner)</i>)
       }

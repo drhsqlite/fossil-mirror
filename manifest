@@ -1,5 +1,5 @@
-C Added\sthe\scgi()\sSQL\sfunction\simplemented\sby\sBrain\sTheado.\r\n
-D 2010-01-09T12:35:59
+C If\sa\sticket\squery\sbegins\swith\san\sunderscore\sthen:\r\n\s\s#\s\sDo\snot\sinclude\sa\slink\sto\sexecute\sthe\squery\sdirectly\r\n\s\s#\s\sDo\snot\sshow\sto\sthose\susers\sthat\sdo\snot\shave\sticket\sreport\saccess\r\n\r\nThis\sallows\syou\sto\screate\sticket\sreport\squeries\sthat\sare\sfor\sform\ssubmissions\r\nonly,\snot\sdirect\saccess.\r\n
+D 2010-01-09T13:11:18
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -81,7 +81,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
 F src/rebuild.c 0c81bac41f49ececdd0b68676c501dc897128e9c
-F src/report.c e3258afe0691a01e77a5ec4b3997ca23a0a38a62
+F src/report.c 58de62240eeb7c22ed8d502b18dd554370dbb46b
 F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
@@ -252,7 +252,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 2239226012a7f4b706aa3071e2bdf0b522017ae9
-R e697e14f9112c49377c5b1ffb423f275
+P 19f552795b5c4ba33817aa37cfa118c03f4b61c7
+R c9227b06024dc932f318b5374249a152
 U jeremy_c
-Z 360912b1bc771fbab00e16209a35ca67
+Z ddcf1bb739b940b1e8d2598510bef081
