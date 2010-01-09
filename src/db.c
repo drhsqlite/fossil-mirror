@@ -1181,20 +1181,16 @@ char *db_reveal(const char *zKey){
 ** database connection is first established.
 */
 LOCAL void db_connection_init(void){
-  static int once = 1;
-  if( once ){
-    sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
-    sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
-    sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-    sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-    sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
-    sqlite3_create_function(
-      g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
-    );
-    if( g.fSqlTrace ){
-      sqlite3_trace(g.db, db_sql_trace, 0);
-    }
-    once = 0;
+  sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+  sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
+  sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+  sqlite3_create_function(
+    g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  if( g.fSqlTrace ){
+    sqlite3_trace(g.db, db_sql_trace, 0);
   }
 }
 

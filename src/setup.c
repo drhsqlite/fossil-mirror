@@ -320,7 +320,9 @@ void user_edit(void){
 
     zCap[i] = 0;
     zPw = P("pw");
-    if( !isValidPwString(zPw) ){
+    if( isValidPwString(zPw) ){
+      zPw = sha1sum(zPw);
+    }else{
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
     zLogin = P("login");
@@ -475,10 +477,8 @@ void user_edit(void){
   @ </tr>
   @ <tr>
   @   <td align="right">Password:</td>
-  if( strcmp(zLogin, "anonymous")==0 ){
-    @   <td><input type="text" name="pw" value="%h(zPw)"></td>
-  }else if( zPw[0] ){
-    /* Obscure the password for all other users */
+  if( zPw[0] ){
+    /* Obscure the password for all users */
     @   <td><input type="password" name="pw" value="**********"></td>
   }else{
     /* Show an empty password as an empty input field */

@@ -359,7 +359,6 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
   return rc==0;
 }
 
-
 /*
 ** Check the signature on an application/x-fossil payload received by
 ** the HTTP server.  The signature is a line of the following form:
@@ -396,17 +395,38 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
      zLogin
   );
   if( db_step(&q)==SQLITE_ROW ){
+    int szPw;
     Blob pw, combined, hash;
     blob_zero(&pw);
     db_ephemeral_blob(&q, 0, &pw);
+    szPw = blob_size(&pw);
     blob_zero(&combined);
     blob_copy(&combined, pNonce);
-    blob_append(&combined, blob_buffer(&pw), blob_size(&pw));
-    /* CGIDEBUG(("presig=[%s]\n", blob_str(&combined))); */
+    blob_append(&combined, blob_buffer(&pw), szPw);
     sha1sum_blob(&combined, &hash);
+    assert( blob_size(&hash)==40 );
     rc = blob_compare(&hash, pSig);
+fprintf(stderr,"login card %s for %s with szpw=%d\n",rc?"miss":"hit",zLogin,szPw);
     blob_reset(&hash);
     blob_reset(&combined);
+    if( rc!=0 && szPw!=40 ){
+      /* If this server stores cleartext passwords and the password did not
+      ** match, then perhaps the client is sending SHA1 passwords.  Try
+      ** again with the SHA1 password.
+      */
+      blob_zero(&pw);
+      db_ephemeral_blob(&q, 0, &pw);
+      sha1sum_blob(&pw, &pw);
+      blob_zero(&combined);
+      blob_copy(&combined, pNonce);
+      blob_append(&combined, blob_buffer(&pw), blob_size(&pw));
+      blob_reset(&pw);
+      sha1sum_blob(&combined, &hash);
+      rc = blob_compare(&hash, pSig);
+fprintf(stderr,"login card %s for %s after pw hashing\n",rc?"miss":"hit",zLogin);
+      blob_reset(&hash);
+      blob_reset(&combined);
+    }
     if( rc==0 ){
       const char *zCap;
       zCap = db_column_text(&q, 1);

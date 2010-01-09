@@ -40,9 +40,11 @@
 ** by this routine.
 */
 static void http_build_login_card(Blob *pPayload, Blob *pLogin){
-  Blob nonce;    /* The nonce */
-  Blob pw;       /* The user password */
-  Blob sig;      /* The signature field */
+  Blob nonce;          /* The nonce */
+  const char *zLogin;  /* The user login name */
+  const char *zPw;     /* The user password */
+  Blob pw;             /* The nonce with user password appended */
+  Blob sig;            /* The signature field */
 
   blob_zero(&nonce);
   blob_zero(&pw);
@@ -51,9 +53,8 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   blob_zero(pLogin);
   if( g.urlUser==0 ){
     user_select();
-    db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
-    sha1sum_blob(&pw, &sig);
-    blob_appendf(pLogin, "login %F %b %b\n", g.zLogin, &nonce, &sig);
+    zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", g.userUid);
+    zLogin = g.zLogin;
   }else{
     if( g.urlPasswd==0 ){
       if( strcmp(g.urlUser,"anonymous")!=0 ){
@@ -66,13 +67,32 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
         g.urlPasswd = "";
       }
     }
-    blob_append(&pw, g.urlPasswd, -1);
-    sha1sum_blob(&pw, &sig);
-    blob_appendf(pLogin, "login %F %b %b\n", g.urlUser, &nonce, &sig);
-  }        
-  blob_reset(&nonce);
+    zPw = g.urlPasswd;
+    zLogin = g.urlUser;
+  }
+
+  /* The login card wants the SHA1 hash of the password, so convert the
+  ** password to its SHA1 hash it it isn't already a SHA1 hash.
+  **
+  ** Except, if the password begins with "*" then use the characters
+  ** after the "*" as a cleartext password.  Put an "*" at the beginning
+  ** of the password to trick a newer client to use the cleartext password
+  ** protocol required by legacy servers.
+  */
+  if( zPw && zPw[0] ){
+    if( zPw[0]=='*' ){
+      zPw++;
+    }else{
+      zPw = sha1sum(zPw);
+    }
+  }
+
+  blob_append(&pw, zPw, -1);
+  sha1sum_blob(&pw, &sig);
+  blob_appendf(pLogin, "login %F %b %b\n", zLogin, &nonce, &sig);
   blob_reset(&pw);
   blob_reset(&sig);
+  blob_reset(&nonce);
 }
 
 /*

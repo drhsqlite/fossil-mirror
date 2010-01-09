@@ -249,6 +249,7 @@ void user_cmd(void){
     if( blob_size(&pw)==0 ){
       printf("password unchanged\n");
     }else{
+      sha1sum_blob(&pw, &pw);
       db_multi_exec("UPDATE user SET pw=%B WHERE uid=%d", &pw, uid);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
@@ -345,4 +346,40 @@ void user_select(void){
     g.userUid = db_last_insert_rowid();
     g.zLogin = "anonymous";
   }
+}
+
+/*
+** SQL command to compute a SHA1 hash.
+*/
+static void user_sha1_func(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  char *zIn;
+  assert( argc==1 );
+  zIn = (char*)sqlite3_value_text(argv[0]);
+  if( zIn ){ 
+    sqlite3_result_text(context, sha1sum(zIn), -1, free);
+  }
+}
+
+/*
+** COMMAND: test-hash-passwords
+**
+** Usage: %fossil test-hash-passwords REPOSITORY
+**
+** Convert all local password storage to use a SHA1 hash of the password
+** rather than cleartext.  Passwords that are already stored as the SHA1
+** has are unchanged.
+*/
+void user_hash_passwords_cmd(void){
+  if( g.argc!=3 ) usage("REPOSITORY");
+  db_open_repository(g.argv[2]);
+  sqlite3_create_function(g.db, "sha1sum", 1, SQLITE_UTF8, 0,
+                          user_sha1_func, 0, 0);
+  db_multi_exec(
+    "UPDATE user SET pw=sha1sum(pw)"
+    " WHERE length(pw)>0 AND length(pw)!=40"
+  );
 }

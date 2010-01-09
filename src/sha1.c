@@ -536,6 +536,22 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
   return 0;
 }
 
+/*
+** Compute the SHA1 checksum of a zero-terminated string.  The
+** result is held in memory obtained from mprintf().
+*/
+char *sha1sum(const char *zIn){
+  SHA1Context ctx;
+  unsigned char zResult[20];
+  char zDigest[41];
+
+  SHA1Reset(&ctx);
+  SHA1Input(&ctx, (unsigned const char*)zIn, strlen(zIn));
+  SHA1Result(&ctx, zResult);
+  DigestToBase16(zResult, zDigest);
+  return mprintf("%s", zDigest);
+}
+
 
 /*
 ** COMMAND: sha1sum

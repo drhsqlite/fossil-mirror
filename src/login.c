@@ -142,10 +142,12 @@ void login_page(void){
   int anonFlag;
   char *zErrMsg = "";
   int uid;                     /* User id loged in user */
+  char *zSha1Pw;
 
   login_check_credentials();
   zUsername = P("u");
   zPasswd = P("p");
+  zSha1Pw = (zPasswd && zPasswd[0]) ? sha1sum(zPasswd) : "";
   anonFlag = P("anon")!=0;
   if( P("out")!=0 ){
     const char *zCookieName = login_cookie_name();
@@ -154,7 +156,8 @@ void login_page(void){
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
     if( db_int(1, "SELECT 0 FROM user"
-                  " WHERE uid=%d AND pw=%Q", g.userUid, zPasswd) ){
+                  " WHERE uid=%d AND (pw=%Q OR pw=%Q)", 
+                  g.userUid, zPasswd, zSha1Pw) ){
       sleep(1);
       zErrMsg = 
          @ <p><font color="red">
@@ -171,7 +174,7 @@ void login_page(void){
       ;
     }else{
       db_multi_exec(
-         "UPDATE user SET pw=%Q WHERE uid=%d", zNew1, g.userUid
+         "UPDATE user SET pw=%Q WHERE uid=%d", sha1sum(zNew1), g.userUid
       );
       redirect_to_g();
       return;
@@ -202,8 +205,8 @@ void login_page(void){
         "SELECT uid FROM user"
         " WHERE login=%Q"
         "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-        "   AND pw=%Q",
-        zUsername, zPasswd
+        "   AND (pw=%Q OR pw=%Q)",
+        zUsername, zPasswd, zSha1Pw
     );
     if( uid<=0 ){
       sleep(1);
