@@ -1071,6 +1071,24 @@ static void db_sql_user(
 }
 
 /*
+** Implement the cgi() SQL function.  cgi() takes a an argument which is
+** a name of CGI query parameter. The value of that parameter is returned, 
+** if available. optional second argument will be returned if the first
+** doesn't exist as a CGI parameter.
+*/
+static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv){
+  const char* zP;
+  if( argc!=1 && argc!=2 ) return;
+  zP = P((const char*)sqlite3_value_text(argv[0]));
+  if( zP ){
+    sqlite3_result_text(context, zP, -1, SQLITE_STATIC);
+  }else if( argc==2 ){
+    zP = (const char*)sqlite3_value_text(argv[1]);
+    if( zP ) sqlite3_result_text(context, zP, -1, SQLITE_TRANSIENT);
+  }
+}
+
+/*
 ** This is used by the [commit] command.
 **
 ** Return true if either:
@@ -1167,6 +1185,8 @@ LOCAL void db_connection_init(void){
   if( once ){
     sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
     sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
+    sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+    sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
     sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
     sqlite3_create_function(
       g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
