@@ -697,7 +697,7 @@ void page_timeline(void){
   @ <script>
   @ var parentof = new Object();
   @ var childof = new Object();
-  db_prepare(&q, "SELECT rid FROM timeline");
+  db_prepare(&q, "SELECT rid FROM seen");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     Stmt q2;
