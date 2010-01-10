@@ -585,7 +585,7 @@ static const char zDefaultReportList[] =
 ** Return the code used to generate the report list
 */
 const char *ticket_reportlist_code(void){
-  return db_get("ticket-reportlist", (char*)zDefaultEdit);
+  return db_get("ticket-reportlist", (char*)zDefaultReportList);
 }
 
 /*
