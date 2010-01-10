@@ -186,6 +186,7 @@ void user_cmd(void){
   n = strlen(g.argv[2]);
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
     Blob passwd, login, contact;
+    char *zPw;
 
     if( g.argc>=4 ){
       blob_init(&login, g.argv[3], -1);
@@ -205,11 +206,13 @@ void user_cmd(void){
     }else{
       prompt_for_password("password: ", &passwd, 1);
     }
+    zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
     db_multi_exec(
       "INSERT INTO user(login,pw,cap,info)"
-      "VALUES(%B,%B,'v',%B)",
-      &login, &passwd, &contact
+      "VALUES(%B,%Q,'v',%B)",
+      &login, zPw, &contact
     );
+    free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
     user_select();
     if( g.argc==3 ){
@@ -249,8 +252,9 @@ void user_cmd(void){
     if( blob_size(&pw)==0 ){
       printf("password unchanged\n");
     }else{
-      sha1sum_blob(&pw, &pw);
-      db_multi_exec("UPDATE user SET pw=%B WHERE uid=%d", &pw, uid);
+      char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3]);
+      db_multi_exec("UPDATE user SET pw=%Q WHERE uid=%d", zSecret, uid);
+      free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
     int uid;
@@ -349,18 +353,20 @@ void user_select(void){
 }
 
 /*
-** SQL command to compute a SHA1 hash.
+** Compute the shared secret for a user.
 */
-static void user_sha1_func(
+static void user_sha1_shared_secret_func(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
-  char *zIn;
-  assert( argc==1 );
-  zIn = (char*)sqlite3_value_text(argv[0]);
-  if( zIn ){ 
-    sqlite3_result_text(context, sha1sum(zIn), -1, free);
+  char *zPw;
+  char *zLogin;
+  assert( argc==2 );
+  zPw = (char*)sqlite3_value_text(argv[0]);
+  zLogin = (char*)sqlite3_value_text(argv[1]);
+  if( zPw && zLogin ){ 
+    sqlite3_result_text(context, sha1_shared_secret(zPw, zLogin), -1, free);
   }
 }
 
@@ -376,10 +382,10 @@ static void user_sha1_func(
 void user_hash_passwords_cmd(void){
   if( g.argc!=3 ) usage("REPOSITORY");
   db_open_repository(g.argv[2]);
-  sqlite3_create_function(g.db, "sha1sum", 1, SQLITE_UTF8, 0,
-                          user_sha1_func, 0, 0);
+  sqlite3_create_function(g.db, "sha1_shared_secret", 2, SQLITE_UTF8, 0,
+                          user_sha1_shared_secret_func, 0, 0);
   db_multi_exec(
-    "UPDATE user SET pw=sha1sum(pw)"
+    "UPDATE user SET pw=sha1_shared_secret(pw,login)"
     " WHERE length(pw)>0 AND length(pw)!=40"
   );
 }

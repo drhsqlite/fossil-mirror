@@ -83,7 +83,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     if( zPw[0]=='*' ){
       zPw++;
     }else{
-      zPw = sha1sum(zPw);
+      zPw = sha1_shared_secret(zPw, zLogin);
     }
   }
 

@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fixes\sto\sthe\sconfigurable\s"report\slist".\s\sLoad\sthe\scorrect\sdefault\sTH\sscript\nwhen\sno\sreport\slist\sscript\sis\sspecified.\s\sSend\sand\sreceive\sthe\sreport\slist\sTH\nscript\stogether\swith\sother\sticket\sconfiguration\sscripts.
-D 2010-01-10T00:07:02
+C Change\sthe\shash\salgorithm\sfor\spasswords\sso\sthat\sUSER.PW\sfield\sstores\sa\sSHA1\nhash\sof\sthe\sproject-code,\suser\slogin,\sand\suser\spassword,\srather\sthan\sjust\na\shash\sof\sthe\suser\spassword.\s\sThat\sway,\sthe\sif\stwo\susers\sselect\sthe\ssame\npassword,\sor\sif\sthe\sone\suser\sselects\sthe\ssame\spassword\sfor\smultiple\s\nprojects,\sthe\spassword\shashes\sare\sstill\sdifferent.
+D 2010-01-10T20:56:30
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -64,11 +64,11 @@ F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 8138522279c00ab205b9c9a722f74283d421c437
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
-F src/http.c 28563ad6d594ce34543d580d86fb063b8937aff2
+F src/http.c 26eca6baf0c72e01ceb9e44d6efffea0649aba06
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c 3aeb3e1befeb2d07874e685e4830fc73fe3d8064
-F src/login.c f1883fa96c2a7469da97a2eea086d89fb251a1c2
+F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
 F src/main.c 16c9110773d13754370de53aecbc69a6c8ef90ed
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -87,10 +87,10 @@ F src/rebuild.c 0c81bac41f49ececdd0b68676c501dc897128e9c
 F src/report.c 32747b4d902283266869f0b1d27c45e143430813
 F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
-F src/schema.c 04013e80f03f2b4da42c4d903466537c5490c823
+F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c b5167db88367b9c1fa5cdf415c4ef85b1bf46610
-F src/sha1.c 85d6456268b91823475a402a2e7b3194f3467456
+F src/setup.c c0efbd97b5e8b3f2ddb5d289d16f7c8dea1b7496
+F src/sha1.c dcfc18a55f742136d116890edb59923888c07e0c
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
 F src/sqlite3.c 3417e43f49d06d3d6516430a93d3477a764d3855
@@ -110,13 +110,13 @@ F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c 0d2cc71745fedc7c712d9c6ab313a020b59e8054
 F src/update.c eb5c093f17c0e402cd9750e409570b0e784fbd89
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
-F src/user.c 31ad521e728dd211b82a4218706ffb4006ee7baa
+F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 882972137d800a25c13d2ba8488edd0bc9da3a1a
 F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c b1603948aafd9307e0d01afb9fe6e9daa4f9f865
 F src/winhttp.c 4bf909b551b44d78bc9ae42def5b25b32063f592
-F src/xfer.c 1714f06ff410e7e92b11d5aae59f6d8ed2b7cfc1
+F src/xfer.c 6901c111d8b439d9e1679f1ab2cbb140997223b2
 F src/zip.c 43608365d59dc34c11cc6e2d6f36c36a88c32410
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -255,14 +255,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P e8b76a69ae48bed2502194d43a78dde483d36e04
-R 655db3c810a6313ea2c18f4c71bcd6a7
+P cd93f5965b5df0eb726f8a9ea3d86e106bc8540c
+R 3926314fdc41404c685b1adcfd4e2727
 U drh
-Z 34c584788e7cb8d73fd69e530723eadb
+Z ebd1efb21fa32e27a1cfdab4a74e33c8
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLSRoqoxKgR168RlERAvH9AJ4xqVLxkF9K8mxHZAZDVTupMED2agCfaLxm
-jfi8erZ4QFMGWMzT/A2kU2o=
-=TSrZ
+iD8DBQFLSj8BoxKgR168RlERAtZaAJ0XjTjI7BZhM2CuEhyxMKalRfxkLwCfWbbz
+RyIs6HV5HLCFYwRqzFxLk4s=
+=NOD/
 -----END PGP SIGNATURE-----

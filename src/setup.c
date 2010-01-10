@@ -320,12 +320,12 @@ void user_edit(void){
 
     zCap[i] = 0;
     zPw = P("pw");
+    zLogin = P("login");
     if( isValidPwString(zPw) ){
-      zPw = sha1sum(zPw);
+      zPw = sha1_shared_secret(zPw, zLogin);
     }else{
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
-    zLogin = P("login");
     if( uid>0 &&
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){

@@ -147,7 +147,6 @@ void login_page(void){
   login_check_credentials();
   zUsername = P("u");
   zPasswd = P("p");
-  zSha1Pw = (zPasswd && zPasswd[0]) ? sha1sum(zPasswd) : "";
   anonFlag = P("anon")!=0;
   if( P("out")!=0 ){
     const char *zCookieName = login_cookie_name();
@@ -155,6 +154,7 @@ void login_page(void){
     redirect_to_g();
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+    zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin);
     if( db_int(1, "SELECT 0 FROM user"
                   " WHERE uid=%d AND (pw=%Q OR pw=%Q)", 
                   g.userUid, zPasswd, zSha1Pw) ){
@@ -173,8 +173,9 @@ void login_page(void){
          @ </font></p>
       ;
     }else{
+      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin);
       db_multi_exec(
-         "UPDATE user SET pw=%Q WHERE uid=%d", sha1sum(zNew1), g.userUid
+         "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
       );
       redirect_to_g();
       return;
@@ -201,6 +202,7 @@ void login_page(void){
     redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
+    zSha1Pw = sha1_shared_secret(zPasswd, zUsername);
     uid = db_int(0,
         "SELECT uid FROM user"
         " WHERE login=%Q"
@@ -424,6 +426,9 @@ void login_check_credentials(void){
     if( zCap==0 ){
       zCap = "";
     }
+  }
+  if( g.fHttpTrace && g.zLogin ){
+    fprintf(stderr, "# login: [%s] with capabilities [%s]\n", g.zLogin, zCap);
   }
 
   /* Set the global variables recording the userid and login.  The
