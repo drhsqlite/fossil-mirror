@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sthe\s[/doc/tip/www/password.wiki]\sdocument.
-D 2010-01-11T15:07:29
+C Updates\sto\sthe\sPassword\sManagement\sdocument.
+D 2010-01-11T16:09:12
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -242,7 +242,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 3a7f4e44dcada23d0c6493a2b370a8a7192ed1d8
 F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
-F www/password.wiki 042da45c345a25fda3873fd2a4670737f5984026
+F www/password.wiki 00b7a8ba709bf89014b06fc832e0c0f5a1eecb7a
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
 F www/quickstart.wiki 83b4c8b851596b0679f0c32641d89cd1049e6b42
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 4b58a7b838d71ced1dde9e9f76ceb8cd06ef0f1b
-R fe776ec3b62151550519b6282a258323
+P cac5675e6c618ae27e44883aceaed6529b704909
+R d923c0818fd1acdd87882562d3038d70
 U drh
-Z 63e10bac66a2623c6b691948e495ddcb
+Z 51ad94f53f166243c8bc80e111c0a0b0
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLSz63oxKgR168RlERAnOhAJ9swl1LnDghTV+q/wzEml0QI5I7/gCfSzrn
-A47fZrUQkTmK0WJagb6IkBA=
-=z4v1
+iD8DBQFLS00roxKgR168RlERAkNjAJ9aODfUydyokM70RqOVRx9+F9rWagCggu2f
+f1k6GtmsSHUtEdJbbrT1aq4=
+=XTuE
 -----END PGP SIGNATURE-----
