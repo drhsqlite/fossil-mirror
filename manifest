@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sthe\sexperimental\spassword\schanges\sinto\sthe\strunk.
-D 2010-01-12T13:55:57
+C Transfer\sSHA1-encoded\spasswords\son\sa\s"configure\spush|pull\suser"\swhen\sthe\nclient\shas\sAdmin\sprivilege.
+D 2010-01-12T14:10:13
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -51,7 +51,7 @@ F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 42fdc2e08e7b46c615816625dd5e0979a5db3b43
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/configure.c 2e763365b95214943de92f53396ab892fa0c536f
+F src/configure.c e5a99ee9d1a11ffc99ab138753483cf66b959293
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
 F src/db.c b89e3126e8d06cc389b1d79398aefc2fa89decce
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P b9897bb934c4de72a968d3bada8c985ae785672c 261e55346d1b98dd7c2adb24c364c75545d4a054
-R da17234e9259c109db443c74be04bfc8
+P 596f3c10feba7ebe31b0aa46038214a748e2dbe8
+R f214ff7a117bc123a818d85e307877e4
 U drh
-Z c19633ae206127f4de3c2eacbbbfd49a
+Z 474b033ef96cc477c83c0746f9460c90
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLTH9woxKgR168RlERAkkcAJ9EiMpRKUIhTMJLifDjI27V13qnSQCghgoP
-xCjOHe6c4xHqnqKQo393GPQ=
-=iJlB
+iD8DBQFLTILIoxKgR168RlERAiezAJ0S9BCH3iVsJNSGT6jniJgXCQUw9ACeMJC7
+mBdPs9yc/6d2gklAwPJ2n0M=
+=WL25
 -----END PGP SIGNATURE-----
