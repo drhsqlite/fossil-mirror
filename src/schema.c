@@ -98,6 +98,13 @@ const char zRepositorySchema1[] =
 @
 @ -- Information about users
 @ --
+@ -- The user.pw field can be either cleartext of the password, or
+@ -- a SHA1 hash of the password.  If the user.pw field is exactly 40
+@ -- characters long we assume it is a SHA1 hash.  Otherwise, it is
+@ -- cleartext.  The sha1_shared_secret() routine computes the password
+@ -- hash based on the project-code, the user login, and the cleartext
+@ -- password.
+@ --
 @ CREATE TABLE user(
 @   uid INTEGER PRIMARY KEY,        -- User ID
 @   login TEXT,                     -- login name of the user

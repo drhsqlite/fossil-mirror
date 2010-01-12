@@ -400,6 +400,9 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   }
   aParamQP[nUsedQP].zName = zName;
   aParamQP[nUsedQP].zValue = zValue;
+  if( g.fHttpTrace ){
+    fprintf(stderr, "# cgi: %s = [%s]\n", zName, zValue);
+  }
   aParamQP[nUsedQP].seq = seqQP++;
   nUsedQP++;
   sortQP = 1;
@@ -1255,7 +1258,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
           dup(connection);
           close(1);
           dup(connection);
-          if( !g.fHttpTrace ){
+          if( !g.fHttpTrace && !g.fSqlTrace ){
             close(2);
             dup(connection);
           }

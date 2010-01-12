@@ -359,7 +359,6 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
   return rc==0;
 }
 
-
 /*
 ** Check the signature on an application/x-fossil payload received by
 ** the HTTP server.  The signature is a line of the following form:
@@ -396,17 +395,35 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
      zLogin
   );
   if( db_step(&q)==SQLITE_ROW ){
+    int szPw;
     Blob pw, combined, hash;
     blob_zero(&pw);
     db_ephemeral_blob(&q, 0, &pw);
+    szPw = blob_size(&pw);
     blob_zero(&combined);
     blob_copy(&combined, pNonce);
-    blob_append(&combined, blob_buffer(&pw), blob_size(&pw));
-    /* CGIDEBUG(("presig=[%s]\n", blob_str(&combined))); */
+    blob_append(&combined, blob_buffer(&pw), szPw);
     sha1sum_blob(&combined, &hash);
+    assert( blob_size(&hash)==40 );
     rc = blob_compare(&hash, pSig);
     blob_reset(&hash);
     blob_reset(&combined);
+    if( rc!=0 && szPw!=40 ){
+      /* If this server stores cleartext passwords and the password did not
+      ** match, then perhaps the client is sending SHA1 passwords.  Try
+      ** again with the SHA1 password.
+      */
+      const char *zPw = db_column_text(&q, 0);
+      char *zSecret = sha1_shared_secret(zPw, blob_str(pLogin));
+      blob_zero(&combined);
+      blob_copy(&combined, pNonce);
+      blob_append(&combined, zSecret, -1);
+      free(zSecret);
+      sha1sum_blob(&combined, &hash);
+      rc = blob_compare(&hash, pSig);
+      blob_reset(&hash);
+      blob_reset(&combined);
+    }
     if( rc==0 ){
       const char *zCap;
       zCap = db_column_text(&q, 1);
@@ -414,6 +431,9 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       g.userUid = db_column_int(&q, 2);
       g.zLogin = mprintf("%b", pLogin);
       g.zNonce = mprintf("%b", pNonce);
+      if( g.fHttpTrace ){
+        fprintf(stderr, "# login [%s] with capabilities [%s]\n", g.zLogin,zCap);
+      }
     }
   }
   db_finalize(&q);
@@ -652,8 +672,7 @@ void page_xfer(void){
     **    push  SERVERCODE  PROJECTCODE
     **
     ** The client wants either send or receive.  The server should
-    ** verify that the project code matches and that the server code
-    ** does not match.
+    ** verify that the project code matches.
     */
     if( xfer.nToken==3
      && (blob_eq(&xfer.aToken[0], "pull") || blob_eq(&xfer.aToken[0], "push"))
@@ -661,28 +680,6 @@ void page_xfer(void){
      && blob_is_uuid(&xfer.aToken[2])
     ){
       const char *zPCode;
-
-#if 0
-      /* This block checks to see if a server is trying to sync with itself.
-      ** This used to be disallowed, but I cannot think of any significant
-      ** harm, so I have disabled the check.
-      **
-      ** With this check disabled, it is sufficient to copy the repository
-      ** database.  No need to run clone.
-      */
-      const char *zSCode;
-      zSCode = db_get("server-code", 0);
-      if( zSCode==0 ){
-        fossil_panic("missing server code");
-      }
-      if( blob_eq_str(&xfer.aToken[1], zSCode, -1) ){
-        cgi_reset_content();
-        @ error server\sloop
-        nErr++;
-        break;
-      }
-#endif
-
       zPCode = db_get("project-code", 0);
       if( zPCode==0 ){
         fossil_panic("missing project code");
@@ -725,6 +722,7 @@ void page_xfer(void){
       login_check_credentials();
       if( !g.okClone ){
         cgi_reset_content();
+        @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
         @ error not\sauthorized\sto\sclone
         nErr++;
         break;
@@ -962,7 +960,7 @@ void client_sync(
   blob_zero(&recv);
   blob_zero(&xfer.err);
   blob_zero(&xfer.line);
-  origConfigRcvMask = configRcvMask;
+  origConfigRcvMask = 0;
 
   /*
   ** Always begin with a clone, pull, or push message
@@ -1007,8 +1005,11 @@ void client_sync(
       nCardSent += send_unclustered(&xfer);
     }
 
-    /* Send configuration parameter requests */
-    if( configRcvMask ){
+    /* Send configuration parameter requests.  On a clone, delay sending
+    ** this until the second cycle since the login card might fail on 
+    ** the first cycle.
+    */
+    if( configRcvMask && (cloneFlag==0 || nCycle>0) ){
       const char *zName;
       zName = configure_first_name(configRcvMask);
       while( zName ){
@@ -1019,6 +1020,7 @@ void client_sync(
       if( configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT) ){
         configure_prepare_to_receive(0);
       }
+      origConfigRcvMask = configRcvMask;
       configRcvMask = 0;
     }
 
@@ -1034,7 +1036,10 @@ void client_sync(
       configSendMask = 0;
     }
 
-    /* Append randomness to the end of the message */
+    /* Append randomness to the end of the message.  This makes all
+    ** messages unique so that that the login-card nonce will always
+    ** be unique.
+    */
     zRandomness = db_text(0, "SELECT hex(randomblob(20))");
     blob_appendf(&send, "# %s\n", zRandomness);
     free(zRandomness);
@@ -1215,13 +1220,22 @@ void client_sync(
 
       /*   error MESSAGE
       **
-      ** Report an error and abandon the sync session
+      ** Report an error and abandon the sync session.
+      **
+      ** Except, when cloning we will sometimes get an error on the
+      ** first message exchange because the project-code is unknown
+      ** and so the login card on the request was invalid.  The project-code
+      ** is returned in the reply before the error card, so second and 
+      ** subsequent messages should be OK.  Nevertheless, we need to ignore
+      ** the error card on the first message of a clone.
       */        
       if( blob_eq(&xfer.aToken[0],"error") && xfer.nToken==2 ){
-        char *zMsg = blob_terminate(&xfer.aToken[1]);
-        defossilize(zMsg);
-        blob_appendf(&xfer.err, "server says: %s", zMsg);
-        printf("Server Error: %s\n", zMsg);
+        if( !cloneFlag || nCycle>0 ){
+          char *zMsg = blob_terminate(&xfer.aToken[1]);
+          defossilize(zMsg);
+          blob_appendf(&xfer.err, "server says: %s", zMsg);
+          printf("Server Error: %s\n", zMsg);
+        }
       }else
 
       /* Unknown message */
@@ -1274,6 +1288,9 @@ void client_sync(
     if( xfer.nFileSent+xfer.nDeltaSent>0 ){
       go = 1;
     }
+
+    /* If this is a clone, the go at least two rounds */
+    if( cloneFlag && nCycle==1 ) go = 1;
   };
   transport_stats(&nSent, &nRcvd, 1);
   printf("Total network traffic: %d bytes sent, %d bytes received\n",

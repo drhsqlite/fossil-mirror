@@ -142,6 +142,7 @@ void login_page(void){
   int anonFlag;
   char *zErrMsg = "";
   int uid;                     /* User id loged in user */
+  char *zSha1Pw;
 
   login_check_credentials();
   zUsername = P("u");
@@ -153,8 +154,10 @@ void login_page(void){
     redirect_to_g();
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+    zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin);
     if( db_int(1, "SELECT 0 FROM user"
-                  " WHERE uid=%d AND pw=%Q", g.userUid, zPasswd) ){
+                  " WHERE uid=%d AND (pw=%Q OR pw=%Q)", 
+                  g.userUid, zPasswd, zSha1Pw) ){
       sleep(1);
       zErrMsg = 
          @ <p><font color="red">
@@ -170,8 +173,9 @@ void login_page(void){
          @ </font></p>
       ;
     }else{
+      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin);
       db_multi_exec(
-         "UPDATE user SET pw=%Q WHERE uid=%d", zNew1, g.userUid
+         "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
       );
       redirect_to_g();
       return;
@@ -198,12 +202,13 @@ void login_page(void){
     redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
+    zSha1Pw = sha1_shared_secret(zPasswd, zUsername);
     uid = db_int(0,
         "SELECT uid FROM user"
         " WHERE login=%Q"
         "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-        "   AND pw=%Q",
-        zUsername, zPasswd
+        "   AND (pw=%Q OR pw=%Q)",
+        zUsername, zPasswd, zSha1Pw
     );
     if( uid<=0 ){
       sleep(1);
@@ -421,6 +426,9 @@ void login_check_credentials(void){
     if( zCap==0 ){
       zCap = "";
     }
+  }
+  if( g.fHttpTrace && g.zLogin ){
+    fprintf(stderr, "# login: [%s] with capabilities [%s]\n", g.zLogin, zCap);
   }
 
   /* Set the global variables recording the userid and login.  The
