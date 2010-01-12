@@ -1,5 +1,5 @@
-C Added\san\soption\sto\senable\sALL\sHTML,\sCSS\sand\sJavaScript\stags/attributes\sfor\swiki\spages.\sThis\scomes\swith\r\na\sstrong\swarning\sagainst\sdoing\sso\son\sany\spublic\sproject.\r\n
-D 2010-01-12T13:38:45
+C Reverted\sprevious\scommit\s[1bf6cf832d]\sas\sit\scontains\sa\smajor\sflaw\sof\swiki\slinks\snot\sbeing\srendered.\sI\stested\son\ssimple\scases\sonly,\swill\sreimplement\sin\sa\sway\sthat\sallows\swiki\slinks\sto\sbe\srendered\sproperly.
+D 2010-01-12T13:47:48
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -86,7 +86,7 @@ F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 6fd1e2b445e750d73d821a572d6cf1f3e9cb02af
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c 3231d7f733d222626ff1faff8f6d44e42fda2649
+F src/setup.c e3fd99aa04a8eb30628c760e0c36b7e8d93bb8a2
 F src/sha1.c 30e74752c3184675c37cefd4fecaad2ab1e25642
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
@@ -110,7 +110,7 @@ F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 29b52a5fb93ed281efb2e41185f402c51f2b1d88
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 882972137d800a25c13d2ba8488edd0bc9da3a1a
-F src/wiki.c e20e9f0fdb9617f33e3b635c203be6dddc6be84c
+F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c b1603948aafd9307e0d01afb9fe6e9daa4f9f865
 F src/winhttp.c 4bf909b551b44d78bc9ae42def5b25b32063f592
 F src/xfer.c d3ef278c076cf5d1f39d20fbfc5b4a485377b6a5
@@ -252,7 +252,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 1bf6cf832df74b953cc51ba9bb11b03f2c87f7f7
-R 0db193906e2444979102972acf19640e
+P db344436c26577680586ecdac67fa5c2bf3f21c1
+R 03348e22556fbaec832203deaf3caa56
 U jeremy_c
-Z 5676670f6fbcfd178b7d686a6666d7e8
+Z f2898567fea47be3ccefac0a2bb45ac5

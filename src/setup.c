@@ -933,17 +933,6 @@ void setup_config(void){
   @ as the Project Name specified above.  Some sites prefer to redirect
   @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
   @ <hr />
-  onoff_attribute("Enable ALL HTML tags and attributes on Wiki pages",
-                  "wiki-all-html", "wiki-all-html", 0);
-  @ <p>Allow ALL HTML tags and attributes on Wiki pages. This should only
-  @ be enabled when you trust all wiki contributors. By enabling this option
-  @ it is possible for malicious users to insert dangerous HTML, CSS and
-  @ JavaScript code. When this option is disabled, only safe HTML tags
-  @ and attributes will be allowed.</p>
-  @
-  @ <p>It is highly recommended that this option not be enabled for public
-  @ projects with open wiki's.</p>
-  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);

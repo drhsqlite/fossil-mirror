@@ -195,13 +195,9 @@ void wiki_page(void){
     }
   }
   style_header(zPageName);
-  if (db_get_int("wiki-all-html",0)==1) {
-    @ %s(zBody)
-  } else {
-    blob_init(&wiki, zBody, -1);
-    wiki_convert(&wiki, 0, 0);
-    blob_reset(&wiki);
-  }
+  blob_init(&wiki, zBody, -1);
+  wiki_convert(&wiki, 0, 0);
+  blob_reset(&wiki);
   if( !isSandbox ){
     manifest_clear(&m);
   }
@@ -308,16 +304,12 @@ void wikiedit_page(void){
   zHtmlPageName = mprintf("Edit: %s", zPageName);
   style_header(zHtmlPageName);
   if( P("preview")!=0 ){
-    @ Preview:<hr>    
-    if (db_get_int("wiki-all-html",0)==1) {
-      @ %s(zBody)
-    } else {
-      blob_zero(&wiki);
-      blob_append(&wiki, zBody, -1);
-      wiki_convert(&wiki, 0, 0);
-      blob_reset(&wiki);
-    }
+    blob_zero(&wiki);
+    blob_append(&wiki, zBody, -1);
+    @ Preview:<hr>
+    wiki_convert(&wiki, 0, 0);
     @ <hr>
+    blob_reset(&wiki);
   }
   for(n=2, z=zBody; z[0]; z++){
     if( z[0]=='\n' ) n++;
@@ -490,15 +482,10 @@ void wikiappend_page(void){
     Blob preview;
     blob_zero(&preview);
     appendRemark(&preview);
-
     @ Preview:<hr>
-    if (db_get_int("wiki-all-html",0)==1) {
-      @ %s(blob_str(&preview))
-    } else {
-      wiki_convert(&preview, 0, 0);
-    }
-    blob_reset(&preview);
+    wiki_convert(&preview, 0, 0);
     @ <hr>
+    blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
   @ <form method="POST" action="%s(g.zBaseURL)/wikiappend">
