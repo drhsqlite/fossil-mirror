@@ -875,7 +875,7 @@ void rptview_page(void){
   char *zErr2 = 0;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.okRdTkt ){ login_needed(); return; }
   rn = atoi(PD("rn","0"));
   if( rn==0 ){
     cgi_redirect("reportlist");

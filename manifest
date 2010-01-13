@@ -1,5 +1,5 @@
-C New\soption\sof\s'wiki-use-html'\swhich\scauses\sthe\swiki\ssystem\sto\suse\sHTML\sas\sit's\smarkup\slanguage.\si.e.\sdo\snot\sinterfeer\swith\swhat\swas\sentered.
-D 2010-01-13T09:35:46
+C Fixed\sbug\swhere\sthe\sticket\sreport\sview\spage\swas\schecking\sthe\swrong\ssecurity\sattribute\s(too\ssecure)\swhich\swas\scausing\speople\swho\sshould\sbe\sable\sto\sview\sticket\sreports\sto\snot\sbe\sable\sto\sview\sticket\sreports.
+D 2010-01-13T09:58:09
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -81,7 +81,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
 F src/rebuild.c 0c81bac41f49ececdd0b68676c501dc897128e9c
-F src/report.c 32747b4d902283266869f0b1d27c45e143430813
+F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
 F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
@@ -253,7 +253,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P c16017374e4318ade54ee0c1e269a0bc2ddde355
-R b538ae0379d76cfb2ccad6062b64f288
+P cf3809cc71ffc9557bd60829a19eb30b6254ad42
+R 4d1a77ada531ef97c2d69474301da5f1
 U jeremy_c
-Z 4db72e98b9e7eab0853c1af6c4592055
+Z 7f88c5344db37a0351cd7b09d98c9e38
