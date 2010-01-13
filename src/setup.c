@@ -933,6 +933,19 @@ void setup_config(void){
   @ as the Project Name specified above.  Some sites prefer to redirect
   @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
   @ <hr />
+  onoff_attribute("Use HTML as wiki markup language",
+    "wiki-use-html", "wiki-use-html", 0);
+  @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed but
+  @ all other wiki formatting will be ignored. This option is helpful if you have
+  @ chosen to use a rich HTML editor for wiki markup such as TinyMCE.</p>
+  @ <p><strong>CAUTION:</strong> when
+  @ enabling, <i>all</i> HTML tags and attributes are accepted in the wiki.
+  @ No sanitization is done. This means that it is very possible for malicious
+  @ users to inject dangerous HTML, CSS and JavaScript code into your wiki.</p>
+  @ <p>This should <strong>only</strong> be enabled when wiki editing is limited
+  @ to trusted users. It should <strong>not</strong> be used on a publically
+  @ editable wiki.</p>
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);

@@ -335,7 +335,8 @@ static int findTag(const char *z){
 #define TOKEN_NUM_LI        7    /*  "  #  " */
 #define TOKEN_ENUM          8    /*  "  \(?\d+[.)]?  " */
 #define TOKEN_INDENT        9    /*  "   " */
-#define TOKEN_TEXT          10   /* None of the above */
+#define TOKEN_RAW           10   /* Output exactly (used when wiki-use-html==1) */
+#define TOKEN_TEXT          11   /* None of the above */
 
 /*
 ** State flags
@@ -346,6 +347,7 @@ static int findTag(const char *z){
 #define FONT_MARKUP_ONLY    0x008  /* Only allow MUTYPE_FONT markup */
 #define INLINE_MARKUP_ONLY  0x010  /* Allow only "inline" markup */
 #define IN_LIST             0x020  /* Within wiki <ul> or <ol> */
+#define WIKI_USE_HTML       0x040  /* wiki-use-html option = on */
 
 /*
 ** Current state of the rendering engine
@@ -548,12 +550,13 @@ static int linkLength(const char *z){
   }
 }
 
-
 /*
+** Get the next wiki token.
+** 
 ** z points to the start of a token.  Return the number of
 ** characters in that token.  Write the token type into *pTokenType.
 */
-static int nextToken(const char *z, Renderer *p, int *pTokenType){
+static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='<' ){
     n = markupLength(z);
@@ -611,6 +614,23 @@ static int nextToken(const char *z, Renderer *p, int *pTokenType){
   }
   *pTokenType = TOKEN_TEXT;
   return 1 + textLength(z+1, p->state & ALLOW_WIKI);
+}
+
+/*
+** Parse only Wiki links, return everything else as TOKEN_RAW.
+** 
+** z points to the start of a token.  Return the number of
+** characters in that token. Write the token type into *pTokenType.
+*/
+
+static int nextRawToken(const char *z, Renderer *p, int *pTokenType){
+  int n;
+  if( z[0]=='[' && (n = linkLength(z))>0 ){
+    *pTokenType = TOKEN_LINK;
+    return n;
+  }
+  *pTokenType = TOKEN_RAW;
+  return 1 + textLength(z+1, p->state);
 }
 
 /*
@@ -1041,9 +1061,14 @@ static void wiki_render(Renderer *p, char *z){
   ParsedMarkup markup;
   int n;
   int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
+  int wikiUseHtml = (p->state & WIKI_USE_HTML)!=0;
 
   while( z[0] ){
-    n = nextToken(z, p, &tokenType);
+    if( wikiUseHtml ){
+      n = nextRawToken(z, p, &tokenType);
+    }else{
+      n = nextWikiToken(z, p, &tokenType);
+    }
     p->state &= ~(AT_NEWLINE|AT_PARAGRAPH);
     switch( tokenType ){
       case TOKEN_PARAGRAPH: {
@@ -1176,6 +1201,10 @@ static void wiki_render(Renderer *p, char *z){
       }
       case TOKEN_TEXT: {
         startAutoParagraph(p);
+        blob_append(p->pOut, z, n);
+        break;
+      }
+      case TOKEN_RAW: {
         blob_append(p->pOut, z, n);
         break;
       }
@@ -1351,6 +1380,9 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.wantAutoParagraph = 0;
   }else{
     renderer.wantAutoParagraph = 1;
+  }
+  if( db_get_int("wiki-use-html", 0) ){
+    renderer.state |= WIKI_USE_HTML;
   }
   if( pOut ){
     renderer.pOut = pOut;

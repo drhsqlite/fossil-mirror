@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\stypo\son\sthe\s[/doc/tip/www/password.wiki]\spage.\s\sAdd\sa\slink\sto\sthat\spage\nfrom\sthe\shome\spage.
-D 2010-01-12T14:33:01
+C New\soption\sof\s'wiki-use-html'\swhich\scauses\sthe\swiki\ssystem\sto\suse\sHTML\sas\sit's\smarkup\slanguage.\si.e.\sdo\snot\sinterfeer\swith\swhat\swas\sentered.
+D 2010-01-13T09:35:46
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -89,7 +86,7 @@ F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c c0efbd97b5e8b3f2ddb5d289d16f7c8dea1b7496
+F src/setup.c 21c82ab498667d40ca5971abe062f44f3398c100
 F src/sha1.c dcfc18a55f742136d116890edb59923888c07e0c
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
@@ -114,7 +111,7 @@ F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 882972137d800a25c13d2ba8488edd0bc9da3a1a
 F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
-F src/wikiformat.c b1603948aafd9307e0d01afb9fe6e9daa4f9f865
+F src/wikiformat.c 8828621b2d08c71cd3ce956849203099666df6e7
 F src/winhttp.c 4bf909b551b44d78bc9ae42def5b25b32063f592
 F src/xfer.c 6901c111d8b439d9e1679f1ab2cbb140997223b2
 F src/zip.c 43608365d59dc34c11cc6e2d6f36c36a88c32410
@@ -256,14 +253,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 9c5322463b5b6608173f7e06f74393b9c4e093c6
-R e53c854ee4bdb688ae4ec83c6dc6283f
-U drh
-Z a7e5e1d66b07ff12c8b87c5accb324b3
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLTIgfoxKgR168RlERAsbOAJ4km/VYoHlmZwGh7SAX5xdW1InrzwCghdzC
-2s3NiR8N6ffpPeu4PqGOAaY=
-=7m8K
------END PGP SIGNATURE-----
+P c16017374e4318ade54ee0c1e269a0bc2ddde355
+R b538ae0379d76cfb2ccad6062b64f288
+U jeremy_c
+Z 4db72e98b9e7eab0853c1af6c4592055
