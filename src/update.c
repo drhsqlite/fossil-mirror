@@ -121,7 +121,7 @@ void update_cmd(void){
 
   db_begin_transaction();
   vfile_check_signature(vid, 1);
-  undo_begin();
+  if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(tid);
 
   /*
@@ -290,6 +290,7 @@ void update_cmd(void){
       ** checkout unchanged. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
     }
+    undo_finish();
     db_end_transaction(0);
   }
 }
@@ -396,5 +397,6 @@ void revert_cmd(void){
     blob_reset(&fname);
     free(zFile);
   }
+  undo_finish();
   db_end_transaction(0);
 }

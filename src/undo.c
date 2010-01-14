@@ -87,19 +87,32 @@ static void undo_one(const char *zPathname, int redoFlag){
 }
 
 /*
-** Undo or redo all undoable or redoable changes.
+** Undo or redo changes to the filesystem.  Undo the changes in the
+** same order that they were originally carried out - undo the oldest
+** change first and undo the most recent change last.
 */
-static void undo_all(int redoFlag){
+static void undo_all_filesystem(int redoFlag){
   Stmt q;
-  int ucid;
-  int ncid;
-  db_prepare(&q, "SELECT pathname FROM undo WHERE redoflag=%d"
-                 " ORDER BY +pathname", redoFlag);
+  db_prepare(&q,
+     "SELECT pathname FROM undo"
+     " WHERE redoflag=%d"
+     " ORDER BY rowid",
+     redoFlag
+  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     undo_one(zPathname, redoFlag);
   }
   db_finalize(&q);
+}
+
+/*
+** Undo or redo all undoable or redoable changes.
+*/
+static void undo_all(int redoFlag){
+  int ucid;
+  int ncid;
+  undo_all_filesystem(redoFlag);
   db_multi_exec(
     "CREATE TEMP TABLE undo_vfile_2 AS SELECT * FROM vfile;"
     "DELETE FROM vfile;"
@@ -128,11 +141,18 @@ void undo_reset(void){
     @ DROP TABLE IF EXISTS undo;
     @ DROP TABLE IF EXISTS undo_vfile;
     @ DROP TABLE IF EXISTS undo_vmerge;
+    @ DROP TABLE IF EXISTS undo_pending;
     ;
   db_multi_exec(zSql);
   db_lset_int("undo_available", 0);
   db_lset_int("undo_checkout", 0);
 }
+
+/*
+** This flag is true if we are in the process of collecting file changes
+** for undo.  When this flag is false, undo_save() is a no-op.
+*/
+static int undoActive = 0;
 
 /*
 ** Begin capturing a snapshot that can be undone.
@@ -148,13 +168,24 @@ void undo_begin(void){
     @ );
     @ CREATE TABLE undo_vfile AS SELECT * FROM vfile;
     @ CREATE TABLE undo_vmerge AS SELECT * FROM vmerge;
+    @ CREATE TABLE undo_pending(undoId INTEGER PRIMARY KEY);
   ;
   undo_reset();
   db_multi_exec(zSql);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
+  undoActive = 1;
 }
+
+/*
+** This flag is true if one or more files have changed and have been
+** recorded in the undo log but the undo log has not yet been committed.
+**
+** If a fatal error occurs and this flag is set, that means we should
+** rollback all the filesystem changes.
+*/
+static int undoNeedRollback = 0;
 
 /*
 ** Save the current content of the file zPathname so that it
@@ -167,6 +198,7 @@ void undo_save(const char *zPathname){
   int existsFlag;
   Stmt q;
 
+  if( !undoActive ) return;
   zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
   existsFlag = file_size(zFullname)>=0;
   db_prepare(&q,
@@ -184,6 +216,35 @@ void undo_save(const char *zPathname){
   if( existsFlag ){
     blob_reset(&content);
   }
+  undoNeedRollback = 1;
+}
+
+/*
+** Complete the undo process is one is currently in process.
+*/
+void undo_finish(void){
+  if( undoActive ){
+    undoActive = 0;
+    undoNeedRollback = 0;
+  }
+}
+
+/*
+** This routine is called when the process aborts due to an error.
+** If an undo was being accumulated but was not finished, attempt
+** to rollback all of the filesystem changes.
+**
+** This rollback occurs, for example, if an "update" or "merge" operation
+** could not run to completion because a file that needed to be written
+** was locked or had permissions turned off.
+*/
+void undo_rollback(void){
+  if( !undoNeedRollback ) return;
+  assert( undoActive );
+  undoNeedRollback = 0;
+  undoActive = 0;
+  printf("Rolling back prior filesystem changes...\n");
+  undo_all_filesystem(0);
 }
 
 /*

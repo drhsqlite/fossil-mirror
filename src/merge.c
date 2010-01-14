@@ -288,5 +288,6 @@ void merge_cmd(void){
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
+  undo_finish();
   db_end_transaction(0);
 }

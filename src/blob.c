@@ -677,7 +677,8 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
         if( !(i==2 && zName[1]==':') ){
 #endif
           if( file_mkdir(zName, 1) ){
-            fossil_panic("unable to create directory %s", zName);
+            fossil_fatal_recursive("unable to create directory %s", zName);
+            return 0;
           }
 #ifdef __MINGW32__
         }
@@ -687,7 +688,8 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     }
     out = fopen(zName, "wb");
     if( out==0 ){
-      fossil_panic("unable to open file \"%s\" for writing", zName);
+      fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
+      return 0;
     }
     needToClose = 1;
     if( zName!=zBuf ) free(zName);
@@ -696,7 +698,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   wrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
   if( needToClose ) fclose(out);
   if( wrote!=blob_size(pBlob) ){
-    fossil_panic("short write: %d of %d bytes to %s", wrote,
+    fossil_fatal_recursive("short write: %d of %d bytes to %s", wrote,
        blob_size(pBlob), zFilename);
   }
   return wrote;

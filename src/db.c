@@ -101,7 +101,7 @@ static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
 
 /*
 ** This routine is called by the SQLite commit-hook mechanism
-** just prior to each omit.  All this routine does is verify
+** just prior to each commit.  All this routine does is verify
 ** that nBegin really is zero.  That insures that transactions
 ** cannot commit by any means other than by calling db_end_transaction()
 ** below.
@@ -140,6 +140,10 @@ void db_end_transaction(int rollbackFlag){
   }
 }
 void db_force_rollback(void){
+  static int busy = 0;
+  if( busy ) return;
+  busy = 1;
+  undo_rollback();
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
     if( isNewRepo ){
@@ -148,6 +152,7 @@ void db_force_rollback(void){
     }
   }
   nBegin = 0;
+  busy = 0;
 }
 
 /*

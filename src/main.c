@@ -259,12 +259,21 @@ int main(int argc, char **argv){
 }
 
 /*
-** Print an error message, rollback all databases, and quit.
+** The following variable becomes true while processing a fatal error
+** or a panic.  If additional "recursive-fatal" errors occur while
+** shutting down, the recursive errors are silently ignored.
+*/
+static int mainInFatalError = 0;
+
+/*
+** Print an error message, rollback all databases, and quit.  These
+** routines never return.
 */
 void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
   static int once = 1;
+  mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -281,6 +290,7 @@ void fossil_panic(const char *zFormat, ...){
 void fossil_fatal(const char *zFormat, ...){
   char *z;
   va_list ap;
+  mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -294,6 +304,37 @@ void fossil_fatal(const char *zFormat, ...){
   db_force_rollback();
   exit(1);
 }
+
+/* This routine works like fossil_fatal() except that if called
+** recursively, the recursive call is a no-op.
+**
+** Use this in places where an error might occur while doing
+** fatal error shutdown processing.  Unlike fossil_panic() and
+** fossil_fatal() which never return, this routine might return if
+** the fatal error handing is already in process.  The caller must
+** be prepared for this routine to return.
+*/
+void fossil_fatal_recursive(const char *zFormat, ...){
+  char *z;
+  va_list ap;
+  if( mainInFatalError ) return;
+  mainInFatalError = 1;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.cgiPanic ){
+    g.cgiPanic = 0;
+    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_reply();
+  }else{
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+  }
+  db_force_rollback();
+  exit(1);
+}
+
+
+/* Print a warning message */
 void fossil_warning(const char *zFormat, ...){
   char *z;
   va_list ap;

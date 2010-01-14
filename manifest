@@ -1,5 +1,8 @@
-C Fixed\sbug\swhere\sthe\sticket\sreport\sview\spage\swas\schecking\sthe\swrong\ssecurity\sattribute\s(too\ssecure)\swhich\swas\scausing\speople\swho\sshould\sbe\sable\sto\sview\sticket\sreports\sto\snot\sbe\sable\sto\sview\sticket\sreports.
-D 2010-01-13T09:58:09
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C If\sa\s"merge"\sor\s"update"\sor\s"revert"\sfails,\sthen\sautomatically\srollback\nany\spartial\schanges\sto\sthe\sfilesystem.\s\sTicket\s[a9722a15d2].
+D 2010-01-14T15:34:40
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -37,7 +40,7 @@ F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c d5685d9fd3dffe6f26f6627951fff45573f5b9c5
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
-F src/blob.c 80cddafe2a13ae44bed095aeb87df87cc48d7fc8
+F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
@@ -51,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c e5a99ee9d1a11ffc99ab138753483cf66b959293
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c b89e3126e8d06cc389b1d79398aefc2fa89decce
+F src/db.c 79d8015b74efece34bcebb30e3531c4c5cb0c793
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -66,14 +69,14 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c 3aeb3e1befeb2d07874e685e4830fc73fe3d8064
 F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
-F src/main.c 16c9110773d13754370de53aecbc69a6c8ef90ed
+F src/main.c 746a0d5b9fc1362ae1d751e749d899f6081741ce
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 1776157a16e618347897ae9059d64f90c85231eb
 F src/manifest.c daaac5b0650723a2324a60d98dcb4cb9e4ce8d52
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
-F src/merge.c 1bca64b6422e18a2c23fdee2dfca49709eb65dc6
+F src/merge.c c13954354b468aba2fcd27ee87a5925273655658
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c 1511a64c2c509481d9f19ac6683fe6a28e6cb7ea
@@ -104,8 +107,8 @@ F src/timeline.c d33d9d9415fc4f15d3a9077dec790392a995d339
 F src/tkt.c cb76bfccd0c1a8afdeae0cecd3d51358c81f7756
 F src/tktsetup.c 600a0203f6288c70696473a3d93ce9dbc2d81366
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
-F src/undo.c 0d2cc71745fedc7c712d9c6ab313a020b59e8054
-F src/update.c eb5c093f17c0e402cd9750e409570b0e784fbd89
+F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
+F src/update.c 521413063f7a749d2f766f26b4191fbe4b99f86a
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
@@ -253,7 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P cf3809cc71ffc9557bd60829a19eb30b6254ad42
-R 4d1a77ada531ef97c2d69474301da5f1
-U jeremy_c
-Z 7f88c5344db37a0351cd7b09d98c9e38
+P 5fc36e2faabf13e9c2c83aea5f18281baa1ca096
+R 328f35c6b06ce1f074f9b00f0bb60a89
+U drh
+Z 176d81258baf82e83470c74faf0ff2f6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFLTzmUoxKgR168RlERAq8xAJ4mwrRjCX5ufekV67Ivkzzq+1RnNwCfZwP4
+bdYsYK4EZLU2K2mkVm3HoxA=
+=D3gJ
+-----END PGP SIGNATURE-----
