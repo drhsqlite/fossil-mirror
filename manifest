@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C If\sa\s"merge"\sor\s"update"\sor\s"revert"\sfails,\sthen\sautomatically\srollback\nany\spartial\schanges\sto\sthe\sfilesystem.\s\sTicket\s[a9722a15d2].
-D 2010-01-14T15:34:40
+C Fix\sa\stypo\sin\sthe\s[/doc/tip/www/theory1.wiki]\sdocumentation\spage.\nTicket\s[e77e876caf316cc5].
+D 2010-01-14T15:37:13
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -253,17 +253,17 @@ F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
 F www/shunning.wiki 7b6d5703dc0d63a1ce7fc77c34985237c2d97f04
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
-F www/theory1.wiki 6e70a5d5c4dffedd51daeebf765752b51231f573
+F www/theory1.wiki 51c1c0595cc5bb82f04d985bc343fb29d8e13c26
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5fc36e2faabf13e9c2c83aea5f18281baa1ca096
-R 328f35c6b06ce1f074f9b00f0bb60a89
+P 7c3cb28d0f76c038ae4cc17a65311564b4d90408
+R 37e6a7275ef0376054ad92d5ec349b5f
 U drh
-Z 176d81258baf82e83470c74faf0ff2f6
+Z ea3d7dc3e45c8e0c6895fcf5c7bbba51
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLTzmUoxKgR168RlERAq8xAJ4mwrRjCX5ufekV67Ivkzzq+1RnNwCfZwP4
-bdYsYK4EZLU2K2mkVm3HoxA=
-=D3gJ
+iD8DBQFLTzoroxKgR168RlERAvpVAJ44pxQBng53JP7BP8fQj1JLvvDgIgCfZ04g
+oHdti9krEyNqiVs7yJ714qU=
+=4u/X
 -----END PGP SIGNATURE-----
