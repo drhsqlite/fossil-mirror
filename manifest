@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\stypo\sin\sthe\s[/doc/tip/www/theory1.wiki]\sdocumentation\spage.\nTicket\s[e77e876caf316cc5].
-D 2010-01-14T15:37:13
+C Enchance\sthe\s"revert"\scommand\sso\sthat\sit\sreverts\sall\schanges\swhen\sno\sarguments\nare\sgiven.\s\sIt\salso\sprints\sa\smessage\ssaying\sthat\s"undo"\sis\savailable\sto\sundo\nthe\srevert.
+D 2010-01-14T16:17:48
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -108,7 +108,7 @@ F src/tkt.c cb76bfccd0c1a8afdeae0cecd3d51358c81f7756
 F src/tktsetup.c 600a0203f6288c70696473a3d93ce9dbc2d81366
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
-F src/update.c 521413063f7a749d2f766f26b4191fbe4b99f86a
+F src/update.c ff76da018c7b4f47f45770a6be8e5e47e81c8074
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 51c1c0595cc5bb82f04d985bc343fb29d8e13c26
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7c3cb28d0f76c038ae4cc17a65311564b4d90408
-R 37e6a7275ef0376054ad92d5ec349b5f
+P 81b0597fcdd66bd94f9a9e200fa00af879f04369
+R 6a863a6a59bb1f5452a84c3ccdf7bdf6
 U drh
-Z ea3d7dc3e45c8e0c6895fcf5c7bbba51
+Z fbec7a2d7c48d78de7cbe594f67f44f5
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLTzoroxKgR168RlERAvpVAJ44pxQBng53JP7BP8fQj1JLvvDgIgCfZ04g
-oHdti9krEyNqiVs7yJ714qU=
-=4u/X
+iD8DBQFLT0OvoxKgR168RlERAmLOAJ9U96zOsTQo+hpsvQYup7MWk+gP6wCdGVdP
+vIKJAKCvy42JUA3x4C9nUrI=
+=caPt
 -----END PGP SIGNATURE-----

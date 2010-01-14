@@ -350,34 +350,55 @@ int historical_version_of_file(
 ** the "fossil undo" command.
 */
 void revert_cmd(void){
-  char *zFile;
+  const char *zFile;
   const char *zRevision;
-  Blob fname;
   Blob record;
   int i;
   int errCode;
   int rid = 0;
+  Stmt q;
   
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
   
-  if( g.argc<3 ){
-    usage("?OPTIONS? FILE ...");
+  if( g.argc<2 ){
+    usage("?OPTIONS? [FILE] ...");
+  }
+  if( zRevision && g.argc<3 ){
+    fossil_fatal("the --revision option does not work for the entire tree");
   }
   db_must_be_within_tree();
   db_begin_transaction();
   undo_begin();
+  db_multi_exec("CREATE TEMP TABLE torevert(name UNIQUE);");
 
+  if( g.argc>2 ){
+    for(i=2; i<g.argc; i++){
+      Blob fname;
+      zFile = mprintf("%/", g.argv[i]);
+      file_tree_name(zFile, &fname, 1);
+      db_multi_exec("REPLACE INTO torevert VALUES(%B)", &fname);
+      blob_reset(&fname);
+    }
+  }else{
+    int vid;
+    vid = db_lget_int("checkout", 0);
+    vfile_check_signature(vid, 0);
+    db_multi_exec(
+      "INSERT INTO torevert "
+      "SELECT pathname"
+      "  FROM vfile "
+      " WHERE chnged OR deleted OR rid=0 OR pathname!=origname"
+    );
+  }
   blob_zero(&record);
-  for(i=2; i<g.argc; i++){
-    zFile = mprintf("%/", g.argv[i]);
-    file_tree_name(zFile, &fname, 1);
-
+  db_prepare(&q, "SELECT name FROM torevert");
+  while( db_step(&q)==SQLITE_ROW ){
+    zFile = db_column_text(&q, 0);
     if( zRevision!=0 ){
-      errCode = historical_version_of_file(zRevision, blob_str(&fname),
-                                           &record, 2);
+      errCode = historical_version_of_file(zRevision, zFile, &record, 2);
     }else{
-      rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+      rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile);
       if( rid==0 ){
         errCode = 2;
       }else{
@@ -389,14 +410,16 @@ void revert_cmd(void){
     if( errCode==2 ){
       fossil_warning("file not in repository: %s", zFile);
     }else{
-      undo_save(blob_str(&fname));
-      blob_write_to_file(&record, zFile);
-      printf("%s reverted\n", zFile);
+      char *zFull = mprintf("%//%/", g.zLocalRoot, zFile);
+      undo_save(zFile);
+      blob_write_to_file(&record, zFull);
+      printf("REVERTED: %s\n", zFile);
+      free(zFull);
     }
     blob_reset(&record);
-    blob_reset(&fname);
-    free(zFile);
   }
+  db_finalize(&q);
   undo_finish();
   db_end_transaction(0);
+  printf("\"fossil undo\" is available to undo the changes shown above.\n");
 }
