@@ -825,6 +825,11 @@ void cmd_webserver(void){
   char *zBrowser;
   char *zBrowserCmd = 0;
 
+#ifdef __MINGW32__
+  const char *zStopperFile;    /* Name of file used to terminate server */
+  zStopperFile = find_option("stopper", 0, 1);
+#endif
+
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   if( g.thTrace ){
     blob_zero(&g.thLog);
@@ -887,6 +892,6 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close();
-  win32_http_server(iPort, mxPort, zBrowserCmd);
+  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile);
 #endif
 }

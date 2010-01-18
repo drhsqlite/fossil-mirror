@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\ssome\sweird\scontrol\scharacter\sthat\ssomehow\ssnuck\sinto\sthe\n[/doc/tip/www/theory1.wiki]\sdocument.
-D 2010-01-18T21:46:41
+C Add\sthe\s--stopper\soption\sto\sthe\s"ui"\sand\s"server"\scommands\son\swindows.\s\sThe\nargument\sis\sthe\sname\sof\sa\sfile,\swhich\sif\sit\sexists,\scauses\sthe\sserver\sto\nabort\supon\sreceiving\sthe\snext\sinbound\sTCP\sconnection.\s\sUse\sthis\sto\sshut\sdown\nfossil\sservers\srunning\sas\sa\swindows\sservice.
+D 2010-01-18T22:23:48
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -69,7 +69,7 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c 3aeb3e1befeb2d07874e685e4830fc73fe3d8064
 F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
-F src/main.c 746a0d5b9fc1362ae1d751e749d899f6081741ce
+F src/main.c cc1948bcaa9a6f7bd036a22d06bf1085c20b0e47
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -115,7 +115,7 @@ F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 882972137d800a25c13d2ba8488edd0bc9da3a1a
 F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c 8828621b2d08c71cd3ce956849203099666df6e7
-F src/winhttp.c 4bf909b551b44d78bc9ae42def5b25b32063f592
+F src/winhttp.c 3b9fbaa855e9e2ec203852d52517e388abbaf89f
 F src/xfer.c 6901c111d8b439d9e1679f1ab2cbb140997223b2
 F src/zip.c 43608365d59dc34c11cc6e2d6f36c36a88c32410
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P eaef1a77cc2f1145215c410cb984d0ed1e1042d3
-R 60064eaf8cfb0cb8d1d5048afd7078f9
+P d8aa59fc1766e805d1b47055040d027183466732
+R 9eb0d672bc19fd2139b2d94c19142dd5
 U drh
-Z 028e9a14087cdf2c8d3b5a3259802372
+Z a79f8a5c1680e59832b02430d4a88264
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLVNbEoxKgR168RlERAj29AJ9Mvy4Cwnek7ePmXVkNYb492fGAsQCfdDDf
-BwbNa0QJ2sQBYp8Jh8v4WHw=
-=s0gy
+iD8DBQFLVN93oxKgR168RlERAodtAJ9kaPdJqWnDvW5FDXrFet3VObpB1wCfbBvD
+dmvRGZnkKEfbYBmNbGGDk9Q=
+=MTP7
 -----END PGP SIGNATURE-----
