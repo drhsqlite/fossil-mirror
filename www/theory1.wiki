@@ -1,4 +1,4 @@
-﻿<title>Thoughts On The Design Of The Fossil DVCS</title>
+<title>Thoughts On The Design Of The Fossil DVCS</title>
 <h1 align="center">Thoughts On The Design Of The Fossil DVCS</h1>
 
 Two questions (or criticisms) that arise frequently regarding Fossil
