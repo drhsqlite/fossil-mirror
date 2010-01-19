@@ -698,7 +698,8 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
   annotation_start(p, &toAnnotate);
 
   db_prepare(&q, 
-    "SELECT mlink.fid, blob.uuid, date(event.mtime), event.user "
+    "SELECT mlink.fid, blob.uuid, date(event.mtime), "
+    "       coalesce(event.euser,event.user) "
     "  FROM mlink, blob, event"
     " WHERE mlink.fnid=%d"
     "   AND mlink.mid IN ok"
