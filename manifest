@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Cleanup\sof\sthe\scode\sused\sto\sresolve\stag\snames\sin\scontexts\swhere\san\nartifact\sID\scan\sbe\sentered.
-D 2010-01-19T17:34:45
+C Add\sthe\s"pullonly"\soption\sto\sthe\s"autosync"\ssetting.
+D 2010-01-19T18:28:12
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c e5a99ee9d1a11ffc99ab138753483cf66b959293
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 79d8015b74efece34bcebb30e3531c4c5cb0c793
+F src/db.c 4b144daf3b83172a8a0b23add7b70c032f878b0f
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -97,7 +97,7 @@ F src/sqlite3.c 3417e43f49d06d3d6516430a93d3477a764d3855
 F src/sqlite3.h bddd23f2153511f486e0d481c1005cbe012732ce
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 2fe2db4777abe0e46b2ea060a37d167fbe9e9302
-F src/sync.c ed149c3f445a9635997ceabf37a81a875bf28070
+F src/sync.c dfb0ce04b32784c9baba3ccb611038653132d26e
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P e7efca9ee92021d8e2f07464b2883a739748da67
-R 9605cbdec9048be096ec818543be2a55
+P bf56b2ddf4082e7ba0654574f7cd60f6246c54b3
+R 50fd5efb6bf2deb8a9f37228c0cb3b90
 U drh
-Z a9b883886951367a73fd119ddf892a99
+Z ef5614c68cf21ca29d92fb242403e0dd
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLVe04oxKgR168RlERAohjAJ4oW8TwSKJ0OjvOA6fEceNfGA12RACfVEu0
-gxVuxsRQZqfItDk0bNKiKbg=
-=oQXx
+iD8DBQFLVfm+oxKgR168RlERAn/jAJ4rij4l4HzdcIKc393y0W+5Y0pJ7gCdFmvk
+EfRr3vmvQ7Ogoso6gn2FsLE=
+=TEd6
 -----END PGP SIGNATURE-----
