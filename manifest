@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Show\sthe\sedited\suser\sid\sin\sannotations.
-D 2010-01-19T14:15:50
+C Cleanup\sof\sthe\scode\sused\sto\sresolve\stag\snames\sin\scontexts\swhere\san\nartifact\sID\scan\sbe\sentered.
+D 2010-01-19T17:34:45
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -67,7 +67,7 @@ F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 26eca6baf0c72e01ceb9e44d6efffea0649aba06
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
-F src/info.c 3aeb3e1befeb2d07874e685e4830fc73fe3d8064
+F src/info.c 7c2b3f6568691007586c50ffa3d920bfa99c58c2
 F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
 F src/main.c cc1948bcaa9a6f7bd036a22d06bf1085c20b0e47
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
@@ -79,7 +79,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c c13954354b468aba2fcd27ee87a5925273655658
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/name.c 1511a64c2c509481d9f19ac6683fe6a28e6cb7ea
+F src/name.c 9c3bb93aa76c351f1b4f42d242cf175750b63c7e
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 23c0d16718b1b0853fac8d5099bbd2981a1a2fa6
-R 935ece23fabbacb2bed20045bb36531b
+P e7efca9ee92021d8e2f07464b2883a739748da67
+R 9605cbdec9048be096ec818543be2a55
 U drh
-Z 990655aadac4295478d291401734758a
+Z a9b883886951367a73fd119ddf892a99
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLVb6ZoxKgR168RlERArahAKCByhLq++yHyAjJzEYa9iweZNsFkACePS62
-KlANyXjnF8figzlA522w/4M=
-=RQZz
+iD8DBQFLVe04oxKgR168RlERAohjAJ4oW8TwSKJ0OjvOA6fEceNfGA12RACfVEu0
+gxVuxsRQZqfItDk0bNKiKbg=
+=oQXx
 -----END PGP SIGNATURE-----

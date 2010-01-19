@@ -37,7 +37,7 @@
 ** into the full-length UUID in canonical form.
 **
 ** If the input is not a UUID or a UUID prefix, then try to resolve
-** the name as a tag.
+** the name as a tag.  If multiple tags match, pick the latest.
 **
 ** Return the number of errors.
 */
@@ -46,25 +46,20 @@ int name_to_uuid(Blob *pName, int iErrPriority){
   int sz;
   sz = blob_size(pName);
   if( sz>UUID_SIZE || sz<4 || !validate16(blob_buffer(pName), sz) ){
-    Blob uuid;
-    static const char prefix[] = "tag:";
-    static const int preflen = sizeof(prefix)-1;
+    char *zUuid;
     const char *zName = blob_str(pName);
-
-    if( strncmp(zName, prefix, preflen)==0 ){
-      zName += preflen;
+    if( memcmp(zName, "tag:", 4)==0 ){
+      zName += 4;
     }
-
-    sym_tag_to_uuid(zName, &uuid);
-    if( blob_size(&uuid)==0 ){
-      fossil_error(iErrPriority, "not a valid object name: %s", zName);
-      blob_reset(&uuid);
-      return 1;
-    }else{
+    zUuid = tag_to_uuid(zName);
+    if( zUuid ){
       blob_reset(pName);
-      *pName = uuid;
+      blob_append(pName, zUuid, -1);
+      free(zUuid);
       return 0;
     }
+    fossil_error(iErrPriority, "not a valid object name: %s", zName);
+    return 1;
   }
   blob_materialize(pName);
   canonical16(blob_buffer(pName), sz);
@@ -76,24 +71,25 @@ int name_to_uuid(Blob *pName, int iErrPriority){
     }
   }else if( sz<UUID_SIZE && sz>=4 ){
     Stmt q;
-    char zOrig[UUID_SIZE+1];
-    memcpy(zOrig, blob_buffer(pName), sz);
-    zOrig[sz] = 0;
-    blob_reset(pName);
-    db_prepare(&q, "SELECT uuid FROM blob"
-                   " WHERE uuid>='%s'"
-                   "   AND substr(uuid,1,%d)='%s'",
-                   zOrig, sz, zOrig);
+    db_prepare(&q, "SELECT uuid FROM blob WHERE uuid GLOB '%b*'", pName);
     if( db_step(&q)!=SQLITE_ROW ){
+      char *zUuid;
       db_finalize(&q);
-      fossil_error(iErrPriority, "no artifacts match the prefix \"%s\"", zOrig);
+      zUuid = tag_to_uuid(blob_str(pName));
+      if( zUuid ){
+        blob_reset(pName);
+        blob_append(pName, zUuid, -1);
+        free(zUuid);
+        return 0;
+      }
+      fossil_error(iErrPriority, "no artifacts match the prefix \"%b\"", pName);
       return 1;
     }
+    blob_reset(pName);
     blob_append(pName, db_column_text(&q, 0), db_column_bytes(&q, 0));
     if( db_step(&q)==SQLITE_ROW ){
       fossil_error(iErrPriority, 
-         "multiple artifacts match the prefix \"%s\"",
-         zOrig
+         "multiple artifacts match"
       );
       blob_reset(pName);
       db_finalize(&q);
@@ -108,48 +104,26 @@ int name_to_uuid(Blob *pName, int iErrPriority){
 }
 
 /*
-** This routine takes a name which might be a tag and attempts to
-** produce a UUID. The UUID (if any) is returned in the blob pointed
-** to by the second argument.
+** Convert a symbolic tag name into the UUID of a check-in that contains
+** that tag.  If the tag appears on multiple check-ins, return the UUID
+** of the most recent check-in with the tag.
 **
-** Return as follows:
-**      0   Name is not a tag
-**      1   A single UUID was found
-**      2   More than one UUID was found, so this is presumably a
-**          propagating tag. The return UUID is the most recent,
-**          which is most likely to be the one wanted.
+** Memory to hold the returned string comes from malloc() and needs to
+** be freed by the caller.
 */
-int tag_to_uuid(const char *pName, Blob *pUuid,const char *pPrefix){
-  Stmt q;
-  int count = 0;
-  db_prepare(&q,
-    "SELECT (SELECT uuid FROM blob WHERE rid=objid)"
-    "  FROM tagxref JOIN event ON rid=objid"
-    " WHERE tagxref.tagid=(SELECT tagid FROM tag WHERE tagname=%Q||%Q)"
-    "   AND tagtype>0"
-    "   AND value IS NULL"
-    " ORDER BY event.mtime DESC",
-    pPrefix,
-    pName
-  );
-  blob_zero(pUuid);
-  while( db_step(&q)==SQLITE_ROW ){
-    count++;
-    if(count>1){
-      break;
-    }
-    db_column_blob(&q, 0, pUuid);
-  }
-  db_finalize(&q);
-  return count;
-}
-
-/*
-** This routine takes a name which might be a symbolic tag and
-** attempts to produce a UUID. See tag_to_uuid.
-*/
-int sym_tag_to_uuid(const char *pName, Blob *pUuid){
-    return tag_to_uuid(pName,pUuid,"sym-");
+char *tag_to_uuid(const char *zTag){
+  char *zUuid = 
+    db_text(0,
+       "SELECT blob.uuid"
+       "  FROM tag, tagxref, event, blob"
+       " WHERE tag.tagname='sym-'||%Q "
+       "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
+       "   AND event.objid=tagxref.rid "
+       "   AND blob.rid=event.objid "
+       " ORDER BY event.mtime DESC ",
+       zTag
+    );
+  return zUuid;
 }
 
 /*
