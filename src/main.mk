@@ -27,7 +27,6 @@ SRC = \
   $(SRCDIR)/clone.c \
   $(SRCDIR)/comformat.c \
   $(SRCDIR)/configure.c \
-  $(SRCDIR)/construct.c \
   $(SRCDIR)/content.c \
   $(SRCDIR)/db.c \
   $(SRCDIR)/delta.c \
@@ -56,7 +55,6 @@ SRC = \
   $(SRCDIR)/rebuild.c \
   $(SRCDIR)/report.c \
   $(SRCDIR)/rss.c \
-  $(SRCDIR)/rstats.c \
   $(SRCDIR)/schema.c \
   $(SRCDIR)/search.c \
   $(SRCDIR)/setup.c \
@@ -98,7 +96,6 @@ TRANS_SRC = \
   clone_.c \
   comformat_.c \
   configure_.c \
-  construct_.c \
   content_.c \
   db_.c \
   delta_.c \
@@ -127,7 +124,6 @@ TRANS_SRC = \
   rebuild_.c \
   report_.c \
   rss_.c \
-  rstats_.c \
   schema_.c \
   search_.c \
   setup_.c \
@@ -169,7 +165,6 @@ OBJ = \
   clone.o \
   comformat.o \
   configure.o \
-  construct.o \
   content.o \
   db.o \
   delta.o \
@@ -198,7 +193,6 @@ OBJ = \
   rebuild.o \
   report.o \
   rss.o \
-  rstats.o \
   schema.o \
   search.o \
   setup.o \
@@ -266,12 +260,12 @@ $(SRCDIR)/../manifest:
 clean:	
 	rm -f *.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers
-	rm -f add.h allrepo.h bag.h blob.h branch.h browse.h captcha.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h construct.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h finfo.h http.h http_socket.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h rstats.h schema.h search.h setup.h sha1.h shun.h skins.h stat.h style.h sync.h tag.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
+	rm -f add.h allrepo.h bag.h blob.h branch.h browse.h captcha.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h finfo.h http.h http_socket.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h schema.h search.h setup.h sha1.h shun.h skins.h stat.h style.h sync.h tag.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
 
 page_index.h: $(TRANS_SRC) mkindex
 	./mkindex $(TRANS_SRC) >$@
 headers:	page_index.h makeheaders VERSION.h
-	./makeheaders  add_.c:add.h allrepo_.c:allrepo.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h captcha_.c:captcha.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h construct_.c:construct.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h finfo_.c:finfo.h http_.c:http.h http_socket_.c:http_socket.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h rstats_.c:rstats.h schema_.c:schema.h search_.c:search.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h skins_.c:skins.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h VERSION.h
+	./makeheaders  add_.c:add.h allrepo_.c:allrepo.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h captcha_.c:captcha.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h finfo_.c:finfo.h http_.c:http.h http_socket_.c:http_socket.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h schema_.c:schema.h search_.c:search.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h skins_.c:skins.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h VERSION.h
 	touch headers
 headers: Makefile
 Makefile:
@@ -373,13 +367,6 @@ configure.o:	configure_.c configure.h  $(SRCDIR)/config.h
 	$(XTCC) -o configure.o -c configure_.c
 
 configure.h:	headers
-construct_.c:	$(SRCDIR)/construct.c translate
-	./translate $(SRCDIR)/construct.c >construct_.c
-
-construct.o:	construct_.c construct.h  $(SRCDIR)/config.h
-	$(XTCC) -o construct.o -c construct_.c
-
-construct.h:	headers
 content_.c:	$(SRCDIR)/content.c translate
 	./translate $(SRCDIR)/content.c >content_.c
 
@@ -576,13 +563,6 @@ rss.o:	rss_.c rss.h  $(SRCDIR)/config.h
 	$(XTCC) -o rss.o -c rss_.c
 
 rss.h:	headers
-rstats_.c:	$(SRCDIR)/rstats.c translate
-	./translate $(SRCDIR)/rstats.c >rstats_.c
-
-rstats.o:	rstats_.c rstats.h  $(SRCDIR)/config.h
-	$(XTCC) -o rstats.o -c rstats_.c
-
-rstats.h:	headers
 schema_.c:	$(SRCDIR)/schema.c translate
 	./translate $(SRCDIR)/schema.c >schema_.c
 

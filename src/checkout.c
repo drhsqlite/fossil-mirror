@@ -138,7 +138,6 @@ void manifest_to_disk(int vid){
 
 /*
 ** COMMAND: checkout
-** COMMAND: co
 **
 ** Usage: %fossil checkout VERSION ?-f|--force? ?--keep?
 **

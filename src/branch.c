@@ -51,7 +51,7 @@ void branch_new(void){
   zColor = find_option("bgcolor","c",1);
   verify_all_options();
   if( g.argc<5 ){
-    usage("new BRANCH-NAME BASE-CHECK-IN ?-bgcolor COLOR?");
+    usage("new BRANCH-NAME CHECK-IN ?-bgcolor COLOR?");
   }
   db_find_and_open_repository(1);  
   noSign = db_get_int("omitsign", 0)|noSign;
@@ -124,7 +124,7 @@ void branch_new(void){
       rootid);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTag = db_column_text(&q, 0);
-    blob_appendf(&branch, "T -%F *\n", zTag);
+    blob_appendf(&branch, "T -%F *\n", zTag); 
   }
   db_finalize(&q);
   
@@ -176,7 +176,7 @@ void branch_new(void){
 **
 ** Usage: %fossil branch SUBCOMMAND ... ?-R|--repository FILE?
 **
-** Run various subcommands on the branches of the open repository or
+** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
 **    %fossil branch new BRANCH-NAME BASIS ?-bgcolor COLOR? 

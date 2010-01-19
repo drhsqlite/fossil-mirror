@@ -21,7 +21,6 @@ set src {
   clone
   comformat
   configure
-  construct
   content
   db
   delta
@@ -50,7 +49,6 @@ set src {
   rebuild
   report
   rss
-  rstats
   schema
   search
   setup

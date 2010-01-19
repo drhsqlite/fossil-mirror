@@ -64,9 +64,7 @@ static char *quoteFilename(const char *zFilename){
 ** that can be useful before or after a period of disconnection operation.
 ** Available operations are:
 **
-**    list       Display the location of all repositories
-**
-**    ls         An alias for "list"
+**    list | ls  Display the location of all repositories
 **
 **    pull       Run a "pull" operation on all repositories
 **
@@ -95,9 +93,7 @@ void all_cmd(void){
   n = strlen(g.argv[2]);
   db_open_config(1);
   zCmd = g.argv[2];
-  if( strncmp(zCmd, "list", n)==0 ){
-    zCmd = "list";
-  }else if( strncmp(zCmd, "ls", n)==0 ){ /* alias for "list" above */
+  if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";

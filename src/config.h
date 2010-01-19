@@ -34,6 +34,12 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+#ifdef __MINGW32__
+# include <windows.h>
+#else
+# include <pwd.h>
+#endif
+
 #include "sqlite3.h"
 
 /*

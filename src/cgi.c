@@ -29,21 +29,21 @@
 */
 #include "config.h"
 #ifdef __MINGW32__
-#  include <windows.h>           /* for Sleep once server works again */
-#  include <winsock2.h>          /* socket operations */
-#  define sleep Sleep            /* windows does not have sleep, but Sleep */
-#  include <ws2tcpip.h>          
+# include <windows.h>           /* for Sleep once server works again */
+# include <winsock2.h>          /* socket operations */
+# define sleep Sleep            /* windows does not have sleep, but Sleep */
+# include <ws2tcpip.h>          
 #else
-#  include <sys/socket.h>
-#  include <netinet/in.h>
-#  include <arpa/inet.h>
-#  include <sys/times.h>
-#  include <sys/time.h>
-#  include <sys/wait.h>
-#  include <sys/select.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include <sys/times.h>
+# include <sys/time.h>
+# include <sys/wait.h>
+# include <sys/select.h>
 #endif
 #ifdef __EMX__
-   typedef int socklen_t;
+  typedef int socklen_t;
 #endif
 #include <time.h>
 #include <stdio.h>
@@ -197,13 +197,10 @@ void cgi_set_cookie(
 ){
   if( zPath==0 ) zPath = g.zTop;
   if( lifetime>0 ){
-    char *zDate;
     lifetime += (int)time(0);
-    zDate = cgi_rfc822_datestamp(lifetime);
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; expires=%s; Version=1\r\n",
-        zName, zValue, zPath, zDate);
-    if( zDate[0] ) free( zDate );
+       "Set-Cookie: %s=%t; Path=%s; expires=%z; Version=1\r\n",
+        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime));
   }else{
     blob_appendf(&extraHeader,
        "Set-Cookie: %s=%t; Path=%s; Version=1\r\n",
@@ -268,7 +265,7 @@ static int check_cache_control(void){
 ** Do a normal HTTP reply
 */
 void cgi_reply(void){
-  int total_size = 0;
+  int total_size;
   if( iReplyStatus<=0 ){
     iReplyStatus = 200;
     zReplyStatus = "OK";
@@ -286,10 +283,8 @@ void cgi_reply(void){
 #endif
 
   if( g.fullHttpReply ){
-    char *zDate = cgi_rfc822_datestamp(time(0));
     fprintf(g.httpOut, "HTTP/1.0 %d %s\r\n", iReplyStatus, zReplyStatus);
-    fprintf(g.httpOut, "Date: %s\r\n", zDate );
-    if( zDate[0] ) free( zDate );
+    fprintf(g.httpOut, "Date: %s\r\n", cgi_rfc822_datestamp(time(0)));
     fprintf(g.httpOut, "Connection: close\r\n");
   }else{
     fprintf(g.httpOut, "Status: %d %s\r\n", iReplyStatus, zReplyStatus);
@@ -310,9 +305,7 @@ void cgi_reply(void){
     */
     /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
     time_t expires = time(0) + 604800;
-    char * zDate = cgi_rfc822_datestamp(expires);
-    fprintf(g.httpOut, "Expires: %s\r\n", zDate );
-    if( zDate[0] ) free( zDate );
+    fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
   }
 
   /* Content intended for logged in users should only be cached in
@@ -328,6 +321,8 @@ void cgi_reply(void){
   if( iReplyStatus != 304 ) {
     total_size = blob_size(&cgiContent[0]) + blob_size(&cgiContent[1]);
     fprintf(g.httpOut, "Content-Length: %d\r\n", total_size);
+  }else{
+    total_size = 0;
   }
   fprintf(g.httpOut, "\r\n");
   if( total_size>0 && iReplyStatus != 304 ){
@@ -1289,11 +1284,10 @@ static const char *azMonths[] =
 
 
 /*
-** Returns an RFC822-formatted time string suitable for HTTP headers, among
-** other things.
-** Returned timezone is always GMT as required by HTTP/1.1 specification.
-** The returned string is allocated with malloc() and must be freed
-** with free().
+** Returns an RFC822-formatted time string suitable for HTTP headers.
+** The timezone is always GMT.  The value returned is always a
+** string obtained from mprintf() and must be freed using free() to
+** avoid a memory leak.
 **
 ** See http://www.faqs.org/rfcs/rfc822.html, section 5
 ** and http://www.faqs.org/rfcs/rfc2616.html, section 3.3.
@@ -1301,10 +1295,13 @@ static const char *azMonths[] =
 char *cgi_rfc822_datestamp(time_t now){
   struct tm *pTm;
   pTm = gmtime(&now);
-  if( pTm==0 ) return "";
-  return mprintf("%s, %d %s %02d %02d:%02d:%02d GMT",
-                 azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
-                 pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
+  if( pTm==0 ){
+    return mprintf("");
+  }else{
+    return mprintf("%s, %d %s %02d %02d:%02d:%02d GMT",
+                   azDays[pTm->tm_wday], pTm->tm_mday, azMonths[pTm->tm_mon],
+                   pTm->tm_year+1900, pTm->tm_hour, pTm->tm_min, pTm->tm_sec);
+  }
 }
 
 /*
