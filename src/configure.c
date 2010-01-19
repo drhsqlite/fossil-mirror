@@ -90,6 +90,7 @@ static struct {
   { "ticket-newpage",         CONFIGSET_TKT  },
   { "ticket-viewpage",        CONFIGSET_TKT  },
   { "ticket-editpage",        CONFIGSET_TKT  },
+  { "ticket-reportlist",      CONFIGSET_TKT  },
   { "ticket-report-template", CONFIGSET_TKT  },
   { "ticket-key-template",    CONFIGSET_TKT  },
   { "ticket-title-expr",      CONFIGSET_TKT  },
@@ -168,14 +169,17 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     }
     db_finalize(&q);
   }else if( strcmp(zName, "@user")==0 ){
-    db_prepare(&q, "SELECT login, cap, info, quote(photo) FROM user");
+    db_prepare(&q, 
+        "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
+        "       cap, info, quote(photo) FROM user");
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_user(login,cap,info,photo)"
-                         " VALUES(%Q,%Q,%Q,%s);\n",
+      blob_appendf(pOut, "INSERT INTO _xfer_user(login,pw,cap,info,photo)"
+                         " VALUES(%Q,%Q,%Q,%Q,%s);\n",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2),
-        db_column_text(&q, 3)
+        db_column_text(&q, 3),
+        db_column_text(&q, 4)
       );
     }
     db_finalize(&q);

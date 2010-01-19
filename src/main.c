@@ -63,11 +63,13 @@ struct Global {
   long long int now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
+  const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
   int fSqlTrace;          /* True if -sqltrace flag is present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
+  int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fNoSync;            /* Do not do an autosync even.  --nosync */
   char *zPath;            /* Name of webpage being served */
@@ -233,6 +235,7 @@ int main(int argc, char **argv){
     fprintf(stderr, "Usage: %s COMMAND ...\n", argv[0]);
     exit(1);
   }else{
+    g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -256,12 +259,21 @@ int main(int argc, char **argv){
 }
 
 /*
-** Print an error message, rollback all databases, and quit.
+** The following variable becomes true while processing a fatal error
+** or a panic.  If additional "recursive-fatal" errors occur while
+** shutting down, the recursive errors are silently ignored.
+*/
+static int mainInFatalError = 0;
+
+/*
+** Print an error message, rollback all databases, and quit.  These
+** routines never return.
 */
 void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
   static int once = 1;
+  mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -278,6 +290,7 @@ void fossil_panic(const char *zFormat, ...){
 void fossil_fatal(const char *zFormat, ...){
   char *z;
   va_list ap;
+  mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -291,6 +304,37 @@ void fossil_fatal(const char *zFormat, ...){
   db_force_rollback();
   exit(1);
 }
+
+/* This routine works like fossil_fatal() except that if called
+** recursively, the recursive call is a no-op.
+**
+** Use this in places where an error might occur while doing
+** fatal error shutdown processing.  Unlike fossil_panic() and
+** fossil_fatal() which never return, this routine might return if
+** the fatal error handing is already in process.  The caller must
+** be prepared for this routine to return.
+*/
+void fossil_fatal_recursive(const char *zFormat, ...){
+  char *z;
+  va_list ap;
+  if( mainInFatalError ) return;
+  mainInFatalError = 1;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.cgiPanic ){
+    g.cgiPanic = 0;
+    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_reply();
+  }else{
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+  }
+  db_force_rollback();
+  exit(1);
+}
+
+
+/* Print a warning message */
 void fossil_warning(const char *zFormat, ...){
   char *z;
   va_list ap;
@@ -734,7 +778,7 @@ void cmd_test_http(void){
   cmd_http();
 }
 
-
+#ifndef __MINGW32__
 #if !defined(__DARWIN__) && !defined(__APPLE__)
 /*
 ** Search for an executable on the PATH environment variable.
@@ -756,6 +800,7 @@ static int binaryOnPath(const char *zBinary){
   }
   return 0;
 }
+#endif
 #endif
 
 /*
@@ -779,6 +824,11 @@ void cmd_webserver(void){
   const char *zPort;
   char *zBrowser;
   char *zBrowserCmd = 0;
+
+#ifdef __MINGW32__
+  const char *zStopperFile;    /* Name of file used to terminate server */
+  zStopperFile = find_option("stopper", 0, 1);
+#endif
 
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   if( g.thTrace ){
@@ -824,7 +874,7 @@ void cmd_webserver(void){
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
-  if( g.fHttpTrace ){
+  if( g.fHttpTrace || g.fSqlTrace ){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiPanic = 1;
@@ -842,6 +892,6 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close();
-  win32_http_server(iPort, mxPort, zBrowserCmd);
+  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile);
 #endif
 }

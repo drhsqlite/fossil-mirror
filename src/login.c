@@ -81,6 +81,25 @@ static void redirect_to_g(void){
 }
 
 /*
+** The IP address of the client is stored as part of the anonymous
+** login cookie for additional security.  But some clients are behind
+** firewalls that shift the IP address with each HTTP request.  To
+** allow such (broken) clients to log in, extract just a prefix of the
+** IP address.  
+*/
+static char *ipPrefix(const char *zIP){
+  int i, j; 
+  for(i=j=0; zIP[i]; i++){
+    if( zIP[i]=='.' ){
+      j++;
+      if( j==2 ) break;
+    }
+  }
+  return mprintf("%.*s", i, zIP);
+}
+        
+
+/*
 ** Check to see if the anonymous login is valid.  If it is valid, return
 ** the userid of the anonymous user.
 */
@@ -123,6 +142,7 @@ void login_page(void){
   int anonFlag;
   char *zErrMsg = "";
   int uid;                     /* User id loged in user */
+  char *zSha1Pw;
 
   login_check_credentials();
   zUsername = P("u");
@@ -134,8 +154,10 @@ void login_page(void){
     redirect_to_g();
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+    zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin);
     if( db_int(1, "SELECT 0 FROM user"
-                  " WHERE uid=%d AND pw=%Q", g.userUid, zPasswd) ){
+                  " WHERE uid=%d AND (pw=%Q OR pw=%Q)", 
+                  g.userUid, zPasswd, zSha1Pw) ){
       sleep(1);
       zErrMsg = 
          @ <p><font color="red">
@@ -151,8 +173,9 @@ void login_page(void){
          @ </font></p>
       ;
     }else{
+      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin);
       db_multi_exec(
-         "UPDATE user SET pw=%Q WHERE uid=%d", zNew1, g.userUid
+         "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
       );
       redirect_to_g();
       return;
@@ -170,7 +193,7 @@ void login_page(void){
     zCookieName = login_cookie_name();
     zNow = db_text("0", "SELECT julianday('now')");
     blob_init(&b, zNow, -1);
-    blob_appendf(&b, "/%s/%s", zIpAddr, db_get("captcha-secret",""));
+    blob_appendf(&b, "/%z/%s", ipPrefix(zIpAddr), db_get("captcha-secret",""));
     sha1sum_blob(&b, &b);
     zCookie = sqlite3_mprintf("anon/%s/%s", zNow, blob_buffer(&b));
     blob_reset(&b);
@@ -179,12 +202,13 @@ void login_page(void){
     redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
+    zSha1Pw = sha1_shared_secret(zPasswd, zUsername);
     uid = db_int(0,
         "SELECT uid FROM user"
         " WHERE login=%Q"
         "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-        "   AND pw=%Q",
-        zUsername, zPasswd
+        "   AND (pw=%Q OR pw=%Q)",
+        zUsername, zPasswd, zSha1Pw
     );
     if( uid<=0 ){
       sleep(1);
@@ -227,7 +251,7 @@ void login_page(void){
   @ </tr>
   @ <tr>
   @  <td align="right">Password:</td>
-  @   <td><input type="password" name="p" value="" size=30></td>
+  @   <td><input type="password" id="p" name="p" value="" size=30></td>
   @ </tr>
   if( g.zLogin==0 ){
     zAnonPw = db_text(0, "SELECT pw FROM user"
@@ -252,14 +276,22 @@ void login_page(void){
   @ the login to take.</p>
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
-    char *zCaptcha = captcha_render(captcha_decode(uSeed));
+    char const *zDecoded = captcha_decode(uSeed);
+    int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
+    char *zCaptcha = captcha_render(zDecoded);
 
-    @ <input type="hidden" name="cs" value="%u(uSeed)">
+    @ <input type="hidden" name="cs" value="%u(uSeed)"/>
     @ <p>Visitors may enter <b>anonymous</b> as the user-ID with
     @ the 8-character hexadecimal password shown below:</p>
     @ <center><table border="1" cellpadding="10"><tr><td><pre>
     @ %s(zCaptcha)
-    @ </pre></td></tr></table></center>
+    @ </pre></td></tr></table>
+    if( bAutoCaptcha ) {
+        @ <input type="button" value="Fill out captcha"
+        @  onclick="document.getElementById('u').value='anonymous';
+        @           document.getElementById('p').value='%s(zDecoded)';"/>
+    }
+    @ </center>
     free(zCaptcha);
   }
   if( g.zLogin ){
@@ -352,7 +384,8 @@ void login_check_credentials(void){
       blob_init(&b, &zCookie[5], i-5);
       if( zCookie[i]=='/' ){ i++; }
       blob_append(&b, "/", 1);
-      blob_appendf(&b, "%s/%s", zRemoteAddr, db_get("captcha-secret",""));
+      blob_appendf(&b, "%z/%s", ipPrefix(zRemoteAddr),
+                   db_get("captcha-secret",""));
       sha1sum_blob(&b, &b);
       uid = db_int(0, 
           "SELECT uid FROM user WHERE login='anonymous'"
@@ -393,6 +426,9 @@ void login_check_credentials(void){
     if( zCap==0 ){
       zCap = "";
     }
+  }
+  if( g.fHttpTrace && g.zLogin ){
+    fprintf(stderr, "# login: [%s] with capabilities [%s]\n", g.zLogin, zCap);
   }
 
   /* Set the global variables recording the userid and login.  The

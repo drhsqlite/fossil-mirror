@@ -101,7 +101,7 @@ static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
 
 /*
 ** This routine is called by the SQLite commit-hook mechanism
-** just prior to each omit.  All this routine does is verify
+** just prior to each commit.  All this routine does is verify
 ** that nBegin really is zero.  That insures that transactions
 ** cannot commit by any means other than by calling db_end_transaction()
 ** below.
@@ -140,6 +140,10 @@ void db_end_transaction(int rollbackFlag){
   }
 }
 void db_force_rollback(void){
+  static int busy = 0;
+  if( busy ) return;
+  busy = 1;
+  undo_rollback();
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
     if( isNewRepo ){
@@ -148,6 +152,7 @@ void db_force_rollback(void){
     }
   }
   nBegin = 0;
+  busy = 0;
 }
 
 /*
@@ -703,6 +708,7 @@ void db_open_config(int useAttach){
            "please set the HOME environment variable");
   }
 #endif
+  g.zHome = mprintf("%/", zHome);
 #ifdef __MINGW32__
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
@@ -1051,7 +1057,40 @@ static void db_sql_print(
   }
 }
 static void db_sql_trace(void *notUsed, const char *zSql){
-  printf("%s\n", zSql);
+  int n = strlen(zSql);
+  fprintf(stderr, "%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+}
+
+/*
+** Implement the user() SQL function.  user() takes no arguments and
+** returns the user ID of the current user.
+*/
+static void db_sql_user(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.zLogin!=0 ){
+    sqlite3_result_text(context, g.zLogin, -1, SQLITE_STATIC);
+  }
+}
+
+/*
+** Implement the cgi() SQL function.  cgi() takes a an argument which is
+** a name of CGI query parameter. The value of that parameter is returned, 
+** if available. optional second argument will be returned if the first
+** doesn't exist as a CGI parameter.
+*/
+static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv){
+  const char* zP;
+  if( argc!=1 && argc!=2 ) return;
+  zP = P((const char*)sqlite3_value_text(argv[0]));
+  if( zP ){
+    sqlite3_result_text(context, zP, -1, SQLITE_STATIC);
+  }else if( argc==2 ){
+    zP = (const char*)sqlite3_value_text(argv[1]);
+    if( zP ) sqlite3_result_text(context, zP, -1, SQLITE_TRANSIENT);
+  }
 }
 
 /*
@@ -1147,17 +1186,16 @@ char *db_reveal(const char *zKey){
 ** database connection is first established.
 */
 LOCAL void db_connection_init(void){
-  static int once = 1;
-  if( once ){
-    sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
-    sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
-    sqlite3_create_function(
-      g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
-    );
-    if( g.fSqlTrace ){
-      sqlite3_trace(g.db, db_sql_trace, 0);
-    }
-    once = 0;
+  sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+  sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
+  sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+  sqlite3_create_function(
+    g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  if( g.fSqlTrace ){
+    sqlite3_trace(g.db, db_sql_trace, 0);
   }
 }
 
@@ -1432,9 +1470,18 @@ static void print_setting(const char *zName){
 **
 ** The "unset" command clears a property setting.
 **
+**
+**    auto-captcha     If enabled, the Login page will provide a button
+**                     which uses JavaScript to fill out the captcha for
+**                     the "anonymous" user. (Most bots cannot use JavaScript.)
+**
 **    autosync         If enabled, automatically pull prior to
 **                     commit or update and automatically push
 **                     after commit or tag or branch creation.
+**
+**    clearsign        When enabled (the default), fossil will attempt to
+**                     sign all commits with gpg.  When disabled, commits will
+**                     be unsigned.
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
@@ -1444,26 +1491,22 @@ static void print_setting(const char *zName){
 **
 **    editor           Text editor command used for check-in comments.
 **
-**    http-port        The TCP/IP port number to use by the "server"
-**                     and "ui" commands.  Default: 8080
-**
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
+**
+**    http-port        The TCP/IP port number to use by the "server"
+**                     and "ui" commands.  Default: 8080
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
 **
-**    clearsign        When enabled (the default), fossil will attempt to
-**                     sign all commits with gpg.  When disabled, commits will
-**                     be unsigned.
+**    mtime-changes    Use file modification times (mtimes) to detect when
+**                     files have been modified.  
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
-**
-**    mtime-changes    Use file modification times (mtimes) to detect when
-**                     files have been modified.  
 **
 **    proxy            URL of the HTTP proxy.  If undefined or "off" then
 **                     the "http_proxy" environment variable is consulted.
@@ -1477,16 +1520,17 @@ static void print_setting(const char *zName){
 */
 void setting_cmd(void){
   static const char *azName[] = {
+    "auto-captcha",
     "autosync",
+    "clearsign",
     "diff-command",
     "dont-push",
     "editor",
     "gdiff-command",
     "http-port",
     "localauth",
-    "clearsign",
-    "pgp-command",
     "mtime-changes",
+    "pgp-command",
     "proxy",
     "web-browser",
   };

@@ -113,14 +113,18 @@ void all_cmd(void){
   }
   zFossil = quoteFilename(g.argv[0]);
   nMissing = 0;
-  db_prepare(&q, "SELECT substr(name, 6) FROM global_config"
-                 " WHERE substr(name, 1, 5)=='repo:' ORDER BY 1");
+  db_prepare(&q,
+     "SELECT DISTINCT substr(name, 6) COLLATE nocase"
+     "  FROM global_config"
+     " WHERE substr(name, 1, 5)=='repo:' ORDER BY 1"
+  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
     if( access(zFilename, 0) ){
       nMissing++;
       continue;
     }
+    if( !file_is_canonical(zFilename) ) nMissing++;
     if( zCmd[0]=='l' ){
       printf("%s\n", zFilename);
       continue;
@@ -134,7 +138,7 @@ void all_cmd(void){
     free(zQFilename);
   }
   
-  /* If any repositories hows names appear in the ~/.fossil file could not
+  /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
   */
   if( nMissing ){
@@ -145,6 +149,15 @@ void all_cmd(void){
       if( access(zFilename, 0) ){
         char *zRepo = mprintf("repo:%s", zFilename);
         db_unset(zRepo, 1);
+        free(zRepo);
+      }else if( !file_is_canonical(zFilename) ){
+        Blob cname;
+        char *zRepo = mprintf("repo:%s", zFilename);
+        db_unset(zRepo, 1);
+        free(zRepo);
+        file_canonical_name(zFilename, &cname);
+        zRepo = mprintf("repo:%s", blob_str(&cname));
+        db_set(zRepo, "1", 1);
         free(zRepo);
       }
     }

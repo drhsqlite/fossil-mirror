@@ -119,6 +119,7 @@ internet these days. What makes Fossil worthy of attention?
   *  [./stats.wiki | Performance statistics] taken from real-world projects
      hosted on fossil.
   *  How to [./shunning.wiki | delete content] from a fossil repository.
+  *  How Fossil does [./password.wiki | password management].
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
   *  Documentation on the
@@ -127,6 +128,7 @@ internet these days. What makes Fossil worthy of attention?
 
 <h3>Links For Fossil Developer:</h3>
 
+  *  [./theory1.wiki | Thoughts On The Design Of Fossil].
   *  [./pop.wiki | Principles Of Operation]
   *  The [./fileformat.wiki | file format] used by every content
      file stored in the repository.

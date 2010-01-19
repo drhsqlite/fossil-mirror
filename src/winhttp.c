@@ -136,13 +136,18 @@ end_request:
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.
 */
-void win32_http_server(int mnPort, int mxPort, char *zBrowser){
+void win32_http_server(
+  int mnPort, int mxPort,   /* Range of allowed TCP port numbers */
+  char *zBrowser,           /* Command to launch browser.  (Or NULL) */
+  char *zStopper            /* Stop server when this file is exists (Or NULL) */
+){
   WSADATA wd;
-  SOCKET s;
+  SOCKET s = INVALID_SOCKET;
   SOCKADDR_IN addr;
   int idCnt = 0;
   int iPort = mnPort;
 
+  if( zStopper ) unlink(zStopper);
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
@@ -189,6 +194,9 @@ void win32_http_server(int mnPort, int mxPort, char *zBrowser){
     int len = sizeof(client_addr);
 
     client = accept(s, (struct sockaddr*)&client_addr, &len);
+    if( zStopper && file_size(zStopper)>=0 ){
+      break;
+    }
     if( client==INVALID_SOCKET ){
       closesocket(s);
       fossil_fatal("error from accept()");

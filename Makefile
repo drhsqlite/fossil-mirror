@@ -59,6 +59,10 @@ endif
 #
 TCLSH = tclsh
 
+#### Include a configuration file that can override any one of these settings.
+#
+-include config.mak
+
 # You should not need to change anything below this line
 ###############################################################################
 include $(SRCDIR)/main.mk

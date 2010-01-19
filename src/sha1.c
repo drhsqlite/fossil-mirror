@@ -536,6 +536,65 @@ int sha1sum_blob(const Blob *pIn, Blob *pCksum){
   return 0;
 }
 
+/*
+** Compute the SHA1 checksum of a zero-terminated string.  The
+** result is held in memory obtained from mprintf().
+*/
+char *sha1sum(const char *zIn){
+  SHA1Context ctx;
+  unsigned char zResult[20];
+  char zDigest[41];
+
+  SHA1Reset(&ctx);
+  SHA1Input(&ctx, (unsigned const char*)zIn, strlen(zIn));
+  SHA1Result(&ctx, zResult);
+  DigestToBase16(zResult, zDigest);
+  return mprintf("%s", zDigest);
+}
+
+/*
+** Convert a cleartext password for a specific user into a SHA1 hash.
+** 
+** The algorithm here is:
+**
+**       SHA1( project-code + "/" + login + "/" + password )
+**
+** In words: The users login name and password are appended to the
+** project ID code and the SHA1 hash of the result is computed.
+**
+** The result of this function is the shared secret used by a client
+** to authenticate to a server for the sync protocol.  It is also the
+** value stored in the USER.PW field of the database.  By mixing in the
+** login name and the project id with the hash, different shared secrets
+** are obtained even if two users select the same password, or if a 
+** single user selects the same password for multiple projects.
+*/
+char *sha1_shared_secret(const char *zPw, const char *zLogin){
+  static char *zProjectId = 0;
+  SHA1Context ctx;
+  unsigned char zResult[20];
+  char zDigest[41];
+
+  SHA1Reset(&ctx);
+  if( zProjectId==0 ){
+    zProjectId = db_get("project-code", 0);
+
+    /* On the first xfer request of a clone, the project-code is not yet
+    ** known.  Use the cleartext password, since that is all we have.
+    */
+    if( zProjectId==0 ){
+      return mprintf("%s", zPw);
+    }
+  }
+  SHA1Input(&ctx, (unsigned char*)zProjectId, strlen(zProjectId));
+  SHA1Input(&ctx, (unsigned char*)"/", 1);
+  SHA1Input(&ctx, (unsigned char*)zLogin, strlen(zLogin));
+  SHA1Input(&ctx, (unsigned char*)"/", 1);
+  SHA1Input(&ctx, (unsigned const char*)zPw, strlen(zPw));
+  SHA1Result(&ctx, zResult);
+  DigestToBase16(zResult, zDigest);
+  return mprintf("%s", zDigest);
+}
 
 /*
 ** COMMAND: sha1sum

@@ -144,7 +144,8 @@ void vfile_build(int vid, Blob *p){
 ** If VFILE.DELETED is null or if VFILE.RID is zero, then we can assume
 ** the file has changed without having the check the on-disk image.
 */
-void vfile_check_signature(int vid){
+void vfile_check_signature(int vid, int notFileIsFatal){
+  int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
   int checkMtime = db_get_boolean("mtime-changes", 0);
@@ -168,7 +169,13 @@ void vfile_check_signature(int vid){
     isDeleted = db_column_int(&q, 3);
     oldChnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 6);
-    if( oldChnged>=2 ){
+    if( !file_isfile(zName) && file_size(zName)>=0 ){
+      if( notFileIsFatal ){
+        fossil_warning("not a ordinary file: %s", zName);
+        nErr++;
+      }
+      chnged = 1;
+    }else if( oldChnged>=2 ){
       chnged = oldChnged;
     }else if( isDeleted || rid==0 ){
       chnged = 1;
@@ -195,6 +202,7 @@ void vfile_check_signature(int vid){
     }
   }
   db_finalize(&q);
+  if( nErr ) fossil_fatal("abort due to prior errors");
   db_end_transaction(0);
 }
 
@@ -374,7 +382,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
   char zBuf[100];
 
   db_must_be_within_tree();
-  
+ 
   db_prepare(&q, "SELECT pathname, rid FROM vfile"
                  " WHERE NOT deleted AND rid>0 AND vid=%d"
                  " ORDER BY pathname",
@@ -398,8 +406,10 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 /*
 ** Compute an aggregate MD5 checksum over the repository image of every
 ** file in manifest vid.  The file names are part of the checksum.
-**
 ** Return the resulting checksum in blob pOut.
+**
+** If pManOut is not NULL then fill it with the checksum found in the
+** "R" card near the end of the manifest.  
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int i, fid;

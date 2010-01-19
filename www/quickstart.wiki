@@ -225,12 +225,12 @@ and painlessly.</p>
     </b></blockquote>
 
     <p>Adjust the paths in this CGI script to match your installation
-    and make sure that repository file at the directory that contains it
-    are both readable and writable by the user that CGI scripts run as.
+    and make sure both repository file and the directory that contains it
+    are readable and writable by the user that CGI scripts run as.
     Then point clients at the CGI script.  That's all there is to it!</p>
 
     <a name="inetdserver"></a>
-    <p>You can also run fossil off of inetd or xinetd.  For an inetd
+    <p>You can also run fossil from inetd or xinetd.  For an inetd
     installation, make an entry in /etc/inetd.conf that looks something
     like this:</p>
 

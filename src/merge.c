@@ -79,7 +79,7 @@ void merge_cmd(void){
   if( pid>1 && !db_exists("SELECT 1 FROM plink WHERE cid=%d", pid) ){
     fossil_panic("not a version: record #%d", mid);
   }
-  vfile_check_signature(vid);
+  vfile_check_signature(vid, 1);
   db_begin_transaction();
   undo_begin();
   load_vfile_from_rid(mid);
@@ -288,5 +288,6 @@ void merge_cmd(void){
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
+  undo_finish();
   db_end_transaction(0);
 }

@@ -30,13 +30,33 @@
 #include "timeline.h"
 
 /*
+** Shorten a UUID so that is the minimum length needed to contain
+** at least one digit in the range 'a'..'f'.  The minimum length is 10.
+*/
+static void shorten_uuid(char *zDest, const char *zSrc){
+  int i;
+  for(i=0; i<10 && zSrc[i]<='9'; i++){}
+  memcpy(zDest, zSrc, 10);
+  if( i==10 && zSrc[i] ){
+    do{
+      zDest[i] = zSrc[i];
+      i++;
+    }while( zSrc[i-1]<='9' );
+  }else{
+    i = 10;
+  }
+  zDest[i] = 0;
+}
+
+
+/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
-  sprintf(zShortUuid, "%.10s", zUuid);
+  shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/info/%s(zUuid)">[%s(zShortUuid)]</a>
+    @ <a href="%s(g.zBaseURL)/info/%s(zShortUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b>[%s(zShortUuid)]</b>
   }
@@ -53,10 +73,10 @@ void hyperlink_to_uuid_with_mouseover(
   int id               /* Argument to javascript procs */
 ){
   char zShortUuid[UUID_SIZE+1];
-  sprintf(zShortUuid, "%.10s", zUuid);
+  shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
     @ <a onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'
-    @    href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
+    @    href="%s(g.zBaseURL)/vinfo/%s(zShortUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'>
     @ [%s(zShortUuid)]</b>
@@ -287,6 +307,12 @@ void www_print_timeline(
     }
     @ </td></tr>
   }
+  if( suppressCnt ){
+    @ <tr><td><td><td>
+    @ <small><i>... %d(suppressCnt) similar
+    @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+    suppressCnt = 0;
+  }
   @ </table>
 }
 
@@ -399,6 +425,7 @@ static void timeline_add_dividers(const char *zDate){
 **    t=TAGID        show only check-ins with the given tagid
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 't'
+**    s=TEXT         string search (comment and brief)
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -421,6 +448,7 @@ void page_timeline(void){
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
   const char *zTagName = P("t");     /* Show events with this tag */
+  const char *zSearch = P("s");      /* Search string */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
@@ -428,8 +456,8 @@ void page_timeline(void){
   /* To view the timeline, must have permission to read project data.
   */
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
-  if( zTagName ){
+  if( !g.okRead && !g.okRdTkt && !g.okRdWiki ){ login_needed(); return; }
+  if( zTagName && g.okRead ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
   }else{
     tagid = 0;
@@ -447,7 +475,7 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
-  if( p_rid || d_rid ){
+  if( (p_rid || d_rid) && g.okRead ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
@@ -466,11 +494,11 @@ void page_timeline(void){
     if( d_rid ){
       compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>0 ){
+      if( nd>=0 ){
         db_multi_exec("%s", blob_str(&sql));
-        blob_appendf(&desc, "%d descendants", nd);
+        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       }
-      timeline_add_dividers(  
+      timeline_add_dividers(
         db_text("1","SELECT datetime(mtime,'localtime') FROM event"
                     " WHERE objid=%d", d_rid)
       );
@@ -510,8 +538,32 @@ void page_timeline(void){
       blob_appendf(&sql, " AND EXISTS (SELECT 1 FROM tagxref WHERE tagid=%d"
                                         " AND tagtype>0 AND rid=blob.rid)",
                    tagid);
-    }    
-    if( zType[0]!='a' ){
+    }
+    if( (zType[0]=='w' && !g.okRdWiki)
+     || (zType[0]=='t' && !g.okRdTkt)
+     || (zType[0]=='c' && !g.okRead)
+    ){
+      zType = "all";
+    }
+    if( zType[0]=='a' ){
+      if( !g.okRead || !g.okRdWiki || !g.okRdTkt ){
+        char cSep = '(';
+        blob_appendf(&sql, " AND event.type IN ");
+        if( g.okRead ){
+          blob_appendf(&sql, "%c'ci'", cSep);
+          cSep = ',';
+        }
+        if( g.okRdWiki ){
+          blob_appendf(&sql, "%c'w'", cSep);
+          cSep = ',';
+        }
+        if( g.okRdTkt ){
+          blob_appendf(&sql, "%c't'", cSep);
+          cSep = ',';
+        }
+        blob_appendf(&sql, ")");
+      }
+    }else{ /* zType!="all" */
       blob_appendf(&sql, " AND event.type=%Q", zType);
       url_add_parameter(&url, "y", zType);
       if( zType[0]=='c' ){
@@ -525,6 +577,12 @@ void page_timeline(void){
     if( zUser ){
       blob_appendf(&sql, " AND event.user=%Q", zUser);
       url_add_parameter(&url, "u", zUser);
+    }
+    if ( zSearch ){
+      blob_appendf(&sql,
+        " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
+        zSearch, zSearch);
+      url_add_parameter(&url, "s", zSearch);
     }
     if( zAfter ){
       while( isspace(zAfter[0]) ){ zAfter++; }
@@ -611,13 +669,13 @@ void page_timeline(void){
         if( zType[0]!='a' ){
           timeline_submenu(&url, "All Types", "y", "all", 0);
         }
-        if( zType[0]!='w' ){
+        if( zType[0]!='w' && g.okRdWiki ){
           timeline_submenu(&url, "Wiki Only", "y", "w", 0);
         }
-        if( zType[0]!='c' ){
+        if( zType[0]!='c' && g.okRead ){
           timeline_submenu(&url, "Checkins Only", "y", "ci", 0);
         }
-        if( zType[0]!='t' ){
+        if( zType[0]!='t' && g.okRdTkt ){
           timeline_submenu(&url, "Tickets Only", "y", "t", 0);
         }
       }
@@ -639,7 +697,7 @@ void page_timeline(void){
   @ <script>
   @ var parentof = new Object();
   @ var childof = new Object();
-  db_prepare(&q, "SELECT rid FROM timeline");
+  db_prepare(&q, "SELECT rid FROM seen");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     Stmt q2;
@@ -829,27 +887,6 @@ const char *timeline_query_for_tty(void){
 }
 
 /*
-** Equivalent to timeline_query_for_tty(), except that:
-**
-** a) accepts a the -type=XX flag to set the event type to filter on.
-**    The values of XX are the same as supported by the /timeline page.
-**
-** b) The returned string must be freed using free().
-*/
-char * timeline_query_for_tty_m(void){
-  Blob bl;
-  char const * zType = 0;
-  blob_zero(&bl);
-  blob_append( &bl, timeline_query_for_tty(), -1 );
-  zType = find_option( "type", "t", 1 );
-  if( zType && *zType )
-  {
-      blob_appendf( &bl, " AND event.type=%Q", zType );
-  }
-  return blob_buffer(&bl);
-}
-
-/*
 ** Return true if the input string is a date in the ISO 8601 format:
 ** YYYY-MM-DD.
 */
@@ -896,7 +933,7 @@ void timeline_cmd(void){
   const char *zType;
   char *zOrigin;
   char *zDate;
-  char *zSQL;
+  Blob sql;
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
@@ -953,20 +990,23 @@ void timeline_cmd(void){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else{
+    const char *zShift = "";
     if( mode==3 || mode==4 ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
     if( mode==0 ){
-      mode = 1;
-      if( isIsoDate(zOrigin) ) zOrigin[9]++;
+      if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
     }
-    zDate = mprintf("(SELECT julianday(%Q, 'utc'))", zOrigin);
+    zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
   }
-  zSQL = mprintf("%z AND event.mtime %s %s",
-     timeline_query_for_tty_m(),
+  if( mode==0 ) mode = 1;
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_tty(), -1);
+  blob_appendf(&sql, "  AND event.mtime %s %s",
      (mode==1 || mode==4) ? "<=" : ">=",
      zDate
   );
+
   if( mode==3 || mode==4 ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     if( mode==3 ){
@@ -974,15 +1014,15 @@ void timeline_cmd(void){
     }else{
       compute_ancestors(objid, n);
     }
-    zSQL = mprintf("%z AND blob.rid IN ok", zSQL);
+    blob_appendf(&sql, " AND blob.rid IN ok");
   }
   if( zType && (zType[0]!='a') ){
-      zSQL = mprintf( "%z AND event.type=%Q ", zSQL, zType);
+    blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
 
-  zSQL = mprintf("%z ORDER BY event.mtime DESC", zSQL);
-  db_prepare(&q, zSQL);
-  free( zSQL );
+  blob_appendf(&sql, " ORDER BY event.mtime DESC");
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
   print_timeline(&q, n);
   db_finalize(&q);
 }

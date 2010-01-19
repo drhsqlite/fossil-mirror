@@ -163,6 +163,8 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   static const char zMid[]   = "============================\n";
   static const char zEnd[]   = "<<<<<<< END MERGE CONFLICT\n";
 
+  blob_zero(pOut);         /* Merge results stored in pOut */
+
   /* Compute the edits that occur from pPivot => pV1 (into aC1)
   ** and pPivot => pV2 (into aC2).  Each of the aC1 and aC2 arrays is
   ** an array of integer triples.  Within each triple, the first integer
@@ -179,7 +181,6 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
     return -1;
   }
 
-  blob_zero(pOut);         /* Merge results stored in pOut */
   blob_rewind(pV1);        /* Rewind inputs:  Needed to reconstruct output */
   blob_rewind(pV2);
   blob_rewind(pPivot);

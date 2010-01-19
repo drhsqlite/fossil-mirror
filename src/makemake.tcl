@@ -56,6 +56,7 @@ set src {
   setup
   sha1
   shun
+  skins
   stat
   style
   sync

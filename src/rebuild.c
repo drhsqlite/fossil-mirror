@@ -93,8 +93,10 @@ static void rebuild_step_done(rid){
   bag_insert(&bagDone, rid);
   if( ttyOutput ){
     processCnt++;
-    printf("%d (%d%%)...\r", processCnt, (processCnt*100/totalSize));
-    fflush(stdout);
+    if (!g.fQuiet) {
+      printf("%d (%d%%)...\r", processCnt, (processCnt*100/totalSize));
+      fflush(stdout);
+    }
   }
 }
 
@@ -208,7 +210,10 @@ int rebuild_db(int randomize, int doOut){
   bag_init(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
-  printf("0 (0%%)...\r"); fflush(stdout);
+  if (!g.fQuiet) {
+    printf("0 (0%%)...\r");
+    fflush(stdout);
+  }
   db_multi_exec(zSchemaUpdates);
   for(;;){
     zTable = db_text(0,
@@ -275,7 +280,7 @@ int rebuild_db(int randomize, int doOut){
   db_finalize(&s);
   manifest_crosslink_end();
   rebuild_tag_trunk();
-  if( ttyOutput ){
+  if(!g.fQuiet && ttyOutput ){
     printf("\n");
   }
   return errCnt;
@@ -373,7 +378,7 @@ void scrub_cmd(void){
     blob_zero(&ans);
     prompt_user("Scrubbing the repository will permanently remove user\n"
                 "passwords and other information. Changes cannot be undone.\n"
-                "Continue [y/N]? ", &ans);
+                "Continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       exit(1);
     }

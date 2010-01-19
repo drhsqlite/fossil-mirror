@@ -340,6 +340,10 @@ void tktview_page(void){
     style_submenu_element("Timeline", "Timeline Of This Ticket", 
         "%s/tkttimeline/%T", g.zTop, zUuid);
   }
+  if( g.okNewTkt ){
+    style_submenu_element("New Ticket", "Create a new ticket",
+        "%s/tktnew", g.zTop);
+  }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();

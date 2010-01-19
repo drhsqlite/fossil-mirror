@@ -72,6 +72,8 @@ void setup_page(void){
     "Timeline display preferences");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("Skins", "setup_skin",
+    "Select from a menu of prepackaged \"skins\" for the web interface");
   setup_menu_entry("CSS", "setup_editcss",
     "Edit the Cascading Style Sheet used by all pages of this repository");
   setup_menu_entry("Header", "setup_header",
@@ -318,10 +320,12 @@ void user_edit(void){
 
     zCap[i] = 0;
     zPw = P("pw");
-    if( !isValidPwString(zPw) ){
+    zLogin = P("login");
+    if( isValidPwString(zPw) ){
+      zPw = sha1_shared_secret(zPw, zLogin);
+    }else{
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
-    zLogin = P("login");
     if( uid>0 &&
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
@@ -329,7 +333,7 @@ void user_edit(void){
       @ <font color="red">Login "%h(zLogin)" is already used by a different
       @ user.</font>
       @
-      @ <p><a href="setup_uedit?id=%d(uid))>[Bummer]</a></p>
+      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
       style_footer();
       return;
     }
@@ -447,37 +451,34 @@ void user_edit(void){
   @   <td>
 #define B(x) inherit[x]
   if( g.okSetup ){
-    @    <input type="checkbox" name="as"%s(oas)>%s(B('s'))Setup</input><br>
+    @    <input type="checkbox" name="as"%s(oas)/>%s(B('s'))Setup<br>
   }
-  @    <input type="checkbox" name="aa"%s(oaa)>%s(B('a'))Admin</input><br>
-  @    <input type="checkbox" name="ad"%s(oad)>%s(B('d'))Delete</input><br>
-  @    <input type="checkbox" name="ae"%s(oae)>%s(B('e'))Email</input><br>
-  @    <input type="checkbox" name="ap"%s(oap)>%s(B('p'))Password</input><br>
-  @    <input type="checkbox" name="ai"%s(oai)>%s(B('i'))Check-In</input><br>
-  @    <input type="checkbox" name="ao"%s(oao)>%s(B('o'))Check-Out</input><br>
-  @    <input type="checkbox" name="ah"%s(oah)>%s(B('h'))History</input><br>
-  @    <input type="checkbox" name="au"%s(oau)>%s(B('u'))Reader</input><br>
-  @    <input type="checkbox" name="av"%s(oav)>%s(B('v'))Developer</input><br>
-  @    <input type="checkbox" name="ag"%s(oag)>%s(B('g'))Clone</input><br>
-  @    <input type="checkbox" name="aj"%s(oaj)>%s(B('j'))Read Wiki</input><br>
-  @    <input type="checkbox" name="af"%s(oaf)>%s(B('f'))New Wiki</input><br>
-  @    <input type="checkbox" name="am"%s(oam)>%s(B('m'))Append Wiki</input><br>
-  @    <input type="checkbox" name="ak"%s(oak)>%s(B('k'))Write Wiki</input><br>
-  @    <input type="checkbox" name="ar"%s(oar)>%s(B('r'))Read Tkt</input><br>
-  @    <input type="checkbox" name="an"%s(oan)>%s(B('n'))New Tkt</input><br>
-  @    <input type="checkbox" name="ac"%s(oac)>%s(B('c'))Append Tkt</input><br>
-  @    <input type="checkbox" name="aw"%s(oaw)>%s(B('w'))Write Tkt</input><br>
-  @    <input type="checkbox" name="at"%s(oat)>%s(B('t'))Tkt Report</input><br>
-  @    <input type="checkbox" name="az"%s(oaz)>%s(B('z'))Download Zip</input>
+  @    <input type="checkbox" name="aa"%s(oaa)/>%s(B('a'))Admin<br>
+  @    <input type="checkbox" name="ad"%s(oad)/>%s(B('d'))Delete<br>
+  @    <input type="checkbox" name="ae"%s(oae)/>%s(B('e'))Email<br>
+  @    <input type="checkbox" name="ap"%s(oap)/>%s(B('p'))Password<br>
+  @    <input type="checkbox" name="ai"%s(oai)/>%s(B('i'))Check-In<br>
+  @    <input type="checkbox" name="ao"%s(oao)/>%s(B('o'))Check-Out<br>
+  @    <input type="checkbox" name="ah"%s(oah)/>%s(B('h'))History<br>
+  @    <input type="checkbox" name="au"%s(oau)/>%s(B('u'))Reader<br>
+  @    <input type="checkbox" name="av"%s(oav)/>%s(B('v'))Developer<br>
+  @    <input type="checkbox" name="ag"%s(oag)/>%s(B('g'))Clone<br>
+  @    <input type="checkbox" name="aj"%s(oaj)/>%s(B('j'))Read Wiki<br>
+  @    <input type="checkbox" name="af"%s(oaf)/>%s(B('f'))New Wiki<br>
+  @    <input type="checkbox" name="am"%s(oam)/>%s(B('m'))Append Wiki<br>
+  @    <input type="checkbox" name="ak"%s(oak)/>%s(B('k'))Write Wiki<br>
+  @    <input type="checkbox" name="ar"%s(oar)/>%s(B('r'))Read Tkt<br>
+  @    <input type="checkbox" name="an"%s(oan)/>%s(B('n'))New Tkt<br>
+  @    <input type="checkbox" name="ac"%s(oac)/>%s(B('c'))Append Tkt<br>
+  @    <input type="checkbox" name="aw"%s(oaw)/>%s(B('w'))Write Tkt<br>
+  @    <input type="checkbox" name="at"%s(oat)/>%s(B('t'))Tkt Report<br>
+  @    <input type="checkbox" name="az"%s(oaz)/>%s(B('z'))Download Zip
   @   </td>
   @ </tr>
   @ <tr>
   @   <td align="right">Password:</td>
-  if( strcmp(zLogin, "anonymous")==0 ){
-    /* User the password for "anonymous" as cleartext */
-    @   <td><input type="text" name="pw" value="%h(zPw)"></td>
-  }else if( zPw[0] ){
-    /* Obscure the password for all other users */
+  if( zPw[0] ){
+    /* Obscure the password for all users */
     @   <td><input type="password" name="pw" value="**********"></td>
   }else{
     /* Show an empty password as an empty input field */
@@ -572,7 +573,7 @@ void user_edit(void){
   @ <li><p>
   @ Users with the <b>Password</b> privilege are allowed to change their
   @ own password.  Recommended ON for most users but OFF for special
-  @ users "developer, "anonymous", and "nobody".
+  @ users "developer", "anonymous", and "nobody".
   @ </p></li>
   @
   @ <li><p>
@@ -620,7 +621,7 @@ void user_edit(void){
   @ all privileges of the "developer" user.  Similarly, the "<b>reader</b>"
   @ user is a template for users who are allowed more access than anonymous,
   @ but less than a developer.
-  @ </li></p>
+  @ </p></li>
   @ </ul>
   @ </form>
   style_footer();
@@ -726,6 +727,15 @@ void setup_access(void){
   @ 127.0.0.1.</p></li>
 
   @ <hr>
+  onoff_attribute("Show javascript button to fill in CAPTCHA",
+                  "auto-captcha", "autocaptcha", 0);
+  @ <p>When enabled, a button appears on the login screen for user
+  @ "anonymous" that will automatically fill in the CAPTCHA password.
+  @ This is less secure that forcing the user to do it manually, but is
+  @ probably secure enough and it is certainly more convenient for
+  @ anonymous users.</p>
+
+  @ <hr>
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
@@ -774,6 +784,14 @@ void setup_timeline(void){
   @ Zulu) instead of in local time.</p>
 
   @ <hr>
+  onoff_attribute("Show version differences by default",
+                  "show-version-diffs", "vdiff", 0);
+  @ <p>On the version-information pages linked from the timeline can either
+  @ show complete diffs of all file changes, or can just list the names of
+  @ the files that have changed.  Users can get to either page by
+  @ clicking.  This setting selects the default.</p>
+
+  @ <hr>
   entry_attribute("Max timeline comment length", 6, 
                   "timeline-max-comment", "tmc", "0");
   @ <p>The maximum length of a comment to be displayed in a timeline.
@@ -804,6 +822,15 @@ void setup_behavior(void){
   onoff_attribute("Automatically synchronize with repository",
                   "autosync", "autosync", 1);
   @ <p>Automatically keeps your work in sync with a centralized server.</p>
+
+  @ <hr>
+  onoff_attribute("Show javascript button to fill in CAPTCHA",
+                  "auto-captcha", "autocaptcha", 0);
+  @ <p>When enabled, a button appears on the login screen for user
+  @ "anonymous" that will automatically fill in the CAPTCHA password.
+  @ This is less secure that forcing the user to do it manually, but is
+  @ probably secure enough and it is certainly more convenient for
+  @ anonymous users.</p>
 
   @ <hr>
   onoff_attribute("Sign all commits with GPG",
@@ -906,6 +933,19 @@ void setup_config(void){
   @ as the Project Name specified above.  Some sites prefer to redirect
   @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
   @ <hr />
+  onoff_attribute("Use HTML as wiki markup language",
+    "wiki-use-html", "wiki-use-html", 0);
+  @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed but
+  @ all other wiki formatting will be ignored. This option is helpful if you have
+  @ chosen to use a rich HTML editor for wiki markup such as TinyMCE.</p>
+  @ <p><strong>CAUTION:</strong> when
+  @ enabling, <i>all</i> HTML tags and attributes are accepted in the wiki.
+  @ No sanitization is done. This means that it is very possible for malicious
+  @ users to inject dangerous HTML, CSS and JavaScript code into your wiki.</p>
+  @ <p>This should <strong>only</strong> be enabled when wiki editing is limited
+  @ to trusted users. It should <strong>not</strong> be used on a publically
+  @ editable wiki.</p>
+  @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
   @ </form>
   db_end_transaction(0);
@@ -930,14 +970,17 @@ void setup_editcss(void){
   style_header("Edit CSS");
   @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
   login_insert_csrf_secret();
-  @ Edit the CSS:<br />
+  @ Edit the CSS below:<br />
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes">
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default CSS:
+  @ The default CSS is shown below for reference.  Other examples
+  @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
+  @ See also the <a href="setup_header">header</a> and 
+  @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
   @ </pre></blockquote>
@@ -972,7 +1015,10 @@ void setup_header(void){
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default page header:
+  @ The default header is shown below for reference.  Other examples
+  @ of headers can be seen on the <a href="setup_skin">skins page</a>.
+  @ See also the <a href="setup_editcss">CSS</a> and
+  @ <a href="setup_footer">footer</a> editing screeens.
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
   @ </pre></blockquote>
@@ -1006,7 +1052,10 @@ void setup_footer(void){
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
   @ <hr>
-  @ Here is the default page footer:
+  @ The default footer is shown below for reference.  Other examples
+  @ of footers can be seen on the <a href="setup_skin">skins page</a>.
+  @ See also the <a href="setup_editcss">CSS</a> and
+  @ <a href="setup_header">header</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
   @ </pre></blockquote>
@@ -1054,11 +1103,15 @@ void setup_logo(void){
   @ like this:</p>
   @ <blockquote><img src="%s(g.zTop)/logo" alt="logo"></blockquote>
   @ 
-  @ <form action="%s(g.zBaseURL)/setup_logo" method="POST"
-  @  enctype="multipart/form-data">
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
-  @ To set a new logo image, select a file to use as the logo using
+  @ The logo may or may not appear on each
+  @ page depending on the <a href="setup_editcss">CSS</a> and
+  @ <a href="setup_header">header setup</a>.</p>
+  @
+  @ <form action="%s(g.zBaseURL)/setup_logo" method="POST"
+  @  enctype="multipart/form-data">
+  @ <p>To set a new logo image, select a file to use as the logo using
   @ the entry box below and then press the "Change Logo" button.</p>
   login_insert_csrf_secret();
   @ Logo Image file:

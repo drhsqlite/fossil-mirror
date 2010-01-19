@@ -33,10 +33,18 @@
 ** of output.
 **
 ** We assume that vfile_check_signature has been run.
+**
+** If missingIsFatal is true, then any files that are missing or which
+** are not true files results in a fatal error.
 */
-static void status_report(Blob *report, const char *zPrefix){
+static void status_report(
+  Blob *report,          /* Append the status report here */
+  const char *zPrefix,   /* Prefix on each line of the report */
+  int missingIsFatal     /* MISSING and NOT_A_FILE are fatal errors */
+){
   Stmt q;
   int nPrefix = strlen(zPrefix);
+  int nErr = 0;
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
@@ -52,21 +60,33 @@ static void status_report(Blob *report, const char *zPrefix){
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED  %s\n", zPathname);
-    }else if( access(zFullName, 0) ){
-      blob_appendf(report, "MISSING  %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zPathname);
+    }else if( !file_isfile(zFullName) ){
+      if( access(zFullName, 0)==0 ){
+        blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
+        if( missingIsFatal ){
+          fossil_warning("not a file: %s", zPathname);
+          nErr++;
+        }
+      }else{
+        blob_appendf(report, "MISSING    %s\n", zPathname);
+        if( missingIsFatal ){
+          fossil_warning("missing file: %s", zPathname);
+          nErr++;
+        }
+      }
     }else if( isNew ){
-      blob_appendf(report, "ADDED    %s\n", zPathname);
+      blob_appendf(report, "ADDED      %s\n", zPathname);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED  %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zPathname);
     }else if( isChnged==2 ){
       blob_appendf(report, "UPDATED_BY_MERGE %s\n", zPathname);
     }else if( isChnged==3 ){
       blob_appendf(report, "ADDED_BY_MERGE %s\n", zPathname);
     }else if( isChnged==1 ){
-      blob_appendf(report, "EDITED   %s\n", zPathname);
+      blob_appendf(report, "EDITED     %s\n", zPathname);
     }else if( isRenamed ){
-      blob_appendf(report, "RENAMED  %s\n", zPathname);
+      blob_appendf(report, "RENAMED    %s\n", zPathname);
     }
     free(zFullName);
   }
@@ -78,6 +98,9 @@ static void status_report(Blob *report, const char *zPrefix){
     blob_appendf(report, "MERGED_WITH %s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
+  if( nErr ){
+    fossil_fatal("aborting due to prior errors");
+  }
 }
 
 /*
@@ -94,8 +117,8 @@ void changes_cmd(void){
   db_must_be_within_tree();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid);
-  status_report(&report, "");
+  vfile_check_signature(vid, 0);
+  status_report(&report, "", 0);
   blob_write_to_file(&report, "-");
 }
 
@@ -123,17 +146,20 @@ void status_cmd(void){
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls
+** Usage: %fossil ls [-l]
 **
-** Show the names of all files in the current checkout
+** Show the names of all files in the current checkout.  The -l provides
+** extra information about each file.
 */
 void ls_cmd(void){
   int vid;
   Stmt q;
+  int isBrief;
 
+  isBrief = find_option("l","l", 0)==0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid);
+  vfile_check_signature(vid, 0);
   db_prepare(&q,
      "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
      "  FROM vfile"
@@ -146,18 +172,24 @@ void ls_cmd(void){
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
-    if( isNew ){
-      printf("ADDED     %s\n", zPathname);
-    }else if( access(zFullName, 0) ){
-      printf("MISSING   %s\n", zPathname);
+    if( isBrief ){
+      printf("%s\n", zPathname);
+    }else if( isNew ){
+      printf("ADDED      %s\n", zPathname);
+    }else if( !file_isfile(zFullName) ){
+      if( access(zFullName, 0)==0 ){
+        printf("NOT_A_FILE %s\n", zPathname);
+      }else{
+        printf("MISSING    %s\n", zPathname);
+      }
     }else if( isDeleted ){
-      printf("DELETED   %s\n", zPathname);
+      printf("DELETED    %s\n", zPathname);
     }else if( chnged ){
-      printf("EDITED    %s\n", zPathname);
+      printf("EDITED     %s\n", zPathname);
     }else if( renamed ){
-      printf("RENAMED   %s\n", zPathname);
+      printf("RENAMED    %s\n", zPathname);
     }else{
-      printf("UNCHANGED %s\n", zPathname);
+      printf("UNCHANGED  %s\n", zPathname);
     }
     free(zFullName);
   }
@@ -239,7 +271,7 @@ void clean_cmd(void){
       unlink(db_column_text(&q, 0));
     }else{
       Blob ans;
-      char *prompt = mprintf("remove unmanaged file \"%s\" [y/N]? ",
+      char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
@@ -258,20 +290,41 @@ void clean_cmd(void){
 **
 ** Store the final commit comment in pComment.  pComment is assumed
 ** to be uninitialized - any prior content is overwritten.
+**
+** zInit is the text of the most recent failed attempt to check in
+** this same change.  Use zInit to reinitialize the check-in comment
+** so that the user does not have to retype.
+**
+** zBranch is the name of a new branch that this check-in is forced into.
+** zBranch might be NULL or an empty string if no forcing occurs.
+**
+** parent_rid is the recordid of the parent check-in.
 */
-static void prepare_commit_comment(Blob *pComment){
+static void prepare_commit_comment(
+  Blob *pComment,
+  char *zInit,
+  const char *zBranch,
+  int parent_rid
+){
   const char *zEditor;
   char *zCmd;
   char *zFile;
   Blob text, line;
   char *zComment;
   int i;
-  blob_set(&text,
+  blob_init(&text, zInit, -1);
+  blob_append(&text,
     "\n"
     "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
     "# The check-in comment follows wiki formatting rules.\n"
-    "#\n"
+    "#\n", -1
   );
+  if( zBranch && zBranch[0] ){
+    blob_appendf(&text, "# tags: %s\n#\n", zBranch);
+  }else{
+    char *zTags = info_tags_of_checkin(parent_rid, 1);
+    if( zTags )  blob_appendf(&text, "# tags: %z\n#\n", zTags);
+  }
   if( g.markPrivate ){
     blob_append(&text,
       "# PRIVATE BRANCH: This check-in will be private and will not sync to\n"
@@ -279,7 +332,7 @@ static void prepare_commit_comment(Blob *pComment){
       "#\n", -1
     );
   }
-  status_report(&text, "# ");
+  status_report(&text, "# ", 1);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
     zEditor = getenv("VISUAL");
@@ -390,11 +443,18 @@ int is_a_leaf(int rid){
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the "-m" option is used to specify a comment line.  You will be
-** prompted for your GPG passphrase in order to sign the new manifest
-** unless the "--nosign" options is used.  All files that have
-** changed will be committed unless some subset of files is specified
-** on the command line.
+** one of the "-m" or "-M" options are used to specify a comment.
+** "-m" takes a single string for the commit message and "-M" requires
+** a filename from which to read the commit message. If neither "-m"
+** nor "-M" are specified then the editor defined in the "editor"
+** fossil option (see %fossil help set) will be used, or from the
+** "VISUAL" or "EDITOR" environment variables (in that order) if no
+** editor is set.
+**
+** You will be prompted for your GPG passphrase in order to sign the
+** new manifest unless the "--nosign" options is used.  All files that
+** have changed will be committed unless some subset of files is
+** specified on the command line.
 **
 ** The --branch option followed by a branch name cases the new check-in
 ** to be placed in the named branch.  The --bgcolor option can be followed
@@ -415,6 +475,7 @@ int is_a_leaf(int rid){
 **    --nosign
 **    --force|-f
 **    --private
+**    --message-file|-M COMMENT-FILE
 **    
 */
 void commit_cmd(void){
@@ -434,6 +495,7 @@ void commit_cmd(void){
   const char *zBgColor;  /* Set background color when branching */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
+  const char *zCommentFile; /* Read commit message from this file */
   Blob filename;         /* complete filename */
   Blob manifest;
   Blob muuid;            /* Manifest uuid */
@@ -447,6 +509,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   zBranch = find_option("branch","b",1);
   zBgColor = find_option("bgcolor",0,1);
+  zCommentFile = find_option("message-file", "M", 1);
   if( find_option("private",0,0) ){
     g.markPrivate = 1;
     if( zBranch==0 ) zBranch = "private";
@@ -539,17 +602,26 @@ void commit_cmd(void){
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
+  }else if( zCommentFile ){
+    blob_zero(&comment);
+    blob_read_from_file(&comment, zCommentFile);
   }else{
-    prepare_commit_comment(&comment);
-    if( blob_size(&comment)==0 ){
-      Blob ans;
-      blob_zero(&ans);
-      prompt_user("empty check-in comment.  continue [y/N]? ", &ans);
-      if( blob_str(&ans)[0]!='y' ){
-        db_end_transaction(1);
-        exit(1);
-      }
+    char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
+    prepare_commit_comment(&comment, zInit, zBranch, vid);
+    free(zInit);
+  }
+  if( blob_size(&comment)==0 ){
+    Blob ans;
+    blob_zero(&ans);
+    prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+    if( blob_str(&ans)[0]!='y' ){
+      db_end_transaction(1);
+      exit(1);
     }
+  }else{
+    db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
+    db_end_transaction(0);
+    db_begin_transaction();
   }
 
   /* Step 1: Insert records for all modified files into the blob 
@@ -669,7 +741,7 @@ void commit_cmd(void){
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("unable to sign manifest.  continue [y/N]? ", &ans);
+    prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       db_end_transaction(1);
       exit(1);
@@ -737,6 +809,7 @@ void commit_cmd(void){
   undo_reset();
 
   /* Commit */
+  db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
   db_end_transaction(0);
 
   if( !g.markPrivate ){

@@ -698,7 +698,8 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
   annotation_start(p, &toAnnotate);
 
   db_prepare(&q, 
-    "SELECT mlink.fid, blob.uuid, date(event.mtime), event.user "
+    "SELECT mlink.fid, blob.uuid, date(event.mtime), "
+    "       coalesce(event.euser,event.user) "
     "  FROM mlink, blob, event"
     " WHERE mlink.fnid=%d"
     "   AND mlink.mid IN ok"
@@ -712,7 +713,7 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
     const char *zUuid = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
-    if( g.okHistory ){
+    if( webLabel ){
       zLabel = mprintf("<a href='%s/info/%s'>%.10s</a> %s %9.9s", 
                        g.zBaseURL, zUuid, zUuid, zDate, zUser);
     }else{
@@ -746,7 +747,7 @@ void annotation_page(void){
     fossil_redirect_home();
   }
   style_header("File Annotation");
-  annotate_file(&ann, fnid, mid, 1);
+  annotate_file(&ann, fnid, mid, g.okHistory);
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
     ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
@@ -754,4 +755,45 @@ void annotation_page(void){
   }
   @ </pre>
   style_footer();
+}
+
+/*
+** COMMAND: annotate
+**
+** %fossil annotate FILENAME
+**
+** Output the text of a file with markings to show when each line of
+** the file was introduced.
+*/
+void annotate_cmd(void){
+  int fnid;         /* Filename ID */
+  int fid;          /* File instance ID */
+  int mid;          /* Manifest where file was checked in */
+  Blob treename;    /* FILENAME translated to canonical form */
+  char *zFilename;  /* Cannonical filename */
+  Annotator ann;    /* The annotation of the file */
+  int i;            /* Loop counter */
+
+  db_must_be_within_tree();
+  if (g.argc<3) {
+    usage("FILENAME");
+  }
+  file_tree_name(g.argv[2], &treename, 1);
+  zFilename = blob_str(&treename);
+  fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", zFilename);
+  if( fnid==0 ){
+    fossil_fatal("no such file: %s", zFilename);
+  }
+  fid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFilename);
+  if( fid==0 ){
+    fossil_fatal("not part of current checkout: %s", zFilename);
+  }
+  mid = db_int(0, "SELECT mid FROM mlink WHERE fid=%d AND fnid=%d", fid, fnid);
+  if( mid==0 ){
+    fossil_panic("unable to find manifest");
+  }
+  annotate_file(&ann, fnid, mid, 0);
+  for(i=0; i<ann.nOrig; i++){
+    printf("%s: %.*s\n", ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
+  }
 }
