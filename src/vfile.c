@@ -237,6 +237,7 @@ void vfile_to_disk(int vid, int id, int verbose){
     content_get(rid, &content);
     if( verbose ) printf("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
+    blob_reset(&content);
     db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
                   file_mtime(zName), id);
   }
