@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sthe\smtime-changes\ssetting\sthe\sdefault.\s\sAvoid\sredundant\scalls\sto\sstat().
-D 2010-01-20T20:35:11
+C Require\sonly\sZIP\spermission\s(not\sZIP\spermission\splus\scheck-out\sand\shistory\npermission\sas\sformerely)\sin\sorder\sto\sdownload\sa\sZIP\sarchive.\nTicket\s[164e519962].
+D 2010-01-20T21:40:44
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -117,7 +117,7 @@ F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c 8828621b2d08c71cd3ce956849203099666df6e7
 F src/winhttp.c 3b9fbaa855e9e2ec203852d52517e388abbaf89f
 F src/xfer.c 6901c111d8b439d9e1679f1ab2cbb140997223b2
-F src/zip.c 43608365d59dc34c11cc6e2d6f36c36a88c32410
+F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 4b9455bf03c38546c1adc49f5a03bd2eba096969
-R fdb1f8195e607dee53bc6655e6681230
+P d7a583e697fdbbb4e5e219434fc6e7a39f0bab1d
+R aa52c08194c001538171182b9c46427f
 U drh
-Z c567e6234c824c8c4e0ace37dcee34a4
+Z 371332428ada99d6bd4115e6db60806b
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLV2kCoxKgR168RlERAs8tAJ91i3Yf6EaoXYDWG/DmxZtSjLVTUQCfYrrl
-bYwPQpnYhUMmAeUivfzKXKw=
-=cIv3
+iD8DBQFLV3heoxKgR168RlERArnuAJ93RYMbU7bdqV+tLmm+l291e0jEPQCePYQ+
+/d0QaZu6Nbv3C6WT3Cmsw/U=
+=Yc+d
 -----END PGP SIGNATURE-----

@@ -410,7 +410,7 @@ void baseline_zip_page(void){
   Blob zip;
 
   login_check_credentials();
-  if( !g.okZip && (!g.okRead || !g.okHistory) ){ login_needed(); return; }
+  if( !g.okZip ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid",""));
