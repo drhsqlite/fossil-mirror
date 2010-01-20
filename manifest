@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\smemory\sleak\sin\sthe\scheck-out\slogic\sthat\sprevents\sopening\sof\nmassive\srepositories.
-D 2010-01-20T15:43:44
+C Fix\sthe\sobject\sID\sdecoding\son\sthe\s/info\spage.\nTicket\s[a5403e6eee].
+D 2010-01-20T15:48:21
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -67,7 +67,7 @@ F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 26eca6baf0c72e01ceb9e44d6efffea0649aba06
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
-F src/info.c 7c2b3f6568691007586c50ffa3d920bfa99c58c2
+F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
 F src/main.c cc1948bcaa9a6f7bd036a22d06bf1085c20b0e47
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ea27129c88e9aae6329ec2725cb88b1787f58d8d
-R e1765780ebdefd642dd4ea3497084e25
+P 726a13d29689f4b92749072c2a47771767960373
+R 5f5821a0b5f4c5969f0d69cec35cca6c
 U drh
-Z fe6a5b3ad38abb4e18d07d97b3ea5ce1
+Z 2be37117565e1a86631eac8c689c1984
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLVySyoxKgR168RlERAkjHAJ4i+0NTLhZ2t2arpe13t4GXtUPXwwCeM9Il
-wa8vQeOvaEO/zM6Kvbvse/8=
-=d07i
+iD8DBQFLVyXIoxKgR168RlERAvOvAJ9L6Qvnf84lfuc733gYB9+pOxWIPQCfasjD
+1dnJJJ2hYEgKX9dKZR7jfUY=
+=spJc
 -----END PGP SIGNATURE-----

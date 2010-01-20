@@ -1062,15 +1062,16 @@ void info_page(void){
   
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
+  if( validate16(zName, strlen(zName))
+   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid LIKE '%q%%'", zName) ){
+    tktview_page();
+    return;
+  }
   blob_set(&uuid, zName);
   if( name_to_uuid(&uuid, 1) ){
     fossil_redirect_home();
   }
   zName = blob_str(&uuid);
-  if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%s'", zName) ){
-    tktview_page();
-    return;
-  }
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zName);
   if( rid==0 ){
     style_header("Broken Link");
