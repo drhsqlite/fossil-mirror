@@ -1465,9 +1465,10 @@ static void print_setting(const char *zName){
 ** The "unset" command clears a property setting.
 **
 **
-**    autosync         If enabled, automatically pull prior to
-**                     commit or update and automatically push
-**                     after commit or tag or branch creation.
+**    autosync         If enabled, automatically pull prior to commit
+**                     or update and automatically push after commit or
+**                     tag or branch creation.  If the the value is "pullonly"
+**                     then only pull operations occur automatically.
 **
 **    clearsign        When enabled (the default), fossil will attempt to
 **                     sign all commits with gpg.  When disabled, commits will

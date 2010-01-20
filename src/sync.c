@@ -43,11 +43,20 @@
 */
 void autosync(int flags){
   const char *zUrl;
+  const char *zAutosync;
   if( g.fNoSync ){
     return;
   }
-  if( db_get_boolean("autosync", 0)==0 ){
-    return;
+  zAutosync = db_get("autosync", 0);
+  if( zAutosync ){
+    if( (flags & AUTOSYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
+      return;   /* Do not auto-push when autosync=pullonly */
+    }
+    if( is_false(zAutosync) ){
+      return;   /* Autosync is completely off */
+    }
+  }else{
+    /* Autosync defaults on.  To make it default off, "return" here. */
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
