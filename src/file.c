@@ -47,6 +47,7 @@ static int getStat(const char *zFilename){
     if( fileStatValid==0 ) return 1;
   }else{
     if( stat(zFilename, &fileStat)!=0 ) return 1;
+    fileStatValid = 1;
   }
   return 0;
 }
