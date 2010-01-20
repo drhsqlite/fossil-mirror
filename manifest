@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C On\swindows,\sdo\snot\sallow\sthe\s"add"\scommand\sto\sadd\sfiles\sthat\sdiffer\sfrom\nexisting\sfiles\sonly\sin\scase.\s\sOnly\sworks\sfor\sASCII.\nTicket\s[36cb6b45fd9d].
-D 2010-01-20T18:35:46
+C Make\sthe\smtime-changes\ssetting\sthe\sdefault.\s\sAvoid\sredundant\scalls\sto\sstat().
+D 2010-01-20T20:35:11
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c e5a99ee9d1a11ffc99ab138753483cf66b959293
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 4b144daf3b83172a8a0b23add7b70c032f878b0f
+F src/db.c 83e485e6b6166abd2384303c1b528923e87809e8
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -62,7 +62,7 @@ F src/diff.c 6039c715138bf4b01ae398f6b45758693ea025df
 F src/diffcmd.c 6b2be81037608261703d3f2e0314c6f638e344bd
 F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
-F src/file.c 8138522279c00ab205b9c9a722f74283d421c437
+F src/file.c 99f0f9c6982b1ef7b0d46e969bdf94dd74b00b4e
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 26eca6baf0c72e01ceb9e44d6efffea0649aba06
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
@@ -112,7 +112,7 @@ F src/update.c ff76da018c7b4f47f45770a6be8e5e47e81c8074
 F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
-F src/vfile.c 9b3fe22d87dc73c98382f96c2a13f44432da5d93
+F src/vfile.c efa3e34479a8dcceb59ccd7afbbca61b980ef073
 F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c 8828621b2d08c71cd3ce956849203099666df6e7
 F src/winhttp.c 3b9fbaa855e9e2ec203852d52517e388abbaf89f
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d2204a00fb6bc71bdd13ffdafc469667b356172d
-R 26b27356a82c263a0f51e4ac616cdcef
+P 4b9455bf03c38546c1adc49f5a03bd2eba096969
+R fdb1f8195e607dee53bc6655e6681230
 U drh
-Z 83c651e350fbf967d54ca8b4dde6d093
+Z c567e6234c824c8c4e0ace37dcee34a4
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLV00FoxKgR168RlERAqyTAJ9wZl2MPp8iE3u2ewN8X+jvtCZkqgCaA5o2
-cOl6kGJkKdXUg9YEE0k07Vg=
-=yi3T
+iD8DBQFLV2kCoxKgR168RlERAs8tAJ91i3Yf6EaoXYDWG/DmxZtSjLVTUQCfYrrl
+bYwPQpnYhUMmAeUivfzKXKw=
+=cIv3
 -----END PGP SIGNATURE-----

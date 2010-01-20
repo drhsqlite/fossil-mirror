@@ -148,7 +148,7 @@ void vfile_check_signature(int vid, int notFileIsFatal){
   int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
-  int checkMtime = db_get_boolean("mtime-changes", 0);
+  int checkMtime = db_get_boolean("mtime-changes", 1);
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
@@ -169,7 +169,7 @@ void vfile_check_signature(int vid, int notFileIsFatal){
     isDeleted = db_column_int(&q, 3);
     oldChnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 6);
-    if( !file_isfile(zName) && file_size(zName)>=0 ){
+    if( !file_isfile(zName) && file_size(0)>=0 ){
       if( notFileIsFatal ){
         fossil_warning("not a ordinary file: %s", zName);
         nErr++;
@@ -181,7 +181,7 @@ void vfile_check_signature(int vid, int notFileIsFatal){
       chnged = 1;
     }
     if( chnged!=1 ){
-      currentMtime = file_mtime(zName);
+      currentMtime = file_mtime(0);
     }
     if( chnged!=1 && (checkMtime==0 || currentMtime!=oldMtime) ){
       db_ephemeral_blob(&q, 5, &origCksum);
