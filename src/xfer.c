@@ -434,8 +434,6 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       if( g.fHttpTrace ){
         fprintf(stderr, "# login [%s] with capabilities [%s]\n", g.zLogin,zCap);
       }
-    }else{
-      @ message login\sfailed
     }
   }
   db_finalize(&q);
@@ -443,6 +441,9 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   if( rc==0 ){
     /* If the login was successful. */
     login_set_anon_nobody_capabilities();
+  }else{
+    /* Login failed */
+    @ message login\sfailed
   }
 }
 

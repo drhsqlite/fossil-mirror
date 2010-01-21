@@ -39,7 +39,7 @@
 **      g.urlUser        Userid.
 **      g.urlPasswd      Password.
 **      g.urlHostname    HOST:PORT or just HOST if port is the default.
-**      g.urlCanonical   The URL in canonical form, omitting password
+**      g.urlCanonical   The URL in canonical form, omitting the password
 **
 ** HTTP url format is:
 **
