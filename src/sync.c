@@ -44,6 +44,7 @@
 void autosync(int flags){
   const char *zUrl;
   const char *zAutosync;
+  const char *zPw;
   if( g.fNoSync ){
     return;
   }
@@ -62,13 +63,12 @@ void autosync(int flags){
   if( zUrl==0 ){
     return;  /* No default server */
   }
+  zPw = db_get("last-sync-pw", 0);
   url_parse(zUrl);
-  if( g.urlPort!=g.urlDfltPort ){
-    printf("Autosync:  %s://%s:%d%s\n", 
-            g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
-  }else{
-    printf("Autosync:  %s://%s%s\n", g.urlProtocol, g.urlName, g.urlPath);
+  if( g.urlUser!=0 && g.urlPasswd==0 ){
+    g.urlPasswd = mprintf("%s", zPw);
   }
+  printf("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
   client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, 0);
 }

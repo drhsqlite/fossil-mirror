@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Cleanup\sthe\slast-sync-url\spassword\shandling.\s\sAutomatically\sprompt\sfor\sa\snew\npassword\sif\sa\ssync\slogin\scard\sfails.
-D 2010-01-21T20:28:31
+C Use\sthe\ssaved\ssync-url\spassword\sfor\sautosync.
+D 2010-01-21T20:52:46
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -97,7 +97,7 @@ F src/sqlite3.c 3417e43f49d06d3d6516430a93d3477a764d3855
 F src/sqlite3.h bddd23f2153511f486e0d481c1005cbe012732ce
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 2fe2db4777abe0e46b2ea060a37d167fbe9e9302
-F src/sync.c 7bcbe0019a9620251d27f761a8604a6c1d1608e5
+F src/sync.c 8333c36fef43fbae7bdd782d1bf10cc7a61417d3
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 0110b93e0c821c5c07050866bf354e559e69e8b2
-R 86ef956b641d13186498ab3987a03801
+P 05380c5f606e361f65ae894cc3e8826535f11d31
+R 625efee3f1b91062a48b98b6405f465e
 U drh
-Z ff09769cf24aadd2b4de35b29a763039
+Z 8ceb2222d61530afd6652a148bf2a526
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLWLjxoxKgR168RlERAhvRAKCBEN04kylVrFW7H0/DfUcXl2PCxgCePwvX
-BnbdPtA9ZUWwvK9HfE8nZIY=
-=QtS+
+iD8DBQFLWL6hoxKgR168RlERAlWiAJ0WDU9KlkbvDDQ6ecC1CLxHecgXqQCcCebh
+UAqAh2lT4g2hm7+yp9xuiKo=
+=HRse
 -----END PGP SIGNATURE-----
