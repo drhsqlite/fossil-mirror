@@ -54,9 +54,16 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
     if( !file_is_simple_pathname(zPath) ){
       fossil_fatal("filename contains illegal characters: %s", zPath);
     }
+#ifdef __MINGW32__
+    if( db_exists("SELECT 1 FROM vfile WHERE pathname LIKE %Q", zPath) ){
+      db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname LIKE %Q", zPath);
+    }
+#else
     if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
       db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
-    }else{
+    }
+#endif
+    else{
       db_multi_exec(
         "INSERT INTO vfile(vid,deleted,rid,mrid,pathname)"
         "VALUES(%d,0,0,0,%Q)", vid, zPath);
@@ -144,6 +151,12 @@ void add_cmd(void){
     blob_zero(&repo);
   }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+#ifdef __MINGW32__
+  db_multi_exec(
+     "CREATE INDEX IF NOT EXISTS vfile_pathname "
+     "  ON vfile(pathname COLLATE nocase)"
+  );
+#endif
   for(i=2; i<g.argc; i++){
     char *zName;
     int isDir;

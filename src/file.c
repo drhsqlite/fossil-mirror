@@ -29,29 +29,87 @@
 #include <unistd.h>
 #include "file.h"
 
+/*
+** The file status information from the most recent stat() call.
+*/
+static struct stat fileStat;
+static int fileStatValid = 0;
+
+/*
+** Fill in the fileStat variable for the file named zFilename.
+** If zFilename==0, then use the previous value of fileStat if
+** there is a previous value.
+**
+** Return the number of errors.  No error messages are generated.
+*/
+static int getStat(const char *zFilename){
+  if( zFilename==0 ){
+    if( fileStatValid==0 ) return 1;
+  }else{
+    if( stat(zFilename, &fileStat)!=0 ) return 1;
+    fileStatValid = 1;
+  }
+  return 0;
+}
+
 
 /*
 ** Return the size of a file in bytes.  Return -1 if the file does not
-** exist.
+** exist.  If zFilename is NULL, return the size of the most recently
+** stat-ed file.
 */
 i64 file_size(const char *zFilename){
-  struct stat buf;
-  if( stat(zFilename, &buf)!=0 ){
-    return -1;
-  }
-  return buf.st_size;
+  return getStat(zFilename) ? -1 : fileStat.st_size;
 }
 
 /*
 ** Return the modification time for a file.  Return -1 if the file
-** does not exist.
+** does not exist.  If zFilename is NULL return the size of the most
+** recently stat-ed file.
 */
 i64 file_mtime(const char *zFilename){
-  struct stat buf;
-  if( stat(zFilename, &buf)!=0 ){
-    return -1;
+  return getStat(zFilename) ? -1 : fileStat.st_mtime;
+}
+
+/*
+** Return TRUE if the named file is an ordinary file.  Return false
+** for directories, devices, fifos, symlinks, etc.
+*/
+int file_isfile(const char *zFilename){
+  return getStat(zFilename) ? 0 : S_ISREG(fileStat.st_mode);
+}
+
+/*
+** Return TRUE if the named file is an executable.  Return false
+** for directories, devices, fifos, symlinks, etc.
+*/
+int file_isexe(const char *zFilename){
+  if( getStat(zFilename) || !S_ISREG(fileStat.st_mode) ) return 0;
+#ifdef __MINGW32__
+  return ((S_IXUSR)&fileStat.st_mode)!=0;
+#else
+  return ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0;
+#endif
+}
+
+
+/*
+** Return 1 if zFilename is a directory.  Return 0 if zFilename
+** does not exist.  Return 2 if zFilename exists but is something
+** other than a directory.
+*/
+int file_isdir(const char *zFilename){
+  int rc;
+
+  if( zFilename ){
+    char *zFN = mprintf("%s", zFilename);
+    file_simplify_name(zFN, strlen(zFN));
+    rc = getStat(zFN);
+    free(zFN);
+  }else{
+    rc = getStat(0);
   }
-  return buf.st_mtime;
+  return rc ? 0 : (S_ISDIR(fileStat.st_mode) ? 1 : 2);
 }
 
 /*
@@ -86,35 +144,6 @@ void file_copy(const char *zFrom, const char *zTo){
 }
 
 /*
-** Return TRUE if the named file is an ordinary file.  Return false
-** for directories, devices, fifos, symlinks, etc.
-*/
-int file_isfile(const char *zFilename){
-  struct stat buf;
-  if( stat(zFilename, &buf)!=0 ){
-    return 0;
-  }
-  return S_ISREG(buf.st_mode);
-}
-
-/*
-** Return TRUE if the named file is an executable.  Return false
-** for directories, devices, fifos, symlinks, etc.
-*/
-int file_isexe(const char *zFilename){
-  struct stat buf;
-  if( stat(zFilename, &buf)!=0 ){
-    return 0;
-  }
-  if( !S_ISREG(buf.st_mode) ) return 0;
-#ifdef __MINGW32__
-  return ((S_IXUSR)&buf.st_mode)!=0;
-#else
-  return ((S_IXUSR|S_IXGRP|S_IXOTH)&buf.st_mode)!=0;
-#endif
-}
-
-/*
 ** Set or clear the execute bit on a file.
 */
 void file_setexe(const char *zFilename, int onoff){
@@ -131,23 +160,6 @@ void file_setexe(const char *zFilename, int onoff){
     }
   }
 #endif
-}
-
-/*
-** Return 1 if zFilename is a directory.  Return 0 if zFilename
-** does not exist.  Return 2 if zFilename exists but is something
-** other than a directory.
-*/
-int file_isdir(const char *zFilename){
-  struct stat buf;
-  int rc;
-  char *zFN;
-
-  zFN = mprintf("%s", zFilename);
-  file_simplify_name(zFN, strlen(zFN));
-  rc = stat(zFN, &buf);
-  free(zFN);
-  return rc!=0 ? 0 : (S_ISDIR(buf.st_mode) ? 1 : 2);
 }
 
 /*

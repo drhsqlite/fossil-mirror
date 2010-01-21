@@ -32,10 +32,13 @@
 /*
 ** COMMAND: merge
 **
-** Usage: %fossil merge VERSION
+** Usage: %fossil merge [--cherrypick] VERSION
 **
 ** The argument is a version that should be merged into the current
-** checkout. 
+** checkout.  All changes from VERSION back to the nearest common
+** ancestor are merged.  Except, if the --cherrypick option is used
+** only the changes associated with the single check-in VERSION are
+** merged.
 **
 ** Only file content is merged.  The result continues to use the
 ** file and directory names from the current check-out even if those
@@ -45,39 +48,48 @@ void merge_cmd(void){
   int vid;              /* Current version */
   int mid;              /* Version we are merging against */
   int pid;              /* The pivot version - most recent common ancestor */
+  int detailFlag;       /* True if the --detail option is present */
+  int pickFlag;         /* True if the --cherrypick option is present */
   Stmt q;
-  int detailFlag;
 
   detailFlag = find_option("detail",0,0)!=0;
+  pickFlag = find_option("cherrypick",0,0)!=0;
   if( g.argc!=3 ){
     usage("VERSION");
   }
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
-    fossil_panic("nothing is checked out");
+    fossil_fatal("nothing is checked out");
   }
   mid = name_to_rid(g.argv[2]);
   if( mid==0 ){
-    fossil_panic("not a version: %s", g.argv[2]);
+    fossil_fatal("not a version: %s", g.argv[2]);
   }
   if( mid>1 && !db_exists("SELECT 1 FROM plink WHERE cid=%d", mid) ){
-    fossil_panic("not a version: %s", g.argv[2]);
+    fossil_fatal("not a version: %s", g.argv[2]);
   }
-  pivot_set_primary(mid);
-  pivot_set_secondary(vid);
-  db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0");
-  while( db_step(&q)==SQLITE_ROW ){
-    pivot_set_secondary(db_column_int(&q,0));
-  }
-  db_finalize(&q);
-  pid = pivot_find();
-  if( pid<=0 ){
-    fossil_panic("cannot find a common ancestor between the current"
-                 "checkout and %s", g.argv[2]);
+  if( pickFlag ){
+    pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
+    if( pid<=0 ){
+      fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
+    }
+  }else{
+    pivot_set_primary(mid);
+    pivot_set_secondary(vid);
+    db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0");
+    while( db_step(&q)==SQLITE_ROW ){
+      pivot_set_secondary(db_column_int(&q,0));
+    }
+    db_finalize(&q);
+    pid = pivot_find();
+    if( pid<=0 ){
+      fossil_fatal("cannot find a common ancestor between the current"
+                   "checkout and %s", g.argv[2]);
+    }
   }
   if( pid>1 && !db_exists("SELECT 1 FROM plink WHERE cid=%d", pid) ){
-    fossil_panic("not a version: record #%d", mid);
+    fossil_fatal("not a version: record #%d", mid);
   }
   vfile_check_signature(vid, 1);
   db_begin_transaction();
@@ -287,7 +299,9 @@ void merge_cmd(void){
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
-  db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
+  if( !pickFlag ){
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
+  }
   undo_finish();
   db_end_transaction(0);
 }
