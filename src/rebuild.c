@@ -386,7 +386,7 @@ void scrub_cmd(void){
   db_begin_transaction();
   db_multi_exec(
     "UPDATE user SET pw='';"
-    "DELETE FROM config WHERE name='last-sync-url';"
+    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
   );
   if( bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");

@@ -1504,7 +1504,7 @@ static void print_setting(const char *zName){
 **                     unrestricted access to the repository.
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
-**                     files have been modified.  
+**                     files have been modified.  (Default "on".)
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".

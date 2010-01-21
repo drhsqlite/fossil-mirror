@@ -344,8 +344,7 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
 
 /*
 ** Compute an SHA1 hash on the tail of pMsg.  Verify that it matches the
-** the hash given in pHash.  Return 1 on a successful match.  Return 0
-** if there is a mismatch.
+** the hash given in pHash.  Return non-zero for an error and 0 on success.
 */
 static int check_tail_hash(Blob *pHash, Blob *pMsg){
   Blob tail;
@@ -356,7 +355,7 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
   rc = blob_compare(pHash, &h2);
   blob_reset(&h2);
   blob_reset(&tail);
-  return rc==0;
+  return rc;
 }
 
 /*
@@ -380,8 +379,10 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 **
 ** Signature generation on the client side is handled by the 
 ** http_exchange() routine.
+**
+** Return non-zero for a login failure and zero for success.
 */
-void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
+int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   Stmt q;
   int rc = -1;
   char *zLogin = blob_terminate(pLogin);
@@ -442,6 +443,7 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     /* If the login was successful. */
     login_set_anon_nobody_capabilities();
   }
+  return rc;
 }
 
 /*
@@ -743,8 +745,15 @@ void page_xfer(void){
     ){
       if( disableLogin ){
         g.okRead = g.okWrite = 1;
-      }else if( check_tail_hash(&xfer.aToken[2], xfer.pIn) ){
-        check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3]);
+      }else{
+        if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
+         || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
+        ){
+          cgi_reset_content();
+          @ error login\sfailed
+          nErr++;
+          break;
+        }        
       }
     }else
     
@@ -1069,6 +1078,7 @@ void client_sync(
       blob_appendf(&send, "push %s %s\n", zSCode, zPCode);
       nCardSent++;
     }
+    go = 0;
 
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
@@ -1210,12 +1220,15 @@ void client_sync(
 
       /*   message MESSAGE
       **
-      ** Print a message.  Similar to "error" but does not stop processing
+      ** Print a message.  Similar to "error" but does not stop processing.
+      **
+      ** If the "login failed" message is seen, clear the sync password prior
+      ** to the next cycle.
       */        
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        printf("\rServer says: %s\n", zMsg);
+        if( zMsg ) printf("\rServer says: %s\n", zMsg);
       }else
 
       /*   error MESSAGE
@@ -1233,8 +1246,14 @@ void client_sync(
         if( !cloneFlag || nCycle>0 ){
           char *zMsg = blob_terminate(&xfer.aToken[1]);
           defossilize(zMsg);
-          blob_appendf(&xfer.err, "server says: %s", zMsg);
-          printf("Server Error: %s\n", zMsg);
+          if( strcmp(zMsg, "login failed")==0 ){
+            if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
+            g.urlPasswd = 0;
+            if( nCycle<2 ) go = 1;
+          }else{
+            blob_appendf(&xfer.err, "\rserver says: %s", zMsg);
+          }
+          printf("\rServer Error: %s\n", zMsg);
         }
       }else
 
@@ -1266,7 +1285,6 @@ void client_sync(
     }
     blob_reset(&recv);
     nCycle++;
-    go = 0;
 
     /* If we received one or more files on the previous exchange but
     ** there are still phantoms, then go another round.

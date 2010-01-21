@@ -46,29 +46,21 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   Blob pw;             /* The nonce with user password appended */
   Blob sig;            /* The signature field */
 
+  blob_zero(pLogin);
+  if( g.urlUser==0 || strcmp(g.urlUser, "anonymous")==0 ){
+     return;  /* If no login card for users "nobody" and "anonymous" */
+  }
   blob_zero(&nonce);
   blob_zero(&pw);
   sha1sum_blob(pPayload, &nonce);
   blob_copy(&pw, &nonce);
-  blob_zero(pLogin);
-  if( g.urlUser==0 ){
-    user_select();
-    zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", g.userUid);
-    zLogin = g.zLogin;
-  }else{
-    if( g.urlPasswd==0 ){
-      if( strcmp(g.urlUser,"anonymous")!=0 ){
-        char *zPrompt = mprintf("password for %s: ", g.urlUser);
-        Blob x;
-        prompt_for_password(zPrompt, &x, 0);
-        free(zPrompt);
-        g.urlPasswd = blob_str(&x);
-      }else{
-        g.urlPasswd = "";
-      }
-    }
+  zLogin = g.urlUser;
+  if( g.urlPasswd ){
     zPw = g.urlPasswd;
-    zLogin = g.urlUser;
+  }else{
+    url_prompt_for_password();
+    zPw = g.urlPasswd;
+    if( !g.dontKeepUrl ) db_set("last-sync-pw", zPw, 0);
   }
 
   /* The login card wants the SHA1 hash of the password, so convert the

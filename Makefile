@@ -20,7 +20,7 @@ E =
 
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
-# FOSSIL_ENABLE_SSL=1
+FOSSIL_ENABLE_SSL=1
 
 #### C Compile and options for use in building executables that 
 #    will run on the target platform.  This is usually the same
