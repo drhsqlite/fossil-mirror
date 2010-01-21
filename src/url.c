@@ -39,7 +39,7 @@
 **      g.urlUser        Userid.
 **      g.urlPasswd      Password.
 **      g.urlHostname    HOST:PORT or just HOST if port is the default.
-**      g.urlCanonical   The URL in canonical form, omitting userid/password
+**      g.urlCanonical   The URL in canonical form, omitting the password
 **
 ** HTTP url format is:
 **
@@ -51,6 +51,7 @@ void url_parse(const char *zUrl){
   char *zFile = 0;
   if( strncmp(zUrl, "http://", 7)==0 || strncmp(zUrl, "https://", 8)==0 ){
     int iStart;
+    char *zLogin;
     g.urlIsFile = 0;
     if( zUrl[4]=='s' ){
       g.urlIsHttps = 1;
@@ -75,9 +76,11 @@ void url_parse(const char *zUrl){
       for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
       g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
+      zLogin = mprintf("%t@", g.urlUser);
     }else{
       for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
       g.urlName = mprintf("%.*s", i-iStart, &zUrl[iStart]);
+      zLogin = mprintf("");
     }
     for(j=0; g.urlName[j]; j++){ g.urlName[j] = tolower(g.urlName[j]); }
     if( c==':' ){
@@ -96,12 +99,17 @@ void url_parse(const char *zUrl){
     dehttpize(g.urlName);
     dehttpize(g.urlPath);
     if( g.urlDfltPort==g.urlPort ){
-      g.urlCanonical = mprintf("%s://%T%T",
-                               g.urlProtocol, g.urlName, g.urlPath);
+      g.urlCanonical = mprintf(
+        "%s://%s%T%T", 
+        g.urlProtocol, zLogin, g.urlName, g.urlPath
+      );
     }else{
-      g.urlCanonical = mprintf("%s://%T:%d%T",
-                               g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
+      g.urlCanonical = mprintf(
+        "%s://%s%T:%d%T",
+        g.urlProtocol, zLogin, g.urlName, g.urlPort, g.urlPath
+      );
     }
+    free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
     if( zUrl[5]=='/' && zUrl[6]=='/' ){
@@ -297,4 +305,17 @@ char *url_render(
     blob_appendf(&p->url, "%s%s=%T", zSep, zName2, zValue2);
   }
   return blob_str(&p->url);
+}
+
+/*
+** Prompt the user for the password for g.urlUser.  Store the result
+** in g.urlPasswd.
+*/
+void url_prompt_for_password(void){
+  char *zPrompt = mprintf("password for %s: ", g.urlUser);
+  Blob x;
+  prompt_for_password(zPrompt, &x, 0);
+  free(zPrompt);
+  g.urlPasswd = mprintf("%b", &x);
+  blob_reset(&x);
 }
