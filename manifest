@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Better\sreporting\sof\sfailed\slogins\sby\sthe\sserver\sback\sto\sthe\sclient.
-D 2010-01-21T19:51:36
+C If\sa\ssync\slogin\sfails,\sprompt\sfor\sa\snew\spassword\sand\srepeat\sthe\sattempt.
+D 2010-01-21T20:14:07
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -116,7 +116,7 @@ F src/vfile.c 310d2a3ae7058084a3f4f9e2166e08a8ede6b5d6
 F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c 8828621b2d08c71cd3ce956849203099666df6e7
 F src/winhttp.c 3b9fbaa855e9e2ec203852d52517e388abbaf89f
-F src/xfer.c 0675322f0dfb431b02be7b9fad4cb0a6a58e1056
+F src/xfer.c 51538d9f625e85f7ac6d2832249176810b3c790a
 F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 59002d5e35918d83a54b07c9a3982467afa35339
-R 7ce199be35c147350d1b4f18c8467a10
+P b030521c421b7974c6f14636883be5264856dab4
+R 8d94c987c2e73f726053c27a2d3ca273
 U drh
-Z 8221bb9a59803a6fb7acdd57acf81b23
+Z 76ccf8a50b2b89d22f9a01bf49dbac13
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLWLBLoxKgR168RlERAkR/AJ0VEa/r5Rmlu3ATKcY+jbpBKNEUBgCfauJQ
-XkU6ukQkSNTbYrJADCL5UYc=
-=hoAd
+iD8DBQFLWLWSoxKgR168RlERAgxuAJ9rGz04C7vrk/qML5/HZV+zE+6DkgCeIOsk
+94q6Y/5gPFXDbYxXvAvwWP8=
+=4EEo
 -----END PGP SIGNATURE-----
