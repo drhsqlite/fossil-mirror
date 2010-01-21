@@ -192,7 +192,7 @@ void sync_cmd(void){
 /*
 ** COMMAND: remote-url
 **
-** Usage: %fossil remote-url ?URL|off?  ?--password PASSWORD?
+** Usage: %fossil remote-url ?URL|off?
 **
 ** Query and/or change the default server URL used by the "pull", "push",
 ** and "sync" commands.
@@ -206,7 +206,6 @@ void sync_cmd(void){
 */
 void remote_url_cmd(void){
   char *zUrl;
-  const char *zPw = find_option("password", 0, 1);
   db_find_and_open_repository(1);
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
@@ -218,15 +217,7 @@ void remote_url_cmd(void){
     }else{
       url_parse(g.argv[2]);
       if( g.urlUser && g.urlPasswd==0 ){
-        if( zPw ){
-          g.urlPasswd = mprintf("%s", zPw);
-        }else{
-          char *zPrompt = mprintf("password for %s: ", g.urlUser);
-          Blob x;
-          prompt_for_password(zPrompt, &x, 0);
-          free(zPrompt);
-          g.urlPasswd = blob_str(&x);
-        }
+        url_prompt_for_password();
       }
       db_set("last-sync-url", g.urlCanonical, 0);
       if( g.urlPasswd ){

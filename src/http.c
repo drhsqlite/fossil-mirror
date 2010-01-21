@@ -58,13 +58,9 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   if( g.urlPasswd ){
     zPw = g.urlPasswd;
   }else{
-    char *zPrompt = mprintf("password for %s: ", g.urlUser);
-    Blob x;
-    prompt_for_password(zPrompt, &x, 0);
-    free(zPrompt);
-    zPw = blob_str(&x);
+    url_prompt_for_password();
+    zPw = g.urlPasswd;
     if( !g.dontKeepUrl ) db_set("last-sync-pw", zPw, 0);
-    g.urlPasswd = mprintf("%s", zPw);
   }
 
   /* The login card wants the SHA1 hash of the password, so convert the

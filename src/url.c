@@ -306,3 +306,16 @@ char *url_render(
   }
   return blob_str(&p->url);
 }
+
+/*
+** Prompt the user for the password for g.urlUser.  Store the result
+** in g.urlPasswd.
+*/
+void url_prompt_for_password(void){
+  char *zPrompt = mprintf("password for %s: ", g.urlUser);
+  Blob x;
+  prompt_for_password(zPrompt, &x, 0);
+  free(zPrompt);
+  g.urlPasswd = mprintf("%b", &x);
+  blob_reset(&x);
+}
