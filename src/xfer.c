@@ -434,6 +434,8 @@ void check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       if( g.fHttpTrace ){
         fprintf(stderr, "# login [%s] with capabilities [%s]\n", g.zLogin,zCap);
       }
+    }else{
+      @ message login\sfailed
     }
   }
   db_finalize(&q);
@@ -1210,12 +1212,23 @@ void client_sync(
 
       /*   message MESSAGE
       **
-      ** Print a message.  Similar to "error" but does not stop processing
+      ** Print a message.  Similar to "error" but does not stop processing.
+      **
+      ** If the "login failed" message is seen, clear the sync password prior
+      ** to the next cycle.
       */        
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        printf("\rServer says: %s\n", zMsg);
+        if( strcmp(zMsg, "login failed")==0 ){
+          if( cloneFlag && nCycle==0 ){
+            zMsg = 0;
+          }else{
+            if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
+            g.urlPasswd = 0;
+          }
+        }
+        if( zMsg ) printf("\rServer says: %s\n", zMsg);
       }else
 
       /*   error MESSAGE

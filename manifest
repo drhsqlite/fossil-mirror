@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sa\sbug\sin\sfile\schange\sdetection\sintroduced\sby\ncheck-in\s[d7a583e697].\s\sDon't\suse\sthat\scheck-in,\snor\s[30f23e3f5c].
-D 2010-01-20T21:51:56
+C Factor\sthe\ssync\spassword\sout\sof\sthe\slast-sync-url\sconfiguration\ssetting.\nStore\sthe\spassword\sseparately.\s\sPrompt\sthe\suser\sfor\sthe\spassword\sif\sit\nis\smissing.
+D 2010-01-21T18:13:33
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -51,7 +51,7 @@ F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 42fdc2e08e7b46c615816625dd5e0979a5db3b43
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
 F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
-F src/configure.c e5a99ee9d1a11ffc99ab138753483cf66b959293
+F src/configure.c 32b9049819a09460e632272a82c1716831dbf270
 F src/construct.c 763e35ebbe736af438869e370ba05f5e8a7d4db9
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
 F src/db.c 83e485e6b6166abd2384303c1b528923e87809e8
@@ -64,12 +64,12 @@ F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 13be03b540250cabdd0eb18be7611a0719ddafeb
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
-F src/http.c 26eca6baf0c72e01ceb9e44d6efffea0649aba06
+F src/http.c eca61c4bbe9068b3e23ba9802a5c6bd79e961515
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
-F src/main.c cc1948bcaa9a6f7bd036a22d06bf1085c20b0e47
+F src/main.c 7b9ddb2c9c601a8caa5a1051c511260169b69343
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -97,7 +97,7 @@ F src/sqlite3.c 3417e43f49d06d3d6516430a93d3477a764d3855
 F src/sqlite3.h bddd23f2153511f486e0d481c1005cbe012732ce
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 2fe2db4777abe0e46b2ea060a37d167fbe9e9302
-F src/sync.c dfb0ce04b32784c9baba3ccb611038653132d26e
+F src/sync.c 4f171777bce69cc1345fda1eb2eda5c87b11e2c6
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -109,14 +109,14 @@ F src/tktsetup.c 600a0203f6288c70696473a3d93ce9dbc2d81366
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
 F src/update.c ff76da018c7b4f47f45770a6be8e5e47e81c8074
-F src/url.c 118ae7487caaf8c2423177eb745608d7613f6083
+F src/url.c 6df21323d2e71108bc3b3b38b31009d5c82e9d88
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 310d2a3ae7058084a3f4f9e2166e08a8ede6b5d6
 F src/wiki.c 2ac561d8b5201cab141f68e8a11d704ea8d28c12
 F src/wikiformat.c 8828621b2d08c71cd3ce956849203099666df6e7
 F src/winhttp.c 3b9fbaa855e9e2ec203852d52517e388abbaf89f
-F src/xfer.c 6901c111d8b439d9e1679f1ab2cbb140997223b2
+F src/xfer.c 7bdba4674da86dbd03ef3ff7d1992e3c437821fb
 F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -256,14 +256,18 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 30f23e3f5cf790790fb1e8bd8f2b9aad792966f5
-R 12b2b737c549041006cd1065889c952d
+P 1abc8a940ee2ef715ee654c67e965e2cba0c7c71
+R 469758154c5c8728d75a78abe5ef3f8d
+T *bgcolor * #c0ffc0
+T *branch * experimental
+T *sym-experimental *
+T -sym-trunk *
 U drh
-Z 7deb07a2ba78b2ea91a01e7257927c33
+Z 21b5193051cdf630ace932af5b73d3e3
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLV3sAoxKgR168RlERArHIAJ0UgG1xV7d/FAJ2ga8a7dePdn/d4gCdHSzE
-y3tiIPLCOUbUa5bWueZdTN0=
-=411+
+iD8DBQFLWJlRoxKgR168RlERAr97AJ9TSadP3OUFAJFQxGF1f5WXF8SAqQCdGvJx
+kGLPK3JwCV3/BVI32K059a0=
+=Mnmf
 -----END PGP SIGNATURE-----

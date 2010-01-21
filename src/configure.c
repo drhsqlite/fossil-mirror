@@ -447,6 +447,7 @@ void configuration_cmd(void){
   if( strncmp(zMethod, "pull", n)==0 || strncmp(zMethod, "push", n)==0 ){
     int mask;
     const char *zServer;
+    const char *zPw;
     url_proxy_options();
     if( g.argc!=4 && g.argc!=5 ){
       usage("pull AREA ?URL?");
@@ -454,13 +455,17 @@ void configuration_cmd(void){
     mask = find_area(g.argv[3]);
     if( g.argc==5 ){
       zServer = g.argv[4];
+      zPw = 0;
+      g.dontKeepUrl = 1;
     }else{
       zServer = db_get("last-sync-url", 0);
       if( zServer==0 ){
         fossil_fatal("no server specified");
       }
+      zPw = db_get("last-sync-pw", 0);
     }
     url_parse(zServer);
+    if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);
     user_select();
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,0,0,mask);
