@@ -320,7 +320,7 @@ char *transport_receive_line(void){
   return &transport.pBuf[iStart];
 }
 
-void *transport_global_shutdown(void){
+void transport_global_shutdown(void){
   if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     ssl_global_shutdown();

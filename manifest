@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Add\sthe\s--cherrypick\soption\sto\sthe\s"merge"\scommand.
-D 2010-01-20T16:23:08
+C fix\scompile\serror
+D 2010-01-21T20:18:00
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 9d700ebd8ea80b9dc6762e6396fa4e273c48b29c
@@ -67,7 +64,7 @@ F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/http.c 26eca6baf0c72e01ceb9e44d6efffea0649aba06
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
-F src/http_transport.c bc7f5938fff800f1a67dd88b1f2c076afd009e47
+F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
 F src/main.c cc1948bcaa9a6f7bd036a22d06bf1085c20b0e47
@@ -257,14 +254,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ac8902beec5d8e096c7494d6f21a0f8edf2abf2d
-R 72436a1f8420ca4ac64ed3f8f12541f5
-U drh
-Z 9be458476eac2000976cd7d60e6b95af
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLVy3xoxKgR168RlERAnwnAJwKZicYJetZLpQy5pqZvWXrtUpUnACfaB3Y
-9b7pxd5vjZ9Be9gQOCjTZjg=
-=xRJ4
------END PGP SIGNATURE-----
+P 3005080796a6d32f240e46926a0bbbfeb7641eea
+R e58070ec82241dac2dc38543a59d035c
+U ron
+Z 1cbc5685c8910429ca0364a91e215178
