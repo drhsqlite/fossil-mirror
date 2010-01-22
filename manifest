@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\ssure\sAdmin\susers\shave\sZIP\spermission.\nTicket\s[2741e01c0b].
-D 2010-01-22T03:09:32
+C HTML-escape\stext\scontent\sin\sthe\sRSS\sfeed.\nTicket\s[83e9e0016b6].
+D 2010-01-22T16:36:05
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -85,7 +85,7 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
 F src/rebuild.c a6d927091a53ebf0d8db68480c4db519a05aa686
 F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
-F src/rss.c cc90868801fbbe6bf4e322ed77bdd190a0e60f88
+F src/rss.c 11a1286add314ca9d5727c85f88ec957ed8a0b1d
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a3c97c9063bfe5b451233f38e21bdf7341c0bd49
-R 1e4cfcdd9d4077a1f4984afa7108219c
+P 9eb7f4fb1ec8a092d1c313461a2cc8ae6bcca34e
+R 2591763f8e6f1a2ec808c373ffca66b0
 U drh
-Z 2e3d78d534a93462ebf568521ddbdbf7
+Z 4f8fcafdf13836fc74fb28813b36c82f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLWRbvoxKgR168RlERAoCcAJ0WbuOg1Zbe7WxmAlan8vzBI0qZvACeLn0O
-gzEF+qgXf6T2ojYgP1Cls6I=
-=TLRu
+iD8DBQFLWdP4oxKgR168RlERAvDyAJ9EZLw7qIpdbhhIKaiZSH+m6NR54QCbBzf6
+XMywb145LXpxviuxeezflIY=
+=v5Fi
 -----END PGP SIGNATURE-----
