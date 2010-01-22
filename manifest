@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merge\sexperimental\sremote-url\spassword\shandling\schanges\sinto\sthe\strunk.
-D 2010-01-21T20:53:59
+C Make\ssure\sAdmin\susers\shave\sZIP\spermission.\nTicket\s[2741e01c0b].
+D 2010-01-22T03:09:32
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -68,7 +68,7 @@ F src/http.c e0ef891efb85493446e30e84215dadb38ef400c7
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
-F src/login.c b6b0e4f76a34c529add0f1efb93a5bbc9cb9f6bf
+F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
 F src/main.c 7b9ddb2c9c601a8caa5a1051c511260169b69343
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 1abc8a940ee2ef715ee654c67e965e2cba0c7c71 f703a2fca2f5e7e1ed29890551412aaf3dcb37fa
-R 625efee3f1b91062a48b98b6405f465e
+P a3c97c9063bfe5b451233f38e21bdf7341c0bd49
+R 1e4cfcdd9d4077a1f4984afa7108219c
 U drh
-Z 4faaf4642a5711a704ac51e50f39a559
+Z 2e3d78d534a93462ebf568521ddbdbf7
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLWL7toxKgR168RlERAr3ZAJ96wSSbfhUegcsUXNA4oVwk3kn4IQCggd+r
-jgzSNRDp7726wOqx6J4eIhQ=
-=nH6j
+iD8DBQFLWRbvoxKgR168RlERAoCcAJ0WbuOg1Zbe7WxmAlan8vzBI0qZvACeLn0O
+gzEF+qgXf6T2ojYgP1Cls6I=
+=TLRu
 -----END PGP SIGNATURE-----
