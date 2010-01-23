@@ -563,4 +563,5 @@ void logo_page(void){
   }
   cgi_set_content_type(zMime);
   cgi_set_content(&logo);
+  g.isConst = 1;
 }

@@ -393,6 +393,7 @@ void page_style_css(void){
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
   cgi_append_content(zCSS, -1);
+  g.isConst = 1;
 }
 
 /*

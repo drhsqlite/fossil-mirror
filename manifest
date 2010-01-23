@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C HTML-escape\stext\scontent\sin\sthe\sRSS\sfeed.\nTicket\s[83e9e0016b6].
-D 2010-01-22T16:36:05
+C Cause\sbrowsers\sto\scache\sthe\slogo\sand\sstyle\ssheet.
+D 2010-01-23T21:48:26
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -44,7 +44,7 @@ F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
-F src/cgi.c 2bc2c4080363edecfefe94a1b8443d0fb59a98a8
+F src/cgi.c 92cf6ba3cc3359581bacd17ad99cfc92223cc61c
 F src/checkin.c 88d7ebe9794e79747b50913d831930be7bce1883
 F src/checkout.c 93e8f5c3cb11bac6476ec5deff05e0247958d05d
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
@@ -60,7 +60,7 @@ F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 6039c715138bf4b01ae398f6b45758693ea025df
 F src/diffcmd.c 6b2be81037608261703d3f2e0314c6f638e344bd
-F src/doc.c cb0906ed170001259597044f771003759dcb0b3d
+F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 13be03b540250cabdd0eb18be7611a0719ddafeb
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
@@ -89,14 +89,14 @@ F src/rss.c 11a1286add314ca9d5727c85f88ec957ed8a0b1d
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c 21c82ab498667d40ca5971abe062f44f3398c100
+F src/setup.c 32c23a18110d76bd24a22ec9d056e7bcfb58a973
 F src/sha1.c dcfc18a55f742136d116890edb59923888c07e0c
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
 F src/sqlite3.c 3417e43f49d06d3d6516430a93d3477a764d3855
 F src/sqlite3.h bddd23f2153511f486e0d481c1005cbe012732ce
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c 2fe2db4777abe0e46b2ea060a37d167fbe9e9302
+F src/style.c 5c6023fb1cc4a642b9fc349435bb069148a276da
 F src/sync.c 8333c36fef43fbae7bdd782d1bf10cc7a61417d3
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 9eb7f4fb1ec8a092d1c313461a2cc8ae6bcca34e
-R 2591763f8e6f1a2ec808c373ffca66b0
+P 825a2c7c6400a0c41d2d6a08037bfb6b3c8d4188
+R c6a81f40c54908abed6542e35225fa0d
 U drh
-Z 4f8fcafdf13836fc74fb28813b36c82f
+Z 33b7ead0ccae0cd9719210c10f9f484d
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLWdP4oxKgR168RlERAvDyAJ9EZLw7qIpdbhhIKaiZSH+m6NR54QCbBzf6
-XMywb145LXpxviuxeezflIY=
-=v5Fi
+iD8DBQFLW26uoxKgR168RlERAttKAJ49RjaNOa/CVdQAC9Q1k7Qf5QZXLACeNVoY
+zlHVw4X47FdwFLaQc8wupSE=
+=xSkc
 -----END PGP SIGNATURE-----
