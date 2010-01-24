@@ -127,7 +127,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 ** url_parse() routine should have been called prior to this routine
 ** in order to fill this structure appropriately.
 */
-void http_exchange(Blob *pSend, Blob *pReply){
+void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -143,7 +143,8 @@ void http_exchange(Blob *pSend, Blob *pReply){
   }
 
   /* Construct the login card and prepare the complete payload */
-  http_build_login_card(pSend, &login);
+  blob_zero(&login);
+  if( useLogin ) http_build_login_card(pSend, &login);
   if( g.fHttpTrace ){
     payload = login;
     blob_append(&payload, blob_buffer(pSend), blob_size(pSend));

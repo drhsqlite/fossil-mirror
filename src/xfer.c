@@ -388,6 +388,9 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   char *zLogin = blob_terminate(pLogin);
   defossilize(zLogin);
 
+  if( strcmp(zLogin, "nobody")==0 || strcmp(zLogin,"anonymous")==0 ){
+    return 0;   /* Anybody is allowed to sync as "nobody" or "anonymous" */
+  }
   db_prepare(&q,
      "SELECT pw, cap, uid FROM user"
      " WHERE login=%Q"
@@ -1064,7 +1067,7 @@ void client_sync(
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
     fflush(stdout);
-    http_exchange(&send, &recv);
+    http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
     blob_reset(&send);
 
     /* Begin constructing the next message (which might never be
