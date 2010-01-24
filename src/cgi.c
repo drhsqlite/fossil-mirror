@@ -313,12 +313,13 @@ void cgi_reply(void){
     char * zDate = cgi_rfc822_datestamp(expires);
     fprintf(g.httpOut, "Expires: %s\r\n", zDate );
     if( zDate[0] ) free( zDate );
+  }else{
+    fprintf(g.httpOut, "Cache-control: no-cache, no-store\r\n");
   }
 
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  fprintf(g.httpOut, "Cache-control: no-cache, no-store\r\n");
   fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
   if( strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();

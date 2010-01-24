@@ -964,8 +964,14 @@ void setup_editcss(void){
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='css'");
     cgi_replace_parameter("css", zDefaultCSS);
+    db_end_transaction(0);
+    cgi_redirect("setup_editcss");
   }else{
     textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS);
+  }
+  if( P("submit")!=0 ){
+    db_end_transaction(0);
+    cgi_redirect("setup_editcss");
   }
   style_header("Edit CSS");
   @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
@@ -976,6 +982,8 @@ void setup_editcss(void){
   @ <input type="submit" name="submit" value="Apply Changes">
   @ <input type="submit" name="clear" value="Revert To Default">
   @ </form>
+  @ <p><b>Note:</b> Press your browser Reload button after modifying the
+  @ CSS in order to pull in the modified CSS file.</p>
   @ <hr>
   @ The default CSS is shown below for reference.  Other examples
   @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
@@ -1093,10 +1101,14 @@ void setup_logo(void){
        "REPLACE INTO config(name, value) VALUES('logo-mimetype',%Q)",
        zMime
     );
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
   }else if( P("clr")!=0 ){
     db_multi_exec(
        "DELETE FROM config WHERE name GLOB 'logo-*'"
     );
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
   }
   style_header("Edit Project Logo");
   @ <p>The current project logo has a MIME-Type of <b>%h(zMime)</b> and looks
@@ -1119,6 +1131,11 @@ void setup_logo(void){
   @ <input type="submit" name="set" value="Change Logo">
   @ <input type="submit" name="clr" value="Revert To Default">
   @ </form>
+  @
+  @ <p><b>Note:</b>  Your browser has probably cached the logo image, so
+  @ you will probably need to press the Reload button on your browser after
+  @ changing the logo to provoke your browser to reload the new logo image.
+  @ </p>
   style_footer();
   db_end_transaction(0);
 }

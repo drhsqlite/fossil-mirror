@@ -474,7 +474,7 @@ void login_set_capabilities(const char *zCap){
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
       case 's':   g.okSetup = 1;  /* Fall thru into Admin */
-      case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = 
+      case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okZip =
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
                               g.okNewTkt = g.okPassword = g.okRdAddr =
