@@ -37,7 +37,7 @@
 ** contain more than a single space character in a row.  Well-formed
 ** names must be between 3 and 100 chracters in length, inclusive.
 */
-int wiki_name_is_wellformed(const char *z){
+int wiki_name_is_wellformed(const unsigned char *z){
   int i;
   if( z[0]<=0x20 ){
     return 0;
@@ -69,7 +69,7 @@ static void well_formed_wiki_name_rules(void){
 ** and return true.  If it is well-formed, return false.
 */
 static int check_name(const char *z){
-  if( !wiki_name_is_wellformed(z) ){
+  if( !wiki_name_is_wellformed((const unsigned char *)z) ){
     style_header("Wiki Page Name Error");
     @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
     @ wiki page names:
@@ -347,7 +347,7 @@ void wikinew_page(void){
     return;
   }  
   zName = PD("name","");
-  if( zName[0] && wiki_name_is_wellformed(zName) ){
+  if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
     cgi_redirectf("wikiedit?name=%T", zName);
   }
   style_header("Create A New Wiki Page");

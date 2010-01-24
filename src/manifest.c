@@ -388,7 +388,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         p->zWikiTitle = blob_terminate(&a1);
         defossilize(p->zWikiTitle);
-        if( !wiki_name_is_wellformed(p->zWikiTitle) ){
+        if( !wiki_name_is_wellformed((const unsigned char *)p->zWikiTitle) ){
           goto manifest_syntax_error;
         }
         break;
