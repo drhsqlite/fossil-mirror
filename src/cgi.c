@@ -306,12 +306,13 @@ void cgi_reply(void){
     /*time_t expires = time(0) + atoi(db_config("constant_expires","604800"));*/
     time_t expires = time(0) + 604800;
     fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
+  }else{
+    fprintf(g.httpOut, "Cache-control: no-cache, no-store\r\n");
   }
 
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  fprintf(g.httpOut, "Cache-control: no-cache, no-store\r\n");
   fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
   if( strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();

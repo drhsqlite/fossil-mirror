@@ -1017,7 +1017,7 @@ static void openHyperlink(
     }else if( g.okHistory ){
       blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zBaseURL, zTarget);
     }
-  }else if( wiki_name_is_wellformed(zTarget) ){
+  }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
   }else{
     blob_appendf(p->pOut, "[bad-link: %h]", zTarget);

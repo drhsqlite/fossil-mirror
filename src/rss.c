@@ -75,9 +75,9 @@ void page_timeline_rss(void){
   @ <?xml version="1.0"?>
   @ <rss version="2.0">
   @   <channel>
-  @     <title>%s(zProjectName)</title>
+  @     <title>%h(zProjectName)</title>
   @     <link>%s(g.zBaseURL)</link>
-  @     <description>%s(zProjectDescr)</description>
+  @     <description>%h(zProjectDescr)</description>
   @     <pubDate>%s(zPubDate)</pubDate>
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
   db_prepare(&q, blob_buffer(&bSQL));
@@ -104,11 +104,11 @@ void page_timeline_rss(void){
     }
 
     @     <item>
-    @       <title>%s(zPrefix)%s(zCom)</title>
+    @       <title>%h(zPrefix)%s(zCom)</title>
     @       <link>%s(g.zBaseURL)/ci/%s(zId)</link>
-    @       <description>%s(zPrefix)%s(zCom)</description>
+    @       <description>%s(zPrefix)%h(zCom)</description>
     @       <pubDate>%s(zDate)</pubDate>
-    @       <author>%s(zAuthor)</author>
+    @       <author>%h(zAuthor)</author>
     @       <guid>%s(g.zBaseURL)/ci/%s(zId)</guid>
     @     </item>
     free(zDate);
