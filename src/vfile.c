@@ -169,15 +169,17 @@ void vfile_check_signature(int vid, int notFileIsFatal){
     isDeleted = db_column_int(&q, 3);
     oldChnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 6);
-    if( !file_isfile(zName) && file_size(0)>=0 ){
+    if( isDeleted ){
+      chnged = 1;
+    }else if( !file_isfile(zName) && file_size(0)>=0 ){
       if( notFileIsFatal ){
-        fossil_warning("not a ordinary file: %s", zName);
+        fossil_warning("not an ordinary file: %s", zName);
         nErr++;
       }
       chnged = 1;
     }else if( oldChnged>=2 ){
       chnged = oldChnged;
-    }else if( isDeleted || rid==0 ){
+    }else if( rid==0 ){
       chnged = 1;
     }
     if( chnged!=1 ){
