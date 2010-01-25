@@ -154,7 +154,7 @@ void wiki_page(void){
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
 	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
-	@     Search the wiki: <input type="text" name="title"/> &nbsp; <input type="submit" />
+	@     Search wiki titles: <input type="text" name="title"/> &nbsp; <input type="submit" />
 	@ </li>
     @ </ul>
     style_footer();
