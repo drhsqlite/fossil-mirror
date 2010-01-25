@@ -153,6 +153,9 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
+	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
+	@     Search the wiki: <input type="text" name="title"/> &nbsp; <input type="submit" />
+	@ </li>
     @ </ul>
     style_footer();
     return;
@@ -616,6 +619,32 @@ void wcontent_page(void){
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
     " ORDER BY lower(tagname)"
   );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
+  }
+  db_finalize(&q);
+  @ </ul>
+  style_footer();
+}
+
+/*
+** WEBPAGE: wfind
+**
+** URL: /wfind?title=TITLE
+** List all wiki pages whose titles contain the search text
+*/
+void wfind_page(void){
+  Stmt q;
+  const char * zTitle;
+  login_check_credentials();
+  if( !g.okRdWiki ){ login_needed(); return; }
+  zTitle = PD("title","*");
+  style_header("Wiki Pages Found");
+  @ <ul>
+  db_prepare(&q, 
+    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%' ORDER BY lower(tagname)" ,
+	zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
