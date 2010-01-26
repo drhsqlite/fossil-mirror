@@ -924,9 +924,12 @@ void db_create_repository(const char *zFilename){
 /*
 ** Create the default user accounts in the USER table.
 */
-void db_create_default_users(int setupUserOnly){
+void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   const char *zUser;
   zUser = db_get("default-user", 0);
+  if( zUser==0 ){
+    zUser = zDefaultUser;
+  }
   if( zUser==0 ){
 #ifdef __MINGW32__
     zUser = getenv("USERNAME");
@@ -966,7 +969,7 @@ void db_create_default_users(int setupUserOnly){
 ** check-in is created. The makeServerCodes flag determines whether or
 ** not server and project codes are invented for this repository.
 */
-void db_initial_setup (const char *zInitialDate, int makeServerCodes){
+void db_initial_setup (const char *zInitialDate, const char *zDefaultUser, int makeServerCodes){
   char *zDate;
   Blob hash;
   Blob manifest;
@@ -983,7 +986,7 @@ void db_initial_setup (const char *zInitialDate, int makeServerCodes){
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
-  db_create_default_users(0);
+  db_create_default_users(0, zDefaultUser);
   user_select();
 
   if( zInitialDate ){
@@ -1010,17 +1013,28 @@ void db_initial_setup (const char *zInitialDate, int makeServerCodes){
 /*
 ** COMMAND: new
 **
-** Usage: %fossil new FILENAME
+** Usage: %fossil new ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
 ** a copy of an existing project.  This command starts a new project.
+**
+** By default, your current login name is used to create the default
+** admin user. This can be overridden using the -A|--admin-user
+** parameter.
+**
+** Options:
+**
+**    --admin-user|-A USERNAME
+**
 */
 void create_repository_cmd(void){
   char *zPassword;
   const char *zDate;          /* Date of the initial check-in */
+  const char *zDefaultUser;   /* Optional name of the default user */
 
   zDate = find_option("date-override",0,1);
+  zDefaultUser = find_option("admin-user","A",1);
   if( zDate==0 ) zDate = "now";
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
@@ -1029,7 +1043,7 @@ void create_repository_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config(0);
   db_begin_transaction();
-  db_initial_setup(zDate, 1);
+  db_initial_setup(zDate, zDefaultUser, 1);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));

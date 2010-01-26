@@ -68,7 +68,7 @@ void clone_cmd(void){
     shun_artifacts();
     g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     if( g.zLogin==0 ){
-      db_create_default_users(1);
+      db_create_default_users(1,0);
     }
     printf("Repository cloned into %s\n", g.argv[3]);
   }else{
@@ -76,7 +76,7 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_begin_transaction();
     db_record_repository_filename(g.argv[3]);
-    db_initial_setup(0, 0);
+    db_initial_setup(0, 0, 0);
     user_select();
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
