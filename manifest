@@ -1,5 +1,8 @@
-C Added\s--admin-user|-A\sUSERNAME\sto\sthe\snew\scommand\swhich\swill\sset\sthe\sdefault\sadmin\suser\sname.\sIf\snot\ssupplied,\sthe\sexisting\smechanism\sis\sused\sto\sdetermine\sthe\sdefault\suser\sname.\sThis\simplements\s[9195b1e5f3].
-D 2010-01-26T14:38:12
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C fix\s[3b1533a090eebd09da7121ab3fc9e3f6a7fbd6f5]\s-\sadd\s"Sync\snow"\sto\sAdmin\spage
+D 2010-01-27T07:52:13
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -86,7 +89,7 @@ F src/rss.c 11a1286add314ca9d5727c85f88ec957ed8a0b1d
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c 32c23a18110d76bd24a22ec9d056e7bcfb58a973
+F src/setup.c ec48253bcccebed0a985fe95b599ded84c46ae53
 F src/sha1.c dcfc18a55f742136d116890edb59923888c07e0c
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
@@ -253,7 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 80bcc3a18ee580c54114b6fb1f681f3bc97f1bac
-R 39e7ff7ccc0a6ae57d02056d899f1fb1
-U jeremy_c
-Z 090a839d8e60c2a067f79bfb1af0eb77
+P b8d812efb91513b22723b65f8b52a1c7349bb4b1
+R 46df2781f154d07fa56599c3ee837e1d
+U ron
+Z c305d41efa164c53185e3e69efafdea0
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAktf8K0ACgkQPs+SWa0pQV0+DgCfSl/ysH7OZKAzmKNr7q0Cnzpr
+dwYAniJM+d23GTQQguRUkmMhTd9j8jez
+=rwnj
+-----END PGP SIGNATURE-----
