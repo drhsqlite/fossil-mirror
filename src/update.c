@@ -80,6 +80,7 @@ void update_cmd(void){
   if( db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
+  if( !nochangeFlag ) autosync(AUTOSYNC_PULL);
 
   if( g.argc>=3 ){
     if( strcmp(g.argv[2], "current")==0 ){
@@ -99,7 +100,6 @@ void update_cmd(void){
       }
     }
   }
-  if( !nochangeFlag ) autosync(AUTOSYNC_PULL);
   
   if( tid==0 ){
     compute_leaves(vid, 1);
