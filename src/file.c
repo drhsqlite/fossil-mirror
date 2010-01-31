@@ -103,7 +103,7 @@ int file_isdir(const char *zFilename){
 
   if( zFilename ){
     char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, strlen(zFN));
+    file_simplify_name(zFN, -1);
     rc = getStat(zFN);
     free(zFN);
   }else{
@@ -231,6 +231,7 @@ int file_is_simple_pathname(const char *z){
 */
 int file_simplify_name(char *z, int n){
   int i, j;
+  if( n<0 ) n = strlen(z);
 #ifdef __MINGW32__
   for(i=0; i<n; i++){
     if( z[i]=='\\' ) z[i] = '/';

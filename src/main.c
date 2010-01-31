@@ -455,7 +455,7 @@ static void multi_column_list(const char **azWord, int nWord){
 }
 
 /*
-** COM MAND: commands
+** COM -off- MAND: commands
 **
 ** Usage: %fossil commands
 ** List all supported commands.
@@ -543,7 +543,7 @@ void help_cmd(void){
 
 /*
 ** Set the g.zBaseURL value to the full URL for the toplevel of
-** the fossil tree.  Set g.zHomeURL to g.zBaseURL without the
+** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
 */
 void set_base_url(void){
@@ -573,8 +573,11 @@ void fossil_redirect_home(void){
 /*
 ** Preconditions:
 **
-**    * Environment variables are set up according to the CGI standard.
-**    * The respository database has been located and opened.
+**  * Environment variables are set up according to the CGI standard.
+**
+** If the repository is known, it has already been opened.  If unknown,
+** then g.zRepositoryName holds the directory that contains the repository
+** and the actual repository is taken from the first element of PATH_INFO.
 ** 
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
@@ -585,11 +588,44 @@ static void process_one_web_page(void){
   int idx;
   int i;
 
+  /* If the repository has not been opened already, then find the
+  ** repository based on the first element of PATH_INFO and open it.
+  */
+  zPathInfo = P("PATH_INFO");
+  if( !g.repositoryOpen ){
+    char *zRepo;
+    const char *zOldScript = PD("SCRIPT_NAME", "");
+    char *zNewScript;
+    int j, k;
+
+    i = 1;
+    while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
+    zRepo = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
+
+    /* To avoid mischief, make sure the repository basename contains no
+    ** characters other than alphanumerics, "-", and "_".
+    */
+    for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
+      if( !isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
+    }
+
+    if( file_size(zRepo)<1024 ){
+      @ <h1>Not Found</h1>
+      cgi_set_status(404, "not found");
+      cgi_reply();
+      return;
+    }
+    zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
+    cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
+    zPathInfo += i;
+    cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+    db_open_repository(zRepo);
+  }
+
   /* Find the page that the user has requested, construct and deliver that
   ** page.
   */
   set_base_url();
-  zPathInfo = P("PATH_INFO");
   if( zPathInfo==0 || zPathInfo[0]==0 
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
     fossil_redirect_home();
@@ -711,6 +747,35 @@ void cmd_cgi(void){
 }
 
 /*
+** If g.argv[2] exists then it is either the name of a repository
+** that will be used by a server, or else it is a directory that
+** contains multiple repositories that can be served.  If g.argv[2]
+** is a directory, the repositories it contains must be named
+** "*.fossil".  If g.argv[2] does not exists, then we must be within
+** a check-out and the repository to be served is the repository of
+** that check-out.
+**
+** Open the respository to be served if it is known.  If g.argv[2] is
+** a directory full of repositories, then set g.zRepositoryName to
+** the name of that directory and the specific repository will be
+** opened later by process_one_web_page() based on the content of
+** the PATH_INFO variable.
+**
+** If disallowDir is set, then the directory full of repositories method
+** is disallowed.
+*/
+static void find_server_repository(int disallowDir){
+  if( g.argc<3 ){
+    db_must_be_within_tree();
+  }else if( !disallowDir && file_isdir(g.argv[2])==1 ){
+    g.zRepositoryName = mprintf("%s", g.argv[2]);
+    file_simplify_name(g.zRepositoryName, -1);
+  }else{
+    db_open_repository(g.argv[2]);
+  }
+}
+
+/*
 ** undocumented format:
 **
 **        fossil http REPOSITORY INFILE OUTFILE IPADDR
@@ -725,6 +790,10 @@ void cmd_cgi(void){
 ** is delivered on stdout.  This method is used to launch an HTTP request
 ** handler from inetd, for example.  The argument is the name of the 
 ** repository.
+**
+** If REPOSITORY is a directory that contains one or more respositories
+** with names of the form "*.fossil" then the first element of the URL
+** pathname selects among the various repositories.
 */
 void cmd_http(void){
   const char *zIpAddr;
@@ -761,11 +830,7 @@ void cmd_http(void){
     g.httpOut = stdout;
     zIpAddr = 0;
   }
-  if( g.argc>=3 ){
-    db_open_repository(g.argv[2]);
-  }else{
-    db_must_be_within_tree();
-  }
+  find_server_repository(0);
   cgi_handle_http_request(zIpAddr);
   process_one_web_page();
 }
@@ -819,12 +884,18 @@ static int binaryOnPath(const char *zBinary){
 **
 ** The "ui" command automatically starts a web browser after initializing
 ** the web server.
+**
+** In the "server" command, the REPOSITORY can be a directory (aka folder)
+** that contains one or more respositories with names ending in ".fossil".
+** In that case, the first element of the URL is used to select among the
+** various repositories.
 */
 void cmd_webserver(void){
   int iPort, mxPort;
   const char *zPort;
   char *zBrowser;
   char *zBrowserCmd = 0;
+  int isUiCmd;              /* True if command is "ui", not "server' */
 
 #ifdef __MINGW32__
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -837,11 +908,8 @@ void cmd_webserver(void){
   }
   zPort = find_option("port", "P", 1);
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
-  if( g.argc==2 ){
-    db_must_be_within_tree();
-  }else{
-    db_open_repository(g.argv[2]);
-  }
+  isUiCmd = g.argv[1][0]=='u';
+  find_server_repository(isUiCmd);
   if( zPort ){
     iPort = mxPort = atoi(zPort);
   }else{
@@ -850,7 +918,7 @@ void cmd_webserver(void){
   }
 #ifndef __MINGW32__
   /* Unix implementation */
-  if( g.argv[1][0]=='u' ){
+  if( isUiCmd ){
 #if !defined(__DARWIN__) && !defined(__APPLE__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
@@ -879,16 +947,12 @@ void cmd_webserver(void){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiPanic = 1;
-  if( g.argc==2 ){
-    db_must_be_within_tree();
-  }else{
-    db_open_repository(g.argv[2]);
-  }
+  find_server_repository(isUiCmd);
   cgi_handle_http_request(0);
   process_one_web_page();
 #else
   /* Win32 implementation */
-  if( g.argv[1][0]=='u' ){
+  if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
