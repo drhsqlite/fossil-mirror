@@ -620,6 +620,13 @@ static void process_one_web_page(void){
     zPathInfo += i;
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     db_open_repository(zRepo);
+    if( g.fHttpTrace ){
+      fprintf(stderr, 
+          "# repository: [%s]\n"
+          "# new PATH_INFO = [%s]\n"
+          "# new SCRIPT_NAME = [%s]\n",
+          zRepo, zPathInfo, zNewScript);
+    }
   }
 
   /* Find the page that the user has requested, construct and deliver that

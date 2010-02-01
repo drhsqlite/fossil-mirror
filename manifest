@@ -1,5 +1,8 @@
-C fix\stypo
-D 2010-02-01T06:45:31
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Make\sthe\snew\smulti-repository\sfossil\sserver\sfeature\swork\swith\sthe\s"clone"\ncommand.
+D 2010-02-01T15:07:38
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -41,7 +44,7 @@ F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
-F src/cgi.c 92cf6ba3cc3359581bacd17ad99cfc92223cc61c
+F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
 F src/checkin.c 88d7ebe9794e79747b50913d831930be7bce1883
 F src/checkout.c 93e8f5c3cb11bac6476ec5deff05e0247958d05d
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
@@ -66,7 +69,7 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
-F src/main.c c081fb54279a792f2576b940acf975e69fa3555c
+F src/main.c 36fe27203b5046513855518514269d7e5b741310
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -253,7 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 9cd2c42e79a2fee98d0ca4932ad3e094199f90d8
-R a621c3b98f571182137686b6ae95daa4
-U ron
-Z 31cda0d158450e60f17be0d0b60a5c63
+P a61fe7b87876b06b0430be8ab2660b6f44e1b6cb
+R c4a362662144dec6d7467acc915b88ee
+U drh
+Z a375c854cf8b829a4124b0cca1941a6e
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFLZu49oxKgR168RlERAtJhAJoDVinjgWCpqwHikQ3YTTjI1OmT4wCdGqIW
+A/G8uIhvYpxIzZc/J2FjP8g=
+=4O4u
+-----END PGP SIGNATURE-----
