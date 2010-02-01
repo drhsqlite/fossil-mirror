@@ -874,7 +874,7 @@ void db_find_and_open_repository(int errIfNotFound){
   }
 rep_not_found:
   if( errIfNotFound ){
-    fossil_fatal("use --repository or -R to specific the repository database");
+    fossil_fatal("use --repository or -R to specify the repository database");
   }
 }
 
