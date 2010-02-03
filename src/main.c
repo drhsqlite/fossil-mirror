@@ -571,6 +571,50 @@ void fossil_redirect_home(void){
 }
 
 /*
+** If running as root, chroot to the directory containing the
+** repository zRepo and then drop root privileges.  Return the
+** new repository name.
+**
+** zRepo might be a directory itself.  In that case chroot into
+** the directory zRepo.
+**
+** Assume the user-id and group-id of the repository, or if zRepo
+** is a directory, of that directory.
+*/
+static char *enter_chroot_jail(char *zRepo){
+#if !defined(__MINGW32__)
+  if( getuid()==0 ){
+    int i;
+    struct stat sStat;
+    Blob dir;
+    char *zDir;
+
+    file_canonical_name(zRepo, &dir);
+    zDir = blob_str(&dir);
+    if( file_isdir(zDir)==1 ){
+      chdir(zDir);
+      chroot(zDir);
+      zRepo = "/";
+    }else{
+      for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
+      if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
+      zDir[i] = 0;
+      chdir(zDir);
+      chroot(zDir);
+      zDir[i] = '/';
+      zRepo = &zDir[i];
+    }
+    if( stat(zRepo, &sStat)!=0 ){
+      fossil_fatal("cannot stat() repository: %s", zRepo);
+    }
+    setgid(sStat.st_gid);
+    setuid(sStat.st_uid);
+  }
+#endif
+  return zRepo;
+}
+
+/*
 ** Preconditions:
 **
 **  * Environment variables are set up according to the CGI standard.
@@ -582,7 +626,7 @@ void fossil_redirect_home(void){
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
 */
-static void process_one_web_page(void){
+static void process_one_web_page(const char *zNotFound){
   const char *zPathInfo;
   char *zPath = NULL;
   int idx;
@@ -610,9 +654,13 @@ static void process_one_web_page(void){
     }
 
     if( file_size(zRepo)<1024 ){
-      @ <h1>Not Found</h1>
-      cgi_set_status(404, "not found");
-      cgi_reply();
+      if( zNotFound ){
+        cgi_redirect(zNotFound);
+      }else{
+        @ <h1>Not Found</h1>
+        cgi_set_status(404, "not found");
+        cgi_reply();
+      }
       return;
     }
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
@@ -705,6 +753,7 @@ static void process_one_web_page(void){
 */
 void cmd_cgi(void){
   const char *zFile;
+  const char *zNotFound = 0;
   Blob config, line, key, value;
   if( g.argc==3 && strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
@@ -742,15 +791,26 @@ void cmd_cgi(void){
     if( blob_eq(&key, "repository:") && blob_token(&line, &value) ){
       db_open_repository(blob_str(&value));
       blob_reset(&value);
-      blob_reset(&config);
-      break;
+      continue;
+    }
+    if( blob_eq(&key, "directory:") && blob_token(&line, &value) ){
+      db_close();
+      g.zRepositoryName = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "notfound:") && blob_token(&line, &value) ){
+      zNotFound = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
     }
   }
-  if( g.db==0 ){
+  blob_reset(&config);
+  if( g.db==0 && g.zRepositoryName==0 ){
     cgi_panic("Unable to find or open the project repository");
   }
   cgi_init();
-  process_one_web_page();
+  process_one_web_page(zNotFound);
 }
 
 /*
@@ -791,7 +851,7 @@ static void find_server_repository(int disallowDir){
 **
 ** COMMAND: http
 **
-** Usage: %fossil http REPOSITORY
+** Usage: %fossil http REPOSITORY [--notfound URL]
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
@@ -800,32 +860,17 @@ static void find_server_repository(int disallowDir){
 **
 ** If REPOSITORY is a directory that contains one or more respositories
 ** with names of the form "*.fossil" then the first element of the URL
-** pathname selects among the various repositories.
+** pathname selects among the various repositories.  If the pathname does
+** not select a valid repository and the --notfound option is available,
+** then the server redirects (HTTP code 302) to the URL of --notfound.
 */
 void cmd_http(void){
   const char *zIpAddr;
+  const char *zNotFound;
+  zNotFound = find_option("notfound", 0, 1);
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     cgi_panic("no repository specified");
   }
-#if !defined(__MINGW32__)
-  if( g.argc==3 && getuid()==0 ){
-    int i;
-    char *zRepo = g.argv[2];
-    struct stat sStat;
-    for(i=strlen(zRepo)-1; i>0 && zRepo[i]!='/'; i--){}
-    if( zRepo[i]=='/' ){
-      zRepo[i] = 0;
-      chdir(g.argv[2]);
-      chroot(g.argv[2]);
-      g.argv[2] = &zRepo[i+1];
-    }
-    if( stat(g.argv[2], &sStat)!=0 ){
-      fossil_fatal("cannot stat() repository: %s", g.argv[2]);
-    }
-    setgid(sStat.st_gid);
-    setuid(sStat.st_uid);
-  }
-#endif
   g.cgiPanic = 1;
   g.fullHttpReply = 1;
   if( g.argc==6 ){
@@ -838,8 +883,9 @@ void cmd_http(void){
     zIpAddr = 0;
   }
   find_server_repository(0);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(zIpAddr);
-  process_one_web_page();
+  process_one_web_page(zNotFound);
 }
 
 /*
@@ -898,11 +944,12 @@ static int binaryOnPath(const char *zBinary){
 ** various repositories.
 */
 void cmd_webserver(void){
-  int iPort, mxPort;
-  const char *zPort;
-  char *zBrowser;
-  char *zBrowserCmd = 0;
+  int iPort, mxPort;        /* Range of TCP ports allowed */
+  const char *zPort;        /* Value of the --port option */
+  char *zBrowser;           /* Name of web browser program */
+  char *zBrowserCmd = 0;    /* Command to launch the web browser */
   int isUiCmd;              /* True if command is "ui", not "server' */
+  const char *zNotFound;    /* The --notfound option or NULL */
 
 #ifdef __MINGW32__
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -914,6 +961,7 @@ void cmd_webserver(void){
     blob_zero(&g.thLog);
   }
   zPort = find_option("port", "P", 1);
+  zNotFound = find_option("notfound", 0, 1);
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   find_server_repository(isUiCmd);
@@ -955,8 +1003,9 @@ void cmd_webserver(void){
   }
   g.cgiPanic = 1;
   find_server_repository(isUiCmd);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(0);
-  process_one_web_page();
+  process_one_web_page(zNotFound);
 #else
   /* Win32 implementation */
   if( isUiCmd ){
@@ -964,6 +1013,6 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close();
-  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile);
+  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound);
 #endif
 }

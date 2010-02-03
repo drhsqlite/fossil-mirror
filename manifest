@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Make\sthe\snew\smulti-repository\sfossil\sserver\sfeature\swork\swith\sthe\s"clone"\ncommand.
-D 2010-02-01T15:07:38
+C Add\sthe\s--notfound\soption\sto\sthe\s"http"\sand\s"server"\scommand.\s\sFor\sCGI,\nadd\sconfiguration\slines\s"directory:"\sand\s"notfound:".
+D 2010-02-03T14:36:27
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -69,7 +69,7 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
-F src/main.c 36fe27203b5046513855518514269d7e5b741310
+F src/main.c 9cfc5cc672d09892d3ec812397ba630ca8d0dc15
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -115,7 +115,7 @@ F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c dc794dba1a198bd59a03f1fdfb9886dbc0e7ab1f
 F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
 F src/wikiformat.c 4380991a2f1cb4b8b5bd5cf3c557447b0f5fd07d
-F src/winhttp.c 3b9fbaa855e9e2ec203852d52517e388abbaf89f
+F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c 2f235b1c9c438551a339c5c8fd7515ad3390944e
 F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
@@ -239,7 +239,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki c17e031b586dd52c0c7270a05430587539e6133e
+F www/index.wiki b887513357538dd8e594f1255475ceba28cc06a1
 F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/password.wiki 4c626ba0e123d6b2c8a7c8695fef3d6bb6a8bb60
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P a61fe7b87876b06b0430be8ab2660b6f44e1b6cb
-R c4a362662144dec6d7467acc915b88ee
+P a918bdf56b3dc707b450d3e4fa42814e017ec3ba
+R c05b922d69d23aec39622dac45f62194
 U drh
-Z a375c854cf8b829a4124b0cca1941a6e
+Z 610b410ed52040dfc416bf20b05ad613
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLZu49oxKgR168RlERAtJhAJoDVinjgWCpqwHikQ3YTTjI1OmT4wCdGqIW
-A/G8uIhvYpxIzZc/J2FjP8g=
-=4O4u
+iD8DBQFLaYnuoxKgR168RlERAioCAJ498A0rEvjr0f1MobT2n/k+L94FxQCeLsRZ
+1WDsOEhOeEgB6Zb36ff2xOc=
+=XKrN
 -----END PGP SIGNATURE-----
