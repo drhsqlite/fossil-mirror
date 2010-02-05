@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C The\sRSS\sfeed\sis\srestricted\sto\sthe\spermissions\sgranted\sto\suser\s'nobody'.\nTicket\s[09ba8cea6f]
-D 2010-02-05T16:22:30
+C Force\sthe\smethod\sto\sbe\s/xfer\sif\sthe\scontent\stype\sis\sapplication/x-fossil.
+D 2010-02-05T16:57:58
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -69,7 +69,7 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
-F src/main.c 9cfc5cc672d09892d3ec812397ba630ca8d0dc15
+F src/main.c 425b1f76e7211dbe149ca0302e31def7d6c8aab3
 F src/main.mk 0f9d767d5d4d9dfdfd8a2a716e2dc60a4ba23da6
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 49cffc01871f7cb5fdd26967818b4a8fcd6a253d
-R 1e4b42da36b1e19fe6d73baeac08f109
+P 78a6270fdc6ee90ae2edeac25ec94f2004cf6624
+R 5c9c3786b1372f9b5ac52c63bc5cae70
 U drh
-Z 2839c00325c4fcb1745f55109dc03d04
+Z a98657c42844bbde37b332a53386d8bb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLbEXKoxKgR168RlERAmkMAJ4gAbFko07vONxoycCrV3GRZDeNegCaAyFk
-n8u4tTlARgO5THoTOw3DqcU=
-=N1Pc
+iD8DBQFLbE4YoxKgR168RlERAnzEAJ9iRLrh48DUwODTdnepgkb7oQ5klACfQRmy
+iEspr7HwlBTD0PEkTyCuP3s=
+=zPRk
 -----END PGP SIGNATURE-----

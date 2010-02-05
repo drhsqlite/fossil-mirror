@@ -680,6 +680,9 @@ static void process_one_web_page(const char *zNotFound){
   /* Find the page that the user has requested, construct and deliver that
   ** page.
   */
+  if( g.zContentType && memcmp(g.zContentType, "application/x-fossil", 20)==0 ){
+    zPathInfo = "/xfer";
+  }
   set_base_url();
   if( zPathInfo==0 || zPathInfo[0]==0 
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
