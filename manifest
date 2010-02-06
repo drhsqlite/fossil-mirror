@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Accept\sdate/time\sstrings\sas\sa\svalid\stag.\s\sThey\sresolve\sto\sthe\smost\srecent\ncheck-in\sprior\sto\sthe\sgiven\sdate/time.
-D 2010-02-05T21:09:03
+C Fix\sdouble-free\sof\szCopy\sin\sdate_to_uuid().\s\s\nTicket\s[dc2b2503031]
+D 2010-02-06T12:14:29
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -79,7 +79,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c a03711bee25284f05f28d4c359de66b0c313989a
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/name.c 7891fd596730b03d803c4b78d7072ed7dd70ccc0
+F src/name.c 825efe68f88cab3a663aaa1046d5f1c894674408
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
@@ -256,14 +256,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 94bb313444b0165e879560c90899dae2126ab598
-R 56a9789ae8709f2b8745631022aa53d6
+P 93827b8450af7af33da279ad8339c81a0fe37a21
+R e59df10c0d2d826b6417b90873f7f7f6
 U drh
-Z 2ccf16f1cc1dbd5b8227eb9db6831e12
+Z 64a6641dac7b03279940a49cfc96112f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLbIjzoxKgR168RlERAu4uAJ4528iUE0nO5gmGd0tFyYkiFaB83QCfWrH4
-3U0wbZaAQltwonJnTANXTbg=
-=CcQt
+iD8DBQFLbV0ooxKgR168RlERAtKwAKCAJkTiARmaiP3bOLSQUO4EdL2IjQCfSPkd
+UBVDjMGjquOp77Fw7OxNNGY=
+=E9jx
 -----END PGP SIGNATURE-----

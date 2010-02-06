@@ -172,7 +172,6 @@ char *date_to_uuid(const char *zDate){
     n -= 3;
     useUtc = 1;
   }
-  free(zCopy);
   zUuid = db_text(0,
     "SELECT (SELECT uuid FROM blob WHERE rid=event.objid)"
     "  FROM event"
