@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Fix\sdouble-free\sof\szCopy\sin\sdate_to_uuid().\s\s\nTicket\s[dc2b2503031]
-D 2010-02-06T12:14:29
+C Windows\sonly:\sremove\sduplicate\scode\sfrom\ssqlite3.c\sin\sdb.c
+D 2010-02-06T17:25:07
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -54,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 363a6953bcef7665cc53e498876216e8b101fc90
+F src/db.c c6c1888bf86fc7d117e9e711774d48756f9463db
 F src/delta.c 1af641b4b641fe5cddcf7180b5cf6f15b1e80e7a
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -256,14 +253,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 93827b8450af7af33da279ad8339c81a0fe37a21
-R e59df10c0d2d826b6417b90873f7f7f6
-U drh
-Z 64a6641dac7b03279940a49cfc96112f
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLbV0ooxKgR168RlERAtKwAKCAJkTiARmaiP3bOLSQUO4EdL2IjQCfSPkd
-UBVDjMGjquOp77Fw7OxNNGY=
-=E9jx
------END PGP SIGNATURE-----
+P 01a769a9fa265971f5a9c09cb16a1211bb3dee33
+R ef3bb2aec071a980e0d836923778a852
+U ron
+Z 6d1f961270bda23c804070ad45739dae
