@@ -1,5 +1,5 @@
-C Windows\sonly:\sremove\sduplicate\scode\sfrom\ssqlite3.c\sin\sdb.c
-D 2010-02-06T17:25:07
+C fixed\s[9ff56ae8a6]\s-\s"fossil\ssha"\scrash
+D 2010-02-06T20:20:59
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -87,7 +87,7 @@ F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
 F src/setup.c ec48253bcccebed0a985fe95b599ded84c46ae53
-F src/sha1.c dcfc18a55f742136d116890edb59923888c07e0c
+F src/sha1.c 3ed17621c90948684087b3eaf094d287ce96c5f0
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
 F src/sqlite3.c 3417e43f49d06d3d6516430a93d3477a764d3855
@@ -253,7 +253,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 01a769a9fa265971f5a9c09cb16a1211bb3dee33
-R ef3bb2aec071a980e0d836923778a852
+P 2f58d48cabfb675fd418da343c05b15ba6b6418e
+R 3d3dd5e16927c43fc83ac2c24f2eb8fc
 U ron
-Z 6d1f961270bda23c804070ad45739dae
+Z ba0fe5467333d09e64e8143a07f372ff

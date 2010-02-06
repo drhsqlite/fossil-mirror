@@ -613,6 +613,9 @@ void sha1sum_test(void){
       blob_read_from_channel(&in, stdin, -1);
       sha1sum_blob(&in, &cksum);
     }else{
+	  if (access(g.argv[i], R_OK)) {
+		  fossil_fatal("cannot open %s", g.argv[i]);
+	  }
       sha1sum_file(g.argv[i], &cksum);
     }
     printf("%s  %s\n", blob_str(&cksum), g.argv[i]);
