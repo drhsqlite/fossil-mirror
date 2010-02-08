@@ -1,11 +1,11 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Remove\sGNU-isms\sfrom\sthe\sMakefile.\s\sTicket\s[1927cbd979].
-D 2010-02-08T22:00:12
+C Additional\srefinements\sto\sthe\sMakefile\sstemming\sfrom\sthe\scut-over\sof\sSSL.
+D 2010-02-08T22:12:46
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile c8f4f4f50dd7095898de3ac1f146c926d1adbc0e
+F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
 F Makefile.w32 ef2a80b08851bc6afbfa1190af46d9dd2b61f4f3
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -258,14 +258,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P f312587a650ad4db7e80043d8622709d646b7fc7
-R 3eb0bb7611f46ae62e06670a16900f78
+P fcd7ecb7f1d7d4e86e468725009cfdc3f7531248
+R 00f8416ee88aaf438bd9162607b09d6d
 U drh
-Z deaeebb4dc2174f0ca78ec6624f5abd3
+Z 135aa0abd132426c1f4394e473b1caab
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLcIlvoxKgR168RlERAg6+AJ0aIIj1xPdfqYNSWNbxHTHxScWFGQCeIRRR
-18X5TkMlxSQ48WTNMMDa0yA=
-=wpmO
+iD8DBQFLcIxhoxKgR168RlERAsvHAJ9XwKebxF62At1hFFStIl0pAPyUTwCZAQGP
+XpCe0sVTTb2yNbU+F83TjPQ=
+=J5a9
 -----END PGP SIGNATURE-----
