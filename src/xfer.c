@@ -1317,7 +1317,7 @@ void client_sync(
   printf("Total network traffic: %d bytes sent, %d bytes received\n",
          nSent, nRcvd);
   transport_close();
-  socket_global_shutdown();
+  transport_global_shutdown();
   db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end();
   db_end_transaction(0);

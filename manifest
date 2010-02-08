@@ -1,12 +1,12 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Add\sa\sDOCTYPE\sto\sthe\sbeginning\sof\severy\spage.\s\sIE8\sappears\sto\swork\sbetter\nwith\sthe\sDOCTYPE\sin\splace.
-D 2010-02-08T19:59:00
+C Merge\sthe\sSSL\sbranch\sinto\sthe\strunk.
+D 2010-02-08T21:18:16
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
-F Makefile.w32 a8929670d9adff8bbf1f789e3c5cd4f7b2d9c5bb
+F Makefile a8d2f7284094164e31a37eb32f0703c71be44a34
+F Makefile.w32 ef2a80b08851bc6afbfa1190af46d9dd2b61f4f3
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -67,14 +67,15 @@ F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/graph.c be1cefe3540c2c1794ebd28028c95236fd319139
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
+F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
+F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
 F src/main.c 425b1f76e7211dbe149ca0302e31def7d6c8aab3
-F src/main.mk e0e9e8aa982c25cd256ecd7ce5a852948eea3bf6
+F src/main.mk 15ebf7652e72eea62dd10165849a3cb50bb3efea
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 1ac99d56c27d172a0bbe93cf87dda3e9edca910f
+F src/makemake.tcl 05edf2657e0a7fa45ddd57ba64f57493256f98e4
 F src/manifest.c fbdeafd71ccbf7f989ef78d05309f58a54a134cb
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c a03711bee25284f05f28d4c359de66b0c313989a
@@ -117,7 +118,7 @@ F src/vfile.c dc794dba1a198bd59a03f1fdfb9886dbc0e7ab1f
 F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
 F src/wikiformat.c 4380991a2f1cb4b8b5bd5cf3c557447b0f5fd07d
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
-F src/xfer.c 2f235b1c9c438551a339c5c8fd7515ad3390944e
+F src/xfer.c 8cc1d7205825aeadda4d03c6b0707ef7652db449
 F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -257,14 +258,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 63d46e6d33c41eaae6586a617d08e360883f45a8
-R 02283b085ebe1e159b4def9ef409beba
+P 0faa676fab1cf3cc93e30c2137295c6e793c1339 8c23a947eb8284cfff4128b63fca0df19e9db6c3
+R a7ee1174b629c12a98cb3206fc69a916
 U drh
-Z 819c723eef836392d43debad93646e3a
+Z 05ac02ace4dd222945db58279d79ed8f
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLcG0HoxKgR168RlERAgFHAJwKPVlcH8NMP/qRFkfWmdd+2n++MACeIxHa
-nqLijVqebXSMsfkh192pXpE=
-=/Wl1
+iD8DBQFLcH+boxKgR168RlERAi/ZAJ9UKNKPb4aNO9kirPi+dbv8GL4gGQCgg3ZD
+MCVfuYh0HNu99qPRJCKN+t4=
+=vBAt
 -----END PGP SIGNATURE-----
