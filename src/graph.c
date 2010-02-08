@@ -154,8 +154,7 @@ void graph_add_row(
 ** Return the index of a rail currently not in use for any row between
 ** top and bottom, inclusive.  
 */
-static int findFreeRail(GraphContext *p, int top, int btm){
-  u32 inUseMask = 0;
+static int findFreeRail(GraphContext *p, int top, int btm, u32 inUseMask){
   GraphRow *pRow;
   int i;
   for(pRow=p->pFirst; pRow && pRow->idx<top; pRow=pRow->pNext){}
@@ -179,6 +178,7 @@ void graph_finish(GraphContext *p){
   int i;
   int nRow;
   u32 mask;
+  u32 inUse;
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
 
@@ -223,6 +223,7 @@ void graph_finish(GraphContext *p){
   ** The first primary child of a row goes on the same rail as
   ** that row.
   */
+  inUse = 0;
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
     int parentRid;
     if( pRow->iRail>=0 ) continue;
@@ -234,10 +235,15 @@ void graph_finish(GraphContext *p){
     if( pDesc->aiRaiser[pDesc->iRail]==0 && pDesc->zBranch==pRow->zBranch ){
       pRow->iRail = pDesc->iRail;
     }else{
-      pRow->iRail = findFreeRail(p, 0, pDesc->idx);
+      pRow->iRail = findFreeRail(p, 0, pDesc->idx, inUse);
     }
     pDesc->aiRaiser[pRow->iRail] = pRow->idx;
     mask = 1<<pRow->iRail;
+    if( pRow->isLeaf ){
+      inUse &= ~mask;
+    }else{
+      inUse |= mask;
+    }
     for(pDesc = pRow; ; pDesc=pDesc->pNext){
       assert( pDesc!=0 );
       pDesc->railInUse |= mask;
@@ -255,7 +261,7 @@ void graph_finish(GraphContext *p){
           pDesc=pDesc->pNext){}
       if( pDesc==0 ) continue;
       if( pDesc->mergeOut<0 ){
-        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx);
+        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0);
         pDesc->mergeUpto = pRow->idx;
       }
       pRow->mergeIn |= 1<<pDesc->mergeOut;
