@@ -32,6 +32,7 @@ set src {
   encode
   file
   finfo
+  graph
   http
   http_socket
   http_transport

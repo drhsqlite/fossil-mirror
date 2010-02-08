@@ -38,6 +38,12 @@
 **
 ** If the input is not a UUID or a UUID prefix, then try to resolve
 ** the name as a tag.  If multiple tags match, pick the latest.
+** If the input name matches "tag:*" then always resolve as a tag.
+**
+** If the input is not a tag, then try to match it as an ISO-8601 date
+** string YYYY-MM-DD HH:MM:SS and pick the nearest check-in to that date.
+** If the input is of the form "date:*" or "localtime:*" or "utc:*" then
+** always resolve the name as a date.
 **
 ** Return the number of errors.
 */
@@ -50,8 +56,13 @@ int name_to_uuid(Blob *pName, int iErrPriority){
     const char *zName = blob_str(pName);
     if( memcmp(zName, "tag:", 4)==0 ){
       zName += 4;
+      zUuid = tag_to_uuid(zName);
+    }else{
+      zUuid = tag_to_uuid(zName);
+      if( zUuid==0 ){
+        zUuid = date_to_uuid(zName);
+      }
     }
-    zUuid = tag_to_uuid(zName);
     if( zUuid ){
       blob_reset(pName);
       blob_append(pName, zUuid, -1);
@@ -123,6 +134,52 @@ char *tag_to_uuid(const char *zTag){
        " ORDER BY event.mtime DESC ",
        zTag
     );
+  return zUuid;
+}
+
+/*
+** Convert a date/time string into a UUID.
+**
+** Input forms accepted:
+**
+**    date:DATE
+**    local:DATE
+**    utc:DATE
+**
+** The DATE is interpreted as localtime unless the "utc:" prefix is used
+** or a "utc" string appears at the end of the DATE string.
+*/
+char *date_to_uuid(const char *zDate){
+  int useUtc = 0;
+  int n;
+  char *zCopy = 0;
+  char *zUuid;
+
+  if( memcmp(zDate, "date:", 5)==0 ){
+    zDate += 5;
+  }else if( memcmp(zDate, "local:", 6)==0 ){
+    zDate += 6;
+  }else if( memcmp(zDate, "utc:", 4)==0 ){
+    zDate += 4;
+    useUtc = 1;
+  }
+  n = strlen(zDate);
+  if( n<10 || zDate[4]!='-' || zDate[7]!='-' ) return 0;
+  if( n>4 && sqlite3_strnicmp(&zDate[n-3], "utc", 3)==0 ){
+    zCopy = mprintf("%s", zDate);
+    zCopy[n-3] = 0;
+    zDate = zCopy;
+    n -= 3;
+    useUtc = 1;
+  }
+  zUuid = db_text(0,
+    "SELECT (SELECT uuid FROM blob WHERE rid=event.objid)"
+    "  FROM event"
+    " WHERE mtime<=julianday(%Q %s) AND type='ci'"
+    " ORDER BY mtime DESC LIMIT 1",
+    zDate, useUtc ? "" : ",'utc'"
+  );
+  free(zCopy);
   return zUuid;
 }
 

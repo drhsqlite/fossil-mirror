@@ -32,6 +32,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include "delta.h"
 
 /*
 ** Macros for turning debugging printfs on and off
@@ -64,7 +65,7 @@ static const char *print16(const char *z){
 # define DEBUG2(X)
 #endif
 
-
+#if INTERFACE
 /*
 ** The "u32" type must be an unsigned 32-bit integer.  Adjust this
 */
@@ -75,6 +76,8 @@ typedef unsigned int u32;
 */
 typedef short int s16;
 typedef unsigned short int u16;
+
+#endif /* INTERFACE */
 
 /*
 ** The width of a hash window in bytes.  The algorithm only works if this

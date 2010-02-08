@@ -49,11 +49,39 @@ void page_timeline_rss(void){
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
+
+  login_check_credentials();
+  if( !g.okRead && !g.okRdTkt && !g.okRdWiki ){ 
+    return;
+  }
+
   blob_zero(&bSQL);
   blob_append( &bSQL, zSQL1, -1 );
   
   if( zType[0]!='a' ){
-      blob_appendf(&bSQL, " AND event.type=%Q", zType);
+    if( zType[0]=='c' && !g.okRead ) zType = "x";
+    if( zType[0]=='w' && !g.okRdWiki ) zType = "x";
+    if( zType[0]=='t' && !g.okRdTkt ) zType = "x";
+    blob_appendf(&bSQL, " AND event.type=%Q", zType);
+  }else{
+    if( !g.okRead ){
+      if( g.okRdTkt && g.okRdWiki ){
+        blob_append(&bSQL, " AND event.type!='ci'", -1);
+      }else if( g.okRdTkt ){
+        blob_append(&bSQL, " AND event.type=='t'", -1);
+      }else{
+        blob_append(&bSQL, " AND event.type=='w'", -1);
+      }
+    }else if( !g.okRdWiki ){
+      if( g.okRdTkt ){
+        blob_append(&bSQL, " AND event.type!='w'", -1);
+      }else{
+        blob_append(&bSQL, " AND event.type=='ci'", -1);
+      }
+    }else if( !g.okRdTkt ){
+      assert( !g.okRdTkt &&& g.okRead && g.okRdWiki );
+      blob_append(&bSQL, " AND event.type!='t'", -1);
+    }
   }
 
   blob_append( &bSQL, " ORDER BY event.mtime DESC", -1 );
@@ -80,7 +108,7 @@ void page_timeline_rss(void){
   @     <description>%h(zProjectDescr)</description>
   @     <pubDate>%s(zPubDate)</pubDate>
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
-  db_prepare(&q, blob_buffer(&bSQL));
+  db_prepare(&q, blob_str(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<=20 ){
     const char *zId = db_column_text(&q, 1);

@@ -155,6 +155,7 @@ int count_nonbranch_children(int pid){
 #define TIMELINE_ARTID    0x0001  /* Show artifact IDs on non-check-in lines */
 #define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
 #define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
+#define TIMELINE_GRAPH    0x0008  /* Compute a graph */
 #endif
 
 /*
@@ -186,6 +187,7 @@ void www_print_timeline(
   int prevTagid = 0;
   int suppressCnt = 0;
   char zPrevDate[20];
+  GraphContext *pGraph = 0;
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -193,6 +195,10 @@ void www_print_timeline(
     wikiFlags = WIKI_INLINE;
   }else{
     wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
+  }
+  if( tmFlags & TIMELINE_GRAPH ){
+    pGraph = graph_init();
+    @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
 
   db_multi_exec(
@@ -214,6 +220,7 @@ void www_print_timeline(
     const char *zTagList = db_column_text(pQuery, 10);
     int tagid = db_column_int(pQuery, 11);
     int commentColumn = 3;    /* Column containing comment text */
+    char zTime[8];
     if( tagid ){
       if( tagid==prevTagid ){
         if( tmFlags & TIMELINE_BRIEF ){
@@ -238,14 +245,16 @@ void www_print_timeline(
     db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
-      @ <tr><td colspan=3>
-      @   <div class="divider">%s(zPrevDate)</div>
+      @ <tr><td>
+      @   <div class="divider"><nobr>%s(zPrevDate)</nobr></div>
       @ </td></tr>
     }
+    memcpy(zTime, &zDate[11], 5);
+    zTime[5] = 0;
     @ <tr>
-    @ <td valign="top">%s(&zDate[11])</td>
+    @ <td valign="top" align="right">%s(zTime)</td>
     @ <td width="20" align="center" valign="top">
-    @ <font id="m%d(rid)" size="+1" color="white">*</font></td>
+    @ <div id="m%d(rid)"></div>
     if( zBgClr && zBgClr[0] ){
       @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
     }else{
@@ -254,7 +263,7 @@ void www_print_timeline(
     if( zType[0]=='c' ){
       const char *azTag[5];
       int nTag = 0;
-      hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
+      hyperlink_to_uuid(zUuid);
       if( (tmFlags & TIMELINE_LEAFONLY)==0 ){
         if( nParent>1 ){
           azTag[nTag++] = "Merge";
@@ -281,6 +290,33 @@ void www_print_timeline(
         for(i=0; i<nTag; i++){
           @ <b>%s(azTag[i])%s(i==nTag-1?"":",")</b>
         }
+      }
+      if( pGraph ){
+        int nParent = 0;
+        int aParent[32];
+        const char *zBr;
+        static Stmt qparent;
+        static Stmt qbranch;
+        db_static_prepare(&qparent,
+          "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC"
+        );
+        db_static_prepare(&qbranch,
+          "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
+          TAG_BRANCH
+        );
+        db_bind_int(&qparent, ":rid", rid);
+        while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+          aParent[nParent++] = db_column_int(&qparent, 0);
+        }
+        db_reset(&qparent);
+        db_bind_int(&qbranch, ":rid", rid);
+        if( db_step(&qbranch)==SQLITE_ROW ){
+          zBr = db_column_text(&qbranch, 0);
+        }else{
+          zBr = "trunk";
+        }
+        graph_add_row(pGraph, rid, isLeaf, nParent, aParent, zBr);
+        db_reset(&qbranch);
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
@@ -313,7 +349,183 @@ void www_print_timeline(
     @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
     suppressCnt = 0;
   }
+  if( pGraph ){
+    graph_finish(pGraph);
+    if( pGraph->nErr ){
+      graph_free(pGraph);
+      pGraph = 0;
+    }else{
+      @ <tr><td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+    }
+  }
   @ </table>
+  if( pGraph && pGraph->nErr==0 ){
+    GraphRow *pRow;
+    int i;
+    char cSep;
+    @ <script type="text/JavaScript">
+    cgi_printf("var rowinfo = [\n");
+    for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
+      cgi_printf("{id:\"m%d\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
+        pRow->rid,
+        pRow->iRail,
+        pRow->bDescender,
+        pRow->mergeOut,
+        pRow->mergeUpto,
+        pRow->aiRaiser[pRow->iRail]
+      );
+      cSep = '[';
+      for(i=0; i<GR_MAX_RAIL; i++){
+        if( i==pRow->iRail ) continue;
+        if( pRow->aiRaiser[i]>0 ){
+          cgi_printf("%c%d,%d", cSep, pGraph->railMap[i], pRow->aiRaiser[i]);
+          cSep = ',';
+        }
+      }
+      if( cSep=='[' ) cgi_printf("[");
+      cgi_printf("],mi:");
+      cSep = '[';
+      for(i=0; i<GR_MAX_RAIL; i++){
+        if( pRow->mergeIn & (1<<i) ){
+          cgi_printf("%c%d", cSep, pGraph->railMap[i]);
+          cSep = ',';
+        }
+      }
+      if( cSep=='[' ) cgi_printf("[");
+      cgi_printf("]}%s", pRow->pNext ? ",\n" : "];\n");
+    }
+    cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
+    graph_free(pGraph);
+    @ var canvasDiv = document.getElementById("canvas");
+    @ function drawBox(color,x0,y0,x1,y1){
+    @   var n = document.createElement("div");
+    @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
+    @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
+    @   var w = x1-x0+1;
+    @   var h = y1-y0+1;
+    @   n.setAttribute("style",
+    @     "position:absolute;"+
+    @     "left:"+x0+"px;"+
+    @     "top:"+y0+"px;"+
+    @     "width:"+w+"px;"+
+    @     "height:"+h+"px;"+
+    @     "background-color:"+color+";"
+    @   );
+    @   canvasDiv.appendChild(n);
+    @ }
+    @ function absoluteY(id){
+    @   var obj = document.getElementById(id);
+    @   if( !obj ) return;
+    @   var top = 0;
+    @   if( obj.offsetParent ){
+    @     do{
+    @       top += obj.offsetTop;
+    @     }while( obj = obj.offsetParent );
+    @   }
+    @   return top;
+    @ }
+    @ function absoluteX(id){
+    @   var obj = document.getElementById(id);
+    @   if( !obj ) return;
+    @   var left = 0;
+    @   if( obj.offsetParent ){
+    @     do{
+    @       left += obj.offsetLeft;
+    @     }while( obj = obj.offsetParent );
+    @   }
+    @   return left;
+    @ }
+    @ function drawUpArrow(x,y0,y1){
+    @   drawBox("black",x,y0,x+1,y1);
+    @   if( y0+8>=y1 ){
+    @     drawBox("black",x-1,y0+1,x+2,y0+2);
+    @     drawBox("black",x-2,y0+3,x+3,y0+4);
+    @   }else{
+    @     drawBox("black",x-1,y0+2,x+2,y0+4);
+    @     drawBox("black",x-2,y0+5,x+3,y0+7);
+    @   }
+    @ }
+    @ function drawThinArrow(y,xFrom,xTo){
+    @   if( xFrom<xTo ){
+    @     drawBox("black",xFrom,y,xTo,y);
+    @     drawBox("black",xTo-4,y-1,xTo-2,y+1);
+    @     if( xTo>xFrom-8 ) drawBox("black",xTo-6,y-2,xTo-5,y+2);
+    @   }else{
+    @     drawBox("black",xTo,y,xFrom,y);
+    @     drawBox("black",xTo+2,y-1,xTo+4,y+1);
+    @     if( xTo+8<xFrom ) drawBox("black",xTo+5,y-2,xTo+6,y+2);
+    @   }
+    @ }
+    @ function drawThinLine(x0,y0,x1,y1){
+    @   drawBox("black",x0,y0,x1,y1);
+    @ }
+    @ function drawNode(p, left, btm){
+    @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
+    @   drawBox("white",p.x-4,p.y-4,p.x+5,p.y+5);
+    @   if( p.u>0 ){
+    @     var u = rowinfo[p.u-1];
+    @     drawUpArrow(p.x, u.y+6, p.y-5);
+    @   }
+    @   if( p.d ){
+    @     drawUpArrow(p.x, p.y+6, btm);
+    @   } 
+    @   if( p.mo>=0 ){
+    @     var x1 = p.mo*20 + left;
+    @     var y1 = p.y-3;
+    @     var x0 = x1>p.x ? p.x+7 : p.x-6;
+    @     var u = rowinfo[p.mu-1];
+    @     var y0 = u.y+5;
+    @     drawThinLine(x0,y1,x1,y1);
+    @     drawThinLine(x1,y0,x1,y1);
+    @   }
+    @   var n = p.au.length;
+    @   for(var i=0; i<n; i+=2){
+    @     var x1 = p.au[i]*20 + left;
+    @     var x0 = x1>p.x ? p.x+7 : p.x-6;
+    @     drawBox("black",x0,p.y,x1,p.y+1);
+    @     var u = rowinfo[p.au[i+1]-1];
+    @     drawUpArrow(x1, u.y+6, p.y);
+    @   }
+    @   for(var j in p.mi){
+    @     var y0 = p.y+5;
+    @     var mx = p.mi[j]*20 + left;
+    @     if( mx>p.x ){
+    @       drawThinArrow(y0,mx,p.x+5);
+    @     }else{
+    @       drawThinArrow(y0,mx,p.x-5);
+    @     }
+    @   }
+    @ }
+    @ function renderGraph(){
+    @   var canvasDiv = document.getElementById("canvas");
+    @   for(var i=canvasDiv.childNodes.length-1; i>=0; i--){
+    @     var c = canvasDiv.childNodes[i];
+    @     delete canvasDiv.removeChild(c);
+    @   }
+    @   var canvasY = absoluteY("canvas");
+    @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
+    @   for(var i in rowinfo){
+    @     rowinfo[i].y = absoluteY(rowinfo[i].id) + 10 - canvasY;
+    @     rowinfo[i].x = left + rowinfo[i].r*20;
+    @   }
+    @   var btm = rowinfo[rowinfo.length-1].y + 20;
+    @   for(var i in rowinfo){
+    @     drawNode(rowinfo[i], left, btm);
+    @   }
+    @ }
+    @ var lastId = rowinfo[rowinfo.length-1].id;
+    @ var lastY = 0;
+    @ function checkHeight(){
+    @   var h = absoluteY(lastId);
+    @   if( h!=lastY ){
+    @     renderGraph();
+    @     lastY = h;
+    @   }
+    @   setTimeout("checkHeight();", 1000);
+    @ }
+    @ checkHeight();
+    @ </script>
+  }
 }
 
 /*
@@ -463,9 +675,9 @@ void page_timeline(void){
     tagid = 0;
   }
   if( zType[0]=='a' ){
-    tmFlags = TIMELINE_BRIEF;
+    tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
-    tmFlags = 0;
+    tmFlags = TIMELINE_GRAPH;
   }
 
   style_header("Timeline");
@@ -647,6 +859,7 @@ void page_timeline(void){
     }
     if( tagid>0 ){
       blob_appendf(&desc, " tagged with \"%h\"", zTagName);
+      tmFlags &= ~TIMELINE_GRAPH;
     }
     if( zAfter ){
       blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
@@ -693,99 +906,6 @@ void page_timeline(void){
   blob_reset(&desc);
   www_print_timeline(&q, tmFlags, 0);
   db_finalize(&q);
-
-  @ <script>
-  @ var parentof = new Object();
-  @ var childof = new Object();
-  db_prepare(&q, "SELECT rid FROM seen");
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    Stmt q2;
-    const char *zSep;
-    Blob *pOut = cgi_output_blob();
-
-    db_prepare(&q2, "SELECT pid FROM plink WHERE cid=%d", rid);
-    zSep = "";
-    blob_appendf(pOut, "parentof[\"m%d\"] = [", rid);
-    while( db_step(&q2)==SQLITE_ROW ){
-      int pid = db_column_int(&q2, 0);
-      blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
-      zSep = ",";
-    }
-    db_finalize(&q2);
-    blob_appendf(pOut, "];\n");
-    db_prepare(&q2, "SELECT cid FROM plink WHERE pid=%d", rid);
-    zSep = "";
-    blob_appendf(pOut, "childof[\"m%d\"] = [", rid);
-    while( db_step(&q2)==SQLITE_ROW ){
-      int pid = db_column_int(&q2, 0);
-      blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
-      zSep = ",";
-    }
-    db_finalize(&q2);
-    blob_appendf(pOut, "];\n");
-  }
-  db_finalize(&q);
-  @ function setall(value){
-  @   for(var x in parentof){
-  @     setone(x,value);
-  @   }
-  @ }
-  @ setall("#ffffff");
-  @ function setone(id, clr){
-  @   if( parentof[id]==null ) return 0;
-  @   var w = document.getElementById(id);
-  @   if( w.style.color==clr ){
-  @     return 0
-  @   }else{
-  @     w.style.color = clr
-  @     return 1
-  @   }
-  @ }
-  @ function xin(id) {
-  @   setall("#ffffff");
-  @   setone(id,"#ff0000");
-  @   set_children(id, "#b0b0b0");
-  @   set_parents(id, "#b0b0b0");
-  @   for(var x in parentof[id]){
-  @     var pid = parentof[id][x]
-  @     var w = document.getElementById(pid);
-  @     if( w!=null ){
-  @       w.style.color = "#000000";
-  @     }
-  @   }
-  @   for(var x in childof[id]){
-  @     var cid = childof[id][x]
-  @     var w = document.getElementById(cid);
-  @     if( w!=null ){
-  @       w.style.color = "#000000";
-  @     }
-  @   }
-  @ }
-  @ function xout(id) {
-  @   /* setall("#000000"); */
-  @ }
-  @ function set_parents(id, clr){
-  @   var plist = parentof[id];
-  @   if( plist==null ) return;
-  @   for(var x in plist){
-  @     var pid = plist[x];
-  @     if( setone(pid,clr)==1 ){
-  @       set_parents(pid,clr);
-  @     }
-  @   }
-  @ }
-  @ function set_children(id,clr){
-  @   var clist = childof[id];
-  @   if( clist==null ) return;
-  @   for(var x in clist){
-  @     var cid = clist[x];
-  @     if( setone(cid,clr)==1 ){
-  @       set_children(cid,clr);
-  @     }
-  @   }
-  @ }
-  @ </script>
   style_footer();
 }
 

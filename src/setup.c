@@ -86,6 +86,8 @@ void setup_page(void){
     "A record of received artifacts and their sources");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
+  setup_menu_entry("Sync now", "setup_sync",
+    "Sync this repository with the 'remote-url' it was set up with");
   @ </table>
 
   style_footer();
@@ -1046,4 +1048,14 @@ void setup_logo(void){
   @ </p>
   style_footer();
   db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_sync
+*/
+void setup_sync(void){
+	sync_cmd();
+	style_header("Synchronized");
+	@ <p>The project has been synchronized</p>
+	style_footer();
 }

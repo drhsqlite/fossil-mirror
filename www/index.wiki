@@ -58,7 +58,7 @@ internet these days. What makes Fossil worthy of attention?
       which helps to keep projects moving
       forward by reducing the amount of needless 
       [./branching.wiki | forking and merging] often
-      associated distributed projects.
+      associated with distributed projects.
 
   4.  <b>Self-Contained</b> -
       Fossil is a single stand-alone executable that contains everything
