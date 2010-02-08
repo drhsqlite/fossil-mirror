@@ -496,9 +496,8 @@ void www_print_timeline(
     @ }
     @ function renderGraph(){
     @   var canvasDiv = document.getElementById("canvas");
-    @   for(var i=canvasDiv.childNodes.length-1; i>=0; i--){
-    @     var c = canvasDiv.childNodes[i];
-    @     delete canvasDiv.removeChild(c);
+    @   while( canvasDiv.hasChildNodes() ){
+    @     canvasDiv.removeChild(canvasDiv.firstChild);
     @   }
     @   var canvasY = absoluteY("canvas");
     @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
