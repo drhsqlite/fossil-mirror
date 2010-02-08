@@ -38,6 +38,7 @@ struct HttpRequest {
   int id;             /* ID counter */
   SOCKET s;           /* Socket on which to receive data */
   SOCKADDR_IN addr;   /* Address from which data is coming */
+  const char *zNotFound;  /* --notfound option, or an empty string */
 };
 
 /*
@@ -111,9 +112,9 @@ void win32_process_one_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sprintf(zCmd, "\"%s\" http \"%s\" %s %s %s",
+  sprintf(zCmd, "\"%s\" http \"%s\" %s %s %s%s",
     g.argv[0], g.zRepositoryName, zRequestFName, zReplyFName, 
-    inet_ntoa(p->addr.sin_addr)
+    inet_ntoa(p->addr.sin_addr), p->zNotFound
   );
   portable_system(zCmd);
   in = fopen(zReplyFName, "rb");
@@ -139,15 +140,22 @@ end_request:
 void win32_http_server(
   int mnPort, int mxPort,   /* Range of allowed TCP port numbers */
   char *zBrowser,           /* Command to launch browser.  (Or NULL) */
-  char *zStopper            /* Stop server when this file is exists (Or NULL) */
+  char *zStopper,           /* Stop server when this file is exists (Or NULL) */
+  char *zNotFound           /* The --notfound option, or NULL */
 ){
   WSADATA wd;
   SOCKET s = INVALID_SOCKET;
   SOCKADDR_IN addr;
   int idCnt = 0;
   int iPort = mnPort;
+  char *zNotFoundOption;
 
   if( zStopper ) unlink(zStopper);
+  if( zNotFound ){
+    zNotFoundOption = mprintf(" --notfound %s", zNotFound);
+  }else{
+    zNotFoundOption = "";
+  }
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
   }
@@ -208,6 +216,7 @@ void win32_http_server(
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;
+    p->zNotFound = zNotFoundOption;
     _beginthread(win32_process_one_http_request, 0, (void*)p);
   }
   closesocket(s);

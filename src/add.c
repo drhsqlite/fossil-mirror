@@ -206,6 +206,10 @@ void del_cmd(void){
     Blob pathname;
 
     zName = mprintf("%/", g.argv[i]);
+    if( file_isdir(zName) ){
+      fossil_fatal("cannot remove directories -"
+                   " remove individual files instead");
+    }
     file_tree_name(zName, &pathname, 1);
     zPath = blob_str(&pathname);
     if( !db_exists(

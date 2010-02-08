@@ -489,7 +489,7 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
       }else if( strcmp(zName,"@user")==0 ){
         db_multi_exec("DELETE FROM user");
-        db_create_default_users(0);
+        db_create_default_users(0, 0);
       }else if( strcmp(zName,"@concealed")==0 ){
         db_multi_exec("DELETE FROM concealed");
       }else if( strcmp(zName,"@shun")==0 ){
