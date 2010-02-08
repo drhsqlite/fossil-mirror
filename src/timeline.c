@@ -497,6 +497,11 @@ void www_print_timeline(
     @   }
     @ }
     @ function renderGraph(){
+    @   var canvasDiv = document.getElementById("canvas");
+    @   for(var i=canvasDiv.childNodes.length-1; i>=0; i--){
+    @     var c = canvasDiv.childNodes[i];
+    @     delete canvasDiv.removeChild(c);
+    @   }
     @   var canvasY = absoluteY("canvas");
     @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
     @   for(var i in rowinfo){
@@ -508,7 +513,17 @@ void www_print_timeline(
     @     drawNode(rowinfo[i], left, btm);
     @   }
     @ }
-    @ renderGraph();
+    @ var lastId = rowinfo[rowinfo.length-1].id;
+    @ var lastY = 0;
+    @ function checkHeight(){
+    @   var h = absoluteY(lastId);
+    @   if( h!=lastY ){
+    @     renderGraph();
+    @     lastY = h;
+    @   }
+    @   setTimeout("checkHeight();", 1000);
+    @ }
+    @ checkHeight();
     @ </script>
   }
 }
