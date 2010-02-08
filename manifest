@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Implement\sa\sgraph\sof\schanges\sin\sthe\stimeline\sto\sreplace\sthe\solder\sflashing\nasterisk\smechanism.\s\sDoes\snot\swork\son\sIE6.\s\sProbably\sstill\scontains\sbugs.
-D 2010-02-08T16:12:10
+C Fix\sa\sbug\sin\sthe\sgraph\sdisplay\sthat\scauses\san\sassertion\sfault\sif\sthe\ntimeline\scontains\sa\snode\sthat\shas\sno\sparents.
+D 2010-02-08T16:40:45
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -64,7 +64,7 @@ F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 6dacf75e0c90b26d6056b56a7da2f40f1b121aa4
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
-F src/graph.c cde0857baef1c7f46f1e26f22e4a48990e7bfc10
+F src/graph.c 0330d8954f268e2d41215970f8542f8b8163148b
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_transport.c a410394220316684dd02ae97f16539e07fbd875d
@@ -257,14 +257,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 8c9f949a3f3024eb15d11142051c67538c61d03c
-R 316705ec39baaed2dd20b19572258fc0
+P d89fea6a1c0823aa72d8bf5042bf10b02798ad42
+R 7d85b907d9c61fb5e0111fe08d09e63e
 U drh
-Z 4c3b110480ddaa0ec079f3aeecd6a073
+Z 15eaa9ab8e6f4b641b3b41ffb6dbb417
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLcDfdoxKgR168RlERArZrAJ9bJgBOXTNBvLY3pVVFe19hHUO3QgCfXTxe
-n9ywQcf3xHt7YWzdIZ76sP8=
-=svxd
+iD8DBQFLcD6QoxKgR168RlERAv+6AJ0XmC3aDRsqrQo5yXyFnZXoGkku1gCfUjq4
+9TUK2yAd+SBhGRfCZ/eEXA8=
+=fEbI
 -----END PGP SIGNATURE-----

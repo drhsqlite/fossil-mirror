@@ -209,9 +209,9 @@ void graph_finish(GraphContext *p){
   ** each to a rail and draw descenders to the bottom of the screen.
   */
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    if( pRow->nParent>0 && !bag_find(&allRids,pRow->aParent[0]) ){
+    if( pRow->nParent==0 || !bag_find(&allRids,pRow->aParent[0]) ){
       pRow->iRail = ++p->mxRail;
-      pRow->bDescender = 1;
+      pRow->bDescender = pRow->nParent>0;
       mask = 1<<(pRow->iRail);
       for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
         pDesc->railInUse |= mask;
