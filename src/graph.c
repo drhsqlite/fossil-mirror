@@ -263,6 +263,12 @@ void graph_finish(GraphContext *p){
       if( pDesc->mergeOut<0 ){
         pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0);
         pDesc->mergeUpto = pRow->idx;
+        mask = 1<<pDesc->mergeOut;
+        pDesc->railInUse |= mask;
+        for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid;
+             pDesc=pDesc->pNext){
+          pDesc->railInUse |= mask;
+        }
       }
       pRow->mergeIn |= 1<<pDesc->mergeOut;
     }
