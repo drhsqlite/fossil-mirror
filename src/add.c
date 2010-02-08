@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -34,14 +34,14 @@
 ** included when processing a recursive "add" command.
 */
 static int includeDotFiles = 0;
-    
+
 /*
 ** Add a single file
 */
 static void add_one_file(const char *zName, int vid, Blob *pOmit){
   Blob pathname;
   const char *zPath;
-      
+
   file_tree_name(zName, &pathname, 1);
   zPath = blob_str(&pathname);
   if( strcmp(zPath, "manifest")==0
@@ -128,7 +128,7 @@ void add_directory(const char *zDir, int vid, Blob *pOmit){
 **
 ** Usage: %fossil add FILE...
 **
-** Make arrangements to add one or more files to the current checkout 
+** Make arrangements to add one or more files to the current checkout
 ** at the next commit.
 **
 ** When adding files recursively, filenames that begin with "." are
@@ -203,9 +203,14 @@ void del_cmd(void){
   for(i=2; i<g.argc; i++){
     char *zName;
     char *zPath;
+    int isDir;
     Blob pathname;
 
     zName = mprintf("%/", g.argv[i]);
+    isDir = file_isdir(zName);
+    if( isDir==1 ){
+      fossil_fatal("cannot remove directories. Please remove individual files instead.");
+	}
     file_tree_name(zName, &pathname, 1);
     zPath = blob_str(&pathname);
     if( !db_exists(
@@ -223,7 +228,7 @@ void del_cmd(void){
 }
 
 /*
-** Rename a single file.  
+** Rename a single file.
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
 */

@@ -1,5 +1,5 @@
-C fixed\s[9ff56ae8a6]\s-\s"fossil\ssha"\scrash
-D 2010-02-06T20:20:59
+C Added\sbetter\serror\smessage\swhen\strying\sto\sremove\sa\sdirectory.
+D 2010-02-08T14:20:24
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -34,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 4b40de9242ea1a2754a8892a12267b0ee3910e37
+F src/add.c c598128566be2ad0c88598ef94e947ace108caf8
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
@@ -253,7 +253,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 2f58d48cabfb675fd418da343c05b15ba6b6418e
-R 3d3dd5e16927c43fc83ac2c24f2eb8fc
-U ron
-Z ba0fe5467333d09e64e8143a07f372ff
+P 4027ad4b7e5d18294b0c102b242167df8314a599
+R 79b2b845f0ae9a70dc8f6e9902dcf501
+U jeremy_c
+Z f539bfd2702c23307527d0e18422b96b
