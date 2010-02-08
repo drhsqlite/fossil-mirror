@@ -253,7 +253,7 @@ void www_print_timeline(
     zTime[5] = 0;
     @ <tr>
     @ <td valign="top" align="right">%s(zTime)</td>
-    @ <td width="20" align="center" valign="top">
+    @ <td width="20" align="left" valign="top">
     @ <div id="m%d(rid)"></div>
     if( zBgClr && zBgClr[0] ){
       @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
@@ -403,14 +403,12 @@ void www_print_timeline(
     @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
     @   var w = x1-x0+1;
     @   var h = y1-y0+1;
-    @   n.setAttribute("style",
-    @     "position:absolute;"+
+    @   n.innerHTML="<div style=\"position:absolute;overflow:hidden;"+
     @     "left:"+x0+"px;"+
     @     "top:"+y0+"px;"+
     @     "width:"+w+"px;"+
     @     "height:"+h+"px;"+
-    @     "background-color:"+color+";"
-    @   );
+    @     "background-color:"+color+";\"></div>"
     @   canvasDiv.appendChild(n);
     @ }
     @ function absoluteY(id){
