@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Check\sthe\sgraph\sfor\sresize\sevents\severy\ssecond\sand\srerender\sthe\sgraph\sif\na\sresize\shas\soccurred.\s\sThis\sfixes\sdisplay\sproblems\son\sSafari\sand\salso\nkeeps\sthe\sgraph\sconsistent\swith\sresized\sbrowser\swindows.
-D 2010-02-08T18:08:25
+C fossil\srm\scan\snow\sremove\sentire\sdirectories.
+D 2010-02-08T18:47:01
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 21a564c8f58eb41764606c0a1f5c803dd1ebb20a
@@ -37,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 10283fbbd2531e259542e99c298dfa13b64f0bd6
+F src/add.c 05fb22977b2e0cd65391bccfb2a07328f047151f
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
@@ -257,14 +254,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 399d1ca0006bf2f51c353a807f5b139bbb676041
-R 702422d0409ad28c145c3b201e4655cd
-U drh
-Z 5db9e4df755401c909d4ee2e21d5c23f
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLcFMcoxKgR168RlERAoJtAJ43Ns/5BtCivPieOTe95yNgiWgkSQCff2aU
-GyAYHezbmyuHJM2+gFfi4AY=
-=c87e
------END PGP SIGNATURE-----
+P f51bd59613cf9a2b48ba0abc926b7cacbb461d0b
+R 7a976559c2c89d10274916e29afc2e43
+U jeremy_c
+Z 8b63bebabe9e0d04e5cd3d69482987ff
