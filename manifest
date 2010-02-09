@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Get\sthe\s--latest\soption\son\sthe\s"co"\scommand\sworking\swhen\sthe\scurrent\scheckout\nis\son\sa\sdead\sbranch.\s\sTicket\s[e42448edec1].
-D 2010-02-09T12:28:39
+C Disable\sthe\sbuilt-in\srobots.txt\sfile.\s\sTicket\s[03c9f4deef]
+D 2010-02-09T12:31:57
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
@@ -71,7 +71,7 @@ F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
-F src/main.c 425b1f76e7211dbe149ca0302e31def7d6c8aab3
+F src/main.c b20658a1d43e15dcc7bab605cd5b935497e89b4b
 F src/main.mk 15ebf7652e72eea62dd10165849a3cb50bb3efea
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -258,14 +258,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 8fdac87b688c3ea0cecc970364632b8ba254004b
-R 0baccf5c7676ba23c29cc63e933b4ed8
+P c98948242ea05e4c6918748c9b9af0dbcba1ff20
+R ada41b92e645af01ac7d1b34f4690cb4
 U drh
-Z 8508dc8e8e5a0e7a1212d195e9261330
+Z 07eb333c5c276ea2cc8eb64ee3c542cb
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLcVT6oxKgR168RlERAtO5AJ4wnJqk8X0AI4KyHaSJLbE1MVXKwQCfcvCG
-9qiq1F2GtJBaBKnFamh1XzM=
-=dBn9
+iD8DBQFLcVXAoxKgR168RlERAsRKAJ9Qgw1UsyvR41VXu6W3NUkY6VoucQCfWOtI
+x1Lb/fWTpmfwpfvqFfIBVAE=
+=pzYT
 -----END PGP SIGNATURE-----
