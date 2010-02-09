@@ -156,6 +156,7 @@ int count_nonbranch_children(int pid){
 #define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
 #define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
 #define TIMELINE_GRAPH    0x0008  /* Compute a graph */
+#define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
 #endif
 
 /*
@@ -350,7 +351,7 @@ void www_print_timeline(
     suppressCnt = 0;
   }
   if( pGraph ){
-    graph_finish(pGraph);
+    graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
@@ -860,7 +861,7 @@ void page_timeline(void){
     }
     if( tagid>0 ){
       blob_appendf(&desc, " tagged with \"%h\"", zTagName);
-      tmFlags &= ~TIMELINE_GRAPH;
+      tmFlags |= TIMELINE_DISJOINT;
     }
     if( zAfter ){
       blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
