@@ -231,7 +231,12 @@ void graph_finish(GraphContext *p){
     parentRid = pRow->aParent[0];
     assert( bag_find(&allRids, parentRid) );
     for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid; pDesc=pDesc->pNext){}
-    assert( pDesc!=0 );
+    if( pDesc==0 ){
+      /* Time skew */
+      pRow->iRail = ++p->mxRail;
+      pRow->railInUse = 1<<pRow->iRail;
+      continue;
+    }
     if( pDesc->aiRaiser[pDesc->iRail]==0 && pDesc->zBranch==pRow->zBranch ){
       pRow->iRail = pDesc->iRail;
     }else{
