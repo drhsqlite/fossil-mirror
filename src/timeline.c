@@ -398,19 +398,21 @@ void www_print_timeline(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = document.getElementById("canvas");
+    @ var realCanvas = null;
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
     @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
     @   var w = x1-x0+1;
     @   var h = y1-y0+1;
-    @   n.innerHTML="<div style=\"position:absolute;overflow:hidden;"+
-    @     "left:"+x0+"px;"+
-    @     "top:"+y0+"px;"+
-    @     "width:"+w+"px;"+
-    @     "height:"+h+"px;"+
-    @     "background-color:"+color+";\"></div>"
     @   canvasDiv.appendChild(n);
+    @   n.style.position = "absolute";
+    @   n.style.overflow = "hidden";
+    @   n.style.left = x0+"px";
+    @   n.style.top = y0+"px";
+    @   n.style.width = w+"px";
+    @   n.style.height = h+"px";
+    @   n.style.backgroundColor = color;
     @ }
     @ function absoluteY(id){
     @   var obj = document.getElementById(id);
@@ -502,11 +504,31 @@ void www_print_timeline(
     @   }
     @   var canvasY = absoluteY("canvas");
     @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
+    @   var width = left + nrail*20 + 20;
     @   for(var i in rowinfo){
     @     rowinfo[i].y = absoluteY(rowinfo[i].id) + 10 - canvasY;
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
     @   var btm = rowinfo[rowinfo.length-1].y + 20;
+    @   canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
+    @      'style="position:absolute;left:'+(left-5)+'px;"' +
+    @      ' width="'+(width-left+26)+'" height="'+btm+'"></canvas>';
+    @   realCanvas = document.getElementById('timeline-canvas');
+    @   var context;
+    @   if( realCanvas && realCanvas.getContext
+    @        && (context = realCanvas.getContext('2d'))) {
+    @     drawBox = function(color,x0,y0,x1,y1) {
+    @       var colors = {
+    @          'white':'rgba(255,255,255,1)',
+    @          'black':'rgba(0,0,0,1)'
+    @       };
+    @       if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
+    @       if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
+    @       if(isNaN(x0) || isNaN(y0) || isNaN(x1) || isNaN(y1)) return;
+    @       context.fillStyle = colors[color];
+    @       context.fillRect(x0-left+5,y0,x1-x0+1,y1-y0+1);
+    @     };
+    @   }
     @   for(var i in rowinfo){
     @     drawNode(rowinfo[i], left, btm);
     @   }
