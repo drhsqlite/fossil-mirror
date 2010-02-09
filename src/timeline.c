@@ -635,6 +635,7 @@ static void timeline_add_dividers(const char *zDate){
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 't'
 **    s=TEXT         string search (comment and brief)
+**    ng             Suppress the graph if present
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -675,6 +676,9 @@ void page_timeline(void){
     tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
     tmFlags = TIMELINE_GRAPH;
+  }
+  if( P("ng")!=0 ){
+    tmFlags &= ~TIMELINE_GRAPH;
   }
 
   style_header("Timeline");
