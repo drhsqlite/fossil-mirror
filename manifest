@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Modify\sthe\scheck-in\scommand\sto\sdetect\sclock\sskew\sand\sabort\sif\sfound.
-D 2010-02-09T11:57:01
+C Get\sthe\s--latest\soption\son\sthe\s"co"\scommand\sworking\swhen\sthe\scurrent\scheckout\nis\son\sa\sdead\sbranch.\s\sTicket\s[e42448edec1].
+D 2010-02-09T12:28:39
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
@@ -46,7 +46,7 @@ F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
 F src/checkin.c cd1869b04f188b4c83106056ffdd258c310747f9
-F src/checkout.c 93e8f5c3cb11bac6476ec5deff05e0247958d05d
+F src/checkout.c 546cf488dc4a657655d25ca759521a8d2eb46ad2
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 97479abe225cc2648c61bd669495d22616055001
 F src/comformat.c 26c0414fd89346d1d1cfda0762fd8fddbca144b1
@@ -258,14 +258,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ff9efe3026083212cab3c901a3d46da9004d3319
-R 376b0a3ca84823263366af8446c47d51
+P 8fdac87b688c3ea0cecc970364632b8ba254004b
+R 0baccf5c7676ba23c29cc63e933b4ed8
 U drh
-Z 7f6205c07f65db64501c1fc27ded19b3
+Z 8508dc8e8e5a0e7a1212d195e9261330
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLcU2QoxKgR168RlERAqRhAJ4iaixniZkBDu5iFXCq4OLJJLSQ5wCdE28i
-nBv7OkaWji2qx5m0FQFdvw8=
-=PhKZ
+iD8DBQFLcVT6oxKgR168RlERAtO5AJ4wnJqk8X0AI4KyHaSJLbE1MVXKwQCfcvCG
+9qiq1F2GtJBaBKnFamh1XzM=
+=dBn9
 -----END PGP SIGNATURE-----
