@@ -436,6 +436,28 @@ int is_a_leaf(int rid){
 }
 
 /*
+** Make sure the current check-in with timestamp zDate is younger than its
+** ancestor identified rid and zUuid.  Throw a fatal error if not.
+*/
+static void checkin_verify_younger(
+  int rid,              /* The record ID of the ancestor */
+  const char *zUuid,    /* The artifact ID of the ancestor */
+  const char *zDate     /* Date & time of the current check-in */
+){
+  int b;
+  b = db_exists(
+    "SELECT 1 FROM event"
+    " WHERE datetime(mtime)>=%Q"
+    "   AND type='ci' AND objid=%d",
+    zDate, rid
+  );
+  if( b ){
+    fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)",
+                 zUuid, zDate);
+  }
+}
+
+/*
 ** COMMAND: ci
 ** COMMAND: commit
 **
@@ -663,6 +685,7 @@ void commit_cmd(void){
   zDate = db_text(0, "SELECT datetime('%q')", zDateOvrd ? zDateOvrd : "now");
   zDate[10] = 'T';
   blob_appendf(&manifest, "D %s\n", zDate);
+  zDate[10] = ' ';
   db_prepare(&q,
     "SELECT pathname, uuid, origname, blob.rid"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
@@ -696,6 +719,7 @@ void commit_cmd(void){
   db_finalize(&q);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   blob_appendf(&manifest, "P %s", zUuid);
+  checkin_verify_younger(vid, zUuid, zDate);
 
   db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
   db_bind_int(&q2, ":id", 0);
@@ -705,6 +729,7 @@ void commit_cmd(void){
     zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zUuid ){
       blob_appendf(&manifest, " %s", zUuid);
+      checkin_verify_younger(mid, zUuid, zDate);
       free(zUuid);
     }
   }
