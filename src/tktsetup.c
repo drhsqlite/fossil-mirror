@@ -262,7 +262,7 @@ static const char zDefaultNew[] =
 @ <table cellpadding="5">
 @ <tr>
 @ <td colspan="2">
-@ Enter a one-line summary of the problem:<br>
+@ Enter a one-line summary of the ticket:<br>
 @ <input type="text" name="title" size="60" value="$<title>">
 @ </td>
 @ </tr>
