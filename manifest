@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Not\sall\stickets\sare\s"problems".\sAdjust\slabel\sfor\s"one-line\ssummary"\sentry\swhen\screating\snew\sticket.
-D 2010-02-09T22:13:49
+C Bug\sfix\sin\sthe\sgraph\slayout\salgorithm.
+D 2010-02-10T13:13:17
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
@@ -64,7 +64,7 @@ F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c ffe3dddccba03523c55cd91f666ce7f5336b186c
 F src/file.c 6dacf75e0c90b26d6056b56a7da2f40f1b121aa4
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
-F src/graph.c f2d50e8b548b811d6b821a54a917b0a04c7514f6
+F src/graph.c ebdc729f169e69117aefc47d89ac352c2aa51a56
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
@@ -258,14 +258,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 82d08200f73d3e8721cc424c7cc98f43c36783da
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 6fd91413684c87f09a9f722df77a372f2a6fd1cd
-R bda188c464cf3e4c2b7e9d6fa0b1a827
-U bch
-Z c5dd459fb15b63474ec0615eab89f4b3
+P 2b79f36e5a087404b2cabb5870aca2365158b4b2
+R f669b29c8f01d687b6cc1f1d17fd789e
+U drh
+Z 6cc7149963eccfdabd86598a900e194f
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (NetBSD)
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-iEYEARECAAYFAktx3h0ACgkQad0Kwpwugm9S1wCgjqaCz9RbFgzVs6KwgYh9Kstf
-P7IAmgMjqeqliS7DB1jPr3negt3O31nh
-=kTC2
+iD8DBQFLcrDwoxKgR168RlERAuw8AJ4hELIkClZ4V5QSUC9G7V7X7rBarwCfZbbD
+rBvFHxotgGaoTqOjzu3rRDc=
+=uumd
 -----END PGP SIGNATURE-----

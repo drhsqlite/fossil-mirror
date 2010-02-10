@@ -232,7 +232,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** The first primary child of a row goes on the same rail as
   ** that row.
   */
-  inUse = 0;
+  inUse = (1<<(p->mxRail+1))-1;
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
     int parentRid;
     if( pRow->iRail>=0 ) continue;
