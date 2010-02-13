@@ -251,7 +251,7 @@ void del_cmd(void){
     char *zName;
 
     zName = mprintf("%/", g.argv[i]);
-    if( file_isdir(zName) ){
+    if( file_isdir(zName) == 1 ){
       del_directory_content(zName);
     } else {
       char *zPath;
