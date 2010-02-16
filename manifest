@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Improve\spunctuation.\sRelated\sto\s[6b8dcc1d67171f3e3].
-D 2010-02-15T21:06:00
+C Remove\ssurplus\s":"\sfrom\sthe\suser-home:\sline\sin\swindows\sbuilds.\nTicket\s[eff2cbe5ae11c]
+D 2010-02-16T17:49:34
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
@@ -69,7 +69,7 @@ F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c f1ce85a3646e6ddf4e0547b2d2d1f0ff34a364f8
+F src/info.c cca5d8684361cf77e0ba17d12baee09124fcbf2e
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
 F src/main.c b20658a1d43e15dcc7bab605cd5b935497e89b4b
 F src/main.mk 15ebf7652e72eea62dd10165849a3cb50bb3efea
@@ -258,14 +258,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 05b44d58a03aa27bf1b49cae4d77c089b4778784
-R f09643ee07fec3e06b9275d645fa0f0a
-U bch
-Z e7223282ba6b366588eabd7cb01323cb
+P d5dd493b00208ce580b0b12ec3946cb0ac3694e0
+R 7030bb7b6640af8e98183ef196e4eaeb
+U drh
+Z 71d9bc38d1f73d8b7dc807f7699694ba
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (NetBSD)
+Version: GnuPG v1.4.8 (Darwin)
 
-iEYEARECAAYFAkt5tzgACgkQad0Kwpwugm8HeQCg3UvlHBJVOY3atJ0HPNZbhtt4
-+UIAni7pRQG80/4qrX5epIntNSP6pagH
-=cJZn
+iEYEARECAAYFAkt62q8ACgkQoxKgR168RlGaMgCeIWtiLP/dTOiG8cmTvIPuTU4G
+fH8AnRkIUKwg2zxP9o3YsryaNwxAawC3
+=Wxxt
 -----END PGP SIGNATURE-----

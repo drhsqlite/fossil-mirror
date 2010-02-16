@@ -145,7 +145,7 @@ void info_cmd(void){
     printf("local-root:   %s\n", g.zLocalRoot);
 #ifdef __MINGW32__
     if( g.zHome ){
-      printf("user-home:  : %s\n", g.zHome);
+      printf("user-home:    %s\n", g.zHome);
     }
 #endif
     printf("project-code: %s\n", db_get("project-code", ""));
