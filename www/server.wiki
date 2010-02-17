@@ -13,16 +13,45 @@ start Fossil as a server:
 <li><tt>fossil ui repo.fossil</tt>
 </ul>
 
+<p>
 Both of these commands start a Fossil server on port 8080 on the local machine,
 which can be accessed with the URL: <tt>http://localhost:8080/</tt> using any
 handy web browser.  The difference between the two commands is that "ui", in
 addition to starting the Fossil server, also starts a web browser and points it
 to the URL mentioned above.
+</p>
+<p>
+NOTES:
+<ol>
+<li>The option "--port NNN" will start the server on port "NNN" instead of 8080.  
+<li>If port 8080 is already being used (perhaps by another Fossil server), then
+Fossil will use the next available port number.
+<li>Starting either command from within an "open" Fossil checkout will start a
+server using the repository corresponding to the checkout.
+</ol>
+</p>
+</blockquote>
 
-NOTE: the "--port NNN" option will start the server using port "NNN" instead of
-8080.  Also, if port 8080 is already being used (perhaps by another Fossil
-			 server), then Fossil will use the next available port number.
+<h2>Fossil as an ''inetd'' service</h2><blockquote>
+<p>
+</p>
+</blockquote>
 
+<h2>Fossil as a ''CGI script''</h2>
+
+<h3>One script per repository</h3><blockquote>
+<p>
+</p>
+</blockquote>
+
+<h3>Serving multiple repositories with one script</h3><blockquote>
+<p>
+</p>
+</blockquote>
+
+<h2>Securing a repository with SSL</h2><blockquote>
+<p>
+</p>
 </blockquote>
 
 </nowiki>
