@@ -1,0 +1,28 @@
+<title>Server Setup Guide</title>
+<nowiki>
+<h1 align="center">Server Setup Guide</h1>
+<p>This guide is intended to help guide you in setting up a Fossil server.</p>
+
+<h2>Standalone server</h2><blockquote>
+The easiest way to set up a Fossil server is to use the <tt>server</tt> or
+<tt>ui</tt> command.  Assuming the repository you are interested in serving is
+in the file "<tt>repo.fossil</tt>", you can use either of these commands to
+start Fossil as a server:
+<ul>
+<li><tt>fossil server repo.fossil</tt>
+<li><tt>fossil ui repo.fossil</tt>
+</ul>
+
+Both of these commands start a Fossil server on port 8080 on the local machine,
+which can be accessed with the URL: <tt>http://localhost:8080/</tt> using any
+handy web browser.  The difference between the two commands is that "ui", in
+addition to starting the Fossil server, also starts a web browser and points it
+to the URL mentioned above.
+
+NOTE: the "--port NNN" option will start the server using port "NNN" instead of
+8080.  Also, if port 8080 is already being used (perhaps by another Fossil
+			 server), then Fossil will use the next available port number.
+
+</blockquote>
+
+</nowiki>
