@@ -235,7 +235,7 @@ int dehttpize(char *z){
 #ifdef __MINGW32__
 int isspace(int c)
 {
-	return	(c==' ' || c=='\n' || c=='\r' || c=='\r' || c=='\f' || c=='\v' ) ;
+	return (c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f' || c=='\v' ) ;
 }
 #endif
 
