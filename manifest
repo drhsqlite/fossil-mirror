@@ -1,5 +1,5 @@
-C no\scomment
-D 2010-02-18T11:23:51
+C customize\stickets
+D 2010-02-18T12:44:58
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
@@ -208,6 +208,7 @@ F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
 F www/copyright-release.html 14100368011239bed3e6908f9f92e6ea3f712084
+F www/custom_ticket.wiki ef89314af518cf9b089da71003e6512e36e2005b
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -256,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P ae2adb543bd8066d64ae298b1f06a2ccc56a97bb
-R e72a40d6fb8a8daa1cfe17030b17caec
+P 0893a67a9ccc1572e1756a3674d6f3085ba38b80
+R fd8e037009f302aa0523e258ff3e5783
 U ron
-Z 7dd561e890051b22a31ba17ea0ad95a5
+Z bf7009cd56c0321d33ee607572041f32
