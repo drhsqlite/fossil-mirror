@@ -1,5 +1,8 @@
-C no\scomment
-D 2010-02-18T13:47:55
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Remove\sthe\sbyte-order\smark\sfrom\sthe\sbeginning\sof\sindex.wiki.
+D 2010-02-18T15:48:38
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
@@ -239,7 +242,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki a7028b2b4ea6d9ca9da8e7bd0deab38e56defe2b
+F www/index.wiki 96297d62716b1bbb4bbc773e2139fa6b87f6d20c
 F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/password.wiki 4c626ba0e123d6b2c8a7c8695fef3d6bb6a8bb60
@@ -257,7 +260,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P c98e4a47bd4b6a0a52bfa340a42c163de79d4688
-R edf4180298769cd20b84b40723073782
-U ron
-Z 1de0e4d415839adc36c4555e7d1d1632
+P 5edfe089caa0c85e14abcff60b13b031bd914a5f
+R f97c63d72f7c711793c1478a47a43026
+U drh
+Z 1fb9d934105942d0f770740dc2a17aa3
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (Darwin)
+
+iEYEARECAAYFAkt9YVYACgkQoxKgR168RlHxrwCfRVjVA0nDfiM9FMu+OteLW71n
+qpQAn26Oa6cEba8U0UWDWviG31DzZCmv
+=oZQr
+-----END PGP SIGNATURE-----

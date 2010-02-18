@@ -1,4 +1,4 @@
-﻿<title>Fossil Home Page</title>
+<title>Fossil Home Page</title>
 
 
 <p align="center">
