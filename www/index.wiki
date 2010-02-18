@@ -126,6 +126,7 @@ internet these days. What makes Fossil worthy of attention?
      [http://www.sqliteconcepts.org/THManual.pdf | TH1 Script Language] used
      to configure the ticketing subsystem.
   *  How to [./server.wiki | set up a server] for your repository.
+  *  Customizing the [./custom_ticket.wiki | ticket system].
 
 <h3>Links For Fossil Developer:</h3>
 
