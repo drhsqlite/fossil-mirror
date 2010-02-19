@@ -37,6 +37,7 @@ void page_timeline_rss(void){
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   Blob bSQL;
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
+  int nLimit = atoi(PD("n","20"));
   const char zSQL1[] =
     @ SELECT
     @   blob.rid,
@@ -57,7 +58,7 @@ void page_timeline_rss(void){
 
   blob_zero(&bSQL);
   blob_append( &bSQL, zSQL1, -1 );
-  
+
   if( zType[0]!='a' ){
     if( zType[0]=='c' && !g.okRead ) zType = "x";
     if( zType[0]=='w' && !g.okRdWiki ) zType = "x";
@@ -110,7 +111,7 @@ void page_timeline_rss(void){
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
   db_prepare(&q, blob_str(&bSQL));
   blob_reset( &bSQL );
-  while( db_step(&q)==SQLITE_ROW && nLine<=20 ){
+  while( db_step(&q)==SQLITE_ROW && nLine<=nLimit ){
     const char *zId = db_column_text(&q, 1);
     const char *zCom = db_column_text(&q, 3);
     const char *zAuthor = db_column_text(&q, 4);

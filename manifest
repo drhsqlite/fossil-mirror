@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Remove\sthe\sbyte-order\smark\sfrom\sthe\sbeginning\sof\sindex.wiki.
-D 2010-02-18T15:48:38
+C timeline.rss\snow\ssupports\sn=###\sparam,\slike\sthe\s/timeline\spage\sdoes.\sThis\sfeature\sis\sarguable\s(could\slead\sto\sDoS),\sbut\si\swant\sit\sfor\sharvesting\san\sactivity\stimeline\swhich\sincludes\solder\scommits.
+D 2010-02-19T17:57:24
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
@@ -87,7 +84,7 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
 F src/rebuild.c a6d927091a53ebf0d8db68480c4db519a05aa686
 F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
-F src/rss.c 69c665c5d02f91002fc812691b76dfc9c16922b1
+F src/rss.c 4482765bb769dd4026433a4980b4711a22a6e4ab
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
@@ -260,14 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5edfe089caa0c85e14abcff60b13b031bd914a5f
-R f97c63d72f7c711793c1478a47a43026
-U drh
-Z 1fb9d934105942d0f770740dc2a17aa3
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (Darwin)
-
-iEYEARECAAYFAkt9YVYACgkQoxKgR168RlHxrwCfRVjVA0nDfiM9FMu+OteLW71n
-qpQAn26Oa6cEba8U0UWDWviG31DzZCmv
-=oZQr
------END PGP SIGNATURE-----
+P e964b55dd6047de411824efcf631ae7723335ee2
+R e4e122b476601d06c15d82699621f6a8
+U stephan
+Z ebd6c5d1122b2e844733b0013f83bff7
