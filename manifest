@@ -1,9 +1,9 @@
-C timeline.rss\snow\ssupports\sn=###\sparam,\slike\sthe\s/timeline\spage\sdoes.\sThis\sfeature\sis\sarguable\s(could\slead\sto\sDoS),\sbut\si\swant\sit\sfor\sharvesting\san\sactivity\stimeline\swhich\sincludes\solder\scommits.
-D 2010-02-19T17:57:24
+C make\sit\spossible\sto\sdo\sboth\sLinux\sand\sWin\sbuilds\swithout\sdoing\sclean\sfirst
+D 2010-02-21T10:45:44
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile 98bd66e2a5456f9a1c4619e67dabe12555488cc5
-F Makefile.w32 ef2a80b08851bc6afbfa1190af46d9dd2b61f4f3
+F Makefile a2dc6c5709495df30849822fd20ff91688f0bb41
+F Makefile.w32 c39e9b7143dd53ad358e58c52029ba5010748fd4
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -69,10 +69,10 @@ F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c cca5d8684361cf77e0ba17d12baee09124fcbf2e
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
 F src/main.c b20658a1d43e15dcc7bab605cd5b935497e89b4b
-F src/main.mk 15ebf7652e72eea62dd10165849a3cb50bb3efea
+F src/main.mk 719a1a01d8ccbc91dda19c8bdff972d2f2b66a54
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl 05edf2657e0a7fa45ddd57ba64f57493256f98e4
+F src/makemake.tcl fffea54ed77907c2298600a259fb6106766e2dd5
 F src/manifest.c fbdeafd71ccbf7f989ef78d05309f58a54a134cb
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c a03711bee25284f05f28d4c359de66b0c313989a
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P e964b55dd6047de411824efcf631ae7723335ee2
-R e4e122b476601d06c15d82699621f6a8
-U stephan
-Z ebd6c5d1122b2e844733b0013f83bff7
+P 65a46db339774e7854a54644f16d0a5665aad3dd
+R 45d4d4d5429b5b58534918884991b182
+U ron
+Z 56813ee4120126aa208780cedf110c02

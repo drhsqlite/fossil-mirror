@@ -5,6 +5,7 @@
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = ./src
+OBJDIR = ./obj
 
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
