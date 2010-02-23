@@ -1,5 +1,5 @@
-C Fix\sthe\sMakefile\sso\sthat\sall\sparameters\sare\scommented\sand\sso\sthat\sit\sworks\nwith\snon-GNU\smakes.
-D 2010-02-23T16:14:26
+C Improved\sgraph\slayout\salgorithm\sattempts\sto\skeep\smerge\sarrows\sin\sbetween\ntheir\ssource\sand\sdestination.
+D 2010-02-23T21:30:36
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -61,7 +61,7 @@ F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c c66f7e938e31a5e9d91562e351dc60066e9c1f1e
 F src/file.c 6dacf75e0c90b26d6056b56a7da2f40f1b121aa4
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
-F src/graph.c ebdc729f169e69117aefc47d89ac352c2aa51a56
+F src/graph.c 4c50a70dc67a22bc0a980508cba090e25d49790b
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 28987096acb2fd6a88b9869ec9f07477b1af6ce0
-R 4e63b1be91b3871a1e0dd82aa58da6f1
+P 8fe33aa575be5c826710fd76fff0ea7476d6b8b2
+R 2c292b3a154a9c7023ab82de78cfba53
 U drh
-Z be2ed92c9a7de51d033922b3d42fa443
+Z f595061189307c659e85872b3eef41a4
