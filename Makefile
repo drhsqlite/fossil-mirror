@@ -5,6 +5,10 @@
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = ./src
+
+#### The directory into which object code files should be written.
+#
+#
 OBJDIR = ./obj
 
 #### C Compiler and options for use in building executables that
@@ -49,10 +53,6 @@ LIB += -lcrypto -lssl
 #### Tcl shell for use in running the fossil testsuite.
 #
 TCLSH = tclsh
-
-#### Include a configuration file that can override any one of these settings.
-#
--include config.mak
 
 # You should not need to change anything below this line
 ###############################################################################

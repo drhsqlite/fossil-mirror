@@ -1,11 +1,8 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Make\sthe\s"clearsign"\sPGP\ssigning\sdefault\sto\soff.
-D 2010-02-23T15:33:14
+C Fix\sthe\sMakefile\sso\sthat\sall\sparameters\sare\scommented\sand\sso\sthat\sit\sworks\nwith\snon-GNU\smakes.
+D 2010-02-23T16:14:26
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
-F Makefile a2dc6c5709495df30849822fd20ff91688f0bb41
+F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
 F Makefile.w32 c39e9b7143dd53ad358e58c52029ba5010748fd4
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -260,14 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 847ae1fe0f8cf85488eed7b94b874dea94a382a6
-R c0788982781981c96a0d81465fec7192
+P 28987096acb2fd6a88b9869ec9f07477b1af6ce0
+R 4e63b1be91b3871a1e0dd82aa58da6f1
 U drh
-Z 873967951a099d6a568f63dacf378261
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFLg/U9oxKgR168RlERAoQ6AJ9IHzJa4NPWU50NB8okh5wlUUoeMgCfTiWp
-lTvkXbR4NH26TRxKFPm1Rcw=
-=g7KC
------END PGP SIGNATURE-----
+Z be2ed92c9a7de51d033922b3d42fa443
