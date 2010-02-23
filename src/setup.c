@@ -836,7 +836,7 @@ void setup_behavior(void){
 
   @ <hr>
   onoff_attribute("Sign all commits with GPG",
-                  "clearsign", "clearsign", 1);
+                  "clearsign", "clearsign", 0);
   @ <p>When enabled (the default), fossil will attempt to
   @     sign all commits with GPG.  When disabled, commits will
   @    be unsigned.</p>  

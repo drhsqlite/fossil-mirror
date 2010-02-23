@@ -541,7 +541,7 @@ void commit_cmd(void){
   zUserOvrd = find_option("user-override",0,1);
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
-  if( db_get_boolean("clearsign", 1)==0 ){ noSign = 1; }
+  if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   verify_all_options();
 
   /* Get the ID of the parent manifest artifact */

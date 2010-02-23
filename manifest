@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Fix\sthe\swidth\sof\sthe\sgraph\scanvas\sso\sthat\sit\sdoes\snot\soverlap\sand\sdisable\nhyperlinks\sin\sthe\scheck-in\scomment\stext.\nTicket\s[ddd45723b9a2].
-D 2010-02-23T15:28:24
+C Make\sthe\s"clearsign"\sPGP\ssigning\sdefault\sto\soff.
+D 2010-02-23T15:33:14
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile a2dc6c5709495df30849822fd20ff91688f0bb41
@@ -45,7 +45,7 @@ F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
-F src/checkin.c cd1869b04f188b4c83106056ffdd258c310747f9
+F src/checkin.c 736ed824bc5d67eefd6528c1afe3b277cba3223a
 F src/checkout.c 546cf488dc4a657655d25ca759521a8d2eb46ad2
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 97479abe225cc2648c61bd669495d22616055001
@@ -54,7 +54,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c c6c1888bf86fc7d117e9e711774d48756f9463db
+F src/db.c f10525b54320dc2a51fdfabdcf91d42d8703cdee
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -91,7 +91,7 @@ F src/rss.c 4482765bb769dd4026433a4980b4711a22a6e4ab
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c ec48253bcccebed0a985fe95b599ded84c46ae53
+F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
@@ -260,14 +260,14 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P aff93fb6b8e316426781da70eb18195861a53c85
-R 7ab26f2b3558a84aa6f510f6ff57cd4b
+P 847ae1fe0f8cf85488eed7b94b874dea94a382a6
+R c0788982781981c96a0d81465fec7192
 U drh
-Z 851a0dc0886c462ab59ace0a3321461b
+Z 873967951a099d6a568f63dacf378261
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFLg/QcoxKgR168RlERAq3ZAJ0QeFE4ZpYXiR2QaOGQbIxuBWaOWACeNSdZ
-RA7n07i9T+L8Tbb91sdyzyw=
-=1f0j
+iD8DBQFLg/U9oxKgR168RlERAoQ6AJ9IHzJa4NPWU50NB8okh5wlUUoeMgCfTiWp
+lTvkXbR4NH26TRxKFPm1Rcw=
+=g7KC
 -----END PGP SIGNATURE-----
