@@ -1,5 +1,5 @@
-C Updates\sto\sthe\sfile\sformat\sdocumentation.
-D 2010-02-24T04:11:26
+C Back\sout\sthe\schanges\sof\s[0e2281fc8a757]\ssince\sthey\swere\scausing\sa\nsegfault\swhile\strying\sto\senter\sa\snew\sticket.\s\sThe\sticket\s\n[6b498a792c0]\sshould\sstill\sbe\sfixed.
+D 2010-02-24T22:39:35
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -58,7 +58,7 @@ F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
 F src/diff.c 6039c715138bf4b01ae398f6b45758693ea025df
 F src/diffcmd.c 6b2be81037608261703d3f2e0314c6f638e344bd
 F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
-F src/encode.c c66f7e938e31a5e9d91562e351dc60066e9c1f1e
+F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c 6dacf75e0c90b26d6056b56a7da2f40f1b121aa4
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/graph.c 4c50a70dc67a22bc0a980508cba090e25d49790b
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 0f27a59808e214b274d76aba89d669fd7abe34c7
-R 06fa8de777ac3aade75c457d3c88d38b
+P f01ec9db8b9f45eded2ca10acb2888a4834a90bd
+R d7e25607f6807820e90c45e7d1956aa1
 U drh
-Z 9383a85c82645fb3f16a8f0e6ebd59b0
+Z 3dc41557b7f216f95dcfda2cbd6156d1

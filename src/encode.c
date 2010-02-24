@@ -231,43 +231,40 @@ int dehttpize(char *z){
 ** returns a pointer to the encoding in space obtained from
 ** malloc.
 */
-
-#ifdef __MINGW32__
-int isspace(int c)
-{
-	return (c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f' || c=='\v' ) ;
-}
-#endif
-
 char *fossilize(const char *zIn, int nIn){
-  int n, i, j;
-  char c;
+  int n, i, j, c;
   char *zOut;
   if( nIn<0 ) nIn = strlen(zIn);
   for(i=n=0; i<nIn; i++){
     c = zIn[i];
-    if( c==0 || isspace(c) || c=='\\' ) n++;
+    if( c==0 || c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f' || c=='\v'
+             || c=='\\' ) n++;
   }
   n += nIn;
   zOut = malloc( n+1 );
   if( zOut ){
-	  j = 0;
-	  while (*zIn != '\0') {
-		c = *zIn;
-		if( c=='\\'  || isspace(c)) {
-			zOut[j++] = '\\';
-			switch( c ){
-				case '\\':  c = '\\'; break;
-				case '\n':  c = 'n'; break;
-				case ' ':   c = 's'; break;
-				case '\t':  c = 't'; break;
-				case '\r':  c = 'r'; break;
-				case '\v':  c = 'v'; break;
-				case '\f':  c = 'f'; break;
-			}
-		}
-		zOut[j++] = c;
-	  ++zIn;
+    for(i=j=0; i<nIn; i++){
+      int c = zIn[i];
+      if( c==0 ){
+        zOut[j++] = '\\';
+        zOut[j++] = '0';
+      }else if( c=='\\' ){
+        zOut[j++] = '\\';
+        zOut[j++] = '\\';
+      }else if( isspace(c) ){
+        zOut[j++] = '\\';
+        switch( c ){
+          case '\n':  c = 'n'; break;
+          case ' ':   c = 's'; break;
+          case '\t':  c = 't'; break;
+          case '\r':  c = 'r'; break;
+          case '\v':  c = 'v'; break;
+          case '\f':  c = 'f'; break;
+        }
+        zOut[j++] = c;
+      }else{
+        zOut[j++] = c;
+      }
     }
     zOut[j] = 0;
   }
