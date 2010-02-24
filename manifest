@@ -1,5 +1,5 @@
-C Improved\sgraph\slayout\salgorithm\sattempts\sto\skeep\smerge\sarrows\sin\sbetween\ntheir\ssource\sand\sdestination.
-D 2010-02-23T21:30:36
+C Updates\sto\sthe\sfile\sformat\sdocumentation.
+D 2010-02-24T04:11:26
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -230,7 +230,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl 032c2fe5ed544c7ce328a107360125bbe71f7bf3
 F www/faq.wiki 26afb3550c9bf0d0054076e925949f30010c9432
-F www/fileformat.wiki ab44da6d91082d27a614084f869728cae322abbf
+F www/fileformat.wiki de56e1cbcc59e244013d455823d7072964c9529a
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 8fe33aa575be5c826710fd76fff0ea7476d6b8b2
-R 2c292b3a154a9c7023ab82de78cfba53
+P 0f27a59808e214b274d76aba89d669fd7abe34c7
+R 06fa8de777ac3aade75c457d3c88d38b
 U drh
-Z f595061189307c659e85872b3eef41a4
+Z 9383a85c82645fb3f16a8f0e6ebd59b0

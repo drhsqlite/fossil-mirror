@@ -1,3 +1,4 @@
+<title>Fossil File Formats</title>
 <h1 align="center">
 Fossil File Formats
 </h1>
@@ -218,6 +219,9 @@ a sanity check to prove that the manifest is well-formed and
 consistent.
 </p>
 
+<p>A sample manifest from Fossil itself can be seen
+[/artifact/28987096ac | here].
+
 <h2>2.0 Clusters</h2>
 
 <p>
@@ -263,6 +267,9 @@ lower-case hexadecimal representation of the MD5 checksum of all
 prior cards in the cluster.  Note that the Z card is required
 on a cluster.
 </p>
+
+<p>An example cluster from Fossil can be seen
+[/artifact/d03dbdd73a2a8 | here].</p>
 
 
 <h2>3.0 Control Artifacts</h2>
