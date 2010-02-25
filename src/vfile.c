@@ -184,7 +184,6 @@ void vfile_check_signature(int vid, int notFileIsFatal){
     }
     if( chnged!=1 ){
       currentMtime = file_mtime(0);
-      assert( currentMtime>0 );
     }
     if( chnged!=1 && (checkMtime==0 || currentMtime!=oldMtime) ){
       db_ephemeral_blob(&q, 5, &origCksum);
