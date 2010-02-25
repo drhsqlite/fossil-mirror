@@ -113,7 +113,7 @@ programming languages because it is so high level and because it allows
 programmers to focus more on the <i>what</i> and less of the <i>how</i>
 of a computation.  In other words,
 programmers tend to think about problems at a much higher level when
-using SQL, can this can result in better applications.
+using SQL; this can result in better applications.
 SQL is also very dense.
 In practice, this often means that a few
 lines of SQL can often replace hundreds or thousands of lines of

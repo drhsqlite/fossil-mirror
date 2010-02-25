@@ -1408,8 +1408,8 @@ static void print_setting(const char *zName){
 **                     tag or branch creation.  If the the value is "pullonly"
 **                     then only pull operations occur automatically.
 **
-**    clearsign        When enabled (the default), fossil will attempt to
-**                     sign all commits with gpg.  When disabled, commits will
+**    clearsign        When enabled, fossil will attempt to sign all commits
+**                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.
 **
 **    diff-command     External command to run when performing a diff.

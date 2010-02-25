@@ -154,25 +154,41 @@ void graph_add_row(
 ** Return the index of a rail currently not in use for any row between
 ** top and bottom, inclusive.  
 */
-static int findFreeRail(GraphContext *p, int top, int btm, u32 inUseMask){
+static int findFreeRail(
+  GraphContext *p,         /* The graph context */
+  int top, int btm,        /* Span of rows for which the rail is needed */
+  u32 inUseMask,           /* Mask or rails already in use */
+  int iNearto              /* Find rail nearest to this rail */
+){
   GraphRow *pRow;
   int i;
+  int iBest = 0;
+  int iBestDist = 9999;
   for(pRow=p->pFirst; pRow && pRow->idx<top; pRow=pRow->pNext){}
   while( pRow && pRow->idx<=btm ){
     inUseMask |= pRow->railInUse;
     pRow = pRow->pNext;
   }
   for(i=0; i<32; i++){
-    if( (inUseMask & (1<<i))==0 ) return i;
+    if( (inUseMask & (1<<i))==0 ){
+      int dist;
+      if( iNearto<=0 ) return i;
+      dist = i - iNearto;
+      if( dist<0 ) dist = -dist;
+      if( dist<iBestDist ){
+        iBestDist = dist;
+        iBest = i;
+      }
+    }
   }
-  p->nErr++;
-  return 0;
+  if( iBestDist>1000 ) p->nErr++;
+  return iBest;
 }
 
 /*
 ** Compute the complete graph
 */
-void graph_finish(GraphContext *p){
+void graph_finish(GraphContext *p, int omitDescenders){
   GraphRow *pRow, *pDesc;
   Bag allRids;
   int i;
@@ -210,11 +226,20 @@ void graph_finish(GraphContext *p){
   */
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->nParent==0 || !bag_find(&allRids,pRow->aParent[0]) ){
-      pRow->iRail = ++p->mxRail;
-      pRow->bDescender = pRow->nParent>0;
+      if( omitDescenders ){
+        pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, 0, 0);
+      }else{
+        pRow->iRail = ++p->mxRail;
+      }
       mask = 1<<(pRow->iRail);
-      for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
-        pDesc->railInUse |= mask;
+      if( omitDescenders ){
+        pRow->railInUse |= mask;
+        if( pRow->pNext ) pRow->pNext->railInUse |= mask;
+      }else{
+        pRow->bDescender = pRow->nParent>0;
+        for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
+          pDesc->railInUse |= mask;
+        }
       }
     }
   }
@@ -223,7 +248,7 @@ void graph_finish(GraphContext *p){
   ** The first primary child of a row goes on the same rail as
   ** that row.
   */
-  inUse = 0;
+  inUse = (1<<(p->mxRail+1))-1;
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
     int parentRid;
     if( pRow->iRail>=0 ) continue;
@@ -231,11 +256,16 @@ void graph_finish(GraphContext *p){
     parentRid = pRow->aParent[0];
     assert( bag_find(&allRids, parentRid) );
     for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid; pDesc=pDesc->pNext){}
-    assert( pDesc!=0 );
+    if( pDesc==0 ){
+      /* Time skew */
+      pRow->iRail = ++p->mxRail;
+      pRow->railInUse = 1<<pRow->iRail;
+      continue;
+    }
     if( pDesc->aiRaiser[pDesc->iRail]==0 && pDesc->zBranch==pRow->zBranch ){
       pRow->iRail = pDesc->iRail;
     }else{
-      pRow->iRail = findFreeRail(p, 0, pDesc->idx, inUse);
+      pRow->iRail = findFreeRail(p, 0, pDesc->idx, inUse, 0);
     }
     pDesc->aiRaiser[pRow->iRail] = pRow->idx;
     mask = 1<<pRow->iRail;
@@ -261,8 +291,15 @@ void graph_finish(GraphContext *p){
           pDesc=pDesc->pNext){}
       if( pDesc==0 ) continue;
       if( pDesc->mergeOut<0 ){
-        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0);
+        int iTarget = (pRow->iRail + pDesc->iRail)/2;
+        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0, iTarget);
         pDesc->mergeUpto = pRow->idx;
+        mask = 1<<pDesc->mergeOut;
+        pDesc->railInUse |= mask;
+        for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid;
+             pDesc=pDesc->pNext){
+          pDesc->railInUse |= mask;
+        }
       }
       pRow->mergeIn |= 1<<pDesc->mergeOut;
     }

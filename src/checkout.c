@@ -183,6 +183,11 @@ void checkout_cmd(void){
                        " WHERE event.objid=leaves.rid AND blob.rid=leaves.rid"
                        " ORDER BY event.mtime DESC");
     if( zVers==0 ){
+      zVers = db_text(0, "SELECT uuid FROM event, blob"
+                         " WHERE event.objid=blob.rid AND event.type='ci'"
+                         " ORDER BY event.mtime DESC");
+    }
+    if( zVers==0 ){
       fossil_fatal("cannot locate \"latest\" checkout");
     }
   }else{

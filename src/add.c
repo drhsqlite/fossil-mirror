@@ -178,6 +178,53 @@ void add_cmd(void){
 }
 
 /*
+** Remove all contents of zDir
+*/
+void del_directory_content(const char *zDir){
+  DIR *d;
+  int origSize;
+  struct dirent *pEntry;
+  Blob path;
+
+  blob_zero(&path);
+  blob_append(&path, zDir, -1);
+  origSize = blob_size(&path);
+  d = opendir(zDir);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      char *zPath;
+      if( pEntry->d_name[0]=='.'){
+        if( !includeDotFiles ) continue;
+        if( pEntry->d_name[1]==0 ) continue;
+        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
+      }
+      blob_appendf(&path, "/%s", pEntry->d_name);
+      zPath = blob_str(&path);
+      if( file_isdir(zPath)==1 ){
+        del_directory_content(zPath);
+      }else if( file_isfile(zPath) ){
+        char *zFilePath;
+        Blob pathname;
+        file_tree_name(zPath, &pathname, 1);
+        zFilePath = blob_str(&pathname);
+        if( !db_exists(
+            "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zFilePath)
+        ){
+          printf("SKIPPED  %s\n", zPath);
+        }else{
+          db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
+          printf("DELETED  %s\n", zPath);
+        }
+        blob_reset(&pathname);
+      }
+      blob_resize(&path, origSize);
+    }
+  }
+  closedir(d);
+  blob_reset(&path);
+}
+
+/*
 ** COMMAND: rm
 ** COMMAND: del
 **
@@ -202,24 +249,24 @@ void del_cmd(void){
   db_begin_transaction();
   for(i=2; i<g.argc; i++){
     char *zName;
-    char *zPath;
-    Blob pathname;
 
     zName = mprintf("%/", g.argv[i]);
-    if( file_isdir(zName) ){
-      fossil_fatal("cannot remove directories -"
-                   " remove individual files instead");
+    if( file_isdir(zName) == 1 ){
+      del_directory_content(zName);
+    } else {
+      char *zPath;
+      Blob pathname;
+      file_tree_name(zName, &pathname, 1);
+      zPath = blob_str(&pathname);
+      if( !db_exists(
+               "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
+        fossil_fatal("not in the repository: %s", zName);
+      }else{
+        db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
+        printf("DELETED  %s\n", zPath);
+      }
+      blob_reset(&pathname);
     }
-    file_tree_name(zName, &pathname, 1);
-    zPath = blob_str(&pathname);
-    if( !db_exists(
-             "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
-      fossil_fatal("not in the repository: %s", zName);
-    }else{
-      db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
-      printf("DELETED  %s\n", zPath);
-    }
-    blob_reset(&pathname);
     free(zName);
   }
   db_multi_exec("DELETE FROM vfile WHERE deleted AND rid=0");

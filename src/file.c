@@ -43,13 +43,19 @@ static int fileStatValid = 0;
 ** Return the number of errors.  No error messages are generated.
 */
 static int getStat(const char *zFilename){
+  int rc = 0;
   if( zFilename==0 ){
-    if( fileStatValid==0 ) return 1;
+    if( fileStatValid==0 ) rc = 1;
   }else{
-    if( stat(zFilename, &fileStat)!=0 ) return 1;
-    fileStatValid = 1;
+    if( stat(zFilename, &fileStat)!=0 ){
+      fileStatValid = 0;
+      rc = 1;
+    }else{
+      fileStatValid = 1;
+      rc = 0;
+    }
   }
-  return 0;
+  return rc;
 }
 
 

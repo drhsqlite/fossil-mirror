@@ -1,0 +1,129 @@
+﻿<nowiki>
+<h1 align="center">Customizing The Ticket System</h1>
+<p>
+This guide will explain how to add the "assigned_to" and "submitted_by" fields
+to the ticket system in Fossil, as well as making the system more useful.  You
+must have "admin" access to the repository to implement these instructions.
+</p>
+
+<h2>First modify the TICKET table</h2><blockquote>
+<p>
+Click on the "Admin" menu, then "Tickets", then "Table".  After the other fields
+and before the final ")", insert:
+<pre>
+  ,
+  assigned_to TEXT,
+  opened_by TEXT
+</pre>
+And "Apply Changes".  You have just added two more fields to the ticket
+database!  NOTE: I won't tell you to "Apply Changes" after each step from here
+on out.  Now, how do you use these fields?
+</p>
+</blockquote>
+
+<h2>Next add assignees</h2><blockquote>
+<p>
+Back to the "Tickets" admin page, and click "Common".  Add something like this:
+<pre>
+set assigned_choices {
+  tom
+  dick
+  harriet
+}
+</pre>
+Obviously, choose names corresponding to the logins on your system.
+</p>
+</blockquote>
+
+<h2>Now modify the 'new ticket' page</h2><blockquote>
+<p>
+Back to the "Tickets" admin page, and click "New Ticket Page".  This is a little
+more tricky.  Edit the top part:
+<pre>
+  if {[info exists submit]} {
+     set status Open
+     set opened_by $login
+     submit_ticket
+  }
+</pre>
+Note the "set opened_by" bit -- that will automatically set the "opened_by"
+field to the login name of the bug reporter.  Now, skip to the part with "EMail"
+and modify it like so:
+<pre>
+&lt;th1>enable_output [expr { "$login" eq "anonymous"}]&lt;/th1>
+&lt;tr>
+&lt;td align="right">EMail:
+&lt;input type="text" name="private_contact" value="$&lt;private_contact>" size="30">
+&lt;/td>
+&lt;td>&lt;u>Not publicly visible&lt;/u>. Used by developers to contact you with
+questions.&lt;/td>
+&lt;/tr>
+&lt;th1>enable_output 1&lt;/th1>
+</pre>
+This bit of code will get rid of the "email" field entry for logged-in users.
+Since we know the user's information, we don't have to ask for it. NOTE: it
+might be good to automatically scoop up the user's email and put it here. 
+</p>
+</blockquote>
+
+<h2>Modify the 'view ticket' page</h2><blockquote>
+<p>
+Look for the text "Contact:" (about halfway through).  Then insert these lines
+after the closing tr tag and before the "enable_output" line:
+<pre>
+<tr>
+  &lt;td align="right">Assigned to:&lt;/td>&lt;td bgcolor="#d0d0d0">
+  $&lt;assigned_to>
+  &lt;/td>
+  &lt;td align="right">Opened by:&lt;/td>&lt;td bgcolor="#d0d0d0">
+  $&lt;opened_by>
+  &lt;/td>
+</pre>
+This will add a row which displays these two fields, in the event the user has
+"edit" capability.  
+</p>
+</blockquote>
+
+<h2>Modify the 'edit ticket' page</h2><blockquote>
+<p>
+Before the "Severity:" line, add this:
+<pre>
+&lt;tr>&lt;td align="right">Assigned to:&lt;/td>&lt;td>
+&lt;th1>combobox assigned_to $assigned_choices 1&lt;/th1>
+&lt;/td>&lt;/tr>
+</pre>
+That will give you a drop-down list of assignees.  Now, similar to the previous
+section, look for "Contact:" and add this:
+<pre>
+  &lt;tr>&lt;td align="right">Reported by:&lt;/td>&lt;td>
+  &lt;input type="text" name="opened_by" size="40"
+   value="$&lt;opened_by>">
+  &lt;/td>&lt;/tr>
+</pre>
+</p>
+</blockquote>
+
+<h2>What next?</h2><blockquote>
+<p>
+Now you can add custom reports which select based on the person to whom the
+ticket is assigned.  For example, an "Assigned to me" report could be:
+<pre>
+SELECT
+  CASE WHEN status IN ('Open','Verified') THEN '#f2dcdc'
+       WHEN status='Review' THEN '#e8e8e8'
+       WHEN status='Fixed' THEN '#cfe8bd'
+       WHEN status='Tested' THEN '#bde5d6'
+       WHEN status='Deferred' THEN '#cacae5'
+       ELSE '#c8c8c8' END AS 'bgcolor',
+  substr(tkt_uuid,1,10) AS '#',
+  datetime(tkt_mtime) AS 'mtime',
+  type,
+  status,
+  subsystem,
+  title
+FROM ticket
+WHERE assigned_to=user()
+</pre>
+</p>
+</blockquote>
+</nowiki>

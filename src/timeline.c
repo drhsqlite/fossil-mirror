@@ -156,6 +156,7 @@ int count_nonbranch_children(int pid){
 #define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
 #define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
 #define TIMELINE_GRAPH    0x0008  /* Compute a graph */
+#define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
 #endif
 
 /*
@@ -253,7 +254,7 @@ void www_print_timeline(
     zTime[5] = 0;
     @ <tr>
     @ <td valign="top" align="right">%s(zTime)</td>
-    @ <td width="20" align="center" valign="top">
+    @ <td width="20" align="left" valign="top">
     @ <div id="m%d(rid)"></div>
     if( zBgClr && zBgClr[0] ){
       @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
@@ -350,7 +351,7 @@ void www_print_timeline(
     suppressCnt = 0;
   }
   if( pGraph ){
-    graph_finish(pGraph);
+    graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
@@ -397,21 +398,21 @@ void www_print_timeline(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = document.getElementById("canvas");
+    @ var realCanvas = null;
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
     @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
     @   var w = x1-x0+1;
     @   var h = y1-y0+1;
-    @   n.setAttribute("style",
-    @     "position:absolute;"+
-    @     "left:"+x0+"px;"+
-    @     "top:"+y0+"px;"+
-    @     "width:"+w+"px;"+
-    @     "height:"+h+"px;"+
-    @     "background-color:"+color+";"
-    @   );
     @   canvasDiv.appendChild(n);
+    @   n.style.position = "absolute";
+    @   n.style.overflow = "hidden";
+    @   n.style.left = x0+"px";
+    @   n.style.top = y0+"px";
+    @   n.style.width = w+"px";
+    @   n.style.height = h+"px";
+    @   n.style.backgroundColor = color;
     @ }
     @ function absoluteY(id){
     @   var obj = document.getElementById(id);
@@ -498,17 +499,36 @@ void www_print_timeline(
     @ }
     @ function renderGraph(){
     @   var canvasDiv = document.getElementById("canvas");
-    @   for(var i=canvasDiv.childNodes.length-1; i>=0; i--){
-    @     var c = canvasDiv.childNodes[i];
-    @     delete canvasDiv.removeChild(c);
+    @   while( canvasDiv.hasChildNodes() ){
+    @     canvasDiv.removeChild(canvasDiv.firstChild);
     @   }
     @   var canvasY = absoluteY("canvas");
     @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
+    @   var width = nrail*20;
     @   for(var i in rowinfo){
     @     rowinfo[i].y = absoluteY(rowinfo[i].id) + 10 - canvasY;
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
     @   var btm = rowinfo[rowinfo.length-1].y + 20;
+    @   canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
+    @      'style="position:absolute;left:'+(left-5)+'px;"' +
+    @      ' width="'+width+'" height="'+btm+'"></canvas>';
+    @   realCanvas = document.getElementById('timeline-canvas');
+    @   var context;
+    @   if( realCanvas && realCanvas.getContext
+    @        && (context = realCanvas.getContext('2d'))) {
+    @     drawBox = function(color,x0,y0,x1,y1) {
+    @       var colors = {
+    @          'white':'rgba(255,255,255,1)',
+    @          'black':'rgba(0,0,0,1)'
+    @       };
+    @       if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
+    @       if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
+    @       if(isNaN(x0) || isNaN(y0) || isNaN(x1) || isNaN(y1)) return;
+    @       context.fillStyle = colors[color];
+    @       context.fillRect(x0-left+5,y0,x1-x0+1,y1-y0+1);
+    @     };
+    @   }
     @   for(var i in rowinfo){
     @     drawNode(rowinfo[i], left, btm);
     @   }
@@ -638,6 +658,7 @@ static void timeline_add_dividers(const char *zDate){
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 't'
 **    s=TEXT         string search (comment and brief)
+**    ng             Suppress the graph if present
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -678,6 +699,9 @@ void page_timeline(void){
     tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
     tmFlags = TIMELINE_GRAPH;
+  }
+  if( P("ng")!=0 ){
+    tmFlags &= ~TIMELINE_GRAPH;
   }
 
   style_header("Timeline");
@@ -859,7 +883,7 @@ void page_timeline(void){
     }
     if( tagid>0 ){
       blob_appendf(&desc, " tagged with \"%h\"", zTagName);
-      tmFlags &= ~TIMELINE_GRAPH;
+      tmFlags |= TIMELINE_DISJOINT;
     }
     if( zAfter ){
       blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);

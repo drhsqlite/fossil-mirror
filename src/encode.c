@@ -237,7 +237,8 @@ char *fossilize(const char *zIn, int nIn){
   if( nIn<0 ) nIn = strlen(zIn);
   for(i=n=0; i<nIn; i++){
     c = zIn[i];
-    if( c==0 || isspace(c) || c=='\\' ) n++;
+    if( c==0 || c==' ' || c=='\n' || c=='\t' || c=='\r' || c=='\f' || c=='\v'
+             || c=='\\' ) n++;
   }
   n += nIn;
   zOut = malloc( n+1 );

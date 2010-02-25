@@ -6,6 +6,11 @@
 #
 SRCDIR = ./src
 
+#### The directory into which object code files should be written.
+#
+#
+OBJDIR = ./obj
+
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
 #    to compile code-generator programs as part of the build process.
@@ -40,15 +45,11 @@ LIB = -lz $(LDFLAGS)
 # Solaris 10 needs:
 # LIB += -lsocket -lnsl
 # My assumption is that the Sol10 flags will work for Sol8/9 and possibly 11.
-
+# 
 
 #### Tcl shell for use in running the fossil testsuite.
 #
 TCLSH = tclsh
-
-#### Include a configuration file that can override any one of these settings.
-#
--include config.mak
 
 # You should not need to change anything below this line
 ###############################################################################

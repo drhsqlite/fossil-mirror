@@ -708,16 +708,6 @@ static void process_one_web_page(const char *zNotFound){
     dehttpize(g.zExtra);
     cgi_set_parameter_nocopy("name", g.zExtra);
   }
-
-  /* Prevent robots from indexing this site.
-  */
-  if( strcmp(g.zPath, "robots.txt")==0 ){
-    cgi_set_content_type("text/plain");
-    @ User-agent: *
-    @ Disallow: /
-    cgi_reply();
-    exit(0);
-  }
   
   /* Locate the method specified by the path and execute the function
   ** that implements that method.

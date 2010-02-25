@@ -51,6 +51,11 @@ static struct {
 ** Return the current transport error message.
 */
 const char *transport_errmsg(void){
+  #ifdef FOSSIL_ENABLE_SSL
+  if( g.urlIsHttps ){
+    return ssl_errmsg();
+  }
+  #endif
   return socket_errmsg();
 }
 
@@ -81,8 +86,13 @@ int transport_open(void){
   int rc = 0;
   if( transport.isOpen==0 ){
     if( g.urlIsHttps ){
-      socket_set_errmsg("HTTPS: is not yet implemented");
+      #ifdef FOSSIL_ENABLE_SSL
+      rc = ssl_open();
+      if( rc==0 ) transport.isOpen = 1;
+      #else
+      socket_set_errmsg("HTTPS: Fossil has been compiled without SSL support");
       rc = 1;
+      #endif
     }else if( g.urlIsFile ){
       sqlite3_uint64 iRandId;
       sqlite3_randomness(sizeof(iRandId), &iRandId);
@@ -114,7 +124,9 @@ void transport_close(void){
     transport.nUsed = 0;
     transport.iCursor = 0;
     if( g.urlIsHttps ){
-      /* TBD */
+      #ifdef FOSSIL_ENABLE_SSL
+      ssl_close();
+      #endif
     }else if( g.urlIsFile ){
       if( transport.pFile ){ 
         fclose(transport.pFile);
@@ -139,7 +151,15 @@ void transport_send(Blob *toSend){
   int n = blob_size(toSend);
   transport.nSent += n;
   if( g.urlIsHttps ){
-    /* TBD */
+    #ifdef FOSSIL_ENABLE_SSL
+    int sent;
+    while( n>0 ){
+      sent = ssl_send(0, z, n);
+      /* printf("Sent %d of %d bytes\n", sent, n); fflush(stdout); */
+      if( sent<=0 ) break;
+      n -= sent;
+    }    
+    #endif
   }else if( g.urlIsFile ){
     fwrite(z, 1, n, transport.pFile);
   }else{
@@ -206,8 +226,12 @@ int transport_receive(char *zBuf, int N){
   if( N>0 ){
     int got;
     if( g.urlIsHttps ){
-      /* TBD */
+      #ifdef FOSSIL_ENABLE_SSL
+      got = ssl_receive(0, zBuf, N);
+      /* printf("received %d of %d bytes\n", got, N); fflush(stdout); */
+      #else
       got = 0;
+      #endif
     }else if( g.urlIsFile ){
       got = fread(zBuf, 1, N, transport.pFile);
     }else{
@@ -294,4 +318,14 @@ char *transport_receive_line(void){
   }
   /* printf("Got line: [%s]\n", &transport.pBuf[iStart]); */
   return &transport.pBuf[iStart];
+}
+
+void transport_global_shutdown(void){
+  if( g.urlIsHttps ){
+    #ifdef FOSSIL_ENABLE_SSL
+    ssl_global_shutdown();
+    #endif
+  }else{
+    socket_global_shutdown();
+  }
 }
