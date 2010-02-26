@@ -65,6 +65,10 @@ struct Stmt {
 static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
+  static const char zRebuildMsg[] = 
+      "If you have recently updated your fossil executable, you might\n"
+      "need to run \"fossil all rebuild\" to bring the repository\n"
+      "schemas up to date.\n";
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -76,10 +80,10 @@ static void db_err(const char *zFormat, ...){
   if( g.cgiPanic ){
     g.cgiPanic = 0;
     cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre>", z);
+               "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
   }
   db_force_rollback();
   exit(1);
@@ -97,7 +101,7 @@ static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
 
 /*
 ** This routine is called by the SQLite commit-hook mechanism
-** just prior to each omit.  All this routine does is verify
+** just prior to each commit.  All this routine does is verify
 ** that nBegin really is zero.  That insures that transactions
 ** cannot commit by any means other than by calling db_end_transaction()
 ** below.
@@ -136,6 +140,10 @@ void db_end_transaction(int rollbackFlag){
   }
 }
 void db_force_rollback(void){
+  static int busy = 0;
+  if( busy ) return;
+  busy = 1;
+  undo_rollback();
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
     if( isNewRepo ){
@@ -144,6 +152,7 @@ void db_force_rollback(void){
     }
   }
   nBegin = 0;
+  busy = 0;
 }
 
 /*
@@ -506,82 +515,6 @@ char *db_text(char *zDefault, const char *zSql, ...){
   return z;
 }
 
-#ifdef __MINGW32__
-/*
-** These routines (copied out of the os_win.c driver for SQLite) convert
-** character strings in various microsoft multi-byte character formats
-** into UTF-8.  Fossil and SQLite always use only UTF-8 internally.  These
-** routines are needed in order to convert from the default character set
-** currently in use by windows into UTF-8 when strings are imported from
-** the outside world.
-*/
-/*
-** Convert microsoft unicode to UTF-8.  Space to hold the returned string is
-** obtained from malloc().
-** Copied from sqlite3.c as is (petr)
-*/
-static char *unicodeToUtf8(const WCHAR *zWideFilename){
-  int nByte;
-  char *zFilename;
-
-  nByte = WideCharToMultiByte(CP_UTF8, 0, zWideFilename, -1, 0, 0, 0, 0);
-  zFilename = malloc( nByte );
-  if( zFilename==0 ){
-    return 0;
-  }
-  nByte = WideCharToMultiByte(CP_UTF8, 0, zWideFilename, -1, zFilename, nByte,
-                              0, 0);
-  if( nByte == 0 ){
-    free(zFilename);
-    zFilename = 0;
-  }
-  return zFilename;
-}
-/*
-** Convert an ansi string to microsoft unicode, based on the
-** current codepage settings for file apis.
-** 
-** Space to hold the returned string is obtained
-** from malloc.
-*/
-static WCHAR *mbcsToUnicode(const char *zFilename){
-  int nByte;
-  WCHAR *zMbcsFilename;
-  int codepage = CP_ACP;
-
-  nByte = MultiByteToWideChar(codepage, 0, zFilename, -1, NULL,0)*sizeof(WCHAR);
-  zMbcsFilename = malloc( nByte*sizeof(zMbcsFilename[0]) );
-  if( zMbcsFilename==0 ){
-    return 0;
-  }
-
-  nByte = MultiByteToWideChar(codepage, 0, zFilename, -1, zMbcsFilename, nByte);
-  if( nByte==0 ){
-    free(zMbcsFilename);
-    zMbcsFilename = 0;
-  }
-  return zMbcsFilename;
-}
-/*
-** Convert multibyte character string to UTF-8.  Space to hold the
-** returned string is obtained from malloc().
-*/
-static char *mbcsToUtf8(const char *zFilename){
-  char *zFilenameUtf8;
-  WCHAR *zTmpWide;
-
-  zTmpWide = mbcsToUnicode(zFilename);
-  if( zTmpWide==0 ){
-    return 0;
-  }
-  
-  zFilenameUtf8 = unicodeToUtf8(zTmpWide);
-  free(zTmpWide);
-  return zFilenameUtf8;
-}
-#endif /* __MINGW32__ */
-
-
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
@@ -597,7 +530,7 @@ void db_init_database(
   va_list ap;
 
 #ifdef __MINGW32__
-  zFileName = mbcsToUtf8(zFileName);
+  zFileName = sqlite3_win32_mbcs_to_utf8(zFileName);
 #endif
   rc = sqlite3_open(zFileName, &db);
   if( rc!=SQLITE_OK ){
@@ -632,7 +565,7 @@ static sqlite3 *openDatabase(const char *zDbName){
 
   zVfs = getenv("FOSSIL_VFS");
 #ifdef __MINGW32__
-  zDbName = mbcsToUtf8(zDbName);
+  zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
 #endif
   rc = sqlite3_open_v2(
        zDbName, &db,
@@ -658,7 +591,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
     db_connection_init();
   }else{
 #ifdef __MINGW32__
-    zDbName = mbcsToUtf8(zDbName);
+    zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
 #endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
   }
@@ -699,6 +632,7 @@ void db_open_config(int useAttach){
            "please set the HOME environment variable");
   }
 #endif
+  g.zHome = mprintf("%/", zHome);
 #ifdef __MINGW32__
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
@@ -864,7 +798,7 @@ void db_find_and_open_repository(int errIfNotFound){
   }
 rep_not_found:
   if( errIfNotFound ){
-    fossil_fatal("use --repository or -R to specific the repository database");
+    fossil_fatal("use --repository or -R to specify the repository database");
   }
 }
 
@@ -914,9 +848,12 @@ void db_create_repository(const char *zFilename){
 /*
 ** Create the default user accounts in the USER table.
 */
-void db_create_default_users(int setupUserOnly){
+void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   const char *zUser;
   zUser = db_get("default-user", 0);
+  if( zUser==0 ){
+    zUser = zDefaultUser;
+  }
   if( zUser==0 ){
 #ifdef __MINGW32__
     zUser = getenv("USERNAME");
@@ -956,7 +893,7 @@ void db_create_default_users(int setupUserOnly){
 ** check-in is created. The makeServerCodes flag determines whether or
 ** not server and project codes are invented for this repository.
 */
-void db_initial_setup (const char *zInitialDate, int makeServerCodes){
+void db_initial_setup (const char *zInitialDate, const char *zDefaultUser, int makeServerCodes){
   char *zDate;
   Blob hash;
   Blob manifest;
@@ -973,7 +910,7 @@ void db_initial_setup (const char *zInitialDate, int makeServerCodes){
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
-  db_create_default_users(0);
+  db_create_default_users(0, zDefaultUser);
   user_select();
 
   if( zInitialDate ){
@@ -1000,17 +937,28 @@ void db_initial_setup (const char *zInitialDate, int makeServerCodes){
 /*
 ** COMMAND: new
 **
-** Usage: %fossil new FILENAME
+** Usage: %fossil new ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes
 ** a copy of an existing project.  This command starts a new project.
+**
+** By default, your current login name is used to create the default
+** admin user. This can be overridden using the -A|--admin-user
+** parameter.
+**
+** Options:
+**
+**    --admin-user|-A USERNAME
+**
 */
 void create_repository_cmd(void){
   char *zPassword;
   const char *zDate;          /* Date of the initial check-in */
+  const char *zDefaultUser;   /* Optional name of the default user */
 
   zDate = find_option("date-override",0,1);
+  zDefaultUser = find_option("admin-user","A",1);
   if( zDate==0 ) zDate = "now";
   if( g.argc!=3 ){
     usage("REPOSITORY-NAME");
@@ -1019,7 +967,7 @@ void create_repository_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config(0);
   db_begin_transaction();
-  db_initial_setup(zDate, 1);
+  db_initial_setup(zDate, zDefaultUser, 1);
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
@@ -1047,7 +995,40 @@ static void db_sql_print(
   }
 }
 static void db_sql_trace(void *notUsed, const char *zSql){
-  printf("%s\n", zSql);
+  int n = strlen(zSql);
+  fprintf(stderr, "%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+}
+
+/*
+** Implement the user() SQL function.  user() takes no arguments and
+** returns the user ID of the current user.
+*/
+static void db_sql_user(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  if( g.zLogin!=0 ){
+    sqlite3_result_text(context, g.zLogin, -1, SQLITE_STATIC);
+  }
+}
+
+/*
+** Implement the cgi() SQL function.  cgi() takes a an argument which is
+** a name of CGI query parameter. The value of that parameter is returned, 
+** if available. optional second argument will be returned if the first
+** doesn't exist as a CGI parameter.
+*/
+static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv){
+  const char* zP;
+  if( argc!=1 && argc!=2 ) return;
+  zP = P((const char*)sqlite3_value_text(argv[0]));
+  if( zP ){
+    sqlite3_result_text(context, zP, -1, SQLITE_STATIC);
+  }else if( argc==2 ){
+    zP = (const char*)sqlite3_value_text(argv[1]);
+    if( zP ) sqlite3_result_text(context, zP, -1, SQLITE_TRANSIENT);
+  }
 }
 
 /*
@@ -1143,17 +1124,16 @@ char *db_reveal(const char *zKey){
 ** database connection is first established.
 */
 LOCAL void db_connection_init(void){
-  static int once = 1;
-  if( once ){
-    sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
-    sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
-    sqlite3_create_function(
-      g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
-    );
-    if( g.fSqlTrace ){
-      sqlite3_trace(g.db, db_sql_trace, 0);
-    }
-    once = 0;
+  sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+  sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
+  sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+  sqlite3_create_function(
+    g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  if( g.fSqlTrace ){
+    sqlite3_trace(g.db, db_sql_trace, 0);
   }
 }
 
@@ -1428,9 +1408,19 @@ static void print_setting(const char *zName){
 **
 ** The "unset" command clears a property setting.
 **
-**    autosync         If enabled, automatically pull prior to
-**                     commit or update and automatically push
-**                     after commit or tag or branch creation.
+**
+**    auto-captcha     If enabled, the Login page will provide a button
+**                     which uses JavaScript to fill out the captcha for
+**                     the "anonymous" user. (Most bots cannot use JavaScript.)
+**
+**    autosync         If enabled, automatically pull prior to commit
+**                     or update and automatically push after commit or
+**                     tag or branch creation.  If the the value is "pullonly"
+**                     then only pull operations occur automatically.
+**
+**    clearsign        When enabled, fossil will attempt to sign all commits
+**                     with gpg.  When disabled (the default), commits will
+**                     be unsigned.
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
@@ -1440,26 +1430,22 @@ static void print_setting(const char *zName){
 **
 **    editor           Text editor command used for check-in comments.
 **
-**    http-port        The TCP/IP port number to use by the "server"
-**                     and "ui" commands.  Default: 8080
-**
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
+**
+**    http-port        The TCP/IP port number to use by the "server"
+**                     and "ui" commands.  Default: 8080
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
 **
-**    clearsign        When enabled (the default), fossil will attempt to
-**                     sign all commits with gpg.  When disabled, commits will
-**                     be unsigned.
+**    mtime-changes    Use file modification times (mtimes) to detect when
+**                     files have been modified.  (Default "on".)
 **
 **    pgp-command      Command used to clear-sign manifests at check-in.
 **                     The default is "gpg --clearsign -o ".
-**
-**    mtime-changes    Use file modification times (mtimes) to detect when
-**                     files have been modified.  
 **
 **    proxy            URL of the HTTP proxy.  If undefined or "off" then
 **                     the "http_proxy" environment variable is consulted.
@@ -1473,16 +1459,17 @@ static void print_setting(const char *zName){
 */
 void setting_cmd(void){
   static const char *azName[] = {
+    "auto-captcha",
     "autosync",
+    "clearsign",
     "diff-command",
     "dont-push",
     "editor",
     "gdiff-command",
     "http-port",
     "localauth",
-    "clearsign",
-    "pgp-command",
     "mtime-changes",
+    "pgp-command",
     "proxy",
     "web-browser",
   };

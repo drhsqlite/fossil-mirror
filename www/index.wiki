@@ -58,7 +58,7 @@ internet these days. What makes Fossil worthy of attention?
       which helps to keep projects moving
       forward by reducing the amount of needless 
       [./branching.wiki | forking and merging] often
-      associated distributed projects.
+      associated with distributed projects.
 
   4.  <b>Self-Contained</b> -
       Fossil is a single stand-alone executable that contains everything
@@ -119,14 +119,18 @@ internet these days. What makes Fossil worthy of attention?
   *  [./stats.wiki | Performance statistics] taken from real-world projects
      hosted on fossil.
   *  How to [./shunning.wiki | delete content] from a fossil repository.
+  *  How Fossil does [./password.wiki | password management].
   *  Some (unfinished but expanding) extended
       [./reference.wiki | reference documentation] for the fossil command line.
   *  Documentation on the
      [http://www.sqliteconcepts.org/THManual.pdf | TH1 Script Language] used
      to configure the ticketing subsystem.
+  *  How to [./server.wiki | set up a server] for your repository.
+  *  Customizing the [./custom_ticket.wiki | ticket system].
 
 <h3>Links For Fossil Developer:</h3>
 
+  *  [./theory1.wiki | Thoughts On The Design Of Fossil].
   *  [./pop.wiki | Principles Of Operation]
   *  The [./fileformat.wiki | file format] used by every content
      file stored in the repository.

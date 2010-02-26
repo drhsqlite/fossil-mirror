@@ -29,6 +29,25 @@
 #include "info.h"
 #include <assert.h>
 
+/*
+** Return a string (in memory obtained from malloc) holding a 
+** comma-separated list of tags that apply to check-in with 
+** record-id rid.  If the "propagatingOnly" flag is true, then only
+** show branch tags (tags that propagate to children).
+**
+** Return NULL if there are no such tags.
+*/
+char *info_tags_of_checkin(int rid, int propagatingOnly){
+  char *zTags;
+  zTags = db_text(0, "SELECT group_concat(substr(tagname, 5), ', ')"
+                     "  FROM tagxref, tag"
+                     " WHERE tagxref.rid=%d AND tagxref.tagtype>%d"
+                     "   AND tag.tagid=tagxref.tagid"
+                     "   AND tag.tagname GLOB 'sym-*'",
+                     rid, propagatingOnly!=0);
+  return zTags;
+}
+
 
 /*
 ** Print common information about a particular record.
@@ -46,12 +65,12 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
   char *zUuid;
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid ){
-    zDate = db_text("", 
+    zDate = db_text(0, 
       "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
       rid
     );
          /* 01234567890123 */
-    printf("%-13s %s %s\n", zUuidName, zUuid, zDate);
+    printf("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zUuid);
     free(zDate);
   }
@@ -79,12 +98,7 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
     free(zDate);
   }
   db_finalize(&q);
-  zTags = db_text(0, "SELECT group_concat(substr(tagname, 5), ', ')"
-                     "  FROM tagxref, tag"
-                     " WHERE tagxref.rid=%d AND tagxref.tagtype>0"
-                     "   AND tag.tagid=tagxref.tagid"
-                     "   AND tag.tagname GLOB 'sym-*'",
-                     rid);
+  zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
     printf("tags:         %s\n", zTags);
   }
@@ -129,6 +143,11 @@ void info_cmd(void){
     printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
     printf("repository:   %s\n", db_lget("repository", ""));
     printf("local-root:   %s\n", g.zLocalRoot);
+#ifdef __MINGW32__
+    if( g.zHome ){
+      printf("user-home:    %s\n", g.zHome);
+    }
+#endif
     printf("project-code: %s\n", db_get("project-code", ""));
     printf("server-code:  %s\n", db_get("server-code", ""));
     vid = db_lget_int("checkout", 0);
@@ -229,16 +248,27 @@ static void append_diff(int fromid, int toid){
 ** WEBPAGE: ci
 ** URL:  /ci?name=RID|ARTIFACTID
 **
-** Display information about a particular check-in.
+** Display information about a particular check-in. 
+**
+** We also jump here from /info if the name is a version.
+**
+** If the /ci page is used (instead of /vinfo or /info) then the
+** default behavior is to show unified diffs of all file changes.
+** With /vinfo and /info, only a list of the changed files are
+** shown, without diffs.  This behavior is inverted if the
+** "show-version-diffs" setting is turned on.
 */
 void ci_page(void){
   Stmt q;
   int rid;
   int isLeaf;
+  int showDiff;
+  const char *zName;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  rid = name_to_rid(PD("name","0"));
+  zName = PD("name","0");
+  rid = name_to_rid(zName);
   if( rid==0 ){
     style_header("Check-in Information Error");
     @ No such object: %h(g.argv[2])
@@ -282,12 +312,12 @@ void ci_page(void){
     @ <tr><th>Date:</th><td>
     hyperlink_to_date(zDate, "</td></tr>");
     if( zEUser ){
-      @ <tr><th>Edited&nbsp;User:</td><td>
+      @ <tr><th>Edited&nbsp;User:</th><td>
       hyperlink_to_user(zEUser,zDate,"</td></tr>");
       @ <tr><th>Original&nbsp;User:</th><td>
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }else{
-      @ <tr><th>User:</td><td>
+      @ <tr><th>User:</th><td>
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
@@ -296,7 +326,6 @@ void ci_page(void){
     }else{
       @ <tr><th>Comment:</th><td>%w(zComment)</td></tr>
     }
-    @ </td></tr>
     if( g.okAdmin ){
       db_prepare(&q, 
          "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
@@ -352,6 +381,21 @@ void ci_page(void){
   db_finalize(&q);
   showTags(rid, "");
   @ <div class="section">Changes</div>
+  showDiff = g.zPath[0]!='c';
+  if( db_get_boolean("show-version-diffs", 0)==0 ){
+    showDiff = !showDiff;
+    if( showDiff ){
+      @ <a href="%s(g.zBaseURL)/vinfo/%T(zName)">[hide&nbsp;diffs]</a><br/>
+    }else{
+      @ <a href="%s(g.zBaseURL)/ci/%T(zName)">[show&nbsp;diffs]</a><br/>
+    }
+  }else{
+    if( showDiff ){
+      @ <a href="%s(g.zBaseURL)/ci/%T(zName)">[hide&nbsp;diffs]</a><br/>
+    }else{
+      @ <a href="%s(g.zBaseURL)/vinfo/%T(zName)">[show&nbsp;diffs]</a><br/>
+    }
+  }
   db_prepare(&q,
      "SELECT pid, fid, name, substr(a.uuid,1,10), substr(b.uuid,1,10)"
      "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
@@ -377,7 +421,11 @@ void ci_page(void){
     }else if( zOld && zNew ){
       @ <p>Modified <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
       @ from <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a>
-      @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
+      @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)].</a>
+      if( !showDiff ){
+        @ &nbsp;&nbsp;
+        @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(pid)&v2=%d(fid)">[diff]</a>
+      }
     }else if( zOld ){
       @ <p>Deleted <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
       @ version <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a></p>
@@ -386,9 +434,11 @@ void ci_page(void){
       @ <p>Added <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
       @ version <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
     }
-    @ <blockquote><pre>
-    append_diff(pid, fid);
-    @ </pre></blockquote>
+    if( showDiff ){
+      @ <blockquote><pre>
+      append_diff(pid, fid);
+      @ </pre></blockquote>
+    }
   }
   db_finalize(&q);
   style_footer();
@@ -477,92 +527,6 @@ void winfo_page(void){
   }
   style_footer();
 }
-
-/*
-** WEBPAGE: finfo
-** URL: /finfo?name=FILENAME
-**
-** Show the complete change history for a single file. 
-*/
-void finfo_page(void){
-  Stmt q;
-  const char *zFilename;
-  char zPrevDate[20];
-  Blob title;
-
-  login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
-  style_header("File History");
-  login_anonymous_available();
-
-  zPrevDate[0] = 0;
-  zFilename = PD("name","");
-  db_prepare(&q,
-    "SELECT substr(b.uuid,1,10), datetime(event.mtime,'localtime'),"
-    "       coalesce(event.ecomment, event.comment),"
-    "       coalesce(event.euser, event.user),"
-    "       mlink.pid, mlink.fid, mlink.mid, mlink.fnid, ci.uuid"
-    "  FROM mlink, blob b, event, blob ci"
-    " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND b.rid=mlink.fid"
-    "   AND event.objid=mlink.mid"
-    "   AND event.objid=ci.rid"
-    " ORDER BY event.mtime DESC",
-    zFilename
-  );
-  blob_zero(&title);
-  blob_appendf(&title, "History of ");
-  hyperlinked_path(zFilename, &title);
-  @ <h2>%b(&title)</h2>
-  blob_reset(&title);
-  @ <table cellspacing=0 border=0 cellpadding=0>
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zCom = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
-    int fpid = db_column_int(&q, 4);
-    int frid = db_column_int(&q, 5);
-    int mid = db_column_int(&q, 6);
-    int fnid = db_column_int(&q, 7);
-    const char *zCkin = db_column_text(&q,8);
-    char zShort[20];
-    char zShortCkin[20];
-    if( memcmp(zDate, zPrevDate, 10) ){
-      sprintf(zPrevDate, "%.10s", zDate);
-      @ <tr><td colspan=3>
-      @   <div class="divider">%s(zPrevDate)</div>
-      @ </td></tr>
-    }
-    @ <tr><td valign="top">%s(&zDate[11])</td>
-    @ <td width="20"></td>
-    @ <td valign="top" align="left">
-    sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
-    sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
-    if( g.okHistory ){
-      @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%s(zShort)]</a>
-    }else{
-      @ [%s(zShort)]
-    }
-    @ part of check-in
-    hyperlink_to_uuid(zShortCkin);
-    @ %h(zCom) (By: 
-    hyperlink_to_user(zUser, zDate, " on");
-    hyperlink_to_date(zDate, ")");
-    if( g.okHistory ){
-      if( fpid ){
-        @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
-      }
-      @ <a href="%s(g.zBaseURL)/annotate?mid=%d(mid)&amp;fnid=%d(fnid)">
-      @ [annotate]</a>
-      @ </td>
-    }
-  }
-  db_finalize(&q);
-  @ </table>
-  style_footer();
-}
-
 
 /*
 ** WEBPAGE: vdiff
@@ -1094,34 +1058,21 @@ void tinfo_page(void){
 void info_page(void){
   const char *zName;
   Blob uuid;
-  int rid, nName;
+  int rid;
   
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
-  nName = strlen(zName);
-  if( nName<4 || nName>UUID_SIZE || !validate16(zName, nName) ){
-    switch( sym_tag_to_uuid(zName, &uuid) ){
-      case 1: {
-        /* got one UUID, use it */
-        zName = blob_str(&uuid);
-        break;
-      }
-      case 2: {
-        /* go somewhere to show the multiple UUIDs */
-        return;
-        break;
-      }
-      default: {
-        fossil_redirect_home();
-        break;
-      }
-    }
-  }
-  if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%s*'", zName) ){
+  if( validate16(zName, strlen(zName))
+   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid LIKE '%q%%'", zName) ){
     tktview_page();
     return;
   }
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%s*'", zName);
+  blob_set(&uuid, zName);
+  if( name_to_uuid(&uuid, 1) ){
+    fossil_redirect_home();
+  }
+  zName = blob_str(&uuid);
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zName);
   if( rid==0 ){
     style_header("Broken Link");
     @ <p>No such object: %h(zName)</p>

@@ -30,13 +30,33 @@
 #include "timeline.h"
 
 /*
+** Shorten a UUID so that is the minimum length needed to contain
+** at least one digit in the range 'a'..'f'.  The minimum length is 10.
+*/
+static void shorten_uuid(char *zDest, const char *zSrc){
+  int i;
+  for(i=0; i<10 && zSrc[i]<='9'; i++){}
+  memcpy(zDest, zSrc, 10);
+  if( i==10 && zSrc[i] ){
+    do{
+      zDest[i] = zSrc[i];
+      i++;
+    }while( zSrc[i-1]<='9' );
+  }else{
+    i = 10;
+  }
+  zDest[i] = 0;
+}
+
+
+/*
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
-  sprintf(zShortUuid, "%.10s", zUuid);
+  shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/info/%s(zUuid)">[%s(zShortUuid)]</a>
+    @ <a href="%s(g.zBaseURL)/info/%s(zShortUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b>[%s(zShortUuid)]</b>
   }
@@ -53,10 +73,10 @@ void hyperlink_to_uuid_with_mouseover(
   int id               /* Argument to javascript procs */
 ){
   char zShortUuid[UUID_SIZE+1];
-  sprintf(zShortUuid, "%.10s", zUuid);
+  shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
     @ <a onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'
-    @    href="%s(g.zBaseURL)/vinfo/%s(zUuid)">[%s(zShortUuid)]</a>
+    @    href="%s(g.zBaseURL)/vinfo/%s(zShortUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'>
     @ [%s(zShortUuid)]</b>
@@ -135,6 +155,8 @@ int count_nonbranch_children(int pid){
 #define TIMELINE_ARTID    0x0001  /* Show artifact IDs on non-check-in lines */
 #define TIMELINE_LEAFONLY 0x0002  /* Show "Leaf", but not "Merge", "Fork" etc */
 #define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
+#define TIMELINE_GRAPH    0x0008  /* Compute a graph */
+#define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
 #endif
 
 /*
@@ -166,6 +188,7 @@ void www_print_timeline(
   int prevTagid = 0;
   int suppressCnt = 0;
   char zPrevDate[20];
+  GraphContext *pGraph = 0;
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -173,6 +196,10 @@ void www_print_timeline(
     wikiFlags = WIKI_INLINE;
   }else{
     wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
+  }
+  if( tmFlags & TIMELINE_GRAPH ){
+    pGraph = graph_init();
+    @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
 
   db_multi_exec(
@@ -194,6 +221,7 @@ void www_print_timeline(
     const char *zTagList = db_column_text(pQuery, 10);
     int tagid = db_column_int(pQuery, 11);
     int commentColumn = 3;    /* Column containing comment text */
+    char zTime[8];
     if( tagid ){
       if( tagid==prevTagid ){
         if( tmFlags & TIMELINE_BRIEF ){
@@ -218,14 +246,16 @@ void www_print_timeline(
     db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
-      @ <tr><td colspan=3>
-      @   <div class="divider">%s(zPrevDate)</div>
+      @ <tr><td>
+      @   <div class="divider"><nobr>%s(zPrevDate)</nobr></div>
       @ </td></tr>
     }
+    memcpy(zTime, &zDate[11], 5);
+    zTime[5] = 0;
     @ <tr>
-    @ <td valign="top">%s(&zDate[11])</td>
-    @ <td width="20" align="center" valign="top">
-    @ <font id="m%d(rid)" size="+1" color="white">*</font></td>
+    @ <td valign="top" align="right">%s(zTime)</td>
+    @ <td width="20" align="left" valign="top">
+    @ <div id="m%d(rid)"></div>
     if( zBgClr && zBgClr[0] ){
       @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
     }else{
@@ -234,7 +264,7 @@ void www_print_timeline(
     if( zType[0]=='c' ){
       const char *azTag[5];
       int nTag = 0;
-      hyperlink_to_uuid_with_mouseover(zUuid, "xin", "xout", rid);
+      hyperlink_to_uuid(zUuid);
       if( (tmFlags & TIMELINE_LEAFONLY)==0 ){
         if( nParent>1 ){
           azTag[nTag++] = "Merge";
@@ -262,6 +292,33 @@ void www_print_timeline(
           @ <b>%s(azTag[i])%s(i==nTag-1?"":",")</b>
         }
       }
+      if( pGraph ){
+        int nParent = 0;
+        int aParent[32];
+        const char *zBr;
+        static Stmt qparent;
+        static Stmt qbranch;
+        db_static_prepare(&qparent,
+          "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC"
+        );
+        db_static_prepare(&qbranch,
+          "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
+          TAG_BRANCH
+        );
+        db_bind_int(&qparent, ":rid", rid);
+        while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+          aParent[nParent++] = db_column_int(&qparent, 0);
+        }
+        db_reset(&qparent);
+        db_bind_int(&qbranch, ":rid", rid);
+        if( db_step(&qbranch)==SQLITE_ROW ){
+          zBr = db_column_text(&qbranch, 0);
+        }else{
+          zBr = "trunk";
+        }
+        graph_add_row(pGraph, rid, isLeaf, nParent, aParent, zBr);
+        db_reset(&qbranch);
+      }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }
@@ -287,7 +344,208 @@ void www_print_timeline(
     }
     @ </td></tr>
   }
+  if( suppressCnt ){
+    @ <tr><td><td><td>
+    @ <small><i>... %d(suppressCnt) similar
+    @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+    suppressCnt = 0;
+  }
+  if( pGraph ){
+    graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
+    if( pGraph->nErr ){
+      graph_free(pGraph);
+      pGraph = 0;
+    }else{
+      @ <tr><td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+    }
+  }
   @ </table>
+  if( pGraph && pGraph->nErr==0 ){
+    GraphRow *pRow;
+    int i;
+    char cSep;
+    @ <script type="text/JavaScript">
+    cgi_printf("var rowinfo = [\n");
+    for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
+      cgi_printf("{id:\"m%d\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
+        pRow->rid,
+        pRow->iRail,
+        pRow->bDescender,
+        pRow->mergeOut,
+        pRow->mergeUpto,
+        pRow->aiRaiser[pRow->iRail]
+      );
+      cSep = '[';
+      for(i=0; i<GR_MAX_RAIL; i++){
+        if( i==pRow->iRail ) continue;
+        if( pRow->aiRaiser[i]>0 ){
+          cgi_printf("%c%d,%d", cSep, pGraph->railMap[i], pRow->aiRaiser[i]);
+          cSep = ',';
+        }
+      }
+      if( cSep=='[' ) cgi_printf("[");
+      cgi_printf("],mi:");
+      cSep = '[';
+      for(i=0; i<GR_MAX_RAIL; i++){
+        if( pRow->mergeIn & (1<<i) ){
+          cgi_printf("%c%d", cSep, pGraph->railMap[i]);
+          cSep = ',';
+        }
+      }
+      if( cSep=='[' ) cgi_printf("[");
+      cgi_printf("]}%s", pRow->pNext ? ",\n" : "];\n");
+    }
+    cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
+    graph_free(pGraph);
+    @ var canvasDiv = document.getElementById("canvas");
+    @ var realCanvas = null;
+    @ function drawBox(color,x0,y0,x1,y1){
+    @   var n = document.createElement("div");
+    @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
+    @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
+    @   var w = x1-x0+1;
+    @   var h = y1-y0+1;
+    @   canvasDiv.appendChild(n);
+    @   n.style.position = "absolute";
+    @   n.style.overflow = "hidden";
+    @   n.style.left = x0+"px";
+    @   n.style.top = y0+"px";
+    @   n.style.width = w+"px";
+    @   n.style.height = h+"px";
+    @   n.style.backgroundColor = color;
+    @ }
+    @ function absoluteY(id){
+    @   var obj = document.getElementById(id);
+    @   if( !obj ) return;
+    @   var top = 0;
+    @   if( obj.offsetParent ){
+    @     do{
+    @       top += obj.offsetTop;
+    @     }while( obj = obj.offsetParent );
+    @   }
+    @   return top;
+    @ }
+    @ function absoluteX(id){
+    @   var obj = document.getElementById(id);
+    @   if( !obj ) return;
+    @   var left = 0;
+    @   if( obj.offsetParent ){
+    @     do{
+    @       left += obj.offsetLeft;
+    @     }while( obj = obj.offsetParent );
+    @   }
+    @   return left;
+    @ }
+    @ function drawUpArrow(x,y0,y1){
+    @   drawBox("black",x,y0,x+1,y1);
+    @   if( y0+8>=y1 ){
+    @     drawBox("black",x-1,y0+1,x+2,y0+2);
+    @     drawBox("black",x-2,y0+3,x+3,y0+4);
+    @   }else{
+    @     drawBox("black",x-1,y0+2,x+2,y0+4);
+    @     drawBox("black",x-2,y0+5,x+3,y0+7);
+    @   }
+    @ }
+    @ function drawThinArrow(y,xFrom,xTo){
+    @   if( xFrom<xTo ){
+    @     drawBox("black",xFrom,y,xTo,y);
+    @     drawBox("black",xTo-4,y-1,xTo-2,y+1);
+    @     if( xTo>xFrom-8 ) drawBox("black",xTo-6,y-2,xTo-5,y+2);
+    @   }else{
+    @     drawBox("black",xTo,y,xFrom,y);
+    @     drawBox("black",xTo+2,y-1,xTo+4,y+1);
+    @     if( xTo+8<xFrom ) drawBox("black",xTo+5,y-2,xTo+6,y+2);
+    @   }
+    @ }
+    @ function drawThinLine(x0,y0,x1,y1){
+    @   drawBox("black",x0,y0,x1,y1);
+    @ }
+    @ function drawNode(p, left, btm){
+    @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
+    @   drawBox("white",p.x-4,p.y-4,p.x+5,p.y+5);
+    @   if( p.u>0 ){
+    @     var u = rowinfo[p.u-1];
+    @     drawUpArrow(p.x, u.y+6, p.y-5);
+    @   }
+    @   if( p.d ){
+    @     drawUpArrow(p.x, p.y+6, btm);
+    @   } 
+    @   if( p.mo>=0 ){
+    @     var x1 = p.mo*20 + left;
+    @     var y1 = p.y-3;
+    @     var x0 = x1>p.x ? p.x+7 : p.x-6;
+    @     var u = rowinfo[p.mu-1];
+    @     var y0 = u.y+5;
+    @     drawThinLine(x0,y1,x1,y1);
+    @     drawThinLine(x1,y0,x1,y1);
+    @   }
+    @   var n = p.au.length;
+    @   for(var i=0; i<n; i+=2){
+    @     var x1 = p.au[i]*20 + left;
+    @     var x0 = x1>p.x ? p.x+7 : p.x-6;
+    @     drawBox("black",x0,p.y,x1,p.y+1);
+    @     var u = rowinfo[p.au[i+1]-1];
+    @     drawUpArrow(x1, u.y+6, p.y);
+    @   }
+    @   for(var j in p.mi){
+    @     var y0 = p.y+5;
+    @     var mx = p.mi[j]*20 + left;
+    @     if( mx>p.x ){
+    @       drawThinArrow(y0,mx,p.x+5);
+    @     }else{
+    @       drawThinArrow(y0,mx,p.x-5);
+    @     }
+    @   }
+    @ }
+    @ function renderGraph(){
+    @   var canvasDiv = document.getElementById("canvas");
+    @   while( canvasDiv.hasChildNodes() ){
+    @     canvasDiv.removeChild(canvasDiv.firstChild);
+    @   }
+    @   var canvasY = absoluteY("canvas");
+    @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
+    @   var width = nrail*20;
+    @   for(var i in rowinfo){
+    @     rowinfo[i].y = absoluteY(rowinfo[i].id) + 10 - canvasY;
+    @     rowinfo[i].x = left + rowinfo[i].r*20;
+    @   }
+    @   var btm = rowinfo[rowinfo.length-1].y + 20;
+    @   canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
+    @      'style="position:absolute;left:'+(left-5)+'px;"' +
+    @      ' width="'+width+'" height="'+btm+'"></canvas>';
+    @   realCanvas = document.getElementById('timeline-canvas');
+    @   var context;
+    @   if( realCanvas && realCanvas.getContext
+    @        && (context = realCanvas.getContext('2d'))) {
+    @     drawBox = function(color,x0,y0,x1,y1) {
+    @       var colors = {
+    @          'white':'rgba(255,255,255,1)',
+    @          'black':'rgba(0,0,0,1)'
+    @       };
+    @       if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
+    @       if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
+    @       if(isNaN(x0) || isNaN(y0) || isNaN(x1) || isNaN(y1)) return;
+    @       context.fillStyle = colors[color];
+    @       context.fillRect(x0-left+5,y0,x1-x0+1,y1-y0+1);
+    @     };
+    @   }
+    @   for(var i in rowinfo){
+    @     drawNode(rowinfo[i], left, btm);
+    @   }
+    @ }
+    @ var lastId = rowinfo[rowinfo.length-1].id;
+    @ var lastY = 0;
+    @ function checkHeight(){
+    @   var h = absoluteY(lastId);
+    @   if( h!=lastY ){
+    @     renderGraph();
+    @     lastY = h;
+    @   }
+    @   setTimeout("checkHeight();", 1000);
+    @ }
+    @ checkHeight();
+    @ </script>
+  }
 }
 
 /*
@@ -399,6 +657,8 @@ static void timeline_add_dividers(const char *zDate){
 **    t=TAGID        show only check-ins with the given tagid
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 't'
+**    s=TEXT         string search (comment and brief)
+**    ng             Suppress the graph if present
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -421,6 +681,7 @@ void page_timeline(void){
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
   const char *zTagName = P("t");     /* Show events with this tag */
+  const char *zSearch = P("s");      /* Search string */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
@@ -428,16 +689,19 @@ void page_timeline(void){
   /* To view the timeline, must have permission to read project data.
   */
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
-  if( zTagName ){
+  if( !g.okRead && !g.okRdTkt && !g.okRdWiki ){ login_needed(); return; }
+  if( zTagName && g.okRead ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
   }else{
     tagid = 0;
   }
   if( zType[0]=='a' ){
-    tmFlags = TIMELINE_BRIEF;
+    tmFlags = TIMELINE_BRIEF | TIMELINE_GRAPH;
   }else{
-    tmFlags = 0;
+    tmFlags = TIMELINE_GRAPH;
+  }
+  if( P("ng")!=0 ){
+    tmFlags &= ~TIMELINE_GRAPH;
   }
 
   style_header("Timeline");
@@ -447,7 +711,7 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
-  if( p_rid || d_rid ){
+  if( (p_rid || d_rid) && g.okRead ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
@@ -466,11 +730,11 @@ void page_timeline(void){
     if( d_rid ){
       compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>0 ){
+      if( nd>=0 ){
         db_multi_exec("%s", blob_str(&sql));
-        blob_appendf(&desc, "%d descendants", nd);
+        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       }
-      timeline_add_dividers(  
+      timeline_add_dividers(
         db_text("1","SELECT datetime(mtime,'localtime') FROM event"
                     " WHERE objid=%d", d_rid)
       );
@@ -510,8 +774,32 @@ void page_timeline(void){
       blob_appendf(&sql, " AND EXISTS (SELECT 1 FROM tagxref WHERE tagid=%d"
                                         " AND tagtype>0 AND rid=blob.rid)",
                    tagid);
-    }    
-    if( zType[0]!='a' ){
+    }
+    if( (zType[0]=='w' && !g.okRdWiki)
+     || (zType[0]=='t' && !g.okRdTkt)
+     || (zType[0]=='c' && !g.okRead)
+    ){
+      zType = "all";
+    }
+    if( zType[0]=='a' ){
+      if( !g.okRead || !g.okRdWiki || !g.okRdTkt ){
+        char cSep = '(';
+        blob_appendf(&sql, " AND event.type IN ");
+        if( g.okRead ){
+          blob_appendf(&sql, "%c'ci'", cSep);
+          cSep = ',';
+        }
+        if( g.okRdWiki ){
+          blob_appendf(&sql, "%c'w'", cSep);
+          cSep = ',';
+        }
+        if( g.okRdTkt ){
+          blob_appendf(&sql, "%c't'", cSep);
+          cSep = ',';
+        }
+        blob_appendf(&sql, ")");
+      }
+    }else{ /* zType!="all" */
       blob_appendf(&sql, " AND event.type=%Q", zType);
       url_add_parameter(&url, "y", zType);
       if( zType[0]=='c' ){
@@ -525,6 +813,12 @@ void page_timeline(void){
     if( zUser ){
       blob_appendf(&sql, " AND event.user=%Q", zUser);
       url_add_parameter(&url, "u", zUser);
+    }
+    if ( zSearch ){
+      blob_appendf(&sql,
+        " AND (event.comment LIKE '%%%q%%' OR event.brief LIKE '%%%q%%')",
+        zSearch, zSearch);
+      url_add_parameter(&url, "s", zSearch);
     }
     if( zAfter ){
       while( isspace(zAfter[0]) ){ zAfter++; }
@@ -589,6 +883,7 @@ void page_timeline(void){
     }
     if( tagid>0 ){
       blob_appendf(&desc, " tagged with \"%h\"", zTagName);
+      tmFlags |= TIMELINE_DISJOINT;
     }
     if( zAfter ){
       blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
@@ -611,13 +906,13 @@ void page_timeline(void){
         if( zType[0]!='a' ){
           timeline_submenu(&url, "All Types", "y", "all", 0);
         }
-        if( zType[0]!='w' ){
+        if( zType[0]!='w' && g.okRdWiki ){
           timeline_submenu(&url, "Wiki Only", "y", "w", 0);
         }
-        if( zType[0]!='c' ){
+        if( zType[0]!='c' && g.okRead ){
           timeline_submenu(&url, "Checkins Only", "y", "ci", 0);
         }
-        if( zType[0]!='t' ){
+        if( zType[0]!='t' && g.okRdTkt ){
           timeline_submenu(&url, "Tickets Only", "y", "t", 0);
         }
       }
@@ -635,99 +930,6 @@ void page_timeline(void){
   blob_reset(&desc);
   www_print_timeline(&q, tmFlags, 0);
   db_finalize(&q);
-
-  @ <script>
-  @ var parentof = new Object();
-  @ var childof = new Object();
-  db_prepare(&q, "SELECT rid FROM timeline");
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    Stmt q2;
-    const char *zSep;
-    Blob *pOut = cgi_output_blob();
-
-    db_prepare(&q2, "SELECT pid FROM plink WHERE cid=%d", rid);
-    zSep = "";
-    blob_appendf(pOut, "parentof[\"m%d\"] = [", rid);
-    while( db_step(&q2)==SQLITE_ROW ){
-      int pid = db_column_int(&q2, 0);
-      blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
-      zSep = ",";
-    }
-    db_finalize(&q2);
-    blob_appendf(pOut, "];\n");
-    db_prepare(&q2, "SELECT cid FROM plink WHERE pid=%d", rid);
-    zSep = "";
-    blob_appendf(pOut, "childof[\"m%d\"] = [", rid);
-    while( db_step(&q2)==SQLITE_ROW ){
-      int pid = db_column_int(&q2, 0);
-      blob_appendf(pOut, "%s\"m%d\"", zSep, pid);
-      zSep = ",";
-    }
-    db_finalize(&q2);
-    blob_appendf(pOut, "];\n");
-  }
-  db_finalize(&q);
-  @ function setall(value){
-  @   for(var x in parentof){
-  @     setone(x,value);
-  @   }
-  @ }
-  @ setall("#ffffff");
-  @ function setone(id, clr){
-  @   if( parentof[id]==null ) return 0;
-  @   var w = document.getElementById(id);
-  @   if( w.style.color==clr ){
-  @     return 0
-  @   }else{
-  @     w.style.color = clr
-  @     return 1
-  @   }
-  @ }
-  @ function xin(id) {
-  @   setall("#ffffff");
-  @   setone(id,"#ff0000");
-  @   set_children(id, "#b0b0b0");
-  @   set_parents(id, "#b0b0b0");
-  @   for(var x in parentof[id]){
-  @     var pid = parentof[id][x]
-  @     var w = document.getElementById(pid);
-  @     if( w!=null ){
-  @       w.style.color = "#000000";
-  @     }
-  @   }
-  @   for(var x in childof[id]){
-  @     var cid = childof[id][x]
-  @     var w = document.getElementById(cid);
-  @     if( w!=null ){
-  @       w.style.color = "#000000";
-  @     }
-  @   }
-  @ }
-  @ function xout(id) {
-  @   /* setall("#000000"); */
-  @ }
-  @ function set_parents(id, clr){
-  @   var plist = parentof[id];
-  @   if( plist==null ) return;
-  @   for(var x in plist){
-  @     var pid = plist[x];
-  @     if( setone(pid,clr)==1 ){
-  @       set_parents(pid,clr);
-  @     }
-  @   }
-  @ }
-  @ function set_children(id,clr){
-  @   var clist = childof[id];
-  @   if( clist==null ) return;
-  @   for(var x in clist){
-  @     var cid = clist[x];
-  @     if( setone(cid,clr)==1 ){
-  @       set_children(cid,clr);
-  @     }
-  @   }
-  @ }
-  @ </script>
   style_footer();
 }
 
@@ -829,30 +1031,21 @@ const char *timeline_query_for_tty(void){
 }
 
 /*
-** Equivalent to timeline_query_for_tty(), except that:
-**
-** a) accepts a the -type=XX flag to set the event type to filter on.
-**    The values of XX are the same as supported by the /timeline page.
-**
-** b) The returned string must be freed using free().
+** Return true if the input string is a date in the ISO 8601 format:
+** YYYY-MM-DD.
 */
-char * timeline_query_for_tty_m(void){
-  Blob bl;
-  char const * zType = 0;
-  blob_zero(&bl);
-  blob_append( &bl, timeline_query_for_tty(), -1 );
-  zType = find_option( "type", "t", 1 );
-  if( zType && *zType )
-  {
-      blob_appendf( &bl, " AND event.type=%Q", zType );
-  }
-  return blob_buffer(&bl);
+static int isIsoDate(const char *z){
+  return strlen(z)==10
+      && z[4]=='-'
+      && z[7]=='-'
+      && isdigit(z[0])
+      && isdigit(z[5]);
 }
 
 /*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t|--type TYPE?
+** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n N? ?-t TYPE?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
@@ -884,10 +1077,10 @@ void timeline_cmd(void){
   const char *zType;
   char *zOrigin;
   char *zDate;
-  char *zSQL;
+  Blob sql;
   int objid = 0;
   Blob uuid;
-  int mode = 1 ;       /* 1: before  2:after  3:children  4:parents */
+  int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
   db_find_and_open_repository(1);
   zCount = find_option("count","n",1);
   zType = find_option("type","t",1);
@@ -941,16 +1134,23 @@ void timeline_cmd(void){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else{
+    const char *zShift = "";
     if( mode==3 || mode==4 ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
-    zDate = mprintf("(SELECT julianday(%Q, 'utc'))", zOrigin);
+    if( mode==0 ){
+      if( isIsoDate(zOrigin) ) zShift = ",'+1 day'";
+    }
+    zDate = mprintf("(SELECT julianday(%Q%s, 'utc'))", zOrigin, zShift);
   }
-  zSQL = mprintf("%z AND event.mtime %s %s",
-     timeline_query_for_tty_m(),
+  if( mode==0 ) mode = 1;
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_tty(), -1);
+  blob_appendf(&sql, "  AND event.mtime %s %s",
      (mode==1 || mode==4) ? "<=" : ">=",
      zDate
   );
+
   if( mode==3 || mode==4 ){
     db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
     if( mode==3 ){
@@ -958,15 +1158,15 @@ void timeline_cmd(void){
     }else{
       compute_ancestors(objid, n);
     }
-    zSQL = mprintf("%z AND blob.rid IN ok", zSQL);
+    blob_appendf(&sql, " AND blob.rid IN ok");
   }
   if( zType && (zType[0]!='a') ){
-      zSQL = mprintf( "%z AND event.type=%Q ", zSQL, zType);
+    blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
 
-  zSQL = mprintf("%z ORDER BY event.mtime DESC", zSQL);
-  db_prepare(&q, zSQL);
-  free( zSQL );
+  blob_appendf(&sql, " ORDER BY event.mtime DESC");
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
   print_timeline(&q, n);
   db_finalize(&q);
 }

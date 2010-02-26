@@ -43,23 +43,32 @@
 */
 void autosync(int flags){
   const char *zUrl;
+  const char *zAutosync;
+  const char *zPw;
   if( g.fNoSync ){
     return;
   }
-  if( db_get_boolean("autosync", 0)==0 ){
-    return;
+  zAutosync = db_get("autosync", 0);
+  if( zAutosync ){
+    if( (flags & AUTOSYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
+      return;   /* Do not auto-push when autosync=pullonly */
+    }
+    if( is_false(zAutosync) ){
+      return;   /* Autosync is completely off */
+    }
+  }else{
+    /* Autosync defaults on.  To make it default off, "return" here. */
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
     return;  /* No default server */
   }
+  zPw = db_get("last-sync-pw", 0);
   url_parse(zUrl);
-  if( g.urlPort!=g.urlDfltPort ){
-    printf("Autosync:  %s://%s:%d%s\n", 
-            g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
-  }else{
-    printf("Autosync:  %s://%s%s\n", g.urlProtocol, g.urlName, g.urlPath);
+  if( g.urlUser!=0 && g.urlPasswd==0 ){
+    g.urlPasswd = mprintf("%s", zPw);
   }
+  printf("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
   client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, 0);
 }
@@ -72,11 +81,14 @@ void autosync(int flags){
 */
 void process_sync_args(void){
   const char *zUrl = 0;
+  const char *zPw = 0;
   int urlOptional = find_option("autourl",0,0)!=0;
+  g.dontKeepUrl = find_option("once",0,0)!=0;
   url_proxy_options();
   db_find_and_open_repository(1);
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
+    zPw = db_get("last-sync-pw", 0);
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
@@ -85,15 +97,16 @@ void process_sync_args(void){
     usage("URL");
   }
   url_parse(zUrl);
-  db_set("last-sync-url", g.urlIsFile ? g.urlCanonical : zUrl, 0);
+  if( !g.dontKeepUrl ){
+    db_set("last-sync-url", g.urlCanonical, 0);
+    if( g.urlPasswd ) db_set("last-sync-pw", g.urlPasswd, 0);
+  }
+  if( g.urlUser!=0 && g.urlPasswd==0 ){
+    g.urlPasswd = mprintf("%s", zPw);
+  }
   user_select();
   if( g.argc==2 ){
-    if( g.urlPort!=g.urlDfltPort ){
-      printf("Server:    %s://%s:%d%s\n",
-              g.urlProtocol, g.urlName, g.urlPort, g.urlPath);
-    }else{
-      printf("Server:    %s://%s%s\n", g.urlProtocol, g.urlName, g.urlPath);
-    }
+    printf("Server:    %s\n", g.urlCanonical);
   }
   url_enable_proxy("via proxy: ");
 }
@@ -101,12 +114,19 @@ void process_sync_args(void){
 /*
 ** COMMAND: pull
 **
-** Usage: %fossil pull ?URL? ?-R|--respository REPOSITORY?
+** Usage: %fossil pull ?URL? ?options?
 **
 ** Pull changes from a remote repository into the local repository.
+** Use the "-R REPO" or "--repository REPO" command-line options
+** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
 ** clone, push, pull, remote-url, or sync command is used.
+**
+** The URL specified normally becomes the new "remote-url" used for
+** subsequent push, pull, and sync operations.  However, the "--once"
+** command-line option makes the URL a one-time-use URL that is not
+** saved.
 **
 ** See also: clone, push, sync, remote-url
 */
@@ -118,12 +138,19 @@ void pull_cmd(void){
 /*
 ** COMMAND: push
 **
-** Usage: %fossil push ?URL? ?-R|--repository REPOSITORY?
+** Usage: %fossil push ?URL? ?options?
 **
 ** Push changes in the local repository over into a remote repository.
+** Use the "-R REPO" or "--repository REPO" command-line options
+** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
 ** clone, push, pull, remote-url, or sync command is used.
+**
+** The URL specified normally becomes the new "remote-url" used for
+** subsequent push, pull, and sync operations.  However, the "--once"
+** command-line option makes the URL a one-time-use URL that is not
+** saved.
 **
 ** See also: clone, pull, sync, remote-url
 */
@@ -136,10 +163,12 @@ void push_cmd(void){
 /*
 ** COMMAND: sync
 **
-** Usage: %fossil sync ?URL? ?-R|--repository REPOSITORY?
+** Usage: %fossil sync ?URL? ?options?
 **
 ** Synchronize the local repository with a remote repository.  This is
 ** the equivalent of running both "push" and "pull" at the same time.
+** Use the "-R REPO" or "--repository REPO" command-line options
+** to specify an alternative repository file.
 **
 ** If a user-id and password are required, specify them as follows:
 **
@@ -147,6 +176,11 @@ void push_cmd(void){
 **
 ** If the URL is not specified, then the URL from the most recent successful
 ** clone, push, pull, remote-url, or sync command is used.
+**
+** The URL specified normally becomes the new "remote-url" used for
+** subsequent push, pull, and sync operations.  However, the "--once"
+** command-line option makes the URL a one-time-use URL that is not
+** saved.
 **
 ** See also:  clone, push, pull, remote-url
 */
@@ -158,13 +192,10 @@ void sync_cmd(void){
 /*
 ** COMMAND: remote-url
 **
-** Usage: %fossil remote-url ?URL|off? --show-pw
+** Usage: %fossil remote-url ?URL|off?
 **
 ** Query and/or change the default server URL used by the "pull", "push",
 ** and "sync" commands.
-**
-** The userid and password are of the URL are not printed unless
-** the --show-pw option is used on the command-line.
 **
 ** The remote-url is set automatically by a "clone" command or by any
 ** "sync", "push", or "pull" command that specifies an explicit URL.
@@ -175,7 +206,6 @@ void sync_cmd(void){
 */
 void remote_url_cmd(void){
   char *zUrl;
-  int showPw = find_option("show-pw",0,0)!=0;
   db_find_and_open_repository(1);
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
@@ -183,19 +213,26 @@ void remote_url_cmd(void){
   if( g.argc==3 ){
     if( strcmp(g.argv[2],"off")==0 ){
       db_unset("last-sync-url", 0);
+      db_unset("last-sync-pw", 0);
     }else{
       url_parse(g.argv[2]);
+      if( g.urlUser && g.urlPasswd==0 ){
+        url_prompt_for_password();
+      }
       db_set("last-sync-url", g.urlCanonical, 0);
+      if( g.urlPasswd ){
+        db_set("last-sync-pw", g.urlPasswd, 0);
+      }else{
+        db_unset("last-sync-pw", 0);
+      }
     }
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
     printf("off\n");
     return;
-  }else if( showPw ){
-    g.urlCanonical = zUrl;
   }else{
     url_parse(zUrl);
+    printf("%s\n", g.urlCanonical);
   }
-  printf("%s\n", g.urlCanonical);
 }

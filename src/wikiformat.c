@@ -331,10 +331,15 @@ static int findTag(const char *z){
 #define TOKEN_LINK          3    /* [...] */
 #define TOKEN_PARAGRAPH     4    /* blank lines */
 #define TOKEN_NEWLINE       5    /* A single "\n" */
-#define TOKEN_BULLET        6    /*  "  *  " */
-#define TOKEN_ENUM          7    /*  "  \(?\d+[.)]?  " */
-#define TOKEN_INDENT        8    /*  "   " */
-#define TOKEN_TEXT          9    /* None of the above */
+#define TOKEN_BUL_LI        6    /*  "  *  " */
+#define TOKEN_NUM_LI        7    /*  "  #  " */
+#define TOKEN_ENUM          8    /*  "  \(?\d+[.)]?  " */
+#define TOKEN_INDENT        9    /*  "   " */
+#define TOKEN_RAW           10   /* Output exactly (used when wiki-use-html==1) */
+#define TOKEN_TEXT          11   /* None of the above */
+/* macro tokens - hackyyyy */
+#define TOKEN_FOSSIL        12   /* fossil macro */
+#define TOKEN_CREOLE        13   /* creole macro */
 
 /*
 ** State flags
@@ -345,6 +350,7 @@ static int findTag(const char *z){
 #define FONT_MARKUP_ONLY    0x008  /* Only allow MUTYPE_FONT markup */
 #define INLINE_MARKUP_ONLY  0x010  /* Allow only "inline" markup */
 #define IN_LIST             0x020  /* Within wiki <ul> or <ol> */
+#define WIKI_USE_HTML       0x040  /* wiki-use-html option = on */
 
 /*
 ** Current state of the rendering engine
@@ -455,10 +461,10 @@ static int isElement(const char *z){
 }
 
 /*
-** Check to see if the z[] string is the beginning of a wiki bullet.
+** Check to see if the z[] string is the beginning of a wiki list item.
 ** If it is, return the length of the bullet text.  Otherwise return 0.
 */
-static int bulletLength(const char *z){
+static int listItemLength(const char *z, const char listChar){
   int i, n;
   n = 0;
   i = 0;
@@ -467,7 +473,7 @@ static int bulletLength(const char *z){
     i++;
     n++;
   }
-  if( i<2 || z[n]!='*' ) return 0;
+  if( i<2 || z[n]!=listChar ) return 0;
   n++;
   i = 0;
   while( z[n]==' ' || z[n]=='\t' ){
@@ -548,14 +554,27 @@ static int linkLength(const char *z){
   }
 }
 
-
 /*
+** Get the next wiki token.
+** 
 ** z points to the start of a token.  Return the number of
 ** characters in that token.  Write the token type into *pTokenType.
 */
-static int nextToken(const char *z, Renderer *p, int *pTokenType){
+static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
   int n;
-  if( z[0]=='<' ){
+  if( !p->inVerbatim && z[0] == '<' && z[1] == '<' ) {
+    if (!memcmp(z, "<<fossil>>", 10)) {
+      *pTokenType = TOKEN_FOSSIL;
+      return 10;
+    }
+#ifdef HAVE_CREOLE_MACRO
+    if (!memcmp(z, "<<creole>>", 10)) {
+      *pTokenType = TOKEN_CREOLE; 
+      return 10;
+    }
+#endif
+  }
+  else if( z[0]=='<' ){
     n = markupLength(z);
     if( n>0 ){
       *pTokenType = TOKEN_MARKUP;
@@ -581,9 +600,14 @@ static int nextToken(const char *z, Renderer *p, int *pTokenType){
       }
     }
     if( (p->state & AT_NEWLINE)!=0 && isspace(z[0]) ){
-      n = bulletLength(z);
+      n = listItemLength(z, '*');
       if( n>0 ){
-        *pTokenType = TOKEN_BULLET;
+        *pTokenType = TOKEN_BUL_LI;
+        return n;
+      }
+      n = listItemLength(z, '#');
+      if( n>0 ){
+        *pTokenType = TOKEN_NUM_LI;
         return n;
       }
       n = enumLength(z);
@@ -606,6 +630,23 @@ static int nextToken(const char *z, Renderer *p, int *pTokenType){
   }
   *pTokenType = TOKEN_TEXT;
   return 1 + textLength(z+1, p->state & ALLOW_WIKI);
+}
+
+/*
+** Parse only Wiki links, return everything else as TOKEN_RAW.
+** 
+** z points to the start of a token.  Return the number of
+** characters in that token. Write the token type into *pTokenType.
+*/
+
+static int nextRawToken(const char *z, Renderer *p, int *pTokenType){
+  int n;
+  if( z[0]=='[' && (n = linkLength(z))>0 ){
+    *pTokenType = TOKEN_LINK;
+    return n;
+  }
+  *pTokenType = TOKEN_RAW;
+  return 1 + textLength(z+1, p->state);
 }
 
 /*
@@ -841,7 +882,7 @@ static int backupToType(Renderer *p, int iMask){
 ** Begin a new paragraph if that something that is needed.
 */
 static void startAutoParagraph(Renderer *p){
-  if( p->wantAutoParagraph==0 ) return;
+  if( p->wantAutoParagraph==0 || p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
   blob_appendf(p->pOut, "<p>", -1);
   pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
@@ -943,7 +984,7 @@ static void openHyperlink(
   int nClose              /* Bytes available in zClose[] */
 ){
   const char *zTerm = "</a>";
-  assert( nClose>10 );
+  assert( nClose>=20 );
 
   if( strncmp(zTarget, "http:", 5)==0 
    || strncmp(zTarget, "https:", 6)==0
@@ -951,6 +992,7 @@ static void openHyperlink(
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
+    /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
     if( 1 /* g.okHistory */ ){
       blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zBaseURL, zTarget);
@@ -991,7 +1033,7 @@ static void openHyperlink(
     }else if( g.okHistory ){
       blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zBaseURL, zTarget);
     }
-  }else if( wiki_name_is_wellformed(zTarget) ){
+  }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
   }else{
     blob_appendf(p->pOut, "[bad-link: %h]", zTarget);
@@ -1035,20 +1077,36 @@ static void wiki_render(Renderer *p, char *z){
   ParsedMarkup markup;
   int n;
   int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
+  int wikiUseHtml = (p->state & WIKI_USE_HTML)!=0;
 
   while( z[0] ){
+    if( wikiUseHtml ){
+      n = nextRawToken(z, p, &tokenType);
+    }else{
+      n = nextWikiToken(z, p, &tokenType);
+    }
 
-     /*
-     ** Additions to support macro extensions
-     */
+    /*
+    ** Additions to support creole switch
+    */
+    if(tokenType == TOKEN_FOSSIL) {
+      z+=10;
+      continue;
+    }
+#ifdef HAVE_CREOLE_MACRO
+    else if(tokenType == TOKEN_CREOLE) {
+      z = wiki_render_creole(p, z+n);
+    }
+#endif
 
+    /*
     if (!p->inVerbatim && z[0]=='<' && z[1] == '<') {
       z = wiki_render_macro(p, z, &tokenType);
       if (tokenType) continue;
     }
+    */
     /* end additions */
 
-    n = nextToken(z, p, &tokenType);
     p->state &= ~(AT_NEWLINE|AT_PARAGRAPH);
     switch( tokenType ){
       case TOKEN_PARAGRAPH: {
@@ -1072,7 +1130,7 @@ static void wiki_render(Renderer *p, char *z){
         p->state |= AT_NEWLINE;
         break;
       }
-      case TOKEN_BULLET: {
+      case TOKEN_BUL_LI: {
         if( inlineOnly ){
           blob_append(p->pOut, " &bull; ", -1);
         }else{
@@ -1083,6 +1141,25 @@ static void wiki_render(Renderer *p, char *z){
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
             p->wikiList = MARKUP_UL;
+          }
+          popStackToTag(p, MARKUP_LI);
+          startAutoParagraph(p);
+          pushStack(p, MARKUP_LI);
+          blob_append(p->pOut, "<li>", 4);
+        }
+        break;
+      }
+      case TOKEN_NUM_LI: {
+        if( inlineOnly ){
+          blob_append(p->pOut, " # ", -1);
+        }else{
+          if( p->wikiList!=MARKUP_OL ){
+            if( p->wikiList ){
+              popStackToTag(p, p->wikiList);
+            }
+            pushStack(p, MARKUP_OL);
+            blob_append(p->pOut, "<ol>", 4);
+            p->wikiList = MARKUP_OL;
           }
           popStackToTag(p, MARKUP_LI);
           startAutoParagraph(p);
@@ -1162,6 +1239,10 @@ static void wiki_render(Renderer *p, char *z){
       }
       case TOKEN_TEXT: {
         startAutoParagraph(p);
+        blob_append(p->pOut, z, n);
+        break;
+      }
+      case TOKEN_RAW: {
         blob_append(p->pOut, z, n);
         break;
       }
@@ -1338,6 +1419,9 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   }else{
     renderer.wantAutoParagraph = 1;
   }
+  if( db_get_int("wiki-use-html", 0) ){
+    renderer.state |= WIKI_USE_HTML;
+  }
   if( pOut ){
     renderer.pOut = pOut;
   }else{
@@ -1403,13 +1487,14 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
 
 char *wiki_render_macro(Renderer *p, char *z, int *tokenType){
   if (!memcmp(z, "<<fossil>>", 10)){
-    *tokenType = 1;
+    *tokenType = TOKEN_MARKUP; /* Close enough for "in-progress".
+                                  Should have it's own token type. */
     return z + 10;
   }
 
 #ifdef HAVE_CREOLE_MACRO
   if (!memcmp(z, "<<creole>>", 10)) {
-    *tokenType = 1;
+    *tokenType = TOKEN_MARKUP; 
     return wiki_render_creole(p, z+10);
   }
 #endif

@@ -879,6 +879,11 @@ static int isMacro(Parser *p){//{{{
   int macroId;
   int matchLength;
 
+  /* This is succinct but somewhat hard to follow.
+     Read as: If not '<' then return, otherwise increment s;
+              Repeat above;
+              If '<' then return;
+  */
   if (s[0]!='<') return 0; s++;
   if (s[0]!='<') return 0; s++;
   if (s[0]=='<') return 0;

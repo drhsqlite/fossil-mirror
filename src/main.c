@@ -63,11 +63,13 @@ struct Global {
   long long int now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
+  const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
   int fSqlTrace;          /* True if -sqltrace flag is present */
   int fSqlPrint;          /* True if -sqlprint flag is present */
+  int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fNoSync;            /* Do not do an autosync even.  --nosync */
   char *zPath;            /* Name of webpage being served */
@@ -101,6 +103,7 @@ struct Global {
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
+  int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
@@ -233,6 +236,7 @@ int main(int argc, char **argv){
     fprintf(stderr, "Usage: %s COMMAND ...\n", argv[0]);
     exit(1);
   }else{
+    g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -256,12 +260,21 @@ int main(int argc, char **argv){
 }
 
 /*
-** Print an error message, rollback all databases, and quit.
+** The following variable becomes true while processing a fatal error
+** or a panic.  If additional "recursive-fatal" errors occur while
+** shutting down, the recursive errors are silently ignored.
+*/
+static int mainInFatalError = 0;
+
+/*
+** Print an error message, rollback all databases, and quit.  These
+** routines never return.
 */
 void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
   static int once = 1;
+  mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -278,6 +291,7 @@ void fossil_panic(const char *zFormat, ...){
 void fossil_fatal(const char *zFormat, ...){
   char *z;
   va_list ap;
+  mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
@@ -291,6 +305,37 @@ void fossil_fatal(const char *zFormat, ...){
   db_force_rollback();
   exit(1);
 }
+
+/* This routine works like fossil_fatal() except that if called
+** recursively, the recursive call is a no-op.
+**
+** Use this in places where an error might occur while doing
+** fatal error shutdown processing.  Unlike fossil_panic() and
+** fossil_fatal() which never return, this routine might return if
+** the fatal error handing is already in process.  The caller must
+** be prepared for this routine to return.
+*/
+void fossil_fatal_recursive(const char *zFormat, ...){
+  char *z;
+  va_list ap;
+  if( mainInFatalError ) return;
+  mainInFatalError = 1;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.cgiPanic ){
+    g.cgiPanic = 0;
+    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_reply();
+  }else{
+    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+  }
+  db_force_rollback();
+  exit(1);
+}
+
+
+/* Print a warning message */
 void fossil_warning(const char *zFormat, ...){
   char *z;
   va_list ap;
@@ -410,7 +455,7 @@ static void multi_column_list(const char **azWord, int nWord){
 }
 
 /*
-** COM MAND: commands
+** COM -off- MAND: commands
 **
 ** Usage: %fossil commands
 ** List all supported commands.
@@ -498,7 +543,7 @@ void help_cmd(void){
 
 /*
 ** Set the g.zBaseURL value to the full URL for the toplevel of
-** the fossil tree.  Set g.zHomeURL to g.zBaseURL without the
+** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
 */
 void set_base_url(void){
@@ -526,25 +571,119 @@ void fossil_redirect_home(void){
 }
 
 /*
+** If running as root, chroot to the directory containing the
+** repository zRepo and then drop root privileges.  Return the
+** new repository name.
+**
+** zRepo might be a directory itself.  In that case chroot into
+** the directory zRepo.
+**
+** Assume the user-id and group-id of the repository, or if zRepo
+** is a directory, of that directory.
+*/
+static char *enter_chroot_jail(char *zRepo){
+#if !defined(__MINGW32__)
+  if( getuid()==0 ){
+    int i;
+    struct stat sStat;
+    Blob dir;
+    char *zDir;
+
+    file_canonical_name(zRepo, &dir);
+    zDir = blob_str(&dir);
+    if( file_isdir(zDir)==1 ){
+      chdir(zDir);
+      chroot(zDir);
+      zRepo = "/";
+    }else{
+      for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
+      if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
+      zDir[i] = 0;
+      chdir(zDir);
+      chroot(zDir);
+      zDir[i] = '/';
+      zRepo = &zDir[i];
+    }
+    if( stat(zRepo, &sStat)!=0 ){
+      fossil_fatal("cannot stat() repository: %s", zRepo);
+    }
+    setgid(sStat.st_gid);
+    setuid(sStat.st_uid);
+  }
+#endif
+  return zRepo;
+}
+
+/*
 ** Preconditions:
 **
-**    * Environment variables are set up according to the CGI standard.
-**    * The respository database has been located and opened.
+**  * Environment variables are set up according to the CGI standard.
+**
+** If the repository is known, it has already been opened.  If unknown,
+** then g.zRepositoryName holds the directory that contains the repository
+** and the actual repository is taken from the first element of PATH_INFO.
 ** 
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
 */
-static void process_one_web_page(void){
+static void process_one_web_page(const char *zNotFound){
   const char *zPathInfo;
   char *zPath = NULL;
   int idx;
   int i;
 
+  /* If the repository has not been opened already, then find the
+  ** repository based on the first element of PATH_INFO and open it.
+  */
+  zPathInfo = P("PATH_INFO");
+  if( !g.repositoryOpen ){
+    char *zRepo;
+    const char *zOldScript = PD("SCRIPT_NAME", "");
+    char *zNewScript;
+    int j, k;
+
+    i = 1;
+    while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
+    zRepo = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
+
+    /* To avoid mischief, make sure the repository basename contains no
+    ** characters other than alphanumerics, "-", and "_".
+    */
+    for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
+      if( !isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
+    }
+
+    if( file_size(zRepo)<1024 ){
+      if( zNotFound ){
+        cgi_redirect(zNotFound);
+      }else{
+        @ <h1>Not Found</h1>
+        cgi_set_status(404, "not found");
+        cgi_reply();
+      }
+      return;
+    }
+    zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
+    cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
+    zPathInfo += i;
+    cgi_replace_parameter("SCRIPT_NAME", zNewScript);
+    db_open_repository(zRepo);
+    if( g.fHttpTrace ){
+      fprintf(stderr, 
+          "# repository: [%s]\n"
+          "# new PATH_INFO = [%s]\n"
+          "# new SCRIPT_NAME = [%s]\n",
+          zRepo, zPathInfo, zNewScript);
+    }
+  }
+
   /* Find the page that the user has requested, construct and deliver that
   ** page.
   */
+  if( g.zContentType && memcmp(g.zContentType, "application/x-fossil", 20)==0 ){
+    zPathInfo = "/xfer";
+  }
   set_base_url();
-  zPathInfo = P("PATH_INFO");
   if( zPathInfo==0 || zPathInfo[0]==0 
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
     fossil_redirect_home();
@@ -568,16 +707,6 @@ static void process_one_web_page(void){
     */
     dehttpize(g.zExtra);
     cgi_set_parameter_nocopy("name", g.zExtra);
-  }
-
-  /* Prevent robots from indexing this site.
-  */
-  if( strcmp(g.zPath, "robots.txt")==0 ){
-    cgi_set_content_type("text/plain");
-    @ User-agent: *
-    @ Disallow: /
-    cgi_reply();
-    exit(0);
   }
   
   /* Locate the method specified by the path and execute the function
@@ -617,6 +746,7 @@ static void process_one_web_page(void){
 */
 void cmd_cgi(void){
   const char *zFile;
+  const char *zNotFound = 0;
   Blob config, line, key, value;
   if( g.argc==3 && strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
@@ -654,15 +784,55 @@ void cmd_cgi(void){
     if( blob_eq(&key, "repository:") && blob_token(&line, &value) ){
       db_open_repository(blob_str(&value));
       blob_reset(&value);
-      blob_reset(&config);
-      break;
+      continue;
+    }
+    if( blob_eq(&key, "directory:") && blob_token(&line, &value) ){
+      db_close();
+      g.zRepositoryName = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
+    }
+    if( blob_eq(&key, "notfound:") && blob_token(&line, &value) ){
+      zNotFound = mprintf("%s", blob_str(&value));
+      blob_reset(&value);
+      continue;
     }
   }
-  if( g.db==0 ){
+  blob_reset(&config);
+  if( g.db==0 && g.zRepositoryName==0 ){
     cgi_panic("Unable to find or open the project repository");
   }
   cgi_init();
-  process_one_web_page();
+  process_one_web_page(zNotFound);
+}
+
+/*
+** If g.argv[2] exists then it is either the name of a repository
+** that will be used by a server, or else it is a directory that
+** contains multiple repositories that can be served.  If g.argv[2]
+** is a directory, the repositories it contains must be named
+** "*.fossil".  If g.argv[2] does not exists, then we must be within
+** a check-out and the repository to be served is the repository of
+** that check-out.
+**
+** Open the respository to be served if it is known.  If g.argv[2] is
+** a directory full of repositories, then set g.zRepositoryName to
+** the name of that directory and the specific repository will be
+** opened later by process_one_web_page() based on the content of
+** the PATH_INFO variable.
+**
+** If disallowDir is set, then the directory full of repositories method
+** is disallowed.
+*/
+static void find_server_repository(int disallowDir){
+  if( g.argc<3 ){
+    db_must_be_within_tree();
+  }else if( !disallowDir && file_isdir(g.argv[2])==1 ){
+    g.zRepositoryName = mprintf("%s", g.argv[2]);
+    file_simplify_name(g.zRepositoryName, -1);
+  }else{
+    db_open_repository(g.argv[2]);
+  }
 }
 
 /*
@@ -674,37 +844,26 @@ void cmd_cgi(void){
 **
 ** COMMAND: http
 **
-** Usage: %fossil http REPOSITORY
+** Usage: %fossil http REPOSITORY [--notfound URL]
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
 ** handler from inetd, for example.  The argument is the name of the 
 ** repository.
+**
+** If REPOSITORY is a directory that contains one or more respositories
+** with names of the form "*.fossil" then the first element of the URL
+** pathname selects among the various repositories.  If the pathname does
+** not select a valid repository and the --notfound option is available,
+** then the server redirects (HTTP code 302) to the URL of --notfound.
 */
 void cmd_http(void){
   const char *zIpAddr;
+  const char *zNotFound;
+  zNotFound = find_option("notfound", 0, 1);
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     cgi_panic("no repository specified");
   }
-#if !defined(__MINGW32__)
-  if( g.argc==3 && getuid()==0 ){
-    int i;
-    char *zRepo = g.argv[2];
-    struct stat sStat;
-    for(i=strlen(zRepo)-1; i>0 && zRepo[i]!='/'; i--){}
-    if( zRepo[i]=='/' ){
-      zRepo[i] = 0;
-      chdir(g.argv[2]);
-      chroot(g.argv[2]);
-      g.argv[2] = &zRepo[i+1];
-    }
-    if( stat(g.argv[2], &sStat)!=0 ){
-      fossil_fatal("cannot stat() repository: %s", g.argv[2]);
-    }
-    setgid(sStat.st_gid);
-    setuid(sStat.st_uid);
-  }
-#endif
   g.cgiPanic = 1;
   g.fullHttpReply = 1;
   if( g.argc==6 ){
@@ -716,13 +875,10 @@ void cmd_http(void){
     g.httpOut = stdout;
     zIpAddr = 0;
   }
-  if( g.argc>=3 ){
-    db_open_repository(g.argv[2]);
-  }else{
-    db_must_be_within_tree();
-  }
+  find_server_repository(0);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(zIpAddr);
-  process_one_web_page();
+  process_one_web_page(zNotFound);
 }
 
 /*
@@ -734,7 +890,7 @@ void cmd_test_http(void){
   cmd_http();
 }
 
-
+#ifndef __MINGW32__
 #if !defined(__DARWIN__) && !defined(__APPLE__)
 /*
 ** Search for an executable on the PATH environment variable.
@@ -757,6 +913,7 @@ static int binaryOnPath(const char *zBinary){
   return 0;
 }
 #endif
+#endif
 
 /*
 ** COMMAND: server
@@ -773,24 +930,34 @@ static int binaryOnPath(const char *zBinary){
 **
 ** The "ui" command automatically starts a web browser after initializing
 ** the web server.
+**
+** In the "server" command, the REPOSITORY can be a directory (aka folder)
+** that contains one or more respositories with names ending in ".fossil".
+** In that case, the first element of the URL is used to select among the
+** various repositories.
 */
 void cmd_webserver(void){
-  int iPort, mxPort;
-  const char *zPort;
-  char *zBrowser;
-  char *zBrowserCmd = 0;
+  int iPort, mxPort;        /* Range of TCP ports allowed */
+  const char *zPort;        /* Value of the --port option */
+  char *zBrowser;           /* Name of web browser program */
+  char *zBrowserCmd = 0;    /* Command to launch the web browser */
+  int isUiCmd;              /* True if command is "ui", not "server' */
+  const char *zNotFound;    /* The --notfound option or NULL */
+
+#ifdef __MINGW32__
+  const char *zStopperFile;    /* Name of file used to terminate server */
+  zStopperFile = find_option("stopper", 0, 1);
+#endif
 
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   if( g.thTrace ){
     blob_zero(&g.thLog);
   }
   zPort = find_option("port", "P", 1);
+  zNotFound = find_option("notfound", 0, 1);
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
-  if( g.argc==2 ){
-    db_must_be_within_tree();
-  }else{
-    db_open_repository(g.argv[2]);
-  }
+  isUiCmd = g.argv[1][0]=='u';
+  find_server_repository(isUiCmd);
   if( zPort ){
     iPort = mxPort = atoi(zPort);
   }else{
@@ -799,7 +966,7 @@ void cmd_webserver(void){
   }
 #ifndef __MINGW32__
   /* Unix implementation */
-  if( g.argv[1][0]=='u' ){
+  if( isUiCmd ){
 #if !defined(__DARWIN__) && !defined(__APPLE__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
@@ -824,24 +991,21 @@ void cmd_webserver(void){
   }
   g.httpIn = stdin;
   g.httpOut = stdout;
-  if( g.fHttpTrace ){
+  if( g.fHttpTrace || g.fSqlTrace ){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiPanic = 1;
-  if( g.argc==2 ){
-    db_must_be_within_tree();
-  }else{
-    db_open_repository(g.argv[2]);
-  }
+  find_server_repository(isUiCmd);
+  g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(0);
-  process_one_web_page();
+  process_one_web_page(zNotFound);
 #else
   /* Win32 implementation */
-  if( g.argv[1][0]=='u' ){
+  if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close();
-  win32_http_server(iPort, mxPort, zBrowserCmd);
+  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound);
 #endif
 }

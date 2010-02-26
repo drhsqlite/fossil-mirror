@@ -37,7 +37,7 @@
 ** contain more than a single space character in a row.  Well-formed
 ** names must be between 3 and 100 chracters in length, inclusive.
 */
-int wiki_name_is_wellformed(const char *z){
+int wiki_name_is_wellformed(const unsigned char *z){
   int i;
   if( z[0]<=0x20 ){
     return 0;
@@ -69,7 +69,7 @@ static void well_formed_wiki_name_rules(void){
 ** and return true.  If it is well-formed, return false.
 */
 static int check_name(const char *z){
-  if( !wiki_name_is_wellformed(z) ){
+  if( !wiki_name_is_wellformed((const unsigned char *)z) ){
     style_header("Wiki Page Name Error");
     @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
     @ wiki page names:
@@ -153,6 +153,9 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
+	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
+	@     Search wiki titles: <input type="text" name="title"/> &nbsp; <input type="submit" />
+	@ </li>
     @ </ul>
     style_footer();
     return;
@@ -347,7 +350,7 @@ void wikinew_page(void){
     return;
   }  
   zName = PD("name","");
-  if( zName[0] && wiki_name_is_wellformed(zName) ){
+  if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
     cgi_redirectf("wikiedit?name=%T", zName);
   }
   style_header("Create A New Wiki Page");
@@ -627,20 +630,48 @@ void wcontent_page(void){
 }
 
 /*
+** WEBPAGE: wfind
+**
+** URL: /wfind?title=TITLE
+** List all wiki pages whose titles contain the search text
+*/
+void wfind_page(void){
+  Stmt q;
+  const char * zTitle;
+  login_check_credentials();
+  if( !g.okRdWiki ){ login_needed(); return; }
+  zTitle = PD("title","*");
+  style_header("Wiki Pages Found");
+  @ <ul>
+  db_prepare(&q, 
+    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%' ORDER BY lower(tagname)" ,
+	zTitle);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
+  }
+  db_finalize(&q);
+  @ </ul>
+  style_footer();
+}
+
+/*
 ** WEBPAGE: wiki_rules
 */
 void wikirules_page(void){
   style_header("Wiki Formatting Rules");
   @ <h2>Formatting Rule Summary</h2>
   @ <ol>
-  @ <li> Blank lines are paragraph breaks
-  @ <li> Bullets are "*" surrounded by two spaces at the beginning of the line.
-  @ <li> Enumeration items are a number surrounded by two space
-  @ at the beginning of a line.
-  @ <li> Indented pargraphs begin with a tab or two spaces.
-  @ <li> Hyperlinks are contained with square brackets:  "[target]"
-  @ <li> Most ordinary HTML works.
-  @ <li> &lt;verbatim&gt; and &lt;nowiki&gt;.
+  @ <li>Blank lines are paragraph breaks</li>
+  @ <li>Bullets are "*" surrounded by two spaces at the beginning of the
+  @ line.</li>
+  @ <li>Enumeration items are "#" surrounded by two spaces at the beginning of
+  @ a line.</li>
+  @ <li>Indented pargraphs begin with a tab or two spaces.</li>
+  @ <li>Hyperlinks are contained with square brackets:  "[target]" or
+  @ "[target|name]".</li>
+  @ <li>Most ordinary HTML works.</li>
+  @ <li>&lt;verbatim&gt; and &lt;nowiki&gt;.</li>
   @ </ol>
   @ <p>We call the first five rules above "wiki" formatting rules.  The
   @ last two rules are the HTML formatting rule.</p>
@@ -656,12 +687,9 @@ void wikirules_page(void){
   @ both sides by two or more spaces or by a tab.  Only a single level
   @ of bullet list is supported by wiki.  For nested lists, use HTML.</p>
   @ <li> <p><b>Enumeration Lists</b>.
-  @ An enumeration list item is a line that begins
-  @ with one or more digits optionally
-  @ followed by a "." and is surrounded on both sides by two or more spaces or
-  @ by a tab.  The number is significant and becomes the number shown
-  @ in the rendered enumeration item.  Only a single level of enumeration
-  @ list is supported by wiki.  For nested enumerations or for
+  @ An enumeration list item is a line that begins with a single "#" character
+  @ surrounded on both sides by two or more spaces or by a tab.  Only a single
+  @ level of enumeration list is supported by wiki.  For nested lists or for
   @ enumerations that count using letters or roman numerials, use HTML.</p>
   @ <li> <p><b>Indented Paragraphs</b>.
   @ Any paragraph that begins with two or more spaces or a tab and
@@ -674,6 +702,9 @@ void wikirules_page(void){
   @ the name of an image, or a URL.  By default, the target is displayed
   @ as the text of the hyperlink.  But you can specify alternative text
   @ after the target name separated by a "|" character.</p>
+  @ <p>You can also link to internal anchor names using [#anchor-name], providing
+  @ you have added the necessary "&lt;a name="anchor-name"&gt;&lt;/a&gt;"
+  @ tag to your wiki page.</p>
   @ <li> <p><b>HTML</b>.
   @ The following standard HTML elements may be used:
   @ &lt;a&gt;

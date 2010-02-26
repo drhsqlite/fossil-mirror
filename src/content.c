@@ -313,11 +313,15 @@ int content_get_historical_file(
 }
 
 /*
-** COMMAND:  test-content-get
+** COMMAND:  artifact
 **
-** Extract a blob from the database and write it into a file.
+** Usage: %fossil artifact ARTIFACT-ID  ?OUTPUT-FILENAME?
+**
+** Extract an artifact by its SHA1 hash and write the results on
+** standard output, or if the optional 4th argument is given, in
+** the named output file.
 */
-void test_content_get_cmd(void){
+void artifact_cmd(void){
   int rid;
   Blob content;
   const char *zFile;

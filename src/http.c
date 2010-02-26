@@ -40,39 +40,51 @@
 ** by this routine.
 */
 static void http_build_login_card(Blob *pPayload, Blob *pLogin){
-  Blob nonce;    /* The nonce */
-  Blob pw;       /* The user password */
-  Blob sig;      /* The signature field */
+  Blob nonce;          /* The nonce */
+  const char *zLogin;  /* The user login name */
+  const char *zPw;     /* The user password */
+  Blob pw;             /* The nonce with user password appended */
+  Blob sig;            /* The signature field */
 
+  blob_zero(pLogin);
+  if( g.urlUser==0 || strcmp(g.urlUser, "anonymous")==0 ){
+     return;  /* If no login card for users "nobody" and "anonymous" */
+  }
   blob_zero(&nonce);
   blob_zero(&pw);
   sha1sum_blob(pPayload, &nonce);
   blob_copy(&pw, &nonce);
-  blob_zero(pLogin);
-  if( g.urlUser==0 ){
-    user_select();
-    db_blob(&pw, "SELECT pw FROM user WHERE uid=%d", g.userUid);
-    sha1sum_blob(&pw, &sig);
-    blob_appendf(pLogin, "login %F %b %b\n", g.zLogin, &nonce, &sig);
+  zLogin = g.urlUser;
+  if( g.urlPasswd ){
+    zPw = g.urlPasswd;
   }else{
-    if( g.urlPasswd==0 ){
-      if( strcmp(g.urlUser,"anonymous")!=0 ){
-        char *zPrompt = mprintf("password for %s: ", g.urlUser);
-        Blob x;
-        prompt_for_password(zPrompt, &x, 0);
-        free(zPrompt);
-        g.urlPasswd = blob_str(&x);
-      }else{
-        g.urlPasswd = "";
-      }
+    url_prompt_for_password();
+    zPw = g.urlPasswd;
+    if( !g.dontKeepUrl ) db_set("last-sync-pw", zPw, 0);
+  }
+
+  /* The login card wants the SHA1 hash of the password, so convert the
+  ** password to its SHA1 hash it it isn't already a SHA1 hash.
+  **
+  ** Except, if the password begins with "*" then use the characters
+  ** after the "*" as a cleartext password.  Put an "*" at the beginning
+  ** of the password to trick a newer client to use the cleartext password
+  ** protocol required by legacy servers.
+  */
+  if( zPw && zPw[0] ){
+    if( zPw[0]=='*' ){
+      zPw++;
+    }else{
+      zPw = sha1_shared_secret(zPw, zLogin);
     }
-    blob_append(&pw, g.urlPasswd, -1);
-    sha1sum_blob(&pw, &sig);
-    blob_appendf(pLogin, "login %F %b %b\n", g.urlUser, &nonce, &sig);
-  }        
-  blob_reset(&nonce);
+  }
+
+  blob_append(&pw, zPw, -1);
+  sha1sum_blob(&pw, &sig);
+  blob_appendf(pLogin, "login %F %b %b\n", zLogin, &nonce, &sig);
   blob_reset(&pw);
   blob_reset(&sig);
+  blob_reset(&nonce);
 }
 
 /*
@@ -91,7 +103,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }else{
     zSep = "/";
   }
-  blob_appendf(pHdr, "POST %s%sxfer HTTP/1.1\r\n", g.urlPath, zSep);
+  blob_appendf(pHdr, "POST %s%sxfer HTTP/1.0\r\n", g.urlPath, zSep);
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
   }
@@ -115,7 +127,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 ** url_parse() routine should have been called prior to this routine
 ** in order to fill this structure appropriately.
 */
-void http_exchange(Blob *pSend, Blob *pReply){
+void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -131,7 +143,8 @@ void http_exchange(Blob *pSend, Blob *pReply){
   }
 
   /* Construct the login card and prepare the complete payload */
-  http_build_login_card(pSend, &login);
+  blob_zero(&login);
+  if( useLogin ) http_build_login_card(pSend, &login);
   if( g.fHttpTrace ){
     payload = login;
     blob_append(&payload, blob_buffer(pSend), blob_size(pSend));
@@ -182,7 +195,12 @@ void http_exchange(Blob *pSend, Blob *pReply){
   while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
     if( strncasecmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
-      if( rc!=200 ) goto write_err;
+      if( rc!=200 ){
+        int ii;
+        for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
+        printf("ERROR. server says: %s\n", &zLine[ii]);
+        goto write_err;
+      }
       if( iHttpVersion==0 ){
         closeConnection = 1;
       }else{
@@ -206,7 +224,10 @@ void http_exchange(Blob *pSend, Blob *pReply){
   /*
   ** Extract the reply payload that follows the header
   */
-  if( iLength<0 ) goto write_err;
+  if( iLength<0 ){
+    printf("ERROR.  Server did not reply\n");
+    goto write_err;
+  }
   blob_zero(pReply);
   blob_resize(pReply, iLength);
   iLength = transport_receive(blob_buffer(pReply), iLength);

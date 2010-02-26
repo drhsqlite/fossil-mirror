@@ -41,7 +41,7 @@ int unsaved_changes(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
   if( vid==0 ) return 2;
-  vfile_check_signature(vid);
+  vfile_check_signature(vid, 1);
   return db_exists("SELECT 1 FROM vfile WHERE chnged"
                    " OR coalesce(origname!=pathname,0)");
 }
@@ -75,7 +75,7 @@ int load_vfile(const char *zName){
   if( vid==0 ){
     fossil_fatal("no such check-in: %s", g.argv[2]);
   }
-  if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", vid) ){
+  if( !is_a_version(vid) ){
     fossil_fatal("object [%.10s] is not a check-in", blob_str(&uuid));
   }
   load_vfile_from_rid(vid);
@@ -183,6 +183,11 @@ void checkout_cmd(void){
     zVers = db_text(0, "SELECT uuid FROM leaves, event, blob"
                        " WHERE event.objid=leaves.rid AND blob.rid=leaves.rid"
                        " ORDER BY event.mtime DESC");
+    if( zVers==0 ){
+      zVers = db_text(0, "SELECT uuid FROM event, blob"
+                         " WHERE event.objid=blob.rid AND event.type='ci'"
+                         " ORDER BY event.mtime DESC");
+    }
     if( zVers==0 ){
       fossil_fatal("cannot locate \"latest\" checkout");
     }

@@ -90,6 +90,7 @@ static struct {
   { "ticket-newpage",         CONFIGSET_TKT  },
   { "ticket-viewpage",        CONFIGSET_TKT  },
   { "ticket-editpage",        CONFIGSET_TKT  },
+  { "ticket-reportlist",      CONFIGSET_TKT  },
   { "ticket-report-template", CONFIGSET_TKT  },
   { "ticket-key-template",    CONFIGSET_TKT  },
   { "ticket-title-expr",      CONFIGSET_TKT  },
@@ -168,14 +169,17 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     }
     db_finalize(&q);
   }else if( strcmp(zName, "@user")==0 ){
-    db_prepare(&q, "SELECT login, cap, info, quote(photo) FROM user");
+    db_prepare(&q, 
+        "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
+        "       cap, info, quote(photo) FROM user");
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT INTO _xfer_user(login,cap,info,photo)"
-                         " VALUES(%Q,%Q,%Q,%s);\n",
+      blob_appendf(pOut, "INSERT INTO _xfer_user(login,pw,cap,info,photo)"
+                         " VALUES(%Q,%Q,%Q,%Q,%s);\n",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2),
-        db_column_text(&q, 3)
+        db_column_text(&q, 3),
+        db_column_text(&q, 4)
       );
     }
     db_finalize(&q);
@@ -443,6 +447,7 @@ void configuration_cmd(void){
   if( strncmp(zMethod, "pull", n)==0 || strncmp(zMethod, "push", n)==0 ){
     int mask;
     const char *zServer;
+    const char *zPw;
     url_proxy_options();
     if( g.argc!=4 && g.argc!=5 ){
       usage("pull AREA ?URL?");
@@ -450,13 +455,17 @@ void configuration_cmd(void){
     mask = find_area(g.argv[3]);
     if( g.argc==5 ){
       zServer = g.argv[4];
+      zPw = 0;
+      g.dontKeepUrl = 1;
     }else{
       zServer = db_get("last-sync-url", 0);
       if( zServer==0 ){
         fossil_fatal("no server specified");
       }
+      zPw = db_get("last-sync-pw", 0);
     }
     url_parse(zServer);
+    if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);
     user_select();
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,0,0,mask);
@@ -480,7 +489,7 @@ void configuration_cmd(void){
         db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
       }else if( strcmp(zName,"@user")==0 ){
         db_multi_exec("DELETE FROM user");
-        db_create_default_users(0);
+        db_create_default_users(0, 0);
       }else if( strcmp(zName,"@concealed")==0 ){
         db_multi_exec("DELETE FROM concealed");
       }else if( strcmp(zName,"@shun")==0 ){

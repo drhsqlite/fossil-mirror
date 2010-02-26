@@ -4,12 +4,39 @@ use the Makefile.  To do a complete build, just type:
 
    make
 
-That should work out-of-the-box on Macs and Linux systems.  If
-you have trouble, or you want to do something fancy, just edit
-the Makefile in the top-level folder.  There are 5 things you
-might want to change in the Makefile.  All 5 things are well
-commented.  The complete Makefile is only a few dozen lines long.
-Do not be intimidated.
+That should work out-of-the-box on Macs and Linux systems. If you are
+building on a Windows box, install MinGW as well as MinGW's make (or
+MSYS). You can then type:
+
+  make -f Makefile.w32
+
+If you have trouble, or you want to do something fancy, just look at
+top level makefile. There are 5 configuration options that are all well
+commented. Instead of editing the Makefile, create a new file named
+config.mak (for Macs and Linux systems) or config.w32 (for Windows) and
+override any settings you wish there.
+
+Out of source builds?
+--------------------------------------------------------------------------
+
+An out of source build is pretty easy:
+
+  1. Make a new directory to do the builds in.
+  2. Create a config.mak (or .w32 ... explained above) and add something
+  along the lines of:
+
+    SRCDIR=../src
+
+  3. From that directory, type:
+
+    Macs and Linux:
+      $ make -f ../Makefile
+
+    Windows:
+      C:\fossil\build> make -f ../Makefile.w32
+
+This will now keep all generates files seperate from the maintained
+source code.
 
 --------------------------------------------------------------------------
 

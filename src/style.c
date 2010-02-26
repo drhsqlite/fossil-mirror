@@ -90,6 +90,9 @@ void style_header(const char *zTitleFormat, ...){
   va_end(ap);
   
   cgi_destination(CGI_HEADER);
+  cgi_printf("%s",
+     "<!DOCTYPE html PUBLIC \"-//W3C/DTD XHTML 1.0 Strict//EN\""
+     " \"http://www.x3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
   
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
@@ -145,7 +148,7 @@ void style_footer(void){
 
   /* Put the footer at the bottom of the page.
   */
-  @ </div><br clear="both"></br>
+  @ </div><br clear="both"/>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -207,12 +210,14 @@ const char zDefaultHeader[] =
 @ </div>
 @ <div class="mainmenu"><th1>
 @ html "<a href='$baseurl$index_page'>Home</a> "
-@ if {[hascap h]} {
+@ if {[anycap jor]} {
+@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@ }
+@ if {[hascap oh]} {
 @   html "<a href='$baseurl/dir'>Files</a> "
 @ }
 @ if {[hascap o]} {
 @   html "<a href='$baseurl/leaves'>Leaves</a> "
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
 @   html "<a href='$baseurl/brlist'>Branches</a> "
 @   html "<a href='$baseurl/taglist'>Tags</a> "
 @ }
@@ -254,7 +259,7 @@ const char zDefaultCSS[] =
 @   margin: 0ex 1ex;
 @   padding: 0px;
 @   background-color: white;
-@   font-family: "sans serif";
+@   font-family: sans-serif;
 @ }
 @
 @ /* The project logo in the upper left-hand corner of each page */
@@ -362,7 +367,7 @@ const char zDefaultCSS[] =
 @   color: white;
 @ }
 @
-@ /* Make the links in the footer less ugly... */
+@ /* Hyperlink colors in the footer */
 @ div.footer a { color: white; }
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
@@ -445,6 +450,7 @@ void page_style_css(void){
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
   cgi_append_content(zCSS, -1);
+  g.isConst = 1;
 }
 
 /*

@@ -313,12 +313,13 @@ void cgi_reply(void){
     char * zDate = cgi_rfc822_datestamp(expires);
     fprintf(g.httpOut, "Expires: %s\r\n", zDate );
     if( zDate[0] ) free( zDate );
+  }else{
+    fprintf(g.httpOut, "Cache-control: no-cache, no-store\r\n");
   }
 
   /* Content intended for logged in users should only be cached in
   ** the browser, not some shared location.
   */
-  fprintf(g.httpOut, "Cache-control: no-cache, no-store\r\n");
   fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
   if( strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();
@@ -400,6 +401,9 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   }
   aParamQP[nUsedQP].zName = zName;
   aParamQP[nUsedQP].zValue = zValue;
+  if( g.fHttpTrace ){
+    fprintf(stderr, "# cgi: %s = [%s]\n", zName, zValue);
+  }
   aParamQP[nUsedQP].seq = seqQP++;
   nUsedQP++;
   sortQP = 1;
@@ -698,16 +702,8 @@ void cgi_init(void){
     }else if( strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
-      /* If the content type is application/x-fossil, then ignore
-      ** the path in the first line of the HTTP header and always
-      ** use the /xfer method since the /xfer method is the only
-      ** method that understands the application/x-fossil content
-      ** type.
-      */
-      cgi_replace_parameter("PATH_INFO", "/xfer");
     }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
-      cgi_replace_parameter("PATH_INFO", "/xfer");  /* See comment above */
     }
   }
 
@@ -1255,7 +1251,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
           dup(connection);
           close(1);
           dup(connection);
-          if( !g.fHttpTrace ){
+          if( !g.fHttpTrace && !g.fSqlTrace ){
             close(2);
             dup(connection);
           }

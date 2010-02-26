@@ -1,4 +1,4 @@
-<title>Fossil Documentation</title>
+﻿<title>Fossil Documentation</title>
 <h1 align="center">
 Branching, Forking, Merging, and Tagging
 </h1>
@@ -175,7 +175,7 @@ tags as properties with a NULL value.  So, tags and properties really
 are much the same thing, and henceforth we will use the word "tag"
 to mean either a tag or a property. 
 
-A tag can be either a one-time tag or an propagating tag or a cancellation tag. 
+A tag can be a one-time tag, a propagating tag or a cancellation tag. 
 A one-time tag only applies to the check-in to which it is attached.  A
 propagating tag applies to the check-in to which it is attached and also
 to all direct descendants of that check-in.  A <i>direct descendant</i>

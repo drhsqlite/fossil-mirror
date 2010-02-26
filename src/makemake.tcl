@@ -33,6 +33,8 @@ set src {
   doc
   encode
   file
+  finfo
+  graph
   http
   http_socket
   http_transport
@@ -52,9 +54,11 @@ set src {
   rss
   rstats
   schema
+  search
   setup
   sha1
   shun
+  skins
   stat
   style
   sync
@@ -74,6 +78,7 @@ set src {
   winhttp
   xfer
   zip
+  http_ssl
 }
 
 # Name of the final application
@@ -106,17 +111,20 @@ foreach s [lsort $src] {
 puts "\n"
 puts -nonewline "OBJ ="
 foreach s [lsort $src] {
-  puts -nonewline " \\\n  $s.o"
+  puts -nonewline " \\\n \$(OBJDIR)/$s.o"
 }
 puts "\n"
 puts "APPNAME = $name\$(E)"
 puts "\n"
 
 puts {
-all:	$(APPNAME)
+all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
 	mv $(APPNAME) $(INSTALLDIR)
+
+$(OBJDIR):
+	-mkdir $(OBJDIR)
 
 translate:	$(SRCDIR)/translate.c
 	$(BCC) -o translate $(SRCDIR)/translate.c
@@ -142,8 +150,8 @@ VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 		substr($$2,1,10),substr($$2,12)}' \
 		$(SRCDIR)/../manifest >>VERSION.h
 
-$(APPNAME):	headers $(OBJ) sqlite3.o th.o th_lang.o
-	$(TCC) -o $(APPNAME) $(OBJ) sqlite3.o th.o th_lang.o $(LIB)
+$(APPNAME):	headers $(OBJ) $(OBJDIR)/sqlite3.o $(OBJDIR)/th.o $(OBJDIR)/th_lang.o
+	$(TCC) -o $(APPNAME) $(OBJ) $(OBJDIR)/sqlite3.o $(OBJDIR)/th.o $(OBJDIR)/th_lang.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -152,7 +160,7 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:	
-	rm -f *.o *_.c $(APPNAME) VERSION.h
+	rm -f $(OBJDIR)/*.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers}
 
 set hfiles {}
@@ -179,23 +187,23 @@ set extra_h(main) page_index.h
 foreach s [lsort $src] {
   puts "${s}_.c:\t\$(SRCDIR)/$s.c translate"
   puts "\t./translate \$(SRCDIR)/$s.c >${s}_.c\n"
-  puts "$s.o:\t${s}_.c $s.h $extra_h($s) \$(SRCDIR)/config.h"
-  puts "\t\$(XTCC) -o $s.o -c ${s}_.c\n"
+  puts "\$(OBJDIR)/$s.o:\t${s}_.c $s.h $extra_h($s) \$(SRCDIR)/config.h"
+  puts "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c ${s}_.c\n"
   puts "$s.h:\theaders"
 #  puts "\t./makeheaders $mhargs\n\ttouch headers\n"
 #  puts "\t./makeheaders ${s}_.c:${s}.h\n"
 }
 
 
-puts "sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
+puts "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 #append opt " -DSQLITE_ENABLE_FTS3=1"
 append opt " -Dlocaltime=fossil_localtime"
-puts "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o sqlite3.o\n"
+puts "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
-puts "th.o:\t\$(SRCDIR)/th.c"
-puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o th.o\n"
+puts "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
+puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 
-puts "th_lang.o:\t\$(SRCDIR)/th_lang.c"
-puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o th_lang.o\n"
+puts "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
+puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
