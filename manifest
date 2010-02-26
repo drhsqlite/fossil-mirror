@@ -1,5 +1,5 @@
-C If\sa\sfile\shas\sbeen\sdeleted\sfrom\sthe\sfilesystem,\sbut\snot\sdeleted\sby\sfossil,\nthen\smake\sthe\s"update"\scommand\srestore\sthat\sfile.\nTicket\s[7c3ca0eae8287]
-D 2010-02-25T12:58:19
+C Update\sSQLite\sto\spre-3.6.23.
+D 2010-02-26T13:09:48
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -92,8 +92,8 @@ F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
-F src/sqlite3.c 3417e43f49d06d3d6516430a93d3477a764d3855
-F src/sqlite3.h bddd23f2153511f486e0d481c1005cbe012732ce
+F src/sqlite3.c 9912991ca229b09cce7a434c6be5208861e7ee06
+F src/sqlite3.h 531038fdb2a7d4d3b6f02eb0f2b02cba25fb777d
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 1bd1a0ac4f1fda9fd79c8178cd55dd0dfd273375
 F src/sync.c 8333c36fef43fbae7bdd782d1bf10cc7a61417d3
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 5a6634c453eccfcf08bf5572e164d387b0924eba
-R 41e1bba13fe28c65f486016460979a9a
+P 63d5a4fe25ee850fad5a9725c312733ca137769a
+R 7ea1e0a053076060f854e3a8cad527cb
 U drh
-Z 01aba211542ab30a4974de0907296ea2
+Z c86c6e1562bf1881a4868ba4c676e2b6
