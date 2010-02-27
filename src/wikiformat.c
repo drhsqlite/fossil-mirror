@@ -960,6 +960,8 @@ static int is_ticket(
 **    [0123456789abcdef]
 **
 **    [#fragment]
+**
+**    [2010-02-27 07:13]
 */
 static void openHyperlink(
   Renderer *p,            /* Rendering context */
@@ -1017,6 +1019,9 @@ static void openHyperlink(
     }else if( g.okHistory ){
       blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zBaseURL, zTarget);
     }
+  }else if( strlen(zTarget)>=10 && isdigit(zTarget[0]) && zTarget[4]=='-'
+            && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
+    blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zBaseURL, zTarget);
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
   }else{

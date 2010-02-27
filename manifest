@@ -1,5 +1,5 @@
-C Update\sSQLite\sto\spre-3.6.23.
-D 2010-02-26T13:09:48
+C A\swiki-style\shyperlink\sto\sa\swell-formed\sISO8601\sdate-time\swill\slink\sto\sthe\ntimeline\sat\sthat\sdate\sand\stime.
+D 2010-02-27T12:26:03
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -113,7 +113,7 @@ F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
 F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
-F src/wikiformat.c 4380991a2f1cb4b8b5bd5cf3c557447b0f5fd07d
+F src/wikiformat.c 80b43925d31145516f10ce59000b194270765750
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c 8cc1d7205825aeadda4d03c6b0707ef7652db449
 F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 63d5a4fe25ee850fad5a9725c312733ca137769a
-R 7ea1e0a053076060f854e3a8cad527cb
+P 1efd09ed4fa52d8f10d719c2e586e06cc36e3472
+R 02e754a0bf6037a2b8a5fa7f3fc436e0
 U drh
-Z c86c6e1562bf1881a4868ba4c676e2b6
+Z 35c13727ea4a5544ec70d00c75c8d15a
