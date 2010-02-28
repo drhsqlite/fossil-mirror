@@ -1,5 +1,5 @@
-C added\smake\swrapper\sscript
-D 2010-02-28T07:01:29
+C fix\ssmall\sissue\sin\spostbuild
+D 2010-02-28T08:18:38
 F BUILD.txt 4f7988767e4e48b29f7eddd0e2cdea4555b9161c
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -33,7 +33,7 @@ F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
-F make.sh fcb703c2c965a79f9f7f2112623422f06b49dc7c x
+F make.sh 33c0c8fe79ef1a292e753ee8edb372118b9d2679 x
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 91e569092d09d3e41f5f313a13c4883695fb6d99
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
@@ -258,7 +258,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7ca773bc312f914225553fe58451fbfe5f55a361
-R 465e93a7683e0a9ea377153db7a112a0
-U ron
-Z 16f3b5884188355a3e83744d43737eda
+P 0ddd305acb7f4b0bec04c71f01ded95208598cb2
+R 41c2a878edb145c87e16cf45d6817068
+U accordsy
+Z 200d7f678a6a1493c7a888b0dfae5abc

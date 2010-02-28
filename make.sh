@@ -30,12 +30,13 @@ domake()
 		fi
 
 		make -f Makefile${cross} ${clean} || die "Could not build!"
+
+		if [ "$clean" != "clean" ]
+		then
+			postbuild
+		fi
 	)
 
-	if [ "$clean" != "clean" ]
-	then
-		postbuild
-	fi
 }
 
 syntax()
