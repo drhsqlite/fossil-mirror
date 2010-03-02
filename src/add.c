@@ -55,8 +55,10 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
       fossil_fatal("filename contains illegal characters: %s", zPath);
     }
 #ifdef __MINGW32__
-    if( db_exists("SELECT 1 FROM vfile WHERE pathname LIKE %Q", zPath) ){
-      db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname LIKE %Q", zPath);
+    if( db_exists("SELECT 1 FROM vfile"
+                  " WHERE pathname=%Q COLLATE nocase", zPath) ){
+      db_multi_exec("UPDATE vfile SET deleted=0"
+                    " WHERE pathname=%Q COLLATE nocase", zPath);
     }
 #else
     if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){

@@ -1,5 +1,5 @@
-C Update\sthe\show-to-build\sdocumentation\sin\sthe\sBUILD.txt\sfile\sat\sthe\sroot\nof\sthe\ssource\stree.
-D 2010-03-01T00:54:17
+C On\swindows,\suse\sCOLLATE\sNOCASE\sinstead\sof\sLIKE\sto\sdo\scase\sinsensitive\ncomparisons\s-\sto\savoid\sissues\swith\swildcards.\nTicket\s[80d3ba8b0ff].
+D 2010-03-02T18:20:31
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -34,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 91e569092d09d3e41f5f313a13c4883695fb6d99
+F src/add.c 3384ceaf0e23ebfb1a2b252538f1e59d3a07e0c3
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 7ca773bc312f914225553fe58451fbfe5f55a361
-R 6aba5ea1d34de1ff8649ab9d67b4ea48
+P 355d37ca8c93ca2064dd6286d803583098006c70
+R 09b519c016e18dabde90e7e6f1a56b12
 U drh
-Z bb6e73aab71026ba54623ea94305d04a
+Z a61f45a10bd1d95f7a2256c09bd1d6a1
