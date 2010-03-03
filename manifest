@@ -1,5 +1,5 @@
-C Add\sa\shyperlink\son\sbranch\stags\sof\sthe\sinfo\sdisplay\sthat\scarries\sthe\suser\nto\sa\stimeline\sof\sthe\sbranch.
-D 2010-03-03T03:34:24
+C Improvements\sto\sthe\sgraph\slayout\salgorithm\sto\srender\sa\smore\scompact\sgraph\nwhen\sthere\sis\slots\sof\sbranching\sand\smerging.
+D 2010-03-03T04:08:18
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -61,7 +61,7 @@ F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c 28f5f355ca07956b2b0f98845b288eeba9e1aa1e
 F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
-F src/graph.c 4c50a70dc67a22bc0a980508cba090e25d49790b
+F src/graph.c fcb7f9942ef008007d95484a3ea41b17bae90bee
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P d97a4cdf8dce617efde281f5a265e53b41910bd4
-R c0b6ea00b793fa88f51802ce42e0a656
+P 732e3db329eee7fa1ee9126d90b534ba1b346585
+R 3f44ee04cf600c500d256e2978b4f712
 U drh
-Z 7761a734ee4d6bb5e6f8f2289b9b5a39
+Z efebeff523167f894d7632487ee8af4c
