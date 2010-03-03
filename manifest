@@ -1,5 +1,5 @@
-C On\swindows,\suse\sCOLLATE\sNOCASE\sinstead\sof\sLIKE\sto\sdo\scase\sinsensitive\ncomparisons\s-\sto\savoid\sissues\swith\swildcards.\nTicket\s[80d3ba8b0ff].
-D 2010-03-02T18:20:31
+C Add\sa\shyperlink\son\sbranch\stags\sof\sthe\sinfo\sdisplay\sthat\scarries\sthe\suser\nto\sa\stimeline\sof\sthe\sbranch.
+D 2010-03-03T03:34:24
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -66,7 +66,7 @@ F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c cca5d8684361cf77e0ba17d12baee09124fcbf2e
+F src/info.c 472b9054609d1860470619581511bba0a808263b
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
 F src/main.c b20658a1d43e15dcc7bab605cd5b935497e89b4b
 F src/main.mk 719a1a01d8ccbc91dda19c8bdff972d2f2b66a54
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 355d37ca8c93ca2064dd6286d803583098006c70
-R 09b519c016e18dabde90e7e6f1a56b12
+P d97a4cdf8dce617efde281f5a265e53b41910bd4
+R c0b6ea00b793fa88f51802ce42e0a656
 U drh
-Z a61f45a10bd1d95f7a2256c09bd1d6a1
+Z 7761a734ee4d6bb5e6f8f2289b9b5a39

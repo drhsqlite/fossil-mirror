@@ -208,6 +208,10 @@ static void showTags(int rid, const char *zNotGlob){
       }else{
         @ propagates to descendants
       }
+      if( zValue && strcmp(zTagname,"branch")==0 ){
+        @ &nbsp;&nbsp;
+        @ <a href="%s(g.zBaseURL)/timeline?t=%T(zValue)">branch timeline</a>
+      }
     }
     if( zSrcUuid && zSrcUuid[0] ){
       if( tagtype==0 ){
