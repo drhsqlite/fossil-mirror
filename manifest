@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sgraph\slayout\salgorithm\sto\srender\sa\smore\scompact\sgraph\nwhen\sthere\sis\slots\sof\sbranching\sand\smerging.
-D 2010-03-03T04:08:18
+C Allow\sthe\stype=\sattribute\son\sthe\sverbatim\swiki\stag.\sThis\sattribute\sdoes\snot\spass\sright\sthrough.\sIf\sfound,\sit\sis\streated\sas\sthe\s'Language\sType'\sand\salters\sthe\soutput\sof\sthe\sverbatim\stag\sslightly.\s<verbatim\stype='cpp'>\swould\srender\sas\s<pre\sname='code'\sclass='cpp'>.\sThis\sallows\sJavaScript\stools\ssuch\sas\sSyntaxHighlighter\sto\sfunction\sproperly\sfor\sany\slanguage.
+D 2010-03-03T13:52:36
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -113,7 +113,7 @@ F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
 F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
-F src/wikiformat.c 80b43925d31145516f10ce59000b194270765750
+F src/wikiformat.c 79b7ccbe45fd5ca29e14c90dc25756430ed4c724
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c 8cc1d7205825aeadda4d03c6b0707ef7652db449
 F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 732e3db329eee7fa1ee9126d90b534ba1b346585
-R 3f44ee04cf600c500d256e2978b4f712
-U drh
-Z efebeff523167f894d7632487ee8af4c
+P 71edacd95f3b58aea2b158241732c99f2ed4d0a1
+R 9adac1046d51a18e2b060617805f6c7d
+U jeremy_c
+Z 70491e87a22057fd76f1715f060e2301
