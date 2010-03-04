@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.23"
 #define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-02-26 13:07:37 8f29490da62df07ea922b03cab52b6edd2669edb"
+#define SQLITE_SOURCE_ID      "2010-03-04 22:36:45 1a0fa8d19d69d4ecaaaa879ac3c893980375fcc6"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -146,9 +146,9 @@ SQLITE_API const char *sqlite3_libversion(void);
 SQLITE_API const char *sqlite3_sourceid(void);
 SQLITE_API int sqlite3_libversion_number(void);
 
+#ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
 /*
 ** CAPI3REF: Run-Time Library Compilation Options Diagnostics
-** KEYWORDS: sqlite3_compileoption_used, sqlite3_compileoption_get
 **
 ** ^The sqlite3_compileoption_used() function returns 0 or 1 
 ** indicating whether the specified option was defined at 
@@ -164,11 +164,11 @@ SQLITE_API int sqlite3_libversion_number(void);
 **
 ** ^Support for the diagnostic functions sqlite3_compileoption_used()
 ** and sqlite3_compileoption_get() may be omitted by specifing the 
-** SQLITE_OMIT_COMPILEOPTION_DIAGS option at compile time.
+** [SQLITE_OMIT_COMPILEOPTION_DIAGS] option at compile time.
 **
-** See also: [sqlite_compile_option_used()] and [sqlite_compile_option_get()].
+** See also: SQL functions [sqlite_compileoption_used()] and
+** [sqlite_compileoption_get()] and the [compile_options pragma].
 */
-#ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
 SQLITE_API int sqlite3_compileoption_used(const char *zOptName);
 SQLITE_API const char *sqlite3_compileoption_get(int N);
 #endif /* SQLITE_OMIT_COMPILEOPTION_DIAGS */
@@ -5700,7 +5700,7 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** EXPERIMENTAL
 **
 ** ^The [sqlite3_log()] interface writes a message into the error log
-** established by the [SQLITE_CONFIG_ERRORLOG] option to [sqlite3_config()].
+** established by the [SQLITE_CONFIG_LOG] option to [sqlite3_config()].
 ** ^If logging is enabled, the zFormat string and subsequent arguments are
 ** passed through to [sqlite3_vmprintf()] to generate the final output string.
 **
@@ -5710,6 +5710,12 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** is considered bad form.
 **
 ** The zFormat string must not be NULL.
+**
+** To avoid deadlocks and other threading problems, the sqlite3_log() routine
+** will not use dynamically allocated memory.  The log message is stored in
+** a fixed-length buffer on the stack.  If the log message is longer than
+** a few hundred characters, it will be truncated to the length of the
+** buffer.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
 

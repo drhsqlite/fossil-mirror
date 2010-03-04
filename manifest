@@ -1,5 +1,5 @@
-C Allow\sthe\stype=\sattribute\son\sthe\sverbatim\swiki\stag.\sThis\sattribute\sdoes\snot\spass\sright\sthrough.\sIf\sfound,\sit\sis\streated\sas\sthe\s'Language\sType'\sand\salters\sthe\soutput\sof\sthe\sverbatim\stag\sslightly.\s<verbatim\stype='cpp'>\swould\srender\sas\s<pre\sname='code'\sclass='cpp'>.\sThis\sallows\sJavaScript\stools\ssuch\sas\sSyntaxHighlighter\sto\sfunction\sproperly\sfor\sany\slanguage.
-D 2010-03-03T13:52:36
+C Update\sSQLite\sto\spre-3.6.23\sthat\sleaves\sSQLITE_ENABLE_LOCKING_STYLE\sturned\noff\sby\sdefault.\s\sThis\sshould\shelp\sit\sto\sbuild\scorrectly\son\sTiger.\nTicket\s[8b3c5d30f7e6]
+D 2010-03-04T22:39:00
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -92,8 +92,8 @@ F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 5ce4b4a67d9a2567f27a470a51d22335ce407b81
-F src/sqlite3.c 9912991ca229b09cce7a434c6be5208861e7ee06
-F src/sqlite3.h 531038fdb2a7d4d3b6f02eb0f2b02cba25fb777d
+F src/sqlite3.c 794a3e09de1440f16b469ad3ca50bb3a8090bcb6
+F src/sqlite3.h 7b1db89c0790c1032c47656afde2a036ab2a8404
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 1bd1a0ac4f1fda9fd79c8178cd55dd0dfd273375
 F src/sync.c 8333c36fef43fbae7bdd782d1bf10cc7a61417d3
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 71edacd95f3b58aea2b158241732c99f2ed4d0a1
-R 9adac1046d51a18e2b060617805f6c7d
-U jeremy_c
-Z 70491e87a22057fd76f1715f060e2301
+P 63d31b0448b3d25b559f6c0e840318c26d2c90f4
+R bf0ba4ce1ff828161d80c7eae8a2e2ec
+U drh
+Z 98d15df3afe01033d1f79cdf83857cbd

@@ -315,37 +315,34 @@
 #define SQLITE_INDEX_SAMPLES 10
 
 /*
-** This macro is used to "hide" some ugliness in casting an int
-** value to a ptr value under the MSVC 64-bit compiler.   Casting
-** non 64-bit values to ptr types results in a "hard" error with 
-** the MSVC 64-bit compiler which this attempts to avoid.  
+** The following macros are used to cast pointers to integers and
+** integers to pointers.  The way you do this varies from one compiler
+** to the next, so we have developed the following set of #if statements
+** to generate appropriate macros for a wide range of compilers.
 **
-** A simple compiler pragma or casting sequence could not be found
-** to correct this in all situations, so this macro was introduced.
-**
-** It could be argued that the intptr_t type could be used in this
-** case, but that type is not available on all compilers, or 
-** requires the #include of specific headers which differs between
-** platforms.
+** The correct "ANSI" way to do this is to use the intptr_t type. 
+** Unfortunately, that typedef is not available on all compilers, or
+** if it is available, it requires an #include of specific headers
+** that very from one machine to the next.
 **
 ** Ticket #3860:  The llvm-gcc-4.2 compiler from Apple chokes on
 ** the ((void*)&((char*)0)[X]) construct.  But MSVC chokes on ((void*)(X)).
 ** So we have to define the macros in different ways depending on the
 ** compiler.
 */
-#if defined(__GNUC__)
-# if defined(HAVE_STDINT_H)
-#   define SQLITE_INT_TO_PTR(X)  ((void*)(intptr_t)(X))
-#   define SQLITE_PTR_TO_INT(X)  ((int)(intptr_t)(X))
-# else
-#   define SQLITE_INT_TO_PTR(X)  ((void*)(X))
-#   define SQLITE_PTR_TO_INT(X)  ((int)(X))
-# endif
-#else
-# define SQLITE_INT_TO_PTR(X)   ((void*)&((char*)0)[X])
-# define SQLITE_PTR_TO_INT(X)   ((int)(((char*)X)-(char*)0))
+#if defined(__PTRDIFF_TYPE__)  /* This case should work for GCC */
+# define SQLITE_INT_TO_PTR(X)  ((void*)(__PTRDIFF_TYPE__)(X))
+# define SQLITE_PTR_TO_INT(X)  ((int)(__PTRDIFF_TYPE__)(X))
+#elif !defined(__GNUC__)       /* Works for compilers other than LLVM */
+# define SQLITE_INT_TO_PTR(X)  ((void*)&((char*)0)[X])
+# define SQLITE_PTR_TO_INT(X)  ((int)(((char*)X)-(char*)0))
+#elif defined(HAVE_STDINT_H)   /* Use this case if we have ANSI headers */
+# define SQLITE_INT_TO_PTR(X)  ((void*)(intptr_t)(X))
+# define SQLITE_PTR_TO_INT(X)  ((int)(intptr_t)(X))
+#else                          /* Generates a warning - but it always works */
+# define SQLITE_INT_TO_PTR(X)  ((void*)(X))
+# define SQLITE_PTR_TO_INT(X)  ((int)(X))
 #endif
-
 
 /*
 ** The SQLITE_THREADSAFE macro must be defined as either 0 or 1.
@@ -633,7 +630,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.23"
 #define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-02-26 13:07:37 8f29490da62df07ea922b03cab52b6edd2669edb"
+#define SQLITE_SOURCE_ID      "2010-03-04 22:36:45 1a0fa8d19d69d4ecaaaa879ac3c893980375fcc6"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -670,9 +667,9 @@ SQLITE_API const char *sqlite3_libversion(void);
 SQLITE_API const char *sqlite3_sourceid(void);
 SQLITE_API int sqlite3_libversion_number(void);
 
+#ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
 /*
 ** CAPI3REF: Run-Time Library Compilation Options Diagnostics
-** KEYWORDS: sqlite3_compileoption_used, sqlite3_compileoption_get
 **
 ** ^The sqlite3_compileoption_used() function returns 0 or 1 
 ** indicating whether the specified option was defined at 
@@ -688,11 +685,11 @@ SQLITE_API int sqlite3_libversion_number(void);
 **
 ** ^Support for the diagnostic functions sqlite3_compileoption_used()
 ** and sqlite3_compileoption_get() may be omitted by specifing the 
-** SQLITE_OMIT_COMPILEOPTION_DIAGS option at compile time.
+** [SQLITE_OMIT_COMPILEOPTION_DIAGS] option at compile time.
 **
-** See also: [sqlite_compile_option_used()] and [sqlite_compile_option_get()].
+** See also: SQL functions [sqlite_compileoption_used()] and
+** [sqlite_compileoption_get()] and the [compile_options pragma].
 */
-#ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
 SQLITE_API int sqlite3_compileoption_used(const char *zOptName);
 SQLITE_API const char *sqlite3_compileoption_get(int N);
 #endif /* SQLITE_OMIT_COMPILEOPTION_DIAGS */
@@ -6224,7 +6221,7 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** EXPERIMENTAL
 **
 ** ^The [sqlite3_log()] interface writes a message into the error log
-** established by the [SQLITE_CONFIG_ERRORLOG] option to [sqlite3_config()].
+** established by the [SQLITE_CONFIG_LOG] option to [sqlite3_config()].
 ** ^If logging is enabled, the zFormat string and subsequent arguments are
 ** passed through to [sqlite3_vmprintf()] to generate the final output string.
 **
@@ -6234,6 +6231,12 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** is considered bad form.
 **
 ** The zFormat string must not be NULL.
+**
+** To avoid deadlocks and other threading problems, the sqlite3_log() routine
+** will not use dynamically allocated memory.  The log message is stored in
+** a fixed-length buffer on the stack.  If the log message is longer than
+** a few hundred characters, it will be truncated to the length of the
+** buffer.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
 
@@ -16869,7 +16872,9 @@ SQLITE_PRIVATE void sqlite3VXPrintf(
       case etEXP:
       case etGENERIC:
         realvalue = va_arg(ap,double);
-#ifndef SQLITE_OMIT_FLOATING_POINT
+#ifdef SQLITE_OMIT_FLOATING_POINT
+        length = 0;
+#else
         if( precision<0 ) precision = 6;         /* Set default precision */
         if( precision>etBUFSIZE/2-10 ) precision = etBUFSIZE/2-10;
         if( realvalue<0.0 ){
@@ -17015,9 +17020,7 @@ SQLITE_PRIVATE void sqlite3VXPrintf(
           while( nPad-- ) bufpt[i++] = '0';
           length = width;
         }
-#else
-        length = 0;
-#endif /* SQLITE_OMIT_FLOATING_POINT */
+#endif /* !defined(SQLITE_OMIT_FLOATING_POINT) */
         break;
       case etSIZE:
         *(va_arg(ap,int*)) = pAccum->nChar;
@@ -17064,7 +17067,7 @@ SQLITE_PRIVATE void sqlite3VXPrintf(
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
         k = precision;
-        for(i=n=0; (ch=escarg[i])!=0 && k!=0; i++, k--){
+        for(i=n=0; k!=0 && (ch=escarg[i])!=0; i++, k--){
           if( ch==q )  n++;
         }
         needQuote = !isnull && xtype==etSQLESCAPE2;
@@ -17349,24 +17352,34 @@ SQLITE_API char *sqlite3_snprintf(int n, char *zBuf, const char *zFormat, ...){
 }
 
 /*
+** This is the routine that actually formats the sqlite3_log() message.
+** We house it in a separate routine from sqlite3_log() to avoid using
+** stack space on small-stack systems when logging is disabled.
+**
+** sqlite3_log() must render into a static buffer.  It cannot dynamically
+** allocate memory because it might be called while the memory allocator
+** mutex is held.
+*/
+static void renderLogMsg(int iErrCode, const char *zFormat, va_list ap){
+  StrAccum acc;                          /* String accumulator */
+  char zMsg[SQLITE_PRINT_BUF_SIZE*3];    /* Complete log message */
+
+  sqlite3StrAccumInit(&acc, zMsg, sizeof(zMsg), 0);
+  acc.useMalloc = 0;
+  sqlite3VXPrintf(&acc, 0, zFormat, ap);
+  sqlite3GlobalConfig.xLog(sqlite3GlobalConfig.pLogArg, iErrCode,
+                           sqlite3StrAccumFinish(&acc));
+}
+
+/*
 ** Format and write a message to the log if logging is enabled.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...){
-  void (*xLog)(void*, int, const char*);  /* The global logger function */
-  void *pLogArg;                          /* First argument to the logger */
   va_list ap;                             /* Vararg list */
-  char *zMsg;                             /* Complete log message */
-  
-  xLog = sqlite3GlobalConfig.xLog;
-  if( xLog ){
+  if( sqlite3GlobalConfig.xLog ){
     va_start(ap, zFormat);
-    sqlite3BeginBenignMalloc();
-    zMsg = sqlite3_vmprintf(zFormat, ap);
-    sqlite3EndBenignMalloc();
+    renderLogMsg(iErrCode, zFormat, ap);
     va_end(ap);
-    pLogArg = sqlite3GlobalConfig.pLogArg;
-    xLog(pLogArg, iErrCode, zMsg ? zMsg : zFormat);
-    sqlite3_free(zMsg);
   }
 }
 
@@ -19184,6 +19197,19 @@ SQLITE_PRIVATE int sqlite3PutVarint32(unsigned char *p, u32 v){
 }
 
 /*
+** Bitmasks used by sqlite3GetVarint().  These precomputed constants
+** are defined here rather than simply putting the constant expressions
+** inline in order to work around bugs in the RVT compiler.
+**
+** SLOT_2_0     A mask for  (0x7f<<14) | 0x7f
+**
+** SLOT_4_2_0   A mask for  (0x7f<<28) | SLOT_2_0
+*/
+#define SLOT_2_0     0x001fc07f
+#define SLOT_4_2_0   0xf01fc07f
+
+
+/*
 ** Read a 64-bit variable-length integer from memory starting at p[0].
 ** Return the number of bytes read.  The value is stored in *v.
 */
@@ -19210,13 +19236,17 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
     return 2;
   }
 
+  /* Verify that constants are precomputed correctly */
+  assert( SLOT_2_0 == ((0x7f<<14) | (0x7f)) );
+  assert( SLOT_4_2_0 == ((0xf<<28) | (0x7f<<14) | (0x7f)) );
+
   p++;
   a = a<<14;
   a |= *p;
   /* a: p0<<14 | p2 (unmasked) */
   if (!(a&0x80))
   {
-    a &= (0x7f<<14)|(0x7f);
+    a &= SLOT_2_0;
     b &= 0x7f;
     b = b<<7;
     a |= b;
@@ -19225,14 +19255,14 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
   }
 
   /* CSE1 from below */
-  a &= (0x7f<<14)|(0x7f);
+  a &= SLOT_2_0;
   p++;
   b = b<<14;
   b |= *p;
   /* b: p1<<14 | p3 (unmasked) */
   if (!(b&0x80))
   {
-    b &= (0x7f<<14)|(0x7f);
+    b &= SLOT_2_0;
     /* moved CSE1 up */
     /* a &= (0x7f<<14)|(0x7f); */
     a = a<<7;
@@ -19246,7 +19276,7 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
   /* 1:save off p0<<21 | p1<<14 | p2<<7 | p3 (masked) */
   /* moved CSE1 up */
   /* a &= (0x7f<<14)|(0x7f); */
-  b &= (0x7f<<14)|(0x7f);
+  b &= SLOT_2_0;
   s = a;
   /* s: p0<<14 | p2 (masked) */
 
@@ -19279,7 +19309,7 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
   {
     /* we can skip this cause it was (effectively) done above in calc'ing s */
     /* b &= (0x7f<<28)|(0x7f<<14)|(0x7f); */
-    a &= (0x7f<<14)|(0x7f);
+    a &= SLOT_2_0;
     a = a<<7;
     a |= b;
     s = s>>18;
@@ -19293,8 +19323,8 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
   /* a: p2<<28 | p4<<14 | p6 (unmasked) */
   if (!(a&0x80))
   {
-    a &= (0x1f<<28)|(0x7f<<14)|(0x7f);
-    b &= (0x7f<<14)|(0x7f);
+    a &= SLOT_4_2_0;
+    b &= SLOT_2_0;
     b = b<<7;
     a |= b;
     s = s>>11;
@@ -19303,14 +19333,14 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
   }
 
   /* CSE2 from below */
-  a &= (0x7f<<14)|(0x7f);
+  a &= SLOT_2_0;
   p++;
   b = b<<14;
   b |= *p;
   /* b: p3<<28 | p5<<14 | p7 (unmasked) */
   if (!(b&0x80))
   {
-    b &= (0x1f<<28)|(0x7f<<14)|(0x7f);
+    b &= SLOT_4_2_0;
     /* moved CSE2 up */
     /* a &= (0x7f<<14)|(0x7f); */
     a = a<<7;
@@ -19327,7 +19357,7 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
 
   /* moved CSE2 up */
   /* a &= (0x7f<<29)|(0x7f<<15)|(0xff); */
-  b &= (0x7f<<14)|(0x7f);
+  b &= SLOT_2_0;
   b = b<<8;
   a |= b;
 
@@ -19447,9 +19477,9 @@ SQLITE_PRIVATE u8 sqlite3GetVarint32(const unsigned char *p, u32 *v){
   /* a: p0<<28 | p2<<14 | p4 (unmasked) */
   if (!(a&0x80))
   {
-    /* Walues  between 268435456 and 34359738367 */
-    a &= (0x1f<<28)|(0x7f<<14)|(0x7f);
-    b &= (0x1f<<28)|(0x7f<<14)|(0x7f);
+    /* Values  between 268435456 and 34359738367 */
+    a &= SLOT_4_2_0;
+    b &= SLOT_4_2_0;
     b = b<<7;
     *v = a | b;
     return 5;
@@ -21448,7 +21478,7 @@ SQLITE_API int sqlite3_os_end(void){
 */
 #if !defined(SQLITE_ENABLE_LOCKING_STYLE)
 #  if defined(__APPLE__)
-#    define SQLITE_ENABLE_LOCKING_STYLE 1
+#    define SQLITE_ENABLE_LOCKING_STYLE 0
 #  else
 #    define SQLITE_ENABLE_LOCKING_STYLE 0
 #  endif
@@ -21513,6 +21543,9 @@ SQLITE_API int sqlite3_os_end(void){
 #  include <sys/mount.h>
 # endif
 #endif /* SQLITE_ENABLE_LOCKING_STYLE */
+
+#ifdef __APPLE__
+#endif
 
 /*
 ** Allowed values of unixFile.fsFlags
@@ -23157,7 +23190,7 @@ static int _posixUnlock(sqlite3_file *id, int locktype, int handleNFSUnlock){
         lock.l_start = SHARED_FIRST;
         lock.l_len = divSize;
         if( fcntl(h, F_SETLK, &lock)==(-1) ){
-          int tErrno = errno;
+          tErrno = errno;
           rc = sqliteErrorFromPosixError(tErrno, SQLITE_IOERR_UNLOCK);
           if( IS_LOCK_ERROR(rc) ){
             pFile->lastErrno = tErrno;
@@ -23169,7 +23202,7 @@ static int _posixUnlock(sqlite3_file *id, int locktype, int handleNFSUnlock){
         lock.l_start = SHARED_FIRST;
         lock.l_len = divSize;
         if( fcntl(h, F_SETLK, &lock)==(-1) ){
-          int tErrno = errno;
+          tErrno = errno;
           rc = sqliteErrorFromPosixError(tErrno, SQLITE_IOERR_RDLOCK);
           if( IS_LOCK_ERROR(rc) ){
             pFile->lastErrno = tErrno;
@@ -23181,7 +23214,7 @@ static int _posixUnlock(sqlite3_file *id, int locktype, int handleNFSUnlock){
         lock.l_start = SHARED_FIRST+divSize;
         lock.l_len = SHARED_SIZE-divSize;
         if( fcntl(h, F_SETLK, &lock)==(-1) ){
-          int tErrno = errno;
+          tErrno = errno;
           rc = sqliteErrorFromPosixError(tErrno, SQLITE_IOERR_UNLOCK);
           if( IS_LOCK_ERROR(rc) ){
             pFile->lastErrno = tErrno;
@@ -23194,7 +23227,7 @@ static int _posixUnlock(sqlite3_file *id, int locktype, int handleNFSUnlock){
         lock.l_start = SHARED_FIRST;
         lock.l_len = SHARED_SIZE;
         if( fcntl(h, F_SETLK, &lock)==(-1) ){
-          int tErrno = errno;
+          tErrno = errno;
           rc = sqliteErrorFromPosixError(tErrno, SQLITE_IOERR_RDLOCK);
           if( IS_LOCK_ERROR(rc) ){
             pFile->lastErrno = tErrno;
@@ -26493,7 +26526,7 @@ end_create_proxy:
   return rc;
 }
 
-#ifdef SQLITE_TEST
+#if defined(SQLITE_TEST) && defined(__APPLE__) && SQLITE_ENABLE_LOCKING_STYLE
 /* simulate multiple hosts by creating unique hostid file paths */
 SQLITE_API int sqlite3_hostid_num = 0;
 #endif
@@ -30171,6 +30204,7 @@ SQLITE_PRIVATE void sqlite3PcacheSetPageSize(PCache *pCache, int szPage){
   if( pCache->pCache ){
     sqlite3GlobalConfig.pcache.xDestroy(pCache->pCache);
     pCache->pCache = 0;
+    pCache->pPage1 = 0;
   }
   pCache->szPage = szPage;
 }
@@ -43920,8 +43954,15 @@ static int balance_nonroot(
       ** buffer. It will be copied out again as soon as the aSpace[] buffer
       ** is allocated.  */
       if( pBt->secureDelete ){
-        memcpy(&aOvflSpace[apDiv[i]-pParent->aData], apDiv[i], szNew[i]);
-        apDiv[i] = &aOvflSpace[apDiv[i]-pParent->aData];
+        int iOff = apDiv[i] - pParent->aData;
+        if( (iOff+szNew[i])>pBt->usableSize ){
+          rc = SQLITE_CORRUPT_BKPT;
+          memset(apOld, 0, (i+1)*sizeof(MemPage*));
+          goto balance_cleanup;
+        }else{
+          memcpy(&aOvflSpace[iOff], apDiv[i], szNew[i]);
+          apDiv[i] = &aOvflSpace[apDiv[i]-pParent->aData];
+        }
       }
       dropCell(pParent, i+nxDiv-pParent->nOverflow, szNew[i], &rc);
     }
@@ -58619,7 +58660,9 @@ default: {          /* This is really OP_Noop and OP_Explain */
 vdbe_error_halt:
   assert( rc );
   p->rc = rc;
-  sqlite3_log(rc, "prepared statement aborts at %d: [%s]", pc, p->zSql);
+  testcase( sqlite3GlobalConfig.xLog!=0 );
+  sqlite3_log(rc, "statement aborts at %d: [%s] %s", 
+                   pc, p->zSql, p->zErrMsg);
   sqlite3VdbeHalt(p);
   if( rc==SQLITE_IOERR_NOMEM ) db->mallocFailed = 1;
   rc = SQLITE_ERROR;
@@ -73608,8 +73651,8 @@ SQLITE_PRIVATE void sqlite3RegisterGlobalFunctions(void){
     FUNCTION(sqlite_version,     0, 0, 0, versionFunc      ),
     FUNCTION(sqlite_source_id,   0, 0, 0, sourceidFunc     ),
 #ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
-    FUNCTION(sqlite_compile_option_used,1, 0, 0, compileoptionusedFunc  ),
-    FUNCTION(sqlite_compile_option_get, 1, 0, 0, compileoptiongetFunc  ),
+    FUNCTION(sqlite_compileoption_used,1, 0, 0, compileoptionusedFunc  ),
+    FUNCTION(sqlite_compileoption_get, 1, 0, 0, compileoptiongetFunc  ),
 #endif /* SQLITE_OMIT_COMPILEOPTION_DIAGS */
     FUNCTION(quote,              1, 0, 0, quoteFunc        ),
     FUNCTION(last_insert_rowid,  0, 0, 0, last_insert_rowid),
@@ -79181,18 +79224,10 @@ SQLITE_PRIVATE void sqlite3Pragma(
 #ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
   /*
   **   PRAGMA compile_options
-  **   PRAGMA compile_option(<option>)
   **
-  ** The first form returns a single row for each option that was 
-  ** defined at compile time.  The second form returns 0 or 1 
-  ** indicating whether the specified option was defined at 
-  ** compile time.
+  ** Return the names of all compile-time options used in this build,
+  ** one option per row.
   */
-  if( sqlite3StrICmp(zLeft, "compile_option")==0 && zRight ){
-    int used = sqlite3_compileoption_used(zRight);
-    returnSingleInt(pParse, zRight, used);
-  }else
-
   if( sqlite3StrICmp(zLeft, "compile_options")==0 ){
     int i = 0;
     const char *zOpt;
@@ -86542,7 +86577,11 @@ SQLITE_PRIVATE int sqlite3RunVacuum(char **pzErrMsg, sqlite3 *db){
   ** time to parse and run the PRAGMA to turn journalling off than it does
   ** to write the journal header file.
   */
-  zSql = "ATTACH '' AS vacuum_db;";
+  if( sqlite3TempInMemory(db) ){
+    zSql = "ATTACH ':memory:' AS vacuum_db;";
+  }else{
+    zSql = "ATTACH '' AS vacuum_db;";
+  }
   rc = execSql(db, pzErrMsg, zSql);
   if( rc!=SQLITE_OK ) goto end_of_vacuum;
   pDb = &db->aDb[db->nDb-1];
