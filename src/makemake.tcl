@@ -199,6 +199,7 @@ set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 #append opt " -DSQLITE_ENABLE_FTS3=1"
 append opt " -Dlocaltime=fossil_localtime"
+append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 puts "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 puts "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"

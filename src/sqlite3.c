@@ -630,7 +630,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.23"
 #define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-03-04 22:36:45 1a0fa8d19d69d4ecaaaa879ac3c893980375fcc6"
+#define SQLITE_SOURCE_ID      "2010-03-04 17:58:45 5e472896e02eed05c6c0886a48acd0bdc7a38731"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -21478,7 +21478,7 @@ SQLITE_API int sqlite3_os_end(void){
 */
 #if !defined(SQLITE_ENABLE_LOCKING_STYLE)
 #  if defined(__APPLE__)
-#    define SQLITE_ENABLE_LOCKING_STYLE 0
+#    define SQLITE_ENABLE_LOCKING_STYLE 1
 #  else
 #    define SQLITE_ENABLE_LOCKING_STYLE 0
 #  endif
@@ -21543,9 +21543,6 @@ SQLITE_API int sqlite3_os_end(void){
 #  include <sys/mount.h>
 # endif
 #endif /* SQLITE_ENABLE_LOCKING_STYLE */
-
-#ifdef __APPLE__
-#endif
 
 /*
 ** Allowed values of unixFile.fsFlags
@@ -26526,7 +26523,7 @@ end_create_proxy:
   return rc;
 }
 
-#if defined(SQLITE_TEST) && defined(__APPLE__) && SQLITE_ENABLE_LOCKING_STYLE
+#ifdef SQLITE_TEST
 /* simulate multiple hosts by creating unique hostid file paths */
 SQLITE_API int sqlite3_hostid_num = 0;
 #endif
