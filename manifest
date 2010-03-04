@@ -1,5 +1,5 @@
-C Here\sis\san\saltenative\sfix\sto\s[8b3c5d30f7e]\sthat\sexplicitly\sdisables\nthe\sLOCKING_STYLE\soption\sof\sSQLite.
-D 2010-03-04T23:41:05
+C Add\sthe\sFOSSIL_ALLOW_OUT_OF_ORDER_DATES\scompile-time\soption\sto\sdisable\sthe\ncheck\sthat\sforces\snew\scheck-ins\sto\sbe\syounger\sthan\stheir\sparents.
+D 2010-03-04T23:51:57
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -42,7 +42,7 @@ F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c ec45ae29e1ceb2123e30e4d3006591dd6c9753cb
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
-F src/checkin.c 736ed824bc5d67eefd6528c1afe3b277cba3223a
+F src/checkin.c 6ceef775ddb489bf4ede4a68614bb122db2ae2f2
 F src/checkout.c 546cf488dc4a657655d25ca759521a8d2eb46ad2
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 97479abe225cc2648c61bd669495d22616055001
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 73223b8bd62bab67360fdf8e16dc82d216fd5ab7
-R ca16291f80f63a6a695bdbbedee79ff6
+P 879a030e1cea3568aa08bab0bb52f859aeef6783
+R dfe9df8807b37d06b4bcc66cf0c81298
 U drh
-Z 7a545a8ffa3ea5c01e9ed49815582d77
+Z 9383d6155e4a5d7f4367f8f7d33e89c4

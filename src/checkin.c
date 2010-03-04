@@ -444,6 +444,7 @@ static void checkin_verify_younger(
   const char *zUuid,    /* The artifact ID of the ancestor */
   const char *zDate     /* Date & time of the current check-in */
 ){
+#ifndef FOSSIL_ALLOW_OUT_OF_ORDER_DATES
   int b;
   b = db_exists(
     "SELECT 1 FROM event"
@@ -455,6 +456,7 @@ static void checkin_verify_younger(
     fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)",
                  zUuid, zDate);
   }
+#endif
 }
 
 /*
