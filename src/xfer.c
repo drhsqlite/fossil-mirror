@@ -1250,13 +1250,14 @@ void client_sync(
           char *zMsg = blob_terminate(&xfer.aToken[1]);
           defossilize(zMsg);
           if( strcmp(zMsg, "login failed")==0 ){
-            if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
-            g.urlPasswd = 0;
-            if( nCycle<2 ) go = 1;
+            if( nCycle<2 ){
+              if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
+              go = 1;
+            }
           }else{
             blob_appendf(&xfer.err, "\rserver says: %s", zMsg);
           }
-          printf("\rServer Error: %s\n", zMsg);
+          fossil_fatal("\rError: %s", zMsg);
         }
       }else
 
