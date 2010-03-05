@@ -1,5 +1,5 @@
-C If\sno\spassword\sis\ssupplied,\sgive\sthe\suser\sa\ssingle\sopportunity\sto\senter\nthe\spassword\s(if\sthey\sare\son\sa\stty)\sthen\sfail\sthe\sclone.
-D 2010-03-05T00:45:27
+C Prompt\sfor\sthe\spassword\swhenever\sa\sURL\sis\ssupplied\sthat\scontains\sa\susername\nbut\sno\spassword.
+D 2010-03-05T01:00:09
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -96,7 +96,7 @@ F src/sqlite3.c 4a75433494b235cfe1ef0fbd8c3ce578af49be3e
 F src/sqlite3.h 4d770b1ac39c3df9b5e945527267eec44c520a65
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 1bd1a0ac4f1fda9fd79c8178cd55dd0dfd273375
-F src/sync.c 8333c36fef43fbae7bdd782d1bf10cc7a61417d3
+F src/sync.c a3bcf1a97ce7618f40752f2f9d35a9a9563707cc
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 554d4caa5ab04443e1be2445d8e9cbb97d924f25
-R 28c88260b08db6249d10ef9b37ad8931
+P 03ed08364b252a57cc2d59663df6962398284679
+R c8599f66264fc22b01e05fb3a59e3549
 U drh
-Z a23eb36a48e37954abe91bfdb529db17
+Z c9e03c824af3c38a4e02d4e45406c05a
