@@ -880,6 +880,7 @@ void page_timeline(void){
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
+      tmFlags |= TIMELINE_DISJOINT;
     }
     if( tagid>0 ){
       blob_appendf(&desc, " tagged with \"%h\"", zTagName);

@@ -133,7 +133,7 @@ void page_timeline_rss(void){
     }
 
     @     <item>
-    @       <title>%h(zPrefix)%s(zCom)</title>
+    @       <title>%s(zPrefix)%h(zCom)</title>
     @       <link>%s(g.zBaseURL)/ci/%s(zId)</link>
     @       <description>%s(zPrefix)%h(zCom)</description>
     @       <pubDate>%s(zDate)</pubDate>

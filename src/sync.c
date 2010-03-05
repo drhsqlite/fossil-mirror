@@ -102,7 +102,11 @@ void process_sync_args(void){
     if( g.urlPasswd ) db_set("last-sync-pw", g.urlPasswd, 0);
   }
   if( g.urlUser!=0 && g.urlPasswd==0 ){
-    g.urlPasswd = mprintf("%s", zPw);
+    if( zPw==0 ){
+      url_prompt_for_password();
+    }else{
+      g.urlPasswd = mprintf("%s", zPw);
+    }
   }
   user_select();
   if( g.argc==2 ){

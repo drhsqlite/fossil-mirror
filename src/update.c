@@ -197,6 +197,9 @@ void update_cmd(void){
   db_prepare(&q, 
     "SELECT fn, idv, ridv, idt, ridt, chnged FROM fv ORDER BY 1"
   );
+  assert( g.zLocalRoot!=0 );
+  assert( strlen(g.zLocalRoot)>1 );
+  assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);  /* The filename from root */
     int idv = db_column_int(&q, 1);             /* VFILE entry for current */
@@ -206,8 +209,8 @@ void update_cmd(void){
     int chnged = db_column_int(&q, 5);          /* Current is edited */
     char *zFullPath;                            /* Full pathname of the file */
 
-    zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
-    if( idv>0 && ridv==0 && idt>0 ){
+    zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
+    if( idv>0 && ridv==0 && idt>0 && ridt>0 ){
       /* Conflict.  This file has been added to the current checkout
       ** but also exists in the target checkout.  Use the current version.
       */
