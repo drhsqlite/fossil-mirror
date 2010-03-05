@@ -1,5 +1,5 @@
-C Add\sthe\sFOSSIL_ALLOW_OUT_OF_ORDER_DATES\scompile-time\soption\sto\sdisable\sthe\ncheck\sthat\sforces\snew\scheck-ins\sto\sbe\syounger\sthan\stheir\sparents.
-D 2010-03-04T23:51:57
+C Disable\sprompts\sfor\sa\spassword\sif\sfossil\sis\snot\srunning\son\san\sinteractive\nterminal.
+D 2010-03-05T00:08:17
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -108,7 +108,7 @@ F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
 F src/update.c c134217f37d3c025d57e63c418a6eeb6edbba18b
-F src/url.c af4a40a04bf28bf19578af170ac37420a41e5b0d
+F src/url.c ec953a0a01c2eba0e8dea94fac7a3bdd0bec3bf3
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 879a030e1cea3568aa08bab0bb52f859aeef6783
-R dfe9df8807b37d06b4bcc66cf0c81298
+P 62b4df4ea445656befa5c29742b18768fa657af1
+R 76dc5f645e3fba1bfbefee6598248231
 U drh
-Z 9383d6155e4a5d7f4367f8f7d33e89c4
+Z 0502b3de8e73155bd6953da4abcbbcc2
