@@ -1,5 +1,5 @@
-C Use\sdouble-quotes\sinstead\sof\ssingle-quotes\sin\sskin\stemplate\sto\savoid\shaving\nto\sescape\sthe\ssingle\squotes\sfor\sSQL.
-D 2010-03-05T13:55:48
+C Update\sto\sa\sversion\sof\sSQLite\sthat\sbuilds\son\sMac\swith\s\nSQLITE_ENABLE_LOCKING_STYLE\sdisabled.
+D 2010-03-05T13:56:22
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -92,8 +92,8 @@ F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 4217dad1e1749cf2414a196f5dc05533afda86b2
-F src/sqlite3.c 4a75433494b235cfe1ef0fbd8c3ce578af49be3e
-F src/sqlite3.h 4d770b1ac39c3df9b5e945527267eec44c520a65
+F src/sqlite3.c 685710baff13e65bcf14a3958d4b0c49e44b412a
+F src/sqlite3.h d01493223d8fd0a614403a9d9ee994bf317f46d0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 1bd1a0ac4f1fda9fd79c8178cd55dd0dfd273375
 F src/sync.c a3bcf1a97ce7618f40752f2f9d35a9a9563707cc
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 99a98377ecc0c4b8ce3f79007122330ba229dd27
-R 46aa7262385c3beb7c21fe398a50e200
+P 5476e50d659dd8525bc4f5f7d849a0fd1ba394d2
+R fc2e30241bf8f04aaf7a0d018d7bf28e
 U drh
-Z 1e7c353a61b7075adcbc730d12e53119
+Z c15c2eca40061846ab68b96a2ec3f9ad
