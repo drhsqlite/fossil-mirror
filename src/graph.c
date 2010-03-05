@@ -191,6 +191,7 @@ static int findFreeRail(
 void graph_finish(GraphContext *p, int omitDescenders){
   GraphRow *pRow, *pDesc;
   Bag allRids;
+  Bag notLeaf;
   int i;
   int nRow;
   u32 mask;
@@ -200,6 +201,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
 
   /* Initialize all rows */
   bag_init(&allRids);
+  bag_init(&notLeaf);
   nRow = 0;
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->pNext ) pRow->pNext->pPrev = pRow;
@@ -218,6 +220,9 @@ void graph_finish(GraphContext *p, int omitDescenders){
         pRow->aParent[i] = pRow->aParent[--pRow->nParent];
         i--;
       }
+    }
+    if( pRow->nParent>0 && bag_find(&allRids, pRow->aParent[0]) ){
+      bag_insert(&notLeaf, pRow->aParent[0]);
     }
   }
 
@@ -269,10 +274,10 @@ void graph_finish(GraphContext *p, int omitDescenders){
     }
     pDesc->aiRaiser[pRow->iRail] = pRow->idx;
     mask = 1<<pRow->iRail;
-    if( pRow->isLeaf ){
-      inUse &= ~mask;
-    }else{
+    if( bag_find(&notLeaf, pRow->rid) ){
       inUse |= mask;
+    }else{
+      inUse &= ~mask;
     }
     for(pDesc = pRow; ; pDesc=pDesc->pNext){
       assert( pDesc!=0 );

@@ -752,7 +752,7 @@ $(OBJDIR)/zip.o:	zip_.c zip.h  $(SRCDIR)/config.h
 
 zip.h:	headers
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
+	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o

@@ -312,10 +312,15 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
-  char *zPrompt = mprintf("password for %s: ", g.urlUser);
-  Blob x;
-  prompt_for_password(zPrompt, &x, 0);
-  free(zPrompt);
-  g.urlPasswd = mprintf("%b", &x);
-  blob_reset(&x);
+  if( isatty(fileno(stdin)) ){
+    char *zPrompt = mprintf("password for %s: ", g.urlUser);
+    Blob x;
+    prompt_for_password(zPrompt, &x, 0);
+    free(zPrompt);
+    g.urlPasswd = mprintf("%b", &x);
+    blob_reset(&x);
+  }else{
+    fossil_fatal("missing or incorrect password for user \"%s\"",
+                 g.urlUser);
+  }
 }

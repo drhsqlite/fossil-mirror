@@ -9,7 +9,7 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ** General Public License for more details.
-** 
+**
 ** You should have received a copy of the GNU General Public
 ** License along with this library; if not, write to the
 ** Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -34,14 +34,14 @@
 ** included when processing a recursive "add" command.
 */
 static int includeDotFiles = 0;
-    
+
 /*
 ** Add a single file
 */
 static void add_one_file(const char *zName, int vid, Blob *pOmit){
   Blob pathname;
   const char *zPath;
-      
+
   file_tree_name(zName, &pathname, 1);
   zPath = blob_str(&pathname);
   if( strcmp(zPath, "manifest")==0
@@ -55,8 +55,10 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
       fossil_fatal("filename contains illegal characters: %s", zPath);
     }
 #ifdef __MINGW32__
-    if( db_exists("SELECT 1 FROM vfile WHERE pathname LIKE %Q", zPath) ){
-      db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname LIKE %Q", zPath);
+    if( db_exists("SELECT 1 FROM vfile"
+                  " WHERE pathname=%Q COLLATE nocase", zPath) ){
+      db_multi_exec("UPDATE vfile SET deleted=0"
+                    " WHERE pathname=%Q COLLATE nocase", zPath);
     }
 #else
     if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
@@ -128,7 +130,7 @@ void add_directory(const char *zDir, int vid, Blob *pOmit){
 **
 ** Usage: %fossil add FILE...
 **
-** Make arrangements to add one or more files to the current checkout 
+** Make arrangements to add one or more files to the current checkout
 ** at the next commit.
 **
 ** When adding files recursively, filenames that begin with "." are
@@ -274,7 +276,7 @@ void del_cmd(void){
 }
 
 /*
-** Rename a single file.  
+** Rename a single file.
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
