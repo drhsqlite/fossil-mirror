@@ -133,9 +133,9 @@ void page_timeline_rss(void){
     }
 
     @     <item>
-    @       <title>%h(zPrefix)%s(zCom)</title>
+    @       <title>%s(zPrefix)%w(zCom)</title>
     @       <link>%s(g.zBaseURL)/ci/%s(zId)</link>
-    @       <description>%s(zPrefix)%h(zCom)</description>
+    @       <description>%s(zPrefix)%w(zCom)</description>
     @       <pubDate>%s(zDate)</pubDate>
     @       <author>%h(zAuthor)</author>
     @       <guid>%s(g.zBaseURL)/ci/%s(zId)</guid>

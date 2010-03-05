@@ -1,5 +1,5 @@
-C Set\sthe\sTIMELINE_DISJOINT\soption\sfor\sthe\sgraph\sdrawing\slogic\swhen\sonly\ncheckins\sfor\sa\sparticular\suser\sare\sshown.\s\nFix\sfor\sticket\s[a2de4526a0]
-D 2010-03-05T20:27:56
+C Use\swiki-formatting\son\sfields\sof\sthe\sRSS\sfeed\sso\sthat\shyperlinks\scome\sout\nright\sbut\sother\smarkup\scharacters\s(ex:\s<stdio.h>)\sget\sescaped\sproperly.
+D 2010-03-05T21:05:51
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -84,7 +84,7 @@ F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
 F src/rebuild.c a6d927091a53ebf0d8db68480c4db519a05aa686
 F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
-F src/rss.c 4482765bb769dd4026433a4980b4711a22a6e4ab
+F src/rss.c c32a3ece56593a1f8ed4e6bd7f0df2c2ed5086fc
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 0b4d483fa401f69da23c02370d1fc723a663f8fe
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P e1f21628f227c6366a772bcd580c8677c2089e4f
-R 98a9679997d8b6e5c9dff814903cf104
+P 97336c56aba4952a204a2b820294de635a599651
+R e498e59850220e54067b81506ac0ba86
 U drh
-Z 3025f75bb8ff2cb84b90bfb2f0033bff
+Z 80742b25142754767c86c2d529694b81
