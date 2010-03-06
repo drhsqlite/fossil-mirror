@@ -165,7 +165,7 @@ void file_setexe(const char *zFilename, int onoff){
       chmod(zFilename, buf.st_mode & ~0111);
     }
   }
-#endif
+#endif /* __MINGW32__ */
 }
 
 /*

@@ -395,6 +395,7 @@ const char zLocalSchema[] =
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
 @   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
+@   isexe BOOLEAN,                    -- True if file should be executable
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
 @   mtime INTEGER,                    -- Modification time of file on disk

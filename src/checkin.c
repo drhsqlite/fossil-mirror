@@ -689,7 +689,7 @@ void commit_cmd(void){
   blob_appendf(&manifest, "D %s\n", zDate);
   zDate[10] = ' ';
   db_prepare(&q,
-    "SELECT pathname, uuid, origname, blob.rid"
+    "SELECT pathname, uuid, origname, blob.rid, isexe"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
     " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
@@ -701,9 +701,16 @@ void commit_cmd(void){
     const char *zUuid = db_column_text(&q, 1);
     const char *zOrig = db_column_text(&q, 2);
     int frid = db_column_int(&q, 3);
+    int isexe = db_column_int(&q, 4);
     const char *zPerm;
     blob_append(&filename, zName, -1);
-    if( file_isexe(blob_str(&filename)) ){
+#ifndef __MINGW32__
+    /* For unix, extract the "executable" permission bit directly from
+    ** the filesystem.  On windows, the "executable" bit is retained
+    ** unchanged from the original. */
+    isexe = file_isexe(blob_str(&filename));
+#endif
+    if( isexe ){
       zPerm = " x";
     }else{
       zPerm = "";
