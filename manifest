@@ -1,5 +1,5 @@
-C Allow\sspecifying\stags\susing\sTAG:DATE.\s\sThe\sresult\sis\sthe\snewest\scheck-in\s\nwith\sTAG\sthat\soccurs\sor\sbefore\sDATE.
-D 2010-03-06T16:41:17
+C Updates\sto\sthe\swebsite\sdownload\spage\sgenerator\sscript.
+D 2010-03-06T19:21:10
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -188,6 +188,11 @@ F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
 F www/branching.wiki 8e4e2ac21e493b0f476ff47d1a14d10c568aaf3e
 F www/bugtheory.wiki b809c20d72cf39859dea9f23009b576799d1b806
+F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
+F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
+F www/build-icons/mac.gif e8de26198384613dbd2b9f3ad81f59946d55d119
+F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
+F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki f035192a1412f855b29e7e019565a8f272cce50e
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
@@ -240,7 +245,7 @@ F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 96297d62716b1bbb4bbc773e2139fa6b87f6d20c
-F www/mkdownload.tcl d83e6610b91c9e09d98b52b3827ae1541c0f6dfd
+F www/mkdownload.tcl d0276008f68acccea85b0b33e454e0fb341366d4
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/password.wiki 4c626ba0e123d6b2c8a7c8695fef3d6bb6a8bb60
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -257,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 3f0393f555f0da35ca69cb7798af3d247a267f60
-R 52e3b73217aa7160e1c1eba754cd3c41
+P 337a1aca06cd6d75827acfa4f78cfdbc73b62e08
+R d08863dd0e5a8864584df08213eba68a
 U drh
-Z 5ee4bff752dffe31c262a8e806d87089
+Z e701678d27f6cbbe8673eb354fd63447

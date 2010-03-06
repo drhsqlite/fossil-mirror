@@ -29,50 +29,58 @@ The historical source code is also available in the
 Fossil repositories</a>.
 </p>
 
-<table cellpadding="5">
+<table cellpadding="10">
 }
 
-proc Product {pattern desc} {
-  set flist [glob -nocomplain download/$pattern]
-  foreach file [lsort -dict $flist] {
-    set file [file tail $file]
-    if {![regexp -- {-([0-9]+)\.} $file all version]} continue
-    set mtime [file mtime download/$file]
-    set date [clock format $mtime -format {%Y-%m-%d %H:%M:%S UTC} -gmt 1]
-    set size [file size download/$file]
-    set units bytes
-    if {$size>1024*1024} {
-      set size [format %.2f [expr {$size/(1024.0*1024.0)}]]
-      set units MiB
-    } elseif {$size>1024} {
-      set size [format %.2f [expr {$size/(1024.0)}]]
-      set units KiB
-    }
-    puts "<tr><td width=\"10\"></td>"
-    puts "<td valign=\"top\" align=\"right\">"
-    puts "<a href=\"download/$file\">$file</a></td>"
-    puts "<td width=\"5\"></td>"
-    regsub -all VERSION $desc $version d2
-    puts "<td valign=\"top\">[string trim $d2].<br>Size: $size $units.<br>"
-    puts "Created: $date</td></tr>"
+# Find all all unique timestamps.
+#
+foreach file [glob -nocomplain download/fossil-*.zip] {
+  if {[regexp {(\d+).zip$} $file all datetime]
+       && [string length $datetime]==14} {
+    set adate($datetime) 1
   }
 }
 
-Product fossil-linux-x86-*.zip {
-  Prebuilt fossil binary version [VERSION] for Linux on x86
+# Do all dates from newest to oldest
+#
+foreach datetime [lsort -decr [array names adate]] {
+  puts "<tr><td colspan=7><hr></td></tr>"
+  set dt [string range $datetime 0 3]-[string range $datetime 4 5]-
+  append dt "[string range $datetime 6 7] "
+  append dt "[string range $datetime 8 9]:[string range $datetime 10 11]:"
+  append dt "[string range $datetime 12 13]"
+  set link [string map {{ } +} $dt]
+  set hr http://www.fossil-scm.org/fossil/timeline?c=$link&y=ci
+  puts "<tr><td>Fossil snapshot as of <a href=\"$hr\">$dt</a><td width=30>"
+  
+  foreach {prefix suffix img desc} {
+    fossil-linux-x86 zip linux.gif {Linux x86}
+    fossil-linux-amd64 zip linux64.gif {Linux x86_64}
+    fossil-macosx-x86 zip mac.gif {Mac 10.5 x86}
+    fossil-w32 zip win32.gif {Windows}
+    fossil-src tar.gz src.gif {Source Tarball}
+  } {
+    set filename download/$prefix-$datetime.$suffix
+    if {[file exists $filename]} {
+      set size [file size $filename]
+      set units bytes
+      if {$size>1024*1024} {
+        set size [format %.2f [expr {$size/(1024.0*1024.0)}]]
+        set units MiB
+      } elseif {$size>1024} {
+        set size [format %.2f [expr {$size/(1024.0)}]]
+        set units KiB
+      }
+      puts "<td align=center valign=bottom><a href=\"$filename\">"
+      puts "<img src=\"build-icons/$img\" border=0><br>$desc</a><br>"
+      puts "$size $units</td>"
+    } else {
+      puts "<td>&nbsp;</td>"
+    }
+  }
+  puts "</tr>"
 }
-Product fossil-linux-amd64-*.zip {
-  Prebuilt fossil binary version [VERSION] for Linux on amd64
-}
-Product fossil-macosx-x86-*.zip {
-  Prebuilt fossil binary version [VERSION] for MacOSX on x86
-}
-Product fossil-w32-*.zip {
-  Prebuilt fossil binary version [VERSION] for windows
-}
-Product fossil-src-*.tar.gz {
-  Source code tarball for fossil version [VERSION]
-}
+puts "<tr><td colspan=7><hr></td></tr>"
 
 puts {</table>
 </body>
