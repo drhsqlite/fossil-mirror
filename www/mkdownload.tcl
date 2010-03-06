@@ -44,14 +44,15 @@ foreach file [glob -nocomplain download/fossil-*.zip] {
 # Do all dates from newest to oldest
 #
 foreach datetime [lsort -decr [array names adate]] {
-  puts "<tr><td colspan=7><hr></td></tr>"
   set dt [string range $datetime 0 3]-[string range $datetime 4 5]-
   append dt "[string range $datetime 6 7] "
   append dt "[string range $datetime 8 9]:[string range $datetime 10 11]:"
   append dt "[string range $datetime 12 13]"
   set link [string map {{ } +} $dt]
   set hr http://www.fossil-scm.org/fossil/timeline?c=$link&y=ci
-  puts "<tr><td>Fossil snapshot as of <a href=\"$hr\">$dt</a><td width=30>"
+  puts "<tr><td colspan=5 align=center><hr>"
+  puts "<b>Fossil snapshot as of <a href=\"$hr\">$dt</a><td width=30></b>"
+  puts "</td></tr>"
   
   foreach {prefix suffix img desc} {
     fossil-linux-x86 zip linux.gif {Linux x86}
@@ -80,7 +81,7 @@ foreach datetime [lsort -decr [array names adate]] {
   }
   puts "</tr>"
 }
-puts "<tr><td colspan=7><hr></td></tr>"
+puts "<tr><td colspan=5><hr></td></tr>"
 
 puts {</table>
 </body>

@@ -1,5 +1,5 @@
-C Updates\sto\sthe\swebsite\sdownload\spage\sgenerator\sscript.
-D 2010-03-06T19:21:10
+C Refinements\sto\sthe\sformatting\sof\sthe\sdownload\spage.
+D 2010-03-06T19:35:15
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -245,7 +245,7 @@ F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 96297d62716b1bbb4bbc773e2139fa6b87f6d20c
-F www/mkdownload.tcl d0276008f68acccea85b0b33e454e0fb341366d4
+F www/mkdownload.tcl f2c0354d8b3e377a1836efcccd79804839610f06
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/password.wiki 4c626ba0e123d6b2c8a7c8695fef3d6bb6a8bb60
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 337a1aca06cd6d75827acfa4f78cfdbc73b62e08
-R d08863dd0e5a8864584df08213eba68a
+P 10989b5c427ce121d404574c37e4d78f74a046c3
+R 30b2b793f06f98e74e528f968563b3ed
 U drh
-Z e701678d27f6cbbe8673eb354fd63447
+Z 77d64d17b863a4c557470765c753d9f9
