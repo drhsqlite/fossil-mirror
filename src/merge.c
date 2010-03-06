@@ -32,16 +32,18 @@
 /*
 ** COMMAND: merge
 **
-** Usage: %fossil merge [--cherrypick] VERSION
+** Usage: %fossil merge [--cherrypick] [--backout] VERSION
 **
 ** The argument is a version that should be merged into the current
 ** checkout.  All changes from VERSION back to the nearest common
-** ancestor are merged.  Except, if the --cherrypick option is used
-** only the changes associated with the single check-in VERSION are
-** merged.
+** ancestor are merged.  Except, if either of the --cherrypick or
+** --backout options are used only the changes associated with the
+** single check-in VERSION are merged.  The --backout option causes
+** the changes associated with VERSION to be removed from the current
+** checkout rather than added.
 **
 ** Only file content is merged.  The result continues to use the
-** file and directory names from the current check-out even if those
+** file and directory names from the current checkout even if those
 ** names might have been changed in the branch being merged in.
 */
 void merge_cmd(void){
@@ -50,10 +52,12 @@ void merge_cmd(void){
   int pid;              /* The pivot version - most recent common ancestor */
   int detailFlag;       /* True if the --detail option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
+  int backoutFlag;      /* True if the --backout optioni is present */
   Stmt q;
 
   detailFlag = find_option("detail",0,0)!=0;
   pickFlag = find_option("cherrypick",0,0)!=0;
+  backoutFlag = find_option("backout",0,0)!=0;
   if( g.argc!=3 ){
     usage("VERSION");
   }
@@ -69,10 +73,15 @@ void merge_cmd(void){
   if( mid>1 && !db_exists("SELECT 1 FROM plink WHERE cid=%d", mid) ){
     fossil_fatal("not a version: %s", g.argv[2]);
   }
-  if( pickFlag ){
+  if( pickFlag || backoutFlag ){
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
       fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
+    }
+    if( backoutFlag ){
+      int t = pid;
+      pid = mid;
+      mid = t;
     }
   }else{
     pivot_set_primary(mid);
