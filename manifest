@@ -1,5 +1,5 @@
-C On\sthe\s"update"\scommand,\sdo\snot\sreport\sa\sconflict\sif\sa\snew\sfile\shas\sbeen\nadded\sthat\sdoes\snot\sexist\sin\sthe\sversion\swe\sare\supdating\sto.\s\sAlso\ssome\ncleanup\sto\sthe\s"update"\scommand\simplementation.
-D 2010-03-05T23:12:14
+C Make\ssure\sthe\sserver\sdoes\snot\ssend\san\s'igot'\scard\sfor\sa\sphantom\ssince\sthis\ncan\scause\sa\spush\sto\send\sprematurely.
+D 2010-03-06T02:27:08
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -115,7 +115,7 @@ F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
 F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
 F src/wikiformat.c 79b7ccbe45fd5ca29e14c90dc25756430ed4c724
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
-F src/xfer.c 6bb7b710207e0c857da8167e00b8bbf6126596f0
+F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
 F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki 6e2aa8a4b9359338019782e27269723ff89ad7ac
 F www/wikitheory.wiki 7cce5ff73627c7e28cbb38ba0abf5dc7aee674d1
-P 18449fa6e6acafeeabc40fe8b7c225358b524fd4
-R 5d2e540eb6020b0db83b8152a4805d21
+P c9e9fd7572632d00d68d5a39e4c2bcd3ac0e4af5
+R 1a929b20b1cfa4151ddf2fdc68401e20
 U drh
-Z cd6135d0fa98d3703233a7203e91dd38
+Z 999592d79a93fc8f89b953aca945a6d1
