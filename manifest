@@ -1,5 +1,5 @@
-C Add\sthe\s--backout\soption\sto\sthe\s"merge"\scommand.
-D 2010-03-06T15:49:18
+C Allow\sspecifying\stags\susing\sTAG:DATE.\s\sThe\sresult\sis\sthe\snewest\scheck-in\s\nwith\sTAG\sthat\soccurs\sor\sbefore\sDATE.
+D 2010-03-06T16:41:17
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -78,7 +78,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 09d6fd3ca08a9fdd42225e0c9217144120eb6e3c
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/name.c 825efe68f88cab3a663aaa1046d5f1c894674408
+F src/name.c 87d8edac1c9da276df3b2a2c7b693e88ec58e040
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 582570708805dc413595d11199161a8e3fe1f425
-R 13e3878d55be51cdabad9504ab937904
+P 3f0393f555f0da35ca69cb7798af3d247a267f60
+R 52e3b73217aa7160e1c1eba754cd3c41
 U drh
-Z d7641928950ec4b79ff3653ccaebcaa9
+Z 5ee4bff752dffe31c262a8e806d87089

@@ -115,9 +115,33 @@ int name_to_uuid(Blob *pName, int iErrPriority){
 }
 
 /*
+** Return TRUE if the string begins with an ISO8601 date: YYYY-MM-DD.
+*/
+static int is_date(const char *z){
+  if( !isdigit(z[0]) ) return 0;
+  if( !isdigit(z[1]) ) return 0;
+  if( !isdigit(z[2]) ) return 0;
+  if( !isdigit(z[3]) ) return 0;
+  if( z[4]!='-') return 0;
+  if( !isdigit(z[5]) ) return 0;
+  if( !isdigit(z[6]) ) return 0;
+  if( z[7]!='-') return 0;
+  if( !isdigit(z[8]) ) return 0;
+  if( !isdigit(z[9]) ) return 0;
+  return 1;
+}
+
+/*
 ** Convert a symbolic tag name into the UUID of a check-in that contains
 ** that tag.  If the tag appears on multiple check-ins, return the UUID
 ** of the most recent check-in with the tag.
+**
+** If the input string is of the form:
+**
+**      tag:date
+**
+** Then return the UUID of the oldest check-in with that tag that is
+** not older than 'date'.
 **
 ** Memory to hold the returned string comes from malloc() and needs to
 ** be freed by the caller.
@@ -134,6 +158,35 @@ char *tag_to_uuid(const char *zTag){
        " ORDER BY event.mtime DESC ",
        zTag
     );
+  if( zUuid==0 ){
+    int nTag = strlen(zTag);
+    int i;
+    for(i=0; i<nTag-10; i++){
+      if( zTag[i]==':' && is_date(&zTag[i+1]) ){
+        char *zDate = mprintf("%s", &zTag[i+1]);
+        char *zTagBase = mprintf("%.*s", i, zTag);
+        int nDate = strlen(zDate);
+        int useUtc = 0;
+        if( sqlite3_strnicmp(&zDate[nDate-3],"utc",3)==0 ){
+          nDate -= 3;
+          zDate[nDate] = 0;
+          useUtc = 1;
+        }
+        zUuid = db_text(0,
+          "SELECT blob.uuid"
+          "  FROM tag, tagxref, event, blob"
+          " WHERE tag.tagname='sym-'||%Q "
+          "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
+          "   AND event.objid=tagxref.rid "
+          "   AND blob.rid=event.objid "
+          "   AND event.mtime<=julianday(%Q %s)"
+          " ORDER BY event.mtime DESC ",
+          zTagBase, zDate, (useUtc ? "" : ",'utc'")
+        );
+        break;
+      }
+    }
+  }
   return zUuid;
 }
 
@@ -164,7 +217,7 @@ char *date_to_uuid(const char *zDate){
     useUtc = 1;
   }
   n = strlen(zDate);
-  if( n<10 || zDate[4]!='-' || zDate[7]!='-' ) return 0;
+  if( n<10 || !is_date(zDate) ) return 0;
   if( n>4 && sqlite3_strnicmp(&zDate[n-3], "utc", 3)==0 ){
     zCopy = mprintf("%s", zDate);
     zCopy[n-3] = 0;
