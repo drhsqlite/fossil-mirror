@@ -1,5 +1,5 @@
-C Remove\sa\sBOM\sfrom\sthe\sbeginning\sof\sthe\sbranching.wiki\sdocument.
-D 2010-03-06T14:56:18
+C Fix\sa\scompiler\swarning\sin\sthe\sSSL\smodule.
+D 2010-03-06T15:21:13
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile 19d7e3359a5cca7b943f91b0de456ab38fb279f4
@@ -64,7 +64,7 @@ F src/finfo.c 8f0bef2b640a6ea0f4ee6eb83f0804da6c352d1c
 F src/graph.c fcb7f9942ef008007d95484a3ea41b17bae90bee
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_ssl.c 9abcae4fb568676770fedf7255d4272643bfd021
+F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c 472b9054609d1860470619581511bba0a808263b
 F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
@@ -257,7 +257,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 356fc21d40ef3ea70d661a73a6af6b287fbff32e
-R 154bae1b4cba5a19cd6bbf5d3968db61
+P 672d5c6fd09be993100809de0f3aeb735c8426f1
+R 1d02c588d49beaa0b5285b93cfcea568
 U drh
-Z 5ba2e2161b160c7874944d646a41ce39
+Z 9a95f893915ddd654a9abea4014b632c

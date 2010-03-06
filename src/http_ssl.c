@@ -113,7 +113,7 @@ void ssl_global_shutdown(void){
 */
 void ssl_close(void){
   if( iBio!=NULL ){
-    BIO_reset(iBio);
+    (void)BIO_reset(iBio);
     BIO_free_all(iBio);
   }
 }
