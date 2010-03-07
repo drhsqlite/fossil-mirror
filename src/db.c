@@ -907,7 +907,11 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 ** check-in is created. The makeServerCodes flag determines whether or
 ** not server and project codes are invented for this repository.
 */
-void db_initial_setup (const char *zInitialDate, const char *zDefaultUser, int makeServerCodes){
+void db_initial_setup(
+  const char *zInitialDate,    /* Initial date of repository. (ex: "now") */
+  const char *zDefaultUser,    /* Default user for the repository */
+  int makeServerCodes          /* True to make new server & project codes */
+){
   char *zDate;
   Blob hash;
   Blob manifest;
@@ -964,6 +968,7 @@ void db_initial_setup (const char *zInitialDate, const char *zDefaultUser, int m
 ** Options:
 **
 **    --admin-user|-A USERNAME
+**    --date-override DATETIME
 **
 */
 void create_repository_cmd(void){
