@@ -48,7 +48,7 @@ LIB = -lz $(LDFLAGS)
 # My assumption is that the Sol10 flags will work for Sol8/9 and possibly 11.
 # 
 # If using FOSSIL_ENABLE_SSL, also enable the following:
-LIB += -lcrypto -lssl
+LIB += -lssl -lcrypto
 
 #### Tcl shell for use in running the fossil testsuite.
 #
