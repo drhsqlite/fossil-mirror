@@ -700,7 +700,7 @@ void page_timeline(void){
   }else{
     tmFlags = TIMELINE_GRAPH;
   }
-  if( P("ng")!=0 ){
+  if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
   }
 
@@ -892,6 +892,9 @@ void page_timeline(void){
       blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
     }else if( zCirca ){
       blob_appendf(&desc, " occurring around %h.<br>", zCirca);
+    }
+    if( zSearch ){
+      blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
     if( g.okHistory ){
       if( zAfter || n==nEntry ){
