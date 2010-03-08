@@ -1,5 +1,5 @@
-C Changes\sto\sfile\sbrowser\sto\sbe\smore\sdirect\sand\sdescribing\swhat\sis\sseen\sin\sthe\nunion\sof\sall\sfiles\sfrom\sall\sversions.\s\sAdd\shyperlinks\sto\stip\sand\strunk.
-D 2010-03-08T14:12:28
+C Make\sthe\sFile\smenu\soption\sdefault\sto\sshowing\sonly\sthe\sfiles\sin\stip.
+D 2010-03-08T14:18:44
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -91,11 +91,11 @@ F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
 F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
-F src/skins.c b3b72c26684b0f37ef810da95debbafac23bff56
+F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
 F src/sqlite3.c 685710baff13e65bcf14a3958d4b0c49e44b412a
 F src/sqlite3.h d01493223d8fd0a614403a9d9ee994bf317f46d0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c cc35716a758a2dc888b963b0dbd5956ee3f99f9c
+F src/style.c 12d3b58ba614149ac8fad93f04c4602d483860bf
 F src/sync.c a3bcf1a97ce7618f40752f2f9d35a9a9563707cc
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P b22e5a9e522beb086b0b1e1ed0240455a8af0e37
-R c8a74b6c82c5820118091d62a466d0b7
+P 4db129c9250ead78387dd4b760213149e75321ed
+R 344c8267607898197d4ed03cddece1e6
 U drh
-Z 63e393ef35d28dd8387ea62b280381ce
+Z b29dc1dcfd0bb4f19e8f84fa5a3ad662
