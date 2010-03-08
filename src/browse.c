@@ -115,6 +115,7 @@ void page_dir(void){
   const char *zCI = P("ci");
   int rid = 0;
   Blob content;
+  Blob dirname;
   Manifest m;
   const char *zSubdirLink;
 
@@ -135,17 +136,13 @@ void page_dir(void){
   }
 
   /* Compute the title of the page */  
+  blob_zero(&dirname);
   if( zD ){
-    Blob title;
-
-    blob_zero(&title);
-    blob_appendf(&title, "Files in directory ");
-    hyperlinked_path(zD, &title);
-    @ <h2>%s(blob_str(&title))
-    blob_reset(&title);
+    blob_append(&dirname, "in directory ", -1);
+    hyperlinked_path(zD, &dirname);
     zPrefix = mprintf("%h/", zD);
   }else{
-    @ <h2>Files in the top-level directory
+    blob_append(&dirname, "in the top-level directory", -1);
     zPrefix = "";
   }
   if( zCI ){
@@ -153,14 +150,29 @@ void page_dir(void){
     char zShort[20];
     memcpy(zShort, zUuid, 10);
     zShort[10] = 0;
-    @ of check-in [<a href="vinfo?name=%T(zUuid)">%s(zShort)</a>]</h2>
+    @ <h2>Files of check-in [<a href="vinfo?name=%T(zUuid)">%s(zShort)</a>]
+    @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%s/dir?ci=%s&name=%T", g.zBaseURL, zUuid, zPrefix);
     if( zD ){
       style_submenu_element("Top", "Top", "%s/dir?ci=%s", g.zBaseURL, zUuid);
+      style_submenu_element("All", "All", "%s/dir?name=%t", g.zBaseURL, zD);
+    }else{
+      style_submenu_element("All", "All", "%s/dir", g.zBaseURL);
     }
   }else{
-    @ </h2>
+    @ <h2>The union of all files from all check-ins
+    @ %s(blob_str(&dirname))</h2>
     zSubdirLink = mprintf("%s/dir?name=%T", g.zBaseURL, zPrefix);
+    if( zD ){
+      style_submenu_element("Top", "Top", "%s/dir", g.zBaseURL);
+      style_submenu_element("Tip", "Tip", "%s/dir?name=%t&ci=tip",
+                            g.zBaseURL, zD);
+      style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&ci=trunk",
+                             g.zBaseURL,zD);
+    }else{
+      style_submenu_element("Tip", "Tip", "%s/dir?ci=tip", g.zBaseURL);
+      style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zBaseURL);
+    }
   }
 
   /* Compute the temporary table "localfiles" containing the names

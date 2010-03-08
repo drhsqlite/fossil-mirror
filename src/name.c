@@ -143,6 +143,8 @@ static int is_date(const char *z){
 ** Then return the UUID of the oldest check-in with that tag that is
 ** not older than 'date'.
 **
+** An input of "tip" returns the most recent check-in.
+**
 ** Memory to hold the returned string comes from malloc() and needs to
 ** be freed by the caller.
 */
@@ -185,6 +187,15 @@ char *tag_to_uuid(const char *zTag){
         );
         break;
       }
+    }
+    if( zUuid==0 && strcmp(zTag, "tip")==0 ){
+      zUuid = db_text(0,
+        "SELECT blob.uuid"
+        "  FROM event, blob"
+        " WHERE event.type='ci'"
+        "   AND blob.rid=event.objid"
+        " ORDER BY event.mtime DESC"
+      );
     }
   }
   return zUuid;
