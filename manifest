@@ -1,5 +1,5 @@
-C Clean\sup\sformatting\sand\scomments\sasociated\swith\sthe\s"new"\scommand.\s\sNo\nchanges\sto\sfunctionality.
-D 2010-03-07T17:43:00
+C Get\sskins\sworking\sagain.\s\sThey\swere\sbusted\sby\scheck-in\s[5476e50d659]\s(which\nwas\sbacked\sout\susing\sthe\snew\s--backout\soption\sto\smerge.)\s\sAlso\sadd\san\sunused\nquery\sparameter\sto\sthe\sstyle.css\sto\sforce\sa\sreload\sof\sthe\sCSS\swhen\sthe\sskin\nchanges.
+D 2010-03-08T13:18:03
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -91,11 +91,11 @@ F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
 F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
-F src/skins.c 4217dad1e1749cf2414a196f5dc05533afda86b2
+F src/skins.c b3b72c26684b0f37ef810da95debbafac23bff56
 F src/sqlite3.c 685710baff13e65bcf14a3958d4b0c49e44b412a
 F src/sqlite3.h d01493223d8fd0a614403a9d9ee994bf317f46d0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c 1bd1a0ac4f1fda9fd79c8178cd55dd0dfd273375
+F src/style.c cc35716a758a2dc888b963b0dbd5956ee3f99f9c
 F src/sync.c a3bcf1a97ce7618f40752f2f9d35a9a9563707cc
 F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 42a964c585fe40cca2ce12584cc16b9de613640a
-R bfe44abbf7d045c9419e2aa76091b77a
+P 69dcef960f6d5d8bb3a3f79d038c58e83e186823 99a98377ecc0c4b8ce3f79007122330ba229dd27
+R 4e519bf78cccf8cb1444ef36cef791b0
 U drh
-Z d100b555675bc6eb9799e20dbc006d57
+Z c52bb41adac08e22e0dd952dc35ed446

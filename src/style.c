@@ -190,7 +190,7 @@ const char zDefaultHeader[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$baseurl/timeline.rss">
-@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
+@ <link rel="stylesheet" href="$baseurl/style.css?default" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
