@@ -504,12 +504,16 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 char *db_text(char *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
-  char *z = zDefault;
+  char *z;
   va_start(ap, zSql);
   db_vprepare(&s, zSql, ap);
   va_end(ap);
   if( db_step(&s)==SQLITE_ROW ){
     z = mprintf("%s", sqlite3_column_text(s.pStmt, 0));
+  }else if( zDefault ){
+    z = mprintf("%s", zDefault);
+  }else{
+    z = 0;
   }
   db_finalize(&s);
   return z;

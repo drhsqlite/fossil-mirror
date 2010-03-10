@@ -1,5 +1,5 @@
-C Make\sthe\sFile\smenu\soption\sdefault\sto\sshowing\sonly\sthe\sfiles\sin\stip.
-D 2010-03-08T14:18:44
+C Make\ssure\sthe\sreturn\svalue\sof\sdb_text()\sis\salways\ssomething\sobtained\sfrom\nmalloc()\sor\selse\sNULL.\s\sStrdup()\sthe\sdefault\svalue\sif\sthe\sdefault\svalue\nis\sused.
+D 2010-03-10T17:18:42
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -51,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 9c1d23608362aa1ed525f6d266653afe6b99afe3
+F src/db.c 20b0e9153b4bf5ae1c4db16236a6b22f453c98d8
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 4db129c9250ead78387dd4b760213149e75321ed
-R 344c8267607898197d4ed03cddece1e6
+P 599e6abfb177b9c378f618b9370b9e914236109e
+R c5a166d2d705bd6b75e069ad26926cba
 U drh
-Z b29dc1dcfd0bb4f19e8f84fa5a3ad662
+Z c86117a1f17da9b0788c67c10e91d49d
