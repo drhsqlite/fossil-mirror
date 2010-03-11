@@ -1,5 +1,5 @@
-C Make\ssure\sthe\sreturn\svalue\sof\sdb_text()\sis\salways\ssomething\sobtained\sfrom\nmalloc()\sor\selse\sNULL.\s\sStrdup()\sthe\sdefault\svalue\sif\sthe\sdefault\svalue\nis\sused.
-D 2010-03-10T17:18:42
+C Add\sa\s"zip"\scommand\sfor\sgenerating\sa\sZIP\sarchive\sof\sa\scheck-in\sfrom\sthe\ncommand-line.
+D 2010-03-11T03:29:57
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -116,7 +116,7 @@ F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
 F src/wikiformat.c 79b7ccbe45fd5ca29e14c90dc25756430ed4c724
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
-F src/zip.c f5a6e88deec71319f98263a481c5d457db3c11b8
+F src/zip.c 3494ff9729297a11078a303c5729ba106ddf4446
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 599e6abfb177b9c378f618b9370b9e914236109e
-R c5a166d2d705bd6b75e069ad26926cba
+P 0cbc5d295c9911b00ed405d301a7b8e76db77b41
+R baf3619ef5d731b01ca0b466f9d6200b
 U drh
-Z c86117a1f17da9b0788c67c10e91d49d
+Z acbf2d379c5c3cb98816509ae27bdb1d
