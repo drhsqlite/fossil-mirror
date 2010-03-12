@@ -1,5 +1,5 @@
-C Add\sa\s"zip"\scommand\sfor\sgenerating\sa\sZIP\sarchive\sof\sa\scheck-in\sfrom\sthe\ncommand-line.
-D 2010-03-11T03:29:57
+C Fix\sthe\sformatting\son\sthe\snon-propagating\stag\stimeline.\nTicket\s[274b530475ce].
+D 2010-03-12T14:29:47
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt 06877624ea5c77efe3b7e39b0f909eda6e25a4ec
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -97,7 +97,7 @@ F src/sqlite3.h d01493223d8fd0a614403a9d9ee994bf317f46d0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 12d3b58ba614149ac8fad93f04c4602d483860bf
 F src/sync.c a3bcf1a97ce7618f40752f2f9d35a9a9563707cc
-F src/tag.c bc765b3a20216ff9e9bb76218997e426e3ae1df7
+F src/tag.c 53f57645df2929e4f0c59560bd6a106181dac8cf
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 0cbc5d295c9911b00ed405d301a7b8e76db77b41
-R baf3619ef5d731b01ca0b466f9d6200b
+P 2582ecf2edc2d0d9c5818dc481bc7b330381716d
+R 0fc196aa40de11f76466c38270174801
 U drh
-Z acbf2d379c5c3cb98816509ae27bdb1d
+Z 36a365301aabc842d22d22dcd219e1a1

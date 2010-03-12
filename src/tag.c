@@ -565,7 +565,7 @@ void tagtimeline_page(void){
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");
   login_anonymous_available();
-  @ <h2>Check-ins with non-propagating tags:</t2>
+  @ <h2>Check-ins with non-propagating tags:</h2>
   db_prepare(&q,
     "%s AND blob.rid IN (SELECT rid FROM tagxref"
     "                     WHERE tagtype=1 AND srcid>0"
