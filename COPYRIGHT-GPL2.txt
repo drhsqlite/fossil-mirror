@@ -1,3 +1,17 @@
+Fossil is licensed under the terms of the GPLv2 shown below.  In 
+addition, permission is granted to link Fossil against the OpenSSL
+project's "OpenSSL" library (or with modified versions of that 
+library that use the same license), and distribute the linked
+executables.  If you modify Fossil, you may extend the exception
+described in this paragraph to your modifications, or not, at your
+discretion.  
+
+The "clear-title" branch of Fossil is available for more liberal
+licenses such as Berkeley-style licenses or the Apache license.
+
+The original text of GPLv2 follows.
+--------------------------------------------------------------------------
+
 		    GNU GENERAL PUBLIC LICENSE
 		       Version 2, June 1991
 
