@@ -168,28 +168,6 @@ static void initializeVariablesFromCGI(void){
 }
 
 /*
-** Rebuild all tickets named in the _pending_ticket table.
-**
-** This routine is called just prior to commit after new
-** out-of-sequence ticket changes have been added.
-*/
-static int ticket_rebuild_at_commit(void){
-  Stmt q;
-  db_multi_exec(
-    "DELETE FROM ticket WHERE tkt_uuid IN _pending_ticket"
-  );
-  db_prepare(&q, "SELECT uuid FROM _pending_ticket");
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    ticket_rebuild_entry(zUuid);
-  }
-  db_multi_exec(
-    "DELETE FROM _pending_ticket"
-  );
-  return 0;
-}
-
-/*
 ** Update an entry of the TICKET table according to the information
 ** in the control file given in p.  Attempt to create the appropriate
 ** TICKET table entry if createFlag is true.  If createFlag is false,
@@ -199,7 +177,7 @@ static int ticket_rebuild_at_commit(void){
 ** Return TRUE if a new TICKET entry was created and FALSE if an
 ** existing entry was revised.
 */
-int ticket_insert(const Manifest *p, int createFlag, int checkTime){
+int ticket_insert(const Manifest *p, int createFlag, int rid){
   Blob sql;
   Stmt q;
   int i;
@@ -226,6 +204,9 @@ int ticket_insert(const Manifest *p, int createFlag, int checkTime){
       if( fieldId(zName)<0 ) continue;
       blob_appendf(&sql,", %s=%Q", zName, p->aField[i].zValue);
     }
+    if( rid>0 ){
+      wiki_extract_links(p->aField[i].zValue, rid, 1, p->rDate, i==0, 0);
+    }
   }
   blob_appendf(&sql, " WHERE tkt_uuid='%s' AND tkt_mtime<:mtime",
                      p->zTicketUuid);
@@ -233,16 +214,6 @@ int ticket_insert(const Manifest *p, int createFlag, int checkTime){
   db_bind_double(&q, ":mtime", p->rDate);
   db_step(&q);
   db_finalize(&q);
-  if( checkTime && db_changes()==0 ){
-    static int isInit = 0;
-    if( !isInit ){
-      db_multi_exec("CREATE TEMP TABLE _pending_ticket(uuid TEXT UNIQUE)");
-      db_commit_hook(ticket_rebuild_at_commit, 1);
-      isInit = 1;
-    }
-    db_multi_exec("INSERT OR IGNORE INTO _pending_ticket "
-                  "VALUES(%Q)", p->zTicketUuid);
-  }
   blob_reset(&sql);
   return rc;
 }
@@ -266,7 +237,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
     int rid = db_column_int(&q, 0);
     content_get(rid, &content);
     manifest_parse(&manifest, &content);
-    ticket_insert(&manifest, createFlag, 0);
+    ticket_insert(&manifest, createFlag, rid);
     manifest_ticket_event(rid, &manifest, createFlag, tagid);
     manifest_clear(&manifest);
     createFlag = 0;
@@ -621,7 +592,9 @@ void tkttimeline_page(void){
   char *zTitle;
   char *zSQL;
   const char *zUuid;
+  char *zFullUuid;
   int tagid;
+  char zGlobPattern[50];
 
   login_check_credentials();
   if( !g.okHistory || !g.okRdTkt ){ login_needed(); return; }
@@ -634,16 +607,22 @@ void tkttimeline_page(void){
   style_header(zTitle);
   free(zTitle);
 
+  sqlite3_snprintf(6, zGlobPattern, "%s", zUuid);
+  canonical16(zGlobPattern, strlen(zGlobPattern));
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){
     @ No such ticket: %h(zUuid)
     style_footer();
     return;
   }
+  zFullUuid = db_text(0, "SELECT substr(tagname, 5) FROM tag WHERE tagid=%d",
+                         tagid);
   zSQL = mprintf("%s AND event.objid IN "
-                 "  (SELECT rid FROM tagxref WHERE tagid=%d) "
+                 "  (SELECT rid FROM tagxref WHERE tagid=%d UNION"
+                 "   SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+                                                 "AND '%s' GLOB (target||'*')) "
                  "ORDER BY mtime DESC",
-                 timeline_query_for_www(), tagid);
+                 timeline_query_for_www(), tagid, zFullUuid, zFullUuid);
   db_prepare(&q, zSQL);
   free(zSQL);
   www_print_timeline(&q, TIMELINE_ARTID, 0);
