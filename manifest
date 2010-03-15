@@ -1,5 +1,5 @@
-C Show\scheck-ins\sthat\smention\sa\sticket\sin\sthe\sticket\stimeline.
-D 2010-03-15T16:16:34
+C Add\sa\s--ignore\soption\sto\sthe\s"extra"\scommand,\sand\san\s"ignore-glob"\ssetting\nwhich\scauses\sfiles\swith\sgiven\spatterns\sto\sbe\signored.\nTickets\s[705181a992c]\sand\s[5125de2e624].\s\sSee\salso\sticket\s[4e8410bfd69].
+D 2010-03-15T17:41:54
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -42,7 +42,7 @@ F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
 F src/browse.c 62cedbb289d1e3ec116459fa17e338070d4c0894
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
-F src/checkin.c 68f82b881294436e8b87f0ff0574ce627bf5f131
+F src/checkin.c 5c5ed2a07e6fa7a6b99b29fda8d9419a570029ce
 F src/checkout.c c6b85f8c0b70ddc09104e230e5e0ed4284840c89
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 97479abe225cc2648c61bd669495d22616055001
@@ -51,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 20b0e9153b4bf5ae1c4db16236a6b22f453c98d8
+F src/db.c 62f60a50b626578f2220b68d5f8aeffa971ffd14
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P f2181f5e45b62da9c11fc6258f555593ef7b2b6c
-R 67db73594ef508035b3ed2b57a2bb653
+P 611b3b206bdfea6d2c71f4ff13a369918d5181ec
+R 2042b9f7610239f519cd99fc8768ea73
 U drh
-Z 689c30b6eb2d36ec7398d55af6bcb7a7
+Z 0f93d3a4dcd4ed8375f6c36a78ce04e9

@@ -1459,6 +1459,10 @@ static void print_setting(const char *zName){
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
 **
+**    ignore-glob      The VALUE is a comma-separated list of GLOB patterns
+**                     specifying files that the "extra" command will ignore.
+**                     Example:  *.o,*.obj,*.exe
+**
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
 **                     false, all HTTP requests from localhost have
@@ -1489,6 +1493,7 @@ void setting_cmd(void){
     "dont-push",
     "editor",
     "gdiff-command",
+    "ignore-glob",
     "http-port",
     "localauth",
     "mtime-changes",
