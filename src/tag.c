@@ -202,6 +202,11 @@ int tag_insert(
   }
   if( zCol ){
     db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
+    if( tagid==TAG_COMMENT ){
+      char *zCopy = mprintf("%s", zValue);
+      wiki_extract_links(zCopy, rid, 0, mtime, 1, WIKI_INLINE);
+      free(zCopy);
+    }
   }
   if( tagid==TAG_DATE ){
     db_multi_exec("UPDATE event SET mtime=julianday(%Q) WHERE objid=%d",

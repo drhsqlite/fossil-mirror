@@ -1034,6 +1034,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   db_begin_transaction();
   if( m.type==CFTYPE_MANIFEST ){
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
+      char *zCom;
       for(i=0; i<m.nParent; i++){
         int pid = uuid_to_rid(m.azParent[i], 1);
         db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
@@ -1067,6 +1068,10 @@ int manifest_crosslink(int rid, Blob *pContent){
         TAG_USER, rid,
         TAG_COMMENT, rid
       );
+      zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
+                        " WHERE rowid=last_insert_rowid()");
+      wiki_extract_links(zCom, rid, 0, m.rDate, 1, WIKI_INLINE);
+      free(zCom);
     }
   }
   if( m.type==CFTYPE_CLUSTER ){

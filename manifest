@@ -1,5 +1,5 @@
-C Add\san\sexception\sto\sthe\sGPLv2\slicense\sto\sallow\sFossil\sto\sbe\slinked\sagainst\nthe\sOpenSSL\slibrary.\s\sTicket\s[930a168303].
-D 2010-03-14T20:56:46
+C Add\sthe\sBACKLINK\stable\sand\scode\sto\spopulate\sit.\s\sNB:\s\sRun\s"rebuild"\swhen\nupdating\sto\sthis\sor\slater\sversions.
+D 2010-03-15T14:46:20
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -73,7 +73,7 @@ F src/main.mk 0faf9ddc161e8d1203b164e79867f7307aad2dae
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl d2f5dc8548287532a4acd0ecf296f25a08e60242
-F src/manifest.c fbdeafd71ccbf7f989ef78d05309f58a54a134cb
+F src/manifest.c 04b8bfbf43e39d8caab7eb4ddcaa5a5217fb2e52
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 09d6fd3ca08a9fdd42225e0c9217144120eb6e3c
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
@@ -86,7 +86,7 @@ F src/rebuild.c a6d927091a53ebf0d8db68480c4db519a05aa686
 F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
 F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
-F src/schema.c 4a9ad582dd3cedf643111104ec2a3afdfaf10578
+F src/schema.c 51060ed8449af1e45f8138a5851528b1dcef5a52
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
 F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
@@ -97,7 +97,7 @@ F src/sqlite3.h d01493223d8fd0a614403a9d9ee994bf317f46d0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 12d3b58ba614149ac8fad93f04c4602d483860bf
 F src/sync.c a3bcf1a97ce7618f40752f2f9d35a9a9563707cc
-F src/tag.c 53f57645df2929e4f0c59560bd6a106181dac8cf
+F src/tag.c 8853a08ab87062e0523932cd98e10801ee5c4a55
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
@@ -113,7 +113,7 @@ F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
 F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
-F src/wikiformat.c 79b7ccbe45fd5ca29e14c90dc25756430ed4c724
+F src/wikiformat.c 0a705ae0570c458aeae6bb59c0193137a17fc37e
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
 F src/zip.c 3494ff9729297a11078a303c5729ba106ddf4446
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 19d6b1cfe83550cf9cbdc8d69ae99d9b332d8dcc
-R a333d62a1cc8a0c1ddaa3b426bb8554d
+P 01c2f049b405551d477530de33527f884cfb2a00
+R 11ba07e19120a9d9fbb1bb7f0c0221b8
 U drh
-Z d70a2adf7f9f4ff1fa9737c53dbeebd1
+Z a6e1e6a0af4050d13cf01ea727e6e48f
