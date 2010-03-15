@@ -1441,6 +1441,10 @@ static void print_setting(const char *zName){
 **                     tag or branch creation.  If the the value is "pullonly"
 **                     then only pull operations occur automatically.
 **
+**    binary-glob      The VALUE is a comma-separated list of GLOB patterns
+**                     that should be treated as binary files for merging
+**                     purposes.  Example:   *.xml
+**
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.
@@ -1488,6 +1492,7 @@ void setting_cmd(void){
   static const char *azName[] = {
     "auto-captcha",
     "autosync",
+    "binary-glob",
     "clearsign",
     "diff-command",
     "dont-push",

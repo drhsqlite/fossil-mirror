@@ -1,5 +1,5 @@
-C Add\sa\s--ignore\soption\sto\sthe\s"extra"\scommand,\sand\san\s"ignore-glob"\ssetting\nwhich\scauses\sfiles\swith\sgiven\spatterns\sto\sbe\signored.\nTickets\s[705181a992c]\sand\s[5125de2e624].\s\sSee\salso\sticket\s[4e8410bfd69].
-D 2010-03-15T17:41:54
+C Add\sthe\s--binary\soption\sto\sthe\s"merge"\scommand\sand\sa\snew\s"binary-glob"\ssetting.\nThese\sidentify\sfiles\sthat\sshould\sbe\streated\sas\sbinary\sfiles\sand\swhich\sshould\nnot\sbe\ssubjected\sto\sa\s3-way\smerge.
+D 2010-03-15T18:09:35
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -51,7 +51,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 62f60a50b626578f2220b68d5f8aeffa971ffd14
+F src/db.c 661dae96053d404318722502620ff79458f37165
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -75,7 +75,7 @@ F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl d2f5dc8548287532a4acd0ecf296f25a08e60242
 F src/manifest.c 04b8bfbf43e39d8caab7eb4ddcaa5a5217fb2e52
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
-F src/merge.c 09d6fd3ca08a9fdd42225e0c9217144120eb6e3c
+F src/merge.c b7d15ae3ad17eff81e44724445e792bddb5a199f
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
 F src/name.c 16af7eb9cd2b532c857a0795a59e1b4b712b476b
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 611b3b206bdfea6d2c71f4ff13a369918d5181ec
-R 2042b9f7610239f519cd99fc8768ea73
+P 3555c0fc6fd0d1684422c729ac6a571ec3762715
+R 1716b13f6ef0a67bd2deedd6f6e321d2
 U drh
-Z 0f93d3a4dcd4ed8375f6c36a78ce04e9
+Z b714f7bcc06dc758302a6526a40869eb
