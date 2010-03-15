@@ -310,6 +310,8 @@ void tktview_page(void){
         "%s/tkthistory/%T", g.zTop, zUuid);
     style_submenu_element("Timeline", "Timeline Of This Ticket", 
         "%s/tkttimeline/%T", g.zTop, zUuid);
+    style_submenu_element("Check-ins", "Check-ins Of This Ticket", 
+        "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
   if( g.okNewTkt ){
     style_submenu_element("New Ticket", "Create a new ticket",
@@ -583,7 +585,7 @@ char *ticket_schema_check(const char *zSchema){
 
 /*
 ** WEBPAGE: tkttimeline
-** URL: /tkttimeline?name=TICKETUUID
+** URL: /tkttimeline?name=TICKETUUID&y=TYPE
 **
 ** Show the change history for a single ticket in timeline format.
 */
@@ -595,15 +597,28 @@ void tkttimeline_page(void){
   char *zFullUuid;
   int tagid;
   char zGlobPattern[50];
+  const char *zType;
 
   login_check_credentials();
   if( !g.okHistory || !g.okRdTkt ){ login_needed(); return; }
   zUuid = PD("name","");
+  zType = PD("y","a");
+  if( zType[0]!='c' ){
+    style_submenu_element("Check-ins", "Check-ins",
+       "%s/tkttimeline?name=%T&y=ci", g.zTop, zUuid);
+  }else{
+    style_submenu_element("Timeline", "Timeline",
+       "%s/tkttimeline?name=%T", g.zTop, zUuid);
+  }
   style_submenu_element("History", "History",
     "%s/tkthistory/%s", g.zTop, zUuid);
   style_submenu_element("Status", "Status",
     "%s/info/%s", g.zTop, zUuid);
-  zTitle = mprintf("Timeline Of Ticket %h", zUuid);
+  if( zType[0]=='c' ){
+    zTitle = mprintf("Check-Ins Associated With Ticket %h", zUuid);
+  }else{
+    zTitle = mprintf("Timeline Of Ticket %h", zUuid);
+  }
   style_header(zTitle);
   free(zTitle);
 
@@ -617,12 +632,24 @@ void tkttimeline_page(void){
   }
   zFullUuid = db_text(0, "SELECT substr(tagname, 5) FROM tag WHERE tagid=%d",
                          tagid);
-  zSQL = mprintf("%s AND event.objid IN "
-                 "  (SELECT rid FROM tagxref WHERE tagid=%d UNION"
-                 "   SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
-                                                 "AND '%s' GLOB (target||'*')) "
-                 "ORDER BY mtime DESC",
-                 timeline_query_for_www(), tagid, zFullUuid, zFullUuid);
+  if( zType[0]=='c' ){
+    zSQL = mprintf(
+         "%s AND event.objid IN "
+         "   (SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+                                         "AND '%s' GLOB (target||'*')) "
+         "ORDER BY mtime DESC",
+         timeline_query_for_www(), zFullUuid, zFullUuid
+    );
+  }else{
+    zSQL = mprintf(
+         "%s AND event.objid IN "
+         "  (SELECT rid FROM tagxref WHERE tagid=%d UNION"
+         "   SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
+                                         "AND '%s' GLOB (target||'*')) "
+         "ORDER BY mtime DESC",
+         timeline_query_for_www(), tagid, zFullUuid, zFullUuid
+    );
+  }
   db_prepare(&q, zSQL);
   free(zSQL);
   www_print_timeline(&q, TIMELINE_ARTID, 0);
@@ -648,6 +675,8 @@ void tkthistory_page(void){
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "Status",
     "%s/info/%s", g.zTop, zUuid);
+  style_submenu_element("Check-ins", "Check-ins",
+    "%s/tkttimeline?name=%s?y=ci", g.zTop, zUuid);
   style_submenu_element("Timeline", "Timeline",
     "%s/tkttimeline?name=%s", g.zTop, zUuid);
   style_header(zTitle);

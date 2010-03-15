@@ -1,5 +1,5 @@
-C Add\sthe\s--binary\soption\sto\sthe\s"merge"\scommand\sand\sa\snew\s"binary-glob"\ssetting.\nThese\sidentify\sfiles\sthat\sshould\sbe\streated\sas\sbinary\sfiles\sand\swhich\sshould\nnot\sbe\ssubjected\sto\sa\s3-way\smerge.
-D 2010-03-15T18:09:35
+C Add\sa\snew\sform\sof\sticket\stimeline\sthat\sshows\sonly\sthe\scheck-ins\sassociated\nwith\sthe\sticket.
+D 2010-03-15T20:54:12
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -103,7 +103,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
 F src/timeline.c 208f09107e8ddfe706fb70a12e5607d631933954
-F src/tkt.c 26c5d6f1c68ffa4c0d08c3d1dba2d9635c96d544
+F src/tkt.c 999883ee1ca4b38a0b2d9e63f81d17f90b1dae6e
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 3555c0fc6fd0d1684422c729ac6a571ec3762715
-R 1716b13f6ef0a67bd2deedd6f6e321d2
+P d327f12522c7afd718c7b752ed5eb7d3d10f7249
+R 328035f88f92cdb9d3d3075f288d7bd3
 U drh
-Z b714f7bcc06dc758302a6526a40869eb
+Z d87e4391ba6b979cdf91ecb9ef57af86
