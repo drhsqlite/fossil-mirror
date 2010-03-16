@@ -183,10 +183,10 @@ void setup_ulist(void){
      @ <tr><td valign="top"><b>t</b></td>
      @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
      @ <tr><td valign="top"><b>u</b></td>
-     @   <td><i>Reader:</i> Inherit privileges of 
+     @   <td><i>Reader:</i> Inherit privileges of
      @   user <tt>reader</tt></td></tr>
      @ <tr><td valign="top"><b>v</b></td>
-     @   <td><i>Developer:</i> Inherit privileges of 
+     @   <td><i>Developer:</i> Inherit privileges of
      @   user <tt>developer</tt></td></tr>
      @ <tr><td valign="top"><b>w</b></td>
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
@@ -591,7 +591,7 @@ void user_edit(void){
   @ </ul>
   @
   @ <h2>Special Logins</h2>
-  @ 
+  @
   @ <ul>
   @ <li><p>
   @ No login is required for user "<b>nobody</b>".  The capabilities
@@ -749,7 +749,7 @@ void setup_access(void){
   @ <p>Fossil tries to limit out-bound sync, clone, and pull packets
   @ to this many bytes, uncompressed.  If the client requires more data
   @ than this, then the client will issue multiple HTTP requests.
-  @ Values below 1 million are not recommended.  5 million is a 
+  @ Values below 1 million are not recommended.  5 million is a
   @ reasonable number.</p>
 
   @ <hr>
@@ -794,7 +794,7 @@ void setup_timeline(void){
   @ clicking.  This setting selects the default.</p>
 
   @ <hr>
-  entry_attribute("Max timeline comment length", 6, 
+  entry_attribute("Max timeline comment length", 6,
                   "timeline-max-comment", "tmc", "0");
   @ <p>The maximum length of a comment to be displayed in a timeline.
   @ "0" there is no length limit.</p>
@@ -839,55 +839,61 @@ void setup_behavior(void){
                   "clearsign", "clearsign", 0);
   @ <p>When enabled (the default), fossil will attempt to
   @     sign all commits with GPG.  When disabled, commits will
-  @    be unsigned.</p>  
-  
+  @    be unsigned.</p>
+
   @ <hr>
   onoff_attribute("Require local authentication",
                   "localauth", "localauth", 0);
   @ <p>If enabled, require that HTTP connections from
   @         127.0.0.1 be authenticated by password.  If
   @        false, all HTTP requests from localhost have
-  @        unrestricted access to the repository.</p>  
-  
+  @        unrestricted access to the repository.</p>
+
   @ <hr>
   onoff_attribute("Modification times used to detect changes",
                   "mtime-changes", "mtime-changes", 0);
-  @ <p>Use file modification times (mtimes) to detect when files have been modified.</p>  
-  
-  @ <hr>
-  entry_attribute("Diff Command", 16, 
-                  "diff-command", "diff-command", "diff");
-  @ <p>External command used to generate a textual diff</p>  
-  
-  @ <hr>
-  entry_attribute("Gdiff Command", 16, 
-                  "gdiff-command", "gdiff-command", "gdiff");
-  @ <p>External command to run when performing a graphical diff. If undefined, text diff will be used.</p>  
-    
-  @ <hr>
-  entry_attribute("Editor", 16, 
-                  "editor", "editor", "");
-  @ <p>Text editor command used for check-in comments.</p>  
-  
-  @ <hr>
-  entry_attribute("HTTP port", 16, 
-                  "http-port", "http-port", "8080");
-  @ <p>The TCP/IP port number to use by the "server" and "ui" commands.  Default: 8080</p>  
+  @ <p>Use file modification times (mtimes) to detect when files have been modified.</p>
 
   @ <hr>
-  entry_attribute("PGP Command", 32, 
+  entry_attribute("File Ignore Glob", 16,
+                  "ignore-glob", "ignore-glob", "");
+  @ <p>Cause the 'extra' command to ignore files matching the glob. Example:
+  @ '*.o,*.a,*.bck,*~'</p>
+
+  @ <hr>
+  entry_attribute("Diff Command", 16,
+                  "diff-command", "diff-command", "diff");
+  @ <p>External command used to generate a textual diff</p>
+
+  @ <hr>
+  entry_attribute("Gdiff Command", 16,
+                  "gdiff-command", "gdiff-command", "gdiff");
+  @ <p>External command to run when performing a graphical diff. If undefined, text diff will be used.</p>
+
+  @ <hr>
+  entry_attribute("Editor", 16,
+                  "editor", "editor", "");
+  @ <p>Text editor command used for check-in comments.</p>
+
+  @ <hr>
+  entry_attribute("HTTP port", 16,
+                  "http-port", "http-port", "8080");
+  @ <p>The TCP/IP port number to use by the "server" and "ui" commands.  Default: 8080</p>
+
+  @ <hr>
+  entry_attribute("PGP Command", 32,
                   "pgp-command", "pgp-command", "gpg --clearsign -o ");
-  @ <p>Command used to clear-sign manifests at check-in.The default is "gpg --clearsign -o ".</p>  
-  
+  @ <p>Command used to clear-sign manifests at check-in.The default is "gpg --clearsign -o ".</p>
+
   @ <hr>
-  entry_attribute("Proxy", 32, 
+  entry_attribute("Proxy", 32,
                   "proxy", "proxy", "off");
-  @ <p>URL of the HTTP proxy.</p>  
-  
+  @ <p>URL of the HTTP proxy.</p>
+
   @ <hr>
-  entry_attribute("Web browser", 32, 
+  entry_attribute("Web browser", 32,
                   "web-browser", "web-browser", "");
-  @ <p>Default web browser for "fossil ui".</p>  
+  @ <p>Default web browser for "fossil ui".</p>
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
@@ -989,7 +995,7 @@ void setup_editcss(void){
   @ <hr>
   @ The default CSS is shown below for reference.  Other examples
   @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_header">header</a> and 
+  @ See also the <a href="setup_header">header</a> and
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
@@ -1092,7 +1098,7 @@ void setup_logo(void){
     Blob img;
     Stmt ins;
     blob_init(&img, aImg, szImg);
-    db_prepare(&ins, 
+    db_prepare(&ins,
         "REPLACE INTO config(name, value)"
         " VALUES('logo-image',:bytes)"
     );
@@ -1116,7 +1122,7 @@ void setup_logo(void){
   @ <p>The current project logo has a MIME-Type of <b>%h(zMime)</b> and looks
   @ like this:</p>
   @ <blockquote><img src="%s(g.zTop)/logo" alt="logo"></blockquote>
-  @ 
+  @
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
   @ The logo may or may not appear on each

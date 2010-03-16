@@ -1,5 +1,5 @@
-C Add\sa\snew\sform\sof\sticket\stimeline\sthat\sshows\sonly\sthe\scheck-ins\sassociated\nwith\sthe\sticket.
-D 2010-03-15T20:54:12
+C Added\sthe\snew\signore-glob\ssetting\sto\sthe\sBehavior\sarea\sof\sthe\sAdmin\sUI
+D 2010-03-16T14:25:20
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -88,7 +88,7 @@ F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 51060ed8449af1e45f8138a5851528b1dcef5a52
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c f3b1416fe0820f9e940328ec964289699742cda4
+F src/setup.c e8503250344e8b69275972a3c4cb52cd12b7b502
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P d327f12522c7afd718c7b752ed5eb7d3d10f7249
-R 328035f88f92cdb9d3d3075f288d7bd3
-U drh
-Z d87e4391ba6b979cdf91ecb9ef57af86
+P dec136484819edfcb01c88a97270ed14009e1cf1
+R 383daa2d6194eca0c596094c78759507
+U jeremy_c
+Z 178b0492b11fc287bdb4bd4e7d203211
