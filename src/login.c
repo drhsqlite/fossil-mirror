@@ -478,7 +478,8 @@ void login_set_capabilities(const char *zCap){
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
                               g.okNewTkt = g.okPassword = g.okRdAddr =
-                              g.okTktFmt = 1;  /* Fall thru into Read/Write */
+                              g.okTktFmt = g.okAttach = 1;
+                              /* Fall thru into Read/Write */
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
       case 'z':   g.okZip = 1;                                  break;
@@ -500,6 +501,7 @@ void login_set_capabilities(const char *zCap){
                   g.okApndTkt = 1;                              break;
       case 'c':   g.okApndTkt = 1;                              break;
       case 't':   g.okTktFmt = 1;                               break;
+      case 'b':   g.okAttach = 1;                               break;
 
       /* The "u" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "reader" */
@@ -536,7 +538,7 @@ int login_has_capability(const char *zCap, int nCap){
   for(i=0; i<nCap && rc && zCap[i]; i++){
     switch( zCap[i] ){
       case 'a':  rc = g.okAdmin;     break;
-      /* case 'b': */
+      case 'b':  rc = g.okAttach;    break;
       case 'c':  rc = g.okApndTkt;   break;
       case 'd':  rc = g.okDelete;    break;
       case 'e':  rc = g.okRdAddr;    break;

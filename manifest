@@ -1,5 +1,5 @@
-C Change\sthe\sformat\sof\sthe\sA-card\sfor\sattachments\sagain.\s\sAdd\sthe\sATTACHMENT\ntable\sto\sthe\srepository.\s\sInsert\sattachment\sinformation\sinto\sthe\sATTACHMENT\ntable\swhen\sprocessing\sattachment\sartifacts.
-D 2010-03-16T16:52:37
+C Work\stoward\sadding\ssupport\sfor\sattachments.\s\sKeep\sthis\son\san\sexperimental\nbranch\suntil\sit\sis\sactually\sworking.
+D 2010-03-16T21:33:16
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -36,6 +36,7 @@ F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 3384ceaf0e23ebfb1a2b252538f1e59d3a07e0c3
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
+F src/attach.c 44eaa95a97de807ff84f589887be48ea884bb6f2
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
@@ -67,12 +68,12 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c 472b9054609d1860470619581511bba0a808263b
-F src/login.c 363e88a6c81ff45f447f83db61460e0277277179
-F src/main.c b20658a1d43e15dcc7bab605cd5b935497e89b4b
-F src/main.mk 0faf9ddc161e8d1203b164e79867f7307aad2dae
+F src/login.c c2a93b5e1e55a08dbd19c4d1db06c3edf56da00f
+F src/main.c 0384dca978440cd35ed50743335545af6e7679bb
+F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl d2f5dc8548287532a4acd0ecf296f25a08e60242
+F src/makemake.tcl 9835d0c5cce980d423010688326e29e910e5a431
 F src/manifest.c b240f7c6f8dcf2c33f59422e667d787b48b7f545
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c b7d15ae3ad17eff81e44724445e792bddb5a199f
@@ -88,7 +89,7 @@ F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c 4bfb88789ab3d0a21180ec73e603b8eee202ff37
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c 0a6b9243d592136d8951aac124c5b23737a76d9f
+F src/setup.c dd8d77b43bb2bce3d515767bf30b572a0231f64c
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
@@ -262,7 +263,11 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P d5a4e41c81280c86e9922785713294ef78083065
-R 8653727ac2fff41f38e14cd3485c9eef
+P 615a52f0ba072ae9a1116b0a8d92e621687d3ce3
+R c7442c24b7c13afa858a2a4cf1fec57f
+T *bgcolor * #c0ffc0
+T *branch * experimental
+T *sym-experimental *
+T -sym-trunk *
 U drh
-Z a2f1740553fbfcbc4c45296ebdc07a48
+Z 34f036067e83b641094a3d9984c02539
