@@ -855,7 +855,7 @@ void setup_behavior(void){
   @ <p>Use file modification times (mtimes) to detect when files have been modified.</p>
 
   @ <hr>
-  entry_attribute("File Ignore Glob", 16,
+  entry_attribute("File Ignore Glob", 40,
                   "ignore-glob", "ignore-glob", "");
   @ <p>Cause the 'extra' command to ignore files matching the glob. Example:
   @ '*.o,*.a,*.bck,*~'</p>
