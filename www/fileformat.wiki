@@ -382,7 +382,7 @@ the attachment is connected (the target artifact).
 The following cards are allowed on an attachment artifact:
 
 <blockquote>
-<b>A</b> (<b>+</b>|<b>-</b>)<i>filename target source</i>
+<b>A</b> <i>filename target</i> ?<i>source</i>?
 <b>C</b> <i>comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>U</b> <i>user-name</i><br />
@@ -390,11 +390,11 @@ The following cards are allowed on an attachment artifact:
 </blockquote>
 
 The A card specifies a filename for the attachment in its first argument.
-The filename is preceeded by "+" to add the attachment or "-" to
-remove the attachment.  The second argument to the A card is the name
+The second argument to the A card is the name
 of the wiki page or ticket to which the attachment is connected.  The
-third argument is is the 40-character artifact ID of the attachment
-itself.  Every attachment artifact must have exactly one A card.
+third argument is either missing or else it is the 40-character artifact 
+ID of the attachment itself.  A missing third argument means that the
+attachment should be deleted.
 
 The C card is an optional comment describing what the attachment is about.
 The C card is optional, but there can only be one.
@@ -428,7 +428,7 @@ appear on Fossil artifacts:
 <th>Attachment</th>
 </tr>
 <tr>
-<td><b>A</b> (<b>+</b>|<b>-</b>)<i>filename target source</i></td>
+<td><b>A</b> <i>filename target source</i></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>

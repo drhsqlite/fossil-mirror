@@ -168,26 +168,25 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;
     switch( z[0] ){
       /*
-      **     A (+|-)<filename> target source
+      **     A <filename> <target> ?<source>?
       **
       ** Identifies an attachment to either a wiki page or a ticket.
-      ** <uuid> is the artifact that is the attachment.
+      ** <source> is the artifact that is the attachment.  <source>
+      ** is omitted to delete an attachment.  <target> is the name of
+      ** a wiki page or ticket to which that attachment is connected.
       */
       case 'A': {
         char *zName, *zTarget, *zSrc;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a3)==0 ) goto manifest_syntax_error;
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
         zTarget = blob_terminate(&a2);
+        blob_token(&line, &a3);
         zSrc = blob_terminate(&a3);
         defossilize(zName);
-        if( zName[0]!='+' && zName[0]!='-' ){
-          goto manifest_syntax_error;
-        }
-        if( !file_is_simple_pathname(&zName[1]) ){
+        if( !file_is_simple_pathname(zName) ){
           goto manifest_syntax_error;
         }
         defossilize(zTarget);
@@ -195,8 +194,10 @@ int manifest_parse(Manifest *p, Blob *pContent){
            && !wiki_name_is_wellformed((const unsigned char *)zTarget) ){
           goto manifest_syntax_error;
         }
-        if( blob_size(&a3)!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(zSrc, UUID_SIZE) ) goto manifest_syntax_error;
+        if( blob_size(&a3)>0
+         && (blob_size(&a3)!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
+          goto manifest_syntax_error;
+        }
         p->zAttachName = zName;
         p->zAttachSrc = zSrc;
         p->zAttachTarget = zTarget;
@@ -624,6 +625,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->rDate==0.0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_ATTACHMENT;
   }else{
     if( p->nCChild>0 ) goto manifest_syntax_error;
@@ -1116,6 +1118,19 @@ int manifest_crosslink(int rid, Blob *pContent){
     free(zTag);
     db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
                   m.zTicketUuid);
+  }
+  if( m.type==CFTYPE_ATTACHMENT ){
+    db_multi_exec(
+       "INSERT OR IGNORE INTO attachment(mtime, target, filename)"
+       "VALUES(0.0,%Q,%Q)",
+       m.zAttachTarget, m.zAttachName
+    );
+    db_multi_exec(
+       "UPDATE attachment SET mtime=%.17g, src=%Q, comment=%Q, user=%Q"
+       " WHERE mtime<%.17g AND target=%Q AND filename=%Q",
+       m.rDate, m.zAttachSrc, m.zComment, m.zUser,
+       m.rDate, m.zAttachTarget, m.zAttachName
+    );
   }
   db_end_transaction(0);
   manifest_clear(&m);

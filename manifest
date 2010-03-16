@@ -1,5 +1,5 @@
-C Improved\sfile\sformat\sdocumentation.\s\sAdded\sinformation\son\sthe\sattachment\nartifact.\s\sRedefine\sthe\sA-card\s(which\shas\snot\spreviously\sbeen\sused).\nUpdate\sthe\sManifest\sobject\sto\sstore\sattachment\sartifacts.
-D 2010-03-16T15:38:54
+C Change\sthe\sformat\sof\sthe\sA-card\sfor\sattachments\sagain.\s\sAdd\sthe\sATTACHMENT\ntable\sto\sthe\srepository.\s\sInsert\sattachment\sinformation\sinto\sthe\sATTACHMENT\ntable\swhen\sprocessing\sattachment\sartifacts.
+D 2010-03-16T16:52:37
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -73,7 +73,7 @@ F src/main.mk 0faf9ddc161e8d1203b164e79867f7307aad2dae
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl d2f5dc8548287532a4acd0ecf296f25a08e60242
-F src/manifest.c 279a96c412da43ea505bfb7e2147a4bdf1546182
+F src/manifest.c b240f7c6f8dcf2c33f59422e667d787b48b7f545
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c b7d15ae3ad17eff81e44724445e792bddb5a199f
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
@@ -86,7 +86,7 @@ F src/rebuild.c a6d927091a53ebf0d8db68480c4db519a05aa686
 F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
 F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
-F src/schema.c 51060ed8449af1e45f8138a5851528b1dcef5a52
+F src/schema.c 4bfb88789ab3d0a21180ec73e603b8eee202ff37
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
 F src/setup.c 0a6b9243d592136d8951aac124c5b23737a76d9f
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
@@ -235,7 +235,7 @@ F www/encode8.gif 99cb8d91c37c30f7ebe05506980579263e017315
 F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/faq.tcl 032c2fe5ed544c7ce328a107360125bbe71f7bf3
 F www/faq.wiki 26afb3550c9bf0d0054076e925949f30010c9432
-F www/fileformat.wiki 23f2c83baa94a52104ecb666ace5234251197e3a
+F www/fileformat.wiki 5fee1a58d70efce97af1ddfa3406ec00eb116924
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P ef80cbf52f4b565635123e0eed25839489f117aa
-R b64c2cd2675fa9113d869d2c014d0a97
+P d5a4e41c81280c86e9922785713294ef78083065
+R 8653727ac2fff41f38e14cd3485c9eef
 U drh
-Z cdc2a3be00d8c5731dec6dce17c5eebf
+Z a2f1740553fbfcbc4c45296ebdc07a48
