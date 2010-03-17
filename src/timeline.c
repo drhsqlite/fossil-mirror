@@ -255,7 +255,35 @@ void www_print_timeline(
     @ <tr>
     @ <td valign="top" align="right">%s(zTime)</td>
     @ <td width="20" align="left" valign="top">
-    @ <div id="m%d(rid)"></div>
+    if( pGraph ){
+      int nParent = 0;
+      int aParent[32];
+      const char *zBr;
+      int gidx;
+      static Stmt qparent;
+      static Stmt qbranch;
+      db_static_prepare(&qparent,
+        "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC"
+      );
+      db_static_prepare(&qbranch,
+        "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
+        TAG_BRANCH
+      );
+      db_bind_int(&qparent, ":rid", rid);
+      while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+        aParent[nParent++] = db_column_int(&qparent, 0);
+      }
+      db_reset(&qparent);
+      db_bind_int(&qbranch, ":rid", rid);
+      if( db_step(&qbranch)==SQLITE_ROW ){
+        zBr = db_column_text(&qbranch, 0);
+      }else{
+        zBr = "trunk";
+      }
+      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr);
+      db_reset(&qbranch);
+      @ <div id="m%d(gidx)"></div>
+    }
     if( zBgClr && zBgClr[0] ){
       @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
     }else{
@@ -291,33 +319,6 @@ void www_print_timeline(
         for(i=0; i<nTag; i++){
           @ <b>%s(azTag[i])%s(i==nTag-1?"":",")</b>
         }
-      }
-      if( pGraph ){
-        int nParent = 0;
-        int aParent[32];
-        const char *zBr;
-        static Stmt qparent;
-        static Stmt qbranch;
-        db_static_prepare(&qparent,
-          "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC"
-        );
-        db_static_prepare(&qbranch,
-          "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
-          TAG_BRANCH
-        );
-        db_bind_int(&qparent, ":rid", rid);
-        while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
-          aParent[nParent++] = db_column_int(&qparent, 0);
-        }
-        db_reset(&qparent);
-        db_bind_int(&qbranch, ":rid", rid);
-        if( db_step(&qbranch)==SQLITE_ROW ){
-          zBr = db_column_text(&qbranch, 0);
-        }else{
-          zBr = "trunk";
-        }
-        graph_add_row(pGraph, rid, isLeaf, nParent, aParent, zBr);
-        db_reset(&qbranch);
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
@@ -360,6 +361,14 @@ void www_print_timeline(
     }
   }
   @ </table>
+  timeline_output_graph_javascript(pGraph);
+}
+
+/*
+** Generate all of the necessary javascript to generate a timeline
+** graph.
+*/
+void timeline_output_graph_javascript(GraphContext *pGraph){
   if( pGraph && pGraph->nErr==0 ){
     GraphRow *pRow;
     int i;
@@ -368,7 +377,7 @@ void www_print_timeline(
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       cgi_printf("{id:\"m%d\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
-        pRow->rid,
+        pRow->idx,
         pRow->iRail,
         pRow->bDescender,
         pRow->mergeOut,
