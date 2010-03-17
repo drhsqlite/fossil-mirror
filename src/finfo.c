@@ -168,7 +168,8 @@ void finfo_page(void){
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
-    @ <tr><td valign="top" align="right">%s(zTime)</td>
+    @ <tr><td valign="top" align="right">
+    @ <a href="%s(g.zTop)/timeline?c=%t(zDate)">%s(zTime)</a></td>
     @ <td width="20" align="left" valign="top"><div id="m%d(gidx)"></div></td>
     if( zBgClr && zBgClr[0] ){
       @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
@@ -184,9 +185,9 @@ void finfo_page(void){
     }
     @ part of check-in
     hyperlink_to_uuid(zShortCkin);
-    @ %h(zCom) (By: 
-    hyperlink_to_user(zUser, zDate, " on");
-    hyperlink_to_date(zDate, ")");
+    @ %h(zCom) (user: 
+    hyperlink_to_user(zUser, zDate, "");
+    @ branch: %h(zBr))
     if( g.okHistory ){
       if( fpid ){
         @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>

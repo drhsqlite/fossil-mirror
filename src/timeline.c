@@ -255,7 +255,7 @@ void www_print_timeline(
     @ <tr>
     @ <td valign="top" align="right">%s(zTime)</td>
     @ <td width="20" align="left" valign="top">
-    if( pGraph ){
+    if( pGraph && zType[0]=='c' ){
       int nParent = 0;
       int aParent[32];
       const char *zBr;

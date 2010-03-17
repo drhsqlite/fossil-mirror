@@ -1,5 +1,5 @@
-C Get\sthe\sderivation\sgraph\sworking\sfor\sindividual\sfile\shistories.
-D 2010-03-17T00:40:25
+C Fix\sa\sbug\sin\stimeline\sintroduced\sby\sthe\sprevious\scheck-in.\s\sImprovements\nto\sthe\sfile\stimeline.
+D 2010-03-17T01:03:46
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -60,7 +60,7 @@ F src/diffcmd.c 6b2be81037608261703d3f2e0314c6f638e344bd
 F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c bdaeea84bd53ee77f71a9c3a42417d373c0c1e3e
-F src/finfo.c 78c577d98cb2b3f053d708e7e0e745981ac428ff
+F src/finfo.c 856d583006d6e9e709c940745d6b4618b8a81d83
 F src/graph.c d1787e16364af3c5e1c009346eeb5249c329da32
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
@@ -102,7 +102,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
-F src/timeline.c bb40adc0c34fa6c3d866dd6c3bfa0a4bda459184
+F src/timeline.c 19f2bf0d5670750b0f576cb58d746e26d9ebb545
 F src/tkt.c 999883ee1ca4b38a0b2d9e63f81d17f90b1dae6e
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -262,7 +262,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 615a52f0ba072ae9a1116b0a8d92e621687d3ce3
-R 67923cdba7c413ecda11877110638eaf
+P c19467d68ecfc90d774aad670ba46ca4d79a2d69
+R 7d1150ef70a3bcb47c887c42b0e37be1
 U drh
-Z 95ce9703535887a10d8c89b179eab7b4
+Z 081927cfcd46acf92f45147c5d3adee1
