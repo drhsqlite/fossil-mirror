@@ -1,5 +1,5 @@
-C Basic\sfunctionality\sof\sattachments\sis\snow\sin\splace.
-D 2010-03-17T23:15:04
+C Show\sartifact\schanges\sin\sticket\shistory.
+D 2010-03-17T23:49:55
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -104,7 +104,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
 F src/timeline.c 208f09107e8ddfe706fb70a12e5607d631933954
-F src/tkt.c cb6dfbdd8d33af20f79c8225b3402d99fa69e93d
+F src/tkt.c 181182f2252fd70c32048669cafa6f85b2411994
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 1fcfa000b4a1f014d4f9ec05096f1895b15c65ab
-R 5a8d8cba2fdae31f88a92c588abb6321
+P dd2d3177b1b8333ee909d14edfd5f3287b689498
+R 024b2cede3cfa0f024dd85abb8994bc2
 U drh
-Z 26aaebe7d1f8c13f90e53660113a1556
+Z 1b9f3be574955ca6cea398e5834addc1
