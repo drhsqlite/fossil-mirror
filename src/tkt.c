@@ -298,6 +298,9 @@ void ticket_rebuild(void){
 */
 void tktview_page(void){
   const char *zScript;
+  char *zFullName;
+  const char *zUuid = PD("name","");
+
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
   if( g.okWrTkt || g.okApndTkt ){
@@ -305,7 +308,6 @@ void tktview_page(void){
         g.zTop, PD("name",""));
   }
   if( g.okHistory ){
-    const char *zUuid = PD("name","");
     style_submenu_element("History", "History Of This Ticket", 
         "%s/tkthistory/%T", g.zTop, zUuid);
     style_submenu_element("Timeline", "Timeline Of This Ticket", 
@@ -317,6 +319,10 @@ void tktview_page(void){
     style_submenu_element("New Ticket", "Create a new ticket",
         "%s/tktnew", g.zTop);
   }
+  if( g.okApndTkt && g.okAttach ){
+    style_submenu_element("Attach", "Add An Attachment",
+        "%s/attachadd?tkt=%T", g.zTop, zUuid);
+  }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
@@ -325,6 +331,38 @@ void tktview_page(void){
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
+
+  zFullName = db_text(0, 
+       "SELECT tkt_uuid FROM ticket"
+       " WHERE tkt_uuid GLOB '%q*'", zUuid);
+  if( zFullName ){
+    int cnt = 0;
+    Stmt q;
+    db_prepare(&q,
+       "SELECT datetime(mtime,'localtime'), filename, user"
+       "  FROM attachment"
+       " WHERE isLatest AND src NOT NULL AND target=%Q"
+       " ORDER BY mtime DESC",
+       zFullName);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zDate = db_column_text(&q, 0);
+      const char *zFile = db_column_text(&q, 1);
+      const char *zUser = db_column_text(&q, 2);
+      if( cnt==0 ){
+        @ <hr><h2>Attachments:</h2>
+        @ <ul>
+      }
+      cnt++;
+      @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&file=%t(zFile)">
+      @ %h(zFile)</a> add by %h(zUser) on
+      hyperlink_to_date(zDate, ".</li>");
+    }
+    if( cnt ){
+      @ </ul>
+    }
+    db_finalize(&q);
+  }
+ 
   style_footer();
 }
 

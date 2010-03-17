@@ -32,6 +32,7 @@
 **
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
+**    all
 **
 ** List attachments.
 */
@@ -81,18 +82,100 @@ void attachlist_page(void){
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
     }else{
-      zUrlTail = mprintf("page=%s&file=%t", zTarget, zFilename);
+      zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
-    @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="/attachdownload?%s(zUrlTail)">download</a>]<br>
-    @ %w(zComment)<br>
-    @ Added by %h(zUser) on %s(zDate)</p>
     @
+    @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br>
+    @ %w(zComment)<br>
+    if( zPage==0 && zTkt==0 ){
+      if( strlen(zTarget)==UUID_SIZE && validate16(zTarget, UUID_SIZE) ){
+        char zShort[20];
+        memcpy(zShort, zTarget, 10);
+        zShort[10] = 0;
+        @ Added to ticket <a href="%s(g.zTop)/tktview?name=%s(zTarget)">
+        @ %s(zShort)</a>
+      }else{
+        @ Added to wiki page <a href="%s(g.zTop)/wiki?name=%t(zTarget)">
+        @ %h(zTarget)</a>
+      }
+    }else{
+      @ Add
+    }
+    @ by %h(zUser) on
+    hyperlink_to_date(zDate, ".");
     free(zUrlTail);
   }
   db_finalize(&q);
   style_footer();
   return;
+}
+
+/*
+** WEBPAGE: attachdownload
+** WEBPAGE: attachimage
+** WEBPAGE: attachview
+**
+**    tkt=TICKETUUID
+**    page=WIKIPAGE
+**    file=FILENAME
+**    attachid=ID
+**
+** List attachments.
+*/
+void attachview_page(void){
+  const char *zPage = P("page");
+  const char *zTkt = P("tkt");
+  const char *zFile = P("file");
+  const char *zTarget;
+  int attachid = atoi(PD("attachid","0"));
+  char *zUUID;
+
+  if( zPage && zTkt ) zTkt = 0;
+  if( zFile==0 ) fossil_redirect_home();
+  login_check_credentials();
+  if( zPage ){
+    if( g.okRdWiki==0 ) login_needed();
+    zTarget = zPage;
+  }else if( zTkt ){
+    if( g.okRdTkt==0 ) login_needed();
+    zTarget = zTkt;
+  }else{
+    fossil_redirect_home();
+  }
+  if( attachid>0 ){
+    zUUID = db_text(0,
+       "SELECT coalesce(src,'x') FROM attachment"
+       " WHERE target=%Q AND attachid=%d",
+       zTarget, attachid
+    );
+  }else{
+    zUUID = db_text(0,
+       "SELECT coalesce(src,'x') FROM attachment"
+       " WHERE target=%Q AND filename=%Q"
+       " ORDER BY mtime DESC LIMIT 1",
+       zTarget, zFile
+    );
+  }
+  if( zUUID==0 ){
+    style_header("No Such Attachment");
+    @ No such attachment....
+    style_footer();
+    return;
+  }else if( zUUID[0]=='x' ){
+    style_header("Missing");
+    @ Attachment has been deleted
+    style_footer();
+    return;
+  }
+  g.okRead = 1;
+  cgi_replace_parameter("name",zUUID);
+  if( strcmp(g.zPath,"attachview")==0 ){
+    artifact_page();
+  }else{
+    cgi_replace_parameter("m", mimetype_from_name(zFile));
+    rawartifact_page();
+  }
 }
 
 /*
@@ -175,7 +258,7 @@ void attachadd_page(void){
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
-  @ <h1>Add Attachment To %s(zTargetType)</h1>
+  @ <h2>Add Attachment To %s(zTargetType)</h2>
   @ <form action="%s(g.zBaseURL)/attachadd" method="POST"
   @  enctype="multipart/form-data">
   @ File to Attach:

@@ -1,5 +1,5 @@
-C Added\sscreens\sfor\sadding\sand\slisting\sattachments.
-D 2010-03-17T19:57:01
+C Basic\sfunctionality\sof\sattachments\sis\snow\sin\splace.
+D 2010-03-17T23:15:04
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -36,7 +36,7 @@ F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 3384ceaf0e23ebfb1a2b252538f1e59d3a07e0c3
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
-F src/attach.c 73e72e833a0051fe2d3e9e9d19bed2863041df8d
+F src/attach.c e2a776afc8d35da41b3512f1f560e9c9b7981d32
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
@@ -67,7 +67,7 @@ F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c 472b9054609d1860470619581511bba0a808263b
+F src/info.c 6ccf198d8ccf4b67008cca1930877c4591ab69af
 F src/login.c c2a93b5e1e55a08dbd19c4d1db06c3edf56da00f
 F src/main.c 0384dca978440cd35ed50743335545af6e7679bb
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
@@ -104,7 +104,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
 F src/timeline.c 208f09107e8ddfe706fb70a12e5607d631933954
-F src/tkt.c 999883ee1ca4b38a0b2d9e63f81d17f90b1dae6e
+F src/tkt.c cb6dfbdd8d33af20f79c8225b3402d99fa69e93d
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
@@ -113,7 +113,7 @@ F src/url.c ec953a0a01c2eba0e8dea94fac7a3bdd0bec3bf3
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
-F src/wiki.c 14286bb43f24f7a4284a0699468d047a36e859a1
+F src/wiki.c e9187044b2c931b03c19bbb3079fe0b5b8426ea4
 F src/wikiformat.c 0a705ae0570c458aeae6bb59c0193137a17fc37e
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P c3d7df650ba1bf488dad512c3039fec8f4e50205
-R d511b578ef30e0b5089cf3fc220e6ce3
+P 1fcfa000b4a1f014d4f9ec05096f1895b15c65ab
+R 5a8d8cba2fdae31f88a92c588abb6321
 U drh
-Z 0fbf13d1bb2e51288d5f4664369b34b4
+Z 26aaebe7d1f8c13f90e53660113a1556

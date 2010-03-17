@@ -734,6 +734,48 @@ static void object_description(
     }
     db_finalize(&q);
   }
+  db_prepare(&q, 
+    "SELECT target, filename, datetime(mtime), user, src"
+    "  FROM attachment"
+    " WHERE src=(SELECT uuid FROM blob WHERE rid=%d)"
+    " ORDER BY mtime DESC",
+    rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTarget = db_column_text(&q, 0);
+    const char *zFilename = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zUser = db_column_text(&q, 3);
+    const char *zSrc = db_column_text(&q, 4);
+    if( cnt>0 ){
+      @ Also attachment "%h(zFilename)" to
+    }else{
+      @ Attachment "%h(zFilename)" to
+    }
+    if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
+      char zShort[20];
+      memcpy(zShort, zTarget, 10);
+      if( g.okHistory && g.okRdTkt ){
+        @ ticket [<a href="%s(g.zTop)/tktview?name=%s(zShort)">%s(zShort)</a>]
+      }else{
+        @ ticket [%s(zShort)]
+      }
+    }else{
+      if( g.okHistory && g.okRdWiki ){
+        @ wiki page [<a href="%s(g.zTop)/wiki?name=%t(zTarget)">%h(zTarget)</a>]
+      }else{
+        @ wiki page [%h(zTarget)]
+      }
+    }
+    @ added by
+    hyperlink_to_user(zUser,zDate," on");
+    hyperlink_to_date(zDate,".");
+    cnt++;
+    if( pDownloadName && blob_size(pDownloadName)==0 ){
+      blob_append(pDownloadName, zSrc, -1);
+    }
+  }
+  db_finalize(&q);
   if( cnt==0 ){
     char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     @ Control artifact.

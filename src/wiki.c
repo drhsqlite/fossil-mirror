@@ -129,6 +129,8 @@ void wiki_page(void){
   Manifest m;
   const char *zPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
+  Stmt q;
+  int cnt = 0;
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
@@ -154,7 +156,8 @@ void wiki_page(void){
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
 	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
-	@     Search wiki titles: <input type="text" name="title"/> &nbsp; <input type="submit" />
+	@     Search wiki titles: <input type="text" name="title"/>
+        @  &nbsp; <input type="submit" />
 	@ </li>
     @ </ul>
     style_footer();
@@ -188,6 +191,10 @@ void wiki_page(void){
       style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
            g.zTop, zPageName);
     }
+    if( rid && g.okWrWiki && g.okAttach ){
+      style_submenu_element("Attach", "Add An Attachment",
+           "%s/attachadd?page=%T", g.zTop, zPageName);
+    }
     if( rid && g.okApndWiki ){
       style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
            g.zTop, zPageName);
@@ -201,6 +208,31 @@ void wiki_page(void){
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
+
+  db_prepare(&q,
+     "SELECT datetime(mtime,'localtime'), filename, user"
+     "  FROM attachment"
+     " WHERE isLatest AND src NOT NULL AND target=%Q"
+     " ORDER BY mtime DESC",
+     zPageName);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zFile = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    if( cnt==0 ){
+      @ <hr><h2>Attachments:</h2>
+      @ <ul>
+    }
+    cnt++;
+    @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+    @ %h(zFile)</a> add by %h(zUser) on
+    hyperlink_to_date(zDate, ".</li>");
+  }
+  if( cnt ){
+    @ </ul>
+  }
+  db_finalize(&q);
+ 
   if( !isSandbox ){
     manifest_clear(&m);
   }
