@@ -198,7 +198,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
          && (blob_size(&a3)!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
           goto manifest_syntax_error;
         }
-        p->zAttachName = zName;
+        p->zAttachName = file_tail(zName);
         p->zAttachSrc = zSrc;
         p->zAttachTarget = zTarget;
         break;
@@ -1121,15 +1121,19 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   if( m.type==CFTYPE_ATTACHMENT ){
     db_multi_exec(
-       "INSERT OR IGNORE INTO attachment(mtime, target, filename)"
-       "VALUES(0.0,%Q,%Q)",
-       m.zAttachTarget, m.zAttachName
+       "INSERT INTO attachment(attachid, mtime, src, target,"
+                                        "filename, comment, user)"
+       "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
+       rid, m.rDate, m.zAttachSrc, m.zAttachTarget, m.zAttachName,
+       (m.zComment ? m.zComment : ""), m.zUser
     );
     db_multi_exec(
-       "UPDATE attachment SET mtime=%.17g, src=%Q, comment=%Q, user=%Q"
-       " WHERE mtime<%.17g AND target=%Q AND filename=%Q",
-       m.rDate, m.zAttachSrc, m.zComment, m.zUser,
-       m.rDate, m.zAttachTarget, m.zAttachName
+       "UPDATE attachment SET isLatest = (mtime=="
+          "(SELECT max(mtime) FROM attachment"
+          "  WHERE target=%Q AND filename=%Q))"
+       " WHERE target=%Q AND filename=%Q",
+       m.zAttachTarget, m.zAttachName,
+       m.zAttachTarget, m.zAttachName
     );
   }
   db_end_transaction(0);
