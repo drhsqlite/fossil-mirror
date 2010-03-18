@@ -1082,9 +1082,11 @@ int manifest_crosslink(int rid, Blob *pContent){
     int tagid = tag_findid(zTag, 1);
     int prior;
     char *zComment;
+    int nWiki;
     char zLength[40];
     while( isspace(m.zWiki[0]) ) m.zWiki++;
-    sqlite3_snprintf(sizeof(zLength), zLength, "%d", strlen(m.zWiki));
+    nWiki = strlen(m.zWiki);
+    sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
     free(zTag);
     prior = db_int(0,
@@ -1096,7 +1098,11 @@ int manifest_crosslink(int rid, Blob *pContent){
     if( prior ){
       content_deltify(prior, rid, 0);
     }
-    zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+    if( nWiki>0 ){
+      zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+    }else{
+      zComment = mprintf("Deleted wiki page [%h]", m.zWikiTitle);
+    }
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -1142,11 +1148,6 @@ int manifest_crosslink(int rid, Blob *pContent){
      || !validate16(m.zAttachTarget, UUID_SIZE) 
     ){
       char *zComment;
-#if 0
-      char *zTag = mprintf("wiki-%s", m.zAttachTarget);
-      tag_findid(zTag, 1);
-      free(zTag);
-#endif
       if( m.zAttachSrc && m.zAttachSrc[0] ){
         zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
              m.zAttachName, m.zAttachTarget);
