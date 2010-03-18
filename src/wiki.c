@@ -572,9 +572,11 @@ void whistory_page(void){
 
   zSQL = mprintf("%s AND event.objid IN "
                  "  (SELECT rid FROM tagxref WHERE tagid="
-                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q'))"
+                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
+                 "   UNION SELECT attachid FROM attachment"
+                          " WHERE target=%Q)"
                  "ORDER BY mtime DESC",
-                 timeline_query_for_www(), zPageName);
+                 timeline_query_for_www(), zPageName, zPageName);
   db_prepare(&q, zSQL);
   free(zSQL);
   zWikiPageName = zPageName;

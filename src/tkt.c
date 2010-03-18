@@ -243,6 +243,36 @@ void ticket_rebuild_entry(const char *zTktUuid){
     createFlag = 0;
   }
   db_finalize(&q);
+
+  db_prepare(&q,
+    "SELECT attachid, mtime, src IS NULL, filename, user"
+    "  FROM attachment"
+    " WHERE target=%Q",
+    zTktUuid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int attachid = db_column_int(&q, 0);
+    double mtime = db_column_double(&q, 1);
+    int isDelete = db_column_int(&q, 2);
+    const char *zFile = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
+    char *zCom;
+  
+    if( isDelete ){
+      zCom = mprintf("Delete attachment \"%h\" from ticket [%.10s] by user %h",
+                        zFile, zTktUuid, zUser);
+    }else{
+      zCom = mprintf("Add attachment \"%h\" to ticket [%.10s] by user %h",
+                        zFile, zTktUuid, zUser);
+    }
+    db_multi_exec(
+      "REPLACE INTO event(type,tagid,mtime,objid,user,comment,brief)"
+      "VALUES('t',%d,%.17g,%d,%Q,%Q,%Q)",
+      tagid, mtime, attachid, zUser, zCom, zCom
+    );
+    free(zCom);
+  }
+  db_finalize(&q);
 }
 
 /*
@@ -681,11 +711,14 @@ void tkttimeline_page(void){
   }else{
     zSQL = mprintf(
          "%s AND event.objid IN "
-         "  (SELECT rid FROM tagxref WHERE tagid=%d UNION"
-         "   SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
-                                         "AND '%s' GLOB (target||'*')) "
+         "  (SELECT rid FROM tagxref WHERE tagid=%d"
+         "   UNION SELECT srcid FROM backlink"
+                  " WHERE target GLOB '%.4s*'"
+                  "   AND '%s' GLOB (target||'*')"
+         "   UNION SELECT attachid FROM attachment"
+                  " WHERE target=%Q) "
          "ORDER BY mtime DESC",
-         timeline_query_for_www(), tagid, zFullUuid, zFullUuid
+         timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
     );
   }
   db_prepare(&q, zSQL);

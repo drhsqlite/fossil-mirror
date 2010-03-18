@@ -198,7 +198,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
          && (blob_size(&a3)!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
           goto manifest_syntax_error;
         }
-        p->zAttachName = file_tail(zName);
+        p->zAttachName = (char*)file_tail(zName);
         p->zAttachSrc = zSrc;
         p->zAttachTarget = zTarget;
         break;
@@ -1135,6 +1135,27 @@ int manifest_crosslink(int rid, Blob *pContent){
        m.zAttachTarget, m.zAttachName,
        m.zAttachTarget, m.zAttachName
     );
+    if( strlen(m.zAttachTarget)!=UUID_SIZE
+     || !validate16(m.zAttachTarget, UUID_SIZE) 
+    ){
+      char *zTag = mprintf("wiki-%s", m.zAttachTarget);
+      char *zComment;
+      tag_findid(zTag, 1);
+      free(zTag);
+      if( m.zAttachSrc ){
+        zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
+             m.zAttachName, m.zAttachTarget);
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
+             m.zAttachName, m.zAttachTarget);
+      }
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('w',%.17g,%d,%Q,%Q)",
+        m.rDate, rid, m.zUser, zComment
+      );
+      free(zComment);
+    }
   }
   db_end_transaction(0);
   manifest_clear(&m);
