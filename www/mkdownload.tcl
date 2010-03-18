@@ -29,6 +29,16 @@ The historical source code is also available in the
 Fossil repositories</a>.
 </p>
 
+<p>
+<u>Important Note:</u>
+After upgrading to a newer version of fossil, it is always a good idea
+to run:
+<blockquote><pre>
+<b><big><tt>fossil all rebuild</tt></big></b>
+</pre></blockquote>
+Running "rebuild" this way is not always necessary, but it never hurts.
+</p>
+
 <table cellpadding="10">
 }
 

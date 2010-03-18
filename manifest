@@ -1,5 +1,5 @@
-C Fix\ssome\scompiler\swarnings\son\swindows.
-D 2010-03-18T14:20:33
+C Update\sthe\sscript\sthat\sbuilds\sthe\sdownload\spage.
+D 2010-03-18T14:28:36
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -246,7 +246,7 @@ F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 96297d62716b1bbb4bbc773e2139fa6b87f6d20c
-F www/mkdownload.tcl f2c0354d8b3e377a1836efcccd79804839610f06
+F www/mkdownload.tcl 5fc5129fe11a268ce5e887943cf12fa76438c738
 F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/password.wiki 4c626ba0e123d6b2c8a7c8695fef3d6bb6a8bb60
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P f442eb2ae2e0ff8823dd696f26b034fd57e11deb
-R c5fde2b73c9d0a52f594240df0179acc
+P 73c24ae363ee1b2234a3e322df124577ab3c7dcf
+R 95b6b06063965c8e1f883a37af9d9cc0
 U drh
-Z d24bc991566c1b0acd969998026efbc1
+Z 7319154baeb5e3c4676a2ddc83b8b797
