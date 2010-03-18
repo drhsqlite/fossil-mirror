@@ -9,6 +9,7 @@
 set src {
   add
   allrepo
+  attach
   bag
   blob
   branch

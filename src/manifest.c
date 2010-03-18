@@ -198,7 +198,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
          && (blob_size(&a3)!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
           goto manifest_syntax_error;
         }
-        p->zAttachName = zName;
+        p->zAttachName = (char*)file_tail(zName);
         p->zAttachSrc = zSrc;
         p->zAttachTarget = zTarget;
         break;
@@ -1082,7 +1082,12 @@ int manifest_crosslink(int rid, Blob *pContent){
     int tagid = tag_findid(zTag, 1);
     int prior;
     char *zComment;
-    tag_insert(zTag, 1, 0, rid, m.rDate, rid);
+    int nWiki;
+    char zLength[40];
+    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    nWiki = strlen(m.zWiki);
+    sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
+    tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
     free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
@@ -1093,7 +1098,11 @@ int manifest_crosslink(int rid, Blob *pContent){
     if( prior ){
       content_deltify(prior, rid, 0);
     }
-    zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+    if( nWiki>0 ){
+      zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+    }else{
+      zComment = mprintf("Deleted wiki page [%h]", m.zWikiTitle);
+    }
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -1121,16 +1130,53 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   if( m.type==CFTYPE_ATTACHMENT ){
     db_multi_exec(
-       "INSERT OR IGNORE INTO attachment(mtime, target, filename)"
-       "VALUES(0.0,%Q,%Q)",
-       m.zAttachTarget, m.zAttachName
+       "INSERT INTO attachment(attachid, mtime, src, target,"
+                                        "filename, comment, user)"
+       "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
+       rid, m.rDate, m.zAttachSrc, m.zAttachTarget, m.zAttachName,
+       (m.zComment ? m.zComment : ""), m.zUser
     );
     db_multi_exec(
-       "UPDATE attachment SET mtime=%.17g, src=%Q, comment=%Q, user=%Q"
-       " WHERE mtime<%.17g AND target=%Q AND filename=%Q",
-       m.rDate, m.zAttachSrc, m.zComment, m.zUser,
-       m.rDate, m.zAttachTarget, m.zAttachName
+       "UPDATE attachment SET isLatest = (mtime=="
+          "(SELECT max(mtime) FROM attachment"
+          "  WHERE target=%Q AND filename=%Q))"
+       " WHERE target=%Q AND filename=%Q",
+       m.zAttachTarget, m.zAttachName,
+       m.zAttachTarget, m.zAttachName
     );
+    if( strlen(m.zAttachTarget)!=UUID_SIZE
+     || !validate16(m.zAttachTarget, UUID_SIZE) 
+    ){
+      char *zComment;
+      if( m.zAttachSrc && m.zAttachSrc[0] ){
+        zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
+             m.zAttachName, m.zAttachTarget);
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
+             m.zAttachName, m.zAttachTarget);
+      }
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('w',%.17g,%d,%Q,%Q)",
+        m.rDate, rid, m.zUser, zComment
+      );
+      free(zComment);
+    }else{
+      char *zComment;
+      if( m.zAttachSrc && m.zAttachSrc[0] ){
+        zComment = mprintf("Add attachment \"%h\" to ticket [%.10s]",
+             m.zAttachName, m.zAttachTarget);
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
+             m.zAttachName, m.zAttachTarget);
+      }
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('t',%.17g,%d,%Q,%Q)",
+        m.rDate, rid, m.zUser, zComment
+      );
+      free(zComment);
+    }
   }
   db_end_transaction(0);
   manifest_clear(&m);

@@ -298,6 +298,9 @@ void ticket_rebuild(void){
 */
 void tktview_page(void){
   const char *zScript;
+  char *zFullName;
+  const char *zUuid = PD("name","");
+
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
   if( g.okWrTkt || g.okApndTkt ){
@@ -305,7 +308,6 @@ void tktview_page(void){
         g.zTop, PD("name",""));
   }
   if( g.okHistory ){
-    const char *zUuid = PD("name","");
     style_submenu_element("History", "History Of This Ticket", 
         "%s/tkthistory/%T", g.zTop, zUuid);
     style_submenu_element("Timeline", "Timeline Of This Ticket", 
@@ -317,6 +319,11 @@ void tktview_page(void){
     style_submenu_element("New Ticket", "Create a new ticket",
         "%s/tktnew", g.zTop);
   }
+  if( g.okApndTkt && g.okAttach ){
+    style_submenu_element("Attach", "Add An Attachment",
+        "%s/attachadd?tkt=%T&from=%s/tktview%%3fname=%t",
+        g.zTop, zUuid, g.zTop, zUuid);
+  }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
@@ -325,6 +332,41 @@ void tktview_page(void){
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
+
+  zFullName = db_text(0, 
+       "SELECT tkt_uuid FROM ticket"
+       " WHERE tkt_uuid GLOB '%q*'", zUuid);
+  if( zFullName ){
+    int cnt = 0;
+    Stmt q;
+    db_prepare(&q,
+       "SELECT datetime(mtime,'localtime'), filename, user"
+       "  FROM attachment"
+       " WHERE isLatest AND src!='' AND target=%Q"
+       " ORDER BY mtime DESC",
+       zFullName);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zDate = db_column_text(&q, 0);
+      const char *zFile = db_column_text(&q, 1);
+      const char *zUser = db_column_text(&q, 2);
+      if( cnt==0 ){
+        @ <hr><h2>Attachments:</h2>
+        @ <ul>
+      }
+      cnt++;
+      @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&file=%t(zFile)">
+      @ %h(zFile)</a> add by %h(zUser) on
+      hyperlink_to_date(zDate, ".");
+      if( g.okWrTkt && g.okAttach ){
+        @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&file=%t(zFile)&from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
+      }
+    }
+    if( cnt ){
+      @ </ul>
+    }
+    db_finalize(&q);
+  }
+ 
   style_footer();
 }
 
@@ -643,11 +685,14 @@ void tkttimeline_page(void){
   }else{
     zSQL = mprintf(
          "%s AND event.objid IN "
-         "  (SELECT rid FROM tagxref WHERE tagid=%d UNION"
-         "   SELECT srcid FROM backlink WHERE target GLOB '%.4s*' "
-                                         "AND '%s' GLOB (target||'*')) "
+         "  (SELECT rid FROM tagxref WHERE tagid=%d"
+         "   UNION SELECT srcid FROM backlink"
+                  " WHERE target GLOB '%.4s*'"
+                  "   AND '%s' GLOB (target||'*')"
+         "   UNION SELECT attachid FROM attachment"
+                  " WHERE target=%Q) "
          "ORDER BY mtime DESC",
-         timeline_query_for_www(), tagid, zFullUuid, zFullUuid
+         timeline_query_for_www(), tagid, zFullUuid, zFullUuid, zFullUuid
     );
   }
   db_prepare(&q, zSQL);
@@ -689,33 +734,56 @@ void tkthistory_page(void){
     return;
   }
   db_prepare(&q,
-    "SELECT objid, uuid FROM event, blob"
+    "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+    "  FROM event, blob"
     " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
     "   AND blob.rid=event.objid"
-    " ORDER BY mtime DESC",
-    tagid
+    " UNION "
+    "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
+    "  FROM attachment, blob"
+    " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
+    "   AND blob.rid=attachid"
+    " ORDER BY 1 DESC",
+    tagid, tagid
   );
   while( db_step(&q)==SQLITE_ROW ){
     Blob content;
     Manifest m;
-    int rid = db_column_int(&q, 0);
-    const char *zChngUuid = db_column_text(&q, 1);
-    content_get(rid, &content);
-    if( manifest_parse(&m, &content) && m.type==CFTYPE_TICKET ){
-      char *zDate = db_text(0, "SELECT datetime(%.12f)", m.rDate);
-      char zUuid[12];
-      memcpy(zUuid, zChngUuid, 10);
-      zUuid[10] = 0;
-      @
-      @ Ticket change
-      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zUuid)</a>]</a>
+    char zShort[12];
+    const char *zDate = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    const char *zChngUuid = db_column_text(&q, 2);
+    const char *zFile = db_column_text(&q, 4);
+    memcpy(zShort, zChngUuid, 10);
+    zShort[10] = 0;
+    if( zFile!=0 ){
+      const char *zSrc = db_column_text(&q, 3);
+      const char *zUser = db_column_text(&q, 5);
+      if( zSrc==0 || zSrc[0]==0 ){
+        @ 
+        @ <p>Delete attachment "%h(zFile)"
+      }else{
+        @ 
+        @ <p>Add attachment "%h(zFile)"
+      }
+      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zShort)</a>]
       @ (rid %d(rid)) by
-      hyperlink_to_user(m.zUser,zDate," on");
-      hyperlink_to_date(zDate, ":");
-      free(zDate);
-      ticket_output_change_artifact(&m);
+      hyperlink_to_user(zUser,zDate," on");
+      hyperlink_to_date(zDate, ".</p>");
+    }else{
+      content_get(rid, &content);
+      if( manifest_parse(&m, &content) && m.type==CFTYPE_TICKET ){
+        @
+        @ <p>Ticket change
+        @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zShort)</a>]
+        @ (rid %d(rid)) by
+        hyperlink_to_user(m.zUser,zDate," on");
+        hyperlink_to_date(zDate, ":");
+        ticket_output_change_artifact(&m);
+        @ </p>
+      }
+      manifest_clear(&m);
     }
-    manifest_clear(&m);
   }
   db_finalize(&q);
   style_footer();

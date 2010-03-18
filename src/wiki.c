@@ -129,6 +129,8 @@ void wiki_page(void){
   Manifest m;
   const char *zPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
+  Stmt q;
+  int cnt = 0;
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
@@ -154,7 +156,8 @@ void wiki_page(void){
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
 	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
-	@     Search wiki titles: <input type="text" name="title"/> &nbsp; <input type="submit" />
+	@     Search wiki titles: <input type="text" name="title"/>
+        @  &nbsp; <input type="submit" />
 	@ </li>
     @ </ul>
     style_footer();
@@ -188,6 +191,11 @@ void wiki_page(void){
       style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
            g.zTop, zPageName);
     }
+    if( rid && g.okWrWiki && g.okAttach ){
+      style_submenu_element("Attach", "Add An Attachment",
+           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
+           g.zTop, zPageName, g.zTop, zPageName);
+    }
     if( rid && g.okApndWiki ){
       style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
            g.zTop, zPageName);
@@ -201,6 +209,34 @@ void wiki_page(void){
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
+
+  db_prepare(&q,
+     "SELECT datetime(mtime,'localtime'), filename, user"
+     "  FROM attachment"
+     " WHERE isLatest AND src!='' AND target=%Q"
+     " ORDER BY mtime DESC",
+     zPageName);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zFile = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    if( cnt==0 ){
+      @ <hr><h2>Attachments:</h2>
+      @ <ul>
+    }
+    cnt++;
+    @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+    @ %h(zFile)</a> add by %h(zUser) on
+    hyperlink_to_date(zDate, ".");
+    if( g.okWrWiki && g.okAttach ){
+      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&file=%t(zFile)&from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
+    }
+  }
+  if( cnt ){
+    @ </ul>
+  }
+  db_finalize(&q);
+ 
   if( !isSandbox ){
     manifest_clear(&m);
   }
@@ -517,7 +553,9 @@ static const char *zWikiPageName;
 ** a wiki history listing.
 */
 static void wiki_history_extra(int rid){
-  @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
+    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
+  }
 }
 
 /*
@@ -540,9 +578,11 @@ void whistory_page(void){
 
   zSQL = mprintf("%s AND event.objid IN "
                  "  (SELECT rid FROM tagxref WHERE tagid="
-                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q'))"
+                       "(SELECT tagid FROM tag WHERE tagname='wiki-%q')"
+                 "   UNION SELECT attachid FROM attachment"
+                          " WHERE target=%Q)"
                  "ORDER BY mtime DESC",
-                 timeline_query_for_www(), zPageName);
+                 timeline_query_for_www(), zPageName, zPageName);
   db_prepare(&q, zSQL);
   free(zSQL);
   zWikiPageName = zPageName;
@@ -607,21 +647,38 @@ void wdiff_page(void){
 /*
 ** WEBPAGE: wcontent
 **
+**     all=1         Show deleted pages
+**
 ** List all available wiki pages with date created and last modified.
 */
 void wcontent_page(void){
   Stmt q;
+  int showAll = P("all")!=0;
+
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
   style_header("Available Wiki Pages");
+  if( showAll ){
+    style_submenu_element("Active", "Only Active Pages", "%s/wcontent", g.zTop);
+  }else{
+    style_submenu_element("All", "All", "%s/wcontent?all=1", g.zTop);
+  }
   @ <ul>
   db_prepare(&q, 
-    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
+    "SELECT"
+    "  substr(tagname, 6),"
+    "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC)"
+    "  FROM tag WHERE tagname GLOB 'wiki-*'"
     " ORDER BY lower(tagname)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
+    int size = db_column_int(&q, 1);
+    if( size>0 ){
+      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
+    }else if( showAll ){
+      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)"><s>%h(zName)</s></a></li>
+    }
   }
   db_finalize(&q);
   @ </ul>
