@@ -69,15 +69,16 @@ and painlessly.</p>
     <b>fossil ui </b><i> repository-filename</i>
     </blockquote>
 
-    <p>This starts a webserver listening on port 8080.  You can
-    specify a different port using the <b>-port</b> option on the command-line.
-    After the server is running, fossil will then attempt to launch your
-    web browser and make it point to this web server.  If your system
+    <p>This starts a web server then automatically launches your
+    web browser and makes it point to this web server.  If your system
     has an unusual configuration, fossil might not be able to figure out
-    how to start your web browser.  In that case, start the web browser
-    yourself and point it at http://localhost:8080/.  Click on the
-    "Admin" link on the menu bar to start configuring your repository.</p>
-    
+    how to start your web browser.  In that case, first tell fossil
+    where to find your web browser using a command like this:</p>
+
+    <blockquote>
+    <b>fossil setting web-browser </b><i>  path-to-web-browser</i>
+    </blockquote>
+   
     <p>By default, fossil does not require a login for HTTP connections
     coming in from the IP loopback address 127.0.0.1.  You can, and perhaps
     should, change this after you create a few users.</p>

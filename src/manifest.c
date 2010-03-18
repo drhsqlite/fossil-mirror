@@ -39,29 +39,25 @@
 #define CFTYPE_CONTROL    3
 #define CFTYPE_WIKI       4
 #define CFTYPE_TICKET     5
-
-/*
-** Mode parameter values
-*/
-#define CFMODE_READ       1
-#define CFMODE_APPEND     2
-#define CFMODE_WRITE      3
+#define CFTYPE_ATTACHMENT 6
 
 /*
 ** A parsed manifest or cluster.
 */
 struct Manifest {
   Blob content;         /* The original content blob */
-  int type;             /* Type of file */
-  int mode;             /* Access mode */
-  char *zComment;       /* Decoded comment */
-  double rDate;         /* Time in the "D" line */
-  char *zUser;          /* Name of the user */
-  char *zRepoCksum;     /* MD5 checksum of the baseline content */
-  char *zWiki;          /* Text of the wiki page */
-  char *zWikiTitle;     /* Name of the wiki page */
-  char *zTicketUuid;    /* UUID for a ticket */
-  int nFile;            /* Number of F lines */
+  int type;             /* Type of artifact.  One of CFTYPE_xxxxx */
+  char *zComment;       /* Decoded comment.  The C card. */
+  double rDate;         /* Date and time from D card.  0.0 if no D card. */
+  char *zUser;          /* Name of the user from the U card. */
+  char *zRepoCksum;     /* MD5 checksum of the baseline content.  R card. */
+  char *zWiki;          /* Text of the wiki page.  W card. */
+  char *zWikiTitle;     /* Name of the wiki page. L card. */
+  char *zTicketUuid;    /* UUID for a ticket. K card. */
+  char *zAttachName;    /* Filename of an attachment. A card. */
+  char *zAttachSrc;     /* UUID of document being attached. A card. */
+  char *zAttachTarget;  /* Ticket or wiki that attachment applies to.  A card */
+  int nFile;            /* Number of F cards */
   int nFileAlloc;       /* Slots allocated in aFile[] */
   struct { 
     char *zName;           /* Name of a file */
@@ -69,33 +65,26 @@ struct Manifest {
     char *zPerm;           /* File permissions */
     char *zPrior;          /* Prior name if the name was changed */
     int iRename;           /* index of renamed name in prior/next manifest */
-  } *aFile;
-  int nParent;          /* Number of parents */
+  } *aFile;             /* One entry for each F card */
+  int nParent;          /* Number of parents. */
   int nParentAlloc;     /* Slots allocated in azParent[] */
-  char **azParent;      /* UUIDs of parents */
+  char **azParent;      /* UUIDs of parents.  One for each P card argument */
   int nCChild;          /* Number of cluster children */
   int nCChildAlloc;     /* Number of closts allocated in azCChild[] */
-  char **azCChild;      /* UUIDs of referenced objects in a cluster */
-  int nTag;             /* Number of T lines */
+  char **azCChild;      /* UUIDs of referenced objects in a cluster. M cards */
+  int nTag;             /* Number of T Cards */
   int nTagAlloc;        /* Slots allocated in aTag[] */
   struct { 
     char *zName;           /* Name of the tag */
     char *zUuid;           /* UUID that the tag is applied to */
     char *zValue;          /* Value if the tag is really a property */
-  } *aTag;
-  int nField;           /* Number of J lines */
+  } *aTag;              /* One for each T card */
+  int nField;           /* Number of J cards */
   int nFieldAlloc;      /* Slots allocated in aField[] */
   struct { 
     char *zName;           /* Key or field name */
     char *zValue;          /* Value of the field */
-  } *aField;
-  int nAttach;          /* Number of A lines */
-  int nAttachAlloc;     /* Slots allocated in aAttach[] */
-  struct { 
-    char *zUuid;           /* UUID of the attachment */
-    char *zName;           /* Name of the attachment */
-    char *zDesc;           /* Description of the attachment */
-  } *aAttach;
+  } *aField;            /* One for each J card */
 };
 #endif
 
@@ -110,7 +99,6 @@ void manifest_clear(Manifest *p){
   free(p->azCChild);
   free(p->aTag);
   free(p->aField);
-  free(p->aAttach);
   memset(p, 0, sizeof(*p));
 }
 
@@ -180,40 +168,39 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;
     switch( z[0] ){
       /*
-      **     A <uuid> <filename> <description>
+      **     A <filename> <target> ?<source>?
       **
       ** Identifies an attachment to either a wiki page or a ticket.
-      ** <uuid> is the artifact that is the attachment.
+      ** <source> is the artifact that is the attachment.  <source>
+      ** is omitted to delete an attachment.  <target> is the name of
+      ** a wiki page or ticket to which that attachment is connected.
       */
       case 'A': {
-        char *zName, *zUuid, *zDesc;
+        char *zName, *zTarget, *zSrc;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a3)==0 ) goto manifest_syntax_error;
-        zUuid = blob_terminate(&a1);
-        zName = blob_terminate(&a2);
-        zDesc = blob_terminate(&a3);
-        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        if( p->zAttachName!=0 ) goto manifest_syntax_error;
+        zName = blob_terminate(&a1);
+        zTarget = blob_terminate(&a2);
+        blob_token(&line, &a3);
+        zSrc = blob_terminate(&a3);
         defossilize(zName);
         if( !file_is_simple_pathname(zName) ){
           goto manifest_syntax_error;
         }
-        defossilize(zDesc);
-        if( p->nAttach>=p->nAttachAlloc ){
-          p->nAttachAlloc = p->nAttachAlloc*2 + 10;
-          p->aAttach = realloc(p->aAttach,
-                               p->nAttachAlloc*sizeof(p->aAttach[0]) );
-          if( p->aAttach==0 ) fossil_panic("out of memory");
-        }
-        i = p->nAttach++;
-        p->aAttach[i].zUuid = zUuid;
-        p->aAttach[i].zName = zName;
-        p->aAttach[i].zDesc = zDesc;
-        if( i>0 && strcmp(p->aAttach[i-1].zUuid, zUuid)>=0 ){
+        defossilize(zTarget);
+        if( (blob_size(&a2)!=UUID_SIZE || !validate16(zTarget, UUID_SIZE))
+           && !wiki_name_is_wellformed((const unsigned char *)zTarget) ){
           goto manifest_syntax_error;
         }
+        if( blob_size(&a3)>0
+         && (blob_size(&a3)!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
+          goto manifest_syntax_error;
+        }
+        p->zAttachName = (char*)file_tail(zName);
+        p->zAttachSrc = zSrc;
+        p->zAttachTarget = zTarget;
         break;
       }
 
@@ -249,29 +236,6 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         zDate = blob_terminate(&a1);
         p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
-        break;
-      }
-
-      /*
-      **     E <mode>
-      **
-      ** Access mode.  <mode> can be one of "read", "append",
-      ** or "write".
-      */
-      case 'E': {
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( p->mode!=0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        if( blob_eq(&a1, "write") ){
-          p->mode = CFMODE_WRITE;
-        }else if( blob_eq(&a1, "append") ){
-          p->mode = CFMODE_APPEND;
-        }else if( blob_eq(&a1, "read") ){
-          p->mode = CFMODE_READ;
-        }else{
-          goto manifest_syntax_error;
-        }
         break;
       }
 
@@ -610,10 +574,10 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->rDate==0.0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->nAttach>0 ) goto manifest_syntax_error;
     if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->zAttachName ) goto manifest_syntax_error;
     p->type = CFTYPE_MANIFEST;
   }else if( p->nCChild>0 ){
     if( p->rDate>0.0 ) goto manifest_syntax_error;
@@ -621,57 +585,60 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->zUser!=0 ) goto manifest_syntax_error;
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->nParent>0 ) goto manifest_syntax_error;
-    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->nAttach>0 ) goto manifest_syntax_error;
     if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->zAttachName ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_CLUSTER;
   }else if( p->nField>0 ){
     if( p->rDate==0.0 ) goto manifest_syntax_error;
-    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
     if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid==0 ) goto manifest_syntax_error;
     if( p->zUser==0 ) goto manifest_syntax_error;
+    if( p->zAttachName ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_TICKET;
   }else if( p->zWiki!=0 ){
     if( p->rDate==0.0 ) goto manifest_syntax_error;
-    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
     if( p->zWikiTitle==0 ) goto manifest_syntax_error;
+    if( p->zAttachName ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_WIKI;
   }else if( p->nTag>0 ){
     if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
     if( p->nParent>0 ) goto manifest_syntax_error;
-    if( p->nAttach>0 ) goto manifest_syntax_error;
-    if( p->nField>0 ) goto manifest_syntax_error;
-    if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->zAttachName ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_CONTROL;
-  }else{
+  }else if( p->zAttachName ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( !seenZ ) goto manifest_syntax_error;
+    p->type = CFTYPE_ATTACHMENT;
+  }else{
+    if( p->nCChild>0 ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) goto manifest_syntax_error;
+    if( p->nParent>0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->nAttach>0 ) goto manifest_syntax_error;
     if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
+    if( p->zAttachName ) goto manifest_syntax_error;
     p->type = CFTYPE_MANIFEST;
   }
-    
   md5sum_init();
   return 1;
 
@@ -1034,6 +1001,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   db_begin_transaction();
   if( m.type==CFTYPE_MANIFEST ){
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
+      char *zCom;
       for(i=0; i<m.nParent; i++){
         int pid = uuid_to_rid(m.azParent[i], 1);
         db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
@@ -1067,6 +1035,10 @@ int manifest_crosslink(int rid, Blob *pContent){
         TAG_USER, rid,
         TAG_COMMENT, rid
       );
+      zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
+                        " WHERE rowid=last_insert_rowid()");
+      wiki_extract_links(zCom, rid, 0, m.rDate, 1, WIKI_INLINE);
+      free(zCom);
     }
   }
   if( m.type==CFTYPE_CLUSTER ){
@@ -1110,7 +1082,12 @@ int manifest_crosslink(int rid, Blob *pContent){
     int tagid = tag_findid(zTag, 1);
     int prior;
     char *zComment;
-    tag_insert(zTag, 1, 0, rid, m.rDate, rid);
+    int nWiki;
+    char zLength[40];
+    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    nWiki = strlen(m.zWiki);
+    sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
+    tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
     free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
@@ -1121,7 +1098,11 @@ int manifest_crosslink(int rid, Blob *pContent){
     if( prior ){
       content_deltify(prior, rid, 0);
     }
-    zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+    if( nWiki>0 ){
+      zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+    }else{
+      zComment = mprintf("Deleted wiki page [%h]", m.zWikiTitle);
+    }
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
       "                  bgcolor,euser,ecomment)"
@@ -1146,6 +1127,56 @@ int manifest_crosslink(int rid, Blob *pContent){
     free(zTag);
     db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
                   m.zTicketUuid);
+  }
+  if( m.type==CFTYPE_ATTACHMENT ){
+    db_multi_exec(
+       "INSERT INTO attachment(attachid, mtime, src, target,"
+                                        "filename, comment, user)"
+       "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
+       rid, m.rDate, m.zAttachSrc, m.zAttachTarget, m.zAttachName,
+       (m.zComment ? m.zComment : ""), m.zUser
+    );
+    db_multi_exec(
+       "UPDATE attachment SET isLatest = (mtime=="
+          "(SELECT max(mtime) FROM attachment"
+          "  WHERE target=%Q AND filename=%Q))"
+       " WHERE target=%Q AND filename=%Q",
+       m.zAttachTarget, m.zAttachName,
+       m.zAttachTarget, m.zAttachName
+    );
+    if( strlen(m.zAttachTarget)!=UUID_SIZE
+     || !validate16(m.zAttachTarget, UUID_SIZE) 
+    ){
+      char *zComment;
+      if( m.zAttachSrc && m.zAttachSrc[0] ){
+        zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
+             m.zAttachName, m.zAttachTarget);
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
+             m.zAttachName, m.zAttachTarget);
+      }
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('w',%.17g,%d,%Q,%Q)",
+        m.rDate, rid, m.zUser, zComment
+      );
+      free(zComment);
+    }else{
+      char *zComment;
+      if( m.zAttachSrc && m.zAttachSrc[0] ){
+        zComment = mprintf("Add attachment \"%h\" to ticket [%.10s]",
+             m.zAttachName, m.zAttachTarget);
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
+             m.zAttachName, m.zAttachTarget);
+      }
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('t',%.17g,%d,%Q,%Q)",
+        m.rDate, rid, m.zUser, zComment
+      );
+      free(zComment);
+    }
   }
   db_end_transaction(0);
   manifest_clear(&m);

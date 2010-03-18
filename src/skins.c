@@ -164,7 +164,7 @@ static const char zBuiltinSkin1[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$baseurl/timeline.rss">
-@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
+@ <link rel="stylesheet" href="$baseurl/style.css?blackwhite" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
@@ -184,33 +184,33 @@ static const char zBuiltinSkin1[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href="$baseurl$index_page">Home</a> "
+@ html "<a href=''$baseurl$index_page''>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href="$baseurl/timeline">Timeline</a> "
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
-@   html "<a href="$baseurl/dir">Files</a> "
+@   html "<a href=''$baseurl/dir?ci=tip''>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href="$baseurl/leaves">Leaves</a> "
-@   html "<a href="$baseurl/brlist">Branches</a> "
-@   html "<a href="$baseurl/taglist">Tags</a> "
+@   html "<a href=''$baseurl/leaves''>Leaves</a> "
+@   html "<a href=''$baseurl/brlist''>Branches</a> "
+@   html "<a href=''$baseurl/taglist''>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href="$baseurl/reportlist">Tickets</a> "
+@   html "<a href=''$baseurl/reportlist''>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href="$baseurl/wiki">Wiki</a> "
+@   html "<a href=''$baseurl/wiki''>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href="$baseurl/setup">Admin</a> "
+@   html "<a href=''$baseurl/setup''>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href="$baseurl/setup_ulist">Users</a> "
+@   html "<a href=''$baseurl/setup_ulist''>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href="$baseurl/login">Logout</a> "
+@   html "<a href=''$baseurl/login''>Logout</a> "
 @ } else {
-@   html "<a href="$baseurl/login">Login</a> "
+@   html "<a href=''$baseurl/login''>Login</a> "
 @ }
 @ </th1></div>
 @ ');
@@ -369,7 +369,7 @@ static const char zBuiltinSkin2[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$baseurl/timeline.rss">
-@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
+@ <link rel="stylesheet" href="$baseurl/style.css?tan" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
@@ -386,33 +386,33 @@ static const char zBuiltinSkin2[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href="$baseurl$index_page">Home</a> "
+@ html "<a href=''$baseurl$index_page''>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href="$baseurl/timeline">Timeline</a> "
+@   html "<a href=''$baseurl/timeline''>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
-@   html "<a href="$baseurl/dir">Files</a> "
+@   html "<a href=''$baseurl/dir?ci=tip''>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href="$baseurl/leaves">Leaves</a> "
-@   html "<a href="$baseurl/brlist">Branches</a> "
-@   html "<a href="$baseurl/taglist">Tags</a> "
+@   html "<a href=''$baseurl/leaves''>Leaves</a> "
+@   html "<a href=''$baseurl/brlist''>Branches</a> "
+@   html "<a href=''$baseurl/taglist''>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href="$baseurl/reportlist">Tickets</a> "
+@   html "<a href=''$baseurl/reportlist''>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href="$baseurl/wiki">Wiki</a> "
+@   html "<a href=''$baseurl/wiki''>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href="$baseurl/setup">Admin</a> "
+@   html "<a href=''$baseurl/setup''>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href="$baseurl/setup_ulist">Users</a> "
+@   html "<a href=''$baseurl/setup_ulist''>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href="$baseurl/login">Logout</a> "
+@   html "<a href=''$baseurl/login''>Logout</a> "
 @ } else {
-@   html "<a href="$baseurl/login">Login</a> "
+@   html "<a href=''$baseurl/login''>Login</a> "
 @ }
 @ </th1></div>
 @ ');
@@ -516,7 +516,7 @@ static const char zBuiltinSkin3[] =
 @   background-color: #333;
 @ }
 @ 
-@ /* Container for the sub-menu and content so they don"t spread
+@ /* Container for the sub-menu and content so they don''t spread
 @ ** out underneath the main menu */
 @ #container {
 @   padding-left: 9em;
@@ -602,7 +602,7 @@ static const char zBuiltinSkin3[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$baseurl/timeline.rss">
-@ <link rel="stylesheet" href="$baseurl/style.css" type="text/css"
+@ <link rel="stylesheet" href="$baseurl/style.css?black2" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
@@ -621,33 +621,33 @@ static const char zBuiltinSkin3[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><ul><th1>
-@ html "<li><a href="$baseurl$index_page">Home</a></li>"
+@ html "<li><a href=''$baseurl$index_page''>Home</a></li>"
 @ if {[anycap jor]} {
-@   html "<li><a href="$baseurl/timeline">Timeline</a></li>"
+@   html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
 @ }
 @ if {[hascap oh]} {
-@   html "<li><a href="$baseurl/dir">Files</a></li>"
+@   html "<li><a href=''$baseurl/dir?ci=tip''>Files</a></li>"
 @ }
 @ if {[hascap o]} {
-@   html "<li><a href="$baseurl/leaves">Leaves</a></li>"
-@   html "<li><a href="$baseurl/brlist">Branches</a></li>"
-@   html "<li><a href="$baseurl/taglist">Tags</a></li>"
+@   html "<li><a href=''$baseurl/leaves''>Leaves</a></li>"
+@   html "<li><a href=''$baseurl/brlist''>Branches</a></li>"
+@   html "<li><a href=''$baseurl/taglist''>Tags</a></li>"
 @ }
 @ if {[hascap r]} {
-@   html "<li><a href="$baseurl/reportlist">Tickets</a></li>"
+@   html "<li><a href=''$baseurl/reportlist''>Tickets</a></li>"
 @ }
 @ if {[hascap j]} {
-@   html "<li><a href="$baseurl/wiki">Wiki</a></li>"
+@   html "<li><a href=''$baseurl/wiki''>Wiki</a></li>"
 @ }
 @ if {[hascap s]} {
-@   html "<li><a href="$baseurl/setup">Admin</a></li>"
+@   html "<li><a href=''$baseurl/setup''>Admin</a></li>"
 @ } elseif {[hascap a]} {
-@   html "<li><a href="$baseurl/setup_ulist">Users</a></li>"
+@   html "<li><a href=''$baseurl/setup_ulist''>Users</a></li>"
 @ }
 @ if {[info exists login]} {
-@   html "<li><a href="$baseurl/login">Logout</a></li>"
+@   html "<li><a href=''$baseurl/login''>Logout</a></li>"
 @ } else {
-@   html "<li><a href="$baseurl/login">Login</a></li>"
+@   html "<li><a href=''$baseurl/login''>Login</a></li>"
 @ }
 @ </th1></ul></div>
 @ <div id="container">

@@ -36,9 +36,6 @@ the top of the page.</p></li>
 link.  Note that you must successfully log in as "anonymous" in step 1
 above in order to see the link to the detailed version information.</p></li>
 
-<li><p>On the version information page, click on the "[details]" hyperlink
-that appears right after the check-in comment at the top of the page.</p>
-
 <li><p>Finally, click on the
 "Zip Archive" link.  This link will build a ZIP archive of the 
 complete source code and download it to your browser.
@@ -56,7 +53,7 @@ in the top-level folder of that directory</p></li>
 
 <li><p><b>(Optional:)</b>
 Edit the Makefile to set it up like you want.  You probably do not
-need to do anything.  Do not be intimidated:  There are only 5
+need to do anything.  Do not be intimidated:  There are less than 10
 variables in the makefile that can be changed.  The whole Makefile
 is only a few dozen lines long and most of those lines are comments.</p>
 

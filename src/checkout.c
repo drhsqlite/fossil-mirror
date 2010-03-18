@@ -97,6 +97,14 @@ void load_vfile_from_rid(int vid){
 }
 
 /*
+** Set or clear the vfile.isexe flag for a file.
+*/
+static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
+  db_multi_exec("UPDATE vfile SET isexe=%d WHERE vid=%d and pathname=%Q",
+                onoff, vid, zFilename);
+}
+
+/*
 ** Read the manifest file given by vid out of the repository
 ** and store it in the root of the local check-out.
 */
@@ -130,6 +138,7 @@ void manifest_to_disk(int vid){
     blob_append(&filename, m.aFile[i].zName, -1);
     isExe = m.aFile[i].zPerm && strstr(m.aFile[i].zPerm, "x");
     file_setexe(blob_str(&filename), isExe);
+    set_or_clear_isexe(m.aFile[i].zName, vid, isExe);
     blob_resize(&filename, baseLen);
   }
   blob_reset(&filename);

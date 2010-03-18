@@ -60,8 +60,8 @@ or "<b>fossil ui</b>"
 command line and is intended to show what the documentation you are currently
 editing looks like before you check it in.
 
-Finally, the <i>&lt;filename&gt;</i> element of the URL is the full
-pathname of the documentation file starting from the root of the source
+Finally, the <i>&lt;filename&gt;</i> element of the URL is the
+pathname of the documentation file relative to the root of the source
 tree.
 
 The mimetype (and thus the rendering) of documentation files is 
@@ -112,10 +112,25 @@ check-in [9be1b00392], simply replace the "<b>/tip/</b>" with
 "<b>/9be1b00392/</b>".  You can also substitute the symbolic name
 for a particular version or branch.  For example, you might
 replace "<b>/tip/</b>" with "<b>/trunk/</b>" to get the latest
-version of this document in the "trunk" branch.  (As of this writing,
-the self-hosting fossil repository only has a single branch "trunk" and
-so "trunk" and "tip" amount to the same thing, but they would be different
-in a project with multiple branches.)
+version of this document in the "trunk" branch.  The symbolic name
+can also be a date and time string in any of the following formats:</p>
+
+<ul>
+<li> <i>YYYY-MM-DD</i>
+<li> <i>YYYY-MM-DD</i><b>T</b><i>HH:MM</i>
+<li> <i>YYYY-MM-DD</i><b>T</b><i>HH:MM:SS</i>
+</ul>
+
+When the symbolic name is a date and time, fossil shows the version 
+of the document that was most recently checked in as of the date
+and time specified.  So, for example, to see what the fossil website
+looked like at the beginning of 2010, enter:
+
+<blockquote>
+<a href="http://www.fossil-scm.org/index.html/doc/2010-01-01/www/index.wiki">
+http://www.fossil-scm.org/index.html/doc/<b>2010-01-01</b>/www/index.wiki
+</a>
+</blockquote>
 
 The file that encodes this document is stored in the fossil source tree under
 the name "<b>www/embeddeddoc.wiki</b>" and so that name forms the

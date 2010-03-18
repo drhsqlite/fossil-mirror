@@ -132,6 +132,7 @@ struct Global {
   int okNewTkt;           /* n: create new tickets */
   int okApndTkt;          /* c: append to tickets via the web */
   int okWrTkt;            /* w: make changes to tickets via web */
+  int okAttach;           /* b: add attachments */
   int okTktFmt;           /* t: create new ticket report formats */
   int okRdAddr;           /* e: read email addresses or other private data */
   int okZip;              /* z: download zipped artifact via /zip URL */

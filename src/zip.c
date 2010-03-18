@@ -380,19 +380,38 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
 }
 
 /*
-** COMMAND: test-baseline-zip
+** COMMAND: zip
 **
-** Generate a ZIP archive for a specified baseline.
+** Usage: %fossil zip VERSION OUTPUTFILE [--name DIRECTORYNAME]
+**
+** Generate a ZIP archive for a specified version.  If the --name option is
+** used, it argument becomes the name of the top-level directory in the
+** resulting ZIP archive.  If --name is omitted, the top-level directory
+** named is derived from the project name, the check-in date and time, and
+** the artifact ID of the check-in.
 */
 void baseline_zip_cmd(void){
   int rid;
   Blob zip;
+  const char *zName;
+  zName = find_option("name", 0, 1);
+  db_find_and_open_repository(1);
   if( g.argc!=4 ){
-    usage("UUID ZIPFILE");
+    usage("VERSION OUTPUTFILE");
   }
-  db_must_be_within_tree();
   rid = name_to_rid(g.argv[2]);
-  zip_of_baseline(rid, &zip, g.argv[2]);
+  if( zName==0 ){
+    zName = db_text("default-name",
+       "SELECT replace(%Q,' ','_') "
+          " || strftime('_%%Y-%%m-%%d_%%H%%M%%S_', event.mtime) "
+          " || substr(blob.uuid, 1, 10)"
+       "  FROM event, blob"
+       " WHERE event.objid=%d"
+       "   AND blob.rid=%d",
+       db_get("project-name", "unnamed"), rid, rid
+    );
+  }
+  zip_of_baseline(rid, &zip, zName);
   blob_write_to_file(&zip, g.argv[3]);
 }
 

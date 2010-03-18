@@ -197,8 +197,62 @@ void ls_cmd(void){
 }
 
 /*
+** Construct and return a string which is an SQL expression that will
+** be TRUE if value zVal matches any of the GLOB expressions in the list
+** zGlobList.  For example:
+**
+**    zVal:       "x"
+**    zGlobList:  "*.o,*.obj"
+**
+**    Result:     "(x GLOB '*.o' OR x GLOB '*.obj')"
+**
+** Each element of the GLOB list may optionally be enclosed in either '...'
+** or "...".  This allows commas in the expression.  Whitespace at the
+** beginning and end of each GLOB pattern is ignored, except when enclosed
+** within '...' or "...".
+**
+** This routine makes no effort to free the memory space it uses.
+*/
+char *glob_expr(const char *zVal, const char *zGlobList){
+  Blob expr;
+  char *zSep = "(";
+  int nTerm = 0;
+  int i;
+  int cTerm;
+
+  if( zGlobList==0 || zGlobList[0]==0 ) return "0";
+  blob_zero(&expr);
+  while( zGlobList[0] ){
+    while( isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
+    if( zGlobList[0]==0 ) break;
+    if( zGlobList[0]=='\'' || zGlobList[0]=='"' ){
+      cTerm = zGlobList[0];
+      zGlobList++;
+    }else{
+      cTerm = ',';
+    }
+    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
+    if( cTerm==',' ){
+      while( i>0 && isspace(zGlobList[i-1]) ){ i--; }
+    }
+    blob_appendf(&expr, "%s%s GLOB '%.*q'", zSep, zVal, i, zGlobList);
+    zSep = " OR ";
+    if( cTerm!=',' && zGlobList[i] ) i++;
+    zGlobList += i;
+    if( zGlobList[0] ) zGlobList++;
+    nTerm++;
+  }
+  if( nTerm ){
+    blob_appendf(&expr, ")");
+    return blob_str(&expr);
+  }else{
+    return "0";
+  }
+}
+
+/*
 ** COMMAND: extras
-** Usage: %fossil extras ?--dotfiles?
+** Usage: %fossil extras ?--dotfiles? ?--ignore GLOBPATTERN?
 **
 ** Print a list of all files in the source tree that are not part of
 ** the current checkout.  See also the "clean" command.
@@ -211,16 +265,24 @@ void extra_cmd(void){
   Blob repo;
   Stmt q;
   int n;
+  const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
+
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
+  if( zIgnoreFlag==0 ){
+    zIgnoreFlag = db_get("ignore-glob", 0);
+  }
   vfile_scan(0, &path, blob_size(&path), allFlag);
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_')"
-      " ORDER BY 1");
+      "   AND NOT %s"
+      " ORDER BY 1",
+      glob_expr("x", zIgnoreFlag)
+  );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
@@ -685,7 +747,7 @@ void commit_cmd(void){
   blob_appendf(&manifest, "D %s\n", zDate);
   zDate[10] = ' ';
   db_prepare(&q,
-    "SELECT pathname, uuid, origname, blob.rid"
+    "SELECT pathname, uuid, origname, blob.rid, isexe"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
     " WHERE NOT deleted AND vfile.vid=%d"
     " ORDER BY 1", vid);
@@ -697,9 +759,16 @@ void commit_cmd(void){
     const char *zUuid = db_column_text(&q, 1);
     const char *zOrig = db_column_text(&q, 2);
     int frid = db_column_int(&q, 3);
+    int isexe = db_column_int(&q, 4);
     const char *zPerm;
     blob_append(&filename, zName, -1);
-    if( file_isexe(blob_str(&filename)) ){
+#ifndef __MINGW32__
+    /* For unix, extract the "executable" permission bit directly from
+    ** the filesystem.  On windows, the "executable" bit is retained
+    ** unchanged from the original. */
+    isexe = file_isexe(blob_str(&filename));
+#endif
+    if( isexe ){
       zPerm = " x";
     }else{
       zPerm = "";

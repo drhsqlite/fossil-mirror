@@ -150,16 +150,3 @@ web interface looks like this:
 As always, you'll want to adjust the pathnames to whatever is appropriate
 for your system.  The xinetd setup uses a different syntax but follows
 the same idea.
-
-Once you have your new repository running on the network server, delete
-the original repository from your local machine, then clone the repository
-off of the server:
-
-  <b>fossil clone http://user:password@myserver.org/cgi-bin/my-project</b>
-
-(As always, adjust the URL as appropriate for your installation.)
-After copying a repository, it is important to reclone it onto new machines.
-Each repository has a random "repository ID" and repositories will not
-sync with another repository having the same ID (to avoid sync loops).
-Cloning the repository will give you a new repository ID in your local
-copy and allow you to sync with the server.

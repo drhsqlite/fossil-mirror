@@ -371,6 +371,19 @@ struct Renderer {
   } *aStack;
 };
 
+/*
+** Return TRUE if HTML should be used as the sole markup language for wiki.
+**
+** On first invocation, this routine consults the "wiki-use-html" setting.
+** It caches the result for subsequent invocations, under the assumption
+** that the setting will not change.
+*/
+static int wikiUsesHtml(void){
+  static int r = -1;
+  if( r<0 ) r = db_get_boolean("wiki-use-html", 0);
+  return r;
+}
+
 
 /*
 ** z points to a "<" character.  Check to see if this is the start of
@@ -622,7 +635,6 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
 ** z points to the start of a token.  Return the number of
 ** characters in that token. Write the token type into *pTokenType.
 */
-
 static int nextRawToken(const char *z, Renderer *p, int *pTokenType){
   int n;
   if( z[0]=='[' && (n = linkLength(z))>0 ){
@@ -780,7 +792,7 @@ static void popStack(Renderer *p){
     int iCode;
     p->nStack--;
     iCode = p->aStack[p->nStack].iCode;
-    if( iCode!=MARKUP_DIV ){
+    if( iCode!=MARKUP_DIV && p->pOut ){
       blob_appendf(p->pOut, "</%s>", aMarkup[iCode].zName);
     }
   }
@@ -1393,7 +1405,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   }else{
     renderer.wantAutoParagraph = 1;
   }
-  if( db_get_int("wiki-use-html", 0) ){
+  if( wikiUsesHtml() ){
     renderer.state |= WIKI_USE_HTML;
   }
   if( pOut ){
@@ -1448,4 +1460,185 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   blob_init(pTitle, &z[iStart], i-iStart);
   blob_init(pTail, &z[i+8], -1);
   return 1;
+}
+
+/*
+** Parse text looking for wiki hyperlinks in one of the formats:
+**
+**       [target]
+**       [target|...]
+**
+** Where "target" can be either an artifact ID prefix or a wiki page
+** name.  For each such hyperlink found, add an entry to the
+** backlink table.
+*/
+void wiki_extract_links(
+  char *z,           /* The wiki text from which to extract links */
+  int srcid,         /* srcid field for new BACKLINK table entries */
+  int srctype,       /* srctype field for new BACKLINK table entries */
+  double mtime,      /* mtime field for new BACKLINK table entries */
+  int replaceFlag,   /* True first delete prior BACKLINK entries */
+  int flags          /* wiki parsing flags */
+){
+  Renderer renderer;
+  int tokenType;
+  ParsedMarkup markup;
+  int n;
+  int inlineOnly;
+  int wikiUseHtml = 0;
+
+  memset(&renderer, 0, sizeof(renderer));
+  renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
+  if( flags & WIKI_NOBLOCK ){
+    renderer.state |= INLINE_MARKUP_ONLY;
+  }
+  if( wikiUsesHtml() ){
+    renderer.state |= WIKI_USE_HTML;
+    wikiUseHtml = 1;
+  }
+  inlineOnly = (renderer.state & INLINE_MARKUP_ONLY)!=0;
+  if( replaceFlag ){
+    db_multi_exec("DELETE FROM backlink WHERE srctype=%d AND srcid=%d",
+                  srctype, srcid);
+  }
+
+  while( z[0] ){
+    if( wikiUseHtml ){
+      n = nextRawToken(z, &renderer, &tokenType);
+    }else{
+      n = nextWikiToken(z, &renderer, &tokenType);
+    }
+    switch( tokenType ){
+      case TOKEN_LINK: {
+        char *zTarget;
+        int i, c;
+        char zLink[42];
+
+        zTarget = &z[1];
+        for(i=0; zTarget[i] && zTarget[i]!='|' && zTarget[i]!=']'; i++){}
+        while(i>1 && zTarget[i-1]==' '){ i--; }
+        c = zTarget[i];
+        zTarget[i] = 0;
+        if( is_valid_uuid(zTarget) ){
+          memcpy(zLink, zTarget, i+1);
+          canonical16(zLink, i);
+          db_multi_exec(
+             "REPLACE INTO backlink(target,srctype,srcid,mtime)"
+             "VALUES(%Q,%d,%d,%g)", zLink, srctype, srcid, mtime
+          );
+        }
+        zTarget[i] = c;
+        break;
+      }
+      case TOKEN_MARKUP: {
+        const char *zId;
+        int iDiv;
+        parseMarkup(&markup, z);
+
+        /* Markup of the form </div id=ID> where there is a matching
+        ** ID somewhere on the stack.  Exit the verbatim if were are in
+        ** it.  Pop the stack up to the matching <div>.  Discard the
+        ** </div>
+        */
+        if( markup.iCode==MARKUP_DIV && markup.endTag &&
+             (zId = markupId(&markup))!=0 &&
+             (iDiv = findTagWithId(&renderer, MARKUP_DIV, zId))>=0
+        ){
+          if( renderer.inVerbatim ){
+            renderer.inVerbatim = 0;
+            renderer.state = renderer.preVerbState;
+          }
+          while( renderer.nStack>iDiv+1 ) popStack(&renderer);
+          if( renderer.aStack[iDiv].allowWiki ){
+            renderer.state |= ALLOW_WIKI;
+          }else{
+            renderer.state &= ~ALLOW_WIKI;
+          }
+          renderer.nStack--;
+        }else
+
+        /* If within <verbatim id=ID> ignore everything other than
+        ** </verbatim id=ID> and the </dev id=ID2> above.
+        */
+        if( renderer.inVerbatim ){
+          if( endVerbatim(&renderer, &markup) ){
+            renderer.inVerbatim = 0;
+            renderer.state = renderer.preVerbState;
+          }else{
+            n = 1;
+          }
+        }else
+
+        /* Render invalid markup literally.  The markup appears in the
+        ** final output as plain text.
+        */
+        if( markup.iCode==MARKUP_INVALID ){
+          n = 1;
+        }else
+
+        /* If the markup is not font-change markup ignore it if the
+        ** font-change-only flag is set.
+        */
+        if( (markup.iType&MUTYPE_FONT)==0 &&
+                            (renderer.state & FONT_MARKUP_ONLY)!=0 ){
+          /* Do nothing */
+        }else
+
+        if( markup.iCode==MARKUP_NOWIKI ){
+          if( markup.endTag ){
+            renderer.state |= ALLOW_WIKI;
+          }else{
+            renderer.state &= ~ALLOW_WIKI;
+          }
+        }else
+
+        /* Ignore block markup for in-line rendering.
+        */
+        if( inlineOnly && (markup.iType&MUTYPE_INLINE)==0 ){
+          /* Do nothing */
+        }else
+
+        /* Generate end-tags */
+        if( markup.endTag ){
+          popStackToTag(&renderer, markup.iCode);
+        }else
+
+        /* Push <div> markup onto the stack together with the id=ID attribute.
+        */
+        if( markup.iCode==MARKUP_DIV ){
+          pushStackWithId(&renderer, markup.iCode, markupId(&markup),
+                          (renderer.state & ALLOW_WIKI)!=0);
+        }else
+
+        /* Enter <verbatim> processing.  With verbatim enabled, all other
+        ** markup other than the corresponding end-tag with the same ID is
+        ** ignored.
+        */
+        if( markup.iCode==MARKUP_VERBATIM ){
+          int vAttrIdx, vAttrDidAppend=0;
+          renderer.zVerbatimId = 0;
+          renderer.inVerbatim = 1;
+          renderer.preVerbState = renderer.state;
+          renderer.state &= ~ALLOW_WIKI;
+          for (vAttrIdx = 0; vAttrIdx < markup.nAttr; vAttrIdx++){
+            if( markup.aAttr[vAttrIdx].iACode == ATTR_ID ){
+              renderer.zVerbatimId = markup.aAttr[0].zValue;
+            }else if( markup.aAttr[vAttrIdx].iACode == ATTR_TYPE ){
+              vAttrDidAppend=1;
+            }
+          }
+          renderer.wantAutoParagraph = 0;
+        }
+
+        /* Restore the input text to its original configuration
+        */
+        unparseMarkup(&markup);
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    z += n;
+  }
 }

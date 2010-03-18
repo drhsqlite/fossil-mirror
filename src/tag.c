@@ -202,6 +202,11 @@ int tag_insert(
   }
   if( zCol ){
     db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
+    if( tagid==TAG_COMMENT ){
+      char *zCopy = mprintf("%s", zValue);
+      wiki_extract_links(zCopy, rid, 0, mtime, 1, WIKI_INLINE);
+      free(zCopy);
+    }
   }
   if( tagid==TAG_DATE ){
     db_multi_exec("UPDATE event SET mtime=julianday(%Q) WHERE objid=%d",
@@ -565,7 +570,7 @@ void tagtimeline_page(void){
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");
   login_anonymous_available();
-  @ <h2>Check-ins with non-propagating tags:</t2>
+  @ <h2>Check-ins with non-propagating tags:</h2>
   db_prepare(&q,
     "%s AND blob.rid IN (SELECT rid FROM tagxref"
     "                     WHERE tagtype=1 AND srcid>0"

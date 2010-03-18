@@ -311,6 +311,36 @@ const char zRepositorySchema2[] =
 @ );
 @ CREATE INDEX tagxref_i1 ON tagxref(tagid, mtime);
 @
+@ -- When a hyperlink occurs from one artifact to another (for example
+@ -- when a check-in comment refers to a ticket) an entry is made in
+@ -- the following table for that hyperlink.  This table is used to
+@ -- facilitate the display of "back links".
+@ --
+@ CREATE TABLE backlink(
+@   target TEXT,           -- Where the hyperlink points to
+@   srctype INT,           -- 0: check-in  1: ticket  2: wiki
+@   srcid INT,             -- rid for checkin or wiki.  tkt_id for ticket.
+@   mtime TIMESTAMP,       -- time that the hyperlink was added
+@   UNIQUE(target, srctype, srcid)
+@ );
+@ CREATE INDEX backlink_src ON backlink(srcid, srctype);
+@
+@ -- Each attachment is an entry in the following table.  Only
+@ -- the most recent attachment (identified by the D card) is saved.
+@ --
+@ CREATE TABLE attachment(
+@   attachid INTEGER PRIMARY KEY,   -- Local id for this attachment
+@   isLatest BOOLEAN DEFAULT 0,     -- True if this is the one to use
+@   mtime TIMESTAMP,                -- Time when attachment last changed
+@   src TEXT,                       -- UUID of the attachment.  NULL to delete
+@   target TEXT,                    -- Object attached to. Wikiname or Tkt UUID
+@   filename TEXT,                  -- Filename for the attachment
+@   comment TEXT,                   -- Comment associated with this attachment
+@   user TEXT                       -- Name of user adding attachment
+@ );
+@ CREATE INDEX attachment_idx1 ON attachment(target, filename, mtime);
+@ CREATE INDEX attachment_idx2 ON attachment(src);
+@
 @ -- Template for the TICKET table
 @ --
 @ -- NB: when changing the schema of the TICKET table here, also make the
@@ -395,6 +425,7 @@ const char zLocalSchema[] =
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
 @   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
+@   isexe BOOLEAN,                    -- True if file should be executable
 @   rid INTEGER,                      -- Originally from this repository record
 @   mrid INTEGER,                     -- Based on this record due to a merge
 @   mtime INTEGER,                    -- Modification time of file on disk

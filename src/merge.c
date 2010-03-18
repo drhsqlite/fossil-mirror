@@ -32,17 +32,27 @@
 /*
 ** COMMAND: merge
 **
-** Usage: %fossil merge [--cherrypick] VERSION
+** Usage: %fossil merge [--cherrypick] [--backout] VERSION
 **
 ** The argument is a version that should be merged into the current
 ** checkout.  All changes from VERSION back to the nearest common
-** ancestor are merged.  Except, if the --cherrypick option is used
-** only the changes associated with the single check-in VERSION are
-** merged.
+** ancestor are merged.  Except, if either of the --cherrypick or
+** --backout options are used only the changes associated with the
+** single check-in VERSION are merged.  The --backout option causes
+** the changes associated with VERSION to be removed from the current
+** checkout rather than added.
 **
 ** Only file content is merged.  The result continues to use the
-** file and directory names from the current check-out even if those
+** file and directory names from the current checkout even if those
 ** names might have been changed in the branch being merged in.
+**
+** Other options:
+**
+**   --detail                Show additional details of the merge
+**
+**   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
+**                           and do not try to merge parallel changes.  This
+**                           option overrides the "binary-glob" setting.
 */
 void merge_cmd(void){
   int vid;              /* Current version */
@@ -50,14 +60,19 @@ void merge_cmd(void){
   int pid;              /* The pivot version - most recent common ancestor */
   int detailFlag;       /* True if the --detail option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
+  int backoutFlag;      /* True if the --backout optioni is present */
+  const char *zBinGlob; /* The value of --binary */
   Stmt q;
 
   detailFlag = find_option("detail",0,0)!=0;
   pickFlag = find_option("cherrypick",0,0)!=0;
+  backoutFlag = find_option("backout",0,0)!=0;
+  zBinGlob = find_option("binary",0,1);
   if( g.argc!=3 ){
     usage("VERSION");
   }
   db_must_be_within_tree();
+  if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
@@ -69,10 +84,15 @@ void merge_cmd(void){
   if( mid>1 && !db_exists("SELECT 1 FROM plink WHERE cid=%d", mid) ){
     fossil_fatal("not a version: %s", g.argv[2]);
   }
-  if( pickFlag ){
+  if( pickFlag || backoutFlag ){
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
       fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
+    }
+    if( backoutFlag ){
+      int t = pid;
+      pid = mid;
+      mid = t;
     }
   }else{
     pivot_set_primary(mid);
@@ -231,15 +251,17 @@ void merge_cmd(void){
   ** Do a three-way merge on files that have changes pid->mid and pid->vid
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp, ridv FROM fv"
+    "SELECT ridm, idv, ridp, ridv, %s FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
-    "   AND ridm!=ridp AND (ridv!=ridp OR chnged)"
+    "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
+    glob_expr("fv.fn", zBinGlob)
   );
   while( db_step(&q)==SQLITE_ROW ){
     int ridm = db_column_int(&q, 0);
     int idv = db_column_int(&q, 1);
     int ridp = db_column_int(&q, 2);
     int ridv = db_column_int(&q, 3);
+    int isBinary = db_column_int(&q, 4);
     int rc;
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
     char *zFullPath;
@@ -256,7 +278,12 @@ void merge_cmd(void){
     content_get(ridm, &m);
     blob_zero(&v);
     blob_read_from_file(&v, zFullPath);
-    rc = blob_merge(&p, &m, &v, &r);
+    if( isBinary ){
+      rc = -1;
+      blob_zero(&r);
+    }else{
+      rc = blob_merge(&p, &m, &v, &r);
+    }
     if( rc>=0 ){
       blob_write_to_file(&r, zFullPath);
       if( rc>0 ){

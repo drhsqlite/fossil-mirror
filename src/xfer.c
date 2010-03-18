@@ -520,6 +520,7 @@ static int send_unclustered(Xfer *pXfer){
     "SELECT uuid FROM unclustered JOIN blob USING(rid)"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
     "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
@@ -538,6 +539,7 @@ static void send_all(Xfer *pXfer){
     "SELECT uuid FROM blob "
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
     "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
@@ -1066,6 +1068,7 @@ void client_sync(
     xfer.nFileSent = 0;
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
+    xfer.nIGotSent = 0;
     fflush(stdout);
     http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
     blob_reset(&send);
