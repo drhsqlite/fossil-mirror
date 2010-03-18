@@ -139,7 +139,7 @@ void attachview_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
   const char *zFile = P("file");
-  const char *zTarget;
+  const char *zTarget = 0;
   int attachid = atoi(PD("attachid","0"));
   char *zUUID;
 

@@ -371,6 +371,19 @@ struct Renderer {
   } *aStack;
 };
 
+/*
+** Return TRUE if HTML should be used as the sole markup language for wiki.
+**
+** On first invocation, this routine consults the "wiki-use-html" setting.
+** It caches the result for subsequent invocations, under the assumption
+** that the setting will not change.
+*/
+static int wikiUsesHtml(void){
+  static int r = -1;
+  if( r<0 ) r = db_get_boolean("wiki-use-html", 0);
+  return r;
+}
+
 
 /*
 ** z points to a "<" character.  Check to see if this is the start of
@@ -1392,7 +1405,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   }else{
     renderer.wantAutoParagraph = 1;
   }
-  if( db_get_int("wiki-use-html", 0) ){
+  if( wikiUsesHtml() ){
     renderer.state |= WIKI_USE_HTML;
   }
   if( pOut ){
@@ -1479,7 +1492,7 @@ void wiki_extract_links(
   if( flags & WIKI_NOBLOCK ){
     renderer.state |= INLINE_MARKUP_ONLY;
   }
-  if( db_get_int("wiki-use-html", 0) ){
+  if( wikiUsesHtml() ){
     renderer.state |= WIKI_USE_HTML;
     wikiUseHtml = 1;
   }

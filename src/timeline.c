@@ -202,10 +202,6 @@ void www_print_timeline(
     @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
 
-  db_multi_exec(
-     "CREATE TEMP TABLE IF NOT EXISTS seen(rid INTEGER PRIMARY KEY);"
-     "DELETE FROM seen;"
-  );
   @ <table cellspacing=0 border=0 cellpadding=0>
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
@@ -243,7 +239,6 @@ void www_print_timeline(
       @ <tr><td colspan=3><hr></td></tr>
       continue;
     }
-    db_multi_exec("INSERT OR IGNORE INTO seen VALUES(%d)", rid);
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td>

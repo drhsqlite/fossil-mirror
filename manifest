@@ -1,5 +1,5 @@
-C Merge\srecent\sexperimental\schanges\s(the\sattachment\senhancement\sand\sthe\s\nability\sto\sdelete\swiki)\sinto\sthe\strunk.
-D 2010-03-18T13:26:36
+C Some\sminor\sperformance\simprovements\son\stimeline.
+D 2010-03-18T13:47:32
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -36,7 +36,7 @@ F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 3384ceaf0e23ebfb1a2b252538f1e59d3a07e0c3
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
-F src/attach.c 2733d7ad3edd6428b9aac990aca8b750bdb40210
+F src/attach.c 6550aa9eae840df6582b593810c6f7869d22cd6a
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
@@ -103,7 +103,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
-F src/timeline.c 19f2bf0d5670750b0f576cb58d746e26d9ebb545
+F src/timeline.c 9167c69e3fad43d5c401b68d2466032f4d37e801
 F src/tkt.c 4636570ed656a6fa4d128e5017d365d8f252555f
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -114,7 +114,7 @@ F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
 F src/wiki.c 247e874a28b3c9147d88ac8212754f4f28b2a7e6
-F src/wikiformat.c 0a705ae0570c458aeae6bb59c0193137a17fc37e
+F src/wikiformat.c db31f4c3fe083a53b6fffcf407d0f305e602150d
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
 F src/zip.c 3494ff9729297a11078a303c5729ba106ddf4446
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 6953184210e92dc4f515bd405a35a93b10eacb1b 49e6670386005fa34186f357d0739f163cea88c6
-R 9710dede253ed1ff4e4fd577f09b0cbe
+P f4a25366a76d89dce3dc191246bbea3babb53505
+R db465d293c68022af0bed13236cba974
 U drh
-Z c13d9b900d29075d931c03757b1f9fcc
+Z c576ad28e15b6ee4c073cf4a7ad658c0
