@@ -181,8 +181,9 @@ void wiki_page(void){
       Blob content;
       content_get(rid, &content);
       manifest_parse(&m, &content);
-      if( m.type==CFTYPE_WIKI ){
-        zBody = m.zWiki;
+      if( m.type==CFTYPE_WIKI && m.zWiki ){
+        while( isspace(m.zWiki[0]) ) m.zWiki++;
+        if( m.zWiki[0] ) zBody = m.zWiki;
       }
     }
   }
@@ -191,7 +192,7 @@ void wiki_page(void){
       style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
            g.zTop, zPageName);
     }
-    if( rid && g.okWrWiki && g.okAttach ){
+    if( rid && g.okApndWiki && g.okAttach ){
       style_submenu_element("Attach", "Add An Attachment",
            "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
@@ -225,7 +226,11 @@ void wiki_page(void){
       @ <ul>
     }
     cnt++;
-    @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+    if( g.okHistory ){
+      @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+    }else{
+      @ <li>
+    }
     @ %h(zFile)</a> add by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.okWrWiki && g.okAttach ){
