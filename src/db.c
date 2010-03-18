@@ -519,6 +519,10 @@ char *db_text(char *zDefault, const char *zSql, ...){
   return z;
 }
 
+#ifdef __MINGW32__
+extern char *sqlite3_win32_mbcs_to_utf8(const char*);
+#endif
+
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.

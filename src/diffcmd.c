@@ -51,7 +51,7 @@ static void shell_escape(Blob *pBlob, const char *zIn){
 /*
 ** This function implements a cross-platform "system()" interface.
 */
-int portable_system(char *zOrigCmd){
+int portable_system(const char *zOrigCmd){
   int rc;
 #ifdef __MINGW32__
   /* On windows, we have to put double-quotes around the entire command.

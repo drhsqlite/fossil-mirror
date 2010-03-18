@@ -139,9 +139,9 @@ end_request:
 */
 void win32_http_server(
   int mnPort, int mxPort,   /* Range of allowed TCP port numbers */
-  char *zBrowser,           /* Command to launch browser.  (Or NULL) */
-  char *zStopper,           /* Stop server when this file is exists (Or NULL) */
-  char *zNotFound           /* The --notfound option, or NULL */
+  const char *zBrowser,     /* Command to launch browser.  (Or NULL) */
+  const char *zStopper,     /* Stop server when this file is exists (Or NULL) */
+  const char *zNotFound     /* The --notfound option, or NULL */
 ){
   WSADATA wd;
   SOCKET s = INVALID_SOCKET;
