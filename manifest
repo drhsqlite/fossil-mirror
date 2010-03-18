@@ -1,5 +1,5 @@
-C Update\sthe\sscript\sthat\sbuilds\sthe\sdownload\spage.
-D 2010-03-18T14:28:36
+C Make\ssure\sthat\s"Setup"\sand\s"Admin"\sprivileges\simply\s'Append-Tkt'\sprivilege.
+D 2010-03-18T16:27:48
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -68,7 +68,7 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c 6ccf198d8ccf4b67008cca1930877c4591ab69af
-F src/login.c c2a93b5e1e55a08dbd19c4d1db06c3edf56da00f
+F src/login.c 648e5df11b573da720174e16acf16f35fb048489
 F src/main.c 0384dca978440cd35ed50743335545af6e7679bb
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 73c24ae363ee1b2234a3e322df124577ab3c7dcf
-R 95b6b06063965c8e1f883a37af9d9cc0
+P d5f6a272e91f312a3823c8af7e66c93a0905e306
+R 8d15eafa9ae6cb7c6d53a996caa66950
 U drh
-Z 7319154baeb5e3c4676a2ddc83b8b797
+Z 10c7b57be2d5f12b0e04d0eb49733273

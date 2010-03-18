@@ -478,7 +478,7 @@ void login_set_capabilities(const char *zCap){
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
                               g.okNewTkt = g.okPassword = g.okRdAddr =
-                              g.okTktFmt = g.okAttach = 1;
+                              g.okTktFmt = g.okAttach = g.okApndTkt = 1;
                               /* Fall thru into Read/Write */
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;
