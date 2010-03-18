@@ -1082,7 +1082,10 @@ int manifest_crosslink(int rid, Blob *pContent){
     int tagid = tag_findid(zTag, 1);
     int prior;
     char *zComment;
-    tag_insert(zTag, 1, 0, rid, m.rDate, rid);
+    char zLength[40];
+    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    sqlite3_snprintf(sizeof(zLength), zLength, "%d", strlen(m.zWiki));
+    tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
     free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"

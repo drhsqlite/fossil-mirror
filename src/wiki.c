@@ -647,21 +647,38 @@ void wdiff_page(void){
 /*
 ** WEBPAGE: wcontent
 **
+**     all=1         Show deleted pages
+**
 ** List all available wiki pages with date created and last modified.
 */
 void wcontent_page(void){
   Stmt q;
+  int showAll = P("all")!=0;
+
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
   style_header("Available Wiki Pages");
+  if( showAll ){
+    style_submenu_element("Active", "Only Active Pages", "%s/wcontent", g.zTop);
+  }else{
+    style_submenu_element("All", "All", "%s/wcontent?all=1", g.zTop);
+  }
   @ <ul>
   db_prepare(&q, 
-    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname GLOB 'wiki-*'"
+    "SELECT"
+    "  substr(tagname, 6),"
+    "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC)"
+    "  FROM tag WHERE tagname GLOB 'wiki-*'"
     " ORDER BY lower(tagname)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
+    int size = db_column_int(&q, 1);
+    if( size>0 ){
+      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
+    }else if( showAll ){
+      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)"><s>%h(zName)</s></a></li>
+    }
   }
   db_finalize(&q);
   @ </ul>

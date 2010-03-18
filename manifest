@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sdelete\sattachments\sand\sfix\sissues\swith\stimelines.
-D 2010-03-18T02:11:47
+C Show\sonly\snon-empty\swiki\spages\sin\sthe\slist\sof\sall\swiki\spages.\nA\srebuild\sis\srequired\safter\supdating\sin\sorder\sfor\sthis\sfeature\sto\swork.
+D 2010-03-18T10:39:31
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -74,7 +74,7 @@ F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 9835d0c5cce980d423010688326e29e910e5a431
-F src/manifest.c a22509713bed5a64cb14dad7c498484ba93ee8f8
+F src/manifest.c 6f78ec7f5d87ae0fe77c0bbdb91a8b1032ca4c07
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c b7d15ae3ad17eff81e44724445e792bddb5a199f
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
@@ -113,7 +113,7 @@ F src/url.c ec953a0a01c2eba0e8dea94fac7a3bdd0bec3bf3
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
-F src/wiki.c e480b93f5d60a187375bdb7990cd475317f9a3bf
+F src/wiki.c 247e874a28b3c9147d88ac8212754f4f28b2a7e6
 F src/wikiformat.c 0a705ae0570c458aeae6bb59c0193137a17fc37e
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 2978e43005ad40fdb3af7bbc0e5df9a87360bad7
-R c1c6f4b94b64b42e0ce3739bc1f1d0e9
+P 01c0180b3f084975f5fbb9f251681df02f694fb5
+R ad7568b4ab0e669cdce769cd941e7877
 U drh
-Z 2a239275c02b14e74b4a956b5649d8d3
+Z 23b1389c3e2295c6d0f3d94df195dd18
