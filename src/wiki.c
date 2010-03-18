@@ -193,7 +193,8 @@ void wiki_page(void){
     }
     if( rid && g.okWrWiki && g.okAttach ){
       style_submenu_element("Attach", "Add An Attachment",
-           "%s/attachadd?page=%T", g.zTop, zPageName);
+           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
+           g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.okApndWiki ){
       style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
@@ -212,7 +213,7 @@ void wiki_page(void){
   db_prepare(&q,
      "SELECT datetime(mtime,'localtime'), filename, user"
      "  FROM attachment"
-     " WHERE isLatest AND src NOT NULL AND target=%Q"
+     " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC",
      zPageName);
   while( db_step(&q)==SQLITE_ROW ){
@@ -226,7 +227,10 @@ void wiki_page(void){
     cnt++;
     @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
     @ %h(zFile)</a> add by %h(zUser) on
-    hyperlink_to_date(zDate, ".</li>");
+    hyperlink_to_date(zDate, ".");
+    if( g.okWrWiki && g.okAttach ){
+      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&file=%t(zFile)&from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
+    }
   }
   if( cnt ){
     @ </ul>
@@ -549,7 +553,9 @@ static const char *zWikiPageName;
 ** a wiki history listing.
 */
 static void wiki_history_extra(int rid){
-  @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
+  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
+    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
+  }
 }
 
 /*

@@ -1,5 +1,5 @@
-C Show\sattachment\sin\stimelines.
-D 2010-03-18T01:09:51
+C Add\sthe\sability\sto\sdelete\sattachments\sand\sfix\sissues\swith\stimelines.
+D 2010-03-18T02:11:47
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -36,7 +36,7 @@ F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 3384ceaf0e23ebfb1a2b252538f1e59d3a07e0c3
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
-F src/attach.c e2a776afc8d35da41b3512f1f560e9c9b7981d32
+F src/attach.c 2733d7ad3edd6428b9aac990aca8b750bdb40210
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
@@ -74,7 +74,7 @@ F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 9835d0c5cce980d423010688326e29e910e5a431
-F src/manifest.c 981f6c7c6fd946c0f58d8768d8c981291b027b0e
+F src/manifest.c a22509713bed5a64cb14dad7c498484ba93ee8f8
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c b7d15ae3ad17eff81e44724445e792bddb5a199f
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
@@ -104,7 +104,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
 F src/timeline.c 208f09107e8ddfe706fb70a12e5607d631933954
-F src/tkt.c c7415852fdef487ed6e752662bd056d0e541649f
+F src/tkt.c 27ab16dc3d08437be3be20d55c43ba5a88f3a77e
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
 F src/undo.c f8b66301dac48f91a2467c7bebf5dc9bdd13b5a0
@@ -113,7 +113,7 @@ F src/url.c ec953a0a01c2eba0e8dea94fac7a3bdd0bec3bf3
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
-F src/wiki.c b8a45b12f86acd7b624b5c4968e0a89db48c3bce
+F src/wiki.c e480b93f5d60a187375bdb7990cd475317f9a3bf
 F src/wikiformat.c 0a705ae0570c458aeae6bb59c0193137a17fc37e
 F src/winhttp.c bca40f8f4e87a46f911324ef5fd439e1a51ee265
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 931f8895c650aec132a9d0acd17bbf82d40b4d2f
-R cdc1ec4e1c26988cdf42e745a87a5830
+P 2978e43005ad40fdb3af7bbc0e5df9a87360bad7
+R c1c6f4b94b64b42e0ce3739bc1f1d0e9
 U drh
-Z 6267f3860a1768768279a6a2f387a9a0
+Z 2a239275c02b14e74b4a956b5649d8d3

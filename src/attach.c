@@ -66,7 +66,7 @@ void attachlist_page(void){
   db_prepare(&q, "%s", blob_str(&sql));
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
-    /* const char *zSrc = db_column_text(&q, 1); */
+    const char *zSrc = db_column_text(&q, 1);
     const char *zTarget = db_column_text(&q, 2);
     const char *zFilename = db_column_text(&q, 3);
     const char *zComment = db_column_text(&q, 4);
@@ -87,20 +87,32 @@ void attachlist_page(void){
     @
     @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br>
-    @ %w(zComment)<br>
+    if( zComment ) while( isspace(zComment[0]) ) zComment++;
+    if( zComment && zComment[0] ){
+      @ %w(zComment)<br>
+    }
     if( zPage==0 && zTkt==0 ){
+      if( zSrc==0 || zSrc[0]==0 ){
+        zSrc = "Deleted from";
+      }else {
+        zSrc = "Added to";
+      }
       if( strlen(zTarget)==UUID_SIZE && validate16(zTarget, UUID_SIZE) ){
         char zShort[20];
         memcpy(zShort, zTarget, 10);
         zShort[10] = 0;
-        @ Added to ticket <a href="%s(g.zTop)/tktview?name=%s(zTarget)">
+        @ %s(zSrc) ticket <a href="%s(g.zTop)/tktview?name=%s(zTarget)">
         @ %s(zShort)</a>
       }else{
-        @ Added to wiki page <a href="%s(g.zTop)/wiki?name=%t(zTarget)">
+        @ %s(zSrc) wiki page <a href="%s(g.zTop)/wiki?name=%t(zTarget)">
         @ %h(zTarget)</a>
       }
     }else{
-      @ Add
+      if( zSrc==0 || zSrc[0]==0 ){
+        @ Deleted
+      }else {
+        @ Added
+      }
     }
     @ by %h(zUser) on
     hyperlink_to_date(zDate, ".");
@@ -157,7 +169,7 @@ void attachview_page(void){
        zTarget, zFile
     );
   }
-  if( zUUID==0 ){
+  if( zUUID==0 || zUUID[0]==0 ){
     style_header("No Such Attachment");
     @ No such attachment....
     style_footer();
@@ -178,6 +190,7 @@ void attachview_page(void){
   }
 }
 
+
 /*
 ** WEBPAGE: attachadd
 **
@@ -190,7 +203,7 @@ void attachview_page(void){
 void attachadd_page(void){
   const char *zPage = P("page");
   const char *zTkt = P("tkt");
-  const char *zFrom = PD("from", "/home");
+  const char *zFrom = P("from");
   const char *aContent = P("f");
   const char *zName = PD("f:filename","unknown");
   const char *zTarget;
@@ -217,6 +230,10 @@ void attachadd_page(void){
     zTarget = zTkt;
     zTargetType = mprintf("Ticket <a href=\"%s/tktview?name=%.10s\">%.10s</a>",
                           g.zTop, zTkt, zTkt);
+  }
+  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
+  if( P("cancel") ){
+    cgi_redirect(zFrom);
   }
   if( P("ok") && szContent>0 ){
     Blob content;
@@ -272,7 +289,85 @@ void attachadd_page(void){
   }
   @ <input type="hidden" name="from" value="%h(zFrom)">
   @ <input type="submit" name="ok" value="Add Attachment">
-  @ <input type="submit" name="can" value="Cancel">
+  @ <input type="submit" name="cancel" value="Cancel">
   @ </form>
   style_footer();
+}
+
+
+/*
+** WEBPAGE: attachdelete
+**
+**    tkt=TICKETUUID
+**    page=WIKIPAGE
+**    file=FILENAME
+**
+** "Delete" an attachment.  Because objects in Fossil are immutable
+** the attachment isn't really deleted.  Instead, we change the content
+** of the attachment to NULL, which the system understands as being
+** deleted.  Historical values of the attachment are preserved.
+*/
+void attachdel_page(void){
+  const char *zPage = P("page");
+  const char *zTkt = P("tkt");
+  const char *zFile = P("file");
+  const char *zFrom = P("from");
+  const char *zTarget;
+
+  if( zPage && zTkt ) fossil_redirect_home();
+  if( zPage==0 && zTkt==0 ) fossil_redirect_home();
+  if( zFile==0 ) fossil_redirect_home();
+  login_check_credentials();
+  if( zPage ){
+    if( g.okWrWiki==0 || g.okAttach==0 ) login_needed();
+    zTarget = zPage;
+  }else{
+    if( g.okWrTkt==0 || g.okAttach==0 ) login_needed();
+    zTarget = zTkt;
+  }
+  if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
+  if( P("cancel") ){
+    cgi_redirect(zFrom);
+  }
+  if( P("confirm") ){
+    int i, n, rid;
+    char *zDate;
+    Blob manifest;
+    Blob cksum;
+
+    db_begin_transaction();
+    blob_zero(&manifest);
+    for(i=n=0; zFile[i]; i++){
+      if( zFile[i]=='/' || zFile[i]=='\\' ) n = i;
+    }
+    zFile += n;
+    if( zFile[0]==0 ) zFile = "unknown";
+    blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
+    zDate = db_text(0, "SELECT datetime('now')");
+    zDate[10] = 'T';
+    blob_appendf(&manifest, "D %s\n", zDate);
+    blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
+    md5sum_blob(&manifest, &cksum);
+    blob_appendf(&manifest, "Z %b\n", &cksum);
+    rid = content_put(&manifest, 0, 0);
+    manifest_crosslink(rid, &manifest);
+    db_end_transaction(0);
+    cgi_redirect(zFrom);
+  }    
+  style_header("Delete Attachment");
+  @ <form action="%s(g.zBaseURL)/attachdelete" method="POST">
+  @ <p>Confirm that you want to delete the attachment named
+  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br>
+  if( zTkt ){
+    @ <input type="hidden" name="tkt" value="%h(zTkt)">
+  }else{
+    @ <input type="hidden" name="page" value="%h(zPage)">
+  }
+  @ <input type="hidden" name="file" value="%h(zFile)">
+  @ <input type="hidden" name="from" value="%h(zFrom)">
+  @ <input type="submit" name="confirm" value="Delete">
+  @ <input type="submit" name="cancel" value="Cancel">
+  @ </form>
+  style_footer();
+
 }

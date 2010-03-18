@@ -1138,11 +1138,13 @@ int manifest_crosslink(int rid, Blob *pContent){
     if( strlen(m.zAttachTarget)!=UUID_SIZE
      || !validate16(m.zAttachTarget, UUID_SIZE) 
     ){
-      char *zTag = mprintf("wiki-%s", m.zAttachTarget);
       char *zComment;
+#if 0
+      char *zTag = mprintf("wiki-%s", m.zAttachTarget);
       tag_findid(zTag, 1);
       free(zTag);
-      if( m.zAttachSrc ){
+#endif
+      if( m.zAttachSrc && m.zAttachSrc[0] ){
         zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
              m.zAttachName, m.zAttachTarget);
       }else{
@@ -1152,6 +1154,21 @@ int manifest_crosslink(int rid, Blob *pContent){
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('w',%.17g,%d,%Q,%Q)",
+        m.rDate, rid, m.zUser, zComment
+      );
+      free(zComment);
+    }else{
+      char *zComment;
+      if( m.zAttachSrc && m.zAttachSrc[0] ){
+        zComment = mprintf("Add attachment \"%h\" to ticket [%.10s]",
+             m.zAttachName, m.zAttachTarget);
+      }else{
+        zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
+             m.zAttachName, m.zAttachTarget);
+      }
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,user,comment)"
+        "VALUES('t',%.17g,%d,%Q,%Q)",
         m.rDate, rid, m.zUser, zComment
       );
       free(zComment);

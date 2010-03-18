@@ -244,6 +244,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   }
   db_finalize(&q);
 
+#if 0
   db_prepare(&q,
     "SELECT attachid, mtime, src IS NULL, filename, user"
     "  FROM attachment"
@@ -273,6 +274,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
     free(zCom);
   }
   db_finalize(&q);
+#endif
 }
 
 /*
@@ -351,7 +353,8 @@ void tktview_page(void){
   }
   if( g.okApndTkt && g.okAttach ){
     style_submenu_element("Attach", "Add An Attachment",
-        "%s/attachadd?tkt=%T", g.zTop, zUuid);
+        "%s/attachadd?tkt=%T&from=%s/tktview%%3fname=%t",
+        g.zTop, zUuid, g.zTop, zUuid);
   }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
@@ -371,7 +374,7 @@ void tktview_page(void){
     db_prepare(&q,
        "SELECT datetime(mtime,'localtime'), filename, user"
        "  FROM attachment"
-       " WHERE isLatest AND src NOT NULL AND target=%Q"
+       " WHERE isLatest AND src!='' AND target=%Q"
        " ORDER BY mtime DESC",
        zFullName);
     while( db_step(&q)==SQLITE_ROW ){
@@ -385,7 +388,10 @@ void tktview_page(void){
       cnt++;
       @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&file=%t(zFile)">
       @ %h(zFile)</a> add by %h(zUser) on
-      hyperlink_to_date(zDate, ".</li>");
+      hyperlink_to_date(zDate, ".");
+      if( g.okWrTkt && g.okAttach ){
+        @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&file=%t(zFile)&from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
+      }
     }
     if( cnt ){
       @ </ul>
@@ -767,8 +773,7 @@ void tkthistory_page(void){
     " UNION "
     "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
     "  FROM attachment, blob"
-    " WHERE isLatest AND target=(SELECT substr(tagname,5) FROM tag"
-                                " WHERE tagid=%d)"
+    " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
     "   AND blob.rid=attachid"
     " ORDER BY 1 DESC",
     tagid, tagid
@@ -786,7 +791,7 @@ void tkthistory_page(void){
     if( zFile!=0 ){
       const char *zSrc = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 5);
-      if( zSrc==0 ){
+      if( zSrc==0 || zSrc[0]==0 ){
         @ 
         @ <p>Delete attachment "%h(zFile)"
       }else{
