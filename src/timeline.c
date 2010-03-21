@@ -677,8 +677,8 @@ void page_timeline(void){
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
   int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
-  int p_rid = atoi(PD("p","0"));     /* artifact p and its parents */
-  int d_rid = atoi(PD("d","0"));     /* artifact d and its descendants */
+  int p_rid = name_to_rid(P("p"));   /* artifact p and its parents */
+  int d_rid = name_to_rid(P("d"));    /* artifact d and its descendants */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */

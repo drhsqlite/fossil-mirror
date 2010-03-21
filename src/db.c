@@ -846,6 +846,10 @@ void db_close(void){
   g.localOpen = 0;
   g.configOpen = 0;
   sqlite3_close(g.db);
+  if(g.dbConfig) {
+    sqlite3_close(g.dbConfig);
+    g.configOpen = 0;
+  }
   g.db = 0;
 }
 
@@ -1196,6 +1200,7 @@ int is_false(const char *zVal){
 void db_swap_connections(void){
   if( !g.useAttach ){
     sqlite3 *dbTemp = g.db;
+    assert( g.dbConfig!=0 );
     g.db = g.dbConfig;
     g.dbConfig = dbTemp;
   }

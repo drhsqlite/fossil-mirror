@@ -152,10 +152,10 @@ void page_dir(void){
     zShort[10] = 0;
     @ <h2>Files of check-in [<a href="vinfo?name=%T(zUuid)">%s(zShort)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%s/dir?ci=%s&name=%T", g.zBaseURL, zUuid, zPrefix);
+    zSubdirLink = mprintf("%s/dir?ci=%S&name=%T", g.zTop, zUuid, zPrefix);
     if( zD ){
-      style_submenu_element("Top", "Top", "%s/dir?ci=%s", g.zBaseURL, zUuid);
-      style_submenu_element("All", "All", "%s/dir?name=%t", g.zBaseURL, zD);
+      style_submenu_element("Top", "Top", "%s/dir?ci=%S", g.zTop, zUuid);
+      style_submenu_element("All", "All", "%s/dir?name=%t", g.zTop, zD);
     }else{
       style_submenu_element("All", "All", "%s/dir", g.zBaseURL);
     }

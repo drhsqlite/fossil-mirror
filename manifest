@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Create\snew\sbranch\snamed\s"ssl_platform_fixes"
-D 2010-03-21T22:10:28
+C Merge\sin\strunk\sand\slocal\sfixes.
+D 2010-03-21T22:14:46
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -39,11 +36,11 @@ F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 3384ceaf0e23ebfb1a2b252538f1e59d3a07e0c3
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
-F src/attach.c 6550aa9eae840df6582b593810c6f7869d22cd6a
+F src/attach.c 3a5d1aaae0ff7c7b148b601d33b2d36c30b33833
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
 F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
-F src/browse.c 62cedbb289d1e3ec116459fa17e338070d4c0894
+F src/browse.c 6b8d7798f013a93541da038b639f90ff20df04a9
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
 F src/checkin.c 5c5ed2a07e6fa7a6b99b29fda8d9419a570029ce
@@ -55,22 +52,22 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c c1f9b7c06f64b9fe33c540b8767661315b932401
+F src/db.c ba0823bceb805122dbf7fc1640a0f1a88f8f1488
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
-F src/diff.c 6039c715138bf4b01ae398f6b45758693ea025df
+F src/diff.c ab123012677d4438220b30cfac4d3cb54907097f
 F src/diffcmd.c f20bad14b44845581f45965afae2f19e5efceef6
 F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c bdaeea84bd53ee77f71a9c3a42417d373c0c1e3e
-F src/finfo.c 856d583006d6e9e709c940745d6b4618b8a81d83
+F src/finfo.c df19851114e2c3166a5eb79a2c9bbec36f8f23c6
 F src/graph.c d1787e16364af3c5e1c009346eeb5249c329da32
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
+F src/http_ssl.c a24ae7b848147fd2b58aa3d5ada223951af61a5c
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c 6ccf198d8ccf4b67008cca1930877c4591ab69af
+F src/info.c e17fd42756dd448b828a21f5cbf1992f842b04f2
 F src/login.c 648e5df11b573da720174e16acf16f35fb048489
 F src/main.c 0384dca978440cd35ed50743335545af6e7679bb
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
@@ -82,10 +79,10 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c b7d15ae3ad17eff81e44724445e792bddb5a199f
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/name.c 16af7eb9cd2b532c857a0795a59e1b4b712b476b
+F src/name.c e337336f8b57bcfbd59c5f2c4edee55e322d593c
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
-F src/printf.c 8a4feba8cf3d9bb251225fbbcda0f2c88a202dd2
+F src/printf.c 26b83508d5f0488476f0499226648c8c3fad01e3
 F src/rebuild.c a6d927091a53ebf0d8db68480c4db519a05aa686
 F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
 F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
@@ -100,13 +97,13 @@ F src/sqlite3.c 685710baff13e65bcf14a3958d4b0c49e44b412a
 F src/sqlite3.h d01493223d8fd0a614403a9d9ee994bf317f46d0
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 12d3b58ba614149ac8fad93f04c4602d483860bf
-F src/sync.c a3bcf1a97ce7618f40752f2f9d35a9a9563707cc
+F src/sync.c d86d4e444f7090ed8d0fc7c3d7fe5e5bdbb402b8
 F src/tag.c 8853a08ab87062e0523932cd98e10801ee5c4a55
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
-F src/timeline.c 9167c69e3fad43d5c401b68d2466032f4d37e801
+F src/timeline.c 6e378f36a770357bbbef1ebe882431594282e246
 F src/tkt.c 4636570ed656a6fa4d128e5017d365d8f252555f
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -266,21 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P a1b7f8e1a9bed4665fec65f002bc2fb9b99475a8
-R 8d15eafa9ae6cb7c6d53a996caa66950
-T *branch * ssl_platform_fixes
-T *sym-ssl_platform_fixes *
-T -sym-trunk *
+P 6a21088a7892c290bb10ffe62eb2bc187d04a737 a4b10f43e2d3b65cd72c04734e27f166b90e956e
+R 06f90bc56054eb455aad1c6f1d2bd3e8
 U linuxfood
-Z 8c481f4add6cc75659f4d87d76e2bc8b
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (Darwin)
-
-iQEcBAEBAgAGBQJLpplUAAoJEDIXq+xP4X3xY3YH/AoK1w+vWisQ4d45L3symDZ4
-KbrR8Eyv+BQjYlEe7T4ShMx9RrD0fj4JrxEB8lFqrv3IsPmuk5sCuyoaLxDBePwc
-yZPYkZ8E2V3cEO9GgJ+HOGmm1b/LnkkO2gDwIMQTmcWIiyKqSOV2mFQhXp/vvdYU
-sdv5h7wwEU7iVe+cC73V+y6w5BsY18dm2InnX6ERIZTCMvXMtB2z5p3WmWkVYHuC
-uxnwPua7etmCYSniVNJc9kHbUPZurIFpLgfkebYzc+flCdK9KyeV+kK8NKySOGXd
-rEujNdx+Jkq0VoOjuykpzcKOUYCQhnskBMdwVXcjfMFmtlRIwTLGURGu06tI0pY=
-=yH2J
------END PGP SIGNATURE-----
+Z 0b0a91805e441881eb6af211593fdf25

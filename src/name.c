@@ -282,18 +282,23 @@ int name_to_rid(const char *zName){
   int i;
   int rid;
   Blob name;
-  for(i=0; zName[i] && isdigit(zName[i]); i++){}
-  if( zName[i]==0 ){
-    rid = atoi(zName);
-    if( db_exists("SELECT 1 FROM blob WHERE rid=%d", rid) ){
-      return rid;
-    }
-  }
+
+  if( zName==0 || zName[0]==0 ) return 0;
   blob_init(&name, zName, -1);
-  if( name_to_uuid(&name, 1) ){
-    fossil_fatal("%s", g.zErrMsg);
+  if( name_to_uuid(&name, -1) ){
+    blob_reset(&name);
+    for(i=0; zName[i] && isdigit(zName[i]); i++){}
+    if( zName[i]==0 ){
+      rid = atoi(zName);
+      if( db_exists("SELECT 1 FROM blob WHERE rid=%d", rid) ){
+        return rid;
+      }
+    }
+    fossil_error(1, "no such artifact: %s", zName);
+    return 0;
+  }else{
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &name);
+    blob_reset(&name);
   }
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &name);
-  blob_reset(&name);
   return rid;
 }
