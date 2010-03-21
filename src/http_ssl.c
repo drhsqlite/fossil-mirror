@@ -88,6 +88,7 @@ const char *ssl_errmsg(void){
 void ssl_global_init(void){
   if( sslIsInit==0 ){
     char *system_store = NULL;
+    char *detected_store = NULL;
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
@@ -99,22 +100,24 @@ void ssl_global_init(void){
     /* Linux has a few different places to find the root certificate bundle */
     if(file_isfile("/etc/pki/tls/cert.pem")) {
       /* This is for RedHat derived distros */
-      system_store = "/etc/pki/tls/cert.pem";
+      detected_store = "/etc/pki/tls/cert.pem";
     }
     else if(file_isfile("/etc/ssl/certs/ca-certificates.crt")) {
       /* This is for Debian derived distros, and Arch */
-      system_store = "/etc/ssl/certs/ca-certificates.crt";
+      detected_store = "/etc/ssl/certs/ca-certificates.crt";
     }
 #elif defined(__FreeBSD__)
-    system_store =  "/usr/local/share/certs/ca-root-nss.crt";
+    detected_store =  "/usr/local/share/certs/ca-root-nss.crt";
 #elif defined(__APPLE__)
     /* No action necessary, OpenSSL on OS X appears
        to load the system store automatically */
 #endif
-    system_store = db_get("certificate-bundle", system_store);
+    system_store = db_get("certificate-bundle", detected_store);
     if(system_store != NULL) {
       SSL_CTX_load_verify_locations(sslCtx, system_store, NULL);
-      free(system_store);
+      if(detected_store != NULL) {
+        free(system_store);
+      }
     }
     sslIsInit = 1;
   }
