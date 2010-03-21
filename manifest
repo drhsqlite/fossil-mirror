@@ -1,5 +1,8 @@
-C Make\ssure\sthat\s"Setup"\sand\s"Admin"\sprivileges\simply\s'Append-Tkt'\sprivilege.
-D 2010-03-18T16:27:48
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Create\snew\sbranch\snamed\s"ssl_platform_fixes"
+D 2010-03-21T22:10:28
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -263,7 +266,21 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P d5f6a272e91f312a3823c8af7e66c93a0905e306
+P a1b7f8e1a9bed4665fec65f002bc2fb9b99475a8
 R 8d15eafa9ae6cb7c6d53a996caa66950
-U drh
-Z 10c7b57be2d5f12b0e04d0eb49733273
+T *branch * ssl_platform_fixes
+T *sym-ssl_platform_fixes *
+T -sym-trunk *
+U linuxfood
+Z 8c481f4add6cc75659f4d87d76e2bc8b
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (Darwin)
+
+iQEcBAEBAgAGBQJLpplUAAoJEDIXq+xP4X3xY3YH/AoK1w+vWisQ4d45L3symDZ4
+KbrR8Eyv+BQjYlEe7T4ShMx9RrD0fj4JrxEB8lFqrv3IsPmuk5sCuyoaLxDBePwc
+yZPYkZ8E2V3cEO9GgJ+HOGmm1b/LnkkO2gDwIMQTmcWIiyKqSOV2mFQhXp/vvdYU
+sdv5h7wwEU7iVe+cC73V+y6w5BsY18dm2InnX6ERIZTCMvXMtB2z5p3WmWkVYHuC
+uxnwPua7etmCYSniVNJc9kHbUPZurIFpLgfkebYzc+flCdK9KyeV+kK8NKySOGXd
+rEujNdx+Jkq0VoOjuykpzcKOUYCQhnskBMdwVXcjfMFmtlRIwTLGURGu06tI0pY=
+=yH2J
+-----END PGP SIGNATURE-----
