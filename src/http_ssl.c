@@ -115,7 +115,7 @@ void ssl_global_init(void){
     system_store = db_get("certificate-bundle", detected_store);
     if(system_store != NULL) {
       SSL_CTX_load_verify_locations(sslCtx, system_store, NULL);
-      if(detected_store != NULL) {
+      if(detected_store == NULL) {
         free(system_store);
       }
     }

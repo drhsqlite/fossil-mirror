@@ -1,5 +1,5 @@
-C Fix\scase\swhen\strying\sto\sfree\sa\snon-malloced\spointer.
-D 2010-03-21T22:38:03
+C Comparison\stypo.
+D 2010-03-21T22:42:33
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -65,7 +65,7 @@ F src/finfo.c df19851114e2c3166a5eb79a2c9bbec36f8f23c6
 F src/graph.c d1787e16364af3c5e1c009346eeb5249c329da32
 F src/http.c 4288b782a6ccd6ae5dc66c2688e732ad49cd0d0b
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
-F src/http_ssl.c 6f64488a73d26b6fe0c19a5ebc5d3b8153e9fa67
+F src/http_ssl.c f41997da2c22a8affccb8485cfac84c0c0ecc22f
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c e17fd42756dd448b828a21f5cbf1992f842b04f2
 F src/login.c 648e5df11b573da720174e16acf16f35fb048489
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 3b06c951cf0de259105a495a4d965f6d2a931a64
-R 2fba6c9e85c97f5735be1702b1da6618
+P ee59ca74b8b8991520660514266da7483e5f68d7
+R 70a6ecfddf17e64824e2b56c8ea784fd
 U linuxfood
-Z 023a4364aaee79ef311e71ae4e1d04b9
+Z 3ced9f2bdbb623998231cfddb1affd3b
