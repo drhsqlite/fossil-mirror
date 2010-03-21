@@ -32,9 +32,12 @@
 **
 **    tkt=TICKETUUID
 **    page=WIKIPAGE
-**    all
 **
 ** List attachments.
+** Either one of tkt= or page= are supplied or neither.  If neither
+** are given, all attachments are listed.  If one is given, only
+** attachments for the designated ticket or wiki page are shown.
+** TICKETUUID must be complete 
 */
 void attachlist_page(void){
   const char *zPage = P("page");

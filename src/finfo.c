@@ -119,8 +119,8 @@ void finfo_page(void){
     " coalesce(event.euser, event.user),"
     " mlink.pid,"
     " mlink.fid,"
-    " mlink.mid,"
-    " mlink.fnid,"
+    " (SELECT substr(uuid,1,10) FROM blob WHERE rid=mlink.pid),"
+    " (SELECT substr(uuid,1,10) FROM blob WHERE rid=mlink.fid),"
     " ci.uuid,"
     " event.bgcolor,"
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
@@ -149,8 +149,8 @@ void finfo_page(void){
     const char *zUser = db_column_text(&q, 3);
     int fpid = db_column_int(&q, 4);
     int frid = db_column_int(&q, 5);
-    int mid = db_column_int(&q, 6);
-    int fnid = db_column_int(&q, 7);
+    const char *zFpuid = db_column_text(&q, 6);
+    const char *zFuid = db_column_text(&q, 7);
     const char *zCkin = db_column_text(&q,8);
     const char *zBgClr = db_column_text(&q, 9);
     const char *zBr = db_column_text(&q, 10);
@@ -190,9 +190,9 @@ void finfo_page(void){
     @ branch: %h(zBr))
     if( g.okHistory ){
       if( fpid ){
-        @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(fpid)&amp;v2=%d(frid)">[diff]</a>
+        @ <a href="%s(g.zTop)/fdiff?v1=%s(zFpuid)&amp;v2=%s(zFuid)">[diff]</a>
       }
-      @ <a href="%s(g.zBaseURL)/annotate?mid=%d(mid)&amp;fnid=%d(fnid)">
+      @ <a href="%s(g.zTop)/annotate?checkin=%s(zShortCkin)&amp;filename=%h(zFilename)">
       @ [annotate]</a>
       @ </td>
     }
