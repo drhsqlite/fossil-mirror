@@ -1,5 +1,5 @@
-C Avoid\sthe\suse\sof\srowids\sin\sURLs,\ssince\sthey\scan\schange\son\sa\srebuild.\s\nUse\sSHA1-derived\sartifact\sIDs\sinstead.
-D 2010-03-21T21:51:49
+C Truncate\sthe\sgraph\sat\s32767\spixels.\s\sThis\sallows\sthe\stop\spart\sof\sthe\ngraph\sto\sbe\sseen\swhen\sthe\sgraph\sis\slarge,\sat\sleast.\s\nTicket\s[13536c292b].
+D 2010-03-22T12:52:47
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -103,7 +103,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
-F src/timeline.c 6e378f36a770357bbbef1ebe882431594282e246
+F src/timeline.c e8d1b79f12e8025291fc94c3ae811273c1268706
 F src/tkt.c 4636570ed656a6fa4d128e5017d365d8f252555f
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 3640618d7146894d59f3556c1063afd18557a925
-R 49f8063eb0972f47d27ec3e2cd4e0e5d
+P a4b10f43e2d3b65cd72c04734e27f166b90e956e
+R 8bcd454995c303a087456f42b5bb26cd
 U drh
-Z c2ab0a151b7bbda1dd2cb3b6297c01c9
+Z 48555c82c1989ed768a8dc8ab44cc69c
