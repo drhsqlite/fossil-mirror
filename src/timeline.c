@@ -404,7 +404,6 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @ var canvasDiv = document.getElementById("canvas");
     @ var realCanvas = null;
     @ function drawBox(color,x0,y0,x1,y1){
-    @   if( y1>32767 || y0>32767 ) return;
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
     @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
@@ -517,10 +516,10 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   var btm = rowinfo[rowinfo.length-1].y + 20;
     @   canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
     @      'style="position:absolute;left:'+(left-5)+'px;"' +
-    @      ' width="'+width+'" height="'+(btm>32767?32767:btm)+'"></canvas>';
+    @      ' width="'+width+'" height="'+btm+'"></canvas>';
     @   realCanvas = document.getElementById('timeline-canvas');
     @   var context;
-    @   if( realCanvas && realCanvas.getContext
+    @   if( realCanvas && realCanvas.getContext && btm<32768
     @        && (context = realCanvas.getContext('2d'))) {
     @     drawBox = function(color,x0,y0,x1,y1) {
     @       if( y0>32767 || y1>32767 ) return;
