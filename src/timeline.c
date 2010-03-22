@@ -409,7 +409,6 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
     @   var w = x1-x0+1;
     @   var h = y1-y0+1;
-    @   canvasDiv.appendChild(n);
     @   n.style.position = "absolute";
     @   n.style.overflow = "hidden";
     @   n.style.left = x0+"px";
@@ -417,6 +416,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
+    @   canvasDiv.appendChild(n);
     @ }
     @ function absoluteY(id){
     @   var obj = document.getElementById(id);
@@ -514,12 +514,16 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
     @   var btm = rowinfo[rowinfo.length-1].y + 20;
-    @   canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
-    @      'style="position:absolute;left:'+(left-5)+'px;"' +
-    @      ' width="'+width+'" height="'+btm+'"></canvas>';
-    @   realCanvas = document.getElementById('timeline-canvas');
+    @   if( btm<32768 ){
+    @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
+    @        'style="position:absolute;left:'+(left-5)+'px;"' +
+    @        ' width="'+width+'" height="'+btm+'"></canvas>';
+    @     realCanvas = document.getElementById('timeline-canvas');
+    @   }else{
+    @     realCanvas = 0;
+    @   }
     @   var context;
-    @   if( realCanvas && realCanvas.getContext && btm<32768
+    @   if( realCanvas && realCanvas.getContext
     @        && (context = realCanvas.getContext('2d'))) {
     @     drawBox = function(color,x0,y0,x1,y1) {
     @       if( y0>32767 || y1>32767 ) return;
