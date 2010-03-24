@@ -26,12 +26,15 @@ on out.  Now, how do you use these fields?
 Back to the "Tickets" admin page, and click "Common".  Add something like this:
 <pre>
 set assigned_choices {
+  unassigned
   tom
   dick
   harriet
 }
 </pre>
-Obviously, choose names corresponding to the logins on your system.
+Obviously, choose names corresponding to the logins on your system.  The
+'unassigned' entry is important, as it prevents you from having a NULL in that
+field (which causes problems later when editing).
 </p>
 </blockquote>
 
@@ -43,6 +46,7 @@ more tricky.  Edit the top part:
   if {[info exists submit]} {
      set status Open
      set opened_by $login
+	 set assigned_to "unassigned"
      submit_ticket
   }
 </pre>

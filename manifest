@@ -1,5 +1,5 @@
-C If\sthe\sgraph\sheight\sis\sgreater\sthan\s32767,\somit\sthe\s&lt;canvas&gt;\sobject.\nAlso,\sdo\snot\sappendChild()\sthe\sgraphics\s&lt;div&gt;\sobjects\suntil\safter\nthey\shave\sbeen\sset\sto\s"abolute"\spositioning,\sto\swork\saround\sa\sFF\sperformance\nissue.
-D 2010-03-22T14:17:46
+C update\scustom\sticket\swiki\spage
+D 2010-03-24T07:10:34
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -214,7 +214,7 @@ F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
 F www/copyright-release.html 14100368011239bed3e6908f9f92e6ea3f712084
-F www/custom_ticket.wiki 4e3d4539b7c7fc336f5f83064a53240b080ec3a5
+F www/custom_ticket.wiki 5483db507a120a026f383eeddf391debb6619326
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 81751fa51b002fd18b81b862408c6874ea146dd0
-R 23cd60c0768d114e21506008994b77b1
-U drh
-Z d1337578c82702a817a1a3f6142edb76
+P 504dc92ceb3976871b97e9d1a9a22ac0e7691238
+R 65920c7056e3df2f9430542996efc9a7
+U ron
+Z 04a93ce559d03f18aea2c5cd2556e8b9
