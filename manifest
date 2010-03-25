@@ -1,5 +1,5 @@
-C update\scustom\sticket\swiki\spage
-D 2010-03-24T07:10:34
+C Added\sthe\s'New\sTicket'\slink\sto\sthe\sticket\sreport\sview
+D 2010-03-25T13:52:00
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -84,7 +84,7 @@ F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 26b83508d5f0488476f0499226648c8c3fad01e3
 F src/rebuild.c a6d927091a53ebf0d8db68480c4db519a05aa686
-F src/report.c cd5c1fdb1aca401fe682921b6d8746ab89308a6f
+F src/report.c c6a14412acab7d4e9852574ff0af5c5d2e9fc576
 F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c b7b675e766bdcc2fa761ed615922cc88c16f21af
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 504dc92ceb3976871b97e9d1a9a22ac0e7691238
-R 65920c7056e3df2f9430542996efc9a7
-U ron
-Z 04a93ce559d03f18aea2c5cd2556e8b9
+P 0c305be6c1c2323f529770302094d93d36194e2b
+R 6aabc1e6476225f198f410fe0e763332
+U jeremy
+Z f0ddb727cd2ca1b8007bde02f2721ac7
