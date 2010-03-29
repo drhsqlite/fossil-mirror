@@ -740,13 +740,12 @@ void setup_access(void){
   @ 127.0.0.1.</p></li>
 
   @ <hr>
-  onoff_attribute("Show javascript button to fill in CAPTCHA",
-                  "auto-captcha", "autocaptcha", 0);
-  @ <p>When enabled, a button appears on the login screen for user
-  @ "anonymous" that will automatically fill in the CAPTCHA password.
-  @ This is less secure that forcing the user to do it manually, but is
-  @ probably secure enough and it is certainly more convenient for
-  @ anonymous users.</p>
+  onoff_attribute("Allow REMOTE_USER authentication",
+     "remote_user_ok", "remote_user_ok", 0);
+  @ <p>When enabled, if the REMOTE_USER environment variable is set to the
+  @ login name of a valid user and no other login credentials are available,
+  @ then the REMOTE_USER is accepted as an authenticated user.
+  @ </p></li>
 
   @ <hr>
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
@@ -762,6 +761,15 @@ void setup_access(void){
   @ than this, then the client will issue multiple HTTP requests.
   @ Values below 1 million are not recommended.  5 million is a
   @ reasonable number.</p>
+
+  @ <hr>
+  onoff_attribute("Show javascript button to fill in CAPTCHA",
+                  "auto-captcha", "autocaptcha", 0);
+  @ <p>When enabled, a button appears on the login screen for user
+  @ "anonymous" that will automatically fill in the CAPTCHA password.
+  @ This is less secure that forcing the user to do it manually, but is
+  @ probably secure enough and it is certainly more convenient for
+  @ anonymous users.</p>
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>

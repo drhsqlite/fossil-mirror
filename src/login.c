@@ -400,6 +400,17 @@ void login_check_credentials(void){
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zCookie);
   }
 
+  /* If no user found and the REMOTE_USER environment variable is set,
+  ** the accept the value of REMOTE_USER as the user.
+  */
+  if( uid==0 ){
+    const char *zRemoteUser = P("REMOTE_USER");
+    if( zRemoteUser && db_get_boolean("remote_user_ok",0) ){
+      uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
+                      " AND length(cap)>0 AND length(pw)>0", zRemoteUser);
+    }
+  }
+
   /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");

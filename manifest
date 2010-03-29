@@ -1,5 +1,5 @@
-C In\sthe\sgraph\salgorithm,\stry\sto\sput\sbranches\son\srails\sas\sclose\sas\spossible\nto\stheir\sparent.
-D 2010-03-28T23:20:25
+C Add\sthe\scapability\s(disabled\sby\sdefault)\sto\saccept\sREMOTE_USER\sas\san\nauthenticated\suser.\s\sTicket\s[49929a3557a]
+D 2010-03-29T00:07:38
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -68,7 +68,7 @@ F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c e17fd42756dd448b828a21f5cbf1992f842b04f2
-F src/login.c 648e5df11b573da720174e16acf16f35fb048489
+F src/login.c dde59ed44de2b9cfa177171a6a8073e4ed3ea193
 F src/main.c 0384dca978440cd35ed50743335545af6e7679bb
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
@@ -89,7 +89,7 @@ F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c b7b675e766bdcc2fa761ed615922cc88c16f21af
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c dd8d77b43bb2bce3d515767bf30b572a0231f64c
+F src/setup.c 7a03dd810e3eeb2a74215507aed9a3c4ce574bcf
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 340d3398e6142453e7226dfb7143f8dac2e54301
-R 12abd7766dd53c08b1919a079ac2115f
+P 42bbfe9d64ebb6787c8f89e94be512feb7b56de6
+R f062123581de60456259a0259aa6fe48
 U drh
-Z 9f401b0938fb08fb45f6191001476eb8
+Z 853c80ae6564108cb3291443c2fe0df3
