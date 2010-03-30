@@ -399,10 +399,10 @@ void ci_page(void){
     }
   }
   db_prepare(&q,
-     "SELECT pid, fid, name, substr(a.uuid,1,10), substr(b.uuid,1,10)"
+     "SELECT pid, fid, name,"
+     "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+     "       (SELECT uuid FROM blob WHERE rid=mlink.fid)"
      "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-     "         LEFT JOIN blob a ON a.rid=pid"
-     "         LEFT JOIN blob b ON b.rid=fid"
      " WHERE mlink.mid=%d"
      " ORDER BY name",
      rid
@@ -421,20 +421,20 @@ void ci_page(void){
         @ <p>Changes to %h(zName)</p>
       }
     }else if( zOld && zNew ){
-      @ <p>Modified <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-      @ from <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a>
-      @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)].</a>
+      @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
+      @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
       if( !showDiff ){
         @ &nbsp;&nbsp;
-        @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(pid)&v2=%d(fid)">[diff]</a>
+        @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)">[diff]</a>
       }
     }else if( zOld ){
-      @ <p>Deleted <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-      @ version <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a></p>
+      @ <p>Deleted <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a></p>
       continue;
     }else{
-      @ <p>Added <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-      @ version <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
+      @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a></p>
     }
     if( showDiff ){
       @ <blockquote><pre>
