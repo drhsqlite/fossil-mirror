@@ -228,6 +228,7 @@ int main(int argc, char **argv){
   int idx;
   int rc;
 
+  sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
@@ -348,6 +349,11 @@ void fossil_warning(const char *zFormat, ...){
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
+}
+
+/* Error logs from SQLite */
+void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
+  fossil_warning("SQLite error log (code %d): %s", iCode, zErrmsg);
 }
 
 /*
