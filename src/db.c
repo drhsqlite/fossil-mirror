@@ -278,15 +278,36 @@ int db_step(Stmt *pStmt){
 }
 
 /*
+** Print warnings if a query is inefficient.
+*/
+static void db_stats(Stmt *pStmt){
+#ifdef FOSSIL_DEBUG
+  int c1, c2;
+  c1 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
+  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
+  /* printf("**** steps=%d & sorts=%d in [%s]\n", c1, c2,
+     sqlite3_sql(pStmt->pStmt)); */
+  if( c1>5 ){
+    fossil_warning("%d scan steps in [%s]", c1, sqlite3_sql(pStmt->pStmt));
+  }else if( c2 ){
+    fossil_warning("sort w/o index in [%s]", sqlite3_sql(pStmt->pStmt));
+  }
+#endif
+}
+
+/*
 ** Reset or finalize a statement.
 */
 int db_reset(Stmt *pStmt){
-  int rc = sqlite3_reset(pStmt->pStmt);
+  int rc;
+  db_stats(pStmt);
+  rc = sqlite3_reset(pStmt->pStmt);
   db_check_result(rc);
   return rc;
 }
 int db_finalize(Stmt *pStmt){
   int rc;
+  db_stats(pStmt);
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
   db_check_result(rc);

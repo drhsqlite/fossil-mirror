@@ -1,5 +1,5 @@
-C Use\sartifact\sIDs,\snot\srecord\sIDs,\son\sthe\s"diff"\slink\sof\scheck-in\schange\nlistings.
-D 2010-03-30T14:29:32
+C When\scompiled\swith\sFOSSIL_DEBUG,\sprint\swarnings\sif\sany\sSQLite\squeries\sfail\nto\suse\sindices.
+D 2010-03-31T14:35:53
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c fe9253765767c45645520b05066fdb02a9c9d797
+F src/db.c 073d79b96fdfbe0664a42dd72c188af8c95aacd6
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 84439e9dc7077dcd1499773444c2ae96641daed0
-R 0817375271e931fad0a6a4dbe92fff61
+P 61c52dd6aa3641d0131a2c3e3c0a16e8a36ffee5
+R c8ad3f1c9e0ef8e4cac7496b32dd028a
 U drh
-Z 5b3ab04387fc08bd6799e3b020a46d45
+Z fce186e8a404c94048724f77260abfc8
