@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sSQLite\serror\slogging\soutput\sformat.
-D 2010-03-31T15:17:16
+C Update\sthe\smechanism\sfor\sreporting\sSQL\sthat\sdoes\snot\suse\sindices.\s\sThe\nwarnings\scan\sbe\ssuppressed\sby\scomments\sin\sthe\sSQL\stext.
+D 2010-03-31T15:27:48
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -39,8 +39,8 @@ F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/attach.c 3a5d1aaae0ff7c7b148b601d33b2d36c30b33833
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
 F src/blob.c d09d74271ae4d85866a5b47566f0c0f4c2934e2a
-F src/branch.c 80adbdb5e4a2d63d150ba4a4f72a7397dc041267
-F src/browse.c 6b8d7798f013a93541da038b639f90ff20df04a9
+F src/branch.c 3e9d5c03a5305825584defe26aaca827cbc01c5a
+F src/browse.c d2629384aa60361f7abfd63985cd309c8a6da600
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
 F src/checkin.c 5c5ed2a07e6fa7a6b99b29fda8d9419a570029ce
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 073d79b96fdfbe0664a42dd72c188af8c95aacd6
+F src/db.c 83fd96c654cf846a19d77fcd3a2f5e8e32762ac1
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -103,7 +103,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
-F src/timeline.c 820a9ead83af7207fd78551c6d629120e79b8a5d
+F src/timeline.c 1d488191c5435ddbf59c95f862b990e528cf45b9
 F src/tkt.c 4636570ed656a6fa4d128e5017d365d8f252555f
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -113,7 +113,7 @@ F src/url.c ec953a0a01c2eba0e8dea94fac7a3bdd0bec3bf3
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
-F src/wiki.c e360ea672fc0c06d41e15d62a7cec1d45847e1e2
+F src/wiki.c 5789d51f360724f0fd6138476e3240448b540c08
 F src/wikiformat.c db31f4c3fe083a53b6fffcf407d0f305e602150d
 F src/winhttp.c 33fcca6b835cf077b5a0f73ca68cbde6d8a121c6
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 99fea6cde4ac1058d519d277ce6c7a91edde84f9
-R fd01c4f5c3c9ff6acfe1081c1ac507c7
+P b30e35fcd23978877417703c77f02baf5655a615
+R 6eada82fb2203a699016b9401444260d
 U drh
-Z 77d585a62ab034fd32fc01119ce39890
+Z 85acff851b71a4c91b06ca49482fa2aa

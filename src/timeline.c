@@ -258,7 +258,7 @@ void www_print_timeline(
       static Stmt qparent;
       static Stmt qbranch;
       db_static_prepare(&qparent,
-        "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC"
+        "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC /*sort*/"
       );
       db_static_prepare(&qbranch,
         "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
@@ -878,7 +878,7 @@ void page_timeline(void){
     blob_appendf(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_str(&sql));
 
-    n = db_int(0, "SELECT count(*) FROM timeline");
+    n = db_int(0, "SELECT count(*) FROM timeline /*scan*/");
     if( n<nEntry && zAfter ){
       cgi_redirect(url_render(&url, "a", 0, "b", 0));
     }
@@ -907,12 +907,12 @@ void page_timeline(void){
     }
     if( g.okHistory ){
       if( zAfter || n==nEntry ){
-        zDate = db_text(0, "SELECT min(timestamp) FROM timeline");
+        zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");
         free(zDate);
       }
       if( zBefore || (zAfter && n==nEntry) ){
-        zDate = db_text(0, "SELECT max(timestamp) FROM timeline");
+        zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Newer", "a", zDate, "b");
         free(zDate);
       }else if( tagid==0 ){
@@ -938,7 +938,7 @@ void page_timeline(void){
     }
   }
   blob_zero(&sql);
-  db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
+  db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
   www_print_timeline(&q, tmFlags, 0);

@@ -219,11 +219,11 @@ void page_dir(void){
   /* Generate a multi-column table listing the contents of zD[]
   ** directory.
   */
-  mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles");
-  cnt = db_int(0, "SELECT count(*) FROM localfiles");
+  mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
+  cnt = db_int(0, "SELECT count(*) FROM localfiles /*scan*/");
   nCol = 4;
   nRow = (cnt+nCol-1)/nCol;
-  db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x");
+  db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
   @ <table border="0" width="100%%"><tr><td valign="top" width="25%%">
   i = 0;
   while( db_step(&q)==SQLITE_ROW ){

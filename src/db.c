@@ -280,17 +280,17 @@ int db_step(Stmt *pStmt){
 /*
 ** Print warnings if a query is inefficient.
 */
-static void db_stats(Stmt *pStmt){
+static void db_stats(sqlite3_stmt *pStmt){
 #ifdef FOSSIL_DEBUG
   int c1, c2;
-  c1 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
-  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
-  /* printf("**** steps=%d & sorts=%d in [%s]\n", c1, c2,
-     sqlite3_sql(pStmt->pStmt)); */
-  if( c1>5 ){
-    fossil_warning("%d scan steps in [%s]", c1, sqlite3_sql(pStmt->pStmt));
-  }else if( c2 ){
-    fossil_warning("sort w/o index in [%s]", sqlite3_sql(pStmt->pStmt));
+  const char *zSql = sqlite3_sql(pStmt);
+  if( zSql==0 ) return;
+  c1 = sqlite3_stmt_status(pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
+  c2 = sqlite3_stmt_status(pStmt, SQLITE_STMTSTATUS_SORT, 1);
+  if( c1>5 && strstr(zSql,"/*scan*/")==0 ){
+    fossil_warning("%d scan steps in [%s]", c1, zSql);
+  }else if( c2 && strstr(zSql,"/*sort*/")==0 && strstr(zSql,"/*scan*/")==0 ){
+    fossil_warning("sort w/o index in [%s]", zSql);
   }
 #endif
 }
@@ -300,14 +300,14 @@ static void db_stats(Stmt *pStmt){
 */
 int db_reset(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
+  db_stats(pStmt->pStmt);
   rc = sqlite3_reset(pStmt->pStmt);
   db_check_result(rc);
   return rc;
 }
 int db_finalize(Stmt *pStmt){
   int rc;
-  db_stats(pStmt);
+  db_stats(pStmt->pStmt);
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
   db_check_result(rc);

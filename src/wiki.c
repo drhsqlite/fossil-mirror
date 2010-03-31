@@ -674,7 +674,7 @@ void wcontent_page(void){
     "  substr(tagname, 6),"
     "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC)"
     "  FROM tag WHERE tagname GLOB 'wiki-*'"
-    " ORDER BY lower(tagname)"
+    " ORDER BY lower(tagname) /*sort*/"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
@@ -705,7 +705,8 @@ void wfind_page(void){
   style_header("Wiki Pages Found");
   @ <ul>
   db_prepare(&q, 
-    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%' ORDER BY lower(tagname)" ,
+    "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%'"
+    " ORDER BY lower(tagname) /*sort*/" ,
 	zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
@@ -1029,7 +1030,7 @@ void wiki_cmd(void){
     Stmt q;
     db_prepare(&q, 
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
-      " ORDER BY lower(tagname)"
+      " ORDER BY lower(tagname) /*sort*/"
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
