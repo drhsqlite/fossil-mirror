@@ -1,5 +1,5 @@
-C Patch\sSQLite\sto\sprovide\sa\sbetter\serror\smessage\sto\ssqlite3_log()\swhen\sit\sis\nunable\sto\sopen\sa\sfile.
-D 2010-03-31T17:14:18
+C Get\schroot\sjails\sworking\scorrectly\swhen\sa\sparticular\sfossil\srepository\nis\sspecified\son\sthe\s"http"\scommand.\s\sThis\sfixes\sa\sproblem\sintroduced\sby\nthe\smulti-repository\sfeature\sadded\sby\scheck-in\s[9cd2c42e79]\son\s[2010-01-31].
+D 2010-03-31T18:42:09
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -69,7 +69,7 @@ F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c ef35d0ad3f96ad68cce39e21a1dd747ed4138753
 F src/login.c dde59ed44de2b9cfa177171a6a8073e4ed3ea193
-F src/main.c 0936f74611939ebdeebcb459e5b04cadb634d726
+F src/main.c 3f93a246a7612ca5dd041e5857a4e6a58dbdb88f
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -96,7 +96,7 @@ F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
 F src/sqlite3.c 5af54b924d30ef98d6f7132dcef32e3902ea21d9
 F src/sqlite3.h 161d4714feab2887d50e94f81ef2100ecb946103
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
-F src/style.c 12d3b58ba614149ac8fad93f04c4602d483860bf
+F src/style.c 8050be341397c6c59c78eff758858039db96a10e
 F src/sync.c d86d4e444f7090ed8d0fc7c3d7fe5e5bdbb402b8
 F src/tag.c 8853a08ab87062e0523932cd98e10801ee5c4a55
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 9f1d490dd6e692dc5392b452038080d728d742aa
-R 68ef5fa15fc16bb4da64ec1e7cf49e3f
+P a158c4e75d17df82034ed6cbd5b47ac3dd7b6505
+R 68d3d86b651bc8d2bff515d65afe32c4
 U drh
-Z 90a3db78bec1476484505011c3c838a3
+Z 629a9b36179e1f27f167e9c0a5338736

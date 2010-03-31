@@ -651,6 +651,10 @@ static char *enter_chroot_jail(char *zRepo){
     }
     setgid(sStat.st_gid);
     setuid(sStat.st_uid);
+    if( g.db!=0 ){
+      db_close();
+      db_open_repository(zRepo);
+    }
   }
 #endif
   return zRepo;
@@ -694,6 +698,7 @@ static void process_one_web_page(const char *zNotFound){
     for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
       if( !isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
     }
+    if( zRepo[0]=='/' && zRepo[1]=='/' ) zRepo++;
 
     if( file_size(zRepo)<1024 ){
       if( zNotFound ){
