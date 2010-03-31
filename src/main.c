@@ -351,9 +351,44 @@ void fossil_warning(const char *zFormat, ...){
   }
 }
 
+/*
+** Return a name for an SQLite error code
+*/
+static const char *sqlite_error_code_name(int iCode){
+  static char zCode[30];
+  switch( iCode & 0xff ){
+    case SQLITE_OK:         return "SQLITE_OK";
+    case SQLITE_ERROR:      return "SQLITE_ERROR";
+    case SQLITE_PERM:       return "SQLITE_PERM";
+    case SQLITE_ABORT:      return "SQLITE_ABORT";
+    case SQLITE_BUSY:       return "SQLITE_BUSY";
+    case SQLITE_NOMEM:      return "SQLITE_NOMEM";
+    case SQLITE_READONLY:   return "SQLITE_READONLY";
+    case SQLITE_INTERRUPT:  return "SQLITE_INTERRUPT";
+    case SQLITE_IOERR:      return "SQLITE_IOERR";
+    case SQLITE_CORRUPT:    return "SQLITE_CORRUPT";
+    case SQLITE_FULL:       return "SQLITE_FULL";
+    case SQLITE_CANTOPEN:   return "SQLITE_CANTOPEN";
+    case SQLITE_PROTOCOL:   return "SQLITE_PROTOCOL";
+    case SQLITE_EMPTY:      return "SQLITE_EMPTY";
+    case SQLITE_SCHEMA:     return "SQLITE_SCHEMA";
+    case SQLITE_CONSTRAINT: return "SQLITE_CONSTRAINT";
+    case SQLITE_MISMATCH:   return "SQLITE_MISMATCH";
+    case SQLITE_MISUSE:     return "SQLITE_MISUSE";
+    case SQLITE_NOLFS:      return "SQLITE_NOLFS";
+    case SQLITE_FORMAT:     return "SQLITE_FORMAT";
+    case SQLITE_RANGE:      return "SQLITE_RANGE";
+    case SQLITE_NOTADB:     return "SQLITE_NOTADB";
+    default: {
+      sqlite3_snprintf(sizeof(zCode),zCode,"error code %d",iCode);
+    }
+  }
+  return zCode;
+}
+
 /* Error logs from SQLite */
 void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
-  fossil_warning("SQLite error log (code %d): %s", iCode, zErrmsg);
+  fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
 }
 
 /*

@@ -1,5 +1,5 @@
-C Cause\sall\sSQLite\serrors\sto\sbe\slogged\sas\swarnings.
-D 2010-03-31T14:52:38
+C Improvements\sto\sthe\sSQLite\serror\slogging\soutput\sformat.
+D 2010-03-31T15:17:16
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -69,7 +69,7 @@ F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
 F src/info.c ef35d0ad3f96ad68cce39e21a1dd747ed4138753
 F src/login.c dde59ed44de2b9cfa177171a6a8073e4ed3ea193
-F src/main.c e01f9628a7f7994d4d2a1be57a1c16bee0561893
+F src/main.c 0936f74611939ebdeebcb459e5b04cadb634d726
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
 F src/makeheaders.c b7bbc46f28d9e4396b772a389103158e1eff05d3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P e95e87c1edf4b1ef85bcaf3d1bab7d90d882215d
-R 23bc02c9489eae42e38688c1d9f19f9c
+P 99fea6cde4ac1058d519d277ce6c7a91edde84f9
+R fd01c4f5c3c9ff6acfe1081c1ac507c7
 U drh
-Z bfbc4826c707cc38ffb8aa2c3c1cab31
+Z 77d585a62ab034fd32fc01119ce39890
