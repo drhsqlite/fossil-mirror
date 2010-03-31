@@ -1,5 +1,5 @@
-C Update\sthe\smechanism\sfor\sreporting\sSQL\sthat\sdoes\snot\suse\sindices.\s\sThe\nwarnings\scan\sbe\ssuppressed\sby\scomments\sin\sthe\sSQL\stext.
-D 2010-03-31T15:27:48
+C Patch\sSQLite\sto\sprovide\sa\sbetter\serror\smessage\sto\ssqlite3_log()\swhen\sit\sis\nunable\sto\sopen\sa\sfile.
+D 2010-03-31T17:14:18
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -93,7 +93,7 @@ F src/setup.c 7a03dd810e3eeb2a74215507aed9a3c4ce574bcf
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
-F src/sqlite3.c 7e4d086a9663f6a31c02483a9411b47f8d52c450
+F src/sqlite3.c 5af54b924d30ef98d6f7132dcef32e3902ea21d9
 F src/sqlite3.h 161d4714feab2887d50e94f81ef2100ecb946103
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 12d3b58ba614149ac8fad93f04c4602d483860bf
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P b30e35fcd23978877417703c77f02baf5655a615
-R 6eada82fb2203a699016b9401444260d
+P 9f1d490dd6e692dc5392b452038080d728d742aa
+R 68ef5fa15fc16bb4da64ec1e7cf49e3f
 U drh
-Z 85acff851b71a4c91b06ca49482fa2aa
+Z 90a3db78bec1476484505011c3c838a3

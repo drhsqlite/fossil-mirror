@@ -630,7 +630,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.23.1"
 #define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-03-26 22:28:06 b078b588d617e07886ad156e9f54ade6d823568e"
+#define SQLITE_SOURCE_ID      "2010-03-26 22:28:06 ex-b078b588d617e07886ad156e9f54ade6d823568e"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -26157,7 +26157,9 @@ static int unixOpen(
       fd = open(zName, openFlags, openMode);
     }
     if( fd<0 ){
-      rc = SQLITE_CANTOPEN_BKPT;
+      sqlite3_log(SQLITE_CANTOPEN, "cannot open file [%s]: %s", zName,
+                  strerror(errno));
+      rc = SQLITE_CANTOPEN;
       goto open_finished;
     }
   }
