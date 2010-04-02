@@ -183,10 +183,10 @@ void setup_ulist(void){
      @ <tr><td valign="top"><b>t</b></td>
      @   <td><i>Tkt-Report:</i> Create new bug summary reports</td></tr>
      @ <tr><td valign="top"><b>u</b></td>
-     @   <td><i>Reader:</i> Inherit privileges of 
+     @   <td><i>Reader:</i> Inherit privileges of
      @   user <tt>reader</tt></td></tr>
      @ <tr><td valign="top"><b>v</b></td>
-     @   <td><i>Developer:</i> Inherit privileges of 
+     @   <td><i>Developer:</i> Inherit privileges of
      @   user <tt>developer</tt></td></tr>
      @ <tr><td valign="top"><b>w</b></td>
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
@@ -600,7 +600,7 @@ void user_edit(void){
   @ </ul>
   @
   @ <h2>Special Logins</h2>
-  @ 
+  @
   @ <ul>
   @ <li><p>
   @ No login is required for user "<b>nobody</b>".  The capabilities
@@ -738,13 +738,12 @@ void setup_access(void){
   @ 127.0.0.1.</p></li>
 
   @ <hr>
-  onoff_attribute("Show javascript button to fill in CAPTCHA",
-                  "auto-captcha", "autocaptcha", 0);
-  @ <p>When enabled, a button appears on the login screen for user
-  @ "anonymous" that will automatically fill in the CAPTCHA password.
-  @ This is less secure that forcing the user to do it manually, but is
-  @ probably secure enough and it is certainly more convenient for
-  @ anonymous users.</p>
+  onoff_attribute("Allow REMOTE_USER authentication",
+     "remote_user_ok", "remote_user_ok", 0);
+  @ <p>When enabled, if the REMOTE_USER environment variable is set to the
+  @ login name of a valid user and no other login credentials are available,
+  @ then the REMOTE_USER is accepted as an authenticated user.
+  @ </p></li>
 
   @ <hr>
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
@@ -758,8 +757,17 @@ void setup_access(void){
   @ <p>Fossil tries to limit out-bound sync, clone, and pull packets
   @ to this many bytes, uncompressed.  If the client requires more data
   @ than this, then the client will issue multiple HTTP requests.
-  @ Values below 1 million are not recommended.  5 million is a 
+  @ Values below 1 million are not recommended.  5 million is a
   @ reasonable number.</p>
+
+  @ <hr>
+  onoff_attribute("Show javascript button to fill in CAPTCHA",
+                  "auto-captcha", "autocaptcha", 0);
+  @ <p>When enabled, a button appears on the login screen for user
+  @ "anonymous" that will automatically fill in the CAPTCHA password.
+  @ This is less secure that forcing the user to do it manually, but is
+  @ probably secure enough and it is certainly more convenient for
+  @ anonymous users.</p>
 
   @ <hr>
   @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
@@ -803,7 +811,7 @@ void setup_timeline(void){
   @ clicking.  This setting selects the default.</p>
 
   @ <hr>
-  entry_attribute("Max timeline comment length", 6, 
+  entry_attribute("Max timeline comment length", 6,
                   "timeline-max-comment", "tmc", "0");
   @ <p>The maximum length of a comment to be displayed in a timeline.
   @ "0" there is no length limit.</p>
@@ -908,7 +916,7 @@ void setup_editcss(void){
   @ <hr>
   @ The default CSS is shown below for reference.  Other examples
   @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
-  @ See also the <a href="setup_header">header</a> and 
+  @ See also the <a href="setup_header">header</a> and
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
@@ -1011,7 +1019,7 @@ void setup_logo(void){
     Blob img;
     Stmt ins;
     blob_init(&img, aImg, szImg);
-    db_prepare(&ins, 
+    db_prepare(&ins,
         "REPLACE INTO config(name, value)"
         " VALUES('logo-image',:bytes)"
     );
@@ -1035,7 +1043,7 @@ void setup_logo(void){
   @ <p>The current project logo has a MIME-Type of <b>%h(zMime)</b> and looks
   @ like this:</p>
   @ <blockquote><img src="%s(g.zTop)/logo" alt="logo"></blockquote>
-  @ 
+  @
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
   @ The logo may or may not appear on each

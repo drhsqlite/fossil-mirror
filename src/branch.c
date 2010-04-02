@@ -124,7 +124,7 @@ void branch_new(void){
       rootid);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTag = db_column_text(&q, 0);
-    blob_appendf(&branch, "T -%F *\n", zTag); 
+    blob_appendf(&branch, "T -%F *\n", zTag);
   }
   db_finalize(&q);
   
@@ -248,7 +248,7 @@ void brlist_page(void){
     "SELECT DISTINCT value FROM tagxref"
     " WHERE tagid=%d AND value NOT NULL"
     "   AND rid IN leaves"
-    " ORDER BY value",
+    " ORDER BY value /*sort*/",
     TAG_BRANCH
   );
   cnt = 0;
@@ -277,7 +277,7 @@ void brlist_page(void){
     "SELECT value FROM tagxref"
     " WHERE tagid=%d AND value NOT NULL"
     "   AND rid IN leaves"
-    " ORDER BY value",
+    " ORDER BY value /*sort*/",
     TAG_BRANCH, TAG_BRANCH
   );
   while( db_step(&q)==SQLITE_ROW ){

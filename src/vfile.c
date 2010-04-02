@@ -326,7 +326,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
   db_prepare(&q, 
       "SELECT %Q || pathname, pathname, file_is_selected(id), rid FROM vfile"
       " WHERE NOT deleted AND vid=%d"
-      " ORDER BY pathname",
+      " ORDER BY pathname /*scan*/",
       g.zLocalRoot, vid
   );
   md5sum_init();
@@ -388,7 +388,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
  
   db_prepare(&q, "SELECT pathname, rid FROM vfile"
                  " WHERE NOT deleted AND rid>0 AND vid=%d"
-                 " ORDER BY pathname",
+                 " ORDER BY pathname /*scan*/",
                  vid);
   blob_zero(&file);
   md5sum_init();

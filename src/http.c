@@ -195,10 +195,11 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
     if( strncasecmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
-      if( rc!=200 ){
+      if( rc!=200 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
-        printf("ERROR. server says: %s\n", &zLine[ii]);
+        while( zLine[ii]==' ' ) ii++;
+        fossil_fatal("server says: %s\n", &zLine[ii]);
         goto write_err;
       }
       if( iHttpVersion==0 ){
@@ -206,7 +207,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }else{
         closeConnection = 0;
       }
-    } else if( strncasecmp(zLine, "content-length:", 15)==0 ){
+    }else if( strncasecmp(zLine, "content-length:", 15)==0 ){
       for(i=15; isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( strncasecmp(zLine, "connection:", 11)==0 ){
@@ -218,14 +219,29 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
+    }else if( rc==302 && strncasecmp(zLine, "location:", 9)==0 ){
+      int i, j;
+      for(i=9; zLine[i] && zLine[i]==' '; i++){}
+      if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
+      j = strlen(zLine) - 1; 
+      if( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ) zLine[j-4] = 0;
+      printf("redirect to %s\n", &zLine[i]);
+      url_parse(&zLine[i]);
+      transport_close();
+      http_exchange(pSend, pReply, useLogin);
+      return;
     }
+  }
+  if( rc!=200 ){
+    fossil_fatal("\"location:\" missing from 302 redirect reply");
+    goto write_err;
   }
 
   /*
   ** Extract the reply payload that follows the header
   */
   if( iLength<0 ){
-    printf("ERROR.  Server did not reply\n");
+    fossil_fatal("server did not reply");
     goto write_err;
   }
   blob_zero(pReply);

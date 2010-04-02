@@ -308,7 +308,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pDesc->aiRaiser[pDesc->iRail]==0 && pDesc->zBranch==pRow->zBranch ){
       pRow->iRail = pDesc->iRail;
     }else{
-      pRow->iRail = findFreeRail(p, 0, pDesc->idx, inUse, 0);
+      pRow->iRail = findFreeRail(p, 0, pDesc->idx, inUse, pDesc->iRail);
     }
     pDesc->aiRaiser[pRow->iRail] = pRow->idx;
     mask = 1<<pRow->iRail;

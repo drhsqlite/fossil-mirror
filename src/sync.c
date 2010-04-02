@@ -86,6 +86,7 @@ void process_sync_args(void){
   g.dontKeepUrl = find_option("once",0,0)!=0;
   url_proxy_options();
   db_find_and_open_repository(1);
+  db_open_config(0);
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
     zPw = db_get("last-sync-pw", 0);

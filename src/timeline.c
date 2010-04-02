@@ -258,7 +258,7 @@ void www_print_timeline(
       static Stmt qparent;
       static Stmt qbranch;
       db_static_prepare(&qparent,
-        "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC"
+        "SELECT pid FROM plink WHERE cid=:rid ORDER BY isprim DESC /*sort*/"
       );
       db_static_prepare(&qbranch,
         "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
@@ -409,7 +409,6 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
     @   var w = x1-x0+1;
     @   var h = y1-y0+1;
-    @   canvasDiv.appendChild(n);
     @   n.style.position = "absolute";
     @   n.style.overflow = "hidden";
     @   n.style.left = x0+"px";
@@ -417,6 +416,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   n.style.width = w+"px";
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
+    @   canvasDiv.appendChild(n);
     @ }
     @ function absoluteY(id){
     @   var obj = document.getElementById(id);
@@ -514,14 +514,19 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
     @   var btm = rowinfo[rowinfo.length-1].y + 20;
-    @   canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
-    @      'style="position:absolute;left:'+(left-5)+'px;"' +
-    @      ' width="'+width+'" height="'+btm+'"></canvas>';
-    @   realCanvas = document.getElementById('timeline-canvas');
+    @   if( btm<32768 ){
+    @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
+    @        'style="position:absolute;left:'+(left-5)+'px;"' +
+    @        ' width="'+width+'" height="'+btm+'"></canvas>';
+    @     realCanvas = document.getElementById('timeline-canvas');
+    @   }else{
+    @     realCanvas = 0;
+    @   }
     @   var context;
     @   if( realCanvas && realCanvas.getContext
     @        && (context = realCanvas.getContext('2d'))) {
     @     drawBox = function(color,x0,y0,x1,y1) {
+    @       if( y0>32767 || y1>32767 ) return;
     @       var colors = {
     @          'white':'rgba(255,255,255,1)',
     @          'black':'rgba(0,0,0,1)'
@@ -677,8 +682,8 @@ void page_timeline(void){
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
   int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
-  int p_rid = atoi(PD("p","0"));     /* artifact p and its parents */
-  int d_rid = atoi(PD("d","0"));     /* artifact d and its descendants */
+  int p_rid = name_to_rid(P("p"));   /* artifact p and its parents */
+  int d_rid = name_to_rid(P("d"));    /* artifact d and its descendants */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
@@ -873,7 +878,7 @@ void page_timeline(void){
     blob_appendf(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_str(&sql));
 
-    n = db_int(0, "SELECT count(*) FROM timeline");
+    n = db_int(0, "SELECT count(*) FROM timeline /*scan*/");
     if( n<nEntry && zAfter ){
       cgi_redirect(url_render(&url, "a", 0, "b", 0));
     }
@@ -902,12 +907,12 @@ void page_timeline(void){
     }
     if( g.okHistory ){
       if( zAfter || n==nEntry ){
-        zDate = db_text(0, "SELECT min(timestamp) FROM timeline");
+        zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");
         free(zDate);
       }
       if( zBefore || (zAfter && n==nEntry) ){
-        zDate = db_text(0, "SELECT max(timestamp) FROM timeline");
+        zDate = db_text(0, "SELECT max(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Newer", "a", zDate, "b");
         free(zDate);
       }else if( tagid==0 ){
@@ -933,7 +938,7 @@ void page_timeline(void){
     }
   }
   blob_zero(&sql);
-  db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC");
+  db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
   www_print_timeline(&q, tmFlags, 0);

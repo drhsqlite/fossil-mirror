@@ -50,6 +50,7 @@ struct Stmt {
   Blob sql;               /* The SQL for this statement */
   sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare() */
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
+  int nStep;              /* Number of sqlite3_step() calls */
 };
 #endif /* INTERFACE */
 
@@ -193,6 +194,7 @@ int db_vprepare(Stmt *pStmt, const char *zFormat, va_list ap){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
   }
   pStmt->pNext = pStmt->pPrev = 0;
+  pStmt->nStep = 0;
   return 0;
 }
 int db_prepare(Stmt *pStmt, const char *zFormat, ...){
@@ -268,19 +270,42 @@ int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 int db_step(Stmt *pStmt){
   int rc;
   rc = sqlite3_step(pStmt->pStmt);
+  pStmt->nStep++;
   return rc;
+}
+
+/*
+** Print warnings if a query is inefficient.
+*/
+static void db_stats(Stmt *pStmt){
+#ifdef FOSSIL_DEBUG
+  int c1, c2;
+  const char *zSql = sqlite3_sql(pStmt->pStmt);
+  if( zSql==0 ) return;
+  c1 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
+  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
+  if( c1>pStmt->nStep*4 && strstr(zSql,"/*scan*/")==0 ){
+    fossil_warning("%d scan steps for %d rows in [%s]", c1, pStmt->nStep, zSql);
+  }else if( c2 && strstr(zSql,"/*sort*/")==0 && strstr(zSql,"/*scan*/")==0 ){
+    fossil_warning("sort w/o index in [%s]", zSql);
+  }
+  pStmt->nStep = 0;
+#endif
 }
 
 /*
 ** Reset or finalize a statement.
 */
 int db_reset(Stmt *pStmt){
-  int rc = sqlite3_reset(pStmt->pStmt);
+  int rc;
+  db_stats(pStmt);
+  rc = sqlite3_reset(pStmt->pStmt);
   db_check_result(rc);
   return rc;
 }
 int db_finalize(Stmt *pStmt){
   int rc;
+  db_stats(pStmt);
   blob_reset(&pStmt->sql);
   rc = sqlite3_finalize(pStmt->pStmt);
   db_check_result(rc);
@@ -1190,6 +1215,7 @@ int is_false(const char *zVal){
 void db_swap_connections(void){
   if( !g.useAttach ){
     sqlite3 *dbTemp = g.db;
+    assert( g.dbConfig!=0 );
     g.db = g.dbConfig;
     g.dbConfig = dbTemp;
   }

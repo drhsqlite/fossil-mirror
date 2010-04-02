@@ -409,6 +409,7 @@ void page_test_env(void){
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br>
   @ g.zTop = %h(g.zTop)<br>
+  @ g.zRepositoryName = %h(g.zRepositoryName)<br>
   cgi_print_all();
   style_footer();
 }

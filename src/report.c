@@ -924,6 +924,10 @@ void rptview_page(void){
     if( g.okTktFmt ){
       style_submenu_element("SQL", "SQL", "rptsql?rn=%d",rn);
     }
+    if( g.okNewTkt ){
+      style_submenu_element("New Ticket", "Create a new ticket",
+        "%s/tktnew", g.zTop);
+    }
     style_header(zTitle);
     output_color_key(zClrKey, 1, 
         "border=0 cellpadding=3 cellspacing=0 class=\"report\"");

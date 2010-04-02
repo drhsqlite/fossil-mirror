@@ -400,6 +400,17 @@ void login_check_credentials(void){
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zCookie);
   }
 
+  /* If no user found and the REMOTE_USER environment variable is set,
+  ** the accept the value of REMOTE_USER as the user.
+  */
+  if( uid==0 ){
+    const char *zRemoteUser = P("REMOTE_USER");
+    if( zRemoteUser && db_get_boolean("remote_user_ok",0) ){
+      uid = db_int(0, "SELECT uid FROM user WHERE login=%Q"
+                      " AND length(cap)>0 AND length(pw)>0", zRemoteUser);
+    }
+  }
+
   /* If no user found yet, try to log in as "nobody" */
   if( uid==0 ){
     uid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
@@ -478,7 +489,7 @@ void login_set_capabilities(const char *zCap){
                               g.okRdWiki = g.okWrWiki = g.okNewWiki =
                               g.okApndWiki = g.okHistory = g.okClone = 
                               g.okNewTkt = g.okPassword = g.okRdAddr =
-                              g.okTktFmt = g.okAttach = 1;
+                              g.okTktFmt = g.okAttach = g.okApndTkt = 1;
                               /* Fall thru into Read/Write */
       case 'i':   g.okRead = g.okWrite = 1;                     break;
       case 'o':   g.okRead = 1;                                 break;

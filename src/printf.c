@@ -54,6 +54,7 @@
 #define etPATH       20 /* Path type */
 #define etWIKISTR    21 /* Wiki text rendered from a char* */
 #define etWIKIBLOB   22 /* Wiki text rendered from a Blob* */
+#define etSTRINGID   23 /* String with length limit for a UUID prefix */
 
 
 /*
@@ -103,6 +104,7 @@ static const et_info fmtinfo[] = {
   {  't',  0, 4, etHTTPIZE,    0,  0 },  /* "/" -> "%2F" */
   {  'T',  0, 4, etURLIZE,     0,  0 },  /* "/" unchanged */
   {  'F',  0, 4, etFOSSILIZE,  0,  0 },
+  {  'S',  0, 4, etSTRINGID,   0,  0 },
   {  'c',  0, 0, etCHARX,      0,  0 },
   {  'o',  8, 0, etRADIX,      0,  2 },
   {  'u', 10, 0, etRADIX,      0,  0 },
@@ -576,6 +578,10 @@ int vxprintf(
         }
         bufpt[length]='\0';
         break;
+      }
+      case etSTRINGID: {
+        precision = 16;
+        /* Fall through */
       }
       case etSTRING:
       case etDYNSTRING: {

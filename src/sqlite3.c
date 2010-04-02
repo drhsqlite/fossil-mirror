@@ -1,6 +1,6 @@
 /******************************************************************************
 ** This file is an amalgamation of many separate C source files from SQLite
-** version 3.6.23.  By combining all the individual C code files into this 
+** version 3.6.23.1.  By combining all the individual C code files into this 
 ** single large file, the entire code can be compiled as a one translation
 ** unit.  This allows many compilers to do optimizations that would not be
 ** possible if the files were compiled separately.  Performance improvements
@@ -628,9 +628,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.6.23"
+#define SQLITE_VERSION        "3.6.23.1"
 #define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-03-05 13:53:23 27413fc8dd52b754b4be9344a66bb9e0d752d48e"
+#define SQLITE_SOURCE_ID      "2010-03-26 22:28:06 ex-b078b588d617e07886ad156e9f54ade6d823568e"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -10427,7 +10427,7 @@ SQLITE_PRIVATE void sqlite3ValueSetStr(sqlite3_value*, int, const void *,u8,
                         void(*)(void*));
 SQLITE_PRIVATE void sqlite3ValueFree(sqlite3_value*);
 SQLITE_PRIVATE sqlite3_value *sqlite3ValueNew(sqlite3 *);
-SQLITE_PRIVATE char *sqlite3Utf16to8(sqlite3 *, const void*, int);
+SQLITE_PRIVATE char *sqlite3Utf16to8(sqlite3 *, const void*, int, u8);
 #ifdef SQLITE_ENABLE_STAT2
 SQLITE_PRIVATE char *sqlite3Utf8to16(sqlite3 *, u8, char *, int, int *);
 #endif
@@ -10868,6 +10868,393 @@ SQLITE_PRIVATE int sqlite3PendingByte = 0x40000000;
 SQLITE_PRIVATE const unsigned char sqlite3OpcodeProperty[] = OPFLG_INITIALIZER;
 
 /************** End of global.c **********************************************/
+/************** Begin file ctime.c *******************************************/
+/*
+** 2010 February 23
+**
+** The author disclaims copyright to this source code.  In place of
+** a legal notice, here is a blessing:
+**
+**    May you do good and not evil.
+**    May you find forgiveness for yourself and forgive others.
+**    May you share freely, never taking more than you give.
+**
+*************************************************************************
+**
+** This file implements routines used to report what compile-time options
+** SQLite was built with.
+*/
+
+#ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
+
+
+/*
+** An array of names of all compile-time options.  This array should 
+** be sorted A-Z.
+**
+** This array looks large, but in a typical installation actually uses
+** only a handful of compile-time options, so most times this array is usually
+** rather short and uses little memory space.
+*/
+static const char * const azCompileOpt[] = {
+
+/* These macros are provided to "stringify" the value of the define
+** for those options in which the value is meaningful. */
+#define CTIMEOPT_VAL_(opt) #opt
+#define CTIMEOPT_VAL(opt) CTIMEOPT_VAL_(opt)
+
+#ifdef SQLITE_32BIT_ROWID
+  "32BIT_ROWID",
+#endif
+#ifdef SQLITE_4_BYTE_ALIGNED_MALLOC
+  "4_BYTE_ALIGNED_MALLOC",
+#endif
+#ifdef SQLITE_CASE_SENSITIVE_LIKE
+  "CASE_SENSITIVE_LIKE",
+#endif
+#ifdef SQLITE_CHECK_PAGES
+  "CHECK_PAGES",
+#endif
+#ifdef SQLITE_COVERAGE_TEST
+  "COVERAGE_TEST",
+#endif
+#ifdef SQLITE_DEBUG
+  "DEBUG",
+#endif
+#ifdef SQLITE_DEFAULT_LOCKING_MODE
+  "DEFAULT_LOCKING_MODE=" CTIMEOPT_VAL(SQLITE_DEFAULT_LOCKING_MODE),
+#endif
+#ifdef SQLITE_DISABLE_DIRSYNC
+  "DISABLE_DIRSYNC",
+#endif
+#ifdef SQLITE_DISABLE_LFS
+  "DISABLE_LFS",
+#endif
+#ifdef SQLITE_ENABLE_ATOMIC_WRITE
+  "ENABLE_ATOMIC_WRITE",
+#endif
+#ifdef SQLITE_ENABLE_CEROD
+  "ENABLE_CEROD",
+#endif
+#ifdef SQLITE_ENABLE_COLUMN_METADATA
+  "ENABLE_COLUMN_METADATA",
+#endif
+#ifdef SQLITE_ENABLE_EXPENSIVE_ASSERT
+  "ENABLE_EXPENSIVE_ASSERT",
+#endif
+#ifdef SQLITE_ENABLE_FTS1
+  "ENABLE_FTS1",
+#endif
+#ifdef SQLITE_ENABLE_FTS2
+  "ENABLE_FTS2",
+#endif
+#ifdef SQLITE_ENABLE_FTS3
+  "ENABLE_FTS3",
+#endif
+#ifdef SQLITE_ENABLE_FTS3_PARENTHESIS
+  "ENABLE_FTS3_PARENTHESIS",
+#endif
+#ifdef SQLITE_ENABLE_FTS4
+  "ENABLE_FTS4",
+#endif
+#ifdef SQLITE_ENABLE_ICU
+  "ENABLE_ICU",
+#endif
+#ifdef SQLITE_ENABLE_IOTRACE
+  "ENABLE_IOTRACE",
+#endif
+#ifdef SQLITE_ENABLE_LOAD_EXTENSION
+  "ENABLE_LOAD_EXTENSION",
+#endif
+#ifdef SQLITE_ENABLE_LOCKING_STYLE
+  "ENABLE_LOCKING_STYLE=" CTIMEOPT_VAL(SQLITE_ENABLE_LOCKING_STYLE),
+#endif
+#ifdef SQLITE_ENABLE_MEMORY_MANAGEMENT
+  "ENABLE_MEMORY_MANAGEMENT",
+#endif
+#ifdef SQLITE_ENABLE_MEMSYS3
+  "ENABLE_MEMSYS3",
+#endif
+#ifdef SQLITE_ENABLE_MEMSYS5
+  "ENABLE_MEMSYS5",
+#endif
+#ifdef SQLITE_ENABLE_OVERSIZE_CELL_CHECK
+  "ENABLE_OVERSIZE_CELL_CHECK",
+#endif
+#ifdef SQLITE_ENABLE_RTREE
+  "ENABLE_RTREE",
+#endif
+#ifdef SQLITE_ENABLE_STAT2
+  "ENABLE_STAT2",
+#endif
+#ifdef SQLITE_ENABLE_UNLOCK_NOTIFY
+  "ENABLE_UNLOCK_NOTIFY",
+#endif
+#ifdef SQLITE_ENABLE_UPDATE_DELETE_LIMIT
+  "ENABLE_UPDATE_DELETE_LIMIT",
+#endif
+#ifdef SQLITE_HAS_CODEC
+  "HAS_CODEC",
+#endif
+#ifdef SQLITE_HAVE_ISNAN
+  "HAVE_ISNAN",
+#endif
+#ifdef SQLITE_HOMEGROWN_RECURSIVE_MUTEX
+  "HOMEGROWN_RECURSIVE_MUTEX",
+#endif
+#ifdef SQLITE_IGNORE_AFP_LOCK_ERRORS
+  "IGNORE_AFP_LOCK_ERRORS",
+#endif
+#ifdef SQLITE_IGNORE_FLOCK_LOCK_ERRORS
+  "IGNORE_FLOCK_LOCK_ERRORS",
+#endif
+#ifdef SQLITE_INT64_TYPE
+  "INT64_TYPE",
+#endif
+#ifdef SQLITE_LOCK_TRACE
+  "LOCK_TRACE",
+#endif
+#ifdef SQLITE_MEMDEBUG
+  "MEMDEBUG",
+#endif
+#ifdef SQLITE_MIXED_ENDIAN_64BIT_FLOAT
+  "MIXED_ENDIAN_64BIT_FLOAT",
+#endif
+#ifdef SQLITE_NO_SYNC
+  "NO_SYNC",
+#endif
+#ifdef SQLITE_OMIT_ALTERTABLE
+  "OMIT_ALTERTABLE",
+#endif
+#ifdef SQLITE_OMIT_ANALYZE
+  "OMIT_ANALYZE",
+#endif
+#ifdef SQLITE_OMIT_ATTACH
+  "OMIT_ATTACH",
+#endif
+#ifdef SQLITE_OMIT_AUTHORIZATION
+  "OMIT_AUTHORIZATION",
+#endif
+#ifdef SQLITE_OMIT_AUTOINCREMENT
+  "OMIT_AUTOINCREMENT",
+#endif
+#ifdef SQLITE_OMIT_AUTOINIT
+  "OMIT_AUTOINIT",
+#endif
+#ifdef SQLITE_OMIT_AUTOVACUUM
+  "OMIT_AUTOVACUUM",
+#endif
+#ifdef SQLITE_OMIT_BETWEEN_OPTIMIZATION
+  "OMIT_BETWEEN_OPTIMIZATION",
+#endif
+#ifdef SQLITE_OMIT_BLOB_LITERAL
+  "OMIT_BLOB_LITERAL",
+#endif
+#ifdef SQLITE_OMIT_BTREECOUNT
+  "OMIT_BTREECOUNT",
+#endif
+#ifdef SQLITE_OMIT_BUILTIN_TEST
+  "OMIT_BUILTIN_TEST",
+#endif
+#ifdef SQLITE_OMIT_CAST
+  "OMIT_CAST",
+#endif
+#ifdef SQLITE_OMIT_CHECK
+  "OMIT_CHECK",
+#endif
+#ifdef SQLITE_OMIT_COMPILEOPTION_DIAGS
+  "OMIT_COMPILEOPTION_DIAGS",
+#endif
+#ifdef SQLITE_OMIT_COMPLETE
+  "OMIT_COMPLETE",
+#endif
+#ifdef SQLITE_OMIT_COMPOUND_SELECT
+  "OMIT_COMPOUND_SELECT",
+#endif
+#ifdef SQLITE_OMIT_DATETIME_FUNCS
+  "OMIT_DATETIME_FUNCS",
+#endif
+#ifdef SQLITE_OMIT_DECLTYPE
+  "OMIT_DECLTYPE",
+#endif
+#ifdef SQLITE_OMIT_DEPRECATED
+  "OMIT_DEPRECATED",
+#endif
+#ifdef SQLITE_OMIT_DISKIO
+  "OMIT_DISKIO",
+#endif
+#ifdef SQLITE_OMIT_EXPLAIN
+  "OMIT_EXPLAIN",
+#endif
+#ifdef SQLITE_OMIT_FLAG_PRAGMAS
+  "OMIT_FLAG_PRAGMAS",
+#endif
+#ifdef SQLITE_OMIT_FLOATING_POINT
+  "OMIT_FLOATING_POINT",
+#endif
+#ifdef SQLITE_OMIT_FOREIGN_KEY
+  "OMIT_FOREIGN_KEY",
+#endif
+#ifdef SQLITE_OMIT_GET_TABLE
+  "OMIT_GET_TABLE",
+#endif
+#ifdef SQLITE_OMIT_GLOBALRECOVER
+  "OMIT_GLOBALRECOVER",
+#endif
+#ifdef SQLITE_OMIT_INCRBLOB
+  "OMIT_INCRBLOB",
+#endif
+#ifdef SQLITE_OMIT_INTEGRITY_CHECK
+  "OMIT_INTEGRITY_CHECK",
+#endif
+#ifdef SQLITE_OMIT_LIKE_OPTIMIZATION
+  "OMIT_LIKE_OPTIMIZATION",
+#endif
+#ifdef SQLITE_OMIT_LOAD_EXTENSION
+  "OMIT_LOAD_EXTENSION",
+#endif
+#ifdef SQLITE_OMIT_LOCALTIME
+  "OMIT_LOCALTIME",
+#endif
+#ifdef SQLITE_OMIT_LOOKASIDE
+  "OMIT_LOOKASIDE",
+#endif
+#ifdef SQLITE_OMIT_MEMORYDB
+  "OMIT_MEMORYDB",
+#endif
+#ifdef SQLITE_OMIT_OR_OPTIMIZATION
+  "OMIT_OR_OPTIMIZATION",
+#endif
+#ifdef SQLITE_OMIT_PAGER_PRAGMAS
+  "OMIT_PAGER_PRAGMAS",
+#endif
+#ifdef SQLITE_OMIT_PRAGMA
+  "OMIT_PRAGMA",
+#endif
+#ifdef SQLITE_OMIT_PROGRESS_CALLBACK
+  "OMIT_PROGRESS_CALLBACK",
+#endif
+#ifdef SQLITE_OMIT_QUICKBALANCE
+  "OMIT_QUICKBALANCE",
+#endif
+#ifdef SQLITE_OMIT_REINDEX
+  "OMIT_REINDEX",
+#endif
+#ifdef SQLITE_OMIT_SCHEMA_PRAGMAS
+  "OMIT_SCHEMA_PRAGMAS",
+#endif
+#ifdef SQLITE_OMIT_SCHEMA_VERSION_PRAGMAS
+  "OMIT_SCHEMA_VERSION_PRAGMAS",
+#endif
+#ifdef SQLITE_OMIT_SHARED_CACHE
+  "OMIT_SHARED_CACHE",
+#endif
+#ifdef SQLITE_OMIT_SUBQUERY
+  "OMIT_SUBQUERY",
+#endif
+#ifdef SQLITE_OMIT_TCL_VARIABLE
+  "OMIT_TCL_VARIABLE",
+#endif
+#ifdef SQLITE_OMIT_TEMPDB
+  "OMIT_TEMPDB",
+#endif
+#ifdef SQLITE_OMIT_TRACE
+  "OMIT_TRACE",
+#endif
+#ifdef SQLITE_OMIT_TRIGGER
+  "OMIT_TRIGGER",
+#endif
+#ifdef SQLITE_OMIT_TRUNCATE_OPTIMIZATION
+  "OMIT_TRUNCATE_OPTIMIZATION",
+#endif
+#ifdef SQLITE_OMIT_UTF16
+  "OMIT_UTF16",
+#endif
+#ifdef SQLITE_OMIT_VACUUM
+  "OMIT_VACUUM",
+#endif
+#ifdef SQLITE_OMIT_VIEW
+  "OMIT_VIEW",
+#endif
+#ifdef SQLITE_OMIT_VIRTUALTABLE
+  "OMIT_VIRTUALTABLE",
+#endif
+#ifdef SQLITE_OMIT_WSD
+  "OMIT_WSD",
+#endif
+#ifdef SQLITE_OMIT_XFER_OPT
+  "OMIT_XFER_OPT",
+#endif
+#ifdef SQLITE_PERFORMANCE_TRACE
+  "PERFORMANCE_TRACE",
+#endif
+#ifdef SQLITE_PROXY_DEBUG
+  "PROXY_DEBUG",
+#endif
+#ifdef SQLITE_SECURE_DELETE
+  "SECURE_DELETE",
+#endif
+#ifdef SQLITE_SMALL_STACK
+  "SMALL_STACK",
+#endif
+#ifdef SQLITE_SOUNDEX
+  "SOUNDEX",
+#endif
+#ifdef SQLITE_TCL
+  "TCL",
+#endif
+#ifdef SQLITE_TEMP_STORE
+  "TEMP_STORE=" CTIMEOPT_VAL(SQLITE_TEMP_STORE),
+#endif
+#ifdef SQLITE_TEST
+  "TEST",
+#endif
+#ifdef SQLITE_THREADSAFE
+  "THREADSAFE=" CTIMEOPT_VAL(SQLITE_THREADSAFE),
+#endif
+#ifdef SQLITE_USE_ALLOCA
+  "USE_ALLOCA",
+#endif
+#ifdef SQLITE_ZERO_MALLOC
+  "ZERO_MALLOC"
+#endif
+};
+
+/*
+** Given the name of a compile-time option, return true if that option
+** was used and false if not.
+**
+** The name can optionally begin with "SQLITE_" but the "SQLITE_" prefix
+** is not required for a match.
+*/
+SQLITE_API int sqlite3_compileoption_used(const char *zOptName){
+  int i, n;
+  if( sqlite3StrNICmp(zOptName, "SQLITE_", 7)==0 ) zOptName += 7;
+  n = sqlite3Strlen30(zOptName);
+
+  /* Since ArraySize(azCompileOpt) is normally in single digits, a
+  ** linear search is adequate.  No need for a binary search. */
+  for(i=0; i<ArraySize(azCompileOpt); i++){
+    if(   (sqlite3StrNICmp(zOptName, azCompileOpt[i], n)==0)
+       && ( (azCompileOpt[i][n]==0) || (azCompileOpt[i][n]=='=') ) ) return 1;
+  }
+  return 0;
+}
+
+/*
+** Return the N-th compile-time option string.  If N is out of range,
+** return a NULL pointer.
+*/
+SQLITE_API const char *sqlite3_compileoption_get(int N){
+  if( N>=0 && N<ArraySize(azCompileOpt) ){
+    return azCompileOpt[N];
+  }
+  return 0;
+}
+
+#endif /* SQLITE_OMIT_COMPILEOPTION_DIAGS */
+
+/************** End of ctime.c ***********************************************/
 /************** Begin file status.c ******************************************/
 /*
 ** 2008 June 18
@@ -12998,7 +13385,8 @@ static void sqlite3MemFree(void *pPrior){
   struct MemBlockHdr *pHdr;
   void **pBt;
   char *z;
-  assert( sqlite3GlobalConfig.bMemstat || mem.mutex!=0 );
+  assert( sqlite3GlobalConfig.bMemstat || sqlite3GlobalConfig.bCoreMutex==0 
+       || mem.mutex!=0 );
   pHdr = sqlite3MemsysGetHeader(pPrior);
   pBt = (void**)pHdr;
   pBt -= pHdr->nBacktraceSlots;
@@ -15625,7 +16013,9 @@ static void winMutexEnter(sqlite3_mutex *p){
 #endif
 }
 static int winMutexTry(sqlite3_mutex *p){
+#ifndef NDEBUG
   DWORD tid = GetCurrentThreadId(); 
+#endif
   int rc = SQLITE_BUSY;
   assert( p->id==SQLITE_MUTEX_RECURSIVE || winMutexNotheld2(p, tid) );
   /*
@@ -15663,7 +16053,9 @@ static int winMutexTry(sqlite3_mutex *p){
 ** is not currently allocated.  SQLite will never do either.
 */
 static void winMutexLeave(sqlite3_mutex *p){
-  DWORD tid = GetCurrentThreadId(); 
+#ifndef NDEBUG
+  DWORD tid = GetCurrentThreadId();
+#endif
   assert( p->nRef>0 );
   assert( p->owner==tid );
   p->nRef--;
@@ -18424,11 +18816,11 @@ SQLITE_PRIVATE int sqlite3Utf8To8(unsigned char *zIn){
 **
 ** NULL is returned if there is an allocation error.
 */
-SQLITE_PRIVATE char *sqlite3Utf16to8(sqlite3 *db, const void *z, int nByte){
+SQLITE_PRIVATE char *sqlite3Utf16to8(sqlite3 *db, const void *z, int nByte, u8 enc){
   Mem m;
   memset(&m, 0, sizeof(m));
   m.db = db;
-  sqlite3VdbeMemSetStr(&m, z, nByte, SQLITE_UTF16NATIVE, SQLITE_STATIC);
+  sqlite3VdbeMemSetStr(&m, z, nByte, enc, SQLITE_STATIC);
   sqlite3VdbeChangeEncoding(&m, SQLITE_UTF8);
   if( db->mallocFailed ){
     sqlite3VdbeMemRelease(&m);
@@ -18436,7 +18828,9 @@ SQLITE_PRIVATE char *sqlite3Utf16to8(sqlite3 *db, const void *z, int nByte){
   }
   assert( (m.flags & MEM_Term)!=0 || db->mallocFailed );
   assert( (m.flags & MEM_Str)!=0 || db->mallocFailed );
-  return (m.flags & MEM_Dyn)!=0 ? m.z : sqlite3DbStrDup(db, m.z);
+  assert( (m.flags & MEM_Dyn)!=0 || db->mallocFailed );
+  assert( m.z || db->mallocFailed );
+  return m.z;
 }
 
 /*
@@ -19238,7 +19632,7 @@ SQLITE_PRIVATE u8 sqlite3GetVarint(const unsigned char *p, u64 *v){
 
   /* Verify that constants are precomputed correctly */
   assert( SLOT_2_0 == ((0x7f<<14) | (0x7f)) );
-  assert( SLOT_4_2_0 == ((0xf<<28) | (0x7f<<14) | (0x7f)) );
+  assert( SLOT_4_2_0 == ((0xfU<<28) | (0x7f<<14) | (0x7f)) );
 
   p++;
   a = a<<14;
@@ -25763,7 +26157,9 @@ static int unixOpen(
       fd = open(zName, openFlags, openMode);
     }
     if( fd<0 ){
-      rc = SQLITE_CANTOPEN_BKPT;
+      sqlite3_log(SQLITE_CANTOPEN, "cannot open file [%s]: %s", zName,
+                  strerror(errno));
+      rc = SQLITE_CANTOPEN;
       goto open_finished;
     }
   }
@@ -33817,6 +34213,9 @@ end_playback:
     rc = readMasterJournal(pPager->jfd, zMaster, pPager->pVfs->mxPathname+1);
     testcase( rc!=SQLITE_OK );
   }
+  if( rc==SQLITE_OK && pPager->noSync==0 && pPager->state>=PAGER_EXCLUSIVE ){
+    rc = sqlite3OsSync(pPager->fd, pPager->sync_flags);
+  }
   if( rc==SQLITE_OK ){
     rc = pager_end_transaction(pPager, zMaster[0]!='\0');
     testcase( rc!=SQLITE_OK );
@@ -35137,6 +35536,7 @@ SQLITE_PRIVATE int sqlite3PagerOpen(
   /* pPager->pBusyHandlerArg = 0; */
   pPager->xReiniter = xReinit;
   /* memset(pPager->aHash, 0, sizeof(pPager->aHash)); */
+
   *ppPager = pPager;
   return SQLITE_OK;
 }
@@ -35286,8 +35686,24 @@ static int readDbPage(PgHdr *pPg){
     rc = SQLITE_OK;
   }
   if( pgno==1 ){
-    u8 *dbFileVers = &((u8*)pPg->pData)[24];
-    memcpy(&pPager->dbFileVers, dbFileVers, sizeof(pPager->dbFileVers));
+    if( rc ){
+      /* If the read is unsuccessful, set the dbFileVers[] to something
+      ** that will never be a valid file version.  dbFileVers[] is a copy
+      ** of bytes 24..39 of the database.  Bytes 28..31 should always be
+      ** zero.  Bytes 32..35 and 35..39 should be page numbers which are
+      ** never 0xffffffff.  So filling pPager->dbFileVers[] with all 0xff
+      ** bytes should suffice.
+      **
+      ** For an encrypted database, the situation is more complex:  bytes
+      ** 24..39 of the database are white noise.  But the probability of
+      ** white noising equaling 16 bytes of 0xff is vanishingly small so
+      ** we should still be ok.
+      */
+      memset(pPager->dbFileVers, 0xff, sizeof(pPager->dbFileVers));
+    }else{
+      u8 *dbFileVers = &((u8*)pPg->pData)[24];
+      memcpy(&pPager->dbFileVers, dbFileVers, sizeof(pPager->dbFileVers));
+    }
   }
   CODEC1(pPager, pPg->pData, pgno, 3, rc = SQLITE_NOMEM);
 
@@ -36788,6 +37204,7 @@ SQLITE_PRIVATE int sqlite3PagerSavepoint(Pager *pPager, int op, int iSavepoint){
         /* Only truncate if it is an in-memory sub-journal. */
         if( sqlite3IsMemJournal(pPager->sjfd) ){
           rc = sqlite3OsTruncate(pPager->sjfd, 0);
+          assert( rc==SQLITE_OK );
         }
         pPager->nSubRec = 0;
       }
@@ -43201,7 +43618,7 @@ static int clearCell(MemPage *pPage, unsigned char *pCell){
       if( rc ) return rc;
     }
 
-    if( (pOvfl || (pOvfl = btreePageLookup(pBt, ovflPgno)))
+    if( ( pOvfl || ((pOvfl = btreePageLookup(pBt, ovflPgno))!=0) )
      && sqlite3PagerPageRefcount(pOvfl->pDbPage)!=1
     ){
       /* There is no reason any cursor should have an outstanding reference 
@@ -43954,7 +44371,7 @@ static int balance_nonroot(
       ** buffer. It will be copied out again as soon as the aSpace[] buffer
       ** is allocated.  */
       if( pBt->secureDelete ){
-        int iOff = apDiv[i] - pParent->aData;
+        int iOff = SQLITE_PTR_TO_INT(apDiv[i]) - SQLITE_PTR_TO_INT(pParent->aData);
         if( (iOff+szNew[i])>pBt->usableSize ){
           rc = SQLITE_CORRUPT_BKPT;
           memset(apOld, 0, (i+1)*sizeof(MemPage*));
@@ -47323,7 +47740,7 @@ SQLITE_PRIVATE void sqlite3VdbeMemShallowCopy(Mem *pTo, const Mem *pFrom, int sr
   sqlite3VdbeMemReleaseExternal(pTo);
   memcpy(pTo, pFrom, MEMCELLSIZE);
   pTo->xDel = 0;
-  if( (pFrom->flags&MEM_Dyn)!=0 || pFrom->z==pFrom->zMalloc ){
+  if( (pFrom->flags&MEM_Static)==0 ){
     pTo->flags &= ~(MEM_Dyn|MEM_Static|MEM_Ephem);
     assert( srcType==MEM_Ephem || srcType==MEM_Static );
     pTo->flags |= srcType;
@@ -49955,12 +50372,17 @@ SQLITE_PRIVATE int sqlite3VdbeHalt(Vdbe *p){
     /* If eStatementOp is non-zero, then a statement transaction needs to
     ** be committed or rolled back. Call sqlite3VdbeCloseStatement() to
     ** do so. If this operation returns an error, and the current statement
-    ** error code is SQLITE_OK or SQLITE_CONSTRAINT, then set the error
-    ** code to the new value.
+    ** error code is SQLITE_OK or SQLITE_CONSTRAINT, then promote the
+    ** current statement error code.
+    **
+    ** Note that sqlite3VdbeCloseStatement() can only fail if eStatementOp
+    ** is SAVEPOINT_ROLLBACK.  But if p->rc==SQLITE_OK then eStatementOp
+    ** must be SAVEPOINT_RELEASE.  Hence the NEVER(p->rc==SQLITE_OK) in 
+    ** the following code.
     */
     if( eStatementOp ){
       rc = sqlite3VdbeCloseStatement(p, eStatementOp);
-      if( rc && (p->rc==SQLITE_OK || p->rc==SQLITE_CONSTRAINT) ){
+      if( rc && (NEVER(p->rc==SQLITE_OK) || p->rc==SQLITE_CONSTRAINT) ){
         p->rc = rc;
         sqlite3DbFree(db, p->zErrMsg);
         p->zErrMsg = 0;
@@ -52579,17 +53001,30 @@ static VdbeCursor *allocateCursor(
 static void applyNumericAffinity(Mem *pRec){
   if( (pRec->flags & (MEM_Real|MEM_Int))==0 ){
     int realnum;
+    u8 enc = pRec->enc;
     sqlite3VdbeMemNulTerminate(pRec);
-    if( (pRec->flags&MEM_Str)
-         && sqlite3IsNumber(pRec->z, &realnum, pRec->enc) ){
+    if( (pRec->flags&MEM_Str) && sqlite3IsNumber(pRec->z, &realnum, enc) ){
       i64 value;
-      sqlite3VdbeChangeEncoding(pRec, SQLITE_UTF8);
-      if( !realnum && sqlite3Atoi64(pRec->z, &value) ){
+      char *zUtf8 = pRec->z;
+#ifndef SQLITE_OMIT_UTF16
+      if( enc!=SQLITE_UTF8 ){
+        assert( pRec->db );
+        zUtf8 = sqlite3Utf16to8(pRec->db, pRec->z, pRec->n, enc);
+        if( !zUtf8 ) return;
+      }
+#endif
+      if( !realnum && sqlite3Atoi64(zUtf8, &value) ){
         pRec->u.i = value;
         MemSetTypeFlag(pRec, MEM_Int);
       }else{
-        sqlite3VdbeMemRealify(pRec);
+        sqlite3AtoF(zUtf8, &pRec->r);
+        MemSetTypeFlag(pRec, MEM_Real);
       }
+#ifndef SQLITE_OMIT_UTF16
+      if( enc!=SQLITE_UTF8 ){
+        sqlite3DbFree(pRec->db, zUtf8);
+      }
+#endif
     }
   }
 }
@@ -53041,6 +53476,8 @@ SQLITE_PRIVATE int sqlite3VdbeExec(
     struct OP_Ge_stack_vars {
       int res;            /* Result of the comparison of pIn1 against pIn3 */
       char affinity;      /* Affinity to use for comparison */
+      u16 flags1;         /* Copy of initial value of pIn1->flags */
+      u16 flags3;         /* Copy of initial value of pIn3->flags */
     } ai;
     struct OP_Compare_stack_vars {
       int n;
@@ -54575,10 +55012,14 @@ case OP_Ge: {             /* same as TK_GE, jump, in1, in3 */
 #if 0  /* local variables moved into u.ai */
   int res;            /* Result of the comparison of pIn1 against pIn3 */
   char affinity;      /* Affinity to use for comparison */
+  u16 flags1;         /* Copy of initial value of pIn1->flags */
+  u16 flags3;         /* Copy of initial value of pIn3->flags */
 #endif /* local variables moved into u.ai */
 
   pIn1 = &aMem[pOp->p1];
   pIn3 = &aMem[pOp->p3];
+  u.ai.flags1 = pIn1->flags;
+  u.ai.flags3 = pIn3->flags;
   if( (pIn1->flags | pIn3->flags)&MEM_Null ){
     /* One or both operands are NULL */
     if( pOp->p5 & SQLITE_NULLEQ ){
@@ -54633,6 +55074,10 @@ case OP_Ge: {             /* same as TK_GE, jump, in1, in3 */
   }else if( u.ai.res ){
     pc = pOp->p2-1;
   }
+
+  /* Undo any changes made by applyAffinity() to the input registers. */
+  pIn1->flags = (pIn1->flags&~MEM_TypeMask) | (u.ai.flags1&MEM_TypeMask);
+  pIn3->flags = (pIn3->flags&~MEM_TypeMask) | (u.ai.flags3&MEM_TypeMask);
   break;
 }
 
@@ -61178,10 +61623,6 @@ static int codeCompare(
   addr = sqlite3VdbeAddOp4(pParse->pVdbe, opcode, in2, dest, in1,
                            (void*)p4, P4_COLLSEQ);
   sqlite3VdbeChangeP5(pParse->pVdbe, (u8)p5);
-  if( (p5 & SQLITE_AFF_MASK)!=SQLITE_AFF_NONE ){
-    sqlite3ExprCacheAffinityChange(pParse, in1, 1);
-    sqlite3ExprCacheAffinityChange(pParse, in2, 1);
-  }
   return addr;
 }
 
@@ -71078,393 +71519,6 @@ SQLITE_PRIVATE Schema *sqlite3SchemaGet(sqlite3 *db, Btree *pBt){
 }
 
 /************** End of callback.c ********************************************/
-/************** Begin file ctime.c *******************************************/
-/*
-** 2010 February 23
-**
-** The author disclaims copyright to this source code.  In place of
-** a legal notice, here is a blessing:
-**
-**    May you do good and not evil.
-**    May you find forgiveness for yourself and forgive others.
-**    May you share freely, never taking more than you give.
-**
-*************************************************************************
-**
-** This file implements routines used to report what compile-time options
-** SQLite was built with.
-*/
-
-#ifndef SQLITE_OMIT_COMPILEOPTION_DIAGS
-
-
-/*
-** An array of names of all compile-time options.  This array should 
-** be sorted A-Z.
-**
-** This array looks large, but in a typical installation actually uses
-** only a handful of compile-time options, so most times this array is usually
-** rather short and uses little memory space.
-*/
-static const char * const azCompileOpt[] = {
-
-/* These macros are provided to "stringify" the value of the define
-** for those options in which the value is meaningful. */
-#define CTIMEOPT_VAL_(opt) #opt
-#define CTIMEOPT_VAL(opt) CTIMEOPT_VAL_(opt)
-
-#ifdef SQLITE_32BIT_ROWID
-  "32BIT_ROWID",
-#endif
-#ifdef SQLITE_4_BYTE_ALIGNED_MALLOC
-  "4_BYTE_ALIGNED_MALLOC",
-#endif
-#ifdef SQLITE_CASE_SENSITIVE_LIKE
-  "CASE_SENSITIVE_LIKE",
-#endif
-#ifdef SQLITE_CHECK_PAGES
-  "CHECK_PAGES",
-#endif
-#ifdef SQLITE_COVERAGE_TEST
-  "COVERAGE_TEST",
-#endif
-#ifdef SQLITE_DEBUG
-  "DEBUG",
-#endif
-#ifdef SQLITE_DEFAULT_LOCKING_MODE
-  "DEFAULT_LOCKING_MODE=" CTIMEOPT_VAL(SQLITE_DEFAULT_LOCKING_MODE),
-#endif
-#ifdef SQLITE_DISABLE_DIRSYNC
-  "DISABLE_DIRSYNC",
-#endif
-#ifdef SQLITE_DISABLE_LFS
-  "DISABLE_LFS",
-#endif
-#ifdef SQLITE_ENABLE_ATOMIC_WRITE
-  "ENABLE_ATOMIC_WRITE",
-#endif
-#ifdef SQLITE_ENABLE_CEROD
-  "ENABLE_CEROD",
-#endif
-#ifdef SQLITE_ENABLE_COLUMN_METADATA
-  "ENABLE_COLUMN_METADATA",
-#endif
-#ifdef SQLITE_ENABLE_EXPENSIVE_ASSERT
-  "ENABLE_EXPENSIVE_ASSERT",
-#endif
-#ifdef SQLITE_ENABLE_FTS1
-  "ENABLE_FTS1",
-#endif
-#ifdef SQLITE_ENABLE_FTS2
-  "ENABLE_FTS2",
-#endif
-#ifdef SQLITE_ENABLE_FTS3
-  "ENABLE_FTS3",
-#endif
-#ifdef SQLITE_ENABLE_FTS3_PARENTHESIS
-  "ENABLE_FTS3_PARENTHESIS",
-#endif
-#ifdef SQLITE_ENABLE_FTS4
-  "ENABLE_FTS4",
-#endif
-#ifdef SQLITE_ENABLE_ICU
-  "ENABLE_ICU",
-#endif
-#ifdef SQLITE_ENABLE_IOTRACE
-  "ENABLE_IOTRACE",
-#endif
-#ifdef SQLITE_ENABLE_LOAD_EXTENSION
-  "ENABLE_LOAD_EXTENSION",
-#endif
-#ifdef SQLITE_ENABLE_LOCKING_STYLE
-  "ENABLE_LOCKING_STYLE=" CTIMEOPT_VAL(SQLITE_ENABLE_LOCKING_STYLE),
-#endif
-#ifdef SQLITE_ENABLE_MEMORY_MANAGEMENT
-  "ENABLE_MEMORY_MANAGEMENT",
-#endif
-#ifdef SQLITE_ENABLE_MEMSYS3
-  "ENABLE_MEMSYS3",
-#endif
-#ifdef SQLITE_ENABLE_MEMSYS5
-  "ENABLE_MEMSYS5",
-#endif
-#ifdef SQLITE_ENABLE_OVERSIZE_CELL_CHECK
-  "ENABLE_OVERSIZE_CELL_CHECK",
-#endif
-#ifdef SQLITE_ENABLE_RTREE
-  "ENABLE_RTREE",
-#endif
-#ifdef SQLITE_ENABLE_STAT2
-  "ENABLE_STAT2",
-#endif
-#ifdef SQLITE_ENABLE_UNLOCK_NOTIFY
-  "ENABLE_UNLOCK_NOTIFY",
-#endif
-#ifdef SQLITE_ENABLE_UPDATE_DELETE_LIMIT
-  "ENABLE_UPDATE_DELETE_LIMIT",
-#endif
-#ifdef SQLITE_HAS_CODEC
-  "HAS_CODEC",
-#endif
-#ifdef SQLITE_HAVE_ISNAN
-  "HAVE_ISNAN",
-#endif
-#ifdef SQLITE_HOMEGROWN_RECURSIVE_MUTEX
-  "HOMEGROWN_RECURSIVE_MUTEX",
-#endif
-#ifdef SQLITE_IGNORE_AFP_LOCK_ERRORS
-  "IGNORE_AFP_LOCK_ERRORS",
-#endif
-#ifdef SQLITE_IGNORE_FLOCK_LOCK_ERRORS
-  "IGNORE_FLOCK_LOCK_ERRORS",
-#endif
-#ifdef SQLITE_INT64_TYPE
-  "INT64_TYPE",
-#endif
-#ifdef SQLITE_LOCK_TRACE
-  "LOCK_TRACE",
-#endif
-#ifdef SQLITE_MEMDEBUG
-  "MEMDEBUG",
-#endif
-#ifdef SQLITE_MIXED_ENDIAN_64BIT_FLOAT
-  "MIXED_ENDIAN_64BIT_FLOAT",
-#endif
-#ifdef SQLITE_NO_SYNC
-  "NO_SYNC",
-#endif
-#ifdef SQLITE_OMIT_ALTERTABLE
-  "OMIT_ALTERTABLE",
-#endif
-#ifdef SQLITE_OMIT_ANALYZE
-  "OMIT_ANALYZE",
-#endif
-#ifdef SQLITE_OMIT_ATTACH
-  "OMIT_ATTACH",
-#endif
-#ifdef SQLITE_OMIT_AUTHORIZATION
-  "OMIT_AUTHORIZATION",
-#endif
-#ifdef SQLITE_OMIT_AUTOINCREMENT
-  "OMIT_AUTOINCREMENT",
-#endif
-#ifdef SQLITE_OMIT_AUTOINIT
-  "OMIT_AUTOINIT",
-#endif
-#ifdef SQLITE_OMIT_AUTOVACUUM
-  "OMIT_AUTOVACUUM",
-#endif
-#ifdef SQLITE_OMIT_BETWEEN_OPTIMIZATION
-  "OMIT_BETWEEN_OPTIMIZATION",
-#endif
-#ifdef SQLITE_OMIT_BLOB_LITERAL
-  "OMIT_BLOB_LITERAL",
-#endif
-#ifdef SQLITE_OMIT_BTREECOUNT
-  "OMIT_BTREECOUNT",
-#endif
-#ifdef SQLITE_OMIT_BUILTIN_TEST
-  "OMIT_BUILTIN_TEST",
-#endif
-#ifdef SQLITE_OMIT_CAST
-  "OMIT_CAST",
-#endif
-#ifdef SQLITE_OMIT_CHECK
-  "OMIT_CHECK",
-#endif
-#ifdef SQLITE_OMIT_COMPILEOPTION_DIAGS
-  "OMIT_COMPILEOPTION_DIAGS",
-#endif
-#ifdef SQLITE_OMIT_COMPLETE
-  "OMIT_COMPLETE",
-#endif
-#ifdef SQLITE_OMIT_COMPOUND_SELECT
-  "OMIT_COMPOUND_SELECT",
-#endif
-#ifdef SQLITE_OMIT_DATETIME_FUNCS
-  "OMIT_DATETIME_FUNCS",
-#endif
-#ifdef SQLITE_OMIT_DECLTYPE
-  "OMIT_DECLTYPE",
-#endif
-#ifdef SQLITE_OMIT_DEPRECATED
-  "OMIT_DEPRECATED",
-#endif
-#ifdef SQLITE_OMIT_DISKIO
-  "OMIT_DISKIO",
-#endif
-#ifdef SQLITE_OMIT_EXPLAIN
-  "OMIT_EXPLAIN",
-#endif
-#ifdef SQLITE_OMIT_FLAG_PRAGMAS
-  "OMIT_FLAG_PRAGMAS",
-#endif
-#ifdef SQLITE_OMIT_FLOATING_POINT
-  "OMIT_FLOATING_POINT",
-#endif
-#ifdef SQLITE_OMIT_FOREIGN_KEY
-  "OMIT_FOREIGN_KEY",
-#endif
-#ifdef SQLITE_OMIT_GET_TABLE
-  "OMIT_GET_TABLE",
-#endif
-#ifdef SQLITE_OMIT_GLOBALRECOVER
-  "OMIT_GLOBALRECOVER",
-#endif
-#ifdef SQLITE_OMIT_INCRBLOB
-  "OMIT_INCRBLOB",
-#endif
-#ifdef SQLITE_OMIT_INTEGRITY_CHECK
-  "OMIT_INTEGRITY_CHECK",
-#endif
-#ifdef SQLITE_OMIT_LIKE_OPTIMIZATION
-  "OMIT_LIKE_OPTIMIZATION",
-#endif
-#ifdef SQLITE_OMIT_LOAD_EXTENSION
-  "OMIT_LOAD_EXTENSION",
-#endif
-#ifdef SQLITE_OMIT_LOCALTIME
-  "OMIT_LOCALTIME",
-#endif
-#ifdef SQLITE_OMIT_LOOKASIDE
-  "OMIT_LOOKASIDE",
-#endif
-#ifdef SQLITE_OMIT_MEMORYDB
-  "OMIT_MEMORYDB",
-#endif
-#ifdef SQLITE_OMIT_OR_OPTIMIZATION
-  "OMIT_OR_OPTIMIZATION",
-#endif
-#ifdef SQLITE_OMIT_PAGER_PRAGMAS
-  "OMIT_PAGER_PRAGMAS",
-#endif
-#ifdef SQLITE_OMIT_PRAGMA
-  "OMIT_PRAGMA",
-#endif
-#ifdef SQLITE_OMIT_PROGRESS_CALLBACK
-  "OMIT_PROGRESS_CALLBACK",
-#endif
-#ifdef SQLITE_OMIT_QUICKBALANCE
-  "OMIT_QUICKBALANCE",
-#endif
-#ifdef SQLITE_OMIT_REINDEX
-  "OMIT_REINDEX",
-#endif
-#ifdef SQLITE_OMIT_SCHEMA_PRAGMAS
-  "OMIT_SCHEMA_PRAGMAS",
-#endif
-#ifdef SQLITE_OMIT_SCHEMA_VERSION_PRAGMAS
-  "OMIT_SCHEMA_VERSION_PRAGMAS",
-#endif
-#ifdef SQLITE_OMIT_SHARED_CACHE
-  "OMIT_SHARED_CACHE",
-#endif
-#ifdef SQLITE_OMIT_SUBQUERY
-  "OMIT_SUBQUERY",
-#endif
-#ifdef SQLITE_OMIT_TCL_VARIABLE
-  "OMIT_TCL_VARIABLE",
-#endif
-#ifdef SQLITE_OMIT_TEMPDB
-  "OMIT_TEMPDB",
-#endif
-#ifdef SQLITE_OMIT_TRACE
-  "OMIT_TRACE",
-#endif
-#ifdef SQLITE_OMIT_TRIGGER
-  "OMIT_TRIGGER",
-#endif
-#ifdef SQLITE_OMIT_TRUNCATE_OPTIMIZATION
-  "OMIT_TRUNCATE_OPTIMIZATION",
-#endif
-#ifdef SQLITE_OMIT_UTF16
-  "OMIT_UTF16",
-#endif
-#ifdef SQLITE_OMIT_VACUUM
-  "OMIT_VACUUM",
-#endif
-#ifdef SQLITE_OMIT_VIEW
-  "OMIT_VIEW",
-#endif
-#ifdef SQLITE_OMIT_VIRTUALTABLE
-  "OMIT_VIRTUALTABLE",
-#endif
-#ifdef SQLITE_OMIT_WSD
-  "OMIT_WSD",
-#endif
-#ifdef SQLITE_OMIT_XFER_OPT
-  "OMIT_XFER_OPT",
-#endif
-#ifdef SQLITE_PERFORMANCE_TRACE
-  "PERFORMANCE_TRACE",
-#endif
-#ifdef SQLITE_PROXY_DEBUG
-  "PROXY_DEBUG",
-#endif
-#ifdef SQLITE_SECURE_DELETE
-  "SECURE_DELETE",
-#endif
-#ifdef SQLITE_SMALL_STACK
-  "SMALL_STACK",
-#endif
-#ifdef SQLITE_SOUNDEX
-  "SOUNDEX",
-#endif
-#ifdef SQLITE_TCL
-  "TCL",
-#endif
-#ifdef SQLITE_TEMP_STORE
-  "TEMP_STORE=" CTIMEOPT_VAL(SQLITE_TEMP_STORE),
-#endif
-#ifdef SQLITE_TEST
-  "TEST",
-#endif
-#ifdef SQLITE_THREADSAFE
-  "THREADSAFE=" CTIMEOPT_VAL(SQLITE_THREADSAFE),
-#endif
-#ifdef SQLITE_USE_ALLOCA
-  "USE_ALLOCA",
-#endif
-#ifdef SQLITE_ZERO_MALLOC
-  "ZERO_MALLOC"
-#endif
-};
-
-/*
-** Given the name of a compile-time option, return true if that option
-** was used and false if not.
-**
-** The name can optionally begin with "SQLITE_" but the "SQLITE_" prefix
-** is not required for a match.
-*/
-SQLITE_API int sqlite3_compileoption_used(const char *zOptName){
-  int i, n;
-  if( sqlite3StrNICmp(zOptName, "SQLITE_", 7)==0 ) zOptName += 7;
-  n = sqlite3Strlen30(zOptName);
-
-  /* Since ArraySize(azCompileOpt) is normally in single digits, a
-  ** linear search is adequate.  No need for a binary search. */
-  for(i=0; i<ArraySize(azCompileOpt); i++){
-    if(   (sqlite3StrNICmp(zOptName, azCompileOpt[i], n)==0)
-       && ( (azCompileOpt[i][n]==0) || (azCompileOpt[i][n]=='=') ) ) return 1;
-  }
-  return 0;
-}
-
-/*
-** Return the N-th compile-time option string.  If N is out of range,
-** return a NULL pointer.
-*/
-SQLITE_API const char *sqlite3_compileoption_get(int N){
-  if( N>=0 && N<ArraySize(azCompileOpt) ){
-    return azCompileOpt[N];
-  }
-  return 0;
-}
-
-#endif /* SQLITE_OMIT_COMPILEOPTION_DIAGS */
-
-/************** End of ctime.c ***********************************************/
 /************** Begin file delete.c ******************************************/
 /*
 ** 2001 September 15
@@ -80136,7 +80190,7 @@ static int sqlite3Prepare16(
     return SQLITE_MISUSE_BKPT;
   }
   sqlite3_mutex_enter(db->mutex);
-  zSql8 = sqlite3Utf16to8(db, zSql, nBytes);
+  zSql8 = sqlite3Utf16to8(db, zSql, nBytes, SQLITE_UTF16NATIVE);
   if( zSql8 ){
     rc = sqlite3LockAndPrepare(db, zSql8, -1, saveSqlFlag, 0, ppStmt, &zTail8);
   }
@@ -97461,7 +97515,7 @@ SQLITE_API int sqlite3_create_function16(
   char *zFunc8;
   sqlite3_mutex_enter(db->mutex);
   assert( !db->mallocFailed );
-  zFunc8 = sqlite3Utf16to8(db, zFunctionName, -1);
+  zFunc8 = sqlite3Utf16to8(db, zFunctionName, -1, SQLITE_UTF16NATIVE);
   rc = sqlite3CreateFunc(db, zFunc8, nArg, eTextRep, p, xFunc, xStep, xFinal);
   sqlite3DbFree(db, zFunc8);
   rc = sqlite3ApiExit(db, rc);
@@ -98284,7 +98338,7 @@ SQLITE_API int sqlite3_create_collation16(
   char *zName8;
   sqlite3_mutex_enter(db->mutex);
   assert( !db->mallocFailed );
-  zName8 = sqlite3Utf16to8(db, zName, -1);
+  zName8 = sqlite3Utf16to8(db, zName, -1, SQLITE_UTF16NATIVE);
   if( zName8 ){
     rc = createCollation(db, zName8, (u8)enc, SQLITE_COLL_USER, pCtx, xCompare, 0);
     sqlite3DbFree(db, zName8);
@@ -100277,6 +100331,14 @@ static int fts3CreateTables(Fts3Table *p){
 }
 
 /*
+** An sqlite3_exec() callback for fts3TableExists.
+*/
+static int fts3TableExistsCallback(void *pArg, int n, char **pp1, char **pp2){
+  *(int*)pArg = 1;
+  return 1;
+}
+
+/*
 ** Determine if a table currently exists in the database.
 */
 static void fts3TableExists(
@@ -100288,10 +100350,17 @@ static void fts3TableExists(
   u8 *pResult           /* Write results here */
 ){
   int rc = SQLITE_OK;
+  int res = 0;
+  char *zSql;
   if( *pRc ) return;
-  fts3DbExec(&rc, db, "SELECT 1 FROM %Q.'%q%s'", zDb, zName, zSuffix);
-  *pResult = (rc==SQLITE_OK) ? 1 : 0;
-  if( rc!=SQLITE_ERROR ) *pRc = rc;
+  zSql = sqlite3_mprintf(
+    "SELECT 1 FROM %Q.sqlite_master WHERE name='%q%s'",
+    zDb, zName, zSuffix
+  );    
+  rc = sqlite3_exec(db, zSql, fts3TableExistsCallback, &res, 0);
+  sqlite3_free(zSql);
+  *pResult = res & 0xff;
+  if( rc!=SQLITE_ABORT ) *pRc = rc;
 }
 
 /*
@@ -100713,7 +100782,12 @@ static void fts3PutDeltaVarint(
 
 /*
 ** When this function is called, *ppPoslist is assumed to point to the 
-** start of a position-list.
+** start of a position-list. After it returns, *ppPoslist points to the
+** first byte after the position-list.
+**
+** If pp is not NULL, then the contents of the position list are copied
+** to *pp. *pp is set to point to the first byte past the last byte copied
+** before this function returns.
 */
 static void fts3PoslistCopy(char **pp, char **ppPoslist){
   char *pEnd = *ppPoslist;
@@ -101704,7 +101778,13 @@ static int fts3FilterMethod(
     rc = sqlite3Fts3ExprParse(p->pTokenizer, p->azColumn, p->nColumn, 
         iCol, zQuery, -1, &pCsr->pExpr
     );
-    if( rc!=SQLITE_OK ) return rc;
+    if( rc!=SQLITE_OK ){
+      if( rc==SQLITE_ERROR ){
+        p->base.zErrMsg = sqlite3_mprintf("malformed MATCH expression: [%s]",
+                                          zQuery);
+      }
+      return rc;
+    }
 
     rc = evalFts3Expr(p, pCsr->pExpr, &pCsr->aDoclist, &pCsr->nDoclist, 0);
     pCsr->pNextId = pCsr->aDoclist;
@@ -101857,7 +101937,9 @@ SQLITE_PRIVATE char *sqlite3Fts3FindPositions(
     while( pCsr<pEnd ){
       if( pExpr->iCurrent<iDocid ){
         fts3PoslistCopy(0, &pCsr);
-        fts3GetDeltaVarint(&pCsr, &pExpr->iCurrent);
+        if( pCsr<pEnd ){
+          fts3GetDeltaVarint(&pCsr, &pExpr->iCurrent);
+        }
         pExpr->pCurrent = pCsr;
       }else{
         if( pExpr->iCurrent==iDocid ){
@@ -105107,9 +105189,9 @@ static int fts3SqlStmt(
 /* 5  */  "DELETE FROM %Q.'%q_docsize'",
 /* 6  */  "DELETE FROM %Q.'%q_stat'",
 /* 7  */  "SELECT * FROM %Q.'%q_content' WHERE rowid=?",
-/* 8  */  "SELECT coalesce(max(idx)+1, 0) FROM %Q.'%q_segdir' WHERE level=?",
+/* 8  */  "SELECT (SELECT max(idx) FROM %Q.'%q_segdir' WHERE level = ?) + 1",
 /* 9  */  "INSERT INTO %Q.'%q_segments'(blockid, block) VALUES(?, ?)",
-/* 10 */  "SELECT coalesce(max(blockid)+1, 1) FROM %Q.'%q_segments'",
+/* 10 */  "SELECT coalesce((SELECT max(blockid) FROM %Q.'%q_segments') + 1, 1)",
 /* 11 */  "INSERT INTO %Q.'%q_segdir' VALUES(?,?,?,?,?,?)",
 
           /* Return segments in order from oldest to newest.*/ 
@@ -108668,11 +108750,13 @@ SQLITE_PRIVATE void sqlite3Fts3Offsets(
               "%d %d %d %d ", iCol, pTerm-sCtx.aTerm, iStart, iEnd-iStart
           );
           rc = fts3StringAppend(&res, aBuffer, -1);
+        }else if( rc==SQLITE_DONE ){
+          rc = SQLITE_CORRUPT;
         }
       }
     }
     if( rc==SQLITE_DONE ){
-      rc = SQLITE_CORRUPT;
+      rc = SQLITE_OK;
     }
 
     pMod->xClose(pC);

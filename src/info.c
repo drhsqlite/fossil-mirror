@@ -348,34 +348,32 @@ void ci_page(void){
       db_finalize(&q);
     }
     if( g.okHistory ){
-      char *zShortUuid = mprintf("%.10s", zUuid);
       const char *zProjName = db_get("project-name", "unnamed");
       @ <tr><th>Timelines:</th><td>
-      @    <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">ancestors</a>
-      @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)">descendants</a>
-      @    | <a href="%s(g.zBaseURL)/timeline?d=%d(rid)&p=%d(rid)">both</a>
+      @    <a href="%s(g.zBaseURL)/timeline?p=%S(zUuid)">ancestors</a>
+      @    | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)">descendants</a>
+      @    | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)&p=%S(zUuid)">both</a>
       db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
       while( db_step(&q)==SQLITE_ROW ){
         const char *zTagName = db_column_text(&q, 0);
-        @  | <a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">%h(zTagName)</a>
+        @  | <a href="%s(g.zTop)/timeline?t=%T(zTagName)">%h(zTagName)</a>
       }
       db_finalize(&q);
       @ </td></tr>
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
-      @     <a href="%s(g.zBaseURL)/dir?ci=%s(zShortUuid)">files</a>
-      @     | <a href="%s(g.zBaseURL)/zip/%s(zProjName)-%s(zShortUuid).zip?uuid=%s(zUuid)">
+      @     <a href="%s(g.zTop)/dir?ci=%S(zUuid)">files</a>
+      @   | <a href="%s(g.zTop)/zip/%s(zProjName)-%S(zUuid).zip?uuid=%s(zUuid)">
       @         ZIP archive</a>
-      @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">manifest</a>
+      @   | <a href="%s(g.zTop)/artifact/%S(zUuid)">manifest</a>
       if( g.okWrite ){
-        @     | <a href="%s(g.zBaseURL)/ci_edit?r=%d(rid)">edit</a>
+        @   | <a href="%s(g.zTop)/ci_edit?r=%S(zUuid)">edit</a>
       }
       @   </td>
       @ </tr>
-      free(zShortUuid);
     }
     @ </table></p>
   }else{
@@ -401,10 +399,10 @@ void ci_page(void){
     }
   }
   db_prepare(&q,
-     "SELECT pid, fid, name, substr(a.uuid,1,10), substr(b.uuid,1,10)"
+     "SELECT pid, fid, name,"
+     "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+     "       (SELECT uuid FROM blob WHERE rid=mlink.fid)"
      "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-     "         LEFT JOIN blob a ON a.rid=pid"
-     "         LEFT JOIN blob b ON b.rid=fid"
      " WHERE mlink.mid=%d"
      " ORDER BY name",
      rid
@@ -423,20 +421,20 @@ void ci_page(void){
         @ <p>Changes to %h(zName)</p>
       }
     }else if( zOld && zNew ){
-      @ <p>Modified <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-      @ from <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a>
-      @ to <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)].</a>
+      @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
+      @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
       if( !showDiff ){
         @ &nbsp;&nbsp;
-        @ <a href="%s(g.zBaseURL)/fdiff?v1=%d(pid)&v2=%d(fid)">[diff]</a>
+        @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)">[diff]</a>
       }
     }else if( zOld ){
-      @ <p>Deleted <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-      @ version <a href="%s(g.zBaseURL)/artifact/%s(zOld)">[%s(zOld)]</a></p>
+      @ <p>Deleted <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a></p>
       continue;
     }else{
-      @ <p>Added <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
-      @ version <a href="%s(g.zBaseURL)/artifact/%s(zNew)">[%s(zNew)]</a></p>
+      @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a></p>
     }
     if( showDiff ){
       @ <blockquote><pre>
@@ -500,9 +498,8 @@ void winfo_page(void){
     if( g.okHistory ){
       @ <tr><th>Commands:</th>
       @   <td>
-      /* @     <a href="%s(g.zBaseURL)/wdiff/%d(rid)">diff</a> | */
       @     <a href="%s(g.zBaseURL)/whistory?name=%t(zName)">history</a>
-      @     | <a href="%s(g.zBaseURL)/artifact/%d(rid)">raw-text</a>
+      @     | <a href="%s(g.zBaseURL)/artifact/%S(zUuid)">raw-text</a>
       @   </td>
       @ </tr>
     }
@@ -623,6 +620,8 @@ static void object_description(
   Stmt q;
   int cnt = 0;
   int nWiki = 0;
+  char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime),"
     "       coalesce(event.ecomment,event.comment),"
@@ -693,7 +692,7 @@ static void object_description(
     nWiki++;
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
-      blob_append(pDownloadName, zPagename, -1);
+      blob_appendf(pDownloadName, "%s.wiki", zPagename);
     }
   }
   db_finalize(&q);
@@ -728,7 +727,7 @@ static void object_description(
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".");
       if( pDownloadName && blob_size(pDownloadName)==0 ){
-        blob_append(pDownloadName, zUuid, -1);
+        blob_appendf(pDownloadName, "%.10s.txt", zUuid);
       }
       cnt++;
     }
@@ -746,7 +745,7 @@ static void object_description(
     const char *zFilename = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
-    const char *zSrc = db_column_text(&q, 4);
+    /* const char *zSrc = db_column_text(&q, 4); */
     if( cnt>0 ){
       @ Also attachment "%h(zFilename)" to
     }else{
@@ -772,18 +771,17 @@ static void object_description(
     hyperlink_to_date(zDate,".");
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
-      blob_append(pDownloadName, zSrc, -1);
+      blob_append(pDownloadName, zFilename, -1);
     }
   }
   db_finalize(&q);
   if( cnt==0 ){
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     @ Control artifact.
     if( pDownloadName && blob_size(pDownloadName)==0 ){
-      blob_append(pDownloadName, zUuid, -1);
+      blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
   }else if( linkToView && g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/artifact/%d(rid)">[view]</a>
+    @ <a href="%s(g.zBaseURL)/artifact/%S(zUuid)">[view]</a>
   }
 }
 
@@ -795,8 +793,8 @@ static void object_description(
 ** the two records.
 */
 void diff_page(void){
-  int v1 = name_to_rid(PD("v1","0"));
-  int v2 = name_to_rid(PD("v2","0"));
+  int v1 = name_to_rid(P("v1"));
+  int v2 = name_to_rid(P("v2"));
   Blob c1, c2, diff;
 
   login_check_credentials();
@@ -931,7 +929,7 @@ void hexdump_page(void){
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download", 
-        "%s/raw/%T?name=%d", g.zBaseURL, blob_str(&downloadName), rid);
+        "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   @ </blockquote>
   @ <hr>
   content_get(rid, &content);
@@ -978,26 +976,26 @@ void artifact_page(void){
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download", 
-          "%s/raw/%T?name=%d", g.zTop, blob_str(&downloadName), rid);
+          "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
     if( strcmp(zMime, "text/html")==0 ){
       if( P("txt") ){
         style_submenu_element("Html", "Html",
-                              "%s/artifact?name=%d", g.zTop, rid);
+                              "%s/artifact?name=%s", g.zTop, zUuid);
       }else{
         renderAsHtml = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%d&txt=1", g.zTop, rid);
+                              "%s/artifact?name=%s&txt=1", g.zTop, zUuid);
       }
     }else if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
       if( P("txt") ){
         style_submenu_element("Wiki", "Wiki",
-                              "%s/artifact?name=%d", g.zTop, rid);
+                              "%s/artifact?name=%s", g.zTop, zUuid);
       }else{
         renderAsWiki = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%d&txt=1", g.zTop, rid);
+                              "%s/artifact?name=%s&txt=1", g.zTop, zUuid);
       }
     }
   }
@@ -1017,10 +1015,10 @@ void artifact_page(void){
       @ <pre>
       @ %h(blob_str(&content))
       @ </pre>
-      style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
+      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%s(g.zBaseURL)/raw?name=%d(rid)&m=%s(zMime)"></img>
-      style_submenu_element("Hex","Hex", "%s/hexdump?name=%d", g.zTop, rid);
+      @ <img src="%s(g.zBaseURL)/raw?name=%s(zUuid)&m=%s(zMime)"></img>
+      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else{
       @ <pre>
       hexdump(&content);
@@ -1198,13 +1196,13 @@ void ci_edit_page(void){
   
   login_check_credentials();
   if( !g.okWrite ){ login_needed(); return; }
-  rid = atoi(PD("r","0"));
+  rid = name_to_rid(P("r"));
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
                         "  FROM event WHERE objid=%d", rid);
   if( zComment==0 ) fossil_redirect_home();
   if( P("cancel") ){
-    cgi_redirectf("ci?name=%d", rid);
+    cgi_redirectf("ci?name=%s", zUuid);
   }
   zNewComment = PD("c",zComment);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
@@ -1317,7 +1315,7 @@ void ci_edit_page(void){
       manifest_crosslink(nrid, &ctrl);
       db_end_transaction(0);
     }
-    cgi_redirectf("ci?name=%d", rid);
+    cgi_redirectf("ci?name=%s", zUuid);
   }
   blob_zero(&comment);
   blob_append(&comment, zNewComment, -1);
@@ -1359,7 +1357,7 @@ void ci_edit_page(void){
     blob_reset(&suffix);
   }
   @ <p>Make changes to attributes of check-in
-  @ [<a href="ci?name=%d(rid)">%s(zUuid)</a>]:</p>
+  @ [<a href="ci?name=%s(zUuid)">%s(zUuid)</a>]:</p>
   @ <form action="%s(g.zBaseURL)/ci_edit" method="POST">
   login_insert_csrf_secret();
   @ <input type="hidden" name="r" value="%d(rid)">
