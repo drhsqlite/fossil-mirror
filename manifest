@@ -1,5 +1,5 @@
-C In\sfile\schanges\shistories,\sshow\swhen\sthe\sfile\sis\sdeleted.
-D 2010-04-02T19:27:24
+C Add\sadditional\smarkups\sto\sshow\sinefficient\squeries\swhen\srunning\sin\nTH3_DEBUG\smode.
+D 2010-04-02T19:28:00
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 83fd96c654cf846a19d77fcd3a2f5e8e32762ac1
+F src/db.c 5eddbd47d8d5e8be4a6eca065b068320a593ed00
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -112,7 +112,7 @@ F src/update.c 871f825fe97f1e320725eaa1e330fc69624b6b6c
 F src/url.c ec953a0a01c2eba0e8dea94fac7a3bdd0bec3bf3
 F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
-F src/vfile.c 0d36cd46c26413b9dbc9b434c0c698870ba451eb
+F src/vfile.c 6b065467c0fd8e3cc6bf10167f8c7afc57900165
 F src/wiki.c 5789d51f360724f0fd6138476e3240448b540c08
 F src/wikiformat.c db31f4c3fe083a53b6fffcf407d0f305e602150d
 F src/winhttp.c 33fcca6b835cf077b5a0f73ca68cbde6d8a121c6
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 42ba7b97aa3a479a12bc90b111bd72ce9e50fe81
-R 6fccad43d07e331122873cb467a980f5
+P 4bbb437f06ec4066bb79d8a547fb5ed4c9405359
+R c423257c0df808faa36eba706d288658
 U drh
-Z ca5ba9e7ded2061e52d01d4a16750ca9
+Z 697b6f15a2aa8698a759c540a4650900
