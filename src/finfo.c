@@ -60,15 +60,16 @@ void finfo_cmd(void){
   file_tree_name(g.argv[2], &dest, 1);
   zFilename = blob_str(&dest);
   db_prepare(&q,
-    "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
+    "SELECT "
+    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* New file */
+    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* The check-in */
+    "       date(event.mtime,'localtime'),"
     "       coalesce(event.ecomment, event.comment),"
     "       coalesce(event.euser, event.user)"
-    "  FROM mlink, blob b, event, blob ci"
+    "  FROM mlink, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND b.rid=mlink.fid"
     "   AND event.objid=mlink.mid"
-    "   AND event.objid=ci.rid"
-    " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
+    " ORDER BY event.mtime DESC LIMIT %d OFFSET %d /*sort*/",
     zFilename, iLimit, iOffset
   );
  
@@ -81,8 +82,13 @@ void finfo_cmd(void){
     const char *zUser = db_column_text(&q, 4);
     char *zOut;
     printf("%s ", zDate);
-    zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
-                            zCiUuid, zCom, zUser, zFileUuid);
+    if( zFileUuid==0 ){
+      zOut = sqlite3_mprintf("[%.10s] DELETED %s (user: %s)",
+                              zCiUuid, zCom, zUser);
+    }else{
+      zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
+                              zCiUuid, zCom, zUser, zFileUuid);
+    }
     comment_print(zOut, 11, 79);
     sqlite3_free(zOut);
   }
@@ -113,24 +119,21 @@ void finfo_page(void){
   zFilename = PD("name","");
   db_prepare(&q,
     "SELECT"
-    " substr(b.uuid,1,10),"
-    " datetime(event.mtime,'localtime'),"
-    " coalesce(event.ecomment, event.comment),"
-    " coalesce(event.euser, event.user),"
-    " mlink.pid,"
-    " mlink.fid,"
-    " (SELECT substr(uuid,1,10) FROM blob WHERE rid=mlink.pid),"
-    " (SELECT substr(uuid,1,10) FROM blob WHERE rid=mlink.fid),"
-    " ci.uuid,"
-    " event.bgcolor,"
+    " datetime(event.mtime,'localtime'),"            /* Date of change */
+    " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
+    " coalesce(event.euser, event.user),"            /* User who made chng */
+    " mlink.pid,"                                    /* File rid */
+    " mlink.fid,"                                    /* Parent file rid */
+    " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
+    " (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
+    " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
+    " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)"
-    "  FROM mlink, blob b, event, blob ci"
+                                " AND tagxref.rid=mlink.mid)" /* Tags */
+    "  FROM mlink, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND b.rid=mlink.fid"
     "   AND event.objid=mlink.mid"
-    "   AND event.objid=ci.rid"
-    " ORDER BY event.mtime DESC",
+    " ORDER BY event.mtime DESC /*sort*/",
     TAG_BRANCH,
     zFilename
   );
@@ -143,17 +146,16 @@ void finfo_page(void){
   @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   @ <table cellspacing=0 border=0 cellpadding=0>
   while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zCom = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
-    int fpid = db_column_int(&q, 4);
-    int frid = db_column_int(&q, 5);
-    const char *zFpuid = db_column_text(&q, 6);
-    const char *zFuid = db_column_text(&q, 7);
-    const char *zCkin = db_column_text(&q,8);
-    const char *zBgClr = db_column_text(&q, 9);
-    const char *zBr = db_column_text(&q, 10);
+    const char *zDate = db_column_text(&q, 0);
+    const char *zCom = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    int fpid = db_column_int(&q, 3);
+    int frid = db_column_int(&q, 4);
+    const char *zPUuid = db_column_text(&q, 5);
+    const char *zUuid = db_column_text(&q, 6);
+    const char *zCkin = db_column_text(&q,7);
+    const char *zBgClr = db_column_text(&q, 8);
+    const char *zBr = db_column_text(&q, 9);
     int gidx;
     char zTime[10];
     char zShort[20];
@@ -178,24 +180,28 @@ void finfo_page(void){
     }
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
-    if( g.okHistory ){
-      @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%s(zShort)]</a>
+    if( zUuid ){
+      if( g.okHistory ){
+        @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%S(zUuid)]</a>
+      }else{
+        @ [%S(zUuid)]
+      }
+      @ part of check-in
     }else{
-      @ [%s(zShort)]
+      @ <b>Deleted</b> by check-in
     }
-    @ part of check-in
     hyperlink_to_uuid(zShortCkin);
     @ %h(zCom) (user: 
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
-    if( g.okHistory ){
+    if( g.okHistory && zUuid ){
       if( fpid ){
-        @ <a href="%s(g.zTop)/fdiff?v1=%s(zFpuid)&amp;v2=%s(zFuid)">[diff]</a>
+        @ <a href="%s(g.zTop)/fdiff?v1=%s(zPUuid)&amp;v2=%s(zUuid)">[diff]</a>
       }
-      @ <a href="%s(g.zTop)/annotate?checkin=%s(zShortCkin)&amp;filename=%h(zFilename)">
+      @ <a href="%s(g.zTop)/annotate?checkin=%S(zCkin)&amp;filename=%h(zFilename)">
       @ [annotate]</a>
-      @ </td>
     }
+    @ </td>
   }
   db_finalize(&q);
   if( pGraph ){

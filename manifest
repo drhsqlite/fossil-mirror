@@ -1,5 +1,5 @@
-C Get\schroot\sjails\sworking\scorrectly\swhen\sa\sparticular\sfossil\srepository\nis\sspecified\son\sthe\s"http"\scommand.\s\sThis\sfixes\sa\sproblem\sintroduced\sby\nthe\smulti-repository\sfeature\sadded\sby\scheck-in\s[9cd2c42e79]\son\s[2010-01-31].
-D 2010-03-31T18:42:09
+C In\sfile\schanges\shistories,\sshow\swhen\sthe\sfile\sis\sdeleted.
+D 2010-04-02T19:27:24
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -61,7 +61,7 @@ F src/diffcmd.c f20bad14b44845581f45965afae2f19e5efceef6
 F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c bdaeea84bd53ee77f71a9c3a42417d373c0c1e3e
-F src/finfo.c df19851114e2c3166a5eb79a2c9bbec36f8f23c6
+F src/finfo.c a345d96a8b44c1d5ac4343acec0c0536baf21e24
 F src/graph.c f5c1c50ce40db891ccd213ca40e7c2a326cfde19
 F src/http.c aa1608b63d9666c9c9476d21ce88cb560da82972
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P a158c4e75d17df82034ed6cbd5b47ac3dd7b6505
-R 68d3d86b651bc8d2bff515d65afe32c4
+P 42ba7b97aa3a479a12bc90b111bd72ce9e50fe81
+R 6fccad43d07e331122873cb467a980f5
 U drh
-Z 629a9b36179e1f27f167e9c0a5338736
+Z ca5ba9e7ded2061e52d01d4a16750ca9
