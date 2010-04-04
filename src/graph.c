@@ -208,7 +208,6 @@ static int findFreeRail(
     if( (inUseMask & (1<<i))==0 ){
       int dist;
       if( iNearto<=0 ){
-        if( i>p->mxRail ) p->mxRail = i;
         return i;
       }
       dist = i - iNearto;
@@ -220,7 +219,6 @@ static int findFreeRail(
     }
   }
   if( iBestDist>1000 ) p->nErr++;
-  if( iBest>p->mxRail ) p->mxRail = iBest;
   return iBest;
 }
 
@@ -263,14 +261,15 @@ void graph_finish(GraphContext *p, int omitDescenders){
   }
 
   /* Figure out which nodes have no direct children (children on
-  ** the same rail).  Mark such nodes is isLeaf.
+  ** the same rail).  Mark such nodes as isLeaf.
   */
   memset(p->apHash, 0, sizeof(p->apHash[0])*p->nHash);
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev) pRow->isLeaf = 1;
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
     GraphRow *pParent;
     hashInsert(p, pRow, 0);
-    if( pRow->nParent>0
+    if( !pRow->isDup
+     && pRow->nParent>0 
      && (pParent = hashFind(p, pRow->aParent[0]))!=0
      && pRow->zBranch==pParent->zBranch
     ){
