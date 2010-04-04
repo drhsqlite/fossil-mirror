@@ -45,7 +45,8 @@ struct GraphRow {
   GraphRow *pPrev;            /* Previous row */
   
   int idx;                    /* Row index.  First is 1.  0 used for "none" */
-  int isLeaf;                 /* True if no direct child nodes */
+  u8 isLeaf;                  /* True if no direct child nodes */
+  u8 isDup;                   /* True if this is duplicate of a prior entry */
   int iRail;                  /* Which rail this check-in appears on. 0-based.*/
   int aiRaiser[GR_MAX_RAIL];  /* Raisers from this node to a higher row. */
   int bDescender;             /* Raiser from bottom of graph to here. */
@@ -110,16 +111,19 @@ void graph_free(GraphContext *p){
 
 /*
 ** Insert a row into the hash table.  If there is already another
-** row with the same rid, the other row is replaced.
+** row with the same rid, overwrite the prior entry if the overwrite
+** flag is set.
 */
-static void hashInsert(GraphContext *p, GraphRow *pRow){
+static void hashInsert(GraphContext *p, GraphRow *pRow, int overwrite){
   int h;
   h = pRow->rid % p->nHash;
   while( p->apHash[h] && p->apHash[h]->rid!=pRow->rid ){
     h++;
     if( h>=p->nHash ) h = 0;
   }
-  p->apHash[h] = pRow;
+  if( p->apHash[h]==0 || overwrite ){
+    p->apHash[h] = pRow;
+  }
 }
 
 /*
@@ -220,7 +224,7 @@ static int findFreeRail(
 ** Compute the complete graph
 */
 void graph_finish(GraphContext *p, int omitDescenders){
-  GraphRow *pRow, *pDesc;
+  GraphRow *pRow, *pDesc, *pDup;
   int i;
   u32 mask;
   u32 inUse;
@@ -234,7 +238,10 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pRow->pNext ) pRow->pNext->pPrev = pRow;
     pRow->iRail = -1;
     pRow->mergeOut = -1;
-    hashInsert(p, pRow);
+    if( (pDup = hashFind(p, pRow->rid))!=0 ){
+      pDup->isDup = 1;
+    }
+    hashInsert(p, pRow, 1);
   }
   p->mxRail = -1;
 
@@ -256,7 +263,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev) pRow->isLeaf = 1;
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
     GraphRow *pParent;
-    hashInsert(p, pRow);
+    hashInsert(p, pRow, 0);
     if( pRow->nParent>0
      && (pParent = hashFind(p, pRow->aParent[0]))!=0
      && pRow->zBranch==pParent->zBranch
@@ -298,7 +305,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pRow->iRail>=0 ) continue;
     assert( pRow->nParent>0 );
     parentRid = pRow->aParent[0];
-    for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid; pDesc=pDesc->pNext){}
+    pDesc = hashFind(p, parentRid);
     if( pDesc==0 ){
       /* Time skew */
       pRow->iRail = ++p->mxRail;
