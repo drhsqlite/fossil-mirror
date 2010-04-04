@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\sgraph\slayout\salgorithm\sto\stry\sto\sget\sbetter\sgraphs\sfor\nindividual\sfile\shistories.
-D 2010-04-04T18:38:53
+C For\sfile\shistory\sgraphs,\suse\smerge\sarrows\sto\sshow\swhen\sthe\ssame\sfile\sappears\nin\smultiple\scheck-ins.
+D 2010-04-04T21:47:19
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -62,7 +62,7 @@ F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c bdaeea84bd53ee77f71a9c3a42417d373c0c1e3e
 F src/finfo.c a345d96a8b44c1d5ac4343acec0c0536baf21e24
-F src/graph.c a50528c5a7954b689a0f10f558056eb0e8c28dd6
+F src/graph.c 1e7be72997191cdd605c464c9ab30f485ac312b1
 F src/http.c aa1608b63d9666c9c9476d21ce88cb560da82972
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 251fd001a8c6e7af99500a8ca3ac38ad95577995
-R 58ac1d13d14e56a50df16f720bf6b006
+P 1d2608b7f4d748632ab0068f51e81e7b33bee058
+R 755c653a2cfd65ac6d13b1d13cd35d10
 U drh
-Z fb6c55c7bc84829c0ee7b928857d2c38
+Z aacd0022fd3200e0d3340702367c5a76
