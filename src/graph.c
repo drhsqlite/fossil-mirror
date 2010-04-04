@@ -45,7 +45,8 @@ struct GraphRow {
   GraphRow *pPrev;            /* Previous row */
   
   int idx;                    /* Row index.  First is 1.  0 used for "none" */
-  int isLeaf;                 /* True if no direct child nodes */
+  u8 isLeaf;                  /* True if no direct child nodes */
+  u8 isDup;                   /* True if this is duplicate of a prior entry */
   int iRail;                  /* Which rail this check-in appears on. 0-based.*/
   int aiRaiser[GR_MAX_RAIL];  /* Raisers from this node to a higher row. */
   int bDescender;             /* Raiser from bottom of graph to here. */
@@ -110,16 +111,19 @@ void graph_free(GraphContext *p){
 
 /*
 ** Insert a row into the hash table.  If there is already another
-** row with the same rid, the other row is replaced.
+** row with the same rid, overwrite the prior entry if the overwrite
+** flag is set.
 */
-static void hashInsert(GraphContext *p, GraphRow *pRow){
+static void hashInsert(GraphContext *p, GraphRow *pRow, int overwrite){
   int h;
   h = pRow->rid % p->nHash;
   while( p->apHash[h] && p->apHash[h]->rid!=pRow->rid ){
     h++;
     if( h>=p->nHash ) h = 0;
   }
-  p->apHash[h] = pRow;
+  if( p->apHash[h]==0 || overwrite ){
+    p->apHash[h] = pRow;
+  }
 }
 
 /*
@@ -203,7 +207,9 @@ static int findFreeRail(
   for(i=0; i<32; i++){
     if( (inUseMask & (1<<i))==0 ){
       int dist;
-      if( iNearto<=0 ) return i;
+      if( iNearto<=0 ){
+        return i;
+      }
       dist = i - iNearto;
       if( dist<0 ) dist = -dist;
       if( dist<iBestDist ){
@@ -220,10 +226,11 @@ static int findFreeRail(
 ** Compute the complete graph
 */
 void graph_finish(GraphContext *p, int omitDescenders){
-  GraphRow *pRow, *pDesc;
+  GraphRow *pRow, *pDesc, *pDup, *pLoop;
   int i;
   u32 mask;
   u32 inUse;
+  int hasDup = 0;    /* True if one or more isDup entries */
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
 
@@ -234,7 +241,11 @@ void graph_finish(GraphContext *p, int omitDescenders){
     if( pRow->pNext ) pRow->pNext->pPrev = pRow;
     pRow->iRail = -1;
     pRow->mergeOut = -1;
-    hashInsert(p, pRow);
+    if( (pDup = hashFind(p, pRow->rid))!=0 ){
+      hasDup = 1;
+      pDup->isDup = 1;
+    }
+    hashInsert(p, pRow, 1);
   }
   p->mxRail = -1;
 
@@ -250,14 +261,15 @@ void graph_finish(GraphContext *p, int omitDescenders){
   }
 
   /* Figure out which nodes have no direct children (children on
-  ** the same rail).  Mark such nodes is isLeaf.
+  ** the same rail).  Mark such nodes as isLeaf.
   */
   memset(p->apHash, 0, sizeof(p->apHash[0])*p->nHash);
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev) pRow->isLeaf = 1;
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
     GraphRow *pParent;
-    hashInsert(p, pRow);
-    if( pRow->nParent>0
+    hashInsert(p, pRow, 0);
+    if( !pRow->isDup
+     && pRow->nParent>0 
      && (pParent = hashFind(p, pRow->aParent[0]))!=0
      && pRow->zBranch==pParent->zBranch
     ){
@@ -296,32 +308,36 @@ void graph_finish(GraphContext *p, int omitDescenders){
   for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
     int parentRid;
     if( pRow->iRail>=0 ) continue;
-    assert( pRow->nParent>0 );
-    parentRid = pRow->aParent[0];
-    for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid; pDesc=pDesc->pNext){}
-    if( pDesc==0 ){
-      /* Time skew */
-      pRow->iRail = ++p->mxRail;
-      pRow->railInUse = 1<<pRow->iRail;
-      continue;
-    }
-    if( pDesc->aiRaiser[pDesc->iRail]==0 && pDesc->zBranch==pRow->zBranch ){
-      pRow->iRail = pDesc->iRail;
+    if( pRow->isDup ){
+      pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, inUse, 0);
+      pDesc = pRow;
     }else{
-      pRow->iRail = findFreeRail(p, 0, pDesc->idx, inUse, pDesc->iRail);
+      assert( pRow->nParent>0 );
+      parentRid = pRow->aParent[0];
+      pDesc = hashFind(p, parentRid);
+      if( pDesc==0 ){
+        /* Time skew */
+        pRow->iRail = ++p->mxRail;
+        pRow->railInUse = 1<<pRow->iRail;
+        continue;
+      }
+      if( pDesc->aiRaiser[pDesc->iRail]==0 && pDesc->zBranch==pRow->zBranch ){
+        pRow->iRail = pDesc->iRail;
+      }else{
+        pRow->iRail = findFreeRail(p, 0, pDesc->idx, inUse, pDesc->iRail);
+      }
+      pDesc->aiRaiser[pRow->iRail] = pRow->idx;
     }
-    pDesc->aiRaiser[pRow->iRail] = pRow->idx;
     mask = 1<<pRow->iRail;
     if( pRow->isLeaf ){
       inUse &= ~mask;
     }else{
       inUse |= mask;
     }
-    for(pDesc = pRow; ; pDesc=pDesc->pNext){
-      assert( pDesc!=0 );
-      pDesc->railInUse |= mask;
-      if( pDesc->rid==parentRid ) break;
+    for(pLoop=pRow; pLoop && pLoop!=pDesc; pLoop=pLoop->pNext){
+      pLoop->railInUse |= mask;
     }
+    pDesc->railInUse |= mask;
   }
 
   /*
@@ -330,8 +346,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     for(i=1; i<pRow->nParent; i++){
       int parentRid = pRow->aParent[i];
-      for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid;
-          pDesc=pDesc->pNext){}
+      pDesc = hashFind(p, parentRid);
       if( pDesc==0 ) continue;
       if( pDesc->mergeOut<0 ){
         int iTarget = (pRow->iRail + pDesc->iRail)/2;
@@ -342,6 +357,28 @@ void graph_finish(GraphContext *p, int omitDescenders){
         for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid;
              pDesc=pDesc->pNext){
           pDesc->railInUse |= mask;
+        }
+      }
+      pRow->mergeIn |= 1<<pDesc->mergeOut;
+    }
+  }
+
+  /*
+  ** Insert merge rails from primaries to duplicates. 
+  */
+  if( hasDup ){
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( !pRow->isDup ) continue;
+      pDesc = hashFind(p, pRow->rid);
+      assert( pDesc!=0 && pDesc!=pRow );
+      if( pDesc->mergeOut<0 ){
+        int iTarget = (pRow->iRail + pDesc->iRail)/2;
+        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0, iTarget);
+        pDesc->mergeUpto = pRow->idx;
+        mask = 1<<pDesc->mergeOut;
+        pDesc->railInUse |= mask;
+        for(pLoop=pRow->pNext; pLoop && pLoop!=pDesc; pLoop=pLoop->pNext){
+          pLoop->railInUse |= mask;
         }
       }
       pRow->mergeIn |= 1<<pDesc->mergeOut;
