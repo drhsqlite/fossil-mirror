@@ -1,5 +1,5 @@
-C Accept\ssingle-quotes\sin\saddition\sto\sdouble-quotes\sfor\sHTML\sattribute\squoting.
-D 2010-04-07T11:53:42
+C Update\sSQLite\sto\sa\sversion\sthat\sincludes\sautomatic\sindex\ssupport.\s\sWhen\s\ncompiled\swith\sFOSSIL_DEBUG,\sissue\swarnings\sif\sany\sautomatic\sindex\sis\sever\nused.
+D 2010-04-07T20:02:14
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c 57def314ab8fba3757cbb7410ce793bd4a836606
-F src/db.c 5eddbd47d8d5e8be4a6eca065b068320a593ed00
+F src/db.c 8db5889b940493e562b990de7b8df2eeedb44faf
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -93,8 +93,8 @@ F src/setup.c 7a03dd810e3eeb2a74215507aed9a3c4ce574bcf
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
-F src/sqlite3.c 5af54b924d30ef98d6f7132dcef32e3902ea21d9
-F src/sqlite3.h 161d4714feab2887d50e94f81ef2100ecb946103
+F src/sqlite3.c b6cf146f458664eee7eefc977c94759b39b99a22
+F src/sqlite3.h 606aa1fdf394a160a8c2e74f50f0a546988cb40d
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 8050be341397c6c59c78eff758858039db96a10e
 F src/sync.c d86d4e444f7090ed8d0fc7c3d7fe5e5bdbb402b8
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 1f607de1db8a9a30bc7accab4c107b15410ff862
-R 1f43b30bbc68be230dd3e975ed8e384d
+P 852e631f08691fbb713460dd3b04c18255023334
+R 26119f5bcb553c205cf070270b6daf49
 U drh
-Z 875036338b58a44103557e92c9558198
+Z 233fae3b09dc37fb5ccda9073b0530a7

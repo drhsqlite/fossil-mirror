@@ -285,14 +285,17 @@ int db_step(Stmt *pStmt){
 */
 static void db_stats(Stmt *pStmt){
 #ifdef FOSSIL_DEBUG
-  int c1, c2;
+  int c1, c2, c3;
   const char *zSql = sqlite3_sql(pStmt->pStmt);
   if( zSql==0 ) return;
   c1 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
-  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
+  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, 1);
+  c3 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
   if( c1>pStmt->nStep*4 && strstr(zSql,"/*scan*/")==0 ){
     fossil_warning("%d scan steps for %d rows in [%s]", c1, pStmt->nStep, zSql);
-  }else if( c2 && strstr(zSql,"/*sort*/")==0 && strstr(zSql,"/*scan*/")==0 ){
+  }else if( c2 ){
+    fossil_warning("%d automatic index rows in [%s]", c2, zSql);
+  }else if( c3 && strstr(zSql,"/*sort*/")==0 && strstr(zSql,"/*scan*/")==0 ){
     fossil_warning("sort w/o index in [%s]", zSql);
   }
   pStmt->nStep = 0;
