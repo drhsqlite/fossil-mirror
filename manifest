@@ -1,5 +1,5 @@
-C Further\srefinements\sto\sthe\sgraph\slayout\sfor\sfile\shistories.
-D 2010-04-04T22:40:22
+C Accept\ssingle-quotes\sin\saddition\sto\sdouble-quotes\sfor\sHTML\sattribute\squoting.
+D 2010-04-07T11:53:42
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -114,7 +114,7 @@ F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 6b065467c0fd8e3cc6bf10167f8c7afc57900165
 F src/wiki.c 5789d51f360724f0fd6138476e3240448b540c08
-F src/wikiformat.c db31f4c3fe083a53b6fffcf407d0f305e602150d
+F src/wikiformat.c c744e8e1108bce25c11fac5daade74fd7a556601
 F src/winhttp.c 33fcca6b835cf077b5a0f73ca68cbde6d8a121c6
 F src/xfer.c be32eb05db3900a44c778df208c0f4c4515a8297
 F src/zip.c 3494ff9729297a11078a303c5729ba106ddf4446
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 6ea10c5e990d2e6eb6f5a0d8638eb8be6d7bace7
-R e063e94bff05241b23fadd1a8fbacec6
+P 1f607de1db8a9a30bc7accab4c107b15410ff862
+R 1f43b30bbc68be230dd3e975ed8e384d
 U drh
-Z eeadd8d38336a5febc2b162af0f976ec
+Z 875036338b58a44103557e92c9558198

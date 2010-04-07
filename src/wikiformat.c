@@ -394,13 +394,16 @@ static int wikiUsesHtml(void){
 static int markupLength(const char *z){
   int n = 1;
   int inparen = 0;
+  int c;
   if( z[n]=='/' ){ n++; }
   if( !isalpha(z[n]) ) return 0;
   while( isalnum(z[n]) ){ n++; }
-  if( z[n]!='>' && !isspace(z[n]) ) return 0;
-  while( z[n] && (z[n]!='>' || inparen) ){
-    if( z[n]=='"' ){
-      inparen = !inparen;
+  if( (c = z[n])!='>' && !isspace(c) ) return 0;
+  while( (c = z[n])!=0 && (c!='>' || inparen) ){
+    if( c==inparen ){
+      inparen = 0;
+    }else if( c=='"' || c=='\'' ){
+      inparen = c;
     }
     n++;
   }
@@ -715,6 +718,10 @@ static void parseMarkup(ParsedMarkup *p, char *z){
         i++;
         zValue = &z[i];
         while( z[i] && z[i]!='"' ){ i++; }
+      }else if( z[i]=='\'' ){
+        i++;
+        zValue = &z[i];
+        while( z[i] && z[i]!='\'' ){ i++; }
       }else{
         zValue = &z[i];
         while( !isspace(z[i]) && z[i]!='>' ){ z++; }
