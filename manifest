@@ -1,5 +1,5 @@
-C Update\sSQLite\sto\sa\sversion\sthat\sincludes\sautomatic\sindex\ssupport.\s\sWhen\s\ncompiled\swith\sFOSSIL_DEBUG,\sissue\swarnings\sif\sany\sautomatic\sindex\sis\sever\nused.
-D 2010-04-07T20:02:14
+C SQLite\sbug\sfix.\s\sChange\sa\sLIKE\sto\sa\sGLOB\sso\sthat\sit\scan\suse\san\sindex.
+D 2010-04-07T20:35:52
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -67,7 +67,7 @@ F src/http.c aa1608b63d9666c9c9476d21ce88cb560da82972
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c ef35d0ad3f96ad68cce39e21a1dd747ed4138753
+F src/info.c 69c3c209642a15a22a019a98a1b178cfafe56070
 F src/login.c dde59ed44de2b9cfa177171a6a8073e4ed3ea193
 F src/main.c 3f93a246a7612ca5dd041e5857a4e6a58dbdb88f
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
@@ -93,8 +93,8 @@ F src/setup.c 7a03dd810e3eeb2a74215507aed9a3c4ce574bcf
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
-F src/sqlite3.c b6cf146f458664eee7eefc977c94759b39b99a22
-F src/sqlite3.h 606aa1fdf394a160a8c2e74f50f0a546988cb40d
+F src/sqlite3.c 8ef80128adb2fe864cbf5fcdc07783ab91bef2d7
+F src/sqlite3.h 78db4d1c327644cfafdf5435e0117a17575d0949
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 8050be341397c6c59c78eff758858039db96a10e
 F src/sync.c d86d4e444f7090ed8d0fc7c3d7fe5e5bdbb402b8
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 852e631f08691fbb713460dd3b04c18255023334
-R 26119f5bcb553c205cf070270b6daf49
+P b84917dbf84f94be426f03f7898bf83f777b4322
+R 381b06399f94d82b0078ad09866f9e52
 U drh
-Z 233fae3b09dc37fb5ccda9073b0530a7
+Z 45846cce6865a10b49e5489c1d5eb950
