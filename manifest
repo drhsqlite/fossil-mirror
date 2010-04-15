@@ -1,5 +1,5 @@
-C Fill\sthe\sboxes\son\sthe\sgraph\swith\sthe\ssame\sbackground\scolor\sas\sthe\stext\sin\nthe\stimeline\sdescription.
-D 2010-04-15T23:50:26
+C Update\sto\sthe\slatest\sstable\scheck-in\sof\sSQLite,\sas\sa\sbeta-test\sfor\sSQLite.
+D 2010-04-15T23:53:15
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -93,8 +93,8 @@ F src/setup.c 7a03dd810e3eeb2a74215507aed9a3c4ce574bcf
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
-F src/sqlite3.c 8ef80128adb2fe864cbf5fcdc07783ab91bef2d7
-F src/sqlite3.h 78db4d1c327644cfafdf5435e0117a17575d0949
+F src/sqlite3.c bd910d246ecd97ddb9250f831e79bec797069dc3
+F src/sqlite3.h 23cbdd754c5fa51f3acdb55758c47269d0d3131f
 F src/stat.c bc484277064e5bcf7c2dc0a2eb0329e543aec966
 F src/style.c 8050be341397c6c59c78eff758858039db96a10e
 F src/sync.c d86d4e444f7090ed8d0fc7c3d7fe5e5bdbb402b8
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 5721bce8853fc3594aa52c4191b5ff46f41fa031
-R 0fd2f6082ec92eb97e92f8d94ac95998
+P 0e7b85bb92ba33660410560fb0a531e2318702da
+R a12c5044ab2b578d9cf5d2a6dda6691e
 U drh
-Z 869bb50edb12e5153903804ecdfa9562
+Z a778a6d988807ba62a51bcce6c7f6c54

@@ -630,7 +630,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.23"
 #define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-04-07 20:32:19 e388fe8be878c80ef0bfd1699a7268cdb22cb3c6"
+#define SQLITE_SOURCE_ID      "2010-04-15 23:24:29 f96782b389b5b97b488dc5814f7082e0393f64cd"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4406,8 +4406,6 @@ SQLITE_API sqlite3_stmt *sqlite3_next_stmt(sqlite3 *pDb, sqlite3_stmt *pStmt);
 ** an error or constraint causes an implicit rollback to occur.
 ** ^The rollback callback is not invoked if a transaction is
 ** automatically rolled back because the database connection is closed.
-** ^The rollback callback is not invoked if a transaction is
-** rolled back because a commit callback returned non-zero.
 **
 ** See also the [sqlite3_update_hook()] interface.
 */
@@ -32359,6 +32357,87 @@ SQLITE_PRIVATE int sqlite3RowSetTest(RowSet *pRowSet, u8 iBatch, sqlite3_int64 i
 #ifndef SQLITE_OMIT_DISKIO
 
 /*
+******************** NOTES ON THE DESIGN OF THE PAGER ************************
+**
+** Within this comment block, a page is deemed to have been synced
+** automatically as soon as it is written when PRAGMA synchronous=OFF.
+** Otherwise, the page is not synced until the xSync method of the VFS
+** is called successfully on the file containing the page.
+**
+** Definition:  A page of the database file is said to be "overwriteable" if
+** one or more of the following are true about the page:
+** 
+**     (a)  The original content of the page as it was at the beginning of
+**          the transaction has been written into the rollback journal and
+**          synced.
+** 
+**     (b)  The page was a freelist leaf page at the start of the transaction.
+** 
+**     (c)  The page number is greater than the largest page that existed in
+**          the database file at the start of the transaction.
+** 
+** (1) A page of the database file is never overwritten unless one of the
+**     following are true:
+** 
+**     (a) The page and all other pages on the same sector are overwriteable.
+** 
+**     (b) The atomic page write optimization is enabled, and the entire
+**         transaction other than the update of the transaction sequence
+**         number consists of a single page change.
+** 
+** (2) The content of a page written into the rollback journal exactly matches
+**     both the content in the database when the rollback journal was written
+**     and the content in the database at the beginning of the current
+**     transaction.
+** 
+** (3) Writes to the database file are an integer multiple of the page size
+**     in length and are aligned to a page boundary.
+** 
+** (4) Reads from the database file are either aligned on a page boundary and
+**     an integer multiple of the page size in length or are taken from the
+**     first 100 bytes of the database file.
+** 
+** (5) All writes to the database file are synced prior to the rollback journal
+**     being deleted, truncated, or zeroed.
+** 
+** (6) If a master journal file is used, then all writes to the database file
+**     are synced prior to the master journal being deleted.
+** 
+** Definition: Two databases (or the same database at two points it time)
+** are said to be "logically equivalent" if they give the same answer to
+** all queries.  Note in particular the the content of freelist leaf
+** pages can be changed arbitarily without effecting the logical equivalence
+** of the database.
+** 
+** (7) At any time, if any subset, including the empty set and the total set,
+**     of the unsynced changes to a rollback journal are removed and the 
+**     journal is rolled back, the resulting database file will be logical
+**     equivalent to the database file at the beginning of the transaction.
+** 
+** (8) When a transaction is rolled back, the xTruncate method of the VFS
+**     is called to restore the database file to the same size it was at
+**     the beginning of the transaction.  (In some VFSes, the xTruncate
+**     method is a no-op, but that does not change the fact the SQLite will
+**     invoke it.)
+** 
+** (9) Whenever the database file is modified, at least one bit in the range
+**     of bytes from 24 through 39 inclusive will be changed prior to releasing
+**     the EXCLUSIVE lock.
+**
+** (10) The pattern of bits in bytes 24 through 39 shall not repeat in less
+**      than one billion transactions.
+**
+** (11) A database file is well-formed at the beginning and at the conclusion
+**      of every transaction.
+**
+** (12) An EXCLUSIVE lock is held on the database file when writing to
+**      the database file.
+**
+** (13) A SHARED lock is held on the database file while reading any
+**      content out of the database file.
+*/
+
+/*
 ** Macros for troubleshooting.  Normally turned off
 */
 #if 0
@@ -32534,7 +32613,8 @@ struct PagerSavepoint {
 **
 ** journalStarted
 **
-**   This flag is set whenever the the main journal is synced. 
+**   This flag is set whenever the the main journal is opened and
+**   initialized
 **
 **   The point of this flag is that it must be set after the 
 **   first journal header in a journal file has been synced to disk.
@@ -32560,7 +32640,10 @@ struct PagerSavepoint {
 **
 ** doNotSync
 **
-**   This variable is set and cleared by sqlite3PagerWrite().
+**   When enabled, cache spills are prohibited and the journal file cannot
+**   be synced.  This variable is set and cleared by sqlite3PagerWrite() 
+**   in order to prevent a journal sync from happening in between the
+**   journalling of two pages on the same sector.
 **
 ** needSync
 **
@@ -32620,6 +32703,7 @@ struct Pager {
   sqlite3_file *sjfd;         /* File descriptor for sub-journal */
   i64 journalOff;             /* Current write offset in the journal file */
   i64 journalHdr;             /* Byte offset to previous journal header */
+  i64 journalSizeLimit;       /* Size limit for persistent journal files */
   PagerSavepoint *aSavepoint; /* Array of active savepoints */
   int nSavepoint;             /* Number of elements in aSavepoint[] */
   char dbFileVers[16];        /* Changes whenever database file changes */
@@ -32646,7 +32730,6 @@ struct Pager {
   void *pCodec;               /* First argument to xCodec... methods */
 #endif
   char *pTmpSpace;            /* Pager.pageSize bytes of space for tmp use */
-  i64 journalSizeLimit;       /* Size limit for persistent journal files */
   PCache *pPCache;            /* Pointer to page cache object */
   sqlite3_backup *pBackup;    /* Pointer to list of ongoing backup processes */
 };
@@ -33162,6 +33245,7 @@ static int writeJournalHdr(Pager *pPager){
   for(nWrite=0; rc==SQLITE_OK&&nWrite<JOURNAL_HDR_SZ(pPager); nWrite+=nHeader){
     IOTRACE(("JHDR %p %lld %d\n", pPager, pPager->journalHdr, nHeader))
     rc = sqlite3OsWrite(pPager->jfd, zHeader, nHeader, pPager->journalOff);
+    assert( pPager->journalHdr <= pPager->journalOff );
     pPager->journalOff += nHeader;
   }
 
@@ -33320,6 +33404,7 @@ static int writeMasterJournal(Pager *pPager, const char *zMaster){
   }
   pPager->setMaster = 1;
   assert( isOpen(pPager->jfd) );
+  assert( pPager->journalHdr <= pPager->journalOff );
 
   /* Calculate the length in bytes and the checksum of zMaster */
   for(nMaster=0; zMaster[nMaster]; nMaster++){
@@ -33749,11 +33834,10 @@ static u32 pager_cksum(Pager *pPager, const u8 *aData){
 */
 static int pager_playback_one_page(
   Pager *pPager,                /* The pager being played back */
-  int isMainJrnl,               /* 1 -> main journal. 0 -> sub-journal. */
-  int isUnsync,                 /* True if reading from unsynced main journal */
   i64 *pOffset,                 /* Offset of record to playback */
-  int isSavepnt,                /* True for a savepoint rollback */
-  Bitvec *pDone                 /* Bitvec of pages already played back */
+  Bitvec *pDone,                /* Bitvec of pages already played back */
+  int isMainJrnl,               /* 1 -> main journal. 0 -> sub-journal. */
+  int isSavepnt                 /* True for a savepoint rollback */
 ){
   int rc;
   PgHdr *pPg;                   /* An existing page in the cache */
@@ -33761,6 +33845,7 @@ static int pager_playback_one_page(
   u32 cksum;                    /* Checksum used for sanity checking */
   char *aData;                  /* Temporary storage for the page */
   sqlite3_file *jfd;            /* The file descriptor for the journal file */
+  int isSynced;                 /* True if journal page is synced */
 
   assert( (isMainJrnl&~1)==0 );      /* isMainJrnl is 0 or 1 */
   assert( (isSavepnt&~1)==0 );       /* isSavepnt is 0 or 1 */
@@ -33844,12 +33929,17 @@ static int pager_playback_one_page(
            PAGERID(pPager), pgno, pager_datahash(pPager->pageSize, (u8*)aData),
            (isMainJrnl?"main-journal":"sub-journal")
   ));
+  if( isMainJrnl ){
+    isSynced = pPager->noSync || (*pOffset <= pPager->journalHdr);
+  }else{
+    isSynced = (pPg==0 || 0==(pPg->flags & PGHDR_NEED_SYNC));
+  }
   if( (pPager->state>=PAGER_EXCLUSIVE)
-   && (pPg==0 || 0==(pPg->flags&PGHDR_NEED_SYNC))
    && isOpen(pPager->fd)
-   && !isUnsync
+   && isSynced
   ){
     i64 ofst = (pgno-1)*(i64)pPager->pageSize;
+    testcase( !isSavepnt && pPg!=0 && (pPg->flags&PGHDR_NEED_SYNC)!=0 );
     rc = sqlite3OsWrite(pPager->fd, (u8*)aData, pPager->pageSize, ofst);
     if( pgno>pPager->dbFileSize ){
       pPager->dbFileSize = pgno;
@@ -33898,7 +33988,8 @@ static int pager_playback_one_page(
       /* If the contents of this page were just restored from the main 
       ** journal file, then its content must be as they were when the 
       ** transaction was first opened. In this case we can mark the page
-      ** as clean, since there will be no need to write it out to the.
+      ** as clean, since there will be no need to write it out to the
+      ** database.
       **
       ** There is one exception to this rule. If the page is being rolled
       ** back as part of a savepoint (or statement) rollback from an 
@@ -34245,8 +34336,6 @@ static int pager_playback(Pager *pPager, int isHot){
   ** occurs. 
   */
   while( 1 ){
-    int isUnsync = 0;
-
     /* Read the next journal header from the journal file.  If there are
     ** not enough bytes left in the journal file for a complete header, or
     ** it is corrupted, then a process must of failed while writing it.
@@ -34287,7 +34376,6 @@ static int pager_playback(Pager *pPager, int isHot){
     if( nRec==0 && !isHot &&
         pPager->journalHdr+JOURNAL_HDR_SZ(pPager)==pPager->journalOff ){
       nRec = (int)((szJ - pPager->journalOff) / JOURNAL_PG_SZ(pPager));
-      isUnsync = 1;
     }
 
     /* If this is the first header read from the journal, truncate the
@@ -34309,7 +34397,7 @@ static int pager_playback(Pager *pPager, int isHot){
         pager_reset(pPager);
         needPagerReset = 0;
       }
-      rc = pager_playback_one_page(pPager,1,isUnsync,&pPager->journalOff,0,0);
+      rc = pager_playback_one_page(pPager,&pPager->journalOff,0,1,0);
       if( rc!=SQLITE_OK ){
         if( rc==SQLITE_DONE ){
           rc = SQLITE_OK;
@@ -34462,7 +34550,7 @@ static int pagerPlaybackSavepoint(Pager *pPager, PagerSavepoint *pSavepoint){
     iHdrOff = pSavepoint->iHdrOffset ? pSavepoint->iHdrOffset : szJ;
     pPager->journalOff = pSavepoint->iOffset;
     while( rc==SQLITE_OK && pPager->journalOff<iHdrOff ){
-      rc = pager_playback_one_page(pPager, 1, 0, &pPager->journalOff, 1, pDone);
+      rc = pager_playback_one_page(pPager, &pPager->journalOff, pDone, 1, 1);
     }
     assert( rc!=SQLITE_DONE );
   }else{
@@ -34492,7 +34580,7 @@ static int pagerPlaybackSavepoint(Pager *pPager, PagerSavepoint *pSavepoint){
       nJRec = (u32)((szJ - pPager->journalOff)/JOURNAL_PG_SZ(pPager));
     }
     for(ii=0; rc==SQLITE_OK && ii<nJRec && pPager->journalOff<szJ; ii++){
-      rc = pager_playback_one_page(pPager, 1, 0, &pPager->journalOff, 1, pDone);
+      rc = pager_playback_one_page(pPager, &pPager->journalOff, pDone, 1, 1);
     }
     assert( rc!=SQLITE_DONE );
   }
@@ -34507,7 +34595,7 @@ static int pagerPlaybackSavepoint(Pager *pPager, PagerSavepoint *pSavepoint){
     i64 offset = pSavepoint->iSubRec*(4+pPager->pageSize);
     for(ii=pSavepoint->iSubRec; rc==SQLITE_OK && ii<pPager->nSubRec; ii++){
       assert( offset==ii*(4+pPager->pageSize) );
-      rc = pager_playback_one_page(pPager, 0, 0, &offset, 1, pDone);
+      rc = pager_playback_one_page(pPager, &offset, pDone, 0, 1);
     }
     assert( rc!=SQLITE_DONE );
   }
@@ -34946,6 +35034,31 @@ SQLITE_PRIVATE void sqlite3PagerTruncateImage(Pager *pPager, Pgno nPage){
 }
 
 /*
+** This function is called before attempting a hot-journal rollback. It
+** syncs the journal file to disk, then sets pPager->journalHdr to the
+** size of the journal file so that the pager_playback() routine knows
+** that the entire journal file has been synced.
+**
+** Syncing a hot-journal to disk before attempting to roll it back ensures 
+** that if a power-failure occurs during the rollback, the process that
+** attempts rollback following system recovery sees the same journal
+** content as this process.
+**
+** If everything goes as planned, SQLITE_OK is returned. Otherwise, 
+** an SQLite error code.
+*/
+static int pagerSyncHotJournal(Pager *pPager){
+  int rc = SQLITE_OK;
+  if( !pPager->noSync ){
+    rc = sqlite3OsSync(pPager->jfd, SQLITE_SYNC_NORMAL);
+  }
+  if( rc==SQLITE_OK ){
+    rc = sqlite3OsFileSize(pPager->jfd, &pPager->journalHdr);
+  }
+  return rc;
+}
+
+/*
 ** Shutdown the page cache.  Free all memory and close all files.
 **
 ** If a transaction was in progress when this routine is called, that
@@ -34974,7 +35087,9 @@ SQLITE_PRIVATE int sqlite3PagerClose(Pager *pPager){
     ** be played back into the database. If a power failure occurs while
     ** this is happening, the database may become corrupt.
     */
-    pPager->journalHdr = -1;
+    if( isOpen(pPager->jfd) ){
+      pPager->errCode = pagerSyncHotJournal(pPager);
+    }
     pagerUnlockAndRollback(pPager);
   }
   sqlite3EndBenignMalloc();
@@ -35064,7 +35179,7 @@ static int syncJournal(Pager *pPager){
         ** mode, then the journal file may at this point actually be larger
         ** than Pager.journalOff bytes. If the next thing in the journal
         ** file happens to be a journal-header (written as part of the
-        ** previous connections transaction), and a crash or power-failure 
+        ** previous connection's transaction), and a crash or power-failure 
         ** occurs after nRec is updated but before this connection writes 
         ** anything else to the journal file (or commits/rolls back its 
         ** transaction), then SQLite may become confused when doing the 
@@ -35136,6 +35251,7 @@ static int syncJournal(Pager *pPager){
     */
     pPager->needSync = 0;
     pPager->journalStarted = 1;
+    pPager->journalHdr = pPager->journalOff;
     sqlite3PcacheClearSyncFlags(pPager->pPCache);
   }
 
@@ -35998,19 +36114,28 @@ SQLITE_PRIVATE int sqlite3PagerSharedLock(Pager *pPager){
         goto failed;
       }
 
-      /* TODO: Why are these cleared here? Is it necessary? */
+      /* Reset the journal status fields to indicates that we have no
+      ** rollback journal at this time. */
       pPager->journalStarted = 0;
       pPager->journalOff = 0;
       pPager->setMaster = 0;
       pPager->journalHdr = 0;
+
+      /* Make sure the journal file has been synced to disk. */
  
       /* Playback and delete the journal.  Drop the database write
       ** lock and reacquire the read lock. Purge the cache before
       ** playing back the hot-journal so that we don't end up with
-      ** an inconsistent cache.
+      ** an inconsistent cache.  Sync the hot journal before playing
+      ** it back since the process that crashed and left the hot journal
+      ** probably did not sync it and we are required to always sync
+      ** the journal before playing it back.
       */
       if( isOpen(pPager->jfd) ){
-        rc = pager_playback(pPager, 1);
+        rc = pagerSyncHotJournal(pPager);
+        if( rc==SQLITE_OK ){
+          rc = pager_playback(pPager, 1);
+        }
         if( rc!=SQLITE_OK ){
           rc = pager_error(pPager, rc);
           goto failed;
@@ -36116,7 +36241,7 @@ static void pagerUnlockIfUnused(Pager *pPager){
 **   a) When reading a free-list leaf page from the database, and
 **
 **   b) When a savepoint is being rolled back and we need to load
-**      a new page into the cache to populate with the data read
+**      a new page into the cache to be filled with the data read
 **      from the savepoint journal.
 **
 ** If noContent is true, then the data returned is zeroed instead of
@@ -36548,6 +36673,8 @@ static int pager_write(PgHdr *pPg){
         ** contains the database locks.  The following assert verifies
         ** that we do not. */
         assert( pPg->pgno!=PAGER_MJ_PGNO(pPager) );
+
+        assert( pPager->journalHdr <= pPager->journalOff );
         CODEC2(pPager, pData, pPg->pgno, 7, return SQLITE_NOMEM, pData2);
         cksum = pager_cksum(pPager, (u8*)pData2);
         rc = write32bits(pPager->jfd, pPager->journalOff, pPg->pgno);
@@ -60153,11 +60280,10 @@ static int memjrnlClose(sqlite3_file *pJfd){
 ** exists purely as a contingency, in case some malfunction in some other
 ** part of SQLite causes Sync to be called by mistake.
 */
-static int memjrnlSync(sqlite3_file *NotUsed, int NotUsed2){   /*NO_TEST*/
-  UNUSED_PARAMETER2(NotUsed, NotUsed2);                        /*NO_TEST*/
-  assert( 0 );                                                 /*NO_TEST*/
-  return SQLITE_OK;                                            /*NO_TEST*/
-}                                                              /*NO_TEST*/
+static int memjrnlSync(sqlite3_file *NotUsed, int NotUsed2){
+  UNUSED_PARAMETER2(NotUsed, NotUsed2);
+  return SQLITE_OK;
+}
 
 /*
 ** Query the size of the file in bytes.
@@ -60753,7 +60879,7 @@ lookupname_end:
 
 /*
 ** Allocate and return a pointer to an expression to load the column iCol
-** from datasource iSrc datasource in SrcList pSrc.
+** from datasource iSrc in SrcList pSrc.
 */
 SQLITE_PRIVATE Expr *sqlite3CreateColumnExpr(sqlite3 *db, SrcList *pSrc, int iSrc, int iCol){
   Expr *p = sqlite3ExprAlloc(db, TK_COLUMN, 0, 0);
@@ -60765,6 +60891,8 @@ SQLITE_PRIVATE Expr *sqlite3CreateColumnExpr(sqlite3 *db, SrcList *pSrc, int iSr
       p->iColumn = -1;
     }else{
       p->iColumn = (ynVar)iCol;
+      testcase( iCol==BMS );
+      testcase( iCol==BMS-1 );
       pItem->colUsed |= ((Bitmask)1)<<(iCol>=BMS ? BMS-1 : iCol);
     }
     ExprSetProperty(p, EP_Resolved);
@@ -79648,15 +79776,15 @@ SQLITE_PRIVATE int sqlite3InitCallback(void *pInit, int argc, char **argv, char 
     ** or executed.  All the parser does is build the internal data
     ** structures that describe the table, index, or view.
     */
-    char *zErr;
     int rc;
+    sqlite3_stmt *pStmt;
+
     assert( db->init.busy );
     db->init.iDb = iDb;
     db->init.newTnum = atoi(argv[1]);
     db->init.orphanTrigger = 0;
-    rc = sqlite3_exec(db, argv[2], 0, 0, &zErr);
+    rc = sqlite3_prepare(db, argv[2], -1, &pStmt, 0);
     db->init.iDb = 0;
-    assert( rc!=SQLITE_OK || zErr==0 );
     if( SQLITE_OK!=rc ){
       if( db->init.orphanTrigger ){
         assert( iDb==1 );
@@ -79665,11 +79793,11 @@ SQLITE_PRIVATE int sqlite3InitCallback(void *pInit, int argc, char **argv, char 
         if( rc==SQLITE_NOMEM ){
           db->mallocFailed = 1;
         }else if( rc!=SQLITE_INTERRUPT && rc!=SQLITE_LOCKED ){
-          corruptSchema(pData, argv[0], zErr);
+          corruptSchema(pData, argv[0], sqlite3_errmsg(db));
         }
       }
-      sqlite3DbFree(db, zErr);
     }
+    sqlite3_finalize(pStmt);
   }else if( argv[0]==0 ){
     corruptSchema(pData, 0, 0);
   }else{
@@ -82961,8 +83089,8 @@ static void substSelect(
 **  (14)  The subquery does not use OFFSET
 **
 **  (15)  The outer query is not part of a compound select or the
-**        subquery does not have both an ORDER BY and a LIMIT clause.
-**        (See ticket #2339)
+**        subquery does not have a LIMIT clause.
+**        (See ticket #2339 and ticket [02a8e81d44]).
 **
 **  (16)  The outer query is not an aggregate or the subquery does
 **        not contain ORDER BY.  (Ticket #2942)  This used to not matter
@@ -83045,7 +83173,7 @@ static int flattenSubquery(
   ** and (14). */
   if( pSub->pLimit && p->pLimit ) return 0;              /* Restriction (13) */
   if( pSub->pOffset ) return 0;                          /* Restriction (14) */
-  if( p->pRightmost && pSub->pLimit && pSub->pOrderBy ){
+  if( p->pRightmost && pSub->pLimit ){
     return 0;                                            /* Restriction (15) */
   }
   if( pSubSrc->nSrc==0 ) return 0;                       /* Restriction (7)  */
@@ -89540,6 +89668,11 @@ static void bestOrClauseIndex(
   WhereTerm * const pWCEnd = &pWC->a[pWC->nTerm];        /* End of pWC->a[] */
   WhereTerm *pTerm;                 /* A single term of the WHERE clause */
 
+  /* No OR-clause optimization allowed if the NOT INDEXED clause is used */
+  if( pSrc->notIndexed ){
+    return;
+  }
+
   /* Search the WHERE clause terms for a usable WO_OR term. */
   for(pTerm=pWC->a; pTerm<pWCEnd; pTerm++){
     if( pTerm->eOperator==WO_OR 
@@ -89582,8 +89715,9 @@ static void bestOrClauseIndex(
       /* If there is an ORDER BY clause, increase the scan cost to account 
       ** for the cost of the sort. */
       if( pOrderBy!=0 ){
+        WHERETRACE(("... sorting increases OR cost %.9g to %.9g\n",
+                    rTotal, rTotal+nRow*estLog(nRow)));
         rTotal += nRow*estLog(nRow);
-        WHERETRACE(("... sorting increases OR cost to %.9g\n", rTotal));
       }
 
       /* If the cost of scanning using this OR term for optimization is
@@ -89660,7 +89794,8 @@ static void bestAutomaticIndex(
   }
 
   assert( pParse->nQueryLoop >= (double)1 );
-  nTableRow = pSrc->pIndex ? pSrc->pIndex->aiRowEst[0] : 1000000;
+  pTable = pSrc->pTab;
+  nTableRow = pTable->pIndex ? pTable->pIndex->aiRowEst[0] : 1000000;
   logN = estLog(nTableRow);
   costTempIdx = 2*logN*(nTableRow/pParse->nQueryLoop + 1);
   if( costTempIdx>=pCost->rCost ){
@@ -89670,7 +89805,6 @@ static void bestAutomaticIndex(
   }
 
   /* Search for any equality comparison term */
-  pTable = pSrc->pTab;
   pWCEnd = &pWC->a[pWC->nTerm];
   for(pTerm=pWC->a; pTerm<pWCEnd; pTerm++){
     if( termCanDriveIndex(pTerm, pSrc, notReady) ){
@@ -89738,8 +89872,13 @@ static void constructAutomaticIndex(
   for(pTerm=pWC->a; pTerm<pWCEnd; pTerm++){
     if( termCanDriveIndex(pTerm, pSrc, notReady) ){
       int iCol = pTerm->u.leftColumn;
-      if( iCol<BMS && iCol>=0 ) idxCols |= 1<<iCol;
-      nColumn++;
+      Bitmask cMask = iCol>=BMS ? ((Bitmask)1)<<(BMS-1) : ((Bitmask)1)<<iCol;
+      testcase( iCol==BMS );
+      testcase( iCol==BMS-1 );
+      if( (idxCols & cMask)==0 ){
+        nColumn++;
+        idxCols |= cMask;
+      }
     }
   }
   assert( nColumn>0 );
@@ -89753,10 +89892,12 @@ static void constructAutomaticIndex(
   ** original table changes and the index and table cannot both be used
   ** if they go out of sync.
   */
-  extraCols = pSrc->colUsed & ~idxCols;
+  extraCols = pSrc->colUsed & (~idxCols | (((Bitmask)1)<<(BMS-1)));
   mxBitCol = (pTable->nCol >= BMS-1) ? BMS-1 : pTable->nCol;
+  testcase( pTable->nCol==BMS-1 );
+  testcase( pTable->nCol==BMS-2 );
   for(i=0; i<mxBitCol; i++){
-    if( extraCols & (1<<i) ) nColumn++;
+    if( extraCols & (((Bitmask)1)<<i) ) nColumn++;
   }
   if( pSrc->colUsed & (((Bitmask)1)<<(BMS-1)) ){
     nColumn += pTable->nCol - BMS + 1;
@@ -89778,13 +89919,19 @@ static void constructAutomaticIndex(
   pIdx->nColumn = nColumn;
   pIdx->pTable = pTable;
   n = 0;
+  idxCols = 0;
   for(pTerm=pWC->a; pTerm<pWCEnd; pTerm++){
     if( termCanDriveIndex(pTerm, pSrc, notReady) ){
-      Expr *pX = pTerm->pExpr;
-      pIdx->aiColumn[n] = pTerm->u.leftColumn;
-      pColl = sqlite3BinaryCompareCollSeq(pParse, pX->pLeft, pX->pRight);
-      pIdx->azColl[n] = pColl->zName;
-      n++;
+      int iCol = pTerm->u.leftColumn;
+      Bitmask cMask = iCol>=BMS ? ((Bitmask)1)<<(BMS-1) : ((Bitmask)1)<<iCol;
+      if( (idxCols & cMask)==0 ){
+        Expr *pX = pTerm->pExpr;
+        idxCols |= cMask;
+        pIdx->aiColumn[n] = pTerm->u.leftColumn;
+        pColl = sqlite3BinaryCompareCollSeq(pParse, pX->pLeft, pX->pRight);
+        pIdx->azColl[n] = pColl->zName;
+        n++;
+      }
     }
   }
   assert( n==pLevel->plan.nEq );
@@ -89792,7 +89939,7 @@ static void constructAutomaticIndex(
   /* Add additional columns needed to make the automatic index into
   ** a covering index */
   for(i=0; i<mxBitCol; i++){
-    if( extraCols & (1<<i) ){
+    if( extraCols & (((Bitmask)1)<<i) ){
       pIdx->aiColumn[n] = i;
       pIdx->azColl[n] = "BINARY";
       n++;
@@ -90521,14 +90668,14 @@ static void bestBtreeIndex(
     **    Set to true if there was at least one "x IN (SELECT ...)" term used 
     **    in determining the value of nInMul.
     **
-    **  nBound:
+    **  estBound:
     **    An estimate on the amount of the table that must be searched.  A
     **    value of 100 means the entire table is searched.  Range constraints
     **    might reduce this to a value less than 100 to indicate that only
     **    a fraction of the table needs searching.  In the absence of
     **    sqlite_stat2 ANALYZE data, a single inequality reduces the search
     **    space to 1/3rd its original size.  So an x>? constraint reduces
-    **    nBound to 33.  Two constraints (x>? AND x<?) reduce nBound to 11.
+    **    estBound to 33.  Two constraints (x>? AND x<?) reduce estBound to 11.
     **
     **  bSort:   
     **    Boolean. True if there is an ORDER BY clause that will require an 
@@ -90550,13 +90697,14 @@ static void bestBtreeIndex(
     int nEq;
     int bInEst = 0;
     int nInMul = 1;
-    int nBound = 100;
+    int estBound = 100;
+    int nBound = 0;             /* Number of range constraints seen */
     int bSort = 0;
     int bLookup = 0;
+    WhereTerm *pTerm;           /* A single term of the WHERE clause */
 
     /* Determine the values of nEq and nInMul */
     for(nEq=0; nEq<pProbe->nColumn; nEq++){
-      WhereTerm *pTerm;           /* A single term of the WHERE clause */
       int j = pProbe->aiColumn[nEq];
       pTerm = findTerm(pWC, iCur, j, notReady, eqTermMask, pIdx);
       if( pTerm==0 ) break;
@@ -90576,18 +90724,20 @@ static void bestBtreeIndex(
       used |= pTerm->prereqRight;
     }
 
-    /* Determine the value of nBound. */
+    /* Determine the value of estBound. */
     if( nEq<pProbe->nColumn ){
       int j = pProbe->aiColumn[nEq];
       if( findTerm(pWC, iCur, j, notReady, WO_LT|WO_LE|WO_GT|WO_GE, pIdx) ){
         WhereTerm *pTop = findTerm(pWC, iCur, j, notReady, WO_LT|WO_LE, pIdx);
         WhereTerm *pBtm = findTerm(pWC, iCur, j, notReady, WO_GT|WO_GE, pIdx);
-        whereRangeScanEst(pParse, pProbe, nEq, pBtm, pTop, &nBound);
+        whereRangeScanEst(pParse, pProbe, nEq, pBtm, pTop, &estBound);
         if( pTop ){
+          nBound = 1;
           wsFlags |= WHERE_TOP_LIMIT;
           used |= pTop->prereqRight;
         }
         if( pBtm ){
+          nBound++;
           wsFlags |= WHERE_BTM_LIMIT;
           used |= pBtm->prereqRight;
         }
@@ -90637,8 +90787,7 @@ static void bestBtreeIndex(
       }
     }
 
-    /**** Begin adding up the cost of using this index (Needs improvements)
-    **
+    /*
     ** Estimate the number of rows of output.  For an IN operator,
     ** do not let the estimate exceed half the rows in the table.
     */
@@ -90657,8 +90806,8 @@ static void bestBtreeIndex(
     /* Adjust the number of rows and the cost downward to reflect rows
     ** that are excluded by range constraints.
     */
-    nRow = (nRow * (double)nBound) / (double)100;
-    cost = (cost * (double)nBound) / (double)100;
+    nRow = (nRow * (double)estBound) / (double)100;
+    cost = (cost * (double)estBound) / (double)100;
 
     /* Add in the estimated cost of sorting the result
     */
@@ -90675,17 +90824,75 @@ static void bestBtreeIndex(
     }
     /**** Cost of using this index has now been computed ****/
 
+    /* If there are additional constraints on this table that cannot
+    ** be used with the current index, but which might lower the number
+    ** of output rows, adjust the nRow value accordingly.  This only 
+    ** matters if the current index is the least costly, so do not bother
+    ** with this step if we already know this index will not be chosen.
+    ** Also, never reduce the output row count below 2 using this step.
+    **
+    ** Do not reduce the output row count if pSrc is the only table that
+    ** is notReady; if notReady is a power of two.  This will be the case
+    ** when the main sqlite3WhereBegin() loop is scanning for a table with
+    ** and "optimal" index, and on such a scan the output row count
+    ** reduction is not valid because it does not update the "pCost->used"
+    ** bitmap.  The notReady bitmap will also be a power of two when we
+    ** are scanning for the last table in a 64-way join.  We are willing
+    ** to bypass this optimization in that corner case.
+    */
+    if( nRow>2 && cost<=pCost->rCost && (notReady & (notReady-1))!=0 ){
+      int k;                       /* Loop counter */
+      int nSkipEq = nEq;           /* Number of == constraints to skip */
+      int nSkipRange = nBound;     /* Number of < constraints to skip */
+      Bitmask thisTab;             /* Bitmap for pSrc */
+
+      thisTab = getMask(pWC->pMaskSet, iCur);
+      for(pTerm=pWC->a, k=pWC->nTerm; nRow>2 && k; k--, pTerm++){
+        if( pTerm->wtFlags & TERM_VIRTUAL ) continue;
+        if( (pTerm->prereqAll & notReady)!=thisTab ) continue;
+        if( pTerm->eOperator & (WO_EQ|WO_IN|WO_ISNULL) ){
+          if( nSkipEq ){
+            /* Ignore the first nEq equality matches since the index
+            ** has already accounted for these */
+            nSkipEq--;
+          }else{
+            /* Assume each additional equality match reduces the result
+            ** set size by a factor of 10 */
+            nRow /= 10;
+          }
+        }else if( pTerm->eOperator & (WO_LT|WO_LE|WO_GT|WO_GE) ){
+          if( nSkipRange ){
+            /* Ignore the first nBound range constraints since the index
+            ** has already accounted for these */
+            nSkipRange--;
+          }else{
+            /* Assume each additional range constraint reduces the result
+            ** set size by a factor of 3 */
+            nRow /= 3;
+          }
+        }else{
+          /* Any other expression lowers the output row count by half */
+          nRow /= 2;
+        }
+      }
+      if( nRow<2 ) nRow = 2;
+    }
+
+
     WHERETRACE((
-      "%s(%s): nEq=%d nInMul=%d nBound=%d bSort=%d bLookup=%d wsFlags=0x%x\n"
+      "%s(%s): nEq=%d nInMul=%d estBound=%d bSort=%d bLookup=%d wsFlags=0x%x\n"
       "         notReady=0x%llx nRow=%.2f cost=%.2f used=0x%llx\n",
       pSrc->pTab->zName, (pIdx ? pIdx->zName : "ipk"), 
-      nEq, nInMul, nBound, bSort, bLookup, wsFlags, notReady, nRow, cost, used
+      nEq, nInMul, estBound, bSort, bLookup, wsFlags,
+      notReady, nRow, cost, used
     ));
 
     /* If this index is the best we have seen so far, then record this
     ** index and its cost in the pCost structure.
     */
-    if( (!pIdx || wsFlags) && cost<pCost->rCost ){
+    if( (!pIdx || wsFlags)
+     && (cost<pCost->rCost || (cost<=pCost->rCost && nRow<pCost->nRow))
+    ){
       pCost->rCost = cost;
       pCost->nRow = nRow;
       pCost->used = used;
@@ -90720,7 +90927,8 @@ static void bestBtreeIndex(
   );
 
   WHERETRACE(("best index is: %s\n", 
-    (pCost->plan.u.pIdx ? pCost->plan.u.pIdx->zName : "ipk")
+    ((pCost->plan.wsFlags & WHERE_NOT_FULLSCAN)==0 ? "none" : 
+         pCost->plan.u.pIdx ? pCost->plan.u.pIdx->zName : "ipk")
   ));
   
   bestOrClauseIndex(pParse, pWC, pSrc, notReady, pOrderBy, pCost);
@@ -91656,7 +91864,7 @@ static int nQPlan = 0;              /* Next free slow in _query_plan[] */
 ** Free a WhereInfo structure
 */
 static void whereInfoFree(sqlite3 *db, WhereInfo *pWInfo){
-  if( pWInfo ){
+  if( ALWAYS(pWInfo) ){
     int i;
     for(i=0; i<pWInfo->nLevel; i++){
       sqlite3_index_info *pInfo = pWInfo->a[i].pIdxInfo;
@@ -91793,6 +92001,7 @@ SQLITE_PRIVATE WhereInfo *sqlite3WhereBegin(
   /* The number of tables in the FROM clause is limited by the number of
   ** bits in a Bitmask 
   */
+  testcase( pTabList->nSrc==BMS );
   if( pTabList->nSrc>BMS ){
     sqlite3ErrorMsg(pParse, "at most %d tables in a join", BMS);
     return 0;
@@ -91932,20 +92141,25 @@ SQLITE_PRIVATE WhereInfo *sqlite3WhereBegin(
     bestPlan.rCost = SQLITE_BIG_DBL;
 
     /* Loop through the remaining entries in the FROM clause to find the
-    ** next nested loop. The FROM clause entries may be iterated through
+    ** next nested loop. The loop tests all FROM clause entries
     ** either once or twice. 
     **
-    ** The first iteration, which is always performed, searches for the
-    ** FROM clause entry that permits the lowest-cost, "optimal" scan. In
+    ** The first test is always performed if there are two or more entries
+    ** remaining and never performed if there is only one FROM clause entry
+    ** to choose from.  The first test looks for an "optimal" scan.  In
     ** this context an optimal scan is one that uses the same strategy
     ** for the given FROM clause entry as would be selected if the entry
     ** were used as the innermost nested loop.  In other words, a table
     ** is chosen such that the cost of running that table cannot be reduced
-    ** by waiting for other tables to run first.
+    ** by waiting for other tables to run first.  This "optimal" test works
+    ** by first assuming that the FROM clause is on the inner loop and finding
+    ** its query plan, then checking to see if that query plan uses any
+    ** other FROM clause terms that are notReady.  If no notReady terms are
+    ** used then the "optimal" query plan works.
     **
-    ** The second iteration is only performed if no optimal scan strategies
-    ** were found by the first. This iteration is used to search for the
-    ** lowest cost scan overall.
+    ** The second loop iteration is only performed if no optimal scan
+    ** strategies were found by the first loop. This 2nd iteration is used to
+    ** search for the lowest cost scan overall.
     **
     ** Previous versions of SQLite performed only the second iteration -
     ** the next outermost loop was always that with the lowest overall
@@ -91963,9 +92177,8 @@ SQLITE_PRIVATE WhereInfo *sqlite3WhereBegin(
     ** algorithm may choose to use t2 for the outer loop, which is a much
     ** costlier approach.
     */
-    for(isOptimal=1; isOptimal>=0 && bestJ<0; isOptimal--){
-      Bitmask mask = (isOptimal ? 0 : notReady);
-      assert( (nTabList-iFrom)>1 || isOptimal );
+    for(isOptimal=(iFrom<nTabList-1); isOptimal>=0; isOptimal--){
+      Bitmask mask;  /* Mask of tables not yet ready */
       for(j=iFrom, pTabItem=&pTabList->a[j]; j<nTabList; j++, pTabItem++){
         int doNotReorder;    /* True if this table should not be reordered */
         WhereCost sCost;     /* Cost information from best[Virtual]Index() */
@@ -91978,6 +92191,7 @@ SQLITE_PRIVATE WhereInfo *sqlite3WhereBegin(
           if( j==iFrom ) iFrom++;
           continue;
         }
+        mask = (isOptimal ? m : notReady);
         pOrderBy = ((i==0 && ppOrderBy )?*ppOrderBy:0);
   
         assert( pTabItem->pTab );
@@ -91993,8 +92207,11 @@ SQLITE_PRIVATE WhereInfo *sqlite3WhereBegin(
         assert( isOptimal || (sCost.used&notReady)==0 );
 
         if( (sCost.used&notReady)==0
-         && (j==iFrom || sCost.rCost<bestPlan.rCost) 
+         && (bestJ<0 || sCost.rCost<bestPlan.rCost
+             || (sCost.rCost<=bestPlan.rCost && sCost.nRow<bestPlan.nRow))
         ){
+          WHERETRACE(("... best so far with cost=%g and nRow=%g\n",
+                      sCost.rCost, sCost.nRow));
           bestPlan = sCost;
           bestJ = j;
         }
@@ -92120,6 +92337,8 @@ SQLITE_PRIVATE WhereInfo *sqlite3WhereBegin(
          && (wctrlFlags & WHERE_OMIT_OPEN)==0 ){
       int op = pWInfo->okOnePass ? OP_OpenWrite : OP_OpenRead;
       sqlite3OpenTable(pParse, pTabItem->iCursor, iDb, pTab, op);
+      testcase( pTab->nCol==BMS-1 );
+      testcase( pTab->nCol==BMS );
       if( !pWInfo->okOnePass && pTab->nCol<BMS ){
         Bitmask b = pTabItem->colUsed;
         int n = 0;
@@ -92299,7 +92518,7 @@ SQLITE_PRIVATE void sqlite3WhereEnd(WhereInfo *pWInfo){
       if( !pWInfo->okOnePass && (ws & WHERE_IDX_ONLY)==0 ){
         sqlite3VdbeAddOp1(v, OP_Close, pTabItem->iCursor);
       }
-      if( (ws & (WHERE_INDEXED|WHERE_TEMP_INDEX)) == WHERE_INDEXED ){
+      if( (ws & WHERE_INDEXED)!=0 && (ws & WHERE_TEMP_INDEX)==0 ){
         sqlite3VdbeAddOp1(v, OP_Close, pLevel->iIdxCur);
       }
     }
@@ -92347,10 +92566,8 @@ SQLITE_PRIVATE void sqlite3WhereEnd(WhereInfo *pWInfo){
 
   /* Final cleanup
   */
-  if( pWInfo ){
-    pParse->nQueryLoop = pWInfo->savedNQueryLoop;
-    whereInfoFree(db, pWInfo);
-  }
+  pParse->nQueryLoop = pWInfo->savedNQueryLoop;
+  whereInfoFree(db, pWInfo);
   return;
 }
 

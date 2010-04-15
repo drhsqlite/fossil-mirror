@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.6.23"
 #define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-04-07 20:32:19 e388fe8be878c80ef0bfd1699a7268cdb22cb3c6"
+#define SQLITE_SOURCE_ID      "2010-04-15 23:24:29 f96782b389b5b97b488dc5814f7082e0393f64cd"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -3885,8 +3885,6 @@ SQLITE_API sqlite3_stmt *sqlite3_next_stmt(sqlite3 *pDb, sqlite3_stmt *pStmt);
 ** an error or constraint causes an implicit rollback to occur.
 ** ^The rollback callback is not invoked if a transaction is
 ** automatically rolled back because the database connection is closed.
-** ^The rollback callback is not invoked if a transaction is
-** rolled back because a commit callback returned non-zero.
 **
 ** See also the [sqlite3_update_hook()] interface.
 */
