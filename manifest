@@ -1,5 +1,5 @@
-C SQLite\sbug\sfix.\s\sChange\sa\sLIKE\sto\sa\sGLOB\sso\sthat\sit\scan\suse\san\sindex.
-D 2010-04-07T20:35:52
+C Fill\sthe\sboxes\son\sthe\sgraph\swith\sthe\ssame\sbackground\scolor\sas\sthe\stext\sin\nthe\stimeline\sdescription.
+D 2010-04-15T23:50:26
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -61,8 +61,8 @@ F src/diffcmd.c f20bad14b44845581f45965afae2f19e5efceef6
 F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c bdaeea84bd53ee77f71a9c3a42417d373c0c1e3e
-F src/finfo.c a345d96a8b44c1d5ac4343acec0c0536baf21e24
-F src/graph.c 5add05c954606e638839b4907417a2118cf7ed1e
+F src/finfo.c 7eaa0142fb56454f4d097ce1dad0e5112db9e047
+F src/graph.c 798288c2c3417378f9ac5d89372ae4125a22019d
 F src/http.c aa1608b63d9666c9c9476d21ce88cb560da82972
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
@@ -103,7 +103,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 590e073746121befe65565ee6d73007c37ade12c
-F src/timeline.c 1d488191c5435ddbf59c95f862b990e528cf45b9
+F src/timeline.c 0c643985e421f952d57907cf672907eb001f1ed9
 F src/tkt.c 4636570ed656a6fa4d128e5017d365d8f252555f
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P b84917dbf84f94be426f03f7898bf83f777b4322
-R 381b06399f94d82b0078ad09866f9e52
+P 5721bce8853fc3594aa52c4191b5ff46f41fa031
+R 0fd2f6082ec92eb97e92f8d94ac95998
 U drh
-Z 45846cce6865a10b49e5489c1d5eb950
+Z 869bb50edb12e5153903804ecdfa9562

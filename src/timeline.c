@@ -275,7 +275,7 @@ void www_print_timeline(
       }else{
         zBr = "trunk";
       }
-      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr);
+      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
     }
@@ -371,8 +371,9 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @ <script type="text/JavaScript">
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
-      cgi_printf("{id:\"m%d\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
+      cgi_printf("{id:\"m%d\",bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
         pRow->idx,
+        pRow->zBgClr,
         pRow->iRail,
         pRow->bDescender,
         pRow->mergeOut,
@@ -466,7 +467,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @ }
     @ function drawNode(p, left, btm){
     @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
-    @   drawBox("white",p.x-4,p.y-4,p.x+5,p.y+5);
+    @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ){
     @     var u = rowinfo[p.u-1];
     @     drawUpArrow(p.x, u.y+6, p.y-5);
@@ -527,14 +528,10 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @        && (context = realCanvas.getContext('2d'))) {
     @     drawBox = function(color,x0,y0,x1,y1) {
     @       if( y0>32767 || y1>32767 ) return;
-    @       var colors = {
-    @          'white':'rgba(255,255,255,1)',
-    @          'black':'rgba(0,0,0,1)'
-    @       };
     @       if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
     @       if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
     @       if(isNaN(x0) || isNaN(y0) || isNaN(x1) || isNaN(y1)) return;
-    @       context.fillStyle = colors[color];
+    @       context.fillStyle = color;
     @       context.fillRect(x0-left+5,y0,x1-x0+1,y1-y0+1);
     @     };
     @   }

@@ -40,6 +40,7 @@ struct GraphRow {
   int nParent;                /* Number of parents */
   int aParent[GR_MAX_PARENT]; /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
+  char *zBgClr;               /* Background Color */
 
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */
@@ -142,6 +143,8 @@ static GraphRow *hashFind(GraphContext *p, int rid){
 ** Return the canonical pointer for a given branch name.
 ** Multiple calls to this routine with equivalent strings
 ** will return the same pointer.
+**
+** Note: also used for background color names.
 */
 static char *persistBranchName(GraphContext *p, const char *zBranch){
   int i;
@@ -163,7 +166,8 @@ int graph_add_row(
   int rid,             /* RID for the check-in */
   int nParent,         /* Number of parents */
   int *aParent,        /* Array of parents */
-  const char *zBranch  /* Branch for this check-in */
+  const char *zBranch, /* Branch for this check-in */
+  const char *zBgClr   /* Background color. NULL or "" for white. */
 ){
   GraphRow *pRow;
 
@@ -173,6 +177,8 @@ int graph_add_row(
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
+  if( zBgClr==0 || zBgClr[0]==0 ) zBgClr = "white";
+  pRow->zBgClr = persistBranchName(p, zBgClr);
   memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
   if( p->pFirst==0 ){
     p->pFirst = pRow;
