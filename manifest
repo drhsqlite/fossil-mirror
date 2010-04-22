@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sstable\scheck-in\sof\sSQLite,\sas\sa\sbeta-test\sfor\sSQLite.
-D 2010-04-15T23:53:15
+C Fix\sincorrect\sredirects\sto\s"/home"\swhen\sthere\sis\san\sambiguous\sname\son\nthe\sartifact\swebpage.\s\sTicket\s[901936cf06df1b9b].\s\sStill\sneed\sto\sadd\scode\nthat\swill\slist\sall\spossible\sanswers\sand\slet\sthe\suser\schoose.
+D 2010-04-22T00:00:28
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -67,7 +67,7 @@ F src/http.c aa1608b63d9666c9c9476d21ce88cb560da82972
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c 69c3c209642a15a22a019a98a1b178cfafe56070
+F src/info.c 492888928877d4757e431a4984cd3ca5a2263394
 F src/login.c dde59ed44de2b9cfa177171a6a8073e4ed3ea193
 F src/main.c 3f93a246a7612ca5dd041e5857a4e6a58dbdb88f
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 0e7b85bb92ba33660410560fb0a531e2318702da
-R a12c5044ab2b578d9cf5d2a6dda6691e
+P 7c37b46b12331fda2b89b3d1ba11047174ccad06
+R c67d70c0e13b917d82316aeb1dafa0c8
 U drh
-Z a778a6d988807ba62a51bcce6c7f6c54
+Z 796cbc2ed50cc6f37d8d26d7fa43593a

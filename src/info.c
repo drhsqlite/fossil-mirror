@@ -838,7 +838,7 @@ void rawartifact_page(void){
   zMime = PD("m","application/x-fossil-artifact");
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( rid==0 ){ cgi_redirect("/home"); }
+  if( rid==0 ) fossil_redirect_home();
   content_get(rid, &content);
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
@@ -911,7 +911,7 @@ void hexdump_page(void){
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( rid==0 ){ cgi_redirect("/home"); }
+  if( rid==0 ) fossil_redirect_home();
   if( g.okAdmin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
@@ -958,7 +958,7 @@ void artifact_page(void){
   rid = name_to_rid(PD("name","0"));
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( rid==0 ){ cgi_redirect("/home"); }
+  if( rid==0 ) fossil_redirect_home();
   if( g.okAdmin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
