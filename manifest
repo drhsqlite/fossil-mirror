@@ -1,5 +1,5 @@
-C Improved\sdetection\sof\sinvalid\shome\sdirectories\sand\sbetter\serror\smessages\nwhen\sinvalid\shome\sdirectories\sare\sdetected.\nTicket\s[c3971eac71a1bd0]
-D 2010-04-22T12:44:25
+C Back\sout\scheck-in\s[fc23960258211b5bc].\s\sThis\swill\sclose\sticket\n[a534227710d3e5]\sbut\sre-open\sticket\s[3b1533a090eebd09d].
+D 2010-04-22T15:18:42
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -89,7 +89,7 @@ F src/rss.c 9ed0de4fea048aaa9c9fcc5dd905469695eb83d2
 F src/rstats.c 6291df32f6b64752ce83d38da0eb9e961fea1c07
 F src/schema.c b7b675e766bdcc2fa761ed615922cc88c16f21af
 F src/search.c 609bf10534058789252cbd2e3244afc52f22a0d0
-F src/setup.c 7a03dd810e3eeb2a74215507aed9a3c4ce574bcf
+F src/setup.c 5eec716eae90eeb0ee16992e467f5e8f4cadb18a
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c c12208c736e4f528668f2f165fbe49aa8f9df16f
 F src/skins.c 7d5065b934a4c0653cf89a58c6b9c47eed1b5aaa
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P d02115bbf0a001d3123c5838215d222acd9253ad
-R 1e56a9b23b32d160084bbefd584122c7
+P 822133a7638132cb7c4e2aad3055a67959525d96 b8d812efb91513b22723b65f8b52a1c7349bb4b1
+R a80f1a69617f42f47d58fdf37849541b
 U drh
-Z a946bd16462837d14ccbe2536b3ffbdf
+Z 8572782d92923b69a1a51e495da80ac5
