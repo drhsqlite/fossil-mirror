@@ -57,7 +57,12 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   zLogin = g.urlUser;
   if( g.urlPasswd ){
     zPw = g.urlPasswd;
+  }else if( g.cgiOutput ){
+    /* Password failure while doing a sync from the web interface */
+    cgi_printf("*** incorrect or missing password for user %h\n", zLogin);
+    zPw = 0;
   }else{
+    /* Password failure while doing a sync from the command-line interface */
     url_prompt_for_password();
     zPw = g.urlPasswd;
     if( !g.dontKeepUrl ) db_set("last-sync-pw", zPw, 0);
@@ -225,7 +230,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
       j = strlen(zLine) - 1; 
       if( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ) zLine[j-4] = 0;
-      printf("redirect to %s\n", &zLine[i]);
+      fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i]);
       transport_close();
       http_exchange(pSend, pReply, useLogin);

@@ -806,3 +806,18 @@ void fossil_error_reset(void){
   g.zErrMsg = 0;
   g.iErrPriority = 0;
 }
+
+/*
+** Write output for user consumption.  If g.cgiOutput is enabled, then
+** send the output as part of the CGI reply.  If g.cgiOutput is false,
+** then write on standard output.
+*/
+void fossil_print(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap, zFormat);
+  if( g.cgiOutput ){
+    cgi_vprintf(zFormat, ap);
+  }else{
+    vprintf(zFormat, ap);
+  }
+}

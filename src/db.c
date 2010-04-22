@@ -78,8 +78,8 @@ static void db_err(const char *zFormat, ...){
     @ error Database\serror:\s%F(z)
     cgi_reply();
   }
-  if( g.cgiPanic ){
-    g.cgiPanic = 0;
+  if( g.cgiOutput ){
+    g.cgiOutput = 0;
     cgi_printf("<h1>Database Error</h1>\n"
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
     cgi_reply();
