@@ -1,5 +1,5 @@
-C When\sthe\s"name"\sparameter\sfor\sthe\s/artifact\swebpage\s(and\ssimilar\spages)\sis\nambiguous,\sbring\sup\sa\spage\sthat\sallows\sthe\suser\sto\schoose\sbetween\sthe\nvarious\soptions.\s\sTicket\s[901936cf06df1b9b9a].
-D 2010-04-22T01:02:09
+C Improved\sdetection\sof\sinvalid\shome\sdirectories\sand\sbetter\serror\smessages\nwhen\sinvalid\shome\sdirectories\sare\sdetected.\nTicket\s[c3971eac71a1bd0]
+D 2010-04-22T12:44:25
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -52,7 +52,7 @@ F src/config.h b4a2d638880a5ed7a1908c9ad2d4cb99ec758c00
 F src/configure.c bc11c2b4621fd226adb88da37a7cc739c0ca308b
 F src/construct.c 60ca3c9fe2dd3654dd2e3bc1a0ecf05441b598f2
 F src/content.c f85b1cd02422040074fc27f1bbd97cef7135845b
-F src/db.c 8db5889b940493e562b990de7b8df2eeedb44faf
+F src/db.c dde93e431702908d005339f6d9834fd5e564f2dd
 F src/delta.c 2ca4849ec7018dd160d3a8633cd75cde5fb938f9
 F src/deltacmd.c e730b77c18f05c0c72e8c5d9825a31eae58a0fc2
 F src/descendants.c 21679d5ff485c21fff8d060c9b371f817efa56e8
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P d4125d551e6669ff2a760389ac9d183726f47cde
-R 4f458b2932d08c1936f4a961745a2f3c
+P d02115bbf0a001d3123c5838215d222acd9253ad
+R 1e56a9b23b32d160084bbefd584122c7
 U drh
-Z 56adcee8f71868c6aea82a5317d2d2ee
+Z a946bd16462837d14ccbe2536b3ffbdf

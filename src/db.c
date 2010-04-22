@@ -658,14 +658,22 @@ void db_open_config(int useAttach){
     }
   }
   if( zHome==0 ){
-    db_err("cannot locate home directory - "
-           "please set the HOMEPATH environment variable");
+    fossil_fatal("cannot locate home directory - "
+                "please set the HOMEPATH environment variable");
   }
 #else
   zHome = getenv("HOME");
   if( zHome==0 ){
-    db_err("cannot locate home directory - "
-           "please set the HOME environment variable");
+    fossil_fatal("cannot locate home directory - "
+                 "please set the HOME environment variable");
+  }
+#endif
+  if( file_isdir(zHome)!=1 ){
+    fossil_fatal("invalid home directory: %s", zHome);
+  }
+#ifndef __MINGW32__
+  if( access(zHome, W_OK) ){
+    fossil_fatal("home directory %s must be writeable", zHome);
   }
 #endif
   g.zHome = mprintf("%/", zHome);
