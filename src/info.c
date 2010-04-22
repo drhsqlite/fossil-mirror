@@ -1095,7 +1095,7 @@ void tinfo_page(void){
 ** URL: info/ARTIFACTID
 **
 ** The argument is a artifact ID which might be a baseline or a file or
-** a ticket changes or a wiki editor or something else. 
+** a ticket changes or a wiki edit or something else. 
 **
 ** Figure out what the artifact ID is and jump to it.
 */
