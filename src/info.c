@@ -271,8 +271,8 @@ void ci_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  zName = PD("name","0");
-  rid = name_to_rid(zName);
+  zName = P("name");
+  rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Check-in Information Error");
     @ No such object: %h(g.argv[2])
@@ -458,7 +458,7 @@ void winfo_page(void){
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Wiki Page Information Error");
     @ No such object: %h(g.argv[2])
@@ -544,7 +544,7 @@ void vdiff_page(void){
   if( !g.okRead ){ login_needed(); return; }
   login_anonymous_available();
 
-  rid = name_to_rid(PD("name",""));
+  rid = name_to_rid_www("name");
   if( rid==0 ){
     fossil_redirect_home();
   }
@@ -612,7 +612,7 @@ void vdiff_page(void){
 **     * date of check-in
 **     * Comment & user
 */
-static void object_description(
+void object_description(
   int rid,                 /* The artifact ID */
   int linkToView,          /* Add viewer link if true */
   Blob *pDownloadName      /* Fill with an appropriate download name */
@@ -737,7 +737,7 @@ static void object_description(
     "SELECT target, filename, datetime(mtime), user, src"
     "  FROM attachment"
     " WHERE src=(SELECT uuid FROM blob WHERE rid=%d)"
-    " ORDER BY mtime DESC",
+    " ORDER BY mtime DESC /*sort*/",
     rid
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -799,6 +799,7 @@ void diff_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
+  if( v1==0 || v2==0 ) fossil_redirect_home();
   style_header("Diff");
   @ <h2>Differences From:</h2>
   @ <blockquote>
@@ -834,7 +835,7 @@ void rawartifact_page(void){
   const char *zMime;
   Blob content;
 
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   zMime = PD("m","application/x-fossil-artifact");
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
@@ -908,7 +909,7 @@ void hexdump_page(void){
   Blob downloadName;
   char *zUuid;
 
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
@@ -955,7 +956,7 @@ void artifact_page(void){
   int renderAsHtml = 0;
   const char *zUuid;
 
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
@@ -1045,7 +1046,7 @@ void tinfo_page(void){
 
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.okAdmin ){

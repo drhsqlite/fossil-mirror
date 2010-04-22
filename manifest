@@ -1,5 +1,5 @@
-C Remove\sdead\scode\sand\sfix\sa\scomment\s-\sissues\sfound\swhile\slooking\sfor\san\nunrelated\sproblem.
-D 2010-04-22T00:12:46
+C When\sthe\s"name"\sparameter\sfor\sthe\s/artifact\swebpage\s(and\ssimilar\spages)\sis\nambiguous,\sbring\sup\sa\spage\sthat\sallows\sthe\suser\sto\schoose\sbetween\sthe\nvarious\soptions.\s\sTicket\s[901936cf06df1b9b9a].
+D 2010-04-22T01:02:09
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -67,7 +67,7 @@ F src/http.c aa1608b63d9666c9c9476d21ce88cb560da82972
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c 2bf8357797d455579df09618e210ac46296aa687
+F src/info.c 212b969a92fd1171a2c889db454ad0c4b2aaae26
 F src/login.c dde59ed44de2b9cfa177171a6a8073e4ed3ea193
 F src/main.c 3f93a246a7612ca5dd041e5857a4e6a58dbdb88f
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
@@ -79,7 +79,7 @@ F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c b7d15ae3ad17eff81e44724445e792bddb5a199f
 F src/merge3.c bbe357cf65d55ce57dd4f2a95b2f80f6b64f34d6
 F src/mkindex.c 634272abcb7d96b8e82c2e91da6b18953c587d15
-F src/name.c e337336f8b57bcfbd59c5f2c4edee55e322d593c
+F src/name.c d1a603c94ba62ce3e4bdfcf7f59b985328672bd0
 F src/pivot.c 55723054d5570e55e0db81d551c963a4ecef2c6f
 F src/pqueue.c c849b6ba261f655c2a5840e14d0be53df1a523da
 F src/printf.c 26b83508d5f0488476f0499226648c8c3fad01e3
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P f44a3f70beee4be29945788cfc0f4e64cca54af5
-R 6d1ac94a175bc4dd735cd12551b61b0c
+P d4125d551e6669ff2a760389ac9d183726f47cde
+R 4f458b2932d08c1936f4a961745a2f3c
 U drh
-Z f926883637fe2704a50c55c04fd6503c
+Z 56adcee8f71868c6aea82a5317d2d2ee
