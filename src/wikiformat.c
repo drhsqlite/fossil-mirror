@@ -91,6 +91,7 @@
 #define AMSK_VALUE              0x0400000
 #define AMSK_VSPACE             0x0800000
 #define AMSK_WIDTH              0x1000000
+#define AMSK_CLASS              0x2000000
 
 static const struct AllowedAttribute {
   const char *zName;
@@ -103,6 +104,7 @@ static const struct AllowedAttribute {
   { "border",        AMSK_BORDER,         },
   { "cellpadding",   AMSK_CELLPADDING,    },
   { "cellspacing",   AMSK_CELLSPACING,    },
+  { "class",         AMSK_CLASS,          },
   { "clear",         AMSK_CLEAR,          },
   { "color",         AMSK_COLOR,          },
   { "colspan",       AMSK_COLSPAN,        },
@@ -237,7 +239,7 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    AMSK_HREF|AMSK_NAME },
+                    AMSK_HREF|AMSK_NAME|AMSK_CLASS },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
  { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
@@ -248,20 +250,20 @@ static const struct AllowedMarkup {
  { "code",          MARKUP_CODE,         MUTYPE_FONT,          0  },
  { "dd",            MARKUP_DD,           MUTYPE_LI,            0  },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          0  },
- { "div",           MARKUP_DIV,          MUTYPE_BLOCK,         AMSK_ID      },
+ { "div",           MARKUP_DIV,          MUTYPE_BLOCK,         AMSK_ID|AMSK_CLASS      },
  { "dl",            MARKUP_DL,           MUTYPE_LIST,          AMSK_COMPACT },
  { "dt",            MARKUP_DT,           MUTYPE_LI,            0  },
  { "em",            MARKUP_EM,           MUTYPE_FONT,          0  },
  { "font",          MARKUP_FONT,         MUTYPE_FONT,
                     AMSK_COLOR|AMSK_FACE|AMSK_SIZE   },
- { "h1",            MARKUP_H1,           MUTYPE_BLOCK,         AMSK_ALIGN  },
- { "h2",            MARKUP_H2,           MUTYPE_BLOCK,         AMSK_ALIGN  },
- { "h3",            MARKUP_H3,           MUTYPE_BLOCK,         AMSK_ALIGN  },
- { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         AMSK_ALIGN  },
- { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         AMSK_ALIGN  },
- { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         AMSK_ALIGN  },
+ { "h1",            MARKUP_H1,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+ { "h2",            MARKUP_H2,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+ { "h3",            MARKUP_H3,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+ { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+ { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+ { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "hr",            MARKUP_HR,           MUTYPE_SINGLE,
-                    AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH  },
+                    AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH|AMSK_CLASS  },
  { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
@@ -273,7 +275,7 @@ static const struct AllowedMarkup {
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
  { "ol",            MARKUP_OL,           MUTYPE_LIST,
                     AMSK_START|AMSK_TYPE|AMSK_COMPACT  },
- { "p",             MARKUP_P,            MUTYPE_BLOCK,         AMSK_ALIGN  },
+ { "p",             MARKUP_P,            MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
  { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
@@ -284,15 +286,15 @@ static const struct AllowedMarkup {
  { "sup",           MARKUP_SUP,          MUTYPE_FONT,          0  },
  { "table",         MARKUP_TABLE,        MUTYPE_TABLE,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
-                    AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE  },
+                    AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE|AMSK_CLASS  },
  { "td",            MARKUP_TD,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
-                    AMSK_ROWSPAN|AMSK_VALIGN  },
+                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
-                    AMSK_ROWSPAN|AMSK_VALIGN  },
+                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
-                    AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN  },
+                    AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN|AMSK_CLASS  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
  { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,
