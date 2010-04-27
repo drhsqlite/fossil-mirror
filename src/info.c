@@ -1441,15 +1441,12 @@ void ci_edit_page(void){
   db_finalize(&q);
   @ </td></tr>
 
-  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d AND srcid>0",
-                rid, TAG_BRANCH)==0 ){
-    @ <tr><td align="right" valign="top"><b>Branching:</b></td>
-    @ <td valign="top">
-    @ <input type="checkbox" name="newbr"%s(zNewBrFlag)>
-    @ Make this check-in the start of a new branch named:
-    @ <input type="text" width="15" name="brname" value="%h(zNewBranch)">
-    @ </td></tr>
-  }
+  @ <tr><td align="right" valign="top"><b>Branching:</b></td>
+  @ <td valign="top">
+  @ <input type="checkbox" name="newbr"%s(zNewBrFlag)>
+  @ Make this check-in the start of a new branch named:
+  @ <input type="text" width="15" name="brname" value="%h(zNewBranch)">
+  @ </td></tr>
 
   if( is_a_leaf(rid)
    && !db_exists("SELECT 1 FROM tagxref "

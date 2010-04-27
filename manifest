@@ -1,5 +1,5 @@
-C allow\s"class"\sattributes\sin\swiki\shtml\smarkup,\sso\sCSS\sis\smore\suseful
-D 2010-04-26T15:36:16
+C Allow\sthe\sbranch\sname\sto\sbe\schanges\sin\sthe\scheck-in\sedit\sscreen\sfor\sa\ncheck-in\sthat\sis\sthe\sfirst\scheck-in\sof\sa\snew\sbranch.
+D 2010-04-27T17:02:53
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -67,7 +67,7 @@ F src/http.c 4f0d2d8fa0a5249ac5538fe63d08d0de82c0fa97
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c 0de748bf483a2dd42349bd234889c3a88489778d
-F src/info.c 212b969a92fd1171a2c889db454ad0c4b2aaae26
+F src/info.c d108aa4f65f2fc6eeeaf4e349f441c241857f7dd
 F src/login.c dde59ed44de2b9cfa177171a6a8073e4ed3ea193
 F src/main.c e01c72d09e87020e3e02b4b7593d70e75cc45016
 F src/main.mk b5870d6fa43adfb11f7c11d650c10e9b5d5bcbfd
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P c56af61e5e40db613bd649b676ce72810367435d
-R f32b916a71737ce6e58fab6a6ee492f9
-U ron
-Z 31bdec5db1e9f08f2555d5b98b6dec40
+P 99c26fccba3ed851b2766d451b3ba4a216ce4e99
+R 31e73ee8dd2fa3f6d398397da80baa4c
+U drh
+Z 95f2148913be8efed7cd29b7c0f990c1
