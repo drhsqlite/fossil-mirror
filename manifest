@@ -1,5 +1,5 @@
-C Allow\sthe\sbranch\sname\sto\sbe\schanges\sin\sthe\scheck-in\sedit\sscreen\sfor\sa\ncheck-in\sthat\sis\sthe\sfirst\scheck-in\sof\sa\snew\sbranch.
-D 2010-04-27T17:02:53
+C Simplify\stimeline\sprocessing.\s\sNo\slonger\sshow\sbranch\sand\smerge\spoints\ssince\nthose\sare\snow\sobvious\sfrom\sthe\sgraph.
+D 2010-04-27T17:17:35
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -103,7 +103,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c f3df866bfe546fd2d186444e2d20cfa93ffa8f21
-F src/timeline.c 0c643985e421f952d57907cf672907eb001f1ed9
+F src/timeline.c 798904060c433468231c6eb4d670045e168d0407
 F src/tkt.c 4636570ed656a6fa4d128e5017d365d8f252555f
 F src/tktsetup.c 1918ece72437ebf95adf5db1fcd3f207317d510b
 F src/translate.c f57afdee031ae5c34f2635010ac030d9c8502b16
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 99c26fccba3ed851b2766d451b3ba4a216ce4e99
-R 31e73ee8dd2fa3f6d398397da80baa4c
+P af8a8979c679ca8545e0981d2ecd6c66b40e788f
+R bab32c857896a99c3ff6720c04a5aeee
 U drh
-Z 95f2148913be8efed7cd29b7c0f990c1
+Z 48b0d8630f55ff896ed03e79e4bcc686

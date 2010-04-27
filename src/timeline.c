@@ -168,14 +168,12 @@ int count_nonbranch_children(int pid){
 **    2.  Date/Time
 **    3.  Comment string
 **    4.  User
-**    5.  Number of non-merge children
-**    6.  Number of parents
-**    7.  True if is a leaf
-**    8.  background color
-**    9.  type ("ci", "w", "t")
-**   10.  list of symbolic tags.
-**   11.  tagid for ticket or wiki
-**   12.  Short comment to user for repeated tickets and wiki
+**    5.  True if is a leaf
+**    6.  background color
+**    7.  type ("ci", "w", "t")
+**    8.  list of symbolic tags.
+**    9.  tagid for ticket or wiki
+**   10.  Short comment to user for repeated tickets and wiki
 */
 void www_print_timeline(
   Stmt *pQuery,          /* Query to implement the timeline */
@@ -207,15 +205,13 @@ void www_print_timeline(
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
     const char *zUuid = db_column_text(pQuery, 1);
-    int nPChild = db_column_int(pQuery, 5);
-    int nParent = db_column_int(pQuery, 6);
-    int isLeaf = db_column_int(pQuery, 7);
-    const char *zBgClr = db_column_text(pQuery, 8);
+    int isLeaf = db_column_int(pQuery, 5);
+    const char *zBgClr = db_column_text(pQuery, 6);
     const char *zDate = db_column_text(pQuery, 2);
-    const char *zType = db_column_text(pQuery, 9);
+    const char *zType = db_column_text(pQuery, 7);
     const char *zUser = db_column_text(pQuery, 4);
-    const char *zTagList = db_column_text(pQuery, 10);
-    int tagid = db_column_int(pQuery, 11);
+    const char *zTagList = db_column_text(pQuery, 8);
+    int tagid = db_column_int(pQuery, 9);
     int commentColumn = 3;    /* Column containing comment text */
     char zTime[8];
     if( tagid ){
@@ -224,7 +220,7 @@ void www_print_timeline(
           suppressCnt++;
           continue;
         }else{
-          commentColumn = 12;
+          commentColumn = 10;
         }
       }
     }
@@ -285,34 +281,14 @@ void www_print_timeline(
       @ <td valign="top" align="left">
     }
     if( zType[0]=='c' ){
-      const char *azTag[5];
-      int nTag = 0;
       hyperlink_to_uuid(zUuid);
-      if( (tmFlags & TIMELINE_LEAFONLY)==0 ){
-        if( nParent>1 ){
-          azTag[nTag++] = "Merge";
-        }
-        if( nPChild>1 ){
-          if( count_nonbranch_children(rid)>1 ){
-            azTag[nTag++] = "Fork";
-          }else{
-            azTag[nTag++] = "Branch-Point";
-          }
-        }
-      }
       if( isLeaf ){
         if( db_exists("SELECT 1 FROM tagxref"
                       " WHERE rid=%d AND tagid=%d AND tagtype>0",
                       rid, TAG_CLOSED) ){
-          azTag[nTag++] = "Closed-Leaf";
+          @ <b>Closed-Leaf:</b>
         }else{
-          azTag[nTag++] = "Leaf";
-        }
-      }
-      if( nTag>0 ){
-        int i;
-        for(i=0; i<nTag; i++){
-          @ <b>%s(azTag[i])%s(i==nTag-1?"":",")</b>
+          @ <b>Leaf:</b>
         }
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
@@ -565,8 +541,6 @@ static void timeline_temp_table(void){
     @   timestamp TEXT,
     @   comment TEXT,
     @   user TEXT,
-    @   nchild INTEGER,
-    @   nparent INTEGER,
     @   isleaf BOOLEAN,
     @   bgcolor TEXT,
     @   etype TEXT,
@@ -591,8 +565,6 @@ const char *timeline_query_for_www(void){
     @   datetime(event.mtime,'localtime') AS timestamp,
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim=1),
-    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
     @   NOT EXISTS(SELECT 1 FROM plink
     @               WHERE pid=blob.rid
     @                AND coalesce((SELECT value FROM tagxref
