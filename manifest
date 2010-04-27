@@ -1,5 +1,5 @@
-C Simplify\stimeline\sprocessing.\s\sNo\slonger\sshow\sbranch\sand\smerge\spoints\ssince\nthose\sare\snow\sobvious\sfrom\sthe\sgraph.
-D 2010-04-27T17:17:35
+C Ignore\sbyte-order-marks\sat\sthe\sbeginning\sof\swiki\spages.\nTicket\s[466e4bbdc7c90d5]
+D 2010-04-27T23:55:26
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -114,7 +114,7 @@ F src/user.c 10a902700c41dc62116ea5a701cb0c89f699c20a
 F src/verify.c ea6146c40b9613f7437a061ddc67564e2932375d
 F src/vfile.c 6b065467c0fd8e3cc6bf10167f8c7afc57900165
 F src/wiki.c 5789d51f360724f0fd6138476e3240448b540c08
-F src/wikiformat.c 88520b682b6da0655ea113517b9c193c8788adcf
+F src/wikiformat.c a58a29a52457fe8d1df850cce6e565993b0206f4
 F src/winhttp.c 33fcca6b835cf077b5a0f73ca68cbde6d8a121c6
 F src/xfer.c 29ded4880a973cd30477027a9fa2e912a6ea8ce5
 F src/zip.c 3494ff9729297a11078a303c5729ba106ddf4446
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P af8a8979c679ca8545e0981d2ecd6c66b40e788f
-R bab32c857896a99c3ff6720c04a5aeee
+P 5568603e5700e69bdb3b86cbd9b450b28794b110
+R a02d69d8534522be7a35f7d537991aa4
 U drh
-Z 48b0d8630f55ff896ed03e79e4bcc686
+Z 64c3b996894532fc67c40a4311481bec

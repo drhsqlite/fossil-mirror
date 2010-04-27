@@ -1392,6 +1392,15 @@ static void wiki_render(Renderer *p, char *z){
   }
 }
 
+/*
+** Skip over the UTF-8 Byte-Order-Mark that some broken Windows
+** tools add to the beginning of text files.
+*/
+char *skip_bom(char *z){
+  static const char bom[] = { 0xEF, 0xBB, 0xBF };
+  if( z && memcmp(z, bom, 3)==0 ) z += 3;
+  return z;
+}
 
 /*
 ** Transform the text in the pIn blob.  Write the results
@@ -1423,7 +1432,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.pOut = cgi_output_blob();
   }
 
-  z = blob_str(pIn);
+  z = skip_bom(blob_str(pIn));
   wiki_render(&renderer, z);
   endAutoParagraph(&renderer);
   while( renderer.nStack ){
@@ -1458,7 +1467,7 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   char *z;
   int i;
   int iStart;
-  z = blob_str(pIn);
+  z = skip_bom(blob_str(pIn));
   for(i=0; isspace(z[i]); i++){}
   if( z[i]!='<' ) return 0;
   i++;
