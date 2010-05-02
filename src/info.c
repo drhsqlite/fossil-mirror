@@ -941,22 +941,57 @@ void hexdump_page(void){
 }
 
 /*
+** Look for "ci" and "filename" query parameters.  If found, try to
+** use them to extract the record ID of an artifact for the file.
+*/
+int artifact_from_ci_and_filename(void){
+  const char *zFilename;
+  const char *zCI;
+  int cirid;
+  Blob content;
+  Manifest m;
+  int i;
+
+  zCI = P("ci");
+  if( zCI==0 ) return 0;
+  zFilename = P("filename");
+  if( zFilename==0 ) return 0;
+  cirid = name_to_rid_www("ci");
+  if( !content_get(cirid, &content) ) return 0;
+  if( !manifest_parse(&m, &content) ) return 0;
+  if( m.type!=CFTYPE_MANIFEST ) return 0;
+  for(i=0; i<m.nFile; i++){
+    if( strcmp(zFilename, m.aFile[i].zName)==0 ){
+      return db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", m.aFile[i].zUuid);
+    }
+  }
+  return 0;
+}
+
+
+/*
 ** WEBPAGE: artifact
 ** URL: /artifact?name=ARTIFACTID
+** URL: /artifact?ci=CHECKIN&filename=PATH
 ** 
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
 */
 void artifact_page(void){
-  int rid;
+  int rid = 0;
   Blob content;
   const char *zMime;
   Blob downloadName;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
   const char *zUuid;
+  if( P("ci") && P("filename") ){
+    rid = artifact_from_ci_and_filename();
+  }
+  if( rid==0 ){
+    rid = name_to_rid_www("name");
+  }
 
-  rid = name_to_rid_www("name");
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
