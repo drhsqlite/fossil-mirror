@@ -1,5 +1,5 @@
-C Prevent\sadding\sspecial\sfiles\s_FOSSIL_-journal,\s.fos,\sand\s.fos-journal\sto\nthe\srepository.\s\sTicket\s[97d8f830b7e5e2]
-D 2010-05-09T16:49:26
+C Fix\sa\sdocumentation\stypo.\s\sTicket\s[64386b2221309d].
+D 2010-05-09T16:51:12
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -187,7 +187,7 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki 8e4e2ac21e493b0f476ff47d1a14d10c568aaf3e
+F www/branching.wiki 92a51e3c5bd300f5697671d32e10627d677f5163
 F www/bugtheory.wiki b809c20d72cf39859dea9f23009b576799d1b806
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 6f9901dd4231a587a33ccb72b971a0c82d296b7d
-R c99f8eb9673d7611ff441e0db5230510
+P c193d2c2e0fe513a5a0f16528d9c3e1e4d648577
+R 2f6d452bb6989a8bb3d91b364e404954
 U drh
-Z 5e16d39835fdd4d393580c08ed3b30d9
+Z 3c975905fd2413ada56805e8878798dd
