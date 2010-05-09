@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sURLs\sof\sthe\sform:\sartifact?ci=CHECKIN&filename=FILENAME.
-D 2010-05-02T19:21:11
+C Prevent\sadding\sspecial\sfiles\s_FOSSIL_-journal,\s.fos,\sand\s.fos-journal\sto\nthe\srepository.\s\sTicket\s[97d8f830b7e5e2]
+D 2010-05-09T16:49:26
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -34,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 3384ceaf0e23ebfb1a2b252538f1e59d3a07e0c3
+F src/add.c 7af460674a2ce20c8ca302b8b53984285df36c4f
 F src/allrepo.c eac34f25f894a84aa6427fafff11f148405485e9
 F src/attach.c 3a5d1aaae0ff7c7b148b601d33b2d36c30b33833
 F src/bag.c 91c2be456cacb4b59774502b4301cbeeddf2fc94
@@ -43,7 +43,7 @@ F src/branch.c 3e9d5c03a5305825584defe26aaca827cbc01c5a
 F src/browse.c d2629384aa60361f7abfd63985cd309c8a6da600
 F src/captcha.c d47d9e715339586541480f79e7e8e7a26d0d2dee
 F src/cgi.c 21f61994d3cc7f806cfbf20811d313cfef51a9e3
-F src/checkin.c 5c5ed2a07e6fa7a6b99b29fda8d9419a570029ce
+F src/checkin.c 18ee62e9f35aee829259ae14fe4090b9dfe821ff
 F src/checkout.c c6b85f8c0b70ddc09104e230e5e0ed4284840c89
 F src/clearsign.c 4431c80a36ba40f8704a6b994c7248aab9292625
 F src/clone.c 97479abe225cc2648c61bd669495d22616055001
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 9d6507d25d6ab491a727ed59c1b1ddc148dbad0f
-R 53de6204cb5d417014eddb8ba32d7081
+P 6f9901dd4231a587a33ccb72b971a0c82d296b7d
+R c99f8eb9673d7611ff441e0db5230510
 U drh
-Z d93cdfa604b09eb9a21bd5651a6cea06
+Z 5e16d39835fdd4d393580c08ed3b30d9
