@@ -278,8 +278,8 @@ void extra_cmd(void){
   vfile_scan(0, &path, blob_size(&path), allFlag);
   db_prepare(&q, 
       "SELECT x FROM sfile"
-      " WHERE x NOT GLOB ('manifest','manifest.uuid','_FOSSIL_',"
-                         "'_FOSSIL_-journal','.fos','.fos-journal');"
+      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
+                         "'_FOSSIL_-journal','.fos','.fos-journal')"
       "   AND NOT %s"
       " ORDER BY 1",
       glob_expr("x", zIgnoreFlag)
