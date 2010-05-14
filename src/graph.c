@@ -237,6 +237,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   u32 mask;
   u32 inUse;
   int hasDup = 0;    /* True if one or more isDup entries */
+  const char *zTrunk;
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
 
@@ -286,21 +287,29 @@ void graph_finish(GraphContext *p, int omitDescenders){
   /* Identify rows where the primary parent is off screen.  Assign
   ** each to a rail and draw descenders to the bottom of the screen.
   */
-  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
-      if( omitDescenders ){
-        pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, 0, 0);
-      }else{
-        pRow->iRail = ++p->mxRail;
+  zTrunk = persistBranchName(p, "trunk");
+  for(i=0; i<2; i++){
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( i==0 ){
+        if( pRow->zBranch!=zTrunk ) continue;
+      }else {
+        if( pRow->iRail>=0 ) continue;
       }
-      mask = 1<<(pRow->iRail);
-      if( omitDescenders ){
-        pRow->railInUse |= mask;
-        if( pRow->pNext ) pRow->pNext->railInUse |= mask;
-      }else{
-        pRow->bDescender = pRow->nParent>0;
-        for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
-          pDesc->railInUse |= mask;
+      if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
+        if( omitDescenders ){
+          pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, 0, 0);
+        }else{
+          pRow->iRail = ++p->mxRail;
+        }
+        mask = 1<<(pRow->iRail);
+        if( omitDescenders ){
+          pRow->railInUse |= mask;
+          if( pRow->pNext ) pRow->pNext->railInUse |= mask;
+        }else{
+          pRow->bDescender = pRow->nParent>0;
+          for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
+            pDesc->railInUse |= mask;
+          }
         }
       }
     }

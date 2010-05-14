@@ -1,5 +1,5 @@
-C fix\sticket\s[fc428d2107d6b810fff67892896137c66abd3484]
-D 2010-05-12T14:08:02
+C On\sthe\stimeline\sgraph,\sstrive\sto\sput\sthe\s"trunk"\sto\sthe\sfar\sleft.
+D 2010-05-14T17:02:31
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -62,7 +62,7 @@ F src/doc.c adcb0b2090fc62fb2b56551a728da83c243188ff
 F src/encode.c 4eb47ca1d6b9135898c8330e5278066802eb6970
 F src/file.c bdaeea84bd53ee77f71a9c3a42417d373c0c1e3e
 F src/finfo.c 7eaa0142fb56454f4d097ce1dad0e5112db9e047
-F src/graph.c 798288c2c3417378f9ac5d89372ae4125a22019d
+F src/graph.c 5bc3c9fb6cdbea4409a627b5277b373f34f84aef
 F src/http.c 4f0d2d8fa0a5249ac5538fe63d08d0de82c0fa97
 F src/http_socket.c b09f0278f6954e46cd6c491eb3653031c14db2a2
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
@@ -263,7 +263,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 11b3f31de959dc5bb81c8d20a4716d6354d2801a
-R 46050aaa0288cab82a183381ca57e306
-U rwilson
-Z 352758897867bb17d816fc5d4e20abc2
+P b24b2e1bba681bc13fa17830a6f874e36628d644
+R e5f504cda3e06f80a389d574e99975a5
+U drh
+Z 6e22a12864d49ab0d409307485e26556
