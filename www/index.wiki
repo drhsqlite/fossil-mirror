@@ -20,7 +20,7 @@
 <li> [./quickstart.wiki | Quick Start]
 <li> [http://www.fossil-scm.org/download.html | Download]
 <li> [./build.wiki | Install]
-<li> [../COPYRIGHT-GPL2.txt | License]
+<li> [../COPYRIGHT-BSD2.txt | License]
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
 <li> Mailing list
