@@ -76,6 +76,7 @@ set src {
   winhttp
   xfer
   zip
+  http_ssl
 }
 
 # Name of the final application

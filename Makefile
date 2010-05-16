@@ -33,6 +33,9 @@ E =
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
 TCC = gcc -g -Os -Wall
 
+# To add support for HTTPS
+TCC += -DFOSSIL_ENABLE_SSL
+
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no
 #    other dependencies.  We sometimes add the -static option here
@@ -46,6 +49,8 @@ LIB = -lz $(LDFLAGS)
 # LIB += -lsocket -lnsl
 # My assumption is that the Sol10 flags will work for Sol8/9 and possibly 11.
 # 
+# If using HTTPS:
+LIB += -lcrypto -lssl
 
 #### Tcl shell for use in running the fossil testsuite.
 #

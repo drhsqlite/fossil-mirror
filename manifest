@@ -1,9 +1,9 @@
-C Rename\sthe\s"clear-title"\sbranch\sas\sthe\snew\strunk.\s\sThe\strunk\sis\snow\nrelicensed\susing\sthe\sSimplified\sBSD\sLicense.
-D 2010-05-16T19:16:05
+C Merge\ssupport\sfor\sHTTPS\sback\sinto\strunk.\s\s(It\sgot\slost\sduring\sthe\sconversion\nfrom\sGPL\sto\sBSD.)
+D 2010-05-16T19:36:59
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile a1ee7be05cdf6e860a1723d39935be2d6b6fb806
-F Makefile.w32 c39e9b7143dd53ad358e58c52029ba5010748fd4
+F Makefile 470d4520582e130a26add8f41958085e09448dbd
+F Makefile.w32 d2ddd4343004ff1efb010529b996f8fcd9e13385
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -64,14 +64,15 @@ F src/finfo.c 347f596eb26a025dc7533f703622654762b895f4
 F src/graph.c 99cc3d061abb9ea39da49082f344d854e03adad7
 F src/http.c c37fb0c25a77eba0e385ff7ac483a6204ddc3200
 F src/http_socket.c a9ca689aee139e74080dbc1ae83930de3dd6fccd
+F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c f5395970b1ddfddb26da528e481e91ef2ee79c32
 F src/info.c a49ca7a34ad44d342b3c7be8c7288b04cfe9c28d
 F src/login.c 5a4fe1ea84a175ba3cab6724fc646e1edc7061cd
 F src/main.c c90cbe0a376a1ec331ac46a8302897e10f6a616a
-F src/main.mk edb3a6c1bbef3fbee8832450380dc200b27609ae
+F src/main.mk 4ef444c9e67b35f59874cf953a564e576f9aed3a
 F src/makeheaders.c 7746e0ebf5b374952fe9a7e292969851939484f3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
-F src/makemake.tcl b6cfc852cdc013f3d5339f3ccdb9ae8676931ac3
+F src/makemake.tcl 4fdd667bfe716e8a677febe253d684ba35f18bce
 F src/manifest.c 01023c4b6f34f3e0fcb956f1fe35a3829edcee55
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 324d1004f2c0828b2fb093a7b861d4ece36587fe
@@ -260,11 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P c06edd231fc15d145a1c96c39b8fecdb79b33523
-R 77468f01e49e22562bb5701686b2e839
-T *bgcolor * #ffffff
-T *branch * trunk
-T *sym-trunk *
-T -sym-clear-title *
+P bf1c21ba1633dec8bd37b3b3f044723c0f761c0a 8c23a947eb8284cfff4128b63fca0df19e9db6c3
+R 1db90076eddd303a666f570361e6d027
 U drh
-Z 2b6e6fa1a24faf9633cc6d55127da170
+Z d77388fea0927173f96d97af2cb782cd
