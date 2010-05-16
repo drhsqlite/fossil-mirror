@@ -80,7 +80,7 @@ struct Global {
   int iErrPriority;       /* Priority of current error message */
   char *zErrMsg;          /* Text of an error message */
   Blob cgiIn;             /* Input to an xfer www method */
-  int cgiPanic;           /* Write error messages to CGI */
+  int cgiOutput;          /* Write error and status messages to CGI */
   int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */
@@ -280,7 +280,7 @@ void fossil_panic(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiPanic && once ){
+  if( g.cgiOutput && once ){
     once = 0;
     cgi_printf("<p><font color=\"red\">%h</font></p>", z);
     cgi_reply();
@@ -297,8 +297,8 @@ void fossil_fatal(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiPanic ){
-    g.cgiPanic = 0;
+  if( g.cgiOutput ){
+    g.cgiOutput = 0;
     cgi_printf("<p><font color=\"red\">%h</font></p>", z);
     cgi_reply();
   }else{
@@ -325,8 +325,8 @@ void fossil_fatal_recursive(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiPanic ){
-    g.cgiPanic = 0;
+  if( g.cgiOutput ){
+    g.cgiOutput = 0;
     cgi_printf("<p><font color=\"red\">%h</font></p>", z);
     cgi_reply();
   }else{
@@ -344,7 +344,7 @@ void fossil_warning(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiPanic ){
+  if( g.cgiOutput ){
     cgi_printf("<p><font color=\"red\">%h</font></p>", z);
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -813,7 +813,7 @@ void cmd_cgi(void){
   setmode(fileno(g.httpOut), O_BINARY);
   setmode(fileno(g.httpIn), O_BINARY);
 #endif
-  g.cgiPanic = 1;
+  g.cgiOutput = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){
     if( !blob_token(&line, &key) ) continue;
@@ -911,7 +911,7 @@ void cmd_http(void){
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     cgi_panic("no repository specified");
   }
-  g.cgiPanic = 1;
+  g.cgiOutput = 1;
   g.fullHttpReply = 1;
   if( g.argc==6 ){
     g.httpIn = fopen(g.argv[3], "rb");
@@ -1041,7 +1041,7 @@ void cmd_webserver(void){
   if( g.fHttpTrace || g.fSqlTrace ){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
-  g.cgiPanic = 1;
+  g.cgiOutput = 1;
   find_server_repository(isUiCmd);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(0);

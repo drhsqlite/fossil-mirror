@@ -112,7 +112,7 @@ void style_header(const char *zTitleFormat, ...){
   if( g.thTrace ) Th_Trace("END_HEADER<br />\n", -1);
   Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
-  g.cgiPanic = 1;
+  g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
 }
 

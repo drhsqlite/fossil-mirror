@@ -40,6 +40,7 @@ struct GraphRow {
   int nParent;                /* Number of parents */
   int aParent[GR_MAX_PARENT]; /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
+  char *zBgClr;               /* Background Color */
 
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */
@@ -142,6 +143,8 @@ static GraphRow *hashFind(GraphContext *p, int rid){
 ** Return the canonical pointer for a given branch name.
 ** Multiple calls to this routine with equivalent strings
 ** will return the same pointer.
+**
+** Note: also used for background color names.
 */
 static char *persistBranchName(GraphContext *p, const char *zBranch){
   int i;
@@ -163,7 +166,8 @@ int graph_add_row(
   int rid,             /* RID for the check-in */
   int nParent,         /* Number of parents */
   int *aParent,        /* Array of parents */
-  const char *zBranch  /* Branch for this check-in */
+  const char *zBranch, /* Branch for this check-in */
+  const char *zBgClr   /* Background color. NULL or "" for white. */
 ){
   GraphRow *pRow;
 
@@ -173,6 +177,8 @@ int graph_add_row(
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
+  if( zBgClr==0 || zBgClr[0]==0 ) zBgClr = "white";
+  pRow->zBgClr = persistBranchName(p, zBgClr);
   memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
   if( p->pFirst==0 ){
     p->pFirst = pRow;
@@ -231,6 +237,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   u32 mask;
   u32 inUse;
   int hasDup = 0;    /* True if one or more isDup entries */
+  const char *zTrunk;
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
 
@@ -280,21 +287,29 @@ void graph_finish(GraphContext *p, int omitDescenders){
   /* Identify rows where the primary parent is off screen.  Assign
   ** each to a rail and draw descenders to the bottom of the screen.
   */
-  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
-      if( omitDescenders ){
-        pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, 0, 0);
-      }else{
-        pRow->iRail = ++p->mxRail;
+  zTrunk = persistBranchName(p, "trunk");
+  for(i=0; i<2; i++){
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      if( i==0 ){
+        if( pRow->zBranch!=zTrunk ) continue;
+      }else {
+        if( pRow->iRail>=0 ) continue;
       }
-      mask = 1<<(pRow->iRail);
-      if( omitDescenders ){
-        pRow->railInUse |= mask;
-        if( pRow->pNext ) pRow->pNext->railInUse |= mask;
-      }else{
-        pRow->bDescender = pRow->nParent>0;
-        for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
-          pDesc->railInUse |= mask;
+      if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
+        if( omitDescenders ){
+          pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, 0, 0);
+        }else{
+          pRow->iRail = ++p->mxRail;
+        }
+        mask = 1<<(pRow->iRail);
+        if( omitDescenders ){
+          pRow->railInUse |= mask;
+          if( pRow->pNext ) pRow->pNext->railInUse |= mask;
+        }else{
+          pRow->bDescender = pRow->nParent>0;
+          for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
+            pDesc->railInUse |= mask;
+          }
         }
       }
     }

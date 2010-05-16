@@ -994,7 +994,7 @@ void client_sync(
     nCardSent++;
   }
   manifest_crosslink_begin();
-  printf(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
+  fossil_print(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
 
   while( go ){
     int newPhantom = 0;
@@ -1060,9 +1060,9 @@ void client_sync(
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
-    printf(zValueFormat, "Send:",
-            blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
-            xfer.nFileSent, xfer.nDeltaSent);
+    fossil_print(zValueFormat, "Send:",
+                 blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
+                 xfer.nFileSent, xfer.nDeltaSent);
     nCardSent = 0;
     nCardRcvd = 0;
     xfer.nFileSent = 0;
@@ -1093,7 +1093,7 @@ void client_sync(
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
       nCardRcvd++;
-      if (!g.fQuiet) {
+      if( !g.cgiOutput && !g.fQuiet ){
         printf("\r%d", nCardRcvd);
         fflush(stdout);
       }
@@ -1234,7 +1234,7 @@ void client_sync(
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        if( zMsg ) printf("\rServer says: %s\n", zMsg);
+        if( zMsg ) fossil_print("\rServer says: %s\n", zMsg);
       }else
 
       /*   error MESSAGE
@@ -1286,9 +1286,9 @@ void client_sync(
     }
     origConfigRcvMask = 0;
     if( nCardRcvd>0 ){
-      printf(zValueFormat, "Received:",
-              blob_size(&recv), nCardRcvd,
-              xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
+      fossil_print(zValueFormat, "Received:",
+                   blob_size(&recv), nCardRcvd,
+                   xfer.nFileRcvd, xfer.nDeltaRcvd + xfer.nDanglingFile);
     }
     blob_reset(&recv);
     nCycle++;
@@ -1318,8 +1318,8 @@ void client_sync(
     if( cloneFlag && nCycle==1 ) go = 1;
   };
   transport_stats(&nSent, &nRcvd, 1);
-  printf("Total network traffic: %d bytes sent, %d bytes received\n",
-         nSent, nRcvd);
+  fossil_print("Total network traffic: %d bytes sent, %d bytes received\n",
+               nSent, nRcvd);
   transport_close();
   transport_global_shutdown();
   db_multi_exec("DROP TABLE onremote");

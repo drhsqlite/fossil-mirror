@@ -196,7 +196,7 @@ check-in, that allows you to refer to that check-in by its symbolic
 name rather than by its 40-character SHA1 hash name.  When a symbolic name
 tag propagates (as does the <b>sym-trunk</b> tag) then referring to that
 name is the same as referring to the most recent check-in with that name.
-Thus the two tags on check-in once cause all decendents to be in the
+Thus the two tags on check-in one cause all decendents to be in the
 "trunk" branch and to have the symbolic name "trunk".
 
 Check-in 4 has a <b>branch</b> tag which changes the name of the branch

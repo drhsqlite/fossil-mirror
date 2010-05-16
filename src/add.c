@@ -46,6 +46,9 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
   zPath = blob_str(&pathname);
   if( strcmp(zPath, "manifest")==0
    || strcmp(zPath, "_FOSSIL_")==0
+   || strcmp(zPath, "_FOSSIL_-journal")==0
+   || strcmp(zPath, ".fos")==0
+   || strcmp(zPath, ".fos-journal")==0
    || strcmp(zPath, "manifest.uuid")==0
    || blob_compare(&pathname, pOmit)==0
   ){

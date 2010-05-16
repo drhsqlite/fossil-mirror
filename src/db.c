@@ -72,8 +72,8 @@ static void db_err(const char *zFormat, ...){
     @ error Database\serror:\s%F(z)
     cgi_reply();
   }
-  if( g.cgiPanic ){
-    g.cgiPanic = 0;
+  if( g.cgiOutput ){
+    g.cgiOutput = 0;
     cgi_printf("<h1>Database Error</h1>\n"
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
     cgi_reply();
@@ -279,14 +279,17 @@ int db_step(Stmt *pStmt){
 */
 static void db_stats(Stmt *pStmt){
 #ifdef FOSSIL_DEBUG
-  int c1, c2;
+  int c1, c2, c3;
   const char *zSql = sqlite3_sql(pStmt->pStmt);
   if( zSql==0 ) return;
   c1 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
-  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
+  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, 1);
+  c3 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
   if( c1>pStmt->nStep*4 && strstr(zSql,"/*scan*/")==0 ){
     fossil_warning("%d scan steps for %d rows in [%s]", c1, pStmt->nStep, zSql);
-  }else if( c2 && strstr(zSql,"/*sort*/")==0 && strstr(zSql,"/*scan*/")==0 ){
+  }else if( c2 ){
+    fossil_warning("%d automatic index rows in [%s]", c2, zSql);
+  }else if( c3 && strstr(zSql,"/*sort*/")==0 && strstr(zSql,"/*scan*/")==0 ){
     fossil_warning("sort w/o index in [%s]", zSql);
   }
   pStmt->nStep = 0;
@@ -649,14 +652,22 @@ void db_open_config(int useAttach){
     }
   }
   if( zHome==0 ){
-    db_err("cannot locate home directory - "
-           "please set the HOMEPATH environment variable");
+    fossil_fatal("cannot locate home directory - "
+                "please set the HOMEPATH environment variable");
   }
 #else
   zHome = getenv("HOME");
   if( zHome==0 ){
-    db_err("cannot locate home directory - "
-           "please set the HOME environment variable");
+    fossil_fatal("cannot locate home directory - "
+                 "please set the HOME environment variable");
+  }
+#endif
+  if( file_isdir(zHome)!=1 ){
+    fossil_fatal("invalid home directory: %s", zHome);
+  }
+#ifndef __MINGW32__
+  if( access(zHome, W_OK) ){
+    fossil_fatal("home directory %s must be writeable", zHome);
   }
 #endif
   g.zHome = mprintf("%/", zHome);

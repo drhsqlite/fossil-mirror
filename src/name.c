@@ -45,7 +45,8 @@
 ** If the input is of the form "date:*" or "localtime:*" or "utc:*" then
 ** always resolve the name as a date.
 **
-** Return the number of errors.
+** Return 0 on success.  Return 1 if the name cannot be resolved.
+** Return 2 name is ambiguous.
 */
 int name_to_uuid(Blob *pName, int iErrPriority){
   int rc;
@@ -104,7 +105,7 @@ int name_to_uuid(Blob *pName, int iErrPriority){
       );
       blob_reset(pName);
       db_finalize(&q);
-      return 1;
+      return 2;
     }
     db_finalize(&q);
     rc = 0;
@@ -275,7 +276,7 @@ void test_name_to_id(void){
 ** characters or is not an existing rid, then use name_to_uuid then
 ** convert the uuid to a rid.
 **
-** This routine is used in test routines to resolve command-line inputs
+** This routine is used by command-line routines to resolve command-line inputs
 ** into a rid.
 */
 int name_to_rid(const char *zName){
@@ -302,3 +303,74 @@ int name_to_rid(const char *zName){
   }
   return rid;
 }
+
+/*
+** WEBPAGE: ambiguous
+** URL: /ambiguous?name=UUID&src=WEBPAGE
+** 
+** The UUID given by the name paramager is ambiguous.  Display a page
+** that shows all possible choices and let the user select between them.
+*/
+void ambiguous_page(void){
+  Stmt q;
+  const char *zName = P("name");  
+  const char *zSrc = P("src");
+  char *z;
+  
+  if( zName==0 || zName[0]==0 || zSrc==0 || zSrc[0]==0 ){
+    fossil_redirect_home();
+  }
+  style_header("Ambiguous Artifact ID");
+  @ <p>The artifact id <b>%h(zName)</b> is ambiguous and might
+  @ mean any of the following:
+  @ <ol>
+  z = mprintf("%s", zName);
+  canonical16(z, strlen(z));
+  db_prepare(&q, "SELECT uuid, rid FROM blob WHERE uuid GLOB '%q*'", z);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    @ <li><p><a href="%s(g.zBaseURL)/%T(zSrc)/%S(zUuid)">
+    @ %S(zUuid)</a> -
+    object_description(rid, 0, 0);
+    @ </p></li>
+  }
+  @ </ol>
+  style_footer();
+}
+
+/*
+** Convert the name in CGI parameter zParamName into a rid and return that
+** rid.  If the CGI parameter is missing or is not a valid artifact tag,
+** return 0.  If the CGI parameter is ambiguous, redirect to a page that
+** shows all possibilities and do not return.
+*/
+int name_to_rid_www(const char *zParamName){
+  int i, rc;
+  int rid;
+  const char *zName = P(zParamName);
+  Blob name;
+
+  if( zName==0 || zName[0]==0 ) return 0;
+  blob_init(&name, zName, -1);
+  rc = name_to_uuid(&name, -1);
+  if( rc==1 ){
+    blob_reset(&name);
+    for(i=0; zName[i] && isdigit(zName[i]); i++){}
+    if( zName[i]==0 ){
+      rid = atoi(zName);
+      if( db_exists("SELECT 1 FROM blob WHERE rid=%d", rid) ){
+        return rid;
+      }
+    }
+    return 0;
+  }else if( rc==2 ){
+    cgi_redirectf("%s/ambiguous/%T?src=%t", g.zTop, zName, g.zPath);
+    return 0;
+  }else{
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &name);
+    blob_reset(&name);
+  }
+  return rid;
+}
+

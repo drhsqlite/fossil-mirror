@@ -271,8 +271,8 @@ void ci_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  zName = PD("name","0");
-  rid = name_to_rid(zName);
+  zName = P("name");
+  rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Check-in Information Error");
     @ No such object: %h(g.argv[2])
@@ -458,7 +458,7 @@ void winfo_page(void){
 
   login_check_credentials();
   if( !g.okRdWiki ){ login_needed(); return; }
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Wiki Page Information Error");
     @ No such object: %h(g.argv[2])
@@ -544,7 +544,7 @@ void vdiff_page(void){
   if( !g.okRead ){ login_needed(); return; }
   login_anonymous_available();
 
-  rid = name_to_rid(PD("name",""));
+  rid = name_to_rid_www("name");
   if( rid==0 ){
     fossil_redirect_home();
   }
@@ -612,7 +612,7 @@ void vdiff_page(void){
 **     * date of check-in
 **     * Comment & user
 */
-static void object_description(
+void object_description(
   int rid,                 /* The artifact ID */
   int linkToView,          /* Add viewer link if true */
   Blob *pDownloadName      /* Fill with an appropriate download name */
@@ -737,7 +737,7 @@ static void object_description(
     "SELECT target, filename, datetime(mtime), user, src"
     "  FROM attachment"
     " WHERE src=(SELECT uuid FROM blob WHERE rid=%d)"
-    " ORDER BY mtime DESC",
+    " ORDER BY mtime DESC /*sort*/",
     rid
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -799,6 +799,7 @@ void diff_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
+  if( v1==0 || v2==0 ) fossil_redirect_home();
   style_header("Diff");
   @ <h2>Differences From:</h2>
   @ <blockquote>
@@ -834,11 +835,11 @@ void rawartifact_page(void){
   const char *zMime;
   Blob content;
 
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   zMime = PD("m","application/x-fossil-artifact");
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( rid==0 ){ cgi_redirect("/home"); }
+  if( rid==0 ) fossil_redirect_home();
   content_get(rid, &content);
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
@@ -908,10 +909,10 @@ void hexdump_page(void){
   Blob downloadName;
   char *zUuid;
 
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( rid==0 ){ cgi_redirect("/home"); }
+  if( rid==0 ) fossil_redirect_home();
   if( g.okAdmin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
@@ -940,25 +941,60 @@ void hexdump_page(void){
 }
 
 /*
+** Look for "ci" and "filename" query parameters.  If found, try to
+** use them to extract the record ID of an artifact for the file.
+*/
+int artifact_from_ci_and_filename(void){
+  const char *zFilename;
+  const char *zCI;
+  int cirid;
+  Blob content;
+  Manifest m;
+  int i;
+
+  zCI = P("ci");
+  if( zCI==0 ) return 0;
+  zFilename = P("filename");
+  if( zFilename==0 ) return 0;
+  cirid = name_to_rid_www("ci");
+  if( !content_get(cirid, &content) ) return 0;
+  if( !manifest_parse(&m, &content) ) return 0;
+  if( m.type!=CFTYPE_MANIFEST ) return 0;
+  for(i=0; i<m.nFile; i++){
+    if( strcmp(zFilename, m.aFile[i].zName)==0 ){
+      return db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", m.aFile[i].zUuid);
+    }
+  }
+  return 0;
+}
+
+
+/*
 ** WEBPAGE: artifact
 ** URL: /artifact?name=ARTIFACTID
+** URL: /artifact?ci=CHECKIN&filename=PATH
 ** 
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
 */
 void artifact_page(void){
-  int rid;
+  int rid = 0;
   Blob content;
   const char *zMime;
   Blob downloadName;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
   const char *zUuid;
+  if( P("ci") && P("filename") ){
+    rid = artifact_from_ci_and_filename();
+  }
+  if( rid==0 ){
+    rid = name_to_rid_www("name");
+  }
 
-  rid = name_to_rid(PD("name","0"));
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  if( rid==0 ){ cgi_redirect("/home"); }
+  if( rid==0 ) fossil_redirect_home();
   if( g.okAdmin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
@@ -1045,7 +1081,7 @@ void tinfo_page(void){
 
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
-  rid = name_to_rid(PD("name","0"));
+  rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.okAdmin ){
@@ -1095,7 +1131,7 @@ void tinfo_page(void){
 ** URL: info/ARTIFACTID
 **
 ** The argument is a artifact ID which might be a baseline or a file or
-** a ticket changes or a wiki editor or something else. 
+** a ticket changes or a wiki edit or something else. 
 **
 ** Figure out what the artifact ID is and jump to it.
 */
@@ -1107,7 +1143,7 @@ void info_page(void){
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
   if( validate16(zName, strlen(zName))
-   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid LIKE '%q%%'", zName) ){
+   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
     tktview_page();
     return;
   }
@@ -1440,15 +1476,12 @@ void ci_edit_page(void){
   db_finalize(&q);
   @ </td></tr>
 
-  if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d AND tagid=%d AND srcid>0",
-                rid, TAG_BRANCH)==0 ){
-    @ <tr><td align="right" valign="top"><b>Branching:</b></td>
-    @ <td valign="top">
-    @ <input type="checkbox" name="newbr"%s(zNewBrFlag)>
-    @ Make this check-in the start of a new branch named:
-    @ <input type="text" width="15" name="brname" value="%h(zNewBranch)">
-    @ </td></tr>
-  }
+  @ <tr><td align="right" valign="top"><b>Branching:</b></td>
+  @ <td valign="top">
+  @ <input type="checkbox" name="newbr"%s(zNewBrFlag)>
+  @ Make this check-in the start of a new branch named:
+  @ <input type="text" width="15" name="brname" value="%h(zNewBranch)">
+  @ </td></tr>
 
   if( is_a_leaf(rid)
    && !db_exists("SELECT 1 FROM tagxref "
