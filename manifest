@@ -1,5 +1,5 @@
-C On\sthe\stimeline\sgraph,\sstrive\sto\sput\sthe\s"trunk"\sto\sthe\sfar\sleft.
-D 2010-05-14T17:02:31
+C Move\swhat\sused\sto\sbe\sthe\scalled\sthe\strunk\sinto\sa\sseparate\sbranch\snamed\s"gpl".\nThe\strunk\swill\sbe\smodified\sto\scontain\sonly\scode\sto\swhich\swe\shold\sclear\stitle\nand\swhich\sis\slicensed\susing\sthe\s2-clause\sBSD\sLicense.
+D 2010-05-16T19:14:22
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-GPL2.txt ad718601e81b56e96afd6e936a4ff40ddc31ca87
 F Makefile ba796db51991294f43cae9e89356bb0d2e0ae0a1
@@ -263,7 +263,11 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P b24b2e1bba681bc13fa17830a6f874e36628d644
+P 4c931047ef0cea5b0e06f0e3a43f482a8db80d3a
 R e5f504cda3e06f80a389d574e99975a5
+T *bgcolor * #80c0ff
+T *branch * gpl
+T *sym-gpl *
+T -sym-trunk *
 U drh
-Z 6e22a12864d49ab0d409307485e26556
+Z 4fa024e9b5922776de2f3e76f335eed2
