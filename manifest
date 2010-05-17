@@ -1,5 +1,5 @@
-C Update\sthe\s"License"\slink\son\sthe\shomepage\sto\sgo\sto\sthe\sBSD\slicense\stext\nrather\sthan\sGPL\slicense\stext.
-D 2010-05-16T19:38:58
+C Fix\stypo\sin\scopyright\sassignment\sform.
+D 2010-05-17T14:29:33
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -211,7 +211,7 @@ F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
-F www/copyright-release.html 14100368011239bed3e6908f9f92e6ea3f712084
+F www/copyright-release.html 7fa63d1ca4eb770f9b2b88ed29061905e0f60db5
 F www/custom_ticket.wiki 5483db507a120a026f383eeddf391debb6619326
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 68fa646f49d1a889d6bdfd093b03e3ff36cb4c29
-R 03d20d214c9727069675ca57d2afe3b5
+P 1a987869e0a25df7f4c8a9bd67953d571bbd0bf0
+R d053f356461311065b06bca118b1ccb6
 U drh
-Z 74f3061bd4e6b1e39d2d432e97caf182
+Z e2ae42ecca1ae046716d8244aba7c67b
