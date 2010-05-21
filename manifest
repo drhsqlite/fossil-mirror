@@ -1,5 +1,5 @@
-C Fix\san\sunterminated\sstring\sin\sthe\sinformation\sviewer\sfor\sattachments.
-D 2010-05-21T15:16:04
+C Fix\sissues\swith\sattachments\son\stickets.\s\sIn\sthe\sartifact\sviewer,\sdo\sa\s\nbetter\sjob\sof\sdetecting\sJPEG\simages\sfrom\sthe\scontent\sprefix.
+D 2010-05-21T16:21:04
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -36,7 +36,7 @@ F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 1b5175679efd53df5e5c533ca168f4ed69eba036
 F src/allrepo.c f66c8bf56f32d3ddd5ca5aa6cf15ebc946e6acda
-F src/attach.c 4da6ad1538d7f2412e6c303e9e2db22d29aba1e5
+F src/attach.c 693260254e8655c141b12bc1c53ff32beb8170ab
 F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
 F src/blob.c 4860d217e07d5721a8b2a8dafcd3edfa9e784d04
 F src/branch.c 91b3556a6ead2ad8d5d7ef9fefd6f8acbe776163
@@ -57,7 +57,7 @@ F src/deltacmd.c e879f45b3a690600edff50b99a28bc354c16b887
 F src/descendants.c 33c1fb15174bbb03e23a197463a16629c7e380ec
 F src/diff.c dc52154079d3472aff6a03e29feba399dd1ddcab
 F src/diffcmd.c 7ea735bdb4e985454e79e294b5f6c364a24a0e7e
-F src/doc.c d62ac09e4f229db4d71b47da93376ced3534193c
+F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 96ec5ff1a4d832e5379279b3ddf4495e933257f1
 F src/file.c a419ab6b053e648b1f9ef68c35cd2ceb2918ca7f
 F src/finfo.c 347f596eb26a025dc7533f703622654762b895f4
@@ -102,7 +102,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 280cedadcac435984920bd105e72fd6fbf9fa41d
 F src/timeline.c d39b944d24e912cff4c9219d96718bf610d2e7d5
-F src/tkt.c 76fa093e08c8708191210420241651ce03c86918
+F src/tkt.c c8e4713db48f159d87d07a13bd8502ee3962a6f7
 F src/tktsetup.c bc8010e9f3271102ef3dd4306bff7a7597812d34
 F src/translate.c 405b8cb554cafb9909803915166d23e88c81259f
 F src/undo.c ae23bf2093e75dcab62d1c2a1d4721f2a50931e6
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 4cb397a7cb5605472fe5314095ab5d7ad87df065
-R d5670d64aa77a23dccb6387e6b188979
+P 65d2067247a98da346414c2a3b8183378fbad68d
+R c8d86859e0c0429b91573a5758136ae2
 U drh
-Z cabebac16f4d607ce53406dcc042bf14
+Z 578f4fb12472b30cbc9d9855a80b6b46

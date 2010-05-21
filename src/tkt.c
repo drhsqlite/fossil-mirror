@@ -315,7 +315,7 @@ void tktview_page(void){
   }
   if( g.okApndTkt && g.okAttach ){
     style_submenu_element("Attach", "Add An Attachment",
-        "%s/attachadd?tkt=%T&from=%s/tktview%%3fname=%t",
+        "%s/attachadd?tkt=%T&from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
   }
   style_header("View Ticket");
