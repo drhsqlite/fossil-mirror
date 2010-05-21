@@ -1,5 +1,5 @@
-C Fix\sissues\swith\sattachments\son\stickets.\s\sIn\sthe\sartifact\sviewer,\sdo\sa\s\nbetter\sjob\sof\sdetecting\sJPEG\simages\sfrom\sthe\scontent\sprefix.
-D 2010-05-21T16:21:04
+C adding\scode,\swiki,\stickets,\scheckins\ssearch\sfunctionality
+D 2010-05-21T21:05:35
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -51,7 +51,7 @@ F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
 F src/config.h 8b750d35e806456232d95a5eff03438007c75904
 F src/configure.c 7ae7c542abb2029e978cb642117637d3c1704aa3
 F src/content.c 1c4a5790d8ea446bb3dd6aae0c6919f77317118d
-F src/db.c 360ee81fbda1ff5c449c1eba390aaa7aa4ab44e7
+F src/db.c 8e775f025b681127b0a5eadf7b0e41dab6028346
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c e879f45b3a690600edff50b99a28bc354c16b887
 F src/descendants.c 33c1fb15174bbb03e23a197463a16629c7e380ec
@@ -86,7 +86,7 @@ F src/rebuild.c 389779aca55e66ab58d2ed434f260adc6dadee86
 F src/report.c 2a77ae11cd2118786d012df1564957dc2d1eda90
 F src/rss.c 71f385cee2e9cca143f968e6811ac35816d95c40
 F src/schema.c 34f41f5d367471cb615c2b91a611a0b8f5377b09
-F src/search.c 953d09490f44e0c9efb7d05b643fc8ff9c06009b
+F src/search.c 406d47b67e2ec007530234261fd14f8ec5c92f7b
 F src/setup.c 63287ca745db037f5a2fb200a678ae6a9544b451
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c 844676140769b23f78ba8dc6c93d4f8254530211
@@ -94,7 +94,7 @@ F src/skins.c bc2a501cc8581e31c5fd277b6246db467a774280
 F src/sqlite3.c bd910d246ecd97ddb9250f831e79bec797069dc3
 F src/sqlite3.h 23cbdd754c5fa51f3acdb55758c47269d0d3131f
 F src/stat.c bbb8cda86b3853ff2d2927b86abf7a4148f5b776
-F src/style.c 17fee7439c0194f531515921e5432f688c672ad8
+F src/style.c 9590ab324e0857bdb736eda03390857a592803b3
 F src/sync.c aef7ea255897126a2033dd810c8fcad25ece066b
 F src/tag.c 8a8a56dab9f21df8c56bfba1f303e71fe32eb102
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 65d2067247a98da346414c2a3b8183378fbad68d
-R c8d86859e0c0429b91573a5758136ae2
-U drh
-Z 578f4fb12472b30cbc9d9855a80b6b46
+P 3343450e64978ddf85f002ae24fd286d5f84f2e4
+R dd10dada6026b2f180d0374a0eb020a5
+U Zach
+Z 246177251e2e95d99bd9b0f765395f08

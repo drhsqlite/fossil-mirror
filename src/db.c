@@ -1065,6 +1065,71 @@ static void db_sql_user(
 }
 
 /*
+** Make the content_get function available within a SQL query.
+*/
+static void db_sql_content_get(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  int rid;
+  Blob content;
+  
+  if( argc != 1 ) return;
+  rid = sqlite3_value_int(argv[0]);
+  content_get(rid, &content);
+  sqlite3_result_text(context, blob_str(&content), -1, SQLITE_TRANSIENT);
+}
+
+/*
+** Retrieve the most recent revision ID of a file.
+*/
+static void db_sql_get_file_rid(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *fnid;
+  int rid;
+  Stmt q;
+  
+  if ( argc != 1 ) return;
+  fnid = sqlite3_value_text(argv[0]);
+  
+  db_prepare(&q, "SELECT fid FROM mlink WHERE fnid=%Q and mid= "
+                 "(SELECT objid FROM (SELECT objid, mtime FROM event WHERE objid IN "
+                 "(SELECT mid FROM mlink WHERE fnid=%Q) "
+                 "ORDER BY mtime DESC) LIMIT 1);", fnid, fnid);
+  
+  db_step(&q);
+  rid = db_column_int(&q, 0);
+  sqlite3_result_int(context, rid);
+  db_finalize(&q);
+}
+
+/*
+** Retrieve the most recent revision ID of a wiki entry.
+*/
+static void db_sql_get_wiki_rid(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *tagid;
+  int rid;
+  Stmt q;
+  
+  if ( argc != 1 ) return;
+  tagid = sqlite3_value_text(argv[0]);
+  
+  db_prepare(&q, "SELECT rid FROM tagxref WHERE tagid=%Q ORDER BY mtime DESC LIMIT 1", tagid);    
+  db_step(&q);
+  rid = db_column_int(&q, 0);
+  sqlite3_result_int(context, rid);
+  db_finalize(&q);
+}
+
+/*
 ** Implement the cgi() SQL function.  cgi() takes a an argument which is
 ** a name of CGI query parameter. The value of that parameter is returned, 
 ** if available. optional second argument will be returned if the first
@@ -1180,6 +1245,9 @@ LOCAL void db_connection_init(void){
   sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+  sqlite3_create_function(g.db, "content_get", 1, SQLITE_ANY, 0, db_sql_content_get, 0, 0);
+  sqlite3_create_function(g.db, "get_file_rid", 1, SQLITE_ANY, 0, db_sql_get_file_rid, 0, 0);
+  sqlite3_create_function(g.db, "get_wiki_rid", 1, SQLITE_ANY, 0, db_sql_get_wiki_rid, 0, 0);  
   sqlite3_create_function(
     g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
   );

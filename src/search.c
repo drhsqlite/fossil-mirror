@@ -166,6 +166,104 @@ void search_sql_setup(Search *p){
 }
 
 /*
+** WEBPAGE: search
+** URL: /search
+*/
+void search(void){
+  const char *zType;
+  const char *zSrchType;
+  const char *zTitle;
+  const char *zContent;
+  const char *zSrch;
+  const char *zUuid;
+  const char *zRid;
+  char zrn[4];
+  char zshUuid[10];
+  int zScore;
+  int zSrchTypeFlag;
+  
+  Search *zSrchpat;
+  Stmt q;
+
+  zSrch = PD("search", "");
+  zSrchType = PD("type", "");
+  zSrchpat = search_init(zSrch);
+  search_sql_setup(zSrchpat);
+
+  login_check_credentials();
+  
+  if( !g.okHistory ){ login_needed(); return; }
+  
+  db_prepare(&q, "SELECT type, rid, title, content, score(content) AS score FROM "
+                 "                                                                         "
+                 "(SELECT 'checkin' AS type, objid AS rid, coalesce(ecomment, comment) AS title, "
+                 "coalesce(ecomment, comment) AS content FROM event WHERE type='ci' UNION ALL "
+                 "SELECT 'code' AS type, rid, title, content FROM "
+                 "(SELECT title, rid, content_get(rid) as content FROM "
+                 "(SELECT name AS title, get_file_rid(fnid) AS rid FROM "
+                 "(SELECT name, fnid FROM filename))) UNION ALL "
+                 "                                                                         "
+                 "SELECT 'ticket' AS type, tkt_uuid AS rid, title, coalesce(title, comment) AS content FROM ticket UNION ALL "
+                 "SELECT 'wiki' AS type, rid, SUBSTR(title, 6) AS title, content_get(rid) as content FROM "
+                 "(SELECT tagname AS title, get_wiki_rid(tagid) AS rid FROM "
+                 "(SELECT tagname, tagid FROM tag WHERE tagname LIKE 'wiki-%%')))"
+                 "ORDER BY score DESC;");  
+  
+  zSrchTypeFlag = 0;
+  if (strcmp(zSrchType, "code") == 0)
+    zSrchTypeFlag = 1;
+  else if (strcmp(zSrchType, "tickets") == 0)
+    zSrchTypeFlag = 2;
+  else if (strcmp(zSrchType, "checkins") == 0)
+    zSrchTypeFlag = 3;
+  else if (strcmp(zSrchType, "wiki") == 0)
+    zSrchTypeFlag = 4;
+  
+  style_header("Search");
+  style_submenu_element("Code", "Code", "search?search=%T&type=code", zSrch);
+  style_submenu_element("Tickets", "Tickets", "search?search=%T&type=tickets", zSrch);
+  style_submenu_element("Checkins", "Checkins", "search?search=%T&type=checkins", zSrch);
+  style_submenu_element("Wiki", "Wiki", "search?search=%T&type=wiki", zSrch);
+  @ <table border=1>
+  @ <tr><td>link</td><td>relevance</td><td>title</td><td>type</td></tr>
+  while (db_step(&q) == SQLITE_ROW){
+    zType = db_column_text(&q, 0);
+    zRid = db_column_text(&q, 1);
+    zTitle = db_column_text(&q, 2);
+    zContent = db_column_text(&q, 3); 
+    zScore = db_column_int(&q, 4);
+    
+    sprintf(zrn, "%i", zScore);
+    if (zScore > 0){
+      if (strcmp(zType, "code") == 0 && (zSrchTypeFlag == 0 || zSrchTypeFlag == 1)){
+        zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%h", zRid);
+        strncpy(zshUuid, zUuid, 10);
+        @ <tr><td><a href='/artifact?name=%h(zUuid)'>%h(zshUuid)</a></td><td>%h(zrn)</td>
+        @ <td>%h(zTitle)</td><td>%h(zType)</td></tr>
+      }
+      else if (strcmp(zType, "ticket") == 0 && (zSrchTypeFlag == 0 || zSrchTypeFlag == 2)){
+        strncpy(zshUuid, zRid, 10);
+        @ <tr><td><a href='/tktview?name=%h(zRid)'>%h(zshUuid)</a></td><td>%h(zrn)</td>
+        @ <td>%h(zTitle)</td><td>%h(zType)</td></tr>
+      }
+      else if (strcmp(zType, "checkin") == 0 && (zSrchTypeFlag == 0 || zSrchTypeFlag == 3)){
+        zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%h", zRid);
+        strncpy(zshUuid, zUuid, 10);
+        @ <tr><td><a href='info/%h(zUuid)'>%h(zshUuid)</a></td><td>%h(zrn)</td>
+        @ <td>%h(zTitle)</td><td>%h(zType)</td></tr>
+      }
+      else if (strcmp(zType, "wiki") == 0 && (zSrchTypeFlag == 0 || zSrchTypeFlag == 4)){
+        @ <tr><td><a href='/wiki?name=%h(zTitle)'>%h(zTitle)</a></td><td>%h(zrn)</td>
+        @ <td>%h(zTitle)</td><td>%h(zType)</td></tr>
+      }
+    }
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
+}
+
+/*
 ** Testing the search function.
 **
 ** COMMAND: search

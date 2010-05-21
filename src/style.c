@@ -202,6 +202,16 @@ const char zDefaultHeader[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
+@ <th1>
+@ if {[hascap h]} {
+@ html "<div class='fullsrch'>"
+@ html " <form action='/search' method='post'>"
+@ html " <input type='text' name='search' size=20/>"
+@ html " <input type='submit' value='Search'/>"
+@ html " </form>"
+@ html "</div>"
+@ }
+@ </th1>
 @ <div class="mainmenu"><th1>
 @ html "<a href='$baseurl$index_page'>Home</a> "
 @ if {[anycap jor]} {
@@ -291,6 +301,12 @@ const char zDefaultCSS[] =
 @ div.header {
 @   display: table;
 @   width: 100%;
+@ }
+@
+@ /* The search bar displayed at the top of the page */
+@ div.fullsrch {
+@   float: right;
+@   margin: 2px 5px 2px 0px;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
