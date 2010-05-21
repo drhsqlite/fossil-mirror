@@ -746,12 +746,10 @@ void object_description(
       @ Attachment "%h(zFilename)" to
     }
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      char zShort[20];
-      memcpy(zShort, zTarget, 10);
       if( g.okHistory && g.okRdTkt ){
-        @ ticket [<a href="%s(g.zTop)/tktview?name=%s(zShort)">%s(zShort)</a>]
+        @ ticket [<a href="%s(g.zTop)/tktview?name=%S(zTarget)">%S(zTarget)</a>]
       }else{
-        @ ticket [%s(zShort)]
+        @ ticket [%S(zTarget)]
       }
     }else{
       if( g.okHistory && g.okRdWiki ){
