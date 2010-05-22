@@ -849,6 +849,36 @@ rep_not_found:
 }
 
 /*
+** COMMAND: test-move-repository
+**
+** Usage: %fossil test-move-repository PATHNAME
+**
+** Change the location of the repository database on a local check-out.
+** Use this command to avoid having to close and reopen a checkout
+** when relocating the repository database.
+*/
+void move_repo_cmd(void){
+  Blob repo;
+  char *zRepo;
+  if( g.argc!=3 ){
+    usage("PATHNAME");
+  }
+  if( db_open_local()==0 ){
+    fossil_fatal("not in a local checkout");
+    return;
+  }
+  file_canonical_name(g.argv[2], &repo);
+  zRepo = blob_str(&repo);
+  if( access(zRepo, 0) ){
+    fossil_fatal("no such file: %s", zRepo);
+  }
+  db_open_or_attach(zRepo, "test_repo");
+  db_lset("repository", blob_str(&repo));
+  db_close();
+}
+
+
+/*
 ** Open the local database.  If unable, exit with an error.
 */
 void db_must_be_within_tree(void){
