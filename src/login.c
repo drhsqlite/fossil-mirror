@@ -270,7 +270,7 @@ void login_page(void){
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
     char const *zDecoded = captcha_decode(uSeed);
-    int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
+    int bAutoCaptcha = db_get_boolean("auto-captcha", 1);
     char *zCaptcha = captcha_render(zDecoded);
 
     @ <input type="hidden" name="cs" value="%u(uSeed)"/>

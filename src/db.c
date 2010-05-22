@@ -1491,6 +1491,9 @@ static void print_setting(const char *zName){
 ** The "unset" command clears a property setting.
 **
 **
+**    auto-captcha     If enabled, the Login page provides a button to
+**                     fill in the captcha password.  Default: on
+**
 **    autosync         If enabled, automatically pull prior to commit
 **                     or update and automatically push after commit or
 **                     tag or branch creation.  If the the value is "pullonly"
@@ -1545,6 +1548,7 @@ static void print_setting(const char *zName){
 */
 void setting_cmd(void){
   static const char *azName[] = {
+    "auto-captcha",
     "autosync",
     "binary-glob",
     "clearsign",

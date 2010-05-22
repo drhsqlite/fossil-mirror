@@ -1,5 +1,5 @@
-C Add\sthe\stest-move-repository\scommand.
-D 2010-05-22T11:46:42
+C Add\sthe\sauto-captcha\ssetting\sback\sto\sthe\scommand-line\ssetting\scommand.\nDefault\sauto-captcha\sto\son.
+D 2010-05-22T13:24:28
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -51,7 +51,7 @@ F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
 F src/config.h 8b750d35e806456232d95a5eff03438007c75904
 F src/configure.c 7ae7c542abb2029e978cb642117637d3c1704aa3
 F src/content.c 1c4a5790d8ea446bb3dd6aae0c6919f77317118d
-F src/db.c 030d3357cb58ae6287c659bc79b8815707ad9f4e
+F src/db.c 32ba4722f8e355d63142523b9ff547171309c309
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c e879f45b3a690600edff50b99a28bc354c16b887
 F src/descendants.c 33c1fb15174bbb03e23a197463a16629c7e380ec
@@ -67,7 +67,7 @@ F src/http_socket.c a9ca689aee139e74080dbc1ae83930de3dd6fccd
 F src/http_ssl.c 65bb20fd9bb3de56c28068638305d2954240539d
 F src/http_transport.c f5395970b1ddfddb26da528e481e91ef2ee79c32
 F src/info.c e83d9d8f62fb21c58f326d3e7252418a4250c251
-F src/login.c 5a4fe1ea84a175ba3cab6724fc646e1edc7061cd
+F src/login.c 9d55cf8fc467adcc7129322cfd0cc4bcdd238306
 F src/main.c c90cbe0a376a1ec331ac46a8302897e10f6a616a
 F src/main.mk 4ef444c9e67b35f59874cf953a564e576f9aed3a
 F src/makeheaders.c 7746e0ebf5b374952fe9a7e292969851939484f3
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 99dcff4d28359cbf0664da321ac0c02d9aa00526
-R 703ca4a159ec2f0816807815c4a48b86
+P 4a198644196af9bc7387dde3bed66bbd2d4659d2
+R 36af69c262ea17d774ae25e18acfe3c9
 U drh
-Z d09cbc9381ca2e481f6ee82ee8612c87
+Z b79a3a2aca67174e85d89bd56a28246f
