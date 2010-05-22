@@ -103,6 +103,7 @@ void page_timeline_rss(void){
   @     <description>%h(zProjectDescr)</description>
   @     <pubDate>%s(zPubDate)</pubDate>
   @     <generator>Fossil version %s(MANIFEST_VERSION) %s(MANIFEST_DATE)</generator>
+  free(zPubDate);
   db_prepare(&q, blob_str(&bSQL));
   blob_reset( &bSQL );
   while( db_step(&q)==SQLITE_ROW && nLine<=nLimit ){

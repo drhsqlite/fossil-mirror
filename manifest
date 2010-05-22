@@ -1,5 +1,5 @@
-C Fix\sissues\swith\sattachments\son\stickets.\s\sIn\sthe\sartifact\sviewer,\sdo\sa\s\nbetter\sjob\sof\sdetecting\sJPEG\simages\sfrom\sthe\scontent\sprefix.
-D 2010-05-21T16:21:04
+C Fix\smemory\sleaks\sassociated\swith\sthe\scgi_rfc822_datestamp()\sfunction.
+D 2010-05-22T11:28:39
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -84,7 +84,7 @@ F src/pqueue.c fc6bdd1de56fbe7d2c058c525c8dc4201bd5b36e
 F src/printf.c 12bfcbcc8de180020aadadc649f08d2ef8ab2d60
 F src/rebuild.c 389779aca55e66ab58d2ed434f260adc6dadee86
 F src/report.c 2a77ae11cd2118786d012df1564957dc2d1eda90
-F src/rss.c 71f385cee2e9cca143f968e6811ac35816d95c40
+F src/rss.c b7b02e66795a320c7d8f54bfaf76ff8d6ecec15b
 F src/schema.c 34f41f5d367471cb615c2b91a611a0b8f5377b09
 F src/search.c 953d09490f44e0c9efb7d05b643fc8ff9c06009b
 F src/setup.c 63287ca745db037f5a2fb200a678ae6a9544b451
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 65d2067247a98da346414c2a3b8183378fbad68d
-R c8d86859e0c0429b91573a5758136ae2
+P 3343450e64978ddf85f002ae24fd286d5f84f2e4
+R 5b684f7e9e7fb89556176c6eb01c1f41
 U drh
-Z 578f4fb12472b30cbc9d9855a80b6b46
+Z 197a5392d2549055081ba4bd2596e878
