@@ -108,6 +108,7 @@ int search_score(Search *p, const char *zDoc){
   int i, j;
   unsigned char seen[8];
 
+  if (zDoc == 0) return 0; 
   memset(seen, 0, sizeof(seen));
   for(i=0; zDoc[i]; i++){
     char c = zDoc[i];
@@ -184,12 +185,12 @@ void search(void){
   
   Search *zSrchpat;
   Stmt q;
-
+  
   zSrch = PD("search", "");
   zSrchType = PD("type", "");
   zSrchpat = search_init(zSrch);
   search_sql_setup(zSrchpat);
-
+  
   login_check_credentials();
   
   if( !g.okHistory ){ login_needed(); return; }
