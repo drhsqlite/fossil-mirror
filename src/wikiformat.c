@@ -41,25 +41,26 @@
 #define ATTR_BORDER             4
 #define ATTR_CELLPADDING        5
 #define ATTR_CELLSPACING        6
-#define ATTR_CLEAR              7
-#define ATTR_COLOR              8
-#define ATTR_COLSPAN            9
-#define ATTR_COMPACT            10
-#define ATTR_FACE               11
-#define ATTR_HEIGHT             12
-#define ATTR_HREF               13
-#define ATTR_HSPACE             14
-#define ATTR_ID                 15
-#define ATTR_NAME               16
-#define ATTR_ROWSPAN            17
-#define ATTR_SIZE               18
-#define ATTR_SRC                19
-#define ATTR_START              20
-#define ATTR_TYPE               21
-#define ATTR_VALIGN             22
-#define ATTR_VALUE              23
-#define ATTR_VSPACE             24
-#define ATTR_WIDTH              25
+#define ATTR_CLASS              7
+#define ATTR_CLEAR              8
+#define ATTR_COLOR              9
+#define ATTR_COLSPAN            10
+#define ATTR_COMPACT            11
+#define ATTR_FACE               12
+#define ATTR_HEIGHT             13
+#define ATTR_HREF               14
+#define ATTR_HSPACE             15
+#define ATTR_ID                 16
+#define ATTR_NAME               17
+#define ATTR_ROWSPAN            18
+#define ATTR_SIZE               19
+#define ATTR_SRC                20
+#define ATTR_START              21
+#define ATTR_TYPE               22
+#define ATTR_VALIGN             23
+#define ATTR_VALUE              24
+#define ATTR_VSPACE             25
+#define ATTR_WIDTH              26
 #define AMSK_ALIGN              0x0000001
 #define AMSK_ALT                0x0000002
 #define AMSK_BGCOLOR            0x0000004
@@ -754,7 +755,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
         if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
           blob_appendf(pOut, "=\"%s%s\"", g.zBaseURL, zVal);
         }else{
-          blob_appendf(pOut, "=\"%s\"", p->aAttr[i].zValue);
+          blob_appendf(pOut, "=\"%s\"", zVal);
         }
       }
     }
@@ -1087,6 +1088,10 @@ static void wiki_render(Renderer *p, char *z){
   int n;
   int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
   int wikiUseHtml = (p->state & WIKI_USE_HTML)!=0;
+
+  /* Make sure the attribute constants and names still align
+  ** following changes in the attribute list. */
+  assert( strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
 
   while( z[0] ){
     if( wikiUseHtml ){
