@@ -750,7 +750,12 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
     for(i=0; i<p->nAttr; i++){
       blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iACode].zName);
       if( p->aAttr[i].zValue ){
-        blob_appendf(pOut, "=\"%s\"", p->aAttr[i].zValue);
+        const char *zVal = p->aAttr[i].zValue;
+        if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
+          blob_appendf(pOut, "=\"%s%s\"", g.zBaseURL, zVal);
+        }else{
+          blob_appendf(pOut, "=\"%s\"", p->aAttr[i].zValue);
+        }
       }
     }
     blob_append(pOut, ">", 1);
