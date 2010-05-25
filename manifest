@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sHTML\sattribute\sparsing.
-D 2010-05-24T18:43:32
+C Fix\stypo\sin\sthe\s[/doc/tip/www/selfhost.wiki\s|\sSelf-Hostiry\sRepositories]\npage.\s\sTicket\s[e39122fcc434125c6].
+D 2010-05-25T12:30:39
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -253,7 +253,7 @@ F www/quickstart.wiki fd1b090ebc278257516c0bb5b12063e689f819f6
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 87d27f0d707889c1a1d8d681ef324bb836b9b99f
-F www/selfhost.wiki 712cb7df6c2767e7c62e176c066c5ae144df3726
+F www/selfhost.wiki 78cc85288e81a6b9ffdbe6c57dcb1688fd3d81b1
 F www/server.wiki 36a8ef685ae9b967876231769c7e4291ce0614b8
 F www/shunning.wiki 7b6d5703dc0d63a1ce7fc77c34985237c2d97f04
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P dc82d5709c8330834c4b55eb082994e27b7baaf9
-R 469a16d483ab330fb12140cb788d63b4
+P cb44f7dea478e9b08127a27dc37b7697bce22748
+R 7929c5f6b37f4a79cf4542815128b840
 U drh
-Z 9feea08dd908cacfb57a4774f4fbdf4f
+Z f7369e14a88e476f4b57511993f145c3

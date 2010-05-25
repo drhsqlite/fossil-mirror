@@ -46,7 +46,7 @@ Fossil is the only full-featured configuration management system
 that can run in
 such a restricted environment.  The CGI script that runs on the
 Hurricane Electric server is the same as the CGI script shown above,
-except that the pathnames are modified to suite the environment:
+except that the pathnames are modified to suit the environment:
 
 <blockquote><pre>
 #!/home/hwaci/bin/fossil
