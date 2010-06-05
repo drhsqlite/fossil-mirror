@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\s[/doc/tip/www/selfhost.wiki\s|\sSelf-Hostiry\sRepositories]\npage.\s\sTicket\s[e39122fcc434125c6].
-D 2010-05-25T12:30:39
+C reintroduce\s"co"\salias\sfor\s"checkout";\sOriginalling\sintroduced\swith\s[a89b436bc9]
+D 2010-06-05T20:04:19
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -44,7 +44,7 @@ F src/browse.c 23a693054f1e70a9a63ca032ad5f66611cab0dfa
 F src/captcha.c 08be6903df4a1a72779ed618c8a41de2cde7fb40
 F src/cgi.c 0d187ce45f59bce039a40f3a99f4a0eb5e40d488
 F src/checkin.c aef7914b5d6638877f88ee4f069e5377b84f8a34
-F src/checkout.c 7fc7b29741d75ffa57b7cacb6a295c04fcf6688e
+F src/checkout.c 33292b4cb7ffab4a783a2d2ad9434d73827e6324
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P cb44f7dea478e9b08127a27dc37b7697bce22748
-R 7929c5f6b37f4a79cf4542815128b840
-U drh
-Z f7369e14a88e476f4b57511993f145c3
+P f19de0b02de2937e6da14cb6536369b8df24350b
+R 70a7259d9ff79bcfc4805565eb6e5a10
+U bharder
+Z 531716963dbc94fae2993e9fda2f56eb
