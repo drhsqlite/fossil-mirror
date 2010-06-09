@@ -1388,7 +1388,7 @@ void ci_edit_page(void){
   @ [<a href="ci?name=%s(zUuid)">%s(zUuid)</a>]:</p>
   @ <form action="%s(g.zBaseURL)/ci_edit" method="POST">
   login_insert_csrf_secret();
-  @ <input type="hidden" name="r" value="%d(rid)">
+  @ <input type="hidden" name="r" value="%S(zUuid)">
   @ <table border="0" cellspacing="10">
 
   @ <tr><td align="right" valign="top"><b>User:</b></td>
