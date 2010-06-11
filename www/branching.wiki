@@ -53,7 +53,7 @@ edits first and did a commit, resulting in check-in 3.  Later, when Bob
 tried to commit his changes, fossil would try to verify that check-in 2
 was still a leaf.  Fossil would see that check-in 3 had occurred and would
 abort Bob's commit attempt with a message "would fork".  This allows Bob
-to do a "fossil update" which would pull in Alices changes and merge them
+to do a "fossil update" which would pull in Alice's changes and merge them
 together with his own changes.  After merging, Bob could then commit
 check-in 4 as a child of check-in 3 and the result would be a linear graph
 as shown in figure 1.  This is how CVS works.  This is also how fossil
@@ -62,7 +62,7 @@ works in "autosync" mode.
 But it might be that Bob is off-network when he does his commit, so he
 has no way of knowing that Alice has already committed her changes.
 Or, it could be that Bob has turned off "autosync" mode in SQLite.  Or,
-maybe Bob just doesn't want to merge in Alices changes before he has
+maybe Bob just doesn't want to merge in Alice's changes before he has
 saved his own, so he forces the commit to occur using the "--force" option
 to the fossil <b>commit</b> command.  For whatever reason, two commits against
 check-in 2 have occurred and now the tree has two leaves.
@@ -196,7 +196,7 @@ check-in, that allows you to refer to that check-in by its symbolic
 name rather than by its 40-character SHA1 hash name.  When a symbolic name
 tag propagates (as does the <b>sym-trunk</b> tag) then referring to that
 name is the same as referring to the most recent check-in with that name.
-Thus the two tags on check-in one cause all decendents to be in the
+Thus the two tags on check-in one cause all descendants to be in the
 "trunk" branch and to have the symbolic name "trunk".
 
 Check-in 4 has a <b>branch</b> tag which changes the name of the branch
@@ -240,7 +240,7 @@ branch property.</p></dd>
 <dd><p>A leaf is a check-in that has no children in the same branch.</p></dd>
 <dt><b>Closed Leaf</b></dt>
 <dd><p>A closed leaf is leaf that has the <b>closed</b> tag.  Such leaves
-are intented to never be extended with descendents and hence are omitted
+are intented to never be extended with descendants and hence are omitted
 from lists of leaves in the command-line and web interface.</p></dd>
 <dt><b>Open Leaf</b></dt>
 <dd><p>A open leaf is a leaf that is not closed.</p></dd>

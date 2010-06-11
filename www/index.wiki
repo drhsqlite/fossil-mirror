@@ -114,7 +114,7 @@ internet these days. What makes Fossil worthy of attention?
      helps insure project integrity.
   *  Fossil contains a [./wikitheory.wiki | built-in wiki].
   *  There is a
-    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publically readable
+    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      available for discussing fossil issues.
   *  [./stats.wiki | Performance statistics] taken from real-world projects

@@ -41,7 +41,7 @@ and painlessly.</p>
     <b>fossil clone http://www.fossil-scm.org/ myclone.fossil</b>
     </blockquote>
 
-    <p>The new local copy of the respository is stored in a single file,
+    <p>The new local copy of the repository is stored in a single file,
     which in the example above is named "myclone.fossil".
     You can name your repositories anything you want.  The ".fossil" suffix
     is not required.</p>

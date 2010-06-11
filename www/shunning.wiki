@@ -40,9 +40,9 @@ In other words, shunning does not propagate using the normal "sync"
 mechanism.  An artifact can be
 shunned from one repository but be allowed to exist in another.  The fact that
 the shunning list does not propagate is a security feature.  If the
-shunning list propagated then a malecious user (or
+shunning list propagated then a malicious user (or
 a bug in the fossil code) might introduce a shun record that would
-propagate through all respositories in a network and permanently 
+propagate through all repositories in a network and permanently 
 destroy vital information.  By refusing to propagate the shunning list,
 Fossil insures that no remote user will ever be able to remove 
 information from your personal repositories without your permission.
@@ -59,7 +59,7 @@ the <i>remote-url</i> indicated and merge the lists on the receiving
 end.  "Admin" privilege on the remote server is required in order to
 push a shun list.  
 
-Note that the shunning list remains in the respository even after the
+Note that the shunning list remains in the repository even after the
 shunned artifact has been removed.  This is to prevent the artifact
 from being reintroduced into the repository the next time it syncs with
 another repository that has not shunned the artifact.
@@ -72,7 +72,7 @@ That URL is accessible under the "Admin" button on the default menu
 bar.  Items can be added to or removed from the shunning list.  "Sync"
 operations are inhibited as soon as the artifact is added to the
 shunning list, but the content of the artifact is not actually removed
-from the responstory until the next time the repository is rebuilt.
+from the repository until the next time the repository is rebuilt.
 
 When viewing individual artifacts with the web interface, "admin"
 users will usually see a "Shun" option in the submenu that will take

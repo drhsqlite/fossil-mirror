@@ -34,7 +34,7 @@ NUMBER</tt> argument) and launches a web browser pointing at the
 fossil server. From there it takes just a few moments to configure the
 repo. Most importantly, go to the Admin menu, then the Users link, and
 set your account name and password, and grant your account all access
-priviledges. (I also like to grant Clone access to the anonymous user,
+privileges. (I also like to grant Clone access to the anonymous user,
 but that's personal preference.)
 
 Once you are done, kill the fossil server (with Ctrl-C or equivalent)
@@ -65,7 +65,7 @@ for all purposes, but be sure not to accidentally remove it
 or otherwise damage it - it belongs to fossil, not you.
 
 The next thing we need to do is add files to our repository.  As it
-happens, we have a few C source files laying around, which we'll
+happens, we have a few C source files lying around, which we'll
 simply copy into our working directory.
 
 <verbatim>
@@ -77,7 +77,7 @@ tokenize_path.c tokenize_path.h  vappendf.c  vappendf.h
 
 Fossil doesn't know about those files yet. Telling fossil about
 a new file is a two-step process. First we <em>add</em> the file
-to the repo, then we <em>commit</em> the file. This is a familiar
+to the repository, then we <em>commit</em> the file. This is a familiar
 process for anyone who's worked with SCM systems before:
 
 <verbatim>

@@ -245,7 +245,7 @@ the same as a manifest or cluster.  A control artifact is a text
 files divided into cards by newline characters.  Each card has a
 single-character card type followed by arguments.  Spaces separate
 the card type and the arguments.  No surplus whitespace is allowed.
-All cards must occur in strict lexigraphical order.
+All cards must occur in strict lexicographical order.
 
 Allowed cards in a control artifact are as follows:
 
