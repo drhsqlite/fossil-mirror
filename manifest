@@ -1,5 +1,5 @@
-C The\sprevious\stwo\scheck-ins\sto\sthe\sexp-search\sbranch\sshould\shave\sbeen\son\sthe\ntrunk.\s\sThis\scheck-in\spulls\sthem\sover.
-D 2010-06-10T19:21:21
+C Change\sthe\sdefault\sstyle\sto\scenter\sthe\stitle\swith\sthe\sproject\sname\sabove\nand\swith\s200\spixel\swide\slogo\sand\sstatus\sboxes\sto\sthe\sleft\sand\sright.
+D 2010-06-11T12:02:59
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -90,11 +90,11 @@ F src/search.c 953d09490f44e0c9efb7d05b643fc8ff9c06009b
 F src/setup.c 63287ca745db037f5a2fb200a678ae6a9544b451
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c 844676140769b23f78ba8dc6c93d4f8254530211
-F src/skins.c bc2a501cc8581e31c5fd277b6246db467a774280
+F src/skins.c b693b6cb0e5e4e8a73d77ad33031bc8ac4826760
 F src/sqlite3.c bd910d246ecd97ddb9250f831e79bec797069dc3
 F src/sqlite3.h 23cbdd754c5fa51f3acdb55758c47269d0d3131f
 F src/stat.c bbb8cda86b3853ff2d2927b86abf7a4148f5b776
-F src/style.c 17fee7439c0194f531515921e5432f688c672ad8
+F src/style.c 5e7ab265f940b472250cf480da17d23ea055e692
 F src/sync.c aef7ea255897126a2033dd810c8fcad25ece066b
 F src/tag.c 8a8a56dab9f21df8c56bfba1f303e71fe32eb102
 F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
@@ -261,7 +261,7 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P 404aaecff8b3043b0125463ca47d6650ae056f1e
-R 77fff8fe956b6730c0793c6e260c313c
+P d90467ed85a6a2ab50b3269de421408b67d18512
+R 51f9ab197fc0a6da452ef196fec7bb57
 U drh
-Z b233dd7e124f4472d5aba307eb30ca6e
+Z d34e4d45478f38cbcaa36320e1336f60

@@ -191,9 +191,8 @@ const char zDefaultHeader[] =
 @ <div class="header">
 @   <div class="logo">
 @     <img src="$baseurl/logo" alt="logo">
-@     <br><nobr>$<project_name></nobr>
 @   </div>
-@   <div class="title">$<title></div>
+@   <div class="title"><small>$<project_name></small><br>$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
@@ -263,6 +262,7 @@ const char zDefaultCSS[] =
 @   vertical-align: bottom;
 @   font-weight: bold;
 @   color: #558195;
+@   min-width: 200px;
 @ }
 @
 @ /* The page title centered at the top of each page */
@@ -270,7 +270,7 @@ const char zDefaultCSS[] =
 @   display: table-cell;
 @   font-size: 2em;
 @   font-weight: bold;
-@   text-align: left;
+@   text-align: center;
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
@@ -285,6 +285,7 @@ const char zDefaultCSS[] =
 @   color: #558195;
 @   font-size: 0.8em;
 @   font-weight: bold;
+@   min-width: 200px;
 @ }
 @
 @ /* The header across the top of the page */
