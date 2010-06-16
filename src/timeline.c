@@ -627,6 +627,7 @@ static void timeline_add_dividers(const char *zDate){
 **    p=RID          artifact RID and up to COUNT parents and ancestors
 **    d=RID          artifact RID and up to COUNT descendants
 **    t=TAGID        show only check-ins with the given tagid
+**    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
 **    y=TYPE         'ci', 'w', 't'
 **    s=TEXT         string search (comment and brief)
@@ -653,6 +654,7 @@ void page_timeline(void){
   const char *zBefore = P("b");      /* Events before this time */
   const char *zCirca = P("c");       /* Events near this time */
   const char *zTagName = P("t");     /* Show events with this tag */
+  const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
@@ -664,6 +666,8 @@ void page_timeline(void){
   if( !g.okRead && !g.okRdTkt && !g.okRdWiki ){ login_needed(); return; }
   if( zTagName && g.okRead ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
+  }else if( zBrName && g.okRead ){
+    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
   }else{
     tagid = 0;
   }
@@ -742,10 +746,28 @@ void page_timeline(void){
     url_add_parameter(&url, "n", zNEntry);
     if( tagid>0 ){
       zType = "ci";
-      url_add_parameter(&url, "t", zTagName);
-      blob_appendf(&sql, " AND EXISTS (SELECT 1 FROM tagxref WHERE tagid=%d"
-                                        " AND tagtype>0 AND rid=blob.rid)",
-                   tagid);
+      blob_appendf(&sql,
+        "AND (EXISTS(SELECT 1 FROM tagxref"
+                    " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
+
+      if( zBrName ){
+        /* The next two blob_appendf() calls add SQL that causes checkins that
+        ** are not part of the branch which are parents or childen of the branch
+        ** to be included in the report.  This related check-ins are useful
+        ** in helping to visualize what has happened on a quiescent branch 
+        ** that is infrequently merged with a much more activate branch.
+        */
+        url_add_parameter(&url, "r", zBrName);
+        blob_appendf(&sql,
+          " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)", tagid);
+        blob_appendf(&sql,
+          " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                     " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)", tagid);
+      }else{
+        url_add_parameter(&url, "t", zTagName);
+      }
+      blob_appendf(&sql, ")");
     }
     if( (zType[0]=='w' && !g.okRdWiki)
      || (zType[0]=='t' && !g.okRdTkt)
@@ -854,8 +876,11 @@ void page_timeline(void){
       blob_appendf(&desc, " by user %h", zUser);
       tmFlags |= TIMELINE_DISJOINT;
     }
-    if( tagid>0 ){
+    if( zTagName ){
       blob_appendf(&desc, " tagged with \"%h\"", zTagName);
+      tmFlags |= TIMELINE_DISJOINT;
+    }else if( zBrName ){
+      blob_appendf(&desc, " related to \"%h\"", zBrName);
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( zAfter ){
