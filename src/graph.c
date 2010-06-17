@@ -291,14 +291,17 @@ void graph_finish(GraphContext *p, int omitDescenders){
       }
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
         if( omitDescenders ){
-          pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, 0, 0);
+          pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, inUse, 0);
         }else{
           pRow->iRail = ++p->mxRail;
         }
         mask = 1<<(pRow->iRail);
         if( omitDescenders ){
-          pRow->railInUse |= mask;
           if( pRow->pNext ) pRow->pNext->railInUse |= mask;
+          for(pDesc=pRow; pDesc; pDesc=pDesc->pPrev){
+            pDesc->railInUse |= mask;
+            if( pDesc->zBranch==pRow->zBranch && pDesc->isLeaf ) break;
+          }
         }else{
           pRow->bDescender = pRow->nParent>0;
           for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
