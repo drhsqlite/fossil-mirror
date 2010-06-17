@@ -291,7 +291,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       }
       if( pRow->nParent==0 || hashFind(p,pRow->aParent[0])==0 ){
         if( omitDescenders ){
-          pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, inUse, 0);
+          pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, 0, 0);
         }else{
           pRow->iRail = ++p->mxRail;
         }
