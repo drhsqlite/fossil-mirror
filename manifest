@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\s[/doc/tip/www/selfhost.wiki\s|\sSelf-Hostiry\sRepositories]\npage.\s\sTicket\s[e39122fcc434125c6].
-D 2010-05-25T12:30:39
+C Fixed\sup\sthe\squickstart\sto\spresent\sinformation\sin\sa\smore\slogical\sorder.
+D 2010-06-18T03:21:48
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -249,7 +249,7 @@ F www/newrepo.wiki 0f60ddea661df55dbdb9203c4dcd5628522b0a06
 F www/password.wiki 4c626ba0e123d6b2c8a7c8695fef3d6bb6a8bb60
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki c8c3e7e8fe1eea61f6aa927c4ee194a91ee08c6b
-F www/quickstart.wiki fd1b090ebc278257516c0bb5b12063e689f819f6
+F www/quickstart.wiki 63d66d123d6aac489a4a14521b4d57054b66f1c9
 F www/reference.wiki 820ff3080adb7b766280bcfda02b8ecec0cf377f
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 87d27f0d707889c1a1d8d681ef324bb836b9b99f
@@ -261,7 +261,10 @@ F www/sync.wiki e571cf1d8533431f4b9e33c6295c834829a2b81f
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki f470f81c45825bf2da9cd0c0f5e90966171e1e4e
-P cb44f7dea478e9b08127a27dc37b7697bce22748
-R 7929c5f6b37f4a79cf4542815128b840
-U drh
-Z f7369e14a88e476f4b57511993f145c3
+P f19de0b02de2937e6da14cb6536369b8df24350b
+R dd763c5c817190d6f485d1121c20fc52
+T *branch * ttmrichter
+T *sym-ttmrichter *
+T -sym-trunk *
+U michael
+Z d4a31ade6b80e0eda74a246fc5bd869a
