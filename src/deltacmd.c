@@ -87,6 +87,7 @@ int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
 
   n = delta_output_size(blob_buffer(pDelta), blob_size(pDelta));
   blob_zero(&out);
+  if( n<0 ) return -1;
   blob_resize(&out, n);
   len = delta_apply(
      blob_buffer(pOriginal), blob_size(pOriginal),
