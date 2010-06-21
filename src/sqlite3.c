@@ -638,7 +638,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-06-16 12:30:11 ad3209572d0e6afe5c8b52313e334509661045e2"
+#define SQLITE_SOURCE_ID      "2010-06-21 12:47:41 ee0acef1faffd480fd2136f81fb2b6f6a17b5388"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1031,17 +1031,18 @@ SQLITE_API int sqlite3_exec(
 ** information is written to disk in the same order as calls
 ** to xWrite().
 */
-#define SQLITE_IOCAP_ATOMIC          0x00000001
-#define SQLITE_IOCAP_ATOMIC512       0x00000002
-#define SQLITE_IOCAP_ATOMIC1K        0x00000004
-#define SQLITE_IOCAP_ATOMIC2K        0x00000008
-#define SQLITE_IOCAP_ATOMIC4K        0x00000010
-#define SQLITE_IOCAP_ATOMIC8K        0x00000020
-#define SQLITE_IOCAP_ATOMIC16K       0x00000040
-#define SQLITE_IOCAP_ATOMIC32K       0x00000080
-#define SQLITE_IOCAP_ATOMIC64K       0x00000100
-#define SQLITE_IOCAP_SAFE_APPEND     0x00000200
-#define SQLITE_IOCAP_SEQUENTIAL      0x00000400
+#define SQLITE_IOCAP_ATOMIC                 0x00000001
+#define SQLITE_IOCAP_ATOMIC512              0x00000002
+#define SQLITE_IOCAP_ATOMIC1K               0x00000004
+#define SQLITE_IOCAP_ATOMIC2K               0x00000008
+#define SQLITE_IOCAP_ATOMIC4K               0x00000010
+#define SQLITE_IOCAP_ATOMIC8K               0x00000020
+#define SQLITE_IOCAP_ATOMIC16K              0x00000040
+#define SQLITE_IOCAP_ATOMIC32K              0x00000080
+#define SQLITE_IOCAP_ATOMIC64K              0x00000100
+#define SQLITE_IOCAP_SAFE_APPEND            0x00000200
+#define SQLITE_IOCAP_SEQUENTIAL             0x00000400
+#define SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN  0x00000800
 
 /*
 ** CAPI3REF: File Locking Levels
@@ -25682,19 +25683,21 @@ static void unixShmPurge(unixFile *pFd){
   }
 }
 
-/* Forward reference */
-static const char *unixTempFileDir(int);
-
 /*
-** Open a shared-memory area.  This particular implementation uses
-** mmapped files.
+** Open a shared-memory area associated with open database file fd.  
+** This particular implementation uses mmapped files.
 **
-** zName is a filename used to identify the shared-memory area.  The
-** implementation does not (and perhaps should not) use this name
-** directly, but rather use it as a template for finding an appropriate
-** name for the shared-memory storage.  In this implementation, the
-** string "-index" is appended to zName and used as the name of the
-** mmapped file.
+** The file used to implement shared-memory is in the same directory
+** as the open database file and has the same name as the open database
+** file with the "-shm" suffix added.  For example, if the database file
+** is "/home/user1/config.db" then the file that is created and mmapped
+** for shared memory will be called "/home/user1/config.db-shm".  We
+** experimented with using files in /dev/tmp or an some other tmpfs mount.
+** But if a file in a different directory from the database file is used,
+** then differing access permissions or a chroot() might cause two different 
+** processes on the same database to end up using different files for 
+** shared memory - meaning that their memory would not really be shared - 
+** resulting in database corruption.
 **
 ** When opening a new shared-memory file, if no other instances of that
 ** file are currently open, in this process or in other processes, then
@@ -25708,8 +25711,8 @@ static int unixShmOpen(
   int rc;                            /* Result code */
   struct unixFile *pDbFd;            /* Underlying database file */
   unixInodeInfo *pInode;             /* The inode of fd */
-  const char *zTempDir;              /* Directory for temporary files */
-  int nTempDir;                      /* Size of the zTempDir string */
+  char *zShmFilename;                /* Name of the file used for SHM */
+  int nShmFilename;                  /* Size of the SHM filename in bytes */
 
   /* Allocate space for the new sqlite3_shm object.
   */
@@ -25726,23 +25729,15 @@ static int unixShmOpen(
   pInode = pDbFd->pInode;
   pShmNode = pInode->pShmNode;
   if( pShmNode==0 ){
-    zTempDir = unixTempFileDir(1);
-    if( zTempDir==0 ){
-      unixLeaveMutex();
-      sqlite3_free(p);
-      return SQLITE_CANTOPEN_NOTEMPDIR;
-    }
-    nTempDir = strlen(zTempDir);
-    pShmNode = sqlite3_malloc( sizeof(*pShmNode) + nTempDir + 50 );
+    nShmFilename = 5 + (int)strlen(pDbFd->zPath);
+    pShmNode = sqlite3_malloc( sizeof(*pShmNode) + nShmFilename );
     if( pShmNode==0 ){
       rc = SQLITE_NOMEM;
       goto shm_open_err;
     }
     memset(pShmNode, 0, sizeof(*pShmNode));
-    pShmNode->zFilename = (char*)&pShmNode[1];
-    sqlite3_snprintf(nTempDir+50, pShmNode->zFilename,
-                     "%s/sqlite-wi-%x-%x", zTempDir,
-                     (u32)pInode->fileId.dev, (u32)pInode->fileId.ino);
+    zShmFilename = pShmNode->zFilename = (char*)&pShmNode[1];
+    sqlite3_snprintf(nShmFilename, zShmFilename, "%s-shm", pDbFd->zPath);
     pShmNode->h = -1;
     pDbFd->pInode->pShmNode = pShmNode;
     pShmNode->pInode = pDbFd->pInode;
@@ -25752,7 +25747,7 @@ static int unixShmOpen(
       goto shm_open_err;
     }
 
-    pShmNode->h = open(pShmNode->zFilename, O_RDWR|O_CREAT, 0664);
+    pShmNode->h = open(zShmFilename, O_RDWR|O_CREAT, 0664);
     if( pShmNode->h<0 ){
       rc = SQLITE_CANTOPEN_BKPT;
       goto shm_open_err;
@@ -26565,7 +26560,7 @@ static int openDirectory(const char *zFilename, int *pFd){
 ** Return the name of a directory in which to put temporary files.
 ** If no suitable temporary file directory can be found, return NULL.
 */
-static const char *unixTempFileDir(int allowShm){
+static const char *unixTempFileDir(void){
   static const char *azDirs[] = {
      0,
      0,
@@ -26580,19 +26575,11 @@ static const char *unixTempFileDir(int allowShm){
 
   azDirs[0] = sqlite3_temp_directory;
   if( !azDirs[1] ) azDirs[1] = getenv("TMPDIR");
-  
-  if( allowShm ){
-    zDir = "/dev/shm";
-    i = 2;  /* Skip the app-defined temp locations for shared-memory */
-  }else{
-    zDir = azDirs[0];
-    i = 1;
-  }
-  for(; i<sizeof(azDirs)/sizeof(azDirs[0]); zDir=azDirs[i++]){
+  for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); zDir=azDirs[i++]){
     if( zDir==0 ) continue;
     if( stat(zDir, &buf) ) continue;
     if( !S_ISDIR(buf.st_mode) ) continue;
-    if( !allowShm && access(zDir, 07) ) continue;
+    if( access(zDir, 07) ) continue;
     break;
   }
   return zDir;
@@ -26617,7 +26604,7 @@ static int unixGetTempname(int nBuf, char *zBuf){
   */
   SimulateIOError( return SQLITE_IOERR );
 
-  zDir = unixTempFileDir(0);
+  zDir = unixTempFileDir();
   if( zDir==0 ) zDir = ".";
 
   /* Check that the output buffer is large enough for the temporary file 
@@ -27026,6 +27013,12 @@ static int unixAccess(
       assert(!"Invalid flags argument");
   }
   *pResOut = (access(zPath, amode)==0);
+  if( flags==SQLITE_ACCESS_EXISTS && *pResOut ){
+    struct stat buf;
+    if( 0==stat(zPath, &buf) && buf.st_size==0 ){
+      *pResOut = 0;
+    }
+  }
   return SQLITE_OK;
 }
 
@@ -29908,7 +29901,7 @@ static int winSectorSize(sqlite3_file *id){
 */
 static int winDeviceCharacteristics(sqlite3_file *id){
   UNUSED_PARAMETER(id);
-  return 0;
+  return SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN;
 }
 
 /****************************************************************************
@@ -34779,12 +34772,24 @@ static int pagerUseWal(Pager *pPager){
 static void pager_unlock(Pager *pPager){
   if( !pPager->exclusiveMode ){
     int rc = SQLITE_OK;          /* Return code */
+    int iDc = isOpen(pPager->fd)?sqlite3OsDeviceCharacteristics(pPager->fd):0;
 
     /* Always close the journal file when dropping the database lock.
     ** Otherwise, another connection with journal_mode=delete might
     ** delete the file out from under us.
     */
-    sqlite3OsClose(pPager->jfd);
+    assert( (PAGER_JOURNALMODE_MEMORY   & 5)!=1 );
+    assert( (PAGER_JOURNALMODE_OFF      & 5)!=1 );
+    assert( (PAGER_JOURNALMODE_WAL      & 5)!=1 );
+    assert( (PAGER_JOURNALMODE_DELETE   & 5)!=1 );
+    assert( (PAGER_JOURNALMODE_TRUNCATE & 5)==1 );
+    assert( (PAGER_JOURNALMODE_PERSIST  & 5)==1 );
+    if( 0==(iDc & SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN)
+     || 1!=(pPager->journalMode & 5)
+    ){
+      sqlite3OsClose(pPager->jfd);
+    }
+
     sqlite3BitvecDestroy(pPager->pInJournal);
     pPager->pInJournal = 0;
     releaseAllSavepoints(pPager);
@@ -36675,6 +36680,7 @@ SQLITE_PRIVATE int sqlite3PagerClose(Pager *pPager){
   enable_simulated_io_errors();
   PAGERTRACE(("CLOSE %d\n", PAGERID(pPager)));
   IOTRACE(("CLOSE %p\n", pPager))
+  sqlite3OsClose(pPager->jfd);
   sqlite3OsClose(pPager->fd);
   sqlite3PageFree(pTmp);
   sqlite3PcacheClose(pPager->pPCache);
@@ -37468,17 +37474,22 @@ SQLITE_PRIVATE int sqlite3PagerOpen(
 */
 static int hasHotJournal(Pager *pPager, int *pExists){
   sqlite3_vfs * const pVfs = pPager->pVfs;
-  int rc;                       /* Return code */
-  int exists;                   /* True if a journal file is present */
+  int rc = SQLITE_OK;           /* Return code */
+  int exists = 1;               /* True if a journal file is present */
+  int jrnlOpen = !!isOpen(pPager->jfd);
 
   assert( pPager!=0 );
   assert( pPager->useJournal );
   assert( isOpen(pPager->fd) );
-  assert( !isOpen(pPager->jfd) );
   assert( pPager->state <= PAGER_SHARED );
+  assert( jrnlOpen==0 || ( sqlite3OsDeviceCharacteristics(pPager->jfd) &
+    SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN
+  ));
 
   *pExists = 0;
-  rc = sqlite3OsAccess(pVfs, pPager->zJournal, SQLITE_ACCESS_EXISTS, &exists);
+  if( !jrnlOpen ){
+    rc = sqlite3OsAccess(pVfs, pPager->zJournal, SQLITE_ACCESS_EXISTS, &exists);
+  }
   if( rc==SQLITE_OK && exists ){
     int locked;                 /* True if some process holds a RESERVED lock */
 
@@ -37516,15 +37527,19 @@ static int hasHotJournal(Pager *pPager, int *pExists){
           ** If there is, then we consider this journal to be hot. If not, 
           ** it can be ignored.
           */
-          int f = SQLITE_OPEN_READONLY|SQLITE_OPEN_MAIN_JOURNAL;
-          rc = sqlite3OsOpen(pVfs, pPager->zJournal, pPager->jfd, f, &f);
+          if( !jrnlOpen ){
+            int f = SQLITE_OPEN_READONLY|SQLITE_OPEN_MAIN_JOURNAL;
+            rc = sqlite3OsOpen(pVfs, pPager->zJournal, pPager->jfd, f, &f);
+          }
           if( rc==SQLITE_OK ){
             u8 first = 0;
             rc = sqlite3OsRead(pPager->jfd, (void *)&first, 1, 0);
             if( rc==SQLITE_IOERR_SHORT_READ ){
               rc = SQLITE_OK;
             }
-            sqlite3OsClose(pPager->jfd);
+            if( !jrnlOpen ){
+              sqlite3OsClose(pPager->jfd);
+            }
             *pExists = (first!=0);
           }else if( rc==SQLITE_CANTOPEN ){
             /* If we cannot open the rollback journal file in order to see if
@@ -39439,17 +39454,45 @@ SQLITE_PRIVATE int sqlite3PagerSetJournalMode(Pager *pPager, int eMode){
     pPager->journalMode = (u8)eMode;
 
     /* When transistioning from TRUNCATE or PERSIST to any other journal
-    ** mode (and we are not in locking_mode=EXCLUSIVE) then delete the
-    ** journal file.
+    ** mode except WAL (and we are not in locking_mode=EXCLUSIVE) then 
+    ** delete the journal file.
     */
     assert( (PAGER_JOURNALMODE_TRUNCATE & 5)==1 );
     assert( (PAGER_JOURNALMODE_PERSIST & 5)==1 );
-    assert( (PAGER_JOURNALMODE_DELETE & 5)!=1 );
-    assert( (PAGER_JOURNALMODE_MEMORY & 5)!=1 );
-    assert( (PAGER_JOURNALMODE_OFF & 5)!=1 );
-    assert( (PAGER_JOURNALMODE_WAL & 5)!=1 );
-    if( (eOld & 5)==1 && (eMode & 5)!=1 && !pPager->exclusiveMode ){
-      sqlite3OsDelete(pPager->pVfs, pPager->zJournal, 0);
+    assert( (PAGER_JOURNALMODE_DELETE & 5)==0 );
+    assert( (PAGER_JOURNALMODE_MEMORY & 5)==4 );
+    assert( (PAGER_JOURNALMODE_OFF & 5)==0 );
+    assert( (PAGER_JOURNALMODE_WAL & 5)==5 );
+
+    assert( isOpen(pPager->fd) || pPager->exclusiveMode );
+    if( !pPager->exclusiveMode && (eOld & 5)==1 && (eMode & 1)==0 ){
+
+      /* In this case we would like to delete the journal file. If it is
+      ** not possible, then that is not a problem. Deleting the journal file
+      ** here is an optimization only.
+      **
+      ** Before deleting the journal file, obtain a RESERVED lock on the
+      ** database file. This ensures that the journal file is not deleted
+      ** while it is in use by some other client.
+      */
+      int rc = SQLITE_OK;
+      int state = pPager->state;
+      if( state<PAGER_SHARED ){
+        rc = sqlite3PagerSharedLock(pPager);
+      }
+      if( pPager->state==PAGER_SHARED ){
+        assert( rc==SQLITE_OK );
+        rc = sqlite3OsLock(pPager->fd, RESERVED_LOCK);
+      }
+      if( rc==SQLITE_OK ){
+        sqlite3OsDelete(pPager->pVfs, pPager->zJournal, 0);
+      }
+      if( rc==SQLITE_OK && state==PAGER_SHARED ){
+        sqlite3OsUnlock(pPager->fd, SHARED_LOCK);
+      }else if( state==PAGER_UNLOCK ){
+        pager_unlock(pPager);
+      }
+      assert( state==pPager->state );
     }
   }
 
@@ -63309,12 +63352,7 @@ case OP_JournalMode: {    /* out2-prerelease */
         rc = sqlite3PagerCloseWal(u.cd.pPager);
         if( rc==SQLITE_OK ){
           sqlite3PagerSetJournalMode(u.cd.pPager, u.cd.eNew);
-        }else if( rc==SQLITE_BUSY && pOp->p5==0 ){
-          goto abort_due_to_error;
         }
-      }else{
-        sqlite3PagerSetJournalMode(u.cd.pPager, PAGER_JOURNALMODE_DELETE);
-        rc = SQLITE_OK;
       }
 
       /* Open a transaction on the database file. Regardless of the journal
@@ -63322,19 +63360,18 @@ case OP_JournalMode: {    /* out2-prerelease */
       */
       assert( sqlite3BtreeIsInTrans(u.cd.pBt)==0 );
       if( rc==SQLITE_OK ){
-        rc = sqlite3BtreeSetVersion(u.cd.pBt,
-                                    (u.cd.eNew==PAGER_JOURNALMODE_WAL ? 2 : 1));
-        if( rc==SQLITE_BUSY && pOp->p5==0 ) goto abort_due_to_error;
-      }
-      if( rc==SQLITE_BUSY ){
-        u.cd.eNew = u.cd.eOld;
-        rc = SQLITE_OK;
+        rc = sqlite3BtreeSetVersion(u.cd.pBt, (u.cd.eNew==PAGER_JOURNALMODE_WAL ? 2 : 1));
       }
     }
   }
 #endif /* ifndef SQLITE_OMIT_WAL */
 
+  if( rc ){
+    if( rc==SQLITE_BUSY && pOp->p5!=0 ) rc = SQLITE_OK;
+    u.cd.eNew = u.cd.eOld;
+  }
   u.cd.eNew = sqlite3PagerSetJournalMode(u.cd.pPager, u.cd.eNew);
+
   pOut = &aMem[pOp->p2];
   pOut->flags = MEM_Str|MEM_Static|MEM_Term;
   pOut->z = (char *)sqlite3JournalModename(u.cd.eNew);
@@ -64148,10 +64185,14 @@ SQLITE_API int sqlite3_blob_open(
       sqlite3VdbeUsesBtree(v, iDb); 
 
       /* Configure the OP_TableLock instruction */
+#ifdef SQLITE_OMIT_SHARED_CACHE
+      sqlite3VdbeChangeToNoop(v, 2, 1);
+#else
       sqlite3VdbeChangeP1(v, 2, iDb);
       sqlite3VdbeChangeP2(v, 2, pTab->tnum);
       sqlite3VdbeChangeP3(v, 2, flags);
       sqlite3VdbeChangeP4(v, 2, pTab->zName, P4_TRANSIENT);
+#endif
 
       /* Remove either the OP_OpenWrite or OpenRead. Set the P2 
       ** parameter of the other to pTab->tnum.  */
