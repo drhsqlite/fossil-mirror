@@ -61,7 +61,7 @@ works in "autosync" mode.
 
 But it might be that Bob is off-network when he does his commit, so he
 has no way of knowing that Alice has already committed her changes.
-Or, it could be that Bob has turned off "autosync" mode in SQLite.  Or,
+Or, it could be that Bob has turned off "autosync" mode in Fossil.  Or,
 maybe Bob just doesn't want to merge in Alice's changes before he has
 saved his own, so he forces the commit to occur using the "--force" option
 to the fossil <b>commit</b> command.  For whatever reason, two commits against
