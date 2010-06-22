@@ -13,76 +13,76 @@ XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
 
 
 SRC = \
-  $(SRCDIR)/add.c \
-  $(SRCDIR)/allrepo.c \
-  $(SRCDIR)/attach.c \
-  $(SRCDIR)/bag.c \
-  $(SRCDIR)/blob.c \
-  $(SRCDIR)/branch.c \
-  $(SRCDIR)/browse.c \
-  $(SRCDIR)/captcha.c \
-  $(SRCDIR)/cgi.c \
-  $(SRCDIR)/checkin.c \
-  $(SRCDIR)/checkout.c \
-  $(SRCDIR)/clearsign.c \
-  $(SRCDIR)/clone.c \
-  $(SRCDIR)/comformat.c \
-  $(SRCDIR)/configure.c \
-  $(SRCDIR)/content.c \
-  $(SRCDIR)/db.c \
-  $(SRCDIR)/delta.c \
-  $(SRCDIR)/deltacmd.c \
-  $(SRCDIR)/descendants.c \
-  $(SRCDIR)/diff.c \
-  $(SRCDIR)/diffcmd.c \
-  $(SRCDIR)/doc.c \
-  $(SRCDIR)/encode.c \
-  $(SRCDIR)/file.c \
-  $(SRCDIR)/finfo.c \
-  $(SRCDIR)/graph.c \
-  $(SRCDIR)/http.c \
-  $(SRCDIR)/http_socket.c \
-  $(SRCDIR)/http_ssl.c \
-  $(SRCDIR)/http_transport.c \
-  $(SRCDIR)/info.c \
-  $(SRCDIR)/login.c \
-  $(SRCDIR)/main.c \
-  $(SRCDIR)/manifest.c \
-  $(SRCDIR)/md5.c \
-  $(SRCDIR)/merge.c \
-  $(SRCDIR)/merge3.c \
-  $(SRCDIR)/name.c \
-  $(SRCDIR)/pivot.c \
-  $(SRCDIR)/pqueue.c \
-  $(SRCDIR)/printf.c \
-  $(SRCDIR)/rebuild.c \
-  $(SRCDIR)/report.c \
-  $(SRCDIR)/rss.c \
-  $(SRCDIR)/schema.c \
-  $(SRCDIR)/search.c \
-  $(SRCDIR)/setup.c \
-  $(SRCDIR)/sha1.c \
-  $(SRCDIR)/shun.c \
-  $(SRCDIR)/skins.c \
-  $(SRCDIR)/stat.c \
-  $(SRCDIR)/style.c \
-  $(SRCDIR)/sync.c \
-  $(SRCDIR)/tag.c \
-  $(SRCDIR)/th_main.c \
-  $(SRCDIR)/timeline.c \
-  $(SRCDIR)/tkt.c \
-  $(SRCDIR)/tktsetup.c \
-  $(SRCDIR)/undo.c \
-  $(SRCDIR)/update.c \
-  $(SRCDIR)/url.c \
-  $(SRCDIR)/user.c \
-  $(SRCDIR)/verify.c \
-  $(SRCDIR)/vfile.c \
-  $(SRCDIR)/wiki.c \
-  $(SRCDIR)/wikiformat.c \
-  $(SRCDIR)/winhttp.c \
-  $(SRCDIR)/xfer.c \
-  $(SRCDIR)/zip.c
+  $(SRCDIR)$(DIRSEP)add.c \
+  $(SRCDIR)$(DIRSEP)allrepo.c \
+  $(SRCDIR)$(DIRSEP)attach.c \
+  $(SRCDIR)$(DIRSEP)bag.c \
+  $(SRCDIR)$(DIRSEP)blob.c \
+  $(SRCDIR)$(DIRSEP)branch.c \
+  $(SRCDIR)$(DIRSEP)browse.c \
+  $(SRCDIR)$(DIRSEP)captcha.c \
+  $(SRCDIR)$(DIRSEP)cgi.c \
+  $(SRCDIR)$(DIRSEP)checkin.c \
+  $(SRCDIR)$(DIRSEP)checkout.c \
+  $(SRCDIR)$(DIRSEP)clearsign.c \
+  $(SRCDIR)$(DIRSEP)clone.c \
+  $(SRCDIR)$(DIRSEP)comformat.c \
+  $(SRCDIR)$(DIRSEP)configure.c \
+  $(SRCDIR)$(DIRSEP)content.c \
+  $(SRCDIR)$(DIRSEP)db.c \
+  $(SRCDIR)$(DIRSEP)delta.c \
+  $(SRCDIR)$(DIRSEP)deltacmd.c \
+  $(SRCDIR)$(DIRSEP)descendants.c \
+  $(SRCDIR)$(DIRSEP)diff.c \
+  $(SRCDIR)$(DIRSEP)diffcmd.c \
+  $(SRCDIR)$(DIRSEP)doc.c \
+  $(SRCDIR)$(DIRSEP)encode.c \
+  $(SRCDIR)$(DIRSEP)file.c \
+  $(SRCDIR)$(DIRSEP)finfo.c \
+  $(SRCDIR)$(DIRSEP)graph.c \
+  $(SRCDIR)$(DIRSEP)http.c \
+  $(SRCDIR)$(DIRSEP)http_socket.c \
+  $(SRCDIR)$(DIRSEP)http_ssl.c \
+  $(SRCDIR)$(DIRSEP)http_transport.c \
+  $(SRCDIR)$(DIRSEP)info.c \
+  $(SRCDIR)$(DIRSEP)login.c \
+  $(SRCDIR)$(DIRSEP)main.c \
+  $(SRCDIR)$(DIRSEP)manifest.c \
+  $(SRCDIR)$(DIRSEP)md5.c \
+  $(SRCDIR)$(DIRSEP)merge.c \
+  $(SRCDIR)$(DIRSEP)merge3.c \
+  $(SRCDIR)$(DIRSEP)name.c \
+  $(SRCDIR)$(DIRSEP)pivot.c \
+  $(SRCDIR)$(DIRSEP)pqueue.c \
+  $(SRCDIR)$(DIRSEP)printf.c \
+  $(SRCDIR)$(DIRSEP)rebuild.c \
+  $(SRCDIR)$(DIRSEP)report.c \
+  $(SRCDIR)$(DIRSEP)rss.c \
+  $(SRCDIR)$(DIRSEP)schema.c \
+  $(SRCDIR)$(DIRSEP)search.c \
+  $(SRCDIR)$(DIRSEP)setup.c \
+  $(SRCDIR)$(DIRSEP)sha1.c \
+  $(SRCDIR)$(DIRSEP)shun.c \
+  $(SRCDIR)$(DIRSEP)skins.c \
+  $(SRCDIR)$(DIRSEP)stat.c \
+  $(SRCDIR)$(DIRSEP)style.c \
+  $(SRCDIR)$(DIRSEP)sync.c \
+  $(SRCDIR)$(DIRSEP)tag.c \
+  $(SRCDIR)$(DIRSEP)th_main.c \
+  $(SRCDIR)$(DIRSEP)timeline.c \
+  $(SRCDIR)$(DIRSEP)tkt.c \
+  $(SRCDIR)$(DIRSEP)tktsetup.c \
+  $(SRCDIR)$(DIRSEP)undo.c \
+  $(SRCDIR)$(DIRSEP)update.c \
+  $(SRCDIR)$(DIRSEP)url.c \
+  $(SRCDIR)$(DIRSEP)user.c \
+  $(SRCDIR)$(DIRSEP)verify.c \
+  $(SRCDIR)$(DIRSEP)vfile.c \
+  $(SRCDIR)$(DIRSEP)wiki.c \
+  $(SRCDIR)$(DIRSEP)wikiformat.c \
+  $(SRCDIR)$(DIRSEP)winhttp.c \
+  $(SRCDIR)$(DIRSEP)xfer.c \
+  $(SRCDIR)$(DIRSEP)zip.c
 
 TRANS_SRC = \
   add_.c \
@@ -157,76 +157,76 @@ TRANS_SRC = \
   zip_.c
 
 OBJ = \
- $(OBJDIR)/add.o \
- $(OBJDIR)/allrepo.o \
- $(OBJDIR)/attach.o \
- $(OBJDIR)/bag.o \
- $(OBJDIR)/blob.o \
- $(OBJDIR)/branch.o \
- $(OBJDIR)/browse.o \
- $(OBJDIR)/captcha.o \
- $(OBJDIR)/cgi.o \
- $(OBJDIR)/checkin.o \
- $(OBJDIR)/checkout.o \
- $(OBJDIR)/clearsign.o \
- $(OBJDIR)/clone.o \
- $(OBJDIR)/comformat.o \
- $(OBJDIR)/configure.o \
- $(OBJDIR)/content.o \
- $(OBJDIR)/db.o \
- $(OBJDIR)/delta.o \
- $(OBJDIR)/deltacmd.o \
- $(OBJDIR)/descendants.o \
- $(OBJDIR)/diff.o \
- $(OBJDIR)/diffcmd.o \
- $(OBJDIR)/doc.o \
- $(OBJDIR)/encode.o \
- $(OBJDIR)/file.o \
- $(OBJDIR)/finfo.o \
- $(OBJDIR)/graph.o \
- $(OBJDIR)/http.o \
- $(OBJDIR)/http_socket.o \
- $(OBJDIR)/http_ssl.o \
- $(OBJDIR)/http_transport.o \
- $(OBJDIR)/info.o \
- $(OBJDIR)/login.o \
- $(OBJDIR)/main.o \
- $(OBJDIR)/manifest.o \
- $(OBJDIR)/md5.o \
- $(OBJDIR)/merge.o \
- $(OBJDIR)/merge3.o \
- $(OBJDIR)/name.o \
- $(OBJDIR)/pivot.o \
- $(OBJDIR)/pqueue.o \
- $(OBJDIR)/printf.o \
- $(OBJDIR)/rebuild.o \
- $(OBJDIR)/report.o \
- $(OBJDIR)/rss.o \
- $(OBJDIR)/schema.o \
- $(OBJDIR)/search.o \
- $(OBJDIR)/setup.o \
- $(OBJDIR)/sha1.o \
- $(OBJDIR)/shun.o \
- $(OBJDIR)/skins.o \
- $(OBJDIR)/stat.o \
- $(OBJDIR)/style.o \
- $(OBJDIR)/sync.o \
- $(OBJDIR)/tag.o \
- $(OBJDIR)/th_main.o \
- $(OBJDIR)/timeline.o \
- $(OBJDIR)/tkt.o \
- $(OBJDIR)/tktsetup.o \
- $(OBJDIR)/undo.o \
- $(OBJDIR)/update.o \
- $(OBJDIR)/url.o \
- $(OBJDIR)/user.o \
- $(OBJDIR)/verify.o \
- $(OBJDIR)/vfile.o \
- $(OBJDIR)/wiki.o \
- $(OBJDIR)/wikiformat.o \
- $(OBJDIR)/winhttp.o \
- $(OBJDIR)/xfer.o \
- $(OBJDIR)/zip.o
+ $(OBJDIR)$(DIRSEP)add.o \
+ $(OBJDIR)$(DIRSEP)allrepo.o \
+ $(OBJDIR)$(DIRSEP)attach.o \
+ $(OBJDIR)$(DIRSEP)bag.o \
+ $(OBJDIR)$(DIRSEP)blob.o \
+ $(OBJDIR)$(DIRSEP)branch.o \
+ $(OBJDIR)$(DIRSEP)browse.o \
+ $(OBJDIR)$(DIRSEP)captcha.o \
+ $(OBJDIR)$(DIRSEP)cgi.o \
+ $(OBJDIR)$(DIRSEP)checkin.o \
+ $(OBJDIR)$(DIRSEP)checkout.o \
+ $(OBJDIR)$(DIRSEP)clearsign.o \
+ $(OBJDIR)$(DIRSEP)clone.o \
+ $(OBJDIR)$(DIRSEP)comformat.o \
+ $(OBJDIR)$(DIRSEP)configure.o \
+ $(OBJDIR)$(DIRSEP)content.o \
+ $(OBJDIR)$(DIRSEP)db.o \
+ $(OBJDIR)$(DIRSEP)delta.o \
+ $(OBJDIR)$(DIRSEP)deltacmd.o \
+ $(OBJDIR)$(DIRSEP)descendants.o \
+ $(OBJDIR)$(DIRSEP)diff.o \
+ $(OBJDIR)$(DIRSEP)diffcmd.o \
+ $(OBJDIR)$(DIRSEP)doc.o \
+ $(OBJDIR)$(DIRSEP)encode.o \
+ $(OBJDIR)$(DIRSEP)file.o \
+ $(OBJDIR)$(DIRSEP)finfo.o \
+ $(OBJDIR)$(DIRSEP)graph.o \
+ $(OBJDIR)$(DIRSEP)http.o \
+ $(OBJDIR)$(DIRSEP)http_socket.o \
+ $(OBJDIR)$(DIRSEP)http_ssl.o \
+ $(OBJDIR)$(DIRSEP)http_transport.o \
+ $(OBJDIR)$(DIRSEP)info.o \
+ $(OBJDIR)$(DIRSEP)login.o \
+ $(OBJDIR)$(DIRSEP)main.o \
+ $(OBJDIR)$(DIRSEP)manifest.o \
+ $(OBJDIR)$(DIRSEP)md5.o \
+ $(OBJDIR)$(DIRSEP)merge.o \
+ $(OBJDIR)$(DIRSEP)merge3.o \
+ $(OBJDIR)$(DIRSEP)name.o \
+ $(OBJDIR)$(DIRSEP)pivot.o \
+ $(OBJDIR)$(DIRSEP)pqueue.o \
+ $(OBJDIR)$(DIRSEP)printf.o \
+ $(OBJDIR)$(DIRSEP)rebuild.o \
+ $(OBJDIR)$(DIRSEP)report.o \
+ $(OBJDIR)$(DIRSEP)rss.o \
+ $(OBJDIR)$(DIRSEP)schema.o \
+ $(OBJDIR)$(DIRSEP)search.o \
+ $(OBJDIR)$(DIRSEP)setup.o \
+ $(OBJDIR)$(DIRSEP)sha1.o \
+ $(OBJDIR)$(DIRSEP)shun.o \
+ $(OBJDIR)$(DIRSEP)skins.o \
+ $(OBJDIR)$(DIRSEP)stat.o \
+ $(OBJDIR)$(DIRSEP)style.o \
+ $(OBJDIR)$(DIRSEP)sync.o \
+ $(OBJDIR)$(DIRSEP)tag.o \
+ $(OBJDIR)$(DIRSEP)th_main.o \
+ $(OBJDIR)$(DIRSEP)timeline.o \
+ $(OBJDIR)$(DIRSEP)tkt.o \
+ $(OBJDIR)$(DIRSEP)tktsetup.o \
+ $(OBJDIR)$(DIRSEP)undo.o \
+ $(OBJDIR)$(DIRSEP)update.o \
+ $(OBJDIR)$(DIRSEP)url.o \
+ $(OBJDIR)$(DIRSEP)user.o \
+ $(OBJDIR)$(DIRSEP)verify.o \
+ $(OBJDIR)$(DIRSEP)vfile.o \
+ $(OBJDIR)$(DIRSEP)wiki.o \
+ $(OBJDIR)$(DIRSEP)wikiformat.o \
+ $(OBJDIR)$(DIRSEP)winhttp.o \
+ $(OBJDIR)$(DIRSEP)xfer.o \
+ $(OBJDIR)$(DIRSEP)zip.o
 
 APPNAME = fossil$(E)
 
@@ -240,543 +240,566 @@ install:	$(APPNAME)
 $(OBJDIR):
 	-mkdir $(OBJDIR)
 
-translate:	$(SRCDIR)/translate.c
-	$(BCC) -o translate $(SRCDIR)/translate.c
+translate:	$(SRCDIR)$(DIRSEP)translate.c
+	$(BCC) -o translate $(SRCDIR)$(DIRSEP)translate.c
 
-makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o makeheaders $(SRCDIR)/makeheaders.c
+makeheaders:	$(SRCDIR)$(DIRSEP)makeheaders.c
+	$(BCC) -o makeheaders $(SRCDIR)$(DIRSEP)makeheaders.c
 
-mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o mkindex $(SRCDIR)/mkindex.c
+mkindex:	$(SRCDIR)$(DIRSEP)mkindex.c
+	$(BCC) -o mkindex $(SRCDIR)$(DIRSEP)mkindex.c
 
 # WARNING. DANGER. Running the testsuite modifies the repository the
-# build is done from, i.e. the checkout belongs to. Do not sync/push
+# build is done from, i.e. the checkout belongs to. Do not sync$(DIRSEP)push
 # the repository after running the tests.
 test:	$(APPNAME)
-	$(TCLSH) test/tester.tcl $(APPNAME)
+	$(TCLSH) test$(DIRSEP)tester.tcl $(APPNAME)
 
-VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
-	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >VERSION.h
-	awk '{ printf "#define MANIFEST_VERSION \"[%.10s]\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >>VERSION.h
-	awk '$$1=="D"{printf "#define MANIFEST_DATE \"%s %s\"\n", substr($$2,1,10),substr($$2,12)}'  $(SRCDIR)/../manifest >>VERSION.h
+VERSION.h:	$(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest.uuid $(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest
+ifeq ($(OPERATING_SYSTEM),windows)
+	awk "{ printf \"#define MANIFEST_UUID \\\"%%s\\\"\n\", $$1}"  $(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest.uuid >VERSION.h
+	awk "{ printf \"#define MANIFEST_VERSION \\\"[%%.10s]\\\"\n\", $$1}"  $(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest.uuid >>VERSION.h
+	awk "$$1==\"D\"{printf \"#define MANIFEST_DATE \\\"%%s %%s\\\"\n\", substr($$2,1,10),substr($$2,12)}"  $(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest >>VERSION.h
+else
+	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}'  $(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest.uuid >VERSION.h
+	awk '{ printf "#define MANIFEST_VERSION \"[%.10s]\"\n", $$1}'  $(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest.uuid >>VERSION.h
+	awk '$$1=="D"{printf "#define MANIFEST_DATE \"%s %s\"\n", substr($$2,1,10),substr($$2,12)}'  $(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest >>VERSION.h
+endif
 
-$(APPNAME):	headers $(OBJ) $(OBJDIR)/sqlite3.o $(OBJDIR)/th.o $(OBJDIR)/th_lang.o
-	$(TCC) -o $(APPNAME) $(OBJ) $(OBJDIR)/sqlite3.o $(OBJDIR)/th.o $(OBJDIR)/th_lang.o $(LIB)
+$(APPNAME):	headers $(OBJ) $(OBJDIR)$(DIRSEP)sqlite3.o $(OBJDIR)$(DIRSEP)th.o $(OBJDIR)$(DIRSEP)th_lang.o
+	$(TCC) -o $(APPNAME) $(OBJ) $(OBJDIR)$(DIRSEP)sqlite3.o $(OBJDIR)$(DIRSEP)th.o $(OBJDIR)$(DIRSEP)th_lang.o $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:	
+$(SRCDIR)$(DIRSEP)..$(DIRSEP)manifest:	
 	# noop
 
 clean:	
-	rm -f $(OBJDIR)/*.o *_.c $(APPNAME) VERSION.h
+ifeq ($(OPERATING_SYSTEM),windows)
+	del $(OBJDIR)$(DIRSEP)*.o *_.c $(APPNAME) VERSION.h
+	del translate makeheaders mkindex page_index.h headers
+	del add.h allrepo.h attach.h bag.h blob.h branch.h browse.h captcha.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h finfo.h graph.h http.h http_socket.h http_ssl.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h schema.h search.h setup.h sha1.h shun.h skins.h stat.h style.h sync.h tag.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
+else
+	rm -f $(OBJDIR)$(DIRSEP)*.o *_.c $(APPNAME) VERSION.h
 	rm -f translate makeheaders mkindex page_index.h headers
 	rm -f add.h allrepo.h attach.h bag.h blob.h branch.h browse.h captcha.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h finfo.h graph.h http.h http_socket.h http_ssl.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h schema.h search.h setup.h sha1.h shun.h skins.h stat.h style.h sync.h tag.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
+endif
+
+cleanall:	
+ifeq ($(OPERATING_SYSTEM),windows)
+	del $(OBJDIR)$(DIRSEP)*.o *_.c $(APPNAME) translate$(E) makeheaders$(E) mkindex$(E) VERSION.h
+	del translate makeheaders mkindex page_index.h headers
+	del add.h allrepo.h attach.h bag.h blob.h branch.h browse.h captcha.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h finfo.h graph.h http.h http_socket.h http_ssl.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h schema.h search.h setup.h sha1.h shun.h skins.h stat.h style.h sync.h tag.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
+else
+	rm -f $(OBJDIR)$(DIRSEP)*.o *_.c $(APPNAME) translate$(E) makeheaders$(E) mkindex$(E) VERSION.h
+	rm -f translate makeheaders mkindex page_index.h headers
+	rm -f add.h allrepo.h attach.h bag.h blob.h branch.h browse.h captcha.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h file.h finfo.h graph.h http.h http_socket.h http_ssl.h http_transport.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h pqueue.h printf.h rebuild.h report.h rss.h schema.h search.h setup.h sha1.h shun.h skins.h stat.h style.h sync.h tag.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
+endif
 
 page_index.h: $(TRANS_SRC) mkindex
-	./mkindex $(TRANS_SRC) >$@
+	.$(DIRSEP)mkindex $(TRANS_SRC) >$@
 headers:	page_index.h makeheaders VERSION.h
-	./makeheaders  add_.c:add.h allrepo_.c:allrepo.h attach_.c:attach.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h captcha_.c:captcha.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h finfo_.c:finfo.h graph_.c:graph.h http_.c:http.h http_socket_.c:http_socket.h http_ssl_.c:http_ssl.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h schema_.c:schema.h search_.c:search.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h skins_.c:skins.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h VERSION.h
+	.$(DIRSEP)makeheaders  add_.c:add.h allrepo_.c:allrepo.h attach_.c:attach.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h captcha_.c:captcha.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h finfo_.c:finfo.h graph_.c:graph.h http_.c:http.h http_socket_.c:http_socket.h http_ssl_.c:http_ssl.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h schema_.c:schema.h search_.c:search.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h skins_.c:skins.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)$(DIRSEP)sqlite3.h $(SRCDIR)$(DIRSEP)th.h VERSION.h
 	touch headers
 headers: Makefile
 Makefile:
-add_.c:	$(SRCDIR)/add.c translate
-	./translate $(SRCDIR)/add.c >add_.c
+add_.c:	$(SRCDIR)$(DIRSEP)add.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)add.c >add_.c
 
-$(OBJDIR)/add.o:	add_.c add.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/add.o -c add_.c
+$(OBJDIR)$(DIRSEP)add.o:	add_.c add.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)add.o -c add_.c
 
 add.h:	headers
-allrepo_.c:	$(SRCDIR)/allrepo.c translate
-	./translate $(SRCDIR)/allrepo.c >allrepo_.c
+allrepo_.c:	$(SRCDIR)$(DIRSEP)allrepo.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)allrepo.c >allrepo_.c
 
-$(OBJDIR)/allrepo.o:	allrepo_.c allrepo.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/allrepo.o -c allrepo_.c
+$(OBJDIR)$(DIRSEP)allrepo.o:	allrepo_.c allrepo.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)allrepo.o -c allrepo_.c
 
 allrepo.h:	headers
-attach_.c:	$(SRCDIR)/attach.c translate
-	./translate $(SRCDIR)/attach.c >attach_.c
+attach_.c:	$(SRCDIR)$(DIRSEP)attach.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)attach.c >attach_.c
 
-$(OBJDIR)/attach.o:	attach_.c attach.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/attach.o -c attach_.c
+$(OBJDIR)$(DIRSEP)attach.o:	attach_.c attach.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)attach.o -c attach_.c
 
 attach.h:	headers
-bag_.c:	$(SRCDIR)/bag.c translate
-	./translate $(SRCDIR)/bag.c >bag_.c
+bag_.c:	$(SRCDIR)$(DIRSEP)bag.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)bag.c >bag_.c
 
-$(OBJDIR)/bag.o:	bag_.c bag.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/bag.o -c bag_.c
+$(OBJDIR)$(DIRSEP)bag.o:	bag_.c bag.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)bag.o -c bag_.c
 
 bag.h:	headers
-blob_.c:	$(SRCDIR)/blob.c translate
-	./translate $(SRCDIR)/blob.c >blob_.c
+blob_.c:	$(SRCDIR)$(DIRSEP)blob.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)blob.c >blob_.c
 
-$(OBJDIR)/blob.o:	blob_.c blob.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/blob.o -c blob_.c
+$(OBJDIR)$(DIRSEP)blob.o:	blob_.c blob.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)blob.o -c blob_.c
 
 blob.h:	headers
-branch_.c:	$(SRCDIR)/branch.c translate
-	./translate $(SRCDIR)/branch.c >branch_.c
+branch_.c:	$(SRCDIR)$(DIRSEP)branch.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)branch.c >branch_.c
 
-$(OBJDIR)/branch.o:	branch_.c branch.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/branch.o -c branch_.c
+$(OBJDIR)$(DIRSEP)branch.o:	branch_.c branch.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)branch.o -c branch_.c
 
 branch.h:	headers
-browse_.c:	$(SRCDIR)/browse.c translate
-	./translate $(SRCDIR)/browse.c >browse_.c
+browse_.c:	$(SRCDIR)$(DIRSEP)browse.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)browse.c >browse_.c
 
-$(OBJDIR)/browse.o:	browse_.c browse.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/browse.o -c browse_.c
+$(OBJDIR)$(DIRSEP)browse.o:	browse_.c browse.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)browse.o -c browse_.c
 
 browse.h:	headers
-captcha_.c:	$(SRCDIR)/captcha.c translate
-	./translate $(SRCDIR)/captcha.c >captcha_.c
+captcha_.c:	$(SRCDIR)$(DIRSEP)captcha.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)captcha.c >captcha_.c
 
-$(OBJDIR)/captcha.o:	captcha_.c captcha.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/captcha.o -c captcha_.c
+$(OBJDIR)$(DIRSEP)captcha.o:	captcha_.c captcha.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)captcha.o -c captcha_.c
 
 captcha.h:	headers
-cgi_.c:	$(SRCDIR)/cgi.c translate
-	./translate $(SRCDIR)/cgi.c >cgi_.c
+cgi_.c:	$(SRCDIR)$(DIRSEP)cgi.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)cgi.c >cgi_.c
 
-$(OBJDIR)/cgi.o:	cgi_.c cgi.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/cgi.o -c cgi_.c
+$(OBJDIR)$(DIRSEP)cgi.o:	cgi_.c cgi.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)cgi.o -c cgi_.c
 
 cgi.h:	headers
-checkin_.c:	$(SRCDIR)/checkin.c translate
-	./translate $(SRCDIR)/checkin.c >checkin_.c
+checkin_.c:	$(SRCDIR)$(DIRSEP)checkin.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)checkin.c >checkin_.c
 
-$(OBJDIR)/checkin.o:	checkin_.c checkin.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/checkin.o -c checkin_.c
+$(OBJDIR)$(DIRSEP)checkin.o:	checkin_.c checkin.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)checkin.o -c checkin_.c
 
 checkin.h:	headers
-checkout_.c:	$(SRCDIR)/checkout.c translate
-	./translate $(SRCDIR)/checkout.c >checkout_.c
+checkout_.c:	$(SRCDIR)$(DIRSEP)checkout.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)checkout.c >checkout_.c
 
-$(OBJDIR)/checkout.o:	checkout_.c checkout.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/checkout.o -c checkout_.c
+$(OBJDIR)$(DIRSEP)checkout.o:	checkout_.c checkout.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)checkout.o -c checkout_.c
 
 checkout.h:	headers
-clearsign_.c:	$(SRCDIR)/clearsign.c translate
-	./translate $(SRCDIR)/clearsign.c >clearsign_.c
+clearsign_.c:	$(SRCDIR)$(DIRSEP)clearsign.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)clearsign.c >clearsign_.c
 
-$(OBJDIR)/clearsign.o:	clearsign_.c clearsign.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/clearsign.o -c clearsign_.c
+$(OBJDIR)$(DIRSEP)clearsign.o:	clearsign_.c clearsign.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)clearsign.o -c clearsign_.c
 
 clearsign.h:	headers
-clone_.c:	$(SRCDIR)/clone.c translate
-	./translate $(SRCDIR)/clone.c >clone_.c
+clone_.c:	$(SRCDIR)$(DIRSEP)clone.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)clone.c >clone_.c
 
-$(OBJDIR)/clone.o:	clone_.c clone.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/clone.o -c clone_.c
+$(OBJDIR)$(DIRSEP)clone.o:	clone_.c clone.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)clone.o -c clone_.c
 
 clone.h:	headers
-comformat_.c:	$(SRCDIR)/comformat.c translate
-	./translate $(SRCDIR)/comformat.c >comformat_.c
+comformat_.c:	$(SRCDIR)$(DIRSEP)comformat.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)comformat.c >comformat_.c
 
-$(OBJDIR)/comformat.o:	comformat_.c comformat.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/comformat.o -c comformat_.c
+$(OBJDIR)$(DIRSEP)comformat.o:	comformat_.c comformat.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)comformat.o -c comformat_.c
 
 comformat.h:	headers
-configure_.c:	$(SRCDIR)/configure.c translate
-	./translate $(SRCDIR)/configure.c >configure_.c
+configure_.c:	$(SRCDIR)$(DIRSEP)configure.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)configure.c >configure_.c
 
-$(OBJDIR)/configure.o:	configure_.c configure.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/configure.o -c configure_.c
+$(OBJDIR)$(DIRSEP)configure.o:	configure_.c configure.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)configure.o -c configure_.c
 
 configure.h:	headers
-content_.c:	$(SRCDIR)/content.c translate
-	./translate $(SRCDIR)/content.c >content_.c
+content_.c:	$(SRCDIR)$(DIRSEP)content.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)content.c >content_.c
 
-$(OBJDIR)/content.o:	content_.c content.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/content.o -c content_.c
+$(OBJDIR)$(DIRSEP)content.o:	content_.c content.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)content.o -c content_.c
 
 content.h:	headers
-db_.c:	$(SRCDIR)/db.c translate
-	./translate $(SRCDIR)/db.c >db_.c
+db_.c:	$(SRCDIR)$(DIRSEP)db.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)db.c >db_.c
 
-$(OBJDIR)/db.o:	db_.c db.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/db.o -c db_.c
+$(OBJDIR)$(DIRSEP)db.o:	db_.c db.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)db.o -c db_.c
 
 db.h:	headers
-delta_.c:	$(SRCDIR)/delta.c translate
-	./translate $(SRCDIR)/delta.c >delta_.c
+delta_.c:	$(SRCDIR)$(DIRSEP)delta.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)delta.c >delta_.c
 
-$(OBJDIR)/delta.o:	delta_.c delta.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/delta.o -c delta_.c
+$(OBJDIR)$(DIRSEP)delta.o:	delta_.c delta.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)delta.o -c delta_.c
 
 delta.h:	headers
-deltacmd_.c:	$(SRCDIR)/deltacmd.c translate
-	./translate $(SRCDIR)/deltacmd.c >deltacmd_.c
+deltacmd_.c:	$(SRCDIR)$(DIRSEP)deltacmd.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)deltacmd.c >deltacmd_.c
 
-$(OBJDIR)/deltacmd.o:	deltacmd_.c deltacmd.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/deltacmd.o -c deltacmd_.c
+$(OBJDIR)$(DIRSEP)deltacmd.o:	deltacmd_.c deltacmd.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)deltacmd.o -c deltacmd_.c
 
 deltacmd.h:	headers
-descendants_.c:	$(SRCDIR)/descendants.c translate
-	./translate $(SRCDIR)/descendants.c >descendants_.c
+descendants_.c:	$(SRCDIR)$(DIRSEP)descendants.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)descendants.c >descendants_.c
 
-$(OBJDIR)/descendants.o:	descendants_.c descendants.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/descendants.o -c descendants_.c
+$(OBJDIR)$(DIRSEP)descendants.o:	descendants_.c descendants.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)descendants.o -c descendants_.c
 
 descendants.h:	headers
-diff_.c:	$(SRCDIR)/diff.c translate
-	./translate $(SRCDIR)/diff.c >diff_.c
+diff_.c:	$(SRCDIR)$(DIRSEP)diff.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)diff.c >diff_.c
 
-$(OBJDIR)/diff.o:	diff_.c diff.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/diff.o -c diff_.c
+$(OBJDIR)$(DIRSEP)diff.o:	diff_.c diff.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)diff.o -c diff_.c
 
 diff.h:	headers
-diffcmd_.c:	$(SRCDIR)/diffcmd.c translate
-	./translate $(SRCDIR)/diffcmd.c >diffcmd_.c
+diffcmd_.c:	$(SRCDIR)$(DIRSEP)diffcmd.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)diffcmd.c >diffcmd_.c
 
-$(OBJDIR)/diffcmd.o:	diffcmd_.c diffcmd.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/diffcmd.o -c diffcmd_.c
+$(OBJDIR)$(DIRSEP)diffcmd.o:	diffcmd_.c diffcmd.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)diffcmd.o -c diffcmd_.c
 
 diffcmd.h:	headers
-doc_.c:	$(SRCDIR)/doc.c translate
-	./translate $(SRCDIR)/doc.c >doc_.c
+doc_.c:	$(SRCDIR)$(DIRSEP)doc.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)doc.c >doc_.c
 
-$(OBJDIR)/doc.o:	doc_.c doc.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/doc.o -c doc_.c
+$(OBJDIR)$(DIRSEP)doc.o:	doc_.c doc.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)doc.o -c doc_.c
 
 doc.h:	headers
-encode_.c:	$(SRCDIR)/encode.c translate
-	./translate $(SRCDIR)/encode.c >encode_.c
+encode_.c:	$(SRCDIR)$(DIRSEP)encode.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)encode.c >encode_.c
 
-$(OBJDIR)/encode.o:	encode_.c encode.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/encode.o -c encode_.c
+$(OBJDIR)$(DIRSEP)encode.o:	encode_.c encode.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)encode.o -c encode_.c
 
 encode.h:	headers
-file_.c:	$(SRCDIR)/file.c translate
-	./translate $(SRCDIR)/file.c >file_.c
+file_.c:	$(SRCDIR)$(DIRSEP)file.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)file.c >file_.c
 
-$(OBJDIR)/file.o:	file_.c file.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/file.o -c file_.c
+$(OBJDIR)$(DIRSEP)file.o:	file_.c file.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)file.o -c file_.c
 
 file.h:	headers
-finfo_.c:	$(SRCDIR)/finfo.c translate
-	./translate $(SRCDIR)/finfo.c >finfo_.c
+finfo_.c:	$(SRCDIR)$(DIRSEP)finfo.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)finfo.c >finfo_.c
 
-$(OBJDIR)/finfo.o:	finfo_.c finfo.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/finfo.o -c finfo_.c
+$(OBJDIR)$(DIRSEP)finfo.o:	finfo_.c finfo.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)finfo.o -c finfo_.c
 
 finfo.h:	headers
-graph_.c:	$(SRCDIR)/graph.c translate
-	./translate $(SRCDIR)/graph.c >graph_.c
+graph_.c:	$(SRCDIR)$(DIRSEP)graph.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)graph.c >graph_.c
 
-$(OBJDIR)/graph.o:	graph_.c graph.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/graph.o -c graph_.c
+$(OBJDIR)$(DIRSEP)graph.o:	graph_.c graph.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)graph.o -c graph_.c
 
 graph.h:	headers
-http_.c:	$(SRCDIR)/http.c translate
-	./translate $(SRCDIR)/http.c >http_.c
+http_.c:	$(SRCDIR)$(DIRSEP)http.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)http.c >http_.c
 
-$(OBJDIR)/http.o:	http_.c http.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/http.o -c http_.c
+$(OBJDIR)$(DIRSEP)http.o:	http_.c http.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)http.o -c http_.c
 
 http.h:	headers
-http_socket_.c:	$(SRCDIR)/http_socket.c translate
-	./translate $(SRCDIR)/http_socket.c >http_socket_.c
+http_socket_.c:	$(SRCDIR)$(DIRSEP)http_socket.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)http_socket.c >http_socket_.c
 
-$(OBJDIR)/http_socket.o:	http_socket_.c http_socket.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/http_socket.o -c http_socket_.c
+$(OBJDIR)$(DIRSEP)http_socket.o:	http_socket_.c http_socket.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)http_socket.o -c http_socket_.c
 
 http_socket.h:	headers
-http_ssl_.c:	$(SRCDIR)/http_ssl.c translate
-	./translate $(SRCDIR)/http_ssl.c >http_ssl_.c
+http_ssl_.c:	$(SRCDIR)$(DIRSEP)http_ssl.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)http_ssl.c >http_ssl_.c
 
-$(OBJDIR)/http_ssl.o:	http_ssl_.c http_ssl.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/http_ssl.o -c http_ssl_.c
+$(OBJDIR)$(DIRSEP)http_ssl.o:	http_ssl_.c http_ssl.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)http_ssl.o -c http_ssl_.c
 
 http_ssl.h:	headers
-http_transport_.c:	$(SRCDIR)/http_transport.c translate
-	./translate $(SRCDIR)/http_transport.c >http_transport_.c
+http_transport_.c:	$(SRCDIR)$(DIRSEP)http_transport.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)http_transport.c >http_transport_.c
 
-$(OBJDIR)/http_transport.o:	http_transport_.c http_transport.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/http_transport.o -c http_transport_.c
+$(OBJDIR)$(DIRSEP)http_transport.o:	http_transport_.c http_transport.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)http_transport.o -c http_transport_.c
 
 http_transport.h:	headers
-info_.c:	$(SRCDIR)/info.c translate
-	./translate $(SRCDIR)/info.c >info_.c
+info_.c:	$(SRCDIR)$(DIRSEP)info.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)info.c >info_.c
 
-$(OBJDIR)/info.o:	info_.c info.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/info.o -c info_.c
+$(OBJDIR)$(DIRSEP)info.o:	info_.c info.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)info.o -c info_.c
 
 info.h:	headers
-login_.c:	$(SRCDIR)/login.c translate
-	./translate $(SRCDIR)/login.c >login_.c
+login_.c:	$(SRCDIR)$(DIRSEP)login.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)login.c >login_.c
 
-$(OBJDIR)/login.o:	login_.c login.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/login.o -c login_.c
+$(OBJDIR)$(DIRSEP)login.o:	login_.c login.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)login.o -c login_.c
 
 login.h:	headers
-main_.c:	$(SRCDIR)/main.c translate
-	./translate $(SRCDIR)/main.c >main_.c
+main_.c:	$(SRCDIR)$(DIRSEP)main.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)main.c >main_.c
 
-$(OBJDIR)/main.o:	main_.c main.h page_index.h $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/main.o -c main_.c
+$(OBJDIR)$(DIRSEP)main.o:	main_.c main.h page_index.h $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)main.o -c main_.c
 
 main.h:	headers
-manifest_.c:	$(SRCDIR)/manifest.c translate
-	./translate $(SRCDIR)/manifest.c >manifest_.c
+manifest_.c:	$(SRCDIR)$(DIRSEP)manifest.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)manifest.c >manifest_.c
 
-$(OBJDIR)/manifest.o:	manifest_.c manifest.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/manifest.o -c manifest_.c
+$(OBJDIR)$(DIRSEP)manifest.o:	manifest_.c manifest.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)manifest.o -c manifest_.c
 
 manifest.h:	headers
-md5_.c:	$(SRCDIR)/md5.c translate
-	./translate $(SRCDIR)/md5.c >md5_.c
+md5_.c:	$(SRCDIR)$(DIRSEP)md5.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)md5.c >md5_.c
 
-$(OBJDIR)/md5.o:	md5_.c md5.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/md5.o -c md5_.c
+$(OBJDIR)$(DIRSEP)md5.o:	md5_.c md5.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)md5.o -c md5_.c
 
 md5.h:	headers
-merge_.c:	$(SRCDIR)/merge.c translate
-	./translate $(SRCDIR)/merge.c >merge_.c
+merge_.c:	$(SRCDIR)$(DIRSEP)merge.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)merge.c >merge_.c
 
-$(OBJDIR)/merge.o:	merge_.c merge.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/merge.o -c merge_.c
+$(OBJDIR)$(DIRSEP)merge.o:	merge_.c merge.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)merge.o -c merge_.c
 
 merge.h:	headers
-merge3_.c:	$(SRCDIR)/merge3.c translate
-	./translate $(SRCDIR)/merge3.c >merge3_.c
+merge3_.c:	$(SRCDIR)$(DIRSEP)merge3.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)merge3.c >merge3_.c
 
-$(OBJDIR)/merge3.o:	merge3_.c merge3.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/merge3.o -c merge3_.c
+$(OBJDIR)$(DIRSEP)merge3.o:	merge3_.c merge3.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)merge3.o -c merge3_.c
 
 merge3.h:	headers
-name_.c:	$(SRCDIR)/name.c translate
-	./translate $(SRCDIR)/name.c >name_.c
+name_.c:	$(SRCDIR)$(DIRSEP)name.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)name.c >name_.c
 
-$(OBJDIR)/name.o:	name_.c name.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/name.o -c name_.c
+$(OBJDIR)$(DIRSEP)name.o:	name_.c name.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)name.o -c name_.c
 
 name.h:	headers
-pivot_.c:	$(SRCDIR)/pivot.c translate
-	./translate $(SRCDIR)/pivot.c >pivot_.c
+pivot_.c:	$(SRCDIR)$(DIRSEP)pivot.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)pivot.c >pivot_.c
 
-$(OBJDIR)/pivot.o:	pivot_.c pivot.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/pivot.o -c pivot_.c
+$(OBJDIR)$(DIRSEP)pivot.o:	pivot_.c pivot.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)pivot.o -c pivot_.c
 
 pivot.h:	headers
-pqueue_.c:	$(SRCDIR)/pqueue.c translate
-	./translate $(SRCDIR)/pqueue.c >pqueue_.c
+pqueue_.c:	$(SRCDIR)$(DIRSEP)pqueue.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)pqueue.c >pqueue_.c
 
-$(OBJDIR)/pqueue.o:	pqueue_.c pqueue.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/pqueue.o -c pqueue_.c
+$(OBJDIR)$(DIRSEP)pqueue.o:	pqueue_.c pqueue.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)pqueue.o -c pqueue_.c
 
 pqueue.h:	headers
-printf_.c:	$(SRCDIR)/printf.c translate
-	./translate $(SRCDIR)/printf.c >printf_.c
+printf_.c:	$(SRCDIR)$(DIRSEP)printf.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)printf.c >printf_.c
 
-$(OBJDIR)/printf.o:	printf_.c printf.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/printf.o -c printf_.c
+$(OBJDIR)$(DIRSEP)printf.o:	printf_.c printf.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)printf.o -c printf_.c
 
 printf.h:	headers
-rebuild_.c:	$(SRCDIR)/rebuild.c translate
-	./translate $(SRCDIR)/rebuild.c >rebuild_.c
+rebuild_.c:	$(SRCDIR)$(DIRSEP)rebuild.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)rebuild.c >rebuild_.c
 
-$(OBJDIR)/rebuild.o:	rebuild_.c rebuild.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/rebuild.o -c rebuild_.c
+$(OBJDIR)$(DIRSEP)rebuild.o:	rebuild_.c rebuild.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)rebuild.o -c rebuild_.c
 
 rebuild.h:	headers
-report_.c:	$(SRCDIR)/report.c translate
-	./translate $(SRCDIR)/report.c >report_.c
+report_.c:	$(SRCDIR)$(DIRSEP)report.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)report.c >report_.c
 
-$(OBJDIR)/report.o:	report_.c report.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/report.o -c report_.c
+$(OBJDIR)$(DIRSEP)report.o:	report_.c report.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)report.o -c report_.c
 
 report.h:	headers
-rss_.c:	$(SRCDIR)/rss.c translate
-	./translate $(SRCDIR)/rss.c >rss_.c
+rss_.c:	$(SRCDIR)$(DIRSEP)rss.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)rss.c >rss_.c
 
-$(OBJDIR)/rss.o:	rss_.c rss.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/rss.o -c rss_.c
+$(OBJDIR)$(DIRSEP)rss.o:	rss_.c rss.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)rss.o -c rss_.c
 
 rss.h:	headers
-schema_.c:	$(SRCDIR)/schema.c translate
-	./translate $(SRCDIR)/schema.c >schema_.c
+schema_.c:	$(SRCDIR)$(DIRSEP)schema.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)schema.c >schema_.c
 
-$(OBJDIR)/schema.o:	schema_.c schema.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/schema.o -c schema_.c
+$(OBJDIR)$(DIRSEP)schema.o:	schema_.c schema.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)schema.o -c schema_.c
 
 schema.h:	headers
-search_.c:	$(SRCDIR)/search.c translate
-	./translate $(SRCDIR)/search.c >search_.c
+search_.c:	$(SRCDIR)$(DIRSEP)search.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)search.c >search_.c
 
-$(OBJDIR)/search.o:	search_.c search.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/search.o -c search_.c
+$(OBJDIR)$(DIRSEP)search.o:	search_.c search.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)search.o -c search_.c
 
 search.h:	headers
-setup_.c:	$(SRCDIR)/setup.c translate
-	./translate $(SRCDIR)/setup.c >setup_.c
+setup_.c:	$(SRCDIR)$(DIRSEP)setup.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)setup.c >setup_.c
 
-$(OBJDIR)/setup.o:	setup_.c setup.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/setup.o -c setup_.c
+$(OBJDIR)$(DIRSEP)setup.o:	setup_.c setup.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)setup.o -c setup_.c
 
 setup.h:	headers
-sha1_.c:	$(SRCDIR)/sha1.c translate
-	./translate $(SRCDIR)/sha1.c >sha1_.c
+sha1_.c:	$(SRCDIR)$(DIRSEP)sha1.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)sha1.c >sha1_.c
 
-$(OBJDIR)/sha1.o:	sha1_.c sha1.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/sha1.o -c sha1_.c
+$(OBJDIR)$(DIRSEP)sha1.o:	sha1_.c sha1.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)sha1.o -c sha1_.c
 
 sha1.h:	headers
-shun_.c:	$(SRCDIR)/shun.c translate
-	./translate $(SRCDIR)/shun.c >shun_.c
+shun_.c:	$(SRCDIR)$(DIRSEP)shun.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)shun.c >shun_.c
 
-$(OBJDIR)/shun.o:	shun_.c shun.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/shun.o -c shun_.c
+$(OBJDIR)$(DIRSEP)shun.o:	shun_.c shun.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)shun.o -c shun_.c
 
 shun.h:	headers
-skins_.c:	$(SRCDIR)/skins.c translate
-	./translate $(SRCDIR)/skins.c >skins_.c
+skins_.c:	$(SRCDIR)$(DIRSEP)skins.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)skins.c >skins_.c
 
-$(OBJDIR)/skins.o:	skins_.c skins.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/skins.o -c skins_.c
+$(OBJDIR)$(DIRSEP)skins.o:	skins_.c skins.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)skins.o -c skins_.c
 
 skins.h:	headers
-stat_.c:	$(SRCDIR)/stat.c translate
-	./translate $(SRCDIR)/stat.c >stat_.c
+stat_.c:	$(SRCDIR)$(DIRSEP)stat.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)stat.c >stat_.c
 
-$(OBJDIR)/stat.o:	stat_.c stat.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/stat.o -c stat_.c
+$(OBJDIR)$(DIRSEP)stat.o:	stat_.c stat.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)stat.o -c stat_.c
 
 stat.h:	headers
-style_.c:	$(SRCDIR)/style.c translate
-	./translate $(SRCDIR)/style.c >style_.c
+style_.c:	$(SRCDIR)$(DIRSEP)style.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)style.c >style_.c
 
-$(OBJDIR)/style.o:	style_.c style.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/style.o -c style_.c
+$(OBJDIR)$(DIRSEP)style.o:	style_.c style.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)style.o -c style_.c
 
 style.h:	headers
-sync_.c:	$(SRCDIR)/sync.c translate
-	./translate $(SRCDIR)/sync.c >sync_.c
+sync_.c:	$(SRCDIR)$(DIRSEP)sync.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)sync.c >sync_.c
 
-$(OBJDIR)/sync.o:	sync_.c sync.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/sync.o -c sync_.c
+$(OBJDIR)$(DIRSEP)sync.o:	sync_.c sync.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)sync.o -c sync_.c
 
 sync.h:	headers
-tag_.c:	$(SRCDIR)/tag.c translate
-	./translate $(SRCDIR)/tag.c >tag_.c
+tag_.c:	$(SRCDIR)$(DIRSEP)tag.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)tag.c >tag_.c
 
-$(OBJDIR)/tag.o:	tag_.c tag.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/tag.o -c tag_.c
+$(OBJDIR)$(DIRSEP)tag.o:	tag_.c tag.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)tag.o -c tag_.c
 
 tag.h:	headers
-th_main_.c:	$(SRCDIR)/th_main.c translate
-	./translate $(SRCDIR)/th_main.c >th_main_.c
+th_main_.c:	$(SRCDIR)$(DIRSEP)th_main.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)th_main.c >th_main_.c
 
-$(OBJDIR)/th_main.o:	th_main_.c th_main.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/th_main.o -c th_main_.c
+$(OBJDIR)$(DIRSEP)th_main.o:	th_main_.c th_main.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)th_main.o -c th_main_.c
 
 th_main.h:	headers
-timeline_.c:	$(SRCDIR)/timeline.c translate
-	./translate $(SRCDIR)/timeline.c >timeline_.c
+timeline_.c:	$(SRCDIR)$(DIRSEP)timeline.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)timeline.c >timeline_.c
 
-$(OBJDIR)/timeline.o:	timeline_.c timeline.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/timeline.o -c timeline_.c
+$(OBJDIR)$(DIRSEP)timeline.o:	timeline_.c timeline.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)timeline.o -c timeline_.c
 
 timeline.h:	headers
-tkt_.c:	$(SRCDIR)/tkt.c translate
-	./translate $(SRCDIR)/tkt.c >tkt_.c
+tkt_.c:	$(SRCDIR)$(DIRSEP)tkt.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)tkt.c >tkt_.c
 
-$(OBJDIR)/tkt.o:	tkt_.c tkt.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/tkt.o -c tkt_.c
+$(OBJDIR)$(DIRSEP)tkt.o:	tkt_.c tkt.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)tkt.o -c tkt_.c
 
 tkt.h:	headers
-tktsetup_.c:	$(SRCDIR)/tktsetup.c translate
-	./translate $(SRCDIR)/tktsetup.c >tktsetup_.c
+tktsetup_.c:	$(SRCDIR)$(DIRSEP)tktsetup.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)tktsetup.c >tktsetup_.c
 
-$(OBJDIR)/tktsetup.o:	tktsetup_.c tktsetup.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/tktsetup.o -c tktsetup_.c
+$(OBJDIR)$(DIRSEP)tktsetup.o:	tktsetup_.c tktsetup.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)tktsetup.o -c tktsetup_.c
 
 tktsetup.h:	headers
-undo_.c:	$(SRCDIR)/undo.c translate
-	./translate $(SRCDIR)/undo.c >undo_.c
+undo_.c:	$(SRCDIR)$(DIRSEP)undo.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)undo.c >undo_.c
 
-$(OBJDIR)/undo.o:	undo_.c undo.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/undo.o -c undo_.c
+$(OBJDIR)$(DIRSEP)undo.o:	undo_.c undo.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)undo.o -c undo_.c
 
 undo.h:	headers
-update_.c:	$(SRCDIR)/update.c translate
-	./translate $(SRCDIR)/update.c >update_.c
+update_.c:	$(SRCDIR)$(DIRSEP)update.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)update.c >update_.c
 
-$(OBJDIR)/update.o:	update_.c update.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/update.o -c update_.c
+$(OBJDIR)$(DIRSEP)update.o:	update_.c update.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)update.o -c update_.c
 
 update.h:	headers
-url_.c:	$(SRCDIR)/url.c translate
-	./translate $(SRCDIR)/url.c >url_.c
+url_.c:	$(SRCDIR)$(DIRSEP)url.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)url.c >url_.c
 
-$(OBJDIR)/url.o:	url_.c url.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/url.o -c url_.c
+$(OBJDIR)$(DIRSEP)url.o:	url_.c url.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)url.o -c url_.c
 
 url.h:	headers
-user_.c:	$(SRCDIR)/user.c translate
-	./translate $(SRCDIR)/user.c >user_.c
+user_.c:	$(SRCDIR)$(DIRSEP)user.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)user.c >user_.c
 
-$(OBJDIR)/user.o:	user_.c user.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/user.o -c user_.c
+$(OBJDIR)$(DIRSEP)user.o:	user_.c user.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)user.o -c user_.c
 
 user.h:	headers
-verify_.c:	$(SRCDIR)/verify.c translate
-	./translate $(SRCDIR)/verify.c >verify_.c
+verify_.c:	$(SRCDIR)$(DIRSEP)verify.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)verify.c >verify_.c
 
-$(OBJDIR)/verify.o:	verify_.c verify.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/verify.o -c verify_.c
+$(OBJDIR)$(DIRSEP)verify.o:	verify_.c verify.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)verify.o -c verify_.c
 
 verify.h:	headers
-vfile_.c:	$(SRCDIR)/vfile.c translate
-	./translate $(SRCDIR)/vfile.c >vfile_.c
+vfile_.c:	$(SRCDIR)$(DIRSEP)vfile.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)vfile.c >vfile_.c
 
-$(OBJDIR)/vfile.o:	vfile_.c vfile.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/vfile.o -c vfile_.c
+$(OBJDIR)$(DIRSEP)vfile.o:	vfile_.c vfile.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)vfile.o -c vfile_.c
 
 vfile.h:	headers
-wiki_.c:	$(SRCDIR)/wiki.c translate
-	./translate $(SRCDIR)/wiki.c >wiki_.c
+wiki_.c:	$(SRCDIR)$(DIRSEP)wiki.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)wiki.c >wiki_.c
 
-$(OBJDIR)/wiki.o:	wiki_.c wiki.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/wiki.o -c wiki_.c
+$(OBJDIR)$(DIRSEP)wiki.o:	wiki_.c wiki.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)wiki.o -c wiki_.c
 
 wiki.h:	headers
-wikiformat_.c:	$(SRCDIR)/wikiformat.c translate
-	./translate $(SRCDIR)/wikiformat.c >wikiformat_.c
+wikiformat_.c:	$(SRCDIR)$(DIRSEP)wikiformat.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)wikiformat.c >wikiformat_.c
 
-$(OBJDIR)/wikiformat.o:	wikiformat_.c wikiformat.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/wikiformat.o -c wikiformat_.c
+$(OBJDIR)$(DIRSEP)wikiformat.o:	wikiformat_.c wikiformat.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)wikiformat.o -c wikiformat_.c
 
 wikiformat.h:	headers
-winhttp_.c:	$(SRCDIR)/winhttp.c translate
-	./translate $(SRCDIR)/winhttp.c >winhttp_.c
+winhttp_.c:	$(SRCDIR)$(DIRSEP)winhttp.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)winhttp.c >winhttp_.c
 
-$(OBJDIR)/winhttp.o:	winhttp_.c winhttp.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/winhttp.o -c winhttp_.c
+$(OBJDIR)$(DIRSEP)winhttp.o:	winhttp_.c winhttp.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)winhttp.o -c winhttp_.c
 
 winhttp.h:	headers
-xfer_.c:	$(SRCDIR)/xfer.c translate
-	./translate $(SRCDIR)/xfer.c >xfer_.c
+xfer_.c:	$(SRCDIR)$(DIRSEP)xfer.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)xfer.c >xfer_.c
 
-$(OBJDIR)/xfer.o:	xfer_.c xfer.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/xfer.o -c xfer_.c
+$(OBJDIR)$(DIRSEP)xfer.o:	xfer_.c xfer.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)xfer.o -c xfer_.c
 
 xfer.h:	headers
-zip_.c:	$(SRCDIR)/zip.c translate
-	./translate $(SRCDIR)/zip.c >zip_.c
+zip_.c:	$(SRCDIR)$(DIRSEP)zip.c translate
+	.$(DIRSEP)translate $(SRCDIR)$(DIRSEP)zip.c >zip_.c
 
-$(OBJDIR)/zip.o:	zip_.c zip.h  $(SRCDIR)/config.h
-	$(XTCC) -o $(OBJDIR)/zip.o -c zip_.c
+$(OBJDIR)$(DIRSEP)zip.o:	zip_.c zip.h  $(SRCDIR)$(DIRSEP)config.h
+	$(XTCC) -o $(OBJDIR)$(DIRSEP)zip.o -c zip_.c
 
 zip.h:	headers
-$(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
+$(OBJDIR)$(DIRSEP)sqlite3.o:	$(SRCDIR)$(DIRSEP)sqlite3.c
+	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)$(DIRSEP)sqlite3.c -o $(OBJDIR)$(DIRSEP)sqlite3.o
 
-$(OBJDIR)/th.o:	$(SRCDIR)/th.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o
+$(OBJDIR)$(DIRSEP)th.o:	$(SRCDIR)$(DIRSEP)th.c
+	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)$(DIRSEP)th.c -o $(OBJDIR)$(DIRSEP)th.o
 
-$(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_lang.c -o $(OBJDIR)/th_lang.o
+$(OBJDIR)$(DIRSEP)th_lang.o:	$(SRCDIR)$(DIRSEP)th_lang.c
+	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)$(DIRSEP)th_lang.c -o $(OBJDIR)$(DIRSEP)th_lang.o
 

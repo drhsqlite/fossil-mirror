@@ -4,8 +4,10 @@
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
 #
-SRCDIR = ./src
-OBJDIR = ./wobj
+DIRSEP = \\
+OPERATING_SYSTEM = windows
+SRCDIR = .$(DIRSEP)src
+OBJDIR = .$(DIRSEP)wobj
 
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
