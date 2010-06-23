@@ -1,5 +1,5 @@
-C Merge\squickstart.wiki\schanges\sinto\sthe\strunk.
-D 2010-06-23T11:48:55
+C Do\snot\stry\sto\sdrop\ssystem\stables\swhen\srebuilding\sa\srepository.\nTicket\s[7c700d2f28838490].
+D 2010-06-23T11:54:38
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -82,7 +82,7 @@ F src/name.c dfa2269302e21780aa21f071184d7da8bf76f15c
 F src/pivot.c f86b6fe0745aae349da0f94cdfa69a314331b001
 F src/pqueue.c fc6bdd1de56fbe7d2c058c525c8dc4201bd5b36e
 F src/printf.c 12bfcbcc8de180020aadadc649f08d2ef8ab2d60
-F src/rebuild.c 389779aca55e66ab58d2ed434f260adc6dadee86
+F src/rebuild.c 466cf05d20539b70599cde14c745443a77524a04
 F src/report.c 2a77ae11cd2118786d012df1564957dc2d1eda90
 F src/rss.c b7b02e66795a320c7d8f54bfaf76ff8d6ecec15b
 F src/schema.c b6e9b512663c44bad56b179c6a17c10e7613f832
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P b9a744e1c4d842a289a9cb350085ca4935633e83 17075ffb37c69a35cc10662a2c1fc0468599050e
-R 6d90423b6b829b9a732abc787b262c31
+P c6cfa4ebc41aa2bb2f362b13bb8db2c2abb5d4b8
+R 6023d8884004d606de6a88d18b901b22
 U drh
-Z ea64f85e92cc9170b9b467805a94b071
+Z 2a43fb793d12fde8e0b2fe0178b87354

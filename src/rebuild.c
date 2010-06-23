@@ -216,6 +216,7 @@ int rebuild_db(int randomize, int doOut){
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
                          "'concealed')"
+       " AND name NOT GLOB 'sqlite_*'"
     );
     if( zTable==0 ) break;
     db_multi_exec("DROP TABLE %Q", zTable);
