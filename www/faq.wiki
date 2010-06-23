@@ -72,7 +72,7 @@ button.</blockquote></li>
 <blockquote>Use the <b>--private</b> command-line option on the 
 <b>commit</b> command.  The result will be a check-in which exists on
 your local repository only and is never pushed to other repositories.  
-All descendents of a private check-in are also private.
+All descendants of a private check-in are also private.
 
 Unless you specify something different using the <b>--branch</b> and/or
 <b>--bgcolor</b> options, the new private check-in will be put on a branch

@@ -40,7 +40,7 @@ Why create your own DVCS when you could have reused mercurial?</b>
        the server. </li>
   <li> Fossil is lightweight and fully self-contained.  It is very easy 
        to setup on a low-resource machine. Fossil does not require an
-       administator.</li>
+       administrator.</li>
   <li> Fossil integrates code versioning into the same repository with
        wiki and tickets.  There is nothing extra to add or install.
        Fossil is an all-in-one turnkey solution. </li>
@@ -72,8 +72,8 @@ Linksys Router's administration screen.</p>
 To me, it is more important to have a reliable, fast, efficient,
 enduring, and simple DVCS than one that looks pretty.</p>
 
-<p>On the other hand, if you have patches that improve the apparance
-of Fossil without seriously compromising its reliablity, performance,
+<p>On the other hand, if you have patches that improve the appearance
+of Fossil without seriously compromising its reliability, performance,
 and/or maintainability, I will be happy to accept them.  Fossil is
 self-hosting.  Send email to request a password that will let
 you push to the main fossil repository.</p>

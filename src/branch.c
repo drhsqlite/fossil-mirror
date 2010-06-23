@@ -254,7 +254,7 @@ void brlist_page(void){
       cnt++;
     }
     if( g.okHistory ){
-      @ <li><a href="%s(g.zBaseURL)/timeline?t=%T(zBr)">%h(zBr)</a></li>
+      @ <li><a href="%s(g.zBaseURL)/timeline?r=%T(zBr)">%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
     }
@@ -282,7 +282,7 @@ void brlist_page(void){
       cnt++;     
     }
     if( g.okHistory ){
-      @ <li><a href="%s(g.zBaseURL)/timeline?t=%T(zBr)">%h(zBr)</a></li>
+      @ <li><a href="%s(g.zBaseURL)/timeline?r=%T(zBr)">%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
     }
@@ -320,7 +320,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ <a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">[timeline]</a>
+    @ <a href="%s(g.zBaseURL)/timeline?r=%T(zTagName)">[timeline]</a>
   }
   db_finalize(&q);
 }

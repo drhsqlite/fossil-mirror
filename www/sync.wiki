@@ -28,8 +28,8 @@ shared to a few hundred.</p>
 <p>Each repository also has local state.  The local state determines
 the web-page formatting preferences, authorized users, ticket formats,
 and similar information that varies from one repository to another.
-The local state is not transfered by the <b>push</b>, <b>pull</b>,
-and <b>sync</b> command, though some local state is transfered during
+The local state is not transferred by the <b>push</b>, <b>pull</b>,
+and <b>sync</b> command, though some local state is transferred during
 a <b>clone</b> in order to initialize the local state of the new
 repository.  The <b>configuration push</b> and <b>configuration pull</b>
 commands can be used to send or receive local state.</p>

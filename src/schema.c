@@ -218,7 +218,7 @@ const char zRepositorySchema2[] =
 @   mtime DATETIME,                 -- the date/time stamp on cid
 @   UNIQUE(pid, cid)
 @ );
-@ CREATE INDEX plink_i2 ON plink(cid);
+@ CREATE INDEX plink_i2 ON plink(cid,pid);
 @
 @ -- Events used to generate a timeline
 @ --

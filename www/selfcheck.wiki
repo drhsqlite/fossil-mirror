@@ -32,10 +32,10 @@ is rolled back and the database is unchanged.
 
 <h2>Verification Of Delta Encodings Prior To Transaction Commit</h2>
 
-The content files that comprise the global state of a fossil respository
+The content files that comprise the global state of a fossil repository
 are stored in the repository as a tree.  The leaves of the tree are
 stored as zlib-compressed BLOBs.  Interior nodes are deltas from their
-decendants.  A lot of encoding is going on.  There is
+descendants.  A lot of encoding is going on.  There is
 zlib-compression which is relatively well-tested but still might
 cause corruption if used improperly.  And there is the relatively
 new delta-encoding mechanism designed expressly for fossil.  We want
@@ -66,7 +66,7 @@ files.
 <h2>Checksum Over All Files In A Check-in</h2>
 
 Manifest artifacts that define a check-in have two fields (the
-R-card and Z-card) that record MD5 hashs of the manifest itself
+R-card and Z-card) that record MD5 hashes of the manifest itself
 and of all other files in the manifest.  Prior to any check-in
 commit, these checksums are verified to ensure that the check-in
 checked in agrees exactly with what is on disk.  Similarly,

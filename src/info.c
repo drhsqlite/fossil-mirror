@@ -204,7 +204,7 @@ static void showTags(int rid, const char *zNotGlob){
       }
       if( zValue && strcmp(zTagname,"branch")==0 ){
         @ &nbsp;&nbsp;
-        @ <a href="%s(g.zBaseURL)/timeline?t=%T(zValue)">branch timeline</a>
+        @ <a href="%s(g.zBaseURL)/timeline?r=%T(zValue)">branch timeline</a>
       }
     }
     if( zSrcUuid && zSrcUuid[0] ){
@@ -353,7 +353,7 @@ void ci_page(void){
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
       while( db_step(&q)==SQLITE_ROW ){
         const char *zTagName = db_column_text(&q, 0);
-        @  | <a href="%s(g.zTop)/timeline?t=%T(zTagName)">%h(zTagName)</a>
+        @  | <a href="%s(g.zTop)/timeline?r=%T(zTagName)">%h(zTagName)</a>
       }
       db_finalize(&q);
       @ </td></tr>
@@ -1388,7 +1388,7 @@ void ci_edit_page(void){
   @ [<a href="ci?name=%s(zUuid)">%s(zUuid)</a>]:</p>
   @ <form action="%s(g.zBaseURL)/ci_edit" method="POST">
   login_insert_csrf_secret();
-  @ <input type="hidden" name="r" value="%d(rid)">
+  @ <input type="hidden" name="r" value="%S(zUuid)">
   @ <table border="0" cellspacing="10">
 
   @ <tr><td align="right" valign="top"><b>User:</b></td>

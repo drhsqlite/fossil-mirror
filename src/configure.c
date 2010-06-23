@@ -350,9 +350,9 @@ static void export_config(
       const char *zName = aConfig[i].zName;
       if( zName[0]!='@' ){
         char *zValue = db_text(0, 
-            "SELECT value FROM config WHERE name=%Q", zName);
+            "SELECT quote(value) FROM config WHERE name=%Q", zName);
         if( zValue ){
-          blob_appendf(&out,"REPLACE INTO config VALUES(%Q,%Q);\n", 
+          blob_appendf(&out,"REPLACE INTO config VALUES(%Q,%s);\n", 
                        zName, zValue);
         }
         free(zValue);

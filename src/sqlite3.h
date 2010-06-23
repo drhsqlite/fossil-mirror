@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.6.23"
-#define SQLITE_VERSION_NUMBER 3006023
-#define SQLITE_SOURCE_ID      "2010-04-15 23:24:29 f96782b389b5b97b488dc5814f7082e0393f64cd"
+#define SQLITE_VERSION        "3.7.0"
+#define SQLITE_VERSION_NUMBER 3007000
+#define SQLITE_SOURCE_ID      "2010-06-21 12:47:41 ee0acef1faffd480fd2136f81fb2b6f6a17b5388"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -393,7 +393,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_NOTFOUND    12   /* NOT USED. Table or record not found */
 #define SQLITE_FULL        13   /* Insertion failed because database is full */
 #define SQLITE_CANTOPEN    14   /* Unable to open the database file */
-#define SQLITE_PROTOCOL    15   /* NOT USED. Database lock protocol error */
+#define SQLITE_PROTOCOL    15   /* Database lock protocol error */
 #define SQLITE_EMPTY       16   /* Database is empty */
 #define SQLITE_SCHEMA      17   /* The database schema changed */
 #define SQLITE_TOOBIG      18   /* String or BLOB exceeds size limit */
@@ -449,7 +449,12 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_IOERR_LOCK              (SQLITE_IOERR | (15<<8))
 #define SQLITE_IOERR_CLOSE             (SQLITE_IOERR | (16<<8))
 #define SQLITE_IOERR_DIR_CLOSE         (SQLITE_IOERR | (17<<8))
-#define SQLITE_LOCKED_SHAREDCACHE      (SQLITE_LOCKED | (1<<8) )
+#define SQLITE_IOERR_SHMOPEN           (SQLITE_IOERR | (18<<8))
+#define SQLITE_IOERR_SHMSIZE           (SQLITE_IOERR | (19<<8))
+#define SQLITE_IOERR_SHMLOCK           (SQLITE_IOERR | (20<<8))
+#define SQLITE_LOCKED_SHAREDCACHE      (SQLITE_LOCKED |  (1<<8))
+#define SQLITE_BUSY_RECOVERY           (SQLITE_BUSY   |  (1<<8))
+#define SQLITE_CANTOPEN_NOTEMPDIR      (SQLITE_CANTOPEN | (1<<8))
 
 /*
 ** CAPI3REF: Flags For File Open Operations
@@ -497,17 +502,18 @@ SQLITE_API int sqlite3_exec(
 ** information is written to disk in the same order as calls
 ** to xWrite().
 */
-#define SQLITE_IOCAP_ATOMIC          0x00000001
-#define SQLITE_IOCAP_ATOMIC512       0x00000002
-#define SQLITE_IOCAP_ATOMIC1K        0x00000004
-#define SQLITE_IOCAP_ATOMIC2K        0x00000008
-#define SQLITE_IOCAP_ATOMIC4K        0x00000010
-#define SQLITE_IOCAP_ATOMIC8K        0x00000020
-#define SQLITE_IOCAP_ATOMIC16K       0x00000040
-#define SQLITE_IOCAP_ATOMIC32K       0x00000080
-#define SQLITE_IOCAP_ATOMIC64K       0x00000100
-#define SQLITE_IOCAP_SAFE_APPEND     0x00000200
-#define SQLITE_IOCAP_SEQUENTIAL      0x00000400
+#define SQLITE_IOCAP_ATOMIC                 0x00000001
+#define SQLITE_IOCAP_ATOMIC512              0x00000002
+#define SQLITE_IOCAP_ATOMIC1K               0x00000004
+#define SQLITE_IOCAP_ATOMIC2K               0x00000008
+#define SQLITE_IOCAP_ATOMIC4K               0x00000010
+#define SQLITE_IOCAP_ATOMIC8K               0x00000020
+#define SQLITE_IOCAP_ATOMIC16K              0x00000040
+#define SQLITE_IOCAP_ATOMIC32K              0x00000080
+#define SQLITE_IOCAP_ATOMIC64K              0x00000100
+#define SQLITE_IOCAP_SAFE_APPEND            0x00000200
+#define SQLITE_IOCAP_SEQUENTIAL             0x00000400
+#define SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN  0x00000800
 
 /*
 ** CAPI3REF: File Locking Levels
@@ -658,6 +664,13 @@ struct sqlite3_io_methods {
   int (*xFileControl)(sqlite3_file*, int op, void *pArg);
   int (*xSectorSize)(sqlite3_file*);
   int (*xDeviceCharacteristics)(sqlite3_file*);
+  /* Methods above are valid for version 1 */
+  int (*xShmOpen)(sqlite3_file*);
+  int (*xShmLock)(sqlite3_file*, int offset, int n, int flags);
+  int (*xShmMap)(sqlite3_file*, int iPage, int pgsz, int, void volatile**);
+  void (*xShmBarrier)(sqlite3_file*);
+  int (*xShmClose)(sqlite3_file*, int deleteFlag);
+  /* Methods above are valid for version 2 */
   /* Additional methods may be added in future releases */
 };
 
@@ -675,11 +688,19 @@ struct sqlite3_io_methods {
 ** into an integer that the pArg argument points to. This capability
 ** is used during testing and only needs to be supported when SQLITE_TEST
 ** is defined.
+**
+** The [SQLITE_FCNTL_SIZE_HINT] opcode is used by SQLite to give the VFS
+** layer a hint of how large the database file will grow to be during the
+** current transaction.  This hint is not guaranteed to be accurate but it
+** is often close.  The underlying VFS might choose to preallocate database
+** file space based on this hint in order to help writes to the database
+** file run faster.
 */
 #define SQLITE_FCNTL_LOCKSTATE        1
 #define SQLITE_GET_LOCKPROXYFILE      2
 #define SQLITE_SET_LOCKPROXYFILE      3
 #define SQLITE_LAST_ERRNO             4
+#define SQLITE_FCNTL_SIZE_HINT        5
 
 /*
 ** CAPI3REF: Mutex Handle
@@ -824,7 +845,7 @@ typedef struct sqlite3_mutex sqlite3_mutex;
 */
 typedef struct sqlite3_vfs sqlite3_vfs;
 struct sqlite3_vfs {
-  int iVersion;            /* Structure version number */
+  int iVersion;            /* Structure version number (currently 2) */
   int szOsFile;            /* Size of subclassed sqlite3_file */
   int mxPathname;          /* Maximum file pathname length */
   sqlite3_vfs *pNext;      /* Next registered VFS */
@@ -843,8 +864,17 @@ struct sqlite3_vfs {
   int (*xSleep)(sqlite3_vfs*, int microseconds);
   int (*xCurrentTime)(sqlite3_vfs*, double*);
   int (*xGetLastError)(sqlite3_vfs*, int, char *);
-  /* New fields may be appended in figure versions.  The iVersion
-  ** value will increment whenever this happens. */
+  /*
+  ** The methods above are in version 1 of the sqlite_vfs object
+  ** definition.  Those that follow are added in version 2 or later
+  */
+  int (*xRename)(sqlite3_vfs*, const char *zOld, const char *zNew, int dirSync);
+  int (*xCurrentTimeInt64)(sqlite3_vfs*, sqlite3_int64*);
+  /*
+  ** The methods above are in versions 1 and 2 of the sqlite_vfs object.
+  ** New fields may be appended in figure versions.  The iVersion
+  ** value will increment whenever this happens. 
+  */
 };
 
 /*
@@ -863,6 +893,44 @@ struct sqlite3_vfs {
 #define SQLITE_ACCESS_EXISTS    0
 #define SQLITE_ACCESS_READWRITE 1
 #define SQLITE_ACCESS_READ      2
+
+/*
+** CAPI3REF: Flags for the xShmLock VFS method
+**
+** These integer constants define the various locking operations
+** allowed by the xShmLock method of [sqlite3_io_methods].  The
+** following are the only legal combinations of flags to the
+** xShmLock method:
+**
+** <ul>
+** <li>  SQLITE_SHM_LOCK | SQLITE_SHM_SHARED
+** <li>  SQLITE_SHM_LOCK | SQLITE_SHM_EXCLUSIVE
+** <li>  SQLITE_SHM_UNLOCK | SQLITE_SHM_SHARED
+** <li>  SQLITE_SHM_UNLOCK | SQLITE_SHM_EXCLUSIVE
+** </ul>
+**
+** When unlocking, the same SHARED or EXCLUSIVE flag must be supplied as
+** was given no the corresponding lock.  
+**
+** The xShmLock method can transition between unlocked and SHARED or
+** between unlocked and EXCLUSIVE.  It cannot transition between SHARED
+** and EXCLUSIVE.
+*/
+#define SQLITE_SHM_UNLOCK       1
+#define SQLITE_SHM_LOCK         2
+#define SQLITE_SHM_SHARED       4
+#define SQLITE_SHM_EXCLUSIVE    8
+
+/*
+** CAPI3REF: Maximum xShmLock index
+**
+** The xShmLock method on [sqlite3_io_methods] may use values
+** between 0 and this upper bound as its "offset" argument.
+** The SQLite core will never attempt to acquire or release a
+** lock outside of this range
+*/
+#define SQLITE_SHM_NLOCK        8
+
 
 /*
 ** CAPI3REF: Initialize The SQLite Library
@@ -2889,6 +2957,14 @@ SQLITE_API const void *sqlite3_column_decltype16(sqlite3_stmt*,int);
 ** previously returned [SQLITE_ERROR] or [SQLITE_DONE].  Or it could
 ** be the case that the same database connection is being used by two or
 ** more threads at the same moment in time.
+**
+** For all versions of SQLite up to and including 3.6.23.1, it was required
+** after sqlite3_step() returned anything other than [SQLITE_ROW] that
+** [sqlite3_reset()] be called before any subsequent invocation of
+** sqlite3_step().  Failure to invoke [sqlite3_reset()] in this way would
+** result in an [SQLITE_MISUSE] return from sqlite3_step().  But after
+** version 3.6.23.1, sqlite3_step() began calling [sqlite3_reset()] 
+** automatically in this circumstance rather than returning [SQLITE_MISUSE].  
 **
 ** <b>Goofy Interface Alert:</b> In the legacy interface, the sqlite3_step()
 ** API always returns a generic error code, [SQLITE_ERROR], following any
@@ -4988,7 +5064,8 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_RESERVE                 14
 #define SQLITE_TESTCTRL_OPTIMIZATIONS           15
 #define SQLITE_TESTCTRL_ISKEYWORD               16
-#define SQLITE_TESTCTRL_LAST                    16
+#define SQLITE_TESTCTRL_PGHDRSZ                 17
+#define SQLITE_TESTCTRL_LAST                    17
 
 /*
 ** CAPI3REF: SQLite Runtime Status
@@ -5452,10 +5529,14 @@ typedef struct sqlite3_backup sqlite3_backup;
 ** [SQLITE_NOMEM], [SQLITE_BUSY], [SQLITE_LOCKED], or an
 ** [SQLITE_IOERR_ACCESS | SQLITE_IOERR_XXX] extended error code.
 **
-** ^The sqlite3_backup_step() might return [SQLITE_READONLY] if the destination
-** database was opened read-only or if
-** the destination is an in-memory database with a different page size
-** from the source database.
+** ^(The sqlite3_backup_step() might return [SQLITE_READONLY] if
+** <ol>
+** <li> the destination database was opened read-only, or
+** <li> the destination database is using write-ahead-log journaling
+** and the destination and source page sizes differ, or
+** <li> The destination database is an in-memory database and the
+** destination and source page sizes differ.
+** </ol>)^
 **
 ** ^If sqlite3_backup_step() cannot obtain a required file-system lock, then
 ** the [sqlite3_busy_handler | busy-handler function]
@@ -5722,6 +5803,89 @@ SQLITE_API int sqlite3_strnicmp(const char *, const char *, int);
 ** buffer.
 */
 SQLITE_API void sqlite3_log(int iErrCode, const char *zFormat, ...);
+
+/*
+** CAPI3REF: Write-Ahead Log Commit Hook
+**
+** ^The [sqlite3_wal_hook()] function is used to register a callback that
+** will be invoked each time a database connection commits data to a
+** [write-ahead log] (i.e. whenever a transaction is committed in
+** [journal_mode | journal_mode=WAL mode]). 
+**
+** ^The callback is invoked by SQLite after the commit has taken place and 
+** the associated write-lock on the database released, so the implementation 
+** may read, write or [checkpoint] the database as required.
+**
+** ^The first parameter passed to the callback function when it is invoked
+** is a copy of the third parameter passed to sqlite3_wal_hook() when
+** registering the callback. ^The second is a copy of the database handle.
+** ^The third parameter is the name of the database that was written to -
+** either "main" or the name of an [ATTACH]-ed database. ^The fourth parameter
+** is the number of pages currently in the write-ahead log file,
+** including those that were just committed.
+**
+** The callback function should normally return [SQLITE_OK].  ^If an error
+** code is returned, that error will propagate back up through the
+** SQLite code base to cause the statement that provoked the callback
+** to report an error, though the commit will have still occurred. If the
+** callback returns [SQLITE_ROW] or [SQLITE_DONE], or if it returns a value
+** that does not correspond to any valid SQLite error code, the results
+** are undefined.
+**
+** A single database handle may have at most a single write-ahead log callback 
+** registered at one time. ^Calling [sqlite3_wal_hook()] replaces any
+** previously registered write-ahead log callback. ^Note that the
+** [sqlite3_wal_autocheckpoint()] interface and the
+** [wal_autocheckpoint pragma] both invoke [sqlite3_wal_hook()] and will
+** those overwrite any prior [sqlite3_wal_hook()] settings.
+*/
+SQLITE_API void *sqlite3_wal_hook(
+  sqlite3*, 
+  int(*)(void *,sqlite3*,const char*,int),
+  void*
+);
+
+/*
+** CAPI3REF: Configure an auto-checkpoint
+**
+** ^The [sqlite3_wal_autocheckpoint(D,N)] is a wrapper around
+** [sqlite3_wal_hook()] that causes any database on [database connection] D
+** to automatically [checkpoint]
+** after committing a transaction if there are N or
+** more frames in the [write-ahead log] file.  ^Passing zero or 
+** a negative value as the nFrame parameter disables automatic
+** checkpoints entirely.
+**
+** ^The callback registered by this function replaces any existing callback
+** registered using [sqlite3_wal_hook()].  ^Likewise, registering a callback
+** using [sqlite3_wal_hook()] disables the automatic checkpoint mechanism
+** configured by this function.
+**
+** ^The [wal_autocheckpoint pragma] can be used to invoke this interface
+** from SQL.
+**
+** ^Every new [database connection] defaults to having the auto-checkpoint
+** enabled with a threshold of 1000 pages.  The use of this interface
+** is only necessary if the default setting is found to be suboptimal
+** for a particular application.
+*/
+SQLITE_API int sqlite3_wal_autocheckpoint(sqlite3 *db, int N);
+
+/*
+** CAPI3REF: Checkpoint a database
+**
+** ^The [sqlite3_wal_checkpoint(D,X)] interface causes database named X
+** on [database connection] D to be [checkpointed].  ^If X is NULL or an
+** empty string, then a checkpoint is run on all databases of
+** connection D.  ^If the database connection D is not in
+** [WAL | write-ahead log mode] then this interface is a harmless no-op.
+**
+** ^The [wal_checkpoint pragma] can be used to invoke this interface
+** from SQL.  ^The [sqlite3_wal_autocheckpoint()] interface and the
+** [wal_autocheckpoint pragma] can be used to cause this interface to be
+** run whenever the WAL reaches a certain size threshold.
+*/
+SQLITE_API int sqlite3_wal_checkpoint(sqlite3 *db, const char *zDb);
 
 /*
 ** Undo the hack that converts floating point types to integer for

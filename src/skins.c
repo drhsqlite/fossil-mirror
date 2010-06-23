@@ -32,7 +32,7 @@ static const char zBuiltinSkin1[] =
 @   margin: 0ex 1ex;
 @   padding: 0px;
 @   background-color: white;
-@   font-family: "sans serif";
+@   font-family: sans-serif;
 @ }
 @ 
 @ /* The project logo in the upper left-hand corner of each page */
@@ -44,6 +44,7 @@ static const char zBuiltinSkin1[] =
 @   font-weight: bold;
 @   background-color: #707070;
 @   color: #ffffff;
+@   min-width: 200px;
 @ }
 @ 
 @ /* The page title centered at the top of each page */
@@ -51,7 +52,7 @@ static const char zBuiltinSkin1[] =
 @   display: table-cell;
 @   font-size: 1.5em;
 @   font-weight: bold;
-@   text-align: left;
+@   text-align: center;
 @   padding: 0 0 0 10px;
 @   color: #404040;
 @   vertical-align: bottom;
@@ -66,6 +67,7 @@ static const char zBuiltinSkin1[] =
 @   color: #404040;
 @   font-size: 0.8em;
 @   font-weight: bold;
+@   min-width: 200px;
 @ }
 @ 
 @ /* The header across the top of the page */
@@ -163,11 +165,9 @@ static const char zBuiltinSkin1[] =
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <nobr>$<project_name></nobr>
+@     <img src="$baseurl/logo" alt="logo">
 @   </div>
-@ </div>
-@ <div class="header">
-@   <div class="title">$<title></div>
+@   <div class="title"><small>$<project_name></small><br>$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
@@ -802,8 +802,9 @@ void setup_skin(void){
   style_header("Skins");
   @ <p>A "skin" is a combination of
   @ <a href="setup_editcss">CSS</a>, 
-  @ <a href="setup_header">Header</a>, and 
-  @ <a href="setup_footer">Footer</a> that determines the look and feel
+  @ <a href="setup_header">Header</a>,
+  @ <a href="setup_footer">Footer</a>, and
+  @ <a href="setup_logo">Logo</a> that determines the look and feel
   @ of the web interface.</p>
   @
   @ <h2>Available Skins:</h2>

@@ -10,7 +10,7 @@ Fossil uses [/wiki_rules | wiki markup] for many things:
 
 The [/wiki_rules | formatting rules] for fossil wiki
 are designed to be simple and intuitive.  The idea is that wiki provides
-paragraph breaks, numbered and bulletted lists, and hyperlinking for
+paragraph breaks, numbered and bulleted lists, and hyperlinking for
 simple documents together with a safe subset of HTML for more complex
 formatting tasks.
 
@@ -57,7 +57,7 @@ of type [./fileformat.wiki#wikichng | "Wiki Page"].
 Files in the source tree that use the ".wiki" suffix can be accessed
 and displayed using special URLs to the fossil server.  This allows
 project documentation to be stored in the source tree and accessed 
-online.  (Details are descripted [./embeddeddoc.wiki | separately].)
+online.  (Details are described [./embeddeddoc.wiki | separately].)
 
 Some project prefer to store their documentation in wiki.  There is nothing
 wrong with that.  But other projects prefer to keep documentation as part
@@ -66,7 +66,7 @@ so that only developers with check-in privileges can change it.
 Embedded documentation serves this latter purpose.  Both forms of documentation
 use the exact same wiki markup language.  Some projects may choose to
 use both forms of documentation at the same time.  Because the same
-format is used, it is trival to move file from wiki to embedded documentation
+format is used, it is trivial to move file from wiki to embedded documentation
 or back again as the project evolves.
 
 <h2>Bug-reports and check-in comments</h2>

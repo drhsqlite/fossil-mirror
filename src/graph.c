@@ -297,8 +297,11 @@ void graph_finish(GraphContext *p, int omitDescenders){
         }
         mask = 1<<(pRow->iRail);
         if( omitDescenders ){
-          pRow->railInUse |= mask;
           if( pRow->pNext ) pRow->pNext->railInUse |= mask;
+          for(pDesc=pRow; pDesc; pDesc=pDesc->pPrev){
+            pDesc->railInUse |= mask;
+            if( pDesc->zBranch==pRow->zBranch && pDesc->isLeaf ) break;
+          }
         }else{
           pRow->bDescender = pRow->nParent>0;
           for(pDesc=pRow; pDesc; pDesc=pDesc->pNext){
