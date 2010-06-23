@@ -1,5 +1,5 @@
-C Prompt\sthe\suser\sfor\spermission\sto\soverwrite\sfiles\son\s"fossil\sopen".\nTicket\s[17389900b2e5bd816]
-D 2010-06-23T13:30:32
+C Update\sto\sthe\slatest\sSQLite\swhich\scontains\sa\sbug\sfix\sin\sthe\scurrent-time\nfunction\son\swindows.
+D 2010-06-23T15:23:03
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -91,8 +91,8 @@ F src/setup.c 63287ca745db037f5a2fb200a678ae6a9544b451
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c 844676140769b23f78ba8dc6c93d4f8254530211
 F src/skins.c b693b6cb0e5e4e8a73d77ad33031bc8ac4826760
-F src/sqlite3.c fbd656a868caf5e47002daf93f5706a64315fb79
-F src/sqlite3.h 9d8ebd0cc9ee803ddc6565f9681f07dd2731974e
+F src/sqlite3.c dd03a45b94941dda5a4aaf6c6569a9e8e02e14b0
+F src/sqlite3.h 9540540325716faaf2062d93383823ef115a42d5
 F src/stat.c bbb8cda86b3853ff2d2927b86abf7a4148f5b776
 F src/style.c 5e7ab265f940b472250cf480da17d23ea055e692
 F src/sync.c aef7ea255897126a2033dd810c8fcad25ece066b
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P b892572644f5714e645c1d46b48ffcf6b56793d2
-R b50e60897731b172b92924ac9032f355
+P d778ffea81e7f76b71833cb41f4866c511fafb2c
+R 1301ffc110440fdfe31cfe7ab1dce91a
 U drh
-Z e820e1842776799d45d75f29764349aa
+Z e0327bf06964f3befb296eb1c4088a69

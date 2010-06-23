@@ -638,7 +638,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-06-21 12:47:41 ee0acef1faffd480fd2136f81fb2b6f6a17b5388"
+#define SQLITE_SOURCE_ID      "2010-06-23 15:18:12 51ef43b9f7db8fabf73d9c8a76dae6c275e50d58"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -7860,6 +7860,10 @@ SQLITE_PRIVATE int sqlite3PagerIsMemdb(Pager*);
 
 /* Functions used to truncate the database file. */
 SQLITE_PRIVATE void sqlite3PagerTruncateImage(Pager*,Pgno);
+
+#if defined(SQLITE_HAS_CODEC) && !defined(SQLITE_OMIT_WAL)
+SQLITE_PRIVATE void *sqlite3PagerCodec(DbPage *);
+#endif
 
 /* Functions to support testing and debugging. */
 #if !defined(NDEBUG) || defined(SQLITE_TEST)
@@ -31138,7 +31142,7 @@ static int winCurrentTimeInt64(sqlite3_vfs *pVfs, sqlite3_int64 *piNow){
 
   *piNow = winFiletimeEpoch +
             ((((sqlite3_int64)ft.dwHighDateTime)*max32BitValue) + 
-               (sqlite3_int64)ft.dwLowDateTime)/(sqlite3_int64)1000;
+               (sqlite3_int64)ft.dwLowDateTime)/(sqlite3_int64)10000;
 
 #ifdef SQLITE_TEST
   if( sqlite3_current_time ){
@@ -34774,9 +34778,10 @@ static void pager_unlock(Pager *pPager){
     int rc = SQLITE_OK;          /* Return code */
     int iDc = isOpen(pPager->fd)?sqlite3OsDeviceCharacteristics(pPager->fd):0;
 
-    /* Always close the journal file when dropping the database lock.
-    ** Otherwise, another connection with journal_mode=delete might
-    ** delete the file out from under us.
+    /* If the operating system support deletion of open files, then
+    ** close the journal file when dropping the database lock.  Otherwise
+    ** another connection with journal_mode=delete might delete the file
+    ** out from under us.
     */
     assert( (PAGER_JOURNALMODE_MEMORY   & 5)!=1 );
     assert( (PAGER_JOURNALMODE_OFF      & 5)!=1 );
@@ -35348,6 +35353,9 @@ static int pager_delmaster(Pager *pPager, const char *zMaster){
   sqlite3_file *pJournal;   /* Malloc'd child-journal file descriptor */
   char *zMasterJournal = 0; /* Contents of master journal file */
   i64 nMasterJournal;       /* Size of master journal file */
+  char *zJournal;           /* Pointer to one journal within MJ file */
+  char *zMasterPtr;         /* Space to hold MJ filename from a journal file */
+  int nMasterPtr;           /* Amount of space allocated to zMasterPtr[] */
 
   /* Allocate space for both the pJournal and pMaster file descriptors.
   ** If successful, open the master journal file for reading.
@@ -35362,73 +35370,68 @@ static int pager_delmaster(Pager *pPager, const char *zMaster){
   }
   if( rc!=SQLITE_OK ) goto delmaster_out;
 
+  /* Load the entire master journal file into space obtained from
+  ** sqlite3_malloc() and pointed to by zMasterJournal.   Also obtain
+  ** sufficient space (in zMasterPtr) to hold the names of master
+  ** journal files extracted from regular rollback-journals.
+  */
   rc = sqlite3OsFileSize(pMaster, &nMasterJournal);
   if( rc!=SQLITE_OK ) goto delmaster_out;
+  nMasterPtr = pVfs->mxPathname+1;
+  zMasterJournal = sqlite3Malloc((int)nMasterJournal + nMasterPtr + 1);
+  if( !zMasterJournal ){
+    rc = SQLITE_NOMEM;
+    goto delmaster_out;
+  }
+  zMasterPtr = &zMasterJournal[nMasterJournal+1];
+  rc = sqlite3OsRead(pMaster, zMasterJournal, (int)nMasterJournal, 0);
+  if( rc!=SQLITE_OK ) goto delmaster_out;
+  zMasterJournal[nMasterJournal] = 0;
 
-  if( nMasterJournal>0 ){
-    char *zJournal;
-    char *zMasterPtr = 0;
-    int nMasterPtr = pVfs->mxPathname+1;
-
-    /* Load the entire master journal file into space obtained from
-    ** sqlite3_malloc() and pointed to by zMasterJournal. 
-    */
-    zMasterJournal = sqlite3Malloc((int)nMasterJournal + nMasterPtr + 1);
-    if( !zMasterJournal ){
-      rc = SQLITE_NOMEM;
+  zJournal = zMasterJournal;
+  while( (zJournal-zMasterJournal)<nMasterJournal ){
+    int exists;
+    rc = sqlite3OsAccess(pVfs, zJournal, SQLITE_ACCESS_EXISTS, &exists);
+    if( rc!=SQLITE_OK ){
       goto delmaster_out;
     }
-    zMasterPtr = &zMasterJournal[nMasterJournal+1];
-    rc = sqlite3OsRead(pMaster, zMasterJournal, (int)nMasterJournal, 0);
-    if( rc!=SQLITE_OK ) goto delmaster_out;
-    zMasterJournal[nMasterJournal] = 0;
-
-    zJournal = zMasterJournal;
-    while( (zJournal-zMasterJournal)<nMasterJournal ){
-      int exists;
-      rc = sqlite3OsAccess(pVfs, zJournal, SQLITE_ACCESS_EXISTS, &exists);
+    if( exists ){
+      /* One of the journals pointed to by the master journal exists.
+      ** Open it and check if it points at the master journal. If
+      ** so, return without deleting the master journal file.
+      */
+      int c;
+      int flags = (SQLITE_OPEN_READONLY|SQLITE_OPEN_MAIN_JOURNAL);
+      rc = sqlite3OsOpen(pVfs, zJournal, pJournal, flags, 0);
       if( rc!=SQLITE_OK ){
         goto delmaster_out;
       }
-      if( exists ){
-        /* One of the journals pointed to by the master journal exists.
-        ** Open it and check if it points at the master journal. If
-        ** so, return without deleting the master journal file.
-        */
-        int c;
-        int flags = (SQLITE_OPEN_READONLY|SQLITE_OPEN_MAIN_JOURNAL);
-        rc = sqlite3OsOpen(pVfs, zJournal, pJournal, flags, 0);
-        if( rc!=SQLITE_OK ){
-          goto delmaster_out;
-        }
 
-        rc = readMasterJournal(pJournal, zMasterPtr, nMasterPtr);
-        sqlite3OsClose(pJournal);
-        if( rc!=SQLITE_OK ){
-          goto delmaster_out;
-        }
-
-        c = zMasterPtr[0]!=0 && strcmp(zMasterPtr, zMaster)==0;
-        if( c ){
-          /* We have a match. Do not delete the master journal file. */
-          goto delmaster_out;
-        }
+      rc = readMasterJournal(pJournal, zMasterPtr, nMasterPtr);
+      sqlite3OsClose(pJournal);
+      if( rc!=SQLITE_OK ){
+        goto delmaster_out;
       }
-      zJournal += (sqlite3Strlen30(zJournal)+1);
+
+      c = zMasterPtr[0]!=0 && strcmp(zMasterPtr, zMaster)==0;
+      if( c ){
+        /* We have a match. Do not delete the master journal file. */
+        goto delmaster_out;
+      }
     }
+    zJournal += (sqlite3Strlen30(zJournal)+1);
   }
-  
+ 
+  sqlite3OsClose(pMaster);
   rc = sqlite3OsDelete(pVfs, zMaster, 0);
 
 delmaster_out:
-  if( zMasterJournal ){
-    sqlite3_free(zMasterJournal);
-  }  
+  sqlite3_free(zMasterJournal);
   if( pMaster ){
     sqlite3OsClose(pMaster);
     assert( !isOpen(pJournal) );
+    sqlite3_free(pMaster);
   }
-  sqlite3_free(pMaster);
   return rc;
 }
 
@@ -36127,7 +36130,7 @@ static int pagerPlaybackSavepoint(Pager *pPager, PagerSavepoint *pSavepoint){
     }
     assert( rc!=SQLITE_DONE );
   }
-  assert( rc!=SQLITE_OK || pPager->journalOff==szJ );
+  assert( rc!=SQLITE_OK || pPager->journalOff>=szJ );
 
   /* Finally,  rollback pages from the sub-journal.  Page that were
   ** previously rolled back out of the main journal (and are hence in pDone)
@@ -38258,7 +38261,7 @@ static int pager_write(PgHdr *pPg){
     if( rc!=SQLITE_OK ){
       return rc;
     }
-    if( !isOpen(pPager->jfd) 
+    if( pPager->pInJournal==0
      && pPager->journalMode!=PAGER_JOURNALMODE_OFF 
      && !pagerUseWal(pPager)
     ){
@@ -38573,9 +38576,12 @@ static int pager_incr_changecounter(Pager *pPager, int isDirectMode){
 
       /* If running in direct mode, write the contents of page 1 to the file. */
       if( DIRECT_MODE ){
-        const void *zBuf = pPgHdr->pData;
+        const void *zBuf;
         assert( pPager->dbFileSize>0 );
-        rc = sqlite3OsWrite(pPager->fd, zBuf, pPager->pageSize, 0);
+        CODEC2(pPager, pPgHdr->pData, 1, 6, rc=SQLITE_NOMEM, zBuf);
+        if( rc==SQLITE_OK ){
+          rc = sqlite3OsWrite(pPager->fd, zBuf, pPager->pageSize, 0);
+        }
         if( rc==SQLITE_OK ){
           pPager->changeCountDone = 1;
         }
@@ -39649,7 +39655,23 @@ SQLITE_PRIVATE int sqlite3PagerCloseWal(Pager *pPager){
   }
   return rc;
 }
-#endif
+
+#ifdef SQLITE_HAS_CODEC
+/*
+** This function is called by the wal module when writing page content
+** into the log file.
+**
+** This function returns a pointer to a buffer containing the encrypted
+** page content. If a malloc fails, this function may return NULL.
+*/
+SQLITE_PRIVATE void *sqlite3PagerCodec(PgHdr *pPg){
+  void *aData = 0;
+  CODEC2(pPg->pPager, pPg->pData, pPg->pgno, 6, return 0, aData);
+  return aData;
+}
+#endif /* SQLITE_HAS_CODEC */
+
+#endif /* !SQLITE_OMIT_WAL */
 
 #endif /* SQLITE_OMIT_DISKIO */
 
@@ -41942,19 +41964,26 @@ SQLITE_PRIVATE int sqlite3WalFrames(
   for(p=pList; p; p=p->pDirty){
     u32 nDbsize;                  /* Db-size field for frame header */
     i64 iOffset;                  /* Write offset in log file */
-
+    void *pData;
+   
+   
     iOffset = walFrameOffset(++iFrame, szPage);
     
     /* Populate and write the frame header */
     nDbsize = (isCommit && p->pDirty==0) ? nTruncate : 0;
-    walEncodeFrame(pWal, p->pgno, nDbsize, p->pData, aFrame);
+#if defined(SQLITE_HAS_CODEC)
+    if( (pData = sqlite3PagerCodec(p))==0 ) return SQLITE_NOMEM;
+#else
+    pData = p->pData;
+#endif
+    walEncodeFrame(pWal, p->pgno, nDbsize, pData, aFrame);
     rc = sqlite3OsWrite(pWal->pWalFd, aFrame, sizeof(aFrame), iOffset);
     if( rc!=SQLITE_OK ){
       return rc;
     }
 
     /* Write the page data */
-    rc = sqlite3OsWrite(pWal->pWalFd, p->pData, szPage, iOffset+sizeof(aFrame));
+    rc = sqlite3OsWrite(pWal->pWalFd, pData, szPage, iOffset+sizeof(aFrame));
     if( rc!=SQLITE_OK ){
       return rc;
     }
@@ -41971,14 +42000,19 @@ SQLITE_PRIVATE int sqlite3WalFrames(
 
     iSegment = (((iOffset+iSegment-1)/iSegment) * iSegment);
     while( iOffset<iSegment ){
-      walEncodeFrame(pWal, pLast->pgno, nTruncate, pLast->pData, aFrame);
+      void *pData;
+#if defined(SQLITE_HAS_CODEC)
+      if( (pData = sqlite3PagerCodec(pLast))==0 ) return SQLITE_NOMEM;
+#else
+      pData = pLast->pData;
+#endif
+      walEncodeFrame(pWal, pLast->pgno, nTruncate, pData, aFrame);
       rc = sqlite3OsWrite(pWal->pWalFd, aFrame, sizeof(aFrame), iOffset);
       if( rc!=SQLITE_OK ){
         return rc;
       }
-
       iOffset += WAL_FRAME_HDRSIZE;
-      rc = sqlite3OsWrite(pWal->pWalFd, pLast->pData, szPage, iOffset); 
+      rc = sqlite3OsWrite(pWal->pWalFd, pData, szPage, iOffset); 
       if( rc!=SQLITE_OK ){
         return rc;
       }
@@ -63353,6 +63387,10 @@ case OP_JournalMode: {    /* out2-prerelease */
         if( rc==SQLITE_OK ){
           sqlite3PagerSetJournalMode(u.cd.pPager, u.cd.eNew);
         }
+      }else if( u.cd.eOld==PAGER_JOURNALMODE_MEMORY ){
+        /* Cannot transition directly from MEMORY to WAL.  Use mode OFF
+        ** as an intermediate */
+        sqlite3PagerSetJournalMode(u.cd.pPager, PAGER_JOURNALMODE_OFF);
       }
 
       /* Open a transaction on the database file. Regardless of the journal
