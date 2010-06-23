@@ -206,7 +206,12 @@ void vfile_check_signature(int vid, int notFileIsFatal){
 ** Write all files from vid to the disk.  Or if vid==0 and id!=0
 ** write just the specific file where VFILE.ID=id.
 */
-void vfile_to_disk(int vid, int id, int verbose){
+void vfile_to_disk(
+  int vid,               /* vid to write to disk */
+  int id,                /* Write this one file, if not zero */
+  int verbose,           /* Output progress information */
+  int promptFlag         /* Prompt user to confirm overwrites */
+){
   Stmt q;
   Blob content;
   int nRepos = strlen(g.zLocalRoot);
@@ -230,6 +235,23 @@ void vfile_to_disk(int vid, int id, int verbose){
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
+    if( promptFlag ){
+      if( file_size(zName)>=0 ){
+        Blob ans;
+        char *zMsg;
+        char cReply;
+        zMsg = mprintf("overwrite %s (a=always/y/N)? ", zName);
+        prompt_user(zMsg, &ans);
+        free(zMsg);
+        cReply = blob_str(&ans)[0];
+        blob_reset(&ans);
+        if( cReply=='a' || cReply=='A' ){
+          promptFlag = 0;
+          cReply = 'y';
+        }
+        if( cReply=='n' || cReply=='N' ) continue;
+      }
+    }
     content_get(rid, &content);
     if( verbose ) printf("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);

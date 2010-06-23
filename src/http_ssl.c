@@ -199,7 +199,6 @@ int ssl_open(void){
     BIO_free(mem);
 
     Blob ans;
-    blob_zero(&ans);
     prompt_user(prompt, &ans);
     free(prompt);
     if( blob_str(&ans)[0]!='y' && blob_str(&ans)[0]!='a' ) {
@@ -211,6 +210,7 @@ int ssl_open(void){
     if( blob_str(&ans)[0]=='a' ) {
       ssl_save_certificate(cert);
     }
+    blob_reset(&ans);
   }
   X509_free(cert);
   return 0;

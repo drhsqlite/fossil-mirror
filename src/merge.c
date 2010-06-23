@@ -213,7 +213,7 @@ void merge_cmd(void){
     zName = db_column_text(&q, 2);
     printf("ADDED %s\n", zName);
     undo_save(zName);
-    vfile_to_disk(0, idm, 0);
+    vfile_to_disk(0, idm, 0, 0);
   }
   db_finalize(&q);
   
@@ -236,7 +236,7 @@ void merge_cmd(void){
     db_multi_exec(
       "UPDATE vfile SET mrid=%d, chnged=2 WHERE id=%d", ridm, idv
     );
-    vfile_to_disk(0, idv, 0);
+    vfile_to_disk(0, idv, 0, 0);
     free(zName);
   }
   db_finalize(&q);
