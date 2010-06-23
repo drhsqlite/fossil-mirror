@@ -1,9 +1,9 @@
-C Merge\sfrom\strunk.
-D 2010-06-23T04:33:17
+C Back\sout\sthe\sbenoit\sbranch\schanges\sadded\sby\sthe\sprevious\scheck-in.
+D 2010-06-23T11:46:02
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile c7305bef3790d9f12e5292f63f9466ffb327e61b
-F Makefile.w32 fd718d3b575c086c71d8885f0ff9fd6ac8ae076b
+F Makefile 24265572a132b9e5520ffb7cd70ca6460d44b284
+F Makefile.w32 d2ddd4343004ff1efb010529b996f8fcd9e13385
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -69,7 +69,7 @@ F src/http_transport.c f5395970b1ddfddb26da528e481e91ef2ee79c32
 F src/info.c 1977ba900571dcee46b2d46bc5ed02a200d934c8
 F src/login.c 9d55cf8fc467adcc7129322cfd0cc4bcdd238306
 F src/main.c c90cbe0a376a1ec331ac46a8302897e10f6a616a
-F src/main.mk 3a882e512e671d0e934f69786facea70b29839c2
+F src/main.mk 4ef444c9e67b35f59874cf953a564e576f9aed3a
 F src/makeheaders.c 7746e0ebf5b374952fe9a7e292969851939484f3
 F src/makeheaders.html 0e4ade7e463ae2bf1595d615a949d2cc14a2a5b4
 F src/makemake.tcl 4fdd667bfe716e8a677febe253d684ba35f18bce
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 54d0648f1d19c4ecc881f2b8e8a9c53a3d0a0a08 7b7fe276784bb7f3a9263155330b63ee58dcdc89
-R 914657aa2c60283b8a23b78999a42406
-U michael
-Z 56a5f46d9e2fdada954ccd25e0fbaf0a
+P 84e497e4403ce17b78020942c0a53f7e14ab1eda b9a744e1c4d842a289a9cb350085ca4935633e83
+R 48cfc57e807743f4f2b74fa2a68f0c5b
+U drh
+Z 2c0c70b68b7c5bfd06e980cb3315a35d

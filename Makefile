@@ -4,8 +4,6 @@
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
 #
-DIRSEP = /
-OPERATING_SYSTEM = unix
 SRCDIR = ./src
 
 #### The directory into which object code files should be written.
