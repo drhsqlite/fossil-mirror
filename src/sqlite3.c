@@ -638,7 +638,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-06-23 15:18:12 51ef43b9f7db8fabf73d9c8a76dae6c275e50d58"
+#define SQLITE_SOURCE_ID      "2010-06-24 10:50:18 7aac9ad6dd14b1c56eb8e4750ac769c6197c30bd"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -25588,7 +25588,7 @@ struct unixShm {
 /*
 ** Constants used for locking
 */
-#define UNIX_SHM_BASE   ((18+SQLITE_SHM_NLOCK)*4)         /* first lock byte */
+#define UNIX_SHM_BASE   ((22+SQLITE_SHM_NLOCK)*4)         /* first lock byte */
 #define UNIX_SHM_DMS    (UNIX_SHM_BASE+SQLITE_SHM_NLOCK)  /* deadman switch */
 
 /*
@@ -30019,7 +30019,7 @@ struct winShm {
 /*
 ** Constants used for locking
 */
-#define WIN_SHM_BASE   ((18+SQLITE_SHM_NLOCK)*4)        /* first lock byte */
+#define WIN_SHM_BASE   ((22+SQLITE_SHM_NLOCK)*4)        /* first lock byte */
 #define WIN_SHM_DMS    (WIN_SHM_BASE+SQLITE_SHM_NLOCK)  /* deadman switch */
 
 /*
@@ -34842,7 +34842,7 @@ static void pager_unlock(Pager *pPager){
 ** to this function. 
 **
 ** If the second argument is SQLITE_IOERR, SQLITE_CORRUPT, or SQLITE_FULL
-** the error becomes persistent. Until the persisten error is cleared,
+** the error becomes persistent. Until the persistent error is cleared,
 ** subsequent API calls on this Pager will immediately return the same 
 ** error code.
 **
@@ -37094,9 +37094,7 @@ static int pagerStress(void *p, PgHdr *pPg){
     ** Similarly, if the pager has already entered the error state, do not
     ** try to write the contents of pPg to disk.
     */
-    if( NEVER(pPager->errCode)
-     || (pPager->doNotSync && pPg->flags&PGHDR_NEED_SYNC)
-    ){
+    if( pPager->errCode || (pPager->doNotSync && pPg->flags&PGHDR_NEED_SYNC) ){
       return SQLITE_OK;
     }
   
@@ -38651,7 +38649,7 @@ SQLITE_PRIVATE int sqlite3PagerCommitPhaseOne(
   assert( pPager->journalMode!=PAGER_JOURNALMODE_OFF || pPager->dbOrigSize==0 );
 
   /* If a prior error occurred, report that error again. */
-  if( NEVER(pPager->errCode) ) return pPager->errCode;
+  if( pPager->errCode ) return pPager->errCode;
 
   PAGERTRACE(("DATABASE SYNC: File=%s zMaster=%s nSize=%d\n", 
       pPager->zFilename, zMaster, pPager->dbSize));
@@ -38881,7 +38879,7 @@ SQLITE_PRIVATE int sqlite3PagerCommitPhaseTwo(Pager *pPager){
 **   (i.e. either SQLITE_IOERR or SQLITE_CORRUPT).
 **
 ** * If the pager is in PAGER_RESERVED state, then attempt (1). Whether
-**   or not (1) is succussful, also attempt (2). If successful, return
+**   or not (1) is successful, also attempt (2). If successful, return
 **   SQLITE_OK. Otherwise, enter the error state and return the first 
 **   error code encountered. 
 **
@@ -39710,7 +39708,7 @@ SQLITE_PRIVATE void *sqlite3PagerCodec(PgHdr *pPg){
 ** used to determine which frames within the WAL are valid and which
 ** are leftovers from prior checkpoints.
 **
-** The WAL header is 24 bytes in size and consists of the following six
+** The WAL header is 32 bytes in size and consists of the following eight
 ** big-endian 32-bit unsigned integer values:
 **
 **     0: Magic number.  0x377f0682 or 0x377f0683
@@ -39719,10 +39717,12 @@ SQLITE_PRIVATE void *sqlite3PagerCodec(PgHdr *pPg){
 **    12: Checkpoint sequence number
 **    16: Salt-1, random integer incremented with each checkpoint
 **    20: Salt-2, a different random integer changing with each ckpt
+**    24: Checksum-1 (first part of checksum for first 24 bytes of header).
+**    28: Checksum-2 (second part of checksum for first 24 bytes of header).
 **
 ** Immediately following the wal-header are zero or more frames. Each
 ** frame consists of a 24-byte frame-header followed by a <page-size> bytes
-** of page data. The frame-header is broken into 6 big-endian 32-bit unsigned 
+** of page data. The frame-header is six big-endian 32-bit unsigned 
 ** integer values, as follows:
 **
 **     0: Page number.
@@ -39757,6 +39757,11 @@ SQLITE_PRIVATE void *sqlite3PagerCodec(PgHdr *pPg){
 **     s0 += x[i] + s1;
 **     s1 += x[i+1] + s0;
 **   endfor
+**
+** Note that s0 and s1 are both weighted checksums using fibonacci weights
+** in reverse order (the largest fibonacci weight occurs on the first element
+** of the sequence being summed.)  The s1 value spans all 32-bit 
+** terms of the sequence whereas s0 omits the final term.
 **
 ** On a checkpoint, the WAL is first VFS.xSync-ed, then valid content of the
 ** WAL is transferred into the database, then the database is VFS.xSync-ed.
@@ -39924,6 +39929,21 @@ SQLITE_PRIVATE int sqlite3WalTrace = 0;
 # define WALTRACE(X)
 #endif
 
+/*
+** The maximum (and only) versions of the wal and wal-index formats
+** that may be interpreted by this version of SQLite.
+**
+** If a client begins recovering a WAL file and finds that (a) the checksum
+** values in the wal-header are correct and (b) the version field is not
+** WAL_MAX_VERSION, recovery fails and SQLite returns SQLITE_CANTOPEN.
+**
+** Similarly, if a client successfully reads a wal-index header (i.e. the 
+** checksum test is successful) and finds that the version field is not
+** WALINDEX_MAX_VERSION, then no read-transaction is opened and SQLite
+** returns SQLITE_CANTOPEN.
+*/
+#define WAL_MAX_VERSION      3007000
+#define WALINDEX_MAX_VERSION 3007000
 
 /*
 ** Indices of various locking bytes.   WAL_NREADER is the number
@@ -39950,6 +39970,8 @@ typedef struct WalCkptInfo WalCkptInfo;
 ** object.
 */
 struct WalIndexHdr {
+  u32 iVersion;                   /* Wal-index version */
+  u32 unused;                     /* Unused (padding) field */
   u32 iChange;                    /* Counter incremented each transaction */
   u8 isInit;                      /* 1 when initialized */
   u8 bigEndCksum;                 /* True if checksums in WAL are big-endian */
@@ -40029,8 +40051,9 @@ struct WalCkptInfo {
 /* Size of header before each frame in wal */
 #define WAL_FRAME_HDRSIZE 24
 
-/* Size of write ahead log header */
-#define WAL_HDRSIZE 24
+/* Size of write ahead log header, including checksum. */
+/* #define WAL_HDRSIZE 24 */
+#define WAL_HDRSIZE 32
 
 /* WAL magic value. Either this value, or the same value with the least
 ** significant bit also set (WAL_MAGIC | 0x00000001) is stored in 32-bit
@@ -40258,6 +40281,7 @@ static void walIndexWriteHdr(Wal *pWal){
 
   assert( pWal->writeLock );
   pWal->hdr.isInit = 1;
+  pWal->hdr.iVersion = WALINDEX_MAX_VERSION;
   walChecksumBytes(1, (u8*)&pWal->hdr, nCksum, 0, pWal->hdr.aCksum);
   memcpy((void *)&aHdr[1], (void *)&pWal->hdr, sizeof(WalIndexHdr));
   sqlite3OsShmBarrier(pWal->pDbFd);
@@ -40707,6 +40731,7 @@ static int walIndexRecover(Wal *pWal){
     i64 iOffset;                  /* Next offset to read from log file */
     int szPage;                   /* Page size according to the log */
     u32 magic;                    /* Magic value read from WAL header */
+    u32 version;                  /* Magic value read from WAL header */
 
     /* Read in the WAL header. */
     rc = sqlite3OsRead(pWal->pWalFd, aBuf, WAL_HDRSIZE, 0);
@@ -40732,9 +40757,24 @@ static int walIndexRecover(Wal *pWal){
     pWal->szPage = szPage;
     pWal->nCkpt = sqlite3Get4byte(&aBuf[12]);
     memcpy(&pWal->hdr.aSalt, &aBuf[16], 8);
+
+    /* Verify that the WAL header checksum is correct */
     walChecksumBytes(pWal->hdr.bigEndCksum==SQLITE_BIGENDIAN, 
-        aBuf, WAL_HDRSIZE, 0, pWal->hdr.aFrameCksum
+        aBuf, WAL_HDRSIZE-2*4, 0, pWal->hdr.aFrameCksum
     );
+    if( pWal->hdr.aFrameCksum[0]!=sqlite3Get4byte(&aBuf[24])
+     || pWal->hdr.aFrameCksum[1]!=sqlite3Get4byte(&aBuf[28])
+    ){
+      goto finished;
+    }
+
+    /* Verify that the version number on the WAL format is one that
+    ** are able to understand */
+    version = sqlite3Get4byte(&aBuf[4]);
+    if( version!=WAL_MAX_VERSION ){
+      rc = SQLITE_CANTOPEN_BKPT;
+      goto finished;
+    }
 
     /* Malloc a buffer to read frames into. */
     szFrame = szPage + WAL_FRAME_HDRSIZE;
@@ -41299,18 +41339,12 @@ int walIndexTryHdr(Wal *pWal, int *pChanged){
 
 /*
 ** Read the wal-index header from the wal-index and into pWal->hdr.
-** If the wal-header appears to be corrupt, try to recover the log
-** before returning.
+** If the wal-header appears to be corrupt, try to reconstruct the
+** wal-index from the WAL before returning.
 **
 ** Set *pChanged to 1 if the wal-index header value in pWal->hdr is
 ** changed by this opertion.  If pWal->hdr is unchanged, set *pChanged
 ** to 0.
-**
-** This routine also maps the wal-index content into memory and assigns
-** ownership of that mapping to the current thread.  In some implementations,
-** only one thread at a time can hold a mapping of the wal-index.  Hence,
-** the caller should strive to invoke walIndexUnmap() as soon as possible
-** after this routine returns.
 **
 ** If the wal-index header is successfully read, return SQLITE_OK. 
 ** Otherwise an SQLite error code.
@@ -41318,7 +41352,7 @@ int walIndexTryHdr(Wal *pWal, int *pChanged){
 static int walIndexReadHdr(Wal *pWal, int *pChanged){
   int rc;                         /* Return code */
   int badHdr;                     /* True if a header read failed */
-  volatile u32 *page0;
+  volatile u32 *page0;            /* Chunk of wal-index containing header */
 
   /* Ensure that page 0 of the wal-index (the page that contains the 
   ** wal-index header) is mapped. Return early if an error occurs here.
@@ -41333,7 +41367,7 @@ static int walIndexReadHdr(Wal *pWal, int *pChanged){
   /* If the first page of the wal-index has been mapped, try to read the
   ** wal-index header immediately, without holding any lock. This usually
   ** works, but may fail if the wal-index header is corrupt or currently 
-  ** being modified by another user.
+  ** being modified by another thread or process.
   */
   badHdr = (page0 ? walIndexTryHdr(pWal, pChanged) : 1);
 
@@ -41358,6 +41392,14 @@ static int walIndexReadHdr(Wal *pWal, int *pChanged){
     walUnlockExclusive(pWal, WAL_WRITE_LOCK, 1);
   }
 
+  /* If the header is read successfully, check the version number to make
+  ** sure the wal-index was not constructed with some future format that
+  ** this version of SQLite cannot understand.
+  */
+  if( badHdr==0 && pWal->hdr.iVersion!=WALINDEX_MAX_VERSION ){
+    rc = SQLITE_CANTOPEN_BKPT;
+  }
+
   return rc;
 }
 
@@ -41372,9 +41414,29 @@ static int walIndexReadHdr(Wal *pWal, int *pChanged){
 ** other transient condition.  When that happens, it returns WAL_RETRY to
 ** indicate to the caller that it is safe to retry immediately.
 **
-** On success return SQLITE_OK.  On a permantent failure (such an
+** On success return SQLITE_OK.  On a permanent failure (such an
 ** I/O error or an SQLITE_BUSY because another process is running
 ** recovery) return a positive error code.
+**
+** The useWal parameter is true to force the use of the WAL and disable
+** the case where the WAL is bypassed because it has been completely
+** checkpointed.  If useWal==0 then this routine calls walIndexReadHdr() 
+** to make a copy of the wal-index header into pWal->hdr.  If the 
+** wal-index header has changed, *pChanged is set to 1 (as an indication 
+** to the caller that the local paget cache is obsolete and needs to be 
+** flushed.)  When useWal==1, the wal-index header is assumed to already
+** be loaded and the pChanged parameter is unused.
+**
+** The caller must set the cnt parameter to the number of prior calls to
+** this routine during the current read attempt that returned WAL_RETRY.
+** This routine will start taking more aggressive measures to clear the
+** race conditions after multiple WAL_RETRY returns, and after an excessive
+** number of errors will ultimately return SQLITE_PROTOCOL.  The
+** SQLITE_PROTOCOL return indicates that some other process has gone rogue
+** and is not honoring the locking protocol.  There is a vanishingly small
+** chance that SQLITE_PROTOCOL could be returned because of a run of really
+** bad luck when there is lots of contention for the wal-index, but that
+** possibility is so small that it can be safely neglected, we believe.
 **
 ** On success, this routine obtains a read lock on 
 ** WAL_READ_LOCK(pWal->readLock).  The pWal->readLock integer is
@@ -41385,6 +41447,8 @@ static int walIndexReadHdr(Wal *pWal, int *pChanged){
 ** use WAL frames up to and including pWal->hdr.mxFrame if pWal->readLock>0
 ** Or if pWal->readLock==0, then the reader will ignore the WAL
 ** completely and get all content directly from the database file.
+** If the useWal parameter is 1 then the WAL will never be ignored and
+** this routine will always set pWal->readLock>0 on success.
 ** When the read transaction is completed, the caller must release the
 ** lock on WAL_READ_LOCK(pWal->readLock) and set pWal->readLock to -1.
 **
@@ -41429,9 +41493,9 @@ static int walTryBeginRead(Wal *pWal, int *pChanged, int useWal, int cnt){
         rc = SQLITE_BUSY_RECOVERY;
       }
     }
-  }
-  if( rc!=SQLITE_OK ){
-    return rc;
+    if( rc!=SQLITE_OK ){
+      return rc;
+    }
   }
 
   pInfo = walCkptInfo(pWal);
@@ -41607,9 +41671,9 @@ SQLITE_PRIVATE int sqlite3WalRead(
 
   /* If the "last page" field of the wal-index header snapshot is 0, then
   ** no data will be read from the wal under any circumstances. Return early
-  ** in this case to avoid the walIndexMap/Unmap overhead.  Likewise, if
-  ** pWal->readLock==0, then the WAL is ignored by the reader so
-  ** return early, as if the WAL were empty.
+  ** in this case as an optimization.  Likewise, if pWal->readLock==0, 
+  ** then the WAL is ignored by the reader so return early, as if the 
+  ** WAL were empty.
   */
   if( iLast==0 || pWal->readLock==0 ){
     *pInWal = 0;
@@ -41620,7 +41684,7 @@ SQLITE_PRIVATE int sqlite3WalRead(
   ** pgno. Each iteration of the following for() loop searches one
   ** hash table (each hash table indexes up to HASHTABLE_NPAGE frames).
   **
-  ** This code may run concurrently to the code in walIndexAppend()
+  ** This code might run concurrently to the code in walIndexAppend()
   ** that adds entries to the wal-index (and possibly to this hash 
   ** table). This means the value just read from the hash 
   ** slot (aHash[iKey]) may have been added before or after the 
@@ -41943,20 +42007,28 @@ SQLITE_PRIVATE int sqlite3WalFrames(
   */
   iFrame = pWal->hdr.mxFrame;
   if( iFrame==0 ){
-    u8 aWalHdr[WAL_HDRSIZE];        /* Buffer to assembly wal-header in */
+    u8 aWalHdr[WAL_HDRSIZE];      /* Buffer to assemble wal-header in */
+    u32 aCksum[2];                /* Checksum for wal-header */
+
     sqlite3Put4byte(&aWalHdr[0], (WAL_MAGIC | SQLITE_BIGENDIAN));
-    sqlite3Put4byte(&aWalHdr[4], 3007000);
+    sqlite3Put4byte(&aWalHdr[4], WAL_MAX_VERSION);
     sqlite3Put4byte(&aWalHdr[8], szPage);
-    pWal->szPage = szPage;
-    pWal->hdr.bigEndCksum = SQLITE_BIGENDIAN;
     sqlite3Put4byte(&aWalHdr[12], pWal->nCkpt);
     memcpy(&aWalHdr[16], pWal->hdr.aSalt, 8);
+    walChecksumBytes(1, aWalHdr, WAL_HDRSIZE-2*4, 0, aCksum);
+    sqlite3Put4byte(&aWalHdr[24], aCksum[0]);
+    sqlite3Put4byte(&aWalHdr[28], aCksum[1]);
+    
+    pWal->szPage = szPage;
+    pWal->hdr.bigEndCksum = SQLITE_BIGENDIAN;
+    pWal->hdr.aFrameCksum[0] = aCksum[0];
+    pWal->hdr.aFrameCksum[1] = aCksum[1];
+
     rc = sqlite3OsWrite(pWal->pWalFd, aWalHdr, sizeof(aWalHdr), 0);
     WALTRACE(("WAL%p: wal-header write %s\n", pWal, rc ? "failed" : "ok"));
     if( rc!=SQLITE_OK ){
       return rc;
     }
-    walChecksumBytes(1, aWalHdr, sizeof(aWalHdr), 0, pWal->hdr.aFrameCksum);
   }
   assert( pWal->szPage==szPage );
 
@@ -103945,17 +104017,22 @@ SQLITE_API int sqlite3_get_autocommit(sqlite3 *db){
 SQLITE_PRIVATE int sqlite3CorruptError(int lineno){
   testcase( sqlite3GlobalConfig.xLog!=0 );
   sqlite3_log(SQLITE_CORRUPT,
-              "database corruption found by source line %d", lineno);
+              "database corruption at line %d of [%.10s]",
+              lineno, 20+sqlite3_sourceid());
   return SQLITE_CORRUPT;
 }
 SQLITE_PRIVATE int sqlite3MisuseError(int lineno){
   testcase( sqlite3GlobalConfig.xLog!=0 );
-  sqlite3_log(SQLITE_MISUSE, "misuse detected by source line %d", lineno);
+  sqlite3_log(SQLITE_MISUSE, 
+              "misuse at line %d of [%.10s]",
+              lineno, 20+sqlite3_sourceid());
   return SQLITE_MISUSE;
 }
 SQLITE_PRIVATE int sqlite3CantopenError(int lineno){
   testcase( sqlite3GlobalConfig.xLog!=0 );
-  sqlite3_log(SQLITE_CANTOPEN, "cannot open file at source line %d", lineno);
+  sqlite3_log(SQLITE_CANTOPEN, 
+              "cannot open file at line %d of [%.10s]",
+              lineno, 20+sqlite3_sourceid());
   return SQLITE_CANTOPEN;
 }
 
