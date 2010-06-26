@@ -638,7 +638,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-06-24 10:50:18 7aac9ad6dd14b1c56eb8e4750ac769c6197c30bd"
+#define SQLITE_SOURCE_ID      "2010-06-26 20:25:31 f149b498b6ada3fc9f71ee104c351554c80c7f8a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -16804,11 +16804,11 @@ SQLITE_PRIVATE void *sqlite3ScratchMalloc(int n){
   assert( n>0 );
 
 #if SQLITE_THREADSAFE==0 && !defined(NDEBUG)
-  /* Verify that no more than one scratch allocation per thread
+  /* Verify that no more than two scratch allocation per thread
   ** is outstanding at one time.  (This is only checked in the
   ** single-threaded case since checking in the multi-threaded case
   ** would be much more complicated.) */
-  assert( scratchAllocOut==0 );
+  assert( scratchAllocOut<=1 );
 #endif
 
   if( sqlite3GlobalConfig.szScratch<n ){
@@ -16853,16 +16853,6 @@ scratch_overflow:
 }
 SQLITE_PRIVATE void sqlite3ScratchFree(void *p){
   if( p ){
-
-#if SQLITE_THREADSAFE==0 && !defined(NDEBUG)
-    /* Verify that no more than one scratch allocation per thread
-    ** is outstanding at one time.  (This is only checked in the
-    ** single-threaded case since checking in the multi-threaded case
-    ** would be much more complicated.) */
-    assert( scratchAllocOut==1 );
-    scratchAllocOut = 0;
-#endif
-
     if( sqlite3GlobalConfig.pScratch==0
            || p<sqlite3GlobalConfig.pScratch
            || p>=(void*)mem0.aScratchFree ){
@@ -16888,6 +16878,16 @@ SQLITE_PRIVATE void sqlite3ScratchFree(void *p){
       mem0.aScratchFree[mem0.nScratchFree++] = i;
       sqlite3StatusAdd(SQLITE_STATUS_SCRATCH_USED, -1);
       sqlite3_mutex_leave(mem0.mutex);
+
+#if SQLITE_THREADSAFE==0 && !defined(NDEBUG)
+    /* Verify that no more than two scratch allocation per thread
+    ** is outstanding at one time.  (This is only checked in the
+    ** single-threaded case since checking in the multi-threaded case
+    ** would be much more complicated.) */
+    assert( scratchAllocOut>=1 && scratchAllocOut<=2 );
+    scratchAllocOut = 0;
+#endif
+
     }
   }
 }
@@ -30144,7 +30144,7 @@ static int winShmOpen(
   }
   memset(pNew, 0, sizeof(*pNew));
   pNew->zFilename = (char*)&pNew[1];
-  sqlite3_snprintf(nName+15, pNew->zFilename, "%s-wal-index", pDbFd->zPath);
+  sqlite3_snprintf(nName+15, pNew->zFilename, "%s-shm", pDbFd->zPath);
 
   /* Look to see if there is an existing winShmNode that can be used.
   ** If no matching winShmNode currently exists, create a new one.
@@ -33862,12 +33862,15 @@ struct PagerSavepoint {
 **   master journal name is only written to the journal file the first
 **   time CommitPhaseOne() is called.
 **
-** doNotSync
+** doNotSpill, doNotSyncSpill
 **
-**   When enabled, cache spills are prohibited and the journal file cannot
-**   be synced.  This variable is set and cleared by sqlite3PagerWrite() 
-**   in order to prevent a journal sync from happening in between the
-**   journalling of two pages on the same sector.
+**   When enabled, cache spills are prohibited.  The doNotSpill variable
+**   inhibits all cache spill and doNotSyncSpill inhibits those spills that
+**   would require a journal sync.  The doNotSyncSpill is set and cleared 
+**   by sqlite3PagerWrite() in order to prevent a journal sync from happening 
+**   in between the journalling of two pages on the same sector.  The
+**   doNotSpill value set to prevent pagerStress() from trying to use
+**   the journal during a rollback.
 **
 ** needSync
 **
@@ -33911,7 +33914,8 @@ struct Pager {
   u8 journalStarted;          /* True if header of journal is synced */
   u8 changeCountDone;         /* Set after incrementing the change-counter */
   u8 setMaster;               /* True if a m-j name has been written to jrnl */
-  u8 doNotSync;               /* Boolean. While true, do not spill the cache */
+  u8 doNotSpill;              /* Do not spill the cache when non-zero */
+  u8 doNotSyncSpill;          /* Do not do a spill that requires jrnl sync */
   u8 dbSizeValid;             /* Set when dbSize is correct */
   u8 subjInMemory;            /* True to use in-memory sub-journals */
   Pgno dbSize;                /* Number of pages in the database */
@@ -35247,9 +35251,12 @@ static int pager_playback_one_page(
     ** requiring a journal-sync before it is written.
     */
     assert( isSavepnt );
-    if( (rc = sqlite3PagerAcquire(pPager, pgno, &pPg, 1))!=SQLITE_OK ){
-      return rc;
-    }
+    assert( pPager->doNotSpill==0 );
+    pPager->doNotSpill++;
+    rc = sqlite3PagerAcquire(pPager, pgno, &pPg, 1);
+    assert( pPager->doNotSpill==1 );
+    pPager->doNotSpill--;
+    if( rc!=SQLITE_OK ) return rc;
     pPg->flags &= ~PGHDR_NEED_READ;
     sqlite3PcacheMakeDirty(pPg);
   }
@@ -37071,6 +37078,22 @@ static int pagerStress(void *p, PgHdr *pPg){
   assert( pPg->pPager==pPager );
   assert( pPg->flags&PGHDR_DIRTY );
 
+  /* The doNotSyncSpill flag is set during times when doing a sync of
+  ** journal (and adding a new header) is not allowed.  This occurs
+  ** during calls to sqlite3PagerWrite() while trying to journal multiple
+  ** pages belonging to the same sector.
+  **
+  ** The doNotSpill flag inhibits all cache spilling regardless of whether
+  ** or not a sync is required.  This is set during a rollback.
+  **
+  ** Spilling is also inhibited when in an error state.
+  */
+  if( pPager->errCode ) return SQLITE_OK;
+  if( pPager->doNotSpill ) return SQLITE_OK;
+  if( pPager->doNotSyncSpill && (pPg->flags & PGHDR_NEED_SYNC)!=0 ){
+    return SQLITE_OK;
+  }
+
   pPg->pDirty = 0;
   if( pagerUseWal(pPager) ){
     /* Write a single frame for this page to the log. */
@@ -37081,27 +37104,12 @@ static int pagerStress(void *p, PgHdr *pPg){
       rc = pagerWalFrames(pPager, pPg, 0, 0, 0);
     }
   }else{
-    /* The doNotSync flag is set by the sqlite3PagerWrite() function while it
-    ** is journalling a set of two or more database pages that are stored
-    ** on the same disk sector. Syncing the journal is not allowed while
-    ** this is happening as it is important that all members of such a
-    ** set of pages are synced to disk together. So, if the page this function
-    ** is trying to make clean will require a journal sync and the doNotSync
-    ** flag is set, return without doing anything. The pcache layer will
-    ** just have to go ahead and allocate a new page buffer instead of
-    ** reusing pPg.
-    **
-    ** Similarly, if the pager has already entered the error state, do not
-    ** try to write the contents of pPg to disk.
-    */
-    if( pPager->errCode || (pPager->doNotSync && pPg->flags&PGHDR_NEED_SYNC) ){
-      return SQLITE_OK;
-    }
   
     /* Sync the journal file if required. */
     if( pPg->flags&PGHDR_NEED_SYNC ){
+      assert( !pPager->noSync );
       rc = syncJournal(pPager);
-      if( rc==SQLITE_OK && pPager->fullSync && 
+      if( rc==SQLITE_OK && 
         !(pPager->journalMode==PAGER_JOURNALMODE_MEMORY) &&
         !(sqlite3OsDeviceCharacteristics(pPager->fd)&SQLITE_IOCAP_SAFE_APPEND)
       ){
@@ -38387,16 +38395,17 @@ SQLITE_PRIVATE int sqlite3PagerWrite(DbPage *pDbPage){
   if( nPagePerSector>1 ){
     Pgno nPageCount;          /* Total number of pages in database file */
     Pgno pg1;                 /* First page of the sector pPg is located on. */
-    int nPage;                /* Number of pages starting at pg1 to journal */
+    int nPage = 0;            /* Number of pages starting at pg1 to journal */
     int ii;                   /* Loop counter */
     int needSync = 0;         /* True if any page has PGHDR_NEED_SYNC */
 
-    /* Set the doNotSync flag to 1. This is because we cannot allow a journal
-    ** header to be written between the pages journaled by this function.
+    /* Set the doNotSyncSpill flag to 1. This is because we cannot allow
+    ** a journal header to be written between the pages journaled by
+    ** this function.
     */
     assert( !MEMDB );
-    assert( pPager->doNotSync==0 );
-    pPager->doNotSync = 1;
+    assert( pPager->doNotSyncSpill==0 );
+    pPager->doNotSyncSpill++;
 
     /* This trick assumes that both the page-size and sector-size are
     ** an integer power of 2. It sets variable pg1 to the identifier
@@ -38405,17 +38414,18 @@ SQLITE_PRIVATE int sqlite3PagerWrite(DbPage *pDbPage){
     pg1 = ((pPg->pgno-1) & ~(nPagePerSector-1)) + 1;
 
     rc = sqlite3PagerPagecount(pPager, (int *)&nPageCount);
-    if( rc ) return rc;
-    if( pPg->pgno>nPageCount ){
-      nPage = (pPg->pgno - pg1)+1;
-    }else if( (pg1+nPagePerSector-1)>nPageCount ){
-      nPage = nPageCount+1-pg1;
-    }else{
-      nPage = nPagePerSector;
+    if( rc==SQLITE_OK ){
+      if( pPg->pgno>nPageCount ){
+        nPage = (pPg->pgno - pg1)+1;
+      }else if( (pg1+nPagePerSector-1)>nPageCount ){
+        nPage = nPageCount+1-pg1;
+      }else{
+        nPage = nPagePerSector;
+      }
+      assert(nPage>0);
+      assert(pg1<=pPg->pgno);
+      assert((pg1+nPage)>pPg->pgno);
     }
-    assert(nPage>0);
-    assert(pg1<=pPg->pgno);
-    assert((pg1+nPage)>pPg->pgno);
 
     for(ii=0; ii<nPage && rc==SQLITE_OK; ii++){
       Pgno pg = pg1+ii;
@@ -38458,8 +38468,8 @@ SQLITE_PRIVATE int sqlite3PagerWrite(DbPage *pDbPage){
       assert(pPager->needSync);
     }
 
-    assert( pPager->doNotSync==1 );
-    pPager->doNotSync = 0;
+    assert( pPager->doNotSyncSpill==1 );
+    pPager->doNotSyncSpill--;
   }else{
     rc = pager_write(pDbPage);
   }
@@ -38827,10 +38837,11 @@ SQLITE_PRIVATE int sqlite3PagerCommitPhaseTwo(Pager *pPager){
   if( NEVER(pPager->errCode) ) return pPager->errCode;
 
   /* This function should not be called if the pager is not in at least
-  ** PAGER_RESERVED state. And indeed SQLite never does this. But it is
-  ** nice to have this defensive test here anyway.
+  ** PAGER_RESERVED state. **FIXME**: Make it so that this test always
+  ** fails - make it so that we never reach this point if we do not hold
+  ** all necessary locks.
   */
-  if( NEVER(pPager->state<PAGER_RESERVED) ) return SQLITE_ERROR;
+  if( pPager->state<PAGER_RESERVED ) return SQLITE_ERROR;
 
   /* An optimization. If the database was not actually modified during
   ** this transaction, the pager is running in exclusive-mode and is
@@ -40963,49 +40974,97 @@ static int walIteratorNext(
   return (iRet==0xFFFFFFFF);
 }
 
+/*
+** This function merges two sorted lists into a single sorted list.
+*/
+static void walMerge(
+  u32 *aContent,                  /* Pages in wal */
+  ht_slot *aLeft,                 /* IN: Left hand input list */
+  int nLeft,                      /* IN: Elements in array *paLeft */
+  ht_slot **paRight,              /* IN/OUT: Right hand input list */
+  int *pnRight,                   /* IN/OUT: Elements in *paRight */
+  ht_slot *aTmp                   /* Temporary buffer */
+){
+  int iLeft = 0;                  /* Current index in aLeft */
+  int iRight = 0;                 /* Current index in aRight */
+  int iOut = 0;                   /* Current index in output buffer */
+  int nRight = *pnRight;
+  ht_slot *aRight = *paRight;
 
+  assert( nLeft>0 && nRight>0 );
+  while( iRight<nRight || iLeft<nLeft ){
+    ht_slot logpage;
+    Pgno dbpage;
+
+    if( (iLeft<nLeft) 
+     && (iRight>=nRight || aContent[aLeft[iLeft]]<aContent[aRight[iRight]])
+    ){
+      logpage = aLeft[iLeft++];
+    }else{
+      logpage = aRight[iRight++];
+    }
+    dbpage = aContent[logpage];
+
+    aTmp[iOut++] = logpage;
+    if( iLeft<nLeft && aContent[aLeft[iLeft]]==dbpage ) iLeft++;
+
+    assert( iLeft>=nLeft || aContent[aLeft[iLeft]]>dbpage );
+    assert( iRight>=nRight || aContent[aRight[iRight]]>dbpage );
+  }
+
+  *paRight = aLeft;
+  *pnRight = iOut;
+  memcpy(aLeft, aTmp, sizeof(aTmp[0])*iOut);
+}
+
+/*
+** Sort the elements in list aList, removing any duplicates.
+*/
 static void walMergesort(
   u32 *aContent,                  /* Pages in wal */
   ht_slot *aBuffer,               /* Buffer of at least *pnList items to use */
   ht_slot *aList,                 /* IN/OUT: List to sort */
   int *pnList                     /* IN/OUT: Number of elements in aList[] */
 ){
-  int nList = *pnList;
-  if( nList>1 ){
-    int nLeft = nList / 2;        /* Elements in left list */
-    int nRight = nList - nLeft;   /* Elements in right list */
-    int iLeft = 0;                /* Current index in aLeft */
-    int iRight = 0;               /* Current index in aright */
-    int iOut = 0;                 /* Current index in output buffer */
-    ht_slot *aLeft = aList;       /* Left list */
-    ht_slot *aRight = aList+nLeft;/* Right list */
+  struct Sublist {
+    int nList;                    /* Number of elements in aList */
+    ht_slot *aList;               /* Pointer to sub-list content */
+  };
 
-    /* TODO: Change to non-recursive version. */
-    walMergesort(aContent, aBuffer, aLeft, &nLeft);
-    walMergesort(aContent, aBuffer, aRight, &nRight);
+  const int nList = *pnList;      /* Size of input list */
+  int nMerge;                     /* Number of elements in list aMerge */
+  ht_slot *aMerge;                /* List to be merged */
+  int iList;                      /* Index into input list */
+  int iSub = 0;                   /* Index into aSub array */
+  struct Sublist aSub[13];        /* Array of sub-lists */
 
-    while( iRight<nRight || iLeft<nLeft ){
-      ht_slot logpage;
-      Pgno dbpage;
+  memset(aSub, 0, sizeof(aSub));
+  assert( nList<=HASHTABLE_NPAGE && nList>0 );
+  assert( HASHTABLE_NPAGE==(1<<(ArraySize(aSub)-1)) );
 
-      if( (iLeft<nLeft) 
-       && (iRight>=nRight || aContent[aLeft[iLeft]]<aContent[aRight[iRight]])
-      ){
-        logpage = aLeft[iLeft++];
-      }else{
-        logpage = aRight[iRight++];
-      }
-      dbpage = aContent[logpage];
-
-      aBuffer[iOut++] = logpage;
-      if( iLeft<nLeft && aContent[aLeft[iLeft]]==dbpage ) iLeft++;
-
-      assert( iLeft>=nLeft || aContent[aLeft[iLeft]]>dbpage );
-      assert( iRight>=nRight || aContent[aRight[iRight]]>dbpage );
+  for(iList=0; iList<nList; iList++){
+    nMerge = 1;
+    aMerge = &aList[iList];
+    for(iSub=0; iList & (1<<iSub); iSub++){
+      struct Sublist *p = &aSub[iSub];
+      assert( p->aList && p->nList<=(1<<iSub) );
+      assert( p->aList==&aList[iList&~((2<<iSub)-1)] );
+      walMerge(aContent, p->aList, p->nList, &aMerge, &nMerge, aBuffer);
     }
-    memcpy(aList, aBuffer, sizeof(aList[0])*iOut);
-    *pnList = iOut;
+    aSub[iSub].aList = aMerge;
+    aSub[iSub].nList = nMerge;
   }
+
+  for(iSub++; iSub<ArraySize(aSub); iSub++){
+    if( nList & (1<<iSub) ){
+      struct Sublist *p = &aSub[iSub];
+      assert( p->nList<=(1<<iSub) );
+      assert( p->aList==&aList[nList&~((2<<iSub)-1)] );
+      walMerge(aContent, p->aList, p->nList, &aMerge, &nMerge, aBuffer);
+    }
+  }
+  assert( aMerge==aList );
+  *pnList = nMerge;
 
 #ifdef SQLITE_DEBUG
   {
@@ -41021,22 +41080,19 @@ static void walMergesort(
 ** Free an iterator allocated by walIteratorInit().
 */
 static void walIteratorFree(WalIterator *p){
-  sqlite3_free(p);
+  sqlite3ScratchFree(p);
 }
 
 /*
-** Map the wal-index into memory owned by this thread, if it is not
-** mapped already.  Then construct a WalInterator object that can be
-** used to loop over all pages in the WAL in ascending order.  
+** Construct a WalInterator object that can be used to loop over all 
+** pages in the WAL in ascending order. The caller must hold the checkpoint
 **
 ** On success, make *pp point to the newly allocated WalInterator object
-** return SQLITE_OK.  Otherwise, leave *pp unchanged and return an error
-** code.
+** return SQLITE_OK. Otherwise, return an error code. If this routine
+** returns an error, the value of *pp is undefined.
 **
 ** The calling routine should invoke walIteratorFree() to destroy the
-** WalIterator object when it has finished with it.  The caller must
-** also unmap the wal-index.  But the wal-index must not be unmapped
-** prior to the WalIterator object being destroyed.
+** WalIterator object when it has finished with it.
 */
 static int walIteratorInit(Wal *pWal, WalIterator **pp){
   WalIterator *p;                 /* Return value */
@@ -41045,63 +41101,69 @@ static int walIteratorInit(Wal *pWal, WalIterator **pp){
   int nByte;                      /* Number of bytes to allocate */
   int i;                          /* Iterator variable */
   ht_slot *aTmp;                  /* Temp space used by merge-sort */
-  ht_slot *aSpace;                /* Space at the end of the allocation */
+  int rc = SQLITE_OK;             /* Return Code */
 
-  /* This routine only runs while holding SQLITE_SHM_CHECKPOINT.  No other
-  ** thread is able to write to shared memory while this routine is
-  ** running (or, indeed, while the WalIterator object exists).  Hence,
-  ** we can cast off the volatile qualification from shared memory
+  /* This routine only runs while holding the checkpoint lock. And
+  ** it only runs if there is actually content in the log (mxFrame>0).
   */
-  assert( pWal->ckptLock );
+  assert( pWal->ckptLock && pWal->hdr.mxFrame>0 );
   iLast = pWal->hdr.mxFrame;
 
-  /* Allocate space for the WalIterator object */
+  /* Allocate space for the WalIterator object. */
   nSegment = walFramePage(iLast) + 1;
   nByte = sizeof(WalIterator) 
-        + nSegment*(sizeof(struct WalSegment))
-        + (nSegment+1)*(HASHTABLE_NPAGE * sizeof(ht_slot));
-  p = (WalIterator *)sqlite3_malloc(nByte);
+        + (nSegment-1)*sizeof(struct WalSegment)
+        + iLast*sizeof(ht_slot);
+  p = (WalIterator *)sqlite3ScratchMalloc(nByte);
   if( !p ){
     return SQLITE_NOMEM;
   }
   memset(p, 0, nByte);
-
-  /* Allocate space for the WalIterator object */
   p->nSegment = nSegment;
-  aSpace = (ht_slot *)&p->aSegment[nSegment];
-  aTmp = &aSpace[HASHTABLE_NPAGE*nSegment];
-  for(i=0; i<nSegment; i++){
+
+  /* Allocate temporary space used by the merge-sort routine. This block
+  ** of memory will be freed before this function returns.
+  */
+  aTmp = (ht_slot *)sqlite3ScratchMalloc(
+      sizeof(ht_slot) * (iLast>HASHTABLE_NPAGE?HASHTABLE_NPAGE:iLast)
+  );
+  if( !aTmp ){
+    rc = SQLITE_NOMEM;
+  }
+
+  for(i=0; rc==SQLITE_OK && i<nSegment; i++){
     volatile ht_slot *aHash;
-    int j;
     u32 iZero;
-    int nEntry;
     volatile u32 *aPgno;
-    int rc;
 
     rc = walHashGet(pWal, i, &aHash, &aPgno, &iZero);
-    if( rc!=SQLITE_OK ){
-      walIteratorFree(p);
-      return rc;
-    }
-    aPgno++;
-    nEntry = ((i+1)==nSegment)?iLast-iZero:(u32 *)aHash-(u32 *)aPgno;
-    iZero++;
+    if( rc==SQLITE_OK ){
+      int j;                      /* Counter variable */
+      int nEntry;                 /* Number of entries in this segment */
+      ht_slot *aIndex;            /* Sorted index for this segment */
 
-    for(j=0; j<nEntry; j++){
-      aSpace[j] = j;
+      aPgno++;
+      nEntry = ((i+1)==nSegment)?iLast-iZero:(u32 *)aHash-(u32 *)aPgno;
+      aIndex = &((ht_slot *)&p->aSegment[p->nSegment])[iZero];
+      iZero++;
+  
+      for(j=0; j<nEntry; j++){
+        aIndex[j] = j;
+      }
+      walMergesort((u32 *)aPgno, aTmp, aIndex, &nEntry);
+      p->aSegment[i].iZero = iZero;
+      p->aSegment[i].nEntry = nEntry;
+      p->aSegment[i].aIndex = aIndex;
+      p->aSegment[i].aPgno = (u32 *)aPgno;
     }
-    walMergesort((u32 *)aPgno, aTmp, aSpace, &nEntry);
-    p->aSegment[i].iZero = iZero;
-    p->aSegment[i].nEntry = nEntry;
-    p->aSegment[i].aIndex = aSpace;
-    p->aSegment[i].aPgno = (u32 *)aPgno;
-    aSpace += HASHTABLE_NPAGE;
   }
-  assert( aSpace==aTmp );
+  sqlite3ScratchFree(aTmp);
 
-  /* Return the fully initialized WalIterator object */
+  if( rc!=SQLITE_OK ){
+    walIteratorFree(p);
+  }
   *pp = p;
-  return SQLITE_OK ;
+  return rc;
 }
 
 /*
@@ -41150,11 +41212,14 @@ static int walCheckpoint(
   int i;                          /* Loop counter */
   volatile WalCkptInfo *pInfo;    /* The checkpoint status information */
 
+  if( pWal->hdr.mxFrame==0 ) return SQLITE_OK;
+
   /* Allocate the iterator */
   rc = walIteratorInit(pWal, &pIter);
-  if( rc!=SQLITE_OK || pWal->hdr.mxFrame==0 ){
-    goto walcheckpoint_out;
+  if( rc!=SQLITE_OK ){
+    return rc;
   }
+  assert( pIter );
 
   /*** TODO:  Move this test out to the caller.  Make it an assert() here ***/
   if( pWal->hdr.szPage!=nBuf ){
@@ -52952,9 +53017,16 @@ SQLITE_PRIVATE int sqlite3ValueFromExpr(
     return SQLITE_OK;
   }
   op = pExpr->op;
-  if( op==TK_REGISTER ){
-    op = pExpr->op2;  /* This only happens with SQLITE_ENABLE_STAT2 */
-  }
+
+  /* op can only be TK_REGISTER is we have compiled with SQLITE_ENABLE_STAT2.
+  ** The ifdef here is to enable us to achieve 100% branch test coverage even
+  ** when SQLITE_ENABLE_STAT2 is omitted.
+  */
+#ifdef SQLITE_ENABLE_STAT2
+  if( op==TK_REGISTER ) op = pExpr->op2;
+#else
+  if( NEVER(op==TK_REGISTER) ) op = pExpr->op2;
+#endif
 
   if( op==TK_STRING || op==TK_FLOAT || op==TK_INTEGER ){
     pVal = sqlite3ValueNew(db);
