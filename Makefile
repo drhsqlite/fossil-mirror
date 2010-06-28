@@ -16,7 +16,8 @@ OBJDIR = ./obj
 #    to compile code-generator programs as part of the build process.
 #    See TCC below for the C compiler for building the finished binary.
 #
-BCC = gcc -g -O2
+#BCC = gcc -g -O2
+BCC = clang -g -O2
 
 #### The suffix to add to executable files.  ".exe" for windows.
 #    Nothing for unix.
@@ -31,7 +32,8 @@ E =
 #
 #TCC = gcc -O6
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
-TCC = gcc -g -Os -Wall
+#TCC = gcc -g -Os -Wall
+TCC = clang -g -Os -Wall
 
 # To add support for HTTPS
 TCC += -DFOSSIL_ENABLE_SSL

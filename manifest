@@ -1,8 +1,8 @@
-C Updated\sttmrichter\sbranch\sto\slatest\sfrom\strunk.
-D 2010-06-28T14:30:44
+C Modified\sMakefile\sto\ssupport\sclang\sin\sprivate\sbranch.
+D 2010-06-28T14:35:28
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile 470d4520582e130a26add8f41958085e09448dbd
+F Makefile 24265572a132b9e5520ffb7cd70ca6460d44b284
 F Makefile.w32 d2ddd4343004ff1efb010529b996f8fcd9e13385
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 17075ffb37c69a35cc10662a2c1fc0468599050e ba14c7549c8c6d0aaf9cbb43d161e6e1290b14c0
-R d19e428d227098a35da63c161daa366e
+P 4c41c80e04dcd3d9242a26cdd2b4036d6288fb3d
+R ba3a2f5686c757337d71804bd9867ecd
 U michael
-Z 1d0d2f6cc6728a5f74f2a2f02550e346
+Z edf164d442b2a9437e4af73043f6e2cd
