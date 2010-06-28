@@ -161,6 +161,7 @@ void checkout_cmd(void){
   int keepFlag;                  /* Do not change any files on disk */
   int latestFlag;                /* Checkout the latest version */
   char *zVers;                   /* Version to checkout */
+  int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
   Blob cksum1, cksum1b, cksum2;
   
@@ -169,6 +170,7 @@ void checkout_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
+  promptFlag = find_option("prompt",0,0)!=0;  /* Prompt user before overwrite */
   if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
@@ -206,7 +208,7 @@ void checkout_cmd(void){
   }
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   if( !keepFlag ){
-    vfile_to_disk(vid, 0, 1);
+    vfile_to_disk(vid, 0, 1, promptFlag);
   }
   manifest_to_disk(vid);
   db_lset_int("checkout", vid);

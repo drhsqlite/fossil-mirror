@@ -213,18 +213,18 @@ void update_cmd(void){
       /* File added in the target. */
       printf("ADD %s\n", zName);
       undo_save(zName);
-      if( !nochangeFlag ) vfile_to_disk(0, idt, 0);
+      if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
       /* The file is unedited.  Change it to the target version */
       printf("UPDATE %s\n", zName);
       undo_save(zName);
-      if( !nochangeFlag ) vfile_to_disk(0, idt, 0);
+      if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && file_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
       printf("UPDATE %s\n", zName);
       undo_save(zName);
-      if( !nochangeFlag ) vfile_to_disk(0, idt, 0);
+      if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
       if( ridv==0 ){
         /* Added in current checkout.  Continue to hold the file as
