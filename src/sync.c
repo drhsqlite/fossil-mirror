@@ -39,6 +39,7 @@ void autosync(int flags){
   const char *zUrl;
   const char *zAutosync;
   const char *zPw;
+  int configSync = 0;       /* configuration changes transferred */
   if( g.fNoSync ){
     return;
   }
@@ -62,9 +63,19 @@ void autosync(int flags){
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     g.urlPasswd = mprintf("%s", zPw);
   }
+  if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
+    /* When doing an automatic pull, also automatically pull shuns from
+    ** the server if pull_shuns is enabled.
+    **
+    ** TODO:  What happens if the shun list gets really big? 
+    ** Maybe the shunning list should only be pulled on every 10th
+    ** autosync, or something?
+    */
+    configSync = CONFIGSET_SHUN;
+  }
   printf("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
-  client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, 0);
+  client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, configSync, 0);
 }
 
 /*
@@ -73,9 +84,10 @@ void autosync(int flags){
 ** of a server to sync against.  If no argument is given, use the
 ** most recently synced URL.  Remember the current URL for next time.
 */
-void process_sync_args(void){
+static int process_sync_args(void){
   const char *zUrl = 0;
   const char *zPw = 0;
+  int configSync = 0;
   int urlOptional = find_option("autourl",0,0)!=0;
   g.dontKeepUrl = find_option("once",0,0)!=0;
   url_proxy_options();
@@ -84,6 +96,7 @@ void process_sync_args(void){
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
     zPw = db_get("last-sync-pw", 0);
+    if( db_get_boolean("auto-sync",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
@@ -108,6 +121,7 @@ void process_sync_args(void){
     printf("Server:    %s\n", g.urlCanonical);
   }
   url_enable_proxy("via proxy: ");
+  return configSync;
 }
 
 /*
@@ -130,8 +144,8 @@ void process_sync_args(void){
 ** See also: clone, push, sync, remote-url
 */
 void pull_cmd(void){
-  process_sync_args();
-  client_sync(0,1,0,0,0);
+  int syncFlags = process_sync_args();
+  client_sync(0,1,0,syncFlags,0);
 }
 
 /*
@@ -184,8 +198,8 @@ void push_cmd(void){
 ** See also:  clone, push, pull, remote-url
 */
 void sync_cmd(void){
-  process_sync_args();
-  client_sync(1,1,0,0,0);
+  int syncFlags = process_sync_args();
+  client_sync(1,1,0,syncFlags,0);
 }
 
 /*
