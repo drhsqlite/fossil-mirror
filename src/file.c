@@ -199,16 +199,17 @@ int file_mkdir(const char *zName, int forceFlag){
 */
 int file_is_simple_pathname(const char *z){
   int i;
-  if( *z=='/' || *z==0 ) return 0;
-  if( *z=='.' ){
+  char c = z[0];
+  if( c=='/' || c==0 ) return 0;
+  if( c=='.' ){
     if( z[1]=='/' || z[1]==0 ) return 0;
     if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
   }
-  for(i=0; z[i]; i++){
-    if( z[i]=='\\' || z[i]=='*' || z[i]=='[' || z[i]==']' || z[i]=='?' ){
+  for(i=0; (c=z[i])!=0; i++){
+    if( c=='\\' || c=='*' || c=='[' || c==']' || c=='?' ){
       return 0;
     }
-    if( z[i]=='/' ){
+    if( c=='/' ){
       if( z[i+1]=='/' ) return 0;
       if( z[i+1]=='.' ){
         if( z[i+2]=='/' || z[i+2]==0 ) return 0;
