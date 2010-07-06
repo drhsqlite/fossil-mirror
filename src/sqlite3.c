@@ -638,7 +638,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-07-03 13:59:01 3b20ad03be55613d922d81aec5313327bf4098b9"
+#define SQLITE_SOURCE_ID      "2010-07-06 20:37:10 5621862b0e2fc945ded51f5926a6b4c9f07d0ab7"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1361,16 +1361,23 @@ typedef struct sqlite3_mutex sqlite3_mutex;
 ** handled as a fatal error by SQLite, vfs implementations should endeavor
 ** to prevent this by setting mxPathname to a sufficiently large value.
 **
-** The xRandomness(), xSleep(), and xCurrentTime() interfaces
-** are not strictly a part of the filesystem, but they are
+** The xRandomness(), xSleep(), xCurrentTime(), and xCurrentTimeInt64()
+** interfaces are not strictly a part of the filesystem, but they are
 ** included in the VFS structure for completeness.
 ** The xRandomness() function attempts to return nBytes bytes
 ** of good-quality randomness into zOut.  The return value is
 ** the actual number of bytes of randomness obtained.
 ** The xSleep() method causes the calling thread to sleep for at
 ** least the number of microseconds given.  The xCurrentTime()
-** method returns a Julian Day Number for the current date and time.
-**
+** method returns a Julian Day Number for the current date and time as
+** a floating point value.
+** The xCurrentTimeInt64() method returns, as an integer, the Julian
+** Day Number multipled by 86400000 (the number of milliseconds in 
+** a 24-hour day).  
+** ^SQLite will use the xCurrentTimeInt64() method to get the current
+** date and time if that method is available (if iVersion is 2 or 
+** greater and the function pointer is not NULL) and will fall back
+** to xCurrentTime() if xCurrentTimeInt64() is unavailable.
 */
 typedef struct sqlite3_vfs sqlite3_vfs;
 struct sqlite3_vfs {
@@ -1397,7 +1404,6 @@ struct sqlite3_vfs {
   ** The methods above are in version 1 of the sqlite_vfs object
   ** definition.  Those that follow are added in version 2 or later
   */
-  int (*xRename)(sqlite3_vfs*, const char *zOld, const char *zNew, int dirSync);
   int (*xCurrentTimeInt64)(sqlite3_vfs*, sqlite3_int64*);
   /*
   ** The methods above are in versions 1 and 2 of the sqlite_vfs object.
@@ -28505,7 +28511,6 @@ SQLITE_API int sqlite3_os_init(void){
     unixSleep,            /* xSleep */                      \
     unixCurrentTime,      /* xCurrentTime */                \
     unixGetLastError,     /* xGetLastError */               \
-    0,                    /* xRename */                     \
     unixCurrentTimeInt64, /* xCurrentTimeInt64 */           \
   }
 
@@ -29499,7 +29504,11 @@ static int winWrite(
   rc = SetFilePointer(pFile->h, lowerBits, &upperBits, FILE_BEGIN);
   if( rc==INVALID_SET_FILE_POINTER && (error=GetLastError())!=NO_ERROR ){
     pFile->lastErrno = error;
-    return SQLITE_FULL;
+    if( pFile->lastErrno==ERROR_HANDLE_DISK_FULL ){
+      return SQLITE_FULL;
+    }else{
+      return SQLITE_IOERR_WRITE;
+    }
   }
   assert( amt>0 );
   while(
@@ -29512,7 +29521,11 @@ static int winWrite(
   }
   if( !rc || amt>(int)wrote ){
     pFile->lastErrno = GetLastError();
-    return SQLITE_FULL;
+    if( pFile->lastErrno==ERROR_HANDLE_DISK_FULL ){
+      return SQLITE_FULL;
+    }else{
+      return SQLITE_IOERR_WRITE;
+    }
   }
   return SQLITE_OK;
 }
@@ -30846,7 +30859,17 @@ static int winAccess(
     return SQLITE_NOMEM;
   }
   if( isNT() ){
-    attr = GetFileAttributesW((WCHAR*)zConverted);
+    WIN32_FILE_ATTRIBUTE_DATA sAttrData;
+    memset(&sAttrData, 0, sizeof(sAttrData));
+    attr = GetFileAttributesExW((WCHAR*)zConverted,
+                               GetFileExInfoStandard, &sAttrData);
+    /* For an SQLITE_ACCESS_EXISTS query, treat a zero-length file
+    ** as if it does not exist.
+    */
+    if( flags==SQLITE_ACCESS_EXISTS && attr!=INVALID_FILE_ATTRIBUTES
+        && sAttrData.nFileSizeHigh==0 && sAttrData.nFileSizeLow==0 ){
+            attr = INVALID_FILE_ATTRIBUTES;
+    }
 /* isNT() is 1 if SQLITE_OS_WINCE==1, so this else is never executed. 
 ** Since the ASCII version of these Windows API do not exist for WINCE,
 ** it's important to not reference them for WINCE builds.
@@ -31246,7 +31269,6 @@ SQLITE_API int sqlite3_os_init(void){
     winSleep,            /* xSleep */
     winCurrentTime,      /* xCurrentTime */
     winGetLastError,     /* xGetLastError */
-    0,                   /* xRename */
     winCurrentTimeInt64, /* xCurrentTimeInt64 */
   };
 
@@ -33983,6 +34005,7 @@ struct Pager {
   sqlite3_backup *pBackup;    /* Pointer to list of ongoing backup processes */
 #ifndef SQLITE_OMIT_WAL
   Wal *pWal;                  /* Write-ahead log used by "journal_mode=wal" */
+  char *zWal;                 /* File name for write-ahead log */
 #endif
 };
 
@@ -35094,6 +35117,21 @@ static u32 pager_cksum(Pager *pPager, const u8 *aData){
 }
 
 /*
+** Report the current page size and number of reserved bytes back
+** to the codec.
+*/
+#ifdef SQLITE_HAS_CODEC
+static void pagerReportSize(Pager *pPager){
+  if( pPager->xCodecSizeChng ){
+    pPager->xCodecSizeChng(pPager->pCodec, pPager->pageSize,
+                           (int)pPager->nReserve);
+  }
+}
+#else
+# define pagerReportSize(X)     /* No-op if we do not support a codec */
+#endif
+
+/*
 ** Read a single page from either the journal file (if isMainJrnl==1) or
 ** from the sub-journal (if isMainJrnl==0) and playback that page.
 ** The page begins at offset *pOffset into the file. The *pOffset
@@ -35185,11 +35223,20 @@ static int pager_playback_one_page(
     }
   }
 
+  /* If this page has already been played by before during the current
+  ** rollback, then don't bother to play it back again.
+  */
   if( pDone && (rc = sqlite3BitvecSet(pDone, pgno))!=SQLITE_OK ){
     return rc;
   }
-
   assert( pPager->state==PAGER_RESERVED || pPager->state>=PAGER_EXCLUSIVE );
+
+  /* When playing back page 1, restore the nReserve setting
+  */
+  if( pgno==1 && pPager->nReserve!=((u8*)aData)[20] ){
+    pPager->nReserve = ((u8*)aData)[20];
+    pagerReportSize(pPager);
+  }
 
   /* If the pager is in RESERVED state, then there must be a copy of this
   ** page in the pager cache. In this case just update the pager cache,
@@ -35990,38 +36037,6 @@ static int pagerBeginReadTransaction(Pager *pPager){
 }
 
 /*
-** Check for the existence of or delete the *-wal file that corresponds to
-** the database opened by pPager.
-**
-** When pExists!=NULL, set *pExists to 1 if the *-wal file exists, or 0
-** if the *-wal file does not exist.
-**
-** When pExists==NULL, delete the *-wal file if it exists, or the do
-** nothing if the *-wal file does not exist.
-**
-** Return SQLITE_OK on success. If on an IO or OOM error occurs, return
-** an SQLite error code.
-*/
-static int pagerCheckForOrDeleteWAL(Pager *pPager, int *pExists){
-  int rc;                         /* Return code */
-  char *zWal;                     /* Name of the WAL file */
-
-  assert( !pPager->tempFile );
-  zWal = sqlite3_mprintf("%s-wal", pPager->zFilename);
-  if( !zWal ){
-    rc = SQLITE_NOMEM;
-  }else{
-    if( pExists ){
-      rc = sqlite3OsAccess(pPager->pVfs, zWal, SQLITE_ACCESS_EXISTS, pExists);
-    }else{
-      rc = sqlite3OsDelete(pPager->pVfs, zWal, 0);
-    }
-    sqlite3_free(zWal);
-  }
-  return rc;
-}
-
-/*
 ** Check if the *-wal file that corresponds to the database opened by pPager
 ** exists if the database is not empy, or verify that the *-wal file does
 ** not exist (by deleting it) if the database file is empty.
@@ -36050,10 +36065,12 @@ static int pagerOpenWalIfPresent(Pager *pPager){
     rc = sqlite3PagerPagecount(pPager, &nPage);
     if( rc ) return rc;
     if( nPage==0 ){
-      rc = pagerCheckForOrDeleteWAL(pPager, 0);
+      rc = sqlite3OsDelete(pPager->pVfs, pPager->zWal, 0);
       isWal = 0;
     }else{
-      rc = pagerCheckForOrDeleteWAL(pPager, &isWal);
+      rc = sqlite3OsAccess(
+          pPager->pVfs, pPager->zWal, SQLITE_ACCESS_EXISTS, &isWal
+      );
     }
     if( rc==SQLITE_OK ){
       if( isWal ){
@@ -36328,21 +36345,6 @@ SQLITE_PRIVATE void sqlite3PagerSetBusyhandler(
 }
 
 /*
-** Report the current page size and number of reserved bytes back
-** to the codec.
-*/
-#ifdef SQLITE_HAS_CODEC
-static void pagerReportSize(Pager *pPager){
-  if( pPager->xCodecSizeChng ){
-    pPager->xCodecSizeChng(pPager->pCodec, pPager->pageSize,
-                           (int)pPager->nReserve);
-  }
-}
-#else
-# define pagerReportSize(X)     /* No-op if we do not support a codec */
-#endif
-
-/*
 ** Change the page size used by the Pager object. The new page size 
 ** is passed in *pPageSize.
 **
@@ -36481,15 +36483,6 @@ SQLITE_PRIVATE int sqlite3PagerReadFileheader(Pager *pPager, int N, unsigned cha
   ** to WAL mode yet.
   */
   assert( !pagerUseWal(pPager) );
-#if 0
-  if( pagerUseWal(pPager) ){
-    int isInWal = 0;
-    rc = sqlite3WalRead(pPager->pWal, 1, &isInWal, N, pDest);
-    if( rc!=SQLITE_OK || isInWal ){
-      return rc;
-    }
-  }
-#endif
 
   if( isOpen(pPager->fd) ){
     IOTRACE(("DBHDR %p 0 %d\n", pPager, N))
@@ -37341,6 +37334,9 @@ SQLITE_PRIVATE int sqlite3PagerOpen(
     journalFileSize * 2 +          /* The two journal files */ 
     nPathname + 1 +                /* zFilename */
     nPathname + 8 + 1              /* zJournal */
+#ifndef SQLITE_OMIT_WAL
+    + nPathname + 4 + 1              /* zWal */
+#endif
   );
   assert( EIGHT_BYTE_ALIGNMENT(SQLITE_INT_TO_PTR(journalFileSize)) );
   if( !pPtr ){
@@ -37361,7 +37357,16 @@ SQLITE_PRIVATE int sqlite3PagerOpen(
     memcpy(pPager->zFilename, zPathname, nPathname);
     memcpy(pPager->zJournal, zPathname, nPathname);
     memcpy(&pPager->zJournal[nPathname], "-journal", 8);
-    if( pPager->zFilename[0]==0 ) pPager->zJournal[0] = 0;
+    if( pPager->zFilename[0]==0 ){
+      pPager->zJournal[0] = 0;
+    }
+#ifndef SQLITE_OMIT_WAL
+    else{
+      pPager->zWal = &pPager->zJournal[nPathname+8+1];
+      memcpy(pPager->zWal, zPathname, nPathname);
+      memcpy(&pPager->zWal[nPathname], "-wal", 4);
+    }
+#endif
     sqlite3_free(zPathname);
   }
   pPager->pVfs = pVfs;
@@ -39653,8 +39658,7 @@ SQLITE_PRIVATE int sqlite3PagerOpenWal(
     ** (e.g. due to malloc() failure), unlock the database file and 
     ** return an error code.
     */
-    rc = sqlite3WalOpen(pPager->pVfs, pPager->fd,
-                        pPager->zFilename, &pPager->pWal);
+    rc = sqlite3WalOpen(pPager->pVfs, pPager->fd, pPager->zWal, &pPager->pWal);
     if( rc==SQLITE_OK ){
       pPager->journalMode = PAGER_JOURNALMODE_WAL;
     }
@@ -39687,11 +39691,13 @@ SQLITE_PRIVATE int sqlite3PagerCloseWal(Pager *pPager){
     int logexists = 0;
     rc = sqlite3OsLock(pPager->fd, SQLITE_LOCK_SHARED);
     if( rc==SQLITE_OK ){
-      rc = pagerCheckForOrDeleteWAL(pPager, &logexists);
+      rc = sqlite3OsAccess(
+          pPager->pVfs, pPager->zWal, SQLITE_ACCESS_EXISTS, &logexists
+      );
     }
     if( rc==SQLITE_OK && logexists ){
       rc = sqlite3WalOpen(pPager->pVfs, pPager->fd,
-                          pPager->zFilename, &pPager->pWal);
+                          pPager->zWal, &pPager->pWal);
     }
   }
     
@@ -40154,7 +40160,7 @@ struct Wal {
   u8 writeLock;              /* True if in a write transaction */
   u8 ckptLock;               /* True if holding a checkpoint lock */
   WalIndexHdr hdr;           /* Wal-index header for current transaction */
-  char *zWalName;            /* Name of WAL file */
+  const char *zWalName;      /* Name of WAL file */
   u32 nCkpt;                 /* Checkpoint sequence counter in the wal-header */
 #ifdef SQLITE_DEBUG
   u8 lockError;              /* True if a locking error has occurred */
@@ -40909,8 +40915,9 @@ static void walIndexClose(Wal *pWal, int isDelete){
 }
 
 /* 
-** Open a connection to the WAL file associated with database zDbName.
-** The database file must already be opened on connection pDbFd.
+** Open a connection to the WAL file zWalName. The database file must 
+** already be opened on connection pDbFd. The buffer that zWalName points
+** to must remain valid for the lifetime of the returned Wal* handle.
 **
 ** A SHARED lock should be held on the database file when this function
 ** is called. The purpose of this SHARED lock is to prevent any other
@@ -40925,16 +40932,14 @@ static void walIndexClose(Wal *pWal, int isDelete){
 SQLITE_PRIVATE int sqlite3WalOpen(
   sqlite3_vfs *pVfs,              /* vfs module to open wal and wal-index */
   sqlite3_file *pDbFd,            /* The open database file */
-  const char *zDbName,            /* Name of the database file */
+  const char *zWalName,           /* Name of the WAL file */
   Wal **ppWal                     /* OUT: Allocated Wal handle */
 ){
   int rc;                         /* Return Code */
   Wal *pRet;                      /* Object to allocate and return */
   int flags;                      /* Flags passed to OsOpen() */
-  char *zWal;                     /* Name of write-ahead log file */
-  int nWal;                       /* Length of zWal in bytes */
 
-  assert( zDbName && zDbName[0] );
+  assert( zWalName && zWalName[0] );
   assert( pDbFd );
 
   /* In the amalgamation, the os_unix.c and os_win.c source files come before
@@ -40951,8 +40956,7 @@ SQLITE_PRIVATE int sqlite3WalOpen(
 
   /* Allocate an instance of struct Wal to return. */
   *ppWal = 0;
-  nWal = sqlite3Strlen30(zDbName) + 5;
-  pRet = (Wal*)sqlite3MallocZero(sizeof(Wal) + pVfs->szOsFile + nWal);
+  pRet = (Wal*)sqlite3MallocZero(sizeof(Wal) + pVfs->szOsFile);
   if( !pRet ){
     return SQLITE_NOMEM;
   }
@@ -40962,15 +40966,14 @@ SQLITE_PRIVATE int sqlite3WalOpen(
   pRet->pDbFd = pDbFd;
   pRet->readLock = -1;
   sqlite3_randomness(8, &pRet->hdr.aSalt);
-  pRet->zWalName = zWal = pVfs->szOsFile + (char*)pRet->pWalFd;
-  sqlite3_snprintf(nWal, zWal, "%s-wal", zDbName);
+  pRet->zWalName = zWalName;
   rc = sqlite3OsShmOpen(pDbFd);
 
   /* Open file handle on the write-ahead log file. */
   if( rc==SQLITE_OK ){
     pRet->isWIndexOpen = 1;
     flags = (SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_MAIN_JOURNAL);
-    rc = sqlite3OsOpen(pVfs, zWal, pRet->pWalFd, flags, &flags);
+    rc = sqlite3OsOpen(pVfs, zWalName, pRet->pWalFd, flags, &flags);
   }
 
   if( rc!=SQLITE_OK ){
@@ -84650,12 +84653,15 @@ SQLITE_PRIVATE int sqlite3InitCallback(void *pInit, int argc, char **argv, char 
     */
     int rc;
     sqlite3_stmt *pStmt;
+    TESTONLY(int rcp);            /* Return code from sqlite3_prepare() */
 
     assert( db->init.busy );
     db->init.iDb = iDb;
     db->init.newTnum = atoi(argv[1]);
     db->init.orphanTrigger = 0;
-    rc = sqlite3_prepare(db, argv[2], -1, &pStmt, 0);
+    TESTONLY(rcp = ) sqlite3_prepare(db, argv[2], -1, &pStmt, 0);
+    rc = db->errCode;
+    assert( (rc&0xFF)==(rcp&0xFF) );
     db->init.iDb = 0;
     if( SQLITE_OK!=rc ){
       if( db->init.orphanTrigger ){
@@ -84664,7 +84670,7 @@ SQLITE_PRIVATE int sqlite3InitCallback(void *pInit, int argc, char **argv, char 
         pData->rc = rc;
         if( rc==SQLITE_NOMEM ){
           db->mallocFailed = 1;
-        }else if( rc!=SQLITE_INTERRUPT && rc!=SQLITE_LOCKED ){
+        }else if( rc!=SQLITE_INTERRUPT && (rc&0xFF)!=SQLITE_LOCKED ){
           corruptSchema(pData, argv[0], sqlite3_errmsg(db));
         }
       }
