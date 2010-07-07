@@ -1,5 +1,5 @@
-C Add\ssoftware\sversion\sinformation\sand\sdatabase\sstats\sto\sthe\s/stat\spage.
-D 2010-07-06T21:22:43
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.0\sbeta\ssnapshot\sthat\sincludes\nfixes\sfor\slarge\sdatabases\sin\sWAL\smode.
+D 2010-07-07T14:57:56
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -91,8 +91,8 @@ F src/setup.c 63287ca745db037f5a2fb200a678ae6a9544b451
 F src/sha1.c 039460fa0a112f731ba146dc1fd2d20c383f1c00
 F src/shun.c 844676140769b23f78ba8dc6c93d4f8254530211
 F src/skins.c b693b6cb0e5e4e8a73d77ad33031bc8ac4826760
-F src/sqlite3.c bb5191130fd8a082178342dd34897d8445cfd320
-F src/sqlite3.h 0600f2c4cadf11fbe3a94b562df9b9fce1d9a0c4
+F src/sqlite3.c 5b3cee149d0ab8b1929e3b6d4b3164f245c1e0f7
+F src/sqlite3.h 7fcee790de4e1fee327ae3cd060ea64b7fcd0f1d
 F src/stat.c 7dd74618520f5f1a60a3747eec1124d5ac75749a
 F src/style.c 5e7ab265f940b472250cf480da17d23ea055e692
 F src/sync.c 33e8acb986a235a73aa75c44a92196a695349eab
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 8733f07f0ab39bf00ef8e17b87d1db37da367757
-R 2de8ab413651299d3c4eb884cf01d380
+P 5acf617104131086d9120b8943dff1f5cdec64dd
+R a2b7c413027753e63719d35cf46c1d7a
 U drh
-Z a6b4d850fbeed7cb9c5cbe22e410fedc
+Z 141462be6f569edb2c42f2136dd1ccb6

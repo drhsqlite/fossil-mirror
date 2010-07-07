@@ -512,6 +512,13 @@ SQLITE_PRIVATE   void sqlite3Coverage(int);
 #endif
 
 /*
+** Return true (non-zero) if the input is a integer that is too large
+** to fit in 32-bits.  This macro is used inside of various testcase()
+** macros to verify that we have tested SQLite for large-file support.
+*/
+#define IS_BIG_INT(X)  (((X)&(i64)0xffffffff)!=0)
+
+/*
 ** The macro unlikely() is a hint that surrounds a boolean
 ** expression that is usually false.  Macro likely() surrounds
 ** a boolean expression that is usually true.  GCC is able to
@@ -638,7 +645,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-07-06 20:37:10 5621862b0e2fc945ded51f5926a6b4c9f07d0ab7"
+#define SQLITE_SOURCE_ID      "2010-07-07 14:45:41 8eefc287265443ec043bdab629597e79c9d22006"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -11335,9 +11342,11 @@ static const char * const azCompileOpt[] = {
 #ifdef SQLITE_OMIT_CHECK
   "OMIT_CHECK",
 #endif
-#ifdef SQLITE_OMIT_COMPILEOPTION_DIAGS
-  "OMIT_COMPILEOPTION_DIAGS",
-#endif
+/* // redundant
+** #ifdef SQLITE_OMIT_COMPILEOPTION_DIAGS
+**   "OMIT_COMPILEOPTION_DIAGS",
+** #endif
+*/
 #ifdef SQLITE_OMIT_COMPLETE
   "OMIT_COMPLETE",
 #endif
@@ -11370,9 +11379,6 @@ static const char * const azCompileOpt[] = {
 #endif
 #ifdef SQLITE_OMIT_GET_TABLE
   "OMIT_GET_TABLE",
-#endif
-#ifdef SQLITE_OMIT_GLOBALRECOVER
-  "OMIT_GLOBALRECOVER",
 #endif
 #ifdef SQLITE_OMIT_INCRBLOB
   "OMIT_INCRBLOB",
@@ -11451,6 +11457,9 @@ static const char * const azCompileOpt[] = {
 #endif
 #ifdef SQLITE_OMIT_VIRTUALTABLE
   "OMIT_VIRTUALTABLE",
+#endif
+#ifdef SQLITE_OMIT_WAL
+  "OMIT_WAL",
 #endif
 #ifdef SQLITE_OMIT_WSD
   "OMIT_WSD",
@@ -30853,22 +30862,37 @@ static int winAccess(
 ){
   DWORD attr;
   int rc = 0;
-  void *zConverted = convertUtf8Filename(zFilename);
+  void *zConverted;
   UNUSED_PARAMETER(pVfs);
+
+  SimulateIOError( return SQLITE_IOERR_ACCESS; );
+  zConverted = convertUtf8Filename(zFilename);
   if( zConverted==0 ){
     return SQLITE_NOMEM;
   }
   if( isNT() ){
     WIN32_FILE_ATTRIBUTE_DATA sAttrData;
     memset(&sAttrData, 0, sizeof(sAttrData));
-    attr = GetFileAttributesExW((WCHAR*)zConverted,
-                               GetFileExInfoStandard, &sAttrData);
-    /* For an SQLITE_ACCESS_EXISTS query, treat a zero-length file
-    ** as if it does not exist.
-    */
-    if( flags==SQLITE_ACCESS_EXISTS && attr!=INVALID_FILE_ATTRIBUTES
-        && sAttrData.nFileSizeHigh==0 && sAttrData.nFileSizeLow==0 ){
-            attr = INVALID_FILE_ATTRIBUTES;
+    if( GetFileAttributesExW((WCHAR*)zConverted,
+                             GetFileExInfoStandard, 
+                             &sAttrData) ){
+      /* For an SQLITE_ACCESS_EXISTS query, treat a zero-length file
+      ** as if it does not exist.
+      */
+      if(    flags==SQLITE_ACCESS_EXISTS
+          && sAttrData.nFileSizeHigh==0 
+          && sAttrData.nFileSizeLow==0 ){
+        attr = INVALID_FILE_ATTRIBUTES;
+      }else{
+        attr = sAttrData.dwFileAttributes;
+      }
+    }else{
+      if( GetLastError()!=ERROR_FILE_NOT_FOUND ){
+        free(zConverted);
+        return SQLITE_IOERR_ACCESS;
+      }else{
+        attr = INVALID_FILE_ATTRIBUTES;
+      }
     }
 /* isNT() is 1 if SQLITE_OS_WINCE==1, so this else is never executed. 
 ** Since the ASCII version of these Windows API do not exist for WINCE,
@@ -36926,12 +36950,8 @@ static int syncJournal(Pager *pPager){
 ** occurs, an IO error code is returned. Or, if the EXCLUSIVE lock cannot
 ** be obtained, SQLITE_BUSY is returned.
 */
-static int pager_write_pagelist(PgHdr *pList){
-  Pager *pPager;                       /* Pager object */
+static int pager_write_pagelist(Pager *pPager, PgHdr *pList){
   int rc;                              /* Return code */
-
-  if( NEVER(pList==0) ) return SQLITE_OK;
-  pPager = pList->pPager;
 
   /* At this point there may be either a RESERVED or EXCLUSIVE lock on the
   ** database file. If there is already an EXCLUSIVE lock, the following
@@ -36949,7 +36969,7 @@ static int pager_write_pagelist(PgHdr *pList){
   ** EXCLUSIVE, it means the database file has been changed and any rollback
   ** will require a journal playback.
   */
-  assert( !pagerUseWal(pList->pPager) );
+  assert( !pagerUseWal(pPager) );
   assert( pPager->state>=PAGER_RESERVED );
   rc = pager_wait_on_lock(pPager, EXCLUSIVE_LOCK);
 
@@ -37194,7 +37214,7 @@ static int pagerStress(void *p, PgHdr *pPg){
   
     /* Write the contents of the page out to the database file. */
     if( rc==SQLITE_OK ){
-      rc = pager_write_pagelist(pPg);
+      rc = pager_write_pagelist(pPager, pPg);
     }
   }
 
@@ -38823,7 +38843,7 @@ SQLITE_PRIVATE int sqlite3PagerCommitPhaseOne(
       if( rc!=SQLITE_OK ) goto commit_phase_one_exit;
   
       /* Write all dirty pages to the database file. */
-      rc = pager_write_pagelist(sqlite3PcacheDirtyList(pPager->pPCache));
+      rc = pager_write_pagelist(pPager,sqlite3PcacheDirtyList(pPager->pPCache));
       if( rc!=SQLITE_OK ){
         assert( rc!=SQLITE_IOERR_BLOCKED );
         goto commit_phase_one_exit;
@@ -40139,7 +40159,7 @@ struct WalCkptInfo {
 ** is to the start of the write-ahead log frame-header.
 */
 #define walFrameOffset(iFrame, szPage) (                               \
-  WAL_HDRSIZE + ((iFrame)-1)*((szPage)+WAL_FRAME_HDRSIZE)        \
+  WAL_HDRSIZE + ((iFrame)-1)*(i64)((szPage)+WAL_FRAME_HDRSIZE)         \
 )
 
 /*
@@ -41315,20 +41335,25 @@ static int walCheckpoint(
 
     /* Iterate through the contents of the WAL, copying data to the db file. */
     while( rc==SQLITE_OK && 0==walIteratorNext(pIter, &iDbpage, &iFrame) ){
+      i64 iOffset;
       assert( walFramePgno(pWal, iFrame)==iDbpage );
       if( iFrame<=nBackfill || iFrame>mxSafeFrame ) continue;
-      rc = sqlite3OsRead(pWal->pWalFd, zBuf, szPage, 
-          walFrameOffset(iFrame, szPage) + WAL_FRAME_HDRSIZE
-      );
+      iOffset = walFrameOffset(iFrame, szPage) + WAL_FRAME_HDRSIZE;
+      /* testcase( IS_BIG_INT(iOffset) ); // requires a 4GiB WAL file */
+      rc = sqlite3OsRead(pWal->pWalFd, zBuf, szPage, iOffset);
       if( rc!=SQLITE_OK ) break;
-      rc = sqlite3OsWrite(pWal->pDbFd, zBuf, szPage, (iDbpage-1)*szPage);
+      iOffset = (iDbpage-1)*(i64)szPage;
+      testcase( IS_BIG_INT(iOffset) );
+      rc = sqlite3OsWrite(pWal->pDbFd, zBuf, szPage, iOffset);
       if( rc!=SQLITE_OK ) break;
     }
 
     /* If work was actually accomplished... */
     if( rc==SQLITE_OK ){
       if( mxSafeFrame==walIndexHdr(pWal)->mxFrame ){
-        rc = sqlite3OsTruncate(pWal->pDbFd, ((i64)pWal->hdr.nPage*(i64)szPage));
+        i64 szDb = pWal->hdr.nPage*(i64)szPage;
+        testcase( IS_BIG_INT(szDb) );
+        rc = sqlite3OsTruncate(pWal->pDbFd, szDb);
         if( rc==SQLITE_OK && sync_flags ){
           rc = sqlite3OsSync(pWal->pDbFd, sync_flags);
         }
@@ -41866,6 +41891,7 @@ SQLITE_PRIVATE int sqlite3WalRead(
   if( iRead ){
     i64 iOffset = walFrameOffset(iRead, pWal->hdr.szPage) + WAL_FRAME_HDRSIZE;
     *pInWal = 1;
+    /* testcase( IS_BIG_INT(iOffset) ); // requires a 4GiB WAL */
     return sqlite3OsRead(pWal->pWalFd, pOut, nOut, iOffset);
   }
 
@@ -42156,8 +42182,8 @@ SQLITE_PRIVATE int sqlite3WalFrames(
     i64 iOffset;                  /* Write offset in log file */
     void *pData;
    
-   
     iOffset = walFrameOffset(++iFrame, szPage);
+    /* testcase( IS_BIG_INT(iOffset) ); // requires a 4GiB WAL */
     
     /* Populate and write the frame header */
     nDbsize = (isCommit && p->pDirty==0) ? nTruncate : 0;
@@ -42197,6 +42223,7 @@ SQLITE_PRIVATE int sqlite3WalFrames(
       pData = pLast->pData;
 #endif
       walEncodeFrame(pWal, pLast->pgno, nTruncate, pData, aFrame);
+      /* testcase( IS_BIG_INT(iOffset) ); // requires a 4GiB WAL */
       rc = sqlite3OsWrite(pWal->pWalFd, aFrame, sizeof(aFrame), iOffset);
       if( rc!=SQLITE_OK ){
         return rc;
@@ -83590,6 +83617,10 @@ SQLITE_PRIVATE void sqlite3Pragma(
   if( sqlite3StrICmp(zLeft,"journal_mode")==0 ){
     int eMode;                    /* One of the PAGER_JOURNALMODE_XXX symbols */
 
+    if( sqlite3ReadSchema(pParse) ){
+      goto pragma_out;
+    }
+
     sqlite3VdbeSetNumCols(v, 1);
     sqlite3VdbeSetColName(v, 0, COLNAME_NAME, "journal_mode", SQLITE_STATIC);
 
@@ -83598,7 +83629,7 @@ SQLITE_PRIVATE void sqlite3Pragma(
     }else{
       const char *zMode;
       int n = sqlite3Strlen30(zRight);
-      for(eMode=0; (zMode = sqlite3JournalModename(eMode)); eMode++){
+      for(eMode=0; (zMode = sqlite3JournalModename(eMode))!=0; eMode++){
         if( sqlite3StrNICmp(zRight, zMode, n)==0 ) break;
       }
       if( !zMode ){
@@ -104131,7 +104162,6 @@ SQLITE_API int sqlite3_collation_needed16(
 }
 #endif /* SQLITE_OMIT_UTF16 */
 
-#ifndef SQLITE_OMIT_GLOBALRECOVER
 #ifndef SQLITE_OMIT_DEPRECATED
 /*
 ** This function is now an anachronism. It used to be used to recover from a
@@ -104140,7 +104170,6 @@ SQLITE_API int sqlite3_collation_needed16(
 SQLITE_API int sqlite3_global_recover(void){
   return SQLITE_OK;
 }
-#endif
 #endif
 
 /*
