@@ -100,7 +100,7 @@ static void rebuild_step_done(rid){
 ** routine clears the content buffer before returning.
 */
 static void rebuild_step(int rid, int size, Blob *pBase){
-  Stmt q1;
+  static Stmt q1;
   Bag children;
   Blob copy;
   Blob *pUse;
@@ -114,7 +114,8 @@ static void rebuild_step(int rid, int size, Blob *pBase){
   }
 
   /* Find all children of artifact rid */
-  db_prepare(&q1, "SELECT rid FROM delta WHERE srcid=%d", rid);
+  db_static_prepare(&q1, "SELECT rid FROM delta WHERE srcid=:rid");
+  db_bind_int(&q1, ":rid", rid);
   bag_init(&children);
   while( db_step(&q1)==SQLITE_ROW ){
     int cid = db_column_int(&q1, 0);
@@ -123,7 +124,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
   }
   nChild = bag_count(&children);
-  db_finalize(&q1);
+  db_reset(&q1);
 
   /* Crosslink the artifact */
   if( nChild==0 ){
@@ -211,7 +212,7 @@ int rebuild_db(int randomize, int doOut){
   db_multi_exec(zSchemaUpdates);
   for(;;){
     zTable = db_text(0,
-       "SELECT name FROM sqlite_master"
+       "SELECT name FROM sqlite_master /*scan*/"
        " WHERE type='table'"
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
@@ -239,7 +240,7 @@ int rebuild_db(int randomize, int doOut){
   );
   totalSize = db_int(0, "SELECT count(*) FROM blob");
   db_prepare(&s,
-     "SELECT rid, size FROM blob"
+     "SELECT rid, size FROM blob /*scan*/"
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
   );

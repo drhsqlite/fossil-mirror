@@ -128,7 +128,7 @@ int content_is_available(int rid){
 */
 static void content_mark_available(int rid){
   Bag pending;
-  Stmt q;
+  static Stmt q;
   if( bag_find(&contentCache.available, rid) ) return;
   bag_init(&pending);
   bag_insert(&pending, rid);
@@ -136,12 +136,13 @@ static void content_mark_available(int rid){
     bag_remove(&pending, rid);
     bag_remove(&contentCache.missing, rid);
     bag_insert(&contentCache.available, rid);
-    db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
+    db_static_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int nx = db_column_int(&q, 0);
       bag_insert(&pending, nx);
     }
-    db_finalize(&q);
+    db_reset(&q);
   }
   bag_clear(&pending);
 }
@@ -324,12 +325,22 @@ void test_content_rawget_cmd(void){
 */
 void after_dephantomize(int rid, int linkFlag){
   Stmt q;
+  int prevTid = 0;
+
+  /* The prevTid variable is used to delay invoking this routine
+  ** recursively, if possible, until after the query has finalized,
+  ** in order to avoid having an excessive number of prepared statements.
+  ** This is most effective in the common case where the query returns 
+  ** just one row.
+  */
   db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
   while( db_step(&q)==SQLITE_ROW ){
     int tid = db_column_int(&q, 0);
-    after_dephantomize(tid, 1);
+    if( prevTid ) after_dephantomize(prevTid, 1);
+    prevTid = tid;
   }
   db_finalize(&q);
+  if( prevTid ) after_dephantomize(prevTid, 1);
   if( linkFlag ){
     Blob content;
     content_get(rid, &content);
