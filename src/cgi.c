@@ -351,7 +351,7 @@ void cgi_redirect(const char *zURL){
   cgi_set_status(302, "Moved Temporarily");
   free(zLocation);
   cgi_reply();
-  exit(0);
+  fossil_exit(0);
 }
 void cgi_redirectf(const char *zFormat, ...){
   va_list ap;
@@ -386,7 +386,7 @@ void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   if( nAllocQP<=nUsedQP ){
     nAllocQP = nAllocQP*2 + 10;
     aParamQP = realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );
-    if( aParamQP==0 ) exit(1);
+    if( aParamQP==0 ) fossil_exit(1);
   }
   aParamQP[nUsedQP].zName = zName;
   aParamQP[nUsedQP].zValue = zValue;
@@ -680,7 +680,7 @@ void cgi_init(void){
     if( strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = malloc( len+1 );
-      if( z==0 ) exit(1);
+      if( z==0 ) fossil_exit(1);
       len = fread(z, 1, len, g.httpIn);
       z[len] = 0;
       if( zType[0]=='a' ){
@@ -1017,7 +1017,7 @@ static void malformed_request(void){
     "<html><body>Unrecognized HTTP Request</body></html>\n"
   );
   cgi_reply();
-  exit(0);
+  fossil_exit(0);
 }
 
 /*
@@ -1035,7 +1035,7 @@ void cgi_panic(const char *zFormat, ...){
   vxprintf(pContent,zFormat,ap);
   va_end(ap);
   cgi_reply();
-  exit(1);
+  fossil_exit(1);
 }
 
 /*
@@ -1165,7 +1165,7 @@ void cgi_handle_http_request(const char *zIpAddr){
 int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
 #ifdef __MINGW32__
   /* Use win32_http_server() instead */
-  exit(1);
+  fossil_exit(1);
 #else
   int listener = -1;           /* The server socket */
   int connection;              /* A socket for each individual connection */
@@ -1255,7 +1255,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
     }
   }
   /* NOT REACHED */  
-  exit(1);
+  fossil_exit(1);
 #endif
 }
 
@@ -1358,5 +1358,5 @@ void cgi_modified_since(time_t objectTime){
   cgi_set_status(304,"Not Modified");
   cgi_reset_content();
   cgi_reply();
-  exit(0);
+  fossil_exit(0);
 }

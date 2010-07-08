@@ -367,4 +367,3 @@ int name_to_rid_www(const char *zParamName){
   }
   return rid;
 }
-

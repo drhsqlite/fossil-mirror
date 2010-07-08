@@ -52,20 +52,20 @@ void delta_create_cmd(void){
   Blob orig, target, delta;
   if( g.argc!=5 ){
     fprintf(stderr,"Usage: %s %s ORIGIN TARGET DELTA\n", g.argv[0], g.argv[1]);
-    exit(1);
+    fossil_exit(1);
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
     fprintf(stderr,"cannot read %s\n", g.argv[2]);
-    exit(1);
+    fossil_exit(1);
   }
   if( blob_read_from_file(&target, g.argv[3])<0 ){
     fprintf(stderr,"cannot read %s\n", g.argv[3]);
-    exit(1);
+    fossil_exit(1);
   }
   blob_delta_create(&orig, &target, &delta);
   if( blob_write_to_file(&delta, g.argv[4])<blob_size(&delta) ){
     fprintf(stderr,"cannot write %s\n", g.argv[4]);
-    exit(1);
+    fossil_exit(1);
   }
   blob_reset(&orig);
   blob_reset(&target);
@@ -115,20 +115,20 @@ void delta_apply_cmd(void){
   Blob orig, target, delta;
   if( g.argc!=5 ){
     fprintf(stderr,"Usage: %s %s ORIGIN DELTA TARGET\n", g.argv[0], g.argv[1]);
-    exit(1);
+    fossil_exit(1);
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
     fprintf(stderr,"cannot read %s\n", g.argv[2]);
-    exit(1);
+    fossil_exit(1);
   }
   if( blob_read_from_file(&delta, g.argv[3])<0 ){
     fprintf(stderr,"cannot read %s\n", g.argv[3]);
-    exit(1);
+    fossil_exit(1);
   }
   blob_delta_apply(&orig, &delta, &target);
   if( blob_write_to_file(&target, g.argv[4])<blob_size(&target) ){
     fprintf(stderr,"cannot write %s\n", g.argv[4]);
-    exit(1);
+    fossil_exit(1);
   }
   blob_reset(&orig);
   blob_reset(&target);
