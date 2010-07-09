@@ -6,6 +6,10 @@ E = .exe
 #
 OBJDIR = ./wobj
 
+#### MinGW32 can only support the GCC compiler.  Force this.
+#
+COMPILER = gcc
+
 #### The following variable definitions decide which features are turned on or
 #    of when building Fossil.  Comment out the features which are not needed by
 #    this platform.
