@@ -1,63 +1,62 @@
 #!/usr/bin/make
 #
+#### The directory in which Makefile fragments are stored.
+#
+MAKEDIR = ./make
+
+#### Set up our compiler if it hasn't already been defined.
+
+ifndef COMPILER
+  COMPILER = gcc
+endif
+
+#### Set up our platform if it hasn't already been defined.
+#
+ifndef PLATFORM
+  # We default to Linux.
+  # TODO: Figure out how to reliably identify the platform from Make.  Sadly the
+  #       OSTYPE environment variable isn't carried through into GNU Make, so we
+  #       can't do this the obvious way.
+  PLATFORM = linux
+endif
+
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
 #
 SRCDIR = ./src
 
-#### The directory into which object code files should be written.
+#### Include the fragments we need from our specific environment.
 #
+include $(MAKEDIR)/$(PLATFORM)-fragment.mk
+include $(MAKEDIR)/$(COMPILER)-fragment.mk
+
+#### Include a locale-specific configuration make fragment if present.
+#    Any modification to the platforms' generic setups should be made in this
+#    file where possible.
+-include config.mk
+
+#### The following section beginning after #+++ and ending before #--- is used
+#    inside the $(PLATFORM)-fragment.mk files to turn on the features required
+#    or desired by builds on that platform.  They are replicated here for
+#    documentation purposes only and should not be set in this file.
+#+++
+#### The following variable definitions decide which features are turned on or
+#    of when building Fossil.  Comment out the features which are not needed by
+#    this platform.
 #
-OBJDIR = ./obj
+#ENABLE_STATIC = 1	# we want a static build
+#ENABLE_SSL = 1		# we are using SSL
+#ENABLE_SOCKET = 1	# we are using libsocket (OpenSolaris and Solaris)
+#ENABLE_NSL = 1		# we are using libnsl library (Solaris)
+#ENABLE_I18N = 1	# we are using i18n settings
+#---
 
-#### C Compiler and options for use in building executables that
-#    will run on the platform that is doing the build.  This is used
-#    to compile code-generator programs as part of the build process.
-#    See TCC below for the C compiler for building the finished binary.
-#
-#BCC = gcc -g -O2
-BCC = clang -g -O2
-
-#### The suffix to add to executable files.  ".exe" for windows.
-#    Nothing for unix.
-#
-E =
-
-#### C Compile and options for use in building executables that 
-#    will run on the target platform.  This is usually the same
-#    as BCC, unless you are cross-compiling.  This C compiler builds
-#    the finished binary for fossil.  The BCC compiler above is used
-#    for building intermediate code-generator tools.
-#
-#TCC = gcc -O6
-#TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
-#TCC = gcc -g -Os -Wall
-TCC = clang -g -Os -Wall
-
-# To add support for HTTPS
-TCC += -DFOSSIL_ENABLE_SSL
-
-#### Extra arguments for linking the finished binary.  Fossil needs
-#    to link against the Z-Lib compression library.  There are no
-#    other dependencies.  We sometimes add the -static option here
-#    so that we can build a static executable that will run in a
-#    chroot jail.
-#
-LIB = -lz $(LDFLAGS)
-# If you're on OpenSolaris:
-# LIB += lsocket
-# Solaris 10 needs:
-# LIB += -lsocket -lnsl
-# My assumption is that the Sol10 flags will work for Sol8/9 and possibly 11.
-# 
-# If using HTTPS:
-LIB += -lcrypto -lssl
-
-#### Tcl shell for use in running the fossil testsuite.
+#### The Tcl shell to run for test suites.
 #
 TCLSH = tclsh
 
 # You should not need to change anything below this line
 ###############################################################################
 include $(SRCDIR)/main.mk
+

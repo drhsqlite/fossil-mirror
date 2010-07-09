@@ -1,9 +1,8 @@
-C Update\sprivate\sbranch\sto\slatest\strunk.
-D 2010-07-07T07:44:27
+C Started\sthe\sprocess\sof\smodifying\sthe\sbuild\ssystem\sto\spermit\smore\sflexible\sand\nreliable\scross-platform\ssupport.\s\sCurrently\sthe\sbuild\ssystem\sis\sset\sup\sfor\nLinux\s(GCC\sor\sCLANG\sas\sthe\scompiler)\sand\sfor\sMinGW32\s(GCC\sas\sthe\scompiler).\nOf\sthese,\sonly\sthe\sLinux\sbuilds\shave\sbeen\stested\sso\sfar\sand\sconfirmed\sto\swork\nas\sexpected.\s\sThe\sway\sto\suse\sthis\snew\ssystem\sis\sas\sfollows:\n\n\s\smake\n\nBuilds\sthe\sdefault\splatform\sand\scompiler\s(linux\sand\sgcc).\n\n\s\sPLATFORM=mingw32\smake\n\nBuilds\sthe\smingw32\sbuild\s(untested!)\susing\sthe\sdefault\scompiler\s(gcc).\n\n\s\sCOMPILER=clang\smake\n\nBuilds\sthe\sdefault\splatform\s(linux)\susing\sthe\sclang\scompiler.\n\nOther\splatform\sand\scompiler\sfragment\sfiles\scan\sbe\sadded\sin\sthe\s./make\sdirectory\nbased\son\sthe\smodels\salready\sthere.
+D 2010-07-09T16:23:38
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile 24265572a132b9e5520ffb7cd70ca6460d44b284
-F Makefile.w32 d2ddd4343004ff1efb010529b996f8fcd9e13385
+F Makefile d3e92e5a69c7e9d220c09d5e080389db92a48bfd
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -33,6 +32,10 @@ F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
+F make/clang-fragment.mk 586c2735b587791b52f48cee11fc4e49588a0b46
+F make/gcc-fragment.mk 715f67e53ea5b0f3e86ba065cbd73cc09e8ca702
+F make/linux-fragment.mk 1897f61ecb815872cd236dcf74384e497ffc3172
+F make/ming32-fragment.mk a5cafe078429c050141623cc866250f84d9ccd0e
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 1b5175679efd53df5e5c533ca168f4ed69eba036
 F src/allrepo.c f66c8bf56f32d3ddd5ca5aa6cf15ebc946e6acda
@@ -261,7 +264,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 9c06026377defdf2db2fe52c1fddfb62381db5f3 710a8ba9938a9fb08a9534dd23c34f1d6c478ddb
-R 74ff20615b22b2a200e0e1b1097e1317
+P a87fbd331253c71da2f6980376960f6bb39a8434
+R 89ffdcb6d42cd7d3830a1dceb597f63a
 U michael
-Z f50cc34b7fa7f6e7099c73fde3fb4467
+Z e984971d38fdaa6dbd82b946db9a5490

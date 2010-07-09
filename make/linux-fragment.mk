@@ -1,0 +1,16 @@
+#### The suffix to add to executable files.  ".exe" for windows.
+#    Nothing for unix.
+#
+E =
+
+#### The directory into which object code files should be written.
+#
+OBJDIR = ./obj
+
+#### The following variable definitions decide which features are turned on or
+#    of when building Fossil.  Comment out the features which are not needed by
+#    this platform.
+#
+ENABLE_SSL = 1		# we are using SSL
+ENABLE_I18N = 1		# we are using i18n features
+
