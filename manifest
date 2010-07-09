@@ -1,5 +1,5 @@
-C Named\sthe\smingw32\sfragment\sproperly.\s\sForced\smingw32\sto\suse\sGCC.
-D 2010-07-09T16:57:40
+C Cleaned\sup\sthe\splatform\sfragments.\s\sCorrected\stwo\scompiler\ssettings.
+D 2010-07-09T17:23:18
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile d3e92e5a69c7e9d220c09d5e080389db92a48bfd
@@ -32,10 +32,10 @@ F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
-F make/clang-fragment.mk 586c2735b587791b52f48cee11fc4e49588a0b46
-F make/gcc-fragment.mk 715f67e53ea5b0f3e86ba065cbd73cc09e8ca702
-F make/linux-fragment.mk 1897f61ecb815872cd236dcf74384e497ffc3172
-F make/mingw32-fragment.mk 999aad86b400404ec6150a9e5076539976079371 w make/ming32-fragment.mk
+F make/clang-fragment.mk 2aa9c4dd84039005613a6541fec27969d112ac24
+F make/gcc-fragment.mk ea1ea2df03395349c5dbedaa47f6b6986f6ebc4a
+F make/linux-fragment.mk 44563bb65a8b156501ec20c6d6240d1391caca39
+F make/mingw32-fragment.mk 543ffbe98e1a0424a1d189a6a2cfaf77e11e365a
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 1b5175679efd53df5e5c533ca168f4ed69eba036
 F src/allrepo.c f66c8bf56f32d3ddd5ca5aa6cf15ebc946e6acda
@@ -264,7 +264,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 1c28a41cf1957b126173e7a79bcd2889e9684f9a
-R f8f3b0111190aef4c746d2f87f6d4c8b
+P cd98f05dbe7af8ee5a2c861699fbf1d462ed2416
+R f22ca3421bdc7884007e036c508dc517
 U michael
-Z 1b3d88c45591be56d544bda07e807019
+Z 78b1331249d562c25f9021eae209683d

@@ -48,6 +48,6 @@ ifdef ENABLE_NSL
   LIB += -lnsl
 endif
 ifdef PLATFORM_SPECIFIC_LIB
-  TCC += $(PLATFORM_SPECIFIC_LIB)
+  LIB += $(PLATFORM_SPECIFIC_LIB)
 endif
 

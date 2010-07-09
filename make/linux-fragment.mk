@@ -11,6 +11,9 @@ OBJDIR = ./obj
 #    of when building Fossil.  Comment out the features which are not needed by
 #    this platform.
 #
+#ENABLE_STATIC = 1	# we want a static build
 ENABLE_SSL = 1		# we are using SSL
-ENABLE_I18N = 1		# we are using i18n features
+#ENABLE_SOCKET = 1	# we are using libsocket (OpenSolaris and Solaris)
+#ENABLE_NSL = 1		# we are using libnsl library (Solaris)
+ENABLE_I18N = 1		# we are using i18n settings
 

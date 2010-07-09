@@ -15,6 +15,10 @@ COMPILER = gcc
 #    this platform.
 #
 ENABLE_STATIC = 1	# we want a static build
+#ENABLE_SSL = 1		# we are using SSL
+#ENABLE_SOCKET = 1	# we are using libsocket (OpenSolaris and Solaris)
+#ENABLE_NSL = 1		# we are using libnsl library (Solaris)
+#ENABLE_I18N = 1	# we are using i18n settings
 
 #### The following features must be added to the GCC and LD builds respectively.
 #
