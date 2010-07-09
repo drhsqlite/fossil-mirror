@@ -376,7 +376,7 @@ void scrub_cmd(void){
                 "passwords and other information. Changes cannot be undone.\n"
                 "Continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
-      exit(1);
+      fossil_exit(1);
     }
   }
   db_begin_transaction();

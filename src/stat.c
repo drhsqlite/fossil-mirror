@@ -63,23 +63,26 @@ void stat_page(void){
     @ </td></tr>
   }
   @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
-  n = db_int(0, "SELECT count(distinct mid) FROM mlink");
+  n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
   @ %d(n)
   @ </td></tr>
   @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
-  n = db_int(0, "SELECT count(*) FROM filename");
+  n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
   @ %d(n)
   @ </td></tr>
   @ <tr><th>Number&nbsp;Of&nbsp;Wiki&nbsp;Pages:</th><td>
-  n = db_int(0, "SELECT count(*) FROM tag WHERE +tagname GLOB 'wiki-*'");
+  n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                " WHERE +tagname GLOB 'wiki-*'");
   @ %d(n)
   @ </td></tr>
   @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
-  n = db_int(0, "SELECT count(*) FROM tag WHERE +tagname GLOB 'tkt-*'");
+  n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                " WHERE +tagname GLOB 'tkt-*'");
   @ %d(n)
   @ </td></tr>
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
-  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event) + 0.99");
+  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
+                " + 0.99");
   @ %d(n) days
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>
@@ -88,6 +91,22 @@ void stat_page(void){
   @ <tr><th>Server&nbsp;ID:</th><td>
   @ %h(db_get("server-code",""))
   @ </td></tr>
+
+  @ <tr><th>Fossil&nbsp;Version:</th><td>
+  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
+  @ </td></tr>
+  @ <tr><th>SQLite&nbsp;Version:</th><td>
+  @ %h(db_text(0, "SELECT substr(sqlite_source_id(),1,30)"))
+  @ (%h(SQLITE_VERSION))
+  @ </td></tr>
+  @ <tr><th>Database&nbsp;Stats:</th><td>
+  @ %d(db_int(0, "PRAGMA %s.page_count", g.zRepoDb)) pages,
+  @ %d(db_int(0, "PRAGMA %s.page_size", g.zRepoDb)) bytes/page,
+  @ %d(db_int(0, "PRAGMA %s.freelist_count", g.zRepoDb)) free pages,
+  @ %s(db_text(0, "PRAGMA %s.encoding", g.zRepoDb)),
+  @ %s(db_text(0, "PRAGMA %s.journal_mode", g.zRepoDb)) mode
+  @ </td></tr>
+
   @ </table></p>
   style_footer();
 }

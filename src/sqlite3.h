@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-07-03 13:59:01 3b20ad03be55613d922d81aec5313327bf4098b9"
+#define SQLITE_SOURCE_ID      "2010-07-08 17:40:38 e396184cd3bdb96e29ac33af5d1f631cac553341"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -832,16 +832,23 @@ typedef struct sqlite3_mutex sqlite3_mutex;
 ** handled as a fatal error by SQLite, vfs implementations should endeavor
 ** to prevent this by setting mxPathname to a sufficiently large value.
 **
-** The xRandomness(), xSleep(), and xCurrentTime() interfaces
-** are not strictly a part of the filesystem, but they are
+** The xRandomness(), xSleep(), xCurrentTime(), and xCurrentTimeInt64()
+** interfaces are not strictly a part of the filesystem, but they are
 ** included in the VFS structure for completeness.
 ** The xRandomness() function attempts to return nBytes bytes
 ** of good-quality randomness into zOut.  The return value is
 ** the actual number of bytes of randomness obtained.
 ** The xSleep() method causes the calling thread to sleep for at
 ** least the number of microseconds given.  The xCurrentTime()
-** method returns a Julian Day Number for the current date and time.
-**
+** method returns a Julian Day Number for the current date and time as
+** a floating point value.
+** The xCurrentTimeInt64() method returns, as an integer, the Julian
+** Day Number multipled by 86400000 (the number of milliseconds in 
+** a 24-hour day).  
+** ^SQLite will use the xCurrentTimeInt64() method to get the current
+** date and time if that method is available (if iVersion is 2 or 
+** greater and the function pointer is not NULL) and will fall back
+** to xCurrentTime() if xCurrentTimeInt64() is unavailable.
 */
 typedef struct sqlite3_vfs sqlite3_vfs;
 struct sqlite3_vfs {
@@ -868,7 +875,6 @@ struct sqlite3_vfs {
   ** The methods above are in version 1 of the sqlite_vfs object
   ** definition.  Those that follow are added in version 2 or later
   */
-  int (*xRename)(sqlite3_vfs*, const char *zOld, const char *zNew, int dirSync);
   int (*xCurrentTimeInt64)(sqlite3_vfs*, sqlite3_int64*);
   /*
   ** The methods above are in versions 1 and 2 of the sqlite_vfs object.

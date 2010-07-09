@@ -693,8 +693,7 @@ void commit_cmd(void){
     blob_zero(&ans);
     prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
-      db_end_transaction(1);
-      exit(1);
+      fossil_exit(1);
     }
   }else{
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
@@ -831,8 +830,7 @@ void commit_cmd(void){
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
-      db_end_transaction(1);
-      exit(1);
+      fossil_exit(1);
     }
   }
   blob_write_to_file(&manifest, zManifestFile);

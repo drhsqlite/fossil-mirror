@@ -101,7 +101,7 @@ static int process_sync_args(void){
     zUrl = g.argv[2];
   }
   if( zUrl==0 ){
-    if( urlOptional ) exit(0);
+    if( urlOptional ) fossil_exit(0);
     usage("URL");
   }
   url_parse(zUrl);
