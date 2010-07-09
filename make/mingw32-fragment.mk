@@ -22,15 +22,15 @@ ENABLE_STATIC = 1	# we want a static build
 
 #### The following features must be added to the GCC and LD builds respectively.
 #
-ifndef MING32_GCC
+ifndef MINGW32_GCC
 PLATFORM_SPECIFIC_GCC = -L/mingw/lib -I/mingw/include
 else
-PLATFORM_SPECIFIC_GCC = $(MING32_GCC)
+PLATFORM_SPECIFIC_GCC = $(MINGW32_GCC)
 endif
 
-ifndef MING32_LIB
+ifndef MINGW32_LIB
 PLATFORM_SPECIFIC_LIB = -lmingwex -lws2_32
 else
-PLATFORM_SPECIFIC_LIB = $(MING32_LIB)
+PLATFORM_SPECIFIC_LIB = $(MINGW32_LIB)
 endif
 

@@ -4,6 +4,11 @@
 #
 MAKEDIR = ./make
 
+#### Any site-specific pre-defined settings go here.  Settings in this file are
+#    intended to direct the compilation below.
+#
+-include pre-config.mk
+
 #### Set up our compiler if it hasn't already been defined.
 
 ifndef COMPILER
@@ -31,10 +36,10 @@ SRCDIR = ./src
 include $(MAKEDIR)/$(PLATFORM)-fragment.mk
 include $(MAKEDIR)/$(COMPILER)-fragment.mk
 
-#### Include a locale-specific configuration make fragment if present.
-#    Any modification to the platforms' generic setups should be made in this
-#    file where possible.
--include config.mk
+#### Any site-specific post-defined settings go here.  Settings in this file are
+#    intended to override the settings already established.
+#
+-include post-config.mk
 
 #### The following section beginning after #+++ and ending before #--- is used
 #    inside the $(PLATFORM)-fragment.mk files to turn on the features required
