@@ -1,5 +1,5 @@
-C Fixed\sup\sa\snaming\sproblem\sfor\sMinGW32\sand\smade\sa\smore\sflexible\smechanism\sfor\ssite-specific\senhancements.
-D 2010-07-09T17:41:12
+C Added\ssome\s(as\syet\suntested)\sfragments\sfor\sFreeBSD,\sSolaris\sand\sOpenSolaris.\s\sFreeBSD\sand\sOpenSolaris\stesting\sare\sdue\ssoon.
+D 2010-07-10T10:43:05
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 5db3737cffbf3d4855779a6dbb204c87c5f72da3
@@ -32,10 +32,20 @@ F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
-F make/clang-fragment.mk 2aa9c4dd84039005613a6541fec27969d112ac24
-F make/gcc-fragment.mk ea1ea2df03395349c5dbedaa47f6b6986f6ebc4a
-F make/linux-fragment.mk 44563bb65a8b156501ec20c6d6240d1391caca39
-F make/mingw32-fragment.mk caa537bb86531f26919806ac85a4b5d7350defe9
+F make/README.wiki 40f62dd7c49ef71be415b33bdf3960765418c970
+F make/clang-fragment.mk 3acc939ce4292fb4c1a7aa0c0f72442be51eaa2a
+F make/freebsd-fragment.mk acc21daaffc9abe74598d468bc3c160bbe4e19b1
+F make/freebsdgcc-pre-config.mk 1fb7476b9ea9f0586048b42f580487a3d83689a2
+F make/gcc-fragment.mk 97570d9c71ed591b03e96a89d9c8463f7c591ede
+F make/linux-fragment.mk 9e282393b91f2d34ae350e500992712d9dc04dfc
+F make/linuxclang-pre-config.mk 92d5fb6998e6f3ffc96133f12df2a3ca088c0000
+F make/linuxgcc-pre-config.mk 653cc682f43d58368cfd0dfe4ea81811b4d7cb73
+F make/mingw32-fragment.mk cdb58726833ba17646b5e738ec6ce58fa78a2220
+F make/mingw32-pre-config.mk a1d3b51a827a9ef49dd9413a9a3d883f302f299c
+F make/opensolaris-fragment.mk 5970071a6440ed086df1afae7bc6aa22e8ed9def
+F make/opensolarisgcc-pre-config.mk ab1064511a18bb41f18e27e1b51f8463c9caa92d
+F make/solaris-fragment.mk 06e6d33287c2fc3464147868ef3072138e990955
+F make/solarisgcc-pre-config.mk 706f5cf2a3b47a5ad3a4b859823ed9fa079683fe
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 1b5175679efd53df5e5c533ca168f4ed69eba036
 F src/allrepo.c f66c8bf56f32d3ddd5ca5aa6cf15ebc946e6acda
@@ -264,7 +274,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 81e4477e90cf22231305ad62eed9afadea901eb2
-R d9464722fe271cd00183f859b3783121
+P 6b83b517df35aa2e9626609a29e54bead4c82fb4
+R 9ad3ecad0b4e11dd27eaa594bde3b53d
 U michael
-Z f1815eaf0c15beb98d287bce94bfcc14
+Z e5db1b097ba7f240c975cfa9baf20dea

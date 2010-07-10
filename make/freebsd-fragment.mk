@@ -1,5 +1,6 @@
-#### OS-specific configuration for building Fossil on Linux systems.
+#### OS-specific configuration for building Fossil on FreeBSD systems.
 #
+# UNTESTED
 
 #### The suffix to add to executable files.  ".exe" for windows.
 #    Nothing for unix.

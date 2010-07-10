@@ -1,3 +1,6 @@
+#### Compiler-specific configuration for users of the GCC compiler suite.
+#
+
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
 #    to compile code-generator programs as part of the build process.

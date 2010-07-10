@@ -1,0 +1,24 @@
+The makefile fragments in this "new build" directory are of three kinds:
+
+  *  Platform fragments for OS-specific settings. (e.g.
+     <code>linux-fragment.mk</code>);
+  *  Compiler fragments for compiler-specific settings (e.g.
+     <code>clang-fragment.mk</code>);
+  *  Sample <code>pre-config.mk</code> fragments to use as a baseline for
+     site-specific customization of the build process (e.g.
+     <code>linuxgcc-pre-config.mk</code>.
+
+Platform and compiler fragments should not be edited at site except to correct
+errors in implementation or to add desirable new features so that clashes with
+the <cite>Fossil</cite> repository don't interfere with operations. Where
+possible all site customization should be done in pre- and post-config makefile
+fragments. (Where this is not possible is probably indicative of modifications
+required to the new build process.
+
+To use the sample pre-config fragments, simply copy them into the
+<cite>Fossil</cite> distribution's root directory as <code>pre-config.mk</code>
+and edit to taste.
+
+Note: new platform and compiler files are always welcome additions to the
+community. In particular MacOSX and BSD builds would be nice to have.
+

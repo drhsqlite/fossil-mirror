@@ -1,3 +1,6 @@
+#### OS-specific configuration for building Fossil on MingGW32 systems.
+#
+
 #### The suffix to add to executable files.
 #
 E = .exe
