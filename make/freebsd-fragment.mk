@@ -1,6 +1,6 @@
 #### OS-specific configuration for building Fossil on FreeBSD systems.
+#    NOTE: You will need to have GNU Make installed to use this.
 #
-# UNTESTED
 
 #### The suffix to add to executable files.  ".exe" for windows.
 #    Nothing for unix.
