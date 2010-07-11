@@ -1,5 +1,5 @@
-C Corrected\sOpenSolaris\sfragments\safter\stesting.
-D 2010-07-11T03:21:54
+C Since\sthere's\sno\sdifference\sbetween\sSolaris\sand\sOpenSolaris\sin\sbuilds\s(they\sboth\srequire\slibnsl\sit\sturns\sout),\sthe\sfiles\sare\snow\smerged\sas\sPLATFORM=solaris.
+D 2010-07-11T03:29:31
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 5db3737cffbf3d4855779a6dbb204c87c5f72da3
@@ -42,10 +42,8 @@ F make/linuxclang-pre-config.mk 92d5fb6998e6f3ffc96133f12df2a3ca088c0000
 F make/linuxgcc-pre-config.mk 653cc682f43d58368cfd0dfe4ea81811b4d7cb73
 F make/mingw32-fragment.mk cdb58726833ba17646b5e738ec6ce58fa78a2220
 F make/mingw32-pre-config.mk a1d3b51a827a9ef49dd9413a9a3d883f302f299c
-F make/opensolaris-fragment.mk f33b4ae1ab532437406acd8651931baae8954c7f
-F make/opensolarisgcc-pre-config.mk a686c8ab908f40b76d416ec14c79fe4bb6b88735
-F make/solaris-fragment.mk 06e6d33287c2fc3464147868ef3072138e990955
-F make/solarisgcc-pre-config.mk 706f5cf2a3b47a5ad3a4b859823ed9fa079683fe
+F make/solaris-fragment.mk 385dc1d911914130feff7c52c984681f6035df4d
+F make/solarisgcc-pre-config.mk 6c311746e3b1baf6079f44e264491dd64f625326
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 1b5175679efd53df5e5c533ca168f4ed69eba036
 F src/allrepo.c f66c8bf56f32d3ddd5ca5aa6cf15ebc946e6acda
@@ -274,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P f69de3cfd04819c902c0314415157bec4bd851a8
-R 2c93f0f980676ade5afbecd48a139939
+P b209bb963c34333732b608057494f6be8b33565f
+R 81531130306e3d3435546baa46c5f693
 U michael
-Z e8d13c8f68533719a7bb53748f110c07
+Z b85a89c7378ef982ca36251e03a6ff3e

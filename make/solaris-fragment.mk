@@ -1,7 +1,6 @@
 #### OS-specific configuration for building Fossil on Solaris (but not
 #    OpenSolaris) systems.
 #
-# UNTESTED
 
 #### The suffix to add to executable files.  ".exe" for windows.
 #    Nothing for unix.
