@@ -20,5 +20,5 @@ To use the sample pre-config fragments, simply copy them into the
 and edit to taste.
 
 Note: new platform and compiler files are always welcome additions to the
-community. In particular MacOSX and BSD builds would be nice to have.
+community. In particular MacOSX build files would be nice to have.
 
