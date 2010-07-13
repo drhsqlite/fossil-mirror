@@ -1,3 +1,29 @@
+#### config.mk file for Solaris with GCC.
+#    Copy this file as config.mk in the Fossil root directory to use.
+#
+
+#### OS-specific configuration for building Fossil on Solaris systems.
+#
+
+#### The suffix to add to executable files.  ".exe" for windows.
+#    Nothing for unix.
+#
+E =
+
+#### The directory into which object code files should be written.
+#
+OBJDIR = ./obj
+
+#### The following variable definitions decide which features are turned on or
+#    of when building Fossil.  Comment out the features which are not needed by
+#    this platform.
+#
+#ENABLE_STATIC = 1	# we want a static build
+ENABLE_SSL = 1		# we are using SSL
+ENABLE_SOCKET = 1	# we are using libsocket (OpenSolaris and Solaris)
+ENABLE_NSL = 1		# we are using libnsl library (Solaris)
+ENABLE_I18N = 1		# we are using i18n settings
+
 #### Compiler-specific configuration for users of the GCC compiler suite.
 #
 
@@ -25,9 +51,6 @@ endif
 ifndef ENABLE_I18N
   TCC += -DFOSSIL_I18N=0
 endif
-ifdef PLATFORM_SPECIFIC_GCC
-  TCC += $(PLATFORM_SPECIFIC_GCC)
-endif
 
 #### Linker dependencies.  Fossil only requires libz as an external dependency.
 #    All other library settings are optional and toggled in platform-specific
@@ -50,7 +73,8 @@ endif
 ifdef ENABLE_NSL
   LIB += -lnsl
 endif
-ifdef PLATFORM_SPECIFIC_LIB
-  LIB += $(PLATFORM_SPECIFIC_LIB)
-endif
+
+#### Signal that we've used a config.mk file.
+#
+CONFIG_MK_COMPLETE=1
 

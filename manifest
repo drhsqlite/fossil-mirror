@@ -1,8 +1,8 @@
-C Since\sthere's\sno\sdifference\sbetween\sSolaris\sand\sOpenSolaris\sin\sbuilds\s(they\sboth\srequire\slibnsl\sit\sturns\sout),\sthe\sfiles\sare\snow\smerged\sas\sPLATFORM=solaris.
-D 2010-07-11T03:29:31
+C Modified\sinto\sa\ssaner\sscheme\sthan\susing\sfragments\sand\soddball\sdefaults.
+D 2010-07-13T15:53:57
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile 5db3737cffbf3d4855779a6dbb204c87c5f72da3
+F Makefile 82ceb12173458abe5ae6c6e55127cf3865944ff1
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -32,18 +32,12 @@ F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
-F make/README.wiki 832376de77d01b50936d4fe2814f436a038641c9
-F make/clang-fragment.mk 3acc939ce4292fb4c1a7aa0c0f72442be51eaa2a
-F make/freebsd-fragment.mk 743c5bccc61b9b060175edb814e96b46de56ea3b
-F make/freebsdgcc-pre-config.mk 03c13a6de83d7fa1e253f353364e4066e25af3b3
-F make/gcc-fragment.mk 97570d9c71ed591b03e96a89d9c8463f7c591ede
-F make/linux-fragment.mk 9e282393b91f2d34ae350e500992712d9dc04dfc
-F make/linuxclang-pre-config.mk 92d5fb6998e6f3ffc96133f12df2a3ca088c0000
-F make/linuxgcc-pre-config.mk 653cc682f43d58368cfd0dfe4ea81811b4d7cb73
-F make/mingw32-fragment.mk cdb58726833ba17646b5e738ec6ce58fa78a2220
-F make/mingw32-pre-config.mk a1d3b51a827a9ef49dd9413a9a3d883f302f299c
-F make/solaris-fragment.mk 385dc1d911914130feff7c52c984681f6035df4d
-F make/solarisgcc-pre-config.mk 6c311746e3b1baf6079f44e264491dd64f625326
+F make/README.wiki 003665faf9fcac38fcd16e76497d840fd3561307
+F make/freebsd-gcc-config.mk 418f91d99cdd23e9ac1f6a3dd7223222644a09fe w make/freebsdgcc-pre-config.mk
+F make/linux-clang-config.mk 7df232efde20ebb4fcba5cbc3a8509a9bd92cb8d w make/linuxclang-pre-config.mk
+F make/linux-gcc-config.mk a1eeb7fc7b0df8bfc9d4011de07bb13e5a8f88a2 w make/linuxgcc-pre-config.mk
+F make/mingw32-gcc-config.mk 72e5e1caa12f98437e1b86070f807388cc7b29df w make/mingw32-pre-config.mk
+F make/solaris-gcc-config.mk f6a4c416012717a5df5f58ab5445b800bb2f40a9 w make/solarisgcc-pre-config.mk
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 1b5175679efd53df5e5c533ca168f4ed69eba036
 F src/allrepo.c f66c8bf56f32d3ddd5ca5aa6cf15ebc946e6acda
@@ -272,7 +266,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0a0d43b7f0ea6c424aa35e984c69ad69d952eb5b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P b209bb963c34333732b608057494f6be8b33565f
-R 81531130306e3d3435546baa46c5f693
+P 0ec2c22dfe504f52d57a3a7795e71eebaf658d46
+R fb3be3c069cc6c6b182b5a1b234c43a7
 U michael
-Z b85a89c7378ef982ca36251e03a6ff3e
+Z afe90436cd02657a24e2ee53ab2adf67
