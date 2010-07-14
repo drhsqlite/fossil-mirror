@@ -230,7 +230,10 @@ int main(int argc, char **argv){
   if( getenv("GATEWAY_INTERFACE")!=0 ){
     zCmdName = "cgi";
   }else if( argc<2 ){
-    fprintf(stderr, "Usage: %s COMMAND ...\n", argv[0]);
+    fprintf(stderr, "Usage: %s COMMAND ...\n"
+                    "\"%s help\" for a list of available commands\n"
+                    "\"%s help COMMAND\" for specific details\n",
+                    argv[0], argv[0], argv[0]);
     fossil_exit(1);
   }else{
     g.fQuiet = find_option("quiet", 0, 0)!=0;
