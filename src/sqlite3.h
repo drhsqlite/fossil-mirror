@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.0"
 #define SQLITE_VERSION_NUMBER 3007000
-#define SQLITE_SOURCE_ID      "2010-07-08 17:40:38 e396184cd3bdb96e29ac33af5d1f631cac553341"
+#define SQLITE_SOURCE_ID      "2010-07-21 16:16:28 b36b105eab6fd3195f4bfba6cb5cda0f063b7460"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -481,11 +481,12 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_OPEN_FULLMUTEX        0x00010000  /* Ok for sqlite3_open_v2() */
 #define SQLITE_OPEN_SHAREDCACHE      0x00020000  /* Ok for sqlite3_open_v2() */
 #define SQLITE_OPEN_PRIVATECACHE     0x00040000  /* Ok for sqlite3_open_v2() */
+#define SQLITE_OPEN_WAL              0x00080000  /* VFS only */
 
 /*
 ** CAPI3REF: Device Characteristics
 **
-** The xDeviceCapabilities method of the [sqlite3_io_methods]
+** The xDeviceCharacteristics method of the [sqlite3_io_methods]
 ** object returns an integer which is a vector of the these
 ** bit values expressing I/O characteristics of the mass storage
 ** device that holds the file that the [sqlite3_io_methods]
@@ -665,11 +666,10 @@ struct sqlite3_io_methods {
   int (*xSectorSize)(sqlite3_file*);
   int (*xDeviceCharacteristics)(sqlite3_file*);
   /* Methods above are valid for version 1 */
-  int (*xShmOpen)(sqlite3_file*);
+  int (*xShmMap)(sqlite3_file*, int iPg, int pgsz, int, void volatile**);
   int (*xShmLock)(sqlite3_file*, int offset, int n, int flags);
-  int (*xShmMap)(sqlite3_file*, int iPage, int pgsz, int, void volatile**);
   void (*xShmBarrier)(sqlite3_file*);
-  int (*xShmClose)(sqlite3_file*, int deleteFlag);
+  int (*xShmUnmap)(sqlite3_file*, int deleteFlag);
   /* Methods above are valid for version 2 */
   /* Additional methods may be added in future releases */
 };
@@ -892,13 +892,20 @@ struct sqlite3_vfs {
 ** With SQLITE_ACCESS_EXISTS, the xAccess method
 ** simply checks whether the file exists.
 ** With SQLITE_ACCESS_READWRITE, the xAccess method
-** checks whether the file is both readable and writable.
+** checks whether the named directory is both readable and writable
+** (in other words, if files can be added, removed, and renamed within
+** the directory).
+** The SQLITE_ACCESS_READWRITE constant is currently used only by the
+** [temp_store_directory pragma], though this could change in a future
+** release of SQLite.
 ** With SQLITE_ACCESS_READ, the xAccess method
-** checks whether the file is readable.
+** checks whether the file is readable.  The SQLITE_ACCESS_READ constant is
+** currently unused, though it might be used in a future release of
+** SQLite.
 */
 #define SQLITE_ACCESS_EXISTS    0
-#define SQLITE_ACCESS_READWRITE 1
-#define SQLITE_ACCESS_READ      2
+#define SQLITE_ACCESS_READWRITE 1   /* Used by PRAGMA temp_store_directory */
+#define SQLITE_ACCESS_READ      2   /* Unused */
 
 /*
 ** CAPI3REF: Flags for the xShmLock VFS method
@@ -5233,7 +5240,7 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 ** <dd>^This parameter returns the approximate number of of bytes of heap
 ** memory used by all pager caches associated with the database connection.
 ** ^The highwater mark associated with SQLITE_DBSTATUS_CACHE_USED is always 0.
-** checked out.</dd>)^
+** </dd>
 ** </dl>
 */
 #define SQLITE_DBSTATUS_LOOKASIDE_USED     0
