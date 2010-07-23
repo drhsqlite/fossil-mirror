@@ -44,7 +44,7 @@ meaning to fossil.  Fossil recognizes:
 <li> [#ctrl | Control Artifacts] </li>
 <li> [#wikichng | Wiki Pages] </li>
 <li> [#tktchng | Ticket Changes] </li>
-<li> [#artifact | Artifacts] </li>
+<li> [#attachment | Attachments] </li>
 </ul>
 
 These five artifact types are described in the sequel.
