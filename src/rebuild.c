@@ -165,7 +165,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
 }
 
 /*
-** Check to see if the the "sym-trunk" tag exists.  If not, create it
+** Check to see if the "sym-trunk" tag exists.  If not, create it
 ** and attach it to the very first check-in.
 */
 static void rebuild_tag_trunk(void){

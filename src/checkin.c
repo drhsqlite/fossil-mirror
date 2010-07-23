@@ -531,7 +531,7 @@ static void checkin_verify_younger(
 ** (in that order) if no editor is set.
 **
 ** You will be prompted for your GPG passphrase in order to sign the
-** new manifest unless the "--nosign" options is used.  All files that
+** new manifest unless the "--nosign" option is used.  All files that
 ** have changed will be committed unless some subset of files is
 ** specified on the command line.
 **

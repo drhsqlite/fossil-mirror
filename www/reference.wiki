@@ -145,6 +145,10 @@ into the reason for a command in a bit more depth than the program help.
     The ~/.fossil file records the location of all repositories for a
     user.  This command performs certain operations on all repositories
     that can be useful before or after a period of disconnection operation.
+
+    On Win32 systems, this file is located in %LOCALAPPDATA%, %APDDATA%
+    or %HOMEPATH% and is named _fossil.
+
     Available operations are:
 
     list       Display the location of all repositories
@@ -211,7 +215,7 @@ of the repository identified by the -R or --repository option.
     checkout.  You will be prompted to enter a check-in comment unless
     the "-m" option is used to specify a comment line.  You will be
     prompted for your GPG passphrase in order to sign the new manifest
-    unless the "--nosign" options is used.  All files that have
+    unless the "--nosign" option is used.  All files that have
     changed will be committed unless some subset of files is specified
     on the command line.
 
@@ -452,10 +456,10 @@ of the repository identified by the -R or --repository option.
 <hr><a href="#tof">&#710;</a>
     COMMAND: settings
     COMMAND: unset
-    <a name="setting">Usage: </a><a href="cmd_setting.wiki">fossil setting</a> ?PROPERTY? ?VALUE? ?-global?
+    <a name="settings">Usage: </a><a href="cmd_setting.wiki">fossil settings</a> ?PROPERTY? ?VALUE? ?-global?
     fossil unset PROPERTY ?-global?
 
-    The "setting" command with no arguments lists all properties and their
+    The "settings" command with no arguments lists all properties and their
     values.  With just a property name it shows the value of that property.
     With a value argument it changes the property for the current repository.
 

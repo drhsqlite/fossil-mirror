@@ -1486,10 +1486,10 @@ static void print_setting(const char *zName){
 /*
 ** COMMAND: settings
 ** COMMAND: unset
-** %fossil setting ?PROPERTY? ?VALUE? ?-global?
+** %fossil settings ?PROPERTY? ?VALUE? ?-global?
 ** %fossil unset PROPERTY ?-global?
 **
-** The "setting" command with no arguments lists all properties and their
+** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
 ** With a value argument it changes the property for the current repository.
 **
@@ -1504,7 +1504,7 @@ static void print_setting(const char *zName){
 **
 **    autosync         If enabled, automatically pull prior to commit
 **                     or update and automatically push after commit or
-**                     tag or branch creation.  If the the value is "pullonly"
+**                     tag or branch creation.  If the value is "pullonly"
 **                     then only pull operations occur automatically.
 **
 **    binary-glob      The VALUE is a comma-separated list of GLOB patterns
