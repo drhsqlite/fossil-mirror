@@ -140,7 +140,7 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
     @      pages. </li>
-    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
+    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for
     @      wiki.</li>
     @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
     @      to experiment.</li>
@@ -149,10 +149,10 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
-	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
-	@     Search wiki titles: <input type="text" name="title"/>
+    @ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
+    @     Search wiki titles: <input type="text" name="title"/>
         @  &nbsp; <input type="submit" />
-	@ </li>
+    @ </li>
     @ </ul>
     style_footer();
     return;
@@ -163,7 +163,7 @@ void wiki_page(void){
     zBody = db_get("sandbox",zBody);
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -235,7 +235,7 @@ void wiki_page(void){
     @ </ul>
   }
   db_finalize(&q);
- 
+
   if( !isSandbox ){
     manifest_clear(&m);
   }
@@ -275,7 +275,7 @@ void wikiedit_page(void){
     }
   }else{
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -357,7 +357,7 @@ void wikiedit_page(void){
   @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
-  @ <textarea name="w" class="wikiedit" cols="80" 
+  @ <textarea name="w" class="wikiedit" cols="80"
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ <br>
   @ <input type="submit" name="preview" value="Preview Your Changes">
@@ -383,7 +383,7 @@ void wikinew_page(void){
   if( !g.okNewWiki ){
     login_needed();
     return;
-  }  
+  }
   zName = PD("name","");
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
     cgi_redirectf("wikiedit?name=%T", zName);
@@ -416,7 +416,7 @@ static void appendRemark(Blob *p){
 
   zDate = db_text(0, "SELECT datetime('now')");
   zId = db_text(0, "SELECT lower(hex(randomblob(8)))");
-  blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h", 
+  blob_appendf(p, "\n\n<hr><div id=\"%s\"><i>On %s UTC %h",
     zId, zDate, g.zLogin);
   free(zDate);
   zUser = PD("u",g.zLogin);
@@ -445,7 +445,7 @@ void wikiappend_page(void){
   isSandbox = is_sandbox(zPageName);
   if( !isSandbox ){
     zTag = mprintf("wiki-%s", zPageName);
-    rid = db_int(0, 
+    rid = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
       " ORDER BY mtime DESC", zTag
@@ -532,7 +532,7 @@ void wikiappend_page(void){
   @ Your Name:
   @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
   @ Comment to append:<br>
-  @ <textarea name="r" class="wikiedit" cols="80" 
+  @ <textarea name="r" class="wikiedit" cols="80"
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
   @ <br>
   @ <input type="submit" name="preview" value="Preview Your Comment">
@@ -663,7 +663,7 @@ void wcontent_page(void){
     style_submenu_element("All", "All", "%s/wcontent?all=1", g.zTop);
   }
   @ <ul>
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT"
     "  substr(tagname, 6),"
     "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC)"
@@ -698,10 +698,10 @@ void wfind_page(void){
   zTitle = PD("title","*");
   style_header("Wiki Pages Found");
   @ <ul>
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%'"
     " ORDER BY lower(tagname) /*sort*/" ,
-	zTitle);
+    zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
@@ -749,7 +749,7 @@ void wikirules_page(void){
   @ enumerations that count using letters or roman numerials, use HTML.</p>
   @ <li> <p><b>Indented Paragraphs</b>.
   @ Any paragraph that begins with two or more spaces or a tab and
-  @ which is not a bullet or enumeration list item is rendered 
+  @ which is not a bullet or enumeration list item is rendered
   @ indented.  Only a single level of indentation is supported by wiki; use
   @ HTML for deeper indentation.</p>
   @ <li> <p><b>Hyperlinks</b>.
@@ -881,7 +881,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_reset(&wiki);
   content_deltify(rid,nrid,0);
   db_end_transaction(0);
-  autosync(AUTOSYNC_PUSH);  
+  autosync(AUTOSYNC_PUSH);
   return 1;
 }
 
@@ -912,16 +912,16 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **        Lists all wiki entries, one per line, ordered
 **        case-insentively by name.
 **
+**     %fossil wiki delete WikiName
+**
+**        The same as deleting a file entry, but i don't know if fossil
+**        supports a commit message for Wiki entries.
+**
 ** TODOs:
 **
 **     %fossil wiki export ?-u ARTIFACT? WikiName ?FILE?
 **
 **        Outputs the selected version of WikiName.
-**
-**     %fossil wiki delete ?-m MESSAGE? WikiName
-**
-**        The same as deleting a file entry, but i don't know if fossil
-**        supports a commit message for Wiki entries.
 **
 **     %fossil wiki ?-u? ?-d? ?-s=[|]? list
 **
@@ -958,7 +958,7 @@ void wiki_cmd(void){
     rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
       " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
       " ORDER BY x.mtime DESC LIMIT 1",
-      zPageName 
+      zPageName
     );
     if( rid ){
       Blob content;
@@ -988,7 +988,7 @@ void wiki_cmd(void){
       fprintf(zF,"%.*s\n", i, zBody);
       if( doClose ) fclose(zF);
     }else{
-	printf("%.*s\n", i, zBody);
+    printf("%.*s\n", i, zBody);
     }
     return;
   }else
@@ -1015,14 +1015,18 @@ void wiki_cmd(void){
     blob_reset(&content);
   }else
   if( strncmp(g.argv[2],"delete",n)==0 ){
-    if( g.argc!=5 ){
+    char *zPageName;
+    Blob content;
+    if( g.argc!=4 ){
       usage("delete PAGENAME");
     }
+    zPageName == g.argv[3];
+    printf("%s %s %s %s\n", g.argv[0], g.argv[1], g.argv[2], g.argv[3]);
     fossil_fatal("delete not yet implemented.");
   }else
   if( strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
-    db_prepare(&q, 
+    db_prepare(&q,
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
       " ORDER BY lower(tagname) /*sort*/"
     );

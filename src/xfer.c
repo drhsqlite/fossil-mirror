@@ -577,7 +577,7 @@ static int disableLogin = 0;
 ** of application/x-fossil or application/x-fossil-debug to this page,
 ** regardless of what path was specified in the HTTP header.  This allows
 ** clone clients to specify a URL that omits default pathnames, such
-** as "http://fossil-scm.morg/" instead of "http://fossil-scm.org/index.cgi".
+** as "http://fossil-scm.org/" instead of "http://fossil-scm.org/index.cgi".
 **
 ** WEBPAGE: xfer
 **
