@@ -161,4 +161,4 @@ via the Admin/Users page mentioned above).
 You may always use the <em>server</em> or <em>ui</em> commands to
 browse a cloned repository. You can even edit create or wiki entries,
 etc., and they will be pushed to the remote side the next time you
-push data to the the remote.
+push data to the remote.

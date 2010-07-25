@@ -128,7 +128,7 @@ static void undo_all(int redoFlag){
 }
 
 /*
-** Reset the the undo memory.
+** Reset the undo memory.
 */
 void undo_reset(void){
   static const char zSql[] =
@@ -285,7 +285,7 @@ void undo_cmd(void){
 **
 ** Usage: %fossil redo ?FILENAME...?
 **
-** Redo the an update or merge or revert operation that has been undone
+** Redo an update or merge or revert operation that has been undone
 ** by the undo command.  If FILENAME is specified then restore the changes
 ** associated with the named file(s) but otherwise leave the update
 ** or merge undone.

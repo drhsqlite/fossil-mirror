@@ -106,7 +106,7 @@ of Bob's changes independent of Alice's changes is omitted from figure 1.
 Some people say that the approach taken in figure 3 is better because it
 preserves this extra intermediate state.  Others say that the approach
 taken in figure 1 is better because it is much easier to visualize a
-linear line of development and because the the merging happens automatically
+linear line of development and because the merging happens automatically
 instead of as a separate manual step.  We will not take sides in that
 debate.  We will simply point out that fossil enables you to do it either way.
 

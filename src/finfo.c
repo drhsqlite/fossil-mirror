@@ -27,7 +27,7 @@
 **
 ** Print the change history for a single file.
 **
-** The "--limit N" and "--offset P" options limits the output to the first
+** The "--limit N" and "--offset P" options limit the output to the first
 ** N changes after skipping P changes.
 */
 void finfo_cmd(void){

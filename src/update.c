@@ -38,7 +38,7 @@ int is_a_version(int rid){
 ** changes are retained and applied to the new checkout.
 **
 ** The VERSION argument can be a specific version or tag or branch name.
-** If the VERSION argument is omitted, then the leaf of the the subtree
+** If the VERSION argument is omitted, then the leaf of the subtree
 ** that begins at the current version is used, if there is only a single
 ** leaf.  VERSION can also be "current" to select the leaf of the current
 ** version or "latest" to select the most recent check-in.
@@ -337,11 +337,13 @@ int historical_version_of_file(
 /*
 ** COMMAND: revert
 **
-** Usage: %fossil revert ?-r REVISION? FILE ...
+** Usage: %fossil revert ?-r REVISION? ?FILE ...?
 **
 ** Revert to the current repository version of FILE, or to
 ** the version associated with baseline REVISION if the -r flag
 ** appears.
+**
+** Revert all files if no file name is provided.
 **
 ** If a file is reverted accidently, it can be restored using
 ** the "fossil undo" command.
