@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>$<project_name>: $<title></title>
+<link rel="alternate" type="application/rss+xml" title="RSS Feed"
+      href="$baseurl/timeline.rss">
+<link rel="stylesheet" href="$baseurl/style.css?black2" type="text/css"
+      media="screen">
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <!-- <img src="$baseurl/logo" alt="logo"> -->
+    <br><nobr>$<project_name></nobr>
+  </div>
+  <div class="title">$<title></div>
+  <div class="status"><nobr><th1>
+     if {[info exists login]} {
+       puts "Logged in as $login"
+     } else {
+       puts "Not logged in"
+     }
+  </th1></nobr></div>
+</div>
+<div class="mainmenu"><ul><th1>
+html "<li><a href=''$baseurl$index_page''>Home</a></li>"
+if {[anycap jor]} {
+  html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
+}
+if {[hascap oh]} {
+  html "<li><a href=''$baseurl/dir?ci=tip''>Files</a></li>"
+}
+if {[hascap o]} {
+  html "<li><a href=''$baseurl/leaves''>Leaves</a></li>"
+  html "<li><a href=''$baseurl/brlist''>Branches</a></li>"
+  html "<li><a href=''$baseurl/taglist''>Tags</a></li>"
+}
+if {[hascap r]} {
+  html "<li><a href=''$baseurl/reportlist''>Tickets</a></li>"
+}
+if {[hascap j]} {
+  html "<li><a href=''$baseurl/wiki''>Wiki</a></li>"
+}
+if {[hascap s]} {
+  html "<li><a href=''$baseurl/setup''>Admin</a></li>"
+} elseif {[hascap a]} {
+  html "<li><a href=''$baseurl/setup_ulist''>Users</a></li>"
+}
+if {[info exists login]} {
+  html "<li><a href=''$baseurl/login''>Logout</a></li>"
+} else {
+  html "<li><a href=''$baseurl/login''>Login</a></li>"
+}
+</th1></ul></div>
+<div id="container">

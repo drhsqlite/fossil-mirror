@@ -1,0 +1,5 @@
+Title:       Black & White, Menu on Left, No Logo
+Description: Black letters on a white or cream background with the main menu
+	     stuck on the left-hand side.
+Author:      Unknown
+

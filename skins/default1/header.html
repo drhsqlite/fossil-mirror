@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>$<project_name>: $<title></title>
+<link rel="alternate" type="application/rss+xml" title="RSS Feed"
+      href="$baseurl/timeline.rss">
+<link rel="stylesheet" href="$baseurl/style.css?blackwhite" type="text/css"
+      media="screen">
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <img src="$baseurl/logo" alt="logo">
+  </div>
+  <div class="title"><small>$<project_name></small><br>$<title></div>
+  <div class="status"><nobr><th1>
+     if {[info exists login]} {
+       puts "Logged in as $login"
+     } else {
+       puts "Not logged in"
+     }
+  </th1></nobr></div>
+</div>
+<div class="mainmenu"><th1>
+html "<a href=''$baseurl$index_page''>Home</a> "
+if {[anycap jor]} {
+  html "<a href=''$baseurl/timeline''>Timeline</a> "
+}
+if {[hascap oh]} {
+  html "<a href=''$baseurl/dir?ci=tip''>Files</a> "
+}
+if {[hascap o]} {
+  html "<a href=''$baseurl/leaves''>Leaves</a> "
+  html "<a href=''$baseurl/brlist''>Branches</a> "
+  html "<a href=''$baseurl/taglist''>Tags</a> "
+}
+if {[hascap r]} {
+  html "<a href=''$baseurl/reportlist''>Tickets</a> "
+}
+if {[hascap j]} {
+  html "<a href=''$baseurl/wiki''>Wiki</a> "
+}
+if {[hascap s]} {
+  html "<a href=''$baseurl/setup''>Admin</a> "
+} elseif {[hascap a]} {
+  html "<a href=''$baseurl/setup_ulist''>Users</a> "
+}
+if {[info exists login]} {
+  html "<a href=''$baseurl/login''>Logout</a> "
+} else {
+  html "<a href=''$baseurl/login''>Login</a> "
+}
+</th1></div>

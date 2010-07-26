@@ -1,0 +1,4 @@
+Title:       Khaki, No Logo
+Description: A tan theme with the project title above the user identification
+	     and no logo image.
+Author:      Unknown
