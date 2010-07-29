@@ -234,8 +234,12 @@ void unlink_local_database(void){
   static const char *azFile[] = {
      "%s_FOSSIL_",
      "%s_FOSSIL_-journal",
+     "%s_FOSSIL_-wal",
+     "%s_FOSSIL_-shm",
      "%s.fos",
      "%s.fos-journal",
+     "%s.fos-wal",
+     "%s.fos-shm",
   };
   int i;
   for(i=0; i<sizeof(azFile)/sizeof(azFile[0]); i++){
