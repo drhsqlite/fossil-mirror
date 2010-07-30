@@ -41,8 +41,12 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
   if( strcmp(zPath, "manifest")==0
    || strcmp(zPath, "_FOSSIL_")==0
    || strcmp(zPath, "_FOSSIL_-journal")==0
+   || strcmp(zPath, "_FOSSIL_-wal")==0
+   || strcmp(zPath, "_FOSSIL_-shm")==0
    || strcmp(zPath, ".fos")==0
    || strcmp(zPath, ".fos-journal")==0
+   || strcmp(zPath, ".fos-wal")==0
+   || strcmp(zPath, ".fos-shm")==0
    || strcmp(zPath, "manifest.uuid")==0
    || blob_compare(&pathname, pOmit)==0
   ){
@@ -225,10 +229,10 @@ void del_directory_content(const char *zDir){
 
 /*
 ** COMMAND: rm
-** COMMAND: del
+** COMMAND: delete
 **
 ** Usage: %fossil rm FILE...
-**    or: %fossil del FILE...
+**    or: %fossil delete FILE...
 **
 ** Remove one or more files from the tree.
 **
@@ -236,7 +240,7 @@ void del_directory_content(const char *zDir){
 ** files as no longer being part of the project.  In other words, future
 ** changes to the named files will not be versioned.
 */
-void del_cmd(void){
+void delete_cmd(void){
   int i;
   int vid;
 
