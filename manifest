@@ -1,5 +1,5 @@
-C Started\soutline\sof\smakeskins\sutility.
-D 2010-07-26T07:43:46
+C Merge\swith\strunk.
+D 2010-07-31T16:20:46
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 82ceb12173458abe5ae6c6e55127cf3865944ff1
@@ -51,7 +51,7 @@ F skins/default3/footer.html 5cb382d02bec48b61b3aadf8fe5beb793309c5a2
 F skins/default3/header.html dd4579d10aa6926a984d88c4d20c5d1b4121f942
 F skins/default3/info.txt db25ab4678879a3096d8d96273b576d32e924782
 F skins/default3/style.css 65b14124652af00e6f5969fd4d95e5543dd6a88f
-F src/add.c 1b5175679efd53df5e5c533ca168f4ed69eba036
+F src/add.c fe303ecfbbfecf05fe191eb558e3191dfc3d71bf
 F src/allrepo.c 816ed36f0d077a4d72992492b1b66742b7b71a7a
 F src/attach.c 693260254e8655c141b12bc1c53ff32beb8170ab
 F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
@@ -60,8 +60,8 @@ F src/branch.c ebef8eb082ba26f9aedf7d5a60cb420ef6f8fae6
 F src/browse.c 23a693054f1e70a9a63ca032ad5f66611cab0dfa
 F src/captcha.c 08be6903df4a1a72779ed618c8a41de2cde7fb40
 F src/cgi.c ab5720fa8e68b8f7e32d435e7e1f5c8277608cf4
-F src/checkin.c 154d7ad55bc3ab4f56c606698145b77f4f0f0a3a
-F src/checkout.c d3f4b20d24ec4d82a44dc378edba8d6db1f4795a
+F src/checkin.c 1757b873726935e76c3ed54da366272c86d7fc1a
+F src/checkout.c 628940fb559e741a937edaec4597d86403a5877d
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
@@ -261,7 +261,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki da5db6cce6527c9cacce7641a2eb9f6f440bce26
+F www/index.wiki 34ec52aa0c1ce3502b163e357edbab79e1ca5cd4
 F www/mkdownload.tcl 5fc5129fe11a268ce5e887943cf12fa76438c738
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 4c626ba0e123d6b2c8a7c8695fef3d6bb6a8bb60
@@ -272,14 +272,14 @@ F www/reference.wiki 2a9b5ee73dea203720861c5a19358c1bcc580393
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 149da47380440a81d3bdf4f9d65e126c2309e8b2
 F www/selfhost.wiki 78cc85288e81a6b9ffdbe6c57dcb1688fd3d81b1
-F www/server.wiki 36a8ef685ae9b967876231769c7e4291ce0614b8
+F www/server.wiki 798fb85038218374ceeaae058ac36b1508005347
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 3530b29f15aa8f5fe4e3c4dbd5af627a16065684
-R 8aae2a75233b05a69c1947c094dce27e
+P 58e641306bf804b0ffe0dfdf76effb90eb482819 ea667800169d9aa962adae39eda3113d0dff1c45
+R 113a2f46eba5bbe060168d0008d83771
 U michael
-Z 6eab1b74ab3c4831881f70480528ff3d
+Z 3d55b88bf55c3517b64383ec26cfec13
