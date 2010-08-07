@@ -1,5 +1,5 @@
-C The\s"fossil\sdiff"\scommand\snow\saccepts\soptions\s--from\sand\s--to\sin\sorder\sto\ndo\sa\sdiff\sbetween\stwo\sarbitrary\scheck-ins.
-D 2010-08-07T16:10:29
+C Enhance\sthe\s"vdiff"\sweb\smethod\sso\sthat\sit\sshows\sthe\sdifferences\sbetween\sto\narbitrary\scheck-ins\sidentified\sby\sthe\s"from"\sand\s"to"\squery\sparameters.
+D 2010-08-07T18:09:01
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -66,7 +66,7 @@ F src/http.c c37fb0c25a77eba0e385ff7ac483a6204ddc3200
 F src/http_socket.c a9ca689aee139e74080dbc1ae83930de3dd6fccd
 F src/http_ssl.c b861d807816aa38e90c235196ad392aaf3568618
 F src/http_transport.c f5395970b1ddfddb26da528e481e91ef2ee79c32
-F src/info.c 1977ba900571dcee46b2d46bc5ed02a200d934c8
+F src/info.c 5b092ac502c7b3c7b5b2b1d40a56e6e53c483364
 F src/login.c 9d55cf8fc467adcc7129322cfd0cc4bcdd238306
 F src/main.c 29a6aa6b97e9a463a23cf9a225ff0dfbd02aaa6d
 F src/main.mk 4ef444c9e67b35f59874cf953a564e576f9aed3a
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P d0902928005639884b1758ed259a74dc0756d824
-R 86af178ef56755b25d84986cf1474bb0
+P 296b90a25bfbd3fc93bc9e6125284559108a0717
+R 15f97c60452eb65e9ec5b823558656e3
 U drh
-Z 23190ddc800442e70a0a0198f202f9f4
+Z acf087761150a45f81c33102107934bb
