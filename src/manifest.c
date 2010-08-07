@@ -1176,3 +1176,24 @@ int manifest_crosslink(int rid, Blob *pContent){
   manifest_clear(&m);
   return 1;
 }
+
+/*
+** Given a checkin name, load and parse the manifest for that checkin.
+** Throw a fatal error if anything goes wrong.
+*/
+void manifest_from_name(
+  const char *zName,
+  Manifest *pM
+){
+  int rid;
+  Blob content;
+
+  rid = name_to_rid(zName);
+  if( !is_a_version(rid) ){
+    fossil_fatal("no such checkin: %s", zName);
+  }
+  content_get(rid, &content);
+  if( !manifest_parse(pM, &content) ){
+    fossil_fatal("cannot parse manifest for checkin: %s", zName);
+  }
+}

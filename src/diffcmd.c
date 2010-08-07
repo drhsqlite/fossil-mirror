@@ -273,7 +273,7 @@ static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
     free(zFullName);
   }
   db_finalize(&q);
-  db_end_transaction(1);
+  db_end_transaction(1);  /* ROLLBACK */
 }
 
 /*
@@ -307,6 +307,48 @@ static void diff_all_two_versions(
   const char *zTo,
   const char *zDiffCmd
 ){
+  Manifest mFrom, mTo;
+  int iFrom, iTo;
+
+  manifest_from_name(zFrom, &mFrom);
+  manifest_from_name(zTo, &mTo);
+  iFrom = iTo = 0;
+  while( iFrom<mFrom.nFile && iTo<mTo.nFile ){
+    int cmp;
+    if( iFrom>=mFrom.nFile ){
+      cmp = +1;
+    }else if( iTo>=mTo.nFile ){
+      cmp = -1;
+    }else{
+      cmp = strcmp(mFrom.aFile[iFrom].zName, mTo.aFile[iTo].zName);
+    }
+    if( cmp<0 ){
+      printf("DELETED %s\n", mFrom.aFile[iFrom].zName);
+      iFrom++;
+    }else if( cmp>0 ){
+      printf("ADDED   %s\n", mTo.aFile[iTo].zName);
+      iTo++;
+    }else if( strcmp(mFrom.aFile[iFrom].zUuid, mTo.aFile[iTo].zUuid)==0 ){
+      /* No changes */
+      iFrom++;
+      iTo++;
+    }else{
+      Blob f1, f2;
+      int rid;
+      printf("CHANGED %s\n", mFrom.aFile[iFrom].zName);
+      rid = uuid_to_rid(mFrom.aFile[iFrom].zUuid, 0);
+      content_get(rid, &f1);
+      rid = uuid_to_rid(mTo.aFile[iTo].zUuid, 0);
+      content_get(rid, &f2);
+      diff_file_mem(&f1, &f2, mFrom.aFile[iFrom].zName, zDiffCmd);
+      blob_reset(&f1);
+      blob_reset(&f2);
+      iFrom++;
+      iTo++;
+    }
+  }
+  manifest_clear(&mFrom);
+  manifest_clear(&mTo);
 }
 
 /*
@@ -368,7 +410,6 @@ void diff_cmd(void){
     if( g.argc==3 ){
       diff_one_two_versions(zFrom, zTo, zDiffCmd);
     }else{
-      fossil_fatal("--to on complete check-ins not yet implemented");
       diff_all_two_versions(zFrom, zTo, zDiffCmd);
     }
   }

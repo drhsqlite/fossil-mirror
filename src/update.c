@@ -294,10 +294,11 @@ void update_cmd(void){
 
 
 /*
-** Get the contents of a file within a given revision.
+** Get the contents of a file within the checking "revision".  If
+** revision==NULL then get the file content for the current checkout.
 */
 int historical_version_of_file(
-  const char *revision,    /* The baseline name containing the file */
+  const char *revision,    /* The checkin containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
   int errCode              /* Error code if file not found.  Panic if 0. */
@@ -313,7 +314,7 @@ int historical_version_of_file(
   }
   if( !is_a_version(rid) ){
     if( errCode>0 ) return errCode;
-    fossil_fatal("no such check-out: %s", revision);
+    fossil_fatal("no such checkin: %s", revision);
   }
   content_get(rid, &mfile);
   
@@ -321,14 +322,16 @@ int historical_version_of_file(
     for(i=0; i<m.nFile; i++){
       if( strcmp(m.aFile[i].zName, file)==0 ){
         rid = uuid_to_rid(m.aFile[i].zUuid, 0);
+        manifest_clear(&m);
         return content_get(rid, content);
       }
     }
+    manifest_clear(&m);
     if( errCode<=0 ){
-      fossil_fatal("file %s does not exist in baseline: %s", file, revision);
+      fossil_fatal("file %s does not exist in checkin: %s", file, revision);
     }
   }else if( errCode<=0 ){
-    fossil_panic("could not parse manifest for baseline: %s", revision);
+    fossil_panic("could not parse manifest for checkin: %s", revision);
   }
   return errCode;
 }
