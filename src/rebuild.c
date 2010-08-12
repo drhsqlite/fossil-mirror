@@ -20,6 +20,8 @@
 #include "config.h"
 #include "rebuild.h"
 #include <assert.h>
+#include <dirent.h>
+#include <errno.h>
 
 /*
 ** Schema changes
@@ -400,4 +402,63 @@ void scrub_cmd(void){
     rebuild_db(0, 1);
     db_end_transaction(0);
   }
+}
+
+/*
+** COMMAND: reconstruct
+**
+** Usage: %fossil reconstruct FILENAME DIRECTORY
+**
+** This command studies the artifacts (files) in DIRECTORY and
+** reconstructs the fossil record from them. It places the new
+** fossil repository in FILENAME
+**
+*/
+void reconstruct_cmd(void) {
+  char *zPassword;
+  DIR *d;
+  struct dirent *pEntry;
+  Blob aContent; /* content of the just read artifact */
+  if( g.argc!=4 ){
+    usage("FILENAME DIRECTORY");
+  }
+  if( file_isdir(g.argv[3])!=1 ){
+    printf("\"%s\" is not a directory\n\n", g.argv[3]);
+    usage("FILENAME DIRECTORY");
+  }
+  db_create_repository(g.argv[2]);
+  db_open_repository(g.argv[2]);
+  db_open_config(0);
+  db_begin_transaction();
+  db_initial_setup(0, 0, 1);
+
+  d = opendir(g.argv[3]);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      Blob path;
+      blob_init(&path, 0, 0);
+      if( pEntry->d_name[0]=='.' ){
+        continue;
+      }
+      if( file_isdir(pEntry->d_name)==1 ){
+        continue;
+      }
+      blob_appendf(&path, "%s/%s", g.argv[3], pEntry->d_name);
+      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+        fossil_panic("Some unknown error occurred while reading \"%s\"", blob_str(&path));
+      }
+      content_put(&aContent, 0, 0);
+    }
+  }
+  else {
+    fossil_panic("Encountered error %d while trying to open \"%s\".", errno, g.argv[3]);
+  }
+
+  rebuild_db(0, 1);
+
+  db_end_transaction(0);
+  printf("project-id: %s\n", db_get("project-code", 0));
+  printf("server-id: %s\n", db_get("server-code", 0));
+  zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+  printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
 }
