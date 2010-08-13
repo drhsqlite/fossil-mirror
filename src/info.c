@@ -240,6 +240,47 @@ static void append_diff(int fromid, int toid){
   blob_reset(&out);  
 }
 
+/*
+** Write a line of web-page output that shows changes that have occurred 
+** to a file between two check-ins.
+*/
+static void append_file_change_line(
+  const char *zName,    /* Name of the file that has changed */
+  const char *zOld,     /* blob.uuid before change.  NULL for added files */
+  const char *zNew,     /* blob.uuid after change.  NULL for deletes */
+  int showDiff          /* Show edit diffs if true */
+){
+  if( !g.okHistory ){
+    if( zNew==0 ){
+      @ <p>Deleted %h(zName)</p>
+    }else if( zOld==0 ){
+      @ <p>Added %h(zName)</p>
+    }else{
+      @ <p>Changes to %h(zName)</p>
+    }
+  }else if( zOld && zNew ){
+    @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+    @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
+    @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
+    if( !showDiff ){
+      @ &nbsp;&nbsp;
+      @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)">[diff]</a>
+    }else{
+      int rid1 = uuid_to_rid(zOld, 0);
+      int rid2 = uuid_to_rid(zNew, 0);
+      @ <blockquote><pre>
+      append_diff(rid1, rid2);
+      @ </pre></blockquote>
+    }
+  }else if( zOld ){
+    @ <p>Deleted <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+    @ version <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a></p>
+  }else{
+    @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+    @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a></p>
+  }
+}
+
 
 /*
 ** WEBPAGE: vinfo
@@ -393,7 +434,7 @@ void ci_page(void){
     }
   }
   db_prepare(&q,
-     "SELECT pid, fid, name,"
+     "SELECT name,"
      "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
      "       (SELECT uuid FROM blob WHERE rid=mlink.fid)"
      "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
@@ -402,39 +443,10 @@ void ci_page(void){
      rid
   );
   while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q,0);
-    int fid = db_column_int(&q,1);
-    const char *zName = db_column_text(&q,2);
-    const char *zOld = db_column_text(&q,3);
-    const char *zNew = db_column_text(&q,4);
-    if( !g.okHistory ){
-      if( zNew==0 ){
-        @ <p>Deleted %h(zName)</p>
-        continue;
-      }else{
-        @ <p>Changes to %h(zName)</p>
-      }
-    }else if( zOld && zNew ){
-      @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
-      @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
-      @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
-      if( !showDiff ){
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)">[diff]</a>
-      }
-    }else if( zOld ){
-      @ <p>Deleted <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
-      @ version <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a></p>
-      continue;
-    }else{
-      @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
-      @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a></p>
-    }
-    if( showDiff ){
-      @ <blockquote><pre>
-      append_diff(pid, fid);
-      @ </pre></blockquote>
-    }
+    const char *zName = db_column_text(&q,0);
+    const char *zOld = db_column_text(&q,1);
+    const char *zNew = db_column_text(&q,2);
+    append_file_change_line(zName, zOld, zNew, showDiff);
   }
   db_finalize(&q);
   style_footer();
@@ -524,70 +536,129 @@ void winfo_page(void){
 }
 
 /*
+** Show a webpage error message
+*/
+void webpage_error(const char *zFormat, ...){
+  va_list ap;
+  const char *z;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+  style_header("URL Error");
+  @ <h1>Error</h1>
+  @ <p>%h(z)</p>
+  style_footer();
+}
+
+/*
+** Find an checkin based on query parameter zParam and parse its
+** manifest.  Return the number of errors.
+*/
+static int vdiff_parse_manifest(const char *zParam, int *pRid, Manifest *pM){
+  int rid;
+  Blob content;
+
+  *pRid = rid = name_to_rid_www(zParam);
+  if( rid==0 ){
+    webpage_error("Missing \"%s\" query parameter.", zParam);
+    return 1;
+  }
+  if( !is_a_version(rid) ){
+    webpage_error("Artifact %s is not a checkin.", P(zParam));
+    return 1;
+  }
+  content_get(rid, &content);
+  manifest_parse(pM, &content);
+  return 0;
+}
+
+/*
+** Output a description of a check-in
+*/
+void checkin_description(int rid){
+  Stmt q;
+  db_prepare(&q,
+    "SELECT datetime(mtime), coalesce(euser,user),"
+    "       coalesce(ecomment,comment), uuid"
+    "  FROM event, blob"
+    " WHERE event.objid=%d AND type='ci'"
+    "   AND blob.rid=%d",
+    rid, rid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zDate = db_column_text(&q, 0);
+    const char *zUser = db_column_text(&q, 1);
+    const char *zCom = db_column_text(&q, 2);
+    const char *zUuid = db_column_text(&q, 3);
+    @ Check-in
+    hyperlink_to_uuid(zUuid);
+    @ - %w(zCom) by
+    hyperlink_to_user(zUser,zDate," on");
+    hyperlink_to_date(zDate, ".");
+  }
+  db_finalize(&q);
+}
+
+
+/*
 ** WEBPAGE: vdiff
-** URL: /vdiff?name=RID
+** URL: /vdiff?from=UUID&to=UUID&detail=BOOLEAN
 **
-** Show all differences for a particular check-in.
+** Show all differences between two checkins.  
 */
 void vdiff_page(void){
-  int rid;
-  Stmt q;
-  char *zUuid;
+  int ridFrom, ridTo;
+  int showDetail = 0;
+  int iFrom, iTo;
+  Manifest mFrom, mTo;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   login_anonymous_available();
 
-  rid = name_to_rid_www("name");
-  if( rid==0 ){
-    fossil_redirect_home();
-  }
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-  style_header("Check-in [%.10s]", zUuid);
-  db_prepare(&q,
-    "SELECT datetime(mtime), "
-    "       coalesce(event.ecomment,event.comment),"
-    "       coalesce(event.euser,event.user)"
-    "  FROM event WHERE type='ci' AND objid=%d",
-    rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zUser = db_column_text(&q, 2);
-    const char *zComment = db_column_text(&q, 1);
-    @ <h2>Check-in %s(zUuid)</h2>
-    @ <p>Made by
-    hyperlink_to_user(zUser,zDate," on");
-    hyperlink_to_date(zDate, ":");
-    @ %w(zComment). 
-    if( g.okHistory ){
-      @ <a href="%s(g.zBaseURL)/ci/%s(zUuid)">[details]</a>
-    }
-    @ </p><hr>
-  }
-  db_finalize(&q);
-  db_prepare(&q,
-     "SELECT pid, fid, name"
-     "  FROM mlink, filename"
-     " WHERE mlink.mid=%d"
-     "   AND filename.fnid=mlink.fnid"
-     " ORDER BY name",
-     rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q,0);
-    int fid = db_column_int(&q,1);
-    const char *zName = db_column_text(&q,2);
-    if( g.okHistory ){
-      @ <p><a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a></p>
+  if( vdiff_parse_manifest("from", &ridFrom, &mFrom) ) return;
+  if( vdiff_parse_manifest("to", &ridTo, &mTo) ) return;
+  showDetail = atoi(PD("detail","0"));
+  style_header("Check-in Differences");
+  @ <h2>Difference From:</h2><blockquote>
+  checkin_description(ridFrom);
+  @ </blockquote><h2>To:</h2><blockquote>
+  checkin_description(ridTo);
+  @ </blockquote><hr><p>
+
+  iFrom = iTo = 0;
+  while( iFrom<mFrom.nFile && iTo<mTo.nFile ){
+    int cmp;
+    if( iFrom>=mFrom.nFile ){
+      cmp = +1;
+    }else if( iTo>=mTo.nFile ){
+      cmp = -1;
     }else{
-      @ <p>%h(zName)</p>
+      cmp = strcmp(mFrom.aFile[iFrom].zName, mTo.aFile[iTo].zName);
     }
-    @ <blockquote><pre>
-    append_diff(pid, fid);
-    @ </pre></blockquote>
+    if( cmp<0 ){
+      append_file_change_line(mFrom.aFile[iFrom].zName, 
+                              mFrom.aFile[iFrom].zUuid, 0, 0);
+      iFrom++;
+    }else if( cmp>0 ){
+      append_file_change_line(mTo.aFile[iTo].zName, 
+                              0, mTo.aFile[iTo].zUuid, 0);
+      iTo++;
+    }else if( strcmp(mFrom.aFile[iFrom].zUuid, mTo.aFile[iTo].zUuid)==0 ){
+      /* No changes */
+      iFrom++;
+      iTo++;
+    }else{
+      append_file_change_line(mFrom.aFile[iFrom].zName, 
+                              mFrom.aFile[iFrom].zUuid,
+                              mTo.aFile[iTo].zUuid, showDetail);
+      iFrom++;
+      iTo++;
+    }
   }
-  db_finalize(&q);
+  manifest_clear(&mFrom);
+  manifest_clear(&mTo);
+
   style_footer();
 }
 
@@ -785,12 +856,13 @@ void object_description(
 ** the two records.
 */
 void diff_page(void){
-  int v1 = name_to_rid(P("v1"));
-  int v2 = name_to_rid(P("v2"));
+  int v1, v2;
   Blob c1, c2, diff;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
+  v1 = name_to_rid_www("v1");
+  v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
   style_header("Diff");
   @ <h2>Differences From:</h2>
