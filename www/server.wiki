@@ -58,7 +58,7 @@ This is the most flexible and most likely to be widely usable of these deploymen
 <p>
 Create a script (let's call it 'repo') in your CGI directory which has content like this:
 <blockquote><tt>
-#!/path-to/fossil
+#!/path-to/fossil<br>
 repository: /path-to-repo/repository
 </tt></blockquote>
 </p>
@@ -74,8 +74,8 @@ Once the script is set up correctly, and assuming your server is also set correc
 <p>
 This scenario is almost identical to the previous one.  However, here we will assume you have multiple repositories, in one directory (call it 'fossils').  So as before, create a script (again, 'repo'):
 <blockquote><tt>
-#!/path-to/fossil
-directory: /path-to-repo/fossils
+#!/path-to/fossil<br>
+directory: /path-to-repo/fossils<br>
 notfound: http://url-to-go-to-if-repo-not-found/
 </tt></blockquote>
 </p>

@@ -273,7 +273,9 @@ void extra_cmd(void){
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
-                         "'_FOSSIL_-journal','.fos','.fos-journal')"
+                       "'_FOSSIL_-journal','.fos','.fos-journal',"
+                       "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
+                       "'.fos-shm')"
       "   AND NOT %s"
       " ORDER BY 1",
       glob_expr("x", zIgnoreFlag)
@@ -319,7 +321,9 @@ void clean_cmd(void){
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
-                       "'_FOSSIL_-journal','.fos','.fos-journal')"
+                       "'_FOSSIL_-journal','.fos','.fos-journal',"
+                       "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
+                       "'.fos-shm')"
       " ORDER BY 1", g.zLocalRoot);
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
