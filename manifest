@@ -1,8 +1,8 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-C Merged\swith\strunk.
-D 2010-08-13T03:26:33
+C Added\sbuild\sfor\sFreeBSD\susing\sclang.
+D 2010-08-13T03:30:40
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 82ceb12173458abe5ae6c6e55127cf3865944ff1
@@ -36,6 +36,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F make/README.wiki 003665faf9fcac38fcd16e76497d840fd3561307
+F make/freebsd-clang-config.mk f9ec20e07f4c6d352af2d2b012c11bd8cdaa8f5e
 F make/freebsd-gcc-config.mk 418f91d99cdd23e9ac1f6a3dd7223222644a09fe
 F make/linux-clang-config.mk 7df232efde20ebb4fcba5cbc3a8509a9bd92cb8d
 F make/linux-gcc-config.mk a1eeb7fc7b0df8bfc9d4011de07bb13e5a8f88a2
@@ -269,14 +270,14 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 6078359f2a1c2887910d99aa48f9dea6effd9833 3332895df8fa173cb0a2c0586c7b8cad4bd300a1
-R 7ea36ed5f87e60532a577bda85ef2b9e
+P 7f61175d27790d71e5fa1488b4539533cbe83415
+R d5d000357ac904fe219c9f4ccd909546
 U michael
-Z 282895c97259f4d538c9655e79d21091
+Z 55b2e7b5f262427c9adb8f4a22fa6856
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAkxku2oACgkQLqyWkKVQ54T6DQCglk5MYeSpYwJkh+NH20EYhFMo
-XisAoLzoH7xX2oFFKAJ16AIUrttYZHz3
-=EWNb
+iEYEARECAAYFAkxkvGAACgkQLqyWkKVQ54RfjQCeKaBfRKT9DJBnpExJCyOJ5QUG
+uoEAoKDrYvqveskqQZqVUtRLMLcS9OZN
+=skGq
 -----END PGP SIGNATURE-----
