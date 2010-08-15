@@ -1140,6 +1140,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
+    }else if( strcmp(zFieldName,"https:")==0 ){
+      cgi_setenv("HTTPS", zVal);
     }
   }
 
