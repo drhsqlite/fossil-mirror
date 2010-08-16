@@ -70,7 +70,7 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
   }
   if( zUuid && showComment ){
     zComment = db_text(0, 
-      "SELECT coalesce(ecomment,comment) FROM event WHERE objid=%d",
+      "SELECT coalesce(ecomment,comment) || ' (user: ' || coalesce(euser,user,'?') || ')' FROM event WHERE objid=%d",
       rid
     );
   }
