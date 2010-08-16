@@ -1,5 +1,5 @@
-C The\s"Branches"\smenu\soption\sshows\sonly\sopen\sbranches.\s\sClosed\sbranches\nare\saccessible\sfrom\sa\shyperlink.
-D 2010-08-15T19:57:39
+C Fix\sa\scomment\stypo\sin\sthe\scaptcha\sgenerator.\s\nExtend\sthe\sgraph\slines\sto\sthe\sbottom\sof\sthe\stimeline\seven\sif\sthe\slast\sfew\nentries\son\stimeline\sare\stickets\sor\swiki\sedits\sinstead\sof\scheckins.
+D 2010-08-16T10:52:08
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -41,7 +41,7 @@ F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
 F src/blob.c 4074607102fcdd499f7d3ae3117ab85bb30a65fe
 F src/branch.c 1a43c418640878dfc9bd1bdfc07fa22234f0d9e3
 F src/browse.c 23a693054f1e70a9a63ca032ad5f66611cab0dfa
-F src/captcha.c 08be6903df4a1a72779ed618c8a41de2cde7fb40
+F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
 F src/cgi.c e39a4ebbecaff3d4a57eb835b135df73a3135d4b
 F src/checkin.c 1757b873726935e76c3ed54da366272c86d7fc1a
 F src/checkout.c 628940fb559e741a937edaec4597d86403a5877d
@@ -101,7 +101,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 280cedadcac435984920bd105e72fd6fbf9fa41d
-F src/timeline.c 39025ed00dbe1cb27a1f5c46716e985cc7c222d1
+F src/timeline.c b4902a7d180ee5695d0a1ba76e0b5c65f8e46e7d
 F src/tkt.c c8e4713db48f159d87d07a13bd8502ee3962a6f7
 F src/tktsetup.c bc8010e9f3271102ef3dd4306bff7a7597812d34
 F src/translate.c 405b8cb554cafb9909803915166d23e88c81259f
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P c1bec02aae0e8cddc748ee3e32ddbc570be9d8b0
-R dbbd683a1ee8c25180d01accd8ddfb77
+P 518439507ada48fe5e50ef0f6b4c45d0e311a367
+R f5bb559d4e9e5c8b2a7985ef48809c13
 U drh
-Z 39b4a2477189f9c24823fde662ff962c
+Z d1a360e71d0c783f6bc4e516d77079f9

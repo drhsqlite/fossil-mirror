@@ -322,7 +322,8 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr><td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <tr><td><td>
+      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
     }
   }
   @ </table>
@@ -484,7 +485,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     rowinfo[i].y = absoluteY(rowinfo[i].id) + 10 - canvasY;
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
-    @   var btm = rowinfo[rowinfo.length-1].y + 20;
+    @   var btm = absoluteY("grbtm") + 10 - canvasY;
     @   if( btm<32768 ){
     @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
     @        'style="position:absolute;left:'+(left-5)+'px;"' +

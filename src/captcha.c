@@ -401,7 +401,7 @@ void test_captcha(void){
 
 /*
 ** Compute a seed value for a captcha.  The seed is public and is sent
-** has a hidden parameter with the page that contains the captcha.  Knowledge
+** as a hidden parameter with the page that contains the captcha.  Knowledge
 ** of the seed is insufficient for determining the captcha without additional
 ** information held only on the server and never revealed.
 */
