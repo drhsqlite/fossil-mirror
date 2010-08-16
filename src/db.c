@@ -1255,7 +1255,6 @@ int is_false(const char *zVal){
 void db_swap_connections(void){
   if( !g.useAttach ){
     sqlite3 *dbTemp = g.db;
-    assert( g.dbConfig!=0 );
     g.db = g.dbConfig;
     g.dbConfig = dbTemp;
   }
@@ -1376,7 +1375,7 @@ void db_lset_int(const char *zName, int value){
 
 /*
 ** Record the name of a local repository in the global_config() database.
-** The repostiroy filename %s is recorded as an entry with a "name" field
+** The repository filename %s is recorded as an entry with a "name" field
 ** of the following form:
 **
 **       repo:%s

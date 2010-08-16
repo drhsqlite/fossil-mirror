@@ -68,6 +68,12 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
     free(zUuid);
     free(zDate);
   }
+  if( zUuid && showComment ){
+    zComment = db_text(0, 
+      "SELECT coalesce(ecomment,comment) FROM event WHERE objid=%d",
+      rid
+    );
+  }
   db_prepare(&q, "SELECT uuid, pid FROM plink JOIN blob ON pid=rid "
                  " WHERE cid=%d", rid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -98,7 +104,8 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
   }
   free(zTags);
   if( zComment ){
-    printf("comment:\n%s\n", zComment);
+    printf("comment:      ");
+    comment_print(zComment, 14, 79);
     free(zComment);
   }
 }
