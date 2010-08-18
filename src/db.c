@@ -904,6 +904,7 @@ void db_close(void){
   g.repositoryOpen = 0;
   g.localOpen = 0;
   g.configOpen = 0;
+  sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
 }
