@@ -907,6 +907,10 @@ void db_close(void){
   sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
+  if( g.dbConfig ){
+    sqlite3_close(g.dbConfig);
+    g.dbConfig = 0;
+  }
 }
 
 
