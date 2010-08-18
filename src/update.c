@@ -26,7 +26,9 @@
 ** Return true if artifact rid is a version
 */
 int is_a_version(int rid){
-  return db_exists("SELECT 1 FROM plink WHERE cid=%d", rid);
+  return db_exists("SELECT 1 FROM plink WHERE cid=%d "
+                   "UNION ALL SELECT 1 FROM plink WHERE pid=%d",
+                    rid, rid);
 }
 
 /*
