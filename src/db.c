@@ -136,12 +136,12 @@ void db_force_rollback(void){
   undo_rollback();
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
+    nBegin = 0;
     if( isNewRepo ){
       db_close();
       unlink(g.zRepositoryName);
     }
   }
-  nBegin = 0;
   busy = 0;
 }
 
@@ -1007,8 +1007,7 @@ void db_initial_setup(
     int rid;
     blob_zero(&manifest);
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
-    zDate = db_text(0, "SELECT datetime(%Q)", zInitialDate);
-    zDate[10]='T';
+    zDate = date_in_standard_format(zInitialDate);
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "P\n");
     md5sum_init();
