@@ -355,7 +355,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
         if( pRow->aiRaiser[i]>0 ){
-          cgi_printf("%c%d,%d", cSep, pGraph->railMap[i], pRow->aiRaiser[i]);
+          cgi_printf("%c%d,%d", cSep, i, pRow->aiRaiser[i]);
           cSep = ',';
         }
       }
@@ -364,7 +364,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn & (1<<i) ){
-          cgi_printf("%c%d", cSep, pGraph->railMap[i]);
+          cgi_printf("%c%d", cSep, i);
           cSep = ',';
         }
       }

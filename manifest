@@ -1,5 +1,5 @@
-C Output\sappropriate\serror\smessages\sand\sabort\sif\sthe\sdate\sargument\sto\sthe\n--date-override\soption\sis\smalformed.\s\s\nTicket\s[dba59ec54423f19]
-D 2010-08-19T11:46:19
+C Improvements\sto\sthe\sgraph\slayout\salgorithm.
+D 2010-08-20T19:42:14
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -61,7 +61,7 @@ F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 96ec5ff1a4d832e5379279b3ddf4495e933257f1
 F src/file.c 99731ce4de34fdc61187c4ebf230aec1efb40808
 F src/finfo.c 1e379e6a32bfeb0aa5e38486a113717520d0ba95
-F src/graph.c 6b1dadcd58fa9c872c2b34ca93a14b567d4f888a
+F src/graph.c 0f68225c61477263e236a6048a8f70bd0750b284
 F src/http.c c37fb0c25a77eba0e385ff7ac483a6204ddc3200
 F src/http_socket.c a9ca689aee139e74080dbc1ae83930de3dd6fccd
 F src/http_ssl.c b861d807816aa38e90c235196ad392aaf3568618
@@ -101,7 +101,7 @@ F src/th.c b97a4128cb40db5b33dece58164cc1207929a6cc
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 280cedadcac435984920bd105e72fd6fbf9fa41d
-F src/timeline.c b4902a7d180ee5695d0a1ba76e0b5c65f8e46e7d
+F src/timeline.c 65ba5253cf3f5017bdd380dfab92219c943a093e
 F src/tkt.c c8e4713db48f159d87d07a13bd8502ee3962a6f7
 F src/tktsetup.c bc8010e9f3271102ef3dd4306bff7a7597812d34
 F src/translate.c 405b8cb554cafb9909803915166d23e88c81259f
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 61ca4141ccb256025466e227d34385179783bad1
-R a051ff43793b36141c011a8f5e1744a4
+P e0248776d31daa4b7a57593cb48f4ddda7364bb5
+R c44be5c76a985feb47d80b07d00f52db
 U drh
-Z 84d8074945cc1e4f90b73c188ad1020d
+Z f0e9111360c00fc419460006fbb936ee
