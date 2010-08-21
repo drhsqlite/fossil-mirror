@@ -407,7 +407,7 @@ void diff_cmd(void){
   if( zTo==0 ){
     db_must_be_within_tree();
     verify_all_options();
-    if( !isInternDiff && g.argc==3 ){
+    if( !isInternDiff ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
     if( g.argc==3 ){

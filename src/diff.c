@@ -286,10 +286,64 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
 }
 
 /*
+** Compute the optimal longest common subsequence (LCS) using an
+** exhaustive search.  This version of the LCS is only used for
+** shorter input strings since runtime is O(N*N) where N is the
+** input string length.
+*/
+static void optimalLCS(
+  DContext *p,               /* Two files being compared */
+  int iS1, int iE1,          /* Range of lines in p->aFrom[] */
+  int iS2, int iE2,          /* Range of lines in p->aTo[] */
+  int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
+  int *piSY, int *piEY       /* Write p->aTo[] common segment here */
+){
+  int mxLength = 0;          /* Length of longest common subsequence */
+  int i, j;                  /* Loop counters */
+  int k;                     /* Length of a candidate subsequence */
+  int iSXb = iS1;            /* Best match so far */
+  int iSYb = iS2;            /* Best match so far */
+
+  for(i=iS1; i<iE1-mxLength; i++){
+    for(j=iS2; j<iE2-mxLength; j++){
+      if( !same_dline(&p->aFrom[i], &p->aTo[j]) ) continue;
+      if( mxLength && !same_dline(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
+        continue;
+      }
+      k = 1;
+      while( i+k<iE1 && j+k<iE2 && same_dline(&p->aFrom[i+k],&p->aTo[j+k]) ){
+        k++;
+      }
+      if( k>mxLength ){
+        iSXb = i;
+        iSYb = j;
+        mxLength = k;
+      }
+    }
+  }
+  *piSX = iSXb;
+  *piEX = iSXb + mxLength;
+  *piSY = iSYb;
+  *piEY = iSYb + mxLength;
+}
+
+/*
 ** Compare two blocks of text on lines iS1 through iE1-1 of the aFrom[]
 ** file and lines iS2 through iE2-1 of the aTo[] file.  Locate a sequence
 ** of lines in these two blocks that are exactly the same.  Return
 ** the bounds of the matching sequence.
+**
+** If there are two or more possible answers of the same length, the
+** returned sequence should be the one closest to the center of the
+** input range.
+**
+** Ideally, the common sequence should be the longest possible common
+** sequence.  However, an exact computation of LCS is O(N*N) which is
+** way too slow for larger files.  So this routine uses an O(N)
+** heuristic approximation based on hashing that usually works about 
+** as well.  But if the O(N) algorithm doesn't get a good solution
+** and N is not too large, we fall back to an exact solution by
+** calling optimalLCS().
 */
 static void longestCommonSequence(
   DContext *p,               /* Two files being compared */
@@ -307,6 +361,7 @@ static void longestCommonSequence(
   int mid;                   /* Center of the span */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
+
 
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;
@@ -359,10 +414,16 @@ static void longestCommonSequence(
       iEYp = iEY;
     }
   }
-  *piSX = iSXb;
-  *piSY = iSYb;
-  *piEX = iEXb;
-  *piEY = iEYb;
+  if( iSXb==iEXb && (iE1-iS1)*(iE2-iS2)<400 ){
+    /* If no common sequence is found using the hashing heuristic and
+    ** the input is not too big, use the expensive exact solution */
+    optimalLCS(p, iS1, iE1, iS2, iE2, piSX, piEX, piSY, piEY);
+  }else{
+    *piSX = iSXb;
+    *piSY = iSYb;
+    *piEX = iEXb;
+    *piEY = iEYb;
+  }
   /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n", 
      iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
