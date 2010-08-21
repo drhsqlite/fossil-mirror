@@ -67,7 +67,9 @@ struct DContext {
 ** start of each line and a hash of that line.  The lower 
 ** bits of the hash store the length of each line.
 **
-** Trailing whitespace is removed from each line.
+** Trailing whitespace is removed from each line.  2010-08-20:  Not any
+** more.  If trailing whitespace is ignored, the "patch" command gets
+** confused by the diff output.  Ticket [a9f7b23c2e376af5b0e5b]
 **
 ** Return 0 if the file is binary or contains a line that is
 ** too long.
@@ -104,7 +106,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine){
   for(i=0; i<nLine; i++){
     a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
-    for(k=j; k>0 && isspace(z[k-1]); k--){}
+    for(k=j; k>0 && isspace(z[k-1]); k--){break;}
     for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
