@@ -412,9 +412,9 @@ void graph_finish(GraphContext *p, int omitDescenders){
         pDesc->mergeUpto = pRow->idx;
         mask = 1<<pDesc->mergeOut;
         pDesc->railInUse |= mask;
-        for(pDesc=pRow->pNext; pDesc && pDesc->rid!=parentRid;
-             pDesc=pDesc->pNext){
-          pDesc->railInUse |= mask;
+        for(pLoop=pRow->pNext; pLoop && pLoop->rid!=parentRid;
+             pLoop=pLoop->pNext){
+          pLoop->railInUse |= mask;
         }
       }
       pRow->mergeIn |= 1<<pDesc->mergeOut;
