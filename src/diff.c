@@ -74,7 +74,7 @@ struct DContext {
 ** Return 0 if the file is binary or contains a line that is
 ** too long.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine){
+static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
   int nLine, i, j, k, x;
   unsigned int h, h2;
   DLine *a;
@@ -106,7 +106,8 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine){
   for(i=0; i<nLine; i++){
     a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
-    for(k=j; k>0 && isspace(z[k-1]); k--){break;}
+    k = j;
+    while( ignoreWS && k>0 && isspace(z[k-1]) ){ k--; }
     for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
@@ -476,14 +477,17 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write unified diff here if not NULL */
-  int nContext     /* Amount of context to unified diff */
+  int nContext,    /* Amount of context to unified diff */
+  int ignoreEolWs  /* Ignore whitespace at the end of lines */
 ){
   DContext c;
  
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
-  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob), &c.nFrom);
-  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob), &c.nTo);
+  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
+                             &c.nFrom, ignoreEolWs);
+  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
+                           &c.nTo, ignoreEolWs);
   if( c.aFrom==0 || c.aTo==0 ){
     free(c.aFrom);
     free(c.aTo);
@@ -526,7 +530,7 @@ void test_rawdiff_cmd(void){
   for(i=3; i<g.argc; i++){
     if( i>3 ) printf("-------------------------------\n");
     blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, 0);
+    R = text_diff(&a, &b, 0, 0, 0);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       printf(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
     }
@@ -544,7 +548,7 @@ void test_udiff_cmd(void){
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, 3);
+  text_diff(&a, &b, &out, 3, 0);
   blob_write_to_file(&out, "-");
 }
 
@@ -578,7 +582,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   int i;
 
   memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput), &p->c.nTo);
+  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,1);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -606,7 +610,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom);
+                                &p->c.nFrom, 1);
   if( p->c.aFrom==0 ){
     return 1;
   }

@@ -75,7 +75,8 @@ static void diff_file(
   Blob *pFile1,             /* In memory content to compare from */
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
-  const char *zDiffCmd      /* Command for comparison */
+  const char *zDiffCmd,     /* Command for comparison */
+  int ignoreEolWs           /* Ignore whitespace at end of lines */
 ){
   if( zDiffCmd==0 ){
     Blob out;      /* Diff output text */
@@ -87,7 +88,7 @@ static void diff_file(
 
     /* Compute and output the differences */
     blob_zero(&out);
-    text_diff(pFile1, &file2, &out, 5);
+    text_diff(pFile1, &file2, &out, 5, ignoreEolWs);
     printf("--- %s\n+++ %s\n", zName, zName);
     printf("%s\n", blob_str(&out));
 
@@ -138,13 +139,14 @@ static void diff_file_mem(
   Blob *pFile1,             /* In memory content to compare from */
   Blob *pFile2,             /* In memory content to compare to */
   const char *zName,        /* Display name of the file */
-  const char *zDiffCmd      /* Command for comparison */
+  const char *zDiffCmd,     /* Command for comparison */
+  int ignoreEolWs           /* Ignore whitespace at end of lines */
 ){
   if( zDiffCmd==0 ){
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
-    text_diff(pFile1, pFile2, &out, 5);
+    text_diff(pFile1, pFile2, &out, 5, ignoreEolWs);
     printf("--- %s\n+++ %s\n", zName, zName);
     printf("%s\n", blob_str(&out));
 
@@ -182,12 +184,16 @@ static void diff_file_mem(
 ** Do a diff against a single file named in g.argv[2] from version zFrom
 ** against the same file on disk.
 */
-static void diff_one_against_disk(const char *zFrom, const char *zDiffCmd){
+static void diff_one_against_disk(
+  const char *zFrom,        /* Name of file */
+  const char *zDiffCmd,     /* Use this "diff" command */
+  int ignoreEolWs           /* Ignore whitespace changes at end of lines */
+){
   Blob fname;
   Blob content;
   file_tree_name(g.argv[2], &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, 0);
-  diff_file(&content, g.argv[2], g.argv[2], zDiffCmd);
+  diff_file(&content, g.argv[2], g.argv[2], zDiffCmd, ignoreEolWs);
   blob_reset(&content);
   blob_reset(&fname);
 }
@@ -197,7 +203,11 @@ static void diff_one_against_disk(const char *zFrom, const char *zDiffCmd){
 ** be NULL which means to simply show the difference between the edited
 ** files on disk and the check-out on which they are based.
 */
-static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
+static void diff_all_against_disk(
+  const char *zFrom,        /* Version to difference from */
+  const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
+  int ignoreEolWs           /* Ignore end-of-line whitespace */
+){
   int vid;
   Blob sql;
   Stmt q;
@@ -267,7 +277,7 @@ static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
              "============================\n",
              zPathname
       );
-      diff_file(&content, zFullName, zPathname, zDiffCmd);
+      diff_file(&content, zFullName, zPathname, zDiffCmd, ignoreEolWs);
       blob_reset(&content);
     }
     free(zFullName);
@@ -284,7 +294,8 @@ static void diff_all_against_disk(const char *zFrom, const char *zDiffCmd){
 static void diff_one_two_versions(
   const char *zFrom,
   const char *zTo,
-  const char *zDiffCmd
+  const char *zDiffCmd,
+  int ignoreEolWs
 ){
   char *zName;
   Blob fname;
@@ -293,7 +304,7 @@ static void diff_one_two_versions(
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, 0);
   historical_version_of_file(zTo, zName, &v2, 0);
-  diff_file_mem(&v1, &v2, zName, zDiffCmd);
+  diff_file_mem(&v1, &v2, zName, zDiffCmd, ignoreEolWs);
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&fname);
@@ -305,7 +316,8 @@ static void diff_one_two_versions(
 static void diff_all_two_versions(
   const char *zFrom,
   const char *zTo,
-  const char *zDiffCmd
+  const char *zDiffCmd,
+  int ignoreEolWs
 ){
   Manifest mFrom, mTo;
   int iFrom, iTo;
@@ -336,11 +348,15 @@ static void diff_all_two_versions(
       Blob f1, f2;
       int rid;
       printf("CHANGED %s\n", mFrom.aFile[iFrom].zName);
+      printf("Index: %s\n======================================="
+             "============================\n",
+             mFrom.aFile[iFrom].zName
+      );
       rid = uuid_to_rid(mFrom.aFile[iFrom].zUuid, 0);
       content_get(rid, &f1);
       rid = uuid_to_rid(mTo.aFile[iTo].zUuid, 0);
       content_get(rid, &f2);
-      diff_file_mem(&f1, &f2, mFrom.aFile[iFrom].zName, zDiffCmd);
+      diff_file_mem(&f1, &f2, mFrom.aFile[iFrom].zName, zDiffCmd, ignoreEolWs);
       blob_reset(&f1);
       blob_reset(&f2);
       iFrom++;
@@ -395,22 +411,22 @@ void diff_cmd(void){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
     if( g.argc==3 ){
-      diff_one_against_disk(zFrom, zDiffCmd);
+      diff_one_against_disk(zFrom, zDiffCmd, 0);
     }else{
-      diff_all_against_disk(zFrom, zDiffCmd);
+      diff_all_against_disk(zFrom, zDiffCmd, 0);
     }
   }else if( zFrom==0 ){
     fossil_fatal("must use --from if --to is present");
   }else{
     db_find_and_open_repository(1);
     verify_all_options();
-    if( !isInternDiff && g.argc==3 ){
+    if( !isInternDiff ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
     if( g.argc==3 ){
-      diff_one_two_versions(zFrom, zTo, zDiffCmd);
+      diff_one_two_versions(zFrom, zTo, zDiffCmd, 0);
     }else{
-      diff_all_two_versions(zFrom, zTo, zDiffCmd);
+      diff_all_two_versions(zFrom, zTo, zDiffCmd, 0);
     }
   }
 }

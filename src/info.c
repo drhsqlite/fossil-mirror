@@ -240,7 +240,7 @@ static void append_diff(int fromid, int toid){
   content_get(fromid, &from);
   content_get(toid, &to);
   blob_zero(&out);
-  text_diff(&from, &to, &out, 5);
+  text_diff(&from, &to, &out, 5, 1);
   @ %h(blob_str(&out))
   blob_reset(&from);
   blob_reset(&to);
@@ -885,7 +885,7 @@ void diff_page(void){
   content_get(v1, &c1);
   content_get(v2, &c2);
   blob_zero(&diff);
-  text_diff(&c1, &c2, &diff, 4);
+  text_diff(&c1, &c2, &diff, 4, 1);
   blob_reset(&c1);
   blob_reset(&c2);
   @ %h(blob_str(&diff))
