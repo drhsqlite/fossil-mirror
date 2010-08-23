@@ -896,11 +896,16 @@ void db_must_be_within_tree(void){
 ** Close the database connection.
 */
 void db_close(void){
+  sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
   while( pAllStmt ){
     db_finalize(pAllStmt);
   }
   db_end_transaction(1);
+  pStmt = 0;
+  while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
+    fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+  }
   g.repositoryOpen = 0;
   g.localOpen = 0;
   g.configOpen = 0;

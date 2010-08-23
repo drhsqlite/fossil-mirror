@@ -815,7 +815,7 @@ void commit_cmd(void){
       free(zUuid);
     }
   }
-  db_reset(&q2);
+  db_finalize(&q2);
 
   blob_appendf(&manifest, "\n");
   blob_appendf(&manifest, "R %b\n", &cksum1);
