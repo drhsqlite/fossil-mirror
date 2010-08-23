@@ -1,5 +1,5 @@
-C Print\sa\swarning\sif\sthere\sare\sunfinalized\sSQL\sstatements\swhen\sfossil\nshuts\sdown.\s\sTake\scare\sto\sfinalize\sall\sstatements\sin\sthe\s"commit"\scommand.
-D 2010-08-23T22:19:45
+C Omit\sthe\slink\sto\sthe\s"ZIP\sarchive"\sif\sthe\suser\sdoes\snot\shave\spermissions\nto\sdownload\sthe\sZIP\sarchive.\s\sTicket\s[f18142409088bfc707e26].
+D 2010-08-23T22:24:16
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -66,7 +66,7 @@ F src/http.c c37fb0c25a77eba0e385ff7ac483a6204ddc3200
 F src/http_socket.c a9ca689aee139e74080dbc1ae83930de3dd6fccd
 F src/http_ssl.c b861d807816aa38e90c235196ad392aaf3568618
 F src/http_transport.c f5395970b1ddfddb26da528e481e91ef2ee79c32
-F src/info.c 4b9aa4efd3fb4e07d79eab63c76d3a7b3bb21c97
+F src/info.c 104283f9f243d5a0ad2730ed1c0dd60a227008d0
 F src/login.c 9d55cf8fc467adcc7129322cfd0cc4bcdd238306
 F src/main.c 29a6aa6b97e9a463a23cf9a225ff0dfbd02aaa6d
 F src/main.mk 4ef444c9e67b35f59874cf953a564e576f9aed3a
@@ -261,7 +261,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 6fd2ff1b09a8468e761c02af630eb2bca07687b5
-R 07623ba88903b0c45536c8ebe4449138
+P 94d8e9cd4b454a2982241ffb6f44be9833c4f0e8
+R e88c9ae6a43836a9a9cbb92123a79e65
 U drh
-Z 8f7d4468c458f1d2745b7142d70f2aff
+Z 0f0bfa9fb0b54911423b2cb48ef043af

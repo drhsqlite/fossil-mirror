@@ -408,8 +408,10 @@ void ci_page(void){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
       @     <a href="%s(g.zTop)/dir?ci=%S(zUuid)">files</a>
-      @   | <a href="%s(g.zTop)/zip/%s(zProjName)-%S(zUuid).zip?uuid=%s(zUuid)">
-      @         ZIP archive</a>
+      if( g.okZip ){
+        @ | <a href="%s(g.zTop)/zip/%s(zProjName)-%S(zUuid).zip?uuid=%s(zUuid)">
+        @         ZIP archive</a>
+      }
       @   | <a href="%s(g.zTop)/artifact/%S(zUuid)">manifest</a>
       if( g.okWrite ){
         @   | <a href="%s(g.zTop)/ci_edit?r=%S(zUuid)">edit</a>
