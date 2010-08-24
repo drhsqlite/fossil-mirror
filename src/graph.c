@@ -244,7 +244,7 @@ static void assignChildrenToRail(GraphRow *pBottom){
     pCurrent->iRail = iRail;
     pCurrent->railInUse |= mask;
     pPrior->aiRaiser[iRail] = pCurrent->idx;
-    while( pPrior!=pCurrent ){
+    while( pPrior->idx > pCurrent->idx ){
       pPrior->railInUse |= mask;
       pPrior = pPrior->pPrev;
       assert( pPrior!=0 );
@@ -316,6 +316,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     pParent = hashFind(p, pRow->aParent[0]);
     if( pParent==0 ) continue;
     if( pParent->zBranch!=pRow->zBranch ) continue;
+    if( pParent->idx <= pRow->idx ) continue;
     if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
       pParent->idxTop = pRow->idxTop;
@@ -392,7 +393,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       assignChildrenToRail(pRow);
     }
     if( pParent ){
-      for(pLoop=pParent; pLoop!=pRow; pLoop=pLoop->pPrev){
+      for(pLoop=pParent; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
         pLoop->railInUse |= mask;
       }
     }
