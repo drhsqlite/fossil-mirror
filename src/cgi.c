@@ -1263,7 +1263,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
       fgets(zIn, sizeof(zIn), stdin);
       for(i=0; zIn[i] && zIn[i]!='\n'; i++){}
       zIn[i] = 0;
-      if( strcmp(zIn, "quit")==0 ) fossil_exit(0);
+      if( strcmp(zIn, "quit")==0 || feof(stdin) ) fossil_exit(0);
     }
     if( FD_ISSET(listener, &readfds) ){
       lenaddr = sizeof(inaddr);
