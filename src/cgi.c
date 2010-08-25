@@ -1174,6 +1174,15 @@ void cgi_handle_http_request(const char *zIpAddr){
   cgi_init();
 }
 
+#if INTERFACE
+/* 
+** Bitmap values for the flags parameter to cgi_http_server().
+*/
+#define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
+#define HTTP_SERVER_STDIN          0x0002     /* Monitor stdin for "quit" */
+
+#endif /* INTERFACE */
+
 /*
 ** Maximum number of child processes that we can have running
 ** at one time before we start slowing things down.
@@ -1190,7 +1199,7 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Return 0 to each child as it runs.  If unable to establish a
 ** listening socket, return non-zero.
 */
-int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
+int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
 #ifdef __MINGW32__
   /* Use win32_http_server() instead */
   fossil_exit(1);
@@ -1209,7 +1218,11 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
     inaddr.sin_family = AF_INET;
-    inaddr.sin_addr.s_addr = INADDR_ANY;
+    if( flags & HTTP_SERVER_LOCALHOST ){
+      inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    }else{
+      inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
     inaddr.sin_port = htons(iPort);
     listener = socket(AF_INET, SOCK_STREAM, 0);
     if( listener<0 ){
@@ -1254,11 +1267,14 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
     delay.tv_usec = 0;
     FD_ZERO(&readfds);
     FD_SET( listener, &readfds);
-    FD_SET( 0, &readfds);
+    if( flags & HTTP_SERVER_STDIN ){
+      FD_SET( 0, &readfds);
+    }
     select( listener+1, &readfds, 0, 0, &delay);
     if( FD_ISSET(0, &readfds) ){
       int i;
       char zIn[200];
+      assert( flags & HTTP_SERVER_STDIN );
       zIn[0] = 0;
       fgets(zIn, sizeof(zIn), stdin);
       for(i=0; zIn[i] && zIn[i]!='\n'; i++){}

@@ -992,12 +992,16 @@ static int binaryOnPath(const char *zBinary){
 ** within an open checkout.
 **
 ** The "ui" command automatically starts a web browser after initializing
-** the web server.
+** the web server.  The "ui" command also binds to 127.0.0.1 and so will
+** only process HTTP traffic from the local machine.
 **
 ** In the "server" command, the REPOSITORY can be a directory (aka folder)
 ** that contains one or more respositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
 ** various repositories.
+**
+** The "ui" or "server" verb can also be "sshd".  This is used internally
+** by the ssh:// sync method.
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
@@ -1006,6 +1010,7 @@ void cmd_webserver(void){
   char *zBrowserCmd = 0;    /* Command to launch the web browser */
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
+  int flags = 0;            /* Server flags */
 
 #ifdef __MINGW32__
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -1020,6 +1025,7 @@ void cmd_webserver(void){
   zNotFound = find_option("notfound", 0, 1);
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
+  if( isUiCmd ) flags |= HTTP_SERVER_LOCALHOST;
   find_server_repository(isUiCmd);
   if( zPort ){
     iPort = mxPort = atoi(zPort);
@@ -1028,9 +1034,16 @@ void cmd_webserver(void){
     mxPort = iPort+100;
   }
   if( g.argv[1][0]=='s' && g.argv[1][1]=='s' ){
+    /* For ssh://, output a random "access token" that must appear in
+    ** the header of every HTTP request.  HTTP requests without the
+    ** correct access token reply with 403 Forbidden.  The access token
+    ** prevents any clients other than the one client that launched the
+    ** remote server via SSH from accessing the remote server.
+    */
     g.zAccessToken = db_text(0, "SELECT lower(hex(randomblob(20)))");
     printf("Access-Token: %s\n", g.zAccessToken);
     fflush(stdout);
+    flags |= HTTP_SERVER_LOCALHOST | HTTP_SERVER_STDIN;
   }
 #ifndef __MINGW32__
   /* Unix implementation */
@@ -1054,7 +1067,7 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
   }
   db_close();
-  if( cgi_http_server(iPort, mxPort, zBrowserCmd) ){
+  if( cgi_http_server(iPort, mxPort, zBrowserCmd, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   g.httpIn = stdin;
@@ -1074,6 +1087,6 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close();
-  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound);
+  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
 #endif
 }

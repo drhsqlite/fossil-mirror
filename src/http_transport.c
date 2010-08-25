@@ -74,6 +74,9 @@ void transport_global_startup(void){
     char *zCmd;
     int i;
     char zIn[200];
+#ifdef __MINGW32__
+    fossil_fatal("the ssh:// sync method is currently only supported on unix");
+#endif
     if( g.urlUser && g.urlUser[0] ){
       zCmd = mprintf(
          "ssh -L127.0.0.1:%d:127.0.0.1:%d %s@%s "
@@ -354,6 +357,8 @@ char *transport_receive_line(void){
 
 void transport_global_shutdown(void){
   if( g.urlIsSsh && g.sshPid ){
+    printf("Closing SSH tunnel: ");
+    fflush(stdout);
     pclose2(g.sshIn, g.sshOut, g.sshPid);
     g.sshPid = 0;
   }
