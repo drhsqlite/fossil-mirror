@@ -988,6 +988,7 @@ void client_sync(
     nCardSent++;
   }
   manifest_crosslink_begin();
+  transport_global_startup();
   fossil_print(zLabelFormat, "", "Bytes", "Cards", "Artifacts", "Deltas");
 
   while( go ){

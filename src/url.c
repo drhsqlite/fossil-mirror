@@ -21,14 +21,27 @@
 #include "url.h"
 
 /*
+** Convert a string to lower-case.
+*/
+static void url_tolower(char *z){
+  while( *z ){
+     *z = tolower(*z);
+     z++;
+  }
+}
+
+/*
 ** Parse the given URL.  Populate variables in the global "g" structure.
 **
 **      g.urlIsFile      True if FILE:
 **      g.urlIsHttps     True if HTTPS: 
+**      g.urlIsSsh       True if SSH:
 **      g.urlProtocol    "http" or "https" or "file"
 **      g.urlName        Hostname for HTTP: or HTTPS:.  Filename for FILE:
+**      g.urlSshHost     Hostname for SSH: tunnel
 **      g.urlPort        TCP port number for HTTP or HTTPS.
 **      g.urlDfltPort    Default TCP port number (80 or 443).
+**      g.urlSshPort     TCP port for SSH: tunnel
 **      g.urlPath        Path name for HTTP or HTTPS.
 **      g.urlUser        Userid.
 **      g.urlPasswd      Password.
@@ -38,6 +51,10 @@
 ** HTTP url format is:
 **
 **     http://userid:password@host:port/path?query#fragment
+**
+** SSH url format is:
+**
+**     ssh://userid@host:port/fullpath
 **
 */
 void url_parse(const char *zUrl){
@@ -72,11 +89,10 @@ void url_parse(const char *zUrl){
       i = j;
       zLogin = mprintf("%t@", g.urlUser);
     }else{
-      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
       g.urlName = mprintf("%.*s", i-iStart, &zUrl[iStart]);
       zLogin = mprintf("");
     }
-    for(j=0; g.urlName[j]; j++){ g.urlName[j] = tolower(g.urlName[j]); }
+    url_tolower(g.urlName);
     if( c==':' ){
       g.urlPort = 0;
       i++;
@@ -103,6 +119,42 @@ void url_parse(const char *zUrl){
         g.urlProtocol, zLogin, g.urlName, g.urlPort, g.urlPath
       );
     }
+    free(zLogin);
+  }else if( strncmp(zUrl, "ssh://", 6)==0 ){
+    char *zLogin;
+    int r;
+    g.urlIsFile = 0;
+    g.urlIsSsh = 1;
+    g.urlProtocol = "ssh";
+    sqlite3_randomness(sizeof(r), &r);
+    g.urlPort = 18800 + (r & 0x7fffff)%2000;
+    g.urlDfltPort = 80;
+    g.urlName = "127.0.0.1";
+    g.urlHostname = g.urlName;
+    for(i=6; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
+    if( c=='@' ){
+      for(j=6; j<i && zUrl[j]!=':'; j++){}
+      g.urlUser = mprintf("%.*s", j-6, &zUrl[6]);
+      dehttpize(g.urlUser);
+      if( j<i ){
+        g.urlPasswd = mprintf("%.*s", i-j-1, &zUrl[j+1]);
+        dehttpize(g.urlPasswd);
+      }
+      for(j=i+1; (c=zUrl[j])!=0 && c!='/'; j++){}
+      g.urlSshHost = mprintf("%.*s", j-i-1, &zUrl[i+1]);
+      i = j;
+      zLogin = mprintf("%t@", g.urlUser);
+    }else{
+      g.urlSshHost = mprintf("%.*s", i-6, &zUrl[6]);
+      zLogin = mprintf("");
+    }
+    url_tolower(g.urlSshHost);
+    g.urlPath = mprintf(&zUrl[i+1]);
+    dehttpize(g.urlPath);
+    g.urlCanonical = mprintf(
+        "ssh://%s%T/%T", 
+        zLogin, g.urlSshHost, g.urlPath
+    );
     free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
@@ -152,8 +204,10 @@ void cmd_test_urlparser(void){
   for(i=0; i<2; i++){
     printf("g.urlIsFile    = %d\n", g.urlIsFile);
     printf("g.urlIsHttps   = %d\n", g.urlIsHttps);
+    printf("g.urlIsSsh     = %d\n", g.urlIsSsh);
     printf("g.urlProtocol  = %s\n", g.urlProtocol);
     printf("g.urlName      = %s\n", g.urlName);
+    printf("g.urlSshHost   = %s\n", g.urlSshHost);
     printf("g.urlPort      = %d\n", g.urlPort);
     printf("g.urlDfltPort  = %d\n", g.urlDfltPort);
     printf("g.urlHostname  = %s\n", g.urlHostname);
@@ -161,6 +215,7 @@ void cmd_test_urlparser(void){
     printf("g.urlUser      = %s\n", g.urlUser);
     printf("g.urlPasswd    = %s\n", g.urlPasswd);
     printf("g.urlCanonical = %s\n", g.urlCanonical);
+    if( g.urlIsFile || g.urlIsSsh ) break;
     if( i==0 ){
       printf("********\n");
       url_enable_proxy("Using proxy: ");

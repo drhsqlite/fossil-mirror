@@ -67,6 +67,47 @@ void transport_stats(int *pnSent, int *pnRcvd, int resetFlag){
 }
 
 /*
+** Global initialization of the transport layer
+*/
+void transport_global_startup(void){
+  if( g.urlIsSsh ){
+    char *zCmd;
+    int i;
+    char zIn[200];
+#ifdef __MINGW32__
+    fossil_fatal("the ssh:// sync method is currently only supported on unix");
+#endif
+    if( g.urlUser && g.urlUser[0] ){
+      zCmd = mprintf(
+         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s@%s "
+               "\"fossil server -P %d '%s'\"", 
+         g.urlPort, g.urlPort, g.urlUser, g.urlSshHost, g.urlPort, g.urlPath
+      );
+    }else{
+      zCmd = mprintf(
+         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s \"fossil sshd -P %d '%s'\"", 
+         g.urlPort, g.urlPort, g.urlSshHost, g.urlPort, g.urlPath
+      );
+    }
+    printf("%s\n", zCmd);
+    popen2(zCmd, &g.sshIn, &g.sshOut, &g.sshPid);
+    if( g.sshPid==0 ){
+      fossil_fatal("cannot start ssh tunnel using [%s]", zCmd);
+    }
+    free(zCmd);
+    zIn[0] = 0;
+    fgets(zIn, sizeof(zIn), g.sshIn);
+    for(i=0; zIn[i] && zIn[i]!='\n'; i++){}
+    zIn[i] = 0;
+    if( memcmp(zIn, "Access-Token: ", 14)!=0 ){
+      pclose2(g.sshIn, g.sshOut, g.sshPid);
+      fossil_fatal("failed to start ssh tunnel");
+    }
+    g.zAccessToken = mprintf("%s", &zIn[14]);
+  }
+}
+
+/*
 ** Open a connection to the server.  The server is defined by the following
 ** global variables:
 **
@@ -315,6 +356,12 @@ char *transport_receive_line(void){
 }
 
 void transport_global_shutdown(void){
+  if( g.urlIsSsh && g.sshPid ){
+    printf("Closing SSH tunnel: ");
+    fflush(stdout);
+    pclose2(g.sshIn, g.sshOut, g.sshPid);
+    g.sshPid = 0;
+  }
   if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     ssl_global_shutdown();
