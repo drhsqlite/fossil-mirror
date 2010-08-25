@@ -1021,6 +1021,18 @@ static void malformed_request(void){
 }
 
 /*
+** Send a reply indicating that the HTTP request is forbidden
+*/
+static void forbidden_request(void){
+  cgi_set_status(403, "Forbidden");
+  cgi_printf(
+    "<html><body>Access Denied</body></html>\n"
+  );
+  cgi_reply();
+  fossil_exit(0);
+}
+
+/*
 ** Panic and die while processing a webpage.
 */
 void cgi_panic(const char *zFormat, ...){
@@ -1075,6 +1087,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   int i;
   struct sockaddr_in remoteName;
   size_t size = sizeof(struct sockaddr_in);
+  int accessTokenSeen = 0;
   char zLine[2000];     /* A single line of input. */
 
   g.fullHttpReply = 1;
@@ -1124,25 +1137,38 @@ void cgi_handle_http_request(const char *zIpAddr){
     while( i>0 && isspace(zVal[i-1]) ){ i--; }
     zVal[i] = 0;
     for(i=0; zFieldName[i]; i++){ zFieldName[i] = tolower(zFieldName[i]); }
-    if( strcmp(zFieldName,"user-agent:")==0 ){
-      cgi_setenv("HTTP_USER_AGENT", zVal);
-    }else if( strcmp(zFieldName,"content-length:")==0 ){
+    if( strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
-    }else if( strcmp(zFieldName,"referer:")==0 ){
-      cgi_setenv("HTTP_REFERER", zVal);
-    }else if( strcmp(zFieldName,"host:")==0 ){
-      cgi_setenv("HTTP_HOST", zVal);
     }else if( strcmp(zFieldName,"content-type:")==0 ){
       cgi_setenv("CONTENT_TYPE", zVal);
     }else if( strcmp(zFieldName,"cookie:")==0 ){
       cgi_setenv("HTTP_COOKIE", zVal);
+    }else if( strcmp(zFieldName,"https:")==0 ){
+      cgi_setenv("HTTPS", zVal);
+    }else if( strcmp(zFieldName,"host:")==0 ){
+      cgi_setenv("HTTP_HOST", zVal);
     }else if( strcmp(zFieldName,"if-none-match:")==0 ){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
-    }else if( strcmp(zFieldName,"https:")==0 ){
-      cgi_setenv("HTTPS", zVal);
+    }else if( strcmp(zFieldName,"x-fossil-security-token:")==0 ){
+      if( g.zAccessToken ){
+        if( strcmp(zVal,g.zAccessToken)==0 ){
+          accessTokenSeen = 1;
+        }
+      }
     }
+#if 0
+    else if( strcmp(zFieldName,"referer:")==0 ){
+      cgi_setenv("HTTP_REFERER", zVal);
+    }else if( strcmp(zFieldName,"user-agent:")==0 ){
+      cgi_setenv("HTTP_USER_AGENT", zVal);
+    }
+#endif
+  }
+
+  if( g.zAccessToken && !accessTokenSeen ){
+    forbidden_request();
   }
 
   cgi_init();

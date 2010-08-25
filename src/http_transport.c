@@ -67,6 +67,47 @@ void transport_stats(int *pnSent, int *pnRcvd, int resetFlag){
 }
 
 /*
+** Global initialization of the transport layer
+*/
+void transport_global_startup(void){
+  if( g.urlIsSsh ){
+    char *zCmd;
+    int i, j;
+    char zReply[200];
+    if( g.urlUser && g.urlUser[0] ){
+      zCmd = mprintf(
+         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s@%s \"fossil sshd -P %d '%s'\"", 
+         g.urlPort, g.urlPort, g.urlUser, g.urlSshHost, g.urlPort, g.urlPath
+      );
+    }else{
+      zCmd = mprintf(
+         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s \"fossil sshd -P %d '%s'\"", 
+         g.urlPort, g.urlPort, g.urlSshHost, g.urlPort, g.urlPath
+      );
+    }
+    printf("%s\n", zCmd);
+    g.sshIn = popen(zCmd, "r");
+    if( g.sshIn==0 ){
+      fossil_fatal("cannot start ssh tunnel using [%s]", zCmd);
+    }
+    free(zCmd);
+    zReply[0] = 0;
+    fgets(zReply, sizeof(zReply), g.sshIn);
+    if( zReply[0]==0 ){
+      pclose(g.sshIn);
+      fossil_fatal("unable to set up ssh tunnel");
+    }
+    if( memcmp(zReply, "Access-Token: ", 14)!=0 ){
+      pclose(g.sshIn);
+      fossil_fatal("ssh tunnel did not send back an access token");
+    }
+    for(i=14; isspace(zReply[i]); i++);
+    for(j=i; isalnum(zReply[j]); j++);
+    g.zAccessToken = mprintf("%.*s", j-i, &zReply[i]); 
+  }
+}
+
+/*
 ** Open a connection to the server.  The server is defined by the following
 ** global variables:
 **
@@ -315,6 +356,10 @@ char *transport_receive_line(void){
 }
 
 void transport_global_shutdown(void){
+  if( g.urlIsSsh && g.sshIn ){
+    pclose(g.sshIn);
+    g.sshIn = 0;
+  }
   if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     ssl_global_shutdown();

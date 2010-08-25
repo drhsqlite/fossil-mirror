@@ -85,14 +85,19 @@ struct Global {
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
+  char *zAccessToken;     /* X-Fossil-Access-Token HTTP header field */
+  FILE *sshIn;            /* Result of popen("ssh") */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
+  int urlIsSsh;           /* True if an "ssh:" url */
   char *urlName;          /* Hostname for http: or filename for file: */
+  char *urlSshHost;       /* Hostname for ssh: tunnels */
   char *urlHostname;      /* The HOST: parameter on http headers */
   char *urlProtocol;      /* "http" or "https" */
   int urlPort;            /* TCP port number for http: or https: */
   int urlDfltPort;        /* The default port for the given protocol */
+  int urlSshPort;         /* TCP port for SSH */
   char *urlPath;          /* Pathname for http: */
   char *urlUser;          /* User id for http: */
   char *urlPasswd;        /* Password for http: */

@@ -113,7 +113,11 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }else{
     blob_appendf(pHdr, "Content-Type: application/x-fossil\r\n");
   }
-  blob_appendf(pHdr, "Content-Length: %d\r\n\r\n", blob_size(pPayload));
+  blob_appendf(pHdr, "Content-Length: %d\r\n", blob_size(pPayload));
+  if( g.zAccessToken ){
+    blob_appendf(pHdr, "X-Fossil-Access-Token: %s\r\n", g.zAccessToken);
+  }
+  blob_appendf(pHdr, "\r\n");
 }
 
 /*
