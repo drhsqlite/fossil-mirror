@@ -46,6 +46,7 @@ set src {
   merge3
   name
   pivot
+  popen
   pqueue
   printf
   rebuild

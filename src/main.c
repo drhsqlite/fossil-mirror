@@ -86,7 +86,9 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   char *zAccessToken;     /* X-Fossil-Access-Token HTTP header field */
-  FILE *sshIn;            /* Result of popen("ssh") */
+  int sshPid;             /* Process id of ssh subprocess */
+  FILE *sshIn;            /* From ssh subprocess to this */
+  FILE *sshOut;           /* From this to ssh subprocess */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
@@ -976,6 +978,7 @@ static int binaryOnPath(const char *zBinary){
 #endif
 
 /*
+** COMMAND: sshd
 ** COMMAND: server
 ** COMMAND: ui
 **
@@ -1023,6 +1026,11 @@ void cmd_webserver(void){
   }else{
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
+  }
+  if( g.argv[1][0]=='s' && g.argv[1][1]=='s' ){
+    g.zAccessToken = db_text(0, "SELECT lower(hex(randomblob(20)))");
+    printf("Access-Token: %s\n", g.zAccessToken);
+    fflush(stdout);
   }
 #ifndef __MINGW32__
   /* Unix implementation */

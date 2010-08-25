@@ -72,11 +72,12 @@ void transport_stats(int *pnSent, int *pnRcvd, int resetFlag){
 void transport_global_startup(void){
   if( g.urlIsSsh ){
     char *zCmd;
-    int i, j;
-    char zReply[200];
+    int i;
+    char zIn[200];
     if( g.urlUser && g.urlUser[0] ){
       zCmd = mprintf(
-         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s@%s \"fossil sshd -P %d '%s'\"", 
+         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s@%s "
+               "\"fossil server -P %d '%s'\"", 
          g.urlPort, g.urlPort, g.urlUser, g.urlSshHost, g.urlPort, g.urlPath
       );
     }else{
@@ -86,24 +87,20 @@ void transport_global_startup(void){
       );
     }
     printf("%s\n", zCmd);
-    g.sshIn = popen(zCmd, "r");
-    if( g.sshIn==0 ){
+    popen2(zCmd, &g.sshIn, &g.sshOut, &g.sshPid);
+    if( g.sshPid==0 ){
       fossil_fatal("cannot start ssh tunnel using [%s]", zCmd);
     }
     free(zCmd);
-    zReply[0] = 0;
-    fgets(zReply, sizeof(zReply), g.sshIn);
-    if( zReply[0]==0 ){
-      pclose(g.sshIn);
-      fossil_fatal("unable to set up ssh tunnel");
+    zIn[0] = 0;
+    fgets(zIn, sizeof(zIn), g.sshIn);
+    for(i=0; zIn[i] && zIn[i]!='\n'; i++){}
+    zIn[i] = 0;
+    if( memcmp(zIn, "Access-Token: ", 14)!=0 ){
+      pclose2(g.sshIn, g.sshOut, g.sshPid);
+      fossil_fatal("failed to start ssh tunnel");
     }
-    if( memcmp(zReply, "Access-Token: ", 14)!=0 ){
-      pclose(g.sshIn);
-      fossil_fatal("ssh tunnel did not send back an access token");
-    }
-    for(i=14; isspace(zReply[i]); i++);
-    for(j=i; isalnum(zReply[j]); j++);
-    g.zAccessToken = mprintf("%.*s", j-i, &zReply[i]); 
+    g.zAccessToken = mprintf("%s", &zIn[14]);
   }
 }
 
@@ -356,9 +353,9 @@ char *transport_receive_line(void){
 }
 
 void transport_global_shutdown(void){
-  if( g.urlIsSsh && g.sshIn ){
-    pclose(g.sshIn);
-    g.sshIn = 0;
+  if( g.urlIsSsh && g.sshPid ){
+    pclose2(g.sshIn, g.sshOut, g.sshPid);
+    g.sshPid = 0;
   }
   if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL

@@ -31,6 +31,8 @@
 #ifdef __MINGW32__
 # include <windows.h>
 #else
+# include <sys/types.h>
+# include <signal.h>
 # include <pwd.h>
 #endif
 

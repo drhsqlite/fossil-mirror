@@ -1151,7 +1151,7 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
-    }else if( strcmp(zFieldName,"x-fossil-security-token:")==0 ){
+    }else if( strcmp(zFieldName,"x-fossil-access-token:")==0 ){
       if( g.zAccessToken ){
         if( strcmp(zVal,g.zAccessToken)==0 ){
           accessTokenSeen = 1;
@@ -1254,7 +1254,18 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser){
     delay.tv_usec = 0;
     FD_ZERO(&readfds);
     FD_SET( listener, &readfds);
-    if( select( listener+1, &readfds, 0, 0, &delay) ){
+    FD_SET( 0, &readfds);
+    select( listener+1, &readfds, 0, 0, &delay);
+    if( FD_ISSET(0, &readfds) ){
+      int i;
+      char zIn[200];
+      zIn[0] = 0;
+      fgets(zIn, sizeof(zIn), stdin);
+      for(i=0; zIn[i] && zIn[i]!='\n'; i++){}
+      zIn[i] = 0;
+      if( strcmp(zIn, "quit")==0 ) fossil_exit(0);
+    }
+    if( FD_ISSET(listener, &readfds) ){
       lenaddr = sizeof(inaddr);
       connection = accept(listener, (struct sockaddr*)&inaddr,
                                     (socklen_t*) &lenaddr);
