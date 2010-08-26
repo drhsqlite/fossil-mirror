@@ -264,6 +264,13 @@ static void append_file_change_line(
       @ <p>Added %h(zName)</p>
     }else{
       @ <p>Changes to %h(zName)</p>
+      if( showDiff ){
+        int rid1 = uuid_to_rid(zOld, 0);
+        int rid2 = uuid_to_rid(zNew, 0);
+        @ <blockquote><pre>
+        append_diff(rid1, rid2);
+        @ </pre></blockquote>
+      }
     }
   }else if( zOld && zNew ){
     @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
