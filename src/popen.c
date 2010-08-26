@@ -176,8 +176,8 @@ void pclose2(int fdIn, FILE *pOut, int childPid){
 #ifdef __MINGW32__
   /* Not implemented, yet */
 #else
-  kill(childPid, SIGINT);
   close(fdIn);
   fclose(pOut);
+  kill(childPid, SIGINT);
 #endif
 }
