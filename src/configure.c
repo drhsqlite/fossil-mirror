@@ -461,6 +461,7 @@ void configuration_cmd(void){
     url_parse(zServer);
     if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);
     user_select();
+    url_enable_proxy("via proxy: ");
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,0,0,mask);
     }else{
