@@ -1,5 +1,5 @@
-C Remove\sdead\scode\sfrom\scgi.c.\s\sAttempt\sbetter\serror\shandling.
-D 2010-08-26T12:10:03
+C Untested\simplementation\sof\spopen2()\sfor\swindows.
+D 2010-08-26T13:17:18
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -80,7 +80,7 @@ F src/merge3.c f6d090e2820cb2318f54880444985be479c0eab1
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c 7dfd72d5e758840db6f9895ac216314b50c0105a
 F src/pivot.c f86b6fe0745aae349da0f94cdfa69a314331b001
-F src/popen.c c403d4b210750cf982db3b5421bd577c3a55a0ab
+F src/popen.c 7ef50eb21492cd58d8ae28de1aa6285f669c76ea
 F src/pqueue.c fc6bdd1de56fbe7d2c058c525c8dc4201bd5b36e
 F src/printf.c 12bfcbcc8de180020aadadc649f08d2ef8ab2d60
 F src/rebuild.c 3388e1b83dfea6177653b579de761ce45f2bd1f6
@@ -262,7 +262,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P af977263371d1ee664ba13bfcf773344ce740263
-R ee6f854b23371bcbc4b3e0ae7b20ac6a
+P 79294bb81b45107a973efc509a7d82d949352818
+R 9ae374652c5e113d9a7c6ff03cf873eb
 U drh
-Z 37d36a7db7bfe22a29ca099906a3fc3e
+Z 459784c161092953ac81f9c72de8cf11
