@@ -854,141 +854,6 @@ void cgi_print_all(void){
 }
 
 /*
-** Write HTML text for an option menu to standard output.  zParam
-** is the query parameter that the option menu sets.  zDflt is the
-** initial value of the option menu.  Addition arguments are name/value
-** pairs that define values on the menu.  The list is terminated with
-** a single NULL argument.
-*/
-void cgi_optionmenu(int in, const char *zP, const char *zD, ...){
-  va_list ap;
-  char *zName, *zVal;
-  int dfltSeen = 0;
-  cgi_printf("%*s<select size=1 name=\"%s\">\n", in, "", zP);
-  va_start(ap, zD);
-  while( (zName = va_arg(ap, char*))!=0 && (zVal = va_arg(ap, char*))!=0 ){
-    if( strcmp(zVal,zD)==0 ){ dfltSeen = 1; break; }
-  }
-  va_end(ap);
-  if( !dfltSeen ){
-    if( zD[0] ){
-      cgi_printf("%*s<option value=\"%h\" selected>%h</option>\n",
-        in+2, "", zD, zD);
-    }else{
-      cgi_printf("%*s<option value=\"\" selected>&nbsp;</option>\n", in+2, "");
-    }
-  }
-  va_start(ap, zD);
-  while( (zName = va_arg(ap, char*))!=0 && (zVal = va_arg(ap, char*))!=0 ){
-    if( zName[0] ){
-      cgi_printf("%*s<option value=\"%h\"%s>%h</option>\n",
-        in+2, "",
-        zVal,
-        strcmp(zVal, zD) ? "" : " selected",
-        zName
-      );
-    }else{
-      cgi_printf("%*s<option value=\"\"%s>&nbsp;</option>\n",
-        in+2, "",
-        strcmp(zVal, zD) ? "" : " selected"
-      );
-    }
-  }
-  va_end(ap);
-  cgi_printf("%*s</select>\n", in, "");
-}
-
-/*
-** This routine works a lot like cgi_optionmenu() except that the list of
-** values is contained in an array.  Also, the values are just values, not
-** name/value pairs as in cgi_optionmenu.
-*/
-void cgi_v_optionmenu(
-  int in,              /* Indent by this amount */
-  const char *zP,      /* The query parameter name */
-  const char *zD,      /* Default value */
-  const char **az      /* NULL-terminated list of allowed values */
-){
-  const char *zVal;
-  int i;
-  cgi_printf("%*s<select size=1 name=\"%s\">\n", in, "", zP);
-  for(i=0; az[i]; i++){
-    if( strcmp(az[i],zD)==0 ) break;
-  }
-  if( az[i]==0 ){
-    if( zD[0]==0 ){
-      cgi_printf("%*s<option value=\"\" selected>&nbsp;</option>\n",
-       in+2, "");
-    }else{
-      cgi_printf("%*s<option value=\"%h\" selected>%h</option>\n",
-       in+2, "", zD, zD);
-    }
-  }
-  while( (zVal = *(az++))!=0  ){
-    if( zVal[0] ){
-      cgi_printf("%*s<option value=\"%h\"%s>%h</option>\n",
-        in+2, "",
-        zVal,
-        strcmp(zVal, zD) ? "" : " selected",
-        zVal
-      );
-    }else{
-      cgi_printf("%*s<option value=\"\"%s>&nbsp;</option>\n",
-        in+2, "",
-        strcmp(zVal, zD) ? "" : " selected"
-      );
-    }
-  }
-  cgi_printf("%*s</select>\n", in, "");
-}
-
-/*
-** This routine works a lot like cgi_v_optionmenu() except that the list
-** is a list of pairs.  The first element of each pair is the value used
-** internally and the second element is the value displayed to the user.
-*/
-void cgi_v_optionmenu2(
-  int in,              /* Indent by this amount */
-  const char *zP,      /* The query parameter name */
-  const char *zD,      /* Default value */
-  const char **az      /* NULL-terminated list of allowed values */
-){
-  const char *zVal;
-  int i;
-  cgi_printf("%*s<select size=1 name=\"%s\">\n", in, "", zP);
-  for(i=0; az[i]; i+=2){
-    if( strcmp(az[i],zD)==0 ) break;
-  }
-  if( az[i]==0 ){
-    if( zD[0]==0 ){
-      cgi_printf("%*s<option value=\"\" selected>&nbsp;</option>\n",
-       in+2, "");
-    }else{
-      cgi_printf("%*s<option value=\"%h\" selected>%h</option>\n",
-       in+2, "", zD, zD);
-    }
-  }
-  while( (zVal = *(az++))!=0  ){
-    const char *zName = *(az++);
-    if( zName[0] ){
-      cgi_printf("%*s<option value=\"%h\"%s>%h</option>\n",
-        in+2, "",
-        zVal,
-        strcmp(zVal, zD) ? "" : " selected",
-        zName
-      );
-    }else{
-      cgi_printf("%*s<option value=\"%h\"%s>&nbsp;</option>\n",
-        in+2, "",
-        zVal,
-        strcmp(zVal, zD) ? "" : " selected"
-      );
-    }
-  }
-  cgi_printf("%*s</select>\n", in, "");
-}
-
-/*
 ** This routine works like "printf" except that it has the
 ** extra formatting capabilities such as %h and %t.
 */
@@ -1015,18 +880,6 @@ static void malformed_request(void){
   cgi_set_status(501, "Not Implemented");
   cgi_printf(
     "<html><body>Unrecognized HTTP Request</body></html>\n"
-  );
-  cgi_reply();
-  fossil_exit(0);
-}
-
-/*
-** Send a reply indicating that the HTTP request is forbidden
-*/
-static void forbidden_request(void){
-  cgi_set_status(403, "Forbidden");
-  cgi_printf(
-    "<html><body>Access Denied</body></html>\n"
   );
   cgi_reply();
   fossil_exit(0);
@@ -1087,7 +940,6 @@ void cgi_handle_http_request(const char *zIpAddr){
   int i;
   struct sockaddr_in remoteName;
   size_t size = sizeof(struct sockaddr_in);
-  int accessTokenSeen = 0;
   char zLine[2000];     /* A single line of input. */
 
   g.fullHttpReply = 1;
@@ -1151,12 +1003,6 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
-    }else if( strcmp(zFieldName,"x-fossil-access-token:")==0 ){
-      if( g.zAccessToken ){
-        if( strcmp(zVal,g.zAccessToken)==0 ){
-          accessTokenSeen = 1;
-        }
-      }
     }
 #if 0
     else if( strcmp(zFieldName,"referer:")==0 ){
@@ -1167,10 +1013,6 @@ void cgi_handle_http_request(const char *zIpAddr){
 #endif
   }
 
-  if( g.zAccessToken && !accessTokenSeen ){
-    forbidden_request();
-  }
-
   cgi_init();
 }
 
@@ -1179,7 +1021,6 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Bitmap values for the flags parameter to cgi_http_server().
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
-#define HTTP_SERVER_STDIN          0x0002     /* Monitor stdin for "quit" */
 
 #endif /* INTERFACE */
 
@@ -1267,20 +1108,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
     delay.tv_usec = 0;
     FD_ZERO(&readfds);
     FD_SET( listener, &readfds);
-    if( flags & HTTP_SERVER_STDIN ){
-      FD_SET( 0, &readfds);
-    }
     select( listener+1, &readfds, 0, 0, &delay);
-    if( FD_ISSET(0, &readfds) ){
-      int i;
-      char zIn[200];
-      assert( flags & HTTP_SERVER_STDIN );
-      zIn[0] = 0;
-      fgets(zIn, sizeof(zIn), stdin);
-      for(i=0; zIn[i] && zIn[i]!='\n'; i++){}
-      zIn[i] = 0;
-      if( strcmp(zIn, "quit")==0 || feof(stdin) ) fossil_exit(0);
-    }
     if( FD_ISSET(listener, &readfds) ){
       lenaddr = sizeof(inaddr);
       connection = accept(listener, (struct sockaddr*)&inaddr,

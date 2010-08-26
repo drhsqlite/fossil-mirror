@@ -42,6 +42,15 @@ static struct {
 };
 
 /*
+** Information about the connection to the SSH subprocess when
+** using the ssh:// sync method.
+*/
+static int sshPid;             /* Process id of ssh subprocess */
+static int sshIn;              /* From ssh subprocess to this process */
+static FILE *sshOut;           /* From this to ssh subprocess */
+
+
+/*
 ** Return the current transport error message.
 */
 const char *transport_errmsg(void){
@@ -67,43 +76,47 @@ void transport_stats(int *pnSent, int *pnRcvd, int resetFlag){
 }
 
 /*
+** Read text from sshIn.  Zero-terminate and remove trailing
+** whitespace.
+*/
+static void sshin_read(char *zBuf, int szBuf){
+  int got;
+  zBuf[0] = 0;
+  got = read(sshIn, zBuf, szBuf-1);
+  while( got>=0 ){
+    zBuf[got] = 0;
+    if( got==0 || !isspace(zBuf[got-1]) ) break;
+    got--;
+  }
+}
+
+/*
 ** Global initialization of the transport layer
 */
 void transport_global_startup(void){
   if( g.urlIsSsh ){
     char *zCmd;
-    int i;
-    char zIn[200];
+    char zIn[20];
 #ifdef __MINGW32__
     fossil_fatal("the ssh:// sync method is currently only supported on unix");
 #endif
     if( g.urlUser && g.urlUser[0] ){
-      zCmd = mprintf(
-         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s@%s "
-               "\"fossil server -P %d '%s'\"", 
-         g.urlPort, g.urlPort, g.urlUser, g.urlSshHost, g.urlPort, g.urlPath
-      );
+      zCmd = mprintf("ssh -e none %s@%s", g.urlUser, g.urlName);
     }else{
-      zCmd = mprintf(
-         "ssh -L127.0.0.1:%d:127.0.0.1:%d %s \"fossil sshd -P %d '%s'\"", 
-         g.urlPort, g.urlPort, g.urlSshHost, g.urlPort, g.urlPath
-      );
+      zCmd = mprintf("ssh -e none %s", g.urlName);
     }
-    printf("%s\n", zCmd);
-    popen2(zCmd, &g.sshIn, &g.sshOut, &g.sshPid);
-    if( g.sshPid==0 ){
+    /* printf("%s\n", zCmd); */
+    popen2(zCmd, &sshIn, &sshOut, &sshPid);
+    if( sshPid==0 ){
       fossil_fatal("cannot start ssh tunnel using [%s]", zCmd);
     }
     free(zCmd);
-    zIn[0] = 0;
-    fgets(zIn, sizeof(zIn), g.sshIn);
-    for(i=0; zIn[i] && zIn[i]!='\n'; i++){}
-    zIn[i] = 0;
-    if( memcmp(zIn, "Access-Token: ", 14)!=0 ){
-      pclose2(g.sshIn, g.sshOut, g.sshPid);
-      fossil_fatal("failed to start ssh tunnel");
+    fprintf(sshOut, "echo test\n");
+    fflush(sshOut);
+    sshin_read(zIn, sizeof(zIn));
+    if( memcmp(zIn, "test", 4)!=0 ){
+      fossil_fatal("ssh connection failed");
     }
-    g.zAccessToken = mprintf("%s", &zIn[14]);
   }
 }
 
@@ -120,7 +133,17 @@ void transport_global_startup(void){
 int transport_open(void){
   int rc = 0;
   if( transport.isOpen==0 ){
-    if( g.urlIsHttps ){
+    if( g.urlIsSsh ){
+      Blob cmd;
+      blob_zero(&cmd);
+      shell_escape(&cmd, g.urlFossil);
+      blob_append(&cmd, " test-http ", -1);
+      shell_escape(&cmd, g.urlPath);
+      /* fprintf(stdout, "%s\n", blob_str(&cmd)); */
+      fprintf(sshOut, "%s\n", blob_str(&cmd));
+      fflush(sshOut);
+      blob_reset(&cmd);
+    }else if( g.urlIsHttps ){
       #ifdef FOSSIL_ENABLE_SSL
       rc = ssl_open();
       if( rc==0 ) transport.isOpen = 1;
@@ -158,7 +181,9 @@ void transport_close(void){
     transport.nAlloc = 0;
     transport.nUsed = 0;
     transport.iCursor = 0;
-    if( g.urlIsHttps ){
+    if( g.urlIsSsh ){
+      /* No-op */
+    }else if( g.urlIsHttps ){
       #ifdef FOSSIL_ENABLE_SSL
       ssl_close();
       #endif
@@ -185,7 +210,12 @@ void transport_send(Blob *toSend){
   char *z = blob_buffer(toSend);
   int n = blob_size(toSend);
   transport.nSent += n;
-  if( g.urlIsHttps ){
+  if( g.urlIsSsh ){
+    int sent;
+    sent = fwrite(z, 1, n, sshOut);
+    fflush(sshOut);
+    /* printf("sent %d of %d bytes\n", sent, n); fflush(stdout); */
+  }else if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     int sent;
     while( n>0 ){
@@ -213,7 +243,9 @@ void transport_send(Blob *toSend){
 ** it is time to being recieving a reply.
 */
 void transport_flip(void){
-  if( g.urlIsFile ){
+  if( g.urlIsSsh ){
+    fprintf(sshOut, "\n\n");
+  }else if( g.urlIsFile ){
     char *zCmd;
     fclose(transport.pFile);
     zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
@@ -236,6 +268,37 @@ void transport_rewind(void){
 }
 
 /*
+** Read N bytes of content directly from the wire and write into
+** the buffer.
+*/
+static int transport_fetch(char *zBuf, int N){
+  int got;
+  if( sshIn ){
+    int x;
+    int wanted = N;
+    got = 0;
+    while( wanted>0 ){
+      x = read(sshIn, &zBuf[got], wanted);
+      if( x<=0 ) break;
+      got += x;
+      wanted -= x;
+    }
+  }else if( g.urlIsHttps ){
+    #ifdef FOSSIL_ENABLE_SSL
+    got = ssl_receive(0, zBuf, N);
+    #else
+    got = 0;
+    #endif
+  }else if( g.urlIsFile ){
+    got = fread(zBuf, 1, N, transport.pFile);
+  }else{
+    got = socket_receive(0, zBuf, N);
+  }
+  /* printf("received %d of %d bytes\n", got, N); fflush(stdout);  */
+  return got;
+}
+
+/*
 ** Read N bytes of content from the wire and store in the supplied buffer.
 ** Return the number of bytes actually received.
 */
@@ -244,6 +307,7 @@ int transport_receive(char *zBuf, int N){
   int nByte = 0;    /* Bytes of content received */
 
   onHand = transport.nUsed - transport.iCursor;
+  /* printf("request %d with %d on hand\n", N, onHand); fflush(stdout);  */
   if( onHand>0 ){
     int toMove = onHand;
     if( toMove>N ) toMove = N;
@@ -259,20 +323,7 @@ int transport_receive(char *zBuf, int N){
     nByte += toMove;
   }
   if( N>0 ){
-    int got;
-    if( g.urlIsHttps ){
-      #ifdef FOSSIL_ENABLE_SSL
-      got = ssl_receive(0, zBuf, N);
-      /* printf("received %d of %d bytes\n", got, N); fflush(stdout); */
-      #else
-      got = 0;
-      #endif
-    }else if( g.urlIsFile ){
-      got = fread(zBuf, 1, N, transport.pFile);
-    }else{
-      got = socket_receive(0, zBuf, N);
-      /* printf("received %d of %d bytes\n", got, N); fflush(stdout); */
-    }
+    int got = transport_fetch(zBuf, N);
     if( got>0 ){
       nByte += got;
       transport.nRcvd += got;
@@ -310,7 +361,7 @@ static void transport_load_buffer(int N){
     transport.pBuf = pNew;
   }
   if( N>0 ){
-    i = transport_receive(&transport.pBuf[transport.nUsed], N);
+    i = transport_fetch(&transport.pBuf[transport.nUsed], N);
     if( i>0 ){
       transport.nUsed += i;
     }
@@ -356,11 +407,11 @@ char *transport_receive_line(void){
 }
 
 void transport_global_shutdown(void){
-  if( g.urlIsSsh && g.sshPid ){
+  if( g.urlIsSsh && sshPid ){
     printf("Closing SSH tunnel: ");
     fflush(stdout);
-    pclose2(g.sshIn, g.sshOut, g.sshPid);
-    g.sshPid = 0;
+    pclose2(sshIn, sshOut, sshPid);
+    sshPid = 0;
   }
   if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL

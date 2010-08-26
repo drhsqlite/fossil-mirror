@@ -24,7 +24,7 @@
 /*
 ** Shell-escape the given string.  Append the result to a blob.
 */
-static void shell_escape(Blob *pBlob, const char *zIn){
+void shell_escape(Blob *pBlob, const char *zIn){
   int n = blob_size(pBlob);
   int k = strlen(zIn);
   int i, c;
