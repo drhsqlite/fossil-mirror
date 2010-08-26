@@ -52,7 +52,7 @@ static void url_tolower(char *z){
 **
 ** SSH url format is:
 **
-**     ssh://userid@host:port/fullpath
+**     ssh://userid@host:port/path?fossil=path/to/fossil.exe
 **
 */
 void url_parse(const char *zUrl){
@@ -120,12 +120,15 @@ void url_parse(const char *zUrl){
     free(zLogin);
   }else if( strncmp(zUrl, "ssh://", 6)==0 ){
     char *zLogin;
+    char *zExe;
+    int i, j;
     g.urlIsFile = 0;
     g.urlIsSsh = 1;
     g.urlProtocol = "ssh";
     g.urlPort = 22;
     g.urlDfltPort = 22;
     g.urlPasswd = "(not-used)";
+    g.urlFossil = "fossil";
     for(i=6; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
     if( c=='@' ){
       for(j=6; j<i && zUrl[j]!=':'; j++){}
@@ -146,12 +149,40 @@ void url_parse(const char *zUrl){
     url_tolower(g.urlName);
     g.urlHostname = g.urlName;
     g.urlPath = mprintf(&zUrl[i+1]);
+    for(i=0; g.urlPath[i] && g.urlPath[i]!='?'; i++){}
+    if( g.urlPath[i] ){
+      g.urlPath[i] = 0;
+      i++;
+    }
+    zExe = mprintf("");
+    while( g.urlPath[i]!=0 ){
+      char *zName, *zValue;
+      zName = &g.urlPath[i];
+      zValue = zName;
+      while( g.urlPath[i] && g.urlPath[i]!='=' ){ i++; }
+      if( g.urlPath[i]=='=' ){
+        g.urlPath[i] = 0;
+        i++;
+        zValue = &g.urlPath[i];
+        while( g.urlPath[i] && g.urlPath[i]!='&' ){ i++; }
+      }
+      if( g.urlPath[i] ){
+        g.urlPath[i] = 0;
+        i++;
+      }
+      if( strcmp(zName,"fossil")==0 ){
+        g.urlFossil = zValue;
+        dehttpize(g.urlFossil);
+        zExe = mprintf("?fossil=%T", g.urlFossil);
+      }
+    }
     dehttpize(g.urlPath);
     g.urlCanonical = mprintf(
-        "ssh://%s%T/%T", 
-        zLogin, g.urlName, g.urlPath
+        "ssh://%s%T/%T%s", 
+        zLogin, g.urlName, g.urlPath, zExe
     );
     free(zLogin);
+    free(zExe);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
     if( zUrl[5]=='/' && zUrl[6]=='/' ){
@@ -210,6 +241,7 @@ void cmd_test_urlparser(void){
     printf("g.urlUser      = %s\n", g.urlUser);
     printf("g.urlPasswd    = %s\n", g.urlPasswd);
     printf("g.urlCanonical = %s\n", g.urlCanonical);
+    printf("g.urlFossil    = %s\n", g.urlFossil);
     if( g.urlIsFile || g.urlIsSsh ) break;
     if( i==0 ){
       printf("********\n");

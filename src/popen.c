@@ -26,16 +26,17 @@
 ** (The caller writes to *ppOut in order to send text to the child.)
 ** *ppIn is stdout from the child process.  (The caller
 ** reads from *ppIn in order to receive input from the child.)
+** Note that *ppIn is an unbuffered file descriptor, not a FILE.
 ** The process ID of the child is written into *pChildPid.
 **
 ** Return the number of errors.
 */
-int popen2(const char *zCmd, FILE **ppIn, FILE **ppOut, int *pChildPid){
+int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
 #ifdef __MINGW32__
   return 1;   /* Not implemented on windows, yet */
 #else
   int pin[2], pout[2];
-  *ppIn = 0;
+  *pfdIn = 0;
   *ppOut = 0;
   *pChildPid = 0;
 
@@ -71,7 +72,7 @@ int popen2(const char *zCmd, FILE **ppIn, FILE **ppOut, int *pChildPid){
   }else{
     /* This is the parent process */
     close(pin[1]);
-    *ppIn = fdopen(pin[0], "r");
+    *pfdIn = pin[0];
     close(pout[0]);
     *ppOut = fdopen(pout[1], "w");
     return 0;
@@ -83,12 +84,12 @@ int popen2(const char *zCmd, FILE **ppIn, FILE **ppOut, int *pChildPid){
 ** Close the connection to a child process previously created using
 ** popen2().  Kill off the child process, then close the pipes.
 */
-void pclose2(FILE *pIn, FILE *pOut, int childPid){
+void pclose2(int fdIn, FILE *pOut, int childPid){
 #ifdef __MINGW32__
   /* Not implemented, yet */
 #else
   kill(childPid, SIGINT);
-  fclose(pIn);
+  close(fdIn);
   fclose(pOut);
 #endif
 }
