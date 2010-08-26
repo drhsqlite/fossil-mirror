@@ -85,7 +85,6 @@ struct Global {
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
-  char *zAccessToken;     /* X-Fossil-Access-Token HTTP header field */
   int sshPid;             /* Process id of ssh subprocess */
   FILE *sshIn;            /* From ssh subprocess to this */
   FILE *sshOut;           /* From this to ssh subprocess */
@@ -94,12 +93,10 @@ struct Global {
   int urlIsHttps;         /* True if a "https:" url */
   int urlIsSsh;           /* True if an "ssh:" url */
   char *urlName;          /* Hostname for http: or filename for file: */
-  char *urlSshHost;       /* Hostname for ssh: tunnels */
   char *urlHostname;      /* The HOST: parameter on http headers */
   char *urlProtocol;      /* "http" or "https" */
   int urlPort;            /* TCP port number for http: or https: */
   int urlDfltPort;        /* The default port for the given protocol */
-  int urlSshPort;         /* TCP port for SSH */
   char *urlPath;          /* Pathname for http: */
   char *urlUser;          /* User id for http: */
   char *urlPasswd;        /* Password for http: */
@@ -978,7 +975,6 @@ static int binaryOnPath(const char *zBinary){
 #endif
 
 /*
-** COMMAND: sshd
 ** COMMAND: server
 ** COMMAND: ui
 **
@@ -999,9 +995,6 @@ static int binaryOnPath(const char *zBinary){
 ** that contains one or more respositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
 ** various repositories.
-**
-** The "ui" or "server" verb can also be "sshd".  This is used internally
-** by the ssh:// sync method.
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
@@ -1032,18 +1025,6 @@ void cmd_webserver(void){
   }else{
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
-  }
-  if( g.argv[1][0]=='s' && g.argv[1][1]=='s' ){
-    /* For ssh://, output a random "access token" that must appear in
-    ** the header of every HTTP request.  HTTP requests without the
-    ** correct access token reply with 403 Forbidden.  The access token
-    ** prevents any clients other than the one client that launched the
-    ** remote server via SSH from accessing the remote server.
-    */
-    g.zAccessToken = db_text(0, "SELECT lower(hex(randomblob(20)))");
-    printf("Access-Token: %s\n", g.zAccessToken);
-    fflush(stdout);
-    flags |= HTTP_SERVER_LOCALHOST | HTTP_SERVER_STDIN;
   }
 #ifndef __MINGW32__
   /* Unix implementation */

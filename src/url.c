@@ -37,11 +37,9 @@ static void url_tolower(char *z){
 **      g.urlIsHttps     True if HTTPS: 
 **      g.urlIsSsh       True if SSH:
 **      g.urlProtocol    "http" or "https" or "file"
-**      g.urlName        Hostname for HTTP: or HTTPS:.  Filename for FILE:
-**      g.urlSshHost     Hostname for SSH: tunnel
+**      g.urlName        Hostname for HTTP:, HTTPS:, SSH:.  Filename for FILE:
 **      g.urlPort        TCP port number for HTTP or HTTPS.
 **      g.urlDfltPort    Default TCP port number (80 or 443).
-**      g.urlSshPort     TCP port for SSH: tunnel
 **      g.urlPath        Path name for HTTP or HTTPS.
 **      g.urlUser        Userid.
 **      g.urlPasswd      Password.
@@ -122,15 +120,12 @@ void url_parse(const char *zUrl){
     free(zLogin);
   }else if( strncmp(zUrl, "ssh://", 6)==0 ){
     char *zLogin;
-    int r;
     g.urlIsFile = 0;
     g.urlIsSsh = 1;
     g.urlProtocol = "ssh";
-    sqlite3_randomness(sizeof(r), &r);
-    g.urlPort = 18800 + (r & 0x7fffff)%2000;
-    g.urlDfltPort = 80;
-    g.urlName = "127.0.0.1";
-    g.urlHostname = g.urlName;
+    g.urlPort = 22;
+    g.urlDfltPort = 22;
+    g.urlPasswd = "(not-used)";
     for(i=6; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
     if( c=='@' ){
       for(j=6; j<i && zUrl[j]!=':'; j++){}
@@ -141,19 +136,20 @@ void url_parse(const char *zUrl){
         dehttpize(g.urlPasswd);
       }
       for(j=i+1; (c=zUrl[j])!=0 && c!='/'; j++){}
-      g.urlSshHost = mprintf("%.*s", j-i-1, &zUrl[i+1]);
+      g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
       zLogin = mprintf("%t@", g.urlUser);
     }else{
-      g.urlSshHost = mprintf("%.*s", i-6, &zUrl[6]);
+      g.urlName = mprintf("%.*s", i-6, &zUrl[6]);
       zLogin = mprintf("");
     }
-    url_tolower(g.urlSshHost);
+    url_tolower(g.urlName);
+    g.urlHostname = g.urlName;
     g.urlPath = mprintf(&zUrl[i+1]);
     dehttpize(g.urlPath);
     g.urlCanonical = mprintf(
         "ssh://%s%T/%T", 
-        zLogin, g.urlSshHost, g.urlPath
+        zLogin, g.urlName, g.urlPath
     );
     free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
@@ -207,7 +203,6 @@ void cmd_test_urlparser(void){
     printf("g.urlIsSsh     = %d\n", g.urlIsSsh);
     printf("g.urlProtocol  = %s\n", g.urlProtocol);
     printf("g.urlName      = %s\n", g.urlName);
-    printf("g.urlSshHost   = %s\n", g.urlSshHost);
     printf("g.urlPort      = %d\n", g.urlPort);
     printf("g.urlDfltPort  = %d\n", g.urlDfltPort);
     printf("g.urlHostname  = %s\n", g.urlHostname);

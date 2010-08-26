@@ -1021,18 +1021,6 @@ static void malformed_request(void){
 }
 
 /*
-** Send a reply indicating that the HTTP request is forbidden
-*/
-static void forbidden_request(void){
-  cgi_set_status(403, "Forbidden");
-  cgi_printf(
-    "<html><body>Access Denied</body></html>\n"
-  );
-  cgi_reply();
-  fossil_exit(0);
-}
-
-/*
 ** Panic and die while processing a webpage.
 */
 void cgi_panic(const char *zFormat, ...){
@@ -1087,7 +1075,6 @@ void cgi_handle_http_request(const char *zIpAddr){
   int i;
   struct sockaddr_in remoteName;
   size_t size = sizeof(struct sockaddr_in);
-  int accessTokenSeen = 0;
   char zLine[2000];     /* A single line of input. */
 
   g.fullHttpReply = 1;
@@ -1151,12 +1138,6 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
-    }else if( strcmp(zFieldName,"x-fossil-access-token:")==0 ){
-      if( g.zAccessToken ){
-        if( strcmp(zVal,g.zAccessToken)==0 ){
-          accessTokenSeen = 1;
-        }
-      }
     }
 #if 0
     else if( strcmp(zFieldName,"referer:")==0 ){
@@ -1167,10 +1148,6 @@ void cgi_handle_http_request(const char *zIpAddr){
 #endif
   }
 
-  if( g.zAccessToken && !accessTokenSeen ){
-    forbidden_request();
-  }
-
   cgi_init();
 }
 
@@ -1179,7 +1156,6 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Bitmap values for the flags parameter to cgi_http_server().
 */
 #define HTTP_SERVER_LOCALHOST      0x0001     /* Bind to 127.0.0.1 only */
-#define HTTP_SERVER_STDIN          0x0002     /* Monitor stdin for "quit" */
 
 #endif /* INTERFACE */
 
@@ -1267,20 +1243,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
     delay.tv_usec = 0;
     FD_ZERO(&readfds);
     FD_SET( listener, &readfds);
-    if( flags & HTTP_SERVER_STDIN ){
-      FD_SET( 0, &readfds);
-    }
     select( listener+1, &readfds, 0, 0, &delay);
-    if( FD_ISSET(0, &readfds) ){
-      int i;
-      char zIn[200];
-      assert( flags & HTTP_SERVER_STDIN );
-      zIn[0] = 0;
-      fgets(zIn, sizeof(zIn), stdin);
-      for(i=0; zIn[i] && zIn[i]!='\n'; i++){}
-      zIn[i] = 0;
-      if( strcmp(zIn, "quit")==0 || feof(stdin) ) fossil_exit(0);
-    }
     if( FD_ISSET(listener, &readfds) ){
       lenaddr = sizeof(inaddr);
       connection = accept(listener, (struct sockaddr*)&inaddr,
