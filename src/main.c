@@ -918,10 +918,10 @@ void cmd_http(void){
   const char *zIpAddr;
   const char *zNotFound;
   zNotFound = find_option("notfound", 0, 1);
-  if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
-    cgi_panic("no repository specified");
-  }
   g.cgiOutput = 1;
+  if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
+    fossil_fatal("no repository specified");
+  }
   g.fullHttpReply = 1;
   if( g.argc==6 ){
     g.httpIn = fopen(g.argv[3], "rb");
@@ -939,12 +939,20 @@ void cmd_http(void){
 }
 
 /*
+** Note that the following command is used by ssh:// processing.
+**
 ** COMMAND: test-http
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
   login_set_capabilities("s");
-  cmd_http();
+  g.httpIn = stdin;
+  g.httpOut = stdout;
+  find_server_repository(0);
+  g.cgiOutput = 1;
+  g.fullHttpReply = 1;
+  cgi_handle_http_request(0);
+  process_one_web_page(0);
 }
 
 #ifndef __MINGW32__

@@ -139,6 +139,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
   int i;                /* Loop counter */
+  int isError = 0;      /* True if the reply is an error message */
 
   if( transport_open() ){
     fossil_fatal(transport_errmsg());
@@ -195,6 +196,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   closeConnection = 1;
   iLength = -1;
   while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
+    /* printf("[%s]\n", zLine); fflush(stdout); */
     if( strncasecmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc!=200 && rc!=302 ){
@@ -232,6 +234,8 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       transport_close();
       http_exchange(pSend, pReply, useLogin);
       return;
+    }else if( strncasecmp(zLine, "content-type: text/html", 23)==0 ){
+      isError = 1;
     }
   }
   if( rc!=200 ){
@@ -250,6 +254,20 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   blob_resize(pReply, iLength);
   iLength = transport_receive(blob_buffer(pReply), iLength);
   blob_resize(pReply, iLength);
+  if( isError ){
+    char *z;
+    int i, j;
+    z = blob_str(pReply);
+    for(i=j=0; z[i]; i++, j++){
+      if( z[i]=='<' ){
+        while( z[i] && z[i]!='>' ) i++;
+        if( z[i]==0 ) break;
+      }
+      z[j] = z[i];
+    }
+    z[j] = 0;
+    fossil_fatal("server sends error: %s", z);
+  }
   if( g.fHttpTrace ){
     printf("HTTP RECEIVE:\n%s\n=======================\n", blob_str(pReply));
   }else{
