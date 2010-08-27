@@ -95,15 +95,17 @@ static void sshin_read(char *zBuf, int szBuf){
 */
 void transport_global_startup(void){
   if( g.urlIsSsh ){
+#ifdef __MINGW32__
+    static const char *zSshCmd = "ssh";
+#else
+    static const char *zSshCmd = "ssh -e none";
+#endif
     char *zCmd;
     char zIn[20];
-#ifdef __MINGW32__
-    fossil_fatal("the ssh:// sync method is currently only supported on unix");
-#endif
     if( g.urlUser && g.urlUser[0] ){
-      zCmd = mprintf("ssh -e none %s@%s", g.urlUser, g.urlName);
+      zCmd = mprintf("%s %s@%s", zSshCmd, g.urlUser, g.urlName);
     }else{
-      zCmd = mprintf("ssh -e none %s", g.urlName);
+      zCmd = mprintf("%s %s", zSshCmd, g.urlName);
     }
     /* printf("%s\n", zCmd); */
     popen2(zCmd, &sshIn, &sshOut, &sshPid);

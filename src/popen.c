@@ -117,7 +117,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
   *pfdIn = _open_osfhandle(hStdoutRd, 0);
-  fd = _open_osfhandle(hStdoutWr, 0);
+  fd = _open_osfhandle(hStdinWr, 0);
   *ppOut = _fdopen(fd, "w");
   CloseHandle(hStdinRd); 
   CloseHandle(hStdoutWr);
