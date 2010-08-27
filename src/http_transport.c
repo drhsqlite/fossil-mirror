@@ -91,33 +91,74 @@ static void sshin_read(char *zBuf, int szBuf){
 }
 
 /*
+** Default SSH command
+*/
+#ifdef __MINGW32__
+static char zDefaultSshCmd[] = "ssh -T";
+#else
+static char zDefaultSshCmd[] = "ssh -e none -T";
+#endif
+
+/*
 ** Global initialization of the transport layer
 */
 void transport_global_startup(void){
   if( g.urlIsSsh ){
-#ifdef __MINGW32__
-    static const char *zSshCmd = "ssh";
-#else
-    static const char *zSshCmd = "ssh -e none";
-#endif
-    char *zCmd;
-    char zIn[20];
+    /* Only SSH requires a global initialization.  For SSH we need to create
+    ** and run an SSH command to talk to the remote machine.
+    */
+    const char *zSsh;  /* The base SSH command */
+    Blob zCmd;         /* The SSH command */
+    char *zHost;       /* The host name to contact */
+    char zIn[200];     /* An input line received back from remote */
+
+    zSsh = db_get("ssh-command", zDefaultSshCmd);
+    blob_init(&zCmd, zSsh, -1);
+    if( g.urlPort!=g.urlDfltPort ){
+      blob_appendf(&zCmd, " -P %d", g.urlPort);
+    }
     if( g.urlUser && g.urlUser[0] ){
-      zCmd = mprintf("%s %s@%s", zSshCmd, g.urlUser, g.urlName);
+      zHost = mprintf("%s@%s", g.urlUser, g.urlName);
+#ifdef __MINGW32__
+      /* Only win32 (and specifically PLINK.EXE support the -pw option */
+      if( g.urlPasswd && g.urlPasswd[0] ){
+        Blob pw;
+        blob_zero(&pw);
+        if( g.urlPasswd[0]=='*' ){
+          char *zPrompt;
+          zPrompt = mprintf("Password for [%s]: ", zHost);
+          prompt_for_password(zPrompt, &pw, 0);
+          free(zPrompt);
+        }else{
+          blob_init(&pw, g.urlPasswd, -1);
+        }
+        blob_append(&zCmd, " -pw ", -1);
+        shell_escape(&zCmd, blob_str(&pw));
+        blob_reset(&pw);
+      }
+#endif
     }else{
-      zCmd = mprintf("%s %s", zSshCmd, g.urlName);
+      zHost = mprintf("%s", g.urlName);
     }
-    /* printf("%s\n", zCmd); */
-    popen2(zCmd, &sshIn, &sshOut, &sshPid);
+    blob_append(&zCmd, " ", 1);
+    shell_escape(&zCmd, zHost);
+    free(zHost);
+    /* printf("%s\n", blob_str(&zCmd)); */
+    popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
     if( sshPid==0 ){
-      fossil_fatal("cannot start ssh tunnel using [%s]", zCmd);
+      fossil_fatal("cannot start ssh tunnel using [%b]", &zCmd);
     }
-    free(zCmd);
+    blob_reset(&zCmd);
+
+    /* Send an "echo" command to the other side to make sure that the
+    ** connection is up and working.
+    */
     fprintf(sshOut, "echo test\n");
     fflush(sshOut);
     sshin_read(zIn, sizeof(zIn));
     if( memcmp(zIn, "test", 4)!=0 ){
-      fossil_fatal("ssh connection failed");
+      pclose2(sshIn, sshOut, sshPid);
+      fossil_fatal("ssh connection failed: [%s]", zIn);
     }
   }
 }

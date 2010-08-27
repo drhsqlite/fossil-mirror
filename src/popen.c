@@ -175,6 +175,8 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
 void pclose2(int fdIn, FILE *pOut, int childPid){
 #ifdef __MINGW32__
   /* Not implemented, yet */
+  close(fdIn);
+  fclose(pOut);
 #else
   close(fdIn);
   fclose(pOut);

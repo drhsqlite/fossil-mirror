@@ -898,3 +898,24 @@ void blob_remove_cr(Blob *p){
   z[j] = 0;
   p->nUsed = j;
 }
+
+/*
+** Shell-escape the given string.  Append the result to a blob.
+*/
+void shell_escape(Blob *pBlob, const char *zIn){
+  int n = blob_size(pBlob);
+  int k = strlen(zIn);
+  int i, c;
+  char *z;
+  for(i=0; (c = zIn[i])!=0; i++){
+    if( isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
+      blob_appendf(pBlob, "\"%s\"", zIn);
+      z = blob_buffer(pBlob);
+      for(i=n+1; i<=n+k; i++){
+        if( z[i]=='"' ) z[i] = '_';
+      }
+      return;
+    }
+  }
+  blob_append(pBlob, zIn, -1);
+}

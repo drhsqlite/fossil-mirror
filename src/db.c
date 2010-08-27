@@ -1557,6 +1557,9 @@ static void print_setting(const char *zName){
 **                     If the http_proxy environment variable is undefined
 **                     then a direct HTTP connection is used.
 **
+**    ssh-command      Command used to talk to a remote machine with
+**                     the "ssh://" protocol.
+**
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
@@ -1579,6 +1582,7 @@ void setting_cmd(void){
     "mtime-changes",
     "pgp-command",
     "proxy",
+    "ssh-command",
     "web-browser",
   };
   int i;
