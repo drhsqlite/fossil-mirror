@@ -217,15 +217,16 @@ puts {# DO NOT EDIT
 # file, edit "makemake.tcl" then run
 # "tclsh src/makemake.tcl dmc > win/Makefile.dmc"
 # to regenerate this file.
-SRCDIR = src
-OBJDIR = dmcobj
+B      = ..
+SRCDIR = $B\src
+OBJDIR = .
 O      = .obj
 E      = .exe
 
 
 # Maybe DMDIR, SSL or INCL needs adjustment
 DMDIR  = c:\DM
-INCL   = -I. -I$(SRCDIR) -Iwin\include -I$(DMDIR)\extra\include
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(DMDIR)\extra\include
 
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
@@ -252,7 +253,7 @@ puts {
 
 APPNAME = $(OBJDIR)\fossil$(E)
 
-all: $(OBJDIR) $(APPNAME)
+all: $(APPNAME)
 
 $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
@@ -269,21 +270,16 @@ puts "\t+echo fossil >> \$@"
 puts "\t+echo \$(LIBS) >> \$@\n\n"
 
 puts {
-
-
-$(OBJDIR):
-	@-mkdir $@
-
-translate$E: $(SRCDIR)/translate.c
+translate$E: $(SRCDIR)\translate.c
 	$(BCC) -o$@ $**
 
-makeheaders$E: $(SRCDIR)/makeheaders.c
+makeheaders$E: $(SRCDIR)\makeheaders.c
 	$(BCC) -o$@ $**
 
-mkindex$E: $(SRCDIR)/mkindex.c
+mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
-version$E: win/version.c
+version$E: $B\win\version.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
@@ -295,7 +291,7 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) -o$@ -c $**
 
-VERSION.h : version$E manifest.uuid manifest
+VERSION.h : version$E $B\manifest.uuid $B\manifest
 	+$** > $@
 
 page_index.h: mkindex$E $(SRC) 
@@ -320,8 +316,8 @@ puts -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makeheaders
 foreach s [lsort $src] {
   puts -nonewline "${s}_.c:$s.h "
 }
-puts "src\\sqlite3.h src\\th.h VERSION.h"
-puts "\tcopy nul headers"
+puts "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h"
+puts "\t@copy /Y nul: headers"
 exit
 }
 
@@ -333,15 +329,16 @@ puts {# DO NOT EDIT
 # file, edit "makemake.tcl" then run
 # "tclsh src/makemake.tcl msc > win/Makefile.msc"
 # to regenerate this file.
-SRCDIR = src
-OBJDIR = mscobj
+B      = ..
+SRCDIR = $B\src
+OBJDIR = .
 O      = .obj
 E      = .exe
 
 
 # Maybe MSCDIR, SSL or INCL needs adjustment
 MSCDIR = c:\msc
-INCL   = -I. -I$(SRCDIR) -Iwin\include -I$(MSCDIR)\extra\include
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include
 
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
@@ -350,9 +347,11 @@ MSCDEF =  -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 I18N   =  -DFOSSIL_I18N=0
 
 CFLAGS = -nologo -MD -O2 -Oy- -Zi
+CFLAGS = -nologo -MD -O2 -Oy-
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = zlib.lib ws2_32.lib
+LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib
 }
 puts -nonewline "SRC   = "
 foreach s [lsort $src] {
@@ -372,7 +371,7 @@ all: $(OBJDIR) $(APPNAME)
 
 $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
-	link -LINK -OUT:fossil$E -LIBPATH:$(MSCDIR)\extra\lib @link
+	link -LINK -OUT:$@ $(LIBDIR) @link
 
 $(OBJDIR)\link:}
 puts -nonewline "\techo "
@@ -388,16 +387,16 @@ puts {
 $(OBJDIR):
 	@-mkdir $@
 
-translate$E: $(SRCDIR)/translate.c
+translate$E: $(SRCDIR)\translate.c
 	$(BCC) $**
 
-makeheaders$E: $(SRCDIR)/makeheaders.c
+makeheaders$E: $(SRCDIR)\makeheaders.c
 	$(BCC) $**
 
-mkindex$E: $(SRCDIR)/mkindex.c
+mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-version$E: win/version.c
+version$E: $B\win\version.c
 	$(BCC) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
@@ -409,7 +408,7 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
-VERSION.h : version$E manifest.uuid manifest
+VERSION.h : version$E $B\manifest.uuid $B\manifest
 	$** > $@
 
 page_index.h: mkindex$E $(SRC) 
@@ -430,11 +429,11 @@ foreach s [lsort $src] {
   puts "\ttranslate\$E \$** > \$@\n"
 }
 
-puts -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t makeheaders\$E "
+puts -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheaders\$E "
 foreach s [lsort $src] {
   puts -nonewline "${s}_.c:$s.h "
 }
-puts "src\\sqlite3.h src\\th.h VERSION.h"
-puts "\tcopy /Y nul: headers"
+puts "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h"
+puts "\t@copy /Y nul: headers"
 	
 }

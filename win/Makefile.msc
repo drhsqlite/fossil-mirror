@@ -4,15 +4,16 @@
 # file, edit "makemake.tcl" then run
 # "tclsh src/makemake.tcl msc > win/Makefile.msc"
 # to regenerate this file.
-SRCDIR = src
-OBJDIR = mscobj
+B      = ..
+SRCDIR = $B\src
+OBJDIR = .
 O      = .obj
 E      = .exe
 
 
 # Maybe MSCDIR, SSL or INCL needs adjustment
 MSCDIR = c:\msc
-INCL   = -I. -I$(SRCDIR) -Iwin\include -I$(MSCDIR)\extra\include
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include
 
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
@@ -21,9 +22,11 @@ MSCDEF =  -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 I18N   =  -DFOSSIL_I18N=0
 
 CFLAGS = -nologo -MD -O2 -Oy- -Zi
+CFLAGS = -nologo -MD -O2 -Oy-
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = zlib.lib ws2_32.lib
+LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib
 
 SRC   = add_.c allrepo_.c attach_.c bag_.c blob_.c branch_.c browse_.c captcha_.c cgi_.c checkin_.c checkout_.c clearsign_.c clone_.c comformat_.c configure_.c content_.c db_.c delta_.c deltacmd_.c descendants_.c diff_.c diffcmd_.c doc_.c encode_.c file_.c finfo_.c graph_.c http_.c http_socket_.c http_ssl_.c http_transport_.c info_.c login_.c main_.c manifest_.c md5_.c merge_.c merge3_.c name_.c pivot_.c popen_.c pqueue_.c printf_.c rebuild_.c report_.c rss_.c schema_.c search_.c setup_.c sha1_.c shun_.c skins_.c stat_.c style_.c sync_.c tag_.c th_main_.c timeline_.c tkt_.c tktsetup_.c undo_.c update_.c url_.c user_.c verify_.c vfile_.c wiki_.c wikiformat_.c winhttp_.c xfer_.c zip_.c 
 
@@ -36,7 +39,7 @@ all: $(OBJDIR) $(APPNAME)
 
 $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
-	link -LINK -OUT:fossil$E -LIBPATH:$(MSCDIR)\extra\lib @link
+	link -LINK -OUT:$@ $(LIBDIR) @link
 
 $(OBJDIR)\link:
 	echo add allrepo attach bag blob branch browse captcha cgi checkin checkout clearsign clone comformat configure content db delta deltacmd descendants diff diffcmd doc encode file finfo graph http http_socket http_ssl http_transport info login main manifest md5 merge merge3 name pivot popen pqueue printf rebuild report rss schema search setup sha1 shun skins stat style sync tag th_main timeline tkt tktsetup undo update url user verify vfile wiki wikiformat winhttp xfer zip sqlite3 th th_lang > $@
@@ -49,16 +52,16 @@ $(OBJDIR)\link:
 $(OBJDIR):
 	@-mkdir $@
 
-translate$E: $(SRCDIR)/translate.c
+translate$E: $(SRCDIR)\translate.c
 	$(BCC) $**
 
-makeheaders$E: $(SRCDIR)/makeheaders.c
+makeheaders$E: $(SRCDIR)\makeheaders.c
 	$(BCC) $**
 
-mkindex$E: $(SRCDIR)/mkindex.c
+mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-version$E: win/version.c
+version$E: $B\win\version.c
 	$(BCC) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
@@ -70,7 +73,7 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
-VERSION.h : version$E manifest.uuid manifest
+VERSION.h : version$E $B\manifest.uuid $B\manifest
 	$** > $@
 
 page_index.h: mkindex$E $(SRC) 
@@ -511,5 +514,5 @@ zip_.c : $(SRCDIR)\zip.c
 	translate$E $** > $@
 
 headers: makeheaders$E page_index.h VERSION.h
-	 makeheaders$E add_.c:add.h allrepo_.c:allrepo.h attach_.c:attach.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h captcha_.c:captcha.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h finfo_.c:finfo.h graph_.c:graph.h http_.c:http.h http_socket_.c:http_socket.h http_ssl_.c:http_ssl.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h popen_.c:popen.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h schema_.c:schema.h search_.c:search.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h skins_.c:skins.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h src\sqlite3.h src\th.h VERSION.h
-	copy /Y nul: headers
+	makeheaders$E add_.c:add.h allrepo_.c:allrepo.h attach_.c:attach.h bag_.c:bag.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h captcha_.c:captcha.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h file_.c:file.h finfo_.c:finfo.h graph_.c:graph.h http_.c:http.h http_socket_.c:http_socket.h http_ssl_.c:http_ssl.h http_transport_.c:http_transport.h info_.c:info.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h name_.c:name.h pivot_.c:pivot.h popen_.c:popen.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h schema_.c:schema.h search_.c:search.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h skins_.c:skins.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h xfer_.c:xfer.h zip_.c:zip.h $(SRCDIR)\sqlite3.h $(SRCDIR)\th.h VERSION.h
+	@copy /Y nul: headers
