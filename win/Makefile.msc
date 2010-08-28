@@ -26,6 +26,8 @@ CFLAGS = -nologo -MD -O2 -Oy-
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = zlib.lib ws2_32.lib
+##SSL uncoment below
+#LIBS   = zlib.lib ws2_32.lib ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib
 
 SRC   = add_.c allrepo_.c attach_.c bag_.c blob_.c branch_.c browse_.c captcha_.c cgi_.c checkin_.c checkout_.c clearsign_.c clone_.c comformat_.c configure_.c content_.c db_.c delta_.c deltacmd_.c descendants_.c diff_.c diffcmd_.c doc_.c encode_.c file_.c finfo_.c graph_.c http_.c http_socket_.c http_ssl_.c http_transport_.c info_.c login_.c main_.c manifest_.c md5_.c merge_.c merge3_.c name_.c pivot_.c popen_.c pqueue_.c printf_.c rebuild_.c report_.c rss_.c schema_.c search_.c setup_.c sha1_.c shun_.c skins_.c stat_.c style_.c sync_.c tag_.c th_main_.c timeline_.c tkt_.c tktsetup_.c undo_.c update_.c url_.c user_.c verify_.c vfile_.c wiki_.c wikiformat_.c winhttp_.c xfer_.c zip_.c 

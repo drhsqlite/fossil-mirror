@@ -351,6 +351,8 @@ CFLAGS = -nologo -MD -O2 -Oy-
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = zlib.lib ws2_32.lib
+##SSL uncoment below
+#LIBS   = zlib.lib ws2_32.lib ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib
 }
 puts -nonewline "SRC   = "

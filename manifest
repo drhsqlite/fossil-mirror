@@ -1,5 +1,5 @@
-C The\sgenerated\smakefiles\sexpect\sdat\syou\sdo\nmkdir\sbuild\ncd\sbuild\nnmake\s-f\s..\\win\\Makefile.msc\nThis\swill\sput\sall\sthe\sfiles\sin\sbuild.\sSo\sno\spolution\sof\sthe\sroot\nof\sthe\ssource\stree\sand\syou\scan\sbuild\sfor\sthe\sdifferent\scompilers
-D 2010-08-28T10:54:12
+C Added\sssl\ssupport\sto\smsc\nmsc\sdoesn't\slike\sdeclaring\svars\sin\sthe\smiddle\sof\sa\sblock!\nadded\sthe\sextra\sneeded\slibs\sin\sa\scommented\sLIBS\sline
+D 2010-08-28T20:22:35
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -64,7 +64,7 @@ F src/finfo.c 1e379e6a32bfeb0aa5e38486a113717520d0ba95
 F src/graph.c 79682b0b0240d8eb37ecb677afdcf4cff5bf5798
 F src/http.c 1d261b5e943a4a055e4a9813cd63c59d63569a33
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
-F src/http_ssl.c b861d807816aa38e90c235196ad392aaf3568618
+F src/http_ssl.c 56d783c4e1c4a85f30dae8a4eb7036516a3d552f
 F src/http_transport.c 5a78aa51580afeb5ab43cccdcae38cb397a4d4e3
 F src/info.c f3e7f96a0f9f3a3fe190f77d7ac8af4755609243
 F src/login.c e3293668b12b0b0b23e601fddc06cb05eabb332d
@@ -72,7 +72,7 @@ F src/main.c cc78f4e4a1557b2f101d9c0981848b2b876f4e73
 F src/main.mk 7bf5ce2b3fbc241b428a190e7f096a0a79d0f816
 F src/makeheaders.c 2b3dcfe5ea84067a0d0c4443673e8042656a73ec
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
-F src/makemake.tcl 172ece62f05bb6c5184637463acdb0bc2485acc9
+F src/makemake.tcl 836ebb647db8e45d2f1954f08822a3f7ac471400
 F src/manifest.c 0fecba65923b134090efc8123bcea2befc8d807e
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
@@ -178,7 +178,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.dmc 84a184e0ff31bb16b7b4b51ce1adcf24623d7d00
-F win/Makefile.msc ae60e5786fd984e9e9b614660207955fc0798a5f
+F win/Makefile.msc 3cdcf1aaa0d14591c9153c358e885ef62d2abc2f
 F win/include/dirent.h 6d92ab4f8a822f3ae05f6c5d29584ef7cd747bb8
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F win/version.c 89b5d1fbc90f4063874a924b8a8ee0c19899277f
@@ -267,7 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P c00f79d054e2610cb154b24d479803eddbd6a0cf
-R 60e2f82bd9706beec4f8b75b96563a3f
+P 99e0a29efec1997ae459b0170cf640211ea4f3ca
+R 9cf97b1ba01fd722f067f551564f16fe
 U renez
-Z 3afdeb9ddb7c9882b4de3369b9494965
+Z 83117f2a70e244a5ff479a913bf71169

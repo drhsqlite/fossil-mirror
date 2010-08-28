@@ -130,7 +130,7 @@ void ssl_close(void){
 int ssl_open(void){
   X509 *cert;
   int hasSavedCertificate = 0;
-
+char *connStr ;
   ssl_global_init();
 
   /* Get certificate for current server from global config and
@@ -152,7 +152,7 @@ int ssl_open(void){
     return 1;    
   }
   
-  char *connStr = mprintf("%s:%d", g.urlName, g.urlPort);
+  connStr = mprintf("%s:%d", g.urlName, g.urlPort);
   BIO_set_conn_hostname(iBio, connStr);
   free(connStr);
   
@@ -180,6 +180,8 @@ int ssl_open(void){
 
   if( SSL_get_verify_result(ssl) != X509_V_OK ){
     char *desc, *prompt;
+    char *warning = "";
+    Blob ans;
     BIO *mem;
     
     mem = BIO_new(BIO_s_mem());
@@ -189,7 +191,6 @@ int ssl_open(void){
     BIO_write(mem, "", 1); // null-terminate mem buffer
     BIO_get_mem_data(mem, &desc);
     
-    char *warning = "";
     if( hasSavedCertificate ){
       warning = "WARNING: Certificate doesn't match the "
                 "saved certificate for this host!";
@@ -198,7 +199,6 @@ int ssl_open(void){
                      "Accept certificate [a=always/y/N]? ", desc, warning);
     BIO_free(mem);
 
-    Blob ans;
     prompt_user(prompt, &ans);
     free(prompt);
     if( blob_str(&ans)[0]!='y' && blob_str(&ans)[0]!='a' ) {
