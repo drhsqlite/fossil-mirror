@@ -115,7 +115,11 @@ void transport_global_startup(void){
     zSsh = db_get("ssh-command", zDefaultSshCmd);
     blob_init(&zCmd, zSsh, -1);
     if( g.urlPort!=g.urlDfltPort ){
+#ifdef __MINGW32__
       blob_appendf(&zCmd, " -P %d", g.urlPort);
+#else
+      blob_appendf(&zCmd, " -p %d", g.urlPort);
+#endif
     }
     if( g.urlUser && g.urlUser[0] ){
       zHost = mprintf("%s@%s", g.urlUser, g.urlName);
