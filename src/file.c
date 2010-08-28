@@ -85,7 +85,10 @@ int file_isfile(const char *zFilename){
 */
 int file_isexe(const char *zFilename){
   if( getStat(zFilename) || !S_ISREG(fileStat.st_mode) ) return 0;
-#ifdef __MINGW32__
+#if defined(_WIN32)
+#  if defined(__DMC__)
+#    define S_IXUSR  _S_IEXEC
+#  endif
   return ((S_IXUSR)&fileStat.st_mode)!=0;
 #else
   return ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0;
@@ -147,7 +150,7 @@ void file_copy(const char *zFrom, const char *zTo){
 ** Set or clear the execute bit on a file.
 */
 void file_setexe(const char *zFilename, int onoff){
-#ifndef __MINGW32__
+#if !defined(_WIN32)
   struct stat buf;
   if( stat(zFilename, &buf)!=0 ) return;
   if( onoff ){
@@ -159,7 +162,7 @@ void file_setexe(const char *zFilename, int onoff){
       chmod(zFilename, buf.st_mode & ~0111);
     }
   }
-#endif /* __MINGW32__ */
+#endif /* _WIN32 */
 }
 
 /*
@@ -176,7 +179,7 @@ int file_mkdir(const char *zName, int forceFlag){
     unlink(zName);
   }
   if( rc!=1 ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     return mkdir(zName);
 #else
     return mkdir(zName, 0755);
@@ -233,7 +236,7 @@ int file_is_simple_pathname(const char *z){
 int file_simplify_name(char *z, int n){
   int i, j;
   if( n<0 ) n = strlen(z);
-#ifdef __MINGW32__
+#if defined(_WIN32)
   for(i=0; i<n; i++){
     if( z[i]=='\\' ) z[i] = '/';
   }
@@ -268,7 +271,7 @@ int file_simplify_name(char *z, int n){
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut){
   if( zOrigName[0]=='/' 
-#ifdef __MINGW32__
+#if defined(_WIN32)
       || zOrigName[0]=='\\'
       || (strlen(zOrigName)>3 && zOrigName[1]==':'
            && (zOrigName[2]=='\\' || zOrigName[2]=='/'))
@@ -313,7 +316,7 @@ void cmd_test_canonical_name(void){
 int file_is_canonical(const char *z){
   int i;
   if( z[0]!='/'
-#ifdef __MINGW32__
+#if defined(_WIN32)
     && (z[0]==0 || z[1]!=':' || z[2]!='/')
 #endif
   ) return 0;

@@ -18,7 +18,8 @@
 ** This file implements a very simple (and low-performance) HTTP server
 ** for windows.
 */
-#ifdef __MINGW32__           /* This code is for win32 only */
+#if defined( __MINGW32__) ||  defined(__DMC__)
+/* This code is for win32 only */
 #include "config.h"
 #include "winhttp.h"
 #include <windows.h>
@@ -222,4 +223,4 @@ void win32_http_server(
   WSACleanup();
 }
 
-#endif /* __MINGW32__  -- This code is for win32 only */
+#endif /* _WIN32  -- This code is for win32 only */

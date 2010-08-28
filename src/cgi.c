@@ -22,11 +22,12 @@
 ** decode strings in HTML or HTTP.
 */
 #include "config.h"
-#ifdef __MINGW32__
+#ifdef _WIN32
 # include <windows.h>           /* for Sleep once server works again */
-# include <winsock2.h>          /* socket operations */
-# define sleep Sleep            /* windows does not have sleep, but Sleep */
-# include <ws2tcpip.h>          
+#  if defined(__MINGW32__)
+#    define sleep Sleep            /* windows does not have sleep, but Sleep */
+#    include <ws2tcpip.h>          
+#  endif
 #else
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -1041,7 +1042,7 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** listening socket, return non-zero.
 */
 int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
-#ifdef __MINGW32__
+#if defined(_WIN32)
   /* Use win32_http_server() instead */
   fossil_exit(1);
 #else

@@ -144,7 +144,7 @@ void info_cmd(void){
     printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
     printf("repository:   %s\n", db_lget("repository", ""));
     printf("local-root:   %s\n", g.zLocalRoot);
-#ifdef __MINGW32__
+#if defined(_WIN32)
     if( g.zHome ){
       printf("user-home:    %s\n", g.zHome);
     }

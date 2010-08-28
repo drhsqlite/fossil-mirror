@@ -662,7 +662,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-#ifdef __MINGW32__
+#if defined(_WIN32)
         /*
         ** On Windows, local path looks like: C:/develop/project/file.txt
         ** The if stops us from trying to create a directory of a drive letter
@@ -674,7 +674,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return 0;
           }
-#ifdef __MINGW32__
+#if defined(_WIN32)
         }
 #endif
         zName[i] = '/';
@@ -858,7 +858,7 @@ void test_cycle_compress(void){
   printf("ok\n");
 }
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
 /*
 ** Convert every \n character in the given blob into \r\n.
 */
