@@ -28,8 +28,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
-#if defined( __MINGW32__) ||  defined(__DMC__)
-#  if defined(__DMC__)
+#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER)
+#  if defined(__DMC__)  || defined(_MSC_VER)
      typedef int socklen_t;
 #  endif
 #  ifndef _WIN32

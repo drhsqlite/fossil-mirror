@@ -18,7 +18,7 @@
 ** This file implements a very simple (and low-performance) HTTP server
 ** for windows.
 */
-#if defined( __MINGW32__) ||  defined(__DMC__)
+#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER)
 /* This code is for win32 only */
 #include "config.h"
 #include "winhttp.h"

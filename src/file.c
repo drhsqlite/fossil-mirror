@@ -86,7 +86,7 @@ int file_isfile(const char *zFilename){
 int file_isexe(const char *zFilename){
   if( getStat(zFilename) || !S_ISREG(fileStat.st_mode) ) return 0;
 #if defined(_WIN32)
-#  if defined(__DMC__)
+#  if defined(__DMC__) || defined(_MSC_VER)
 #    define S_IXUSR  _S_IEXEC
 #  endif
   return ((S_IXUSR)&fileStat.st_mode)!=0;

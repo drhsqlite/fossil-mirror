@@ -7,7 +7,7 @@
  * must typdef the following:
  *    name              meaning
  *  */
-#if defined(__DMC__)
+#if defined(__DMC__) || defined(_MSC_VER)
   typedef  unsigned long uint32_t; //unsigned 32 bit integer
   typedef  unsigned char  uint8_t; //unsigned  8 bit integer (i.e., unsigned char)
 #else
