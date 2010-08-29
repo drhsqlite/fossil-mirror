@@ -22,7 +22,7 @@ MSCDEF =  -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 I18N   =  -DFOSSIL_I18N=0
 
 CFLAGS = -nologo -MD -O2 -Oy- -Zi
-CFLAGS = -nologo -MD -O2 -Oy-
+CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = zlib.lib ws2_32.lib
