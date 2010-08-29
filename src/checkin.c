@@ -515,8 +515,8 @@ static void checkin_verify_younger(
     zDate, rid
   );
   if( b ){
-    fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)",
-                 zUuid, zDate);
+    fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)"
+                 " Use -f to override.", zUuid, zDate);
   }
 #endif
 }
@@ -801,21 +801,23 @@ void commit_cmd(void){
   db_finalize(&q);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   blob_appendf(&manifest, "P %s", zUuid);
-  checkin_verify_younger(vid, zUuid, zDate);
 
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
-  db_bind_int(&q2, ":id", 0);
-  while( db_step(&q2)==SQLITE_ROW ){
-    int mid = db_column_int(&q2, 0);
-    if( !g.markPrivate && content_is_private(mid) ) continue;
-    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
-    if( zUuid ){
-      blob_appendf(&manifest, " %s", zUuid);
-      checkin_verify_younger(mid, zUuid, zDate);
-      free(zUuid);
+  if( !forceFlag ){
+    checkin_verify_younger(vid, zUuid, zDate);
+    db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
+    db_bind_int(&q2, ":id", 0);
+    while( db_step(&q2)==SQLITE_ROW ){
+      int mid = db_column_int(&q2, 0);
+      if( !g.markPrivate && content_is_private(mid) ) continue;
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+      if( zUuid ){
+        blob_appendf(&manifest, " %s", zUuid);
+        checkin_verify_younger(mid, zUuid, zDate);
+        free(zUuid);
+      }
     }
+    db_finalize(&q2);
   }
-  db_finalize(&q2);
 
   blob_appendf(&manifest, "\n");
   blob_appendf(&manifest, "R %b\n", &cksum1);
