@@ -23,10 +23,6 @@ E = .exe
 #
 # FOSSIL_ENABLE_SSL=1
 
-#### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
-#
-# FOSSIL_ENABLE_SSL=1
-
 #### C Compile and options for use in building executables that 
 #    will run on the target platform.  This is usually the same
 #    as BCC, unless you are cross-compiling.  This C compiler builds
