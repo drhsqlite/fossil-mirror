@@ -28,9 +28,12 @@
 
 #include "config.h"
 #include "http_socket.h"
-#ifdef __MINGW32__
-#  include <windows.h>
-#  include <winsock2.h>
+#if defined(_WIN32)
+#  include <windows.h>           /* for Sleep once server works again */
+#  define sleep Sleep            /* windows does not have sleep, but Sleep */
+#  if defined(__MINGW32__)
+#    include <ws2tcpip.h>          
+#  endif
 #else
 #  include <arpa/inet.h>
 #  include <sys/socket.h>
@@ -47,7 +50,7 @@
 ** local variables:
 */
 static int socketIsInit = 0;    /* True after global initialization */
-#ifdef __MINGW32__
+#if defined(_WIN32)
 static WSADATA socketInfo;      /* Windows socket initialize data */
 #endif
 static int iSocket = -1;        /* The socket on which we talk to the server */
@@ -86,7 +89,7 @@ const char *socket_errmsg(void){
 */
 void socket_global_init(void){
   if( socketIsInit==0 ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     if( WSAStartup(MAKEWORD(2,0), &socketInfo)!=0 ){
       fossil_panic("can't initialize winsock");
     }
@@ -101,7 +104,7 @@ void socket_global_init(void){
 */
 void socket_global_shutdown(void){
   if( socketIsInit ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     WSACleanup();
 #endif
     socket_clear_errmsg();
@@ -115,7 +118,7 @@ void socket_global_shutdown(void){
 */
 void socket_close(void){
   if( iSocket>=0 ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     closesocket(iSocket);
 #else
     close(iSocket);
@@ -173,7 +176,7 @@ int socket_open(void){
     socket_close();
     return 1;
   }
-#ifndef __MINGW32__
+#if !defined(_WIN32)
   signal(SIGPIPE, SIG_IGN);
 #endif
   return 0;

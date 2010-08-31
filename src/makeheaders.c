@@ -15,10 +15,13 @@ static const char ident[] = "@(#) $Header: /cvstrac/cvstrac/makeheaders.c,v 1.4 
 #include <memory.h>
 #include <sys/stat.h>
 #include <assert.h>
-#ifndef WIN32
-# include <unistd.h>
-#else
+#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER)
+#  ifndef WIN32
+#    define WIN32
+#  endif
 # include <string.h>
+#else
+# include <unistd.h>
 #endif
 
 /*

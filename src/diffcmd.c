@@ -26,7 +26,7 @@
 */
 int portable_system(const char *zOrigCmd){
   int rc;
-#ifdef __MINGW32__
+#if defined(_WIN32)
   /* On windows, we have to put double-quotes around the entire command.
   ** Who knows why - this is just the way windows works.
   */

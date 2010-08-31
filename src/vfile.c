@@ -21,7 +21,11 @@
 #include "vfile.h"
 #include <assert.h>
 #include <sys/types.h>
+#if defined(__DMC__)
+#include "dirent.h"
+#else
 #include <dirent.h>
+#endif
 
 /*
 ** Given a UUID, return the corresponding record ID.  If the UUID

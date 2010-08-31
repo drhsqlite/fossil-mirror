@@ -29,6 +29,9 @@
 **
 */
 #include "config.h"
+#if ! defined(_WIN32)
+#  include <pwd.h>
+#endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -536,7 +539,7 @@ char *db_text(char *zDefault, const char *zSql, ...){
   return z;
 }
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
 extern char *sqlite3_win32_mbcs_to_utf8(const char*);
 #endif
 
@@ -554,7 +557,7 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
   zFileName = sqlite3_win32_mbcs_to_utf8(zFileName);
 #endif
   rc = sqlite3_open(zFileName, &db);
@@ -589,7 +592,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   sqlite3 *db;
 
   zVfs = getenv("FOSSIL_VFS");
-#ifdef __MINGW32__
+#if defined(_WIN32)
   zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
 #endif
   rc = sqlite3_open_v2(
@@ -617,7 +620,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
     g.zRepoDb = "main";
     db_connection_init();
   }else{
-#ifdef __MINGW32__
+#if defined(_WIN32)
     zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
 #endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
@@ -641,7 +644,7 @@ void db_open_config(int useAttach){
   char *zDbName;
   const char *zHome;
   if( g.configOpen ) return;
-#ifdef __MINGW32__
+#if defined(_WIN32)
   zHome = getenv("LOCALAPPDATA");
   if( zHome==0 ){
     zHome = getenv("APPDATA");
@@ -669,7 +672,7 @@ void db_open_config(int useAttach){
   }
 #endif
   g.zHome = mprintf("%/", zHome);
-#ifdef __MINGW32__
+#if defined(_WIN32)
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
@@ -946,7 +949,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = zDefaultUser;
   }
   if( zUser==0 ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     zUser = getenv("USERNAME");
 #else
     zUser = getenv("USER");

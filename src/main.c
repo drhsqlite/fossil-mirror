@@ -634,7 +634,7 @@ void fossil_redirect_home(void){
 ** is a directory, of that directory.
 */
 static char *enter_chroot_jail(char *zRepo){
-#if !defined(__MINGW32__)
+#if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
     struct stat sStat;
@@ -812,7 +812,7 @@ void cmd_cgi(void){
   }
   g.httpOut = stdout;
   g.httpIn = stdin;
-#ifdef __MINGW32__
+#if defined(_WIN32)
   /* Set binary mode on windows to avoid undesired translations
   ** between \n and \r\n. */
   setmode(_fileno(g.httpOut), _O_BINARY);
@@ -955,7 +955,7 @@ void cmd_test_http(void){
   process_one_web_page(0);
 }
 
-#ifndef __MINGW32__
+#if !defined(_WIN32)
 #if !defined(__DARWIN__) && !defined(__APPLE__)
 /*
 ** Search for an executable on the PATH environment variable.
@@ -1011,7 +1011,7 @@ void cmd_webserver(void){
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
   zStopperFile = find_option("stopper", 0, 1);
 #endif
@@ -1032,7 +1032,7 @@ void cmd_webserver(void){
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
   }
-#ifndef __MINGW32__
+#if !defined(_WIN32)
   /* Unix implementation */
   if( isUiCmd ){
 #if !defined(__DARWIN__) && !defined(__APPLE__)

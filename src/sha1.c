@@ -2,19 +2,21 @@
 ** This implementation of SHA1 is adapted from the example implementation
 ** contained in RFC-3174.
 */
-#include <stdint.h>
-#include <sys/types.h>
-#include "config.h"
-#include "sha1.h"
-
 /*
  * If you do not have the ISO standard stdint.h header file, then you
  * must typdef the following:
  *    name              meaning
- *  uint32_t         unsigned 32 bit integer
- *  uint8_t          unsigned 8 bit integer (i.e., unsigned char)
- *
- */
+ *  */
+#if defined(__DMC__) || defined(_MSC_VER)
+  typedef  unsigned long uint32_t; //unsigned 32 bit integer
+  typedef  unsigned char  uint8_t; //unsigned  8 bit integer (i.e., unsigned char)
+#else
+#  include <stdint.h>
+#endif
+#include <sys/types.h>
+#include "config.h"
+#include "sha1.h"
+
 #define SHA1HashSize 20
 #define shaSuccess 0
 #define shaInputTooLong 1

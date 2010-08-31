@@ -41,7 +41,7 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
 /*
 ** getpass for Windows
 */

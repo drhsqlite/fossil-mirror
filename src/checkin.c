@@ -403,7 +403,7 @@ static void prepare_commit_comment(
     zEditor = getenv("EDITOR");
   }
   if( zEditor==0 ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     zEditor = "notepad";
 #else
     zEditor = "ed";
@@ -411,7 +411,7 @@ static void prepare_commit_comment(
   }
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                    g.zLocalRoot);
-#ifdef __MINGW32__
+#if defined(_WIN32)
   blob_add_cr(&text);
 #endif
   blob_write_to_file(&text, zFile);
@@ -777,7 +777,7 @@ void commit_cmd(void){
     int isexe = db_column_int(&q, 4);
     const char *zPerm;
     blob_append(&filename, zName, -1);
-#ifndef __MINGW32__
+#if !defined(_WIN32)
     /* For unix, extract the "executable" permission bit directly from
     ** the filesystem.  On windows, the "executable" bit is retained
     ** unchanged from the original. */

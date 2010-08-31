@@ -20,7 +20,9 @@
 #include "config.h"
 #include "popen.h"
 
-#ifdef __MINGW32__
+#ifdef _WIN32
+#include <windows.h>
+#include <fcntl.h>
 /*
 ** Print a fatal error and quit.
 */
@@ -31,7 +33,7 @@ static void win32_fatal_error(const char *zMsg){
 
 
 
-#ifdef __MINGW32__
+#ifdef _WIN32
 /*
 ** On windows, create a child process and specify the stdin, stdout,
 ** and stderr channels for that process to use.
@@ -93,7 +95,7 @@ static int win32_create_child_process(
 ** Return the number of errors.
 */
 int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
-#ifdef __MINGW32__
+#ifdef _WIN32
   HANDLE hStdinRd, hStdinWr, hStdoutRd, hStdoutWr, hStderr;
   SECURITY_ATTRIBUTES saAttr;    
   DWORD childPid;
@@ -116,8 +118,8 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   win32_create_child_process((char*)zCmd, 
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
-  *pfdIn = _open_osfhandle(hStdoutRd, 0);
-  fd = _open_osfhandle(hStdinWr, 0);
+  *pfdIn = _open_osfhandle((long)hStdoutRd, 0);
+  fd = _open_osfhandle((long)hStdinWr, 0);
   *ppOut = _fdopen(fd, "w");
   CloseHandle(hStdinRd); 
   CloseHandle(hStdoutWr);
@@ -173,7 +175,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
 ** popen2().  Kill off the child process, then close the pipes.
 */
 void pclose2(int fdIn, FILE *pOut, int childPid){
-#ifdef __MINGW32__
+#ifdef _WIN32
   /* Not implemented, yet */
   close(fdIn);
   fclose(pOut);
