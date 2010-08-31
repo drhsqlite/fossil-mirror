@@ -1,5 +1,5 @@
-C Merge\sthe\schanges\sfrom\sthe\swindowscompilers\sbranch\sinto\sthe\strunk.
-D 2010-08-31T01:53:56
+C fix\scross-compile\sbreakage
+D 2010-08-31T03:58:14
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -67,7 +67,7 @@ F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
 F src/http_ssl.c 56d783c4e1c4a85f30dae8a4eb7036516a3d552f
 F src/http_transport.c f7a88a3c9bc1ccf0a9215ab8cb0b284e514c16bb
 F src/info.c f3e7f96a0f9f3a3fe190f77d7ac8af4755609243
-F src/login.c e3293668b12b0b0b23e601fddc06cb05eabb332d
+F src/login.c 85e37bf207cc256ac573e904b1bf103a58ce1029
 F src/main.c cc78f4e4a1557b2f101d9c0981848b2b876f4e73
 F src/main.mk 7bf5ce2b3fbc241b428a190e7f096a0a79d0f816
 F src/makeheaders.c 2b3dcfe5ea84067a0d0c4443673e8042656a73ec
@@ -267,7 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P f1d309ccd7e829f464d95c556c00739d2709b7a6 30b8a41dc759c8b3454f2a9673259ad99a45b348
-R b1e4772b7b96a8c03cef4b2d946ae30b
-U drh
-Z 28d8eeab8d6b3ce497ee43dcaefba46d
+P 3564af0f7abdd7c32d77f3cf900fab05574177ae
+R b0d95e9508d148391d8e6c7e9015f0b9
+U ron
+Z df37c49c32685ff3afeaf809e42d829e

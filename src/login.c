@@ -41,7 +41,7 @@
 #include "login.h"
 #if defined(_WIN32)  
 #  include <windows.h>           /* for Sleep */
-#  if defined(_MINGW32__) || defined(_MSC_VER)
+#  if defined(__MINGW32__) || defined(_MSC_VER)
 #    define sleep Sleep            /* windows does not have sleep, but Sleep */
 #  endif
 #endif
