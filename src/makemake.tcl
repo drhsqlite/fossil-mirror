@@ -335,25 +335,34 @@ OBJDIR = .
 O      = .obj
 E      = .exe
 
-
-# Maybe MSCDIR, SSL or INCL needs adjustment
+# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
 MSCDIR = c:\msc
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include
 
-#SSL   =  -DFOSSIL_ENABLE_SSL=1
-SSL    =
+# Uncomment below for SSL support
+SSL =
+SSLLIB =
+#SSL = -DFOSSIL_ENABLE_SSL=1
+#SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+
+# zlib options
+# When using precompiled from http://zlib.net/zlib125-dll.zip
+#ZINCDIR = C:\zlib125-dll\include
+#ZLIBDIR = C:\zlib125-dll\lib
+#ZLIB    = zdll.lib
+ZINCDIR = $(MSCDIR)\extra\include
+ZLIBDIR = $(MSCDIR)\extra\lib
+ZLIB    = zlib.lib
+
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 
 MSCDEF =  -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 I18N   =  -DFOSSIL_I18N=0
 
-CFLAGS = -nologo -MD -O2 -Oy- -Zi
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
-LIBS   = zlib.lib ws2_32.lib
-##SSL uncoment below
-#LIBS   = zlib.lib ws2_32.lib ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib
+LIBS   = $(ZLIB) ws2_32.lib $(SSLLIB)
+LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 }
 puts -nonewline "SRC   = "
 foreach s [lsort $src] {
@@ -371,11 +380,11 @@ APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(OBJDIR) $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OBJDIR)\linkopts
 	cd $(OBJDIR) 
-	link -LINK -OUT:$@ $(LIBDIR) @link
+	link -LINK -OUT:$@ $(LIBDIR) @linkopts
 
-$(OBJDIR)\link:}
+$(OBJDIR)\linkopts: $B\win\Makefile.msc}
 puts -nonewline "\techo "
 foreach s [lsort $src] {
   puts -nonewline "$s "
@@ -384,7 +393,6 @@ puts "sqlite3 th th_lang > \$@"
 puts "\techo \$(LIBS) >> \$@\n\n"
 
 puts {
-
 
 $(OBJDIR):
 	@-mkdir $@
@@ -419,6 +427,7 @@ page_index.h: mkindex$E $(SRC)
 clean:
 	-del $(OBJDIR)\*.obj
 	-del *.obj *_.c *.h *.map
+	-del headers linkopts
 
 realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E

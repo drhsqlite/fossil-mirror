@@ -10,25 +10,34 @@ OBJDIR = .
 O      = .obj
 E      = .exe
 
-
-# Maybe MSCDIR, SSL or INCL needs adjustment
+# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
 MSCDIR = c:\msc
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include
 
-#SSL   =  -DFOSSIL_ENABLE_SSL=1
-SSL    =
+# Uncomment below for SSL support
+SSL =
+SSLLIB =
+#SSL = -DFOSSIL_ENABLE_SSL=1
+#SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+
+# zlib options
+# When using precompiled from http://zlib.net/zlib125-dll.zip
+#ZINCDIR = C:\zlib125-dll\include
+#ZLIBDIR = C:\zlib125-dll\lib
+#ZLIB    = zdll.lib
+ZINCDIR = $(MSCDIR)\extra\include
+ZLIBDIR = $(MSCDIR)\extra\lib
+ZLIB    = zlib.lib
+
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 
 MSCDEF =  -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 I18N   =  -DFOSSIL_I18N=0
 
-CFLAGS = -nologo -MD -O2 -Oy- -Zi
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
-LIBS   = zlib.lib ws2_32.lib
-##SSL uncoment below
-#LIBS   = zlib.lib ws2_32.lib ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib
+LIBS   = $(ZLIB) ws2_32.lib $(SSLLIB)
+LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 
 SRC   = add_.c allrepo_.c attach_.c bag_.c blob_.c branch_.c browse_.c captcha_.c cgi_.c checkin_.c checkout_.c clearsign_.c clone_.c comformat_.c configure_.c content_.c db_.c delta_.c deltacmd_.c descendants_.c diff_.c diffcmd_.c doc_.c encode_.c file_.c finfo_.c graph_.c http_.c http_socket_.c http_ssl_.c http_transport_.c info_.c login_.c main_.c manifest_.c md5_.c merge_.c merge3_.c name_.c pivot_.c popen_.c pqueue_.c printf_.c rebuild_.c report_.c rss_.c schema_.c search_.c setup_.c sha1_.c shun_.c skins_.c stat_.c style_.c sync_.c tag_.c th_main_.c timeline_.c tkt_.c tktsetup_.c undo_.c update_.c url_.c user_.c verify_.c vfile_.c wiki_.c wikiformat_.c winhttp_.c xfer_.c zip_.c 
 
@@ -39,14 +48,13 @@ APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(OBJDIR) $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OBJDIR)\linkopts
 	cd $(OBJDIR) 
-	link -LINK -OUT:$@ $(LIBDIR) @link
+	link -LINK -OUT:$@ $(LIBDIR) @linkopts
 
-$(OBJDIR)\link:
+$(OBJDIR)\linkopts: $B\win\Makefile.msc
 	echo add allrepo attach bag blob branch browse captcha cgi checkin checkout clearsign clone comformat configure content db delta deltacmd descendants diff diffcmd doc encode file finfo graph http http_socket http_ssl http_transport info login main manifest md5 merge merge3 name pivot popen pqueue printf rebuild report rss schema search setup sha1 shun skins stat style sync tag th_main timeline tkt tktsetup undo update url user verify vfile wiki wikiformat winhttp xfer zip sqlite3 th th_lang > $@
 	echo $(LIBS) >> $@
-
 
 
 
@@ -84,6 +92,7 @@ page_index.h: mkindex$E $(SRC)
 clean:
 	-del $(OBJDIR)\*.obj
 	-del *.obj *_.c *.h *.map
+	-del headers linkopts
 
 realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E
