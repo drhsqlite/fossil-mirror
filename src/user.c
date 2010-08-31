@@ -42,6 +42,9 @@ static void strip_string(Blob *pBlob, char *z){
 }
 
 #if defined(_WIN32)
+#ifdef __MINGW32__
+#include <conio.h>
+#endif
 /*
 ** getpass for Windows
 */

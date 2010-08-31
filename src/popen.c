@@ -98,7 +98,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
 #ifdef _WIN32
   HANDLE hStdinRd, hStdinWr, hStdoutRd, hStdoutWr, hStderr;
   SECURITY_ATTRIBUTES saAttr;    
-  DWORD childPid;
+  DWORD childPid = 0;
   int fd;
 
   saAttr.nLength = sizeof(saAttr);
