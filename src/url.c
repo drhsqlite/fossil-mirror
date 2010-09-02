@@ -84,7 +84,7 @@ void url_parse(const char *zUrl){
       g.urlDfltPort = 80;
       iStart = 7;
     }
-    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
+    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='@' && c!=':'; i++){}
     if( c=='@' ){
       for(j=iStart; j<i && zUrl[j]!=':'; j++){}
       g.urlUser = mprintf("%.*s", j-iStart, &zUrl[iStart]);

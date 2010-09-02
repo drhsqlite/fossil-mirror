@@ -1,5 +1,5 @@
-C Minor\schanges\sto\swin/Makefile.msc\safter\stesting\swith\sMSVC.
-D 2010-08-31T18:21:02
+C Fix\sa\sbug\sfix\sin\sthe\sURL\sparser\sthat\swas\sintroduced\sby\sthe\srecent\sssh://\nchange.\s\sThe\sbug\sprevented\sport\snumbers\safter\sthe\shostname\sfrom\sparsing\ncorrectly.
+D 2010-09-02T10:28:21
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -108,7 +108,7 @@ F src/tktsetup.c bc8010e9f3271102ef3dd4306bff7a7597812d34
 F src/translate.c 405b8cb554cafb9909803915166d23e88c81259f
 F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
 F src/update.c d6c61b808f6d9c01277f52114c4583e559d5fb16
-F src/url.c 236687115c99473b06c251da3fca6b4cfb5f621d
+F src/url.c 3742a333914d8b00ea3c84410602ece755829243
 F src/user.c b7f7d1d87de8c2bee94d776cb115780a2056fa74
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 3c02b2d2dc5646f11b9d0756def29830ee3ad8ac
@@ -267,7 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P b0bbcd5da616c0d50881c3db1f2c3c07338f5fc4
-R 8a5ca3e411759e040862f0dbe2dbe44e
-U shaneh
-Z 4ccc37cd3a2845b36cb5efa43a837d3a
+P 3a5b4ad4e2dbf8ef6b020c4fe7927f3f23b3f0c4
+R 5ccf3ffd52c1fb47d63edc3678f7cb26
+U drh
+Z 52219f9694d13d8410f735b1d7716330
