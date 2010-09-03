@@ -84,8 +84,9 @@ void url_parse(const char *zUrl){
       g.urlDfltPort = 80;
       iStart = 7;
     }
-    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='@' && c!=':'; i++){}
+    for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!='@'; i++){}
     if( c=='@' ){
+      /* Parse up the user-id and password */
       for(j=iStart; j<i && zUrl[j]!=':'; j++){}
       g.urlUser = mprintf("%.*s", j-iStart, &zUrl[iStart]);
       dehttpize(g.urlUser);
@@ -93,15 +94,16 @@ void url_parse(const char *zUrl){
         g.urlPasswd = mprintf("%.*s", i-j-1, &zUrl[j+1]);
         dehttpize(g.urlPasswd);
       }
-      for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
-      g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
-      i = j;
       if( g.urlIsSsh && g.urlPasswd ){
         zLogin = mprintf("%t:*@", g.urlUser);
       }else{
         zLogin = mprintf("%t@", g.urlUser);
       }
+      for(j=i+1; (c=zUrl[j])!=0 && c!='/' && c!=':'; j++){}
+      g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
+      i = j;
     }else{
+      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
       g.urlName = mprintf("%.*s", i-iStart, &zUrl[iStart]);
       zLogin = mprintf("");
     }
@@ -120,7 +122,6 @@ void url_parse(const char *zUrl){
     }
     dehttpize(g.urlName);
     g.urlPath = mprintf(&zUrl[i]);
-    if( g.urlIsSsh && g.urlPath[1] ) g.urlPath++;
     for(i=0; g.urlPath[i] && g.urlPath[i]!='?'; i++){}
     if( g.urlPath[i] ){
       g.urlPath[i] = 0;
@@ -161,6 +162,7 @@ void url_parse(const char *zUrl){
         g.urlProtocol, zLogin, g.urlName, g.urlPort, g.urlPath, zExe
       );
     }
+    if( g.urlIsSsh && g.urlPath[1] ) g.urlPath++;
     free(zLogin);
   }else if( strncmp(zUrl, "file:", 5)==0 ){
     g.urlIsFile = 1;
