@@ -220,9 +220,9 @@ void www_print_timeline(
     }
     prevTagid = tagid;
     if( suppressCnt ){
-      @ <tr><td><td><td>
-      @ <small><i>... %d(suppressCnt) similar
-      @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+      @ <tr><td><td><td class="timelineOmitted">
+      @ ... %d(suppressCnt) similar event%s(suppressCnt>1?"s":"") omitted.
+      @ </tr>
       suppressCnt = 0;
     }
     if( strcmp(zType,"div")==0 ){
@@ -238,7 +238,7 @@ void www_print_timeline(
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
     @ <tr>
-    @ <td valign="top" align="right">%s(zTime)</td>
+    @ <td class="timelineTimeStampCell">%s(zTime)</td>
     @ <td width="20" align="left" valign="top">
     if( pGraph && zType[0]=='c' ){
       int nParent = 0;
@@ -270,9 +270,9 @@ void www_print_timeline(
       @ <div id="m%d(gidx)"></div>
     }
     if( zBgClr && zBgClr[0] ){
-      @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
+      @ <td class="timelineComment" bgcolor="%h(zBgClr)">
     }else{
-      @ <td valign="top" align="left">
+      @ <td class="timelineComment">
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
@@ -312,8 +312,9 @@ void www_print_timeline(
   }
   if( suppressCnt ){
     @ <tr><td><td><td>
-    @ <small><i>... %d(suppressCnt) similar
-    @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+    @ <tr><td><td><td class="timelineOmitted">
+    @ ... %d(suppressCnt) similar event%s(suppressCnt>1?"s":"") omitted.
+    @ </tr>
     suppressCnt = 0;
   }
   if( pGraph ){

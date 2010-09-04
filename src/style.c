@@ -103,6 +103,7 @@ void style_header(const char *zTitleFormat, ...){
   }
   if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
   Th_Render(zHeader);
+  cgi_printf("%s","<link rel=\"stylesheet\" href=\"stdstyle.css\" type=\"text/css\">");
   if( g.thTrace ) Th_Trace("END_HEADER<br />\n", -1);
   Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
@@ -381,7 +382,28 @@ const char zDefaultCSS[] =
 @   padding: 0.2ex 2ex;
 @ }
 ;
-
+const char zTdTimelineTimeStampCell[] = 
+@ /* The time column in timeline tables */
+@ td.timelineTimeStampCell {
+@   valign: top;
+@   text-align: right;
+@}
+;
+const char zTdTimelineOmitted[] =
+@ /* The omitted line in timeline tables */
+@ td.timelineOmitted {
+@   font-size: small;
+@   font-style: italic;
+@ }
+;
+const char zTdTimelineComment[] =
+@ /* The comment cell in timeline tables */
+@ td.timelineComment {
+@   valign: top;
+@   text-align: left;
+@ }
+;
+ 
 /*
 ** WEBPAGE: style.css
 */
@@ -391,6 +413,14 @@ void page_style_css(void){
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
   cgi_append_content(zCSS, -1);
+  cgi_append_content("\n", -1);
+  /* append internal classes, if not already in style sheet */
+  if (!strstr(zCSS,"timelineTimeStampCell"))
+    cgi_append_content(zTdTimelineTimeStampCell,-1);
+  if (!strstr(zCSS,"timelineOmitted"))
+    cgi_append_content(zTdTimelineOmitted,-1);
+  if (!strstr(zCSS,"timelineComment"))
+    cgi_append_content(zTdTimelineComment,-1);
   g.isConst = 1;
 }
 
