@@ -103,7 +103,6 @@ void style_header(const char *zTitleFormat, ...){
   }
   if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
   Th_Render(zHeader);
-  cgi_printf("%s","<link rel=\"stylesheet\" href=\"stdstyle.css\" type=\"text/css\">");
   if( g.thTrace ) Th_Trace("END_HEADER<br />\n", -1);
   Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
