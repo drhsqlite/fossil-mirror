@@ -911,6 +911,7 @@ void setup_editcss(void){
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
+  @ /* internal page layout */
   @ %h(zTdTimelineTimeStampCell)
   @ %h(zTdTimelineOmitted)
   @ %h(zTdTimelineComment)
