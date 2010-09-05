@@ -81,9 +81,17 @@ static int check_name(const char *z){
 */
 void home_page(void){
   char *zPageName = db_get("project-name",0);
+  char *zIndexPage = db_get("index-page",0);
   login_check_credentials();
   if( !g.okRdWiki ){
     cgi_redirectf("%s/login?g=%s/home", g.zBaseURL, g.zBaseURL);
+  }
+  if( zIndexPage ){
+    while( zIndexPage[0]=='/' ) zIndexPage++;
+    if( strcmp(zIndexPage, P("PATH_INFO"))==0 ) zIndexPage = 0;
+  }
+  if( zIndexPage ){
+    cgi_redirectf("%s/%s", g.zBaseURL, zIndexPage);
   }
   if( zPageName ){
     login_check_credentials();
@@ -220,12 +228,13 @@ void wiki_page(void){
       @ <ul>
     }
     cnt++;
-    if( g.okHistory ){
+    if( g.okHistory && g.okRead ){
       @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+      @ %h(zFile)</a>
     }else{
-      @ <li>
+      @ <li>%h(zFile)
     }
-    @ %h(zFile)</a> add by %h(zUser) on
+    @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.okWrWiki && g.okAttach ){
       @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&file=%t(zFile)&from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
