@@ -912,10 +912,12 @@ void setup_editcss(void){
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
   @ /* internal page layout */
+  @ %h(zTdTimelineTable)
   @ %h(zTdTimelineTimeStampCell)
   @ %h(zTdTimelineOmitted)
   @ %h(zTdTimelineComment)
-  @ %h(zTdTimelineLeafDsp)
+  @ %h(zDivTimelineLeafDsp)
+  @ %h(zDivNomenclatureSidebox)
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);

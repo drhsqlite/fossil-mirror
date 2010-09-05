@@ -231,7 +231,8 @@ void brlist_page(void){
   }
   login_anonymous_available();
   compute_leaves(0, 1);
-  style_sidebox_begin("Nomenclature:", "33%");
+  @ <div class="nomenclatureSidebox">
+  @ Nomenclature:
   @ <ol>
   @ <li> An <a href="brlist">open branch</a> is a branch that has one or
   @ more <a href="leaves">open leaves.</a>
@@ -242,7 +243,7 @@ void brlist_page(void){
   @ Closed branches are fixed and do not change (unless they are first
   @ reopened)</li>
   @ </ol>
-  style_sidebox_end();
+  @ </div>
 
   cnt = 0;
   if( !showClosed ){

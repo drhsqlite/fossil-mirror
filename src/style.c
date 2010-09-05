@@ -382,6 +382,14 @@ const char zDefaultCSS[] =
 @   padding: 0.2ex 2ex;
 @ }
 ;
+const char zTdTimelineTable[] = 
+@ /* The time column in timeline tables */
+@ table.timelineTable {
+@   cellspacing: 0;
+@   border: 0;
+@   cellpadding: 0;
+@}
+;
 const char zTdTimelineTimeStampCell[] = 
 @ /* The time column in timeline tables */
 @ td.timelineTimeStampCell {
@@ -403,14 +411,24 @@ const char zTdTimelineComment[] =
 @   text-align: left;
 @ }
 ;
-const char zTdTimelineLeafDsp[] =
+const char zDivTimelineLeafDsp[] =
 @ /* The leaf description in timeline tables */
 @ div.timelineLeafDsp {
 @   font-weight: bold;
 @   display: inline;
 @ }
 ;
- 
+const char zDivNomenclatureSidebox[] =
+@ /* The nomenclature sidebox for branches,.. */
+@ div.nomenclatureSidebox {
+@   float: right;
+@   width: 33%;
+@   border-width: medium;
+@   border-style: double;
+@   margin: 10;
+@ }
+;
+
 /*
 ** WEBPAGE: style.css
 */
@@ -422,6 +440,8 @@ void page_style_css(void){
   cgi_append_content(zCSS, -1);
   cgi_append_content("\n", -1);
   /* append internal classes, if not already in style sheet */
+  if (!strstr(zCSS,"timelineTable"))
+    cgi_append_content(zTdTimelineTable,-1);
   if (!strstr(zCSS,"timelineTimeStampCell"))
     cgi_append_content(zTdTimelineTimeStampCell,-1);
   if (!strstr(zCSS,"timelineOmitted"))
@@ -429,7 +449,9 @@ void page_style_css(void){
   if (!strstr(zCSS,"timelineComment"))
     cgi_append_content(zTdTimelineComment,-1);
   if (!strstr(zCSS,"timelineLeafDsp"))
-    cgi_append_content(zTdTimelineLeafDsp,-1);
+    cgi_append_content(zDivTimelineLeafDsp,-1);
+  if (!strstr(zCSS,"nomenclatureSidebox"))
+    cgi_append_content(zDivNomenclatureSidebox,-1);
   g.isConst = 1;
 }
 

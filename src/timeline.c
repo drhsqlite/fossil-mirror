@@ -194,7 +194,7 @@ void www_print_timeline(
     @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
 
-  @ <table cellspacing=0 border=0 cellpadding=0>
+  @ <table class="timelineTable">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
