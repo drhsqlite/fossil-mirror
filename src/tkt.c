@@ -348,8 +348,13 @@ void tktview_page(void){
         @ <ul>
       }
       cnt++;
-      @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&file=%t(zFile)">
-      @ %h(zFile)</a> add by %h(zUser) on
+      if( g.okRead && g.okHistory ){
+        @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&file=%t(zFile)">
+        @ %h(zFile)</a>
+      }else{
+        @ %h(zFile)
+      }
+      @ added by %h(zUser) on
       hyperlink_to_date(zDate, ".");
       if( g.okWrTkt && g.okAttach ){
         @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&file=%t(zFile)&from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]

@@ -228,12 +228,13 @@ void wiki_page(void){
       @ <ul>
     }
     cnt++;
-    if( g.okHistory ){
+    if( g.okHistory && g.okRead ){
       @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+      @ %h(zFile)</a>
     }else{
-      @ <li>
+      @ <li>%h(zFile)
     }
-    @ %h(zFile)</a> add by %h(zUser) on
+    @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.okWrWiki && g.okAttach ){
       @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&file=%t(zFile)&from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
