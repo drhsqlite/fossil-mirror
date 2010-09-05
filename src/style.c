@@ -339,6 +339,7 @@ const char zDefaultCSS[] =
 @   font-weight: bold;
 @   background-color: #558195;
 @   color: white;
+@   white-space: nowrap;
 @ }
 @
 @ /* The "Date" that occurs on the left hand side of timelines */
@@ -402,6 +403,13 @@ const char zTdTimelineComment[] =
 @   text-align: left;
 @ }
 ;
+const char zTdTimelineLeafDsp[] =
+@ /* The leaf description in timeline tables */
+@ div.timelineLeafDsp {
+@   font-weight: bold;
+@   display: inline;
+@ }
+;
  
 /*
 ** WEBPAGE: style.css
@@ -420,6 +428,8 @@ void page_style_css(void){
     cgi_append_content(zTdTimelineOmitted,-1);
   if (!strstr(zCSS,"timelineComment"))
     cgi_append_content(zTdTimelineComment,-1);
+  if (!strstr(zCSS,"timelineLeafDsp"))
+    cgi_append_content(zTdTimelineLeafDsp,-1);
   g.isConst = 1;
 }
 

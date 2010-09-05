@@ -232,7 +232,7 @@ void www_print_timeline(
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td>
-      @   <div class="divider"><nobr>%s(zPrevDate)</nobr></div>
+      @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
     }
     memcpy(zTime, &zDate[11], 5);
@@ -280,9 +280,9 @@ void www_print_timeline(
         if( db_exists("SELECT 1 FROM tagxref"
                       " WHERE rid=%d AND tagid=%d AND tagtype>0",
                       rid, TAG_CLOSED) ){
-          @ <b>Closed-Leaf:</b>
+          @ <div class="timelineLeafDsp">Closed-Leaf:</div>
         }else{
-          @ <b>Leaf:</b>
+          @ <div class="timelineLeafDsp">Leaf:</div>
         }
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){

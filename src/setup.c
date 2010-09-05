@@ -915,6 +915,7 @@ void setup_editcss(void){
   @ %h(zTdTimelineTimeStampCell)
   @ %h(zTdTimelineOmitted)
   @ %h(zTdTimelineComment)
+  @ %h(zTdTimelineLeafDsp)
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
