@@ -428,6 +428,12 @@ const char zDivNomenclatureSidebox[] =
 @   margin: 10;
 @ }
 ;
+const char zSpanDisabledLinks[] =
+@ /* hyperlinks disabled text */
+@ span.disabledLinks {
+@   color: red;
+@ }
+;
 
 /*
 ** WEBPAGE: style.css
@@ -452,6 +458,8 @@ void page_style_css(void){
     cgi_append_content(zDivTimelineLeafDsp,-1);
   if (!strstr(zCSS,"nomenclatureSidebox"))
     cgi_append_content(zDivNomenclatureSidebox,-1);
+  if (!strstr(zCSS,"disabledLinks"))
+    cgi_append_content(zSpanDisabledLinks,-1);
   g.isConst = 1;
 }
 

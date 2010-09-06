@@ -918,6 +918,7 @@ void setup_editcss(void){
   @ %h(zTdTimelineComment)
   @ %h(zDivTimelineLeafDsp)
   @ %h(zDivNomenclatureSidebox)
+  @ %h(zSpanDisabledLinks)
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
