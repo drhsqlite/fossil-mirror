@@ -39,7 +39,7 @@ $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
 	$(DMDIR)\bin\link @link
 
-$(OBJDIR)\link:
+$(OBJDIR)\link: $B\win\Makefile.dmc
 	+echo add allrepo attach bag blob branch browse captcha cgi checkin checkout clearsign clone comformat configure content db delta deltacmd descendants diff diffcmd doc encode file finfo graph http http_socket http_ssl http_transport info login main manifest md5 merge merge3 name pivot popen pqueue printf rebuild report rss schema search setup sha1 shun skins stat style sync tag th_main timeline tkt tktsetup undo update url user verify vfile wiki wikiformat winhttp xfer zip sqlite3 th th_lang > $@
 	+echo fossil >> $@
 	+echo fossil >> $@

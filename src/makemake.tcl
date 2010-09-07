@@ -259,7 +259,7 @@ $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
 	$(DMDIR)\bin\link @link
 
-$(OBJDIR)\link:}
+$(OBJDIR)\link: $B\win\Makefile.dmc}
 puts -nonewline "\t+echo "
 foreach s [lsort $src] {
   puts -nonewline "$s "
