@@ -90,7 +90,7 @@ internet these days. What makes Fossil worthy of attention?
       in an SQLite database so that transactions are
       atomic even if interrupted by a power loss or system crash.  Furthermore,
       automatic [./selfcheck.wiki | self-checks] verify that all aspects of
-      the repository are consistent prior to each commit.  In nearly three years
+      the repository are consistent prior to each commit.  In over three years
       of operation, no work has ever been lost after having been committed to
       a Fossil repository.
 

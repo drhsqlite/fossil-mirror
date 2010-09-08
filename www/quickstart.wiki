@@ -234,12 +234,15 @@ and painlessly.</p>
     <b>fossil ui</b> <i>repository-filename</i>
     </blockquote>
 
-    <p>The difference between these two command is that <b>ui</b>
-    attempts to automatically start your web browser pointing at the
-    server whereas <b>server</b> does not.
+    <p>The <b>ui</b> command is intended for accessing the web interface
+    from a local desktop.  The <b>ui</b> command binds to the loopback IP
+    address only (and is thus makes the web interface visible only on the
+    local machine) and it automatically start your web browser pointing at the
+    server.  For cross-machine collaboration, use the <b>server</b> command,
+    which binds on all IP addresses and does not try to start a web browser.
     You can omit the <i>repository-filename</i> if you are within
-    a checked-out local tree.  This server uses port 8080 by default
-    but you can specify a different port using the <b>-port</b> command.</p>
+    a checked-out local tree.  The <b>server</b> uses port 8080 by default
+    but you can specify a different port using the <b>-port</b> option.</p>
 
     <p>Command-line servers like this are useful when two people want
     to share a repository on temporary or ad-hoc basis.  For a more
