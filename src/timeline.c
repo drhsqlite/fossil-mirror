@@ -221,8 +221,8 @@ void www_print_timeline(
     prevTagid = tagid;
     if( suppressCnt ){
       @ <tr><td><td><td>
-      @ <small><i>... %d(suppressCnt) similar
-      @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+      @ <span class="timelineDisabled">... %d(suppressCnt) similar
+      @ event%s(suppressCnt>1?"s":"") omitted.</span></tr>
       suppressCnt = 0;
     }
     if( strcmp(zType,"div")==0 ){

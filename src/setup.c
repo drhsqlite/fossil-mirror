@@ -910,13 +910,7 @@ void setup_editcss(void){
   @ See also the <a href="setup_header">header</a> and
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
-  @ %h(zDefaultCSS)
-  @ %h(zTableLabelValueCSS)
-  @ %h(zDivSidebox)
-  @ %h(zDivSideboxTitle)
-  @ %h(zDivSideboxDescribed)
-  @ %h(zSpanDisabled)
-  @ </pre></blockquote>
+  cgi_append_default_css();
   style_footer();
   db_end_transaction(0);
 }

@@ -384,6 +384,7 @@ const char zTableLabelValueCSS[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
+@
 ;
 const char zDivSidebox[] =
 @ /* The nomenclature sidebox for branches,.. */
@@ -393,6 +394,7 @@ const char zDivSidebox[] =
 @   border-style: double;
 @   margin: 10;
 @ }
+@
 ;
 const char zDivSideboxTitle[] =
 @ /* The nomenclature title in sideboxes for branches,.. */
@@ -400,6 +402,7 @@ const char zDivSideboxTitle[] =
 @   display: inline;
 @   font-weight: bold;
 @ }
+@
 ;
 const char zDivSideboxDescribed[] =
 @ /* The defined element in sideboxes for branches,.. */
@@ -407,13 +410,52 @@ const char zDivSideboxDescribed[] =
 @   display: inline;
 @   font-weight: bold;
 @ }
+@
 ;
 const char zSpanDisabled[] =
 @ /* The defined element in sideboxes for branches,.. */
 @ span.disabled {
 @   color: red;
 @ }
+@
 ;
+const char zSpanTimelineSuppressed[] =
+@ /* The suppressed duplicates lines in timeline, .. */
+@ span.timelineDisabled {
+@   font-style: italic;
+@   font-size: small;
+@ }
+@
+;
+typedef enum cssDefaultItems {
+  cssOthers = 0,
+  tableLabelValue,
+  divSidebox,
+  divSideboxTitle,
+  divSideboxDescribed,
+  spanDisabled,
+  spanTimelineSuppressed,
+  cssDefaultCount
+};
+const struct strctCssDefaults {
+  char const * const name;
+  char const * const value;
+} cssDefaultList[cssDefaultCount] = {
+  { "",                      zDefaultCSS             },
+  { "table.label-value",     zTableLabelValueCSS     },
+  { "div.sidebox",           zDivSidebox             },
+  { "div.sideboxTitle",      zDivSideboxTitle        },
+  { "div.sideboxDescribed",  zDivSideboxDescribed    },
+  { "span.disabled",         zSpanDisabled           },
+  { "span.timelineDisabled", zSpanTimelineSuppressed }
+};
+
+void cgi_append_default_css(void) {
+  enum cssDefaultItems i;
+
+  for (i=cssOthers;i<cssDefaultCount;i++)
+    cgi_printf(cssDefaultList[i].value);
+}
 
 /*
 ** WEBPAGE: style.css
@@ -421,17 +463,16 @@ const char zSpanDisabled[] =
 void page_style_css(void){
   const char *zCSS    = 0;
   const char *zCSSdef = 0;
+  enum cssDefaultItems i;
 
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
   /* append user defined css */
   cgi_append_content(zCSS, -1);
   /* add special missing definitions */
-  if (!strstr("table.label-value",zCSS))       cgi_append_content(zTableLabelValueCSS, -1);
-  if (!strstr("div.sidebox",zCSS))             cgi_append_content(zDivSidebox, -1);
-  if (!strstr("div.sideboxTitle",zCSS))        cgi_append_content(zDivSideboxTitle, -1);
-  if (!strstr("div.sideboxDescribed",zCSS))    cgi_append_content(zDivSideboxDescribed, -1);
-  if (!strstr("span.disabled",zCSS))           cgi_append_content(zSpanDisabled, -1);
+  for (i=cssOthers+1;i<cssDefaultCount;i++)
+    if (!strstr(zCSS,cssDefaultList[i].name))
+      cgi_append_content(cssDefaultList[i].value, -1);
   g.isConst = 1;
 }
 
