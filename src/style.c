@@ -245,6 +245,10 @@ const char zDefaultFooter[] =
 
 /*
 ** The default Cascading Style Sheet.
+** It's assembled by different strings for each class.
+** The default css conatains all definitions.
+** The style sheet, send to the client only contains the ones,
+** not defined in the user defined css.
 */
 const char zDefaultCSS[] = 
 @ /* General settings for the entire page */
@@ -374,6 +378,8 @@ const char zDefaultCSS[] =
 @    padding: 0.5em;
 @}
 @
+;
+const char zTableLabelValueCSS[] = 
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -386,11 +392,15 @@ const char zDefaultCSS[] =
 ** WEBPAGE: style.css
 */
 void page_style_css(void){
-  char *zCSS = 0;
+  const char *zCSS    = 0;
+  const char *zCSSdef = 0;
 
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
+  /* append user defined css */
   cgi_append_content(zCSS, -1);
+  /* add special missing definitions */
+  if (!strstr("table.label-value",zCSS)) cgi_append_content(zTableLabelValueCSS, -1);
   g.isConst = 1;
 }
 
