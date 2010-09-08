@@ -181,16 +181,16 @@ const char zDefaultHeader[] =
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$baseurl/timeline.rss">
+@       href="$baseurl/timeline.rss" />
 @ <link rel="stylesheet" href="$baseurl/style.css?default" type="text/css"
-@       media="screen">
+@       media="screen" />
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
 @     <img src="$baseurl/logo" alt="logo">
 @   </div>
-@   <div class="title"><small>$<project_name></small><br>$<title></div>
+@   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"

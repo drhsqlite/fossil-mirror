@@ -286,7 +286,6 @@ void brlist_page(void){
     @ </ul>
   }
   db_finalize(&q);
-  @ </ul>
   @ <br clear="both">
   @ <script>
   @ function xin(id){
