@@ -912,7 +912,8 @@ void setup_editcss(void){
   @ <blockquote><pre>
   @ %h(zDefaultCSS)
   @ %h(zTableLabelValueCSS)
-  @ %h(zDivNomenclatureSidebox)
+  @ %h(zDivSidebox)
+  @ %h(zDivSideboxTitle)
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
