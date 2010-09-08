@@ -401,6 +401,19 @@ const char zDivSideboxTitle[] =
 @   font-weight: bold;
 @ }
 ;
+const char zDivSideboxDescribed[] =
+@ /* The defined element in sideboxes for branches,.. */
+@ div.sideboxDescribed {
+@   display: inline;
+@   font-weight: bold;
+@ }
+;
+const char zSpanDisabled[] =
+@ /* The defined element in sideboxes for branches,.. */
+@ span.disabled {
+@   color: red;
+@ }
+;
 
 /*
 ** WEBPAGE: style.css
@@ -417,6 +430,8 @@ void page_style_css(void){
   if (!strstr("table.label-value",zCSS))       cgi_append_content(zTableLabelValueCSS, -1);
   if (!strstr("div.sidebox",zCSS))             cgi_append_content(zDivSidebox, -1);
   if (!strstr("div.sideboxTitle",zCSS))        cgi_append_content(zDivSideboxTitle, -1);
+  if (!strstr("div.sideboxDescribed",zCSS))    cgi_append_content(zDivSideboxDescribed, -1);
+  if (!strstr("span.disabled",zCSS))           cgi_append_content(zSpanDisabled, -1);
   g.isConst = 1;
 }
 

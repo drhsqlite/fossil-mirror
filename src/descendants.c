@@ -320,10 +320,10 @@ void leaves_page(void){
   compute_leaves(0, showAll ? 0 : showClosed ? 2 : 1);
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
-  @ <li> A <b>leaf</b> is a check-in with no descendants.</li>
-  @ <li> An <b>open leaf</b> is a leaf that does not have a "closed" tag
+  @ <li> A <div class="sideboxDescribed">leaf</div> is a check-in with no descendants.</li>
+  @ <li> An <div class="sideboxDescribed">open leaf</div> is a leaf that does not have a "closed" tag
   @ and is thus assumed to still be in use.</li>
-  @ <li> A <b>closed leaf</b> has a "closed" tag and is thus assumed to
+  @ <li> A <div class="sideboxDescribed">closed leaf</div> has a "closed" tag and is thus assumed to
   @ be historical and no longer in active use.</li>
   @ </ol>
   style_sidebox_end();
