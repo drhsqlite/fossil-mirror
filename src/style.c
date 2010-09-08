@@ -387,6 +387,16 @@ const char zTableLabelValueCSS[] =
 @   padding: 0.2ex 2ex;
 @ }
 ;
+const char zDivNomenclatureSidebox[] =
+@ /* The nomenclature sidebox for branches,.. */
+@ div.nomenclatureSidebox {
+@   float: right;
+@   width: 33%;
+@   border-width: medium;
+@   border-style: double;
+@   margin: 10;
+@ }
+;
 
 /*
 ** WEBPAGE: style.css
@@ -400,7 +410,8 @@ void page_style_css(void){
   /* append user defined css */
   cgi_append_content(zCSS, -1);
   /* add special missing definitions */
-  if (!strstr("table.label-value",zCSS)) cgi_append_content(zTableLabelValueCSS, -1);
+  if (!strstr("table.label-value",zCSS))       cgi_append_content(zTableLabelValueCSS, -1);
+  if (!strstr("div.nomenclatureSidebox",zCSS)) cgi_append_content(zDivNomenclatureSidebox, -1);
   g.isConst = 1;
 }
 
