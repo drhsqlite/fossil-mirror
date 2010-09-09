@@ -65,8 +65,8 @@ static void well_formed_wiki_name_rules(void){
 static int check_name(const char *z){
   if( !wiki_name_is_wellformed((const unsigned char *)z) ){
     style_header("Wiki Page Name Error");
-    @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
-    @ wiki page names:
+    @ The wiki name "<span class="wikiError">%h(z)</span>" is not well-formed.
+    @ Rules for wiki page names:
     well_formed_wiki_name_rules();
     style_footer();
     return 1;
@@ -407,8 +407,8 @@ void wikinew_page(void){
   @ <input type="submit" value="Create">
   @ </p></form>
   if( zName[0] ){
-    @ <p><b><font color="red">
-    @ "%h(zName)" is not a valid wiki page name!</font></b></p>
+    @ <p><span class="wikiError">
+    @ "%h(zName)" is not a valid wiki page name!</span></p>
   }
   style_footer();
 }

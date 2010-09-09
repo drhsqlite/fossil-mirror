@@ -241,8 +241,8 @@ void www_print_timeline(
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
     @ <tr>
-    @ <td valign="top" align="right">%s(zTime)</td>
-    @ <td width="20" align="left" valign="top">
+    @ <td class="timelineTime">%s(zTime)</td>
+    @ <td style="width: 20; text-align: left; vertical-align: top;">
     if( pGraph && zType[0]=='c' ){
       int nParent = 0;
       int aParent[32];
@@ -272,8 +272,9 @@ void www_print_timeline(
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
     }
+    @</td>
     if( zBgClr && zBgClr[0] ){
-      @ <td class="timelineTableCell" bgcolor="%h(zBgClr)">
+      @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
       @ <td class="timelineTableCell">
     }

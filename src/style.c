@@ -464,6 +464,14 @@ const char zSpanTimelineHistDsp[] =
 @ }
 @
 ;
+const char zTdTimelineTime[] =
+@ /* the format for the timeline time display */
+@ td.timelineTime {
+@   vertical-align: top;
+@   text-align: right;
+@ }
+@
+;
 const char zATagLink[] =
 @ /* the format for the tag links */
 @ a.tagLink {
@@ -477,27 +485,18 @@ const char zSpanTagDsp[] =
 @ }
 @
 ;
-typedef enum cssDefaultItems {
-  cssOthers = 0,
-  tableLabelValue,
-  divSidebox,
-  divSideboxTitle,
-  divSideboxDescribed,
-  spanDisabled,
-  spanTimelineSuppressed,
-  tableTimelineTable,
-  tdTimelineTableCell,
-  spanTimelineLeaf,
-  aTimelineHistLink,
-  spanTimelineHistDsp,
-  aTagLink,
-  spanTagDsp,
-  cssDefaultCount
-};
+const char zSpanWikiError[] =
+@ /* the format for wiki errors */
+@ span.wikiError {
+@   font-weight: bold;
+@   color: red;
+@ }
+@
+;
 const struct strctCssDefaults {
   char const * const name;
   char const * const value;
-} cssDefaultList[cssDefaultCount] = {
+} cssDefaultList[] = {
   { "",                      zDefaultCSS             },
   { "table.label-value",     zTableLabelValueCSS     },
   { "div.sidebox",           zDivSidebox             },
@@ -510,14 +509,17 @@ const struct strctCssDefaults {
   { "span.timelineLeaf",     zSpanTimelineLeaf       },
   { "a.timelineHistLink",    zATimelineHistLink      },
   { "span.timelineHistDsp",  zSpanTimelineHistDsp    },
+  { "td.timelineTime",       zTdTimelineTime         },
   { "a.tagLink",             zATagLink               },
-  { "span.tagDsp",           zSpanTagDsp             }
+  { "span.tagDsp",           zSpanTagDsp             },
+  { "span.wikiError",        zSpanWikiError          },
+  { 0,                       0                       }
 };
 
 void cgi_append_default_css(void) {
   enum cssDefaultItems i;
 
-  for (i=cssOthers;i<cssDefaultCount;i++)
+  for (i=0;cssDefaultList[i].name;i++)
     cgi_printf(cssDefaultList[i].value);
 }
 
@@ -534,7 +536,7 @@ void page_style_css(void){
   /* append user defined css */
   cgi_append_content(zCSS, -1);
   /* add special missing definitions */
-  for (i=cssOthers+1;i<cssDefaultCount;i++)
+  for (i=1;cssDefaultList[i].name;i++)
     if (!strstr(zCSS,cssDefaultList[i].name))
       cgi_append_content(cssDefaultList[i].value, -1);
   g.isConst = 1;
