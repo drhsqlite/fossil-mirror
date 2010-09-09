@@ -121,7 +121,7 @@ void url_parse(const char *zUrl){
       g.urlHostname = g.urlName;
     }
     dehttpize(g.urlName);
-    g.urlPath = mprintf(&zUrl[i]);
+    g.urlPath = mprintf("%s", &zUrl[i]);
     for(i=0; g.urlPath[i] && g.urlPath[i]!='?'; i++){}
     if( g.urlPath[i] ){
       g.urlPath[i] = 0;

@@ -911,6 +911,7 @@ void setup_editcss(void){
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
   cgi_append_default_css();
+  @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
 }
