@@ -50,9 +50,9 @@ void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
   shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/info/%s(zShortUuid)">[%s(zShortUuid)]</a>
+    @ <a class="timelineHistLink" href="%s(g.zBaseURL)/info/%s(zShortUuid)">[%s(zShortUuid)]</a>
   }else{
-    @ <b>[%s(zShortUuid)]</b>
+    @ <span class="timelineHistDsp">[%s(zShortUuid)]</span>
   }
 }
 
@@ -191,10 +191,13 @@ void www_print_timeline(
   }
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
+    /* style is not moved to css, because this is
+    ** a technical div for the timeline graph
+    */
     @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
 
-  @ <table cellspacing=0 border=0 cellpadding=0>
+  @ <table class="timelineTable">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -270,9 +273,9 @@ void www_print_timeline(
       @ <div id="m%d(gidx)"></div>
     }
     if( zBgClr && zBgClr[0] ){
-      @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
+      @ <td class="timelineTableCell" bgcolor="%h(zBgClr)">
     }else{
-      @ <td valign="top" align="left">
+      @ <td class="timelineTableCell">
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
@@ -280,9 +283,9 @@ void www_print_timeline(
         if( db_exists("SELECT 1 FROM tagxref"
                       " WHERE rid=%d AND tagid=%d AND tagtype>0",
                       rid, TAG_CLOSED) ){
-          @ <b>Closed-Leaf:</b>
+          @ <span class="timelineLeaf">Closed-Leaf:</span>
         }else{
-          @ <b>Leaf:</b>
+          @ <span class="timelineLeaf">Leaf:</span>
         }
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
@@ -312,8 +315,8 @@ void www_print_timeline(
   }
   if( suppressCnt ){
     @ <tr><td><td><td>
-    @ <small><i>... %d(suppressCnt) similar
-    @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+    @ <span class="timelineDisabled">... %d(suppressCnt) similar
+    @ event%s(suppressCnt>1?"s":"") omitted.</span></tr>
     suppressCnt = 0;
   }
   if( pGraph ){
@@ -322,6 +325,9 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
+      /* style is not moved to css, because this is
+      ** a technical div for the timeline graph
+      */
       @ <tr><td><td>
       @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
     }

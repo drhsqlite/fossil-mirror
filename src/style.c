@@ -427,6 +427,43 @@ const char zSpanTimelineSuppressed[] =
 @ }
 @
 ;
+const char zTableTimelineTable[] =
+@ /* the format for the timeline data table */
+@ table.timelineTable {
+@   cellspacing: 0;
+@   border: 0;
+@   cellpadding: 0
+@ }
+@
+;
+const char zTdTimelineTableCell[] =
+@ /* the format for the timeline data cells */
+@ td.timelineTableCell {
+@   valign: top;
+@   align: left;
+@ }
+@
+;
+const char zSpanTimelineLeaf[] =
+@ /* the format for the timeline leaf marks */
+@ span.timelineLeaf {
+@   font-weight: bold;
+@ }
+@
+;
+const char zATimelineHistLink[] =
+@ /* the format for the timeline version links */
+@ a.timelineHistLink {
+@ }
+@
+;
+const char zSpanTimelineHistDsp[] =
+@ /* the format for the timeline version display(no history permission!) */
+@ span.timelineHistDsp {
+@   font-weight: bold;
+@ }
+@
+;
 typedef enum cssDefaultItems {
   cssOthers = 0,
   tableLabelValue,
@@ -435,6 +472,11 @@ typedef enum cssDefaultItems {
   divSideboxDescribed,
   spanDisabled,
   spanTimelineSuppressed,
+  tableTimelineTable,
+  tdTimelineTableCell,
+  spanTimelineLeaf,
+  aTimelineHistLink,
+  spanTimelineHistDsp,
   cssDefaultCount
 };
 const struct strctCssDefaults {
@@ -447,7 +489,12 @@ const struct strctCssDefaults {
   { "div.sideboxTitle",      zDivSideboxTitle        },
   { "div.sideboxDescribed",  zDivSideboxDescribed    },
   { "span.disabled",         zSpanDisabled           },
-  { "span.timelineDisabled", zSpanTimelineSuppressed }
+  { "span.timelineDisabled", zSpanTimelineSuppressed },
+  { "table.timelineTable",   zTableTimelineTable     },
+  { "td.timelineTableCell",  zTdTimelineTableCell    },
+  { "span.timelineLeaf",     zSpanTimelineLeaf       },
+  { "a.timelineHistLink",    zATimelineHistLink      },
+  { "span.timelineHistDsp",  zSpanTimelineHistDsp    }
 };
 
 void cgi_append_default_css(void) {
