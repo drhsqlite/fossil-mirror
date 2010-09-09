@@ -464,6 +464,19 @@ const char zSpanTimelineHistDsp[] =
 @ }
 @
 ;
+const char zATagLink[] =
+@ /* the format for the tag links */
+@ a.tagLink {
+@ }
+@
+;
+const char zSpanTagDsp[] =
+@ /* the format for the tag display(no history permission!) */
+@ span.tagDsp {
+@   font-weight: bold;
+@ }
+@
+;
 typedef enum cssDefaultItems {
   cssOthers = 0,
   tableLabelValue,
@@ -477,6 +490,8 @@ typedef enum cssDefaultItems {
   spanTimelineLeaf,
   aTimelineHistLink,
   spanTimelineHistDsp,
+  aTagLink,
+  spanTagDsp,
   cssDefaultCount
 };
 const struct strctCssDefaults {
@@ -494,7 +509,9 @@ const struct strctCssDefaults {
   { "td.timelineTableCell",  zTdTimelineTableCell    },
   { "span.timelineLeaf",     zSpanTimelineLeaf       },
   { "a.timelineHistLink",    zATimelineHistLink      },
-  { "span.timelineHistDsp",  zSpanTimelineHistDsp    }
+  { "span.timelineHistDsp",  zSpanTimelineHistDsp    },
+  { "a.tagLink",             zATagLink               },
+  { "span.tagDsp",           zSpanTagDsp             }
 };
 
 void cgi_append_default_css(void) {
