@@ -1,5 +1,5 @@
-C reduce\shtml-validator\serrors\son\sleaves\spage
-D 2010-09-09T21:32:12
+C divder\scss\sextended\swith\s'white-space:\snowrap;'\sto\savoid\svalidator\serrors.\sPLEASE\supdate\syout\slocal\sstyles
+D 2010-09-09T21:41:22
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -60,7 +60,7 @@ F src/diffcmd.c 23ac471ebfb0379a73ee1ae134640e9c2da2ac9d
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 1f6e71e23f79a961c47699f5bd4420ea12bfb276
 F src/file.c a746fd6105243104bb1ebb1e63bee8baa077387c
-F src/finfo.c 1e379e6a32bfeb0aa5e38486a113717520d0ba95
+F src/finfo.c 5451e357a0f1b3cc42071d3420778efe970c842a
 F src/graph.c 79682b0b0240d8eb37ecb677afdcf4cff5bf5798
 F src/http.c 1d261b5e943a4a055e4a9813cd63c59d63569a33
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
@@ -95,14 +95,14 @@ F src/skins.c b693b6cb0e5e4e8a73d77ad33031bc8ac4826760
 F src/sqlite3.c de82a45a010284e48ab8f5b84f5fad41d9d0e08b
 F src/sqlite3.h 2f36498318fdd59ebdb4ae0f64cfb22c0a655b5a
 F src/stat.c 7dd74618520f5f1a60a3747eec1124d5ac75749a
-F src/style.c 736ae81860d5ef732cfdbef878cd6b3fc625f7b8
+F src/style.c 909e5253fa96ca433fed62b0091d6d681e540362
 F src/sync.c 001a78a0d5649160d5222ffd57499a6fcd2953c0
 F src/tag.c 601e0090840dc41e6cd0850a274d919742ba7c07
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 280cedadcac435984920bd105e72fd6fbf9fa41d
-F src/timeline.c d5dfa576329cfebd08c254a85a60e4a544cf6c8b
+F src/timeline.c 2bfd66771e75acdcfb8d55e5d65508cb20df0320
 F src/tkt.c 69fd78f1ae05ac1ba3585ac18e292123b51f3ac9
 F src/tktsetup.c bc8010e9f3271102ef3dd4306bff7a7597812d34
 F src/translate.c 405b8cb554cafb9909803915166d23e88c81259f
@@ -267,7 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 6cf335ab0df7eb885139db0e34439ac5941386d5
-R d9660a10962686b78f99e3b7ee747ca4
+P 4dbfba2bd8a63a0b0e03f753481f4d8da6cc24c1
+R 1c11bfa71f9074b6f6972fa74e67d41e
 U wolfgang
-Z 919e3e6761986aca803dde578c9f47f3
+Z d938d0b4042172a3aac01efa657ce6c2

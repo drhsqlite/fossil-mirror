@@ -235,7 +235,7 @@ void www_print_timeline(
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td>
-      @   <div class="divider"><nobr>%s(zPrevDate)</nobr></div>
+      @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
     }
     memcpy(zTime, &zDate[11], 5);

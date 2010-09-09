@@ -341,6 +341,7 @@ const char zDefaultCSS[] =
 @   font-weight: bold;
 @   background-color: #558195;
 @   color: white;
+@   white-space: nowrap;
 @ }
 @
 @ /* The "Date" that occurs on the left hand side of timelines */
