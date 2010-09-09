@@ -162,16 +162,14 @@ void style_footer(void){
 ** a percentage of total screen width.
 */
 void style_sidebox_begin(const char *zTitle, const char *zWidth){
-  @ <table width="%s(zWidth)" align="right" border="1" cellpadding=5
-  @  vspace=5 hspace=5>
-  @ <tr><td>
-  @ <b>%h(zTitle)</b>
+  @ <div class="sidebox" style="width:%s(zWidth)">
+  @ <div class="sideboxTitle">%h(zTitle)</div>
 }
 
 /* End the side-box
 */
 void style_sidebox_end(void){
-  @ </td></tr></table>
+  @ </div>
 }
 
 /* @-comment: // */
@@ -245,6 +243,10 @@ const char zDefaultFooter[] =
 
 /*
 ** The default Cascading Style Sheet.
+** It's assembled by different strings for each class.
+** The default css conatains all definitions.
+** The style sheet, send to the client only contains the ones,
+** not defined in the user defined css.
 */
 const char zDefaultCSS[] = 
 @ /* General settings for the entire page */
@@ -374,6 +376,8 @@ const char zDefaultCSS[] =
 @    padding: 0.5em;
 @}
 @
+;
+const char zTableLabelValueCSS[] = 
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -381,16 +385,53 @@ const char zDefaultCSS[] =
 @   padding: 0.2ex 2ex;
 @ }
 ;
+const char zDivSidebox[] =
+@ /* The nomenclature sidebox for branches,.. */
+@ div.sidebox {
+@   float: right;
+@   border-width: medium;
+@   border-style: double;
+@   margin: 10;
+@ }
+;
+const char zDivSideboxTitle[] =
+@ /* The nomenclature title in sideboxes for branches,.. */
+@ div.sideboxTitle {
+@   display: inline;
+@   font-weight: bold;
+@ }
+;
+
+
+/* The following table holds the names of CSS elements and the CSS
+** text that implements those elements.
+*/
+static const struct {
+  const char *zElement;   /* Name of the CSS element */
+  const char *zText;      /* Text of the element */
+} cssElements[] = {
+  { "table.label-value", zTableLabelValueCSS },
+  { "div.sidebox",       zDivSidebox         },
+  { "div.sideboxTitle",  zDivSideboxTitle    },
+};
 
 /*
 ** WEBPAGE: style.css
 */
 void page_style_css(void){
-  char *zCSS = 0;
+  const char *zCSS;
+  int i;
 
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
+  /* append user defined css */
   cgi_append_content(zCSS, -1);
+  /* add special missing definitions */
+  for(i=0; i<count(cssElements); i++){
+    if( strstr(cssElements[i].zElement, zCSS)==0 ){
+      cgi_append_content(cssElements[i].zText, -1);
+    }
+  }
   g.isConst = 1;
 }
 
