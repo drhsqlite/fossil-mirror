@@ -518,7 +518,7 @@ const struct strctCssDefaults {
 };
 
 void cgi_append_default_css(void) {
-  enum cssDefaultItems i;
+  int i;
 
   for (i=0;cssDefaultList[i].name;i++)
     cgi_printf(cssDefaultList[i].value);
@@ -530,7 +530,7 @@ void cgi_append_default_css(void) {
 void page_style_css(void){
   const char *zCSS    = 0;
   const char *zCSSdef = 0;
-  enum cssDefaultItems i;
+  int i;
 
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
