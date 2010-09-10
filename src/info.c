@@ -196,11 +196,11 @@ static void showTags(int rid, const char *zNotGlob){
     }
     @ <li>
     if( tagtype==0 ){
-      @ <b><s>%h(zTagname)</s></b> cancelled
+      @ <span class="infoTagCancelled">%h(zTagname)</span> cancelled
     }else if( zValue ){
-      @ <b>%h(zTagname)=%h(zValue)</b>
+      @ <span class="infoTag">%h(zTagname)=%h(zValue)</span>
     }else {
-      @ <b>%h(zTagname)</b>
+      @ <span class="infoTag">%h(zTagname)</span>
     }
     if( tagtype==2 ){
       if( zOrigUuid && zOrigUuid[0] ){

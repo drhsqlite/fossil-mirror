@@ -626,7 +626,7 @@ char *ticket_schema_check(const char *zSchema){
 
 /*
 ** WEBPAGE: tkttimeline
-** URL: /tkttimeline?name=TICKETUUID&y=TYPE
+** URL: /tkttimeline?name=TICKETUUID&amp;y=TYPE
 **
 ** Show the change history for a single ticket in timeline format.
 */
@@ -646,7 +646,7 @@ void tkttimeline_page(void){
   zType = PD("y","a");
   if( zType[0]!='c' ){
     style_submenu_element("Check-ins", "Check-ins",
-       "%s/tkttimeline?name=%T&y=ci", g.zTop, zUuid);
+       "%s/tkttimeline?name=%T&amp;y=ci", g.zTop, zUuid);
   }else{
     style_submenu_element("Timeline", "Timeline",
        "%s/tkttimeline?name=%T", g.zTop, zUuid);

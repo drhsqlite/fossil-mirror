@@ -157,9 +157,9 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
-	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
+	@ <li> <form method="get" action="%s(g.zBaseURL)/wfind"><div>
 	@     Search wiki titles: <input type="text" name="title"/>
-        @  &nbsp; <input type="submit" />
+        @  &nbsp; <input type="submit" /></div></form>
 	@ </li>
     @ </ul>
     style_footer();
@@ -363,16 +363,16 @@ void wikiedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
+  @ <form method="post" action="%s(g.zBaseURL)/wikiedit"><div>
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
   @ <br>
-  @ <input type="submit" name="preview" value="Preview Your Changes">
-  @ <input type="submit" name="submit" value="Apply These Changes">
-  @ <input type="submit" name="cancel" value="Cancel">
-  @ </form>
+  @ <input type="submit" name="preview" value="Preview Your Changes" />
+  @ <input type="submit" name="submit" value="Apply These Changes" />
+  @ <input type="submit" name="cancel" value="Cancel" />
+  @ </div></form>
   if( !isSandbox ){
     manifest_clear(&m);
   }

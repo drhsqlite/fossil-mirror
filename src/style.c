@@ -142,7 +142,7 @@ void style_footer(void){
 
   /* Put the footer at the bottom of the page.
   */
-  @ </div><br clear="both"/>
+  @ </div><div style="clear: both;" />
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -191,13 +191,13 @@ const char zDefaultHeader[] =
 @     <img src="$baseurl/logo" alt="logo">
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
-@   <div class="status"><nobr><th1>
+@   <div class="status"><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
-@   </th1></nobr></div>
+@   </th1></div>
 @ </div>
 @ <div class="mainmenu"><th1>
 @ html "<a href='$baseurl$index_page'>Home</a> "
@@ -276,7 +276,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100%;
+@   width: 100% ;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -288,12 +288,13 @@ const char zDefaultCSS[] =
 @   font-size: 0.8em;
 @   font-weight: bold;
 @   min-width: 200px;
+@   white-space: nowrap;
 @ }
 @
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100%;
+@   width: 100% ;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -494,6 +495,52 @@ const char zSpanWikiError[] =
 @ }
 @
 ;
+const char zSpanInfoTagCancelled[] =
+@ /* the format for wiki errors */
+@ span.infoTagCancelled {
+@   font-weight: bold;
+@   text-decoration: line-through;
+@ }
+@
+;
+const char zSpanInfoTag[] =
+@ /* the format for wiki errors */
+@ span.infoTag {
+@   font-weight: bold;
+@ }
+@
+;
+const char zSpanWikiTagCancelled[] =
+@ /* the format for wiki errors */
+@ span.wikiTagCancelled {
+@   text-decoration: line-through;
+@ }
+@
+;
+const char zTableBrowser[] =
+@ /* the format for wiki errors */
+@ table.browser {
+@   width: 100%;
+@   border: 0;
+@ }
+@
+;
+const char zTdBrowser[] =
+@ /* the format for wiki errors */
+@ td.browser {
+@   width: 25%;
+@   vertical-align: top;
+@ }
+@
+;
+const char zUlBrowser[] =
+@ /* the format for wiki errors */
+@ ul.browser {
+@   margin-left: 0.5em;
+@   padding-left: 0.5em;
+@ }
+@
+;
 const struct strctCssDefaults {
   char const * const name;
   char const * const value;
@@ -514,6 +561,12 @@ const struct strctCssDefaults {
   { "a.tagLink",             zATagLink               },
   { "span.tagDsp",           zSpanTagDsp             },
   { "span.wikiError",        zSpanWikiError          },
+  { "span.infoTagCancelled", zSpanInfoTagCancelled   },
+  { "span.infoTag",          zSpanInfoTag            },
+  { "span.wikiTagCancelled", zSpanWikiTagCancelled   },
+  { "table.browser",         zTableBrowser           },
+  { "td.browser",            zTdBrowser              },
+  { "ul.browser",            zUlBrowser              },
   { 0,                       0                       }
 };
 

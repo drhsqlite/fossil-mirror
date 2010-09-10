@@ -1021,13 +1021,13 @@ static void openHyperlink(
       */
       if( isClosed ){
         if( g.okHistory ){
-          blob_appendf(p->pOut,"<a href=\"%s/info/%s\"><s>",
+          blob_appendf(p->pOut,"<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
               g.zBaseURL, zTarget
           );
-          zTerm = "</s></a>";
+          zTerm = "</span></a>";
         }else{
-          blob_appendf(p->pOut,"<s>");
-          zTerm = "</s>";
+          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">");
+          zTerm = "</span>";
         }
       }else{
         if( g.okHistory ){

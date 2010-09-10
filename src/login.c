@@ -231,22 +231,22 @@ void login_page(void){
   }
   style_header("Login/Logout");
   @ %s(zErrMsg)
-  @ <form action="login" method="POST">
+  @ <form action="login" method="post">
   if( P("g") ){
-    @ <input type="hidden" name="g" value="%h(P("g"))">
+    @ <input type="hidden" name="g" value="%h(P("g"))" />
   }
   @ <table align="left" hspace="10">
   @ <tr>
   @   <td align="right">User ID:</td>
   if( anonFlag ){
-    @   <td><input type="text" id="u" name="u" value="anonymous" size=30></td>
+    @   <td><input type="text" id="u" name="u" value="anonymous" size=30 /></td>
   }else{
-    @   <td><input type="text" id="u" name="u" value="" size=30></td>
+    @   <td><input type="text" id="u" name="u" value="" size=30 /></td>
   }
   @ </tr>
   @ <tr>
   @  <td align="right">Password:</td>
-  @   <td><input type="password" id="p" name="p" value="" size=30></td>
+  @   <td><input type="password" id="p" name="p" value="" size=30 /></td>
   @ </tr>
   if( g.zLogin==0 ){
     zAnonPw = db_text(0, "SELECT pw FROM user"
@@ -255,10 +255,10 @@ void login_page(void){
   }
   @ <tr>
   @   <td></td>
-  @   <td><input type="submit" name="in" value="Login"></td>
+  @   <td><input type="submit" name="in" value="Login" /></td>
   @ </tr>
   @ </table>
-  @ <script>document.getElementById('u').focus()</script>
+  @ <script  type="text/JavaScript">document.getElementById('u').focus()</script>
   if( g.zLogin==0 ){
     @ <p>Enter
   }else{
@@ -275,7 +275,7 @@ void login_page(void){
     int bAutoCaptcha = db_get_boolean("auto-captcha", 1);
     char *zCaptcha = captcha_render(zDecoded);
 
-    @ <input type="hidden" name="cs" value="%u(uSeed)"/>
+    @ <input type="hidden" name="cs" value="%u(uSeed)" />
     @ <p>Visitors may enter <b>anonymous</b> as the user-ID with
     @ the 8-character hexadecimal password shown below:</p>
     @ <center><table border="1" cellpadding="10"><tr><td><pre>
@@ -284,33 +284,33 @@ void login_page(void){
     if( bAutoCaptcha ) {
         @ <input type="button" value="Fill out captcha"
         @  onclick="document.getElementById('u').value='anonymous';
-        @           document.getElementById('p').value='%s(zDecoded)';"/>
+        @           document.getElementById('p').value='%s(zDecoded)';" />
     }
     @ </center>
     free(zCaptcha);
   }
   if( g.zLogin ){
-    @ <br clear="both"><hr>
+    @ <br><hr>
     @ <p>To log off the system (and delete your login cookie)
     @  press the following button:<br>
-    @ <input type="submit" name="out" value="Logout"></p>
+    @ <input type="submit" name="out" value="Logout" /></p>
   }
   @ </form>
   if( g.okPassword ){
-    @ <br clear="both"><hr>
+    @ <br><hr>
     @ <p>To change your password, enter your old password and your
     @ new password twice below then press the "Change Password"
     @ button.</p>
     @ <form action="login" method="POST">
     @ <table>
     @ <tr><td align="right">Old Password:</td>
-    @ <td><input type="password" name="p" size=30></td></tr>
+    @ <td><input type="password" name="p" size=30 /></td></tr>
     @ <tr><td align="right">New Password:</td>
-    @ <td><input type="password" name="n1" size=30></td></tr>
+    @ <td><input type="password" name="n1" size=30 /></td></tr>
     @ <tr><td align="right">Repeat New Password:</td>
-    @ <td><input type="password" name="n2" size=30></td></tr>
+    @ <td><input type="password" name="n2" size=30 /></td></tr>
     @ <tr><td></td>
-    @ <td><input type="submit" value="Change Password"></td></tr>
+    @ <td><input type="submit" value="Change Password" /></td></tr>
     @ </table>
     @ </form>
   }
@@ -599,7 +599,7 @@ void login_anonymous_available(void){
                 "   AND cap LIKE '%%h%%'") ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }
@@ -609,7 +609,7 @@ void login_anonymous_available(void){
 ** as a hidden element of the form.
 */
 void login_insert_csrf_secret(void){
-  @ <input type="hidden" name="csrf" value="%s(g.zCsrfToken)">
+  @ <input type="hidden" name="csrf" value="%s(g.zCsrfToken)" />
 }
 
 /*

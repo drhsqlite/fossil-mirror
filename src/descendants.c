@@ -343,8 +343,8 @@ void leaves_page(void){
   );
   www_print_timeline(&q, TIMELINE_LEAFONLY, leaves_extra);
   db_finalize(&q);
-  @ <br clear="both">
-  @ <script>
+  @ <br />
+  @ <script  type="text/JavaScript">
   @ function xin(id){
   @ }
   @ function xout(id){

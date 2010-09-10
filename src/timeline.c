@@ -223,9 +223,9 @@ void www_print_timeline(
     }
     prevTagid = tagid;
     if( suppressCnt ){
-      @ <tr><td><td><td>
+      @ <tr><td /><td /><td>
       @ <span class="timelineDisabled">... %d(suppressCnt) similar
-      @ event%s(suppressCnt>1?"s":"") omitted.</span></tr>
+      @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
       suppressCnt = 0;
     }
     if( strcmp(zType,"div")==0 ){
@@ -315,7 +315,7 @@ void www_print_timeline(
     @ </td></tr>
   }
   if( suppressCnt ){
-    @ <tr><td><td><td>
+    @ <tr><td /><td /><td>
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
     @ event%s(suppressCnt>1?"s":"") omitted.</span></tr>
     suppressCnt = 0;
@@ -329,8 +329,9 @@ void www_print_timeline(
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
-      @ <tr><td><td>
+      @ <tr><td /><td>
       @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ </td></tr>
     }
   }
   @ </table>
@@ -346,7 +347,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     GraphRow *pRow;
     int i;
     char cSep;
-    @ <script type="text/JavaScript">
+    @ <script  type="text/JavaScript">
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       cgi_printf("{id:\"m%d\",bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",

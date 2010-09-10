@@ -516,7 +516,7 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.okHistory ){
-      @ <li><a class="tagLink" href=%s(g.zBaseURL)/timeline?t=%T(zName)>%h(zName)</a></li>
+      @ <li><a class="tagLink" href="%s(g.zBaseURL)/timeline?t=%T(zName)">%h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>
     }
@@ -575,8 +575,8 @@ void tagtimeline_page(void){
   );
   www_print_timeline(&q, 0, tagtimeline_extra);
   db_finalize(&q);
-  @ <br clear="both">
-  @ <script>
+  @ <br />
+  @ <script  type="text/JavaScript">
   @ function xin(id){
   @ }
   @ function xout(id){
