@@ -30,7 +30,9 @@
 void stat_page(void){
   i64 t;
   int n, m, fsize;
+  int szMax, szAvg;
   char zBuf[100];
+  char *zVers;
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   style_header("Repository Statistics");
@@ -46,10 +48,17 @@ void stat_page(void){
   @ </td></tr>
   if( n>0 ){
     int a, b;
+    Stmt q;
     @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
-    t = db_int64(0, "SELECT total(size) FROM blob WHERE size>0");
+    db_prepare(&q, "SELECT total(size), avg(size), max(size)"
+                   " FROM blob WHERE size>0");
+    db_step(&q);
+    t = db_column_int64(&q, 0);
+    szAvg = db_column_int(&q, 1);
+    szMax = db_column_int(&q, 2);
+    db_finalize(&q);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
-    @ %d((int)(((double)t)/(double)n)) bytes average, %s(zBuf) bytes total
+    @ %d(szAvg) bytes average, %d(szMax) bytes max, %s(zBuf) bytes total
     @ </td></tr>
     @ <tr><th>Compression&nbsp;Ratio:</th><td>
     if( t/fsize < 5 ){
@@ -84,6 +93,8 @@ void stat_page(void){
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   @ %d(n) days
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%.2f", n/365.24);
+  @ or approximately %s(zBuf) years
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>
   @ %h(db_get("project-code",""))
@@ -96,8 +107,9 @@ void stat_page(void){
   @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>
-  @ %h(db_text(0, "SELECT substr(sqlite_source_id(),1,30)"))
-  @ (%h(SQLITE_VERSION))
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%.19s [%.10s] (%s)",
+                   SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
+  @ %s(zBuf)
   @ </td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   @ %d(db_int(0, "PRAGMA %s.page_count", g.zRepoDb)) pages,
