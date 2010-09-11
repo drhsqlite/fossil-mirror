@@ -375,14 +375,12 @@ const char zDefaultCSS[] =
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
 @ 
-@ /* <verbatim> blocks */
+@ /* verbatim blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
 @    padding: 0.5em;
 @}
 @
-;
-const char zTableLabelValueCSS[] = 
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -391,194 +389,166 @@ const char zTableLabelValueCSS[] =
 @ }
 @
 ;
-const char zDivSidebox[] =
-@ /* The nomenclature sidebox for branches,.. */
-@ div.sidebox {
-@   float: right;
-@   background-color: white;
-@   border-width: medium;
-@   border-style: double;
-@   margin: 10;
-@ }
-@
-;
-const char zDivSideboxTitle[] =
-@ /* The nomenclature title in sideboxes for branches,.. */
-@ div.sideboxTitle {
-@   display: inline;
-@   font-weight: bold;
-@ }
-@
-;
-const char zDivSideboxDescribed[] =
-@ /* The defined element in sideboxes for branches,.. */
-@ div.sideboxDescribed {
-@   display: inline;
-@   font-weight: bold;
-@ }
-@
-;
-const char zSpanDisabled[] =
-@ /* The defined element in sideboxes for branches,.. */
-@ span.disabled {
-@   color: red;
-@ }
-@
-;
-const char zSpanTimelineSuppressed[] =
-@ /* The suppressed duplicates lines in timeline, .. */
-@ span.timelineDisabled {
-@   font-style: italic;
-@   font-size: small;
-@ }
-@
-;
-const char zTableTimelineTable[] =
-@ /* the format for the timeline data table */
-@ table.timelineTable {
-@   cellspacing: 0;
-@   border: 0;
-@   cellpadding: 0
-@ }
-@
-;
-const char zTdTimelineTableCell[] =
-@ /* the format for the timeline data cells */
-@ td.timelineTableCell {
-@   valign: top;
-@   align: left;
-@ }
-@
-;
-const char zSpanTimelineLeaf[] =
-@ /* the format for the timeline leaf marks */
-@ span.timelineLeaf {
-@   font-weight: bold;
-@ }
-@
-;
-const char zATimelineHistLink[] =
-@ /* the format for the timeline version links */
-@ a.timelineHistLink {
-@ }
-@
-;
-const char zSpanTimelineHistDsp[] =
-@ /* the format for the timeline version display(no history permission!) */
-@ span.timelineHistDsp {
-@   font-weight: bold;
-@ }
-@
-;
-const char zTdTimelineTime[] =
-@ /* the format for the timeline time display */
-@ td.timelineTime {
-@   vertical-align: top;
-@   text-align: right;
-@ }
-@
-;
-const char zATagLink[] =
-@ /* the format for the tag links */
-@ a.tagLink {
-@ }
-@
-;
-const char zSpanTagDsp[] =
-@ /* the format for the tag display(no history permission!) */
-@ span.tagDsp {
-@   font-weight: bold;
-@ }
-@
-;
-const char zSpanWikiError[] =
-@ /* the format for wiki errors */
-@ span.wikiError {
-@   font-weight: bold;
-@   color: red;
-@ }
-@
-;
-const char zSpanInfoTagCancelled[] =
-@ /* the format for wiki errors */
-@ span.infoTagCancelled {
-@   font-weight: bold;
-@   text-decoration: line-through;
-@ }
-@
-;
-const char zSpanInfoTag[] =
-@ /* the format for wiki errors */
-@ span.infoTag {
-@   font-weight: bold;
-@ }
-@
-;
-const char zSpanWikiTagCancelled[] =
-@ /* the format for wiki errors */
-@ span.wikiTagCancelled {
-@   text-decoration: line-through;
-@ }
-@
-;
-const char zTableBrowser[] =
-@ /* the format for wiki errors */
-@ table.browser {
-@   width: 100%%;
-@   border: 0;
-@ }
-@
-;
-const char zTdBrowser[] =
-@ /* the format for wiki errors */
-@ td.browser {
-@   width: 25%%;
-@   vertical-align: top;
-@ }
-@
-;
-const char zUlBrowser[] =
-@ /* the format for wiki errors */
-@ ul.browser {
-@   margin-left: 0.5em;
-@   padding-left: 0.5em;
-@ }
-@
-;
 const struct strctCssDefaults {
-  char const * const name;
+  char const * const elementClass;
+  char const * const comment;
   char const * const value;
 } cssDefaultList[] = {
-  { "",                      zDefaultCSS             },
-  { "table.label-value",     zTableLabelValueCSS     },
-  { "div.sidebox",           zDivSidebox             },
-  { "div.sideboxTitle",      zDivSideboxTitle        },
-  { "div.sideboxDescribed",  zDivSideboxDescribed    },
-  { "span.disabled",         zSpanDisabled           },
-  { "span.timelineDisabled", zSpanTimelineSuppressed },
-  { "table.timelineTable",   zTableTimelineTable     },
-  { "td.timelineTableCell",  zTdTimelineTableCell    },
-  { "span.timelineLeaf",     zSpanTimelineLeaf       },
-  { "a.timelineHistLink",    zATimelineHistLink      },
-  { "span.timelineHistDsp",  zSpanTimelineHistDsp    },
-  { "td.timelineTime",       zTdTimelineTime         },
-  { "a.tagLink",             zATagLink               },
-  { "span.tagDsp",           zSpanTagDsp             },
-  { "span.wikiError",        zSpanWikiError          },
-  { "span.infoTagCancelled", zSpanInfoTagCancelled   },
-  { "span.infoTag",          zSpanInfoTag            },
-  { "span.wikiTagCancelled", zSpanWikiTagCancelled   },
-  { "table.browser",         zTableBrowser           },
-  { "td.browser",            zTdBrowser              },
-  { "ul.browser",            zUlBrowser              },
-  { 0,                       0                       }
+  { "",
+    "",
+    zDefaultCSS
+  },
+  { "div.sidebox",
+    "The nomenclature sidebox for branches,..",
+    @   float: right;
+    @   background-color: white;
+    @   border-width: medium;
+    @   border-style: double;
+    @   margin: 10;
+  },
+  { "div.sideboxTitle",
+    "The nomenclature title in sideboxes for branches,..",
+    @   display: inline;
+    @   font-weight: bold;
+  },
+  { "div.sideboxDescribed",
+    "The defined element in sideboxes for branches,..",
+    @   display: inline;
+    @   font-weight: bold;
+  },
+  { "span.disabled",
+    "The defined element in sideboxes for branches,..",
+    @   color: red;
+  },
+  { "span.timelineDisabled",
+    "The suppressed duplicates lines in timeline, ..",
+    @   font-style: italic;
+    @   font-size: small;
+  },
+  { "table.timelineTable",
+    "the format for the timeline data table",
+    @   cellspacing: 0;
+    @   border: 0;
+    @   cellpadding: 0
+  },
+  { "td.timelineTableCell",
+    "the format for the timeline data cells",
+    @   valign: top;
+    @   align: left;
+  },
+  { "span.timelineLeaf",
+    "the format for the timeline leaf marks",
+    @   font-weight: bold;
+  },
+  { "a.timelineHistLink",
+    "the format for the timeline version links",
+    @
+  },
+  { "span.timelineHistDsp",
+    "the format for the timeline version display(no history permission!)",
+    @   font-weight: bold;
+  },
+  { "td.timelineTime",
+    "the format for the timeline time display",
+    @   vertical-align: top;
+    @   text-align: right;
+  },
+  { "a.tagLink",
+    "the format for the tag links",
+    @
+  },
+  { "span.tagDsp",
+    "the format for the tag display(no history permission!)",
+    @   font-weight: bold;
+  },
+  { "span.wikiError",
+    "the format for wiki errors",
+    @   font-weight: bold;
+    @   color: red;
+  },
+  { "span.infoTagCancelled",
+    "the format for fixed/canceled tags,..",
+    @   font-weight: bold;
+    @   text-decoration: line-through;
+  },
+  { "span.infoTag",
+    "the format for tags,..",
+    @   font-weight: bold;
+  },
+  { "span.wikiTagCancelled",
+    "the format for fixed/cancelled tags,.. on wiki pages",
+    @   text-decoration: line-through;
+  },
+  { "table.browser",
+    "format for the file display table",
+    @ /* the format for wiki errors */
+    @   width: 100%%;
+    @   border: 0;
+  },
+  { "td.browser",
+    "format for cells in the file browser",
+    @   width: 25%%;
+    @   vertical-align: top;
+  },
+  { "ul.browser",
+    "format for the list in the file browser",
+    @   margin-left: 0.5em;
+    @   padding-left: 0.5em;
+  },
+  { "table.login_out",
+    "table format for login/out label/input table",
+    @   text-align: left;
+    @   margin-right: 10px;
+    @   margin-left: 10px;
+    @   margin-top: 10px;
+  },
+  { "div.captcha",
+    "captcha display options",
+    @   text-align: center;
+  },
+  { "table.captcha",
+    "format for the layout table, used for the captcha display",
+    @   margin: auto;
+    @   padding: 10px;
+    @   outline-width: 1;
+    @   outline-style: double;
+  },
+  { "td.login_out_label",
+    "format for the label cells in the login/out table",
+    @   text-align: center;
+  },
+  { "span.loginError",
+    "format for login error messages",
+    @   color: red;
+  },
+  { "span.note",
+    "format for leading text for notes",
+    @   font-weight: bold;
+  },
+  { "span.textareaLabel",
+    "format for textare labels",
+    @   font-weight: bold;
+  },
+  { 0,
+    0,
+    0
+  }
 };
 
 void cgi_append_default_css(void) {
   int i;
 
-  for (i=0;cssDefaultList[i].name;i++)
-    cgi_printf(cssDefaultList[i].value);
+  for (i=0;cssDefaultList[i].elementClass;i++)
+    if (cssDefaultList[i].elementClass[0])
+      cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
+		 cssDefaultList[i].comment,
+		 cssDefaultList[i].elementClass,
+		 cssDefaultList[i].value
+		);
+    else
+      cgi_printf("%s",
+		 cssDefaultList[i].value
+		);
 }
 
 /*
@@ -594,9 +564,16 @@ void page_style_css(void){
   /* append user defined css */
   cgi_append_content(zCSS, -1);
   /* add special missing definitions */
-  for (i=1;cssDefaultList[i].name;i++)
-    if (!strstr(zCSS,cssDefaultList[i].name))
+  for (i=1;cssDefaultList[i].elementClass;i++)
+    if (!strstr(zCSS,cssDefaultList[i].elementClass)) {
+      cgi_append_content("/* ", -1);
+      cgi_append_content(cssDefaultList[i].comment, -1);
+      cgi_append_content(" */\n", -1);
+      cgi_append_content(cssDefaultList[i].elementClass, -1);
+      cgi_append_content(" {\n", -1);
       cgi_append_content(cssDefaultList[i].value, -1);
+      cgi_append_content("}\n\n", -1);
+    }
   g.isConst = 1;
 }
 

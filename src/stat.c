@@ -36,7 +36,7 @@ void stat_page(void){
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   style_header("Repository Statistics");
-  @ <p><table class="label-value">
+  @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
   @ %d(fsize) bytes
@@ -119,6 +119,6 @@ void stat_page(void){
   @ %s(db_text(0, "PRAGMA %s.journal_mode", g.zRepoDb)) mode
   @ </td></tr>
 
-  @ </table></p>
+  @ </table>
   style_footer();
 }

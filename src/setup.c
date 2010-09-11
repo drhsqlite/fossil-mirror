@@ -132,7 +132,7 @@ void setup_ulist(void){
   }
   @ </table></td></tr></table>
   @ <td valign="top">
-  @ <b>Notes:</b>
+  @ <span class="note">Notes:</span>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
@@ -700,7 +700,8 @@ static void textarea_attribute(
   }
   if( rows>0 && cols>0 ){
     @ <textarea name="%s(zQP)" rows="%d(rows)" cols="%d(cols)">%h(z)</textarea>
-    @ <b>%s(zLabel)</b>
+    if (zLabel && *zLabel)
+      @ <span class="textareaLabel">%s(zLabel)</span>
   }
 }
 
@@ -894,17 +895,17 @@ void setup_editcss(void){
     cgi_redirect("setup_editcss");
   }
   style_header("Edit CSS");
-  @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
   @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes">
-  @ <input type="submit" name="clear" value="Revert To Default">
-  @ </form>
-  @ <p><b>Note:</b> Press your browser Reload button after modifying the
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <input type="submit" name="clear" value="Revert To Default" />
+  @ </div></form>
+  @ <p><span class="note">Note:</span> Press your browser Reload button after modifying the
   @ CSS in order to pull in the modified CSS file.</p>
-  @ <hr>
+  @ <hr />
   @ The default CSS is shown below for reference.  Other examples
   @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
   @ See also the <a href="setup_header">header</a> and
@@ -1052,7 +1053,7 @@ void setup_logo(void){
   @ <input type="submit" name="clr" value="Revert To Default">
   @ </form>
   @
-  @ <p><b>Note:</b>  Your browser has probably cached the logo image, so
+  @ <p><span class="note">Note:</span>  Your browser has probably cached the logo image, so
   @ you will probably need to press the Reload button on your browser after
   @ changing the logo to provoke your browser to reload the new logo image.
   @ </p>
