@@ -529,6 +529,95 @@ const struct strctCssDefaults {
     "format for textare labels",
     @   font-weight: bold;
   },
+  { "table.usetupLayoutTable",
+    "format for the user setup layout table",
+    @   outline-style: none;
+    @   padding: 0;
+    @   margin: 25px;
+  },
+  { "td.usetupColumnLayout",
+    "format of the columns on the user setup list page",
+    @   vertical-align: top
+  },
+  { "table.usetupUserList",
+    "format for the user list table on the user setup page",
+    @   outline-style: double;
+    @   outline-width: 1;
+    @   padding: 10px;
+  },
+  { "th.usetupListUser",
+    "format for table header user in user list on user setup page",
+    @   text-align: right;
+    @   padding-right: 20px;
+  },
+  { "th.usetupListCap",
+    "format for table header capabilities in user list on user setup page",
+    @   text-align: center;
+    @   padding-right: 15px;
+  },
+  { "th.usetupListCon",
+    "format for table header contact info in user list on user setup page",
+    @   text-align: left;
+  },
+  { "td.usetupListUser",
+    "format for table cell user in user list on user setup page",
+    @   text-align: right;
+    @   padding-right: 20px;
+    @   white-space:nowrap;
+  },
+  { "td.usetupListCap",
+    "format for table cell capabilities in user list on user setup page",
+    @   text-align: center;
+    @   padding-right: 15px;
+  },
+  { "td.usetupListCon",
+    "format for table cell contact info in user list on user setup page",
+    @   text-align: left
+  },
+  { "div.ueditCapBox",
+    "layout definition for the capabilities box on the user edit detail page",
+    @   float: left;
+    @   margin-right: 20px;
+    @   margin-bottom: 20px;
+  },
+  { "td.usetupEditLabel",
+    "format of the label cells in the detailed user edit page",
+    @   text-align: right;
+    @   vertical-align: top;
+    @   white-space: nowrap;
+  },
+  { "span.ueditInheritNobody",
+    "color for capabilities, inherited by nobody",
+    @   color: green;
+  },
+  { "span.ueditInheritDeveloper",
+    "color for capabilities, inherited by developer",
+    @   color: red;
+  },
+  { "span.ueditInheritReader",
+    "color for capabilities, inherited by reader",
+    @   color: black;
+  },
+  { "span.ueditInheritAnonymous",
+    "color for capabilities, inherited by anonymous",
+    @   color: blue;
+  },
+  { "span.capability",
+    "format for capabilites, mentioned on the user edit page",
+    @   font-weight: bold;
+  },
+  { "span.usertype",
+    "format for different user types, mentioned on the user edit page",
+    @   font-weight: bold;
+  },
+  { "span.usertype:before",
+    "leading text for user types, mentioned on the user edit page",
+    @   content:"'";
+  },
+  { "span.usertype:after",
+    "trailing text for user types, mentioned on the user edit page",
+    @   content:"'";
+  },
   { 0,
     0,
     0

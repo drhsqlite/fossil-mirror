@@ -733,14 +733,14 @@ void setup_skin(void){
   /* Process requests to delete a user-defined skin */
   if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
     style_header("Confirm Custom Skin Delete");
-    @ <form action="%s(g.zBaseURL)/setup_skin" method="POST">
+    @ <form action="%s(g.zBaseURL)/setup_skin" method="post"><div>
     @ <p>Deletion of a custom skin is a permanent action that cannot
     @ be undone.  Please confirm that this is what you want to do:</p>
-    @ <input type="hidden" name="sn" value="%h(P("sn"))">
-    @ <input type="submit" name="del2" value="Confirm - Delete The Skin">
-    @ <input type="submit" name="cancel" value="Cancel - Do Not Delete">
+    @ <input type="hidden" name="sn" value="%h(P("sn"))" />
+    @ <input type="submit" name="del2" value="Confirm - Delete The Skin" />
+    @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
     login_insert_csrf_secret();
-    @ </form>
+    @ </div></form>
     style_footer();
     return;
   }
@@ -814,11 +814,11 @@ void setup_skin(void){
     if( strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
       @ <li><p>%h(z).&nbsp;&nbsp; <b>Currently In Use</b></p>
     }else{
-      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="POST">
+      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="post"><div>
       @ %h(z).&nbsp;&nbsp; 
-      @ <input type="hidden" name="sn" value="%h(z)">
-      @ <input type="submit" name="load" value="Use This Skin">
-      @ </form></li>
+      @ <input type="hidden" name="sn" value="%h(z)" />
+      @ <input type="submit" name="load" value="Use This Skin" />
+      @ </div></form></li>
     }
   }
   db_prepare(&q,
