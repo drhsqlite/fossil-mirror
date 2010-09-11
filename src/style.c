@@ -279,7 +279,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100%%;
+@   width: 100% ;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -297,7 +297,7 @@ const char zDefaultCSS[] =
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100%%;
+@   width: 100% ;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -482,12 +482,12 @@ const struct strctCssDefaults {
   { "table.browser",
     "format for the file display table",
     @ /* the format for wiki errors */
-    @   width: 100%%;
+    @   width: 100% ;
     @   border: 0;
   },
   { "td.browser",
     "format for cells in the file browser",
-    @   width: 25%%;
+    @   width: 24% ;
     @   vertical-align: top;
   },
   { "ul.browser",

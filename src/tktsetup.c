@@ -132,17 +132,17 @@ static void tktsetup_generic(
       cgi_redirect("tktsetup");
     }
   }
-  @ <form action="%s(g.zBaseURL)/%s(g.zPath)" method="POST">
+  @ <form action="%s(g.zBaseURL)/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
-  @ <blockquote>
-  @ <input type="submit" name="submit" value="Apply Changes">
-  @ <input type="submit" name="clear" value="Revert To Default">
-  @ <input type="submit" name="setup" value="Cancel">
-  @ </blockquote>
-  @ </form>
-  @ <hr>
+  @ <blockquote><p>
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <input type="submit" name="clear" value="Revert To Default" />
+  @ <input type="submit" name="setup" value="Cancel" />
+  @ </p></blockquote>
+  @ </div></form>
+  @ <hr />
   @ <h2>Default %s(zTitle)</h2>
   @ <blockquote><pre>
   @ %h(zDfltValue)
@@ -155,9 +155,9 @@ static void tktsetup_generic(
 */
 void tktsetup_tab_page(void){
   static const char zDesc[] =
-  @ <p>Enter a valid CREATE TABLE statement for the "ticket" table.  The
+  @ Enter a valid CREATE TABLE statement for the "ticket" table.  The
   @ table must contain columns named "tkt_id", "tkt_uuid", and "tkt_mtime"
-  @ with an unique index on "tkt_uuid" and "tkt_mtime".</p>
+  @ with an unique index on "tkt_uuid" and "tkt_mtime".
   ;
   tktsetup_generic(
     "Ticket Table Schema",
@@ -231,8 +231,8 @@ const char *ticket_common_code(void){
 */
 void tktsetup_com_page(void){
   static const char zDesc[] =
-  @ <p>Enter TH1 script that initializes variables prior to generating
-  @ any of the ticket view, edit, or creation pages.</p>
+  @ Enter TH1 script that initializes variables prior to generating
+  @ any of the ticket view, edit, or creation pages.
   ;
   tktsetup_generic(
     "Ticket Common Script",
@@ -340,8 +340,7 @@ const char *ticket_newpage_code(void){
 */
 void tktsetup_newpage_page(void){
   static const char zDesc[] =
-  @ <p>Enter HTML with embedded TH1 script that will render the "new ticket"
-  @ page</p>
+  @ Enter HTML with embedded TH1 script that will render the "new ticket" page
   ;
   tktsetup_generic(
     "HTML For New Tickets",
@@ -414,8 +413,7 @@ const char *ticket_viewpage_code(void){
 */
 void tktsetup_viewpage_page(void){
   static const char zDesc[] =
-  @ <p>Enter HTML with embedded TH1 script that will render the "view ticket"
-  @ page</p>
+  @ Enter HTML with embedded TH1 script that will render the "view ticket" page
   ;
   tktsetup_generic(
     "HTML For Viewing Tickets",
@@ -537,8 +535,7 @@ const char *ticket_editpage_code(void){
 */
 void tktsetup_editpage_page(void){
   static const char zDesc[] =
-  @ <p>Enter HTML with embedded TH1 script that will render the "edit ticket"
-  @ page</p>
+  @ Enter HTML with embedded TH1 script that will render the "edit ticket" page
   ;
   tktsetup_generic(
     "HTML For Editing Tickets",
@@ -587,8 +584,7 @@ const char *ticket_reportlist_code(void){
 */
 void tktsetup_reportlist(void){
   static const char zDesc[] =
-  @ <p>Enter HTML with embedded TH1 script that will render the "report list"
-  @ page</p>
+  @ Enter HTML with embedded TH1 script that will render the "report list" page
   ;
   tktsetup_generic(
     "HTML For Report List",
@@ -635,9 +631,9 @@ char *ticket_report_template(void){
 */
 void tktsetup_rpttplt_page(void){
   static const char zDesc[] =
-  @ <p>Enter the default ticket report format template.  This is the
+  @ Enter the default ticket report format template.  This is the
   @ the template report format that initially appears when creating a
-  @ new ticket summary report.</p>
+  @ new ticket summary report.
   ;
   tktsetup_generic(
     "Default Report Template",
@@ -676,9 +672,9 @@ const char *ticket_key_template(void){
 */
 void tktsetup_keytplt_page(void){
   static const char zDesc[] =
-  @ <p>Enter the default ticket report color-key template.  This is the
+  @ Enter the default ticket report color-key template.  This is the
   @ the color-key that initially appears when creating a
-  @ new ticket summary report.</p>
+  @ new ticket summary report.
   ;
   tktsetup_generic(
     "Default Report Color-Key Template",
@@ -705,31 +701,31 @@ void tktsetup_timeline_page(void){
   }
   style_header("Ticket Display On Timelines");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/tktsetup_timeline" method="POST">
+  @ <form action="%s(g.zBaseURL)/tktsetup_timeline" method="post"><div>
   login_insert_csrf_secret();
 
-  @ <hr>
+  @ <hr />
   entry_attribute("Ticket Title", 40, "ticket-title-expr", "t", "title");
   @ <p>An SQL expression in a query against the TICKET table that will
   @ return the title of the ticket for display purposes.</p>
 
-  @ <hr>
+  @ <hr />
   entry_attribute("Ticket Status", 40, "ticket-status-column", "s", "status");
   @ <p>The name of the column in the TICKET table that contains the ticket
   @ status in human-readable form.  Case sensitive.</p>
 
-  @ <hr>
+  @ <hr />
   entry_attribute("Ticket Closed", 40, "ticket-closed-expr", "c",
                   "status='Closed'");
   @ <p>An SQL expression that evaluates to true in a TICKET table query if
   @ the ticket is closed.</p>
 
-  @ <hr>
+  @ <hr />
   @ <p>
-  @ <input type="submit"  name="submit" value="Apply Changes">
-  @ <input type="submit" name="setup" value="Cancel">
+  @ <input type="submit"  name="submit" value="Apply Changes" />
+  @ <input type="submit" name="setup" value="Cancel" />
   @ </p>
-  @ </form>
+  @ </div></form>
   db_end_transaction(0);
   style_footer();
   
