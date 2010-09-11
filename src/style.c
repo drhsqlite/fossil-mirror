@@ -276,7 +276,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100% ;
+@   width: 100%%;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -294,7 +294,7 @@ const char zDefaultCSS[] =
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100% ;
+@   width: 100%%;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -520,7 +520,7 @@ const char zSpanWikiTagCancelled[] =
 const char zTableBrowser[] =
 @ /* the format for wiki errors */
 @ table.browser {
-@   width: 100%;
+@   width: 100%%;
 @   border: 0;
 @ }
 @
@@ -528,7 +528,7 @@ const char zTableBrowser[] =
 const char zTdBrowser[] =
 @ /* the format for wiki errors */
 @ td.browser {
-@   width: 25%;
+@   width: 25%%;
 @   vertical-align: top;
 @ }
 @
