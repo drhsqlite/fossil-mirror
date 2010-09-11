@@ -141,8 +141,11 @@ void style_footer(void){
   cgi_destination(CGI_BODY);
 
   /* Put the footer at the bottom of the page.
+  ** the additional clear/both is needed to extend the content
+  ** part to the end of an optional sidebox.
   */
-  @ </div><div style="clear: both;" />
+  @ <div style="clear: both;"></div>
+  @ </div>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -392,6 +395,7 @@ const char zDivSidebox[] =
 @ /* The nomenclature sidebox for branches,.. */
 @ div.sidebox {
 @   float: right;
+@   background-color: white;
 @   border-width: medium;
 @   border-style: double;
 @   margin: 10;
