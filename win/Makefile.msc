@@ -98,428 +98,428 @@ realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E
 
 
-$(OBJDIR)\add$O : add_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\add$O : add_.c add.h
+	$(TCC) /Fo$@ -c add_.c
 
 add_.c : $(SRCDIR)\add.c
 	translate$E $** > $@
 
-$(OBJDIR)\allrepo$O : allrepo_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\allrepo$O : allrepo_.c allrepo.h
+	$(TCC) /Fo$@ -c allrepo_.c
 
 allrepo_.c : $(SRCDIR)\allrepo.c
 	translate$E $** > $@
 
-$(OBJDIR)\attach$O : attach_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\attach$O : attach_.c attach.h
+	$(TCC) /Fo$@ -c attach_.c
 
 attach_.c : $(SRCDIR)\attach.c
 	translate$E $** > $@
 
-$(OBJDIR)\bag$O : bag_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\bag$O : bag_.c bag.h
+	$(TCC) /Fo$@ -c bag_.c
 
 bag_.c : $(SRCDIR)\bag.c
 	translate$E $** > $@
 
-$(OBJDIR)\blob$O : blob_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\blob$O : blob_.c blob.h
+	$(TCC) /Fo$@ -c blob_.c
 
 blob_.c : $(SRCDIR)\blob.c
 	translate$E $** > $@
 
-$(OBJDIR)\branch$O : branch_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\branch$O : branch_.c branch.h
+	$(TCC) /Fo$@ -c branch_.c
 
 branch_.c : $(SRCDIR)\branch.c
 	translate$E $** > $@
 
-$(OBJDIR)\browse$O : browse_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\browse$O : browse_.c browse.h
+	$(TCC) /Fo$@ -c browse_.c
 
 browse_.c : $(SRCDIR)\browse.c
 	translate$E $** > $@
 
-$(OBJDIR)\captcha$O : captcha_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\captcha$O : captcha_.c captcha.h
+	$(TCC) /Fo$@ -c captcha_.c
 
 captcha_.c : $(SRCDIR)\captcha.c
 	translate$E $** > $@
 
-$(OBJDIR)\cgi$O : cgi_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\cgi$O : cgi_.c cgi.h
+	$(TCC) /Fo$@ -c cgi_.c
 
 cgi_.c : $(SRCDIR)\cgi.c
 	translate$E $** > $@
 
-$(OBJDIR)\checkin$O : checkin_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\checkin$O : checkin_.c checkin.h
+	$(TCC) /Fo$@ -c checkin_.c
 
 checkin_.c : $(SRCDIR)\checkin.c
 	translate$E $** > $@
 
-$(OBJDIR)\checkout$O : checkout_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\checkout$O : checkout_.c checkout.h
+	$(TCC) /Fo$@ -c checkout_.c
 
 checkout_.c : $(SRCDIR)\checkout.c
 	translate$E $** > $@
 
-$(OBJDIR)\clearsign$O : clearsign_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\clearsign$O : clearsign_.c clearsign.h
+	$(TCC) /Fo$@ -c clearsign_.c
 
 clearsign_.c : $(SRCDIR)\clearsign.c
 	translate$E $** > $@
 
-$(OBJDIR)\clone$O : clone_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\clone$O : clone_.c clone.h
+	$(TCC) /Fo$@ -c clone_.c
 
 clone_.c : $(SRCDIR)\clone.c
 	translate$E $** > $@
 
-$(OBJDIR)\comformat$O : comformat_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\comformat$O : comformat_.c comformat.h
+	$(TCC) /Fo$@ -c comformat_.c
 
 comformat_.c : $(SRCDIR)\comformat.c
 	translate$E $** > $@
 
-$(OBJDIR)\configure$O : configure_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\configure$O : configure_.c configure.h
+	$(TCC) /Fo$@ -c configure_.c
 
 configure_.c : $(SRCDIR)\configure.c
 	translate$E $** > $@
 
-$(OBJDIR)\content$O : content_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\content$O : content_.c content.h
+	$(TCC) /Fo$@ -c content_.c
 
 content_.c : $(SRCDIR)\content.c
 	translate$E $** > $@
 
-$(OBJDIR)\db$O : db_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\db$O : db_.c db.h
+	$(TCC) /Fo$@ -c db_.c
 
 db_.c : $(SRCDIR)\db.c
 	translate$E $** > $@
 
-$(OBJDIR)\delta$O : delta_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\delta$O : delta_.c delta.h
+	$(TCC) /Fo$@ -c delta_.c
 
 delta_.c : $(SRCDIR)\delta.c
 	translate$E $** > $@
 
-$(OBJDIR)\deltacmd$O : deltacmd_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\deltacmd$O : deltacmd_.c deltacmd.h
+	$(TCC) /Fo$@ -c deltacmd_.c
 
 deltacmd_.c : $(SRCDIR)\deltacmd.c
 	translate$E $** > $@
 
-$(OBJDIR)\descendants$O : descendants_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\descendants$O : descendants_.c descendants.h
+	$(TCC) /Fo$@ -c descendants_.c
 
 descendants_.c : $(SRCDIR)\descendants.c
 	translate$E $** > $@
 
-$(OBJDIR)\diff$O : diff_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\diff$O : diff_.c diff.h
+	$(TCC) /Fo$@ -c diff_.c
 
 diff_.c : $(SRCDIR)\diff.c
 	translate$E $** > $@
 
-$(OBJDIR)\diffcmd$O : diffcmd_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\diffcmd$O : diffcmd_.c diffcmd.h
+	$(TCC) /Fo$@ -c diffcmd_.c
 
 diffcmd_.c : $(SRCDIR)\diffcmd.c
 	translate$E $** > $@
 
-$(OBJDIR)\doc$O : doc_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\doc$O : doc_.c doc.h
+	$(TCC) /Fo$@ -c doc_.c
 
 doc_.c : $(SRCDIR)\doc.c
 	translate$E $** > $@
 
-$(OBJDIR)\encode$O : encode_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\encode$O : encode_.c encode.h
+	$(TCC) /Fo$@ -c encode_.c
 
 encode_.c : $(SRCDIR)\encode.c
 	translate$E $** > $@
 
-$(OBJDIR)\file$O : file_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\file$O : file_.c file.h
+	$(TCC) /Fo$@ -c file_.c
 
 file_.c : $(SRCDIR)\file.c
 	translate$E $** > $@
 
-$(OBJDIR)\finfo$O : finfo_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\finfo$O : finfo_.c finfo.h
+	$(TCC) /Fo$@ -c finfo_.c
 
 finfo_.c : $(SRCDIR)\finfo.c
 	translate$E $** > $@
 
-$(OBJDIR)\graph$O : graph_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\graph$O : graph_.c graph.h
+	$(TCC) /Fo$@ -c graph_.c
 
 graph_.c : $(SRCDIR)\graph.c
 	translate$E $** > $@
 
-$(OBJDIR)\http$O : http_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\http$O : http_.c http.h
+	$(TCC) /Fo$@ -c http_.c
 
 http_.c : $(SRCDIR)\http.c
 	translate$E $** > $@
 
-$(OBJDIR)\http_socket$O : http_socket_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\http_socket$O : http_socket_.c http_socket.h
+	$(TCC) /Fo$@ -c http_socket_.c
 
 http_socket_.c : $(SRCDIR)\http_socket.c
 	translate$E $** > $@
 
-$(OBJDIR)\http_ssl$O : http_ssl_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\http_ssl$O : http_ssl_.c http_ssl.h
+	$(TCC) /Fo$@ -c http_ssl_.c
 
 http_ssl_.c : $(SRCDIR)\http_ssl.c
 	translate$E $** > $@
 
-$(OBJDIR)\http_transport$O : http_transport_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\http_transport$O : http_transport_.c http_transport.h
+	$(TCC) /Fo$@ -c http_transport_.c
 
 http_transport_.c : $(SRCDIR)\http_transport.c
 	translate$E $** > $@
 
-$(OBJDIR)\info$O : info_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\info$O : info_.c info.h
+	$(TCC) /Fo$@ -c info_.c
 
 info_.c : $(SRCDIR)\info.c
 	translate$E $** > $@
 
-$(OBJDIR)\login$O : login_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\login$O : login_.c login.h
+	$(TCC) /Fo$@ -c login_.c
 
 login_.c : $(SRCDIR)\login.c
 	translate$E $** > $@
 
-$(OBJDIR)\main$O : main_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\main$O : main_.c main.h
+	$(TCC) /Fo$@ -c main_.c
 
 main_.c : $(SRCDIR)\main.c
 	translate$E $** > $@
 
-$(OBJDIR)\manifest$O : manifest_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\manifest$O : manifest_.c manifest.h
+	$(TCC) /Fo$@ -c manifest_.c
 
 manifest_.c : $(SRCDIR)\manifest.c
 	translate$E $** > $@
 
-$(OBJDIR)\md5$O : md5_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\md5$O : md5_.c md5.h
+	$(TCC) /Fo$@ -c md5_.c
 
 md5_.c : $(SRCDIR)\md5.c
 	translate$E $** > $@
 
-$(OBJDIR)\merge$O : merge_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\merge$O : merge_.c merge.h
+	$(TCC) /Fo$@ -c merge_.c
 
 merge_.c : $(SRCDIR)\merge.c
 	translate$E $** > $@
 
-$(OBJDIR)\merge3$O : merge3_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\merge3$O : merge3_.c merge3.h
+	$(TCC) /Fo$@ -c merge3_.c
 
 merge3_.c : $(SRCDIR)\merge3.c
 	translate$E $** > $@
 
-$(OBJDIR)\name$O : name_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\name$O : name_.c name.h
+	$(TCC) /Fo$@ -c name_.c
 
 name_.c : $(SRCDIR)\name.c
 	translate$E $** > $@
 
-$(OBJDIR)\pivot$O : pivot_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\pivot$O : pivot_.c pivot.h
+	$(TCC) /Fo$@ -c pivot_.c
 
 pivot_.c : $(SRCDIR)\pivot.c
 	translate$E $** > $@
 
-$(OBJDIR)\popen$O : popen_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\popen$O : popen_.c popen.h
+	$(TCC) /Fo$@ -c popen_.c
 
 popen_.c : $(SRCDIR)\popen.c
 	translate$E $** > $@
 
-$(OBJDIR)\pqueue$O : pqueue_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\pqueue$O : pqueue_.c pqueue.h
+	$(TCC) /Fo$@ -c pqueue_.c
 
 pqueue_.c : $(SRCDIR)\pqueue.c
 	translate$E $** > $@
 
-$(OBJDIR)\printf$O : printf_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\printf$O : printf_.c printf.h
+	$(TCC) /Fo$@ -c printf_.c
 
 printf_.c : $(SRCDIR)\printf.c
 	translate$E $** > $@
 
-$(OBJDIR)\rebuild$O : rebuild_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\rebuild$O : rebuild_.c rebuild.h
+	$(TCC) /Fo$@ -c rebuild_.c
 
 rebuild_.c : $(SRCDIR)\rebuild.c
 	translate$E $** > $@
 
-$(OBJDIR)\report$O : report_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\report$O : report_.c report.h
+	$(TCC) /Fo$@ -c report_.c
 
 report_.c : $(SRCDIR)\report.c
 	translate$E $** > $@
 
-$(OBJDIR)\rss$O : rss_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\rss$O : rss_.c rss.h
+	$(TCC) /Fo$@ -c rss_.c
 
 rss_.c : $(SRCDIR)\rss.c
 	translate$E $** > $@
 
-$(OBJDIR)\schema$O : schema_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\schema$O : schema_.c schema.h
+	$(TCC) /Fo$@ -c schema_.c
 
 schema_.c : $(SRCDIR)\schema.c
 	translate$E $** > $@
 
-$(OBJDIR)\search$O : search_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\search$O : search_.c search.h
+	$(TCC) /Fo$@ -c search_.c
 
 search_.c : $(SRCDIR)\search.c
 	translate$E $** > $@
 
-$(OBJDIR)\setup$O : setup_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\setup$O : setup_.c setup.h
+	$(TCC) /Fo$@ -c setup_.c
 
 setup_.c : $(SRCDIR)\setup.c
 	translate$E $** > $@
 
-$(OBJDIR)\sha1$O : sha1_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\sha1$O : sha1_.c sha1.h
+	$(TCC) /Fo$@ -c sha1_.c
 
 sha1_.c : $(SRCDIR)\sha1.c
 	translate$E $** > $@
 
-$(OBJDIR)\shun$O : shun_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\shun$O : shun_.c shun.h
+	$(TCC) /Fo$@ -c shun_.c
 
 shun_.c : $(SRCDIR)\shun.c
 	translate$E $** > $@
 
-$(OBJDIR)\skins$O : skins_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\skins$O : skins_.c skins.h
+	$(TCC) /Fo$@ -c skins_.c
 
 skins_.c : $(SRCDIR)\skins.c
 	translate$E $** > $@
 
-$(OBJDIR)\stat$O : stat_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\stat$O : stat_.c stat.h
+	$(TCC) /Fo$@ -c stat_.c
 
 stat_.c : $(SRCDIR)\stat.c
 	translate$E $** > $@
 
-$(OBJDIR)\style$O : style_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\style$O : style_.c style.h
+	$(TCC) /Fo$@ -c style_.c
 
 style_.c : $(SRCDIR)\style.c
 	translate$E $** > $@
 
-$(OBJDIR)\sync$O : sync_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\sync$O : sync_.c sync.h
+	$(TCC) /Fo$@ -c sync_.c
 
 sync_.c : $(SRCDIR)\sync.c
 	translate$E $** > $@
 
-$(OBJDIR)\tag$O : tag_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\tag$O : tag_.c tag.h
+	$(TCC) /Fo$@ -c tag_.c
 
 tag_.c : $(SRCDIR)\tag.c
 	translate$E $** > $@
 
-$(OBJDIR)\th_main$O : th_main_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\th_main$O : th_main_.c th_main.h
+	$(TCC) /Fo$@ -c th_main_.c
 
 th_main_.c : $(SRCDIR)\th_main.c
 	translate$E $** > $@
 
-$(OBJDIR)\timeline$O : timeline_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\timeline$O : timeline_.c timeline.h
+	$(TCC) /Fo$@ -c timeline_.c
 
 timeline_.c : $(SRCDIR)\timeline.c
 	translate$E $** > $@
 
-$(OBJDIR)\tkt$O : tkt_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\tkt$O : tkt_.c tkt.h
+	$(TCC) /Fo$@ -c tkt_.c
 
 tkt_.c : $(SRCDIR)\tkt.c
 	translate$E $** > $@
 
-$(OBJDIR)\tktsetup$O : tktsetup_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\tktsetup$O : tktsetup_.c tktsetup.h
+	$(TCC) /Fo$@ -c tktsetup_.c
 
 tktsetup_.c : $(SRCDIR)\tktsetup.c
 	translate$E $** > $@
 
-$(OBJDIR)\undo$O : undo_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\undo$O : undo_.c undo.h
+	$(TCC) /Fo$@ -c undo_.c
 
 undo_.c : $(SRCDIR)\undo.c
 	translate$E $** > $@
 
-$(OBJDIR)\update$O : update_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\update$O : update_.c update.h
+	$(TCC) /Fo$@ -c update_.c
 
 update_.c : $(SRCDIR)\update.c
 	translate$E $** > $@
 
-$(OBJDIR)\url$O : url_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\url$O : url_.c url.h
+	$(TCC) /Fo$@ -c url_.c
 
 url_.c : $(SRCDIR)\url.c
 	translate$E $** > $@
 
-$(OBJDIR)\user$O : user_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\user$O : user_.c user.h
+	$(TCC) /Fo$@ -c user_.c
 
 user_.c : $(SRCDIR)\user.c
 	translate$E $** > $@
 
-$(OBJDIR)\verify$O : verify_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\verify$O : verify_.c verify.h
+	$(TCC) /Fo$@ -c verify_.c
 
 verify_.c : $(SRCDIR)\verify.c
 	translate$E $** > $@
 
-$(OBJDIR)\vfile$O : vfile_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\vfile$O : vfile_.c vfile.h
+	$(TCC) /Fo$@ -c vfile_.c
 
 vfile_.c : $(SRCDIR)\vfile.c
 	translate$E $** > $@
 
-$(OBJDIR)\wiki$O : wiki_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\wiki$O : wiki_.c wiki.h
+	$(TCC) /Fo$@ -c wiki_.c
 
 wiki_.c : $(SRCDIR)\wiki.c
 	translate$E $** > $@
 
-$(OBJDIR)\wikiformat$O : wikiformat_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\wikiformat$O : wikiformat_.c wikiformat.h
+	$(TCC) /Fo$@ -c wikiformat_.c
 
 wikiformat_.c : $(SRCDIR)\wikiformat.c
 	translate$E $** > $@
 
-$(OBJDIR)\winhttp$O : winhttp_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\winhttp$O : winhttp_.c winhttp.h
+	$(TCC) /Fo$@ -c winhttp_.c
 
 winhttp_.c : $(SRCDIR)\winhttp.c
 	translate$E $** > $@
 
-$(OBJDIR)\xfer$O : xfer_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\xfer$O : xfer_.c xfer.h
+	$(TCC) /Fo$@ -c xfer_.c
 
 xfer_.c : $(SRCDIR)\xfer.c
 	translate$E $** > $@
 
-$(OBJDIR)\zip$O : zip_.c
-	$(TCC) /Fo$@ -c $**
+$(OBJDIR)\zip$O : zip_.c zip.h
+	$(TCC) /Fo$@ -c zip_.c
 
 zip_.c : $(SRCDIR)\zip.c
 	translate$E $** > $@
