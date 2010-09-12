@@ -513,8 +513,9 @@ void tktnew_page(void){
   getAllTicketFields();
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
-  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
   login_insert_csrf_secret();
+  @ </p>
   zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
@@ -556,19 +557,19 @@ void tktedit_page(void){
   style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>UUID_SIZE
           || !validate16(zName,nName) ){
-    @ <font color="red"><b>Not a valid ticket id: \"%h(zName)\"</b></font>
+    @ <span class="tktError">Not a valid ticket id: \"%h(zName)\"</span>
     style_footer();
     return;
   }
   nRec = db_int(0, "SELECT count(*) FROM ticket WHERE tkt_uuid GLOB '%q*'",
                 zName);
   if( nRec==0 ){
-    @ <font color="red"><b>No such ticket: \"%h(zName)\"</b></font>
+    @ <span class="tktError">No such ticket: \"%h(zName)\"</span>
     style_footer();
     return;
   }
   if( nRec>1 ){
-    @ <font color="red"><b>%d(nRec) tickets begin with: \"%h(zName)\"</b></font>
+    @ <span class="tktError"><b>%d(nRec) tickets begin with: \"%h(zName)\"</span>
     style_footer();
     return;
   }
@@ -577,9 +578,10 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
-  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
-  @ <input type="hidden" name="name" value="%s(zName)">
+  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
+  @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
+  @ </p>
   zScript = ticket_editpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));

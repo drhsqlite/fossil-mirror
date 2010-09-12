@@ -909,7 +909,7 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw", 
-      "rptview?tablist=1&%s", PD("QUERY_STRING",""));
+      "rptview?tablist=1&amp;%s", PD("QUERY_STRING",""));
     if( g.okAdmin 
        || (g.okTktFmt && g.zLogin && zOwner && strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);

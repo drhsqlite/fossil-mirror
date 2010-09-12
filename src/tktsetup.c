@@ -252,31 +252,31 @@ static const char zDefaultNew[] =
 @      submit_ticket
 @   }
 @ </th1>
-@ <h1 align="center">Enter A New Ticket</h1>
+@ <h1 style="text-align: center;">Enter A New Ticket</h1>
 @ <table cellpadding="5">
 @ <tr>
 @ <td colspan="2">
 @ Enter a one-line summary of the ticket:<br />
-@ <input type="text" name="title" size="60" value="$<title>">
+@ <input type="text" name="title" size="60" value="$<title>" />
 @ </td>
 @ </tr>
 @ 
 @ <tr>
-@ <td align="right">Type:
+@ <td style="text-align: center;">Type:
 @ <th1>combobox type $type_choices 1</th1>
 @ </td>
 @ <td>What type of ticket is this?</td>
 @ </tr>
 @ 
 @ <tr>
-@ <td align="right">Version: 
-@ <input type="text" name="foundin" size="20" value="$<foundin>">
+@ <td style="text-align: center;">Version: 
+@ <input type="text" name="foundin" size="20" value="$<foundin>" />
 @ </td>
 @ <td>In what version or build number do you observe the problem?</td>
 @ </tr>
 @ 
 @ <tr>
-@ <td align="right">Severity:
+@ <td style="text-align: center;">Severity:
 @ <th1>combobox severity $severity_choices 1</th1>
 @ </td>
 @ <td>How debilitating is the problem?  How badly does the problem
@@ -284,10 +284,10 @@ static const char zDefaultNew[] =
 @ </tr>
 @ 
 @ <tr>
-@ <td align="right">EMail:
-@ <input type="text" name="private_contact" value="$<private_contact>" size="30">
+@ <td style="text-align: center;">EMail:
+@ <input type="text" name="private_contact" value="$<private_contact>" size="30" />
 @ </td>
-@ <td><u>Not publicly visible</u>. Used by developers to contact you with
+@ <td><span style="text-decoration: underline;">Not publicly visible</span>. Used by developers to contact you with
 @ questions.</td>
 @ </tr>
 @ 
@@ -301,7 +301,7 @@ static const char zDefaultNew[] =
 @ <th1>set nline [linecount $comment 50 10]</th1>
 @ <textarea name="comment" cols="80" rows="$nline"
 @  wrap="virtual" class="wikiedit">$<comment></textarea><br />
-@ <input type="submit" name="preview" value="Preview">
+@ <input type="submit" name="preview" value="Preview" /></td>
 @ </tr>
 @
 @ <th1>enable_output [info exists preview]</th1>
@@ -313,15 +313,15 @@ static const char zDefaultNew[] =
 @ <th1>enable_output 1</th1>
 @ 
 @ <tr>
-@ <td align="right">
-@ <input type="submit" name="submit" value="Submit">
+@ <td style="text-align: center;">
+@ <input type="submit" name="submit" value="Submit" />
 @ </td>
 @ <td>After filling in the information above, press this button to create
 @ the new ticket</td>
 @ </tr>
 @ <tr>
-@ <td align="right">
-@ <input type="submit" name="cancel" value="Cancel">
+@ <td style="text-align: center;">
+@ <input type="submit" name="cancel" value="Cancel" />
 @ </td>
 @ <td>Abandon and forget this ticket</td>
 @ </tr>
@@ -355,47 +355,47 @@ void tktsetup_newpage_page(void){
 
 static const char zDefaultView[] =
 @ <table cellpadding="5">
-@ <tr><td align="right">Ticket&nbsp;UUID:</td><td style="background-color: #d0d0d0;" colspan="3">
+@ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td><td class="tktDspValue" colspan="3">
 @ $<tkt_uuid>
 @ </td></tr>
-@ <tr><td align="right">Title:</td>
-@ <td bgcolor="#d0d0d0" colspan="3" valign="top">
+@ <tr><td class="tktDspLabel">Title:</td>
+@ <td class="tktDspValue" colspan="3">
 @ <th1>wiki $title</th1>
 @ </td></tr>
-@ <tr><td align="right">Status:</td><td bgcolor="#d0d0d0">
+@ <tr><td class="tktDspLabel">Status:</td><td class="tktDspValue">
 @ $<status>
 @ </td>
-@ <td align="right">Type:</td><td bgcolor="#d0d0d0">
+@ <td class="tktDspLabel">Type:</td><td class="tktDspValue">
 @ $<type>
 @ </td></tr>
-@ <tr><td align="right">Severity:</td><td bgcolor="#d0d0d0">
+@ <tr><td class="tktDspLabel">Severity:</td><td class="tktDspValue">
 @ $<severity>
 @ </td>
-@ <td align="right">Priority:</td><td bgcolor="#d0d0d0">
+@ <td class="tktDspLabel">Priority:</td><td class="tktDspValue">
 @ $<priority>
 @ </td></tr>
-@ <tr><td align="right">Subsystem:</td><td bgcolor="#d0d0d0">
+@ <tr><td class="tktDspLabel">Subsystem:</td><td class="tktDspValue">
 @ $<subsystem>
 @ </td>
-@ <td align="right">Resolution:</td><td bgcolor="#d0d0d0">
+@ <td class="tktDspLabel">Resolution:</td><td class="tktDspValue">
 @ $<resolution>
 @ </td></tr>
-@ <tr><td align="right">Last&nbsp;Modified:</td><td bgcolor="#d0d0d0">
+@ <tr><td class="tktDspLabel">Last&nbsp;Modified:</td><td class="tktDspValue">
 @ $<tkt_datetime>
 @ </td>
 @ <th1>enable_output [hascap e]</th1>
-@   <td align="right">Contact:</td><td bgcolor="#d0d0d0">
+@   <td class="tktDspLabel">Contact:</td><td class="tktDspValue">
 @   $<private_contact>
 @   </td>
 @ <th1>enable_output 1</th1>
 @ </tr>
-@ <tr><td align="right">Version&nbsp;Found&nbsp;In:</td>
-@ <td colspan="3" valign="top" bgcolor="#d0d0d0">
+@ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td>
+@ <td colspan="3" valign="top" class="tktDspValue">
 @ $<foundin>
 @ </td></tr>
 @ <tr><td>Description &amp; Comments:</td></tr>
-@ <tr><td colspan="4" bgcolor="#d0d0d0">
-@ <span  bgcolor="#d0d0d0"><th1>wiki $comment</th1></span>
+@ <tr><td colspan="4" class="tktDspValue">
+@ <th1>wiki $comment</th1>
 @ </td></tr>
 @ </table>
 ;
@@ -444,35 +444,35 @@ static const char zDefaultEdit[] =
 @   }
 @ </th1>
 @ <table cellpadding="5">
-@ <tr><td align="right">Title:</td><td>
-@ <input type="text" name="title" value="$<title>" size="60">
+@ <tr><td class="tktDspLabel">Title:</td><td>
+@ <input type="text" name="title" value="$<title>" size="60" />
 @ </td></tr>
-@ <tr><td align="right">Status:</td><td>
+@ <tr><td class="tktDspLabel">Status:</td><td>
 @ <th1>combobox status $status_choices 1</th1>
 @ </td></tr>
-@ <tr><td align="right">Type:</td><td>
+@ <tr><td class="tktDspLabel">Type:</td><td>
 @ <th1>combobox type $type_choices 1</th1>
 @ </td></tr>
-@ <tr><td align="right">Severity:</td><td>
+@ <tr><td class="tktDspLabel">Severity:</td><td>
 @ <th1>combobox severity $severity_choices 1</th1>
 @ </td></tr>
-@ <tr><td align="right">Priority:</td><td>
+@ <tr><td class="tktDspLabel">Priority:</td><td>
 @ <th1>combobox priority $priority_choices 1</th1>
 @ </td></tr>
-@ <tr><td align="right">Resolution:</td><td>
+@ <tr><td class="tktDspLabel">Resolution:</td><td>
 @ <th1>combobox resolution $resolution_choices 1</th1>
 @ </td></tr>
-@ <tr><td align="right">Subsystem:</td><td>
+@ <tr><td class="tktDspLabel">Subsystem:</td><td>
 @ <th1>combobox subsystem $subsystem_choices 1</th1>
 @ </td></tr>
 @ <th1>enable_output [hascap e]</th1>
-@   <tr><td align="right">Contact:</td><td>
+@   <tr><td class="tktDspLabel">Contact:</td><td>
 @   <input type="text" name="private_contact" size="40"
-@    value="$<private_contact>">
+@    value="$<private_contact>" />
 @   </td></tr>
 @ <th1>enable_output 1</th1>
-@ <tr><td align="right">Version&nbsp;Found&nbsp;In:</td><td>
-@ <input type="text" name="foundin" size="50" value="$<foundin>">
+@ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td><td>
+@ <input type="text" name="foundin" size="50" value="$<foundin>" />
 @ </td></tr>
 @ <tr><td colspan="2">
 @ <th1>
@@ -487,18 +487,18 @@ static const char zDefaultEdit[] =
 @   Description And Comments:<br />
 @   <textarea name="comment" cols="80" rows="$nline"
 @    wrap="virtual" class="wikiedit">$<comment></textarea><br />
-@   <input type="hidden" name="eall" value="1">
-@   <input type="submit" name="aonlybtn" value="Append Remark">
-@   <input type="submit" name="preview1btn" value="Preview">
+@   <input type="hidden" name="eall" value="1" />
+@   <input type="submit" name="aonlybtn" value="Append Remark" />
+@   <input type="submit" name="preview1btn" value="Preview" />
 @ <th1>enable_output [expr {!$eall}]</th1>
 @   Append Remark from 
-@   <input type="text" name="username" value="$<username>" size="30">:<br />
+@   <input type="text" name="username" value="$<username>" size="30" />:<br />
 @   <textarea name="cmappnd" cols="80" rows="15"
 @    wrap="virtual" class="wikiedit">$<cmappnd></textarea><br />
 @ <th1>enable_output [expr {[hascap w] && !$eall}]</th1>
-@   <input type="submit" name="eallbtn" value="Edit All">
+@   <input type="submit" name="eallbtn" value="Edit All" />
 @ <th1>enable_output [expr {!$eall}]</th1>
-@   <input type="submit" name="preview2btn" value="Preview">
+@   <input type="submit" name="preview2btn" value="Preview" />
 @ <th1>enable_output 1</th1>
 @ </td></tr>
 @
@@ -517,8 +517,8 @@ static const char zDefaultEdit[] =
 @ <th1>enable_output 1</th1>
 @
 @ <tr><td align="right"></td><td>
-@ <input type="submit" name="submit" value="Submit Changes">
-@ <input type="submit" name="cancel" value="Cancel">
+@ <input type="submit" name="submit" value="Submit Changes" />
+@ <input type="submit" name="cancel" value="Cancel" />
 @ </td></tr>
 @ </table>
 ;

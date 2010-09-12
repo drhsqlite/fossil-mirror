@@ -624,6 +624,25 @@ const struct strctCssDefaults {
     "trailing text for user types, mentioned on the user edit page",
     @   content:"'";
   },
+  { "span.wikiruleHead",
+    "format for leading text in wikirules definitions",
+    @   font-weight: bold;
+  },
+  { "td.tktDspLabel",
+    "format for labels on ticket display page",
+    @   text-align: right;
+  },
+  { "td.tktDspValue",
+    "format for values on ticket display page",
+    @   text-align: left;
+    @   vertical-align: top;
+    @   background-color: #d0d0d0;
+  },
+  { "span.tktError",
+    "format for ticket error messages",
+    @   color: red;
+    @   font-weight: bold;
+  },
   { 0,
     0,
     0

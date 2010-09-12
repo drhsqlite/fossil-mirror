@@ -50,11 +50,11 @@ int wiki_name_is_wellformed(const unsigned char *z){
 */
 static void well_formed_wiki_name_rules(void){
   @ <ul>
-  @ <li> Must not begin or end with a space.
+  @ <li> Must not begin or end with a space.</li>
   @ <li> Must not contain any control characters, including tab or
-  @      newline.
-  @ <li> Must not have two or more spaces in a row internally.
-  @ <li> Must be between 3 and 100 characters in length.
+  @      newline.</li>
+  @ <li> Must not have two or more spaces in a row internally.</li>
+  @ <li> Must be between 3 and 100 characters in length.</li>
   @ </ul>
 }
 
@@ -398,13 +398,12 @@ void wikinew_page(void){
     cgi_redirectf("wikiedit?name=%T", zName);
   }
   style_header("Create A New Wiki Page");
-  @ <p>Rules for wiki page names:
+  @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
-  @ </p>
-  @ <form method="POST" action="%s(g.zBaseURL)/wikinew">
+  @ <form method="post" action="%s(g.zBaseURL)/wikinew">
   @ <p>Name of new wiki page:
-  @ <input type="text" width="35" name="name" value="%h(zName)">
-  @ <input type="submit" value="Create">
+  @ <input style="width: 35;" type="text" name="name" value="%h(zName)" />
+  @ <input type="submit" value="Create" />
   @ </p></form>
   if( zName[0] ){
     @ <p><span class="wikiError">
@@ -742,26 +741,26 @@ void wikirules_page(void){
   @ last two rules are the HTML formatting rule.</p>
   @ <h2>Formatting Rule Details</h2>
   @ <ol>
-  @ <li> <p><b>Paragraphs</b>.  Any sequence of one or more blank lines forms
+  @ <li> <p><span class="wikiruleHead">Paragraphs</span>.  Any sequence of one or more blank lines forms
   @ a paragraph break.  Centered or right-justified paragraphs are not
   @ supported by wiki markup, but you can do these things if you need them
-  @ using HTML.</p>
-  @ <li> <p><b>Bullet Lists</b>.
+  @ using HTML.</p></li>
+  @ <li> <p><span class="wikiruleHead">Bullet Lists</span>.
   @ A bullet list item is a line that begins with a single "*" character
   @ surrounded on
   @ both sides by two or more spaces or by a tab.  Only a single level
-  @ of bullet list is supported by wiki.  For nested lists, use HTML.</p>
-  @ <li> <p><b>Enumeration Lists</b>.
+  @ of bullet list is supported by wiki.  For nested lists, use HTML.</p></li>
+  @ <li> <p><span class="wikiruleHead">Enumeration Lists</span>.
   @ An enumeration list item is a line that begins with a single "#" character
   @ surrounded on both sides by two or more spaces or by a tab.  Only a single
   @ level of enumeration list is supported by wiki.  For nested lists or for
-  @ enumerations that count using letters or roman numerials, use HTML.</p>
-  @ <li> <p><b>Indented Paragraphs</b>.
+  @ enumerations that count using letters or roman numerials, use HTML.</p></li>
+  @ <li> <p><span class="wikiruleHead">Indented Paragraphs</span>.
   @ Any paragraph that begins with two or more spaces or a tab and
   @ which is not a bullet or enumeration list item is rendered 
   @ indented.  Only a single level of indentation is supported by wiki; use
-  @ HTML for deeper indentation.</p>
-  @ <li> <p><b>Hyperlinks</b>.
+  @ HTML for deeper indentation.</p></li>
+  @ <li> <p><span class="wikiruleHead">Hyperlinks</span>.
   @ Text within square brackets ("[...]") becomes a hyperlink.  The
   @ target can be a wiki page name, the artifact ID of a check-in or ticket,
   @ the name of an image, or a URL.  By default, the target is displayed
@@ -769,8 +768,8 @@ void wikirules_page(void){
   @ after the target name separated by a "|" character.</p>
   @ <p>You can also link to internal anchor names using [#anchor-name], providing
   @ you have added the necessary "&lt;a name="anchor-name"&gt;&lt;/a&gt;"
-  @ tag to your wiki page.</p>
-  @ <li> <p><b>HTML</b>.
+  @ tag to your wiki page.</p></li>
+  @ <li> <p><span class="wikiruleHead">HTML</span>.
   @ The following standard HTML elements may be used:
   @ &lt;a&gt;
   @ &lt;address&gt;
@@ -824,12 +823,12 @@ void wikirules_page(void){
   @ only a few benign attributes are allowed on each element.
   @ In particular, any attributes that specify javascript or CSS
   @ are elided.</p></li>
-  @ <li><p><b>Special Markup.</b>
+  @ <li><p><span class="wikiruleHead">Special Markup.</span>
   @ The &lt;nowiki&gt; tag disables all wiki formatting rules
   @ through the matching &lt;/nowiki&gt; element.
   @ The &lt;verbatim&gt; tag works like &lt;pre&gt; with the addition
   @ that it also disables all wiki and HTML markup
-  @ through the matching &lt;/verbatim&gt;.
+  @ through the matching &lt;/verbatim&gt;.</p></li>
   @ </ol>
   style_footer();
 }
