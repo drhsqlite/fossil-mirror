@@ -1135,7 +1135,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
-	    endAutoParagraph(p);
+            endAutoParagraph(p);
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
             p->wikiList = MARKUP_UL;
@@ -1155,7 +1155,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
-	    endAutoParagraph(p);
+            endAutoParagraph(p);
             pushStack(p, MARKUP_OL);
             blob_append(p->pOut, "<ol>", 4);
             p->wikiList = MARKUP_OL;
@@ -1175,6 +1175,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
+            endAutoParagraph(p);
             pushStack(p, MARKUP_OL);
             blob_append(p->pOut, "<ol>", 4);
             p->wikiList = MARKUP_OL;
@@ -1351,12 +1352,15 @@ static void wiki_render(Renderer *p, char *z){
               vAttrDidAppend=1;
             }
           }
-          if( !vAttrDidAppend )
+          if( !vAttrDidAppend ) {
+            endAutoParagraph(p);
             blob_append(p->pOut, "<pre class='verbatim'>",-1);
+          }
           p->wantAutoParagraph = 0;
         }else
         if( markup.iType==MUTYPE_LI ){
           if( backupToType(p, MUTYPE_LIST)==0 ){
+            endAutoParagraph(p);
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
           }
