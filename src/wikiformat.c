@@ -1135,6 +1135,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
+	    endAutoParagraph(p);
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
             p->wikiList = MARKUP_UL;
@@ -1154,6 +1155,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
+	    endAutoParagraph(p);
             pushStack(p, MARKUP_OL);
             blob_append(p->pOut, "<ol>", 4);
             p->wikiList = MARKUP_OL;
