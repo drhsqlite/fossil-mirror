@@ -353,9 +353,9 @@ void wikiedit_page(void){
   if( P("preview")!=0 ){
     blob_zero(&wiki);
     blob_append(&wiki, zBody, -1);
-    @ Preview:<hr>
+    @ Preview:<hr />
     wiki_convert(&wiki, 0, 0);
-    @ <hr>
+    @ <hr />
     blob_reset(&wiki);
   }
   for(n=2, z=zBody; z[0]; z++){
@@ -368,7 +368,7 @@ void wikiedit_page(void){
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
-  @ <br>
+  @ <br />
   @ <input type="submit" name="preview" value="Preview Your Changes" />
   @ <input type="submit" name="submit" value="Apply These Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
@@ -539,11 +539,11 @@ void wikiappend_page(void){
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
   @ Your Name:
-  @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
-  @ Comment to append:<br>
+  @ <input type="text" name="u" size="20" value="%h(zUser)"><br />
+  @ Comment to append:<br />
   @ <textarea name="r" class="wikiedit" cols="80" 
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
-  @ <br>
+  @ <br />
   @ <input type="submit" name="preview" value="Preview Your Comment">
   @ <input type="submit" name="submit" value="Append Your Changes">
   @ <input type="submit" name="cancel" value="Cancel">

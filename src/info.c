@@ -640,7 +640,7 @@ void vdiff_page(void){
   checkin_description(ridFrom);
   @ </blockquote><h2>To:</h2><blockquote>
   checkin_description(ridTo);
-  @ </blockquote><hr><p>
+  @ </blockquote><hr /><p>
 
   iFrom = iTo = 0;
   while( iFrom<mFrom.nFile && iTo<mTo.nFile ){
@@ -889,7 +889,7 @@ void diff_page(void){
   @ <blockquote>
   object_description(v2, 1, 0);
   @ </blockquote>
-  @ <hr>
+  @ <hr />
   @ <blockquote><pre>
   content_get(v1, &c1);
   content_get(v2, &c2);
@@ -1012,7 +1012,7 @@ void hexdump_page(void){
   style_submenu_element("Download", "Download", 
         "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   @ </blockquote>
-  @ <hr>
+  @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
   hexdump(&content);
@@ -1116,7 +1116,7 @@ void artifact_page(void){
     }
   }
   @ </blockquote>
-  @ <hr>
+  @ <hr />
   content_get(rid, &content);
   if( renderAsWiki ){
     wiki_convert(&content, 0, 0);
@@ -1469,7 +1469,7 @@ void ci_edit_page(void){
     @ %s(blob_str(&suffix))
     @ </td></tr></table>
     @ </blockquote>
-    @ <hr>
+    @ <hr />
     blob_reset(&suffix);
   }
   @ <p>Make changes to attributes of check-in
@@ -1543,9 +1543,9 @@ void ci_edit_page(void){
     char zLabel[30];
     sprintf(zLabel, "c%d", tagid);
     if( P(zLabel) ){
-      @ <br><input type="checkbox" name="c%d(tagid)" checked>
+      @ <br /><input type="checkbox" name="c%d(tagid)" checked>
     }else{
-      @ <br><input type="checkbox" name="c%d(tagid)">
+      @ <br /><input type="checkbox" name="c%d(tagid)">
     }
     if( strncmp(zTagName, "sym-", 4)==0 ){
       @ Cancel tag <b>%h(&zTagName[4])</b>

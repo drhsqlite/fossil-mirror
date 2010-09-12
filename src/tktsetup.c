@@ -256,7 +256,7 @@ static const char zDefaultNew[] =
 @ <table cellpadding="5">
 @ <tr>
 @ <td colspan="2">
-@ Enter a one-line summary of the ticket:<br>
+@ Enter a one-line summary of the ticket:<br />
 @ <input type="text" name="title" size="60" value="$<title>">
 @ </td>
 @ </tr>
@@ -297,18 +297,18 @@ static const char zDefaultNew[] =
 @ For code defects, be sure to provide details on exactly how
 @ the problem can be reproduced.  Provide as much detail as
 @ possible.
-@ <br>
+@ <br />
 @ <th1>set nline [linecount $comment 50 10]</th1>
 @ <textarea name="comment" cols="80" rows="$nline"
-@  wrap="virtual" class="wikiedit">$<comment></textarea><br>
+@  wrap="virtual" class="wikiedit">$<comment></textarea><br />
 @ <input type="submit" name="preview" value="Preview">
 @ </tr>
 @
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="2">
-@ Description Preview:<br><hr>
+@ Description Preview:<br /><hr />
 @ <th1>wiki $comment</th1>
-@ <hr>
+@ <hr />
 @ </td></tr>
 @ <th1>enable_output 1</th1>
 @ 
@@ -432,11 +432,11 @@ static const char zDefaultEdit[] =
 @   if {[info exists submit]} {
 @     if {[info exists cmappnd]} {
 @       if {[string length $cmappnd]>0} {
-@         set ctxt "\n\n<hr><i>[htmlize $login]"
+@         set ctxt "\n\n<hr /><i>[htmlize $login]"
 @         if {$username ne $login} {
 @           set ctxt "$ctxt claiming to be [htmlize $username]"
 @         }
-@         set ctxt "$ctxt added on [date]:</i><br>\n$cmappnd"
+@         set ctxt "$ctxt added on [date]:</i><br />\n$cmappnd"
 @         append_field comment $ctxt
 @       }
 @     }
@@ -484,17 +484,17 @@ static const char zDefaultEdit[] =
 @   set nline [linecount $comment 15 10]
 @   enable_output $eall
 @ </th1>
-@   Description And Comments:<br>
+@   Description And Comments:<br />
 @   <textarea name="comment" cols="80" rows="$nline"
-@    wrap="virtual" class="wikiedit">$<comment></textarea><br>
+@    wrap="virtual" class="wikiedit">$<comment></textarea><br />
 @   <input type="hidden" name="eall" value="1">
 @   <input type="submit" name="aonlybtn" value="Append Remark">
 @   <input type="submit" name="preview1btn" value="Preview">
 @ <th1>enable_output [expr {!$eall}]</th1>
 @   Append Remark from 
-@   <input type="text" name="username" value="$<username>" size="30">:<br>
+@   <input type="text" name="username" value="$<username>" size="30">:<br />
 @   <textarea name="cmappnd" cols="80" rows="15"
-@    wrap="virtual" class="wikiedit">$<cmappnd></textarea><br>
+@    wrap="virtual" class="wikiedit">$<cmappnd></textarea><br />
 @ <th1>enable_output [expr {[hascap w] && !$eall}]</th1>
 @   <input type="submit" name="eallbtn" value="Edit All">
 @ <th1>enable_output [expr {!$eall}]</th1>
@@ -504,15 +504,15 @@ static const char zDefaultEdit[] =
 @
 @ <th1>enable_output [info exists preview1btn]</th1>
 @ <tr><td colspan="2">
-@ Description Preview:<br><hr>
+@ Description Preview:<br /><hr />
 @ <th1>wiki $comment</th1>
-@ <hr>
+@ <hr />
 @ </td></tr>
 @ <th1>enable_output [info exists preview2btn]</th1>
 @ <tr><td colspan="2">
-@ Description Preview:<br><hr>
+@ Description Preview:<br /><hr />
 @ <th1>wiki $cmappnd</th1>
-@ <hr>
+@ <hr />
 @ </td></tr>
 @ <th1>enable_output 1</th1>
 @

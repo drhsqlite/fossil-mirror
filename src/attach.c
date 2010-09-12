@@ -83,10 +83,10 @@ void attachlist_page(void){
     }
     @
     @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
-    @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br>
+    @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
-      @ %w(zComment)<br>
+      @ %w(zComment)<br />
     }
     if( zPage==0 && zTkt==0 ){
       if( zSrc==0 || zSrc[0]==0 ){
@@ -275,9 +275,9 @@ void attachadd_page(void){
   @ <form action="%s(g.zBaseURL)/attachadd" method="POST"
   @  enctype="multipart/form-data">
   @ File to Attach:
-  @ <input type="file" name="f" size="60"><br>
-  @ Description:<br>
-  @ <textarea name="comment" cols=80 rows=5 wrap="virtual"></textarea><br>
+  @ <input type="file" name="f" size="60"><br />
+  @ Description:<br />
+  @ <textarea name="comment" cols=80 rows=5 wrap="virtual"></textarea><br />
   if( zTkt ){
     @ <input type="hidden" name="tkt" value="%h(zTkt)">
   }else{
@@ -353,7 +353,7 @@ void attachdel_page(void){
   style_header("Delete Attachment");
   @ <form action="%s(g.zBaseURL)/attachdelete" method="POST">
   @ <p>Confirm that you want to delete the attachment named
-  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br>
+  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br />
   if( zTkt ){
     @ <input type="hidden" name="tkt" value="%h(zTkt)">
   }else{

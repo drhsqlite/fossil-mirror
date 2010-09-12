@@ -344,7 +344,7 @@ void tktview_page(void){
       const char *zFile = db_column_text(&q, 1);
       const char *zUser = db_column_text(&q, 2);
       if( cnt==0 ){
-        @ <hr><h2>Attachments:</h2>
+        @ <hr /><h2>Attachments:</h2>
         @ <ul>
       }
       cnt++;

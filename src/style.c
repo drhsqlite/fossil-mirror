@@ -153,7 +153,7 @@ void style_footer(void){
   
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
-    cgi_append_content("<font color=\"red\"><hr>\n", -1);
+    cgi_append_content("<font color=\"red\"><hr />\n", -1);
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
     cgi_append_content("</font>\n", -1);
   }
@@ -672,10 +672,10 @@ void page_style_css(void){
 void page_test_env(void){
   style_header("Environment Test");
 #if !defined(_WIN32)
-  @ uid=%d(getuid()), gid=%d(getgid())<br>
+  @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
-  @ g.zBaseURL = %h(g.zBaseURL)<br>
-  @ g.zTop = %h(g.zTop)<br>
+  @ g.zBaseURL = %h(g.zBaseURL)<br />
+  @ g.zTop = %h(g.zTop)<br />
   cgi_print_all();
   style_footer();
 }

@@ -403,9 +403,9 @@ void view_edit(void){
   }
   @ <form action="rptedit" method="POST">
   @ <input type="hidden" name="rn" value="%d(rn)">
-  @ <p>Report Title:<br>
+  @ <p>Report Title:<br />
   @ <input type="text" name="t" value="%h(zTitle)" size="60"></p>
-  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br>
+  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br />
   @ <textarea name="s" rows="20" cols="80">%h(zSQL)</textarea>
   @ </p>
   login_insert_csrf_secret();
@@ -419,7 +419,7 @@ void view_edit(void){
   @ <p>Enter an optional color key in the following box.  (If blank, no
   @ color key is displayed.)  Each line contains the text for a single
   @ entry in the key.  The first token of each line is the background
-  @ color for that line.<br>
+  @ color for that line.<br />
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
   if( !g.okAdmin && strcmp(zOwner,g.zLogin)!=0 ){
@@ -450,7 +450,7 @@ static void report_format_hints(void){
     zSchema = db_text(0,"SELECT sql FROM repository.sqlite_master"
                         " WHERE name='ticket'");
   }
-  @ <hr><h3>TICKET Schema</h3>
+  @ <hr /><h3>TICKET Schema</h3>
   @ <blockquote><pre>
   @ %h(zSchema)
   @ </pre></blockquote>

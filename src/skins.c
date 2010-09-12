@@ -167,7 +167,7 @@ static const char zBuiltinSkin1[] =
 @   <div class="logo">
 @     <img src="$baseurl/logo" alt="logo">
 @   </div>
-@   <div class="title"><small>$<project_name></small><br>$<title></div>
+@   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
@@ -602,7 +602,7 @@ static const char zBuiltinSkin3[] =
 @ <div class="header">
 @   <div class="logo">
 @     <!-- <img src="$baseurl/logo" alt="logo"> -->
-@     <br><nobr>$<project_name></nobr>
+@     <br /><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
 @   <div class="status"><nobr><th1>

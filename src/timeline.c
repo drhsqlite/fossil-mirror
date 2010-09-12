@@ -229,7 +229,7 @@ void www_print_timeline(
       suppressCnt = 0;
     }
     if( strcmp(zType,"div")==0 ){
-      @ <tr><td colspan=3><hr></td></tr>
+      @ <tr><td colspan=3><hr /></td></tr>
       continue;
     }
     if( memcmp(zDate, zPrevDate, 10) ){
@@ -893,11 +893,11 @@ void page_timeline(void){
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( zAfter ){
-      blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
+      blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);
     }else if( zBefore ){
-      blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
+      blob_appendf(&desc, " occurring on or before %h.<br />", zBefore);
     }else if( zCirca ){
-      blob_appendf(&desc, " occurring around %h.<br>", zCirca);
+      blob_appendf(&desc, " occurring around %h.<br />", zCirca);
     }
     if( zSearch ){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
