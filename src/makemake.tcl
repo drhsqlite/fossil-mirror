@@ -435,7 +435,7 @@ realclean:
 }
 foreach s [lsort $src] {
   puts "\$(OBJDIR)\\$s\$O : ${s}_.c ${s}.h"
-  puts "\t\$(TCC) /Fo\$@ -c {s}_,c\n"
+  puts "\t\$(TCC) /Fo\$@ -c ${s}_.c\n"
   puts "${s}_.c : \$(SRCDIR)\\$s.c"
   puts "\ttranslate\$E \$** > \$@\n"
 }
