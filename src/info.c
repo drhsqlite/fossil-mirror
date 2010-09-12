@@ -224,6 +224,7 @@ static void showTags(int rid, const char *zNotGlob){
       @ on
       hyperlink_to_date(zDate,0);
     }
+    @ </li>
   }
   db_finalize(&q);
   if( cnt ){
@@ -278,7 +279,7 @@ static void append_file_change_line(
     @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
     if( !showDiff ){
       @ &nbsp;&nbsp;
-      @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)">[diff]</a>
+      @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
     }else{
       int rid1 = uuid_to_rid(zOld, 0);
       int rid2 = uuid_to_rid(zNew, 0);
@@ -286,6 +287,7 @@ static void append_file_change_line(
       append_diff(rid1, rid2);
       @ </pre></blockquote>
     }
+    @ </p>
   }else if( zOld ){
     @ <p>Deleted <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
     @ version <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a></p>
@@ -356,7 +358,7 @@ void ci_page(void){
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
     @ <div class="section">Overview</div>
-    @ <p><table class="label-value">
+    @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
     if( g.okSetup ){
       @ (Record ID: %d(rid))
@@ -401,7 +403,7 @@ void ci_page(void){
       @ <tr><th>Timelines:</th><td>
       @    <a href="%s(g.zBaseURL)/timeline?p=%S(zUuid)">ancestors</a>
       @    | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)">descendants</a>
-      @    | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)&p=%S(zUuid)">both</a>
+      @    | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)&amp;p=%S(zUuid)">both</a>
       db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
@@ -426,7 +428,7 @@ void ci_page(void){
       @   </td>
       @ </tr>
     }
-    @ </table></p>
+    @ </table>
   }else{
     style_header("Check-in Information");
     login_anonymous_available();
@@ -882,13 +884,13 @@ void diff_page(void){
   if( v1==0 || v2==0 ) fossil_redirect_home();
   style_header("Diff");
   @ <h2>Differences From:</h2>
-  @ <blockquote>
+  @ <blockquote><p>
   object_description(v1, 1, 0);
-  @ </blockquote>
+  @ </p></blockquote>
   @ <h2>To:</h2>
-  @ <blockquote>
+  @ <blockquote><p>
   object_description(v2, 1, 0);
-  @ </blockquote>
+  @ </p></blockquote>
   @ <hr />
   @ <blockquote><pre>
   content_get(v1, &c1);
@@ -1006,12 +1008,12 @@ void hexdump_page(void){
   style_header("Hex Artifact Content");
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
   @ <h2>Artifact %s(zUuid):</h2>
-  @ <blockquote>
+  @ <blockquote><p>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download", 
         "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
-  @ </blockquote>
+  @ </p></blockquote>
   @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
@@ -1088,7 +1090,7 @@ void artifact_page(void){
   style_header("Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   @ <h2>Artifact %s(zUuid)</h2>
-  @ <blockquote>
+  @ <blockquote><p>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download", 
@@ -1115,7 +1117,7 @@ void artifact_page(void){
       }
     }
   }
-  @ </blockquote>
+  @ </p></blockquote>
   @ <hr />
   content_get(rid, &content);
   if( renderAsWiki ){

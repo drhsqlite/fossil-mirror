@@ -111,7 +111,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
   if( zSuf==0 ) zSuf = "";
   if( g.okHistory ){
     if( zD && zD[0] ){
-      @ <a href="%s(g.zTop)/timeline?c=%T(zD)&u=%T(zU)">%h(zU)</a>%s(zSuf)
+      @ <a href="%s(g.zTop)/timeline?c=%T(zD)&amp;u=%T(zU)">%h(zU)</a>%s(zSuf)
     }else{
       @ <a href="%s(g.zTop)/timeline?u=%T(zU)">%h(zU)</a>%s(zSuf)
     }
@@ -229,7 +229,7 @@ void www_print_timeline(
       suppressCnt = 0;
     }
     if( strcmp(zType,"div")==0 ){
-      @ <tr><td colspan=3><hr /></td></tr>
+      @ <tr><td colspan="3"><hr /></td></tr>
       continue;
     }
     if( memcmp(zDate, zPrevDate, 10) ){
@@ -242,7 +242,7 @@ void www_print_timeline(
     zTime[5] = 0;
     @ <tr>
     @ <td class="timelineTime">%s(zTime)</td>
-    @ <td style="width: 20; text-align: left; vertical-align: top;">
+    @ <td class="timelineGraph">
     if( pGraph && zType[0]=='c' ){
       int nParent = 0;
       int aParent[32];

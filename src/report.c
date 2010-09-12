@@ -279,9 +279,9 @@ void view_see_sql(void){
   zClrKey = db_column_text(&q, 3);
   @ <table cellpadding=0 cellspacing=0 border=0>
   @ <tr><td valign="top" align="right">Title:</td><td width=15></td>
-  @ <td colspan=3>%h(zTitle)</td></tr>
+  @ <td colspan="3">%h(zTitle)</td></tr>
   @ <tr><td valign="top" align="right">Owner:</td><td></td>
-  @ <td colspan=3>%h(zOwner)</td></tr>
+  @ <td colspan="3">%h(zOwner)</td></tr>
   @ <tr><td valign="top" align="right">SQL:</td><td></td>
   @ <td valign="top"><pre>
   @ %h(zSQL)

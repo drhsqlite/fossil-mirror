@@ -453,6 +453,12 @@ const struct strctCssDefaults {
     @   vertical-align: top;
     @   text-align: right;
   },
+  { "td.timelineGraph",
+    "the format for the grap placeholder cells in timelines",
+    @ width: 20;
+    @ text-align: left;
+    @ vertical-align: top;
+  },
   { "a.tagLink",
     "the format for the tag links",
     @
