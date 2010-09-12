@@ -355,7 +355,7 @@ void tktsetup_newpage_page(void){
 
 static const char zDefaultView[] =
 @ <table cellpadding="5">
-@ <tr><td align="right">Ticket&nbsp;UUID:</td><td bgcolor="#d0d0d0" colspan="3">
+@ <tr><td align="right">Ticket&nbsp;UUID:</td><td style="background-color: #d0d0d0;" colspan="3">
 @ $<tkt_uuid>
 @ </td></tr>
 @ <tr><td align="right">Title:</td>

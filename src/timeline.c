@@ -85,7 +85,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
     if( zV2==0 ){
       @ <a href="%s(g.zBaseURL)/diff?v2=%s(zV1)">[diff]</a>
     }else{
-      @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&v2=%s(zV2)">[diff]</a>
+      @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&amp;v2=%s(zV2)">[diff]</a>
     }
   }
 }

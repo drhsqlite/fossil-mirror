@@ -196,7 +196,7 @@ void wiki_page(void){
     }
     if( rid && g.okApndWiki && g.okAttach ){
       style_submenu_element("Attach", "Add An Attachment",
-           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
+           "%s/attachadd?page=%T&amp;from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.okApndWiki ){
@@ -229,7 +229,7 @@ void wiki_page(void){
     }
     cnt++;
     if( g.okHistory && g.okRead ){
-      @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+      @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
       @ %h(zFile)</a>
     }else{
       @ <li>%h(zFile)
@@ -237,7 +237,7 @@ void wiki_page(void){
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.okWrWiki && g.okAttach ){
-      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&file=%t(zFile)&from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
+      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
     }
   }
   if( cnt ){
@@ -562,7 +562,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
+    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&amp;a=%d(rid)">[diff]</a>
   }
 }
 

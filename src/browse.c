@@ -159,9 +159,9 @@ void page_dir(void){
     zSubdirLink = mprintf("%s/dir?name=%T", g.zBaseURL, zPrefix);
     if( zD ){
       style_submenu_element("Top", "Top", "%s/dir", g.zBaseURL);
-      style_submenu_element("Tip", "Tip", "%s/dir?name=%t&ci=tip",
+      style_submenu_element("Tip", "Tip", "%s/dir?name=%t&amp;ci=tip",
                             g.zBaseURL, zD);
-      style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&ci=trunk",
+      style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&amp;ci=trunk",
                              g.zBaseURL,zD);
     }else{
       style_submenu_element("Tip", "Tip", "%s/dir?ci=tip", g.zBaseURL);

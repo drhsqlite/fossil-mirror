@@ -315,7 +315,7 @@ void tktview_page(void){
   }
   if( g.okApndTkt && g.okAttach ){
     style_submenu_element("Attach", "Add An Attachment",
-        "%s/attachadd?tkt=%T&from=%s/tktview/%t",
+        "%s/attachadd?tkt=%T&amp;from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
   }
   style_header("View Ticket");
@@ -349,7 +349,7 @@ void tktview_page(void){
       }
       cnt++;
       if( g.okRead && g.okHistory ){
-        @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&file=%t(zFile)">
+        @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
         @ %h(zFile)</a>
       }else{
         @ %h(zFile)
@@ -357,7 +357,7 @@ void tktview_page(void){
       @ added by %h(zUser) on
       hyperlink_to_date(zDate, ".");
       if( g.okWrTkt && g.okAttach ){
-        @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&file=%t(zFile)&from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
+        @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
       }
     }
     if( cnt ){

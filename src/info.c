@@ -620,7 +620,7 @@ void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff?from=UUID&to=UUID&detail=BOOLEAN
+** URL: /vdiff?from=UUID&amp;to=UUID&amp;detail=BOOLEAN
 **
 ** Show all differences between two checkins.  
 */
@@ -998,7 +998,7 @@ void hexdump_page(void){
   if( g.okAdmin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
@@ -1080,7 +1080,7 @@ void artifact_page(void){
   if( g.okAdmin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
@@ -1104,7 +1104,7 @@ void artifact_page(void){
       }else{
         renderAsHtml = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%s&txt=1", g.zTop, zUuid);
+                              "%s/artifact?name=%s&amp;txt=1", g.zTop, zUuid);
       }
     }else if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
       if( P("txt") ){
@@ -1113,7 +1113,7 @@ void artifact_page(void){
       }else{
         renderAsWiki = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%s&txt=1", g.zTop, zUuid);
+                              "%s/artifact?name=%s&amp;txt=1", g.zTop, zUuid);
       }
     }
   }
@@ -1135,7 +1135,7 @@ void artifact_page(void){
       @ </pre>
       style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%s(g.zBaseURL)/raw?name=%s(zUuid)&m=%s(zMime)"></img>
+      @ <img src="%s(g.zBaseURL)/raw?name=%s(zUuid)&amp;m=%s(zMime)"></img>
       style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else{
       @ <pre>
@@ -1168,7 +1168,7 @@ void tinfo_page(void){
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.okAdmin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
@@ -1446,7 +1446,7 @@ void ci_edit_page(void){
     @ <blockquote>
     @ <table border=0>
     if( zNewColor && zNewColor[0] ){
-      @ <tr><td bgcolor="%h(zNewColor)">
+      @ <tr><td style="background-color: %h(zNewColor);">
     }else{
       @ <tr><td>
     }
@@ -1509,7 +1509,7 @@ void ci_edit_page(void){
   @ <tr>
   for(i=0; i<nColor; i++){
     if( aColor[i].zColor[0] ){
-      @ <td bgcolor="%h(aColor[i].zColor)">
+      @ <td style="background-color: %h(aColor[i].zColor);">
     }else{
       @ <td>
     }

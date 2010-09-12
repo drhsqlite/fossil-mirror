@@ -395,7 +395,7 @@ void view_edit(void){
   if( zOwner==0 ) zOwner = g.zLogin;
   style_submenu_element("Cancel", "Cancel", "reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
+    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&amp;del1=1", rn);
   }
   style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -831,10 +831,10 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
     for(j=i; isspace(zSafeKey[j]); j++){}
     for(k=j; zSafeKey[k] && zSafeKey[k]!='\n' && zSafeKey[k]!='\r'; k++){}
     if( !horiz ){
-      cgi_printf("<tr bgcolor=\"%.*s\"><td>%.*s</td></tr>\n",
+      cgi_printf("<tr style=\"background-color: %.*s;\"><td>%.*s</td></tr>\n",
         i, zSafeKey, k-j, &zSafeKey[j]);
     }else{
-      cgi_printf("<td bgcolor=\"%.*s\">%.*s</td>\n",
+      cgi_printf("<td style=\"background-color: %.*s;\">%.*s</td>\n",
         i, zSafeKey, k-j, &zSafeKey[j]);
     }
     zSafeKey += k;
@@ -923,8 +923,8 @@ void rptview_page(void){
     }
     style_header(zTitle);
     output_color_key(zClrKey, 1, 
-        "border=0 cellpadding=3 cellspacing=0 class=\"report\"");
-    @ <table border=1 cellpadding=2 cellspacing=0 class="report">
+        "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
+    @ <table border="1" cellpadding="2" cellspacing="0" class="report">
     sState.rn = rn;
     sState.nCount = 0;
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
