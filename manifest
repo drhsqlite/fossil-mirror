@@ -1,5 +1,5 @@
-C corrected\ssome\s&\schars\sin\shyperlinks\sand\sadded\smissing\squotes\sin\sattribute\svalues
-D 2010-09-12T12:49:38
+C _WIN32\salso\sdisables\swrite\sdirectory\scheck\sfor\s_fossil\suser\sdb(like\s_MINGW32_)
+D 2010-09-12T14:17:03
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -51,7 +51,7 @@ F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
 F src/config.h 6eccfe5590a241e231ff64864961da8ead90b606
 F src/configure.c 41feb659f165ec676e8a1b293bd121b491fd1255
 F src/content.c 5253d868710c7c7630af5949ef60912a4cc1ecac
-F src/db.c c22f5282ae7e08b04370d74990ed3c839efd96ad
+F src/db.c 0dc92cea84a4c2d4bca1f9c203a43dd81c2b3075
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 5142e0bc8fc31e81d60c2829b544b40986d6e3cb
@@ -267,7 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P cd2f91d31a595c8b7e19e76e39b5f6d795ae22c2
-R 756a89f782cc5cf8d3948357af99d7c8
+P 214d2faf6d4627a3c14bebf0c609271d588e5d83
+R 27182acb78dbac3113184a4522fb7396
 U wolfgang
-Z 0d3e60d5e62f988715545149636032e4
+Z 063716ab52381a5a10161ce804957c13
