@@ -306,10 +306,10 @@ realclean:
 
 }
 foreach s [lsort $src] {
-  puts "\$(OBJDIR)\\$s\$O : ${s}_.c"
-  puts "\t\$(TCC) -o\$@ -c \$**\n"
+  puts "\$(OBJDIR)\\$s\$O : ${s}_.c ${s}.h"
+  puts "\t\$(TCC) -o\$@ -c ${s}_.c\n"
   puts "${s}_.c : \$(SRCDIR)\\$s.c"
-  puts "\t+translate\$E \$** > \$@\n"
+  puts "\t+translate\$E \$* > \$@\n"
 }
 
 puts -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makeheaders\$E "
@@ -434,8 +434,8 @@ realclean:
 
 }
 foreach s [lsort $src] {
-  puts "\$(OBJDIR)\\$s\$O : ${s}_.c"
-  puts "\t\$(TCC) /Fo\$@ -c \$**\n"
+  puts "\$(OBJDIR)\\$s\$O : ${s}_.c ${s}.h"
+  puts "\t\$(TCC) /Fo\$@ -c {s}_,c\n"
   puts "${s}_.c : \$(SRCDIR)\\$s.c"
   puts "\ttranslate\$E \$** > \$@\n"
 }
