@@ -780,8 +780,8 @@ void tkthistory_page(void){
         @ (rid %d(rid)) by
         hyperlink_to_user(m.zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
-        ticket_output_change_artifact(&m);
         @ </p>
+        ticket_output_change_artifact(&m);
       }
       manifest_clear(&m);
     }

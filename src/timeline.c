@@ -317,7 +317,7 @@ void www_print_timeline(
   if( suppressCnt ){
     @ <tr><td /><td /><td>
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
-    @ event%s(suppressCnt>1?"s":"") omitted.</span></tr>
+    @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
     suppressCnt = 0;
   }
   if( pGraph ){
