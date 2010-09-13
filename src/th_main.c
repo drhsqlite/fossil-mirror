@@ -280,7 +280,8 @@ static int comboboxCmd(
       zH = htmlize((char*)azElem[i], aszElem[i]);
       if( zValue && aszElem[i]==nValue 
              && memcmp(zValue, azElem[i], nValue)==0 ){
-        z = mprintf("<option value=\"%s\" selected>%s</option>", zH, zH);
+        z = mprintf("<option value=\"%s\" selected=\"selected\">%s</option>",
+                     zH, zH);
       }else{
         z = mprintf("<option value=\"%s\">%s</option>", zH, zH);
       }

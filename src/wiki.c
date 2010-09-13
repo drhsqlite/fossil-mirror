@@ -50,11 +50,11 @@ int wiki_name_is_wellformed(const unsigned char *z){
 */
 static void well_formed_wiki_name_rules(void){
   @ <ul>
-  @ <li> Must not begin or end with a space.
+  @ <li> Must not begin or end with a space.</li>
   @ <li> Must not contain any control characters, including tab or
-  @      newline.
-  @ <li> Must not have two or more spaces in a row internally.
-  @ <li> Must be between 3 and 100 characters in length.
+  @      newline.</li>
+  @ <li> Must not have two or more spaces in a row internally.</li>
+  @ <li> Must be between 3 and 100 characters in length.</li>
   @ </ul>
 }
 
@@ -65,8 +65,8 @@ static void well_formed_wiki_name_rules(void){
 static int check_name(const char *z){
   if( !wiki_name_is_wellformed((const unsigned char *)z) ){
     style_header("Wiki Page Name Error");
-    @ The wiki name "<b>%h(z)</b>" is not well-formed.  Rules for
-    @ wiki page names:
+    @ The wiki name "<span class="wikiError">%h(z)</span>" is not well-formed.
+    @ Rules for wiki page names:
     well_formed_wiki_name_rules();
     style_footer();
     return 1;
@@ -157,10 +157,10 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
-	@ <li> <form method="GET" action="%s(g.zBaseURL)/wfind">
-	@     Search wiki titles: <input type="text" name="title"/>
-        @  &nbsp; <input type="submit" />
-	@ </li>
+    @ <li> <form method="get" action="%s(g.zBaseURL)/wfind"><div>
+    @     Search wiki titles: <input type="text" name="title"/>
+    @  &nbsp; <input type="submit" /></div></form>
+    @ </li>
     @ </ul>
     style_footer();
     return;
@@ -196,7 +196,7 @@ void wiki_page(void){
     }
     if( rid && g.okApndWiki && g.okAttach ){
       style_submenu_element("Attach", "Add An Attachment",
-           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
+           "%s/attachadd?page=%T&amp;from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.okApndWiki ){
@@ -229,7 +229,8 @@ void wiki_page(void){
     }
     cnt++;
     if( g.okHistory && g.okRead ){
-      @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&file=%t(zFile)">
+      @ <li>
+      @ <a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
       @ %h(zFile)</a>
     }else{
       @ <li>%h(zFile)
@@ -237,7 +238,7 @@ void wiki_page(void){
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.okWrWiki && g.okAttach ){
-      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&file=%t(zFile)&from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
+      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
     }
   }
   if( cnt ){
@@ -353,9 +354,9 @@ void wikiedit_page(void){
   if( P("preview")!=0 ){
     blob_zero(&wiki);
     blob_append(&wiki, zBody, -1);
-    @ Preview:<hr>
+    @ Preview:<hr />
     wiki_convert(&wiki, 0, 0);
-    @ <hr>
+    @ <hr />
     blob_reset(&wiki);
   }
   for(n=2, z=zBody; z[0]; z++){
@@ -363,16 +364,16 @@ void wikiedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="POST" action="%s(g.zBaseURL)/wikiedit">
+  @ <form method="post" action="%s(g.zBaseURL)/wikiedit"><div>
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <textarea name="w" class="wikiedit" cols="80" 
   @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
-  @ <br>
-  @ <input type="submit" name="preview" value="Preview Your Changes">
-  @ <input type="submit" name="submit" value="Apply These Changes">
-  @ <input type="submit" name="cancel" value="Cancel">
-  @ </form>
+  @ <br />
+  @ <input type="submit" name="preview" value="Preview Your Changes" />
+  @ <input type="submit" name="submit" value="Apply These Changes" />
+  @ <input type="submit" name="cancel" value="Cancel" />
+  @ </div></form>
   if( !isSandbox ){
     manifest_clear(&m);
   }
@@ -398,17 +399,16 @@ void wikinew_page(void){
     cgi_redirectf("wikiedit?name=%T", zName);
   }
   style_header("Create A New Wiki Page");
-  @ <p>Rules for wiki page names:
+  @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
-  @ </p>
-  @ <form method="POST" action="%s(g.zBaseURL)/wikinew">
+  @ <form method="post" action="%s(g.zBaseURL)/wikinew">
   @ <p>Name of new wiki page:
-  @ <input type="text" width="35" name="name" value="%h(zName)">
-  @ <input type="submit" value="Create">
+  @ <input style="width: 35;" type="text" name="name" value="%h(zName)" />
+  @ <input type="submit" value="Create" />
   @ </p></form>
   if( zName[0] ){
-    @ <p><b><font color="red">
-    @ "%h(zName)" is not a valid wiki page name!</font></b></p>
+    @ <p><span class="wikiError">
+    @ "%h(zName)" is not a valid wiki page name!</span></p>
   }
   style_footer();
 }
@@ -539,11 +539,11 @@ void wikiappend_page(void){
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)">
   @ Your Name:
-  @ <input type="text" name="u" size="20" value="%h(zUser)"><br>
-  @ Comment to append:<br>
+  @ <input type="text" name="u" size="20" value="%h(zUser)"><br />
+  @ Comment to append:<br />
   @ <textarea name="r" class="wikiedit" cols="80" 
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
-  @ <br>
+  @ <br />
   @ <input type="submit" name="preview" value="Preview Your Comment">
   @ <input type="submit" name="submit" value="Append Your Changes">
   @ <input type="submit" name="cancel" value="Cancel">
@@ -562,7 +562,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&a=%d(rid)">[diff]</a>
+    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&amp;a=%d(rid)">[diff]</a>
   }
 }
 
@@ -742,26 +742,26 @@ void wikirules_page(void){
   @ last two rules are the HTML formatting rule.</p>
   @ <h2>Formatting Rule Details</h2>
   @ <ol>
-  @ <li> <p><b>Paragraphs</b>.  Any sequence of one or more blank lines forms
+  @ <li> <p><span class="wikiruleHead">Paragraphs</span>.  Any sequence of one or more blank lines forms
   @ a paragraph break.  Centered or right-justified paragraphs are not
   @ supported by wiki markup, but you can do these things if you need them
-  @ using HTML.</p>
-  @ <li> <p><b>Bullet Lists</b>.
+  @ using HTML.</p></li>
+  @ <li> <p><span class="wikiruleHead">Bullet Lists</span>.
   @ A bullet list item is a line that begins with a single "*" character
   @ surrounded on
   @ both sides by two or more spaces or by a tab.  Only a single level
-  @ of bullet list is supported by wiki.  For nested lists, use HTML.</p>
-  @ <li> <p><b>Enumeration Lists</b>.
+  @ of bullet list is supported by wiki.  For nested lists, use HTML.</p></li>
+  @ <li> <p><span class="wikiruleHead">Enumeration Lists</span>.
   @ An enumeration list item is a line that begins with a single "#" character
   @ surrounded on both sides by two or more spaces or by a tab.  Only a single
   @ level of enumeration list is supported by wiki.  For nested lists or for
-  @ enumerations that count using letters or roman numerials, use HTML.</p>
-  @ <li> <p><b>Indented Paragraphs</b>.
+  @ enumerations that count using letters or roman numerials, use HTML.</p></li>
+  @ <li> <p><span class="wikiruleHead">Indented Paragraphs</span>.
   @ Any paragraph that begins with two or more spaces or a tab and
   @ which is not a bullet or enumeration list item is rendered 
   @ indented.  Only a single level of indentation is supported by wiki; use
-  @ HTML for deeper indentation.</p>
-  @ <li> <p><b>Hyperlinks</b>.
+  @ HTML for deeper indentation.</p></li>
+  @ <li> <p><span class="wikiruleHead">Hyperlinks</span>.
   @ Text within square brackets ("[...]") becomes a hyperlink.  The
   @ target can be a wiki page name, the artifact ID of a check-in or ticket,
   @ the name of an image, or a URL.  By default, the target is displayed
@@ -769,8 +769,8 @@ void wikirules_page(void){
   @ after the target name separated by a "|" character.</p>
   @ <p>You can also link to internal anchor names using [#anchor-name], providing
   @ you have added the necessary "&lt;a name="anchor-name"&gt;&lt;/a&gt;"
-  @ tag to your wiki page.</p>
-  @ <li> <p><b>HTML</b>.
+  @ tag to your wiki page.</p></li>
+  @ <li> <p><span class="wikiruleHead">HTML</span>.
   @ The following standard HTML elements may be used:
   @ &lt;a&gt;
   @ &lt;address&gt;
@@ -824,12 +824,12 @@ void wikirules_page(void){
   @ only a few benign attributes are allowed on each element.
   @ In particular, any attributes that specify javascript or CSS
   @ are elided.</p></li>
-  @ <li><p><b>Special Markup.</b>
+  @ <li><p><span class="wikiruleHead">Special Markup.</span>
   @ The &lt;nowiki&gt; tag disables all wiki formatting rules
   @ through the matching &lt;/nowiki&gt; element.
   @ The &lt;verbatim&gt; tag works like &lt;pre&gt; with the addition
   @ that it also disables all wiki and HTML markup
-  @ through the matching &lt;/verbatim&gt;.
+  @ through the matching &lt;/verbatim&gt;.</p></li>
   @ </ol>
   style_footer();
 }

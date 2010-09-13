@@ -101,38 +101,36 @@ void setup_ulist(void){
 
   style_submenu_element("Add", "Add User", "setup_uedit");
   style_header("User List");
-  @ <table border="0" cellpadding="0" cellspacing="25">
-  @ <tr><td valign="top">
-  @ <b>Users:</b>
-  @ <table border="1" cellpadding="10"><tr><td>
-  @ <table cellspacing=0 cellpadding=0 border=0>
+  @ <table class="usetupLayoutTable">
+  @ <tr><td class="usetupColumnLayout">
+  @ <span class="note">Users:</span>
+  @ <table class="usetupUserList">
   @ <tr>
-  @   <th align="right">User&nbsp;ID</th><td width="20">&nbsp;</td>
-  @   <th>Capabilities</th><td width="15">&nbsp;</td>
-  @   <th>Contact&nbsp;Info</th>
+  @   <th class="usetupListUser" style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
+  @   <th class="usetupListCap" style="text-align: center;padding-right: 15px;">Capabilities</th>
+  @   <th class="usetupListCon"  style="text-align: left;">Contact&nbsp;Info</th>
   @ </tr>
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
   while( db_step(&s)==SQLITE_ROW ){
     const char *zCap = db_column_text(&s, 2);
     if( strstr(zCap, "s") ) zCap = "s";
     @ <tr>
-    @ <td align="right">
+    @ <td class="usetupListUser" style="text-align: right;padding-right: 20px;white-space:nowrap;">
     if( g.okAdmin && (zCap[0]!='s' || g.okSetup) ){
       @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
     }
-    @ <nobr>%h(db_column_text(&s,1))</nobr>
+    @ %h(db_column_text(&s,1))
     if( g.okAdmin ){
       @ </a>
     }
-    @ </td><td>&nbsp;&nbsp;&nbsp;</td>
-    @ <td align="center">%s(zCap)</td>
-    @ <td>&nbsp;&nbsp;&nbsp;</td>
-    @ <td align="left">%s(db_column_text(&s,3))</td>
+    @ </td>
+    @ <td class="usetupListCap" style="text-align: center;padding-right: 15px;">%s(zCap)</td>
+    @ <td  class="usetupListCon"  style="text-align: left;">%s(db_column_text(&s,3))</td>
     @ </tr>
   }
-  @ </table></td></tr></table>
-  @ <td valign="top">
-  @ <b>Notes:</b>
+  @ </table>
+  @ </td><td class="usetupColumnLayout">
+  @ <span class="note">Notes:</span>
   @ <ol>
   @ <li><p>The permission flags are as follows:</p>
   @ <table>
@@ -183,27 +181,31 @@ void setup_ulist(void){
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
      @ <tr><td valign="top"><b>z</b></td>
      @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without check<b>o</b>ut
-     @    and <b>h</b>istory permissions</td></tr>
+     @   <tt>/zip</tt> URL even without 
+     @    check<span class="capability">o</span>ut
+     @    and <span class="capability">h</span>istory permissions</td></tr>
   @ </table>
   @ </li>
   @
   @ <li><p>
-  @ Every user, logged in or not, inherits the privileges of <b>nobody</b>.
+  @ Every user, logged in or not, inherits the privileges of
+  @ <span class="usertype">nobody</span>.
   @ </p></li>
   @
   @ <li><p>
-  @ Any human can login as <b>anonymous</b> since the password is
-  @ clearly displayed on the login page for them to type.  The purpose
-  @ of requiring anonymous to log in is to prevent access by spiders.
+  @ Any human can login as <span class="usertype">anonymous</span> since the
+  @ password is clearly displayed on the login page for them to type. The
+  @ purpose of requiring anonymous to log in is to prevent access by spiders.
   @ Every logged-in user inherits the combined privileges of
-  @ <b>anonymous</b> and
-  @ <b>nobody</b>.
+  @ <span class="usertype">anonymous</span> and
+  @ <span class="usertype">nobody</span>.
   @ </p></li>
   @
   @ <li><p>
-  @ Users with privilege <b>v</b> inherit the combined privileges of
-  @ <b>developer</b>, <b>anonymous</b>, and <b>nobody</b>.
+  @ Users with privilege <span class="capability">v</span> inherit the combined
+  @ privileges of <span class="usertype">developer</span>,
+  @ <span class="usertype">anonymous</span>, and
+  @ <span class="usertype">nobody</span>.
   @ </p></li>
   @
   @ </ol>
@@ -325,8 +327,8 @@ void user_edit(void){
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
       style_header("User Creation Error");
-      @ <font color="red">Login "%h(zLogin)" is already used by a different
-      @ user.</font>
+      @ <span class="loginError">Login "%h(zLogin)" is already used by
+      @ a different user.</span>
       @
       @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
       style_footer();
@@ -355,28 +357,28 @@ void user_edit(void){
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
     zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
-    if( strchr(zCap, 'a') ) oaa = " checked";
-    if( strchr(zCap, 'b') ) oab = " checked";
-    if( strchr(zCap, 'c') ) oac = " checked";
-    if( strchr(zCap, 'd') ) oad = " checked";
-    if( strchr(zCap, 'e') ) oae = " checked";
-    if( strchr(zCap, 'f') ) oaf = " checked";
-    if( strchr(zCap, 'g') ) oag = " checked";
-    if( strchr(zCap, 'h') ) oah = " checked";
-    if( strchr(zCap, 'i') ) oai = " checked";
-    if( strchr(zCap, 'j') ) oaj = " checked";
-    if( strchr(zCap, 'k') ) oak = " checked";
-    if( strchr(zCap, 'm') ) oam = " checked";
-    if( strchr(zCap, 'n') ) oan = " checked";
-    if( strchr(zCap, 'o') ) oao = " checked";
-    if( strchr(zCap, 'p') ) oap = " checked";
-    if( strchr(zCap, 'r') ) oar = " checked";
-    if( strchr(zCap, 's') ) oas = " checked";
-    if( strchr(zCap, 't') ) oat = " checked";
-    if( strchr(zCap, 'u') ) oau = " checked";
-    if( strchr(zCap, 'v') ) oav = " checked";
-    if( strchr(zCap, 'w') ) oaw = " checked";
-    if( strchr(zCap, 'z') ) oaz = " checked";
+    if( strchr(zCap, 'a') ) oaa = " checked=\"checked\"";
+    if( strchr(zCap, 'b') ) oab = " checked=\"checked\"";
+    if( strchr(zCap, 'c') ) oac = " checked=\"checked\"";
+    if( strchr(zCap, 'd') ) oad = " checked=\"checked\"";
+    if( strchr(zCap, 'e') ) oae = " checked=\"checked\"";
+    if( strchr(zCap, 'f') ) oaf = " checked=\"checked\"";
+    if( strchr(zCap, 'g') ) oag = " checked=\"checked\"";
+    if( strchr(zCap, 'h') ) oah = " checked=\"checked\"";
+    if( strchr(zCap, 'i') ) oai = " checked=\"checked\"";
+    if( strchr(zCap, 'j') ) oaj = " checked=\"checked\"";
+    if( strchr(zCap, 'k') ) oak = " checked=\"checked\"";
+    if( strchr(zCap, 'm') ) oam = " checked=\"checked\"";
+    if( strchr(zCap, 'n') ) oan = " checked=\"checked\"";
+    if( strchr(zCap, 'o') ) oao = " checked=\"checked\"";
+    if( strchr(zCap, 'p') ) oap = " checked=\"checked\"";
+    if( strchr(zCap, 'r') ) oar = " checked=\"checked\"";
+    if( strchr(zCap, 's') ) oas = " checked=\"checked\"";
+    if( strchr(zCap, 't') ) oat = " checked=\"checked\"";
+    if( strchr(zCap, 'u') ) oau = " checked=\"checked\"";
+    if( strchr(zCap, 'v') ) oav = " checked=\"checked\"";
+    if( strchr(zCap, 'w') ) oaw = " checked=\"checked\"";
+    if( strchr(zCap, 'z') ) oaz = " checked=\"checked\"";
   }
 
   /* figure out inherited permissions */
@@ -385,7 +387,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<font color=\"red\">&bull;</font>";
+      inherit[0x7f & *(z1++)] =
+         "<span class=\"ueditInheritDeveloper\">&bull;</span>";
     }
     free(z2);
   }
@@ -393,7 +396,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<font color=\"black\">&bull;</font>";
+      inherit[0x7f & *(z1++)] =
+          "<span class=\"ueditInheritReader\">&bull;</span>";
     }
     free(z2);
   }
@@ -401,7 +405,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<font color=\"blue\">&bull;</font>";
+      inherit[0x7f & *(z1++)] =
+           "<span class=\"ueditInheritAnonymous\">&bull;</span>";
     }
     free(z2);
   }
@@ -409,7 +414,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<font color=\"green\">&bull;</font>";
+      inherit[0x7f & *(z1++)] =
+           "<span class=\"ueditInheritNobody\">&bull;</span>";
     }
     free(z2);
   }
@@ -422,73 +428,75 @@ void user_edit(void){
   }else{
     style_header("Add A New User");
   }
-  @ <table align="left" hspace="20" vspace="10"><tr><td>
-  @ <form action="%s(g.zPath)" method="POST">
+  @ <div class="ueditCapBox">
+  @ <form action="%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
   @ <table>
   @ <tr>
-  @   <td align="right"><nobr>User ID:</nobr></td>
+  @   <td class="usetupEditLabel">User ID:</td>
   if( uid ){
-    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)"></td>
+    @   <td>%d(uid) <input type="hidden" name="id" value="%d(uid)" /></td>
   }else{
-    @   <td>(new user)<input type="hidden" name="id" value=0></td>
+    @   <td>(new user)<input type="hidden" name="id" value="0" /></td>
   }
   @ </tr>
   @ <tr>
-  @   <td align="right"><nobr>Login:</nobr></td>
-  @   <td><input type="text" name="login" value="%h(zLogin)"></td>
+  @   <td class="usetupEditLabel">Login:</td>
+  @   <td><input type="text" name="login" value="%h(zLogin)" /></td>
   @ </tr>
   @ <tr>
-  @   <td align="right"><nobr>Contact&nbsp;Info:</nobr></td>
-  @   <td><input type="text" name="info" size=40 value="%h(zInfo)"></td>
+  @   <td class="usetupEditLabel">Contact&nbsp;Info:</td>
+  @   <td><input type="text" name="info" size="40" value="%h(zInfo)" /></td>
   @ </tr>
   @ <tr>
-  @   <td align="right" valign="top">Capabilities:</td>
+  @   <td class="usetupEditLabel">Capabilities:</td>
   @   <td>
 #define B(x) inherit[x]
   if( g.okSetup ){
-    @    <input type="checkbox" name="as"%s(oas)/>%s(B('s'))Setup<br>
+    @    <input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup<br />
   }
-  @    <input type="checkbox" name="aa"%s(oaa)/>%s(B('a'))Admin<br>
-  @    <input type="checkbox" name="ad"%s(oad)/>%s(B('d'))Delete<br>
-  @    <input type="checkbox" name="ae"%s(oae)/>%s(B('e'))Email<br>
-  @    <input type="checkbox" name="ap"%s(oap)/>%s(B('p'))Password<br>
-  @    <input type="checkbox" name="ai"%s(oai)/>%s(B('i'))Check-In<br>
-  @    <input type="checkbox" name="ao"%s(oao)/>%s(B('o'))Check-Out<br>
-  @    <input type="checkbox" name="ah"%s(oah)/>%s(B('h'))History<br>
-  @    <input type="checkbox" name="au"%s(oau)/>%s(B('u'))Reader<br>
-  @    <input type="checkbox" name="av"%s(oav)/>%s(B('v'))Developer<br>
-  @    <input type="checkbox" name="ag"%s(oag)/>%s(B('g'))Clone<br>
-  @    <input type="checkbox" name="aj"%s(oaj)/>%s(B('j'))Read Wiki<br>
-  @    <input type="checkbox" name="af"%s(oaf)/>%s(B('f'))New Wiki<br>
-  @    <input type="checkbox" name="am"%s(oam)/>%s(B('m'))Append Wiki<br>
-  @    <input type="checkbox" name="ak"%s(oak)/>%s(B('k'))Write Wiki<br>
-  @    <input type="checkbox" name="ab"%s(oab)/>%s(B('b'))Attachments<br>
-  @    <input type="checkbox" name="ar"%s(oar)/>%s(B('r'))Read Ticket<br>
-  @    <input type="checkbox" name="an"%s(oan)/>%s(B('n'))New Ticket<br>
-  @    <input type="checkbox" name="ac"%s(oac)/>%s(B('c'))Append Ticket<br>
-  @    <input type="checkbox" name="aw"%s(oaw)/>%s(B('w'))Write Ticket<br>
-  @    <input type="checkbox" name="at"%s(oat)/>%s(B('t'))Ticket Report<br>
-  @    <input type="checkbox" name="az"%s(oaz)/>%s(B('z'))Download Zip
+  @    <input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin<br />
+  @    <input type="checkbox" name="ad"%s(oad) />%s(B('d'))Delete<br />
+  @    <input type="checkbox" name="ae"%s(oae) />%s(B('e'))Email<br />
+  @    <input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password<br />
+  @    <input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In<br />
+  @    <input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out<br />
+  @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))History<br />
+  @    <input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader<br />
+  @    <input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer<br />
+  @    <input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone<br />
+  @    <input type="checkbox" name="aj"%s(oaj) />%s(B('j'))Read Wiki<br />
+  @    <input type="checkbox" name="af"%s(oaf) />%s(B('f'))New Wiki<br />
+  @    <input type="checkbox" name="am"%s(oam) />%s(B('m'))Append Wiki<br />
+  @    <input type="checkbox" name="ak"%s(oak) />%s(B('k'))Write Wiki<br />
+  @    <input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments<br />
+  @    <input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket<br />
+  @    <input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket<br />
+  @    <input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket<br />
+  @    <input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket<br />
+  @    <input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report<br />
+  @    <input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
   @   </td>
   @ </tr>
   @ <tr>
   @   <td align="right">Password:</td>
   if( zPw[0] ){
     /* Obscure the password for all users */
-    @   <td><input type="password" name="pw" value="**********"></td>
+    @   <td><input type="password" name="pw" value="**********" /></td>
   }else{
     /* Show an empty password as an empty input field */
-    @   <td><input type="password" name="pw" value=""></td>
+    @   <td><input type="password" name="pw" value="" /></td>
   }
   @ </tr>
   if( !higherUser ){
     @ <tr>
-    @   <td>&nbsp</td>
-    @   <td><input type="submit" name="submit" value="Apply Changes">
+    @   <td>&nbsp;</td>
+    @   <td><input type="submit" name="submit" value="Apply Changes" /></td>
     @ </tr>
   }
-  @ </table></td></tr></table>
+  @ </table>
+  @ </div></form>
+  @ </div>
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
@@ -499,91 +507,110 @@ void user_edit(void){
     @
   }
   @ <li><p>
-  @ The <b>Setup</b> user can make arbitrary configuration changes.
-  @ An <b>Admin</b> user can add other users and change user privileges
+  @ The <span class="capability">Setup</span> user can make arbitrary
+  @ configuration changes. An <span class="usertype">Admin</span> user
+  @ can add other users and change user privileges
   @ and reset user passwords.  Both automatically get all other privileges
   @ listed below.  Use these two settings with discretion.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<font color="green"><big>&bull;</big></font>" mark indicates
-  @ the privileges of "nobody" that are available to all users
-  @ regardless of whether or not they are logged in.
+  @ The "<span class="ueditInheritNobody"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">nobody</span> that
+  @ are available to all users regardless of whether or not they are logged in.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<font color="blue"><big>&bull;</big></font>" mark indicates
-  @ the privileges of "anonymous" that are inherited by all logged-in users.
+  @ The "<span class="ueditInheritAnonymous"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">anonymous</span> that
+  @ are inherited by all logged-in users.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<font color="red"><big>&bull;</big></font>" mark indicates
-  @ the privileges of "developer" that are inherited by all users with
-  @ the <b>Developer</b> privilege.
+  @ The "<span class="ueditInheritDeveloper"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">developer</span> that
+  @ are inherited by all users with the
+  @ <span class="capability">Developer</span> privilege.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<font color="black"><big>&bull;</big></font>" mark indicates
-  @ the privileges of "reader" that are inherited by all users with
-  @ the <b>Reader</b> privilege.
+  @ The "<span class="ueditInheritReader"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">reader</span> that
+  @ are inherited by all users with the <span class="capability">Reader</span>
+  @ privilege.
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>Delete</b> privilege give the user the ability to erase
-  @ wiki, tickets, and attachments that have been added by anonymous
-  @ users.  This capability is intended for deletion of spam.  The
-  @ delete capability is only in effect for 24 hours after the item
-  @ is first posted.  The Setup user can delete anything at any time.
+  @ The <span class="capability">Delete</span> privilege give the user the
+  @ ability to erase wiki, tickets, and attachments that have been added
+  @ by anonymous users.  This capability is intended for deletion of spam. 
+  @ The delete capability is only in effect for 24 hours after the item
+  @ is first posted.  The <span class="usertype">Setup</span> user can
+  @ delete anything at any time.
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>History</b> privilege allows a user to see most hyperlinks.
-  @ This is recommended ON for most logged-in users but OFF for
-  @ user "nobody" to avoid problems with spiders trying to walk every
-  @ historical version of every baseline and file.
+  @ The <span class="capability">History</span> privilege allows a user
+  @ to see most hyperlinks. This is recommended ON for most logged-in users
+  @ but OFF for user "nobody" to avoid problems with spiders trying to walk
+  @ every historical version of every baseline and file.
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>Zip</b> privilege allows a user to see the "download as ZIP"
+  @ The <span class="capability">Zip</span> privilege allows a user to
+  @ see the "download as ZIP"
   @ hyperlink and permits access to the <tt>/zip</tt> page.  This allows
   @ users to download ZIP archives without granting other rights like
-  @ <b>Read</b> or <b>History</b>.  This privilege is recommended for
-  @ user <b>nobody</b> so that automatic package downloaders can obtain
-  @ the sources without going through the login procedure.
+  @ <span class="capability">Read</span> or
+  @ <span class="capability">History</span>.  This privilege is recommended for
+  @ user <span class="usertype">nobody</span> so that automatic package
+  @ downloaders can obtain the sources without going through the login
+  @ procedure.
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>Check-in</b> privilege allows remote users to "push".
-  @ The <b>Check-out</b> privilege allows remote users to "pull".
-  @ The <b>Clone</b> privilege allows remote users to "clone".
-  @ </li><p>
+  @ The <span class="capability">Check-in</span> privilege allows remote
+  @ users to "push". The <span class="capability">Check-out</span> privilege
+  @ allows remote users to "pull". The <span class="capability">Clone</span>
+  @ privilege allows remote users to "clone".
+  @ </p></li>
   @
   @ <li><p>
-  @ The <b>Read Wiki</b>, <b>New Wiki</b>, <b>Append Wiki</b>, and
+  @ The <span class="capability">Read Wiki</span>,
+  @ <span class="capability">New Wiki</span>,
+  @ <span class="capability">Append Wiki</span>, and
   @ <b>Write Wiki</b> privileges control access to wiki pages.  The
-  @ <b>Read Ticket</b>, <b>New Ticket</b>, <b>Append Ticket</b>, and
-  @ <b>Write Ticket</b> privileges control access to trouble tickets.
-  @ The <b>Ticket Report</b> privilege allows the user to create or edit
-  @ ticket report formats.
+  @ <span class="capability">Read Ticket</span>,
+  @ <span class="capability">New Ticket</span>,
+  @ <span class="capability">Append Ticket</span>, and
+  @ <span class="capability">Write Ticket</span> privileges control access
+  @ to trouble tickets.
+  @ The <span class="capability">Ticket Report</span> privilege allows
+  @ the user to create or edit ticket report formats.
   @ </p></li>
   @
   @ <li><p>
-  @ Users with the <b>Password</b> privilege are allowed to change their
-  @ own password.  Recommended ON for most users but OFF for special
-  @ users "developer", "anonymous", and "nobody".
+  @ Users with the <span class="capability">Password</span> privilege
+  @ are allowed to change their own password.  Recommended ON for most
+  @ users but OFF for special users <span class="usertype">developer</span>,
+  @ <span class="usertype">anonymous</span>,
+  @ and <span class="usertype">nobody</span>.
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>EMail</b> privilege allows the display of sensitive information
-  @ such as the email address of users and contact information on tickets.
-  @ Recommended OFF for "anonymous" and for "nobody" but ON for
-  @ "developer".
+  @ The <span class="capability">EMail</span> privilege allows the display of
+  @ sensitive information such as the email address of users and contact
+  @ information on tickets. Recommended OFF for 
+  @ <span class="usertype">anonymousy</span> and for
+  @ <span class="usertype">nobody</span> but ON for
+  @ <span class="usertype">developer</span>.
   @ </p></li>
   @
   @ <li><p>
-  @ The <b>Attachment</b> privilege is needed in order to add attachments
-  @ to tickets or wiki.  Write privilege on the ticket or wiki is also
-  @ required.</p></li>
+  @ The <span class="capability">Attachment</span> privilege is needed in
+  @ order to add attachments to tickets or wiki.  Write privilege on the
+  @ ticket or wiki is also required.
+  @ </p></li>
   @
   @ <li><p>
   @ Login is prohibited if the password is an empty string.
@@ -594,38 +621,42 @@ void user_edit(void){
   @
   @ <ul>
   @ <li><p>
-  @ No login is required for user "<b>nobody</b>".  The capabilities
-  @ of the <b>nobody</b> user are inherited by all users, regardless of
-  @ whether or not they are logged in.  To disable universal access
-  @ to the repository, make sure no user named "<b>nobody</b>" exists or
-  @ that the <b>nobody</b> user has no capabilities enabled.
-  @ The password for <b>nobody</b> is ignore.  To avoid problems with
-  @ spiders overloading the server, it is recommended
-  @ that the 'h' (History) capability be turned off for the <b>nobody</b>
-  @ user.
+  @ No login is required for user <span class="usertype">nobody</span>. The
+  @ capabilities of the <span class="usertype">nobody</span> user are
+  @ inherited by all users, regardless of whether or not they are logged in.
+  @ To disable universal access to the repository, make sure no user named 
+  @ <span class="usertype">nobody</span> exists or that the
+  @ <span class="usertype">nobody</span> user has no capabilities
+  @ enabled. The password for <span class="usertype">nobody</span> is ignore.
+  @ To avoid problems with spiders overloading the server, it is recommended
+  @ that the <span class="capability">h</span> (History) capability be turned 
+  @ off for the <span class="usertype">nobody</span> user.
   @ </p></li>
   @
   @ <li><p>
-  @ Login is required for user "<b>anonymous</b>" but the password
-  @ is displayed on the login screen beside the password entry box
+  @ Login is required for user <span class="usertype">anonymous</span> but the
+  @ password is displayed on the login screen beside the password entry box
   @ so anybody who can read should be able to login as anonymous.
   @ On the other hand, spiders and web-crawlers will typically not
-  @ be able to login.  Set the capabilities of the anonymous user
-  @ to things that you want any human to be able to do, but not any
+  @ be able to login.  Set the capabilities of the
+  @ <span class="usertype">anonymous</span>
+  @ user to things that you want any human to be able to do, but not any
   @ spider.  Every other logged-in user inherits the privileges of
-  @ <b>anonymous</b>.
+  @ <span class="usertype">anonymous</span>.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<b>developer</b>" user is intended as a template for trusted users
-  @ with check-in privileges.  When adding new trusted users, simply
-  @ select the <b>Developer</b> privilege to cause the new user to inherit
-  @ all privileges of the "developer" user.  Similarly, the "<b>reader</b>"
-  @ user is a template for users who are allowed more access than anonymous,
-  @ but less than a developer.
+  @ The <span class="usertype">developer</span> user is intended as a template
+  @ for trusted users with check-in privileges. When adding new trusted users,
+  @ simply select the <span class="capability">developer</span> privilege to
+  @ cause the new user to inherit all privileges of the 
+  @ <span class="usertype">developer</span>
+  @ user.  Similarly, the <span class="usertype">reader</span> user is a 
+  @ template for users who are allowed more access than
+  @ <span class="usertype">anonymous</span>,
+  @ but less than a <span class="usertype">developer</span>.
   @ </p></li>
   @ </ul>
-  @ </form>
   style_footer();
 }
 
@@ -653,9 +684,10 @@ static void onoff_attribute(
     }
   }
   if( iVal ){
-    @ <input type="checkbox" name="%s(zQParm)" checked><b>%s(zLabel)</b></input>
+    @ <input type="checkbox" name="%s(zQParm)" checked="checked" />
+    @ <b>%s(zLabel)</b>
   }else{
-    @ <input type="checkbox" name="%s(zQParm)"><b>%s(zLabel)</b></input>
+    @ <input type="checkbox" name="%s(zQParm)" /><b>%s(zLabel)</b>
   }
 }
 
@@ -676,7 +708,7 @@ void entry_attribute(
     db_set(zVar, zQ, 0);
     zVal = zQ;
   }
-  @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)">
+  @ <input type="text" name="%s(zQParm)" value="%h(zVal)" size="%d(width)" />
   @ <b>%s(zLabel)</b>
 }
 
@@ -700,7 +732,8 @@ static void textarea_attribute(
   }
   if( rows>0 && cols>0 ){
     @ <textarea name="%s(zQP)" rows="%d(rows)" cols="%d(cols)">%h(z)</textarea>
-    @ <b>%s(zLabel)</b>
+    if (zLabel && *zLabel)
+      @ <span class="textareaLabel">%s(zLabel)</span>
   }
 }
 
@@ -716,9 +749,9 @@ void setup_access(void){
 
   style_header("Access Control Settings");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_access" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_access" method="post"><div>
   login_insert_csrf_secret();
-  @ <hr>
+  @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0);
   @ <p>When enabled, the password sign-in is required for
@@ -726,23 +759,23 @@ void setup_access(void){
   @ from 127.0.0.1 is allows without any login - the user id is selected
   @ from the ~/.fossil database. Password login is always required
   @ for incoming web connections on internet addresses other than
-  @ 127.0.0.1.</p></li>
+  @ 127.0.0.1.</p>
 
-  @ <hr>
+  @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0);
   @ <p>When enabled, if the REMOTE_USER environment variable is set to the
   @ login name of a valid user and no other login credentials are available,
   @ then the REMOTE_USER is accepted as an authenticated user.
-  @ </p></li>
+  @ </p>
 
-  @ <hr>
+  @ <hr />
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
   @ to a year.</p>
 
-  @ <hr>
+  @ <hr />
   entry_attribute("Download packet limit", 10, "max-download", "mxdwn",
                   "5000000");
   @ <p>Fossil tries to limit out-bound sync, clone, and pull packets
@@ -751,7 +784,7 @@ void setup_access(void){
   @ Values below 1 million are not recommended.  5 million is a
   @ reasonable number.</p>
 
-  @ <hr>
+  @ <hr />
   onoff_attribute("Show javascript button to fill in CAPTCHA",
                   "auto-captcha", "autocaptcha", 0);
   @ <p>When enabled, a button appears on the login screen for user
@@ -760,9 +793,9 @@ void setup_access(void){
   @ probably secure enough and it is certainly more convenient for
   @ anonymous users.</p>
 
-  @ <hr>
-  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
-  @ </form>
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
   db_end_transaction(0);
   style_footer();
 }
@@ -778,22 +811,22 @@ void setup_timeline(void){
 
   style_header("Timeline Display Preferences");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_timeline" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
 
-  @ <hr>
+  @ <hr />
   onoff_attribute("Allow block-markup in timeline",
                   "timeline-block-markup", "tbm", 0);
   @ <p>In timeline displays, check-in comments can be displayed with or
   @ without block markup (paragraphs, tables, etc.)</p>
 
-  @ <hr>
+  @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
   @ Zulu) instead of in local time.</p>
 
-  @ <hr>
+  @ <hr />
   onoff_attribute("Show version differences by default",
                   "show-version-diffs", "vdiff", 0);
   @ <p>On the version-information pages linked from the timeline can either
@@ -801,15 +834,15 @@ void setup_timeline(void){
   @ the files that have changed.  Users can get to either page by
   @ clicking.  This setting selects the default.</p>
 
-  @ <hr>
+  @ <hr />
   entry_attribute("Max timeline comment length", 6,
                   "timeline-max-comment", "tmc", "0");
   @ <p>The maximum length of a comment to be displayed in a timeline.
   @ "0" there is no length limit.</p>
 
-  @ <hr>
-  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
-  @ </form>
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
   db_end_transaction(0);
   style_footer();
 }
@@ -825,7 +858,7 @@ void setup_config(void){
 
   style_header("WWW Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_config" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_config" method="post"><div>
   login_insert_csrf_secret();
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "");
@@ -842,12 +875,12 @@ void setup_config(void){
   @ option is selected and when no pathname is
   @ specified in the URL.  For example, if you visit the url:</p>
   @
-  @ <blockquote>%h(g.zBaseURL)</blockquote>
+  @ <blockquote><p>%h(g.zBaseURL)</p></blockquote>
   @
   @ <p>And you have specified an index page of "/home" the above will
   @ automatically redirect to:</p>
   @
-  @ <blockquote>%h(g.zBaseURL)/home</blockquote>
+  @ <blockquote><p>%h(g.zBaseURL)/home</p></blockquote>
   @
   @ <p>The default "/home" page displays a Wiki page with the same name
   @ as the Project Name specified above.  Some sites prefer to redirect
@@ -855,9 +888,10 @@ void setup_config(void){
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0);
-  @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed but
-  @ all other wiki formatting will be ignored. This option is helpful if you have
-  @ chosen to use a rich HTML editor for wiki markup such as TinyMCE.</p>
+  @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
+  @ but all other wiki formatting will be ignored. This option is helpful
+  @ if you have chosen to use a rich HTML editor for wiki markup such as
+  @ TinyMCE.</p>
   @ <p><strong>CAUTION:</strong> when
   @ enabling, <i>all</i> HTML tags and attributes are accepted in the wiki.
   @ No sanitization is done. This means that it is very possible for malicious
@@ -866,8 +900,8 @@ void setup_config(void){
   @ to trusted users. It should <strong>not</strong> be used on a publically
   @ editable wiki.</p>
   @ <hr />
-  @ <p><input type="submit"  name="submit" value="Apply Changes"></p>
-  @ </form>
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
   db_end_transaction(0);
   style_footer();
 }
@@ -894,26 +928,23 @@ void setup_editcss(void){
     cgi_redirect("setup_editcss");
   }
   style_header("Edit CSS");
-  @ <form action="%s(g.zBaseURL)/setup_editcss" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
   @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes">
-  @ <input type="submit" name="clear" value="Revert To Default">
-  @ </form>
-  @ <p><b>Note:</b> Press your browser Reload button after modifying the
-  @ CSS in order to pull in the modified CSS file.</p>
-  @ <hr>
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <input type="submit" name="clear" value="Revert To Default" />
+  @ </div></form>
+  @ <p><span class="note">Note:</span> Press your browser Reload button after
+  @ modifying the CSS in order to pull in the modified CSS file.</p>
+  @ <hr />
   @ The default CSS is shown below for reference.  Other examples
   @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
   @ See also the <a href="setup_header">header</a> and
   @ <a href="setup_footer">footer</a> editing screens.
   @ <blockquote><pre>
-  @ %h(zDefaultCSS)
-  @ %h(zTableLabelValueCSS)
-  @ %h(zDivSidebox)
-  @ %h(zDivSideboxTitle)
+  cgi_append_default_css();
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
@@ -935,17 +966,17 @@ void setup_header(void){
     textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader);
   }
   style_header("Edit Page Header");
-  @ <form action="%s(g.zBaseURL)/setup_header" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_header" method="post"><div>
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
   textarea_attribute("", 40, 80, "header", "header", zDefaultHeader);
   @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes">
-  @ <input type="submit" name="clear" value="Revert To Default">
-  @ </form>
-  @ <hr>
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <input type="submit" name="clear" value="Revert To Default" />
+  @ </div></form>
+  @ <hr />
   @ The default header is shown below for reference.  Other examples
   @ of headers can be seen on the <a href="setup_skin">skins page</a>.
   @ See also the <a href="setup_editcss">CSS</a> and
@@ -973,16 +1004,16 @@ void setup_footer(void){
     textarea_attribute(0, 0, 0, "footer", "footer", zDefaultFooter);
   }
   style_header("Edit Page Footer");
-  @ <form action="%s(g.zBaseURL)/setup_footer" method="POST">
+  @ <form action="%s(g.zBaseURL)/setup_footer" method="post"><div>
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the end of every page.</p>
   textarea_attribute("", 20, 80, "footer", "footer", zDefaultFooter);
   @ <br />
-  @ <input type="submit" name="submit" value="Apply Changes">
-  @ <input type="submit" name="clear" value="Revert To Default">
-  @ </form>
-  @ <hr>
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <input type="submit" name="clear" value="Revert To Default" />
+  @ </div></form>
+  @ <hr />
   @ The default footer is shown below for reference.  Other examples
   @ of footers can be seen on the <a href="setup_skin">skins page</a>.
   @ See also the <a href="setup_editcss">CSS</a> and
@@ -1036,7 +1067,7 @@ void setup_logo(void){
   style_header("Edit Project Logo");
   @ <p>The current project logo has a MIME-Type of <b>%h(zMime)</b> and looks
   @ like this:</p>
-  @ <blockquote><img src="%s(g.zTop)/logo" alt="logo"></blockquote>
+  @ <blockquote><p><img src="%s(g.zTop)/logo" alt="logo" /></p></blockquote>
   @
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
@@ -1044,21 +1075,21 @@ void setup_logo(void){
   @ page depending on the <a href="setup_editcss">CSS</a> and
   @ <a href="setup_header">header setup</a>.</p>
   @
-  @ <form action="%s(g.zBaseURL)/setup_logo" method="POST"
-  @  enctype="multipart/form-data">
+  @ <form action="%s(g.zBaseURL)/setup_logo" method="post"
+  @  enctype="multipart/form-data"><div>
   @ <p>To set a new logo image, select a file to use as the logo using
   @ the entry box below and then press the "Change Logo" button.</p>
   login_insert_csrf_secret();
   @ Logo Image file:
-  @ <input type="file" name="im" size="60" accepts="image/*"><br>
-  @ <input type="submit" name="set" value="Change Logo">
-  @ <input type="submit" name="clr" value="Revert To Default">
-  @ </form>
+  @ <input type="file" name="im" size="60" accept="image/*" /><br />
+  @ <input type="submit" name="set" value="Change Logo" />
+  @ <input type="submit" name="clr" value="Revert To Default" />
+  @ </div></form>
   @
-  @ <p><b>Note:</b>  Your browser has probably cached the logo image, so
-  @ you will probably need to press the Reload button on your browser after
-  @ changing the logo to provoke your browser to reload the new logo image.
-  @ </p>
+  @ <p><span class="note">Note:</span>  Your browser has probably cached the
+  @ logo image, so you will probably need to press the Reload button on your
+  @ browser after changing the logo to provoke your browser to reload the new
+  @ logo image. </p>
   style_footer();
   db_end_transaction(0);
 }

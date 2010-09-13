@@ -516,9 +516,10 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.okHistory ){
-      @ <li><a href=%s(g.zBaseURL)/timeline?t=%T(zName)>%h(zName)</a></li>
+      @ <li><a class="tagLink" href="%s(g.zBaseURL)/timeline?t=%T(zName)">
+      @ %h(zName)</a></li>
     }else{
-      @ <li><strong>%h(zName)</strong></li>
+      @ <li><span class="tagDsp">%h(zName)</span></li>
     }
   }
   @ </ul>
@@ -544,9 +545,10 @@ static void tagtimeline_extra(int rid){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
     if( g.okHistory ){
-      @ <a href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">[%h(zTagName)]</a>
+      @ <a class="tagLink" href="%s(g.zBaseURL)/timeline?t=%T(zTagName)">
+      @ [%h(zTagName)]</a>
     }else{
-      @ <b>[%h(zTagName)]</b>
+      @ <span class="tagDsp">[%h(zTagName)]</span>
     }
   }
   db_finalize(&q);
@@ -575,8 +577,8 @@ void tagtimeline_page(void){
   );
   www_print_timeline(&q, 0, tagtimeline_extra);
   db_finalize(&q);
-  @ <br clear="both">
-  @ <script>
+  @ <br />
+  @ <script  type="text/JavaScript">
   @ function xin(id){
   @ }
   @ function xout(id){

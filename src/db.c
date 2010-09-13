@@ -666,7 +666,7 @@ void db_open_config(int useAttach){
   if( file_isdir(zHome)!=1 ){
     fossil_fatal("invalid home directory: %s", zHome);
   }
-#ifndef __MINGW32__
+#ifndef _WIN32
   if( access(zHome, W_OK) ){
     fossil_fatal("home directory %s must be writeable", zHome);
   }

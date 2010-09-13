@@ -279,9 +279,9 @@ void view_see_sql(void){
   zClrKey = db_column_text(&q, 3);
   @ <table cellpadding=0 cellspacing=0 border=0>
   @ <tr><td valign="top" align="right">Title:</td><td width=15></td>
-  @ <td colspan=3>%h(zTitle)</td></tr>
+  @ <td colspan="3">%h(zTitle)</td></tr>
   @ <tr><td valign="top" align="right">Owner:</td><td></td>
-  @ <td colspan=3>%h(zOwner)</td></tr>
+  @ <td colspan="3">%h(zOwner)</td></tr>
   @ <tr><td valign="top" align="right">SQL:</td><td></td>
   @ <td valign="top"><pre>
   @ %h(zSQL)
@@ -395,7 +395,7 @@ void view_edit(void){
   if( zOwner==0 ) zOwner = g.zLogin;
   style_submenu_element("Cancel", "Cancel", "reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
+    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&amp;del1=1", rn);
   }
   style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -403,9 +403,9 @@ void view_edit(void){
   }
   @ <form action="rptedit" method="POST">
   @ <input type="hidden" name="rn" value="%d(rn)">
-  @ <p>Report Title:<br>
+  @ <p>Report Title:<br />
   @ <input type="text" name="t" value="%h(zTitle)" size="60"></p>
-  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br>
+  @ <p>Enter a complete SQL query statement against the "TICKET" table:<br />
   @ <textarea name="s" rows="20" cols="80">%h(zSQL)</textarea>
   @ </p>
   login_insert_csrf_secret();
@@ -419,7 +419,7 @@ void view_edit(void){
   @ <p>Enter an optional color key in the following box.  (If blank, no
   @ color key is displayed.)  Each line contains the text for a single
   @ entry in the key.  The first token of each line is the background
-  @ color for that line.<br>
+  @ color for that line.<br />
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
   if( !g.okAdmin && strcmp(zOwner,g.zLogin)!=0 ){
@@ -450,7 +450,7 @@ static void report_format_hints(void){
     zSchema = db_text(0,"SELECT sql FROM repository.sqlite_master"
                         " WHERE name='ticket'");
   }
-  @ <hr><h3>TICKET Schema</h3>
+  @ <hr /><h3>TICKET Schema</h3>
   @ <blockquote><pre>
   @ %h(zSchema)
   @ </pre></blockquote>
@@ -831,10 +831,10 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
     for(j=i; isspace(zSafeKey[j]); j++){}
     for(k=j; zSafeKey[k] && zSafeKey[k]!='\n' && zSafeKey[k]!='\r'; k++){}
     if( !horiz ){
-      cgi_printf("<tr bgcolor=\"%.*s\"><td>%.*s</td></tr>\n",
+      cgi_printf("<tr style=\"background-color: %.*s;\"><td>%.*s</td></tr>\n",
         i, zSafeKey, k-j, &zSafeKey[j]);
     }else{
-      cgi_printf("<td bgcolor=\"%.*s\">%.*s</td>\n",
+      cgi_printf("<td style=\"background-color: %.*s;\">%.*s</td>\n",
         i, zSafeKey, k-j, &zSafeKey[j]);
     }
     zSafeKey += k;
@@ -909,7 +909,7 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw", 
-      "rptview?tablist=1&%s", PD("QUERY_STRING",""));
+      "rptview?tablist=1&amp;%s", PD("QUERY_STRING",""));
     if( g.okAdmin 
        || (g.okTktFmt && g.zLogin && zOwner && strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
@@ -923,8 +923,8 @@ void rptview_page(void){
     }
     style_header(zTitle);
     output_color_key(zClrKey, 1, 
-        "border=0 cellpadding=3 cellspacing=0 class=\"report\"");
-    @ <table border=1 cellpadding=2 cellspacing=0 class="report">
+        "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
+    @ <table border="1" cellpadding="2" cellspacing="0" class="report">
     sState.rn = rn;
     sState.nCount = 0;
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
