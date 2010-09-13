@@ -189,10 +189,11 @@ void finfo_page(void){
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
     if( g.okHistory && zUuid ){
+      const char *z = zFilename;
       if( fpid ){
         @ <a href="%s(g.zTop)/fdiff?v1=%s(zPUuid)&amp;v2=%s(zUuid)">[diff]</a>
       }
-      @ <a href="%s(g.zTop)/annotate?checkin=%S(zCkin)&amp;filename=%h(zFilename)">
+      @ <a href="%s(g.zTop)/annotate?checkin=%S(zCkin)&amp;filename=%h(z)">
       @ [annotate]</a>
     }
     @ </td></tr>
@@ -204,7 +205,8 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr><td></td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div></td></tr>
+      @ <tr><td></td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @     </td></tr>
     }
   }
   @ </table>

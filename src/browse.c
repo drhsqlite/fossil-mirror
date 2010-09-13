@@ -235,7 +235,8 @@ void page_dir(void){
       const char *zUuid = db_column_text(&q, 1);
       @ <li><a href="%s(g.zBaseURL)/artifact?name=%s(zUuid)">%h(zFN)</a></li>
     }else{
-      @ <li><a href="%s(g.zBaseURL)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)</a></li>
+      @ <li><a href="%s(g.zBaseURL)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)
+      @     </a></li>
     }
   }
   db_finalize(&q);

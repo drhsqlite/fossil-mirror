@@ -157,10 +157,10 @@ void wiki_page(void){
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
-	@ <li> <form method="get" action="%s(g.zBaseURL)/wfind"><div>
-	@     Search wiki titles: <input type="text" name="title"/>
-        @  &nbsp; <input type="submit" /></div></form>
-	@ </li>
+    @ <li> <form method="get" action="%s(g.zBaseURL)/wfind"><div>
+    @     Search wiki titles: <input type="text" name="title"/>
+    @  &nbsp; <input type="submit" /></div></form>
+    @ </li>
     @ </ul>
     style_footer();
     return;
@@ -229,7 +229,8 @@ void wiki_page(void){
     }
     cnt++;
     if( g.okHistory && g.okRead ){
-      @ <li><a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
+      @ <li>
+      @ <a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
       @ %h(zFile)</a>
     }else{
       @ <li>%h(zFile)

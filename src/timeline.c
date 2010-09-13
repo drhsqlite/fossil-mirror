@@ -50,7 +50,8 @@ void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
   shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
-    @ <a class="timelineHistLink" href="%s(g.zBaseURL)/info/%s(zShortUuid)">[%s(zShortUuid)]</a>
+    @ <a class="timelineHistLink" href="%s(g.zBaseURL)/info/%s(zShortUuid)">
+    @ [%s(zShortUuid)]</a>
   }else{
     @ <span class="timelineHistDsp">[%s(zShortUuid)]</span>
   }

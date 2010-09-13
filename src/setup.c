@@ -181,19 +181,21 @@ void setup_ulist(void){
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
      @ <tr><td valign="top"><b>z</b></td>
      @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without check<span class="capability">o</span>ut
+     @   <tt>/zip</tt> URL even without 
+     @    check<span class="capability">o</span>ut
      @    and <span class="capability">h</span>istory permissions</td></tr>
   @ </table>
   @ </li>
   @
   @ <li><p>
-  @ Every user, logged in or not, inherits the privileges of <span class="usertype">nobody</span>.
+  @ Every user, logged in or not, inherits the privileges of
+  @ <span class="usertype">nobody</span>.
   @ </p></li>
   @
   @ <li><p>
   @ Any human can login as <span class="usertype">anonymous</span> since the
-  @ password is clearly displayed on the login page for them to type.  The purpose
-  @ of requiring anonymous to log in is to prevent access by spiders.
+  @ password is clearly displayed on the login page for them to type. The
+  @ purpose of requiring anonymous to log in is to prevent access by spiders.
   @ Every logged-in user inherits the combined privileges of
   @ <span class="usertype">anonymous</span> and
   @ <span class="usertype">nobody</span>.
@@ -325,8 +327,8 @@ void user_edit(void){
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
       style_header("User Creation Error");
-      @ <span class="loginError">Login "%h(zLogin)" is already used by a different
-      @ user.</span>
+      @ <span class="loginError">Login "%h(zLogin)" is already used by
+      @ a different user.</span>
       @
       @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
       style_footer();
@@ -385,7 +387,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<span class=\"ueditInheritDeveloper\">&bull;</span>";
+      inherit[0x7f & *(z1++)] =
+         "<span class=\"ueditInheritDeveloper\">&bull;</span>";
     }
     free(z2);
   }
@@ -393,7 +396,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<span class=\"ueditInheritReader\">&bull;</span>";
+      inherit[0x7f & *(z1++)] =
+          "<span class=\"ueditInheritReader\">&bull;</span>";
     }
     free(z2);
   }
@@ -401,7 +405,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<span class=\"ueditInheritAnonymous\">&bull;</span>";
+      inherit[0x7f & *(z1++)] =
+           "<span class=\"ueditInheritAnonymous\">&bull;</span>";
     }
     free(z2);
   }
@@ -409,7 +414,8 @@ void user_edit(void){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
-      inherit[0x7f & *(z1++)] = "<span class=\"ueditInheritNobody\">&bull;</span>";
+      inherit[0x7f & *(z1++)] =
+           "<span class=\"ueditInheritNobody\">&bull;</span>";
     }
     free(z2);
   }
@@ -501,92 +507,109 @@ void user_edit(void){
     @
   }
   @ <li><p>
-  @ The <span class="capability">Setup</span> user can make arbitrary configuration changes.
-  @ An <span class="usertype">Admin</span> user can add other users and change user privileges
+  @ The <span class="capability">Setup</span> user can make arbitrary
+  @ configuration changes. An <span class="usertype">Admin</span> user
+  @ can add other users and change user privileges
   @ and reset user passwords.  Both automatically get all other privileges
   @ listed below.  Use these two settings with discretion.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritNobody"><big>&bull;</big></span>" mark indicates
-  @ the privileges of <span class="usertype">nobody</span> that are available to all users
-  @ regardless of whether or not they are logged in.
+  @ The "<span class="ueditInheritNobody"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">nobody</span> that
+  @ are available to all users regardless of whether or not they are logged in.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritAnonymous"><big>&bull;</big></span>" mark indicates
-  @ the privileges of <span class="usertype">anonymous</span> that are inherited by all logged-in users.
+  @ The "<span class="ueditInheritAnonymous"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">anonymous</span> that
+  @ are inherited by all logged-in users.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritDeveloper"><big>&bull;</big></span>" mark indicates
-  @ the privileges of <span class="usertype">developer</span> that are inherited by all users with
-  @ the <span class="capability">Developer</span> privilege.
+  @ The "<span class="ueditInheritDeveloper"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">developer</span> that
+  @ are inherited by all users with the
+  @ <span class="capability">Developer</span> privilege.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritReader"><big>&bull;</big></span>" mark indicates
-  @ the privileges of <span class="usertype">reader</span> that are inherited by all users with
-  @ the <span class="capability">Reader</span> privilege.
+  @ The "<span class="ueditInheritReader"><big>&bull;</big></span>" mark
+  @ indicates the privileges of <span class="usertype">reader</span> that
+  @ are inherited by all users with the <span class="capability">Reader</span>
+  @ privilege.
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">Delete</span> privilege give the user the ability to erase
-  @ wiki, tickets, and attachments that have been added by anonymous
-  @ users.  This capability is intended for deletion of spam.  The
-  @ delete capability is only in effect for 24 hours after the item
-  @ is first posted.  The <span class="usertype">Setup</span> user can delete anything at any time.
+  @ The <span class="capability">Delete</span> privilege give the user the
+  @ ability to erase wiki, tickets, and attachments that have been added
+  @ by anonymous users.  This capability is intended for deletion of spam. 
+  @ The delete capability is only in effect for 24 hours after the item
+  @ is first posted.  The <span class="usertype">Setup</span> user can
+  @ delete anything at any time.
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">History</span> privilege allows a user to see most hyperlinks.
-  @ This is recommended ON for most logged-in users but OFF for
-  @ user "nobody" to avoid problems with spiders trying to walk every
-  @ historical version of every baseline and file.
+  @ The <span class="capability">History</span> privilege allows a user
+  @ to see most hyperlinks. This is recommended ON for most logged-in users
+  @ but OFF for user "nobody" to avoid problems with spiders trying to walk
+  @ every historical version of every baseline and file.
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">Zip</span> privilege allows a user to see the "download as ZIP"
+  @ The <span class="capability">Zip</span> privilege allows a user to
+  @ see the "download as ZIP"
   @ hyperlink and permits access to the <tt>/zip</tt> page.  This allows
   @ users to download ZIP archives without granting other rights like
-  @ <span class="capability">Read</span> or <span class="capability">History</span>.  This privilege is recommended for
-  @ user <span class="usertype">nobody</span> so that automatic package downloaders can obtain
-  @ the sources without going through the login procedure.
+  @ <span class="capability">Read</span> or
+  @ <span class="capability">History</span>.  This privilege is recommended for
+  @ user <span class="usertype">nobody</span> so that automatic package
+  @ downloaders can obtain the sources without going through the login
+  @ procedure.
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">Check-in</span> privilege allows remote users to "push".
-  @ The <span class="capability">Check-out</span> privilege allows remote users to "pull".
-  @ The <span class="capability">Clone</span> privilege allows remote users to "clone".
+  @ The <span class="capability">Check-in</span> privilege allows remote
+  @ users to "push". The <span class="capability">Check-out</span> privilege
+  @ allows remote users to "pull". The <span class="capability">Clone</span>
+  @ privilege allows remote users to "clone".
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">Read Wiki</span>, <span class="capability">New Wiki</span>, <span class="capability">Append Wiki</span>, and
+  @ The <span class="capability">Read Wiki</span>,
+  @ <span class="capability">New Wiki</span>,
+  @ <span class="capability">Append Wiki</span>, and
   @ <b>Write Wiki</b> privileges control access to wiki pages.  The
-  @ <span class="capability">Read Ticket</span>, <span class="capability">New Ticket</span>, <span class="capability">Append Ticket</span>, and
-  @ <span class="capability">Write Ticket</span> privileges control access to trouble tickets.
-  @ The <span class="capability">Ticket Report</span> privilege allows the user to create or edit
-  @ ticket report formats.
+  @ <span class="capability">Read Ticket</span>,
+  @ <span class="capability">New Ticket</span>,
+  @ <span class="capability">Append Ticket</span>, and
+  @ <span class="capability">Write Ticket</span> privileges control access
+  @ to trouble tickets.
+  @ The <span class="capability">Ticket Report</span> privilege allows
+  @ the user to create or edit ticket report formats.
   @ </p></li>
   @
   @ <li><p>
-  @ Users with the <span class="capability">Password</span> privilege are allowed
-  @ to change their own password.  Recommended ON for most users but OFF for special
-  @ users <span class="usertype">developer</span>, <span class="usertype">anonymous</span>,
+  @ Users with the <span class="capability">Password</span> privilege
+  @ are allowed to change their own password.  Recommended ON for most
+  @ users but OFF for special users <span class="usertype">developer</span>,
+  @ <span class="usertype">anonymous</span>,
   @ and <span class="usertype">nobody</span>.
   @ </p></li>
   @
   @ <li><p>
   @ The <span class="capability">EMail</span> privilege allows the display of
-  @ sensitive information such as the email address of users and contact information
-  @ on tickets. Recommended OFF for <span class="usertype">anonymousy</span> and for
-  @ <span class="usertype">nobody</span> but ON for <span class="usertype">developer</span>.
+  @ sensitive information such as the email address of users and contact
+  @ information on tickets. Recommended OFF for 
+  @ <span class="usertype">anonymousy</span> and for
+  @ <span class="usertype">nobody</span> but ON for
+  @ <span class="usertype">developer</span>.
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">Attachment</span> privilege is needed in order to
-  @ add attachments to tickets or wiki.  Write privilege on the ticket or wiki is
-  @ also required.
+  @ The <span class="capability">Attachment</span> privilege is needed in
+  @ order to add attachments to tickets or wiki.  Write privilege on the
+  @ ticket or wiki is also required.
   @ </p></li>
   @
   @ <li><p>
@@ -599,14 +622,15 @@ void user_edit(void){
   @ <ul>
   @ <li><p>
   @ No login is required for user <span class="usertype">nobody</span>. The
-  @ capabilities of the <span class="usertype">nobody</span> user are inherited by
-  @ all users, regardless of whether or not they are logged in. To disable universal
-  @ access to the repository, make sure no user named <span class="usertype">nobody</span>
-  @ exists or that the <span class="usertype">nobody</span> user has no capabilities
-  @ enabled. The password for <span class="usertype">nobody</span> is ignore. To
-  @ avoid problems with spiders overloading the server, it is recommended
-  @ that the <span class="capability">h</span> (History) capability be turned off
-  @ for the <span class="usertype">nobody</span> user.
+  @ capabilities of the <span class="usertype">nobody</span> user are
+  @ inherited by all users, regardless of whether or not they are logged in.
+  @ To disable universal access to the repository, make sure no user named 
+  @ <span class="usertype">nobody</span> exists or that the
+  @ <span class="usertype">nobody</span> user has no capabilities
+  @ enabled. The password for <span class="usertype">nobody</span> is ignore.
+  @ To avoid problems with spiders overloading the server, it is recommended
+  @ that the <span class="capability">h</span> (History) capability be turned 
+  @ off for the <span class="usertype">nobody</span> user.
   @ </p></li>
   @
   @ <li><p>
@@ -614,7 +638,8 @@ void user_edit(void){
   @ password is displayed on the login screen beside the password entry box
   @ so anybody who can read should be able to login as anonymous.
   @ On the other hand, spiders and web-crawlers will typically not
-  @ be able to login.  Set the capabilities of the <span class="usertype">anonymous</span>
+  @ be able to login.  Set the capabilities of the
+  @ <span class="usertype">anonymous</span>
   @ user to things that you want any human to be able to do, but not any
   @ spider.  Every other logged-in user inherits the privileges of
   @ <span class="usertype">anonymous</span>.
@@ -623,10 +648,12 @@ void user_edit(void){
   @ <li><p>
   @ The <span class="usertype">developer</span> user is intended as a template
   @ for trusted users with check-in privileges. When adding new trusted users,
-  @ simply select the <span class="capability">developer</span> privilege to cause
-  @ the new user to inherit all privileges of the <span class="usertype">developer</span>
-  @ user.  Similarly, the <span class="usertype">reader</span> user is a template
-  @ for users who are allowed more access than <span class="usertype">anonymous</span>,
+  @ simply select the <span class="capability">developer</span> privilege to
+  @ cause the new user to inherit all privileges of the 
+  @ <span class="usertype">developer</span>
+  @ user.  Similarly, the <span class="usertype">reader</span> user is a 
+  @ template for users who are allowed more access than
+  @ <span class="usertype">anonymous</span>,
   @ but less than a <span class="usertype">developer</span>.
   @ </p></li>
   @ </ul>
@@ -657,7 +684,8 @@ static void onoff_attribute(
     }
   }
   if( iVal ){
-    @ <input type="checkbox" name="%s(zQParm)" checked="checked" /><b>%s(zLabel)</b>
+    @ <input type="checkbox" name="%s(zQParm)" checked="checked" />
+    @ <b>%s(zLabel)</b>
   }else{
     @ <input type="checkbox" name="%s(zQParm)" /><b>%s(zLabel)</b>
   }
@@ -860,9 +888,10 @@ void setup_config(void){
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0);
-  @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed but
-  @ all other wiki formatting will be ignored. This option is helpful if you have
-  @ chosen to use a rich HTML editor for wiki markup such as TinyMCE.</p>
+  @ <p>Use HTML as the wiki markup language. Wiki links will still be parsed
+  @ but all other wiki formatting will be ignored. This option is helpful
+  @ if you have chosen to use a rich HTML editor for wiki markup such as
+  @ TinyMCE.</p>
   @ <p><strong>CAUTION:</strong> when
   @ enabling, <i>all</i> HTML tags and attributes are accepted in the wiki.
   @ No sanitization is done. This means that it is very possible for malicious
@@ -907,8 +936,8 @@ void setup_editcss(void){
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
   @ </div></form>
-  @ <p><span class="note">Note:</span> Press your browser Reload button after modifying the
-  @ CSS in order to pull in the modified CSS file.</p>
+  @ <p><span class="note">Note:</span> Press your browser Reload button after
+  @ modifying the CSS in order to pull in the modified CSS file.</p>
   @ <hr />
   @ The default CSS is shown below for reference.  Other examples
   @ of CSS files can be seen on the <a href="setup_skin">skins page</a>.
@@ -1057,10 +1086,10 @@ void setup_logo(void){
   @ <input type="submit" name="clr" value="Revert To Default" />
   @ </div></form>
   @
-  @ <p><span class="note">Note:</span>  Your browser has probably cached the logo image, so
-  @ you will probably need to press the Reload button on your browser after
-  @ changing the logo to provoke your browser to reload the new logo image.
-  @ </p>
+  @ <p><span class="note">Note:</span>  Your browser has probably cached the
+  @ logo image, so you will probably need to press the Reload button on your
+  @ browser after changing the logo to provoke your browser to reload the new
+  @ logo image. </p>
   style_footer();
   db_end_transaction(0);
 }

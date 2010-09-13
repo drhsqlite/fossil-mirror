@@ -389,10 +389,16 @@ const char zDefaultCSS[] =
 @ }
 @
 ;
+
+
+/* The following table contains bits of default CSS that must
+** be included if they are not found in the application-defined
+** CSS.
+*/
 const struct strctCssDefaults {
-  char const * const elementClass;
-  char const * const comment;
-  char const * const value;
+  char const * const elementClass;  /* Name of element needed */
+  char const * const comment;       /* Comment text */
+  char const * const value;         /* CSS text */
 } cssDefaultList[] = {
   { "",
     "",
@@ -649,20 +655,25 @@ const struct strctCssDefaults {
   }
 };
 
+/*
+** Append all of the default CSS to the CGI output.
+*/
 void cgi_append_default_css(void) {
   int i;
 
-  for (i=0;cssDefaultList[i].elementClass;i++)
-    if (cssDefaultList[i].elementClass[0])
+  for (i=0;cssDefaultList[i].elementClass;i++){
+    if (cssDefaultList[i].elementClass[0]){
       cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
 		 cssDefaultList[i].comment,
 		 cssDefaultList[i].elementClass,
 		 cssDefaultList[i].value
 		);
-    else
+    }else{
       cgi_printf("%s",
 		 cssDefaultList[i].value
 		);
+    }
+  }
 }
 
 /*
@@ -670,7 +681,6 @@ void cgi_append_default_css(void) {
 */
 void page_style_css(void){
   const char *zCSS    = 0;
-  const char *zCSSdef = 0;
   int i;
 
   cgi_set_content_type("text/css");

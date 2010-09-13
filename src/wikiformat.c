@@ -747,8 +747,8 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
   if( p->endTag ){
     blob_appendf(pOut, "</%s>", aMarkup[p->iCode].zName);
   }else{
-    /* close active paragraph for several elemnts, which are not allowed
-    ** in paragraphs(xhtml!)
+    /* Close active paragraph for several elements, which are not allowed
+    ** in paragraphs in XHTML.
     */
     blob_appendf(pOut, "<%s", aMarkup[p->iCode].zName);
     for(i=0; i<p->nAttr; i++){
@@ -762,8 +762,9 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
         }
       }
     }
-    if (p->iType & MUTYPE_SINGLE)
+    if (p->iType & MUTYPE_SINGLE){
       blob_append(pOut, " /", 2);
+    }
     blob_append(pOut, ">", 1);
   }
 }
@@ -1026,8 +1027,9 @@ static void openHyperlink(
       */
       if( isClosed ){
         if( g.okHistory ){
-          blob_appendf(p->pOut,"<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
-              g.zBaseURL, zTarget
+          blob_appendf(p->pOut,
+             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
+             g.zBaseURL, zTarget
           );
           zTerm = "</span></a>";
         }else{
@@ -1400,15 +1402,16 @@ static void wiki_render(Renderer *p, char *z){
           }else if( markup.iType==MUTYPE_BLOCK ){
             p->wantAutoParagraph = 0;
           }
-          if (   markup.iCode==MARKUP_HR
-              || markup.iCode==MARKUP_H1
-              || markup.iCode==MARKUP_H2
-              || markup.iCode==MARKUP_H3
-              || markup.iCode==MARKUP_H4
-              || markup.iCode==MARKUP_H5
-              || markup.iCode==MARKUP_P
-	  )
+          if(   markup.iCode==MARKUP_HR
+             || markup.iCode==MARKUP_H1
+             || markup.iCode==MARKUP_H2
+             || markup.iCode==MARKUP_H3
+             || markup.iCode==MARKUP_H4
+             || markup.iCode==MARKUP_H5
+             || markup.iCode==MARKUP_P
+          ){
             endAutoParagraph(p);
+          }
           if( (markup.iType & MUTYPE_STACK )!=0 ){
             pushStack(p, markup.iCode);
           }

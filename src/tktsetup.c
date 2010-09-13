@@ -287,8 +287,8 @@ static const char zDefaultNew[] =
 @ <td style="text-align: center;">EMail:
 @ <input type="text" name="private_contact" value="$<private_contact>" size="30" />
 @ </td>
-@ <td><span style="text-decoration: underline;">Not publicly visible</span>. Used by developers to contact you with
-@ questions.</td>
+@ <td><span style="text-decoration: underline;">Not publicly visible</span>.
+@ Used by developers to contact you with questions.</td>
 @ </tr>
 @ 
 @ <tr>
@@ -340,7 +340,8 @@ const char *ticket_newpage_code(void){
 */
 void tktsetup_newpage_page(void){
   static const char zDesc[] =
-  @ Enter HTML with embedded TH1 script that will render the "new ticket" page
+  @ Enter HTML with embedded TH1 script that will render the "new ticket"
+  @ page
   ;
   tktsetup_generic(
     "HTML For New Tickets",
@@ -355,9 +356,8 @@ void tktsetup_newpage_page(void){
 
 static const char zDefaultView[] =
 @ <table cellpadding="5">
-@ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td><td class="tktDspValue" colspan="3">
-@ $<tkt_uuid>
-@ </td></tr>
+@ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
+@ <td class="tktDspValue" colspan="3">$<tkt_uuid></td></tr>
 @ <tr><td class="tktDspLabel">Title:</td>
 @ <td class="tktDspValue" colspan="3">
 @ <th1>wiki $title</th1>
