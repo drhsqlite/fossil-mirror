@@ -759,6 +759,8 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
         }
       }
     }
+    if (p->iType & MUTYPE_SINGLE)
+      blob_append(pOut, " /", 2);
     blob_append(pOut, ">", 1);
   }
 }
