@@ -32,7 +32,7 @@ void stat_page(void){
   int n, m, fsize;
   int szMax, szAvg;
   char zBuf[100];
-  char *zVers;
+
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   style_header("Repository Statistics");
