@@ -323,17 +323,17 @@ static int findTag(const char *z){
 /*
 ** Token types
 */
-#define TOKEN_MARKUP        1    /* <...> */
-#define TOKEN_CHARACTER     2    /* "&" or "<" not part of markup */
-#define TOKEN_LINK          3    /* [...] */
-#define TOKEN_PARAGRAPH     4    /* blank lines */
-#define TOKEN_NEWLINE       5    /* A single "\n" */
-#define TOKEN_BUL_LI        6    /*  "  *  " */
-#define TOKEN_NUM_LI        7    /*  "  #  " */
-#define TOKEN_ENUM          8    /*  "  \(?\d+[.)]?  " */
-#define TOKEN_INDENT        9    /*  "   " */
-#define TOKEN_RAW           10   /* Output exactly (used when wiki-use-html==1) */
-#define TOKEN_TEXT          11   /* None of the above */
+#define TOKEN_MARKUP        1  /* <...> */
+#define TOKEN_CHARACTER     2  /* "&" or "<" not part of markup */
+#define TOKEN_LINK          3  /* [...] */
+#define TOKEN_PARAGRAPH     4  /* blank lines */
+#define TOKEN_NEWLINE       5  /* A single "\n" */
+#define TOKEN_BUL_LI        6  /*  "  *  " */
+#define TOKEN_NUM_LI        7  /*  "  #  " */
+#define TOKEN_ENUM          8  /*  "  \(?\d+[.)]?  " */
+#define TOKEN_INDENT        9  /*  "   " */
+#define TOKEN_RAW           10 /* Output exactly (used when wiki-use-html==1) */
+#define TOKEN_TEXT          11 /* None of the above */
 
 /*
 ** State flags
@@ -893,8 +893,9 @@ static int backupToType(Renderer *p, int iMask){
 ** Begin a new paragraph if that something that is needed.
 */
 static void startAutoParagraph(Renderer *p){
-  if( p->wantAutoParagraph==0 || p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
-  blob_appendf(p->pOut, "<p>", -1);
+  if( p->wantAutoParagraph==0 ) return;
+  if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
+  blob_appendf(p->pOut, "<p type=\"auto\">", -1);
   pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
   p->inAutoParagraph = 1;
@@ -1245,7 +1246,9 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_TEXT: {
-        startAutoParagraph(p);
+        int i;
+        for(i=0; i<n && isspace(z[i]); i++){}
+        if( i<n ) startAutoParagraph(p);
         blob_append(p->pOut, z, n);
         break;
       }
@@ -1399,7 +1402,7 @@ static void wiki_render(Renderer *p, char *z){
         {
           if( markup.iType==MUTYPE_FONT ){
             startAutoParagraph(p);
-          }else if( markup.iType==MUTYPE_BLOCK ){
+          }else if( markup.iType==MUTYPE_BLOCK || markup.iType==MUTYPE_LIST ){
             p->wantAutoParagraph = 0;
           }
           if(   markup.iCode==MARKUP_HR
