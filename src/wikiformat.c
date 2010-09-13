@@ -1406,6 +1406,7 @@ static void wiki_render(Renderer *p, char *z){
               || markup.iCode==MARKUP_H3
               || markup.iCode==MARKUP_H4
               || markup.iCode==MARKUP_H5
+              || markup.iCode==MARKUP_P
 	  )
             endAutoParagraph(p);
           if( (markup.iType & MUTYPE_STACK )!=0 ){
