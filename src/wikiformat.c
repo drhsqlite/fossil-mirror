@@ -747,6 +747,9 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
   if( p->endTag ){
     blob_appendf(pOut, "</%s>", aMarkup[p->iCode].zName);
   }else{
+    /* close active paragraph for several elemnts, which are not allowed
+    ** in paragraphs(xhtml!)
+    */
     blob_appendf(pOut, "<%s", aMarkup[p->iCode].zName);
     for(i=0; i<p->nAttr; i++){
       blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iACode].zName);
@@ -1397,6 +1400,14 @@ static void wiki_render(Renderer *p, char *z){
           }else if( markup.iType==MUTYPE_BLOCK ){
             p->wantAutoParagraph = 0;
           }
+          if (   markup.iCode==MARKUP_HR
+              || markup.iCode==MARKUP_H1
+              || markup.iCode==MARKUP_H2
+              || markup.iCode==MARKUP_H3
+              || markup.iCode==MARKUP_H4
+              || markup.iCode==MARKUP_H5
+	  )
+            endAutoParagraph(p);
           if( (markup.iType & MUTYPE_STACK )!=0 ){
             pushStack(p, markup.iCode);
           }
