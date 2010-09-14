@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"wolfgangFormat2CSS_2"
-D 2010-09-14T17:20:22
+C remove\swrong\scomment\sabout\sclosing\sparagraphs\safter\sdrh's\smerge
+D 2010-09-14T18:30:28
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -113,7 +113,7 @@ F src/user.c b7f7d1d87de8c2bee94d776cb115780a2056fa74
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 3c02b2d2dc5646f11b9d0756def29830ee3ad8ac
 F src/wiki.c 08a12e754beb5df2d1d5f89403d2808db9e6249b
-F src/wikiformat.c 5fb80a7081499f361c586b869344ef037ff060e8
+F src/wikiformat.c e50a634458f73d8e32ecd646aef686726df7f5cc
 F src/winhttp.c a1c84819fec09950866d1020f70cead31fb8d42d
 F src/xfer.c 1e31006017e089ac7310bd7938fd8b99dbd288fc
 F src/zip.c 0db3b1e1ec25c83bf21d0c6fb872602ee7ad057e
@@ -267,10 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 3243e63bba43c3dd5ca2fde9eaaf7642af389061
-R 1cfd202e66a95acfb9781b19f2836d87
-T *branch * wolfgangFormat2CSS_2
-T *sym-wolfgangFormat2CSS_2 *
-T -sym-trunk *
-U Ratte
-Z 974dfee2d48e08f001ecd92fb06d29df
+P c5a27b6c672fe2b267dfb70cde4a08f773b7d84d
+R 08655a245180bce2cc7e15ba2def934d
+U wolfgang
+Z 1828a53b0b7eead787a091fa04799425
