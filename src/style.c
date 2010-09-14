@@ -357,6 +357,7 @@ const char zDefaultCSS[] =
 @   margin: .2em 0 .2em 0;
 @   float: left;
 @   clear: left;
+@   white-space: nowrap;
 @ }
 @
 @ /* The footer at the very bottom of the page */
