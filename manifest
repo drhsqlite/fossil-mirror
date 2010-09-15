@@ -1,5 +1,5 @@
-C switched\scaptcha\sborder\sfrom\soutline\sto\sborder,\sbecause\sof\sproblems\swith\sIE
-D 2010-09-14T20:08:24
+C added\sdynamic\sbehavior\spage,\sno\sspecial\slayout.\sReusing\sthe\scommandline\shelp\sand\ssimply\slisting\sall\soptions
+D 2010-09-15T18:46:48
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -51,7 +51,7 @@ F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
 F src/config.h 6eccfe5590a241e231ff64864961da8ead90b606
 F src/configure.c 41feb659f165ec676e8a1b293bd121b491fd1255
 F src/content.c 5253d868710c7c7630af5949ef60912a4cc1ecac
-F src/db.c c3c26b8146e3d379375982939ea268b8d7b2e7b3
+F src/db.c 98ba24a88ba97950593661cf6cf5a6f0bbde5123
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
@@ -88,7 +88,7 @@ F src/report.c 3859ac4a9445e149ffd6da40731b07db98bf991c
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c b6e9b512663c44bad56b179c6a17c10e7613f832
 F src/search.c 953d09490f44e0c9efb7d05b643fc8ff9c06009b
-F src/setup.c f6da01c411bd58c7d6c3f3eb6113ddb624d48d29
+F src/setup.c b629730d73c6806807ff09c05b34b9161ca8e22f
 F src/sha1.c 37d0f222fdf9b344998684f9c5b15642150766f3
 F src/shun.c e7c0bb9a6b60a5dc1b722a8aa312977c6fdd82c3
 F src/skins.c 6403de89537ca743ac4e07ecf1e6a26c55bfd01a
@@ -267,7 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 8e6dbfb28fe73f0c3595fa22742b6834993258c8
-R 1fde00c5f1f0abf602115e427855d8c4
+P d50fe26c48264cacaf3b802c9677654f9946280e
+R 4f66c8559a10fab02e301d8026edfdf3
 U wolfgang
-Z 2fd27234fdb1bd040ea5590fe11da3c1
+Z 79fb213aa7ad20ec458e88012d3e5c70

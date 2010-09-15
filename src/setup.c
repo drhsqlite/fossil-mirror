@@ -21,6 +21,13 @@
 #include "config.h"
 #include "setup.h"
 
+/*
+** The table of web pages supported by this application is generated
+** automatically by the "mkindex" program and written into a file
+** named "page_index.h".  We include that file here to get access
+** to the table.
+*/
+#include "page_index.h"
 
 /*
 ** Output a single entry for a menu generated using an HTML table.
@@ -59,6 +66,8 @@ void setup_page(void){
     "Control access settings.");
   setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
+  setup_menu_entry("Behavior", "setup_behavior",
+    "Configure the version control part of the repository");
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
   setup_menu_entry("Tickets", "tktsetup",
@@ -842,6 +851,44 @@ void setup_timeline(void){
 
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_behavior
+*/
+void setup_behavior(void){
+  int i;
+  struct stControlSettings const * azSet;
+
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+
+  style_header("SCM Behavior");
+  db_begin_transaction();
+  @ <form action="%s(g.zBaseURL)/setup_behavior" method="post"><div>
+  login_insert_csrf_secret();
+  for (azSet=ctrlSettings;azSet->name;azSet++) {
+    if (azSet->width==0) {
+      /* found boolean attribute */
+      onoff_attribute(azSet->name, azSet->name, azSet->var?azSet->var:azSet->name, (azSet->def[0]=='1')?1:0);
+      @ <hr />
+    }
+  }
+  for (azSet=ctrlSettings;azSet->name;azSet++) {
+    if (azSet->width!=0) {
+      entry_attribute(azSet->name, azSet->width, azSet->name, azSet->var?azSet->var:azSet->name, (char*)azSet->def);
+      @ <hr />
+    }
+  }
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ <hr />
+  @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br>
+  @ <pre>%s(zHelp_setting_cmd)</pre>
   @ </div></form>
   db_end_transaction(0);
   style_footer();
