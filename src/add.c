@@ -55,7 +55,7 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
     if( !file_is_simple_pathname(zPath) ){
       fossil_fatal("filename contains illegal characters: %s", zPath);
     }
-#ifdef __MINGW32__
+#if defined(_WIN32)
     if( db_exists("SELECT 1 FROM vfile"
                   " WHERE pathname=%Q COLLATE nocase", zPath) ){
       db_multi_exec("UPDATE vfile SET deleted=0"
@@ -154,7 +154,7 @@ void add_cmd(void){
     blob_zero(&repo);
   }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-#ifdef __MINGW32__
+#if defined(_WIN32)
   db_multi_exec(
      "CREATE INDEX IF NOT EXISTS vfile_pathname "
      "  ON vfile(pathname COLLATE nocase)"

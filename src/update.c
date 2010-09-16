@@ -26,7 +26,7 @@
 ** Return true if artifact rid is a version
 */
 int is_a_version(int rid){
-  return db_exists("SELECT 1 FROM plink WHERE cid=%d", rid);
+  return db_exists("SELECT 1 FROM event WHERE objid=%d AND type='ci'", rid);
 }
 
 /*
@@ -113,6 +113,7 @@ void update_cmd(void){
                     " ORDER BY event.mtime DESC"); 
   }
 
+  if( tid==vid ) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1);
   if( !nochangeFlag ) undo_begin();

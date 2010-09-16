@@ -85,7 +85,7 @@ void style_header(const char *zTitleFormat, ...){
   
   cgi_destination(CGI_HEADER);
   cgi_printf("%s",
-     "<!DOCTYPE html PUBLIC \"-//W3C/DTD XHTML 1.0 Strict//EN\""
+     "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""
      " \"http://www.x3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
   
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
@@ -141,8 +141,11 @@ void style_footer(void){
   cgi_destination(CGI_BODY);
 
   /* Put the footer at the bottom of the page.
+  ** the additional clear/both is needed to extend the content
+  ** part to the end of an optional sidebox.
   */
-  @ </div><br clear="both"/>
+  @ <div style="clear: both;"></div>
+  @ </div>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -150,7 +153,7 @@ void style_footer(void){
   
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
-    cgi_append_content("<font color=\"red\"><hr>\n", -1);
+    cgi_append_content("<font color=\"red\"><hr />\n", -1);
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
     cgi_append_content("</font>\n", -1);
   }
@@ -162,16 +165,14 @@ void style_footer(void){
 ** a percentage of total screen width.
 */
 void style_sidebox_begin(const char *zTitle, const char *zWidth){
-  @ <table width="%s(zWidth)" align="right" border="1" cellpadding=5
-  @  vspace=5 hspace=5>
-  @ <tr><td>
-  @ <b>%h(zTitle)</b>
+  @ <div class="sidebox" style="width:%s(zWidth)">
+  @ <div class="sideboxTitle">%h(zTitle)</div>
 }
 
 /* End the side-box
 */
 void style_sidebox_end(void){
-  @ </td></tr></table>
+  @ </div>
 }
 
 /* @-comment: // */
@@ -183,23 +184,23 @@ const char zDefaultHeader[] =
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$baseurl/timeline.rss">
+@       href="$baseurl/timeline.rss" />
 @ <link rel="stylesheet" href="$baseurl/style.css?default" type="text/css"
-@       media="screen">
+@       media="screen" />
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
 @     <img src="$baseurl/logo" alt="logo">
 @   </div>
-@   <div class="title"><small>$<project_name></small><br>$<title></div>
-@   <div class="status"><nobr><th1>
+@   <div class="title"><small>$<project_name></small><br />$<title></div>
+@   <div class="status"><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
-@   </th1></nobr></div>
+@   </th1></div>
 @ </div>
 @ <div class="mainmenu"><th1>
 @ html "<a href='$baseurl$index_page'>Home</a> "
@@ -245,6 +246,10 @@ const char zDefaultFooter[] =
 
 /*
 ** The default Cascading Style Sheet.
+** It's assembled by different strings for each class.
+** The default css conatains all definitions.
+** The style sheet, send to the client only contains the ones,
+** not defined in the user defined css.
 */
 const char zDefaultCSS[] = 
 @ /* General settings for the entire page */
@@ -274,7 +279,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100%;
+@   width: 100% ;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -286,12 +291,13 @@ const char zDefaultCSS[] =
 @   font-size: 0.8em;
 @   font-weight: bold;
 @   min-width: 200px;
+@   white-space: nowrap;
 @ }
 @
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100%;
+@   width: 100% ;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -339,6 +345,7 @@ const char zDefaultCSS[] =
 @   font-weight: bold;
 @   background-color: #558195;
 @   color: white;
+@   white-space: nowrap;
 @ }
 @
 @ /* The "Date" that occurs on the left hand side of timelines */
@@ -368,7 +375,7 @@ const char zDefaultCSS[] =
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
 @ 
-@ /* <verbatim> blocks */
+@ /* verbatim blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
 @    padding: 0.5em;
@@ -380,17 +387,317 @@ const char zDefaultCSS[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
+@
 ;
+
+
+/* The following table contains bits of default CSS that must
+** be included if they are not found in the application-defined
+** CSS.
+*/
+const struct strctCssDefaults {
+  char const * const elementClass;  /* Name of element needed */
+  char const * const comment;       /* Comment text */
+  char const * const value;         /* CSS text */
+} cssDefaultList[] = {
+  { "",
+    "",
+    zDefaultCSS
+  },
+  { "div.sidebox",
+    "The nomenclature sidebox for branches,..",
+    @   float: right;
+    @   background-color: white;
+    @   border-width: medium;
+    @   border-style: double;
+    @   margin: 10;
+  },
+  { "div.sideboxTitle",
+    "The nomenclature title in sideboxes for branches,..",
+    @   display: inline;
+    @   font-weight: bold;
+  },
+  { "div.sideboxDescribed",
+    "The defined element in sideboxes for branches,..",
+    @   display: inline;
+    @   font-weight: bold;
+  },
+  { "span.disabled",
+    "The defined element in sideboxes for branches,..",
+    @   color: red;
+  },
+  { "span.timelineDisabled",
+    "The suppressed duplicates lines in timeline, ..",
+    @   font-style: italic;
+    @   font-size: small;
+  },
+  { "table.timelineTable",
+    "the format for the timeline data table",
+    @   cellspacing: 0;
+    @   border: 0;
+    @   cellpadding: 0
+  },
+  { "td.timelineTableCell",
+    "the format for the timeline data cells",
+    @   valign: top;
+    @   align: left;
+  },
+  { "span.timelineLeaf",
+    "the format for the timeline leaf marks",
+    @   font-weight: bold;
+  },
+  { "a.timelineHistLink",
+    "the format for the timeline version links",
+    @
+  },
+  { "span.timelineHistDsp",
+    "the format for the timeline version display(no history permission!)",
+    @   font-weight: bold;
+  },
+  { "td.timelineTime",
+    "the format for the timeline time display",
+    @   vertical-align: top;
+    @   text-align: right;
+  },
+  { "td.timelineGraph",
+    "the format for the grap placeholder cells in timelines",
+    @ width: 20;
+    @ text-align: left;
+    @ vertical-align: top;
+  },
+  { "a.tagLink",
+    "the format for the tag links",
+    @
+  },
+  { "span.tagDsp",
+    "the format for the tag display(no history permission!)",
+    @   font-weight: bold;
+  },
+  { "span.wikiError",
+    "the format for wiki errors",
+    @   font-weight: bold;
+    @   color: red;
+  },
+  { "span.infoTagCancelled",
+    "the format for fixed/canceled tags,..",
+    @   font-weight: bold;
+    @   text-decoration: line-through;
+  },
+  { "span.infoTag",
+    "the format for tags,..",
+    @   font-weight: bold;
+  },
+  { "span.wikiTagCancelled",
+    "the format for fixed/cancelled tags,.. on wiki pages",
+    @   text-decoration: line-through;
+  },
+  { "table.browser",
+    "format for the file display table",
+    @ /* the format for wiki errors */
+    @   width: 100% ;
+    @   border: 0;
+  },
+  { "td.browser",
+    "format for cells in the file browser",
+    @   width: 24% ;
+    @   vertical-align: top;
+  },
+  { "ul.browser",
+    "format for the list in the file browser",
+    @   margin-left: 0.5em;
+    @   padding-left: 0.5em;
+  },
+  { "table.login_out",
+    "table format for login/out label/input table",
+    @   text-align: left;
+    @   margin-right: 10px;
+    @   margin-left: 10px;
+    @   margin-top: 10px;
+  },
+  { "div.captcha",
+    "captcha display options",
+    @   text-align: center;
+  },
+  { "table.captcha",
+    "format for the layout table, used for the captcha display",
+    @   margin: auto;
+    @   padding: 10px;
+    @   outline-width: 1;
+    @   outline-style: double;
+  },
+  { "td.login_out_label",
+    "format for the label cells in the login/out table",
+    @   text-align: center;
+  },
+  { "span.loginError",
+    "format for login error messages",
+    @   color: red;
+  },
+  { "span.note",
+    "format for leading text for notes",
+    @   font-weight: bold;
+  },
+  { "span.textareaLabel",
+    "format for textare labels",
+    @   font-weight: bold;
+  },
+  { "table.usetupLayoutTable",
+    "format for the user setup layout table",
+    @   outline-style: none;
+    @   padding: 0;
+    @   margin: 25px;
+  },
+  { "td.usetupColumnLayout",
+    "format of the columns on the user setup list page",
+    @   vertical-align: top
+  },
+  { "table.usetupUserList",
+    "format for the user list table on the user setup page",
+    @   outline-style: double;
+    @   outline-width: 1;
+    @   padding: 10px;
+  },
+  { "th.usetupListUser",
+    "format for table header user in user list on user setup page",
+    @   text-align: right;
+    @   padding-right: 20px;
+  },
+  { "th.usetupListCap",
+    "format for table header capabilities in user list on user setup page",
+    @   text-align: center;
+    @   padding-right: 15px;
+  },
+  { "th.usetupListCon",
+    "format for table header contact info in user list on user setup page",
+    @   text-align: left;
+  },
+  { "td.usetupListUser",
+    "format for table cell user in user list on user setup page",
+    @   text-align: right;
+    @   padding-right: 20px;
+    @   white-space:nowrap;
+  },
+  { "td.usetupListCap",
+    "format for table cell capabilities in user list on user setup page",
+    @   text-align: center;
+    @   padding-right: 15px;
+  },
+  { "td.usetupListCon",
+    "format for table cell contact info in user list on user setup page",
+    @   text-align: left
+  },
+  { "div.ueditCapBox",
+    "layout definition for the capabilities box on the user edit detail page",
+    @   float: left;
+    @   margin-right: 20px;
+    @   margin-bottom: 20px;
+  },
+  { "td.usetupEditLabel",
+    "format of the label cells in the detailed user edit page",
+    @   text-align: right;
+    @   vertical-align: top;
+    @   white-space: nowrap;
+  },
+  { "span.ueditInheritNobody",
+    "color for capabilities, inherited by nobody",
+    @   color: green;
+  },
+  { "span.ueditInheritDeveloper",
+    "color for capabilities, inherited by developer",
+    @   color: red;
+  },
+  { "span.ueditInheritReader",
+    "color for capabilities, inherited by reader",
+    @   color: black;
+  },
+  { "span.ueditInheritAnonymous",
+    "color for capabilities, inherited by anonymous",
+    @   color: blue;
+  },
+  { "span.capability",
+    "format for capabilites, mentioned on the user edit page",
+    @   font-weight: bold;
+  },
+  { "span.usertype",
+    "format for different user types, mentioned on the user edit page",
+    @   font-weight: bold;
+  },
+  { "span.usertype:before",
+    "leading text for user types, mentioned on the user edit page",
+    @   content:"'";
+  },
+  { "span.usertype:after",
+    "trailing text for user types, mentioned on the user edit page",
+    @   content:"'";
+  },
+  { "span.wikiruleHead",
+    "format for leading text in wikirules definitions",
+    @   font-weight: bold;
+  },
+  { "td.tktDspLabel",
+    "format for labels on ticket display page",
+    @   text-align: right;
+  },
+  { "td.tktDspValue",
+    "format for values on ticket display page",
+    @   text-align: left;
+    @   vertical-align: top;
+    @   background-color: #d0d0d0;
+  },
+  { "span.tktError",
+    "format for ticket error messages",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { 0,
+    0,
+    0
+  }
+};
+
+/*
+** Append all of the default CSS to the CGI output.
+*/
+void cgi_append_default_css(void) {
+  int i;
+
+  for (i=0;cssDefaultList[i].elementClass;i++){
+    if (cssDefaultList[i].elementClass[0]){
+      cgi_printf("/* %s */\n%s {\n%s\n}\n\n",
+		 cssDefaultList[i].comment,
+		 cssDefaultList[i].elementClass,
+		 cssDefaultList[i].value
+		);
+    }else{
+      cgi_printf("%s",
+		 cssDefaultList[i].value
+		);
+    }
+  }
+}
 
 /*
 ** WEBPAGE: style.css
 */
 void page_style_css(void){
-  char *zCSS = 0;
+  const char *zCSS    = 0;
+  int i;
 
   cgi_set_content_type("text/css");
   zCSS = db_get("css",(char*)zDefaultCSS);
+  /* append user defined css */
   cgi_append_content(zCSS, -1);
+  /* add special missing definitions */
+  for (i=1;cssDefaultList[i].elementClass;i++)
+    if (!strstr(zCSS,cssDefaultList[i].elementClass)) {
+      cgi_append_content("/* ", -1);
+      cgi_append_content(cssDefaultList[i].comment, -1);
+      cgi_append_content(" */\n", -1);
+      cgi_append_content(cssDefaultList[i].elementClass, -1);
+      cgi_append_content(" {\n", -1);
+      cgi_append_content(cssDefaultList[i].value, -1);
+      cgi_append_content("}\n\n", -1);
+    }
   g.isConst = 1;
 }
 
@@ -399,12 +706,11 @@ void page_style_css(void){
 */
 void page_test_env(void){
   style_header("Environment Test");
-#if !defined(__MINGW32__)
-  @ uid=%d(getuid()), gid=%d(getgid())<br>
+#if !defined(_WIN32)
+  @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
-  @ g.zBaseURL = %h(g.zBaseURL)<br>
-  @ g.zTop = %h(g.zTop)<br>
-  @ g.zRepositoryName = %h(g.zRepositoryName)<br>
+  @ g.zBaseURL = %h(g.zBaseURL)<br />
+  @ g.zTop = %h(g.zTop)<br />
   cgi_print_all();
   style_footer();
 }

@@ -448,6 +448,8 @@ void reconstruct_cmd(void) {
         fossil_panic("Some unknown error occurred while reading \"%s\"", blob_str(&path));
       }
       content_put(&aContent, 0, 0);
+      blob_reset(&path);
+      blob_reset(&aContent);
     }
   }
   else {

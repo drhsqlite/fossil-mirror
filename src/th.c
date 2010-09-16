@@ -848,7 +848,7 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
     ** (a semi-colon or end of line).
     */
     while( rc==TH_OK && *zInput!=';' && !thEndOfLine(zInput, nInput) ){
-      int nWord;
+      int nWord=0;
       thNextSpace(interp, zInput, nInput, &nSpace);
       rc = thNextWord(interp, &zInput[nSpace], nInput-nSpace, &nWord, 1);
       zInput += (nSpace+nWord);

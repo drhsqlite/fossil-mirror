@@ -18,8 +18,9 @@
 ** This file implements a very simple (and low-performance) HTTP server
 ** for windows.
 */
-#ifdef __MINGW32__           /* This code is for win32 only */
 #include "config.h"
+#ifdef _WIN32
+/* This code is for win32 only */
 #include "winhttp.h"
 #include <windows.h>
 
@@ -135,7 +136,8 @@ void win32_http_server(
   int mnPort, int mxPort,   /* Range of allowed TCP port numbers */
   const char *zBrowser,     /* Command to launch browser.  (Or NULL) */
   const char *zStopper,     /* Stop server when this file is exists (Or NULL) */
-  const char *zNotFound     /* The --notfound option, or NULL */
+  const char *zNotFound,    /* The --notfound option, or NULL */
+  int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   WSADATA wd;
   SOCKET s = INVALID_SOCKET;
@@ -160,7 +162,11 @@ void win32_http_server(
     }
     addr.sin_family = AF_INET;
     addr.sin_port = htons(iPort);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if( flags & HTTP_SERVER_LOCALHOST ){
+      addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    }else{
+      addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
     if( bind(s, (struct sockaddr*)&addr, sizeof(addr))==SOCKET_ERROR ){
       closesocket(s);
       iPort++;
@@ -217,4 +223,4 @@ void win32_http_server(
   WSACleanup();
 }
 
-#endif /* __MINGW32__  -- This code is for win32 only */
+#endif /* _WIN32  -- This code is for win32 only */

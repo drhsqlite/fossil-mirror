@@ -67,12 +67,14 @@ struct DContext {
 ** start of each line and a hash of that line.  The lower 
 ** bits of the hash store the length of each line.
 **
-** Trailing whitespace is removed from each line.
+** Trailing whitespace is removed from each line.  2010-08-20:  Not any
+** more.  If trailing whitespace is ignored, the "patch" command gets
+** confused by the diff output.  Ticket [a9f7b23c2e376af5b0e5b]
 **
 ** Return 0 if the file is binary or contains a line that is
 ** too long.
 */
-static DLine *break_into_lines(const char *z, int n, int *pnLine){
+static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
   int nLine, i, j, k, x;
   unsigned int h, h2;
   DLine *a;
@@ -104,7 +106,8 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine){
   for(i=0; i<nLine; i++){
     a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
-    for(k=j; k>0 && isspace(z[k-1]); k--){}
+    k = j;
+    while( ignoreWS && k>0 && isspace(z[k-1]) ){ k--; }
     for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
@@ -283,10 +286,64 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
 }
 
 /*
+** Compute the optimal longest common subsequence (LCS) using an
+** exhaustive search.  This version of the LCS is only used for
+** shorter input strings since runtime is O(N*N) where N is the
+** input string length.
+*/
+static void optimalLCS(
+  DContext *p,               /* Two files being compared */
+  int iS1, int iE1,          /* Range of lines in p->aFrom[] */
+  int iS2, int iE2,          /* Range of lines in p->aTo[] */
+  int *piSX, int *piEX,      /* Write p->aFrom[] common segment here */
+  int *piSY, int *piEY       /* Write p->aTo[] common segment here */
+){
+  int mxLength = 0;          /* Length of longest common subsequence */
+  int i, j;                  /* Loop counters */
+  int k;                     /* Length of a candidate subsequence */
+  int iSXb = iS1;            /* Best match so far */
+  int iSYb = iS2;            /* Best match so far */
+
+  for(i=iS1; i<iE1-mxLength; i++){
+    for(j=iS2; j<iE2-mxLength; j++){
+      if( !same_dline(&p->aFrom[i], &p->aTo[j]) ) continue;
+      if( mxLength && !same_dline(&p->aFrom[i+mxLength], &p->aTo[j+mxLength]) ){
+        continue;
+      }
+      k = 1;
+      while( i+k<iE1 && j+k<iE2 && same_dline(&p->aFrom[i+k],&p->aTo[j+k]) ){
+        k++;
+      }
+      if( k>mxLength ){
+        iSXb = i;
+        iSYb = j;
+        mxLength = k;
+      }
+    }
+  }
+  *piSX = iSXb;
+  *piEX = iSXb + mxLength;
+  *piSY = iSYb;
+  *piEY = iSYb + mxLength;
+}
+
+/*
 ** Compare two blocks of text on lines iS1 through iE1-1 of the aFrom[]
 ** file and lines iS2 through iE2-1 of the aTo[] file.  Locate a sequence
 ** of lines in these two blocks that are exactly the same.  Return
 ** the bounds of the matching sequence.
+**
+** If there are two or more possible answers of the same length, the
+** returned sequence should be the one closest to the center of the
+** input range.
+**
+** Ideally, the common sequence should be the longest possible common
+** sequence.  However, an exact computation of LCS is O(N*N) which is
+** way too slow for larger files.  So this routine uses an O(N)
+** heuristic approximation based on hashing that usually works about 
+** as well.  But if the O(N) algorithm doesn't get a good solution
+** and N is not too large, we fall back to an exact solution by
+** calling optimalLCS().
 */
 static void longestCommonSequence(
   DContext *p,               /* Two files being compared */
@@ -304,6 +361,7 @@ static void longestCommonSequence(
   int mid;                   /* Center of the span */
   int iSXb, iSYb, iEXb, iEYb;   /* Best match so far */
   int iSXp, iSYp, iEXp, iEYp;   /* Previous match */
+
 
   iSXb = iSXp = iS1;
   iEXb = iEXp = iS1;
@@ -356,10 +414,16 @@ static void longestCommonSequence(
       iEYp = iEY;
     }
   }
-  *piSX = iSXb;
-  *piSY = iSYb;
-  *piEX = iEXb;
-  *piEY = iEYb;
+  if( iSXb==iEXb && (iE1-iS1)*(iE2-iS2)<400 ){
+    /* If no common sequence is found using the hashing heuristic and
+    ** the input is not too big, use the expensive exact solution */
+    optimalLCS(p, iS1, iE1, iS2, iE2, piSX, piEX, piSY, piEY);
+  }else{
+    *piSX = iSXb;
+    *piSY = iSYb;
+    *piEX = iEXb;
+    *piEY = iEYb;
+  }
   /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n", 
      iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
@@ -474,14 +538,17 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write unified diff here if not NULL */
-  int nContext     /* Amount of context to unified diff */
+  int nContext,    /* Amount of context to unified diff */
+  int ignoreEolWs  /* Ignore whitespace at the end of lines */
 ){
   DContext c;
  
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
-  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob), &c.nFrom);
-  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob), &c.nTo);
+  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
+                             &c.nFrom, ignoreEolWs);
+  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
+                           &c.nTo, ignoreEolWs);
   if( c.aFrom==0 || c.aTo==0 ){
     free(c.aFrom);
     free(c.aTo);
@@ -524,7 +591,7 @@ void test_rawdiff_cmd(void){
   for(i=3; i<g.argc; i++){
     if( i>3 ) printf("-------------------------------\n");
     blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, 0);
+    R = text_diff(&a, &b, 0, 0, 0);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       printf(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
     }
@@ -542,7 +609,7 @@ void test_udiff_cmd(void){
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, 3);
+  text_diff(&a, &b, &out, 3, 0);
   blob_write_to_file(&out, "-");
 }
 
@@ -576,7 +643,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   int i;
 
   memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput), &p->c.nTo);
+  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,1);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -604,7 +671,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
-                                &p->c.nFrom);
+                                &p->c.nFrom, 1);
   if( p->c.aFrom==0 ){
     return 1;
   }

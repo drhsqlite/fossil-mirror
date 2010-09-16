@@ -403,7 +403,7 @@ static void prepare_commit_comment(
     zEditor = getenv("EDITOR");
   }
   if( zEditor==0 ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     zEditor = "notepad";
 #else
     zEditor = "ed";
@@ -411,7 +411,7 @@ static void prepare_commit_comment(
   }
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                    g.zLocalRoot);
-#ifdef __MINGW32__
+#if defined(_WIN32)
   blob_add_cr(&text);
 #endif
   blob_write_to_file(&text, zFile);
@@ -515,10 +515,27 @@ static void checkin_verify_younger(
     zDate, rid
   );
   if( b ){
-    fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)",
-                 zUuid, zDate);
+    fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)"
+                 " Use -f to override.", zUuid, zDate);
   }
 #endif
+}
+
+/*
+** zDate should be a valid date string.  Convert this string into the
+** format YYYY-MM-DDTHH:MM:SS.  If the string is not a valid date, 
+** print a fatal error and quit.
+*/
+char *date_in_standard_format(const char *zInputDate){
+  char *zDate = db_text(0, "SELECT datetime(%Q)", zInputDate);
+  if( zDate[0]==0 ){
+    fossil_fatal("unrecognized date format (%s): use \"YYYY-MM-DD HH:MM:SS\"",
+                 zInputDate);
+  }
+  assert( strlen(zDate)==19 );
+  assert( zDate[10]==' ' );
+  zDate[10] = 'T';
+  return zDate;
 }
 
 /*
@@ -741,8 +758,7 @@ void commit_cmd(void){
     blob_append(&comment, "(no comment)", -1);
   }
   blob_appendf(&manifest, "C %F\n", blob_str(&comment));
-  zDate = db_text(0, "SELECT datetime('%q')", zDateOvrd ? zDateOvrd : "now");
-  zDate[10] = 'T';
+  zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
   blob_appendf(&manifest, "D %s\n", zDate);
   zDate[10] = ' ';
   db_prepare(&q,
@@ -761,7 +777,7 @@ void commit_cmd(void){
     int isexe = db_column_int(&q, 4);
     const char *zPerm;
     blob_append(&filename, zName, -1);
-#ifndef __MINGW32__
+#if !defined(_WIN32)
     /* For unix, extract the "executable" permission bit directly from
     ** the filesystem.  On windows, the "executable" bit is retained
     ** unchanged from the original. */
@@ -785,21 +801,23 @@ void commit_cmd(void){
   db_finalize(&q);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   blob_appendf(&manifest, "P %s", zUuid);
-  checkin_verify_younger(vid, zUuid, zDate);
 
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
-  db_bind_int(&q2, ":id", 0);
-  while( db_step(&q2)==SQLITE_ROW ){
-    int mid = db_column_int(&q2, 0);
-    if( !g.markPrivate && content_is_private(mid) ) continue;
-    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
-    if( zUuid ){
-      blob_appendf(&manifest, " %s", zUuid);
-      checkin_verify_younger(mid, zUuid, zDate);
-      free(zUuid);
+  if( !forceFlag ){
+    checkin_verify_younger(vid, zUuid, zDate);
+    db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
+    db_bind_int(&q2, ":id", 0);
+    while( db_step(&q2)==SQLITE_ROW ){
+      int mid = db_column_int(&q2, 0);
+      if( !g.markPrivate && content_is_private(mid) ) continue;
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+      if( zUuid ){
+        blob_appendf(&manifest, " %s", zUuid);
+        checkin_verify_younger(mid, zUuid, zDate);
+        free(zUuid);
+      }
     }
+    db_finalize(&q2);
   }
-  db_reset(&q2);
 
   blob_appendf(&manifest, "\n");
   blob_appendf(&manifest, "R %b\n", &cksum1);

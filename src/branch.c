@@ -217,39 +217,65 @@ void branch_cmd(void){
 void brlist_page(void){
   Stmt q;
   int cnt;
+  int showClosed = P("closed")!=0;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
 
-  style_header("Branches");
+  style_header(showClosed ? "Closed Branches" : "Open Branches");
   style_submenu_element("Timeline", "Timeline", "brtimeline");
+  if( showClosed ){
+    style_submenu_element("Open","Open","brlist");
+  }else{
+    style_submenu_element("Closed","Closed","brlist?closed");
+  }
   login_anonymous_available();
   compute_leaves(0, 1);
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
-  @ <li> An <b>open branch</b> is a branch that has one or
+  @ <li> An <div class="sideboxDescribed"><a href="brlist">
+  @ open branch</a></div> is a branch that has one or
   @ more <a href="leaves">open leaves.</a>
   @ The presence of open leaves presumably means
   @ that the branch is still being extended with new check-ins.</li>
-  @ <li> A <b>closed branch</b> is a branch with only
-  @ <a href="leaves?closed">closed leaves</a>.
+  @ <li> A <div class="sideboxDescribed"><a href="brlist?closed">
+  @ closed branch</a></div> is a branch with only
+  @ <div class="sideboxDescribed"><a href="leaves?closed">
+  @ closed leaves</a></div>.
   @ Closed branches are fixed and do not change (unless they are first
   @ reopened)</li>
   @ </ol>
   style_sidebox_end();
 
-  db_prepare(&q,
-    "SELECT DISTINCT value FROM tagxref"
-    " WHERE tagid=%d AND value NOT NULL"
-    "   AND rid IN leaves"
-    " ORDER BY value /*sort*/",
-    TAG_BRANCH
-  );
   cnt = 0;
+  if( !showClosed ){
+    db_prepare(&q,
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaves"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH
+    );
+  }else{
+    db_prepare(&q,
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      " EXCEPT "
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaves"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH, TAG_BRANCH
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){
-      @ <h2>Open Branches:</h2>
+      if( showClosed ){
+        @ <h2>Closed Branches:</h2>
+      }else{
+        @ <h2>Open Branches:</h2>
+      }
       @ <ul>
       cnt++;
     }
@@ -259,41 +285,11 @@ void brlist_page(void){
       @ <li><b>%h(zBr)</b></li>
     }
   }
-  db_finalize(&q);
-  if( cnt ){
-    @ </ul>
-  }
-  cnt = 0;
-  db_prepare(&q,
-    "SELECT value FROM tagxref"
-    " WHERE tagid=%d AND value NOT NULL"
-    " EXCEPT "
-    "SELECT value FROM tagxref"
-    " WHERE tagid=%d AND value NOT NULL"
-    "   AND rid IN leaves"
-    " ORDER BY value /*sort*/",
-    TAG_BRANCH, TAG_BRANCH
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zBr = db_column_text(&q, 0);
-    if( cnt==0 ){
-      @ <h2>Closed Branches:</h2>
-      @ <ul>
-      cnt++;     
-    }
-    if( g.okHistory ){
-      @ <li><a href="%s(g.zBaseURL)/timeline?r=%T(zBr)">%h(zBr)</a></li>
-    }else{
-      @ <li><b>%h(zBr)</b></li>
-    }
-  }
   if( cnt ){
     @ </ul>
   }
   db_finalize(&q);
-  @ </ul>
-  @ <br clear="both">
-  @ <script>
+  @ <script  type="text/JavaScript">
   @ function xin(id){
   @ }
   @ function xout(id){
@@ -348,8 +344,7 @@ void brtimeline_page(void){
   );
   www_print_timeline(&q, 0, brtimeline_extra);
   db_finalize(&q);
-  @ <br clear="both">
-  @ <script>
+  @ <script  type="text/JavaScript">
   @ function xin(id){
   @ }
   @ function xout(id){

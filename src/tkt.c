@@ -315,7 +315,7 @@ void tktview_page(void){
   }
   if( g.okApndTkt && g.okAttach ){
     style_submenu_element("Attach", "Add An Attachment",
-        "%s/attachadd?tkt=%T&from=%s/tktview/%t",
+        "%s/attachadd?tkt=%T&amp;from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
   }
   style_header("View Ticket");
@@ -344,15 +344,20 @@ void tktview_page(void){
       const char *zFile = db_column_text(&q, 1);
       const char *zUser = db_column_text(&q, 2);
       if( cnt==0 ){
-        @ <hr><h2>Attachments:</h2>
+        @ <hr /><h2>Attachments:</h2>
         @ <ul>
       }
       cnt++;
-      @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&file=%t(zFile)">
-      @ %h(zFile)</a> add by %h(zUser) on
+      if( g.okRead && g.okHistory ){
+        @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
+        @ %h(zFile)</a>
+      }else{
+        @ %h(zFile)
+      }
+      @ added by %h(zUser) on
       hyperlink_to_date(zDate, ".");
       if( g.okWrTkt && g.okAttach ){
-        @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&file=%t(zFile)&from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
+        @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
       }
     }
     if( cnt ){
@@ -508,8 +513,9 @@ void tktnew_page(void){
   getAllTicketFields();
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
-  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
   login_insert_csrf_secret();
+  @ </p>
   zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
@@ -551,19 +557,20 @@ void tktedit_page(void){
   style_header("Edit Ticket");
   if( zName==0 || (nName = strlen(zName))<4 || nName>UUID_SIZE
           || !validate16(zName,nName) ){
-    @ <font color="red"><b>Not a valid ticket id: \"%h(zName)\"</b></font>
+    @ <span class="tktError">Not a valid ticket id: \"%h(zName)\"</span>
     style_footer();
     return;
   }
   nRec = db_int(0, "SELECT count(*) FROM ticket WHERE tkt_uuid GLOB '%q*'",
                 zName);
   if( nRec==0 ){
-    @ <font color="red"><b>No such ticket: \"%h(zName)\"</b></font>
+    @ <span class="tktError">No such ticket: \"%h(zName)\"</span>
     style_footer();
     return;
   }
   if( nRec>1 ){
-    @ <font color="red"><b>%d(nRec) tickets begin with: \"%h(zName)\"</b></font>
+    @ <span class="tktError"><b>%d(nRec) tickets begin with:
+    @ \"%h(zName)\"</span>
     style_footer();
     return;
   }
@@ -572,9 +579,10 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
-  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
-  @ <input type="hidden" name="name" value="%s(zName)">
+  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
+  @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
+  @ </p>
   zScript = ticket_editpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
@@ -621,7 +629,7 @@ char *ticket_schema_check(const char *zSchema){
 
 /*
 ** WEBPAGE: tkttimeline
-** URL: /tkttimeline?name=TICKETUUID&y=TYPE
+** URL: /tkttimeline?name=TICKETUUID&amp;y=TYPE
 **
 ** Show the change history for a single ticket in timeline format.
 */
@@ -641,7 +649,7 @@ void tkttimeline_page(void){
   zType = PD("y","a");
   if( zType[0]!='c' ){
     style_submenu_element("Check-ins", "Check-ins",
-       "%s/tkttimeline?name=%T&y=ci", g.zTop, zUuid);
+       "%s/tkttimeline?name=%T&amp;y=ci", g.zTop, zUuid);
   }else{
     style_submenu_element("Timeline", "Timeline",
        "%s/tkttimeline?name=%T", g.zTop, zUuid);
@@ -773,8 +781,8 @@ void tkthistory_page(void){
         @ (rid %d(rid)) by
         hyperlink_to_user(m.zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
-        ticket_output_change_artifact(&m);
         @ </p>
+        ticket_output_change_artifact(&m);
       }
       manifest_clear(&m);
     }

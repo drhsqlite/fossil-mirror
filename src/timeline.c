@@ -50,9 +50,10 @@ void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
   shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/info/%s(zShortUuid)">[%s(zShortUuid)]</a>
+    @ <a class="timelineHistLink" href="%s(g.zBaseURL)/info/%s(zShortUuid)">
+    @ [%s(zShortUuid)]</a>
   }else{
-    @ <b>[%s(zShortUuid)]</b>
+    @ <span class="timelineHistDsp">[%s(zShortUuid)]</span>
   }
 }
 
@@ -85,7 +86,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
     if( zV2==0 ){
       @ <a href="%s(g.zBaseURL)/diff?v2=%s(zV1)">[diff]</a>
     }else{
-      @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&v2=%s(zV2)">[diff]</a>
+      @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&amp;v2=%s(zV2)">[diff]</a>
     }
   }
 }
@@ -111,7 +112,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
   if( zSuf==0 ) zSuf = "";
   if( g.okHistory ){
     if( zD && zD[0] ){
-      @ <a href="%s(g.zTop)/timeline?c=%T(zD)&u=%T(zU)">%h(zU)</a>%s(zSuf)
+      @ <a href="%s(g.zTop)/timeline?c=%T(zD)&amp;u=%T(zU)">%h(zU)</a>%s(zSuf)
     }else{
       @ <a href="%s(g.zTop)/timeline?u=%T(zU)">%h(zU)</a>%s(zSuf)
     }
@@ -191,10 +192,13 @@ void www_print_timeline(
   }
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
+    /* style is not moved to css, because this is
+    ** a technical div for the timeline graph
+    */
     @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
 
-  @ <table cellspacing=0 border=0 cellpadding=0>
+  @ <table class="timelineTable">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -220,26 +224,26 @@ void www_print_timeline(
     }
     prevTagid = tagid;
     if( suppressCnt ){
-      @ <tr><td><td><td>
-      @ <small><i>... %d(suppressCnt) similar
-      @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+      @ <tr><td /><td /><td>
+      @ <span class="timelineDisabled">... %d(suppressCnt) similar
+      @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
       suppressCnt = 0;
     }
     if( strcmp(zType,"div")==0 ){
-      @ <tr><td colspan=3><hr></td></tr>
+      @ <tr><td colspan="3"><hr /></td></tr>
       continue;
     }
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td>
-      @   <div class="divider"><nobr>%s(zPrevDate)</nobr></div>
+      @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
     @ <tr>
-    @ <td valign="top" align="right">%s(zTime)</td>
-    @ <td width="20" align="left" valign="top">
+    @ <td class="timelineTime">%s(zTime)</td>
+    @ <td class="timelineGraph">
     if( pGraph && zType[0]=='c' ){
       int nParent = 0;
       int aParent[32];
@@ -269,10 +273,11 @@ void www_print_timeline(
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
     }
+    @</td>
     if( zBgClr && zBgClr[0] ){
-      @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
+      @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
-      @ <td valign="top" align="left">
+      @ <td class="timelineTableCell">
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
@@ -280,9 +285,9 @@ void www_print_timeline(
         if( db_exists("SELECT 1 FROM tagxref"
                       " WHERE rid=%d AND tagid=%d AND tagtype>0",
                       rid, TAG_CLOSED) ){
-          @ <b>Closed-Leaf:</b>
+          @ <span class="timelineLeaf">Closed-Leaf:</span>
         }else{
-          @ <b>Leaf:</b>
+          @ <span class="timelineLeaf">Leaf:</span>
         }
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
@@ -311,9 +316,9 @@ void www_print_timeline(
     @ </td></tr>
   }
   if( suppressCnt ){
-    @ <tr><td><td><td>
-    @ <small><i>... %d(suppressCnt) similar
-    @ event%s(suppressCnt>1?"s":"") omitted.</i></small></tr>
+    @ <tr><td /><td /><td>
+    @ <span class="timelineDisabled">... %d(suppressCnt) similar
+    @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
     suppressCnt = 0;
   }
   if( pGraph ){
@@ -322,7 +327,12 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr><td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      /* style is not moved to css, because this is
+      ** a technical div for the timeline graph
+      */
+      @ <tr><td /><td>
+      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ </td></tr>
     }
   }
   @ </table>
@@ -338,7 +348,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     GraphRow *pRow;
     int i;
     char cSep;
-    @ <script type="text/JavaScript">
+    @ <script  type="text/JavaScript">
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       cgi_printf("{id:\"m%d\",bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
@@ -354,7 +364,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
         if( pRow->aiRaiser[i]>0 ){
-          cgi_printf("%c%d,%d", cSep, pGraph->railMap[i], pRow->aiRaiser[i]);
+          cgi_printf("%c%d,%d", cSep, i, pRow->aiRaiser[i]);
           cSep = ',';
         }
       }
@@ -363,7 +373,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn & (1<<i) ){
-          cgi_printf("%c%d", cSep, pGraph->railMap[i]);
+          cgi_printf("%c%d", cSep, i);
           cSep = ',';
         }
       }
@@ -484,7 +494,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     rowinfo[i].y = absoluteY(rowinfo[i].id) + 10 - canvasY;
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
-    @   var btm = rowinfo[rowinfo.length-1].y + 20;
+    @   var btm = absoluteY("grbtm") + 10 - canvasY;
     @   if( btm<32768 ){
     @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
     @        'style="position:absolute;left:'+(left-5)+'px;"' +
@@ -884,11 +894,11 @@ void page_timeline(void){
       tmFlags |= TIMELINE_DISJOINT;
     }
     if( zAfter ){
-      blob_appendf(&desc, " occurring on or after %h.<br>", zAfter);
+      blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);
     }else if( zBefore ){
-      blob_appendf(&desc, " occurring on or before %h.<br>", zBefore);
+      blob_appendf(&desc, " occurring on or before %h.<br />", zBefore);
     }else if( zCirca ){
-      blob_appendf(&desc, " occurring around %h.<br>", zCirca);
+      blob_appendf(&desc, " occurring around %h.<br />", zCirca);
     }
     if( zSearch ){
       blob_appendf(&desc, " matching \"%h\"", zSearch);

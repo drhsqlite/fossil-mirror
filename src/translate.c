@@ -68,11 +68,12 @@ static void end_block(FILE *out){
 ** Translate the input stream into the output stream
 */
 static void trans(FILE *in, FILE *out){
-  int i, j, k;        /* Loop counters */
-  char c1, c2;        /* Characters used to start a comment */
-  int lastWasEq = 0;  /* True if last non-whitespace character was "=" */
-  char zLine[2000];   /* A single line of input */
-  char zOut[4000];    /* The input line translated into appropriate output */
+  int i, j, k;          /* Loop counters */
+  char c1, c2;          /* Characters used to start a comment */
+  int lastWasEq = 0;    /* True if last non-whitespace character was "=" */
+  int lastWasComma = 0; /* True if last non-whitespace character was "," */
+  char zLine[2000];     /* A single line of input */
+  char zOut[4000];      /* The input line translated into appropriate output */
 
   c1 = c2 = '-';
   while( fgets(zLine, sizeof(zLine), in) ){
@@ -87,10 +88,12 @@ static void trans(FILE *in, FILE *out){
       }
       i += strlen(&zLine[i]);
       while( i>0 && isspace(zLine[i-1]) ){ i--; }
-      lastWasEq = i>0 && zLine[i-1]=='=';
-    }else if( lastWasEq ){
+      lastWasEq    = i>0 && zLine[i-1]=='=';
+      lastWasComma = i>0 && zLine[i-1]==',';
+    }else if( lastWasEq || lastWasComma){
       /* If the last non-whitespace character before the first @ was
-      ** an "=" then generate a string literal.  But skip comments
+      ** an "="(var init/set) or a ","(const definition in list) then
+      ** generate a string literal.  But skip comments
       ** consisting of all text between c1 and c2 (default "--")
       ** and end of line.
       */

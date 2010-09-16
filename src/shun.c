@@ -114,11 +114,11 @@ void shun_page(void){
   @ sight - set the "hidden" tag on such artifacts instead.</p>
   @ 
   @ <blockquote>
-  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="text" name="uuid" value="%h(PD("shun",""))" size="50">
-  @ <input type="submit" name="add" value="Shun">
-  @ </form>
+  @ <input type="text" name="uuid" value="%h(PD("shun",""))" size="50" />
+  @ <input type="submit" name="add" value="Shun" />
+  @ </div></form>
   @ </blockquote>
   @
   @ <p>Enter the UUID of a previous shunned artifact to cause it to be
@@ -128,11 +128,11 @@ void shun_page(void){
   @ operations.</p>
   @
   @ <blockquote>
-  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="text" name="uuid" size="50">
-  @ <input type="submit" name="sub" value="Accept">
-  @ </form>
+  @ <input type="text" name="uuid" size="50" />
+  @ <input type="submit" name="sub" value="Accept" />
+  @ </div></form>
   @ </blockquote>
   @
   @ <p>Press the Rebuild button below to rebuild the respository.  The
@@ -141,14 +141,14 @@ void shun_page(void){
   @ two, so be patient after pressing the button.</p>
   @
   @ <blockquote>
-  @ <form method="POST" action="%s(g.zBaseURL)/%s(g.zPath)">
+  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
-  @ <input type="submit" name="rebuild" value="Rebuild">
-  @ </form>
+  @ <input type="submit" name="rebuild" value="Rebuild" />
+  @ </div></form>
   @ </blockquote>
   @ 
-  @ <hr><p>Shunned Artifacts:</p>
-  @ <blockquote>
+  @ <hr /><p>Shunned Artifacts:</p>
+  @ <blockquote><p>
   db_prepare(&q, 
      "SELECT uuid, EXISTS(SELECT 1 FROM blob WHERE blob.uuid=shun.uuid)"
      "  FROM shun ORDER BY uuid");
@@ -157,16 +157,16 @@ void shun_page(void){
     int stillExists = db_column_int(&q, 1);
     cnt++;
     if( stillExists ){
-      @ <b><a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a></b><br>
+      @ <b><a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
     }else{
-      @ <b>%s(zUuid)</b><br>
+      @ <b>%s(zUuid)</b><br />
     }
   }
   if( cnt==0 ){
     @ <i>no artifacts are shunned on this server</i>
   }
   db_finalize(&q);
-  @ </blockquote>
+  @ </p></blockquote>
   style_footer();
 }
 
@@ -231,10 +231,11 @@ void rcvfromlist_page(void){
   @ by a transaction.  After identifying illicit artifacts, remove them
   @ using the "Shun" feature.</p>
   @
-  @ <table cellpadding=0 cellspacing=0 border=0>
-  @ <tr><th>rcvid</th><th width=15>
-  @     <th>Date</th><th width=15><th>User</th>
-  @     <th width=15><th>IP&nbsp;Address</th></tr>
+  @ <table cellpadding="0" cellspacing="0" border="0">
+  @ <tr><th style="padding-right: 15px;text-align: right;">rcvid</th>
+  @     <th style="padding-right: 15px;text-align: left;">Date</th>
+  @     <th style="padding-right: 15px;text-align: left;">User</th>
+  @     <th style="text-align: left;">IP&nbsp;Address</th></tr>
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     int rcvid = db_column_int(&q, 0);
@@ -247,10 +248,10 @@ void rcvfromlist_page(void){
     }else{
       cnt++;
       @ <tr>
-      @ <td><a href="rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a></td><td>
-      @ <td>%s(zDate)</td><td>
-      @ <td>%h(zUser)</td><td>
-      @ <td>&nbsp;%s(zIpAddr)&nbsp</td>
+      @ <td style="padding-right: 15px;text-align: right;"><a href="rcvfrom?rcvid=%d(rcvid)">%d(rcvid)</a></td>
+      @ <td style="padding-right: 15px;text-align: left;">%s(zDate)</td>
+      @ <td style="padding-right: 15px;text-align: left;">%h(zUser)</td>
+      @ <td style="text-align: left;">%s(zIpAddr)</td>
       @ </tr>
     }
   }
@@ -279,7 +280,7 @@ void rcvfrom_page(void){
     " WHERE rcvid=%d",
     rcvid
   );
-  @ <table cellspacing=15 cellpadding=0 border=0>
+  @ <table cellspacing="15" cellpadding="0" border="0">
   @ <tr><td valign="top" align="right"><b>rcvid:</b></td>
   @ <td valign="top">%d(rcvid)</td></tr>
   if( db_step(&q)==SQLITE_ROW ){
@@ -304,8 +305,10 @@ void rcvfrom_page(void){
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     @ <a href="%s(g.zBaseURL)/info/%s(zUuid)">%s(zUuid)</a>
-    @ (rid: %d(rid), size: %d(size))<br>
+    @ (rid: %d(rid), size: %d(size))<br />
   }
   @ </td></tr>
   @ </table>
+  db_finalize(&q);
+  style_footer();
 }

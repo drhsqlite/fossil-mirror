@@ -26,7 +26,7 @@
 ** A black-and-white theme with the project title in a bar across the top
 ** and no logo image.
 */
-static const char zBuiltinSkin1[] =
+static const char zBuiltinSkin1[] = 
 @ REPLACE INTO config VALUES('css','/* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
@@ -34,7 +34,7 @@ static const char zBuiltinSkin1[] =
 @   background-color: white;
 @   font-family: sans-serif;
 @ }
-@
+@ 
 @ /* The project logo in the upper left-hand corner of each page */
 @ div.logo {
 @   display: table-row;
@@ -46,7 +46,7 @@ static const char zBuiltinSkin1[] =
 @   color: #ffffff;
 @   min-width: 200px;
 @ }
-@
+@ 
 @ /* The page title centered at the top of each page */
 @ div.title {
 @   display: table-cell;
@@ -58,7 +58,7 @@ static const char zBuiltinSkin1[] =
 @   vertical-align: bottom;
 @   width: 100%;
 @ }
-@
+@ 
 @ /* The login status message in the top right-hand corner */
 @ div.status {
 @   display: table-cell;
@@ -69,13 +69,13 @@ static const char zBuiltinSkin1[] =
 @   font-weight: bold;
 @   min-width: 200px;
 @ }
-@
+@ 
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
 @   width: 100%;
 @ }
-@
+@ 
 @ /* The main menu bar that appears at the top of the page beneath
 @ ** the header */
 @ div.mainmenu {
@@ -87,7 +87,7 @@ static const char zBuiltinSkin1[] =
 @   background-color: #404040;
 @   color: white;
 @ }
-@
+@ 
 @ /* The submenu bar that *sometimes* appears below the main menu */
 @ div.submenu {
 @   padding: 3px 10px 3px 0px;
@@ -105,7 +105,7 @@ static const char zBuiltinSkin1[] =
 @   color: #404040;
 @   background-color: white;
 @ }
-@
+@ 
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
@@ -115,7 +115,7 @@ static const char zBuiltinSkin1[] =
 @ div.content a { color: #604000; }
 @ div.content a:link { color: #604000;}
 @ div.content a:visited { color: #600000; }
-@
+@ 
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0px;
@@ -126,7 +126,7 @@ static const char zBuiltinSkin1[] =
 @   background-color: #404040;
 @   color: white;
 @ }
-@
+@ 
 @ /* The "Date" that occurs on the left hand side of timelines */
 @ div.divider {
 @   background: #a0a0a0;
@@ -137,7 +137,7 @@ static const char zBuiltinSkin1[] =
 @   float: left;
 @   clear: left;
 @ }
-@
+@ 
 @ /* The footer at the very bottom of the page */
 @ div.footer {
 @   font-size: 0.8em;
@@ -147,7 +147,7 @@ static const char zBuiltinSkin1[] =
 @   background-color: #404040;
 @   color: white;
 @ }
-@
+@ 
 @ /* The label/value pairs on (for example) the vinfo page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -167,7 +167,7 @@ static const char zBuiltinSkin1[] =
 @   <div class="logo">
 @     <img src="$baseurl/logo" alt="logo">
 @   </div>
-@   <div class="title"><small>$<project_name></small><br>$<title></div>
+@   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
@@ -208,7 +208,7 @@ static const char zBuiltinSkin1[] =
 @ </th1></div>
 @ ');
 @ REPLACE INTO config VALUES('footer','<div class="footer">
-@ Fossil version $manifest_version $manifest_date
+@ Fossil version $manifest_version $manifest_date 
 @ </div>
 @ </body></html>
 @ ');
@@ -218,7 +218,7 @@ static const char zBuiltinSkin1[] =
 ** A tan theme with the project title above the user identification
 ** and no logo image.
 */
-static const char zBuiltinSkin2[] =
+static const char zBuiltinSkin2[] = 
 @ REPLACE INTO config VALUES('css','/* General settings for the entire page */
 @ body {
 @   margin: 0ex 0ex;
@@ -226,7 +226,7 @@ static const char zBuiltinSkin2[] =
 @   background-color: #fef3bc;
 @   font-family: sans-serif;
 @ }
-@
+@ 
 @ /* The project logo in the upper left-hand corner of each page */
 @ div.logo {
 @   display: inline;
@@ -236,7 +236,7 @@ static const char zBuiltinSkin2[] =
 @   font-size: 2.5em;
 @   color: #a09048;
 @ }
-@
+@ 
 @ /* The page title centered at the top of each page */
 @ div.title {
 @   display: table-cell;
@@ -248,7 +248,7 @@ static const char zBuiltinSkin2[] =
 @   vertical-align: bottom;
 @   width: 100%;
 @ }
-@
+@ 
 @ /* The login status message in the top right-hand corner */
 @ div.status {
 @   display: table-cell;
@@ -259,13 +259,13 @@ static const char zBuiltinSkin2[] =
 @   font-size: 0.8em;
 @   font-weight: bold;
 @ }
-@
+@ 
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
 @   width: 100%;
 @ }
-@
+@ 
 @ /* The main menu bar that appears at the top of the page beneath
 @ ** the header */
 @ div.mainmenu {
@@ -277,7 +277,7 @@ static const char zBuiltinSkin2[] =
 @   background-color: #a09048;
 @   color: black;
 @ }
-@
+@ 
 @ /* The submenu bar that *sometimes* appears below the main menu */
 @ div.submenu {
 @   padding: 3px 10px 3px 0px;
@@ -295,7 +295,7 @@ static const char zBuiltinSkin2[] =
 @   color: #a09048;
 @   background-color: white;
 @ }
-@
+@ 
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
@@ -305,7 +305,7 @@ static const char zBuiltinSkin2[] =
 @ div.content a:link { color: #706532; }
 @ div.content a:visited { color: #704032; }
 @ div.content a:hover { background-color: white; color: #706532; }
-@
+@ 
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0px;
@@ -316,7 +316,7 @@ static const char zBuiltinSkin2[] =
 @   background-color: #a09048;
 @   color: white;
 @ }
-@
+@ 
 @ /* The "Date" that occurs on the left hand side of timelines */
 @ div.divider {
 @   background: #e1d498;
@@ -327,7 +327,7 @@ static const char zBuiltinSkin2[] =
 @   float: left;
 @   clear: left;
 @ }
-@
+@ 
 @ /* The footer at the very bottom of the page */
 @ div.footer {
 @   font-size: 0.8em;
@@ -337,19 +337,19 @@ static const char zBuiltinSkin2[] =
 @   background-color: #a09048;
 @   color: white;
 @ }
-@
+@ 
 @ /* Hyperlink colors */
 @ div.footer a { color: white; }
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@
+@ 
 @ /* <verbatim> blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
 @    padding: 0.5em;
 @ }
-@
+@ 
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -420,7 +420,7 @@ static const char zBuiltinSkin2[] =
 ** Black letters on a white or cream background with the main menu
 ** stuck on the left-hand side.
 */
-static const char zBuiltinSkin3[] =
+static const char zBuiltinSkin3[] = 
 @ REPLACE INTO config VALUES('css','/* General settings for the entire page */
 @ body {
 @     margin:0px 0px 0px 0px;
@@ -429,7 +429,7 @@ static const char zBuiltinSkin3[] =
 @     color:#333;
 @     background-color:white;
 @ }
-@
+@ 
 @ /* consistent colours */
 @ h2 {
 @   color: #333;
@@ -437,7 +437,7 @@ static const char zBuiltinSkin3[] =
 @ h3 {
 @   color: #333;
 @ }
-@
+@ 
 @ /* The project logo in the upper left-hand corner of each page */
 @ div.logo {
 @   display: table-cell;
@@ -446,7 +446,7 @@ static const char zBuiltinSkin3[] =
 @   font-weight: bold;
 @   color: #333;
 @ }
-@
+@ 
 @ /* The page title centered at the top of each page */
 @ div.title {
 @   display: table-cell;
@@ -457,7 +457,7 @@ static const char zBuiltinSkin3[] =
 @   vertical-align: bottom;
 @   width: 100%;
 @ }
-@
+@ 
 @ /* The login status message in the top right-hand corner */
 @ div.status {
 @   display: table-cell;
@@ -469,7 +469,7 @@ static const char zBuiltinSkin3[] =
 @   font-size: 0.8em;
 @   font-weight: bold;
 @ }
-@
+@ 
 @ /* The header across the top of the page */
 @ div.header {
 @     margin:10px 0px 10px 0px;
@@ -479,7 +479,7 @@ static const char zBuiltinSkin3[] =
 @     border-width:1px 0px;
 @     background-color:#eee;
 @ }
-@
+@ 
 @ /* The main menu bar that appears at the top left of the page beneath
 @ ** the header. Width must be co-ordinated with the container below */
 @ div.mainmenu {
@@ -493,7 +493,7 @@ static const char zBuiltinSkin3[] =
 @   border:1px solid #999;
 @   width:8em;
 @ }
-@
+@ 
 @ /* Main menu is now a list */
 @ div.mainmenu ul {
 @   padding: 0;
@@ -508,13 +508,13 @@ static const char zBuiltinSkin3[] =
 @   color: #eee;
 @   background-color: #333;
 @ }
-@
+@ 
 @ /* Container for the sub-menu and content so they don''t spread
 @ ** out underneath the main menu */
 @ #container {
 @   padding-left: 9em;
 @ }
-@
+@ 
 @ /* The submenu bar that *sometimes* appears below the main menu */
 @ div.submenu {
 @   padding: 3px 10px 3px 10px;
@@ -534,14 +534,14 @@ static const char zBuiltinSkin3[] =
 @   color: #eee;
 @   background-color: #333;
 @ }
-@
+@ 
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
 @   float right;
 @   padding: 2ex 1ex 0ex 2ex;
 @ }
-@
+@ 
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0px;
@@ -555,7 +555,7 @@ static const char zBuiltinSkin3[] =
 @   background-color: #eee;
 @   color: #333;
 @ }
-@
+@ 
 @ /* The "Date" that occurs on the left hand side of timelines */
 @ div.divider {
 @   background: #eee;
@@ -567,7 +567,7 @@ static const char zBuiltinSkin3[] =
 @   clear: left;
 @   color: #333
 @ }
-@
+@ 
 @ /* The footer at the very bottom of the page */
 @ div.footer {
 @   font-size: 0.8em;
@@ -577,13 +577,13 @@ static const char zBuiltinSkin3[] =
 @   background-color: #eee;
 @   color: #555;
 @ }
-@
+@ 
 @ /* <verbatim> blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
 @    padding: 0.5em;
 @ }
-@
+@ 
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -602,7 +602,7 @@ static const char zBuiltinSkin3[] =
 @ <div class="header">
 @   <div class="logo">
 @     <!-- <img src="$baseurl/logo" alt="logo"> -->
-@     <br><nobr>$<project_name></nobr>
+@     <br /><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
 @   <div class="status"><nobr><th1>
@@ -734,14 +734,14 @@ void setup_skin(void){
   /* Process requests to delete a user-defined skin */
   if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
     style_header("Confirm Custom Skin Delete");
-    @ <form action="%s(g.zBaseURL)/setup_skin" method="POST">
+    @ <form action="%s(g.zBaseURL)/setup_skin" method="post"><div>
     @ <p>Deletion of a custom skin is a permanent action that cannot
     @ be undone.  Please confirm that this is what you want to do:</p>
-    @ <input type="hidden" name="sn" value="%h(P("sn"))">
-    @ <input type="submit" name="del2" value="Confirm - Delete The Skin">
-    @ <input type="submit" name="cancel" value="Cancel - Do Not Delete">
+    @ <input type="hidden" name="sn" value="%h(P("sn"))" />
+    @ <input type="submit" name="del2" value="Confirm - Delete The Skin" />
+    @ <input type="submit" name="cancel" value="Cancel - Do Not Delete" />
     login_insert_csrf_secret();
-    @ </form>
+    @ </div></form>
     style_footer();
     return;
   }
@@ -802,7 +802,7 @@ void setup_skin(void){
 
   style_header("Skins");
   @ <p>A "skin" is a combination of
-  @ <a href="setup_editcss">CSS</a>,
+  @ <a href="setup_editcss">CSS</a>, 
   @ <a href="setup_header">Header</a>,
   @ <a href="setup_footer">Footer</a>, and
   @ <a href="setup_logo">Logo</a> that determines the look and feel
@@ -815,11 +815,11 @@ void setup_skin(void){
     if( strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
       @ <li><p>%h(z).&nbsp;&nbsp; <b>Currently In Use</b></p>
     }else{
-      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="POST">
-      @ %h(z).&nbsp;&nbsp;
-      @ <input type="hidden" name="sn" value="%h(z)">
-      @ <input type="submit" name="load" value="Use This Skin">
-      @ </form></li>
+      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="post"><div>
+      @ %h(z).&nbsp;&nbsp; 
+      @ <input type="hidden" name="sn" value="%h(z)" />
+      @ <input type="submit" name="load" value="Use This Skin" />
+      @ </div></form></li>
     }
   }
   db_prepare(&q,
@@ -834,7 +834,7 @@ void setup_skin(void){
       @ <li><p>%h(zN).&nbsp;&nbsp;  <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zBaseURL)/setup_skin" method="POST">
-      @ %h(zN).&nbsp;&nbsp;
+      @ %h(zN).&nbsp;&nbsp; 
       @ <input type="hidden" name="sn" value="%h(zN)">
       @ <input type="submit" name="load" value="Use This Skin">
       @ <input type="submit" name="del1" value="Delete This Skin">

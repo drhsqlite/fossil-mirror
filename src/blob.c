@@ -662,7 +662,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-#ifdef __MINGW32__
+#if defined(_WIN32)
         /*
         ** On Windows, local path looks like: C:/develop/project/file.txt
         ** The if stops us from trying to create a directory of a drive letter
@@ -674,7 +674,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return 0;
           }
-#ifdef __MINGW32__
+#if defined(_WIN32)
         }
 #endif
         zName[i] = '/';
@@ -858,7 +858,7 @@ void test_cycle_compress(void){
   printf("ok\n");
 }
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
 /*
 ** Convert every \n character in the given blob into \r\n.
 */
@@ -897,4 +897,25 @@ void blob_remove_cr(Blob *p){
   }
   z[j] = 0;
   p->nUsed = j;
+}
+
+/*
+** Shell-escape the given string.  Append the result to a blob.
+*/
+void shell_escape(Blob *pBlob, const char *zIn){
+  int n = blob_size(pBlob);
+  int k = strlen(zIn);
+  int i, c;
+  char *z;
+  for(i=0; (c = zIn[i])!=0; i++){
+    if( isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
+      blob_appendf(pBlob, "\"%s\"", zIn);
+      z = blob_buffer(pBlob);
+      for(i=n+1; i<=n+k; i++){
+        if( z[i]=='"' ) z[i] = '_';
+      }
+      return;
+    }
+  }
+  blob_append(pBlob, zIn, -1);
 }

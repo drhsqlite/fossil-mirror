@@ -29,6 +29,9 @@
 **
 */
 #include "config.h"
+#if ! defined(_WIN32)
+#  include <pwd.h>
+#endif
 #include <sqlite3.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -136,12 +139,12 @@ void db_force_rollback(void){
   undo_rollback();
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
+    nBegin = 0;
     if( isNewRepo ){
       db_close();
       unlink(g.zRepositoryName);
     }
   }
-  nBegin = 0;
   busy = 0;
 }
 
@@ -536,7 +539,7 @@ char *db_text(char *zDefault, const char *zSql, ...){
   return z;
 }
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
 extern char *sqlite3_win32_mbcs_to_utf8(const char*);
 #endif
 
@@ -554,7 +557,7 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
   zFileName = sqlite3_win32_mbcs_to_utf8(zFileName);
 #endif
   rc = sqlite3_open(zFileName, &db);
@@ -589,7 +592,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   sqlite3 *db;
 
   zVfs = getenv("FOSSIL_VFS");
-#ifdef __MINGW32__
+#if defined(_WIN32)
   zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
 #endif
   rc = sqlite3_open_v2(
@@ -617,7 +620,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
     g.zRepoDb = "main";
     db_connection_init();
   }else{
-#ifdef __MINGW32__
+#if defined(_WIN32)
     zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
 #endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
@@ -641,7 +644,7 @@ void db_open_config(int useAttach){
   char *zDbName;
   const char *zHome;
   if( g.configOpen ) return;
-#ifdef __MINGW32__
+#if defined(_WIN32)
   zHome = getenv("LOCALAPPDATA");
   if( zHome==0 ){
     zHome = getenv("APPDATA");
@@ -663,13 +666,13 @@ void db_open_config(int useAttach){
   if( file_isdir(zHome)!=1 ){
     fossil_fatal("invalid home directory: %s", zHome);
   }
-#ifndef __MINGW32__
+#ifndef _WIN32
   if( access(zHome, W_OK) ){
     fossil_fatal("home directory %s must be writeable", zHome);
   }
 #endif
   g.zHome = mprintf("%/", zHome);
-#ifdef __MINGW32__
+#if defined(_WIN32)
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
@@ -896,16 +899,26 @@ void db_must_be_within_tree(void){
 ** Close the database connection.
 */
 void db_close(void){
+  sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
   while( pAllStmt ){
     db_finalize(pAllStmt);
   }
   db_end_transaction(1);
+  pStmt = 0;
+  while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
+    fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+  }
   g.repositoryOpen = 0;
   g.localOpen = 0;
   g.configOpen = 0;
+  sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
+  if( g.dbConfig ){
+    sqlite3_close(g.dbConfig);
+    g.dbConfig = 0;
+  }
 }
 
 
@@ -936,7 +949,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = zDefaultUser;
   }
   if( zUser==0 ){
-#ifdef __MINGW32__
+#if defined(_WIN32)
     zUser = getenv("USERNAME");
 #else
     zUser = getenv("USER");
@@ -1002,8 +1015,7 @@ void db_initial_setup(
     int rid;
     blob_zero(&manifest);
     blob_appendf(&manifest, "C initial\\sempty\\scheck-in\n");
-    zDate = db_text(0, "SELECT datetime(%Q)", zInitialDate);
-    zDate[10]='T';
+    zDate = date_in_standard_format(zInitialDate);
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "P\n");
     md5sum_init();
@@ -1255,7 +1267,6 @@ int is_false(const char *zVal){
 void db_swap_connections(void){
   if( !g.useAttach ){
     sqlite3 *dbTemp = g.db;
-    assert( g.dbConfig!=0 );
     g.db = g.dbConfig;
     g.dbConfig = dbTemp;
   }
@@ -1376,7 +1387,7 @@ void db_lset_int(const char *zName, int value){
 
 /*
 ** Record the name of a local repository in the global_config() database.
-** The repostiroy filename %s is recorded as an entry with a "name" field
+** The repository filename %s is recorded as an entry with a "name" field
 ** of the following form:
 **
 **       repo:%s
@@ -1549,6 +1560,9 @@ static void print_setting(const char *zName){
 **                     If the http_proxy environment variable is undefined
 **                     then a direct HTTP connection is used.
 **
+**    ssh-command      Command used to talk to a remote machine with
+**                     the "ssh://" protocol.
+**
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
@@ -1571,6 +1585,7 @@ void setting_cmd(void){
     "mtime-changes",
     "pgp-command",
     "proxy",
+    "ssh-command",
     "web-browser",
   };
   int i;

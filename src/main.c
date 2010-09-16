@@ -88,6 +88,7 @@ struct Global {
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
+  int urlIsSsh;           /* True if an "ssh:" url */
   char *urlName;          /* Hostname for http: or filename for file: */
   char *urlHostname;      /* The HOST: parameter on http headers */
   char *urlProtocol;      /* "http" or "https" */
@@ -98,6 +99,7 @@ struct Global {
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
+  char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
@@ -632,7 +634,7 @@ void fossil_redirect_home(void){
 ** is a directory, of that directory.
 */
 static char *enter_chroot_jail(char *zRepo){
-#if !defined(__MINGW32__)
+#if !defined(_WIN32)
   if( getuid()==0 ){
     int i;
     struct stat sStat;
@@ -810,7 +812,7 @@ void cmd_cgi(void){
   }
   g.httpOut = stdout;
   g.httpIn = stdin;
-#ifdef __MINGW32__
+#if defined(_WIN32)
   /* Set binary mode on windows to avoid undesired translations
   ** between \n and \r\n. */
   setmode(_fileno(g.httpOut), _O_BINARY);
@@ -916,10 +918,10 @@ void cmd_http(void){
   const char *zIpAddr;
   const char *zNotFound;
   zNotFound = find_option("notfound", 0, 1);
-  if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
-    cgi_panic("no repository specified");
-  }
   g.cgiOutput = 1;
+  if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
+    fossil_fatal("no repository specified");
+  }
   g.fullHttpReply = 1;
   if( g.argc==6 ){
     g.httpIn = fopen(g.argv[3], "rb");
@@ -937,15 +939,23 @@ void cmd_http(void){
 }
 
 /*
+** Note that the following command is used by ssh:// processing.
+**
 ** COMMAND: test-http
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
   login_set_capabilities("s");
-  cmd_http();
+  g.httpIn = stdin;
+  g.httpOut = stdout;
+  find_server_repository(0);
+  g.cgiOutput = 1;
+  g.fullHttpReply = 1;
+  cgi_handle_http_request(0);
+  process_one_web_page(0);
 }
 
-#ifndef __MINGW32__
+#if !defined(_WIN32)
 #if !defined(__DARWIN__) && !defined(__APPLE__)
 /*
 ** Search for an executable on the PATH environment variable.
@@ -984,7 +994,8 @@ static int binaryOnPath(const char *zBinary){
 ** within an open checkout.
 **
 ** The "ui" command automatically starts a web browser after initializing
-** the web server.
+** the web server.  The "ui" command also binds to 127.0.0.1 and so will
+** only process HTTP traffic from the local machine.
 **
 ** In the "server" command, the REPOSITORY can be a directory (aka folder)
 ** that contains one or more respositories with names ending in ".fossil".
@@ -998,8 +1009,9 @@ void cmd_webserver(void){
   char *zBrowserCmd = 0;    /* Command to launch the web browser */
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
+  int flags = 0;            /* Server flags */
 
-#ifdef __MINGW32__
+#if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
   zStopperFile = find_option("stopper", 0, 1);
 #endif
@@ -1012,6 +1024,7 @@ void cmd_webserver(void){
   zNotFound = find_option("notfound", 0, 1);
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
+  if( isUiCmd ) flags |= HTTP_SERVER_LOCALHOST;
   find_server_repository(isUiCmd);
   if( zPort ){
     iPort = mxPort = atoi(zPort);
@@ -1019,7 +1032,7 @@ void cmd_webserver(void){
     iPort = db_get_int("http-port", 8080);
     mxPort = iPort+100;
   }
-#ifndef __MINGW32__
+#if !defined(_WIN32)
   /* Unix implementation */
   if( isUiCmd ){
 #if !defined(__DARWIN__) && !defined(__APPLE__)
@@ -1041,7 +1054,7 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
   }
   db_close();
-  if( cgi_http_server(iPort, mxPort, zBrowserCmd) ){
+  if( cgi_http_server(iPort, mxPort, zBrowserCmd, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   g.httpIn = stdin;
@@ -1061,6 +1074,6 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close();
-  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound);
+  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
 #endif
 }

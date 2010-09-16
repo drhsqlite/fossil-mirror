@@ -323,17 +323,17 @@ static int findTag(const char *z){
 /*
 ** Token types
 */
-#define TOKEN_MARKUP        1    /* <...> */
-#define TOKEN_CHARACTER     2    /* "&" or "<" not part of markup */
-#define TOKEN_LINK          3    /* [...] */
-#define TOKEN_PARAGRAPH     4    /* blank lines */
-#define TOKEN_NEWLINE       5    /* A single "\n" */
-#define TOKEN_BUL_LI        6    /*  "  *  " */
-#define TOKEN_NUM_LI        7    /*  "  #  " */
-#define TOKEN_ENUM          8    /*  "  \(?\d+[.)]?  " */
-#define TOKEN_INDENT        9    /*  "   " */
-#define TOKEN_RAW           10   /* Output exactly (used when wiki-use-html==1) */
-#define TOKEN_TEXT          11   /* None of the above */
+#define TOKEN_MARKUP        1  /* <...> */
+#define TOKEN_CHARACTER     2  /* "&" or "<" not part of markup */
+#define TOKEN_LINK          3  /* [...] */
+#define TOKEN_PARAGRAPH     4  /* blank lines */
+#define TOKEN_NEWLINE       5  /* A single "\n" */
+#define TOKEN_BUL_LI        6  /*  "  *  " */
+#define TOKEN_NUM_LI        7  /*  "  #  " */
+#define TOKEN_ENUM          8  /*  "  \(?\d+[.)]?  " */
+#define TOKEN_INDENT        9  /*  "   " */
+#define TOKEN_RAW           10 /* Output exactly (used when wiki-use-html==1) */
+#define TOKEN_TEXT          11 /* None of the above */
 
 /*
 ** State flags
@@ -747,6 +747,9 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
   if( p->endTag ){
     blob_appendf(pOut, "</%s>", aMarkup[p->iCode].zName);
   }else{
+    /* Close active paragraph for several elements, which are not allowed
+    ** in paragraphs in XHTML.
+    */
     blob_appendf(pOut, "<%s", aMarkup[p->iCode].zName);
     for(i=0; i<p->nAttr; i++){
       blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iACode].zName);
@@ -758,6 +761,9 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
           blob_appendf(pOut, "=\"%s\"", zVal);
         }
       }
+    }
+    if (p->iType & MUTYPE_SINGLE){
+      blob_append(pOut, " /", 2);
     }
     blob_append(pOut, ">", 1);
   }
@@ -887,8 +893,9 @@ static int backupToType(Renderer *p, int iMask){
 ** Begin a new paragraph if that something that is needed.
 */
 static void startAutoParagraph(Renderer *p){
-  if( p->wantAutoParagraph==0 || p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
-  blob_appendf(p->pOut, "<p>", -1);
+  if( p->wantAutoParagraph==0 ) return;
+  if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
+  blob_appendf(p->pOut, "<p type=\"auto\">", -1);
   pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
   p->inAutoParagraph = 1;
@@ -1021,13 +1028,14 @@ static void openHyperlink(
       */
       if( isClosed ){
         if( g.okHistory ){
-          blob_appendf(p->pOut,"<a href=\"%s/info/%s\"><s>",
-              g.zBaseURL, zTarget
+          blob_appendf(p->pOut,
+             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
+             g.zBaseURL, zTarget
           );
-          zTerm = "</s></a>";
+          zTerm = "</span></a>";
         }else{
-          blob_appendf(p->pOut,"<s>");
-          zTerm = "</s>";
+          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">");
+          zTerm = "</span>";
         }
       }else{
         if( g.okHistory ){
@@ -1135,6 +1143,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
+            endAutoParagraph(p);
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
             p->wikiList = MARKUP_UL;
@@ -1154,6 +1163,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
+            endAutoParagraph(p);
             pushStack(p, MARKUP_OL);
             blob_append(p->pOut, "<ol>", 4);
             p->wikiList = MARKUP_OL;
@@ -1173,6 +1183,7 @@ static void wiki_render(Renderer *p, char *z){
             if( p->wikiList ){
               popStackToTag(p, p->wikiList);
             }
+            endAutoParagraph(p);
             pushStack(p, MARKUP_OL);
             blob_append(p->pOut, "<ol>", 4);
             p->wikiList = MARKUP_OL;
@@ -1235,7 +1246,9 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_TEXT: {
-        startAutoParagraph(p);
+        int i;
+        for(i=0; i<n && isspace(z[i]); i++){}
+        if( i<n ) startAutoParagraph(p);
         blob_append(p->pOut, z, n);
         break;
       }
@@ -1349,12 +1362,15 @@ static void wiki_render(Renderer *p, char *z){
               vAttrDidAppend=1;
             }
           }
-          if( !vAttrDidAppend )
+          if( !vAttrDidAppend ) {
+            endAutoParagraph(p);
             blob_append(p->pOut, "<pre class='verbatim'>",-1);
+          }
           p->wantAutoParagraph = 0;
         }else
         if( markup.iType==MUTYPE_LI ){
           if( backupToType(p, MUTYPE_LIST)==0 ){
+            endAutoParagraph(p);
             pushStack(p, MARKUP_UL);
             blob_append(p->pOut, "<ul>", 4);
           }
@@ -1386,8 +1402,18 @@ static void wiki_render(Renderer *p, char *z){
         {
           if( markup.iType==MUTYPE_FONT ){
             startAutoParagraph(p);
-          }else if( markup.iType==MUTYPE_BLOCK ){
+          }else if( markup.iType==MUTYPE_BLOCK || markup.iType==MUTYPE_LIST ){
             p->wantAutoParagraph = 0;
+          }
+          if(   markup.iCode==MARKUP_HR
+             || markup.iCode==MARKUP_H1
+             || markup.iCode==MARKUP_H2
+             || markup.iCode==MARKUP_H3
+             || markup.iCode==MARKUP_H4
+             || markup.iCode==MARKUP_H5
+             || markup.iCode==MARKUP_P
+          ){
+            endAutoParagraph(p);
           }
           if( (markup.iType & MUTYPE_STACK )!=0 ){
             pushStack(p, markup.iCode);

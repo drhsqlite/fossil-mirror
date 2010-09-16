@@ -18,9 +18,9 @@
 ** This file contains code used to create a RSS feed for the CGI interface.
 */
 #include "config.h"
+#include <time.h>
 #include "rss.h"
 #include <assert.h>
-#include <time.h>
 
 /*
 ** WEBPAGE: timeline.rss

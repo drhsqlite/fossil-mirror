@@ -138,7 +138,7 @@ void finfo_page(void){
   blob_reset(&title);
   pGraph = graph_init();
   @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
-  @ <table cellspacing=0 border=0 cellpadding=0>
+  @ <table class="timelineTable">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zCom = db_column_text(&q, 1);
@@ -159,18 +159,18 @@ void finfo_page(void){
     if( memcmp(zDate, zPrevDate, 10) ){
       sprintf(zPrevDate, "%.10s", zDate);
       @ <tr><td>
-      @   <div class="divider"><nobr>%s(zPrevDate)</nobr></div>
+      @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
-    @ <tr><td valign="top" align="right">
+    @ <tr><td class="timelineTime">
     @ <a href="%s(g.zTop)/timeline?c=%t(zDate)">%s(zTime)</a></td>
-    @ <td width="20" align="left" valign="top"><div id="m%d(gidx)"></div></td>
+    @ <td class="timelineGraph"><div id="m%d(gidx)"></div></td>
     if( zBgClr && zBgClr[0] ){
-      @ <td valign="top" align="left" bgcolor="%h(zBgClr)">
+      @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
-      @ <td valign="top" align="left">
+      @ <td class="timelineTableCell">
     }
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
@@ -189,13 +189,14 @@ void finfo_page(void){
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
     if( g.okHistory && zUuid ){
+      const char *z = zFilename;
       if( fpid ){
         @ <a href="%s(g.zTop)/fdiff?v1=%s(zPUuid)&amp;v2=%s(zUuid)">[diff]</a>
       }
-      @ <a href="%s(g.zTop)/annotate?checkin=%S(zCkin)&amp;filename=%h(zFilename)">
+      @ <a href="%s(g.zTop)/annotate?checkin=%S(zCkin)&amp;filename=%h(z)">
       @ [annotate]</a>
     }
-    @ </td>
+    @ </td></tr>
   }
   db_finalize(&q);
   if( pGraph ){
@@ -204,7 +205,8 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr><td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <tr><td></td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @     </td></tr>
     }
   }
   @ </table>
