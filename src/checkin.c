@@ -54,7 +54,7 @@ static void status_report(
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DISMISSED    %s\n", zPathname);
+      blob_appendf(report, "DISMISSED  %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
       if( access(zFullName, 0)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
