@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Create\snew\sbranch\snamed\s"lang"
-D 2010-09-17T05:35:52
+C less\sthreatening\sdesc.\sfor\sremoving\san\sartifact\sfrom\srepo
+D 2010-09-17T06:02:42
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -37,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c eddef3fa44be35c2d5915af0b962ccd783d073bf
+F src/add.c 92a9faf06056055081834a46d21f3e63b1013c4a
 F src/allrepo.c 816ed36f0d077a4d72992492b1b66742b7b71a7a
 F src/attach.c 5b8bfc309cb9af45a71bc375003b9903179e8b9b
 F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
@@ -46,7 +43,7 @@ F src/branch.c af2294d526ad65c98c1e88ff0e8bc1ec7188ef2d
 F src/browse.c 2451ec0dbe40729e99e45bdd305b01e9658fec78
 F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
 F src/cgi.c 8f9481e214ecad65ae963f1e729a35cd891ebaf4
-F src/checkin.c 4b36c08d4382a6795e7b85ad90e9859ed7b08b88
+F src/checkin.c 7642da6ea254799ae6f6ecccc8ccff7a908c5e46
 F src/checkout.c 628940fb559e741a937edaec4597d86403a5877d
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -59,7 +56,7 @@ F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
 F src/diff.c dded3334132af04eb21d8c7606e45e73b4c09827
-F src/diffcmd.c 23ac471ebfb0379a73ee1ae134640e9c2da2ac9d
+F src/diffcmd.c 0ad0d3fa2afacfd6cbb90fb25e484e2966701be2
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 1f6e71e23f79a961c47699f5bd4420ea12bfb276
 F src/file.c a746fd6105243104bb1ebb1e63bee8baa077387c
@@ -270,18 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 3243e63bba43c3dd5ca2fde9eaaf7642af389061
-R 1cfd202e66a95acfb9781b19f2836d87
-T *bgcolor * #ababcc
-T *branch * lang
-T *sym-lang *
-T -sym-trunk *
+P 6e258c4ae35f3ac4d2dc93a2c808d81a4b42d416
+R 215e2afd3ad927494a2066bd106c2028
 U bharder
-Z 0b2a5fce52235977582d6307563596bb
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (NetBSD)
-
-iEYEARECAAYFAkyS/jgACgkQad0Kwpwugm8GXwCg3jQui3vJUX9ScSdKW+WAehvj
-Uu4An0D8qIHr6eYjoRkcgagX4UeYuyRR
-=WUAd
------END PGP SIGNATURE-----
+Z 0c6678cde801e224ff458f273ebf0a9f

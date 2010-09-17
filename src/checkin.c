@@ -54,7 +54,7 @@ static void status_report(
     char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DISMISSED    %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
       if( access(zFullName, 0)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
@@ -72,7 +72,7 @@ static void status_report(
     }else if( isNew ){
       blob_appendf(report, "ADDED      %s\n", zPathname);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DISMISSED  %s\n", zPathname);
     }else if( isChnged==2 ){
       blob_appendf(report, "UPDATED_BY_MERGE %s\n", zPathname);
     }else if( isChnged==3 ){
@@ -177,7 +177,7 @@ void ls_cmd(void){
         printf("MISSING    %s\n", zPathname);
       }
     }else if( isDeleted ){
-      printf("DELETED    %s\n", zPathname);
+      printf("DISMISSED  %s\n", zPathname);
     }else if( chnged ){
       printf("EDITED     %s\n", zPathname);
     }else if( renamed ){

@@ -239,13 +239,11 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( isDeleted ){
-      printf("DELETED  %s\n", zPathname);
+      printf("DISMISSED  %s\n", zPathname);
     }else if( access(zFullName, 0) ){
       printf("MISSING  %s\n", zPathname);
     }else if( isNew ){
       printf("ADDED    %s\n", zPathname);
-    }else if( isDeleted ){
-      printf("DELETED  %s\n", zPathname);
     }else if( isChnged==3 ){
       printf("ADDED_BY_MERGE %s\n", zPathname);
     }else{
@@ -314,7 +312,7 @@ static void diff_all_two_versions(
       cmp = strcmp(mFrom.aFile[iFrom].zName, mTo.aFile[iTo].zName);
     }
     if( cmp<0 ){
-      printf("DELETED %s\n", mFrom.aFile[iFrom].zName);
+      printf("DISMISSED %s\n", mFrom.aFile[iFrom].zName);
       iFrom++;
     }else if( cmp>0 ){
       printf("ADDED   %s\n", mTo.aFile[iTo].zName);

@@ -216,7 +216,7 @@ void del_directory_content(const char *zDir){
           printf("SKIPPED  %s\n", zPath);
         }else{
           db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
-          printf("DELETED  %s\n", zPath);
+          printf("DISMISSED  %s\n", zPath);
         }
         blob_reset(&pathname);
       }
@@ -266,7 +266,7 @@ void delete_cmd(void){
         fossil_fatal("not in the repository: %s", zName);
       }else{
         db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
-        printf("DELETED  %s\n", zPath);
+        printf("DISMISSED  %s\n", zPath);
       }
       blob_reset(&pathname);
     }
