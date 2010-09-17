@@ -892,7 +892,7 @@ static int backupToType(Renderer *p, int iMask){
 static void startAutoParagraph(Renderer *p){
   if( p->wantAutoParagraph==0 ) return;
   if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
-  blob_appendf(p->pOut, "<p type=\"auto\">", -1);
+  blob_appendf(p->pOut, "<p>", -1);
   pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
   p->inAutoParagraph = 1;
