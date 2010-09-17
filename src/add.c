@@ -230,9 +230,11 @@ void del_directory_content(const char *zDir){
 /*
 ** COMMAND: rm
 ** COMMAND: delete
+** COMMAND: dismiss
 **
 ** Usage: %fossil rm FILE...
 **    or: %fossil delete FILE...
+**    or: %fossil dismiss FILE...
 **
 ** Remove one or more files from the tree.
 **
