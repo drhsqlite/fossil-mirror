@@ -349,6 +349,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     int i;
     char cSep;
     @ <script  type="text/JavaScript">
+    @ /* <![CDATA[ */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       cgi_printf("{id:\"m%d\",bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
@@ -498,7 +499,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   if( btm<32768 ){
     @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
     @        'style="position:absolute;left:'+(left-5)+'px;"' +
-    @        ' width="'+width+'" height="'+btm+'"></canvas>';
+    @        ' width="'+width+'" height="'+btm+'"><'+'/canvas>';
     @     realCanvas = document.getElementById('timeline-canvas');
     @   }else{
     @     realCanvas = 0;
@@ -530,6 +531,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   setTimeout("checkHeight();", 1000);
     @ }
     @ checkHeight();
+    @ /* ]]> */
     @ </script>
   }
 }

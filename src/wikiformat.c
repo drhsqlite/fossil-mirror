@@ -747,9 +747,6 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
   if( p->endTag ){
     blob_appendf(pOut, "</%s>", aMarkup[p->iCode].zName);
   }else{
-    /* Close active paragraph for several elements, which are not allowed
-    ** in paragraphs in XHTML.
-    */
     blob_appendf(pOut, "<%s", aMarkup[p->iCode].zName);
     for(i=0; i<p->nAttr; i++){
       blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iACode].zName);
@@ -895,7 +892,7 @@ static int backupToType(Renderer *p, int iMask){
 static void startAutoParagraph(Renderer *p){
   if( p->wantAutoParagraph==0 ) return;
   if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
-  blob_appendf(p->pOut, "<p type=\"auto\">", -1);
+  blob_appendf(p->pOut, "<p>", -1);
   pushStack(p, MARKUP_P);
   p->wantAutoParagraph = 0;
   p->inAutoParagraph = 1;
