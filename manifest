@@ -1,5 +1,5 @@
-C remove\sdebug\stype\sin\sautoparagraphs/wikiformat
-D 2010-09-17T21:57:04
+C merged\sback\sto\strunk
+D 2010-09-18T16:24:17
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -51,11 +51,11 @@ F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
 F src/config.h 6eccfe5590a241e231ff64864961da8ead90b606
 F src/configure.c 41feb659f165ec676e8a1b293bd121b491fd1255
 F src/content.c 5253d868710c7c7630af5949ef60912a4cc1ecac
-F src/db.c 98ba24a88ba97950593661cf6cf5a6f0bbde5123
+F src/db.c eba50dbae488c3c6d8bf0fed3bf6cfbe1d4e7ad5
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
-F src/diff.c dded3334132af04eb21d8c7606e45e73b4c09827
+F src/diff.c eff6dcec76b55499629c8272f1513c6fc34d6dd8
 F src/diffcmd.c 6e48d3292a6d6afa6ae3a2047284876739813fcd
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 1f6e71e23f79a961c47699f5bd4420ea12bfb276
@@ -88,7 +88,7 @@ F src/report.c 3859ac4a9445e149ffd6da40731b07db98bf991c
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c b6e9b512663c44bad56b179c6a17c10e7613f832
 F src/search.c 953d09490f44e0c9efb7d05b643fc8ff9c06009b
-F src/setup.c b629730d73c6806807ff09c05b34b9161ca8e22f
+F src/setup.c 5d7e7a306916201f10806e6cc5ecdd02b68c1ede
 F src/sha1.c 37d0f222fdf9b344998684f9c5b15642150766f3
 F src/shun.c e7c0bb9a6b60a5dc1b722a8aa312977c6fdd82c3
 F src/skins.c 6403de89537ca743ac4e07ecf1e6a26c55bfd01a
@@ -267,7 +267,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 24d1d17b46f8464261172339e7e104bf37b8dd8f
-R 282c136d15013428273607adf7805fd0
-U Ratte
-Z ddc608050dc56c05531a624d0981d23a
+P 06bd8ebc6a88e8a5f86ab12ed6c03198f2e4a2b2 b48f78964e78a0fb388d3820fc71501a57e323f5
+R 3f0411f0b4c992e26f726ff45b017976
+U wolfgang
+Z f8dc2a2fe382e579752ceffb4bd9532b

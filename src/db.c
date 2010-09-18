@@ -1505,10 +1505,10 @@ static void print_setting(const char *zName){
 */
 #if INTERFACE
 struct stControlSettings {
-  char const * name;
-  char const * var;
-  int width;
-  char const * def;
+  char const *name;     /* Name of the setting */
+  char const *var;      /* Internal variable name used by db_set() */
+  int width;            /* Width of display.  0 for boolean values */
+  char const *def;      /* Default value */
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {

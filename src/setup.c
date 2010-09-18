@@ -66,8 +66,8 @@ void setup_page(void){
     "Control access settings.");
   setup_menu_entry("Configuration", "setup_config",
     "Configure the WWW components of the repository");
-  setup_menu_entry("Behavior", "setup_behavior",
-    "Configure the version control part of the repository");
+  setup_menu_entry("Settings", "setup_settings",
+    "Web interface to the \"fossil settings\" command");
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
   setup_menu_entry("Tickets", "tktsetup",
@@ -857,39 +857,47 @@ void setup_timeline(void){
 }
 
 /*
-** WEBPAGE: setup_behavior
+** WEBPAGE: setup_settings
 */
-void setup_behavior(void){
-  int i;
-  struct stControlSettings const * azSet;
+void setup_settings(void){
+  struct stControlSettings const *pSet;
 
   login_check_credentials();
   if( !g.okSetup ){
     login_needed();
   }
 
-  style_header("SCM Behavior");
+  style_header("Settings");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_behavior" method="post"><div>
+  @ <p>This page provides a simple interface to the "fossil setting" command.
+  @ See the "fossil help setting" output below for further information on
+  @ the meaning of each setting.</p><hr />
+  @ <form action="%s(g.zBaseURL)/setup_settings" method="post"><div>
+  @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
-  for (azSet=ctrlSettings;azSet->name;azSet++) {
-    if (azSet->width==0) {
-      /* found boolean attribute */
-      onoff_attribute(azSet->name, azSet->name, azSet->var?azSet->var:azSet->name, (azSet->def[0]=='1')?1:0);
-      @ <hr />
+  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    if( pSet->width==0 ){
+      onoff_attribute(pSet->name, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name,
+                      pSet->def[0]=='1');
+      @ <br />
     }
   }
-  for (azSet=ctrlSettings;azSet->name;azSet++) {
-    if (azSet->width!=0) {
-      entry_attribute(azSet->name, azSet->width, azSet->name, azSet->var?azSet->var:azSet->name, (char*)azSet->def);
-      @ <hr />
+  @ </td><td width="30"></td><td valign="top">
+  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    if( pSet->width!=0 ){
+      entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name,
+                      (char*)pSet->def);
+      @ <br />
     }
   }
+  @ </tr></table>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
-  @ <hr />
-  @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br>
-  @ <pre>%s(zHelp_setting_cmd)</pre>
   @ </div></form>
+  @ <hr /><p>
+  @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br>
+  @ <pre>%s(zHelp_setting_cmd)</pre></p>
   db_end_transaction(0);
   style_footer();
 }
