@@ -821,12 +821,12 @@ void annotation_page(void){
 }
 
 /*
-** COMMAND: annotate
+** COMMAND: annotated
 **
-** %fossil annotate FILENAME
+** %fossil annotated FILENAME
 **
-** Output the text of a file with markings to show when each line of
-** the file was last modified.
+** Output annotated text of a file showing when each line of the file
+** was last modified.
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */
