@@ -357,6 +357,7 @@ const char zDefaultCSS[] =
 @   margin: .2em 0 .2em 0;
 @   float: left;
 @   clear: left;
+@   white-space: nowrap;
 @ }
 @
 @ /* The footer at the very bottom of the page */
@@ -522,8 +523,9 @@ const struct strctCssDefaults {
     "format for the layout table, used for the captcha display",
     @   margin: auto;
     @   padding: 10px;
-    @   outline-width: 1;
-    @   outline-style: double;
+    @   border-width: 1;
+    @   border-style: double;
+    @   bordor-color: black;
   },
   { "td.login_out_label",
     "format for the label cells in the login/out table",
