@@ -293,17 +293,25 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
 
 /*
 ** COMMAND:  test-canonical-name
+** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.
+** Also test Fossil's ability to measure attributes of a file.
 */
 void cmd_test_canonical_name(void){
   int i;
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    file_canonical_name(g.argv[i], &x);
+    const char *zName = g.argv[i];
+    file_canonical_name(zName, &x);
     printf("%s\n", blob_buffer(&x));
     blob_reset(&x);
+    printf("  file_size   = %lld\n", file_size(zName));
+    printf("  file_mtime  = %lld\n", file_mtime(zName));
+    printf("  file_isfile = %d\n", file_isfile(zName));
+    printf("  file_isexe  = %d\n", file_isexe(zName));
+    printf("  file_isdir  = %d\n", file_isdir(zName));
   }
 }
 
