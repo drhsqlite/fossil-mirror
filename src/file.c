@@ -25,8 +25,16 @@
 
 /*
 ** The file status information from the most recent stat() call.
+**
+** Use _stati64 rather than stat on windows, in order to handle files
+** larger than 2GB.
 */
-static struct stat fileStat;
+#if defined(_WIN32) && defined(__MSVCRT__)
+  static struct _stati64 fileStat;
+# define stat _stati64
+#else
+  static struct stat fileStat;
+#endif
 static int fileStatValid = 0;
 
 /*
