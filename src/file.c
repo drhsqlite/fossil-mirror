@@ -25,8 +25,16 @@
 
 /*
 ** The file status information from the most recent stat() call.
+**
+** Use _stati64 rather than stat on windows, in order to handle files
+** larger than 2GB.
 */
-static struct stat fileStat;
+#if defined(_WIN32) && defined(__MSVCRT__)
+  static struct _stati64 fileStat;
+# define stat _stati64
+#else
+  static struct stat fileStat;
+#endif
 static int fileStatValid = 0;
 
 /*
@@ -293,17 +301,25 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
 
 /*
 ** COMMAND:  test-canonical-name
+** Usage: %fossil test-canonical-name FILENAME...
 **
 ** Test the operation of the canonical name generator.
+** Also test Fossil's ability to measure attributes of a file.
 */
 void cmd_test_canonical_name(void){
   int i;
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    file_canonical_name(g.argv[i], &x);
+    const char *zName = g.argv[i];
+    file_canonical_name(zName, &x);
     printf("%s\n", blob_buffer(&x));
     blob_reset(&x);
+    printf("  file_size   = %lld\n", file_size(zName));
+    printf("  file_mtime  = %lld\n", file_mtime(zName));
+    printf("  file_isfile = %d\n", file_isfile(zName));
+    printf("  file_isexe  = %d\n", file_isexe(zName));
+    printf("  file_isdir  = %d\n", file_isdir(zName));
   }
 }
 

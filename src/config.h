@@ -18,6 +18,16 @@
 ** A common header file used by all modules.
 */
 
+/* The following macros are necessary for large-file support under
+** some linux distributions, and possibly other unixes as well.
+*/
+#define _LARGE_FILE       1
+#ifndef _FILE_OFFSET_BITS
+#  define _FILE_OFFSET_BITS 64
+#endif
+#define _LARGEFILE_SOURCE 1
+
+
 /*
 ** System header files used by all modules
 */

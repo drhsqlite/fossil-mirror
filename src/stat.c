@@ -28,8 +28,8 @@
 ** Show statistics and global information about the repository.
 */
 void stat_page(void){
-  i64 t;
-  int n, m, fsize;
+  i64 t, fsize;
+  int n, m;
   int szMax, szAvg;
   char zBuf[100];
 
@@ -39,7 +39,8 @@ void stat_page(void){
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
-  @ %d(fsize) bytes
+  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", fsize);
+  @ %s(zBuf) bytes
   @ </td></tr>
   @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
   n = db_int(0, "SELECT count(*) FROM blob");
