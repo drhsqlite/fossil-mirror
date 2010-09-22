@@ -270,7 +270,7 @@ void nop_cmd(void){
                "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
         fossil_fatal("not in the repository: %s", zName);
       }else{
-        db_multi_exec("UPDATE vfile SET deleted=0, changed=0 WHERE pathname=%Q", zPath);
+        db_multi_exec("UPDATE vfile SET deleted=0, chnged=0 WHERE pathname=%Q", zPath);
         printf("NOP        %s\n", zPath);
       }
       blob_reset(&pathname);
