@@ -126,6 +126,13 @@ void add_directory(const char *zDir, int vid, Blob *pOmit){
   db_multi_exec("DELETE FROM sfile");
 }
 
+
+
+
+
+
+
+
 /*
 ** COMMAND: add
 **
@@ -225,6 +232,52 @@ void del_directory_content(const char *zDir){
   }
   closedir(d);
   blob_reset(&path);
+}
+
+/*
+** COMMAND: nop
+**
+** Usage: %fossil nop FILE...
+**
+** Do nothing to one or more files from the tree.
+**
+** This command does not remove the files from disk.  It just marks the
+** files as no longer being part of the project.  In other words, future
+** changes to the named files will not be versioned.
+*/
+void nop_cmd(void){
+  int i;
+  int vid;
+
+  db_must_be_within_tree();
+  vid = db_lget_int("checkout", 0);
+  if( vid==0 ){
+    fossil_panic("no checkout to remove from");
+  }
+  db_begin_transaction();
+  for(i=2; i<g.argc; i++){
+    char *zName;
+
+    zName = mprintf("%/", g.argv[i]);
+    if( file_isdir(zName) == 1 ){
+      del_directory_content(zName);
+    } else {
+      char *zPath;
+      Blob pathname;
+      file_tree_name(zName, &pathname, 1);
+      zPath = blob_str(&pathname);
+      if( !db_exists(
+               "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
+        fossil_fatal("not in the repository: %s", zName);
+      }else{
+        db_multi_exec("UPDATE vfile SET deleted=0, changed=0 WHERE pathname=%Q", zPath);
+        printf("NOP        %s\n", zPath);
+      }
+      blob_reset(&pathname);
+    }
+    free(zName);
+  }
+  db_end_transaction(0);
 }
 
 /*
