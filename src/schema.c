@@ -417,6 +417,7 @@ const char zLocalSchema[] =
 @ CREATE TABLE vfile(
 @   id INTEGER PRIMARY KEY,           -- ID of the checked out file
 @   vid INTEGER REFERENCES blob,      -- The baseline this file is part of.
+@   nop BOOLEAN DEFAULT 0,            -- True if no operation to be performed. User toggled.
 @   chnged INT DEFAULT 0,             -- 0:unchnged 1:edited 2:m-chng 3:m-add
 @   deleted BOOLEAN DEFAULT 0,        -- True if deleted 
 @   isexe BOOLEAN,                    -- True if file should be executable
