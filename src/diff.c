@@ -826,7 +826,7 @@ void annotation_page(void){
 ** %fossil annotate FILENAME
 **
 ** Output the text of a file with markings to show when each line of
-** the file was introduced.
+** the file was last modified.
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */

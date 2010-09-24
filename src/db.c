@@ -1495,6 +1495,44 @@ static void print_setting(const char *zName){
 
 
 /*
+** define all settings, which can be controlled via the set/unset
+** command. var is the name of the internal configuration name for db_(un)set.
+** If var is 0, the settings name is used.
+** width is the length for the edit field on the behavior page, 0
+** is used for on/off checkboxes.
+** The behaviour page doesn't use a special layout. It lists all
+** set-commands and displays the 'set'-help as info.
+*/
+#if INTERFACE
+struct stControlSettings {
+  char const *name;     /* Name of the setting */
+  char const *var;      /* Internal variable name used by db_set() */
+  int width;            /* Width of display.  0 for boolean values */
+  char const *def;      /* Default value */
+};
+#endif /* INTERFACE */
+struct stControlSettings const ctrlSettings[] = {
+  { "auto-captcha",  "autocaptcha",    0, "0"                   },
+  { "auto-shun",     0,                0, "1"                   },
+  { "autosync",      0,                0, "0"                   },
+  { "binary-glob",   0,                0, "1"                   },
+  { "clearsign",     0,                0, "0"                   },
+  { "diff-command",  0,               16, "diff"                },
+  { "dont-push",     0,                0, "0"                   },
+  { "editor",        0,               16, ""                    },
+  { "gdiff-command", 0,               16, "gdiff"               },
+  { "ignore-glob",   0,               40, ""                    },
+  { "http-port",     0,               16, "8080"                },
+  { "localauth",     0,                0, "0"                   },
+  { "mtime-changes", 0,                0, "0"                   },
+  { "pgp-command",   0,               32, "gpg --clearsign -o " },
+  { "proxy",         0,               32, "off"                 },
+  { "ssh-command",   0,               32, ""                    },
+  { "web-browser",   0,               32, ""                    },
+  { 0,0,0,0 }
+};
+
+/*
 ** COMMAND: settings
 ** COMMAND: unset
 ** %fossil settings ?PROPERTY? ?VALUE? ?-global?
@@ -1569,25 +1607,6 @@ static void print_setting(const char *zName){
 **                     and "firefox" on Unix.
 */
 void setting_cmd(void){
-  static const char *azName[] = {
-    "auto-captcha",
-    "auto-shun",
-    "autosync",
-    "binary-glob",
-    "clearsign",
-    "diff-command",
-    "dont-push",
-    "editor",
-    "gdiff-command",
-    "ignore-glob",
-    "http-port",
-    "localauth",
-    "mtime-changes",
-    "pgp-command",
-    "proxy",
-    "ssh-command",
-    "web-browser",
-  };
   int i;
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
@@ -1600,24 +1619,24 @@ void setting_cmd(void){
     usage("PROPERTY ?-global?");
   }
   if( g.argc==2 ){
-    for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
-      print_setting(azName[i]);
+    for(i=0; ctrlSettings[i].name; i++){
+      print_setting(ctrlSettings[i].name);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
     int n = strlen(zName);
-    for(i=0; i<sizeof(azName)/sizeof(azName[0]); i++){
-      if( strncmp(azName[i], zName, n)==0 ) break;
+    for(i=0; ctrlSettings[i].name; i++){
+      if( strncmp(ctrlSettings[i].name, zName, n)==0 ) break;
     }
-    if( i>=sizeof(azName)/sizeof(azName[0]) ){
+    if( !ctrlSettings[i].name ){
       fossil_fatal("no such setting: %s", zName);
     }
     if( unsetFlag ){
-      db_unset(azName[i], globalFlag);
+      db_unset(ctrlSettings[i].name, globalFlag);
     }else if( g.argc==4 ){
-      db_set(azName[i], g.argv[3], globalFlag);
+      db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
     }else{
-      print_setting(azName[i]);
+      print_setting(ctrlSettings[i].name);
     }
   }else{
     usage("?PROPERTY? ?VALUE?");

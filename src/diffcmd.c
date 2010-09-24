@@ -244,8 +244,6 @@ static void diff_all_against_disk(
       printf("MISSING  %s\n", zPathname);
     }else if( isNew ){
       printf("ADDED    %s\n", zPathname);
-    }else if( isDeleted ){
-      printf("DELETED  %s\n", zPathname);
     }else if( isChnged==3 ){
       printf("ADDED_BY_MERGE %s\n", zPathname);
     }else{
