@@ -832,7 +832,7 @@ void setup_skin(void){
     if( strcmp(zV, zCurrent)==0 ){
       @ <li><p>%h(zN).&nbsp;&nbsp;  <b>Currently In Use</b></p>
     }else{
-      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="POST">
+      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="post">
       @ %h(zN).&nbsp;&nbsp; 
       @ <input type="hidden" name="sn" value="%h(zN)">
       @ <input type="submit" name="load" value="Use This Skin">

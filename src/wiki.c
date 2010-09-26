@@ -535,18 +535,18 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="POST" action="%s(g.zBaseURL)/wikiappend">
+  @ <form method="post" action="%s(g.zBaseURL)/wikiappend">
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ Your Name:
-  @ <input type="text" name="u" size="20" value="%h(zUser)"><br />
+  @ <input type="text" name="u" size="20" value="%h(zUser)" /><br />
   @ Comment to append:<br />
   @ <textarea name="r" class="wikiedit" cols="80" 
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
   @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Comment">
-  @ <input type="submit" name="submit" value="Append Your Changes">
-  @ <input type="submit" name="cancel" value="Cancel">
+  @ <input type="submit" name="preview" value="Preview Your Comment" />
+  @ <input type="submit" name="submit" value="Append Your Changes" />
+  @ <input type="submit" name="cancel" value="Cancel" />
   @ </form>
   style_footer();
 }

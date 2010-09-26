@@ -651,6 +651,22 @@ const struct strctCssDefaults {
     @   color: red;
     @   font-weight: bold;
   },
+  { "table.rpteditex",
+    "format for example tables on the report edit page",
+    @   float: right;
+    @   margin: 0;
+    @   padding: 0;
+    @   width: 125px;
+    @   text-align: center;
+    @   border-collapse: collapse;
+    @   border-spacing: 0;
+  },
+  { "td.rpteditex",
+    "format for example table cells on the report edit page",
+    @   border-width: thin;
+    @   border-color: #000000;
+    @   border-style: solid;
+  },
   { "input.checkinUserColor",
     "format for user color input on checkin edit page",
     @ # no special definitions, class defined, to enable color pickers, f.e.:
