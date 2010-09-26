@@ -1518,7 +1518,8 @@ void ci_edit_page(void){
       @ <td>
     }
     if( strcmp(zNewColor, aColor[i].zColor)==0 ){
-      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)" checked="checked" />
+      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)"
+      @  checked="checked" />
       stdClrFound=1;
     }else{
       @ <input type="radio" name="clr" value="%h(aColor[i].zColor)" />
@@ -1528,11 +1529,18 @@ void ci_edit_page(void){
       @ </tr><tr>
     }
   }
-  @ </tr><tr><td>
-  @ <input type="radio" name="clr" value="%h(aColor[nColor].zColor)" %h(stdClrFound?"":"checked=\"checked\"") />
-  @ %h(aColor[i].zCName)</td>
-  @ <td colspan="5">
-  @ &nbsp;<input type="text" name="clrcust" value="%h(stdClrFound?"":zNewColor)" />
+  @ </tr><tr>
+  if (stdClrFound){
+    @ <td colspan="6">
+    @ <input type="radio" name="clr" value="%h(aColor[nColor].zColor)" />
+  }else{
+    @ <td style="background-color: %h(zNewColor);" colspan="6">
+    @ <input type="radio" name="clr" value="%h(aColor[nColor].zColor)"
+    @  checked="checked" />
+  }
+  @ %h(aColor[i].zCName)&nbsp;
+  @ <input type="text" name="clrcust" id="clrcust" class="checkinUserColor"
+  @  value="%h(stdClrFound?"":zNewColor)" />
   @ </td>
   @ </tr>
   @ </table>

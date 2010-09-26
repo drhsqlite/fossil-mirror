@@ -651,6 +651,16 @@ const struct strctCssDefaults {
     @   color: red;
     @   font-weight: bold;
   },
+  { "input.checkinUserColor",
+    "format for user color input on checkin edit page",
+    @ # no special definitions, class defined, to enable color pickers, f.e.:
+    @ #  add the color picker found at http:jscolor.com  as java script include
+    @ #  to the header and configure the java script file with
+    @ #   1. use as bindClass :checkinUserColor
+    @ #   2. change the default hash adding behaviour to ON
+    @ #  or change the class defition of element identified by id="clrcust"
+    @ #  to a standard jscolor definition with java script in the footer.
+  },
   { 0,
     0,
     0
