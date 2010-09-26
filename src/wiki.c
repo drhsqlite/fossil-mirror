@@ -87,8 +87,8 @@ void home_page(void){
     cgi_redirectf("%s/login?g=%s/home", g.zBaseURL, g.zBaseURL);
   }
   if( zIndexPage ){
-    while( zIndexPage[0]=='/' ) zIndexPage++;
-    if( strcmp(zIndexPage, P("PATH_INFO"))==0 ) zIndexPage = 0;
+    const char *zPathInfo = P("PATH_INFO");
+    if( strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
     cgi_redirectf("%s/%s", g.zBaseURL, zIndexPage);

@@ -940,6 +940,11 @@ void setup_config(void){
   @ <p>The default "/home" page displays a Wiki page with the same name
   @ as the Project Name specified above.  Some sites prefer to redirect
   @ to a documentation page (ex: "/doc/tip/index.wiki") or to "/timeline".</p>
+  @
+  @ <p>Note:  To avoid a redirect loop or other problems, this entry must
+  @ begin with "/" and it must specify a valid page.  For example,
+  @ "<b>/home</b>" will work but "<b>home</b>" will not, since it omits the
+  @ leading "/".</p>
   @ <hr />
   onoff_attribute("Use HTML as wiki markup language",
     "wiki-use-html", "wiki-use-html", 0);
