@@ -381,7 +381,6 @@ static int wikiUsesHtml(void){
   return r;
 }
 
-
 /*
 ** z points to a "<" character.  Check to see if this is the start of
 ** a valid markup.  If it is, return the total number of characters in
@@ -395,11 +394,13 @@ static int markupLength(const char *z){
   if( z[n]=='/' ){ n++; }
   if( !isalpha(z[n]) ) return 0;
   while( isalnum(z[n]) ){ n++; }
-  if( (c = z[n])!='>' && !isspace(c) ) return 0;
+  c = z[n];
+  if( c=='/' && z[n+1]=='>' ){ return n+2; }
+  if( c!='>' && !isspace(c) ) return 0;
   while( (c = z[n])!=0 && (c!='>' || inparen) ){
     if( c==inparen ){
       inparen = 0;
-    }else if( c=='"' || c=='\'' ){
+    }else if( inparen==0 && (c=='"' || c=='\'') ){
       inparen = c;
     }
     n++;
