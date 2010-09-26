@@ -1308,8 +1308,10 @@ void ci_edit_page(void){
      { "#ffc0d0", "#ffc0d0" },
      { "#fff0c0", "#fff0c0" },
      { "#c0c0c0", "#c0c0c0" },
+     { "custom",  "##"      },
   };
-  int nColor = sizeof(aColor)/sizeof(aColor[0]);
+  int nColor = sizeof(aColor)/sizeof(aColor[0])-1;
+  int stdClrFound;
   int i;
   
   login_check_credentials();
@@ -1334,6 +1336,8 @@ void ci_edit_page(void){
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PD("clr",zColor);
+  if (strcmp(zNewColor,aColor[nColor].zColor)==0)
+    zNewColor = P("clrcust");
   fPropagateColor = P("pclr")!=0;
   zNewTagFlag = P("newtag") ? " checked" : "";
   zNewTag = PD("tagname","");
@@ -1476,14 +1480,14 @@ void ci_edit_page(void){
   }
   @ <p>Make changes to attributes of check-in
   @ [<a href="ci?name=%s(zUuid)">%s(zUuid)</a>]:</p>
-  @ <form action="%s(g.zBaseURL)/ci_edit" method="POST">
+  @ <form action="%s(g.zBaseURL)/ci_edit" method="post"><div>
   login_insert_csrf_secret();
-  @ <input type="hidden" name="r" value="%S(zUuid)">
+  @ <input type="hidden" name="r" value="%S(zUuid)" />
   @ <table border="0" cellspacing="10">
 
   @ <tr><td align="right" valign="top"><b>User:</b></td>
   @ <td valign="top">
-  @   <input type="text" name="u" size="20" value="%h(zNewUser)">
+  @   <input type="text" name="u" size="20" value="%h(zNewUser)" />
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Comment:</b></td>
@@ -1493,45 +1497,52 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Check-in Time:</b></td>
   @ <td valign="top">
-  @   <input type="text" name="dt" size="20" value="%h(zNewDate)">
+  @   <input type="text" name="dt" size="20" value="%h(zNewDate)" />
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
   @ <td valign="top">
-  @ <table border=0 cellpadding=0 cellspacing=1>
+  @ <table border="0" cellpadding="0" cellspacing="1">
   @ <tr><td colspan="6" align="left">
   if( fPropagateColor ){
-    @ <input type="checkbox" name="pclr" checked>
+    @ <input type="checkbox" name="pclr" checked="checked" />
   }else{
-    @ <input type="checkbox" name="pclr">
+    @ <input type="checkbox" name="pclr" />
   }
-  @ Propagate color to descendants</input></td></tr>
+  @ Propagate color to descendants</td></tr>
   @ <tr>
-  for(i=0; i<nColor; i++){
+  for(i=0,stdClrFound=0; i<nColor; i++){
     if( aColor[i].zColor[0] ){
       @ <td style="background-color: %h(aColor[i].zColor);">
     }else{
       @ <td>
     }
     if( strcmp(zNewColor, aColor[i].zColor)==0 ){
-      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)" checked>
+      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)" checked="checked" />
+      stdClrFound=1;
     }else{
-      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)">
+      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)" />
     }
-    @ %h(aColor[i].zCName)</input></td>
+    @ %h(aColor[i].zCName)</td>
     if( (i%6)==5 && i+1<nColor ){
       @ </tr><tr>
     }
   }
+  @ </tr><tr><td>
+  @ <input type="radio" name="clr" value="%h(aColor[nColor].zColor)" %h(stdClrFound?"":"checked=\"checked\"") />
+  @ %h(aColor[i].zCName)</td>
+  @ <td colspan="5">
+  @ &nbsp;<input type="text" name="clrcust" value="%h(stdClrFound?"":zNewColor)" />
+  @ </td>
   @ </tr>
   @ </table>
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
   @ <td valign="top">
-  @ <input type="checkbox" name="newtag"%s(zNewTagFlag)>
+  @ <input type="checkbox" name="newtag"%s(zNewTagFlag) />
   @ Add the following new tag name to this check-in:
-  @ <input type="text" width="15" name="tagname" value="%h(zNewTag)">
+  @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)" />
   db_prepare(&q,
      "SELECT tag.tagid, tagname FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
@@ -1545,9 +1556,9 @@ void ci_edit_page(void){
     char zLabel[30];
     sprintf(zLabel, "c%d", tagid);
     if( P(zLabel) ){
-      @ <br /><input type="checkbox" name="c%d(tagid)" checked>
+      @ <br /><input type="checkbox" name="c%d(tagid)" checked="checked" />
     }else{
-      @ <br /><input type="checkbox" name="c%d(tagid)">
+      @ <br /><input type="checkbox" name="c%d(tagid)" />
     }
     if( strncmp(zTagName, "sym-", 4)==0 ){
       @ Cancel tag <b>%h(&zTagName[4])</b>
@@ -1560,9 +1571,9 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Branching:</b></td>
   @ <td valign="top">
-  @ <input type="checkbox" name="newbr"%s(zNewBrFlag)>
+  @ <input type="checkbox" name="newbr"%s(zNewBrFlag) />
   @ Make this check-in the start of a new branch named:
-  @ <input type="text" width="15" name="brname" value="%h(zNewBranch)">
+  @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)" />
   @ </td></tr>
 
   if( is_a_leaf(rid)
@@ -1572,7 +1583,7 @@ void ci_edit_page(void){
   ){
     @ <tr><td align="right" valign="top"><b>Leaf Closure:</b></td>
     @ <td valign="top">
-    @ <input type="checkbox" name="close"%s(zCloseFlag)>
+    @ <input type="checkbox" name="close"%s(zCloseFlag) />
     @ Mark this leaf as "closed" so that it no longer appears on the
     @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".
     @ </td></tr>
@@ -1580,11 +1591,11 @@ void ci_edit_page(void){
 
 
   @ <tr><td colspan="2">
-  @ <input type="submit" name="preview" value="Preview">
-  @ <input type="submit" name="apply" value="Apply Changes">
-  @ <input type="submit" name="cancel" value="Cancel">
+  @ <input type="submit" name="preview" value="Preview" />
+  @ <input type="submit" name="apply" value="Apply Changes" />
+  @ <input type="submit" name="cancel" value="Cancel" />
   @ </td></tr>
   @ </table>
-  @ </form>
+  @ </div></form>
   style_footer();
 }
