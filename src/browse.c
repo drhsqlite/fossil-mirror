@@ -108,6 +108,7 @@ void page_dir(void){
   Stmt q;
   const char *zCI = P("ci");
   int rid = 0;
+  char *zUuid = 0;
   Blob content;
   Blob dirname;
   Manifest m;
@@ -128,6 +129,13 @@ void page_dir(void){
       zCI = 0;
     }
   }
+  /* check existing checkin */
+  if (zCI){
+    zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    if (!zUuid){
+      zCI = 0;
+    }
+  }
 
   /* Compute the title of the page */  
   blob_zero(&dirname);
@@ -140,9 +148,8 @@ void page_dir(void){
     zPrefix = "";
   }
   if( zCI ){
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     char zShort[20];
-    memcpy(zShort, zUuid, 10);
+    memcpy(zShort, zUuid, 1);
     zShort[10] = 0;
     @ <h2>Files of check-in [<a href="vinfo?name=%T(zUuid)">%s(zShort)</a>]
     @ %s(blob_str(&dirname))</h2>
