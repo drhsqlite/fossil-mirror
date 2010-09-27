@@ -61,6 +61,8 @@ struct Global {
   const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
+  char *zManifestFN;      /* The name of the manifest file in checkouts */
+  char *zManifestUuidFN;  /* The name of the manifest.uuid file in checkouts */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
   int fSqlTrace;          /* True if -sqltrace flag is present */
   int fSqlPrint;          /* True if -sqlprint flag is present */

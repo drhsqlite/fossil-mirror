@@ -38,7 +38,7 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
 
   file_tree_name(zName, &pathname, 1);
   zPath = blob_str(&pathname);
-  if( strcmp(zPath, "manifest")==0
+  if( strcmp(zPath, db_manifestName())==0
    || strcmp(zPath, "_FOSSIL_")==0
    || strcmp(zPath, "_FOSSIL_-journal")==0
    || strcmp(zPath, "_FOSSIL_-wal")==0
@@ -47,7 +47,7 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
    || strcmp(zPath, ".fos-journal")==0
    || strcmp(zPath, ".fos-wal")==0
    || strcmp(zPath, ".fos-shm")==0
-   || strcmp(zPath, "manifest.uuid")==0
+   || strcmp(zPath, db_manifestUuidName())==0
    || blob_compare(&pathname, pOmit)==0
   ){
     fossil_warning("cannot add %s", zPath);

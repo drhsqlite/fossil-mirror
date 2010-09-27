@@ -112,13 +112,13 @@ void manifest_to_disk(int vid){
   Manifest m;
 
   blob_zero(&manifest);
-  zManFile = mprintf("%smanifest", g.zLocalRoot);
+  zManFile = mprintf("%s%s", g.zLocalRoot, db_manifestName());
   content_get(vid, &manifest);
   blob_write_to_file(&manifest, zManFile);
   free(zManFile);
   blob_zero(&hash);
   sha1sum_blob(&manifest, &hash);
-  zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+  zManFile = mprintf("%s%s", g.zLocalRoot,db_manifestUuidName());
   blob_append(&hash, "\n", 1);
   blob_write_to_file(&hash, zManFile);
   free(zManFile);

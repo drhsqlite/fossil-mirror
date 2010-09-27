@@ -846,7 +846,7 @@ void commit_cmd(void){
   blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&manifest, &mcksum);
   blob_appendf(&manifest, "Z %b\n", &mcksum);
-  zManifestFile = mprintf("%smanifest", g.zLocalRoot);
+  zManifestFile = mprintf("%s%s", g.zLocalRoot, db_manifestName());
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
     Blob ans;
     blob_zero(&ans);
@@ -868,7 +868,7 @@ void commit_cmd(void){
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);
-  zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+  zManifestFile = mprintf("%s%s", g.zLocalRoot, db_manifestUuidName());
   blob_zero(&muuid);
   blob_appendf(&muuid, "%s\n", zUuid);
   blob_write_to_file(&muuid, zManifestFile);

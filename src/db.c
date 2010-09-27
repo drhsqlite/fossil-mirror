@@ -52,6 +52,48 @@ struct Stmt {
 #endif /* INTERFACE */
 
 /*
+** Get the configured name for the manifest file
+*/
+const char* db_manifestName(void){
+  static char zManifestFNDefault[] = "manifest";
+
+  if (!g.zManifestFN){
+    char *zManifestFNPara;
+
+    zManifestFNPara = db_get("manifest",zManifestFNDefault);
+    if (!zManifestFNPara || !*zManifestFNPara){
+      zManifestFNPara = zManifestFNDefault;
+    }
+    g.zManifestFN = mprintf("%s",db_get("manifest",zManifestFNPara));
+  }
+  return (g.zManifestFN);
+}
+
+/*
+** Get the configured name for the manifest.uuid file
+*/
+const char* db_manifestUuidName(void){
+  if (!g.zManifestUuidFN){
+    g.zManifestUuidFN = mprintf("%s.uuid",db_manifestName());
+  }
+  return (g.zManifestUuidFN);
+}
+
+/*
+** clear manifest filename caches
+*/
+void db_FreeManifestNames(void){
+  if (g.zManifestFN){
+    free(g.zManifestFN);
+    g.zManifestFN = 0;
+  }
+  if (g.zManifestUuidFN){
+    free(g.zManifestUuidFN);
+    g.zManifestUuidFN = 0;
+  }
+}
+
+/*
 ** Call this routine when a database error occurs.
 */
 static void db_err(const char *zFormat, ...){
@@ -785,6 +827,8 @@ int db_open_local(void){
           zPwd[n] = 0;
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
+        g.zManifestFN = 0;
+        g.zManifestUuidFN = 0;
         return 1;
       }
     }
@@ -1524,6 +1568,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "ignore-glob",   0,               40, ""                    },
   { "http-port",     0,               16, "8080"                },
   { "localauth",     0,                0, "0"                   },
+  { "manifest",      0,               32, ""                    },
   { "mtime-changes", 0,                0, "0"                   },
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
@@ -1587,6 +1632,8 @@ struct stControlSettings const ctrlSettings[] = {
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
 **
+**    manifest         name of manifest file, standard is manifest
+**
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
 **
@@ -1641,4 +1688,5 @@ void setting_cmd(void){
   }else{
     usage("?PROPERTY? ?VALUE?");
   }
+  db_FreeManifestNames();
 }
