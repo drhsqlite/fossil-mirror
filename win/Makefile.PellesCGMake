@@ -64,7 +64,7 @@ ZLIBOBJ=$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
 APPLICATION=fossil.exe
 
 .PHONY:	default
-default:	headers $(APPLICATION)
+default:	page_index.h headers $(APPLICATION)
 
 $(UTILS):	%.exe:	%.obj
 	$(LINK) $(LINKFLAGS) -out:"$@" $<
