@@ -884,7 +884,7 @@ void setup_settings(void){
       @ <br />
     }
   }
-  @ </td><td width="30"></td><td valign="top">
+  @ </td><td style="width: 30;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
     if( pSet->width!=0 ){
       entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
@@ -893,12 +893,12 @@ void setup_settings(void){
       @ <br />
     }
   }
-  @ </tr></table>
+  @ </td></tr></table>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   @ <hr /><p>
-  @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br>
-  @ <pre>%s(zHelp_setting_cmd)</pre></p>
+  @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br />
+  @ </p><pre>%s(zHelp_setting_cmd)</pre>
   db_end_transaction(0);
   style_footer();
 }
