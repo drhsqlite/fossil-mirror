@@ -149,7 +149,7 @@ void page_dir(void){
   }
   if( zCI ){
     char zShort[20];
-    memcpy(zShort, zUuid, 1);
+    memcpy(zShort, zUuid, 10);
     zShort[10] = 0;
     @ <h2>Files of check-in [<a href="vinfo?name=%T(zUuid)">%s(zShort)</a>]
     @ %s(blob_str(&dirname))</h2>
