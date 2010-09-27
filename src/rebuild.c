@@ -464,3 +464,91 @@ void reconstruct_cmd(void) {
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
 }
+
+/*
+** COMMAND: deconstruct
+**
+** Usage %fossil deconstruct ?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION
+**
+** This command exports all artifacts of o given repository and
+** writes all artifacts to the file system. The DESTINATION directory
+** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
+** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
+** Ivf -L|--prefixlength is given, the length (default 2) of the directory
+** prefix can be set to 0,1,..,9 characters.
+*/
+void deconstruct_cmd(void){
+  const char *zDestDir;
+  const char *zPrefixOpt;
+  int         prefixLength;
+  char       *zAFileOutFormat;
+  Stmt        q;
+
+  /* check number of arguments */
+  if( (g.argc != 3) && (g.argc != 5)  && (g.argc != 7)){
+    usage ("?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION");
+  }
+  /* get and check argument destination directory */
+  zDestDir = g.argv[g.argc-1];
+  if( !*zDestDir  || !file_isdir(zDestDir)) {
+    fossil_panic("DESTINATION(%s) is not a directory!",zDestDir);
+  }
+  /* get and check prefix length argument and build format string */
+  zPrefixOpt=find_option("prefixlength","L",1);
+  if (!zPrefixOpt){
+    prefixLength = 2;
+  }else{
+    switch(*zPrefixOpt){
+      case '0': prefixLength = 0;break;
+      case '1': prefixLength = 1;break;
+      case '2': prefixLength = 2;break;
+      case '3': prefixLength = 3;break;
+      case '4': prefixLength = 4;break;
+      case '5': prefixLength = 5;break;
+      case '6': prefixLength = 6;break;
+      case '7': prefixLength = 7;break;
+      case '8': prefixLength = 8;break;
+      case '9': prefixLength = 9;break;
+      default:  fossil_panic("N(%s) is not a a valid prefix length!",zPrefixOpt);
+    }
+  }
+  zAFileOutFormat = mprintf("%%s/%%.%ds/%%s",prefixLength);
+#ifndef _WIN32
+  if( access(zDestDir, W_OK) ){
+    fossil_panic("DESTINATION(%s) is not writeable!",zDestDir);
+  }
+#else
+  /* write access on windows is not checked, errors will be
+  ** dected on blob_write_to_file
+  */
+#endif
+  /* open repository and open query for all artifacts */
+  db_find_and_open_repository(1);
+  db_prepare(&q, "SELECT rid,uuid FROM blob");
+  /* loop over artifacts and write them to single files */
+  while( db_step(&q)==SQLITE_ROW ){
+    int         aRid;
+    const char *zAUuid;
+    char       *zAFName;
+    Blob        zACont;
+
+    /* get data from query */
+    aRid   = db_column_int (&q, 0);
+    zAUuid = db_column_text(&q, 1);
+
+    /* construct output filename */
+    zAFName = mprintf(zAFileOutFormat, zDestDir, zAUuid, zAUuid + prefixLength);
+
+    /* read artifact contents from db and write to file */
+    content_get(aRid,&zACont);
+    blob_write_to_file(&zACont,zAFName);
+    blob_reset(&zACont);
+
+    /* free artifact filename string */
+    free(zAFName);
+  }
+  /* close query statement */
+  db_finalize(&q);
+  /* free filename format string */
+  free(zAFileOutFormat);
+}
