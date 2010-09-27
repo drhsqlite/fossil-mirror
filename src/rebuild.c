@@ -474,7 +474,7 @@ void reconstruct_cmd(void) {
 ** writes all artifacts to the file system. The DESTINATION directory
 ** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
 ** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
-** Ivf -L|--prefixlength is given, the length (default 2) of the directory
+** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
 */
 void deconstruct_cmd(void){
@@ -512,7 +512,11 @@ void deconstruct_cmd(void){
       default:  fossil_panic("N(%s) is not a a valid prefix length!",zPrefixOpt);
     }
   }
-  zAFileOutFormat = mprintf("%%s/%%.%ds/%%s",prefixLength);
+  if (prefixLength){
+    zAFileOutFormat = mprintf("%%s/%%.%ds/%%s",prefixLength);
+  }else{
+    zAFileOutFormat = mprintf("%%s/%%s");
+  }
 #ifndef _WIN32
   if( access(zDestDir, W_OK) ){
     fossil_panic("DESTINATION(%s) is not writeable!",zDestDir);
