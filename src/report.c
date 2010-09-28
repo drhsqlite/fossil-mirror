@@ -399,7 +399,7 @@ void view_edit(void){
   }
   style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
-    @ <blockquote><font color="#ff0000"><b>%h(zErr)</b></font></blockquote>
+    @ <blockquote class="reportError">%h(zErr)</blockquote>
   }
   @ <form action="rptedit" method="post"><div>
   @ <input type="hidden" name="rn" value="%d(rn)" />
@@ -932,9 +932,9 @@ void rptview_page(void){
     sqlite3_set_authorizer(g.db, 0, 0);
     @ </table>
     if( zErr1 ){
-      @ <p><font color="red"><b>Error: %h(zErr1)</b></font></p>
+      @ <p class="reportError">Error: %h(zErr1)</p>
     }else if( zErr2 ){
-      @ <p><font color="red"><b>Error: %h(zErr2)</b></font></p>
+      @ <p class="reportError">Error: %h(zErr2)</p>
     }
     style_footer();
   }else{

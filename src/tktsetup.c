@@ -125,7 +125,7 @@ static void tktsetup_generic(
     char *zErr = 0;
     login_verify_csrf_secret();
     if( xText && (zErr = xText(z))!=0 ){
-      @ <p><font color="red"><b>ERROR: %h(zErr)</b></font></p>
+      @ <p class="tktsetupError"><b>ERROR: %h(zErr)</b></p>
     }else{
       db_set(zDbField, z, 0);
       if( xRebuild ) xRebuild();

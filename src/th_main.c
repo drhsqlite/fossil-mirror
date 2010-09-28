@@ -506,10 +506,10 @@ int Th_Render(const char *z){
     }
   }
   if( rc==TH_ERROR ){
-    sendText("<hr><p><font color=\"red\"><b>ERROR: ", -1, 0);
+    sendText("<hr><p class=\"thmainError\">ERROR: ", -1, 0);
     zResult = (char*)Th_GetResult(g.interp, &n);
     sendText((char*)zResult, n, 1);
-    sendText("</b></font></p>", -1, 0);
+    sendText("</p>", -1, 0);
   }else{
     sendText(z, i, 0);
   }

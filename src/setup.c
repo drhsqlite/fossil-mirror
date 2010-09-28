@@ -509,10 +509,10 @@ void user_edit(void){
   @ <h2>Privileges And Capabilities:</h2>
   @ <ul>
   if( higherUser ){
-    @ <li><p><font color="blue"><b>
+    @ <li><p class=missingPriv">
     @ User %h(zLogin) has Setup privileges and you only have Admin privileges
     @ so you are not permitted to make changes to %h(zLogin).
-    @ </b></font></p></li>
+    @ </p></li>
     @
   }
   @ <li><p>

@@ -161,9 +161,9 @@ void style_footer(void){
   
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
-    cgi_append_content("<font color=\"red\"><hr />\n", -1);
+    cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
-    cgi_append_content("</font>\n", -1);
+    cgi_append_content("</span>\n", -1);
   }
 }
 
@@ -533,9 +533,9 @@ const struct strctCssDefaults {
     "format for the layout table, used for the captcha display",
     @   margin: auto;
     @   padding: 10px;
-    @   border-width: 1;
+    @   border-width: 4px;
     @   border-style: double;
-    @   bordor-color: black;
+    @   border-color: black;
   },
   { "td.login_out_label",
     "format for the label cells in the login/out table",
@@ -642,6 +642,10 @@ const struct strctCssDefaults {
     "trailing text for user types, mentioned on the user edit page",
     @   content:"'";
   },
+  { "p.missingPriv",
+    "format for missing priviliges note on user setup page",
+    @  color: blue;
+  },
   { "span.wikiruleHead",
     "format for leading text in wikirules definitions",
     @   font-weight: bold;
@@ -690,6 +694,42 @@ const struct strctCssDefaults {
   { "div.endContent",
     "format for end of content area, to be used to clear page flow(sidebox on branch,..",
     @   clear: both;
+  },
+  { "p.generalError",
+    "format for general errors",
+    @   color: red;
+  },
+  { "p.tktsetupError",
+    "format for tktsetup errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "p.thmainError",
+    "format for th script errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "span.thTrace",
+    "format for th script trace messages",
+    @   color: red;
+  },
+  { "p:reportError",
+    "format for report configuration errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "blockquote.reportError",
+    "format for report configuration errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "p.noMoreShun",
+    "format for artifact lines, no longer shunned",
+    @   color: blue;
+  },
+  { "p.shunned",
+    "format for artifact lines beeing shunned",
+    @   color: blue;
   },
   { 0,
     0,

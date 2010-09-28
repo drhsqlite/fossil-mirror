@@ -294,7 +294,7 @@ void fossil_panic(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiOutput && once ){
     once = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -311,7 +311,7 @@ void fossil_fatal(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -339,7 +339,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -357,7 +357,7 @@ void fossil_warning(const char *zFormat, ...){
   z = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.cgiOutput ){
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
