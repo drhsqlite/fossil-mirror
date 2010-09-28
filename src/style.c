@@ -144,7 +144,6 @@ void style_footer(void){
   ** the additional clear/both is needed to extend the content
   ** part to the end of an optional sidebox.
   */
-  @ <div style="clear: both;"></div>
   @ </div>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
@@ -362,6 +361,7 @@ const char zDefaultCSS[] =
 @
 @ /* The footer at the very bottom of the page */
 @ div.footer {
+@   clear: both;
 @   font-size: 0.8em;
 @   margin-top: 12px;
 @   padding: 5px 10px 5px 10px;
