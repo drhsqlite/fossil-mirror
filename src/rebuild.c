@@ -404,6 +404,44 @@ void scrub_cmd(void){
   }
 }
 
+/* 
+** help function for reconstruct for recursiv directory
+** reading.
+*/
+void recon_read_dir(char * zPath){
+  DIR *d;
+  struct dirent *pEntry;
+  Blob aContent; /* content of the just read artifact */
+
+  d = opendir(zPath);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      Blob path;
+      char *zSubpath;
+
+      if( pEntry->d_name[0]=='.' ){
+        continue;
+      }
+      zSubpath = mprintf("%s/%s",zPath,pEntry->d_name);
+      if( file_isdir(zSubpath)==1 ){
+        recon_read_dir(zSubpath);
+      }
+      blob_init(&path, 0, 0);
+      blob_appendf(&path, "%s", zSubpath);
+      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+        fossil_panic("Some unknown error occurred while reading \"%s\"", blob_str(&path));
+      }
+      content_put(&aContent, 0, 0);
+      blob_reset(&path);
+      blob_reset(&aContent);
+      free(zSubpath);
+    }
+  }
+  else {
+    fossil_panic("Encountered error %d while trying to open \"%s\".", errno, g.argv[3]);
+  }
+}
+
 /*
 ** COMMAND: reconstruct
 **
@@ -411,14 +449,12 @@ void scrub_cmd(void){
 **
 ** This command studies the artifacts (files) in DIRECTORY and
 ** reconstructs the fossil record from them. It places the new
-** fossil repository in FILENAME. Subdirectories are ignored.
+** fossil repository in FILENAME. Subdirectories are read, files
+** with leading `.´ in the filename are ignored.
 **
 */
 void reconstruct_cmd(void) {
   char *zPassword;
-  DIR *d;
-  struct dirent *pEntry;
-  Blob aContent; /* content of the just read artifact */
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
@@ -432,29 +468,7 @@ void reconstruct_cmd(void) {
   db_begin_transaction();
   db_initial_setup(0, 0, 1);
 
-  d = opendir(g.argv[3]);
-  if( d ){
-    while( (pEntry=readdir(d))!=0 ){
-      Blob path;
-      blob_init(&path, 0, 0);
-      if( pEntry->d_name[0]=='.' ){
-        continue;
-      }
-      if( file_isdir(pEntry->d_name)==1 ){
-        continue;
-      }
-      blob_appendf(&path, "%s/%s", g.argv[3], pEntry->d_name);
-      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_panic("Some unknown error occurred while reading \"%s\"", blob_str(&path));
-      }
-      content_put(&aContent, 0, 0);
-      blob_reset(&path);
-      blob_reset(&aContent);
-    }
-  }
-  else {
-    fossil_panic("Encountered error %d while trying to open \"%s\".", errno, g.argv[3]);
-  }
+  recon_read_dir(g.argv[3]);
 
   rebuild_db(0, 1);
 
@@ -476,8 +490,6 @@ void reconstruct_cmd(void) {
 ** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
-**
-** To use use the deconstructed artifacts with reconstruct, -L 0 should be used.
 */
 void deconstruct_cmd(void){
   const char *zDestDir;
@@ -500,18 +512,10 @@ void deconstruct_cmd(void){
   if (!zPrefixOpt){
     prefixLength = 2;
   }else{
-    switch(*zPrefixOpt){
-      case '0': prefixLength = 0;break;
-      case '1': prefixLength = 1;break;
-      case '2': prefixLength = 2;break;
-      case '3': prefixLength = 3;break;
-      case '4': prefixLength = 4;break;
-      case '5': prefixLength = 5;break;
-      case '6': prefixLength = 6;break;
-      case '7': prefixLength = 7;break;
-      case '8': prefixLength = 8;break;
-      case '9': prefixLength = 9;break;
-      default:  fossil_panic("N(%s) is not a a valid prefix length!",zPrefixOpt);
+    if (zPrefixOpt[0]>='0' && zPrefixOpt[0]<='9' && !zPrefixOpt[1]){
+      prefixLength = (int)(*zPrefixOpt-'0');
+    }else{
+      fossil_panic("N(%s) is not a a valid prefix length!",zPrefixOpt);
     }
   }
   if (prefixLength){
