@@ -411,7 +411,7 @@ void scrub_cmd(void){
 **
 ** This command studies the artifacts (files) in DIRECTORY and
 ** reconstructs the fossil record from them. It places the new
-** fossil repository in FILENAME
+** fossil repository in FILENAME. Subdirectories are ignored.
 **
 */
 void reconstruct_cmd(void) {
@@ -476,6 +476,8 @@ void reconstruct_cmd(void) {
 ** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
+**
+** To use use the deconstructed artifacts with reconstruct, -L 0 should be used.
 */
 void deconstruct_cmd(void){
   const char *zDestDir;
