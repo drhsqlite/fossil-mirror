@@ -20,24 +20,43 @@
 #   gmake           3.80
 #   zlib sources    1.2.5
 #   Windows XP SP 2
+# and
+#   PellesC         6.00.4
+#   gmake           3.80
+#   zlib sources    1.2.5
+#   Windows 7 Home Premium
 #  
 # ###########################################################################
 
 #  
 PellesCDir=c:\Programme\PellesC
 
+# Select between 32/64 bit code, default is 32 bit
+#TARGETVERSION=64
+
+ifeq ($(TARGETVERSION),64)
+# 64 bit version
+TARGETMACHINE_CC=amd64
+TARGETMACHINE_LN=amd64
+TARGETEXTEND=64
+else
+# 32 bit version
+TARGETMACHINE_CC=x86
+TARGETMACHINE_LN=ix86
+TARGETEXTEND=
+endif
+
 B=..
 SRCDIR=$(B)/src/
 WINDIR=$(B)/win/
-ZLIBSRCDIR=E:/Profile/Ratte/data/organize/fossil-w32/zlib/
+ZLIBSRCDIR=E:/fossil-w32/zlib/
 
 LINK=$(PellesCDir)/bin/polink.exe
-LIB=$(PellesCDir)\Lib\Win;$(PellesCDir)\Lib
-LINKFLAGS=-machine:ix86 -subsystem:console /LIBPATH:$(PellesCDir)\lib /LIBPATH:$(PellesCDir)\lib\win kernel32.lib advapi32.lib delayimp.lib Wsock32.lib Crtmt.lib
+LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib Crtmt$(TARGETEXTEND).lib
 
 CC=$(PellesCDir)\bin\pocc.exe
 DEFINES=-DFOSSIL_I18N=0 -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp 
-CCFLAGS=-Tx86-coff -Ot -W1 -Gd -Go /Ze $(DEFINES)
+CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
 INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
 
 UTILS=translate.exe mkindex.exe makeheaders.exe
