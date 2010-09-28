@@ -43,6 +43,11 @@ static int nSubmenu = 0;
 static int headerHasBeenGenerated = 0;
 
 /*
+** remember, if a sidebox was used
+*/
+static int sideboxUsed = 0;
+
+/*
 ** Add a new element to the submenu
 */
 void style_submenu_element(
@@ -108,6 +113,7 @@ void style_header(const char *zTitleFormat, ...){
   cgi_destination(CGI_BODY);
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
+  sideboxUsed = 0;
 }
 
 /*
@@ -140,10 +146,13 @@ void style_footer(void){
   @ <div class="content">
   cgi_destination(CGI_BODY);
 
-  /* Put the footer at the bottom of the page.
-  ** the additional clear/both is needed to extend the content
-  ** part to the end of an optional sidebox.
-  */
+  if (sideboxUsed) {
+    /* Put the footer at the bottom of the page.
+    ** the additional clear/both is needed to extend the content
+    ** part to the end of an optional sidebox.
+    */
+    @ <div class="endContent"></div>
+  }
   @ </div>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
@@ -164,6 +173,7 @@ void style_footer(void){
 ** a percentage of total screen width.
 */
 void style_sidebox_begin(const char *zTitle, const char *zWidth){
+  sideboxUsed = 1;
   @ <div class="sidebox" style="width:%s(zWidth)">
   @ <div class="sideboxTitle">%h(zTitle)</div>
 }
@@ -676,6 +686,10 @@ const struct strctCssDefaults {
     @ #   2. change the default hash adding behaviour to ON
     @ #  or change the class defition of element identified by id="clrcust"
     @ #  to a standard jscolor definition with java script in the footer.
+  },
+  { "div.endContent",
+    "format for end of content area, to be used to clear page flow(sidebox on branch,..",
+    @   clear: both;
   },
   { 0,
     0,
