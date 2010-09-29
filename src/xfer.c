@@ -1099,6 +1099,7 @@ void client_sync(
           if( (rDiff*24.0*3600.0)>=60.0 ){
             fossil_warning("*** time skew *** server time differs by %s",
                            db_timespan_name(rDiff));
+            g.clockSkewSeen = 1;
           }
         }
         continue;
