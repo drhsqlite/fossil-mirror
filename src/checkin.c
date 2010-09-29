@@ -647,6 +647,18 @@ void commit_cmd(void){
     autosync(AUTOSYNC_PULL);
   }
 
+  /* Require confirmation to continue with the check-in if there is
+  ** clock skew
+  */
+  if( g.clockSkewSeen ){
+    Blob ans;
+    blob_zero(&ans);
+    prompt_user("continue in spite of time skew (y/N)? ", &ans);
+    if( blob_str(&ans)[0]!='y' ){
+      fossil_exit(1);
+    }
+  }
+
   /* There are two ways this command may be executed. If there are
   ** no arguments following the word "commit", then all modified files
   ** in the checked out directory are committed. If one or more arguments

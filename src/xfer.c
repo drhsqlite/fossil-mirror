@@ -478,7 +478,7 @@ static void create_cluster(void){
     "DELETE FROM unclustered WHERE rid IN (SELECT rid FROM private)"
   );
 
-  nUncl = db_int(0, "SELECT count(*) FROM unclustered"
+  nUncl = db_int(0, "SELECT count(*) FROM unclustered /*scan*/"
                     " WHERE NOT EXISTS(SELECT 1 FROM phantom"
                                       " WHERE rid=unclustered.rid)");
   if( nUncl<100 ){
@@ -595,6 +595,7 @@ void page_xfer(void){
   int nGimme = 0;
   int size;
   int recvConfig = 0;
+  char *zNow;
 
   if( strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -612,6 +613,8 @@ void page_xfer(void){
   db_multi_exec(
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
+  zNow = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')");
+  @ # timestamp %s(zNow)
   manifest_crosslink_begin();
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
@@ -1084,6 +1087,21 @@ void client_sync(
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
       if( blob_buffer(&xfer.line)[0]=='#' ){
+        const char *zLine = blob_buffer(&xfer.line);
+        if( memcmp(zLine, "# timestamp ", 12)==0 ){
+          char zTime[20];
+          double rDiff;
+          sqlite3_snprintf(sizeof(zTime), zTime, "%.19s", &zLine[12]);
+          rDiff = db_double(9e99, "SELECT julianday('%q') - julianday('now')",
+                            zTime);
+          if( rDiff<0.0 ) rDiff = -rDiff;
+          if( rDiff>9e98 ) rDiff = 0.0;
+          if( (rDiff*24.0*3600.0)>=60.0 ){
+            fossil_warning("*** time skew *** server time differs by %s",
+                           db_timespan_name(rDiff));
+            g.clockSkewSeen = 1;
+          }
+        }
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
