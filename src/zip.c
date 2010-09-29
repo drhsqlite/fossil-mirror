@@ -340,7 +340,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   if( manifest_parse(&m, &mfile) ){
     char *zName;
     zip_set_timedate(m.rDate);
-    blob_append(&filename, db_manifestName(), -1);
+    blob_append(&filename, "manifest", -1);
     zName = blob_str(&filename);
     zip_add_folders(zName);
     zip_add_file(zName, &file);
@@ -348,7 +348,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
     blob_reset(&file);
     blob_append(&hash, "\n", 1);
     blob_resize(&filename, nPrefix);
-    blob_append(&filename, db_manifestUuidName(), -1);
+    blob_append(&filename, "manifest.uuid", -1);
     zName = blob_str(&filename);
     zip_add_file(zName, &hash);
     blob_reset(&hash);

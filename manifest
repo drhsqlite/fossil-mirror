@@ -1,5 +1,5 @@
-C Better\shandling\sof\s/dir\spages\swith\sunknown\scheckins.\s\sRework\sof\ncheck-in\s[872f6a45e3338b77ed10ec49598343ff2ae7741d]\sfor\sticket\n[cc4cd990165317f38618f5b784befd3e9ff3fe61].
-D 2010-09-29T12:48:59
+C Back\sout\schanges\sin\s[9978d2aba603d94].\s\sInstead,\ssimply\smodify\scheckout\sso\nthat\sit\snever\soverwrites\s"manifest"\sand\s"manifest.uuid"\sif\sthose\sfiles\sare\nexplicitly\schecked\sin.\s\sTicket\s[22a59e9a3455d8e].
+D 2010-09-29T13:18:47
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -34,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 23a3ba5e097ad94c394c4fb15a8b09ec860d8af2
+F src/add.c b32ce1f5e510dfac0bb1e09f26cb4a86c1a34dd0
 F src/allrepo.c a967e36eff7162c251d81898fd68bcb7b4bf768b
 F src/attach.c 09d4c5e46de5b27e4d897a0414ce2e0cc53ba151
 F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
@@ -43,15 +43,15 @@ F src/branch.c af2294d526ad65c98c1e88ff0e8bc1ec7188ef2d
 F src/browse.c b04a2d36ea797f3a1a1eaccc526df5df485ffe40
 F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
 F src/cgi.c 2556822f507c52b7aa940a23757eef2ca3424556
-F src/checkin.c 305faf73c847152db1526e4855843c04ff30de6c
-F src/checkout.c 9e8b99a8eb771c1121c6a8fad0e8629cc7600b47
+F src/checkin.c c7e517c4cddd84c4213986948e683f417ce2bcf0
+F src/checkout.c ed9df21c249adbd2b190d9a75ac8d870dffca072
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
 F src/config.h 27accdc7d6253b4b293ed3e4add94ccaddfecebf
 F src/configure.c 41feb659f165ec676e8a1b293bd121b491fd1255
 F src/content.c 5253d868710c7c7630af5949ef60912a4cc1ecac
-F src/db.c eaa04c096cad3b5f04d0852375fd2864da4b676c
+F src/db.c eba50dbae488c3c6d8bf0fed3bf6cfbe1d4e7ad5
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
@@ -68,7 +68,7 @@ F src/http_ssl.c 56d783c4e1c4a85f30dae8a4eb7036516a3d552f
 F src/http_transport.c f7a88a3c9bc1ccf0a9215ab8cb0b284e514c16bb
 F src/info.c 15179fcc84eee20cbcaf90c96ee8e4eb63dac3b3
 F src/login.c 676c739ad0f1fa2a138bc3493f607f2d28f9a243
-F src/main.c 3b14c579708758c9794e2bd4fe9bceba79c58ac1
+F src/main.c f07060048d89ce072405716e364ebb4a34a704e7
 F src/main.mk 7bf5ce2b3fbc241b428a190e7f096a0a79d0f816
 F src/makeheaders.c b1ffaa1b9f5719b184ce1f1905f3344ac3ab295f
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -88,7 +88,7 @@ F src/report.c ef230683a2a52edc8e4f5197ce32506be283c0d2
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c b6e9b512663c44bad56b179c6a17c10e7613f832
 F src/search.c 953d09490f44e0c9efb7d05b643fc8ff9c06009b
-F src/setup.c e8bb30a54983a0b8f48ecae745cc9fb6cebcd09f
+F src/setup.c a875f657d848f83726cfa8a211371d78730df749
 F src/sha1.c 37d0f222fdf9b344998684f9c5b15642150766f3
 F src/shun.c 1b4711b3a27101974f3345e1fbd3dffd07ec641f
 F src/skins.c e598e23eb07ca79d795c81b33c65f19829587d28
@@ -116,7 +116,7 @@ F src/wiki.c 2c55f8019404c4800f73ed3ad6e4e53ae7dd8191
 F src/wikiformat.c cf9eea9f7cfceab71142af8ec72bbea7f02462d4
 F src/winhttp.c a1c84819fec09950866d1020f70cead31fb8d42d
 F src/xfer.c 1e31006017e089ac7310bd7938fd8b99dbd288fc
-F src/zip.c 0570f8cfa5b79cebee7f8065ea81a4d360805e24
+F src/zip.c 0db3b1e1ec25c83bf21d0c6fb872602ee7ad057e
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -268,7 +268,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 528c58115437f39f07bd6a1f5b4fea32a44aba06
-R d4154dec302dd0c9b1fd56a4d439d552
+P e01f7e6db20270f8ce68920265fe2f2abf63ece4 b72065df2f45a88084bc07cc034580aef3ebdc3a
+R 2bf2b96c65dd52d333f7b5aa9d103f29
 U drh
-Z 053f776c5d44a9c9bee8a3b53d189d2f
+Z 0441afe04898e6c50acb730c37175d84
