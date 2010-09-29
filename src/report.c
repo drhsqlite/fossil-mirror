@@ -330,7 +330,7 @@ void view_edit(void){
     if( zTitle==0 ) cgi_redirect("reportlist");
 
     style_header("Are You Sure?");
-    @ <form action="rptedit" method="POST">
+    @ <form action="rptedit" method="post">
     @ <p>You are about to delete all traces of the report
     @ <strong>%h(zTitle)</strong> from
     @ the database.  This is an irreversible operation.  All records
@@ -399,22 +399,22 @@ void view_edit(void){
   }
   style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
-    @ <blockquote><font color="#ff0000"><b>%h(zErr)</b></font></blockquote>
+    @ <blockquote class="reportError">%h(zErr)</blockquote>
   }
-  @ <form action="rptedit" method="POST">
-  @ <input type="hidden" name="rn" value="%d(rn)">
+  @ <form action="rptedit" method="post"><div>
+  @ <input type="hidden" name="rn" value="%d(rn)" />
   @ <p>Report Title:<br />
-  @ <input type="text" name="t" value="%h(zTitle)" size="60"></p>
+  @ <input type="text" name="t" value="%h(zTitle)" size="60" /></p>
   @ <p>Enter a complete SQL query statement against the "TICKET" table:<br />
   @ <textarea name="s" rows="20" cols="80">%h(zSQL)</textarea>
   @ </p>
   login_insert_csrf_secret();
   if( g.okAdmin ){
     @ <p>Report owner:
-    @ <input type="text" name="w" size="20" value="%h(zOwner)">
+    @ <input type="text" name="w" size="20" value="%h(zOwner)" />
     @ </p>
   } else {
-    @ <input type="hidden" name="w" value="%h(zOwner)">
+    @ <input type="hidden" name="w" value="%h(zOwner)" />
   }
   @ <p>Enter an optional color key in the following box.  (If blank, no
   @ color key is displayed.)  Each line contains the text for a single
@@ -430,11 +430,11 @@ void view_edit(void){
     style_footer();
     return;
   }
-  @ <input type="submit" value="Apply Changes">
+  @ <input type="submit" value="Apply Changes" />
   if( rn>0 ){
-    @ <input type="submit" value="Delete This Report" name="del1">
+    @ <input type="submit" value="Delete This Report" name="del1" />
   }
-  @ </form>
+  @ </div></form>
   report_format_hints();
   style_footer();
 }
@@ -480,13 +480,13 @@ static void report_format_hints(void){
   @ selects the background color of each row based on the TICKET.STATUS
   @ field of the database.  The color key at the right shows the various
   @ color codes.</p>
-  @ <table align="right" style="margin: 0 5px;" border=1 cellspacing=0 width=125>
-  @ <tr bgcolor="#f2dcdc"><td align="center">new or active</td></tr>
-  @ <tr bgcolor="#e8e8bd"><td align="center">review</td></tr>
-  @ <tr bgcolor="#cfe8bd"><td align="center">fixed</td></tr>
-  @ <tr bgcolor="#bde5d6"><td align="center">tested</td></tr>
-  @ <tr bgcolor="#cacae5"><td align="center">defer</td></tr>
-  @ <tr bgcolor="#c8c8c8"><td align="center">closed</td></tr>
+  @ <table class="rpteditex">
+  @ <tr style="background-color:#f2dcdc;"><td class="rpteditex">new or active</td></tr>
+  @ <tr style="background-color:#e8e8bd;"><td class="rpteditex">review</td></tr>
+  @ <tr style="background-color:#cfe8bd;"><td class="rpteditex">fixed</td></tr>
+  @ <tr style="background-color:#bde5d6;"><td class="rpteditex">tested</td></tr>
+  @ <tr style="background-color:#cacae5;"><td class="rpteditex">defer</td></tr>
+  @ <tr style="background-color:#c8c8c8;"><td class="rpteditex">closed</td></tr>
   @ </table>
   @ <blockquote><pre>
   @ SELECT
@@ -512,12 +512,12 @@ static void report_format_hints(void){
   @ <p>To base the background color on the TICKET.PRIORITY or
   @ TICKET.SEVERITY fields, substitute the following code for the
   @ first column of the query:</p>
-  @ <table align="right" style="margin: 0 5px;" border=1 cellspacing=0 width=125>
-  @ <tr bgcolor="#f2dcdc"><td align="center">1</td></tr>
-  @ <tr bgcolor="#e8e8bd"><td align="center">2</td></tr>
-  @ <tr bgcolor="#cfe8bd"><td align="center">3</td></tr>
-  @ <tr bgcolor="#cacae5"><td align="center">4</td></tr>
-  @ <tr bgcolor="#c8c8c8"><td align="center">5</td></tr>
+  @ <table class="rpteditex">
+  @ <tr style="background-color:#f2dcdc;"><td class="rpteditex">1</td></tr>
+  @ <tr style="background-color:#e8e8bd;"><td class="rpteditex">2</td></tr>
+  @ <tr style="background-color:#cfe8bd;"><td class="rpteditex">3</td></tr>
+  @ <tr style="background-color:#cacae5;"><td class="rpteditex">4</td></tr>
+  @ <tr style="background-color:#c8c8c8;"><td class="rpteditex">5</td></tr>
   @ </table>
   @ <blockquote><pre>
   @ SELECT
@@ -932,9 +932,9 @@ void rptview_page(void){
     sqlite3_set_authorizer(g.db, 0, 0);
     @ </table>
     if( zErr1 ){
-      @ <p><font color="red"><b>Error: %h(zErr1)</b></font></p>
+      @ <p class="reportError">Error: %h(zErr1)</p>
     }else if( zErr2 ){
-      @ <p><font color="red"><b>Error: %h(zErr2)</b></font></p>
+      @ <p class="reportError">Error: %h(zErr2)</p>
     }
     style_footer();
   }else{

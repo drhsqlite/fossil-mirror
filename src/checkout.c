@@ -99,8 +99,13 @@ static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
 }
 
 /*
-** Read the manifest file given by vid out of the repository
-** and store it in the root of the local check-out.
+** Set or clear the execute permission bit (as appropriate) for all
+** files in the current check-out.
+**
+** If the checkout does not have explicit files named "manifest" and
+** "manifest.uuid" then automatically generate files with those names
+** containing, respectively, the text of the manifest and the artifact
+** ID of the manifest.
 */
 void manifest_to_disk(int vid){
   char *zManFile;
@@ -109,20 +114,14 @@ void manifest_to_disk(int vid){
   Blob filename;
   int baseLen;
   int i;
+  int seenManifest = 0;
+  int seenManifestUuid = 0;
   Manifest m;
 
+  /* Check the EXE permission status of all files
+  */
   blob_zero(&manifest);
-  zManFile = mprintf("%smanifest", g.zLocalRoot);
   content_get(vid, &manifest);
-  blob_write_to_file(&manifest, zManFile);
-  free(zManFile);
-  blob_zero(&hash);
-  sha1sum_blob(&manifest, &hash);
-  zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-  blob_append(&hash, "\n", 1);
-  blob_write_to_file(&hash, zManFile);
-  free(zManFile);
-  blob_reset(&hash);
   manifest_parse(&m, &manifest);
   blob_zero(&filename);
   blob_appendf(&filename, "%s/", g.zLocalRoot);
@@ -134,9 +133,30 @@ void manifest_to_disk(int vid){
     file_setexe(blob_str(&filename), isExe);
     set_or_clear_isexe(m.aFile[i].zName, vid, isExe);
     blob_resize(&filename, baseLen);
+    if( memcmp(m.aFile[i].zName, "manifest", 8)==0 ){
+      if( m.aFile[i].zName[8]==0 ) seenManifest = 1;
+      if( strcmp(&m.aFile[i].zName[8], ".uuid")==0 ) seenManifestUuid = 1;
+    }
   }
   blob_reset(&filename);
   manifest_clear(&m);
+
+  blob_zero(&manifest);
+  content_get(vid, &manifest);
+  if( !seenManifest ){
+    zManFile = mprintf("%smanifest", g.zLocalRoot);
+    blob_write_to_file(&manifest, zManFile);
+    free(zManFile);
+  }
+  if( !seenManifestUuid ){
+    blob_zero(&hash);
+    sha1sum_blob(&manifest, &hash);
+    zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+    blob_append(&hash, "\n", 1);
+    blob_write_to_file(&hash, zManFile);
+    free(zManFile);
+    blob_reset(&hash);
+  }
 }
 
 /*

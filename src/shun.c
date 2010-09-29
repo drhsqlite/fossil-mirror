@@ -71,25 +71,25 @@ void shun_page(void){
     login_verify_csrf_secret();
     db_multi_exec("DELETE FROM shun WHERE uuid='%s'", zUuid);
     if( db_exists("SELECT 1 FROM blob WHERE uuid='%s'", zUuid) ){
-      @ <p><font color="blue">Artifact 
+      @ <p class="noMoreShun">Artifact 
       @ <a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a> is no
-      @ longer being shunned.</font></p>
+      @ longer being shunned.</p>
     }else{
-      @ <p><font color="blue">Artifact %s(zUuid)</a> will no longer
+      @ <p class="noMoreShun">Artifact %s(zUuid) will no longer
       @ be shunned.  But it does not exist in the repository.  It
       @ may be necessary to rebuild the repository using the
       @ <b>fossil rebuild</b> command-line before the artifact content
-      @ can pulled in from other respositories.</font></p>
+      @ can pulled in from other respositories.</p>
     }
   }
   if( zUuid && P("add") ){
     login_verify_csrf_secret();
     db_multi_exec("INSERT OR IGNORE INTO shun VALUES('%s')", zUuid);
-    @ <p><font color="blue">Artifact
+    @ <p class="shunned">Artifact
     @ <a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a> has been
     @ shunned.  It will no longer be pushed.
     @ It will be removed from the repository the next time the respository
-    @ is rebuilt using the <b>fossil rebuild</b> command-line</font></p>
+    @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
   }
   @ <p>A shunned artifact will not be pushed nor accepted in a pull and the
   @ artifact content will be purged from the repository the next time the

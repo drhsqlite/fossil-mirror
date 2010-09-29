@@ -404,6 +404,45 @@ void scrub_cmd(void){
   }
 }
 
+/* 
+** help function for reconstruct for recursiv directory
+** reading.
+*/
+void recon_read_dir(char * zPath){
+  DIR *d;
+  struct dirent *pEntry;
+  Blob aContent; /* content of the just read artifact */
+
+  d = opendir(zPath);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      Blob path;
+      char *zSubpath;
+
+      if( pEntry->d_name[0]=='.' ){
+        continue;
+      }
+      zSubpath = mprintf("%s/%s",zPath,pEntry->d_name);
+      if( file_isdir(zSubpath)==1 ){
+        recon_read_dir(zSubpath);
+      }
+      blob_init(&path, 0, 0);
+      blob_appendf(&path, "%s", zSubpath);
+      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+        fossil_panic("some unknown error occurred while reading \"%s\"", 
+                     blob_str(&path));
+      }
+      content_put(&aContent, 0, 0);
+      blob_reset(&path);
+      blob_reset(&aContent);
+      free(zSubpath);
+    }
+  }else {
+    fossil_panic("encountered error %d while trying to open \"%s\".",
+                  errno, g.argv[3]);
+  }
+}
+
 /*
 ** COMMAND: reconstruct
 **
@@ -411,14 +450,12 @@ void scrub_cmd(void){
 **
 ** This command studies the artifacts (files) in DIRECTORY and
 ** reconstructs the fossil record from them. It places the new
-** fossil repository in FILENAME
+** fossil repository in FILENAME. Subdirectories are read, files
+** with leading '.' in the filename are ignored.
 **
 */
 void reconstruct_cmd(void) {
   char *zPassword;
-  DIR *d;
-  struct dirent *pEntry;
-  Blob aContent; /* content of the just read artifact */
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
@@ -432,29 +469,7 @@ void reconstruct_cmd(void) {
   db_begin_transaction();
   db_initial_setup(0, 0, 1);
 
-  d = opendir(g.argv[3]);
-  if( d ){
-    while( (pEntry=readdir(d))!=0 ){
-      Blob path;
-      blob_init(&path, 0, 0);
-      if( pEntry->d_name[0]=='.' ){
-        continue;
-      }
-      if( file_isdir(pEntry->d_name)==1 ){
-        continue;
-      }
-      blob_appendf(&path, "%s/%s", g.argv[3], pEntry->d_name);
-      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_panic("Some unknown error occurred while reading \"%s\"", blob_str(&path));
-      }
-      content_put(&aContent, 0, 0);
-      blob_reset(&path);
-      blob_reset(&aContent);
-    }
-  }
-  else {
-    fossil_panic("Encountered error %d while trying to open \"%s\".", errno, g.argv[3]);
-  }
+  recon_read_dir(g.argv[3]);
 
   rebuild_db(0, 1);
 
@@ -463,4 +478,88 @@ void reconstruct_cmd(void) {
   printf("server-id: %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+}
+
+/*
+** COMMAND: deconstruct
+**
+** Usage %fossil deconstruct ?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION
+**
+** This command exports all artifacts of o given repository and
+** writes all artifacts to the file system. The DESTINATION directory
+** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
+** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
+** If -L|--prefixlength is given, the length (default 2) of the directory
+** prefix can be set to 0,1,..,9 characters.
+*/
+void deconstruct_cmd(void){
+  const char *zDestDir;
+  const char *zPrefixOpt;
+  int         prefixLength = 0;
+  char       *zAFileOutFormat;
+  Stmt        q;
+
+  /* check number of arguments */
+  if( (g.argc != 3) && (g.argc != 5)  && (g.argc != 7)){
+    usage ("?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION");
+  }
+  /* get and check argument destination directory */
+  zDestDir = g.argv[g.argc-1];
+  if( !*zDestDir  || !file_isdir(zDestDir)) {
+    fossil_panic("DESTINATION(%s) is not a directory!",zDestDir);
+  }
+  /* get and check prefix length argument and build format string */
+  zPrefixOpt=find_option("prefixlength","L",1);
+  if( !zPrefixOpt ){
+    prefixLength = 2;
+  }else{
+    if( zPrefixOpt[0]>='0' && zPrefixOpt[0]<='9' && !zPrefixOpt[1] ){
+      prefixLength = (int)(*zPrefixOpt-'0');
+    }else{
+      fossil_panic("N(%s) is not a a valid prefix length!",zPrefixOpt);
+    }
+  }
+  if( prefixLength ){
+    zAFileOutFormat = mprintf("%%s/%%.%ds/%%s",prefixLength);
+  }else{
+    zAFileOutFormat = mprintf("%%s/%%s");
+  }
+#ifndef _WIN32
+  if( access(zDestDir, W_OK) ){
+    fossil_panic("DESTINATION(%s) is not writeable!",zDestDir);
+  }
+#else
+  /* write access on windows is not checked, errors will be
+  ** dected on blob_write_to_file
+  */
+#endif
+  /* open repository and open query for all artifacts */
+  db_find_and_open_repository(1);
+  db_prepare(&q, "SELECT rid,uuid FROM blob");
+  /* loop over artifacts and write them to single files */
+  while( db_step(&q)==SQLITE_ROW ){
+    int         aRid;
+    const char *zAUuid;
+    char       *zAFName;
+    Blob        zACont;
+
+    /* get data from query */
+    aRid   = db_column_int (&q, 0);
+    zAUuid = db_column_text(&q, 1);
+
+    /* construct output filename */
+    zAFName = mprintf(zAFileOutFormat, zDestDir, zAUuid, zAUuid + prefixLength);
+
+    /* read artifact contents from db and write to file */
+    content_get(aRid,&zACont);
+    blob_write_to_file(&zACont,zAFName);
+    blob_reset(&zACont);
+
+    /* free artifact filename string */
+    free(zAFName);
+  }
+  /* close query statement */
+  db_finalize(&q);
+  /* free filename format string */
+  free(zAFileOutFormat);
 }

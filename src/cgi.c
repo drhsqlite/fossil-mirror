@@ -44,6 +44,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#if defined (__POCC__)
+# undef INTERFACE
+#endif
 #include "cgi.h"
 
 #if INTERFACE

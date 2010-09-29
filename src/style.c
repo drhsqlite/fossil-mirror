@@ -43,6 +43,11 @@ static int nSubmenu = 0;
 static int headerHasBeenGenerated = 0;
 
 /*
+** remember, if a sidebox was used
+*/
+static int sideboxUsed = 0;
+
+/*
 ** Add a new element to the submenu
 */
 void style_submenu_element(
@@ -108,6 +113,7 @@ void style_header(const char *zTitleFormat, ...){
   cgi_destination(CGI_BODY);
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
+  sideboxUsed = 0;
 }
 
 /*
@@ -140,11 +146,13 @@ void style_footer(void){
   @ <div class="content">
   cgi_destination(CGI_BODY);
 
-  /* Put the footer at the bottom of the page.
-  ** the additional clear/both is needed to extend the content
-  ** part to the end of an optional sidebox.
-  */
-  @ <div style="clear: both;"></div>
+  if (sideboxUsed) {
+    /* Put the footer at the bottom of the page.
+    ** the additional clear/both is needed to extend the content
+    ** part to the end of an optional sidebox.
+    */
+    @ <div class="endContent"></div>
+  }
   @ </div>
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
@@ -153,9 +161,9 @@ void style_footer(void){
   
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
-    cgi_append_content("<font color=\"red\"><hr />\n", -1);
+    cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
-    cgi_append_content("</font>\n", -1);
+    cgi_append_content("</span>\n", -1);
   }
 }
 
@@ -165,6 +173,7 @@ void style_footer(void){
 ** a percentage of total screen width.
 */
 void style_sidebox_begin(const char *zTitle, const char *zWidth){
+  sideboxUsed = 1;
   @ <div class="sidebox" style="width:%s(zWidth)">
   @ <div class="sideboxTitle">%h(zTitle)</div>
 }
@@ -362,6 +371,7 @@ const char zDefaultCSS[] =
 @
 @ /* The footer at the very bottom of the page */
 @ div.footer {
+@   clear: both;
 @   font-size: 0.8em;
 @   margin-top: 12px;
 @   padding: 5px 10px 5px 10px;
@@ -523,9 +533,9 @@ const struct strctCssDefaults {
     "format for the layout table, used for the captcha display",
     @   margin: auto;
     @   padding: 10px;
-    @   border-width: 1;
+    @   border-width: 4px;
     @   border-style: double;
-    @   bordor-color: black;
+    @   border-color: black;
   },
   { "td.login_out_label",
     "format for the label cells in the login/out table",
@@ -632,6 +642,10 @@ const struct strctCssDefaults {
     "trailing text for user types, mentioned on the user edit page",
     @   content:"'";
   },
+  { "p.missingPriv",
+    "format for missing priviliges note on user setup page",
+    @  color: blue;
+  },
   { "span.wikiruleHead",
     "format for leading text in wikirules definitions",
     @   font-weight: bold;
@@ -650,6 +664,72 @@ const struct strctCssDefaults {
     "format for ticket error messages",
     @   color: red;
     @   font-weight: bold;
+  },
+  { "table.rpteditex",
+    "format for example tables on the report edit page",
+    @   float: right;
+    @   margin: 0;
+    @   padding: 0;
+    @   width: 125px;
+    @   text-align: center;
+    @   border-collapse: collapse;
+    @   border-spacing: 0;
+  },
+  { "td.rpteditex",
+    "format for example table cells on the report edit page",
+    @   border-width: thin;
+    @   border-color: #000000;
+    @   border-style: solid;
+  },
+  { "input.checkinUserColor",
+    "format for user color input on checkin edit page",
+    @ # no special definitions, class defined, to enable color pickers, f.e.:
+    @ #  add the color picker found at http:jscolor.com  as java script include
+    @ #  to the header and configure the java script file with
+    @ #   1. use as bindClass :checkinUserColor
+    @ #   2. change the default hash adding behaviour to ON
+    @ #  or change the class defition of element identified by id="clrcust"
+    @ #  to a standard jscolor definition with java script in the footer.
+  },
+  { "div.endContent",
+    "format for end of content area, to be used to clear page flow(sidebox on branch,..",
+    @   clear: both;
+  },
+  { "p.generalError",
+    "format for general errors",
+    @   color: red;
+  },
+  { "p.tktsetupError",
+    "format for tktsetup errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "p.thmainError",
+    "format for th script errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "span.thTrace",
+    "format for th script trace messages",
+    @   color: red;
+  },
+  { "p:reportError",
+    "format for report configuration errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "blockquote.reportError",
+    "format for report configuration errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
+  { "p.noMoreShun",
+    "format for artifact lines, no longer shunned",
+    @   color: blue;
+  },
+  { "p.shunned",
+    "format for artifact lines beeing shunned",
+    @   color: blue;
   },
   { 0,
     0,
