@@ -51,6 +51,26 @@
 # include <pwd.h>
 #endif
 
+#if !defined(COMPILE_VARIANT)
+#  if defined(__MINGW32__)
+#    define COMPILE_VARIANT "mingw32"
+#  elif defined(__DMC__)
+#    define COMPILE_VARIANT "dmc"
+#  elif defined(__POCC__)
+#    if defined(_M_X64)
+#      define COMPILE_VARIANT "pellesc64"
+#    else
+#      define COMPILE_VARIANT "pellesc32"
+#    endif
+#  elif defined(_MSC_VER)
+#    define COMPILE_VARIANT "msc"
+#  elif defined(_WIN32)
+#    define COMPILE_VARIANT "win32"
+#  else
+#    define COMPILE_VARIANT "unx-std"
+#  endif
+#endif
+
 #include "sqlite3.h"
 
 /*

@@ -49,7 +49,7 @@ endif
 B=..
 SRCDIR=$(B)/src/
 WINDIR=$(B)/win/
-ZLIBSRCDIR=E:/fossil-w32/zlib/
+ZLIBSRCDIR=../../zlib/
 
 LINK=$(PellesCDir)/bin/polink.exe
 LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib Crtmt$(TARGETEXTEND).lib

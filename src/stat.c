@@ -112,6 +112,9 @@ void stat_page(void){
                    SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
   @ %s(zBuf)
   @ </td></tr>
+  @ <tr><th>Compiler:</th><td>
+  @ %h(COMPILE_VARIANT)
+  @ </td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   @ %d(db_int(0, "PRAGMA %s.page_count", g.zRepoDb)) pages,
   @ %d(db_int(0, "PRAGMA %s.page_size", g.zRepoDb)) bytes/page,
