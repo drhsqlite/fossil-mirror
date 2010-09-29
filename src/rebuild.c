@@ -429,16 +429,17 @@ void recon_read_dir(char * zPath){
       blob_init(&path, 0, 0);
       blob_appendf(&path, "%s", zSubpath);
       if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_panic("Some unknown error occurred while reading \"%s\"", blob_str(&path));
+        fossil_panic("some unknown error occurred while reading \"%s\"", 
+                     blob_str(&path));
       }
       content_put(&aContent, 0, 0);
       blob_reset(&path);
       blob_reset(&aContent);
       free(zSubpath);
     }
-  }
-  else {
-    fossil_panic("Encountered error %d while trying to open \"%s\".", errno, g.argv[3]);
+  }else {
+    fossil_panic("encountered error %d while trying to open \"%s\".",
+                  errno, g.argv[3]);
   }
 }
 
@@ -450,7 +451,7 @@ void recon_read_dir(char * zPath){
 ** This command studies the artifacts (files) in DIRECTORY and
 ** reconstructs the fossil record from them. It places the new
 ** fossil repository in FILENAME. Subdirectories are read, files
-** with leading `.´ in the filename are ignored.
+** with leading '.' in the filename are ignored.
 **
 */
 void reconstruct_cmd(void) {
@@ -494,7 +495,7 @@ void reconstruct_cmd(void) {
 void deconstruct_cmd(void){
   const char *zDestDir;
   const char *zPrefixOpt;
-  int         prefixLength;
+  int         prefixLength = 0;
   char       *zAFileOutFormat;
   Stmt        q;
 
@@ -509,16 +510,16 @@ void deconstruct_cmd(void){
   }
   /* get and check prefix length argument and build format string */
   zPrefixOpt=find_option("prefixlength","L",1);
-  if (!zPrefixOpt){
+  if( !zPrefixOpt ){
     prefixLength = 2;
   }else{
-    if (zPrefixOpt[0]>='0' && zPrefixOpt[0]<='9' && !zPrefixOpt[1]){
+    if( zPrefixOpt[0]>='0' && zPrefixOpt[0]<='9' && !zPrefixOpt[1] ){
       prefixLength = (int)(*zPrefixOpt-'0');
     }else{
       fossil_panic("N(%s) is not a a valid prefix length!",zPrefixOpt);
     }
   }
-  if (prefixLength){
+  if( prefixLength ){
     zAFileOutFormat = mprintf("%%s/%%.%ds/%%s",prefixLength);
   }else{
     zAFileOutFormat = mprintf("%%s/%%s");

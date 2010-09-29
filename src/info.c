@@ -1336,8 +1336,9 @@ void ci_edit_page(void){
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PD("clr",zColor);
-  if (strcmp(zNewColor,aColor[nColor].zColor)==0)
+  if( strcmp(zNewColor,aColor[nColor].zColor)==0 ){
     zNewColor = P("clrcust");
+  }
   fPropagateColor = P("pclr")!=0;
   zNewTagFlag = P("newtag") ? " checked" : "";
   zNewTag = PD("tagname","");
