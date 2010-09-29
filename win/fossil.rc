@@ -1,0 +1,27 @@
+#include <windows.h>
+#include "VERSION.h"
+
+LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
+
+VS_VERSION_INFO VERSIONINFO
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "040904B0"
+    {
+      VALUE "FileVersion", MANIFEST_UUID"\0"
+      VALUE "InternalName", "fossil\0"
+      VALUE "LegalCopyright", "Copyright (c) "MANIFEST_DATE" D. Richard Hipp\0"
+      VALUE "OriginalFilename", "fossil.exe\0"
+      VALUE "ProductName", "fossil\0"
+      VALUE "ProductVersion", MANIFEST_VERSION" "MANIFEST_DATE" UTC\0"
+    }
+  }
+  BLOCK "VarFileInfo"
+  {
+    VALUE "Translation", 0x409, 0x4B0
+  }
+}
+
+8003 ICON "fossil.ico"
+

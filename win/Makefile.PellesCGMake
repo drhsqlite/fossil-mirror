@@ -59,6 +59,10 @@ DEFINES=-DFOSSIL_I18N=0 -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
 INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
 
+RESOURCE=fossil.res
+RC=$(PellesCDir)\bin\porc.exe
+RCFLAGS=$(INCLUDE)
+
 UTILS=translate.exe mkindex.exe makeheaders.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 
@@ -122,14 +126,18 @@ $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
 $(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) headers
-	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ)
+$(RESOURCE):	%.res:	../win/%.rc ../win/*.ico
+	$(RC) $(RCFLAGS) $< -Fo"$@"
+
+$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) headers $(RESOURCE)
+	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(RESOURCE)
 
 .PHONY: clean
 clean:
-	del /F *.obj
-	del /F *.c
+	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
+	del /F $(TRANSLATEDSRC)
 	del /F *.h headers
+	del /F $(RESOURCE)
 
 .PHONY: clobber
 clobber: clean
