@@ -18,6 +18,8 @@
 ** A common header file used by all modules.
 */
 
+#ifndef _RC_COMPILE_
+ 
 /* The following macros are necessary for large-file support under
 ** some linux distributions, and possibly other unixes as well.
 */
@@ -51,6 +53,8 @@
 # include <pwd.h>
 #endif
 
+#endif
+
 #if !defined(COMPILE_VARIANT)
 #  if defined(__MINGW32__)
 #    define COMPILE_VARIANT "mingw32"
@@ -70,6 +74,8 @@
 #    define COMPILE_VARIANT "unx-std"
 #  endif
 #endif
+
+#ifndef _RC_COMPILE_
 
 #include "sqlite3.h"
 
@@ -145,4 +151,6 @@ typedef unsigned char u8;
 #ifndef CODESET
 # undef FOSSIL_I18N
 # define FOSSIL_I18N 0
+#endif
+
 #endif

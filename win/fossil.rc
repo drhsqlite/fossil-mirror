@@ -1,5 +1,7 @@
 #include <windows.h>
 #include "VERSION.h"
+#define _RC_COMPILE_
+#include "config.h"
 
 LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
 
@@ -16,7 +18,9 @@ BEGIN
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "FileVersion", MANIFEST_UUID"\0"
+      VALUE "FileDescription", "distributed source code control system with integrated wiki and ticket-system\0"
+      VALUE "Comments", "compiler variant: "COMPILE_VARIANT"\0"
+      VALUE "FileVersion", MANIFEST_UUID"("COMPILE_VARIANT"\0"
       VALUE "InternalName", "fossil\0"
       VALUE "LegalCopyright", "Copyright (c) "MANIFEST_DATE" D. Richard Hipp\0"
       VALUE "OriginalFilename", "fossil.exe\0"
