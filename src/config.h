@@ -18,8 +18,6 @@
 ** A common header file used by all modules.
 */
 
-#ifndef _RC_COMPILE_
- 
 /* The following macros are necessary for large-file support under
 ** some linux distributions, and possibly other unixes as well.
 */
@@ -29,6 +27,7 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
+#ifndef _RC_COMPILE_
 
 /*
 ** System header files used by all modules
@@ -40,6 +39,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+
+#endif
+
 #if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
 #  if defined(__DMC__)  || defined(_MSC_VER) || defined(__POCC__)
      typedef int socklen_t;
@@ -53,15 +55,11 @@
 # include <pwd.h>
 #endif
 
-#endif
-
 /*
 ** Define the compiler variant, used to compile the project
 */
 #if !defined(COMPILE_VARIANT)
-#  if defined(__MINGW32__)
-#    define COMPILE_VARIANT "mingw32"
-#  elif defined(__DMC__)
+#  if defined(__DMC__)
 #    define COMPILE_VARIANT "dmc"
 #  elif defined(__POCC__)
 #    if defined(_M_X64)
@@ -71,6 +69,8 @@
 #    endif
 #  elif defined(_MSC_VER)
 #    define COMPILE_VARIANT "msc"
+#  elif defined(__MINGW32__)
+#    define COMPILE_VARIANT "mingw32"
 #  elif defined(_WIN32)
 #    define COMPILE_VARIANT "win32"
 #  else

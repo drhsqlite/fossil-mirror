@@ -61,7 +61,7 @@ INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /
 
 RESOURCE=fossil.res
 RC=$(PellesCDir)\bin\porc.exe
-RCFLAGS=$(INCLUDE)
+RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
 
 UTILS=translate.exe mkindex.exe makeheaders.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
