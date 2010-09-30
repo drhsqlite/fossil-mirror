@@ -22,7 +22,7 @@ BEGIN
       VALUE "Comments", "compiler variant: "COMPILE_VARIANT"\0"
       VALUE "FileVersion", MANIFEST_UUID"("COMPILE_VARIANT"\0"
       VALUE "InternalName", "fossil\0"
-      VALUE "LegalCopyright", "Copyright (c) "MANIFEST_DATE" D. Richard Hipp\0"
+      VALUE "LegalCopyright", "Copyright (c) "MANIFEST_YEAR" D. Richard Hipp\0"
       VALUE "OriginalFilename", "fossil.exe\0"
       VALUE "ProductName", "fossil\0"
       VALUE "ProductVersion", MANIFEST_VERSION" "MANIFEST_DATE" UTC\0"
@@ -34,5 +34,5 @@ BEGIN
   END
 END
 
-8003 ICON "fossil.ico"
+8001 ICON "fossil.ico"
 
