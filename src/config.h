@@ -55,6 +55,9 @@
 
 #endif
 
+/*
+** Define the compiler variant, used to compile the project
+*/
 #if !defined(COMPILE_VARIANT)
 #  if defined(__MINGW32__)
 #    define COMPILE_VARIANT "mingw32"
