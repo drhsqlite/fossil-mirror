@@ -58,23 +58,25 @@
 /*
 ** Define the compiler variant, used to compile the project
 */
-#if !defined(COMPILE_VARIANT)
+#if !defined(COMPILER_NAME)
 #  if defined(__DMC__)
-#    define COMPILE_VARIANT "dmc"
+#    define COMPILER_NAME "dmc"
 #  elif defined(__POCC__)
 #    if defined(_M_X64)
-#      define COMPILE_VARIANT "pellesc64"
+#      define COMPILER_NAME "pellesc64"
 #    else
-#      define COMPILE_VARIANT "pellesc32"
+#      define COMPILER_NAME "pellesc32"
 #    endif
 #  elif defined(_MSC_VER)
-#    define COMPILE_VARIANT "msc"
+#    define COMPILER_NAME "msc"
 #  elif defined(__MINGW32__)
-#    define COMPILE_VARIANT "mingw32"
+#    define COMPILER_NAME "mingw32"
 #  elif defined(_WIN32)
-#    define COMPILE_VARIANT "win32"
+#    define COMPILER_NAME "win32"
+#  elif defined(__GNUC__)
+#    define COMPILER_NAME "gcc-" __VERSION__
 #  else
-#    define COMPILE_VARIANT "unx-std"
+#    define COMPILER_NAME "unknown"
 #  endif
 #endif
 

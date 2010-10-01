@@ -105,15 +105,12 @@ void stat_page(void){
   @ </td></tr>
 
   @ <tr><th>Fossil&nbsp;Version:</th><td>
-  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
+  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION) (%h(COMPILER_NAME))
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%.19s [%.10s] (%s)",
                    SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
   @ %s(zBuf)
-  @ </td></tr>
-  @ <tr><th>Compiler:</th><td>
-  @ %h(COMPILE_VARIANT)
   @ </td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   @ %d(db_int(0, "PRAGMA %s.page_count", g.zRepoDb)) pages,
