@@ -157,6 +157,7 @@ check-in 2 multiple children is a deliberate act.  So, to a good
 approximation, we define forking to be by accident and branching to
 be by intent.  Apart from that, they are the same.
 
+<a name="tags"></a>
 <h2>Tags And Properties</h2>
 
 Tags and properties are used in fossil to help express the intent, and

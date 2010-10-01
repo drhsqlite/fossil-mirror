@@ -45,6 +45,7 @@ meaning to fossil.  Fossil recognizes:
 <li> [#wikichng | Wiki Pages] </li>
 <li> [#tktchng | Ticket Changes] </li>
 <li> [#attachment | Attachments] </li>
+<li> [#event | Events] </li>
 </ul>
 
 These five artifact types are described in the sequel.
@@ -167,8 +168,9 @@ size of the file in ASCII decimal, a single newline
 character (ASCII 0x0A), and the complete text of the file.
 Compute the MD5 checksum of the result.
 
-A manifest might contain one or more T-cards used to set tags or
-properties on the check-in.  The format of the T-card is the same as
+A manifest might contain one or more T-cards used to set
+[./branching.wiki#tags | tags or properties]
+on the check-in.  The format of the T-card is the same as
 described in <i>Control Artifacts</i> section below, except that the
 second argument is the single characcter "<b>*</b>" instead of an
 artifact ID.  The <b>*</b> in place of the artifact ID indicates that
@@ -264,7 +266,8 @@ clearsigned.
 The D card and the Z card of a control artifact are the same
 as in a manifest.
 
-The T card represents a "tag" or property that is applied to
+The T card represents a [./branching.wiki#tags | tag or property]
+that is applied to
 some other artifact.  The T card has two or three values.  The
 second argument is the 40 character lowercase artifact ID of the artifact
 to which the tag is to be applied. The
@@ -326,7 +329,7 @@ that terminates the W card.  The wiki text is always followed by one
 extra newline.
 
 An example wiki artifact can be seen
-[/artifact/7b2f5fd0e0 | here].
+[/artifact/7b2f5fd0e0?txt=1 | here].
 
 <a name="tktchng"></a>
 <h2>5.0 Ticket Changes</h2>
@@ -391,7 +394,7 @@ The following cards are allowed on an attachment artifact:
 
 The A card specifies a filename for the attachment in its first argument.
 The second argument to the A card is the name
-of the wiki page or ticket to which the attachment is connected.  The
+of the wiki page or ticket or event to which the attachment is connected.  The
 third argument is either missing or else it is the 40-character artifact 
 ID of the attachment itself.  A missing third argument means that the
 attachment should be deleted.
@@ -408,8 +411,53 @@ If an attachment is added anonymously, then the U card may be omitted.
 The Z card is the usual checksum over the rest of the attachment artifact.
 
 
+<a name="event"></a>
+<h2>7.0 Events</h2>
+
+An event artifact associates a timeline comment and a page of text
+(similar to a wiki page) with a point in time.  Events can be used
+to record project milestones, release notes, blog entries, process
+checkpoints, or news articles.
+The following cards are allowed on an event artifact:
+
+<blockquote>
+<b>C</b> <i>comment</i><br>
+<b>D</b> <i>time-and-date-stamp</i><br />
+<b>E</b> <i>event-time</i> <i>event-id</i><br />
+<b>P</b> <i>parent-artifact-id</i>+<br />
+<b>U</b> <i>user-name</i><br />
+<b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
+<b>Z</b> <i>checksum</i>
+</blockquote>
+
+The C card contains text that is displayed on the timeline for the
+event.  Exactly one C card is required on an event artifact.
+
+A single D card is required to give the date and time when the 
+event artifact was created.  This is different from the time at which
+the event occurs.
+
+A single E card gives the time of the event (the point on the timeline
+where the event is displayed) and a unique identifier for the event.
+When there are multiple artifacts with the same event-id, the one with
+the most recent D card is the only one used.
+
+The option P card specifies a prior event with the same event-id from
+which the current event is an edit.  The P card is a hint to the system
+that it might be space efficient to store one event as a delta of the
+other.
+
+A single U card gives the name of the user to added the attachment.
+
+A single W card provides wiki text for the document associated with the
+event.  The format of the W card is exactly the same as for a wiki 
+artifact.
+
+The Z card is the usual checksum over the rest of the attachment artifact.
+
+
 <a name="summary"></a>
-<h2>7.0 Card Summary</h2>
+<h2>8.0 Card Summary</h2>
 
 The following table summaries the various kinds of cards that
 appear on Fossil artifacts:
@@ -417,7 +465,7 @@ appear on Fossil artifacts:
 <table border=1 width="100%">
 <tr>
 <th rowspan=2 valign=bottom>Card Format</th>
-<th colspan=6>Used By</th>
+<th colspan=7>Used By</th>
 </tr>
 <tr>
 <th>Manifest</th>
@@ -426,6 +474,7 @@ appear on Fossil artifacts:
 <th>Wiki</th>
 <th>Ticket</th>
 <th>Attachment</th>
+<th>Event</th>
 </tr>
 <tr>
 <td><b>A</b> <i>filename target source</i></td>
@@ -435,14 +484,16 @@ appear on Fossil artifacts:
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>X</b></td>
+<td>&nbsp;</td>
 </tr>
 <tr>
-<td><b>C</b> <i>coment-text</i></td>
+<td><b>C</b> <i>comment-text</i></td>
 <td align=center><b>X</b></td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td>&nbsp;</td>
+<td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
 </tr>
 <tr>
@@ -453,10 +504,22 @@ appear on Fossil artifacts:
 <td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
+<td align=center><b>X</b></td>
+</tr>
+<tr>
+<td><b>E</b> <i>event-time event-id</i></td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center><b>X</b></td>
 </tr>
 <tr>
 <td><b>F</b> <i>filename uuid permissions oldname</i></td>
 <td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -471,6 +534,7 @@ appear on Fossil artifacts:
 <td align=center>&nbsp;</td>
 <td align=center><b>X</b></td>
 <td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
 </tr>
 <tr>
 <td><b>K</b> <i>ticket-uuid</i></td>
@@ -479,6 +543,7 @@ appear on Fossil artifacts:
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 </tr>
 <tr>
@@ -489,11 +554,13 @@ appear on Fossil artifacts:
 <td align=center><b>X</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
 </tr>
 <tr>
 <td><b>M</b> <i>uuid</i></td>
 <td align=center>&nbsp;</td>
 <td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -507,10 +574,12 @@ appear on Fossil artifacts:
 <td align=center><b>X</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
 </tr>
 <tr>
 <td><b>R</b> <i>md5sum</i></td>
 <td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
@@ -524,11 +593,13 @@ appear on Fossil artifacts:
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
 </tr>
 <tr>
 <td><b>U</b> <i>username</i></td>
 <td align=center><b>X</b></td>
 <td align=center>&nbsp;</td>
+<td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
@@ -542,9 +613,11 @@ appear on Fossil artifacts:
 <td align=center><b>X</b></td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
+<td align=center><b>X</b></td>
 </tr>
 <tr>
 <td><b>Z</b> <i>md5sum</i></td>
+<td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
 <td align=center><b>X</b></td>
 <td align=center><b>X</b></td>

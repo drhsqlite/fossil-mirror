@@ -34,6 +34,7 @@
 #define CFTYPE_WIKI       4
 #define CFTYPE_TICKET     5
 #define CFTYPE_ATTACHMENT 6
+#define CFTYPE_EVENT      7
 
 /*
 ** A parsed manifest or cluster.
@@ -47,6 +48,8 @@ struct Manifest {
   char *zRepoCksum;     /* MD5 checksum of the baseline content.  R card. */
   char *zWiki;          /* Text of the wiki page.  W card. */
   char *zWikiTitle;     /* Name of the wiki page. L card. */
+  double rEventDate;    /* Date of an event.  E card. */
+  char *zEventId;       /* UUID for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
   char *zAttachName;    /* Filename of an attachment. A card. */
   char *zAttachSrc;     /* UUID of document being attached. A card. */
@@ -230,6 +233,28 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         zDate = blob_terminate(&a1);
         p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
+        break;
+      }
+
+      /*
+      **     E <timestamp> <uuid>
+      **
+      ** An "event" card that contains the timestamp of the event in the 
+      ** format YYYY-MM-DDtHH:MM:SS and a unique identifier for the event.
+      ** The event timestamp is distinct from the D timestamp.  The D
+      ** timestamp is when the artifact was created whereas the E timestamp
+      ** is when the specific event is said to occur.
+      */
+      case 'E': {
+        char *zEDate;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( p->rEventDate!=0.0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
+        zEDate = blob_terminate(&a1);
+        p->rEventDate = db_double(0.0, "SELECT julianday(%Q)", zEDate);
+        p->zEventId = blob_terminate(&a2);
         break;
       }
 
@@ -565,11 +590,12 @@ int manifest_parse(Manifest *p, Blob *pContent){
 
   if( p->nFile>0 || p->zRepoCksum!=0 ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
     if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->zEventId ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
     if( p->zAttachName ) goto manifest_syntax_error;
     p->type = CFTYPE_MANIFEST;
@@ -583,13 +609,15 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->zTicketUuid ) goto manifest_syntax_error;
     if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->zEventId ) goto manifest_syntax_error;
     if( p->zAttachName ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_CLUSTER;
   }else if( p->nField>0 ){
-    if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
+    if( p->zEventId ) goto manifest_syntax_error;
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid==0 ) goto manifest_syntax_error;
@@ -597,8 +625,18 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->zAttachName ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_TICKET;
+  }else if( p->zEventId ){
+    if( p->rDate<=0.0 ) goto manifest_syntax_error;
+    if( p->nCChild>0 ) goto manifest_syntax_error;
+    if( p->nTag>0 ) goto manifest_syntax_error;
+    if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
+    if( p->zWikiTitle!=0 ) goto manifest_syntax_error;
+    if( p->zWiki==0 ) goto manifest_syntax_error;
+    if( p->zAttachName ) goto manifest_syntax_error;
+    if( !seenZ ) goto manifest_syntax_error;
+    p->type = CFTYPE_EVENT;
   }else if( p->zWiki!=0 ){
-    if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
@@ -616,7 +654,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
     p->type = CFTYPE_CONTROL;
   }else if( p->zAttachName ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->rDate==0.0 ) goto manifest_syntax_error;
+    if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
     if( !seenZ ) goto manifest_syntax_error;
@@ -627,10 +665,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
     if( p->nParent>0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zWiki ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
-    if( p->zAttachName ) goto manifest_syntax_error;
     p->type = CFTYPE_MANIFEST;
   }
   md5sum_init();
@@ -966,6 +1002,8 @@ void manifest_ticket_event(
 **      *  Wiki Page
 **      *  Ticket Change
 **      *  Cluster
+**      *  Attachment
+**      *  Event
 **
 ** If the input is a control artifact, then make appropriate entries
 ** in the auxiliary tables of the database in order to crosslink the
@@ -1111,6 +1149,58 @@ int manifest_crosslink(int rid, Blob *pContent){
       TAG_COMMENT, rid
     );
     free(zComment);
+  }
+  if( m.type==CFTYPE_EVENT ){
+    char *zTag = mprintf("event-%s", m.zEventId);
+    int tagid = tag_findid(zTag, 1);
+    int prior, subsequent;
+    char *zComment;
+    int nWiki;
+    char zLength[40];
+    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    nWiki = strlen(m.zWiki);
+    sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
+    tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
+    free(zTag);
+    prior = db_int(0,
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=%d AND mtime<%.17g"
+      " ORDER BY mtime DESC",
+      tagid, m.rDate
+    );
+    if( prior ){
+      content_deltify(prior, rid, 0);
+      db_multi_exec(
+        "DELETE FROM event"
+        " WHERE type='e'"
+        "   AND tagid=%d"
+        "   AND objid IN (SELECT rid FROM tagxref WHERE tagid=%d)",
+        tagid, tagid
+      );
+    }
+    subsequent = db_int(0,
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=%d AND mtime>%.17g"
+      " ORDER BY mtime",
+      tagid, m.rDate
+    );
+    if( subsequent ){
+      content_deltify(rid, subsequent, 0);
+    }else{
+      db_multi_exec(
+        "REPLACE INTO event(type,mtime,objid,tagid,user,comment,"
+        "                  bgcolor,euser,ecomment)"
+        "VALUES('e',%.17g,%d,%d,%Q,%Q,"
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
+        m.rEventDate, rid, tagid, m.zUser, m.zComment, 
+        TAG_BGCOLOR, rid,
+        TAG_BGCOLOR, rid,
+        TAG_USER, rid,
+        TAG_COMMENT, rid
+      );
+    }
   }
   if( m.type==CFTYPE_TICKET ){
     char *zTag;
