@@ -33,34 +33,40 @@
 */
 void hyperlink_to_event_tagid(int tagid){
   char *zEventId;
+  char zShort[12];
 
   zEventId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
                      tagid);
+  sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zEventId);
   if( g.okHistory ){
-    @ [<a href="%s(g.zTop)/event?name=%s(zEventId)">%S(zEventId)</a>]
+    @ [<a href="%s(g.zTop)/event?name=%s(zEventId)">%s(zShort)</a>]
   }else{
-    @ [%S(zEventId)]
+    @ [%s(zShort)]
   }
   free(zEventId);
 }
 
 /*
 ** WEBPAGE: event
-** URL: /event?name=EVENTID
+** URL: /event?name=EVENTID&detail=BOOLEAN&aid=ARTIFACTID
 **
 ** Display an existing event identified by EVENTID
 */
 void event_page(void){
-  char *zTag;              /* The event-* tag for this event */
   int rid = 0;             /* rid of the event artifact */
   char *zUuid;             /* UUID corresponding to rid */
   const char *zEventId;    /* Event identifier */
   char *zETime;            /* Time of the event */
+  char *zATime;            /* Time the artifact was created */
+  int specRid;             /* rid specified by aid= parameter */
+  int prevRid, nextRid;    /* Previous or next edits of this event */
   Manifest m;              /* Parsed event artifact */
   Blob content;            /* Original event artifact content */
   Blob fullbody;           /* Complete content of the event body */
   Blob title;              /* Title extracted from the event body */
   Blob tail;               /* Event body that comes after the title */
+  Stmt q1;                 /* Query to search for the event */
+  int showDetail;          /* True to show details */
 
 
   /* wiki-read privilege is needed in order to read events.
@@ -71,21 +77,36 @@ void event_page(void){
     return;
   }
 
-  zEventId = PD("name","nil");
-  zTag = mprintf("event-%s", zEventId);
-  rid = db_int(0, 
-    "SELECT rid FROM tagxref"
-    " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
-    " ORDER BY mtime DESC", zTag
+  zEventId = P("name");
+  if( zEventId==0 ){ fossil_redirect_home(); return; }
+  zUuid = (char*)P("aid");
+  specRid = zUuid ? uuid_to_rid(zUuid, 0) : 0;
+  rid = nextRid = prevRid = 0;
+  db_prepare(&q1,
+     "SELECT rid FROM tagxref"
+     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='event-%q')"
+     " ORDER BY mtime DESC",
+     zEventId
   );
-  free(zTag);
-  if( rid==0 ){
+  while( db_step(&q1)==SQLITE_ROW ){
+    nextRid = rid;
+    rid = db_column_int(&q1, 0);
+    if( specRid==0 || specRid==rid ){
+      if( db_step(&q1)==SQLITE_ROW ){
+        prevRid = db_column_int(&q1, 0);
+      }
+      break;
+    }
+  }
+  db_finalize(&q1);
+  if( rid==0 || (specRid!=0 && specRid!=rid) ){
     style_header("No Such Event");
-    @ Unknown event: %h(zEventId)
+    @ Cannot locate specified event
     style_footer();
     return;
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  showDetail = atoi(PD("detail","0"));
 
   /* Extract the event content.
   */
@@ -96,7 +117,6 @@ void event_page(void){
   if( m.type!=CFTYPE_EVENT ){
     fossil_panic("Object #%d is not an event", rid);
   }
-  zETime = db_text(0, "SELECT datetime(%.17g)", m.rEventDate);
   blob_init(&fullbody, m.zWiki, -1);
   if( wiki_find_title(&fullbody, &title, &tail) ){
     style_header(blob_str(&title));
@@ -104,14 +124,68 @@ void event_page(void){
     style_header("Event %S", zEventId);
     tail = fullbody;
   }
-  if( g.okWrWiki && g.okWrite ){
+  if( g.okWrWiki && g.okWrite && nextRid==0 ){
     style_submenu_element("Edit", "Edit", "%s/eventedit?name=%s",
                           g.zTop, zEventId);
   }
-  style_submenu_element("Raw", "Raw", "%s/artifact/%s", g.zTop, zUuid);
+  zETime = db_text(0, "SELECT datetime(%.17g)", m.rEventDate);
+  style_submenu_element("Context", "Context", "%s/timeline?c=%T",
+                        g.zTop, zETime);
+  if( g.okHistory ){
+    if( showDetail ){
+      style_submenu_element("Plain", "Plain", "%s/event?name=%s&aid=%s",
+                            g.zTop, zEventId, zUuid);
+    }else{
+      style_submenu_element("Detail", "Detail",
+                            "%s/event?name=%s&aid=%s&detail=1",
+                            g.zTop, zEventId, zUuid);
+    }
+    if( nextRid ){
+      char *zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
+      style_submenu_element("Next", "Next", "%s/event?name=%s&aid=%s&detail=1",
+                            g.zTop, zEventId, zNext);
+      free(zNext);
+    }
+    if( prevRid ){
+      char *zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
+      style_submenu_element("Prev", "Prev", "%s/event?name=%s&aid=%s&detail=1",
+                            g.zTop, zEventId, zPrev);
+      free(zPrev);
+    }
+  }
+
+  if( showDetail && g.okHistory ){
+    int i;
+    const char *zClr = 0;
+    Blob comment;
+
+    zATime = db_text(0, "SELECT datetime(%.17g)", m.rDate);
+    @ <p>Event [<a href="%s(g.zTop)/artifact/%s(zUuid)">%S(zUuid)</a>] at
+    @ [<a href="%s(g.zTop)/timeline?c=%T(zETime)">%s(zETime)</a>]
+    @ entered by user <b>%h(m.zUser)</b> on
+    @ [<a href="%s(g.zTop)/timeline?c=%T(zATime)">%s(zATime)</a>]:</p>
+    @ <blockquote>
+    for(i=0; i<m.nTag; i++){
+      if( strcmp(m.aTag[i].zName,"+bgcolor")==0 ){
+        zClr = m.aTag[i].zValue;
+      }
+    }
+    if( zClr && zClr[0]==0 ) zClr = 0;
+    if( zClr ){
+      @ <div style="background-color: %h(zClr);">
+    }
+    blob_init(&comment, m.zComment, -1);
+    wiki_convert(&comment, 0, WIKI_INLINE);
+    blob_reset(&comment);
+    if( zClr ){
+      @ </div>
+    }
+    @ </blockquote><hr />
+  }  
 
   wiki_convert(&tail, 0, 0);
   style_footer();
+  manifest_clear(&m);
 }
 
 /*

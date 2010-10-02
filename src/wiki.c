@@ -155,6 +155,9 @@ void wiki_page(void){
     @      to experiment.</li>
     if( g.okNewWiki ){
       @ <li>  Create a <a href="%s(g.zBaseURL)/wikinew">new wiki page</a>.</li>
+      if( g.okWrite ){
+        @ <li>   Create a <a href="%s(g.zTop)/eventedit">new event</a>.</li>
+      }
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
