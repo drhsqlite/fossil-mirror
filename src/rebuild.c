@@ -183,8 +183,8 @@ static void rebuild_tag_trunk(void){
   /* Add the trunk tag to the root of the whole tree */
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid==0 ) return;
-  tag_add_artifact("sym-", "trunk", zUuid, 0, 2);
-  tag_add_artifact("", "branch", zUuid, "trunk", 2);
+  tag_add_artifact("sym-", "trunk", zUuid, 0, 2, 0, 0);
+  tag_add_artifact("", "branch", zUuid, "trunk", 2, 0, 0);
 }
 
 /*

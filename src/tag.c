@@ -260,7 +260,9 @@ void tag_add_artifact(
   const char *zTagname,       /* The tag to add or cancel */
   const char *zObjName,       /* Name of object attached to */
   const char *zValue,         /* Value for the tag.  Might be NULL */
-  int tagtype                 /* 0:cancel 1:singleton 2:propagated */
+  int tagtype,                /* 0:cancel 1:singleton 2:propagated */
+  const char *zDateOvrd,      /* Override date string */
+  const char *zUserOvrd       /* Override user name */
 ){
   int rid;
   int nrid;
@@ -291,7 +293,7 @@ void tag_add_artifact(
     );
   }
 #endif
-  zDate = db_text(0, "SELECT datetime('now')");
+  zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
   zDate[10] = 'T';
   blob_appendf(&ctrl, "D %s\n", zDate);
   blob_appendf(&ctrl, "T %c%s%F %b",
@@ -301,7 +303,7 @@ void tag_add_artifact(
   }else{
     blob_appendf(&ctrl, "\n");
   }
-  blob_appendf(&ctrl, "U %F\n", g.zLogin);
+  blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl, 0, 0);
@@ -354,6 +356,10 @@ void tag_add_artifact(
 **
 ** will assume that "decaf" is a tag/branch name.
 **
+** only allow --date-override and --user-override in 
+**   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \
+**                   --user-override user 
+** in order to import history from other scm systems
 */
 void tag_cmd(void){
   int n;
@@ -372,12 +378,15 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"add",n)==0 ){
     char *zValue;
+    const char *zDateOvrd = find_option("date-override",0,1);
+    const char *zUserOvrd = find_option("user-override",0,1);
     if( g.argc!=5 && g.argc!=6 ){
       usage("add ?--raw? ?--propagate? TAGNAME CHECK-IN ?VALUE?");
     }
     zValue = g.argc==6 ? g.argv[5] : 0;
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue, 1+fPropagate);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], zValue,
+                     1+fPropagate,zDateOvrd,zUserOvrd);
     db_end_transaction(0);
   }else
 
@@ -391,7 +400,7 @@ void tag_cmd(void){
       usage("cancel ?--raw? TAGNAME CHECK-IN");
     }
     db_begin_transaction();
-    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, 0);
+    tag_add_artifact(zPrefix, g.argv[3], g.argv[4], 0, 0, 0, 0);
     db_end_transaction(0);
   }else
 
