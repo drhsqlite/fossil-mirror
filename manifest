@@ -1,5 +1,5 @@
-C Allow\sfossil\sbranch\snew\s--date-override\s'YYYY-MM-DD\sHH:MM:SS'\s--user-override\suser\sthebranch\scheckin\nTo\said\sin\simporting\shistoric\sdata\sfrom\sother\sscm's
-D 2010-10-01T18:02:41
+C show\snew\sallowed\stags(checkin\s[5c59d7e9c6])\sin\swiki\shelp\spage
+D 2010-10-02T12:51:29
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -112,8 +112,8 @@ F src/url.c c9390a9b0733b479ae6882ee9f71b8551dbeaf21
 F src/user.c b7f7d1d87de8c2bee94d776cb115780a2056fa74
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 3c02b2d2dc5646f11b9d0756def29830ee3ad8ac
-F src/wiki.c 5cb235d54e2009cfde94da5f1403405020724bd7
-F src/wikiformat.c 07c28b7f233a715dba3e7e4af9329ea532281723
+F src/wiki.c 82faa6c2f537cc200c44e3b24b253076e156b39d
+F src/wikiformat.c ced52929e6cce4f214bf03f10c5f75863062a7c9
 F src/winhttp.c a1c84819fec09950866d1020f70cead31fb8d42d
 F src/xfer.c fee8c950a6aa8b96cc758b736367a8679cdbdd0b
 F src/zip.c 0db3b1e1ec25c83bf21d0c6fb872602ee7ad057e
@@ -268,7 +268,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki c301f0be747ca4cc59987e3c960d84a9e2686757
-P 5c59d7e9c61c2ba1c572a610b58a7f684523c211
-R 11a3a48dd37d47613f0f57ea8793a946
-U renez
-Z e8c0ea6784ddf45a23e1dfd21a6ee05a
+P 2cc6fd910744ec9905e0ccf2322b8e4753d2ae6e
+R 6728d6ff37f32119e6d39f38ace509b1
+U Ratte
+Z 93476658a039578de9770bb767d17956

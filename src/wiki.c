@@ -773,53 +773,8 @@ void wikirules_page(void){
   @ tag to your wiki page.</p></li>
   @ <li> <p><span class="wikiruleHead">HTML</span>.
   @ The following standard HTML elements may be used:
-  @ &lt;a&gt;
-  @ &lt;address&gt;
-  @ &lt;b&gt;
-  @ &lt;big&gt;
-  @ &lt;blockquote&gt;
-  @ &lt;br&gt;
-  @ &lt;center&gt;
-  @ &lt;cite&gt;
-  @ &lt;code&gt;
-  @ &lt;dd&gt;
-  @ &lt;dfn&gt;
-  @ &lt;div&gt;
-  @ &lt;dl&gt;
-  @ &lt;dt&gt;
-  @ &lt;em&gt;
-  @ &lt;font&gt;
-  @ &lt;h1&gt;
-  @ &lt;h2&gt;
-  @ &lt;h3&gt;
-  @ &lt;h4&gt;
-  @ &lt;h5&gt;
-  @ &lt;h6&gt;
-  @ &lt;hr&gt;
-  @ &lt;img&gt;
-  @ &lt;i&gt;
-  @ &lt;kbd&gt;
-  @ &lt;li&gt;
-  @ &lt;nobr&gt;
-  @ &lt;ol&gt;
-  @ &lt;p&gt;
-  @ &lt;pre&gt;
-  @ &lt;s&gt;
-  @ &lt;samp&gt;
-  @ &lt;small&gt;
-  @ &lt;strike&gt;
-  @ &lt;strong&gt;
-  @ &lt;sub&gt;
-  @ &lt;sup&gt;
-  @ &lt;table&gt;
-  @ &lt;td&gt;
-  @ &lt;th&gt;
-  @ &lt;tr&gt;
-  @ &lt;tt&gt;
-  @ &lt;u&gt;
-  @ &lt;ul&gt;
-  @ &lt;var&gt;.
-  @ In addition, there are two non-standard elements available:
+  show_allowed_wiki_markup();
+  @ . There are two non-standard elements available:
   @ &lt;verbatim&gt; and &lt;nowiki&gt;.
   @ No other elements are allowed.  All attributes are checked and
   @ only a few benign attributes are allowed on each element.
