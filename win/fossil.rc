@@ -19,8 +19,8 @@ BEGIN
     BLOCK "040904B0"
     BEGIN
       VALUE "FileDescription", "distributed source code control system with integrated wiki and ticket-system\0"
-      VALUE "Comments", "compiler variant: "COMPILE_VARIANT"\0"
-      VALUE "FileVersion", MANIFEST_UUID"("COMPILE_VARIANT"\0"
+      VALUE "Comments", "compiler variant: "COMPILER_NAME"\0"
+      VALUE "FileVersion", MANIFEST_UUID"("COMPILER_NAME"\0"
       VALUE "InternalName", "fossil\0"
       VALUE "LegalCopyright", "Copyright (c) "MANIFEST_YEAR" D. Richard Hipp\0"
       VALUE "OriginalFilename", "fossil.exe\0"
