@@ -291,13 +291,7 @@ void www_print_timeline(
         }
       }
     }else if( zType[0]=='e' && tagid ){
-      char *zId = db_text(0,"SELECT tagname FROM tag WHERE tagid=%d", tagid);
-      zId += 6;
-      if( g.okHistory && g.okRdWiki ){
-        @ [<a href="%s(g.zBaseURL)/event?name=%s(zId)">%S(zId)</a>]
-      }else{
-        @ [%S(zId)]
-      }
+      hyperlink_to_event_tagid(tagid);
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }

@@ -781,7 +781,7 @@ void object_description(
   db_finalize(&q);
   if( nWiki==0 ){
     db_prepare(&q,
-      "SELECT datetime(mtime), user, comment, type, uuid"
+      "SELECT datetime(mtime), user, comment, type, uuid, tagid"
       "  FROM event, blob"
       " WHERE event.objid=%d"
       "   AND blob.rid=%d",
@@ -802,10 +802,15 @@ void object_description(
         @ Ticket change
       }else if( zType[0]=='c' ){
         @ Manifest of check-in
+      }else if( zType[0]=='e' ){
+        @ Instance of event
+        hyperlink_to_event_tagid(db_column_int(&q, 5));
       }else{
         @ Control file referencing
       }
-      hyperlink_to_uuid(zUuid);
+      if( zType[0]!='e' ){
+        hyperlink_to_uuid(zUuid);
+      }
       @ - %w(zCom) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".");

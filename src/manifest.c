@@ -1196,17 +1196,11 @@ int manifest_crosslink(int rid, Blob *pContent){
       content_deltify(rid, subsequent, 0);
     }else{
       db_multi_exec(
-        "REPLACE INTO event(type,mtime,objid,tagid,user,comment,"
-        "                  bgcolor,euser,ecomment)"
+        "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"
-        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
-        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
         m.rEventDate, rid, tagid, m.zUser, m.zComment, 
-        TAG_BGCOLOR, rid,
-        TAG_BGCOLOR, rid,
-        TAG_USER, rid,
-        TAG_COMMENT, rid
+        TAG_BGCOLOR, rid
       );
     }
   }

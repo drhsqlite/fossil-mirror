@@ -29,21 +29,38 @@
 #include "event.h"
 
 /*
+** Output a hyperlink to an event given its tagid.
+*/
+void hyperlink_to_event_tagid(int tagid){
+  char *zEventId;
+
+  zEventId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
+                     tagid);
+  if( g.okHistory ){
+    @ [<a href="%s(g.zTop)/event?name=%s(zEventId)">%S(zEventId)</a>]
+  }else{
+    @ [%S(zEventId)]
+  }
+  free(zEventId);
+}
+
+/*
 ** WEBPAGE: event
 ** URL: /event?name=EVENTID
 **
 ** Display an existing event identified by EVENTID
 */
 void event_page(void){
-  char *zTag;
-  int rid = 0;
-  const char *zEventId;
-  char *zETime;
-  Manifest m;
-  Blob content;
-  Blob fullbody;
-  Blob title;
-  Blob tail;
+  char *zTag;              /* The event-* tag for this event */
+  int rid = 0;             /* rid of the event artifact */
+  char *zUuid;             /* UUID corresponding to rid */
+  const char *zEventId;    /* Event identifier */
+  char *zETime;            /* Time of the event */
+  Manifest m;              /* Parsed event artifact */
+  Blob content;            /* Original event artifact content */
+  Blob fullbody;           /* Complete content of the event body */
+  Blob title;              /* Title extracted from the event body */
+  Blob tail;               /* Event body that comes after the title */
 
 
   /* wiki-read privilege is needed in order to read events.
@@ -68,6 +85,7 @@ void event_page(void){
     style_footer();
     return;
   }
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
 
   /* Extract the event content.
   */
@@ -83,9 +101,15 @@ void event_page(void){
   if( wiki_find_title(&fullbody, &title, &tail) ){
     style_header(blob_str(&title));
   }else{
-    style_header("Event %s", zEventId);
+    style_header("Event %S", zEventId);
     tail = fullbody;
   }
+  if( g.okWrWiki && g.okWrite ){
+    style_submenu_element("Edit", "Edit", "%s/eventedit?name=%s",
+                          g.zTop, zEventId);
+  }
+  style_submenu_element("Raw", "Raw", "%s/artifact/%s", g.zTop, zUuid);
+
   wiki_convert(&tail, 0, 0);
   style_footer();
 }
