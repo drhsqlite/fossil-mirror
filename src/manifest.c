@@ -631,11 +631,14 @@ int manifest_parse(Manifest *p, Blob *pContent){
   }else if( p->zEventId ){
     if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->nCChild>0 ) goto manifest_syntax_error;
-    if( p->nTag>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
     if( p->zWikiTitle!=0 ) goto manifest_syntax_error;
     if( p->zWiki==0 ) goto manifest_syntax_error;
     if( p->zAttachName ) goto manifest_syntax_error;
+    for(i=0; i<p->nTag; i++){
+      if( p->aTag[i].zName[0]!='+' ) goto manifest_syntax_error;
+      if( p->aTag[i].zUuid!=0 ) goto manifest_syntax_error;
+    }
     if( !seenZ ) goto manifest_syntax_error;
     p->type = CFTYPE_EVENT;
   }else if( p->zWiki!=0 ){
@@ -1086,7 +1089,10 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
     }
   }
-  if( m.type==CFTYPE_CONTROL || m.type==CFTYPE_MANIFEST ){
+  if( m.type==CFTYPE_CONTROL
+   || m.type==CFTYPE_MANIFEST
+   || m.type==CFTYPE_EVENT
+  ){
     for(i=0; i<m.nTag; i++){
       int tid;
       int type;

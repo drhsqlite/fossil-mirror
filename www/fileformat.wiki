@@ -425,6 +425,7 @@ The following cards are allowed on an event artifact:
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>E</b> <i>event-time</i> <i>event-id</i><br />
 <b>P</b> <i>parent-artifact-id</i>+<br />
+<b>T</b> <b>+</b><i>tag-name</i> <b>*</b> <i>value</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
 <b>Z</b> <i>checksum</i>
@@ -448,7 +449,22 @@ which the current event is an edit.  The P card is a hint to the system
 that it might be space efficient to store one event as a delta of the
 other.
 
-A single U card gives the name of the user to added the attachment.
+An event might contain one or more T-cards used to set
+[./branching.wiki#tags | tags or properties]
+on the event.  The format of the T-card is the same as
+described in <i>Control Artifacts</i> section above, except that the
+second argument is the single characcter "<b>*</b>" instead of an
+artifact ID and the name is always prefaced by "<b>+</b>".
+The <b>*</b> in place of the artifact ID indicates that
+the tag or property applies to the current artifact.  It is not
+possible to encode the current artifact ID as part of an artifact,
+since the act of inserting the artifact ID would change the artifact ID,
+hence a <b>*</b> is used to represent "self".  The "<b>+</b>" on the
+name means that tags can only be add and they can only be non-propagating
+tags.  A an event, T cards are normally used to set the background
+display color for timelines.
+
+The optional U card gives name of the user who entered the event.
 
 A single W card provides wiki text for the document associated with the
 event.  The format of the W card is exactly the same as for a wiki 
@@ -594,7 +610,7 @@ appear on Fossil artifacts:
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
-<td align=center>&nbsp;</td>
+<td align=center><b>X</b></td>
 </tr>
 <tr>
 <td><b>U</b> <i>username</i></td>

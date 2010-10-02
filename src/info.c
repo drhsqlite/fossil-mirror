@@ -1264,6 +1264,86 @@ void info_page(void){
 }
 
 /*
+** Generate HTML that will present the user with a selection of
+** potential background colors for timeline entries.
+*/
+void render_color_chooser(
+  int fPropagate,             /* Default value for propagation */
+  const char *zDefaultColor,  /* The current default color */
+  const char *zIdPropagate,   /* ID of form element checkbox.  NULL for none */
+  const char *zId,            /* The ID of the form element */
+  const char *zIdCustom       /* ID of text box for custom color */
+){
+  static const struct SampleColors {
+     const char *zCName;
+     const char *zColor;
+  } aColor[] = {
+     { "(none)",  "" },
+     { "#f2dcdc", "#f2dcdc" },
+     { "#f0ffc0", "#f0ffc0" },
+     { "#bde5d6", "#bde5d6" },
+     { "#c0ffc0", "#c0ffc0" },
+     { "#c0fff0", "#c0fff0" },
+     { "#c0f0ff", "#c0f0ff" },
+     { "#d0c0ff", "#d0c0ff" },
+     { "#ffc0ff", "#ffc0ff" },
+     { "#ffc0d0", "#ffc0d0" },
+     { "#fff0c0", "#fff0c0" },
+     { "#c0c0c0", "#c0c0c0" },
+     { "custom",  "##"      },
+  };
+  int nColor = sizeof(aColor)/sizeof(aColor[0])-1;
+  int stdClrFound = 0;
+  int i;
+
+  @ <table border="0" cellpadding="0" cellspacing="1">
+  if( zIdPropagate ){
+    @ <tr><td colspan="6" align="left">
+    if( fPropagate ){
+      @ <input type="checkbox" name="%s(zIdPropagate)" checked="checked" />
+    }else{
+      @ <input type="checkbox" name="%s(zIdPropagate)" />
+    }
+    @ Propagate color to descendants</td></tr>
+  }
+  @ <tr>
+  for(i=0; i<nColor; i++){
+    if( aColor[i].zColor[0] ){
+      @ <td style="background-color: %h(aColor[i].zColor);">
+    }else{
+      @ <td>
+    }
+    if( strcmp(zDefaultColor, aColor[i].zColor)==0 ){
+      @ <input type="radio" name="%s(zId)" value="%h(aColor[i].zColor)"
+      @  checked="checked" />
+      stdClrFound=1;
+    }else{
+      @ <input type="radio" name="%s(zId)" value="%h(aColor[i].zColor)" />
+    }
+    @ %h(aColor[i].zCName)</td>
+    if( (i%6)==5 && i+1<nColor ){
+      @ </tr><tr>
+    }
+  }
+  @ </tr><tr>
+  if (stdClrFound){
+    @ <td colspan="6">
+    @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)" />
+  }else{
+    @ <td style="background-color: %h(zDefaultColor);" colspan="6">
+    @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)"
+    @  checked="checked" />
+  }
+  @ %h(aColor[i].zCName)&nbsp;
+  @ <input type="text" name="%s(zIdCustom)"
+  @  id="%s(zIdCustom)" class="checkinUserColor"
+  @  value="%h(stdClrFound?"":zDefaultColor)" />
+  @ </td>
+  @ </tr>
+  @ </table>
+}
+
+/*
 ** WEBPAGE: ci_edit
 ** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
@@ -1292,27 +1372,6 @@ void ci_edit_page(void){
   char *zUuid;
   Blob comment;
   Stmt q;
-  static const struct SampleColors {
-     const char *zCName;
-     const char *zColor;
-  } aColor[] = {
-     { "(none)",  "" },
-     { "#f2dcdc", "#f2dcdc" },
-     { "#f0ffc0", "#f0ffc0" },
-     { "#bde5d6", "#bde5d6" },
-     { "#c0ffc0", "#c0ffc0" },
-     { "#c0fff0", "#c0fff0" },
-     { "#c0f0ff", "#c0f0ff" },
-     { "#d0c0ff", "#d0c0ff" },
-     { "#ffc0ff", "#ffc0ff" },
-     { "#ffc0d0", "#ffc0d0" },
-     { "#fff0c0", "#fff0c0" },
-     { "#c0c0c0", "#c0c0c0" },
-     { "custom",  "##"      },
-  };
-  int nColor = sizeof(aColor)/sizeof(aColor[0])-1;
-  int stdClrFound;
-  int i;
   
   login_check_credentials();
   if( !g.okWrite ){ login_needed(); return; }
@@ -1336,7 +1395,7 @@ void ci_edit_page(void){
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PD("clr",zColor);
-  if( strcmp(zNewColor,aColor[nColor].zColor)==0 ){
+  if( strcmp(zNewColor,"##")==0 ){
     zNewColor = P("clrcust");
   }
   fPropagateColor = P("pclr")!=0;
@@ -1503,48 +1562,7 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
   @ <td valign="top">
-  @ <table border="0" cellpadding="0" cellspacing="1">
-  @ <tr><td colspan="6" align="left">
-  if( fPropagateColor ){
-    @ <input type="checkbox" name="pclr" checked="checked" />
-  }else{
-    @ <input type="checkbox" name="pclr" />
-  }
-  @ Propagate color to descendants</td></tr>
-  @ <tr>
-  for(i=0,stdClrFound=0; i<nColor; i++){
-    if( aColor[i].zColor[0] ){
-      @ <td style="background-color: %h(aColor[i].zColor);">
-    }else{
-      @ <td>
-    }
-    if( strcmp(zNewColor, aColor[i].zColor)==0 ){
-      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)"
-      @  checked="checked" />
-      stdClrFound=1;
-    }else{
-      @ <input type="radio" name="clr" value="%h(aColor[i].zColor)" />
-    }
-    @ %h(aColor[i].zCName)</td>
-    if( (i%6)==5 && i+1<nColor ){
-      @ </tr><tr>
-    }
-  }
-  @ </tr><tr>
-  if (stdClrFound){
-    @ <td colspan="6">
-    @ <input type="radio" name="clr" value="%h(aColor[nColor].zColor)" />
-  }else{
-    @ <td style="background-color: %h(zNewColor);" colspan="6">
-    @ <input type="radio" name="clr" value="%h(aColor[nColor].zColor)"
-    @  checked="checked" />
-  }
-  @ %h(aColor[i].zCName)&nbsp;
-  @ <input type="text" name="clrcust" id="clrcust" class="checkinUserColor"
-  @  value="%h(stdClrFound?"":zNewColor)" />
-  @ </td>
-  @ </tr>
-  @ </table>
+  render_color_chooser(fPropagateColor, zNewColor, "pclr", "clr", "clrcust");
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>

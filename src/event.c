@@ -106,7 +106,8 @@ void eventedit_page(void){
   const char *z;
   char *zBody = (char*)P("w");
   char *zETime = (char*)P("t");
-  char *zComment = (char*)P("c");
+  const char *zComment = P("c");
+  const char *zClr;
 
   if( zBody ){
     zBody = mprintf("%s", zBody);
@@ -137,6 +138,16 @@ void eventedit_page(void){
     login_needed();
     return;
   }
+
+  /* Figure out the color */
+  if( rid ){
+    zClr = db_text("", "SELECT bgcolor  FROM event WHERE objid=%d", rid);
+  }else{
+    zClr = "";
+  }
+  zClr = PD("clr",zClr);
+  if( strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
+
 
   /* If editing an existing event, extract the key fields to use as
   ** a starting point for the edit.
@@ -177,6 +188,9 @@ void eventedit_page(void){
       blob_appendf(&event, "P %s\n", zUuid);
       free(zUuid);
     }
+    if( zClr && zClr[0] ){
+      blob_appendf(&event, "T +bgcolor * %F\n", zClr);
+    }
     if( g.zLogin ){
       blob_appendf(&event, "U %F\n", g.zLogin);
     }
@@ -202,11 +216,29 @@ void eventedit_page(void){
   zHtmlPageName = mprintf("Edit Event %S", zEventId);
   style_header(zHtmlPageName);
   if( P("preview")!=0 ){
-    blob_zero(&event);
-    blob_append(&event, zBody, -1);
-    @ Page content:<hr />
-    wiki_convert(&event, 0, 0);
-    @ <hr />
+    Blob title, tail, com;
+    @ <p><b>Timeline comment preview:</b></p>
+    @ <blockquote>
+    @ <table border="0">
+    if( zClr && zClr[0] ){
+      @ <tr><td style="background-color: %h(zClr);">
+    }else{
+      @ <tr><td>
+    }
+    blob_init(&com, zComment, -1);
+    wiki_convert(&com, 0, WIKI_INLINE);
+    @ </td></tr></table>
+    @ </blockquote>
+    @ <p><b>Page content preview:</b><p>
+    @ <blockquote>
+    blob_init(&event, zBody, -1);
+    if( wiki_find_title(&event, &title, &tail) ){
+      @ <h2 align="center">%h(blob_str(&title))</h2>
+      wiki_convert(&tail, 0, 0);
+    }else{
+      wiki_convert(&event, 0, 0);
+    }
+    @ </blockquote><hr />
     blob_reset(&event);
   }
   for(n=2, z=zBody; z[0]; z++){
@@ -217,18 +249,35 @@ void eventedit_page(void){
   @ <form method="post" action="%s(g.zBaseURL)/eventedit"><div>
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zEventId)" />
-  @ <p>Event time:
-  @ <input type="text" name="t" size="25" value="%h(zETime)" /></p>
-  @ <p>Summary of the event as it appears on a timeline:<br />
+  @ <table border="0" cellspacing="10">
+
+  @ <tr><td align="right" valign="top"><b>Event&nbsp;Time:</b></td>
+  @ <td valign="top">
+  @   <input type="text" name="t" size="25" value="%h(zETime)" /></p>
+  @ </td></tr>
+
+  @ <tr><td align="right" valign="top"><b>Timeline&nbsp;Comment:</b></td>
+  @ <td valign="top">
   @ <textarea name="c" class="eventedit" cols="80" 
-  @  rows="3" wrap="virtual">%h(zComment)</textarea></p>
-  @ <p>Full content of the event.  Put the page title in
-  @ &lt;title&gt;...&lt;/title&gt; markup at the beginning:<br />
+  @  rows="3" wrap="virtual">%h(zComment)</textarea>
+  @ </td></tr>
+
+  @ <tr><td align="right" valign="top"><b>Background&nbsp;Color:</b></td>
+  @ <td valign="top">
+  render_color_chooser(0, zClr, 0, "clr", "cclr");
+  @ </td></tr>
+  
+  @ <tr><td align="right" valign="top"><b>Page&nbsp;Content:</b></td>
+  @ <td valign="top">
   @ <textarea name="w" class="eventedit" cols="80" 
-  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea></p>
-  @ </p><input type="submit" name="preview" value="Preview Your Changes" />
+  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+  @ </td></tr>
+
+  @ <tr><td colspan="2">
+  @ <input type="submit" name="preview" value="Preview Your Changes" />
   @ <input type="submit" name="submit" value="Apply These Changes" />
-  @ <input type="submit" name="cancel" value="Cancel" /></p>
+  @ <input type="submit" name="cancel" value="Cancel" />
+  @ </td></tr></table>
   @ </div></form>
   style_footer();
 }
