@@ -135,22 +135,26 @@ void event_page(void){
     if( showDetail ){
       style_submenu_element("Plain", "Plain", "%s/event?name=%s&aid=%s",
                             g.zTop, zEventId, zUuid);
+      if( nextRid ){
+        char *zNext;
+        zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
+        style_submenu_element("Next", "Next",
+                              "%s/event?name=%s&aid=%s&detail=1",
+                              g.zTop, zEventId, zNext);
+        free(zNext);
+      }
+      if( prevRid ){
+        char *zPrev;
+        zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
+        style_submenu_element("Prev", "Prev",
+                              "%s/event?name=%s&aid=%s&detail=1",
+                              g.zTop, zEventId, zPrev);
+        free(zPrev);
+      }
     }else{
       style_submenu_element("Detail", "Detail",
                             "%s/event?name=%s&aid=%s&detail=1",
                             g.zTop, zEventId, zUuid);
-    }
-    if( nextRid ){
-      char *zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
-      style_submenu_element("Next", "Next", "%s/event?name=%s&aid=%s&detail=1",
-                            g.zTop, zEventId, zNext);
-      free(zNext);
-    }
-    if( prevRid ){
-      char *zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
-      style_submenu_element("Prev", "Prev", "%s/event?name=%s&aid=%s&detail=1",
-                            g.zTop, zEventId, zPrev);
-      free(zPrev);
     }
   }
 
@@ -323,13 +327,15 @@ void eventedit_page(void){
     }else{
       @ <tr><td>
     }
-    blob_init(&com, zComment, -1);
+    blob_zero(&com);
+    blob_append(&com, zComment, -1);
     wiki_convert(&com, 0, WIKI_INLINE);
     @ </td></tr></table>
     @ </blockquote>
     @ <p><b>Page content preview:</b><p>
     @ <blockquote>
-    blob_init(&event, zBody, -1);
+    blob_zero(&event);
+    blob_append(&event, zBody, -1);
     if( wiki_find_title(&event, &title, &tail) ){
       @ <h2 align="center">%h(blob_str(&title))</h2>
       wiki_convert(&tail, 0, 0);
