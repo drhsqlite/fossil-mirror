@@ -254,7 +254,10 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
         zEDate = blob_terminate(&a1);
         p->rEventDate = db_double(0.0, "SELECT julianday(%Q)", zEDate);
+        if( p->rEventDate<=0.0 ) goto manifest_syntax_error;
+        if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
         p->zEventId = blob_terminate(&a2);
+        if( !validate16(p->zEventId, UUID_SIZE) ) goto manifest_syntax_error;
         break;
       }
 
@@ -1154,7 +1157,6 @@ int manifest_crosslink(int rid, Blob *pContent){
     char *zTag = mprintf("event-%s", m.zEventId);
     int tagid = tag_findid(zTag, 1);
     int prior, subsequent;
-    char *zComment;
     int nWiki;
     char zLength[40];
     while( isspace(m.zWiki[0]) ) m.zWiki++;

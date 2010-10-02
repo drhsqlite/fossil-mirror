@@ -440,7 +440,8 @@ the event occurs.
 A single E card gives the time of the event (the point on the timeline
 where the event is displayed) and a unique identifier for the event.
 When there are multiple artifacts with the same event-id, the one with
-the most recent D card is the only one used.
+the most recent D card is the only one used.  The event-id must be a
+40-character lower-case hexadecimal string.
 
 The option P card specifies a prior event with the same event-id from
 which the current event is an edit.  The P card is a hint to the system

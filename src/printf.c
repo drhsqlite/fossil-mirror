@@ -46,9 +46,9 @@
 #define etURLIZE     18 /* Make text safe for HTTP.  "/" not encoded */
 #define etFOSSILIZE  19 /* The fossil header encoding format. */
 #define etPATH       20 /* Path type */
-#define etWIKISTR    21 /* Wiki text rendered from a char* */
-#define etWIKIBLOB   22 /* Wiki text rendered from a Blob* */
-#define etSTRINGID   23 /* String with length limit for a UUID prefix */
+#define etWIKISTR    21 /* Wiki text rendered from a char*: %w */
+#define etWIKIBLOB   22 /* Wiki text rendered from a Blob*: %W */
+#define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
 
 
 /*

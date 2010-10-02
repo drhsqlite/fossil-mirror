@@ -167,7 +167,7 @@ int count_nonbranch_children(int pid){
 **    6.  background color
 **    7.  type ("ci", "w", "t")
 **    8.  list of symbolic tags.
-**    9.  tagid for ticket or wiki
+**    9.  tagid for ticket or wiki or event
 **   10.  Short comment to user for repeated tickets and wiki
 */
 void www_print_timeline(
@@ -289,6 +289,14 @@ void www_print_timeline(
         }else{
           @ <span class="timelineLeaf">Leaf:</span>
         }
+      }
+    }else if( zType[0]=='e' && tagid ){
+      char *zId = db_text(0,"SELECT tagname FROM tag WHERE tagid=%d", tagid);
+      zId += 6;
+      if( g.okHistory && g.okRdWiki ){
+        @ [<a href="%s(g.zBaseURL)/event?name=%s(zId)">%S(zId)</a>]
+      }else{
+        @ [%S(zId)]
       }
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);

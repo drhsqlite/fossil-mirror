@@ -31,6 +31,7 @@ set src {
   diffcmd
   doc
   encode
+  event
   file
   finfo
   graph
