@@ -312,6 +312,14 @@ static const struct AllowedMarkup {
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       AMSK_ID|AMSK_TYPE },
 };
 
+void show_allowed_wiki_markup( void ){
+  int i; /* loop over allowedAttr */
+
+  for( i=1 ; i<=sizeof(aMarkup)/sizeof(aMarkup[0]) - 1 ; i++ ){
+    @ &lt;%s(aMarkup[i].zName)&gt;
+  }
+}
+
 /*
 ** Use binary search to locate a tag in the aMarkup[] table.
 */
