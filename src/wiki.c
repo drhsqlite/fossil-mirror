@@ -108,7 +108,7 @@ void home_page(void){
   @ <a href="%s(g.zBaseURL)/setup_config">setup/config</a>
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
-  @ will be displayed in place of this message.
+  @ will be displayed in place of this message.</p>
   style_footer();
 }
 

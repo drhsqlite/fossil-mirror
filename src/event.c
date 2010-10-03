@@ -133,13 +133,13 @@ void event_page(void){
                         g.zTop, zETime);
   if( g.okHistory ){
     if( showDetail ){
-      style_submenu_element("Plain", "Plain", "%s/event?name=%s&aid=%s",
+      style_submenu_element("Plain", "Plain", "%s/event?name=%s&amp;aid=%s",
                             g.zTop, zEventId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
         style_submenu_element("Next", "Next",
-                              "%s/event?name=%s&aid=%s&detail=1",
+                              "%s/event?name=%s&amp;aid=%s&amp;detail=1",
                               g.zTop, zEventId, zNext);
         free(zNext);
       }
@@ -147,13 +147,13 @@ void event_page(void){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
         style_submenu_element("Prev", "Prev",
-                              "%s/event?name=%s&aid=%s&detail=1",
+                              "%s/event?name=%s&amp;aid=%s&amp;detail=1",
                               g.zTop, zEventId, zPrev);
         free(zPrev);
       }
     }else{
       style_submenu_element("Detail", "Detail",
-                            "%s/event?name=%s&aid=%s&detail=1",
+                            "%s/event?name=%s&amp;aid=%s&amp;detail=1",
                             g.zTop, zEventId, zUuid);
     }
   }
@@ -177,13 +177,13 @@ void event_page(void){
     if( zClr && zClr[0]==0 ) zClr = 0;
     if( zClr ){
       @ <div style="background-color: %h(zClr);">
+    }else{
+      @ <div>
     }
     blob_init(&comment, m.zComment, -1);
     wiki_convert(&comment, 0, WIKI_INLINE);
     blob_reset(&comment);
-    if( zClr ){
-      @ </div>
-    }
+    @ </div>
     @ </blockquote><hr />
   }  
 
@@ -406,7 +406,7 @@ void eventedit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Event&nbsp;Time:</b></td>
   @ <td valign="top">
-  @   <input type="text" name="t" size="25" value="%h(zETime)" /></p>
+  @   <input type="text" name="t" size="25" value="%h(zETime)" />
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Timeline&nbsp;Comment:</b></td>
@@ -422,7 +422,7 @@ void eventedit_page(void){
   
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
   @ <td valign="top">
-  @   <input type="text" name="g" size="40" value="%h(zTags)" /></p>
+  @   <input type="text" name="g" size="40" value="%h(zTags)" />
   @ </td></tr>
   
   @ <tr><td align="right" valign="top"><b>Page&nbsp;Content:</b></td>
