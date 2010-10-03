@@ -137,6 +137,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
   }
   manifest_crosslink(rid, pUse);
   blob_reset(pUse);
+  rebuild_step_done(rid);
 
   /* Call all children recursively */
   for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
@@ -163,7 +164,6 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     }
   }
   bag_clear(&children);
-  rebuild_step_done(rid);
 }
 
 /*
