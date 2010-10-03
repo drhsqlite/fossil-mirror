@@ -759,12 +759,12 @@ void page_timeline(void){
     url_initialize(&url, "timeline");
     url_add_parameter(&url, "n", zNEntry);
     if( tagid>0 ){
-      zType = "ci";
+      if( zType[0]!='e' ) zType = "ci";
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
                     " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
 
-      if( zBrName ){
+      if( zBrName && zType[0]=='c' ){
         /* The next two blob_appendf() calls add SQL that causes checkins that
         ** are not part of the branch which are parents or childen of the branch
         ** to be included in the report.  This related check-ins are useful

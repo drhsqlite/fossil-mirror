@@ -209,6 +209,7 @@ void eventedit_page(void){
   char *zBody = (char*)P("w");
   char *zETime = (char*)P("t");
   const char *zComment = P("c");
+  const char *zTags = P("g");
   const char *zClr;
 
   if( zBody ){
@@ -254,7 +255,7 @@ void eventedit_page(void){
   /* If editing an existing event, extract the key fields to use as
   ** a starting point for the edit.
   */
-  if( rid && (zBody==0 || zETime==0 || zComment==0) ){
+  if( rid && (zBody==0 || zETime==0 || zComment==0 || zTags==0) ){
     Manifest m;
     Blob content;
     memset(&m, 0, sizeof(m));
@@ -267,6 +268,16 @@ void eventedit_page(void){
         zETime = db_text(0, "SELECT datetime(%.17g)", m.rEventDate);
       }
       if( zComment==0 ) zComment = m.zComment;
+    }
+    if( zTags==0 ){
+      zTags = db_text(0,
+        "SELECT group_concat(substr(tagname,5),', ')"
+        "  FROM tagxref, tag"
+        " WHERE tagxref.rid=%d"
+        "   AND tagxref.tagid=tag.tagid"
+        "   AND tag.tagname GLOB 'sym-*'",
+        rid
+      );
     }
   }
   zETime = db_text(0, "SELECT coalesce(datetime(%Q),datetime('now'))", zETime);
@@ -293,6 +304,44 @@ void eventedit_page(void){
     if( zClr && zClr[0] ){
       blob_appendf(&event, "T +bgcolor * %F\n", zClr);
     }
+    if( zTags && zTags[0] ){
+      Blob tags, one;
+      int i, j;
+      Stmt q;
+      char *zBlob;
+
+      /* Load the tags string into a blob */
+      blob_zero(&tags);
+      blob_append(&tags, zTags, -1); 
+
+      /* Collapse all sequences of whitespace and "," characters into
+      ** a single space character */
+      zBlob = blob_str(&tags);
+      for(i=j=0; zBlob[i]; i++, j++){
+        if( blob_isspace(zBlob[i]) || zBlob[i]==',' ){
+          while( blob_isspace(zBlob[i+1]) ){ i++; }
+          zBlob[j] = ' ';
+        }else{
+          zBlob[j] = zBlob[i];
+        }
+      }
+      blob_resize(&tags, j);
+
+      /* Parse out each tag and load it into a temporary table for sorting */
+      db_multi_exec("CREATE TEMP TABLE newtags(x);");
+      while( blob_token(&tags, &one) ){
+        db_multi_exec("INSERT INTO newtags VALUES(%B)", &one);
+      }
+      blob_reset(&tags);
+
+      /* Extract the tags in sorted order and make an entry in the
+      ** artifact for each. */
+      db_prepare(&q, "SELECT x FROM newtags ORDER BY x");
+      while( db_step(&q)==SQLITE_ROW ){
+        blob_appendf(&event, "T +sym-%F *\n", db_column_text(&q, 0));
+      }
+      db_finalize(&q);
+    }        
     if( g.zLogin ){
       blob_appendf(&event, "U %F\n", g.zLogin);
     }
@@ -369,6 +418,11 @@ void eventedit_page(void){
   @ <tr><td align="right" valign="top"><b>Background&nbsp;Color:</b></td>
   @ <td valign="top">
   render_color_chooser(0, zClr, 0, "clr", "cclr");
+  @ </td></tr>
+  
+  @ <tr><td align="right" valign="top"><b>Tags:</b></td>
+  @ <td valign="top">
+  @   <input type="text" name="g" size="40" value="%h(zTags)" /></p>
   @ </td></tr>
   
   @ <tr><td align="right" valign="top"><b>Page&nbsp;Content:</b></td>

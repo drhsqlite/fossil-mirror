@@ -1,5 +1,5 @@
-C User\sinterface\srefinements\sand\ssome\sdocumentation\sadded\sfor\sevents.
-D 2010-10-02T18:31:56
+C Add\ssupport\sfor\stags\son\sevents,\sincluding\sthe\sability\sto\sdisplay\sa\stimeline\nof\sall\sevents\swith\sa\sparticular\stag.
+D 2010-10-03T00:21:41
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -38,7 +38,7 @@ F src/add.c b32ce1f5e510dfac0bb1e09f26cb4a86c1a34dd0
 F src/allrepo.c a967e36eff7162c251d81898fd68bcb7b4bf768b
 F src/attach.c 09d4c5e46de5b27e4d897a0414ce2e0cc53ba151
 F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
-F src/blob.c c87f80b3014a2633a47d0ccfb990a6c1eada66ce
+F src/blob.c f81b1379114d859bb783c7e8bbeda25eb538cac5
 F src/branch.c 16c61e6dda5875631646c9af9125bff72805b1b3
 F src/browse.c b04a2d36ea797f3a1a1eaccc526df5df485ffe40
 F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
@@ -59,7 +59,7 @@ F src/diff.c eff6dcec76b55499629c8272f1513c6fc34d6dd8
 F src/diffcmd.c 6e48d3292a6d6afa6ae3a2047284876739813fcd
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 1f6e71e23f79a961c47699f5bd4420ea12bfb276
-F src/event.c cda336f77c9ffead66e83a35e020b2fbaa854554
+F src/event.c 02436ff98d8b1296fd93ae6b2048f249e635c315
 F src/file.c 4b422c8f1db60785ea693b4b7817a6a9c68eac72
 F src/finfo.c 51e99c605a5c4dad4f488b85c6eb33d89784e35c
 F src/graph.c 79682b0b0240d8eb37ecb677afdcf4cff5bf5798
@@ -103,7 +103,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 0af13a68e941a72d903026eb2a8857d763a24dc3
-F src/timeline.c 1fe308bfc91c2b28330f23c6348040d9c333b273
+F src/timeline.c e700a1563601fc983e731e529a865f7658e3d47a
 F src/tkt.c 7c0a053413115555c08331a98c21739eb2cb0e1c
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
@@ -270,7 +270,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P ba06d3449b038013e0553bb1284744bef03c4389
-R a2532d8dfa8697ea25dbf39616a0b1ce
+P e5bcc0c924de1caee0f3166e3d65526ca0093e90
+R 7a5455d216c852a2bc964b6458ebb753
 U drh
-Z f3796f32b294187c56f6cddec5ec97be
+Z 54ac92b8dc58687129c6d1e6ad76dd3a
