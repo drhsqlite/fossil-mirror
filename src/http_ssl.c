@@ -130,7 +130,8 @@ void ssl_close(void){
 int ssl_open(void){
   X509 *cert;
   int hasSavedCertificate = 0;
-char *connStr ;
+  char *connStr;
+  int vresult = 0;
   ssl_global_init();
 
   /* Get certificate for current server from global config and
@@ -178,9 +179,10 @@ char *connStr ;
     return 1;
   }
 
-  if( SSL_get_verify_result(ssl) != X509_V_OK ){
+  if( (vresult = SSL_get_verify_result(ssl)) != X509_V_OK ){
     char *desc, *prompt;
     char *warning = "";
+    char *ssl_verify_error = "";
     Blob ans;
     BIO *mem;
     
@@ -195,8 +197,135 @@ char *connStr ;
       warning = "WARNING: Certificate doesn't match the "
                 "saved certificate for this host!";
     }
-    prompt = mprintf("\nUnknown SSL certificate:\n\n%s\n\n%s\n"
-                     "Accept certificate [a=always/y/N]? ", desc, warning);
+    switch(vresult) {
+      case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+        ssl_verify_error = "SSL: unable to get issuer certificate.";
+        break;
+
+      case X509_V_ERR_UNABLE_TO_GET_CRL:
+        ssl_verify_error = "SSL: unable to get certificate CRL.";
+        break;
+
+      case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE:
+        ssl_verify_error = "SSL: unable to decrypt certificate’s signature.";
+        break;
+
+      case X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE:
+        ssl_verify_error = "SSL: unable to decrypt CRL’s signature.";
+        break;
+
+      case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY:
+        ssl_verify_error = "SSL: unable to decode issuer public key.";
+        break;
+
+      case X509_V_ERR_CERT_SIGNATURE_FAILURE:
+        ssl_verify_error = "SSL: certificate signature failure.";
+        break;
+
+      case X509_V_ERR_CRL_SIGNATURE_FAILURE:
+        ssl_verify_error = "SSL: CRL signature failure.";
+        break;
+
+      case X509_V_ERR_CERT_NOT_YET_VALID:
+        ssl_verify_error = "SSL: certificate is not yet valid.";
+        break;
+
+      case X509_V_ERR_CERT_HAS_EXPIRED:
+        ssl_verify_error = "SSL: certificate has expired.";
+        break;
+
+      case X509_V_ERR_CRL_NOT_YET_VALID:
+        ssl_verify_error = "SSL: CRL is not yet valid.";
+        break;
+
+      case X509_V_ERR_CRL_HAS_EXPIRED:
+        ssl_verify_error = "SSL: CRL has expired.";
+        break;
+
+      case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+        ssl_verify_error = "SSL: format error in certificate’s notBefore field.";
+        break;
+
+      case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+        ssl_verify_error = "SSL: format error in certificate’s notAfter field.";
+        break;
+
+      case X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD:
+        ssl_verify_error = "SSL: format error in CRL’s lastUpdate field.";
+        break;
+
+      case X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD:
+        ssl_verify_error = "SSL: format error in CRL’s nextUpdate field.";
+        break;
+
+      case X509_V_ERR_OUT_OF_MEM:
+        ssl_verify_error = "SSL: out of memory.";
+        break;
+
+      case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+        ssl_verify_error = "SSL: self signed certificate.";
+        break;
+
+      case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
+        ssl_verify_error = "SSL: self signed certificate in certificate chain.";
+        break;
+
+      case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+        ssl_verify_error = "SSL: unable to get local issuer certificate.";
+        break;
+
+      case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+        ssl_verify_error = "SSL: unable to verify the first certificate.";
+        break;
+
+      case X509_V_ERR_CERT_CHAIN_TOO_LONG:
+        ssl_verify_error = "SSL: certificate chain too long.";
+        break;
+
+      case X509_V_ERR_CERT_REVOKED:
+        ssl_verify_error = "SSL: certificate revoked.";
+        break;
+
+      case X509_V_ERR_INVALID_CA:
+        ssl_verify_error = "SSL: invalid CA certificate.";
+        break;
+
+      case X509_V_ERR_PATH_LENGTH_EXCEEDED:
+        ssl_verify_error = "SSL: path length constraint exceeded.";
+        break;
+
+      case X509_V_ERR_INVALID_PURPOSE:
+        ssl_verify_error = "SSL: unsupported certificate purpose.";
+        break;
+
+      case X509_V_ERR_CERT_UNTRUSTED:
+        ssl_verify_error = "SSL: certificate not trusted.";
+        break;
+
+      case X509_V_ERR_CERT_REJECTED:
+        ssl_verify_error = "SSL: certificate rejected.";
+        break;
+
+      case X509_V_ERR_SUBJECT_ISSUER_MISMATCH:
+        ssl_verify_error = "SSL: subject issuer mismatch.";
+        break;
+
+      case X509_V_ERR_AKID_SKID_MISMATCH:
+        ssl_verify_error = "SSL: authority and subject key identifier mismatch.";
+        break;
+
+      case X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH:
+        ssl_verify_error = "SSL: authority and issuer serial number mismatch.";
+        break;
+
+      case X509_V_ERR_KEYUSAGE_NO_CERTSIGN:
+        ssl_verify_error = "SSL: key usage does not include certificate signing.";
+        break;
+      default:
+        ssl_verify_error = "SSL: Unknown error.";
+    };
+    prompt = mprintf("\nUnknown SSL certificate:\n\n%s\n\n%s\n%s Code: %d\n"
+                     "Accept certificate [a=always/y/N]? ", desc, warning, ssl_verify_error, vresult);
     BIO_free(mem);
 
     prompt_user(prompt, &ans);
