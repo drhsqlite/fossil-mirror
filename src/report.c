@@ -147,7 +147,7 @@ char *remove_blank_lines(const char *zOrig){
 ** If anything suspicious is tried, set *(char**)pError to an error
 ** message obtained from malloc.
 */
-static int report_query_authorizer(
+int report_query_authorizer(
   void *pError,
   int code,
   const char *zArg1,

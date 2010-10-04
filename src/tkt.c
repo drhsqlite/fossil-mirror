@@ -348,8 +348,9 @@ void tktview_page(void){
         @ <ul>
       }
       cnt++;
+      @ <li>
       if( g.okRead && g.okHistory ){
-        @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
+        @ <a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
         @ %h(zFile)</a>
       }else{
         @ %h(zFile)
@@ -359,6 +360,7 @@ void tktview_page(void){
       if( g.okWrTkt && g.okAttach ){
         @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
       }
+      @ </li>
     }
     if( cnt ){
       @ </ul>
@@ -829,4 +831,141 @@ void ticket_output_change_artifact(Manifest *pTkt){
     blob_reset(&val);
   }
   @ </ol>
+}
+
+/*
+** user defined separator used by ticket show command
+*/
+static const char *zSep = 0;
+
+/*
+** Output the text given in the argument.  Convert tabs and newlines into
+** spaces.
+*/
+static void output_no_tabs(const char *z){
+  while( z && z[0] ){
+    int i, j;
+    for(i=0; z[i] && (!isspace(z[i]) || z[i]==' '); i++){}
+    if( i>0 ){
+      printf("%.*s", i, z);
+    }
+    for(j=i; isspace(z[j]); j++){}
+    if( j>i ){
+      printf("%*s", j-i, "");
+    }
+    z += j;
+  }
+}
+
+/*
+** Output a row as a tab-separated line of text.
+*/
+int output_separated(
+  void *pUser,     /* Pointer to row-count integer */
+  int nArg,        /* Number of columns in this result row */
+  char **azArg,    /* Text of data in all columns */
+  char **azName    /* Names of the columns */
+){
+  int *pCount = (int*)pUser;
+  int i;
+
+  if( *pCount==0 ){
+    for(i=0; i<nArg; i++){
+      output_no_tabs(azName[i]);
+      printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+    }
+  }
+  ++*pCount;
+  for(i=0; i<nArg; i++){
+    output_no_tabs(azArg[i]);
+    printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+  }
+  return 0;
+}
+
+/*
+** COMMAND: ticket
+** Usage: %fossil ticket SUBCOMMAND ...
+**
+** Run various subcommands to control tickets
+**
+**     %fossil ticket show REPORTNR ?TICKETUUID? ?-l|--limit LIMITCHAR?
+**
+**         Run the the ticket report, identified by the report number
+**         used in the gui. The data is written as flat file on stdout,
+**         using "," as separator. The seperator "," can be changed using
+**         the -l or --limit option.
+**         If TICKETUUID is given on the commandline, only this ticket
+**         is shown, if the report delivers the uuid, otherwise the
+**         argument is ignored.
+**
+**     %fossil ticket set FIELD VALUE ?FIELD VALUE ... ? TICKETUUID
+**
+**         change ticket identified by TICKETUUID and set the value of
+**         field FIELD to VALUE. Valid field descriptions are:
+**            status, type, severity, priority, resolution,
+**            foundin, private_contact, resolution, title or comment
+**         Field names given above are the ones, defined in a standard
+**         fossil environment. If you have added, deleted columns, you
+**         change the all your configured columns.
+**         You can use more than one field/value pair on the commandline.
+**
+**     %fossil ticket add FIELD VALUE ?FIELD VALUE ... ?
+**
+**         like set, but create a new ticket with the given values.
+**
+*/
+void ticket_cmd(void){
+  int n;
+
+  db_find_and_open_repository(1);
+
+  if( g.argc<3 ){
+    usage("add|set|show");
+  }else{
+    n = strlen(g.argv[2]);
+    if( strncmp(g.argv[2],"show",n)==0 ){
+      if( g.argc==3 ){
+        usage("ticket show REPORTNR");
+      }else{
+        int rn;
+        Stmt q;
+        char *zSql;
+        char *zTitle;
+        char *zOwner;
+        char *zClrKey;
+        char *zErr1 = 0;
+        char *zErr2 = 0;
+        int count = 0;
+
+        zSep = find_option("limit","l",1);
+if( g.argc>4 ){
+  fossil_fatal("show filter not implemented yet");
+}
+
+        rn = atoi(g.argv[3]);
+        /* view_add_functions(tabs); */
+        db_prepare(&q,
+          "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+        if( db_step(&q)!=SQLITE_ROW ){
+          db_finalize(&q);
+          fossil_fatal("unkown report format(%d)!",rn);
+        }
+        zTitle = db_column_malloc(&q, 0);
+        zSql = db_column_malloc(&q, 1);
+        zOwner = db_column_malloc(&q, 2);
+        zClrKey = db_column_malloc(&q, 3);
+        db_finalize(&q);
+        count = 0;
+        sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+        sqlite3_exec(g.db, zSql, output_separated, &count, &zErr2);
+        sqlite3_set_authorizer(g.db, 0, 0);
+        cgi_set_content_type("text/plain");
+      }
+    }else if( strncmp(g.argv[2],"set",n)==0 ){
+      fossil_fatal("set unimplemented");
+    }else if( strncmp(g.argv[2],"add",n)==0 ){
+      fossil_fatal("add unimplemented");
+    }
+  }
 }
