@@ -240,7 +240,7 @@ void checkout_cmd(void){
     if( blob_compare(&cksum1, &cksum2) ){
       printf("WARNING: manifest checksum does not agree with disk\n");
     }
-    if( blob_compare(&cksum1, &cksum1b) ){
+    if( blob_size(&cksum1b) && blob_compare(&cksum1, &cksum1b) ){
       printf("WARNING: manifest checksum does not agree with manifest\n");
     }
   }

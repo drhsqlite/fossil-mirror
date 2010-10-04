@@ -407,8 +407,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
       /*
       **     R <md5sum>
       **
-      ** Specify the MD5 checksum of the entire baseline in a
-      ** manifest.
+      ** Specify the MD5 checksum over the name and content of all files
+      ** in the manifest.
       */
       case 'R': {
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
