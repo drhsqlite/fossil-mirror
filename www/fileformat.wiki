@@ -48,7 +48,7 @@ meaning to fossil.  Fossil recognizes:
 <li> [#event | Events] </li>
 </ul>
 
-These five artifact types are described in the sequel.
+These seven artifact types are described in the sequel.
 
 In the current implementation (as of 2009-01-25) the artifacts that
 make up a fossil repository are stored in in as delta- and zlib-compressed
@@ -59,6 +59,9 @@ not how the artifacts are stored on disk.  It is the artifact format that
 is intended to be enduring.  The specifics of how artifacts are stored on
 disk, though stable, is not intended to live as long as the
 artifact format.
+
+All of the artifacts can be extracted from a Fossil repository using
+the "fossil deconstruct" command.
 
 <a name="manifest"></a>
 <h2>1.0 The Manifest</h2>
@@ -186,7 +189,7 @@ the login of the user who created the manifest.  The login name
 is encoded using the same character escapes as is used for the
 check-in comment argument to the C-card.
 
-A manifest has an option Z-card as its last line.  The argument
+A manifest has an optional Z-card as its last line.  The argument
 to the Z-card is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline 
 character that immediately precedes the "Z".  The Z-card is just
@@ -329,7 +332,7 @@ that terminates the W card.  The wiki text is always followed by one
 extra newline.
 
 An example wiki artifact can be seen
-[/artifact/7b2f5fd0e0?txt=1 | here].
+[/artifact?name=7b2f5fd0e0&txt=1 | here].
 
 <a name="tktchng"></a>
 <h2>5.0 Ticket Changes</h2>
@@ -380,13 +383,13 @@ An example ticket-change artifact can be seen
 <h2>6.0 Attachments</h2>
 
 An attachment artifact associates some other artifact that is the
-attachment (the source artifact) with a ticket or wiki page to which
+attachment (the source artifact) with a ticket or wiki page or event to which
 the attachment is connected (the target artifact).
 The following cards are allowed on an attachment artifact:
 
 <blockquote>
-<b>A</b> <i>filename target</i> ?<i>source</i>?
-<b>C</b> <i>comment</i><br>
+<b>A</b> <i>filename target</i> ?<i>source</i>?<br />
+<b>C</b> <i>comment</i><br />
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
@@ -452,7 +455,7 @@ other.
 An event might contain one or more T-cards used to set
 [./branching.wiki#tags | tags or properties]
 on the event.  The format of the T-card is the same as
-described in <i>Control Artifacts</i> section above, except that the
+described in [#ctrl | Control Artifacts] section above, except that the
 second argument is the single characcter "<b>*</b>" instead of an
 artifact ID and the name is always prefaced by "<b>+</b>".
 The <b>*</b> in place of the artifact ID indicates that
@@ -467,8 +470,8 @@ display color for timelines.
 The optional U card gives name of the user who entered the event.
 
 A single W card provides wiki text for the document associated with the
-event.  The format of the W card is exactly the same as for a wiki 
-artifact.
+event.  The format of the W card is exactly the same as for a 
+[#wikichng | wiki artifact].
 
 The Z card is the usual checksum over the rest of the attachment artifact.
 
