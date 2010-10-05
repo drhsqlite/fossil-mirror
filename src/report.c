@@ -944,3 +944,93 @@ void rptview_page(void){
     cgi_set_content_type("text/plain");
   }
 }
+
+/*
+** user defined separator used by ticket show command
+*/
+static const char *zSep = 0;
+
+/*
+** Output the text given in the argument.  Convert tabs and newlines into
+** spaces.
+*/
+static void output_no_tabs_file(const char *z){
+  while( z && z[0] ){
+    int i, j;
+    for(i=0; z[i] && (!isspace(z[i]) || z[i]==' '); i++){}
+    if( i>0 ){
+      printf("%.*s", i, z);
+    }
+    for(j=i; isspace(z[j]); j++){}
+    if( j>i ){
+      printf("%*s", j-i, "");
+    }
+    z += j;
+  }
+}
+
+/*
+** Output a row as a tab-separated line of text.
+*/
+int output_separated_file(
+  void *pUser,     /* Pointer to row-count integer */
+  int nArg,        /* Number of columns in this result row */
+  char **azArg,    /* Text of data in all columns */
+  char **azName    /* Names of the columns */
+){
+  int *pCount = (int*)pUser;
+  int i;
+
+  if( *pCount==0 ){
+    for(i=0; i<nArg; i++){
+      output_no_tabs_file(azName[i]);
+      printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+    }
+  }
+  ++*pCount;
+  for(i=0; i<nArg; i++){
+    output_no_tabs_file(azArg[i]);
+    printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+  }
+  return 0;
+}
+
+/*
+** Generate a report.  The rn query parameter is the report number.
+** The output is written to stdout as flat file. The zFilter paramater
+** is a full WHERE-condition.
+*/
+void rptshow( int rn, const char *zSep, const char *zFilter ){
+  Stmt q;
+  char *zSql;
+  char *zTitle;
+  char *zOwner;
+  char *zClrKey;
+  char *zErr1 = 0;
+  char *zErr2 = 0;
+  int count = 0;
+
+  /* view_add_functions(tabs); */
+  db_prepare(&q,
+    "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_finalize(&q);
+    fossil_fatal("unkown report format(%d)!",rn);
+  }
+  zTitle = db_column_malloc(&q, 0);
+  zSql = db_column_malloc(&q, 1);
+  zOwner = db_column_malloc(&q, 2);
+  zClrKey = db_column_malloc(&q, 3);
+  db_finalize(&q);
+  if( zFilter ){
+    zSql = mprintf("SELECT * FROM (%s) WHERE %s",zSql,zFilter);
+  }
+  count = 0;
+  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+  sqlite3_exec(g.db, zSql, output_separated_file, &count, &zErr2);
+  sqlite3_set_authorizer(g.db, 0, 0);
+  if( zFilter ){
+    free(zSql);
+  }
+}
+
