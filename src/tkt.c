@@ -839,7 +839,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 ** Run various subcommands to control tickets
 **
-**     %fossil ticket show REPORTNR ?TICKETFILTER? ?-l|--limit LIMITCHAR?
+**     %fossil ticket show (REPORTNR|REPORTTITLE) ?TICKETFILTER? ?-l|--limit LIMITCHAR?
 **
 **         Run the the ticket report, identified by the report number
 **         used in the gui. The data is written as flat file on stdout,
@@ -849,6 +849,8 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         limited with a new WHERE-condition.
 **           example:  Report lists a column # with the uuid
 **                     TICKETFILTER may be [#]='uuuuuuuuu'
+**         Instead of the report number its possible to use the report
+**         title (please quote the string, if it contains whitespace).
 **
 **     %fossil ticket set TICKETUUID FIELD VALUE ?FIELD VALUE ... ?
 **
@@ -892,17 +894,17 @@ void ticket_cmd(void){
       if( g.argc==3 ){
         usage("ticket show REPORTNR");
       }else{
-        int rn;
+        const char *zRep = 0;
         const char *zSep = 0;
         const char *zFilterUuid = 0;
 
         zSep = find_option("limit","l",1);
-        rn = atoi(g.argv[3]);
+        zRep = g.argv[3];
         if( g.argc>4 ){
           zFilterUuid = g.argv[4];
         }
 
-        rptshow( rn, zSep, zFilterUuid );
+        rptshow( zRep, zSep, zFilterUuid );
 
       }
     }else{

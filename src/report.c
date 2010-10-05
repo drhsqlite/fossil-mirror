@@ -1000,7 +1000,7 @@ int output_separated_file(
 ** The output is written to stdout as flat file. The zFilter paramater
 ** is a full WHERE-condition.
 */
-void rptshow( int rn, const char *zSep, const char *zFilter ){
+void rptshow( const char *zRep, const char *zSep, const char *zFilter ){
   Stmt q;
   char *zSql;
   char *zTitle;
@@ -1009,13 +1009,19 @@ void rptshow( int rn, const char *zSep, const char *zFilter ){
   char *zErr1 = 0;
   char *zErr2 = 0;
   int count = 0;
+  int rn;
 
-  /* view_add_functions(tabs); */
-  db_prepare(&q,
-    "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+  rn = atoi(zRep);
+  if( rn ){
+    db_prepare(&q,
+     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+  }else{
+    db_prepare(&q,
+     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE title='%s'", zRep);
+  }
   if( db_step(&q)!=SQLITE_ROW ){
     db_finalize(&q);
-    fossil_fatal("unkown report format(%d)!",rn);
+    fossil_fatal("unkown report format(%s)!",zRep);
   }
   zTitle = db_column_malloc(&q, 0);
   zSql = db_column_malloc(&q, 1);
