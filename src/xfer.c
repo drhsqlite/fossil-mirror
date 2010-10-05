@@ -121,7 +121,7 @@ static void xfer_accept_file(Xfer *pXfer){
     return;
   }
   if( pXfer->nToken==4 ){
-    Blob src;
+    Blob src, next;
     srcid = rid_from_uuid(&pXfer->aToken[2], 1);
     if( content_get(srcid, &src)==0 ){
       rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
@@ -131,8 +131,10 @@ static void xfer_accept_file(Xfer *pXfer){
       return;
     }
     pXfer->nDeltaRcvd++;
-    blob_delta_apply(&src, &content, &content);
+    blob_delta_apply(&src, &content, &next);
     blob_reset(&src);
+    blob_reset(&content);
+    content = next;
   }else{
     pXfer->nFileRcvd++;
   }

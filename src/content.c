@@ -22,28 +22,20 @@
 #include <assert.h>
 
 /*
-** Macros for debugging
-*/
-#if 0
-# define CONTENT_TRACE(X)  printf X;
-#else
-# define CONTENT_TRACE(X)
-#endif
-
-/*
 ** The artifact retrival cache
 */
-#define MX_CACHE_CNT  50    /* Maximum number of positive cache entries */
-#define EXPELL_INTERVAL 5   /* How often to expell from a full cache */
 static struct {
-  int n;               /* Current number of positive cache entries */
+  i64 szTotal;         /* Total size of all entries in the cache */
+  int n;               /* Current number of eache entries */
+  int nAlloc;          /* Number of slots allocated in a[] */
   int nextAge;         /* Age counter for implementing LRU */
   int skipCnt;         /* Used to limit entries expelled from cache */
-  struct {             /* One instance of this for each cache entry */
+  struct cacheLine {   /* One instance of this for each cache entry */
     int rid;                  /* Artifact id */
     int age;                  /* Age.  Newer is larger */
     Blob content;             /* Content of the artifact */
-  } a[MX_CACHE_CNT];   /* The positive cache */
+  } *a;                /* The positive cache */
+  Bag inCache;         /* Set of artifacts currently in cache */
 
   /*
   ** The missing artifact cache.
@@ -58,6 +50,50 @@ static struct {
   Bag available;       /* Cache of artifacts that are complete */
 } contentCache;
 
+/*
+** Remove the oldest element from the content cache
+*/
+static void content_cache_expire_oldest(void){
+  int i;
+  int mnAge = contentCache.nextAge;
+  int mn = -1;
+  for(i=0; i<contentCache.n; i++){
+    if( contentCache.a[i].age<mnAge ){
+      mnAge = contentCache.a[i].age;
+      mn = i;
+    }
+  }
+  if( mn>=0 ){
+    bag_remove(&contentCache.inCache, contentCache.a[mn].rid);
+    contentCache.szTotal -= blob_size(&contentCache.a[mn].content);
+    blob_reset(&contentCache.a[mn].content);
+    contentCache.n--;
+    contentCache.a[mn] = contentCache.a[contentCache.n];
+  }
+}
+
+/*
+** Add an entry to the content cache
+*/
+void content_cache_insert(int rid, Blob *pBlob){
+  struct cacheLine *p;
+  if( contentCache.n>500 || contentCache.szTotal>50000000 ){
+    content_cache_expire_oldest();
+  }
+  if( contentCache.n>=contentCache.nAlloc ){
+    contentCache.nAlloc = contentCache.nAlloc*2 + 10;
+    contentCache.a = realloc(contentCache.a,
+                             contentCache.nAlloc*sizeof(contentCache.a[0]));
+    if( contentCache.a==0 ) fossil_panic("out of memory");
+  }
+  p = &contentCache.a[contentCache.n++];
+  p->rid = rid;
+  p->age = contentCache.nextAge++;
+  contentCache.szTotal += blob_size(pBlob);
+  p->content = *pBlob;
+  blob_zero(pBlob);
+  bag_insert(&contentCache.inCache, rid);
+}
 
 /*
 ** Clear the content cache.
@@ -69,7 +105,9 @@ void content_clear_cache(void){
   }
   bag_clear(&contentCache.missing);
   bag_clear(&contentCache.available);
+  bag_clear(&contentCache.inCache);
   contentCache.n = 0;
+  contentCache.szTotal = 0;
 }
 
 /*
@@ -97,28 +135,27 @@ static int findSrcid(int rid){
 */
 int content_is_available(int rid){
   int srcid;
-  if( bag_find(&contentCache.missing, rid) ){
-    return 0;
+  int depth = 0;  /* Limit to recursion depth */
+  while( depth++ < 10000000 ){  
+    if( bag_find(&contentCache.missing, rid) ){
+      return 0;
+    }
+    if( bag_find(&contentCache.available, rid) ){
+      return 1;
+    }
+    if( db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+      bag_insert(&contentCache.missing, rid);
+      return 0;
+    }
+    srcid = findSrcid(rid);
+    if( srcid==0 ){
+      bag_insert(&contentCache.available, rid);
+      return 1;
+    }
+    rid = srcid;
   }
-  if( bag_find(&contentCache.available, rid) ){
-    return 1;
-  }
-  if( db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
-    bag_insert(&contentCache.missing, rid);
-    return 0;
-  }
-  srcid = findSrcid(rid);
-  if( srcid==0 ){
-    bag_insert(&contentCache.available, rid);
-    return 1;
-  }
-  if( content_is_available(srcid) ){
-    bag_insert(&contentCache.available, rid);
-    return 1;
-  }else{
-    bag_insert(&contentCache.missing, rid);
-    return 0;
-  }
+  fossil_panic("delta-loop in repository");
+  return 0;
 }
 
 /*
@@ -165,18 +202,15 @@ static int content_of_blob(int rid, Blob *pBlob){
   return rc;
 }
 
-
 /*
 ** Extract the content for ID rid and put it into the
 ** uninitialized blob.  Return 1 on success.  If the record
 ** is a phantom, zero pBlob and return 0.
 */
 int content_get(int rid, Blob *pBlob){
-  Blob src;
-  int srcid;
-  int rc = 0;
+  int rc;
   int i;
-  static Bag inProcess;
+  int nextRid;
 
   assert( g.repositoryOpen );
   blob_zero(pBlob);
@@ -184,90 +218,64 @@ int content_get(int rid, Blob *pBlob){
 
   /* Early out if we know the content is not available */
   if( bag_find(&contentCache.missing, rid) ){
-    CONTENT_TRACE(("%*smiss from cache: %d\n",
-                    bag_count(&inProcess), "", rid))
     return 0;
   }
 
   /* Look for the artifact in the cache first */
-  for(i=0; i<contentCache.n; i++){
-    if( contentCache.a[i].rid==rid ){
-      *pBlob = contentCache.a[i].content;
-      blob_zero(&contentCache.a[i].content);
-      contentCache.n--;
-      if( i<contentCache.n ){
-        contentCache.a[i] = contentCache.a[contentCache.n];
+  if( bag_find(&contentCache.inCache, rid) ){
+    for(i=0; i<contentCache.n; i++){
+      if( contentCache.a[i].rid==rid ){
+        blob_copy(pBlob, &contentCache.a[i].content);
+        contentCache.a[i].age = contentCache.nextAge++;
+        return 1;
       }
-      CONTENT_TRACE(("%*scache: %d\n", 
-                    bag_count(&inProcess), "", rid))
-      return 1;
     }
   }
 
-  /* See if we need to apply a delta to find this artifact */
-  srcid = findSrcid(rid);
-  CONTENT_TRACE(("%*ssearching for %d.  Need %d.\n",
-                 bag_count(&inProcess), "", rid, srcid))
-
-
-  if( srcid ){
-    /* Yes, a delta is required */
-    if( bag_find(&inProcess, srcid) ){
-      db_multi_exec(
-        "UPDATE blob SET content=NULL, size=-1 WHERE rid=%d;"
-        "DELETE FROM delta WHERE rid=%d;"
-        "INSERT OR IGNORE INTO phantom VALUES(%d);",
-        srcid, srcid, srcid
-      );
-      blob_zero(pBlob);
-      return 0;
-    }
-    bag_insert(&inProcess, srcid);
-
-    if( content_get(srcid, &src) ){
-      Blob delta;
-      if( content_of_blob(rid, &delta) ){
-        blob_init(pBlob,0,0);
-        blob_delta_apply(&src, &delta, pBlob);
-        blob_reset(&delta);
-        rc = 1;
-      }
-
-      /* Save the srcid artifact in the cache */
-      if( contentCache.n<MX_CACHE_CNT ){
-        i = contentCache.n++;
-      }else if( ((contentCache.skipCnt++)%EXPELL_INTERVAL)!=0 ){
-        i = -1;
-      }else{
-        int j, best;
-        best = contentCache.nextAge+1;
-        i = -1;
-        for(j=0; j<contentCache.n; j++){
-          if( contentCache.a[j].age<best ){
-            i = j;
-            best = contentCache.a[j].age;
-          }
-        }
-        CONTENT_TRACE(("%*sexpell %d from cache\n",
-                       bag_count(&inProcess), "", contentCache.a[i].rid))
-        blob_reset(&contentCache.a[i].content);
-      }
-      if( i>=0 ){
-        contentCache.a[i].content = src;
-        contentCache.a[i].age = contentCache.nextAge++;
-        contentCache.a[i].rid = srcid;
-        CONTENT_TRACE(("%*sadd %d to cache\n",
-                       bag_count(&inProcess), "", srcid))
-      }else{
-        blob_reset(&src);
-      }
-    }
-    bag_remove(&inProcess, srcid);
+  nextRid = findSrcid(rid);
+  if( nextRid==0 ){
+    rc = content_of_blob(rid, pBlob);
   }else{
-    /* No delta required.  Read content directly from the database */
-    if( content_of_blob(rid, pBlob) ){
-      rc = 1;
+    int n = 1;
+    int nAlloc = 10;
+    int *a = 0;
+    int mx;
+    Blob delta, next;
+
+    a = malloc( sizeof(a[0])*nAlloc );
+    if( a==0 ) fossil_panic("out of memory");
+    a[0] = rid;
+    a[1] = nextRid;
+    n = 1;
+    while( !bag_find(&contentCache.inCache, nextRid)
+        && (nextRid = findSrcid(nextRid))>0 ){
+      n++;
+      if( n>=nAlloc ){
+        nAlloc = nAlloc*2 + 10;
+        a = realloc(a, nAlloc*sizeof(a[0]));
+        if( a==0 ) fossil_panic("out of memory");
+      }
+      a[n] = nextRid;
     }
+    mx = n;
+    rc = content_get(a[n], pBlob);
+    n--;
+    while( rc && n>=0 ){
+      rc = content_of_blob(a[n], &delta);
+      if( rc ){
+        blob_delta_apply(pBlob, &delta, &next);
+        blob_reset(&delta);
+        if( (mx-n)%8==0 ){
+          content_cache_insert(a[n+1], pBlob);
+        }else{
+          blob_reset(pBlob);
+        }
+        *pBlob = next;
+      }
+      n--;
+    }
+    free(a);
+    if( !rc ) blob_reset(pBlob);
   }
   if( rc==0 ){
     bag_insert(&contentCache.missing, rid);
@@ -322,31 +330,41 @@ void test_content_rawget_cmd(void){
 ** When a record is converted from a phantom to a real record,
 ** if that record has other records that are derived by delta,
 ** then call manifest_crosslink() on those other records.
+**
+** Tail recursion is used to minimize stack depth.
 */
 void after_dephantomize(int rid, int linkFlag){
   Stmt q;
-  int prevTid = 0;
+  int nChildAlloc = 0;
+  int *aChild = 0;
 
-  /* The prevTid variable is used to delay invoking this routine
-  ** recursively, if possible, until after the query has finalized,
-  ** in order to avoid having an excessive number of prepared statements.
-  ** This is most effective in the common case where the query returns 
-  ** just one row.
-  */
-  db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    int tid = db_column_int(&q, 0);
-    if( prevTid ) after_dephantomize(prevTid, 1);
-    prevTid = tid;
+  while( rid ){
+    int nChildUsed = 0;
+    int i;
+    if( linkFlag ){
+      Blob content;
+      content_get(rid, &content);
+      manifest_crosslink(rid, &content);
+      blob_reset(&content);
+    }
+    db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int child = db_column_int(&q, 0);
+      if( nChildUsed>=nChildAlloc ){
+        nChildAlloc = nChildAlloc*2 + 10;
+        aChild = realloc(aChild, nChildAlloc*sizeof(aChild));
+        if( aChild==0 ) fossil_panic("out of memory");
+      }
+      aChild[nChildUsed++] = child;
+    }
+    db_finalize(&q);
+    for(i=1; i<nChildUsed; i++){
+      after_dephantomize(aChild[i], 1);
+    }
+    rid = nChildUsed>0 ? aChild[0] : 0;
+    linkFlag = 1;
   }
-  db_finalize(&q);
-  if( prevTid ) after_dephantomize(prevTid, 1);
-  if( linkFlag ){
-    Blob content;
-    content_get(rid, &content);
-    manifest_crosslink(rid, &content);
-    blob_reset(&content);
-  }
+  free(aChild);
 }
 
 /*
