@@ -353,7 +353,7 @@ void attachdel_page(void){
   style_header("Delete Attachment");
   @ <form action="%s(g.zBaseURL)/attachdelete" method="post"><div>
   @ <p>Confirm that you want to delete the attachment named
-  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br />
+  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br /></p>
   if( zTkt ){
     @ <input type="hidden" name="tkt" value="%h(zTkt)" />
   }else{

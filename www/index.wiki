@@ -42,8 +42,9 @@ internet these days. What makes Fossil worthy of attention?
   1.  <b>Bug Tracking And Wiki</b> -
       In addition to doing [./concepts.wiki | distributed version control]
       like Git and Mercurial,
-      Fossil also supports [./bugtheory.wiki | distributed bug tracking] and
-      [./wikitheory.wiki | distributed wiki] all in a single
+      Fossil also supports [./bugtheory.wiki | distributed bug tracking],
+      [./wikitheory.wiki | distributed wiki], and a
+      [./event.wiki | distributed blog] mechanism all in a single
       integrated package.
 
   2.  <b>Web Interface</b> - 
@@ -113,6 +114,8 @@ internet these days. What makes Fossil worthy of attention?
   *  The [./selfcheck.wiki | automatic self-check] mechanism
      helps insure project integrity.
   *  Fossil contains a [./wikitheory.wiki | built-in wiki].
+  *  An [./event.wiki | Event] is a special kind of wiki page associated
+     with a point in time rather than a name.
   *  There is a
     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
