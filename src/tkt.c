@@ -848,7 +848,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         If TICKETFILTER is given on the commandline, the query is
 **         limited with a new WHERE-condition.
 **           example:  Report lists a column # with the uuid
-**                     TICKETFILTER= [#]='uuuuuuuuu'
+**                     TICKETFILTER may be [#]='uuuuuuuuu'
 **
 **     %fossil ticket set TICKETUUID FIELD VALUE ?FIELD VALUE ... ?
 **
@@ -865,6 +865,8 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 **         like set, but create a new ticket with the given values.
 **
+** The values in set|add are not validated against the definitions
+** given in the "Ticket Common Script".
 */
 void ticket_cmd(void){
   int n;
@@ -879,7 +881,6 @@ void ticket_cmd(void){
   if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
     fossil_fatal("no such user: %s", g.zLogin);
   }
-fprintf(stdout,"%s\n",g.zLogin);
 
   if( g.argc<3 ){
     usage("add|set|show");
@@ -917,12 +918,18 @@ fprintf(stdout,"%s\n",g.zLogin);
         if( g.argc==3 ){
           fossil_fatal("set: missing TICKETUUID!");
         }
-        zTktUuid = g.argv[3];
+        zTktUuid = db_text(0, 
+          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
+        );
+        if( !zTktUuid ){
+          fossil_fatal("unknown ticket: '%s'!",g.argv[3]);
+        }
         i=4;
       }else if( strncmp(g.argv[2],"add",n)==0 ){
         eCmd = set;
         zTktUuid = 0;
         i = 3;
+        zTktUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
       }
       if( eCmd==err ){
         fossil_fatal("%s: unknown ticket command",g.argv[2]);
@@ -972,13 +979,6 @@ fprintf(stdout,"%s\n",g.zLogin);
             blob_appendf(&tktchng, "J %s %#F\n", azField[i], strlen(zValue), zValue);
           }
         }
-      }
-      if( zTktUuid ){
-        zTktUuid = db_text(0, 
-          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", zTktUuid
-        );
-      }else{
-        zTktUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
       }
       blob_appendf(&tktchng, "K %s\n", zTktUuid);
       blob_appendf(&tktchng, "U %F\n", g.zLogin);
