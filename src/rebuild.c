@@ -123,72 +123,79 @@ static void rebuild_step(int rid, int size, Blob *pBase){
   Blob *pUse;
   int nChild, i, cid;
 
-  /* Fix up the "blob.size" field if needed. */
-  if( size!=blob_size(pBase) ){
-    db_multi_exec(
-       "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
-    );
-  }
+  while( rid>0 ){
 
-  /* Find all children of artifact rid */
-  db_static_prepare(&q1, "SELECT rid FROM delta WHERE srcid=:rid");
-  db_bind_int(&q1, ":rid", rid);
-  bag_init(&children);
-  while( db_step(&q1)==SQLITE_ROW ){
-    int cid = db_column_int(&q1, 0);
-    if( !bag_find(&bagDone, cid) ){
-      bag_insert(&children, cid);
+    /* Fix up the "blob.size" field if needed. */
+    if( size!=blob_size(pBase) ){
+      db_multi_exec(
+         "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
+      );
     }
-  }
-  nChild = bag_count(&children);
-  db_reset(&q1);
-
-  /* Crosslink the artifact */
-  if( nChild==0 ){
-    pUse = pBase;
-  }else{
-    blob_copy(&copy, pBase);
-    pUse = &copy;
-  }
-  if( zFNameFormat==0 ){
-    /* We are doing "fossil rebuild" */
-    manifest_crosslink(rid, pUse);
-  }else{
-    /* We are doing "fossil deconstruct" */
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
-    char *zFile = mprintf(zFNameFormat, zUuid, zUuid+prefixLength);
-    blob_write_to_file(pUse,zFile);
-    free(zFile);
-    free(zUuid);
-  }
-  blob_reset(pUse);
-  rebuild_step_done(rid);
-
-  /* Call all children recursively */
-  for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
-    Stmt q2;
-    int sz;
-    if( nChild==i ){
+  
+    /* Find all children of artifact rid */
+    db_static_prepare(&q1, "SELECT rid FROM delta WHERE srcid=:rid");
+    db_bind_int(&q1, ":rid", rid);
+    bag_init(&children);
+    while( db_step(&q1)==SQLITE_ROW ){
+      int cid = db_column_int(&q1, 0);
+      if( !bag_find(&bagDone, cid) ){
+        bag_insert(&children, cid);
+      }
+    }
+    nChild = bag_count(&children);
+    db_reset(&q1);
+  
+    /* Crosslink the artifact */
+    if( nChild==0 ){
       pUse = pBase;
     }else{
       blob_copy(&copy, pBase);
       pUse = &copy;
     }
-    db_prepare(&q2, "SELECT content, size FROM blob WHERE rid=%d", cid);
-    if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
-      Blob delta;
-      db_ephemeral_blob(&q2, 0, &delta);
-      blob_uncompress(&delta, &delta);
-      blob_delta_apply(pUse, &delta, pUse);
-      blob_reset(&delta);
-      db_finalize(&q2);
-      rebuild_step(cid, sz, pUse);
+    if( zFNameFormat==0 ){
+      /* We are doing "fossil rebuild" */
+      manifest_crosslink(rid, pUse);
     }else{
-      db_finalize(&q2);
-      blob_reset(pUse);
+      /* We are doing "fossil deconstruct" */
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      char *zFile = mprintf(zFNameFormat, zUuid, zUuid+prefixLength);
+//      blob_write_to_file(pUse,zFile);
+printf("%d - %s\n", rid, zUuid);
+      free(zFile);
+      free(zUuid);
     }
+    blob_reset(pUse);
+    rebuild_step_done(rid);
+  
+    /* Call all children recursively */
+    rid = 0;
+    for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
+      Stmt q2;
+      int sz;
+      db_prepare(&q2, "SELECT content, size FROM blob WHERE rid=%d", cid);
+      if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
+        Blob delta, next;
+        db_ephemeral_blob(&q2, 0, &delta);
+        blob_uncompress(&delta, &delta);
+        blob_delta_apply(pBase, &delta, &next);
+        blob_reset(&delta);
+        db_finalize(&q2);
+        if( i<nChild ){
+          rebuild_step(cid, sz, &next);
+        }else{
+          /* Tail recursion */
+          rid = cid;
+          size = sz;
+          blob_reset(pBase);
+          *pBase = next;
+        }
+      }else{
+        db_finalize(&q2);
+        blob_reset(pBase);
+      }
+    }
+    bag_clear(&children);
   }
-  bag_clear(&children);
 }
 
 /*
