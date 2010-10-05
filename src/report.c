@@ -951,21 +951,43 @@ void rptview_page(void){
 static const char *zSep = 0;
 
 /*
+** select the quoting algorithm for "ticket show"
+*/
+#if INTERFACE
+typedef enum eTktShowEnc { tktNoTab=0, tktFossilize=1 } tTktShowEncoding;
+#endif
+static tTktShowEncoding tktEncode = tktNoTab;
+
+/*
 ** Output the text given in the argument.  Convert tabs and newlines into
 ** spaces.
 */
 static void output_no_tabs_file(const char *z){
-  while( z && z[0] ){
-    int i, j;
-    for(i=0; z[i] && (!isspace(z[i]) || z[i]==' '); i++){}
-    if( i>0 ){
-      printf("%.*s", i, z);
-    }
-    for(j=i; isspace(z[j]); j++){}
-    if( j>i ){
-      printf("%*s", j-i, "");
-    }
-    z += j;
+  switch( tktEncode ){
+    case tktFossilize:
+      { char *zFosZ;
+
+        if( z && *z ){
+          zFosZ = fossilize(z,-1);
+          printf("%s",zFosZ);
+          free(zFosZ);
+        }
+        break;
+      }
+    default:
+      while( z && z[0] ){
+        int i, j;
+        for(i=0; z[i] && (!isspace(z[i]) || z[i]==' '); i++){}
+        if( i>0 ){
+          printf("%.*s", i, z);
+        }
+        for(j=i; isspace(z[j]); j++){}
+        if( j>i ){
+          printf("%*s", j-i, "");
+        }
+        z += j;
+      }
+      break; 
   }
 }
 
@@ -1000,7 +1022,12 @@ int output_separated_file(
 ** The output is written to stdout as flat file. The zFilter paramater
 ** is a full WHERE-condition.
 */
-void rptshow( const char *zRep, const char *zSep, const char *zFilter ){
+void rptshow( 
+    const char *zRep,
+    const char *zSepIn,
+    const char *zFilter,
+    tTktShowEncoding enc
+){
   Stmt q;
   char *zSql;
   char *zTitle;
@@ -1011,27 +1038,36 @@ void rptshow( const char *zRep, const char *zSep, const char *zFilter ){
   int count = 0;
   int rn;
 
-  rn = atoi(zRep);
-  if( rn ){
-    db_prepare(&q,
-     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+  if (!zRep) {
+    zTitle = "tickets";
+    zSql = "SELECT * FROM ticket";
+    zOwner = (char*)g.zLogin;
+    zClrKey = "";
   }else{
-    db_prepare(&q,
-     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE title='%s'", zRep);
-  }
-  if( db_step(&q)!=SQLITE_ROW ){
+    rn = atoi(zRep);
+    if( rn ){
+      db_prepare(&q,
+       "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+    }else{
+      db_prepare(&q,
+       "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE title='%s'", zRep);
+    }
+    if( db_step(&q)!=SQLITE_ROW ){
+      db_finalize(&q);
+      fossil_fatal("unkown report format(%s)!",zRep);
+    }
+    zTitle = db_column_malloc(&q, 0);
+    zSql = db_column_malloc(&q, 1);
+    zOwner = db_column_malloc(&q, 2);
+    zClrKey = db_column_malloc(&q, 3);
     db_finalize(&q);
-    fossil_fatal("unkown report format(%s)!",zRep);
   }
-  zTitle = db_column_malloc(&q, 0);
-  zSql = db_column_malloc(&q, 1);
-  zOwner = db_column_malloc(&q, 2);
-  zClrKey = db_column_malloc(&q, 3);
-  db_finalize(&q);
   if( zFilter ){
     zSql = mprintf("SELECT * FROM (%s) WHERE %s",zSql,zFilter);
   }
   count = 0;
+  tktEncode = enc;
+  zSep = zSepIn;
   sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
   sqlite3_exec(g.db, zSql, output_separated_file, &count, &zErr2);
   sqlite3_set_authorizer(g.db, 0, 0);

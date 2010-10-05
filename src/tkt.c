@@ -839,9 +839,13 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 ** Run various subcommands to control tickets
 **
-**     %fossil ticket show (REPORTNR|REPORTTITLE) ?TICKETFILTER? ?-l|--limit LIMITCHAR?
+**     %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?options?
 **
-**         Run the the ticket report, identified by the report number
+**         options can be:
+**           ?-l|--limit LIMITCHAR?
+**           ?-q|--quote?
+**
+**         Run the the ticket report, identified by the report title
 **         used in the gui. The data is written as flat file on stdout,
 **         using "," as separator. The seperator "," can be changed using
 **         the -l or --limit option.
@@ -849,8 +853,19 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         limited with a new WHERE-condition.
 **           example:  Report lists a column # with the uuid
 **                     TICKETFILTER may be [#]='uuuuuuuuu'
-**         Instead of the report number its possible to use the report
-**         title (please quote the string, if it contains whitespace).
+**         If the option -q|--quote is used, the tickets are encoded by
+**         quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
+**         cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
+**         Otherwise, the simplified encoding as on the show report raw
+**         page in the gui is used.
+**
+**         Instead of the report title its possible to use the report
+**         number. Using the special report number 0 list all columns,
+**         defined in the ticket table.
+**
+**     %fossil ticket list
+**
+**         list all columns, defined in the ticket table
 **
 **     %fossil ticket set TICKETUUID FIELD VALUE ?FIELD VALUE ... ?
 **
@@ -890,6 +905,14 @@ void ticket_cmd(void){
     n = strlen(g.argv[2]);
     if( n==1 && g.argv[2][0]=='s' ){
       usage("ticket show|set|add");
+    }else if( strncmp(g.argv[2],"list",n)==0 ){
+      int i;
+      
+      /* read all available ticket fields */
+      getAllTicketFields();
+      for(i=0; i<nField; i++){
+        printf("%s\n",azField[i]);
+      }
     }else if( strncmp(g.argv[2],"show",n)==0 ){
       if( g.argc==3 ){
         usage("ticket show REPORTNR");
@@ -897,14 +920,19 @@ void ticket_cmd(void){
         const char *zRep = 0;
         const char *zSep = 0;
         const char *zFilterUuid = 0;
+        tTktShowEncoding tktEncoding;
 
         zSep = find_option("limit","l",1);
+        tktEncoding = find_option("quote","q",0) ? tktFossilize : tktNoTab;
         zRep = g.argv[3];
+        if( !strcmp(zRep,"0") ){
+          zRep = 0;
+        }
         if( g.argc>4 ){
           zFilterUuid = g.argv[4];
         }
 
-        rptshow( zRep, zSep, zFilterUuid );
+        rptshow( zRep, zSep, zFilterUuid, tktEncoding );
 
       }
     }else{
