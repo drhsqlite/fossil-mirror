@@ -65,7 +65,7 @@ the massive user base of git or mercurial.
 </blockquote>
 
 <b>Fossil looks like the bug tracker that would be in your 
-Linksys Router's administration screen.</p>
+Linksys Router's administration screen.</b>
 
 <blockquote>
 <p>I take a pragmatic approach to software: form follows function.

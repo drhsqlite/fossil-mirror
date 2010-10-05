@@ -62,7 +62,7 @@ INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /
 UTILS=translate.exe mkindex.exe makeheaders.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
 
-SRC=add.c allrepo.c attach.c bag.c blob.c branch.c browse.c captcha.c cgi.c checkin.c checkout.c clearsign.c clone.c comformat.c configure.c content.c db.c delta.c deltacmd.c descendants.c diff.c diffcmd.c doc.c encode.c file.c finfo.c graph.c http.c http_socket.c http_ssl.c http_transport.c info.c login.c main.c manifest.c md5.c merge.c merge3.c name.c pivot.c popen.c pqueue.c printf.c rebuild.c report.c rss.c schema.c search.c setup.c sha1.c shun.c skins.c stat.c style.c sync.c tag.c th_main.c timeline.c tkt.c tktsetup.c undo.c update.c url.c user.c verify.c vfile.c wiki.c wikiformat.c winhttp.c xfer.c zip.c
+SRC=add.c allrepo.c attach.c bag.c blob.c branch.c browse.c captcha.c cgi.c checkin.c checkout.c clearsign.c clone.c comformat.c configure.c content.c db.c delta.c deltacmd.c descendants.c diff.c diffcmd.c doc.c encode.c event.c file.c finfo.c graph.c http.c http_socket.c http_ssl.c http_transport.c info.c login.c main.c manifest.c md5.c merge.c merge3.c name.c pivot.c popen.c pqueue.c printf.c rebuild.c report.c rss.c schema.c search.c setup.c sha1.c shun.c skins.c stat.c style.c sync.c tag.c th_main.c timeline.c tkt.c tktsetup.c undo.c update.c url.c user.c verify.c vfile.c wiki.c wikiformat.c winhttp.c xfer.c zip.c
 ORIGSRC=$(foreach sf,$(SRC),$(SRCDIR)$(sf))
 TRANSLATEDSRC=$(SRC:.c=_.c)
 TRANSLATEDOBJ=$(TRANSLATEDSRC:.c=.obj)

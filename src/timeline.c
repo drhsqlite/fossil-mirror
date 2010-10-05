@@ -167,7 +167,7 @@ int count_nonbranch_children(int pid){
 **    6.  background color
 **    7.  type ("ci", "w", "t")
 **    8.  list of symbolic tags.
-**    9.  tagid for ticket or wiki
+**    9.  tagid for ticket or wiki or event
 **   10.  Short comment to user for repeated tickets and wiki
 */
 void www_print_timeline(
@@ -290,6 +290,8 @@ void www_print_timeline(
           @ <span class="timelineLeaf">Leaf:</span>
         }
       }
+    }else if( zType[0]=='e' && tagid ){
+      hyperlink_to_event_tagid(tagid);
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }
@@ -641,7 +643,7 @@ static void timeline_add_dividers(const char *zDate){
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
-**    y=TYPE         'ci', 'w', 't'
+**    y=TYPE         'ci', 'w', 't', 'e'
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **
@@ -751,18 +753,18 @@ void page_timeline(void){
     }
   }else{
     int n;
-    const char *zEType = "event";
+    const char *zEType = "timeline item";
     char *zDate;
     char *zNEntry = mprintf("%d", nEntry);
     url_initialize(&url, "timeline");
     url_add_parameter(&url, "n", zNEntry);
     if( tagid>0 ){
-      zType = "ci";
+      if( zType[0]!='e' ) zType = "ci";
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
                     " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
 
-      if( zBrName ){
+      if( zBrName && zType[0]=='c' ){
         /* The next two blob_appendf() calls add SQL that causes checkins that
         ** are not part of the branch which are parents or childen of the branch
         ** to be included in the report.  This related check-ins are useful
@@ -783,6 +785,7 @@ void page_timeline(void){
     }
     if( (zType[0]=='w' && !g.okRdWiki)
      || (zType[0]=='t' && !g.okRdTkt)
+     || (zType[0]=='e' && !g.okRdWiki)
      || (zType[0]=='c' && !g.okRead)
     ){
       zType = "all";
@@ -796,7 +799,7 @@ void page_timeline(void){
           cSep = ',';
         }
         if( g.okRdWiki ){
-          blob_appendf(&sql, "%c'w'", cSep);
+          blob_appendf(&sql, "%c'w','e'", cSep);
           cSep = ',';
         }
         if( g.okRdTkt ){
@@ -814,6 +817,8 @@ void page_timeline(void){
         zEType = "wiki edit";
       }else if( zType[0]=='t' ){
         zEType = "ticket change";
+      }else if( zType[0]=='e' ){
+        zEType = "event";
       }
     }
     if( zUser ){
@@ -928,12 +933,15 @@ void page_timeline(void){
         if( zType[0]!='t' && g.okRdTkt ){
           timeline_submenu(&url, "Tickets Only", "y", "t", 0);
         }
+        if( zType[0]!='e' && g.okRdWiki ){
+          timeline_submenu(&url, "Events Only", "y", "e", 0);
+        }
       }
       if( nEntry>20 ){
-        timeline_submenu(&url, "20 Events", "n", "20", 0);
+        timeline_submenu(&url, "20 Entries", "n", "20", 0);
       }
       if( nEntry<200 ){
-        timeline_submenu(&url, "200 Events", "n", "200", 0);
+        timeline_submenu(&url, "200 Entries", "n", "200", 0);
       }
     }
   }

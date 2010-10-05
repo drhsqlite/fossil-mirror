@@ -200,7 +200,7 @@ const char zDefaultHeader[] =
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$baseurl/logo" alt="logo">
+@     <img src="$baseurl/logo" alt="logo" />
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><th1>
