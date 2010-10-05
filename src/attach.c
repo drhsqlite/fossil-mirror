@@ -272,21 +272,21 @@ void attachadd_page(void){
   }
   style_header("Add Attachment");
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  @ <form action="%s(g.zBaseURL)/attachadd" method="POST"
-  @  enctype="multipart/form-data">
+  @ <form action="%s(g.zBaseURL)/attachadd" method="post"
+  @  enctype="multipart/form-data"><div>
   @ File to Attach:
-  @ <input type="file" name="f" size="60"><br />
+  @ <input type="file" name="f" size="60" /><br />
   @ Description:<br />
-  @ <textarea name="comment" cols=80 rows=5 wrap="virtual"></textarea><br />
+  @ <textarea name="comment" cols="80" rows="5" wrap="virtual"></textarea><br />
   if( zTkt ){
-    @ <input type="hidden" name="tkt" value="%h(zTkt)">
+    @ <input type="hidden" name="tkt" value="%h(zTkt)" />
   }else{
-    @ <input type="hidden" name="page" value="%h(zPage)">
+    @ <input type="hidden" name="page" value="%h(zPage)" />
   }
-  @ <input type="hidden" name="from" value="%h(zFrom)">
-  @ <input type="submit" name="ok" value="Add Attachment">
-  @ <input type="submit" name="cancel" value="Cancel">
-  @ </form>
+  @ <input type="hidden" name="from" value="%h(zFrom)" />
+  @ <input type="submit" name="ok" value="Add Attachment" />
+  @ <input type="submit" name="cancel" value="Cancel" />
+  @ </div></form>
   style_footer();
 }
 
@@ -351,19 +351,19 @@ void attachdel_page(void){
     cgi_redirect(zFrom);
   }    
   style_header("Delete Attachment");
-  @ <form action="%s(g.zBaseURL)/attachdelete" method="POST">
+  @ <form action="%s(g.zBaseURL)/attachdelete" method="post"><div>
   @ <p>Confirm that you want to delete the attachment named
-  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br />
+  @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br /></p>
   if( zTkt ){
-    @ <input type="hidden" name="tkt" value="%h(zTkt)">
+    @ <input type="hidden" name="tkt" value="%h(zTkt)" />
   }else{
-    @ <input type="hidden" name="page" value="%h(zPage)">
+    @ <input type="hidden" name="page" value="%h(zPage)" />
   }
-  @ <input type="hidden" name="file" value="%h(zFile)">
-  @ <input type="hidden" name="from" value="%h(zFrom)">
-  @ <input type="submit" name="confirm" value="Delete">
-  @ <input type="submit" name="cancel" value="Cancel">
-  @ </form>
+  @ <input type="hidden" name="file" value="%h(zFile)" />
+  @ <input type="hidden" name="from" value="%h(zFrom)" />
+  @ <input type="submit" name="confirm" value="Delete" />
+  @ <input type="submit" name="cancel" value="Cancel" />
+  @ </div></form>
   style_footer();
 
 }

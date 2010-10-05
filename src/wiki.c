@@ -87,10 +87,11 @@ void home_page(void){
     cgi_redirectf("%s/login?g=%s/home", g.zBaseURL, g.zBaseURL);
   }
   if( zIndexPage ){
-    while( zIndexPage[0]=='/' ) zIndexPage++;
-    if( strcmp(zIndexPage, P("PATH_INFO"))==0 ) zIndexPage = 0;
+    const char *zPathInfo = P("PATH_INFO");
+    if( strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
+    while( zIndexPage[0]=='/' ) zIndexPage++;
     cgi_redirectf("%s/%s", g.zBaseURL, zIndexPage);
   }
   if( zPageName ){
@@ -107,7 +108,7 @@ void home_page(void){
   @ <a href="%s(g.zBaseURL)/setup_config">setup/config</a>
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
-  @ will be displayed in place of this message.
+  @ will be displayed in place of this message.</p>
   style_footer();
 }
 
@@ -154,6 +155,9 @@ void wiki_page(void){
     @      to experiment.</li>
     if( g.okNewWiki ){
       @ <li>  Create a <a href="%s(g.zBaseURL)/wikinew">new wiki page</a>.</li>
+      if( g.okWrite ){
+        @ <li>   Create a <a href="%s(g.zTop)/eventedit">new event</a>.</li>
+      }
     }
     @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
@@ -224,12 +228,12 @@ void wiki_page(void){
     const char *zFile = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     if( cnt==0 ){
-      @ <hr><h2>Attachments:</h2>
+      @ <hr /><h2>Attachments:</h2>
       @ <ul>
     }
     cnt++;
+    @ <li>
     if( g.okHistory && g.okRead ){
-      @ <li>
       @ <a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
       @ %h(zFile)</a>
     }else{
@@ -240,6 +244,7 @@ void wiki_page(void){
     if( g.okWrWiki && g.okAttach ){
       @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
     }
+    @ </li>
   }
   if( cnt ){
     @ </ul>
@@ -535,18 +540,18 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="POST" action="%s(g.zBaseURL)/wikiappend">
+  @ <form method="post" action="%s(g.zBaseURL)/wikiappend">
   login_insert_csrf_secret();
-  @ <input type="hidden" name="name" value="%h(zPageName)">
+  @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ Your Name:
-  @ <input type="text" name="u" size="20" value="%h(zUser)"><br />
+  @ <input type="text" name="u" size="20" value="%h(zUser)" /><br />
   @ Comment to append:<br />
   @ <textarea name="r" class="wikiedit" cols="80" 
   @  rows="10" wrap="virtual">%h(PD("r",""))</textarea>
   @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Comment">
-  @ <input type="submit" name="submit" value="Append Your Changes">
-  @ <input type="submit" name="cancel" value="Cancel">
+  @ <input type="submit" name="preview" value="Preview Your Comment" />
+  @ <input type="submit" name="submit" value="Append Your Changes" />
+  @ <input type="submit" name="cancel" value="Cancel" />
   @ </form>
   style_footer();
 }
@@ -772,53 +777,8 @@ void wikirules_page(void){
   @ tag to your wiki page.</p></li>
   @ <li> <p><span class="wikiruleHead">HTML</span>.
   @ The following standard HTML elements may be used:
-  @ &lt;a&gt;
-  @ &lt;address&gt;
-  @ &lt;b&gt;
-  @ &lt;big&gt;
-  @ &lt;blockquote&gt;
-  @ &lt;br&gt;
-  @ &lt;center&gt;
-  @ &lt;cite&gt;
-  @ &lt;code&gt;
-  @ &lt;dd&gt;
-  @ &lt;dfn&gt;
-  @ &lt;div&gt;
-  @ &lt;dl&gt;
-  @ &lt;dt&gt;
-  @ &lt;em&gt;
-  @ &lt;font&gt;
-  @ &lt;h1&gt;
-  @ &lt;h2&gt;
-  @ &lt;h3&gt;
-  @ &lt;h4&gt;
-  @ &lt;h5&gt;
-  @ &lt;h6&gt;
-  @ &lt;hr&gt;
-  @ &lt;img&gt;
-  @ &lt;i&gt;
-  @ &lt;kbd&gt;
-  @ &lt;li&gt;
-  @ &lt;nobr&gt;
-  @ &lt;ol&gt;
-  @ &lt;p&gt;
-  @ &lt;pre&gt;
-  @ &lt;s&gt;
-  @ &lt;samp&gt;
-  @ &lt;small&gt;
-  @ &lt;strike&gt;
-  @ &lt;strong&gt;
-  @ &lt;sub&gt;
-  @ &lt;sup&gt;
-  @ &lt;table&gt;
-  @ &lt;td&gt;
-  @ &lt;th&gt;
-  @ &lt;tr&gt;
-  @ &lt;tt&gt;
-  @ &lt;u&gt;
-  @ &lt;ul&gt;
-  @ &lt;var&gt;.
-  @ In addition, there are two non-standard elements available:
+  show_allowed_wiki_markup();
+  @ . There are two non-standard elements available:
   @ &lt;verbatim&gt; and &lt;nowiki&gt;.
   @ No other elements are allowed.  All attributes are checked and
   @ only a few benign attributes are allowed on each element.

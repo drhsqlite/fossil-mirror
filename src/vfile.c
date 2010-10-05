@@ -464,7 +464,11 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
     blob_reset(&file);
   }
   if( pManOut ){
-    blob_append(pManOut, m.zRepoCksum, -1);
+    if( m.zRepoCksum ){
+      blob_append(pManOut, m.zRepoCksum, -1);
+    }else{
+      blob_zero(pManOut);
+    }
   }
   manifest_clear(&m);
   md5sum_finish(pOut);

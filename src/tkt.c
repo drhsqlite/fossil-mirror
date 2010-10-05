@@ -348,8 +348,9 @@ void tktview_page(void){
         @ <ul>
       }
       cnt++;
+      @ <li>
       if( g.okRead && g.okHistory ){
-        @ <li><a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
+        @ <a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
         @ %h(zFile)</a>
       }else{
         @ %h(zFile)
@@ -359,6 +360,7 @@ void tktview_page(void){
       if( g.okWrTkt && g.okAttach ){
         @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
       }
+      @ </li>
     }
     if( cnt ){
       @ </ul>
@@ -569,7 +571,7 @@ void tktedit_page(void){
     return;
   }
   if( nRec>1 ){
-    @ <span class="tktError"><b>%d(nRec) tickets begin with:
+    @ <span class="tktError">%d(nRec) tickets begin with:
     @ \"%h(zName)\"</span>
     style_footer();
     return;

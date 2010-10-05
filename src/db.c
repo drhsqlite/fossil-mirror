@@ -1642,3 +1642,46 @@ void setting_cmd(void){
     usage("?PROPERTY? ?VALUE?");
   }
 }
+
+/*
+** The input in a a timespan measured in days.  Return a string which
+** describes that timespan in units of seconds, minutes, hours, days,
+** or years, depending on its duration.
+*/
+char *db_timespan_name(double rSpan){
+  if( rSpan<0 ) rSpan = -rSpan;
+  rSpan *= 24.0*3600.0;  /* Convert units to seconds */
+  if( rSpan<120.0 ){
+    return sqlite3_mprintf("%.1f seconds", rSpan);
+  }
+  rSpan /= 60.0;         /* Convert units to minutes */
+  if( rSpan<90.0 ){
+    return sqlite3_mprintf("%.1f minutes", rSpan);
+  }
+  rSpan /= 60.0;         /* Convert units to hours */
+  if( rSpan<=48.0 ){
+    return sqlite3_mprintf("%.1f hours", rSpan);
+  }
+  rSpan /= 24.0;         /* Convert units to days */
+  if( rSpan<=365.0 ){
+    return sqlite3_mprintf("%.1f days", rSpan);
+  }
+  rSpan /= 356.24;         /* Convert units to years */
+  return sqlite3_mprintf("%.1f years", rSpan);
+}
+
+/*
+** COMMAND: test-timespan
+** %fossil test-timespan TIMESTAMP
+**
+** Print the approximate span of time from now to TIMESTAMP.
+*/
+void test_timespan_cmd(void){
+  double rDiff;
+  if( g.argc!=3 ) usage("TIMESTAMP");
+  sqlite3_open(":memory:", &g.db);  
+  rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
+  printf("Time differences: %s\n", db_timespan_name(rDiff));
+  sqlite3_close(g.db);
+  g.db = 0;
+}

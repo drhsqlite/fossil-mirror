@@ -40,9 +40,13 @@ void branch_new(void){
   Blob parent;           /* root check-in manifest */
   Manifest mParent;      /* Parsed parent manifest */
   Blob mcksum;           /* Self-checksum on the manifest */
+  const char *zDateOvrd; /* Override date string */
+  const char *zUserOvrd; /* Override user name */
  
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
+  zDateOvrd = find_option("date-override",0,1);
+  zUserOvrd = find_option("user-override",0,1);
   verify_all_options();
   if( g.argc<5 ){
     usage("new BRANCH-NAME CHECK-IN ?-bgcolor COLOR?");
@@ -74,7 +78,7 @@ void branch_new(void){
   blob_zero(&branch);
   zComment = mprintf("Create new branch named \"%h\"", zBranch);
   blob_appendf(&branch, "C %F\n", zComment);
-  zDate = db_text(0, "SELECT datetime('now')");
+  zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
   zDate[10] = 'T';
   blob_appendf(&branch, "D %s\n", zDate);
 
@@ -122,7 +126,7 @@ void branch_new(void){
   }
   db_finalize(&q);
   
-  blob_appendf(&branch, "U %F\n", g.zLogin);
+  blob_appendf(&branch, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
   if( !noSign && clearsign(&branch, &branch) ){

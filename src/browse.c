@@ -108,6 +108,7 @@ void page_dir(void){
   Stmt q;
   const char *zCI = P("ci");
   int rid = 0;
+  char *zUuid = 0;
   Blob content;
   Blob dirname;
   Manifest m;
@@ -122,12 +123,20 @@ void page_dir(void){
   /* If the name= parameter is an empty string, make it a NULL pointer */
   if( zD && strlen(zD)==0 ){ zD = 0; }
 
-  /* If a specific check-in is requested, fetch and parse it. */
-  if( zCI && (rid = name_to_rid(zCI))!=0 && content_get(rid, &content) ){
-    if( !manifest_parse(&m, &content) || m.type!=CFTYPE_MANIFEST ){
-      zCI = 0;
+  /* If a specific check-in is requested, fetch and parse it.  If the
+  ** specific check-in does not exist, clear zCI.  zCI==0 will cause all
+  ** files from all check-ins to be displayed.
+  */
+  if( zCI ){
+    if( (rid = name_to_rid(zCI))==0 || content_get(rid, &content)==0 ){
+      zCI = 0;  /* No artifact named zCI exists */
+    }else if( !manifest_parse(&m, &content) || m.type!=CFTYPE_MANIFEST ){
+      zCI = 0;  /* The artifact exists but is not a manifest */
+    }else{
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
   }
+
 
   /* Compute the title of the page */  
   blob_zero(&dirname);
@@ -140,7 +149,6 @@ void page_dir(void){
     zPrefix = "";
   }
   if( zCI ){
-    char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     char zShort[20];
     memcpy(zShort, zUuid, 10);
     zShort[10] = 0;

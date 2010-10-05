@@ -74,12 +74,16 @@ static const char zSchemaUpdates[] =
 ;
 
 /*
-** Variables used for progress information
+** Variables used to store state information about an on-going "rebuild"
+** or "deconstruct".
 */
 static int totalSize;       /* Total number of artifacts to process */
 static int processCnt;      /* Number processed so far */
 static int ttyOutput;       /* Do progress output */
 static Bag bagDone;         /* Bag of records rebuilt */
+
+static char *zFNameFormat;  /* Format string for filenames on deconstruct */
+static int prefixLength;    /* Length of directory prefix for deconstruct */
 
 /*
 ** Called after each artifact is processed
@@ -100,6 +104,17 @@ static void rebuild_step_done(rid){
 ** Rebuild cross-referencing information for the artifact
 ** rid with content pBase and all of its descendants.  This
 ** routine clears the content buffer before returning.
+**
+** If the zFNameFormat variable is set, then this routine is
+** called to run "fossil deconstruct" instead of the usual
+** "fossil rebuild".  In that case, instead of rebuilding the
+** cross-referencing information, write the file content out
+** to the approriate directory.
+**
+** In both cases, this routine automatically recurses to process
+** other artifacts that are deltas off of the current artifact.
+** This is the most efficient way to extract all of the original
+** artifact content from the Fossil repository.
 */
 static void rebuild_step(int rid, int size, Blob *pBase){
   static Stmt q1;
@@ -108,62 +123,78 @@ static void rebuild_step(int rid, int size, Blob *pBase){
   Blob *pUse;
   int nChild, i, cid;
 
-  /* Fix up the "blob.size" field if needed. */
-  if( size!=blob_size(pBase) ){
-    db_multi_exec(
-       "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
-    );
-  }
+  while( rid>0 ){
 
-  /* Find all children of artifact rid */
-  db_static_prepare(&q1, "SELECT rid FROM delta WHERE srcid=:rid");
-  db_bind_int(&q1, ":rid", rid);
-  bag_init(&children);
-  while( db_step(&q1)==SQLITE_ROW ){
-    int cid = db_column_int(&q1, 0);
-    if( !bag_find(&bagDone, cid) ){
-      bag_insert(&children, cid);
+    /* Fix up the "blob.size" field if needed. */
+    if( size!=blob_size(pBase) ){
+      db_multi_exec(
+         "UPDATE blob SET size=%d WHERE rid=%d", blob_size(pBase), rid
+      );
     }
-  }
-  nChild = bag_count(&children);
-  db_reset(&q1);
-
-  /* Crosslink the artifact */
-  if( nChild==0 ){
-    pUse = pBase;
-  }else{
-    blob_copy(&copy, pBase);
-    pUse = &copy;
-  }
-  manifest_crosslink(rid, pUse);
-  blob_reset(pUse);
-
-  /* Call all children recursively */
-  for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
-    Stmt q2;
-    int sz;
-    if( nChild==i ){
+  
+    /* Find all children of artifact rid */
+    db_static_prepare(&q1, "SELECT rid FROM delta WHERE srcid=:rid");
+    db_bind_int(&q1, ":rid", rid);
+    bag_init(&children);
+    while( db_step(&q1)==SQLITE_ROW ){
+      int cid = db_column_int(&q1, 0);
+      if( !bag_find(&bagDone, cid) ){
+        bag_insert(&children, cid);
+      }
+    }
+    nChild = bag_count(&children);
+    db_reset(&q1);
+  
+    /* Crosslink the artifact */
+    if( nChild==0 ){
       pUse = pBase;
     }else{
       blob_copy(&copy, pBase);
       pUse = &copy;
     }
-    db_prepare(&q2, "SELECT content, size FROM blob WHERE rid=%d", cid);
-    if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
-      Blob delta;
-      db_ephemeral_blob(&q2, 0, &delta);
-      blob_uncompress(&delta, &delta);
-      blob_delta_apply(pUse, &delta, pUse);
-      blob_reset(&delta);
-      db_finalize(&q2);
-      rebuild_step(cid, sz, pUse);
+    if( zFNameFormat==0 ){
+      /* We are doing "fossil rebuild" */
+      manifest_crosslink(rid, pUse);
     }else{
-      db_finalize(&q2);
-      blob_reset(pUse);
+      /* We are doing "fossil deconstruct" */
+      char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      char *zFile = mprintf(zFNameFormat, zUuid, zUuid+prefixLength);
+      blob_write_to_file(pUse,zFile);
+      free(zFile);
+      free(zUuid);
     }
+    blob_reset(pUse);
+    rebuild_step_done(rid);
+  
+    /* Call all children recursively */
+    rid = 0;
+    for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
+      Stmt q2;
+      int sz;
+      db_prepare(&q2, "SELECT content, size FROM blob WHERE rid=%d", cid);
+      if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
+        Blob delta, next;
+        db_ephemeral_blob(&q2, 0, &delta);
+        blob_uncompress(&delta, &delta);
+        blob_delta_apply(pBase, &delta, &next);
+        blob_reset(&delta);
+        db_finalize(&q2);
+        if( i<nChild ){
+          rebuild_step(cid, sz, &next);
+        }else{
+          /* Tail recursion */
+          rid = cid;
+          size = sz;
+          blob_reset(pBase);
+          *pBase = next;
+        }
+      }else{
+        db_finalize(&q2);
+        blob_reset(pBase);
+      }
+    }
+    bag_clear(&children);
   }
-  bag_clear(&children);
-  rebuild_step_done(rid);
 }
 
 /*
@@ -183,8 +214,8 @@ static void rebuild_tag_trunk(void){
   /* Add the trunk tag to the root of the whole tree */
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid==0 ) return;
-  tag_add_artifact("sym-", "trunk", zUuid, 0, 2);
-  tag_add_artifact("", "branch", zUuid, "trunk", 2);
+  tag_add_artifact("sym-", "trunk", zUuid, 0, 2, 0, 0);
+  tag_add_artifact("", "branch", zUuid, "trunk", 2, 0, 0);
 }
 
 /*
@@ -405,20 +436,60 @@ void scrub_cmd(void){
 }
 
 /*
+** Recursively read all files from the directory zPath and install
+** every file read as a new artifact in the repository.
+*/
+void recon_read_dir(char *zPath){
+  DIR *d;
+  struct dirent *pEntry;
+  Blob aContent; /* content of the just read artifact */
+  static int nFileRead = 0;
+
+  d = opendir(zPath);
+  if( d ){
+    while( (pEntry=readdir(d))!=0 ){
+      Blob path;
+      char *zSubpath;
+
+      if( pEntry->d_name[0]=='.' ){
+        continue;
+      }
+      zSubpath = mprintf("%s/%s",zPath,pEntry->d_name);
+      if( file_isdir(zSubpath)==1 ){
+        recon_read_dir(zSubpath);
+      }
+      blob_init(&path, 0, 0);
+      blob_appendf(&path, "%s", zSubpath);
+      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
+        fossil_panic("some unknown error occurred while reading \"%s\"", 
+                     blob_str(&path));
+      }
+      content_put(&aContent, 0, 0);
+      blob_reset(&path);
+      blob_reset(&aContent);
+      free(zSubpath);
+      printf("\r%d", ++nFileRead);
+      fflush(stdout);
+    }
+  }else {
+    fossil_panic("encountered error %d while trying to open \"%s\".",
+                  errno, g.argv[3]);
+  }
+}
+
+/*
 ** COMMAND: reconstruct
 **
 ** Usage: %fossil reconstruct FILENAME DIRECTORY
 **
 ** This command studies the artifacts (files) in DIRECTORY and
 ** reconstructs the fossil record from them. It places the new
-** fossil repository in FILENAME
+** fossil repository in FILENAME. Subdirectories are read, files
+** with leading '.' in the filename are ignored.
 **
 */
 void reconstruct_cmd(void) {
   char *zPassword;
-  DIR *d;
-  struct dirent *pEntry;
-  Blob aContent; /* content of the just read artifact */
   if( g.argc!=4 ){
     usage("FILENAME DIRECTORY");
   }
@@ -432,35 +503,122 @@ void reconstruct_cmd(void) {
   db_begin_transaction();
   db_initial_setup(0, 0, 1);
 
-  d = opendir(g.argv[3]);
-  if( d ){
-    while( (pEntry=readdir(d))!=0 ){
-      Blob path;
-      blob_init(&path, 0, 0);
-      if( pEntry->d_name[0]=='.' ){
-        continue;
-      }
-      if( file_isdir(pEntry->d_name)==1 ){
-        continue;
-      }
-      blob_appendf(&path, "%s/%s", g.argv[3], pEntry->d_name);
-      if( blob_read_from_file(&aContent, blob_str(&path))==-1 ){
-        fossil_panic("Some unknown error occurred while reading \"%s\"", blob_str(&path));
-      }
-      content_put(&aContent, 0, 0);
-      blob_reset(&path);
-      blob_reset(&aContent);
-    }
-  }
-  else {
-    fossil_panic("Encountered error %d while trying to open \"%s\".", errno, g.argv[3]);
-  }
+  printf("Reading files from directory \"%s\"...\n", g.argv[3]);
+  recon_read_dir(g.argv[3]);
+  printf("\nBuilding the Fossil repository...\n");
 
   rebuild_db(0, 1);
 
+  /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts
+  ** will have been changed and verification therefore takes a really, really
+  ** long time.
+  */
+  verify_cancel();
+  
   db_end_transaction(0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id: %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+}
+
+/*
+** COMMAND: deconstruct
+**
+** Usage %fossil deconstruct ?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION
+**
+** This command exports all artifacts of o given repository and
+** writes all artifacts to the file system. The DESTINATION directory
+** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
+** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
+** If -L|--prefixlength is given, the length (default 2) of the directory
+** prefix can be set to 0,1,..,9 characters.
+*/
+void deconstruct_cmd(void){
+  const char *zDestDir;
+  const char *zPrefixOpt;
+  Stmt        s;
+
+  /* check number of arguments */
+  if( (g.argc != 3) && (g.argc != 5)  && (g.argc != 7)){
+    usage ("?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION");
+  }
+  /* get and check argument destination directory */
+  zDestDir = g.argv[g.argc-1];
+  if( !*zDestDir  || !file_isdir(zDestDir)) {
+    fossil_panic("DESTINATION(%s) is not a directory!",zDestDir);
+  }
+  /* get and check prefix length argument and build format string */
+  zPrefixOpt=find_option("prefixlength","L",1);
+  if( !zPrefixOpt ){
+    prefixLength = 2;
+  }else{
+    if( zPrefixOpt[0]>='0' && zPrefixOpt[0]<='9' && !zPrefixOpt[1] ){
+      prefixLength = (int)(*zPrefixOpt-'0');
+    }else{
+      fossil_fatal("N(%s) is not a a valid prefix length!",zPrefixOpt);
+    }
+  }
+#ifndef _WIN32
+  if( access(zDestDir, W_OK) ){
+    fossil_fatal("DESTINATION(%s) is not writeable!",zDestDir);
+  }
+#else
+  /* write access on windows is not checked, errors will be
+  ** dected on blob_write_to_file
+  */
+#endif
+  if( prefixLength ){
+    zFNameFormat = mprintf("%s/%%.%ds/%%s",zDestDir,prefixLength);
+  }else{
+    zFNameFormat = mprintf("%s/%%s",zDestDir);
+  }
+  /* open repository and open query for all artifacts */
+  db_find_and_open_repository(1);
+  bag_init(&bagDone);
+  ttyOutput = 1;
+  processCnt = 0;
+  if (!g.fQuiet) {
+    printf("0 (0%%)...\r");
+    fflush(stdout);
+  }
+  totalSize = db_int(0, "SELECT count(*) FROM blob");
+  db_prepare(&s,
+     "SELECT rid, size FROM blob /*scan*/"
+     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+     "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
+  );
+  while( db_step(&s)==SQLITE_ROW ){
+    int rid = db_column_int(&s, 0);
+    int size = db_column_int(&s, 1);
+    if( size>=0 ){
+      Blob content;
+      content_get(rid, &content);
+      rebuild_step(rid, size, &content);
+    }
+  }
+  db_finalize(&s);
+  db_prepare(&s,
+     "SELECT rid, size FROM blob"
+     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+  );
+  while( db_step(&s)==SQLITE_ROW ){
+    int rid = db_column_int(&s, 0);
+    int size = db_column_int(&s, 1);
+    if( size>=0 ){
+      if( !bag_find(&bagDone, rid) ){
+        Blob content;
+        content_get(rid, &content);
+        rebuild_step(rid, size, &content);
+      }
+    }
+  }
+  db_finalize(&s);
+  if(!g.fQuiet && ttyOutput ){
+    printf("\n");
+  }
+
+  /* free filename format string */
+  free(zFNameFormat);
+  zFNameFormat = 0;
 }

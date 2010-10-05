@@ -539,6 +539,19 @@ char *date_in_standard_format(const char *zInputDate){
 }
 
 /*
+** Return TRUE (non-zero) if a file named "zFilename" exists in
+** the checkout identified by vid.
+**
+** The original purpose of this routine was to check for the presence of
+** a "checked-in" file named "manifest" or "manifest.uuid" so as to avoid
+** overwriting that file with automatically generated files.
+*/
+int file_exists_in_checkout(int vid, const char *zFilename){
+  return db_exists("SELECT 1 FROM vfile WHERE vid=%d AND pathname=%Q",
+                   vid, zFilename);
+}
+
+/*
 ** COMMAND: ci
 ** COMMAND: commit
 **
@@ -632,6 +645,18 @@ void commit_cmd(void){
   */
   if( !g.markPrivate ){
     autosync(AUTOSYNC_PULL);
+  }
+
+  /* Require confirmation to continue with the check-in if there is
+  ** clock skew
+  */
+  if( g.clockSkewSeen ){
+    Blob ans;
+    blob_zero(&ans);
+    prompt_user("continue in spite of time skew (y/N)? ", &ans);
+    if( blob_str(&ans)[0]!='y' ){
+      fossil_exit(1);
+    }
   }
 
   /* There are two ways this command may be executed. If there are
@@ -846,7 +871,6 @@ void commit_cmd(void){
   blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&manifest, &mcksum);
   blob_appendf(&manifest, "Z %b\n", &mcksum);
-  zManifestFile = mprintf("%smanifest", g.zLocalRoot);
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
     Blob ans;
     blob_zero(&ans);
@@ -855,10 +879,13 @@ void commit_cmd(void){
       fossil_exit(1);
     }
   }
-  blob_write_to_file(&manifest, zManifestFile);
-  blob_reset(&manifest);
-  blob_read_from_file(&manifest, zManifestFile);
-  free(zManifestFile);
+  if( !file_exists_in_checkout(vid, "manifest") ){
+    zManifestFile = mprintf("%smanifest", g.zLocalRoot);
+    blob_write_to_file(&manifest, zManifestFile);
+    blob_reset(&manifest);
+    blob_read_from_file(&manifest, zManifestFile);
+    free(zManifestFile);
+  }
   nvid = content_put(&manifest, 0, 0);
   if( nvid==0 ){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
@@ -868,12 +895,14 @@ void commit_cmd(void){
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);
-  zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-  blob_zero(&muuid);
-  blob_appendf(&muuid, "%s\n", zUuid);
-  blob_write_to_file(&muuid, zManifestFile);
-  free(zManifestFile);
-  blob_reset(&muuid);
+  if( !file_exists_in_checkout(vid, "manifest.uuid") ){
+    zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+    blob_zero(&muuid);
+    blob_appendf(&muuid, "%s\n", zUuid);
+    blob_write_to_file(&muuid, zManifestFile);
+    free(zManifestFile);
+    blob_reset(&muuid);
+  }
 
   
   /* Update the vfile and vmerge tables */

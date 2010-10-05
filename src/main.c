@@ -85,6 +85,7 @@ struct Global {
   int fTimeFormat;        /* 1 for UTC.  2 for localtime.  0 not yet selected */
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
+  int clockSkewSeen;      /* True if clocks on client and server out of sync */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
@@ -292,7 +293,7 @@ void fossil_panic(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiOutput && once ){
     once = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -309,7 +310,7 @@ void fossil_fatal(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -337,7 +338,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
   va_end(ap);
   if( g.cgiOutput ){
     g.cgiOutput = 0;
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
@@ -355,7 +356,7 @@ void fossil_warning(const char *zFormat, ...){
   z = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.cgiOutput ){
-    cgi_printf("<p><font color=\"red\">%h</font></p>", z);
+    cgi_printf("<p class=\"generalError\">%h</p>", z);
   }else{
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }

@@ -152,55 +152,61 @@ static int findAttr(const char *z){
 ** The value for MARKUP_XYZ must correspond to the <xyz> entry
 ** in aAllowedMarkup[].
 */
-#define MARKUP_INVALID           0
-#define MARKUP_A                 1
-#define MARKUP_ADDRESS           2
-#define MARKUP_B                 3
-#define MARKUP_BIG               4
-#define MARKUP_BLOCKQUOTE        5
-#define MARKUP_BR                6
-#define MARKUP_CENTER            7
-#define MARKUP_CITE              8
-#define MARKUP_CODE              9
-#define MARKUP_DD               10
-#define MARKUP_DFN              11
-#define MARKUP_DIV              12
-#define MARKUP_DL               13
-#define MARKUP_DT               14
-#define MARKUP_EM               15
-#define MARKUP_FONT             16
-#define MARKUP_H1               17
-#define MARKUP_H2               18
-#define MARKUP_H3               19
-#define MARKUP_H4               20
-#define MARKUP_H5               21
-#define MARKUP_H6               22
-#define MARKUP_HR               23
-#define MARKUP_I                24
-#define MARKUP_IMG              25
-#define MARKUP_KBD              26
-#define MARKUP_LI               27
-#define MARKUP_NOBR             28
-#define MARKUP_NOWIKI           29
-#define MARKUP_OL               30
-#define MARKUP_P                31
-#define MARKUP_PRE              32
-#define MARKUP_S                33
-#define MARKUP_SAMP             34
-#define MARKUP_SMALL            35
-#define MARKUP_STRIKE           36
-#define MARKUP_STRONG           37
-#define MARKUP_SUB              38
-#define MARKUP_SUP              39
-#define MARKUP_TABLE            40
-#define MARKUP_TD               41
-#define MARKUP_TH               42
-#define MARKUP_TR               43
-#define MARKUP_TT               44
-#define MARKUP_U                45
-#define MARKUP_UL               46
-#define MARKUP_VAR              47
-#define MARKUP_VERBATIM         48
+#define MARKUP_INVALID            0
+#define MARKUP_A                  1
+#define MARKUP_ADDRESS            2
+#define MARKUP_B                  3
+#define MARKUP_BIG                4
+#define MARKUP_BLOCKQUOTE         5
+#define MARKUP_BR                 6
+#define MARKUP_CENTER             7
+#define MARKUP_CITE               8
+#define MARKUP_CODE               9
+#define MARKUP_COL                10
+#define MARKUP_COLGROUP           11
+#define MARKUP_DD                 12
+#define MARKUP_DFN                13
+#define MARKUP_DIV                14
+#define MARKUP_DL                 15
+#define MARKUP_DT                 16
+#define MARKUP_EM                 17
+#define MARKUP_FONT               18
+#define MARKUP_H1                 19
+#define MARKUP_H2                 20
+#define MARKUP_H3                 21
+#define MARKUP_H4                 22
+#define MARKUP_H5                 23
+#define MARKUP_H6                 24
+#define MARKUP_HR                 25
+#define MARKUP_I                  26
+#define MARKUP_IMG                27
+#define MARKUP_KBD                28
+#define MARKUP_LI                 29
+#define MARKUP_NOBR               30
+#define MARKUP_NOWIKI             31
+#define MARKUP_OL                 32
+#define MARKUP_P                  33
+#define MARKUP_PRE                34
+#define MARKUP_S                  35
+#define MARKUP_SAMP               36
+#define MARKUP_SMALL              37
+#define MARKUP_SPAN               38
+#define MARKUP_STRIKE             39
+#define MARKUP_STRONG             40
+#define MARKUP_SUB                41
+#define MARKUP_SUP                42
+#define MARKUP_TABLE              43
+#define MARKUP_TBODY              44
+#define MARKUP_TD                 45
+#define MARKUP_TFOOT              46
+#define MARKUP_TH                 47
+#define MARKUP_THEAD              48
+#define MARKUP_TR                 49
+#define MARKUP_TT                 50
+#define MARKUP_U                  51
+#define MARKUP_UL                 52
+#define MARKUP_VAR                53
+#define MARKUP_VERBATIM           54
 
 /*
 ** The various markup is divided into the following types:
@@ -243,6 +249,10 @@ static const struct AllowedMarkup {
  { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         0  },
  { "cite",          MARKUP_CITE,         MUTYPE_FONT,          0  },
  { "code",          MARKUP_CODE,         MUTYPE_FONT,          0  },
+ { "col",           MARKUP_COL,          MUTYPE_SINGLE,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH  },
+ { "colgroup",      MARKUP_COLGROUP,     MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH},
  { "dd",            MARKUP_DD,           MUTYPE_LI,            0  },
  { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          0  },
  { "div",           MARKUP_DIV,          MUTYPE_BLOCK,         AMSK_ID|AMSK_CLASS      },
@@ -275,6 +285,7 @@ static const struct AllowedMarkup {
  { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
  { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
  { "small",         MARKUP_SMALL,        MUTYPE_FONT,          0  },
+ { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          0  },
  { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          0  },
  { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
@@ -282,12 +293,15 @@ static const struct AllowedMarkup {
  { "table",         MARKUP_TABLE,        MUTYPE_TABLE,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
                     AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE|AMSK_CLASS  },
+ { "tbody",         MARKUP_TBODY,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "td",            MARKUP_TD,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
+ { "tfoot",         MARKUP_TFOOT,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
+ { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
                     AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN|AMSK_CLASS  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
@@ -297,6 +311,14 @@ static const struct AllowedMarkup {
  { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
  { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       AMSK_ID|AMSK_TYPE },
 };
+
+void show_allowed_wiki_markup( void ){
+  int i; /* loop over allowedAttr */
+
+  for( i=1 ; i<=sizeof(aMarkup)/sizeof(aMarkup[0]) - 1 ; i++ ){
+    @ &lt;%s(aMarkup[i].zName)&gt;
+  }
+}
 
 /*
 ** Use binary search to locate a tag in the aMarkup[] table.
@@ -381,7 +403,6 @@ static int wikiUsesHtml(void){
   return r;
 }
 
-
 /*
 ** z points to a "<" character.  Check to see if this is the start of
 ** a valid markup.  If it is, return the total number of characters in
@@ -395,11 +416,13 @@ static int markupLength(const char *z){
   if( z[n]=='/' ){ n++; }
   if( !isalpha(z[n]) ) return 0;
   while( isalnum(z[n]) ){ n++; }
-  if( (c = z[n])!='>' && !isspace(c) ) return 0;
+  c = z[n];
+  if( c=='/' && z[n+1]=='>' ){ return n+2; }
+  if( c!='>' && !isspace(c) ) return 0;
   while( (c = z[n])!=0 && (c!='>' || inparen) ){
     if( c==inparen ){
       inparen = 0;
-    }else if( c=='"' || c=='\'' ){
+    }else if( inparen==0 && (c=='"' || c=='\'') ){
       inparen = c;
     }
     n++;
