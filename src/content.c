@@ -104,21 +104,6 @@ void content_cache_insert(int rid, Blob *pBlob){
   bag_insert(&contentCache.inCache, rid);
 }
 
-#if 0
-/*
-** Remove an entry from the content cache
-*/
-void content_cache_remove(int rid){
-  int i;
-  for(i=0; i<contentCache.n && contentCache.a[i].rid!=rid; i++){}
-  if( i>=contentCache.n ) return;
-  contentCache.szTotal -= blob_size(&contentCache.a[i].content);
-  blob_reset(&contentCache.a[i].content);
-  contentCache.n--;
-  contentCache.a[i] = contentCache.a[contentCache.n];
-}
-#endif
-
 /*
 ** Clear the content cache.
 */
@@ -282,7 +267,7 @@ int content_get(int rid, Blob *pBlob){
       a[n] = nextRid;
     }
     mx = n;
-    rc = content_of_blob(a[n], pBlob);
+    rc = content_get(a[n], pBlob);
     n--;
     while( rc && n>=0 ){
       rc = content_of_blob(a[n], &delta);
@@ -301,73 +286,6 @@ int content_get(int rid, Blob *pBlob){
     free(a);
     if( !rc ) blob_reset(pBlob);
   }
-  return rc;
-}
-
-#if 0
-/*
-** Extract the content for ID rid and put it into the
-** uninitialized blob.  Return 1 on success.  If the record
-** is a phantom, zero pBlob and return 0.
-*/
-int old_content_get(int rid, Blob *pBlob){
-  Blob src;
-  int srcid;
-  int rc = 0;
-  int i;
-  static Bag inProcess;
-
-  assert( g.repositoryOpen );
-  blob_zero(pBlob);
-  if( rid==0 ) return 0;
-
-  /* Early out if we know the content is not available */
-  if( bag_find(&contentCache.missing, rid) ){
-    return 0;
-  }
-
-  /* Look for the artifact in the cache first */
-  for(i=0; i<contentCache.n; i++){
-    if( contentCache.a[i].rid==rid ){
-      blob_copy(pBlob, &contentCache.a[i].content);
-      contentCache.a[i].age = contentCache.nextAge++;
-      return 1;
-    }
-  }
-
-  /* See if we need to apply a delta to find this artifact */
-  srcid = findSrcid(rid);
-  if( srcid ){
-    /* Yes, a delta is required */
-    if( bag_find(&inProcess, srcid) ){
-      db_multi_exec(
-        "UPDATE blob SET content=NULL, size=-1 WHERE rid=%d;"
-        "DELETE FROM delta WHERE rid=%d;"
-        "INSERT OR IGNORE INTO phantom VALUES(%d);",
-        srcid, srcid, srcid
-      );
-      blob_zero(pBlob);
-      return 0;
-    }
-    bag_insert(&inProcess, srcid);
-
-    cacheSrcid(rid);
-    if( content_get(srcid, &src) ){
-      Blob delta;
-      if( content_of_blob(rid, &delta) ){
-        blob_init(pBlob,0,0);
-        blob_delta_apply(&src, &delta, pBlob);
-        blob_reset(&delta);
-        rc = 1;
-      }
-    }
-    bag_remove(&inProcess, srcid);
-  }else{
-    /* No delta required.  Read content directly from the database */
-    if( content_of_blob(rid, pBlob) ){
-      rc = 1;
-    }
-  }
   if( rc==0 ){
     bag_insert(&contentCache.missing, rid);
   }else{
@@ -375,7 +293,6 @@ int old_content_get(int rid, Blob *pBlob){
   }
   return rc;
 }
-#endif
 
 /*
 ** COMMAND:  artifact

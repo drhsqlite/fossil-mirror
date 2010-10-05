@@ -159,8 +159,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
       /* We are doing "fossil deconstruct" */
       char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
       char *zFile = mprintf(zFNameFormat, zUuid, zUuid+prefixLength);
-//      blob_write_to_file(pUse,zFile);
-printf("%d - %s\n", rid, zUuid);
+      blob_write_to_file(pUse,zFile);
       free(zFile);
       free(zUuid);
     }
