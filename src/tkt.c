@@ -845,7 +845,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **           ?-l|--limit LIMITCHAR?
 **           ?-q|--quote?
 **
-**         Run the the ticket report, identified by the report format title
+**         Run the ticket report, identified by the report format title
 **         used in the gui. The data is written as flat file on stdout,
 **         using "," as separator. The seperator "," can be changed using
 **         the -l or --limit option.
