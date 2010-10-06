@@ -595,6 +595,56 @@ void help_cmd(void){
 }
 
 /*
+** WEBPAGE: help
+** URL: /help?cmd=CMD
+*/
+void help_page(void){
+    const char * zCmd = P("cmd");
+    
+    style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
+    if( zCmd ){
+      int rc, idx;
+      char *z, *s, *d;
+
+      @ <h1>%s(zCmd)</h1>
+      rc = name_search(zCmd, aCommand, count(aCommand), &idx);
+      if( rc==1 ){
+        @ unknown command: %s(zCmd)
+      }else if( rc==2 ){
+        @ ambiguous command prefix: %s(zCmd)
+      }else{
+        z = (char*)aCmdHelp[idx];
+        if( s==0 ){
+          @ no help available for the %s(aCommand[idx].zName) command
+        }else{
+          z=s=d=mprintf("%s",z);
+	  while( *s ){
+	    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
+	      s++;
+	    }else{
+	      *d++ = *s++;
+	    }
+	  }
+	  *d = 0;
+	  @ <pre>%s(z)</pre>
+	  free(z);
+	}
+      }
+      @ <hr/><a href="help">available commands</a> in fossil version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
+    }else{
+      int i;
+      
+      @ <h1>Available commands</h1>
+      for(i=0; i<count(aCommand); i++){
+        if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
+        @ <kbd><a href="help?cmd=%s(aCommand[i].zName)">%s(aCommand[i].zName)</a></kbd>
+      }
+      @ <hr/>fossil version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
+    }
+    style_footer();
+}
+
+/*
 ** Set the g.zBaseURL value to the full URL for the toplevel of
 ** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
