@@ -515,7 +515,7 @@ static void checkin_verify_younger(
     zDate, rid
   );
   if( b ){
-    fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)"
+    fossil_fatal("ancestor check-in [%.10s] (%s) is not older (clock skew?)"
                  " Use -f to override.", zUuid, zDate);
   }
 #endif
