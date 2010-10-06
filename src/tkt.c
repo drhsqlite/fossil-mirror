@@ -845,7 +845,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **           ?-l|--limit LIMITCHAR?
 **           ?-q|--quote?
 **
-**         Run the the ticket report, identified by the report title
+**         Run the the ticket report, identified by the report format title
 **         used in the gui. The data is written as flat file on stdout,
 **         using "," as separator. The seperator "," can be changed using
 **         the -l or --limit option.
@@ -853,6 +853,8 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         limited with a new WHERE-condition.
 **           example:  Report lists a column # with the uuid
 **                     TICKETFILTER may be [#]='uuuuuuuuu'
+**           example:  Report only lists rows with status not open
+**                     TICKETFILTER: status != 'open'
 **         If the option -q|--quote is used, the tickets are encoded by
 **         quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
 **         cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
@@ -863,9 +865,9 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         number. Using the special report number 0 list all columns,
 **         defined in the ticket table.
 **
-**     %fossil ticket list
+**     %fossil ticket fieldlist
 **
-**         list all columns, defined in the ticket table
+**         list all fields, defined for ticket in the fossil repository
 **
 **     %fossil ticket set TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
 **     %fossil ticket change TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
@@ -879,7 +881,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         change the all your configured columns.
 **         You can use more than one field/value pair on the commandline.
 **         Using -q|--quote  enables the special character decoding as
-**         in "ticket list". So it's possible, to set multiline text or
+**         in "ticket show". So it's possible, to set multiline text or
 **         text with special characters.
 **
 **     %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
@@ -904,13 +906,13 @@ void ticket_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("add|list|set|show");
+    usage("add|fieldlist|set|show");
   }else{
     n = strlen(g.argv[2]);
     if( n==1 && g.argv[2][0]=='s' ){
       /* set/show cannot be distinguished, so show the usage */
-      usage("add|list|set|show");
-    }else if( strncmp(g.argv[2],"list",n)==0 ){
+      usage("add|fieldlist|set|show");
+    }else if( strncmp(g.argv[2],"fieldlist",n)==0 ){
       /* simply show all field names */
       int i;
       
@@ -973,7 +975,7 @@ void ticket_cmd(void){
         }
         /* none of set/add, so show the usage! */
         if( eCmd==err ){
-          usage("add|list|set|show");
+          usage("add|fieldlist|set|show");
         }
         
         /* read all given ticket field/value pairs from command line */
