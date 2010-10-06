@@ -1,5 +1,5 @@
-C Change\sancestor\sage\scheck\serror\smessage\sto\sbe\smore\sprecise.\nTicket\s[5e9020fe4ccfc11e94].
-D 2010-10-06T00:12:15
+C SLL\suses\ssystem-wide\sdefault\sCAs.\s\sTicket\s[f696bc85f8b91d263f5bf4c5bbd2].
+D 2010-10-06T12:15:38
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -65,7 +65,7 @@ F src/finfo.c 51e99c605a5c4dad4f488b85c6eb33d89784e35c
 F src/graph.c 79682b0b0240d8eb37ecb677afdcf4cff5bf5798
 F src/http.c 1d261b5e943a4a055e4a9813cd63c59d63569a33
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
-F src/http_ssl.c 56d783c4e1c4a85f30dae8a4eb7036516a3d552f
+F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f7a88a3c9bc1ccf0a9215ab8cb0b284e514c16bb
 F src/info.c daadb5dec6f89052695d47872c41c0ec6d226b52
 F src/login.c 676c739ad0f1fa2a138bc3493f607f2d28f9a243
@@ -270,7 +270,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 12a79e5b933b9800c9c2492c418d959d973fbddc
-R 8c0f0f1df58fb20b90bb05761bbe0dd0
+P 89d4d0b85bbc8e0ed175111694e600e840f8988f
+R fd9249bb7cb74752f56683291495dc48
 U drh
-Z 59bf8b5bfef5f785ceca7b61b435e577
+Z 71e9869930ab8aa5411f67f6c4b66b22

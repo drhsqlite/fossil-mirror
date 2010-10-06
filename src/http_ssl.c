@@ -92,6 +92,7 @@ void ssl_global_init(void){
     ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();    
     sslCtx = SSL_CTX_new(SSLv23_client_method());
+    X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
     sslIsInit = 1;
   }
 }
