@@ -22,14 +22,6 @@
 #include "setup.h"
 
 /*
-** The table of web pages supported by this application is generated
-** automatically by the "mkindex" program and written into a file
-** named "page_index.h".  We include that file here to get access
-** to the table.
-*/
-#include "page_index.h"
-
-/*
 ** Output a single entry for a menu generated using an HTML table.
 ** If zLink is not NULL or an empty string, then it is the page that
 ** the menu entry will hyperlink to.  If zLink is NULL or "", then
