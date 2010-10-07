@@ -30,20 +30,27 @@ SRC   = add_.c allrepo_.c attach_.c bag_.c blob_.c branch_.c browse_.c captcha_.
 
 OBJ   = $(OBJDIR)\add$O $(OBJDIR)\allrepo$O $(OBJDIR)\attach$O $(OBJDIR)\bag$O $(OBJDIR)\blob$O $(OBJDIR)\branch$O $(OBJDIR)\browse$O $(OBJDIR)\captcha$O $(OBJDIR)\cgi$O $(OBJDIR)\checkin$O $(OBJDIR)\checkout$O $(OBJDIR)\clearsign$O $(OBJDIR)\clone$O $(OBJDIR)\comformat$O $(OBJDIR)\configure$O $(OBJDIR)\content$O $(OBJDIR)\db$O $(OBJDIR)\delta$O $(OBJDIR)\deltacmd$O $(OBJDIR)\descendants$O $(OBJDIR)\diff$O $(OBJDIR)\diffcmd$O $(OBJDIR)\doc$O $(OBJDIR)\encode$O $(OBJDIR)\event$O $(OBJDIR)\file$O $(OBJDIR)\finfo$O $(OBJDIR)\graph$O $(OBJDIR)\http$O $(OBJDIR)\http_socket$O $(OBJDIR)\http_ssl$O $(OBJDIR)\http_transport$O $(OBJDIR)\info$O $(OBJDIR)\login$O $(OBJDIR)\main$O $(OBJDIR)\manifest$O $(OBJDIR)\md5$O $(OBJDIR)\merge$O $(OBJDIR)\merge3$O $(OBJDIR)\name$O $(OBJDIR)\pivot$O $(OBJDIR)\popen$O $(OBJDIR)\pqueue$O $(OBJDIR)\printf$O $(OBJDIR)\rebuild$O $(OBJDIR)\report$O $(OBJDIR)\rss$O $(OBJDIR)\schema$O $(OBJDIR)\search$O $(OBJDIR)\setup$O $(OBJDIR)\sha1$O $(OBJDIR)\shun$O $(OBJDIR)\skins$O $(OBJDIR)\stat$O $(OBJDIR)\style$O $(OBJDIR)\sync$O $(OBJDIR)\tag$O $(OBJDIR)\th_main$O $(OBJDIR)\timeline$O $(OBJDIR)\tkt$O $(OBJDIR)\tktsetup$O $(OBJDIR)\undo$O $(OBJDIR)\update$O $(OBJDIR)\url$O $(OBJDIR)\user$O $(OBJDIR)\verify$O $(OBJDIR)\vfile$O $(OBJDIR)\wiki$O $(OBJDIR)\wikiformat$O $(OBJDIR)\winhttp$O $(OBJDIR)\xfer$O $(OBJDIR)\zip$O $(OBJDIR)\sqlite3$O $(OBJDIR)\th$O $(OBJDIR)\th_lang$O 
 
+RC=$(DMDIR)\bin\rcc
+RCFLAGS=-32 -w1 -I$(SRCDIR) /D__DMC__
 
 APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
+$(APPNAME) : translate$E mkindex$E headers fossil.res $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
 	$(DMDIR)\bin\link @link
+
+fossil.res:	$B\win\fossil.rc
+	$(RC) $(RCFLAGS) -o$@ $**
 
 $(OBJDIR)\link: $B\win\Makefile.dmc
 	+echo add allrepo attach bag blob branch browse captcha cgi checkin checkout clearsign clone comformat configure content db delta deltacmd descendants diff diffcmd doc encode event file finfo graph http http_socket http_ssl http_transport info login main manifest md5 merge merge3 name pivot popen pqueue printf rebuild report rss schema search setup sha1 shun skins stat style sync tag th_main timeline tkt tktsetup undo update url user verify vfile wiki wikiformat winhttp xfer zip sqlite3 th th_lang > $@
 	+echo fossil >> $@
 	+echo fossil >> $@
 	+echo $(LIBS) >> $@
+	+echo. >> $@
+	+echo fossil >> $@
 
 
 
@@ -230,6 +237,12 @@ $(OBJDIR)\encode$O : encode_.c encode.h
 	$(TCC) -o$@ -c encode_.c
 
 encode_.c : $(SRCDIR)\encode.c
+	+translate$E $** > $@
+
+$(OBJDIR)\event$O : event_.c event.h
+	$(TCC) -o$@ -c event_.c
+
+event_.c : $(SRCDIR)\event.c
 	+translate$E $** > $@
 
 $(OBJDIR)\file$O : file_.c file.h

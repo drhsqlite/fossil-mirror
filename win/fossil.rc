@@ -1,0 +1,38 @@
+#include <windows.h>
+#include "VERSION.h"
+#define _RC_COMPILE_
+#include "config.h"
+
+LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEFLAGSMASK 0x3F
+FILEFLAGS 0x0
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "FileDescription", "distributed source code control system with integrated wiki and ticket-system\0"
+      VALUE "Comments", "compiler: "COMPILER_NAME"\0"
+      VALUE "FileVersion", MANIFEST_UUID"("COMPILER_NAME"\0"
+      VALUE "InternalName", "fossil\0"
+      VALUE "LegalCopyright", "Copyright (c) "MANIFEST_YEAR" D. Richard Hipp\0"
+      VALUE "OriginalFilename", "fossil.exe\0"
+      VALUE "ProductName", "fossil\0"
+      VALUE "ProductVersion", MANIFEST_VERSION" "MANIFEST_DATE" UTC\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 0x4B0
+  END
+END
+
+8001 ICON "fossil.ico"
+

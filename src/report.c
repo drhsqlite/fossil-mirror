@@ -725,7 +725,7 @@ static int generate_html(
   */
   zBg = pState->iBg>=0 ? azArg[pState->iBg] : 0;
   if( zBg==0 ) zBg = "white";
-  @ <tr bgcolor="%h(zBg)">
+  @ <tr style="background-color:%h(zBg)">
   zTid = 0;
   zPage[0] = 0;
   for(i=0; i<nArg; i++){
@@ -740,7 +740,7 @@ static int generate_html(
       }
       if( zData[0] ){
         Blob content;
-        @ </tr><tr bgcolor="%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ </tr><tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
         blob_init(&content, zData, -1);
         wiki_convert(&content, 0, 0);
         blob_reset(&content);

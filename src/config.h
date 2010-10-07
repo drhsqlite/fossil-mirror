@@ -27,6 +27,7 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
+#ifndef _RC_COMPILE_
 
 /*
 ** System header files used by all modules
@@ -38,6 +39,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>
+
+#endif
+
 #if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
 #  if defined(__DMC__)  || defined(_MSC_VER) || defined(__POCC__)
      typedef int socklen_t;
@@ -50,6 +54,33 @@
 # include <signal.h>
 # include <pwd.h>
 #endif
+
+/*
+** Define the compiler variant, used to compile the project
+*/
+#if !defined(COMPILER_NAME)
+#  if defined(__DMC__)
+#    define COMPILER_NAME "dmc"
+#  elif defined(__POCC__)
+#    if defined(_M_X64)
+#      define COMPILER_NAME "pellesc64"
+#    else
+#      define COMPILER_NAME "pellesc32"
+#    endif
+#  elif defined(_MSC_VER)
+#    define COMPILER_NAME "msc"
+#  elif defined(__MINGW32__)
+#    define COMPILER_NAME "mingw32"
+#  elif defined(_WIN32)
+#    define COMPILER_NAME "win32"
+#  elif defined(__GNUC__)
+#    define COMPILER_NAME "gcc-" __VERSION__
+#  else
+#    define COMPILER_NAME "unknown"
+#  endif
+#endif
+
+#ifndef _RC_COMPILE_
 
 #include "sqlite3.h"
 
@@ -126,3 +157,5 @@ typedef unsigned char u8;
 # undef FOSSIL_I18N
 # define FOSSIL_I18N 0
 #endif
+
+#endif /* _RC_COMPILE_ */
