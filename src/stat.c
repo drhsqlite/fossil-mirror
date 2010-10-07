@@ -105,7 +105,7 @@ void stat_page(void){
   @ </td></tr>
 
   @ <tr><th>Fossil&nbsp;Version:</th><td>
-  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
+  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION) (%h(COMPILER_NAME))
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%.19s [%.10s] (%s)",

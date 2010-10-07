@@ -12,6 +12,7 @@ int main(int argc, char *argv[]){
     while(b ==  fgets(b, sizeof(b)-1,m)){
         if(0 == strncmp("D ",b,2)){
             printf("#define MANIFEST_DATE \"%.10s %.8s\"\n",b+2,b+13);
+            printf("#define MANIFEST_YEAR \"%.4s\"\n",b+2);
             return 0;
         }
     }
