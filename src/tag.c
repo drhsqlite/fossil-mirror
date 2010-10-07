@@ -357,7 +357,7 @@ void tag_add_artifact(
 ** will assume that "decaf" is a tag/branch name.
 **
 ** only allow --date-override and --user-override in 
-**   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \
+**   %fossil tag add --date-override 'YYYY-MMM-DD HH:MM:SS' \\
 **                   --user-override user 
 ** in order to import history from other scm systems
 */

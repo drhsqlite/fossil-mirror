@@ -832,3 +832,237 @@ void ticket_output_change_artifact(Manifest *pTkt){
   }
   @ </ol>
 }
+
+/*
+** COMMAND: ticket
+** Usage: %fossil ticket SUBCOMMAND ...
+**
+** Run various subcommands to control tickets
+**
+**     %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?options?
+**
+**         options can be:
+**           ?-l|--limit LIMITCHAR?
+**           ?-q|--quote?
+**
+**         Run the ticket report, identified by the report format title
+**         used in the gui. The data is written as flat file on stdout,
+**         using "," as separator. The seperator "," can be changed using
+**         the -l or --limit option.
+**         If TICKETFILTER is given on the commandline, the query is
+**         limited with a new WHERE-condition.
+**           example:  Report lists a column # with the uuid
+**                     TICKETFILTER may be [#]='uuuuuuuuu'
+**           example:  Report only lists rows with status not open
+**                     TICKETFILTER: status != 'open'
+**         If the option -q|--quote is used, the tickets are encoded by
+**         quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
+**         cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
+**         Otherwise, the simplified encoding as on the show report raw
+**         page in the gui is used.
+**
+**         Instead of the report title its possible to use the report
+**         number. Using the special report number 0 list all columns,
+**         defined in the ticket table.
+**
+**     %fossil ticket list fields
+**
+**         list all fields, defined for ticket in the fossil repository
+**
+**     %fossil ticket list reports
+**
+**         list all ticket reports, defined in the fossil repository
+**
+**     %fossil ticket set TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+**     %fossil ticket change TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+**
+**         change ticket identified by TICKETUUID and set the value of
+**         field FIELD to VALUE. Valid field descriptions are:
+**            status, type, severity, priority, resolution,
+**            foundin, private_contact, resolution, title or comment
+**         Field names given above are the ones, defined in a standard
+**         fossil environment. If you have added, deleted columns, you
+**         change the all your configured columns.
+**         You can use more than one field/value pair on the commandline.
+**         Using -q|--quote  enables the special character decoding as
+**         in "ticket show". So it's possible, to set multiline text or
+**         text with special characters.
+**
+**     %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+**
+**         like set, but create a new ticket with the given values.
+**
+** The values in set|add are not validated against the definitions
+** given in "Ticket Common Script".
+*/
+void ticket_cmd(void){
+  int n;
+
+  /* do some ints, we want to be inside a checkout */
+  db_must_be_within_tree();
+  db_find_and_open_repository(1);
+  user_select();
+  /*
+  ** Check that the user exists.
+  */
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
+    fossil_fatal("no such user: %s", g.zLogin);
+  }
+
+  if( g.argc<3 ){
+    usage("add|fieldlist|set|show");
+  }else{
+    n = strlen(g.argv[2]);
+    if( n==1 && g.argv[2][0]=='s' ){
+      /* set/show cannot be distinguished, so show the usage */
+      usage("add|fieldlist|set|show");
+    }else if( strncmp(g.argv[2],"list",n)==0 ){
+      if( g.argc==3 ){
+        usage("list fields|reports");
+      }else{
+        n = strlen(g.argv[3]);
+        if( !strncmp(g.argv[3],"fields",n) ){
+          /* simply show all field names */
+          int i;
+
+          /* read all available ticket fields */
+          getAllTicketFields();
+          for(i=0; i<nField; i++){
+            printf("%s\n",azField[i]);
+          }
+        }else if( !strncmp(g.argv[3],"reports",n) ){
+          rpt_list_reports();
+        }else{
+          fossil_fatal("unknown ticket list option '%s'!",g.argv[3]);
+        }
+      }
+    }else{
+      /* add a new ticket or set fields on existing tickets */
+      tTktShowEncoding tktEncoding;
+
+      tktEncoding = find_option("quote","q",0) ? tktFossilize : tktNoTab;
+      
+      if( strncmp(g.argv[2],"show",n)==0 ){
+        if( g.argc==3 ){
+          usage("show REPORTNR");
+        }else{
+          const char *zRep = 0;
+          const char *zSep = 0;
+          const char *zFilterUuid = 0;
+
+          zSep = find_option("limit","l",1);
+          zRep = g.argv[3];
+          if( !strcmp(zRep,"0") ){
+            zRep = 0;
+          }
+          if( g.argc>4 ){
+            zFilterUuid = g.argv[4];
+          }
+
+          rptshow( zRep, zSep, zFilterUuid, tktEncoding );
+
+        }
+      }else{
+        /* add a new ticket or update an existing ticket */
+        enum { set,add,err } eCmd = err;
+        int i = 0;
+        int rid;
+        const char *zTktUuid = 0;
+        Blob tktchng, cksum;
+
+        /* get command type (set/add) and get uuid, if needed for set */
+        if( strncmp(g.argv[2],"set",n)==0 || strncmp(g.argv[2],"change",n)==0 ){
+          eCmd = set;
+          if( g.argc==3 ){
+            usage("set TICKETUUID");
+          }
+          zTktUuid = db_text(0, 
+            "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
+          );
+          if( !zTktUuid ){
+            fossil_fatal("unknown ticket: '%s'!",g.argv[3]);
+          }
+          i=4;
+        }else if( strncmp(g.argv[2],"add",n)==0 ){
+          eCmd = add;
+          i = 3;
+          zTktUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
+        }
+        /* none of set/add, so show the usage! */
+        if( eCmd==err ){
+          usage("add|fieldlist|set|show");
+        }
+        
+        /* read all given ticket field/value pairs from command line */
+        if( i==g.argc ){
+          fossil_fatal("empty %s command aborted!",g.argv[2]);
+        }
+        getAllTicketFields();
+        /* read commandline and assign fields in the azValue array */
+        while( i<g.argc ){
+          char *zFName;
+          char *zFValue;
+          int j;
+
+          zFName = g.argv[i++];
+          if( i==g.argc ){
+            fossil_fatal("missing value for '%s'!",zFName);
+          }
+          zFValue = g.argv[i++];
+          j = fieldId(zFName);
+          if( tktEncoding == tktFossilize ){
+            zFValue=mprintf("%s",zFValue);
+            defossilize(zFValue);
+          }
+          if( j == -1 ){
+            fossil_fatal("unknown field name '%s'!",zFName);
+          }else{
+            azValue[j] = zFValue;
+          }
+        }
+
+        /* now add the needed artifacts to the repository */
+        blob_zero(&tktchng);
+        { /* add the time to the ticket manifest */
+          char *zDate;
+
+          zDate = db_text(0, "SELECT datetime('now')");
+          zDate[10] = 'T';
+          blob_appendf(&tktchng, "D %s\n", zDate);
+          free(zDate);
+        }
+        /* append defined elements */
+        for(i=0; i<nField; i++){
+          char *zValue;
+
+          zValue = azValue[i];
+          if( azValue[i] && azValue[i][0] ){
+            if( strncmp(azField[i], "private_", 8)==0 ){
+              zValue = db_conceal(zValue, strlen(zValue));
+              blob_appendf(&tktchng, "J %s %s\n", azField[i], zValue);
+            }else{
+              blob_appendf(&tktchng, "J %s %#F\n",
+                           azField[i], strlen(zValue), zValue);
+            }
+            if( tktEncoding == tktFossilize ){
+              free(azValue[i]);
+            }
+          }
+        }
+        blob_appendf(&tktchng, "K %s\n", zTktUuid);
+        blob_appendf(&tktchng, "U %F\n", g.zLogin);
+        md5sum_blob(&tktchng, &cksum);
+        blob_appendf(&tktchng, "Z %b\n", &cksum);
+        rid = content_put(&tktchng, 0, 0);
+        if( rid==0 ){
+          fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+        }
+        manifest_crosslink_begin();
+        manifest_crosslink(rid, &tktchng);
+        manifest_crosslink_end();
+	printf("ticket %s succeeded for UID %s\n",
+	       (eCmd==set?"set":"add"),zTktUuid);
+      }
+    }
+  }
+}

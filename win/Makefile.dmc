@@ -227,6 +227,12 @@ $(OBJDIR)\doc$O : doc_.c doc.h
 doc_.c : $(SRCDIR)\doc.c
 	+translate$E $** > $@
 
+$(OBJDIR)\event$O : event_.c event.h
+	$(TCC) -o$@ -c event_.c
+
+event_.c : $(SRCDIR)\event.c
+	+translate$E $** > $@
+
 $(OBJDIR)\encode$O : encode_.c encode.h
 	$(TCC) -o$@ -c encode_.c
 
