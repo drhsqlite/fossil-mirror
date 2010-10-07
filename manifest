@@ -1,5 +1,5 @@
-C corrected\smissaranged\slines\sin\stag\shelp\s(ticket\s[0cb89f4c72])
-D 2010-10-07T16:09:30
+C merged\sfrom\strunk
+D 2010-10-07T16:12:21
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -43,7 +43,7 @@ F src/branch.c 16c61e6dda5875631646c9af9125bff72805b1b3
 F src/browse.c b04a2d36ea797f3a1a1eaccc526df5df485ffe40
 F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
 F src/cgi.c 2556822f507c52b7aa940a23757eef2ca3424556
-F src/checkin.c 2d1efd7b438dc2d0499b50a481ab3cb564ba2391
+F src/checkin.c 2da719342e61e29209ad195ba366daae488e01ae
 F src/checkout.c 48a19d5dc11b3a84d51aa206d1b14cc78ed24250
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -65,7 +65,7 @@ F src/finfo.c 51e99c605a5c4dad4f488b85c6eb33d89784e35c
 F src/graph.c 79682b0b0240d8eb37ecb677afdcf4cff5bf5798
 F src/http.c 1d261b5e943a4a055e4a9813cd63c59d63569a33
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
-F src/http_ssl.c 56d783c4e1c4a85f30dae8a4eb7036516a3d552f
+F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f7a88a3c9bc1ccf0a9215ab8cb0b284e514c16bb
 F src/info.c daadb5dec6f89052695d47872c41c0ec6d226b52
 F src/login.c 676c739ad0f1fa2a138bc3493f607f2d28f9a243
@@ -93,8 +93,8 @@ F src/setup.c a875f657d848f83726cfa8a211371d78730df749
 F src/sha1.c 37d0f222fdf9b344998684f9c5b15642150766f3
 F src/shun.c 1b4711b3a27101974f3345e1fbd3dffd07ec641f
 F src/skins.c e598e23eb07ca79d795c81b33c65f19829587d28
-F src/sqlite3.c 4abfb196eb206ed9ed6d29544c1b18980fd0300a
-F src/sqlite3.h 44ad20581af8d2a7fa809cd2c679141e6e29d2df
+F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
+F src/sqlite3.h 85b8161f84932d2ffcc0e0ec241a59fb181cbe8c
 F src/stat.c 736482cefa8741b7e69329ccd83de4b3c3dff8e3
 F src/style.c 02d6be3eb80b2516e6cea75e7743db44953feccd
 F src/sync.c 001a78a0d5649160d5222ffd57499a6fcd2953c0
@@ -103,7 +103,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 0af13a68e941a72d903026eb2a8857d763a24dc3
-F src/timeline.c e700a1563601fc983e731e529a865f7658e3d47a
+F src/timeline.c 3727b6f6407d76a51a81dc1d549c450bf0a7d803
 F src/tkt.c c62ce041b3c6028be449b95d659ad596465f4452
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
@@ -270,7 +270,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e00f13dc6eb588351729cac435b0dd538cba3d93
-R c68978f5d7c83d6d21ed6ddba449aa6b
+P 8041eab3728f63335b4d41757b5e9829cc7cadf8 daf28132a9573c16b2e3121acff53ed70c1b00f2
+R 02bb3ea02085008d87860c0ebdd53088
 U wolfgang
-Z e0afdb596ae101398156dd62b9ce92b4
+Z e265574a883aac38bde029463a146f73
