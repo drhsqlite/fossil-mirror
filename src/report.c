@@ -946,6 +946,37 @@ void rptview_page(void){
 }
 
 /*
+** report number for full table ticket export
+*/
+static const char zFullTicketRptRn[] = "0";
+
+/*
+** report title for full table ticket export
+*/
+static const char zFullTicketRptTitle[] = "full ticket export";
+
+/*
+** show all reports, which can be used for ticket show.
+** Output is written to stdout as tab delimited table
+*/
+void rpt_list_reports(void){
+  Stmt q;
+  char const aRptOutFrmt[] = "%s\t%s\n";
+
+  printf("Available reports:\n");
+  printf(aRptOutFrmt,"report number","report title");
+  printf(aRptOutFrmt,zFullTicketRptRn,zFullTicketRptTitle);
+  db_prepare(&q,"SELECT rn,title FROM reportfmt ORDER BY rn");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zRn = db_column_text(&q, 0);
+    const char *zTitle = db_column_text(&q, 1);
+
+    printf(aRptOutFrmt,zRn,zTitle);
+  }
+  db_finalize(&q);
+}
+
+/*
 ** user defined separator used by ticket show command
 */
 static const char *zSep = 0;
@@ -1030,18 +1061,18 @@ void rptshow(
 ){
   Stmt q;
   char *zSql;
-  char *zTitle;
-  char *zOwner;
-  char *zClrKey;
+  const char *zTitle;
+  const char *zOwner;
+  const char *zClrKey;
   char *zErr1 = 0;
   char *zErr2 = 0;
   int count = 0;
   int rn;
 
-  if (!zRep) {
-    zTitle = "tickets";
+  if (!zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
+    zTitle = zFullTicketRptTitle;
     zSql = "SELECT * FROM ticket";
-    zOwner = (char*)g.zLogin;
+    zOwner = g.zLogin;
     zClrKey = "";
   }else{
     rn = atoi(zRep);
@@ -1054,6 +1085,7 @@ void rptshow(
     }
     if( db_step(&q)!=SQLITE_ROW ){
       db_finalize(&q);
+      rpt_list_reports();
       fossil_fatal("unkown report format(%s)!",zRep);
     }
     zTitle = db_column_malloc(&q, 0);

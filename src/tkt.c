@@ -865,9 +865,13 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         number. Using the special report number 0 list all columns,
 **         defined in the ticket table.
 **
-**     %fossil ticket fieldlist
+**     %fossil ticket list fields
 **
 **         list all fields, defined for ticket in the fossil repository
+**
+**     %fossil ticket list reports
+**
+**         list all ticket reports, defined in the fossil repository
 **
 **     %fossil ticket set TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
 **     %fossil ticket change TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
@@ -912,14 +916,25 @@ void ticket_cmd(void){
     if( n==1 && g.argv[2][0]=='s' ){
       /* set/show cannot be distinguished, so show the usage */
       usage("add|fieldlist|set|show");
-    }else if( strncmp(g.argv[2],"fieldlist",n)==0 ){
-      /* simply show all field names */
-      int i;
-      
-      /* read all available ticket fields */
-      getAllTicketFields();
-      for(i=0; i<nField; i++){
-        printf("%s\n",azField[i]);
+    }else if( strncmp(g.argv[2],"list",n)==0 ){
+      if( g.argc==3 ){
+        usage("list fields|reports");
+      }else{
+        n = strlen(g.argv[3]);
+        if( !strncmp(g.argv[3],"fields",n) ){
+          /* simply show all field names */
+          int i;
+
+          /* read all available ticket fields */
+          getAllTicketFields();
+          for(i=0; i<nField; i++){
+            printf("%s\n",azField[i]);
+          }
+        }else if( !strncmp(g.argv[3],"reports",n) ){
+          rpt_list_reports();
+        }else{
+          fossil_fatal("unknown ticket list option '%s'!",g.argv[3]);
+        }
       }
     }else{
       /* add a new ticket or set fields on existing tickets */
