@@ -1059,6 +1059,8 @@ void ticket_cmd(void){
         manifest_crosslink_begin();
         manifest_crosslink(rid, &tktchng);
         manifest_crosslink_end();
+	printf("ticket %s succeeded for UID %s\n",
+	       (eCmd==set?"set":"add"),zTktUuid);
       }
     }
   }
