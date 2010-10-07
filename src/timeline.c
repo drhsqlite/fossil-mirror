@@ -945,6 +945,9 @@ void page_timeline(void){
       }
     }
   }
+  if( P("showsql") ){
+    @ <blockquote>%h(blob_str(&sql))</blockquote>
+  }
   blob_zero(&sql);
   db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
