@@ -381,9 +381,9 @@ void test_detach_cmd(void){
 ** The command removes sensitive information (such as passwords) from a
 ** repository so that the respository can be sent to an untrusted reader.
 **
-** By default, only passwords are removed.  However, if the --verily option
-** is added, then private branches, concealed email addresses, IP
-** addresses of correspondents, and similar privacy-sensitive fields
+** By default, only passwords are removed.  However, if the --verily
+** option is added, then private branches, concealed email addresses,
+** IP addresses of correspondents, and similar privacy-sensitive fields
 ** are also purged.
 **
 ** This command permanently deletes the scrubbed information.  The effects
@@ -525,12 +525,14 @@ void reconstruct_cmd(void) {
 /*
 ** COMMAND: deconstruct
 **
-** Usage %fossil deconstruct ?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION
+** Usage: %fossil deconstruct ?-R|--repository REPOSITORY? \\
+**                ?-L|--prefixlength N? DESTINATION
 **
-** This command exports all artifacts of o given repository and
-** writes all artifacts to the file system. The DESTINATION directory
-** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
-** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
+** This command exports all artifacts of o given repository and writes
+** all artifacts to the file system. The DESTINATION directory will be
+** populated with subdirectories AA and files AA/BBBBBBBBB.., where
+** AABBBBBBBBB.. is the 40 character artifact ID and AA the first 2
+** characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
 */

@@ -297,13 +297,12 @@ void extra_cmd(void){
 ** files that are not officially part of the checkout.  See also
 ** the <a>extras</a> command. This operation cannot be undone. 
 **
-** You will be prompted before removing each file. If you are
-** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prompts will be issued.
+** You will be prompted before removing each file. If you are sure
+** you wish to remove all "extra" files you can specify the optional
+** --force flag and no prompts will be issued.
 **
-** Files and subdirectories whose names begin with "." are
-** normally ignored.  They are included if the "--dotfiles" option
-** is used.
+** Files and subdirectories whose names begin with "." are normally
+** ignored.  They are included if the "--dotfiles" option is used.
 */
 void clean_cmd(void){
   int allFlag;
@@ -559,8 +558,8 @@ int file_exists_in_checkout(int vid, const char *zFilename){
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m".
-** The editor defined in the "editor" fossil option (see %fossil help set)
+** the comment has been specified on the command-line using "-m". The
+** editor defined in the "editor" fossil option (see %fossil help set)
 ** will be used, or from the "VISUAL" or "EDITOR" environment variables
 ** (in that order) if no editor is set.
 **
@@ -570,12 +569,12 @@ int file_exists_in_checkout(int vid, const char *zFilename){
 ** specified on the command line.
 **
 ** The --branch option followed by a branch name cases the new check-in
-** to be placed in the named branch.  The --bgcolor option can be followed
+** to be placed in the named branch. The --bgcolor option can be followed
 ** by a color name (ex:  '#ffc0c0') to specify the background color of
 ** entries in the new branch when shown in the web timeline interface.
 **
-** A check-in is not permitted to fork unless the --force or -f
-** option appears.  A check-in is not allowed against a closed check-in.
+** A check-in is not permitted to fork unless the --force or -f option
+** appears.  A check-in is not allowed against a closed check-in.
 **
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.

@@ -630,6 +630,13 @@ void help_page(void){
           for(src=dest=0;zSrc[src];){
             if( zSrc[src]=='%' && strncmp(zSrc+src, "%fossil", 7)==0 ){
               src++; /* skip % for fossil argv[0] expansion */
+            }else if( zSrc[src]=='<' && strncmp(zSrc+src, "</a>", 3)==0 ){
+              src += 4;
+              zDest[dest++]='<';
+              zDest[dest++]='/';
+              zDest[dest++]='a';
+              zDest[dest++]='>';
+              zDest[dest++]='"';
             }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a>", 3)==0 ){
               /* found an internal command cross reference,
               ** create an additional link
@@ -638,6 +645,7 @@ void help_page(void){
 
               len+=80;
               zDest=realloc(zDest,len);
+              zDest[dest++]='"';
               zDest[dest++]=zSrc[src++]; /* < */
               zDest[dest++]=zSrc[src++]; /* a */
               zDest[dest++]=' ';
@@ -662,11 +670,9 @@ void help_page(void){
               }
               zDest[dest++]='"';
               zDest[dest++]='>';
-              zDest[dest++]='"';
               for( src=start; zSrc[src] && zSrc[src]!='<'; ){
                 zDest[dest++]=zSrc[src++]; /* command name */
               }
-              zDest[dest++]='"';
             }else{
               zDest[dest++] = zSrc[src++];
             }

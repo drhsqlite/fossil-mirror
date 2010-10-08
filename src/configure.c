@@ -371,44 +371,44 @@ static void export_config(
 **
 ** Usage: %fossil configure METHOD ... ?-R|--repository REPOSITORY?
 **
-** Where METHOD is one of: export import merge pull push reset.  All methods
-** accept the -R or --repository option to specific a repository.
+** Where METHOD is one of: export import merge pull push reset.  All
+** methods accept the -R or --repository option to specify a repository.
 **
 **    %fossil configuration export AREA FILENAME
 **
-**         Write to FILENAME exported configuraton information for AREA.
-**         AREA can be one of:  all email project shun skin ticket user
+**        Write to FILENAME exported configuraton information for AREA.
+**        AREA can be one of:  all email project shun skin ticket user
 **
 **    %fossil configuration import FILENAME
 **
-**         Read a configuration from FILENAME, overwriting the current
-**         configuration.
+**        Read a configuration from FILENAME, overwriting the current
+**        configuration.
 **
 **    %fossil configuration merge FILENAME
 **
-**         Read a configuration from FILENAME and merge its values into
-**         the current configuration.  Existing values take priority over
-**         values read from FILENAME.
+**        Read a configuration from FILENAME and merge its values into
+**        the current configuration.  Existing values take priority
+**        over values read from FILENAME.
 **
 **    %fossil configuration pull AREA ?URL?
 **
-**         Pull and install the configuration from a different server
-**         identified by URL.  If no URL is specified, then the default
-**         server is used. 
+**        Pull and install the configuration from a different server
+**        identified by URL.  If no URL is specified, then the default
+**        server is used. 
 **
 **    %fossil configuration push AREA ?URL?
 **
-**         Push the local configuration into the remote server identified
-**         by URL.  Admin privilege is required on the remote server for
-**         this to work.
+**        Push the local configuration into the remote server identified
+**        by URL.  Admin privilege is required on the remote server for
+**        this to work.
 **
 **    %fossil configuration reset AREA
 **
-**         Restore the configuration to the default.  AREA as above.
+**        Restore the configuration to the default.  AREA as above.
 **
-** WARNING: Do not import, merge, or pull configurations from an untrusted
-** source.  The inbound configuration is not checked for safety and can
-** introduce security vulnerabilities.
+** WARNING: Do not import or merge or pull configurations from an
+** untrusted source.  The inbound configuration is not checked for
+** safety and can introduce security vulnerabilities.
 */
 void configuration_cmd(void){
   int n;

@@ -297,8 +297,8 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** Move or rename one or more files within the tree
 **
 ** This command does not rename the files on disk.  This command merely
-** records the fact that filenames have changed so that appropriate notations
-** can be made at the next <a>commit</a>/checkin.
+** records the fact that filenames have changed so that appropriate
+** notations can be made at the next <a>commit</a>/checkin.
 */
 void mv_cmd(void){
   int i;

@@ -361,13 +361,14 @@ static void diff_all_two_versions(
 **
 ** If the "--to VERSION" option appears, it specifies the check-in from
 ** which the second version of the file or files is taken.  If there is
-** no "--to" option then the (possibly edited) files in the current check-out
-** are used.
+** no "--to" option then the (possibly edited) files in the current
+** check-out are used.
 **
 ** The "-i" command-line option forces the use of the internal diff logic
 ** rather than any external diff program that might be configured using
 ** the <a>setting</a> command. If no external diff program is configured, then
-** the "-i" option is a no-op.  The "-i" option converts "gdiff" into "diff".
+** the "-i" option is a no-op.  The "-i" option converts "gdiff" into
+** "diff".
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */

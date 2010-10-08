@@ -28,8 +28,8 @@
 **
 ** Usage: %fossil clone ?OPTIONS? URL FILENAME
 **
-** Make a clone of a repository specified by URL in the local
-** file named FILENAME.  
+** Make a clone of a repository specified by URL in the local file
+** named FILENAME.  
 **
 ** By default, your current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user

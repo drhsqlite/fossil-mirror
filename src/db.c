@@ -1538,73 +1538,74 @@ struct stControlSettings const ctrlSettings[] = {
 ** %fossil settings ?PROPERTY? ?VALUE? ?-global?
 ** %fossil unset PROPERTY ?-global?
 **
-** The "settings" command with no arguments lists all properties and their
-** values.  With just a property name it shows the value of that property.
-** With a value argument it changes the property for the current repository.
+** The "settings" command with no arguments lists all properties and
+** their values.  With just a property name it shows the value of that
+** property. With a value argument it changes the property for the
+** current repository.
 **
 ** The "unset" command clears a property setting.
 **
 **
-**    auto-captcha     If enabled, the Login page provides a button to
-**                     fill in the captcha password.  Default: on
+**    auto-captcha  If enabled, the Login page provides a button to
+**                  fill in the captcha password.  Default: on
 **
-**    auto-shun        If enabled, automatically pull the shunning list
-**                     from a server to which the client autosyncs.
+**    auto-shun     If enabled, automatically pull the shunning list
+**                  from a server to which the client autosyncs.
 **
-**    autosync         If enabled, automatically pull prior to commit
-**                     or update and automatically push after commit or
-**                     tag or branch creation.  If the value is "pullonly"
-**                     then only pull operations occur automatically.
+**    autosync      If enabled, automatically pull prior to commit
+**                  or update and automatically push after commit or
+**                  tag or branch creation.  If the value is "pullonly"
+**                  then only pull operations occur automatically.
 **
-**    binary-glob      The VALUE is a comma-separated list of GLOB patterns
-**                     that should be treated as binary files for merging
-**                     purposes.  Example:   *.xml
+**    binary-glob   The VALUE is a comma-separated list of GLOB patterns
+**                  that should be treated as binary files for merging
+**                  purposes.  Example:   *.xml
 **
-**    clearsign        When enabled, fossil will attempt to sign all commits
-**                     with gpg.  When disabled (the default), commits will
-**                     be unsigned.
+**    clearsign     When enabled, fossil will attempt to sign all commits
+**                  with gpg.  When disabled (the default), commits will
+**                  be unsigned.
 **
-**    diff-command     External command to run when performing a diff.
-**                     If undefined, the internal text diff will be used.
+**    diff-command  External command to run when performing a diff.
+**                  If undefined, the internal text diff will be used.
 **
-**    dont-push        Prevent this repository from pushing from client to
-**                     server.  Useful when setting up a private branch.
+**    dont-push     Prevent this repository from pushing from client to
+**                  server.  Useful when setting up a private branch.
 **
-**    editor           Text editor command used for check-in comments.
+**    editor        Text editor command used for check-in comments.
 **
-**    gdiff-command    External command to run when performing a graphical
-**                     diff. If undefined, text diff will be used.
+**    gdiff-command External command to run when performing a graphical
+**                  diff. If undefined, text diff will be used.
 **
-**    http-port        The TCP/IP port number to use by the "server"
-**                     and "ui" commands.  Default: 8080
+**    http-port     The TCP/IP port number to use by the "server"
+**                  and "ui" commands.  Default: 8080
 **
-**    ignore-glob      The VALUE is a comma-separated list of GLOB patterns
-**                     specifying files that the "extra" command will ignore.
-**                     Example:  *.o,*.obj,*.exe
+**    ignore-glob   The VALUE is a comma-separated list of GLOB patterns
+**                  specifying files that the "extra" command will ignore.
+**                  Example:  *.o,*.obj,*.exe
 **
-**    localauth        If enabled, require that HTTP connections from
-**                     127.0.0.1 be authenticated by password.  If
-**                     false, all HTTP requests from localhost have
-**                     unrestricted access to the repository.
+**    localauth     If enabled, require that HTTP connections from
+**                  127.0.0.1 be authenticated by password.  If
+**                  false, all HTTP requests from localhost have
+**                  unrestricted access to the repository.
 **
-**    mtime-changes    Use file modification times (mtimes) to detect when
-**                     files have been modified.  (Default "on".)
+**    mtime-changes Use file modification times (mtimes) to detect when
+**                  files have been modified.  (Default "on".)
 **
-**    pgp-command      Command used to clear-sign manifests at check-in.
-**                     The default is "gpg --clearsign -o ".
+**    pgp-command   Command used to clear-sign manifests at check-in.
+**                  The default is "gpg --clearsign -o ".
 **
-**    proxy            URL of the HTTP proxy.  If undefined or "off" then
-**                     the "http_proxy" environment variable is consulted.
-**                     If the http_proxy environment variable is undefined
-**                     then a direct HTTP connection is used.
+**    proxy         URL of the HTTP proxy.  If undefined or "off" then
+**                  the "http_proxy" environment variable is consulted.
+**                  If the http_proxy environment variable is undefined
+**                  then a direct HTTP connection is used.
 **
-**    ssh-command      Command used to talk to a remote machine with
-**                     the "ssh://" protocol.
+**    ssh-command   Command used to talk to a remote machine with
+**                  the "ssh://" protocol.
 **
-**    web-browser      A shell command used to launch your preferred
-**                     web browser when given a URL as an argument.
-**                     Defaults to "start" on windows, "open" on Mac,
-**                     and "firefox" on Unix.
+**    web-browser   A shell command used to launch your preferred
+**                  web browser when given a URL as an argument.
+**                  Defaults to "start" on windows, "open" on Mac,
+**                  and "firefox" on Unix.
 */
 void setting_cmd(void){
   int i;

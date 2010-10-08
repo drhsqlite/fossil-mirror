@@ -53,9 +53,9 @@ static char *quoteFilename(const char *zFilename){
 **
 ** Usage: %fossil all (list|ls|pull|push|rebuild|sync)
 **
-** The ~/.fossil file records the location of all repositories for a
-** user.  This command performs certain operations on all repositories
-** that can be useful before or after a period of disconnected operation.
+** The ~/.fossil file records the location of all repositories for a user.
+** This command performs certain operations on all repositories that can
+** be useful before or after a period of disconnected operation.
 **
 ** On Win32 systems, the file is named "_fossil" and is located in
 ** %LOCALAPPDATA%, %APPDATA% or %HOMEPATH%.

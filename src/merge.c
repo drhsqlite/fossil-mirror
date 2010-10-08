@@ -42,11 +42,11 @@
 **
 ** Other options:
 **
-**   --detail                Show additional details of the merge
+**   --detail             Show additional details of the merge
 **
-**   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
-**                           and do not try to merge parallel changes.  This
-**                           option overrides the "binary-glob" setting.
+**   --binary GLOBPATTERN Treat files that match GLOBPATTERN as binary
+**                        and do not try to merge parallel changes. This
+**                        option overrides the "binary-glob" setting.
 */
 void merge_cmd(void){
   int vid;              /* Current version */
