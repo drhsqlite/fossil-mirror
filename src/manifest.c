@@ -85,6 +85,18 @@ struct Manifest {
 };
 #endif
 
+/*
+** A cache of parsed manifests.  This reduces the number of
+** calls to manifest_parse() when doing a rebuild.
+*/
+#define MX_MANIFEST_CACHE 4
+static struct {
+  int nxAge;
+  int aRid[MX_MANIFEST_CACHE];
+  int aAge[MX_MANIFEST_CACHE];
+  Manifest aLine[MX_MANIFEST_CACHE];
+} manifestCache;
+
 
 /*
 ** Clear the memory allocated in a manifest object
@@ -97,6 +109,60 @@ void manifest_clear(Manifest *p){
   free(p->aTag);
   free(p->aField);
   memset(p, 0, sizeof(*p));
+}
+
+/*
+** Add an element to the manifest cache using LRU replacement.
+*/
+void manifest_cache_insert(int rid, Manifest *p){
+  int i;
+  for(i=0; i<MX_MANIFEST_CACHE; i++){
+    if( manifestCache.aRid[i]==0 ) break;
+  }
+  if( i>=MX_MANIFEST_CACHE ){
+    int oldest = 0;
+    int oldestAge = manifestCache.aAge[0];
+    for(i=1; i<MX_MANIFEST_CACHE; i++){
+      if( manifestCache.aAge[i]<oldestAge ){
+        oldest = i;
+        oldestAge = manifestCache.aAge[i];
+      }
+    }
+    manifest_clear(&manifestCache.aLine[oldest]);
+    i = oldest;
+  }
+  manifestCache.aAge[i] = ++manifestCache.nxAge;
+  manifestCache.aRid[i] = rid;
+  manifestCache.aLine[i] = *p;
+}
+
+/*
+** Try to extract a line from the manifest cache. Return 1 if found.
+** Return 0 if not found.
+*/
+int manifest_cache_find(int rid, Manifest *p){
+  int i;
+  for(i=0; i<MX_MANIFEST_CACHE; i++){
+    if( manifestCache.aRid[i]==rid ){
+      *p = manifestCache.aLine[i];
+      manifestCache.aRid[i] = 0;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
+** Clear the manifest cache.
+*/
+void manifest_cache_clear(void){
+  int i;
+  for(i=0; i<MX_MANIFEST_CACHE; i++){
+    if( manifestCache.aRid[i]>0 ){
+      manifest_clear(&manifestCache.aLine[i]);
+    }
+  }
+  memset(&manifestCache, 0, sizeof(manifestCache));
 }
 
 /*
@@ -812,6 +878,7 @@ static int find_file_in_manifest(Manifest *p, const char *zName){
 static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   Manifest other;
   Blob otherContent;
+  int otherRid;
   int i, j;
 
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", cid) ){
@@ -820,13 +887,16 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   assert( pParent==0 || pChild==0 );
   if( pParent==0 ){
     pParent = &other;
-    content_get(pid, &otherContent);
+    otherRid = pid;
   }else{
     pChild = &other;
-    content_get(cid, &otherContent);
+    otherRid = cid;
   }
-  if( blob_size(&otherContent)==0 ) return;
-  if( manifest_parse(&other, &otherContent)==0 ) return;
+  if( manifest_cache_find(otherRid, &other)==0 ){
+    content_get(otherRid, &otherContent);
+    if( blob_size(&otherContent)==0 ) return;
+    if( manifest_parse(&other, &otherContent)==0 ) return;
+  }
   content_deltify(pid, cid, 0);
 
   /* Use the iRename fields to find the cross-linkage between
@@ -884,7 +954,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     }
     j++;
   }
-  manifest_clear(&other);
+  manifest_cache_insert(otherRid, &other);
 }
 
 /*
@@ -1029,7 +1099,9 @@ int manifest_crosslink(int rid, Blob *pContent){
   Stmt q;
   int parentid = 0;
 
-  if( manifest_parse(&m, pContent)==0 ){
+  if( manifest_cache_find(rid, &m) ){
+    blob_reset(pContent);
+  }else if( manifest_parse(&m, pContent)==0 ){
     return 0;
   }
   if( g.xlinkClusterOnly && m.type!=CFTYPE_CLUSTER ){
@@ -1265,7 +1337,11 @@ int manifest_crosslink(int rid, Blob *pContent){
     }
   }
   db_end_transaction(0);
-  manifest_clear(&m);
+  if( m.type==CFTYPE_MANIFEST ){
+    manifest_cache_insert(rid, &m);
+  }else{
+    manifest_clear(&m);
+  }
   return 1;
 }
 
