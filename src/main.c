@@ -680,14 +680,26 @@ void help_page(void){
       @ <a href="help">available commands</a> in fossil
       @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }else{
-      int i;
+      int nCol, nRow, i, tests, cnt;
 
-      @ <h1>Available commands</h1>
-      for(i=0; i<count(aCommand); i++){
-        if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
-        @ <kbd><a href="help?cmd=%s(aCommand[i].zName)">
-        @ %s(aCommand[i].zName)</a></kbd>
+      for( i=0,tests=0; i<count(aCommand); i++){
+        if( strncmp(aCommand[i].zName,"test",4)==0 ) tests++;
       }
+      nCol = 4;
+      nRow = (count(aCommand)-tests+nCol-1)/nCol;
+      @ <h1>Available commands</h1>
+      @ <table class="browser"><tr><td class="browser"><ul class="browser">
+      for( i=cnt=0; i<count(aCommand); i++ ){
+        if( cnt==nRow ){
+          @ </ul></td><td class="browser"><ul class="browser">
+	  cnt=0;
+        }
+        if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
+        @ <li><kbd><a href="help?cmd=%s(aCommand[i].zName)">
+        @ %s(aCommand[i].zName)</a></kbd></li>
+        cnt++;
+      }
+      @ </ul></td></tr></table>
       @ <hr/>fossil version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }
     style_footer();
