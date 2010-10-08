@@ -1,5 +1,5 @@
-C fine\stuning\sthe\slayout\sof\sthe\scommand\sline\shelp\sstrings
-D 2010-10-08T15:05:14
+C link\sthe\snew\shelp\spage\sto\sthe\sreference.wiki\sdocument
+D 2010-10-08T15:51:12
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -261,7 +261,7 @@ F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 1ed8b1b8aec7098b4f93948a65c4cb594ae0a336
-F www/reference.wiki 2a9b5ee73dea203720861c5a19358c1bcc580393
+F www/reference.wiki 0898ed61f93032b78a47556c474f4bf43f7dc180
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 149da47380440a81d3bdf4f9d65e126c2309e8b2
 F www/selfhost.wiki 78cc85288e81a6b9ffdbe6c57dcb1688fd3d81b1
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P ff6760ba0940c3b13c51c34530e95b515453a026
-R 7898ad4d0fd2ecf4d6bad225fb59f60b
+P c6d187906931f543ade6261636b53b49c587fda3
+R 96b5fe2657a70a9cb44ce6981ac155db
 U wolfgang
-Z 766e98eccb6b08a5d201208bd5b5e624
+Z a7fdbb12173fa92ff9fcceb97c331ece
