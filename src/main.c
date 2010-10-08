@@ -608,7 +608,7 @@ void help_page(void){
     const char * zCmd = P("cmd");
     
     style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
-    if( zCmd  && zCmd[0] ){
+    if( zCmd  && zCmd[0] && strcmp(zCmd,"test") ){
       int rc, idx;
 
       rc = name_search(zCmd, aCommand, count(aCommand), &idx);
@@ -689,26 +689,33 @@ void help_page(void){
       @ <a href="help">available commands</a> in fossil
       @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }else{
-      int nCol, nRow, i, tests, cnt;
+      int nCol, nRow, i, ignored, cnt, showTest;
 
-      for( i=0,tests=0; i<count(aCommand); i++){
-        if( strncmp(aCommand[i].zName,"test",4)==0 ) tests++;
+      /* detect, if we show normal or test commands */
+      showTest = ( zCmd  && !strncmp(zCmd,"test",4) );
+      for( i=0,ignored=0; i<count(aCommand); i++){
+        if( (strncmp(aCommand[i].zName,"test",4)==0) ^ showTest ) ignored++;
       }
       nCol = 4;
-      nRow = (count(aCommand)-tests+nCol-1)/nCol;
+      nRow = (count(aCommand)-ignored+nCol-1)/nCol;
       @ <h1>Available commands</h1>
       @ <table class="browser"><tr><td class="browser"><ul class="browser">
       for( i=cnt=0; i<count(aCommand); i++ ){
         if( cnt==nRow ){
           @ </ul></td><td class="browser"><ul class="browser">
-	  cnt=0;
+          cnt=0;
         }
-        if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
+        if( (strncmp(aCommand[i].zName,"test",4)==0) ^ showTest ) continue;
         @ <li><kbd><a href="help?cmd=%s(aCommand[i].zName)">
         @ %s(aCommand[i].zName)</a></kbd></li>
         cnt++;
       }
       @ </ul></td></tr></table>
+      if( showTest ){
+        @ <a href="help">show standard commands</a>
+      }else{
+        @ <a class="hidden" href="help?cmd=test">show test commands</a>
+      }
       @ <hr/>fossil version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }
     style_footer();

@@ -97,7 +97,6 @@ This is fossil version [a89b436bc9] 2009-02-11 05:00:02 UTC
 
   Additional, in-depth information in the wiki part is not available for
   all commands.
-
   
   There are several bits of <b>fossil</b> that are not addressed
   in the help for commands (special wiki directories, special users, etc.)
@@ -106,3 +105,10 @@ This is fossil version [a89b436bc9] 2009-02-11 05:00:02 UTC
   grammatical mistakes are somebody elses fault.<code>  void * </code>
   prohibited where<code> __C_PLUS_PLUS__ </code>. Title and taxes extra.
   Not valid in Hooptigonia.
+
+  <h3>Testing fossil</h3>
+  There are several [/help?cmd=test|test commands] to test the
+  internals of fossil. These commands are listed on a special web page
+  [/help?cmd=test|help?cmd=test]. This page is the counter part of
+  <kbd><a href="/help?cmd=test-commands">fossil test-commands</a></kbd>.
+
