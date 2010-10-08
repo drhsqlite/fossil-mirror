@@ -1,5 +1,5 @@
-C help\soverview\spage\suses\stable\slayout
-D 2010-10-08T12:32:36
+C help\spage\slinkt\sto\sdoc\sfiles\sreferences\sfossil-scm.org,\snot\sthe\slocal\srepository\sto\sbe\susefull\sin\sall\srepositories,\snot\sonly\sin\sclones\sof\sfossil
+D 2010-10-08T12:39:21
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -69,7 +69,7 @@ F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f7a88a3c9bc1ccf0a9215ab8cb0b284e514c16bb
 F src/info.c daadb5dec6f89052695d47872c41c0ec6d226b52
 F src/login.c 676c739ad0f1fa2a138bc3493f607f2d28f9a243
-F src/main.c 4f510ac9eb45b97e3a180efb8d2c23a4dc791037
+F src/main.c 37d57a58803a18c8913389c7b41eb2c1df49bc71
 F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P b3bf08cc843a7de39968ecb41c8b14e5c9adae18
-R 9db1112e9072b81dcc003ec8efb65105
+P 94741fb68fd0e50fa9681f4357992d7577ae1eee
+R 9170bf0bca2442fc24f0bd1f38fa3b6b
 U wolfgang
-Z 9a733dc0e1c0c6d0806593ae69259823
+Z efdaf2c86923ffe9f03ae3c15e673b39

@@ -675,7 +675,7 @@ void help_page(void){
         }
       }
       @ <hr>additional information may be found in the web documentation:
-      @ <a href="doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
+      @ <a href="http://www.fossil-scm.org/fossil/doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
       @ cmd_%s(aCommand[idx].zName)</a>, see also the list of
       @ <a href="help">available commands</a> in fossil
       @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
