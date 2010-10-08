@@ -134,7 +134,8 @@ static int process_sync_args(void){
 ** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
-** <a>clone</a>, <a>push</a>, pull, <a>remote-url</a>, or <a>sync</a> command is used.
+** <a>clone</a>, <a>push</a>, pull, <a>remote-url</a>, or <a>sync</a> command
+** is used.
 **
 ** The URL specified normally becomes the new "remote-url" used for
 ** subsequent push, pull, and sync operations.  However, the "--once"
@@ -158,12 +159,13 @@ void pull_cmd(void){
 ** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
-** <a>clone</a>, push, <a>pull</a>, <a>remote-url</a>, or <a>sync</a> command is used.
+** <a>clone</a>, push, <a>pull</a>, <a>remote-url</a>, or <a>sync</a> command
+** is used.
 **
 ** The URL specified normally becomes the new "remote-url" used for
-** subsequent <a>push</a>, <a>pull</a>, and <a>sync</a> operations.  However, the "--once"
-** command-line option makes the URL a one-time-use URL that is not
-** saved.
+** subsequent <a>push</a>, <a>pull</a>, and <a>sync</a> operations.  However,
+** the "--once" command-line option makes the URL a one-time-use URL that is
+** not saved.
 **
 ** See also: <a>clone</a>, <a>pull</a>, <a>sync</a>, <a>remote-url</a>
 */
@@ -179,8 +181,8 @@ void push_cmd(void){
 ** Usage: %fossil sync ?URL? ?options?
 **
 ** Synchronize the local repository with a remote repository.  This is
-** the equivalent of running both "<a>push</a>" and "<a>pull</a>" at the same time.
-** Use the "-R REPO" or "--repository REPO" command-line options
+** the equivalent of running both "<a>push</a>" and "<a>pull</a>" at the same
+** time. Use the "-R REPO" or "--repository REPO" command-line options
 ** to specify an alternative repository file.
 **
 ** If a user-id and password are required, specify them as follows:
@@ -188,12 +190,13 @@ void push_cmd(void){
 **     http://userid:password@www.domain.com:1234/path
 **
 ** If the URL is not specified, then the URL from the most recent successful
-** <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>, or sync command is used.
+** <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>, or sync command
+** is used.
 **
 ** The URL specified normally becomes the new "remote-url" used for
-** subsequent <a>push</a>, <a>pull</a>, and <a>sync</a> operations.  However, the "--once"
-** command-line option makes the URL a one-time-use URL that is not
-** saved.
+** subsequent <a>push</a>, <a>pull</a>, and <a>sync</a> operations.  However,
+** the "--once" command-line option makes the URL a one-time-use URL that is
+** not saved.
 **
 ** See also:  <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>
 */
@@ -207,13 +210,13 @@ void sync_cmd(void){
 **
 ** Usage: %fossil remote-url ?URL|off?
 **
-** Query and/or change the default server URL used by the "<a>pull</a>", "<a>push</a>",
-** and "<a>sync</a>" commands.
+** Query and/or change the default server URL used by the "<a>pull</a>",
+** "<a>push</a>", and "<a>sync</a>" commands.
 **
 ** The remote-url is set automatically by a "<a>clone</a>" command or by any
-** "<a>sync</a>", "<a>push</a>", or "<a>pull</a>" command that specifies an explicit URL.
-** The default remote-url is used by auto-syncing and by "<a>sync</a>", "<a>push</a>",
-** "<a>pull</a>" that omit the server URL.
+** "<a>sync</a>", "<a>push</a>", or "<a>pull</a>" command that specifies an
+** explicit URL. The default remote-url is used by auto-syncing and by
+** "<a>sync</a>", "<a>push</a>", "<a>pull</a>" that omit the server URL.
 **
 ** See also: <a>clone</a>, <a>push</a>, <a>pull</a>, <a>sync</a>
 */

@@ -246,12 +246,13 @@ void undo_rollback(void){
 **
 ** Usage: %fossil undo ?FILENAME...?
 **
-** Undo the most recent <a>update</a> or <a>merge</a> or <a>revert</a> operation.  If FILENAME is
-** specified then restore the content of the named file(s) but otherwise
-** leave the <a>update</a> or <a>merge</a> or <a>revert</a> in effect.
+** Undo the most recent <a>update</a> or <a>merge</a> or <a>revert</a>
+** operation.  If FILENAME is specified then restore the content of the
+** named file(s) but otherwise leave the <a>update</a>, <a>merge</a> or
+** <a>revert</a> in effect.
 **
-** A single level of undo/<a>redo</a> is supported.  The undo/<a>redo</a> stack
-** is cleared by the commit and checkout commands.
+** A single level of undo/<a>redo</a> is supported. The undo/<a>redo</a>
+** stack is cleared by the commit and checkout commands.
 */
 void undo_cmd(void){
   int undo_available;
@@ -285,9 +286,9 @@ void undo_cmd(void){
 **
 ** Usage: %fossil redo ?FILENAME...?
 **
-** Redo an <a>update</a>, <a>merge</a> or <a>revert</a> operation that has been undone
-** by the <a>undo</a> command.  If FILENAME is specified then restore the changes
-** associated with the named file(s) but otherwise leave the update
+** Redo an <a>update</a>, <a>merge</a> or <a>revert</a> operation that has been
+** undone by the <a>undo</a> command. If FILENAME is specified then restore the
+** changes associated with the named file(s) but otherwise leave the update
 ** or merge undone.
 **
 ** A single level of <a>undo</a>/redo is supported.  The <a>undo</a>/redo stack
