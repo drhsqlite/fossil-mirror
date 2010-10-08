@@ -103,7 +103,7 @@ static void status_report(
 ** Usage: %fossil changes
 **
 ** Report on the edit status of all files in the current checkout.
-** See also the "status" and "extra" commands.
+** See also the "<a>status</a>" and "<a>extra</a>" commands.
 */
 void changes_cmd(void){
   Blob report;
@@ -249,7 +249,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
 ** Usage: %fossil extras ?--dotfiles? ?--ignore GLOBPATTERN?
 **
 ** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command.
+** the current checkout.  See also the "<a>clean</a>" command.
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
@@ -295,7 +295,7 @@ void extra_cmd(void){
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
-** the "extra" command. This operation cannot be undone. 
+** the "<a>extras</a>" command. This operation cannot be undone. 
 **
 ** You will be prompted before removing each file. If you are
 ** sure you wish to remove all "extra" files you can specify the

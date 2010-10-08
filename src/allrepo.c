@@ -73,8 +73,8 @@ static char *quoteFilename(const char *zFilename){
 **    sync       Run a "sync" on all repositories
 **
 ** Respositories are automatically added to the set of known repositories
-** when one of the following commands against the repository: clone, info,
-** pull, push, or sync
+** when one of the following commands against the repository:
+**   <a>clone</a>, <a>info</a>, <a>pull</a>, <a>push</a>, or <a>sync</a>
 */
 void all_cmd(void){
   int n;

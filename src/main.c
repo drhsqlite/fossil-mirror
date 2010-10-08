@@ -586,6 +586,10 @@ void help_cmd(void){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
       printf("%s", g.argv[0]);
       z += 7;
+    }else if( *z=='<' && strncmp(z,"<a>",3)==0 ){
+      z += 3;
+    }else if( *z=='<' && strncmp(z,"</a>",4)==0 ){
+      z += 4;
     }else{
       putchar(*z);
       z++;
@@ -604,7 +608,6 @@ void help_page(void){
     style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
     if( zCmd ){
       int rc, idx;
-      char *z, *s, *d;
 
       @ <h1>%s(zCmd)</h1>
       rc = name_search(zCmd, aCommand, count(aCommand), &idx);
@@ -613,24 +616,66 @@ void help_page(void){
       }else if( rc==2 ){
         @ ambiguous command prefix: %s(zCmd)
       }else{
-        z = (char*)aCmdHelp[idx];
-        if( z==0 ){
+        char *zSrc, *zDest;
+        int src,dest,len;
+	
+        zSrc = (char*)aCmdHelp[idx];
+        if( zSrc==0 || *zSrc==0 ){
           @ no help available for the %s(aCommand[idx].zName) command
         }else{
-          z=s=d=mprintf("%s",z);
-	  while( *s ){
-	    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
-	      s++;
+	  len = strlen(zSrc);
+          zDest = malloc(len+1);
+	  for(src=dest=0;zSrc[src];){
+	    if( zSrc[src]=='%' && strncmp(zSrc+src, "%fossil", 7)==0 ){
+	      src++; /* skip % for fossil argv[0] expansion */
+	    }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a>", 3)==0 ){
+	      /* found an internal command cross reference,
+	      ** create an additional link
+	      */
+	      int start;
+
+              len+=80;
+	      zDest=realloc(zDest,len);
+	      zDest[dest++]=zSrc[src++]; /* < */
+              zDest[dest++]=zSrc[src++]; /* a */
+              zDest[dest++]=' ';
+              zDest[dest++]='h';
+              zDest[dest++]='r';
+              zDest[dest++]='e';
+              zDest[dest++]='f';
+              zDest[dest++]='=';
+              zDest[dest++]='"';
+              zDest[dest++]='h';
+              zDest[dest++]='e';
+              zDest[dest++]='l';
+              zDest[dest++]='p';
+              zDest[dest++]='?';
+              zDest[dest++]='c';
+              zDest[dest++]='m';
+              zDest[dest++]='d';
+              zDest[dest++]='=';
+	      start = src+1;
+	      for( src=start; zSrc[src] && zSrc[src]!='<'; ){
+		zDest[dest++]=zSrc[src++]; /* command name */
+	      }
+              zDest[dest++]='"';
+              zDest[dest++]='>';
+	      for( src=start; zSrc[src] && zSrc[src]!='<'; ){
+		zDest[dest++]=zSrc[src++]; /* command name */
+	      }
 	    }else{
-	      *d++ = *s++;
+	      zDest[dest++] = zSrc[src++];
 	    }
 	  }
-	  *d = 0;
-	  @ <pre>%s(z)</pre>
-	  free(z);
+	  zDest[dest] = 0;
+	  @ <pre>%s(zDest)</pre>
+	  free(zDest);
 	}
       }
-      @ <hr/><a href="help">available commands</a> in fossil
+      @ <hr>additional information may be found in the web documentation:
+      @ <a href="doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
+      @ cmd_%s(aCommand[idx].zName)</a>, see also the list of
+      @ <a href="help">available commands</a> in fossil
       @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }else{
       int i;

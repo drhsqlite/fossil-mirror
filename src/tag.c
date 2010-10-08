@@ -347,12 +347,12 @@ void tag_add_artifact(
 ** a hexadecimal baseline or artifact ID, you can explicitly
 ** disambiguate it by prefixing it with "tag:". For instance:
 **
-**   fossil update decaf
+**   fossil <a>update</a> decaf
 **
 ** will be taken as an artifact or baseline ID and fossil will
 ** probably complain that no such revision was found. However
 **
-**   fossil update tag:decaf
+**   fossil <a>update</a> tag:decaf
 **
 ** will assume that "decaf" is a tag/branch name.
 **

@@ -1,5 +1,5 @@
-C Merge\sthe\s"ticket"\scommand\sinto\sthe\strunk.
-D 2010-10-07T19:17:44
+C added\scross\sreference\slinks\sto\scommand\sline\shelp\sin\sthe\sgui
+D 2010-10-08T12:02:43
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -34,8 +34,8 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c b32ce1f5e510dfac0bb1e09f26cb4a86c1a34dd0
-F src/allrepo.c a967e36eff7162c251d81898fd68bcb7b4bf768b
+F src/add.c a1c15d506f09779a66d538fb48321e80dc0afb12
+F src/allrepo.c 9c87144b9b4c6ba15c9bdff8409ebc49d8920248
 F src/attach.c 0838826d5241d3263c77092a5115b1e38478e683
 F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
 F src/blob.c f81b1379114d859bb783c7e8bbeda25eb538cac5
@@ -43,20 +43,20 @@ F src/branch.c 16c61e6dda5875631646c9af9125bff72805b1b3
 F src/browse.c b04a2d36ea797f3a1a1eaccc526df5df485ffe40
 F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
 F src/cgi.c 2556822f507c52b7aa940a23757eef2ca3424556
-F src/checkin.c 2da719342e61e29209ad195ba366daae488e01ae
-F src/checkout.c 48a19d5dc11b3a84d51aa206d1b14cc78ed24250
+F src/checkin.c 069880846c2aa00b28fb6280b88e42ea79608215
+F src/checkout.c 5594af94f3a22f7c5ea1cdbb35ee63106854c5f4
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
 F src/config.h 90ed5a4d2d8a08e54e9be5aae0689ac0a8592532
 F src/configure.c 41feb659f165ec676e8a1b293bd121b491fd1255
 F src/content.c fa52c3234c6ccf4225c77b12c11d3aadb83a1295
-F src/db.c d47e87c08fd672b55701f8dbb244f166325e7ddc
+F src/db.c 71f30fe9805ae2d9595cc753794d84b8bd9e90d6
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
 F src/diff.c eff6dcec76b55499629c8272f1513c6fc34d6dd8
-F src/diffcmd.c 6e48d3292a6d6afa6ae3a2047284876739813fcd
+F src/diffcmd.c f96792a6484efe082232022586de21d3c91a263e
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 1f6e71e23f79a961c47699f5bd4420ea12bfb276
 F src/event.c 426328a21efe93773c8b154a1aceaee08f8e4f46
@@ -69,7 +69,7 @@ F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f7a88a3c9bc1ccf0a9215ab8cb0b284e514c16bb
 F src/info.c daadb5dec6f89052695d47872c41c0ec6d226b52
 F src/login.c 676c739ad0f1fa2a138bc3493f607f2d28f9a243
-F src/main.c d701be5728c91ffc4f5fcb0420d123a261e0ad33
+F src/main.c 25d9ba190322f999d47d48c1cda7f59e7cec02f1
 F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -97,8 +97,8 @@ F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
 F src/sqlite3.h 85b8161f84932d2ffcc0e0ec241a59fb181cbe8c
 F src/stat.c d65bfac21fcadad6879685cd792709638f8511e7
 F src/style.c a2e4a10911d7ec97b8049c2880135f14055e9ffa
-F src/sync.c 001a78a0d5649160d5222ffd57499a6fcd2953c0
-F src/tag.c 806cabcfa7e148eabc3e522481eb8efcec005def
+F src/sync.c 6c349a33121dedc7fa6285f034f251ef3adf5cbc
+F src/tag.c a924057855ca02aba4eadb6569b1d38593139bde
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
@@ -107,8 +107,8 @@ F src/timeline.c 3727b6f6407d76a51a81dc1d549c450bf0a7d803
 F src/tkt.c d76b8c5247196dfc97712d23c61a6f554966311f
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
-F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
-F src/update.c cafe0230c571826757e9e29183925b4fffcf040c
+F src/undo.c dda1b05e6115af10249c2c1ef69698def1c2d52a
+F src/update.c 4591c8d839022474453d0570210e4e5b88d18f2e
 F src/url.c c9390a9b0733b479ae6882ee9f71b8551dbeaf21
 F src/user.c b7f7d1d87de8c2bee94d776cb115780a2056fa74
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -272,7 +272,10 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P b525add4e0dc74fcd5f1422f8bb1f28bebd4760e 568ead7b412a28a35da006c43d3c26129aeb56e9
-R ab05a18e39c06e5a9163a3d5e7e7bf49
-U drh
-Z d2bded680c7d82d55610a412a1c78fc4
+P 2f5d45eca39bf16125504255b79615aa2746c592
+R 6107254db2afaa81c950a5000cdec066
+T *branch * wolfgangHelpCmd
+T *sym-wolfgangHelpCmd *
+T -sym-trunk *
+U wolfgang
+Z f9ef11df9da7503c02b5c71b2dc4717f
