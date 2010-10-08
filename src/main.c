@@ -611,16 +611,18 @@ void help_page(void){
     if( zCmd ){
       int rc, idx;
 
-      @ <h1>%s(zCmd)</h1>
       rc = name_search(zCmd, aCommand, count(aCommand), &idx);
       if( rc==1 ){
+        @ <h1>%s(zCmd)</h1>
         @ unknown command: %s(zCmd)
       }else if( rc==2 ){
+        @ <h1>%s(zCmd)</h1>
         @ ambiguous command prefix: %s(zCmd)
       }else{
         char *zSrc, *zDest;
         int src,dest,len;
 
+        @ <h1>%s(aCommand[idx].zName)</h1>
         zSrc = (char*)aCmdHelp[idx];
         if( zSrc==0 || *zSrc==0 ){
           @ no help available for the %s(aCommand[idx].zName) command
