@@ -58,7 +58,7 @@ void autosync(int flags){
   if( zUrl==0 ){
     return;  /* No default server */
   }
-  zPw = db_get("last-sync-pw", 0);
+  zPw = unobscure(db_get("last-sync-pw", 0));
   url_parse(zUrl);
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     g.urlPasswd = mprintf("%s", zPw);
@@ -95,7 +95,7 @@ static int process_sync_args(void){
   db_open_config(0);
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
-    zPw = db_get("last-sync-pw", 0);
+    zPw = unobscure(db_get("last-sync-pw", 0));
     if( db_get_boolean("auto-sync",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
@@ -107,7 +107,7 @@ static int process_sync_args(void){
   url_parse(zUrl);
   if( !g.dontKeepUrl ){
     db_set("last-sync-url", g.urlCanonical, 0);
-    if( g.urlPasswd ) db_set("last-sync-pw", g.urlPasswd, 0);
+    if( g.urlPasswd ) db_set("last-sync-pw", obscure(g.urlPasswd), 0);
   }
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     if( zPw==0 ){
@@ -237,7 +237,7 @@ void remote_url_cmd(void){
       }
       db_set("last-sync-url", g.urlCanonical, 0);
       if( g.urlPasswd ){
-        db_set("last-sync-pw", g.urlPasswd, 0);
+        db_set("last-sync-pw", obscure(g.urlPasswd), 0);
       }else{
         db_unset("last-sync-pw", 0);
       }

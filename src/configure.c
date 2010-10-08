@@ -456,7 +456,7 @@ void configuration_cmd(void){
       if( zServer==0 ){
         fossil_fatal("no server specified");
       }
-      zPw = db_get("last-sync-pw", 0);
+      zPw = unobscure(db_get("last-sync-pw", 0));
     }
     url_parse(zServer);
     if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);

@@ -62,7 +62,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     /* Password failure while doing a sync from the command-line interface */
     url_prompt_for_password();
     zPw = g.urlPasswd;
-    if( !g.dontKeepUrl ) db_set("last-sync-pw", zPw, 0);
+    if( !g.dontKeepUrl ) db_set("last-sync-pw", obscure(zPw), 0);
   }
 
   /* The login card wants the SHA1 hash of the password, so convert the
