@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Merge\sfrom\strunk.
-D 2010-10-05T14:40:27
+C EDITED\s\s\s\s\swww/server.wiki\nfixed\sformating\sand\screated\sticket\s(I\sdon't\ssee\sthe\sticket\sin\scommit)
+D 2010-10-08T17:08:13
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 82ceb12173458abe5ae6c6e55127cf3865944ff1
@@ -285,21 +282,14 @@ F www/reference.wiki 2a9b5ee73dea203720861c5a19358c1bcc580393
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 149da47380440a81d3bdf4f9d65e126c2309e8b2
 F www/selfhost.wiki 78cc85288e81a6b9ffdbe6c57dcb1688fd3d81b1
-F www/server.wiki 798fb85038218374ceeaae058ac36b1508005347
+F www/server.wiki 6c01f044251b9915607a1e223b7ad03701e74dc5
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e3292ef8c34b24d90b3328b3103c0f420e7b7372 12a79e5b933b9800c9c2492c418d959d973fbddc
-R 21bf62a6024e525c6e027a83547ba6b9
-U michael
-Z 62ca0dc98561825ea7f80e2fa73d2107
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAkyrONsACgkQLqyWkKVQ54ScQACgkHTIp2LoYILuTX7AxGXZKzqq
-DHUAoNMk6iwaHx7Ko1GbtugDj2t9Xges
-=gXt3
------END PGP SIGNATURE-----
+P 029448a394340305c963e2b4f4a9f926c608e8bd
+R 97500609372ee7af62cec41c5d6d6594
+U navratil
+Z c7b9bc7d8e47d189d7f10c6b8680fca3

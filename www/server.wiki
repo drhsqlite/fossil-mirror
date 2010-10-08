@@ -96,12 +96,16 @@ At this stage, the standalone server (e.g. "fossil server") does not support SSL
 </p>
 </blockquote>
 
-<h2>Various security concerns with hosted repositories</h2><blockquote>
+<h2>Various security concerns with hosted repositories</h2>
+
+<blockquote>
+
 <p>
 There are two main concerns relating to usage of Fossil for sharing sensitive information (source or any other data):
 <ul>
 <li>Interception of the Fossil synchronization stream, thereby capturing data, and
-</ul>Direct access to the Fossil repository on the server
+<li>Direct access to the Fossil repository on the server
+</ul>
 </p>
 <p>
 Regarding the first, it is adequate to secure the server using SSL, and disallowing any non-SSL access.  The data stream will be encrypted by the HTTPS protocol, rendering the data reasonably secure.  The truly paranoid may wish to deploy <i>ssh</i> encrypted tunnels, but that is quite a bit more difficult and cumbersome to set up (particularly for a larger number of users).
