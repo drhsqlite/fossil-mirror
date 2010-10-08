@@ -181,7 +181,7 @@ void push_cmd(void){
 ** Usage: %fossil sync ?URL? ?options?
 **
 ** Synchronize the local repository with a remote repository.  This is
-** the equivalent of running both "<a>push</a>" and "<a>pull</a>" at the same
+** the equivalent of running both <a>push</a> and <a>pull</a> at the same
 ** time. Use the "-R REPO" or "--repository REPO" command-line options
 ** to specify an alternative repository file.
 **
@@ -210,13 +210,13 @@ void sync_cmd(void){
 **
 ** Usage: %fossil remote-url ?URL|off?
 **
-** Query and/or change the default server URL used by the "<a>pull</a>",
-** "<a>push</a>", and "<a>sync</a>" commands.
+** Query and/or change the default server URL used by the <a>pull</a>,
+** <a>push</a>, and <a>sync</a> commands.
 **
-** The remote-url is set automatically by a "<a>clone</a>" command or by any
-** "<a>sync</a>", "<a>push</a>", or "<a>pull</a>" command that specifies an
+** The remote-url is set automatically by a <a>clone</a> command or by any
+** <a>sync</a>, <a>push</a>, or <a>pull</a> command that specifies an
 ** explicit URL. The default remote-url is used by auto-syncing and by
-** "<a>sync</a>", "<a>push</a>", "<a>pull</a>" that omit the server URL.
+** <a>sync</a>, <a>push</a>, <a>pull</a> that omit the server URL.
 **
 ** See also: <a>clone</a>, <a>push</a>, <a>pull</a>, <a>sync</a>
 */

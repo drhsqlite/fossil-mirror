@@ -174,7 +174,7 @@ void manifest_to_disk(int vid){
 ** The --latest flag can be used in place of VERSION to checkout the
 ** latest version in the repository.
 **
-** See also the "<a>update</a>" command.
+** See also the <a>update</a> command.
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
@@ -274,7 +274,7 @@ void unlink_local_database(void){
 **
 ** Usage: %fossil close ?-f|--force?
 **
-** The opposite of "<a>open</a>".  Close the current database connection.
+** The opposite of <a>open</a>.  Close the current database connection.
 ** Require a -f or --force flag if there are unsaved changed in the
 ** current check-out.
 */

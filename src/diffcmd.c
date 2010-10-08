@@ -366,7 +366,7 @@ static void diff_all_two_versions(
 **
 ** The "-i" command-line option forces the use of the internal diff logic
 ** rather than any external diff program that might be configured using
-** the "<a>setting</a>" command. If no external diff program is configured, then
+** the <a>setting</a> command. If no external diff program is configured, then
 ** the "-i" option is a no-op.  The "-i" option converts "gdiff" into "diff".
 */
 void diff_cmd(void){

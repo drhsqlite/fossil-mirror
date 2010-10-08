@@ -587,8 +587,10 @@ void help_cmd(void){
       printf("%s", g.argv[0]);
       z += 7;
     }else if( *z=='<' && strncmp(z,"<a>",3)==0 ){
+      putchar('"');
       z += 3;
     }else if( *z=='<' && strncmp(z,"</a>",4)==0 ){
+      putchar('"');
       z += 4;
     }else{
       putchar(*z);
@@ -618,25 +620,25 @@ void help_page(void){
       }else{
         char *zSrc, *zDest;
         int src,dest,len;
-	
+
         zSrc = (char*)aCmdHelp[idx];
         if( zSrc==0 || *zSrc==0 ){
           @ no help available for the %s(aCommand[idx].zName) command
         }else{
-	  len = strlen(zSrc);
+          len = strlen(zSrc);
           zDest = malloc(len+1);
-	  for(src=dest=0;zSrc[src];){
-	    if( zSrc[src]=='%' && strncmp(zSrc+src, "%fossil", 7)==0 ){
-	      src++; /* skip % for fossil argv[0] expansion */
-	    }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a>", 3)==0 ){
-	      /* found an internal command cross reference,
-	      ** create an additional link
-	      */
-	      int start;
+          for(src=dest=0;zSrc[src];){
+            if( zSrc[src]=='%' && strncmp(zSrc+src, "%fossil", 7)==0 ){
+              src++; /* skip % for fossil argv[0] expansion */
+            }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a>", 3)==0 ){
+              /* found an internal command cross reference,
+              ** create an additional link
+              */
+              int start;
 
               len+=80;
-	      zDest=realloc(zDest,len);
-	      zDest[dest++]=zSrc[src++]; /* < */
+              zDest=realloc(zDest,len);
+              zDest[dest++]=zSrc[src++]; /* < */
               zDest[dest++]=zSrc[src++]; /* a */
               zDest[dest++]=' ';
               zDest[dest++]='h';
@@ -654,23 +656,23 @@ void help_page(void){
               zDest[dest++]='m';
               zDest[dest++]='d';
               zDest[dest++]='=';
-	      start = src+1;
-	      for( src=start; zSrc[src] && zSrc[src]!='<'; ){
-		zDest[dest++]=zSrc[src++]; /* command name */
-	      }
+              start = src+1;
+              for( src=start; zSrc[src] && zSrc[src]!='<'; ){
+                zDest[dest++]=zSrc[src++]; /* command name */
+              }
               zDest[dest++]='"';
               zDest[dest++]='>';
-	      for( src=start; zSrc[src] && zSrc[src]!='<'; ){
-		zDest[dest++]=zSrc[src++]; /* command name */
-	      }
-	    }else{
-	      zDest[dest++] = zSrc[src++];
-	    }
-	  }
-	  zDest[dest] = 0;
-	  @ <pre>%s(zDest)</pre>
-	  free(zDest);
-	}
+              for( src=start; zSrc[src] && zSrc[src]!='<'; ){
+                zDest[dest++]=zSrc[src++]; /* command name */
+              }
+            }else{
+              zDest[dest++] = zSrc[src++];
+            }
+          }
+          zDest[dest] = 0;
+          @ <pre>%s(zDest)</pre>
+          free(zDest);
+        }
       }
       @ <hr>additional information may be found in the web documentation:
       @ <a href="doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
@@ -679,7 +681,7 @@ void help_page(void){
       @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }else{
       int i;
-      
+
       @ <h1>Available commands</h1>
       for(i=0; i<count(aCommand); i++){
         if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;

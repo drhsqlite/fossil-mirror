@@ -350,7 +350,7 @@ int historical_version_of_file(
 ** Revert all files if no file name is provided.
 **
 ** If a file is reverted accidently, it can be restored using
-** the "<a>undo</a>" command.
+** the <a>undo</a> command.
 */
 void revert_cmd(void){
   const char *zFile;

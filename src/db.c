@@ -1037,7 +1037,7 @@ void db_initial_setup(
 ** Usage: %fossil new ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
-** This command is distinct from "clone".  The "<a>clone</a>" command makes
+** This command is distinct from "clone".  The <a>clone</a> command makes
 ** a copy of an existing project.  This command starts a new project.
 **
 ** By default, your current login name is used to create the default
@@ -1422,7 +1422,7 @@ void db_record_repository_filename(const char *zName){
 ** the latest version is checked out.  No files other than "manifest"
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
-** See also the "<a>close</a>" command.
+** See also the <a>close</a> command.
 */
 void cmd_open(void){
   Blob path;
