@@ -608,16 +608,14 @@ void help_page(void){
     const char * zCmd = P("cmd");
     
     style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
-    if( zCmd ){
+    if( zCmd  && zCmd[0] ){
       int rc, idx;
 
       rc = name_search(zCmd, aCommand, count(aCommand), &idx);
       if( rc==1 ){
-        @ <h1>%s(zCmd)</h1>
-        @ unknown command: %s(zCmd)
+        @ <h1>unknown command: %s(zCmd)</h1>
       }else if( rc==2 ){
-        @ <h1>%s(zCmd)</h1>
-        @ ambiguous command prefix: %s(zCmd)
+        @ <h1>ambiguous command prefix: %s(zCmd)</h1>
       }else{
         char *zSrc, *zDest;
         int src,dest,len;
@@ -664,9 +662,11 @@ void help_page(void){
               }
               zDest[dest++]='"';
               zDest[dest++]='>';
+              zDest[dest++]='"';
               for( src=start; zSrc[src] && zSrc[src]!='<'; ){
                 zDest[dest++]=zSrc[src++]; /* command name */
               }
+              zDest[dest++]='"';
             }else{
               zDest[dest++] = zSrc[src++];
             }
@@ -674,11 +674,12 @@ void help_page(void){
           zDest[dest] = 0;
           @ <pre>%s(zDest)</pre>
           free(zDest);
+          @ <hr>additional information may be found in the web documentation:
+          @ <a href="http://www.fossil-scm.org/fossil/doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
+          @ cmd_%s(aCommand[idx].zName)</a>, 
         }
       }
-      @ <hr>additional information may be found in the web documentation:
-      @ <a href="http://www.fossil-scm.org/fossil/doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
-      @ cmd_%s(aCommand[idx].zName)</a>, see also the list of
+      @ see also the list of
       @ <a href="help">available commands</a> in fossil
       @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }else{
