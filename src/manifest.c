@@ -165,6 +165,11 @@ void manifest_cache_clear(void){
   memset(&manifestCache, 0, sizeof(manifestCache));
 }
 
+#ifdef FOSSIL_DONT_VERIFY_MANIFEST_MD5SUM
+# define md5sum_init(X)
+# define md5sum_step_text(X,Y)
+#endif
+
 /*
 ** Parse a blob into a Manifest object.  The Manifest object
 ** takes over the input blob and will free it when the
@@ -637,16 +642,20 @@ int manifest_parse(Manifest *p, Blob *pContent){
       ** compatibility reasons.
       */
       case 'Z': {
+#ifndef FOSSIL_DONT_VERIFY_MANIFEST_MD5SUM
         int rc;
         Blob hash;
+#endif
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
         if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
         if( !validate16(blob_buffer(&a1), 32) ) goto manifest_syntax_error;
+#ifndef FOSSIL_DONT_VERIFY_MANIFEST_MD5SUM
         md5sum_finish(&hash);
         rc = blob_compare(&hash, &a1);
         blob_reset(&hash);
         if( rc!=0 ) goto manifest_syntax_error;
+#endif
         seenZ = 1;
         break;
       }
@@ -754,20 +763,27 @@ manifest_syntax_error:
 /*
 ** COMMAND: test-parse-manifest
 **
-** Usage: %fossil test-parse-manifest FILENAME
+** Usage: %fossil test-parse-manifest FILENAME ?N?
 **
 ** Parse the manifest and discarded.  Use for testing only.
 */
 void manifest_test_parse_cmd(void){
   Manifest m;
   Blob b;
-  if( g.argc!=3 ){
+  int i;
+  int n = 1;
+  if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
   db_must_be_within_tree();
   blob_read_from_file(&b, g.argv[2]);
-  manifest_parse(&m, &b);
-  manifest_clear(&m);
+  if( g.argc>3 ) n = atoi(g.argv[3]);
+  for(i=0; i<n; i++){
+    Blob b2;
+    blob_copy(&b2, &b);
+    manifest_parse(&m, &b2);
+    manifest_clear(&m);
+  }
 }
 
 /*
