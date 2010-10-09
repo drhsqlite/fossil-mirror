@@ -91,6 +91,9 @@ void win32_process_one_http_request(void *pAppData){
       break;
     }
   }
+  if( g.fHttpTrace ){
+    fprintf(stderr,"HTTPTRACE(%p): got header '%s'\n",pAppData,zHdr);
+  }
   if( amt>=sizeof(zHdr) ) goto end_request;
   out = fopen(zRequestFName, "wb");
   if( out==0 ) goto end_request;
@@ -111,11 +114,21 @@ void win32_process_one_http_request(void *pAppData){
     g.argv[0], g.zRepositoryName, zRequestFName, zReplyFName, 
     inet_ntoa(p->addr.sin_addr), p->zNotFound
   );
+  if( g.fHttpTrace ){
+    fprintf(stderr,"HTTPTRACE(%p): calling '%s'\n",pAppData,zCmd);
+  }
   portable_system(zCmd);
   in = fopen(zReplyFName, "rb");
   if( in ){
+    if( g.fHttpTrace ){
+      fprintf(stderr,"HTTPTRACE(%p): read reply '%s'\n",pAppData,zReplyFName);
+    }
     while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
       send(p->s, zHdr, got, 0);
+    }
+  }else{
+    if( g.fHttpTrace ){
+      fprintf(stderr,"HTTPTRACE(%p): no reply '%s'\n",pAppData,zReplyFName);
     }
   }
 
@@ -217,6 +230,9 @@ void win32_http_server(
     p->s = client;
     p->addr = client_addr;
     p->zNotFound = zNotFoundOption;
+    if( g.fHttpTrace ){
+      fprintf(stderr,"HTTPTRACE(%p): start new request thread\n",p);
+    }
     _beginthread(win32_process_one_http_request, 0, (void*)p);
   }
   closesocket(s);

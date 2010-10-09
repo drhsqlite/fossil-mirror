@@ -118,6 +118,17 @@ void style_header(const char *zTitleFormat, ...){
 }
 
 /*
+** append a reference to command line to a web page
+** and generate the footer
+*/
+void style_footer_cmdref( const char * const zCmd ){
+  @ <div class="cmdref">See also command line help:
+  @  <a href="help?cmd=%s(zCmd)">%s(zCmd)</a>
+  @ </div>
+  style_footer();
+}
+
+/*
 ** Draw the footer at the bottom of the page.
 */
 void style_footer(void){
@@ -241,6 +252,7 @@ const char zDefaultHeader[] =
 @ } else {
 @   html "<a href='$baseurl/login'>Login</a> "
 @ }
+@ html "<small><sup><a href='$baseurl/help'>?</a></sup></small>"
 @ </th1></div>
 ;
 
@@ -736,6 +748,14 @@ const struct strctCssDefaults {
     "format for links, that should not be very visible",
     @   font-size: xx-small;
     @   color: #aaaaaa;
+  },
+  { "div.cmdref",
+    "format for references to command line help entries the actual gui page."
+    "set \"display\" to \"none\" to suppress the display",
+    @   font-size: small;
+    @   text-align: right;
+    @   font-family: monospace;
+    @   color: #777777;
   },
   { 0,
     0,

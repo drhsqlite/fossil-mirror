@@ -173,6 +173,12 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 **    %fossil user password USERNAME ?PASSWORD?
 **
 **        Change the web access password for a user.
+**        Users can change their own password on the
+**        <a href="login">Login/Logout</a> gui page.
+**
+** Administrators can also use the gui: 
+**  *  Go to page <a href="setup">Admin</a>
+**  ** and click <a href="setup_ulist">Users</a>
 */
 void user_cmd(void){
   int n;

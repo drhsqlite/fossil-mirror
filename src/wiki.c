@@ -166,7 +166,7 @@ void wiki_page(void){
     @  &nbsp; <input type="submit" /></div></form>
     @ </li>
     @ </ul>
-    style_footer();
+    style_footer_cmdref("wiki");
     return;
   }
   if( check_name(zPageName) ) return;
@@ -695,7 +695,7 @@ void wcontent_page(void){
   }
   db_finalize(&q);
   @ </ul>
-  style_footer();
+  style_footer_cmdref("wiki");
 }
 
 /*
@@ -901,6 +901,9 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **
 **        Diffs the local copy of a page with a given version (defaulting
 **        to the head version).
+**
+** The wiki format is explained on the <a href="wiki">Wiki</a> subpage
+** <a href="wiki_rules">Formatting rules</a>.
 */
 void wiki_cmd(void){
   int n;

@@ -368,7 +368,7 @@ void tktview_page(void){
     db_finalize(&q);
   }
  
-  style_footer();
+  style_footer_cmdref("info");
 }
 
 /*

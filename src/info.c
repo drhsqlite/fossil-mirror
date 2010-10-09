@@ -469,7 +469,7 @@ void ci_page(void){
     append_file_change_line(zName, zOld, zNew, showDiff);
   }
   db_finalize(&q);
-  style_footer();
+  style_footer_cmdref("info");
 }
 
 /*
@@ -552,7 +552,7 @@ void winfo_page(void){
     }
     manifest_clear(&m);
   }
-  style_footer();
+  style_footer_cmdref("info");
 }
 
 /*
@@ -656,7 +656,7 @@ void vdiff_page(void){
     @ <tr><td></td><td></td><td>
     @  <input type="submit" name="diff" value="diff" /></td></tr></table>
     @ </div></form>
-    style_footer();
+    style_footer_cmdref("diff");
     return;
   }else if(    vdiff_parse_manifest("from", &ridFrom, &mFrom) 
             || vdiff_parse_manifest("to", &ridTo, &mTo)
@@ -703,7 +703,7 @@ void vdiff_page(void){
   manifest_clear(&mFrom);
   manifest_clear(&mTo);
 
-  style_footer();
+  style_footer_cmdref("diff");
 }
 
 /*
@@ -1175,7 +1175,7 @@ void artifact_page(void){
     }
     @ </blockquote>
   }
-  style_footer();
+  style_footer_cmdref( "artifact" );
 }  
 
 /*
@@ -1235,7 +1235,7 @@ void tinfo_page(void){
   free(zDate);
   ticket_output_change_artifact(&m);
   manifest_clear(&m);
-  style_footer();
+  style_footer_cmdref("info");
 }
 
 

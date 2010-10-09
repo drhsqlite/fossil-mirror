@@ -409,6 +409,11 @@ static void export_config(
 ** WARNING: Do not import or merge or pull configurations from an
 ** untrusted source.  The inbound configuration is not checked for
 ** safety and can introduce security vulnerabilities.
+**
+** The different parts of this configuration can also be controlled
+** using the gui:
+**  *  Go to page <a href="setup">Admin</a> and use the subcommands
+**
 */
 void configuration_cmd(void){
   int n;

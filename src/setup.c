@@ -219,7 +219,7 @@ void setup_ulist(void){
   @
   @ </ol>
   @ </td></tr></table>
-  style_footer();
+  style_footer_cmdref("user");
 }
 
 /*
@@ -666,7 +666,7 @@ void user_edit(void){
   @ but less than a <span class="usertype">developer</span>.
   @ </p></li>
   @ </ul>
-  style_footer();
+  style_footer_cmdref("user");
 }
 
 

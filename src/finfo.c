@@ -214,5 +214,5 @@ void finfo_page(void){
   }
   @ </table>
   timeline_output_graph_javascript(pGraph);
-  style_footer();
+  style_footer_cmdref("finfo");
 }

@@ -249,5 +249,5 @@ void page_dir(void){
   }
   db_finalize(&q);
   @ </ul></td></tr></table>
-  style_footer();
+  style_footer_cmdref("ls");
 }
