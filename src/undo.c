@@ -251,8 +251,8 @@ void undo_rollback(void){
 ** file(s) but otherwise leave the <a>update</a>, <a>merge</a> or <a>revert</a>
 ** in effect.
 **
-** A single level of undo/<a>redo</a> is supported. The undo/<a>redo</a>
-** stack is cleared by the commit and checkout commands.
+** A single level of <a>undo</a>/<a>redo</a> is supported. The undo/<a>redo</a>
+** stack is cleared by the <a>commit</a> and <a>checkout</a> commands.
 */
 void undo_cmd(void){
   int undo_available;
@@ -291,8 +291,8 @@ void undo_cmd(void){
 ** the changes associated with the named file(s) but otherwise leave the
 ** update or merge undone.
 **
-** A single level of <a>undo</a>/redo is supported.  The <a>undo</a>/redo stack
-** is cleared by the <a>commit</a> and <a>checkout</a> commands.
+** A single level of <a>undo</a>/<a>redo</a> is supported.  The <a>undo</a>/<a>redo</a>
+** stack is cleared by the <a>commit</a> and <a>checkout</a> commands.
 */
 void redo_cmd(void){
   int undo_available;

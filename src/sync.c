@@ -134,7 +134,7 @@ static int process_sync_args(void){
 ** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
-** <a>clone</a>, <a>push</a>, pull, <a>remote-url</a>, or <a>sync</a> command
+** <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>, or <a>sync</a> command
 ** is used.
 **
 ** The URL specified normally becomes the new "remote-url" used for
@@ -142,7 +142,7 @@ static int process_sync_args(void){
 ** command-line option makes the URL a one-time-use URL that is not
 ** saved.
 **
-** See also: <a>clone</a>, <a>push</a>, <A>sync</a>, <a>remote-url</a>
+** See also: <a>clone</a>, <a>push</a>, <a>sync</a>, <a>remote-url</a>
 */
 void pull_cmd(void){
   int syncFlags = process_sync_args();
@@ -159,7 +159,7 @@ void pull_cmd(void){
 ** to specify an alternative repository file.
 **
 ** If the URL is not specified, then the URL from the most recent
-** <a>clone</a>, push, <a>pull</a>, <a>remote-url</a>, or <a>sync</a> command
+** <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>, or <a>sync</a> command
 ** is used.
 **
 ** The URL specified normally becomes the new "remote-url" used for
@@ -190,8 +190,8 @@ void push_cmd(void){
 **     http://userid:password@www.domain.com:1234/path
 **
 ** If the URL is not specified, then the URL from the most recent
-** successful <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>, or sync command
-** is used.
+** successful <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>, or <a>sync</a>
+** command is used.
 **
 ** The URL specified normally becomes the new "remote-url" used for
 ** subsequent <a>push</a>, <a>pull</a>, and <a>sync</a> operations.  However,

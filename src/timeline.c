@@ -1093,6 +1093,7 @@ static int isIsoDate(const char *z){
 **     w  = wiki commits only
 **     ci = file commits only
 **     t  = tickets only
+**     e  = events only
 */
 void timeline_cmd(void){
   Stmt q;
