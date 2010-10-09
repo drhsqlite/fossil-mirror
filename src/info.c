@@ -425,6 +425,8 @@ void ci_page(void){
       if( g.okWrite ){
         @   | <a href="%s(g.zTop)/ci_edit?r=%S(zUuid)">edit</a>
       }
+      @   | <a href="%s(g.zTop)/vdiff?from=%S(zUuid)">
+      @      diff against another version</a>
       @   </td>
       @ </tr>
     }
@@ -626,7 +628,9 @@ void checkin_description(int rid){
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
-  int showDetail = 0;
+  int showDetail = atoi(PD("detail","0"));
+  const char *zFrom = P("from");
+  const char *zTo = P("to");
   int iFrom, iTo;
   Manifest mFrom, mTo;
 
@@ -634,9 +638,31 @@ void vdiff_page(void){
   if( !g.okRead ){ login_needed(); return; }
   login_anonymous_available();
 
-  if( vdiff_parse_manifest("from", &ridFrom, &mFrom) ) return;
-  if( vdiff_parse_manifest("to", &ridTo, &mTo) ) return;
-  showDetail = atoi(PD("detail","0"));
+  if( !zFrom || !zFrom[0] || !zTo || !zTo[0] ){
+    /* if from or to or both are bissing, show a form to enter
+    ** the query parameters by hand
+    */
+    style_header("Check-in Differences");
+    @ <p><br/>
+    @ Enter below the UUIDs, branch- or tag-names, you wish to diff:
+    @ <br/></p>
+    @ <form action="%s(g.zBaseURL)/vdiff" method="post"><div>
+    @ <table><tr><td>from:</td><td><input type="text" size="40"
+    @  name="from" value="%s(zFrom?zFrom:"")" /></td><td></td></tr>
+    @ <tr><td>to:</td><td><input type="text" size="40"
+    @  name="to" value="%s(zTo?zTo:"")" /></td><td></td></tr>
+    @ <tr><td>details:</td><td><input type="checkbox" name="detail"
+    @  checked="checked" value="1" /></td></tr>
+    @ <tr><td></td><td></td><td>
+    @  <input type="submit" name="diff" value="diff" /></td></tr></table>
+    @ </div></form>
+    style_footer();
+    return;
+  }else if(    vdiff_parse_manifest("from", &ridFrom, &mFrom) 
+            || vdiff_parse_manifest("to", &ridTo, &mTo)
+  ){
+    return;
+  }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
