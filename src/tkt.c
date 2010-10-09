@@ -894,6 +894,9 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 ** The values in set|add are not validated against the definitions
 ** given in "Ticket Common Script".
+**
+** All this stuff can also be done in the gui:
+**  * Go the the <a href="reportlist">Tickets</a> page
 */
 void ticket_cmd(void){
   int n;

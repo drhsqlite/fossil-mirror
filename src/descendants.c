@@ -257,13 +257,16 @@ void descendants_cmd(void){
 }
 
 /*
-** COMMAND:  leaves
+** COMMAND: leaves
 **
 ** Usage: %fossil leaves ?--all? ?--closed?
 **
 ** Find leaves of all branches.  By default show only open leaves.
 ** The --all flag causes all leaves (closed and open) to be shown.
 ** The --closed flag shows only closed leaves.
+**
+** This information can also be viewed in the gui:
+**  * Go the <a href="leaves">leaves</a> page
 */
 void leaves_cmd(void){
   Stmt q;

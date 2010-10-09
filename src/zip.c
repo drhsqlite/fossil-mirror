@@ -383,6 +383,9 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
 ** resulting ZIP archive.  If --name is omitted, the top-level directory
 ** named is derived from the project name, the check-in date and time, and
 ** the artifact ID of the check-in.
+**
+** The zip download can also be done through the Check-in detail view,
+** accessible from the <a href="timeline">timeline</a> page.
 */
 void baseline_zip_cmd(void){
   int rid;

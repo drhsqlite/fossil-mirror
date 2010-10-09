@@ -1606,6 +1606,10 @@ struct stControlSettings const ctrlSettings[] = {
 **                  web browser when given a URL as an argument.
 **                  Defaults to "start" on windows, "open" on Mac,
 **                  and "firefox" on Unix.
+**
+** There is a simple form in the administration gui for these settings:
+**  *  Go to the <a href="setup">Admin</a> page
+**  ** and click <a href="setup_settings">Settings</a>
 */
 void setting_cmd(void){
   int i;

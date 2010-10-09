@@ -560,7 +560,11 @@ void version_cmd(void){
 **
 ** Usage: %fossil help COMMAND
 **
-** Display information on how to use COMMAND
+** Display information on how to use COMMAND. If COMMAND is
+** omitted, a list of available commands is displayed.
+**
+** This can also be viewed in the gui:
+**  * Go to the <a href="help">help</a> page and click COMMAND
 */
 void help_cmd(void){
   int rc, idx;
@@ -586,6 +590,10 @@ void help_cmd(void){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
       printf("%s", g.argv[0]);
       z += 7;
+    }else if( *z=='<' && strncmp(z,"<a ",3)==0 ){
+      putchar('"');
+      while( *z && *z!='>') z++;
+      if( *z ) z++;
     }else if( *z=='<' && strncmp(z,"<a>",3)==0 ){
       putchar('"');
       z += 3;
@@ -637,6 +645,14 @@ void help_page(void){
               zDest[dest++]='a';
               zDest[dest++]='>';
               zDest[dest++]='"';
+            }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a ", 3)==0 ){
+              len += 2;
+	      zDest=realloc(zDest,len);
+              zDest[dest++]='"';
+              while( zSrc[src] && zSrc[src]!='>' ){
+                zDest[dest++]=zSrc[src++];
+              }
+              if( zSrc[src] ) zDest[dest++]=zSrc[src++];
             }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a>", 3)==0 ){
               /* found an internal command cross reference,
               ** create an additional link
@@ -928,6 +944,8 @@ static void process_one_web_page(const char *zNotFound){
 ** The second line defines the name of the repository.  After locating
 ** the repository, fossil will generate a webpage on stdout based on
 ** the values of standard CGI environment variables.
+**
+** See also the <a>http</a>, <a>server</a> and <a>ui</a> commands.
 */
 void cmd_cgi(void){
   const char *zFile;
@@ -1041,6 +1059,8 @@ static void find_server_repository(int disallowDir){
 ** pathname selects among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
 ** then the server redirects (HTTP code 302) to the URL of --notfound.
+**
+** See also the <a>cgi</a>, <a>server</a> and <a>ui</a> commands.
 */
 void cmd_http(void){
   const char *zIpAddr;
@@ -1129,6 +1149,8 @@ static int binaryOnPath(const char *zBinary){
 ** that contains one or more respositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
 ** various repositories.
+**
+** See also the <a>cgi</a> and <a>http</a> commands.
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */

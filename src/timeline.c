@@ -1094,6 +1094,9 @@ static int isIsoDate(const char *z){
 **     ci = file commits only
 **     t  = tickets only
 **     e  = events only
+**
+** The information can also be used in the gui:
+**  * go to the <a href="timeline">timeline</a> page
 */
 void timeline_cmd(void){
   Stmt q;

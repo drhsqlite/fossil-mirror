@@ -369,6 +369,10 @@ static void diff_all_two_versions(
 ** the <a>setting</a> command. If no external diff program is configured, then
 ** the "-i" option is a no-op.  The "-i" option converts "gdiff" into
 ** "diff".
+**
+** The results of the internal diff command can also be seen in the gui:
+**  1. Go to the <a href="vdiff">vdiff</a> page
+**  2. use the "diff against another version" link on the Check-in detail view.
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */

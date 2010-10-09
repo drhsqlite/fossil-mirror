@@ -487,6 +487,7 @@ void recon_read_dir(char *zPath){
 ** fossil repository in FILENAME. Subdirectories are read, files
 ** with leading '.' in the filename are ignored.
 **
+** See also the <a>deconstruct</a> command.
 */
 void reconstruct_cmd(void) {
   char *zPassword;
@@ -535,6 +536,8 @@ void reconstruct_cmd(void) {
 ** characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
+**
+** See also the <a>reconstruct</a> command.
 */
 void deconstruct_cmd(void){
   const char *zDestDir;

@@ -29,6 +29,9 @@
 **
 ** The "--limit N" and "--offset P" options limit the output to the first
 ** N changes after skipping P changes.
+**
+** The history of a file can also be viewed in the gui:
+**  * Go to the <a href="dir">file browser</a> and drill down to the file
 */
 void finfo_cmd(void){
   Stmt q;

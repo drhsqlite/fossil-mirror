@@ -827,6 +827,9 @@ void annotation_page(void){
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.
+**
+** This can also be viewed in the gui, if you click the "annotate" link
+** on the "File History" page of files.
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */
