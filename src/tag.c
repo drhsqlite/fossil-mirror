@@ -533,7 +533,7 @@ void taglist_page(void){
   }
   @ </ul>
   db_finalize(&q);
-  style_footer_cmdref("tags","list");
+  style_footer_cmdref("tag","list");
 }
 
 /*

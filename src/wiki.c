@@ -386,7 +386,7 @@ void wikiedit_page(void){
   if( !isSandbox ){
     manifest_clear(&m);
   }
-  style_footer();
+  style_footer_cmdref("wiki",0);
 }
 
 /*
@@ -419,7 +419,7 @@ void wikinew_page(void){
     @ <p><span class="wikiError">
     @ "%h(zName)" is not a valid wiki page name!</span></p>
   }
-  style_footer();
+  style_footer_cmdref("wiki","create");
 }
 
 
@@ -605,7 +605,7 @@ void whistory_page(void){
   zWikiPageName = zPageName;
   www_print_timeline(&q, TIMELINE_ARTID, wiki_history_extra);
   db_finalize(&q);
-  style_footer();
+  style_footer_cmdref("timeline",0);
 }
 
 /*

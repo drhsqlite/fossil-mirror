@@ -297,7 +297,7 @@ static void leaves_extra(int rid){
 }
 
 /*
-** WEBPAGE:  leaves
+** WEBPAGE: leaves
 **
 ** Find leaves of all branches.
 */
@@ -356,5 +356,5 @@ void leaves_page(void){
   @ function xout(id){
   @ }
   @ </script>
-  style_footer();
+  style_footer_cmdref("leaves",0);
 }

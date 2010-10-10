@@ -933,7 +933,7 @@ void diff_page(void){
   @ %h(blob_str(&diff))
   @ </pre></blockquote>
   blob_reset(&diff);
-  style_footer();
+  style_footer_cmdref("diff",0);
 }
 
 /*
