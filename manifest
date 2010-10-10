@@ -1,5 +1,5 @@
-C added\scross\sreferences\sfor\shelp
-D 2010-10-10T13:38:11
+C adding\shelp\scross\sreferences
+D 2010-10-10T16:46:43
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -59,7 +59,7 @@ F src/diff.c f401de3d4e5ba2abb9fd0d97f81e17e0ee2e719e
 F src/diffcmd.c 6b0632cb8538bba0356b8a028988f2554db9cc20
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c 596a491d387590a64484702b28e3cf5172677b42
-F src/event.c 426328a21efe93773c8b154a1aceaee08f8e4f46
+F src/event.c 308ada96283242ccc39d70a1f1039d14ca972c31
 F src/file.c 4b422c8f1db60785ea693b4b7817a6a9c68eac72
 F src/finfo.c 2bfaf38982099fa5ef093e659ef39edaa676c1ee
 F src/graph.c 79682b0b0240d8eb37ecb677afdcf4cff5bf5798
@@ -96,7 +96,7 @@ F src/skins.c f6205e140881c7915949e12d657d1529d3a7b5c7
 F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
 F src/sqlite3.h 85b8161f84932d2ffcc0e0ec241a59fb181cbe8c
 F src/stat.c d65bfac21fcadad6879685cd792709638f8511e7
-F src/style.c e07c849552cce0809879b095c4b317e641c70ed4
+F src/style.c c93e531584d9b4b47a6c5dc76190afcdf4db68a2
 F src/sync.c 40e136080b3ef18f92334d4aa14d445f9f54f328
 F src/tag.c aed952b39083bce5c174f290dadcfc69b2da5db2
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
@@ -113,7 +113,7 @@ F src/url.c c9390a9b0733b479ae6882ee9f71b8551dbeaf21
 F src/user.c ead9e05b6eea4f46fd67c52d0024554444927ca9
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 3b7142397cc9c79f8895c9c8a01823bbd0e30dc7
-F src/wiki.c 3cab0c342d85129b15034a59878a9f6f9411a575
+F src/wiki.c 6e5de0e6d1e1f50c388632682fa5b72a4af6b161
 F src/wikiformat.c ced52929e6cce4f214bf03f10c5f75863062a7c9
 F src/winhttp.c 042e175cd4ca7da41ad548178108c69d138a2636
 F src/xfer.c 967b96f9080db5c028304b7e8982714ffae12327
@@ -254,7 +254,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki a50643959a286336ac9d1b943d05359e189d641d
+F www/index.wiki 35259e9005fe6db8308b79151912fec9e9ba4d98
 F www/mkdownload.tcl 5fc5129fe11a268ce5e887943cf12fa76438c738
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P c2ef37159078ec3781a1d477d05a5f7a7d0e1b02
-R 63cd7e58b872b1563f4e7b882ae397f1
+P c3bf3c0c6370005b3fe084cd91e40a75c60ad427
+R 1ed1fa9a74ce6e74dcd5992bbf172ba1
 U wolfgang
-Z c12204fd83c26076c74c22ce8e5801c2
+Z 5d65e390fc165338bb5e87e533ab3cbf

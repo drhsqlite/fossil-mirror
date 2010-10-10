@@ -437,5 +437,5 @@ void eventedit_page(void){
   @ <input type="submit" name="cancel" value="Cancel" />
   @ </td></tr></table>
   @ </div></form>
-  style_footer();
+  style_footer_cmdref(0,"<a href=\"wiki_rules\">wiki format</a>");
 }

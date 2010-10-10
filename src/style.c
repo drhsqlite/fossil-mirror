@@ -121,9 +121,15 @@ void style_header(const char *zTitleFormat, ...){
 ** append a reference to command line to a web page
 ** and generate the footer
 */
-void style_footer_cmdref( const char * const zCmd, const char * const zSubCmd ){
-  @ <div class="cmdref">See also command line help:
-  @  <a href="help?cmd=%s(zCmd)">%s(zCmd)</a> %s(zSubCmd?zSubCmd:"")
+void style_footer_cmdref( const char * const zCmd, const char * const zAddOn ){
+  @ <div class="cmdref">
+  if( zCmd ){
+    @ See also command line help:
+    @  <a href="help?cmd=%s(zCmd)">%s(zCmd)</a>
+  }
+  if( zAddOn ){
+    @ %s(zAddOn)
+  }
   @ </div>
   style_footer();
 }

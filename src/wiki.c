@@ -386,7 +386,7 @@ void wikiedit_page(void){
   if( !isSandbox ){
     manifest_clear(&m);
   }
-  style_footer_cmdref("wiki",0);
+  style_footer_cmdref("wiki"," / <a href=\"wiki_rules\">wiki format</a>");
 }
 
 /*
