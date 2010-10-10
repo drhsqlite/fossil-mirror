@@ -145,6 +145,48 @@ static int wikiCmd(
 }
 
 /*
+** TH command:      wikicontent WIKIPAGE_NAME FALLBACK_TEXT
+**
+** Output the contents of the wiki page named by the input string.
+** If WIKIPAGE_NAME does not exist, then FALLBACK_TEXT is used, instead.
+*/
+static int wikiContentCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "wikicontent WIKIPAGE_NAME FALLBACK_TEXT");
+  }
+  if( enableOutput ){
+    int rid;
+    Blob content;
+    Manifest m;
+    rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+                 " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+                 " ORDER BY x.mtime DESC LIMIT 1",
+                 argv[1]
+                 );
+    if( content_get(rid, &content) ){
+      manifest_parse(&m, &content);
+      if( m.type == CFTYPE_WIKI ){
+        Th_SetResult(interp, m.zWiki, -1);
+        manifest_clear(&m);
+      }
+      else {
+        return TH_ERROR;
+      }
+    }
+    else {
+      Th_SetResult(interp, (char*)argv[2], argl[2]);
+    }
+  }
+  return TH_OK; 
+}
+
+/*
 ** TH command:      htmlize STRING
 **
 ** Escape all characters of STRING which have special meaning in HTML.
@@ -352,6 +394,7 @@ void Th_FossilInit(void){
     {"html",          putsCmd,              0},
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
+    {"wikicontent",   wikiContentCmd,       0},
   };
   if( g.interp==0 ){
     int i;
