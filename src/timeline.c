@@ -954,7 +954,7 @@ void page_timeline(void){
   blob_reset(&desc);
   www_print_timeline(&q, tmFlags, 0);
   db_finalize(&q);
-  style_footer_cmdref("timeline");
+  style_footer_cmdref("timeline",0);
 }
 
 /*
@@ -1097,6 +1097,8 @@ static int isIsoDate(const char *z){
 **
 ** The information can also be used in the gui:
 **  * go to the <a href="timeline">timeline</a> page
+**  * or the "history" links on the dedicated details views(events,
+**    files, tickets, ..)
 **
 ** See also: <a>descendants</a>
 */

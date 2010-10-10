@@ -82,7 +82,7 @@ void view_list(void){
   blob_reset(&ril);
   if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);
 
-  style_footer();
+  style_footer_cmdref("ticket",0);
 }
 
 /*

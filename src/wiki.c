@@ -166,7 +166,7 @@ void wiki_page(void){
     @  &nbsp; <input type="submit" /></div></form>
     @ </li>
     @ </ul>
-    style_footer_cmdref("wiki");
+    style_footer_cmdref("wiki",0);
     return;
   }
   if( check_name(zPageName) ) return;
@@ -254,6 +254,10 @@ void wiki_page(void){
   if( !isSandbox ){
     manifest_clear(&m);
   }
+  /* don'tshow the help cross reference, because we are rendering
+  ** the wiki conten!
+  ** style_footer_cmdref("wiki","export");
+  */
   style_footer();
 }
 
@@ -695,7 +699,7 @@ void wcontent_page(void){
   }
   db_finalize(&q);
   @ </ul>
-  style_footer_cmdref("wiki");
+  style_footer_cmdref("wiki","list");
 }
 
 /*

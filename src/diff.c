@@ -817,7 +817,7 @@ void annotation_page(void){
     @ %s(ann.aOrig[i].zSrc): %h(ann.aOrig[i].z)
   }
   @ </pre>
-  style_footer_cmdref("annotate");
+  style_footer_cmdref("annotate",0);
 }
 
 /*

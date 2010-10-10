@@ -368,7 +368,7 @@ void tktview_page(void){
     db_finalize(&q);
   }
  
-  style_footer_cmdref("info");
+  style_footer_cmdref("info",0);
 }
 
 /*
@@ -530,7 +530,7 @@ void tktnew_page(void){
   }
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
-  style_footer();
+  style_footer_cmdref("ticket","add");
 }
 
 /*
@@ -597,7 +597,7 @@ void tktedit_page(void){
   }
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
-  style_footer();
+  style_footer_cmdref("ticket","change");
 }
 
 /*
@@ -703,7 +703,7 @@ void tkttimeline_page(void){
   free(zSQL);
   www_print_timeline(&q, TIMELINE_ARTID, 0);
   db_finalize(&q);
-  style_footer();
+  style_footer_cmdref("timeline",0);
 }
 
 /*
@@ -790,7 +790,7 @@ void tkthistory_page(void){
     }
   }
   db_finalize(&q);
-  style_footer();
+  style_footer_cmdref("timeline",0);
 }
 
 /*

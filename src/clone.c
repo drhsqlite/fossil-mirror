@@ -39,6 +39,7 @@
 **
 **    --admin-user|-A USERNAME
 **
+** See also:  <a>push</a>, <a>pull</a>, <a>remote-url</a>, <a>sync</a>
 */
 void clone_cmd(void){
   char *zPassword;

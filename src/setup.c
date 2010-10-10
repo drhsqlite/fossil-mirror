@@ -219,7 +219,7 @@ void setup_ulist(void){
   @
   @ </ol>
   @ </td></tr></table>
-  style_footer_cmdref("user");
+  style_footer_cmdref("user",0);
 }
 
 /*
@@ -666,7 +666,7 @@ void user_edit(void){
   @ but less than a <span class="usertype">developer</span>.
   @ </p></li>
   @ </ul>
-  style_footer_cmdref("user");
+  style_footer_cmdref("user",0);
 }
 
 
@@ -1006,7 +1006,7 @@ void setup_editcss(void){
   @ <blockquote><pre>
   cgi_append_default_css();
   @ </pre></blockquote>
-  style_footer();
+  style_footer_cmdref("configuration","area skin");
   db_end_transaction(0);
 }
 
@@ -1044,7 +1044,7 @@ void setup_header(void){
   @ <blockquote><pre>
   @ %h(zDefaultHeader)
   @ </pre></blockquote>
-  style_footer();
+  style_footer_cmdref("configuration","area skin");
   db_end_transaction(0);
 }
 
@@ -1081,7 +1081,7 @@ void setup_footer(void){
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
   @ </pre></blockquote>
-  style_footer();
+  style_footer_cmdref("configuration","area skin");
   db_end_transaction(0);
 }
 
@@ -1150,6 +1150,6 @@ void setup_logo(void){
   @ logo image, so you will probably need to press the Reload button on your
   @ browser after changing the logo to provoke your browser to reload the new
   @ logo image. </p>
-  style_footer();
+  style_footer_cmdref("configuration","area skin");
   db_end_transaction(0);
 }

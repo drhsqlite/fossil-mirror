@@ -121,9 +121,9 @@ void style_header(const char *zTitleFormat, ...){
 ** append a reference to command line to a web page
 ** and generate the footer
 */
-void style_footer_cmdref( const char * const zCmd ){
+void style_footer_cmdref( const char * const zCmd, const char * const zSubCmd ){
   @ <div class="cmdref">See also command line help:
-  @  <a href="help?cmd=%s(zCmd)">%s(zCmd)</a>
+  @  <a href="help?cmd=%s(zCmd)">%s(zCmd)</a> %s(zSubCmd?zSubCmd:"")
   @ </div>
   style_footer();
 }
@@ -748,6 +748,13 @@ const struct strctCssDefaults {
     "format for links, that should not be very visible",
     @   font-size: xx-small;
     @   color: #aaaaaa;
+  },
+  { "div.cmdhelp",
+    "format for single command display on the gui help page",
+    @   font-family: monospace;
+    @   padding-left: 4em;
+    @   padding-bottom: 1em;
+    @   white-space: pre;
   },
   { "div.cmdref",
     "format for references to command line help entries the actual gui page."

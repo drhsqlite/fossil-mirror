@@ -842,6 +842,6 @@ void setup_skin(void){
   }
   db_finalize(&q);
   @ </ol>
-  style_footer();
+  style_footer_cmdref("configuration","area skin");
   db_end_transaction(0);
 }

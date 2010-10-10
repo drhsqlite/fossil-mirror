@@ -694,9 +694,9 @@ void help_page(void){
             }
           }
           zDest[dest] = 0;
-          @ <pre>%s(zDest)</pre>
+          @ <div class="cmdhelp">%s(zDest)</div>
           free(zDest);
-          @ <hr>additional information may be found in the web documentation:
+          @ <hr/>additional information may be found in the web documentation:
           @ <a href="http://www.fossil-scm.org/fossil/doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
           @ cmd_%s(aCommand[idx].zName)</a>, 
         }
