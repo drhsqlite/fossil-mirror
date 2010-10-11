@@ -48,7 +48,12 @@ void hyperlink_to_event_tagid(int tagid){
 
 /*
 ** WEBPAGE: event
-** URL: /event?name=EVENTID&detail=BOOLEAN&aid=ARTIFACTID
+** URL: /event
+** PARAMETERS:
+**
+**  name=EVENTID      // Identify the event to display EVENTID must be complete
+**  detail=BOOLEAN    // Show details if TRUE.  Default is FALSE.  Optional.
+**  aid=ARTIFACTID    // Which specific version of the event.  Optional.
 **
 ** Display an existing event identified by EVENTID
 */
@@ -84,7 +89,7 @@ void event_page(void){
   rid = nextRid = prevRid = 0;
   db_prepare(&q1,
      "SELECT rid FROM tagxref"
-     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='event-%q')"
+     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname GLOB 'event-%q*')"
      " ORDER BY mtime DESC",
      zEventId
   );

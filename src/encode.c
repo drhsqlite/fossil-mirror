@@ -532,6 +532,7 @@ char *obscure(const char *zIn){
   unsigned char salt;
   char *zOut;
   
+  if( zIn==0 ) return 0;
   n = strlen(zIn);
   zOut = malloc( n*2+3 );
   if( zOut==0 ) fossil_panic("out of memory");
@@ -554,6 +555,7 @@ char *unobscure(const char *zIn){
   unsigned char salt;
   char *zOut;
   
+  if( zIn==0 ) return 0;
   n = strlen(zIn);
   zOut = malloc( n + 1 );
   if( zOut==0 ) fossil_panic("out of memory");
