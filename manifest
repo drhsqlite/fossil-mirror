@@ -1,5 +1,5 @@
-C Fix\sa\spotential\ssegfault\son\s"fossil\spull".\s\nTicket\s[71439c64b8d6af66f5e34].
-D 2010-10-09T17:18:23
+C Allow\sevents\sto\sbe\sreferenced\susing\sa\sprefix\sof\stheir\sfull\sevent-id.
+D 2010-10-11T13:43:20
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -59,7 +59,7 @@ F src/diff.c eff6dcec76b55499629c8272f1513c6fc34d6dd8
 F src/diffcmd.c 6e48d3292a6d6afa6ae3a2047284876739813fcd
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c b867f98a2ec50a11ec236dcbb365b301a0b97ae1
-F src/event.c 426328a21efe93773c8b154a1aceaee08f8e4f46
+F src/event.c 3fe7eabd3fcf16579b841c84d6858f892a3afe24
 F src/file.c 4b422c8f1db60785ea693b4b7817a6a9c68eac72
 F src/finfo.c 51e99c605a5c4dad4f488b85c6eb33d89784e35c
 F src/graph.c 79682b0b0240d8eb37ecb677afdcf4cff5bf5798
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 712988286e20198a26ecde3cde8d50f597b6f029
-R 07b1517392c7f2b125124b04bb1a52b0
+P 26c262cd03144e92205cb15a0121ae9288f42ace
+R cb25600e9bb1998e32217fb9ac2d91ff
 U drh
-Z d4aec57e14eceea184fa08f96766ba2f
+Z c4ec3b03fbbf2b9de0a6ec9e116aa988
