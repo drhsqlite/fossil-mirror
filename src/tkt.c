@@ -471,7 +471,14 @@ static int submitTicketCmd(
   blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
   md5sum_blob(&tktchng, &cksum);
   blob_appendf(&tktchng, "Z %b\n", &cksum);
-  if( g.thTrace ){
+  if( g.zPath[0]=='d' ){
+    /* If called from /debug_tktnew or /debug_tktedit... */
+    @ <font color="blue">
+    @ <p>Ticket artifact that would have been submitted:</p>
+    @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
+    @ <hr /></font>
+    return TH_OK;
+  }else if( g.thTrace ){
     Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
              "}<br />\n",
        blob_str(&tktchng));

@@ -1,5 +1,5 @@
-C Allow\sevents\sto\sbe\sreferenced\susing\sa\sprefix\sof\stheir\sfull\sevent-id.
-D 2010-10-11T13:43:20
+C Fix\sthe\s/debug_tktnew\sand\s/debug_tktedit\smethods\sso\sthat\sthe\sdo\snot\sreally\ncreate\sa\snew\sticket\sartifact.\s\sTicket\s[474b0bd4f991dd60d7d9bb].
+D 2010-10-11T14:20:29
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 470d4520582e130a26add8f41958085e09448dbd
@@ -104,7 +104,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c 2c954f31ba14cfa5b08378e223016c6de570a718
 F src/th_main.c 0af13a68e941a72d903026eb2a8857d763a24dc3
 F src/timeline.c 3727b6f6407d76a51a81dc1d549c450bf0a7d803
-F src/tkt.c d76b8c5247196dfc97712d23c61a6f554966311f
+F src/tkt.c 78a5c955da1e42a9417f57c0c29e5f1bc7d29a03
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 26c262cd03144e92205cb15a0121ae9288f42ace
-R cb25600e9bb1998e32217fb9ac2d91ff
+P f2025072b4bf72bad061d21f48485a95607789e8
+R c213f0e5f089dfaf1ad1b3784eb1c305
 U drh
-Z c4ec3b03fbbf2b9de0a6ec9e116aa988
+Z 9c99e0f09bcc79bc8ff984745937f664
