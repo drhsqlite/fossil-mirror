@@ -1,8 +1,8 @@
-C Fix\sthe\s/debug_tktnew\sand\s/debug_tktedit\smethods\sso\sthat\sthe\sdo\snot\sreally\ncreate\sa\snew\sticket\sartifact.\s\sTicket\s[474b0bd4f991dd60d7d9bb].
-D 2010-10-11T14:20:29
+C Fix\sthe\sdefault\sMakefile\sso\sthat\sit\sworks\sout-of-the-box\son\sLinux,\sMacOSX,\nNetBSD,\sand\sSolaris.
+D 2010-10-12T21:42:02
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile 470d4520582e130a26add8f41958085e09448dbd
+F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
 F Makefile.w32 c39e9b7143dd53ad358e58c52029ba5010748fd4
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P f2025072b4bf72bad061d21f48485a95607789e8
-R c213f0e5f089dfaf1ad1b3784eb1c305
+P 06c5b3eb6d2c8287482139484ec487e053267680
+R 5173d827d526fbc44ef4f7c2b129ba27
 U drh
-Z 9c99e0f09bcc79bc8ff984745937f664
+Z 2aff4045968461593f8640b3d258f641

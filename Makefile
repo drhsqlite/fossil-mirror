@@ -43,12 +43,10 @@ TCC += -DFOSSIL_ENABLE_SSL
 #    chroot jail.
 #
 LIB = -lz $(LDFLAGS)
-# If you're on OpenSolaris:
-# LIB += lsocket
-# Solaris 10 needs:
-# LIB += -lsocket -lnsl
-# My assumption is that the Sol10 flags will work for Sol8/9 and possibly 11.
-# 
+HOST_OS!= uname -s
+LIB.SunOS= -lsocket -lnsl
+LIB += $(LIB.$(HOST_OS))
+
 # If using HTTPS:
 LIB += -lcrypto -lssl
 
