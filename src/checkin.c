@@ -103,7 +103,8 @@ static void status_report(
 ** Usage: %fossil changes
 **
 ** Report on the edit status of all files in the current checkout.
-** See also the <a>status</a> and <a>extra</a> commands.
+**
+** See also the <a>status</a>, <a>extra</a> and <a>import</a> commands.
 */
 void changes_cmd(void){
   Blob report;
@@ -122,6 +123,8 @@ void changes_cmd(void){
 ** Usage: %fossil status
 **
 ** Report on the status of the current checkout.
+**
+** See also <a>import</a>
 */
 void status_cmd(void){
   int vid;
@@ -253,6 +256,8 @@ char *glob_expr(const char *zVal, const char *zGlobList){
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
+**
+** See also <a>import</a>
 */
 void extra_cmd(void){
   Blob path;

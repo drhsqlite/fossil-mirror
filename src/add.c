@@ -275,6 +275,99 @@ void delete_cmd(void){
 }
 
 /*
+** COMMAND: import ?--dotfiles? ?--ignore GLOBPATTERN?
+**
+** Usage: %fossil import
+**
+** If used in a checkout, the current checkout file tree is synchronized
+** with the repository:
+**  * all files, existing in the file tree but not in the repository
+**    (files displayed using the <a>extra</a> command)
+**    are added to the repository - see also <a>add</a>
+**  * all files, existing in the repository, not existing in the file tree
+**    (files displayed as MISSING using the <a>status</a> command)
+**    are removed from the repository - see also <a>rm</a>
+** The command does not <a>commit</a>!
+**
+** This command can be used to track third party software.
+*/
+void import_cmd(void){
+  Blob path;
+  const char *zIgnoreFlag = find_option("ignore",0,1);
+  int allFlag = find_option("dotfiles",0,0)!=0;
+  int n;
+  Stmt q;
+  int vid;
+  Blob repo;
+  int addons = 0;
+  int deletes = 0;
+
+  if( zIgnoreFlag==0 ){
+    zIgnoreFlag = db_get("ignore-glob", 0);
+  }
+  db_must_be_within_tree();
+  vid = db_lget_int("checkout",0);
+  if( vid==0 ){
+    fossil_panic("no checkout to add to");
+  }
+  db_begin_transaction();
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  n = strlen(g.zLocalRoot);
+  blob_init(&path, g.zLocalRoot, n-1);
+  /* now we read the complete file structure into a temp table */
+  vfile_scan(0, &path, blob_size(&path), allFlag);
+  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
+  }
+  printf("importing checkout root '%s'\ninto repository '%s':\n",
+          g.zLocalRoot,g.zRepositoryName);
+  /* step 1: search for extra files */
+  db_prepare(&q, 
+      "SELECT x, %Q || x FROM sfile"
+      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
+                       "'_FOSSIL_-journal','.fos','.fos-journal',"
+                       "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
+                       "'.fos-shm')"
+      "   AND NOT %s"
+      " ORDER BY 1",
+      g.zLocalRoot,
+      glob_expr("x", zIgnoreFlag)
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    Blob omit;
+
+    blob_zero(&omit);
+    add_one_file(db_column_text(&q, 1), vid, &omit);
+    addons++;
+  }
+  db_finalize(&q);
+  /* step 2: search for missing files */
+  db_prepare(&q, 
+      "SELECT pathname,%Q || pathname,deleted FROM vfile"
+      " WHERE deleted!=1"
+      " ORDER BY 1",
+      g.zLocalRoot
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char * zFile;
+    const char * zPath;
+
+    zFile = db_column_text(&q, 0);
+    zPath = db_column_text(&q, 1);
+    if( !file_isfile(zPath) ){
+      db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
+      printf("DELETED  %s\n", zFile);
+      deletes--;
+    }
+  }
+  db_finalize(&q);
+  /* show cmmand summary */
+  printf("added %d files, deleted %d files\n",addons,deletes);
+
+  db_end_transaction(0);
+}
+
+/*
 ** Rename a single file.
 **
 ** The original name of the file is zOrig.  The new filename is zNew.
