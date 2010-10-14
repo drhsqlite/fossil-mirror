@@ -275,9 +275,9 @@ void delete_cmd(void){
 }
 
 /*
-** COMMAND: import ?--dotfiles? ?--ignore GLOBPATTERN?
+** COMMAND: addremove ?--dotfiles? ?--ignore GLOBPATTERN?
 **
-** Usage: %fossil import
+** Usage: %fossil addremove
 **
 ** If used in a checkout, the current checkout file tree is synchronized
 ** with the repository:
