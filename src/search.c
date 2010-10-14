@@ -50,10 +50,10 @@ Search *search_init(const char *zPattern){
   strcpy(z, zPattern);
   memset(p, 0, sizeof(*p));
   while( *z && p->nTerm<sizeof(p->a)/sizeof(p->a[0]) ){
-    while( !isalnum(*z) && *z ){ z++; }
+    while( !fossil_isalnum(*z) && *z ){ z++; }
     if( *z==0 ) break;
     p->a[p->nTerm].z = z;
-    for(i=1; isalnum(z[i]) || z[i]=='_'; i++){}
+    for(i=1; fossil_isalnum(z[i]) || z[i]=='_'; i++){}
     p->a[p->nTerm].n = i;
     z += i;
     p->nTerm++;

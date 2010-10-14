@@ -323,8 +323,8 @@ void eventedit_page(void){
       ** a single space character */
       zBlob = blob_str(&tags);
       for(i=j=0; zBlob[i]; i++, j++){
-        if( blob_isspace(zBlob[i]) || zBlob[i]==',' ){
-          while( blob_isspace(zBlob[i+1]) ){ i++; }
+        if( fossil_isspace(zBlob[i]) || zBlob[i]==',' ){
+          while( fossil_isspace(zBlob[i+1]) ){ i++; }
           zBlob[j] = ' ';
         }else{
           zBlob[j] = zBlob[i];

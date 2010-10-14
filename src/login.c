@@ -355,7 +355,7 @@ void login_check_credentials(void){
   /* Check the login cookie to see if it matches a known valid user.
   */
   if( uid==0 && (zCookie = P(login_cookie_name()))!=0 ){
-    if( isdigit(zCookie[0]) ){
+    if( fossil_isdigit(zCookie[0]) ){
       /* Cookies of the form "uid/randomness".  There must be a
       ** corresponding entry in the user table. */
       uid = db_int(0, 

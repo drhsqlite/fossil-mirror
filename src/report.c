@@ -90,9 +90,9 @@ void view_list(void){
 */
 char *trim_string(const char *zOrig){
   int i;
-  while( isspace(*zOrig) ){ zOrig++; }
+  while( fossil_isspace(*zOrig) ){ zOrig++; }
   i = strlen(zOrig);
-  while( i>0 && isspace(zOrig[i-1]) ){ i--; }
+  while( i>0 && fossil_isspace(zOrig[i-1]) ){ i--; }
   return mprintf("%.*s", i, zOrig);
 }
 
@@ -101,7 +101,7 @@ char *trim_string(const char *zOrig){
 */
 char *extract_integer(const char *zOrig){
   if( zOrig == NULL || zOrig[0] == 0 ) return "";
-  while( *zOrig && !isdigit(*zOrig) ){ zOrig++; }
+  while( *zOrig && !fossil_isdigit(*zOrig) ){ zOrig++; }
   if( *zOrig ){
     /* we have a digit. atoi() will get as much of the number as it
     ** can. We'll run it through mprintf() to get a string. Not
@@ -120,14 +120,14 @@ char *extract_integer(const char *zOrig){
 char *remove_blank_lines(const char *zOrig){
   int i, j, n;
   char *z;
-  for(i=j=0; isspace(zOrig[i]); i++){ if( zOrig[i]=='\n' ) j = i+1; }
+  for(i=j=0; fossil_isspace(zOrig[i]); i++){ if( zOrig[i]=='\n' ) j = i+1; }
   n = strlen(&zOrig[j]);
-  while( n>0 && isspace(zOrig[j+n-1]) ){ n--; }
+  while( n>0 && fossil_isspace(zOrig[j+n-1]) ){ n--; }
   z = mprintf("%.*s", n, &zOrig[j]);
   for(i=j=0; z[i]; i++){
-    if( z[i+1]=='\n' && z[i]!='\n' && isspace(z[i]) ){
+    if( z[i+1]=='\n' && z[i]!='\n' && fossil_isspace(z[i]) ){
       z[j] = z[i];
-      while(isspace(z[j]) && z[j] != '\n' ){ j--; }
+      while(fossil_isspace(z[j]) && z[j] != '\n' ){ j--; }
       j++;
       continue;
     }
@@ -214,7 +214,7 @@ char *verify_sql_statement(char *zSql){
   /* First make sure the SQL is a single query command by verifying that
   ** the first token is "SELECT" and that there are no unquoted semicolons.
   */
-  for(i=0; isspace(zSql[i]); i++){}
+  for(i=0; fossil_isspace(zSql[i]); i++){}
   if( strncasecmp(&zSql[i],"select",6)!=0 ){
     return mprintf("The SQL must be a SELECT statement");
   }
@@ -745,11 +745,11 @@ static int generate_html(
 static void output_no_tabs(const char *z){
   while( z && z[0] ){
     int i, j;
-    for(i=0; z[i] && (!isspace(z[i]) || z[i]==' '); i++){}
+    for(i=0; z[i] && (!fossil_isspace(z[i]) || z[i]==' '); i++){}
     if( i>0 ){
       cgi_printf("%.*s", i, z);
     }
-    for(j=i; isspace(z[j]); j++){}
+    for(j=i; fossil_isspace(z[j]); j++){}
     if( j>i ){
       cgi_printf("%*s", j-i, "");
     }
@@ -789,7 +789,7 @@ static int output_tab_separated(
 void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
   int i, j, k;
   char *zSafeKey, *zToFree;
-  while( isspace(*zClrKey) ) zClrKey++;
+  while( fossil_isspace(*zClrKey) ) zClrKey++;
   if( zClrKey[0]==0 ) return;
   @ <table %s(zTabArgs)>
   if( horiz ){
@@ -797,9 +797,9 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
   }
   zToFree = zSafeKey = mprintf("%h", zClrKey);
   while( zSafeKey[0] ){
-    while( isspace(*zSafeKey) ) zSafeKey++;
-    for(i=0; zSafeKey[i] && !isspace(zSafeKey[i]); i++){}
-    for(j=i; isspace(zSafeKey[j]); j++){}
+    while( fossil_isspace(*zSafeKey) ) zSafeKey++;
+    for(i=0; zSafeKey[i] && !fossil_isspace(zSafeKey[i]); i++){}
+    for(j=i; fossil_isspace(zSafeKey[j]); j++){}
     for(k=j; zSafeKey[k] && zSafeKey[k]!='\n' && zSafeKey[k]!='\r'; k++){}
     if( !horiz ){
       cgi_printf("<tr style=\"background-color: %.*s;\"><td>%.*s</td></tr>\n",
@@ -979,11 +979,11 @@ static void output_no_tabs_file(const char *z){
     default:
       while( z && z[0] ){
         int i, j;
-        for(i=0; z[i] && (!isspace(z[i]) || z[i]==' '); i++){}
+        for(i=0; z[i] && (!fossil_isspace(z[i]) || z[i]==' '); i++){}
         if( i>0 ){
           printf("%.*s", i, z);
         }
-        for(j=i; isspace(z[j]); j++){}
+        for(j=i; fossil_isspace(z[j]); j++){}
         if( j>i ){
           printf("%*s", j-i, "");
         }

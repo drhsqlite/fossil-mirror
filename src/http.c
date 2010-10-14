@@ -212,11 +212,11 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
         closeConnection = 0;
       }
     }else if( strncasecmp(zLine, "content-length:", 15)==0 ){
-      for(i=15; isspace(zLine[i]); i++){}
+      for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( strncasecmp(zLine, "connection:", 11)==0 ){
       char c;
-      for(i=11; isspace(zLine[i]); i++){}
+      for(i=11; fossil_isspace(zLine[i]); i++){}
       c = zLine[i];
       if( c=='c' || c=='C' ){
         closeConnection = 1;

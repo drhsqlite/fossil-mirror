@@ -35,7 +35,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
+/* #include <ctype.h> // do not use - causes problems */
 #include <string.h>
 #include <stdarg.h>
 #include <assert.h>

@@ -759,7 +759,7 @@ static void process_one_web_page(const char *zNotFound){
     ** characters other than alphanumerics, "-", and "_".
     */
     for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
-      if( !isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
+      if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
     }
     if( zRepo[0]=='/' && zRepo[1]=='/' ) zRepo++;
 

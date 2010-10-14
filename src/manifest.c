@@ -1213,7 +1213,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     char *zComment;
     int nWiki;
     char zLength[40];
-    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
     nWiki = strlen(m.zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
@@ -1253,7 +1253,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     int prior, subsequent;
     int nWiki;
     char zLength[40];
-    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
     nWiki = strlen(m.zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, m.rDate, rid);

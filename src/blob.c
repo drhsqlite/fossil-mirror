@@ -74,9 +74,26 @@ struct Blob {
 ** We find that the built-in isspace() function does not work for
 ** some international character sets.  So here is a substitute.
 */
-int blob_isspace(char c){
+int fossil_isspace(char c){
   return c==' ' || (c<='\r' && c>='\t');
 }
+
+/*
+** Other replacements for ctype.h functions.
+*/
+int fossil_islower(char c){ return c>='a' && c<='z'; }
+int fossil_isupper(char c){ return c>='A' && c<='Z'; }
+int fossil_isdigit(char c){ return c>='0' && c<='9'; }
+int fossil_tolower(char c){
+  return fossil_isupper(c) ? c - 'A' + 'a' : c;
+}
+int fossil_isalpha(char c){
+  return (c>='a' && c<='z') || (c>='A' && c<='Z');
+}
+int fossil_isalnum(char c){
+  return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9');
+}
+
 
 /*
 ** COMMAND: test-isspace
@@ -86,9 +103,9 @@ void isspace_cmd(void){
   for(i=0; i<=255; i++){
     if( i==' ' || i=='\n' || i=='\t' || i=='\v'
         || i=='\f' || i=='\r' ){
-      assert( blob_isspace((char)i) );
+      assert( fossil_isspace((char)i) );
     }else{
-      assert( !blob_isspace((char)i) );
+      assert( !fossil_isspace((char)i) );
     }
   }
   printf("All 256 characters OK\n");
@@ -431,7 +448,7 @@ int blob_line(Blob *pFrom, Blob *pTo){
 int blob_trim(Blob *p){
   char *z = p->aData;
   int n = p->nUsed;
-  while( n>0 && blob_isspace(z[n-1]) ){ n--; }
+  while( n>0 && fossil_isspace(z[n-1]) ){ n--; }
   p->nUsed = n;
   return n;
 }
@@ -454,11 +471,11 @@ int blob_token(Blob *pFrom, Blob *pTo){
   char *aData = pFrom->aData;
   int n = pFrom->nUsed;
   int i = pFrom->iCursor;
-  while( i<n && blob_isspace(aData[i]) ){ i++; }
+  while( i<n && fossil_isspace(aData[i]) ){ i++; }
   pFrom->iCursor = i;
-  while( i<n && !blob_isspace(aData[i]) ){ i++; }
+  while( i<n && !fossil_isspace(aData[i]) ){ i++; }
   blob_extract(pFrom, i-pFrom->iCursor, pTo);
-  while( i<n && blob_isspace(aData[i]) ){ i++; }
+  while( i<n && fossil_isspace(aData[i]) ){ i++; }
   pFrom->iCursor = i;
   return pTo->nUsed;
 }
@@ -525,7 +542,7 @@ int blob_is_int(Blob *pBlob, int *pValue){
   int i, n, c, v;
   n = blob_size(pBlob);
   v = 0;
-  for(i=0; i<n && (c = z[i])!=0 && isdigit(c); i++){
+  for(i=0; i<n && (c = z[i])!=0 && c>='0' && c<='9'; i++){
     v = v*10 + c - '0';
   }
   if( i==n ){
@@ -908,7 +925,7 @@ void shell_escape(Blob *pBlob, const char *zIn){
   int i, c;
   char *z;
   for(i=0; (c = zIn[i])!=0; i++){
-    if( isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
+    if( fossil_isspace(c) || c=='"' || (c=='\\' && zIn[i+1]!=0) ){
       blob_appendf(pBlob, "\"%s\"", zIn);
       z = blob_buffer(pBlob);
       for(i=n+1; i<=n+k; i++){

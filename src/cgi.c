@@ -465,7 +465,7 @@ static void add_param_list(char *z, int terminator){
   while( *z ){
     char *zName;
     char *zValue;
-    while( isspace(*z) ){ z++; }
+    while( fossil_isspace(*z) ){ z++; }
     zName = z;
     while( *z && *z!='=' && *z!=terminator ){ z++; }
     if( *z=='=' ){
@@ -482,7 +482,7 @@ static void add_param_list(char *z, int terminator){
       if( *z ){ *z++ = 0; }
       zValue = "";
     }
-    if( islower(zName[0]) ){
+    if( fossil_islower(zName[0]) ){
       cgi_set_parameter_nocopy(zName, zValue);
     }
   }
@@ -577,7 +577,7 @@ static char *get_bounded_content(
 static int tokenize_line(char *z, int mxArg, char **azArg){
   int i = 0;
   while( *z ){
-    while( isspace(*z) || *z==';' ){ z++; }
+    while( fossil_isspace(*z) || *z==';' ){ z++; }
     if( *z=='"' && z[1] ){
       *z = 0;
       z++;
@@ -588,7 +588,7 @@ static int tokenize_line(char *z, int mxArg, char **azArg){
       z++;
     }else{
       if( i<mxArg-1 ){ azArg[i++] = z; }
-      while( *z && !isspace(*z) && *z!=';' && *z!='"' ){ z++; }
+      while( *z && !fossil_isspace(*z) && *z!=';' && *z!='"' ){ z++; }
       if( *z && *z!='"' ){
         *z = 0;
         z++;
@@ -623,7 +623,7 @@ static void process_multipart_form_data(char *z, int len){
     if( zLine[0]==0 ){
       int nContent = 0;
       zValue = get_bounded_content(&z, &len, zBoundry, &nContent);
-      if( zName && zValue && islower(zName[0]) ){
+      if( zName && zValue && fossil_islower(zName[0]) ){
         cgi_set_parameter_nocopy(zName, zValue);
         if( showBytes ){
           cgi_set_parameter_nocopy(mprintf("%s:bytes", zName),
@@ -635,7 +635,7 @@ static void process_multipart_form_data(char *z, int len){
     }else{
       nArg = tokenize_line(zLine, sizeof(azArg)/sizeof(azArg[0]), azArg);
       for(i=0; i<nArg; i++){
-        int c = tolower(azArg[i][0]);
+        int c = fossil_tolower(azArg[i][0]);
         int n = strlen(azArg[i]);
         if( c=='c' && sqlite3_strnicmp(azArg[i],"content-disposition:",n)==0 ){
           i++;
@@ -643,13 +643,13 @@ static void process_multipart_form_data(char *z, int len){
           zName = azArg[++i];
         }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && islower(zName[0]) ){
+          if( zName && z && fossil_islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z);
           }
           showBytes = 1;
         }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
-          if( zName && z && islower(zName[0]) ){
+          if( zName && z && fossil_islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z);
           }
         }
@@ -775,7 +775,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** letter, then check to see if there is an environment variable
   ** with the given name.
   */
-  if( isupper(zName[0]) ){
+  if( fossil_isupper(zName[0]) ){
     const char *zValue = getenv(zName);
     if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue);
@@ -918,13 +918,13 @@ static char *extract_token(char *zInput, char **zLeftOver){
     if( zLeftOver ) *zLeftOver = 0;
     return 0;
   }
-  while( isspace(*zInput) ){ zInput++; }
+  while( fossil_isspace(*zInput) ){ zInput++; }
   zResult = zInput;
-  while( *zInput && !isspace(*zInput) ){ zInput++; }
+  while( *zInput && !fossil_isspace(*zInput) ){ zInput++; }
   if( *zInput ){
     *zInput = 0;
     zInput++;
-    while( isspace(*zInput) ){ zInput++; }
+    while( fossil_isspace(*zInput) ){ zInput++; }
   }
   if( zLeftOver ){ *zLeftOver = zInput; }
   return zResult;
@@ -988,11 +988,13 @@ void cgi_handle_http_request(const char *zIpAddr){
 
     zFieldName = extract_token(zLine,&zVal);
     if( zFieldName==0 || *zFieldName==0 ) break;
-    while( isspace(*zVal) ){ zVal++; }
+    while( fossil_isspace(*zVal) ){ zVal++; }
     i = strlen(zVal);
-    while( i>0 && isspace(zVal[i-1]) ){ i--; }
+    while( i>0 && fossil_isspace(zVal[i-1]) ){ i--; }
     zVal[i] = 0;
-    for(i=0; zFieldName[i]; i++){ zFieldName[i] = tolower(zFieldName[i]); }
+    for(i=0; zFieldName[i]; i++){
+      zFieldName[i] = fossil_tolower(zFieldName[i]);
+    }
     if( strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
     }else if( strcmp(zFieldName,"content-type:")==0 ){

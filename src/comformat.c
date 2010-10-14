@@ -40,7 +40,7 @@ int comment_print(const char *zText, int indent, int lineLength){
   int lineCnt = 0; 
 
   for(;;){
-    while( isspace(zText[0]) ){ zText++; }
+    while( fossil_isspace(zText[0]) ){ zText++; }
     if( zText[0]==0 ){
       if( doIndent==0 ){
         printf("\n");
@@ -50,7 +50,7 @@ int comment_print(const char *zText, int indent, int lineLength){
     }
     for(sk=si=i=k=0; zText[i] && k<tlen; i++){
       char c = zText[i];
-      if( isspace(c) ){
+      if( fossil_isspace(c) ){
         si = i;
         sk = k;
         if( k==0 || zBuf[k-1]!=' ' ){
@@ -58,7 +58,7 @@ int comment_print(const char *zText, int indent, int lineLength){
         }
       }else{
         zBuf[k] = c;
-        if( c=='-' && k>0 && isalpha(zBuf[k-1]) ){
+        if( c=='-' && k>0 && fossil_isalpha(zBuf[k-1]) ){
           si = i+1;
           sk = k+1;
         }

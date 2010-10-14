@@ -111,7 +111,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
     a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
-    while( ignoreWS && k>0 && isspace(z[k-1]) ){ k--; }
+    while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
     for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }

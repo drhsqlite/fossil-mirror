@@ -832,7 +832,7 @@ void page_timeline(void){
       url_add_parameter(&url, "s", zSearch);
     }
     if( zAfter ){
-      while( isspace(zAfter[0]) ){ zAfter++; }
+      while( fossil_isspace(zAfter[0]) ){ zAfter++; }
       if( zAfter[0] ){
         blob_appendf(&sql, 
            " AND event.mtime>=(SELECT julianday(%Q, 'utc'))"
@@ -843,7 +843,7 @@ void page_timeline(void){
         zAfter = 0;
       }
     }else if( zBefore ){
-      while( isspace(zBefore[0]) ){ zBefore++; }
+      while( fossil_isspace(zBefore[0]) ){ zBefore++; }
       if( zBefore[0] ){
         blob_appendf(&sql, 
            " AND event.mtime<=(SELECT julianday(%Q, 'utc'))"
@@ -853,7 +853,7 @@ void page_timeline(void){
         zBefore = 0;
       }
     }else if( zCirca ){
-      while( isspace(zCirca[0]) ){ zCirca++; }
+      while( fossil_isspace(zCirca[0]) ){ zCirca++; }
       if( zCirca[0] ){
         double rCirca = db_double(0.0, "SELECT julianday(%Q, 'utc')", zCirca);
         Blob sql2;
@@ -1062,8 +1062,8 @@ static int isIsoDate(const char *z){
   return strlen(z)==10
       && z[4]=='-'
       && z[7]=='-'
-      && isdigit(z[0])
-      && isdigit(z[5]);
+      && fossil_isdigit(z[0])
+      && fossil_isdigit(z[5]);
 }
 
 /*

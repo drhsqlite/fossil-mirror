@@ -85,7 +85,7 @@ static void sshin_read(char *zBuf, int szBuf){
   got = read(sshIn, zBuf, szBuf-1);
   while( got>=0 ){
     zBuf[got] = 0;
-    if( got==0 || !isspace(zBuf[got-1]) ) break;
+    if( got==0 || !fossil_isspace(zBuf[got-1]) ) break;
     got--;
   }
 }
@@ -441,7 +441,7 @@ char *transport_receive_line(void){
     }
     if( transport.pBuf[i]=='\n' ){
       transport.iCursor = i+1;
-      while( i>=iStart && isspace(transport.pBuf[i]) ){
+      while( i>=iStart && fossil_isspace(transport.pBuf[i]) ){
         transport.pBuf[i] = 0;
         i--;
       }

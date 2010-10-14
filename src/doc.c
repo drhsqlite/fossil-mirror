@@ -292,7 +292,7 @@ const char *mimetype_from_name(const char *zName){
   len = strlen(z);
   if( len<sizeof(zSuffix)-1 ){
     strcpy(zSuffix, z);
-    for(i=0; zSuffix[i]; i++) zSuffix[i] = tolower(zSuffix[i]);
+    for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
     last = sizeof(aMime)/sizeof(aMime[0]);
     while( first<=last ){

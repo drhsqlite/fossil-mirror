@@ -113,16 +113,16 @@ int name_to_uuid(Blob *pName, int iErrPriority){
 ** Return TRUE if the string begins with an ISO8601 date: YYYY-MM-DD.
 */
 static int is_date(const char *z){
-  if( !isdigit(z[0]) ) return 0;
-  if( !isdigit(z[1]) ) return 0;
-  if( !isdigit(z[2]) ) return 0;
-  if( !isdigit(z[3]) ) return 0;
+  if( !fossil_isdigit(z[0]) ) return 0;
+  if( !fossil_isdigit(z[1]) ) return 0;
+  if( !fossil_isdigit(z[2]) ) return 0;
+  if( !fossil_isdigit(z[3]) ) return 0;
   if( z[4]!='-') return 0;
-  if( !isdigit(z[5]) ) return 0;
-  if( !isdigit(z[6]) ) return 0;
+  if( !fossil_isdigit(z[5]) ) return 0;
+  if( !fossil_isdigit(z[6]) ) return 0;
   if( z[7]!='-') return 0;
-  if( !isdigit(z[8]) ) return 0;
-  if( !isdigit(z[9]) ) return 0;
+  if( !fossil_isdigit(z[8]) ) return 0;
+  if( !fossil_isdigit(z[9]) ) return 0;
   return 1;
 }
 
@@ -282,7 +282,7 @@ int name_to_rid(const char *zName){
   blob_init(&name, zName, -1);
   if( name_to_uuid(&name, -1) ){
     blob_reset(&name);
-    for(i=0; zName[i] && isdigit(zName[i]); i++){}
+    for(i=0; zName[i] && fossil_isdigit(zName[i]); i++){}
     if( zName[i]==0 ){
       rid = atoi(zName);
       if( db_exists("SELECT 1 FROM blob WHERE rid=%d", rid) ){
@@ -350,7 +350,7 @@ int name_to_rid_www(const char *zParamName){
   rc = name_to_uuid(&name, -1);
   if( rc==1 ){
     blob_reset(&name);
-    for(i=0; zName[i] && isdigit(zName[i]); i++){}
+    for(i=0; zName[i] && fossil_isdigit(zName[i]); i++){}
     if( zName[i]==0 ){
       rid = atoi(zName);
       if( db_exists("SELECT 1 FROM blob WHERE rid=%d", rid) ){

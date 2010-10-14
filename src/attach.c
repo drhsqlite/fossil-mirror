@@ -84,7 +84,7 @@ void attachlist_page(void){
     @
     @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
-    if( zComment ) while( isspace(zComment[0]) ) zComment++;
+    if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
       @ %w(zComment)<br />
     }
@@ -253,9 +253,9 @@ void attachadd_page(void){
     if( zName[0]==0 ) zName = "unknown";
     blob_appendf(&manifest, "A %F %F %s\n", zName, zTarget, zUUID);
     zComment = PD("comment", "");
-    while( isspace(zComment[0]) ) zComment++;
+    while( fossil_isspace(zComment[0]) ) zComment++;
     n = strlen(zComment);
-    while( n>0 && isspace(zComment[n-1]) ){ n--; }
+    while( n>0 && fossil_isspace(zComment[n-1]) ){ n--; }
     if( n>0 ){
       blob_appendf(&manifest, "C %F\n", zComment);
     }
