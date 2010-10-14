@@ -87,55 +87,13 @@
 /*
 ** Typedef for a 64-bit integer
 */
-typedef sqlite_int64 i64;
-typedef sqlite_uint64 u64;
+typedef sqlite3_int64 i64;
+typedef sqlite3_uint64 u64;
 
 /*
 ** Unsigned character type
 */
 typedef unsigned char u8;
-
-/*
-** Standard colors.  These colors can also be changed using a stylesheet.
-*/
-
-/* A blue border and background.  Used for the title bar and for dates
-** in a timeline.
-*/
-#define BORDER1       "#a0b5f4"      /* Stylesheet class: border1 */
-#define BG1           "#d0d9f4"      /* Stylesheet class: bkgnd1 */
-
-/* A red border and background.  Use for releases in the timeline.
-*/
-#define BORDER2       "#ec9898"      /* Stylesheet class: border2 */
-#define BG2           "#f7c0c0"      /* Stylesheet class: bkgnd2 */
-
-/* A gray background.  Used for column headers in the Wiki Table of Contents
-** and to highlight ticket properties.
-*/
-#define BG3           "#d0d0d0"      /* Stylesheet class: bkgnd3 */
-
-/* A light-gray background.  Used for title bar, menus, and rlog alternation
-*/
-#define BG4           "#f0f0f0"      /* Stylesheet class: bkgnd4 */
-
-/* A deeper gray background.  Used for branches
-*/
-#define BG5           "#dddddd"      /* Stylesheet class: bkgnd5 */
-
-/* Default HTML page header */
-#define HEADER "<html>\n" \
-               "<head>\n" \
-               "<link rel=\"alternate\" type=\"application/rss+xml\"\n" \
-               "   title=\"%N Timeline Feed\" href=\"%B/timeline.rss\">\n" \
-               "<title>%N: %T</title>\n</head>\n" \
-               "<body bgcolor=\"white\">"
-
-/* Default HTML page footer */
-#define FOOTER "<div id=\"footer\"><small><small>\n" \
-               "<a href=\"about\">Fossil version %V</a>\n" \
-               "</small></small></div>\n" \
-               "</body></html>\n"
 
 /* In the timeline, check-in messages are truncated at the first space
 ** that is more than MX_CKIN_MSG from the beginning, or at the first

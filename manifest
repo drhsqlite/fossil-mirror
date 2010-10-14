@@ -1,5 +1,5 @@
-C Work\stowards\sincluding\sfull\stext\sof\sdeleted\sand\sadded\sfiles\sin\sa\sdiff\swhen\nthe\s-N\sor\s--new-file\soption\sis\sused.\s\sTicket\s[e90d38c2054e9b44792eb]
-D 2010-10-14T18:38:46
+C Remove\sa\sbunch\sof\sunused\scode.
+D 2010-10-14T18:48:11
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -48,7 +48,7 @@ F src/checkout.c 48a19d5dc11b3a84d51aa206d1b14cc78ed24250
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c cb5f71dc8760522c1872ca41e3e585ecf7542367
-F src/config.h 90ed5a4d2d8a08e54e9be5aae0689ac0a8592532
+F src/config.h 978760f3c336000e9cc0218d57ff7143bccbd71b
 F src/configure.c dd2692997f4d7c61a8892157764f15f11122dc12
 F src/content.c fa52c3234c6ccf4225c77b12c11d3aadb83a1295
 F src/db.c d47e87c08fd672b55701f8dbb244f166325e7ddc
@@ -85,7 +85,7 @@ F src/popen.c 935a4cdb90ec123f56faea207eb72f0610f7bece
 F src/pqueue.c fc6bdd1de56fbe7d2c058c525c8dc4201bd5b36e
 F src/printf.c 610bb309daab5eaa75f41dca93899bd5d7a2cc15
 F src/rebuild.c 62400106b575489ba38d5ac484ba64890c2d28d1
-F src/report.c d6ea1641860eae8f283a8e08d19ad40448938a45
+F src/report.c 1fbfb7f4c09e45e4c1a53f10bcba3e38e1864962
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c b6e9b512663c44bad56b179c6a17c10e7613f832
 F src/search.c 953d09490f44e0c9efb7d05b643fc8ff9c06009b
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P c845b2871400ddde804d209f413c32999454cd1c
-R 61ff6fb37556570c4eb2cfe5d9d4deba
+P 585360b47dad7384b7d5c5b7926d1beb77e9e5cd
+R 0c6d2604f0e4c1d0efaef022b1fe07e6
 U drh
-Z edd143356f54200b17f466e298c13e78
+Z b95c1b4c4727ef81ee31ac6b8515983e

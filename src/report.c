@@ -585,35 +585,6 @@ static void report_format_hints(void){
   @
 }
 
-#if 0 /* NOT USED */
-static void column_header(int rn,const char *zCol, int nCol, int nSorted,
-    const char *zDirection, const char *zExtra
-){
-  int set = (nCol==nSorted);
-  int desc = !strcmp(zDirection,"DESC");
-
-  /*
-  ** Clicking same column header 3 times in a row resets any sorting.
-  ** Note that we link to rptview, which means embedded reports will get
-  ** sent to the actual report view page as soon as a user tries to do
-  ** any sorting. I don't see that as a Bad Thing.
-  */
-  if(set && desc){
-    @ <th bgcolor="%s(BG1)" class="bkgnd1">
-    @   <a href="rptview?rn=%d(rn)%s(zExtra)">%h(zCol)</a></th>
-  }else{
-    if(set){
-      @ <th bgcolor="%s(BG1)" class="bkgnd1"><a
-    }else{
-      @ <th><a
-    }
-    @ href="rptview?rn=%d(rn)&amp;order_by=%d(nCol)&amp;\
-    @ order_dir=%s(desc?"ASC":"DESC")\
-    @ %s(zExtra)">%h(zCol)</a></th>
-  }
-}
-#endif
-
 /*
 ** The state of the report generation.
 */
@@ -1107,4 +1078,3 @@ void rptshow(
     free(zSql);
   }
 }
-
