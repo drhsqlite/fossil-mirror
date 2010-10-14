@@ -56,7 +56,7 @@ struct Manifest {
   char *zAttachTarget;  /* Ticket or wiki that attachment applies to.  A card */
   int nFile;            /* Number of F cards */
   int nFileAlloc;       /* Slots allocated in aFile[] */
-  struct { 
+  struct ManifestFile { 
     char *zName;           /* Name of a file */
     char *zUuid;           /* UUID of the file */
     char *zPerm;           /* File permissions */

@@ -1,5 +1,5 @@
-C Reverse\sthe\sdirection\sof\sconflict\smarkers.\nTicket\s[e3a1beef67c97eb2e4d5a]
-D 2010-10-14T19:48:53
+C Always\sshow\sdiffs\sfor\sadded\sand\sdeleted\sfiles\sin\sthe\sweb\sUI.\s\sShow\nadded\sand\sdeleted\sfiles\sin\sdiffs\swith\s-N\sand\sthe\s--from\sand\s--to\noptions\sto\sthe\scommand-line\sdiff\scommand.\nTicket\s[e90d38c2054e9b44792]
+D 2010-10-14T20:28:49
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -56,7 +56,7 @@ F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
 F src/diff.c 1e36fe673f11209a805593d2cedf3696986a1e26
-F src/diffcmd.c ee8f1418ea6fb3fcc3cd75825e77093ae83ffd7f
+F src/diffcmd.c 54cf2d377b92c36fe2ea3529b6e44910ddab5e61
 F src/doc.c c74aa893fc283f549354dc3c1a0a6a7dedb0ea2e
 F src/encode.c 7caeeab7f796bbc02753d211aa5f16cb93e69666
 F src/event.c 18be1623f5b3f0a36eea3dc71e1bf567c77a642d
@@ -67,14 +67,14 @@ F src/http.c bd4d263547f3d4495ad1ed26f7108cd4c7d73cb6
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 90ee00868ff9b95c40f69a5f0adebf5f07a3adaf
-F src/info.c daadb5dec6f89052695d47872c41c0ec6d226b52
+F src/info.c 4fda49e19e3e0db57d0d24e6a669e4b2b1fcbd59
 F src/login.c 28165e56187474032446b5d56cc6780065c5ab2f
 F src/main.c 0a2213fb3d2a9a4f6774e8d5ef610af8eaecc0fc
 F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 7bc38621223820447c67d7ba5e56f1efd23a243c
-F src/manifest.c 7f9c35d560dedb242a3197755c4a28a33e22137e
+F src/manifest.c 861c1abb26507c20f27f866e1f7e9cde5bc996fd
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P c345445cad799c89c90a69556717a794e771be94
-R 71416dad8d7862f5e14bf90cda2fea96
+P 93984e2d86b3d32b92aa49322aee6f28ad30ceb6
+R 795559ba4e920344cd424eb3bb0d5eea
 U drh
-Z 866f259b5a9bb6a08ebd724413aa29fe
+Z 16392c2f0433f2a529cfa1c95a3ec193

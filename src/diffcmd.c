@@ -316,6 +316,38 @@ static void diff_one_two_versions(
 }
 
 /*
+** Show the difference between two files identified by ManifestFile
+** entries.
+*/
+static void diff_manifest_entry(
+  struct ManifestFile *pFrom,
+  struct ManifestFile *pTo,
+  const char *zDiffCmd,
+  int ignoreEolWs
+){
+  Blob f1, f2;
+  int rid;
+  const char *zName =  pFrom ? pFrom->zName : pTo->zName;
+  printf("Index: %s\n======================================="
+         "============================\n", zName);
+  if( pFrom ){
+    rid = uuid_to_rid(pFrom->zUuid, 0);
+    content_get(rid, &f1);
+  }else{
+    blob_zero(&f1);
+  }
+  if( pTo ){
+    rid = uuid_to_rid(pTo->zUuid, 0);
+    content_get(rid, &f2);
+  }else{
+    blob_zero(&f2);
+  }
+  diff_file_mem(&f1, &f2, zName, zDiffCmd, ignoreEolWs);
+  blob_reset(&f1);
+  blob_reset(&f2);
+}
+
+/*
 ** Output the differences between two check-ins.
 */
 static void diff_all_two_versions(
@@ -327,12 +359,12 @@ static void diff_all_two_versions(
   Manifest mFrom, mTo;
   int iFrom, iTo;
   int ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0 ? 1 : 0;
-  /* int asNewFlag = (diffFlags & DIFF_NEWFILE)!=0 ? 1 : 0; */
+  int asNewFlag = (diffFlags & DIFF_NEWFILE)!=0 ? 1 : 0;
 
   manifest_from_name(zFrom, &mFrom);
   manifest_from_name(zTo, &mTo);
   iFrom = iTo = 0;
-  while( iFrom<mFrom.nFile && iTo<mTo.nFile ){
+  while( iFrom<mFrom.nFile || iTo<mTo.nFile ){
     int cmp;
     if( iFrom>=mFrom.nFile ){
       cmp = +1;
@@ -343,29 +375,24 @@ static void diff_all_two_versions(
     }
     if( cmp<0 ){
       printf("DELETED %s\n", mFrom.aFile[iFrom].zName);
+      if( asNewFlag ){
+        diff_manifest_entry(&mFrom.aFile[iFrom], 0, zDiffCmd, ignoreEolWs);
+      }
       iFrom++;
     }else if( cmp>0 ){
       printf("ADDED   %s\n", mTo.aFile[iTo].zName);
+      if( asNewFlag ){
+        diff_manifest_entry(0, &mTo.aFile[iTo], zDiffCmd, ignoreEolWs);
+      }
       iTo++;
     }else if( strcmp(mFrom.aFile[iFrom].zUuid, mTo.aFile[iTo].zUuid)==0 ){
       /* No changes */
       iFrom++;
       iTo++;
     }else{
-      Blob f1, f2;
-      int rid;
       printf("CHANGED %s\n", mFrom.aFile[iFrom].zName);
-      printf("Index: %s\n======================================="
-             "============================\n",
-             mFrom.aFile[iFrom].zName
-      );
-      rid = uuid_to_rid(mFrom.aFile[iFrom].zUuid, 0);
-      content_get(rid, &f1);
-      rid = uuid_to_rid(mTo.aFile[iTo].zUuid, 0);
-      content_get(rid, &f2);
-      diff_file_mem(&f1, &f2, mFrom.aFile[iFrom].zName, zDiffCmd, ignoreEolWs);
-      blob_reset(&f1);
-      blob_reset(&f2);
+      diff_manifest_entry(&mFrom.aFile[iFrom], &mTo.aFile[iTo],
+                          zDiffCmd, ignoreEolWs);
       iFrom++;
       iTo++;
     }
