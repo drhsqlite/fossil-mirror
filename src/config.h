@@ -102,6 +102,29 @@ typedef unsigned char u8;
 #define MN_CKIN_MSG   100
 #define MX_CKIN_MSG   300
 
+/*
+** The following macros are used to cast pointers to integers and
+** integers to pointers.  The way you do this varies from one compiler
+** to the next, so we have developed the following set of #if statements
+** to generate appropriate macros for a wide range of compilers.
+**
+** The correct "ANSI" way to do this is to use the intptr_t type. 
+** Unfortunately, that typedef is not available on all compilers, or
+** if it is available, it requires an #include of specific headers
+** that vary from one machine to the next.
+*/
+#if defined(__PTRDIFF_TYPE__)  /* This case should work for GCC */
+# define FOSSIL_INT_TO_PTR(X)  ((void*)(__PTRDIFF_TYPE__)(X))
+# define FOSSIL_PTR_TO_INT(X)  ((int)(__PTRDIFF_TYPE__)(X))
+#elif !defined(__GNUC__)       /* Works for compilers other than LLVM */
+# define FOSSIL_INT_TO_PTR(X)  ((void*)&((char*)0)[X])
+# define FOSSIL_PTR_TO_INT(X)  ((int)(((char*)X)-(char*)0))
+#else                          /* Generates a warning - but it always works */
+# define FOSSIL_INT_TO_PTR(X)  ((void*)(X))
+# define FOSSIL_PTR_TO_INT(X)  ((int)(X))
+#endif
+
+
 /* Unset the following to disable internationalization code. */
 #ifndef FOSSIL_I18N
 # define FOSSIL_I18N 1

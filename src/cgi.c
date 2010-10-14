@@ -943,7 +943,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
   struct sockaddr_in remoteName;
-  size_t size = sizeof(struct sockaddr_in);
+  socklen_t size = sizeof(struct sockaddr_in);
   char zLine[2000];     /* A single line of input. */
 
   g.fullHttpReply = 1;
@@ -971,7 +971,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   cgi_setenv("QUERY_STRING", &zToken[i]);
   if( zIpAddr==0 &&
         getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
-                                (socklen_t*)&size)>=0
+                                &size)>=0
   ){
     zIpAddr = inet_ntoa(remoteName.sin_addr);
   }
@@ -1054,7 +1054,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   int listener = -1;           /* The server socket */
   int connection;              /* A socket for each individual connection */
   fd_set readfds;              /* Set of file descriptors for select() */
-  size_t lenaddr;              /* Length of the inaddr structure */
+  socklen_t lenaddr;           /* Length of the inaddr structure */
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
@@ -1117,8 +1117,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
     select( listener+1, &readfds, 0, 0, &delay);
     if( FD_ISSET(listener, &readfds) ){
       lenaddr = sizeof(inaddr);
-      connection = accept(listener, (struct sockaddr*)&inaddr,
-                                    (socklen_t*) &lenaddr);
+      connection = accept(listener, (struct sockaddr*)&inaddr, &lenaddr);
       if( connection>=0 ){
         child = fork();
         if( child!=0 ){
