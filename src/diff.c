@@ -101,6 +101,10 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
   a = malloc( nLine*sizeof(a[0]) );
   if( a==0 ) fossil_panic("out of memory");
   memset(a, 0, nLine*sizeof(a[0]) );
+  if( n==0 ){
+    *pnLine = 0;
+    return a;
+  }
 
   /* Fill in the array */
   for(i=0; i<nLine; i++){

@@ -1,5 +1,5 @@
-C Fix\sthe\sdefault\sMakefile\sso\sthat\sit\sworks\sout-of-the-box\son\sLinux,\sMacOSX,\nNetBSD,\sand\sSolaris.
-D 2010-10-12T21:42:02
+C Work\stowards\sincluding\sfull\stext\sof\sdeleted\sand\sadded\sfiles\sin\sa\sdiff\swhen\nthe\s-N\sor\s--new-file\soption\sis\sused.\s\sTicket\s[e90d38c2054e9b44792eb]
+D 2010-10-14T18:38:46
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -38,7 +38,7 @@ F src/add.c b32ce1f5e510dfac0bb1e09f26cb4a86c1a34dd0
 F src/allrepo.c a967e36eff7162c251d81898fd68bcb7b4bf768b
 F src/attach.c 0838826d5241d3263c77092a5115b1e38478e683
 F src/bag.c a64978791f3a34340a0b48d3a2a65943abc9cda1
-F src/blob.c f81b1379114d859bb783c7e8bbeda25eb538cac5
+F src/blob.c 1fa58c14e3ccd185ae945aedd245510ed7319ac2
 F src/branch.c 16c61e6dda5875631646c9af9125bff72805b1b3
 F src/browse.c b04a2d36ea797f3a1a1eaccc526df5df485ffe40
 F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
@@ -55,8 +55,8 @@ F src/db.c d47e87c08fd672b55701f8dbb244f166325e7ddc
 F src/delta.c 186af88328c9afb02b27996ac7d0400772cdfa4c
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
-F src/diff.c eff6dcec76b55499629c8272f1513c6fc34d6dd8
-F src/diffcmd.c 6e48d3292a6d6afa6ae3a2047284876739813fcd
+F src/diff.c 14b976d07e943a670286d3432483cc67bbc631d6
+F src/diffcmd.c ee8f1418ea6fb3fcc3cd75825e77093ae83ffd7f
 F src/doc.c d8595f240e2b6e453c86d71169be1562a2bd5ee1
 F src/encode.c b867f98a2ec50a11ec236dcbb365b301a0b97ae1
 F src/event.c 3fe7eabd3fcf16579b841c84d6858f892a3afe24
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 06c5b3eb6d2c8287482139484ec487e053267680
-R 5173d827d526fbc44ef4f7c2b129ba27
+P c845b2871400ddde804d209f413c32999454cd1c
+R 61ff6fb37556570c4eb2cfe5d9d4deba
 U drh
-Z 2aff4045968461593f8640b3d258f641
+Z edd143356f54200b17f466e298c13e78

@@ -614,7 +614,7 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
   size = file_size(zFilename);
   blob_zero(pBlob);
   if( size<0 ){
-    fossil_panic("no such file: %s", zFilename);
+    fossil_fatal("no such file: %s", zFilename);
   }
   if( size==0 ){
     return 0;
