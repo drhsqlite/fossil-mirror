@@ -25,7 +25,7 @@
 */
 static void url_tolower(char *z){
   while( *z ){
-     *z = tolower(*z);
+     *z = fossil_tolower(*z);
      z++;
   }
 }
@@ -111,7 +111,7 @@ void url_parse(const char *zUrl){
     if( c==':' ){
       g.urlPort = 0;
       i++;
-      while( (c = zUrl[i])!=0 && isdigit(c) ){
+      while( (c = zUrl[i])!=0 && fossil_isdigit(c) ){
         g.urlPort = g.urlPort*10 + c - '0';
         i++;
       }

@@ -9,6 +9,7 @@
 ** new commands.
 */
 
+#include "config.h"
 #include "th.h"
 #include <string.h>
 #include <assert.h>
@@ -573,7 +574,7 @@ static int simple_command(
   if( argc==2 ){
     Th_SetResult(interp, argv[1], argl[1]);
   }
-  return (int)ctx;
+  return FOSSIL_PTR_TO_INT(ctx);
 }
 
 /*

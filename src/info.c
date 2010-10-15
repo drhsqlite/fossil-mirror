@@ -236,10 +236,22 @@ static void showTags(int rid, const char *zNotGlob){
 /*
 ** Append the difference between two RIDs to the output
 */
-static void append_diff(int fromid, int toid){
+static void append_diff(const char *zFrom, const char *zTo){
+  int fromid;
+  int toid;
   Blob from, to, out;
-  content_get(fromid, &from);
-  content_get(toid, &to);
+  if( zFrom ){
+    fromid = uuid_to_rid(zFrom, 0);
+    content_get(fromid, &from);
+  }else{
+    blob_zero(&from);
+  }
+  if( zTo ){
+    toid = uuid_to_rid(zTo, 0);
+    content_get(toid, &to);
+  }else{
+    blob_zero(&to);
+  }
   blob_zero(&out);
   text_diff(&from, &to, &out, 5, 1);
   @ %h(blob_str(&out))
@@ -265,35 +277,33 @@ static void append_file_change_line(
       @ <p>Added %h(zName)</p>
     }else{
       @ <p>Changes to %h(zName)</p>
-      if( showDiff ){
-        int rid1 = uuid_to_rid(zOld, 0);
-        int rid2 = uuid_to_rid(zNew, 0);
-        @ <blockquote><pre>
-        append_diff(rid1, rid2);
-        @ </pre></blockquote>
-      }
     }
-  }else if( zOld && zNew ){
-    @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
-    @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
-    @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
-    if( !showDiff ){
-      @ &nbsp;&nbsp;
-      @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
-    }else{
-      int rid1 = uuid_to_rid(zOld, 0);
-      int rid2 = uuid_to_rid(zNew, 0);
+    if( showDiff ){
       @ <blockquote><pre>
-      append_diff(rid1, rid2);
+      append_diff(zOld, zNew);
       @ </pre></blockquote>
     }
-    @ </p>
-  }else if( zOld ){
-    @ <p>Deleted <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
-    @ version <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a></p>
   }else{
-    @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
-    @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a></p>
+    if( zOld && zNew ){
+      @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
+      @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
+    }else if( zOld ){
+      @ <p>Deleted <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
+    }else{
+      @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a>
+    }
+    if( showDiff ){
+      @ <blockquote><pre>
+      append_diff(zOld, zNew);
+      @ </pre></blockquote>
+    }else if( zOld && zNew ){
+      @ &nbsp;&nbsp;
+      @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
+    }
+    @ </p>
   }
 }
 

@@ -56,7 +56,7 @@ struct Manifest {
   char *zAttachTarget;  /* Ticket or wiki that attachment applies to.  A card */
   int nFile;            /* Number of F cards */
   int nFileAlloc;       /* Slots allocated in aFile[] */
-  struct { 
+  struct ManifestFile { 
     char *zName;           /* Name of a file */
     char *zUuid;           /* UUID of the file */
     char *zPerm;           /* File permissions */
@@ -1213,7 +1213,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     char *zComment;
     int nWiki;
     char zLength[40];
-    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
     nWiki = strlen(m.zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
@@ -1253,7 +1253,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     int prior, subsequent;
     int nWiki;
     char zLength[40];
-    while( isspace(m.zWiki[0]) ) m.zWiki++;
+    while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
     nWiki = strlen(m.zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, m.rDate, rid);

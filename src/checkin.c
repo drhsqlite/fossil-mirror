@@ -220,7 +220,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
   if( zGlobList==0 || zGlobList[0]==0 ) return "0";
   blob_zero(&expr);
   while( zGlobList[0] ){
-    while( isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
+    while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
     if( zGlobList[0]==0 ) break;
     if( zGlobList[0]=='\'' || zGlobList[0]=='"' ){
       cTerm = zGlobList[0];
@@ -230,7 +230,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
     }
     for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
     if( cTerm==',' ){
-      while( i>0 && isspace(zGlobList[i-1]) ){ i--; }
+      while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
     }
     blob_appendf(&expr, "%s%s GLOB '%.*q'", zSep, zVal, i, zGlobList);
     zSep = " OR ";
@@ -435,7 +435,7 @@ static void prepare_commit_comment(
     char *z;
     n = blob_size(&line);
     z = blob_buffer(&line);
-    for(i=0; i<n && isspace(z[i]);  i++){}
+    for(i=0; i<n && fossil_isspace(z[i]);  i++){}
     if( i<n && z[i]=='#' ) continue;
     if( i<n || blob_size(pComment)>0 ){
       blob_appendf(pComment, "%b", &line);
@@ -444,7 +444,7 @@ static void prepare_commit_comment(
   blob_reset(&text);
   zComment = blob_str(pComment);
   i = strlen(zComment);
-  while( i>0 && isspace(zComment[i-1]) ){ i--; }
+  while( i>0 && fossil_isspace(zComment[i-1]) ){ i--; }
   blob_resize(pComment, i);
 }
 
@@ -687,11 +687,11 @@ void commit_cmd(void){
     fossil_fatal("no such user: %s", g.zLogin);
   }
   
+  rc = unsaved_changes();
   db_begin_transaction();
   db_record_repository_filename(0);
-  rc = unsaved_changes();
   if( rc==0 && !isAMerge && !forceFlag ){
-    fossil_panic("nothing has changed");
+    fossil_fatal("nothing has changed");
   }
 
   /* If one or more files that were named on the command line have not

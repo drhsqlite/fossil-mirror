@@ -22,6 +22,12 @@
 #include <assert.h>
 
 /*
+** Diff option flags
+*/
+#define DIFF_NEWFILE  0x01    /* Treat non-existing fails as empty files */
+#define DIFF_NOEOLWS  0x02    /* Ignore whitespace at the end of lines */
+
+/*
 ** This function implements a cross-platform "system()" interface.
 */
 int portable_system(const char *zOrigCmd){
@@ -55,20 +61,26 @@ static void diff_file(
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
   const char *zDiffCmd,     /* Command for comparison */
-  int ignoreEolWs           /* Ignore whitespace at end of lines */
+  int ignoreEolWs           /* Ignore whitespace at end of line */
 ){
   if( zDiffCmd==0 ){
-    Blob out;      /* Diff output text */
-    Blob file2;    /* Content of zFile2 */
+    Blob out;                 /* Diff output text */
+    Blob file2;               /* Content of zFile2 */
+    const char *zName2;       /* Name of zFile2 for display */
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
-    blob_read_from_file(&file2, zFile2);
+    if( file_size(zFile2)<0 ){
+      zName2 = "/dev/null";
+    }else{
+      blob_read_from_file(&file2, zFile2);
+      zName2 = zName;
+    }
 
     /* Compute and output the differences */
     blob_zero(&out);
     text_diff(pFile1, &file2, &out, 5, ignoreEolWs);
-    printf("--- %s\n+++ %s\n", zName, zName);
+    printf("--- %s\n+++ %s\n", zName, zName2);
     printf("%s\n", blob_str(&out));
 
     /* Release memory resources */
@@ -185,12 +197,16 @@ static void diff_one_against_disk(
 static void diff_all_against_disk(
   const char *zFrom,        /* Version to difference from */
   const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
-  int ignoreEolWs           /* Ignore end-of-line whitespace */
+  int diffFlags             /* Flags controlling diff output */
 ){
   int vid;
   Blob sql;
   Stmt q;
+  int ignoreEolWs;          /* Ignore end-of-line whitespace */
+  int asNewFile;            /* Treat non-existant files as empty files */
 
+  ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0;
+  asNewFile = (diffFlags & DIFF_NEWFILE)!=0;
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 1);
   blob_zero(&sql);
@@ -237,19 +253,31 @@ static void diff_all_against_disk(
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3);
+    int srcid = db_column_int(&q, 4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+    int showDiff = 1;
     if( isDeleted ){
       printf("DELETED  %s\n", zPathname);
+      if( !asNewFile ){ showDiff = 0; zFullName = "/dev/null"; }
     }else if( access(zFullName, 0) ){
       printf("MISSING  %s\n", zPathname);
+      if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
       printf("ADDED    %s\n", zPathname);
+      srcid = 0;
+      if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
       printf("ADDED_BY_MERGE %s\n", zPathname);
-    }else{
-      int srcid = db_column_int(&q, 4);
+      srcid = 0;
+      if( !asNewFile ){ showDiff = 0; }
+    }
+    if( showDiff ){
       Blob content;
-      content_get(srcid, &content);
+      if( srcid>0 ){
+        content_get(srcid, &content);
+      }else{
+        blob_zero(&content);
+      }
       printf("Index: %s\n======================================="
              "============================\n",
              zPathname
@@ -288,21 +316,55 @@ static void diff_one_two_versions(
 }
 
 /*
+** Show the difference between two files identified by ManifestFile
+** entries.
+*/
+static void diff_manifest_entry(
+  struct ManifestFile *pFrom,
+  struct ManifestFile *pTo,
+  const char *zDiffCmd,
+  int ignoreEolWs
+){
+  Blob f1, f2;
+  int rid;
+  const char *zName =  pFrom ? pFrom->zName : pTo->zName;
+  printf("Index: %s\n======================================="
+         "============================\n", zName);
+  if( pFrom ){
+    rid = uuid_to_rid(pFrom->zUuid, 0);
+    content_get(rid, &f1);
+  }else{
+    blob_zero(&f1);
+  }
+  if( pTo ){
+    rid = uuid_to_rid(pTo->zUuid, 0);
+    content_get(rid, &f2);
+  }else{
+    blob_zero(&f2);
+  }
+  diff_file_mem(&f1, &f2, zName, zDiffCmd, ignoreEolWs);
+  blob_reset(&f1);
+  blob_reset(&f2);
+}
+
+/*
 ** Output the differences between two check-ins.
 */
 static void diff_all_two_versions(
   const char *zFrom,
   const char *zTo,
   const char *zDiffCmd,
-  int ignoreEolWs
+  int diffFlags
 ){
   Manifest mFrom, mTo;
   int iFrom, iTo;
+  int ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0 ? 1 : 0;
+  int asNewFlag = (diffFlags & DIFF_NEWFILE)!=0 ? 1 : 0;
 
   manifest_from_name(zFrom, &mFrom);
   manifest_from_name(zTo, &mTo);
   iFrom = iTo = 0;
-  while( iFrom<mFrom.nFile && iTo<mTo.nFile ){
+  while( iFrom<mFrom.nFile || iTo<mTo.nFile ){
     int cmp;
     if( iFrom>=mFrom.nFile ){
       cmp = +1;
@@ -313,29 +375,24 @@ static void diff_all_two_versions(
     }
     if( cmp<0 ){
       printf("DELETED %s\n", mFrom.aFile[iFrom].zName);
+      if( asNewFlag ){
+        diff_manifest_entry(&mFrom.aFile[iFrom], 0, zDiffCmd, ignoreEolWs);
+      }
       iFrom++;
     }else if( cmp>0 ){
       printf("ADDED   %s\n", mTo.aFile[iTo].zName);
+      if( asNewFlag ){
+        diff_manifest_entry(0, &mTo.aFile[iTo], zDiffCmd, ignoreEolWs);
+      }
       iTo++;
     }else if( strcmp(mFrom.aFile[iFrom].zUuid, mTo.aFile[iTo].zUuid)==0 ){
       /* No changes */
       iFrom++;
       iTo++;
     }else{
-      Blob f1, f2;
-      int rid;
       printf("CHANGED %s\n", mFrom.aFile[iFrom].zName);
-      printf("Index: %s\n======================================="
-             "============================\n",
-             mFrom.aFile[iFrom].zName
-      );
-      rid = uuid_to_rid(mFrom.aFile[iFrom].zUuid, 0);
-      content_get(rid, &f1);
-      rid = uuid_to_rid(mTo.aFile[iTo].zUuid, 0);
-      content_get(rid, &f2);
-      diff_file_mem(&f1, &f2, mFrom.aFile[iFrom].zName, zDiffCmd, ignoreEolWs);
-      blob_reset(&f1);
-      blob_reset(&f2);
+      diff_manifest_entry(&mFrom.aFile[iFrom], &mTo.aFile[iTo],
+                          zDiffCmd, ignoreEolWs);
       iFrom++;
       iTo++;
     }
@@ -377,15 +434,20 @@ static void diff_all_two_versions(
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
   int isInternDiff;          /* True for internal diff */
+  int hasNFlag;              /* True if -N or --new-file flag is used */
   const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
+  int diffFlags = 0;         /* Flags to control the DIFF */
 
   isGDiff = g.argv[1][0]=='g';
   isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
+  hasNFlag = find_option("new-file","N",0)!=0;
 
+
+  if( hasNFlag ) diffFlags |= DIFF_NEWFILE;
   if( zTo==0 ){
     db_must_be_within_tree();
     verify_all_options();
@@ -395,7 +457,7 @@ void diff_cmd(void){
     if( g.argc==3 ){
       diff_one_against_disk(zFrom, zDiffCmd, 0);
     }else{
-      diff_all_against_disk(zFrom, zDiffCmd, 0);
+      diff_all_against_disk(zFrom, zDiffCmd, diffFlags);
     }
   }else if( zFrom==0 ){
     fossil_fatal("must use --from if --to is present");
@@ -408,7 +470,7 @@ void diff_cmd(void){
     if( g.argc==3 ){
       diff_one_two_versions(zFrom, zTo, zDiffCmd, 0);
     }else{
-      diff_all_two_versions(zFrom, zTo, zDiffCmd, 0);
+      diff_all_two_versions(zFrom, zTo, zDiffCmd, diffFlags);
     }
   }
 }

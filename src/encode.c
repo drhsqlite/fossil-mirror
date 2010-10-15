@@ -102,7 +102,7 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
   char *zOut;
   int other;
 # define IsSafeChar(X)  \
-     (isalnum(X) || (X)=='.' || (X)=='$' \
+     (fossil_isalnum(X) || (X)=='.' || (X)=='$' \
       || (X)=='~' || (X)=='-' || (X)=='_' || (X)==other)
 
   if( zIn==0 ) return 0;
@@ -246,7 +246,7 @@ char *fossilize(const char *zIn, int nIn){
       }else if( c=='\\' ){
         zOut[j++] = '\\';
         zOut[j++] = '\\';
-      }else if( isspace(c) ){
+      }else if( fossil_isspace(c) ){
         zOut[j++] = '\\';
         switch( c ){
           case '\n':  c = 'n'; break;

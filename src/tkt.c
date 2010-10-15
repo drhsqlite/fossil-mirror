@@ -447,7 +447,7 @@ static int submitTicketCmd(
     }else{
       zValue = Th_Fetch(azField[i], &nValue);
       if( zValue ){
-        while( nValue>0 && isspace(zValue[nValue-1]) ){ nValue--; }
+        while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
         if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
           if( strncmp(azField[i], "private_", 8)==0 ){
             zValue = db_conceal(zValue, nValue);

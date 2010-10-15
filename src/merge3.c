@@ -153,9 +153,9 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int nCpy, nDel, nIns;  /* Number of lines to copy, delete, or insert */
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
-  static const char zBegin[] = ">>>>>>> BEGIN MERGE CONFLICT\n";
+  static const char zBegin[] = "<<<<<<< BEGIN MERGE CONFLICT\n";
   static const char zMid[]   = "============================\n";
-  static const char zEnd[]   = "<<<<<<< END MERGE CONFLICT\n";
+  static const char zEnd[]   = ">>>>>>> END MERGE CONFLICT\n";
 
   blob_zero(pOut);         /* Merge results stored in pOut */
 

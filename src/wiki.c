@@ -188,7 +188,7 @@ void wiki_page(void){
       content_get(rid, &content);
       manifest_parse(&m, &content);
       if( m.type==CFTYPE_WIKI && m.zWiki ){
-        while( isspace(m.zWiki[0]) ) m.zWiki++;
+        while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
         if( m.zWiki[0] ) zBody = m.zWiki;
       }
     }
@@ -947,7 +947,7 @@ void wiki_cmd(void){
     if( zBody==0 ){
       fossil_fatal("wiki page [%s] not found",zPageName);
     }
-    for(i=strlen(zBody); i>0 && isspace(zBody[i-1]); i--){}
+    for(i=strlen(zBody); i>0 && fossil_isspace(zBody[i-1]); i--){}
     zFile  = (g.argc==4) ? 0 : g.argv[4];
     if( zFile ){
       FILE * zF;
