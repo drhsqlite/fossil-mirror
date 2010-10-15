@@ -440,9 +440,10 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 ** "R" card near the end of the manifest.  
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
-  int i, fid;
-  Blob file, mfile;
-  Manifest m;
+  int fid;
+  Blob file;
+  Manifest *pManifest;
+  ManifestFile *pFile;
   char zBuf[100];
 
   blob_zero(pOut);
@@ -450,13 +451,14 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
     blob_zero(pManOut);
   }
   db_must_be_within_tree();
-  content_get(vid, &mfile);
-  if( manifest_parse(&m, &mfile)==0 ){
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  if( pManifest==0 ){
     fossil_panic("manifest file (%d) is malformed", vid);
   }
-  for(i=0; i<m.nFile; i++){
-    fid = uuid_to_rid(m.aFile[i].zUuid, 0);
-    md5sum_step_text(m.aFile[i].zName, -1);
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    fid = uuid_to_rid(pFile->zUuid, 0);
+    md5sum_step_text(pFile->zName, -1);
     content_get(fid, &file);
     sprintf(zBuf, " %d\n", blob_size(&file));
     md5sum_step_text(zBuf, -1);
@@ -464,13 +466,13 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
     blob_reset(&file);
   }
   if( pManOut ){
-    if( m.zRepoCksum ){
-      blob_append(pManOut, m.zRepoCksum, -1);
+    if( pManifest->zRepoCksum ){
+      blob_append(pManOut, pManifest->zRepoCksum, -1);
     }else{
       blob_zero(pManOut);
     }
   }
-  manifest_clear(&m);
+  manifest_destroy(pManifest);
   md5sum_finish(pOut);
 }
 

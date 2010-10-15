@@ -28,6 +28,7 @@
 /*
 ** Types of control files
 */
+#define CFTYPE_ANY        0
 #define CFTYPE_MANIFEST   1
 #define CFTYPE_CLUSTER    2
 #define CFTYPE_CONTROL    3
@@ -35,6 +36,18 @@
 #define CFTYPE_TICKET     5
 #define CFTYPE_ATTACHMENT 6
 #define CFTYPE_EVENT      7
+
+/*
+** A single F-card within a manifest
+*/
+struct ManifestFile { 
+  char *zName;           /* Name of a file */
+  char *zUuid;           /* UUID of the file */
+  char *zPerm;           /* File permissions */
+  char *zPrior;          /* Prior name if the name was changed */
+  int iRename;           /* index of renamed name in prior/next manifest */
+};
+
 
 /*
 ** A parsed manifest or cluster.
@@ -56,13 +69,8 @@ struct Manifest {
   char *zAttachTarget;  /* Ticket or wiki that attachment applies to.  A card */
   int nFile;            /* Number of F cards */
   int nFileAlloc;       /* Slots allocated in aFile[] */
-  struct ManifestFile { 
-    char *zName;           /* Name of a file */
-    char *zUuid;           /* UUID of the file */
-    char *zPerm;           /* File permissions */
-    char *zPrior;          /* Prior name if the name was changed */
-    int iRename;           /* index of renamed name in prior/next manifest */
-  } *aFile;             /* One entry for each F card */
+  int iFile;            /* Index of current file in iterator */
+  ManifestFile *aFile;  /* One entry for each F-card */
   int nParent;          /* Number of parents. */
   int nParentAlloc;     /* Slots allocated in azParent[] */
   char **azParent;      /* UUIDs of parents.  One for each P card argument */
@@ -101,7 +109,7 @@ static struct {
 /*
 ** Clear the memory allocated in a manifest object
 */
-void manifest_clear(Manifest *p){
+static void manifest_clear(Manifest *p){
   blob_reset(&p->content);
   free(p->aFile);
   free(p->azParent);
@@ -758,6 +766,50 @@ manifest_syntax_error:
 }
 
 /*
+** Allocate space for a Manifest object and populate it with a
+** parse of pContent.  Return a pointer ot the new object.
+**
+** If pContent is not a well-formed control artifact, return 0.
+**
+** pContent is reset, regardless of whether or not a Manifest object
+** is returned.
+*/
+Manifest *manifest_new(Blob *pContent){
+  Manifest *p = fossil_malloc( sizeof(*p) );
+  if( manifest_parse(p, pContent)==0 ){
+    fossil_free(p);
+    p = 0;
+  }
+  return p;
+}
+
+/*
+** Get a manifest given the rid for the control artifact.  Return
+** a pointer to the manifest on success or NULL if there is a failure.
+*/
+Manifest *manifest_get(int rid, int cfType){
+  Blob content;
+  Manifest *p;
+  content_get(rid, &content);
+  p = manifest_new(&content);
+  if( p && cfType!=CFTYPE_ANY && cfType!=p->type ){
+    manifest_destroy(p);
+    p = 0;
+  }
+  return p;
+}
+
+/*
+** Destroy a Manifest object previously obtained from manifest_new().
+*/
+void manifest_destroy(Manifest *p){
+  if( p ){
+    manifest_clear(p);
+    fossil_free(p);
+  }
+}
+
+/*
 ** COMMAND: test-parse-manifest
 **
 ** Usage: %fossil test-parse-manifest FILENAME ?N?
@@ -765,7 +817,7 @@ manifest_syntax_error:
 ** Parse the manifest and discarded.  Use for testing only.
 */
 void manifest_test_parse_cmd(void){
-  Manifest m;
+  Manifest *p;
   Blob b;
   int i;
   int n = 1;
@@ -778,8 +830,45 @@ void manifest_test_parse_cmd(void){
   for(i=0; i<n; i++){
     Blob b2;
     blob_copy(&b2, &b);
-    manifest_parse(&m, &b2);
-    manifest_clear(&m);
+    p = manifest_new(&b2);
+    manifest_destroy(p);
+  }
+}
+
+/*
+** Rewind a manifest-file iterator back to the beginning of the manifest.
+*/
+void manifest_file_rewind(Manifest *p){
+  p->iFile = -1;
+}
+
+/*
+** Advance to the next manifest-file.
+**
+** Return NULL for end-of-records or if there is an error.  If an error
+** occurs and pErr!=0 then store 1 in *pErr.
+*/
+ManifestFile *manifest_file_next(
+  Manifest *p,   
+  int *pErr
+){
+  if( pErr ) *pErr = 0;
+  if( p->iFile+1<p->nFile ){
+    p->iFile++;
+    return &p->aFile[p->iFile];
+  }else{
+    return 0;
+  }
+}
+
+/*
+** Return a pointer to the current file.
+*/
+ManifestFile *manifest_file_current(Manifest *p){
+  if( p->iFile>=0 && p->iFile<p->nFile ){
+    return &p->aFile[p->iFile];
+  }else{
+    return 0;
   }
 }
 
@@ -1362,19 +1451,17 @@ int manifest_crosslink(int rid, Blob *pContent){
 ** Given a checkin name, load and parse the manifest for that checkin.
 ** Throw a fatal error if anything goes wrong.
 */
-void manifest_from_name(
-  const char *zName,
-  Manifest *pM
-){
+Manifest *manifest_from_name(const char *zName){
   int rid;
-  Blob content;
+  Manifest *p;
 
   rid = name_to_rid(zName);
   if( !is_a_version(rid) ){
     fossil_fatal("no such checkin: %s", zName);
   }
-  content_get(rid, &content);
-  if( !manifest_parse(pM, &content) ){
+  p = manifest_get(rid, CFTYPE_MANIFEST);
+  if( p==0 ){
     fossil_fatal("cannot parse manifest for checkin: %s", zName);
   }
+  return p;
 }

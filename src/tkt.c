@@ -216,8 +216,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   char *zTag = mprintf("tkt-%s", zTktUuid);
   int tagid = tag_findid(zTag, 1);
   Stmt q;
-  Manifest manifest;
-  Blob content;
+  Manifest *pTicket;
   int createFlag = 1;
   
   db_multi_exec(
@@ -226,11 +225,12 @@ void ticket_rebuild_entry(const char *zTktUuid){
   db_prepare(&q, "SELECT rid FROM tagxref WHERE tagid=%d ORDER BY mtime",tagid);
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
-    content_get(rid, &content);
-    manifest_parse(&manifest, &content);
-    ticket_insert(&manifest, createFlag, rid);
-    manifest_ticket_event(rid, &manifest, createFlag, tagid);
-    manifest_clear(&manifest);
+    pTicket = manifest_get(rid, CFTYPE_TICKET);
+    if( pTicket ){
+      ticket_insert(pTicket, createFlag, rid);
+      manifest_ticket_event(rid, pTicket, createFlag, tagid);
+      manifest_destroy(pTicket);
+    }
     createFlag = 0;
   }
   db_finalize(&q);
@@ -755,8 +755,7 @@ void tkthistory_page(void){
     tagid, tagid
   );
   while( db_step(&q)==SQLITE_ROW ){
-    Blob content;
-    Manifest m;
+    Manifest *pTicket;
     char zShort[12];
     const char *zDate = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
@@ -779,18 +778,18 @@ void tkthistory_page(void){
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
     }else{
-      content_get(rid, &content);
-      if( manifest_parse(&m, &content) && m.type==CFTYPE_TICKET ){
+      pTicket = manifest_get(rid, CFTYPE_TICKET);
+      if( pTicket ){
         @
         @ <p>Ticket change
         @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zShort)</a>]
         @ (rid %d(rid)) by
-        hyperlink_to_user(m.zUser,zDate," on");
+        hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
         @ </p>
-        ticket_output_change_artifact(&m);
+        ticket_output_change_artifact(pTicket);
       }
-      manifest_clear(&m);
+      manifest_destroy(pTicket);
     }
   }
   db_finalize(&q);

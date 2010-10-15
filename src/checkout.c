@@ -113,33 +113,33 @@ void manifest_to_disk(int vid){
   Blob hash;
   Blob filename;
   int baseLen;
-  int i;
   int seenManifest = 0;
   int seenManifestUuid = 0;
-  Manifest m;
+  Manifest *pManifest;
+  ManifestFile *pFile;
 
   /* Check the EXE permission status of all files
   */
-  blob_zero(&manifest);
-  content_get(vid, &manifest);
-  manifest_parse(&m, &manifest);
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  if( pManifest==0 ) return;
   blob_zero(&filename);
   blob_appendf(&filename, "%s/", g.zLocalRoot);
   baseLen = blob_size(&filename);
-  for(i=0; i<m.nFile; i++){ 
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest, 0))!=0 ){
     int isExe;
-    blob_append(&filename, m.aFile[i].zName, -1);
-    isExe = m.aFile[i].zPerm && strstr(m.aFile[i].zPerm, "x");
+    blob_append(&filename, pFile->zName, -1);
+    isExe = pFile->zPerm && strstr(pFile->zPerm, "x");
     file_setexe(blob_str(&filename), isExe);
-    set_or_clear_isexe(m.aFile[i].zName, vid, isExe);
+    set_or_clear_isexe(pFile->zName, vid, isExe);
     blob_resize(&filename, baseLen);
-    if( memcmp(m.aFile[i].zName, "manifest", 8)==0 ){
-      if( m.aFile[i].zName[8]==0 ) seenManifest = 1;
-      if( strcmp(&m.aFile[i].zName[8], ".uuid")==0 ) seenManifestUuid = 1;
+    if( memcmp(pFile->zName, "manifest", 8)==0 ){
+      if( pFile->zName[8]==0 ) seenManifest = 1;
+      if( strcmp(&pFile->zName[8], ".uuid")==0 ) seenManifestUuid = 1;
     }
   }
   blob_reset(&filename);
-  manifest_clear(&m);
+  manifest_destroy(pManifest);
 
   blob_zero(&manifest);
   content_get(vid, &manifest);

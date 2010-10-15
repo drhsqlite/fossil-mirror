@@ -37,8 +37,7 @@ void branch_new(void){
   char *zComment;        /* Check-in comment for the new branch */
   const char *zColor;    /* Color of the new branch */
   Blob branch;           /* manifest for the new branch */
-  Blob parent;           /* root check-in manifest */
-  Manifest mParent;      /* Parsed parent manifest */
+  Manifest *pParent;     /* Parsed parent manifest */
   Blob mcksum;           /* Self-checksum on the manifest */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
@@ -83,27 +82,26 @@ void branch_new(void){
   blob_appendf(&branch, "D %s\n", zDate);
 
   /* Copy all of the content from the parent into the branch */
-  content_get(rootid, &parent);
-  manifest_parse(&mParent, &parent);
-  if( mParent.type!=CFTYPE_MANIFEST ){
+  pParent = manifest_get(rootid, CFTYPE_MANIFEST);
+  if( pParent==0 ){
     fossil_fatal("%s is not a valid check-in", g.argv[4]);
   }
-  for(i=0; i<mParent.nFile; ++i){
-    if( mParent.aFile[i].zPerm[0] ){
+  for(i=0; i<pParent->nFile; ++i){
+    if( pParent->aFile[i].zPerm[0] ){
       blob_appendf(&branch, "F %F %s %s\n",
-                   mParent.aFile[i].zName,
-                   mParent.aFile[i].zUuid,
-                   mParent.aFile[i].zPerm);
+                   pParent->aFile[i].zName,
+                   pParent->aFile[i].zUuid,
+                   pParent->aFile[i].zPerm);
     }else{
       blob_appendf(&branch, "F %F %s\n",
-                   mParent.aFile[i].zName,
-                   mParent.aFile[i].zUuid);
+                   pParent->aFile[i].zName,
+                   pParent->aFile[i].zUuid);
     }
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rootid);
   blob_appendf(&branch, "P %s\n", zUuid);
-  blob_appendf(&branch, "R %s\n", mParent.zRepoCksum);
-  manifest_clear(&mParent);
+  blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  manifest_destroy(pParent);
 
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */

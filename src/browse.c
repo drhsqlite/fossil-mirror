@@ -111,7 +111,7 @@ void page_dir(void){
   char *zUuid = 0;
   Blob content;
   Blob dirname;
-  Manifest m;
+  Manifest *pM = 0;
   const char *zSubdirLink;
 
   login_check_credentials();
@@ -130,7 +130,7 @@ void page_dir(void){
   if( zCI ){
     if( (rid = name_to_rid(zCI))==0 || content_get(rid, &content)==0 ){
       zCI = 0;  /* No artifact named zCI exists */
-    }else if( !manifest_parse(&m, &content) || m.type!=CFTYPE_MANIFEST ){
+    }else if( (pM = manifest_new(&content))!=0 || pM->type!=CFTYPE_MANIFEST ){
       zCI = 0;  /* The artifact exists but is not a manifest */
     }else{
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -190,11 +190,13 @@ void page_dir(void){
   );
   if( zCI ){
     Stmt ins;
-    int i;
+    ManifestFile *pFile;
+
     db_prepare(&ins, "INSERT INTO allfiles VALUES(:x, :u)");
-    for(i=0; i<m.nFile; i++){
-      db_bind_text(&ins, ":x", m.aFile[i].zName);
-      db_bind_text(&ins, ":u", m.aFile[i].zUuid);
+    manifest_file_rewind(pM);
+    while( (pFile = manifest_file_next(pM,0))!=0 ){
+      db_bind_text(&ins, ":x", pFile->zName);
+      db_bind_text(&ins, ":u", pFile->zUuid);
       db_step(&ins);
       db_reset(&ins);
     }
@@ -248,6 +250,7 @@ void page_dir(void){
     }
   }
   db_finalize(&q);
+  manifest_destroy(pM);
   @ </ul></td></tr></table>
   style_footer();
 }
