@@ -138,8 +138,7 @@ void blobReallocMalloc(Blob *pBlob, unsigned int newSize){
     pBlob->nUsed = 0;
     pBlob->iCursor = 0;
   }else if( newSize>pBlob->nAlloc || newSize<pBlob->nAlloc-4000 ){
-    char *pNew = realloc(pBlob->aData, newSize);
-    if( pNew==0 ) blob_panic();
+    char *pNew = fossil_realloc(pBlob->aData, newSize);
     pBlob->aData = pNew;
     pBlob->nAlloc = newSize;
     if( pBlob->nUsed>pBlob->nAlloc ){
@@ -164,8 +163,7 @@ static void blobReallocStatic(Blob *pBlob, unsigned int newSize){
   if( newSize==0 ){
     *pBlob = empty_blob;
   }else{
-    char *pNew = malloc( newSize );
-    if( pNew==0 ) blob_panic();
+    char *pNew = fossil_malloc( newSize );
     if( pBlob->nUsed>newSize ) pBlob->nUsed = newSize;
     memcpy(pNew, pBlob->aData, pBlob->nUsed);
     pBlob->aData = pNew;

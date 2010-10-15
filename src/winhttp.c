@@ -209,10 +209,7 @@ void win32_http_server(
       closesocket(s);
       fossil_fatal("error from accept()");
     }
-    p = malloc( sizeof(*p) );
-    if( p==0 ){
-      fossil_fatal("out of memory");
-    }
+    p = fossil_malloc( sizeof(*p) );
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;

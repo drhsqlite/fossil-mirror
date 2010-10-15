@@ -64,7 +64,7 @@ void pqueue_clear(PQueue *p){
 ** Change the size of the queue so that it contains N slots
 */
 static void pqueue_resize(PQueue *p, int N){
-  p->a = realloc(p->a, sizeof(p->a[0])*N);
+  p->a = fossil_realloc(p->a, sizeof(p->a[0])*N);
   p->sz = N;
 }
 

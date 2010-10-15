@@ -82,9 +82,8 @@ void content_cache_insert(int rid, Blob *pBlob){
   }
   if( contentCache.n>=contentCache.nAlloc ){
     contentCache.nAlloc = contentCache.nAlloc*2 + 10;
-    contentCache.a = realloc(contentCache.a,
+    contentCache.a = fossil_realloc(contentCache.a,
                              contentCache.nAlloc*sizeof(contentCache.a[0]));
-    if( contentCache.a==0 ) fossil_panic("out of memory");
   }
   p = &contentCache.a[contentCache.n++];
   p->rid = rid;
@@ -242,8 +241,7 @@ int content_get(int rid, Blob *pBlob){
     int mx;
     Blob delta, next;
 
-    a = malloc( sizeof(a[0])*nAlloc );
-    if( a==0 ) fossil_panic("out of memory");
+    a = fossil_malloc( sizeof(a[0])*nAlloc );
     a[0] = rid;
     a[1] = nextRid;
     n = 1;
@@ -252,8 +250,7 @@ int content_get(int rid, Blob *pBlob){
       n++;
       if( n>=nAlloc ){
         nAlloc = nAlloc*2 + 10;
-        a = realloc(a, nAlloc*sizeof(a[0]));
-        if( a==0 ) fossil_panic("out of memory");
+        a = fossil_realloc(a, nAlloc*sizeof(a[0]));
       }
       a[n] = nextRid;
     }
@@ -352,8 +349,7 @@ void after_dephantomize(int rid, int linkFlag){
       int child = db_column_int(&q, 0);
       if( nChildUsed>=nChildAlloc ){
         nChildAlloc = nChildAlloc*2 + 10;
-        aChild = realloc(aChild, nChildAlloc*sizeof(aChild));
-        if( aChild==0 ) fossil_panic("out of memory");
+        aChild = fossil_realloc(aChild, nChildAlloc*sizeof(aChild));
       }
       aChild[nChildUsed++] = child;
     }

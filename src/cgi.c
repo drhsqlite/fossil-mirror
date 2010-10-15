@@ -389,8 +389,7 @@ static struct QParam {   /* One entry for each query parameter or cookie */
 void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   if( nAllocQP<=nUsedQP ){
     nAllocQP = nAllocQP*2 + 10;
-    aParamQP = realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );
-    if( aParamQP==0 ) fossil_exit(1);
+    aParamQP = fossil_realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );
   }
   aParamQP[nUsedQP].zName = zName;
   aParamQP[nUsedQP].zValue = zValue;
@@ -683,8 +682,7 @@ void cgi_init(void){
     blob_zero(&g.cgiIn);
     if( strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
-      z = malloc( len+1 );
-      if( z==0 ) fossil_exit(1);
+      z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
       z[len] = 0;
       if( zType[0]=='a' ){

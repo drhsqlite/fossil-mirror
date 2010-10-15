@@ -46,8 +46,7 @@ char *htmlize(const char *zIn, int n){
     i++;
   }
   i = 0;
-  zOut = malloc( count+1 );
-  if( zOut==0 ) return 0;
+  zOut = fossil_malloc( count+1 );
   while( n-->0 && (c = *zIn)!=0 ){
     switch( c ){
       case '<':   
@@ -117,8 +116,7 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
     i++;
   }
   i = 0;
-  zOut = malloc( count+1 );
-  if( zOut==0 ) return 0;
+  zOut = fossil_malloc( count+1 );
   while( n-->0 && (c = *zIn)!=0 ){
     if( IsSafeChar(c) ){
       zOut[i++] = c;
@@ -236,7 +234,7 @@ char *fossilize(const char *zIn, int nIn){
              || c=='\\' ) n++;
   }
   n += nIn;
-  zOut = malloc( n+1 );
+  zOut = fossil_malloc( n+1 );
   if( zOut ){
     for(i=j=0; i<nIn; i++){
       int c = zIn[i];
@@ -312,7 +310,7 @@ char *encode64(const char *zData, int nData){
   if( nData<=0 ){
     nData = strlen(zData);
   }
-  z64 = malloc( (nData*4)/3 + 8 );
+  z64 = fossil_malloc( (nData*4)/3 + 8 );
   for(i=n=0; i+2<nData; i+=3){
     z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
     z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
@@ -373,7 +371,7 @@ char *decode64(const char *z64, int *pnByte){
   }
   n64 = strlen(z64);
   while( n64>0 && z64[n64-1]=='=' ) n64--;
-  zData = malloc( (n64*3)/4 + 4 );
+  zData = fossil_malloc( (n64*3)/4 + 4 );
   for(i=j=0; i+3<n64; i+=4){
     a = trans[z64[i] & 0x7f];
     b = trans[z64[i+1] & 0x7f];
@@ -534,8 +532,7 @@ char *obscure(const char *zIn){
   
   if( zIn==0 ) return 0;
   n = strlen(zIn);
-  zOut = malloc( n*2+3 );
-  if( zOut==0 ) fossil_panic("out of memory");
+  zOut = fossil_malloc( n*2+3 );
   sqlite3_randomness(1, &salt);
   zOut[n+1] = (char)salt;
   for(i=0; i<n; i++) zOut[i+n+2] = zIn[i]^aObscurer[i&0x0f]^salt;
@@ -557,8 +554,7 @@ char *unobscure(const char *zIn){
   
   if( zIn==0 ) return 0;
   n = strlen(zIn);
-  zOut = malloc( n + 1 );
-  if( zOut==0 ) fossil_panic("out of memory");
+  zOut = fossil_malloc( n + 1 );
   if( n<2
     || decode16((unsigned char*)zIn, &salt, 2)
     || decode16((unsigned char*)&zIn[2], (unsigned char*)zOut, n-2)

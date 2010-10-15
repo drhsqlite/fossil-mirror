@@ -74,8 +74,7 @@ struct GraphContext {
 ** requested space.
 */
 void *safeMalloc(int nByte){
-  void *p = malloc(nByte);
-  if( p==0 ) fossil_panic("out of memory");
+  void *p = fossil_malloc(nByte);
   memset(p, 0, nByte);
   return p;
 }
@@ -150,8 +149,7 @@ static char *persistBranchName(GraphContext *p, const char *zBranch){
     if( strcmp(zBranch, p->azBranch[i])==0 ) return p->azBranch[i];
   }
   p->nBranch++;
-  p->azBranch = realloc(p->azBranch, sizeof(char*)*p->nBranch);
-  if( p->azBranch==0 ) fossil_panic("out of memory");
+  p->azBranch = fossil_realloc(p->azBranch, sizeof(char*)*p->nBranch);
   p->azBranch[p->nBranch-1] = mprintf("%s", zBranch);
   return p->azBranch[p->nBranch-1];
 }

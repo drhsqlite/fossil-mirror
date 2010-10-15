@@ -44,8 +44,7 @@ Search *search_init(const char *zPattern){
   char *z;
   int i;
 
-  p = malloc( nPattern + sizeof(*p) + 1);
-  if( p==0 ) fossil_panic("out of memory");
+  p = fossil_malloc( nPattern + sizeof(*p) + 1);
   z = (char*)&p[1];
   strcpy(z, zPattern);
   memset(p, 0, sizeof(*p));
