@@ -1,5 +1,5 @@
-C Replace\sall\smalloc()\scalls\swith\sfossil_malloc().\s\sThe\sfossil_malloc()\sroutine\npanics\srather\sthan\sreturn\sa\sNULL\spointer.
-D 2010-10-15T17:13:17
+C On\swindows,\suse\sthe\sglobal\svariable\s_pgmptr\sinstead\sof\s<nowiki>argv[0]</nowiki>\nin\sorder\sto\sfind\sthe\sname\sof\sthe\scurrent\sexecutable.\nTicket\s[c8c0b78c840e4df9]
+D 2010-10-15T22:41:37
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -115,7 +115,7 @@ F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 3b7142397cc9c79f8895c9c8a01823bbd0e30dc7
 F src/wiki.c 6ea8cac375ec6524b08a10181cf9ad1ae7fc9e1f
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
-F src/winhttp.c 2f1cbb25c56a9208dc723be66067a12b6e4cb022
+F src/winhttp.c 2e4cd0e86c01bcf686ab04413f5a917190e7c163
 F src/xfer.c 967b96f9080db5c028304b7e8982714ffae12327
 F src/zip.c 28b0a50338b5a0bf12f38dc793507a630aca6202
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 59f685856bb6a1b9d3e581b7198f8e7e3384efb7
-R e88a2b102e1cf9d944b397f9d30d8cee
+P 8f41b2fa75f930893dca27e5574e0e8bc0f65fe0
+R 3fbef1a319034a06760627f40213534e
 U drh
-Z bb66e7b50bd608357ffffd42700bb131
+Z 1847a108673c539975cc1ad119779154
