@@ -1,5 +1,5 @@
-C Always\sshow\sdiffs\sfor\sadded\sand\sdeleted\sfiles\sin\sthe\sweb\sUI.\s\sShow\nadded\sand\sdeleted\sfiles\sin\sdiffs\swith\s-N\sand\sthe\s--from\sand\s--to\noptions\sto\sthe\scommand-line\sdiff\scommand.\nTicket\s[e90d38c2054e9b44792]
-D 2010-10-14T20:28:49
+C On\scommit,\scheck\sthe\srepository\sfor\schanges\sbefore\sstarting\sthe\swrite\s\ntransaction,\sso\sthat\sa\sdiff\scan\sbe\srun\sduring\sthe\scheck-in\scomment\sediting.\nTicket\s[014ac374123d9a6ab6894].
+D 2010-10-15T13:55:28
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -43,7 +43,7 @@ F src/branch.c 16c61e6dda5875631646c9af9125bff72805b1b3
 F src/browse.c b04a2d36ea797f3a1a1eaccc526df5df485ffe40
 F src/captcha.c c94d903b8a4fb7af31f7262ea366960f747db137
 F src/cgi.c 7d58a45b17d24c4f618b805ae88f2e4682c8e96e
-F src/checkin.c ef8015bd93181d26cfa17a9c1baf5b0495567b5e
+F src/checkin.c 3e37ef31e0ac5b17a3563972ee855978af98fe01
 F src/checkout.c 48a19d5dc11b3a84d51aa206d1b14cc78ed24250
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 93984e2d86b3d32b92aa49322aee6f28ad30ceb6
-R 795559ba4e920344cd424eb3bb0d5eea
+P 703653489ee450dad4ddac0c010f03d343ff32a2
+R fd80a7bc8b54d6e75e9a7f91bda0256a
 U drh
-Z 16392c2f0433f2a529cfa1c95a3ec193
+Z 8f9e0760f8edf60f56d498dee12043b2

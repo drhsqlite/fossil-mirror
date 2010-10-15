@@ -683,11 +683,11 @@ void commit_cmd(void){
     fossil_fatal("no such user: %s", g.zLogin);
   }
   
+  rc = unsaved_changes();
   db_begin_transaction();
   db_record_repository_filename(0);
-  rc = unsaved_changes();
   if( rc==0 && !isAMerge && !forceFlag ){
-    fossil_panic("nothing has changed");
+    fossil_fatal("nothing has changed");
   }
 
   /* If one or more files that were named on the command line have not
