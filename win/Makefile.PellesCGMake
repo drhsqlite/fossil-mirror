@@ -59,8 +59,9 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 # define standard C-compiler and flags, used to compile
 # the fossil binary. Some special definitions follow for
 # special files follow
+# Pelles C doesn't support _pgmptr in it's includes/libs, so map it to argv[0]
 CC=$(PellesCDir)\bin\pocc.exe
-DEFINES=-DFOSSIL_I18N=0 -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp 
+DEFINES=-DFOSSIL_I18N=0 -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp -D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
 INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
 
