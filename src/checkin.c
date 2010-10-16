@@ -467,7 +467,7 @@ void select_commit_files(void){
     int ii;
     Blob b;
     blob_zero(&b);
-    g.aCommitFile = malloc(sizeof(int)*(g.argc-1));
+    g.aCommitFile = fossil_malloc(sizeof(int)*(g.argc-1));
 
     for(ii=2; ii<g.argc; ii++){
       int iId;

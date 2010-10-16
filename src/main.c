@@ -363,6 +363,24 @@ void fossil_warning(const char *zFormat, ...){
 }
 
 /*
+** Malloc and free routines that cannot fail
+*/
+void *fossil_malloc(size_t n){
+  void *p = malloc(n);
+  if( p==0 ) fossil_panic("out of memory");
+  return p;
+}
+void fossil_free(void *p){
+  free(p);
+}
+void *fossil_realloc(void *p, size_t n){
+  p = realloc(p, n);
+  if( p==0 ) fossil_panic("out of memory");
+  return p;
+}
+
+
+/*
 ** Return a name for an SQLite error code
 */
 static const char *sqlite_error_code_name(int iCode){

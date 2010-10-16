@@ -32,7 +32,7 @@ static int nOutstandingMalloc = 0;
 ** Implementations of malloc() and free() to pass to the interpreter.
 */
 static void *xMalloc(unsigned int n){
-  void *p = malloc(n);
+  void *p = fossil_malloc(n);
   if( p ){
     nOutstandingMalloc++;
   }

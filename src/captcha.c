@@ -71,7 +71,7 @@ static const unsigned int aFont1[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = malloc( 500 );
+  char *z = fossil_malloc( 500 );
   int i, j, k, m;
 
   k = 0;
@@ -204,7 +204,7 @@ static const char *azFont2[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = malloc( 300 );
+  char *z = fossil_malloc( 300 );
   int i, j, k, m;
   const char *zChar;
 
@@ -361,7 +361,7 @@ static const char *azFont3[] = {
 ** by the caller.
 */
 char *captcha_render(const char *zPw){
-  char *z = malloc( 600 );
+  char *z = fossil_malloc( 600 );
   int i, j, k, m;
   const char *zChar;
 

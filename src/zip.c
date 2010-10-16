@@ -104,7 +104,7 @@ void zip_add_folders(char *zName){
       }
       if( j>=nDir ){
         nDir++;
-        azDir = realloc(azDir, sizeof(azDir[0])*nDir);
+        azDir = fossil_realloc(azDir, sizeof(azDir[0])*nDir);
         azDir[j] = mprintf("%s", zName);
         zip_add_file(zName, 0);
       }

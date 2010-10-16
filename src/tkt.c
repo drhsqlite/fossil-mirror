@@ -55,10 +55,7 @@ static void getAllTicketFields(void){
     const char *zField = db_column_text(&q, 1);
     if( strncmp(zField,"tkt_",4)==0 ) continue;
     if( nField%10==0 ){
-      azField = realloc(azField, sizeof(azField)*3*(nField+10) );
-      if( azField==0 ){
-        fossil_fatal("out of memory");
-      }
+      azField = fossil_realloc(azField, sizeof(azField)*3*(nField+10) );
     }
     azField[nField] = mprintf("%s", zField);
     nField++;

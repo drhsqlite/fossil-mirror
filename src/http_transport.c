@@ -388,8 +388,7 @@ static void transport_load_buffer(int N){
   int i, j;
   if( transport.nAlloc==0 ){
     transport.nAlloc = N;
-    transport.pBuf = malloc( N );
-    if( transport.pBuf==0 ) fossil_panic("out of memory");
+    transport.pBuf = fossil_malloc( N );
     transport.iCursor = 0;
     transport.nUsed = 0;
   }
@@ -403,8 +402,7 @@ static void transport_load_buffer(int N){
   if( transport.nUsed + N > transport.nAlloc ){
     char *pNew;
     transport.nAlloc = transport.nUsed + N;
-    pNew = realloc(transport.pBuf, transport.nAlloc);
-    if( pNew==0 ) fossil_panic("out of memory");
+    pNew = fossil_realloc(transport.pBuf, transport.nAlloc);
     transport.pBuf = pNew;
   }
   if( N>0 ){

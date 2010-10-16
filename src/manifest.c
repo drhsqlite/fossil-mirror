@@ -204,6 +204,14 @@ int manifest_parse(Manifest *p, Blob *pContent){
   Blob line, token, a1, a2, a3, a4;
   char cPrevType = 0;
 
+  /* Every control artifact ends with a '\n' character.  Exit early
+  ** if that is not the case for this artifact. */
+  i = blob_size(pContent);
+  if( i<=0 || blob_buffer(pContent)[i-1]!='\n' ){
+    blob_reset(pContent);
+    return 0;
+  }
+
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
   blob_zero(pContent);
@@ -366,8 +374,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
         }
         if( p->nFile>=p->nFileAlloc ){
           p->nFileAlloc = p->nFileAlloc*2 + 10;
-          p->aFile = realloc(p->aFile, p->nFileAlloc*sizeof(p->aFile[0]) );
-          if( p->aFile==0 ) fossil_panic("out of memory");
+          p->aFile = fossil_realloc(p->aFile, 
+                                    p->nFileAlloc*sizeof(p->aFile[0]) );
         }
         i = p->nFile++;
         p->aFile[i].zName = zName;
@@ -400,9 +408,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
         defossilize(zValue);
         if( p->nField>=p->nFieldAlloc ){
           p->nFieldAlloc = p->nFieldAlloc*2 + 10;
-          p->aField = realloc(p->aField,
+          p->aField = fossil_realloc(p->aField,
                                p->nFieldAlloc*sizeof(p->aField[0]) );
-          if( p->aField==0 ) fossil_panic("out of memory");
         }
         i = p->nField++;
         p->aField[i].zName = zName;
@@ -466,9 +473,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
         if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         if( p->nCChild>=p->nCChildAlloc ){
           p->nCChildAlloc = p->nCChildAlloc*2 + 10;
-          p->azCChild = 
-             realloc(p->azCChild, p->nCChildAlloc*sizeof(p->azCChild[0]) );
-          if( p->azCChild==0 ) fossil_panic("out of memory");
+          p->azCChild = fossil_realloc(p->azCChild
+                                 , p->nCChildAlloc*sizeof(p->azCChild[0]) );
         }
         i = p->nCChild++;
         p->azCChild[i] = zUuid;
@@ -494,8 +500,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
           if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
           if( p->nParent>=p->nParentAlloc ){
             p->nParentAlloc = p->nParentAlloc*2 + 5;
-            p->azParent = realloc(p->azParent, p->nParentAlloc*sizeof(char*));
-            if( p->azParent==0 ) fossil_panic("out of memory");
+            p->azParent = fossil_realloc(p->azParent,
+                               p->nParentAlloc*sizeof(char*));
           }
           i = p->nParent++;
           p->azParent[i] = zUuid;
@@ -569,8 +575,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         }
         if( p->nTag>=p->nTagAlloc ){
           p->nTagAlloc = p->nTagAlloc*2 + 10;
-          p->aTag = realloc(p->aTag, p->nTagAlloc*sizeof(p->aTag[0]) );
-          if( p->aTag==0 ) fossil_panic("out of memory");
+          p->aTag = fossil_realloc(p->aTag, p->nTagAlloc*sizeof(p->aTag[0]) );
         }
         i = p->nTag++;
         p->aTag[i].zName = zName;

@@ -319,8 +319,7 @@ int delta_create(
   ** source file.
   */
   nHash = lenSrc/NHASH;
-  collide = malloc( nHash*2*sizeof(int) );
-  if( collide==0 ) return -1;
+  collide = fossil_malloc( nHash*2*sizeof(int) );
   landmark = &collide[nHash];
   memset(landmark, -1, nHash*sizeof(int));
   memset(collide, -1, nHash*sizeof(int));

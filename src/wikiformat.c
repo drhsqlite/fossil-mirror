@@ -840,10 +840,7 @@ static void popStack(Renderer *p){
 static void pushStackWithId(Renderer *p, int elem, const char *zId, int w){
   if( p->nStack>=p->nAlloc ){
     p->nAlloc = p->nAlloc*2 + 100;
-    p->aStack = realloc(p->aStack, p->nAlloc*sizeof(p->aStack[0]));
-    if( p->aStack==0 ){
-      fossil_panic("out of memory");
-    }
+    p->aStack = fossil_realloc(p->aStack, p->nAlloc*sizeof(p->aStack[0]));
   }
   p->aStack[p->nStack].iCode = elem;
   p->aStack[p->nStack].zId = zId;

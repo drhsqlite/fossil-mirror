@@ -111,7 +111,7 @@ void win32_process_one_http_request(void *pAppData){
   fclose(out);
   out = 0;
   sprintf(zCmd, "\"%s\" http \"%s\" %s %s %s%s",
-    g.argv[0], g.zRepositoryName, zRequestFName, zReplyFName, 
+    _pgmptr, g.zRepositoryName, zRequestFName, zReplyFName, 
     inet_ntoa(p->addr.sin_addr), p->zNotFound
   );
   if( g.fHttpTrace ){
@@ -222,10 +222,7 @@ void win32_http_server(
       closesocket(s);
       fossil_fatal("error from accept()");
     }
-    p = malloc( sizeof(*p) );
-    if( p==0 ){
-      fossil_fatal("out of memory");
-    }
+    p = fossil_malloc( sizeof(*p) );
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;
