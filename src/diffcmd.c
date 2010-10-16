@@ -255,6 +255,7 @@ static void diff_all_against_disk(
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+    char *zToFree = zFullName;
     int showDiff = 1;
     if( isDeleted ){
       printf("DELETED  %s\n", zPathname);
@@ -285,7 +286,7 @@ static void diff_all_against_disk(
       diff_file(&content, zFullName, zPathname, zDiffCmd, ignoreEolWs);
       blob_reset(&content);
     }
-    free(zFullName);
+    free(zToFree);
   }
   db_finalize(&q);
   db_end_transaction(1);  /* ROLLBACK */

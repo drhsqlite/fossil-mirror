@@ -108,7 +108,7 @@ void win32_process_one_http_request(void *pAppData){
   fclose(out);
   out = 0;
   sprintf(zCmd, "\"%s\" http \"%s\" %s %s %s%s",
-    g.argv[0], g.zRepositoryName, zRequestFName, zReplyFName, 
+    _pgmptr, g.zRepositoryName, zRequestFName, zReplyFName, 
     inet_ntoa(p->addr.sin_addr), p->zNotFound
   );
   portable_system(zCmd);

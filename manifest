@@ -1,5 +1,5 @@
-C Refactor\sthe\scontrol-artifact\sparser.
-D 2010-10-15T20:37:16
+C Bring\sover\sthe\slatest\sbug\sfixes\sfrom\strunk.
+D 2010-10-16T16:32:45
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -56,7 +56,7 @@ F src/delta.c bb7a7e1bb9f9bbd7c0d3339e5c4440ed3d1e897f
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
 F src/diff.c de7d2a71504d62fc876e2736e017a499073a9822
-F src/diffcmd.c 129f214c67a4edabfdb3d8f8731ab942fd9d9801
+F src/diffcmd.c 8a61057036bd800261e6cb4b6832f822a08d1444
 F src/doc.c ea1896125e72e68f12072003223057f3ef9a25ee
 F src/encode.c a89e7058a6373f6b54ff4425148a811bc816f2bc
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
@@ -74,7 +74,7 @@ F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 7bc38621223820447c67d7ba5e56f1efd23a243c
-F src/manifest.c 6ec36235ec077165d2a4df3786f8fd6da789552a
+F src/manifest.c 5aaedb8e8843b2479b43ebaf3a17ac93d9cc77d1
 F src/md5.c 15acdef8fff01aefa815ceaa392ea59185d47f3d
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -115,7 +115,7 @@ F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 2e40d5070e5c7e445f9697a11df19ab9a4cc507a
 F src/wiki.c 8ab45864d6b91407fd1f17e9734f74ff228e11c3
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
-F src/winhttp.c 2f1cbb25c56a9208dc723be66067a12b6e4cb022
+F src/winhttp.c 2e4cd0e86c01bcf686ab04413f5a917190e7c163
 F src/xfer.c 967b96f9080db5c028304b7e8982714ffae12327
 F src/zip.c 754971e095c86de62632e294eeb90f13ced7404c
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
@@ -272,11 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 8f41b2fa75f930893dca27e5574e0e8bc0f65fe0
-R ce0dd55f7c6f115fc2aed1bd7871e238
-T *bgcolor * #c0ffc0
-T *branch * experimental
-T *sym-experimental *
-T -sym-trunk *
+P da9fcdc95a12f22394078bc12e82d422c5ae1650 7954ccba68bd84f9afb1cbef84a8544c31accf38
+R 3905878ce899688725e00b70dec965c0
 U drh
-Z ee1b164f502a456b57283bab04434056
+Z a6c441a9a334f43cce507dd18688da6e

@@ -212,6 +212,14 @@ int manifest_parse(Manifest *p, Blob *pContent){
   Blob line, token, a1, a2, a3, a4;
   char cPrevType = 0;
 
+  /* Every control artifact ends with a '\n' character.  Exit early
+  ** if that is not the case for this artifact. */
+  i = blob_size(pContent);
+  if( i<=0 || blob_buffer(pContent)[i-1]!='\n' ){
+    blob_reset(pContent);
+    return 0;
+  }
+
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
   blob_zero(pContent);
