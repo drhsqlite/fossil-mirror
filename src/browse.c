@@ -109,7 +109,6 @@ void page_dir(void){
   const char *zCI = P("ci");
   int rid = 0;
   char *zUuid = 0;
-  Blob content;
   Blob dirname;
   Manifest *pM = 0;
   const char *zSubdirLink;
@@ -128,11 +127,8 @@ void page_dir(void){
   ** files from all check-ins to be displayed.
   */
   if( zCI ){
-    if( (rid = name_to_rid(zCI))==0 || content_get(rid, &content)==0 ){
-      zCI = 0;  /* No artifact named zCI exists */
-    }else if( (pM = manifest_new(&content))!=0 || pM->type!=CFTYPE_MANIFEST ){
-      zCI = 0;  /* The artifact exists but is not a manifest */
-    }else{
+    pM = manifest_get_by_name(zCI, &rid);
+    if( pM ){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     }
   }

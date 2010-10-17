@@ -315,7 +315,7 @@ void filezip_cmd(void){
 **
 */
 void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
-  Blob mfile, file, hash;
+  Blob mfile, hash, file;
   Manifest *pManifest;
   ManifestFile *pFile;
   Blob filename;
@@ -326,9 +326,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
     blob_zero(pZip);
     return;
   }
-  blob_zero(&file);
   blob_zero(&hash);
-  blob_copy(&file, &mfile);
   blob_zero(&filename);
   zip_open();
 
@@ -337,16 +335,16 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   }
   nPrefix = blob_size(&filename);
 
-  pManifest = manifest_new(&mfile);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
   if( pManifest ){
     char *zName;
     zip_set_timedate(pManifest->rDate);
     blob_append(&filename, "manifest", -1);
     zName = blob_str(&filename);
     zip_add_folders(zName);
-    zip_add_file(zName, &file);
-    sha1sum_blob(&file, &hash);
-    blob_reset(&file);
+    zip_add_file(zName, &mfile);
+    sha1sum_blob(&mfile, &hash);
+    blob_reset(&mfile);
     blob_append(&hash, "\n", 1);
     blob_resize(&filename, nPrefix);
     blob_append(&filename, "manifest.uuid", -1);
@@ -367,7 +365,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
       }
     }
   }else{
-    blob_reset(&file);
+    blob_reset(&mfile);
   }
   manifest_destroy(pManifest);
   blob_reset(&filename);

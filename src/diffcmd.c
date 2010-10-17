@@ -362,10 +362,10 @@ static void diff_all_two_versions(
   int ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0 ? 1 : 0;
   int asNewFlag = (diffFlags & DIFF_NEWFILE)!=0 ? 1 : 0;
 
-  pFrom = manifest_from_name(zFrom);
+  pFrom = manifest_get_by_name(zFrom, 0);
   manifest_file_rewind(pFrom);
   pFromFile = manifest_file_next(pFrom,0);
-  pTo = manifest_from_name(zTo);
+  pTo = manifest_get_by_name(zTo, 0);
   manifest_file_rewind(pTo);
   pToFile = manifest_file_next(pTo,0);
 

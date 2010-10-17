@@ -55,6 +55,8 @@ struct ManifestFile {
 struct Manifest {
   Blob content;         /* The original content blob */
   int type;             /* Type of artifact.  One of CFTYPE_xxxxx */
+  char *zBaseline;      /* Baseline manifest.  The B card. */
+  Manifest *pBaseline;  /* The actual baseline manifest */
   char *zComment;       /* Decoded comment.  The C card. */
   double rDate;         /* Date and time from D card.  0.0 if no D card. */
   char *zUser;          /* Name of the user from the U card. */
@@ -116,6 +118,7 @@ static void manifest_clear(Manifest *p){
   free(p->azCChild);
   free(p->aTag);
   free(p->aField);
+  if( p->pBaseline ) manifest_clear(p->pBaseline);
   memset(p, 0, sizeof(*p));
 }
 
@@ -289,6 +292,24 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
+      **    B <uuid>
+      **
+      ** A B-line gives the UUID for the baselinen of a delta-manifest.
+      */
+      case 'B': {
+        char *zBaseline;
+        if( p->zBaseline ) goto manifest_syntax_error;
+        md5sum_step_text(blob_buffer(&line), blob_size(&line));
+        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        zBaseline = blob_terminate(&a1);
+        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+        if( !validate16(zBaseline, UUID_SIZE) ) goto manifest_syntax_error;
+        p->zBaseline = zBaseline;
+        break;
+      }
+
+
+      /*
       **     C <comment>
       **
       ** Comment text is fossil-encoded.  There may be no more than
@@ -349,7 +370,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       }
 
       /*
-      **     F <filename> <uuid> ?<permissions>? ?<old-name>?
+      **     F <filename> ?<uuid>? ?<permissions>? ?<old-name>?
       **
       ** Identifies a file in a manifest.  Multiple F lines are
       ** allowed in a manifest.  F lines are not allowed in any
@@ -359,13 +380,15 @@ int manifest_parse(Manifest *p, Blob *pContent){
         char *zName, *zUuid, *zPerm, *zPriorName;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
+        blob_token(&line, &a2);
         zUuid = blob_terminate(&a2);
+        if( p->zBaseline==0 || zUuid[0]!=0 ){
+          if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
+          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        }
         blob_token(&line, &a3);
         zPerm = blob_terminate(&a3);
-        if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         defossilize(zName);
         if( !file_is_simple_pathname(zName) ){
           goto manifest_syntax_error;
@@ -679,7 +702,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   }
   if( !seenHeader ) goto manifest_syntax_error;
 
-  if( p->nFile>0 || p->zRepoCksum!=0 ){
+  if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->rDate<=0.0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
@@ -782,7 +805,7 @@ manifest_syntax_error:
 ** pContent is reset, regardless of whether or not a Manifest object
 ** is returned.
 */
-Manifest *manifest_new(Blob *pContent){
+static Manifest *manifest_new(Blob *pContent){
   Manifest *p = fossil_malloc( sizeof(*p) );
   if( manifest_parse(p, pContent)==0 ){
     fossil_free(p);
@@ -803,6 +826,25 @@ Manifest *manifest_get(int rid, int cfType){
   if( p && cfType!=CFTYPE_ANY && cfType!=p->type ){
     manifest_destroy(p);
     p = 0;
+  }
+  return p;
+}
+
+/*
+** Given a checkin name, load and parse the manifest for that checkin.
+** Throw a fatal error if anything goes wrong.
+*/
+Manifest *manifest_get_by_name(const char *zName, int *pRid){
+  int rid;
+  Manifest *p;
+
+  rid = name_to_rid(zName);
+  if( !is_a_version(rid) ){
+    fossil_fatal("no such checkin: %s", zName);
+  }
+  p = manifest_get(rid, CFTYPE_MANIFEST);
+  if( p==0 ){
+    fossil_fatal("cannot parse manifest for checkin: %s", zName);
   }
   return p;
 }
@@ -847,7 +889,16 @@ void manifest_test_parse_cmd(void){
 ** Rewind a manifest-file iterator back to the beginning of the manifest.
 */
 void manifest_file_rewind(Manifest *p){
-  p->iFile = -1;
+  p->iFile = 0;
+  if( p->zBaseline!=0 && p->pBaseline==0 ){
+    p->pBaseline = manifest_get_by_name(p->zBaseline, 0);
+    if( p->pBaseline==0 ){
+      fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
+    }
+  }
+  if( p->pBaseline ){
+    p->pBaseline->iFile = 0;
+  }
 }
 
 /*
@@ -860,24 +911,57 @@ ManifestFile *manifest_file_next(
   Manifest *p,   
   int *pErr
 ){
+  ManifestFile *pOut = 0;
   if( pErr ) *pErr = 0;
-  if( p->iFile+1<p->nFile ){
-    p->iFile++;
-    return &p->aFile[p->iFile];
+  if( p->pBaseline==0 ){
+    /* Manifest p is a baseline-manifest.  Just scan down the list
+    ** of files. */
+    if( p->iFile<p->nFile ) pOut = &p->aFile[p->iFile++];
   }else{
-    return 0;
+    /* Manifest p is a delta-manifest.  Scan the baseline but amend the
+    ** file list in the baseline with changes described by p.
+    */
+    Manifest *pB = p->pBaseline;
+    int cmp;
+    while(1){
+      if( pB->iFile>=pB->nFile ){
+        /* We have used all entries out of the baseline.  Return the next
+        ** entry from the delta. */
+        if( p->iFile<p->nFile ) pOut = &p->aFile[p->iFile++];
+        break;
+      }else if( p->iFile>=p->nFile ){
+        /* We have used all entries from the delta.  Return the next
+        ** entry from the baseline. */
+        if( pB->iFile<pB->nFile ) pOut = &pB->aFile[pB->iFile++];
+        break;
+      }else if( (cmp = strcmp(pB->aFile[pB->iFile].zName,
+                              p->aFile[p->iFile].zName)) < 0 ){
+        /* The next baseline entry comes before the next delta entry.
+        ** So return the baseline entry. */
+        pOut = &pB->aFile[pB->iFile++];
+        break;
+      }else if( cmp>0 ){
+        /* The next delta entry comes before the next baseline
+        ** entry so return the delta entry */
+        pOut = &p->aFile[p->iFile++];
+        break;
+      }else if( p->aFile[p->iFile].zUuid[0] ){
+        /* The next delta entry is a replacement for the next baseline
+        ** entry.  Skip the baseline entry and return the delta entry */
+        pB->iFile++;
+        pOut = &p->aFile[p->iFile++];
+        break;
+      }else{
+        /* The next delta entry is a delete of the next baseline
+        ** entry.  Skip them both.  Repeat the loop to find the next
+        ** non-delete entry. */
+        pB->iFile++;
+        p->iFile++;
+        continue;
+      }
+    }
   }
-}
-
-/*
-** Return a pointer to the current file.
-*/
-ManifestFile *manifest_file_current(Manifest *p){
-  if( p->iFile>=0 && p->iFile<p->nFile ){
-    return &p->aFile[p->iFile];
-  }else{
-    return 0;
-  }
+  return pOut;
 }
 
 /*
@@ -1453,23 +1537,4 @@ int manifest_crosslink(int rid, Blob *pContent){
     manifest_clear(&m);
   }
   return 1;
-}
-
-/*
-** Given a checkin name, load and parse the manifest for that checkin.
-** Throw a fatal error if anything goes wrong.
-*/
-Manifest *manifest_from_name(const char *zName){
-  int rid;
-  Manifest *p;
-
-  rid = name_to_rid(zName);
-  if( !is_a_version(rid) ){
-    fossil_fatal("no such checkin: %s", zName);
-  }
-  p = manifest_get(rid, CFTYPE_MANIFEST);
-  if( p==0 ){
-    fossil_fatal("cannot parse manifest for checkin: %s", zName);
-  }
-  return p;
 }
