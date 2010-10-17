@@ -42,6 +42,67 @@ struct Xfer {
   int mxSend;         /* Stop sending "file" with pOut reaches this size */
 };
 
+/*
+** COMMAND: callhook
+** %fossil callhook PUSHHOOKPATTERN ?--force|-f?
+**
+** Call the push hook command on a server, which will normally be called
+** after a client push (<a>setting</a> push-hook-cmd).
+**
+** If --force is used, the given pattern is not checked against the
+** configuration (<a>setting</a> push-hook-pattern-server).
+**
+** This command only works on the server side, it does not send a message
+** from a client, but executes the hook directly on the server.
+**
+** See also <a>push</a>, <a>sync</a>, <a>setting</a>
+*/
+void callhook_cmd(void){
+  int forceFlag = find_option("force","f",0)!=0;
+
+  db_open_config(1);
+  db_find_and_open_repository(0);
+  if( (g.argc!=3) || (!g.argv[2]) || (!g.argv[2][0]) ){
+    usage("PUSHHOOKPATTERN ?--force?");
+  }
+  if( !forceFlag ){
+    const char *zPushHookPattern = db_get("push-hook-pattern-server", "");
+    int lenPushHookPattern = (zPushHookPattern && zPushHookPattern[0])
+                              ? strlen(zPushHookPattern) : 0;
+    if(    (!lenPushHookPattern)
+        || memcmp(g.argv[2], zPushHookPattern, lenPushHookPattern)
+    ){
+      fossil_fatal("push hook pattern '%s' doesn't match configuration '%s'\n",
+                     g.argv[2],zPushHookPattern);
+    }
+  }
+  post_push_hook(g.argv[2]);
+}
+
+/*
+** Let a server-side external agent know that a push has completed. /fatman
+*/
+void post_push_hook(char const * const zPushHookLine){
+  /*
+  ** TO DO: get the string cmd from a config file? Or the database local
+  ** settings, as someone suggested? Ditto output and error logs. /fatman
+  */
+  const char *zCmd = db_get("push-hook-cmd", "");
+  
+  if( zCmd && zCmd[0] ){
+    int rc;
+    char * zCalledCmd;
+
+    zCalledCmd = mprintf("%s %s",zCmd,zPushHookLine);
+    rc = system(zCalledCmd);
+    if (rc != 0) {
+      fossil_print("The post-push-hook command \"%s\" failed.", zCalledCmd);
+    }
+    free(zCalledCmd);
+  }else{
+    fossil_print("No push hook configured, skipping call for '%s'\n", zPushHookLine);
+  }
+}
 
 /*
 ** The input blob contains a UUID.  Convert it into a record ID.
@@ -598,6 +659,9 @@ void page_xfer(void){
   int size;
   int recvConfig = 0;
   char *zNow;
+  const char *zPushHookPattern = db_get("push-hook-pattern-server", "");
+  int lenPushHookPattern = (zPushHookPattern && zPushHookPattern[0])
+                            ? strlen(zPushHookPattern) : 0;
 
   if( strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
@@ -619,7 +683,15 @@ void page_xfer(void){
   @ # timestamp %s(zNow)
   manifest_crosslink_begin();
   while( blob_line(xfer.pIn, &xfer.line) ){
-    if( blob_buffer(&xfer.line)[0]=='#' ) continue;
+    if( blob_buffer(&xfer.line)[0]=='#' ){
+      if(    lenPushHookPattern
+          && 0 == memcmp(blob_buffer(&xfer.line)+1,
+                         zPushHookPattern, lenPushHookPattern)
+      ){
+        post_push_hook(blob_buffer(&xfer.line)+1);
+      }
+      continue;
+    }
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
 
     /*   file UUID SIZE \n CONTENT
@@ -950,6 +1022,8 @@ void client_sync(
   Xfer xfer;              /* Transfer data */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
+  const char *zPushHookPattern = db_get("push-hook-pattern-client", "");
+
 
   if( db_get_boolean("dont-push", 0) ) pushFlag = 0;
   if( pushFlag + pullFlag + cloneFlag == 0 
@@ -1332,6 +1406,14 @@ void client_sync(
     /* If this is a clone, the go at least two rounds */
     if( cloneFlag && nCycle==1 ) go = 1;
   };
+  if (pushFlag && nFileSend > 0) {
+    if( zPushHookPattern && zPushHookPattern[0] ){
+      blob_appendf(&send, "#%s\n", zPushHookPattern);
+      http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
+      blob_reset(&send);
+      nCardSent++;
+    }
+  }
   transport_stats(&nSent, &nRcvd, 1);
   fossil_print("Total network traffic: %d bytes sent, %d bytes received\n",
                nSent, nRcvd);

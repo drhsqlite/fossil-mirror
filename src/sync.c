@@ -167,6 +167,9 @@ void pull_cmd(void){
 ** the "--once" command-line option makes the URL a one-time-use URL
 ** that is not saved.
 **
+** If configured (<a>setting</a> push-hook-..), the push hook command will be executed
+** after pushing files to the server.
+**
 ** See also: <a>clone</a>, <a>pull</a>, <a>sync</a>, <a>remote-url</a>
 */
 void push_cmd(void){

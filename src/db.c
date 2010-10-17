@@ -1527,6 +1527,11 @@ struct stControlSettings const ctrlSettings[] = {
   { "mtime-changes", 0,                0, "0"                   },
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
+  { "push-hook-cmd", 0,               32, ""                    },
+  { "push-hook-pattern-client",
+                     0,               32, ""                    },
+  { "push-hook-pattern-server",
+                     0,               32, ""                    },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
   { 0,0,0,0 }
@@ -1598,6 +1603,21 @@ struct stControlSettings const ctrlSettings[] = {
 **                  the "http_proxy" environment variable is consulted.
 **                  If the http_proxy environment variable is undefined
 **                  then a direct HTTP connection is used.
+**
+**    push-hook-cmd this is the command line, that will be activated
+**                  as push hook. Output redirects should be added to
+**                  this command line.
+**                  The complete pattern, sent by the client will be
+**                  appended to the command line.
+**
+**    push-hook-pattern-client
+**                  if set, a client push will sent this message to the
+**                  server, to activate the push hook command.
+**
+**    push-hook-pattern-server
+**                  if set, and a client send this pattern at the end of
+**                  a push, the push hook command will be executed. This
+**                  might be a prefix of the pattern, sent by the client.
 **
 **    ssh-command   Command used to talk to a remote machine with
 **                  the "ssh://" protocol.
