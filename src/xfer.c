@@ -76,29 +76,44 @@ void callhook_cmd(void){
                      g.argv[2],zPushHookPattern);
     }
   }
-  post_push_hook(g.argv[2]);
+  post_push_hook(g.argv[2],'C');
 }
 
 /*
 ** Let a server-side external agent know that a push has completed. /fatman
+** The second argument controls, how the command is called:
+**   P - client request with pushed files
+**   F - client request without pushed files(FORCE!)
+**   C - server side command line activation
 */
-void post_push_hook(char const * const zPushHookLine){
+void post_push_hook(char const * const zPushHookLine, const char requestType){
   /*
   ** TO DO: get the string cmd from a config file? Or the database local
   ** settings, as someone suggested? Ditto output and error logs. /fatman
   */
   const char *zCmd = db_get("push-hook-cmd", "");
+  int allowForced = db_get_boolean("push-hook-force", 0);
   
-  if( zCmd && zCmd[0] ){
+  if( requestType=='P' && !allowForced){
+    fossil_print("Forced push call from client not allowed,"
+                 " skipping call for '%s'\n", zPushHookLine);
+  }else if( zCmd && zCmd[0] ){
     int rc;
     char * zCalledCmd;
+    char * zDate;
+    const char *zRnd;
 
-    zCalledCmd = mprintf("%s %s",zCmd,zPushHookLine);
+
+    zDate = db_text(0, "SELECT strftime('%%Y%%m%%d%%H%%M%%f','now')");
+    zRnd = db_text(0, "SELECT lower(hex(randomblob(6)))");
+
+    zCalledCmd = mprintf("%s %s-%s %s >hook-log-%s-%s 2>&1",zCmd,zDate,zRnd,zPushHookLine,zDate,zRnd);
     rc = system(zCalledCmd);
     if (rc != 0) {
       fossil_print("The post-push-hook command \"%s\" failed.", zCalledCmd);
     }
     free(zCalledCmd);
+    free(zDate);
   }else{
     fossil_print("No push hook configured, skipping call for '%s'\n", zPushHookLine);
   }
@@ -688,7 +703,7 @@ void page_xfer(void){
           && 0 == memcmp(blob_buffer(&xfer.line)+1,
                          zPushHookPattern, lenPushHookPattern)
       ){
-        post_push_hook(blob_buffer(&xfer.line)+1);
+        post_push_hook(blob_buffer(&xfer.line)+2,blob_buffer(&xfer.line)[1]);
       }
       continue;
     }
@@ -1023,6 +1038,7 @@ void client_sync(
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
   const char *zPushHookPattern = db_get("push-hook-pattern-client", "");
+  int allowForced = db_get_boolean("push-hook-force", 0);
 
 
   if( db_get_boolean("dont-push", 0) ) pushFlag = 0;
@@ -1406,13 +1422,15 @@ void client_sync(
     /* If this is a clone, the go at least two rounds */
     if( cloneFlag && nCycle==1 ) go = 1;
   };
-  if (pushFlag && nFileSend > 0) {
+  if( pushFlag && ( (nFileSend > 0) || allowForced ) ){
     if( zPushHookPattern && zPushHookPattern[0] ){
-      blob_appendf(&send, "#%s\n", zPushHookPattern);
+      blob_appendf(&send, "#%c%s\n",
+                   ((nFileSend > 0)?'P':'F'), zPushHookPattern);
       http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
       blob_reset(&send);
       nCardSent++;
     }
+  int allowForced = db_get_boolean("push-hook-force", 0);
   }
   transport_stats(&nSent, &nRcvd, 1);
   fossil_print("Total network traffic: %d bytes sent, %d bytes received\n",

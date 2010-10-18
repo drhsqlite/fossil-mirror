@@ -1528,6 +1528,8 @@ struct stControlSettings const ctrlSettings[] = {
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
   { "push-hook-cmd", 0,               32, ""                    },
+  { "push-hook-force",
+                     0,                0, ""                    },
   { "push-hook-pattern-client",
                      0,               32, ""                    },
   { "push-hook-pattern-server",
@@ -1607,8 +1609,19 @@ struct stControlSettings const ctrlSettings[] = {
 **    push-hook-cmd this is the command line, that will be activated
 **                  as push hook. Output redirects should be added to
 **                  this command line.
-**                  The complete pattern, sent by the client will be
-**                  appended to the command line.
+**                  The complete command line looks like:
+**                    command name: the configured value for push-hook-cmd
+**                    argument 1:   timestamp followed by random-number
+**                    argument 2:   pattern sent by client
+**                  As fallback, stdin/stderr are redirected to files
+**                    hook-log-<timestamp followed by random-number>
+**
+**    push-hook-force
+**                  if this is set on the client, it will request always
+**                  the hook activation, even if no files where pushed on
+**                  the sync.
+**                  if this is set on the server, it will accept hook
+**                  activiation, even if no files where pushed.
 **
 **    push-hook-pattern-client
 **                  if set, a client push will sent this message to the
