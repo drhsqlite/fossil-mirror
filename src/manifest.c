@@ -45,7 +45,6 @@ struct ManifestFile {
   char *zUuid;           /* UUID of the file */
   char *zPerm;           /* File permissions */
   char *zPrior;          /* Prior name if the name was changed */
-  int iRename;           /* index of renamed name in prior/next manifest */
 };
 
 
@@ -413,7 +412,6 @@ int manifest_parse(Manifest *p, Blob *pContent){
         p->aFile[i].zUuid = zUuid;
         p->aFile[i].zPerm = zPerm;
         p->aFile[i].zPrior = zPriorName;
-        p->aFile[i].iRename = -1;
         if( i>0 && strcmp(p->aFile[i-1].zName, zName)>=0 ){
           goto manifest_syntax_error;
         }
@@ -886,16 +884,24 @@ void manifest_test_parse_cmd(void){
 }
 
 /*
-** Rewind a manifest-file iterator back to the beginning of the manifest.
+** Fetch the baseline associated with the delta-manifest p.
+** Print a fatal-error and quit if unable to load the baseline.
 */
-void manifest_file_rewind(Manifest *p){
-  p->iFile = 0;
+static void fetch_baseline(Manifest *p){
   if( p->zBaseline!=0 && p->pBaseline==0 ){
     p->pBaseline = manifest_get_by_name(p->zBaseline, 0);
     if( p->pBaseline==0 ){
       fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
     }
   }
+}
+
+/*
+** Rewind a manifest-file iterator back to the beginning of the manifest.
+*/
+void manifest_file_rewind(Manifest *p){
+  p->iFile = 0;
+  fetch_baseline(p);
   if( p->pBaseline ){
     p->pBaseline->iFile = 0;
   }
@@ -993,10 +999,10 @@ static int filename_to_fnid(const char *zFilename){
 */
 static void add_one_mlink(
   int mid,                  /* The record ID of the manifest */
-  const char *zFromUuid,    /* UUID for the mlink.pid field */
-  const char *zToUuid,      /* UUID for the mlink.fid field */
+  const char *zFromUuid,    /* UUID for the mlink.pid. "" to add file */
+  const char *zToUuid,      /* UUID for the mlink.fid. "" to delele */
   const char *zFilename,    /* Filename */
-  const char *zPrior        /* Previous filename.  NULL if unchanged */
+  const char *zPrior        /* Previous filename. NULL if unchanged */
 ){
   int fnid, pfnid, pid, fid;
   static Stmt s1;
@@ -1007,12 +1013,12 @@ static void add_one_mlink(
   }else{
     pfnid = filename_to_fnid(zPrior);
   }
-  if( zFromUuid==0 ){
+  if( zFromUuid==0 || zFromUuid[0]==0 ){
     pid = 0;
   }else{
     pid = uuid_to_rid(zFromUuid, 1);
   }
-  if( zToUuid==0 ){
+  if( zToUuid==0 || zToUuid[0]==0 ){
     fid = 0;
   }else{
     fid = uuid_to_rid(zToUuid, 1);
@@ -1038,12 +1044,22 @@ static void add_one_mlink(
 ** Use a binary search.  Return turn the index of the matching
 ** entry.  Or return -1 if not found.
 */
-static int find_file_in_manifest(Manifest *p, const char *zName){
+static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
   int lwr, upr;
   int c;
   int i;
   lwr = 0;
   upr = p->nFile - 1;
+  if( p->iFile>=lwr && p->iFile<upr ){
+    c = strcmp(p->aFile[p->iFile+1].zName, zName);
+    if( c==0 ){
+      return &p->aFile[++p->iFile];
+    }else if( c>0 ){
+      upr = p->iFile;
+    }else{
+      lwr = p->iFile+1;
+    }
+  }
   while( lwr<=upr ){
     i = (lwr+upr)/2;
     c = strcmp(p->aFile[i].zName, zName);
@@ -1052,10 +1068,22 @@ static int find_file_in_manifest(Manifest *p, const char *zName){
     }else if( c>0 ){
       upr = i-1;
     }else{
-      return i;
+      p->iFile = i;
+      return &p->aFile[i];
     }
   }
-  return -1;
+  return 0;
+}
+static ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
+  ManifestFile *pFile;
+  
+  pFile = manifest_file_seek_base(p, zName);
+  if( pFile && pFile->zUuid[0]==0 ) return 0;
+  if( pFile==0 && p->zBaseline ){
+    fetch_baseline(p);
+    pFile = manifest_file_seek_base(p->pBaseline, zName);
+  }
+  return pFile;
 }
 
 /*
@@ -1073,7 +1101,8 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   Manifest other;
   Blob otherContent;
   int otherRid;
-  int i, j;
+  int i;
+  ManifestFile *pChildFile, *pParentFile;
 
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", cid) ){
     return;
@@ -1091,62 +1120,26 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     if( blob_size(&otherContent)==0 ) return;
     if( manifest_parse(&other, &otherContent)==0 ) return;
   }
-  content_deltify(pid, cid, 0);
-
-  /* Use the iRename fields to find the cross-linkage between
-  ** renamed files.  */
-  for(j=0; j<pChild->nFile; j++){
-    const char *zPrior = pChild->aFile[j].zPrior;
-    if( zPrior && zPrior[0] ){
-      i = find_file_in_manifest(pParent, zPrior);
-      if( i>=0 ){
-        pChild->aFile[j].iRename = i;
-        pParent->aFile[i].iRename = j;
-      }
-    }
+  if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
+    content_deltify(pid, cid, 0); 
   }
-
-  /* Construct the mlink entries */
-  for(i=j=0; i<pParent->nFile && j<pChild->nFile; ){
-    int c;
-    if( pParent->aFile[i].iRename>=0 ){
-      i++;
-    }else if( (c = strcmp(pParent->aFile[i].zName, pChild->aFile[j].zName))<0 ){
-      add_one_mlink(cid, pParent->aFile[i].zUuid,0,pParent->aFile[i].zName,0);
-      i++;
-    }else if( c>0 ){
-      int rn = pChild->aFile[j].iRename;
-      if( rn>=0 ){
-        add_one_mlink(cid, pParent->aFile[rn].zUuid, pChild->aFile[j].zUuid, 
-                      pChild->aFile[j].zName, pParent->aFile[rn].zName);
-      }else{
-        add_one_mlink(cid, 0, pChild->aFile[j].zUuid, pChild->aFile[j].zName,0);
-      }
-      j++;
+  
+  for(i=0, pChildFile=pChild->aFile; i<pChild->nFile; i++, pChildFile++){
+    if( pChildFile->zPrior ){
+       pParentFile = manifest_file_seek(pParent, pChildFile->zPrior);
+       if( pParentFile ){
+         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+                       pChildFile->zName, pChildFile->zPrior);
+       }
     }else{
-      if( strcmp(pParent->aFile[i].zUuid, pChild->aFile[j].zUuid)!=0 ){
-        add_one_mlink(cid, pParent->aFile[i].zUuid, pChild->aFile[j].zUuid, 
-                      pChild->aFile[j].zName, 0);
-      }
-      i++;
-      j++;
+       pParentFile = manifest_file_seek(pParent, pChildFile->zName);
+       if( pParentFile==0 ){
+         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
+       }else if( strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0 ){
+         add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+                       pChildFile->zName, 0);
+       }
     }
-  }
-  while( i<pParent->nFile ){
-    if( pParent->aFile[i].iRename<0 ){
-      add_one_mlink(cid, pParent->aFile[i].zUuid, 0, pParent->aFile[i].zName,0);
-    }
-    i++;
-  }
-  while( j<pChild->nFile ){
-    int rn = pChild->aFile[j].iRename;
-    if( rn>=0 ){
-      add_one_mlink(cid, pParent->aFile[rn].zUuid, pChild->aFile[j].zUuid, 
-                    pChild->aFile[j].zName, pParent->aFile[rn].zName);
-    }else{
-      add_one_mlink(cid, 0, pChild->aFile[j].zUuid, pChild->aFile[j].zName,0);
-    }
-    j++;
   }
   manifest_cache_insert(otherRid, &other);
 }
