@@ -93,8 +93,10 @@ void post_push_hook(char const * const zPushHookLine, const char requestType){
   */
   const char *zCmd = db_get("push-hook-cmd", "");
   int allowForced = db_get_boolean("push-hook-force", 0);
-  
-  if( requestType=='P' && !allowForced){
+
+  if( requestType!='P' &&  requestType!='C' && requestType!='F' ){
+    fossil_print("Push hook wrong request type '%c'\n", requestType);
+  }else if( requestType=='F' && !allowForced ){
     fossil_print("Forced push call from client not allowed,"
                  " skipping call for '%s'\n", zPushHookLine);
   }else if( zCmd && zCmd[0] ){
@@ -108,9 +110,26 @@ void post_push_hook(char const * const zPushHookLine, const char requestType){
     zRnd = db_text(0, "SELECT lower(hex(randomblob(6)))");
 
     zCalledCmd = mprintf("%s %s-%s %s >hook-log-%s-%s 2>&1",zCmd,zDate,zRnd,zPushHookLine,zDate,zRnd);
+    { /* remove newlines from command */
+      char *zSrc, *zDest;
+
+      for (zSrc=zDest=zCalledCmd;;zSrc++){
+        switch( *zSrc ){
+          case '\0':
+            *zDest=0;
+            break;
+          default:
+            *zDest++ = *zSrc;
+            /* fall through is intended! */
+          case '\n':
+            continue;
+        }
+        break;
+      }
+    }
     rc = system(zCalledCmd);
     if (rc != 0) {
-      fossil_print("The post-push-hook command \"%s\" failed.", zCalledCmd);
+      fossil_print("The post-push-hook command '%s' failed.", zCalledCmd);
     }
     free(zCalledCmd);
     free(zDate);
@@ -700,8 +719,10 @@ void page_xfer(void){
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ){
       if(    lenPushHookPattern
-          && 0 == memcmp(blob_buffer(&xfer.line)+1,
-                         zPushHookPattern, lenPushHookPattern)
+          && blob_buffer(&xfer.line)[1]
+          && blob_buffer(&xfer.line)[2]
+          && (0 == memcmp(blob_buffer(&xfer.line)+2,
+                          zPushHookPattern, lenPushHookPattern))
       ){
         post_push_hook(blob_buffer(&xfer.line)+2,blob_buffer(&xfer.line)[1]);
       }
@@ -1424,8 +1445,9 @@ void client_sync(
   };
   if( pushFlag && ( (nFileSend > 0) || allowForced ) ){
     if( zPushHookPattern && zPushHookPattern[0] ){
-      blob_appendf(&send, "#%c%s\n",
-                   ((nFileSend > 0)?'P':'F'), zPushHookPattern);
+      blob_appendf(&send, "#%s%s\n",
+                   ((nFileSend > 0)?"P":"F"), zPushHookPattern);
+      fossil_print("Triggering push hook %s '%s'\n",((nFileSend > 0)?"P":"F"),zPushHookPattern);
       http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
       blob_reset(&send);
       nCardSent++;
