@@ -80,14 +80,10 @@ int load_vfile(const char *zName){
 ** Load a vfile from a record ID.
 */
 void load_vfile_from_rid(int vid){
-  Blob manifest;
-
   if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
     return;
   }
-  content_get(vid, &manifest);
-  vfile_build(vid, &manifest);
-  blob_reset(&manifest);
+  vfile_build(vid);
 }
 
 /*

@@ -87,53 +87,34 @@ static void vfile_verify_not_phantom(
 }
 
 /*
-** Build a catalog of all files in a baseline.
-** We scan the baseline file for lines of the form:
-**
-**     F NAME UUID
-**
-** Each such line makes an entry in the VFILE table.
+** Build a catalog of all files in a checkin.
 */
-void vfile_build(int vid, Blob *p){
+void vfile_build(int vid){
   int rid;
-  char *zName, *zUuid;
   Stmt ins;
-  Blob line, token, name, uuid;
-  int seenHeader = 0;
+  Manifest *p;
+  ManifestFile *pFile;
+
   db_begin_transaction();
   vfile_verify_not_phantom(vid, 0, 0);
+  p = manifest_get(vid, CFTYPE_MANIFEST);
+  if( p==0 ) return;
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
   db_prepare(&ins,
     "INSERT INTO vfile(vid,rid,mrid,pathname) "
     " VALUES(:vid,:id,:id,:name)");
   db_bind_int(&ins, ":vid", vid);
-  while( blob_line(p, &line) ){
-    char *z = blob_buffer(&line);
-    if( z[0]=='-' ){
-      if( seenHeader ) break;
-      while( blob_line(p, &line)>2 ){}
-      if( blob_line(p, &line)==0 ) break;
-    }
-    seenHeader = 1;
-    if( z[0]!='F' || z[1]!=' ' ) continue;
-    blob_token(&line, &token);  /* Skip the "F" token */
-    if( blob_token(&line, &name)==0 ) break;
-    if( blob_token(&line, &uuid)==0 ) break;
-    zName = blob_str(&name);
-    defossilize(zName);
-    zUuid = blob_str(&uuid);
-    rid = uuid_to_rid(zUuid, 0);
-    vfile_verify_not_phantom(rid, zName, zUuid);
-    if( rid>0 && file_is_simple_pathname(zName) ){
-      db_bind_int(&ins, ":id", rid);
-      db_bind_text(&ins, ":name", zName);
-      db_step(&ins);
-      db_reset(&ins);
-    }
-    blob_reset(&name);
-    blob_reset(&uuid);
+  manifest_file_rewind(p);
+  while( (pFile = manifest_file_next(p,0))!=0 ){
+    rid = uuid_to_rid(pFile->zUuid, 0);
+    vfile_verify_not_phantom(rid, pFile->zName, pFile->zUuid);
+    db_bind_int(&ins, ":id", rid);
+    db_bind_text(&ins, ":name", pFile->zName);
+    db_step(&ins);
+    db_reset(&ins);
   }
   db_finalize(&ins);
+  manifest_destroy(p);
   db_end_transaction(0);
 }
 
