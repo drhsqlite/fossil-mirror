@@ -154,7 +154,7 @@ permissions associated with the file.  The only special code currently
 defined is "x" which means that the file is executable.  All files are
 always readable and writable.  This can be expressed by "w" permission
 if desired but is optional.  The file format might be extended with
-no permission letters in the future.
+new permission letters in the future.
 The optional 4th argument is the name of the same file as it existed in
 the parent check-in.  If the name of the file is unchanged from its
 parent, then the 4th argument is omitted.
