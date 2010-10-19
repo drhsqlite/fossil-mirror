@@ -352,6 +352,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       sprintf(zBuf, " %ld\n", ftell(in));
       fseek(in, 0L, SEEK_SET);
       md5sum_step_text(zBuf, -1);
+      /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
       for(;;){
         int n;
         n = fread(zBuf, 1, sizeof(zBuf), in);
@@ -405,6 +406,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
     content_get(rid, &file);
     sprintf(zBuf, " %d\n", blob_size(&file));
     md5sum_step_text(zBuf, -1);
+    /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
     md5sum_step_blob(&file);
     blob_reset(&file);
   }

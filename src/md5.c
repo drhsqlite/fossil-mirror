@@ -318,6 +318,26 @@ void md5sum_step_blob(Blob *p){
 }
 
 /*
+** For trouble-shooting only:
+**
+** Report the current state of the incremental checksum.
+*/
+const char *md5sum_current_state(void){
+  unsigned int cksum = 0;
+  unsigned int *pFirst, *pLast;
+  static char zResult[12];
+
+  pFirst = (unsigned int*)&incrCtx;
+  pLast = (unsigned int*)((&incrCtx)+1);
+  while( pFirst<pLast ){
+    cksum += *pFirst;
+    pFirst++;
+  }
+  sqlite3_snprintf(sizeof(zResult), zResult, "%08x", cksum);
+  return zResult;
+}
+
+/*
 ** Finish the incremental MD5 checksum.  Store the result in blob pOut
 ** if pOut!=0.  Also return a pointer to the result.  
 **

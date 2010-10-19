@@ -546,6 +546,7 @@ char *date_in_standard_format(const char *zInputDate){
 */
 static void create_manifest(
   Blob *pOut,                 /* Write the manifest here */
+  const char *zBaselineUuid,  /* UUID of baseline, or zero */
   Manifest *pBaseline,        /* Make it a delta manifest if not zero */
   Blob *pComment,             /* Check-in comment text */
   int vid,                    /* blob-id of the parent manifest */
@@ -566,10 +567,11 @@ static void create_manifest(
   ManifestFile *pFile;        /* File from the baseline */
 
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
+  assert( pBaseline==0 || zBaselineUuid!=0 );
   blob_zero(pOut);
   zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   if( pBaseline ){
-    blob_appendf(pOut, "B %s\n", zParentUuid);
+    blob_appendf(pOut, "B %s\n", zBaselineUuid);
     manifest_file_rewind(pBaseline);
     pFile = manifest_file_next(pBaseline, 0);
   }else{
@@ -742,8 +744,6 @@ void commit_cmd(void){
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   const char *zComFile;  /* Read commit message from this file */
-  Manifest *pParent;     /* Parent manifest */
-  Manifest *pBaseline;   /* Baseline manifest */
   Blob manifest;         /* Manifest in baseline form */
   Blob muuid;            /* Manifest uuid */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
@@ -926,23 +926,28 @@ void commit_cmd(void){
   if( forceDelta ){
     blob_zero(&manifest);
   }else{
-    create_manifest(&manifest, 0, &comment, vid, !forceFlag,
-                    useCksum ? &cksum1 : 0,
+    create_manifest(&manifest, 0, 0, &comment, vid,
+                    !forceFlag, useCksum ? &cksum1 : 0,
                     zDateOvrd, zUserOvrd, zBranch, zBgColor);
   }
 
   /* See if a delta-manifest would be more appropriate */
   if( !forceBaseline ){
+    const char *zBaselineUuid;
+    Manifest *pParent;
+    Manifest *pBaseline;
     pParent = manifest_get(vid, CFTYPE_MANIFEST);
     if( pParent && pParent->zBaseline ){
-      pBaseline = manifest_get_by_name(pParent->zBaseline, 0);
+      zBaselineUuid = pParent->zBaseline;
+      pBaseline = manifest_get_by_name(zBaselineUuid, 0);
     }else{
+      zBaselineUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
       pBaseline = pParent;
     }
     if( pBaseline ){
       Blob delta;
-      create_manifest(&delta, pBaseline, &comment, vid, !forceFlag,
-                      useCksum ? &cksum1 : 0,
+      create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
+                      !forceFlag, useCksum ? &cksum1 : 0,
                       zDateOvrd, zUserOvrd, zBranch, zBgColor);
       if( forceDelta || blob_size(&delta)<blob_size(&manifest)/125 ){
         blob_reset(&manifest);
@@ -966,8 +971,6 @@ void commit_cmd(void){
   */
   if( testRun ){
     blob_write_to_file(&manifest, "");
-    db_end_transaction(1);
-    exit(1);
   }
 
   if( outputManifest ){
@@ -1040,6 +1043,10 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
+  if( testRun ){
+    db_end_transaction(1);
+    exit(1);
+  }
   db_end_transaction(0);
 
   if( !g.markPrivate ){
