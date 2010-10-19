@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sfile\sformat\sdocumentation\sto\sbetter\sdescribe\sthe\snew\nB-card\son\smanifests.
-D 2010-10-19T17:01:58
+C Two\snew\ssettings:\s\s"manifest"\sand\s"repo-cksum".\s\sThe\sfirst\senables\sthe\noutput\sof\sthe\smanifest\sand\smanifest.uuid\sfiles\son\seach\scheckout.\s\sThis\nis\snow\soff\sby\sdefault.\s\sThe\ssecond\senables\srepository\schecksums.\s\sIt\ndefaults\son.
+D 2010-10-19T17:54:16
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -43,15 +43,15 @@ F src/branch.c 9e93bde7090562a56b11b058b255da8a653ba33e
 F src/browse.c b7ea8a9a61c785328aff2672e8360eced222e1d9
 F src/captcha.c 4fd641c262b7cd037de036892c7d56b76905b1a6
 F src/cgi.c fe2268ca6b9b6d2bc95dec94d6752d529365333f
-F src/checkin.c 476a6eafbb5c58788f780dc27ed9faa8d3389704
-F src/checkout.c 470ddbccc96f061155a83e0d076a1b9725f1f2c2
+F src/checkin.c aa4e9efa3e8a39b04a482c4816a780a7eb65ad2c
+F src/checkout.c 8e8f2ee7ba872553ef6ddfd09f2f1633610ec27a
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h da6c9c44ddafa4e5f7d2fb4afd4d29af87343b73
 F src/configure.c dd2692997f4d7c61a8892157764f15f11122dc12
 F src/content.c d45aea17eda2e7ca517011ec2c80d037e8075a60
-F src/db.c d47e87c08fd672b55701f8dbb244f166325e7ddc
+F src/db.c ce96c7eb97abbcabdf685bdc63d83375ea460cca
 F src/delta.c bb7a7e1bb9f9bbd7c0d3339e5c4440ed3d1e897f
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
@@ -117,7 +117,7 @@ F src/wiki.c 8ab45864d6b91407fd1f17e9734f74ff228e11c3
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c 2e4cd0e86c01bcf686ab04413f5a917190e7c163
 F src/xfer.c 967b96f9080db5c028304b7e8982714ffae12327
-F src/zip.c b1266a3ebe83c3de4e72724d907f6d84fe8ca3eb
+F src/zip.c 74a36d7ab589e399eb118dc06d43aaf6bc2617c1
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 0e326631fe651eda8544dbf92a4352f23269619c
-R 2b941482bd882c68f76e1f3335ef0400
+P f56c622b7a5ed8696d0fd7bb13360ac66441d34b
+R a718ed50f2b5e44d4417ea98f99b9ea3
 U drh
-Z 636a29e60341cf314fb1d655da5e603f
+Z 220cd1fa2a928a2a66edaf93ed9b6b68

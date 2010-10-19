@@ -98,10 +98,9 @@ static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
 ** Set or clear the execute permission bit (as appropriate) for all
 ** files in the current check-out.
 **
-** If the checkout does not have explicit files named "manifest" and
-** "manifest.uuid" then automatically generate files with those names
-** containing, respectively, the text of the manifest and the artifact
-** ID of the manifest.
+** If the "manifest" setting is true, then automatically generate
+** files named "manifest" and "manifest.uuid" containing, respectively,
+** the text of the manifest and the artifact ID of the manifest.
 */
 void manifest_to_disk(int vid){
   char *zManFile;
@@ -109,8 +108,6 @@ void manifest_to_disk(int vid){
   Blob hash;
   Blob filename;
   int baseLen;
-  int seenManifest = 0;
-  int seenManifestUuid = 0;
   Manifest *pManifest;
   ManifestFile *pFile;
 
@@ -129,30 +126,23 @@ void manifest_to_disk(int vid){
     file_setexe(blob_str(&filename), isExe);
     set_or_clear_isexe(pFile->zName, vid, isExe);
     blob_resize(&filename, baseLen);
-    if( memcmp(pFile->zName, "manifest", 8)==0 ){
-      if( pFile->zName[8]==0 ) seenManifest = 1;
-      if( strcmp(&pFile->zName[8], ".uuid")==0 ) seenManifestUuid = 1;
-    }
   }
   blob_reset(&filename);
   manifest_destroy(pManifest);
 
+  if( !db_get_boolean("manifest",0) ) return;
   blob_zero(&manifest);
   content_get(vid, &manifest);
-  if( !seenManifest ){
-    zManFile = mprintf("%smanifest", g.zLocalRoot);
-    blob_write_to_file(&manifest, zManFile);
-    free(zManFile);
-  }
-  if( !seenManifestUuid ){
-    blob_zero(&hash);
-    sha1sum_blob(&manifest, &hash);
-    zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-    blob_append(&hash, "\n", 1);
-    blob_write_to_file(&hash, zManFile);
-    free(zManFile);
-    blob_reset(&hash);
-  }
+  zManFile = mprintf("%smanifest", g.zLocalRoot);
+  blob_write_to_file(&manifest, zManFile);
+  free(zManFile);
+  blob_zero(&hash);
+  sha1sum_blob(&manifest, &hash);
+  zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+  blob_append(&hash, "\n", 1);
+  blob_write_to_file(&hash, zManFile);
+  free(zManFile);
+  blob_reset(&hash);
 }
 
 /*

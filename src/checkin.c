@@ -261,6 +261,7 @@ void extra_cmd(void){
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
+  int outputManifest = db_get_boolean("manifest",0);
 
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
@@ -272,12 +273,14 @@ void extra_cmd(void){
   vfile_scan(0, &path, blob_size(&path), allFlag);
   db_prepare(&q, 
       "SELECT x FROM sfile"
-      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
+      " WHERE x NOT IN ('%s','%s','_FOSSIL_',"
                        "'_FOSSIL_-journal','.fos','.fos-journal',"
                        "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
                        "'.fos-shm')"
       "   AND NOT %s"
       " ORDER BY 1",
+      outputManifest ? "manifest" : "_FOSSIL_",
+      outputManifest ? "manifest.uuid" : "_FOSSIL_",
       glob_expr("x", zIgnoreFlag)
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
@@ -603,6 +606,8 @@ void commit_cmd(void){
   int forceFlag = 0;     /* Force a fork */
   char *zManifestFile;   /* Name of the manifest file */
   int nBasename;         /* Length of "g.zLocalRoot/" */
+  int useCksum;          /* True if checksums should be computed and verified */
+  int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
   const char *zBranch;   /* Create a new branch with this name */
   const char *zBgColor;  /* Set background color when branching */
   const char *zDateOvrd; /* Override date string */
@@ -632,6 +637,8 @@ void commit_cmd(void){
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
+  useCksum = db_get_boolean("repo-cksum", 1);
+  outputManifest = db_get_boolean("manifest", 0);
   verify_all_options();
 
   /* Get the ID of the parent manifest artifact */
@@ -722,7 +729,7 @@ void commit_cmd(void){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
-  vfile_aggregate_checksum_disk(vid, &cksum1);
+  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
@@ -845,7 +852,7 @@ void commit_cmd(void){
   }
 
   blob_appendf(&manifest, "\n");
-  blob_appendf(&manifest, "R %b\n", &cksum1);
+  if( useCksum ) blob_appendf(&manifest, "R %b\n", &cksum1);
   if( zBranch && zBranch[0] ){
     Stmt q;
     if( zBgColor && zBgColor[0] ){
@@ -879,7 +886,7 @@ void commit_cmd(void){
       fossil_exit(1);
     }
   }
-  if( !file_exists_in_checkout(vid, "manifest") ){
+  if( outputManifest ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManifestFile);
     blob_reset(&manifest);
@@ -895,7 +902,7 @@ void commit_cmd(void){
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);
-  if( !file_exists_in_checkout(vid, "manifest.uuid") ){
+  if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
     blob_appendf(&muuid, "%s\n", zUuid);
@@ -916,30 +923,32 @@ void commit_cmd(void){
   );
   db_lset_int("checkout", nvid);
 
-  /* Verify that the repository checksum matches the expected checksum
-  ** calculated before the checkin started (and stored as the R record
-  ** of the manifest file).
-  */
-  vfile_aggregate_checksum_repository(nvid, &cksum2);
-  if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksum does not match repository after commit");
-  }
-
-  /* Verify that the manifest checksum matches the expected checksum */
-  vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
-  if( blob_compare(&cksum1, &cksum1b) ){
-    fossil_panic("manifest checksum does not agree with manifest: "
-                 "%b versus %b", &cksum1, &cksum1b);
-  }
-  if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksum does not match manifest after commit: "
-                 "%b versus %b", &cksum1, &cksum2);
-  }
-
-  /* Verify that the commit did not modify any disk images. */
-  vfile_aggregate_checksum_disk(nvid, &cksum2);
-  if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksums before and after commit do not match");
+  if( useCksum ){
+    /* Verify that the repository checksum matches the expected checksum
+    ** calculated before the checkin started (and stored as the R record
+    ** of the manifest file).
+    */
+    vfile_aggregate_checksum_repository(nvid, &cksum2);
+    if( blob_compare(&cksum1, &cksum2) ){
+      fossil_panic("tree checksum does not match repository after commit");
+    }
+  
+    /* Verify that the manifest checksum matches the expected checksum */
+    vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
+    if( blob_compare(&cksum1, &cksum1b) ){
+      fossil_panic("manifest checksum does not agree with manifest: "
+                   "%b versus %b", &cksum1, &cksum1b);
+    }
+    if( blob_compare(&cksum1, &cksum2) ){
+      fossil_panic("tree checksum does not match manifest after commit: "
+                   "%b versus %b", &cksum1, &cksum2);
+    }
+  
+    /* Verify that the commit did not modify any disk images. */
+    vfile_aggregate_checksum_disk(nvid, &cksum2);
+    if( blob_compare(&cksum1, &cksum2) ){
+      fossil_panic("tree checksums before and after commit do not match");
+    }
   }
 
   /* Clear the undo/redo stack */
