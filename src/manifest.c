@@ -1039,10 +1039,13 @@ static void add_one_mlink(
 }
 
 /*
-** Locate a file named zName in the aFile[] array of the given
-** manifest.  We assume that filenames are in sorted order.
-** Use a binary search.  Return turn the index of the matching
-** entry.  Or return -1 if not found.
+** Do a binary search to find a file in the p->aFile[] array.  
+**
+** As an optimization, guess that the file we seek is at index p->iFile.
+** That will usually be the case.  If it is not found there, then do the
+** actual binary search.
+**
+** Update p->iFile to be the index of the file that is found.
 */
 static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
   int lwr, upr;
@@ -1074,7 +1077,18 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
   }
   return 0;
 }
-static ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
+
+/*
+** Locate a file named zName in the aFile[] array of the given manifest.
+** Return a pointer to the appropriate ManifestFile object.  Return NULL
+** if not found.
+**
+** This routine works even if p is a delta-manifest.  The pointer 
+** returned might be to the baseline.
+**
+** We assume that filenames are in sorted order and use a binary search.
+*/
+ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
   ManifestFile *pFile;
   
   pFile = manifest_file_seek_base(p, zName);
