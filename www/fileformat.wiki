@@ -114,7 +114,7 @@ manifest that has a B-card is called a delta-manifest and a manifest
 that omits the B-card is a baseline-manifest.  The other manifest
 identified by the argument of the B-card must be a baseline-manifest.
 A baseline-manifest records the complete contents of a checkin.
-A delta-manifest records all changes from its baseline.  
+A delta-manifest records only changes from its baseline.  
 
 A manifest must have exactly one C-card.  The sole argument to
 the C-card is a check-in comment that describes the check-in that
@@ -146,14 +146,15 @@ comment text.  Backslash characters and newlines are not allowed
 within filenames.  The directory separator character is a forward
 slash (ASCII 0x2F).  The second argument to the F-card is the
 full 40-character lower-case hexadecimal SHA1 hash of the content
-artifact.  The second argument is required for baselin manifests
+artifact.  The second argument is required for baseline manifests
 but is optional for delta manifests.  When the second argument to the
 F-card is omitted, it means that the file has been deleted relative
 to the baseline.  The optional 3rd argument defines any special access 
 permissions associated with the file.  The only special code currently
 defined is "x" which means that the file is executable.  All files are
 always readable and writable.  This can be expressed by "w" permission
-if desired but is optional.
+if desired but is optional.  The file format might be extended with
+no permission letters in the future.
 The optional 4th argument is the name of the same file as it existed in
 the parent check-in.  If the name of the file is unchanged from its
 parent, then the 4th argument is omitted.
@@ -515,6 +516,16 @@ appear on Fossil artifacts:
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>X</b></td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><b>B</b> <i>baseline</i></td>
+<td align=center><b>X</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
