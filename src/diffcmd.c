@@ -37,6 +37,7 @@ int portable_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
+  fflush(0);
   rc = system(zNewCmd);
   free(zNewCmd);
 #else
