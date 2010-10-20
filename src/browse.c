@@ -130,6 +130,8 @@ void page_dir(void){
     pM = manifest_get_by_name(zCI, &rid);
     if( pM ){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    }else{
+      zCI = 0;
     }
   }
 

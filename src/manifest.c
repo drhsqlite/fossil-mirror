@@ -840,6 +840,7 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
   if( !is_a_version(rid) ){
     fossil_fatal("no such checkin: %s", zName);
   }
+  if( pRid ) *pRid = rid;
   p = manifest_get(rid, CFTYPE_MANIFEST);
   if( p==0 ){
     fossil_fatal("cannot parse manifest for checkin: %s", zName);
