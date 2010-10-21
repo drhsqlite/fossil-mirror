@@ -68,8 +68,10 @@ void SHA1Transform(unsigned int state[5], const unsigned char buffer[64])
   unsigned int a, b, c, d, e;
   CHAR64LONG16 *block;
   static int one = 1;
+  CHAR64LONG16 workspace;
 
-  block = (CHAR64LONG16 *)(void *)buffer;
+  block = &workspace;
+  (void)memcpy(block, buffer, 64);
 
   /* Copy context->state[] to working vars */
   a = state[0];
