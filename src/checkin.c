@@ -555,7 +555,8 @@ static void create_manifest(
   const char *zDateOvrd,      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd,      /* User override.  If 0 then use g.zLogin */
   const char *zBranch,        /* Branch name.  May be 0 */
-  const char *zBgColor        /* Background color.  May be 0 */
+  const char *zBgColor,       /* Background color.  May be 0 */
+  int *pnFBcard               /* Number of generated B- and F-cards */
 ){
   char *zDate;                /* Date of the check-in */
   char *zParentUuid;          /* UUID of parent check-in */
@@ -565,6 +566,7 @@ static void create_manifest(
   Stmt q2;                    /* Query of merge parents */
   Blob mcksum;                /* Manifest checksum */
   ManifestFile *pFile;        /* File from the baseline */
+  int nFBcard = 0;            /* Number of B-cards and F-cards */
 
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
   assert( pBaseline==0 || zBaselineUuid!=0 );
@@ -574,6 +576,7 @@ static void create_manifest(
     blob_appendf(pOut, "B %s\n", zBaselineUuid);
     manifest_file_rewind(pBaseline);
     pFile = manifest_file_next(pBaseline, 0);
+    nFBcard++;
   }else{
     pFile = 0;
   }
@@ -613,6 +616,7 @@ static void create_manifest(
     while( pFile && strcmp(pFile->zName,zName)<0 ){
       blob_appendf(pOut, "F %F\n", pFile->zName);
       pFile = manifest_file_next(pBaseline, 0);
+      nFBcard++;
     }
     cmp = 1;
     if( pFile==0
@@ -626,6 +630,7 @@ static void create_manifest(
         if( zPerm[0]==0 ){ zPerm = " w"; }
         blob_appendf(pOut, "F %F %s%s %F\n", zName, zUuid, zPerm, zOrig);
       }
+      nFBcard++;
     }
     if( cmp==0 ) pFile = manifest_file_next(pBaseline,0);
   }
@@ -677,6 +682,7 @@ static void create_manifest(
   blob_appendf(pOut, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(pOut, &mcksum);
   blob_appendf(pOut, "Z %b\n", &mcksum);
+  if( pnFBcard ) *pnFBcard = nFBcard;
 }
 
 
@@ -748,6 +754,8 @@ void commit_cmd(void){
   Blob muuid;            /* Manifest uuid */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
+  int szD;               /* Size of the delta manifest */
+  int szB;               /* Size of the baseline manifest */
  
   url_proxy_options();
   noSign = find_option("nosign",0,0)!=0;
@@ -928,7 +936,7 @@ void commit_cmd(void){
   }else{
     create_manifest(&manifest, 0, 0, &comment, vid,
                     !forceFlag, useCksum ? &cksum1 : 0,
-                    zDateOvrd, zUserOvrd, zBranch, zBgColor);
+                    zDateOvrd, zUserOvrd, zBranch, zBgColor, &szB);
   }
 
   /* See if a delta-manifest would be more appropriate */
@@ -948,10 +956,24 @@ void commit_cmd(void){
       Blob delta;
       create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
                       !forceFlag, useCksum ? &cksum1 : 0,
-                      zDateOvrd, zUserOvrd, zBranch, zBgColor);
-      if( forceDelta || blob_size(&delta)<blob_size(&manifest)/125 ){
+                      zDateOvrd, zUserOvrd, zBranch, zBgColor, &szD);
+      /*
+      ** Let B be the number of F-cards in a baseline manifest and
+      ** let D be the number of F-cards in a delta manifest, plus one for
+      ** the B-card.  Assume that each delta manifest adds X new F-cards.
+      ** Then to minimize the total number of F- and B-cards in the repository,
+      ** we should insert a new baseline manifest whenever
+      **
+      **      D*D >= B*X - X*X
+      **
+      ** X is an unknown here, but for most repositories, we will not be
+      ** far wrong if we assume X=3.
+      */
+      if( forceDelta || (szD*szD)<(szB*3-9) ){
         blob_reset(&manifest);
         manifest = delta;
+      }else{
+        blob_reset(&delta);
       }
     }else if( forceDelta ){
       fossil_panic("unable to find a baseline-manifest for the delta");
