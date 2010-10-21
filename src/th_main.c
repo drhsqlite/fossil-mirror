@@ -237,6 +237,205 @@ static int anycapCmd(
 }
 
 /*
+**
+** TH1 command: fossiltag list ?ARTIFACT-ID?
+**
+**   Returns a list of tags on ARTIFACT-ID. Or, all tags,
+**   if ARTIFACT-ID is not specified. Only uncancelled tags
+**   are included in the result.
+**
+**   Example:
+**     <b>List of tags on thing:</b>
+**     <th1>
+**     puts [fossiltag list 2b4630f34]
+**     </th1>
+*/
+static int fossiltagListCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Stmt st;
+  char *zTagList = 0;
+  int  nTagList = 0;
+  if( argc==3 ){
+    db_prepare(&st,
+               "SELECT tag.tagname FROM tag, tagxref "
+               "  WHERE tagxref.rid=%d "
+               "    AND tagxref.tagid=tag.tagid"
+               "    AND tagxref.tagtype>0 ",
+               name_to_rid((char*)argv[2])
+               );
+  }
+  else {
+    db_prepare(&st,
+               "SELECT DISTINCT tag.tagname FROM tag, tagxref "
+               "  WHERE "
+               "    tagxref.tagid=tag.tagid"
+               "    AND tagxref.tagtype>0 "
+               );
+  }
+  while( db_step(&st) == SQLITE_ROW ){
+    char *tagname = (char*)db_column_text(&st, 0);
+    Th_ListAppend(interp, &zTagList, &nTagList, tagname, -1);
+
+  }
+
+  Th_SetResult(interp, zTagList, nTagList);
+  Th_Free(interp, zTagList);
+  db_finalize(&st);
+  return TH_OK;
+}
+
+/*
+**
+** TH1 command: fossiltag get TAG-NAME ?ARTIFACT-ID? ?FALLBACK-VALUE?
+**
+**   Returns the value of TAG-NAME on ARTIFACT-ID, or
+**   one of the following:
+**   if FALLBACK-VALUE provided and TAG-NAME not present,
+**   then FALLBACK-VALUE is returned.
+**   if FALLBACK-VALUE not provided, and TAG-NAME not present,
+**   then 0 returned.
+**   if TAG-NAME present, but has no value, then 1 is returned.
+**
+**   Example:
+**     <b>Check-in acceptance status:</b>
+**     <th1>
+**     set accept_out ""
+**     if {[set out [fossiltag get "QA_acceptance" $check_in_id "<b>DID NOT PASS</b>"]]} {
+**       set accept_out "  *  QA: ${out}"
+**     }
+**     if {[set out [fossiltag get "Unit_passed" $check_in_id "<b>DID NOT PASS UNIT TESTS</b>"]]} {
+**       set accept_out "${accept_out}\n  *  Unit tests: ${out}"
+**     }
+**     if {[set out [fossiltag get "Signed_off_by" $check_in_id "<b>NOT SIGNED OFF</b>"]]} {
+**       set accept_out "${accept_out}\n  *  Signed off by: ${out}"
+**     }
+**     puts [wiki $accept_out]
+**     </th1>
+*/
+static int fossiltagGetCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rid = -1;
+  char *zTagValue = 0;
+  char *zDefault = 0;
+  int nDefault = 0;
+  db_open_local();
+  db_open_repository(0);
+  if( argc<3 ){
+    return Th_WrongNumArgs(interp, "fossiltag get TAG-NAME ?ARTIFACT-ID? ?FALLBACK-TEXT?");
+  }
+  /* if a fallback value was provided, place it in zDefault */
+  if( argc==5 ){
+    zDefault = (char*)argv[4];
+    nDefault = argl[4];
+  }
+  /* if an artifact-id (name) is given.. */
+  if( argc>=4 && strlen((char*)argv[3])){
+    rid =
+    db_int(0,
+           "SELECT blob.rid "
+           "  FROM tag, tagxref, blob "
+           "WHERE tag.tagname=%Q AND blob.rid=%d"
+           "  AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
+           "  AND blob.rid=tagxref.rid ",
+           argv[2], name_to_rid((char*)argv[3])
+           );
+
+    if( g.thTrace ){
+      Th_Trace("[tagget] artifact-id: %s %d\n", argv[3], rid);
+    }
+  }
+  else { /* if no artifact-id is given, we select the most recent commit
+            containing TAG-NAME */
+    rid =
+    db_int(0,
+       "SELECT blob.rid "
+       "  FROM tag, tagxref, event, blob "
+       "WHERE tag.tagname=%Q "
+       "  AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
+       "  AND event.objid=tagxref.rid "
+       "  AND blob.rid=event.objid "
+       "ORDER BY event.mtime DESC ",
+       argv[2]
+    );
+    if( g.thTrace ){
+      Th_Trace("[tagget] artifact-rid: %d\n", rid);
+    }
+  }
+
+  /* return 0 or the fallback value, since we couldn't
+     find an artifact with TAG-NAME on it. */
+  if( rid==0 && argc==5 ){
+    if( g.thTrace ){
+      Th_Trace("[tagget] tag not on any artifact; returning default: %s\n", zDefault);
+    }
+    Th_SetResult(interp, zDefault, nDefault);
+    return TH_OK;
+  }
+  else if( rid==0 && argc<5 ){
+    if( g.thTrace ){
+      Th_Trace("[tagget] tag not on any artifact; ret: 0\n");
+    }
+    Th_SetResultInt(interp, 0);
+    return TH_OK;
+  }
+
+  zTagValue = db_text(zDefault,
+                      "SELECT tagxref.value FROM tag, tagxref "
+                      "  WHERE tag.tagname=%Q "
+                      "    AND tagxref.tagid=tag.tagid "
+                      "    AND tagxref.rid=%d ",
+                      argv[2], rid
+                      );
+  if( zTagValue && strlen(zTagValue)==0 ){
+    if( g.thTrace ){
+      Th_Trace("[tagget] tag has no value; ret: 1\n");
+    }
+    Th_SetResultInt(interp, 1);
+    free(zTagValue);
+  }
+  else {
+    if( g.thTrace ){
+      Th_Trace("[tagget] returning tag value: %s\n", zTagValue);
+    }
+    Th_SetResult(interp, zTagValue, -1);
+    free(zTagValue);
+  }
+  return TH_OK;
+}
+
+/*
+** TH1 command: fossiltag list|get ...
+**
+** Provide TH1 commands for read-only interation with tags on
+** any taggable artifact. The tags are always raw.
+**
+*/
+static int fossiltagCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  Th_SubCommand aSub[] = {
+    { "list", fossiltagListCmd },
+    { "get",   fossiltagGetCmd },
+    { 0, 0 }
+  };
+  return Th_CallSubCommand(interp, p, argc, argv, argl, aSub);
+}
+
+/*
 ** TH1 command:  combobox NAME TEXT-LIST NUMLINES
 **
 ** Generate an HTML combobox.  NAME is both the name of the
@@ -352,6 +551,7 @@ void Th_FossilInit(void){
     {"html",          putsCmd,              0},
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
+    {"fossiltag",     fossiltagCmd,         0},
   };
   if( g.interp==0 ){
     int i;
@@ -521,10 +721,22 @@ int Th_Render(const char *z){
 */
 void test_th_render(void){
   Blob in;
+  g.thTrace = find_option("th-trace", 0, 0)!=0;
+  if( g.thTrace ){
+    blob_zero(&g.thLog);
+  }
   if( g.argc<3 ){
     usage("FILE");
   }
   blob_zero(&in);
-  blob_read_from_file(&in, g.argv[2]);
+  if( g.thTrace ){
+    blob_read_from_file(&in, g.argv[3]);
+  }
+  else{
+    blob_read_from_file(&in, g.argv[2]);
+  }
   Th_Render(blob_str(&in));
+  if( g.thTrace ){
+    fossil_print("%s", blob_materialize(&g.thLog));
+  }
 }
