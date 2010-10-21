@@ -958,13 +958,20 @@ void commit_cmd(void){
                       !forceFlag, useCksum ? &cksum1 : 0,
                       zDateOvrd, zUserOvrd, zBranch, zBgColor, &szD);
       /*
-      ** Let B be the number of F-cards in a baseline manifest and
-      ** let D be the number of F-cards in a delta manifest, plus one for
-      ** the B-card.  Assume that each delta manifest adds X new F-cards.
-      ** Then to minimize the total number of F- and B-cards in the repository,
-      ** we should insert a new baseline manifest whenever
+      ** At this point, two manifests have been constructed, either of
+      ** which would work for this checkin.  The first manifest (held
+      ** in the "manifest" variable) is a baseline manifest and the second
+      ** (held in variable named "delta") is a delta manifest.  The
+      ** question now is: which manifest should we use?
       **
-      **      D*D >= B*X - X*X
+      ** Let B be the number of F-cards in the baseline manifest and
+      ** let D be the number of F-cards in the delta manifest, plus one for
+      ** the B-card.  (B is held in the szB variable and D is held in the
+      ** szD variable.)  Assume that all delta manifests adds X new F-cards.
+      ** Then to minimize the total number of F- and B-cards in the repository,
+      ** we should use the delta manifest if and only if:
+      **
+      **      D*D < B*X - X*X
       **
       ** X is an unknown here, but for most repositories, we will not be
       ** far wrong if we assume X=3.
