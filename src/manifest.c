@@ -211,7 +211,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
   int seenHeader = 0;
   int seenZ = 0;
   int i, lineNo=0;
-  Blob line, token, a1, a2, a3, a4;
+  Blob line, a1, a2, a3, a4;
   char cPrevType = 0;
 
   /* Every control artifact ends with a '\n' character.  Exit early
@@ -251,7 +251,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
     }
     cPrevType = z[0];
     seenHeader = 1;
-    if( blob_token(&line, &token)!=1 ) goto manifest_syntax_error;
+    if( blob_size(&line)>1 && z[1]!=' ' ) goto manifest_syntax_error;
+    line.iCursor = 2;
     switch( z[0] ){
       /*
       **     A <filename> <target> ?<source>?
@@ -264,12 +265,12 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'A': {
         char *zName, *zTarget, *zSrc;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)==0 ) goto manifest_syntax_error;
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
         zTarget = blob_terminate(&a2);
-        blob_token(&line, &a3);
+        fast_token(&line, &a3);
         zSrc = blob_terminate(&a3);
         defossilize(zName);
         if( !file_is_simple_pathname(zName) ){
@@ -299,7 +300,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
         char *zBaseline;
         if( p->zBaseline ) goto manifest_syntax_error;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
         zBaseline = blob_terminate(&a1);
         if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(zBaseline, UUID_SIZE) ) goto manifest_syntax_error;
@@ -318,8 +319,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'C': {
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zComment!=0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         p->zComment = blob_terminate(&a1);
         defossilize(p->zComment);
         break;
@@ -336,8 +337,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
         char *zDate;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->rDate!=0.0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         zDate = blob_terminate(&a1);
         p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
         break;
@@ -356,9 +357,9 @@ int manifest_parse(Manifest *p, Blob *pContent){
         char *zEDate;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->rEventDate!=0.0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a3)!=0 ) goto manifest_syntax_error;
         zEDate = blob_terminate(&a1);
         p->rEventDate = db_double(0.0, "SELECT julianday(%Q)", zEDate);
         if( p->rEventDate<=0.0 ) goto manifest_syntax_error;
@@ -378,21 +379,21 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'F': {
         char *zName, *zUuid, *zPerm, *zPriorName;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
-        blob_token(&line, &a2);
+        fast_token(&line, &a2);
         zUuid = blob_terminate(&a2);
         if( p->zBaseline==0 || zUuid[0]!=0 ){
           if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
           if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         }
-        blob_token(&line, &a3);
+        fast_token(&line, &a3);
         zPerm = blob_terminate(&a3);
         defossilize(zName);
         if( !file_is_simple_pathname(zName) ){
           goto manifest_syntax_error;
         }
-        blob_token(&line, &a4);
+        fast_token(&line, &a4);
         zPriorName = blob_terminate(&a4);
         if( zPriorName[0] ){
           defossilize(zPriorName);
@@ -429,9 +430,9 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'J': {
         char *zName, *zValue;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        blob_token(&line, &a2);
-        if( blob_token(&line, &a3)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        fast_token(&line, &a2);
+        if( fast_token(&line, &a3)!=0 ) goto manifest_syntax_error;
         zName = blob_terminate(&a1);
         zValue = blob_terminate(&a2);
         defossilize(zValue);
@@ -459,7 +460,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'K': {
         char *zUuid;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
         zUuid = blob_terminate(&a1);
         if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
@@ -477,8 +478,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'L': {
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zWikiTitle!=0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         p->zWikiTitle = blob_terminate(&a1);
         defossilize(p->zWikiTitle);
         if( !wiki_name_is_wellformed((const unsigned char *)p->zWikiTitle) ){
@@ -496,7 +497,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'M': {
         char *zUuid;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
         zUuid = blob_terminate(&a1);
         if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
@@ -522,7 +523,7 @@ int manifest_parse(Manifest *p, Blob *pContent){
       */
       case 'P': {
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        while( blob_token(&line, &a1) ){
+        while( fast_token(&line, &a1) ){
           char *zUuid;
           if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
           zUuid = blob_terminate(&a1);
@@ -547,8 +548,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'R': {
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
         p->zRepoCksum = blob_terminate(&a1);
         if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
@@ -573,15 +574,15 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'T': {
         char *zName, *zUuid, *zValue;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ){
+        if( fast_token(&line, &a1)==0 ){
           goto manifest_syntax_error;
         }
-        if( blob_token(&line, &a2)==0 ){
+        if( fast_token(&line, &a2)==0 ){
           goto manifest_syntax_error;
         }
         zName = blob_terminate(&a1);
         zUuid = blob_terminate(&a2);
-        if( blob_token(&line, &a3)==0 ){
+        if( fast_token(&line, &a3)==0 ){
           zValue = 0;
         }else{
           zValue = blob_terminate(&a3);
@@ -626,13 +627,13 @@ int manifest_parse(Manifest *p, Blob *pContent){
       case 'U': {
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zUser!=0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a1)==0 ){
+        if( fast_token(&line, &a1)==0 ){
           p->zUser = "anonymous";
         }else{
           p->zUser = blob_terminate(&a1);
           defossilize(p->zUser);
         }
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         break;
       }
 
@@ -647,8 +648,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
         int size;
         Blob wiki;
         md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         if( !blob_is_int(&a1, &size) ) goto manifest_syntax_error;
         if( size<0 ) goto manifest_syntax_error;
         if( p->zWiki!=0 ) goto manifest_syntax_error;
@@ -680,8 +681,8 @@ int manifest_parse(Manifest *p, Blob *pContent){
         int rc;
         Blob hash;
 #endif
-        if( blob_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( blob_token(&line, &a2)!=0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
+        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
         if( !validate16(blob_buffer(&a1), 32) ) goto manifest_syntax_error;
 #ifndef FOSSIL_DONT_VERIFY_MANIFEST_MD5SUM
