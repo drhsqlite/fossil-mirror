@@ -1,5 +1,5 @@
-C Fix\sthe\snew\sSHA1\schecksum\smodule\sso\sthat\sit\sdoes\snot\soverwrite\sits\sinput.
-D 2010-10-21T20:54:28
+C Change\sthe\s"commit"\scommand\sso\sthat\sit\swill\snot\screate\sthe\sfirst\ndelta-manifest\sin\sa\srepository\sunless\sthe\s--delta\soption\sis\sused.
+D 2010-10-22T13:05:01
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -43,7 +43,7 @@ F src/branch.c 9e93bde7090562a56b11b058b255da8a653ba33e
 F src/browse.c d2360f705d915a16539d0c4302a817b565478518
 F src/captcha.c 4fd641c262b7cd037de036892c7d56b76905b1a6
 F src/cgi.c fe2268ca6b9b6d2bc95dec94d6752d529365333f
-F src/checkin.c cf5c2488c00ac3abff896758380d91019cfc0a4d
+F src/checkin.c 89786f091d164f5ec547bac7ee3c30d771914b77
 F src/checkout.c 8e8f2ee7ba872553ef6ddfd09f2f1633610ec27a
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -74,7 +74,7 @@ F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 7bc38621223820447c67d7ba5e56f1efd23a243c
-F src/manifest.c 1053fa418a82727da65674c79b5e0104f0358382
+F src/manifest.c ef2b1387af204e9d0c093b606ae37f906dd1a251
 F src/md5.c 119869cfa007cf9125d23e8b000e43c00f756b3e
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P f8f175cf22e9ba87f48b27c0b3ca9b688c6dfcec
-R 3ea9e81ff27b89116e6e4ea5b7fd4aba
+P fa9dfc34e5384b4a465553011e9158778bfb092e
+R 2a1ae3a5ffe4b5310bec771c1e589348
 U drh
-Z c5e083f010b2cbf1802e6b7f75d9595c
+Z 2004d722972e098e35c68be5f992e9bf

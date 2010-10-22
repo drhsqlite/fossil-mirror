@@ -1351,6 +1351,18 @@ int manifest_crosslink(int rid, Blob *pContent){
                         " WHERE rowid=last_insert_rowid()");
       wiki_extract_links(zCom, rid, 0, m.rDate, 1, WIKI_INLINE);
       free(zCom);
+
+      /* If this is a delta-manifest, record the fact that this repository
+      ** contains delta manifests, to free the "commit" logic to generate
+      ** new delta manifests.
+      */
+      if( m.zBaseline!=0 ){
+        static int once = 0;
+        if( !once ){
+          db_set_int("seen-delta-manifest", 1, 0);
+          once = 0;
+        }
+      }
     }
   }
   if( m.type==CFTYPE_CLUSTER ){

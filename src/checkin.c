@@ -784,6 +784,16 @@ void commit_cmd(void){
   outputManifest = db_get_boolean("manifest", 0);
   verify_all_options();
 
+  /* So that older versions of Fossil (that do not understand delta-
+  ** manifest) can continue to use this repository, do not create a new
+  ** delta-manifest unless this repository already contains one or more
+  ** delta-manifets, or unless the delta-manifest is explicitly requested
+  ** by the --delta option.
+  */
+  if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
+    forceBaseline = 1;
+  }
+
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
   if( content_is_private(vid) ){
