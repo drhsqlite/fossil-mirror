@@ -104,9 +104,20 @@ void update_cmd(void){
         " ORDER BY event.mtime DESC",
         timeline_query_for_tty()
       );
+      printf(
+             "\n"
+             "Multiple descendants of the current check-in:"
+             "\n\n"
+             );
       print_timeline(&q, 100);
       db_finalize(&q);
-      fossil_fatal("Multiple descendants");
+      printf("\n");
+      fossil_fatal(
+                   "You must select one branch or leaf.\n"
+                   "Select a branch or leaf with 'update VERSION', where 'VERSION' is a UUID\n"
+                   "or branch name. Alternatively, you may use 'latest' to refer to the most\n"
+                   "recent check-in."
+                   );
     }
     tid = db_int(0, "SELECT rid FROM leaves, event"
                     " WHERE event.objid=leaves.rid"
