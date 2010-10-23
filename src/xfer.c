@@ -93,8 +93,33 @@ void post_push_hook(char const * const zPushHookLine, const char requestType){
   */
   const char *zCmd = db_get("push-hook-cmd", "");
   int allowForced = db_get_boolean("push-hook-force", 0);
+  const char *zHookPriv = db_get("push-hook-privilege","");
+  int privOk = 0;
 
-  if( requestType!='P' &&  requestType!='C' && requestType!='F' ){
+  if( zHookPriv && *zHookPriv ){
+    switch( *zHookPriv ){
+      
+      case 's':
+        if( g.okSetup ) privOk = 1;
+        break;
+      case 'a':
+        if( g.okAdmin ) privOk = 1;
+        break;
+      case 'i':
+        if( g.okWrite ) privOk = 1;
+        break;
+      case 'o':
+        if( g.okRead ) privOk = 1;
+        break;
+      default
+        fossil_print("Push hook wrong privilege type '%s'\n", zHookPriv);
+    }
+  }else{
+    privOk = 1;
+  }
+  if( !privOk ){
+    fossil_print("No privilege to activate hook!\n");
+  }else if( requestType!='P' &&  requestType!='C' && requestType!='F' ){
     fossil_print("Push hook wrong request type '%c'\n", requestType);
   }else if( requestType=='F' && !allowForced ){
     fossil_print("Forced push call from client not allowed,"

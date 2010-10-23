@@ -1534,6 +1534,8 @@ struct stControlSettings const ctrlSettings[] = {
                      0,               32, ""                    },
   { "push-hook-pattern-server",
                      0,               32, ""                    },
+  { "push-hook-privilege",
+                     0,               1,  ""                    },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
   { 0,0,0,0 }
@@ -1631,6 +1633,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                  if set, and a client send this pattern at the end of
 **                  a push, the push hook command will be executed. This
 **                  might be a prefix of the pattern, sent by the client.
+**
+**    push-hook-privilege
+**                  if set, the user doing the push needs this privilege
+**                  to trigger the hook. Valid privileges are:
+**                    s (setup), a (admin), i (checkin) or o (checkout)
 **
 **    ssh-command   Command used to talk to a remote machine with
 **                  the "ssh://" protocol.
