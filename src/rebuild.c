@@ -169,16 +169,17 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     /* Call all children recursively */
     rid = 0;
     for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
-      Stmt q2;
+      static Stmt q2;
       int sz;
-      db_prepare(&q2, "SELECT content, size FROM blob WHERE rid=%d", cid);
+      db_static_prepare(&q2, "SELECT content, size FROM blob WHERE rid=:rid");
+      db_bind_int(&q2, ":rid", cid);
       if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
         Blob delta, next;
         db_ephemeral_blob(&q2, 0, &delta);
         blob_uncompress(&delta, &delta);
         blob_delta_apply(pBase, &delta, &next);
         blob_reset(&delta);
-        db_finalize(&q2);
+        db_reset(&q2);
         if( i<nChild ){
           rebuild_step(cid, sz, &next);
         }else{
@@ -189,7 +190,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
           *pBase = next;
         }
       }else{
-        db_finalize(&q2);
+        db_reset(&q2);
         blob_reset(pBase);
       }
     }

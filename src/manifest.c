@@ -54,6 +54,7 @@ struct ManifestFile {
 struct Manifest {
   Blob content;         /* The original content blob */
   int type;             /* Type of artifact.  One of CFTYPE_xxxxx */
+  int rid;              /* The blob-id for this manifest */
   char *zBaseline;      /* Baseline manifest.  The B card. */
   Manifest *pBaseline;  /* The actual baseline manifest */
   char *zComment;       /* Decoded comment.  The C card. */
@@ -98,65 +99,71 @@ struct Manifest {
 ** A cache of parsed manifests.  This reduces the number of
 ** calls to manifest_parse() when doing a rebuild.
 */
-#define MX_MANIFEST_CACHE 4
+#define MX_MANIFEST_CACHE 6
 static struct {
   int nxAge;
-  int aRid[MX_MANIFEST_CACHE];
   int aAge[MX_MANIFEST_CACHE];
-  Manifest aLine[MX_MANIFEST_CACHE];
+  Manifest *apManifest[MX_MANIFEST_CACHE];
 } manifestCache;
 
 
 /*
 ** Clear the memory allocated in a manifest object
 */
-static void manifest_clear(Manifest *p){
-  blob_reset(&p->content);
-  free(p->aFile);
-  free(p->azParent);
-  free(p->azCChild);
-  free(p->aTag);
-  free(p->aField);
-  if( p->pBaseline ) manifest_clear(p->pBaseline);
-  memset(p, 0, sizeof(*p));
+void manifest_destroy(Manifest *p){
+  if( p ){
+    blob_reset(&p->content);
+    free(p->aFile);
+    free(p->azParent);
+    free(p->azCChild);
+    free(p->aTag);
+    free(p->aField);
+    if( p->pBaseline ) manifest_destroy(p->pBaseline);
+    fossil_free(p);
+  }
 }
 
 /*
 ** Add an element to the manifest cache using LRU replacement.
 */
-void manifest_cache_insert(int rid, Manifest *p){
-  int i;
-  for(i=0; i<MX_MANIFEST_CACHE; i++){
-    if( manifestCache.aRid[i]==0 ) break;
-  }
-  if( i>=MX_MANIFEST_CACHE ){
-    int oldest = 0;
-    int oldestAge = manifestCache.aAge[0];
-    for(i=1; i<MX_MANIFEST_CACHE; i++){
-      if( manifestCache.aAge[i]<oldestAge ){
-        oldest = i;
-        oldestAge = manifestCache.aAge[i];
-      }
+void manifest_cache_insert(Manifest *p){
+  while( p ){
+    int i;
+    Manifest *pBaseline = p->pBaseline;
+    p->pBaseline = 0;
+    for(i=0; i<MX_MANIFEST_CACHE; i++){
+      if( manifestCache.apManifest[i]==0 ) break;
     }
-    manifest_clear(&manifestCache.aLine[oldest]);
-    i = oldest;
+    if( i>=MX_MANIFEST_CACHE ){
+      int oldest = 0;
+      int oldestAge = manifestCache.aAge[0];
+      for(i=1; i<MX_MANIFEST_CACHE; i++){
+        if( manifestCache.aAge[i]<oldestAge ){
+          oldest = i;
+          oldestAge = manifestCache.aAge[i];
+        }
+      }
+      manifest_destroy(manifestCache.apManifest[oldest]);
+      i = oldest;
+    }
+    manifestCache.aAge[i] = ++manifestCache.nxAge;
+    manifestCache.apManifest[i] = p;
+    p = pBaseline;
   }
-  manifestCache.aAge[i] = ++manifestCache.nxAge;
-  manifestCache.aRid[i] = rid;
-  manifestCache.aLine[i] = *p;
 }
 
 /*
 ** Try to extract a line from the manifest cache. Return 1 if found.
 ** Return 0 if not found.
 */
-int manifest_cache_find(int rid, Manifest *p){
+static Manifest *manifest_cache_find(int rid){
   int i;
+  Manifest *p;
   for(i=0; i<MX_MANIFEST_CACHE; i++){
-    if( manifestCache.aRid[i]==rid ){
-      *p = manifestCache.aLine[i];
-      manifestCache.aRid[i] = 0;
-      return 1;
+    if( manifestCache.apManifest[i] && manifestCache.apManifest[i]->rid==rid ){
+      p = manifestCache.apManifest[i];
+      manifestCache.apManifest[i] = 0;
+      return p;
     }
   }
   return 0;
@@ -168,8 +175,8 @@ int manifest_cache_find(int rid, Manifest *p){
 void manifest_cache_clear(void){
   int i;
   for(i=0; i<MX_MANIFEST_CACHE; i++){
-    if( manifestCache.aRid[i]>0 ){
-      manifest_clear(&manifestCache.aLine[i]);
+    if( manifestCache.apManifest[i] ){
+      manifest_destroy(manifestCache.apManifest[i]);
     }
   }
   memset(&manifestCache, 0, sizeof(manifestCache));
@@ -207,7 +214,8 @@ void manifest_cache_clear(void){
 ** The card type determines the other parameters to the card.
 ** Cards must occur in lexicographical order.
 */
-int manifest_parse(Manifest *p, Blob *pContent){
+static Manifest *manifest_parse(Blob *pContent, int rid){
+  Manifest *p;
   int seenHeader = 0;
   int seenZ = 0;
   int i, lineNo=0;
@@ -222,8 +230,10 @@ int manifest_parse(Manifest *p, Blob *pContent){
     return 0;
   }
 
+  p = fossil_malloc( sizeof(*p) );
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
+  p->rid = rid;
   blob_zero(pContent);
   pContent = &p->content;
 
@@ -786,31 +796,13 @@ int manifest_parse(Manifest *p, Blob *pContent){
     p->type = CFTYPE_MANIFEST;
   }
   md5sum_init();
-  return 1;
+  return p;
 
 manifest_syntax_error:
   /*fprintf(stderr, "Manifest error on line %i\n", lineNo);fflush(stderr);*/
   md5sum_init();
-  manifest_clear(p);
+  manifest_destroy(p);
   return 0;
-}
-
-/*
-** Allocate space for a Manifest object and populate it with a
-** parse of pContent.  Return a pointer ot the new object.
-**
-** If pContent is not a well-formed control artifact, return 0.
-**
-** pContent is reset, regardless of whether or not a Manifest object
-** is returned.
-*/
-static Manifest *manifest_new(Blob *pContent){
-  Manifest *p = fossil_malloc( sizeof(*p) );
-  if( manifest_parse(p, pContent)==0 ){
-    fossil_free(p);
-    p = 0;
-  }
-  return p;
 }
 
 /*
@@ -820,8 +812,16 @@ static Manifest *manifest_new(Blob *pContent){
 Manifest *manifest_get(int rid, int cfType){
   Blob content;
   Manifest *p;
+  p = manifest_cache_find(rid);
+  if( p ){
+    if( cfType!=CFTYPE_ANY && cfType!=p->type ){
+      manifest_cache_insert(p);
+      p = 0;
+    }
+    return p;
+  }
   content_get(rid, &content);
-  p = manifest_new(&content);
+  p = manifest_parse(&content, rid);
   if( p && cfType!=CFTYPE_ANY && cfType!=p->type ){
     manifest_destroy(p);
     p = 0;
@@ -850,16 +850,6 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
 }
 
 /*
-** Destroy a Manifest object previously obtained from manifest_new().
-*/
-void manifest_destroy(Manifest *p){
-  if( p ){
-    manifest_clear(p);
-    fossil_free(p);
-  }
-}
-
-/*
 ** COMMAND: test-parse-manifest
 **
 ** Usage: %fossil test-parse-manifest FILENAME ?N?
@@ -880,7 +870,7 @@ void manifest_test_parse_cmd(void){
   for(i=0; i<n; i++){
     Blob b2;
     blob_copy(&b2, &b);
-    p = manifest_new(&b2);
+    p = manifest_parse(&b2, 0);
     manifest_destroy(p);
   }
 }
@@ -1114,27 +1104,32 @@ ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
 ** Edited files have both mlink.pid!=0 and mlink.fid!=0
 */
 static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
-  Manifest other;
   Blob otherContent;
   int otherRid;
-  int i;
+  int i, rc;
   ManifestFile *pChildFile, *pParentFile;
+  Manifest **ppOther;
+  static Stmt eq;
 
-  if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", cid) ){
-    return;
-  }
+  db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid");
+  db_bind_int(&eq, ":mid", cid);
+  rc = db_step(&eq);
+  db_reset(&eq);
+  if( rc==SQLITE_ROW ) return;
+
   assert( pParent==0 || pChild==0 );
   if( pParent==0 ){
-    pParent = &other;
+    ppOther = &pParent;
     otherRid = pid;
   }else{
-    pChild = &other;
+    ppOther = &pChild;
     otherRid = cid;
   }
-  if( manifest_cache_find(otherRid, &other)==0 ){
+  if( (*ppOther = manifest_cache_find(otherRid))==0 ){
     content_get(otherRid, &otherContent);
     if( blob_size(&otherContent)==0 ) return;
-    if( manifest_parse(&other, &otherContent)==0 ) return;
+    *ppOther = manifest_parse(&otherContent, otherRid);
+    if( *ppOther==0 ) return;
   }
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
     content_deltify(pid, cid, 0); 
@@ -1157,7 +1152,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
        }
     }
   }
-  manifest_cache_insert(otherRid, &other);
+  manifest_cache_insert(*ppOther);
 }
 
 /*
@@ -1298,36 +1293,36 @@ void manifest_ticket_event(
 */
 int manifest_crosslink(int rid, Blob *pContent){
   int i;
-  Manifest m;
+  Manifest *p;
   Stmt q;
   int parentid = 0;
 
-  if( manifest_cache_find(rid, &m) ){
+  if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
-  }else if( manifest_parse(&m, pContent)==0 ){
+  }else if( (p = manifest_parse(pContent, rid))==0 ){
     return 0;
   }
-  if( g.xlinkClusterOnly && m.type!=CFTYPE_CLUSTER ){
-    manifest_clear(&m);
+  if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
+    manifest_destroy(p);
     return 0;
   }
   db_begin_transaction();
-  if( m.type==CFTYPE_MANIFEST ){
+  if( p->type==CFTYPE_MANIFEST ){
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
       char *zCom;
-      for(i=0; i<m.nParent; i++){
-        int pid = uuid_to_rid(m.azParent[i], 1);
+      for(i=0; i<p->nParent; i++){
+        int pid = uuid_to_rid(p->azParent[i], 1);
         db_multi_exec("INSERT OR IGNORE INTO plink(pid, cid, isprim, mtime)"
-                      "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, m.rDate);
+                      "VALUES(%d, %d, %d, %.17g)", pid, rid, i==0, p->rDate);
         if( i==0 ){
-          add_mlink(pid, 0, rid, &m);
+          add_mlink(pid, 0, rid, p);
           parentid = pid;
         }
       }
       db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
       while( db_step(&q)==SQLITE_ROW ){
         int cid = db_column_int(&q, 0);
-        add_mlink(rid, &m, cid, 0);
+        add_mlink(rid, p, cid, 0);
       }
       db_finalize(&q);
       db_multi_exec(
@@ -1342,22 +1337,22 @@ int manifest_crosslink(int rid, Blob *pContent){
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-        TAG_DATE, rid, m.rDate,
-        rid, m.zUser, m.zComment, 
+        TAG_DATE, rid, p->rDate,
+        rid, p->zUser, p->zComment, 
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
         TAG_COMMENT, rid
       );
       zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
                         " WHERE rowid=last_insert_rowid()");
-      wiki_extract_links(zCom, rid, 0, m.rDate, 1, WIKI_INLINE);
+      wiki_extract_links(zCom, rid, 0, p->rDate, 1, WIKI_INLINE);
       free(zCom);
 
       /* If this is a delta-manifest, record the fact that this repository
       ** contains delta manifests, to free the "commit" logic to generate
       ** new delta manifests.
       */
-      if( m.zBaseline!=0 ){
+      if( p->zBaseline!=0 ){
         static int once = 0;
         if( !once ){
           db_set_int("seen-delta-manifest", 1, 0);
@@ -1366,70 +1361,70 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
     }
   }
-  if( m.type==CFTYPE_CLUSTER ){
-    tag_insert("cluster", 1, 0, rid, m.rDate, rid);
-    for(i=0; i<m.nCChild; i++){
+  if( p->type==CFTYPE_CLUSTER ){
+    tag_insert("cluster", 1, 0, rid, p->rDate, rid);
+    for(i=0; i<p->nCChild; i++){
       int mid;
-      mid = uuid_to_rid(m.azCChild[i], 1);
+      mid = uuid_to_rid(p->azCChild[i], 1);
       if( mid>0 ){
         db_multi_exec("DELETE FROM unclustered WHERE rid=%d", mid);
       }
     }
   }
-  if( m.type==CFTYPE_CONTROL
-   || m.type==CFTYPE_MANIFEST
-   || m.type==CFTYPE_EVENT
+  if( p->type==CFTYPE_CONTROL
+   || p->type==CFTYPE_MANIFEST
+   || p->type==CFTYPE_EVENT
   ){
-    for(i=0; i<m.nTag; i++){
+    for(i=0; i<p->nTag; i++){
       int tid;
       int type;
-      if( m.aTag[i].zUuid ){
-        tid = uuid_to_rid(m.aTag[i].zUuid, 1);
+      if( p->aTag[i].zUuid ){
+        tid = uuid_to_rid(p->aTag[i].zUuid, 1);
       }else{
         tid = rid;
       }
       if( tid ){
-        switch( m.aTag[i].zName[0] ){
+        switch( p->aTag[i].zName[0] ){
           case '-':  type = 0;  break;  /* Cancel prior occurances */
           case '+':  type = 1;  break;  /* Apply to target only */
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:
-            fossil_fatal("unknown tag type in manifest: %s", m.aTag);
+            fossil_fatal("unknown tag type in manifest: %s", p->aTag);
             return 0;
         }
-        tag_insert(&m.aTag[i].zName[1], type, m.aTag[i].zValue, 
-                   rid, m.rDate, tid);
+        tag_insert(&p->aTag[i].zName[1], type, p->aTag[i].zValue, 
+                   rid, p->rDate, tid);
       }
     }
     if( parentid ){
       tag_propagate_all(parentid);
     }
   }
-  if( m.type==CFTYPE_WIKI ){
-    char *zTag = mprintf("wiki-%s", m.zWikiTitle);
+  if( p->type==CFTYPE_WIKI ){
+    char *zTag = mprintf("wiki-%s", p->zWikiTitle);
     int tagid = tag_findid(zTag, 1);
     int prior;
     char *zComment;
     int nWiki;
     char zLength[40];
-    while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
-    nWiki = strlen(m.zWiki);
+    while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
+    nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
-    tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
+    tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime<%.17g"
       " ORDER BY mtime DESC",
-      tagid, m.rDate
+      tagid, p->rDate
     );
     if( prior ){
       content_deltify(prior, rid, 0);
     }
     if( nWiki>0 ){
-      zComment = mprintf("Changes to wiki page [%h]", m.zWikiTitle);
+      zComment = mprintf("Changes to wiki page [%h]", p->zWikiTitle);
     }else{
-      zComment = mprintf("Deleted wiki page [%h]", m.zWikiTitle);
+      zComment = mprintf("Deleted wiki page [%h]", p->zWikiTitle);
     }
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment,"
@@ -1438,7 +1433,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>1),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
       "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-      m.rDate, rid, m.zUser, zComment, 
+      p->rDate, rid, p->zUser, zComment, 
       TAG_BGCOLOR, rid,
       TAG_BGCOLOR, rid,
       TAG_USER, rid,
@@ -1446,22 +1441,22 @@ int manifest_crosslink(int rid, Blob *pContent){
     );
     free(zComment);
   }
-  if( m.type==CFTYPE_EVENT ){
-    char *zTag = mprintf("event-%s", m.zEventId);
+  if( p->type==CFTYPE_EVENT ){
+    char *zTag = mprintf("event-%s", p->zEventId);
     int tagid = tag_findid(zTag, 1);
     int prior, subsequent;
     int nWiki;
     char zLength[40];
-    while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
-    nWiki = strlen(m.zWiki);
+    while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
+    nWiki = strlen(p->zWiki);
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
-    tag_insert(zTag, 1, zLength, rid, m.rDate, rid);
+    tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime<%.17g"
       " ORDER BY mtime DESC",
-      tagid, m.rDate
+      tagid, p->rDate
     );
     if( prior ){
       content_deltify(prior, rid, 0);
@@ -1477,7 +1472,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime>%.17g"
       " ORDER BY mtime",
-      tagid, m.rDate
+      tagid, p->rDate
     );
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
@@ -1486,76 +1481,76 @@ int manifest_crosslink(int rid, Blob *pContent){
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"
         "VALUES('e',%.17g,%d,%d,%Q,%Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
-        m.rEventDate, rid, tagid, m.zUser, m.zComment, 
+        p->rEventDate, rid, tagid, p->zUser, p->zComment, 
         TAG_BGCOLOR, rid
       );
     }
   }
-  if( m.type==CFTYPE_TICKET ){
+  if( p->type==CFTYPE_TICKET ){
     char *zTag;
 
     assert( manifest_crosslink_busy==1 );
-    zTag = mprintf("tkt-%s", m.zTicketUuid);
-    tag_insert(zTag, 1, 0, rid, m.rDate, rid);
+    zTag = mprintf("tkt-%s", p->zTicketUuid);
+    tag_insert(zTag, 1, 0, rid, p->rDate, rid);
     free(zTag);
     db_multi_exec("INSERT OR IGNORE INTO pending_tkt VALUES(%Q)",
-                  m.zTicketUuid);
+                  p->zTicketUuid);
   }
-  if( m.type==CFTYPE_ATTACHMENT ){
+  if( p->type==CFTYPE_ATTACHMENT ){
     db_multi_exec(
        "INSERT INTO attachment(attachid, mtime, src, target,"
                                         "filename, comment, user)"
        "VALUES(%d,%.17g,%Q,%Q,%Q,%Q,%Q);",
-       rid, m.rDate, m.zAttachSrc, m.zAttachTarget, m.zAttachName,
-       (m.zComment ? m.zComment : ""), m.zUser
+       rid, p->rDate, p->zAttachSrc, p->zAttachTarget, p->zAttachName,
+       (p->zComment ? p->zComment : ""), p->zUser
     );
     db_multi_exec(
        "UPDATE attachment SET isLatest = (mtime=="
           "(SELECT max(mtime) FROM attachment"
           "  WHERE target=%Q AND filename=%Q))"
        " WHERE target=%Q AND filename=%Q",
-       m.zAttachTarget, m.zAttachName,
-       m.zAttachTarget, m.zAttachName
+       p->zAttachTarget, p->zAttachName,
+       p->zAttachTarget, p->zAttachName
     );
-    if( strlen(m.zAttachTarget)!=UUID_SIZE
-     || !validate16(m.zAttachTarget, UUID_SIZE) 
+    if( strlen(p->zAttachTarget)!=UUID_SIZE
+     || !validate16(p->zAttachTarget, UUID_SIZE) 
     ){
       char *zComment;
-      if( m.zAttachSrc && m.zAttachSrc[0] ){
+      if( p->zAttachSrc && p->zAttachSrc[0] ){
         zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
-             m.zAttachName, m.zAttachTarget);
+             p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
-             m.zAttachName, m.zAttachTarget);
+             p->zAttachName, p->zAttachTarget);
       }
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('w',%.17g,%d,%Q,%Q)",
-        m.rDate, rid, m.zUser, zComment
+        p->rDate, rid, p->zUser, zComment
       );
       free(zComment);
     }else{
       char *zComment;
-      if( m.zAttachSrc && m.zAttachSrc[0] ){
+      if( p->zAttachSrc && p->zAttachSrc[0] ){
         zComment = mprintf("Add attachment \"%h\" to ticket [%.10s]",
-             m.zAttachName, m.zAttachTarget);
+             p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
-             m.zAttachName, m.zAttachTarget);
+             p->zAttachName, p->zAttachTarget);
       }
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment)"
         "VALUES('t',%.17g,%d,%Q,%Q)",
-        m.rDate, rid, m.zUser, zComment
+        p->rDate, rid, p->zUser, zComment
       );
       free(zComment);
     }
   }
   db_end_transaction(0);
-  if( m.type==CFTYPE_MANIFEST ){
-    manifest_cache_insert(rid, &m);
+  if( p->type==CFTYPE_MANIFEST ){
+    manifest_cache_insert(p);
   }else{
-    manifest_clear(&m);
+    manifest_destroy(p);
   }
   return 1;
 }
