@@ -43,7 +43,7 @@ struct Context {
 };
 typedef struct Context MD5Context;
 
-#if defined(__i386__) || defined(_WIN32)
+#if defined(__i386__) || defined(__x86_64__) || defined(_WIN32)
 # define byteReverse(A,B)
 #else
 /*
