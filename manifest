@@ -1,5 +1,5 @@
-C MD5\soptimization\sfor\sx86_64.
-D 2010-10-23T14:19:05
+C Transmit\sthe\s"manifest"\ssetting\sas\spart\sof\sproject\sconfiguration.
+D 2010-10-23T19:43:38
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -49,7 +49,7 @@ F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h da6c9c44ddafa4e5f7d2fb4afd4d29af87343b73
-F src/configure.c dd2692997f4d7c61a8892157764f15f11122dc12
+F src/configure.c 41ec7c2149e3d84d51ad6d75eca4ac8f2eff033b
 F src/content.c d45aea17eda2e7ca517011ec2c80d037e8075a60
 F src/db.c ce96c7eb97abbcabdf685bdc63d83375ea460cca
 F src/delta.c 128bbd859d114cb4ede6e61d95ed14c2109811bc
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 6caba36de5ecba905e1bdb0531ada5e6e3d62c92
-R 9b2e7a3055384f70c3ab3d3cdfbb4f24
+P df5a8bf0d40d250d3677b5437ff3ae44cc7158ba
+R a92897217bfaf89adc30ca721597860b
 U drh
-Z d31a2f663211f4ada367edfe330be2a4
+Z 960abde8956ce707ada669d361fa853b
