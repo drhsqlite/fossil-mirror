@@ -90,22 +90,23 @@ void load_vfile_from_rid(int vid){
 ** Set or clear the vfile.isexe flag for a file.
 */
 static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
-  db_multi_exec("UPDATE vfile SET isexe=%d WHERE vid=%d and pathname=%Q",
-                onoff, vid, zFilename);
+  static Stmt s;
+  db_static_prepare(&s,
+    "UPDATE vfile SET isexe=:isexe"
+    " WHERE vid=:vid AND pathname=:path AND isexe!=:isexe"
+  );
+  db_bind_int(&s, ":isexe", onoff);
+  db_bind_int(&s, ":vid", vid);
+  db_bind_text(&s, ":path", zFilename);
+  db_step(&s);
+  db_reset(&s);
 }
 
 /*
 ** Set or clear the execute permission bit (as appropriate) for all
 ** files in the current check-out.
-**
-** If the "manifest" setting is true, then automatically generate
-** files named "manifest" and "manifest.uuid" containing, respectively,
-** the text of the manifest and the artifact ID of the manifest.
 */
-void manifest_to_disk(int vid){
-  char *zManFile;
-  Blob manifest;
-  Blob hash;
+void checkout_set_all_exe(int vid){
   Blob filename;
   int baseLen;
   Manifest *pManifest;
@@ -129,20 +130,45 @@ void manifest_to_disk(int vid){
   }
   blob_reset(&filename);
   manifest_destroy(pManifest);
+}
 
-  if( !db_get_boolean("manifest",0) ) return;
-  blob_zero(&manifest);
-  content_get(vid, &manifest);
-  zManFile = mprintf("%smanifest", g.zLocalRoot);
-  blob_write_to_file(&manifest, zManFile);
-  free(zManFile);
-  blob_zero(&hash);
-  sha1sum_blob(&manifest, &hash);
-  zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-  blob_append(&hash, "\n", 1);
-  blob_write_to_file(&hash, zManFile);
-  free(zManFile);
-  blob_reset(&hash);
+
+/*
+** If the "manifest" setting is true, then automatically generate
+** files named "manifest" and "manifest.uuid" containing, respectively,
+** the text of the manifest and the artifact ID of the manifest.
+*/
+void manifest_to_disk(int vid){
+  char *zManFile;
+  Blob manifest;
+  Blob hash;
+
+  if( db_get_boolean("manifest",0) ){
+    blob_zero(&manifest);
+    content_get(vid, &manifest);
+    zManFile = mprintf("%smanifest", g.zLocalRoot);
+    blob_write_to_file(&manifest, zManFile);
+    free(zManFile);
+    blob_zero(&hash);
+    sha1sum_blob(&manifest, &hash);
+    zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+    blob_append(&hash, "\n", 1);
+    blob_write_to_file(&hash, zManFile);
+    free(zManFile);
+    blob_reset(&hash);
+  }else{
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
+      zManFile = mprintf("%smanifest", g.zLocalRoot);
+      unlink(zManFile);
+      free(zManFile);
+    }
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.uuid'") ){
+      zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+      unlink(zManFile);
+      free(zManFile);
+    }
+  }
+    
 }
 
 /*
@@ -216,6 +242,7 @@ void checkout_cmd(void){
   if( !keepFlag ){
     vfile_to_disk(vid, 0, 1, promptFlag);
   }
+  checkout_set_all_exe(vid);
   manifest_to_disk(vid);
   db_lset_int("checkout", vid);
   undo_reset();

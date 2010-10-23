@@ -1637,6 +1637,7 @@ void setting_cmd(void){
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
+    int isManifest;
     int n = strlen(zName);
     for(i=0; ctrlSettings[i].name; i++){
       if( strncmp(ctrlSettings[i].name, zName, n)==0 ) break;
@@ -1644,12 +1645,20 @@ void setting_cmd(void){
     if( !ctrlSettings[i].name ){
       fossil_fatal("no such setting: %s", zName);
     }
+    isManifest = strcmp(ctrlSettings[i].name, "manifest")==0;
+    if( isManifest && globalFlag ){
+      fossil_fatal("cannot set 'manifest' globally");
+    }
     if( unsetFlag ){
       db_unset(ctrlSettings[i].name, globalFlag);
     }else if( g.argc==4 ){
       db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
     }else{
+      isManifest = 0;
       print_setting(ctrlSettings[i].name);
+    }
+    if( isManifest ){
+      manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
     usage("?PROPERTY? ?VALUE?");

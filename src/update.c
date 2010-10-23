@@ -281,6 +281,7 @@ void update_cmd(void){
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
+      checkout_set_all_exe(vid);
       manifest_to_disk(tid);
       db_lset_int("checkout", tid);
     }else{
