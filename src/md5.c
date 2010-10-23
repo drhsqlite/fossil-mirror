@@ -43,8 +43,12 @@ struct Context {
 };
 typedef struct Context MD5Context;
 
+#if defined(__i386__) || defined(_WIN32)
+# define byteReverse(A,B)
+#else
 /*
- * Note: this code is harmless on little-endian machines.
+ * Convert an array of integers to little-endian.
+ * Note: this code is a no-op on little-endian machines.
  */
 static void byteReverse (unsigned char *buf, unsigned longs){
         uint32 t;
@@ -55,6 +59,8 @@ static void byteReverse (unsigned char *buf, unsigned longs){
                 buf += 4;
         } while (--longs);
 }
+#endif
+
 /* The four core functions - F1 is optimized somewhat */
 
 /* #define F1(x, y, z) (x & y | ~x & z) */

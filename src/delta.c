@@ -201,23 +201,30 @@ static unsigned int checksum(const char *zIn, size_t N){
   unsigned sum1 = 0;
   unsigned sum2 = 0;
   unsigned sum3 = 0;
-  unsigned sum;
-  while( N>=4 ){
+  while(N >= 16){
+    sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
+    sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
+    sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
+    sum3 += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
+    z += 16;
+    N -= 16;
+  }
+  while(N >= 4){
     sum0 += z[0];
     sum1 += z[1];
     sum2 += z[2];
     sum3 += z[3];
-    N -= 4;
     z += 4;
+    N -= 4;
   }
-  sum = (sum0 << 24) + (sum1 << 16) + (sum2 << 8) + sum3;
+  sum3 += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
   switch(N){
-    case 3:   sum += (z[2] << 8);
-    case 2:   sum += (z[1] << 16);
-    case 1:   sum += (z[0] << 24);
+    case 3:   sum3 += (z[2] << 8);
+    case 2:   sum3 += (z[1] << 16);
+    case 1:   sum3 += (z[0] << 24);
     default:  ;
   }
-  return sum;
+  return sum3;
 }
 
 /*

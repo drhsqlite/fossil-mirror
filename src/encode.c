@@ -269,8 +269,9 @@ char *fossilize(const char *zIn, int nIn){
 */
 void defossilize(char *z){
   int i, j, c;
-  for(i=j=0; z[i]; i++){
-    c = z[i];
+  for(i=0; (c=z[i])!=0 && c!='\\'; i++){}
+  if( c==0 ) return;
+  for(j=i; (c=z[i])!=0; i++){
     if( c=='\\' && z[i+1] ){
       i++;
       switch( z[i] ){
