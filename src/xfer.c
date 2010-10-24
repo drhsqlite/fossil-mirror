@@ -111,7 +111,7 @@ void post_push_hook(char const * const zPushHookLine, const char requestType){
       case 'o':
         if( g.okRead ) privOk = 1;
         break;
-      default
+      default:
         fossil_print("Push hook wrong privilege type '%s'\n", zHookPriv);
     }
   }else{
