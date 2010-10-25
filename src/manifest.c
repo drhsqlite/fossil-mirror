@@ -188,6 +188,98 @@ void manifest_cache_clear(void){
 #endif
 
 /*
+** Remove the PGP signature from the artifact, if there is one.
+*/
+static void remove_pgp_signature(char **pz, int *pn){
+  char *z = *pz;
+  int n = *pn;
+  int i;
+  if( memcmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
+  for(i=34; i<n && (z[i-1]!='\n' || z[i-2]!='\n'); i++){}
+  if( i>=n ) return;
+  z += i;
+  n -= i;
+  *pz = z;
+  for(i=n-1; i>=0; i--){
+    if( z[i]=='\n' && memcmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
+      n = i+1;
+      break;
+    }
+  }
+  *pn = n;
+  return;
+}
+
+/*
+** Verify the Z-card checksum on the artifact, if there is such a
+** checksum.  Return 0 if there is no Z-card.  Return 1 if the Z-card
+** exists and is correct.  Return 2 if the Z-card exists and has the wrong
+** value.
+**
+**   0123456789 123456789 123456789 123456789 
+**   Z aea84f4f863865a8d59d0384e4d2a41c
+*/
+static int verify_z_card(const char *z, int n){
+  if( n<35 ) return 0;
+  if( z[n-35]!='Z' || z[n-34]!=' ' ) return 0;
+  md5sum_init();
+  md5sum_step_text(z, n-35);
+  if( memcmp(&z[n-33], md5sum_finish(0), 32)==0 ){
+    return 1;
+  }else{
+    return 2;
+  }
+}
+
+/*
+** A structure used for rapid parsing of the Manifest file
+*/
+typedef struct ManifestText ManifestText;
+struct ManifestText {
+  char *z;           /* The first character of the next token */
+  char *zEnd;        /* One character beyond the end of the manifest */
+  int atEol;         /* True if z points to the start of a new line */
+};
+
+/*
+** Return a pointer to the next token.  The token is zero-terminated.
+** Return NULL if there are no more tokens on the current line.
+*/
+static char *next_token(ManifestText *p, int *pLen){
+  char *z;
+  char *zStart;
+  int c;
+  if( p->atEol ) return 0;
+  zStart = z = p->z;
+  while( (c=(*z))!=' ' && c!='\n' ){ z++; }
+  *z = 0;
+  p->z = &z[1];
+  p->atEol = c=='\n';
+  if( pLen ) *pLen = z - zStart;
+  return zStart;
+}
+
+/*
+** Return the card-type for the next card.  Or, return 0 if there are no
+** more cards or if we are not at the end of the current card.
+*/
+static char next_card(ManifestText *p){
+  char c;
+  if( !p->atEol || p->z>=p->zEnd ) return 0;
+  c = p->z[0];
+  if( p->z[1]==' ' ){
+    p->z += 2;
+    p->atEol = 0;
+  }else if( p->z[1]=='\n' ){
+    p->z += 2;
+    p->atEol = 1;
+  }else{
+    c = 0;
+  }
+  return c;
+}
+
+/*
 ** Parse a blob into a Manifest object.  The Manifest object
 ** takes over the input blob and will free it when the
 ** Manifest object is freed.  Zeros are inserted into the blob
@@ -216,20 +308,45 @@ void manifest_cache_clear(void){
 */
 static Manifest *manifest_parse(Blob *pContent, int rid){
   Manifest *p;
-  int seenHeader = 0;
   int seenZ = 0;
   int i, lineNo=0;
-  Blob line, a1, a2, a3, a4;
+  ManifestText x;
   char cPrevType = 0;
+  char cType;
+  char *z;
+  int n;
+  char *zUuid;
+  int sz;
 
   /* Every control artifact ends with a '\n' character.  Exit early
-  ** if that is not the case for this artifact. */
-  i = blob_size(pContent);
-  if( i<=0 || blob_buffer(pContent)[i-1]!='\n' ){
+  ** if that is not the case for this artifact.
+  */
+  z = blob_buffer(pContent);
+  n = blob_size(pContent);
+  if( n<=0 || z[n-1]!='\n' ){
     blob_reset(pContent);
     return 0;
   }
 
+  /* Strip off the PGP signature if there is one.  Then verify the
+  ** Z-card.
+  */
+  remove_pgp_signature(&z, &n);
+  if( verify_z_card(z, n)==0 ){
+    blob_reset(pContent);
+    return 0;
+  }
+
+  /* Verify that the first few characters of the artifact look like
+  ** a control artifact.
+  */
+  if( n<10 || z[0]<'A' || z[0]>'Z' || z[1]!=' ' ){
+    blob_reset(pContent);
+    return 0;
+  }
+
+  /* Allocate a Manifest object to hold the parsed control artifact.
+  */
   p = fossil_malloc( sizeof(*p) );
   memset(p, 0, sizeof(*p));
   memcpy(&p->content, pContent, sizeof(p->content));
@@ -237,33 +354,14 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
   blob_zero(pContent);
   pContent = &p->content;
 
-  blob_zero(&a1);
-  blob_zero(&a2);
-  blob_zero(&a3);
-  md5sum_init();
-  while( blob_line(pContent, &line) ){
-    char *z = blob_buffer(&line);
+  /* Begin parsing, card by card.
+  */
+  x.z = z;
+  x.zEnd = &z[n];
+  x.atEol = 1;
+  while( (cType = next_card(&x))!=0 && cType>=cPrevType ){
     lineNo++;
-    if( z[0]=='-' ){
-      if( strncmp(z, "-----BEGIN PGP ", 15)!=0 ){
-        goto manifest_syntax_error;
-      }
-      if( seenHeader ){
-        break;
-      }
-      while( blob_line(pContent, &line)>2 ){}
-      if( blob_line(pContent, &line)==0 ) break;
-      z = blob_buffer(&line);
-    }
-    if( z[0]<cPrevType ){
-      /* Lines of a manifest must occur in lexicographical order */
-      goto manifest_syntax_error;
-    }
-    cPrevType = z[0];
-    seenHeader = 1;
-    if( blob_size(&line)>2 && z[1]!=' ' ) goto manifest_syntax_error;
-    line.iCursor = 2;
-    switch( z[0] ){
+    switch( cType ){
       /*
       **     A <filename> <target> ?<source>?
       **
@@ -274,25 +372,22 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'A': {
         char *zName, *zTarget, *zSrc;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)==0 ) goto manifest_syntax_error;
+        int nTarget, nSrc;
+        zName = next_token(&x, 0);
+        zTarget = next_token(&x, &nTarget);
+        zSrc = next_token(&x, &nSrc);
+        if( zName==0 || zTarget==0 ) goto manifest_syntax_error;      
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
-        zName = blob_terminate(&a1);
-        zTarget = blob_terminate(&a2);
-        fast_token(&line, &a3);
-        zSrc = blob_terminate(&a3);
         defossilize(zName);
         if( !file_is_simple_pathname(zName) ){
           goto manifest_syntax_error;
         }
         defossilize(zTarget);
-        if( (blob_size(&a2)!=UUID_SIZE || !validate16(zTarget, UUID_SIZE))
+        if( (nTarget!=UUID_SIZE || !validate16(zTarget, UUID_SIZE))
            && !wiki_name_is_wellformed((const unsigned char *)zTarget) ){
           goto manifest_syntax_error;
         }
-        if( blob_size(&a3)>0
-         && (blob_size(&a3)!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
+        if( zSrc && (nSrc!=UUID_SIZE || !validate16(zSrc, UUID_SIZE)) ){
           goto manifest_syntax_error;
         }
         p->zAttachName = (char*)file_tail(zName);
@@ -307,14 +402,11 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** A B-line gives the UUID for the baselinen of a delta-manifest.
       */
       case 'B': {
-        char *zBaseline;
         if( p->zBaseline ) goto manifest_syntax_error;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        zBaseline = blob_terminate(&a1);
-        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(zBaseline, UUID_SIZE) ) goto manifest_syntax_error;
-        p->zBaseline = zBaseline;
+        p->zBaseline = next_token(&x, &sz);
+        if( p->zBaseline==0 ) goto manifest_syntax_error;
+        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
+        if( !validate16(p->zBaseline, UUID_SIZE) ) goto manifest_syntax_error;
         break;
       }
 
@@ -327,11 +419,9 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** disallowed on all other control files.
       */
       case 'C': {
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zComment!=0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        p->zComment = blob_terminate(&a1);
+        p->zComment = next_token(&x, 0);
+        if( p->zComment==0 ) goto manifest_syntax_error;
         defossilize(p->zComment);
         break;
       }
@@ -344,13 +434,9 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** for all control files except for clusters.
       */
       case 'D': {
-        char *zDate;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( p->rDate!=0.0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        zDate = blob_terminate(&a1);
-        p->rDate = db_double(0.0, "SELECT julianday(%Q)", zDate);
+        if( p->rDate>0.0 ) goto manifest_syntax_error;
+        p->rDate = db_double(0.0, "SELECT julianday(%Q)", next_token(&x,0));
+        if( p->rDate<=0.0 ) goto manifest_syntax_error;
         break;
       }
 
@@ -364,17 +450,11 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** is when the specific event is said to occur.
       */
       case 'E': {
-        char *zEDate;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( p->rEventDate!=0.0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a3)!=0 ) goto manifest_syntax_error;
-        zEDate = blob_terminate(&a1);
-        p->rEventDate = db_double(0.0, "SELECT julianday(%Q)", zEDate);
+        if( p->rEventDate>0.0 ) goto manifest_syntax_error;
+        p->rEventDate = db_double(0.0,"SELECT julianday(%Q)", next_token(&x,0));
         if( p->rEventDate<=0.0 ) goto manifest_syntax_error;
-        if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
-        p->zEventId = blob_terminate(&a2);
+        p->zEventId = next_token(&x, &sz);
+        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(p->zEventId, UUID_SIZE) ) goto manifest_syntax_error;
         break;
       }
@@ -387,31 +467,25 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** other control file.  The filename and old-name are fossil-encoded.
       */
       case 'F': {
-        char *zName, *zUuid, *zPerm, *zPriorName;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        zName = blob_terminate(&a1);
-        fast_token(&line, &a2);
-        zUuid = blob_terminate(&a2);
-        if( p->zBaseline==0 || zUuid[0]!=0 ){
-          if( blob_size(&a2)!=UUID_SIZE ) goto manifest_syntax_error;
-          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
-        }
-        fast_token(&line, &a3);
-        zPerm = blob_terminate(&a3);
+        char *zName, *zPerm, *zPriorName;
+        zName = next_token(&x,0);
+        if( zName==0 ) goto manifest_syntax_error;
         defossilize(zName);
         if( !file_is_simple_pathname(zName) ){
           goto manifest_syntax_error;
         }
-        fast_token(&line, &a4);
-        zPriorName = blob_terminate(&a4);
-        if( zPriorName[0] ){
+        zUuid = next_token(&x, &sz);
+        if( p->zBaseline==0 || zUuid!=0 ){
+          if( sz!=UUID_SIZE ) goto manifest_syntax_error;
+          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
+        }
+        zPerm = next_token(&x,0);
+        zPriorName = next_token(&x,0);
+        if( zPriorName ){
           defossilize(zPriorName);
           if( !file_is_simple_pathname(zPriorName) ){
             goto manifest_syntax_error;
           }
-        }else{
-          zPriorName = 0;
         }
         if( p->nFile>=p->nFileAlloc ){
           p->nFileAlloc = p->nFileAlloc*2 + 10;
@@ -439,12 +513,10 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'J': {
         char *zName, *zValue;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        fast_token(&line, &a2);
-        if( fast_token(&line, &a3)!=0 ) goto manifest_syntax_error;
-        zName = blob_terminate(&a1);
-        zValue = blob_terminate(&a2);
+        zName = next_token(&x,0);
+        zValue = next_token(&x,0);
+        if( zName==0 ) goto manifest_syntax_error;
+        if( zValue==0 ) zValue = "";
         defossilize(zValue);
         if( p->nField>=p->nFieldAlloc ){
           p->nFieldAlloc = p->nFieldAlloc*2 + 10;
@@ -468,14 +540,10 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** is amending.
       */
       case 'K': {
-        char *zUuid;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        zUuid = blob_terminate(&a1);
-        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
-        if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         if( p->zTicketUuid!=0 ) goto manifest_syntax_error;
-        p->zTicketUuid = zUuid;
+        p->zTicketUuid = next_token(&x, &sz);
+        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
+        if( !validate16(p->zTicketUuid, UUID_SIZE) ) goto manifest_syntax_error;
         break;
       }
 
@@ -486,11 +554,9 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** one L line.
       */
       case 'L': {
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zWikiTitle!=0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        p->zWikiTitle = blob_terminate(&a1);
+        p->zWikiTitle = next_token(&x,0);
+        if( p->zWikiTitle==0 ) goto manifest_syntax_error;
         defossilize(p->zWikiTitle);
         if( !wiki_name_is_wellformed((const unsigned char *)p->zWikiTitle) ){
           goto manifest_syntax_error;
@@ -505,11 +571,9 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** occur in clusters only.
       */
       case 'M': {
-        char *zUuid;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        zUuid = blob_terminate(&a1);
-        if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
+        zUuid = next_token(&x, &sz);
+        if( zUuid==0 ) goto manifest_syntax_error;
+        if( sz!=UUID_SIZE ) goto manifest_syntax_error;
         if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         if( p->nCChild>=p->nCChildAlloc ){
           p->nCChildAlloc = p->nCChildAlloc*2 + 10;
@@ -532,11 +596,8 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** others are parents by merge.
       */
       case 'P': {
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        while( fast_token(&line, &a1) ){
-          char *zUuid;
-          if( blob_size(&a1)!=UUID_SIZE ) goto manifest_syntax_error;
-          zUuid = blob_terminate(&a1);
+        while( (zUuid = next_token(&x, &sz))!=0 ){
+          if( sz!=UUID_SIZE ) goto manifest_syntax_error;
           if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
           if( p->nParent>=p->nParentAlloc ){
             p->nParentAlloc = p->nParentAlloc*2 + 5;
@@ -556,12 +617,9 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** in the manifest.
       */
       case 'R': {
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zRepoCksum!=0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
-        p->zRepoCksum = blob_terminate(&a1);
+        p->zRepoCksum = next_token(&x, &sz);
+        if( sz!=32 ) goto manifest_syntax_error;
         if( !validate16(p->zRepoCksum, 32) ) goto manifest_syntax_error;
         break;
       }
@@ -582,25 +640,16 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** Tags are not allowed in clusters.  Multiple T lines are allowed.
       */
       case 'T': {
-        char *zName, *zUuid, *zValue;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ){
-          goto manifest_syntax_error;
-        }
-        if( fast_token(&line, &a2)==0 ){
-          goto manifest_syntax_error;
-        }
-        zName = blob_terminate(&a1);
-        zUuid = blob_terminate(&a2);
-        if( fast_token(&line, &a3)==0 ){
-          zValue = 0;
-        }else{
-          zValue = blob_terminate(&a3);
-          defossilize(zValue);
-        }
-        if( blob_size(&a2)==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
+        char *zName, *zValue;
+        zName = next_token(&x, 0);
+        if( zName==0 ) goto manifest_syntax_error;
+        zUuid = next_token(&x, &sz);
+        if( zUuid==0 ) goto manifest_syntax_error;
+        zValue = next_token(&x, 0);
+        if( zValue ) defossilize(zValue);
+        if( sz==UUID_SIZE && validate16(zUuid, UUID_SIZE) ){
           /* A valid uuid */
-        }else if( blob_size(&a2)==1 && zUuid[0]=='*' ){
+        }else if( sz==1 && zUuid[0]=='*' ){
           zUuid = 0;
         }else{
           goto manifest_syntax_error;
@@ -635,15 +684,13 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** If the user name is omitted, take that to be "anonymous".
       */
       case 'U': {
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
         if( p->zUser!=0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a1)==0 ){
+        p->zUser = next_token(&x, 0);
+        if( p->zUser==0 ){
           p->zUser = "anonymous";
         }else{
-          p->zUser = blob_terminate(&a1);
           defossilize(p->zUser);
         }
-        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
         break;
       }
 
@@ -655,22 +702,24 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** record.
       */
       case 'W': {
-        int size;
+        char *zSize;
+        int size, c;
         Blob wiki;
-        md5sum_step_text(blob_buffer(&line), blob_size(&line));
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        if( !blob_is_int(&a1, &size) ) goto manifest_syntax_error;
+        zSize = next_token(&x, 0);
+        if( zSize==0 ) goto manifest_syntax_error;
+        if( x.atEol==0 ) goto manifest_syntax_error;
+        for(size=0; (c = zSize[0])>='0' && c<='9'; zSize++){
+           size = size*10 + c - '0';
+        }
         if( size<0 ) goto manifest_syntax_error;
         if( p->zWiki!=0 ) goto manifest_syntax_error;
         blob_zero(&wiki);
-        if( blob_extract(pContent, size+1, &wiki)!=size+1 ){
-          goto manifest_syntax_error;
-        }
-        p->zWiki = blob_buffer(&wiki);
-        md5sum_step_text(p->zWiki, size+1);
-        if( p->zWiki[size]!='\n' ) goto manifest_syntax_error;
-        p->zWiki[size] = 0;
+        if( (&x.z[size+1])>=x.zEnd ) goto manifest_syntax_error;
+        p->zWiki = x.z;
+        x.z += size;
+        if( x.z[0]!='\n' ) goto manifest_syntax_error;
+        x.z[0] = 0;
+        x.z++;
         break;
       }
 
@@ -687,20 +736,9 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       ** compatibility reasons.
       */
       case 'Z': {
-#ifndef FOSSIL_DONT_VERIFY_MANIFEST_MD5SUM
-        int rc;
-        Blob hash;
-#endif
-        if( fast_token(&line, &a1)==0 ) goto manifest_syntax_error;
-        if( fast_token(&line, &a2)!=0 ) goto manifest_syntax_error;
-        if( blob_size(&a1)!=32 ) goto manifest_syntax_error;
-        if( !validate16(blob_buffer(&a1), 32) ) goto manifest_syntax_error;
-#ifndef FOSSIL_DONT_VERIFY_MANIFEST_MD5SUM
-        md5sum_finish(&hash);
-        rc = blob_compare(&hash, &a1);
-        blob_reset(&hash);
-        if( rc!=0 ) goto manifest_syntax_error;
-#endif
+        zUuid = next_token(&x, &sz);
+        if( sz!=32 ) goto manifest_syntax_error;
+        if( !validate16(zUuid, 32) ) goto manifest_syntax_error;
         seenZ = 1;
         break;
       }
@@ -709,7 +747,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       }
     }
   }
-  if( !seenHeader ) goto manifest_syntax_error;
+  if( x.z<x.zEnd ) goto manifest_syntax_error;
 
   if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
     if( p->nCChild>0 ) goto manifest_syntax_error;
@@ -943,7 +981,7 @@ ManifestFile *manifest_file_next(
         ** entry so return the delta entry */
         pOut = &p->aFile[p->iFile++];
         break;
-      }else if( p->aFile[p->iFile].zUuid[0] ){
+      }else if( p->aFile[p->iFile].zUuid ){
         /* The next delta entry is a replacement for the next baseline
         ** entry.  Skip the baseline entry and return the delta entry */
         pB->iFile++;

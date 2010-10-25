@@ -479,34 +479,6 @@ int blob_token(Blob *pFrom, Blob *pTo){
 }
 
 /*
-** This is a variation on blob_token() used by the manifest parser.
-** The input pFrom is a line of text that is separated into tokens
-** by single space characters.  This routine extracts the next token
-** into pTo, leaves pFrom pointing at the start of the token beyond the
-** the extracted token, and returns the length of the extracted token.
-*/
-int fast_token(Blob *pFrom, Blob *pTo){
-  char *aData = pFrom->aData;
-  int n = pFrom->nUsed;
-  int i = pFrom->iCursor;
-  int x;
-  if( i>=n ){
-    blob_zero(pTo);
-    return 0;
-  }
-  pTo->aData = &aData[i];
-  while( i<n && aData[i]!=' ' ){ i++; }
-  if( i>pFrom->iCursor && aData[i-1]=='\n' ){ i--; }
-  x = i - pFrom->iCursor;
-  pTo->nUsed = x;
-  pTo->nAlloc = x;
-  pTo->iCursor = 0;
-  pTo->xRealloc = blobReallocStatic;
-  pFrom->iCursor = i+1;
-  return x;
-}
-
-/*
 ** Extract everything from the current cursor to the end of the blob
 ** into a new blob.  The new blob is an ephemerial reference to the
 ** original blob.  The cursor of the original blob is unchanged.
