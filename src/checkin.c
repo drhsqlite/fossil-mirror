@@ -636,6 +636,11 @@ static void create_manifest(
   }
   blob_reset(&filename);
   db_finalize(&q);
+  while( pFile ){
+    blob_appendf(pOut, "F %F\n", pFile->zName);
+    pFile = manifest_file_next(pBaseline, 0);
+    nFBcard++;
+  }
   blob_appendf(pOut, "P %s", zParentUuid);
   if( verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);

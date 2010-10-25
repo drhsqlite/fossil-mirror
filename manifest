@@ -1,5 +1,5 @@
-C Redesign\sthe\scontrol-artifact\sand\smanifest\sparser\sto\srun\sfaster.
-D 2010-10-25T13:52:20
+C Fix\sbugs\sin\sthe\shandling\sof\sdeleted\sand\sadded\sfiles\son\sdelta\smanifests.
+D 2010-10-25T17:21:20
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -43,7 +43,7 @@ F src/branch.c 0a60e18d6fad9f07da17f0d01bba17958d349b9a
 F src/browse.c 1e9007d096a46c84bf59e465f7d502793aa3b48f
 F src/captcha.c 4fd641c262b7cd037de036892c7d56b76905b1a6
 F src/cgi.c fe2268ca6b9b6d2bc95dec94d6752d529365333f
-F src/checkin.c 89786f091d164f5ec547bac7ee3c30d771914b77
+F src/checkin.c b94d93dbfc807d5d2004931d837a7046c7c26fbf
 F src/checkout.c f2c101edf2897d776a3186b13a6b7f3239b66a3d
 F src/clearsign.c b1078f1444dbe7265504f0c123afac607d03c2cf
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -74,7 +74,7 @@ F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 7bc38621223820447c67d7ba5e56f1efd23a243c
-F src/manifest.c 5762050fe049b1220bda8f5adeb4ac172669185c
+F src/manifest.c 555b97d8e39fdf3ed8c64f4d1ce79489baecc151
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P d10f5e9feef249318aa35ed1a8be352051dd60b3
-R 5b331b4fbbaa6aacc8d87339261bb9b4
+P fa0ea2c3fad489fc035804b4e76be38fd0e8b5ac
+R 75cb36440441583ebaa01189b68850be
 U drh
-Z 071f5c7a34091f5dc33cbc9a98074e8e
+Z ae0a5f50a496ad2d7ed9234058e57127

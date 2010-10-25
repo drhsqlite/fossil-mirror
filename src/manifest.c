@@ -1122,12 +1122,26 @@ ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
   ManifestFile *pFile;
   
   pFile = manifest_file_seek_base(p, zName);
-  if( pFile && pFile->zUuid[0]==0 ) return 0;
+  if( pFile && pFile->zUuid==0 ) return 0;
   if( pFile==0 && p->zBaseline ){
     fetch_baseline(p);
     pFile = manifest_file_seek_base(p->pBaseline, zName);
   }
   return pFile;
+}
+
+/*
+** This strcmp() function handles NULL arguments.  NULLs sort first.
+*/
+static int strcmp_null(const char *zOne, const char *zTwo){
+  if( zOne==0 ){
+    if( zTwo==0 ) return 0;
+    return -1;
+  }else if( zTwo==0 ){
+    return +1;
+  }else{
+    return strcmp(zOne, zTwo);
+  }
 }
 
 /*
@@ -1183,11 +1197,22 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     }else{
        pParentFile = manifest_file_seek(pParent, pChildFile->zName);
        if( pParentFile==0 ){
-         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
-       }else if( strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0 ){
+         if( pChildFile->zUuid ){
+           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
+         }
+       }else if( strcmp_null(pChildFile->zUuid, pParentFile->zUuid)!=0 ){
          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
                        pChildFile->zName, 0);
        }
+    }
+  }
+  if( pParent->zBaseline && pChild->zBaseline ){
+    for(i=0, pParentFile=pParent->aFile; i<pParent->nFile; i++, pParentFile++){
+      if( pParentFile->zUuid ) continue;
+      pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+      if( pChildFile ){
+        add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
+      }
     }
   }
   manifest_cache_insert(*ppOther);
