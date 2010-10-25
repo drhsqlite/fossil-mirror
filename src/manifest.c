@@ -919,7 +919,8 @@ void manifest_test_parse_cmd(void){
 */
 static void fetch_baseline(Manifest *p){
   if( p->zBaseline!=0 && p->pBaseline==0 ){
-    p->pBaseline = manifest_get_by_name(p->zBaseline, 0);
+    int rid = uuid_to_rid(p->zBaseline, 0);
+    p->pBaseline = manifest_get(rid, CFTYPE_MANIFEST);
     if( p->pBaseline==0 ){
       fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
     }
