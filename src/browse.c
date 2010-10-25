@@ -101,6 +101,7 @@ void hyperlinked_path(const char *zPath, Blob *pOut){
 */
 void page_dir(void){
   const char *zD = P("name");
+  int nD = zD ? strlen(zD) : 0;
   int mxLen;
   int nCol, nRow;
   int cnt, i;
@@ -184,37 +185,35 @@ void page_dir(void){
   */
   db_multi_exec(
      "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
-     "CREATE TEMP TABLE allfiles(x UNIQUE NOT NULL, u);"
   );
   if( zCI ){
     Stmt ins;
     ManifestFile *pFile;
 
-    db_prepare(&ins, "INSERT INTO allfiles VALUES(:x, :u)");
+    db_prepare(&ins,
+       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,%d), :u)",
+       nD ? nD+1 : 0
+    );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
+      if( nD>0 && memcmp(pFile->zName, zD, nD)!=0 ) continue;
       db_bind_text(&ins, ":x", pFile->zName);
       db_bind_text(&ins, ":u", pFile->zUuid);
       db_step(&ins);
       db_reset(&ins);
     }
     db_finalize(&ins);
-  }else{
+  }else if( zD ){
     db_multi_exec(
-      "INSERT INTO allfiles SELECT name, NULL FROM filename"
-    );
-  }
-  if( zD ){
-    db_multi_exec(
-       "INSERT OR IGNORE INTO localfiles "
-       "  SELECT pathelement(x,%d), u FROM allfiles"
-       "   WHERE x GLOB '%q/*'",
-       strlen(zD)+1, zD
+      "INSERT OR IGNORE INTO localfiles"
+      " SELECT pathelement(name,%d), NULL FROM filename"
+      "  WHERE name GLOB '%q/*'",
+      nD+1, zD
     );
   }else{
     db_multi_exec(
-       "INSERT OR IGNORE INTO localfiles "
-       "  SELECT pathelement(x,0), u FROM allfiles"
+      "INSERT OR IGNORE INTO localfiles"
+      " SELECT pathelement(name,0), NULL FROM filename"
     );
   }
 
