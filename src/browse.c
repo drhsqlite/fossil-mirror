@@ -101,7 +101,7 @@ void hyperlinked_path(const char *zPath, Blob *pOut){
 */
 void page_dir(void){
   const char *zD = P("name");
-  int nD = zD ? strlen(zD) : 0;
+  int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
   int nCol, nRow;
   int cnt, i;
@@ -189,18 +189,26 @@ void page_dir(void){
   if( zCI ){
     Stmt ins;
     ManifestFile *pFile;
+    ManifestFile *pPrev = 0;
+    int nPrev = 0;
+    int c;
 
     db_prepare(&ins,
-       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,%d), :u)",
-       nD ? nD+1 : 0
+       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u)"
     );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0 && memcmp(pFile->zName, zD, nD)!=0 ) continue;
-      db_bind_text(&ins, ":x", pFile->zName);
+      if( nD>0 && memcmp(pFile->zName, zD, nD-1)!=0 ) continue;
+      if( pPrev && memcmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0 ){
+        continue;
+      }
+      db_bind_text(&ins, ":x", &pFile->zName[nD]);
       db_bind_text(&ins, ":u", pFile->zUuid);
       db_step(&ins);
       db_reset(&ins);
+      pPrev = pFile;
+      for(nPrev=0; (c=pPrev->zName[nD+nPrev]) && c!='/'; nPrev++){}
+      if( c=='/' ) nPrev++;
     }
     db_finalize(&ins);
   }else if( zD ){
@@ -208,7 +216,7 @@ void page_dir(void){
       "INSERT OR IGNORE INTO localfiles"
       " SELECT pathelement(name,%d), NULL FROM filename"
       "  WHERE name GLOB '%q/*'",
-      nD+1, zD
+      nD, zD
     );
   }else{
     db_multi_exec(
