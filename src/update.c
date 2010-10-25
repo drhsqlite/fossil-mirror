@@ -390,10 +390,11 @@ void revert_cmd(void){
     vid = db_lget_int("checkout", 0);
     vfile_check_signature(vid, 0);
     db_multi_exec(
+      "DELETE FROM vmerge;"
       "INSERT INTO torevert "
       "SELECT pathname"
       "  FROM vfile "
-      " WHERE chnged OR deleted OR rid=0 OR pathname!=origname"
+      " WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
   blob_zero(&record);

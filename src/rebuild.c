@@ -85,6 +85,21 @@ static Bag bagDone;         /* Bag of records rebuilt */
 static char *zFNameFormat;  /* Format string for filenames on deconstruct */
 static int prefixLength;    /* Length of directory prefix for deconstruct */
 
+
+/*
+** Draw the percent-complete message.
+** The input is actually the permill complete.
+*/
+static void percent_complete(int permill){
+  static int lastOutput = -1;
+  if( permill>lastOutput ){
+    printf("  %d.%d%% complete...\r", permill/10, permill%10);
+    fflush(stdout);
+    lastOutput = permill;
+  }
+}
+
+
 /*
 ** Called after each artifact is processed
 */
@@ -94,8 +109,7 @@ static void rebuild_step_done(rid){
   if( ttyOutput ){
     processCnt++;
     if (!g.fQuiet) {
-      printf("%d (%d%%)...\r", processCnt, (processCnt*100/totalSize));
-      fflush(stdout);
+      percent_complete((processCnt*1000)/totalSize);
     }
   }
 }
@@ -240,8 +254,7 @@ int rebuild_db(int randomize, int doOut){
   ttyOutput = doOut;
   processCnt = 0;
   if (!g.fQuiet) {
-    printf("0 (0%%)...\r");
-    fflush(stdout);
+    percent_complete(0);
   }
   db_multi_exec(zSchemaUpdates);
   for(;;){

@@ -521,7 +521,9 @@ int delta_apply(
 ){
   unsigned int limit;
   unsigned int total = 0;
+#ifndef FOSSIL_OMIT_DELTA_CKSUM_TEST
   char *zOrigOut = zOut;
+#endif
 
   limit = getInt(&zDelta, &lenDelta);
   if( *zDelta!='\n' ){
@@ -576,10 +578,12 @@ int delta_apply(
       case ';': {
         zDelta++; lenDelta--;
         zOut[0] = 0;
+#ifndef FOSSIL_OMIT_DELTA_CKSUM_TEST
         if( cnt!=checksum(zOrigOut, total) ){
           /* ERROR:  bad checksum */
           return -1;
         }
+#endif
         if( total!=limit ){
           /* ERROR: generated size does not match predicted size */
           return -1;
