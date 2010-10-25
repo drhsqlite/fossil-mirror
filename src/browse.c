@@ -73,15 +73,20 @@ static void pathelementFunc(
 ** The computed string is appended to the pOut blob.  pOut should
 ** have already been initialized.
 */
-void hyperlinked_path(const char *zPath, Blob *pOut){
+void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
   int i, j;
   char *zSep = "";
 
   for(i=0; zPath[i]; i=j){
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
     if( zPath[j] && g.okHistory ){
-      blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
-                   zSep, g.zBaseURL, j, zPath, j-i, &zPath[i]);
+      if( zCI ){
+        blob_appendf(pOut, "%s<a href=\"%s/dir?ci=%S&amp;name=%#T\">%#h</a>", 
+                     zSep, g.zBaseURL, zCI, j, zPath, j-i, &zPath[i]);
+      }else{
+        blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
+                     zSep, g.zBaseURL, j, zPath, j-i, &zPath[i]);
+      }
     }else{
       blob_appendf(pOut, "%s%#h", zSep, j-i, &zPath[i]);
     }
@@ -141,7 +146,7 @@ void page_dir(void){
   blob_zero(&dirname);
   if( zD ){
     blob_append(&dirname, "in directory ", -1);
-    hyperlinked_path(zD, &dirname);
+    hyperlinked_path(zD, &dirname, zCI);
     zPrefix = mprintf("%h/", zD);
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
@@ -161,18 +166,26 @@ void page_dir(void){
       style_submenu_element("All", "All", "%s/dir", g.zBaseURL);
     }
   }else{
+    int hasTrunk;
     @ <h2>The union of all files from all check-ins
     @ %s(blob_str(&dirname))</h2>
+    hasTrunk = db_exists(
+                  "SELECT 1 FROM tagxref WHERE tagid=%d AND value='trunk'",
+                  TAG_BRANCH);
     zSubdirLink = mprintf("%s/dir?name=%T", g.zBaseURL, zPrefix);
     if( zD ){
       style_submenu_element("Top", "Top", "%s/dir", g.zBaseURL);
       style_submenu_element("Tip", "Tip", "%s/dir?name=%t&amp;ci=tip",
                             g.zBaseURL, zD);
-      style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&amp;ci=trunk",
-                             g.zBaseURL,zD);
+      if( hasTrunk ){
+        style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&amp;ci=trunk",
+                               g.zBaseURL,zD);
+      }
     }else{
       style_submenu_element("Tip", "Tip", "%s/dir?ci=tip", g.zBaseURL);
-      style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zBaseURL);
+      if( hasTrunk ){
+        style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zBaseURL);
+      }
     }
   }
 
