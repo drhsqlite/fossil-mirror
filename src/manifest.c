@@ -261,7 +261,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
     }
     cPrevType = z[0];
     seenHeader = 1;
-    if( blob_size(&line)>1 && z[1]!=' ' ) goto manifest_syntax_error;
+    if( blob_size(&line)>2 && z[1]!=' ' ) goto manifest_syntax_error;
     line.iCursor = 2;
     switch( z[0] ){
       /*

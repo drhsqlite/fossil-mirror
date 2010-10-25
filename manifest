@@ -1,5 +1,5 @@
-C Further\sperformance\senchancements\sfor\sbrowsing.\s\sWe\scould\sstill\sdo\sbetter,\nbut\sthe\scurrent\sseems\sfast\senough.
-D 2010-10-25T00:55:12
+C Bug\sfix\sin\sthe\smanifest\sparser.
+D 2010-10-25T11:12:12
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 8eefdbfa6257bb5a2699f54d8c10fbf295bdcc25
@@ -74,7 +74,7 @@ F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 7bc38621223820447c67d7ba5e56f1efd23a243c
-F src/manifest.c c64124efe86bce9d39338a3caf913d0d7d435c90
+F src/manifest.c 7ce699a7e221bbdd6efabffd59a5e5b7276fc9d8
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 4389b36f4fa51f0ed1b4f8739a45b350736c4b8f
-R 05e24f27e80b66593808ba458d87438a
+P ee1cc2bfe4b8039571e38af183d04f870f9f03c6
+R 7de10d647d8762dbab44b108a43ebd43
 U drh
-Z 8959eba463f6aa35de706e9d593d6ae3
+Z 8c19fc7c63c242ab8d2cf5145e976a34
