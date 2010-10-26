@@ -1512,21 +1512,23 @@ struct stControlSettings {
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
-  { "auto-captcha",  "autocaptcha",    0, "0"                   },
-  { "auto-shun",     0,                0, "1"                   },
-  { "autosync",      0,                0, "0"                   },
-  { "binary-glob",   0,                0, "1"                   },
-  { "clearsign",     0,                0, "0"                   },
-  { "diff-command",  0,               16, "diff"                },
-  { "dont-push",     0,                0, "0"                   },
+  { "auto-captcha",  "autocaptcha",    0, "on"                  },
+  { "auto-shun",     0,                0, "on"                  },
+  { "autosync",      0,                0, "on"                  },
+  { "binary-glob",   0,               32, ""                    },
+  { "clearsign",     0,                0, "off"                 },
+  { "diff-command",  0,               16, ""                    },
+  { "dont-push",     0,                0, "off"                 },
   { "editor",        0,               16, ""                    },
   { "gdiff-command", 0,               16, "gdiff"               },
   { "ignore-glob",   0,               40, ""                    },
   { "http-port",     0,               16, "8080"                },
-  { "localauth",     0,                0, "0"                   },
-  { "mtime-changes", 0,                0, "0"                   },
+  { "localauth",     0,                0, "off"                 },
+  { "manifest",      0,                0, "off"                 },
+  { "mtime-changes", 0,                0, "off"                 },
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
+  { "repo-cksum",    0,                0, "on"                  },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
   { 0,0,0,0 }
@@ -1550,11 +1552,13 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    auto-shun        If enabled, automatically pull the shunning list
 **                     from a server to which the client autosyncs.
+**                     Default: on
 **
 **    autosync         If enabled, automatically pull prior to commit
 **                     or update and automatically push after commit or
 **                     tag or branch creation.  If the value is "pullonly"
 **                     then only pull operations occur automatically.
+**                     Default: on
 **
 **    binary-glob      The VALUE is a comma-separated list of GLOB patterns
 **                     that should be treated as binary files for merging
@@ -1562,7 +1566,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
-**                     be unsigned.
+**                     be unsigned.  Default: off
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
@@ -1587,6 +1591,10 @@ struct stControlSettings const ctrlSettings[] = {
 **                     false, all HTTP requests from localhost have
 **                     unrestricted access to the repository.
 **
+**    manifest         If enabled, automatically create files "manifest" and
+**                     "manifest.uuid" in every checkout.  The SQLite and
+**                     Fossil repositories both require this.  Default: off.
+**
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
 **
@@ -1597,6 +1605,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                     the "http_proxy" environment variable is consulted.
 **                     If the http_proxy environment variable is undefined
 **                     then a direct HTTP connection is used.
+**
+**    repo-cksum       Compute checksums over all files in each checkout
+**                     as a double-check of correctness.  Defaults to "on".
+**                     Disable on large repositories for a performance
+**                     improvement.
 **
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
@@ -1624,6 +1637,7 @@ void setting_cmd(void){
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
+    int isManifest;
     int n = strlen(zName);
     for(i=0; ctrlSettings[i].name; i++){
       if( strncmp(ctrlSettings[i].name, zName, n)==0 ) break;
@@ -1631,12 +1645,20 @@ void setting_cmd(void){
     if( !ctrlSettings[i].name ){
       fossil_fatal("no such setting: %s", zName);
     }
+    isManifest = strcmp(ctrlSettings[i].name, "manifest")==0;
+    if( isManifest && globalFlag ){
+      fossil_fatal("cannot set 'manifest' globally");
+    }
     if( unsetFlag ){
       db_unset(ctrlSettings[i].name, globalFlag);
     }else if( g.argc==4 ){
       db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
     }else{
+      isManifest = 0;
       print_setting(ctrlSettings[i].name);
+    }
+    if( isManifest ){
+      manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
     usage("?PROPERTY? ?VALUE?");

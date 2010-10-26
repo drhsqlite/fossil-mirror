@@ -133,7 +133,7 @@ void finfo_page(void){
   );
   blob_zero(&title);
   blob_appendf(&title, "History of ");
-  hyperlinked_path(zFilename, &title);
+  hyperlinked_path(zFilename, &title, 0);
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();

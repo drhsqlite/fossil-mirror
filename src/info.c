@@ -545,20 +545,16 @@ void winfo_page(void){
   db_finalize(&q);
   showTags(rid, "wiki-*");
   if( rid ){
-    Blob content;
-    Manifest m;
-    memset(&m, 0, sizeof(m));
-    blob_zero(&m.content);
-    content_get(rid, &content);
-    manifest_parse(&m, &content);
-    if( m.type==CFTYPE_WIKI ){
+    Manifest *pWiki;
+    pWiki = manifest_get(rid, CFTYPE_WIKI);
+    if( pWiki ){
       Blob wiki;
-      blob_init(&wiki, m.zWiki, -1);
+      blob_init(&wiki, pWiki->zWiki, -1);
       @ <div class="section">Content</div>
       wiki_convert(&wiki, 0, 0);
       blob_reset(&wiki);
     }
-    manifest_clear(&m);
+    manifest_destroy(pWiki);
   }
   style_footer();
 }
@@ -582,22 +578,19 @@ void webpage_error(const char *zFormat, ...){
 ** Find an checkin based on query parameter zParam and parse its
 ** manifest.  Return the number of errors.
 */
-static int vdiff_parse_manifest(const char *zParam, int *pRid, Manifest *pM){
+static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
   int rid;
-  Blob content;
 
   *pRid = rid = name_to_rid_www(zParam);
   if( rid==0 ){
     webpage_error("Missing \"%s\" query parameter.", zParam);
-    return 1;
+    return 0;
   }
   if( !is_a_version(rid) ){
     webpage_error("Artifact %s is not a checkin.", P(zParam));
-    return 1;
+    return 0;
   }
-  content_get(rid, &content);
-  manifest_parse(pM, &content);
-  return 0;
+  return manifest_get(rid, CFTYPE_MANIFEST);
 }
 
 /*
@@ -637,15 +630,17 @@ void checkin_description(int rid){
 void vdiff_page(void){
   int ridFrom, ridTo;
   int showDetail = 0;
-  int iFrom, iTo;
-  Manifest mFrom, mTo;
+  Manifest *pFrom, *pTo;
+  ManifestFile *pFileFrom, *pFileTo;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   login_anonymous_available();
 
-  if( vdiff_parse_manifest("from", &ridFrom, &mFrom) ) return;
-  if( vdiff_parse_manifest("to", &ridTo, &mTo) ) return;
+  pFrom = vdiff_parse_manifest("from", &ridFrom);
+  if( pFrom==0 ) return;
+  pTo = vdiff_parse_manifest("to", &ridTo);
+  if( pTo==0 ) return;
   showDetail = atoi(PD("detail","0"));
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
@@ -654,38 +649,41 @@ void vdiff_page(void){
   checkin_description(ridTo);
   @ </blockquote><hr /><p>
 
-  iFrom = iTo = 0;
-  while( iFrom<mFrom.nFile && iTo<mTo.nFile ){
+  manifest_file_rewind(pFrom);
+  pFileFrom = manifest_file_next(pFrom, 0);
+  manifest_file_rewind(pTo);
+  pFileTo = manifest_file_next(pTo, 0);
+  while( pFileFrom || pFileTo ){
     int cmp;
-    if( iFrom>=mFrom.nFile ){
+    if( pFileFrom==0 ){
       cmp = +1;
-    }else if( iTo>=mTo.nFile ){
+    }else if( pFileTo==0 ){
       cmp = -1;
     }else{
-      cmp = strcmp(mFrom.aFile[iFrom].zName, mTo.aFile[iTo].zName);
+      cmp = strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      append_file_change_line(mFrom.aFile[iFrom].zName, 
-                              mFrom.aFile[iFrom].zUuid, 0, 0);
-      iFrom++;
+      append_file_change_line(pFileFrom->zName, 
+                              pFileFrom->zUuid, 0, 0);
+      pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      append_file_change_line(mTo.aFile[iTo].zName, 
-                              0, mTo.aFile[iTo].zUuid, 0);
-      iTo++;
-    }else if( strcmp(mFrom.aFile[iFrom].zUuid, mTo.aFile[iTo].zUuid)==0 ){
+      append_file_change_line(pFileTo->zName, 
+                              0, pFileTo->zUuid, 0);
+      pFileTo = manifest_file_next(pTo, 0);
+    }else if( strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
       /* No changes */
-      iFrom++;
-      iTo++;
+      pFileFrom = manifest_file_next(pFrom, 0);
+      pFileTo = manifest_file_next(pTo, 0);
     }else{
-      append_file_change_line(mFrom.aFile[iFrom].zName, 
-                              mFrom.aFile[iFrom].zUuid,
-                              mTo.aFile[iTo].zUuid, showDetail);
-      iFrom++;
-      iTo++;
+      append_file_change_line(pFileFrom->zName, 
+                              pFileFrom->zUuid,
+                              pFileTo->zUuid, showDetail);
+      pFileFrom = manifest_file_next(pFrom, 0);
+      pFileTo = manifest_file_next(pTo, 0);
     }
   }
-  manifest_clear(&mFrom);
-  manifest_clear(&mTo);
+  manifest_destroy(pFrom);
+  manifest_destroy(pTo);
 
   style_footer();
 }
@@ -1045,21 +1043,22 @@ int artifact_from_ci_and_filename(void){
   const char *zFilename;
   const char *zCI;
   int cirid;
-  Blob content;
-  Manifest m;
-  int i;
+  Manifest *pManifest;
+  ManifestFile *pFile;
 
   zCI = P("ci");
   if( zCI==0 ) return 0;
   zFilename = P("filename");
   if( zFilename==0 ) return 0;
   cirid = name_to_rid_www("ci");
-  if( !content_get(cirid, &content) ) return 0;
-  if( !manifest_parse(&m, &content) ) return 0;
-  if( m.type!=CFTYPE_MANIFEST ) return 0;
-  for(i=0; i<m.nFile; i++){
-    if( strcmp(zFilename, m.aFile[i].zName)==0 ){
-      return db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", m.aFile[i].zUuid);
+  pManifest = manifest_get(cirid, CFTYPE_MANIFEST);
+  if( pManifest==0 ) return 0;
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    if( strcmp(zFilename, pFile->zName)==0 ){
+      int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
+      manifest_destroy(pManifest);
+      return rid;
     }
   }
   return 0;
@@ -1170,11 +1169,10 @@ void artifact_page(void){
 */
 void tinfo_page(void){
   int rid;
-  Blob content;
   char *zDate;
   const char *zUuid;
   char zTktName[20];
-  Manifest m;
+  Manifest *pTktChng;
 
   login_check_credentials();
   if( !g.okRdTkt ){ login_needed(); return; }
@@ -1190,35 +1188,33 @@ void tinfo_page(void){
             g.zTop, zUuid);
     }
   }
-  content_get(rid, &content);
-  if( manifest_parse(&m, &content)==0 ){
-    fossil_redirect_home();
-  }
-  if( m.type!=CFTYPE_TICKET ){
+  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  if( pTktChng==0 ){
     fossil_redirect_home();
   }
   style_header("Ticket Change Details");
-  zDate = db_text(0, "SELECT datetime(%.12f)", m.rDate);
-  memcpy(zTktName, m.zTicketUuid, 10);
+  zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
+  memcpy(zTktName, pTktChng->zTicketUuid, 10);
   zTktName[10] = 0;
   if( g.okHistory ){
-    @ <h2>Changes to ticket <a href="%s(m.zTicketUuid)">%s(zTktName)</a></h2>
+    @ <h2>Changes to ticket
+    @ <a href="%s(pTktChng->zTicketUuid)">%s(zTktName)</a></h2>
     @
-    @ <p>By %h(m.zUser) on %s(zDate).  See also:
+    @ <p>By %h(pTktChng->zUser) on %s(zDate).  See also:
     @ <a href="%s(g.zTop)/artifact/%T(zUuid)">artifact content</a>, and
-    @ <a href="%s(g.zTop)/tkthistory/%s(m.zTicketUuid)">ticket history</a>
-    @ </p>
+    @ <a href="%s(g.zTop)/tkthistory/%s(pTktChng->zTicketUuid)">ticket
+    @ history</a></p>
   }else{
     @ <h2>Changes to ticket %s(zTktName)</h2>
     @
-    @ <p>By %h(m.zUser) on %s(zDate).
+    @ <p>By %h(pTktChng->zUser) on %s(zDate).
     @ </p>
   }
   @
   @ <ol>
   free(zDate);
-  ticket_output_change_artifact(&m);
-  manifest_clear(&m);
+  ticket_output_change_artifact(pTktChng);
+  manifest_destroy(pTktChng);
   style_footer();
 }
 
