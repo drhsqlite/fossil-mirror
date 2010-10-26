@@ -899,10 +899,10 @@ void manifest_test_parse_cmd(void){
   Blob b;
   int i;
   int n = 1;
+  sqlite3_open(":memory:", &g.db);
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
-  db_must_be_within_tree();
   blob_read_from_file(&b, g.argv[2]);
   if( g.argc>3 ) n = atoi(g.argv[3]);
   for(i=0; i<n; i++){
