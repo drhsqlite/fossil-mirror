@@ -73,15 +73,20 @@ static void pathelementFunc(
 ** The computed string is appended to the pOut blob.  pOut should
 ** have already been initialized.
 */
-void hyperlinked_path(const char *zPath, Blob *pOut){
+void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
   int i, j;
   char *zSep = "";
 
   for(i=0; zPath[i]; i=j){
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
     if( zPath[j] && g.okHistory ){
-      blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
-                   zSep, g.zBaseURL, j, zPath, j-i, &zPath[i]);
+      if( zCI ){
+        blob_appendf(pOut, "%s<a href=\"%s/dir?ci=%S&amp;name=%#T\">%#h</a>", 
+                     zSep, g.zBaseURL, zCI, j, zPath, j-i, &zPath[i]);
+      }else{
+        blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
+                     zSep, g.zBaseURL, j, zPath, j-i, &zPath[i]);
+      }
     }else{
       blob_appendf(pOut, "%s%#h", zSep, j-i, &zPath[i]);
     }
@@ -101,6 +106,7 @@ void hyperlinked_path(const char *zPath, Blob *pOut){
 */
 void page_dir(void){
   const char *zD = P("name");
+  int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
   int nCol, nRow;
   int cnt, i;
@@ -109,9 +115,8 @@ void page_dir(void){
   const char *zCI = P("ci");
   int rid = 0;
   char *zUuid = 0;
-  Blob content;
   Blob dirname;
-  Manifest m;
+  Manifest *pM = 0;
   const char *zSubdirLink;
 
   login_check_credentials();
@@ -128,12 +133,11 @@ void page_dir(void){
   ** files from all check-ins to be displayed.
   */
   if( zCI ){
-    if( (rid = name_to_rid(zCI))==0 || content_get(rid, &content)==0 ){
-      zCI = 0;  /* No artifact named zCI exists */
-    }else if( !manifest_parse(&m, &content) || m.type!=CFTYPE_MANIFEST ){
-      zCI = 0;  /* The artifact exists but is not a manifest */
-    }else{
+    pM = manifest_get_by_name(zCI, &rid);
+    if( pM ){
       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+    }else{
+      zCI = 0;
     }
   }
 
@@ -142,7 +146,7 @@ void page_dir(void){
   blob_zero(&dirname);
   if( zD ){
     blob_append(&dirname, "in directory ", -1);
-    hyperlinked_path(zD, &dirname);
+    hyperlinked_path(zD, &dirname, zCI);
     zPrefix = mprintf("%h/", zD);
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
@@ -162,18 +166,26 @@ void page_dir(void){
       style_submenu_element("All", "All", "%s/dir", g.zBaseURL);
     }
   }else{
+    int hasTrunk;
     @ <h2>The union of all files from all check-ins
     @ %s(blob_str(&dirname))</h2>
+    hasTrunk = db_exists(
+                  "SELECT 1 FROM tagxref WHERE tagid=%d AND value='trunk'",
+                  TAG_BRANCH);
     zSubdirLink = mprintf("%s/dir?name=%T", g.zBaseURL, zPrefix);
     if( zD ){
       style_submenu_element("Top", "Top", "%s/dir", g.zBaseURL);
       style_submenu_element("Tip", "Tip", "%s/dir?name=%t&amp;ci=tip",
                             g.zBaseURL, zD);
-      style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&amp;ci=trunk",
-                             g.zBaseURL,zD);
+      if( hasTrunk ){
+        style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&amp;ci=trunk",
+                               g.zBaseURL,zD);
+      }
     }else{
       style_submenu_element("Tip", "Tip", "%s/dir?ci=tip", g.zBaseURL);
-      style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zBaseURL);
+      if( hasTrunk ){
+        style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zBaseURL);
+      }
     }
   }
 
@@ -186,35 +198,43 @@ void page_dir(void){
   */
   db_multi_exec(
      "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
-     "CREATE TEMP TABLE allfiles(x UNIQUE NOT NULL, u);"
   );
   if( zCI ){
     Stmt ins;
-    int i;
-    db_prepare(&ins, "INSERT INTO allfiles VALUES(:x, :u)");
-    for(i=0; i<m.nFile; i++){
-      db_bind_text(&ins, ":x", m.aFile[i].zName);
-      db_bind_text(&ins, ":u", m.aFile[i].zUuid);
+    ManifestFile *pFile;
+    ManifestFile *pPrev = 0;
+    int nPrev = 0;
+    int c;
+
+    db_prepare(&ins,
+       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u)"
+    );
+    manifest_file_rewind(pM);
+    while( (pFile = manifest_file_next(pM,0))!=0 ){
+      if( nD>0 && memcmp(pFile->zName, zD, nD-1)!=0 ) continue;
+      if( pPrev && memcmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0 ){
+        continue;
+      }
+      db_bind_text(&ins, ":x", &pFile->zName[nD]);
+      db_bind_text(&ins, ":u", pFile->zUuid);
       db_step(&ins);
       db_reset(&ins);
+      pPrev = pFile;
+      for(nPrev=0; (c=pPrev->zName[nD+nPrev]) && c!='/'; nPrev++){}
+      if( c=='/' ) nPrev++;
     }
     db_finalize(&ins);
-  }else{
+  }else if( zD ){
     db_multi_exec(
-      "INSERT INTO allfiles SELECT name, NULL FROM filename"
-    );
-  }
-  if( zD ){
-    db_multi_exec(
-       "INSERT OR IGNORE INTO localfiles "
-       "  SELECT pathelement(x,%d), u FROM allfiles"
-       "   WHERE x GLOB '%q/*'",
-       strlen(zD)+1, zD
+      "INSERT OR IGNORE INTO localfiles"
+      " SELECT pathelement(name,%d), NULL FROM filename"
+      "  WHERE name GLOB '%q/*'",
+      nD, zD
     );
   }else{
     db_multi_exec(
-       "INSERT OR IGNORE INTO localfiles "
-       "  SELECT pathelement(x,0), u FROM allfiles"
+      "INSERT OR IGNORE INTO localfiles"
+      " SELECT pathelement(name,0), NULL FROM filename"
     );
   }
 
@@ -248,6 +268,7 @@ void page_dir(void){
     }
   }
   db_finalize(&q);
+  manifest_destroy(pM);
   @ </ul></td></tr></table>
   style_footer_cmdref("ls",0);
 }

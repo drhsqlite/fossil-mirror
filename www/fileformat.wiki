@@ -97,6 +97,7 @@ may contain no additional text or data beyond what is described here.
 Allowed cards in the manifest are as follows:
 
 <blockquote>
+<b>B</b> <i>baseline-manifest</i><br>
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
 <b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
@@ -106,6 +107,14 @@ Allowed cards in the manifest are as follows:
 <b>U</b> <i>user-login</i><br>
 <b>Z</b> <i>manifest-checksum</i>
 </blockquote>
+
+A manifest may optionally have a single B-card.  The B-card specifies
+another manifest that serves as the "baseline" for this manifest.  A
+manifest that has a B-card is called a delta-manifest and a manifest
+that omits the B-card is a baseline-manifest.  The other manifest
+identified by the argument of the B-card must be a baseline-manifest.
+A baseline-manifest records the complete contents of a checkin.
+A delta-manifest records only changes from its baseline.  
 
 A manifest must have exactly one C-card.  The sole argument to
 the C-card is a check-in comment that describes the check-in that
@@ -127,9 +136,8 @@ The format is:
 <i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i>
 </blockquote>
 
-A manifest has zero or more F-cards.  Each F-card defines a file
-(other than the manifest itself) which is part of the check-in that
-the manifest defines.  There are two, three, or four arguments.
+A manifest has zero or more F-cards.  Each F-card identifies a file
+that is part of the check-in.  There are one, two, three, or four arguments.
 The first argument
 is the pathname of the file in the check-in relative to the root
 of the project file hierarchy.  No ".." or "." directories are allowed
@@ -138,11 +146,15 @@ comment text.  Backslash characters and newlines are not allowed
 within filenames.  The directory separator character is a forward
 slash (ASCII 0x2F).  The second argument to the F-card is the
 full 40-character lower-case hexadecimal SHA1 hash of the content
-artifact.  The optional 3rd argument defines any special access 
+artifact.  The second argument is required for baseline manifests
+but is optional for delta manifests.  When the second argument to the
+F-card is omitted, it means that the file has been deleted relative
+to the baseline.  The optional 3rd argument defines any special access 
 permissions associated with the file.  The only special code currently
 defined is "x" which means that the file is executable.  All files are
 always readable and writable.  This can be expressed by "w" permission
-if desired but is optional.
+if desired but is optional.  The file format might be extended with
+new permission letters in the future.
 The optional 4th argument is the name of the same file as it existed in
 the parent check-in.  If the name of the file is unchanged from its
 parent, then the 4th argument is omitted.
@@ -504,6 +516,16 @@ appear on Fossil artifacts:
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 <td align=center><b>X</b></td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td><b>B</b> <i>baseline</i></td>
+<td align=center><b>X</b></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
 <tr>

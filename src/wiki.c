@@ -129,7 +129,7 @@ void wiki_page(void){
   int rid = 0;
   int isSandbox;
   Blob wiki;
-  Manifest m;
+  Manifest *pWiki = 0;
   const char *zPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
   Stmt q;
@@ -181,16 +181,10 @@ void wiki_page(void){
       " ORDER BY mtime DESC", zTag
     );
     free(zTag);
-    memset(&m, 0, sizeof(m));
-    blob_zero(&m.content);
-    if( rid ){
-      Blob content;
-      content_get(rid, &content);
-      manifest_parse(&m, &content);
-      if( m.type==CFTYPE_WIKI && m.zWiki ){
-        while( fossil_isspace(m.zWiki[0]) ) m.zWiki++;
-        if( m.zWiki[0] ) zBody = m.zWiki;
-      }
+    pWiki = manifest_get(rid, CFTYPE_WIKI);
+    if( pWiki ){
+      while( fossil_isspace(pWiki->zWiki[0]) ) pWiki->zWiki++;
+      if( pWiki->zWiki[0] ) zBody = pWiki->zWiki;
     }
   }
   if( !g.isHome ){
@@ -251,9 +245,7 @@ void wiki_page(void){
   }
   db_finalize(&q);
  
-  if( !isSandbox ){
-    manifest_clear(&m);
-  }
+  manifest_destroy(pWiki);
   /* don'tshow the help cross reference, because we are rendering
   ** the wiki conten!
   ** style_footer_cmdref("wiki","export");
@@ -270,7 +262,7 @@ void wikiedit_page(void){
   int rid = 0;
   int isSandbox;
   Blob wiki;
-  Manifest m;
+  Manifest *pWiki = 0;
   const char *zPageName;
   char *zHtmlPageName;
   int n;
@@ -304,15 +296,8 @@ void wikiedit_page(void){
       login_needed();
       return;
     }
-    memset(&m, 0, sizeof(m));
-    blob_zero(&m.content);
-    if( rid && zBody==0 ){
-      Blob content;
-      content_get(rid, &content);
-      manifest_parse(&m, &content);
-      if( m.type==CFTYPE_WIKI ){
-        zBody = m.zWiki;
-      }
+    if( zBody==0 && (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
+      zBody = pWiki->zWiki;
     }
   }
   if( P("submit")!=0 && zBody!=0 ){
@@ -383,9 +368,7 @@ void wikiedit_page(void){
   @ <input type="submit" name="submit" value="Apply These Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
   @ </div></form>
-  if( !isSandbox ){
-    manifest_clear(&m);
-  }
+  manifest_destroy(pWiki);
   style_footer_cmdref("wiki"," / <a href=\"wiki_rules\">wiki format</a>");
 }
 
@@ -483,9 +466,8 @@ void wikiappend_page(void){
     Blob cksum;
     int nrid;
     Blob body;
-    Blob content;
     Blob wiki;
-    Manifest m;
+    Manifest *pWiki = 0;
 
     blob_zero(&body);
     if( isSandbox ){
@@ -494,12 +476,11 @@ void wikiappend_page(void){
       db_set("sandbox", blob_str(&body), 0);
     }else{
       login_verify_csrf_secret();
-      content_get(rid, &content);
-      manifest_parse(&m, &content);
-      if( m.type==CFTYPE_WIKI ){
-        blob_append(&body, m.zWiki, -1);
+      pWiki = manifest_get(rid, CFTYPE_WIKI);
+      if( pWiki ){
+        blob_append(&body, pWiki->zWiki, -1);
+        manifest_destroy(pWiki);
       }
-      manifest_clear(&m);
       blob_zero(&wiki);
       db_begin_transaction();
       zDate = db_text(0, "SELECT datetime('now')");
@@ -618,8 +599,7 @@ void wdiff_page(void){
   char *zTitle;
   int rid1, rid2;
   const char *zPageName;
-  Blob content1, content2;
-  Manifest m1, m2;
+  Manifest *pW1, *pW2 = 0;
   Blob w1, w2, d;
 
   login_check_credentials();
@@ -641,23 +621,20 @@ void wdiff_page(void){
       zPageName, rid1
     );
   }
-  content_get(rid1, &content1);
-  manifest_parse(&m1, &content1);
-  if( m1.type!=CFTYPE_WIKI ) fossil_redirect_home();
-  blob_init(&w1, m1.zWiki, -1);
+  pW1 = manifest_get(rid1, CFTYPE_WIKI);
+  if( pW1==0 ) fossil_redirect_home();
+  blob_init(&w1, pW1->zWiki, -1);
   blob_zero(&w2);
-  if( rid2 ){
-    content_get(rid2, &content2);
-    manifest_parse(&m2, &content2);
-    if( m2.type==CFTYPE_WIKI ){
-      blob_init(&w2, m2.zWiki, -1);
-    }
+  if( rid2 && (pW2 = manifest_get(rid2, CFTYPE_WIKI))!=0 ){
+    blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
   text_diff(&w2, &w1, &d, 5, 1);
   @ <pre>
   @ %h(blob_str(&d))
   @ </pre>
+  manifest_destroy(pW1);
+  manifest_destroy(pW2);
   style_footer();
 }
 
@@ -923,10 +900,11 @@ void wiki_cmd(void){
   if( strncmp(g.argv[2],"export",n)==0 ){
     char const *zPageName;        /* Name of the wiki page to export */
     char const *zFile;            /* Name of the output file (0=stdout) */
-    int rid;                /* Artifact ID of the wiki page */
-    int i;                  /* Loop counter */
-    char *zBody = 0;        /* Wiki page content */
-    Manifest m;             /* Parsed wiki page content */
+    int rid;                      /* Artifact ID of the wiki page */
+    int i;                        /* Loop counter */
+    char *zBody = 0;              /* Wiki page content */
+    Manifest *pWiki = 0;          /* Parsed wiki page content */
+
     if( (g.argc!=4) && (g.argc!=5) ){
       usage("export PAGENAME ?FILE?");
     }
@@ -936,13 +914,8 @@ void wiki_cmd(void){
       " ORDER BY x.mtime DESC LIMIT 1",
       zPageName 
     );
-    if( rid ){
-      Blob content;
-      content_get(rid, &content);
-      manifest_parse(&m, &content);
-      if( m.type==CFTYPE_WIKI ){
-        zBody = m.zWiki;
-      }
+    if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
+      zBody = pWiki->zWiki;
     }
     if( zBody==0 ){
       fossil_fatal("wiki page [%s] not found",zPageName);
@@ -964,8 +937,9 @@ void wiki_cmd(void){
       fprintf(zF,"%.*s\n", i, zBody);
       if( doClose ) fclose(zF);
     }else{
-	printf("%.*s\n", i, zBody);
+      printf("%.*s\n", i, zBody);
     }
+    manifest_destroy(pWiki);
     return;
   }else
   if( strncmp(g.argv[2],"commit",n)==0

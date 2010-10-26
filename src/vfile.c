@@ -87,53 +87,34 @@ static void vfile_verify_not_phantom(
 }
 
 /*
-** Build a catalog of all files in a baseline.
-** We scan the baseline file for lines of the form:
-**
-**     F NAME UUID
-**
-** Each such line makes an entry in the VFILE table.
+** Build a catalog of all files in a checkin.
 */
-void vfile_build(int vid, Blob *p){
+void vfile_build(int vid){
   int rid;
-  char *zName, *zUuid;
   Stmt ins;
-  Blob line, token, name, uuid;
-  int seenHeader = 0;
+  Manifest *p;
+  ManifestFile *pFile;
+
   db_begin_transaction();
   vfile_verify_not_phantom(vid, 0, 0);
+  p = manifest_get(vid, CFTYPE_MANIFEST);
+  if( p==0 ) return;
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
   db_prepare(&ins,
     "INSERT INTO vfile(vid,rid,mrid,pathname) "
     " VALUES(:vid,:id,:id,:name)");
   db_bind_int(&ins, ":vid", vid);
-  while( blob_line(p, &line) ){
-    char *z = blob_buffer(&line);
-    if( z[0]=='-' ){
-      if( seenHeader ) break;
-      while( blob_line(p, &line)>2 ){}
-      if( blob_line(p, &line)==0 ) break;
-    }
-    seenHeader = 1;
-    if( z[0]!='F' || z[1]!=' ' ) continue;
-    blob_token(&line, &token);  /* Skip the "F" token */
-    if( blob_token(&line, &name)==0 ) break;
-    if( blob_token(&line, &uuid)==0 ) break;
-    zName = blob_str(&name);
-    defossilize(zName);
-    zUuid = blob_str(&uuid);
-    rid = uuid_to_rid(zUuid, 0);
-    vfile_verify_not_phantom(rid, zName, zUuid);
-    if( rid>0 && file_is_simple_pathname(zName) ){
-      db_bind_int(&ins, ":id", rid);
-      db_bind_text(&ins, ":name", zName);
-      db_step(&ins);
-      db_reset(&ins);
-    }
-    blob_reset(&name);
-    blob_reset(&uuid);
+  manifest_file_rewind(p);
+  while( (pFile = manifest_file_next(p,0))!=0 ){
+    rid = uuid_to_rid(pFile->zUuid, 0);
+    vfile_verify_not_phantom(rid, pFile->zName, pFile->zUuid);
+    db_bind_int(&ins, ":id", rid);
+    db_bind_text(&ins, ":name", pFile->zName);
+    db_step(&ins);
+    db_reset(&ins);
   }
   db_finalize(&ins);
+  manifest_destroy(p);
   db_end_transaction(0);
 }
 
@@ -371,6 +352,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       sprintf(zBuf, " %ld\n", ftell(in));
       fseek(in, 0L, SEEK_SET);
       md5sum_step_text(zBuf, -1);
+      /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
       for(;;){
         int n;
         n = fread(zBuf, 1, sizeof(zBuf), in);
@@ -424,6 +406,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
     content_get(rid, &file);
     sprintf(zBuf, " %d\n", blob_size(&file));
     md5sum_step_text(zBuf, -1);
+    /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
     md5sum_step_blob(&file);
     blob_reset(&file);
   }
@@ -440,9 +423,10 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 ** "R" card near the end of the manifest.  
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
-  int i, fid;
-  Blob file, mfile;
-  Manifest m;
+  int fid;
+  Blob file;
+  Manifest *pManifest;
+  ManifestFile *pFile;
   char zBuf[100];
 
   blob_zero(pOut);
@@ -450,13 +434,14 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
     blob_zero(pManOut);
   }
   db_must_be_within_tree();
-  content_get(vid, &mfile);
-  if( manifest_parse(&m, &mfile)==0 ){
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  if( pManifest==0 ){
     fossil_panic("manifest file (%d) is malformed", vid);
   }
-  for(i=0; i<m.nFile; i++){
-    fid = uuid_to_rid(m.aFile[i].zUuid, 0);
-    md5sum_step_text(m.aFile[i].zName, -1);
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    fid = uuid_to_rid(pFile->zUuid, 0);
+    md5sum_step_text(pFile->zName, -1);
     content_get(fid, &file);
     sprintf(zBuf, " %d\n", blob_size(&file));
     md5sum_step_text(zBuf, -1);
@@ -464,13 +449,13 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
     blob_reset(&file);
   }
   if( pManOut ){
-    if( m.zRepoCksum ){
-      blob_append(pManOut, m.zRepoCksum, -1);
+    if( pManifest->zRepoCksum ){
+      blob_append(pManOut, pManifest->zRepoCksum, -1);
     }else{
       blob_zero(pManOut);
     }
   }
-  manifest_clear(&m);
+  manifest_destroy(pManifest);
   md5sum_finish(pOut);
 }
 

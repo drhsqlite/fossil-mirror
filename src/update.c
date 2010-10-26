@@ -281,6 +281,7 @@ void update_cmd(void){
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
+      checkout_set_all_exe(vid);
       manifest_to_disk(tid);
       db_lset_int("checkout", tid);
     }else{
@@ -304,9 +305,9 @@ int historical_version_of_file(
   Blob *content,           /* Put the content here */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
-  Blob mfile;
-  Manifest m;
-  int i, rid=0;
+  Manifest *pManifest;
+  ManifestFile *pFile;
+  int rid=0;
   
   if( revision ){
     rid = name_to_rid(revision);
@@ -317,17 +318,18 @@ int historical_version_of_file(
     if( errCode>0 ) return errCode;
     fossil_fatal("no such checkin: %s", revision);
   }
-  content_get(rid, &mfile);
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
   
-  if( manifest_parse(&m, &mfile) ){
-    for(i=0; i<m.nFile; i++){
-      if( strcmp(m.aFile[i].zName, file)==0 ){
-        rid = uuid_to_rid(m.aFile[i].zUuid, 0);
-        manifest_clear(&m);
+  if( pManifest ){
+    manifest_file_rewind(pManifest);
+    while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+      if( strcmp(pFile->zName, file)==0 ){
+        rid = uuid_to_rid(pFile->zUuid, 0);
+        manifest_destroy(pManifest);
         return content_get(rid, content);
       }
     }
-    manifest_clear(&m);
+    manifest_destroy(pManifest);
     if( errCode<=0 ){
       fossil_fatal("file %s does not exist in checkin: %s", file, revision);
     }
@@ -388,10 +390,11 @@ void revert_cmd(void){
     vid = db_lget_int("checkout", 0);
     vfile_check_signature(vid, 0);
     db_multi_exec(
+      "DELETE FROM vmerge;"
       "INSERT INTO torevert "
       "SELECT pathname"
       "  FROM vfile "
-      " WHERE chnged OR deleted OR rid=0 OR pathname!=origname"
+      " WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
     );
   }
   blob_zero(&record);

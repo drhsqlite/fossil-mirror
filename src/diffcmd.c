@@ -358,49 +358,52 @@ static void diff_all_two_versions(
   const char *zDiffCmd,
   int diffFlags
 ){
-  Manifest mFrom, mTo;
-  int iFrom, iTo;
+  Manifest *pFrom, *pTo;
+  ManifestFile *pFromFile, *pToFile;
   int ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0 ? 1 : 0;
   int asNewFlag = (diffFlags & DIFF_NEWFILE)!=0 ? 1 : 0;
 
-  manifest_from_name(zFrom, &mFrom);
-  manifest_from_name(zTo, &mTo);
-  iFrom = iTo = 0;
-  while( iFrom<mFrom.nFile || iTo<mTo.nFile ){
+  pFrom = manifest_get_by_name(zFrom, 0);
+  manifest_file_rewind(pFrom);
+  pFromFile = manifest_file_next(pFrom,0);
+  pTo = manifest_get_by_name(zTo, 0);
+  manifest_file_rewind(pTo);
+  pToFile = manifest_file_next(pTo,0);
+
+  while( pFromFile || pToFile ){
     int cmp;
-    if( iFrom>=mFrom.nFile ){
+    if( pFromFile==0 ){
       cmp = +1;
-    }else if( iTo>=mTo.nFile ){
+    }else if( pToFile==0 ){
       cmp = -1;
     }else{
-      cmp = strcmp(mFrom.aFile[iFrom].zName, mTo.aFile[iTo].zName);
+      cmp = strcmp(pFromFile->zName, pToFile->zName);
     }
     if( cmp<0 ){
-      printf("DELETED %s\n", mFrom.aFile[iFrom].zName);
+      printf("DELETED %s\n", pFromFile->zName);
       if( asNewFlag ){
-        diff_manifest_entry(&mFrom.aFile[iFrom], 0, zDiffCmd, ignoreEolWs);
+        diff_manifest_entry(pFromFile, 0, zDiffCmd, ignoreEolWs);
       }
-      iFrom++;
+      pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
-      printf("ADDED   %s\n", mTo.aFile[iTo].zName);
+      printf("ADDED   %s\n", pToFile->zName);
       if( asNewFlag ){
-        diff_manifest_entry(0, &mTo.aFile[iTo], zDiffCmd, ignoreEolWs);
+        diff_manifest_entry(0, pToFile, zDiffCmd, ignoreEolWs);
       }
-      iTo++;
-    }else if( strcmp(mFrom.aFile[iFrom].zUuid, mTo.aFile[iTo].zUuid)==0 ){
+      pToFile = manifest_file_next(pTo,0);
+    }else if( strcmp(pFromFile->zUuid, pToFile->zUuid)==0 ){
       /* No changes */
-      iFrom++;
-      iTo++;
+      pFromFile = manifest_file_next(pFrom,0);
+      pToFile = manifest_file_next(pTo,0);
     }else{
-      printf("CHANGED %s\n", mFrom.aFile[iFrom].zName);
-      diff_manifest_entry(&mFrom.aFile[iFrom], &mTo.aFile[iTo],
-                          zDiffCmd, ignoreEolWs);
-      iFrom++;
-      iTo++;
+      printf("CHANGED %s\n", pFromFile->zName);
+      diff_manifest_entry(pFromFile, pToFile, zDiffCmd, ignoreEolWs);
+      pFromFile = manifest_file_next(pFrom,0);
+      pToFile = manifest_file_next(pTo,0);
     }
   }
-  manifest_clear(&mFrom);
-  manifest_clear(&mTo);
+  manifest_destroy(pFrom);
+  manifest_destroy(pTo);
 }
 
 /*

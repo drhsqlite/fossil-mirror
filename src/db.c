@@ -1512,19 +1512,20 @@ struct stControlSettings {
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
-  { "auto-captcha",  "autocaptcha",    0, "0"                   },
-  { "auto-shun",     0,                0, "1"                   },
-  { "autosync",      0,                0, "0"                   },
-  { "binary-glob",   0,                0, "1"                   },
-  { "clearsign",     0,                0, "0"                   },
-  { "diff-command",  0,               16, "diff"                },
-  { "dont-push",     0,                0, "0"                   },
+  { "auto-captcha",  "autocaptcha",    0, "on"                  },
+  { "auto-shun",     0,                0, "on"                  },
+  { "autosync",      0,                0, "on"                  },
+  { "binary-glob",   0,               32, ""                    },
+  { "clearsign",     0,                0, "off"                 },
+  { "diff-command",  0,               16, ""                    },
+  { "dont-push",     0,                0, "off"                 },
   { "editor",        0,               16, ""                    },
   { "gdiff-command", 0,               16, "gdiff"               },
   { "ignore-glob",   0,               40, ""                    },
   { "http-port",     0,               16, "8080"                },
-  { "localauth",     0,                0, "0"                   },
-  { "mtime-changes", 0,                0, "0"                   },
+  { "localauth",     0,                0, "off"                 },
+  { "manifest",      0,                0, "off"                 },
+  { "mtime-changes", 0,                0, "off"                 },
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
   { "push-hook-cmd", 0,               32, ""                    },
@@ -1536,6 +1537,7 @@ struct stControlSettings const ctrlSettings[] = {
                      0,               32, ""                    },
   { "push-hook-privilege",
                      0,               1,  ""                    },
+  { "repo-cksum",    0,                0, "on"                  },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
   { 0,0,0,0 }
@@ -1624,10 +1626,12 @@ struct stControlSettings const ctrlSettings[] = {
 **                  the sync.
 **                  if this is set on the server, it will accept hook
 **                  activiation, even if no files where pushed.
+**                     Default: on
 **
 **    push-hook-pattern-client
 **                  if set, a client push will sent this message to the
 **                  server, to activate the push hook command.
+**                     Default: on
 **
 **    push-hook-pattern-server
 **                  if set, and a client send this pattern at the end of
@@ -1641,6 +1645,11 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    ssh-command   Command used to talk to a remote machine with
 **                  the "ssh://" protocol.
+**
+**    repo-cksum       Compute checksums over all files in each checkout
+**                     as a double-check of correctness.  Defaults to "on".
+**                     Disable on large repositories for a performance
+**                     improvement.
 **
 **    web-browser   A shell command used to launch your preferred
 **                  web browser when given a URL as an argument.
@@ -1669,6 +1678,7 @@ void setting_cmd(void){
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
+    int isManifest;
     int n = strlen(zName);
     for(i=0; ctrlSettings[i].name; i++){
       if( strncmp(ctrlSettings[i].name, zName, n)==0 ) break;
@@ -1676,12 +1686,20 @@ void setting_cmd(void){
     if( !ctrlSettings[i].name ){
       fossil_fatal("no such setting: %s", zName);
     }
+    isManifest = strcmp(ctrlSettings[i].name, "manifest")==0;
+    if( isManifest && globalFlag ){
+      fossil_fatal("cannot set 'manifest' globally");
+    }
     if( unsetFlag ){
       db_unset(ctrlSettings[i].name, globalFlag);
     }else if( g.argc==4 ){
       db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
     }else{
+      isManifest = 0;
       print_setting(ctrlSettings[i].name);
+    }
+    if( isManifest ){
+      manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
     usage("?PROPERTY? ?VALUE?");
