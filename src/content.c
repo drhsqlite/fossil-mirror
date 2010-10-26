@@ -283,7 +283,7 @@ int content_get(int rid, Blob *pBlob){
 }
 
 /*
-** COMMAND:  artifact
+** COMMAND: artifact
 **
 ** Usage: %fossil artifact ARTIFACT-ID  ?OUTPUT-FILENAME?
 **
@@ -295,9 +295,9 @@ void artifact_cmd(void){
   int rid;
   Blob content;
   const char *zFile;
+  db_find_and_open_repository(1);
   if( g.argc!=4 && g.argc!=3 ) usage("RECORDID ?FILENAME?");
   zFile = g.argc==4 ? g.argv[3] : "-";
-  db_must_be_within_tree();
   rid = name_to_rid(g.argv[2]);
   content_get(rid, &content);
   blob_write_to_file(&content, zFile);
