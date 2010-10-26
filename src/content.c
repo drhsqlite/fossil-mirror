@@ -285,18 +285,22 @@ int content_get(int rid, Blob *pBlob){
 /*
 ** COMMAND: artifact
 **
-** Usage: %fossil artifact ARTIFACT-ID  ?OUTPUT-FILENAME?
+** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
 ** Extract an artifact by its SHA1 hash and write the results on
 ** standard output, or if the optional 4th argument is given, in
 ** the named output file.
+**
+** Options:
+**
+**    -R|--repository FILE       Extract artifacts from repository FILE
 */
 void artifact_cmd(void){
   int rid;
   Blob content;
   const char *zFile;
   db_find_and_open_repository(1);
-  if( g.argc!=4 && g.argc!=3 ) usage("RECORDID ?FILENAME?");
+  if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
   zFile = g.argc==4 ? g.argv[3] : "-";
   rid = name_to_rid(g.argv[2]);
   content_get(rid, &content);
