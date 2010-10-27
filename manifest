@@ -1,5 +1,5 @@
-C corrections\son\smerge\sconflict\shandling\sfor\ssettings\shelp
-D 2010-10-27T20:27:57
+C added\smissing\sdependency\sin\sdmc\swindows\smake\sfor\sresource\sfile
+D 2010-10-27T20:39:28
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -179,7 +179,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake b2a166f36266b4dbc8fef2da1fe51c32336a2eef
-F win/Makefile.dmc 6d9e482258ac53300d329f5b2d8564b5be3031f6
+F win/Makefile.dmc 37564b9e75f023c8e6fa661280f015883b630cb0
 F win/Makefile.msc 90aca1145b8bd9821c0e43a1c6f340f6c8b35b14
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P f5740d09c3ed31ab508d56ff94e6f30b908da4e8
-R 67d972830db3657f80761dbbcee9b530
+P 309168a936d404a0ff4cddcd6e75c1f467c9a00a
+R 3cd3a5fee602fe6ace78f97947653074
 U wolfgang
-Z 99802df42cdee3e9091655e0cf9e2840
+Z 023bb35c1567544bf6c4758b79e4b918
