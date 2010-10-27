@@ -1599,6 +1599,10 @@ struct stControlSettings const ctrlSettings[] = {
 **                  false, all HTTP requests from localhost have
 **                  unrestricted access to the repository.
 **
+**    manifest      If enabled, automatically create files "manifest" and
+**                  "manifest.uuid" in every checkout.  The SQLite and
+**                  Fossil repositories both require this.  Default: off.
+**
 **    mtime-changes Use file modification times (mtimes) to detect when
 **                  files have been modified.  (Default "on".)
 **
@@ -1643,13 +1647,13 @@ struct stControlSettings const ctrlSettings[] = {
 **                  to trigger the hook. Valid privileges are:
 **                    s (setup), a (admin), i (checkin) or o (checkout)
 **
+**    repo-cksum    Compute checksums over all files in each checkout
+**                  as a double-check of correctness.  Defaults to "on".
+**                  Disable on large repositories for a performance
+**                  improvement.
+**
 **    ssh-command   Command used to talk to a remote machine with
 **                  the "ssh://" protocol.
-**
-**    repo-cksum       Compute checksums over all files in each checkout
-**                     as a double-check of correctness.  Defaults to "on".
-**                     Disable on large repositories for a performance
-**                     improvement.
 **
 **    web-browser   A shell command used to launch your preferred
 **                  web browser when given a URL as an argument.

@@ -1,5 +1,5 @@
-C merge\sfrom\strunk
-D 2010-10-27T18:04:54
+C corrections\son\smerge\sconflict\shandling\sfor\ssettings\shelp
+D 2010-10-27T20:27:57
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -51,7 +51,7 @@ F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h da6c9c44ddafa4e5f7d2fb4afd4d29af87343b73
 F src/configure.c 257b655d57383ed43fc2fcd36134c7dce12f3ba4
 F src/content.c ee25f7be4db8cfbb45ea51915dedc1cfc9a0ab63
-F src/db.c 444cf079d256833e354c3ce136f506f03f2b1995
+F src/db.c bdc8c6bb0bd8c612d55eae43c0808fb226e954d0
 F src/delta.c 6296c873abf611a0ac4586910b6f7bd8b9b1e38e
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c d7f99e0a144d156328b425205f40f5fbd5946bcd
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 4260bc6a221d7c1cf56dbcfca40cd81179932641 e21ca81e1a76f98f2b3d5b5a7124e35e6b718920
-R 95bceab05d32868f53194815a7bdae6c
+P f5740d09c3ed31ab508d56ff94e6f30b908da4e8
+R 67d972830db3657f80761dbbcee9b530
 U wolfgang
-Z 0a316928915659a69be057a528fb0b12
+Z 99802df42cdee3e9091655e0cf9e2840
