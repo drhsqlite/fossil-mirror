@@ -1,5 +1,5 @@
-C Add\sbetter\susage\sand\shelp\sto\sthe\s"artifact"\scommand.
-D 2010-10-26T21:37:16
+C Use\sdelta\sencoding\sbetween\sbaseline\smanifests\sseparated\sby\sdelta\nmanifests.
+D 2010-10-27T11:54:24
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -74,7 +74,7 @@ F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 7bc38621223820447c67d7ba5e56f1efd23a243c
-F src/manifest.c 2c66173d4baa9b9a760317201b95c2c7127e8d72
+F src/manifest.c 82ef8bcec00d553326262b6b4e943ef39dea7bd3
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P b84b954fe0fe0699a99c3c544b2b1e6d8e48eaa8
-R 61dc4d7f08c36f2b3da9e98d3792a89b
+P 57347e6ee87ab62dc579b5b3102aade9e7ba928e
+R ce74b6559556cc9711063b5fd0d13ddd
 U drh
-Z e1d52fede0c63a35be4328612850bf6f
+Z fe619348e0989648e6ef93a58127de94
