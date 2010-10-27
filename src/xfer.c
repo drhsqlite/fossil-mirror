@@ -74,7 +74,13 @@ static int rid_from_uuid(Blob *pUuid, int phantomize){
 ** of the file rid.
 */
 static void remote_has(int rid){
-  if( rid ) db_multi_exec("INSERT OR IGNORE INTO onremote VALUES(%d)", rid);
+  if( rid ){
+    static Stmt q;
+    db_static_prepare(&q, "INSERT OR IGNORE INTO onremote VALUES(:r)");
+    db_bind_int(&q, ":r", rid);
+    db_step(&q);
+    db_reset(&q);
+  }
 }
 
 /*
@@ -482,10 +488,11 @@ static void send_unsent(Xfer *pXfer){
 ** count toward the 100 total.  And phantoms are never added to a new
 ** cluster.
 */
-static void create_cluster(void){
+void create_cluster(void){
   Blob cluster, cksum;
   Stmt q;
   int nUncl;
+  int nRow = 0;
 
   /* We should not ever get any private artifacts in the unclustered table.
   ** But if we do (because of a bug) now is a good time to delete them. */
@@ -496,26 +503,37 @@ static void create_cluster(void){
   nUncl = db_int(0, "SELECT count(*) FROM unclustered /*scan*/"
                     " WHERE NOT EXISTS(SELECT 1 FROM phantom"
                                       " WHERE rid=unclustered.rid)");
-  if( nUncl<100 ){
-    return;
+  if( nUncl>=100 ){
+    blob_zero(&cluster);
+    db_prepare(&q, "SELECT uuid FROM unclustered, blob"
+                   " WHERE NOT EXISTS(SELECT 1 FROM phantom"
+                   "                   WHERE rid=unclustered.rid)"
+                   "   AND unclustered.rid=blob.rid"
+                   "   AND NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+                   " ORDER BY 1");
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&cluster, "M %s\n", db_column_text(&q, 0));
+      nRow++;
+      if( nRow>=800 && nUncl>nRow+100 ){
+        md5sum_blob(&cluster, &cksum);
+        blob_appendf(&cluster, "Z %b\n", &cksum);
+        blob_reset(&cksum);
+        content_put(&cluster, 0, 0);
+        blob_reset(&cluster);
+        nUncl -= nRow;
+        nRow = 0;
+      }
+    }
+    db_finalize(&q);
+    db_multi_exec("DELETE FROM unclustered");
+    if( nRow>0 ){
+      md5sum_blob(&cluster, &cksum);
+      blob_appendf(&cluster, "Z %b\n", &cksum);
+      blob_reset(&cksum);
+      content_put(&cluster, 0, 0);
+      blob_reset(&cluster);
+    }
   }
-  blob_zero(&cluster);
-  db_prepare(&q, "SELECT uuid FROM unclustered, blob"
-                 " WHERE NOT EXISTS(SELECT 1 FROM phantom"
-                 "                   WHERE rid=unclustered.rid)"
-                 "   AND unclustered.rid=blob.rid"
-                 "   AND NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
-                 " ORDER BY 1");
-  while( db_step(&q)==SQLITE_ROW ){
-    blob_appendf(&cluster, "M %s\n", db_column_text(&q, 0));
-  }
-  db_finalize(&q);
-  md5sum_blob(&cluster, &cksum);
-  blob_appendf(&cluster, "Z %b\n", &cksum);
-  blob_reset(&cksum);
-  db_multi_exec("DELETE FROM unclustered");
-  content_put(&cluster, 0, 0);
-  blob_reset(&cluster);
 }
 
 /*
