@@ -1186,6 +1186,9 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   }
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
     content_deltify(pid, cid, 0); 
+  }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
+    fetch_baseline(pParent);
+    content_deltify(pParent->pBaseline->rid, cid, 0);
   }
   
   for(i=0, pChildFile=pChild->aFile; i<pChild->nFile; i++, pChildFile++){

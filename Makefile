@@ -43,9 +43,6 @@ TCC += -DFOSSIL_ENABLE_SSL
 #    chroot jail.
 #
 LIB = -lz $(LDFLAGS)
-HOST_OS!= uname -s
-LIB.SunOS= -lsocket -lnsl
-LIB += $(LIB.$(HOST_OS))
 
 # If using HTTPS:
 LIB += -lcrypto -lssl
@@ -56,4 +53,17 @@ TCLSH = tclsh
 
 # You should not need to change anything below this line
 ###############################################################################
+#
+# Automatic platform-specific options.
+HOST_OS!= uname -s
+
+LIB.SunOS= -lsocket -lnsl
+LIB += $(LIB.$(HOST_OS))
+
+TCC.DragonFly += -DUSE_PREAD
+TCC.FreeBSD += -DUSE_PREAD
+TCC.NetBSD += -DUSE_PREAD
+TCC.OpenBSD += -DUSE_PREAD
+TCC += $(TCC.$(HOST_OS))
+
 include $(SRCDIR)/main.mk
