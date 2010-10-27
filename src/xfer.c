@@ -97,7 +97,7 @@ static void remote_has(int rid){
 ** Any artifact successfully received by this routine is considered to
 ** be public and is therefore removed from the "private" table.
 */
-static void xfer_accept_file(Xfer *pXfer){
+static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   int n;
   int rid;
   int srcid = 0;
@@ -116,8 +116,21 @@ static void xfer_accept_file(Xfer *pXfer){
   blob_zero(&content);
   blob_zero(&hash);
   blob_extract(pXfer->pIn, n, &content);
-  if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
+  if( !cloneFlag && uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
+    return;
+  }
+  if( cloneFlag ){
+    if( pXfer->nToken==4 ){
+      srcid = rid_from_uuid(&pXfer->aToken[2], 1);
+      pXfer->nDeltaRcvd++;
+    }else{
+      srcid = 0;
+      pXfer->nFileRcvd++;
+    }
+    rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
+    remote_has(rid);
+    blob_reset(&content);
     return;
   }
   if( pXfer->nToken==4 ){
@@ -608,7 +621,7 @@ void page_xfer(void){
   blob_zero(&xfer.err);
   xfer.pIn = &g.cgiIn;
   xfer.pOut = cgi_output_blob();
-  xfer.mxSend = db_get_int("max-download", 5000000);
+  xfer.mxSend = db_get_int("max-download", 20000000);
   g.xferPanic = 1;
 
   db_begin_transaction();
@@ -634,7 +647,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      xfer_accept_file(&xfer);
+      xfer_accept_file(&xfer, 0);
       if( blob_size(&xfer.err) ){
         cgi_reset_content();
         @ error %T(blob_str(&xfer.err))
@@ -720,11 +733,12 @@ void page_xfer(void){
       }
     }else
 
-    /*    clone
+    /*    clone   ?PROTOCOL-VERSION?  ?SEQUENCE-NUMBER?
     **
     ** The client knows nothing.  Tell all.
     */
     if( blob_eq(&xfer.aToken[0], "clone") ){
+      int iVers;
       login_check_credentials();
       if( !g.okClone ){
         cgi_reset_content();
@@ -733,9 +747,24 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      isClone = 1;
-      isPull = 1;
-      deltaFlag = 1;
+      if( xfer.nToken==3
+       && blob_is_int(&xfer.aToken[1], &iVers)
+       && iVers>=2
+      ){
+        int seqno, max;
+        blob_is_int(&xfer.aToken[2], &seqno);
+        max = db_int(0, "SELECT max(rid) FROM blob");
+        while( xfer.mxSend>blob_size(xfer.pOut) && seqno<=max ){
+          send_file(&xfer, seqno, 0, 1);
+          seqno++;
+        }
+        if( seqno>=max ) seqno = 0;
+        @ clone_seqno %d(seqno)
+      }else{
+        isClone = 1;
+        isPull = 1;
+        deltaFlag = 1;
+      }
       @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
     }else
 
@@ -945,6 +974,7 @@ void client_sync(
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
   int nSent, nRcvd;       /* Bytes sent and received (after compression) */
+  int cloneSeqno = 1;     /* Sequence number for clones */
   Blob send;              /* Text we are sending to the server */
   Blob recv;              /* Reply we got back from the server */
   Xfer xfer;              /* Transfer data */
@@ -979,11 +1009,12 @@ void client_sync(
   ** Always begin with a clone, pull, or push message
   */
   if( cloneFlag ){
-    blob_appendf(&send, "clone\n");
+    blob_appendf(&send, "clone 2 %d\n", cloneSeqno);
     pushFlag = 0;
     pullFlag = 0;
     nCardSent++;
     /* TBD: Request all transferable configuration values */
+    content_enable_dephantomize(0);
   }else if( pullFlag ){
     blob_appendf(&send, "pull %s %s\n", zSCode, zPCode);
     nCardSent++;
@@ -1011,7 +1042,7 @@ void client_sync(
     /* Generate gimme cards for phantoms and leaf cards
     ** for all leaves.
     */
-    if( pullFlag || cloneFlag ){
+    if( pullFlag || (cloneFlag && cloneSeqno==1) ){
       request_phantoms(&xfer, mxPhantomReq);
     }
     if( pushFlag ){
@@ -1088,6 +1119,9 @@ void client_sync(
 
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
+      if( g.fHttpTrace ){
+        printf("\rGOT: %.*s", blob_size(&xfer.line), blob_buffer(&xfer.line));
+      }
       if( blob_buffer(&xfer.line)[0]=='#' ){
         const char *zLine = blob_buffer(&xfer.line);
         if( memcmp(zLine, "# timestamp ", 12)==0 ){
@@ -1119,7 +1153,7 @@ void client_sync(
       ** Receive a file transmitted from the server.
       */
       if( blob_eq(&xfer.aToken[0],"file") ){
-        xfer_accept_file(&xfer);
+        xfer_accept_file(&xfer, cloneFlag);
       }else
 
       /*   gimme UUID
@@ -1179,7 +1213,7 @@ void client_sync(
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
         }
-        blob_appendf(&send, "clone\n");
+        blob_appendf(&send, "clone 2 %d\n", cloneSeqno);
         nCardSent++;
       }else
       
@@ -1237,6 +1271,17 @@ void client_sync(
       */
       if( blob_eq(&xfer.aToken[0], "cookie") && xfer.nToken==2 ){
         db_set("cookie", blob_str(&xfer.aToken[1]), 0);
+      }else
+
+      /*    clone_seqno N
+      **
+      ** When doing a clone, the server tries to send all of its artifacts
+      ** in sequence.  This card indicates the sequence number of the next
+      ** blob that needs to be sent.  If N<=0 that indicates that all blobs
+      ** have been sent.
+      */
+      if( blob_eq(&xfer.aToken[0], "clone_seqno") && xfer.nToken==2 ){
+        blob_is_int(&xfer.aToken[1], &cloneSeqno);
       }else
 
       /*   message MESSAGE
@@ -1331,6 +1376,9 @@ void client_sync(
 
     /* If this is a clone, the go at least two rounds */
     if( cloneFlag && nCycle==1 ) go = 1;
+
+    /* Stop the cycle if the server sends a "clone_seqno 0" card */
+    if( cloneSeqno<=0 ) go = 0;   
   };
   transport_stats(&nSent, &nRcvd, 1);
   fossil_print("Total network traffic: %d bytes sent, %d bytes received\n",
@@ -1339,5 +1387,6 @@ void client_sync(
   transport_global_shutdown();
   db_multi_exec("DROP TABLE onremote");
   manifest_crosslink_end();
+  content_enable_dephantomize(1);
   db_end_transaction(0);
 }

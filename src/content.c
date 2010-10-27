@@ -328,6 +328,15 @@ void test_content_rawget_cmd(void){
 }
 
 /*
+** The following flag is set to disable the automatic calls to
+** manifest_crosslink() when a record is dephantomized.  This
+** flag can be set (for example) when doing a clone when we know
+** that rebuild will be run over all records at the conclusion
+** of the operation.
+*/
+static int ignoreDephantomizations = 0;
+
+/*
 ** When a record is converted from a phantom to a real record,
 ** if that record has other records that are derived by delta,
 ** then call manifest_crosslink() on those other records.
@@ -339,6 +348,7 @@ void after_dephantomize(int rid, int linkFlag){
   int nChildAlloc = 0;
   int *aChild = 0;
 
+  if( ignoreDephantomizations ) return;
   while( rid ){
     int nChildUsed = 0;
     int i;
@@ -365,6 +375,13 @@ void after_dephantomize(int rid, int linkFlag){
     linkFlag = 1;
   }
   free(aChild);
+}
+
+/*
+** Turn dephantomization processing on or off.
+*/
+void content_enable_dephantomize(int onoff){
+  ignoreDephantomizations = !onoff;
 }
 
 /*
