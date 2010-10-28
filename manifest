@@ -1,5 +1,5 @@
-C Reduce\sthe\samount\sof\sprocessing\sin\sbetween\swhen\sa\sserver\stimestamp\sis\sgenerated\nand\swhen\sit\sis\sevaluated\sfor\stime\sskew\sby\sthe\sclient\s-\sto\sreduce\sthe\srisk\nof\sdetecting\stime\sskew\ssimply\sdue\sto\sa\sslow\sdisk.
-D 2010-10-28T13:07:05
+C Less\sfrequent\sstatus\smessages\swhile\sprocessing\susing\sthe\ssync\sprotocol.
+D 2010-10-28T13:25:11
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -116,7 +116,7 @@ F src/vfile.c 43f234f22de8012f5cccad23695a0e83cf878f05
 F src/wiki.c 8ab45864d6b91407fd1f17e9734f74ff228e11c3
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c 2e4cd0e86c01bcf686ab04413f5a917190e7c163
-F src/xfer.c a5c5c7131902d519c2a242216521284f87558651
+F src/xfer.c 6cb8fb1a6ee42f1d04d16a54154481e3c76ee4ba
 F src/zip.c 74a36d7ab589e399eb118dc06d43aaf6bc2617c1
 F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
 F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
@@ -272,7 +272,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 0bb7d7b8ef64d7e8042e1c17dcea206597b96621
-R 992443c8cf3ef44b346800d4b8182d4c
+P a4cdf8d25b6e5da1e69fcc023c7a480e3e197090
+R f9384cc22118f91bdd1cbaeb66c857b0
 U drh
-Z 821ebc325ed5dc5f0b20505b871ba109
+Z ed8f2ee83f8de28ece6abdda094c298a

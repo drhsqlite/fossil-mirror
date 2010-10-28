@@ -1002,6 +1002,8 @@ void client_sync(
   Blob send;              /* Text we are sending to the server */
   Blob recv;              /* Reply we got back from the server */
   Xfer xfer;              /* Transfer data */
+  int pctDone;            /* Percentage done with a message */
+  int lastPctDone = -1;   /* Last displayed pctDone */
   double rArrivalTime;    /* Time at which a message arrived */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
@@ -1116,7 +1118,7 @@ void client_sync(
 
     /* Exchange messages with the server */
     nFileSend = xfer.nFileSent + xfer.nDeltaSent;
-    fossil_print(zValueFormat, "Send:",
+    fossil_print(zValueFormat, "Sent:",
                  blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                  xfer.nFileSent, xfer.nDeltaSent);
     nCardSent = 0;
@@ -1125,8 +1127,12 @@ void client_sync(
     xfer.nDeltaSent = 0;
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
+    if( !g.cgiOutput && !g.fQuiet ){
+      printf("waiting for server...");
+    }
     fflush(stdout);
     http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
+    lastPctDone = -1;
     blob_reset(&send);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
 
@@ -1169,8 +1175,12 @@ void client_sync(
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
       nCardRcvd++;
       if( !g.cgiOutput && !g.fQuiet ){
-        printf("\r%d", nCardRcvd);
-        fflush(stdout);
+        pctDone = (recv.iCursor*100)/recv.nUsed;
+        if( pctDone!=lastPctDone ){
+          printf("\rprocessed: %d%%         ", pctDone);
+          lastPctDone = pctDone;
+          fflush(stdout);
+        }
       }
 
       /*   file UUID SIZE \n CONTENT
