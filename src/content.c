@@ -328,9 +328,23 @@ void test_content_rawget_cmd(void){
 }
 
 /*
+** The following flag is set to disable the automatic calls to
+** manifest_crosslink() when a record is dephantomized.  This
+** flag can be set (for example) when doing a clone when we know
+** that rebuild will be run over all records at the conclusion
+** of the operation.
+*/
+static int ignoreDephantomizations = 0;
+
+/*
 ** When a record is converted from a phantom to a real record,
 ** if that record has other records that are derived by delta,
 ** then call manifest_crosslink() on those other records.
+**
+** If the formerly phantom record or any of the other records
+** derived by delta from the former phantom are a baseline manifest,
+** then also invoke manifest_crosslink() on the delta-manifests
+** associated with that baseline.
 **
 ** Tail recursion is used to minimize stack depth.
 */
@@ -338,16 +352,43 @@ void after_dephantomize(int rid, int linkFlag){
   Stmt q;
   int nChildAlloc = 0;
   int *aChild = 0;
+  Blob content;
 
+  if( ignoreDephantomizations ) return;
   while( rid ){
     int nChildUsed = 0;
     int i;
+
+    /* Parse the object rid itself */
     if( linkFlag ){
-      Blob content;
       content_get(rid, &content);
       manifest_crosslink(rid, &content);
       blob_reset(&content);
     }
+
+    /* Parse all delta-manifests that depend on baseline-manifest rid */
+    db_prepare(&q, "SELECT rid FROM orphan WHERE baseline=%d", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int child = db_column_int(&q, 0);
+      if( nChildUsed>=nChildAlloc ){
+        nChildAlloc = nChildAlloc*2 + 10;
+        aChild = fossil_realloc(aChild, nChildAlloc*sizeof(aChild));
+      }
+      aChild[nChildUsed++] = child;
+    }
+    db_finalize(&q);
+    for(i=0; i<nChildUsed; i++){
+      content_get(aChild[i], &content);
+      manifest_crosslink(aChild[i], &content);
+      blob_reset(&content);
+    }
+    if( nChildUsed ){
+      db_multi_exec("DELETE FROM orphan WHERE baseline=%d", rid);
+    }
+
+    /* Recursively dephantomize all artifacts that are derived by
+    ** delta from artifact rid */
+    nChildUsed = 0;
     db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int child = db_column_int(&q, 0);
@@ -361,10 +402,20 @@ void after_dephantomize(int rid, int linkFlag){
     for(i=1; i<nChildUsed; i++){
       after_dephantomize(aChild[i], 1);
     }
+
+    /* Tail recursion for the common case where only a single artifact
+    ** is derived by delta from rid... */
     rid = nChildUsed>0 ? aChild[0] : 0;
     linkFlag = 1;
   }
   free(aChild);
+}
+
+/*
+** Turn dephantomization processing on or off.
+*/
+void content_enable_dephantomize(int onoff){
+  ignoreDephantomizations = !onoff;
 }
 
 /*

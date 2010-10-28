@@ -316,7 +316,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
   char *z;
   int n;
   char *zUuid;
-  int sz;
+  int sz = 0;
 
   /* Every control artifact ends with a '\n' character.  Exit early
   ** if that is not the case for this artifact.
@@ -372,7 +372,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'A': {
         char *zName, *zTarget, *zSrc;
-        int nTarget, nSrc;
+        int nTarget = 0, nSrc = 0;
         zName = next_token(&x, 0);
         zTarget = next_token(&x, &nTarget);
         zSrc = next_token(&x, &nSrc);
@@ -915,16 +915,35 @@ void manifest_test_parse_cmd(void){
 
 /*
 ** Fetch the baseline associated with the delta-manifest p.
-** Print a fatal-error and quit if unable to load the baseline.
+** Return 0 on success.  If unable to parse the baseline,
+** throw an error.  If the baseline is a manifest, throw an
+** error if throwError is true, or record that p is an orphan
+** and return 1 throwError is false.
 */
-static void fetch_baseline(Manifest *p){
+static int fetch_baseline(Manifest *p, int throwError){
   if( p->zBaseline!=0 && p->pBaseline==0 ){
     int rid = uuid_to_rid(p->zBaseline, 0);
+    if( rid==0 && !throwError ){
+      rid = content_new(p->zBaseline);
+      db_multi_exec(
+         "INSERT OR IGNORE INTO orphan(rid, baseline) VALUES(%d,%d)",
+         rid, p->rid
+      );
+      return 1;
+    }
     p->pBaseline = manifest_get(rid, CFTYPE_MANIFEST);
     if( p->pBaseline==0 ){
+      if( !throwError && db_exists("SELECT 1 FROM phantom WHERE rid=%d",rid) ){
+        db_multi_exec(
+           "INSERT OR IGNORE INTO orphan(rid, baseline) VALUES(%d,%d)",
+           rid, p->rid
+        );
+        return 1;
+      }    
       fossil_fatal("cannot access baseline manifest %S", p->zBaseline);
     }
   }
+  return 0;
 }
 
 /*
@@ -932,7 +951,7 @@ static void fetch_baseline(Manifest *p){
 */
 void manifest_file_rewind(Manifest *p){
   p->iFile = 0;
-  fetch_baseline(p);
+  fetch_baseline(p, 1);
   if( p->pBaseline ){
     p->pBaseline->iFile = 0;
   }
@@ -1125,7 +1144,7 @@ ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
   pFile = manifest_file_seek_base(p, zName);
   if( pFile && pFile->zUuid==0 ) return 0;
   if( pFile==0 && p->zBaseline ){
-    fetch_baseline(p);
+    fetch_baseline(p, 1);
     pFile = manifest_file_seek_base(p->pBaseline, zName);
   }
   return pFile;
@@ -1184,10 +1203,13 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     *ppOther = manifest_parse(&otherContent, otherRid);
     if( *ppOther==0 ) return;
   }
+  if( fetch_baseline(pParent, 0) || fetch_baseline(pChild, 0) ){
+    manifest_destroy(*ppOther);
+    return;
+  }
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
     content_deltify(pid, cid, 0); 
   }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
-    fetch_baseline(pParent);
     content_deltify(pParent->pBaseline->rid, cid, 0);
   }
   
@@ -1373,6 +1395,10 @@ int manifest_crosslink(int rid, Blob *pContent){
     manifest_destroy(p);
     return 0;
   }
+  if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
+    manifest_destroy(p);
+    return 0;
+  }
   db_begin_transaction();
   if( p->type==CFTYPE_MANIFEST ){
     if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid) ){
@@ -1429,12 +1455,16 @@ int manifest_crosslink(int rid, Blob *pContent){
     }
   }
   if( p->type==CFTYPE_CLUSTER ){
+    static Stmt del1;
     tag_insert("cluster", 1, 0, rid, p->rDate, rid);
+    db_static_prepare(&del1, "DELETE FROM unclustered WHERE rid=:rid");
     for(i=0; i<p->nCChild; i++){
       int mid;
       mid = uuid_to_rid(p->azCChild[i], 1);
       if( mid>0 ){
-        db_multi_exec("DELETE FROM unclustered WHERE rid=%d", mid);
+        db_bind_int(&del1, ":rid", mid);
+        db_step(&del1);
+        db_reset(&del1);
       }
     }
   }

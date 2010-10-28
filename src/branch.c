@@ -94,7 +94,7 @@ void branch_new(void){
     blob_appendf(&branch, "F %F", pParent->aFile[i].zName);
     if( pParent->aFile[i].zUuid ){
       blob_appendf(&branch, " %s", pParent->aFile[i].zUuid);
-      if( pParent->aFile[i].zPerm[0] ){
+      if( pParent->aFile[i].zPerm && pParent->aFile[i].zPerm[0] ){
         blob_appendf(&branch, " %s", pParent->aFile[i].zPerm);
       }
     }
