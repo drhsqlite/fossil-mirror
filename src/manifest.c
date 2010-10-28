@@ -316,7 +316,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
   char *z;
   int n;
   char *zUuid;
-  int sz;
+  int sz = 0;
 
   /* Every control artifact ends with a '\n' character.  Exit early
   ** if that is not the case for this artifact.
@@ -372,7 +372,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
       */
       case 'A': {
         char *zName, *zTarget, *zSrc;
-        int nTarget, nSrc;
+        int nTarget = 0, nSrc = 0;
         zName = next_token(&x, 0);
         zTarget = next_token(&x, &nTarget);
         zSrc = next_token(&x, &nSrc);

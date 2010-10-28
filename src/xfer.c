@@ -1152,7 +1152,8 @@ void client_sync(
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
       if( g.fHttpTrace ){
-        printf("\rGOT: %.*s", blob_size(&xfer.line), blob_buffer(&xfer.line));
+        printf("\rGOT: %.*s", (int)blob_size(&xfer.line),
+                              blob_buffer(&xfer.line));
       }
       if( blob_buffer(&xfer.line)[0]=='#' ){
         const char *zLine = blob_buffer(&xfer.line);
