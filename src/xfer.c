@@ -1379,6 +1379,8 @@ void client_sync(
       go = 1;
       mxPhantomReq = nFileRecv*2;
       if( mxPhantomReq<200 ) mxPhantomReq = 200;
+    }else if( cloneFlag && nFileRecv>0 ){
+      go = 1;
     }
     nCardRcvd = 0;
     xfer.nFileRcvd = 0;
