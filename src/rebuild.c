@@ -249,6 +249,7 @@ int rebuild_db(int randomize, int doOut){
   Stmt s;
   int errCnt = 0;
   char *zTable;
+  int incrSize;
 
   bag_init(&bagDone);
   ttyOutput = doOut;
@@ -286,6 +287,8 @@ int rebuild_db(int randomize, int doOut){
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
   totalSize = db_int(0, "SELECT count(*) FROM blob");
+  incrSize = totalSize/100;
+  totalSize += incrSize*2;
   db_prepare(&s,
      "SELECT rid, size FROM blob /*scan*/"
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
@@ -323,6 +326,15 @@ int rebuild_db(int randomize, int doOut){
   db_finalize(&s);
   manifest_crosslink_end();
   rebuild_tag_trunk();
+  if (!g.fQuiet) {
+    processCnt += incrSize;
+    percent_complete((processCnt*1000)/totalSize);
+  }
+  create_cluster();
+  if (!g.fQuiet) {
+    processCnt += incrSize;
+    percent_complete((processCnt*1000)/totalSize);
+  }
   if(!g.fQuiet && ttyOutput ){
     printf("\n");
   }
@@ -386,6 +398,28 @@ void test_detach_cmd(void){
     " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
   );
   db_end_transaction(0);
+}
+
+/*
+** COMMAND:  test-create-clusters
+**
+** Create clusters for all unclustered artifacts if the number of unclustered
+** artifacts exceeds the current clustering threshold.
+*/
+void test_createcluster_cmd(void){
+  if( g.argc==3 ){
+    db_open_repository(g.argv[2]);
+  }else{
+    db_find_and_open_repository(1);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close();
+    db_open_repository(g.zRepositoryName);
+  }
+  db_begin_transaction();
+  create_cluster();
+  db_end_transaction(0);  
 }
 
 /*

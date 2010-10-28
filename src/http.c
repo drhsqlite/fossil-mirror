@@ -269,7 +269,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     fossil_fatal("server sends error: %s", z);
   }
   if( g.fHttpTrace ){
-    printf("HTTP RECEIVE:\n%s\n=======================\n", blob_str(pReply));
+    /*printf("HTTP RECEIVE:\n%s\n=======================\n",blob_str(pReply));*/
   }else{
     blob_uncompress(pReply, pReply);
   }

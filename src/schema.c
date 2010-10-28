@@ -244,6 +244,16 @@ const char zRepositorySchema2[] =
 @   rid INTEGER PRIMARY KEY         -- Record ID of the phantom
 @ );
 @
+@ -- A record of orphaned delta-manifests.  An orphan is a delta-manifest
+@ -- for which we have content, but its baseline-manifest is a phantom.
+@ -- We have to track all orphan maniftests so that when the baseline arrives,
+@ -- we know to process the orphaned deltas.
+@ CREATE TABLE orphan(
+@   rid INTEGER PRIMARY KEY,        -- Delta manifest with a phantom baseline
+@   baseline INTEGER                -- Phantom baseline of this orphan
+@ );
+@ CREATE INDEX orphan_baseline ON orphan(baseline);
+@
 @ -- Unclustered records.  An unclustered record is a record (including
 @ -- a cluster records themselves) that is not mentioned by some other
 @ -- cluster.
