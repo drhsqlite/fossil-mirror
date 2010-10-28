@@ -646,8 +646,6 @@ void page_xfer(void){
   db_multi_exec(
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
-  zNow = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')");
-  @ # timestamp %s(zNow)
   manifest_crosslink_begin();
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
@@ -923,6 +921,14 @@ void page_xfer(void){
     configure_finalize_receive();
   }
   manifest_crosslink_end();
+
+  /* Send the server timestamp last, in case prior processing happened
+  ** to use up a significant fraction of our time window.
+  */
+  zNow = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', 'now')");
+  @ # timestamp %s(zNow)
+  free(zNow);
+
   db_end_transaction(0);
 }
 
@@ -996,6 +1002,7 @@ void client_sync(
   Blob send;              /* Text we are sending to the server */
   Blob recv;              /* Reply we got back from the server */
   Xfer xfer;              /* Transfer data */
+  double rArrivalTime;    /* Time at which a message arrived */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
 
@@ -1121,6 +1128,7 @@ void client_sync(
     fflush(stdout);
     http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
     blob_reset(&send);
+    rArrivalTime = db_double(0.0, "SELECT julianday('now')");
 
     /* Begin constructing the next message (which might never be
     ** sent) by beginning with the pull or push cards
@@ -1146,8 +1154,8 @@ void client_sync(
           char zTime[20];
           double rDiff;
           sqlite3_snprintf(sizeof(zTime), zTime, "%.19s", &zLine[12]);
-          rDiff = db_double(9e99, "SELECT julianday('%q') - julianday('now')",
-                            zTime);
+          rDiff = db_double(9e99, "SELECT julianday('%q') - %.17g",
+                            zTime, rArrivalTime);
           if( rDiff<0.0 ) rDiff = -rDiff;
           if( rDiff>9e98 ) rDiff = 0.0;
           if( (rDiff*24.0*3600.0)>=60.0 ){
