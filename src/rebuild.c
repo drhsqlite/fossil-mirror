@@ -108,7 +108,7 @@ static void rebuild_step_done(rid){
   bag_insert(&bagDone, rid);
   if( ttyOutput ){
     processCnt++;
-    if (!g.fQuiet) {
+    if (!g.fQuiet && totalSize>0) {
       percent_complete((processCnt*1000)/totalSize);
     }
   }
@@ -326,12 +326,12 @@ int rebuild_db(int randomize, int doOut){
   db_finalize(&s);
   manifest_crosslink_end();
   rebuild_tag_trunk();
-  if (!g.fQuiet) {
+  if( !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
   create_cluster();
-  if (!g.fQuiet) {
+  if( !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
@@ -419,7 +419,7 @@ void test_createcluster_cmd(void){
   }
   db_begin_transaction();
   create_cluster();
-  db_end_transaction(0);
+  db_end_transaction(0);  
 }
 
 /*

@@ -1245,3 +1245,27 @@ void cmd_webserver(void){
   win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
 #endif
 }
+
+/*
+** COMMAND: sqlite3
+**
+** Usage: %fossil sqlite3 ?DATABASE? ?OPTIONS?
+**
+** Run the standalone sqlite3 command-line shell on DATABASE with OPTIONS.
+** If DATABASE is omitted, then the repository that serves the working
+** directory is opened.
+*/
+void sqlite3_cmd(void){
+  extern int sqlite3_shell(int, char**);
+  sqlite3_shell(g.argc-1, g.argv+1);
+}
+
+/*
+** This routine is called by the patched sqlite3 command-line shell in order
+** to load the name and database connection for the open Fossil database.
+*/
+void fossil_open(sqlite3 **pDb, const char **pzRepoName){
+  db_must_be_within_tree();
+  *pDb = 0;
+  *pzRepoName = g.zRepositoryName;
+}

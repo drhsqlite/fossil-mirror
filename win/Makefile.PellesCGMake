@@ -77,10 +77,14 @@ UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
 # define the sqlite files, which need special flags on compile
-SQLITESRC=sqlite3.c
-ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
-SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
+SQLITESRC1=sqlite3.c
+SQLITESRC2=shell.c
+ORIGSQLITESRC=$(foreach sf,$(SQLITESRC1) $(SQLITESRC2),$(SRCDIR)$(sf))
+SQLITEOBJ1=$(foreach sf,$(SQLITESRC1),$(sf:.c=.obj))
+SQLITEOBJ2=$(foreach sf,$(SQLITESRC2),$(sf:.c=.obj))
+SQLITEOBJ=$(foreach sf,$(SQLITESRC1) $(SQLITESRC2),$(sf:.c=.obj))
+SQLITEDEFINES1=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
+SQLITEDEFINES2=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
@@ -152,8 +156,11 @@ headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VER
 $(TRANSLATEDOBJ):	%_.obj:	%_.c %.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(SQLITEOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)%.h
-	$(CC) $(CCFLAGS) $(SQLITEDEFINES) $(INCLUDE) "$<" -Fo"$@"
+$(SQLITEOBJ1):	%.obj:	$(SRCDIR)%.c $(SRCDIR)%.h
+	$(CC) $(CCFLAGS) $(SQLITEDEFINES1) $(INCLUDE) "$<" -Fo"$@"
+
+$(SQLITEOBJ2):	%.obj:	$(SRCDIR)%.c
+	$(CC) $(CCFLAGS) $(SQLITEDEFINES2) $(INCLUDE) "$<" -Fo"$@"
 
 $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
