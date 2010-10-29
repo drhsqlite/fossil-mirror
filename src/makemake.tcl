@@ -150,8 +150,14 @@ VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 		substr($$2,1,10),substr($$2,12)}' \
 		$(SRCDIR)/../manifest >>VERSION.h
 
-$(APPNAME):	headers $(OBJ) $(OBJDIR)/sqlite3.o $(OBJDIR)/th.o $(OBJDIR)/th_lang.o
-	$(TCC) -o $(APPNAME) $(OBJ) $(OBJDIR)/sqlite3.o $(OBJDIR)/th.o $(OBJDIR)/th_lang.o $(LIB)
+EXTRAOBJ = \
+  $(OBJDIR)/sqlite3.o \
+  $(OBJDIR)/shell.o \
+  $(OBJDIR)/th.o \
+  $(OBJDIR)/th_lang.o
+
+$(APPNAME):	headers $(OBJ) $(EXTRAOBJ)
+	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -202,6 +208,11 @@ append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 append opt " -Dlocaltime=fossil_localtime"
 append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 puts "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+
+puts "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c"
+set opt {-Dmain=sqlite3_shell}
+append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
+puts "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 puts "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
 puts "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"

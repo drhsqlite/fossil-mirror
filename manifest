@@ -1,5 +1,5 @@
-C Avoid\sdivision\sby\szero\son\sdegenerate\srepositories\swhen\sdisplaying\spercent\sdone.\nTicket\s[5be04d980c92f73fbc7]
-D 2010-10-29T18:06:48
+C Add\sthe\s"sqlite3"\scommand\sproviding\san\ssqlite3\scommand-line\sshell.\nTicket\s[b18338c226f6fb4899b]
+D 2010-10-29T19:06:04
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -69,11 +69,11 @@ F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 383057ae5f3e0d507f7fb13352778f3823e204c3
 F src/info.c 28ef7eae65618f3abf40e44e06203cc5bb87231c
 F src/login.c b6b93c2666a0f8fe653a26ced11da3540b308492
-F src/main.c fc28f9bd8151c2978fa77e0ac1d84341c6496a15
-F src/main.mk f4889cee4d760a74c8a6bf201750cfeff8a94f6b
+F src/main.c 2d4ffa8f91e4730ccf120526bb0d8489e813901c
+F src/main.mk f8b5fdf65d2d168e30bdcd7b717edfb7d7d50db7
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
-F src/makemake.tcl 7bc38621223820447c67d7ba5e56f1efd23a243c
+F src/makemake.tcl 55dafacccfa1b4880f1232555808a7a8558303ae
 F src/manifest.c 97635ebe4367248ebcb756406c5eb6186e9e5f48
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
@@ -91,6 +91,7 @@ F src/schema.c 6baf06e2e0572ee95fd48504d8f482415670d1a8
 F src/search.c d3a38c62eca5b2a9c842c0e64468fa4cfee8fb96
 F src/setup.c a875f657d848f83726cfa8a211371d78730df749
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
+F src/shell.c 3def9637bc23a6d0820a943321f484461a21ede2
 F src/shun.c 1b4711b3a27101974f3345e1fbd3dffd07ec641f
 F src/skins.c e598e23eb07ca79d795c81b33c65f19829587d28
 F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
@@ -272,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P d03718ad5fd9ba43368a5c66b5f5c9c7205e038e
-R 01adc0d71d2e27e7494647aa8d776964
+P 067a90a903d5a72f4f28b94ce9ee65ead505f12b
+R 2ee7d0a3cb4e95e0beaacc466ea4c5bd
 U drh
-Z 4a078884247d29789c67170dc2631574
+Z 56e846dc690c5cf717555dfceee08c19
