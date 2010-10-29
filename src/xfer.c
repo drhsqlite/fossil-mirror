@@ -1175,7 +1175,7 @@ void client_sync(
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
       nCardRcvd++;
-      if( !g.cgiOutput && !g.fQuiet ){
+      if( !g.cgiOutput && !g.fQuiet && recv.nUsed>0 ){
         pctDone = (recv.iCursor*100)/recv.nUsed;
         if( pctDone!=lastPctDone ){
           printf("\rprocessed: %d%%         ", pctDone);
