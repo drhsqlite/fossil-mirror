@@ -41,10 +41,41 @@ if {$i>=0} {
   set HALT 0
 }
 
+set i [lsearch $argv -prot]
+if {$i>=0} {
+  set PROT 1
+  set argv [lreplace $argv $i $i]
+} else {
+  set PROT 0
+}
+
 if {[llength $argv]==0} {
   foreach f [lsort [glob $testdir/*.test]] {
     set base [file root [file tail $f]]
     lappend argv $base
+  }
+}
+
+# start protocol
+#
+proc protInit {cmd} {
+  if {$::PROT} {
+    set out [open "prot" w]
+    fconfigure $out -translation platform
+    puts $out "starting tests with:$cmd"
+    close $out
+  }
+}
+
+# write protocol
+#
+proc protOut {msg} {
+  puts "$msg"
+  if {$::PROT} {
+    set out [open "prot" a]
+    fconfigure $out -translation platform
+    puts $out "$msg"
+    close $out
   }
 }
 
@@ -56,7 +87,8 @@ proc fossil {args} {
   foreach a $args {
     lappend cmd $a
   }
-  puts $cmd
+  protOut $cmd
+
   flush stdout
   set rc [catch {eval exec $cmd} result]
   global RESULT CODE
@@ -102,9 +134,9 @@ proc test {name expr} {
   global bad_test
   set r [uplevel 1 [list expr $expr]]
   if {$r} {
-    puts "test $name OK"
+    protOut "test $name OK"
   } else {
-    puts "test $name FAILED!"
+    protOut "test $name FAILED!"
     lappend bad_test $name
     if {$::HALT} exit
   }
@@ -169,8 +201,9 @@ proc random_changes {body blocksize count index prob} {
   return [string range $out 1 end]
 }
 
+protInit $fossilexe
 foreach testfile $argv {
-  puts "***** $testfile ******"
+  protOut "***** $testfile ******"
   source $testdir/$testfile.test
 }
-puts "[llength $bad_test] errors: $bad_test"
+protOut "[llength $bad_test] errors: $bad_test"

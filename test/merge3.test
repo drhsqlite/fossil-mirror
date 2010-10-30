@@ -30,14 +30,14 @@ proc merge-test {testid basis v1 v2 result} {
   write_file t3 [join [string trim $v2] \n]\n
   fossil test-3-way-merge t1 t2 t3 t4
   set x [read_file t4]
-  regsub -all {>>>>>>> BEGIN MERGE CONFLICT} $x {>} x
+  regsub -all {<<<<<<< BEGIN MERGE CONFLICT} $x {>} x
   regsub -all {============================} $x {=} x
-  regsub -all {<<<<<<< END MERGE CONFLICT} $x {<} x
+  regsub -all {>>>>>>> END MERGE CONFLICT} $x {<} x
   set x [split [string trim $x] \n]
   set result [string trim $result]
   if {$x!=$result} {
-    puts "  Expected \[$result\]"
-    puts "       Got \[$x\]"
+    protOut "  Expected \[$result\]"
+    protOut "       Got \[$x\]"
     test merge3-$testid 0
   } else {
     test merge3-$testid 1

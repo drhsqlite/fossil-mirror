@@ -34,7 +34,7 @@
 set filelist [glob $testdir/*]
 foreach f $filelist {
   set base [file root [file tail $f]]
-puts "base=$base f=$f"
+protOut "base=$base f=$f"
   set f1 [read_file $f]
   write_file t1 $f1
   for {set i 0} {$i<100} {incr i} {
