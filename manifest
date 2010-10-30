@@ -1,5 +1,5 @@
-C merge\sfrom\strunk\sand\sadd\ssqlite\sshell\sto\swindows\smake
-D 2010-10-29T21:11:39
+C merge\sfrom\strunk
+D 2010-10-30T20:02:38
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -119,12 +119,12 @@ F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c ee0fc62b80b0f8f2a0333f6a869faf8e08eac787
 F src/xfer.c d05a1537c64cb4f1b816f79792fab0a29eeae52a
 F src/zip.c 963f13a9e71c58381c084568323dc54d0859db4c
-F test/delta1.test b0dba644d205733e27ebb9206d9ed3136ac79b74
-F test/merge1.test 310813fc4c32766f376ef7a676f5a3d3b8cf8d9b
+F test/delta1.test 938a3456627a557c7977f328ab1feb81e831f397
+F test/merge1.test 16644e6b6173fa8401e4ed6636d4e9c3a29a207d
 F test/merge2.test 9b6f797f40414450c29bca52e89a328a586fef40
-F test/merge3.test e745bf699d0c81a0ddeebe32621991d1c762dee9
-F test/merge4.test 61232e82e6c59e16e36dfa0bd0fcaa1c93f398e8
-F test/tester.tcl ba01105cd099ba556e6a9131bad4f90fe88b73c7
+F test/merge3.test 95294bf43a96a36e3fbde441daa52d48d40acba7
+F test/merge4.test e38baa9b4fd7a05684f174bc7b696678eafbefc5
+F test/tester.tcl 296948737875205960629fbed6505c350334d68b
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e6dce6a16afe21887e104db5fe8e66984014450d 8c723318d27cc521d09aebed2a755ba4861d3f01
-R 2116877210be60d06854349c65d9688b
+P 6d334ac9ed2f7d98336c9150940ae082723484e4 f89d953a061c5bb039d652e74f0125da7a6d2d43
+R ec72670800a3d625122789b19a9ef543
 U wolfgang
-Z 3596d60f957ec732d546a67f08b94f59
+Z c5f8832d84c2c5290d0f588a1ebfecdc
