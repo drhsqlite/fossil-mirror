@@ -28,7 +28,7 @@ LIBS   = $(DMDIR)\extra\lib\ zlib wsock32
 
 SRC   = add_.c allrepo_.c attach_.c bag_.c blob_.c branch_.c browse_.c captcha_.c cgi_.c checkin_.c checkout_.c clearsign_.c clone_.c comformat_.c configure_.c content_.c db_.c delta_.c deltacmd_.c descendants_.c diff_.c diffcmd_.c doc_.c encode_.c event_.c file_.c finfo_.c graph_.c http_.c http_socket_.c http_ssl_.c http_transport_.c info_.c login_.c main_.c manifest_.c md5_.c merge_.c merge3_.c name_.c pivot_.c popen_.c pqueue_.c printf_.c rebuild_.c report_.c rss_.c schema_.c search_.c setup_.c sha1_.c shun_.c skins_.c stat_.c style_.c sync_.c tag_.c th_main_.c timeline_.c tkt_.c tktsetup_.c undo_.c update_.c url_.c user_.c verify_.c vfile_.c wiki_.c wikiformat_.c winhttp_.c xfer_.c zip_.c 
 
-OBJ   = $(OBJDIR)\add$O $(OBJDIR)\allrepo$O $(OBJDIR)\attach$O $(OBJDIR)\bag$O $(OBJDIR)\blob$O $(OBJDIR)\branch$O $(OBJDIR)\browse$O $(OBJDIR)\captcha$O $(OBJDIR)\cgi$O $(OBJDIR)\checkin$O $(OBJDIR)\checkout$O $(OBJDIR)\clearsign$O $(OBJDIR)\clone$O $(OBJDIR)\comformat$O $(OBJDIR)\configure$O $(OBJDIR)\content$O $(OBJDIR)\db$O $(OBJDIR)\delta$O $(OBJDIR)\deltacmd$O $(OBJDIR)\descendants$O $(OBJDIR)\diff$O $(OBJDIR)\diffcmd$O $(OBJDIR)\doc$O $(OBJDIR)\encode$O $(OBJDIR)\event$O $(OBJDIR)\file$O $(OBJDIR)\finfo$O $(OBJDIR)\graph$O $(OBJDIR)\http$O $(OBJDIR)\http_socket$O $(OBJDIR)\http_ssl$O $(OBJDIR)\http_transport$O $(OBJDIR)\info$O $(OBJDIR)\login$O $(OBJDIR)\main$O $(OBJDIR)\manifest$O $(OBJDIR)\md5$O $(OBJDIR)\merge$O $(OBJDIR)\merge3$O $(OBJDIR)\name$O $(OBJDIR)\pivot$O $(OBJDIR)\popen$O $(OBJDIR)\pqueue$O $(OBJDIR)\printf$O $(OBJDIR)\rebuild$O $(OBJDIR)\report$O $(OBJDIR)\rss$O $(OBJDIR)\schema$O $(OBJDIR)\search$O $(OBJDIR)\setup$O $(OBJDIR)\sha1$O $(OBJDIR)\shun$O $(OBJDIR)\skins$O $(OBJDIR)\stat$O $(OBJDIR)\style$O $(OBJDIR)\sync$O $(OBJDIR)\tag$O $(OBJDIR)\th_main$O $(OBJDIR)\timeline$O $(OBJDIR)\tkt$O $(OBJDIR)\tktsetup$O $(OBJDIR)\undo$O $(OBJDIR)\update$O $(OBJDIR)\url$O $(OBJDIR)\user$O $(OBJDIR)\verify$O $(OBJDIR)\vfile$O $(OBJDIR)\wiki$O $(OBJDIR)\wikiformat$O $(OBJDIR)\winhttp$O $(OBJDIR)\xfer$O $(OBJDIR)\zip$O $(OBJDIR)\sqlite3$O $(OBJDIR)\shell$O $(OBJDIR)\th$O $(OBJDIR)\th_lang$O 
+OBJ   = $(OBJDIR)\add$O $(OBJDIR)\allrepo$O $(OBJDIR)\attach$O $(OBJDIR)\bag$O $(OBJDIR)\blob$O $(OBJDIR)\branch$O $(OBJDIR)\browse$O $(OBJDIR)\captcha$O $(OBJDIR)\cgi$O $(OBJDIR)\checkin$O $(OBJDIR)\checkout$O $(OBJDIR)\clearsign$O $(OBJDIR)\clone$O $(OBJDIR)\comformat$O $(OBJDIR)\configure$O $(OBJDIR)\content$O $(OBJDIR)\db$O $(OBJDIR)\delta$O $(OBJDIR)\deltacmd$O $(OBJDIR)\descendants$O $(OBJDIR)\diff$O $(OBJDIR)\diffcmd$O $(OBJDIR)\doc$O $(OBJDIR)\encode$O $(OBJDIR)\event$O $(OBJDIR)\file$O $(OBJDIR)\finfo$O $(OBJDIR)\graph$O $(OBJDIR)\http$O $(OBJDIR)\http_socket$O $(OBJDIR)\http_ssl$O $(OBJDIR)\http_transport$O $(OBJDIR)\info$O $(OBJDIR)\login$O $(OBJDIR)\main$O $(OBJDIR)\manifest$O $(OBJDIR)\md5$O $(OBJDIR)\merge$O $(OBJDIR)\merge3$O $(OBJDIR)\name$O $(OBJDIR)\pivot$O $(OBJDIR)\popen$O $(OBJDIR)\pqueue$O $(OBJDIR)\printf$O $(OBJDIR)\rebuild$O $(OBJDIR)\report$O $(OBJDIR)\rss$O $(OBJDIR)\schema$O $(OBJDIR)\search$O $(OBJDIR)\setup$O $(OBJDIR)\sha1$O $(OBJDIR)\shun$O $(OBJDIR)\skins$O $(OBJDIR)\stat$O $(OBJDIR)\style$O $(OBJDIR)\sync$O $(OBJDIR)\tag$O $(OBJDIR)\th_main$O $(OBJDIR)\timeline$O $(OBJDIR)\tkt$O $(OBJDIR)\tktsetup$O $(OBJDIR)\undo$O $(OBJDIR)\update$O $(OBJDIR)\url$O $(OBJDIR)\user$O $(OBJDIR)\verify$O $(OBJDIR)\vfile$O $(OBJDIR)\wiki$O $(OBJDIR)\wikiformat$O $(OBJDIR)\winhttp$O $(OBJDIR)\xfer$O $(OBJDIR)\zip$O $(OBJDIR)\shell$O $(OBJDIR)\sqlite3$O $(OBJDIR)\th$O $(OBJDIR)\th_lang$O 
 
 RC=$(DMDIR)\bin\rcc
 RCFLAGS=-32 -w1 -I$(SRCDIR) /D__DMC__
@@ -66,11 +66,11 @@ mkindex$E: $(SRCDIR)\mkindex.c
 version$E: $B\win\version.c
 	$(BCC) -o$@ $**
 
-$(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
-	$(TCC) -o$@ -c -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 $**
-
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 $**
+
+$(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
+	$(TCC) -o$@ -c -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
 	$(TCC) -o$@ -c $**
@@ -90,6 +90,7 @@ clean:
 
 realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E
+	-del fossil.res headers link
 
 
 $(OBJDIR)\add$O : add_.c add.h
@@ -228,12 +229,6 @@ $(OBJDIR)\doc$O : doc_.c doc.h
 	$(TCC) -o$@ -c doc_.c
 
 doc_.c : $(SRCDIR)\doc.c
-	+translate$E $** > $@
-
-$(OBJDIR)\event$O : event_.c event.h
-	$(TCC) -o$@ -c event_.c
-
-event_.c : $(SRCDIR)\event.c
 	+translate$E $** > $@
 
 $(OBJDIR)\encode$O : encode_.c encode.h

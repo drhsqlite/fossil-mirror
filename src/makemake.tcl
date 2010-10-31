@@ -260,26 +260,33 @@ puts -nonewline "OBJ   = "
 foreach s [lsort $src] {
   puts -nonewline "\$(OBJDIR)\\$s\$O "
 }
-puts "\$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+puts "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
 puts {
+RC=$(DMDIR)\bin\rcc
+RCFLAGS=-32 -w1 -I$(SRCDIR) /D__DMC__
 
 APPNAME = $(OBJDIR)\fossil$(E)
 
 all: $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
+$(APPNAME) : translate$E mkindex$E headers fossil.res $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
 	$(DMDIR)\bin\link @link
+
+fossil.res:	$B\win\fossil.rc VERSION.h
+	$(RC) $(RCFLAGS) -o$@ $B\win\fossil.rc
 
 $(OBJDIR)\link: $B\win\Makefile.dmc}
 puts -nonewline "\t+echo "
 foreach s [lsort $src] {
   puts -nonewline "$s "
 }
-puts "sqlite3 th th_lang > \$@"
+puts "shell sqlite3 th th_lang > \$@"
 puts "\t+echo fossil >> \$@"
 puts "\t+echo fossil >> \$@"
-puts "\t+echo \$(LIBS) >> \$@\n\n"
+puts "\t+echo \$(LIBS) >> \$@"
+puts "\t+echo. >> \$@"
+puts "\t+echo fossil >> \$@\n\n"
 
 puts {
 translate$E: $(SRCDIR)\translate.c
@@ -293,6 +300,9 @@ mkindex$E: $(SRCDIR)\mkindex.c
 
 version$E: $B\win\version.c
 	$(BCC) -o$@ $**
+
+$(OBJDIR)\shell$O : $(SRCDIR)\shell.c
+	$(TCC) -o$@ -c -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) -o$@ -c -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 $**
@@ -315,6 +325,7 @@ clean:
 
 realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E
+	-del fossil.res headers link
 
 }
 foreach s [lsort $src] {
