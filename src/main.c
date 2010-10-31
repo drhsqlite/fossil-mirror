@@ -1157,6 +1157,10 @@ void cmd_webserver(void){
 ** Run the standalone sqlite3 command-line shell on DATABASE with OPTIONS.
 ** If DATABASE is omitted, then the repository that serves the working
 ** directory is opened.
+**
+** WARNING:  Careless use of this command can corrupt a Fossil repository
+** in ways that are unrecoverable.  Be sure you know what you are doing before
+** running any SQL commands that modifies the repository database.
 */
 void sqlite3_cmd(void){
   extern int sqlite3_shell(int, char**);

@@ -1,5 +1,5 @@
-C applied\spatch\sfrom\sticket\s[aa01499923]\sand\sadded\soption\s-prot\sto\stest\stcl\sscript\swhich\soptionally\swrites\sa\sprotocol\sfile
-D 2010-10-30T19:05:11
+C Add\sa\swarning\sto\sthe\s"fossil\ssqlite3"\scommand\sto\sremind\susers\sthat\scareless\nuse\sof\sthe\scommand\scan\seasily\scorrupt\sthe\srepository.\nTicket\s[b18338c226f6fb4899].
+D 2010-10-31T21:51:11
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -69,7 +69,7 @@ F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 383057ae5f3e0d507f7fb13352778f3823e204c3
 F src/info.c 28ef7eae65618f3abf40e44e06203cc5bb87231c
 F src/login.c b6b93c2666a0f8fe653a26ced11da3540b308492
-F src/main.c 2d4ffa8f91e4730ccf120526bb0d8489e813901c
+F src/main.c 149ce91a67676201ab3ca1b5d4b94b04c5f41e83
 F src/main.mk f8b5fdf65d2d168e30bdcd7b717edfb7d7d50db7
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 8c723318d27cc521d09aebed2a755ba4861d3f01
-R 1af8cd705bed9cc47e1395042d4679a7
-U wolfgang
-Z dcd7e2b1d140fe85108f03051f02bbf4
+P f89d953a061c5bb039d652e74f0125da7a6d2d43
+R 83f8f26d87cf52df070d21522e39db82
+U drh
+Z 15ed4594f6a0090da95059bf6afdcb7d
