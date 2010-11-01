@@ -1,5 +1,5 @@
-C Add\sa\swarning\sto\sthe\s"fossil\ssqlite3"\scommand\sto\sremind\susers\sthat\scareless\nuse\sof\sthe\scommand\scan\seasily\scorrupt\sthe\srepository.\nTicket\s[b18338c226f6fb4899].
-D 2010-10-31T21:51:11
+C Fix\sa\stypo\sin\sthe\sfile\sformat\sdocumentation\sreported\son\sthe\sTcl/Tk\schatroom.
+D 2010-11-01T14:23:35
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -246,7 +246,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl 032c2fe5ed544c7ce328a107360125bbe71f7bf3
 F www/faq.wiki b2518e33669767d606edf77a995ca537765487b5
-F www/fileformat.wiki c9153f4ac1abe97b5fed5fa33aab4efb9ad18ee6
+F www/fileformat.wiki 34cd0cc786b2e90c0d9ff15f9cd7166220933ffc
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P f89d953a061c5bb039d652e74f0125da7a6d2d43
-R 83f8f26d87cf52df070d21522e39db82
+P 4e1241f3236236187ad2a8f205323c05b98c9895
+R 21783db6ee4fb60093f76faa5f09347b
 U drh
-Z 15ed4594f6a0090da95059bf6afdcb7d
+Z 3d8caab2a602c5580a84fc94525c6b06
