@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\sfile\sformat\sdocumentation\sreported\son\sthe\sTcl/Tk\schatroom.
-D 2010-11-01T14:23:35
+C Fix\sa\spossible\sredirect\sloop.
+D 2010-11-01T23:38:34
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -114,7 +114,7 @@ F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 43f234f22de8012f5cccad23695a0e83cf878f05
-F src/wiki.c 8ab45864d6b91407fd1f17e9734f74ff228e11c3
+F src/wiki.c 3e802f2604bbc25c6bcc37675ab4f185e8b8437c
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c 2e4cd0e86c01bcf686ab04413f5a917190e7c163
 F src/xfer.c 7aff3e7c61dd42a481c64bbc1720f77c42cef70d
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 4e1241f3236236187ad2a8f205323c05b98c9895
-R 21783db6ee4fb60093f76faa5f09347b
+P d0753799e447b795933e9f266233767d84aa1d84
+R dee3cdbf5b358b962bc9c955d08ee613
 U drh
-Z 3d8caab2a602c5580a84fc94525c6b06
+Z 1dba584e90bb520ea6994755e0b35d05

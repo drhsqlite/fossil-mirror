@@ -88,10 +88,10 @@ void home_page(void){
   }
   if( zIndexPage ){
     const char *zPathInfo = P("PATH_INFO");
+    while( zIndexPage[0]=='/' ) zIndexPage++;
     if( strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
-    while( zIndexPage[0]=='/' ) zIndexPage++;
     cgi_redirectf("%s/%s", g.zBaseURL, zIndexPage);
   }
   if( zPageName ){
