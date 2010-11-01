@@ -1,5 +1,5 @@
-C makemake.tcl\supdated\sto\sgenerate\svalid\sMakefile.dmc
-D 2010-10-31T11:10:47
+C merge\sfrom\strunk
+D 2010-11-01T18:52:37
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -69,7 +69,7 @@ F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 383057ae5f3e0d507f7fb13352778f3823e204c3
 F src/info.c 39e8eda96f95b7d014164902fc26e178bc95d076
 F src/login.c b6b93c2666a0f8fe653a26ced11da3540b308492
-F src/main.c fe599e4b37be47bafbfc47796961813128e1198c
+F src/main.c 0b139928b98f9c8058fe2458169decb495267fba
 F src/main.mk f8b5fdf65d2d168e30bdcd7b717edfb7d7d50db7
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -246,7 +246,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl 032c2fe5ed544c7ce328a107360125bbe71f7bf3
 F www/faq.wiki b2518e33669767d606edf77a995ca537765487b5
-F www/fileformat.wiki c9153f4ac1abe97b5fed5fa33aab4efb9ad18ee6
+F www/fileformat.wiki 34cd0cc786b2e90c0d9ff15f9cd7166220933ffc
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 943dbc556da998102cb8d57cc1a0efe488a4c8bd
-R c0ae23287415b03b581017ac15a9c48d
+P 41461906008a508baf6ed58f36723deb4998db82 d0753799e447b795933e9f266233767d84aa1d84
+R 87e0ff892dc03a3c8a22ba93c608b63c
 U wolfgang
-Z 03e1c17c39d498bb03c27f26b616521d
+Z 11f4b35048aaab4ff0dd7643309a025c

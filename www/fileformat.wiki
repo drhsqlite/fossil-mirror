@@ -121,7 +121,7 @@ the C-card is a check-in comment that describes the check-in that
 the manifest defines.  The check-in comment is text.  The following
 escape sequences are applied to the text:
 A space (ASCII 0x20) is represented as "\s" (ASCII 0x5C, 0x73).  A
-newline (ASCII 0x0a) is "\n" (ASCII 0x6C, x6E).  A backslash 
+newline (ASCII 0x0a) is "\n" (ASCII 0x5C, x6E).  A backslash 
 (ASCII 0x5C) is represented as two backslashes "\\".  Apart from
 space and newline, no other whitespace characters are allowed in
 the check-in comment.  Nor are any unprintable characters allowed
