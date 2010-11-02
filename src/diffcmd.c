@@ -435,6 +435,9 @@ static void diff_all_two_versions(
 ** The results of the internal diff command can also be seen in the gui:
 **  1. Go to the <a href="vdiff">vdiff</a> page
 **  2. use the "diff against another version" link on the Check-in detail view.
+**
+** The "-N" or "--new-file" option causes the complete text of added or
+** deleted files to be displayed.
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
