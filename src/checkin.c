@@ -699,17 +699,16 @@ static void create_manifest(
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m".
-** The editor defined in the "editor" fossil option (see %fossil help set)
-** will be used, or from the "VISUAL" or "EDITOR" environment variables
-** (in that order) if no editor is set.
+** the comment has been specified on the command-line using "-m" or a 
+** file containing the comment using -M.  The editor defined in the
+** "editor" fossil option (see %fossil help set) will be used, or from
+** the "VISUAL" or "EDITOR" environment variables (in that order) if
+** no editor is set.
 **
-** You will be prompted for your GPG passphrase in order to sign the
-** new manifest unless the "--nosign" option is used.  All files that
-** have changed will be committed unless some subset of files is
-** specified on the command line.
+** All files that have changed will be committed unless some subset of
+** files is specified on the command line.
 **
-** The --branch option followed by a branch name cases the new check-in
+** The --branch option followed by a branch name causes the new check-in
 ** to be placed in the named branch.  The --bgcolor option can be followed
 ** by a color name (ex:  '#ffc0c0') to specify the background color of
 ** entries in the new branch when shown in the web timeline interface.
@@ -723,6 +722,7 @@ static void create_manifest(
 ** Options:
 **
 **    --comment|-m COMMENT-TEXT
+**    --message-file|-M COMMENT-FILE
 **    --branch NEW-BRANCH-NAME
 **    --bgcolor COLOR
 **    --nosign
