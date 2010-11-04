@@ -1,5 +1,5 @@
-C Fix\sa\scouple\sof\sminor\sissues\swith\ssettings,\sas\spointed\sout\son\sthe\smailing\slist.
-D 2010-11-04T19:24:04
+C Do\snot\sassume\sthat\sthe\smethod\sis\sCGI\sjust\sbecause\sthe\sGATEWAY_INTERFACE\nenvironment\svariable\sis\sset.\s\sOnly\sdo\sCGI\sif\sGATEWAY_INTERFACE\sis\sset\sand\nthere\seither\sis\sno\sargument\sspecified,\sor\sthe\sspecified\sargument\sis\snot\na\svalid\scommand.\s\sTicket\s[e49f245975f89a8a9]
+D 2010-11-04T19:58:16
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -69,7 +69,7 @@ F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 383057ae5f3e0d507f7fb13352778f3823e204c3
 F src/info.c 28ef7eae65618f3abf40e44e06203cc5bb87231c
 F src/login.c b6b93c2666a0f8fe653a26ced11da3540b308492
-F src/main.c 149ce91a67676201ab3ca1b5d4b94b04c5f41e83
+F src/main.c 3aed1de483684ebd9e492b307b466bb33e147e50
 F src/main.mk f8b5fdf65d2d168e30bdcd7b717edfb7d7d50db7
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 098e363301bc5ca523015c46d22376a7515dcb80
-R 4611a06399113dd58546c867e4c6dc1b
+P cb2ff51c4badd3e787db14273b0ffc07137f269c
+R 7579586fede64e8dcfc327d885a4415d
 U drh
-Z a6a8bd55ea587258dfeecf881270e2d2
+Z 4dbc00658af978b69db8c0961d33974f
