@@ -1525,7 +1525,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "http-port",     0,               16, "8080"                },
   { "localauth",     0,                0, "off"                 },
   { "manifest",      0,                0, "off"                 },
-  { "mtime-changes", 0,                0, "off"                 },
+  { "mtime-changes", 0,                0, "on"                  },
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
   { "repo-cksum",    0,                0, "on"                  },
