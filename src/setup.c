@@ -696,7 +696,7 @@ static void onoff_attribute(
     @ <input type="checkbox" name="%s(zQParm)" checked="checked" />
     @ <b>%s(zLabel)</b>
   }else{
-    @ <input type="checkbox" name="%s(zQParm)" /><b>%s(zLabel)</b>
+    @ <input type="checkbox" name="%s(zQParm)" /> <b>%s(zLabel)</b>
   }
 }
 
@@ -879,7 +879,7 @@ void setup_settings(void){
     if( pSet->width==0 ){
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
-                      pSet->def[0]=='1');
+                      is_truth(pSet->def));
       @ <br />
     }
   }

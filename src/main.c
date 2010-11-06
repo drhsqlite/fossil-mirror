@@ -225,19 +225,23 @@ int main(int argc, char **argv){
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+  int mightBeCgi;
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
-  if( getenv("GATEWAY_INTERFACE")!=0 ){
-    zCmdName = "cgi";
-  }else if( argc<2 ){
-    fprintf(stderr, "Usage: %s COMMAND ...\n"
-                    "\"%s help\" for a list of available commands\n"
-                    "\"%s help COMMAND\" for specific details\n",
-                    argv[0], argv[0], argv[0]);
-    fossil_exit(1);
+  mightBeCgi = getenv("GATEWAY_INTERFACE")!=0;
+  if( argc<2 ){
+    if( mightBeCgi ){
+      zCmdName = "cgi";
+    }else{
+      fprintf(stderr, "Usage: %s COMMAND ...\n"
+                      "\"%s help\" for a list of available commands\n"
+                      "\"%s help COMMAND\" for specific details\n",
+                      argv[0], argv[0], argv[0]);
+      fossil_exit(1);
+    }
   }else{
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
@@ -247,6 +251,9 @@ int main(int argc, char **argv){
     zCmdName = argv[1];
   }
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
+  if( rc==1 && mightBeCgi ){
+    rc = name_search("cgi", aCommand, count(aCommand), &idx);
+  }
   if( rc==1 ){
     fprintf(stderr,"%s: unknown command: %s\n"
                    "%s: use \"help\" for more information\n",
