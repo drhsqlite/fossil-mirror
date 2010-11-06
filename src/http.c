@@ -105,7 +105,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }else{
     zSep = "/";
   }
-  blob_appendf(pHdr, "POST %s%sxfer HTTP/1.0\r\n", g.urlPath, zSep);
+  blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.urlPath, zSep);
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
   }
@@ -228,7 +228,10 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
       j = strlen(zLine) - 1; 
-      if( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ) zLine[j-4] = 0;
+      while( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ){
+         j -= 4;
+         zLine[j] = 0;
+      }
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i]);
       transport_close();
