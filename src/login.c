@@ -53,11 +53,10 @@
 static char *login_cookie_name(void){
   static char *zCookieName = 0;
   if( zCookieName==0 ){
-    int n = strlen(g.zTop);
-    zCookieName = fossil_malloc( n*2+16 );
-                      /* 0123456789 12345 */
-    strcpy(zCookieName, "fossil_login_");
-    encode16((unsigned char*)g.zTop, (unsigned char*)&zCookieName[13], n);
+    unsigned int h = 0;
+    const char *z = g.zBaseURL;
+    while( *z ){ h = (h<<3) ^ (h>>26) ^ *(z++); }
+    zCookieName = mprintf("fossil_login_%08x", h);
   }
   return zCookieName;
 }
