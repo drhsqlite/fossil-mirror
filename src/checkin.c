@@ -420,7 +420,7 @@ static void prepare_commit_comment(
   blob_write_to_file(&text, zFile);
   zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
-  if( portable_system(zCmd) ){
+  if( fossil_system(zCmd) ){
     fossil_panic("editor aborted");
   }
   blob_reset(&text);

@@ -111,7 +111,7 @@ void win32_process_one_http_request(void *pAppData){
     _pgmptr, g.zRepositoryName, zRequestFName, zReplyFName, 
     inet_ntoa(p->addr.sin_addr), p->zNotFound
   );
-  portable_system(zCmd);
+  fossil_system(zCmd);
   in = fopen(zReplyFName, "rb");
   if( in ){
     while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
@@ -192,7 +192,7 @@ void win32_http_server(
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
     printf("Launch webbrowser: %s\n", zBrowser);
-    portable_system(zBrowser);
+    fossil_system(zBrowser);
   }
   printf("Type Ctrl-C to stop the HTTP server\n");
   for(;;){

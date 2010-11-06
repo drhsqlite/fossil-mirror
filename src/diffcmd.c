@@ -28,26 +28,6 @@
 #define DIFF_NOEOLWS  0x02    /* Ignore whitespace at the end of lines */
 
 /*
-** This function implements a cross-platform "system()" interface.
-*/
-int portable_system(const char *zOrigCmd){
-  int rc;
-#if defined(_WIN32)
-  /* On windows, we have to put double-quotes around the entire command.
-  ** Who knows why - this is just the way windows works.
-  */
-  char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  rc = system(zNewCmd);
-  free(zNewCmd);
-#else
-  /* On unix, evaluate the command directly.
-  */
-  rc = system(zOrigCmd);
-#endif 
-  return rc; 
-}
-
-/*
 ** Show the difference between two files, one in memory and one on disk.
 **
 ** The difference is the set of edits needed to transform pFile1 into
@@ -108,7 +88,7 @@ static void diff_file(
     shell_escape(&cmd, zFile2);
 
     /* Run the external diff command */
-    portable_system(blob_str(&cmd));
+    fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
     unlink(blob_str(&nameFile1));
@@ -162,7 +142,7 @@ static void diff_file_mem(
     shell_escape(&cmd, zTemp2);
 
     /* Run the external diff command */
-    portable_system(blob_str(&cmd));
+    fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
     unlink(zTemp1);
