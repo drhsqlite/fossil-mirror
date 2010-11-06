@@ -354,7 +354,9 @@ void rebuild_database(void){
   int forceFlag;
   int randomizeFlag;
   int errCnt;
+  int omitVerify;
 
+  omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
   if( g.argc==3 ){
@@ -375,6 +377,7 @@ void rebuild_database(void){
             errCnt);
     db_end_transaction(1);
   }else{
+    if( omitVerify ) verify_cancel();
     db_end_transaction(0);
   }
 }
