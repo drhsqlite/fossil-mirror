@@ -847,6 +847,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         options can be:
 **           ?-l|--limit LIMITCHAR?
 **           ?-q|--quote?
+**           ?-R|--repository FILE?
 **
 **         Run the ticket report, identified by the report format title
 **         used in the gui. The data is written as flat file on stdout,
@@ -902,7 +903,6 @@ void ticket_cmd(void){
   int n;
 
   /* do some ints, we want to be inside a checkout */
-  db_must_be_within_tree();
   db_find_and_open_repository(1);
   user_select();
   /*
