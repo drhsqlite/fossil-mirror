@@ -141,7 +141,7 @@ void all_cmd(void){
     zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
     printf("%s\n", zSyscmd);
     fflush(stdout);
-    portable_system(zSyscmd);
+    fossil_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
   }

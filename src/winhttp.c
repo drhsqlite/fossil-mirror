@@ -117,7 +117,7 @@ void win32_process_one_http_request(void *pAppData){
   if( g.fHttpTrace ){
     fprintf(stderr,"HTTPTRACE(%p): calling '%s'\n",pAppData,zCmd);
   }
-  portable_system(zCmd);
+  fossil_system(zCmd);
   in = fopen(zReplyFName, "rb");
   if( in ){
     if( g.fHttpTrace ){
@@ -205,7 +205,7 @@ void win32_http_server(
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
     printf("Launch webbrowser: %s\n", zBrowser);
-    portable_system(zBrowser);
+    fossil_system(zBrowser);
   }
   printf("Type Ctrl-C to stop the HTTP server\n");
   for(;;){

@@ -298,7 +298,7 @@ void transport_flip(void){
     zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
        g.argv[0], g.urlName, transport.zOutFile, transport.zInFile
     );
-    portable_system(zCmd);
+    fossil_system(zCmd);
     free(zCmd);
     transport.pFile = fopen(transport.zInFile, "rb");
   }

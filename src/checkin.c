@@ -424,7 +424,7 @@ static void prepare_commit_comment(
   blob_write_to_file(&text, zFile);
   zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
-  if( portable_system(zCmd) ){
+  if( fossil_system(zCmd) ){
     fossil_panic("editor aborted");
   }
   blob_reset(&text);
@@ -705,7 +705,7 @@ static void create_manifest(
 
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m" or a
+** the comment has been specified on the command-line using "-m" or a 
 ** file containing the comment using -M.  The editor defined in the
 ** "editor" fossil option (see %fossil <a>help</a> set) will be used, or from
 ** the "VISUAL" or "EDITOR" environment variables (in that order) if

@@ -386,6 +386,27 @@ void *fossil_realloc(void *p, size_t n){
   return p;
 }
 
+/*
+** This function implements a cross-platform "system()" interface.
+*/
+int fossil_system(const char *zOrigCmd){
+  int rc;
+#if defined(_WIN32)
+  /* On windows, we have to put double-quotes around the entire command.
+  ** Who knows why - this is just the way windows works.
+  */
+  char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
+  rc = system(zNewCmd);
+  free(zNewCmd);
+#else
+  /* On unix, evaluate the command directly.
+  */
+  rc = system(zOrigCmd);
+#endif 
+  return rc; 
+}
+
+
 
 /*
 ** Return a name for an SQLite error code
