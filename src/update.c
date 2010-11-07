@@ -113,7 +113,7 @@ void update_cmd(void){
                     " ORDER BY event.mtime DESC"); 
   }
 
-  if( tid==vid ) return;  /* Nothing to update */
+  if( !verboseFlag && (tid==vid)) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1);
   if( !nochangeFlag ) undo_begin();
@@ -172,19 +172,28 @@ void update_cmd(void){
   */
   if( g.argc>=4 ){
     Blob sql;              /* SQL statement to purge unwanted entries */
-    char *zSep = "(";      /* Separator in the list of filenames */
     Blob treename;         /* Normalized filename */
     int i;                 /* Loop counter */
 
     blob_zero(&sql);
-    blob_append(&sql, "DELETE FROM fv WHERE fn NOT IN ", -1);
+    blob_append(&sql, "DELETE FROM fv WHERE ", -1);
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
-      blob_appendf(&sql, "%s'%q'", zSep, blob_str(&treename));
+      if (file_isdir(g.argv[i]) == 1) {
+	  if (blob_size(&treename) > 0) {
+	      blob_appendf(&sql, "fn NOT GLOB '%b/*' ", &treename);
+	  } else {
+	      blob_appendf(&sql, "fn NOT GLOB '*' ");
+	  }
+      } else {
+	  blob_appendf(&sql, "fn <> %B ", &treename);
+      }
+      if (i < g.argc - 1) {
+	  blob_append(&sql, "AND ", -1);
+      }
       blob_reset(&treename);
-      zSep = ",";
     }
-    blob_append(&sql, ")", -1);
+    fprintf(stderr, "%s\n", blob_str(&sql));
     db_multi_exec(blob_str(&sql));
     blob_reset(&sql);
   }
@@ -266,7 +275,11 @@ void update_cmd(void){
       blob_reset(&t);
       blob_reset(&r);
     }else if( verboseFlag ){
-      printf("UNCHANGED %s\n", zName);
+	if (chnged) {
+	    printf("EDITED %s\n", zName);
+	} else {
+	    printf("UNCHANGED %s\n", zName);
+	}
     }
     free(zFullPath);
   }

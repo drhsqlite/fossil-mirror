@@ -1,5 +1,5 @@
-C Fix\salphabetical\smissort.\n
-D 2010-11-07T18:48:25
+C Patches\sto\sfile.c\s(for\smingw\sis_dir),\sfinfo.c\s(various\sutilities),\sand\nupdate.c\s(for\sverbose/nochange),\sto\sallow\sintegration\sinto\sEmacs\sand\nIDEs.\n
+D 2010-11-07T21:11:42
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -60,8 +60,8 @@ F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
 F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
-F src/file.c 4b422c8f1db60785ea693b4b7817a6a9c68eac72
-F src/finfo.c 590b757e169460adf38e3e13f8aaf37a0f294817
+F src/file.c 635cac310ae13eaa78a3d654ab333ecc7074e39f
+F src/finfo.c c48fe935b5414ff24be2f6d625e03e135877df05
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
 F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
@@ -109,7 +109,7 @@ F src/tkt.c f231726862368d88ed32918e3971ff29cce175e4
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
-F src/update.c c72272885e530dcb6bcf192093f5342a36e3eb04
+F src/update.c de4abe9912b404dd9a6e0119dad630657f9f1880
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 151a2104ae6d0eac785a4b2f89b0953ac9ee8469
-R bf6d384bd64d0fcb71e93aa7a5d12ccd
+P d156b68672e31b6ff1a68352df433bd52d17d823
+R 4f5c6b4e0ffd55acc67fcca1c77ead15
 U venkat
-Z feabf5e9a14788e717413b6959942413
+Z 3f4735268d9f31b0f73eed4a7fdc626b
