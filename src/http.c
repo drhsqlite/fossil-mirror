@@ -62,7 +62,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     /* Password failure while doing a sync from the command-line interface */
     url_prompt_for_password();
     zPw = g.urlPasswd;
-    if( !g.dontKeepUrl ) db_set("last-sync-pw", zPw, 0);
+    if( !g.dontKeepUrl ) db_set("last-sync-pw", obscure(zPw), 0);
   }
 
   /* The login card wants the SHA1 hash of the password, so convert the
@@ -105,7 +105,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }else{
     zSep = "/";
   }
-  blob_appendf(pHdr, "POST %s%sxfer HTTP/1.0\r\n", g.urlPath, zSep);
+  blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.urlPath, zSep);
   if( g.urlProxyAuth ){
     blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
   }
@@ -212,11 +212,11 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
         closeConnection = 0;
       }
     }else if( strncasecmp(zLine, "content-length:", 15)==0 ){
-      for(i=15; isspace(zLine[i]); i++){}
+      for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
     }else if( strncasecmp(zLine, "connection:", 11)==0 ){
       char c;
-      for(i=11; isspace(zLine[i]); i++){}
+      for(i=11; fossil_isspace(zLine[i]); i++){}
       c = zLine[i];
       if( c=='c' || c=='C' ){
         closeConnection = 1;
@@ -228,7 +228,10 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
       j = strlen(zLine) - 1; 
-      if( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ) zLine[j-4] = 0;
+      while( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ){
+         j -= 4;
+         zLine[j] = 0;
+      }
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i]);
       transport_close();
@@ -269,7 +272,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     fossil_fatal("server sends error: %s", z);
   }
   if( g.fHttpTrace ){
-    printf("HTTP RECEIVE:\n%s\n=======================\n", blob_str(pReply));
+    /*printf("HTTP RECEIVE:\n%s\n=======================\n",blob_str(pReply));*/
   }else{
     blob_uncompress(pReply, pReply);
   }

@@ -15,7 +15,7 @@ static const char ident[] = "@(#) $Header: /cvstrac/cvstrac/makeheaders.c,v 1.4 
 #include <memory.h>
 #include <sys/stat.h>
 #include <assert.h>
-#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER)
+#if defined( __MINGW32__) ||  defined(__DMC__) || defined(_MSC_VER) || defined(__POCC__)
 #  ifndef WIN32
 #    define WIN32
 #  endif

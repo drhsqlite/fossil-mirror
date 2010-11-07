@@ -76,6 +76,7 @@ static struct {
   { "logo-image",             CONFIGSET_SKIN },
   { "project-name",           CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
+  { "manifest",               CONFIGSET_PROJ },
   { "index-page",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
@@ -456,7 +457,7 @@ void configuration_cmd(void){
       if( zServer==0 ){
         fossil_fatal("no server specified");
       }
-      zPw = db_get("last-sync-pw", 0);
+      zPw = unobscure(db_get("last-sync-pw", 0));
     }
     url_parse(zServer);
     if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);

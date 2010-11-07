@@ -36,7 +36,7 @@ static char *quoteFilename(const char *zFilename){
   int needQuote = 0;
   for(i=0; (c = zFilename[i])!=0; i++){
     if( c=='"' ) return 0;
-    if( isspace(c) ) needQuote = 1;
+    if( fossil_isspace(c) ) needQuote = 1;
     if( c=='\\' && zFilename[i+1]==0 ) return 0;
     if( c=='$' ) return 0;
   }
@@ -62,6 +62,9 @@ static char *quoteFilename(const char *zFilename){
 **
 ** Available operations are:
 **
+**    ignore     Arguments are repositories that should be ignored
+**               by subsequent list, pull, push, rebuild, and sync.
+**
 **    list | ls  Display the location of all repositories
 **
 **    pull       Run a "pull" operation on all repositories
@@ -74,7 +77,8 @@ static char *quoteFilename(const char *zFilename){
 **
 ** Respositories are automatically added to the set of known repositories
 ** when one of the following commands against the repository: clone, info,
-** pull, push, or sync
+** pull, push, or sync.  Even previously ignored repositories are added back
+** to the list of repositories by these commands.
 */
 void all_cmd(void){
   int n;
@@ -101,9 +105,18 @@ void all_cmd(void){
     zCmd = "rebuild";
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+  }else if( strncmp(zCmd, "ignore", n)==0 ){
+    int j;
+    db_begin_transaction();
+    for(j=3; j<g.argc; j++){
+      db_multi_exec("DELETE FROM global_config WHERE name GLOB 'repo:%q'",
+         g.argv[j]);
+    }
+    db_end_transaction(0);
+    return;
   }else{
     fossil_fatal("\"all\" subcommand should be one of: "
-                 "list ls push pull rebuild sync");
+                 "ignore list ls push pull rebuild sync");
   }
   zFossil = quoteFilename(g.argv[0]);
   nMissing = 0;
@@ -127,7 +140,7 @@ void all_cmd(void){
     zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
     printf("%s\n", zSyscmd);
     fflush(stdout);
-    portable_system(zSyscmd);
+    fossil_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
   }

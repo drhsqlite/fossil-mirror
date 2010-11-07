@@ -43,8 +43,12 @@ struct Context {
 };
 typedef struct Context MD5Context;
 
+#if defined(__i386__) || defined(__x86_64__) || defined(_WIN32)
+# define byteReverse(A,B)
+#else
 /*
- * Note: this code is harmless on little-endian machines.
+ * Convert an array of integers to little-endian.
+ * Note: this code is a no-op on little-endian machines.
  */
 static void byteReverse (unsigned char *buf, unsigned longs){
         uint32 t;
@@ -55,6 +59,8 @@ static void byteReverse (unsigned char *buf, unsigned longs){
                 buf += 4;
         } while (--longs);
 }
+#endif
+
 /* The four core functions - F1 is optimized somewhat */
 
 /* #define F1(x, y, z) (x & y | ~x & z) */
@@ -315,6 +321,26 @@ void md5sum_step_text(const char *zText, int nBytes){
 */
 void md5sum_step_blob(Blob *p){
   md5sum_step_text(blob_buffer(p), blob_size(p));
+}
+
+/*
+** For trouble-shooting only:
+**
+** Report the current state of the incremental checksum.
+*/
+const char *md5sum_current_state(void){
+  unsigned int cksum = 0;
+  unsigned int *pFirst, *pLast;
+  static char zResult[12];
+
+  pFirst = (unsigned int*)&incrCtx;
+  pLast = (unsigned int*)((&incrCtx)+1);
+  while( pFirst<pLast ){
+    cksum += *pFirst;
+    pFirst++;
+  }
+  sqlite3_snprintf(sizeof(zResult), zResult, "%08x", cksum);
+  return zResult;
 }
 
 /*

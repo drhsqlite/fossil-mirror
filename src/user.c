@@ -29,10 +29,10 @@
 static void strip_string(Blob *pBlob, char *z){
   int i;
   blob_reset(pBlob);
-  while( isspace(*z) ){ z++; }
+  while( fossil_isspace(*z) ){ z++; }
   for(i=0; z[i]; i++){
     if( z[i]=='\r' || z[i]=='\n' ){
-       while( i>0 && isspace(z[i-1]) ){ i--; }
+       while( i>0 && fossil_isspace(z[i-1]) ){ i--; }
        z[i] = 0;
        break;
     }

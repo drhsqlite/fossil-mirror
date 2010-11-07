@@ -292,7 +292,7 @@ const char *mimetype_from_name(const char *zName){
   len = strlen(z);
   if( len<sizeof(zSuffix)-1 ){
     strcpy(zSuffix, z);
-    for(i=0; zSuffix[i]; i++) zSuffix[i] = tolower(zSuffix[i]);
+    for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
     last = sizeof(aMime)/sizeof(aMime[0]);
     while( first<=last ){
@@ -390,17 +390,15 @@ void doc_page(void){
 
     if( rid==0 ){
       Stmt s;
-      Blob baseline;
-      Manifest m;
+      Manifest *pM;
+      ManifestFile *pFile;
 
       /* Add the vid baseline to the cache */
       if( db_int(0, "SELECT count(*) FROM vcache")>10000 ){
         db_multi_exec("DELETE FROM vcache");
       }
-      if( content_get(vid, &baseline)==0 ){
-        goto doc_not_found;
-      }
-      if( manifest_parse(&m, &baseline)==0 || m.type!=CFTYPE_MANIFEST ){
+      pM = manifest_get(vid, CFTYPE_MANIFEST);
+      if( pM==0 ){
         goto doc_not_found;
       }
       db_prepare(&s,
@@ -409,14 +407,15 @@ void doc_page(void){
         "  WHERE uuid=:uuid",
         vid
       );
-      for(i=0; i<m.nFile; i++){
-        db_bind_text(&s, ":fname", m.aFile[i].zName);
-        db_bind_text(&s, ":uuid", m.aFile[i].zUuid);
+      manifest_file_rewind(pM);
+      while( (pFile = manifest_file_next(pM,0))!=0 ){
+        db_bind_text(&s, ":fname", pFile->zName);
+        db_bind_text(&s, ":uuid", pFile->zUuid);
         db_step(&s);
         db_reset(&s);
       }
       db_finalize(&s);
-      manifest_clear(&m);
+      manifest_destroy(pM);
 
       /* Try again to find the file */
       rid = db_int(0, "SELECT rid FROM vcache"

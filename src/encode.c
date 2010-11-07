@@ -46,8 +46,7 @@ char *htmlize(const char *zIn, int n){
     i++;
   }
   i = 0;
-  zOut = malloc( count+1 );
-  if( zOut==0 ) return 0;
+  zOut = fossil_malloc( count+1 );
   while( n-->0 && (c = *zIn)!=0 ){
     switch( c ){
       case '<':   
@@ -102,7 +101,7 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
   char *zOut;
   int other;
 # define IsSafeChar(X)  \
-     (isalnum(X) || (X)=='.' || (X)=='$' \
+     (fossil_isalnum(X) || (X)=='.' || (X)=='$' \
       || (X)=='~' || (X)=='-' || (X)=='_' || (X)==other)
 
   if( zIn==0 ) return 0;
@@ -117,8 +116,7 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
     i++;
   }
   i = 0;
-  zOut = malloc( count+1 );
-  if( zOut==0 ) return 0;
+  zOut = fossil_malloc( count+1 );
   while( n-->0 && (c = *zIn)!=0 ){
     if( IsSafeChar(c) ){
       zOut[i++] = c;
@@ -236,7 +234,7 @@ char *fossilize(const char *zIn, int nIn){
              || c=='\\' ) n++;
   }
   n += nIn;
-  zOut = malloc( n+1 );
+  zOut = fossil_malloc( n+1 );
   if( zOut ){
     for(i=j=0; i<nIn; i++){
       int c = zIn[i];
@@ -246,7 +244,7 @@ char *fossilize(const char *zIn, int nIn){
       }else if( c=='\\' ){
         zOut[j++] = '\\';
         zOut[j++] = '\\';
-      }else if( isspace(c) ){
+      }else if( fossil_isspace(c) ){
         zOut[j++] = '\\';
         switch( c ){
           case '\n':  c = 'n'; break;
@@ -271,8 +269,9 @@ char *fossilize(const char *zIn, int nIn){
 */
 void defossilize(char *z){
   int i, j, c;
-  for(i=j=0; z[i]; i++){
-    c = z[i];
+  for(i=0; (c=z[i])!=0 && c!='\\'; i++){}
+  if( c==0 ) return;
+  for(j=i; (c=z[i])!=0; i++){
     if( c=='\\' && z[i+1] ){
       i++;
       switch( z[i] ){
@@ -312,7 +311,7 @@ char *encode64(const char *zData, int nData){
   if( nData<=0 ){
     nData = strlen(zData);
   }
-  z64 = malloc( (nData*4)/3 + 8 );
+  z64 = fossil_malloc( (nData*4)/3 + 8 );
   for(i=n=0; i+2<nData; i+=3){
     z64[n++] = zBase[ (zData[i]>>2) & 0x3f ];
     z64[n++] = zBase[ ((zData[i]<<4) & 0x30) | ((zData[i+1]>>4) & 0x0f) ];
@@ -373,7 +372,7 @@ char *decode64(const char *z64, int *pnByte){
   }
   n64 = strlen(z64);
   while( n64>0 && z64[n64-1]=='=' ) n64--;
-  zData = malloc( (n64*3)/4 + 4 );
+  zData = fossil_malloc( (n64*3)/4 + 4 );
   for(i=j=0; i+3<n64; i+=4){
     a = trans[z64[i] & 0x7f];
     b = trans[z64[i+1] & 0x7f];
@@ -506,5 +505,87 @@ void canonical16(char *z, int n){
   while( *z && n-- ){
     *z = zEncode[zDecode[(*z)&0x7f]&0x1f];
     z++;
+  }
+}
+
+/* Randomness used for XOR-ing by the obscure() and unobscure() routines */
+static const unsigned char aObscurer[16] = {
+    0xa7, 0x21, 0x31, 0xe3, 0x2a, 0x50, 0x2c, 0x86,
+    0x4c, 0xa4, 0x52, 0x25, 0xff, 0x49, 0x35, 0x85
+};
+ 
+
+/*
+** Obscure plain text so that it is not easily readable.
+**
+** This is used for storing sensitive information (such as passwords) in a
+** way that prevents their exposure through idle browsing.  This is not
+** encryption.  Anybody who really wants the password can still get it.
+**
+** The text is XOR-ed with a repeating pattern then converted to hex.
+** Space to hold the returned string is obtained from malloc and should
+** be freed by the caller.
+*/
+char *obscure(const char *zIn){
+  int n, i;
+  unsigned char salt;
+  char *zOut;
+  
+  if( zIn==0 ) return 0;
+  n = strlen(zIn);
+  zOut = fossil_malloc( n*2+3 );
+  sqlite3_randomness(1, &salt);
+  zOut[n+1] = (char)salt;
+  for(i=0; i<n; i++) zOut[i+n+2] = zIn[i]^aObscurer[i&0x0f]^salt;
+  encode16((unsigned char*)&zOut[n+1], (unsigned char*)zOut, n+1);
+  return zOut;
+}
+
+/*
+** Undo the obscuring of text performed by obscure().  Or, if the input is
+** not hexadecimal (meaning the input is not the output of obscure()) then
+** do the equivalent of strdup().
+**
+** The result is memory obtained from malloc that should be freed by the caller. 
+*/
+char *unobscure(const char *zIn){
+  int n, i;
+  unsigned char salt;
+  char *zOut;
+  
+  if( zIn==0 ) return 0;
+  n = strlen(zIn);
+  zOut = fossil_malloc( n + 1 );
+  if( n<2
+    || decode16((unsigned char*)zIn, &salt, 2)
+    || decode16((unsigned char*)&zIn[2], (unsigned char*)zOut, n-2)
+  ){
+    memcpy(zOut, zIn, n+1);
+  }else{
+    n = n/2 - 1;
+    for(i=0; i<n; i++) zOut[i] = zOut[i]^aObscurer[i&0x0f]^salt;
+    zOut[n] = 0;
+  }
+  return zOut;
+}
+
+/*
+** Command to test obscure() and unobscure().  These commands are also useful
+** utilities for decoding passwords found in the database.
+**
+** COMMAND: test-obscure
+*/
+void test_obscure_cmd(void){
+  int i;
+  char *z, *z2;
+  for(i=2; i<g.argc; i++){
+    z = obscure(g.argv[i]);
+    z2 = unobscure(z);
+    printf("OBSCURE:    %s -> %s (%s)\n", g.argv[i], z, z2);
+    free(z);
+    free(z2);
+    z = unobscure(g.argv[i]);
+    printf("UNOBSCURE:  %s -> %s\n", g.argv[i], z);
+    free(z);
   }
 }

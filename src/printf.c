@@ -562,7 +562,7 @@ int vxprintf(
         char *e = va_arg(ap,char*);
         if( e==0 ){e="";}
         length = StrNLen32(e, limit);
-        zExtra = bufpt = malloc(length+1);
+        zExtra = bufpt = fossil_malloc(length+1);
         for( i=0; i<length; i++ ){
           if( e[i]=='\\' ){
             bufpt[i]='/';
@@ -607,7 +607,7 @@ int vxprintf(
         if( limit>=0 && limit<n ) n = limit;
         for(cnt=i=0; i<n; i++){ if( zOrig[i]=='\'' ) cnt++; }
         if( n+cnt+2 > etBUFSIZE ){
-          bufpt = zExtra = malloc( n + cnt + 2 );
+          bufpt = zExtra = fossil_malloc( n + cnt + 2 );
         }else{
           bufpt = buf;
         }
@@ -636,8 +636,7 @@ int vxprintf(
         needQuote = !isnull && xtype==etSQLESCAPE2;
         n += i + 1 + needQuote*2;
         if( n>etBUFSIZE ){
-          bufpt = zExtra = malloc( n );
-          if( bufpt==0 ) return -1;
+          bufpt = zExtra = fossil_malloc( n );
         }else{
           bufpt = buf;
         }

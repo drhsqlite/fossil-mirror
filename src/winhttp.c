@@ -108,10 +108,10 @@ void win32_process_one_http_request(void *pAppData){
   fclose(out);
   out = 0;
   sprintf(zCmd, "\"%s\" http \"%s\" %s %s %s%s",
-    g.argv[0], g.zRepositoryName, zRequestFName, zReplyFName, 
+    _pgmptr, g.zRepositoryName, zRequestFName, zReplyFName, 
     inet_ntoa(p->addr.sin_addr), p->zNotFound
   );
-  portable_system(zCmd);
+  fossil_system(zCmd);
   in = fopen(zReplyFName, "rb");
   if( in ){
     while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
@@ -192,7 +192,7 @@ void win32_http_server(
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
     printf("Launch webbrowser: %s\n", zBrowser);
-    portable_system(zBrowser);
+    fossil_system(zBrowser);
   }
   printf("Type Ctrl-C to stop the HTTP server\n");
   for(;;){
@@ -209,10 +209,7 @@ void win32_http_server(
       closesocket(s);
       fossil_fatal("error from accept()");
     }
-    p = malloc( sizeof(*p) );
-    if( p==0 ){
-      fossil_fatal("out of memory");
-    }
+    p = fossil_malloc( sizeof(*p) );
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;

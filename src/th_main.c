@@ -32,7 +32,7 @@ static int nOutstandingMalloc = 0;
 ** Implementations of malloc() and free() to pass to the interpreter.
 */
 static void *xMalloc(unsigned int n){
-  void *p = malloc(n);
+  void *p = fossil_malloc(n);
   if( p ){
     nOutstandingMalloc++;
   }
@@ -437,16 +437,16 @@ static int validVarName(const char *z){
     inBracket = 1;
     z++;
   }
-  if( z[0]==':' && z[1]==':' && isalpha(z[2]) ){
+  if( z[0]==':' && z[1]==':' && fossil_isalpha(z[2]) ){
     z += 3;
     i += 3;
-  }else if( isalpha(z[0]) ){
+  }else if( fossil_isalpha(z[0]) ){
     z ++;
     i += 1;
   }else{
     return 0;
   }
-  while( isalnum(z[0]) || z[0]=='_' ){
+  while( fossil_isalnum(z[0]) || z[0]=='_' ){
     z++;
     i++;
   }

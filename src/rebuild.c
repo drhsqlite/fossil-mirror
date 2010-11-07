@@ -85,6 +85,21 @@ static Bag bagDone;         /* Bag of records rebuilt */
 static char *zFNameFormat;  /* Format string for filenames on deconstruct */
 static int prefixLength;    /* Length of directory prefix for deconstruct */
 
+
+/*
+** Draw the percent-complete message.
+** The input is actually the permill complete.
+*/
+static void percent_complete(int permill){
+  static int lastOutput = -1;
+  if( permill>lastOutput ){
+    printf("  %d.%d%% complete...\r", permill/10, permill%10);
+    fflush(stdout);
+    lastOutput = permill;
+  }
+}
+
+
 /*
 ** Called after each artifact is processed
 */
@@ -93,9 +108,8 @@ static void rebuild_step_done(rid){
   bag_insert(&bagDone, rid);
   if( ttyOutput ){
     processCnt++;
-    if (!g.fQuiet) {
-      printf("%d (%d%%)...\r", processCnt, (processCnt*100/totalSize));
-      fflush(stdout);
+    if (!g.fQuiet && totalSize>0) {
+      percent_complete((processCnt*1000)/totalSize);
     }
   }
 }
@@ -169,16 +183,17 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     /* Call all children recursively */
     rid = 0;
     for(cid=bag_first(&children), i=1; cid; cid=bag_next(&children, cid), i++){
-      Stmt q2;
+      static Stmt q2;
       int sz;
-      db_prepare(&q2, "SELECT content, size FROM blob WHERE rid=%d", cid);
+      db_static_prepare(&q2, "SELECT content, size FROM blob WHERE rid=:rid");
+      db_bind_int(&q2, ":rid", cid);
       if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
         Blob delta, next;
         db_ephemeral_blob(&q2, 0, &delta);
         blob_uncompress(&delta, &delta);
         blob_delta_apply(pBase, &delta, &next);
         blob_reset(&delta);
-        db_finalize(&q2);
+        db_reset(&q2);
         if( i<nChild ){
           rebuild_step(cid, sz, &next);
         }else{
@@ -189,7 +204,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
           *pBase = next;
         }
       }else{
-        db_finalize(&q2);
+        db_reset(&q2);
         blob_reset(pBase);
       }
     }
@@ -234,13 +249,13 @@ int rebuild_db(int randomize, int doOut){
   Stmt s;
   int errCnt = 0;
   char *zTable;
+  int incrSize;
 
   bag_init(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
   if (!g.fQuiet) {
-    printf("0 (0%%)...\r");
-    fflush(stdout);
+    percent_complete(0);
   }
   db_multi_exec(zSchemaUpdates);
   for(;;){
@@ -272,6 +287,8 @@ int rebuild_db(int randomize, int doOut){
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
   totalSize = db_int(0, "SELECT count(*) FROM blob");
+  incrSize = totalSize/100;
+  totalSize += incrSize*2;
   db_prepare(&s,
      "SELECT rid, size FROM blob /*scan*/"
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
@@ -309,6 +326,15 @@ int rebuild_db(int randomize, int doOut){
   db_finalize(&s);
   manifest_crosslink_end();
   rebuild_tag_trunk();
+  if( !g.fQuiet && totalSize>0 ){
+    processCnt += incrSize;
+    percent_complete((processCnt*1000)/totalSize);
+  }
+  create_cluster();
+  if( !g.fQuiet && totalSize>0 ){
+    processCnt += incrSize;
+    percent_complete((processCnt*1000)/totalSize);
+  }
   if(!g.fQuiet && ttyOutput ){
     printf("\n");
   }
@@ -328,7 +354,9 @@ void rebuild_database(void){
   int forceFlag;
   int randomizeFlag;
   int errCnt;
+  int omitVerify;
 
+  omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
   if( g.argc==3 ){
@@ -349,6 +377,7 @@ void rebuild_database(void){
             errCnt);
     db_end_transaction(1);
   }else{
+    if( omitVerify ) verify_cancel();
     db_end_transaction(0);
   }
 }
@@ -372,6 +401,28 @@ void test_detach_cmd(void){
     " WHERE name='project-name' AND value NOT GLOB 'detached-*';"
   );
   db_end_transaction(0);
+}
+
+/*
+** COMMAND:  test-create-clusters
+**
+** Create clusters for all unclustered artifacts if the number of unclustered
+** artifacts exceeds the current clustering threshold.
+*/
+void test_createcluster_cmd(void){
+  if( g.argc==3 ){
+    db_open_repository(g.argv[2]);
+  }else{
+    db_find_and_open_repository(1);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close();
+    db_open_repository(g.zRepositoryName);
+  }
+  db_begin_transaction();
+  create_cluster();
+  db_end_transaction(0);  
 }
 
 /*

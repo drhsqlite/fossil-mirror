@@ -414,11 +414,11 @@ static int markupLength(const char *z){
   int inparen = 0;
   int c;
   if( z[n]=='/' ){ n++; }
-  if( !isalpha(z[n]) ) return 0;
-  while( isalnum(z[n]) ){ n++; }
+  if( !fossil_isalpha(z[n]) ) return 0;
+  while( fossil_isalnum(z[n]) ){ n++; }
   c = z[n];
   if( c=='/' && z[n+1]=='>' ){ return n+2; }
-  if( c!='>' && !isspace(c) ) return 0;
+  if( c!='>' && !fossil_isspace(c) ) return 0;
   while( (c = z[n])!=0 && (c!='>' || inparen) ){
     if( c==inparen ){
       inparen = 0;
@@ -439,7 +439,7 @@ static int markupLength(const char *z){
 static int paragraphBreakLength(const char *z){
   int i, n;
   int nNewline = 1;
-  for(i=1, n=0; isspace(z[i]); i++){
+  for(i=1, n=0; fossil_isspace(z[i]); i++){
     if( z[i]=='\n' ){
       nNewline++;
       n = i;
@@ -484,10 +484,10 @@ static int isElement(const char *z){
   int i;
   assert( z[0]=='&' );
   if( z[1]=='#' ){
-    for(i=2; isdigit(z[i]); i++){}
+    for(i=2; fossil_isdigit(z[i]); i++){}
     return i>2 && z[i]==';';
   }else{
-    for(i=1; isalpha(z[i]); i++){}
+    for(i=1; fossil_isalpha(z[i]); i++){}
     return i>1 && z[i]==';';
   }
 }
@@ -513,7 +513,7 @@ static int listItemLength(const char *z, const char listChar){
     i++;
     n++;
   }
-  if( i<2 || isspace(z[n]) ) return 0;
+  if( i<2 || fossil_isspace(z[n]) ) return 0;
   return n;
 }
 
@@ -538,7 +538,7 @@ static int enumLength(const char *z){
     n++;
   }
   if( i<2 ) return 0;
-  for(i=0; isdigit(z[n]); i++, n++){}
+  for(i=0; fossil_isdigit(z[n]); i++, n++){}
   if( i==0 ) return 0;
   if( z[n]=='.' ){
     n++;
@@ -549,7 +549,7 @@ static int enumLength(const char *z){
     i++;
     n++;
   }
-  if( i<2 || isspace(z[n]) ) return 0;
+  if( i<2 || fossil_isspace(z[n]) ) return 0;
   return n;
 }
 
@@ -567,7 +567,7 @@ static int indentLength(const char *z){
     i++;
     n++;
   }
-  if( i<2 || isspace(z[n]) ) return 0;
+  if( i<2 || fossil_isspace(z[n]) ) return 0;
   return n;
 }
 
@@ -614,12 +614,12 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       if( n>0 ){
         *pTokenType = TOKEN_PARAGRAPH;
         return n;
-      }else if( isspace(z[1]) ){
+      }else if( fossil_isspace(z[1]) ){
         *pTokenType = TOKEN_NEWLINE;
         return 1;
       }
     }
-    if( (p->state & AT_NEWLINE)!=0 && isspace(z[0]) ){
+    if( (p->state & AT_NEWLINE)!=0 && fossil_isspace(z[0]) ){
       n = listItemLength(z, '*');
       if( n>0 ){
         *pTokenType = TOKEN_BUL_LI;
@@ -636,7 +636,7 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
         return n;
       }
     }
-    if( (p->state & AT_PARAGRAPH)!=0 && isspace(z[0]) ){
+    if( (p->state & AT_PARAGRAPH)!=0 && fossil_isspace(z[0]) ){
       n = indentLength(z);
       if( n>0 ){
         *pTokenType = TOKEN_INDENT;
@@ -707,33 +707,33 @@ static void parseMarkup(ParsedMarkup *p, char *z){
     i = 1;
   }
   j = 0;
-  while( isalnum(z[i]) ){
-    if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
+  while( fossil_isalnum(z[i]) ){
+    if( j<sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
     i++;
   }
   zTag[j] = 0;
   p->iCode = findTag(zTag);
   p->iType = aMarkup[p->iCode].iType;
   p->nAttr = 0;
-  while( isspace(z[i]) ){ i++; }
-  while( p->nAttr<8 && isalpha(z[i]) ){
+  while( fossil_isspace(z[i]) ){ i++; }
+  while( p->nAttr<8 && fossil_isalpha(z[i]) ){
     int attrOk;    /* True to preserver attribute.  False to ignore it */
     j = 0;
-    while( isalnum(z[i]) ){
-      if( j<sizeof(zTag)-1 ) zTag[j++] = tolower(z[i]);
+    while( fossil_isalnum(z[i]) ){
+      if( j<sizeof(zTag)-1 ) zTag[j++] = fossil_tolower(z[i]);
       i++;
     }
     zTag[j] = 0;
     p->aAttr[p->nAttr].iACode = iACode = findAttr(zTag);
     attrOk = iACode!=0 && (seen & aAttribute[iACode].iMask)==0;
-    while( isspace(z[i]) ){ z++; }
+    while( fossil_isspace(z[i]) ){ z++; }
     if( z[i]!='=' ){
       p->aAttr[p->nAttr].zValue = 0;
       p->aAttr[p->nAttr].cTerm = 0;
       c = 0;
     }else{
       i++;
-      while( isspace(z[i]) ){ z++; }
+      while( fossil_isspace(z[i]) ){ z++; }
       if( z[i]=='"' ){
         i++;
         zValue = &z[i];
@@ -744,7 +744,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
         while( z[i] && z[i]!='\'' ){ i++; }
       }else{
         zValue = &z[i];
-        while( !isspace(z[i]) && z[i]!='>' ){ z++; }
+        while( !fossil_isspace(z[i]) && z[i]!='>' ){ z++; }
       }
       if( attrOk ){
         p->aAttr[p->nAttr].zValue = zValue;
@@ -757,7 +757,7 @@ static void parseMarkup(ParsedMarkup *p, char *z){
       seen |= aAttribute[iACode].iMask;
       p->nAttr++;
     }
-    while( isspace(z[i]) ){ i++; }
+    while( fossil_isspace(z[i]) ){ i++; }
     if( z[i]=='>' || (z[i]=='/' && z[i+1]=='>') ) break;
   }
 }
@@ -840,10 +840,7 @@ static void popStack(Renderer *p){
 static void pushStackWithId(Renderer *p, int elem, const char *zId, int w){
   if( p->nStack>=p->nAlloc ){
     p->nAlloc = p->nAlloc*2 + 100;
-    p->aStack = realloc(p->aStack, p->nAlloc*sizeof(p->aStack[0]));
-    if( p->aStack==0 ){
-      fossil_panic("out of memory");
-    }
+    p->aStack = fossil_realloc(p->aStack, p->nAlloc*sizeof(p->aStack[0]));
   }
   p->aStack[p->nStack].iCode = elem;
   p->aStack[p->nStack].zId = zId;
@@ -1069,7 +1066,7 @@ static void openHyperlink(
     }else if( g.okHistory ){
       blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zBaseURL, zTarget);
     }
-  }else if( strlen(zTarget)>=10 && isdigit(zTarget[0]) && zTarget[4]=='-'
+  }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zBaseURL, zTarget);
   }else if( strncmp(zTarget, "wiki:", 5)==0 
@@ -1247,14 +1244,14 @@ static void wiki_render(Renderer *p, char *z){
           if( z[i]=='|' && zDisplay==0 ){
             zDisplay = &z[i+1];
             z[i] = 0;
-            for(j=i-1; j>0 && isspace(z[j]); j--){ z[j] = 0; }
+            for(j=i-1; j>0 && fossil_isspace(z[j]); j--){ z[j] = 0; }
           }
         }
         z[i] = 0;
         if( zDisplay==0 ){
           zDisplay = zTarget;
         }else{
-          while( isspace(*zDisplay) ) zDisplay++;
+          while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
         openHyperlink(p, zTarget, zClose, sizeof(zClose));
         savedState = p->state;
@@ -1267,7 +1264,7 @@ static void wiki_render(Renderer *p, char *z){
       }
       case TOKEN_TEXT: {
         int i;
-        for(i=0; i<n && isspace(z[i]); i++){}
+        for(i=0; i<n && fossil_isspace(z[i]); i++){}
         if( i<n ) startAutoParagraph(p);
         blob_append(p->pOut, z, n);
         break;
@@ -1523,7 +1520,7 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   int i;
   int iStart;
   z = skip_bom(blob_str(pIn));
-  for(i=0; isspace(z[i]); i++){}
+  for(i=0; fossil_isspace(z[i]); i++){}
   if( z[i]!='<' ) return 0;
   i++;
   if( strncmp(&z[i],"title>", 6)!=0 ) return 0;

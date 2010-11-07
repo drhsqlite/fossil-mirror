@@ -48,7 +48,12 @@ void hyperlink_to_event_tagid(int tagid){
 
 /*
 ** WEBPAGE: event
-** URL: /event?name=EVENTID&detail=BOOLEAN&aid=ARTIFACTID
+** URL: /event
+** PARAMETERS:
+**
+**  name=EVENTID      // Identify the event to display EVENTID must be complete
+**  detail=BOOLEAN    // Show details if TRUE.  Default is FALSE.  Optional.
+**  aid=ARTIFACTID    // Which specific version of the event.  Optional.
 **
 ** Display an existing event identified by EVENTID
 */
@@ -60,8 +65,7 @@ void event_page(void){
   char *zATime;            /* Time the artifact was created */
   int specRid;             /* rid specified by aid= parameter */
   int prevRid, nextRid;    /* Previous or next edits of this event */
-  Manifest m;              /* Parsed event artifact */
-  Blob content;            /* Original event artifact content */
+  Manifest *pEvent;        /* Parsed event artifact */
   Blob fullbody;           /* Complete content of the event body */
   Blob title;              /* Title extracted from the event body */
   Blob tail;               /* Event body that comes after the title */
@@ -84,7 +88,7 @@ void event_page(void){
   rid = nextRid = prevRid = 0;
   db_prepare(&q1,
      "SELECT rid FROM tagxref"
-     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname='event-%q')"
+     " WHERE tagid=(SELECT tagid FROM tag WHERE tagname GLOB 'event-%q*')"
      " ORDER BY mtime DESC",
      zEventId
   );
@@ -110,14 +114,11 @@ void event_page(void){
 
   /* Extract the event content.
   */
-  memset(&m, 0, sizeof(m));
-  blob_zero(&m.content);
-  content_get(rid, &content);
-  manifest_parse(&m, &content);
-  if( m.type!=CFTYPE_EVENT ){
+  pEvent = manifest_get(rid, CFTYPE_EVENT);
+  if( pEvent==0 ){
     fossil_panic("Object #%d is not an event", rid);
   }
-  blob_init(&fullbody, m.zWiki, -1);
+  blob_init(&fullbody, pEvent->zWiki, -1);
   if( wiki_find_title(&fullbody, &title, &tail) ){
     style_header(blob_str(&title));
   }else{
@@ -128,7 +129,7 @@ void event_page(void){
     style_submenu_element("Edit", "Edit", "%s/eventedit?name=%s",
                           g.zTop, zEventId);
   }
-  zETime = db_text(0, "SELECT datetime(%.17g)", m.rEventDate);
+  zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
   style_submenu_element("Context", "Context", "%s/timeline?c=%T",
                         g.zTop, zETime);
   if( g.okHistory ){
@@ -163,15 +164,15 @@ void event_page(void){
     const char *zClr = 0;
     Blob comment;
 
-    zATime = db_text(0, "SELECT datetime(%.17g)", m.rDate);
+    zATime = db_text(0, "SELECT datetime(%.17g)", pEvent->rDate);
     @ <p>Event [<a href="%s(g.zTop)/artifact/%s(zUuid)">%S(zUuid)</a>] at
     @ [<a href="%s(g.zTop)/timeline?c=%T(zETime)">%s(zETime)</a>]
-    @ entered by user <b>%h(m.zUser)</b> on
+    @ entered by user <b>%h(pEvent->zUser)</b> on
     @ [<a href="%s(g.zTop)/timeline?c=%T(zATime)">%s(zATime)</a>]:</p>
     @ <blockquote>
-    for(i=0; i<m.nTag; i++){
-      if( strcmp(m.aTag[i].zName,"+bgcolor")==0 ){
-        zClr = m.aTag[i].zValue;
+    for(i=0; i<pEvent->nTag; i++){
+      if( strcmp(pEvent->aTag[i].zName,"+bgcolor")==0 ){
+        zClr = pEvent->aTag[i].zValue;
       }
     }
     if( zClr && zClr[0]==0 ) zClr = 0;
@@ -180,7 +181,7 @@ void event_page(void){
     }else{
       @ <div>
     }
-    blob_init(&comment, m.zComment, -1);
+    blob_init(&comment, pEvent->zComment, -1);
     wiki_convert(&comment, 0, WIKI_INLINE);
     blob_reset(&comment);
     @ </div>
@@ -189,7 +190,7 @@ void event_page(void){
 
   wiki_convert(&tail, 0, 0);
   style_footer();
-  manifest_clear(&m);
+  manifest_destroy(pEvent);
 }
 
 /*
@@ -256,18 +257,14 @@ void eventedit_page(void){
   ** a starting point for the edit.
   */
   if( rid && (zBody==0 || zETime==0 || zComment==0 || zTags==0) ){
-    Manifest m;
-    Blob content;
-    memset(&m, 0, sizeof(m));
-    blob_zero(&m.content);
-    content_get(rid, &content);
-    manifest_parse(&m, &content);
-    if( m.type==CFTYPE_EVENT ){
-      if( zBody==0 ) zBody = m.zWiki;
+    Manifest *pEvent;
+    pEvent = manifest_get(rid, CFTYPE_EVENT);
+    if( pEvent && pEvent->type==CFTYPE_EVENT ){
+      if( zBody==0 ) zBody = pEvent->zWiki;
       if( zETime==0 ){
-        zETime = db_text(0, "SELECT datetime(%.17g)", m.rEventDate);
+        zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
       }
-      if( zComment==0 ) zComment = m.zComment;
+      if( zComment==0 ) zComment = pEvent->zComment;
     }
     if( zTags==0 ){
       zTags = db_text(0,
@@ -318,8 +315,8 @@ void eventedit_page(void){
       ** a single space character */
       zBlob = blob_str(&tags);
       for(i=j=0; zBlob[i]; i++, j++){
-        if( blob_isspace(zBlob[i]) || zBlob[i]==',' ){
-          while( blob_isspace(zBlob[i+1]) ){ i++; }
+        if( fossil_isspace(zBlob[i]) || zBlob[i]==',' ){
+          while( fossil_isspace(zBlob[i+1]) ){ i++; }
           zBlob[j] = ' ';
         }else{
           zBlob[j] = zBlob[i];

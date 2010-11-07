@@ -225,19 +225,23 @@ int main(int argc, char **argv){
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+  int mightBeCgi;
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
-  if( getenv("GATEWAY_INTERFACE")!=0 ){
-    zCmdName = "cgi";
-  }else if( argc<2 ){
-    fprintf(stderr, "Usage: %s COMMAND ...\n"
-                    "\"%s help\" for a list of available commands\n"
-                    "\"%s help COMMAND\" for specific details\n",
-                    argv[0], argv[0], argv[0]);
-    fossil_exit(1);
+  mightBeCgi = getenv("GATEWAY_INTERFACE")!=0;
+  if( argc<2 ){
+    if( mightBeCgi ){
+      zCmdName = "cgi";
+    }else{
+      fprintf(stderr, "Usage: %s COMMAND ...\n"
+                      "\"%s help\" for a list of available commands\n"
+                      "\"%s help COMMAND\" for specific details\n",
+                      argv[0], argv[0], argv[0]);
+      fossil_exit(1);
+    }
   }else{
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
@@ -247,6 +251,9 @@ int main(int argc, char **argv){
     zCmdName = argv[1];
   }
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
+  if( rc==1 && mightBeCgi ){
+    rc = name_search("cgi", aCommand, count(aCommand), &idx);
+  }
   if( rc==1 ){
     fprintf(stderr,"%s: unknown command: %s\n"
                    "%s: use \"help\" for more information\n",
@@ -361,6 +368,45 @@ void fossil_warning(const char *zFormat, ...){
     fprintf(stderr, "%s: %s\n", g.argv[0], z);
   }
 }
+
+/*
+** Malloc and free routines that cannot fail
+*/
+void *fossil_malloc(size_t n){
+  void *p = malloc(n);
+  if( p==0 ) fossil_panic("out of memory");
+  return p;
+}
+void fossil_free(void *p){
+  free(p);
+}
+void *fossil_realloc(void *p, size_t n){
+  p = realloc(p, n);
+  if( p==0 ) fossil_panic("out of memory");
+  return p;
+}
+
+/*
+** This function implements a cross-platform "system()" interface.
+*/
+int fossil_system(const char *zOrigCmd){
+  int rc;
+#if defined(_WIN32)
+  /* On windows, we have to put double-quotes around the entire command.
+  ** Who knows why - this is just the way windows works.
+  */
+  char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
+  rc = system(zNewCmd);
+  free(zNewCmd);
+#else
+  /* On unix, evaluate the command directly.
+  */
+  rc = system(zOrigCmd);
+#endif 
+  return rc; 
+}
+
+
 
 /*
 ** Return a name for an SQLite error code
@@ -595,6 +641,58 @@ void help_cmd(void){
 }
 
 /*
+** WEBPAGE: help
+** URL: /help?cmd=CMD
+*/
+void help_page(void){
+    const char * zCmd = P("cmd");
+    
+    style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
+    if( zCmd ){
+      int rc, idx;
+      char *z, *s, *d;
+
+      @ <h1>%s(zCmd)</h1>
+      rc = name_search(zCmd, aCommand, count(aCommand), &idx);
+      if( rc==1 ){
+        @ unknown command: %s(zCmd)
+      }else if( rc==2 ){
+        @ ambiguous command prefix: %s(zCmd)
+      }else{
+        z = (char*)aCmdHelp[idx];
+        if( z==0 ){
+          @ no help available for the %s(aCommand[idx].zName) command
+        }else{
+          z=s=d=mprintf("%s",z);
+	  while( *s ){
+	    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
+	      s++;
+	    }else{
+	      *d++ = *s++;
+	    }
+	  }
+	  *d = 0;
+	  @ <pre>%s(z)</pre>
+	  free(z);
+	}
+      }
+      @ <hr/><a href="help">available commands</a> in fossil
+      @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
+    }else{
+      int i;
+      
+      @ <h1>Available commands</h1>
+      for(i=0; i<count(aCommand); i++){
+        if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
+        @ <kbd><a href="help?cmd=%s(aCommand[i].zName)">
+        @ %s(aCommand[i].zName)</a></kbd>
+      }
+      @ <hr/>fossil version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
+    }
+    style_footer();
+}
+
+/*
 ** Set the g.zBaseURL value to the full URL for the toplevel of
 ** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
@@ -707,7 +805,7 @@ static void process_one_web_page(const char *zNotFound){
     ** characters other than alphanumerics, "-", and "_".
     */
     for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
-      if( !isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
+      if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
     }
     if( zRepo[0]=='/' && zRepo[1]=='/' ) zRepo++;
 
@@ -1077,4 +1175,32 @@ void cmd_webserver(void){
   db_close();
   win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
 #endif
+}
+
+/*
+** COMMAND: sqlite3
+**
+** Usage: %fossil sqlite3 ?DATABASE? ?OPTIONS?
+**
+** Run the standalone sqlite3 command-line shell on DATABASE with OPTIONS.
+** If DATABASE is omitted, then the repository that serves the working
+** directory is opened.
+**
+** WARNING:  Careless use of this command can corrupt a Fossil repository
+** in ways that are unrecoverable.  Be sure you know what you are doing before
+** running any SQL commands that modifies the repository database.
+*/
+void sqlite3_cmd(void){
+  extern int sqlite3_shell(int, char**);
+  sqlite3_shell(g.argc-1, g.argv+1);
+}
+
+/*
+** This routine is called by the patched sqlite3 command-line shell in order
+** to load the name and database connection for the open Fossil database.
+*/
+void fossil_open(sqlite3 **pDb, const char **pzRepoName){
+  db_must_be_within_tree();
+  *pDb = 0;
+  *pzRepoName = g.zRepositoryName;
 }

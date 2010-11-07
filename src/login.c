@@ -53,11 +53,10 @@
 static char *login_cookie_name(void){
   static char *zCookieName = 0;
   if( zCookieName==0 ){
-    int n = strlen(g.zTop);
-    zCookieName = malloc( n*2+16 );
-                      /* 0123456789 12345 */
-    strcpy(zCookieName, "fossil_login_");
-    encode16((unsigned char*)g.zTop, (unsigned char*)&zCookieName[13], n);
+    unsigned int h = 0;
+    const char *z = g.zBaseURL;
+    while( *z ){ h = (h<<3) ^ (h>>26) ^ *(z++); }
+    zCookieName = mprintf("fossil_login_%08x", h);
   }
   return zCookieName;
 }
@@ -355,7 +354,7 @@ void login_check_credentials(void){
   /* Check the login cookie to see if it matches a known valid user.
   */
   if( uid==0 && (zCookie = P(login_cookie_name()))!=0 ){
-    if( isdigit(zCookie[0]) ){
+    if( fossil_isdigit(zCookie[0]) ){
       /* Cookies of the form "uid/randomness".  There must be a
       ** corresponding entry in the user table. */
       uid = db_int(0, 

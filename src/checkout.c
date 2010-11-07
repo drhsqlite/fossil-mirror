@@ -80,75 +80,75 @@ int load_vfile(const char *zName){
 ** Load a vfile from a record ID.
 */
 void load_vfile_from_rid(int vid){
-  Blob manifest;
-
   if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
     return;
   }
-  content_get(vid, &manifest);
-  vfile_build(vid, &manifest);
-  blob_reset(&manifest);
+  vfile_build(vid);
 }
 
 /*
 ** Set or clear the vfile.isexe flag for a file.
 */
 static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
-  db_multi_exec("UPDATE vfile SET isexe=%d WHERE vid=%d and pathname=%Q",
-                onoff, vid, zFilename);
+  static Stmt s;
+  db_static_prepare(&s,
+    "UPDATE vfile SET isexe=:isexe"
+    " WHERE vid=:vid AND pathname=:path AND isexe!=:isexe"
+  );
+  db_bind_int(&s, ":isexe", onoff);
+  db_bind_int(&s, ":vid", vid);
+  db_bind_text(&s, ":path", zFilename);
+  db_step(&s);
+  db_reset(&s);
 }
 
 /*
 ** Set or clear the execute permission bit (as appropriate) for all
 ** files in the current check-out.
-**
-** If the checkout does not have explicit files named "manifest" and
-** "manifest.uuid" then automatically generate files with those names
-** containing, respectively, the text of the manifest and the artifact
-** ID of the manifest.
+*/
+void checkout_set_all_exe(int vid){
+  Blob filename;
+  int baseLen;
+  Manifest *pManifest;
+  ManifestFile *pFile;
+
+  /* Check the EXE permission status of all files
+  */
+  pManifest = manifest_get(vid, CFTYPE_MANIFEST);
+  if( pManifest==0 ) return;
+  blob_zero(&filename);
+  blob_appendf(&filename, "%s/", g.zLocalRoot);
+  baseLen = blob_size(&filename);
+  manifest_file_rewind(pManifest);
+  while( (pFile = manifest_file_next(pManifest, 0))!=0 ){
+    int isExe;
+    blob_append(&filename, pFile->zName, -1);
+    isExe = pFile->zPerm && strstr(pFile->zPerm, "x");
+    file_setexe(blob_str(&filename), isExe);
+    set_or_clear_isexe(pFile->zName, vid, isExe);
+    blob_resize(&filename, baseLen);
+  }
+  blob_reset(&filename);
+  manifest_destroy(pManifest);
+}
+
+
+/*
+** If the "manifest" setting is true, then automatically generate
+** files named "manifest" and "manifest.uuid" containing, respectively,
+** the text of the manifest and the artifact ID of the manifest.
 */
 void manifest_to_disk(int vid){
   char *zManFile;
   Blob manifest;
   Blob hash;
-  Blob filename;
-  int baseLen;
-  int i;
-  int seenManifest = 0;
-  int seenManifestUuid = 0;
-  Manifest m;
 
-  /* Check the EXE permission status of all files
-  */
-  blob_zero(&manifest);
-  content_get(vid, &manifest);
-  manifest_parse(&m, &manifest);
-  blob_zero(&filename);
-  blob_appendf(&filename, "%s/", g.zLocalRoot);
-  baseLen = blob_size(&filename);
-  for(i=0; i<m.nFile; i++){ 
-    int isExe;
-    blob_append(&filename, m.aFile[i].zName, -1);
-    isExe = m.aFile[i].zPerm && strstr(m.aFile[i].zPerm, "x");
-    file_setexe(blob_str(&filename), isExe);
-    set_or_clear_isexe(m.aFile[i].zName, vid, isExe);
-    blob_resize(&filename, baseLen);
-    if( memcmp(m.aFile[i].zName, "manifest", 8)==0 ){
-      if( m.aFile[i].zName[8]==0 ) seenManifest = 1;
-      if( strcmp(&m.aFile[i].zName[8], ".uuid")==0 ) seenManifestUuid = 1;
-    }
-  }
-  blob_reset(&filename);
-  manifest_clear(&m);
-
-  blob_zero(&manifest);
-  content_get(vid, &manifest);
-  if( !seenManifest ){
+  if( db_get_boolean("manifest",0) ){
+    blob_zero(&manifest);
+    content_get(vid, &manifest);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManFile);
     free(zManFile);
-  }
-  if( !seenManifestUuid ){
     blob_zero(&hash);
     sha1sum_blob(&manifest, &hash);
     zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
@@ -156,7 +156,19 @@ void manifest_to_disk(int vid){
     blob_write_to_file(&hash, zManFile);
     free(zManFile);
     blob_reset(&hash);
+  }else{
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
+      zManFile = mprintf("%smanifest", g.zLocalRoot);
+      unlink(zManFile);
+      free(zManFile);
+    }
+    if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.uuid'") ){
+      zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
+      unlink(zManFile);
+      free(zManFile);
+    }
   }
+    
 }
 
 /*
@@ -230,6 +242,7 @@ void checkout_cmd(void){
   if( !keepFlag ){
     vfile_to_disk(vid, 0, 1, promptFlag);
   }
+  checkout_set_all_exe(vid);
   manifest_to_disk(vid);
   db_lset_int("checkout", vid);
   undo_reset();

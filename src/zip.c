@@ -104,7 +104,7 @@ void zip_add_folders(char *zName){
       }
       if( j>=nDir ){
         nDir++;
-        azDir = realloc(azDir, sizeof(azDir[0])*nDir);
+        azDir = fossil_realloc(azDir, sizeof(azDir[0])*nDir);
         azDir[j] = mprintf("%s", zName);
         zip_add_file(zName, 0);
       }
@@ -315,9 +315,9 @@ void filezip_cmd(void){
 **
 */
 void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
-  int i;
-  Blob mfile, file, hash;
-  Manifest m;
+  Blob mfile, hash, file;
+  Manifest *pManifest;
+  ManifestFile *pFile;
   Blob filename;
   int nPrefix;
   
@@ -326,9 +326,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
     blob_zero(pZip);
     return;
   }
-  blob_zero(&file);
   blob_zero(&hash);
-  blob_copy(&file, &mfile);
   blob_zero(&filename);
   zip_open();
 
@@ -337,38 +335,41 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   }
   nPrefix = blob_size(&filename);
 
-  if( manifest_parse(&m, &mfile) ){
+  pManifest = manifest_get(rid, CFTYPE_MANIFEST);
+  if( pManifest ){
     char *zName;
-    zip_set_timedate(m.rDate);
-    blob_append(&filename, "manifest", -1);
-    zName = blob_str(&filename);
-    zip_add_folders(zName);
-    zip_add_file(zName, &file);
-    sha1sum_blob(&file, &hash);
-    blob_reset(&file);
-    blob_append(&hash, "\n", 1);
-    blob_resize(&filename, nPrefix);
-    blob_append(&filename, "manifest.uuid", -1);
-    zName = blob_str(&filename);
-    zip_add_file(zName, &hash);
-    blob_reset(&hash);
-    for(i=0; i<m.nFile; i++){
-      int fid = uuid_to_rid(m.aFile[i].zUuid, 0);
+    zip_set_timedate(pManifest->rDate);
+    if( db_get_boolean("manifest", 0) ){
+      blob_append(&filename, "manifest", -1);
+      zName = blob_str(&filename);
+      zip_add_folders(zName);
+      zip_add_file(zName, &mfile);
+      sha1sum_blob(&mfile, &hash);
+      blob_reset(&mfile);
+      blob_append(&hash, "\n", 1);
+      blob_resize(&filename, nPrefix);
+      blob_append(&filename, "manifest.uuid", -1);
+      zName = blob_str(&filename);
+      zip_add_file(zName, &hash);
+      blob_reset(&hash);
+    }
+    manifest_file_rewind(pManifest);
+    while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+      int fid = uuid_to_rid(pFile->zUuid, 0);
       if( fid ){
         content_get(fid, &file);
         blob_resize(&filename, nPrefix);
-        blob_append(&filename, m.aFile[i].zName, -1);
+        blob_append(&filename, pFile->zName, -1);
         zName = blob_str(&filename);
         zip_add_folders(zName);
         zip_add_file(zName, &file);
         blob_reset(&file);
       }
     }
-    manifest_clear(&m);
   }else{
     blob_reset(&mfile);
-    blob_reset(&file);
   }
+  manifest_destroy(pManifest);
   blob_reset(&filename);
   zip_close(pZip);
 }

@@ -98,16 +98,19 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
   if( j>LENGTH_MASK ){
     return 0;
   }
-  a = malloc( nLine*sizeof(a[0]) );
-  if( a==0 ) fossil_panic("out of memory");
+  a = fossil_malloc( nLine*sizeof(a[0]) );
   memset(a, 0, nLine*sizeof(a[0]) );
+  if( n==0 ){
+    *pnLine = 0;
+    return a;
+  }
 
   /* Fill in the array */
   for(i=0; i<nLine; i++){
     a[i].z = z;
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
-    while( ignoreWS && k>0 && isspace(z[k-1]) ){ k--; }
+    while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
     for(h=0, x=0; x<k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
@@ -143,14 +146,7 @@ static void appendDiffLine(Blob *pOut, char *zPrefix, DLine *pLine){
 ** Expand the size of aEdit[] array to hold nEdit elements.
 */
 static void expandEdit(DContext *p, int nEdit){
-  int *a;
-  a = realloc(p->aEdit, nEdit*sizeof(int));
-  if( a==0 ){
-    free( p->aEdit );
-    p->nEdit = 0;
-    nEdit = 0;
-  }
-  p->aEdit = a;
+  p->aEdit = fossil_realloc(p->aEdit, nEdit*sizeof(int));
   p->nEditAlloc = nEdit;
 }
 
@@ -647,8 +643,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
   if( p->c.aTo==0 ){
     return 1;
   }
-  p->aOrig = malloc( sizeof(p->aOrig[0])*p->c.nTo );
-  if( p->aOrig==0 ) fossil_panic("out of memory");
+  p->aOrig = fossil_malloc( sizeof(p->aOrig[0])*p->c.nTo );
   for(i=0; i<p->c.nTo; i++){
     p->aOrig[i].z = p->c.aTo[i].z;
     p->aOrig[i].n = p->c.aTo[i].h & LENGTH_MASK;

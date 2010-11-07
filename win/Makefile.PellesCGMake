@@ -46,69 +46,107 @@ TARGETMACHINE_LN=ix86
 TARGETEXTEND=
 endif
 
+# define the project directories
 B=..
 SRCDIR=$(B)/src/
 WINDIR=$(B)/win/
-ZLIBSRCDIR=E:/fossil-w32/zlib/
+ZLIBSRCDIR=../../zlib/
 
+# define linker command and options
 LINK=$(PellesCDir)/bin/polink.exe
 LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)\lib\win$(TARGETEXTEND) /LIBPATH:$(PellesCDir)\lib kernel32.lib advapi32.lib delayimp$(TARGETEXTEND).lib Wsock32.lib Crtmt$(TARGETEXTEND).lib
 
+# define standard C-compiler and flags, used to compile
+# the fossil binary. Some special definitions follow for
+# special files follow
 CC=$(PellesCDir)\bin\pocc.exe
 DEFINES=-DFOSSIL_I18N=0 -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp 
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
 INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
 
+# define commands for building the windows resource files
+RESOURCE=fossil.res
+RC=$(PellesCDir)\bin\porc.exe
+RCFLAGS=$(INCLUDE) -D__POCC__=1 -D_M_X$(TARGETVERSION)
+
+# define the special utilities files, needed to generate
+# the automatically generated source files
 UTILS=translate.exe mkindex.exe makeheaders.exe
 UTILS_OBJ=$(UTILS:.exe=.obj)
+UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
-SRC=add.c allrepo.c attach.c bag.c blob.c branch.c browse.c captcha.c cgi.c checkin.c checkout.c clearsign.c clone.c comformat.c configure.c content.c db.c delta.c deltacmd.c descendants.c diff.c diffcmd.c doc.c encode.c event.c file.c finfo.c graph.c http.c http_socket.c http_ssl.c http_transport.c info.c login.c main.c manifest.c md5.c merge.c merge3.c name.c pivot.c popen.c pqueue.c printf.c rebuild.c report.c rss.c schema.c search.c setup.c sha1.c shun.c skins.c stat.c style.c sync.c tag.c th_main.c timeline.c tkt.c tktsetup.c undo.c update.c url.c user.c verify.c vfile.c wiki.c wikiformat.c winhttp.c xfer.c zip.c
-ORIGSRC=$(foreach sf,$(SRC),$(SRCDIR)$(sf))
-TRANSLATEDSRC=$(SRC:.c=_.c)
-TRANSLATEDOBJ=$(TRANSLATEDSRC:.c=.obj)
-
+# define the sqlite files, which need special flags on compile
 SQLITESRC=sqlite3.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
 SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
 
+# define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
 ORIGTHSRC=$(foreach sf,$(THSRC),$(SRCDIR)$(sf))
 THOBJ=$(foreach sf,$(THSRC),$(sf:.c=.obj))
 
+# define the zlib files, needed by this compile
 ZLIBSRC=adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c gzread.c gzwrite.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
 ORIGZLIBSRC=$(foreach sf,$(ZLIBSRC),$(ZLIBSRCDIR)$(sf))
 ZLIBOBJ=$(foreach sf,$(ZLIBSRC),$(sf:.c=.obj))
 
+# define all fossil sources, using the standard compile and
+# source generation. These are all files in SRCDIR, which are not
+# mentioned as special files above:
+ORIGSRC=$(filter-out $(UTILS_SRC) $(ORIGTHSRC) $(ORIGSQLITESRC),$(wildcard $(SRCDIR)*.c))
+SRC=$(subst $(SRCDIR),,$(ORIGSRC))
+TRANSLATEDSRC=$(SRC:.c=_.c)
+TRANSLATEDOBJ=$(TRANSLATEDSRC:.c=.obj)
+
+# main target file is the application
 APPLICATION=fossil.exe
 
+# ###########################################################################
+# define the standard make target
 .PHONY:	default
 default:	page_index.h headers $(APPLICATION)
 
-$(UTILS):	%.exe:	%.obj
+# ###########################################################################
+# symbolic target to generate the source generate utils
+.PHONY:	utils
+utils:	$(UTILS)
+
+# link utils
+$(UTILS) version.exe:	%.exe:	%.obj
 	$(LINK) $(LINKFLAGS) -out:"$@" $<
 
+# compiling standard fossil utils
 $(UTILS_OBJ):	%.obj:	$(SRCDIR)%.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(TRANSLATEDSRC):	%_.c:	$(SRCDIR)%.c translate.exe
-	translate.exe $< >$@
-
-page_index.h:	$(TRANSLATEDSRC) mkindex.exe
-	mkindex.exe $(TRANSLATEDSRC) >$@
-
-version.exe:	version.obj
-	$(LINK) $(LINKFLAGS) -out:"$@" $<
-
+# compile special windows utils
 version.obj:	$(WINDIR)version.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
+# ###########################################################################
+# generate the translated c-source files
+$(TRANSLATEDSRC):	%_.c:	$(SRCDIR)%.c translate.exe
+	translate.exe $< >$@
+
+# ###########################################################################
+# generate the index source, containing all web references,..
+page_index.h:	$(TRANSLATEDSRC) mkindex.exe
+	mkindex.exe $(TRANSLATEDSRC) >$@
+
+# ###########################################################################
+# extracting version info from manifest
 VERSION.h:	version.exe ..\manifest.uuid ..\manifest
 	version.exe ..\manifest.uuid ..\manifest  > $@
 
+# ###########################################################################
+# generate the simplified headers
 headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
 	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
 	echo Done >$@
+
+# ###########################################################################
+# compile C sources with relevant options
 
 $(TRANSLATEDOBJ):	%_.obj:	%_.c %.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
@@ -122,14 +160,25 @@ $(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
 $(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
-$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) headers
-	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ)
+# ###########################################################################
+# create the windows resource with icon and version info
+$(RESOURCE):	%.res:	../win/%.rc ../win/*.ico
+	$(RC) $(RCFLAGS) $< -Fo"$@"
+
+# ###########################################################################
+# link the application
+$(APPLICATION):	$(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) headers $(RESOURCE)
+	$(LINK) $(LINKFLAGS) -out:"$@" $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(RESOURCE)
+
+# ###########################################################################
+# cleanup
 
 .PHONY: clean
 clean:
-	del /F *.obj
-	del /F *.c
+	del /F $(TRANSLATEDOBJ) $(SQLITEOBJ) $(THOBJ) $(ZLIBOBJ) $(UTILS_OBJ) version.obj
+	del /F $(TRANSLATEDSRC)
 	del /F *.h headers
+	del /F $(RESOURCE)
 
 .PHONY: clobber
 clobber: clean

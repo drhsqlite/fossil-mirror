@@ -197,27 +197,34 @@ static int digit_count(int v){
 */
 static unsigned int checksum(const char *zIn, size_t N){
   const unsigned char *z = (const unsigned char *)zIn;
-  unsigned sum = 0;
+  unsigned sum0 = 0;
+  unsigned sum1 = 0;
+  unsigned sum2 = 0;
+  unsigned sum3 = 0;
   while(N >= 16){
-    sum += ((unsigned)z[0] + z[4] + z[8] + z[12]) << 24;
-    sum += ((unsigned)z[1] + z[5] + z[9] + z[13]) << 16;
-    sum += ((unsigned)z[2] + z[6] + z[10]+ z[14]) << 8;
-    sum += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
+    sum0 += ((unsigned)z[0] + z[4] + z[8] + z[12]);
+    sum1 += ((unsigned)z[1] + z[5] + z[9] + z[13]);
+    sum2 += ((unsigned)z[2] + z[6] + z[10]+ z[14]);
+    sum3 += ((unsigned)z[3] + z[7] + z[11]+ z[15]);
     z += 16;
     N -= 16;
   }
   while(N >= 4){
-    sum += (z[0]<<24) | (z[1]<<16) | (z[2]<<8) | z[3];
+    sum0 += z[0];
+    sum1 += z[1];
+    sum2 += z[2];
+    sum3 += z[3];
     z += 4;
     N -= 4;
   }
+  sum3 += (sum2 << 8) + (sum1 << 16) + (sum0 << 24);
   switch(N){
-    case 3:   sum += (z[2] << 8);
-    case 2:   sum += (z[1] << 16);
-    case 1:   sum += (z[0] << 24);
+    case 3:   sum3 += (z[2] << 8);
+    case 2:   sum3 += (z[1] << 16);
+    case 1:   sum3 += (z[0] << 24);
     default:  ;
   }
-  return sum;
+  return sum3;
 }
 
 /*
@@ -319,8 +326,7 @@ int delta_create(
   ** source file.
   */
   nHash = lenSrc/NHASH;
-  collide = malloc( nHash*2*sizeof(int) );
-  if( collide==0 ) return -1;
+  collide = fossil_malloc( nHash*2*sizeof(int) );
   landmark = &collide[nHash];
   memset(landmark, -1, nHash*sizeof(int));
   memset(collide, -1, nHash*sizeof(int));
@@ -515,7 +521,9 @@ int delta_apply(
 ){
   unsigned int limit;
   unsigned int total = 0;
+#ifndef FOSSIL_OMIT_DELTA_CKSUM_TEST
   char *zOrigOut = zOut;
+#endif
 
   limit = getInt(&zDelta, &lenDelta);
   if( *zDelta!='\n' ){
@@ -570,10 +578,12 @@ int delta_apply(
       case ';': {
         zDelta++; lenDelta--;
         zOut[0] = 0;
+#ifndef FOSSIL_OMIT_DELTA_CKSUM_TEST
         if( cnt!=checksum(zOrigOut, total) ){
           /* ERROR:  bad checksum */
           return -1;
         }
+#endif
         if( total!=limit ){
           /* ERROR: generated size does not match predicted size */
           return -1;

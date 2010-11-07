@@ -217,7 +217,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
   if( zGlobList==0 || zGlobList[0]==0 ) return "0";
   blob_zero(&expr);
   while( zGlobList[0] ){
-    while( isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
+    while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
     if( zGlobList[0]==0 ) break;
     if( zGlobList[0]=='\'' || zGlobList[0]=='"' ){
       cTerm = zGlobList[0];
@@ -227,7 +227,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
     }
     for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
     if( cTerm==',' ){
-      while( i>0 && isspace(zGlobList[i-1]) ){ i--; }
+      while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
     }
     blob_appendf(&expr, "%s%s GLOB '%.*q'", zSep, zVal, i, zGlobList);
     zSep = " OR ";
@@ -261,6 +261,7 @@ void extra_cmd(void){
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
+  int outputManifest = db_get_boolean("manifest",0);
 
   db_must_be_within_tree();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
@@ -272,12 +273,14 @@ void extra_cmd(void){
   vfile_scan(0, &path, blob_size(&path), allFlag);
   db_prepare(&q, 
       "SELECT x FROM sfile"
-      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
+      " WHERE x NOT IN ('%s','%s','_FOSSIL_',"
                        "'_FOSSIL_-journal','.fos','.fos-journal',"
                        "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
                        "'.fos-shm')"
       "   AND NOT %s"
       " ORDER BY 1",
+      outputManifest ? "manifest" : "_FOSSIL_",
+      outputManifest ? "manifest.uuid" : "_FOSSIL_",
       glob_expr("x", zIgnoreFlag)
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
@@ -417,7 +420,7 @@ static void prepare_commit_comment(
   blob_write_to_file(&text, zFile);
   zCmd = mprintf("%s \"%s\"", zEditor, zFile);
   printf("%s\n", zCmd);
-  if( portable_system(zCmd) ){
+  if( fossil_system(zCmd) ){
     fossil_panic("editor aborted");
   }
   blob_reset(&text);
@@ -431,7 +434,7 @@ static void prepare_commit_comment(
     char *z;
     n = blob_size(&line);
     z = blob_buffer(&line);
-    for(i=0; i<n && isspace(z[i]);  i++){}
+    for(i=0; i<n && fossil_isspace(z[i]);  i++){}
     if( i<n && z[i]=='#' ) continue;
     if( i<n || blob_size(pComment)>0 ){
       blob_appendf(pComment, "%b", &line);
@@ -440,7 +443,7 @@ static void prepare_commit_comment(
   blob_reset(&text);
   zComment = blob_str(pComment);
   i = strlen(zComment);
-  while( i>0 && isspace(zComment[i-1]) ){ i--; }
+  while( i>0 && fossil_isspace(zComment[i-1]) ){ i--; }
   blob_resize(pComment, i);
 }
 
@@ -463,7 +466,7 @@ void select_commit_files(void){
     int ii;
     Blob b;
     blob_zero(&b);
-    g.aCommitFile = malloc(sizeof(int)*(g.argc-1));
+    g.aCommitFile = fossil_malloc(sizeof(int)*(g.argc-1));
 
     for(ii=2; ii<g.argc; ii++){
       int iId;
@@ -515,7 +518,7 @@ static void checkin_verify_younger(
     zDate, rid
   );
   if( b ){
-    fossil_fatal("ancestor check-in [%.10s] (%s) is younger (clock skew?)"
+    fossil_fatal("ancestor check-in [%.10s] (%s) is not older (clock skew?)"
                  " Use -f to override.", zUuid, zDate);
   }
 #endif
@@ -539,17 +542,154 @@ char *date_in_standard_format(const char *zInputDate){
 }
 
 /*
-** Return TRUE (non-zero) if a file named "zFilename" exists in
-** the checkout identified by vid.
-**
-** The original purpose of this routine was to check for the presence of
-** a "checked-in" file named "manifest" or "manifest.uuid" so as to avoid
-** overwriting that file with automatically generated files.
+** Create a manifest.
 */
-int file_exists_in_checkout(int vid, const char *zFilename){
-  return db_exists("SELECT 1 FROM vfile WHERE vid=%d AND pathname=%Q",
-                   vid, zFilename);
+static void create_manifest(
+  Blob *pOut,                 /* Write the manifest here */
+  const char *zBaselineUuid,  /* UUID of baseline, or zero */
+  Manifest *pBaseline,        /* Make it a delta manifest if not zero */
+  Blob *pComment,             /* Check-in comment text */
+  int vid,                    /* blob-id of the parent manifest */
+  int verifyDate,             /* Verify that child is younger */
+  Blob *pCksum,               /* Repository checksum.  May be 0 */
+  const char *zDateOvrd,      /* Date override.  If 0 then use 'now' */
+  const char *zUserOvrd,      /* User override.  If 0 then use g.zLogin */
+  const char *zBranch,        /* Branch name.  May be 0 */
+  const char *zBgColor,       /* Background color.  May be 0 */
+  int *pnFBcard               /* Number of generated B- and F-cards */
+){
+  char *zDate;                /* Date of the check-in */
+  char *zParentUuid;          /* UUID of parent check-in */
+  Blob filename;              /* A single filename */
+  int nBasename;              /* Size of base filename */
+  Stmt q;                     /* Query of files changed */
+  Stmt q2;                    /* Query of merge parents */
+  Blob mcksum;                /* Manifest checksum */
+  ManifestFile *pFile;        /* File from the baseline */
+  int nFBcard = 0;            /* Number of B-cards and F-cards */
+
+  assert( pBaseline==0 || pBaseline->zBaseline==0 );
+  assert( pBaseline==0 || zBaselineUuid!=0 );
+  blob_zero(pOut);
+  zParentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  if( pBaseline ){
+    blob_appendf(pOut, "B %s\n", zBaselineUuid);
+    manifest_file_rewind(pBaseline);
+    pFile = manifest_file_next(pBaseline, 0);
+    nFBcard++;
+  }else{
+    pFile = 0;
+  }
+  blob_appendf(pOut, "C %F\n", blob_str(pComment));
+  zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
+  blob_appendf(pOut, "D %s\n", zDate);
+  zDate[10] = ' ';
+  db_prepare(&q,
+    "SELECT pathname, uuid, origname, blob.rid, isexe"
+    "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
+    " WHERE NOT deleted AND vfile.vid=%d"
+    " ORDER BY 1", vid);
+  blob_zero(&filename);
+  blob_appendf(&filename, "%s", g.zLocalRoot);
+  nBasename = blob_size(&filename);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    const char *zOrig = db_column_text(&q, 2);
+    int frid = db_column_int(&q, 3);
+    int isexe = db_column_int(&q, 4);
+    const char *zPerm;
+    int cmp;
+    blob_append(&filename, zName, -1);
+#if !defined(_WIN32)
+    /* For unix, extract the "executable" permission bit directly from
+    ** the filesystem.  On windows, the "executable" bit is retained
+    ** unchanged from the original. */
+    isexe = file_isexe(blob_str(&filename));
+#endif
+    if( isexe ){
+      zPerm = " x";
+    }else{
+      zPerm = "";
+    }
+    if( !g.markPrivate ) content_make_public(frid);
+    while( pFile && strcmp(pFile->zName,zName)<0 ){
+      blob_appendf(pOut, "F %F\n", pFile->zName);
+      pFile = manifest_file_next(pBaseline, 0);
+      nFBcard++;
+    }
+    cmp = 1;
+    if( pFile==0
+      || (cmp = strcmp(pFile->zName,zName))!=0
+      || strcmp(pFile->zUuid, zUuid)!=0
+    ){
+      blob_resize(&filename, nBasename);
+      if( zOrig==0 || strcmp(zOrig,zName)==0 ){
+        blob_appendf(pOut, "F %F %s%s\n", zName, zUuid, zPerm);
+      }else{
+        if( zPerm[0]==0 ){ zPerm = " w"; }
+        blob_appendf(pOut, "F %F %s%s %F\n", zName, zUuid, zPerm, zOrig);
+      }
+      nFBcard++;
+    }
+    if( cmp==0 ) pFile = manifest_file_next(pBaseline,0);
+  }
+  blob_reset(&filename);
+  db_finalize(&q);
+  while( pFile ){
+    blob_appendf(pOut, "F %F\n", pFile->zName);
+    pFile = manifest_file_next(pBaseline, 0);
+    nFBcard++;
+  }
+  blob_appendf(pOut, "P %s", zParentUuid);
+  if( verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
+  free(zParentUuid);
+  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
+  db_bind_int(&q2, ":id", 0);
+  while( db_step(&q2)==SQLITE_ROW ){
+    char *zMergeUuid;
+    int mid = db_column_int(&q2, 0);
+    if( !g.markPrivate && content_is_private(mid) ) continue;
+    zMergeUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+    if( zMergeUuid ){
+      blob_appendf(pOut, " %s", zMergeUuid);
+      if( verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
+      free(zMergeUuid);
+    }
+  }
+  db_finalize(&q2);
+  free(zDate);
+
+  blob_appendf(pOut, "\n");
+  if( pCksum ) blob_appendf(pOut, "R %b\n", pCksum);
+  if( zBranch && zBranch[0] ){
+    Stmt q;
+    if( zBgColor && zBgColor[0] ){
+      blob_appendf(pOut, "T *bgcolor * %F\n", zBgColor);
+    }
+    blob_appendf(pOut, "T *branch * %F\n", zBranch);
+    blob_appendf(pOut, "T *sym-%F *\n", zBranch);
+
+    /* Cancel all other symbolic tags */
+    db_prepare(&q,
+        "SELECT tagname FROM tagxref, tag"
+        " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
+        "   AND tagtype>0 AND tagname GLOB 'sym-*'"
+        "   AND tagname!='sym-'||%Q"
+        " ORDER BY tagname",
+        vid, zBranch);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zTag = db_column_text(&q, 0);
+      blob_appendf(pOut, "T -%F *\n", zTag);
+    }
+    db_finalize(&q);
+  }  
+  blob_appendf(pOut, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  md5sum_blob(pOut, &mcksum);
+  blob_appendf(pOut, "Z %b\n", &mcksum);
+  if( pnFBcard ) *pnFBcard = nFBcard;
 }
+
 
 /*
 ** COMMAND: ci
@@ -559,17 +699,16 @@ int file_exists_in_checkout(int vid, const char *zFilename){
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m".
-** The editor defined in the "editor" fossil option (see %fossil help set)
-** will be used, or from the "VISUAL" or "EDITOR" environment variables
-** (in that order) if no editor is set.
+** the comment has been specified on the command-line using "-m" or a 
+** file containing the comment using -M.  The editor defined in the
+** "editor" fossil option (see %fossil help set) will be used, or from
+** the "VISUAL" or "EDITOR" environment variables (in that order) if
+** no editor is set.
 **
-** You will be prompted for your GPG passphrase in order to sign the
-** new manifest unless the "--nosign" option is used.  All files that
-** have changed will be committed unless some subset of files is
-** specified on the command line.
+** All files that have changed will be committed unless some subset of
+** files is specified on the command line.
 **
-** The --branch option followed by a branch name cases the new check-in
+** The --branch option followed by a branch name causes the new check-in
 ** to be placed in the named branch.  The --bgcolor option can be followed
 ** by a color name (ex:  '#ffc0c0') to specify the background color of
 ** entries in the new branch when shown in the web timeline interface.
@@ -583,40 +722,54 @@ int file_exists_in_checkout(int vid, const char *zFilename){
 ** Options:
 **
 **    --comment|-m COMMENT-TEXT
+**    --message-file|-M COMMENT-FILE
 **    --branch NEW-BRANCH-NAME
 **    --bgcolor COLOR
 **    --nosign
 **    --force|-f
 **    --private
+**    --baseline
+**    --delta
 **    
 */
 void commit_cmd(void){
-  int rc;
-  int vid, nrid, nvid;
-  Blob comment;
-  const char *zComment;
-  Stmt q;
-  Stmt q2;
-  char *zUuid, *zDate;
+  int hasChanges;        /* True if unsaved changes exist */
+  int vid;               /* blob-id of parent version */
+  int nrid;              /* blob-id of a modified file */
+  int nvid;              /* Blob-id of the new check-in */
+  Blob comment;          /* Check-in comment */
+  const char *zComment;  /* Check-in comment */
+  Stmt q;                /* Query to find files that have been modified */
+  char *zUuid;           /* UUID of the new check-in */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int forceFlag = 0;     /* Force a fork */
+  int forceDelta = 0;    /* Force a delta-manifest */
+  int forceBaseline = 0; /* Force a baseline-manifest */
   char *zManifestFile;   /* Name of the manifest file */
-  int nBasename;         /* Length of "g.zLocalRoot/" */
+  int useCksum;          /* True if checksums should be computed and verified */
+  int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
+  int testRun;           /* True for a test run.  Debugging only */
   const char *zBranch;   /* Create a new branch with this name */
   const char *zBgColor;  /* Set background color when branching */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   const char *zComFile;  /* Read commit message from this file */
-  Blob filename;         /* complete filename */
-  Blob manifest;
+  Blob manifest;         /* Manifest in baseline form */
   Blob muuid;            /* Manifest uuid */
-  Blob mcksum;           /* Self-checksum on the manifest */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
   Blob cksum1b;          /* Checksum recorded in the manifest */
+  int szD;               /* Size of the delta manifest */
+  int szB;               /* Size of the baseline manifest */
  
   url_proxy_options();
   noSign = find_option("nosign",0,0)!=0;
+  forceDelta = find_option("delta",0,0)!=0;
+  forceBaseline = find_option("baseline",0,0)!=0;
+  if( forceDelta && forceBaseline ){
+    fossil_fatal("cannot use --delta and --baseline together");
+  }
+  testRun = find_option("test",0,0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
   zBranch = find_option("branch","b",1);
@@ -632,7 +785,19 @@ void commit_cmd(void){
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
+  useCksum = db_get_boolean("repo-cksum", 1);
+  outputManifest = db_get_boolean("manifest", 0);
   verify_all_options();
+
+  /* So that older versions of Fossil (that do not understand delta-
+  ** manifest) can continue to use this repository, do not create a new
+  ** delta-manifest unless this repository already contains one or more
+  ** delta-manifets, or unless the delta-manifest is explicitly requested
+  ** by the --delta option.
+  */
+  if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
+    forceBaseline = 1;
+  }
 
   /* Get the ID of the parent manifest artifact */
   vid = db_lget_int("checkout", 0);
@@ -683,11 +848,11 @@ void commit_cmd(void){
     fossil_fatal("no such user: %s", g.zLogin);
   }
   
+  hasChanges = unsaved_changes();
   db_begin_transaction();
   db_record_repository_filename(0);
-  rc = unsaved_changes();
-  if( rc==0 && !isAMerge && !forceFlag ){
-    fossil_panic("nothing has changed");
+  if( hasChanges==0 && !isAMerge && !forceFlag ){
+    fossil_fatal("nothing has changed");
   }
 
   /* If one or more files that were named on the command line have not
@@ -722,7 +887,7 @@ void commit_cmd(void){
     fossil_fatal("cannot commit against a closed leaf");
   }
 
-  vfile_aggregate_checksum_disk(vid, &cksum1);
+  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
   if( zComment ){
     blob_zero(&comment);
     blob_append(&comment, zComment, -1);
@@ -777,100 +942,65 @@ void commit_cmd(void){
   }
   db_finalize(&q);
 
-  /* Create the manifest */
-  blob_zero(&manifest);
+  /* Create the new manifest */
   if( blob_size(&comment)==0 ){
     blob_append(&comment, "(no comment)", -1);
   }
-  blob_appendf(&manifest, "C %F\n", blob_str(&comment));
-  zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
-  blob_appendf(&manifest, "D %s\n", zDate);
-  zDate[10] = ' ';
-  db_prepare(&q,
-    "SELECT pathname, uuid, origname, blob.rid, isexe"
-    "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
-    " WHERE NOT deleted AND vfile.vid=%d"
-    " ORDER BY 1", vid);
-  blob_zero(&filename);
-  blob_appendf(&filename, "%s", g.zLocalRoot);
-  nBasename = blob_size(&filename);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zOrig = db_column_text(&q, 2);
-    int frid = db_column_int(&q, 3);
-    int isexe = db_column_int(&q, 4);
-    const char *zPerm;
-    blob_append(&filename, zName, -1);
-#if !defined(_WIN32)
-    /* For unix, extract the "executable" permission bit directly from
-    ** the filesystem.  On windows, the "executable" bit is retained
-    ** unchanged from the original. */
-    isexe = file_isexe(blob_str(&filename));
-#endif
-    if( isexe ){
-      zPerm = " x";
-    }else{
-      zPerm = "";
-    }
-    blob_resize(&filename, nBasename);
-    if( zOrig==0 || strcmp(zOrig,zName)==0 ){
-      blob_appendf(&manifest, "F %F %s%s\n", zName, zUuid, zPerm);
-    }else{
-      if( zPerm[0]==0 ){ zPerm = " w"; }
-      blob_appendf(&manifest, "F %F %s%s %F\n", zName, zUuid, zPerm, zOrig);
-    }
-    if( !g.markPrivate ) content_make_public(frid);
+  if( forceDelta ){
+    blob_zero(&manifest);
+  }else{
+    create_manifest(&manifest, 0, 0, &comment, vid,
+                    !forceFlag, useCksum ? &cksum1 : 0,
+                    zDateOvrd, zUserOvrd, zBranch, zBgColor, &szB);
   }
-  blob_reset(&filename);
-  db_finalize(&q);
-  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
-  blob_appendf(&manifest, "P %s", zUuid);
 
-  if( !forceFlag ){
-    checkin_verify_younger(vid, zUuid, zDate);
-    db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
-    db_bind_int(&q2, ":id", 0);
-    while( db_step(&q2)==SQLITE_ROW ){
-      int mid = db_column_int(&q2, 0);
-      if( !g.markPrivate && content_is_private(mid) ) continue;
-      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
-      if( zUuid ){
-        blob_appendf(&manifest, " %s", zUuid);
-        checkin_verify_younger(mid, zUuid, zDate);
-        free(zUuid);
+  /* See if a delta-manifest would be more appropriate */
+  if( !forceBaseline ){
+    const char *zBaselineUuid;
+    Manifest *pParent;
+    Manifest *pBaseline;
+    pParent = manifest_get(vid, CFTYPE_MANIFEST);
+    if( pParent && pParent->zBaseline ){
+      zBaselineUuid = pParent->zBaseline;
+      pBaseline = manifest_get_by_name(zBaselineUuid, 0);
+    }else{
+      zBaselineUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+      pBaseline = pParent;
+    }
+    if( pBaseline ){
+      Blob delta;
+      create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
+                      !forceFlag, useCksum ? &cksum1 : 0,
+                      zDateOvrd, zUserOvrd, zBranch, zBgColor, &szD);
+      /*
+      ** At this point, two manifests have been constructed, either of
+      ** which would work for this checkin.  The first manifest (held
+      ** in the "manifest" variable) is a baseline manifest and the second
+      ** (held in variable named "delta") is a delta manifest.  The
+      ** question now is: which manifest should we use?
+      **
+      ** Let B be the number of F-cards in the baseline manifest and
+      ** let D be the number of F-cards in the delta manifest, plus one for
+      ** the B-card.  (B is held in the szB variable and D is held in the
+      ** szD variable.)  Assume that all delta manifests adds X new F-cards.
+      ** Then to minimize the total number of F- and B-cards in the repository,
+      ** we should use the delta manifest if and only if:
+      **
+      **      D*D < B*X - X*X
+      **
+      ** X is an unknown here, but for most repositories, we will not be
+      ** far wrong if we assume X=3.
+      */
+      if( forceDelta || (szD*szD)<(szB*3-9) ){
+        blob_reset(&manifest);
+        manifest = delta;
+      }else{
+        blob_reset(&delta);
       }
+    }else if( forceDelta ){
+      fossil_panic("unable to find a baseline-manifest for the delta");
     }
-    db_finalize(&q2);
   }
-
-  blob_appendf(&manifest, "\n");
-  blob_appendf(&manifest, "R %b\n", &cksum1);
-  if( zBranch && zBranch[0] ){
-    Stmt q;
-    if( zBgColor && zBgColor[0] ){
-      blob_appendf(&manifest, "T *bgcolor * %F\n", zBgColor);
-    }
-    blob_appendf(&manifest, "T *branch * %F\n", zBranch);
-    blob_appendf(&manifest, "T *sym-%F *\n", zBranch);
-
-    /* Cancel all other symbolic tags */
-    db_prepare(&q,
-        "SELECT tagname FROM tagxref, tag"
-        " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-        "   AND tagtype>0 AND tagname GLOB 'sym-*'"
-        "   AND tagname!='sym-'||%Q"
-        " ORDER BY tagname",
-        vid, zBranch);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zTag = db_column_text(&q, 0);
-      blob_appendf(&manifest, "T -%F *\n", zTag);
-    }
-    db_finalize(&q);
-  }  
-  blob_appendf(&manifest, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
-  md5sum_blob(&manifest, &mcksum);
-  blob_appendf(&manifest, "Z %b\n", &mcksum);
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
     Blob ans;
     blob_zero(&ans);
@@ -879,7 +1009,15 @@ void commit_cmd(void){
       fossil_exit(1);
     }
   }
-  if( !file_exists_in_checkout(vid, "manifest") ){
+
+  /* If the --test option is specified, output the manifest file
+  ** and rollback the transaction.  
+  */
+  if( testRun ){
+    blob_write_to_file(&manifest, "");
+  }
+
+  if( outputManifest ){
     zManifestFile = mprintf("%smanifest", g.zLocalRoot);
     blob_write_to_file(&manifest, zManifestFile);
     blob_reset(&manifest);
@@ -895,7 +1033,7 @@ void commit_cmd(void){
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);
-  if( !file_exists_in_checkout(vid, "manifest.uuid") ){
+  if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
     blob_appendf(&muuid, "%s\n", zUuid);
@@ -916,30 +1054,32 @@ void commit_cmd(void){
   );
   db_lset_int("checkout", nvid);
 
-  /* Verify that the repository checksum matches the expected checksum
-  ** calculated before the checkin started (and stored as the R record
-  ** of the manifest file).
-  */
-  vfile_aggregate_checksum_repository(nvid, &cksum2);
-  if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksum does not match repository after commit");
-  }
-
-  /* Verify that the manifest checksum matches the expected checksum */
-  vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
-  if( blob_compare(&cksum1, &cksum1b) ){
-    fossil_panic("manifest checksum does not agree with manifest: "
-                 "%b versus %b", &cksum1, &cksum1b);
-  }
-  if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksum does not match manifest after commit: "
-                 "%b versus %b", &cksum1, &cksum2);
-  }
-
-  /* Verify that the commit did not modify any disk images. */
-  vfile_aggregate_checksum_disk(nvid, &cksum2);
-  if( blob_compare(&cksum1, &cksum2) ){
-    fossil_panic("tree checksums before and after commit do not match");
+  if( useCksum ){
+    /* Verify that the repository checksum matches the expected checksum
+    ** calculated before the checkin started (and stored as the R record
+    ** of the manifest file).
+    */
+    vfile_aggregate_checksum_repository(nvid, &cksum2);
+    if( blob_compare(&cksum1, &cksum2) ){
+      fossil_panic("tree checksum does not match repository after commit");
+    }
+  
+    /* Verify that the manifest checksum matches the expected checksum */
+    vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
+    if( blob_compare(&cksum1, &cksum1b) ){
+      fossil_panic("manifest checksum does not agree with manifest: "
+                   "%b versus %b", &cksum1, &cksum1b);
+    }
+    if( blob_compare(&cksum1, &cksum2) ){
+      fossil_panic("tree checksum does not match manifest after commit: "
+                   "%b versus %b", &cksum1, &cksum2);
+    }
+  
+    /* Verify that the commit did not modify any disk images. */
+    vfile_aggregate_checksum_disk(nvid, &cksum2);
+    if( blob_compare(&cksum1, &cksum2) ){
+      fossil_panic("tree checksums before and after commit do not match");
+    }
   }
 
   /* Clear the undo/redo stack */
@@ -947,6 +1087,10 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
+  if( testRun ){
+    db_end_transaction(1);
+    exit(1);
+  }
   db_end_transaction(0);
 
   if( !g.markPrivate ){

@@ -103,6 +103,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("current_page", g.zPath);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
+  Th_Store("compiler_name", COMPILER_NAME);
   if( g.zLogin ){
     Th_Store("login", g.zLogin);
   }

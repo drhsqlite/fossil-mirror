@@ -85,7 +85,7 @@ static void sshin_read(char *zBuf, int szBuf){
   got = read(sshIn, zBuf, szBuf-1);
   while( got>=0 ){
     zBuf[got] = 0;
-    if( got==0 || !isspace(zBuf[got-1]) ) break;
+    if( got==0 || !fossil_isspace(zBuf[got-1]) ) break;
     got--;
   }
 }
@@ -298,7 +298,7 @@ void transport_flip(void){
     zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
        g.argv[0], g.urlName, transport.zOutFile, transport.zInFile
     );
-    portable_system(zCmd);
+    fossil_system(zCmd);
     free(zCmd);
     transport.pFile = fopen(transport.zInFile, "rb");
   }
@@ -388,8 +388,7 @@ static void transport_load_buffer(int N){
   int i, j;
   if( transport.nAlloc==0 ){
     transport.nAlloc = N;
-    transport.pBuf = malloc( N );
-    if( transport.pBuf==0 ) fossil_panic("out of memory");
+    transport.pBuf = fossil_malloc( N );
     transport.iCursor = 0;
     transport.nUsed = 0;
   }
@@ -403,8 +402,7 @@ static void transport_load_buffer(int N){
   if( transport.nUsed + N > transport.nAlloc ){
     char *pNew;
     transport.nAlloc = transport.nUsed + N;
-    pNew = realloc(transport.pBuf, transport.nAlloc);
-    if( pNew==0 ) fossil_panic("out of memory");
+    pNew = fossil_realloc(transport.pBuf, transport.nAlloc);
     transport.pBuf = pNew;
   }
   if( N>0 ){
@@ -441,7 +439,7 @@ char *transport_receive_line(void){
     }
     if( transport.pBuf[i]=='\n' ){
       transport.iCursor = i+1;
-      while( i>=iStart && isspace(transport.pBuf[i]) ){
+      while( i>=iStart && fossil_isspace(transport.pBuf[i]) ){
         transport.pBuf[i] = 0;
         i--;
       }

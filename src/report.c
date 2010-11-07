@@ -90,9 +90,9 @@ void view_list(void){
 */
 char *trim_string(const char *zOrig){
   int i;
-  while( isspace(*zOrig) ){ zOrig++; }
+  while( fossil_isspace(*zOrig) ){ zOrig++; }
   i = strlen(zOrig);
-  while( i>0 && isspace(zOrig[i-1]) ){ i--; }
+  while( i>0 && fossil_isspace(zOrig[i-1]) ){ i--; }
   return mprintf("%.*s", i, zOrig);
 }
 
@@ -101,7 +101,7 @@ char *trim_string(const char *zOrig){
 */
 char *extract_integer(const char *zOrig){
   if( zOrig == NULL || zOrig[0] == 0 ) return "";
-  while( *zOrig && !isdigit(*zOrig) ){ zOrig++; }
+  while( *zOrig && !fossil_isdigit(*zOrig) ){ zOrig++; }
   if( *zOrig ){
     /* we have a digit. atoi() will get as much of the number as it
     ** can. We'll run it through mprintf() to get a string. Not
@@ -120,14 +120,14 @@ char *extract_integer(const char *zOrig){
 char *remove_blank_lines(const char *zOrig){
   int i, j, n;
   char *z;
-  for(i=j=0; isspace(zOrig[i]); i++){ if( zOrig[i]=='\n' ) j = i+1; }
+  for(i=j=0; fossil_isspace(zOrig[i]); i++){ if( zOrig[i]=='\n' ) j = i+1; }
   n = strlen(&zOrig[j]);
-  while( n>0 && isspace(zOrig[j+n-1]) ){ n--; }
+  while( n>0 && fossil_isspace(zOrig[j+n-1]) ){ n--; }
   z = mprintf("%.*s", n, &zOrig[j]);
   for(i=j=0; z[i]; i++){
-    if( z[i+1]=='\n' && z[i]!='\n' && isspace(z[i]) ){
+    if( z[i+1]=='\n' && z[i]!='\n' && fossil_isspace(z[i]) ){
       z[j] = z[i];
-      while(isspace(z[j]) && z[j] != '\n' ){ j--; }
+      while(fossil_isspace(z[j]) && z[j] != '\n' ){ j--; }
       j++;
       continue;
     }
@@ -147,7 +147,7 @@ char *remove_blank_lines(const char *zOrig){
 ** If anything suspicious is tried, set *(char**)pError to an error
 ** message obtained from malloc.
 */
-static int report_query_authorizer(
+int report_query_authorizer(
   void *pError,
   int code,
   const char *zArg1,
@@ -214,7 +214,7 @@ char *verify_sql_statement(char *zSql){
   /* First make sure the SQL is a single query command by verifying that
   ** the first token is "SELECT" and that there are no unquoted semicolons.
   */
-  for(i=0; isspace(zSql[i]); i++){}
+  for(i=0; fossil_isspace(zSql[i]); i++){}
   if( strncasecmp(&zSql[i],"select",6)!=0 ){
     return mprintf("The SQL must be a SELECT statement");
   }
@@ -585,35 +585,6 @@ static void report_format_hints(void){
   @
 }
 
-#if 0 /* NOT USED */
-static void column_header(int rn,const char *zCol, int nCol, int nSorted,
-    const char *zDirection, const char *zExtra
-){
-  int set = (nCol==nSorted);
-  int desc = !strcmp(zDirection,"DESC");
-
-  /*
-  ** Clicking same column header 3 times in a row resets any sorting.
-  ** Note that we link to rptview, which means embedded reports will get
-  ** sent to the actual report view page as soon as a user tries to do
-  ** any sorting. I don't see that as a Bad Thing.
-  */
-  if(set && desc){
-    @ <th bgcolor="%s(BG1)" class="bkgnd1">
-    @   <a href="rptview?rn=%d(rn)%s(zExtra)">%h(zCol)</a></th>
-  }else{
-    if(set){
-      @ <th bgcolor="%s(BG1)" class="bkgnd1"><a
-    }else{
-      @ <th><a
-    }
-    @ href="rptview?rn=%d(rn)&amp;order_by=%d(nCol)&amp;\
-    @ order_dir=%s(desc?"ASC":"DESC")\
-    @ %s(zExtra)">%h(zCol)</a></th>
-  }
-}
-#endif
-
 /*
 ** The state of the report generation.
 */
@@ -725,7 +696,7 @@ static int generate_html(
   */
   zBg = pState->iBg>=0 ? azArg[pState->iBg] : 0;
   if( zBg==0 ) zBg = "white";
-  @ <tr bgcolor="%h(zBg)">
+  @ <tr style="background-color:%h(zBg)">
   zTid = 0;
   zPage[0] = 0;
   for(i=0; i<nArg; i++){
@@ -740,7 +711,7 @@ static int generate_html(
       }
       if( zData[0] ){
         Blob content;
-        @ </tr><tr bgcolor="%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ </tr><tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
         blob_init(&content, zData, -1);
         wiki_convert(&content, 0, 0);
         blob_reset(&content);
@@ -774,11 +745,11 @@ static int generate_html(
 static void output_no_tabs(const char *z){
   while( z && z[0] ){
     int i, j;
-    for(i=0; z[i] && (!isspace(z[i]) || z[i]==' '); i++){}
+    for(i=0; z[i] && (!fossil_isspace(z[i]) || z[i]==' '); i++){}
     if( i>0 ){
       cgi_printf("%.*s", i, z);
     }
-    for(j=i; isspace(z[j]); j++){}
+    for(j=i; fossil_isspace(z[j]); j++){}
     if( j>i ){
       cgi_printf("%*s", j-i, "");
     }
@@ -818,7 +789,7 @@ static int output_tab_separated(
 void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
   int i, j, k;
   char *zSafeKey, *zToFree;
-  while( isspace(*zClrKey) ) zClrKey++;
+  while( fossil_isspace(*zClrKey) ) zClrKey++;
   if( zClrKey[0]==0 ) return;
   @ <table %s(zTabArgs)>
   if( horiz ){
@@ -826,9 +797,9 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
   }
   zToFree = zSafeKey = mprintf("%h", zClrKey);
   while( zSafeKey[0] ){
-    while( isspace(*zSafeKey) ) zSafeKey++;
-    for(i=0; zSafeKey[i] && !isspace(zSafeKey[i]); i++){}
-    for(j=i; isspace(zSafeKey[j]); j++){}
+    while( fossil_isspace(*zSafeKey) ) zSafeKey++;
+    for(i=0; zSafeKey[i] && !fossil_isspace(zSafeKey[i]); i++){}
+    for(j=i; fossil_isspace(zSafeKey[j]); j++){}
     for(k=j; zSafeKey[k] && zSafeKey[k]!='\n' && zSafeKey[k]!='\r'; k++){}
     if( !horiz ){
       cgi_printf("<tr style=\"background-color: %.*s;\"><td>%.*s</td></tr>\n",
@@ -942,5 +913,168 @@ void rptview_page(void){
     sqlite3_exec(g.db, zSql, output_tab_separated, &count, &zErr2);
     sqlite3_set_authorizer(g.db, 0, 0);
     cgi_set_content_type("text/plain");
+  }
+}
+
+/*
+** report number for full table ticket export
+*/
+static const char zFullTicketRptRn[] = "0";
+
+/*
+** report title for full table ticket export
+*/
+static const char zFullTicketRptTitle[] = "full ticket export";
+
+/*
+** show all reports, which can be used for ticket show.
+** Output is written to stdout as tab delimited table
+*/
+void rpt_list_reports(void){
+  Stmt q;
+  char const aRptOutFrmt[] = "%s\t%s\n";
+
+  printf("Available reports:\n");
+  printf(aRptOutFrmt,"report number","report title");
+  printf(aRptOutFrmt,zFullTicketRptRn,zFullTicketRptTitle);
+  db_prepare(&q,"SELECT rn,title FROM reportfmt ORDER BY rn");
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zRn = db_column_text(&q, 0);
+    const char *zTitle = db_column_text(&q, 1);
+
+    printf(aRptOutFrmt,zRn,zTitle);
+  }
+  db_finalize(&q);
+}
+
+/*
+** user defined separator used by ticket show command
+*/
+static const char *zSep = 0;
+
+/*
+** select the quoting algorithm for "ticket show"
+*/
+#if INTERFACE
+typedef enum eTktShowEnc { tktNoTab=0, tktFossilize=1 } tTktShowEncoding;
+#endif
+static tTktShowEncoding tktEncode = tktNoTab;
+
+/*
+** Output the text given in the argument.  Convert tabs and newlines into
+** spaces.
+*/
+static void output_no_tabs_file(const char *z){
+  switch( tktEncode ){
+    case tktFossilize:
+      { char *zFosZ;
+
+        if( z && *z ){
+          zFosZ = fossilize(z,-1);
+          printf("%s",zFosZ);
+          free(zFosZ);
+        }
+        break;
+      }
+    default:
+      while( z && z[0] ){
+        int i, j;
+        for(i=0; z[i] && (!fossil_isspace(z[i]) || z[i]==' '); i++){}
+        if( i>0 ){
+          printf("%.*s", i, z);
+        }
+        for(j=i; fossil_isspace(z[j]); j++){}
+        if( j>i ){
+          printf("%*s", j-i, "");
+        }
+        z += j;
+      }
+      break; 
+  }
+}
+
+/*
+** Output a row as a tab-separated line of text.
+*/
+int output_separated_file(
+  void *pUser,     /* Pointer to row-count integer */
+  int nArg,        /* Number of columns in this result row */
+  char **azArg,    /* Text of data in all columns */
+  char **azName    /* Names of the columns */
+){
+  int *pCount = (int*)pUser;
+  int i;
+
+  if( *pCount==0 ){
+    for(i=0; i<nArg; i++){
+      output_no_tabs_file(azName[i]);
+      printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+    }
+  }
+  ++*pCount;
+  for(i=0; i<nArg; i++){
+    output_no_tabs_file(azArg[i]);
+    printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+  }
+  return 0;
+}
+
+/*
+** Generate a report.  The rn query parameter is the report number.
+** The output is written to stdout as flat file. The zFilter paramater
+** is a full WHERE-condition.
+*/
+void rptshow( 
+    const char *zRep,
+    const char *zSepIn,
+    const char *zFilter,
+    tTktShowEncoding enc
+){
+  Stmt q;
+  char *zSql;
+  const char *zTitle;
+  const char *zOwner;
+  const char *zClrKey;
+  char *zErr1 = 0;
+  char *zErr2 = 0;
+  int count = 0;
+  int rn;
+
+  if (!zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
+    zTitle = zFullTicketRptTitle;
+    zSql = "SELECT * FROM ticket";
+    zOwner = g.zLogin;
+    zClrKey = "";
+  }else{
+    rn = atoi(zRep);
+    if( rn ){
+      db_prepare(&q,
+       "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+    }else{
+      db_prepare(&q,
+       "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE title='%s'", zRep);
+    }
+    if( db_step(&q)!=SQLITE_ROW ){
+      db_finalize(&q);
+      rpt_list_reports();
+      fossil_fatal("unkown report format(%s)!",zRep);
+    }
+    zTitle = db_column_malloc(&q, 0);
+    zSql = db_column_malloc(&q, 1);
+    zOwner = db_column_malloc(&q, 2);
+    zClrKey = db_column_malloc(&q, 3);
+    db_finalize(&q);
+  }
+  if( zFilter ){
+    zSql = mprintf("SELECT * FROM (%s) WHERE %s",zSql,zFilter);
+  }
+  count = 0;
+  tktEncode = enc;
+  zSep = zSepIn;
+  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+  sqlite3_exec(g.db, zSql, output_separated_file, &count, &zErr2);
+  sqlite3_set_authorizer(g.db, 0, 0);
+  if( zFilter ){
+    free(zSql);
   }
 }
