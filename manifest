@@ -1,5 +1,5 @@
-C Send\sthe\sright\smime-type\sfor\ssvg\sfiles\s[2e088c5815]\n
-D 2010-11-07T18:42:46
+C Fix\salphabetical\smissort.\n
+D 2010-11-07T18:48:25
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -57,7 +57,7 @@ F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
 F src/diff.c de7d2a71504d62fc876e2736e017a499073a9822
 F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
-F src/doc.c 22726e502bb0ada699d9f297b592722e2f0b71a5
+F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
 F src/file.c 4b422c8f1db60785ea693b4b7817a6a9c68eac72
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e8d231aaf32b1d961a211d1318e586474a60659e
-R 466c63ade65a7356cdeca4d9460a2714
+P 151a2104ae6d0eac785a4b2f89b0953ac9ee8469
+R bf6d384bd64d0fcb71e93aa7a5d12ccd
 U venkat
-Z d3267094787df12cbb7d53778551b38a
+Z feabf5e9a14788e717413b6959942413
