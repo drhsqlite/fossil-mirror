@@ -1,5 +1,5 @@
-C Use\sthe\scorrect\smimetype\sfor\sthe\slogo,\seven\sif\sthe\smimetype\sis\snot\simage/gif.\nTicket\s[11209555c90f3b61e4].
-D 2010-11-07T23:54:42
+C Fix\sa\stypo\sin\sthe\s&lt;DOCTYPE&gt;\smarking\sat\sthe\stop\sof\seach\swebpage.\nTicket\s[c18a77e837a66122ed19].
+D 2010-11-07T23:56:32
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -97,7 +97,7 @@ F src/skins.c e598e23eb07ca79d795c81b33c65f19829587d28
 F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
 F src/sqlite3.h 85b8161f84932d2ffcc0e0ec241a59fb181cbe8c
 F src/stat.c d65bfac21fcadad6879685cd792709638f8511e7
-F src/style.c a2e4a10911d7ec97b8049c2880135f14055e9ffa
+F src/style.c eb79fef26fd1bc8ad582353c336aa6ee913e9564
 F src/sync.c 7c1e5a7a1117c8dedce8c9d1b909aef63eb2027a
 F src/tag.c 806cabcfa7e148eabc3e522481eb8efcec005def
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P c76bb6d27014f9cdf0582b05d2ef8f2713e71e30
-R 4c5c33aa1a80df9f6feead1cc1d614a0
+P 5478f444c53114d12d850c0973e8d29ddc7c0806
+R dd277af42ff56d9c650791e2bf6411ed
 U drh
-Z a328fbcaf5a96541fb3492cb0714c8a2
+Z f06ed4ffe1a276ab451d64a9a9a09ebc
