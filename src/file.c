@@ -311,12 +311,15 @@ void cmd_test_canonical_name(void){
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
+    char zBuf[100];
     const char *zName = g.argv[i];
     file_canonical_name(zName, &x);
     printf("%s\n", blob_buffer(&x));
     blob_reset(&x);
-    printf("  file_size   = %lld\n", file_size(zName));
-    printf("  file_mtime  = %lld\n", file_mtime(zName));
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zName));
+    printf("  file_size   = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_mtime(zName));
+    printf("  file_mtime  = %s\n", zBuf);
     printf("  file_isfile = %d\n", file_isfile(zName));
     printf("  file_isexe  = %d\n", file_isexe(zName));
     printf("  file_isdir  = %d\n", file_isdir(zName));

@@ -1,5 +1,5 @@
-C Add\san\sundocumented\s--noverify\soption\sto\sthe\srebuild\scommand\sto\sskip\sthe\nverify_before_commit()\ssanity\scheck.
-D 2010-11-06T23:59:30
+C Avoid\sthe\suse\sof\s%lld\sto\swork\saround\slimitations\sof\ssome\swindows\scompilers.\nTicket\s[9d186979fc4fe8d9c]
+D 2010-11-07T23:51:35
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -60,7 +60,7 @@ F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
 F src/doc.c ea1896125e72e68f12072003223057f3ef9a25ee
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
-F src/file.c 4b422c8f1db60785ea693b4b7817a6a9c68eac72
+F src/file.c a1d06f1946053860ebe85d1dd69ffcd3ee1f4efc
 F src/finfo.c 590b757e169460adf38e3e13f8aaf37a0f294817
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
 F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P d9880a8003d983b350e19d598851edb82e7c27fc
-R 9d30fdf1010f4e9222f09320e60ae997
+P 6a11af1782ede28a10a1e6ac36fde1da468e1513
+R 51f362201dc580b8ec128ba2d6dd37ad
 U drh
-Z 51b3ab9b780ea21ce3b2875f81dccd32
+Z ff1af5715256fc3a2ea9d6d38459c39c
