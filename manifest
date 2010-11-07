@@ -1,5 +1,5 @@
-C Avoid\sthe\suse\sof\s%lld\sto\swork\saround\slimitations\sof\ssome\swindows\scompilers.\nTicket\s[9d186979fc4fe8d9c]
-D 2010-11-07T23:51:35
+C Use\sthe\scorrect\smimetype\sfor\sthe\slogo,\seven\sif\sthe\smimetype\sis\snot\simage/gif.\nTicket\s[11209555c90f3b61e4].
+D 2010-11-07T23:54:42
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -89,7 +89,7 @@ F src/report.c 68a30b40cb6fde3db0067dedd3a3ae7a1185b0e3
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c 6baf06e2e0572ee95fd48504d8f482415670d1a8
 F src/search.c d3a38c62eca5b2a9c842c0e64468fa4cfee8fb96
-F src/setup.c 1718445f478335ef5bc37a697a1345c5558a9046
+F src/setup.c 41b063101c27eaa93f53ac803d29aa58c46eaed8
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
 F src/shell.c 3def9637bc23a6d0820a943321f484461a21ede2
 F src/shun.c 1b4711b3a27101974f3345e1fbd3dffd07ec641f
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 6a11af1782ede28a10a1e6ac36fde1da468e1513
-R 51f362201dc580b8ec128ba2d6dd37ad
+P c76bb6d27014f9cdf0582b05d2ef8f2713e71e30
+R 4c5c33aa1a80df9f6feead1cc1d614a0
 U drh
-Z ff1af5715256fc3a2ea9d6d38459c39c
+Z a328fbcaf5a96541fb3492cb0714c8a2
