@@ -1,5 +1,5 @@
-C Add\san\sundocumented\s--noverify\soption\sto\sthe\srebuild\scommand\sto\sskip\sthe\nverify_before_commit()\ssanity\scheck.
-D 2010-11-06T23:59:30
+C Create\snew\sbranch\snamed\s"venks-emacs"
+D 2010-11-07T08:16:23
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -273,7 +273,10 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P d9880a8003d983b350e19d598851edb82e7c27fc
+P 6a11af1782ede28a10a1e6ac36fde1da468e1513
 R 9d30fdf1010f4e9222f09320e60ae997
-U drh
-Z 51b3ab9b780ea21ce3b2875f81dccd32
+T *branch * venks-emacs
+T *sym-venks-emacs *
+T -sym-trunk *
+U venkat
+Z bd45328e357ff596e84d2cff59f767b4
