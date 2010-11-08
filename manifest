@@ -1,5 +1,5 @@
-C Begin\sadding\s"import"\sand\s"export"\scommands\sfor\sconverting\srepositories\nfrom\sand\sto\sthe\sGit\sformat.\s\sThe\s"export"\scommand\scurrently\sgenerates\noutput\sbut\sis\snot\squite\scorrect.\s\sThe\s"import"\scommand\sis\sstill\sa\sstub.
-D 2010-11-08T19:00:36
+C Merge\sin\sthe\s[696668aa4ec88213c]\sfix,\swhich\sis\snecessary\sto\ssuccessfully\nexport\sthe\sFossil\sself-hosting\srepository.
+D 2010-11-08T20:07:05
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -76,7 +76,7 @@ F src/main.mk d5970209e9fffe8aafb79ef870ab9b0702536d54
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl cfe055cef81e8e3b7bb096b35ae7caeeb1edbac2
-F src/manifest.c 97635ebe4367248ebcb756406c5eb6186e9e5f48
+F src/manifest.c 704c0b7f30f84f7db791282f97c910dec8822380
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -275,11 +275,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 370a89c8328b4a67b77af33ae3393d33462797c4
-R e8d5a39da7c88b4591c470bf1ccca090
-T *bgcolor * #c0ffc0
-T *branch * experimental
-T *sym-experimental *
-T -sym-trunk *
+P b3fd32f925e7f8f4212178c735d7acaae6223d7d
+R aa793a8341479a21ac24590d7835aeb5
 U drh
-Z c0e46a7810131926ec80fcf2f8106462
+Z bba6bf50f105d8bb3772344199623b0e
