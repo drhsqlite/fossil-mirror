@@ -242,6 +242,7 @@ const char *mimetype_from_name(const char *zName){
     { "stp",        3, "application/STEP"                  },
     { "sv4cpio",    7, "application/x-sv4cpio"             },
     { "sv4crc",     6, "application/x-sv4crc"              },
+    { "svg",        3, "image/svg+xml"                     },
     { "swf",        3, "application/x-shockwave-flash"     },
     { "t",          1, "application/x-troff"               },
     { "tar",        3, "application/x-tar"                 },

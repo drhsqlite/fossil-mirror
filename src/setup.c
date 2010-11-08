@@ -1089,7 +1089,7 @@ void setup_footer(void){
 ** WEBPAGE: setup_logo
 */
 void setup_logo(void){
-  const char *zMime = "image/gif";
+  const char *zMime = db_get("logo-mimetype","image/gif");
   const char *aImg = P("im");
   int szImg = atoi(PD("im:bytes","0"));
   if( szImg>0 ){

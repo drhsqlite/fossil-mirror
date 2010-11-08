@@ -1,5 +1,5 @@
 C merge\sfrom\strunk
-D 2010-11-07T10:13:45
+D 2010-11-08T20:04:29
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -57,11 +57,11 @@ F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c d7f99e0a144d156328b425205f40f5fbd5946bcd
 F src/diff.c 514bb8aeca1182be04d0e45c33521e91a05904d5
 F src/diffcmd.c ffb54245bc6e1bc6f35ab0c38696d4c991d51d59
-F src/doc.c ea1896125e72e68f12072003223057f3ef9a25ee
+F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c c6edc346e202b7692d9c38a4cef4431f3aa5ae35
-F src/file.c 4b422c8f1db60785ea693b4b7817a6a9c68eac72
-F src/finfo.c c2eb2fd880ddeef242c691c03ee364e1015080da
+F src/file.c aaf85336aacc66e1925135625070498e1e3b9675
+F src/finfo.c 2488e45e1739f61af370569ead1c451e6f1e9f33
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
 F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
@@ -76,11 +76,11 @@ F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 33940a249c1e720d2c4a91d1418487c70a059665
 F src/manifest.c 97635ebe4367248ebcb756406c5eb6186e9e5f48
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c 4c7bece609f0da9a007ff965fd380d6377acda34
+F src/merge.c 94043147765c06ea970889341e7f9530bf1bf147
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c b29919886231e6119300bcdfa022036b4b8cab77
-F src/pivot.c f86b6fe0745aae349da0f94cdfa69a314331b001
+F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 935a4cdb90ec123f56faea207eb72f0610f7bece
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
 F src/printf.c 90eaff0bc8cf2708cf96026717246afe56bb7b5d
@@ -89,7 +89,7 @@ F src/report.c a3a22269c7d3adb1f4c4e54df44d3a309a218ab6
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c 6baf06e2e0572ee95fd48504d8f482415670d1a8
 F src/search.c d3a38c62eca5b2a9c842c0e64468fa4cfee8fb96
-F src/setup.c 656158bd6296ccb0e76fb14c556846dbedfa230e
+F src/setup.c 3c64711b4ace672a7a6ba6707d266e270e729494
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
 F src/shell.c 3def9637bc23a6d0820a943321f484461a21ede2
 F src/shun.c 1b4711b3a27101974f3345e1fbd3dffd07ec641f
@@ -97,7 +97,7 @@ F src/skins.c f6205e140881c7915949e12d657d1529d3a7b5c7
 F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
 F src/sqlite3.h 85b8161f84932d2ffcc0e0ec241a59fb181cbe8c
 F src/stat.c d65bfac21fcadad6879685cd792709638f8511e7
-F src/style.c c93e531584d9b4b47a6c5dc76190afcdf4db68a2
+F src/style.c 3d90e8cd2d51ba91f40c280bb294f453c13f98a1
 F src/sync.c 53d4ce5d2366c2448fa3382a204f6e8e5e08af5a
 F src/tag.c aed952b39083bce5c174f290dadcfc69b2da5db2
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
@@ -109,7 +109,7 @@ F src/tkt.c 9c6570971f466ed4a7eb8c950329f5b6c2deaf0c
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c b2b05c4ca76228efb7e5ed528e5223792050a526
-F src/update.c 3ffc6fe9314034cab0c201924fa91a2b8f1beac7
+F src/update.c 2c48d5ec2bf651097ec9a2a4513a1bec143d08b2
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 2c0564937733db9eb210dd149951bc40b23336da
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e5fe4164f74a7576bfc733929bc933efc6f505d0 6a11af1782ede28a10a1e6ac36fde1da468e1513
-R 9ea17e6587e9796ea9ad423e55ddbb1f
+P 8050311dd57f595f61e8abc6f9e13db01eb0d71a d8935a89b51b0f8f9286209ba756bb1cc0a4f85b
+R e9508fb97051a2f56737905e32168b4c
 U wolfgang
-Z 3ac121f2ef9c54625a722346adb2a97b
+Z ccf8f50cc2b8f25cfbf433021b99154c

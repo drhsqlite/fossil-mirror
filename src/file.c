@@ -311,12 +311,15 @@ void cmd_test_canonical_name(void){
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
+    char zBuf[100];
     const char *zName = g.argv[i];
     file_canonical_name(zName, &x);
     printf("%s\n", blob_buffer(&x));
     blob_reset(&x);
-    printf("  file_size   = %lld\n", file_size(zName));
-    printf("  file_mtime  = %lld\n", file_mtime(zName));
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zName));
+    printf("  file_size   = %s\n", zBuf);
+    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_mtime(zName));
+    printf("  file_mtime  = %s\n", zBuf);
     printf("  file_isfile = %d\n", file_isfile(zName));
     printf("  file_isexe  = %d\n", file_isexe(zName));
     printf("  file_isdir  = %d\n", file_isdir(zName));
@@ -428,18 +431,31 @@ void cmd_test_relative_name(void){
 int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   int n;
   Blob full;
+  int nFull;
+  char *zFull;
+
+  blob_zero(pOut);
   db_must_be_within_tree();
   file_canonical_name(zOrigName, &full);
   n = strlen(g.zLocalRoot);
-  if( blob_size(&full)<=n || memcmp(g.zLocalRoot, blob_buffer(&full), n) ){
+  assert( n>0 && g.zLocalRoot[n-1]=='/' );
+  nFull = blob_size(&full);
+  zFull = blob_buffer(&full);
+
+  /* Special case.  zOrigName refers to g.zLocalRoot directory. */
+  if( nFull==n-1 && memcmp(g.zLocalRoot, zFull, nFull)==0 ){
+    blob_append(pOut, ".", 1);
+    return 1;
+  }
+
+  if( nFull<=n || memcmp(g.zLocalRoot, zFull, n) ){
     blob_reset(&full);
     if( errFatal ){
       fossil_fatal("file outside of checkout tree: %s", zOrigName);
     }
     return 0;
   }
-  blob_zero(pOut);
-  blob_append(pOut, blob_buffer(&full)+n, blob_size(&full)-n);
+  blob_append(pOut, &zFull[n], nFull-n);
   return 1;
 }
 

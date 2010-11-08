@@ -23,74 +23,167 @@
 /*
 ** COMMAND: finfo
 ** 
-** Usage: %fossil finfo FILENAME
+** Usage: %fossil finfo {?-l|--log? / -s|--status / --p|--print} FILENAME
 **
-** Print the change history for a single file.
+** Print the complete change history for a single file going backwards
+** in time.  The default is -l.
 **
-** The "--limit N" and "--offset P" options limit the output to the first
-** N changes after skipping P changes.
+** For the -l|--log option: If "-b|--brief" is specified one line per revision
+** is printed, otherwise the full comment is printed.  The "--limit N"
+** and "--offset P" options limits the output to the first N changes
+** after skipping P changes.
+**
+** In the -s form prints the status as <status> <revision>.  This is
+** a quick status and does not check for up-to-date-ness of the file.
+**
+** The -p form, there's an optional flag "-r|--revision REVISION".  The
+** specified version (or the latest checked out version) is printed to
+** stdout.
 **
 ** The history of a file can also be viewed in the gui:
 **  * Go to the <a href="dir">file browser</a> and drill down to the file
 */
 void finfo_cmd(void){
-  Stmt q;
   int vid;
-  Blob dest;
-  const char *zFilename;
-  const char *zLimit;
-  const char *zOffset;
-  int iLimit, iOffset;
 
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_panic("no checkout to finfo files in");
   }
-  zLimit = find_option("limit",0,1);
-  iLimit = zLimit ? atoi(zLimit) : -1;
-  zOffset = find_option("offset",0,1);
-  iOffset = zOffset ? atoi(zOffset) : 0;
-  if (g.argc<3) {
-    usage("FILENAME");
-  }
-  file_tree_name(g.argv[2], &dest, 1);
-  zFilename = blob_str(&dest);
-  db_prepare(&q,
-    "SELECT "
-    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* New file */
-    "       (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* The check-in */
-    "       date(event.mtime,'localtime'),"
-    "       coalesce(event.ecomment, event.comment),"
-    "       coalesce(event.euser, event.user)"
-    "  FROM mlink, event"
-    " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime DESC LIMIT %d OFFSET %d /*sort*/",
-    zFilename, iLimit, iOffset
-  );
- 
-  printf("History of %s\n", zFilename);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zFileUuid = db_column_text(&q, 0);
-    const char *zCiUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zCom = db_column_text(&q, 3);
-    const char *zUser = db_column_text(&q, 4);
-    char *zOut;
-    printf("%s ", zDate);
-    if( zFileUuid==0 ){
-      zOut = sqlite3_mprintf("[%.10s] DELETED %s (user: %s)",
-                              zCiUuid, zCom, zUser);
+  vfile_check_signature(vid, 1);
+  if (find_option("status","s",0)) {
+    Stmt q;
+    Blob line;
+    Blob fname;
+
+    if( g.argc!=3 ) usage("-s|--status FILENAME");
+    file_tree_name(g.argv[2], &fname, 1);
+    db_prepare(&q,
+        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
+        "  FROM vfile WHERE vfile.pathname=%B", &fname);
+    blob_zero(&line);
+    if ( db_step(&q)==SQLITE_ROW ) {
+      Blob uuid;
+      int isDeleted = db_column_int(&q, 1);
+      int isNew = db_column_int(&q,2) == 0;
+      int chnged = db_column_int(&q,3);
+      int renamed = db_column_int(&q,4);
+
+      blob_zero(&uuid);
+      db_blob(&uuid,
+           "SELECT uuid FROM blob, mlink, vfile WHERE "
+           "blob.rid = mlink.mid AND mlink.fid = vfile.rid AND "
+           "vfile.pathname=%B",
+           &fname
+      );
+      if( isNew ){
+        blob_appendf(&line, "new");
+      }else if( isDeleted ){
+        blob_appendf(&line, "deleted");
+      }else if( renamed ){
+        blob_appendf(&line, "renamed");
+      }else if( chnged ){
+        blob_appendf(&line, "edited");
+      }else{
+        blob_appendf(&line, "unchanged");
+      }
+      blob_appendf(&line, " ");
+      blob_appendf(&line, " %10.10s", blob_str(&uuid));
+      blob_reset(&uuid);
     }else{
-      zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
-                              zCiUuid, zCom, zUser, zFileUuid);
+      blob_appendf(&line, "unknown 0000000000");
     }
-    comment_print(zOut, 11, 79);
-    sqlite3_free(zOut);
+    db_finalize(&q);
+    printf("%s\n", blob_str(&line));
+    blob_reset(&fname);
+    blob_reset(&line);
+  }else if( find_option("print","p",0) ){
+    Blob record;
+    Blob fname;
+    const char *zRevision = find_option("revision", "r", 1);
+ 
+    file_tree_name(g.argv[2], &fname, 1);
+    if( zRevision ){
+      historical_version_of_file(zRevision, blob_str(&fname), &record, 0);
+    }else{
+      int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+      if( rid==0 ){
+        fossil_fatal("no history for file: %b", &fname);
+      }
+      content_get(rid, &record);
+    }
+    blob_write_to_file(&record, "-");
+    blob_reset(&record);
+    blob_reset(&fname);
+  }else{
+    Blob line;
+    Stmt q;
+    Blob fname;
+    int rid;
+    const char *zFilename;
+    const char *zLimit;
+    const char *zOffset;
+    int iLimit, iOffset, iBrief;
+
+    if( find_option("log","l",0) ){
+      /* this is the default, no-op */
+    }
+    zLimit = find_option("limit",0,1);
+    iLimit = zLimit ? atoi(zLimit) : -1;
+    zOffset = find_option("offset",0,1);
+    iOffset = zOffset ? atoi(zOffset) : 0;
+    iBrief = (find_option("brief","b",0) == 0);
+    if( g.argc!=3 ){
+      usage("?-l|--log? ?-b|--brief? FILENAME");
+    }
+    file_tree_name(g.argv[2], &fname, 1);
+    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+    if( rid==0 ){
+      fossil_fatal("no history for file: %b", &fname);
+    }
+    zFilename = blob_str(&fname);
+    db_prepare(&q,
+        "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
+        "       coalesce(event.ecomment, event.comment),"
+        "       coalesce(event.euser, event.user)"
+        "  FROM mlink, blob b, event, blob ci"
+        " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
+        "   AND b.rid=mlink.fid"
+        "   AND event.objid=mlink.mid"
+        "   AND event.objid=ci.rid"
+        " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
+        zFilename, iLimit, iOffset
+    );
+    blob_zero(&line);
+    if( iBrief ){
+      printf("History of %s\n", blob_str(&fname));
+    }
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zFileUuid = db_column_text(&q, 0);
+      const char *zCiUuid = db_column_text(&q,1);
+      const char *zDate = db_column_text(&q, 2);
+      const char *zCom = db_column_text(&q, 3);
+      const char *zUser = db_column_text(&q, 4);
+      char *zOut;
+      if( iBrief ){
+        printf("%s ", zDate);
+        zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
+                               zCiUuid, zCom, zUser, zFileUuid);
+        comment_print(zOut, 11, 79);
+        sqlite3_free(zOut);
+      }else{
+        blob_reset(&line);
+        blob_appendf(&line, "%.10s ", zCiUuid);
+        blob_appendf(&line, "%.10s ", zDate);
+        blob_appendf(&line, "%8.8s ", zUser);
+        blob_appendf(&line,"%-40.40s\n", zCom );
+        comment_print(blob_str(&line), 0, 79);
+      }
+    }
+    db_finalize(&q);
+    blob_reset(&fname);
   }
-  db_finalize(&q);
-  blob_reset(&dest);
 }
 
 
