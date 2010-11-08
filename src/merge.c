@@ -75,7 +75,7 @@ void merge_cmd(void){
   if( mid==0 ){
     fossil_fatal("not a version: %s", g.argv[2]);
   }
-  if( mid>1 && !db_exists("SELECT 1 FROM plink WHERE cid=%d", mid) ){
+  if( !is_a_version(mid) ){
     fossil_fatal("not a version: %s", g.argv[2]);
   }
   if( pickFlag || backoutFlag ){
@@ -102,8 +102,8 @@ void merge_cmd(void){
                    "checkout and %s", g.argv[2]);
     }
   }
-  if( pid>1 && !db_exists("SELECT 1 FROM plink WHERE cid=%d", pid) ){
-    fossil_fatal("not a version: record #%d", mid);
+  if( !is_a_version(pid) ){
+    fossil_fatal("not a version: record #%d", pid);
   }
   vfile_check_signature(vid, 1);
   db_begin_transaction();
