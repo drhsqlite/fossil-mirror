@@ -1,5 +1,5 @@
-C Merge\sin\sthe\s[696668aa4ec88213c]\sfix,\swhich\sis\snecessary\sto\ssuccessfully\nexport\sthe\sFossil\sself-hosting\srepository.
-D 2010-11-08T20:07:05
+C Export\sworks\sfor\sFossil\sand\sSQLite\srepositories.\s\sDoes\snot\syet\sexport\stags.\nAlso\sneed\sto\sadd\sincremental\sexport.
+D 2010-11-08T23:26:48
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -60,7 +60,7 @@ F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
 F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
-F src/export.c 4165bcae948ec932c169ffd94679ca1828c3ea6f
+F src/export.c 8fbd572b32e202f5f6a674aef16bf6e638c02143
 F src/file.c a1d06f1946053860ebe85d1dd69ffcd3ee1f4efc
 F src/finfo.c 1b057f700929ce25fa87d117d7d9660675a6dbde
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
@@ -275,7 +275,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P b3fd32f925e7f8f4212178c735d7acaae6223d7d
-R aa793a8341479a21ac24590d7835aeb5
+P 95f709cd4f0b45639499ded9bdadcdd5c1f9b123
+R 79c391cac8d54b2c8cfc86617716bc4e
 U drh
-Z bba6bf50f105d8bb3772344199623b0e
+Z 9987519d96fb236f4bde255e9f9de99c
