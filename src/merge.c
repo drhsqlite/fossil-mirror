@@ -98,7 +98,7 @@ void merge_cmd(void){
     db_finalize(&q);
     pid = pivot_find();
     if( pid<=0 ){
-      fossil_fatal("cannot find a common ancestor between the current"
+      fossil_fatal("cannot find a common ancestor between the current "
                    "checkout and %s", g.argv[2]);
     }
   }
