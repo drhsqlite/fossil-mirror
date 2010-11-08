@@ -1,5 +1,5 @@
-C Fix\sa\scorner-case\sin\sfile_tree_name()\s-\sspecifically\swhen\sthe\sinput\sis\sthe\nname\sof\sthe\sroot\sof\sthe\slocal\stree,\sreturn\s".".
-D 2010-11-08T19:23:47
+C Fix\san\sinintiialized\svariable\sin\sthe\sprevious\scheck-in.
+D 2010-11-08T19:31:30
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -60,7 +60,7 @@ F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
 F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
-F src/file.c a8eeaf623dd9c4c02c5103e0691bb3ba2e7c7720
+F src/file.c aaf85336aacc66e1925135625070498e1e3b9675
 F src/finfo.c 1b057f700929ce25fa87d117d7d9660675a6dbde
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
 F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 2d1a03736ac10439aaad9c68a93500e2d0672bce
-R 02fd2a4fe43361251c0df002863211db
+P f98114c9e45ef0e6eb8bf04eec4097458d52121a
+R bd0590770f5c5c5ad89d0814dba3e6ae
 U drh
-Z 39f8f1c8d34dc854de3c1a7c1981260e
+Z 8ce9f9ece419be8fd857b330b9af2142

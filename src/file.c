@@ -434,6 +434,7 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   int nFull;
   char *zFull;
 
+  blob_zero(pOut);
   db_must_be_within_tree();
   file_canonical_name(zOrigName, &full);
   n = strlen(g.zLocalRoot);
@@ -454,7 +455,6 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
     }
     return 0;
   }
-  blob_zero(pOut);
   blob_append(pOut, &zFull[n], nFull-n);
   return 1;
 }
