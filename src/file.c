@@ -434,16 +434,17 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   db_must_be_within_tree();
   file_canonical_name(zOrigName, &full);
   n = strlen(g.zLocalRoot);
-  if( blob_size(&full)<=n || memcmp(g.zLocalRoot, blob_buffer(&full), n) ){
-    blob_reset(&full);
-    if( errFatal ){
-      fossil_fatal("file outside of checkout tree: %s", zOrigName);
-    }
-    return 0;
+  if((blob_size(&full) == n-1 && !memcmp(g.zLocalRoot, blob_buffer(&full), n-1)) ||
+     (blob_size(&full) >= n && !memcmp(g.zLocalRoot, blob_buffer(&full), n))){
+      blob_zero(pOut);
+      blob_append(pOut, blob_buffer(&full)+n, blob_size(&full)-n);
+      return 1;
   }
-  blob_zero(pOut);
-  blob_append(pOut, blob_buffer(&full)+n, blob_size(&full)-n);
-  return 1;
+  blob_reset(&full);
+  if( errFatal ){
+      fossil_fatal("file outside of checkout tree: %s", zOrigName);
+  }
+  return 0;
 }
 
 /*
