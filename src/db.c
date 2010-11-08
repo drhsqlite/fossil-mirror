@@ -1528,15 +1528,6 @@ struct stControlSettings const ctrlSettings[] = {
   { "mtime-changes", 0,                0, "on"                  },
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
-  { "push-hook-cmd", 0,               32, ""                    },
-  { "push-hook-force",
-                     0,                0, ""                    },
-  { "push-hook-pattern-client",
-                     0,               32, ""                    },
-  { "push-hook-pattern-server",
-                     0,               32, ""                    },
-  { "push-hook-privilege",
-                     0,               1,  ""                    },
   { "repo-cksum",    0,                0, "on"                  },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
@@ -1613,39 +1604,6 @@ struct stControlSettings const ctrlSettings[] = {
 **                  the "http_proxy" environment variable is consulted.
 **                  If the http_proxy environment variable is undefined
 **                  then a direct HTTP connection is used.
-**
-**    push-hook-cmd this is the command line, that will be activated
-**                  as push hook. Output redirects should be added to
-**                  this command line.
-**                  The complete command line looks like:
-**                    command name: the configured value for push-hook-cmd
-**                    argument 1:   timestamp followed by random-number
-**                    argument 2:   pattern sent by client
-**                  As fallback, stdin/stderr are redirected to files
-**                    hook-log-<timestamp followed by random-number>
-**
-**    push-hook-force
-**                  if this is set on the client, it will request always
-**                  the hook activation, even if no files where pushed on
-**                  the sync.
-**                  if this is set on the server, it will accept hook
-**                  activiation, even if no files where pushed.
-**                     Default: on
-**
-**    push-hook-pattern-client
-**                  if set, a client push will sent this message to the
-**                  server, to activate the push hook command.
-**                     Default: on
-**
-**    push-hook-pattern-server
-**                  if set, and a client send this pattern at the end of
-**                  a push, the push hook command will be executed. This
-**                  might be a prefix of the pattern, sent by the client.
-**
-**    push-hook-privilege
-**                  if set, the user doing the push needs this privilege
-**                  to trigger the hook. Valid privileges are:
-**                    s (setup), a (admin), i (checkin) or o (checkout)
 **
 **    repo-cksum    Compute checksums over all files in each checkout
 **                  as a double-check of correctness.  Defaults to "on".

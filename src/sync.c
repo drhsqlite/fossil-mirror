@@ -167,10 +167,7 @@ void pull_cmd(void){
 ** the "--once" command-line option makes the URL a one-time-use URL
 ** that is not saved.
 **
-** If configured (<a>setting</a> push-hook-..), the push hook command will be
-** executed on the server after pushing files.
-**
-** See also: <a>callhook</a>, <a>clone</a>, <a>pull</a>, <a>sync</a>, <a>remote-url</a>
+** See also: <a>clone</a>, <a>pull</a>, <a>sync</a>, <a>remote-url</a>
 */
 void push_cmd(void){
   process_sync_args();
@@ -201,10 +198,7 @@ void push_cmd(void){
 ** the "--once" command-line option makes the URL a one-time-use URL
 ** that is not saved.
 **
-** If configured (<a>setting</a> push-hook-..), the push hook command will be
-** executed on the server after pushing files.
-**
-** See also: <a>callhook</a>, <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>
+** See also: <a>clone</a>, <a>push</a>, <a>pull</a>, <a>remote-url</a>
 */
 void sync_cmd(void){
   int syncFlags = process_sync_args();

@@ -1,5 +1,5 @@
-C merge\sfrom\strunk
-D 2010-11-08T20:04:29
+C remove\shook\scommand\sto\sbe\scompatible\swith\sother\shook\sdesigns
+D 2010-11-08T23:01:40
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -51,7 +51,7 @@ F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h da6c9c44ddafa4e5f7d2fb4afd4d29af87343b73
 F src/configure.c 257b655d57383ed43fc2fcd36134c7dce12f3ba4
 F src/content.c e350b9a6124e1305a233f5b035cbc24509f4e636
-F src/db.c 65db9c0aa75ed7ad813528026ceca66e94c805b7
+F src/db.c 22fc1ed4b31c5638c8470e7a17433a4bf78a0187
 F src/delta.c 6296c873abf611a0ac4586910b6f7bd8b9b1e38e
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c d7f99e0a144d156328b425205f40f5fbd5946bcd
@@ -98,7 +98,7 @@ F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
 F src/sqlite3.h 85b8161f84932d2ffcc0e0ec241a59fb181cbe8c
 F src/stat.c d65bfac21fcadad6879685cd792709638f8511e7
 F src/style.c 3d90e8cd2d51ba91f40c280bb294f453c13f98a1
-F src/sync.c 53d4ce5d2366c2448fa3382a204f6e8e5e08af5a
+F src/sync.c d7792afe9bd97e920da8eb1b903b72a544689b85
 F src/tag.c aed952b39083bce5c174f290dadcfc69b2da5db2
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -117,7 +117,7 @@ F src/vfile.c 43f234f22de8012f5cccad23695a0e83cf878f05
 F src/wiki.c 180ba621e219a59e918e47142b8822b623ddba1a
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c 6fe565085abee72950ae6754194b3c6687f05d5b
-F src/xfer.c d05a1537c64cb4f1b816f79792fab0a29eeae52a
+F src/xfer.c 7aff3e7c61dd42a481c64bbc1720f77c42cef70d
 F src/zip.c 963f13a9e71c58381c084568323dc54d0859db4c
 F test/delta1.test 938a3456627a557c7977f328ab1feb81e831f397
 F test/merge1.test 16644e6b6173fa8401e4ed6636d4e9c3a29a207d
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 8050311dd57f595f61e8abc6f9e13db01eb0d71a d8935a89b51b0f8f9286209ba756bb1cc0a4f85b
-R e9508fb97051a2f56737905e32168b4c
+P 1e801695d30446cf722990a17b4e51b45be7351e
+R a88841c8265ad0233c2d9b659970cf31
 U wolfgang
-Z ccf8f50cc2b8f25cfbf433021b99154c
+Z 83da2dedc590963727d2dc5b60e81c1e
