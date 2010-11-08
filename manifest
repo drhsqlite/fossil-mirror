@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\san\serror\smessage\sin\sthe\smerge\slogic.
-D 2010-11-08T15:33:49
+C Begin\sadding\s"import"\sand\s"export"\scommands\sfor\sconverting\srepositories\nfrom\sand\sto\sthe\sGit\sformat.\s\sThe\s"export"\scommand\scurrently\sgenerates\noutput\sbut\sis\snot\squite\scorrect.\s\sThe\s"import"\scommand\sis\sstill\sa\sstub.
+D 2010-11-08T19:00:36
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -60,6 +60,7 @@ F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
 F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
+F src/export.c 4165bcae948ec932c169ffd94679ca1828c3ea6f
 F src/file.c a1d06f1946053860ebe85d1dd69ffcd3ee1f4efc
 F src/finfo.c 1b057f700929ce25fa87d117d7d9660675a6dbde
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
@@ -67,13 +68,14 @@ F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 443adfb51885998f2b8971a0fd9b2c3a6ac58083
+F src/import.c f359c7db126c1bf2e3b6b0f930e50a8bf836aa6d
 F src/info.c 28ef7eae65618f3abf40e44e06203cc5bb87231c
 F src/login.c 0a9e23647cb1c779ae177b63a875b06342b61a84
 F src/main.c 5d57644202333f7399887bcc1b64838eb5731294
-F src/main.mk f8b5fdf65d2d168e30bdcd7b717edfb7d7d50db7
+F src/main.mk d5970209e9fffe8aafb79ef870ab9b0702536d54
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
-F src/makemake.tcl 55dafacccfa1b4880f1232555808a7a8558303ae
+F src/makemake.tcl cfe055cef81e8e3b7bb096b35ae7caeeb1edbac2
 F src/manifest.c 97635ebe4367248ebcb756406c5eb6186e9e5f48
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
@@ -113,7 +115,7 @@ F src/update.c e386566f92dba5ac1bd25ab183faecc7717164bd
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
-F src/vfile.c 43f234f22de8012f5cccad23695a0e83cf878f05
+F src/vfile.c 7f0768a37e4a55bda66aaa697173a96f14be28cc
 F src/wiki.c 3e802f2604bbc25c6bcc37675ab4f185e8b8437c
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c 9a69434cccc8d6ac759326569a53742b0abc5be8
@@ -273,7 +275,11 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 4e3cd6ce4eca752496aa06048695b9669ce2a616
-R 48024ea54823525e9bfc556fb623f6aa
+P 370a89c8328b4a67b77af33ae3393d33462797c4
+R e8d5a39da7c88b4591c470bf1ccca090
+T *bgcolor * #c0ffc0
+T *branch * experimental
+T *sym-experimental *
+T -sym-trunk *
 U drh
-Z 23e441e84c66166edfc1e63dcb22da13
+Z c0e46a7810131926ec80fcf2f8106462
