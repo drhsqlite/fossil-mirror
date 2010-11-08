@@ -45,7 +45,9 @@ int is_a_version(int rid){
 **
 ** If one or more FILES are listed after the VERSION then only the
 ** named files are candidates to be updated.  If FILES is omitted, all
-** files in the current checkout are subject to be updated.
+** files in the current checkout are subject to be updated.  Using
+** a directory name for one of the FILES arguments is the same as
+** using every subdirectory and file beneath that directory.
 **
 ** The -n or --nochange option causes this command to do a "dry run".  It
 ** prints out what would have happened but does not actually make any
@@ -168,32 +170,35 @@ void update_cmd(void){
   db_finalize(&q);
 
   /* If FILES appear on the command-line, remove from the "fv" table
-  ** every entry that is not named on the command-line.
+  ** every entry that is not named on the command-line or which is not
+  ** in a directory named on the command-line.
   */
   if( g.argc>=4 ){
     Blob sql;              /* SQL statement to purge unwanted entries */
     Blob treename;         /* Normalized filename */
     int i;                 /* Loop counter */
+    const char *zSep;      /* Term separator */
 
     blob_zero(&sql);
     blob_append(&sql, "DELETE FROM fv WHERE ", -1);
+    zSep = "";
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
-      if (file_isdir(g.argv[i]) == 1) {
-	  if (blob_size(&treename) > 0) {
-	      blob_appendf(&sql, "fn NOT GLOB '%b/*' ", &treename);
-	  } else {
-	      blob_appendf(&sql, "fn NOT GLOB '*' ");
-	  }
-      } else {
-	  blob_appendf(&sql, "fn <> %B ", &treename);
+      if( file_isdir(g.argv[i])==1 ){
+        if( blob_size(&treename)>0 ){
+          blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
+        }else{
+          blob_reset(&sql);
+          blob_append(&sql, "DELETE FROM fv", -1);
+          break;
+        }
+      }else{
+        blob_appendf(&sql, "%sfn<>%B ", zSep, &treename);
       }
-      if (i < g.argc - 1) {
-	  blob_append(&sql, "AND ", -1);
-      }
+      zSep = "AND ";
       blob_reset(&treename);
     }
-    fprintf(stderr, "%s\n", blob_str(&sql));
+    /* fprintf(stderr, "%s\n", blob_str(&sql)); */
     db_multi_exec(blob_str(&sql));
     blob_reset(&sql);
   }
@@ -275,11 +280,11 @@ void update_cmd(void){
       blob_reset(&t);
       blob_reset(&r);
     }else if( verboseFlag ){
-	if (chnged) {
-	    printf("EDITED %s\n", zName);
-	} else {
-	    printf("UNCHANGED %s\n", zName);
-	}
+      if( chnged ){
+        printf("EDITED %s\n", zName);
+      }else{
+        printf("UNCHANGED %s\n", zName);
+      }
     }
     free(zFullPath);
   }
