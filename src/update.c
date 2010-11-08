@@ -189,7 +189,6 @@ void update_cmd(void){
           blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
         }else{
           blob_reset(&sql);
-          blob_append(&sql, "DELETE FROM fv", -1);
           break;
         }
       }else{
@@ -198,7 +197,6 @@ void update_cmd(void){
       zSep = "AND ";
       blob_reset(&treename);
     }
-    /* fprintf(stderr, "%s\n", blob_str(&sql)); */
     db_multi_exec(blob_str(&sql));
     blob_reset(&sql);
   }
