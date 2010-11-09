@@ -1033,8 +1033,10 @@ void db_initial_setup(
 
 /*
 ** COMMAND: new
+** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
+**    Or: %fossil init ?OPTIONS? FILENAME
 **
 ** Create a repository for a new project in the file named FILENAME.
 ** This command is distinct from "clone".  The "clone" command makes

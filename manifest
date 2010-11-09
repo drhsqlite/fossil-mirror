@@ -1,5 +1,5 @@
-C The\s"export"\scommand\snow\sexports\stags.
-D 2010-11-09T11:59:46
+C Make\s"init"\san\salias\sfor\s"new".
+D 2010-11-09T13:52:46
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -51,7 +51,7 @@ F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h da6c9c44ddafa4e5f7d2fb4afd4d29af87343b73
 F src/configure.c 41ec7c2149e3d84d51ad6d75eca4ac8f2eff033b
 F src/content.c e350b9a6124e1305a233f5b035cbc24509f4e636
-F src/db.c 140240118eeea0dfaf0758632163a0885ca92db1
+F src/db.c c662d2ecf7bbedb5f70e607a9710659b3c3ed1af
 F src/delta.c 6296c873abf611a0ac4586910b6f7bd8b9b1e38e
 F src/deltacmd.c 13a2d23330c76a2e69a99165875665b20129240e
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
@@ -275,7 +275,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 0f024d3e30741af3403c1c87ee5d689741e5a63c
-R c4cdc6af47ab04cb823673ac9be4cc7e
+P 06bc2fb7ccabba16a967ac8cc75cd415c2e85e77
+R 0cd8584ab774f84f6d0f91f2521bc210
 U drh
-Z 2bc000252560f6555ff5bc6a7b2c4bfa
+Z 3a883f5e3bb9bf9933e1c911229c72f1
