@@ -73,7 +73,7 @@ void update_cmd(void){
   if( vid==0 ){
     fossil_fatal("cannot find current version");
   }
-  if( db_exists("SELECT 1 FROM vmerge") ){
+  if( !nochangeFlag && db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
   if( !nochangeFlag ) autosync(AUTOSYNC_PULL);
@@ -185,7 +185,7 @@ void update_cmd(void){
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
       if( file_isdir(g.argv[i])==1 ){
-        if( blob_size(&treename)>0 ){
+	if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
         }else{
           blob_reset(&sql);
