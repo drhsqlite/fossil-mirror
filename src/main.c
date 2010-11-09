@@ -659,128 +659,101 @@ void help_cmd(void){
 ** URL: /help?cmd=CMD
 */
 void help_page(void){
-    const char * zCmd = P("cmd");
-    
-    style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
-    if( zCmd  && zCmd[0] && strcmp(zCmd,"test") ){
-      int rc, idx;
+  const char * zCmd = P("cmd");
+  
+  style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
+  if( zCmd  && zCmd[0] && strcmp(zCmd,"test") ){
+    int rc, idx;
 
-      rc = name_search(zCmd, aCommand, count(aCommand), &idx);
-      if( rc==1 ){
-        @ <h1>unknown command: %s(zCmd)</h1>
-      }else if( rc==2 ){
-        @ <h1>ambiguous command prefix: %s(zCmd)</h1>
-      }else{
-        char *zSrc, *zDest;
-        int src,dest,len;
-
-        @ <h1>%s(aCommand[idx].zName)</h1>
-        zSrc = (char*)aCmdHelp[idx];
-        if( zSrc==0 || *zSrc==0 ){
-          @ no help available for the %s(aCommand[idx].zName) command
-        }else{
-          len = strlen(zSrc);
-          zDest = malloc(len+1);
-          for(src=dest=0;zSrc[src];){
-            if( zSrc[src]=='%' && strncmp(zSrc+src, "%fossil", 7)==0 ){
-              src++; /* skip % for fossil argv[0] expansion */
-            }else if( zSrc[src]=='<' && strncmp(zSrc+src, "</a>", 3)==0 ){
-              src += 4;
-              zDest[dest++]='<';
-              zDest[dest++]='/';
-              zDest[dest++]='a';
-              zDest[dest++]='>';
-              zDest[dest++]='"';
-            }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a ", 3)==0 ){
-              len += 2;
-	      zDest=realloc(zDest,len);
-              zDest[dest++]='"';
-              while( zSrc[src] && zSrc[src]!='>' ){
-                zDest[dest++]=zSrc[src++];
-              }
-              if( zSrc[src] ) zDest[dest++]=zSrc[src++];
-            }else if( zSrc[src]=='<' && strncmp(zSrc+src, "<a>", 3)==0 ){
-              /* found an internal command cross reference,
-              ** create an additional link
-              */
-              int start;
-
-              len+=80;
-              zDest=realloc(zDest,len);
-              zDest[dest++]='"';
-              zDest[dest++]=zSrc[src++]; /* < */
-              zDest[dest++]=zSrc[src++]; /* a */
-              zDest[dest++]=' ';
-              zDest[dest++]='h';
-              zDest[dest++]='r';
-              zDest[dest++]='e';
-              zDest[dest++]='f';
-              zDest[dest++]='=';
-              zDest[dest++]='"';
-              zDest[dest++]='h';
-              zDest[dest++]='e';
-              zDest[dest++]='l';
-              zDest[dest++]='p';
-              zDest[dest++]='?';
-              zDest[dest++]='c';
-              zDest[dest++]='m';
-              zDest[dest++]='d';
-              zDest[dest++]='=';
-              start = src+1;
-              for( src=start; zSrc[src] && zSrc[src]!='<'; ){
-                zDest[dest++]=zSrc[src++]; /* command name */
-              }
-              zDest[dest++]='"';
-              zDest[dest++]='>';
-              for( src=start; zSrc[src] && zSrc[src]!='<'; ){
-                zDest[dest++]=zSrc[src++]; /* command name */
-              }
-            }else{
-              zDest[dest++] = zSrc[src++];
-            }
-          }
-          zDest[dest] = 0;
-          @ <div class="cmdhelp">%s(zDest)</div>
-          free(zDest);
-          @ <hr/>additional information may be found in the web documentation:
-          @ <a href="http://www.fossil-scm.org/fossil/doc/tip/www/cmd_%s(aCommand[idx].zName).wiki">
-          @ cmd_%s(aCommand[idx].zName)</a>, 
-        }
-      }
-      @ see also the list of
-      @ <a href="help">available commands</a> in fossil
-      @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
+    rc = name_search(zCmd, aCommand, count(aCommand), &idx);
+    if( rc==1 ){
+      @ <h1>unknown command: %s(zCmd)</h1>
+    }else if( rc==2 ){
+      @ <h1>ambiguous command prefix: %s(zCmd)</h1>
     }else{
-      int nCol, nRow, i, ignored, cnt, showTest;
-      
-      /* detect, if we show normal or test commands */
-      showTest = ( zCmd  && !strncmp(zCmd,"test",4) );
-      for( i=0,ignored=0; i<count(aCommand); i++){
-        if( (strncmp(aCommand[i].zName,"test",4)==0) ^ showTest ) ignored++;
-      }
-      nCol = 4;
-      nRow = (count(aCommand)-ignored+nCol-1)/nCol;
-      @ <h1>Available commands</h1>
-      @ <table class="browser"><tr><td class="browser"><ul class="browser">
-      for( i=cnt=0; i<count(aCommand); i++ ){
-        if( cnt==nRow ){
-          @ </ul></td><td class="browser"><ul class="browser">
-          cnt=0;
-        }
-        if( (strncmp(aCommand[i].zName,"test",4)==0) ^ showTest ) continue;
-        @ <li><kbd><a href="help?cmd=%s(aCommand[i].zName)">
-        @ %s(aCommand[i].zName)</a></kbd></li>
-        cnt++;
-      }
-      @ </ul></td></tr></table>
-      if( showTest ){
-        @ <a href="help">show standard commands</a>
+      const char *zHelp;
+      int i;
+
+      zHelp = aCmdHelp[idx];
+      @ <h1>%s(aCommand[idx].zName)</h1>
+      if( zHelp==0 || zHelp[0]==0 ){
+        @ no help available for the %s(aCommand[idx].zName) command
       }else{
-        @ <a class="hidden" href="help?cmd=test">show test commands</a>
+        int c;
+        @ <div class="cmdhelp">
+        for(i=0; (c = zHelp[i])!=0; i++){
+          if( c=='%' && memcmp(zHelp+i, "%fossil", 7)==0 ){
+            /* Skip over the "%" */
+            cgi_append_content(zHelp, i);
+            i++;
+            zHelp += i;
+            i = 0;
+          }else if( c=='<' && memcmp(zHelp+i, "</a>", 3)==0 ){
+            cgi_append_content(zHelp, i+4);
+            zHelp += i+4;
+            i = -1;
+            cgi_append_content("\"", 1);
+          }else if( c=='<' && memcmp(zHelp+i, "<a ", 3)==0 ){
+            cgi_append_content(zHelp, i);
+            cgi_append_content("\"", 1);
+            zHelp += i;
+            i = 0;
+          }else if( c=='<' && strncmp(zHelp+i, "<a>", 3)==0 ){
+            /* found an internal command cross reference,
+            ** create an additional link
+            */
+            cgi_append_content(zHelp, i);
+            cgi_append_content("\"<a href=\"help?cmd=", -1);
+            zHelp += i+3;
+            i = 0;
+            while( zHelp[i] && memcmp(zHelp+i,"</a>",4)!=0 ){
+              i++;
+            }
+            cgi_append_content(zHelp, i);
+            cgi_append_content("\">", -1);
+            cgi_append_content(zHelp, i);
+            cgi_append_content("</a>\"", -1);
+            zHelp += i+4;
+            i = -1;
+          }
+        }
+        cgi_append_content(zHelp, i);
+        @ </div>
       }
-      @ <hr/>fossil version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }
-    style_footer();
+    @ see also the list of
+    @ <a href="help">available commands</a> in fossil
+    @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
+  }else{
+    int nCol, nRow, i, ignored, cnt, showTest;
+    
+    /* detect, if we show normal or test commands */
+    showTest = ( zCmd  && !strncmp(zCmd,"test",4) );
+    for( i=0,ignored=0; i<count(aCommand); i++){
+      if( (strncmp(aCommand[i].zName,"test",4)==0) ^ showTest ) ignored++;
+    }
+    nCol = 4;
+    nRow = (count(aCommand)-ignored+nCol-1)/nCol;
+    @ <h1>Available commands</h1>
+    @ <table class="browser"><tr><td class="browser"><ul class="browser">
+    for( i=cnt=0; i<count(aCommand); i++ ){
+      if( cnt==nRow ){
+        @ </ul></td><td class="browser"><ul class="browser">
+        cnt=0;
+      }
+      if( (strncmp(aCommand[i].zName,"test",4)==0) ^ showTest ) continue;
+      @ <li><kbd><a href="help?cmd=%s(aCommand[i].zName)">
+      @ %s(aCommand[i].zName)</a></kbd></li>
+      cnt++;
+    }
+    @ </ul></td></tr></table>
+    if( showTest ){
+      @ <a href="help">show standard commands</a>
+    }else{
+      @ <a class="hidden" href="help?cmd=test">show test commands</a>
+    }
+  }
+  style_footer();
 }
 
 /*
