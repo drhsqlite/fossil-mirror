@@ -1,8 +1,8 @@
-C For\scloning\sand\ssyncing,\sgive\sall\susers\sthe\sprivileges\sof\sboth\s"nobody"\sand\n"anonymous"\swithout\srequiring\sa\slogin\smessage.\nTicket\s[1318677c15af04480b].
-D 2010-11-09T10:44:26
+C Do\snot\suse\sa\ssubdirectory\snamed\s"obj"\sfor\sbuilding.\nTicket\s[6e51013097c17ead].
+D 2010-11-09T10:48:02
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
+F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
 F Makefile.w32 c39e9b7143dd53ad358e58c52029ba5010748fd4
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 1b883d49cf0885c74f1324b545caf28aafec385a
-R aea9f8c28afeba5f6312ca187bd44e4e
+P 134f5b374efa20b6055fc7dca9da108ceef653a7
+R 80f5937587e51271079a222a9c457482
 U drh
-Z 5d7e82a610967be3b1cd6d836421c6f8
+Z e4de90324fea0c7affe9ff64e6a95515
