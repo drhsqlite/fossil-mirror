@@ -178,5 +178,25 @@ void export_cmd(void){
   }
   db_finalize(&q);
   bag_clear(&blobs);
+
+
+  /* Output tags */
+  db_prepare(&q,
+     "SELECT tagname, rid, strftime('%%s',mtime)"
+     "  FROM tagxref JOIN tag USING(tagid)"
+     " WHERE tagtype=1 AND tagname GLOB 'sym-*'"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTagname = db_column_text(&q, 0);
+    int rid = db_column_int(&q, 1);
+    sqlite3_int64 secSince1970 = db_column_int64(&q, 2);
+    if( rid==0 || !bag_find(&vers, rid) ) continue;
+    zTagname += 4;
+    printf("tag %s\n", zTagname);
+    printf("from :%d\n", rid);
+    printf("tagger <tagger> %lld +0000\n", secSince1970);
+    printf("data 0\n");
+  }
+  db_finalize(&q);
   bag_clear(&vers);
 }

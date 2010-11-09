@@ -1,5 +1,5 @@
-C Merge\sthe\simport/export\schanges\sinto\strunk.\s\sEven\sthough\sthey\sare\sincomplete,\nthey\sdo\snot\sthreaten\sthe\scorrectness\sof\sother\scommands\sand\scan\sbe\sdeveloped\nin\strunk.
-D 2010-11-09T11:05:47
+C The\s"export"\scommand\snow\sexports\stags.
+D 2010-11-09T11:59:46
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -60,7 +60,7 @@ F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
 F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
-F src/export.c 8fbd572b32e202f5f6a674aef16bf6e638c02143
+F src/export.c 077a21d44242957540e2dd706bed985631f75e8f
 F src/file.c aaf85336aacc66e1925135625070498e1e3b9675
 F src/finfo.c 1b057f700929ce25fa87d117d7d9660675a6dbde
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
@@ -275,7 +275,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e663bac6f77e41b66902631ab1135dde344d8c74 e25884d44f59221a6ab89404db8206d6863b16a2
-R ad3cf5dd1f69c900e95421f70c83cf64
+P 0f024d3e30741af3403c1c87ee5d689741e5a63c
+R c4cdc6af47ab04cb823673ac9be4cc7e
 U drh
-Z 2f256e590667eb9ea2b073b1ab94cfee
+Z 2bc000252560f6555ff5bc6a7b2c4bfa
