@@ -188,6 +188,17 @@ void manifest_cache_clear(void){
 #endif
 
 /*
+** Return true if z points to the first character after a blank line.
+** Tolerate either \r\n or \n line endings.
+*/
+static int after_blank_line(const char *z){
+  if( z[-1]!='\n' ) return 0;
+  if( z[-2]=='\n' ) return 1;
+  if( z[-2]=='\r' && z[-3]=='\n' ) return 1;
+  return 0;
+}
+
+/*
 ** Remove the PGP signature from the artifact, if there is one.
 */
 static void remove_pgp_signature(char **pz, int *pn){
@@ -195,7 +206,7 @@ static void remove_pgp_signature(char **pz, int *pn){
   int n = *pn;
   int i;
   if( memcmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
-  for(i=34; i<n && (z[i-1]!='\n' || z[i-2]!='\n'); i++){}
+  for(i=34; i<n && !after_blank_line(z+i); i++){}
   if( i>=n ) return;
   z += i;
   n -= i;

@@ -1,5 +1,5 @@
-C Remove\sstray\sdebug\sfprintf.\n
-D 2010-11-08T06:15:37
+C Merge\sfrom\strunk\s+\sminor\schanges\sto\supdate.c\sto\swork\swith\snew\s.\sreturn\sfrom\sfile_tree_name\sfor\sfossil\sroot.
+D 2010-11-09T01:06:33
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile e227361d83a4d4db25d28890bc403caa40c78ce1
@@ -60,7 +60,7 @@ F src/diffcmd.c c91aeb545dab51de82d4a87e6a3998a0191d3ca3
 F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
-F src/file.c c35180b2515ee6486e4fa1aba7c9f6451a52faac
+F src/file.c aaf85336aacc66e1925135625070498e1e3b9675
 F src/finfo.c 1b057f700929ce25fa87d117d7d9660675a6dbde
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
 F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
@@ -74,13 +74,13 @@ F src/main.mk f8b5fdf65d2d168e30bdcd7b717edfb7d7d50db7
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 55dafacccfa1b4880f1232555808a7a8558303ae
-F src/manifest.c 97635ebe4367248ebcb756406c5eb6186e9e5f48
+F src/manifest.c 704c0b7f30f84f7db791282f97c910dec8822380
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c 8046331529da3d232e10374cfc0d6ea811384084
+F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c b29919886231e6119300bcdfa022036b4b8cab77
-F src/pivot.c f86b6fe0745aae349da0f94cdfa69a314331b001
+F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 935a4cdb90ec123f56faea207eb72f0610f7bece
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
 F src/printf.c 90eaff0bc8cf2708cf96026717246afe56bb7b5d
@@ -109,7 +109,7 @@ F src/tkt.c f231726862368d88ed32918e3971ff29cce175e4
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
-F src/update.c 0975ad40c4d12e493a2b3760cfb373c1c6968957
+F src/update.c 3361090cb75bd0e7bab90e83387ecf8c6b6f4925
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -273,7 +273,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P cbce3e2f7cef01b8b39e9d9e5110fd95ecdc6cad
-R bdaa00495f0036f6dba0be9733a66147
+P 69e81b026017523723ba1b5bfc562baf31cbdce1 696668aa4ec88213cafad039707f49a698e2136c
+R 56d12ced63bd083f79d0dc703423dc2c
 U venkat
-Z ee3b90f1d37c85c432ba3896c3e74e78
+Z 1f1702433483c613cbb8a10c4eccfde6

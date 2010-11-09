@@ -52,7 +52,7 @@ void pivot_set_primary(int rid){
   /* Insert the primary record */
   db_multi_exec( 
     "INSERT INTO aqueue(rid, mtime, pending, src)"
-    "  SELECT %d, mtime, 1, 1 FROM plink WHERE cid=%d LIMIT 1",
+    "  SELECT %d, mtime, 1, 1 FROM event WHERE objid=%d AND type='ci' LIMIT 1",
     rid, rid
   );
 }
@@ -66,7 +66,7 @@ void pivot_set_secondary(int rid){
   /* Insert the primary record */
   db_multi_exec( 
     "INSERT OR IGNORE INTO aqueue(rid, mtime, pending, src)"
-    "  SELECT %d, mtime, 1, 0 FROM plink WHERE cid=%d",
+    "  SELECT %d, mtime, 1, 0 FROM event WHERE objid=%d AND type='ci'",
     rid, rid
   );
 }
