@@ -456,11 +456,6 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     }
   }
   db_finalize(&q);
-
-  if( rc==0 ){
-    /* If the login was successful. */
-    login_set_anon_nobody_capabilities();
-  }
   return rc;
 }
 
@@ -633,6 +628,8 @@ void page_xfer(void){
   if( strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
   }
+  g.zLogin = "anonymous";
+  login_set_anon_nobody_capabilities();
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);

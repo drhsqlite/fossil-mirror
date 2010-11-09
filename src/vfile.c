@@ -28,6 +28,24 @@
 #endif
 
 /*
+** The input is guaranteed to be a 40-character well-formed UUID.
+** Find its rid.
+*/
+int fast_uuid_to_rid(const char *zUuid){
+  static Stmt q;
+  int rid;
+  db_static_prepare(&q, "SELECT rid FROM blob WHERE uuid=:uuid");
+  db_bind_text(&q, ":uuid", zUuid);
+  if( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+  }else{
+    rid = 0;
+  }
+  db_reset(&q);
+  return rid;
+}
+
+/*
 ** Given a UUID, return the corresponding record ID.  If the UUID
 ** does not exist, then return 0.
 **
@@ -39,7 +57,6 @@
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
-  static Stmt q;
   char z[UUID_SIZE+1];
   
   sz = strlen(zUuid);
@@ -48,14 +65,7 @@ int uuid_to_rid(const char *zUuid, int phantomize){
   }
   strcpy(z, zUuid);
   canonical16(z, sz);
-  db_static_prepare(&q, "SELECT rid FROM blob WHERE uuid=:uuid");
-  db_bind_text(&q, ":uuid", z);
-  if( db_step(&q)==SQLITE_ROW ){
-    rid = db_column_int(&q, 0);
-  }else{
-    rid = 0;
-  }
-  db_reset(&q);
+  rid = fast_uuid_to_rid(z);
   if( rid==0 && phantomize ){
     rid = content_new(zUuid);
   }

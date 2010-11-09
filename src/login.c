@@ -460,7 +460,7 @@ void login_set_anon_nobody_capabilities(void){
     /* All logged-in users inherit privileges from "nobody" */
     zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
     login_set_capabilities(zCap);
-    if( strcmp(g.zLogin, "anonymous")!=0 ){
+    if( strcmp(g.zLogin, "nobody")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
       zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
       login_set_capabilities(zCap);

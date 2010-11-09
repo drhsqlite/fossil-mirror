@@ -9,7 +9,7 @@ SRCDIR = ./src
 #### The directory into which object code files should be written.
 #
 #
-OBJDIR = ./obj
+OBJDIR = ./bld
 
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used

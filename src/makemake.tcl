@@ -32,12 +32,14 @@ set src {
   doc
   encode
   event
+  export
   file
   finfo
   graph
   http
   http_socket
   http_transport
+  import
   info
   login
   main
