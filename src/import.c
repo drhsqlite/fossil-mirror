@@ -451,7 +451,7 @@ static void git_fast_import(FILE *pIn){
         gg.nMergeAlloc = gg.nMergeAlloc*2 + 10;
         gg.azMerge = fossil_realloc(gg.azMerge, gg.nMergeAlloc*sizeof(char*));
       }
-      gg.azMerge[gg.nMerge] = resolve_committish(&zLine[5]);
+      gg.azMerge[gg.nMerge] = resolve_committish(&zLine[6]);
       if( gg.azMerge[gg.nMerge] ) gg.nMerge++;
     }else
     if( memcmp(zLine, "M ", 2)==0 ){
