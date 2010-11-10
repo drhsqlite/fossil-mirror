@@ -837,7 +837,6 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
   }else{
     if( p->nCChild>0 ) goto manifest_syntax_error;
     if( p->rDate<=0.0 ) goto manifest_syntax_error;
-    if( p->nParent>0 ) goto manifest_syntax_error;
     if( p->nField>0 ) goto manifest_syntax_error;
     if( p->zTicketUuid ) goto manifest_syntax_error;
     if( p->zWikiTitle ) goto manifest_syntax_error;
