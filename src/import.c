@@ -542,6 +542,7 @@ malformed_line:
 void git_import_cmd(void){
   char *zPassword;
   FILE *pIn;
+  int forceFlag = find_option("force", "f", 0)!=0;
   if( g.argc!=3  && g.argc!=4 ){
     usage("REPOSITORY-NAME");
   }
@@ -550,6 +551,7 @@ void git_import_cmd(void){
   }else{
     pIn = stdin;
   }
+  if( forceFlag ) unlink(g.argv[2]);
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);

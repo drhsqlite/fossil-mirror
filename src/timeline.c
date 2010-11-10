@@ -619,13 +619,13 @@ static void timeline_submenu(
 */
 static void timeline_add_dividers(const char *zDate){
   db_multi_exec(
-    "INSERT INTO timeline(rid,timestamp,etype)"
-    "VALUES(-1,datetime(%Q,'-1 second') || '.9','div')",
+    "INSERT INTO timeline(rid,sortby,etype)"
+    "VALUES(-1,julianday(%Q,'utc')-5.0e-6,'div')",
     zDate
   );
   db_multi_exec(
-    "INSERT INTO timeline(rid,timestamp,etype)"
-    "VALUES(-2,datetime(%Q) || '.1','div')",
+    "INSERT INTO timeline(rid,sortby,etype)"
+    "VALUES(-2,julianday(%Q,'utc')+5.0e-6,'div')",
      zDate
   );
 }
