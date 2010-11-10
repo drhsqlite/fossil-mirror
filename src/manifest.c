@@ -1327,7 +1327,8 @@ void manifest_crosslink_end(void){
   db_finalize(&u);
   db_multi_exec(
     "UPDATE event SET mtime=(SELECT m1 FROM time_fudge WHERE mid=objid)"
-    " WHERE objid IN (SELECT mid FROM time_fudge)"
+    " WHERE objid IN (SELECT mid FROM time_fudge);"
+    "DROP TABLE time_fudge;"
   );
 
   db_end_transaction(0);
