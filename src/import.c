@@ -35,7 +35,8 @@ static struct {
   char *zDate;                /* Date/time stamp */
   char *zUser;                /* User name */
   char *zComment;             /* Comment of a commit */
-  char *zFrom;                /* from value */
+  char *zFrom;                /* from value as a UUID */
+  char *zFromMark;            /* The mark of the "from" field */
   int nMerge;                 /* Number of merge values */
   int nMergeAlloc;            /* Number of slots in azMerge[] */
   char **azMerge;             /* Merge values */
@@ -67,6 +68,7 @@ static void import_reset(int freeAll){
   fossil_free(gg.zUser); gg.zUser = 0;
   fossil_free(gg.zComment); gg.zComment = 0;
   fossil_free(gg.zFrom); gg.zFrom = 0;
+  fossil_free(gg.zFromMark); gg.zFromMark = 0;
   for(i=0; i<gg.nMerge; i++){
     fossil_free(gg.azMerge[i]); gg.azMerge[i] = 0;
   }
@@ -179,6 +181,7 @@ static int mfile_cmp(const void *pLeft, const void *pRight){
 */
 static void finish_commit(void){
   int i;
+  char *zFromBranch;
   Blob record, cksum;
   qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
   blob_zero(&record);
@@ -198,7 +201,23 @@ static void finish_commit(void){
       blob_appendf(&record, " %s", gg.azMerge[i]);
     }
     blob_append(&record, "\n", 1);
+    zFromBranch = db_text(0, "SELECT brnm FROM xbranch WHERE tname=%Q",
+                              gg.zFromMark);
+  }else{
+    zFromBranch = 0;
   }
+  if( zFromBranch==0 || strcmp(zFromBranch, gg.zBranch)!=0 ){
+    blob_appendf(&record, "T *branch * %F\n", gg.zBranch);
+    blob_appendf(&record, "T *sym-%F *\n", gg.zBranch);
+    if( zFromBranch ){
+      blob_appendf(&record, "T -sym-%F *\n", zFromBranch);
+    }
+  }
+  if( gg.zFrom==0 ){
+    blob_appendf(&record, "T +sym-trunk *\n");
+  }
+  db_multi_exec("INSERT INTO xbranch(tname, brnm) VALUES(%Q,%Q)",
+                gg.zMark, gg.zBranch);
   blob_appendf(&record, "U %F\n", gg.zUser);
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
@@ -421,6 +440,8 @@ static void git_fast_import(FILE *pIn){
     }else
     if( memcmp(zLine, "from ", 5)==0 ){
       trim_newline(&zLine[5]);
+      fossil_free(gg.zFromMark);
+      gg.zFromMark = import_strdup(&zLine[5]);
       fossil_free(gg.zFrom);
       gg.zFrom = resolve_committish(&zLine[5]);
     }else
@@ -556,8 +577,8 @@ void git_import_cmd(void){
   db_open_repository(g.argv[2]);
   db_open_config(0);
   db_multi_exec(
-     "ATTACH ':memory:' AS mem1;"
-     "CREATE TABLE mem1.xtag(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
+     "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
+     "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
   );
   db_begin_transaction();
   db_initial_setup(0, 0, 1);
