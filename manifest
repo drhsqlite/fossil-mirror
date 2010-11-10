@@ -1,5 +1,5 @@
-C The\s"fossil\simport"\scommand\sworks\swell\senough\sto\simport\sthe\sGit\sself-hosting\nrepository.\s\sThere\sare\sstill\sissues\sand\sno\sdoubt\smany\sbugs\syet\sto\sbe\sfound.\nBut\sthis\sis\sa\sgood\sstart.
-D 2010-11-10T00:43:32
+C Tweak\scheck-in\stimes\sslightly\sso\sthat\sparents\salways\scome\sbefore\stheir\nchildren.
+D 2010-11-10T01:43:19
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -76,7 +76,7 @@ F src/main.mk d5970209e9fffe8aafb79ef870ab9b0702536d54
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl cfe055cef81e8e3b7bb096b35ae7caeeb1edbac2
-F src/manifest.c 704c0b7f30f84f7db791282f97c910dec8822380
+F src/manifest.c 4a9a9ebfe88f0209506394054d5e3447996aec8d
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -106,7 +106,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ef3bb3e834513608b726171d748ab2bf5fa3d679
-F src/timeline.c 18d66a883211db5874afdb7b5d52c9d053433382
+F src/timeline.c fdb570ede2e5564cb5c841bafda6dd62e0d903d1
 F src/tkt.c f231726862368d88ed32918e3971ff29cce175e4
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
@@ -275,7 +275,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P ba837f5e88d182411e613be5408a94446d137274
-R 1217347bdb0974a08b6673ffcd9793f8
+P 6c827ff02e9b14f6c2659e25ec5d1dcf3e359371
+R f9543b487ca9ae49e0f61aea7ea80c00
 U drh
-Z 61d4b6c8310490f8eb11b135307442a1
+Z 60988fd6cd6497de55ecaaf2e9838d90

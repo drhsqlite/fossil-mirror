@@ -554,7 +554,8 @@ static void timeline_temp_table(void){
     @   etype TEXT,
     @   taglist TEXT,
     @   tagid INTEGER,
-    @   short TEXT
+    @   short TEXT,
+    @   sortby REAL
     @ )
   ;
   db_multi_exec(zSql);
@@ -585,7 +586,8 @@ const char *timeline_query_for_www(void){
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
     @   tagid,
-    @   brief
+    @   brief,
+    @   event.mtime
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -949,7 +951,7 @@ void page_timeline(void){
     @ <blockquote>%h(blob_str(&sql))</blockquote>
   }
   blob_zero(&sql);
-  db_prepare(&q, "SELECT * FROM timeline ORDER BY timestamp DESC /*scan*/");
+  db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
   www_print_timeline(&q, tmFlags, 0);
@@ -1047,7 +1049,8 @@ const char *timeline_query_for_tty(void){
     @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
     @     || ')',
     @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
-    @   (SELECT count(*) FROM plink WHERE cid=blob.rid)
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
+    @   event.mtime
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
