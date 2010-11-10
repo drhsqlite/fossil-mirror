@@ -1261,6 +1261,14 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
       }
     }
+  }else if( pChild->zBaseline==0 ){
+    manifest_file_rewind(pParent);
+    while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
+      pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+      if( pChildFile==0 ){
+        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0);
+      }
+    }
   }
   manifest_cache_insert(*ppOther);
 }

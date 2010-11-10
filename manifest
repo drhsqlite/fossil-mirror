@@ -1,5 +1,5 @@
-C Fix\sthe\s"divider"\slines\sin\sthe\stimeline\sdisplay.\s\sAdd\sthe\s--force\soption\nto\sthe\s"import"\scommand.
-D 2010-11-10T13:36:46
+C Fix\sthe\scode\sfor\sadding\s"mlink"\sentries\sso\sthat\sit\srecords\sfile\ndeletions\son\sa\sbaseline\smanifest.
+D 2010-11-10T18:42:51
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -76,7 +76,7 @@ F src/main.mk d5970209e9fffe8aafb79ef870ab9b0702536d54
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl cfe055cef81e8e3b7bb096b35ae7caeeb1edbac2
-F src/manifest.c 4a9a9ebfe88f0209506394054d5e3447996aec8d
+F src/manifest.c d442b17659051116a82e6d837f9df3fb845232d5
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -275,7 +275,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 0e87f42762a0c328fabd2b7d96f06215c03016a4
-R 855dbe32e48b41ba39331688d1e3864b
+P ef68b044493c76887d8cc02ea8a53f111bebae1f
+R 627ed3a7fe5bb7cc9b74dd4ba9be71fe
 U drh
-Z 128f84650ece5f863ba351e62d1bb23a
+Z 52010544fb0b4af09b516f3310df4998
