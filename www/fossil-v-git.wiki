@@ -74,7 +74,7 @@ promotes every developer having a complete copy of all branches
 
 <h3>3.3 Community</h3>
 
-Git has a huge user community.  If it following the herd and being
+Git has a huge user community.  If following the herd and being
 like everybody else is important to you, then you should choose Git.
 
 Fossil is clearly the "road less traveled":
