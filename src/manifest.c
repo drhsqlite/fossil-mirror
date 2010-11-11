@@ -1474,6 +1474,11 @@ int manifest_crosslink(int rid, Blob *pContent){
         add_mlink(rid, p, cid, 0);
       }
       db_finalize(&q);
+      if( p->nParent==0 ){
+        for(i=0; i<p->nFile; i++){
+          add_one_mlink(rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0);
+        }
+      }
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
                            "bgcolor,euser,ecomment)"

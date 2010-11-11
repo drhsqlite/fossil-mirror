@@ -1,5 +1,5 @@
-C Cast\sstrlen()\sto\sint\swhen\sused\sas\sa\sprintf()\sargument.
-D 2010-11-11T01:16:10
+C Fix\sthe\s"fossil\simport"\scommand\sso\sthat\sit\scorrectly\shandles\scases\swhere\sa\nfile\sis\sdeleted\sthen\sreplaced\sby\sa\sdirectory\swith\sthe\ssame\sname.
+D 2010-11-11T13:36:38
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -68,7 +68,7 @@ F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 443adfb51885998f2b8971a0fd9b2c3a6ac58083
-F src/import.c c653dcc18984c3ec7acac587edc15a062c578e79
+F src/import.c f0659c25c76fa0df3ae6adbb8d1d1d612003e603
 F src/info.c 28ef7eae65618f3abf40e44e06203cc5bb87231c
 F src/login.c 18bd25fbe56d8dbd17254ae4b407debb4bbaab0a
 F src/main.c 28760cd089171e20f064efd10da275a269db564a
@@ -76,7 +76,7 @@ F src/main.mk d5970209e9fffe8aafb79ef870ab9b0702536d54
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl cfe055cef81e8e3b7bb096b35ae7caeeb1edbac2
-F src/manifest.c 1d87b4b7a1793ee0b531964620486b3f55e35ccf
+F src/manifest.c d120cf84810aca9636105e890c5f102c854829af
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
@@ -275,7 +275,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 6b76effa924709a905a9f45e90d0b5339f6fc93a
-R b2d34f314ac1d6c547b520d2ec989930
+P 5fa4dfc28693c02ac0bd301bb18fd6a8e0b24c55
+R 4364f0c70b8023e0dce41b065e7cefc4
 U drh
-Z bc55719407f17687660d11c2aaccfc4e
+Z 4d8ebdd4b84a749ef9a4d64635cede53

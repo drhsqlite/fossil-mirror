@@ -22,6 +22,20 @@
 #include "import.h"
 #include <assert.h>
 
+#if INTERFACE
+/*
+** A single file change record.
+*/
+struct ImportFile { 
+  char *zName;           /* Name of a file */
+  char *zUuid;           /* UUID of the file */
+  char *zPrior;          /* Prior name if the name was changed */
+  char isFrom;           /* True if obtained from the parent */
+  char isExe;            /* True if executable */
+};
+#endif
+
+
 /*
 ** State information about an on-going fast-import parse.
 */
@@ -42,7 +56,7 @@ static struct {
   char **azMerge;             /* Merge values */
   int nFile;                  /* Number of aFile values */
   int nFileAlloc;             /* Number of slots in aFile[] */
-  ManifestFile *aFile;        /* Information about files in a commit */
+  ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
 } gg;
 
@@ -76,7 +90,6 @@ static void import_reset(int freeAll){
   for(i=0; i<gg.nFile; i++){
     fossil_free(gg.aFile[i].zName);
     fossil_free(gg.aFile[i].zUuid);
-    fossil_free(gg.aFile[i].zPerm);
     fossil_free(gg.aFile[i].zPrior);
   }
   memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
@@ -167,11 +180,11 @@ static void finish_tag(void){
 }
 
 /*
-** Compare two ManifestFile objects for sorting
+** Compare two ImportFile objects for sorting
 */
 static int mfile_cmp(const void *pLeft, const void *pRight){
-  const ManifestFile *pA = (const ManifestFile*)pLeft;
-  const ManifestFile *pB = (const ManifestFile*)pRight;
+  const ImportFile *pA = (const ImportFile*)pLeft;
+  const ImportFile *pB = (const ImportFile*)pRight;
   return strcmp(pA->zName, pB->zName);
 }
 
@@ -189,8 +202,8 @@ static void finish_commit(void){
   blob_appendf(&record, "D %s\n", gg.zDate);
   for(i=0; i<gg.nFile; i++){
     blob_appendf(&record, "F %F %s", gg.aFile[i].zName, gg.aFile[i].zUuid);
-    if( gg.aFile[i].zPerm && gg.aFile[i].zPerm[0] ){
-      blob_appendf(&record, " %s\n", gg.aFile[i].zPerm);
+    if( gg.aFile[i].isExe ){
+      blob_append(&record, " x\n", 3);
     }else{
       blob_append(&record, "\n", 1);
     }
@@ -213,6 +226,7 @@ static void finish_commit(void){
       blob_appendf(&record, "T -sym-%F *\n", zFromBranch);
     }
   }
+  free(zFromBranch);
   if( gg.zFrom==0 ){
     blob_appendf(&record, "T +sym-trunk *\n");
   }
@@ -282,8 +296,8 @@ static char *resolve_committish(const char *zCommittish){
 /*
 ** Create a new entry in the gg.aFile[] array
 */
-static ManifestFile *import_add_file(void){
-  ManifestFile *pFile;
+static ImportFile *import_add_file(void){
+  ImportFile *pFile;
   if( gg.nFile>=gg.nFileAlloc ){
     gg.nFileAlloc = gg.nFileAlloc*2 + 100;
     gg.aFile = fossil_realloc(gg.aFile, gg.nFileAlloc*sizeof(gg.aFile[0]));
@@ -300,7 +314,8 @@ static ManifestFile *import_add_file(void){
 static void import_prior_files(void){
   Manifest *p;
   int rid;
-  ManifestFile *pOld, *pNew;
+  ManifestFile *pOld;
+  ImportFile *pNew;
   if( gg.fromLoaded ) return;
   gg.fromLoaded = 1;
   if( gg.zFrom==0 ) return;
@@ -312,8 +327,9 @@ static void import_prior_files(void){
   while( (pOld = manifest_file_next(p, 0))!=0 ){
     pNew = import_add_file();
     pNew->zName = import_strdup(pOld->zName);
-    pNew->zPerm = import_strdup(pOld->zPerm);
+    pNew->isExe = pOld->zPerm && strstr(pOld->zPerm, "x")!=0;
     pNew->zUuid = import_strdup(pOld->zUuid);
+    pNew->isFrom = 1;
   }
   manifest_destroy(p);
 }
@@ -323,7 +339,7 @@ static void import_prior_files(void){
 ** with the *pI-th file.  Update *pI to be one past the file found.
 ** Do not search past the mx-th file.
 */
-static ManifestFile *import_find_file(const char *zName, int *pI, int mx){
+static ImportFile *import_find_file(const char *zName, int *pI, int mx){
   int i = *pI;
   int nName = strlen(zName);
   while( i<mx ){
@@ -343,7 +359,7 @@ static ManifestFile *import_find_file(const char *zName, int *pI, int mx){
 ** content into the database.
 */
 static void git_fast_import(FILE *pIn){
-  ManifestFile *pFile;
+  ImportFile *pFile, *pNew;
   int i, mx;
   char *z;
   char *zUuid;
@@ -466,10 +482,10 @@ static void git_fast_import(FILE *pIn){
         pFile = import_add_file();
         pFile->zName = import_strdup(zName);
       }
-      if( strcmp(zPerm, "100755")==0 ){
-        pFile->zPerm = mprintf("x");
-      }
+      pFile->isExe = (strcmp(zPerm, "100755")==0);
+      fossil_free(pFile->zUuid);
       pFile->zUuid = resolve_committish(zUuid);
+      pFile->isFrom = 0;
     }else
     if( memcmp(zLine, "D ", 2)==0 ){
       import_prior_files();
@@ -477,8 +493,9 @@ static void git_fast_import(FILE *pIn){
       zName = next_token(&z);
       i = 0;
       while( (pFile = import_find_file(zName, &i, gg.nFile))!=0 ){
+        if( pFile->isFrom==0 ) continue;
         fossil_free(pFile->zName);
-        fossil_free(pFile->zPerm);
+        fossil_free(pFile->zPrior);
         fossil_free(pFile->zUuid);
         *pFile = gg.aFile[--gg.nFile];
         i--;
@@ -494,15 +511,17 @@ static void git_fast_import(FILE *pIn){
       mx = gg.nFile;
       nFrom = strlen(zFrom);
       while( (pFile = import_find_file(zFrom, &i, mx))!=0 ){
-        ManifestFile *pNew = import_add_file();
+        if( pFile->isFrom==0 ) continue;
+        pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
           pNew->zName = import_strdup(pFile->zName);
         }
-        pNew->zPerm = import_strdup(pFile->zPerm);
+        pNew->isExe = pFile->isExe;
         pNew->zUuid = import_strdup(pFile->zUuid);
+        pNew->isFrom = 0;
       }
     }else
     if( memcmp(zLine, "R ", 2)==0 ){
@@ -514,7 +533,8 @@ static void git_fast_import(FILE *pIn){
       i = 0;
       nFrom = strlen(zFrom);
       while( (pFile = import_find_file(zFrom, &i, gg.nFile))!=0 ){
-        ManifestFile *pNew = import_add_file();
+        if( pFile->isFrom==0 ) continue;
+        pNew = import_add_file();
         pFile = &gg.aFile[i-1];
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
@@ -522,8 +542,9 @@ static void git_fast_import(FILE *pIn){
           pNew->zName = import_strdup(pFile->zName);
         }
         pNew->zPrior = pFile->zName;
-        pNew->zPerm = pFile->zPerm;
+        pNew->isExe = pFile->isExe;
         pNew->zUuid = pFile->zUuid;
+        pNew->isFrom = 0;
         gg.nFile--;
         *pFile = *pNew;
         memset(pNew, 0, sizeof(*pNew));
