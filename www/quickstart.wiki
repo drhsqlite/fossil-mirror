@@ -84,6 +84,13 @@ and painlessly.</p>
     <p>Note: If you are behind a restrictive firewall, you might need
     to <a href="#proxy">specify an HTTP proxy</a> to use.</p>
     
+</blockquote><h2>Importing From Another Version Control System</h2><blockquote>
+
+    <p>Rather than start a new project, or clone an existing Fossil project,
+    you might prefer to 
+    <a href="./inout.wiki">import an existing Git project</a>
+    into Fossil.
+
 </blockquote><h2>Checking Out A Local Tree</h2><blockquote>
 
     <p>To work on a project in fossil, you need to check out a local

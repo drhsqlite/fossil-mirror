@@ -133,6 +133,8 @@ internet these days. What makes Fossil worthy of attention?
      [http://chiselapp.com/].
   *  How to [./server.wiki | set up a server] for your repository.
   *  Customizing the [./custom_ticket.wiki | ticket system].
+  *  [./inout.wiki | Import and export] from and to Git.
+  *  [./fossil-v-git.wiki | Fossil versus Git].
 
 <h3>Links For Fossil Developer:</h3>
 

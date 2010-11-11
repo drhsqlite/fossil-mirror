@@ -1,0 +1,182 @@
+<title>Fossil Versus Git</title>
+
+<h2>1.0 Don't Stress!</h2>
+
+If you start out using one DVCS and later decide you like the other better,
+is is [./inout.wiki | easy to change].
+
+But it also helps to be informed about the difference between 
+[http://git-scm.com | Git] and Fossil.  See the table below for
+a high-level summary and the text that follows for more details.
+
+Keep in mind that you are reading this on a Fossil website, 
+so the information here
+might be biased in favor of Fossil.  Ask around with people who have
+used both Fossil and Git for other opinions.
+
+<h2>2.0 Executive Summary:</h2>
+
+<blockquote><center><table border=1 cellpadding=5>
+<tr><th width="50%">GIT</th><th width="50%">FOSSIL</th></tr>
+<tr><td>File versioning only</td>
+    <td>Versioning, Tickets, Wiki, and Blog/News</td></tr>
+<tr><td>Sharding</td><td>Replicating</td></tr>
+<tr><td>Huge community</td><td>Road less traveled</td></tr>
+<tr><td>Complex</td><td>Intuitive</td></tr>
+<tr><td>Separate web tools</td><td>Integrated Web interface</td></tr>
+<tr><td>Lots of little tools</td><td>Single executable</td></tr>
+<tr><td>Pile-of-files repository</td><td>Single file repository</td></tr>
+<tr><td>Uses "<tt>rebase</tt>"</td><td>Immutable</td></tr>
+<tr><td>GPL</td><td>BSD</td></tr>
+</table></center></blockquote>
+
+<h2>3.0 Discussion</h2>
+
+<h3>3.1 Feature Set</h3>
+
+Git provides file versioning services only, whereas Fossil adds an
+integrated [./wikitheory.wiki | wiki],
+[./bugtheory.wiki | ticketing &amp; bug tracking],
+[./embedddeddoc.wiki | embedded documentation], and
+[./event.wiki | News/Blog features].
+These additional capabilities are available for Git as 3rd-party
+user-installed add-ons, but with Fossil they are integrated into
+the design.  One way to describe Fossil is that it is
+"[https://github.com/ | github]-in-a-box".
+
+<h3>3.2 Sharing Model</h3>
+
+Git supports a sharded source tree, whereas Fossil wants all all
+syncing repositories to carry all information.  Git allows individual
+developers to maintain multiple branches on their local repository 
+and then selectively push only one or two branches to higher level
+developers.  Fossil also allows private local branches, but Fossil
+tends to encourage sharing everything, not just one or two select
+branches.  The Git model works best for large projects, like the
+Linux kernel, since Linus doesn't really want to see a thousand
+different branches, one for each contributor.  Git allows intermediary
+"gate-keepers" to merge changes from multiple lower-level developers
+into a single branch and only present Linus with a handful of branches
+at a time.  Fossil encourages a tight-knit, smaller, and more closely
+cooperating developer community where all participants share all
+of their code all of the time.
+
+The prototypical Git development model is that each developer maintains
+their own branch and the various changes from each developer are later
+merged into a master branch by an integrator.  The prototypical Fossil
+development model is that multiple developers collaborate on the same
+branch at the same time.
+
+So in other words, Git promotes a model where individual developers
+keep a subset of the branches of a project (sharding) whereas Fossil
+promotes every developer having a complete copy of all branches
+(replicating).
+
+<h3>3.3 Community</h3>
+
+Git has a huge user community.  If it following the herd and being
+like everybody else is important to you, then you should choose Git.
+
+Fossil is clearly the "road less traveled":
+
+<blockquote>
+Two roads diverged in a wood, and I &#151;<br>
+I took the one less traveled by,<br>
+And that has made all the difference.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<small>- Robert Frost, <i>The Road Not Taken</i>, 1916</small>
+</blockquote>
+</i></blockquote>
+
+Among the advantages of Git's huge user community are that new team
+members may already be familiar with Git's operation and hence can
+bypass the VCS learning curve.  Also, if you need an add-on tool or
+script of some kind, a Google search will likely turn up a suitable
+tool that you can just download and use.  A huge community also means
+that somebody else has likely already encountered and fixed the bugs
+so that for you the product will work as advertised.
+
+Among the advantages of the "road less traveled" is that your particular
+project will be bigger percentage of the total user base, and is thus
+more likely to receive attention from the DVCS maintainers if you do
+encounter problems.
+
+<h3>3.4 Complexity</h3>
+
+Git is a complex system.  It can be tricky to use and requires a fair
+amount of knowledge and experience to master.  Fossil strives to be
+a much simpler system that can be learned and master much more quickly.
+Fossil strives to have fewer "gotchas" and quirks that can trip up a
+developer.
+
+The ideal VCS should just get out of the way of the developer and allow
+the developer to focus 100% of their thinking to the project under
+development.  One should not have to stop and think about how to operate
+the VCS.  Of course, no VCS is ideal.  Every VCS requires the developer
+to think about version control to some extent.  But one wants to minimize
+the thinking about version control.
+
+Git requires the developer to maintain a more complex mental model than
+most other DVCSes.  Git takes longer to learn.  And you have to spend
+more time thinking about what you are doing with Git.  
+
+Fossil strives for simplicity.  Fossil wants to be easy to learn and to
+require little thinking about how to operating it.  Reports from the
+field indicate that Fossil is mostly successful at this effort.
+
+<h3>3.5 Implementation Strategy</h3>
+
+Git consists of a collection of many little programs.  Git needs to be
+"installed" using some kind of installer or package tool.  Git can be
+tricky to install and get working, especially for users without
+administrative privileges.
+
+Fossil is a single self-contained executable.  To "install" Fossil one
+has merely to download a precompiled binary and place that binary
+somewhere on $PATH.  To uninstall Fossil, simply delete the binary.
+To upgrade Fossil, replace the old binary with a new one.
+
+Fossil is designed to be trivial to install, uninstall, and upgrade so
+that developers can spend more time working on their own projects and
+much less time configuring their version control system.
+
+<h3>3.6 Repository Storage</h3>
+
+A Git repository is a "pile-of-files" in the ".git" directory at the
+root of the working checkout.  There is a one-to-one correspondence
+between repositories and working checkouts.  A power-loss or system crash
+in the middle of Git operation can damage or corrupt the Git repository.
+
+A Fossil repository consists of a single disk file.  A single Fossil
+repository can serve multiple simultaneous working checkouts.
+A Fossil repository is an SQLite database, so it highly resistant
+to damage from a power-loss or system crash - incomplete transactions
+are simply rolled back after the system reboots.
+
+<h3>3.7 Audit Trail</h3>
+
+Git features the "rebase" command which can be used to change the
+sequence of check-ins in the repository.  Rebase can be used to "clean up"
+a complex sequence of check-ins to make their intent easier for others
+to understand.  From another point of view, rebase can be used to
+"rewrite history" - to do what
+[http://en.wikipedia.org/wiki/Winston_Smith | Winston Smith] did for
+a living in Orwell's novel
+[http://en.wikipedia.org/wiki/Nineteen_Eighty-Four | 1984].
+
+Fossil deliberately avoids rewriting history.  Fossil strives to follow
+the accounting philosophy of never erasing anything.  Mistakes are fixed
+by entering a correction, with an explanation of why the correction is
+needed.  This can make the history of a project messy, but it also
+makes it more honest.  The lack of a "rebase" function is considered
+a feature of Fossil, not a bug.
+
+<h3>3.8 License</h3>
+
+Both Git and Fossil are open-source.  Git is under 
+[http://www.gnu.org/licenses/gpl.html | GPL] whereas Fossil is
+under the 
+[http://en.wikipedia.org/wiki/BSD_licenses | two-clause BSD license].
+The difference should not be of a concern to most users.  However,
+some corporate lawyers have objections to using GPL products and
+are more comfortable with a BSD-style license.
