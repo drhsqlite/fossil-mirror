@@ -51,7 +51,12 @@ char *info_tags_of_checkin(int rid, int propagatingOnly){
 **     *  mtime and ctime
 **     *  who signed it
 */
-void show_common_info(int rid, const char *zUuidName, int showComment){
+void show_common_info(
+  int rid,                   /* The rid for the check-in to display info for */
+  const char *zUuidName,     /* Name of the UUID */
+  int showComment,           /* True to show the check-in comment */
+  int showFamily             /* True to show parents and children */
+){
   Stmt q;
   char *zComment = 0;
   char *zTags;
@@ -70,34 +75,38 @@ void show_common_info(int rid, const char *zUuidName, int showComment){
   }
   if( zUuid && showComment ){
     zComment = db_text(0, 
-      "SELECT coalesce(ecomment,comment) || ' (user: ' || coalesce(euser,user,'?') || ')' FROM event WHERE objid=%d",
+      "SELECT coalesce(ecomment,comment) || "
+      "       ' (user: ' || coalesce(euser,user,'?') || ')' "
+      "  FROM event WHERE objid=%d",
       rid
     );
   }
-  db_prepare(&q, "SELECT uuid, pid FROM plink JOIN blob ON pid=rid "
-                 " WHERE cid=%d", rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    zDate = db_text("", 
-      "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
-      db_column_int(&q, 1)
-    );
-    printf("parent:       %s %s\n", zUuid, zDate);
-    free(zDate);
+  if( showFamily ){
+    db_prepare(&q, "SELECT uuid, pid FROM plink JOIN blob ON pid=rid "
+                   " WHERE cid=%d", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zUuid = db_column_text(&q, 0);
+      zDate = db_text("", 
+        "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
+        db_column_int(&q, 1)
+      );
+      printf("parent:       %s %s\n", zUuid, zDate);
+      free(zDate);
+    }
+    db_finalize(&q);
+    db_prepare(&q, "SELECT uuid, cid FROM plink JOIN blob ON cid=rid "
+                   " WHERE pid=%d", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zUuid = db_column_text(&q, 0);
+      zDate = db_text("", 
+        "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
+        db_column_int(&q, 1)
+      );
+      printf("child:        %s %s\n", zUuid, zDate);
+      free(zDate);
+    }
+    db_finalize(&q);
   }
-  db_finalize(&q);
-  db_prepare(&q, "SELECT uuid, cid FROM plink JOIN blob ON cid=rid "
-                 " WHERE pid=%d", rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zUuid = db_column_text(&q, 0);
-    zDate = db_text("", 
-      "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
-      db_column_int(&q, 1)
-    );
-    printf("child:        %s %s\n", zUuid, zDate);
-    free(zDate);
-  }
-  db_finalize(&q);
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
     printf("tags:         %s\n", zTags);
@@ -155,7 +164,7 @@ void info_cmd(void){
     if( vid==0 ){
       printf("checkout:     nil\n");
     }else{
-      show_common_info(vid, "checkout:", 1);
+      show_common_info(vid, "checkout:", 1, 1);
     }
   }else{
     int rid;
@@ -163,7 +172,7 @@ void info_cmd(void){
     if( rid==0 ){
       fossil_panic("no such object: %s\n", g.argv[2]);
     }
-    show_common_info(rid, "uuid:", 1);
+    show_common_info(rid, "uuid:", 1, 1);
   }
 }
 

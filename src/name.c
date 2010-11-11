@@ -144,6 +144,7 @@ static int is_date(const char *z){
 ** be freed by the caller.
 */
 char *tag_to_uuid(const char *zTag){
+  int vid;
   char *zUuid = 
     db_text(0,
        "SELECT blob.uuid"
@@ -191,6 +192,20 @@ char *tag_to_uuid(const char *zTag){
         "   AND blob.rid=event.objid"
         " ORDER BY event.mtime DESC"
       );
+    }
+    if( zUuid==0 && g.localOpen && (vid=db_lget_int("checkout",0))!=0 ){
+      if( strcmp(zTag, "ckout")==0 ){
+        zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+      }else if( strcmp(zTag, "prev")==0 ){
+        zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid="
+                           "(SELECT pid FROM plink WHERE cid=%d AND isprim)",
+                           vid);
+      }else if( strcmp(zTag, "next")==0 ){
+        zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid="
+                           "(SELECT cid FROM plink WHERE pid=%d AND isprim"
+                           "  ORDER BY mtime DESC)",
+                           vid);
+      }
     }
   }
   return zUuid;

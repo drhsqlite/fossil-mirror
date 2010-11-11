@@ -1,5 +1,5 @@
-C Fix\sa\sminor\smemory\sleak.
-D 2010-11-11T21:36:10
+C Add\ssupport\sfor\s"magic"\stags\s"ckout",\s"prev"\sand\s"next".\s\sShow\sthe\nversion\supdating\sto\swhen\sperforming\san\s"update".
+D 2010-11-11T22:04:34
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -43,7 +43,7 @@ F src/branch.c 9f5ffe2ff5acbe314d98a6c1fd6b3b738c27486f
 F src/browse.c 931267cb06194cbd6cf1904f7dd60aa2c39ad4cd
 F src/captcha.c 4fd641c262b7cd037de036892c7d56b76905b1a6
 F src/cgi.c fe2268ca6b9b6d2bc95dec94d6752d529365333f
-F src/checkin.c 9de471518cdab03af615ad083f272c00a9b42b23
+F src/checkin.c 51bf7b47d0c541c78a548be4cd74e10ea893578e
 F src/checkout.c f2c101edf2897d776a3186b13a6b7f3239b66a3d
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -69,7 +69,7 @@ F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 443adfb51885998f2b8971a0fd9b2c3a6ac58083
 F src/import.c f0659c25c76fa0df3ae6adbb8d1d1d612003e603
-F src/info.c 28ef7eae65618f3abf40e44e06203cc5bb87231c
+F src/info.c 3447711f697acd1d0f244145d930d2b308e5ee34
 F src/login.c 18bd25fbe56d8dbd17254ae4b407debb4bbaab0a
 F src/main.c 28760cd089171e20f064efd10da275a269db564a
 F src/main.mk d5970209e9fffe8aafb79ef870ab9b0702536d54
@@ -81,7 +81,7 @@ F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
-F src/name.c b29919886231e6119300bcdfa022036b4b8cab77
+F src/name.c 80945b44e4611fa17a7a8bd38bec1ed000aa1304
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 935a4cdb90ec123f56faea207eb72f0610f7bece
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
@@ -111,7 +111,7 @@ F src/tkt.c f231726862368d88ed32918e3971ff29cce175e4
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
-F src/update.c 3361090cb75bd0e7bab90e83387ecf8c6b6f4925
+F src/update.c a1e13d8987704f9a8c895a1d63fbbacbfc2f2574
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -277,7 +277,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 8f4d5314ae4f0f6c0c902f7897092a8fa4ae3593
-R d29626fd2a1646429b41cae9c36c929d
+P 3541444d9d15cc62789b2061e8b89fbbf8c705fe
+R 2e732f94e424b2de8ff733f163a03ce9
 U drh
-Z 6c1c87e91d495b7b9f81f9c82cf613d7
+Z d1643d7badb738370fdf85174c429ef7
