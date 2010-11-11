@@ -154,7 +154,7 @@ void export_cmd(void){
     print_person(zUser);
     printf(" %lld +0000\n", secondsSince1970);
     if( zComment==0 ) zComment = "null comment";
-    printf("data %d\n%s\n", strlen(zComment), zComment);
+    printf("data %d\n%s\n", (int)strlen(zComment), zComment);
     p = manifest_get(ckinId, CFTYPE_ANY);
     zFromType = "from";
     for(i=0; i<p->nParent; i++){
