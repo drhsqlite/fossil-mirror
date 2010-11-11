@@ -44,33 +44,42 @@ user-installed add-ons, but with Fossil they are integrated into
 the design.  One way to describe Fossil is that it is
 "[https://github.com/ | github]-in-a-box".
 
-<h3>3.2 Sharing Model</h3>
+<h3>3.2 Sharding versus Replicating</h3>
 
-Git supports a sharded source tree, whereas Fossil wants all all
-syncing repositories to carry all information.  Git allows individual
-developers to maintain multiple branches on their local repository 
-and then selectively push only one or two branches to higher level
-developers.  Fossil also allows private local branches, but Fossil
-tends to encourage sharing everything, not just one or two select
-branches.  The Git model works best for large projects, like the
-Linux kernel, since Linus doesn't really want to see a thousand
+Git makes it easy for each repository in a project to hold a subset of
+the branches for that project.  In fact, it is entirely possible and not
+uncommon for no repository in the project to hold all the different code
+versions for a project.  Instead the information is distributed.  
+Individual developers have one or more private branches.  A hierarchy
+of integrators merge changes from individual developers into collaborative
+branches, until all the changes are merged together at the top-level master
+branch.  And all of this can be accomplished without having to have all the
+code in any one repository.  Developers or groups of developers can share
+only those branches that they want to share and keep other branchs of the
+project private.  This is analogous to sharding an a distributed database.
+
+Fossil allows private branches, but its default mode is to share everything.
+And so in a Fossil project, all respositories tend to contain all of the
+content at all times.  This is analogous to replication in a
+distributed database.
+
+The Git model works best for large projects, like the
+Linux kernel for which Git was designed.
+Linus Torvalds does not need or want to see a thousand
 different branches, one for each contributor.  Git allows intermediary
 "gate-keepers" to merge changes from multiple lower-level developers
 into a single branch and only present Linus with a handful of branches
-at a time.  Fossil encourages a tight-knit, smaller, and more closely
-cooperating developer community where all participants share all
-of their code all of the time.
+at a time.  Git encourages a programming model where each developer
+works in his or her own branch and then merges changes up the hierarchy
+until they reach the master branch.
 
-The prototypical Git development model is that each developer maintains
-their own branch and the various changes from each developer are later
-merged into a master branch by an integrator.  The prototypical Fossil
-development model is that multiple developers collaborate on the same
-branch at the same time.
-
-So in other words, Git promotes a model where individual developers
-keep a subset of the branches of a project (sharding) whereas Fossil
-promotes every developer having a complete copy of all branches
-(replicating).
+Fossil is designed for smaller and non-hierarchical teams where all
+developers are operating directly on the master branch, or at most one
+a small number of well defined branches.  
+The [concepts.wiki#workflow | autosync] mode of Fossil makes it easy
+for multiple developers to work on a single branch and maintain a
+linear line of development on that branch without needless forking
+and merging.
 
 <h3>3.3 Community</h3>
 
@@ -94,12 +103,12 @@ bypass the VCS learning curve.  Also, if you need an add-on tool or
 script of some kind, a Google search will likely turn up a suitable
 tool that you can just download and use.  A huge community also means
 that somebody else has likely already encountered and fixed the bugs
-so that for you the product will work as advertised.
+so that Git will work for you and your project as advertised.
 
 Among the advantages of the "road less traveled" is that your particular
 project will be bigger percentage of the total user base, and is thus
-more likely to receive attention from the DVCS maintainers if you do
-encounter problems.
+more likely to receive personal attention from the Fossil maintainers 
+if you do encounter problems.
 
 <h3>3.4 Complexity</h3>
 
@@ -124,7 +133,19 @@ Fossil strives for simplicity.  Fossil wants to be easy to learn and to
 require little thinking about how to operating it.  Reports from the
 field indicate that Fossil is mostly successful at this effort.
 
-<h3>3.5 Implementation Strategy</h3>
+<h3>3.5 Web Interface</h3>
+
+Git has a web interface, but it requires a fair amount of setup and an
+external web server.  Fossil comes with a fully functional
+[./webui.wiki | built-in web-server]
+and a really simple mechanism (the "<tt>fossil ui</tt>" command) to
+automatically start the web server and bring up a web browser to navigate
+it.  The web interface for Fossil is not only easier to set up, it is also
+more powerful and easier to use.  The web interface to Fossil is a practical
+replacement to the 3rd-party "GUI Tools" that users often employ to operate
+Git.
+
+<h3>3.6 Implementation Strategy</h3>
 
 Git consists of a collection of many little programs.  Git needs to be
 "installed" using some kind of installer or package tool.  Git can be
@@ -140,7 +161,7 @@ Fossil is designed to be trivial to install, uninstall, and upgrade so
 that developers can spend more time working on their own projects and
 much less time configuring their version control system.
 
-<h3>3.6 Repository Storage</h3>
+<h3>3.7 Repository Storage</h3>
 
 A Git repository is a "pile-of-files" in the ".git" directory at the
 root of the working checkout.  There is a one-to-one correspondence
@@ -153,7 +174,7 @@ A Fossil repository is an SQLite database, so it highly resistant
 to damage from a power-loss or system crash - incomplete transactions
 are simply rolled back after the system reboots.
 
-<h3>3.7 Audit Trail</h3>
+<h3>3.8 Audit Trail</h3>
 
 Git features the "rebase" command which can be used to change the
 sequence of check-ins in the repository.  Rebase can be used to "clean up"
@@ -171,7 +192,7 @@ needed.  This can make the history of a project messy, but it also
 makes it more honest.  The lack of a "rebase" function is considered
 a feature of Fossil, not a bug.
 
-<h3>3.8 License</h3>
+<h3>3.9 License</h3>
 
 Both Git and Fossil are open-source.  Git is under 
 [http://www.gnu.org/licenses/gpl.html | GPL] whereas Fossil is
