@@ -689,6 +689,7 @@ void db_open_config(int useAttach){
     g.dbConfig = openDatabase(zDbName);
   }
   g.configOpen = 1;
+  free(zDbName);
 }
 
 /*
