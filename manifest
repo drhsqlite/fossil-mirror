@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\s"magic"\stags\s"ckout",\s"prev"\sand\s"next".\s\sShow\sthe\nversion\supdating\sto\swhen\sperforming\san\s"update".
-D 2010-11-11T22:04:34
+C Change\sthe\sname\sof\sthe\sspecial\s"ckout"\stag\sto\s"current".\s\sAlso\sallow\n"previous"\sin\saddition\sto\s"prev"\sfor\sthe\sparent\sof\sthe\scurrent\scheckout.
+D 2010-11-11T23:08:39
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -81,7 +81,7 @@ F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
 F src/merge3.c 4fbafbc842f3976001d9bde2059da0d6f45d3abc
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
-F src/name.c 80945b44e4611fa17a7a8bd38bec1ed000aa1304
+F src/name.c f5e8483f71d5d8939b623fca7c016868f0fa0184
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 935a4cdb90ec123f56faea207eb72f0610f7bece
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
@@ -277,7 +277,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 3541444d9d15cc62789b2061e8b89fbbf8c705fe
-R 2e732f94e424b2de8ff733f163a03ce9
+P 5ea9ad379da5635fbf6782f7fe85e6e7471a1ad7
+R af4c7f860f2b1dcc820c6c5bdfedd63e
 U drh
-Z d1643d7badb738370fdf85174c429ef7
+Z 9c1787958c642f55db336312a02510c2
