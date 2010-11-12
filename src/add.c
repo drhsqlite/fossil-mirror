@@ -46,7 +46,7 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
    || strcmp(zPath, ".fos-journal")==0
    || strcmp(zPath, ".fos-wal")==0
    || strcmp(zPath, ".fos-shm")==0
-   || blob_compare(&pathname, pOmit)==0
+   || (pOmit && blob_compare(&pathname, pOmit)==0)
   ){
     fossil_warning("cannot add %s", zPath);
   }else{
@@ -273,6 +273,111 @@ void delete_cmd(void){
   db_multi_exec("DELETE FROM vfile WHERE deleted AND rid=0");
   db_end_transaction(0);
 }
+
+/*
+** COMMAND: addremove
+**
+** Usage: %fossil addremove ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
+**
+** Do all necessary "add" and "rm" commands to synchronize the repository
+** with the content of the working checkout
+**
+**  *  All files in the checkout but not in the repository (that is,
+**     all files displayed using the "extra" command) are added as
+**     if by the "add" command.
+**
+**  *  All files in the repository but missing from the checkout (that is,
+**     all files that show as MISSING with the "status" command) are
+**     removed as if by the "rm" command.
+**
+** The command does not "commit".  You must run the "commit" separately
+** as a separate step.
+**
+** Files and directories whose names begin with "." are ignored unless
+** the --dotfiles option is used.
+**
+** The --ignore option overrides the "ignore-glob" setting.  See
+** documentation on the "setting" command for further information.
+**
+** The --test option shows what would happen without actually doing anything.
+**
+** This command can be used to track third party software.
+*/
+void import_cmd(void){
+  Blob path;
+  const char *zIgnoreFlag = find_option("ignore",0,1);
+  int allFlag = find_option("dotfiles",0,0)!=0;
+  int isTest = find_option("test",0,0)!=0;
+  int n;
+  Stmt q;
+  int vid;
+  Blob repo;
+  int nAdd = 0;
+  int nDelete = 0;
+
+  if( zIgnoreFlag==0 ){
+    zIgnoreFlag = db_get("ignore-glob", 0);
+  }
+  db_must_be_within_tree();
+  vid = db_lget_int("checkout",0);
+  if( vid==0 ){
+    fossil_panic("no checkout to add to");
+  }
+  db_begin_transaction();
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  n = strlen(g.zLocalRoot);
+  blob_init(&path, g.zLocalRoot, n-1);
+  /* now we read the complete file structure into a temp table */
+  vfile_scan(0, &path, blob_size(&path), allFlag);
+  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
+  }
+
+  /* step 1: search for extra files */
+  db_prepare(&q, 
+      "SELECT x, %Q || x FROM sfile"
+      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
+                       "'_FOSSIL_-journal','.fos','.fos-journal',"
+                       "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
+                       "'.fos-shm')"
+      "   AND NOT %s"
+      " ORDER BY 1",
+      g.zLocalRoot,
+      glob_expr("x", zIgnoreFlag)
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    add_one_file(db_column_text(&q, 1), vid, 0);
+    nAdd++;
+  }
+  db_finalize(&q);
+  /* step 2: search for missing files */
+  db_prepare(&q, 
+      "SELECT pathname,%Q || pathname,deleted FROM vfile"
+      " WHERE deleted!=1"
+      " ORDER BY 1",
+      g.zLocalRoot
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char * zFile;
+    const char * zPath;
+
+    zFile = db_column_text(&q, 0);
+    zPath = db_column_text(&q, 1);
+    if( !file_isfile(zPath) ){
+      if( !isTest ){
+        db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
+      }
+      printf("DELETED  %s\n", zFile);
+      nDelete++;
+    }
+  }
+  db_finalize(&q);
+  /* show cmmand summary */
+  printf("added %d files, deleted %d files\n", nAdd, nDelete);
+
+  db_end_transaction(isTest);
+}
+
 
 /*
 ** Rename a single file.
