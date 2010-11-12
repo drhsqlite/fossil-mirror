@@ -1,5 +1,5 @@
-C Change\sthe\sname\sof\sthe\sspecial\s"ckout"\stag\sto\s"current".\s\sAlso\sallow\n"previous"\sin\saddition\sto\s"prev"\sfor\sthe\sparent\sof\sthe\scurrent\scheckout.
-D 2010-11-11T23:08:39
+C Added\sdocumentation\son\sways\sto\sidentify\sa\scheck-in.
+D 2010-11-12T00:24:37
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -206,6 +206,7 @@ F www/build-icons/mac.gif e8de26198384613dbd2b9f3ad81f59946d55d119
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki f035192a1412f855b29e7e019565a8f272cce50e
+F www/checkin_names.wiki 9509ac6e72874318c444d2312290e1d33593ef4b
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
@@ -258,7 +259,7 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki f148c520ad8e8f9319a76c8e1845e030f515347f
+F www/index.wiki 64dc1a0ddd59b6d47c1e8b063eadeb6d5f3cb26f
 F www/inout.wiki cc1ca5c319f1563e2ca63c8e39fc42e49d2c864f
 F www/mkdownload.tcl 5fc5129fe11a268ce5e887943cf12fa76438c738
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
@@ -277,7 +278,7 @@ F www/sync.wiki f7a1ce1ba2bded19777ffd07a2c7eaaab4caa175
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 5ea9ad379da5635fbf6782f7fe85e6e7471a1ad7
-R af4c7f860f2b1dcc820c6c5bdfedd63e
+P badb9ff2311ef3e21edd305cb64ea0324efe54d4
+R 3dfff3adffea342f48cf69823800ec3f
 U drh
-Z 9c1787958c642f55db336312a02510c2
+Z 817fb2f318e00e85202936d88dd8df0f

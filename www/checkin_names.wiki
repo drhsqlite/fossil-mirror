@@ -1,0 +1,174 @@
+<title>Check-in Names</title>
+
+Many Fossil commands and [./webui.wiki | web-interface] URLs accept
+check-in names as an argument.  For example, the "info" command
+accepts an optional check-in name to identify the specific checkout
+about which information is desired:
+
+<blockquote>
+<tt>fossil info</tt> <i>checkin-name</i>
+</blockquote>
+
+You are perhaps reading this page from the following URL:
+
+<blockquote>
+http://www.fossil-scm.org/fossil/doc/<b>trunk</b>/www/checkin_names.wiki
+</blockquote>
+
+The URL above is an example of an [./embeddeddoc.wiki | embedded documentation]
+page in Fossil.  The bold term of the pathname is a check-in name that
+determines which version of the documentation to display.
+
+Fossil provides a variety of ways to specify a check-in.  This
+document describes the various methods.
+
+<h2>Canonical Check-in Name</h2>
+
+The canonical name of a checkin is the SHA1 hash of its
+[./fileformat.wiki#manifest | manifest] expressed as a 40-character
+lowercase hexadecimal number.  For example:
+
+<blockquote><pre>
+fossil info e5a734a19a9826973e1d073b49dc2a16aa2308f9
+</pre></blockquote>
+
+The full 40-character SHA1 hash is unwieldy to remember and type, though,
+os Fossil also accepts a unique prefix of the hash, using any combination
+of upper and lower case letters, as long as the prefix is at least 4
+characters long.  Hence the following commands all 
+accomplish the same thing as the above:
+
+<blockquote><pre>
+fossil info e5a734a19a9
+fossil info E5a734A
+fossil info e5a7
+</blockquote>
+
+Many web-interface screens identify check-ins by 10- or 16-character 
+prefix of canonical name.
+
+<h2>Tags And Branch Names</h2>
+
+Using a tag or branch name where a check-in name is expected causes
+Fossil to choose the most recent check-in with that tag or branch name.
+So, for example, as of this writing the most recent check-in that
+is tagged with "release" is [d0753799e44].
+So the command:
+
+<blockquote><pre>
+fossil info release
+</pre></blockquote>
+
+Results in the following input:
+
+<blockquote><pre>
+uuid:         d0753799e447b795933e9f266233767d84aa1d84 2010-11-01 14:23:35 UTC
+parent:       4e1241f3236236187ad2a8f205323c05b98c9895 2010-10-31 21:51:11 UTC
+child:        4a094f46ade70bd9d1e4ffa48cbe94b4d3750aef 2010-11-01 18:52:37 UTC
+child:        f4033ec09ee6bb2a73fa588c217527a1f311bd27 2010-11-01 23:38:34 UTC
+tags:         trunk, release
+comment:      Fix a typo in the file format documentation reported on the
+              Tcl/Tk chatroom. (user: drh)
+</pre></blockquote>
+
+There are multiple check-ins that are tagged with "release" but
+(as of this writing) the [d0753799e44]
+check-in is the most recent so it is the one that is selected.
+
+Note that unlike other command DVCSes, a "branch" in Fossil
+is not anything special; it is simply a sequence of check-ins that
+share a common tag.  So the same mechanism that resolves tag names
+also resolves branch names.
+
+Note also that there can (in theory) be an ambiguity between tag names
+and canonical names.  Suppose, for example, you had a check-in with
+the canonical name deed28aa99a835f01fa06d5b4a41ecc2121bf419 and you
+also happened to have tagged a different check-in with "deed2".  If
+you use the "deed2" name, does it choose the canonical name or the tag
+name?  In such cases, you can prefix the tag name with "tag:".  Hence
+
+<blockquote>
+fossil info tag:deed2
+</blockquote>
+
+Will refer to the most recent check-in tagged with "deed2" not to the
+check-in whose canonical name begins with "deed2".
+
+<h2>Timestamps</h2>
+
+A timestamp in one of the formats shown below means the most recent
+check-in that occurs no later than the timestamp given:
+
+  *   <i>YYYY-MM-DD</i>
+  *   <i>YYYY-MM-DD HH:MM</i>
+  *   <i>YYYY-MM-DD HH:MM:SS</i>
+
+The space between the day and the year can optionally be 
+replaced by an uppercase <b>T</b> and the entire timestamp can
+optinally be followed by "<b>utc</b>".
+
+In its default configuration, Fossil interprets and displays all dates
+in Universal Coordinated Time (UTC).  This tends to work the best for
+distributed projects where participants are scattered around the globe.
+But there is an open on the Admin/Timeline page of the web-interface to
+switch to local time.  The "<b>utc</b>" suffix on an timestamp check-in
+name is meaningless if Fossil is in the default mode of using UTC for
+everything, but if Fossil has been switched to localtime mode, then the
+"<b>utc</b>" suffix means to interpret that particular timestamp using 
+UTC instead localtime.
+
+As an example, consider the homepage for the Fossil website itself:
+
+<blockquote>
+http://www.fossil-scm.org/fossil/doc/<b>trunk</b>/www/index.wiki
+</blockquote>
+
+The bold component of that URL is a check-in name.  To see what the
+Fossil website looked like on January 1, 2009, one has merely to change
+the URL to the following:
+
+<blockquote>
+http://www.fossil-scm.org/fossil/doc/<b>2009-01-01</b>/www/index.wiki
+</blockquote>
+
+<h2>Tag And Timestamp</h2>
+
+A check-in name can also take the form of a tag or branch name followed by
+a colon and then a timestamp.  The combination means to take the most
+recent check-in with the given tag or branch which is not more recent than
+the timestamp.  So, for example:
+
+<blockquote>
+fossil update trunk:2010-07-01T14:30
+</blockquote>
+
+Would cause Fossil to update the working check-out to be the most recent
+check-in on the trunk that is not more recent that 14:30 (UTC) on 
+July 1, 2010.
+
+<h2>Special Tags</h2>
+
+The tag "tip" means the most recent check-in.  The "tip" tag is roughly
+equivalent to the timestamp tag "5000-01-01".
+
+If the command is being run from a working check-out (not against a bare
+repository) then a few extra tags apply.  The "current" tag means the
+current check-out.  The "next" tag means the youngest child of the
+current check-out.  And the "previous" tag means the primary (non-merge)
+parent of the current check-out.
+
+<h2>Additional Examples</h2>
+
+To view the changes in the most recent check-in prior to the version currently
+checked out:
+
+<blockquote><pre>
+fossil diff --from previous --to current
+</pre></blockquote>
+
+Suppose you are of the habit of tagging each release with a "release" tag.
+Then to see everything that has changed on the trunk since the last release:
+
+<blockquote><pre>
+fossil diff --from release --to trunk
+</pre></blockquote>
