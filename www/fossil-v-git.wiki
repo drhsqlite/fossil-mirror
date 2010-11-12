@@ -3,9 +3,9 @@
 <h2>1.0 Don't Stress!</h2>
 
 If you start out using one DVCS and later decide you like the other better,
-is is [./inout.wiki | easy to change].
+it is [./inout.wiki | easy to change].
 
-But it also helps to be informed about the difference between 
+But it also helps to be informed about the differences between 
 [http://git-scm.com | Git] and Fossil.  See the table below for
 a high-level summary and the text that follows for more details.
 
