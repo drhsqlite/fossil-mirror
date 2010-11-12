@@ -105,16 +105,16 @@ static int process_sync_args(void){
     usage("URL");
   }
   url_parse(zUrl);
-  if( !g.dontKeepUrl ){
-    db_set("last-sync-url", g.urlCanonical, 0);
-    if( g.urlPasswd ) db_set("last-sync-pw", obscure(g.urlPasswd), 0);
-  }
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     if( zPw==0 ){
       url_prompt_for_password();
     }else{
       g.urlPasswd = mprintf("%s", zPw);
     }
+  }
+  if( !g.dontKeepUrl ){
+    db_set("last-sync-url", g.urlCanonical, 0);
+    if( g.urlPasswd ) db_set("last-sync-pw", obscure(g.urlPasswd), 0);
   }
   user_select();
   if( g.argc==2 ){
