@@ -74,11 +74,11 @@ works in his or her own branch and then merges changes up the hierarchy
 until they reach the master branch.
 
 Fossil is designed for smaller and non-hierarchical teams where all
-developers are operating directly on the master branch, or at most one
+developers are operating directly on the master branch, or at most
 a small number of well defined branches.  
 The [concepts.wiki#workflow | autosync] mode of Fossil makes it easy
-for multiple developers to work on a single branch and maintain a
-linear line of development on that branch without needless forking
+for multiple developers to work on a single branch and maintain
+linear development on that branch and avoid needless forking
 and merging.
 
 <h3>3.3 Community</h3>
@@ -114,12 +114,12 @@ if you do encounter problems.
 
 Git is a complex system.  It can be tricky to use and requires a fair
 amount of knowledge and experience to master.  Fossil strives to be
-a much simpler system that can be learned and master much more quickly.
+a much simpler system that can be learned and mastered much more quickly.
 Fossil strives to have fewer "gotchas" and quirks that can trip up a
 developer.
 
 The ideal VCS should just get out of the way of the developer and allow
-the developer to focus 100% of their thinking to the project under
+the developer to focus 100% of their thinking on the project under
 development.  One should not have to stop and think about how to operate
 the VCS.  Of course, no VCS is ideal.  Every VCS requires the developer
 to think about version control to some extent.  But one wants to minimize
