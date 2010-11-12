@@ -108,7 +108,7 @@ void win32_process_one_http_request(void *pAppData){
   fclose(out);
   out = 0;
   sprintf(zCmd, "\"%s\" http \"%s\" %s %s %s%s",
-    _pgmptr, g.zRepositoryName, zRequestFName, zReplyFName, 
+    fossil_nameofexe(), g.zRepositoryName, zRequestFName, zReplyFName, 
     inet_ntoa(p->addr.sin_addr), p->zNotFound
   );
   fossil_system(zCmd);

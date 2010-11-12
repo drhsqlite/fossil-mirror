@@ -118,7 +118,7 @@ void all_cmd(void){
     fossil_fatal("\"all\" subcommand should be one of: "
                  "ignore list ls push pull rebuild sync");
   }
-  zFossil = quoteFilename(g.argv[0]);
+  zFossil = quoteFilename(fossil_nameofexe());
   nMissing = 0;
   db_prepare(&q,
      "SELECT DISTINCT substr(name, 6) COLLATE nocase"

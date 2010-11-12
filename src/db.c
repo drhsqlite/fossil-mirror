@@ -75,7 +75,7 @@ static void db_err(const char *zFormat, ...){
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
+    fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
   }
   db_force_rollback();
   fossil_exit(1);

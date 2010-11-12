@@ -272,6 +272,17 @@ int main(int argc, char **argv){
 static int mainInFatalError = 0;
 
 /*
+** Return the name of the current executable.
+*/
+const char *fossil_nameofexe(void){
+#ifdef _WIN32
+  return _pgmptr;
+#else
+  return g.argv[0];
+#endif
+}
+
+/*
 ** Exit.  Take care to close the database first.
 */
 void fossil_exit(int rc){
@@ -296,7 +307,7 @@ void fossil_panic(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -313,7 +324,7 @@ void fossil_fatal(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -341,7 +352,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -358,7 +369,7 @@ void fossil_warning(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
   }else{
-    fprintf(stderr, "%s: %s\n", g.argv[0], z);
+    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
   }
 }
 
@@ -445,7 +456,7 @@ void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fprintf(stderr, "Usage: %s %s %s\n", g.argv[0], g.argv[1], zFormat);
+  fprintf(stderr, "Usage: %s %s %s\n", fossil_nameofexe(), g.argv[1], zFormat);
   fossil_exit(1);
 }
 
@@ -605,7 +616,8 @@ void help_cmd(void){
   int rc, idx;
   const char *z;
   if( g.argc!=3 ){
-    printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n", g.argv[0]);
+    printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n",
+           fossil_nameofexe());
     cmd_cmd_list();
     version_cmd();
     return;
@@ -623,7 +635,7 @@ void help_cmd(void){
   }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
-      printf("%s", g.argv[0]);
+      printf("%s", fossil_nameofexe());
       z += 7;
     }else{
       putchar(*z);

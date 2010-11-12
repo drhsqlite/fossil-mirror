@@ -304,8 +304,7 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
 void delta_3waymerge_cmd(void){
   Blob pivot, v1, v2, merged;
   if( g.argc!=6 ){
-    fprintf(stderr,"Usage: %s %s PIVOT V1 V2 MERGED\n", g.argv[0], g.argv[1]);
-    fossil_exit(1);
+    usage("PIVOT V1 V2 MERGED");
   }
   if( blob_read_from_file(&pivot, g.argv[2])<0 ){
     fprintf(stderr,"cannot read %s\n", g.argv[2]);
