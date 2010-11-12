@@ -198,7 +198,7 @@ void www_print_timeline(
     @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
 
-  @ <table class="timelineTable">
+  @ <table id="timelineTable" class="timelineTable">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -490,7 +490,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   while( canvasDiv.hasChildNodes() ){
     @     canvasDiv.removeChild(canvasDiv.firstChild);
     @   }
-    @   var canvasY = absoluteY("canvas");
+    @   var canvasY = absoluteY("timelineTable");
     @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
     @   var width = nrail*20;
     @   for(var i in rowinfo){
