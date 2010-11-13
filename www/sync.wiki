@@ -225,16 +225,51 @@ code to put in the new repository it is constructing.</p>
 
 <p>A clone card works like a pull card in that it is sent from
 client to server in order to tell the server that the client
-wants to pull content.  But unlike the pull card, the clone
-card has no arguments.</p>
+wants to pull content.  The clone card comes in two formats.  Older
+clients use the no-argument format and newer clients use the
+two-argument format.</p>
 
 <blockquote>
-<b>clone</b>
+<b>clone</b><br>
+<b>clone</b> <i>protocol-version sequence-number</i>
 </blockquote>
 
-<p>In response to a clone message, the server also sends the client
+<h4>3.5.1 Protocol 2</h4>
+
+<p>The latest clients since a two-argument clone message with a
+protocol version of "2".  (Future versions of Fossil might use larger
+protocol version numbers.)  The sequence-number sent is the number
+of artifacts received so far.  For the first clone message, the
+sequence number if 0.  The server will respond by sending file
+cards for some number of artifacts up to the maximum message size.
+
+<p>The server will also send a single "clone_seqno" card to the client
+so that the client can know where the server left off.
+
+<blockquote>
+<b>clone_seqno</b>  <i>sequence-number</i>
+</blockquote>
+
+<p>The clone message in subquence HTTP requests for the same clone
+operation will use the sequence-number from the
+clone_seqno of the previous reply.</p>
+
+<p>In response to an initial clone message, the server also sends the client
 a push message so that the client can discover the projectcode for
 this project.</p>
+
+<h4>3.5.2 Legacy Protocol</h4>
+
+<p>Older clients send a clone card with no argument.  The server responds
+to a blank clone card by sending an "igot" card for every artifact in the
+repository.  The client will then issue "gimme" cards to pull down all the
+content it needs.
+
+<p>The legacy protocol works well for smaller repositories (50MB with 50,000
+artifacts) but because too slow and unwieldy for larger repositories.
+The version 2 protocol is an effort to improve performance.  Further
+performance improvements with higher-numbered clone protocols are
+possible in future versions of Fossil.
 
 <h3>3.6 Igot Cards</h3>
 
@@ -289,11 +324,96 @@ its servercode as part of the cookie.)</p>
 
 <h3>3.9 Request-Configuration Cards</h3>
 
-<i>TBD...</i>
+<p>A request-configuration or "reqconfig" card is sent from client to
+server in order to request that the server send back "configuration"
+data.  "Configuration" data is information about users or website
+appearance or other administrative details which are not part of the
+persistent and versioned state of the project.  For example, the "name"
+of the project, the default Cascading Style Sheet (CSS) for the web-interface,
+and the project logo displayed on the web-interface are all configuration
+data elements.
+
+<p>The reqconfig card is normally sent in response to the
+"fossil configuration pull" command.  The format is as follows:
+
+<blockquote>
+<b>reqconfig</b> <i>configuration-name</i>
+</blockquote>
+
+<p>As of this writing ([2010-11-12]), the configuration-name must be one of the
+following values:
+
+<center><table border=0>
+<tr><td valign="top">
+<ul>
+<li> css
+<li> header
+<li> footer
+<li> logo-mimetype
+<li> logo-image
+<li> project-name
+<li> project-description
+<li> manifest
+<li> index-page
+<ul></td><td valign="top"><ul>
+<li> timeline-block-markup
+<li> timeline-max-comment
+<li> ticket-table
+<li> ticket-common
+<li> ticket-newpage
+<li> ticket-viewpage
+<li> ticket-editpage
+<li> ticket-reportlist
+<li> ticket-report-template
+<ul></td><td valign="top"><ul>
+<li> ticket-key-template
+<li> ticket-title-expr
+<li> ticket-closed-expr
+<li> @reportfmt
+<li> @user
+<li> @concealed
+<li> @shun
+</ul></td></tr>
+</table></center>
+
+<p>New configuration-names are likely to be added in future releases of
+Fossil.  If the server receives a configuration-name that it does not
+understand, the entire reqconfig card is silently ignored.  The reqconfig
+card might also be ignored if the user lacks sufficient privilege to
+access the requested information.
+
+<p>The configuration-names that begin with an alphabetic character refer
+to values in the "config" table of the server database.  For example,
+the "logo-image" configuration item refers to the project logo image
+that is configured on the Admin page of the [./webui.wiki | web-interface].
+The value of the configuration item is returned to the client using a
+"config" card.
+
+<p>If the configuration-name begins with "@", that refers to a class of
+values instead of a single value.  The content of these configuration items
+is returned in a "config" card that contains pure SQL text that is 
+intended to evaluated by the client.
+
+<p>The @user and @concealed configuration items contain sensitive information
+are ignored for clients without sufficient privilege.
 
 <h3>3.10 Configuration Cards</h3>
 
-<i>TBD...</i>
+<p>A "config" card is used to send configuration information from client
+to server (in response to a "fossil configuration push" command) or
+from server to client (in response to a "fossil configuration pull" or
+"fossil clone" command).  The format is as follows:
+
+<blockquote>
+<b>config</b> <i>configuration-name size</i> <b>\n</b> <i>content</i>
+</blockquote>
+
+<p>The server will only accept a config card if the user has
+"Admin" privilege.  A client will only accept a config card if
+it had sent a correponding reqconfig card in its request.
+
+<p>The content of the configuration item is used to overwrite the
+corresponding configuration data in the receiver.
 
 <h3>3.11 Error Cards</h3>
 
