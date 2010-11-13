@@ -236,7 +236,7 @@ two-argument format.</p>
 
 <h4>3.5.1 Protocol 2</h4>
 
-<p>The latest clients since a two-argument clone message with a
+<p>The latest clients send a two-argument clone message with a
 protocol version of "2".  (Future versions of Fossil might use larger
 protocol version numbers.)  The sequence-number sent is the number
 of artifacts received so far.  For the first clone message, the
@@ -266,7 +266,7 @@ repository.  The client will then issue "gimme" cards to pull down all the
 content it needs.
 
 <p>The legacy protocol works well for smaller repositories (50MB with 50,000
-artifacts) but because too slow and unwieldy for larger repositories.
+artifacts) but is too slow and unwieldy for larger repositories.
 The version 2 protocol is an effort to improve performance.  Further
 performance improvements with higher-numbered clone protocols are
 possible in future versions of Fossil.
@@ -392,10 +392,10 @@ The value of the configuration item is returned to the client using a
 <p>If the configuration-name begins with "@", that refers to a class of
 values instead of a single value.  The content of these configuration items
 is returned in a "config" card that contains pure SQL text that is 
-intended to evaluated by the client.
+intended to be evaluated by the client.
 
 <p>The @user and @concealed configuration items contain sensitive information
-are ignored for clients without sufficient privilege.
+and are ignored for clients without sufficient privilege.
 
 <h3>3.10 Configuration Cards</h3>
 
@@ -410,7 +410,7 @@ from server to client (in response to a "fossil configuration pull" or
 
 <p>The server will only accept a config card if the user has
 "Admin" privilege.  A client will only accept a config card if
-it had sent a correponding reqconfig card in its request.
+it had sent a corresponding reqconfig card in its request.
 
 <p>The content of the configuration item is used to overwrite the
 corresponding configuration data in the receiver.
