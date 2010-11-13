@@ -578,7 +578,7 @@ void reconstruct_cmd(void) {
 **
 ** Usage %fossil deconstruct ?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION
 **
-** This command exports all artifacts of o given repository and
+** This command exports all artifacts of a given repository and
 ** writes all artifacts to the file system. The DESTINATION directory
 ** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
 ** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
