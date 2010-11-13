@@ -1,5 +1,5 @@
-C Move\sthe\s"updated-to:"\stext\sto\sthe\send\sof\sthe\sdisplay\sfor\sthe\s"update"\ncommand,\sand\sseparately\sfrom\sthe\schanged\sfiles\sby\s"---------".\s\sThis\sat\nthe\srequest\sof\sthe\semacs\sintegration\seffort.
-D 2010-11-13T23:23:38
+C Disable\sautomatic\spull\sof\sshun\srecords\sfor\sthe\stime\sbeing.
+D 2010-11-13T23:29:57
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -100,7 +100,7 @@ F src/sqlite3.c 6a946a5d06bf511d336c0998a1a76b3635e8ab00
 F src/sqlite3.h 85b8161f84932d2ffcc0e0ec241a59fb181cbe8c
 F src/stat.c d65bfac21fcadad6879685cd792709638f8511e7
 F src/style.c eb79fef26fd1bc8ad582353c336aa6ee913e9564
-F src/sync.c 5824840f210e8962abb9b31b128a4e9f16d1956d
+F src/sync.c 66aab2ca51f70332d8f2b58bc5c0d08a0b85deb3
 F src/tag.c 806cabcfa7e148eabc3e522481eb8efcec005def
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -278,7 +278,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 64459dd091f4913dda561700b892938b11124556
-R aab83140b78a5fc3a5db2bb161045b66
+P 3af6cf099301ba7058ce3cc9068b6010dee55151
+R e4016f68b16f024b484f62d963c49495
 U drh
-Z d5645169cf6acae3b225d1b53263aed5
+Z 1f7364c6ee25437abad3bca593f6dbde

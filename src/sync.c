@@ -63,6 +63,7 @@ void autosync(int flags){
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     g.urlPasswd = mprintf("%s", zPw);
   }
+#if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
     /* When doing an automatic pull, also automatically pull shuns from
     ** the server if pull_shuns is enabled.
@@ -73,6 +74,7 @@ void autosync(int flags){
     */
     configSync = CONFIGSET_SHUN;
   }
+#endif
   printf("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
   client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, configSync, 0);
