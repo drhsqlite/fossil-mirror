@@ -1061,6 +1061,7 @@ void commit_cmd(void){
     */
     vfile_aggregate_checksum_repository(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
+      vfile_compare_repository_to_disk(nvid);
       fossil_panic("tree checksum does not match repository after commit");
     }
   

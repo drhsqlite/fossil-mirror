@@ -391,6 +391,53 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 }
 
 /*
+** Do a file-by-file comparison of the content of the repository and
+** the working check-out on disk.  Report any errors.
+*/
+void vfile_compare_repository_to_disk(int vid){
+  int rc;
+  Stmt q;
+  Blob disk, repo;
+  
+  db_must_be_within_tree();
+  db_prepare(&q, 
+      "SELECT %Q || pathname, pathname, rid FROM vfile"
+      " WHERE NOT deleted AND vid=%d AND file_is_selected(id)",
+      g.zLocalRoot, vid
+  );
+  md5sum_init();
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFullpath = db_column_text(&q, 0);
+    const char *zName = db_column_text(&q, 1);
+    int rid = db_column_int(&q, 2);
+
+    blob_zero(&disk);
+    rc = blob_read_from_file(&disk, zFullpath);
+    if( rc<0 ){
+      printf("ERROR: cannot read file [%s]\n", zFullpath);
+      blob_reset(&disk);
+      continue;
+    }
+    blob_zero(&repo);
+    content_get(rid, &repo);
+    if( blob_size(&repo)!=blob_size(&disk) ){
+      printf("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
+             zName, blob_size(&disk), blob_size(&repo));
+      blob_reset(&disk);
+      blob_reset(&repo);
+      continue;
+    }
+    if( blob_compare(&repo, &disk) ){
+      printf("ERROR: [%s] is different on disk compared to the repository\n",
+             zName);
+    }
+    blob_reset(&disk);
+    blob_reset(&repo);
+  }
+  db_finalize(&q);
+}
+
+/*
 ** Compute an aggregate MD5 checksum over the repository image of every
 ** file in vid.  The file names are part of the checksum.
 **
