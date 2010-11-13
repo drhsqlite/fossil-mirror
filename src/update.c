@@ -115,7 +115,6 @@ void update_cmd(void){
                     " ORDER BY event.mtime DESC"); 
   }
 
-  show_common_info(tid, "update-to:", 1, 0);
   if( !verboseFlag && (tid==vid)) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1);
@@ -288,6 +287,8 @@ void update_cmd(void){
     free(zFullPath);
   }
   db_finalize(&q);
+  printf("--------------\n");
+  show_common_info(tid, "updated-to:", 1, 0);
   
   /*
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
