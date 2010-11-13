@@ -189,23 +189,37 @@ void branch_new(void){
 */
 void branch_cmd(void){
   int n;
+  const char *zCmd = "list";
   db_find_and_open_repository(1);
-  if( g.argc<3 ){
+  if( g.argc<2 ){
     usage("new|list ...");
   }
-  n = strlen(g.argv[2]);
-  if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
+  if( g.argc>=3 ) zCmd = g.argv[2];
+  n = strlen(zCmd);
+  if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
-  }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
+  }else if( strncmp(zCmd,"list",n)==0 ){
     Stmt q;
+    int vid;
+    char *zCurrent = 0;
+
+    if( g.localOpen ){
+      vid = db_lget_int("checkout", 0);
+      zCurrent = db_text(0, "SELECT value FROM tagxref"
+                            " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
+    }
+    compute_leaves(0, 1);
     db_prepare(&q,
-      "%s"
-      "   AND blob.rid IN (SELECT rid FROM tagxref"
-      "                     WHERE tagid=%d AND tagtype==2 AND srcid!=0)"
-      " ORDER BY event.mtime DESC",
-      timeline_query_for_tty(), TAG_BRANCH
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL AND rid IN leaves"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH
     );
-    print_timeline(&q, 2000);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zBr = db_column_text(&q, 0);
+      int isCur = zCurrent!=0 && strcmp(zCurrent,zBr)==0;
+      printf("%s%s\n", (isCur ? "* " : "  "), zBr);
+    }
     db_finalize(&q);
   }else{
     fossil_panic("branch subcommand should be one of: "
