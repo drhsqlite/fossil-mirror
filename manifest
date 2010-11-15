@@ -1,5 +1,5 @@
-C Change\sthe\s"branch\slist"\scommand\sto\sprovide\soutput\smore\slike\sGit.
-D 2010-11-13T23:45:15
+C Fix\sgraph\sdisplay\sfor\sfile\shistory.\nTickets\s[5c7565d157b13fe0c30b7]\sand\s[a734fe24da8f75758cf4].
+D 2010-11-15T19:50:27
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -62,7 +62,7 @@ F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
 F src/export.c 4033bdf7a0e43797b6460cdc9e32a1d23f3c1660
 F src/file.c aaf85336aacc66e1925135625070498e1e3b9675
-F src/finfo.c 1b057f700929ce25fa87d117d7d9660675a6dbde
+F src/finfo.c 7938d5d31c6721da1060a0cc7aec9ad634801b68
 F src/graph.c b7b1c58434e40afbda34bb0fa801f0f4566fde12
 F src/http.c f92a71cd6ad18d202682067082f981c87de3207d
 F src/http_socket.c 3d682b313094f5d7a41d98dbb2abdb627c8be60a
@@ -278,7 +278,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 3c2500c7650ab33798f76689a058b45b5c55f4c7
-R d3e2ab5a53f3b1c45458d95631b37d9b
+P 761a6a9dcfd808ff576c1851d79ce95b1f4a4a78
+R 7351c40753852ca2f20c05eacea4f2ee
 U drh
-Z 462b69e290c68eed9499685f7cffafec
+Z 967d35ca17d3a529dceca1182902e849

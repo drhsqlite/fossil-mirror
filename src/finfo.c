@@ -231,7 +231,7 @@ void finfo_page(void){
   blob_reset(&title);
   pGraph = graph_init();
   @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
-  @ <table class="timelineTable">
+  @ <table id="timelineTable" class="timelineTable">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zCom = db_column_text(&q, 1);
