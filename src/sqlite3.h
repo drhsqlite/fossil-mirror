@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.3"
-#define SQLITE_VERSION_NUMBER 3007003
-#define SQLITE_SOURCE_ID      "2010-10-07 13:29:13 e55ada89246d4cc5f476891c70572dc7c1c3643e"
+#define SQLITE_VERSION        "3.7.4"
+#define SQLITE_VERSION_NUMBER 3007004
+#define SQLITE_SOURCE_ID      "2010-11-15 16:29:31 136c2ac24ee1663bc0904bce1a619ecef3d11c1c"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2732,7 +2732,10 @@ typedef struct sqlite3_context sqlite3_context;
 **
 ** ^The fifth argument to sqlite3_bind_blob(), sqlite3_bind_text(), and
 ** sqlite3_bind_text16() is a destructor used to dispose of the BLOB or
-** string after SQLite has finished with it. ^If the fifth argument is
+** string after SQLite has finished with it.  ^The destructor is called
+** to dispose of the BLOB or string even if the call to sqlite3_bind_blob(),
+** sqlite3_bind_text(), or sqlite3_bind_text16() fails.  
+** ^If the fifth argument is
 ** the special value [SQLITE_STATIC], then SQLite assumes that the
 ** information is in static, unmanaged space and does not need to be freed.
 ** ^If the fifth argument has the value [SQLITE_TRANSIENT], then
@@ -3372,12 +3375,15 @@ SQLITE_API int sqlite3_reset(sqlite3_stmt *pStmt);
 ** SQL function or aggregate, pass NULL poiners for all three function
 ** callbacks.
 **
-** ^If the tenth parameter to sqlite3_create_function_v2() is not NULL,
-** then it is invoked when the function is deleted, either by being
-** overloaded or when the database connection closes.
-** ^When the destructure callback of the tenth parameter is invoked, it
-** is passed a single argument which is a copy of the pointer which was
-** the fifth parameter to sqlite3_create_function_v2().
+** ^(If the tenth parameter to sqlite3_create_function_v2() is not NULL,
+** then it is destructor for the application data pointer. 
+** The destructor is invoked when the function is deleted, either by being
+** overloaded or when the database connection closes.)^
+** ^The destructor is also invoked if the call to
+** sqlite3_create_function_v2() fails.
+** ^When the destructor callback of the tenth parameter is invoked, it
+** is passed a single argument which is a copy of the application data 
+** pointer which was the fifth parameter to sqlite3_create_function_v2().
 **
 ** ^It is permitted to register multiple implementations of the same
 ** functions with the same name but with either differing numbers of
@@ -3840,6 +3846,15 @@ SQLITE_API void sqlite3_result_zeroblob(sqlite3_context*, int n);
 ** ^Collating functions are deleted when they are overridden by later
 ** calls to the collation creation functions or when the
 ** [database connection] is closed using [sqlite3_close()].
+**
+** ^The xDestroy callback is <u>not</u> called if the 
+** sqlite3_create_collation_v2() function fails.  Applications that invoke
+** sqlite3_create_collation_v2() with a non-NULL xDestroy argument should 
+** check the return code and dispose of the application data pointer
+** themselves rather than expecting SQLite to deal with it for them.
+** This is different from every other SQLite interface.  The inconsistency 
+** is unfortunate but cannot be changed without breaking backwards 
+** compatibility.
 **
 ** See also:  [sqlite3_collation_needed()] and [sqlite3_collation_needed16()].
 */
@@ -4595,7 +4610,9 @@ struct sqlite3_index_info {
 ** ^The sqlite3_create_module_v2() interface has a fifth parameter which
 ** is a pointer to a destructor for the pClientData.  ^SQLite will
 ** invoke the destructor function (if it is not NULL) when SQLite
-** no longer needs the pClientData pointer.  ^The sqlite3_create_module()
+** no longer needs the pClientData pointer.  ^The destructor will also
+** be invoked if the call to sqlite3_create_module_v2() fails.
+** ^The sqlite3_create_module()
 ** interface is equivalent to sqlite3_create_module_v2() with a NULL
 ** destructor.
 */
@@ -4777,6 +4794,29 @@ SQLITE_API int sqlite3_blob_open(
   int flags,
   sqlite3_blob **ppBlob
 );
+
+/*
+** CAPI3REF: Move a BLOB Handle to a New Row
+**
+** ^This function is used to move an existing blob handle so that it points
+** to a different row of the same database table. ^The new row is identified
+** by the rowid value passed as the second argument. Only the row can be
+** changed. ^The database, table and column on which the blob handle is open
+** remain the same. Moving an existing blob handle to a new row can be
+** faster than closing the existing handle and opening a new one.
+**
+** ^(The new row must meet the same criteria as for [sqlite3_blob_open()] -
+** it must exist and there must be either a blob or text value stored in
+** the nominated column.)^ ^If the new row is not present in the table, or if
+** it does not contain a blob or text value, or if another error occurs, an
+** SQLite error code is returned and the blob handle is considered aborted.
+** ^All subsequent calls to [sqlite3_blob_read()], [sqlite3_blob_write()] or
+** [sqlite3_blob_reopen()] on an aborted blob handle immediately return
+** SQLITE_ABORT.
+**
+** ^This function sets the database handle error code and message.
+*/
+SQLITE_API SQLITE_EXPERIMENTAL int sqlite3_blob_reopen(sqlite3_blob *, sqlite3_int64);
 
 /*
 ** CAPI3REF: Close A BLOB Handle
