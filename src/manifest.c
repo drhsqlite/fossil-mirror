@@ -106,6 +106,11 @@ static struct {
   Manifest *apManifest[MX_MANIFEST_CACHE];
 } manifestCache;
 
+/*
+** True if manifest_crosslink_begin() has been called but
+** manifest_crosslink_end() is still pending.
+*/
+static int manifest_crosslink_busy = 0;
 
 /*
 ** Clear the memory allocated in a manifest object
@@ -1226,7 +1231,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   /* Remember all children less than 2 seconds younger than their parent,
   ** as we might want to fudge the times for those children.
   */
-  if( pChild->rDate<pParent->rDate+2.3e-5 ){
+  if( pChild->rDate<pParent->rDate+2.3e-5 && manifest_crosslink_busy ){
     db_multi_exec(
        "INSERT OR REPLACE INTO time_fudge VALUES(%d, %.17g, %d, %.17g);",
        pParent->rid, pParent->rDate, pChild->rid, pChild->rDate
@@ -1271,12 +1276,6 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   }
   manifest_cache_insert(*ppOther);
 }
-
-/*
-** True if manifest_crosslink_begin() has been called but
-** manifest_crosslink_end() is still pending.
-*/
-static int manifest_crosslink_busy = 0;
 
 /*
 ** Setup to do multiple manifest_crosslink() calls.
