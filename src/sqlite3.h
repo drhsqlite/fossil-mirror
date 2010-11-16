@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.4"
 #define SQLITE_VERSION_NUMBER 3007004
-#define SQLITE_SOURCE_ID      "2010-11-15 16:29:31 136c2ac24ee1663bc0904bce1a619ecef3d11c1c"
+#define SQLITE_SOURCE_ID      "2010-11-16 23:10:26 fd5b2f23dd5111d2f0934dd828bae36b755024c1"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2632,6 +2632,21 @@ SQLITE_API int sqlite3_prepare16_v2(
 ** compiled using either [sqlite3_prepare_v2()] or [sqlite3_prepare16_v2()].
 */
 SQLITE_API const char *sqlite3_sql(sqlite3_stmt *pStmt);
+
+/*
+** CAPI3REF: Determine If An SQL Statement Writes The Database
+**
+** ^The sqlite3_stmt_readonly(X) interface returns true (non-zero) if
+** the [prepared statement] X is guaranteed to leave the database file
+** unmodified.  ^If the sqlite3_stmt_readonly(X) interface returns false (zero)
+** then evaluating the statement might change the database file, but this
+** is not guaranteed as the write operation might be conditional and the
+** condition might not be met.  ^If X is a NULL pointer then
+** sqlite3_stmt_readonly(X) returns true.  If X is a non-NULL pointer but
+** is not a pointer to a valid, unfinalized prepared statement, then the
+** behavior is undefined and probably harmful.
+*/
+SQLITE_API int sqlite3_stmt_readonly(sqlite3_stmt *pStmt);
 
 /*
 ** CAPI3REF: Dynamically Typed Value Object

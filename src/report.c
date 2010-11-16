@@ -241,6 +241,9 @@ char *verify_sql_statement(char *zSql){
   if( rc!=SQLITE_OK ){
     zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
   }
+  if( !sqlite3_stmt_readonly(pStmt) ){
+    zErr = mprintf("SQL must not modify the database");
+  }
   if( pStmt ){
     sqlite3_finalize(pStmt);
   }
@@ -817,6 +820,61 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
   @ </table>
 }
 
+/*
+** Execute a single read-only SQL statement.  Invoke xCallback() on each
+** row.
+*/
+int sqlite3_exec_readonly(
+  sqlite3 *db,                /* The database on which the SQL executes */
+  const char *zSql,           /* The SQL to be executed */
+  sqlite3_callback xCallback, /* Invoke this callback routine */
+  void *pArg,                 /* First argument to xCallback() */
+  char **pzErrMsg             /* Write error messages here */
+){
+  int rc = SQLITE_OK;         /* Return code */
+  const char *zLeftover;      /* Tail of unprocessed SQL */
+  sqlite3_stmt *pStmt = 0;    /* The current SQL statement */
+  char **azCols = 0;          /* Names of result columns */
+  int nCol;                   /* Number of columns of output */
+  char **azVals = 0;          /* Text of all output columns */
+  int i;                      /* Loop counter */
+
+  pStmt = 0;
+  rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
+  assert( rc==SQLITE_OK || pStmt==0 );
+  if( rc!=SQLITE_OK ){
+    return rc;
+  }
+  if( !pStmt ){
+    /* this happens for a comment or white-space */
+    return SQLITE_OK;
+  }
+  if( !sqlite3_stmt_readonly(pStmt) ){
+    sqlite3_finalize(pStmt);
+    return SQLITE_ERROR;
+  }
+
+  nCol = sqlite3_column_count(pStmt);
+  azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
+  while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
+    if( azCols==0 ){
+      azCols = &azVals[nCol];
+      for(i=0; i<nCol; i++){
+        azCols[i] = (char *)sqlite3_column_name(pStmt, i);
+      }
+    }
+    for(i=0; i<nCol; i++){
+      azVals[i] = (char *)sqlite3_column_text(pStmt, i);
+    }
+    if( xCallback(pArg, nCol, azVals, azCols) ){
+      break;
+    }
+  }
+  rc = sqlite3_finalize(pStmt);
+  fossil_free(azVals);
+  return rc;
+}
+
 
 /*
 ** WEBPAGE: /rptview
@@ -899,7 +957,7 @@ void rptview_page(void){
     sState.rn = rn;
     sState.nCount = 0;
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
-    sqlite3_exec(g.db, zSql, generate_html, &sState, &zErr2);
+    sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     sqlite3_set_authorizer(g.db, 0, 0);
     @ </table>
     if( zErr1 ){
@@ -910,7 +968,7 @@ void rptview_page(void){
     style_footer();
   }else{
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
-    sqlite3_exec(g.db, zSql, output_tab_separated, &count, &zErr2);
+    sqlite3_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
     sqlite3_set_authorizer(g.db, 0, 0);
     cgi_set_content_type("text/plain");
   }
@@ -1072,7 +1130,7 @@ void rptshow(
   tktEncode = enc;
   zSep = zSepIn;
   sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
-  sqlite3_exec(g.db, zSql, output_separated_file, &count, &zErr2);
+  sqlite3_exec_readonly(g.db, zSql, output_separated_file, &count, &zErr2);
   sqlite3_set_authorizer(g.db, 0, 0);
   if( zFilter ){
     free(zSql);
