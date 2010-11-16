@@ -201,7 +201,9 @@ static void finish_commit(void){
   blob_appendf(&record, "C %F\n", gg.zComment);
   blob_appendf(&record, "D %s\n", gg.zDate);
   for(i=0; i<gg.nFile; i++){
-    blob_appendf(&record, "F %F %s", gg.aFile[i].zName, gg.aFile[i].zUuid);
+    const char *zUuid = gg.aFile[i].zUuid;
+    if( zUuid==0 ) continue;
+    blob_appendf(&record, "F %F %s", gg.aFile[i].zName, zUuid);
     if( gg.aFile[i].isExe ){
       blob_append(&record, " x\n", 3);
     }else{
