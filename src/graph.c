@@ -301,7 +301,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
 
   /* Find the pChild pointer for each node. 
   **
-  ** The pChild points to node directly above on the same rail.
+  ** The pChild points to the node directly above on the same rail.
   ** The pChild must be in the same branch.  Leaf nodes have a NULL
   ** pChild.
   **
@@ -382,7 +382,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       pParent->aiRaiser[pRow->iRail] = pRow->idx;
     }
     mask = 1<<pRow->iRail;
-    if( pRow->pPrev ) pRow->pPrev->railInUse |= mask;
+/*    if( pRow->pPrev ) pRow->pPrev->railInUse |= mask; */
     if( pRow->pNext ) pRow->pNext->railInUse |= mask;
     if( pRow->pChild==0 ){
       inUse &= ~mask;

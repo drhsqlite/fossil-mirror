@@ -705,7 +705,7 @@ void tkttimeline_page(void){
   }
   db_prepare(&q, zSQL);
   free(zSQL);
-  www_print_timeline(&q, TIMELINE_ARTID, 0);
+  www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH, 0);
   db_finalize(&q);
   style_footer();
 }
