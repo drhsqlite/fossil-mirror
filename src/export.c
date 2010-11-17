@@ -107,6 +107,7 @@ void export_cmd(void){
   /* Step 1:  Generate "blob" records for every artifact that is part
   ** of a check-in 
   */
+  fossil_binary_mode(stdout);
   db_prepare(&q, "SELECT DISTINCT fid FROM mlink WHERE fid>0");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);

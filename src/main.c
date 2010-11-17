@@ -410,6 +410,16 @@ int fossil_system(const char *zOrigCmd){
   return rc; 
 }
 
+/*
+** Turn off any NL to CRNL translation on the stream given as an
+** argument.  This is a no-op on unix but is necessary on windows.
+*/
+void fossil_binary_mode(FILE *p){
+#if defined(_WIN32)
+  _setmode(_fileno(p), _O_BINARY);
+#endif
+}
+
 
 
 /*

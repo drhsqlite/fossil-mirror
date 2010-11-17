@@ -595,6 +595,7 @@ void git_import_cmd(void){
     pIn = fopen(g.argv[3], "rb");
   }else{
     pIn = stdin;
+    fossil_binary_mode(pIn);
   }
   if( forceFlag ) unlink(g.argv[2]);
   db_create_repository(g.argv[2]);
