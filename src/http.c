@@ -129,7 +129,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 ** url_parse() routine should have been called prior to this routine
 ** in order to fill this structure appropriately.
 */
-void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
+int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -142,7 +142,8 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   int isError = 0;      /* True if the reply is an error message */
 
   if( transport_open() ){
-    fossil_fatal(transport_errmsg());
+    fossil_warning(transport_errmsg());
+    return 1;
   }
 
   /* Construct the login card and prepare the complete payload */
@@ -203,7 +204,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
-        fossil_fatal("server says: %s\n", &zLine[ii]);
+        fossil_warning("server says: %s", &zLine[ii]);
         goto write_err;
       }
       if( iHttpVersion==0 ){
@@ -235,14 +236,13 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i]);
       transport_close();
-      http_exchange(pSend, pReply, useLogin);
-      return;
+      return http_exchange(pSend, pReply, useLogin);
     }else if( strncasecmp(zLine, "content-type: text/html", 23)==0 ){
       isError = 1;
     }
   }
   if( rc!=200 ){
-    fossil_fatal("\"location:\" missing from 302 redirect reply");
+    fossil_warning("\"location:\" missing from 302 redirect reply");
     goto write_err;
   }
 
@@ -290,12 +290,12 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   }else{
     transport_rewind();
   }
-  return;
+  return 0;
 
   /* 
   ** Jump to here if an error is seen.
   */
 write_err:
   transport_close();
-  return;  
+  return 1;  
 }

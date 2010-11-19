@@ -324,7 +324,7 @@ void fossil_fatal(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
+    fprintf(stderr, "\r%s: %s\n", fossil_nameofexe(), z);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -352,7 +352,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
+    fprintf(stderr, "\r%s: %s\n", fossil_nameofexe(), z);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -369,7 +369,7 @@ void fossil_warning(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
   }else{
-    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
+    fprintf(stderr, "\r%s: %s\n", fossil_nameofexe(), z);
   }
 }
 
