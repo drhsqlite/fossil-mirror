@@ -809,7 +809,14 @@ void commit_cmd(void){
   ** Autosync if autosync is enabled and this is not a private check-in.
   */
   if( !g.markPrivate ){
-    autosync(AUTOSYNC_PULL);
+    if( autosync(AUTOSYNC_PULL) ){
+      Blob ans;
+      blob_zero(&ans);
+      prompt_user("continue in spite of sync failure (y/N)? ", &ans);
+      if( blob_str(&ans)[0]!='y' ){
+        fossil_exit(1);
+      }
+    }
   }
 
   /* Require confirmation to continue with the check-in if there is

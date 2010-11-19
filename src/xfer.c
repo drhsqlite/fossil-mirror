@@ -977,7 +977,7 @@ static const char zValueFormat[] = "\r%-10s %10d %10d %10d %10d\n";
 ** are pulled if pullFlag is true.  A full sync occurs if both are
 ** true.
 */
-void client_sync(
+int client_sync(
   int pushFlag,           /* True to do a push (or a sync) */
   int pullFlag,           /* True to do a pull (or a sync) */
   int cloneFlag,          /* True if this is a clone */
@@ -1004,10 +1004,11 @@ void client_sync(
   double rArrivalTime;    /* Time at which a message arrived */
   const char *zSCode = db_get("server-code", "x");
   const char *zPCode = db_get("project-code", 0);
+  int nErr = 0;           /* Number of errors */
 
   if( db_get_boolean("dont-push", 0) ) pushFlag = 0;
   if( pushFlag + pullFlag + cloneFlag == 0 
-     && configRcvMask==0 && configSendMask==0 ) return;
+     && configRcvMask==0 && configSendMask==0 ) return 0;
 
   transport_stats(0, 0, 1);
   socket_global_init();
@@ -1128,7 +1129,10 @@ void client_sync(
       printf("waiting for server...");
     }
     fflush(stdout);
-    http_exchange(&send, &recv, cloneFlag==0 || nCycle>0);
+    if( http_exchange(&send, &recv, cloneFlag==0 || nCycle>0) ){
+      nErr++;
+      break;
+    }
     lastPctDone = -1;
     blob_reset(&send);
     rArrivalTime = db_double(0.0, "SELECT julianday('now')");
@@ -1354,23 +1358,29 @@ void client_sync(
           }else{
             blob_appendf(&xfer.err, "\rserver says: %s", zMsg);
           }
-          fossil_fatal("\rError: %s", zMsg);
+          fossil_warning("\rError: %s", zMsg);
+          nErr++;
+          break;
         }
       }else
 
       /* Unknown message */
       {
         if( blob_str(&xfer.aToken[0])[0]=='<' ){
-          fossil_fatal(
+          fossil_warning(
             "server replies with HTML instead of fossil sync protocol:\n%b",
             &recv
           );
+          nErr++;
+          break;
         }
         blob_appendf(&xfer.err, "unknown command: %b", &xfer.aToken[0]);
       }
 
       if( blob_size(&xfer.err) ){
-        fossil_fatal("%b", &xfer.err);
+        fossil_warning("%b", &xfer.err);
+        nErr++;
+        break;
       }
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
@@ -1425,4 +1435,5 @@ void client_sync(
   manifest_crosslink_end();
   content_enable_dephantomize(1);
   db_end_transaction(0);
+  return nErr;
 }

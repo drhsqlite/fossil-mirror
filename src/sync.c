@@ -34,29 +34,32 @@
 ** If the respository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
 ** if the argument is false.
+**
+** Return the number of errors.
 */
-void autosync(int flags){
+int autosync(int flags){
   const char *zUrl;
   const char *zAutosync;
   const char *zPw;
+  int rc;
   int configSync = 0;       /* configuration changes transferred */
   if( g.fNoSync ){
-    return;
+    return 0;
   }
   zAutosync = db_get("autosync", 0);
   if( zAutosync ){
     if( (flags & AUTOSYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
-      return;   /* Do not auto-push when autosync=pullonly */
+      return 0;   /* Do not auto-push when autosync=pullonly */
     }
     if( is_false(zAutosync) ){
-      return;   /* Autosync is completely off */
+      return 0;   /* Autosync is completely off */
     }
   }else{
     /* Autosync defaults on.  To make it default off, "return" here. */
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
-    return;  /* No default server */
+    return 0;  /* No default server */
   }
   zPw = unobscure(db_get("last-sync-pw", 0));
   url_parse(zUrl);
@@ -77,7 +80,9 @@ void autosync(int flags){
 #endif
   printf("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
-  client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, configSync, 0);
+  rc = client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, configSync, 0);
+  if( rc ) fossil_warning("Autosync failed");
+  return rc;
 }
 
 /*
