@@ -1,5 +1,5 @@
-C Further\swork\son\sgetting\sa\s"commit"\sor\s"update"\sto\scontinue\soperating\safter\nan\sautosync\sfailure.\s\sThe\s"commit"\scommand\sprompts\sto\sverify\sthat\syou\swant\nto\scontinue.
-D 2010-11-19T22:29:25
+C Fix\sthe\sticket-change\sartifact\sgenerator\sso\sthat\sit\sputs\sall\sfields\swith\nthe\s"+"\sprefix\son\stheir\sname\sfirst,\swhere\sthey\sought\sto\sbe.
+D 2010-11-23T22:18:24
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -107,7 +107,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ef3bb3e834513608b726171d748ab2bf5fa3d679
 F src/timeline.c cc363d85efd46ab8dc264d83335e55ffee145624
-F src/tkt.c 35024afac50da0f47975372d71c15167a1527836
+F src/tkt.c e2e6c530ea5d4eb48367982604e8b06ea65e05f9
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
@@ -278,7 +278,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 9286aaf778c612745fa0804c4fdf8290b9036558
-R 609d6f40e8bdb6df90eeb1fc9dc20d6c
+P 0cc4875fde9f492b2f04bbc2b095417905adb4af
+R 06fefffcb23f7eb5bf9ef76051936a56
 U drh
-Z 12cd6f1d203c74a669107d84d6ece026
+Z ab7502fd6fe699dba1eeb221ba8b4701

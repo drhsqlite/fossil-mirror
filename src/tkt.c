@@ -436,22 +436,24 @@ static int submitTicketCmd(
   blob_appendf(&tktchng, "D %s\n", zDate);
   free(zDate);
   for(i=0; i<nField; i++){
-    const char *zValue;
-    int nValue;
     if( azAppend[i] ){
       blob_appendf(&tktchng, "J +%s %z\n", azField[i],
                    fossilize(azAppend[i], -1));
-    }else{
-      zValue = Th_Fetch(azField[i], &nValue);
-      if( zValue ){
-        while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
-        if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
-          if( strncmp(azField[i], "private_", 8)==0 ){
-            zValue = db_conceal(zValue, nValue);
-            blob_appendf(&tktchng, "J %s %s\n", azField[i], zValue);
-          }else{
-            blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
-          }
+    }
+  }
+  for(i=0; i<nField; i++){
+    const char *zValue;
+    int nValue;
+    if( azAppend[i] ) continue;
+    zValue = Th_Fetch(azField[i], &nValue);
+    if( zValue ){
+      while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
+      if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
+        if( strncmp(azField[i], "private_", 8)==0 ){
+          zValue = db_conceal(zValue, nValue);
+          blob_appendf(&tktchng, "J %s %s\n", azField[i], zValue);
+        }else{
+          blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
         }
       }
     }
