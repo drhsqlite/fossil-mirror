@@ -263,8 +263,11 @@ puts -nonewline "OBJ   = "
 foreach s [lsort $src] {
   puts -nonewline "\$(OBJDIR)\\$s\$O "
 }
-puts "\$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+puts "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlcmd\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
 puts {
+
+RC=$(DMDIR)\bin\rcc
+RCFLAGS=-32 -w1 -I$(SRCDIR) /D__DMC__
 
 APPNAME = $(OBJDIR)\fossil$(E)
 
@@ -274,15 +277,20 @@ $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
 	$(DMDIR)\bin\link @link
 
+fossil.res:	$B\win\fossil.rc
+	$(RC) $(RCFLAGS) -o$@ $**
+
 $(OBJDIR)\link: $B\win\Makefile.dmc}
 puts -nonewline "\t+echo "
 foreach s [lsort $src] {
   puts -nonewline "$s "
 }
-puts "sqlite3 th th_lang > \$@"
+puts "shell sqlcmd sqlite3 th th_lang > \$@"
 puts "\t+echo fossil >> \$@"
 puts "\t+echo fossil >> \$@"
 puts "\t+echo \$(LIBS) >> \$@\n\n"
+puts "\t+echo. >> \$@\n\n"
+puts "\t+echo fossil >> \$@\n\n"
 
 puts {
 translate$E: $(SRCDIR)\translate.c
@@ -296,6 +304,12 @@ mkindex$E: $(SRCDIR)\mkindex.c
 
 version$E: $B\win\version.c
 	$(BCC) -o$@ $**
+
+$(OBJDIR)\shell$O : $(SRCDIR)\shell.c
+	$(TCC) -o$@ -c -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 $**
+
+$(OBJDIR)\sqlcmd$O : $(SRCDIR)\sqlcmd.c
+	$(TCC) -o$@ -c -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) -o$@ -c -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 $**
