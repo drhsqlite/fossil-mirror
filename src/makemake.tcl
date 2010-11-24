@@ -61,6 +61,7 @@ set src {
   sha1
   shun
   skins
+  sqlcmd
   stat
   style
   sync

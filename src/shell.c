@@ -2572,8 +2572,8 @@ int main(int argc, char **argv){
 #endif
     /***** Begin Fossil Patch *****/
     {
-      extern void fossil_open(sqlite3**, const char **);
-      fossil_open(&data.db, &data.zDbFilename);
+      extern void fossil_open(const char **);
+      fossil_open(&data.zDbFilename);
     }
     /***** End Fossil Patch *****/
   }
