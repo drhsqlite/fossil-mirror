@@ -1,5 +1,5 @@
-C Correctly\shandle\spartial\scommits\seven\swhen\sfiles\shave\sbeen\sdeleted\sand/or\nrenamed\sand\sare\snot\spart\sof\sthe\spartial\scommit.\nTickets\s[ad15a8e2af8c3162d6]\sand\s[5cc33a6aa0621be8936f].
-D 2010-11-24T17:13:37
+C Fix\sa\sredirect\sloop\sproblem\sfor\sthe\s/home\sURL.\s\s\nTicket\s[77dc5de6397fb18c0fbad]
+D 2010-11-24T17:30:50
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -117,7 +117,7 @@ F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 51b47685ab2e51dcc8d9b736c9100d174edf58b1
-F src/wiki.c 3e802f2604bbc25c6bcc37675ab4f185e8b8437c
+F src/wiki.c 9b4f1ce6b7c531c368e769f8e68891ee0bcc968c
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c 9ebbfd973df774b054a01395006ef41d2a44b711
 F src/xfer.c 26f5dabb063acc09730b68e8b03d94939635225b
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P b4687be448ba0c35e145463dd86c9f3c24505ad1
-R f4abea615288cd1c618e26dbbbb0b763
+P 2ceeeca19dfea6ed61424dd374dd7812f65f10e6
+R e8c4507c77a9379339bf5ddf3c0a3268
 U drh
-Z a427980afcf2438f8bb1d2a35996aeb0
+Z 27814f2911ae5104bf498c75020411c5
