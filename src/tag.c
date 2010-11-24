@@ -203,7 +203,10 @@ int tag_insert(
     }
   }
   if( tagid==TAG_DATE ){
-    db_multi_exec("UPDATE event SET mtime=julianday(%Q) WHERE objid=%d",
+    db_multi_exec("UPDATE event "
+                  "   SET mtime=julianday(%Q),"
+                  "       omtime=coalesce(omtime,mtime)"
+                  " WHERE objid=%d",
                   zValue, rid);
   }
   if( tagtype==0 || tagtype==2 ){

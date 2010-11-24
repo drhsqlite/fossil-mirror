@@ -218,10 +218,12 @@ static void showTags(int rid, const char *zNotGlob){
       }else{
         @ propagates to descendants
       }
+#if 0
       if( zValue && strcmp(zTagname,"branch")==0 ){
         @ &nbsp;&nbsp;
         @ <a href="%s(g.zBaseURL)/timeline?r=%T(zValue)">branch timeline</a>
       }
+#endif
     }
     if( zSrcUuid && zSrcUuid[0] ){
       if( tagtype==0 ){
@@ -351,7 +353,8 @@ void ci_page(void){
   }
   isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
   db_prepare(&q, 
-     "SELECT uuid, datetime(mtime, 'localtime'), user, comment"
+     "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
+     "       datetime(omtime, 'localtime')"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
@@ -364,6 +367,7 @@ void ci_page(void){
     const char *zUser;
     const char *zComment;
     const char *zDate;
+    const char *zOrigDate;
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
@@ -376,6 +380,7 @@ void ci_page(void){
     zUser = db_column_text(&q, 2);
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
+    zOrigDate = db_column_text(&q, 4);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -385,6 +390,10 @@ void ci_page(void){
     @ </td></tr>
     @ <tr><th>Date:</th><td>
     hyperlink_to_date(zDate, "</td></tr>");
+    if( zOrigDate ){
+      @ <tr><th>Original&nbsp;Date:</th><td>
+      hyperlink_to_date(zOrigDate, "</td></tr>");
+    }
     if( zEUser ){
       @ <tr><th>Edited&nbsp;User:</th><td>
       hyperlink_to_user(zEUser,zDate,"</td></tr>");
