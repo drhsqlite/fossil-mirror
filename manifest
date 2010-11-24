@@ -1,5 +1,5 @@
-C add\ssqlcmd\sto\sMakefile.dmc
-D 2010-11-24T20:54:52
+C Tag\sthe\smanifest\sof\severy\s"private"\scheckin\swith\sthe\s"private"\stag.\nAfter\sthe\s"reconstruct"\scommand,\sadd\sall\sprivate\scheckins\sto\sthe\sprivate\ntable.\s\sTicket\s[e29ea5912afe1e97].
+D 2010-11-24T21:32:57
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -43,7 +43,7 @@ F src/branch.c 2e524db72b00618a3223024b64f6aaf1c95eae4e
 F src/browse.c 931267cb06194cbd6cf1904f7dd60aa2c39ad4cd
 F src/captcha.c 4fd641c262b7cd037de036892c7d56b76905b1a6
 F src/cgi.c fe2268ca6b9b6d2bc95dec94d6752d529365333f
-F src/checkin.c 3a08c5c33124367336793f21a87d7bfe477c857e
+F src/checkin.c 72f0139030861ecde6c23a9527d283aa72a53d22
 F src/checkout.c f2c101edf2897d776a3186b13a6b7f3239b66a3d
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -86,7 +86,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 935a4cdb90ec123f56faea207eb72f0610f7bece
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
 F src/printf.c 90eaff0bc8cf2708cf96026717246afe56bb7b5d
-F src/rebuild.c f3b8f1117bd8f59b12a4f7dd5ed478cd61c263e0
+F src/rebuild.c c3ea50b0f1284d341a8d1fb092699387aba5a251
 F src/report.c 6b2674f05c467a3cce145ea4141a7c04c0c055a3
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c 6baf06e2e0572ee95fd48504d8f482415670d1a8
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 135fcbbb052bd5a1817383127df5e634f9326b08
-R 35874d5cf9409697fcaca9755192bfd5
-U wolfgang
-Z 6a39711daab9047bbb0ee4503def8cc6
+P 1ee56c4201a4017f0e1e1fdbc81dc3d93084b834
+R ff46bd736abc445aff6a129716b49ead
+U drh
+Z 21614a07394455f7c36f6f23f582b5e6

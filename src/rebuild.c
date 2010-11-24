@@ -560,6 +560,21 @@ void reconstruct_cmd(void) {
 
   rebuild_db(0, 1);
 
+  /* Reconstruct the private table.  The private table contains the rid
+  ** of every manifest that is tagged with "private" and every file that
+  ** is not used by a manifest that is not private.
+  */
+  db_multi_exec(
+    "CREATE TEMP TABLE private_ckin(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO private_ckin "
+        " SELECT rid FROM tagxref WHERE tagid=%d AND tagtype>0;"
+    "INSERT OR IGNORE INTO private"
+        " SELECT fid FROM mlink"
+        " EXCEPT SELECT fid FROM mlink WHERE mid NOT IN private_ckin;"
+    "INSERT OR IGNORE INTO private SELECT rid FROM private_ckin;"
+    "DROP TABLE private_ckin;"
+  );
+
   /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts
   ** will have been changed and verification therefore takes a really, really
   ** long time.

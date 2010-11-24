@@ -667,14 +667,20 @@ static void create_manifest(
   blob_appendf(pOut, "\n");
   if( pCksum ) blob_appendf(pOut, "R %b\n", pCksum);
   if( zBranch && zBranch[0] ){
-    Stmt q;
+    /* Set tags for the new branch */
     if( zBgColor && zBgColor[0] ){
       blob_appendf(pOut, "T *bgcolor * %F\n", zBgColor);
     }
     blob_appendf(pOut, "T *branch * %F\n", zBranch);
     blob_appendf(pOut, "T *sym-%F *\n", zBranch);
-
-    /* Cancel all other symbolic tags */
+  }
+  if( g.markPrivate ){
+    /* If this manifest is private, mark it as such */
+    blob_appendf(pOut, "T +private *\n");
+  }
+  if( zBranch && zBranch[0] ){
+    /* For a new branch, cancel all prior propagating tags */
+    Stmt q;
     db_prepare(&q,
         "SELECT tagname FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
