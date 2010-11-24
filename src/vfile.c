@@ -322,14 +322,22 @@ void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
 
 /*
 ** Compute an aggregate MD5 checksum over the disk image of every
-** file in vid.  The file names are part of the checksum.
+** file in vid.  The file names are part of the checksum.  The resulting
+** checksum is the same as is expected on the R-card of a manifest.
 **
 ** This function operates differently if the Global.aCommitFile
 ** variable is not NULL. In that case, the disk image is used for
-** each file in aCommitFile[] and the repository image (see
-** vfile_aggregate_checksum_repository() is used for all others).
+** each file in aCommitFile[] and the repository image
+** is used for all others).
+**
 ** Newly added files that are not contained in the repository are
-** omitted from the checksum if they are not in Global.aCommitFile.
+** omitted from the checksum if they are not in Global.aCommitFile[].
+**
+** Newly deleted files are included in the checksum if they are not
+** part of Global.aCommitFile[]
+**
+** Renamed files use their new name if they are in Global.aCommitFile[]
+** and their original name if they are not in Global.aCommitFile[]
 **
 ** Return the resulting checksum in blob pOut.
 */
@@ -340,8 +348,9 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
   db_must_be_within_tree();
   db_prepare(&q, 
-      "SELECT %Q || pathname, pathname, file_is_selected(id), rid FROM vfile"
-      " WHERE NOT deleted AND vid=%d"
+      "SELECT %Q || pathname, pathname, origname, file_is_selected(id), rid"
+      "  FROM vfile"
+      " WHERE (NOT deleted OR NOT file_is_selected(id)) AND vid=%d"
       " ORDER BY pathname /*scan*/",
       g.zLocalRoot, vid
   );
@@ -349,7 +358,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFullpath = db_column_text(&q, 0);
     const char *zName = db_column_text(&q, 1);
-    int isSelected = db_column_int(&q, 2);
+    int isSelected = db_column_int(&q, 3);
 
     if( isSelected ){
       md5sum_step_text(zName, -1);
@@ -371,10 +380,12 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       }
       fclose(in);
     }else{
-      int rid = db_column_int(&q, 3);
+      int rid = db_column_int(&q, 4);
+      const char *zOrigName = db_column_text(&q, 2);
       char zBuf[100];
       Blob file;
 
+      if( zOrigName ) zName = zOrigName;
       if( rid>0 ){
         md5sum_step_text(zName, -1);
         blob_zero(&file);
@@ -439,7 +450,8 @@ void vfile_compare_repository_to_disk(int vid){
 
 /*
 ** Compute an aggregate MD5 checksum over the repository image of every
-** file in vid.  The file names are part of the checksum.
+** file in vid.  The file names are part of the checksum.  The resulting
+** checksum is suitable for the R-card of a manifest.
 **
 ** Return the resulting checksum in blob pOut.
 */
@@ -450,15 +462,20 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 
   db_must_be_within_tree();
  
-  db_prepare(&q, "SELECT pathname, rid FROM vfile"
-                 " WHERE NOT deleted AND rid>0 AND vid=%d"
+  db_prepare(&q, "SELECT pathname, origname, rid, file_is_selected(id)"
+                 " FROM vfile"
+                 " WHERE (NOT deleted OR NOT file_is_selected(id))"
+                 "   AND rid>0 AND vid=%d"
                  " ORDER BY pathname /*scan*/",
                  vid);
   blob_zero(&file);
   md5sum_init();
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    int rid = db_column_int(&q, 1);
+    const char *zOrigName = db_column_text(&q, 1);
+    int rid = db_column_int(&q, 2);
+    int isSelected = db_column_int(&q, 3);
+    if( zOrigName && !isSelected ) zName = zOrigName;
     md5sum_step_text(zName, -1);
     content_get(rid, &file);
     sprintf(zBuf, " %d\n", blob_size(&file));
@@ -473,11 +490,16 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 
 /*
 ** Compute an aggregate MD5 checksum over the repository image of every
-** file in manifest vid.  The file names are part of the checksum.
+** file in manifest vid.  The file names are part of the checksum.  The
+** resulting checksum is suitable for use as the R-card of a manifest.
+**
 ** Return the resulting checksum in blob pOut.
 **
 ** If pManOut is not NULL then fill it with the checksum found in the
-** "R" card near the end of the manifest.  
+** "R" card near the end of the manifest.
+**
+** In a well-formed manifest, the two checksums computed here, pOut and
+** pManOut, should be identical.  
 */
 void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   int fid;

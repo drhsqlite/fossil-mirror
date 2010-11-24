@@ -1,5 +1,5 @@
-C Factor\sthe\ssql-command\sshell\sout\sinto\sa\sseparate\ssource\sfile.\s\sAdd\sthe\nnew\scontent(X)\sSQL\sfunction\sfor\saccessing\suncompressed\sand\sundeltaed\nartifact\scontent.
-D 2010-11-24T12:03:23
+C Correctly\shandle\spartial\scommits\seven\swhen\sfiles\shave\sbeen\sdeleted\sand/or\nrenamed\sand\sare\snot\spart\sof\sthe\spartial\scommit.\nTickets\s[ad15a8e2af8c3162d6]\sand\s[5cc33a6aa0621be8936f].
+D 2010-11-24T17:13:37
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -43,7 +43,7 @@ F src/branch.c 2e524db72b00618a3223024b64f6aaf1c95eae4e
 F src/browse.c 931267cb06194cbd6cf1904f7dd60aa2c39ad4cd
 F src/captcha.c 4fd641c262b7cd037de036892c7d56b76905b1a6
 F src/cgi.c fe2268ca6b9b6d2bc95dec94d6752d529365333f
-F src/checkin.c e419af7155d8846fbb3fe776839a25bc10d31341
+F src/checkin.c 3a08c5c33124367336793f21a87d7bfe477c857e
 F src/checkout.c f2c101edf2897d776a3186b13a6b7f3239b66a3d
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -116,7 +116,7 @@ F src/update.c 9a082870d616bf7aec4d2f02c283317738d5e50d
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
-F src/vfile.c 64df6fb28ea5ac19603f8cfdb29e2c4dbf370893
+F src/vfile.c 51b47685ab2e51dcc8d9b736c9100d174edf58b1
 F src/wiki.c 3e802f2604bbc25c6bcc37675ab4f185e8b8437c
 F src/wikiformat.c 2a5f5c6a5b15dc6fb781437b79012983fa73b3d2
 F src/winhttp.c 9ebbfd973df774b054a01395006ef41d2a44b711
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e1dac0e4f68d7bc4a2b9b2b056cad3c160710792
-R 14f1aac75f0f7cd2faaab4ee87833c2c
+P b4687be448ba0c35e145463dd86c9f3c24505ad1
+R f4abea615288cd1c618e26dbbbb0b763
 U drh
-Z 620db65e794b6b8b385d2e8f4db208d5
+Z a427980afcf2438f8bb1d2a35996aeb0
