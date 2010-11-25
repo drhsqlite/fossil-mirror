@@ -165,7 +165,7 @@ int count_nonbranch_children(int pid){
 **    4.  User
 **    5.  True if is a leaf
 **    6.  background color
-**    7.  type ("ci", "w", "t")
+**    7.  type ("ci", "w", "t", "e", "div")
 **    8.  list of symbolic tags.
 **    9.  tagid for ticket or wiki or event
 **   10.  Short comment to user for repeated tickets and wiki
@@ -787,7 +787,6 @@ void page_timeline(void){
     url_initialize(&url, "timeline");
     url_add_parameter(&url, "n", zNEntry);
     if( tagid>0 ){
-      if( zType[0]!='e' ) zType = "ci";
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
                     " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
