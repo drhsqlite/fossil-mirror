@@ -1,5 +1,5 @@
-C If\sthe\sdate\sof\sa\scheck-in\shas\sbeen\schanged\sby\sa\stag,\sthen\sshow\sthat\nfact\son\sthe\s"info"\spage\sfor\sthe\scheck-in.\n<i>Requires\sa\srebuild</i>.
-D 2010-11-24T23:45:32
+C Add\sa\snew\slink\sto\sthe\scheck-in\s"info"\spage\sthat\sgoes\sto\sa\stimeline\sshowing\njust\sthe\simmediate\sparents\sand\schildren\sof\sa\scheck-in.\nTicket\s[746949c9318554c137f5].
+D 2010-11-25T00:17:26
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -69,7 +69,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f280e7f07c067a19d3f8c84178a10d1ec4af000b
 F src/import.c c430fed5bf828f4a290a93aa1db2f61cabf71044
-F src/info.c ee5664c7a57696e21f190a51f5e90db7808daa5c
+F src/info.c 199d64d421b2dd6404d45c84cefef27ecb8b4567
 F src/login.c 18bd25fbe56d8dbd17254ae4b407debb4bbaab0a
 F src/main.c a106db02f3ea0060b4167c17ae6340314e09751b
 F src/main.mk 1ac4c8aa4dcc427bbd723ce715bfedc8fbfa00f6
@@ -107,7 +107,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ef3bb3e834513608b726171d748ab2bf5fa3d679
-F src/timeline.c cc363d85efd46ab8dc264d83335e55ffee145624
+F src/timeline.c 7bb145adce7091e4e7a894dd1bf4495514a9318c
 F src/tkt.c e2e6c530ea5d4eb48367982604e8b06ea65e05f9
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 3b2d67d60454511832e273cf34c419039c0ae2d2
-R 4d0b5496e5a5f6b81fc5a554e3264562
+P 576f6db2a84d0e6e7cd045460710c172b195bb56
+R 0cf53ddf14a5393c0bf224e8c79c5a2a
 U drh
-Z 5fad8724574a8b4366f15771802f6134
+Z 37b6f1784b1916c0d00de0e67f926a5d

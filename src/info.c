@@ -429,7 +429,8 @@ void ci_page(void){
     if( g.okHistory ){
       const char *zProjName = db_get("project-name", "unnamed");
       @ <tr><th>Timelines:</th><td>
-      @   <a href="%s(g.zBaseURL)/timeline?p=%S(zUuid)">ancestors</a>
+      @   <a href="%s(g.zBaseURL)/timeline?f=%S(zUuid)">family</a>
+      @ | <a href="%s(g.zBaseURL)/timeline?p=%S(zUuid)">ancestors</a>
       @ | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)">descendants</a>
       @ | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)&amp;p=%S(zUuid)">both</a>
       db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
