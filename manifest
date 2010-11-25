@@ -1,5 +1,5 @@
-C On\sthe\stimeline,\sthe\st=TAG\squery\sparameter\scan\srefer\sto\stags\son\sevents\sin\naddition\sto\scheck-ins.
-D 2010-11-25T02:51:43
+C merged\sin\smakemake.tcl\supdates
+D 2010-11-25T20:31:05
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -75,7 +75,7 @@ F src/main.c a106db02f3ea0060b4167c17ae6340314e09751b
 F src/main.mk 1ac4c8aa4dcc427bbd723ce715bfedc8fbfa00f6
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
-F src/makemake.tcl 4ce9bfcbad8ee35fbb4ee81d6d3d7457db4e81c7
+F src/makemake.tcl e673d1cc54e5ee5288d61644e4573a4a01ddb571
 F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01124687582e45b58c1cdcfdbc2728bc2460fadc
@@ -182,7 +182,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
-F win/Makefile.PellesCGMake 282322c083a037980fc621db301d317f5616d09e
+F win/Makefile.PellesCGMake f0ebe445fb60d557cca13e2285bf62d05192fba0
 F win/Makefile.dmc 2b7b2df507b7db68cf3670fd491ab3ecc19824f5
 F win/Makefile.msc 90aca1145b8bd9821c0e43a1c6f340f6c8b35b14
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P f5efd3f3599e86f7dfae9991c9ba5140b2af03ec
-R d64e1eee19047230675b7c96174d448c
-U drh
-Z 15d0f611c9f9ebc817f29a0c1221489d
+P 4438e96abc3e57b462d104b08cd53fdad3a34a72 65dd90fb95a2af555948207d8d75b808ebfe0dcd
+R 1c99e0ba029841366a4ac4a89d06d50e
+U wolfgang
+Z 27f633007bd02b4a9a56b02bae4dca21
