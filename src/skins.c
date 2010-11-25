@@ -185,7 +185,6 @@ static const char zBuiltinSkin1[] =
 @   html "<a href=''$baseurl/dir?ci=tip''>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''$baseurl/leaves''>Leaves</a> "
 @   html "<a href=''$baseurl/brlist''>Branches</a> "
 @   html "<a href=''$baseurl/taglist''>Tags</a> "
 @ }
@@ -387,7 +386,6 @@ static const char zBuiltinSkin2[] =
 @   html "<a href=''$baseurl/dir?ci=tip''>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''$baseurl/leaves''>Leaves</a> "
 @   html "<a href=''$baseurl/brlist''>Branches</a> "
 @   html "<a href=''$baseurl/taglist''>Tags</a> "
 @ }
@@ -622,7 +620,6 @@ static const char zBuiltinSkin3[] =
 @   html "<li><a href=''$baseurl/dir?ci=tip''>Files</a></li>"
 @ }
 @ if {[hascap o]} {
-@   html "<li><a href=''$baseurl/leaves''>Leaves</a></li>"
 @   html "<li><a href=''$baseurl/brlist''>Branches</a></li>"
 @   html "<li><a href=''$baseurl/taglist''>Tags</a></li>"
 @ }
