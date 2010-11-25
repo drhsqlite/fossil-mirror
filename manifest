@@ -1,5 +1,5 @@
-C Add\sa\snew\slink\sto\sthe\scheck-in\s"info"\spage\sthat\sgoes\sto\sa\stimeline\sshowing\njust\sthe\simmediate\sparents\sand\schildren\sof\sa\scheck-in.\nTicket\s[746949c9318554c137f5].
-D 2010-11-25T00:17:26
+C When\sattempting\sto\s"fossil\supdate"\son\sa\sclosed\sbranch,\smove\sto\sthe\nend\sof\sthe\sbranch.\s\sTicket\s[375e5703329a743339]
+D 2010-11-25T01:52:18
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -112,7 +112,7 @@ F src/tkt.c e2e6c530ea5d4eb48367982604e8b06ea65e05f9
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c 0619d0fb25cc35e55a97c3603429a2c8d1ad602d
-F src/update.c 9a082870d616bf7aec4d2f02c283317738d5e50d
+F src/update.c 29a23083c00b7659c5d018add89224db586deaff
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 9d793f50176a960d84069c8174dc270f9dee396c
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 576f6db2a84d0e6e7cd045460710c172b195bb56
-R 0cf53ddf14a5393c0bf224e8c79c5a2a
+P 8c04a873c8a8969796a02454c38a695f20f5ddf3
+R 8426a1166599b78b8f14d6a113a6a2cd
 U drh
-Z 37b6f1784b1916c0d00de0e67f926a5d
+Z c264465acc9bec6ba9a2196a61ae1ff8
