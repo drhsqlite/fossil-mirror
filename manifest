@@ -1,5 +1,5 @@
-C merged\sin\smakemake.tcl\supdates
-D 2010-11-25T20:31:05
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.4\sbeta.
+D 2010-11-26T17:41:04
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -97,8 +97,8 @@ F src/shell.c 860d717a2864c9093f393be5c2f820418f8dc662
 F src/shun.c 1b4711b3a27101974f3345e1fbd3dffd07ec641f
 F src/skins.c 76b6e7ca598306eda046c164c5ccb7575f4ba5ad
 F src/sqlcmd.c 409243ec24190969f19a50c021e4924c9c04bed9
-F src/sqlite3.c 8d37b551be687279e746cc28f773e5e29a946435
-F src/sqlite3.h 502565b35d910694cbecc2533d54b6379dd42e09
+F src/sqlite3.c 6cd9f359eb1a7cd910a90bb13240cebb9966d22b
+F src/sqlite3.h 2cd70e860e5889a535ca12c8ce685fa7e5e87724
 F src/stat.c d65bfac21fcadad6879685cd792709638f8511e7
 F src/style.c 4fb7996b751cf2eec09b443f6667c8d9e2209f2a
 F src/sync.c 5aa5217063ae57f831cbdf5da0e1a926ff2d38bf
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 4438e96abc3e57b462d104b08cd53fdad3a34a72 65dd90fb95a2af555948207d8d75b808ebfe0dcd
-R 1c99e0ba029841366a4ac4a89d06d50e
-U wolfgang
-Z 27f633007bd02b4a9a56b02bae4dca21
+P ac5e8fb4c09f22d7202f855cf68ee081de615e2a
+R df9acd64517aa3f85a7db276946d195c
+U drh
+Z f27030c4eee93cb6a76f64dd4c569ed3

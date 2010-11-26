@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.4"
 #define SQLITE_VERSION_NUMBER 3007004
-#define SQLITE_SOURCE_ID      "2010-11-16 23:10:26 fd5b2f23dd5111d2f0934dd828bae36b755024c1"
+#define SQLITE_SOURCE_ID      "2010-11-26 16:49:59 c412f61229b6ab1ac90b932afd56f7c5e3ba1cfe"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -542,6 +542,18 @@ SQLITE_API int sqlite3_exec(
 ** equal SQLITE_SYNC_NORMAL, that means to use normal fsync() semantics.
 ** If the lower four bits equal SQLITE_SYNC_FULL, that means
 ** to use Mac OS X style fullsync instead of fsync().
+**
+** Do not confuse the SQLITE_SYNC_NORMAL and SQLITE_SYNC_FULL flags
+** with the [PRAGMA synchronous]=NORMAL and [PRAGMA synchronous]=FULL
+** settings.  The [synchronous pragma] determines when calls to the
+** xSync VFS method occur and applies uniformly across all platforms.
+** The SQLITE_SYNC_NORMAL and SQLITE_SYNC_FULL flags determine how
+** energetic or rigorous or forceful the sync operations are and
+** only make a difference on Mac OSX for the default SQLite code.
+** (Third-party VFS implementations might also make the distinction
+** between SQLITE_SYNC_NORMAL and SQLITE_SYNC_FULL, but among the
+** operating systems natively supported by SQLite, only Mac OSX
+** cares about the difference.)
 */
 #define SQLITE_SYNC_NORMAL        0x00002
 #define SQLITE_SYNC_FULL          0x00003
@@ -710,6 +722,8 @@ struct sqlite3_io_methods {
 #define SQLITE_LAST_ERRNO             4
 #define SQLITE_FCNTL_SIZE_HINT        5
 #define SQLITE_FCNTL_CHUNK_SIZE       6
+#define SQLITE_FCNTL_FILE_POINTER     7
+
 
 /*
 ** CAPI3REF: Mutex Handle
@@ -2637,14 +2651,13 @@ SQLITE_API const char *sqlite3_sql(sqlite3_stmt *pStmt);
 ** CAPI3REF: Determine If An SQL Statement Writes The Database
 **
 ** ^The sqlite3_stmt_readonly(X) interface returns true (non-zero) if
-** the [prepared statement] X is guaranteed to leave the database file
-** unmodified.  ^If the sqlite3_stmt_readonly(X) interface returns false (zero)
-** then evaluating the statement might change the database file, but this
-** is not guaranteed as the write operation might be conditional and the
-** condition might not be met.  ^If X is a NULL pointer then
-** sqlite3_stmt_readonly(X) returns true.  If X is a non-NULL pointer but
-** is not a pointer to a valid, unfinalized prepared statement, then the
-** behavior is undefined and probably harmful.
+** the [prepared statement] X is [SELECT] statement and false (zero) if
+** X is an [INSERT], [UPDATE], [DELETE], CREATE, DROP, [ANALYZE],
+** [ALTER], or [REINDEX] statement.
+** If X is a NULL pointer or any other kind of statement, including but
+** not limited to [ATTACH], [DETACH], [COMMIT], [ROLLBACK], [RELEASE],
+** [SAVEPOINT], [PRAGMA], or [VACUUM] the result of sqlite3_stmt_readonly(X) is
+** undefined.
 */
 SQLITE_API int sqlite3_stmt_readonly(sqlite3_stmt *pStmt);
 
@@ -5240,7 +5253,7 @@ SQLITE_API sqlite3_mutex *sqlite3_db_mutex(sqlite3*);
 ** ^The [sqlite3_file_control()] interface makes a direct call to the
 ** xFileControl method for the [sqlite3_io_methods] object associated
 ** with a particular database identified by the second argument. ^The
-** name of the database "main" for the main database or "temp" for the
+** name of the database is "main" for the main database or "temp" for the
 ** TEMP database, or the name that appears after the AS keyword for
 ** databases that are added using the [ATTACH] SQL command.
 ** ^A NULL pointer can be used in place of "main" to refer to the
@@ -5249,6 +5262,12 @@ SQLITE_API sqlite3_mutex *sqlite3_db_mutex(sqlite3*);
 ** are passed directly through to the second and third parameters of
 ** the xFileControl method.  ^The return value of the xFileControl
 ** method becomes the return value of this routine.
+**
+** ^The SQLITE_FCNTL_FILE_POINTER value for the op parameter causes
+** a pointer to the underlying [sqlite3_file] object to be written into
+** the space pointed to by the 4th parameter.  ^The SQLITE_FCNTL_FILE_POINTER
+** case is a short-circuit path which does not actually invoke the
+** underlying sqlite3_io_methods.xFileControl method.
 **
 ** ^If the second parameter (zDbName) does not match the name of any
 ** open database file, then SQLITE_ERROR is returned.  ^This error
