@@ -102,7 +102,7 @@ void export_cmd(void){
   bag_init(&blobs);
   bag_init(&vers);
 
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
 
   /* Step 1:  Generate "blob" records for every artifact that is part
   ** of a check-in 

@@ -98,7 +98,7 @@ static int process_sync_args(void){
   int urlOptional = find_option("autourl",0,0)!=0;
   g.dontKeepUrl = find_option("once",0,0)!=0;
   url_proxy_options();
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   db_open_config(0);
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
@@ -226,7 +226,7 @@ void sync_cmd(void){
 */
 void remote_url_cmd(void){
   char *zUrl;
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
   }

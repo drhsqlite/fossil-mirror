@@ -417,7 +417,7 @@ void configuration_cmd(void){
   if( g.argc<3 ){
     usage("export|import|merge|pull|reset ...");
   }
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   zMethod = g.argv[2];
   n = strlen(zMethod);
   if( strncmp(zMethod, "export", n)==0 ){

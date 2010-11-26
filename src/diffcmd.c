@@ -444,7 +444,7 @@ void diff_cmd(void){
   }else if( zFrom==0 ){
     fossil_fatal("must use --from if --to is present");
   }else{
-    db_find_and_open_repository(1);
+    db_find_and_open_repository(0, 0);
     verify_all_options();
     if( !isInternDiff ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);

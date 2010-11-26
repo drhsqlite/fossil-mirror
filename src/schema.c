@@ -42,7 +42,7 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "1"
-#define AUX_SCHEMA      "2006-12-23"
+#define AUX_SCHEMA      "2010-11-24"
 
 #endif /* INTERFACE */
 

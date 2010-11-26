@@ -882,7 +882,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 */
 void wiki_cmd(void){
   int n;
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     goto wiki_cmd_usage;
   }

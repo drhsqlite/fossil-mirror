@@ -1133,7 +1133,7 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   zCount = find_option("count","n",1);
   zType = find_option("type","t",1);
   if( zCount ){

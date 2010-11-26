@@ -370,7 +370,7 @@ void tag_cmd(void){
   int fPropagate = find_option("propagate","",0)!=0;
   const char *zPrefix = fRaw ? "" : "sym-";
 
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     goto tag_cmd_usage;
   }

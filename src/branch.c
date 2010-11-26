@@ -50,7 +50,7 @@ void branch_new(void){
   if( g.argc<5 ){
     usage("new BRANCH-NAME CHECK-IN ?-bgcolor COLOR?");
   }
-  db_find_and_open_repository(1);  
+  db_find_and_open_repository(0, 0);  
   noSign = db_get_int("omitsign", 0)|noSign;
   
   /* fossil branch new name */
@@ -190,7 +190,7 @@ void branch_new(void){
 void branch_cmd(void){
   int n;
   const char *zCmd = "list";
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   if( g.argc<2 ){
     usage("new|list ...");
   }

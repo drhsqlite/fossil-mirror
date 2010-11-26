@@ -614,7 +614,7 @@ static sqlite3 *openDatabase(const char *zDbName){
 ** file is open, then open this one.  If another database file is
 ** already open, then attach zDbName using the name zLabel.
 */
-void db_open_or_attach(const char *zDbName, const char *zLabel){
+static void db_open_or_attach(const char *zDbName, const char *zLabel){
   if( !g.db ){
     g.db = openDatabase(zDbName);
     g.zRepoDb = "main";
@@ -829,14 +829,25 @@ void db_open_repository(const char *zDbName){
 }
 
 /*
+** Flags for the db_find_and_open_repository() function.
+*/
+#if INTERFACE
+#define OPEN_OK_NOT_FOUND    0x001      /* Do not error out if not found */
+#define OPEN_ANY_SCHEMA      0x002      /* Do not error if schema is wrong */
+#endif
+
+/*
 ** Try to find the repository and open it.  Use the -R or --repository
 ** option to locate the repository.  If no such option is available, then
 ** use the repository of the open checkout if there is one.
 **
 ** Error out if the repository cannot be opened.
 */
-void db_find_and_open_repository(int errIfNotFound){
+void db_find_and_open_repository(int bFlags, const char *zRepoFilename){
   const char *zRep = find_option("repository", "R", 1);
+  if( zRep==0 ){
+    zRep = zRepoFilename;
+  }
   if( zRep==0 ){
     if( db_open_local()==0 ){
       goto rep_not_found;
@@ -848,11 +859,27 @@ void db_find_and_open_repository(int errIfNotFound){
   }
   db_open_repository(zRep);
   if( g.repositoryOpen ){
+    if( (bFlags & OPEN_ANY_SCHEMA)==0 ) db_verify_schema();
     return;
   }
 rep_not_found:
-  if( errIfNotFound ){
+  if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
     fossil_fatal("use --repository or -R to specify the repository database");
+  }
+}
+
+/*
+** Verify that the repository schema is correct.  If it is not correct,
+** issue a fatal error and die.
+*/
+void db_verify_schema(void){
+  if( db_exists("SELECT 1 FROM config"
+                " WHERE name='aux-schema'"
+                "   AND value<>'%s'", AUX_SCHEMA) ){
+    fossil_warning("incorrect repository schema version");
+    fossil_warning("you have version \"%s\" but you need version \"%s\"",
+          db_get("aux-schema",0), AUX_SCHEMA);
+    fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
 }
 
@@ -894,6 +921,7 @@ void db_must_be_within_tree(void){
     fossil_fatal("not within an open checkout");
   }
   db_open_repository(0);
+  db_verify_schema();
 }
 
 /*
@@ -1627,7 +1655,7 @@ void setting_cmd(void){
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
   db_open_config(1);
-  db_find_and_open_repository(0);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   if( !g.repositoryOpen ){
     globalFlag = 1;
   }

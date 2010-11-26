@@ -299,7 +299,7 @@ void artifact_cmd(void){
   int rid;
   Blob content;
   const char *zFile;
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
   zFile = g.argc==4 ? g.argv[3] : "-";
   rid = name_to_rid(g.argv[2]);

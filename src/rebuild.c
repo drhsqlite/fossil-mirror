@@ -362,7 +362,7 @@ void rebuild_database(void){
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{
-    db_find_and_open_repository(1);
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
     if( g.argc!=2 ){
       usage("?REPOSITORY-FILENAME?");
     }
@@ -372,6 +372,11 @@ void rebuild_database(void){
   db_begin_transaction();
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1);
+  db_multi_exec(
+    "REPLACE INTO config(name,value) VALUES('content-schema','%s');"
+    "REPLACE INTO config(name,value) VALUES('aux-schema','%s');",
+    CONTENT_SCHEMA, AUX_SCHEMA
+  );
   if( errCnt && !forceFlag ){
     printf("%d errors. Rolling back changes. Use --force to force a commit.\n",
             errCnt);
@@ -383,7 +388,7 @@ void rebuild_database(void){
 }
 
 /*
-** COMMAND:  test-detach
+** COMMAND:  test-detach  ?REPOSITORY?
 **
 ** Change the project-code and make other changes in order to prevent
 ** the repository from ever again pushing or pulling to other
@@ -391,7 +396,7 @@ void rebuild_database(void){
 ** testing by cloning a working project repository.
 */
 void test_detach_cmd(void){
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, g.argv[2]);
   db_begin_transaction();
   db_multi_exec(
     "DELETE FROM config WHERE name='last-sync-url';"
@@ -413,7 +418,7 @@ void test_createcluster_cmd(void){
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{
-    db_find_and_open_repository(1);
+    db_find_and_open_repository(0, 0);
     if( g.argc!=2 ){
       usage("?REPOSITORY-FILENAME?");
     }
@@ -640,7 +645,7 @@ void deconstruct_cmd(void){
     zFNameFormat = mprintf("%s/%%s",zDestDir);
   }
   /* open repository and open query for all artifacts */
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   bag_init(&bagDone);
   ttyOutput = 1;
   processCnt = 0;

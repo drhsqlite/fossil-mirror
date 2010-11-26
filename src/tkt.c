@@ -905,7 +905,7 @@ void ticket_cmd(void){
   int n;
 
   /* do some ints, we want to be inside a checkout */
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   user_select();
   /*
   ** Check that the user exists.
