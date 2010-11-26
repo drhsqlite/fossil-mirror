@@ -34,8 +34,9 @@ static void sqlcmd_content(
 ){
   int rid;
   Blob cx;
+  const char *zName;
   assert( argc==1 );
-  const char *zName = (const char*)sqlite3_value_text(argv[0]);
+  zName = (const char*)sqlite3_value_text(argv[0]);
   if( zName==0 ) return;
   rid = name_to_rid(zName);
   if( rid==0 ) return;
