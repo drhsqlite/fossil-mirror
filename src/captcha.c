@@ -392,7 +392,7 @@ void test_captcha(void){
   for(i=2; i<g.argc; i++){
     char zHex[30];
     v = (unsigned int)atoi(g.argv[i]);
-    sprintf(zHex, "%x", v);
+    sqlite3_snprintf(sizeof(zHex), zHex, "%x", v);
     z = captcha_render(zHex);
     printf("%s:\n%s", zHex, z);
     free(z);

@@ -671,7 +671,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       zName = mprintf("%s", zFilename);
     }else{
       zName = zBuf;
-      strcpy(zName, zFilename);
+      memcpy(zName, zFilename, nName+1);
     }
     nName = file_simplify_name(zName, nName);
     for(i=1; i<nName; i++){
