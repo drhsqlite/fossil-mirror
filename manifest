@@ -1,5 +1,5 @@
-C Remove\ssome\sinstances\sof\sstrcpy()\sand\ssprintf()\sdue\sto\swarnings\son\sOpenBSD.\nUpdate\sthe\sinternal\sSQLite\sto\sthe\slatest\s3.7.4\srelease\scandidate.
-D 2010-12-02T14:46:16
+C Fix\stypo\sin\simport/export\sdocumentation\s(ticket\s[a66760daeecca231d84]).\nAdd\sflexibility\sto\sthe\scommand-line\soptions\sto\simport/export\sto\saccommodate\nfuture\senhancements.
+D 2010-12-03T21:06:22
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -51,7 +51,7 @@ F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h da6c9c44ddafa4e5f7d2fb4afd4d29af87343b73
 F src/configure.c 60743f5f4c5e105830057377573e168dc4e412ce
 F src/content.c 0865ca299707bb1751220e9df7959537f4ba0719
-F src/db.c 760d7d4c287818a6c84753784c25fd06cf77054f
+F src/db.c e9730ce1c93ac176bf140435302f7680a4131c5b
 F src/delta.c 6296c873abf611a0ac4586910b6f7bd8b9b1e38e
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
 F src/descendants.c 85d428fec9eb6fa79025486a493e561a6ecb5c54
@@ -60,7 +60,7 @@ F src/diffcmd.c 0eff3efa8e0da8cb25d4f505c444aa5ba55ceab9
 F src/doc.c 5e3da9bafab597eb71e5d61c66e44e3cb4e41f1c
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c d6d79a0a826c57b8a2feb4e040f71bbc6bd72e5c
-F src/export.c 862c16cccb9e60553d2b97871188b58ecaeefc95
+F src/export.c 9665562c480751a7daadaccd707ca22ca1ccbab1
 F src/file.c aaf85336aacc66e1925135625070498e1e3b9675
 F src/finfo.c 7938d5d31c6721da1060a0cc7aec9ad634801b68
 F src/graph.c 97998b592069992827fea6031b25550ca53d5803
@@ -68,7 +68,7 @@ F src/http.c 729dc5ae56a0f6de6e41b6a9615335cd2ad59018
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f280e7f07c067a19d3f8c84178a10d1ec4af000b
-F src/import.c c430fed5bf828f4a290a93aa1db2f61cabf71044
+F src/import.c f6bea347abdf4bb7d8af4e6d323b8fc544f16d6a
 F src/info.c 199d64d421b2dd6404d45c84cefef27ecb8b4567
 F src/login.c 18bd25fbe56d8dbd17254ae4b407debb4bbaab0a
 F src/main.c a106db02f3ea0060b4167c17ae6340314e09751b
@@ -86,7 +86,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 935a4cdb90ec123f56faea207eb72f0610f7bece
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
 F src/printf.c 90eaff0bc8cf2708cf96026717246afe56bb7b5d
-F src/rebuild.c 351b150462529f1cb0a8347a04461bf7aeafa52f
+F src/rebuild.c 1ab185e409066320ca04e9a98dd87f207b351554
 F src/report.c 6b2674f05c467a3cce145ea4141a7c04c0c055a3
 F src/rss.c f2944a86fb6c3ce48a6ce843be41c42f2f73b477
 F src/schema.c d9af8db3b459edf86f3accd357a884f5ac41cf2e
@@ -261,7 +261,7 @@ F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 64dc1a0ddd59b6d47c1e8b063eadeb6d5f3cb26f
-F www/inout.wiki cc1ca5c319f1563e2ca63c8e39fc42e49d2c864f
+F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
 F www/mkdownload.tcl 5fc5129fe11a268ce5e887943cf12fa76438c738
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
@@ -279,7 +279,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P f105bc17a06cc302ba1bde6de894793c920ca0f3
-R d1ed9899b1e3e3630b04ad40d8b89006
+P 3ad5891c72016a94d24d0b9702f3ff2dc66b64f1
+R 373364cd0aadcb7a0271fae2c2c56087
 U drh
-Z 9929f592133a363c62a0e8fadc8ad890
+Z ca90f7c96407190b271bc940c8e17e83

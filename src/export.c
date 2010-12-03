@@ -84,16 +84,19 @@ static void print_person(const char *zUser){
 /*
 ** COMMAND: export
 **
-** Usage: %fossil export
+** Usage: %fossil export --git ?REPOSITORY?
 **
 ** Write an export of all check-ins to standard output.  The export is
-** written in the Git "fast-import" format.
+** written in the git-fast-export file format assuming the --git option is
+** provided.  The git-fast-export format is currently the only VCS 
+** interchange format supported, though other formats may be added in
+** the future.
 **
 ** Run this command within a checkout.  Or use the -R or --repository
 ** option to specify a Fossil repository to be exported.
 **
-** Only check-ins are exported.  Git does not support tickets or wiki
-** or events or attachments, so none of that is exported.
+** Only check-ins are exported using --git.  Git does not support tickets 
+** or wiki or events or attachments, so none of those are exported.
 */
 void export_cmd(void){
   Stmt q;
@@ -102,7 +105,10 @@ void export_cmd(void){
   bag_init(&blobs);
   bag_init(&vers);
 
-  db_find_and_open_repository(0, 0);
+  find_option("git", 0, 0);   /* Ignore the --git option for now */
+  db_find_and_open_repository(0, 2);
+  verify_all_options();
+  if( g.argc!=2 && g.argc!=3 ){ usage("--git ?REPOSITORY?"); }
 
   /* Step 1:  Generate "blob" records for every artifact that is part
   ** of a check-in 

@@ -843,10 +843,10 @@ void db_open_repository(const char *zDbName){
 **
 ** Error out if the repository cannot be opened.
 */
-void db_find_and_open_repository(int bFlags, const char *zRepoFilename){
+void db_find_and_open_repository(int bFlags, int nArgUsed){
   const char *zRep = find_option("repository", "R", 1);
-  if( zRep==0 ){
-    zRep = zRepoFilename;
+  if( zRep==0 && nArgUsed && g.argc==nArgUsed+1 ){
+    zRep = g.argv[nArgUsed];
   }
   if( zRep==0 ){
     if( db_open_local()==0 ){
