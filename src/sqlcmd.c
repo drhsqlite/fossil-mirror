@@ -38,6 +38,8 @@ static void sqlcmd_content(
   assert( argc==1 );
   zName = (const char*)sqlite3_value_text(argv[0]);
   if( zName==0 ) return;
+  g.db = sqlite3_context_db_handle(context);
+  g.repositoryOpen = 1;
   rid = name_to_rid(zName);
   if( rid==0 ) return;
   if( content_get(rid, &cx) ){
