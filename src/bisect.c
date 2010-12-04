@@ -196,7 +196,7 @@ void bisect_cmd(void){
     if( g.argc==3 ){
       ridBad = db_lget_int("checkout",0);
     }else{
-      ridBad = name_to_rid(g.argv[4]);
+      ridBad = name_to_rid(g.argv[3]);
     }
     db_lset_int("bisect-bad", ridBad);
   }else if( memcmp(zCmd, "good", n)==0 ){
@@ -204,7 +204,7 @@ void bisect_cmd(void){
     if( g.argc==3 ){
       ridGood = db_lget_int("checkout",0);
     }else{
-      ridGood = name_to_rid(g.argv[4]);
+      ridGood = name_to_rid(g.argv[3]);
     }
     db_lset_int("bisect-good", ridGood);
   }else if( n>=2 && memcmp(zCmd, "reset", n)==0 ){
