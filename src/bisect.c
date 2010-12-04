@@ -122,12 +122,12 @@ static BisectNode *bisect_path(void){
   BisectNode *p;
   bisect.bad = db_lget_int("bisect-bad", 0);
   if( bisect.bad==0 ){
-    bisect.bad = db_int(0, "SELECT pid FROM plink ORDER BY mtime LIMIT 1");
+    bisect.bad = db_int(0, "SELECT cid FROM plink ORDER BY mtime DESC LIMIT 1");
     db_lset_int("bisect-bad", bisect.bad);
   }
   bisect.good = db_lget_int("bisect-good", 0);
   if( bisect.good==0 ){
-    bisect.good = db_int(0,"SELECT cid FROM plink ORDER BY mtime DESC LIMIT 1");
+    bisect.good = db_int(0,"SELECT pid FROM plink ORDER BY mtime LIMIT 1");
     db_lset_int("bisect-good", bisect.good);
   }
   p = bisect_shortest_path(bisect.good, bisect.bad);
@@ -169,18 +169,6 @@ static BisectNode *bisect_path(void){
 **     Reinitialize a bisect session.  This cancels prior bisect history
 **     and allows a bisect session to start over from the beginning.
 **
-**   fossil bisect run SCRIPT
-**
-**     Automatically bisect between "bad" and "good" versions, running SCRIPT
-**     at each step to determine if the version is bad or good.  SCRIPT should
-**     exit with result code zero if the version is good, or non-zero if the
-**     version is bad.
-**
-**   fossil bisect timeline
-**
-**     Show a timeline of all changes in between the identified "bad" and 
-**     "good" versions.
-**
 **   fossil bisect vlist
 **
 **     List the versions in between "bad" and "good".
@@ -191,7 +179,8 @@ void bisect_cmd(void){
   db_must_be_within_tree();
   zCmd = g.argv[2];
   n = strlen(zCmd);
-  if( n>=1 && memcmp(zCmd, "bad", n)==0 ){
+  if( n==0 ) zCmd = "-";
+  if( memcmp(zCmd, "bad", n)==0 ){
     int ridBad;
     if( g.argc==3 ){
       ridBad = db_lget_int("checkout",0);
@@ -207,22 +196,37 @@ void bisect_cmd(void){
       ridGood = name_to_rid(g.argv[3]);
     }
     db_lset_int("bisect-good", ridGood);
-  }else if( n>=2 && memcmp(zCmd, "reset", n)==0 ){
+  }else if( memcmp(zCmd, "next", n)==0 ){
+    BisectNode *p;
+    int n;
+    bisect_path();
+    if( bisect.nStep<2 ){
+      fossil_fatal("bisect is done - there are no more intermediate versions");
+    }
+    for(p=bisect.pEnd, n=0; p && n<bisect.nStep/2; p=p->pFrom, n++){}
+    g.argv[1] = "update";
+    g.argv[2] = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid);
+    g.argc = 3;
+    g.fNoSync = 1;
+    update_cmd();
+  }else if( memcmp(zCmd, "reset", n)==0 ){
     db_multi_exec(
       "REPLACE INTO vvar(name, value) "
       "  SELECT 'bisect-good', pid FROM plink ORDER BY mtime LIMIT 1;"
       "REPLACE INTO vvar(name, value) "
       "  SELECT 'bisect-bad', cid FROM plink ORDER BY mtime DESC LIMIT 1;"
     );
-  }else if( n>=2 && memcmp(zCmd, "vlist", n)==0 ){
+  }else if( memcmp(zCmd, "vlist", n)==0 ){
     BisectNode *p;
+    int vid = db_lget_int("checkout", 0);
+    int n;
     Stmt s;
     bisect_path();
     db_prepare(&s, "SELECT substr(blob.uuid,1,20) || ' ' || "
                    "       datetime(event.mtime) FROM blob, event"
                    " WHERE blob.rid=:rid AND event.objid=:rid"
                    "   AND event.type='ci'");
-    for(p=bisect.pEnd; p; p=p->pFrom){
+    for(p=bisect.pEnd, n=0; p; p=p->pFrom, n++){
       const char *z;
       db_bind_int(&s, ":rid", p->rid);
       if( db_step(&s)==SQLITE_ROW ){
@@ -230,12 +234,14 @@ void bisect_cmd(void){
         printf("%s", z);
         if( p->rid==bisect.good ) printf(" GOOD");
         if( p->rid==bisect.bad ) printf(" BAD");
+        if( p->rid==vid ) printf(" CURRENT");
+        if( bisect.nStep>1 && n==bisect.nStep/2 ) printf(" NEXT");
         printf("\n");
       }
       db_reset(&s);
     }
     db_finalize(&s);
   }else{
-    usage("bad|good|next|reset|run|timeline|vlist ...");
+    usage("bad|good|next|reset|vlist ...");
   }
 }

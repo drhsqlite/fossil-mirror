@@ -1,5 +1,5 @@
-C Simple\sbug-fix\sto\sget\sthe\sbisect-good\sand\sbisect-bad\scommands\sworking.
-D 2010-12-04T13:15:52
+C Basic\sfunctionality\sfor\sthe\s"bisect"\scommand\sis\snow\sworking.\nTicket\s[33ffff3b4d961cf6e2a0]
+D 2010-12-04T19:25:04
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -38,7 +38,7 @@ F src/add.c b725a02e65983abf6f6037832a9f32549d1f76b8
 F src/allrepo.c 80a4ff9364e33341c4096d6fa6d2cd0dbe701dce
 F src/attach.c 61213054390bb76cea35acc452e9d017378f05fd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
-F src/bisect.c 7a12d58166fcefc1529b1c267b4b6c81ef2aa3eb
+F src/bisect.c 08c62f724f0f151c1c9b8bc5f011c8d7101dc598
 F src/blob.c 882f5c6ad3047e6d259fa28934b35b68e83e0acc
 F src/branch.c 9089c6e9b2073cf0ece703d92d13da21b9c62557
 F src/browse.c 931267cb06194cbd6cf1904f7dd60aa2c39ad4cd
@@ -280,7 +280,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 2ce65f28634be6b5df3a081456c1437be5a92f33
-R ae02bfa564ac3445a5b4574b8bbf5c0b
+P f2dbf9017d9bb1acb1c6e3df98b2e41c109dc21c
+R baa52cd7bd4a57ca7be58d420ca21f59
 U drh
-Z 3d7edb9ee417b309d5e70362b8d4ef7e
+Z 036228b4ed27e83c9e92071c9c92e394
