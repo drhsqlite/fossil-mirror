@@ -11,6 +11,7 @@ set src {
   allrepo
   attach
   bag
+  bisect
   blob
   branch
   browse
@@ -682,4 +683,3 @@ clobber: clean
 }
 
 }
-
