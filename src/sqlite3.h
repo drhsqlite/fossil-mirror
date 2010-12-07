@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.4"
 #define SQLITE_VERSION_NUMBER 3007004
-#define SQLITE_SOURCE_ID      "2010-12-02 11:24:58 a94b9a395e0be9549d8c28e2b86b995c73c7b671"
+#define SQLITE_SOURCE_ID      "2010-12-06 21:09:59 fabcb6b95e1d4059d1e6c6183f65846f6cbd5749"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4840,7 +4840,8 @@ SQLITE_API int sqlite3_blob_open(
 ** SQLite error code is returned and the blob handle is considered aborted.
 ** ^All subsequent calls to [sqlite3_blob_read()], [sqlite3_blob_write()] or
 ** [sqlite3_blob_reopen()] on an aborted blob handle immediately return
-** SQLITE_ABORT.
+** SQLITE_ABORT. ^Calling [sqlite3_blob_bytes()] on an aborted blob handle
+** always returns zero.
 **
 ** ^This function sets the database handle error code and message.
 */
