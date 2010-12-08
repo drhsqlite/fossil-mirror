@@ -47,6 +47,9 @@
 **   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
 **                           and do not try to merge parallel changes.  This
 **                           option overrides the "binary-glob" setting.
+**
+**   --nochange | -n         Dryrun:  do not actually make any changes; just
+**                           show what would have happened.
 */
 void merge_cmd(void){
   int vid;              /* Current version */
@@ -54,7 +57,8 @@ void merge_cmd(void){
   int pid;              /* The pivot version - most recent common ancestor */
   int detailFlag;       /* True if the --detail option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
-  int backoutFlag;      /* True if the --backout optioni is present */
+  int backoutFlag;      /* True if the --backout option is present */
+  int nochangeFlag;     /* True if the --nochange or -n option is present */
   const char *zBinGlob; /* The value of --binary */
   Stmt q;
 
@@ -62,6 +66,7 @@ void merge_cmd(void){
   pickFlag = find_option("cherrypick",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
+  nochangeFlag = find_option("nochange","n",0)!=0;
   if( g.argc!=3 ){
     usage("VERSION");
   }
@@ -212,8 +217,10 @@ void merge_cmd(void){
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
     zName = db_column_text(&q, 2);
     printf("ADDED %s\n", zName);
-    undo_save(zName);
-    vfile_to_disk(0, idm, 0, 0);
+    if( !nochangeFlag ){
+      undo_save(zName);
+      vfile_to_disk(0, idm, 0, 0);
+    }
   }
   db_finalize(&q);
   
@@ -232,11 +239,13 @@ void merge_cmd(void){
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
     /* Copy content from idm over into idv.  Overwrite idv. */
     printf("UPDATE %s\n", zName);
-    undo_save(zName);
-    db_multi_exec(
-      "UPDATE vfile SET mrid=%d, chnged=2 WHERE id=%d", ridm, idv
-    );
-    vfile_to_disk(0, idv, 0, 0);
+    if( !nochangeFlag ){
+      undo_save(zName);
+      db_multi_exec(
+        "UPDATE vfile SET mrid=%d, chnged=2 WHERE id=%d", ridm, idv
+      );
+      vfile_to_disk(0, idv, 0, 0);
+    }
     free(zName);
   }
   db_finalize(&q);
@@ -279,7 +288,7 @@ void merge_cmd(void){
       rc = blob_merge(&p, &m, &v, &r);
     }
     if( rc>=0 ){
-      blob_write_to_file(&r, zFullPath);
+      if( !nochangeFlag ) blob_write_to_file(&r, zFullPath);
       if( rc>0 ){
         printf("***** %d merge conflicts in %s\n", rc, zName);
       }
@@ -324,5 +333,5 @@ void merge_cmd(void){
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
   }
   undo_finish();
-  db_end_transaction(0);
+  db_end_transaction(nochangeFlag);
 }
