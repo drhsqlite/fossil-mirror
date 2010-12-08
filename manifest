@@ -1,5 +1,5 @@
-C Update\sthe\sprecompiled\sdownload\spage\sto\sinclude\san\sOpenBSD\sbinary.
-D 2010-12-07T14:20:42
+C Ignore\sunfinalized\sstatements\swhen\sshutting\sdown\sthe\sSQLite\scommand-line\nshell.\s\sTicket\s[891cd78969e03ec3009].
+D 2010-12-08T03:31:05
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -94,7 +94,7 @@ F src/schema.c d9af8db3b459edf86f3accd357a884f5ac41cf2e
 F src/search.c d3a38c62eca5b2a9c842c0e64468fa4cfee8fb96
 F src/setup.c 41b063101c27eaa93f53ac803d29aa58c46eaed8
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
-F src/shell.c 860d717a2864c9093f393be5c2f820418f8dc662
+F src/shell.c de359a1421654acdb921da2f16367acebff21a85
 F src/shun.c 1b4711b3a27101974f3345e1fbd3dffd07ec641f
 F src/skins.c 76b6e7ca598306eda046c164c5ccb7575f4ba5ad
 F src/sqlcmd.c f5e8a3673f51f8a81e72964353243345e26a353a
@@ -281,7 +281,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 0018d724b327ae1f4a648ce7d0772cd11ba4015f
-R 5b34cc64e953ae76756f0af1611340b8
+P 57f374a7f4062dbcc1eebb7a031e1741197c0b9a
+R 44630cf7705c1f62e4b2544c8fe04a5f
 U drh
-Z c1d9e83465c0acdaf714cd748acff69c
+Z 815c73685458a898659a7bd8ddcda7a0
