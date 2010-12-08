@@ -118,7 +118,7 @@ void update_cmd(void){
 
   if( !verboseFlag && (tid==vid)) return;  /* Nothing to update */
   db_begin_transaction();
-  vfile_check_signature(vid, 1);
+  vfile_check_signature(vid, 1, 0);
   if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(tid);
 
@@ -407,7 +407,7 @@ void revert_cmd(void){
   }else{
     int vid;
     vid = db_lget_int("checkout", 0);
-    vfile_check_signature(vid, 0);
+    vfile_check_signature(vid, 0, 0);
     db_multi_exec(
       "DELETE FROM vmerge;"
       "INSERT INTO torevert "

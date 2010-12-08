@@ -104,14 +104,20 @@ static void status_report(
 **
 ** Report on the edit status of all files in the current checkout.
 ** See also the "status" and "extra" commands.
+**
+** Options:
+**
+**    --sha1sum         Verify file status using SHA1 hashing rather
+**                      than relying on file mtimes.
 */
 void changes_cmd(void){
   Blob report;
   int vid;
+  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
   db_must_be_within_tree();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0);
+  vfile_check_signature(vid, 0, useSha1sum);
   status_report(&report, "", 0);
   blob_write_to_file(&report, "-");
 }
@@ -122,6 +128,11 @@ void changes_cmd(void){
 ** Usage: %fossil status
 **
 ** Report on the status of the current checkout.
+**
+** Options:
+**
+**    --sha1sum         Verify file status using SHA1 hashing rather
+**                      than relying on file mtimes.
 */
 void status_cmd(void){
   int vid;
@@ -153,7 +164,7 @@ void ls_cmd(void){
   isBrief = find_option("l","l", 0)==0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0);
+  vfile_check_signature(vid, 0, 0);
   db_prepare(&q,
      "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
      "  FROM vfile"

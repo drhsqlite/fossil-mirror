@@ -138,11 +138,11 @@ void vfile_build(int vid){
 ** If VFILE.DELETED is null or if VFILE.RID is zero, then we can assume
 ** the file has changed without having the check the on-disk image.
 */
-void vfile_check_signature(int vid, int notFileIsFatal){
+void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
   int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
-  int checkMtime = db_get_boolean("mtime-changes", 1);
+  int checkMtime = useSha1sum==0 && db_get_boolean("mtime-changes", 1);
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"

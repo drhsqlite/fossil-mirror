@@ -48,7 +48,7 @@ void finfo_cmd(void){
   if( vid==0 ){
     fossil_panic("no checkout to finfo files in");
   }
-  vfile_check_signature(vid, 1);
+  vfile_check_signature(vid, 1, 0);
   if (find_option("status","s",0)) {
     Stmt q;
     Blob line;
