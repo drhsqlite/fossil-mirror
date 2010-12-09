@@ -248,7 +248,7 @@ static int check_cache_control(void){
       char *zTok = 0;
       char *zPos;
       for( zTok = strtok_r(zBuf, ",\"",&zPos);
-           zTok && strcasecmp(zTok,zETag);
+           zTok && fossil_stricmp(zTok,zETag);
            zTok =  strtok_r(0, ",\"",&zPos)){}
       free(zBuf);
       if(zTok) return 1;
@@ -694,6 +694,8 @@ void cgi_init(void){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
+      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+    }else if( strcmp(zType, "application/x-fossil-uncompressed")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
   }
@@ -1196,7 +1198,7 @@ time_t cgi_rfc822_parsedate(const char *zDate){
 
     if( t.tm_year > 1900 ) t.tm_year -= 1900;
     for(t.tm_mon=0; azMonths[t.tm_mon]; t.tm_mon++){
-      if( !strncasecmp( azMonths[t.tm_mon], zMonth, 3 )){
+      if( !fossil_strnicmp( azMonths[t.tm_mon], zMonth, 3 )){
         return mkgmtime(&t);
       }
     }

@@ -111,7 +111,7 @@ static int isValidAnonymousLogin(
   zCS = P("cs");   /* The "cs" parameter is the "captcha seed" */
   if( zCS==0 ) return 0;
   zPw = captcha_decode((unsigned int)atoi(zCS));
-  if( strcasecmp(zPw, zPassword)!=0 ) return 0;
+  if( fossil_stricmp(zPw, zPassword)!=0 ) return 0;
   uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
                   " AND length(pw)>0 AND length(cap)>0");
   return uid;

@@ -117,8 +117,8 @@ void home_page(void){
 ** Return true if the given pagename is the name of the sandbox
 */
 static int is_sandbox(const char *zPagename){
-  return strcasecmp(zPagename,"sandbox")==0 ||
-         strcasecmp(zPagename,"sand box")==0;
+  return fossil_stricmp(zPagename,"sandbox")==0 ||
+         fossil_stricmp(zPagename,"sand box")==0;
 }
 
 /*

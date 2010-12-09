@@ -247,7 +247,6 @@ INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(DMDIR)\extra\include
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
 
-DMCDEF =  -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 I18N   =  -DFOSSIL_I18N=0
 
 CFLAGS = -o 
@@ -385,7 +384,6 @@ ZLIB    = zlib.lib
 
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 
-MSCDEF =  -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp
 I18N   =  -DFOSSIL_I18N=0
 
 CFLAGS = -nologo -MT -O2
@@ -548,7 +546,7 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 # the fossil binary. Some special definitions follow for
 # special files follow
 CC=$(PellesCDir)\bin\pocc.exe
-DEFINES=-DFOSSIL_I18N=0 -Dstrncasecmp=memicmp -Dstrcasecmp=stricmp  -D_pgmptr=g.argv[0]
+DEFINES=-DFOSSIL_I18N=0 -D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
 INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
 

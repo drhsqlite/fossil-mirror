@@ -140,6 +140,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   char *zLine;          /* A single line of the reply header */
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
+  int isCompressed = 1; /* True if the reply is compressed */
 
   if( transport_open() ){
     fossil_warning(transport_errmsg());
@@ -198,7 +199,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   iLength = -1;
   while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
     /* printf("[%s]\n", zLine); fflush(stdout); */
-    if( strncasecmp(zLine, "http/1.", 7)==0 ){
+    if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc!=200 && rc!=302 ){
         int ii;
@@ -212,10 +213,10 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }else{
         closeConnection = 0;
       }
-    }else if( strncasecmp(zLine, "content-length:", 15)==0 ){
+    }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
-    }else if( strncasecmp(zLine, "connection:", 11)==0 ){
+    }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       char c;
       for(i=11; fossil_isspace(zLine[i]); i++){}
       c = zLine[i];
@@ -224,7 +225,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
-    }else if( rc==302 && strncasecmp(zLine, "location:", 9)==0 ){
+    }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
@@ -237,8 +238,15 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       url_parse(&zLine[i]);
       transport_close();
       return http_exchange(pSend, pReply, useLogin);
-    }else if( strncasecmp(zLine, "content-type: text/html", 23)==0 ){
-      isError = 1;
+    }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
+      if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
+        isCompressed = 0;
+      }else if( fossil_strnicmp(&zLine[14], 
+                          "application/x-fossil-uncompressed", -1)==0 ){
+        isCompressed = 0;
+      }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
+        isError = 1;
+      }
     }
   }
   if( rc!=200 ){
@@ -271,10 +279,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     z[j] = 0;
     fossil_fatal("server sends error: %s", z);
   }
+  if( isCompressed ) blob_uncompress(pReply, pReply);
   if( g.fHttpTrace ){
     /*printf("HTTP RECEIVE:\n%s\n=======================\n",blob_str(pReply));*/
-  }else{
-    blob_uncompress(pReply, pReply);
   }
 
   /*

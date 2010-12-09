@@ -178,7 +178,7 @@ int report_query_authorizer(
       };
       int i;
       for(i=0; i<sizeof(azAllowed)/sizeof(azAllowed[0]); i++){
-        if( strcasecmp(zArg1, azAllowed[i])==0 ) break;
+        if( fossil_stricmp(zArg1, azAllowed[i])==0 ) break;
       }
       if( i>=sizeof(azAllowed)/sizeof(azAllowed[0]) ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
@@ -215,7 +215,7 @@ char *verify_sql_statement(char *zSql){
   ** the first token is "SELECT" and that there are no unquoted semicolons.
   */
   for(i=0; fossil_isspace(zSql[i]); i++){}
-  if( strncasecmp(&zSql[i],"select",6)!=0 ){
+  if( fossil_strnicmp(&zSql[i],"select",6)!=0 ){
     return mprintf("The SQL must be a SELECT statement");
   }
   for(i=0; zSql[i]; i++){

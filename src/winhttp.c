@@ -50,7 +50,7 @@ static int find_content_length(const char *zHdr){
   while( *zHdr ){
     if( zHdr[0]=='\n' ){
       if( zHdr[1]=='\r' ) return 0;
-      if( strncasecmp(&zHdr[1], "content-length:", 15)==0 ){
+      if( fossil_strnicmp(&zHdr[1], "content-length:", 15)==0 ){
         return atoi(&zHdr[17]);
       }
     }
