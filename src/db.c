@@ -359,6 +359,9 @@ double db_column_double(Stmt *pStmt, int N){
 const char *db_column_text(Stmt *pStmt, int N){
   return (char*)sqlite3_column_text(pStmt->pStmt, N);
 }
+const char *db_column_raw(Stmt *pStmt, int N){
+  return (const char*)sqlite3_column_blob(pStmt->pStmt, N);
+}
 const char *db_column_name(Stmt *pStmt, int N){
   return (char*)sqlite3_column_name(pStmt->pStmt, N);
 }
@@ -1055,7 +1058,7 @@ void db_initial_setup(
     md5sum_blob(&manifest, &hash);
     blob_appendf(&manifest, "Z %b\n", &hash);
     blob_reset(&hash);
-    rid = content_put(&manifest, 0, 0);
+    rid = content_put(&manifest, 0, 0, 0);
     manifest_crosslink(rid, &manifest);
   }
 }

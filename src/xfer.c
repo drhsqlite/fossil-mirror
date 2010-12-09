@@ -29,7 +29,7 @@ struct Xfer {
   Blob *pIn;          /* Input text from the other side */
   Blob *pOut;         /* Compose our reply here */
   Blob line;          /* The current line of input */
-  Blob aToken[5];     /* Tokenized version of line */
+  Blob aToken[6];     /* Tokenized version of line */
   Blob err;           /* Error message text */
   int nToken;         /* Number of tokens in line */
   int nIGotSent;      /* Number of "igot" cards sent */
@@ -134,7 +134,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
       srcid = 0;
       pXfer->nFileRcvd++;
     }
-    rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
+    rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid, 0);
     remote_has(rid);
     blob_reset(&content);
     return;
@@ -143,7 +143,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     Blob src, next;
     srcid = rid_from_uuid(&pXfer->aToken[2], 1);
     if( content_get(srcid, &src)==0 ){
-      rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid);
+      rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid, 0);
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       content_make_public(rid);
@@ -161,7 +161,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
     blob_appendf(&pXfer->err, "content does not match sha1 hash");
   }
-  rid = content_put(&content, blob_str(&hash), 0);
+  rid = content_put(&content, blob_str(&hash), 0, 0);
   blob_reset(&hash);
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
@@ -170,6 +170,65 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     manifest_crosslink(rid, &content);
   }
   remote_has(rid);
+}
+
+/*
+** The aToken[0..nToken-1] blob array is a parse of a "cfile" line 
+** message.  This routine finishes parsing that message and does
+** a record insert of the file.  The difference between "file" and
+** "cfile" is that with "cfile" the content is already compressed.
+**
+** The file line is in one of the following two forms:
+**
+**      cfile UUID USIZE CSIZE \n CONTENT
+**      cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+**
+** The content is CSIZE bytes immediately following the newline.
+** If DELTASRC exists, then the CONTENT is a delta against the
+** content of DELTASRC.
+**
+** The original size of the UUID artifact is USIZE.
+**
+** If any error occurs, write a message into pErr which has already
+** be initialized to an empty string.
+**
+** Any artifact successfully received by this routine is considered to
+** be public and is therefore removed from the "private" table.
+*/
+static void xfer_accept_compressed_file(Xfer *pXfer){
+  int szC;   /* CSIZE */
+  int szU;   /* USIZE */
+  int rid;
+  int srcid = 0;
+  Blob content;
+  
+  if( pXfer->nToken<4 
+   || pXfer->nToken>5
+   || !blob_is_uuid(&pXfer->aToken[1])
+   || !blob_is_int(&pXfer->aToken[pXfer->nToken-2], &szU)
+   || !blob_is_int(&pXfer->aToken[pXfer->nToken-1], &szC)
+   || szC<0 || szU<0
+   || (pXfer->nToken==5 && !blob_is_uuid(&pXfer->aToken[2]))
+  ){
+    blob_appendf(&pXfer->err, "malformed cfile line");
+    return;
+  }
+  blob_zero(&content);
+  blob_extract(pXfer->pIn, szC, &content);
+  if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
+    /* Ignore files that have been shunned */
+    return;
+  }
+  if( pXfer->nToken==5 ){
+    srcid = rid_from_uuid(&pXfer->aToken[2], 1);
+    pXfer->nDeltaRcvd++;
+  }else{
+    srcid = 0;
+    pXfer->nFileRcvd++;
+  }
+  rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid, szC);
+  remote_has(rid);
+  blob_reset(&content);
 }
 
 /*
@@ -334,6 +393,51 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   }
   remote_has(rid);
   blob_reset(&uuid);
+}
+
+/*
+** Send the file identified by rid as a compressed artifact.  Basically,
+** send the content exactly as it appears in the BLOB table using 
+** a "cfile" card.
+*/
+static void send_compressed_file(Xfer *pXfer, int rid){
+  const char *zContent;
+  const char *zUuid;
+  char *zDelta;
+  int szU;
+  int szC;
+  int rc;
+  Stmt s;
+
+  db_prepare(&s,
+    "SELECT uuid, size, content FROM blob"
+    " WHERE rid=%d"
+    "   AND size>=0"
+    "   AND uuid NOT IN shun"
+    "   AND rid NOT IN private",
+    rid
+  );
+  rc = db_step(&s);
+  if( rc==SQLITE_ROW ){
+    zUuid = db_column_text(&s, 0);
+    szU = db_column_int(&s, 1);
+    szC = db_column_bytes(&s, 2);
+    zContent = db_column_raw(&s, 2);
+    zDelta = db_text(0, "SELECT uuid FROM blob WHERE rid="
+                        "  (SELECT srcid FROM delta WHERE rid=%d)", rid);
+    blob_appendf(pXfer->pOut, "cfile %s ", zUuid);
+    if( zDelta ){
+      blob_appendf(pXfer->pOut, "%s ", zDelta);
+      fossil_free(zDelta);
+      pXfer->nDeltaSent++;
+    }else{
+      pXfer->nFileSent++;
+    }
+    blob_appendf(pXfer->pOut, "%d %d\n", szU, szC);
+    blob_append(pXfer->pOut, zContent, szC);
+    blob_append(pXfer->pOut, "\n", 1);
+  }
+  db_finalize(&s);
 }
 
 /*
@@ -513,7 +617,7 @@ void create_cluster(void){
         md5sum_blob(&cluster, &cksum);
         blob_appendf(&cluster, "Z %b\n", &cksum);
         blob_reset(&cksum);
-        content_put(&cluster, 0, 0);
+        content_put(&cluster, 0, 0, 0);
         blob_reset(&cluster);
         nUncl -= nRow;
         nRow = 0;
@@ -525,7 +629,7 @@ void create_cluster(void){
       md5sum_blob(&cluster, &cksum);
       blob_appendf(&cluster, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      content_put(&cluster, 0, 0);
+      content_put(&cluster, 0, 0, 0);
       blob_reset(&cluster);
     }
   }
@@ -669,6 +773,27 @@ void page_xfer(void){
       }
     }else
 
+    /*   cfile UUID USIZE CSIZE \n CONTENT
+    **   cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+    **
+    ** Accept a file from the client.
+    */
+    if( blob_eq(&xfer.aToken[0], "cfile") ){
+      if( !isPush ){
+        cgi_reset_content();
+        @ error not\sauthorized\sto\swrite
+        nErr++;
+        break;
+      }
+      xfer_accept_compressed_file(&xfer);
+      if( blob_size(&xfer.err) ){
+        cgi_reset_content();
+        @ error %T(blob_str(&xfer.err))
+        nErr++;
+        break;
+      }
+    }else
+
     /*   gimme UUID
     **
     ** Client is requesting a file.  Send it.
@@ -765,10 +890,17 @@ void page_xfer(void){
        && iVers>=2
       ){
         int seqno, max;
+        if( iVers>=3 ){
+          cgi_set_content_type("application/x-fossil-uncompressed");
+        }
         blob_is_int(&xfer.aToken[2], &seqno);
         max = db_int(0, "SELECT max(rid) FROM blob");
         while( xfer.mxSend>blob_size(xfer.pOut) && seqno<=max ){
-          send_file(&xfer, seqno, 0, 1);
+          if( iVers>=3 ){
+            send_compressed_file(&xfer, seqno);
+          }else{
+            send_file(&xfer, seqno, 0, 1);
+          }
           seqno++;
         }
         if( seqno>=max ) seqno = 0;
@@ -1034,7 +1166,7 @@ int client_sync(
   ** Always begin with a clone, pull, or push message
   */
   if( cloneFlag ){
-    blob_appendf(&send, "clone 2 %d\n", cloneSeqno);
+    blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
     pushFlag = 0;
     pullFlag = 0;
     nCardSent++;
@@ -1194,6 +1326,15 @@ int client_sync(
         xfer_accept_file(&xfer, cloneFlag);
       }else
 
+      /*   cfile UUID USIZE CSIZE \n CONTENT
+      **   cfile UUID DELTASRC USIZE CSIZE \n CONTENT
+      **
+      ** Receive a compressed file transmitted from the server.
+      */
+      if( blob_eq(&xfer.aToken[0],"cfile") ){
+        xfer_accept_compressed_file(&xfer);
+      }else
+
       /*   gimme UUID
       **
       ** Server is requesting a file.  If the file is a manifest, assume
@@ -1251,7 +1392,7 @@ int client_sync(
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
         }
-        blob_appendf(&send, "clone 2 %d\n", cloneSeqno);
+        blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
         nCardSent++;
       }else
       
@@ -1365,7 +1506,7 @@ int client_sync(
       }else
 
       /* Unknown message */
-      {
+      if( xfer.nToken>0 ){
         if( blob_str(&xfer.aToken[0])[0]=='<' ){
           fossil_warning(
             "server replies with HTML instead of fossil sync protocol:\n%b",
@@ -1374,7 +1515,7 @@ int client_sync(
           nErr++;
           break;
         }
-        blob_appendf(&xfer.err, "unknown command: %b", &xfer.aToken[0]);
+        blob_appendf(&xfer.err, "unknown command: [%b]", &xfer.aToken[0]);
       }
 
       if( blob_size(&xfer.err) ){

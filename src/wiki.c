@@ -324,7 +324,7 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki, 0, 0);
+      nrid = content_put(&wiki, 0, 0, 0);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
       blob_reset(&wiki);
@@ -497,7 +497,7 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki, 0, 0);
+      nrid = content_put(&wiki, 0, 0, 0);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
       blob_reset(&wiki);
@@ -822,7 +822,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  nrid = content_put( &wiki, 0, 0 );
+  nrid = content_put( &wiki, 0, 0, 0);
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   manifest_crosslink(nrid,&wiki);
   blob_reset(&wiki);
