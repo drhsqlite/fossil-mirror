@@ -285,14 +285,10 @@ void extra_cmd(void){
   vfile_scan(0, &path, blob_size(&path), allFlag);
   db_prepare(&q, 
       "SELECT x FROM sfile"
-      " WHERE x NOT IN ('%s','%s','_FOSSIL_',"
-                       "'_FOSSIL_-journal','.fos','.fos-journal',"
-                       "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
-                       "'.fos-shm')"
+      " WHERE x NOT IN (%s)"
       "   AND NOT %s"
       " ORDER BY 1",
-      outputManifest ? "manifest" : "_FOSSIL_",
-      outputManifest ? "manifest.uuid" : "_FOSSIL_",
+      fossil_all_reserved_names(),
       glob_expr("x", zIgnoreFlag)
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
@@ -335,11 +331,10 @@ void clean_cmd(void){
   vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN ('manifest','manifest.uuid','_FOSSIL_',"
-                       "'_FOSSIL_-journal','.fos','.fos-journal',"
-                       "'_FOSSIL_-wal','_FOSSIL_-shm','.fos-wal',"
-                       "'.fos-shm')"
-      " ORDER BY 1", g.zLocalRoot);
+      " WHERE x NOT IN (%s)"
+      " ORDER BY 1",
+      g.zLocalRoot, fossil_all_reserved_names()
+  );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }

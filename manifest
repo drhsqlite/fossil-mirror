@@ -1,5 +1,5 @@
-C Do\snot\sshow\sthe\s"manifest"\sand\s"manifest.uuid"\sfiles\sas\s"extra"\sfiles\sif\nthey\sare\sgenerated\sby\sFossil.
-D 2010-12-10T19:28:40
+C Create\sa\ssingle\ssubroutine\sthat\sdetermines\swhether\sa\sfile\sis\sa\s"reserved"\nfile\sused\sby\sFossil\sitself,\sor\sis\spotentially\sa\svalid\srepository\sfile.\nThis\sprocessing\sused\sto\sbe\sduplicated\sat\seach\splace\swhere\sit\swas\sneeded.
+D 2010-12-10T22:02:07
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -34,7 +34,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c b725a02e65983abf6f6037832a9f32549d1f76b8
+F src/add.c 1c6b98b763b91bb96cc7961461ff674ebbc09d8e
 F src/allrepo.c 80a4ff9364e33341c4096d6fa6d2cd0dbe701dce
 F src/attach.c 61213054390bb76cea35acc452e9d017378f05fd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -44,8 +44,8 @@ F src/branch.c 9089c6e9b2073cf0ece703d92d13da21b9c62557
 F src/browse.c 931267cb06194cbd6cf1904f7dd60aa2c39ad4cd
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c 4a905a9b55868f327fe083ba425125ef332fb1a0
-F src/checkin.c 9c4ba382cfbc498ea23e20b512d40a2aff9f0477
-F src/checkout.c 3838f89b09778c686d1a102f7e330c2b18a8c6e3
+F src/checkin.c 7b4aafa4eb6502d0a014bcbd77dcf24aabe8ce03
+F src/checkout.c 45ccc5ea4d73fc17f18eba1d29eab1b92f5d115d
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
@@ -281,7 +281,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 34341a10b45c9ff1f92c895ace54f021e5eef73e
-R 9d12f138bcdd70020acc95e3e6fee1ac
+P 26590b8841f3fe64dd04f2726bdd7d8e907b8047
+R 68083e0e81eb70fd9bbed8d4a004178b
 U drh
-Z 98acb8c33ee9b10311e953b84d716b6b
+Z d95021c692758712acf4f5b2394abd6c
