@@ -1111,7 +1111,7 @@ void commit_cmd(void){
     /* Verify that the commit did not modify any disk images. */
     vfile_aggregate_checksum_disk(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
-      fossil_fatal("working check before and after commit does not match");
+      fossil_fatal("working checkout before and after commit does not match");
     }
   }
 

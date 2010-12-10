@@ -1,5 +1,5 @@
-C Fix\sa\stypo\sin\sthe\shelp\stext\sfor\s"fossil\simport".\s\sTicket\s[e8a6bfa54e0c3]
-D 2010-12-09T20:48:29
+C Fix\stypo\sin\san\serror\smessage.
+D 2010-12-10T15:25:45
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -44,7 +44,7 @@ F src/branch.c 9089c6e9b2073cf0ece703d92d13da21b9c62557
 F src/browse.c 931267cb06194cbd6cf1904f7dd60aa2c39ad4cd
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c 4a905a9b55868f327fe083ba425125ef332fb1a0
-F src/checkin.c ae3b201892ffd9f1302565d1e3b408404ffd95b7
+F src/checkin.c 0cfe194e7afe6794e847f26f161bfcbbbb707f00
 F src/checkout.c 3838f89b09778c686d1a102f7e330c2b18a8c6e3
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c b5eeb5558ee8d75862843f96f4829908fa135404
@@ -281,7 +281,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 0b6c414c6f4473fcfb32a17a1bd856071bcc736b
-R ce12e3e66d5ace52149aca8632e0dfd4
+P 973a6b1ee88362adec7f0ecabc7219740cf76c06
+R 7fd887154f5db597b0cf35527589b41c
 U drh
-Z efabdfd7e421ebd7784aa3a0accf8424
+Z 8710000376fa871e4c1cfdaf1b30b54d
