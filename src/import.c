@@ -287,6 +287,29 @@ static char *next_token(char **pzIn){
 }
 
 /*
+** Return a token that is all text up to (but omitting) the next \n
+** or \r\n.
+*/
+static char *rest_of_line(char **pzIn){
+  char *z = *pzIn;
+  int i;
+  if( z[0]==0 ) return z;
+  for(i=0; z[i] && z[i]!='\r' && z[i]!='\n'; i++){}
+  if( z[i] ){
+    if( z[i]=='\r' && z[i+1]=='\n' ){
+      z[i] = 0;
+      i++;
+    }else{
+      z[i] = 0;
+    }
+    *pzIn = &z[i+1];
+  }else{
+    *pzIn = &z[i];
+  }
+  return z;
+}
+
+/*
 ** Convert a "mark" or "committish" into the UUID.
 */
 static char *resolve_committish(const char *zCommittish){
@@ -478,7 +501,7 @@ static void git_fast_import(FILE *pIn){
       z = &zLine[2];
       zPerm = next_token(&z);
       zUuid = next_token(&z);
-      zName = next_token(&z);
+      zName = rest_of_line(&z);
       i = 0;
       pFile = import_find_file(zName, &i, gg.nFile);
       if( pFile==0 ){
@@ -493,7 +516,7 @@ static void git_fast_import(FILE *pIn){
     if( memcmp(zLine, "D ", 2)==0 ){
       import_prior_files();
       z = &zLine[2];
-      zName = next_token(&z);
+      zName = rest_of_line(&z);
       i = 0;
       while( (pFile = import_find_file(zName, &i, gg.nFile))!=0 ){
         if( pFile->isFrom==0 ) continue;
@@ -509,7 +532,7 @@ static void git_fast_import(FILE *pIn){
       import_prior_files();
       z = &zLine[2];
       zFrom = next_token(&z);
-      zTo = next_token(&z);
+      zTo = rest_of_line(&z);
       i = 0;
       mx = gg.nFile;
       nFrom = strlen(zFrom);
@@ -532,7 +555,7 @@ static void git_fast_import(FILE *pIn){
       import_prior_files();
       z = &zLine[2];
       zFrom = next_token(&z);
-      zTo = next_token(&z);
+      zTo = rest_of_line(&z);
       i = 0;
       nFrom = strlen(zFrom);
       while( (pFile = import_find_file(zFrom, &i, gg.nFile))!=0 ){
