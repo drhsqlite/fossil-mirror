@@ -125,3 +125,76 @@ checkout-test 73 {
   64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
   b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
 }
+
+# Merge br2 into the trunk.  br2 contains some independent change to the
+# two.txt file.  Verify that these are merge in correctly.
+#
+fossil update m1
+fossil merge br2
+checkout-test 80 {
+  8f09bc55a60eb8ca06f10a3b577aafa869b31695  five.txt
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  68eeee8b843eaea76e33d3911f416b745d0e5e5c  two.txt
+}
+fossil undo
+checkout-test 81 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Now merge trunk into br2.  Verify that the same set of changes result.
+#
+fossil update br2
+fossil merge trunk
+checkout-test 90 {
+  8f09bc55a60eb8ca06f10a3b577aafa869b31695  five.txt
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  68eeee8b843eaea76e33d3911f416b745d0e5e5c  two.txt
+}
+fossil undo
+checkout-test 91 {
+  8f09bc55a60eb8ca06f10a3b577aafa869b31695  five.txt
+  da5c8346496f3421cb58f84b6e59e9531d9d424d  one.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  85286cb3bc6d9e6f2f586eb5532f6065678f75b9  two.txt
+}
+
+# Starting from chng3, merge in br4.  The one file is deleted from br4, so
+# the merge should cause the one file to disappear from the checkout.
+#
+fossil update chng3
+checkout-test 100 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil merge br4
+checkout-test 101 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil undo
+checkout-test 102 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Do the same merge of br4 into chng3, but this time check it in as a new
+# branch.
+#
+fossil update chng3
+fossil merge br4
+fossil commit -nosign -branch br4-b -m {merge in br4} -tag m2
+checkout-test 110 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}

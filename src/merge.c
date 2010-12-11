@@ -53,7 +53,7 @@
 */
 void merge_cmd(void){
   int vid;              /* Current version */
-  int mid;              /* Version we are merging against */
+  int mid;              /* Version we are merging from */
   int pid;              /* The pivot version - most recent common ancestor */
   int detailFlag;       /* True if the --detail option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
@@ -133,52 +133,22 @@ void merge_cmd(void){
     "  ridp INTEGER,"             /* Record ID for pivot */
     "  ridm INTEGER"              /* Record ID for merge */
     ");"
+  );
+  db_multi_exec(
     "INSERT OR IGNORE INTO fv"
-    " SELECT pathname, 0, 0, 0, 0, 0, 0, 0 FROM vfile"
+    " SELECT pathname, 0, 0, 0, 0, 0, 0, 0 FROM vfile WHERE vid IN (%d,%d,%d);",
+    pid, vid, mid
   );
-  db_prepare(&q,
-    "SELECT id, pathname, rid FROM vfile"
-    " WHERE vid=%d", pid
+  db_multi_exec(
+    "UPDATE fv SET"
+    " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fn),0),"
+    " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fn),0),"
+    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fn),0),"
+    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fn),0),"
+    " idv=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fn),0),"
+    " ridv=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fn),0)",
+    pid, pid, mid, mid, vid, vid
   );
-  while( db_step(&q)==SQLITE_ROW ){
-    int id = db_column_int(&q, 0);
-    const char *fn = db_column_text(&q, 1);
-    int rid = db_column_int(&q, 2);
-    db_multi_exec(
-      "UPDATE fv SET idp=%d, ridp=%d WHERE fn=%Q",
-      id, rid, fn
-    );
-  }
-  db_finalize(&q);
-  db_prepare(&q,
-    "SELECT id, pathname, rid FROM vfile"
-    " WHERE vid=%d", mid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int id = db_column_int(&q, 0);
-    const char *fn = db_column_text(&q, 1);
-    int rid = db_column_int(&q, 2);
-    db_multi_exec(
-      "UPDATE fv SET idm=%d, ridm=%d WHERE fn=%Q",
-      id, rid, fn
-    );
-  }
-  db_finalize(&q);
-  db_prepare(&q,
-    "SELECT id, pathname, rid, chnged FROM vfile"
-    " WHERE vid=%d", vid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int id = db_column_int(&q, 0);
-    const char *fn = db_column_text(&q, 1);
-    int rid = db_column_int(&q, 2);
-    int chnged = db_column_int(&q, 3);
-    db_multi_exec(
-      "UPDATE fv SET idv=%d, ridv=%d, chnged=%d WHERE fn=%Q",
-      id, rid, chnged, fn
-    );
-  }
-  db_finalize(&q);
 
   /*
   ** Find files in mid and vid but not in pid and report conflicts.
@@ -321,6 +291,11 @@ void merge_cmd(void){
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );
+    if( !nochangeFlag ){
+      char *zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
+      unlink(zFullPath);
+      free(zFullPath);
+    }
     free(zName);
   }
   db_finalize(&q);

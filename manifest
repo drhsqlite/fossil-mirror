@@ -1,5 +1,5 @@
-C Add\sthe\s--tag\soption\sto\sthe\s"commit"\scommand.\s\sAdd\snew\stest\scases\sthat\smake\nuse\sof\sthe\s--tag\soption.\s\sImprovements\sto\sthe\stesting\sinfrastructure.
-D 2010-12-11T16:36:46
+C When\smerging\sin\sa\schange\swhere\sa\sfile\swas\sdeleted\sin\sthe\schange,\sactually\nremove\sthe\sfile\sfrom\sthe\sworking\scheckout.\s\sUpdate\sthe\stest\scases\sto\sverify\nthis\sis\swhat\shappens.
+D 2010-12-11T20:08:19
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -79,7 +79,7 @@ F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 941e1ddf09990093ee1729efeeeb4fb83da442dc
 F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c 022e558733edd6e81a1f31affd626af1ea36db1f
+F src/merge.c fda84c2a34631502f713e038bc4fce30e9bf9197
 F src/merge3.c 4b9931cef6ff3ab5b6e955a71f681350f021d3b6
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c f5e8483f71d5d8939b623fca7c016868f0fa0184
@@ -128,8 +128,8 @@ F test/merge1.test 1616acb2bfe047ac0ba28a191f22c37a7c913c98
 F test/merge2.test 68ff7665cf370fc1e1a984f46614b437b73bb844
 F test/merge3.test 55d4bb7f26335a203e7e0d63da599dfed9e84597
 F test/merge4.test 4529ad887be06c02430957ee081a0675dfc27f66
-F test/merge5.test a6e12b858624715ec4d0fe36c92cc3b890cb6b79
-F test/merge5_repo.sql 01df8044a0222a705117cff1036ca7f4d7036182
+F test/merge5.test 26cb043b46d2d6a920f263172edb8f0aabcf5e7b
+F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 35aa6f81884aabca18225fa0e3279ed6aa28f3d7
-R 9bd0b1a47ad2d2d4b6d0e173f473749c
+P 9d723c57ea646bf6e2809ecfec29e87597cd1550
+R 33c914401d52fe04cacafc089111d578
 U drh
-Z 57ba21325da5c2a0f9d55bdfc47d6e61
+Z 7a3610a296a26a7b54a860b0cd340bdc
