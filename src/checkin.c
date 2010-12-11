@@ -563,6 +563,7 @@ static void create_manifest(
   const char *zUserOvrd,      /* User override.  If 0 then use g.zLogin */
   const char *zBranch,        /* Branch name.  May be 0 */
   const char *zBgColor,       /* Background color.  May be 0 */
+  const char *zTag,           /* Tag to apply to this check-in */
   int *pnFBcard               /* Number of generated B- and F-cards */
 ){
   char *zDate;                /* Date of the check-in */
@@ -685,6 +686,10 @@ static void create_manifest(
     /* If this manifest is private, mark it as such */
     blob_appendf(pOut, "T +private *\n");
   }
+  if( zTag && zTag[0] ){
+    /* Add a symbolic tag to this check-in */
+    blob_appendf(pOut, "T +sym-%F *\n", zTag);
+  }
   if( zBranch && zBranch[0] ){
     /* For a new branch, cancel all prior propagating tags */
     Stmt q;
@@ -736,6 +741,8 @@ static void create_manifest(
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
 **
+** the --tag option applies the symbolic tag name to the check-in.
+**
 ** Options:
 **
 **    --comment|-m COMMENT-TEXT
@@ -747,6 +754,7 @@ static void create_manifest(
 **    --private
 **    --baseline
 **    --delta
+**    --tag TAG-NAME
 **    
 */
 void commit_cmd(void){
@@ -772,6 +780,7 @@ void commit_cmd(void){
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   const char *zComFile;  /* Read commit message from this file */
+  const char *zTag;      /* Symbolic tag to apply to this check-in */
   Blob manifest;         /* Manifest in baseline form */
   Blob muuid;            /* Manifest uuid */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
@@ -791,6 +800,7 @@ void commit_cmd(void){
   forceFlag = find_option("force", "f", 0)!=0;
   zBranch = find_option("branch","b",1);
   zBgColor = find_option("bgcolor",0,1);
+  zTag = find_option("tag",0,1);
   zComFile = find_option("message-file", "M", 1);
   if( find_option("private",0,0) ){
     g.markPrivate = 1;
@@ -976,7 +986,7 @@ void commit_cmd(void){
   }else{
     create_manifest(&manifest, 0, 0, &comment, vid,
                     !forceFlag, useCksum ? &cksum1 : 0,
-                    zDateOvrd, zUserOvrd, zBranch, zBgColor, &szB);
+                    zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szB);
   }
 
   /* See if a delta-manifest would be more appropriate */
@@ -996,7 +1006,7 @@ void commit_cmd(void){
       Blob delta;
       create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
                       !forceFlag, useCksum ? &cksum1 : 0,
-                      zDateOvrd, zUserOvrd, zBranch, zBgColor, &szD);
+                      zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szD);
       /*
       ** At this point, two manifests have been constructed, either of
       ** which would work for this checkin.  The first manifest (held

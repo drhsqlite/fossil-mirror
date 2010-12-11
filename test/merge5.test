@@ -1,0 +1,127 @@
+#
+# Copyright (c) 2010 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Tests of the "merge" command
+#
+
+# Verify the results of a check-out
+#
+proc checkout-test {testid expected_content} {
+  eval fossil sha1sum [lsort [glob -nocomplain *.txt]]
+  global RESULT
+  regsub -all {\n *} [string trim $expected_content] "\n    " expected
+  regsub -all {\n *} [string trim $RESULT] "\n    " result
+  if {$result!=$expected} {
+    protOut "  Expected:\n    $expected"
+    protOut "  Got:\n    $result"
+    test merge5-$testid 0
+  } else {
+    test merge5-$testid 1
+  }    
+}
+
+# Construct a test repository
+#
+exec sqlite3 m5.fossil <$testdir/${testfile}_repo.sql
+fossil rebuild m5.fossil
+fossil open m5.fossil
+fossil update baseline
+checkout-test 10 {
+  da5c8346496f3421cb58f84b6e59e9531d9d424d  one.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+
+# Update to the tip of the trunk
+#
+fossil update trunk
+checkout-test 20 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Merge in the change that adds file four.txt
+#
+fossil merge br1
+checkout-test 30 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Undo the merge.  Verify restoration of former state.
+#
+fossil undo
+checkout-test 40 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Now switch to br1 then merge in the trunk.  Verify that the result
+# is the same as merging br1 into trunk.
+#
+fossil update br1
+fossil merge trunk
+checkout-test 50 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil undo
+fossil update trunk
+checkout-test 60 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Go back to the tip of the trunk and merge branch br1 again.  This
+# time do a check-in of the merge.  Verify that the same content appears
+# after the merge.
+#
+fossil update chng3
+fossil merge br1
+checkout-test 70 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil commit -tag m1 -m {merge with br1} -nosign -f
+checkout-test 71 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil update chng3
+checkout-test 72 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil update m1
+checkout-test 73 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
