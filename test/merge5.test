@@ -198,3 +198,34 @@ checkout-test 110 {
   64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
   b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
 }
+
+# Branches br1 and br4 both add file four.txt.  So if we merge them together,
+# the version of file four.txt in the original should be preserved.
+#
+fossil update br1
+checkout-test 120 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  da5c8346496f3421cb58f84b6e59e9531d9d424d  one.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil merge br4
+checkout-test 121 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil undo
+fossil update br4
+checkout-test 122 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil merge br1
+checkout-test 123 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil undo

@@ -1,5 +1,5 @@
-C When\smerging\sin\sa\schange\swhere\sa\sfile\swas\sdeleted\sin\sthe\schange,\sactually\nremove\sthe\sfile\sfrom\sthe\sworking\scheckout.\s\sUpdate\sthe\stest\scases\sto\sverify\nthis\sis\swhat\shappens.
-D 2010-12-11T20:08:19
+C A\sfew\smore\smerge\stest\scases\sadded.
+D 2010-12-13T00:00:10
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -128,7 +128,7 @@ F test/merge1.test 1616acb2bfe047ac0ba28a191f22c37a7c913c98
 F test/merge2.test 68ff7665cf370fc1e1a984f46614b437b73bb844
 F test/merge3.test 55d4bb7f26335a203e7e0d63da599dfed9e84597
 F test/merge4.test 4529ad887be06c02430957ee081a0675dfc27f66
-F test/merge5.test 26cb043b46d2d6a920f263172edb8f0aabcf5e7b
+F test/merge5.test 16247ce98df755e8784c82eb05e8646d24f9d829
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 9d723c57ea646bf6e2809ecfec29e87597cd1550
-R 33c914401d52fe04cacafc089111d578
+P 70744b76e641d6b9d3ed986bec5af00bf255998d
+R 4c0984ef3c5e2c58139a79dce2ab414e
 U drh
-Z 7a3610a296a26a7b54a860b0cd340bdc
+Z 8ab98a99654920fc26d8743a16830a36
