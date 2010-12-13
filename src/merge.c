@@ -357,7 +357,7 @@ void merge_cmd(void){
       if( !nochangeFlag ){
         blob_write_to_file(&r, zFullPath);
       }
-      db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", ridv);
+      db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
       if( rc>0 ){
         printf("***** %d merge conflicts in %s\n", rc, zName);
         nConflict++;
