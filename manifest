@@ -1,5 +1,5 @@
-C A\sfew\smore\smerge\stest\scases\sadded.
-D 2010-12-13T00:00:10
+C Take\sinto\saccount\slocal\s(uncommitted)\schanges\swhen\sdoing\sa\smerge.
+D 2010-12-13T13:21:00
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -79,7 +79,7 @@ F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 941e1ddf09990093ee1729efeeeb4fb83da442dc
 F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c fda84c2a34631502f713e038bc4fce30e9bf9197
+F src/merge.c 219734d9b4b64b3b2bb2e955ca1436cbddd2754e
 F src/merge3.c 4b9931cef6ff3ab5b6e955a71f681350f021d3b6
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c f5e8483f71d5d8939b623fca7c016868f0fa0184
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 70744b76e641d6b9d3ed986bec5af00bf255998d
-R 4c0984ef3c5e2c58139a79dce2ab414e
+P 3f490bcbcff2fa28147290203cbf6d1e541e4b8b
+R cc7bb472353256a0d70853da179fc188
 U drh
-Z 8ab98a99654920fc26d8743a16830a36
+Z 5fdadb497efc1a43c4373f855d0866fa

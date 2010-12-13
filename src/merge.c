@@ -146,8 +146,10 @@ void merge_cmd(void){
     " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fn),0),"
     " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fn),0),"
     " idv=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fn),0),"
-    " ridv=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fn),0)",
-    pid, pid, mid, mid, vid, vid
+    " ridv=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fn),0),"
+    " chnged=coalesce((SELECT chnged FROM vfile"
+                      " WHERE vid=%d AND pathname=fn),0)",
+    pid, pid, mid, mid, vid, vid, vid
   );
 
   /*
