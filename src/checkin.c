@@ -181,14 +181,14 @@ void ls_cmd(void){
       printf("%s\n", zPathname);
     }else if( isNew ){
       printf("ADDED      %s\n", zPathname);
+    }else if( isDeleted ){
+      printf("DELETED    %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
       if( access(zFullName, 0)==0 ){
         printf("NOT_A_FILE %s\n", zPathname);
       }else{
         printf("MISSING    %s\n", zPathname);
       }
-    }else if( isDeleted ){
-      printf("DELETED    %s\n", zPathname);
     }else if( chnged ){
       printf("EDITED     %s\n", zPathname);
     }else if( renamed ){
@@ -696,7 +696,7 @@ static void create_manifest(
     db_prepare(&q,
         "SELECT tagname FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
-        "   AND tagtype>0 AND tagname GLOB 'sym-*'"
+        "   AND tagtype==2 AND tagname GLOB 'sym-*'"
         "   AND tagname!='sym-'||%Q"
         " ORDER BY tagname",
         vid, zBranch);
