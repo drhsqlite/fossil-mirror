@@ -25,8 +25,12 @@
 typedef struct BisectNode BisectNode;
 struct BisectNode {
   int rid;                 /* ID for this node */
+  int fromIsParent;        /* True if pFrom is the parent of rid */
   BisectNode *pFrom;       /* Node we came from */
-  BisectNode *pPeer;       /* List of nodes of the same generation */
+  union {
+    BisectNode *pPeer;       /* List of nodes of the same generation */
+    BisectNode *pTo;         /* Next on path from beginning to end */
+  } u;
   BisectNode *pAll;        /* List of all nodes */
 };
 
@@ -40,19 +44,21 @@ static struct {
   int bad;                /* The bad version */
   int good;               /* The good version */
   int nStep;              /* Number of steps from good to bad */
+  BisectNode *pStart;     /* Earliest node (bad) */
   BisectNode *pEnd;       /* Most recent (good) */
 } bisect;
 
 /*
 ** Create a new node
 */
-static BisectNode *bisect_new_node(int rid, BisectNode *pFrom){
+static BisectNode *bisect_new_node(int rid, BisectNode *pFrom, int isParent){
   BisectNode *p;
 
   p = fossil_malloc( sizeof(*p) );
   p->rid = rid;
+  p->fromIsParent = isParent;
   p->pFrom = pFrom;
-  p->pPeer = bisect.pCurrent;
+  p->u.pPeer = bisect.pCurrent;
   bisect.pCurrent = p;
   p->pAll = bisect.pAll;
   bisect.pAll = p;
@@ -83,15 +89,14 @@ static void bisect_reset(void){
 */
 static BisectNode *bisect_shortest_path(int iFrom, int iTo){
   Stmt s;
-  BisectNode *pStart;
   BisectNode *pPrev;
   BisectNode *p;
 
   bisect_reset();
-  pStart = bisect_new_node(iFrom, 0);
-  if( iTo==iFrom ) return pStart;
-  db_prepare(&s, "SELECT cid FROM plink WHERE pid=:pid "
-                 "UNION ALL SELECT pid FROM plink WHERE cid=:pid");
+  bisect.pStart = bisect_new_node(iFrom, 0, 0);
+  if( iTo==iFrom ) return bisect.pStart;
+  db_prepare(&s, "SELECT cid, 1 FROM plink WHERE pid=:pid "
+                 "UNION ALL SELECT pid, 0 FROM plink WHERE cid=:pid");
   while( bisect.pCurrent ){
     bisect.nStep++;
     pPrev = bisect.pCurrent;
@@ -100,19 +105,68 @@ static BisectNode *bisect_shortest_path(int iFrom, int iTo){
       db_bind_int(&s, ":pid", pPrev->rid);
       while( db_step(&s)==SQLITE_ROW ){
         int cid = db_column_int(&s, 0);
+        int isParent = db_column_int(&s, 1);
         if( bag_find(&bisect.seen, cid) ) continue;
-        p = bisect_new_node(cid, pPrev);
+        p = bisect_new_node(cid, pPrev, isParent);
         if( cid==iTo ){
           db_finalize(&s);
           return p;
         }
       }
       db_reset(&s);
-      pPrev = pPrev->pPeer;
+      pPrev = pPrev->u.pPeer;
     }
   }
   bisect_reset();
   return 0;
+}
+
+/*
+** Construct the path from bisect.pStart to bisect.pEnd in the u.pTo fields.
+*/
+static void bisect_reverse_path(void){
+  BisectNode *p;
+  for(p=bisect.pEnd; p && p->pFrom; p = p->pFrom){
+    p->pFrom->u.pTo = p;
+  }
+  bisect.pEnd->u.pTo = 0;
+  assert( p==bisect.pStart );
+}
+
+/*
+** COMMAND:  test-shortest-path VERSION1 VERSION2
+**
+** Report the shortest path between two checkins.
+*/
+void shortest_path_test_cmd(void){
+  int iFrom;
+  int iTo;
+  BisectNode *p;
+  int n;
+  db_find_and_open_repository(0,0);
+  if( g.argc!=4 ) usage("VERSION1 VERSION2");
+  iFrom = name_to_rid(g.argv[2]);
+  iTo = name_to_rid(g.argv[3]);
+  p = bisect_shortest_path(iFrom, iTo);
+  if( p==0 ){
+    fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
+  }
+  bisect_reverse_path();
+  for(n=1, p=bisect.pStart; p; p=p->u.pTo, n++){
+    char *z;
+    z = db_text(0,
+      "SELECT substr(uuid,1,12) || ' ' || datetime(mtime)"
+      "  FROM blob, event"
+      " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
+      p->rid, p->rid);
+    printf("%4d: %s", n, z);
+    fossil_free(z);
+    if( p->u.pTo ){
+      printf(" is a %s of\n", p->u.pTo->fromIsParent ? "parent" : "child");
+    }else{
+      printf("\n");
+    }
+  }
 }
 
 /*
