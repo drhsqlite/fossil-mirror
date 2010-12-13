@@ -196,7 +196,7 @@ void undo_save(const char *zPathname){
   zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
   existsFlag = file_size(zFullname)>=0;
   db_prepare(&q,
-    "REPLACE INTO undo(pathname,redoflag,existsflag,content)"
+    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,content)"
     " VALUES(%Q,0,%d,:c)",
     zPathname, existsFlag
   );
