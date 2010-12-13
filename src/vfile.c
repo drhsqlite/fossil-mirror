@@ -193,7 +193,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
     }
-    if( chnged!=oldChnged ){
+    if( chnged!=oldChnged && (chnged || !checkMtime) ){
       db_multi_exec("UPDATE vfile SET chnged=%d WHERE id=%d", chnged, id);
     }
   }

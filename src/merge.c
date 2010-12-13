@@ -309,7 +309,7 @@ void merge_cmd(void){
     if( !nochangeFlag ){
       undo_save(zName);
       db_multi_exec(
-        "UPDATE vfile SET mrid=%d, chnged=2 WHERE id=%d", ridm, idv
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=2 WHERE id=%d", ridm, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }
@@ -354,7 +354,10 @@ void merge_cmd(void){
       rc = blob_merge(&p, &m, &v, &r);
     }
     if( rc>=0 ){
-      if( !nochangeFlag ) blob_write_to_file(&r, zFullPath);
+      if( !nochangeFlag ){
+        blob_write_to_file(&r, zFullPath);
+      }
+      db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", ridv);
       if( rc>0 ){
         printf("***** %d merge conflicts in %s\n", rc, zName);
         nConflict++;
