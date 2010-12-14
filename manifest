@@ -1,5 +1,5 @@
-C Another\sbug\sfix\sassociating\swith\smerges\sof\sbranches\swhich\scontain\sfile\nname\schanges.
-D 2010-12-14T00:06:43
+C Do\snot\sshow\sa\shex\sdump\sby\sdefault\swhen\sviewing\sa\sbinary\sartifact.\s\sInstead,\njust\ssay\sthat\sthe\sartifact\scontains\sbinary\sdata\sand\sgive\sa\s"Hex"\ssubmenu\nto\sview\sthe\shex\sif\sthat\sis\swhat\sthe\suser\swants.\nTicket\s[a470443b64412d2856].
+D 2010-12-14T00:15:09
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -70,7 +70,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f280e7f07c067a19d3f8c84178a10d1ec4af000b
 F src/import.c 60a5ff0f90dacb1425b3ee6603bbb9a9cdcdac2d
-F src/info.c 199d64d421b2dd6404d45c84cefef27ecb8b4567
+F src/info.c e22fca9640fe2eae3e2db03bf3edef2cc585e9cb
 F src/login.c e8b157772ed307e049983a8d6d8a42f2222ea3e6
 F src/main.c a106db02f3ea0060b4167c17ae6340314e09751b
 F src/main.mk 561879e9fed0b2445c1e5a3c4808b20376ab4484
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P fa5302c28d3b944dc6321a066ab4699666754e75
-R 6ff7b9b8e7e9634d6f3bfd76f0e0a01c
+P 4c95b7b95065a9cb9fd7df59d63b1504e08a56b5
+R 9a4b4d11a992aa79d5cfb4dfd8fcf34d
 U drh
-Z 4afde500f4793035855f0c7faf6fa0e3
+Z b48c4d85311ccd944b07ec31bf9acec5

@@ -1160,20 +1160,18 @@ void artifact_page(void){
     cgi_append_content(blob_buffer(&content), blob_size(&content));
     @ </div>
   }else{
+    style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     zMime = mimetype_from_content(&content);
     @ <blockquote>
     if( zMime==0 ){
       @ <pre>
       @ %h(blob_str(&content))
       @ </pre>
-      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else if( strncmp(zMime, "image/", 6)==0 ){
       @ <img src="%s(g.zBaseURL)/raw?name=%s(zUuid)&amp;m=%s(zMime)"></img>
       style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else{
-      @ <pre>
-      hexdump(&content);
-      @ </pre>
+      @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
     }
     @ </blockquote>
   }
