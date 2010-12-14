@@ -166,13 +166,17 @@ void merge_cmd(void){
   find_filename_changes(vid, pid, &nChng, &aChng);
   if( nChng ){
     for(i=0; i<nChng; i++){
+      char *z;
+      z = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
       db_multi_exec(
-        "UPDATE fv SET fnp=(SELECT name FROM filename WHERE fnid=%d)"
+        "UPDATE fv SET fnp=%Q, fnm=%Q"
         " WHERE fn=(SELECT name FROM filename WHERE fnid=%d)",
-        aChng[i*2+1], aChng[i*2]
+        z, z, aChng[i*2]
       );
+      free(z);
     }
     fossil_free(aChng);
+    db_multi_exec("UPDATE fv SET fnm=fnp WHERE fnp!=fn");
   }
 
   /* Add files found in P
