@@ -155,7 +155,7 @@ void merge_cmd(void){
   */
   db_multi_exec(
     "INSERT OR IGNORE INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,chnged)"
-    " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, 0 "
+    " SELECT pathname, pathname, pathname, id, 0, 0, rid, 0, 0, chnged "
     " FROM vfile WHERE vid=%d",
     vid
   );
@@ -179,7 +179,7 @@ void merge_cmd(void){
     db_multi_exec("UPDATE fv SET fnm=fnp WHERE fnp!=fn");
   }
 
-  /* Add files found in P
+  /* Add files found in P but not in V
   */
   db_multi_exec(
     "INSERT OR IGNORE INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,chnged)"
@@ -205,7 +205,7 @@ void merge_cmd(void){
     fossil_free(aChng);
   }
 
-  /* Add files found in M
+  /* Add files found in M but not in P or V.
   */
   db_multi_exec(
     "INSERT OR IGNORE INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,chnged)"
@@ -217,19 +217,15 @@ void merge_cmd(void){
   );
 
   /*
-  ** Compute the file version ids for V, P, and M.
+  ** Compute the file version ids for P and M.
   */
   db_multi_exec(
     "UPDATE fv SET"
     " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnp),0),"
     " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnp),0),"
     " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnm),0),"
-    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnm),0),"
-    " idv=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fn),0),"
-    " ridv=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fn),0),"
-    " chnged=coalesce((SELECT chnged FROM vfile"
-                      " WHERE vid=%d AND pathname=fn),0)",
-    pid, pid, mid, mid, vid, vid, vid
+    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnm),0)",
+    pid, pid, mid, mid
   );
 
   if( debugFlag ){
