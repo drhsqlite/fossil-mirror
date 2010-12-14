@@ -139,7 +139,7 @@ void branch_new(void){
     }
   }
 
-  brid = content_put(&branch, 0, 0);
+  brid = content_put(&branch, 0, 0, 0);
   if( brid==0 ){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }

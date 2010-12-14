@@ -423,7 +423,9 @@ void content_enable_dephantomize(int onoff){
 ** content is already in the database, just return the record ID.
 **
 ** If srcId is specified, then pBlob is delta content from
-** the srcId record.  srcId might be a phantom.
+** the srcId record.  srcId might be a phantom.  If nBlob>0 then the
+** pBlob value has already been compressed and nBlob is its uncompressed
+** size.  If nBlob>0 then zUuid must be valid.
 **
 ** zUuid is the UUID of the artifact, if it is specified.  When srcId is
 ** specified then zUuid must always be specified.  If srcId is zero,
@@ -432,7 +434,7 @@ void content_enable_dephantomize(int onoff){
 ** If the record already exists but is a phantom, the pBlob content
 ** is inserted and the phatom becomes a real record.
 */
-int content_put(Blob *pBlob, const char *zUuid, int srcId){
+int content_put(Blob *pBlob, const char *zUuid, int srcId, int nBlob){
   int size;
   int rid;
   Stmt s1;
@@ -446,11 +448,12 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   assert( srcId==0 || zUuid!=0 );
   if( zUuid==0 ){
     assert( pBlob!=0 );
+    assert( nBlob==0 );
     sha1sum_blob(pBlob, &hash);
   }else{
     blob_init(&hash, zUuid, -1);
   }
-  size = blob_size(pBlob);
+  size = nBlob ? nBlob : blob_size(pBlob);
   db_begin_transaction();
 
   /* Check to see if the entry already exists and if it does whether
@@ -483,7 +486,11 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     g.rcvid = db_last_insert_rowid();
   }
 
-  blob_compress(pBlob, &cmpr);
+  if( nBlob ){
+    cmpr = pBlob[0];
+  }else{
+    blob_compress(pBlob, &cmpr);
+  }
   if( rid>0 ){
     /* We are just adding data to a phantom */
     db_prepare(&s1,
@@ -515,7 +522,7 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
       markAsUnclustered = 0;
     }
   }
-  blob_reset(&cmpr);
+  if( nBlob==0 ) blob_reset(&cmpr);
 
   /* If the srcId is specified, then the data we just added is
   ** really a delta.  Record this fact in the delta table.
@@ -592,7 +599,7 @@ int content_new(const char *zUuid){
 /*
 ** COMMAND:  test-content-put
 **
-** Extract a blob from the database and write it into a file.
+** Extract a blob from a file and write it into the database
 */
 void test_content_put_cmd(void){
   int rid;
@@ -601,7 +608,7 @@ void test_content_put_cmd(void){
   db_must_be_within_tree();
   user_select();
   blob_read_from_file(&content, g.argv[2]);
-  rid = content_put(&content, 0, 0);
+  rid = content_put(&content, 0, 0, 0);
   printf("inserted as record %d\n", rid);
 }
 

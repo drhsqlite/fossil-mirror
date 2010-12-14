@@ -1521,7 +1521,7 @@ void ci_edit_page(void){
       blob_appendf(&ctrl, "Z %b\n", &cksum);
       db_begin_transaction();
       g.markPrivate = content_is_private(rid);
-      nrid = content_put(&ctrl, 0, 0);
+      nrid = content_put(&ctrl, 0, 0, 0);
       manifest_crosslink(nrid, &ctrl);
       db_end_transaction(0);
     }
