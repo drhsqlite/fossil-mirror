@@ -1,5 +1,5 @@
-C Do\snot\sshow\sa\shex\sdump\sby\sdefault\swhen\sviewing\sa\sbinary\sartifact.\s\sInstead,\njust\ssay\sthat\sthe\sartifact\scontains\sbinary\sdata\sand\sgive\sa\s"Hex"\ssubmenu\nto\sview\sthe\shex\sif\sthat\sis\swhat\sthe\suser\swants.\nTicket\s[a470443b64412d2856].
-D 2010-12-14T00:15:09
+C When\sdoing\sa\s"fossil\supdate"\sif\sthere\sare\smultiple\sdescendents\sbut\sonly\sone\ndescendent\sin\sthe\ssame\sbranch\sas\scurrent,\sthen\sgo\sto\sthat\sone\sdescendent\nwithout\scomplaining.\s\sTicket\s[33d2bf39889352f2f]
+D 2010-12-14T00:30:53
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -113,7 +113,7 @@ F src/tkt.c 4e47901743f27f5d000469dc31b2576c831f2b95
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c c78fcb26fb381a8d0bd456d2b7b27f3e486db137
-F src/update.c cbe607b4f0500f337609d94938bab8152a133e21
+F src/update.c a22ffc2b00bb281c96f3c5c5c6859c7bb634423e
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 5a7d65bd4f7d5bb2b23a8791967469309b315f27
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 4c95b7b95065a9cb9fd7df59d63b1504e08a56b5
-R 9a4b4d11a992aa79d5cfb4dfd8fcf34d
+P dbb02ff1f945f6cba7e7af71ce896cbe37842b9c
+R 31626ec7b47b71e61ab142e3a9aeeae8
 U drh
-Z b48c4d85311ccd944b07ec31bf9acec5
+Z 6a7f9b59ef99671e58cc23a92e7fcf5f

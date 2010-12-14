@@ -98,18 +98,33 @@ void update_cmd(void){
   }
   
   if( tid==0 ){
-    compute_leaves(vid, 1);
-    if( !db_exists("SELECT 1 FROM leaves") ) compute_leaves(vid, 0);
+    int closeCode = 1;
+    compute_leaves(vid, closeCode);
+    if( !db_exists("SELECT 1 FROM leaves") ){
+      closeCode = 0;
+      compute_leaves(vid, closeCode);
+    }
     if( !latestFlag && db_int(0, "SELECT count(*) FROM leaves")>1 ){
-      db_prepare(&q, 
-        "%s "
-        "   AND event.objid IN leaves"
-        " ORDER BY event.mtime DESC",
-        timeline_query_for_tty()
+      db_multi_exec(
+        "DELETE FROM leaves WHERE rid NOT IN"
+        "   (SELECT leaves.rid FROM leaves, tagxref"
+        "     WHERE leaves.rid=tagxref.rid AND tagxref.tagid=%d"
+        "       AND tagxref.value==(SELECT value FROM tagxref"
+                                   " WHERE tagid=%d AND rid=%d))",
+        TAG_BRANCH, TAG_BRANCH, vid
       );
-      print_timeline(&q, 100);
-      db_finalize(&q);
-      fossil_fatal("Multiple descendants");
+      if( db_int(0, "SELECT count(*) FROM leaves")>1 ){
+        compute_leaves(vid, closeCode);
+        db_prepare(&q, 
+          "%s "
+          "   AND event.objid IN leaves"
+          " ORDER BY event.mtime DESC",
+          timeline_query_for_tty()
+        );
+        print_timeline(&q, 100);
+        db_finalize(&q);
+        fossil_fatal("Multiple descendants");
+      }
     }
     tid = db_int(0, "SELECT rid FROM leaves, event"
                     " WHERE event.objid=leaves.rid"
