@@ -67,6 +67,7 @@ void update_cmd(void){
   int nChng;            /* Number of file renames */
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
+  int nConflict;        /* Number of merge conflicts */
 
   url_proxy_options();
   latestFlag = find_option("latest",0, 0)!=0;
@@ -289,6 +290,7 @@ void update_cmd(void){
       ** but also exists in the target checkout.  Use the current version.
       */
       printf("CONFLICT %s\n", zName);
+      nConflict++;
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       printf("ADD %s\n", zName);
@@ -313,7 +315,8 @@ void update_cmd(void){
       }else if( chnged ){
         /* Edited locally but deleted from the target.  Do not track the
         ** file but keep the edited version around. */
-        printf("CONFLICT %s\n", zName);
+        printf("CONFLICT %s - edited locally but deleted by update\n", zName);
+        nConflict++;
       }else{
         printf("REMOVE %s\n", zName);
         undo_save(zName);
@@ -338,10 +341,12 @@ void update_cmd(void){
         if( !nochangeFlag ) blob_write_to_file(&r, zFullNewPath);
         if( rc>0 ){
           printf("***** %d merge conflicts in %s\n", rc, zNewName);
+          nConflict++;
         }
       }else{
         if( !nochangeFlag ) blob_write_to_file(&t, zFullNewPath);
         printf("***** Cannot merge binary file %s\n", zNewName);
+        nConflict++;
       }
       if( nameChng && !nochangeFlag ) unlink(zFullPath);
       blob_reset(&v);
@@ -361,6 +366,15 @@ void update_cmd(void){
   db_finalize(&q);
   printf("--------------\n");
   show_common_info(tid, "updated-to:", 1, 0);
+
+  /* Report on conflicts
+  */
+  if( nConflict && !nochangeFlag ){
+    printf(
+      "WARNING: merge conflicts - see messages above for details.\n"
+      "HINT:    The \"fossil undo\" command will back out this update if "
+                "you want\n");
+  }
   
   /*
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.

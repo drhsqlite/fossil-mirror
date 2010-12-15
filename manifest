@@ -1,5 +1,5 @@
-C Change\sthe\smerge\sconflict\smarks\sto\sidentify\swhich\spart\sis\soriginal\scontent\sand\nwhich\spart\sis\sthe\scontent\smerged\sin.
-D 2010-12-15T01:36:32
+C Report\sthe\snumber\sof\sconflicts\sat\sthe\send\sof\sa\smerge\sor\supdate\sand\soffer\sa\nhint\sto\sthe\suser\sabout\sthe\s"fossil\sundo"\scommand.
+D 2010-12-15T01:49:39
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -79,7 +79,7 @@ F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 941e1ddf09990093ee1729efeeeb4fb83da442dc
 F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c ee474b9243febddf4b6e05f77b1790661dd91fee
+F src/merge.c 01985ecbf84fdf63d856f3b8ef215d7f4f1acd56
 F src/merge3.c a494baf01b67168d10d0e9b0f6e47c91522db7a9
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c f5e8483f71d5d8939b623fca7c016868f0fa0184
@@ -113,7 +113,7 @@ F src/tkt.c dd4fb1c10ffbed77bbff164ddc4c1249715eee10
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c c78fcb26fb381a8d0bd456d2b7b27f3e486db137
-F src/update.c e4fa21094925c4c8fbcfbc7beaff954120e79e5e
+F src/update.c a9b9ecf452a95ebf15fb79e5e377bc9caed78f74
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 5a7d65bd4f7d5bb2b23a8791967469309b315f27
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P fd8698c8e0e2e57478cd25190900fb4d6ea9e9ab
-R 657f8d598b6284d9449d3deb9a741119
+P 76ae862ec9ee2be80a88efb8a2c871f002420469
+R ddb8a300170c0d94d18c49767d64de0d
 U drh
-Z ea388178149c1889671a5e81d62fa637
+Z 9720964b7402d234db10376bc0bc074d
