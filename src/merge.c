@@ -351,7 +351,7 @@ void merge_cmd(void){
       rc = -1;
       blob_zero(&r);
     }else{
-      rc = blob_merge(&p, &m, &v, &r);
+      rc = blob_merge(&p, &v, &m, &r);
     }
     if( rc>=0 ){
       if( !nochangeFlag ){
