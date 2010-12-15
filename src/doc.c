@@ -440,6 +440,11 @@ void doc_page(void){
   if( zMime==0 ){
     zMime = mimetype_from_name(zName);
   }
+  Th_Store("doc_name", zName);
+  Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
+                                     "  FROM blob WHERE rid=%d", vid));
+  Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
+                                  " WHERE objid=%d AND type='ci'", vid));
   if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
