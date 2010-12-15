@@ -67,7 +67,7 @@ void update_cmd(void){
   int nChng;            /* Number of file renames */
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
-  int nConflict;        /* Number of merge conflicts */
+  int nConflict = 0;    /* Number of merge conflicts */
 
   url_proxy_options();
   latestFlag = find_option("latest",0, 0)!=0;

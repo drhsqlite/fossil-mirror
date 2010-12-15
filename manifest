@@ -1,5 +1,5 @@
-C Make\sthree\snew\sTH1\svariables\savailable\sthe\sfooter\son\s/doc\spages:\n$doc_name,\s$doc_version,\sand\s$doc_date.
-D 2010-12-15T02:19:43
+C Fix\san\suninitialized\svariable\sin\supdate.
+D 2010-12-15T02:42:29
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -113,7 +113,7 @@ F src/tkt.c dd4fb1c10ffbed77bbff164ddc4c1249715eee10
 F src/tktsetup.c 7eccd2a08e4652e79e6bc54ef7919a7ef600c2f3
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
 F src/undo.c c78fcb26fb381a8d0bd456d2b7b27f3e486db137
-F src/update.c a9b9ecf452a95ebf15fb79e5e377bc9caed78f74
+F src/update.c 4645bc9d230cf9194dbb2bb66fcfa682ee3ed295
 F src/url.c f7af8785e92c8e94762bdbe61fc1c0be4fe76222
 F src/user.c 5a7d65bd4f7d5bb2b23a8791967469309b315f27
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 070ce24d838a6278fd4af9fca26a559bacc79677
-R 5163b1980893462858dfe77bac0956e2
+P 1b0e6c0fbbd5cd97735232785ebd7351a913c344
+R 3e15af8746ffc71bcad69252bd27ff58
 U drh
-Z 379ab4832fab0bd637aa4a89d2f91cac
+Z 13c6b340c1a3e23b78c0a0eb82896959
