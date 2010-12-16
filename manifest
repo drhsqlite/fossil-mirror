@@ -1,5 +1,5 @@
-C Use\srelative\sURLs\sfor\shyperlinks\swhereever\spossible,\sso\sthat\sFossil\scan\swork\nbetter\sbehind\sa\sreverse\sproxy.
-D 2010-12-16T14:46:48
+C Tweaks\sto\sthe\smerge\sconflict\snotation.
+D 2010-12-16T15:03:25
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -80,7 +80,7 @@ F src/makemake.tcl 941e1ddf09990093ee1729efeeeb4fb83da442dc
 F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 01985ecbf84fdf63d856f3b8ef215d7f4f1acd56
-F src/merge3.c a494baf01b67168d10d0e9b0f6e47c91522db7a9
+F src/merge3.c 63b5f85ca71dea14e916b276e5a287cfe717d5de
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c 9a03e3ae43aec33afc344b3edf5336487ff56b59
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P e3313965d3f7be52f2ce349657d30eb86d0b0f05
-R 19a18287f7915c7779b2ed3309c7b054
+P daeb10f65f90833fb1d903db7fb085c02a525a02
+R 559f118f8288fd875bd48a3fc3b80b12
 U drh
-Z 9b8d8d23606c799a0b07609047c985b8
+Z 5020d420901581de4d61dc326c515b72

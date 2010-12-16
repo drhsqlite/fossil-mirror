@@ -156,9 +156,9 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   static const char zBegin[] =
     "<<<<<<< BEGIN MERGE CONFLICT: original content first <<<<<<<\n";
   static const char zMid[]   =
-    "======= original content above; merged content below =======\n";
+    "======= original content above; conflict below =============\n";
   static const char zEnd[]   =
-    ">>>>>>> END MERGE CONFLICT: merged content last >>>>>>>>>>>>\n";
+    ">>>>>>> END MERGE CONFLICT: conflict last >>>>>>>>>>>>>>>>>>\n";
 
   blob_zero(pOut);         /* Merge results stored in pOut */
 
