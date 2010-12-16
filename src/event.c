@@ -396,7 +396,7 @@ void eventedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zBaseURL)/eventedit"><div>
+  @ <form method="post" action="%s(g.zTop)/eventedit"><div>
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zEventId)" />
   @ <table border="0" cellspacing="10">

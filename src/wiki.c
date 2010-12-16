@@ -90,10 +90,10 @@ void home_page(void){
     if( strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
-    cgi_redirectf("%s/%s", g.zBaseURL, zIndexPage);
+    cgi_redirectf("%s/%s", g.zTop, zIndexPage);
   }
   if( !g.okRdWiki ){
-    cgi_redirectf("%s/login?g=%s/home", g.zBaseURL, g.zBaseURL);
+    cgi_redirectf("%s/login?g=%s/home", g.zTop, g.zTop);
   }
   if( zPageName ){
     login_check_credentials();
@@ -106,7 +106,7 @@ void home_page(void){
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
-  @ <a href="%s(g.zBaseURL)/setup_config">setup/config</a>
+  @ <a href="%s(g.zTop)/setup_config">setup/config</a>
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
   @ will be displayed in place of this message.</p>
@@ -144,25 +144,25 @@ void wiki_page(void){
     @ <ul>
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
-        @ <li> <a href="%s(g.zBaseURL)/wiki?name=%t(zHomePageName)">
+        @ <li> <a href="%s(g.zTop)/wiki?name=%t(zHomePageName)">
         @      %h(zHomePageName)</a> wiki home page.</li>
       }
     }
-    @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
+    @ <li> <a href="%s(g.zTop)/timeline?y=w">Recent changes</a> to wiki
     @      pages. </li>
-    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
+    @ <li> <a href="%s(g.zTop)/wiki_rules">Formatting rules</a> for 
     @      wiki.</li>
-    @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
+    @ <li> Use the <a href="%s(g.zTop)/wiki?name=Sandbox">Sandbox</a>
     @      to experiment.</li>
     if( g.okNewWiki ){
-      @ <li>  Create a <a href="%s(g.zBaseURL)/wikinew">new wiki page</a>.</li>
+      @ <li>  Create a <a href="%s(g.zTop)/wikinew">new wiki page</a>.</li>
       if( g.okWrite ){
         @ <li>   Create a <a href="%s(g.zTop)/eventedit">new event</a>.</li>
       }
     }
-    @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
+    @ <li> <a href="%s(g.zTop)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
-    @ <li> <form method="get" action="%s(g.zBaseURL)/wfind"><div>
+    @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
     @     Search wiki titles: <input type="text" name="title"/>
     @  &nbsp; <input type="submit" /></div></form>
     @ </li>
@@ -355,7 +355,7 @@ void wikiedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zBaseURL)/wikiedit"><div>
+  @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <textarea name="w" class="wikiedit" cols="80" 
@@ -390,7 +390,7 @@ void wikinew_page(void){
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
-  @ <form method="post" action="%s(g.zBaseURL)/wikinew">
+  @ <form method="post" action="%s(g.zTop)/wikinew">
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" />
   @ <input type="submit" value="Create" />
@@ -522,7 +522,7 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="post" action="%s(g.zBaseURL)/wikiappend">
+  @ <form method="post" action="%s(g.zTop)/wikiappend">
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ Your Name:
@@ -696,7 +696,7 @@ void wfind_page(void){
 	zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
+    @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
   }
   db_finalize(&q);
   @ </ul>

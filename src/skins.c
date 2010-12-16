@@ -158,14 +158,14 @@ static const char zBuiltinSkin1[] =
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$baseurl/timeline.rss">
-@ <link rel="stylesheet" href="$baseurl/style.css?blackwhite" type="text/css"
+@       href="$home/timeline.rss">
+@ <link rel="stylesheet" href="$home/style.css?blackwhite" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$baseurl/logo" alt="logo">
+@     <img src="$home/logo" alt="logo">
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><nobr><th1>
@@ -177,32 +177,32 @@ static const char zBuiltinSkin1[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href=''$baseurl$index_page''>Home</a> "
+@ html "<a href=''$home$index_page''>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href=''$baseurl/timeline''>Timeline</a> "
+@   html "<a href=''$home/timeline''>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$baseurl/dir?ci=tip''>Files</a> "
+@   html "<a href=''$home/dir?ci=tip''>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''$baseurl/brlist''>Branches</a> "
-@   html "<a href=''$baseurl/taglist''>Tags</a> "
+@   html "<a href=''$home/brlist''>Branches</a> "
+@   html "<a href=''$home/taglist''>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href=''$baseurl/reportlist''>Tickets</a> "
+@   html "<a href=''$home/reportlist''>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href=''$baseurl/wiki''>Wiki</a> "
+@   html "<a href=''$home/wiki''>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href=''$baseurl/setup''>Admin</a> "
+@   html "<a href=''$home/setup''>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href=''$baseurl/setup_ulist''>Users</a> "
+@   html "<a href=''$home/setup_ulist''>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href=''$baseurl/login''>Logout</a> "
+@   html "<a href=''$home/login''>Logout</a> "
 @ } else {
-@   html "<a href=''$baseurl/login''>Login</a> "
+@   html "<a href=''$home/login''>Login</a> "
 @ }
 @ </th1></div>
 @ ');
@@ -360,8 +360,8 @@ static const char zBuiltinSkin2[] =
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$baseurl/timeline.rss">
-@ <link rel="stylesheet" href="$baseurl/style.css?tan" type="text/css"
+@       href="$home/timeline.rss">
+@ <link rel="stylesheet" href="$home/style.css?tan" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
@@ -378,32 +378,32 @@ static const char zBuiltinSkin2[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href=''$baseurl$index_page''>Home</a> "
+@ html "<a href=''$home$index_page''>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href=''$baseurl/timeline''>Timeline</a> "
+@   html "<a href=''$home/timeline''>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$baseurl/dir?ci=tip''>Files</a> "
+@   html "<a href=''$home/dir?ci=tip''>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''$baseurl/brlist''>Branches</a> "
-@   html "<a href=''$baseurl/taglist''>Tags</a> "
+@   html "<a href=''$home/brlist''>Branches</a> "
+@   html "<a href=''$home/taglist''>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href=''$baseurl/reportlist''>Tickets</a> "
+@   html "<a href=''$home/reportlist''>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href=''$baseurl/wiki''>Wiki</a> "
+@   html "<a href=''$home/wiki''>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href=''$baseurl/setup''>Admin</a> "
+@   html "<a href=''$home/setup''>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href=''$baseurl/setup_ulist''>Users</a> "
+@   html "<a href=''$home/setup_ulist''>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href=''$baseurl/login''>Logout</a> "
+@   html "<a href=''$home/login''>Logout</a> "
 @ } else {
-@   html "<a href=''$baseurl/login''>Login</a> "
+@   html "<a href=''$home/login''>Login</a> "
 @ }
 @ </th1></div>
 @ ');
@@ -592,14 +592,14 @@ static const char zBuiltinSkin3[] =
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$baseurl/timeline.rss">
-@ <link rel="stylesheet" href="$baseurl/style.css?black2" type="text/css"
+@       href="$home/timeline.rss">
+@ <link rel="stylesheet" href="$home/style.css?black2" type="text/css"
 @       media="screen">
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <!-- <img src="$baseurl/logo" alt="logo"> -->
+@     <!-- <img src="$home/logo" alt="logo"> -->
 @     <br /><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
@@ -612,32 +612,32 @@ static const char zBuiltinSkin3[] =
 @   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu"><ul><th1>
-@ html "<li><a href=''$baseurl$index_page''>Home</a></li>"
+@ html "<li><a href=''$home$index_page''>Home</a></li>"
 @ if {[anycap jor]} {
-@   html "<li><a href=''$baseurl/timeline''>Timeline</a></li>"
+@   html "<li><a href=''$home/timeline''>Timeline</a></li>"
 @ }
 @ if {[hascap oh]} {
-@   html "<li><a href=''$baseurl/dir?ci=tip''>Files</a></li>"
+@   html "<li><a href=''$home/dir?ci=tip''>Files</a></li>"
 @ }
 @ if {[hascap o]} {
-@   html "<li><a href=''$baseurl/brlist''>Branches</a></li>"
-@   html "<li><a href=''$baseurl/taglist''>Tags</a></li>"
+@   html "<li><a href=''$home/brlist''>Branches</a></li>"
+@   html "<li><a href=''$home/taglist''>Tags</a></li>"
 @ }
 @ if {[hascap r]} {
-@   html "<li><a href=''$baseurl/reportlist''>Tickets</a></li>"
+@   html "<li><a href=''$home/reportlist''>Tickets</a></li>"
 @ }
 @ if {[hascap j]} {
-@   html "<li><a href=''$baseurl/wiki''>Wiki</a></li>"
+@   html "<li><a href=''$home/wiki''>Wiki</a></li>"
 @ }
 @ if {[hascap s]} {
-@   html "<li><a href=''$baseurl/setup''>Admin</a></li>"
+@   html "<li><a href=''$home/setup''>Admin</a></li>"
 @ } elseif {[hascap a]} {
-@   html "<li><a href=''$baseurl/setup_ulist''>Users</a></li>"
+@   html "<li><a href=''$home/setup_ulist''>Users</a></li>"
 @ }
 @ if {[info exists login]} {
-@   html "<li><a href=''$baseurl/login''>Logout</a></li>"
+@   html "<li><a href=''$home/login''>Logout</a></li>"
 @ } else {
-@   html "<li><a href=''$baseurl/login''>Login</a></li>"
+@   html "<li><a href=''$home/login''>Login</a></li>"
 @ }
 @ </th1></ul></div>
 @ <div id="container">
@@ -730,7 +730,7 @@ void setup_skin(void){
   /* Process requests to delete a user-defined skin */
   if( P("del1") && (zName = skinVarName(P("sn"), 1))!=0 ){
     style_header("Confirm Custom Skin Delete");
-    @ <form action="%s(g.zBaseURL)/setup_skin" method="post"><div>
+    @ <form action="%s(g.zTop)/setup_skin" method="post"><div>
     @ <p>Deletion of a custom skin is a permanent action that cannot
     @ be undone.  Please confirm that this is what you want to do:</p>
     @ <input type="hidden" name="sn" value="%h(P("sn"))" />
@@ -811,7 +811,7 @@ void setup_skin(void){
     if( strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
       @ <li><p>%h(z).&nbsp;&nbsp; <b>Currently In Use</b></p>
     }else{
-      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="post"><div>
+      @ <li><form action="%s(g.zTop)/setup_skin" method="post"><div>
       @ %h(z).&nbsp;&nbsp; 
       @ <input type="hidden" name="sn" value="%h(z)" />
       @ <input type="submit" name="load" value="Use This Skin" />
@@ -829,7 +829,7 @@ void setup_skin(void){
     if( strcmp(zV, zCurrent)==0 ){
       @ <li><p>%h(zN).&nbsp;&nbsp;  <b>Currently In Use</b></p>
     }else{
-      @ <li><form action="%s(g.zBaseURL)/setup_skin" method="post">
+      @ <li><form action="%s(g.zTop)/setup_skin" method="post">
       @ %h(zN).&nbsp;&nbsp; 
       @ <input type="hidden" name="sn" value="%h(zN)">
       @ <input type="submit" name="load" value="Use This Skin">

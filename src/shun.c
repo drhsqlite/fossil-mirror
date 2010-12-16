@@ -72,7 +72,7 @@ void shun_page(void){
     db_multi_exec("DELETE FROM shun WHERE uuid='%s'", zUuid);
     if( db_exists("SELECT 1 FROM blob WHERE uuid='%s'", zUuid) ){
       @ <p class="noMoreShun">Artifact 
-      @ <a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a> is no
+      @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> is no
       @ longer being shunned.</p>
     }else{
       @ <p class="noMoreShun">Artifact %s(zUuid) will no longer
@@ -86,7 +86,7 @@ void shun_page(void){
     login_verify_csrf_secret();
     db_multi_exec("INSERT OR IGNORE INTO shun VALUES('%s')", zUuid);
     @ <p class="shunned">Artifact
-    @ <a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a> has been
+    @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> has been
     @ shunned.  It will no longer be pushed.
     @ It will be removed from the repository the next time the respository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
@@ -114,7 +114,7 @@ void shun_page(void){
   @ sight - set the "hidden" tag on such artifacts instead.</p>
   @ 
   @ <blockquote>
-  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><div>
+  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
   @ <input type="text" name="uuid" value="%h(PD("shun",""))" size="50" />
   @ <input type="submit" name="add" value="Shun" />
@@ -128,7 +128,7 @@ void shun_page(void){
   @ operations.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><div>
+  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
   @ <input type="text" name="uuid" size="50" />
   @ <input type="submit" name="sub" value="Accept" />
@@ -141,7 +141,7 @@ void shun_page(void){
   @ two, so be patient after pressing the button.</p>
   @
   @ <blockquote>
-  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><div>
+  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><div>
   login_insert_csrf_secret();
   @ <input type="submit" name="rebuild" value="Rebuild" />
   @ </div></form>
@@ -157,7 +157,7 @@ void shun_page(void){
     int stillExists = db_column_int(&q, 1);
     cnt++;
     if( stillExists ){
-      @ <b><a href="%s(g.zBaseURL)/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
+      @ <b><a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a></b><br />
     }else{
       @ <b>%s(zUuid)</b><br />
     }
@@ -304,7 +304,7 @@ void rcvfrom_page(void){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
-    @ <a href="%s(g.zBaseURL)/info/%s(zUuid)">%s(zUuid)</a>
+    @ <a href="%s(g.zTop)/info/%s(zUuid)">%s(zUuid)</a>
     @ (rid: %d(rid), size: %d(size))<br />
   }
   @ </td></tr>

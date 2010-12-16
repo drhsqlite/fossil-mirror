@@ -347,7 +347,7 @@ void cgi_redirect(const char *zURL){
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 || *zURL=='/' ){
     zLocation = mprintf("Location: %s\r\n", zURL);
   }else{
-    zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
+    zLocation = mprintf("Location: %s/%s\r\n", g.zTop, zURL);
   }
   cgi_append_header(zLocation);
   cgi_reset_content();

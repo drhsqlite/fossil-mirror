@@ -132,7 +132,7 @@ static void tktsetup_generic(
       cgi_redirect("tktsetup");
     }
   }
-  @ <form action="%s(g.zBaseURL)/%s(g.zPath)" method="post"><div>
+  @ <form action="%s(g.zTop)/%s(g.zPath)" method="post"><div>
   login_insert_csrf_secret();
   @ <p>%s(zDesc)</p>
   @ <textarea name="x" rows="%d(height)" cols="80">%h(z)</textarea>
@@ -701,7 +701,7 @@ void tktsetup_timeline_page(void){
   }
   style_header("Ticket Display On Timelines");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/tktsetup_timeline" method="post"><div>
+  @ <form action="%s(g.zTop)/tktsetup_timeline" method="post"><div>
   login_insert_csrf_secret();
 
   @ <hr />

@@ -733,7 +733,7 @@ void set_base_url(void){
 ** Send an HTTP redirect back to the designated Index Page.
 */
 void fossil_redirect_home(void){
-  cgi_redirectf("%s%s", g.zBaseURL, db_get("index-page", "/index"));
+  cgi_redirectf("%s%s", g.zTop, db_get("index-page", "/index"));
 }
 
 /*

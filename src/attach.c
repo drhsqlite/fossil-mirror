@@ -272,7 +272,7 @@ void attachadd_page(void){
   }
   style_header("Add Attachment");
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  @ <form action="%s(g.zBaseURL)/attachadd" method="post"
+  @ <form action="%s(g.zTop)/attachadd" method="post"
   @  enctype="multipart/form-data"><div>
   @ File to Attach:
   @ <input type="file" name="f" size="60" /><br />
@@ -351,7 +351,7 @@ void attachdel_page(void){
     cgi_redirect(zFrom);
   }    
   style_header("Delete Attachment");
-  @ <form action="%s(g.zBaseURL)/attachdelete" method="post"><div>
+  @ <form action="%s(g.zTop)/attachdelete" method="post"><div>
   @ <p>Confirm that you want to delete the attachment named
   @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br /></p>
   if( zTkt ){

@@ -521,7 +521,7 @@ void tktnew_page(void){
   getAllTicketFields();
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
-  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
+  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
   login_insert_csrf_secret();
   @ </p>
   zScript = ticket_newpage_code();
@@ -531,7 +531,7 @@ void tktnew_page(void){
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zNewUuid));
+    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
   @ </form>
@@ -587,7 +587,7 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
-  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
+  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
   @ </p>
@@ -598,7 +598,7 @@ void tktedit_page(void){
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zName));
+    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }
   @ </form>

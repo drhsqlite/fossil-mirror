@@ -221,7 +221,7 @@ static void showTags(int rid, const char *zNotGlob){
 #if 0
       if( zValue && strcmp(zTagname,"branch")==0 ){
         @ &nbsp;&nbsp;
-        @ <a href="%s(g.zBaseURL)/timeline?r=%T(zValue)">branch timeline</a>
+        @ <a href="%s(g.zTop)/timeline?r=%T(zValue)">branch timeline</a>
       }
 #endif
     }
@@ -429,10 +429,10 @@ void ci_page(void){
     if( g.okHistory ){
       const char *zProjName = db_get("project-name", "unnamed");
       @ <tr><th>Timelines:</th><td>
-      @   <a href="%s(g.zBaseURL)/timeline?f=%S(zUuid)">family</a>
-      @ | <a href="%s(g.zBaseURL)/timeline?p=%S(zUuid)">ancestors</a>
-      @ | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)">descendants</a>
-      @ | <a href="%s(g.zBaseURL)/timeline?d=%S(zUuid)&amp;p=%S(zUuid)">both</a>
+      @   <a href="%s(g.zTop)/timeline?f=%S(zUuid)">family</a>
+      @ | <a href="%s(g.zTop)/timeline?p=%S(zUuid)">ancestors</a>
+      @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)">descendants</a>
+      @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)&amp;p=%S(zUuid)">both</a>
       db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
@@ -469,15 +469,15 @@ void ci_page(void){
   if( db_get_boolean("show-version-diffs", 0)==0 ){
     showDiff = !showDiff;
     if( showDiff ){
-      @ <a href="%s(g.zBaseURL)/vinfo/%T(zName)">[hide&nbsp;diffs]</a><br/>
+      @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a><br/>
     }else{
-      @ <a href="%s(g.zBaseURL)/ci/%T(zName)">[show&nbsp;diffs]</a><br/>
+      @ <a href="%s(g.zTop)/ci/%T(zName)">[show&nbsp;diffs]</a><br/>
     }
   }else{
     if( showDiff ){
-      @ <a href="%s(g.zBaseURL)/ci/%T(zName)">[hide&nbsp;diffs]</a><br/>
+      @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a><br/>
     }else{
-      @ <a href="%s(g.zBaseURL)/vinfo/%T(zName)">[show&nbsp;diffs]</a><br/>
+      @ <a href="%s(g.zTop)/vinfo/%T(zName)">[show&nbsp;diffs]</a><br/>
     }
   }
   db_prepare(&q,
@@ -551,8 +551,8 @@ void winfo_page(void){
     if( g.okHistory ){
       @ <tr><th>Commands:</th>
       @   <td>
-      @     <a href="%s(g.zBaseURL)/whistory?name=%t(zName)">history</a>
-      @     | <a href="%s(g.zBaseURL)/artifact/%S(zUuid)">raw-text</a>
+      @     <a href="%s(g.zTop)/whistory?name=%t(zName)">history</a>
+      @     | <a href="%s(g.zTop)/artifact/%S(zUuid)">raw-text</a>
       @   </td>
       @ </tr>
     }
@@ -757,7 +757,7 @@ void object_description(
       @ File
     }
     if( g.okHistory ){
-      @ <a href="%s(g.zBaseURL)/finfo?name=%T(zName)">%h(zName)</a>
+      @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
     }else{
       @ %h(zName)
     }
@@ -792,7 +792,7 @@ void object_description(
       @ Wiki page
     }
     if( g.okHistory ){
-      @ [<a href="%s(g.zBaseURL)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
+      @ [<a href="%s(g.zTop)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
     }else{
       @ [%h(zPagename)]
     }
@@ -894,7 +894,7 @@ void object_description(
       blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
   }else if( linkToView && g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/artifact/%S(zUuid)">[view]</a>
+    @ <a href="%s(g.zTop)/artifact/%S(zUuid)">[view]</a>
   }
 }
 
@@ -1168,7 +1168,7 @@ void artifact_page(void){
       @ %h(blob_str(&content))
       @ </pre>
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%s(g.zBaseURL)/raw?name=%s(zUuid)&amp;m=%s(zMime)"></img>
+      @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&amp;m=%s(zMime)"></img>
       style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else{
       @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
@@ -1568,7 +1568,7 @@ void ci_edit_page(void){
   }
   @ <p>Make changes to attributes of check-in
   @ [<a href="ci?name=%s(zUuid)">%s(zUuid)</a>]:</p>
-  @ <form action="%s(g.zBaseURL)/ci_edit" method="post"><div>
+  @ <form action="%s(g.zTop)/ci_edit" method="post"><div>
   login_insert_csrf_secret();
   @ <input type="hidden" name="r" value="%S(zUuid)" />
   @ <table border="0" cellspacing="10">

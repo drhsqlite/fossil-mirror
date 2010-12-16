@@ -50,7 +50,7 @@ void hyperlink_to_uuid(const char *zUuid){
   char zShortUuid[UUID_SIZE+1];
   shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
-    @ <a class="timelineHistLink" href="%s(g.zBaseURL)/info/%s(zShortUuid)">
+    @ <a class="timelineHistLink" href="%s(g.zTop)/info/%s(zShortUuid)">
     @ [%s(zShortUuid)]</a>
   }else{
     @ <span class="timelineHistDsp">[%s(zShortUuid)]</span>
@@ -71,7 +71,7 @@ void hyperlink_to_uuid_with_mouseover(
   shorten_uuid(zShortUuid, zUuid);
   if( g.okHistory ){
     @ <a onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'
-    @    href="%s(g.zBaseURL)/vinfo/%s(zShortUuid)">[%s(zShortUuid)]</a>
+    @    href="%s(g.zTop)/vinfo/%s(zShortUuid)">[%s(zShortUuid)]</a>
   }else{
     @ <b onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'>
     @ [%s(zShortUuid)]</b>
@@ -84,9 +84,9 @@ void hyperlink_to_uuid_with_mouseover(
 void hyperlink_to_diff(const char *zV1, const char *zV2){
   if( g.okHistory ){
     if( zV2==0 ){
-      @ <a href="%s(g.zBaseURL)/diff?v2=%s(zV1)">[diff]</a>
+      @ <a href="%s(g.zTop)/diff?v2=%s(zV1)">[diff]</a>
     }else{
-      @ <a href="%s(g.zBaseURL)/diff?v1=%s(zV1)&amp;v2=%s(zV2)">[diff]</a>
+      @ <a href="%s(g.zTop)/diff?v1=%s(zV1)&amp;v2=%s(zV2)">[diff]</a>
     }
   }
 }
@@ -751,7 +751,7 @@ void page_timeline(void){
     }
     if( g.okHistory ){
       blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
-                   g.zBaseURL, zUuid, zUuid);
+                   g.zTop, zUuid, zUuid);
     }else{
       blob_appendf(&desc, " of check-in [%.10s]", zUuid);
     }
@@ -775,7 +775,7 @@ void page_timeline(void){
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     if( g.okHistory ){
       blob_appendf(&desc, "<a href='%s/info/%s'>[%.10s]</a>",
-                   g.zBaseURL, zUuid, zUuid);
+                   g.zTop, zUuid, zUuid);
     }else{
       blob_appendf(&desc, "[%.10s]", zUuid);
     }

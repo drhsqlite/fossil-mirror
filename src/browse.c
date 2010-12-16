@@ -82,10 +82,10 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
     if( zPath[j] && g.okHistory ){
       if( zCI ){
         blob_appendf(pOut, "%s<a href=\"%s/dir?ci=%S&amp;name=%#T\">%#h</a>", 
-                     zSep, g.zBaseURL, zCI, j, zPath, j-i, &zPath[i]);
+                     zSep, g.zTop, zCI, j, zPath, j-i, &zPath[i]);
       }else{
         blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
-                     zSep, g.zBaseURL, j, zPath, j-i, &zPath[i]);
+                     zSep, g.zTop, j, zPath, j-i, &zPath[i]);
       }
     }else{
       blob_appendf(pOut, "%s%#h", zSep, j-i, &zPath[i]);
@@ -163,7 +163,7 @@ void page_dir(void){
       style_submenu_element("Top", "Top", "%s/dir?ci=%S", g.zTop, zUuid);
       style_submenu_element("All", "All", "%s/dir?name=%t", g.zTop, zD);
     }else{
-      style_submenu_element("All", "All", "%s/dir", g.zBaseURL);
+      style_submenu_element("All", "All", "%s/dir", g.zTop);
     }
   }else{
     int hasTrunk;
@@ -172,19 +172,19 @@ void page_dir(void){
     hasTrunk = db_exists(
                   "SELECT 1 FROM tagxref WHERE tagid=%d AND value='trunk'",
                   TAG_BRANCH);
-    zSubdirLink = mprintf("%s/dir?name=%T", g.zBaseURL, zPrefix);
+    zSubdirLink = mprintf("%s/dir?name=%T", g.zTop, zPrefix);
     if( zD ){
-      style_submenu_element("Top", "Top", "%s/dir", g.zBaseURL);
+      style_submenu_element("Top", "Top", "%s/dir", g.zTop);
       style_submenu_element("Tip", "Tip", "%s/dir?name=%t&amp;ci=tip",
-                            g.zBaseURL, zD);
+                            g.zTop, zD);
       if( hasTrunk ){
         style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&amp;ci=trunk",
-                               g.zBaseURL,zD);
+                               g.zTop,zD);
       }
     }else{
-      style_submenu_element("Tip", "Tip", "%s/dir?ci=tip", g.zBaseURL);
+      style_submenu_element("Tip", "Tip", "%s/dir?ci=tip", g.zTop);
       if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zBaseURL);
+        style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zTop);
       }
     }
   }
@@ -261,9 +261,9 @@ void page_dir(void){
       @ <li><a href="%s(zSubdirLink)%T(zFN)">%h(zFN)/</a></li>
     }else if( zCI ){
       const char *zUuid = db_column_text(&q, 1);
-      @ <li><a href="%s(g.zBaseURL)/artifact?name=%s(zUuid)">%h(zFN)</a></li>
+      @ <li><a href="%s(g.zTop)/artifact?name=%s(zUuid)">%h(zFN)</a></li>
     }else{
-      @ <li><a href="%s(g.zBaseURL)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)
+      @ <li><a href="%s(g.zTop)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)
       @     </a></li>
     }
   }

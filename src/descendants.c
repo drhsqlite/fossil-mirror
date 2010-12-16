@@ -289,7 +289,7 @@ void leaves_cmd(void){
 */
 static void leaves_extra(int rid){
   if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">[timeline]</a>
+    @ <a href="%s(g.zTop)/timeline?p=%d(rid)">[timeline]</a>
   }
 }
 

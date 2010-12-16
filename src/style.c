@@ -99,6 +99,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   Th_Store("current_page", g.zPath);
   Th_Store("manifest_version", MANIFEST_VERSION);
@@ -194,14 +195,14 @@ const char zDefaultHeader[] =
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$baseurl/timeline.rss" />
-@ <link rel="stylesheet" href="$baseurl/style.css?default" type="text/css"
+@       href="$home/timeline.rss" />
+@ <link rel="stylesheet" href="$home/style.css?default" type="text/css"
 @       media="screen" />
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$baseurl/logo" alt="logo" />
+@     <img src="$home/logo" alt="logo" />
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><th1>
@@ -213,32 +214,32 @@ const char zDefaultHeader[] =
 @   </th1></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href='$baseurl$index_page'>Home</a> "
+@ html "<a href='$home$index_page'>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@   html "<a href='$home/timeline'>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
-@   html "<a href='$baseurl/dir?ci=tip'>Files</a> "
+@   html "<a href='$home/dir?ci=tip'>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href='$baseurl/brlist'>Branches</a> "
-@   html "<a href='$baseurl/taglist'>Tags</a> "
+@   html "<a href='$home/brlist'>Branches</a> "
+@   html "<a href='$home/taglist'>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$baseurl/reportlist'>Tickets</a> "
+@   html "<a href='$home/reportlist'>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href='$baseurl/wiki'>Wiki</a> "
+@   html "<a href='$home/wiki'>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$baseurl/setup'>Admin</a> "
+@   html "<a href='$home/setup'>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href='$baseurl/setup_ulist'>Users</a> "
+@   html "<a href='$home/setup_ulist'>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$baseurl/login'>Logout</a> "
+@   html "<a href='$home/login'>Logout</a> "
 @ } else {
-@   html "<a href='$baseurl/login'>Login</a> "
+@   html "<a href='$home/login'>Login</a> "
 @ }
 @ </th1></div>
 ;

@@ -776,7 +776,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
       if( p->aAttr[i].zValue ){
         const char *zVal = p->aAttr[i].zValue;
         if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
-          blob_appendf(pOut, "=\"%s%s\"", g.zBaseURL, zVal);
+          blob_appendf(pOut, "=\"%s%s\"", g.zTop, zVal);
         }else{
           blob_appendf(pOut, "=\"%s\"", zVal);
         }
@@ -1027,7 +1027,7 @@ static void openHyperlink(
     /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
     if( 1 /* g.okHistory */ ){
-      blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zBaseURL, zTarget);
+      blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
     }else{
       zTerm = "";
     }
@@ -1047,7 +1047,7 @@ static void openHyperlink(
         if( g.okHistory ){
           blob_appendf(p->pOut,
              "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
-             g.zBaseURL, zTarget
+             g.zTop, zTarget
           );
           zTerm = "</span></a>";
         }else{
@@ -1057,24 +1057,24 @@ static void openHyperlink(
       }else{
         if( g.okHistory ){
           blob_appendf(p->pOut,"<a href=\"%s/info/%s\">",
-              g.zBaseURL, zTarget
+              g.zTop, zTarget
           );
         }else{
           zTerm = "";
         }
       }
     }else if( g.okHistory ){
-      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zBaseURL, zTarget);
+      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zTop, zTarget);
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zTop, zTarget);
   }else if( strncmp(zTarget, "wiki:", 5)==0 
         && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     zTarget += 5;
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
   }else{
     blob_appendf(p->pOut, "[bad-link: %h]", zTarget);
     zTerm = "";

@@ -758,7 +758,7 @@ void setup_access(void){
 
   style_header("Access Control Settings");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_access" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_access" method="post"><div>
   login_insert_csrf_secret();
   @ <hr />
   onoff_attribute("Require password for local access",
@@ -820,7 +820,7 @@ void setup_timeline(void){
 
   style_header("Timeline Display Preferences");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_timeline" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_timeline" method="post"><div>
   login_insert_csrf_secret();
 
   @ <hr />
@@ -872,7 +872,7 @@ void setup_settings(void){
   @ <p>This page provides a simple interface to the "fossil setting" command.
   @ See the "fossil help setting" output below for further information on
   @ the meaning of each setting.</p><hr />
-  @ <form action="%s(g.zBaseURL)/setup_settings" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_settings" method="post"><div>
   @ <table border="0"><tr><td valign="top">
   login_insert_csrf_secret();
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
@@ -913,7 +913,7 @@ void setup_config(void){
 
   style_header("WWW Configuration");
   db_begin_transaction();
-  @ <form action="%s(g.zBaseURL)/setup_config" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_config" method="post"><div>
   login_insert_csrf_secret();
   @ <hr />
   entry_attribute("Project Name", 60, "project-name", "pn", "");
@@ -988,7 +988,7 @@ void setup_editcss(void){
     cgi_redirect("setup_editcss");
   }
   style_header("Edit CSS");
-  @ <form action="%s(g.zBaseURL)/setup_editcss" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
   textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
@@ -1026,7 +1026,7 @@ void setup_header(void){
     textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader);
   }
   style_header("Edit Page Header");
-  @ <form action="%s(g.zBaseURL)/setup_header" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_header" method="post"><div>
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
@@ -1064,7 +1064,7 @@ void setup_footer(void){
     textarea_attribute(0, 0, 0, "footer", "footer", zDefaultFooter);
   }
   style_header("Edit Page Footer");
-  @ <form action="%s(g.zBaseURL)/setup_footer" method="post"><div>
+  @ <form action="%s(g.zTop)/setup_footer" method="post"><div>
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the end of every page.</p>
@@ -1135,7 +1135,7 @@ void setup_logo(void){
   @ page depending on the <a href="setup_editcss">CSS</a> and
   @ <a href="setup_header">header setup</a>.</p>
   @
-  @ <form action="%s(g.zBaseURL)/setup_logo" method="post"
+  @ <form action="%s(g.zTop)/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
   @ <p>To set a new logo image, select a file to use as the logo using
   @ the entry box below and then press the "Change Logo" button.</p>
