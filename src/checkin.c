@@ -413,32 +413,39 @@ static void prepare_commit_comment(
     zEditor = getenv("EDITOR");
   }
   if( zEditor==0 ){
-#if defined(_WIN32)
-    zEditor = "notepad";
-    fossil_warning(
-       "no default text editor selected using \"fossil set editor\"\n"
-       "or the EDITOR or VISUAL environment variables - using \"notepad\"");
-#else
-    zEditor = "ed";
-    fossil_warning(
-       "no default text editor selected using \"fossil set editor\"\n"
-       "or the EDITOR or VISUAL environment variables - using \"ed\" -\n"
-       "enter \"q\" to quit.");
-#endif
+    blob_append(&text,
+       "#\n"
+       "# Since no default text editor is set using EDITOR or VISUAL\n"
+       "# environment variables or the \"fossil set editor\" command,\n"
+       "# and because no check-in comment was specified using the \"-m\"\n"
+       "# or \"-M\" command-line options, you will need to enter the\n"
+       "# check-in comment below.  Type \".\" on a line by itself when\n"
+       "# you are done:\n", -1);
+    zFile = mprintf("-");
+  }else{
+    zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
+                    g.zLocalRoot);
   }
-  zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
-                   g.zLocalRoot);
 #if defined(_WIN32)
   blob_add_cr(&text);
 #endif
   blob_write_to_file(&text, zFile);
-  zCmd = mprintf("%s \"%s\"", zEditor, zFile);
-  printf("%s\n", zCmd);
-  if( fossil_system(zCmd) ){
-    fossil_panic("editor aborted");
+  if( zEditor ){
+    zCmd = mprintf("%s \"%s\"", zEditor, zFile);
+    printf("%s\n", zCmd);
+    if( fossil_system(zCmd) ){
+      fossil_panic("editor aborted");
+    }
+    blob_reset(&text);
+    blob_read_from_file(&text, zFile);
+  }else{
+    char zIn[300];
+    blob_reset(&text);
+    while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
+      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ) break;
+      blob_append(&text, zIn, -1);
+    }
   }
-  blob_reset(&text);
-  blob_read_from_file(&text, zFile);
   blob_remove_cr(&text);
   unlink(zFile);
   free(zFile);
