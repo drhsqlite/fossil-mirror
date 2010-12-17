@@ -1,5 +1,5 @@
-C When\s"fossil\sset\seditor"\sis\sunset\sand\swhen\sthere\sis\sno\sEDITOR\sor\sVISUAL\nenvironment\svariable\sset,\sthen\sgather\sthe\scheck-in\scomment\sfrom\sstandard\ninput\s(with\sappropriate\sprompting)\srather\sthan\strying\sto\srun\s"ed"\sor\n"notepad".
-D 2010-12-17T12:41:50
+C In\sthe\scheck-in\sproperty\seditor,\schange\sthe\sbgcolor\stag\seven\sif\sthe\sonly\nchange\sis\sto\stoggle\scolor\spropagation\son\sor\soff.\nTicket\s[fcadf658ed282b3a2].
+D 2010-12-17T21:06:03
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -70,7 +70,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c f280e7f07c067a19d3f8c84178a10d1ec4af000b
 F src/import.c 60a5ff0f90dacb1425b3ee6603bbb9a9cdcdac2d
-F src/info.c 13bca0ed8c2ac4de48e30c68800b8f4e6353d863
+F src/info.c a2a465c619f50cfbfe0f5c611f9cbba80f5025d8
 F src/login.c e8b157772ed307e049983a8d6d8a42f2222ea3e6
 F src/main.c d06813adffe6ef851b855adeab6c0c8e1551e49e
 F src/main.mk 561879e9fed0b2445c1e5a3c4808b20376ab4484
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 115d90d8b0aab28679f9a1b146c3d047e71817eb
-R e6f5f767a82c39c0938dd4671f00e851
+P aa929c4d1e8e9e9a7e27ae81088d347c054460c8
+R ceeb7eb69190870f27723fd97ed558f5
 U drh
-Z 0561375d28b2ef15869940347c4a4eba
+Z f5b826dd0a64ea4088626682db654159

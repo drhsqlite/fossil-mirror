@@ -1396,7 +1396,8 @@ void ci_edit_page(void){
   const char *zNewBrFlag;
   const char *zNewBranch;
   const char *zCloseFlag;
-  int fPropagateColor;
+  int fPropagateColor;          /* True if color propagates before edit */
+  int fNewPropagateColor;       /* True if color propagates after edit */
   char *zUuid;
   Blob comment;
   Stmt q;
@@ -1426,7 +1427,10 @@ void ci_edit_page(void){
   if( strcmp(zNewColor,"##")==0 ){
     zNewColor = P("clrcust");
   }
-  fPropagateColor = P("pclr")!=0;
+  fPropagateColor = db_int(0, "SELECT tagtype FROM tagxref"
+                              " WHERE rid=%d AND tagid=%d",
+                              rid, TAG_BGCOLOR)==2;
+  fNewPropagateColor = P("clr")!=0 ? P("pclr")!=0 : fPropagateColor;
   zNewTagFlag = P("newtag") ? " checked" : "";
   zNewTag = PD("tagname","");
   zNewBrFlag = P("newbr") ? " checked" : "";
@@ -1443,9 +1447,11 @@ void ci_edit_page(void){
     zDate[10] = 'T';
     blob_appendf(&ctrl, "D %s\n", zDate);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
-    if( zNewColor[0] && strcmp(zColor,zNewColor)!=0 ){
+    if( zNewColor[0]
+     && (fPropagateColor!=fNewPropagateColor || strcmp(zColor,zNewColor)!=0)
+    ){
       char *zPrefix = "+";
-      if( fPropagateColor ){
+      if( fNewPropagateColor ){
         zPrefix = "*";
       }
       db_multi_exec("REPLACE INTO newtags VALUES('bgcolor',%Q,%Q)",
@@ -1590,7 +1596,7 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
   @ <td valign="top">
-  render_color_chooser(fPropagateColor, zNewColor, "pclr", "clr", "clrcust");
+  render_color_chooser(fNewPropagateColor, zNewColor, "pclr", "clr", "clrcust");
   @ </td></tr>
 
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
