@@ -153,19 +153,21 @@ static int undoActive = 0;
 */
 void undo_begin(void){
   int cid;
+  const char *zDb = "localdb";
   static const char zSql[] = 
-    @ CREATE TABLE undo(
+    @ CREATE TABLE %s.undo(
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
     @   content BLOB                      -- Saved content
     @ );
-    @ CREATE TABLE undo_vfile AS SELECT * FROM vfile;
-    @ CREATE TABLE undo_vmerge AS SELECT * FROM vmerge;
-    @ CREATE TABLE undo_pending(undoId INTEGER PRIMARY KEY);
+    @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
+    @ CREATE TABLE %s.undo_vmerge AS SELECT * FROM vmerge;
+    @ CREATE TABLE %s.undo_pending(undoId INTEGER PRIMARY KEY);
   ;
   undo_reset();
-  db_multi_exec(zSql);
+  if( strcmp(g.zMainDbType,zDb)==0 ) zDb = "main";
+  db_multi_exec(zSql, zDb, zDb, zDb, zDb);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);

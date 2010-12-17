@@ -620,14 +620,13 @@ static sqlite3 *openDatabase(const char *zDbName){
 static void db_open_or_attach(const char *zDbName, const char *zLabel){
   if( !g.db ){
     g.db = openDatabase(zDbName);
-    g.zRepoDb = "main";
+    g.zMainDbType = zLabel;
     db_connection_init();
   }else{
 #if defined(_WIN32)
     zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
 #endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
-    g.zRepoDb = mprintf("%s", zLabel);
   }
 }
 
