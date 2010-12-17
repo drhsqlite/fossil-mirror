@@ -415,8 +415,15 @@ static void prepare_commit_comment(
   if( zEditor==0 ){
 #if defined(_WIN32)
     zEditor = "notepad";
+    fossil_warning(
+       "no default text editor selected using \"fossil set editor\"\n"
+       "or the EDITOR or VISUAL environment variables - using \"notepad\"");
 #else
     zEditor = "ed";
+    fossil_warning(
+       "no default text editor selected using \"fossil set editor\"\n"
+       "or the EDITOR or VISUAL environment variables - using \"ed\" -\n"
+       "enter \"q\" to quit.");
 #endif
   }
   zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
