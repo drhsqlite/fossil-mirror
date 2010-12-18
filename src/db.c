@@ -871,6 +871,17 @@ rep_not_found:
 }
 
 /*
+** Return the name of the database "localdb", "configdb", or "repository".
+*/
+const char *db_name(const char *zDb){
+  assert( strcmp(zDb,"localdb")==0
+       || strcmp(zDb,"configdb")==0
+       || strcmp(zDb,"repository")==0 );
+  if( strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
+  return zDb;
+}
+
+/*
 ** Verify that the repository schema is correct.  If it is not correct,
 ** issue a fatal error and die.
 */

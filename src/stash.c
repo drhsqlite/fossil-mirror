@@ -88,7 +88,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     int rid = db_column_int(&q, 2);
     const char *zName = db_column_text(&q, 3);
     const char *zOrig = db_column_text(&q, 4);
-    char *zPath = mprintf("%s/%s", g.zLocalRoot, zName);
+    char *zPath = mprintf("%s%s", g.zLocalRoot, zName);
     Blob content;
 
     db_bind_int(&ins, ":rid", rid);
@@ -137,7 +137,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
 ** If files are named on the command-line, then only stash the named
 ** files.
 */
-static void stash_create(void){
+static int stash_create(void){
   const char *zComment;              /* Comment to add to the stash */
   int stashid;                       /* ID of the new stash */
   int vid;                           /* Current checkout */
@@ -159,7 +159,8 @@ static void stash_create(void){
     }
   }else{
     stash_add_file_or_dir(stashid, vid, ".");
-  } 
+  }
+  return stashid;
 }
 
 /*
@@ -177,9 +178,9 @@ static void stash_apply(int stashid, int nConflict){
     int isRemoved = db_column_int(&q, 1);
     const char *zOrig = db_column_text(&q, 3);
     const char *zNew = db_column_text(&q, 4);
-    char *zOPath = mprintf("%s/%s", g.zLocalRoot, zOrig);
-    char *zNPath = mprintf("%s/%s", g.zLocalRoot, zNew);
-    undo_save(zNPath);
+    char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
+    char *zNPath = mprintf("%s%s", g.zLocalRoot, zNew);
+    undo_save(zNew);
     Blob delta;
     if( rid==0 ){
       db_ephemeral_blob(&q, 5, &delta);
@@ -213,7 +214,7 @@ static void stash_apply(int stashid, int nConflict){
       blob_reset(&delta);
     }
     if( strcmp(zOrig,zNew)!=0 ){
-      undo_save(zOPath);
+      undo_save(zOrig);
       unlink(zOPath);
     }
   }
@@ -260,7 +261,7 @@ static int stash_get_id(const char *zStashId){
 ** Usage: %fossil COMMAND ARGS...
 **
 **    fossil stash
-**    fossil stash save [-m COMMENT] [FILES...]
+**    fossil stash save ?-m COMMENT? ?FILES...?
 **
 **         Save the current changes in the working tree as a new stash.
 **         Then revert the changes back to the last check-in.  If FILES
@@ -277,34 +278,40 @@ static int stash_get_id(const char *zStashId){
 **         Apply the most recently create stash to the current working
 **         check-out.  Then delete that stash.  This is equivalent to
 **         doing an "apply" and a "drop" against the most recent stash.
+**         This command is undoable.
 **
-**    fossil stash apply STASHID
+**    fossil stash apply ?STASHID?
 **
 **         Apply the identified stash to the current working check-out.
-**         But unlike "pop", keep the stash so that it can be used again.
+**         If no STASHID is specifed, use the most recent stash.  Unlike
+**         the "pop" command, the stash is retained so that it can be used
+**         again.  This command is undoable.
 **
-**    fossil stash goto STASHID
+**    fossil stash goto ?STASHID?
 **
 **         Update to the baseline checkout for STASHID then apply the
 **         changes of STASHID.  Keep STASHID so that it can be reused
+**         This command is undoable.
 **
-**    fossil drop STASHID
+**    fossil drop ?STASHID?
 **
-**         Forget everything about STASHID.
+**         Forget everything about STASHID.  This command is undoable.
 **
-**    fossil stash snapshot [-m COMMENT] [FILES...]
+**    fossil stash snapshot ?-m COMMENT? ?FILES...?
 **
 **         Save the current changes in the working tress as a new stash
 **         but, unlike "save", do not revert those changes.
 */
 void stash_cmd(void){
-  const char *zDb = "localdb";
+  const char *zDb;
   const char *zCmd;
   int nCmd;
+  int stashid;
+
   undo_capture_command_line();
   db_must_be_within_tree();
   db_begin_transaction();
-  if( strcmp(g.zMainDbType, zDb)==0 ) zDb = "main";
+  zDb = db_name("localdb");
   db_multi_exec(zStashInit, zDb, zDb);
   if( g.argc<=2 ){
     zCmd = "save";
@@ -349,30 +356,41 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 ){
     if( g.argc>4 ) usage("stash apply STASHID");
-    int stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    undo_begin();
+    undo_save_stash(stashid);
     stash_drop(stashid);
+    undo_finish();
   }else
   if( memcmp(zCmd, "pop", nCmd)==0 ){
     if( g.argc>3 ) usage("stash pop");
-    int stashid = stash_get_id(0);
+    stashid = stash_get_id(0);
     undo_begin();
     stash_apply(stashid, 0);
+    undo_save_stash(stashid);
     undo_finish();
     stash_drop(stashid);
   }else
   if( memcmp(zCmd, "apply", nCmd)==0 ){
     if( g.argc>4 ) usage("stash apply STASHID");
-    int stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
     stash_apply(stashid, 0);
     undo_finish();
   }else
   if( memcmp(zCmd, "goto", nCmd)==0 ){
+    int nConflict;
+    int vid;
+
     if( g.argc>4 ) usage("stash apply STASHID");
-    int stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
-    update_to(db_int(0, "SELECT vid FROM stash WHERE stashid=%d", stashid));
-    stash_apply(stashid, 0);
+    vid = db_int(0, "SELECT vid FROM stash WHERE stashid=%d", stashid);
+    nConflict = update_to(vid);
+    stash_apply(stashid, nConflict);
+    db_multi_exec("UPDATE vfile SET mtime=0 WHERE pathname IN "
+                  "(SELECT origname FROM stashfile WHERE stashid=%d)",
+                  stashid);
     undo_finish();
   }else
   {
