@@ -180,8 +180,8 @@ static void stash_apply(int stashid, int nConflict){
     const char *zNew = db_column_text(&q, 4);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     char *zNPath = mprintf("%s%s", g.zLocalRoot, zNew);
-    undo_save(zNew);
     Blob delta;
+    undo_save(zNew);
     if( rid==0 ){
       db_ephemeral_blob(&q, 5, &delta);
       blob_write_to_file(&delta, zNPath);
@@ -338,8 +338,8 @@ void stash_cmd(void){
        " ORDER BY ctime DESC"
     );
     while( db_step(&q)==SQLITE_ROW ){
-      n++;
       const char *zCom;
+      n++;
       printf("%5d: [%.14s] on %s\n",
         db_column_int(&q, 0),
         db_column_text(&q, 1),
