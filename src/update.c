@@ -533,5 +533,4 @@ void revert_cmd(void){
   db_finalize(&q);
   undo_finish();
   db_end_transaction(0);
-  printf("\"fossil undo\" is available to undo the changes shown above.\n");
 }

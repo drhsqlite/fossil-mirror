@@ -148,6 +148,16 @@ void undo_reset(void){
 static char *undoCmd = 0;
 
 /*
+** This flag is true if we are in the process of collecting file changes
+** for undo.  When this flag is false, undo_save() is a no-op.
+**
+** The undoDisable flag, if set, prevents undo from being activated.
+*/
+static int undoActive = 0;
+static int undoDisable = 0;
+
+
+/*
 ** Capture the current command-line and store it as part of the undo
 ** state.  This routine is called before options are extracted from the
 ** command-line so that we can record the complete command-line.
@@ -156,6 +166,7 @@ void undo_capture_command_line(void){
   Blob cmdline;
   int i;
   assert( undoCmd==0 );
+  if( undoDisable ) return;
   blob_zero(&cmdline);
   for(i=1; i<g.argc; i++){
     if( i>1 ) blob_append(&cmdline, " ", 1);
@@ -163,12 +174,6 @@ void undo_capture_command_line(void){
   }
   undoCmd = blob_str(&cmdline);
 }
-
-/*
-** This flag is true if we are in the process of collecting file changes
-** for undo.  When this flag is false, undo_save() is a no-op.
-*/
-static int undoActive = 0;
 
 /*
 ** Begin capturing a snapshot that can be undone.
@@ -186,6 +191,7 @@ void undo_begin(void){
     @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
     @ CREATE TABLE %s.undo_vmerge AS SELECT * FROM vmerge;
   ;
+  if( undoDisable ) return;
   undo_reset();
   if( strcmp(g.zMainDbType,zDb)==0 ) zDb = "main";
   db_multi_exec(zSql, zDb, zDb, zDb, zDb);
@@ -194,6 +200,13 @@ void undo_begin(void){
   db_lset_int("undo_available", 1);
   db_lset("undo_cmdline", undoCmd);
   undoActive = 1;
+}
+
+/*
+** Permanently disable undo 
+*/
+void undo_disable(void){
+  undoDisable = 1;
 }
 
 /*
@@ -242,6 +255,10 @@ void undo_save(const char *zPathname){
 */
 void undo_finish(void){
   if( undoActive ){
+    if( undoNeedRollback ){
+      printf("\"fossil undo\" is available to undo changes"
+             " to the working checkout.\n");
+    }
     undoActive = 0;
     undoNeedRollback = 0;
   }
@@ -290,6 +307,7 @@ void undo_cmd(void){
   int explainFlag = find_option("explain", 0, 0)!=0;
   const char *zCmd = isRedo ? "redo" : "undo";
   db_must_be_within_tree();
+  verify_all_options();
   db_begin_transaction();
   undo_available = db_lget_int("undo_available", 0);
   if( explainFlag ){
@@ -320,23 +338,32 @@ void undo_cmd(void){
         printf("No file changes would occur with this undo/redo.\n");
       }
     }
-  }else if( g.argc==2 ){
-    if( undo_available!=(1+isRedo) ){
-      fossil_fatal("nothing to %s", zCmd);
+  }else{
+    int vid1 = db_lget_int("checkout", 0);
+    int vid2;
+    if( g.argc==2 ){
+      if( undo_available!=(1+isRedo) ){
+        fossil_fatal("nothing to %s", zCmd);
+      }
+      undo_all(isRedo);
+      db_lset_int("undo_available", 2-isRedo);
+    }else if( g.argc>=3 ){
+      int i;
+      if( undo_available==0 ){
+        fossil_fatal("nothing to %s", zCmd);
+      }
+      for(i=2; i<g.argc; i++){
+        const char *zFile = g.argv[i];
+        Blob path;
+        file_tree_name(zFile, &path, 1);
+        undo_one(blob_str(&path), isRedo);
+        blob_reset(&path);
+      }
     }
-    undo_all(isRedo);
-    db_lset_int("undo_available", 2-isRedo);
-  }else if( g.argc>=3 ){
-    int i;
-    if( undo_available==0 ){
-      fossil_fatal("nothing to %s", zCmd);
-    }
-    for(i=2; i<g.argc; i++){
-      const char *zFile = g.argv[i];
-      Blob path;
-      file_tree_name(zFile, &path, 1);
-      undo_one(blob_str(&path), isRedo);
-      blob_reset(&path);
+    vid2 = db_lget_int("checkout", 0);
+    if( vid1!=vid2 ){
+      printf("--------------------\n");
+      show_common_info(vid2, "updated-to:", 1, 0);
     }
   }
   db_end_transaction(0);
