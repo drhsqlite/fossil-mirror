@@ -1,5 +1,5 @@
-C Fix\sthe\scheck-in\seditor\sso\sthat\sit\sdoes\snot\stry\sto\schange\sthe\sdate\son\s\nevery\sedit\sof\sthe\scheck-in,\sbut\sonly\son\sedits\sthat\sactually\schange\sthe\ndate.
-D 2010-12-18T01:38:36
+C Fix\sthe\stag\spropagator\sso\sthat\swhen\sa\snon-propagating\stag\soverrides\sa\npropagating\stag,\sthe\spropagation\sis\sundo.\s\s\nTicket\s[fcadf658ed282b3a2]
+D 2010-12-18T01:46:31
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -103,7 +103,7 @@ F src/sqlite3.h 6bae8833f0dbb127cf7ded5f886b3b4a3fd8aaa8
 F src/stat.c 79be3ec204dbd3968fa98ef2ee3f720c2cfb72ac
 F src/style.c e1a62beba3bd9bdcd53c8d72538454fb71f608a3
 F src/sync.c e841008b8690c0b4d34187d05da4310996bfbff8
-F src/tag.c 65ee3ec529229ee2093fee335a81db6d1757db89
+F src/tag.c 39f22facbd91271a62b0efcc3d5d09571a52bcaa
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 2080d5216811e70944365babe56bc4c319d0fbdf
-R ce68d5b432e5ee10b19eda1b2a19fb3c
+P b230721eb8c29da65cf0118ec95ec13d94c870fb
+R 799650c59550f7c885c026c4c15bc296
 U drh
-Z 8b967b5eb1ff48c87a0dac1f71021215
+Z d20baa9fd6032191d30e72fbad3c8f74
