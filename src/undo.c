@@ -135,11 +135,33 @@ void undo_reset(void){
     @ DROP TABLE IF EXISTS undo;
     @ DROP TABLE IF EXISTS undo_vfile;
     @ DROP TABLE IF EXISTS undo_vmerge;
-    @ DROP TABLE IF EXISTS undo_pending;
     ;
   db_multi_exec(zSql);
   db_lset_int("undo_available", 0);
   db_lset_int("undo_checkout", 0);
+}
+
+/*
+** The following variable stores the original command-line of the
+** command that is a candidate to be undone.
+*/
+static char *undoCmd = 0;
+
+/*
+** Capture the current command-line and store it as part of the undo
+** state.  This routine is called before options are extracted from the
+** command-line so that we can record the complete command-line.
+*/
+void undo_capture_command_line(void){
+  Blob cmdline;
+  int i;
+  assert( undoCmd==0 );
+  blob_zero(&cmdline);
+  for(i=1; i<g.argc; i++){
+    if( i>1 ) blob_append(&cmdline, " ", 1);
+    blob_append(&cmdline, g.argv[i], -1);
+  }
+  undoCmd = blob_str(&cmdline);
 }
 
 /*
@@ -163,7 +185,6 @@ void undo_begin(void){
     @ );
     @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
     @ CREATE TABLE %s.undo_vmerge AS SELECT * FROM vmerge;
-    @ CREATE TABLE %s.undo_pending(undoId INTEGER PRIMARY KEY);
   ;
   undo_reset();
   if( strcmp(g.zMainDbType,zDb)==0 ) zDb = "main";
@@ -171,6 +192,7 @@ void undo_begin(void){
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
+  db_lset("undo_cmdline", undoCmd);
   undoActive = 1;
 }
 
@@ -245,77 +267,75 @@ void undo_rollback(void){
 
 /*
 ** COMMAND: undo
+** COMMAND: redo
 **
-** Usage: %fossil undo ?FILENAME...?
+** Usage: %fossil undo ?--explain? ?FILENAME...?
+**    or: %fossil redo ?--explain? ?FILENAME...?
 **
 ** Undo the most recent update or merge or revert operation.  If FILENAME is
 ** specified then restore the content of the named file(s) but otherwise
-** leave the update or merge or revert in effect.
+** leave the update or merge or revert in effect.  The redo command undoes
+** the effect of the most recent undo.
+**
+** If the --explain option is present, not changes are made and instead
+** the undo or redo command explains what actions the undo or redo would
+** have done had the --explain been omitted.
 **
 ** A single level of undo/redo is supported.  The undo/redo stack
 ** is cleared by the commit and checkout commands.
 */
 void undo_cmd(void){
+  int isRedo = g.argv[1][0]=='r';
   int undo_available;
+  int explainFlag = find_option("explain", 0, 0)!=0;
+  const char *zCmd = isRedo ? "redo" : "undo";
   db_must_be_within_tree();
   db_begin_transaction();
   undo_available = db_lget_int("undo_available", 0);
-  if( g.argc==2 ){
-    if( undo_available!=1 ){
-      fossil_fatal("no update or merge operation is available to undo");
+  if( explainFlag ){
+    if( undo_available==0 ){
+      printf("No undo or redo is available\n");
+    }else{
+      Stmt q;
+      int nChng = 0;
+      zCmd = undo_available==1 ? "undo" : "redo";
+      printf("A %s is available for the following command:\n\n   %s %s\n\n",
+              zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
+      db_prepare(&q,
+        "SELECT existsflag, pathname FROM undo ORDER BY pathname"
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        if( nChng==0 ){
+          printf("The following file changes would occur if the "
+                 "command above is %sne:\n\n", zCmd);
+        }
+        nChng++;
+        printf("%s %s\n", 
+           db_column_int(&q,0) ? "UPDATE" : "DELETE",
+           db_column_text(&q, 1)
+        );
+      }
+      db_finalize(&q);
+      if( nChng==0 ){
+        printf("No file changes would occur with this undo/redo.\n");
+      }
     }
-    undo_all(0);
-    db_lset_int("undo_available", 2);
+  }else if( g.argc==2 ){
+    if( undo_available!=(1+isRedo) ){
+      fossil_fatal("nothing to %s", zCmd);
+    }
+    undo_all(isRedo);
+    db_lset_int("undo_available", 2-isRedo);
   }else if( g.argc>=3 ){
     int i;
     if( undo_available==0 ){
-      fossil_fatal("no update or merge operation is available to undo");
+      fossil_fatal("nothing to %s", zCmd);
     }
     for(i=2; i<g.argc; i++){
       const char *zFile = g.argv[i];
       Blob path;
       file_tree_name(zFile, &path, 1);
-      undo_one(blob_str(&path), 0);
-      blob_reset(&path);
-    }
-  }
-  db_end_transaction(0);
-}
-
-/*
-** COMMAND: redo
-**
-** Usage: %fossil redo ?FILENAME...?
-**
-** Redo an update or merge or revert operation that has been undone
-** by the undo command.  If FILENAME is specified then restore the changes
-** associated with the named file(s) but otherwise leave the update
-** or merge undone.
-**
-** A single level of undo/redo is supported.  The undo/redo stack
-** is cleared by the commit and checkout commands.
-*/
-void redo_cmd(void){
-  int undo_available;
-  db_must_be_within_tree();
-  db_begin_transaction();
-  undo_available = db_lget_int("undo_available", 0);
-  if( g.argc==2 ){
-    if( undo_available!=2 ){
-      fossil_fatal("no undone update or merge operation is available to redo");
-    }
-    undo_all(1);
-    db_lset_int("undo_available", 1);
-  }else if( g.argc>=3 ){
-    int i;
-    if( undo_available==0 ){
-      fossil_fatal("no update or merge operation is available to redo");
-    }
-    for(i=2; i<g.argc; i++){
-      const char *zFile = g.argv[i];
-      Blob path;
-      file_tree_name(zFile, &path, 1);
-      undo_one(blob_str(&path), 0);
+      undo_one(blob_str(&path), isRedo);
       blob_reset(&path);
     }
   }

@@ -1,5 +1,5 @@
-C Fix\sthe\stag\spropagator\sso\sthat\swhen\sa\snon-propagating\stag\soverrides\sa\npropagating\stag,\sthe\spropagation\sis\sundo.\s\s\nTicket\s[fcadf658ed282b3a2]
-D 2010-12-18T01:46:31
+C Simplifications\sto\sthe\simplementation\sof\sundo/redo.\s\sAdd\sthe\s--explain\soption\nto\sundo/redo\sthat\sshows\swhat\swould\sbe\sundone\sor\sredone\swithout\sactually\ndoing\sanything.
+D 2010-12-18T14:18:41
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -79,7 +79,7 @@ F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 941e1ddf09990093ee1729efeeeb4fb83da442dc
 F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c 01985ecbf84fdf63d856f3b8ef215d7f4f1acd56
+F src/merge.c e2954e0bf89c982c618f9886a8d17465b860a0dc
 F src/merge3.c 63b5f85ca71dea14e916b276e5a287cfe717d5de
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c 9a03e3ae43aec33afc344b3edf5336487ff56b59
@@ -112,8 +112,8 @@ F src/timeline.c 67012f886895eec9b2598628125cff34364c1ad2
 F src/tkt.c d7a71ae5fcc3307738de2c7624bf2cdd3ed1cb80
 F src/tktsetup.c 392c112e2e6e26b414d971675c31e71fa3c3ecf4
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
-F src/undo.c e87cafeb71cde63892dc44fc9c1a138205c81a83
-F src/update.c 4645bc9d230cf9194dbb2bb66fcfa682ee3ed295
+F src/undo.c 7dbd96ec4667fb7aeb9aea6e8a0a3a01ad3f328e
+F src/update.c e86a8cb29c647d3345dd1c5663eebf437795d4c7
 F src/url.c c849e06b053163318a9af69ff27ff19a40963991
 F src/user.c 5a7d65bd4f7d5bb2b23a8791967469309b315f27
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -283,7 +283,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P b230721eb8c29da65cf0118ec95ec13d94c870fb
-R 799650c59550f7c885c026c4c15bc296
+P 6007b2075cc8368fbee5c959b29b2234b17b2832
+R 27fbc9c7625df0a023baac5b9e295722
 U drh
-Z d20baa9fd6032191d30e72fbad3c8f74
+Z 3e911b769eb2eaa0cd142bd5683155c8

@@ -75,6 +75,7 @@ void merge_cmd(void){
   **      P     The "pivot" - the most recent common ancestor of V and M.
   */
 
+  undo_capture_command_line();
   detailFlag = find_option("detail",0,0)!=0;
   pickFlag = find_option("cherrypick",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;

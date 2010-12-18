@@ -69,6 +69,7 @@ void update_cmd(void){
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
 
+  undo_capture_command_line();
   url_proxy_options();
   latestFlag = find_option("latest",0, 0)!=0;
   nochangeFlag = find_option("nochange","n",0)!=0;
@@ -466,7 +467,8 @@ void revert_cmd(void){
   int errCode;
   int rid = 0;
   Stmt q;
-  
+
+  undo_capture_command_line();  
   zRevision = find_option("revision", "r", 1);
   verify_all_options();
   
