@@ -341,9 +341,10 @@ static int stash_get_id(const char *zStashId){
 **     changes of STASHID.  Keep STASHID so that it can be reused
 **     This command is undoable.
 **
-**  fossil drop ?STASHID?
+**  fossil drop ?STASHID? ?--all?
 **
-**     Forget everything about STASHID.  This command is undoable.
+**     Forget everything about STASHID.  Forget the whole stash if the
+**     --all flag is used.  Individual drops are undoable but --all is not.
 **
 **  fossil stash snapshot ?-m COMMENT? ?FILES...?
 **
@@ -374,9 +375,24 @@ void stash_cmd(void){
   }
   nCmd = strlen(zCmd);
   if( memcmp(zCmd, "save", nCmd)==0 ){
-    stash_create();
+    stashid = stash_create();
     undo_disable();
-    g.argc = 2;
+    if( g.argc>=3 ){
+      int nFile = db_int(0, "SELECT count(*) FROM stashfile WHERE stashid=%d",
+                         stashid);
+      char **newArgv = fossil_malloc( sizeof(char*)*(nFile+2) );
+      int i = 2;
+      Stmt q;
+      db_prepare(&q,"SELECT origname FROM stashfile WHERE stashid=%d", stashid);
+      while( db_step(&q)==SQLITE_ROW ){
+        newArgv[i++] = mprintf("%s%s", g.zLocalRoot, db_column_text(&q, 0));
+      }
+      db_finalize(&q);
+      newArgv[0] = g.argv[0];
+      g.argv = newArgv;
+      g.argc = nFile+2;
+    }
+    g.argv[1] = "revert";
     revert_cmd();
   }else
   if( memcmp(zCmd, "snapshot", nCmd)==0 ){
@@ -409,12 +425,17 @@ void stash_cmd(void){
     if( n==0 ) printf("empty stash\n");
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 ){
+    int allFlag = find_option("all", 0, 0)!=0;
     if( g.argc>4 ) usage("stash apply STASHID");
-    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    undo_begin();
-    undo_save_stash(stashid);
-    stash_drop(stashid);
-    undo_finish();
+    if( allFlag ){
+      db_multi_exec("DELETE FROM stash; DELETE FROM stashfile;");
+    }else{
+      stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+      undo_begin();
+      undo_save_stash(stashid);
+      stash_drop(stashid);
+      undo_finish();
+    }
   }else
   if( memcmp(zCmd, "pop", nCmd)==0 ){
     if( g.argc>3 ) usage("stash pop");
